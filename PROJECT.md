@@ -1920,16 +1920,37 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 
 - `MND-07` **Drives** *(Decided)*: Hunger, thirst, cold, tiredness, fear, belonging, status, curiosity, sexual desire and attachment.
   Nobody knows at first that sex leads to children; that has to be learned (`PRN-01`).
+  - **How it works:**
+    - **Each drive is a number** read from the body or the social world: hunger, thirst, cold or heat, and tiredness from the body's stores (`BIO-09`, `BIO-11`); fear from harm the person believes is coming (`MND-05`); belonging from time apart from the band and kin, and from being shunned or included; status from how others treat the person (`MND-24`); curiosity from unexplained surprises and new things noticed (`MND-10`); sexual desire from adult age and the body's state; and attachment toward particular people, rising with time apart from them.
+    - **Weights:** personality scales each drive's pull (`MND-20`), so the curious feel curiosity more and the dominant feel status more.
+    - **What drives do:** the most pressing drives set what a mind wants now (`MND-09`); meeting them lowers them, and how they rise and fall feeds feelings (`MND-19`).
+    - **Sex and children:** no belief links them at the start; with a delay of nine months and no sure sign, that link is hard to learn from evidence (`MND-05`), so it may take a long time.
 
 - `MND-19` **Feelings** *(Decided)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride, awe, longing and hope.
   They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
+  - **How it works:**
+    - **Feelings come from judging events:** each arises when an event is judged against the person's drives, goals and beliefs, by the rules of appraisal theory, a well-tested family of models in psychology: surprise, an outcome far from what was expected; fear, likely harm ahead; anger, a goal blocked or harm done by someone; joy, a goal met; grief, losing someone or something the person is attached to; disgust, rot, filth or acts learned to be foul; affection, warmth from shared good experience; shame and pride, one's own act judged by the group's rules (`CUL-20`) and by others' regard; awe, something vast or unexplained; longing, missing someone or somewhere; and hope, a good outcome believed possible.
+    - **Strength and fading:** each feeling has a strength that fades at its own rate (measured where possible, estimated otherwise): surprise in seconds, anger in hours, grief over months; learned links can make one last for life (`MND-08`).
+    - **What feelings do:** they shift choices (fear makes risks loom larger, anger makes striking back likelier, affection draws people together, grief slows them), strengthen memories (`MND-08`), and show in face, posture and voice, which others can see (`MND-23`).
 
 - `MND-20` **Personality** *(Decided)*: A few inborn tendencies (curiosity, boldness, sociability, patience, dominance, readiness to conform), partly inherited (`BIO-06`) and shaped by what happens to each person.
+  - **How it works:**
+    - **Six numbers per person,** each an inherited value plus upbringing plus chance (`BIO-08`), with measured spreads and the same spread for both sexes (`BIO-17`).
+    - **What each does:** curiosity raises the pull of new things and unexplained surprises (`MND-10`); boldness lowers how much risk and fear weigh; sociability raises belonging and the pull of company; patience makes future rewards count more against present ones; dominance raises the status drive and the readiness to challenge; and readiness to conform raises the weight of doing what most others do (`CUL-01`).
+    - **Shaped by life:** strong experiences shift them slowly (estimated): repeated harm makes a person less bold, and repeated success bolder.
 
 - `MND-21` **Inborn tendencies** *(Decided)*
   - **What:** The biases evolution gave humans: a taste for sweet and fat and a wariness of bitter; quicker fear of long, legless things that move suddenly (such as snakes), of heights and of the dark; attachment between parent and child; the urge to imitate; and suspecting a hidden someone behind unexplained events.
   - **Why:** They make some lessons easier to learn but teach nothing by themselves, so the world stays the only teacher (`PRN-01`).
   - **More:** further tendencies are in `MND-26`.
+  - **How it works:** each is a bias in the mechanisms, never a belief or a name:
+    - sweet and fat tastes add to how good food feels, and bitter takes away (`BIO-18`);
+    - fear links to percepts of long, legless, suddenly moving things, to heights and to darkness form from less evidence, as measured in studies of prepared fear;
+    - parents and children feel attachment toward each other from birth (`MND-07`);
+    - watching others act raises the pull to copy them (`CUL-01`);
+    - when an important event has no cause the mind believes in, it forms a weak belief that an unseen someone caused it (`MND-27`), which later events can strengthen or weaken.
+
+    The evidence for this last tendency is debated; like every tendency, its comparison run shows what it changes (`RES-10`).
 
 - `MND-26` **More inborn tendencies** *(Decided)*: Added to `MND-21` from research, each with its sources and a comparison run (`RES-10`) showing what it changes:
   - pain, and avoiding what causes it;
@@ -1940,6 +1961,16 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
   - shared attention and pointing;
   - readiness to learn words;
   - moving together to a beat.
+  - **How it works:** each is a bias in the mechanisms, like those in `MND-21`:
+    - **pain** is a strong bad feeling from injuries (`BIO-13`) that teaches avoiding its cause quickly;
+    - **favouring kin:** the wellbeing of kin, as the person believes kinship to be, counts in their choices, more for closer kin;
+    - **caring:** seeing someone hurt or sick raises the pull to help, more for kin and friends;
+    - **returning favours:** a favour received creates a debt in the giver's record (`MND-24`) that pulls toward repaying, and seeing someone take without returning raises anger and lowers trust;
+    - **one's own group:** people taken to be of one's own group, by learned signs such as shared words or ways, get more trust;
+    - **not desiring those raised with:** desire is held down toward anyone a person lived closely with as a young child, as measured in real studies, whoever they are;
+    - **shared attention:** people follow others' gaze and pointing to the same thing (`BIO-21`) and know they both attend to it;
+    - **learning words:** children pair sounds they hear with things attended to together quickly (`CUL-04`);
+    - **a beat:** a steady beat pulls movements into time with it and raises closeness among those moving together.
 
 ### 9.4 Deciding and doing
 
