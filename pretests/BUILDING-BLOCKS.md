@@ -162,7 +162,7 @@ The engine everything else runs on.
   - **To settle:** the world's own rule for where detail is needed (`X2`); how far coarse and fine runs drift apart for a band foraging through a season and a herd through a year; handover rules so that nothing you saw is contradicted (fine detail drawn from coarse results, or fine results fed back); how much each level saves.
 
 - `B09` **Catalogues and real-world data** · *Measure*
-  - **Does:** keeps every ingredient, structure, law, reality check and species as a stand-alone entry in plain language, with real values and sources, readable by people and loaded by the simulation.
+  - **Does:** keeps every ingredient, structure, law, reality check and species as a stand-alone entry in plain language, with its key values and their sources and the rules or ranges for the rest (`PRN-05`), readable by people and loaded by the simulation.
   - **Serves:** `MAT-05`, `MAT-13`, `MAT-14`, `MAT-15`, `PRN-05`, `PRN-14`, `WLD-19`
   - **Needs:** nothing
   - **To settle:** an entry format you can read on a phone and a program can check; how long it takes to source and verify one entry, since there will be thousands, with every value checked against the fetched source and the supporting passage quoted (`RSK-16`); the licences of the data sources.
@@ -174,7 +174,7 @@ The engine everything else runs on.
     - **Sources:** a third of the pages tried couldn't be read by a script, so each source's text is saved with its entry and checked against that copy.
     - **The real limit is gaps, not time:** 15% of properties had no checkable source, and 6 values are stand-ins, such as wood in general for birch.
     - **Licences:** use USGS, the USDA Wood Handbook, Wikipedia and CC BY papers; cite only NIST's data, The Engineering ToolBox and the Handbook of Mineralogy; avoid the CRC Handbook and MatWeb.
-    - **For you:** saved copies change the wording of `RSK-16`; and whether stand-in values are allowed, and how they are labelled.
+    - **Since then:** only key values are sourced, a few hundred growing layer by layer, each checked against a saved copy of its source (`PRN-05`, `RSK-16`). Everything else, stand-ins included, is a labelled estimate.
 
 ## 2. Space
 
@@ -288,7 +288,7 @@ The engine everything else runs on.
   - **To settle:** whole-number bookkeeping that stays exact through millions of changes; cost per change.
 
 - `B26` **Structure and derived properties** · *Critical*
-  - **Does:** gives every property (hardness, how it breaks, how it burns, taste, colour, sound) from measured data for each ingredient and structure, combined by stated rules (`MAT-03`).
+  - **Does:** gives every property (hardness, how it breaks, how it burns, taste, colour, sound) from measured data where it decides what is possible and from labelled estimates otherwise, combined by stated rules (`MAT-03`).
   - **Serves:** `MAT-02`, `MAT-03`, `MAT-05`, `PRN-07`
   - **Needs:** `B25`
   - **To settle:** the smallest set of structural descriptions (grain size, glassiness, porosity, fibres, moisture, flaws) and rules for combining them that reproduce measured properties of the first layer, with no rule for any single material: flint, chert, obsidian, quartzite, granite, basalt, limestone and sandstone; oak, birch and pine, wet and dry; bone and antler; ice. Which properties are stored per ingredient, and which are derived.

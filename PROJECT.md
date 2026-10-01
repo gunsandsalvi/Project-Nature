@@ -391,13 +391,15 @@ The rules every part of the project follows.
     - reviews flag any rule that applies to only one material, species or event.
 
 - `PRN-05` **Real numbers, testable claims** *(Decided)*
-  - **What:** Every quantity in the world comes from a real measurement, or from a stated rule or published model applied to real measurements: temperatures, hardness, energy, growth rates, how fast genes change.
-    Values with no measurement are labelled chosen or tuned, and listed in every milestone report.
+  - **What:** The values that decide what is possible come from real measurements, each with its source: such as melting and ignition points, how stones break, the energy in food, and the thresholds of the reality checks (`RCK`).
+    Everything else is estimated, by stated rules from those values or as plausible ranges, and labelled as an estimate: for example, wood strength from its density, or an animal's needs from its body size.
+    Values that are chosen or tuned instead are labelled so, and listed in every milestone report.
     Every claim about what the simulation produces is tested by experiments that can fail, across many runs (`RES-13`).
   - **Why:** Real numbers make discoveries meaningful: copper really does need a furnace.
+    Sourcing only the values that decide outcomes keeps this affordable.
     Experiments that can fail stop us fooling ourselves.
   - **Example:** "Bands discover how to chip stone" is accepted as true only after Experiment 1 passes its criteria in its sandbox runs and is confirmed in full worlds (`RES-03`, `RES-21`).
-  - **Check:** every value names its source, or is labelled chosen or tuned and listed in the milestone report; every claim in a milestone report is backed by an experiment.
+  - **Check:** every key value names its source; every estimate names its rule or range; chosen or tuned values are listed in the milestone report; every claim in a milestone report is backed by an experiment.
 
 - `PRN-12` **Speed up time, never bend the rules** *(Decided)*
   - **What:** Pacing only ever comes from controlling time: zoom, the story director, and manual speed (see Time and history).
@@ -506,7 +508,7 @@ This section sets the boundaries of the project: what it includes, where history
 
 - `SCP-13` **The whole project at a glance** *(Decided)*: A summary of the sections that follow.
   - **A generated world** (see World): a small planet that wraps around, with real geology, climate, weather, water, soils, plants and animals.
-  - **Real matter** (see Matter and physics): everything is made of real ingredients and changed by general laws, using real-world values.
+  - **Real matter** (see Matter and physics): everything is made of real ingredients and changed by general laws, using real-world values where they decide what is possible.
   - **People** (see People: bodies and lives): one human species with modern minds, and bodies that eat, heal, age, have children and pass on traits.
   - **Minds** (see Minds): people and animals who perceive, form their own concepts, learn cause and effect, build skills, dream, and choose for reasons that can be explained.
   - **Culture and society** (see Culture and society): learning from others, language, belief, institutions, art, music, myths and style, all emerging on their own.
@@ -1000,7 +1002,7 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
   - **Example:** Sand, flint and obsidian are all mostly silica, but only flint and obsidian chip into blades.
     Sand melted with plant ash and cooled becomes glass.
 
-- `MAT-03` **Properties from data and rules** *(Decided)*: Every property comes from measured data for each ingredient and structure, combined by stated rules for mixtures and structures (`MAT-05`):
+- `MAT-03` **Properties from data and rules** *(Decided)*: Every property comes from measured data where it decides what is possible, and otherwise from estimates, combined by stated rules for mixtures and structures (`MAT-05`):
   - **mechanical:** weight, hardness, strength, toughness, springiness, and how it breaks (in shell-like flakes, in splinters, or by crumbling);
   - **heat:** how it burns, melts, holds heat and passes it on;
   - **water:** how it soaks up water, dissolves, softens or swells;
@@ -1046,7 +1048,7 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
 ### 7.3 Real numbers
 
 - `MAT-05` **Real-world values** *(Decided)*
-  - **What:** Temperatures, hardness, energy content, toxicity and every other number come from real measurements, each with its source (`PRN-05`).
+  - **What:** The numbers that decide what is possible, such as temperatures, hardness, energy content and toxic doses, come from real measurements, each with its source; the rest are estimated by stated rules or plausible ranges (`PRN-05`).
   - **Example:** Copper melts at about 1,085 °C.
     An open wood fire reaches roughly 600–900 °C; a charcoal furnace with forced air passes 1,100 °C.
     So copper waits until someone builds a hotter fire.
@@ -1056,7 +1058,7 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
 Matter must be easy to extend, forever (`PRN-14`).
 
 - `MAT-13` **Four catalogues** *(Decided)*: Matter is described in four catalogues: ingredients, structures, laws and reality checks.
-  Each entry stands alone, is written in plain language a person can read and check, gives its real-world values and sources, and names the reality checks that prove it.
+  Each entry stands alone, is written in plain language a person can read and check, gives its key values with their sources and the rules or ranges for the rest, and names the reality checks that prove it.
 
 - `MAT-14` **Adding without rewriting** *(Decided)*
   - **What:** Adding an ingredient, structure, law or check never requires changing the others.
@@ -2122,7 +2124,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood medium, impact medium.
   - **Risk:** AI agents may cite sources that don't exist, or don't say what is claimed (`PRN-05`).
   - **Signs:** values whose quoted passage can't be found in the source.
-  - **Response:** every value is checked against the fetched source, with the supporting passage quoted.
+  - **Response:** only key values are sourced (`PRN-05`); each is checked against a saved copy of its source, with the supporting passage copied by a tool, never typed.
 
 - `RSK-23` **Your time** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
