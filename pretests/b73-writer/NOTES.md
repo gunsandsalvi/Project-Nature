@@ -126,3 +126,23 @@ python3 make_prompts.py        # after editing records or prompts: re-embeds the
 cd phone-check && flock $CACHE/cpu.lock timeout 600 gradle --no-daemon \
     --project-cache-dir $CACHE/b73/phone-check-gradle assembleDebug assembleRelease
 ```
+
+## Phone results, round 2 (1 October 2026)
+
+Pixel 11 Pro XL, Android 17. Gemini Nano (`nano-v4-full`, through ML Kit) and Gemma 4 E2B (the general build, run by the app on the graphics chip) each wrote all 20 texts. Files: `results/phone-r2-nano.json`, `results/phone-r2-gemma.json`, the checker's `*.checked.json`, and my reading in `results/phone-r2-review.json`. The rules were written before measuring:
+
+| Rule | Gemini Nano | Gemma 4 E2B |
+|---|---|---|
+| 1. Added or wrong facts (at most 2 of 20) | 3 of 20, 1 of them minor: usable only with one rewrite, then plain text | 1 of 20: pass |
+| 2. Dark events (none softened) | 2 of 6 softened: fail | 1 of 6 softened: fail |
+| 3. Speed (first word within 3 s, at least 8 words a second) | 0.26 s, 77 words a second: pass | 0.86 s, 14 words a second: pass |
+| 4. Heat | no heat warning; battery 0.8 °C cooler: pass | no heat warning; battery 1.8 °C warmer: pass |
+| 5. Memory | runs outside the app; 7.4 GB free | 2.0 to 2.7 GiB inside the app (2.4 GiB by Android's own measure): the 2–3 GiB band, allowed only if its text is clearly better, and it isn't |
+| 6. Your rating (at least 4 of 6) | 3 of 6: fail | 3 of 6: fail |
+
+- **The same failures in both:** in the raid (`r09`), the captives "carried" the meat, where the data says they were made to carry it (`RSK-17`). Both also named Kelo as the killer, where the data says the seven men (Gemini Nano in both voices, Gemma in one). The checker missed that, as expected: it is a wrong statement made only of words in the data.
+- **Copying:** both models copied 65–71% of their four-word runs from the data. In the documentary voice their texts were nearly word for word the same, and `r04` and `r08` were identical, yet the same text got different ratings. So six ratings can't separate the two models.
+- **The tradition voice** came out as choppy fragments of the data ("Year 41. Deep winter. Night. Harum."), and you rated 5 of its 6 texts poor. The documentary voice was acceptable or good in 5 of 6. Each text showed its voice, so whether you could tell the voices apart blind wasn't tested.
+- **Gemma on the phone:** the 2.6 GB download took 39 s; start-up on the graphics chip took 20 s.
+
+**Verdict:** neither model passes. As the rules say, this raises `RSK-08` (flat writing, worst in the tradition voice) and `RSK-17` (softened forced labour), with three options: tighter prompts, simpler fill-in text (the facts as plain sentences, `PRE-41`), or a bigger model. That choice is yours.

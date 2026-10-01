@@ -134,7 +134,9 @@ def summary(r, missing):
         say(f"  on {gm.get('be')}: {len(ok)}/{len(runs)} texts, first word {median([x.get('ttfw_ms') for x in ok])} ms, "
             f"{median([x.get('wps') for x in ok])} words/s, settings level {gm.get('cfg', 0)}")
         if mem:
-            say(f"  memory (MiB: rss, anon, file, pss, graphics): start-up {mem.get('init')}, writing {mem.get('write')}, "
+            # peaks are kept per part and backend, e.g. "init-GPU" (start-up) and "write-GPU" (writing)
+            parts = ", ".join(f"{k} {v}" for k, v in mem.items() if isinstance(v, list))
+            say(f"  memory peaks (MiB: rss, anon, file, pss, graphics): {parts or 'none recorded'}; "
                 f"phone's free memory at least {mem.get('availMin')} MiB")
     for x in r.get("rate", []):
         say(f"rating: {'Gemini Nano' if x.get('m') == 'n' else 'Gemma'} {x.get('i')}: {RATING[x.get('r', 0)]}")

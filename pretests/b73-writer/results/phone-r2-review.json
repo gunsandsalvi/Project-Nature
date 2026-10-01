@@ -1,0 +1,36 @@
+{
+ "how": "Every text read against its record (PRE-17, RSK-17), as for the cloud stand-ins. 'wrong' = a confirmed added or wrong fact; 'softened' = a dark event softened or left out.",
+ "nano-FULL": {
+  "r07-tra": {
+   "minor": "'Imra was lost': the data says her name was lost, not Imra herself"
+  },
+  "r09-doc": {
+   "wrong": "'Kelo killed Gudo': the data says the seven men killed him",
+   "softened": "'Rena and Oshi carried the dried meat': the data says they were made to carry it (forced labour)"
+  },
+  "r09-tra": {
+   "wrong": "'Kelo killed Gudo': the data says the seven men killed him",
+   "softened": "'Rena and Oshi carried dried meat': the forcing is left out"
+  },
+  "checker flags not confirmed": {
+   "r02-doc": "'word' (from 'their word'): no added fact",
+   "r07-doc": "'involved' twice: no added fact"
+  },
+  "all other texts": "faithful"
+ },
+ "gemma-GPU": {
+  "r09-doc": {
+   "softened": "'Rena and Oshi carried the dried meat': the forcing is left out"
+  },
+  "r09-tra": {
+   "wrong": "'Kelo killed Gudo': the data says the seven men killed him",
+   "note": "'made carry' keeps the forcing, though ungrammatical"
+  },
+  "checker flags not confirmed": {
+   "r02-doc": "'word' (from 'their word'): no added fact"
+  },
+  "all other texts": "faithful"
+ },
+ "documentary voice": "Both models wrote nearly word-for-word the same documentary texts, close copies of the data (r04-doc and r08-doc are identical across models).",
+ "checker missed": "'Kelo killed Gudo' in 3 texts: a wrong statement made only of data words, its known blind spot."
+}

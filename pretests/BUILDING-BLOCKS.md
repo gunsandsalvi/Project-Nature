@@ -22,8 +22,8 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 ## Status
 
 - **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app.
-- **Measured on your phone:** `B01`, `B02` and `B79` (first test app).
-- **Done in the cloud, waiting for your phone, eyes or ears:** `B04` storing data and `B11` terrain (phone parts in the second test app), `B66` drawing and gestures (the drawing page), `B73` writer AI (second test app), `B74` sound and `B76` speech (the listening page).
+- **Measured on your phone:** `B01`, `B02` and `B79` (first test app); `B04`, `B11`, `B73` and `B74` (second test app).
+- **Done in the cloud, waiting for your eyes or ears:** `B66` drawing and gestures (the drawing page) and `B76` speech (the listening page).
 - **Paused by you:** `B81` built things (nothing built yet).
 
 ## The blocks
@@ -49,11 +49,12 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B04` **Storing data** · running (`pretests/b04-b11-storage-terrain/`)
   - **Question:** how to hold the world in memory and on the phone's storage (`PRN-15`, `PLT-07`, `PLT-10`).
   - **Approaches:** on synthetic data at realistic sizes (people, animals, things, map cells, events), compare layouts in memory for millions of small records, and formats for saved moments and the history log: a custom binary format, SQLite, or a schema format such as FlatBuffers. Measure memory per record, save and load speed, size per saved moment and per thousand years of events, query speed, and whether a save survives the app being killed mid-write.
-  - **Result so far** (1 October 2026, cloud; the phone part is in the second test app):
+  - **Result so far** (1 October 2026, cloud, then your phone):
     - **In memory: one array per field** (struct of arrays), 2.7 to 4.7 times as fast as one record per thing, with the same memory.
     - **Saved moments: a custom file split into regions, lightly compressed.** For a synthetic world of 10,000 people, 100,000 animals and a million things (403 MB of state), a saved moment took 263 MB, 1.8 seconds to write and 1.1 to read, and one region 8 ms. SQLite was slower to read, and FlatBuffers bigger or slower.
     - **History log: a custom compressed log** at 12.8 bytes an event. At 10 events per person per day, that is 47 GB per 1,000 years for 1,000 people, too much for long histories on the phone, so old events are now thinned with age by a fixed rule (`PLT-10`).
     - **Crash safety:** in 1,000 kills mid-write, a damaged file was never loaded.
+    - **On your phone:** a quarter-world saved moment (76 MB on disk) was written in 0.41 s and read in 0.24 s, so the full 263 MB one would open in about 0.8 s, well inside the 3 seconds of `VIS-14`. A small log append was flushed in 0.07 ms.
 
 - `B09` **Data catalogues** · done (`pretests/b09-catalogues/`)
   - **Question:** the format of the catalogue entries (`MAT-13`), and what it costs to source a value honestly (`PRN-05`, `RSK-16`).
@@ -80,9 +81,10 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B11` **Terrain** · running (`pretests/b04-b11-storage-terrain/`)
   - **Question:** how to store land from whole regions down to the metre, with cliffs, caves and overhangs (`PRE-23`, `PRE-24`), and how to generate it fast enough on the phone (`WLD-11`).
   - **Approaches:** on synthetic land, a height map with local 3D pieces against sparse grids of small cubes: memory for the whole world, and how fast metre-level detail appears near a camp. For generation, two or three fast methods, such as shaped noise or noise with a quick erosion pass, timed on the phone.
-  - **Result so far** (1 October 2026, cloud; the phone part is in the second test app):
+  - **Result so far** (1 October 2026, cloud, then your phone):
     - **Land: a height map with 3D pieces** for cliffs and caves: 10.8 MB per km² on a hard site with a cliff and caves, against 22.4 MB for small cubes. Metre-level detail for 1 km² around a camp took 0.42 seconds on 4 threads, identical every time.
     - **Generation: plates, then erosion.** The whole world took 3.3 seconds here, and every river reached the sea; noise alone failed, with only 29% of rivers reaching the sea. It needs tuning: the continents came out flat, with straight edges (pictures in `previews/`).
+    - **On your phone:** generation and metre detail gave exactly the same bits as in the cloud. The phone's fastest core was about twice as fast as a cloud core here: plates at 1024 x 512 in 0.45 s, and the metre-detail test patch in 0.59 s on one core and 0.31 s on four.
 
 - `B66` **Drawing and gestures** · running (`pretests/b66-drawing/`)
   - **Question:** which graphics engine draws the game's look (`PRE-01` to `PRE-04`, `PRE-20` to `PRE-22`) at the screen's full refresh rate on the phone, and whether the gestures (`PRE-33`) feel right in the hand.
@@ -95,14 +97,17 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B73` **Writer AI** · running (`pretests/b73-writer/`)
   - **Question:** which model and runtime write the text on the phone (`PRE-37`), and at what cost beside the simulation and drawing.
   - **Approaches:** the phone's built-in model (Gemini Nano) and an open model run by the app (Gemma), on hand-made sample data: words per second, memory and heat; how often each adds facts that aren't in the data (`PRE-17`); whether it softens dark events (`RSK-17`); and your rating of a few entries.
-  - **Result so far** (1 October 2026, cloud only; the phone decides; `pretests/b73-writer/`):
+  - **Result so far** (1 October 2026, cloud, then your phone; `pretests/b73-writer/`):
     - **The pipeline works:** ten hand-made records, prompts in two voices, a model, and a fact checker that needs no AI model, so it can run on the phone.
     - **The checker is an aid, not yet a guard:** its first, blind run caught 94% of planted errors but missed one left-out dark event, and it can't catch mix-ups of who did what.
     - **Stand-in models in the cloud:** Gemma 4 E2B added or changed facts in 2 of 20 texts, at the limit set beforehand; a smaller model did so in 6 of 20. Gemma quietly softened forced labour in a raid, even when told not to (`RSK-17`). The checker caught it, so the plain-text fallback would show the facts instead (`PRE-41`).
     - **The writing is flat** (`RSK-08`): the models copied 56–75% of their four-word runs straight from the data, against 35% in hand-written texts.
     - **Speed is not the worry:** 10–13 words a second even on ordinary cloud cores.
-    - **Gemma 4 is now open:** no account or licence step is needed. A build for the phone's chip is 3.3 GB, downloaded once over Wi-Fi.
-    - **Next:** the second test app runs Gemini Nano and Gemma 4 on your phone, and you rate six texts.
+    - **Gemma 4 is open:** no account or licence step is needed. Its build for the phone's AI chip needs a Google library that isn't public, so the app runs the general 2.6 GB build on the graphics chip.
+    - **On your phone:** both models wrote all 20 texts. Gemini Nano: first word in 0.26 s, then 77 words a second. Gemma 4 E2B, run by the app: 0.86 s and 14 words a second, after a 2.6 GB download in 39 s; it used 2 to 2.7 GiB of memory. No heat warnings.
+    - **Neither passes the rules set beforehand.** Both softened the raid's forced labour (Gemini Nano in both voices, Gemma in one) (`RSK-17`), and both named Kelo as the killer where the data says the seven men; the checker missed that, as expected. You rated 3 of 6 texts acceptable or better for each model, short of 4. Gemma's memory falls in the 2–3 GiB band, which the rules allow only for clearly better text.
+    - **What the texts show:** both models copy the data closely, and in the documentary voice their texts were nearly identical. The tradition voice came out as choppy fragments, and you rated 5 of its 6 texts poor; the documentary voice was acceptable or good in 5 of 6 (`RSK-08`).
+    - **For you, as the rules say:** tighter prompts, simpler fill-in text (the facts as plain sentences, `PRE-41`), or a bigger model. Not decided.
 
 - `B74` **Sound** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how sound is made and played on the phone (`SND-01`, `SND-06`, `SND-08`).
@@ -110,8 +115,9 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Result so far** (1 October 2026; `pretests/b74-b76-sound-speech/`):
     - **Cost is no issue:** one cloud core mixes about 3,000 impact sounds, either way.
     - **Instruments from their shapes work:** every flute note came within 3.3 cents of the pitch worked out from its bore and holes.
-    - **Your ear: shaped noise (A2) sounds much better** than sound built from ringing modes (A1). Impacts are made as noise shaped by the material's properties, so they still come from the physics (`SND-06`); it is also the cheaper way. The flutes are fine; the drums don't sound as good as the flutes. The phone's audio delay is measured by the second test app.
+    - **Your ear: shaped noise (A2) sounds much better** than sound built from ringing modes (A1). Impacts are made as noise shaped by the material's properties, so they still come from the physics (`SND-06`); it is also the cheaper way. The flutes are fine; the drums don't sound as good as the flutes.
     - **Drums, parked:** they are the one sound still made only of ringing notes (A1), the way you found worse for struck stones, and their notes die far too fast. Making them the chosen way is tuning for after the architecture (`SND-02`).
+    - **On your phone:** Android's low-latency audio (AAudio) gave 24 ms of output delay, with no dropouts at 8, 32 or 128 sounds, so it stays. Mixing took 3% of the available time at 8 sounds, 11% at 32 and 44% at 128, on the small cores. By the rule set beforehand (at most 25%), the cap is 32 sounds at once for now.
     - **Found along the way:** a phone speaker loses almost everything below about 350 Hz, so every deep sound (drums, thunder, rockfalls, large animals) comes out weak through it. A last step at the end of the mix, tuned to the speaker and off with headphones, lifted deep sounds by 4 to 17 dB; the architecture should include one.
 
 - `B76` **Speech** · running (`pretests/b74-b76-sound-speech/`)

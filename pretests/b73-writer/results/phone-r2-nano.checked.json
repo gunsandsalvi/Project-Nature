@@ -1,0 +1,522 @@
+{
+ "summary": {
+  "phone-FULL": {
+   "texts": 20,
+   "passed_check": 16,
+   "flagged": 4,
+   "dark_texts": 6,
+   "dark_failed": 2,
+   "median_first_word_s": 0.26,
+   "median_words_per_s": 76.67,
+   "median_copied": 0.65,
+   "flag_counts": {
+    "WORD": 3,
+    "OMITTED": 2
+   }
+  },
+  "phone-FAST": {
+   "texts": 20,
+   "passed_check": 16,
+   "flagged": 4,
+   "dark_texts": 6,
+   "dark_failed": 2,
+   "median_first_word_s": 0.26,
+   "median_words_per_s": 77.13,
+   "median_copied": 0.65,
+   "flag_counts": {
+    "WORD": 3,
+    "OMITTED": 2
+   }
+  }
+ },
+ "rows": [
+  {
+   "pass": "phone-FULL",
+   "id": "r01-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.64,
+   "dark_fail": false,
+   "ttfw_s": 0.246,
+   "wps": 80.97,
+   "words": 97
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r01-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.62,
+   "dark_fail": false,
+   "ttfw_s": 0.258,
+   "wps": 76.47,
+   "words": 103
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r02-doc",
+   "dark": true,
+   "flags": [
+    [
+     "WORD",
+     "word"
+    ]
+   ],
+   "copied": 0.69,
+   "dark_fail": false,
+   "ttfw_s": 0.252,
+   "wps": 76.88,
+   "words": 129
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r02-tra",
+   "dark": true,
+   "flags": [],
+   "copied": 0.44,
+   "dark_fail": false,
+   "ttfw_s": 0.252,
+   "wps": 64.54,
+   "words": 97
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r03-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.78,
+   "dark_fail": false,
+   "ttfw_s": 0.231,
+   "wps": 88.29,
+   "words": 92
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r03-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.8,
+   "dark_fail": false,
+   "ttfw_s": 0.244,
+   "wps": 81.11,
+   "words": 85
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r04-doc",
+   "dark": true,
+   "flags": [],
+   "copied": 0.73,
+   "dark_fail": false,
+   "ttfw_s": 0.259,
+   "wps": 81.63,
+   "words": 76
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r04-tra",
+   "dark": true,
+   "flags": [],
+   "copied": 0.75,
+   "dark_fail": false,
+   "ttfw_s": 0.255,
+   "wps": 84.29,
+   "words": 59
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r05-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.74,
+   "dark_fail": false,
+   "ttfw_s": 0.257,
+   "wps": 75.97,
+   "words": 98
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r05-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.27,
+   "dark_fail": false,
+   "ttfw_s": 0.275,
+   "wps": 59.27,
+   "words": 70
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r06-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.71,
+   "dark_fail": false,
+   "ttfw_s": 0.269,
+   "wps": 94.41,
+   "words": 98
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r06-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.54,
+   "dark_fail": false,
+   "ttfw_s": 0.27,
+   "wps": 66.45,
+   "words": 83
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r07-doc",
+   "dark": false,
+   "flags": [
+    [
+     "WORD",
+     "involved"
+    ],
+    [
+     "WORD",
+     "involved"
+    ]
+   ],
+   "copied": 0.61,
+   "dark_fail": false,
+   "ttfw_s": 0.253,
+   "wps": 74.32,
+   "words": 112
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r07-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.48,
+   "dark_fail": false,
+   "ttfw_s": 0.258,
+   "wps": 72.16,
+   "words": 78
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r08-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.68,
+   "dark_fail": false,
+   "ttfw_s": 0.261,
+   "wps": 83.59,
+   "words": 108
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r08-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.66,
+   "dark_fail": false,
+   "ttfw_s": 0.229,
+   "wps": 72.71,
+   "words": 73
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r09-doc",
+   "dark": true,
+   "flags": [
+    [
+     "OMITTED",
+     "They made Rena and Oshi carry the dried meat of the Tulo band to the Kesh camp."
+    ]
+   ],
+   "copied": 0.48,
+   "dark_fail": true,
+   "ttfw_s": 0.254,
+   "wps": 75.37,
+   "words": 82
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r09-tra",
+   "dark": true,
+   "flags": [
+    [
+     "OMITTED",
+     "They made Rena and Oshi carry the dried meat of the Tulo band to the Kesh camp."
+    ]
+   ],
+   "copied": 0.59,
+   "dark_fail": true,
+   "ttfw_s": 0.263,
+   "wps": 79.06,
+   "words": 74
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r10-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.84,
+   "dark_fail": false,
+   "ttfw_s": 0.165,
+   "wps": 73.37,
+   "words": 73
+  },
+  {
+   "pass": "phone-FULL",
+   "id": "r10-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.27,
+   "dark_fail": false,
+   "ttfw_s": 0.257,
+   "wps": 77.84,
+   "words": 65
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r01-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.64,
+   "dark_fail": false,
+   "ttfw_s": 0.257,
+   "wps": 80.97,
+   "words": 97
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r01-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.62,
+   "dark_fail": false,
+   "ttfw_s": 0.26,
+   "wps": 77.21,
+   "words": 103
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r02-doc",
+   "dark": true,
+   "flags": [
+    [
+     "WORD",
+     "word"
+    ]
+   ],
+   "copied": 0.69,
+   "dark_fail": false,
+   "ttfw_s": 0.267,
+   "wps": 77.06,
+   "words": 129
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r02-tra",
+   "dark": true,
+   "flags": [],
+   "copied": 0.44,
+   "dark_fail": false,
+   "ttfw_s": 0.243,
+   "wps": 65.54,
+   "words": 97
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r03-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.78,
+   "dark_fail": false,
+   "ttfw_s": 0.235,
+   "wps": 88.29,
+   "words": 92
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r03-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.8,
+   "dark_fail": false,
+   "ttfw_s": 0.251,
+   "wps": 82.44,
+   "words": 85
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r04-doc",
+   "dark": true,
+   "flags": [],
+   "copied": 0.73,
+   "dark_fail": false,
+   "ttfw_s": 0.257,
+   "wps": 79.92,
+   "words": 76
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r04-tra",
+   "dark": true,
+   "flags": [],
+   "copied": 0.75,
+   "dark_fail": false,
+   "ttfw_s": 0.244,
+   "wps": 84.77,
+   "words": 59
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r05-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.74,
+   "dark_fail": false,
+   "ttfw_s": 0.249,
+   "wps": 76.38,
+   "words": 98
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r05-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.27,
+   "dark_fail": false,
+   "ttfw_s": 0.273,
+   "wps": 58.43,
+   "words": 70
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r06-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.71,
+   "dark_fail": false,
+   "ttfw_s": 0.24,
+   "wps": 93.33,
+   "words": 98
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r06-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.54,
+   "dark_fail": false,
+   "ttfw_s": 0.267,
+   "wps": 66.77,
+   "words": 83
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r07-doc",
+   "dark": false,
+   "flags": [
+    [
+     "WORD",
+     "involved"
+    ],
+    [
+     "WORD",
+     "involved"
+    ]
+   ],
+   "copied": 0.61,
+   "dark_fail": false,
+   "ttfw_s": 0.255,
+   "wps": 74.47,
+   "words": 112
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r07-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.48,
+   "dark_fail": false,
+   "ttfw_s": 0.257,
+   "wps": 70.72,
+   "words": 78
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r08-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.68,
+   "dark_fail": false,
+   "ttfw_s": 0.257,
+   "wps": 84.18,
+   "words": 108
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r08-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.66,
+   "dark_fail": false,
+   "ttfw_s": 0.235,
+   "wps": 73.37,
+   "words": 73
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r09-doc",
+   "dark": true,
+   "flags": [
+    [
+     "OMITTED",
+     "They made Rena and Oshi carry the dried meat of the Tulo band to the Kesh camp."
+    ]
+   ],
+   "copied": 0.48,
+   "dark_fail": true,
+   "ttfw_s": 0.256,
+   "wps": 76.28,
+   "words": 82
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r09-tra",
+   "dark": true,
+   "flags": [
+    [
+     "OMITTED",
+     "They made Rena and Oshi carry the dried meat of the Tulo band to the Kesh camp."
+    ]
+   ],
+   "copied": 0.59,
+   "dark_fail": true,
+   "ttfw_s": 0.251,
+   "wps": 79.83,
+   "words": 74
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r10-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.84,
+   "dark_fail": false,
+   "ttfw_s": 0.165,
+   "wps": 72.56,
+   "words": 73
+  },
+  {
+   "pass": "phone-FAST",
+   "id": "r10-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.27,
+   "dark_fail": false,
+   "ttfw_s": 0.258,
+   "wps": 79.85,
+   "words": 65
+  }
+ ]
+}

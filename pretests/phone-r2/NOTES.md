@@ -104,6 +104,10 @@ The model build made for the Tensor G6 (`gemma-4-E2B-it_Google_Tensor_G6.litertl
 
 **Afterwards:** the Gemma model stays on the phone for later rounds. To free its 2.6 GB, tap **Delete the model (2.6 GB)**.
 
+## Results (1 October 2026)
+
+You ran it once, and it finished: every test ran, with no crashes. The code is in `results/phone-r2-code.txt` and decoded in `results/phone-r2.json`. Each block's notes hold its verdict: `B04` and `B11` in `pretests/b04-b11-storage-terrain/`, `B74` in `pretests/b74-b76-sound-speech/`, and `B73` in `pretests/b73-writer/`. The decoder's memory line read the wrong keys and printed "None"; it is fixed.
+
 ## How to re-run
 
 ```

@@ -199,3 +199,11 @@ flock $LOCK $B phone '{"dir":"DIR"}'
 ```
 
 CPU time: about 35 minutes in all, most of it SQLite and the crash tests. `flatc --rust -o src/ schema/moment.fbs` remakes the FlatBuffers code.
+
+## Phone results, round 2 (1 October 2026)
+
+From the second test app on the Pixel 11 Pro XL (`pretests/phone-r2/results/phone-r2.json`), 13.6 s in all.
+- **Same bits as the cloud:** plates `895e636495687a48` and metre detail `5e3b0c482d789a49` match exactly, so terrain generation is bit-identical on the phone.
+- **Saved moment, quarter world** (117.5 MB of state, 75.6 MB on disk with zstd): written in 409 ms in all (305 ms to encode, 63 ms to flush), and read in 240 ms. The full 263 MB moment would open in about 0.8 s, well inside the 3 seconds of `VIS-14`.
+- **Small appends** (the daily log): a 4 KB flush took 0.07 ms, and a day's events for 1,000 people 0.36 ms.
+- **Speed:** plates at 1024 x 512 took 446 ms (cloud core: 901 ms), and the metre-detail test patch (1,860 pieces) 591 ms on one core and 314 ms on four (cloud: 1,006 and 297 ms). On one core, the phone is about twice as fast as a cloud core here.

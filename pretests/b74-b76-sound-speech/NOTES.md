@@ -182,3 +182,12 @@ The likely cause of the gap you heard, for when drums are picked up: they are th
 - **A phone speaker can't play deep sound.** It loses almost everything below about 350 Hz. Every deep sound will come out weak through it: drums, thunder, rockfalls, large animals, deep voices. Sounds must be judged through the phone's own speaker, or a stand-in for it.
 - **A last step for the phone's speaker works on the whole mix at once.** It cuts what the speaker can't play, adds overtones of deep notes, and limits the first instant of loud strikes. Here it lifted deep sounds by 4 to 17 dB, though not enough alone for the drums. For the architecture: one step at the end of the mix, tuned to the speaker, off with headphones.
 - **The way sound is made stays as chosen.** A few ringing notes plus shaped noise for the rest (A2) is general. The drum showed that a sound's higher, denser notes are what a phone can play, so how many noise bands a sound gets is a setting to tune later, sound by sound.
+
+## Phone results, round 2 (1 October 2026)
+
+From the second test app on the Pixel 11 Pro XL (`pretests/phone-r2/results/phone-r2.json`).
+- AAudio gave exclusive, low-latency output at 48 kHz, in bursts of 96 frames (2 ms).
+- Output delay: 24 ms at 8, 32 and 128 sounds, with no dropouts at any count.
+- Mixing work per 2 ms burst: 3% of the time at 8 sounds, 11% at 32 and 44% at 128. The audio thread ran on the small cores.
+- **Rule 5:** the delay is under 50 ms with no dropouts, so AAudio stays. The cap on sounds at once is 32 for now, since 128 takes 44%, over the 25% limit.
+- The media volume was at 0, so the test was silent. The measures don't need sound.
