@@ -411,6 +411,7 @@ The rules every part of the project follows.
 - `PRN-16` **Principles come first** *(Decided)*: These rules apply to every part of the project, and outrank everything else in this file: if any decision conflicts with a principle, the principle wins.
   A principle changes only if you change it here.
   Every milestone review goes through the principles, using the **Check** line under each one.
+  - **Check:** every milestone report lists each principle with the result of its Check line (`RES-06`).
 
 ### 2.1 The world
 
@@ -599,6 +600,7 @@ This section sets the boundaries of the project: what it includes, where history
     Each still has a single human species (`SCP-05`).
   - **Why:** A starting point is just the knowledge and abilities put into people's heads at the beginning, so alternatives cost little and make good experiments.
   - They come after the main starting point works (`PRN-09`).
+  - **How it works:** a starting point is a set of starting records and settings for the short run before year 0 and the starting kit (`BIO-02`, `BIO-20`): ice-age hunters start with the words, skills and beliefs of foragers of that time; ancestral minds start with lower settings for learning, memory and planning, inherited and able to evolve (`BIO-06`); a blank slate starts with no words, skills or fire; the world itself is made the same way.
 
 ### 3.3 Who it's for
 
@@ -610,15 +612,18 @@ This section sets the boundaries of the project: what it includes, where history
     - no accounts, purchases, ads or analytics;
     - free to use your phone's specific hardware (`PLT-01`).
   - **Why:** Building for one person and one device removes whole categories of work, so the effort goes into depth and polish.
+  - **Check:** the builds hold no account, purchase, advertising or analytics code, and target only your phone (`PLT-01`).
 
 ### 3.4 How it gets built
 
 - `SCP-03` **Experiments first** *(Decided)*: Core ideas are proven in experiments, mostly in small sandboxes, before the game builds on them (`RES-01`), and a phone app grows alongside, so you can watch the results from the start.
+  - **Check:** every milestone report traces its features to experiments that passed (`RES-06`).
 
 - `SCP-15` **Experiments run in the AI's cloud sessions** *(Decided)*
   - **What:** Experiments run in the same cloud sessions where the AI builds the game, within those sessions' computing limits.
   - **Why:** There's nothing extra to set up, maintain or pay for.
   - If an experiment ever needs more computing power than a session offers, that is raised with you before anything else is set up.
+  - **Check:** every experiment report states where it ran and within what computing budget (`RES-16`).
 
 - `SCP-16` **Milestones** *(Decided)*: The project moves through these milestones in order.
   Each ends with a report you review (`RES-06`).
@@ -644,23 +649,36 @@ This section sets the boundaries of the project: what it includes, where history
 Things the project deliberately does not do, and why.
 
 - `SCP-04` **No recipes or tech tree** *(Decided)*: Discoveries come from physics and learning (`PRN-01`, `PRN-07`).
+  - **Check:** the general-rules check passes (`PRN-07`), and the code holds no list of recipes or unlocks.
 - `SCP-05` **No other human species** *(Decided)*: There is one human species, so the story stays about how one people learns.
+  - **Check:** the species catalogue holds one human species, and no starting point adds another (`SCP-14`).
 - `SCP-06` **No AI language model making decisions** *(Decided)*: Our own knowledge would leak into their world (`PRN-06`).
+  - **Check:** the check of `MND-01` passes.
 - `SCP-07` **No goals, scores, wins or losses** *(Decided)*: It is a sandbox; the story is whatever happens.
+  - **Check:** the app has no goal, score, win or loss, on screen or in the code.
 - `SCP-08` **No worship of the player** *(Decided)*: Your power doesn't depend on their faith, and they never learn you exist (`GOD-06`).
+  - **Check:** no power reads any mind's beliefs, and the check of `GOD-06` passes.
 - `SCP-09` **No terraforming** *(Decided)*: You can't reshape land or add or remove species.
   You act only as nature could (`GOD-05`).
+  - **Check:** every power is a request to a natural system (`GOD-05`); none reshapes land or adds or removes a species.
 - `SCP-10` **No shared online world or multiplayer** *(Decided)*: It's yours alone (`SCP-02`).
+  - **Check:** nothing in play uses a network connection (`PLT-03`), and the app has no online features.
 - `SCP-11` **No real-Earth map** *(Decided)*: Every world is generated (see World).
+  - **Check:** worlds come only from the generator (`WLD-10`), and the app holds no real-Earth map data.
 - `SCP-12` **No simulated planet formation** *(Decided)*: Worlds are generated directly in a realistic present-day state, which keeps generation cheap (`WLD-08`).
+  - **Check:** generation runs only the stages of `WLD-09`.
 - `SCP-17` **No direct control** *(Decided)*: You never control any person or animal, not even briefly (`GOD-01`).
+  - **Check:** no control in the app sets any being's actions; your only way into the simulation is your powers (`GOD-05`).
 - `SCP-18` **No scripted story** *(Decided)*: There is no campaign, no quests and no authored events.
   Every story comes from the simulation (`PRN-01`).
+  - **Check:** a code search finds no authored events, quests or campaign data; every event comes from the rules.
 - `SCP-19` **No magic in the world** *(Decided)*: Nothing supernatural exists in the world's physics.
   Spirits and gods exist only in people's beliefs.
   The only unseen force is you, and you act through nature.
+  - **Check:** every law in the catalogue is physical or biological (`MAT-13`), and no law reads people's beliefs about spirits.
 - `SCP-20` **No borrowed real cultures** *(Decided)*: Their peoples, names, languages and customs are their own.
   Nothing is copied from real cultures, and descriptions never compare them to real peoples.
+  - **Check:** each milestone review checks names, words, customs and descriptions for anything copied from or compared with a real people; languages draw on their own sounds (`CUL-17`), starting looks are mixed (`BIO-22`), and the writer's instructions forbid comparisons (`PRE-17`).
 
 ## 4. The player as god
 
@@ -2774,15 +2792,19 @@ How much simulation fits on it is found by measuring, not guessing.
 ### 13.1 The phone
 
 - `PLT-01` **One phone** *(Decided)*: Built and optimised for your Pixel 11 Pro XL (16 GB of memory and 512 GB of storage, so the app can use about 10 GiB), and free to use that phone's specific hardware wherever it helps: its graphics chip for the pixel-rendered 3D (`PRE-02`), its AI hardware for the writer AI (`PRE-37`), and either of them for the simulation itself (`PLT-05`).
+  - **How it works:** the app is built for that phone's processor, graphics chip and memory: the simulation runs on its cores and, for grid systems, its graphics chip (`WLD-12`); the picture on the graphics chip (`PRE-02`); and the writer on its AI hardware (`PRE-37`); everything fits in about 10 GiB, as measured (`PLT-04`).
 
 - `PLT-02` **Portrait and landscape** *(Decided)*: Both are supported, and the layout adapts (`PRE-34`).
+  - **How it works:** turning the phone switches between the two layouts of `PRE-34`, keeping the world, the camera and the art pixel's size (`PRE-22`).
 
 - `PLT-03` **Works offline** *(Decided)*: Everything works without a connection, including the text descriptions, which are written on the phone (`PRE-37`).
+  - **How it works:** everything the game needs is on the phone: the simulation, the catalogues, the writer and the voices; nothing in play makes a network call.
 
 - `PLT-06` **Installing new versions** *(Decided)*: Each new version is a file you download on the phone and install, after allowing installs from your browser once.
   Builds are signed for your free hobbyist developer account with Google, so they keep installing this way under Android's developer rules from 2027 (`RSK-18`).
   No store and no fees.
   Each milestone report links to its version.
+  - **How it works:** each build is signed for your developer account and published as a file linked from its note or report (`PRC-11`); you download and install it, and worlds carry over by `PLT-09`.
 
 ### 13.2 Performance
 
@@ -2794,14 +2816,18 @@ How much simulation fits on it is found by measuring, not guessing.
   - time to generate a world.
 
   The targets, from `VIS-14`: the camera stays smooth at the screen's full refresh rate; the app opens to your world in about three seconds; an hour's session uses about 25–30% of the battery, without the phone getting uncomfortably hot.
+  - **How it works:** at each milestone, a benchmark on the phone records frame times while zooming and panning, simulated time per real minute at each zoom, how many people run at each level of detail and speed, battery use and temperature per hour from the phone's own counters, and the time to generate and settle a world (`WLD-11`); the results go into the report (`RES-06`).
 
 ### 13.3 Worlds on the phone
 
 - `PLT-07` **Always saved** *(Decided)*: Worlds save continuously, so closing the app or a flat battery never loses anything (`TIM-05`).
+  - **How it works:** each event is added to the history log as it happens (a small addition took under a tenth of a millisecond on your phone in the pre-tests); the state is saved whenever the app leaves the screen (`TIM-05`); and saved moments are written as new files that replace the old only once complete, so a damaged file is never loaded (in the pre-tests, 1,000 kills mid-write never left one).
+    After a crash, the world reopens at its last saved moment and runs forward to where it stopped, repeating exactly (`TIM-06`), so nothing is lost.
 
 - `PLT-08` **Manual export** *(Decided)*: Export a world, with all its timelines, as a file whenever you want, and import it again on the same phone or a new one.
   The export keeps the full record, so an imported world opens exactly as it was.
   There are no automatic backups.
+  - **How it works:** export packs a world's whole folder (seed and generator version, saved moments, history log, branch tree, stored things and written text, `TIM-08`) into one file; import checks the file and unpacks it, and the world opens exactly as it was.
 
 - `PLT-09` **Worlds across updates** *(Decided)*
   - **What:** The game's rules will keep growing (`PRN-14`).
@@ -2811,11 +2837,13 @@ How much simulation fits on it is found by measuring, not guessing.
   - **Why:** Fitting a new layer into a running world would be costly, and could make its past dishonest.
     Starting a new world keeps every world true to one set of rules.
   - Going back to a saved moment from before a small update and branching runs the new branch under the current rules.
+  - **How it works:** each world records the version of the rules it runs under, and each update declares itself small or big; after a small update, worlds carry on under the new rules with the change marked on their timeline; after a big update, including any change to the generator (`WLD-08`), an older world's saved history can still be viewed if its files can be read, but carrying it on needs a new world.
 
 - `PLT-10` **Storage** *(Decided)*: Saved moments are kept densely near the present and thinned with age by a fixed rule; key moments are always kept (`PRN-15`).
   The event history thins with age in the same way: recent years keep every event, and older history keeps what the chronicle, the views and the key moments use, such as births, deaths and firsts.
   You can delete worlds and branches.
   When the phone nears full, the game warns you and asks what to delete; it never deletes anything else by itself.
+  - **How it works:** saved moments are kept by a fixed rule, dense near the present and thinner with age (spacing tuned), with key moments always kept (`PRN-15`); the history log keeps every event for recent years, and for older years only the kinds the chronicle, the views and key moments use (`PRE-39`); a storage check warns before the phone fills.
 
 ### 13.4 The cloud
 
@@ -2823,6 +2851,7 @@ How much simulation fits on it is found by measuring, not guessing.
   The phone build comes first and is optimised for the phone; the cloud build doesn't have to match it exactly, only behave the same statistically (`RES-05`).
   An experiment's world can be opened on the phone at any of its saved moments.
   Follows from `SCP-15`.
+  - **How it works:** the same simulation core is built for the cloud without picture or sound, runs many sandboxes at once, and writes the same saved files, which the phone opens (`TIM-08`); its statistics are compared with the phone's at every milestone (`RES-05`).
 
 ## 14. Research and validation
 
@@ -2834,6 +2863,7 @@ This section turns "research standard" into practice: how the project proves tha
   - **What:** Core ideas are proven in experiments, run without graphics, before the game builds on them (`SCP-03`): first in sandboxes, then confirmed in full worlds (`RES-21`).
   - **Why:** The biggest risk is that nothing emerges (`RSK-01`).
     Experiments find out early and cheaply.
+  - **Check:** every milestone report traces its features to experiments that passed (`RES-06`).
 
 - `RES-21` **Sandboxes, then full worlds** *(Decided)*
   - **What:** Most experiments run in sandboxes: small settings built for one question, such as a band on a riverbank with flint, granite and decoy stones, or a winter camp whose fire is dying.
@@ -2846,20 +2876,27 @@ This section turns "research standard" into practice: how the project proves tha
   - **Check:** every claim names its sandbox and its full-world confirmation, and a result seen only in sandboxes is reported as such.
 
 - `RES-08` **What every experiment has** *(Decided)*: A question; a setup (the sandbox or world settings, starting kit, population, length); the number of runs; what is measured; pass and fail criteria; and comparison runs.
+  - **How it works:** each experiment is a file with these fields, kept in the repository, and the runner refuses one with any field missing.
 
 - `RES-09` **Criteria fixed first** *(Decided)*: Each experiment's pass and fail criteria, with exact numbers and definitions, are written down before it runs, checked by the independent reviewer (`RES-11`) for ways the experiment couldn't fail, and approved by you.
   They are never adjusted afterwards.
+  - **Check:** the criteria file is committed and approved before the first run, and every run records which version of it was used.
 
 - `RES-10` **Comparison runs** *(Decided)*: Each experiment also runs with one mechanism switched off, such as imitation, to show that what emerged depends on it.
+  - **How it works:** each mechanism can be switched off by a setting that exists only in experiments (`PRN-12`), and every report includes the run without it.
 
 - `RES-11` **Independent review** *(Decided)*: A separate AI agent, not the one that built the experiment, checks it and tries to find flaws in the results.
+  - **Check:** each report carries the reviewer's findings and names a reviewer other than the builder.
 
 - `RES-12` **Surprises log** *(Decided)*: Unexpected results are recorded even when they weren't the question.
   They often become new signature moments (`MOM`).
+  - **How it works:** the runner flags every measure outside its expected range and every first the recognisers find that the question didn't ask about (`PRE-39`); each goes into the log and into the report's surprises.
 
 - `RES-13` **Many runs, reported as ranges** *(Decided)*: Every claim rests on many runs (100 sandbox runs per setup unless stated), confirmed in a few full worlds (`RES-21`), and is reported as a range, for example "discovered in 62 of 100 runs; typically around year 140".
+  - **Check:** every claim in a report states its number of runs and its range.
 
 - `RES-14` **Compared with reality where possible** *(Decided)*: Where real-world data exist, such as hunter-gatherer populations or rates of learning and cultural change, results are compared with them.
+  - **Check:** wherever a measure has named real-world data, the report shows the comparison.
 
 - `RES-16` **Tuning and failure** *(Decided)*
   - **What:** Values are tuned on development seeds, then confirmed once on fresh seeds kept back for that.
@@ -2867,29 +2904,37 @@ This section turns "research standard" into practice: how the project proves tha
     A test may stop early once its result is clear, within a stated computing budget.
   - **When it fails:** a failed confirmation holds the milestone until you choose: redesign, a weaker claim, or dropping the claim.
   - **Why:** Re-running on the same worlds until something passes would make "experiments that can fail" meaningless (`PRN-05`).
+  - **How it works:** the runner draws development seeds and held-back seeds from separate pools, logs every attempt and every tuned value, and refuses to run the held-back seeds a second time for the same claim.
 
 - `RES-17` **Signature moments keep passing** *(Decided)*: Each signature moment has its own sandbox, and passes if it happens in at least 1 run in 10 within its time window, unless its own criteria say otherwise (`RES-21`).
   A small sample of these sandboxes re-runs before every merge and all of them at every milestone, and a failure blocks the milestone (`PRC-10`).
   Each milestone report also says which moments appeared in its full worlds.
+  - **How it works:** each moment's sandbox and pass rule are files beside its experiment (`RES-08`); the merge check runs a small random sample of them, and the milestone check runs them all (`PRC-10`).
 
 - `RES-18` **Same rules as play** *(Decided)*: Sandboxes use the same rules as play, and the full worlds that confirm them come from the play generator (`WLD-10`, `RES-21`).
   Scripted events and dials appear only in clearly labelled experiments, and a moment that passes only with a dial doesn't count as passing in play (`PRN-12`).
+  - **Check:** sandboxes and play are built from one simulation core, and every run records any dial or scripted event it used.
 
 - `RES-19` **Promises are tested** *(Decided)*: Every claim in Minds and in Culture and society that something emerges either gets an experiment before its milestone closes, or is marked "possible, not promised".
+  - **Check:** the coverage check lists every emergence claim in Minds and in Culture and society with its experiment or its "possible, not promised" mark (`PRC-12`).
 
 - `RES-20` **Your own experiments** *(Decided)*: You can ask for an experiment in any cloud session (`SCP-15`).
   An experiment's world can be opened on the phone (`PLT-05`) and played on; it keeps its dial settings for good and always shows them, so it is never mistaken for a play world (`PRN-12`).
+  - **How it works:** you describe the question in a cloud session; the AI writes the experiment file (`RES-08`) and its criteria for your approval (`RES-09`), runs it, and reports it as a page (`RES-15`).
 
 - `RES-04` **Reality checklist first** *(Decided)*: The physics must pass every reality check (`RCK`) before any discovery that depends on it is trusted.
+  - **Check:** the runner refuses to report a discovery whose reality checks are not all passing on that build.
 
 - `RES-05` **Reproducibility** *(Decided)*: Results are reproducible statistically: re-running an experiment on fresh seeds gives results within its stated ranges, and the cloud build gives the same statistics as the phone build.
   Exact repeats of a history are not required (`PRN-15`).
   Checked at every milestone.
+  - **How it works:** the same experiment runs on fresh seeds in the cloud and on the phone, and each measure's ranges are compared; a difference beyond the stated tolerance fails the check (`PRC-10`).
 
 ### 14.2 The experiments
 
 - `RES-02` **Experiment 1: sharp stone** *(Decided)*: Do bands that only bash rocks discover how to chip sharp flakes, and does the skill spread?
   Its sandbox includes uses for a sharp edge: carcasses to butcher, and hides and wood to work.
+  - **How it works:** a sandbox valley holds a band with the starting kit (`BIO-02`), glassy, fine-grained and coarse stones with decoys among them (`RES-21`), and carcasses, hides and wood, run for up to 500 simulated years per run; the recognisers mark the first struck flake used to cut (`PRE-39`), and the measures of `RES-03` are counted from the records.
 
 - `RES-03` **Experiment 1 pass criteria** *(Decided)*: starting values, fixed before it runs (`RES-09`), met in its sandbox runs and confirmed in full worlds (`RES-21`):
   - **Discovery:** happens in at least half of the runs, within 500 simulated years.
@@ -2899,6 +2944,7 @@ This section turns "research standard" into practice: how the project proves tha
   - **General rules only:** the check in `PRN-07` passes.
   - **Comparison runs:** without imitation, the skill does not spread; without curiosity, discovery is much rarer (`RES-10`).
   - **Exact numbers:** words such as "widely", "noticeably" and "much rarer", and what counts as a discovery and as being able to do it, are given exact values before the run (`RES-09`).
+  - **How it works:** each measure is counted from the records: discovery as the first use of a struck flake to cut, marked by the recognisers; spread as the share of the band's adults whose skill records make such flakes; loss as a skill with no living holder; and each is set against the comparison runs.
 
 - `RES-07` **The series** *(Decided)*: Experiments follow the signature moments in milestone order, adjusted after each report.
   The implementation plan sets which experiment closes which milestone.
@@ -2923,9 +2969,11 @@ This section turns "research standard" into practice: how the project proves tha
   - what was added (`PRN-14`) and how the principles were checked;
   - the risks (see Risks);
   - links to saved moments in the game.
+  - **How it works:** the report is built from the experiment results, the measurements and the coverage check, checked by the independent reviewer (`RES-11`), and published as a page (`RES-15`).
 
 - `RES-15` **A page on the phone** *(Decided)*: Each report is a readable page with charts and plain conclusions, whose links open saved moments in the game.
   A copy is kept in the repository.
+  - **How it works:** each report is a page with its charts, whose links carry a saved moment's world, branch and time so the phone opens the game there; its source is committed beside the experiment.
 
 ## 15. Project and process
 
@@ -2939,23 +2987,29 @@ This section defines the roles, the documents, how this file changes, and how wo
 
 - `PRC-02` **Your role** *(Decided)*: You read the milestone reports, try the builds, set direction, and approve changes to this file.
   The AI handles code review and testing.
+  - **Check:** every change to this file names your OK in its commit (`PRC-07`).
 
 - `PRC-03` **Technology** *(Decided)*: Chosen by the AI and proposed in the architecture for your approval.
+  - **Check:** the architecture's technology proposal records your approval before building starts.
 
 ### 15.2 Documents
 
 - `PRC-04` **Three documents** *(Decided)*: The finished project has three documents.
   This file is the source of truth for what to build; the architecture says how it is built; the implementation plan says in what order, mapping every item to a milestone and its tasks.
   Code and tests link back here by ID.
+  - **Check:** the repository holds these documents, and each milestone review checks that this file holds no implementation details.
 
 - `PRC-06` **A guide for AI agents** *(Decided)*: A short file in the repository (`CLAUDE.md`) that every AI agent reads first.
   It tells them to read this file, follow the principles, link all work to IDs, and never mark anything Decided without you.
+  - **How it works:** the guide sits at the top of the repository, where every agent's session reads it first, and changes to it need your OK.
 
 - `PRC-07` **Changes to this file** *(Decided)*: AI agents can suggest additions or changes, marked *Proposed*.
   Nothing becomes *Decided*, and no decided item changes, without your OK.
   How changes are proposed and recorded is set out in How this file works.
+  - **Check:** the commit check confirms that every commit changing this file names the changed IDs and why, and that no item became Decided without your OK.
 
 - `PRC-05` **Reviewed with you** *(Decided)*: Changes to this file are worked through with you, section by section or in rounds of questions, and *Proposed* items are confirmed, changed or dropped in those reviews (`PRC-07`).
+  - **Check:** every change to this file names, in its commit, the review or instruction from you that it came from.
 
 - `PRC-08` **Next: tests, then the architecture and the plan** *(Decided)*: Before the architecture and the implementation plan are written, small throwaway tests settle the basic technical choices, such as the language, storing data, the map, drawing, sound, speech and the writer AI.
   Each block is tested on its own, with no working world; anything that needs a world is designed in the architecture and tested in sandboxes (`RES-21`).
@@ -2966,15 +3020,19 @@ This section defines the roles, the documents, how this file changes, and how wo
 - `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches.
   Work joins the main version only after every automatic check passes and an independent AI review approves it.
   You review at milestones.
+  - **Check:** the main version accepts work only from branches whose checks passed and whose independent review approved them (`PRC-10`).
 
 - `PRC-10` **The checks** *(Decided)*:
   - **before any work joins the main version:** the tests, the reality checklist (`RES-04`), the general-rules check (`PRN-07`), a small sample of the signature-moment tests (`RES-17`), and the file check: every ID defined once, every reference resolving, every status valid, and no live item pointing to a dropped one;
   - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the phone and cloud statistical match (`RES-05`), the full signature-moment tests (`RES-17`), the coverage check (`PRC-12`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
+  - **How it works:** the checks run automatically on every request to join the main version and at each milestone gate, and any failure blocks it.
 
 - `PRC-11` **Builds between milestones** *(Decided)*: A new version whenever something you can see or try has changed, with a one-line note, installed by download (`PLT-06`).
   The full report still comes at each milestone.
+  - **How it works:** each build that changes something you can see or try gets a one-line note and its download link (`PLT-06`).
 
 - `PRC-12` **Nothing gets lost** *(Decided)*: An automatic coverage check, run at every milestone gate (`PRC-10`), confirms that every feature and rule that isn't *Dropped* or *Proposed* is mapped to a milestone in the implementation plan, that the current milestone's items have tasks, that every task names the IDs it delivers, and that every ID named in code and tests exists and isn't dropped.
+  - **How it works:** a script reads this file's IDs and statuses, the plan's map of items to milestones and tasks, and the IDs named in code and tests, and fails on any feature or rule left unmapped, any current item without tasks, any task without IDs, and any ID in code or tests that doesn't exist or is dropped.
 
 ## 16. Risks
 
