@@ -1575,7 +1575,7 @@ How people think is in Minds.
   Families, ages and relationships follow real hunter-gatherer patterns.
   Each adult knows their home range (its food, water, dangers and seasons) and nothing beyond it.
   The details are in `BIO-20`.
-  - **Language:** a few dozen shared words and calls; grammar must grow.
+  - **Language:** a few dozen shared words and calls; word order and new words must grow.
   - **Fire:** they can feed a fire found after lightning or a wildfire, but cannot make one.
     A band may start with a fire it is keeping, depending on recent weather.
   - **Tools:** unshaped stones for bashing, and sticks.
@@ -2174,19 +2174,43 @@ It grows out of minds (see Minds) living together, and it changes, spreads, spli
 - `CUL-04` **Language emerges** *(Decided)*: Words are labels a group agrees on, and they spread through use.
   Groups that separate drift into dialects, then separate languages.
   Language makes teaching faster and lets people talk about things that aren't there: plans, the dead, spirits.
+  - **How it works:**
+    - **A word** is a sequence of the language's sounds (`BIO-21`) linked in a person's mind to a concept (`MND-04`), with a strength for that link; a person can have several words for one concept, and one word for several.
+    - **Speaking and hearing:** a speaker picks, for each concept, the word they link to it most strongly; a hearer matches the sounds to their own words, allowing small differences, and recovers the concepts; with shared attention (`MND-26`), the hearer links a new word to what both attend to.
+    - **Agreement through use:** when a word works (the hearer does what was meant, or shared attention confirms it), both speaker and hearer strengthen that link and weaken its rivals; when it fails, it weakens, as in the naming-game models that show how groups come to agree on words.
+    - **New words:** a speaker with no word for what they want to say makes one: new sounds shaped like the language's other words, or a compound of words it has (`CUL-17`), helped by pointing and gesture (`BIO-21`).
+    - **Children** learn words fastest, from what is said about what they attend to (`MND-26`).
+    - **Drift:** groups that rarely talk (`CUL-16`) make different choices and different sound changes (`CUL-17`); dialects become separate languages once their speakers no longer understand each other.
+    - **What it makes possible:** teaching with words (`CUL-01`), and passing on beliefs about things that aren't there, such as plans, the dead and unseen beings, as told beliefs weighed by trust (`CUL-24`).
 
-- `CUL-17` **Sounds, words and grammar** *(Decided)*
-  - **What:** Each language has its own sounds, words and grammar, starting from the few dozen shared words and calls of the starting kit (`BIO-02`).
+- `CUL-17` **Sounds, words and word order** *(Decided)*
+  - **What:** Each language has its own sounds, words, word order and compound words, starting from the few dozen shared words and calls of the starting kit (`BIO-02`).
     Words drift through regular sound changes, so related languages share telltale patterns and form families you can trace.
+    Richer grammar, such as word endings, may grow but is not promised (`RES-19`).
+  - **How it works:**
+    - **Sounds:** each language has its own set of sounds, each a set of articulation features (`BIO-21`), starting from the starting kit's (`BIO-20`).
+    - **Regular sound change:** each speaker's way of saying a sound in a given position drifts a little, toward what is easier to say and with copying errors; such a change is a rule over a sound in its surroundings, not over one word, so once a group takes it up by the usual copying (`CUL-01`), every word with that sound in that position changes together.
+    - **Families you can trace:** separated groups take up different changes, so their languages keep regular matches between them, as historical linguists find in real ones, and the family tree can be shown (see Presentation).
+    - **Word order:** when a speaker says several concepts together (who did what to whom), they put them in an order; hearers use the order to tell the roles apart, and orders that work get copied, so each language settles on its own preferred orders.
+    - **Compound words:** two words often said together for one thing become one word, and wear down in sound over time.
+    - **Richer grammar:** endings and sentence structure could grow as common words wear down and fuse with others, but no tested model shows they will, so they are possible, not promised.
   - **Example:** After the eastern band crosses the hills, its words drift away from those of the band left behind.
     Centuries later, their words for water, fire and stone still differ in the same regular way, which shows they were once one language.
 
 - `CUL-18` **Names** *(Decided)*: People, places, peoples and things are named in their own languages, often after events, features or traits.
   You see the original name with a translation (`PRE-12`), and later hear it spoken (`SND-03`).
+  - **How it works:** a name is a word for one person, place, people or thing, linked to the concept of that one (`MND-04`), and made like any word (`CUL-04`): from new sounds, or as a compound of words for something about it, such as an event there ("where the boar died"), a feature ("red cliff") or a trait ("tall one").
+    Names are made when people need to talk about something, by whoever speaks of it first, and spread by use.
+    The game shows the original sounds with the meaning of their parts; a name whose parts no longer match any words is shown without one, and its old meaning stays in the scientist's view.
 
 - `CUL-24` **Conversations** *(Decided)*: People tell each other things: warnings, questions, news, teaching and retold stories.
   What they say is held as meaning first (`MND-25`), and their language puts it into words (`CUL-04`).
   Being told something is weighed against one's own experience, by how far the speaker is trusted (`MND-24`).
+  - **How it works:**
+    - **Saying:** a speaker chooses what to tell, as meaning first: a belief, a memory, a plan, a question or a warning (`MND-25`), when they believe the hearer lacks it and want them to have it, or want something from them (`MND-23`); their language turns it into words in order (`CUL-17`), and it becomes sound in the air (`BIO-21`), heard by anyone in range (`BIO-18`).
+    - **Understanding:** the hearer matches the words to their own (`CUL-04`) and recovers what meaning they can; words they don't share lose part of it, so misunderstandings are real.
+    - **Weighing:** what is understood becomes a told belief or memory, its certainty set by trust in the speaker and how well it fits the hearer's own experience (`MND-27`); a retold story can replace a person's own details (`MND-18`).
+    - **Questions and lies:** a question asks for a belief, and the hearer may answer; a speaker can also say what they don't believe, when they believe it pays (`MND-23`).
 
 ### 10.3 Belief
 
@@ -2195,56 +2219,117 @@ It grows out of minds (see Minds) living together, and it changes, spreads, spli
     When no physical cause is known, the inborn tendency to suspect a hidden someone (`MND-21`) suggests an unseen being.
     Beliefs that seem to work spread and last.
     They become ritual, gain specialists such as shamans and priests, and in time grow into religions with their own myths, rules and sacred places.
+  - **How it works:**
+    - **An unseen someone:** when an event matters (a death, a sickness, a storm, fire from the sky, or one of your acts, `GOD-06`) and no believed cause explains it, the hidden-someone tendency (`MND-21`) makes a weak belief that an unseen someone caused it (`MND-27`), tied to the event's own concepts, such as the sky and its fire.
+    - **It grows like any belief:** later events of the same kind are tied to the same unseen someone; acts done before good outcomes, such as singing before a hunt, are credited by the usual learning (`MND-05`) and become things done to win its favour or turn away its harm; outcomes vary by chance, and vivid ones are remembered best (`MND-08`), so such beliefs can last.
+    - **Shared:** told and retold (`CUL-24`), these beliefs spread by trust and by the pull to conform (`CUL-01`); a band's common beliefs about unseen beings are its religion.
+    - **Ritual and specialists:** acts repeated to sway the unseen harden into rites (`CUL-06`); someone others believe knows the unseen better, through dreams, success or age, is asked, followed and rewarded, and the role becomes a shaman's or, later, a priest's.
+    - **Myths, rules and sacred places** come from the same records: stories about the unseen (`CUL-11`), rules said to please or avoid them (`CUL-20`), and places tied to them, such as where lightning struck.
   - **Why:** Religion grows from the same machinery as discovery (`MND-05`), and your own acts become part of what people try to explain (`GOD-06`).
   - **Example:** Your lightning becomes a god (`MOM-03`).
 
 - `CUL-19` **Dreams and the dead** *(Decided)*: Dreams of dead relatives can lead people to believe the dead live on in some form.
   That can shape burials, rites for ancestors and ideas of a soul.
+  - **How it works:** sleep replays memories of the dead (`MND-12`), so a dead relative is seen acting and speaking in a dream, and a dream is remembered as an event (`MND-18`) that the mind does not always tell apart from waking life (estimated share).
+    Each such dream, and each one told by others (`CUL-24`), feeds a belief that the dead person still exists somewhere (`MND-27`); that belief can lead to care for the body, gifts to the dead and rites for ancestors (`CUL-06`), and to the idea of a part of a person that lives on.
 
 - `CUL-20` **Taboos** *(Decided)*: Beliefs can harden into rules about what not to eat, where not to go and what not to do.
   Some protect people by accident; others cost them dearly.
+  - **How it works:** a rule is a belief that an act is forbidden or required, with a feared result (`MND-27`); it forms when an act is followed by harm (sickness after eating something, a death after entering a cave, `MND-05`) or when others tell it, and becomes the group's rule once it is shared and others punish or shun those who break it (`CUL-06`).
+    Whether a rule helps depends on whether its cause was real: a ban on a poisonous plant protects, while a ban on a good food after a chance illness costs, and the mechanism can't tell which is which.
+    Breaking a rule one holds brings fear and shame (`MND-19`), so rules can outlast the memory of why they began.
 
 ### 10.4 Society
 
 - `CUL-06` **Institutions form from habit** *(Decided)*: Repeated behaviour hardens into shared, named things that people know, teach and enforce: a norm, a role, a rank, a rite.
   They can change, split and dissolve, and they become the named things the chronicle and overlays talk about, such as "the rite of first fire" or "the elders' council".
+  - **How it works:**
+    - **Shared expectations:** when many in a group do the same thing in the same situation (a shared habit, `MND-09`), each comes to believe the others will do it and expect it (`MND-23`); once people react to those who don't, with disapproval or punishment (`MND-26`), the shared expectation is a norm.
+    - **Roles and ranks:** when particular people keep doing particular things for others, such as leading the hunt or tending the sick, others come to expect it of them, which makes a role; shared expectations of who defers to whom make ranks.
+    - **Rites** are fixed sequences of acts done together at set times or events (`CUL-05`).
+    - **Named, taught and enforced:** people come to have words for them (`CUL-04`), teach them to children (`CUL-01`) and enforce them.
+    - **Change:** when behaviour changes, expectations follow; institutions split when groups split, and dissolve when nobody keeps them.
+    - **Named for you:** the game finds these patterns in the records and names them for the chronicle and overlays, while the simulation itself never names them (see Presentation).
 
 - `CUL-07` **Nothing social is scripted** *(Decided)*: Family and marriage rules, sharing, exchange, trade, leadership, alliances, conflict and war all come from people's interactions.
+  - **How it works:** no rule in the code sets marriage, sharing, trade, leadership, alliances, conflict or war; each comes from minds choosing actions for their drives through their beliefs about the world and each other (`MND-09`, `MND-23`), and the inborn tendencies (`MND-21`, `MND-26`) are the only built-in social leanings.
+  - **Check:** a code search finds no social outcome named in decision logic (`PRN-07`), and comparison runs show social patterns differing between cultures.
 
 - `CUL-21` **Sharing and exchange** *(Decided)*: Food sharing, gifts, trade between bands, specialists, rules about who owns what and, perhaps one day, money.
   Each emerges from need and repeated habit.
+  - **How it works:**
+    - **Giving is an action:** passing a thing to someone (`BIO-21`) moves it to them.
+    - **Why people give:** to kin and those they're attached to (`MND-26`), to repay a debt (`MND-24`), to earn regard (generosity that others see raises their respect), and because others expect it (`CUL-06`).
+    - **Sharing food:** a big kill rots before one family can eat it (`WLD-21`), and sharing it leaves debts in others' records, so sharing pays off in lean times, as forager studies find.
+    - **Exchange:** one thing is given for another when each side values what it gets more, by its own needs and beliefs; between bands it needs contact and trust (`CUL-16`), and repeated exchanges become habits and then norms, with set partners, places and times.
+    - **Specialists:** someone much more skilled (`MND-06`), whose products others give things for, can spend more of their time on that skill.
+    - **Ownership:** rules about who may take what form as norms (`CUL-06`), from repeated expectations such as "I made it", "I found it" or "this is our place".
+    - **Money,** a thing many accept because others accept it, is possible, not promised (`RES-19`).
 
 - `CUL-22` **Leadership and status** *(Decided)*: Depending on the culture, status comes from skill, generosity, age, success, fear or birth.
   Leaders, councils and chiefs emerge where a group needs to act together.
+  - **How it works:**
+    - **Status** is how much others regard a person (respect in their records, `MND-24`); it rises with whatever others value in that culture, whether skill, generosity, success, age, fear or a parent's standing, and what is valued is itself copied (`CUL-01`).
+    - **Leaders:** when a group must act together (a hunt, a move, a fight), people follow someone they trust and respect who proposes a plan, expecting others to follow too (`MND-23`); done again and again, it becomes a role (`CUL-06`).
+    - **Councils and chiefs:** groups that often decide together settle on fixed ways of deciding, as norms (`CUL-06`); leadership passes to a child when others come to expect it.
+    - **Force:** boldness, dominance (`MND-20`) and strength can win status through fear, and others' anger at bullies (`MND-26`) limits it.
 
 - `CUL-08` **Dark history can happen** *(Decided)*: Violence and war, captivity and slavery, sacrifice, cruelty, infanticide and cannibalism can emerge like anything else.
   Sexual acts stay abstract (`BIO-15`).
   What is shown is controlled by the content setting (`PRE-18`).
+  - **How it works:** these come from the same mechanisms as everything else: violence is striking a person (`MAT-12`, `BIO-13`), chosen when a mind believes it serves its drives, such as fear, anger, status or hunger, at a cost it weighs (`MND-09`); captivity is holding someone by force; sacrifice is a killing believed to please an unseen someone (`CUL-05`); infanticide comes when parents believe a child can't be kept alive; and cannibalism comes from starvation or rite.
+    None is a rule, and no action exists for sexual violence (`BIO-15`).
 
 - `CUL-23` **Peoples** *(Decided)*: The game recognises peoples by what their members share (language, beliefs, customs and style) and names them by what they call themselves.
   Boundaries can be blurry and shift over time.
   Peoples split, merge and disappear.
+  - **How it works:** the game measures how much groups share: words (`CUL-04`), beliefs (`MND-27`), customs (`CUL-06`) and style (`CUL-12`), together with how often they meet; people who share much and meet often are grouped into a people, by tuned thresholds.
+    This is done by the views, never by the simulation (see Presentation), and is worked out again as things change, so one person can belong partly to two peoples, and peoples split, merge and disappear.
+    A people is named by what its members call themselves (`CUL-18`), if they have such a name, and otherwise described.
 
 ### 10.5 Expression
 
 - `CUL-25` **Expression is real** *(Decided)*: Each form of expression exists as a real thing in the world: paint on rock, marks on wood and bone, sound in the air, movement in a dance.
   What it holds is kept as content: a song as its notes and rhythm; a picture or map as what it shows and how (composition, style, skill and pigments), from which the game draws it.
+  - **How it works:**
+    - **A real thing:** paint is pigment on a surface (`MAT-10`), weathering by the laws (`RCK-16`); marks are cuts (`MAT-04`); a song is sound in the air, from voices or instruments; a dance is bodies moving (`BIO-21`).
+    - **Made by skills:** drawing, carving, singing and dancing are skills (`MND-06`): the maker intends content drawn from their memories and beliefs, and their strokes land with their own error (`MAT-06`), so a clumsy painter's deer is harder to recognise.
+    - **Content kept:** a picture's record holds what it shows and where, its style, the maker's skill and the pigments used; a song's, its notes, rhythm and words; a dance's, its sequence of movements.
+    - **Perceived by others** through sight or hearing (`MND-03`), who recognise in it the things they know (`CUL-03`).
 
 - `CUL-09` **Visual art** *(Decided)*: Paintings, carvings and body decoration composed from their own memories and myths, made with real pigments and tools (`RCK-15`, `RCK-16`) on cave walls, objects and bodies.
   What they depict reflects what matters to them (`MOM-07`).
+  - **How it works:** a person makes a picture when their drives and beliefs favour it, such as play, regard from others, a rite (`CUL-05`), or a memory that matters, and its content comes from their strongest memories and beliefs at the time (`MND-18`).
+    Pigments must be found and prepared, such as ochre ground and mixed with fat or water (`RCK-15`, `RCK-16`), and surfaces are real; style is copied from others (`CUL-12`).
 
 - `CUL-10` **Music and dance** *(Decided)*: Rhythms, scales, songs and instruments that grow out of each culture.
   Instruments follow real acoustics (`MAT-03`), from bone flutes to drums of stretched hide.
+  - **How it works:**
+    - **Sound patterns:** voices and struck, blown or plucked things make sounds with pitch, loudness and timing (`BIO-21`, `MAT-04`); people repeat patterns they enjoy, pulled by the beat tendency (`MND-26`), and copy others' (`CUL-01`), so a group's songs come to share their scales and rhythms, which drift (`CUL-12`).
+    - **Instruments:** anything that rings when struck, blown or plucked sounds by the vibration law (`SND-06`); people who notice that a hole or a length changes the pitch can learn to make the notes they want (`MND-05`).
+    - **Scales:** which pitches sound well together comes from the physics of overtones, but which scale a culture uses is copied, never set.
+    - **Dance:** moving together to a beat (`MND-26`), in sequences learned and copied like any skill.
 
 - `CUL-11` **Myths and stories** *(Decided)*: Built from the band's own memories, beliefs and dreams, told and retold, and changing a little with each telling.
+  - **How it works:** a story is a retold run of memories, beliefs or dreams (`CUL-24`); hearers keep it as a memory told by that person, and each retelling rebuilds it (`MND-18`), drifting toward what the teller believes and what moves the listeners (`MND-08`).
+    Myths are stories about unseen beings and beginnings, built from the band's beliefs (`CUL-05`), memories and dreams (`CUL-19`); stories told often at gatherings become shared.
+    They are kept as records, which the writer puts into words for you (`PRE-37`).
 
 - `CUL-12` **Style and ornament** *(Decided)*: Each culture's look in tools, clothing and buildings, drifting over time, so objects could be dated by their style.
+  - **How it works:** style is the settings people copy: the shapes, sizes and angles in a toolmaking skill (`MND-06`), and the patterns and forms in what they make (`CUL-25`), copied with small errors (`CUL-01`), so each group's style drifts at a pace set by copying error and contact (`CUL-16`).
+    Ornament, such as marks, beads or paint, is added when drives favour it, such as regard from others or showing one's group (`MND-26`).
+    Because the drift is gradual and every thing keeps its shape, things carry their time's style and can be dated by it (see Presentation).
 
 - `CUL-13` **Their sky and calendar** *(Decided)*: Constellations they name, seasons they track, festivals they keep (`WLD-07`).
+  - **How it works:** the sky is seen like anything else (`BIO-18`); its cycles, such as moon phases, where the sun rises and which stars rise at dawn, become beliefs about time (`MND-27`), such as "when that star rises at dawn, the salmon come", which plans can use (`MND-22`).
+    Groups of stars become concepts when people point them out and name them (`CUL-18`), tied to stories (`CUL-11`); gatherings at set points of the year become festivals (`CUL-06`); and tallies of days or moons (`CUL-03`) make the counting reliable.
 
 - `CUL-14` **Their maps and names** *(Decided)*: Places named in their own languages, and maps drawn the way they see the land.
+  - **How it works:** places are named as people talk about them (`CUL-18`); a map is a picture (`CUL-25`) of places from the maker's mental map (`MND-18`), laid out by routes and travel times rather than true distance and showing what matters to them, such as water and danger, drawn when someone wants to show another a place.
 
 - `CUL-15` **Remembered lives** *(Decided)*: Genealogies, and legends of remarkable people as their culture remembers them.
+  - **How it works:** genealogies are kinship as people believe and tell it (`MND-24`, `CUL-24`), passed down while it is remembered and retold, with gaps and errors (`MND-18`); legends are retold stories about people whose deeds were memorable (`CUL-11`), changing with each telling and sometimes merging people or adding the unseen (`CUL-05`).
+    The simulation keeps the true record too (`PRE-10`), so legend can be set against what really happened.
 
 ## 11. Presentation
 
@@ -2462,7 +2547,7 @@ Like everything you see, everything you hear reflects what is actually happening
     Zoom changes the mix: close up you hear single sounds; further out they blend; from the whole world, near silence.
   - **Example:** At the camp at dusk: the crackle of the fire, the tap of the knapper's hammerstone, a child laughing, the river beyond, a wolf far off.
 
-- `SND-03` **Their voices** *(Decided)*: Zoomed in, you hear real speech: actual sentences in their language, spoken with its own sounds and grammar (`CUL-17`), with English subtitles if you want them.
+- `SND-03` **Their voices** *(Decided)*: Zoomed in, you hear real speech: actual sentences in their language, spoken with its own sounds and word order (`CUL-17`), with English subtitles if you want them.
   Further out, talk blends into a murmur.
 
 - `SND-02` **Their music** *(Decided)*: Songs, rhythms and instruments from each culture (`CUL-10`), heard when you are near.
@@ -2742,9 +2827,9 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
 
 - `RSK-19` **Language or belief fails to emerge** *(Decided)*
   - **Rating:** likelihood medium, impact high.
-  - **Risk:** Grammar, rich beliefs or rituals may not emerge from general mechanisms (`CUL-17`, `CUL-05`).
+  - **Risk:** Agreed words and word order, rich beliefs or rituals may not emerge from general mechanisms (`CUL-17`, `CUL-05`).
   - **Signs:** small language tests and later experiments failing.
-  - **Response:** test early with small models; if needed, restate the promise with you, for example as "words and simple word order".
+  - **Response:** test early with small models; if needed, restate the promise with you, for example as "agreed words alone".
 
 ### 16.2 The experience
 
