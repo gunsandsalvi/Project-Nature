@@ -621,6 +621,9 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
   - **What:** People experience your interventions as nature: weather, luck, dreams.
     They may explain them as spirits or gods, and whatever they believe is their own interpretation, right or wrong.
     Nothing in the world can ever detect you directly.
+  - **How it works:** every intervention enters the world only as a change to a natural system's own inputs: a storm system added to the weather (`WLD-16`), a season's chances shifted, stored strain or magma released (`WLD-15`), a dream's content chosen (`MND-12`), or a chance draw retried (`GOD-04`).
+    People perceive only the weather, the luck and the dreams, through their senses (`MND-03`), and nothing anyone can perceive marks an event as yours; what they make of it forms by the usual mechanisms (`CUL-05`).
+  - **Check:** a code check finds no path from the record of your interventions (`GOD-08`) into anything a mind can perceive.
   - **Why:** Their beliefs stay their own, and religion grows from the same machinery as discovery (`CUL-05`).
   - **Example:** After a run of lucky hunts that you sent, a band gives the credit to the bones they buried at the cave mouth.
     A ritual of burying bones begins.
@@ -639,6 +642,8 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
     - earthquakes and eruptions use up the stored strain and magma that make them possible: you choose where and when, and nature's stores decide how big;
     - a person or animal has at most one dream per sleep;
     - fortune works on chance, never on the rules (`GOD-04`).
+  - **How it works:** each power is a request to a natural system, which carries it out by its own rules: a storm is added only where the weather could form one, drawn as its storm belt would draw it, and builds over hours (`WLD-16`); lightning needs a storm overhead; a pushed season shifts the weather's chances within the place's climate (`WLD-16`); quakes and eruptions release strain and magma already stored, so their size is nature's (`WLD-15`); floods and fires need the water and fuel to be there.
+    Each request is checked against the same conditions the world uses for natural events, and refused if it fails them (`GOD-11`).
   - **Why:** A single miracle would make the world's history untrustworthy.
   - **Check:** every intervention passes the same physical checks as a natural event would.
 
@@ -651,6 +656,10 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
     - **Disasters, where conditions allow:** floods, droughts, storms, wildfires, eruptions, earthquakes, landslides.
   - **Not included:** changing the climate directly.
     If an eruption you trigger is big enough to cool the world for a few years, that is physics at work, not a power.
+  - **How it works:**
+    - **Small events:** each sets its weather cell's own physics to what gives it, within what that cell's weather could do that hour (`WLD-16`): a lightning strike lands at the spot you chose under a storm overhead (`WLD-28`); a shower falls from cloud that is there; a gust, a cold night or a fog comes from shifting the cell's wind, sky or air within its range.
+    - **Seasons:** over a region you draw, up to about one climate zone across, storms are drawn more or less often and the air is nudged warmer, colder, wetter or drier, within the place's natural range for that season (`GOD-05`).
+    - **Disasters:** a flood comes from rain sent over a river's catchment, with the water balance doing the rest (`WLD-17`); a drought from storms held away; a storm from one drawn in its belt; a wildfire from lightning on dry fuel (`WLD-28`); an eruption or earthquake from releasing what is stored, at its stored size (`WLD-15`).
   - **Why:** Weather is the most natural lever there is, and the one people have always tried to explain.
   - **Example:** You bring a storm over the ridge and send lightning into a dead pine.
     Fire runs down the slope, and the band upwind gathers burning branches.
@@ -668,11 +677,14 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
     Sending the same dream again follows the mind's normal rules for recurring dreams, and nothing marks your dreams out from natural ones (`GOD-06`).
   - **What follows:** The dream becomes a memory of its own.
     It makes certain ideas more likely to come to mind, and the dreamer may tell others about it, which can feed myth and belief (`CUL-05`).
+  - **How it works:** you choose, from the sleeper's own memory records (`MND-18`), one memory to relive or two to bring together, and a feeling; that night's dream uses your choice in place of its own random recombination (`MND-12`), at the strength of the night's strongest natural dream.
+    It then works as any dream does: the relived memory is renewed, a pairing leaves a weak new belief, the feeling colours both, and the dream is remembered and can be told (`CUL-24`); sending it again follows the same rules as a natural recurring dream.
   - **Why:** Dreams are where minds recombine experience (`MND-12`), so they are the most natural way for a god to touch an idea without supplying it.
   - **Example:** The session story in `VIS-11`.
 
 - `GOD-12` **Animal dreams** *(Decided)*
   - **What:** Animals can be sent simpler dreams: one memory relived, coloured by a feeling.
+  - **How it works:** in a sleeping animal, you choose one of its memories and a feeling; its simpler replay (`MND-16`, `MND-12`) renews that memory and shifts the feelings tied to it, so a camp relived with ease leaves a little less fear of it.
   - **Why:** Animals learn too (`MND-16`).
     Dreams let you lean on that slowly, for example toward taming.
   - **Example:** A wolf dreams again of the warmth and the scraps by the fire, and comes a little closer to the camp the next night (`MOM-06`).
@@ -704,21 +716,27 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
   - **Fortune:** choose what to bless or curse, and for how long.
   - Everything then plays out through the simulation.
     Nothing happens faster than nature could make it happen.
+  - **How it works:** a long-press opens the powers that pass the checks for that target (`GOD-11`); time is paused while you choose (`TIM-15`); a drawn area is traced on the map with a finger; a sleeper's memories are shown as scenes drawn from their memory records, as they remember them (`MND-18`); and confirming sends the request to its natural system (`GOD-05`), with your choices recorded (`GOD-08`).
 
 - `GOD-11` **What's possible here** *(Decided)*
   - **What:** The game only offers what nature could do at that place or to that being right now, and says briefly why other powers aren't available, such as "no volcano here" or "she is awake".
+  - **How it works:** for the chosen target, each power's conditions are checked against the world's present state: a storm overhead for lightning, magma for an eruption, strain on a fault, fuel dry enough, the target asleep for a dream (`GOD-05`); powers that pass are offered, and each that fails shows the condition it failed.
   - **Why:** You never have to guess what's natural, and you never try a miracle by accident.
 
 ### 4.4 Records of your interventions
 
 - `GOD-08` **Recorded behind the scenes** *(Decided)*: Every intervention is recorded with its time, place, target and every detail (the memories chosen, the feeling, the region drawn, the duration), as part of the saved history (`PRN-15`).
   The scientist's view of your interventions depends on this record (`GOD-09`).
+  - **How it works:** each intervention is an event record holding every choice you made, saved in the history like any event and marked as yours (`PRN-15`); it is kept out of anything minds can perceive (`GOD-06`) and out of the story view (`GOD-07`).
 
 - `GOD-07` **No trace in the story view** *(Decided)*: The story view never shows where you intervened or how much you helped.
+  - **How it works:** the story view and the writer receive the records with your intervention records left out, and events your acts caused look like natural ones; only the scientist's view reads the intervention records (`GOD-09`).
+  - **Check:** a test runs the story view on a history with interventions and finds no trace of them in what it shows or writes.
 
 - `GOD-09` **Interventions in the scientist's view** *(Decided)*
   - **What:** The scientist's view shows where and when you intervened, and traces what changed because of it.
     By default it follows the chain of causes from your act through the saved history; on request, it runs a comparison branch without the act (`TIM-06`, `TIM-13`).
+  - **How it works:** the view lists your interventions from their records (`GOD-08`) and follows their consequences through the cause links the history keeps: what lit each fire, the memories behind each belief (`MND-05`), the chain behind each death (`BIO-14`); on request, it runs a branch without the act (`TIM-06`) and compares the two (`TIM-13`).
   - **Why:** Curiosity (`VIS-08`): you can find out what your nudges actually did.
     Branching (`TIM-06`) lets you compare history with and without them.
   - **Example:** You select the dream you sent Ama and follow what came of it: eleven days of twirling sticks, the first fire, and fire-making spreading along the river.
