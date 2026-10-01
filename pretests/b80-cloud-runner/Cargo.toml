@@ -1,0 +1,13 @@
+# B80 / T6 pre-test: cloud runner and moving worlds. Throwaway code, see NOTES.md.
+[package]
+name = "b80"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "thin"
+panic = "abort"

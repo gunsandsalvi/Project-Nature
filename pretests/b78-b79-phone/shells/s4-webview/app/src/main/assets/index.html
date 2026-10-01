@@ -1,0 +1,8 @@
+<!doctype html>
+<meta name="viewport" content="width=device-width">
+<body style="font: 20px sans-serif; padding: 16px">
+<p id="out">…</p>
+<script>
+  // B78 shell 4: the page asks the native core through the Kotlin bridge.
+  document.getElementById('out').textContent = 'mix(42, 1000000) = ' + Native.mix('42', 1000000);
+</script>

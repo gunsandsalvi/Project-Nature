@@ -1,0 +1,37 @@
+setting,mind_iters,days,layout,rep,worlds,wall_s,world_days_per_s,checksums,same_as_1_thread
+light,0,15000,4 worlds: 4 processes,0,4,4.3978,13643.04,ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24,True
+light,0,15000,"4 worlds: 1 process, 4 threads",0,4,4.259,14087.75,ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24,True
+light,0,15000,1 world: 4 threads,0,1,3.1802,4716.66,ccb3a2f5ed9cfb24,True
+light,0,15000,1 world: 1 thread,0,1,4.6809,3204.53,ccb3a2f5ed9cfb24,True
+light,0,15000,4 worlds: 4 processes,1,4,4.1582,14429.38,ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24,True
+light,0,15000,"4 worlds: 1 process, 4 threads",1,4,5.0329,11921.54,ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24,True
+light,0,15000,1 world: 4 threads,1,1,3.7869,3961.04,ccb3a2f5ed9cfb24,True
+light,0,15000,1 world: 1 thread,1,1,4.1648,3601.62,ccb3a2f5ed9cfb24,True
+light,0,15000,4 worlds: 4 processes,2,4,4.3258,13870.32,ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24,True
+light,0,15000,"4 worlds: 1 process, 4 threads",2,4,4.6018,13038.35,ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24 ccb3a2f5ed9cfb24,True
+light,0,15000,1 world: 4 threads,2,1,3.7869,3961.01,ccb3a2f5ed9cfb24,True
+light,0,15000,1 world: 1 thread,2,1,4.1883,3581.42,ccb3a2f5ed9cfb24,True
+medium,400,400,4 worlds: 4 processes,0,4,4.3237,370.06,75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252,True
+medium,400,400,"4 worlds: 1 process, 4 threads",0,4,4.3823,365.11,75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252,True
+medium,400,400,1 world: 4 threads,0,1,1.2614,317.12,75ae8f912f17a252,True
+medium,400,400,1 world: 1 thread,0,1,4.1966,95.32,75ae8f912f17a252,True
+medium,400,400,4 worlds: 4 processes,1,4,4.3687,366.24,75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252,True
+medium,400,400,"4 worlds: 1 process, 4 threads",1,4,4.5476,351.83,75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252,True
+medium,400,400,1 world: 4 threads,1,1,1.301,307.45,75ae8f912f17a252,True
+medium,400,400,1 world: 1 thread,1,1,4.208,95.06,75ae8f912f17a252,True
+medium,400,400,4 worlds: 4 processes,2,4,4.3666,366.42,75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252,True
+medium,400,400,"4 worlds: 1 process, 4 threads",2,4,4.3732,365.87,75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252 75ae8f912f17a252,True
+medium,400,400,1 world: 4 threads,2,1,1.27,314.95,75ae8f912f17a252,True
+medium,400,400,1 world: 1 thread,2,1,4.18,95.69,75ae8f912f17a252,True
+heavy,4000,50,4 worlds: 4 processes,0,4,4.2356,47.22,9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e,True
+heavy,4000,50,"4 worlds: 1 process, 4 threads",0,4,4.3448,46.03,9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e,True
+heavy,4000,50,1 world: 4 threads,0,1,1.1481,43.55,9f1c019d79e2421e,True
+heavy,4000,50,1 world: 1 thread,0,1,3.8893,12.86,9f1c019d79e2421e,True
+heavy,4000,50,4 worlds: 4 processes,1,4,4.3781,45.68,9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e,True
+heavy,4000,50,"4 worlds: 1 process, 4 threads",1,4,4.1714,47.94,9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e,True
+heavy,4000,50,1 world: 4 threads,1,1,1.1561,43.25,9f1c019d79e2421e,True
+heavy,4000,50,1 world: 1 thread,1,1,4.0139,12.46,9f1c019d79e2421e,True
+heavy,4000,50,4 worlds: 4 processes,2,4,4.2315,47.26,9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e,True
+heavy,4000,50,"4 worlds: 1 process, 4 threads",2,4,4.4347,45.1,9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e 9f1c019d79e2421e,True
+heavy,4000,50,1 world: 4 threads,2,1,1.2415,40.28,9f1c019d79e2421e,True
+heavy,4000,50,1 world: 1 thread,2,1,3.5946,13.91,9f1c019d79e2421e,True

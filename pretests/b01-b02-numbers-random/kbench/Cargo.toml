@@ -1,0 +1,33 @@
+# B01 (fast numbers) + B02 (random draws) pre-test library. Throwaway.
+[package]
+name = "kbench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "kbench"
+# cdylib: libkbench.so for the phone test app (JNI); rlib: for the command-line tool.
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "kbench"
+path = "src/main.rs"
+
+[features]
+default = []
+# JNI exports for dev.kindling.pretests.Bench (phone test app, B78).
+android = ["dep:jni"]
+
+[dependencies]
+serde_json = "1"
+libc = "0.2"
+jni = { version = "0.21", optional = true, default-features = false }
+
+[build-dependencies]
+cc = "1"
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+debug = false

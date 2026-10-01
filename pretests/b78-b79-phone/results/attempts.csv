@@ -1,0 +1,5 @@
+shell,attempt,outcome,note
+s1-kotlin-rust,1,fail,Maven Central answered 429 Too Many Requests to Gradle's parallel downloads (shared egress); not a code error
+s1-kotlin-rust,2,ok,builds; signed v3 (tools drop v2 for minSdk 31); 16 KB aligned; one cosmetic NDK-version warning
+s2-kotlin-cpp,1,ok,builds first time (Gradle caches already warm from shell 1)
+s3-rust-native,1,ok,builds first time; no Gradle (cargo-ndk + aapt2 + zipalign + apksigner script)
