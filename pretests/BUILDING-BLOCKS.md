@@ -109,7 +109,8 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Result so far** (1 October 2026; `pretests/b74-b76-sound-speech/`):
     - **Cost is no issue:** one cloud core mixes about 3,000 impact sounds, either way.
     - **Instruments from their shapes work:** every flute note came within 3.3 cents of the pitch worked out from its bore and holes.
-    - **Your ear: shaped noise (A2) sounds much better** than sound built from ringing modes (A1). Impacts are made as noise shaped by the material's properties, so they still come from the physics (`SND-06`); it is also the cheaper way. The flutes are fine; the drums sound a bit weak, partly because a phone speaker can't play the big drum's lowest notes, so drums need more body in the range a phone can play. The phone's audio delay is measured by the second test app.
+    - **Your ear: shaped noise (A2) sounds much better** than sound built from ringing modes (A1). Impacts are made as noise shaped by the material's properties, so they still come from the physics (`SND-06`); it is also the cheaper way. The flutes are fine; the drums sound a bit weak. The phone's audio delay is measured by the second test app.
+    - **Why the drums sound weak, and what that means for all sound:** a phone speaker loses almost everything below about 350 Hz, so every deep sound (drums, thunder, rockfalls, large animals) comes out weak through it. A last step at the end of the mix, tuned to the speaker and off with headphones, lifted deep sounds by 4 to 17 dB; the architecture should include one. The rest of the drums' weakness is the drum's own physics, which is tuning for later, so that work is parked (`SND-02`).
 
 - `B76` **Speech** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how to speak an invented language on the phone (`SND-03`).
