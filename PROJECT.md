@@ -113,7 +113,7 @@ This section says what Kindling is, what it feels like, and what success means. 
   - **Why:** Every event has real causes, and the game lets you find them: the scientist's view of a mind (`PRE-14`), the buried layers of a site (`PRE-09`), and rewinding and branching history (`TIM-06`).
   - **Example:** A band abandons its cave. You look into their minds and find a run of failed hunts and a belief that the cave turned against them after a death. You rewind, send a good hunting season, and see whether they stay.
 
-- `VIS-09` **Other feelings** *(Proposed)*: Attachment to particular people, and the harshness of nature, will arise from the simulation and are welcome, but the design isn't built around them. When design choices conflict, wonder and curiosity decide.
+- `VIS-09` **Other feelings** *(Decided)*: Attachment to particular people, and the harshness of nature, will arise from the simulation and are welcome, but the design isn't built around them. When design choices conflict, wonder and curiosity decide.
 
 ### 1.3 How you play
 
@@ -123,7 +123,7 @@ This section says what Kindling is, what it feels like, and what success means. 
   - **Why it matters:** both must feel natural. A check-in can't require any setup, and a long session needs tools for depth.
   - The world pauses when the app is closed (`TIM-05`), so every session starts exactly where the last one ended.
 
-- `VIS-11` **A session, as a story** *(Proposed; an illustration, not a script)*
+- `VIS-11` **A session, as a story** *(Decided; an illustration, not a script)*
 
   > You open the app. The world is exactly where you left it: late autumn in the valley of two rivers, year 2,314. A live moment is waiting: *the eastern band has lost its fire*. You zoom in, and time slows to walking pace. The camp is cold; children huddle under hides; wolves circle at the edge of the scree.
   >
@@ -133,7 +133,7 @@ This section says what Kindling is, what it feels like, and what success means. 
 
 ### 1.4 Signature moments
 
-- `VIS-12` **Signature moments** *(Proposed)*: Stories the simulation must be able to produce. None of them is scripted. Each is an example of what the rules should make possible, and each becomes a long-term test (the `MOM` items below). The IDs in brackets are the parts of the project each moment depends on.
+- `VIS-12` **Signature moments** *(Decided)*: Stories the simulation must be able to produce. None of them is scripted. Each is an example of what the rules should make possible, and each becomes a long-term test (the `MOM` items below). The IDs in brackets are the parts of the project each moment depends on.
 
   - `MOM-01` **Fire from wood**: In a hard winter, a band whose fire has died learns to make fire by friction. (`MND-11`, `RCK-02`, `GOD-03`)
   - `MOM-02` **The lost craft**: A fever kills a band's best stoneworkers. For generations its blades are cruder, until the skill is rediscovered or learned again from neighbours. (`CUL-01`, `CUL-02`)
@@ -184,7 +184,7 @@ Who it's for: you alone (`SCP-02`). Success is judged by the experience; the res
 
 - `VIS-14` **A joy on the phone** *(Decided)*
   - **What:** Beautiful, smooth and absorbing in your hand.
-  - **Done when** *(Proposed; exact limits set from the measurements in `PLT-04`)*:
+  - **Done when** *(exact limits set from the measurements in `PLT-04`)*:
     - zooming and panning stay smooth at the screen's full refresh rate, at every zoom level;
     - the app opens to your world, ready to play, within about three seconds;
     - an hour's session stays comfortable for battery and heat;
@@ -192,7 +192,7 @@ Who it's for: you alone (`SCP-02`). Success is judged by the experience; the res
 
 - `VIS-15` **Histories worth reading** *(Decided)*
   - **What:** Every world produces a history you would want to read, and no two are alike.
-  - **Done when** *(Proposed)*:
+  - **Done when:**
     - in milestone reviews, you'd choose to read a world's chronicle for pleasure;
     - worlds from different seeds tell clearly different stories;
     - every chronicle entry can be traced back to the simulated events behind it.
@@ -362,7 +362,7 @@ This section sets the boundaries of the project: what it includes, where history
   - **Why:** There's nothing extra to set up, maintain or pay for.
   - If an experiment ever needs more computing power than a session offers, that is raised with you before anything else is set up.
 
-- `SCP-16` **Milestones** *(Decided; the list itself is Proposed)*: The project moves through these milestones in order. Each ends with a report you review (`RES-06`). Tasks and dates live in the implementation plan.
+- `SCP-16` **Milestones** *(Decided)*: The project moves through these milestones in order. Each ends with a report you review (`RES-06`). Tasks and dates live in the implementation plan.
 
   1. `MIL-01` **Foundations:** a small generated valley that plays out identically on the phone and in the cloud (`PRN-08`), the experiment runner and its first report, and a basic phone viewer for replays. *Now possible:* watching a generated valley pass through its days and seasons on your phone.
   2. `MIL-02` **Sharp stone (Experiment 1):** stone that breaks by real rules; people who perceive, form concepts, learn cause and effect, build skills and learn from each other; just enough food and terrain to live on. *Now possible:* watching a band discover how to chip stone, and seeing the skill spread or be lost.
@@ -407,7 +407,7 @@ You are an invisible force of nature. This section defines exactly what you can 
   - **Example:** After a run of lucky hunts that you sent, a band gives the credit to the bones they buried at the cave mouth. A ritual of burying bones begins.
 
 - `GOD-05` **Only natural means** *(Decided)*
-  - **What:** Every act must be something nature could do. Your powers feed into the world's own systems (weather, chance, sleep). They never create anything from nothing and never break a rule (`PRN-12`). There is no limited supply of power to spend, but nature's own limits always apply. Those limits *(the list is Proposed)*:
+  - **What:** Every act must be something nature could do. Your powers feed into the world's own systems (weather, chance, sleep). They never create anything from nothing and never break a rule (`PRN-12`). There is no limited supply of power to spend, but nature's own limits always apply. Those limits:
     - lightning comes from storm clouds, so to strike a tree you first need a storm overhead, which you can bring;
     - disasters happen only where conditions allow: eruptions at volcanoes with magma beneath them, earthquakes on faults, floods where rain can swell the rivers, wildfires where fuel is dry enough to burn;
     - weather stays within what the climate can produce at that place and season, so there is no snow in a tropical summer;
@@ -445,21 +445,21 @@ You are an invisible force of nature. This section defines exactly what you can 
 
 - `GOD-04` **Fortune and fate** *(Decided)*
   - **What:** You can bless or curse a person, a family, a band, an animal herd or a place. Fortune can touch luck in the hunt, finding food or materials, fertility, health and recovery, and sickness and plague.
-  - **How strong:** Gentle. A blessing at most doubles a chance: a hunt with a 10% chance of success gets 20%. Their skill still matters most, and nothing is ever certain. A curse works the same way in reverse, at most halving a chance *(Proposed)*. A blessing or curse lasts as long as you set, from a single hunt to a few years *(Proposed)*.
+  - **How strong:** Gentle. A blessing at most doubles a chance: a hunt with a 10% chance of success gets 20%. Their skill still matters most, and nothing is ever certain. A curse works the same way in reverse, at most halving a chance. A blessing or curse lasts as long as you set, from a single hunt to a few years.
   - **Fortune works on chance, never on the rules:** it changes which of the possible outcomes happens, never what is possible. A plague needs a disease that already exists in the world.
   - **Why:** Luck is how the world feels to the people in it. Fortune lets you lean on it without taking over.
   - **Example:** You bless a band's hunters for one winter. They come home with meat a little more often, but whether they survive still depends on how well they hunt and share.
 
 ### 4.3 Using your powers
 
-- `GOD-10` **Using your powers on the phone** *(Proposed)*
+- `GOD-10` **Using your powers on the phone** *(Decided)*
   - **Touch first:** long-press a person, animal, group or place to see what you can do there (`PRE-33`).
   - **Nature:** draw around an area to push its weather or season; tap a spot for a small event.
   - **Dreams:** open a sleeper's memories, shown as small pixel-art scenes, choose what the dream is made of, and pick a feeling.
   - **Fortune:** choose what to bless or curse, and for how long.
   - Everything then plays out through the simulation. Nothing happens faster than nature could make it happen.
 
-- `GOD-11` **What's possible here** *(Proposed)*
+- `GOD-11` **What's possible here** *(Decided)*
   - **What:** The game only offers what nature could do at that place or to that being right now, and says briefly why other powers aren't available, such as "no volcano here" or "she is awake".
   - **Why:** You never have to guess what's natural, and you never try a miracle by accident.
 
@@ -482,7 +482,7 @@ After the camera, time is your main control. This section defines how fast time 
 
 - `TIM-01` **Time follows zoom** *(Decided)*
   - **What:** By default, the speed of time is tied to the zoom. The closer you look, the slower time runs; the further out, the faster. One gesture controls both where you look and how fast history moves.
-  - **The scale** *(Proposed; exact values are tuned by measurement, `TIM-07`)*:
+  - **The scale** *(exact values are tuned by measurement, `TIM-07`)*:
     - **one person:** natural speed (`TIM-10`);
     - **a camp:** a day passes in a few minutes;
     - **a valley:** a season passes in about a minute;
@@ -493,14 +493,14 @@ After the camera, time is your main control. This section defines how fast time 
 
 - `TIM-10` **Natural speed up close** *(Decided)*: At the closest zoom, people and animals move at real-life speed. You can watch a flake come off the stone.
 
-- `TIM-04` **Manual control** *(Decided)*: You can unlink speed from zoom whenever you want. *(Proposed controls: pause, play, a speed dial, and a lock that keeps the current speed while you move the camera.)*
+- `TIM-04` **Manual control** *(Decided)*: You can unlink speed from zoom whenever you want. The controls: pause, play, a speed dial, and a lock that keeps the current speed while you move the camera.
 
 ### 5.2 The story director
 
 - `TIM-02` **Story director** *(Decided)*
   - **What:** The director watches the whole world for important moments and adjusts the speed of time around them. When nothing important is happening, it lets quiet years race past, up to the top speed your zoom allows.
   - **When something important happens elsewhere** *(Decided)*: time slows, a live moment appears (`PRE-08`), and one tap takes you there. You stay in control of the camera.
-  - **What counts as important** *(Proposed)*:
+  - **What counts as important:**
     - firsts: the first time anyone does something new;
     - births and deaths among the people you follow;
     - discoveries spreading or being lost;
@@ -511,7 +511,7 @@ After the camera, time is your main control. This section defines how fast time 
 
 - `TIM-03` **The director never touches events** *(Decided; follows from `PRN-10` and `PRN-12`)*: The director controls speed only. It decides where to slow down but never causes, changes or hides anything.
 
-- `TIM-11` **Skip to the next moment** *(Proposed)*: A control that runs time at top speed until the next important moment, then slows down. Useful for short check-ins (`VIS-10`).
+- `TIM-11` **Skip to the next moment** *(Decided)*: A control that runs time at top speed until the next important moment, then slows down. Useful for short check-ins (`VIS-10`).
 
 ### 5.3 While you're away
 
@@ -520,7 +520,7 @@ After the camera, time is your main control. This section defines how fast time 
 - `TIM-12` **Overnight mode** *(Decided)*
   - **What:** Leave the app open on the charger and switch on overnight mode. The world runs at top speed with the screen dimmed. When you come back, a summary tells you what happened, drawn from the chronicle (`PRE-05`).
   - **Why:** Deep simulation runs slowly on a phone (`PRN-11`). Overnight mode gives history the hours it needs without you having to watch.
-  - **Safeguards** *(Proposed)*: it runs only while the phone is charging, and it stops if the phone gets too hot.
+  - **Safeguards:** it runs only while the phone is charging, and it stops if the phone gets too hot.
   - **Example:** You start it before bed. In the morning: "312 years passed. Two bands merged by the river; a long drought pushed the eastern band over the hills; on the coast, someone began drying fish."
 
 ### 5.4 Going back
@@ -530,11 +530,11 @@ After the camera, time is your main control. This section defines how fast time 
   - **Why:** Curiosity (`VIS-08`): the only way to really answer "what if?".
   - **Example:** You rewind to before the plague, send a mild winter instead, and compare the two histories (`MOM-10`).
 
-- `TIM-13` **Comparing timelines** *(Proposed)*: Two branches side by side: their chronicles, their maps, and key numbers (population, discoveries, languages, beliefs), with the moment they split clearly marked.
+- `TIM-13` **Comparing timelines** *(Decided)*: Two branches side by side: their chronicles, their maps, and key numbers (population, discoveries, languages, beliefs), with the moment they split clearly marked.
 
-- `TIM-08` **Saved worlds and timelines** *(Proposed)*: Several worlds, each with its own tree of timelines, kept on the phone. Branches can be named, and you can switch between them.
+- `TIM-08` **Saved worlds and timelines** *(Decided)*: Several worlds, each with its own tree of timelines, kept on the phone. Branches can be named, and you can switch between them.
 
-- `TIM-14` **Dates** *(Proposed)*: The game counts years from the moment a world's history begins ("year 2,314"), with days and seasons set by that world's own sun and moons (`WLD-06`). The people's own calendars are separate (`CUL-13`).
+- `TIM-14` **Dates** *(Decided)*: The game counts years from the moment a world's history begins ("year 2,314"), with days and seasons set by that world's own sun and moons (`WLD-06`). The people's own calendars are separate (`CUL-13`).
 
 ### 5.5 Pacing and endings
 
@@ -1222,7 +1222,7 @@ When the phone can't keep up, time slows and depth stays (`PRN-11`).
 - `PLT-09` **Updates keep history** *(Decided)*
   - **What:** The game's rules will keep growing (`PRN-14`). When you update, everything that already happened in a world stays exactly as it was. When you continue, the world runs under the new rules, and the change is marked on its timeline.
   - **Why:** Worlds are long-lived, so they shouldn't be thrown away with each update, and the past should never change.
-  - *(Proposed: rewinding to before an update and branching runs the new branch under the current rules.)*
+  - Rewinding to before an update and branching runs the new branch under the current rules.
 
 ### 13.4 The cloud
 
@@ -1416,9 +1416,6 @@ These are suggestions written into this file while it was being built. They guid
 
 **Whole items**
 
-- **Vision:** `VIS-09`, `VIS-11`, `VIS-12` (with the signature moments `MOM-01` to `MOM-12`)
-- **The player as god:** `GOD-10`, `GOD-11`
-- **Time and history:** `TIM-08`, `TIM-11`, `TIM-13`, `TIM-14`
 - **World:** `WLD-11`, `WLD-24`, `WLD-26`, `WLD-28`
 - **Matter and physics:** `MAT-12`, `MAT-13`, `MAT-14`, `MAT-15`, `MAT-16`
 - **People:** `BIO-18`, `BIO-19`
@@ -1433,16 +1430,12 @@ These are suggestions written into this file while it was being built. They guid
 
 **Decided items with proposed details**
 
-- **Vision:** `VIS-14`, `VIS-15` (the "Done when" checks)
-- **Scope:** `SCP-16` (the milestones `MIL-01` to `MIL-07`)
-- **The player as god:** `GOD-04`, `GOD-05`
-- **Time and history:** `TIM-01`, `TIM-02`, `TIM-04`, `TIM-12`
 - **World:** `WLD-06`, `WLD-10`
 - **Matter and physics:** `MAT-04`, `MAT-08`
 - **People:** `BIO-04`, `BIO-08`
 - **Minds:** `MND-16`
 - **Presentation:** `PRE-07`, `PRE-10`, `PRE-22`, `PRE-27`
-- **Platform and performance:** `PLT-04`, `PLT-05`, `PLT-06`, `PLT-09`
+- **Platform and performance:** `PLT-04`, `PLT-05`, `PLT-06`
 - **Research and validation:** `RES-03`, `RES-07`
 - **Project and process:** `PRC-01`
 
