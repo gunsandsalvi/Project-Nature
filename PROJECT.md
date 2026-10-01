@@ -843,31 +843,113 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
 
 ## 9. Minds
 
-How people think, and in simpler form, how animals think. Everything here is learned inside the world.
+How people think, and in simpler form how animals think. Everything a mind knows is learned inside the world (`PRN-01`), every choice can be explained (`PRN-13`), and no AI language model ever thinks for anyone (`PRN-06`).
 
-- `MND-01` **No AI language model thinks for them** *(Decided)*: Every belief and invention comes from the mechanisms below.
-- `MND-02` **Knowledge only from inside the world** *(Proposed)*: Any learning a mind does draws only on experience in its own world. Nothing carries real-world knowledge in.
-- `MND-03` **Senses, not labels** *(Decided)*: People perceive properties (weight, hardness, colour, smell, taste, warmth, sound), never the game's names for things.
-- `MND-04` **Their own concepts** *(Decided)*: People sort what they perceive into their own categories. Categories differ between groups and can be wrong. One band lumps flint and chert together as "cutting stone"; another confuses a poisonous berry with a safe one.
-- `MND-05` **Cause-and-effect beliefs** *(Proposed)*: "Doing this to that, in this situation, leads to this." Each belief is held with more or less certainty as evidence comes in. Discovery and superstition come from the same mechanism.
-- `MND-06` **Skills** *(Proposed)*: Learned sequences of actions with fine control (angle, force, timing) that improve with practice. Knowing something can be done is not the same as doing it well.
-- `MND-07` **Drives** *(Proposed)*: Hunger, thirst, cold, tiredness, fear, belonging, status, curiosity and the urge to have children.
-- `MND-08` **Feelings shape memory** *(Proposed)*: Strong feelings decide what is remembered and how strongly. A terrifying storm stays for life; an ordinary day fades.
-- `MND-09` **Choosing what to do** *(Proposed)*: Habits handle routine. Deliberate planning takes over when habits fail or the stakes rise: working backwards from a need through what they believe causes what. People explore most when comfortable (play) and when desperate (need).
-- `MND-10` **Curiosity** *(Proposed)*: Attention goes where expectations fail. Surprises are remembered and tried again.
-- `MND-11` **Where new ideas come from** *(Proposed)*:
+### 9.1 Ground rules
+
+- `MND-01` **No AI language model thinks for them** *(Decided)*: Every belief and invention comes from the mechanisms in this section.
+
+- `MND-02` **Knowledge only from inside the world** *(Decided; follows from `PRN-01` and `PRN-06`)*: Any learning a mind does draws only on experience in its own world. Nothing carries real-world knowledge in.
+
+- `MND-17` **Why ordinary minds are enough** *(Decided)*: No single mind needs to be a genius. A people's intelligence comes from four sources, and only one of them is inside a head:
+  1. **a world made of properties, not recipes** (section 7), so simple learning finds real things;
+  2. **small, well-understood learning mechanisms**, the ones described in this section;
+  3. **many minds over generations**, copying imperfectly, varying and passing things on (`CUL-01`). Researchers call this cumulative cultural evolution;
+  4. **time:** an accident with a one-in-ten-thousand chance happens routinely over centuries.
+
+### 9.2 Perceiving and knowing
+
+- `MND-03` **Senses, not labels** *(Decided)*: People perceive properties (weight, hardness, colour, smell, taste, warmth, sound) through their senses (`BIO-18`), never the game's names for things.
+
+- `MND-04` **Their own concepts** *(Decided)*
+  - **What:** People sort what they perceive into their own categories. Categories differ between groups and can be wrong.
+  - **Example:** One band lumps flint and chert together as "cutting stone"; another confuses a poisonous berry with a safe one.
+
+- `MND-05` **Cause-and-effect beliefs** *(Decided)*
+  - **What:** "Doing this to that, in this situation, leads to this." Each belief is held with more or less certainty, which rises and falls as evidence comes in.
+  - **Why:** Discovery and superstition come from the same mechanism, with different luck.
+  - **Example:** Striking glassy stone makes sharp edges: a discovery. The band sang before a hunt that went well: a superstition, which can become a rite (`MOM-04`).
+
+- `MND-18` **Memory** *(Proposed)*: People remember:
+  - events they lived through;
+  - places, as a mental map with the seasons attached ("hazelnuts on the south slope in autumn");
+  - people: who's who, family, and who owes whom;
+  - know-how (`MND-06`) and beliefs (`MND-05`).
+
+  Vivid and repeated memories last; others fade. Retelling can change a memory.
+
+- `MND-08` **Feelings shape memory** *(Decided)*: Strong feelings decide what is remembered and how strongly. A terrifying storm stays for life; an ordinary day fades.
+
+### 9.3 Wanting and feeling
+
+- `MND-07` **Drives** *(Decided)*: Hunger, thirst, cold, tiredness, fear, belonging, status, curiosity and the urge to have children.
+
+- `MND-19` **Feelings** *(Proposed)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride and awe. They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
+
+- `MND-20` **Personality** *(Proposed)*: A few inborn tendencies (curiosity, boldness, sociability, patience, dominance, readiness to conform), partly inherited (`BIO-06`) and shaped by what happens to each person.
+
+- `MND-21` **Inborn tendencies** *(Decided)*
+  - **What:** The biases evolution gave humans: a taste for sweet and fat and a wariness of bitter; quicker fear of snakes, heights and the dark; attachment between parent and child; the urge to imitate; and suspecting a hidden someone behind unexplained events.
+  - **Why:** They make some lessons easier to learn but teach nothing by themselves, so the world stays the only teacher (`PRN-01`).
+
+### 9.4 Deciding and doing
+
+- `MND-09` **Choosing what to do** *(Decided)*: Habits handle routine. Deliberate planning takes over when habits fail or the stakes rise: working backwards from a need through what they believe causes what. People explore most when they are comfortable (play) and when they are desperate (need).
+
+- `MND-06` **Skills** *(Decided)*
+  - **What:** Learned sequences of actions with fine control (angle, force, timing), built from the body's basic actions (`MAT-12`), that improve with practice.
+  - **Why:** Knowing something can be done is not the same as doing it well.
+  - **Example:** A child who has watched knapping knows that striking makes flakes, but shatters a dozen stones before getting one good edge.
+
+- `MND-13` **Learning over a lifetime** *(Decided)*: People get better at things through their own experience.
+
+- `MND-22` **Planning ahead** *(Proposed)*: People can plan days and seasons ahead once they have learned the patterns, such as storing nuts before winter. Tools from culture, such as calendars, counting and records, make longer plans reliable (`CUL-03`).
+
+### 9.5 New ideas
+
+- `MND-10` **Curiosity** *(Decided)*: Attention goes where expectations fail. Surprises are remembered and tried again.
+
+- `MND-11` **Where new ideas come from** *(Decided)*:
   - accidents someone notices;
   - watching nature, such as fire after lightning, or seeds sprouting from a rubbish heap;
   - tinkering with skills they already have;
   - analogy: what works on wood might work on bone;
-  - dreams.
+  - dreams (`MND-12`).
 
   Every idea is a guess until the physics says yes or no.
-- `MND-12` **Dreams** *(Proposed)*: During sleep, people replay and recombine their own memories. This is also the player's lever (`GOD-03`).
-- `MND-13` **Learning over a lifetime** *(Decided)*: People get better at things through their own experience.
-- `MND-14` **Detail follows attention** *(Proposed)*: Minds far from your attention run in simpler form (habits, and knowledge held by the group as a whole). They sharpen again when you zoom in, with no break in their story.
+
+  **How fire-making could be discovered with no recipe:**
+  1. A band keeps fires found after lightning. They have learned that dry wood feeds fire, rain kills it, and losing it means cold nights and wolves.
+  2. The physics knows that friction makes heat, and that dry tinder catches fire above a certain temperature. There is no "make fire" rule.
+  3. Someone twirls a stick against wood to bore a hole. The tip gets hot and smokes. Smoke means fire to them, so this is surprising and is remembered as a weak hunch.
+  4. Winter comes and their fire goes out, so the need is desperate. A curious person tries twirling again, faster, longer, with drier wood. An ember appears, then the tinder catches, then flame.
+  5. Others watch and copy imperfectly. Some succeed, teach others and improve the method. The band now knows how to make fire, a skill nobody programmed.
+  6. You might help: during that crisis, a dream puts "smoking stick" next to "fire" in the most curious person's head (`GOD-03`).
+
+- `MND-12` **Dreams** *(Decided)*: During sleep, people replay and recombine their own memories. This strengthens what they learned, sometimes connects things in a new way, and is also your lever (`GOD-03`).
+
+### 9.6 Other minds
+
+- `MND-23` **Understanding others** *(Decided)*
+  - **What:** People track what others know, want and believe, and can reason one step deeper ("she thinks I don't know").
+  - **Why:** This is what makes teaching, cooperation, gossip and deception possible.
+  - **Example:** Tamo keeps a good flint source secret, believing nobody knows about it. Ama has noticed the fresh flakes Tamo brings back, and follows one morning.
+
+- `MND-24` **Relationships** *(Proposed)*: People know who's who: family, friends, rivals, and who owes whom. Trust and affection grow and fade with shared experience.
+
+### 9.7 Scale and inspection
+
+- `MND-14` **Detail follows attention** *(Decided; follows from `PRN-11`)*: Minds far from your attention run in simpler form (habits, and knowledge held by the group as a whole). They sharpen again when you zoom in, with no break in their story.
+
 - `MND-15` **No population cap** *(Decided)*: How many minds the phone can run at each level of detail is found by measurement (`PLT-04`).
-- `MND-16` **Animals** *(Decided)*: Animals have the same kind of mind with fewer abilities. They learn fear, routes and habits, so hunting becomes an arms race and taming becomes possible.
+
+- `MND-25` **Thoughts are structured; words come later** *(Decided; follows from `PRN-06`)*: What a person thinks is kept as beliefs, intentions, feelings and memories, never as sentences. The story view (`PRE-14`) turns them into words through the describing model; the scientist's view shows them raw.
+
+### 9.8 Animals
+
+- `MND-16` **Animals** *(Decided)*
+  - **What:** Animals have the same kind of mind with fewer abilities. They learn fear, routes and habits, so hunting becomes an arms race and taming becomes possible.
+  - **What animals lack** *(Proposed)*: language, deliberate teaching, long plans and abstract concepts. Species differ: wolves hunt together, deer are wary grazers.
 
 ## 10. Culture and society
 
