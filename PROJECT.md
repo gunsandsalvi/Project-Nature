@@ -1193,6 +1193,20 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
     Animals eat, breed, migrate and die.
     Everything is tied together in food webs, with populations that boom and crash.
   - **Why:** It is what people live from, and what they will one day change.
+  - **How it works:**
+    - **Plants grow by what they catch and draw:** each step, each species in a patch (`WLD-12`) grows by the light its leaves catch, with taller plants shading shorter ones, limited by water, nutrients and warmth against its needs (`WLD-27`), at measured rates for its family (`WLD-19`).
+      The growth goes to leaves, wood, roots, stores, flowers and seed by the species' own rules for its age and the season.
+    - **Seasons come from warmth and day length:** each species leafs out, flowers, fruits and dies back when its sums of warmth and the day's length reach its own thresholds, so a cold spring delays everything and a warm one brings fruit early.
+    - **Seed:** flowers set seed when pollinated, by the wind or by the pollinating insects in the patch (`WLD-23`); seed is carried by wind, water and the animals that eat it, and waits in the soil until warmth, wetness, light or fire lets it sprout.
+    - **Plants die** of drought, frost beyond their limits, fire, shade, being eaten past recovery, disease and old age; dead matter falls as litter, rots (`WLD-21`), returns its nutrients (`WLD-27`) and is fuel (`WLD-28`).
+    - **Animals live by the same body rules as people:** each day, each animal needs food energy and nutrients by its body size and activity (`BIO-09`), and eats what its diet allows from its patch, sharing it with every other eater there; what is eaten comes off the patch.
+      Fed animals build fat and hungry ones burn it; cold and deep snow cost energy and bury food.
+    - **Moving:** counted animals move between patches each day toward food, water and cover and away from hunters, by their species' rules and what the population has learned (`MND-16`); herds move together, and migrations follow the seasons' food along routes the population has learned.
+    - **Breeding:** in its season, set by day length and warmth, each species breeds at its measured rates, with more young from females in good condition; young grow and mature at the species' measured ages.
+    - **Hunting:** hunters meet prey at rates set by both their numbers in a patch and how well the prey escapes, by measured rules; each kill is a whole animal, decided by chance from the rate, and the carcass feeds scavengers and then rots.
+    - **Every death has a cause:** hunger, a hunter, disease, cold, drowning, fire, old age or people, and each is counted with its cause, as for people (`BIO-14`).
+    - **Booms and crashes:** nothing sets them; they come from these rules and the weather, as in the example.
+    - **Checked:** in sandboxes, each kind's numbers fall within real densities for its habitat, and hunters and prey keep real ratios (`RES-14`).
   - **Example:** A run of mild winters lets the deer multiply; the wolves follow; then a hard winter cuts both down, and the hunters go hungry.
 
 - `WLD-28` **Fire in the landscape** *(Decided)*: Lightning and dry fuel start wildfires, which spread with wind and slope; landscapes regrow after them, and some plants depend on fire.
@@ -1212,9 +1226,34 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
     - **People:** a fire people start spreads by the same law; whether they ever burn land on purpose is up to their minds (`PRN-01`).
 
 - `WLD-20` **Heredity in plants and animals** *(Decided)*: Inheritance continues during play, so adaptation and domestication (wolves into dogs, wild grasses into grain) can happen on their own.
+  - **How it works:**
+    - **Traits are numbers:** body size, growth, tolerances, seed size, whether seeds stay on the stalk, poison doses, boldness and fear, breeding season, and the rest of each species' traits (`WLD-19`).
+    - **Individuals inherit from their parents:** an animal or plant that is an individual (near people, or touched by them, `WLD-12`) carries its own traits.
+      Its young get their parents' average plus variation, by each trait's measured share that is inherited; traits set by one or two genes in Earth's species, such as seeds that stay on the stalk or coat colour, pass by Mendel's rules.
+    - **Counted populations inherit as a whole:** each keeps, per weather cell, the average and spread of each trait and the share of each gene.
+      Who dies and who breeds is decided by the same body rules across the spread, such as cold killing more of the small, and the next generation's average shifts by the breeder's rule: the measured share that is inherited, times the difference between the parents and the whole.
+      Animals moving between cells mix their traits, and an individual rejoining its count adds its traits to the average.
+    - **New variation:** mutation adds a little new spread each generation at measured rates, so traits can move beyond their starting range over long times.
+    - **Selection is only what happens:** no one writes a fitness rule; survival and breeding come from cold, hunger, hunters, people and the rest of the world.
+      So bolder wolves that eat at the edge of camp raise more pups near people (`MOM-06`), and grass seeds that stay on the stalk are the ones gathered by cutting and carried home, so if people sow saved seed, that gene spreads.
+    - **Real speed:** change takes as many generations as it takes; only the experiment dial speeds it up (`BIO-07`, `PRN-12`).
 
 - `WLD-21` **Microbes** *(Decided)*: Rot, fermentation and disease are living microbes that spread and evolve.
   Crowding, and living close to animals, bring epidemics.
+  - **How it works:**
+    - **Kinds:** microbes come from Earth families (`WLD-09`): decomposers in soil, litter and carcasses; fermenters on fruit, grain and milk; and about 20 kinds of disease (tuned), several for each way in (a wound, food or water, breath, touch, a bite) and for the main animal hosts.
+    - **Where they live:** as amounts on things (each piece of food or dead matter carries its load, `MAT-10`), in each patch's soil and litter, in each stretch of water, and in each infected body.
+    - **Rot and fermenting are laws over time** (`MAT-04`): microbes on food or dead matter grow at measured rates set by warmth, wetness, air, salt and acidity, and turn its ingredients into others, balanced (`MAT-09`): sugars into acids, alcohol and gas, flesh into rot.
+      So meat rots fast when warm and wet and slowly when cold, dry, salted or smoked, and crushed fruit ferments (`RCK-07`, `RCK-09`, `RCK-14`).
+    - **Disease in a body:** a germ gets in by its way in; if the dose beats the body's defences (immunity, condition, age), it multiplies at its rate and does its harm until the body clears it, it kills, or it stays (`BIO-05`); those who recover stay immune for the germ's measured time.
+    - **Spread:** a sick body sheds the germ by its way out: into the air nearby, into water and soil with its dung, onto what it touches, or into the insects that bite it.
+      Others catch it only from where they really are and what they really do, such as sharing a shelter, drinking downstream or butchering a carcass, never from an assumed contact rate.
+    - **From animals:** germs that live in animals reach people through bites, meat, dung and shared water, more often the closer and more often people deal with animals.
+    - **Crowding:** a germ that kills fast or leaves lasting immunity runs out of new hosts in small, scattered bands and dies out; only a large, close-packed population keeps it going, so epidemics arrive with crowding by themselves.
+      This is checked against real figures for the population a disease needs to persist (`RES-14`).
+    - **Evolving:** each germ's traits, such as how easily it spreads, how harmful it is, how long immunity lasts and which hosts it can live in, vary and are inherited with mutation as in `WLD-20`, over many generations a day, so the strains that spread best take over.
+      A strain that gains a new host can jump from animals to people; there is no measured rate for such jumps, so it is estimated and tuned.
+    - **Counted animals:** in counted populations, the sick, the recovered and the dead are counted per patch (`WLD-12`).
 
 - `WLD-22` **Natural disasters** *(Decided)*: Eruptions, earthquakes, floods, droughts, storms, wildfires and lightning come from the world's own systems, not only from you.
   Follows from `GOD-05` and the natural systems in this section.
