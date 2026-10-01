@@ -563,7 +563,7 @@ The world is a small planet with everything a planet has: rock, water, air, plan
 
 ### 6.2 The planet
 
-- `WLD-06` **Varied within reason** *(Decided)*: Each world has its own day length, year length, axial tilt (and so the strength of its seasons), moons, and share of land, all within ranges that allow human-like life. *(Proposed ranges: day 18–36 hours, year 250–500 days, tilt 5°–35°, 0–3 moons, 25–50% land. Gravity, air and chemistry stay Earth-like.)*
+- `WLD-06` **Varied within reason** *(Decided)*: Each world has its own day length, year length, axial tilt (and so the strength of its seasons), moons, and share of land, all within ranges that allow human-like life. The ranges: day 18–36 hours, year 250–500 days, tilt 5°–35°, 0–3 moons, 25–50% land. Gravity, air and chemistry stay Earth-like.
 
 - `WLD-07` **A rich sky** *(Decided)*
   - **What:** The sun, moons, stars and planets move realistically for each world's orbit and tilt. Eclipses, comets, meteor showers and auroras happen.
@@ -591,15 +591,15 @@ The world is a small planet with everything a planet has: rock, water, air, plan
 
 - `WLD-10` **Generate many, keep the best** *(Decided)*
   - **What:** The generator makes many candidate worlds and scores each one. It keeps the best, and never edits it.
-  - **What scores well** *(Proposed)*:
+  - **What scores well:**
     - varied landscapes and climates;
     - natural barriers (mountains, seas, deserts) that let separate cultures form;
     - resources spread unevenly (flint here, copper there);
     - a good place to begin (`WLD-24`).
 
-- `WLD-24` **Where history begins** *(Proposed)*: The bands start in a temperate region with caves, fresh water and varied food within reach. The region is found by the scoring, never placed by hand.
+- `WLD-24` **Where history begins** *(Decided)*: The bands start in a temperate region with caves, fresh water and varied food within reach. The region is found by the scoring, never placed by hand.
 
-- `WLD-11` **Generation time** *(Proposed)*: A candidate world takes under a minute to generate on the phone, so choosing the best of a dozen takes a few minutes.
+- `WLD-11` **Generation time** *(Decided)*: A candidate world takes under a minute to generate on the phone, so choosing the best of a dozen takes a few minutes.
 
 ### 6.4 Detail
 
@@ -631,14 +631,14 @@ All of these are simulated in depth, and each feeds the others.
 
 - `WLD-17` **Fresh water** *(Decided)*: Rivers, lakes, wetlands, springs, underground water, ice and floods. Life and settlement gather around them.
 
-- `WLD-26` **Seas** *(Proposed)*: Oceans with currents that carry heat and moisture, tides set by the moons, and a sea level that rises and falls with the ice ages. At low tide, shellfish beds are exposed on the shore.
+- `WLD-26` **Seas** *(Decided)*: Oceans with currents that carry heat and moisture, tides set by the moons, and a sea level that rises and falls with the ice ages. At low tide, shellfish beds are exposed on the shore.
 
 - `WLD-18` **Ecology** *(Decided)*
   - **What:** Plants grow, flower, fruit and die back with the seasons. Animals eat, breed, migrate and die. Everything is tied together in food webs, with populations that boom and crash.
   - **Why:** It is what people live from, and what they will one day change.
   - **Example:** A run of mild winters lets the deer multiply; the wolves follow; then a hard winter cuts both down, and the hunters go hungry.
 
-- `WLD-28` **Fire in the landscape** *(Proposed)*: Lightning and dry fuel start wildfires, which spread with wind and slope; landscapes regrow after them, and some plants depend on fire. People can learn to use fire on the land.
+- `WLD-28` **Fire in the landscape** *(Decided)*: Lightning and dry fuel start wildfires, which spread with wind and slope; landscapes regrow after them, and some plants depend on fire. People can learn to use fire on the land.
 
 - `WLD-20` **Heredity in plants and animals** *(Decided)*: Inheritance continues during play, so adaptation and domestication (wolves into dogs, wild grasses into grain) can happen on their own.
 
@@ -682,7 +682,7 @@ This is where "no recipes" lives. Nothing in the world is a recipe item: everyth
 
 ### 7.2 How things change
 
-- `MAT-04` **A few dozen general laws** *(Decided)*: Change comes from general laws, each using real temperatures and conditions. No law ever names a product. A starting list *(Proposed)*:
+- `MAT-04` **A few dozen general laws** *(Decided)*: Change comes from general laws, each using real temperatures and conditions. No law ever names a product. The starting list:
   - **force:** breaking, cutting, scraping and grinding, bending and springing back, pressing and pounding, friction, twisting and binding, joining by tying, gluing or fitting;
   - **heat:** heating and cooling, burning with more or less air, charring, melting and setting, drying, roasting;
   - **water:** wetting and soaking, dissolving and leaching, swelling, freezing;
@@ -695,9 +695,9 @@ This is where "no recipes" lives. Nothing in the world is a recipe item: everyth
 
 - `MAT-11` **Mechanics** *(Decided; follows from `MAT-06`)*: Weight, momentum, leverage, springiness and friction follow real physics. Throwing sticks, spear-throwers and bows can work only because the physics makes them work.
 
-- `MAT-12` **What a body can do** *(Proposed)*: The basic actions everything else is built from: grasp, carry, put down, drop, throw, strike, press, rub, twist, bend, tear, dig, cut or scrape with an edge, pierce with a point, pour, blow, chew, and put into fire or water. Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn.
+- `MAT-12` **What a body can do** *(Decided)*: The basic actions everything else is built from: grasp, carry, put down, drop, throw, strike, press, rub, twist, bend, tear, dig, cut or scrape with an edge, pierce with a point, pour, blow, chew, and put into fire or water. Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn.
 
-- `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time, feeding the archaeology view (`PRE-09`). *(Proposed detail: what survives depends on the material and the ground. Stone lasts; bone survives in dry caves and limestone; wood, hide and plant fibre usually rot, except in waterlogged, frozen or very dry ground.)*
+- `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time, feeding the archaeology view (`PRE-09`). What survives depends on the material and the ground: stone lasts; bone survives in dry caves and limestone; wood, hide and plant fibre usually rot, except in waterlogged, frozen or very dry ground.
 
 ### 7.3 Real numbers
 
@@ -709,16 +709,16 @@ This is where "no recipes" lives. Nothing in the world is a recipe item: everyth
 
 Matter must be easy to extend, forever (`PRN-14`).
 
-- `MAT-13` **Four catalogues** *(Proposed)*: Matter is described in four catalogues: ingredients, structures, laws and reality checks. Each entry stands alone, is written in plain language a person can read and check, gives its real-world values and sources, and names the reality checks that prove it.
+- `MAT-13` **Four catalogues** *(Decided)*: Matter is described in four catalogues: ingredients, structures, laws and reality checks. Each entry stands alone, is written in plain language a person can read and check, gives its real-world values and sources, and names the reality checks that prove it.
 
-- `MAT-14` **Adding without rewriting** *(Proposed)*
+- `MAT-14` **Adding without rewriting** *(Decided)*
   - **What:** Adding an ingredient, structure, law or check never requires changing the others.
   - **Why it works:** Laws never name products (`PRN-07`), so a new ingredient automatically takes part in every existing law.
   - **Example:** Adding tin ore needs no new smelting rule; the smelting law already covers it.
 
-- `MAT-15` **Every addition proves itself** *(Proposed)*: Each new entry comes with the reality checks it must pass, and the whole checklist runs again, so nothing that worked before breaks.
+- `MAT-15` **Every addition proves itself** *(Decided)*: Each new entry comes with the reality checks it must pass, and the whole checklist runs again, so nothing that worked before breaks.
 
-- `MAT-16` **Matter grows in layers** *(Proposed)*: Each milestone adds a layer without rewriting earlier ones:
+- `MAT-16` **Matter grows in layers** *(Decided)*: Each milestone adds a layer without rewriting earlier ones:
   1. stone, wood, bone and water (Experiment 1);
   2. heat and fire;
   3. food and the body's chemistry;
@@ -782,7 +782,7 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
 
 - `BIO-03` **Starting population** *(Decided)*: 3–4 family bands of 15–30 people each, about 45–120 people in all, living in one region (`WLD-24`).
 
-- `BIO-08` **Everyone is different** *(Decided; follows from `BIO-06` and `PRN-05`)*: Height, strength, stamina, senses, health, temperament, curiosity, memory and learning speed vary from person to person, with real-world spreads. *(Proposed: these traits are partly inherited and partly shaped by how a person grew up, through childhood food, illness and activity.)*
+- `BIO-08` **Everyone is different** *(Decided; follows from `BIO-06` and `PRN-05`)*: Height, strength, stamina, senses, health, temperament, curiosity, memory and learning speed vary from person to person, with real-world spreads. These traits are partly inherited and partly shaped by how a person grew up, through childhood food, illness and activity.
 
 ### 8.2 Staying alive
 
@@ -813,7 +813,7 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
 
 - `BIO-04` **Life cycle** *(Decided; follows from `PRN-05`)*
   - **What:** Birth, childhood, adolescence, adulthood, old age and death, following the life patterns of real hunter-gatherers.
-  - **Typical figures** *(Proposed, from studies of hunter-gatherers)*:
+  - **Typical figures** *(from studies of hunter-gatherers)*:
     - children are weaned at about 2–4 years, and a mother has a child about every 3–4 years;
     - around four in ten children die before the age of 15;
     - adults who reach 15 often live into their 60s and 70s;
@@ -831,7 +831,7 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
 
 ### 8.6 Senses
 
-- `BIO-18` **Senses** *(Proposed)*: Sight (limited by light, fog and distance), hearing, smell, taste and touch, each with real ranges and differences between people, and declining with age. They are how people learn about the world (`MND-03`).
+- `BIO-18` **Senses** *(Decided)*: Sight (limited by light, fog and distance), hearing, smell, taste and touch, each with real ranges and differences between people, and declining with age. They are how people learn about the world (`MND-03`).
 
 ### 8.7 Inheritance
 
@@ -841,7 +841,7 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
 
 ### 8.8 Animals
 
-- `BIO-19` **Animal bodies** *(Proposed)*: Animals have bodies that work in the same way, with their own species' traits (`WLD-19`): needs, injuries, disease, life cycles and senses.
+- `BIO-19` **Animal bodies** *(Decided)*: Animals have bodies that work in the same way, with their own species' traits (`WLD-19`): needs, injuries, disease, life cycles and senses.
 
 ## 9. Minds
 
@@ -872,7 +872,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
   - **Why:** Discovery and superstition come from the same mechanism, with different luck.
   - **Example:** Striking glassy stone makes sharp edges: a discovery. The band sang before a hunt that went well: a superstition, which can become a rite (`MOM-04`).
 
-- `MND-18` **Memory** *(Proposed)*: People remember:
+- `MND-18` **Memory** *(Decided)*: People remember:
   - events they lived through;
   - places, as a mental map with the seasons attached ("hazelnuts on the south slope in autumn");
   - people: who's who, family, and who owes whom;
@@ -886,7 +886,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 - `MND-07` **Drives** *(Decided)*: Hunger, thirst, cold, tiredness, fear, belonging, status, curiosity and the urge to have children.
 
-- `MND-19` **Feelings** *(Proposed)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride and awe. They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
+- `MND-19` **Feelings** *(Decided)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride and awe. They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
 
 - `MND-20` **Personality** *(Proposed)*: A few inborn tendencies (curiosity, boldness, sociability, patience, dominance, readiness to conform), partly inherited (`BIO-06`) and shaped by what happens to each person.
 
@@ -951,7 +951,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 - `MND-16` **Animals** *(Decided)*
   - **What:** Animals have the same kind of mind with fewer abilities. They learn fear, routes and habits, so hunting becomes an arms race and taming becomes possible.
-  - **What animals lack** *(Proposed)*: language, deliberate teaching, long plans and abstract concepts. Species differ: wolves hunt together, deer are wary grazers.
+  - **What animals lack:** language, deliberate teaching, long plans and abstract concepts. Species differ: wolves hunt together, deer are wary grazers.
 
 ## 10. Culture and society
 
@@ -1416,10 +1416,7 @@ These are suggestions written into this file while it was being built. They guid
 
 **Whole items**
 
-- **World:** `WLD-11`, `WLD-24`, `WLD-26`, `WLD-28`
-- **Matter and physics:** `MAT-12`, `MAT-13`, `MAT-14`, `MAT-15`, `MAT-16`
-- **People:** `BIO-18`, `BIO-19`
-- **Minds:** `MND-18`, `MND-19`, `MND-20`, `MND-22`, `MND-24`
+- **Minds:** `MND-20`, `MND-22`, `MND-24`
 - **Culture and society:** `CUL-16`, `CUL-18`, `CUL-19`, `CUL-20`, `CUL-21`, `CUL-22`
 - **Presentation:** `PRE-15`, `PRE-16`, `PRE-31`, `PRE-33`, `PRE-35`, `PRE-36`
 - **Sound:** `SND-05`, `SND-07`, `SND-08`, `SND-09`
@@ -1430,10 +1427,6 @@ These are suggestions written into this file while it was being built. They guid
 
 **Decided items with proposed details**
 
-- **World:** `WLD-06`, `WLD-10`
-- **Matter and physics:** `MAT-04`, `MAT-08`
-- **People:** `BIO-04`, `BIO-08`
-- **Minds:** `MND-16`
 - **Presentation:** `PRE-07`, `PRE-10`, `PRE-22`, `PRE-27`
 - **Platform and performance:** `PLT-04`, `PLT-05`, `PLT-06`
 - **Research and validation:** `RES-03`, `RES-07`
