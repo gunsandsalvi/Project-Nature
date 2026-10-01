@@ -369,7 +369,7 @@ The rules every part of the project follows.
     When choosing between more things and deeper things, choose deeper.
   - **Why:** Discovery, belief and history all come from detail.
     A shallow world can't surprise anyone.
-  - **Example:** The world is about 320 km from pole to pole (`WLD-03`), not the size of Earth, so the effort goes into what's actually there.
+  - **Example:** The world is about 1,000 km from pole to pole (`WLD-03`), not the size of Earth, so the effort goes into what's actually there.
   - **Check:** any feature that adds breadth at the cost of depth needs an explicit reason in the implementation plan.
 
 - `PRN-07` **General rules only** *(Decided)*
@@ -475,8 +475,6 @@ The rules every part of the project follows.
     When the phone can't keep up, the simulation doesn't cut corners; history simply moves more slowly.
     The only simplification allowed is the planned one: less detail for what is routine, decided by the world's own rule and never by where you look (`WLD-12`, `MND-14`).
     A simpler form is used only once an experiment shows it gives the same history, statistically, as full detail, and moving between forms never contradicts what happened (`PRN-10`).
-    So history slows as a world grows: the more people and land need simulating, the longer each year takes.
-    The world is sized so that even a full world stays watchable (`WLD-03`).
   - **Why:** Depth is the point of the project (`PRN-02`), and a smooth screen is part of the joy on the phone (`VIS-14`).
     Slowing time protects both.
   - **Example:** A fight breaks out between two bands while you watch.
@@ -637,7 +635,7 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
       You can bring one, and it builds over hours, as weather does;
     - disasters happen only where conditions allow: eruptions at volcanoes with magma beneath them, earthquakes on faults, floods where rain can swell the rivers, wildfires where fuel is dry enough to burn;
     - weather nudges shift the weather's own chances within what the climate can produce at that place and season, so there is no snow in a tropical summer, and a run of nudges can't push a place beyond its climate's worst natural stretch;
-    - a season can be pushed over a region at most about one climate zone across, roughly 30 km;
+    - a season can be pushed over a region at most about one climate zone across, roughly 100 km;
     - earthquakes and eruptions use up the stored strain and magma that make them possible: you choose where and when, and nature's stores decide how big;
     - a person or animal has at most one dream per sleep;
     - fortune works on chance, never on the rules (`GOD-04`).
@@ -734,18 +732,16 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
 ### 5.1 How fast time runs
 
 - `TIM-01` **Time follows zoom** *(Decided)*
-  - **What:** By default, the speed of time follows the zoom: the closer you look, the slower time runs; the further out, the faster.
+  - **What:** By default, the speed of time follows the zoom: the closer you look, the slower time runs; the further out, the faster, up to whatever the phone can manage at the detail the world needs (`PRN-11`).
     One gesture controls both where you look and how fast history moves.
-    Time is one clock for the whole world, so every person and every natural system must keep up with the speed you choose, not only what is on screen.
-  - **What zoom asks for, live** (the phone runs history as fast as it can, up to these speeds, `PRN-11`; measured, `TIM-07`):
+  - **What zoom asks for** (how fast history can actually run depends on how much of the world needs full detail at that moment, and is measured, `TIM-07`):
     - **one person:** natural speed (`TIM-10`);
     - **a camp:** a day passes in a few minutes;
     - **a valley:** a season passes in about a minute;
-    - **a region and the whole world:** as fast as the phone can manage: several years a minute while the world is young, and expected to be around two years a minute once it is full (`WLD-04`).
-  - **Faster than live is replay:** history that has already happened, for example overnight (`TIM-12`), plays back at any speed from the saved history (`PRN-15`), so a thousand years can still sweep past like weather (`VIS-07`).
-    Over the past, zooming out runs up to centuries a minute; at the present, time drops to the live speed.
+    - **a region:** years pass every minute;
+    - **the whole world:** centuries pass every minute.
+  - **The past at any speed:** history that has already happened, for example overnight, can be played back at any speed from the saved history (`PRN-15`), so a thousand years can still sweep past like weather (`VIS-07`).
   - **Why:** Close-up moments are lived; distant eras are watched.
-    No phone can simulate every person at centuries a minute, so the fastest speeds come from what is already saved.
   - **Example:** You watch the knapper strike, flake by flake.
     Then you pull back over the valley, and a whole summer passes while the herds move north.
 
@@ -823,7 +819,7 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
 ### 5.5 Pacing and endings
 
 - `TIM-07` **Pacing** *(To test)*: How fast history runs is measured and tuned during development (`PLT-04`).
-  The first targets for the tests: a thousand years in one night for a world of a few hundred people, and in about one night for a full world of about 5,000 (`WLD-04`).
+  The first target for the tests: a thousand years in one night for a world of a few hundred people.
 
 - `TIM-09` **If everyone dies** *(Decided)*: The world goes on without them.
   Nature carries on, and you can keep watching, rewind to before the end, or start a new world.
@@ -851,19 +847,15 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
   The globe squeezes the polar regions, which on the map are as wide as the equator; this is a known exception in the display only, and the map keeps every place at its true size.
 
 - `WLD-03` **Size** *(Decided)*
-  - **What:** About 320 km from pole to pole and about 630 km around: roughly 200,000 km² in all, land and sea together, about the size of Great Britain.
-  - **What follows:** From the equator to the polar ice is about 160 km, about a week's walk, and each climate zone is roughly 30 km wide, a day or two's walk.
-    A full world feeds about 5,000 foragers (`WLD-04`), in roughly 3 to 8 peoples.
-  - **Why:** Every person and every patch of land costs computing on the phone, and time is one clock for the whole world (`TIM-01`).
-    At this size a full world of foragers still runs at a watchable speed (`PRN-11`), and it is still big enough for separate peoples to form (`PRN-02`).
-    The cost is a compressed climate: from tundra to warm forest in a few days' walk.
+  - **What:** About 1,000 km from pole to pole and about 2,000 km around: roughly 2 million km² in all, land and sea together.
+  - **What follows:** Each climate zone is roughly 100 km wide, about four to five days' walk.
+  - **Why:** It is big enough for many separate peoples and small enough to simulate deeply (`PRN-02`).
 
 - `WLD-30` **What scales with the world** *(Decided)*: Quantities set by distance (weather systems, ocean currents, migrations and climate belts) scale with the world's size.
   Local quantities (bodies, chemistry, materials and rates of change) stay real.
   Every scaled value is labelled as scaled, with the real value it came from (`PRN-05`).
 
-- `WLD-04` **How many people it can feed** *(To test)*: Estimated at roughly 5,000 hunter-gatherers (about one person per 10 km² of good land), or about 50,000 to half a million once farming exists, since farming supports 10 to 100 times more people on the same land.
-  A farming world would slow history again (`PRN-11`); how to handle that is decided when farming is built (`MIL-07`).
+- `WLD-04` **How many people it can feed** *(To test)*: Estimated at roughly 50,000 hunter-gatherers (about one person per 10 km² of good land), or about half a million to five million once farming exists, since farming supports 10 to 100 times more people on the same land.
   These are orders of magnitude only: on the wrap-around map a third of the area lies beyond 60° latitude, so there is less good land than Earth intuition suggests.
   Measured in experiments.
 
@@ -950,7 +942,7 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
     A great eruption can cool the world for a few years.
   - **Example:** Rain clouds coming off the western sea drop their rain on the mountains, so the valleys beyond are dry grassland with forest only along the rivers.
 
-- `WLD-05` **Climate on a small world** *(Decided)*: Climate zones sit much closer together than on Earth, a day or two's walk apart, and weather systems are scaled to fit the world (`WLD-30`).
+- `WLD-05` **Climate on a small world** *(Decided)*: Climate zones sit closer together than on Earth, a few days' walk apart, and weather systems are scaled to fit the world (`WLD-30`).
 
 - `WLD-25` **People change the climate** *(Decided)*: What covers the land and, much later, fuel burned at scale feed back into the climate through the same physics.
   Clearing a forest can dry a region; centuries of burning could warm the world.
@@ -1049,21 +1041,6 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
 - `MAT-12` **What a body can do** *(Decided)*: The basic actions everything else is built from: grasp, carry, put down, drop, throw, strike, press, rub, twist, bend, tear, dig, cut or scrape with an edge, pierce with a point, pour, blow, chew, and put into fire or water.
   Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn.
   These are actions on matter; moving, eating, sleeping and acts between people are in `BIO-21`.
-
-- `MAT-18` **Built things are arrangements** *(Proposed)*
-  - **What:** Anything people build, such as a hearth, a windbreak, a kiln or a drum, is an arrangement of ordinary things (`MAT-10`): which things, where each one sits, and how they are joined.
-    Nothing in the code names a built thing.
-    The laws act on what an arrangement is like: how closed in a fire is, what its walls are made of and how thick they are, where its openings are, and how much air reaches it; or how long a tube is and where its holes are.
-    Arrangements are described in a short vocabulary of plain shapes and joins, such as pile, ring, wall, cover, opening, tube, frame and stretched skin, joined by stacking, tying, plastering or fitting.
-    The vocabulary decides what is easy to find, so it is kept short, listed in one place, and changed only with your OK.
-    People keep designs in memory: an arrangement, the steps to build it, and what they believe it does (`MND-05`, `MND-06`, `MND-18`).
-    Designs come from the sources in `MND-11`, most often by changing one thing in a design someone already knows, and spread by teaching and copying (`CUL-01`).
-  - **Why:** A kiln or a flute is many parts in a particular arrangement, not one action on one object, so without this nothing beyond single actions could be built.
-    Complex things can only be reached in steps that each pay off on their own, as in history.
-  - **Example:** Stones put round a fire to stop it spreading make a hearth.
-    Clay walls make it an oven, and a cover makes it a kiln that fires pots hard (`RCK-04`).
-    A draught and blowing make it hotter still, until green stones lining it leave a bead of copper (`MOM-12`, `RCK-08`).
-  - **Done when:** the general-rules check finds no built thing named in the code or the laws (`PRN-07`), and a comparison run shows how much the vocabulary changes what gets built (`RES-10`).
 
 - `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time, feeding the archaeology view (`PRE-09`).
   What survives depends on the material and the ground: stone lasts; bone survives in dry caves and limestone; wood, hide and plant fibre usually rot, except in waterlogged, frozen or very dry ground.
@@ -2056,7 +2033,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood medium, impact medium.
   - **Risk:** Even with fast time and overnight mode, a deep simulation may take too long to reach interesting points.
   - **Signs:** overnight runs covering only a few years; quiet centuries dominating the chronicle.
-  - **Response:** measure from the start (`TIM-07`); a world sized so that even a full world stays watchable (`WLD-03`); less detail for what is routine (`WLD-12`, `MND-14`); overnight mode (`TIM-12`); replay for the fastest speeds (`TIM-01`); the story director skipping quiet years (`TIM-02`).
+  - **Response:** measure from the start (`TIM-07`); less detail for what is routine (`WLD-12`, `MND-14`); overnight mode (`TIM-12`); the story director skipping quiet years (`TIM-02`).
 
 - `RSK-11` **Pixel look hard to keep clean** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
@@ -2174,7 +2151,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
 New suggestions from AI agents are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- **Matter:** `MAT-18`, built things are arrangements.
+- None at the moment.
 <!-- end generated -->
 
 ## 18. Glossary

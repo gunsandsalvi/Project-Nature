@@ -24,7 +24,6 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app, `B73` writer AI.
 - **Measured on your phone:** `B01`, `B02` and `B79` (first test app); `B04`, `B11` and `B74` (second test app).
 - **Done in the cloud, waiting for your eyes or ears:** `B66` drawing and gestures (the drawing page) and `B76` speech (the listening page).
-- **Paused by you:** `B81` built things (nothing built yet).
 
 ## The blocks
 
@@ -83,7 +82,6 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Approaches:** on synthetic land, a height map with local 3D pieces against sparse grids of small cubes: memory for the whole world, and how fast metre-level detail appears near a camp. For generation, two or three fast methods, such as shaped noise or noise with a quick erosion pass, timed on the phone.
   - **Result so far** (1 October 2026, cloud, then your phone):
     - **Land: a height map with 3D pieces** for cliffs and caves: 10.8 MB per km² on a hard site with a cliff and caves, against 22.4 MB for small cubes. Metre-level detail for 1 km² around a camp took 0.42 seconds on 4 threads, identical every time.
-    - **World size since changed:** the world is now about a tenth of the area these tests used (`WLD-03`), so whole-world times and sizes shrink about tenfold.
     - **Generation: plates, then erosion.** The whole world took 3.3 seconds here, and every river reached the sea; noise alone failed, with only 29% of rivers reaching the sea. It needs tuning: the continents came out flat, with straight edges (pictures in `previews/`).
     - **On your phone:** generation and metre detail gave exactly the same bits as in the cloud. The phone's fastest core was about twice as fast as a cloud core here: plates at 1024 x 512 in 0.45 s, and the metre-detail test patch in 0.59 s on one core and 0.31 s on four.
 
@@ -154,20 +152,6 @@ This is a working document, kept with the tests in the temporary `pretests` fold
     - **Parallel worlds:** four worlds as four processes ran 3.7–3.9 times as fast as one; one world on four threads gained only 1.1 to 3.4 times, so it is used only when there are fewer worlds than cores, as on the phone.
     - **Experiment 1 at its old full size** (300 worlds of 500 years, about 100 people each): 1,521, 7,604 or 76,042 CPU-hours at a guessed 1, 5 or 50 ms per person per simulated day. Far too much, so experiments now run mainly in small sandboxes sized to a computing budget stated up front, confirmed in a few full worlds (`RES-21`).
     - **Long runs:** a detached process ran for just under 3 hours without a missed beat, then stopped when the cloud machine restarted; the files on disk survived the restart. So long runs save checkpoints and resume, as tested above. Still open: where checkpoints live between sessions.
-
-- `B81` **Built things** · paused by you before it began (`pretests/b81-built-things/`)
-  - **Question:** how a built thing is held in code (`MAT-18`), and whether a learner that changes one thing at a time can find its way through the vocabulary: from stones round a fire to a kiln, then to a fire hot enough to smelt copper (`RCK-04`, `RCK-08`, `MOM-12`).
-  - **Approaches:**
-    - a record of an arrangement in a short vocabulary: shapes (pit, ring, wall, cover, opening, tube, pile), materials (stone, clay, earth) and joins (stacked, which leaks air, or plastered);
-    - a heat balance that turns any arrangement into a temperature: the heat from the fuel the air allows, against the heat lost through walls, openings and hot gas, with real values;
-    - a stand-in for learning, with no minds: it changes one thing in its best design, keeps the change if the fire gets noticeably hotter, and counts its tries. Wood and charcoal are both at hand, and blowing, by mouth or through a tube, is one of the possible changes.
-  - **Decision rule** (set before measuring):
-    - **The heat balance first:** with one set of real values, an open wood fire must come out at 600–900 °C, and a small clay furnace with charcoal and blowing above 1,100 °C (`MAT-05`). If not, the test stops there.
-    - **Searchable:** in at least half of 100 runs, the learner reaches 900 °C within 10,000 tries, and 1,100 °C within 50,000. For scale: four bands in which five people each try one change a month make about 2,400 tries a decade.
-    - **Not a recipe in disguise:** if a typical run reaches 1,100 °C in under 200 tries, the vocabulary is too narrow, and it is flagged.
-    - **How much the vocabulary decides:** the same runs with fewer shapes (no cover) and with more (adding shapes that do little, such as posts and mats) show how much the vocabulary changes what is found (`RES-10`).
-    - **Where it gets stuck:** any change that pays off only together with another, such as a cover that smothers the fire until it has an opening, is reported, since real learners face the same.
-  - **Caveat:** the stand-in chases one goal, a hotter fire. Real people want different things at each step, so this is the best case: if it fails here, the real thing fails too.
 
 ## Moved out of the pre-tests
 
