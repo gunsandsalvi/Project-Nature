@@ -146,3 +146,5 @@ Pixel 11 Pro XL, Android 17. Gemini Nano (`nano-v4-full`, through ML Kit) and Ge
 - **Gemma on the phone:** the 2.6 GB download took 39 s; start-up on the graphics chip took 20 s.
 
 **Verdict:** neither model passes. As the rules say, this raises `RSK-08` (flat writing, worst in the tradition voice) and `RSK-17` (softened forced labour), with three options: tighter prompts, simpler fill-in text (the facts as plain sentences, `PRE-41`), or a bigger model. That choice is yours.
+
+**Your decision (1 October 2026):** Gemini Nano writes the text. Dark events are never left to the model: they appear as plain stated facts taken from the data, so they can't be softened (`RSK-17`). The prompts are tightened when the writer is built.

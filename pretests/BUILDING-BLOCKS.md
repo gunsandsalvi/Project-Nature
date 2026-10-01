@@ -21,8 +21,8 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 
 ## Status
 
-- **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app.
-- **Measured on your phone:** `B01`, `B02` and `B79` (first test app); `B04`, `B11`, `B73` and `B74` (second test app).
+- **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app, `B73` writer AI.
+- **Measured on your phone:** `B01`, `B02` and `B79` (first test app); `B04`, `B11` and `B74` (second test app).
 - **Done in the cloud, waiting for your eyes or ears:** `B66` drawing and gestures (the drawing page) and `B76` speech (the listening page).
 - **Paused by you:** `B81` built things (nothing built yet).
 
@@ -94,7 +94,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
     - **Crawling pixels (`PRE-22`):** of four fixes, only "Fade" cut crawling to almost nothing, by turning and zooming in small fixed steps with a quick dithered crossfade, and you don't like how it looks. So no fix is accepted yet; pixels still crawl while the camera turns or zooms. You agreed to leave `PRE-22` as it is and pick the fix at the first visual review (`PRE-31`), on a real world. The drawing keeps a slot for it; nothing else depends on which fix wins.
     - **Gestures (`PRE-33`):** all of them work in an automated test, and they feel fine to you for now.
 
-- `B73` **Writer AI** · running (`pretests/b73-writer/`)
+- `B73` **Writer AI** · done (`pretests/b73-writer/`)
   - **Question:** which model and runtime write the text on the phone (`PRE-37`), and at what cost beside the simulation and drawing.
   - **Approaches:** the phone's built-in model (Gemini Nano) and an open model run by the app (Gemma), on hand-made sample data: words per second, memory and heat; how often each adds facts that aren't in the data (`PRE-17`); whether it softens dark events (`RSK-17`); and your rating of a few entries.
   - **Result so far** (1 October 2026, cloud, then your phone; `pretests/b73-writer/`):
@@ -107,7 +107,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
     - **On your phone:** both models wrote all 20 texts. Gemini Nano: first word in 0.26 s, then 77 words a second. Gemma 4 E2B, run by the app: 0.86 s and 14 words a second, after a 2.6 GB download in 39 s; it used 2 to 2.7 GiB of memory. No heat warnings.
     - **Neither passes the rules set beforehand.** Both softened the raid's forced labour (Gemini Nano in both voices, Gemma in one) (`RSK-17`), and both named Kelo as the killer where the data says the seven men; the checker missed that, as expected. You rated 3 of 6 texts acceptable or better for each model, short of 4. Gemma's memory falls in the 2–3 GiB band, which the rules allow only for clearly better text.
     - **What the texts show:** both models copy the data closely, and in the documentary voice their texts were nearly identical. The tradition voice came out as choppy fragments, and you rated 5 of its 6 texts poor; the documentary voice was acceptable or good in 5 of 6 (`RSK-08`).
-    - **For you, as the rules say:** tighter prompts, simpler fill-in text (the facts as plain sentences, `PRE-41`), or a bigger model. Not decided.
+    - **Your decision:** Gemini Nano writes the text. Dark events are never left to it: they appear as plain stated facts taken from the data, so they can't be softened (`RSK-17`). The prompts are tightened when the writer is built.
 
 - `B74` **Sound** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how sound is made and played on the phone (`SND-01`, `SND-06`, `SND-08`).
