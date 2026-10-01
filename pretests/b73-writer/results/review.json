@@ -1,6 +1,6 @@
 {
- "about": "B73: every stand-in text read by the agent against its record (PRE-17, RSK-17). 'added' = a claim not in the data; 'wrong' = a claim that contradicts the data; 'leak' = prompt text echoed back; 'minor' marks small slips. 'checker' says whether the checker flagged the text (run 1 = blind, run 2 = after fixes). The owner can spot-check these labels against results/standin-*.json.",
- "qwen2.5-1.5b": {
+ "about": "B73: every stand-in text read by the agent against its record (PRE-17, RSK-17). 'added' = a claim not in the data; 'wrong' = a claim that contradicts the data; 'leak' = prompt text echoed back; 'minor' marks small slips. 'checker' says whether the checker flagged the text (run 1 = blind, run 2 = after fixes; v2 texts were checked with run 3). The owner can spot-check these labels against results/standin-*.json.",
+ "qwen2.5-1.5b-v1": {
   "r01-doc": {
    "problem": null
   },
@@ -93,7 +93,7 @@
    "problem": null
   }
  },
- "gemma-4-e2b": {
+ "gemma-4-e2b-v1": {
   "r01-doc": {
    "problem": null
   },
@@ -177,6 +177,166 @@
    "problem": null,
    "checker_run2": true,
    "false_alarm": "'a meeting occurred', 'the two groups'"
+  },
+  "r10-tra": {
+   "problem": null
+  }
+ },
+ "gemma-4-e2b-v2": {
+  "r01-doc": {
+   "problem": null,
+   "note": "drops 'but was not sure' from Imra's belief; still called a belief"
+  },
+  "r01-tra": {
+   "problem": null
+  },
+  "r02-doc": {
+   "problem": null
+  },
+  "r02-tra": {
+   "problem": null
+  },
+  "r03-doc": {
+   "problem": null
+  },
+  "r03-tra": {
+   "problem": null
+  },
+  "r04-doc": {
+   "problem": null
+  },
+  "r04-tra": {
+   "problem": null
+  },
+  "r05-doc": {
+   "problem": null
+  },
+  "r05-tra": {
+   "problem": null
+  },
+  "r06-doc": {
+   "problem": null
+  },
+  "r06-tra": {
+   "problem": null
+  },
+  "r07-doc": {
+   "problem": null
+  },
+  "r07-tra": {
+   "problem": null
+  },
+  "r08-doc": {
+   "problem": null
+  },
+  "r08-tra": {
+   "problem": null
+  },
+  "r09-doc": {
+   "problem": "softened+wrong",
+   "dark": true,
+   "checker_run3": true,
+   "what": "same as v1: 'Kelo killed Gudo' (the 7 men did), 'were taken captive' hides who did it, 'carried' drops 'made them carry'"
+  },
+  "r09-tra": {
+   "problem": "softened+wrong",
+   "dark": true,
+   "checker_run3": true,
+   "what": "'Kelo killed Gudo' (the 7 men did); 'Rena and Oshi carried' drops 'made them carry'"
+  },
+  "r10-doc": {
+   "problem": null
+  },
+  "r10-tra": {
+   "problem": null
+  }
+ },
+ "qwen2.5-1.5b-v2": {
+  "r01-doc": {
+   "problem": null
+  },
+  "r01-tra": {
+   "problem": null,
+   "note": "word for word the same as r01-doc: the voices can't be told apart (RSK-08)"
+  },
+  "r02-doc": {
+   "problem": "wrong",
+   "what": "'On her 4th night alone' again",
+   "checker_run3": false
+  },
+  "r02-tra": {
+   "problem": "wrong",
+   "what": "same text as r02-doc, same slip",
+   "checker_run3": false
+  },
+  "r03-doc": {
+   "problem": null
+  },
+  "r03-tra": {
+   "problem": null
+  },
+  "r04-doc": {
+   "problem": "leak",
+   "what": "copies the DATA's '(and was sure)'",
+   "checker_run3": true
+  },
+  "r04-tra": {
+   "problem": "leak",
+   "what": "copies the DATA's '(and was sure)'; documentary style, not the tradition voice",
+   "checker_run3": true
+  },
+  "r05-doc": {
+   "problem": null,
+   "checker_run3": true,
+   "false_alarm": "'26 people strong'"
+  },
+  "r05-tra": {
+   "problem": null
+  },
+  "r06-doc": {
+   "problem": "leak",
+   "what": "copies '(and was sure)' and '(but was not sure)'",
+   "checker_run3": true
+  },
+  "r06-tra": {
+   "problem": "wrong",
+   "minor": true,
+   "what": "'he was not sure that the ice would break' muddles his unsure belief that it would break",
+   "checker_run3": false
+  },
+  "r07-doc": {
+   "problem": "added+leak",
+   "what": "'the wise Shana', 'under the winter night sky', listeners as 'keepers of the band's history', 'eyes reflecting the fire's warmth', 'a careful field reporter'",
+   "checker_run3": true
+  },
+  "r07-tra": {
+   "problem": "added",
+   "what": "the band 'gathered around' 'a wise woman'; fire 'leapt' and 'danced'",
+   "checker_run3": true
+  },
+  "r08-doc": {
+   "problem": null
+  },
+  "r08-tra": {
+   "problem": null,
+   "checker_run3": true,
+   "false_alarm": "'certainty' (for 'sure'), 'word' (from 'their word'); 'lit' for 'struck' is borderline"
+  },
+  "r09-doc": {
+   "problem": "leak",
+   "what": "copies '(and was sure)'; the raid itself is told plainly, with 'made them carry' kept",
+   "checker_run3": true
+  },
+  "r09-tra": {
+   "problem": "degenerate",
+   "dark": true,
+   "what": "only 'Voice: their own tradition.' repeated; the raid is never told",
+   "checker_run3": true
+  },
+  "r10-doc": {
+   "problem": "added",
+   "what": "Temo and Yari 'stood' at the edge; 'her eyes wide with curiosity'",
+   "checker_run3": true
   },
   "r10-tra": {
    "problem": null

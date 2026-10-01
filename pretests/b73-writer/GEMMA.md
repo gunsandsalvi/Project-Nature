@@ -29,5 +29,5 @@ So the next round can test **Gemma 4 E2B**, the best fit, with no account, licen
 - Runtime: `implementation("com.google.ai.edge.litertlm:litertlm-android:0.17.1")` (Google Maven). It adds a 46 MB native library, and pulls Kotlin reflect 2.4 and coroutines 1.11.
 - API: `Engine(EngineConfig(modelPath, backend))`, then `initialize()`, `createConversation(...)` and `sendMessageAsync(prompt)` as a stream. Backends: `CPU`, `GPU`, `NPU`, and `GOOGLE_TENSOR` (try it with the Tensor G6 file).
 - Unlike Gemini Nano, Gemma runs inside the app, so its memory counts against the 10 GiB (`PLT-01`). Record the app's memory while it writes (decision rule 5 in NOTES.md).
-- Reuse the same 20 prompts (`prompts/all-prompts.json`) and the same settings: temperature 0.3, top-k 20, at most 256 new tokens.
+- Reuse the same 20 prompts (`prompts/v2/all-prompts.json`) and the same settings: temperature 0.3, top-k 20, at most 256 new tokens.
 - The same Gemma 4 E2B model already ran in the cloud as a stand-in (see NOTES.md), so the phone run can be compared with it.

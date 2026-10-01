@@ -20,8 +20,9 @@ Flags
   LEAK     the prompt's own instructions or labels echoed back
   REFUSED  the model refused
 
-Run 1 (blind, before any model output) had all but ORDINAL handling, the wrong-band check and LEAK;
-those three were added in run 2, after reading the stand-in texts (see NOTES.md).
+Run 1 (blind, before any model output) had everything except three checks, which run 2 added after
+reading the stand-in texts: ordinals matched to ordinals, the wrong band (TELLER) and echoed prompts (LEAK).
+Run 3 added neutral narration words such as "occurred" to the lexicon. See NOTES.md and data/lexicon.json.
 """
 import json
 import pathlib

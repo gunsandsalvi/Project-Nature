@@ -23,7 +23,8 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 
 - **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app.
 - **Measured on your phone:** `B01`, `B02` and `B79` (first test app).
-- **Running:** `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B73` writer AI, `B74` sound, `B76` speech.
+- **Running:** `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B74` sound, `B76` speech.
+- **Done in the cloud, waiting for your phone:** `B73` writer AI.
 
 ## The blocks
 
@@ -81,7 +82,15 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 
 - `B73` **Writer AI** · running (`pretests/b73-writer/`)
   - **Question:** which model and runtime write the text on the phone (`PRE-37`), and at what cost beside the simulation and drawing.
-  - **Approaches:** the phone's built-in model (Gemini Nano) and an open model run by the app (Gemma), on hand-made sample data: words per second, memory and heat; how often each adds facts that aren't in the data (`PRE-17`); whether it softens dark events (`RSK-17`); and your rating of a few entries. Gemma's download needs a Hugging Face account and accepting its licence.
+  - **Approaches:** the phone's built-in model (Gemini Nano) and an open model run by the app (Gemma), on hand-made sample data: words per second, memory and heat; how often each adds facts that aren't in the data (`PRE-17`); whether it softens dark events (`RSK-17`); and your rating of a few entries.
+  - **Result so far** (1 October 2026, cloud only; the phone decides; `pretests/b73-writer/`):
+    - **The pipeline works:** ten hand-made records, prompts in two voices, a model, and a fact checker that needs no AI model, so it can run on the phone.
+    - **The checker is an aid, not yet a guard:** its first, blind run caught 94% of planted errors but missed one left-out dark event, and it can't catch mix-ups of who did what.
+    - **Stand-in models in the cloud:** Gemma 4 E2B added or changed facts in 2 of 20 texts, at the limit set beforehand; a smaller model did so in 6 of 20. Gemma quietly softened forced labour in a raid, even when told not to (`RSK-17`). The checker caught it, so the plain-text fallback would show the facts instead (`PRE-41`).
+    - **The writing is flat** (`RSK-08`): the models copied 56–75% of their four-word runs straight from the data, against 35% in hand-written texts.
+    - **Speed is not the worry:** 10–13 words a second even on ordinary cloud cores.
+    - **Gemma 4 is now open:** no account or licence step is needed. A build for the phone's chip is 3.3 GB, downloaded once over Wi-Fi.
+    - **Next:** the second test app runs Gemini Nano and Gemma 4 on your phone, and you rate six texts.
 
 - `B74` **Sound** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how sound is made and played on the phone (`SND-01`, `SND-06`, `SND-08`).

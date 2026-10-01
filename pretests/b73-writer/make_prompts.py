@@ -1,4 +1,4 @@
-"""B73: write the 20 prompts to prompts/all-prompts.json and embed the same prompts in phone/WriterTest.kt,
+"""B73: write the 20 prompts to prompts/v2/all-prompts.json and embed the same prompts in phone/WriterTest.kt,
 so the cloud stand-in and the phone get exactly the same text (PRE-37, PRE-19)."""
 import json
 import pathlib

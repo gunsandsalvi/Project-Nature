@@ -39,7 +39,7 @@
 - **Phone:** Gemini Nano through the Prompt API. Google lists the Pixel 11 series as Gemini Nano v4, and the Pixel 9 and 10 as v3 (checked 1 October 2026).
 - **System apps:** Android AICore installed and up to date, plus Private Compute Services and Google Play services up to date (update them from the Play Store before the run).
 - **Locked bootloader:** the API refuses phones with an unlocked bootloader.
-- **Limits:** input under 4,000 tokens (our longest prompt is 1,815 characters, about 450 tokens). Each app has quotas: too many requests in a short time give `BUSY`, and a long-term battery quota gives `PER_APP_BATTERY_USE_QUOTA_EXCEEDED`. The test records either and stops.
+- **Limits:** input under 4,000 tokens (our longest prompt is 2,099 characters, about 520 tokens). Each app has quotas: too many requests in a short time give `BUSY`, and a long-term battery quota gives `PER_APP_BATTERY_USE_QUOTA_EXCEEDED`. The test records a `BUSY` against that prompt and goes on, but stops at the quota error.
 
 ## What comes back
 

@@ -1,0 +1,6 @@
+custom-none  kills 100: inside a save 90 (of which during the file write 48), failures 0, rejected files 0, last moment 130, cycle 56 ms
+custom-lz4   kills 100: inside a save 94 (of which during the file write 29), failures 0, rejected files 0, last moment 117, cycle 79 ms
+custom-zstd  kills 100: inside a save 91 (of which during the file write 22), failures 0, rejected files 0, last moment 116, cycle 85 ms
+fb-none      kills 100: inside a save 93 (of which during the file write 44), failures 0, rejected files 0, last moment 128, cycle 65 ms
+fb-lz4       kills 100: inside a save 92 (of which during the file write 37), failures 0, rejected files 0, last moment 114, cycle 82 ms
+fb-zstd      kills 100: inside a save 97 (of which during the file write 24), failures 0, rejected files 0, last moment 116, cycle 77 ms

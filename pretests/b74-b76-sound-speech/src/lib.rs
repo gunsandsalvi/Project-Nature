@@ -140,7 +140,7 @@ fn run_inner(cfg: &str) -> Result<Value, String> {
                         let (load, _) = offline_cost(per_cpu_voices, per_cpu_seconds, sr, approach, 11);
                         json!({"cpu": c, "pinned": pinned, "seen_on": current_cpu(), "voices": per_cpu_voices, "voices_per_core": per_cpu_voices as f64 / load})
                     })
-                    .collect()
+                    .collect::<Vec<Value>>()
             })
             .join()
             .unwrap_or_default()

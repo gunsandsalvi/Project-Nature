@@ -66,7 +66,22 @@ Two voices (`PRE-19`): documentary, and "their own tradition".
 - **Gemma 4's softening:** in the raid, both voices dropped "made them carry", so the captives seem to carry the meat of their own will. The documentary voice also hid who took them ("were taken captive"). No euphemism was used: the force simply vanished.
 - **The stand-in rule:** Gemma 4 failed the run-2 check on 11 of 20 texts, more than half (mostly false alarms), so the prompts were tightened once (`prompts/v2`) and both stand-ins were rerun. The phone gets v2.
 
-V2_RESULTS
+**Rerun with the tightened prompts** (v2; checker run 3)
+
+| | Qwen2.5 1.5B | Gemma 4 E2B |
+|---|---|---|
+| Texts with an added or wrong fact (my reading) | 6 of 20 (1 minor) | 2 of 20 |
+| Prompt or data format echoed back | 5, plus 1 text that only repeats "Voice: their own tradition" | 0 |
+| Dark texts softened or left out | 1 of 6 (that broken text) | 2 of 6 (the raid again) |
+| Texts failing the check | 10 | 2 |
+| Of those, false alarms | 2 | 0 |
+| Real problems the checker missed | 3 | 0 |
+| First word; words a second (medians) | 2.8 s; 11.6 | 4.7 s; 12.5 |
+| 4-word runs copied from the data | 75% | 64% |
+
+- **Gemma 4 improved.** It meets the added-facts bar, 2 of 20, but fails the dark rule. Both voices still drop "made them carry" and blame Kelo alone, even with a rule that names "made". The checker caught both.
+- **The 1.5B model got worse** with the longer prompt: more embellishment, more echoes, and one broken text. A model that small can't hold many rules.
+- **Voices** (`RSK-08`): the 1.5B model sometimes wrote the same text for both voices. Gemma 4's tradition voice is distinct but choppy ("Year 41. Deep winter. Night.").
 
 **The phone part.** `WriterTest.kt` is ready to bundle. It builds in debug and in minified release (AGP 8.13.2, Kotlin 2.3.21, compileSdk 36, minSdk 31), with no warnings, in about 65 s. A test app holding only it and ML Kit is 1.7 MB. It needs `android.useAndroidX=true`, because ML Kit brings in AndroidX; the first build failed without it. Google lists the Pixel 11 series as Gemini Nano v4 on this API. It works only while the app is on screen, refuses phones with an unlocked bootloader, and takes input under 4,000 tokens.
 
@@ -76,9 +91,9 @@ V2_RESULTS
 
 1. **The pipeline works end to end:** record, prompt, model, checker. The phone file is ready for the next test app.
 2. **The checker is an aid, not yet a guard.** By the rule, the blind run missed a dark omission. The fixed version meets the numbers but wasn't tested blind. It catches added things well, but not mix-ups of who did what. Next: a check on roles, a fresh blind planted set, and the milestone skims (`RSK-08` signs) kept.
-3. **Small models add or change facts in 15 to 30% of texts**, well above the bar of 2 in 20. Gemma 4 quietly softened forced labour despite an explicit rule. Expect the phone to need `PRE-41`'s rewrite and plain-text fallback, and a check on roles. The phone numbers decide.
-4. **Speed is not the worry:** 10 to 13 words a second on 4 ordinary CPU cores already meets the 8 words a second bar. The first word, at 2.5 to 3.7 s, sits at the 3 s limit, which the phone's AI hardware should beat.
-5. **The writing is flat** (`RSK-08`): the models copy 56 to 67% of their 4-word runs straight from the data.
+3. **Gemma 4 E2B is the most promising stand-in.** With the v2 prompts it adds or changes facts in 2 of 20 texts, at the bar, but it quietly softens forced labour in both voices, which an explicit rule didn't fix (`RSK-17`). Since the checker caught it, `PRE-41`'s plain-text fallback would show the plain facts instead. The 1.5B model is too small: 6 of 20 texts had an added or wrong fact, and it got worse with more rules.
+4. **Speed is not the worry:** 10 to 13 words a second on 4 ordinary CPU cores already meets the 8 words a second bar. The first word, at 2.5 to 4.7 s on the CPU, is over the 3 s limit for the longer prompts. The phone's AI hardware should do better: the phone decides.
+5. **The writing is flat** (`RSK-08`): the models copy 56 to 75% of their 4-word runs straight from the data. Hand-written texts copy 35%.
 
 ## Caveats
 
