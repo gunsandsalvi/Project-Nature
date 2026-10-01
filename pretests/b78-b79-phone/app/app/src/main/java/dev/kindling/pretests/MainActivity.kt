@@ -65,6 +65,7 @@ class MainActivity : Activity() {
     private lateinit var codeView: TextView
     private lateinit var copyButton: Button
     private lateinit var memButton: Button
+    private lateinit var scroll: ScrollView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -168,7 +169,7 @@ class MainActivity : Activity() {
                 "App ${BuildConfig.VERSION_NAME}, benchmark library: ${BuildConfig.KBENCH}. Results are also saved in the app's own files.",
             13f,
         ))
-        val scroll = ScrollView(this).apply { addView(col) }
+        scroll = ScrollView(this).apply { addView(col) }
         scroll.setOnApplyWindowInsetsListener { v, insets ->
             val b = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
             v.setPadding(b.left + dp(16), b.top + dp(12), b.right + dp(16), b.bottom + dp(12))
@@ -193,7 +194,17 @@ class MainActivity : Activity() {
         bar.progress = (fraction.coerceIn(0.0, 1.0) * 1000).toInt()
     }
 
+    /** Shows or hides the area where the drawing tests run, scrolled into view. */
+    private fun showStage(on: Boolean) = ui.post {
+        stage.visibility = if (on) View.VISIBLE else View.GONE
+        scroll.post { scroll.scrollTo(0, if (on) stage.top else 0) }
+    }
+
     private fun refresh() {
+        try { refreshInner() } catch (t: Throwable) { say("Display error: $t") }
+    }
+
+    private fun refreshInner() {
         val r = store.results
         val finished = r.optBoolean("finished")
         val started = r.has("started")
@@ -306,12 +317,12 @@ class MainActivity : Activity() {
         steps.add(Step("lib", "Library check", 3) { libStep(plan) })
         steps.add(Step("idle", "Resting baseline", 10) { store.put("idle", tests.idle(10)) })
         steps.add(Step("fp", "Smoothness (OpenGL)", FRAME_S + 3) {
-            ui.post { stage.visibility = View.VISIBLE }
-            try { store.put("fp", FrameTest(this, stage).run(FRAME_S)) } finally { ui.post { stage.visibility = View.GONE } }
+            showStage(true)
+            try { store.put("fp", FrameTest(this, stage).run(FRAME_S)) } finally { showStage(false) }
         })
         if (WebTest.available(this)) steps.add(Step("wv", "Drawing test (WebView)", WEB_S + 8) {
-            ui.post { stage.visibility = View.VISIBLE }
-            try { store.put("wv", WebTest(this, stage).run(WEB_S)) } finally { ui.post { stage.visibility = View.GONE } }
+            showStage(true)
+            try { store.put("wv", WebTest(this, stage).run(WEB_S)) } finally { showStage(false) }
         })
         val perConfig = (KERNEL_BUDGET_S / maxOf(1, plan.size)).toInt()
         plan.forEachIndexed { i, (cfg, managed) ->

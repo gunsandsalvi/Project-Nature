@@ -1,0 +1,14 @@
+# kbench --stream chacha8 moments | RNG_test stdin64 -tlmax 34 -multithreaded
+# started 2026-10-01T14:36:48Z
+RNG_test using PractRand version 0.95
+RNG = RNG_stdin64, seed = unknown
+test set = core, folding = standard (64 bit)
+
+rng=RNG_stdin64, seed=unknown
+length= 64 megabytes (2^26 bytes), time= 2.1 seconds
+  no anomalies in 180 test result(s)
+
+rng=RNG_stdin64, seed=unknown
+length= 128 megabytes (2^27 bytes), time= 4.2 seconds
+  no anomalies in 196 test result(s)
+
