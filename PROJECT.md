@@ -1079,12 +1079,50 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 - `WLD-14` **Geology and materials** *(Decided)*
   - **What:** Rocks, minerals, soils and ores lie in realistic places, so what can be discovered depends on what's underfoot.
   - **Example:** Flint comes out of chalk and limestone, obsidian near volcanoes, copper ores in certain mountains, clay along rivers, salt in dry basins.
+  - **How it works:**
+    - **What lies at the surface:** each place's surface comes from its rock layers (`WLD-09`) and what has happened above them: bare rock where slopes are steep or soil is thin; soil elsewhere (`WLD-27`); loose blocks where frost and roots break rock along its cracks, sized by how far apart the cracks are; scree below cliffs; and gravel, sand and mud where water or ice left them.
+    - **Stones travel:** a river's gravel holds stones from every rock upstream, in proportion to how much of each is exposed and how well it resists wear, rounded and sorted by size with distance; beaches take theirs from nearby cliffs and rivers, and rubble left by ice comes from wherever the ice came from.
+      So flint from chalk hills turns up in valley gravels far away, and tin in the gravels below granite.
+    - **Every piece differs:** each rock in the settings catalogue is a set of ingredients and a structure (`MAT-01`, `MAT-02`) with real ranges of grain, flaws and impurities, and each piece draws its own within them, so some flint breaks better than other flint.
+    - **Seen through layers:** layers show wherever something cuts through them: river banks, cliffs, cave walls, landslide scars, the roots of fallen trees, and burrows; beneath the soil, digging reaches them (`MAT-12`).
+    - **Ores show themselves as they really do:** by colour (green and blue copper minerals, red and yellow iron), by weight for their size, by sheen, and by collecting in gravels because they are heavy; they are perceived through the senses like anything else, never labelled (`PRN-07`).
+    - **Salt and clay:** salt forms crusts where closed lakes dry (`WLD-17`), and seeps out at salty springs where ground water passes through salt layers; clay settles where water stands still, in floodplain hollows, old river bends and lake beds, and forms in place where feldspar-rich rock weathers.
 
 - `WLD-15` **Living geology** *(Decided)*: Change continues during play.
   Erosion wears the land, rivers shift their course, landslides fall, earthquakes strike along faults, volcanoes erupt, and coastlines move as the sea rises and falls.
+  - **How it works:**
+    - **Erosion:** the same law as in generation (`WLD-09`): water cuts faster where more of it flows, where it is steeper and where the rock is softer, and slopes creep down.
+      Bare ground wears away many times faster than ground under plants (measured ranges), so a burned or cleared slope loses its soil in a few heavy rains.
+      It is worked out on the 1 km cells each year and after heavy rain, and on patches where the plant cover has been stripped.
+    - **Rivers shift:** each river's channel is kept as a line with a width, finer than its cell.
+      The outside of each bend wears back and the inside builds up at measured rates, so bends wander, and a flood can cut through a narrow neck and leave an old bend as a lake.
+      Where a channel has built itself up above its floodplain, a flood can break out and take a new course.
+    - **Landslides:** a slope fails when the pull down it passes its strength, which falls as the ground fills with water; heavy rain, melting snow, shaking, or a river or people cutting away its foot can set one off.
+      Only slopes steep enough ever to fail are checked, and only after such a trigger.
+      The moving ground runs out until the slope eases, burying what lies below, and can dam a river into a lake that may later burst (`WLD-17`).
+    - **Earthquakes:** each fault from generation builds strain at the speed its plates move, and slips when the strain passes the fault's strength, which varies from the seed.
+      The length that slips sets the size, and shaking fades with distance, both by measured rules.
+      Shaking pulls on everything joined or stacked, so built things fall by their joints' strength (`MAT-10`), slopes give way, and a fault under the sea raises a wave (`WLD-26`).
+    - **Volcanoes:** each volcano from generation fills with molten rock at its own rate, and erupts when the pressure passes its limit, sized by how much has built up (measured eruption sizes).
+      Runny lava pours out and flows downhill at speeds set by its stiffness and the slope, cooling as it goes (`MAT-04`); sticky, silica-rich lava blows out ash and glowing flows, and leaves domes and obsidian.
+      Ash rises with the eruption's size, drifts with the winds of the day, and falls thinner with distance; the largest eruptions put enough gas into the air to cool the world for a few years (`WLD-16`).
+      Swarms of small quakes, swelling ground, gas and warmer springs come before, with measured lead times of days to months.
+    - **Coasts move:** the sea's level follows the ice on land (`WLD-26`), and each year the coastline is wherever the land lies below it.
+      The rising sea drowns shores, kills plants with salt and covers what lay there (`MAT-08`); land freed of ice rises slowly at measured rates; cliffs wear back and spits grow by the waves.
 
 - `WLD-27` **Soils** *(Decided)*: Soils form from rock, climate, plants and time.
   They hold water and nutrients, decide what grows where, and can later be enriched or exhausted by people.
+  - **How it works:**
+    - **What a soil holds:** its depth and layers; the shares of sand, silt and clay; stones; dead plant matter; nutrients (nitrogen, phosphorus, potassium, calcium and others) as amounts of each element, some free for roots and some bound; acidity; water; and temperature (`WLD-12`).
+    - **Water:** each day, rain and melt soak in up to what the soil can take, the rest runs off to the rivers (`WLD-17`), plants draw water up, the surface dries, and any extra drains down to the ground water.
+      How much a soil holds and how fast it drains come from its sand, silt and clay by measured rules.
+    - **Nutrients:** plants take them up as they grow; fallen leaves, dead roots, dung, carcasses and ash return them; microbes free them from dead matter, faster when warm and moist (`WLD-21`); rain washes some away, most in wet climates and sandy soils; weathering rock adds a little each year; and some plants, and lightning, add nitrogen from the air.
+      Every element is counted (`MAT-09`).
+    - **Acidity:** it rises as rain washes out calcium and under some plants' litter, and falls with ash or lime; it decides which nutrients roots can reach and which plants thrive.
+    - **Slow change:** dead matter builds up where plants grow and is lost where they are cleared; soil deepens as rock weathers below and thins as erosion takes its top (`WLD-15`); this is worked out each year.
+    - **People enrich or exhaust it through the same flows:** crops carried away take their nutrients with them, so a plot used year after year yields less; dung, ash and rotted waste put nutrients back; trampled ground lets less water in; cleared ground erodes.
+      There is no fertility score.
+    - **What grows where:** each plant grows by its access to water, nutrients, warmth and light, against its own needs and limits (`WLD-18`).
 
 - `WLD-16` **Climate and weather** *(Decided)*
   - **Climate from geography:** Each place's climate (rain, temperature and winds through the seasons) is worked out by rules derived from real physics and calibrated to Earth, not by a full physical climate model: latitude, height, distance from the sea, prevailing winds, and mountains that block rain.
@@ -1101,9 +1139,34 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 
 - `WLD-17` **Fresh water** *(Decided)*: Rivers, lakes, wetlands, springs, underground water, ice and floods.
   Life and settlement gather around them.
+  - **How it works:**
+    - **Each cell's water, day by day:** rain and snow come from the weather; snow lies until warmth melts it; water soaks into the soil or runs off (`WLD-27`); soil water drains to the ground water, which seeps slowly downhill through the rock, fast through cracked limestone and caves and slowly through clay (measured ranges).
+    - **Springs:** ground water comes out where it meets the surface, at the foot of slopes and where water-bearing rock lies on rock that holds it back; springs and seeping ground keep rivers flowing in dry seasons.
+    - **Rivers:** each cell passes its water downhill along the network from generation, at the speed its slope and channel allow (measured rules), so a storm's water reaches the lower valley later, as a flood wave.
+      Each stretch's channel is as wide and deep as its usual flow makes it (measured rules); when the flow passes what the channel holds, the water spreads over the floodplain, worked out at finer detail while it lasts (`WLD-12`), leaving silt and drowning or carrying things.
+    - **Lakes:** a lake rises with what flows in and falls with what flows out over its outlet and what evaporates; a lake with no outlet in a dry land turns salty and leaves salt where it dries (`WLD-14`).
+    - **Wetlands:** where ground water stays at the surface, on flat or badly drained ground and below springs, soils stay waterlogged, reeds and sedges grow, and peat builds up and keeps what falls into it (`MAT-08`).
+    - **Ice:** snow that outlasts the summer builds glaciers, which flow downhill at rates set by their thickness and slope (a measured law) and melt at their ends, feeding rivers in summer.
+      Lakes and rivers freeze when cold enough, and the ice bears a person once it is thick enough (measured thickness); in the coldest places the ground stays frozen all year.
+    - **Floods** come from heavy rain, fast melt, ice jams, or a burst dam of rubble or ice, all from the same water balance.
+    - **What the water carries:** salt, mud, warmth, and microbes from dung and waste upstream (`WLD-21`), which decide whether it is safe to drink (`BIO-05`).
+    - **Gathering around water:** nothing is placed there; plants grow better where water is, and animals and people go to it because their bodies need it each day (`BIO-09`).
 
 - `WLD-26` **Seas** *(Decided)*: Oceans with currents that carry heat and moisture, tides set by the moons and the sun (so worlds without moons still have weaker tides), and a sea level that rises and falls with the ice ages.
   At low tide, shellfish beds are exposed on the shore.
+  - **How it works:**
+    - **Currents:** worked out from the winds and the shapes of the seas, and again when either changes, such as when a rising sea opens a strait (`WLD-16`).
+      Great loops of current turn with the winds; warm water flows poleward along one side of each sea and cold water returns along the other; and where wind pushes surface water away from a coast, cold water rich in nutrients rises.
+      Each sea cell keeps its temperature, saltiness, nutrients and current, and passes heat and water to the weather above it, so coasts by warm water are mild and wet.
+    - **Tides:** worked out each hour from where the sun and moons are (`WLD-07`); each body's pull sets its share, so tides swell when they line up and ease when they don't, and several moons make a richer pattern.
+      Heights are Earth's, scaled by each body's pull relative to Earth's moon and by the shape of each coast: a named exception (`PRN-05`), since a planet this small with Earth's gravity is not real physics, so its tides can't be worked out from it.
+      With no moon, the sun alone gives about a third of the range of Earth's highest tides.
+    - **Sea level:** set by how much water is locked up as ice on land (`WLD-16`), within Earth's measured range between ice ages and warm times; coastlines follow (`WLD-15`).
+    - **The shore:** each shore patch has its height against the sea, so each hour it is either under water or bare; shellfish beds can be reached only while bare, so gathering follows the tides.
+    - **Sea life:** fish and sea mammals per sea cell (`WLD-12`), most where cold, rich water rises and in shallow seas; shellfish and seaweed on the shore patches.
+    - **Storms and waves:** storm winds raise waves and surges that flood low coasts, and quakes under the sea raise great waves (`WLD-15`).
+    - **Sea ice:** cold seas freeze in winter, thick enough in places to walk on; the polar ice never melts (`WLD-01`).
+    - **Salt water** can't be drunk safely (`BIO-09`), and leaves salt where it dries.
 
 - `WLD-18` **Ecology** *(Decided)*
   - **What:** Plants grow, flower, fruit and die back with the seasons.
