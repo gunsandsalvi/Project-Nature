@@ -20,6 +20,8 @@ await page.goto('file://' + path.join(root, 'drawing-test.html'));
 await page.waitForFunction(() => document.documentElement.dataset.viewReady === '1', null, { timeout: 120000 });
 await page.waitForFunction(() => !document.getElementById('bench-run').disabled, null, { timeout: 300000 });
 
+const shots = process.env.SHOTS_DIR; // optional: layout screenshots for a human look
+if (shots) await page.screenshot({ path: path.join(shots, 'page.png'), fullPage: true });
 const results = [];
 const check = (name, ok, info) => { results.push({ name, ok }); console.log((ok ? 'ok   ' : 'FAIL ') + name + (info ? '  ' + info : '')); };
 
@@ -55,6 +57,7 @@ await sleep(700);
 await touch('touchStart', [[cx, cy]]); await sleep(60); await touch('touchEnd', []);
 await sleep(150);
 check('brief touch shows date, speed and time control', await shown('hud'), await page.$eval('#hud .txt', (e) => e.textContent.trim()));
+if (shots) await page.screenshot({ path: path.join(shots, 'play.png') });
 check('tap selects (stub highlight)', await shown('mark'), await page.$eval('#toast', (e) => e.textContent));
 
 // drag moves the camera

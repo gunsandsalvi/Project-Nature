@@ -43,6 +43,7 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 
 - **The page.** `drawing-test.html` is the mockup plus a Benchmark button, the Pixel fix switch and a full-screen "Try the gestures" mode. With Base chosen, it draws exactly as the mockup does.
 - **Benchmark** (about 60 s, full screen, every frame drawn): 2.5 s to measure the refresh rate with almost nothing drawn; each zoom stop (Person, Camp, Valley, Region, Planet) for 7 s while turning slowly; a full turn in 8 s; a zoom out to the planet and back in 8 s; then 6 s of the Sticky fix, to price it (not part of the verdict). The first second of each phase is warm-up. Frame times come from requestAnimationFrame. The code also carries the script time per frame and, if the browser allows it, the graphics chip's time per frame.
+  - Code format: `B66.1 PASS|FAIL hz= idle= fast= art= s= dpr= css= fs= if= tod= gtq= gl= ua= |` then one group per phase, `letter:rate,median,p95,worst,late,script,graphics` (rate and late in %, times in ms, `-` if unknown). Letters: P person, C camp, V valley, R region, G planet, T full turn, Z zoom sweep, M Sticky fix.
 - **Crawl count** (headless Chromium, WebGL on the CPU): the phone's screen in portrait (1344 × 2992 device pixels, 5 per art pixel, so 269 × 599 art pixels), scene animation frozen so only the camera moves, 60 frames at a 60 Hz step per motion: a slow turn (0.11° a frame), a slow zoom (0.3% a frame), and a slow pan as a control (under 0.2 art pixels a frame; snapping should leave nothing). Each art pixel is compared with the one at the same place on screen in the next frame; the surface it shows is re-projected from the depth buffer to see how far it moved.
 - **Gestures:** a headless smoke test drives each one with synthetic touches. That checks the wiring only; the feel is yours to judge.
 
@@ -55,26 +56,47 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 - A plain OpenGL ES scene in the same app: 0.2% late, 99% under 10.6 ms.
 - Drawn at 224 × 279 art pixels (the mockup's box, not the full screen). Graphics: PowerVR, through ANGLE on Vulkan.
 
-**Crawl** (`results/crawl-*.csv`; 60 frames per motion, 269 × 599 art pixels):
+**Crawl** (`results/crawl-*.csv`; 60 frames per motion, 269 × 599 art pixels). Crawl, then all changed pixels, against base:
+
+| Fix | Turn crawl | Zoom crawl | All changes (turn, zoom) |
+|---|---|---|---|
+| Base | 548,012 | 952,794 | 100%, 100% |
+| Steps | 31% | 92% | 55%, 96% |
+| Fade | 0.4% | 0.1% | 25%, 25% |
+| Majority | 99% | 98% | 99%, 98% |
+| Sticky | 87% | 92% | 88%, 92% |
+
+- In base, 5.8% of art pixels crawl in each frame of the slow turn, and 9.9% in the slow zoom. They sit along rock beds, cracks, scree and the edges between shades.
+- Steps changes the picture in only 17 of 60 turn frames, but the zoom steps are so fine they come almost every frame.
+- Fade changes the picture in 20 of 60 frames, in both motions.
+- Majority and Sticky change almost nothing: most crawl is edges really crossing pixel centres, which more samples don't stop.
+- Picture pairs, worst moment of each run (left, right, then the changes: red is crawl, yellow is a change where the surface moved at least one art pixel): `results/crawl-turn-base.png`, `crawl-turn-fade.png`, `crawl-zoom-base.png`, `crawl-zoom-fade.png`.
 
 ## Verdict so far
 
-(to fill in)
+- **Speed: WebGL is fast enough, by the rule. No native engine.** The phone run delivered 98% of 120 Hz with 1.4% late frames (the bars are 90% and 5%).
+  - Not yet covered: the region and planet zooms, and a full-screen view (that run drew about half the art pixels the full screen needs). The Benchmark button covers both, zoom by zoom.
+  - Worth watching: the web view missed 7 times as many frames as plain OpenGL ES (1.4% against 0.2%), with one 58 ms hitch. `B79`'s stricter pacing bar (99% of frames within 1.5 periods, under 1% late) is not met.
+  - If the full-screen benchmark fails, the cheapest native route: OpenGL ES 3 (not Vulkan), reusing the mockup's shaders as they are (the page already turns them into ES 3 source), with the meshes and colour tables exported from a headless run of this page. A native renderer redoes the camera, the settings and the four passes (shadow, scene, outlines and palette, enlarge), plus the figures' poses. About 4 agent-days for this scene. Vulkan adds about 2 days for little gain. And if the code shows the graphics chip itself is the limit, native won't help: the drawing must get cheaper first.
+- **Crawl: Fade is the only fix by the rule.** It cuts crawl by 99.6% in the turn and 99.9% in the zoom, and changes fewer pixels overall, so it isn't flagged "jumpy". Steps fixes only the turn; Majority and Sticky barely help and cost about 4 times the scene drawing.
+  - But Fade wins by moving the picture in small steps with a quick crossfade. Your eye decides whether that feels steady or stepped, given that turns must ease to rest (`PRE-22`).
+  - If you reject its look, the next step is tuning Fade's step size and crossfade time with you on the phone, since nothing else came close.
+- **Gestures:** all are in the page; headless check pending. Their feel waits for you.
 
 ## Caveats
 
-- Speed here means nothing: the cloud draws on the CPU. Part 1 waits for your code.
+- Speed here means nothing: the cloud draws on the CPU. Part 1 rests on the phone run above, and on your code from the full-screen benchmark.
 - The benchmark runs in the browser, perhaps inside the claude.ai frame. The code says whether it ran full screen (`fs=1`) and in a frame (`if=1`), and the drawing size (`art=`). The app's own WebView (`B78`) should behave about the same; a native app avoids the browser's compositing step.
 - 60 seconds says nothing about heat or battery (`VIS-14`); `B79` measures those.
 - The crawl count rewards big jumps: when a turn or zoom moves most pixels by more than one art pixel at once, those changes don't count. Steps and Fade work exactly that way, so their low counts must pass your eye, especially against "turns ease to rest" (`PRE-22`).
 - One scene (the camp at dusk), one turn speed and one zoom speed; people, fire and smoke were frozen in the count.
-- In Fade, a fast turn makes steps faster than the 80 ms crossfade, so the picture mixes the last two steps.
+- During Fade's 80 ms crossfade the old and new pictures mix in a fine dot pattern (visible in `crawl-turn-fade.png`). In a fast turn the steps come faster than the crossfade, so that mix shows most of the time; `PRE-20` would call it speckle if it lingers.
 - Android owns a thin strip at the very bottom of the screen (its home gesture). "Swipe up from the bottom edge" has to start a finger's width above it, in the browser and in an app alike.
 
 ## For the owner
 
 1. Open the page on the phone, in Chrome if you can. Wait until it says "Ready".
-2. **Benchmark:** tap Benchmark, put the phone down and don't touch it for about a minute (a touch stops it). Then tap "Copy code" and paste the code back to me. If copying is blocked, press and hold the code, Select all, Copy.
+2. **Benchmark:** tap Benchmark, put the phone down and don't touch it for about a minute (a touch stops it). Then tap "Copy code" and paste the code back in the chat. If copying is blocked, press and hold the code, Select all, Copy.
 3. **Pixel fix:** at the Camp zoom, pick Base, then Steps, Fade, Majority and Sticky. With each, turn slowly (drag sideways on the picture) and zoom slowly (the slider). Tell me which one looks steadiest, and whether any of them feels jerky.
 4. **Gestures:** tap "Try the gestures". The world fills the screen. Try each, and mark it fine, awkward or broken:
    - drag with one finger to move; twist two fingers to turn (let go mid-twist: it should ease to rest);

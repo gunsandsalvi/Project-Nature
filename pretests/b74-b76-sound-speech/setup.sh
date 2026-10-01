@@ -23,5 +23,8 @@ for v in en/en_US/libritts_r/medium/en_US-libritts_r-medium cy/cy_GB/gwryw_gogle
     [ -s "$f" ] || curl -fsSL -o "$f.part" "$HF/$v.$ext" && { [ -s "$f" ] || mv "$f.part" "$f"; }
   done
 done
-ls -la "$B76/voices"
+# A Welsh text, to find which sounds the Welsh voice heard in training ("sounds kept").
+# (The English one is PROJECT.md.)
+[ -s "$B76/corpus-cy.txt" ] || curl -fsSL -o "$B76/corpus-cy.txt" "https://cy.wikipedia.org/w/index.php?title=Cymru&action=raw"
+ls -la "$B76/voices" "$B76/corpus-cy.txt"
 echo "setup done"

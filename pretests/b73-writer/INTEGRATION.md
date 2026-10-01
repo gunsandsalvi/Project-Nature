@@ -34,7 +34,8 @@
 
 ## Requirements
 
-- **Android:** API 26 or later for the library; the app's minSdk is 31. Tested here: compileSdk 36, AGP 8.13.2, Kotlin 2.3.21, debug and minified release builds (see NOTES.md).
+- **Android:** API 26 or later for the library; the app's minSdk is 31. Tested here: compileSdk 36, AGP 8.13.2, Kotlin 2.3.21. The debug build and the minified (R8) release build both pass, with no warnings in the file. A throwaway app holding only this file and ML Kit came to 1.7 MB as a release APK. ML Kit adds AICore's bind permission and package query to the manifest by itself.
+- **If the release build misbehaves on the phone** (R8 renames most of ML Kit), add `-keep class com.google.mlkit.** { *; }` to `proguard-rules.pro`, or run the debug build.
 - **Phone:** Gemini Nano through the Prompt API. Google lists the Pixel 11 series as Gemini Nano v4, and the Pixel 9 and 10 as v3 (checked 1 October 2026).
 - **System apps:** Android AICore installed and up to date, plus Private Compute Services and Google Play services up to date (update them from the Play Store before the run).
 - **Locked bootloader:** the API refuses phones with an unlocked bootloader.

@@ -68,7 +68,7 @@ Two voices (`PRE-19`): documentary, and "their own tradition".
 
 V2_RESULTS
 
-**The phone part.** `WriterTest.kt` is ready to bundle. BUILD_RESULT It needs `android.useAndroidX=true`, because ML Kit brings in AndroidX; the first build failed without it. Google lists the Pixel 11 series as Gemini Nano v4 on this API. It works only while the app is on screen, refuses phones with an unlocked bootloader, and takes input under 4,000 tokens.
+**The phone part.** `WriterTest.kt` is ready to bundle. It builds in debug and in minified release (AGP 8.13.2, Kotlin 2.3.21, compileSdk 36, minSdk 31), with no warnings, in about 65 s. A test app holding only it and ML Kit is 1.7 MB. It needs `android.useAndroidX=true`, because ML Kit brings in AndroidX; the first build failed without it. Google lists the Pixel 11 series as Gemini Nano v4 on this API. It works only while the app is on screen, refuses phones with an unlocked bootloader, and takes input under 4,000 tokens.
 
 **Gemma** (`GEMMA.md`). Gemma 4 E2B and E4B are now Apache 2.0 with no gate, and there is a Gemma 4 E2B build for the Tensor G6 (3.3 GB). The older Gemma 3 and 3n still need the licence and a token.
 
