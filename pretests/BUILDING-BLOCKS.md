@@ -51,7 +51,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Result so far** (1 October 2026, cloud; the phone part is in the second test app):
     - **In memory: one array per field** (struct of arrays), 2.7 to 4.7 times as fast as one record per thing, with the same memory.
     - **Saved moments: a custom file split into regions, lightly compressed.** For a synthetic world of 10,000 people, 100,000 animals and a million things (403 MB of state), a saved moment took 263 MB, 1.8 seconds to write and 1.1 to read, and one region 8 ms. SQLite was slower to read, and FlatBuffers bigger or slower.
-    - **History log: a custom compressed log** at 12.8 bytes an event. At 10 events per person per day, that is 47 GB per 1,000 years for 1,000 people, too much for long histories on the phone, so old history must be thinned or recorded more sparsely (`PRN-15`, `PLT-10`).
+    - **History log: a custom compressed log** at 12.8 bytes an event. At 10 events per person per day, that is 47 GB per 1,000 years for 1,000 people, too much for long histories on the phone, so old events are now thinned with age by a fixed rule (`PLT-10`).
     - **Crash safety:** in 1,000 kills mid-write, a damaged file was never loaded.
 
 - `B09` **Data catalogues** · done (`pretests/b09-catalogues/`)

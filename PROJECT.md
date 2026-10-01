@@ -1814,6 +1814,7 @@ How much simulation fits on it is found by measuring, not guessing.
   - Going back to a saved moment from before a small update and branching runs the new branch under the current rules.
 
 - `PLT-10` **Storage** *(Decided)*: Saved moments are kept densely near the present and thinned with age by a fixed rule; key moments are always kept (`PRN-15`).
+  The event history thins with age in the same way: recent years keep every event, and older history keeps what the chronicle, the views and the key moments use, such as births, deaths and firsts.
   You can delete worlds and branches.
   When the phone nears full, the game warns you and asks what to delete; it never deletes anything else by itself.
 
@@ -2076,7 +2077,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood medium, impact medium.
   - **Risk:** Long histories with saved moments and key moments may fill the phone (`PRN-15`).
   - **Signs:** worlds growing by gigabytes every thousand years.
-  - **Response:** measure early; thin saved moments with age by a fixed rule, and ask before deleting anything (`PLT-10`).
+  - **Response:** measure early; thin saved moments and old events with age by fixed rules, and ask before deleting anything (`PLT-10`).
 
 - `RSK-21` **Losing a world to a bad update** *(Decided)*
   - **Rating:** likelihood medium, impact high.
