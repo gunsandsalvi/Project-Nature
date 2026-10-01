@@ -1085,26 +1085,70 @@ This is how the world looks. It is written to stand on its own, without needing 
     - pixels that stay still while the camera moves;
     - people and animals readable at phone size.
 
-**Following the story**
+### 11.2 On the screen
 
-- `PRE-05` **Chronicle** *(Decided)*: An automatically written history: timelines, a book of ages, eras named by their own people.
-- `PRE-06` **Follow a soul** *(Decided)*: Pick anyone and follow their life: thoughts, dreams, relationships, death.
-- `PRE-07` **Map overlays** *(Decided)*: Beliefs, knowledge, moods, languages and family ties shown spread across the land.
-- `PRE-08` **Live moments** *(Decided)*: Key events surface as they happen ("someone has made fire for the first time").
-- `PRE-09` **Archaeology** *(Decided)*: Dig down through buried layers of past life: hearths, graves, lost tools, rubbish heaps.
-- `PRE-10` **Family trees and legends** *(Decided)*: Genealogies across generations, and the legends their culture keeps.
-- `PRE-11` **Their sky and calendar** *(Decided)*: The sky as they understand it.
-- `PRE-12` **Their maps and names** *(Decided)*: Their place names and maps, with translation.
-- `PRE-13` **Every view the simulation allows** *(Decided)*: Any further view the simulation's data supports, within physical limits.
+- `PRE-32` **World first** *(Decided)*
+  - **What:** The world fills the screen. Controls and panels appear only when you ask for them: tap a person, animal, group or place to open its card, or swipe up for the chronicle and other views. Nothing stays on screen unless you called it up, apart from a live moment appearing briefly (`PRE-08`).
+  - **Why:** The world is the point. It should feel like looking at a living place, not at a dashboard.
+  - **Example:** You open the app to nothing but the valley at dusk, exactly as you left it.
+
+- `PRE-34` **Both orientations** *(Decided; follows from `PLT-02`)*: Every screen works one-handed in portrait and two-handed in landscape (`VIS-14`).
+
+- `PRE-33` **Gestures** *(Proposed)*:
+  - drag to move, and twist with two fingers to turn;
+  - pinch to zoom, which also sets the speed of time (`TIM-01`);
+  - tap to select;
+  - long-press for your powers at that spot (`GOD-10`);
+  - swipe up for views;
+  - a small corner control for time: pause, speed and speed lock (`TIM-04`).
+
+- `PRE-35` **Cards** *(Proposed)*: Selecting anything opens a card with what matters about it, such as a person's name, age, mood, and what they are doing and why, or a place's land and history. Links lead into deeper views: the story view, the scientist's view, family trees, archaeology.
+
+### 11.3 Following the story
+
+- `PRE-05` **Chronicle** *(Decided)*
+  - **What:** An automatically written history of the world, organised as a book of ages, with a timeline for each people. Eras are named by their own people, or after the events that defined them. Every entry links to the moments and people behind it (`VIS-15`).
+  - **Why:** It is the main way to read a world's history, and the measure of "histories worth reading".
+
+- `PRE-06` **Follow a soul** *(Decided)*: Pick anyone and follow their life: the camera stays with them, and their card shows what they feel, want and think (`PRE-14`). When they die, the game offers to follow someone close to them.
+
+- `PRE-07` **Map overlays** *(Decided)*: Information shown spread across the land. *(Proposed list: beliefs; knowledge, meaning who knows which skill; moods; languages and dialects; family ties; territories and paths; food and water; disease; climate and seasons; rock and resources.)*
+
+- `PRE-08` **Live moments** *(Decided)*: Only what matters interrupts you: firsts, deaths of people you follow, disasters, and big turns in history ("someone has made fire for the first time"). Everything else waits in the chronicle. The level can be adjusted in settings, and one tap takes you to the moment (`TIM-02`).
+
+- `PRE-09` **Archaeology** *(Decided)*
+  - **What:** Dig down through the buried layers of past life with the cut-away view (`PRE-25`): hearths, graves, lost tools, rubbish heaps. Tap a find to see who made or left it, and when.
+  - **Example:** The dig in `MOM-09`.
+
+- `PRE-10` **Family trees and legends** *(Decided)*: Genealogies across generations, and the legends their culture keeps. *(Proposed: each legend can be set side by side with what really happened.)*
+
+- `PRE-11` **Their sky and calendar** *(Decided)*: The sky as they understand it: their constellations, the seasons they track, their festivals.
+
+- `PRE-12` **Their maps and names** *(Decided)*: Their place names with translation, and the maps they draw, compared with the real land.
+
 - `PRE-14` **Two views of every mind** *(Decided)*: A story view in their own words, and a scientist's view of their raw beliefs, how certain they are, and the evidence behind each belief.
+
 - `PRE-15` **Art that remembers** *(Proposed)*: Tap a painting or carving to see the event or myth it depicts.
+
 - `PRE-16` **Bestiary** *(Proposed)*: Each world's tree of life and its species.
 
-**Text written for you**
+- `PRE-36` **Language family tree** *(Proposed)*: How their languages split and drifted over time (`CUL-17`).
 
-- `PRE-17` **Descriptions stick to the data** *(Decided)*: The AI language model only turns simulation data into text: life stories, myths, dreams, the chronicle. It never adds facts the simulation doesn't contain.
-- `PRE-18` **Content setting** *(Decided)*: You choose how much of history's darker side is shown. The simulation underneath never changes.
+- `PRE-13` **Every view the simulation allows** *(Decided)*: Any further view the simulation's data supports, within physical limits (`PRN-04`).
+
+### 11.4 Text written for you
+
+- `PRE-17` **Descriptions stick to the data** *(Decided)*: The AI language model only turns simulation data into text: life stories, myths, dreams, the chronicle. It never adds facts the simulation doesn't contain (`PRN-06`).
+
+- `PRE-37` **The writer AI runs on the phone** *(Decided)*: All text is written on the phone, fully offline, with no running cost. If the writing turns out too plain for histories worth reading (`VIS-15`), that is raised at a milestone review.
+
+- `PRE-38` **English** *(Decided)*: The interface, the chronicle and translations are in English. Their own words appear in their own languages, with English translations (`PRE-12`).
+
 - `PRE-19` **Storytelling voices** *(To test)*: Documentary, archaeologist, their own tradition, and intimate. Each is tried live on real simulation output and chosen by ear. Different views may use different voices.
+
+### 11.5 Content
+
+- `PRE-18` **Content setting** *(Decided)*: You choose how much of history's darker side is shown. The simulation underneath never changes (`CUL-08`).
 
 ## 12. Sound
 
@@ -1119,7 +1163,7 @@ Added in layers, starting with the living soundscape.
 
 - `PLT-01` **One phone** *(Decided)*: Built for your Pixel 11 Pro XL, and free to use that phone's specific hardware wherever it helps.
 - `PLT-02` **Portrait and landscape** *(Decided)*: Both are supported, and the layout adapts.
-- `PLT-03` **Works offline** *(Proposed)*: Including the text descriptions, using the phone's own built-in AI where possible.
+- `PLT-03` **Works offline** *(Decided)*: Everything works without a connection, including the text descriptions, which are written on the phone (`PRE-37`).
 - `PLT-04` **Measured limits** *(To test)*: Measured from the first build and reported at every milestone:
   - smoothness of zooming and panning;
   - simulated time per real minute at each zoom level;
