@@ -1042,6 +1042,21 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
   Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn.
   These are actions on matter; moving, eating, sleeping and acts between people are in `BIO-21`.
 
+- `MAT-18` **Built things are arrangements** *(Proposed)*
+  - **What:** Anything people build, such as a hearth, a windbreak, a kiln or a drum, is an arrangement of ordinary things (`MAT-10`): which things, where each one sits, and how they are joined.
+    Nothing in the code names a built thing.
+    The laws act on what an arrangement is like: how closed in a fire is, what its walls are made of and how thick they are, where its openings are, and how much air reaches it; or how long a tube is and where its holes are.
+    Arrangements are described in a short vocabulary of plain shapes and joins, such as pile, ring, wall, cover, opening, tube, frame and stretched skin, joined by stacking, tying, plastering or fitting.
+    The vocabulary decides what is easy to find, so it is kept short, listed in one place, and changed only with your OK.
+    People keep designs in memory: an arrangement, the steps to build it, and what they believe it does (`MND-05`, `MND-06`, `MND-18`).
+    Designs come from the sources in `MND-11`, most often by changing one thing in a design someone already knows, and spread by teaching and copying (`CUL-01`).
+  - **Why:** A kiln or a flute is many parts in a particular arrangement, not one action on one object, so without this nothing beyond single actions could be built.
+    Complex things can only be reached in steps that each pay off on their own, as in history.
+  - **Example:** Stones put round a fire to stop it spreading make a hearth.
+    Clay walls make it an oven, and a cover makes it a kiln that fires pots hard (`RCK-04`).
+    A draught and blowing make it hotter still, until green stones lining it leave a bead of copper (`MOM-12`, `RCK-08`).
+  - **Done when:** the general-rules check finds no built thing named in the code or the laws (`PRN-07`), and a comparison run shows how much the vocabulary changes what gets built (`RES-10`).
+
 - `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time, feeding the archaeology view (`PRE-09`).
   What survives depends on the material and the ground: stone lasts; bone survives in dry caves and limestone; wood, hide and plant fibre usually rot, except in waterlogged, frozen or very dry ground.
 
@@ -2151,7 +2166,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
 New suggestions from AI agents are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at the moment.
+- **Matter:** `MAT-18`, built things are arrangements.
 <!-- end generated -->
 
 ## 18. Glossary
