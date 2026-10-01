@@ -2016,6 +2016,10 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 
 - `MND-10` **Curiosity in minds** *(Decided)*: Attention goes where expectations fail.
   Surprises are remembered and tried again.
+  - **How it works:**
+    - **Surprise draws attention:** a percept or outcome far from what beliefs predicted is attended to first (`MND-03`) and raises the curiosity drive (`MND-07`), by the person's curiosity (`MND-20`).
+    - **Kept and tried again:** a surprise is remembered strongly (`MND-18`) and leaves a weak belief linking what came before with what happened (`MND-05`); when drives allow, the mind repeats what came before, varied a little, to see whether it happens again (`MND-09`), and each try's result strengthens or kills the belief.
+    - **Curiosity follows learning, not noise:** it is drawn most to what the mind is learning fastest about, and fades for what has stopped teaching anything, as in well-studied models of curiosity, so people don't fixate on pure chance.
 
 - `MND-11` **Where new ideas come from** *(Decided)*:
   - accidents someone notices;
@@ -2042,8 +2046,26 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
      The band now knows how to make fire, a skill nobody programmed.
   6. You might help: during that crisis, a dream puts "smoking stick" next to "fire" in the most curious person's head (`GOD-03`).
 
+  - **How it works:** every new idea is a new try, built from what is already in the mind:
+    - **accidents:** an action meant for one thing gives an unexpected result, and the surprise makes it a weak belief (`MND-10`);
+    - **watching nature:** an event seen with no one acting, such as fire after lightning, is learned like any outcome (`MND-05`), with the event before it as its cause;
+    - **tinkering:** a skill's settings pushed beyond their usual range, its steps reordered, or the skill used on a new target (`MND-06`);
+    - **analogy:** an action believed to work on one thing is tried on another that shares the properties the belief rests on, so what scrapes wood might scrape bone (`MND-04`);
+    - **signs of the goal:** in planning, what usually comes with a goal can be sought as a step toward it (`MND-09`): smoke comes with fire, so a smoking stick becomes a hunch about fire, as in step 3;
+    - **dreams:** new links between memories, held as weak beliefs (`MND-12`).
+
+    The physics decides each try (`MAT-04`), and the belief grows or dies (`MND-05`).
+    A discovery happens only through a chain whose every step pays off enough to be repeated, like the one above; a step that never pays off is reached only by rare luck over long times (`MND-17`).
+
 - `MND-12` **Dreaming** *(Decided)*: During sleep, people replay and recombine their own memories.
   This strengthens what they learned, sometimes connects things in a new way, and is also your lever (`GOD-03`).
+  - **How it works:**
+    - **Replay:** during sleep, the day's strongest memories, by feeling, surprise and how much they matter to pressing drives, are replayed, a limited number each night (estimated); each replay renews the memory (`MND-18`) and its beliefs and skill settings, like a little more practice, as real sleep does.
+    - **Recombination:** pieces of different replayed memories (their things, places and people) are put together at random, weighted by how active each is; a pairing that matches a pressing want or an open question (`MND-10`) leaves a weak new belief, such as "smoking stick" next to "fire", which waking tries can test (`MND-11`).
+      Experiments have shown sleep helping people find a hidden rule.
+    - **Dream records:** each night's dream is kept as a record of what was replayed and combined, with its feelings, for the views and the writer.
+    - **Your lever:** you can choose which pieces one sleeper's dream combines, from what is already in their mind; nothing new is added (`GOD-03`).
+    - **Animals** replay their memories too, more simply (`MND-16`).
 
 ### 9.6 Other minds
 
