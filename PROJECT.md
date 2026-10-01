@@ -1063,11 +1063,33 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
   - **vibration:** how struck, plucked or blown things ring (`SND-06`);
   - **chemistry:** metals giving up or taking up oxygen (smelting and rusting), minerals breaking down when heated (as limestone does), taking up gases from the air (as lime does when it sets), tannins binding to proteins, and fluxes lowering the melting point of silica;
   - **life:** growing, digesting, healing, rotting and fermenting, with microbes at work (`WLD-21`).
+  - **How it works:**
+    - **A law is a rule over properties:** it states which things it applies to, by their properties and situation and never by name; what it computes; and when it runs.
+      Its numbers come from the catalogues (`MAT-13`), with sources wherever they decide what is possible.
+    - **Laws at a contact** (breaking, cutting, scraping, pressing, bending, joining) run when force is applied, by an action (`MAT-06`) or by something falling, rolling or flowing.
+      They compute the result from the force, speed, angle and point of contact and the materials' properties.
+      For example, the breaking law decides whether a strike knocks a piece off, and gives the piece's shape: a flake from glassy stone, fragments from coarse stone, a split along the grain of wood.
+    - **Laws over time** (heating and cooling, burning, drying, wetting, dissolving, freezing and melting, chemical change, rotting) run as rates for as long as their conditions hold.
+      The rates come from measured data: how fast heat flows, how fast fuel burns with the air it gets, how fast a reaction goes at a given temperature.
+    - **Only what is changing is computed:** a thing under a law over time is checked again sooner or later depending on how fast it is changing: every few seconds in a fire, hourly for a drying hide, never for a cold, dry stone.
+      Untouched matter costs nothing.
+    - **Fire is a law, not a thing:** burning things form a fire, whose heat balance is worked out at each step.
+      Heat comes in from the fuel burned, limited by the air that reaches it: still air, a draught through gaps, or someone blowing.
+      Heat goes out to the air, to the surroundings and into the ground.
+      Stones, earth or walls around a fire hold heat and cut its losses, so open, enclosed and blown fires reach different temperatures without any of them being named; fire temperatures are results, never set (`MAT-05`, `RCK-02`, `RCK-08`, `RCK-22`).
+    - **Vibration** is the law the sound tests already use: a struck, plucked or blown thing rings at frequencies set by its stiffness, density and shape (`SND-06`).
+    - **Life's laws** (growing, digesting, healing, rotting and fermenting) run over time on living ingredients, with microbes as living things (`WLD-21`); their details are written with bodies and the world.
+    - **Checks:** every law has its reality checks and its balance check (`MAT-09`), and the general-rules check (`PRN-07`) searches the law code for product names.
+    - **Open:** knapping's breaking rule comes from experiments that relate flake size to how deep into the edge and at what angle a stone is struck, mostly on glass cores; whether it holds for the varied stones people pick up is tested in Experiment 1 (`RES-02`).
+      Some chemistry, such as tanning and fermenting, has no measured rate and rests on estimates, labelled as such.
 
 - `MAT-07` **One law, many inventions** *(Decided)*: Laws are general enough that one law covers many inventions.
   For example, "metal ores give up their metal when heated hot enough in contact with burning charcoal" covers copper, tin, lead and iron.
   Each needs its own real conditions, so they become possible in a natural order that nobody wrote down.
   Follows from `PRN-07`.
+  - **How it works,** taking smelting as the example: any metal-bearing mineral touching burning charcoal gives up its metal once the fire passes the temperature at which charcoal pulls oxygen from that metal more strongly than the metal holds it; standard measured tables give that point for each metal.
+    The metal melts only if the fire is also hotter than its own melting point.
+    So lead and tin come out at lower temperatures, copper runs out as liquid at about 1,085 °C, and iron comes out as a spongy lump that such a fire never melts (`RCK-18`): one law, measured data, and an order nobody wrote down.
 
 - `MAT-06` **Actions are physical** *(Decided)*: Every action has force, angle, speed, duration and temperature, and the physics decides the outcome.
   Technique matters: a clumsy strike shatters the stone.
@@ -1090,6 +1112,9 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
   - **Example:** Copper melts at about 1,085 °C.
     An open wood fire reaches roughly 600–900 °C; a charcoal furnace with forced air passes 1,100 °C.
     So copper waits until someone builds a hotter fire.
+  - **How it works:** values that decide what is possible live in the catalogues with their source and a quote, are checked once and locked (`RSK-16`): melting points, ignition temperatures, heats of burning and of reaction, hardness, resistance to cracking, toxic doses and nutrition.
+    Fire temperatures are not stored values: they come out of the fire law (`MAT-04`) and are checked against real ranges, such as the two above.
+    Estimated values name the rule or range they come from, and tuned values are listed in every milestone report (`PRN-05`).
 
 ### 7.4 How matter grows
 
