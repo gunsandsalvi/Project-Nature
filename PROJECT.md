@@ -1093,17 +1093,65 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
 
 - `MAT-06` **Actions are physical** *(Decided)*: Every action has force, angle, speed, duration and temperature, and the physics decides the outcome.
   Technique matters: a clumsy strike shatters the stone.
+  - **How it works:**
+    - **An action is an instruction from a mind to its body:** which basic action (`MAT-12`), with which hand or body part, the thing held if any, the target (a thing or a spot), and its settings: force or speed, direction and angle against the target's surface, point of contact, duration and number of repeats.
+    - **The body carries it out within its limits:** strength caps force and speed, and reach and posture limit where it can act.
+    - **Error is real:** the settings that reach the target are the intended ones plus a random error.
+      Practice shrinks the error (`MND-06`); fatigue, cold hands, poor light and haste grow it.
+      Each error comes from that being's own chance at that moment (`TIM-06`).
+    - **The physics decides the result:** the contact laws (`MAT-04`) take the actual settings, not the intended ones.
+      Struck at the right point and angle, a stone gives off a flake; struck too hard or off the point, it crushes or shatters.
+    - **Named simplification:** the body is not simulated muscle by muscle.
+      Each action is a stroke with physical settings, limited by the body, and the picture animates it.
 
 - `MAT-11` **Mechanics** *(Decided)*: Weight, momentum, leverage, springiness and friction follow real physics.
   Throwing sticks, spear-throwers and bows can work only because the physics makes them work.
   Follows from `MAT-06`.
+  - **How it works:**
+    - **Moving things:** anything set moving (thrown, dropped, falling or rolling) follows its path in fine steps, with gravity, air drag from its shape, and spin.
+      It stops at what it hits, and the contact laws decide what happens there.
+    - **Throwing:** release speed comes from how fast the body swings, times how far from the pivot the thing is held.
+      A spear held at the end of a rigid stick is further from the pivot, so the same arm throws it faster and further; that is the only reason a spear-thrower works.
+    - **Bending:** a bent thing stores energy set by its stiffness (from its material and thickness) and by how far it is bent, and gives it back, less losses, when released.
+      So a bent stick and a cord can drive a dart, if the numbers make it worth it.
+    - **Levers:** force applied far along a rigid thing is multiplied at the near end.
+    - **Friction:** sliding under pressure turns work into heat where the surfaces touch, set by the pressure, the speed and the materials, and the heat law spreads it.
+      So fast, hard twirling of dry wood can push its dust past ignition (`RCK-02`).
+    - **Weight:** carrying costs the body energy, by weight and distance (`BIO-09`).
 
 - `MAT-12` **What a body can do** *(Decided)*: The basic actions everything else is built from: grasp, carry, put down, drop, throw, strike, press, rub, twist, bend, tear, dig, cut or scrape with an edge, pierce with a point, pour, blow, chew, and put into fire or water.
   Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn.
   These are actions on matter; moving, eating, sleeping and acts between people are in `BIO-21`.
+  - **How it works:** each basic action is defined by the contact or motion it creates and the laws it calls:
+    - **grasp:** holds a thing if it fits the hand and is not too heavy.
+      Touching it gives the senses its weight, warmth, texture and sharpness, and a sharp edge gripped hard can cut the hand (the injury law);
+    - **carry, put down and drop:** move a thing with the body, or let it go; a dropped thing falls (`MAT-11`);
+    - **throw:** releases a thing at speed (`MAT-11`);
+    - **strike:** drives the hand or a held thing into a target, calling the contact laws: breaking, crushing and cutting;
+    - **press:** force spread over an area presses; through an edge it cuts, and through a point it pierces;
+    - **rub:** sliding under pressure, giving friction heat and wear: grinding, polishing, fire by friction;
+    - **twist:** turning force, which twists fibres together or bores a hole;
+    - **bend:** turning force on a long thing, which springs back or breaks;
+    - **tear:** pulls a thing apart;
+    - **dig:** moves earth into a heap, and the patch records it;
+    - **cut or scrape with an edge, and pierce with a point:** edges drawn and points driven, calling the cutting and piercing laws;
+    - **pour:** tips a container so liquid flows out;
+    - **blow:** pushes air from the lungs, at a measured rate, at a spot, and a fire there gets that air (`MAT-04`);
+    - **chew:** crushes and softens what is in the mouth;
+    - **put into fire or water:** moves a thing there, where the laws over time take over.
+
+    Sequences are learned, never built in: knapping or sewing exist only as skills a mind has learned (`MND-06`), sequences of these actions with learned settings.
+    Nothing in the body or the laws knows them.
 
 - `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time, feeding the archaeology view (`PRE-09`).
   What survives depends on the material and the ground: stone lasts; bone survives in dry caves and limestone; wood, hide and plant fibre usually rot, except in waterlogged, frozen or very dry ground.
+  - **How it works:**
+    - **Burial:** each patch's surface builds up at a rate set by the land: a river flat silts up in floods, a cave floor gathers dust and fallen rock, and a slope loses soil (`WLD-15`).
+      Things lying there sink into the layer of their time.
+    - **What survives** is decided by the slow laws over time, still running in the ground: rot needs water, air and warmth; acid ground dissolves bone and lime-rich ground keeps it; waterlogged, frozen or very dry ground stops rot.
+      Each layer's wetness, air and acidity come from the soils (`WLD-27`).
+    - **Checked rarely:** buried things are checked every few years, since they change slowly, so a buried world costs little.
+    - **For archaeology:** notable things stay individual and ordinary leftovers stay merged in their layer's record (`MAT-10`); the archaeology view reads both (`PRE-09`).
 
 ### 7.3 Real numbers
 
