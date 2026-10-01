@@ -48,17 +48,13 @@ The elementary pieces Kindling is built from, and the questions to settle by tes
 
 These choices cut across many blocks. Each is settled by the tests of the blocks named.
 
-- `X1` **One set of numbers everywhere.** How the simulation stays bit-for-bit identical on the phone and in the cloud: floating-point (decimal) maths under strict rules, whole-number maths, or a mix. This also decides whether the simulation can ever use the phone's graphics chip, since the cloud sessions have none. *Settled by* `B01`, `B05`.
+- `X1` **The phone comes first.** *Decided:* the phone and cloud builds don't have to match exactly; the cloud build only has to behave the same statistically (`PLT-05`, `RES-05`). So the simulation is free to use whatever is fastest on the phone, including its graphics chip. *Settled by* `B01`, `B05`.
 
-- `X2` **Detail and the camera.** *Needs your decision.* `WLD-12` and `MND-14` give more detail to whatever you watch. But if watching changes how finely something is simulated, it can change what happens: the same seed would no longer give the same history (`PRN-08`), a world run in the cloud (where nobody watches) would differ from the same world on your phone, and simply looking at a band could change its fate. Two ways out:
-  - **The world decides detail, not the camera** *(recommended)*. The simulation works in fine detail wherever its own rules say so, such as where people are or where something critical is happening. Your camera only adds display detail, drawn from what was simulated, and never feeds back. History never depends on where you looked. It may cost more computing, since detail can't be saved just because nobody is looking.
-  - **Your attention counts as an intervention.** History may depend on where you look. The phone records your viewing, and cloud runs use a fixed rule for attention. The same seed and the same viewing give the same history, but watching becomes a way of changing the world, and a cloud experiment can only be seen exactly as reported as a recording.
+- `X2` **Detail and the camera.** *Decided:* the world decides where detail is needed, by its own rule; where you look changes only the picture (`WLD-12`, `WLD-13`, `MND-14`, `PRN-11`). People in routine situations may run more cheaply, but only once an experiment shows it gives the same history statistically. What this costs is measured by `B08`, `B43` and `B79`.
 
-  Either way, some wording in `WLD-12` and `MND-14` would change, so the choice is yours. The tests of `B08` and `B43` measure the cost. *Settled by* `B08`, `B43`, `B79`.
+- `X3` **Speed never changes outcomes.** Every system takes steps of a fixed simulated length whatever the speed of time; speed only changes how many steps run per real second. Otherwise fast time would quietly cut corners (`PRN-11`). *Confirmed by* `B03`.
 
-- `X3` **Speed never changes outcomes.** Every system takes steps of a fixed simulated length whatever the speed of time; speed only changes how many steps run per real second. Otherwise watching fast and watching slowly would produce different histories. *Confirmed by* `B03`.
-
-- `X4` **Store or recompute.** How much history is stored, and how much is recomputed on demand from the nearest snapshot: for rewinding, for answering "why did she do that?", and for watching the past after an update (`PLT-09`), when the old rules are gone unless the app keeps them. *Settled by* `B06`, `B07`.
+- `X4` **What history keeps.** *Decided:* history is saved, not re-run (`PRN-15`). What remains is what to save, how often, and what it costs: the events and the reasons behind them, key moments in full, and full saved moments to look at and branch from. *Settled by* `B06`, `B07`.
 
 - `X5` **Running ahead of the screen.** Whether the simulation runs a little ahead of what you see, so the story director can slow time before an important moment instead of after it, and heavy moments never cause stutter. An intervention then discards and recomputes the part that ran ahead. *Settled by* `B03`, `B65`.
 
@@ -70,13 +66,13 @@ These choices cut across many blocks. Each is settled by the tests of the blocks
 
 - `X9` **Sharing the phone.** The simulation, the drawing, the writer AI and the sound run at once. How processor, memory, battery and heat are split between them, and when the writer AI does its work. *Settled by* `B73`, `B79`.
 
-- `X10` **Technology and toolchain.** The programming language, engine and graphics interface (`PRC-03`), judged on sameness of numbers, speed on the phone, how reliably AI agents write and test it, and whether the cloud sessions can build the phone app. *Settled by* `B01`, `B66`, `B78`, `B80`.
+- `X10` **Technology and toolchain.** The programming language, engine and graphics interface (`PRC-03`), judged first on speed on the phone, then on how reliably AI agents write and test it, and on whether the cloud sessions can build the phone app and run the same rules without graphics. *Settled by* `B01`, `B66`, `B78`, `B80`.
 
 ## Map of the blocks
 
-82 blocks in 14 layers: 25 critical, 35 to choose, 22 to measure.
+82 blocks in 14 layers: 24 critical, 35 to choose, 23 to measure.
 
-- **Foundations:** `B01` same numbers on phone and cloud · `B02` random draws · `B03` clock and scheduler · `B04` world state and memory · `B05` using every core · `B06` event record and causes · `B07` snapshots, rewinding and branches · `B08` detail levels · `B09` catalogues and real-world data
+- **Foundations:** `B01` fast numbers on the phone · `B02` random draws · `B03` clock and scheduler · `B04` world state and memory · `B05` using every core · `B06` event record and causes · `B07` saved moments and branches · `B08` detail levels · `B09` catalogues and real-world data
 - **Space:** `B10` the wrap-around map · `B11` land at every scale · `B12` movement, paths and sight
 - **Making a world:** `B13` planet and sky · `B14` landforms, rock and rivers · `B15` climate · `B16` species · `B17` choosing the best world
 - **The living planet:** `B18` weather · `B19` water · `B20` living geology and burial · `B21` soils, plants and wildfire · `B22` animal populations · `B23` heredity · `B24` microbes and disease
@@ -105,23 +101,23 @@ Tests run in waves, and each wave informs the next. Waves 0 to 2 settle what the
 
 The engine everything else runs on.
 
-- `B01` **Same numbers on phone and cloud** · *Critical*
-  - **Does:** makes every calculation give exactly the same result on the phone's processor and in the cloud.
-  - **Serves:** `PRN-08`, `RES-05`, `PLT-05`, `TIM-06`
+- `B01` **Fast numbers on the phone** · *Measure*
+  - **Does:** chooses how the simulation does its maths, for the most simulation per watt on the phone (`X1`).
+  - **Serves:** `PLT-01`, `PLT-05`, `RES-05`
   - **Needs:** `B78` for the phone side
-  - **To settle:** floating-point maths under strict rules (no fused operations, our own sine, exponent and logarithm, a fixed order for every sum), whole-number maths, or a mix; the speed cost of each on the phone; whether any simulation work can use the graphics chip. The test runs the same small kernels (heat flow, random walks, a sum over a million values, a learning update) for a million steps on both and compares fingerprints.
+  - **To settle:** which number formats and which hardware (fast cores, slow cores, the graphics chip) give the most simulation per watt for typical work: heat flow, random walks, large sums, learning updates; whether the cloud build still gives the same statistics (`RES-05`).
 
 - `B02` **Random draws** · *Choose*
-  - **Does:** gives every random event its own reproducible draw.
-  - **Serves:** `PRN-08`, `PRN-14`, `RES-10`, `GOD-04`
+  - **Does:** gives every random event its own draw, so that mechanisms don't disturb each other.
+  - **Serves:** `PRN-14`, `RES-10`, `GOD-04`
   - **Needs:** `B01`
-  - **To settle:** one shared random sequence, where adding anything shifts every later draw, against draws computed from a key (world, system, being, moment, purpose), so that adding or switching off a mechanism leaves every other draw unchanged; statistical quality and speed.
+  - **To settle:** one shared random sequence, where adding anything shifts every later draw, against draws computed from a key (world, system, being, moment, purpose), so that adding or switching off a mechanism leaves every other draw unchanged and comparison runs stay clean; statistical quality and speed.
 
 - `B03` **Clock and scheduler** · *Choose*
   - **Does:** runs dozens of systems at their natural rates, from a strike lasting a moment to ice ages, at any speed from natural to centuries per minute.
   - **Serves:** `TIM-01`, `TIM-04`, `TIM-10`, `PRN-11`, `WLD-12`
   - **Needs:** `B01`, `B02`
-  - **To settle:** one global tick, a fixed rate per system, a queue of timed events, or a hybrid; overhead per simulated day; proof that the speed of time never changes outcomes (`X3`).
+  - **To settle:** one global tick, a fixed rate per system, a queue of timed events, or a hybrid; overhead per simulated day; proof that the speed of time never changes the size of the simulation's steps (`X3`).
 
 - `B04` **World state and memory** · *Measure*
   - **Does:** stores everything that exists (land, things, plants, animals, people, minds) compactly and quick to update.
@@ -130,28 +126,28 @@ The engine everything else runs on.
   - **To settle:** memory per person, full mind, simple mind, animal and thing; a layout that is fast on the phone; how new kinds of data are added without touching old ones.
 
 - `B05` **Using every core** · *Choose*
-  - **Does:** spreads the simulation over all the phone's cores while keeping results identical.
-  - **Serves:** `PRN-08`, `PRN-11`, `PLT-04`
+  - **Does:** spreads the simulation over all the phone's cores, and the graphics chip where it helps.
+  - **Serves:** `PRN-11`, `PLT-01`, `PLT-04`
   - **Needs:** `B01`, `B03`, `B04`
-  - **To settle:** how to split the work (by region, by system, or in read-then-write phases) so results are the same with one thread or eight, on the phone's mix of fast and slow cores and on the cloud's; the real speed-up on the phone.
+  - **To settle:** how to split the work (by region, by system, or in read-then-write phases) on the phone's mix of fast and slow cores; whether the graphics chip pays off for large fields such as weather, water and plants; the real speed-up on the phone.
 
 - `B06` **Event record and causes** · *Choose*
   - **Does:** records what happened, to whom, where, and what caused it. It is the base of the chronicle, live moments, the scientist's view and research.
-  - **Serves:** `PRN-10`, `PRN-13`, `VIS-15`, `GOD-08`, `TIM-02`, `PRE-05`, `PRE-14`, `MND-25`
+  - **Serves:** `PRN-10`, `PRN-13`, `PRN-15`, `VIS-15`, `GOD-08`, `TIM-02`, `PRE-05`, `PRE-14`, `MND-25`
   - **Needs:** `B03`, `B04`
-  - **To settle:** record everything, or record what matters and recompute the rest on demand by re-running a stretch of history with full tracing (exact, because runs are deterministic); events per simulated year at 100, 1,000 and 10,000 people; storage per thousand years; how long an on-demand "why?" takes (`X4`).
+  - **To settle:** what to keep so every view of the past works (`X4`): events, the reasons behind recorded choices, and key moments in full; events per simulated year at 100, 1,000 and 10,000 people; storage per thousand years; how quickly the past can be searched and shown.
 
-- `B07` **Snapshots, rewinding and branches** · *Choose*
-  - **Does:** saves the world continuously, rewinds to any moment, branches timelines, exports and imports worlds, and keeps history across updates.
-  - **Serves:** `TIM-06`, `TIM-08`, `PLT-05`, `PLT-07`, `PLT-08`, `PLT-09`, `RSK-12`
+- `B07` **Saved moments and branches** · *Choose*
+  - **Does:** saves the world continuously, keeps full saved moments to look at and branch from, exports and imports worlds, and keeps history across updates.
+  - **Serves:** `PRN-15`, `TIM-06`, `TIM-08`, `PLT-05`, `PLT-07`, `PLT-08`, `PLT-09`, `RSK-12`
   - **Needs:** `B04`, `B06`
-  - **To settle:** snapshot size and spacing against the time to reach any moment; storage per thousand years and per branch; saving without stutter, and without loss when the app is killed mid-save; how the past before an update stays watchable: a stored record, or old rule versions kept in the app (`X4`).
+  - **To settle:** the size of a saved moment, and how often to keep one (dense near the present, sparse further back) against storage; storage per thousand years and per branch; saving without stutter, and without loss when the app is killed mid-save (`X4`).
 
 - `B08` **Detail levels** · *Critical*
   - **Does:** simulates coarsely where little is happening and finely where it matters, and moves between the two without contradiction.
   - **Serves:** `WLD-12`, `WLD-13`, `MND-14`, `PRN-10`, `PRN-11`
   - **Needs:** `B03`, `B04`, `B06`
-  - **To settle:** the camera question (`X2`); how far coarse and fine runs drift apart for a band foraging through a season and a herd through a year; handover rules so that nothing you saw is contradicted (fine detail drawn from coarse results, or fine results fed back); how much each level saves.
+  - **To settle:** the world's own rule for where detail is needed (`X2`); how far coarse and fine runs drift apart for a band foraging through a season and a herd through a year; handover rules so that nothing you saw is contradicted (fine detail drawn from coarse results, or fine results fed back); how much each level saves.
 
 - `B09` **Catalogues and real-world data** · *Measure*
   - **Does:** keeps every ingredient, structure, law, reality check and species as a stand-alone entry in plain language, with real values and sources, readable by people and loaded by the simulation.
@@ -297,7 +293,7 @@ The engine everything else runs on.
   - **Does:** weight, momentum, leverage, springiness and friction for the body's basic actions; throwing, spear-throwers, bows, cord, cutting and scraping; shelters that stand or fall.
   - **Serves:** `MAT-06`, `MAT-11`, `MAT-12`, `RCK-11`
   - **Needs:** `B27`
-  - **To settle:** a deterministic physics engine, or simple physical formulas for each kind of interaction; whether throwing sticks, spear-throwers and bows work purely from physics, at speeds that match real ones; cost.
+  - **To settle:** a physics engine, or simple physical formulas for each kind of interaction; whether throwing sticks, spear-throwers and bows work purely from physics, at speeds that match real ones; cost.
 
 ## 6. Bodies
 
@@ -370,10 +366,10 @@ The engine everything else runs on.
   - **To settle:** tracking only what matters (who knows which skill or place), so cost doesn't grow with the square of the group; cost for a band of 30 and a camp of 300.
 
 - `B43` **Simple minds at a distance** · *Critical*
-  - **Does:** runs minds far from attention as habits and knowledge held by the group, and sharpens them again with no break in their story.
+  - **Does:** runs people in routine situations more cheaply, even as part of their band, and in full again when something new, risky or important happens to them, with no break in their story (`X2`).
   - **Serves:** `MND-14`, `MND-15`, `PRN-11`
   - **Needs:** `B08`, `B39`, `B45`
-  - **To settle:** whether simple and full minds give the same discoveries, spread and losses at the level of a band; how each person's own beliefs and memories are kept or rebuilt when they sharpen; the saving; the camera question (`X2`).
+  - **To settle:** whether simple and full minds give the same discoveries, spread and losses at the level of a band; how each person's own beliefs and memories are kept or rebuilt when they return to full detail; the saving.
 
 - `B44` **Animal minds** · *Choose*
   - **Does:** the same machinery with fewer abilities: fear, routes, habits, and each species' ways, such as pack hunting.
@@ -491,7 +487,7 @@ The engine everything else runs on.
   - **Does:** shows where you intervened and what changed because of it, in the scientist's view only.
   - **Serves:** `GOD-07`, `GOD-08`, `GOD-09`
   - **Needs:** `B06`, `B07`
-  - **To settle:** tagging consequences as they spread, or re-running history without the intervention and comparing (exact, thanks to determinism, but slower); cost and clarity.
+  - **To settle:** tagging consequences as they spread, or branching from the saved moment before the intervention and comparing (slower, and chance differs too); cost and clarity.
 
 ## 10. Time and history
 
@@ -604,21 +600,21 @@ The engine everything else runs on.
   - **To settle:** the sustained speed of each kind of core before the phone throttles, over minutes and over hours; frame pacing at full refresh; using the phone's own heat warnings to slow time before it gets hot; battery per hour; the split between simulation, drawing, writer AI and sound (`X9`).
 
 - `B80` **Cloud runner and moving worlds** · *Critical*
-  - **Does:** runs the same simulation without graphics in the AI's cloud sessions, many worlds at once, and moves any world to the phone at any moment of its history.
-  - **Serves:** `PLT-05`, `SCP-15`, `RES-01`, `RES-05`, `PRN-08`
+  - **Does:** runs the same rules without graphics in the AI's cloud sessions, many worlds at once; checks that the cloud gives the same statistics as the phone; and moves an experiment's saved moments to the phone.
+  - **Serves:** `PLT-05`, `SCP-15`, `RES-01`, `RES-05`, `PRN-15`
   - **Needs:** `B01`, `B07`
-  - **To settle:** how much computing a session really offers (cores, memory, how long it may run), and so how many world-years an hour; how long Experiment 1 (100 worlds of 500 years) would take; what moves to the phone (seed and interventions, or snapshots) and its size.
+  - **To settle:** how much computing a session really offers (cores, memory, how long it may run), and so how many world-years an hour; how long Experiment 1 (100 worlds of 500 years) would take; how the statistical comparison with the phone build is run; the size of a saved moment sent to the phone.
 
 ## 14. Research tools
 
 - `B81` **Experiment runner and reports** · *Measure*
-  - **Does:** defines experiments with criteria fixed first, runs comparison runs with mechanisms switched off, gathers results as ranges, logs surprises, and writes report pages with charts and replay links.
+  - **Does:** defines experiments with criteria fixed first, runs comparison runs with mechanisms switched off, gathers results as ranges, logs surprises, and writes report pages with charts and links to saved moments.
   - **Serves:** `RES-01`, `RES-02`, `RES-03`, `RES-06`, `RES-07`, `RES-08`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-14`, `RES-15`, `PRN-05`, `PRN-12`, `BIO-07`
   - **Needs:** `B64`, `B80`
   - **To settle:** little beyond standard work. This is where the rule that every mechanism has an off switch is set (`X7`).
 
 - `B82` **Automatic checks** · *Choose*
-  - **Does:** runs the reality checklist, the phone-and-cloud sameness check, the general-rules check, the coverage check and the screenshot tour for the visual review.
+  - **Does:** runs the reality checklist, the general-rules check, the coverage check, the phone and cloud statistical comparison at milestones, and the screenshot tour for the visual review.
   - **Serves:** `MAT-15`, `PRE-31`, `PRN-07`, `PRC-10`, `PRC-12`, `RES-04`, `RES-05`, `RES-11`
   - **Needs:** `B78`, `B80`
-  - **To settle:** how the phone checks sameness by itself (each build carries the cloud's fingerprints of known runs and compares); how the code is laid out so the general-rules search means something (`X8`); taking screenshots on the phone or in the cloud.
+  - **To settle:** how the phone runs its share of the statistical comparison with little of your time; how the code is laid out so the general-rules search means something (`X8`); taking screenshots on the phone or in the cloud.
