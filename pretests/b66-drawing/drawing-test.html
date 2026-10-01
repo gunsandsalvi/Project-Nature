@@ -3835,7 +3835,22 @@ const Renderer = (() => {
   const S = {
     yaw: -0.45, zoom: 0.16, tod: 'dusk', season: 'autumn', outlines: true, fullDither: false, cut: false,
     pan: [0, 0], focus: [GeoTerrain.CUT_X, 30.5, 3.2], focusK: 0,
+    fix: 'base', // B66 (PRE-22) pixel fix: base, steps, fade, majority, sticky
   };
+  /* B66 (PRE-22): step sizes for the "Steps" and "Fade" fixes, in radians of turn and in log of art-pixel size.
+     Steps: a point half a view-width from the turning axis moves one art pixel per turn step,
+     and the far edges of the view move one art pixel per zoom step. Fade: bigger fixed steps, crossfaded. */
+  const FADE_YAW = 1.5 * Math.PI / 180, FADE_ZOOM = Math.log(1.04), FADE_DUR = 0.08;
+  function fixSteps() {
+    if (S.fix === 'steps') return { yaw: 2 / Math.max(8, size.Wf - 2), zoom: Math.log(1 + 2 / Math.max(8, Math.max(size.Wf, size.Hf) - 2)) };
+    if (S.fix === 'fade') return { yaw: FADE_YAW, zoom: FADE_ZOOM };
+    return null;
+  }
+  const quant = (v, st) => Math.round(v / st) * st;
+  const fade = { key: null, cur: null, old: null, oldOff: null, curOff: null, start: null, mix: 1, newStep: false };
+  const hist = { cam: null, W: 0, H: 0, ss: false };
+  let resI = 0;
+  function resetFix() { fade.key = null; fade.cur = null; fade.old = null; fade.start = null; fade.mix = 1; hist.cam = null; hist.ss = false; }
   const size = { Wd: 2, Hd: 2, s: 4, Wf: 4, Hf: 4 };
   const stats = { ms: 0, frames: 0 };
   let cam = null;
@@ -3868,7 +3883,10 @@ const Renderer = (() => {
   // closest: one person chipping flint (PRE-03), standing about 58 art pixels tall
   const TARGET = [[L(0.03), [50.75, 39.35, 4.4]], [L(0.064), [61.4, 30.6, 5.4]], [L(0.2), [66, 36, 6.5]], [L(0.62), [74, 49, 4]], [L(2.4), [76, 54, 3]], [L(12), [63.5, 39.5, 3.7]]];
   function viewFor(z) {
-    const texel = zoomToTexel(z), lt = Math.log(texel);
+    let texel = zoomToTexel(z);
+    const st = fixSteps();
+    if (st) texel = Math.exp(quant(Math.log(texel), st.zoom)); // B66 (PRE-22) zoom steps
+    const lt = Math.log(texel);
     const pitch = curve(PITCH, lt) * Math.PI / 180;
     if (!TARGET.z) { TARGET.z = 1; TARGET[0][1][2] = terrainZ(50.75, 39.35) + 0.45; }
     const tg = curve(TARGET, lt);
@@ -3901,6 +3919,7 @@ const Renderer = (() => {
     P.water = mk(SH.waterVS, SH.waterFS);
     P.sect = mk(SH.sectVS, SH.sectFS);
     P.post = mk(SH.quadVS, SH.postFS); P.up = mk(SH.quadVS, SH.upscaleFS);
+    P.resolve = mk(SH.quadVS, SH.resolveFS); // B66 (PRE-22) majority of 2x2 samples
     const tx = PAL.textures();
     T.pal = X.texture(256, 4, tx.pal); T.ramps = X.texture(8, PAL.RAMP_ROWS, tx.ramps); T.luts = X.texture(256, 16, tx.luts);
     T.shadow = X.target(2048, 2048, true);
@@ -3935,7 +3954,8 @@ const Renderer = (() => {
 
   /* ---- camera ---- */
   function computeCamera() {
-    const v = viewFor(S.zoom), texel = v.texel, pitch = v.pitch, yaw = S.yaw;
+    const st = fixSteps();
+    const v = viewFor(S.zoom), texel = v.texel, pitch = v.pitch, yaw = st ? quant(S.yaw, st.yaw) : S.yaw; // B66 (PRE-22) turn steps
     const cp = Math.cos(pitch), sp = Math.sin(pitch);
     const F = [-Math.sin(yaw) * cp, -sp, -Math.cos(yaw) * cp];
     const R = [Math.cos(yaw), 0, -Math.sin(yaw)];
@@ -3988,8 +4008,9 @@ const Renderer = (() => {
     for (const m of list) X.draw(prog, m);
   }
 
-  function render(t) {
+  function render(t, wall) {
     const t0 = performance.now();
+    if (wall === undefined) wall = t0 / 1000; // B66: clock for the Fade crossfade (fixed steps when scripted)
     cam = computeCamera();
     const c = cam, tod = TOD[S.tod];
     const Ls = sunDir(S.tod);
@@ -4014,7 +4035,10 @@ const Renderer = (() => {
       uWinter: S.season === 'winter' ? 1 : 0, uTime: t, uMap: 0, uPitchC: Math.min(20, 1 / Math.max(0.05, Math.cos(c.pitch))),
       uFbo: [size.Wf, size.Hf], uDbgA: S.dbgA || 0, uDbgB: S.dbgB || 0, uHole: [GeoTerrain.L0.x0, GeoTerrain.L0.y0, GeoTerrain.L0.x1, GeoTerrain.L0.y1], uFar: 0,
       uCave: [CAVE.x, CAVE.half, CAVE.h], uFordS: FORD_S, uMinHW: Math.max(0, c.texel * 0.95), uLift: c.texel > 0.5 ? 1.2 : 0,
+      uSS: 1,
     };
+    const ss = S.fix === 'majority' || S.fix === 'sticky'; // B66 (PRE-22)
+    if (ss) U.uSS = 2;
     let animating = false;
     for (const e of extras) if (e.prepare && e.prepare(X, U, c, t)) animating = true;
     stats.animating = animating;
@@ -4033,8 +4057,10 @@ const Renderer = (() => {
       if (showFar && GF) { drawList(GF.far.meshes, P.terrainS, Object.assign({}, SU, { uFar: 1 })); drawList(GF.faceFar, P.faceS, SU); }
       for (const e of extras) if (e.shadow) e.shadow(X, SU, c, t);
     }
-    // ---- scene pass: palette indices, flags and depth
-    X.bind(T.scene);
+    // ---- scene pass: palette indices, flags and depth (B66: at 2x2 samples per art pixel for Majority and Sticky)
+    let sceneT = T.scene;
+    if (ss) { if (!T.ss) T.ss = X.target(4, 4, true); X.resizeTarget(T.ss, 2 * size.Wf, 2 * size.Hf); sceneT = T.ss; }
+    X.bind(sceneT);
     gl.clearColor(PAL.I.void / 255, 0, 1, 1); gl.clearDepth(1);
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -4048,26 +4074,63 @@ const Renderer = (() => {
     drawList(G.water, P.water, U);
     for (const e of extras) if (e.scene) e.scene(X, U, c, t);
     gl.disable(gl.DEPTH_TEST);
+    let img = T.scene;
+    if (ss) {
+      // B66 (PRE-22): resolve the samples to one palette index per art pixel
+      if (!T.res) T.res = [X.target(4, 4, false), X.target(4, 4, false)];
+      for (const r of T.res) X.resizeTarget(r, size.Wf, size.Hf);
+      const cur = T.res[resI], prev = T.res[1 - resI];
+      const sticky = S.fix === 'sticky' && hist.ss && hist.cam && hist.W === size.Wf && hist.H === size.Hf;
+      X.bind(cur); X.use(P.resolve);
+      X.setAll(P.resolve, { uSSImg: T.ss.tex, uSSRes: [2 * size.Wf, 2 * size.Hf], uPrev: prev.tex, uRes: [size.Wf, size.Hf], uSticky: sticky ? 1 : 0,
+        uCR: c.R, uCU: c.U, uCF: c.F, uLBT: [c.left, c.bottom, c.texel, 0], uNF: [c.near, c.far - c.near], uPrevVP: sticky ? hist.cam.VP : c.VP });
+      X.draw(P.resolve, X.quad);
+      img = cur; resI = 1 - resI;
+    }
+    hist.cam = c; hist.W = size.Wf; hist.H = size.Hf; hist.ss = ss;
     for (const e of extras) if (e.top) e.top(X, U, c, t);
     // ---- post: outlines, rim light, palette variant
     gl.disable(gl.DEPTH_TEST);
-    X.bind(T.post);
+    // B66 (PRE-22) Fade: a new turn or zoom step keeps last frame's picture as the old one and crossfades
+    let postT = T.post;
+    fade.newStep = false;
+    if (S.fix === 'fade') {
+      if (!T.post2) T.post2 = X.target(4, 4, false);
+      X.resizeTarget(T.post2, size.Wf, size.Hf);
+      const key = c.yaw.toFixed(7) + '|' + c.texel.toPrecision(10) + '|' + size.Wf + 'x' + size.Hf;
+      if (!fade.cur) fade.cur = T.post;
+      if (fade.key !== null && key !== fade.key) {
+        fade.old = fade.cur; fade.oldOff = fade.curOff; fade.start = wall; fade.newStep = true;
+        fade.cur = fade.cur === T.post ? T.post2 : T.post;
+      }
+      fade.key = key; postT = fade.cur;
+    }
+    X.bind(postT);
     const sunScr = [V3.dot(Ls, c.R), V3.dot(Ls, c.U)]; const sl = Math.hypot(sunScr[0], sunScr[1]) || 1;
     const fp = c.proj([FIRE.x, fireZ, FIRE.y]);
     X.use(P.post);
-    X.setAll(P.post, { uImg: T.scene.tex, uPal: T.pal, uLuts: T.luts, uRes: [size.Wf, size.Hf], uSunScr: [sunScr[0] / sl, sunScr[1] / sl],
+    X.setAll(P.post, { uImg: img.tex, uPal: T.pal, uLuts: T.luts, uRes: [size.Wf, size.Hf], uSunScr: [sunScr[0] / sl, sunScr[1] / sl],
       uFireScr: [fp[0], fp[1], 9 / c.texel], uOutline: S.outlines ? 1 : 0, uPalRow: tod.row, uDepthM: c.far - c.near, uTexel: c.texel });
     X.draw(P.post, X.quad);
     for (const e of extras) if (e.overlay) e.overlay(X, U, c, t);
     // ---- upscale with the sub-pixel remainder
     X.bind(null);
     X.use(P.up);
-    X.setAll(P.up, { uImg: T.post.tex, uImgSize: [size.Wf, size.Hf], uOff: c.off, uScale: size.s });
+    let mix = 1;
+    if (S.fix === 'fade' && fade.old && fade.start !== null) { mix = clamp((wall - fade.start) / FADE_DUR, 0, 1); if (mix >= 1) fade.start = null; }
+    fade.mix = mix;
+    X.setAll(P.up, { uImg: postT.tex, uImgSize: [size.Wf, size.Hf], uOff: c.off, uScale: size.s,
+      uOld: (mix < 1 ? fade.old : postT).tex, uOffOld: mix < 1 ? fade.oldOff : c.off, uMix: mix });
     X.draw(P.up, X.quad);
+    if (S.fix === 'fade') fade.curOff = c.off;
+    last.cam = c; last.img = img; last.post = postT; last.mix = mix; last.newStep = fade.newStep; last.oldOff = fade.oldOff; last.old = fade.old;
     stats.ms = performance.now() - t0; stats.frames++;
+    stats.animating = stats.animating || mix < 1;
   }
+  const last = {}; // B66: what the last frame drew, for the crawl count
 
-  return { reduced: false, init, setSize, render, S, size, stats, buildLater, farReady: () => !!GF, viewFor, zoomToTexel, addExtra, buildFar, get cam() { return cam; }, get X() { return X; }, get P() { return P; }, get T() { return T; }, TOD };
+  return { reduced: false, init, setSize, render, S, size, stats, buildLater, farReady: () => !!GF, viewFor, zoomToTexel, addExtra, buildFar, get cam() { return cam; }, get X() { return X; }, get P() { return P; }, get T() { return T; }, TOD,
+    resetFix, last, fade, FADE_DUR, computeCamera };
 })();
 
 // ---- app.js ----
