@@ -2138,18 +2138,36 @@ It grows out of minds (see Minds) living together, and it changes, spreads, spli
 
 - `CUL-01` **Learning from others** *(Decided)*
   - **What:** People imitate (and imperfect copying creates variation), teach (possible because they understand what others know, `MND-23`), and copy whoever succeeds or whatever most people do.
+  - **How it works:**
+    - **Watching:** a person who notices someone act (`MND-03`) sees the action, roughly its settings, and its outcome.
+      The outcome updates their own beliefs (`MND-05`), more weakly than their own experience would, weighted by their trust in the one acting (`MND-24`); and they copy the steps and settings they saw into a skill of their own (`MND-06`), blurred by distance and attention and changed by their own body, so copies vary.
+    - **Whom to copy:** each person weights others by their seen success and prestige, by kinship and likeness, and by how many people do a thing the same way, the pull to conform that is well studied in cultural evolution; their readiness to conform (`MND-20`) sets the balance.
+    - **Teaching:** someone who believes another lacks a skill or belief they have (`MND-23`), and wants them to have it, may teach: doing the steps slowly in view, pointing out the key parts (`MND-26`), correcting the learner's errors, and using words once there are words for it (`CUL-04`).
+      Teaching makes copying faster and more exact, as measured in experiments on learning to knap.
+    - **Building up:** imperfect copying makes variation, and copying the successful keeps the better kinds, so culture builds up over generations (`MND-17`).
   - **Why:** This is how a people becomes cleverer than any of its members (`MND-17`).
   - **Example:** The best knapper's technique spreads because others copy whoever succeeds.
     Small copying errors make each band's blades slightly different (`CUL-12`).
 
 - `CUL-02` **Knowledge can be lost** *(Decided)*: Knowledge lives in heads and dies with them unless it is passed on.
   Small, isolated groups can lose skills, as may have happened in Tasmania (`MOM-02`).
+  - **How it works:** knowledge exists only as records in minds, and later in marks (`CUL-03`); a person's records end at death, and a skill survives only if others have learned it, while unused skills and beliefs fade (`MND-18`).
+    A group copies mostly from its best (`CUL-01`); in a small group the best may not be very good, and copies of copies decay, so whether a complex skill survives depends on the group's size and contact with others, as in the published model of Tasmania's losses.
+    No rule makes it happen.
 
 - `CUL-03` **Memory outside heads** *(Decided)*: Marks, symbols, writing and records can emerge, letting knowledge outlive the people who had it.
   Signs gain meaning the same way words do, by agreement (`CUL-04`): tally marks for counting, pictures that tell, and eventually signs that stand for words.
+  - **How it works:**
+    - **Marks are real things:** a scratch, paint, a knot or a notch is a change to a thing made by an action (`MAT-10`, `CUL-25`), seen by sight.
+    - **Meaning by linking:** a mark comes to mean something when people link its look to a concept, as words are linked (`CUL-04`): by making it while attending to something together, and by others seeing and copying the link; one notch for each day becomes a tally that others can read.
+    - **Pictures:** people who see a picture recall the things it shows (`MND-04`).
+    - **Meaning lives with the link:** a sign keeps its meaning only while someone who knows the link can read it; after that the thing remains, but its meaning is lost.
+    - **Open:** how far counting goes depends on number concepts forming, which is less well understood (`MND-04`).
 
 - `CUL-16` **How things spread** *(Decided)*: Knowledge, words, styles and beliefs spread through contact: shared camps, marriages between bands, trade and conflict.
   Isolation makes groups drift apart.
+  - **How it works:** everything cultural passes only when people are actually together and perceive each other (`CUL-01`, `CUL-24`): sharing a camp, a person moving to another band by marriage, meeting to trade, raids and captives.
+    So distance, barriers (`WLD-10`) and people's own choices set how often two groups meet, and the less they meet, the more their copying errors pull them apart.
 
 ### 10.2 Language
 
