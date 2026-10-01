@@ -410,9 +410,11 @@ You are an invisible force of nature. This section defines exactly what you can 
 
 - `GOD-05` **Only natural means** *(Decided)*
   - **What:** Every act must be something nature could do. Your powers feed into the world's own systems (weather, chance, sleep). They never create anything from nothing and never break a rule (`PRN-12`). There is no limited supply of power to spend, but nature's own limits always apply. Those limits:
-    - lightning comes from storm clouds, so to strike a tree you first need a storm overhead, which you can bring;
+    - lightning comes from storm clouds, so to strike a tree you first need a storm overhead. You can bring one, and it builds over hours, as weather does;
     - disasters happen only where conditions allow: eruptions at volcanoes with magma beneath them, earthquakes on faults, floods where rain can swell the rivers, wildfires where fuel is dry enough to burn;
-    - weather stays within what the climate can produce at that place and season, so there is no snow in a tropical summer;
+    - weather nudges shift the weather's own chances within what the climate can produce at that place and season, so there is no snow in a tropical summer, and a run of nudges can't push a place beyond its climate's worst natural stretch;
+    - a season can be pushed over a region at most about one climate zone across, roughly 100 km;
+    - earthquakes and eruptions use up the stored strain and magma that make them possible: you choose where and when, and nature's stores decide how big;
     - a person or animal has at most one dream per sleep;
     - fortune works on chance, never on the rules (`GOD-04`).
   - **Why:** A single miracle would make the world's history untrustworthy.
@@ -436,6 +438,7 @@ You are an invisible force of nature. This section defines exactly what you can 
     - carry a feeling (fear, longing, hope or awe) that shapes what they make of it.
 
     A dream can only use what the dreamer has actually experienced. They still have to work out the "how" themselves, and they may never act on it at all.
+  - **How strong:** a dream you send replaces that night's own dream, and is never stronger than the strongest natural dream: you only choose what it contains. Sending the same dream again follows the mind's normal rules for recurring dreams, and nothing marks your dreams out from natural ones (`GOD-06`).
   - **What follows:** The dream becomes a memory of its own. It makes certain ideas more likely to come to mind, and the dreamer may tell others about it, which can feed myth and belief (`CUL-05`).
   - **Why:** Dreams are where minds recombine experience (`MND-12`), so they are the most natural way for a god to touch an idea without supplying it.
   - **Example:** The session story in `VIS-11`.
@@ -447,7 +450,8 @@ You are an invisible force of nature. This section defines exactly what you can 
 
 - `GOD-04` **Fortune and fate** *(Decided)*
   - **What:** You can bless or curse a person, a family, a band, an animal herd or a place. Fortune can touch luck in the hunt, finding food or materials, fertility, health and recovery, and sickness and plague.
-  - **How strong:** Gentle. A blessing at most doubles a chance: a hunt with a 10% chance of success gets 20%. Their skill still matters most, and nothing is ever certain. A curse works the same way in reverse, at most halving a chance. A blessing or curse lasts as long as you set, from a single hunt to a few years.
+  - **How it works:** Fortune acts only on the chance events around its target, such as whether a deer looks up, which way a spear wobbles, or whether a wound turns bad. A blessed failure gets one more try; a cursed success is retried at most half the time. Each chance event gets at most one retry, however many blessings and curses overlap.
+  - **How strong:** Gentle. A blessing can never more than double a chance: a hunt with a 10% chance of success gets at most 20%. A curse can never more than halve one. Their skill still matters most, nothing is ever certain, and no one's choices are touched. There is one strength; you choose the target and how long it lasts, from a single hunt to a few years.
   - **Fortune works on chance, never on the rules:** it changes which of the possible outcomes happens, never what is possible. A plague needs a disease that already exists in the world.
   - **Why:** Luck is how the world feels to the people in it. Fortune lets you lean on it without taking over.
   - **Example:** You bless a band's hunters for one winter. They come home with meat a little more often, but whether they survive still depends on how well they hunt and share.
@@ -896,7 +900,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 - `MND-07` **Drives** *(Decided)*: Hunger, thirst, cold, tiredness, fear, belonging, status, curiosity and the urge to have children.
 
-- `MND-19` **Feelings** *(Decided)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride and awe. They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
+- `MND-19` **Feelings** *(Decided)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride, awe, longing and hope. They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
 
 - `MND-20` **Personality** *(Decided)*: A few inborn tendencies (curiosity, boldness, sociability, patience, dominance, readiness to conform), partly inherited (`BIO-06`) and shaped by what happens to each person.
 
@@ -1235,10 +1239,10 @@ When the phone can't keep up, time slows and depth stays (`PRN-11`).
 
 - `PLT-08` **Manual export** *(Decided)*: Export a world, with all its timelines, as a file whenever you want, and import it again on the same phone or a new one. The export keeps the full record, so an imported world opens exactly as it was. There are no automatic backups.
 
-- `PLT-09` **Updates keep history** *(Decided)*
-  - **What:** The game's rules will keep growing (`PRN-14`). When you update, everything that already happened in a world stays exactly as it was. When you continue, the world runs under the new rules, and the change is marked on its timeline.
-  - **Why:** Worlds are long-lived, so they shouldn't be thrown away with each update, and the past should never change.
-  - Rewinding to before an update and branching runs the new branch under the current rules.
+- `PLT-09` **Worlds across updates** *(Decided)*
+  - **What:** The game's rules will keep growing (`PRN-14`). After a small update, a world carries on: everything that already happened stays as it was, the world continues under the new rules, and the change is marked on its timeline. A big update, one that adds a new layer of the world such as new matter, species or systems, may need a new world. Worlds are only promised to last between big updates.
+  - **Why:** Fitting a new layer into a running world would be costly, and could make its past dishonest. Starting a new world keeps every world true to one set of rules.
+  - Going back to a saved moment from before a small update and branching runs the new branch under the current rules.
 
 ### 13.4 The cloud
 
