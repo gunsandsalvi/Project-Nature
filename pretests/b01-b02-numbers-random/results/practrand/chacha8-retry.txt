@@ -1,0 +1,27 @@
+# kbench --stream chacha8 retry | RNG_test stdin64 -tlmax 32 -multithreaded
+# started 2026-10-01T14:55:10Z
+RNG_test using PractRand version 0.95
+RNG = RNG_stdin64, seed = unknown
+test set = core, folding = standard (64 bit)
+
+rng=RNG_stdin64, seed=unknown
+length= 256 megabytes (2^28 bytes), time= 2.7 seconds
+  no anomalies in 213 test result(s)
+
+rng=RNG_stdin64, seed=unknown
+length= 512 megabytes (2^29 bytes), time= 6.2 seconds
+  no anomalies in 229 test result(s)
+
+rng=RNG_stdin64, seed=unknown
+length= 1 gigabyte (2^30 bytes), time= 12.5 seconds
+  no anomalies in 246 test result(s)
+
+rng=RNG_stdin64, seed=unknown
+length= 2 gigabytes (2^31 bytes), time= 23.1 seconds
+  no anomalies in 263 test result(s)
+
+rng=RNG_stdin64, seed=unknown
+length= 4 gigabytes (2^32 bytes), time= 43.3 seconds
+  no anomalies in 279 test result(s)
+
+# finished 2026-10-01T14:55:55Z

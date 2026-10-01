@@ -9,9 +9,8 @@ Throwaway test. Deleted once the architecture is written.
 
 ## Approaches
 
-- Kernels, each in Rust and C++ in one library (`kbench`): heat (2D diffusion on a 512 x 512 torus), walk (100,000 agents on a 1024 x 1024 torus, keyed draws), sum (2^24 values, fixed tree), learn (4,096 delta-rule learners with 64 weights), rng (one keyed draw).
-- Java versions of heat (f32, fx32) and of the splitmix draw (`jvm/Kernels.java`).
-- Generators: splitmix64, Philox4x32-10, Squares (Widynski), PCG-style hash, wyhash-style hash, ChaCha8.
+- Five kernels (heat, walk, sum, learn, rng), each in Rust and C++ in one library (`kbench`), in four formats where they apply; Java versions of heat (f32, fx32) and the splitmix draw (`jvm/Kernels.java`).
+- Generators: splitmix64, Philox4x32-10, Squares (Widynski), PCG-style hash, wyhash-style hash, ChaCha8. Added after the first results: "wysafe", the wyhash-style hash with wyhash's guarded multiply (see R1).
 
 ## Decision rules (written before any measurement; not changed afterwards)
 
@@ -28,10 +27,10 @@ Determinism checks (`X11`), used by R2 and R4. A kernel/format/language passes i
 - **Library.** `kbench/` is a Rust crate; build.rs compiles the C++ kernels into the same library twice: `cpp` (compiler defaults, as an NDK build) and `cppnc` (fused multiply-add off, for checksum comparison only). `run(json) -> json`, a command-line tool, and JNI exports for `dev.kindling.pretests.Bench` (feature `android`). `{"list":true}` lists kernels and a ready-made phone run plan; `{"selftest":true}` checks known answers and that Rust and C++ draws agree.
 - **Kernels.** heat: 512 x 512 torus, 5-point stencil, alpha 0.2, double buffer, 64 steps per rep. walk: 100,000 agents, 1024 x 1024 torus, direction from the top 2 bits of draw(agent, step), 16 steps per rep. sum: 2^24 values (magnitudes 2^-16 to 2^15), fixed tree (blocks of 4,096, then the 4,096 block results). learn: 4,096 learners x 64 weights, delta rule, learning rate 1/64, dot product in 8 fixed lanes, 32 steps per rep. rng: beings 0 to 65,535 at moments 0 to 15.
 - **Timing.** One untimed warm-up rep, then reps for at least 1 s (at least 3). Every rep restarts from the same state, so its checksum must equal the warm-up's. Threads get a fixed contiguous share and meet at a spinning barrier between steps.
-- **Cloud build.** x86-64-v2 (128-bit vectors, no FMA: the closest x86 match to the phone's 128-bit NEON), clang 18 for C++ (the NDK's compiler family), Rust 1.97, OpenJDK 21 for Java. Speeds: 3 interleaved rounds of 1 s runs under the shared CPU lock; median and spread (max - min) / median.
-- **Determinism (`X11`).** Checksums from the 3 timed runs on 1 and 4 threads, plus short runs on 2 and 3 threads, for Rust, C++, C++ without FMA and Java.
+- **Cloud build.** x86-64-v2 (128-bit vectors, no FMA: the closest x86 match to the phone's 128-bit NEON), clang 18 for C++ (the NDK's compiler family), Rust 1.97, OpenJDK 21 for Java. Speeds: 6 interleaved rounds of 1 s runs (two batches of 3) under the shared CPU lock; median and spread (max - min) / median.
+- **Determinism (`X11`).** Checksums from the 6 timed runs on 1 and 4 threads, plus short runs on 2 and 3 threads, for Rust, C++, C++ without FMA and Java.
 - **ARM.** An aarch64 Linux build (clang for C++, like the NDK) runs under qemu-aarch64-static; its checksums are compared with x86. The phone library itself builds with `cargo ndk -t arm64-v8a --platform 29 build --release --features android`.
-- **Random quality (`B02`).** PractRand pre0.95, `RNG_test stdin64 -tlmax 34 -multithreaded` (2^34 bytes = 16 GiB per stream): (i) one key, moments 0, 1, 2...; (ii) beings 0, 1, 2... at one moment. Extra: (iii) each chance event's first draw interleaved with its fortune retry (`GOD-04`), to 2^32 bytes.
+- **Random quality (`B02`).** PractRand pre0.95, `RNG_test stdin64 -tlmax 34 -multithreaded` (2^34 bytes = 16 GiB per stream): (i) one key, moments 0, 1, 2...; (ii) beings 0, 1, 2... at one moment. Extra: (iii) each chance event's first draw interleaved with its fortune retry (`GOD-04`), to 2^32 bytes; wy's two streams also to 2^35.
 - **How each generator takes the key.** World, system and purpose are folded once per loop into a stream key k0 (purpose's top bit marks a fortune retry, so a retry is simply another key). Per draw:
   - splitmix: mix(mix(k0 xor being) + (moment + 1) x golden ratio constant);
   - Philox4x32-10: counter = (moment, being), all 128 bits; key = k0;
@@ -68,25 +67,35 @@ Java on the desktop JVM: heat f32 746 (1 thread) and 1,885 (4 threads); heat fx3
 
 **Keyed draws (`B02`).** Million draws per second (rng kernel) and agent-steps per second (walk f32), 1 thread, best of Rust and C++; PractRand per stream (one key's moments; neighbouring beings; first draw interleaved with its fortune retry).
 
-GENTABLE
+| Generator | Draws | Walk | One key | Neighbours | Retry |
+|---|---|---|---|---|---|
+| splitmix | 319 | 96 | pass 2^34 | pass 2^34 | pass 2^32 |
+| philox | 191 | 40 | pass 2^34 | pass 2^34 | pass 2^32 |
+| squares | 319 | 77 | pass 2^34 | pass 2^34 | pass 2^32 |
+| pcg | 254 | 91 | pass 2^34 | pass 2^34 | pass 2^32 |
+| wy | 1,152 | 136 | pass 2^35 | pass 2^35 | pass 2^32 |
+| chacha8 | 24 | 12 | pass 2^34 | pass 2^34 | pass 2^32 |
+| wysafe (extra) | 451 | 110 | pass 2^34 | pass 2^34 | pass 2^32 |
+
+No FAIL and nothing "suspicious" anywhere. Five of the 23 streams had one "unusual" flag (the mildest level), each in a different test and never repeated: noise under R1. On 4 threads the draws scale about 3 times (wy 2,860, splitmix 986).
 
 **Determinism (`X11`).**
-- Every kernel, format, generator and language (83 combinations, Java included) gave one checksum across all runs and on 1, 2, 3 and 4 threads. Every rep matched its run's warm-up rep.
+- All 87 combinations of kernel, format, generator and language (Java included) gave one checksum across all runs, and 85 of them were checked on 1, 2, 3 and 4 threads (the other 2 on 2 and 3). Every rep matched its run's warm-up rep.
 - All languages agree on x86: Rust, C++, C++ without FMA and Java give identical checksums.
 - ARM (aarch64 build under qemu) against x86: Rust 26 of 26 identical, floats included; C++ without FMA 26 of 26; C++ with default settings 22 of 26. The 4 that differ are heat and learn in f32 and f64: clang fuses a*b+c into one instruction on ARM (20 such instructions in the phone library's C++ heat, 112 in learn; none in Rust). All integer and fixed-point results match.
 
 **Rounding.**
 - Sum of the 2^24 test values: exact 3,057,372.846. f32 fixed tree 3,057,371.0; f32 plain loop 3,057,589.5. f64: the tree is 6 times closer than the plain loop; both differ in the last bits. Integer formats give the same bits either way, but fx32 rounds tiny values down (3,057,284.9).
-- The fixed tree is faster than the plain loop, not slower: f32 4.2 billion values per second against 1.4 on 1 thread, because it vectorizes.
+- The fixed tree is faster than the plain loop, not slower: f32 4.0 to 4.2 billion values per second against 1.4 on 1 thread, because it vectorizes.
 - Heat should keep its total. Change per step: f32 -1e-11, f64 0, fx64 -2e-12, fx32 -1.5e-7, always downward (about -14% over a million steps), because a plain shift rounds down.
 
 ## Verdict
 
 Provisional, from cloud numbers; the phone settles speed.
 
-- **R1, generator: the rule picks wy (wyhash-style), but use the guarded version, wysafe.** GENVERDICT The rule proved badly framed in one way: it only sees statistics and speed. Plain wy multiplies (being xor a constant) by (moment xor the stream's seed), so at the one moment equal to the seed every being gets the same draw. With moments up to 2^41 that hits about one stream in 8 million: rare, but across many worlds it will happen. wysafe (wyhash's own guarded multiply) removes it, passes the same tests, keeps 81% of wy's speed inside the walk (110 against 136) and is still faster there than splitmix (96) and the others.
-- **Fortune retries (`GOD-04`).** A retry is the same key with the purpose's top bit flipped: its own independent draw that changes nothing else. RETRYVERDICT
-- **R2, format: f32 for all four kinds of work.** f32 is the fastest format in every kernel on 1 and 4 threads (heat 2,515 against fx32's 1,768; sum 4,222 against 3,284; learn 32 against 25) and passes every check. In walk, f64 and fx32 also come within 15% (96, 86, 91); the rule's order picks f32.
+- **R1, generator: the rule picks wy (wyhash-style), but use the guarded version, wysafe.** All six candidates pass both streams to 2^34 bytes, so the rule picks the fastest: wy, 1,152 million draws per second on one thread, 3.6 times splitmix and Squares (319), and also the fastest inside the walk (136 against 96). The rule proved badly framed in one way: it only sees statistics and speed. Plain wy multiplies (being xor a constant) by (moment xor the stream's seed), so at the one moment equal to the seed every being gets the same draw. With moments up to 2^41 that hits about one stream in 8 million: rare, but across many worlds it will happen. wysafe (wyhash's own guarded multiply) removes it, passes the same tests, keeps 81% of wy's speed inside the walk (110 against 136) and is still faster there than splitmix (96) and the others.
+- **Fortune retries (`GOD-04`).** A retry is the same key with the purpose's top bit flipped: its own independent draw that changes nothing else. PractRand finds no link between first draws and their retries for any generator (to 2^32 bytes).
+- **R2, format: f32 for all four kinds of work.** f32 is the fastest format in every kernel on 1 and 4 threads (heat 2,515 against fx32's 1,768; sum 4,222 against fx32's 3,284; learn 32 against f64's 25) and passes every check. In walk, f64 and fx32 also come within 15% (96, 86, 91); the rule's order picks f32.
 - **R3, language: Rust.** Rust/C++ speed ratio over 52 pairs: geometric mean 1.00 (single loops range 0.84 to 2.03, from per-loop compiler choices, not the language). A tie, so points: Rust 3 (built-in tests; one cargo command each for phone and cloud; floats identical on x86 and ARM), C++ 2 (one CMake command each; but it needs a test framework, and its floats differ on ARM unless fused multiply-add is switched off).
 - **R4, determinism: pass.** Nothing depends on thread count or timing. Bonus: with Rust (or C++ with FMA off) the cloud reproduces ARM results bit for bit, floats included, as long as kernels use only + - x / (library maths such as exp and sin can differ between platforms).
 - **R5, managed code: out for simulation kernels.** Java heat runs at 25 to 32% of native speed even on the desktop JVM (the bar is 85%). Fine for the app shell. Java's keyed draw beat native here (1.4x) only because LLVM vectorizes 64-bit multiplies badly at this x86 level.
@@ -119,7 +128,7 @@ cd pretests/b01-b02-numbers-random
 flock $LOCK bash -c 'cd kbench && cargo build --release && cargo test --release'
 flock $LOCK scripts/build-practrand.sh             # PractRand into the shared cache
 flock $LOCK scripts/build-arm.sh                   # phone .so (cargo-ndk) + aarch64 tool for qemu
-scripts/run-all.sh                                 # all runs, each slot under the lock
+scripts/run-all.sh                                 # slots A-F, each under the lock (needs ~50 min of lock time)
 python3 scripts/bench.py summarize <raw dir>       # rewrites results/*.csv
 ```
 

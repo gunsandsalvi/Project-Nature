@@ -22,8 +22,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 ## Status
 
 - **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner.
-- **Running:** `B01` numbers and languages, `B02` random draws, `B78` building the phone app, `B79` what the phone sustains.
-- **Next:** `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B74` sound, `B76` speech, `B73` writer AI.
+- **Running:** `B01` numbers and languages, `B02` random draws, `B78` building the phone app, `B79` what the phone sustains, `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B73` writer AI, `B74` sound, `B76` speech.
 
 ## The blocks
 
@@ -35,7 +34,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Question:** which generator makes each draw from a key (world, system, being, moment, purpose), as local chance requires (`TIM-06`).
   - **Approaches:** six keyed generators, compared on statistical quality, including between neighbouring keys, and on speed in the cloud and on the phone.
 
-- `B04` **Storing data** · next
+- `B04` **Storing data** · running (`pretests/b04-b11-storage-terrain/`)
   - **Question:** how to hold the world in memory and on the phone's storage (`PRN-15`, `PLT-07`, `PLT-10`).
   - **Approaches:** on synthetic data at realistic sizes (people, animals, things, map cells, events), compare layouts in memory for millions of small records, and formats for saved moments and the history log: a custom binary format, SQLite, or a schema format such as FlatBuffers. Measure memory per record, save and load speed, size per saved moment and per thousand years of events, query speed, and whether a save survives the app being killed mid-write.
 
@@ -61,23 +60,23 @@ This is a working document, kept with the tests in the temporary `pretests` fold
     - **Globe:** map columns become longitude and rows latitude, on a globe of radius 318 km. East–west distances shrink with latitude, to a half at 60°, so the third of the map beyond 60° fills 13% of the globe.
     - **For you:** `WLD-01` doesn't say how wide the polar ice cap is.
 
-- `B11` **Terrain** · next
+- `B11` **Terrain** · running (`pretests/b04-b11-storage-terrain/`)
   - **Question:** how to store land from whole regions down to the metre, with cliffs, caves and overhangs (`PRE-23`, `PRE-24`), and how to generate it fast enough on the phone (`WLD-11`).
   - **Approaches:** on synthetic land, a height map with local 3D pieces against sparse grids of small cubes: memory for the whole world, and how fast metre-level detail appears near a camp. For generation, two or three fast methods, such as shaped noise or noise with a quick erosion pass, timed on the phone.
 
-- `B66` **Drawing and gestures** · next
+- `B66` **Drawing and gestures** · running (`pretests/b66-drawing/`)
   - **Question:** which graphics engine draws the game's look (`PRE-01` to `PRE-04`, `PRE-20` to `PRE-22`) at the screen's full refresh rate on the phone, and whether the gestures (`PRE-33`) feel right in the hand.
   - **Approaches:** the mockup's scene (`mockups/visual-style.html`) drawn as it is with WebGL, and by a native engine (Vulkan or OpenGL ES): frame time, battery and heat; a fix for pixels crawling while the camera turns or zooms (`PRE-22`); and the decided gestures, which you try.
 
-- `B73` **Writer AI** · next
+- `B73` **Writer AI** · running (`pretests/b73-writer/`)
   - **Question:** which model and runtime write the text on the phone (`PRE-37`), and at what cost beside the simulation and drawing.
   - **Approaches:** the phone's built-in model (Gemini Nano) and an open model run by the app (Gemma), on hand-made sample data: words per second, memory and heat; how often each adds facts that aren't in the data (`PRE-17`); whether it softens dark events (`RSK-17`); and your rating of a few entries. Gemma's download needs a Hugging Face account and accepting its licence.
 
-- `B74` **Sound** · next
+- `B74` **Sound** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how sound is made and played on the phone (`SND-01`, `SND-06`, `SND-08`).
   - **Approaches:** struck flint, granite and wood made from their properties by simple physical models, against recordings shaped by those properties; a bone flute and a hide drum made from their shapes (`CUL-10`); the phone's audio engine, its delay, and the cost of many sounds at once. You listen.
 
-- `B76` **Speech** · next
+- `B76` **Speech** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how to speak an invented language on the phone (`SND-03`).
   - **Approaches:** a synthetic voice built from the language's own sounds, against a natural-sounding neural voice fed phonetic spelling; quality, cost, and how far each bends invented sounds toward real languages. You listen.
 

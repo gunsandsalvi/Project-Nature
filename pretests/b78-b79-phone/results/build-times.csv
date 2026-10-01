@@ -5,3 +5,5 @@ s1-kotlin-rust,clean,2,32.5
 s1-kotlin-rust,one-line-change,2,1.7
 s1-kotlin-rust,clean,3,32.6
 s1-kotlin-rust,one-line-change,3,1.5
+s2-kotlin-cpp,clean,1,30.8
+s2-kotlin-cpp,one-line-change,1,2.5

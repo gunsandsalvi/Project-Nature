@@ -30,3 +30,8 @@ rng=RNG_stdin64, seed=unknown
 length= 8 gigabytes (2^33 bytes), time= 79.5 seconds
   no anomalies in 295 test result(s)
 
+rng=RNG_stdin64, seed=unknown
+length= 16 gigabytes (2^34 bytes), time= 152 seconds
+  no anomalies in 311 test result(s)
+
+# finished 2026-10-01T14:53:02Z
