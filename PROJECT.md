@@ -1875,11 +1875,23 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 
 - `MND-05` **Cause-and-effect beliefs** *(Decided)*
   - **What:** "Doing this to that, in this situation, leads to this." Each belief is held with more or less certainty, which rises and falls as evidence comes in.
+  - **How it works:**
+    - **A belief's record:** an action or event, what it acts on, the situation (place, season and what else is there), the outcome, how strongly the outcome is expected, and its evidence: how many times it held and failed, and links to the memories behind it.
+    - **Learning by surprise:** after anything happens, beliefs that predicted it grow and beliefs that predicted something else shrink, by the size of the surprise (the gap between what was expected and what happened), at a rate set by the person's learning speed (`BIO-08`), as in the Rescorla–Wagner rule, a well-tested model from psychology.
+      So a fully expected outcome teaches little, and a cause that adds nothing to an already known cause gets no credit, as in real learning.
+    - **Credit over time:** recent actions and events leave fading traces, so an outcome credits what came before it in proportion to how recent and how noticeable each was; some links span hours, as when sickness is tied to a meal.
+    - **Certainty is the evidence:** many confirmations and few failures make a confident belief; one striking event makes a strong but uncertain one.
+    - **Discovery and superstition** both come from this: repeated tries sort real causes, which keep working, from coincidences, which fail, unless a belief is never tested again.
+    - **Tuned in Experiment 1:** the learning rate and the length of the traces (`RES-02`).
   - **Why:** Discovery and superstition come from the same mechanism, with different luck.
   - **Example:** Striking glassy stone makes sharp edges: a discovery.
     The band sang before a hunt that went well: a superstition, which can become a rite (`MOM-04`).
 
 - `MND-27` **Kinds of belief** *(Decided)*: Beliefs come in several kinds, each held with a certainty and the evidence behind it: cause and effect (`MND-05`); that something exists, such as an unseen being; what others know and want (`MND-23`); rules, such as what not to eat (`CUL-20`); and plain facts, such as where the water is.
+  - **How it works:**
+    - **One record per belief,** of its kind, with its certainty and its evidence: cause and effect (`MND-05`); existence, that something is, or is at a place, including something never seen (`MND-21`); others' minds (`MND-23`); rules, that an act is required or forbidden and what follows breaking it (`CUL-20`); and facts of where and when, such as the water at the spring or hazelnuts on the south slope in autumn.
+    - **Sources:** each belief records where it came from: the person's own experience, seeing someone else's, or being told, and by whom; trust in the source sets its starting certainty (`MND-24`).
+    - **Clashes:** when beliefs disagree, the more certain one guides choices, and evidence decides between them over time.
 
 - `MND-18` **Memory** *(Decided)*: People remember:
   - events they lived through;
@@ -1889,9 +1901,20 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 
   Vivid and repeated memories last; others fade.
   Retelling can change a memory.
+  - **How it works:**
+    - **Events:** each noticed event becomes a memory record: what happened (its concepts and things), who was there, where and when, what it led to, and how the person felt (`MND-19`).
+    - **Places:** a mental map of places, each with where it is, linked by the routes walked and how long they took, with facts attached by season (`MND-27`).
+    - **People** each have a record (`MND-24`); **know-how and beliefs** are their own records (`MND-06`, `MND-05`).
+    - **Fading:** each memory has a strength that fades with time by the measured forgetting curve, and is renewed whenever it is recalled, retold or replayed in sleep (`MND-12`); strong feelings make it start stronger (`MND-08`).
+      Below a threshold its details are lost: what it taught stays in the beliefs it fed, and the event itself is forgotten.
+    - **Recall:** a memory comes back when something cues it: the same place, people, things or feelings; the strongest matches come first.
+    - **Retelling changes memory:** each recall rebuilds the event from what remains and what the person now believes, so details drift toward expectations, and a story heard from others can replace a person's own details.
+    - **Size:** memory is large but finite, and the weakest records go first; the size per person is measured in Experiment 1 (`RES-02`).
 
 - `MND-08` **Feelings shape memory** *(Decided)*: Strong feelings decide what is remembered and how strongly.
   A terrifying storm stays for life; an ordinary day fades.
+  - **How it works:** a new memory's starting strength is multiplied by how strongly the person felt at the time (`MND-19`), by the measured link between arousal and memory; very strong feelings also fade more slowly (estimated).
+    Fear and pain tie their feeling to the place, people and things that were there, so meeting them again brings the feeling back, as in real fear learning.
 
 ### 9.3 Wanting and feeling
 
