@@ -56,7 +56,8 @@ fn strike_into(out: &mut [f32], at: usize, obj: &Object, speed: f64, key: u64, a
             loop {
                 buf.fill(0.0);
                 let alive = v.render_add(&mut buf);
-                for (o, b) in out[pos.min(out.len())..].iter_mut().zip(&buf) {
+                let start = pos.min(out.len());
+                for (o, b) in out[start..].iter_mut().zip(&buf) {
                     *o += *b;
                 }
                 pos += buf.len();
@@ -72,7 +73,8 @@ fn strike_into(out: &mut [f32], at: usize, obj: &Object, speed: f64, key: u64, a
             loop {
                 buf.fill(0.0);
                 let alive = v.render_add(&mut buf);
-                for (o, b) in out[pos.min(out.len())..].iter_mut().zip(&buf) {
+                let start = pos.min(out.len());
+                for (o, b) in out[start..].iter_mut().zip(&buf) {
                     *o += *b;
                 }
                 pos += buf.len();
@@ -93,7 +95,8 @@ fn modal_into(out: &mut [f32], at: usize, modes: &[Mode], scale: f64) {
     loop {
         buf.fill(0.0);
         let alive = v.render_add(&mut buf);
-        for (o, b) in out[pos.min(out.len())..].iter_mut().zip(&buf) {
+        let start = pos.min(out.len());
+                for (o, b) in out[start..].iter_mut().zip(&buf) {
             *o += *b;
         }
         pos += buf.len();
@@ -110,7 +113,8 @@ fn note_into(out: &mut [f32], at: usize, fl: &Flute, f: f64, secs: f64, key: u64
     loop {
         buf.fill(0.0);
         let alive = v.render_add(&mut buf);
-        for (o, b) in out[pos.min(out.len())..].iter_mut().zip(&buf) {
+        let start = pos.min(out.len());
+                for (o, b) in out[start..].iter_mut().zip(&buf) {
             *o += *b;
         }
         pos += buf.len();

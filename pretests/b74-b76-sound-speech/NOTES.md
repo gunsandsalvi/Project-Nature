@@ -54,7 +54,23 @@ Written before making anything; not changed afterwards.
 
 ## Method
 
-To come.
+All values are plausible stand-ins, not sourced (`PRN-05`). Sounds are made at 48 kHz.
+
+**B74 impacts** (`src/impact.rs`). One rule for every material and shape (`PRN-07`):
+- **Objects:** a flint slab (16 x 9 x 2 cm), a granite anvil stone on the ground (30 x 20 x 6 cm), a dry stick (50 cm, 3 cm thick), a hollow long bone (24 cm). Each material has a stiffness, density, Poisson's ratio, internal damping and a "crunch" for grainy surfaces. The striker is a 350 g quartzite hammerstone at about 2.5 m/s.
+- **A1 modal:** ringing frequencies come from beam and plate theory (bending, twisting, along-the-length modes). The Hertz contact law gives how long the strike lasts (90 to 640 microseconds here), which sets how bright it is. Each mode's ring time comes from the material's damping plus what holds it (a hand, the ground). Small or narrow objects radiate low notes poorly. The total vibration energy can't exceed a share of the energy the collision loses. A short click from the contact itself, plus crunch noise, starts every strike. Each mode is a two-pole resonator, eight at a time.
+- **A2 shaped noise:** the same click, then noise through one resonance at the strongest mode, a low-pass at the contact's brightness, and the same decay.
+- **Instruments** (`src/instrument.rs`): flute notes from an open tube's acoustic length, with the standard corrections for open ends and for each open hole's size and wall thickness. The tone is harmonics plus breath noise filtered by the bore, whose sharpness comes from wall losses. Drum modes come from the zeros of Bessel functions, lowered by the air the hide pushes, with excitation set by where it is struck and by a hand or a stick.
+- **Mixer** (`src/mix.rs`): each sound gets a distance (1.5 to 25 m) that sets its loudness and how muffled it is, and a direction (`SND-08`). Nothing allocates on the audio thread.
+- **Cost:** a command-line tool (`src/bin/render.rs`) renders 200 strikes per material to silence, and mixes 8 to 512 always-sounding voices, on one core. Run three times under the lock; medians reported.
+- **Phone:** the same library plays the mix through AAudio (see `INTEGRATION.md`).
+
+**B76 speech** (`speech.py`):
+- **The language:** consonants `p t k q ʔ m n ŋ s x ɬ l r w j`, vowels `a e i o u`, syllables (C)V(N), stress on the first syllable, verb last. Five sentences from a 16-word lexicon. It includes sounds English lacks: `q ʔ x ɬ`, trilled `r`, word-initial `ŋ`, and plain `e o`.
+- **S1:** espeak-ng 1.51 with `[[...]]` phoneme input and its Welsh phoneme table, which has all 20 sounds. Three people by voice variant, pitch and speed.
+- **S2:** Piper medium voices run directly with onnxruntime, fed IPA phoneme ids, with no text front end. English-trained (LibriTTS-R, 904 speakers; three picked automatically as lowest, middle and highest pitch) and Welsh-trained (one speaker; speed varied).
+- **Sounds kept:** S1, by asking espeak-ng for each sound and checking it comes out as itself. S2, by running the voice's training language through espeak-ng (PROJECT.md for English, the Welsh Wikipedia article on Wales for Welsh) and counting how often each sound occurs on its own (diphthongs counted as one sound). A sound kept by the voice is one that makes up at least 0.1% of the training language's sounds.
+- **Cost:** CPU time per second of speech on one core (espeak-ng pinned with taskset; onnxruntime with one thread), three runs, median.
 
 ## Results
 
@@ -66,12 +82,27 @@ To come.
 
 ## Caveats
 
-To come.
+- **Stand-in values and simple shapes.** Slabs use beam theory and rods are ideal tubes. Knapping really includes a flake breaking off, which isn't modelled. The share of collision energy that becomes vibration (30%) is a guess.
+- **The flute check only tests the synthesis.** The tone is built from harmonics, so it plays the pitch it is given. The pitch rule from bore and holes is the textbook one but unchecked against a real bone flute.
+- **"Sounds kept" is a count from text, not a listening test.** No phoneme recogniser was run on the clips. Your ear is the real test.
+- **Licences.** espeak-ng is GPL-3: fine for an app on your own phone, but it limits ever sharing the app. Piper's original code is MIT; each voice has its own licence: the English voice's data is CC BY 4.0; the Welsh voice's model card only points to Bangor University's corpus page, so it is unclear. The Welsh voice was itself retrained from an English voice.
+- **Cloud is not the phone.** Timings use the plain x86-64 instruction set (no AVX), close in width to the phone's vector unit; the phone may still differ by 2x either way.
+- **Page audio** is Ogg Opus at 24 to 64 kbps, which can soften the sharpest clicks a little. The neural voices make 22 kHz audio.
+- The test language is hand-made, not grown by `CUL-17`'s mechanisms.
 
 ## What only the phone can answer
 
-To come.
+- The real output delay through AAudio, and whether the low-latency and exclusive modes are granted.
+- The mixing cost on the Tensor G6's big and small cores, and which core the audio thread lands on.
+- Dropouts while the simulation and drawing also run (not tested in this round).
+- Speech cost on the phone's cores (onnxruntime on ARM; the phone's AI hardware was not tried).
+- How the sounds come across on the phone's own speaker, which can't play the large drum's lowest notes.
 
 ## How to re-run
 
-To come.
+From this folder:
+1. `./setup.sh` installs espeak-ng and fetches the Python packages and Piper voices into the shared cache (about 150 MB).
+2. `timeout 3600 flock $CACHE/cpu.lock timeout 840 ./run_all.sh` builds and tests the Rust library, renders the clips, times everything three times, builds the Android library, and makes the speech clips. About 8 minutes.
+3. `$CACHE/b76/venv/bin/python build_page.py $CACHE/b74-run` writes `listen.html` and `results/summary.json` (under the lock too: it encodes the clips).
+
+Results land in `results/`; clips and build outputs stay in the cache.

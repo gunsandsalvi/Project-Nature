@@ -70,6 +70,7 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 - Steps changes the picture in only 17 of 60 turn frames, but the zoom steps are so fine they come almost every frame.
 - Fade changes the picture in 20 of 60 frames, in both motions.
 - Majority and Sticky change almost nothing: most crawl is edges really crossing pixel centres, which more samples don't stop.
+- Control, a slow pan (12-frame quick run, `results/crawl-quick.csv`; the 60-frame pan run lost its turn on the shared CPU): base crawls on 0.03% of pixels. The mockup's snapping already holds panning steady, and the count isn't inventing crawl.
 - Picture pairs, worst moment of each run (left, right, then the changes: red is crawl, yellow is a change where the surface moved at least one art pixel): `results/crawl-turn-base.png`, `crawl-turn-fade.png`, `crawl-zoom-base.png`, `crawl-zoom-fade.png`.
 
 ## Verdict so far
@@ -86,7 +87,7 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 ## Caveats
 
 - Speed here means nothing: the cloud draws on the CPU. Part 1 rests on the phone run above, and on your code from the full-screen benchmark.
-- The benchmark runs in the browser, perhaps inside the claude.ai frame. The code says whether it ran full screen (`fs=1`) and in a frame (`if=1`), and the drawing size (`art=`). The app's own WebView (`B78`) should behave about the same; a native app avoids the browser's compositing step.
+- The benchmark runs in the browser, perhaps inside the frame of the page viewer. The code says whether it ran full screen (`fs=1`) and in a frame (`if=1`), and the drawing size (`art=`). The app's own WebView (`B78`) should behave about the same; a native app avoids the browser's compositing step.
 - 60 seconds says nothing about heat or battery (`VIS-14`); `B79` measures those.
 - The crawl count rewards big jumps: when a turn or zoom moves most pixels by more than one art pixel at once, those changes don't count. Steps and Fade work exactly that way, so their low counts must pass your eye, especially against "turns ease to rest" (`PRE-22`).
 - One scene (the camp at dusk), one turn speed and one zoom speed; people, fire and smoke were frozen in the count.

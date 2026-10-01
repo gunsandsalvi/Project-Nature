@@ -1,0 +1,56 @@
+{
+ "speakers": [
+  {
+   "label": "low voice",
+   "id": 36,
+   "median_f0_hz": 104
+  },
+  {
+   "label": "middle voice",
+   "id": 37,
+   "median_f0_hz": 183
+  },
+  {
+   "label": "high voice",
+   "id": 29,
+   "median_f0_hz": 285
+  }
+ ],
+ "clips": [
+  {
+   "n": 1,
+   "s1": "man",
+   "s2_english": "low voice",
+   "espeak_input": "[[l#'ami t'uku]].",
+   "ipa": "ɬˈami tˈuku."
+  },
+  {
+   "n": 2,
+   "s1": "woman",
+   "s2_english": "middle voice",
+   "espeak_input": "[[N'iro]], [[w'a n'i]]!",
+   "ipa": "ŋˈiro, wˈa nˈi!"
+  },
+  {
+   "n": 3,
+   "s1": "elder",
+   "s2_english": "high voice",
+   "espeak_input": "[[q'axu l'emuse]], [[?'asa]]!",
+   "ipa": "qˈaxu lˈemuse, ʔˈasa!"
+  },
+  {
+   "n": 4,
+   "s1": "man",
+   "s2_english": "low voice",
+   "espeak_input": "[[x'epi ?'isan j'e]]?",
+   "ipa": "xˈepi ʔˈisan jˈe?"
+  },
+  {
+   "n": 5,
+   "s1": "woman",
+   "s2_english": "middle voice",
+   "espeak_input": "[[n'uN p'eni x'oma l#'uke]].",
+   "ipa": "nˈuŋ pˈeni xˈoma ɬˈuke."
+  }
+ ]
+}

@@ -1,0 +1,10 @@
+built in 12 s; size 526112 bytes
+exports:
+000000000002460c T Java_dev_kindling_pretests_Sound_run
+needs:
+  0x0000000000000001 (NEEDED)          Shared library: [libaaudio.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libdl.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libm.so]
+  0x0000000000000001 (NEEDED)          Shared library: [libc.so]
+load alignment:
+0x4000

@@ -400,14 +400,17 @@ impl NoiseVoice {
     pub fn start(&mut self, modes: &[Mode], tau: f64, scale: f64, seed: u32, sr: f64) {
         let top = modes.iter().cloned().fold(Mode::default(), |a, m| if m.amp > a.amp { m } else { a });
         let q = (PI * top.freq / top.decay).clamp(1.0, 8.0);
-        let f_bright = (1.0 / (PI * tau)).clamp(200.0, 0.45 * sr);
+        // the contact spectrum's corner: a second-order low-pass there falls off as it does
+        let f_bright = (1.0 / (2.0 * tau)).clamp(200.0, 0.45 * sr);
+        // the band's level already includes the contact spectrum: undo the low-pass there
+        let lp_comp = (1.0 + (top.freq / f_bright).powi(4)).sqrt();
         let floor = 1e-4f64;
         self.noise = Noise(seed | 1);
         self.bp = Biquad::bandpass(top.freq.max(40.0), q, sr);
         self.lp = Biquad::lowpass(f_bright, 0.707, sr);
         // white noise spread over the band: scale so the band carries the mode's loudness
         let band = top.freq.max(40.0) / q;
-        self.env = (top.amp * scale * (0.5 * sr / band).sqrt() * 1.22) as f32;
+        self.env = (top.amp * scale * (0.5 * sr / band).sqrt() * 1.22 * lp_comp) as f32;
         self.env_mul = (-top.decay / sr).exp() as f32;
         self.t = 0;
         self.total = ((1.0 / floor).ln() / top.decay * sr).min(sr * 8.0) as u32;

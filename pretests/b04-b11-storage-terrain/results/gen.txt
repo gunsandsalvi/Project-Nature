@@ -1,0 +1,5 @@
+# B11-2 generation, whole world 2048 x 1024 cells (~1 km), one thread; ms median (min-max) of 3
+warp      2636.0 (2548.0-2783.9) ms | 4 threads 748 ms, same bits true | hash f965fdd61194c917 | land 35.0% | river cells 28350 reach sea 29.2% | land draining to sea 32.2% | pits per 10,000 km2 51.8 | slope p10 0.72 p50 2.16 p90 5.17 p99 9.13 deg, >30 deg 0.00%
+warp    1024x512: 763 ms, hash 5225c5eca85d94c9
+preview previews/warp.png: 562 KB
+erode     2544.5 (2384.9-2652.5) ms | 4 threads 1562 ms, same bits true | hash 190bc19e08b9c278 | land 35.0% | river cells 52286 reach sea 100.0% | land draining to sea 100.0% | pits per 10,000 km2 0.0 | slope p10 0.23 p50 1.58 p90 3.13 p99 4.61 deg, >30 deg 0.00%

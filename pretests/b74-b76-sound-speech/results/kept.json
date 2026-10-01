@@ -1,0 +1,452 @@
+{
+ "sounds": [
+  "p",
+  "t",
+  "k",
+  "q",
+  "ʔ",
+  "m",
+  "n",
+  "ŋ",
+  "s",
+  "x",
+  "ɬ",
+  "l",
+  "r",
+  "w",
+  "j",
+  "a",
+  "e",
+  "i",
+  "o",
+  "u"
+ ],
+ "s1_espeak_cy": {
+  "p": {
+   "ipa": "pˈa",
+   "kept": true
+  },
+  "t": {
+   "ipa": "tˈa",
+   "kept": true
+  },
+  "k": {
+   "ipa": "kˈa",
+   "kept": true
+  },
+  "q": {
+   "ipa": "qˈa",
+   "kept": true
+  },
+  "ʔ": {
+   "ipa": "ʔˈa",
+   "kept": true
+  },
+  "m": {
+   "ipa": "mˈa",
+   "kept": true
+  },
+  "n": {
+   "ipa": "nˈa",
+   "kept": true
+  },
+  "ŋ": {
+   "ipa": "ŋˈa",
+   "kept": true
+  },
+  "s": {
+   "ipa": "sˈa",
+   "kept": true
+  },
+  "x": {
+   "ipa": "xˈa",
+   "kept": true
+  },
+  "ɬ": {
+   "ipa": "ɬˈa",
+   "kept": true
+  },
+  "l": {
+   "ipa": "lˈa",
+   "kept": true
+  },
+  "r": {
+   "ipa": "rˈa",
+   "kept": true
+  },
+  "w": {
+   "ipa": "wˈa",
+   "kept": true
+  },
+  "j": {
+   "ipa": "jˈa",
+   "kept": true
+  },
+  "a": {
+   "ipa": "pˈa",
+   "kept": true
+  },
+  "e": {
+   "ipa": "pˈe",
+   "kept": true
+  },
+  "i": {
+   "ipa": "pˈi",
+   "kept": true
+  },
+  "o": {
+   "ipa": "pˈo",
+   "kept": true
+  },
+  "u": {
+   "ipa": "pˈu",
+   "kept": true
+  }
+ },
+ "s1_espeak_en-us": {
+  "p": {
+   "ipa": "pˈæ",
+   "kept": true
+  },
+  "t": {
+   "ipa": "tˈæ",
+   "kept": true
+  },
+  "k": {
+   "ipa": "kˈæ",
+   "kept": true
+  },
+  "q": {
+   "ipa": "qˈæ",
+   "kept": true
+  },
+  "ʔ": {
+   "ipa": "ʔˈæ",
+   "kept": true
+  },
+  "m": {
+   "ipa": "mˈæ",
+   "kept": true
+  },
+  "n": {
+   "ipa": "nˈæ",
+   "kept": true
+  },
+  "ŋ": {
+   "ipa": "ŋˈæ",
+   "kept": true
+  },
+  "s": {
+   "ipa": "sˈæ",
+   "kept": true
+  },
+  "x": {
+   "ipa": "xˈæ",
+   "kept": true
+  },
+  "ɬ": {
+   "ipa": "ɬˈæ",
+   "kept": true
+  },
+  "l": {
+   "ipa": "lˈæ",
+   "kept": true
+  },
+  "r": {
+   "ipa": "ɹˈæ",
+   "kept": false
+  },
+  "w": {
+   "ipa": "wˈæ",
+   "kept": true
+  },
+  "j": {
+   "ipa": "jˈæ",
+   "kept": true
+  },
+  "a": {
+   "ipa": "pˈæ",
+   "kept": false
+  },
+  "e": {
+   "ipa": "pˈe",
+   "kept": true
+  },
+  "i": {
+   "ipa": "pˈi",
+   "kept": true
+  },
+  "o": {
+   "ipa": "pˈo",
+   "kept": true
+  },
+  "u": {
+   "ipa": "pˈu",
+   "kept": true
+  }
+ },
+ "s2_english": {
+  "p": {
+   "share_pct": 2.53,
+   "kept": true
+  },
+  "t": {
+   "share_pct": 5.669,
+   "kept": true
+  },
+  "k": {
+   "share_pct": 2.944,
+   "kept": true
+  },
+  "q": {
+   "share_pct": 0.0,
+   "kept": false
+  },
+  "ʔ": {
+   "share_pct": 0.028,
+   "kept": false
+  },
+  "m": {
+   "share_pct": 2.924,
+   "kept": true
+  },
+  "n": {
+   "share_pct": 7.365,
+   "kept": true
+  },
+  "ŋ": {
+   "share_pct": 1.065,
+   "kept": true
+  },
+  "s": {
+   "share_pct": 5.579,
+   "kept": true
+  },
+  "x": {
+   "share_pct": 0.0,
+   "kept": false
+  },
+  "ɬ": {
+   "share_pct": 0.0,
+   "kept": false
+  },
+  "l": {
+   "share_pct": 4.211,
+   "kept": true
+  },
+  "r": {
+   "share_pct": 0.0,
+   "kept": false
+  },
+  "w": {
+   "share_pct": 1.984,
+   "kept": true
+  },
+  "j": {
+   "share_pct": 0.742,
+   "kept": true
+  },
+  "a": {
+   "share_pct": 0.0,
+   "kept": false
+  },
+  "e": {
+   "share_pct": 0.0,
+   "kept": false
+  },
+  "i": {
+   "share_pct": 4.34,
+   "kept": true
+  },
+  "o": {
+   "share_pct": 0.421,
+   "kept": true
+  },
+  "u": {
+   "share_pct": 1.203,
+   "kept": true
+  },
+  "_units": 102312,
+  "_top": [
+   "n",
+   "ɹ",
+   "t",
+   "s",
+   "d",
+   "ɪ",
+   "ə",
+   "i",
+   "l",
+   "z",
+   "ɛ",
+   "k",
+   "m",
+   "æ",
+   "p",
+   "ʌ",
+   "ð",
+   "aɪ",
+   "w",
+   "f",
+   "oʊ",
+   "ᵻ",
+   "eɪ",
+   "ɚ",
+   "v",
+   "ɑ",
+   "b",
+   "u",
+   "ŋ",
+   "ɔ",
+   "ɐ",
+   "tʃ",
+   "j",
+   "ɜ",
+   "h",
+   "ɾ",
+   "ɡ",
+   "θ",
+   "dʒ",
+   "ʃ",
+   "ʊ",
+   "aʊ",
+   "o",
+   "ɔɪ",
+   "ʒ"
+  ]
+ },
+ "s2_welsh": {
+  "p": {
+   "share_pct": 1.357,
+   "kept": true
+  },
+  "t": {
+   "share_pct": 2.467,
+   "kept": true
+  },
+  "k": {
+   "share_pct": 3.096,
+   "kept": true
+  },
+  "q": {
+   "share_pct": 0.0,
+   "kept": false
+  },
+  "ʔ": {
+   "share_pct": 0.0,
+   "kept": false
+  },
+  "m": {
+   "share_pct": 3.279,
+   "kept": true
+  },
+  "n": {
+   "share_pct": 8.177,
+   "kept": true
+  },
+  "ŋ": {
+   "share_pct": 0.299,
+   "kept": true
+  },
+  "s": {
+   "share_pct": 2.766,
+   "kept": true
+  },
+  "x": {
+   "share_pct": 0.669,
+   "kept": true
+  },
+  "ɬ": {
+   "share_pct": 0.93,
+   "kept": true
+  },
+  "l": {
+   "share_pct": 3.731,
+   "kept": true
+  },
+  "r": {
+   "share_pct": 7.353,
+   "kept": true
+  },
+  "w": {
+   "share_pct": 1.554,
+   "kept": true
+  },
+  "j": {
+   "share_pct": 1.182,
+   "kept": true
+  },
+  "a": {
+   "share_pct": 7.163,
+   "kept": true
+  },
+  "e": {
+   "share_pct": 2.003,
+   "kept": true
+  },
+  "i": {
+   "share_pct": 1.406,
+   "kept": true
+  },
+  "o": {
+   "share_pct": 1.295,
+   "kept": true
+  },
+  "u": {
+   "share_pct": 1.776,
+   "kept": true
+  },
+  "_units": 40530,
+  "_top": [
+   "n",
+   "r",
+   "a",
+   "ɨ",
+   "d",
+   "ɡ",
+   "ɛ",
+   "ɔ",
+   "l",
+   "m",
+   "ʌ",
+   "ø",
+   "k",
+   "ð",
+   "s",
+   "t",
+   "ə",
+   "v",
+   "e",
+   "ɑ",
+   "u",
+   "b",
+   "θ",
+   "w",
+   "i",
+   "p",
+   "h",
+   "o",
+   "j",
+   "aɪ",
+   "ɬ",
+   "əɪ",
+   "x",
+   "aʊ",
+   "ʊ",
+   "f",
+   "ŋ",
+   "ç",
+   "ɪ",
+   "eʊ",
+   "ʃ",
+   "dʒ",
+   "c",
+   "y",
+   "ɔɪ"
+  ]
+ },
+ "s1_espeak_cy_kept": 20,
+ "s1_espeak_en-us_kept": 18,
+ "s2_english_kept": 13,
+ "s2_welsh_kept": 18
+}

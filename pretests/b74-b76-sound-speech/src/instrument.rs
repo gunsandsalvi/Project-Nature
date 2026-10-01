@@ -161,8 +161,9 @@ impl FluteVoice {
             let chiff = if t < self.attack { 3.0 } else { 1.0 };
             let n = self.noise.next();
             let air = self.bands[0].tick(n) * 0.5 + self.bands[1].tick(n) * 0.3 + self.bands[2].tick(n) * 0.2;
-            let hiss = self.hiss.tick(n) * 0.02;
-            *o += self.level * (0.25 * s * breath + chiff * (0.35 * air + hiss));
+            let hiss = self.hiss.tick(n) * 0.04;
+            // breath noise about 20 dB under the tone, louder while the jet sets in
+            *o += self.level * (0.25 * s * breath + chiff * (3.0 * air + hiss));
             self.t += 1;
         }
         self.t < self.total
