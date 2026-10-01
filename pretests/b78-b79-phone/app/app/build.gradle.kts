@@ -12,6 +12,9 @@ val nativeDir = rootProject.file("native")
 val jniOut = layout.buildDirectory.dir("rustJniLibs").get().asFile
 val realKbench = rootProject.file("../../b01-b02-numbers-random/kbench")
 val managedKernels = rootProject.file("../../b01-b02-numbers-random/jvm")
+// Optional drawing test (B66/B79): the visual-style mockup, copied into the app's assets.
+val mockup = rootProject.file("../../../mockups/visual-style.html")
+val mockupAssets = layout.buildDirectory.dir("mockupAssets").get().asFile
 // -Pkbench=stub forces the stand-in; default: the real crate if its folder exists.
 val useRealKbench = (findProperty("kbench") ?: "real") == "real" && File(realKbench, "Cargo.toml").exists()
 
@@ -49,6 +52,7 @@ android {
         debug { signingConfig = signingConfigs.getByName("pretest") }
     }
     sourceSets["main"].jniLibs.srcDir(jniOut)
+    sourceSets["main"].assets.srcDir(mockupAssets)
     // B01: managed-code kernels from the other pre-test, if present (called by reflection).
     if (File(managedKernels, "Kernels.java").exists()) sourceSets["main"].java.srcDir(managedKernels)
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
@@ -87,4 +91,8 @@ val cargoKbench by tasks.registering(Exec::class) {
             "build", "--release", "-p", "kbench", "--features", "android")
     }
 }
-tasks.named("preBuild") { dependsOn(cargoKphone, cargoKbench) }
+val copyMockup by tasks.registering(Copy::class) {
+    from(mockup)
+    into(mockupAssets)
+}
+tasks.named("preBuild") { dependsOn(cargoKphone, cargoKbench, copyMockup) }

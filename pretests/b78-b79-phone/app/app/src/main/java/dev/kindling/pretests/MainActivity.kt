@@ -41,6 +41,7 @@ class MainActivity : Activity() {
         private const val REPEAT_S = 0.25 // the same-core repeat only checks the checksum (X11)
         private const val SUSTAINED_S = 600 // B79: 10 minutes of all-core load
         private const val FRAME_S = 20
+        private const val WEB_S = 30 // optional drawing test (B66)
         private var crashHandlerInstalled = false
     }
 
@@ -152,7 +153,7 @@ class MainActivity : Activity() {
         bar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply { max = 1000; visibility = View.GONE }
         col.addView(bar)
         stage = FrameLayout(this).apply { visibility = View.GONE }
-        col.addView(stage, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(420)))
+        col.addView(stage, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (resources.displayMetrics.heightPixels * 0.8).toInt()))
         codeLabel = text("Result code. Copy it and paste it back in the chat:", 16f, true).apply { visibility = View.GONE }
         col.addView(codeLabel)
         codeView = text("", 11f).apply { typeface = Typeface.MONOSPACE; setTextIsSelectable(true); visibility = View.GONE }
@@ -307,6 +308,10 @@ class MainActivity : Activity() {
         steps.add(Step("fp", "Smoothness (OpenGL)", FRAME_S + 3) {
             ui.post { stage.visibility = View.VISIBLE }
             try { store.put("fp", FrameTest(this, stage).run(FRAME_S)) } finally { ui.post { stage.visibility = View.GONE } }
+        })
+        if (WebTest.available(this)) steps.add(Step("wv", "Drawing test (WebView)", WEB_S + 8) {
+            ui.post { stage.visibility = View.VISIBLE }
+            try { store.put("wv", WebTest(this, stage).run(WEB_S)) } finally { ui.post { stage.visibility = View.GONE } }
         })
         val perConfig = (KERNEL_BUDGET_S / maxOf(1, plan.size)).toInt()
         plan.forEachIndexed { i, (cfg, managed) ->

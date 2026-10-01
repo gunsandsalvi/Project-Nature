@@ -1,0 +1,22 @@
+{
+ "s1-kotlin-rust": {
+  "files": 9,
+  "lines": 118
+ },
+ "s2-kotlin-cpp": {
+  "files": 8,
+  "lines": 102
+ },
+ "s3-rust-native": {
+  "files": 5,
+  "lines": 76
+ },
+ "s4-webview": {
+  "files": 11,
+  "lines": 135
+ },
+ "cloud-side": {
+  "rust": 8,
+  "cpp": 6
+ }
+}

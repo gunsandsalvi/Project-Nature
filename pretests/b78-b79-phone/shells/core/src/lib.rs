@@ -1,9 +1,12 @@
 //! B78 (X10): stand-in simulation core. One pure function, shared unchanged by
 //! the phone shells (1, 3, 4) and the headless Linux build (PLT-05).
 
+/// Edited by tools/measure-shells.sh for the one-line-change rebuild timing.
+pub const TAG: u64 = 0;
+
 /// SplitMix64 mixing, `rounds` times from `seed`. Pure and deterministic (X11).
 pub fn mix(seed: u64, rounds: u32) -> u64 {
-    let mut z = seed;
+    let mut z = seed ^ TAG;
     for _ in 0..rounds {
         z = z.wrapping_add(0x9E37_79B9_7F4A_7C15);
         let mut x = z;

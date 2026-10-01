@@ -2,9 +2,12 @@
 #pragma once
 #include <cstdint>
 
+// Edited by tools/measure-shells.sh for the one-line-change rebuild timing.
+constexpr uint64_t KCORE_TAG = 0;
+
 // SplitMix64 mixing, `rounds` times from `seed`. Pure and deterministic (X11).
 inline uint64_t kcore_mix(uint64_t seed, uint32_t rounds) {
-    uint64_t z = seed;
+    uint64_t z = seed ^ KCORE_TAG;
     for (uint32_t i = 0; i < rounds; ++i) {
         z += 0x9E3779B97F4A7C15ull;
         uint64_t x = z;
