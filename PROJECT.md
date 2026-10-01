@@ -953,31 +953,72 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 ## 10. Culture and society
 
-**Knowledge**
+Culture is everything people pass to each other rather than inherit through their bodies: skills, words, beliefs, customs and art. None of it is scripted (`PRN-01`, `PRN-07`). It grows out of minds (section 9) living together, and it changes, spreads, splits and dies.
 
-- `CUL-01` **Learning from others** *(Decided)*: Imitation (imperfect copying creates variation), teaching, and copying whoever succeeds or whatever most people do.
-- `CUL-02` **Knowledge can be lost** *(Proposed)*: Knowledge lives in heads and dies with them unless passed on. Small, isolated groups can lose skills.
-- `CUL-03` **Memory outside heads** *(Decided)*: Marks, symbols, writing and records can emerge, letting knowledge outlive the people who had it.
-- `CUL-04` **Language** *(Proposed)*: Words are labels a group agrees on, and they spread through use. Groups that separate drift into dialects, then separate languages. Language makes teaching faster and lets people talk about things that aren't there: plans, the dead, spirits.
+### 10.1 Passing things on
 
-**Belief**
+- `CUL-01` **Learning from others** *(Decided)*
+  - **What:** People imitate (and imperfect copying creates variation), teach (possible because they understand what others know, `MND-23`), and copy whoever succeeds or whatever most people do.
+  - **Why:** This is how a people becomes cleverer than any of its members (`MND-17`).
+  - **Example:** The best knapper's technique spreads because others copy whoever succeeds. Small copying errors make each band's blades slightly different (`CUL-12`).
 
-- `CUL-05` **Explaining the world** *(Proposed)*: Big unexplained events (death, sickness, storms, the player's interventions) demand a cause. When no physical cause is known, people suspect an unseen being. Such beliefs spread, become ritual, and eventually have specialists such as shamans and priests.
+- `CUL-02` **Knowledge can be lost** *(Decided)*: Knowledge lives in heads and dies with them unless it is passed on. Small, isolated groups can lose skills, as may have happened in Tasmania (`MOM-02`).
 
-**Society**
+- `CUL-03` **Memory outside heads** *(Decided)*: Marks, symbols, writing and records can emerge, letting knowledge outlive the people who had it. Signs gain meaning the same way words do, by agreement (`CUL-04`): tally marks for counting, pictures that tell, and eventually signs that stand for words.
 
-- `CUL-06` **Institutions form from habit** *(Decided)*: Repeated behaviour hardens into shared, named things that people know, teach and enforce: a norm, a role, a rank, a rite. They can change, split and dissolve.
-- `CUL-07` **Nothing social is scripted** *(Proposed)*: Kinship and marriage rules, sharing and exchange, trade, leadership, alliances, conflict and war all come from people's interactions.
+- `CUL-16` **How things spread** *(Proposed)*: Knowledge, words, styles and beliefs spread through contact: shared camps, marriages between bands, trade and conflict. Isolation makes groups drift apart.
+
+### 10.2 Language
+
+- `CUL-04` **Language emerges** *(Decided)*: Words are labels a group agrees on, and they spread through use. Groups that separate drift into dialects, then separate languages. Language makes teaching faster and lets people talk about things that aren't there: plans, the dead, spirits.
+
+- `CUL-17` **Sounds, words and grammar** *(Decided)*
+  - **What:** Each language has its own sounds, words and grammar, starting from the few dozen shared words and calls of the starting kit (`BIO-02`). Words drift through regular sound changes, so related languages share telltale patterns and form families you can trace.
+  - **Example:** After the eastern band crosses the hills, its words drift away from those of the band left behind. Centuries later, their words for water, fire and stone still differ in the same regular way, which shows they were once one language.
+
+- `CUL-18` **Names** *(Proposed)*: People, places, peoples and things are named in their own languages, often after events, features or traits. You see the original name with a translation (`PRE-12`), and later hear it spoken (`SND-03`).
+
+### 10.3 Belief
+
+- `CUL-05` **Belief from explanation** *(Decided)*
+  - **What:** Big unexplained events (death, sickness, storms, your interventions) demand a cause. When no physical cause is known, the inborn tendency to suspect a hidden someone (`MND-21`) suggests an unseen being. Beliefs that seem to work spread and last. They become ritual, gain specialists such as shamans and priests, and in time grow into religions with their own myths, rules and sacred places.
+  - **Why:** Religion grows from the same machinery as discovery (`MND-05`), and the player's own acts become part of what people try to explain (`GOD-06`).
+  - **Example:** Your lightning becomes a god (`MOM-03`).
+
+- `CUL-19` **Dreams and the dead** *(Proposed)*: Dreams of dead relatives can lead people to believe the dead live on in some form. That can shape burials, rites for ancestors and ideas of a soul.
+
+- `CUL-20` **Taboos** *(Proposed)*: Beliefs can harden into rules about what not to eat, where not to go and what not to do. Some protect people by accident; others cost them dearly.
+
+### 10.4 Society
+
+- `CUL-06` **Institutions form from habit** *(Decided)*: Repeated behaviour hardens into shared, named things that people know, teach and enforce: a norm, a role, a rank, a rite. They can change, split and dissolve, and they become the named things the chronicle and overlays talk about, such as "the rite of first fire" or "the elders' council".
+
+- `CUL-07` **Nothing social is scripted** *(Decided)*: Family and marriage rules, sharing, exchange, trade, leadership, alliances, conflict and war all come from people's interactions.
+
+- `CUL-21` **Sharing and exchange** *(Proposed)*: Food sharing, gifts, trade between bands, specialists, rules about who owns what and, perhaps one day, money. Each emerges from need and repeated habit.
+
+- `CUL-22` **Leadership and status** *(Proposed)*: Depending on the culture, status comes from skill, generosity, age, success, fear or birth. Leaders, councils and chiefs emerge where a group needs to act together.
+
 - `CUL-08` **Dark history can happen** *(Decided)*: War, slavery, sacrifice and cruelty can emerge like anything else. What is shown is controlled by the content setting (`PRE-18`).
 
-**Expression** (each exists as a real thing in the world)
+- `CUL-23` **Peoples** *(Decided)*: The game recognises peoples by what their members share (language, beliefs, customs and style) and names them by what they call themselves. Boundaries can be blurry and shift over time. Peoples split, merge and disappear.
 
-- `CUL-09` **Visual art** *(Decided)*: Paintings, carvings and body decoration composed from their own memories and myths, on cave walls and objects.
-- `CUL-10` **Music and dance** *(Decided)*: Rhythms, scales, songs and instruments that grow out of each culture.
-- `CUL-11` **Myths and stories** *(Decided)*: Told and retold, changing as they spread.
+### 10.5 Expression
+
+Each form of expression exists as a real thing in the world.
+
+- `CUL-09` **Visual art** *(Decided)*: Paintings, carvings and body decoration composed from their own memories and myths, made with real pigments and tools (`RCK-15`, `RCK-16`) on cave walls, objects and bodies. What they depict reflects what matters to them (`MOM-07`).
+
+- `CUL-10` **Music and dance** *(Decided)*: Rhythms, scales, songs and instruments that grow out of each culture. Instruments follow real acoustics (`MAT-03`), from bone flutes to drums of stretched hide.
+
+- `CUL-11` **Myths and stories** *(Decided)*: Built from the band's own memories, beliefs and dreams, told and retold, and changing a little with each telling.
+
 - `CUL-12` **Style and ornament** *(Decided)*: Each culture's look in tools, clothing and buildings, drifting over time, so objects could be dated by their style.
-- `CUL-13` **Their sky and calendar** *(Decided)*: Constellations they name, seasons they track, festivals they keep.
+
+- `CUL-13` **Their sky and calendar** *(Decided)*: Constellations they name, seasons they track, festivals they keep (`WLD-07`).
+
 - `CUL-14` **Their maps and names** *(Decided)*: Places named in their own languages, and maps drawn the way they see the land.
+
 - `CUL-15` **Remembered lives** *(Decided)*: Genealogies, and legends of remarkable people as their culture remembers them.
 
 ## 11. Presentation
