@@ -1679,6 +1679,17 @@ How people think is in Minds.
   - **What:** Wounds, fractures, burns and infections affect specific parts of the body.
     They heal, scar, or leave a lasting disability.
     Care from others (food, water, protection, cleaning a wound) changes the outcome.
+  - **How it works:**
+    - **Body parts:** each body has a head, eyes, neck, chest, belly, back, and each arm, hand, leg and foot, made of skin, fat, muscle, bone or organs, sized from the body's measurements; each part has its work: a leg carries weight, a hand grips, an eye sees.
+    - **Injuries come from the laws of matter:** the contact laws (`MAT-04`) act on tissue like any material: an edge cuts as deep as its force and sharpness allow against the tissue's measured toughness; a point pierces; a blow bruises, or breaks bone past its measured strength; heat burns by temperature and time (measured thresholds); cold freezes (`BIO-11`); a fall strikes by its height and what is hit.
+      Bites, horns and claws are edges and points driven by the animal's force.
+    - **An injury's record:** the part, the kind (cut, puncture, bruise, fracture, burn, frostbite or bite), its size and depth, its bleeding, the dirt and germs in it (`WLD-21`), its pain, and how much the part still works.
+    - **Bleeding:** blood is lost at a rate set by the wound's depth and place; losing measured shares of the body's blood weakens, then kills; pressing a wound slows it.
+    - **Working parts:** a broken leg can't take weight, a cut hand grips weaker and a damaged eye sees less; pain makes every action less exact (`MAT-06`) and is felt by the mind.
+    - **Healing:** each injury heals at measured rates for its kind (skin in weeks, bone in months), slower with poor food, age, cold and infection, and faster with rest.
+    - **Outcomes:** a clean heal; a scar, stiffer and visible; or a lasting disability: a bone that moves while it heals knits crooked and leaves a limp, a cut tendon leaves a weak hand, and an infection can spread (`BIO-05`) and kill.
+    - **Care is actions under the same laws:** pressing a wound slows bleeding; washing removes dirt and germs; a stick tied along a broken limb keeps the bone still so it knits straight; food, water, warmth and carrying keep the injured alive while they can't fend for themselves.
+      Nothing heals a body except its own rates under better conditions.
   - **Example:** A hunter with a broken leg survives the winter because the band carries and feeds them.
     They never hunt again, but they become the best stoneworker in the valley.
 
@@ -1686,10 +1697,22 @@ How people think is in Minds.
   People who recover can become immune.
   Crowding, and living close to animals, bring epidemics.
   Follows from `WLD-21`.
+  - **How it works:**
+    - **What a disease does:** each disease's effects come from its traits (`WLD-21`), with measured courses (how long before it shows, how long it lasts): fever, which burns more energy (`BIO-09`); diarrhoea and vomiting, which lose water and food; cough, weakness and pain; and damage to particular parts or organs.
+    - **Defences:** the body fights each germ with its defences, stronger in well-fed adults and weaker in babies, the old (`BIO-16`), the starving and the injured.
+      After recovery, immunity to that germ lasts its measured time and also guards against close strains; mother's milk gives babies some protection (measured).
+    - **Being sick:** weakness and fever slow the body and widen its errors (`MAT-06`), and the mind feels the sickness (see Minds).
+    - **Care works through the body's needs:** water, food and warmth given by others keep a sick body's stores up so its defences can win; replacing the water lost to diarrhoea saves lives, by measured amounts.
+      Medicines act by `BIO-12`.
 
 - `BIO-14` **Every death has a cause** *(Decided)*: Nobody dies of random chance.
   Every death comes from something in the simulation: hunger, cold, disease, injury, childbirth, violence, accident or old age.
   Follows from `PRN-10`.
+  - **How it works:**
+    - **Death only by a body's own limits:** a body dies only when one of its stores or parts passes a fatal limit: too little energy (hunger), water (thirst) or blood (bleeding); a core too cold or too hot (`BIO-11`); no air (drowning or smothering); a vital part destroyed; an organ failed by poison or germ (`BIO-12`, `BIO-05`); or birth's own dangers (`BIO-15`).
+    - **No death roll:** chance enters only through events, such as a slip, a strike's error or a germ caught, and through each body's own variation (`TIM-06`), never as a chance of dying.
+    - **Old age kills through frailty:** an old body has less in reserve and heals and defends itself less (`BIO-16`), so a cold, a fall or a fever that a younger body would survive passes the limit; the record names both, such as "pneumonia, in old age".
+    - **The record:** each death keeps its cause and the chain behind it, as far as the simulation knows it, such as "bleeding, from a boar's tusk, while hunting", for the history and its views (`PRN-15`).
 
 ### 8.4 A life
 
