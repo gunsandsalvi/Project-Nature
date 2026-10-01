@@ -988,10 +988,23 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
     - **rock and minerals:** silica (as quartz, flint, chert, obsidian or sand), calcite (limestone, chalk), clays, iron oxides (yellow and red ochre), copper minerals, tin ore, salt;
     - **water and air:** water as ice, liquid and vapour; the gases of the air;
     - **living matter:** cellulose and lignin (wood, plant fibres), starches, sugars, proteins, fats, collagen (hide, sinew, bone), bone mineral, resins, tannins, and the plant chemicals that make things poisonous or medicinal.
+  - **How it works:** the ingredients catalogue (`MAT-13`) gives each ingredient its elements (`MAT-09`) and, for each state (solid, liquid and gas), its measured values:
+    - density, and melting and boiling points;
+    - heat capacity, and how well it conducts heat;
+    - stiffness, hardness and resistance to cracking;
+    - how it burns: ignition temperature, heat released and air needed;
+    - how it dissolves;
+    - colour and gloss;
+    - for foods and poisons, nutrition and effects per dose.
+
+    A thing's properties come only from its ingredients and structure (`MAT-03`); no rule ever reads a thing's name.
 
 - `MAT-09` **Elements and energy are kept** *(Decided)*
   - **What:** Every ingredient has its real elemental makeup (carbon, hydrogen, oxygen, nitrogen, silicon, calcium, iron, copper, tin and so on), and every change keeps elements and energy balanced.
     Nothing ever comes from nothing.
+  - **How it works:** every law is written as a balanced change: the ingredients going in and coming out, with the elements counted on both sides, and the heat taken in or given off, from measured values.
+    Gases go into the air of the place, such as smoke and steam; ash stays behind as a thing.
+    An automatic check runs every law on test cases and fails if any element or any energy appears or disappears.
   - **Why:** It makes the world honest, and it keeps the door open to any chemistry people might reach later (`VIS-03`).
   - **Example:** Smelting copper ore yields exactly the copper that was in it, plus gases.
     Burning wood releases the energy stored in it as heat and light, and leaves ash holding its minerals.
@@ -999,6 +1012,9 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
 - `MAT-02` **Structure matters** *(Decided)*
   - **What:** Matter also records how it's put together: crystal or glass, fibrous, porous or dense, coarse or fine grain, wet or dry.
     Grinding, melting, cooling and drying change structure without changing makeup.
+  - **How it works:**
+    - **Stored for each thing:** its form (crystal, glass, fibre, grains, powder, paste or liquid), grain size, pores (the share of empty space), the direction of any fibres or layers, moisture, and how many tiny flaws it has.
+    - **Changed only by laws (`MAT-04`):** grinding makes grains finer; melting turns any form to liquid, and cooling gives glass if fast or crystals if slow; drying removes moisture; heating clay past a measured temperature turns grains and water into a fired solid; gentle heating removes flaws (`RCK-10`).
   - **Example:** Sand, flint and obsidian are all mostly silica, but only flint and obsidian chip into blades.
     Sand melted with plant ash and cooled becomes glass.
 
@@ -1009,9 +1025,31 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
   - **the body:** nutrition, poison, medicine, taste and smell;
   - **the senses:** colour, sheen, texture, and the sound it makes when struck (`MND-03`);
   - **time:** how fast it rots, rusts, wears or weathers.
+  - **How it works:** each property is a rule over makeup, structure and temperature, worked out when one of them changes and kept until the next change.
+    For example:
+    - **how it breaks:** in shell-like flakes when the solid is glassy or very fine-grained and even throughout, by crumbling when coarse-grained, and by splitting along fibres when fibrous (`RCK-01`);
+    - **density:** the ingredients' densities, weighted by their shares, less the pores;
+    - **heat:** heat capacity and conduction mixed by share, and burning from the burnable ingredients;
+    - **food energy:** from protein, starch, sugar and fat, at measured values per gram;
+    - **for the senses:** colour mixed from the ingredients, gloss from glassy structure, and the sound when struck from stiffness, density and shape (`SND-06`).
+
+    Values for pure ingredients carry their source; mixing rules are labelled as estimates (`PRN-05`).
 
 - `MAT-10` **Things** *(Decided)*: Everything in the world is a thing with a makeup, a structure, a shape, a size and a temperature.
   Things can be split, joined, worn down, heated, mixed and carried.
+  - **How it works:**
+    - **Everything exists, fixed by the seed:** the world generator defines all matter everywhere, such as rock layers, soil, loose stones, fallen wood and sand, with each patch's kinds and amounts set by its geology and plants (`WLD-09`).
+      Any single stone is fixed by the seed: generating it twice gives the same stone.
+    - **Stored once touched:** a piece of matter becomes a stored thing the moment anything acts on it (picks it up, strikes, moves, burns or eats it), and it stays stored from then on.
+      Each patch records what was taken from it and what was left in it; places where nothing has changed store nothing, and are regenerated from the seed when needed.
+    - **A thing's record**, about 100 bytes: its makeup (up to about 8 ingredients with their shares by mass, `MAT-01`), its structure (`MAT-02`), its shape (a simple form with sizes, such as a slab, rod, block, lump, sheet or tube), its mass, its temperature at the surface and at the core, where it is (on the ground, held, inside or tied to something), and who last changed it and when.
+    - **Fine shape on demand:** when an action depends on exact shape, such as striking a stone to break it, carving, or fitting two pieces together, the simple form is refined into a detailed 3D surface, the same way every time, and kept.
+    - **Small units in bulk:** berries, seeds and sand are kept as one lot (so many units, with one total mass) until a unit is taken out.
+    - **Joined things** keep their parts as things, plus each joint: tied, glued or fitted, and its strength.
+    - **Bulk water and air are not things:** rivers, lakes and the air belong to the world's water and weather systems (`WLD-16`, `WLD-17`); water in a container is a thing.
+    - **Leftovers merge after a season:** ordinary leftovers, such as knapping debris, that nothing has touched for a season merge into their patch's record: so many pieces, of what, made by whom and when.
+      Anything later taken from that record is generated from it, the same way every time.
+      Tools, art, graves, hearths and anything a key moment depends on always stay individual (`MAT-08`, `PRN-15`).
 
 ### 7.2 How things change
 
