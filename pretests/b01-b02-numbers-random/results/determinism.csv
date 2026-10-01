@@ -41,6 +41,9 @@ rng,-,squares,rust,1/2/3/4,14,True,0118218a5307f42b,0118218a5307f42b,True
 rng,-,wy,cpp,1/2/3/4,14,True,e95f09805a066577,e95f09805a066577,True
 rng,-,wy,cppnc,1/2/3/4,4,True,e95f09805a066577,e95f09805a066577,True
 rng,-,wy,rust,1/2/3/4,14,True,e95f09805a066577,e95f09805a066577,True
+rng,-,wysafe,cpp,1/2/3/4,8,True,dcc9bb792364f047,,
+rng,-,wysafe,cppnc,2/3,2,True,dcc9bb792364f047,,
+rng,-,wysafe,rust,1/2/3/4,8,True,dcc9bb792364f047,,
 sum,f32,-,cpp,1/2/3/4,14,True,9ac5c4f2b72bac71,9ac5c4f2b72bac71,True
 sum,f32,-,cppnc,1/2/3/4,4,True,9ac5c4f2b72bac71,9ac5c4f2b72bac71,True
 sum,f32,-,rust,1/2/3/4,14,True,9ac5c4f2b72bac71,9ac5c4f2b72bac71,True
@@ -71,6 +74,9 @@ walk,f32,squares,rust,1/2/3/4,14,True,fce3d8c72d4da127,fce3d8c72d4da127,True
 walk,f32,wy,cpp,1/2/3/4,14,True,5dd45c53b0ab0deb,5dd45c53b0ab0deb,True
 walk,f32,wy,cppnc,1/2/3/4,4,True,5dd45c53b0ab0deb,5dd45c53b0ab0deb,True
 walk,f32,wy,rust,1/2/3/4,14,True,5dd45c53b0ab0deb,5dd45c53b0ab0deb,True
+walk,f32,wysafe,cpp,1/2/3/4,8,True,bc377650e8870c6e,,
+walk,f32,wysafe,cppnc,2/3,2,True,bc377650e8870c6e,,
+walk,f32,wysafe,rust,1/2/3/4,8,True,bc377650e8870c6e,,
 walk,f64,splitmix,cpp,1/2/3/4,14,True,8a3557006e645446,8a3557006e645446,True
 walk,f64,splitmix,cppnc,1/2/3/4,4,True,8a3557006e645446,8a3557006e645446,True
 walk,f64,splitmix,rust,1/2/3/4,14,True,8a3557006e645446,8a3557006e645446,True

@@ -1,1 +1,7 @@
 shell,kind,run,seconds
+s1-kotlin-rust,clean,1,44.0
+s1-kotlin-rust,one-line-change,1,2.0
+s1-kotlin-rust,clean,2,32.5
+s1-kotlin-rust,one-line-change,2,1.7
+s1-kotlin-rust,clean,3,32.6
+s1-kotlin-rust,one-line-change,3,1.5

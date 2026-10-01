@@ -190,7 +190,7 @@ def decide(rawdir):
     print('\nR3 language: Rust/C++ speed ratios')
     ratios = []
     for (k, f, g, l, t), v in sp.items():
-        if l == 'rust' and (k, f, g, 'cpp', t) in sp:
+        if l == 'rust' and (k, f, g, 'cpp', t) in sp and g not in EXTRA_GENS:
             ratios.append(((k, f, g, t), v / sp[(k, f, g, 'cpp', t)]))
     gm = math.exp(sum(math.log(r) for _, r in ratios) / len(ratios))
     print(f'  {len(ratios)} pairs, geometric mean Rust/C++ = {gm:.3f}; range {min(r for _, r in ratios):.2f}..{max(r for _, r in ratios):.2f}')

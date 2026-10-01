@@ -29,11 +29,11 @@ slotC() {
 slotD() {  # ChaCha8 (slow generator), then the fortune-retry streams at 2^32
   flock $LOCK bash -c "
     for m in moments beings; do $B01/scripts/practrand.sh chacha8 \$m 34; done
-    for g in splitmix philox squares pcg wy chacha8; do $B01/scripts/practrand.sh \$g retry 32; done"
+    for g in splitmix philox squares pcg wy chacha8 wysafe; do $B01/scripts/practrand.sh \$g retry 32; done"
 }
-for s in ${@:-slotA slotB slotC slotD}; do
+slotE() { $B01/scripts/run-extra.sh; }   # 3 more speed rounds (single runs vary +-10-30% here)
+slotF() { $B01/scripts/run-wysafe.sh; }  # guarded wy variant: speed, PractRand; wy to 2^35
+for s in ${@:-slotA slotB slotC slotD slotE slotF}; do
   echo "== $s start $(date -u +%T)"; $s; echo "== $s done $(date -u +%T)"
 done
 python3 $B01/scripts/bench.py summarize $RAW
-# slotE (added after the first sweep showed +-10-30% run-to-run noise): 3 more rounds.
-# Run separately: scripts/run-all.sh slotE
