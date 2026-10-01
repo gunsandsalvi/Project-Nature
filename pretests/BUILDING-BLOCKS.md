@@ -23,8 +23,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 
 - **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app.
 - **Measured on your phone:** `B01`, `B02` and `B79` (first test app).
-- **Running:** `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B74` sound, `B76` speech.
-- **Done in the cloud, waiting for your phone:** `B73` writer AI.
+- **Done in the cloud, waiting for your phone, eyes or ears:** `B04` storing data and `B11` terrain (phone parts in the second test app), `B66` drawing and gestures (the drawing page), `B73` writer AI (second test app), `B74` sound and `B76` speech (the listening page).
 
 ## The blocks
 
@@ -49,6 +48,11 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B04` **Storing data** · running (`pretests/b04-b11-storage-terrain/`)
   - **Question:** how to hold the world in memory and on the phone's storage (`PRN-15`, `PLT-07`, `PLT-10`).
   - **Approaches:** on synthetic data at realistic sizes (people, animals, things, map cells, events), compare layouts in memory for millions of small records, and formats for saved moments and the history log: a custom binary format, SQLite, or a schema format such as FlatBuffers. Measure memory per record, save and load speed, size per saved moment and per thousand years of events, query speed, and whether a save survives the app being killed mid-write.
+  - **Result so far** (1 October 2026, cloud; the phone part is in the second test app):
+    - **In memory: one array per field** (struct of arrays), 2.7 to 4.7 times as fast as one record per thing, with the same memory.
+    - **Saved moments: a custom file split into regions, lightly compressed.** For a synthetic world of 10,000 people, 100,000 animals and a million things (403 MB of state), a saved moment took 263 MB, 1.8 seconds to write and 1.1 to read, and one region 8 ms. SQLite was slower to read, and FlatBuffers bigger or slower.
+    - **History log: a custom compressed log** at 12.8 bytes an event. At 10 events per person per day, that is 47 GB per 1,000 years for 1,000 people, too much for long histories on the phone, so old history must be thinned or recorded more sparsely (`PRN-15`, `PLT-10`).
+    - **Crash safety:** in 1,000 kills mid-write, a damaged file was never loaded.
 
 - `B09` **Data catalogues** · done (`pretests/b09-catalogues/`)
   - **Question:** the format of the catalogue entries (`MAT-13`), and what it costs to source a value honestly (`PRN-05`, `RSK-16`).
@@ -75,10 +79,17 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B11` **Terrain** · running (`pretests/b04-b11-storage-terrain/`)
   - **Question:** how to store land from whole regions down to the metre, with cliffs, caves and overhangs (`PRE-23`, `PRE-24`), and how to generate it fast enough on the phone (`WLD-11`).
   - **Approaches:** on synthetic land, a height map with local 3D pieces against sparse grids of small cubes: memory for the whole world, and how fast metre-level detail appears near a camp. For generation, two or three fast methods, such as shaped noise or noise with a quick erosion pass, timed on the phone.
+  - **Result so far** (1 October 2026, cloud; the phone part is in the second test app):
+    - **Land: a height map with 3D pieces** for cliffs and caves: 10.8 MB per km² on a hard site with a cliff and caves, against 22.4 MB for small cubes. Metre-level detail for 1 km² around a camp took 0.42 seconds on 4 threads, identical every time.
+    - **Generation: plates, then erosion.** The whole world took 3.3 seconds here, and every river reached the sea; noise alone failed, with only 29% of rivers reaching the sea. It needs tuning: the continents came out flat, with straight edges (pictures in `previews/`).
 
 - `B66` **Drawing and gestures** · running (`pretests/b66-drawing/`)
   - **Question:** which graphics engine draws the game's look (`PRE-01` to `PRE-04`, `PRE-20` to `PRE-22`) at the screen's full refresh rate on the phone, and whether the gestures (`PRE-33`) feel right in the hand.
   - **Approaches:** the mockup's scene (`mockups/visual-style.html`) drawn as it is with WebGL, and by a native engine (Vulkan or OpenGL ES): frame time, battery and heat; a fix for pixels crawling while the camera turns or zooms (`PRE-22`); and the decided gestures, which you try.
+  - **Result so far** (1 October 2026; `pretests/b66-drawing/`):
+    - **WebGL is fast enough so far.** On your phone the mockup kept 98% of 120 Hz with 1.4% of frames late, inside the limits set beforehand (90% and 5%), so no native graphics engine for now. The Benchmark button on the drawing page checks the full screen and the farthest zooms. WebGL was late seven times as often as plain native drawing (1.4% against 0.2%); if needed, the native route reuses the mockup's shaders, at about 4 agent-days.
+    - **Crawling pixels (`PRE-22`):** of four fixes, only "Fade" cut crawling to almost nothing: it turns and zooms in small fixed steps, with a quick dithered crossfade. Whether that looks steady or jerky is yours to judge.
+    - **Gestures (`PRE-33`):** all of them work in an automated test; how they feel is yours to judge.
 
 - `B73` **Writer AI** · running (`pretests/b73-writer/`)
   - **Question:** which model and runtime write the text on the phone (`PRE-37`), and at what cost beside the simulation and drawing.
@@ -95,10 +106,18 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B74` **Sound** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how sound is made and played on the phone (`SND-01`, `SND-06`, `SND-08`).
   - **Approaches:** struck flint, granite and wood made from their properties by simple physical models, against recordings shaped by those properties; a bone flute and a hide drum made from their shapes (`CUL-10`); the phone's audio engine, its delay, and the cost of many sounds at once. You listen.
+  - **Result so far** (1 October 2026; `pretests/b74-b76-sound-speech/`):
+    - **Cost is no issue:** one cloud core mixes about 3,000 impact sounds, either way.
+    - **Instruments from their shapes work:** every flute note came within 3.3 cents of the pitch worked out from its bore and holes.
+    - **For you:** which way sounds real, made from ringing modes or from shaped noise, on the listening page. The phone's audio delay is measured by the second test app.
 
 - `B76` **Speech** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how to speak an invented language on the phone (`SND-03`).
   - **Approaches:** a synthetic voice built from the language's own sounds, against a natural-sounding neural voice fed phonetic spelling; quality, cost, and how far each bends invented sounds toward real languages. You listen.
+  - **Result so far** (1 October 2026; `pretests/b74-b76-sound-speech/`):
+    - **Both are cheap:** the synthetic voice uses 0.16% of a core while speaking, the neural voice about 9%.
+    - **Neural voices bend sounds toward their training language:** an English-trained voice lost 7 of the language's 20 sounds and a Welsh-trained one lost 2; the synthetic voice kept all 20.
+    - **For you:** robotic but faithful, or natural but accented, on the listening page.
 
 - `B78` **Building the phone app** · running (`pretests/b78-b79-phone/`)
   - **Question:** the best way to build and deliver the app from the cloud sessions (`PLT-06`): Kotlin with a Rust or C++ core, pure native, or a web view; build time, size, and how easily one core builds for both the phone and the cloud. Signing for your free hobbyist developer account comes later.
@@ -124,7 +143,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
     - **Speed held:** over 20 minutes, the 4 cores kept 94–101% of their first-minute speed, with 1.5% lost to other machines on the host.
     - **Parallel worlds:** four worlds as four processes ran 3.7–3.9 times as fast as one; one world on four threads gained only 1.1 to 3.4 times, so it is used only when there are fewer worlds than cores, as on the phone.
     - **Experiment 1 at its old full size** (300 worlds of 500 years, about 100 people each): 1,521, 7,604 or 76,042 CPU-hours at a guessed 1, 5 or 50 ms per person per simulated day. Far too much, so experiments now run mainly in small sandboxes sized to a computing budget stated up front, confirmed in a few full worlds (`RES-21`).
-    - **Long runs:** a detached process has kept running for over 2 hours 25 minutes without a missed beat while the session was in use, so long runs needn't be cut into 2-hour pieces. Still open: what happens when the session goes idle, and where checkpoints live between sessions.
+    - **Long runs:** a detached process ran for just under 3 hours without a missed beat, then stopped when the cloud machine restarted; the files on disk survived the restart. So long runs save checkpoints and resume, as tested above. Still open: where checkpoints live between sessions.
 
 ## Moved out of the pre-tests
 

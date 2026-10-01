@@ -58,6 +58,7 @@ h1 { font-size: clamp(2.2rem, 9vw, 3.6rem); line-height: 1; }
 .view canvas:active { cursor: grabbing; }
 .view canvas:focus-visible { outline: 3px solid var(--red); outline-offset: -3px; }
 .nogl { position: absolute; inset: 0; display: grid; align-content: center; gap: 8px; padding: 24px; color: var(--plate-ink); text-align: center; }
+.nogl[hidden] { display: none; } /* the display above overrode hidden, so the note covered the view and took every touch */
 .nogl-title { font-family: var(--font-display); font-size: 1.25rem; }
 @media (min-width: 640px) { .view { aspect-ratio: 16 / 10; } }
 @media (orientation: landscape) and (max-height: 520px) { .view { aspect-ratio: auto; height: 78vh; } }
