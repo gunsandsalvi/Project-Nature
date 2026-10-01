@@ -623,7 +623,7 @@ How people think, and in simpler form, how animals think. Everything here is lea
 **Look**
 
 - `PRE-01` **Detailed pixel art** *(Decided)*.
-- `PRE-02` **Art direction** *(Open)*: To be chosen from the art-direction mockups.
+- `PRE-02` **Art direction** *(Decided)*: Pixel-rendered 3D (direction D in the art-direction mockups): a real 3D world drawn at low resolution as detailed pixel art, refined with the best elements of the other directions. The refinements are set in the Presentation deep dive.
 - `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the whole world, drawn as a globe, down to one person chipping flint.
 - `PRE-04` **Sharp at every zoom** *(Proposed)*: The pixel art stays sharp and readable at every zoom level.
 
@@ -718,7 +718,7 @@ Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also
 - **Time and history:** `TIM-07`, `TIM-09`
 - **World:** `WLD-04`
 - **Minds:** `MND-15` (limits)
-- **Presentation:** `PRE-02`, `PRE-19`
+- **Presentation:** `PRE-19`
 - **Platform and performance:** `PLT-04`
 - **Research and validation:** `RES-07`
 
