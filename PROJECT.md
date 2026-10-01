@@ -1152,12 +1152,37 @@ This is how the world looks. It is written to stand on its own, without needing 
 
 ## 12. Sound
 
-Added in layers, starting with the living soundscape.
+Sound comes in layers, added over time, starting with the living soundscape. Like everything you see, everything you hear reflects what is actually happening (`PRN-10`).
 
-- `SND-01` **Living soundscape** *(Decided; first layer)*: Wind, rain, rivers, animals and fire, driven by what's actually happening where you're looking.
-- `SND-02` **Their music** *(Decided; later layer)*: Songs, rhythms and instruments from each culture.
-- `SND-03` **Their voices** *(Decided; later layer)*: Their own languages spoken aloud, with sounds generated for each language and translated for you.
-- `SND-04` **Score** *(Decided; later layer)*: Original background music that reacts to the state of the world.
+### 12.1 The layers
+
+- `SND-01` **Living soundscape** *(Decided; first layer)*
+  - **What:** Wind, rain, rivers, animals, fire and people at work, driven by what is actually happening where you're looking. Zoom changes the mix: close up you hear single sounds; further out they blend; from the whole world, near silence.
+  - **Example:** At the camp at dusk: the crackle of the fire, the tap of the knapper's hammerstone, a child laughing, the river beyond, a wolf far off.
+
+- `SND-03` **Their voices** *(Decided; later layer)*: Zoomed in, you hear real speech: actual sentences in their language, spoken with its own sounds and grammar (`CUL-17`), with English subtitles if you want them. Further out, talk blends into a murmur.
+
+- `SND-02` **Their music** *(Decided; later layer)*: Songs, rhythms and instruments from each culture (`CUL-10`), heard when you are near. Their scales and rhythms develop and drift, as their languages do.
+
+- `SND-04` **Score** *(Decided; later layer)*: Background music generated live from the world. It is assembled from short themes that respond to time of day, season, events and the people nearby, and it draws on their own scales and rhythms as their music develops. It is never the same twice.
+
+- `SND-05` **Order of the layers** *(Proposed)*: The soundscape arrives with the living world (`MIL-04`), voices with words and beliefs (`MIL-05`), and their music and the score after that.
+
+### 12.2 How sound is made
+
+- `SND-06` **Sounds from the physics** *(Decided)*
+  - **What:** Impacts, fire, water and instruments are created from what things are made of (`MAT-03`). A strike on flint sounds unlike one on granite, and an instrument they invent sounds the way its materials would. Background wind, rain and birdsong can use recordings.
+  - **Why:** General rules (`PRN-07`) apply to sound as well. Nobody has to record the sound of an instrument nobody planned.
+
+- `SND-07` **Sound follows time** *(Proposed)*: At natural speed (`TIM-10`), every sound plays in real time. When time runs fast, single sounds give way to the feel of the period: seasons of wind and rain, the hum of a busy camp.
+
+- `SND-08` **Space and distance** *(Proposed)*: Sounds come from where they happen and fade and muffle with distance; caves echo. A sound can draw your attention to something off-screen, such as a scream or thunder.
+
+- `SND-09` **Silence** *(Proposed)*: Quiet is part of the design. Nights are hushed, deep snow muffles everything, and the whole world seen from above is close to silent.
+
+### 12.3 Touch
+
+- `SND-10` **Vibration for big moments** *(Decided)*: Subtle and optional: thunder, an earthquake, the heartbeat of someone you follow when they are in danger.
 
 ## 13. Platform and performance
 
