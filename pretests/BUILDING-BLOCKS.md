@@ -83,6 +83,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Approaches:** on synthetic land, a height map with local 3D pieces against sparse grids of small cubes: memory for the whole world, and how fast metre-level detail appears near a camp. For generation, two or three fast methods, such as shaped noise or noise with a quick erosion pass, timed on the phone.
   - **Result so far** (1 October 2026, cloud, then your phone):
     - **Land: a height map with 3D pieces** for cliffs and caves: 10.8 MB per km² on a hard site with a cliff and caves, against 22.4 MB for small cubes. Metre-level detail for 1 km² around a camp took 0.42 seconds on 4 threads, identical every time.
+    - **World size since changed:** the world is now about a tenth of the area these tests used (`WLD-03`), so whole-world times and sizes shrink about tenfold.
     - **Generation: plates, then erosion.** The whole world took 3.3 seconds here, and every river reached the sea; noise alone failed, with only 29% of rivers reaching the sea. It needs tuning: the continents came out flat, with straight edges (pictures in `previews/`).
     - **On your phone:** generation and metre detail gave exactly the same bits as in the cloud. The phone's fastest core was about twice as fast as a cloud core here: plates at 1024 x 512 in 0.45 s, and the metre-detail test patch in 0.59 s on one core and 0.31 s on four.
 
