@@ -840,34 +840,56 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
   - **The polar seam:** Along the line where the map wraps north–south lies a wide, permanent ice cap.
     Weather systems stop at it, and it is too wide and barren for any animal or person to cross, so nothing ever passes from one pole to the other.
     This is a stated exception to real physics (`PRN-05`).
+  - **How it works:**
+    - **The map** is a rectangle about 2,000 km east to west and 1,000 km north to south, whose opposite edges join, so positions wrap both ways and every distance and neighbour is measured across the wrap.
+    - **Cells:** the map is cut into square cells that nest, from the whole map down to 1 m, in about 21 halvings.
+    - **Latitude:** the middle line is the equator, and latitude rises toward the north–south wrap line, which is both poles at once.
+      The sun's height and the length of the day at any place and date follow from latitude, tilt and orbit (`WLD-06`) by standard astronomy formulas, so seasons reverse between the two halves on their own.
+    - **The polar seam:** the ice along the wrap line is about 200 km wide, about two weeks' walk, and stays permanent through every change of climate (`WLD-16`).
+      Weather stops at it, and, as the named exception, nothing crosses its centre line, so the promise holds even for a people who could carry food and fuel across that much ice.
   - **Why:** There are no edges and no stretched or squashed regions, so every place can be simulated in the same way.
 
 - `WLD-02` **Globe view** *(Decided)*: Fully zoomed out, the world is drawn as a globe.
   The wrap only shows at the poles.
   The globe squeezes the polar regions, which on the map are as wide as the equator; this is a known exception in the display only, and the map keeps every place at its true size.
+  - **How it works:** a picture only: east–west position becomes longitude, latitude stays as on the map, and the result is drawn on a sphere, with the polar ice hiding the seam.
+    The simulation never uses the globe.
 
 - `WLD-03` **Size** *(Decided)*
   - **What:** About 1,000 km from pole to pole and about 2,000 km around: roughly 2 million km² in all, land and sea together.
   - **What follows:** Each climate zone is roughly 100 km wide, about four to five days' walk.
+  - **How it works:** areas are measured on the flat map, so a square kilometre is the same everywhere; only the globe view squeezes the poles.
+    Climate zones are whatever the climate rules give at each latitude (`WLD-16`).
   - **Why:** It is big enough for many separate peoples and small enough to simulate deeply (`PRN-02`).
 
 - `WLD-30` **What scales with the world** *(Decided)*: Quantities set by distance (weather systems, ocean currents, migrations and climate belts) scale with the world's size.
   Local quantities (bodies, chemistry, materials and rates of change) stay real.
   Every scaled value is labelled as scaled, with the real value it came from (`PRN-05`).
+  - **How it works:** the scale factor is the world's pole-to-pole distance over Earth's, about 1 to 20.
+    A value set by distance is its real value times that factor, kept in the catalogue with the real value it came from: a storm system here is about 50 km across instead of 1,000.
+    Winds keep their real speeds, so storms cross the smaller world faster.
+    Local values, such as a body's needs, a stone's hardness or a fire's heat, are never scaled.
 
 - `WLD-04` **How many people it can feed** *(To test)*: Estimated at roughly 50,000 hunter-gatherers (about one person per 10 km² of good land), or about half a million to five million once farming exists, since farming supports 10 to 100 times more people on the same land.
   These are orders of magnitude only: on the wrap-around map a third of the area lies beyond 60° latitude, so there is less good land than Earth intuition suggests.
   Measured in experiments.
+  - **How it works:** it is set nowhere: it is however many people the food the land really produces (`WLD-18`) can keep alive (`BIO-09`), measured by running worlds.
 
 ### 6.2 The planet
 
 - `WLD-06` **Varied within reason** *(Decided)*: Each world has its own day length, year length, axial tilt (and so the strength of its seasons), moons, and share of land, all within ranges that allow human-like life.
   The ranges: day 18–36 hours, year 250–500 days, tilt 5°–35°, 0–3 moons, 25–50% land.
   Gravity, air and chemistry stay Earth-like.
+  - **How it works:** the seed draws day length, year length, tilt, the number of moons with their sizes and orbits, and the land share, within the ranges.
+    They feed the sun's path and the seasons (`WLD-01`), the tides (`WLD-26`) and the climate (`WLD-16`).
 
 - `WLD-07` **A rich sky** *(Decided)*
   - **What:** The sun, moons, stars and planets move realistically for each world's orbit and tilt.
     Eclipses, comets, meteor showers and auroras happen.
+  - **How it works:**
+    - **Drawn from the seed:** the world's orbit, spin and tilt, its moons' orbits, a few planets on their own orbits, and the star field; where each one is at any moment comes from standard orbit formulas.
+    - **Events:** eclipses happen when orbits line up, comets come on orbits drawn from the seed, meteor showers return on the same dates each year, and auroras follow a seeded activity cycle, seen at high latitudes.
+    - **Seen like anything else:** people see the sky by sight (`BIO-18`), and minds can learn its cycles (`CUL-13`).
   - **Why:** The sky is the first calendar, the first compass and a great source of myth (`CUL-13`).
   - **Example:** A comet that hangs over the valley for a month, the same month the old chief dies, becomes part of how the band remembers that winter.
 
