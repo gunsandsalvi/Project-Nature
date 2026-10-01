@@ -183,14 +183,14 @@ Every other section serves it.
   - **What:** Awe at a world that runs itself and keeps surprising you, its maker included.
   - **Why:** Nothing is authored.
     The rules are known; what they produce is not.
-  - **Example:** You zoom out from one campfire to the whole world and watch a thousand years of migrations, languages and beliefs move across the land like weather.
+  - **Example:** Night after night, you zoom out from one campfire to the whole world and watch migrations, languages and beliefs move across the land like weather.
 
 - `VIS-08` **Curiosity** *(Decided)*
   - **What:** The urge to understand why something happened, and to try "what if".
-  - **Why:** Every event has real causes, and the game lets you find them: the scientist's view of a mind (`PRE-14`), the buried layers of a site (`PRE-09`), and rewinding and branching history (`TIM-06`).
-  - **Example:** A band abandons its cave.
+  - **Why:** Every event has real causes, and the game lets you find them: the scientist's view of a mind (`PRE-14`), the buried layers of a site (`PRE-09`), and the chronicle with the events behind it (`PRE-05`).
+  - **Example:** A band is about to abandon its cave.
     You look into their minds and find a run of failed hunts and a belief that the cave turned against them after a death.
-    You rewind, send a good hunting season, and see whether they stay.
+    You send a good hunting season, and see whether they stay.
 
 - `VIS-09` **Other feelings** *(Decided)*: Attachment to particular people, and the harshness of nature, will arise from the simulation and are welcome, but the design isn't built around them.
   When design choices conflict, wonder and curiosity decide.
@@ -199,7 +199,7 @@ Every other section serves it.
 
 - `VIS-10` **Two rhythms of play** *(Decided)*
   - **Short check-ins (5–15 minutes):** open the app, catch up on the latest live moments, follow someone for a while, nudge, close.
-  - **Long sessions (an hour or more):** watch an era unfold at speed, read the chronicle, dig through the past, branch a "what if" and compare the outcomes.
+  - **Long sessions (an hour or more):** watch an era unfold at speed, read the chronicle, dig through the past, and try a "what if" with your powers to see what follows.
   - **Why it matters:** both must feel natural.
     A check-in can't require any setup, and a long session needs tools for depth.
   - The world pauses when the app is closed (`TIM-05`), so every session starts exactly where the last one ended.
@@ -219,8 +219,8 @@ Every other section serves it.
   > The next morning she is twirling sticks.
   > It takes her eleven days.
   >
-  > You zoom out, and decades pass in seconds.
-  > On the knowledge overlay, fire-making spreads from band to band along the river.
+  > You leave the world running overnight on the charger.
+  > By morning, on the knowledge overlay, fire-making has spread from band to band along the river.
   > In the chronicle, the story is already being retold as myth: *Ama stole the fire that sleeps inside the wood*.
   > You close the app, and the world waits for you.
 
@@ -281,13 +281,13 @@ Every other section serves it.
       3. The bolder wolves raise more pups near people, and boldness is inherited (`WLD-20`).
       4. A child who feeds and plays with a pup grows attached to it, and it to the child (`MND-07`, `MND-24`), and the pup is raised in camp.
   - `MOM-07` **A painting that remembers** *(Decided)*: A painting of a great hunt outlasts everyone who saw it.
-    You tap it and see the hunt.
+    You tap it and read what really happened in that hunt.
     (`CUL-09`, `PRE-15`)
     - **How it works:**
       1. A great hunt is a vivid shared memory (`MND-08`).
       2. Someone paints it on a sheltered wall with prepared ochre (`CUL-09`, `RCK-15`), and the painting's record keeps what it shows and the memories it came from (`CUL-25`).
       3. Paint in shelter weathers slowly (`RCK-16`), so the painting outlasts everyone who saw the hunt.
-      4. The hunt was important enough to be saved as a key moment (`PRN-15`), so tapping the painting replays it (`PRE-15`).
+      4. The hunt's events are in the saved history (`PRN-15`), so tapping the painting shows what really happened (`PRE-15`).
   - `MOM-08` **Seeds on the rubbish heap** *(Decided)*: Seeds thrown on a rubbish heap sprout near camp.
     Years later, someone starts planting on purpose.
     (`MND-11`, `WLD-18`)
@@ -302,13 +302,8 @@ Every other section serves it.
       1. The first band's hearths, bones and tools stay where they were left, as things or as merged leftovers (`MAT-10`).
       2. Layer by layer the place is buried as the land builds up (`MAT-08`), and what survives depends on the soil's wetness, air and acidity (`WLD-27`).
       3. Centuries later a village stands above; the cut-away shows the layers (`PRE-25`), and each find's record tells who left it and when (`PRE-09`).
-  - `MOM-10` **Two endings** *(Decided)*: You rewind to before a plague, send a mild winter instead, and compare two histories of the same people.
-    (`TIM-06`)
-    - **How it works:**
-      1. After a hard winter weakens bodies (`BIO-05`), a plague spreads by real contact (`WLD-21`).
-      2. You rewind to a saved moment before it (`TIM-06`) and push a mild winter instead (`GOD-02`).
-      3. With chance kept local, the branch differs only where the milder winter reaches (`TIM-06`): bodies are stronger, and the plague spreads less or not at all.
-      4. The comparison shows the two histories side by side (`TIM-13`).
+  - `MOM-10` **Two endings** *(Dropped)*
+    - **Dropped because:** rewinding and branching were cut in the realism pass: a world keeps only its present state and its chronicle (`PRN-15`).
   - `MOM-11` **Rivals, then in-laws** *(Decided)*: Two bands fight over a valley, then marry into each other.
     Each side's descendants tell the story differently.
     (`CUL-07`, `CUL-11`)
@@ -344,7 +339,7 @@ Every other section serves it.
     Science and superstition come from the same mechanism (see Minds).
   - **Real matter.** Real chemistry and real-world numbers decide what is possible (see Matter and physics).
   - **You are nature.** An invisible god, limited to what nature could do (see The player as god).
-  - **Every story can be traced.** Two views of every mind, archaeology, and rewinding and branching history (see Time and history and Presentation).
+  - **Every story can be traced.** Two views of every mind, archaeology, and a chronicle whose every entry leads back to what happened (see Presentation).
   - **Rigour behind the wonder.** Experiments that can fail decide what the simulation really does (see Research and validation).
   - **In your pocket.** Designed for one phone, with detailed pixel art and one continuous zoom from the whole world to a single person (see Presentation and Platform and performance).
 
@@ -520,13 +515,14 @@ The rules every part of the project follows.
 ### 2.4 How it runs
 
 - `PRN-15` **History is saved, not re-run** *(Decided)*
-  - **What:** The past is kept as saved data, chosen for what the game uses: the chronicle and the events behind it, key moments in full, the full state of the world at saved moments, and the records each view of the past needs.
+  - **What:** The past is kept only as the chronicle and the events behind it, with the records each view of the past needs.
+    The world's full state is kept only for the present (`PLT-07`), so the past can't be replayed or returned to.
     The past is never recomputed, and the phone and cloud builds don't have to produce identical histories (`PLT-05`).
     A seed decides how a world is generated, not how its history unfolds.
   - **Why:** Re-running history exactly would need identical maths on every device, and every old version of the rules kept forever.
     Saving what matters avoids those costs, so the effort goes into depth on the phone.
   - **Example:** You tap a cave painting of a great hunt.
-    The hunt was a key moment, so it was saved in full, and you watch it again as it happened.
+    The hunt's events were saved, so you can read who was there, what happened and how it ended.
   - **Check:** every view of the past reads saved data, and nothing re-simulates the past.
 
 - `PRN-08` **Same seed, same history** *(Dropped)*
@@ -575,11 +571,11 @@ This section sets the boundaries of the project: what it includes, where history
   - **Minds** (see Minds): people and animals who perceive, form their own concepts, learn cause and effect, build skills, dream, and choose for reasons that can be explained.
   - **Culture and society** (see Culture and society): learning from others, language, belief, institutions, art, music, myths and style, all emerging on their own.
   - **Your powers** (see The player as god): weather and disasters, dreams, and fortune.
-  - **Time and history** (see Time and history): time that follows zoom, a story director, and rewinding and branching history.
+  - **Time and history** (see Time and history): time that follows zoom, a story director, and a chronicle of everything that happened.
   - **Presentation** (see Presentation): detailed pixel art, one continuous zoom from the globe to a single person, and many ways to follow the story: the chronicle, following one person's life, map overlays, archaeology and more.
   - **Sound** (see Sound): a living soundscape first, then their music, their voices and a score.
   - **The phone app** (see Platform and performance): built for one phone, in portrait and landscape, smooth at all times.
-  - **Research tools** (see Research and validation): experiments in small sandboxes, confirmed in full worlds, run in the cloud, with reports and saved moments you review on the phone.
+  - **Research tools** (see Research and validation): experiments in small sandboxes, confirmed in full worlds, run in the cloud, with reports and experiment worlds you review on the phone.
 
 ### 3.2 Where history starts
 
@@ -634,8 +630,8 @@ This section sets the boundaries of the project: what it includes, where history
      *Now possible:* watching a generated valley pass through its days and seasons on your phone.
   2. `MIL-02` **Sharp stone (Experiment 1)** *(Decided)*: stone that breaks by real rules; people who perceive, form concepts, learn cause and effect, build skills and learn from each other; just enough food and terrain to live on.
      *Now possible:* watching a band discover how to chip stone, and seeing the skill spread or be lost.
-  3. `MIL-03` **Fire and the first power** *(Decided)*: heat, burning and friction; keeping and making fire; dreams, your first power; rewinding and branching history.
-     *Now possible:* a band that can only keep fire learns to make it, and you can send a dream and compare what happens with and without it.
+  3. `MIL-03` **Fire and the first power** *(Decided)*: heat, burning and friction; keeping and making fire; dreams, your first power.
+     *Now possible:* a band that can only keep fire learns to make it, and you can send a dream and see what comes of it.
   4. `MIL-04` **A living world** *(Decided)*: plants and animals in food webs, with weather and seasons; animals with simpler minds; hunting; your powers over nature and fortune; the living soundscape.
      *Now possible:* hunting becomes an arms race, and your storms and blessings change lives.
   5. `MIL-05` **Words and beliefs** *(Decided)*: language emerging, explanations, ritual and myth; the chronicle and life stories written by the writer AI.
@@ -814,16 +810,15 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
 
 - `GOD-09` **Interventions in the scientist's view** *(Decided)*
   - **What:** The scientist's view shows where and when you intervened, and traces what changed because of it.
-    By default it follows the chain of causes from your act through the saved history; on request, it runs a comparison branch without the act (`TIM-06`, `TIM-13`).
-  - **How it works:** the view lists your interventions from their records (`GOD-08`) and follows their consequences through the cause links the history keeps: what lit each fire, the memories behind each belief (`MND-05`), the chain behind each death (`BIO-14`); on request, it runs a branch without the act (`TIM-06`) and compares the two (`TIM-13`).
+    It follows the chain of causes from your act through the saved events.
+  - **How it works:** the view lists your interventions from their records (`GOD-08`) and follows their consequences through the cause links the history keeps: what lit each fire, the memories behind each belief (`MND-05`), the chain behind each death (`BIO-14`).
   - **Why:** Curiosity (`VIS-08`): you can find out what your nudges actually did.
-    Branching (`TIM-06`) lets you compare history with and without them.
   - **Example:** You select the dream you sent Ama and follow what came of it: eleven days of twirling sticks, the first fire, and fire-making spreading along the river.
 
 ## 5. Time and history
 
 After the camera, time is your main control.
-This section defines how fast time runs, what decides its speed, what happens while you're away, and how you go back in history.
+This section defines how fast time runs, what decides its speed, what happens while you're away, and how worlds, chance and dates are kept.
 Two principles shape all of it: pacing comes only from controlling time (`PRN-12`), and when the phone can't keep up, time slows rather than the simulation cutting corners (`PRN-11`).
 
 ### 5.1 How fast time runs
@@ -836,15 +831,13 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
     - **a camp:** a day passes in a few minutes;
     - **a valley:** a season passes in about a minute;
     - **a region:** years pass every minute;
-    - **the whole world:** centuries pass every minute.
-  - **The past at any speed:** history that has already happened, for example overnight, can be played back at any speed from the saved history (`PRN-15`), so a thousand years can still sweep past like weather (`VIS-07`).
+    - **the whole world:** as fast as the phone can.
   - **How it works:**
     - **One world clock:** every system advances to the same clock, in steps set by the world's own rates (`WLD-12`); the speed asked for is how much simulated time should pass per real second.
     - **Zoom asks for a speed:** each zoom level has its target from the list above, blended smoothly between levels.
     - **As fast as the phone can, up to that speed:** each frame, the simulation runs as many steps as the phone's budget allows while the screen stays smooth (`PLT-04`); if it can't reach the speed asked, time runs slower and the speed shown is the real one (`PRN-11`).
       The steps themselves never depend on the speed (`WLD-13`).
     - **What is drawn at speed:** each frame shows the world's state at that moment; nothing is drawn that the simulation didn't have (`PRN-10`).
-    - **The past at any speed:** a view of the past reads the saved history and plays it at any speed, filling in movement between saved states without adding events (`PRN-15`).
   - **Why:** Close-up moments are lived; distant eras are watched.
   - **Example:** You watch the knapper strike, flake by flake.
     Then you pull back over the valley, and a whole summer passes while the herds move north.
@@ -881,14 +874,14 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
     - **It reads the event stream:** every event the simulation records (`PRN-15`) passes the recognisers (see Presentation), which tag what kind of importance it has, by patterns in the records and never by the simulation naming anything: a first (an outcome of a kind this world's history has never recorded), births and deaths of the people you follow, a skill or belief reaching a new band or losing its last holder, fighting between groups, disasters past a size, a band leaving its range, a band forming, splitting or ending, and events traced back to one of your acts.
     - **Signs before outcomes:** it also watches present states that often come before such events, such as someone trying something new, a predator closing on a band, or a storm building, so it can slow down before the outcome; it never looks ahead in time.
     - **Scores and speed:** each tag carries a score by kind and size (tuned with you); while a score passes the threshold, the director asks for a slower speed around it, and when nothing does, it lets time race up to the top speed your zoom allows.
-    - **Catching up:** key moments are saved in full (`PRN-15`), so a live moment (`PRE-08`) can be replayed from just before it began.
+    - **Catching up:** a moment you miss waits in the list of live moments (`PRE-08`), with its chronicle entry (`PRE-05`).
   - **Why:** In a world that runs itself, the best moments are easy to miss (`RSK-03`).
 
 - `TIM-03` **The director never touches events** *(Decided)*: The director controls speed only.
   It decides where to slow down but never causes, changes or hides anything.
   Follows from `PRN-10` and `PRN-12`.
   - **How it works:** the director only reads the event stream and the world's state, and only sets the speed asked and the live-moment prompts; it cannot write to the simulation, and since speed changes nothing (`WLD-13`), history is the same with or without it.
-  - **Check:** the same saved state run with the director on and off gives the same results bit for bit on the same phone (`TIM-06`), and a code check finds no path from the director into the simulation.
+  - **Check:** the same saved state run with the director on and off gives the same results bit for bit on the same phone (`TIM-16`), and a code check finds no path from the director into the simulation.
 
 - `TIM-11` **Skip to the next moment** *(Decided)*: A control that runs time at top speed until the next important moment, then slows down.
   Useful for short check-ins (`VIS-10`).
@@ -915,29 +908,21 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
     In the morning: "312 years passed.
     Two bands merged by the river; a long drought pushed the eastern band over the hills; on the coast, someone began drying fish."
 
-### 5.4 Going back
+### 5.4 Worlds, chance and dates
 
-- `TIM-06` **Rewind and branch** *(Decided)*
-  - **What:** Go back to any saved moment in a world's history (`PRN-15`) and carry on from there, changing something or nothing.
-    The original timeline is kept, and the new one becomes a branch.
-  - **Chance is local:** each chance event belongs to one being and one moment.
-    On the same phone and version, a branch therefore differs from the original only where its changes reach, and a branch with no change repeats the original.
-    So a comparison shows what a change did, not luck.
-  - **How it works:**
-    - **Going back:** loading a saved moment restores the world's full state (`PRN-15`); to start from a time between saved moments, the simulation runs forward from the one before it, which repeats the original exactly up to that time.
-    - **Branching:** carrying on from there, with or without a change, is new simulation, saved as a new branch; the original's later history is kept.
-    - **Chance is local:** every chance draw is made from a key of world, system, being, moment and purpose, so the same being at the same moment for the same purpose gets the same draw in every branch; on the same phone and version, a branch differs only where its change reaches.
-    - **After an update:** a branch from before a small update runs under the current rules (`PLT-09`).
-  - **Why:** Curiosity (`VIS-08`): the only way to really answer "what if?".
-  - **Example:** You rewind to before the plague, send a mild winter instead, and compare the two histories (`MOM-10`).
+- `TIM-06` **Rewind and branch** *(Dropped)*
+  - **Dropped because:** saved history was cut in the realism pass: one full save of the world is estimated at a few GB, so a world keeps only its present state and its chronicle (`PRN-15`).
 
-- `TIM-13` **Comparing timelines** *(Decided)*: Two branches side by side: their chronicles, their maps, and key numbers (population, discoveries, languages, beliefs), with the moment they split clearly marked.
-  - **How it works:** each branch's saved records give its chronicle (`PRE-05`), its maps at the same dates (`PRE-07`), and its numbers, counted from the records the same way for both: people alive, firsts found by the recognisers, languages and beliefs as the views measure them (`CUL-23`).
-    The events that differ are traced back to the split, so the comparison shows how far the change reached.
+- `TIM-16` **Chance is local** *(Decided)*: Each chance event belongs to one being and one moment, so on the same phone and version, the same saved state always gives the same result.
+  - **How it works:** every chance draw is made from a key of world, system, being, moment and purpose, so the same being at the same moment for the same purpose always gets the same draw.
+  - **Why:** It makes tests repeatable (`WLD-13`, `TIM-03`, `RES-21`) and lets a world recover exactly after a crash (`PLT-07`).
 
-- `TIM-08` **Saved worlds and timelines** *(Decided)*: Several worlds, each with its own tree of timelines, kept on the phone.
-  Branches can be named, and you can switch between them.
-  - **How it works:** each world keeps its seed and generator version (`WLD-08`), its saved moments and event history (`PLT-10`), and its tree of branches, each with its parent, the moment it split, and its name; switching loads that branch's latest saved moment.
+- `TIM-13` **Comparing timelines** *(Dropped)*
+  - **Dropped because:** branching was cut with saved history in the realism pass (`PRN-15`).
+
+- `TIM-08` **Saved worlds** *(Decided)*: Several worlds kept on the phone, each with its present state and its chronicle.
+  You can switch between them.
+  - **How it works:** each world keeps its seed and generator version (`WLD-08`), its present state (`PLT-07`), and its event history and chronicle (`PLT-10`); switching saves the current world and loads the other.
 
 - `TIM-14` **Dates** *(Decided)*: The game counts years from the moment a world's history begins ("year 2,314"), with days and seasons set by that world's own sun and moons (`WLD-06`).
   The people's own calendars are separate (`CUL-13`).
@@ -953,8 +938,8 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
   - **How it works:** every build runs a benchmark world at overnight speed on the phone and reports the years passed per hour, at each zoom and for each number of people (`PLT-04`); the speed comes only from the mechanisms above and from engineering, never from cutting depth (`PRN-11`).
 
 - `TIM-09` **If everyone dies** *(Decided)*: The world goes on without them.
-  Nature carries on, and you can keep watching, rewind to before the end, or start a new world.
-  - **How it works:** the last death is a key moment for the director; the world's systems carry on as before, faster with no minds to run, and the choices offered are to keep watching, rewind (`TIM-06`) or start a new world (`WLD-10`).
+  Nature carries on, and you can keep watching or start a new world.
+  - **How it works:** the last death is an important moment for the director; the world's systems carry on as before, faster with no minds to run, and the choices offered are to keep watching or start a new world (`WLD-10`).
 
 ## 6. World
 
@@ -1189,7 +1174,7 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
       Where each stands within its patch, and how it moves there, are filled in from the seed, and no event is shown that the counts didn't have (`PRN-10`).
     - **Speed changes nothing:** step lengths come from the world's own rates, never from how fast time runs or how busy the phone is (`PRN-11`).
       Fast or slow, only the batching changes: up close the steps run in small slices between frames, and at speed in large batches, with the same results.
-  - **Check:** the same saved state, run with the camera in different places and at different speeds, gives the same results bit for bit on the same phone (`TIM-06`); and a code check finds no path from the picture's data into the simulation.
+  - **Check:** the same saved state, run with the camera in different places and at different speeds, gives the same results bit for bit on the same phone (`TIM-16`); and a code check finds no path from the picture's data into the simulation.
 
 ### 6.5 Natural systems
 
@@ -1473,7 +1458,7 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
     - **Bulk water and air are not things:** rivers, lakes and the air belong to the world's water and weather systems (`WLD-16`, `WLD-17`); water in a container is a thing.
     - **Leftovers merge after a season:** ordinary leftovers, such as knapping debris, that nothing has touched for a season merge into their patch's record: so many pieces, of what, made by whom and when.
       Anything later taken from that record is generated from it, the same way every time.
-      Tools, art, graves, hearths and anything a key moment depends on always stay individual (`MAT-08`, `PRN-15`).
+      Tools, art, graves and hearths always stay individual (`MAT-08`).
 
 ### 7.2 How things change
 
@@ -1522,7 +1507,7 @@ Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
     - **The body carries it out within its limits:** strength caps force and speed, and reach and posture limit where it can act.
     - **Error is real:** the settings that reach the target are the intended ones plus a random error.
       Practice shrinks the error (`MND-06`); fatigue, cold hands, poor light and haste grow it.
-      Each error comes from that being's own chance at that moment (`TIM-06`).
+      Each error comes from that being's own chance at that moment (`TIM-16`).
     - **The physics decides the result:** the contact laws (`MAT-04`) take the actual settings, not the intended ones.
       Struck at the right point and angle, a stone gives off a flake; struck too hard or off the point, it crushes or shatters.
     - **Named simplification:** the body is not simulated muscle by muscle.
@@ -1843,7 +1828,7 @@ How people think is in Minds.
   Follows from `PRN-10`.
   - **How it works:**
     - **Death only by a body's own limits:** a body dies only when one of its stores or parts passes a fatal limit: too little energy (hunger), water (thirst) or blood (bleeding); a core too cold or too hot (`BIO-11`); no air (drowning or smothering); a vital part destroyed; an organ failed by poison or germ (`BIO-12`, `BIO-05`); or birth's own dangers (`BIO-15`).
-    - **No death roll:** chance enters only through events, such as a slip, a strike's error or a germ caught, and through each body's own variation (`TIM-06`), never as a chance of dying.
+    - **No death roll:** chance enters only through events, such as a slip, a strike's error or a germ caught, and through each body's own variation (`TIM-16`), never as a chance of dying.
     - **Old age kills through frailty:** an old body has less in reserve and heals and defends itself less (`BIO-16`), so a cold, a fall or a fever that a younger body would survive passes the limit; the record names both, such as "pneumonia, in old age".
     - **The record:** each death keeps its cause and the chain behind it, as far as the simulation knows it, such as "bleeding, from a boar's tusk, while hunting", for the history and its views (`PRN-15`).
   - **Check:** every death record names the fatal limit that was passed and its cause; a code search finds no chance-of-death draw anywhere.
@@ -2115,7 +2100,7 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
     - **An activity** is a goal with its steps: a skill (`MND-06`), or a short run of actions toward a target, such as going to the spring to drink.
     - **Habits first:** a habit links a situation (place, time of day, season, drives, who is near) to an activity, with a value learned from how well it went; if one fits and no drive presses beyond it, it runs with no further thought.
     - **Deliberate planning:** when no habit fits, a habit fails or the stakes rise, the mind works backward from what its most pressing drive wants, through its cause-and-effect beliefs (`MND-05`), to actions it can take now: warmth needs fire, fire needs feeding, feeding needs wood, and wood lies by the river.
-      It chains a few steps (tuned), and weighs each option by how much it should meet the drives, given the beliefs' strength and certainty, against effort, time, risk (weighted by boldness), the future (weighted by patience, `MND-20`), and others' expectations and the group's rules (`CUL-20`); chance from the person's own draws (`TIM-06`) settles near-ties.
+      It chains a few steps (tuned), and weighs each option by how much it should meet the drives, given the beliefs' strength and certainty, against effort, time, risk (weighted by boldness), the future (weighted by patience, `MND-20`), and others' expectations and the group's rules (`CUL-20`); chance from the person's own draws (`TIM-16`) settles near-ties.
     - **Exploring:** instead of the best known option, the mind sometimes tries something new: a varied skill setting, a known action on an unfamiliar thing, or an analogy (`MND-11`); it explores most when its drives are low (play, more for the curious and the young) and when they are high with no believed way out, and least in between.
     - **Reasons kept:** each decision records the drives, beliefs, memories and feelings that won, for the scientist's view (`PRN-13`).
     - **Habits form:** a choice that keeps working in the same situation becomes a habit.
@@ -2607,7 +2592,7 @@ It is written to stand on its own, without needing any image to understand it.
 
 - `PRE-40` **Screens** *(Decided)*: Besides the world itself: a first-launch screen, a list of your worlds, and settings.
   Short help cards appear the first time you use something; there is no tutorial (`SCP-02`).
-  - **How it works:** the first launch goes straight to making a world (`WLD-10`); the list shows each world with its tree of branches (`TIM-08`); settings hold the content level (`PRE-18`) and the live-moment level (`PRE-08`); and each help card shows once, the first time its control is used.
+  - **How it works:** the first launch goes straight to making a world (`WLD-10`); the list shows your worlds (`TIM-08`); settings hold the content level (`PRE-18`) and the live-moment level (`PRE-08`); and each help card shows once, the first time its control is used.
 
 ### 11.3 Following the story
 
@@ -2647,7 +2632,7 @@ It is written to stand on its own, without needing any image to understand it.
     - **Notable outcomes:** a catalogue defines each by a pattern in the records, such as a fire whose ignition came from a person rubbing wood (`RCK-02`), and gives the names you see.
     - **Skills, languages, institutions, peoples and eras** are found by measures over the records (`MND-06`, `CUL-17`, `CUL-06`, `CUL-23`).
     - **Kept apart:** recognisers read finished records after each step and write only to the describing side (`PRN-07`).
-  - **Why:** The director (`TIM-02`), live moments (`PRE-08`), the chronicle (`PRE-05`), overlays (`PRE-07`), timeline comparisons (`TIM-13`) and experiment measures (`RES-03`) all need to know what happened, without the simulation ever naming it.
+  - **Why:** The director (`TIM-02`), live moments (`PRE-08`), the chronicle (`PRE-05`), overlays (`PRE-07`) and experiment measures (`RES-03`) all need to know what happened, without the simulation ever naming it.
 
 - `PRE-09` **Archaeology** *(Decided)*
   - **What:** Dig down through the buried layers of past life with the cut-away view (`PRE-25`): hearths, graves, lost tools, rubbish heaps.
@@ -2671,8 +2656,8 @@ It is written to stand on its own, without needing any image to understand it.
   - **How it works:** the story view hands the person's records (feelings, wants, beliefs and memories) to the writer, phrased through their own concepts (`PRE-38`); the scientist's view shows the records raw: each belief with its certainty and evidence (`MND-05`), drives and feelings as numbers, and the reasons recorded for each choice (`MND-09`).
 
 - `PRE-15` **Art that remembers** *(Decided)*: Tap a painting or carving to see it, what its maker meant, and the event or myth it depicts.
-  If that event was saved as a key moment, you can watch it as it really happened (`PRN-15`).
-  - **How it works:** a painting's content record (`CUL-25`) gives what it depicts and the memories or myths its maker drew on; these link to the event or story records, and to the saved key moment if there is one (`PRN-15`).
+  You can then read what really happened, from the saved events (`PRN-15`).
+  - **How it works:** a painting's content record (`CUL-25`) gives what it depicts and the memories or myths its maker drew on; these link to the event or story records (`PRN-15`).
 
 - `PRE-16` **Bestiary** *(Decided)*: Each world's tree of life and its species.
   - **How it works:** each species is shown from its records (`WLD-19`): its traits, body chemistry and range in the scientist's view, and its place in the world's tree; the story view shows what each people believes about it and calls it (`MND-04`, `CUL-18`).
@@ -2825,35 +2810,34 @@ How much simulation fits on it is found by measuring, not guessing.
 ### 13.3 Worlds on the phone
 
 - `PLT-07` **Always saved** *(Decided)*: Worlds save continuously, so closing the app or a flat battery never loses anything (`TIM-05`).
-  - **How it works:** each event is added to the history log as it happens (a small addition took under a tenth of a millisecond on your phone in the pre-tests); the state is saved whenever the app leaves the screen (`TIM-05`); and saved moments are written as new files that replace the old only once complete, so a damaged file is never loaded (in the pre-tests, 1,000 kills mid-write never left one).
-    After a crash, the world reopens at its last saved moment and runs forward to where it stopped, repeating exactly (`TIM-06`), so nothing is lost.
+  - **How it works:** each event is added to the history log as it happens (a small addition took under a tenth of a millisecond on your phone in the pre-tests); the present state is saved whenever the app leaves the screen (`TIM-05`) and at set intervals, each time as a new file that replaces the old only once complete, so a damaged file is never loaded (in the pre-tests, 1,000 kills mid-write never left one).
+    After a crash, the world reopens at its last save and runs forward to where it stopped, repeating exactly (`TIM-16`), so nothing is lost.
 
-- `PLT-08` **Manual export** *(Decided)*: Export a world, with all its timelines, as a file whenever you want, and import it again on the same phone or a new one.
+- `PLT-08` **Manual export** *(Decided)*: Export a world, with its present state and its chronicle, as a file whenever you want, and import it again on the same phone or a new one.
   The export keeps the full record, so an imported world opens exactly as it was.
   There are no automatic backups.
-  - **How it works:** export packs a world's whole folder (seed and generator version, saved moments, history log, branch tree, stored things and written text, `TIM-08`) into one file; import checks the file and unpacks it, and the world opens exactly as it was.
+  - **How it works:** export packs a world's whole folder (seed and generator version, present state, history log, stored things and written text, `TIM-08`) into one file; import checks the file and unpacks it, and the world opens exactly as it was.
 
 - `PLT-09` **Worlds across updates** *(Decided)*
   - **What:** The game's rules will keep growing (`PRN-14`).
-    After a small update, a world carries on: everything that already happened stays as it was, the world continues under the new rules, and the change is marked on its timeline.
+    After a small update, a world carries on: everything that already happened stays as it was, the world continues under the new rules, and the change is marked in its chronicle.
     A big update, one that adds a new layer of the world such as new matter, species or systems, may need a new world.
     Worlds are only promised to last between big updates.
   - **Why:** Fitting a new layer into a running world would be costly, and could make its past dishonest.
     Starting a new world keeps every world true to one set of rules.
-  - Going back to a saved moment from before a small update and branching runs the new branch under the current rules.
-  - **How it works:** each world records the version of the rules it runs under, and each update declares itself small or big; after a small update, worlds carry on under the new rules with the change marked on their timeline; after a big update, including any change to the generator (`WLD-08`), an older world's saved history can still be viewed if its files can be read, but carrying it on needs a new world.
+  - **How it works:** each world records the version of the rules it runs under, and each update declares itself small or big; after a small update, worlds carry on under the new rules with the change marked in their chronicle; after a big update, including any change to the generator (`WLD-08`), an older world's chronicle can still be read if its files can be, but carrying it on needs a new world.
 
-- `PLT-10` **Storage** *(Decided)*: Saved moments are kept densely near the present and thinned with age by a fixed rule; key moments are always kept (`PRN-15`).
-  The event history thins with age in the same way: recent years keep every event, and older history keeps what the chronicle, the views and the key moments use, such as births, deaths and firsts.
-  You can delete worlds and branches.
+- `PLT-10` **Storage** *(Decided)*: Each world keeps its present state and its event history (`PRN-15`).
+  The event history thins with age by a fixed rule: recent years keep every event, and older history keeps what the chronicle and the views use, such as births, deaths and firsts.
+  You can delete worlds.
   When the phone nears full, the game warns you and asks what to delete; it never deletes anything else by itself.
-  - **How it works:** saved moments are kept by a fixed rule, dense near the present and thinner with age (spacing tuned), with key moments always kept (`PRN-15`); the history log keeps every event for recent years, and for older years only the kinds the chronicle, the views and key moments use (`PRE-39`); a storage check warns before the phone fills.
+  - **How it works:** the history log keeps every event for recent years, and for older years only the kinds the chronicle and the views use (`PRE-39`), by a fixed rule (tuned); a storage check warns before the phone fills.
 
 ### 13.4 The cloud
 
 - `PLT-05` **Experiments in the cloud** *(Decided)*: The simulation also runs without graphics in the AI's cloud sessions, many runs at a time.
   The phone build comes first and is optimised for the phone; the cloud build doesn't have to match it exactly, only behave the same statistically (`RES-05`).
-  An experiment's world can be opened on the phone at any of its saved moments.
+  An experiment's world can be opened on the phone as it stands at the end of its run.
   Follows from `SCP-15`.
   - **How it works:** the same simulation core is built for the cloud without picture or sound, runs many sandboxes at once, and writes the same saved files, which the phone opens (`TIM-08`); its statistics are compared with the phone's at every milestone (`RES-05`).
 
@@ -2873,7 +2857,7 @@ This section turns "research standard" into practice: how the project proves tha
   - **What:** Most experiments run in sandboxes: small settings built for one question, such as a band on a riverbank with flint, granite and decoy stones, or a winter camp whose fire is dying.
     A sandbox uses the game's own rules and minds, with no special rules and nothing scripted inside it (`PRN-07`); only its setting is chosen, and it includes decoys and materials nobody designed for.
     Each experiment states its computing budget up front, and its sandbox is sized to fit it (`RES-16`).
-    Sandbox runs are cheap and repeat exactly from their seed (`TIM-06`), so each question gets many runs.
+    Sandbox runs are cheap and repeat exactly from their seed (`TIM-16`), so each question gets many runs.
     At every milestone, a few full worlds from the play generator confirm that what the sandboxes showed also happens in a real world, within the sandboxes' ranges.
   - **Why:** Whole worlds are far too costly to run by the hundred (`RSK-14`), while a sandbox answers one question cheaply and repeatably.
     The full worlds guard against a sandbox so well arranged that it makes the result likely by design.
@@ -2961,7 +2945,7 @@ This section turns "research standard" into practice: how the project proves tha
   6. two tongues (`MOM-05`), once seas and the whole world exist, and rivals, then in-laws (`MOM-11`);
   7. the camp wolf (`MOM-06`), seeds on the rubbish heap (`MOM-08`), and metal from green stone (`MOM-12`).
 
-  The remaining signature moments (a painting that remembers, the dig, and two endings) are features, checked at milestone reviews rather than run as experiments.
+  The remaining signature moments (a painting that remembers, and the dig) are features, checked at milestone reviews rather than run as experiments.
 
 ### 14.3 Reports
 
@@ -2972,12 +2956,12 @@ This section turns "research standard" into practice: how the project proves tha
   - the measurements (`PLT-04`);
   - what was added (`PRN-14`) and how the principles were checked;
   - the risks (see Risks);
-  - links to saved moments in the game.
+  - links to the experiments' worlds and chronicles in the game.
   - **How it works:** the report is built from the experiment results, the measurements and the coverage check, checked by the independent reviewer (`RES-11`), and published as a page (`RES-15`).
 
-- `RES-15` **A page on the phone** *(Decided)*: Each report is a readable page with charts and plain conclusions, whose links open saved moments in the game.
+- `RES-15` **A page on the phone** *(Decided)*: Each report is a readable page with charts and plain conclusions, whose links open the experiments' worlds and chronicles in the game.
   A copy is kept in the repository.
-  - **How it works:** each report is a page with its charts, whose links carry a saved moment's world, branch and time so the phone opens the game there; its source is committed beside the experiment.
+  - **How it works:** each report is a page with its charts, whose links open an experiment's world or chronicle entry on the phone; its source is committed beside the experiment.
 
 ## 15. Project and process
 
@@ -3126,7 +3110,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood medium, impact medium.
   - **Risk:** A world that continues under new rules (`PLT-09`) may change suddenly at the point of the update.
   - **Signs:** sudden jumps in a world's state just after an update.
-  - **Response:** history before the update is kept and the change is marked (`PLT-09`); the reality checklist runs before every release; branching lets you compare.
+  - **Response:** history before the update is kept and the change is marked (`PLT-09`); the reality checklist runs before every release.
 
 - `RSK-15` **The memory limit** *(Decided)*
   - **Rating:** likelihood high, impact medium.
@@ -3136,9 +3120,9 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
 
 - `RSK-20` **Saved worlds grow too large** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
-  - **Risk:** Long histories with saved moments and key moments may fill the phone (`PRN-15`).
+  - **Risk:** Long event histories may fill the phone (`PRN-15`).
   - **Signs:** worlds growing by gigabytes every thousand years.
-  - **Response:** measure early; thin saved moments and old events with age by fixed rules, and ask before deleting anything (`PLT-10`).
+  - **Response:** measure early; thin old events with age by a fixed rule, and ask before deleting anything (`PLT-10`).
 
 - `RSK-21` **Losing a world to a bad update** *(Decided)*
   - **Rating:** likelihood medium, impact high.
@@ -3239,7 +3223,6 @@ New suggestions from AI agents are marked *Proposed* and listed here until you c
   It never feeds back into the world (`PRE-39`).
 - **Run:** one simulation of a sandbox or a world for an experiment.
 - **Sandbox:** a small setting built for one research question, using the game's own rules and minds, with nothing scripted (`RES-21`).
-- **Saved moment:** a point in a world's past whose full state was saved, so you can look at it or branch from it (`PRN-15`, `TIM-06`).
 - **Scientist's view / story view:** the two ways to look into a mind: raw beliefs and evidence, or their own words (`PRE-14`).
 - **Seed:** the number a world is generated from.
   It decides the world, not its history (`PRN-15`).
@@ -3248,8 +3231,6 @@ New suggestions from AI agents are marked *Proposed* and listed here until you c
 - **Story director:** sets the speed of time according to what is happening.
   It never causes events (`TIM-02`, `TIM-03`).
 - **Structure:** how matter is put together: crystal or glass, fibrous, porous or dense, grain, wetness (`MAT-02`).
-- **Timeline / branch:** one history of a world.
-  Going back to a saved moment and carrying on starts a new branch (`TIM-06`).
 - **World:** one generated planet (see World).
 - **Writer AI:** the AI language model, running on the phone, that turns simulation data into readable text.
   It never decides anything (`PRE-17`, `PRE-37`).
