@@ -68,6 +68,12 @@ pub fn reg_grid(w: usize, h: usize) -> (usize, usize, usize) {
     (rk, w / rk, h / rk)
 }
 
+/// Region index of a position on a w x h map (same tiling as the chunks).
+pub fn region_in(w: usize, h: usize, x: u32, y: u32) -> usize {
+    let (rk, nx, ny) = reg_grid(w, h);
+    ((y as usize >> 10) / rk % ny) * nx + ((x as usize >> 10) / rk % nx)
+}
+
 /// Region-bucketed raw chunks of a state: chunks[region][layer].
 pub fn chunk_state(s: &State) -> Vec<[Vec<u8>; LAYERS]> {
     let (rk, nreg_x, nreg_y) = reg_grid(s.w, s.h);

@@ -176,3 +176,24 @@ python3 tools/count-glue.py
 tools/decode-result.py '<pasted code>'
 ```
 Every build needs `rustup target add aarch64-linux-android aarch64-unknown-linux-gnu`, `cargo install cargo-ndk`, and `apt install qemu-user-static gcc-aarch64-linux-gnu` for the arm64 tests.
+
+## Phone results, round 1 (1 October 2026)
+
+The owner's result code, decoded, is in `results/phone-r1.json`. Pixel 11 Pro XL, Android 17, 4 KB memory pages. Seven cores in three kinds: 2 small (2.65 GHz), 4 middle (3.38 GHz), 1 fastest (4.11 GHz). Everything ran; nothing crashed.
+
+| Measure | Result |
+|---|---|
+| Heat kernel (Rust, 32-bit decimals), one core | small 2.15, middle 2.87, fastest 4.89 billion updates a second |
+| Same, all 7 cores, short burst | 15.6 billion a second |
+| Same, all 7 cores, held for 10 minutes | about 6.8 billion a second (43% of the burst) after 2 minutes, steady |
+| Heat under that load | battery 35.1 → 37.6 °C, thermal status "light" at most, about 3 W |
+| Battery under that load | 14.6% an hour |
+| Energy per update (net of 0.84 W idle) | middle cores about 0.7 nJ, small about 1.0, fastest about 1.3 |
+| Rust against C++ | Rust 16% faster on middle cores and 47% on the fastest; even on small and all cores |
+| Android's managed code (Java) | 18–21% of Rust's speed |
+| 32-bit fixed point against 32-bit decimals | 72–100% on one core; 65–112% on all cores |
+| Keyed random draws (guarded generator) | 1.04 billion a second on the fastest core, 3.25 billion on all |
+| Results repeat exactly | all 47 runs, across repeats and thread counts; all 45 with a cloud prediction matched it bit for bit |
+| Simple scene at 120 Hz | 0.2% missed frames, 99% of frames under 10.6 ms |
+| The mockup (WebGL in a web view) at 120 Hz | 1.4% missed frames; drawing took 2 ms per frame (99% under 4.4 ms) of the 8.3 ms available |
+| Memory test | not run yet |

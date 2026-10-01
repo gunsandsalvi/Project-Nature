@@ -1,0 +1,185 @@
+{
+ "about": "B73: every stand-in text read by the agent against its record (PRE-17, RSK-17). 'added' = a claim not in the data; 'wrong' = a claim that contradicts the data; 'leak' = prompt text echoed back; 'minor' marks small slips. 'checker' says whether the checker flagged the text (run 1 = blind, run 2 = after fixes). The owner can spot-check these labels against results/standin-*.json.",
+ "qwen2.5-1.5b": {
+  "r01-doc": {
+   "problem": null
+  },
+  "r01-tra": {
+   "problem": "wrong",
+   "minor": true,
+   "what": "'early in the morning' merges 'early winter' and 'morning'",
+   "checker_run1": false,
+   "checker_run2": false
+  },
+  "r02-doc": {
+   "problem": "wrong",
+   "what": "'On her 4th night alone': it was Oru's night alone, not his daughter's",
+   "checker_run1": false,
+   "checker_run2": false
+  },
+  "r02-tra": {
+   "problem": "wrong",
+   "what": "same slip: 'On her 4th night alone'",
+   "checker_run1": false,
+   "checker_run2": false
+  },
+  "r03-doc": {
+   "problem": null
+  },
+  "r03-tra": {
+   "problem": null
+  },
+  "r04-doc": {
+   "problem": null
+  },
+  "r04-tra": {
+   "problem": "wrong",
+   "what": "'We, the Kesh band, waited': told as the killer's band (the tellers are the Tulo), and only Anuk waited",
+   "checker_run1": false,
+   "checker_run2": true
+  },
+  "r05-doc": {
+   "problem": "leak",
+   "what": "echoes 'Voice: documentary. Calm, exact and plain...'; states the two beliefs as facts before naming them as beliefs",
+   "checker_run1": true,
+   "checker_run2": true
+  },
+  "r05-tra": {
+   "problem": null
+  },
+  "r06-doc": {
+   "problem": null,
+   "note": "garbles the before/after beliefs but adds nothing"
+  },
+  "r06-tra": {
+   "problem": "added",
+   "what": "a belief in 'the power of dreams', 'alter the course of his life', a changed belief after the others came back, and a moral about fate; 'the next morning' instead of 'that same morning'",
+   "checker_run1": true,
+   "checker_run2": true
+  },
+  "r07-doc": {
+   "problem": "leak",
+   "what": "echoes the prompt and copies the DATA labels",
+   "checker_run1": true,
+   "checker_run2": true
+  },
+  "r07-tra": {
+   "problem": null
+  },
+  "r08-doc": {
+   "problem": "added",
+   "minor": true,
+   "what": "'a storm raged' (an image)",
+   "checker_run1": true,
+   "checker_run2": true
+  },
+  "r08-tra": {
+   "problem": null
+  },
+  "r09-doc": {
+   "problem": "leak",
+   "what": "echoes the prompt",
+   "checker_run1": true,
+   "checker_run2": true
+  },
+  "r09-tra": {
+   "problem": null
+  },
+  "r10-doc": {
+   "problem": null,
+   "note": "says Temo and Yari met, where the data says the two bands met; still true"
+  },
+  "r10-tra": {
+   "problem": null
+  }
+ },
+ "gemma-4-e2b": {
+  "r01-doc": {
+   "problem": null
+  },
+  "r01-tra": {
+   "problem": null
+  },
+  "r02-doc": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'death from cold occurred', 'subsequently'"
+  },
+  "r02-tra": {
+   "problem": null
+  },
+  "r03-doc": {
+   "problem": null
+  },
+  "r03-tra": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'A girl came'"
+  },
+  "r04-doc": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'an event occurred'"
+  },
+  "r04-tra": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'Anuk used a spear'"
+  },
+  "r05-doc": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'consisting of', 'regarding'"
+  },
+  "r05-tra": {
+   "problem": "added",
+   "minor": true,
+   "what": "turns the two beliefs into quoted speech: 'Hesh said, ...'",
+   "checker_run2": false
+  },
+  "r06-doc": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'a night occurred'"
+  },
+  "r06-tra": {
+   "problem": null
+  },
+  "r07-doc": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'stated', 'This change meant'"
+  },
+  "r07-tra": {
+   "problem": null
+  },
+  "r08-doc": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'a storm occurred'"
+  },
+  "r08-tra": {
+   "problem": null
+  },
+  "r09-doc": {
+   "problem": "softened+wrong",
+   "what": "drops the coercion ('made them carry' becomes 'Rena and Oshi carried'), hides who took them ('were taken captive'), and says 'Kelo killed Gudo' where the data says the 7 men did",
+   "checker_run2": true,
+   "dark": true
+  },
+  "r09-tra": {
+   "problem": "softened",
+   "what": "drops the coercion ('Rena and Oshi carry dried meat'); also 'Kelo knew' turns his belief into knowledge (minor)",
+   "checker_run2": true,
+   "dark": true
+  },
+  "r10-doc": {
+   "problem": null,
+   "checker_run2": true,
+   "false_alarm": "'a meeting occurred', 'the two groups'"
+  },
+  "r10-tra": {
+   "problem": null
+  }
+ }
+}

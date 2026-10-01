@@ -1,0 +1,323 @@
+{
+ "summary": {
+  "gemma-4-e2b": {
+   "texts": 20,
+   "passed_check": 9,
+   "flagged": 11,
+   "dark_texts": 6,
+   "dark_failed": 2,
+   "median_first_word_s": 3.67,
+   "median_words_per_s": 12.68,
+   "median_copied": 0.56,
+   "flag_counts": {
+    "WORD": 16,
+    "OMITTED": 2
+   }
+  }
+ },
+ "rows": [
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r01-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.78,
+   "dark_fail": false,
+   "ttfw_s": 3.59,
+   "wps": 13.29,
+   "words": 115
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r01-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.57,
+   "dark_fail": false,
+   "ttfw_s": 4.32,
+   "wps": 13.36,
+   "words": 96
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r02-doc",
+   "dark": true,
+   "flags": [
+    [
+     "WORD",
+     "occurred"
+    ],
+    [
+     "WORD",
+     "subsequently"
+    ]
+   ],
+   "copied": 0.68,
+   "dark_fail": false,
+   "ttfw_s": 3.37,
+   "wps": 13.36,
+   "words": 113
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r02-tra",
+   "dark": true,
+   "flags": [],
+   "copied": 0.62,
+   "dark_fail": false,
+   "ttfw_s": 3.67,
+   "wps": 11.54,
+   "words": 102
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r03-doc",
+   "dark": false,
+   "flags": [],
+   "copied": 0.65,
+   "dark_fail": false,
+   "ttfw_s": 3.23,
+   "wps": 12.73,
+   "words": 102
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r03-tra",
+   "dark": false,
+   "flags": [
+    [
+     "WORD",
+     "came"
+    ]
+   ],
+   "copied": 0.49,
+   "dark_fail": false,
+   "ttfw_s": 3.76,
+   "wps": 12.88,
+   "words": 82
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r04-doc",
+   "dark": true,
+   "flags": [
+    [
+     "WORD",
+     "event"
+    ],
+    [
+     "WORD",
+     "occurred"
+    ]
+   ],
+   "copied": 0.58,
+   "dark_fail": false,
+   "ttfw_s": 3.59,
+   "wps": 13.28,
+   "words": 98
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r04-tra",
+   "dark": true,
+   "flags": [
+    [
+     "WORD",
+     "used"
+    ]
+   ],
+   "copied": 0.46,
+   "dark_fail": false,
+   "ttfw_s": 3.62,
+   "wps": 12.24,
+   "words": 72
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r05-doc",
+   "dark": false,
+   "flags": [
+    [
+     "WORD",
+     "consisting"
+    ],
+    [
+     "WORD",
+     "regarding"
+    ]
+   ],
+   "copied": 0.55,
+   "dark_fail": false,
+   "ttfw_s": 4.04,
+   "wps": 10.9,
+   "words": 131
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r05-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.31,
+   "dark_fail": false,
+   "ttfw_s": 4.39,
+   "wps": 11.34,
+   "words": 80
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r06-doc",
+   "dark": false,
+   "flags": [
+    [
+     "WORD",
+     "occurred"
+    ]
+   ],
+   "copied": 0.61,
+   "dark_fail": false,
+   "ttfw_s": 3.57,
+   "wps": 13.53,
+   "words": 125
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r06-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.54,
+   "dark_fail": false,
+   "ttfw_s": 3.8,
+   "wps": 12.76,
+   "words": 88
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r07-doc",
+   "dark": false,
+   "flags": [
+    [
+     "WORD",
+     "stated"
+    ],
+    [
+     "WORD",
+     "stated"
+    ],
+    [
+     "WORD",
+     "change"
+    ],
+    [
+     "WORD",
+     "meant"
+    ]
+   ],
+   "copied": 0.67,
+   "dark_fail": false,
+   "ttfw_s": 3.28,
+   "wps": 12.77,
+   "words": 110
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r07-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.48,
+   "dark_fail": false,
+   "ttfw_s": 3.97,
+   "wps": 12.04,
+   "words": 89
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r08-doc",
+   "dark": false,
+   "flags": [
+    [
+     "WORD",
+     "occurred"
+    ]
+   ],
+   "copied": 0.58,
+   "dark_fail": false,
+   "ttfw_s": 3.69,
+   "wps": 13.52,
+   "words": 117
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r08-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.58,
+   "dark_fail": false,
+   "ttfw_s": 3.85,
+   "wps": 11.78,
+   "words": 76
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r09-doc",
+   "dark": true,
+   "flags": [
+    [
+     "OMITTED",
+     "They made Rena and Oshi carry the dried meat of the Tulo band to the Kesh camp."
+    ]
+   ],
+   "copied": 0.51,
+   "dark_fail": true,
+   "ttfw_s": 3.68,
+   "wps": 12.37,
+   "words": 78
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r09-tra",
+   "dark": true,
+   "flags": [
+    [
+     "OMITTED",
+     "They made Rena and Oshi carry the dried meat of the Tulo band to the Kesh camp."
+    ]
+   ],
+   "copied": 0.43,
+   "dark_fail": true,
+   "ttfw_s": 3.97,
+   "wps": 12.19,
+   "words": 70
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r10-doc",
+   "dark": false,
+   "flags": [
+    [
+     "WORD",
+     "occurred"
+    ],
+    [
+     "WORD",
+     "groups"
+    ]
+   ],
+   "copied": 0.54,
+   "dark_fail": false,
+   "ttfw_s": 3.28,
+   "wps": 12.56,
+   "words": 92
+  },
+  {
+   "pass": "gemma-4-e2b",
+   "id": "r10-tra",
+   "dark": false,
+   "flags": [],
+   "copied": 0.22,
+   "dark_fail": false,
+   "ttfw_s": 3.41,
+   "wps": 12.63,
+   "words": 57
+  }
+ ]
+}

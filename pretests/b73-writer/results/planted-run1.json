@@ -1,0 +1,1449 @@
+{
+ "faithful": [
+  {
+   "rec": "r01",
+   "voice": "documentary",
+   "flags": []
+  },
+  {
+   "rec": "r02",
+   "voice": "tradition",
+   "flags": []
+  },
+  {
+   "rec": "r03",
+   "voice": "documentary",
+   "flags": []
+  },
+  {
+   "rec": "r04",
+   "voice": "tradition",
+   "flags": []
+  },
+  {
+   "rec": "r05",
+   "voice": "documentary",
+   "flags": []
+  },
+  {
+   "rec": "r06",
+   "voice": "tradition",
+   "flags": []
+  },
+  {
+   "rec": "r07",
+   "voice": "documentary",
+   "flags": []
+  },
+  {
+   "rec": "r08",
+   "voice": "tradition",
+   "flags": []
+  },
+  {
+   "rec": "r09",
+   "voice": "documentary",
+   "flags": []
+  },
+  {
+   "rec": "r10",
+   "voice": "tradition",
+   "flags": []
+  }
+ ],
+ "planted": [
+  {
+   "id": "p01a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "NAME",
+     "Bakar"
+    ]
+   ]
+  },
+  {
+   "id": "p01b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "5"
+    ]
+   ]
+  },
+  {
+   "id": "p01c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "cave"
+    ]
+   ]
+  },
+  {
+   "id": "p01d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "bone"
+    ],
+    [
+     "WORD",
+     "awl"
+    ]
+   ]
+  },
+  {
+   "id": "p01e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "because"
+    ],
+    [
+     "WORD",
+     "wind"
+    ],
+    [
+     "CAUSE",
+     "because"
+    ]
+   ]
+  },
+  {
+   "id": "p01f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "MOTIVE",
+     "hoping"
+    ],
+    [
+     "WORD",
+     "warm"
+    ],
+    [
+     "WORD",
+     "hands"
+    ]
+   ]
+  },
+  {
+   "id": "p01g",
+   "type": "image",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "grey"
+    ],
+    [
+     "WORD",
+     "snowy"
+    ],
+    [
+     "WORD",
+     "sky"
+    ]
+   ]
+  },
+  {
+   "id": "p01h",
+   "type": "modern",
+   "caught": true,
+   "new_flags": [
+    [
+     "MODERN",
+     "flint"
+    ]
+   ]
+  },
+  {
+   "id": "p01i",
+   "type": "belief",
+   "caught": true,
+   "new_flags": [
+    [
+     "BELIEF",
+     "spirit"
+    ]
+   ]
+  },
+  {
+   "id": "p02a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "son"
+    ],
+    [
+     "NAME",
+     "Lom"
+    ]
+   ]
+  },
+  {
+   "id": "p02b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "6"
+    ]
+   ]
+  },
+  {
+   "id": "p02c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "snowdrift"
+    ],
+    [
+     "WORD",
+     "river"
+    ]
+   ]
+  },
+  {
+   "id": "p02d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "fur"
+    ],
+    [
+     "WORD",
+     "cloak"
+    ]
+   ]
+  },
+  {
+   "id": "p02e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "hunger"
+    ]
+   ]
+  },
+  {
+   "id": "p02f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "MOTIVE",
+     "begged"
+    ]
+   ]
+  },
+  {
+   "id": "p02g",
+   "type": "soften",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "passed"
+    ],
+    [
+     "WORD",
+     "peacefully"
+    ],
+    [
+     "WORD",
+     "sleep"
+    ],
+    [
+     "SOFTENED",
+     "passed away"
+    ],
+    [
+     "SOFTENED",
+     "peacefully"
+    ]
+   ]
+  },
+  {
+   "id": "p02h",
+   "type": "omit",
+   "caught": false,
+   "new_flags": []
+  },
+  {
+   "id": "p02i",
+   "type": "hedge",
+   "caught": true,
+   "new_flags": [
+    [
+     "HEDGED",
+     "may have"
+    ]
+   ]
+  },
+  {
+   "id": "p02j",
+   "type": "soften",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "chose"
+    ],
+    [
+     "WORD",
+     "stay"
+    ],
+    [
+     "SOFTENED",
+     "chose to stay"
+    ]
+   ]
+  },
+  {
+   "id": "p03a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "BELIEF",
+     "healer"
+    ],
+    [
+     "NAME",
+     "Mora"
+    ]
+   ]
+  },
+  {
+   "id": "p03b",
+   "type": "number",
+   "caught": false,
+   "new_flags": []
+  },
+  {
+   "id": "p03c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "hut"
+    ]
+   ]
+  },
+  {
+   "id": "p03d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "wrapped"
+    ],
+    [
+     "WORD",
+     "soft"
+    ],
+    [
+     "WORD",
+     "deer"
+    ],
+    [
+     "WORD",
+     "hide"
+    ]
+   ]
+  },
+  {
+   "id": "p03e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "because"
+    ],
+    [
+     "WORD",
+     "gone"
+    ],
+    [
+     "WORD",
+     "hungry"
+    ],
+    [
+     "CAUSE",
+     "because"
+    ]
+   ]
+  },
+  {
+   "id": "p03f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "MOTIVE",
+     "wept"
+    ],
+    [
+     "MOTIVE",
+     "joy"
+    ]
+   ]
+  },
+  {
+   "id": "p03g",
+   "type": "image",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "full"
+    ],
+    [
+     "WORD",
+     "moon"
+    ]
+   ]
+  },
+  {
+   "id": "p03h",
+   "type": "belief",
+   "caught": true,
+   "new_flags": [
+    [
+     "BELIEF",
+     "spirits"
+    ],
+    [
+     "WORD",
+     "watch"
+    ]
+   ]
+  },
+  {
+   "id": "p03i",
+   "type": "role",
+   "caught": true,
+   "new_flags": [
+    [
+     "ROLE",
+     "Kaya gave birth to a girl in the camp on the shore of Sefa."
+    ]
+   ]
+  },
+  {
+   "id": "p04a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "friend"
+    ],
+    [
+     "NAME",
+     "Tarek"
+    ]
+   ]
+  },
+  {
+   "id": "p04b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "19"
+    ]
+   ]
+  },
+  {
+   "id": "p04c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "hill"
+    ],
+    [
+     "WORD",
+     "oak"
+    ],
+    [
+     "WORD",
+     "grove"
+    ]
+   ]
+  },
+  {
+   "id": "p04d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "eagle"
+    ],
+    [
+     "WORD",
+     "feathers"
+    ]
+   ]
+  },
+  {
+   "id": "p04e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "fight"
+    ],
+    [
+     "SOFTENED",
+     "fight"
+    ]
+   ]
+  },
+  {
+   "id": "p04f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "mad"
+    ],
+    [
+     "MOTIVE",
+     "jealousy"
+    ]
+   ]
+  },
+  {
+   "id": "p04g",
+   "type": "soften",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "struggle"
+    ],
+    [
+     "WORD",
+     "hurt"
+    ],
+    [
+     "WORD",
+     "fought"
+    ],
+    [
+     "SOFTENED",
+     "struggle"
+    ],
+    [
+     "SOFTENED",
+     "fought"
+    ],
+    [
+     "OMITTED",
+     "When Moro came to cross, Anuk killed him with a spear thrust to the belly. The spear had a cutting stone point."
+    ]
+   ]
+  },
+  {
+   "id": "p04h",
+   "type": "omit",
+   "caught": true,
+   "new_flags": [
+    [
+     "OMITTED",
+     "When Moro came to cross, Anuk killed him with a spear thrust to the belly. The spear had a cutting stone point."
+    ]
+   ]
+  },
+  {
+   "id": "p04i",
+   "type": "hedge",
+   "caught": true,
+   "new_flags": [
+    [
+     "HEDGED",
+     "may have"
+    ]
+   ]
+  },
+  {
+   "id": "p04j",
+   "type": "role",
+   "caught": true,
+   "new_flags": [
+    [
+     "ROLE",
+     "When Moro came to cross, Anuk killed him with a spear thrust to the belly. The spear had a cutting stone point."
+    ]
+   ]
+  },
+  {
+   "id": "p04k",
+   "type": "hidden",
+   "caught": true,
+   "new_flags": [
+    [
+     "HIDDEN",
+     "truth"
+    ],
+    [
+     "HIDDEN",
+     "drowned"
+    ]
+   ]
+  },
+  {
+   "id": "p05a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "wife"
+    ],
+    [
+     "NAME",
+     "Tula"
+    ]
+   ]
+  },
+  {
+   "id": "p05b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "12"
+    ]
+   ]
+  },
+  {
+   "id": "p05c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "river"
+    ]
+   ]
+  },
+  {
+   "id": "p05d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "stored"
+    ],
+    [
+     "WORD",
+     "nuts"
+    ]
+   ]
+  },
+  {
+   "id": "p05e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "struck"
+    ]
+   ]
+  },
+  {
+   "id": "p05f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "MOTIVE",
+     "proud"
+    ],
+    [
+     "MOTIVE",
+     "restless"
+    ]
+   ]
+  },
+  {
+   "id": "p05g",
+   "type": "image",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "smoky"
+    ],
+    [
+     "WORD",
+     "fire"
+    ]
+   ]
+  },
+  {
+   "id": "p05h",
+   "type": "belief",
+   "caught": true,
+   "new_flags": [
+    [
+     "BELIEF",
+     "spirits"
+    ],
+    [
+     "WORD",
+     "keep"
+    ]
+   ]
+  },
+  {
+   "id": "p05i",
+   "type": "contradiction",
+   "caught": false,
+   "new_flags": []
+  },
+  {
+   "id": "p06a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "NAME",
+     "Sorel"
+    ]
+   ]
+  },
+  {
+   "id": "p06b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "3"
+    ]
+   ]
+  },
+  {
+   "id": "p06c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "pine"
+    ],
+    [
+     "WORD",
+     "forest"
+    ]
+   ]
+  },
+  {
+   "id": "p06d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "bow"
+    ]
+   ]
+  },
+  {
+   "id": "p06e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "besides"
+    ],
+    [
+     "WORD",
+     "knee"
+    ],
+    [
+     "WORD",
+     "ached"
+    ]
+   ]
+  },
+  {
+   "id": "p06f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "MOTIVE",
+     "trembling"
+    ],
+    [
+     "MOTIVE",
+     "fear"
+    ]
+   ]
+  },
+  {
+   "id": "p06g",
+   "type": "image",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "moonlight"
+    ]
+   ]
+  },
+  {
+   "id": "p06h",
+   "type": "belief",
+   "caught": true,
+   "new_flags": [
+    [
+     "BELIEF",
+     "ancestors"
+    ],
+    [
+     "WORD",
+     "sent"
+    ]
+   ]
+  },
+  {
+   "id": "p06i",
+   "type": "contradiction",
+   "caught": false,
+   "new_flags": []
+  },
+  {
+   "id": "p07a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "husband"
+    ],
+    [
+     "NAME",
+     "Doran"
+    ]
+   ]
+  },
+  {
+   "id": "p07b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "40"
+    ]
+   ]
+  },
+  {
+   "id": "p07c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "great"
+    ],
+    [
+     "WORD",
+     "cave"
+    ]
+   ]
+  },
+  {
+   "id": "p07d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "antler"
+    ]
+   ]
+  },
+  {
+   "id": "p07e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "because"
+    ],
+    [
+     "WORD",
+     "wanted"
+    ],
+    [
+     "WORD",
+     "please"
+    ],
+    [
+     "WORD",
+     "elders"
+    ],
+    [
+     "CAUSE",
+     "because"
+    ]
+   ]
+  },
+  {
+   "id": "p07f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "MOTIVE",
+     "proud"
+    ],
+    [
+     "WORD",
+     "memory"
+    ]
+   ]
+  },
+  {
+   "id": "p07g",
+   "type": "image",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "like"
+    ],
+    [
+     "WORD",
+     "red"
+    ],
+    [
+     "WORD",
+     "deer"
+    ]
+   ]
+  },
+  {
+   "id": "p07h",
+   "type": "belief",
+   "caught": true,
+   "new_flags": [
+    [
+     "BELIEF",
+     "god"
+    ]
+   ]
+  },
+  {
+   "id": "p07i",
+   "type": "contradiction",
+   "caught": false,
+   "new_flags": []
+  },
+  {
+   "id": "p08a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "BELIEF",
+     "healer"
+    ],
+    [
+     "NAME",
+     "Uru"
+    ]
+   ]
+  },
+  {
+   "id": "p08b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "18"
+    ]
+   ]
+  },
+  {
+   "id": "p08c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "spring"
+    ]
+   ]
+  },
+  {
+   "id": "p08d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "sap"
+    ],
+    [
+     "WORD",
+     "ran"
+    ],
+    [
+     "WORD",
+     "like"
+    ],
+    [
+     "WORD",
+     "honey"
+    ]
+   ]
+  },
+  {
+   "id": "p08e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "because"
+    ],
+    [
+     "MOTIVE",
+     "angry"
+    ],
+    [
+     "CAUSE",
+     "because"
+    ]
+   ]
+  },
+  {
+   "id": "p08f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "MOTIVE",
+     "afraid"
+    ]
+   ]
+  },
+  {
+   "id": "p08g",
+   "type": "image",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "black"
+    ],
+    [
+     "WORD",
+     "clouds"
+    ],
+    [
+     "WORD",
+     "roaring"
+    ],
+    [
+     "WORD",
+     "thunder"
+    ]
+   ]
+  },
+  {
+   "id": "p08h",
+   "type": "modern",
+   "caught": true,
+   "new_flags": [
+    [
+     "MODERN",
+     "lightning"
+    ]
+   ]
+  },
+  {
+   "id": "p08i",
+   "type": "belief",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "thunder"
+    ],
+    [
+     "BELIEF",
+     "spirit"
+    ]
+   ]
+  },
+  {
+   "id": "p09a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "brother"
+    ],
+    [
+     "NAME",
+     "Varn"
+    ]
+   ]
+  },
+  {
+   "id": "p09b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "9"
+    ]
+   ]
+  },
+  {
+   "id": "p09c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "hills"
+    ]
+   ]
+  },
+  {
+   "id": "p09d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "stone"
+    ],
+    [
+     "WORD",
+     "axes"
+    ]
+   ]
+  },
+  {
+   "id": "p09e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "because"
+    ],
+    [
+     "WORD",
+     "insulted"
+    ]
+   ]
+  },
+  {
+   "id": "p09f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "hungry"
+    ],
+    [
+     "MOTIVE",
+     "glory"
+    ]
+   ]
+  },
+  {
+   "id": "p09g",
+   "type": "soften",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "confusion"
+    ],
+    [
+     "WORD",
+     "hurt"
+    ],
+    [
+     "WORD",
+     "survive"
+    ],
+    [
+     "SOFTENED",
+     "did not survive"
+    ],
+    [
+     "OMITTED",
+     "They killed Gudo with clubs."
+    ]
+   ]
+  },
+  {
+   "id": "p09h",
+   "type": "soften",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "went"
+    ],
+    [
+     "WORD",
+     "helped"
+    ],
+    [
+     "SOFTENED",
+     "went with them"
+    ],
+    [
+     "SOFTENED",
+     "helped carry"
+    ],
+    [
+     "OMITTED",
+     "They took Rena and Oshi captive and tied their hands with sinew cord."
+    ],
+    [
+     "OMITTED",
+     "They made Rena and Oshi carry the dried meat of the Tulo band to the Kesh camp."
+    ]
+   ]
+  },
+  {
+   "id": "p09i",
+   "type": "omit",
+   "caught": true,
+   "new_flags": [
+    [
+     "OMITTED",
+     "They killed Gudo with clubs."
+    ]
+   ]
+  },
+  {
+   "id": "p09j",
+   "type": "hedge",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "probably"
+    ],
+    [
+     "HEDGED",
+     "probably"
+    ]
+   ]
+  },
+  {
+   "id": "p09k",
+   "type": "image",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "cold"
+    ],
+    [
+     "WORD",
+     "mist"
+    ]
+   ]
+  },
+  {
+   "id": "p10a",
+   "type": "name",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "sister"
+    ],
+    [
+     "NAME",
+     "Pela"
+    ]
+   ]
+  },
+  {
+   "id": "p10b",
+   "type": "number",
+   "caught": true,
+   "new_flags": [
+    [
+     "NUMBER",
+     "20"
+    ]
+   ]
+  },
+  {
+   "id": "p10c",
+   "type": "place",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "falls"
+    ]
+   ]
+  },
+  {
+   "id": "p10d",
+   "type": "object",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "bone"
+    ],
+    [
+     "WORD",
+     "knife"
+    ]
+   ]
+  },
+  {
+   "id": "p10e",
+   "type": "cause",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "because"
+    ],
+    [
+     "WORD",
+     "hunting"
+    ],
+    [
+     "WORD",
+     "failed"
+    ]
+   ]
+  },
+  {
+   "id": "p10f",
+   "type": "motive",
+   "caught": true,
+   "new_flags": [
+    [
+     "MOTIVE",
+     "wary"
+    ]
+   ]
+  },
+  {
+   "id": "p10g",
+   "type": "image",
+   "caught": true,
+   "new_flags": [
+    [
+     "WORD",
+     "shone"
+    ],
+    [
+     "WORD",
+     "sun"
+    ]
+   ]
+  },
+  {
+   "id": "p10h",
+   "type": "modern",
+   "caught": true,
+   "new_flags": [
+    [
+     "MODERN",
+     "ochre"
+    ]
+   ]
+  },
+  {
+   "id": "p10i",
+   "type": "role",
+   "caught": false,
+   "new_flags": []
+  }
+ ],
+ "summary": {
+  "faithful_passed": "10/10",
+  "planted_caught": "89/95 (94%)",
+  "dark_caught": "10/11",
+  "by_type": {
+   "belief": "6/6",
+   "cause": "10/10",
+   "contradiction": "0/3",
+   "hedge": "3/3",
+   "hidden": "1/1",
+   "image": "8/8",
+   "modern": "3/3",
+   "motive": "10/10",
+   "name": "10/10",
+   "number": "9/10",
+   "object": "10/10",
+   "omit": "2/3",
+   "place": "10/10",
+   "role": "2/3",
+   "soften": "5/5"
+  },
+  "missed": [
+   "p02h",
+   "p03b",
+   "p05i",
+   "p06i",
+   "p07i",
+   "p10i"
+  ]
+ }
+}

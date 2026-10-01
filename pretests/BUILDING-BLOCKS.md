@@ -22,7 +22,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 ## Status
 
 - **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app.
-- **Waiting for your phone:** `B01` and `B02` (done in the cloud) and `B79`, all measured by the first test app.
+- **Measured on your phone:** `B01`, `B02` and `B79` (first test app); the memory test is still to run.
 - **Running:** `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B73` writer AI, `B74` sound, `B76` speech.
 
 ## The blocks
@@ -30,19 +30,20 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B01` **Numbers and languages** · running (`pretests/b01-b02-numbers-random/`)
   - **Question:** which language (Rust, C++, or managed code as Android runs it) and which number formats (decimals of 32 or 64 bits, or whole-number fixed point) give the most simulation per watt on each kind of phone core, and which results repeat exactly (`TIM-06`).
   - **Approaches:** the same small kernels (heat flow on a wrapping grid, random walks, large sums, learning updates) in each language and format, timed in the cloud and on the phone, on one core of each kind and on all of them.
-  - **Result so far** (1 October 2026, cloud only; the phone's numbers are final):
+  - **Result** (1 October 2026; cloud, then the phone):
     - **Language: Rust.** Rust and C++ ran equally fast. Rust gave bit-identical results on this cloud machine and on the phone's kind of chip (run under emulation), decimals included; C++ differed there unless one compiler setting is switched off. Java ran at a quarter to a third of native speed: fine for the app's screens, not for the simulation.
     - **Numbers: 32-bit decimals** were fastest for every kind of work. Fixed point may catch up on the phone's chip, so the phone decides.
     - **Repeatable:** every kernel gave identical results across runs and across thread counts (`TIM-06`). With Rust, the cloud even reproduces the phone's results exactly, which isn't required (`PLT-05`) but helps comparisons.
-    - **Phone:** the same library is in the first test app.
+    - **On the phone:** Rust was 16% faster than C++ on the middle cores and 47% on the fastest core, and even on the others; Java ran at a fifth of Rust's speed. 32-bit decimals stay: fixed point was close but never clearly faster. Every result repeated exactly, and all 45 that had a cloud prediction matched it bit for bit, so the cloud can reproduce the phone's results.
+    - **Kinds of core:** 2 small, 4 middle and 1 fastest. The fastest is 1.7 times a middle core but uses about twice the energy per step; the middle cores do the most work per joule.
 
 - `B02` **Random draws** · running (`pretests/b01-b02-numbers-random/`)
   - **Question:** which generator makes each draw from a key (world, system, being, moment, purpose), as local chance requires (`TIM-06`).
   - **Approaches:** six keyed generators, compared on statistical quality, including between neighbouring keys, and on speed in the cloud and on the phone.
-  - **Result so far** (1 October 2026, cloud only):
+  - **Result** (1 October 2026; cloud, then the phone):
     - **Generator: a guarded hash of the wyhash family.** All six passed the quality tests on single streams and on neighbouring keys. The fastest, plain wyhash-style (1.1 billion draws a second on one core), gives every being the same draw at one rare moment per stream, so the guarded version is used: about a fifth slower, and still faster than the others.
     - **Fortune retries** get their own independent draw by flipping one bit of the key, with no detectable link to the first draw (`GOD-04`).
-    - **Phone:** the first test app measures its speed on each kind of core.
+    - **On the phone:** 1.0 billion draws a second on the fastest core and 3.3 billion on all cores, second only to the unguarded version.
 
 - `B04` **Storing data** · running (`pretests/b04-b11-storage-terrain/`)
   - **Question:** how to hold the world in memory and on the phone's storage (`PRN-15`, `PLT-07`, `PLT-10`).
@@ -101,6 +102,10 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 
 - `B79` **What the phone sustains** · running (`pretests/b78-b79-phone/`)
   - **Question:** the sustained speed of each kind of core before the phone heats up; frame pacing at full refresh; how much memory the app can really use, about 10 GiB (`PLT-01`); and battery per hour, against 25–30% (`VIS-14`).
+  - **Result** (1 October 2026, from the first test app; `pretests/b78-b79-phone/`):
+    - **Sustained speed:** under full load on all 7 cores, speed fell within 2 minutes to about 43% of a short burst, then held steady for the rest of the 10 minutes. The phone stayed cool (battery 37.6 °C, thermal status "light") at about 3 W, using 14.6% of the battery an hour, inside the 25–30% budget with room for drawing. Plan the simulation on the held speed, not the burst.
+    - **Smoothness:** a simple scene kept 120 Hz with 0.2% missed frames. The mockup's WebGL drawing took about 2 ms of the 8.3 ms each frame allows, with 1.4% missed frames.
+    - **Memory:** not measured yet; the memory test is a separate button.
 
 - `B80` **Cloud runner** · done (`pretests/b80-cloud-runner/`)
   - **Question:** how much computing the cloud sessions give, and a runner that survives interruptions without changing results (`PLT-05`, `SCP-15`).

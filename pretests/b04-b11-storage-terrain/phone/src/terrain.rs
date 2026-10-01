@@ -448,9 +448,18 @@ fn layer_at(seed: u64, z: f32) -> (u8, bool) {
 pub struct Site {
     pub seed: u64,
     pub corners: [f32; 4],
+    line: Vec<f32>, // where the cliff edge runs, per metre column (y of the edge)
 }
 
 impl Site {
+    pub fn new(seed: u64, corners: [f32; 4]) -> Site {
+        let line = (0..1025).map(|x| 512.0 + fbm(seed ^ 42, x as f32 + 0.5, 0.0, 1024, 1024, 256, 4, false) * 150.0).collect();
+        Site { seed, corners, line }
+    }
+    #[inline]
+    fn line_at(&self, x: f32) -> f32 {
+        self.line[(x.max(0.0) as usize).min(1024)]
+    }
     /// Ground height ignoring overhangs and caves (the top surface).
     #[inline]
     pub fn surface(&self, x: f32, y: f32) -> f32 {
@@ -463,8 +472,7 @@ impl Site {
     /// 0 below the escarpment, 1 above; the edge wanders along a noisy line through the cell.
     #[inline]
     pub fn cliff_step(&self, x: f32, y: f32) -> f32 {
-        let line = 512.0 + fbm(self.seed ^ 42, x, 0.0, 1024, 1024, 256, 4, false) * 150.0;
-        let d = (y - line) / 2.0;
+        let d = (y - self.line_at(x)) / 2.0;
         if d <= -1.0 {
             0.0
         } else if d >= 1.0 {
@@ -476,7 +484,7 @@ impl Site {
     /// Distance (m) from (x, y) to the cliff edge, positive on the high side.
     #[inline]
     fn edge_dist(&self, x: f32, y: f32) -> f32 {
-        y - (512.0 + fbm(self.seed ^ 42, x, 0.0, 1024, 1024, 256, 4, false) * 150.0)
+        y - self.line_at(x)
     }
     /// Full 3D solid test: surface, minus soft layers cut back under the cliff edge, minus caves.
     #[inline]
@@ -544,7 +552,7 @@ impl HeightPieces {
         self.height.len() * 2 + self.layer.len() + self.pieces.iter().map(|p| 8 + p.1.len()).sum::<usize>()
     }
     pub fn hash(&self) -> u64 {
-        let mut h = crate::data::hash(crate::data::as_bytes(&[0u8; 0])) ^ self.base_dm.to_bits() as u64;
+        let mut h = 0x4E1_u64 ^ self.base_dm.to_bits() as u64;
         let hb: Vec<u8> = self.height.iter().flat_map(|v| v.to_le_bytes()).collect();
         h = mix(h ^ crate::data::hash(&hb));
         h = mix(h ^ crate::data::hash(&self.layer));

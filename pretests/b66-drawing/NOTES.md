@@ -16,7 +16,7 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 
 **Crawl (part 2).** Each one is a switch in the page ("Pixel fix"):
 - **Base:** the mockup as it is.
-- **Steps:** the turn snaps to steps that move the left and right edges of the view by one art pixel; the zoom snaps to steps that move the top and bottom edges by one art pixel.
+- **Steps:** the turn snaps to steps in which a point half a view-width from the turning axis moves one art pixel; the zoom snaps to steps that move the far edges of the view by one art pixel.
 - **Fade:** bigger fixed steps (about 1.5° of turn, 4% of zoom), with a brief dithered crossfade between the old and new picture.
 - **Majority:** the scene is drawn at twice the resolution (4 samples per art pixel), and each art pixel takes the palette colour most of its samples agree on. A variant, **Sticky**, keeps last frame's colour while at least half the samples still agree with it.
 
@@ -41,7 +41,10 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 
 ## Method
 
-(to fill in)
+- **The page.** `drawing-test.html` is the mockup plus a Benchmark button, the Pixel fix switch and a full-screen "Try the gestures" mode. With Base chosen, it draws exactly as the mockup does.
+- **Benchmark** (about 60 s, full screen, every frame drawn): 2.5 s to measure the refresh rate with almost nothing drawn; each zoom stop (Person, Camp, Valley, Region, Planet) for 7 s while turning slowly; a full turn in 8 s; a zoom out to the planet and back in 8 s; then 6 s of the Sticky fix, to price it (not part of the verdict). The first second of each phase is warm-up. Frame times come from requestAnimationFrame. The code also carries the script time per frame and, if the browser allows it, the graphics chip's time per frame.
+- **Crawl count** (headless Chromium, WebGL on the CPU): the phone's screen in portrait (1344 × 2992 device pixels, 5 per art pixel, so 269 × 599 art pixels), scene animation frozen so only the camera moves, 60 frames at a 60 Hz step per motion: a slow turn (0.11° a frame), a slow zoom (0.3% a frame), and a slow pan as a control (under 0.2 art pixels a frame; snapping should leave nothing). Each art pixel is compared with the one at the same place on screen in the next frame; the surface it shows is re-projected from the depth buffer to see how far it moved.
+- **Gestures:** a headless smoke test drives each one with synthetic touches. That checks the wiring only; the feel is yours to judge.
 
 ## Results
 
@@ -53,12 +56,32 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 
 ## Caveats
 
-(to fill in)
+- Speed here means nothing: the cloud draws on the CPU. Part 1 waits for your code.
+- The benchmark runs in the browser, perhaps inside the claude.ai frame. The code says whether it ran full screen (`fs=1`) and in a frame (`if=1`), and the drawing size (`art=`). The app's own WebView (`B78`) should behave about the same; a native app avoids the browser's compositing step.
+- 60 seconds says nothing about heat or battery (`VIS-14`); `B79` measures those.
+- The crawl count rewards big jumps: when a turn or zoom moves most pixels by more than one art pixel at once, those changes don't count. Steps and Fade work exactly that way, so their low counts must pass your eye, especially against "turns ease to rest" (`PRE-22`).
+- One scene (the camp at dusk), one turn speed and one zoom speed; people, fire and smoke were frozen in the count.
+- In Fade, a fast turn makes steps faster than the 80 ms crossfade, so the picture mixes the last two steps.
+- Android owns a thin strip at the very bottom of the screen (its home gesture). "Swipe up from the bottom edge" has to start a finger's width above it, in the browser and in an app alike.
 
 ## For the owner
 
-(to fill in)
+1. Open the page on the phone, in Chrome if you can. Wait until it says "Ready".
+2. **Benchmark:** tap Benchmark, put the phone down and don't touch it for about a minute (a touch stops it). Then tap "Copy code" and paste the code back to me. If copying is blocked, press and hold the code, Select all, Copy.
+3. **Pixel fix:** at the Camp zoom, pick Base, then Steps, Fade, Majority and Sticky. With each, turn slowly (drag sideways on the picture) and zoom slowly (the slider). Tell me which one looks steadiest, and whether any of them feels jerky.
+4. **Gestures:** tap "Try the gestures". The world fills the screen. Try each, and mark it fine, awkward or broken:
+   - drag with one finger to move; twist two fingers to turn (let go mid-twist: it should ease to rest);
+   - pinch to zoom; or tap twice and keep the thumb down on the second tap, then drag down to zoom in and up to zoom out;
+   - tap something: a yellow square marks it, and a line says what it is;
+   - press and hold: a small menu opens; choose "Draw an area", then draw a loop with one finger;
+   - swipe up from just above the bottom edge: a Views panel opens;
+   - any brief touch: the date, the speed of time and the time control show for a few seconds.
+   Try it upright and sideways. To leave, use the back gesture or "Leave the test" in the Views panel.
 
 ## How to re-run
 
-(to fill in)
+From `pretests/b66-drawing`, each under the shared CPU lock:
+- `node tools/crawl.mjs --motion turn`, then `--motion zoom`, then `--motion pan` (about 5 minutes each). Results go to `results/`.
+- `node tools/smoke.mjs` (about 2 minutes): a shortened benchmark and every gesture, headless.
+
+Both need Playwright for Node and its Chromium; set `PLAYWRIGHT_PATH` and `CHROMIUM_PATH` if they aren't at the paths at the top of each tool.

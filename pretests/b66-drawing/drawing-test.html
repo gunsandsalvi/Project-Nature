@@ -1,4 +1,4 @@
-<title>Kindling Visual Style</title>
+<title>Kindling Drawing Test</title>
 <style>
 :root {
   --bg: #e2dfd8;
@@ -13,6 +13,9 @@
   --plate-ink: #e8e2d4;
   --on: #8f2f1f;
   --on-ink: #f6f1e7;
+  --mark: #f2c14e;
+  --pass: #2f6b3a;
+  --fail: #8f2f1f;
   --font-display: "Pixelify Sans", ui-monospace, "Cascadia Mono", "Courier New", monospace;
   --font-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -20,14 +23,14 @@
   :root:not([data-theme="light"]) {
     --bg: #15130f; --bg-2: #211e19; --ink: #ece6d9; --ink-2: #c3baab; --ink-3: #998f80;
     --red: #e8836a; --ochre: #e0ab4c; --rule: #3c362e; --plate: #0b0a10; --plate-ink: #e8e2d4;
-    --on: #e8836a; --on-ink: #15130f;
+    --on: #e8836a; --on-ink: #15130f; --mark: #f2c14e; --pass: #7fc48a; --fail: #e8836a;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #15130f; --bg-2: #211e19; --ink: #ece6d9; --ink-2: #c3baab; --ink-3: #998f80;
   --red: #e8836a; --ochre: #e0ab4c; --rule: #3c362e; --plate: #0b0a10; --plate-ink: #e8e2d4;
-  --on: #e8836a; --on-ink: #15130f;
+  --on: #e8836a; --on-ink: #15130f; --mark: #f2c14e; --pass: #7fc48a; --fail: #e8836a;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -96,19 +99,83 @@ h2 { font-size: clamp(1.4rem, 5vw, 1.9rem); line-height: 1.15; }
 .switch[aria-checked="true"] .knob::after { left: 18px; background: var(--on-ink); }
 .spec { font-size: 0.9rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .row .switch + .hint { flex: 1 1 220px; align-self: center; }
+
+/* ---- B66: benchmark, pixel fix and the gesture test (PRE-22, PRE-33, VIS-14) ---- */
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn.primary:hover { background: var(--ink-2); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.seg.wrap { flex-wrap: wrap; }
+.panelblock { display: grid; gap: 12px; border-top: 1px solid var(--rule); padding-top: 24px; }
+.status { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.code { width: 100%; min-height: 7.5em; font: 0.85rem/1.4 ui-monospace, "Cascadia Mono", "Courier New", monospace; color: var(--ink); background: var(--bg-2); border: 1px solid var(--rule); padding: 8px; resize: vertical; word-break: break-all; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.tbl th, .tbl td { text-align: right; padding: 4px 6px; border-bottom: 1px solid var(--rule); }
+.tbl th:first-child, .tbl td:first-child { text-align: left; }
+.tbl .ok { color: var(--pass); } .tbl .bad { color: var(--fail); }
+.tblwrap { overflow-x: auto; }
+body.playing { overflow: hidden; }
+.view.play { position: fixed; inset: 0; z-index: 50; width: 100vw; height: 100vh; height: 100dvh; max-height: none; aspect-ratio: auto; }
+.view.play canvas { touch-action: none; cursor: default; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.ov { position: absolute; z-index: 3; color: var(--plate-ink); font-family: var(--font-body); background: color-mix(in srgb, var(--plate) 88%, transparent); border: 1px solid color-mix(in srgb, var(--plate-ink) 30%, transparent); }
+.ov[hidden] { display: none; }
+.ov button { font-family: var(--font-display); font-size: 0.95rem; min-height: 44px; min-width: 44px; padding: 0 10px; background: transparent; color: var(--plate-ink); border: 1px solid color-mix(in srgb, var(--plate-ink) 35%, transparent); cursor: pointer; }
+.ov button[aria-pressed="true"] { background: var(--plate-ink); color: var(--plate); }
+.hud { top: max(10px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 20px); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 8px; align-items: center; padding: 8px 10px; font-family: var(--font-display); }
+.hud .txt { width: 100%; text-align: center; font-variant-numeric: tabular-nums; }
+.menu { display: grid; min-width: 200px; }
+.menu button { border: 0; border-bottom: 1px solid color-mix(in srgb, var(--plate-ink) 20%, transparent); text-align: left; }
+.sheet { left: 0; right: 0; bottom: 0; border-width: 1px 0 0; padding: 14px 16px calc(18px + env(safe-area-inset-bottom)); display: grid; gap: 10px; }
+.sheet .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sheet .ttl { font-family: var(--font-display); }
+.mark { width: 30px; height: 30px; margin: -15px 0 0 -15px; background: transparent; border: 3px solid var(--mark); pointer-events: none; }
+.toast { left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); padding: 8px 12px; font-size: 0.95rem; text-align: center; pointer-events: none; }
+.blabel { top: max(10px, env(safe-area-inset-top)); left: 10px; padding: 4px 8px; font-family: var(--font-display); font-size: 0.9rem; font-variant-numeric: tabular-nums; pointer-events: none; }
+.lasso { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
+.lasso[hidden] { display: none; }
+.lasso polyline { stroke: var(--mark); }
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400..700&family=Pixelify+Sans:wght@400..700&display=swap">
 <div class="page">
   <header class="masthead">
-    <p class="eyebrow">Kindling · Visual style</p>
-    <h1>Pixel-rendered 3D</h1>
-    <p class="lede">A real 3D world drawn at low resolution and enlarged with hard pixel edges. It reads like hand-made pixel art, with true depth, scale and structure.</p>
+    <p class="eyebrow">Kindling · Pre-test B66</p>
+    <h1>Drawing and gestures</h1>
+    <p class="lede">Three checks on the phone: how fast the browser draws the look, which fix stops pixels crawling, and how the gestures feel.</p>
   </header>
 
   <section class="hero" aria-labelledby="h-view">
     <h2 id="h-view" class="sr-only">Live view</h2>
     <div class="view" id="view">
       <canvas id="cv" tabindex="0" role="img" aria-label="Live pixel-art view of a stone-age camp below a limestone cliff at dusk. Drag sideways or use the left and right arrow keys to turn. Use the zoom slider, a pinch, or the up and down arrow keys to zoom from one person out to the whole planet."></canvas>
+      <svg class="lasso" id="lasso" hidden aria-hidden="true"><polyline id="lasso-line" fill="none" stroke-width="3" stroke-linejoin="round" stroke-dasharray="7 5" points=""/></svg>
+      <div class="ov mark" id="mark" hidden></div>
+      <div class="ov hud" id="hud" hidden role="group" aria-label="Time">
+        <span class="txt"><span id="hud-date">Day 12 of autumn, year 3</span> · <span id="hud-speed">a day in 4 minutes</span></span>
+        <button type="button" id="hud-pause" aria-pressed="false">Pause</button>
+        <button type="button" id="hud-slow" aria-label="Slower">−</button>
+        <button type="button" id="hud-fast" aria-label="Faster">+</button>
+        <button type="button" id="hud-lock" aria-pressed="false">Lock speed</button>
+      </div>
+      <div class="ov menu" id="menu" hidden role="menu" aria-label="Your powers here">
+        <button type="button" role="menuitem" data-power="draw">Draw an area</button>
+        <button type="button" role="menuitem" data-power="event">Small event here</button>
+        <button type="button" role="menuitem" data-power="dream">Send a dream</button>
+        <button type="button" role="menuitem" data-power="close">Close</button>
+      </div>
+      <div class="ov sheet" id="sheet" hidden>
+        <p class="ttl">Views (stub)</p>
+        <div class="grid">
+          <button type="button" data-viewstub="Chronicle">Chronicle</button>
+          <button type="button" data-viewstub="Story view">Story</button>
+          <button type="button" data-viewstub="Map">Map</button>
+          <button type="button" data-viewstub="Family trees">Family trees</button>
+        </div>
+        <div class="grid">
+          <button type="button" id="sheet-close">Close</button>
+          <button type="button" id="play-exit">Leave the test</button>
+        </div>
+      </div>
+      <div class="ov toast" id="toast" hidden role="status" aria-live="polite"></div>
+      <div class="ov blabel" id="blabel" hidden></div>
       <div class="nogl" id="nogl" hidden>
         <p class="nogl-title">The live view needs WebGL.</p>
         <p>Your browser or device has it turned off or does not support it. Try a recent version of Chrome, Safari, Firefox or Edge, and check that hardware acceleration is on.</p>
@@ -150,8 +217,37 @@ h2 { font-size: clamp(1.4rem, 5vw, 1.9rem); line-height: 1.15; }
         <button type="button" role="switch" class="switch" id="t-cut" aria-checked="false" aria-describedby="d-cut"><span class="knob" aria-hidden="true"></span>Cut-away</button>
         <p class="hint" id="d-cut">Slice the ground open beside the camp: rock beds, soils, groundwater and an old hearth with its tools and bones.</p>
       </div>
-      <p class="hint" id="zoom-hint">Drag sideways to turn. Pinch or use the slider to zoom. The mouse wheel zooms after you click the view.</p>
+      <div class="row">
+        <div class="seg wrap" role="group" aria-label="Pixel fix">
+          <button type="button" data-fix="base" aria-pressed="true">Base</button>
+          <button type="button" data-fix="steps" aria-pressed="false">Steps</button>
+          <button type="button" data-fix="fade" aria-pressed="false">Fade</button>
+          <button type="button" data-fix="majority" aria-pressed="false">Majority</button>
+          <button type="button" data-fix="sticky" aria-pressed="false">Sticky</button>
+        </div>
+      </div>
+      <p class="hint" id="fix-hint">Pixel fix: turn and zoom slowly with each one and watch whether pixels crawl.</p>
+      <div class="row">
+        <button type="button" class="btn primary" id="play">Try the gestures</button>
+      </div>
+      <p class="hint" id="zoom-hint">Drag sideways to turn. Pinch or use the slider to zoom. The mouse wheel zooms after you click the view. "Try the gestures" fills the screen with the game's own gestures.</p>
     </div>
+  </section>
+
+  <section class="panelblock" aria-labelledby="h-bench">
+    <h2 id="h-bench">Benchmark</h2>
+    <p>Fills the screen and moves the camera through every zoom for about a minute. Hold the phone still and don't touch it; a touch stops the run. Then copy the code and paste it back.</p>
+    <div class="row">
+      <button type="button" class="btn primary" id="bench-run" disabled>Benchmark</button>
+      <button type="button" class="btn" id="bench-copy" disabled>Copy code</button>
+    </div>
+    <p class="status" id="bench-status" role="status">Preparing the scene…</p>
+    <label class="label" for="bench-code">Result code</label>
+    <textarea class="code" id="bench-code" readonly rows="5" placeholder="The code appears here after the run."></textarea>
+    <div class="tblwrap"><table class="tbl" id="bench-table" hidden>
+      <thead><tr><th scope="col">Phase</th><th scope="col">Rate</th><th scope="col">Median</th><th scope="col">95%</th><th scope="col">Worst</th><th scope="col">Late</th><th scope="col"></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
   </section>
 
   <section class="look" aria-labelledby="h-look">
@@ -4157,7 +4253,8 @@ const Renderer = (() => {
   }
 
   let visible = true, raf = 0, dirty = true, lastAnim = 0, drag = false;
-  const anim = { yawTo: null, yawVel: 0, zoomTo: null };
+  const anim = { yawTo: null, yawVel: 0, zoomTo: null, panV: [0, 0] };
+  const B66 = { playing: false, bench: null, clampPan: () => {}, frame: () => {} }; // filled in below
 
   /* One art pixel is about 4 device pixels on a phone, in portrait and landscape alike. */
   const phone = Math.min(screen.width, screen.height) < 600;
@@ -4192,8 +4289,16 @@ const Renderer = (() => {
   /* ---- loop: smooth while moving, sprite-rate (12 fps) while idle, nothing while offscreen ---- */
   function step(ts) {
     raf = 0;
+    if (B66.bench && B66.bench(ts)) { raf = requestAnimationFrame(step); return; } // B66 benchmark drives every frame
     if (!visible || document.hidden) return;
     let moving = false;
+    if (anim.panV[0] !== 0 || anim.panV[1] !== 0) {
+      // B66 (PRE-33): a flung drag eases to rest
+      S.pan[0] += anim.panV[0]; S.pan[1] += anim.panV[1]; B66.clampPan();
+      anim.panV[0] *= 0.9; anim.panV[1] *= 0.9;
+      if (Math.hypot(anim.panV[0], anim.panV[1]) < 0.02 * R.zoomToTexel(S.zoom)) anim.panV = [0, 0];
+      moving = true; dirty = true;
+    }
     if (anim.yawVel !== 0) {
       S.yaw += anim.yawVel; anim.yawVel *= 0.88;
       if (Math.abs(anim.yawVel) < 0.0004) anim.yawVel = 0;
@@ -4219,7 +4324,7 @@ const Renderer = (() => {
     if (dirty || tick || R.stats.animating) {
       R.render(reduced ? STILL_T : t);
       lastAnim = ts; dirty = false;
-      reportFrame();
+      reportFrame(); B66.frame();
     }
     if (moving || drag || !reduced || R.stats.animating) raf = requestAnimationFrame(step);
   }
@@ -4235,6 +4340,7 @@ const Renderer = (() => {
   const pts = new Map(); let pinch0 = 0, zoom0 = 0, lastMoveT = 0, vel = 0;
   const yawPerPx = () => 4.2 / Math.max(240, canvas.clientWidth);
   canvas.addEventListener('pointerdown', (e) => {
+    if (B66.playing) return;
     pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* not supported everywhere */ }
     anim.yawVel = 0; anim.yawTo = null; drag = true; vel = 0;
@@ -4242,6 +4348,7 @@ const Renderer = (() => {
     kick();
   });
   canvas.addEventListener('pointermove', (e) => {
+    if (B66.playing) return;
     const p = pts.get(e.pointerId); if (!p) return;
     const dx = e.clientX - p.x;
     p.x = e.clientX; p.y = e.clientY;
@@ -4362,6 +4469,452 @@ const Renderer = (() => {
   if (typeof Planet !== 'undefined') Planet.onReady = () => { dirty = true; kick(); };
   R.buildLater();
   kick();
+  /* ================= B66 pre-test: pixel fix (PRE-22), gesture test (PRE-33), benchmark (VIS-14), crawl count ================= */
+  const $ = (id) => document.getElementById(id);
+  const gl = R.X.gl;
+  const FIX_HINT = {
+    base: 'Base: the mockup as it is. Turn and zoom slowly and watch for crawling pixels.',
+    steps: 'Steps: turns and zooms move in steps of about one art pixel.',
+    fade: 'Fade: bigger turn and zoom steps, each with a quick dithered crossfade.',
+    majority: 'Majority: four samples per art pixel; the colour most of them agree on wins.',
+    sticky: 'Sticky: like Majority, but a pixel keeps its colour while half its samples still agree.',
+  };
+  function setFix(f) {
+    S.fix = f; R.resetFix();
+    document.querySelectorAll('[data-fix]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.fix === f)));
+    const h = $('fix-hint'); if (h) h.textContent = FIX_HINT[f] || '';
+    dirty = true; kick();
+  }
+  document.querySelectorAll('[data-fix]').forEach((b) => b.addEventListener('click', () => setFix(b.dataset.fix)));
+
+  /* ---- camera and picking helpers ---- */
+  const dprNow = () => (canvas.clientWidth ? canvas.width / canvas.clientWidth : (window.devicePixelRatio || 1));
+  function clampPan() { const L = 400; S.pan[0] = clamp(S.pan[0], -L, L); S.pan[1] = clamp(S.pan[1], -L, L); }
+  B66.clampPan = clampPan;
+  /* PRE-33 "drag to move": the ground under the finger follows it. dx, dy in CSS pixels, y down. */
+  function panBy(dx, dy) {
+    const c = R.cam || R.computeCamera(), k = dprNow() / R.size.s; // art pixels per CSS pixel
+    const ax = dx * k, ay = -dy * k, tx = c.texel, sp = Math.max(0.2, Math.sin(c.pitch)), y = c.yaw;
+    const rx = Math.cos(y), ry = -Math.sin(y), fx = -Math.sin(y), fy = -Math.cos(y); // screen right and screen up on the ground (map x, y)
+    const mx = -(rx * ax + fx * ay / sp) * tx, my = -(ry * ax + fy * ay / sp) * tx;
+    S.pan[0] += mx; S.pan[1] += my; clampPan(); dirty = true; kick();
+    return [mx, my];
+  }
+  /* GL position of the surface drawn at art pixel (x, y) with depth d in 0..1 (the scene pass packs it). */
+  function worldAt(c, x, y, d) {
+    const u = c.left + (x + 0.5) * c.texel, v = c.bottom + (y + 0.5) * c.texel, w = c.near + d * (c.far - c.near);
+    return [c.R[0] * u + c.U[0] * v + c.F[0] * w, c.R[1] * u + c.U[1] * v + c.F[1] * w, c.R[2] * u + c.U[2] * v + c.F[2] * w];
+  }
+  function readPx(T, x, y) { const a = new Uint8Array(4); R.X.bind(T); gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, a); R.X.bind(null); return a; }
+  const CAT = { 2: 'Cliff rim', 3: 'Water', 4: 'Tree or shrub', 5: 'Person or animal', 6: 'Rock or camp thing', 7: 'Far land' };
+
+  /* ---- stubs: time control, powers menu, views sheet, toast, selection ---- */
+  let toastTimer = 0;
+  function toast(msg, ms) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, ms || 2600); }
+  const TC = { paused: false, locked: false, manual: 1 };
+  const SPEEDS = ['natural speed', 'a day in 4 minutes', 'a season a minute', '5 years a minute', '3 centuries a minute'];
+  const zoomSpeed = () => (S.zoom < 0.08 ? 0 : S.zoom < 0.3 ? 1 : S.zoom < 0.56 ? 2 : S.zoom < 0.85 ? 3 : 4); // TIM-01: time follows zoom
+  let hudTimer = 0;
+  function showHud() {
+    $('hud-speed').textContent = TC.paused ? 'paused' : SPEEDS[TC.locked ? TC.manual : zoomSpeed()] + (TC.locked ? ', locked' : '');
+    $('hud').hidden = false; clearTimeout(hudTimer); hudTimer = setTimeout(() => { $('hud').hidden = true; }, 3500);
+  }
+  function lockSpeed(on) { TC.locked = on; if (on) TC.manual = zoomSpeed(); $('hud-lock').setAttribute('aria-pressed', String(on)); }
+  $('hud-pause').addEventListener('click', () => { TC.paused = !TC.paused; $('hud-pause').setAttribute('aria-pressed', String(TC.paused)); $('hud-pause').textContent = TC.paused ? 'Play' : 'Pause'; showHud(); });
+  $('hud-lock').addEventListener('click', () => { lockSpeed(!TC.locked); showHud(); });
+  $('hud-slow').addEventListener('click', () => { if (!TC.locked) lockSpeed(true); TC.manual = Math.max(0, TC.manual - 1); showHud(); });
+  $('hud-fast').addEventListener('click', () => { if (!TC.locked) lockSpeed(true); TC.manual = Math.min(SPEEDS.length - 1, TC.manual + 1); showHud(); });
+  function openMenu(x, y) {
+    const m = $('menu'); m.hidden = false;
+    const w = m.offsetWidth, h = m.offsetHeight;
+    m.style.left = clamp(x - w / 2, 8, view.clientWidth - w - 8) + 'px'; m.style.top = clamp(y - h - 24, 8, view.clientHeight - h - 8) + 'px';
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) { /* no vibration */ }
+  }
+  document.querySelectorAll('[data-power]').forEach((b) => b.addEventListener('click', () => {
+    $('menu').hidden = true;
+    const k = b.dataset.power;
+    if (k === 'draw') { G.lassoArmed = true; toast('Draw around the area with one finger.', 3500); }
+    else if (k === 'event') toast('A small event here (stub).');
+    else if (k === 'dream') toast('Dreams open here (stub).');
+  }));
+  $('sheet-close').addEventListener('click', () => { $('sheet').hidden = true; });
+  document.querySelectorAll('[data-viewstub]').forEach((b) => b.addEventListener('click', () => { $('sheet').hidden = true; toast(b.dataset.viewstub + ' (stub)'); }));
+  let sel = null; // GL point of the selected thing
+  function select(clientX, clientY) {
+    const L = R.last, c = L.cam; if (!c || !L.img) return;
+    const r = canvas.getBoundingClientRect(), d = dprNow();
+    const ax = Math.floor(c.off[0] + (clientX - r.left) * d / R.size.s), ay = Math.floor(c.off[1] + (canvas.height - (clientY - r.top) * d) / R.size.s);
+    if (ax < 0 || ay < 0 || ax >= R.size.Wf || ay >= R.size.Hf) return;
+    const px = readPx(L.img, ax, ay), d16 = px[2] * 256 + px[3];
+    if (d16 >= 65535) { sel = null; placeMark(); toast('Nothing there.'); return; }
+    sel = worldAt(c, ax, ay, d16 / 65535);
+    placeMark();
+    toast((CAT[px[1] % 8] || 'Ground') + ' selected. Its card would open here (stub).');
+  }
+  function placeMark() {
+    const m = $('mark'), c = R.last.cam;
+    if (!sel || !B66.playing || !c) { m.hidden = true; return; }
+    const q = c.proj(sel), d = dprNow();
+    m.style.left = ((q[0] - c.off[0]) * R.size.s / d) + 'px'; m.style.top = ((canvas.height - (q[1] - c.off[1]) * R.size.s) / d) + 'px';
+    m.hidden = false;
+  }
+  B66.frame = placeMark;
+  // the lasso is SVG, which has no hidden property: toggle the attribute
+  const lassoShow = (on) => $('lasso').toggleAttribute('hidden', !on);
+  function drawLasso() { lassoShow(true); $('lasso-line').setAttribute('points', G.lasso.map((p) => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')); }
+  function finishLasso() {
+    if (G.lasso.length > 2) { G.lasso.push(G.lasso[0]); drawLasso(); }
+    toast(G.lasso.length > 6 ? 'Area drawn (stub): its weather or season would change.' : 'Too small for an area.');
+    setTimeout(() => { if (G.mode !== 'lasso') lassoShow(false); }, 2200);
+  }
+
+  /* ---- the gesture test fills the screen (PRE-32 world first) ---- */
+  let pushed = false;
+  function enterPlay(opts) {
+    if (B66.playing) return;
+    const bench = !!(opts && opts.bench);
+    B66.playing = true; view.classList.add('play'); document.body.classList.add('playing');
+    if (!bench) {
+      try { history.pushState({ b66: 1 }, ''); pushed = true; } catch (e) { pushed = false; }
+      toast('Drag to move. Twist to turn. Pinch, or double-tap and drag, to zoom. Swipe up from the bottom for views.', 5000);
+    }
+    try { if (view.requestFullscreen) view.requestFullscreen({ navigationUI: 'hide' }).catch(() => {}); } catch (e) { /* not allowed here */ }
+    measure(); dirty = true; kick();
+  }
+  function exitPlay(fromPop) {
+    if (!B66.playing) return;
+    B66.playing = false; view.classList.remove('play'); document.body.classList.remove('playing');
+    ['hud', 'menu', 'sheet', 'toast', 'mark', 'blabel'].forEach((id) => { $(id).hidden = true; }); lassoShow(false);
+    G.pts.clear(); G.mode = null; G.lassoArmed = false; clearTimeout(G.lpTimer); anim.panV = [0, 0];
+    if (pushed && !fromPop) { pushed = false; try { history.back(); } catch (e) { /* ignore */ } } else pushed = false;
+    try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) { /* ignore */ }
+    measure(); dirty = true; kick();
+  }
+  window.addEventListener('popstate', () => { if (B66.playing && pushed) { pushed = false; exitPlay(true); } });
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && B66.playing && !BN.on) exitPlay(); });
+  $('play').addEventListener('click', () => enterPlay());
+  $('play-exit').addEventListener('click', () => exitPlay());
+  canvas.addEventListener('contextmenu', (e) => { if (B66.playing) e.preventDefault(); });
+
+  /* ---- PRE-33 gestures ---- */
+  const G = { pts: new Map(), mode: null, lpTimer: 0, lastTap: null, lassoArmed: false, lasso: [], two: null, vel: [0, 0], lastMoveT: 0, zoom0: 0 };
+  const SLOP = 10, LONG_MS = 480, EDGE = 0.12, DTAP_MS = 320, TWIST_START = 0.12;
+  const rel = (e) => { const r = view.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  function twoState() { const [a, b] = [...G.pts.values()]; return { d: Math.hypot(b.x - a.x, b.y - a.y), ang: Math.atan2(b.y - a.y, b.x - a.x), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 }; }
+  function panMove(dx, dy) {
+    const m = panBy(dx, dy), t = performance.now(), dt = Math.max(8, t - G.lastMoveT); G.lastMoveT = t;
+    G.vel = [lerp(G.vel[0], m[0] * 16 / dt, 0.5), lerp(G.vel[1], m[1] * 16 / dt, 0.5)];
+  }
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!B66.playing) return;
+    if (BN.on) { stopBench('Stopped by a touch. Run it again and leave the screen alone.'); return; }
+    e.preventDefault();
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* not supported everywhere */ }
+    const [x, y] = rel(e), t = performance.now();
+    showHud(); // PRE-33: a brief touch anywhere shows the date, the speed of time and the time control
+    $('menu').hidden = true;
+    G.pts.set(e.pointerId, { x, y, x0: x, y0: y });
+    if (!$('sheet').hidden) { $('sheet').hidden = true; G.mode = 'held'; return; }
+    anim.yawVel = 0; anim.yawTo = null; anim.zoomTo = null; anim.panV = [0, 0];
+    if (G.pts.size === 1) {
+      if (G.lassoArmed) { G.mode = 'lasso'; G.lasso = [[x, y]]; drawLasso(); return; }
+      if (y > view.clientHeight * (1 - EDGE)) { G.mode = 'edge?'; return; }
+      if (G.lastTap && t - G.lastTap.t < DTAP_MS && Math.hypot(x - G.lastTap.x, y - G.lastTap.y) < 40) { G.mode = 'dtz?'; G.zoom0 = S.zoom; G.lastTap = null; return; }
+      G.mode = 'pending';
+      clearTimeout(G.lpTimer);
+      G.lpTimer = setTimeout(() => { if (G.mode === 'pending') { G.mode = 'held'; openMenu(x, y); } }, LONG_MS);
+    } else if (G.pts.size === 2 && G.mode !== 'lasso' && G.mode !== 'held') {
+      clearTimeout(G.lpTimer);
+      const s2 = twoState();
+      G.mode = 'two'; G.two = { d0: s2.d, a0: s2.ang, z0: S.zoom, y0: S.yaw, mx: s2.mx, my: s2.my, rot: false, lastA: s2.ang, lastT: t, w: 0 };
+    }
+  }, { passive: false });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!B66.playing) return;
+    const p = G.pts.get(e.pointerId); if (!p) return;
+    const [x, y] = rel(e), dx = x - p.x, dy = y - p.y; p.x = x; p.y = y;
+    const moved = Math.hypot(x - p.x0, y - p.y0);
+    switch (G.mode) {
+      case 'pending': if (moved > SLOP) { clearTimeout(G.lpTimer); G.mode = 'pan'; panMove(x - p.x0, y - p.y0); } break;
+      case 'edge?': if (moved > 12) { const ux = x - p.x0, uy = y - p.y0; if (uy < 0 && -uy > 1.5 * Math.abs(ux)) G.mode = 'edge'; else { G.mode = 'pan'; panMove(ux, uy); } } break;
+      case 'edge': if (p.y0 - y > 56) { G.mode = 'held'; $('sheet').hidden = false; } break;
+      case 'pan': panMove(dx, dy); break;
+      case 'dtz?': if (moved <= SLOP) break; G.mode = 'dtz'; // falls through
+      case 'dtz': setZoom(clamp(G.zoom0 - (y - p.y0) / Math.max(300, view.clientHeight) * 0.9, 0, 1), true); showHud(); break; // drag down zooms in
+      case 'two': {
+        if (G.pts.size < 2) break;
+        const s2 = twoState(), T2 = G.two;
+        setZoom(clamp(T2.z0 - Math.log(s2.d / Math.max(1, T2.d0)) * 0.16, 0, 1), true); // pinch
+        let da = s2.ang - T2.a0; da = Math.atan2(Math.sin(da), Math.cos(da));
+        if (!T2.rot && Math.abs(da) > TWIST_START) { T2.rot = true; T2.a0 += Math.sign(da) * TWIST_START; da -= Math.sign(da) * TWIST_START; }
+        if (T2.rot) S.yaw = T2.y0 + da; // twist turns the world with the fingers
+        panBy(s2.mx - T2.mx, s2.my - T2.my); T2.mx = s2.mx; T2.my = s2.my;
+        const now2 = performance.now(), dtt = Math.max(8, now2 - T2.lastT);
+        let dA = s2.ang - T2.lastA; dA = Math.atan2(Math.sin(dA), Math.cos(dA));
+        T2.w = lerp(T2.w, T2.rot ? dA * 16 / dtt : 0, 0.5); T2.lastA = s2.ang; T2.lastT = now2;
+        dirty = true; kick(); showHud();
+        break;
+      }
+      case 'lasso': G.lasso.push([x, y]); drawLasso(); break;
+      default: break;
+    }
+  });
+  function lift2(e) {
+    if (!B66.playing) return;
+    const p = G.pts.get(e.pointerId); if (!p) return;
+    G.pts.delete(e.pointerId);
+    const t = performance.now();
+    if (G.mode === 'two') {
+      // turns ease to rest (PRE-22)
+      if (!reduced && Math.abs(G.two.w) > 0.003 && t - G.two.lastT < 90) anim.yawVel = clamp(G.two.w, -0.06, 0.06);
+      if (G.pts.size === 1) { const q = [...G.pts.values()][0]; q.x0 = q.x; q.y0 = q.y; G.mode = 'pan'; G.vel = [0, 0]; }
+      return;
+    }
+    if (G.pts.size > 0) return;
+    clearTimeout(G.lpTimer);
+    const mode = G.mode; G.mode = null;
+    if (e.type === 'pointercancel') return;
+    if (mode === 'pending' || mode === 'dtz?' || mode === 'edge?') {
+      select(e.clientX, e.clientY); // PRE-33: tap to select
+      G.lastTap = mode === 'dtz?' ? null : { t, x: p.x, y: p.y };
+    } else if (mode === 'pan') {
+      if (!reduced && t - G.lastMoveT < 90 && Math.hypot(G.vel[0], G.vel[1]) > 0.03 * R.zoomToTexel(S.zoom)) anim.panV = [G.vel[0], G.vel[1]];
+      G.vel = [0, 0];
+    } else if (mode === 'lasso') { G.lassoArmed = false; finishLasso(); }
+    kick();
+  }
+  canvas.addEventListener('pointerup', lift2); canvas.addEventListener('pointercancel', lift2);
+
+  /* ---- benchmark (VIS-14): a fixed 60-second sweep, every frame drawn, frame times from requestAnimationFrame ---- */
+  const BN = { on: false };
+  const PH = [
+    { k: 'H', name: 'Refresh rate', dur: 2.5, warm: 0.5, draw: false },
+    { k: 'P', name: 'Person', zoom: 0, dur: 7, warm: 1, spin: 0.25 },
+    { k: 'C', name: 'Camp', zoom: 0.16, dur: 7, warm: 1, spin: 0.25 },
+    { k: 'V', name: 'Valley', zoom: 0.4, dur: 7, warm: 1, spin: 0.25 },
+    { k: 'R', name: 'Region', zoom: 0.72, dur: 7, warm: 1, spin: 0.25 },
+    { k: 'G', name: 'Planet', zoom: 1, dur: 7, warm: 1, spin: 0.25 },
+    { k: 'T', name: 'Full turn', zoom: 0.16, dur: 8.5, warm: 0.5, turn: true },
+    { k: 'Z', name: 'Zoom sweep', zoom: 0, dur: 8.5, warm: 0.5, sweep: true, spin: 0.25 },
+    { k: 'M', name: 'Sticky fix', zoom: 0.16, dur: 6, warm: 1, spin: 0.25, fix: 'sticky', extra: true },
+  ];
+  const TQ = { ext: null, pend: [], active: null };
+  try { TQ.ext = R.X.v2 ? gl.getExtension('EXT_disjoint_timer_query_webgl2') : null; } catch (e) { TQ.ext = null; }
+  function gpuBegin() { if (!TQ.ext || TQ.active) return; const q = gl.createQuery(); gl.beginQuery(TQ.ext.TIME_ELAPSED_EXT, q); TQ.active = q; }
+  function gpuEnd(i, m) { if (!TQ.active) return; gl.endQuery(TQ.ext.TIME_ELAPSED_EXT); TQ.pend.push({ q: TQ.active, i, m }); TQ.active = null; }
+  function gpuPoll() {
+    if (!TQ.ext) return;
+    const disj = gl.getParameter(TQ.ext.GPU_DISJOINT_EXT);
+    while (TQ.pend.length) {
+      const p = TQ.pend[0];
+      if (!disj && !gl.getQueryParameter(p.q, gl.QUERY_RESULT_AVAILABLE)) break;
+      if (!disj && p.m && BN.recs && BN.recs[p.i]) BN.recs[p.i].gpu.push(gl.getQueryParameter(p.q, gl.QUERY_RESULT) / 1e6);
+      gl.deleteQuery(p.q); TQ.pend.shift();
+    }
+  }
+  B66.bench = (ts) => {
+    if (!BN.on) return false;
+    if (document.hidden) { stopBench('Stopped: the page went into the background.'); return false; }
+    if (BN.start === null) BN.start = ts;
+    let ph = PH[BN.i];
+    if (BN.t0 === null) { BN.t0 = ts; BN.lastTs = null; phaseStart(ph); }
+    let tp = (ts - BN.t0) / 1000;
+    if (tp >= ph.dur) {
+      BN.i++;
+      if (BN.i >= PH.length) { finishBench(); return false; }
+      ph = PH[BN.i]; BN.t0 = ts; BN.lastTs = null; tp = 0; phaseStart(ph);
+    }
+    const meas = tp >= ph.warm, rec = BN.recs[BN.i];
+    if (meas && BN.lastTs !== null && BN.lastMeas) rec.iv.push(ts - BN.lastTs);
+    BN.lastTs = ts; BN.lastMeas = meas;
+    gpuPoll();
+    if (ph.draw === false) {
+      // the cheapest possible frame, so the screen keeps refreshing while the rate is measured
+      R.X.bind(null); BN.flip = !BN.flip; gl.clearColor(BN.flip ? 0.0627 : 0.0667, 0.0549, 0.0902, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+    } else {
+      const u = clamp((tp - ph.warm) / (ph.dur - ph.warm), 0, 1);
+      S.yaw = ph.turn ? BN.yaw0 + 2 * Math.PI * u : BN.yaw0 + (ph.spin || 0) * tp;
+      if (ph.sweep) S.zoom = 0.5 - 0.5 * Math.cos(2 * Math.PI * u); // out to the planet and back
+      gpuBegin();
+      R.render(now(), ts / 1000);
+      gpuEnd(BN.i, meas);
+      if (meas) rec.js.push(R.stats.ms);
+    }
+    if (ts - BN.lastLabel > 400) { BN.lastLabel = ts; $('blabel').textContent = ph.name + ' · ' + Math.max(0, Math.ceil(BN.total - (ts - BN.start) / 1000)) + ' s'; }
+    return true;
+  };
+  function phaseStart(ph) {
+    if (ph.zoom !== undefined) S.zoom = ph.zoom;
+    S.pan = [0, 0]; S.yaw = BN.yaw0;
+    const f = ph.fix || 'base'; if (S.fix !== f) { S.fix = f; R.resetFix(); }
+  }
+  function benchRestore() {
+    const v = BN.saved; if (!v) return;
+    S.yaw = v.yaw; S.zoom = v.zoom; S.pan = v.pan; S.cut = v.cut; S.focusK = v.focusK; setFix(v.fix); syncZoomUI();
+    BN.saved = null;
+  }
+  function startBench() {
+    if (BN.on) return;
+    BN.saved = { yaw: S.yaw, zoom: S.zoom, pan: S.pan.slice(), fix: S.fix, focusK: S.focusK, cut: S.cut };
+    S.cut = false; S.focusK = 0;
+    if (BN.scale && !BN.scaled) { for (const ph of PH) { ph.dur *= BN.scale; ph.warm *= BN.scale; } BN.scaled = true; } // headless smoke test only
+    Object.assign(BN, { on: true, i: 0, t0: null, start: null, lastTs: null, lastMeas: false, lastLabel: 0, yaw0: HOME_YAW, flip: false,
+      recs: PH.map(() => ({ iv: [], js: [], gpu: [] })), total: PH.reduce((a, p) => a + p.dur, 0) });
+    anim.yawVel = 0; anim.yawTo = null; anim.zoomTo = null; anim.panV = [0, 0];
+    enterPlay({ bench: true });
+    $('blabel').hidden = false; $('blabel').textContent = 'Starting…';
+    $('bench-status').textContent = 'Running. Don’t touch the screen.';
+    $('bench-run').disabled = true;
+    kick();
+  }
+  function stopBench(msg) { BN.on = false; benchRestore(); exitPlay(); $('bench-status').textContent = msg; $('bench-run').disabled = false; }
+  const pct = (a, q) => { if (!a.length) return NaN; const b = a.slice().sort((x, y) => x - y); return b[Math.min(b.length - 1, Math.floor(q * (b.length - 1) + 0.5))]; };
+  const snapHz = (h) => { for (const r of [60, 90, 120, 144]) if (Math.abs(h - r) / r < 0.04) return r; return Number.isFinite(h) ? Math.round(h * 10) / 10 : 0; };
+  const f1 = (v) => (Number.isFinite(v) ? v.toFixed(1) : '-');
+  function glName() {
+    try { const e = gl.getExtension('WEBGL_debug_renderer_info'); return String(e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)).replace(/\s+/g, '_').replace(/[|]/g, '/').slice(0, 60); } catch (e) { return '?'; }
+  }
+  function uaShort() {
+    const u = navigator.userAgent, b = (u.match(/(Chrome|Firefox|Version)\/\d+/) || ['?'])[0], o = (u.match(/Android [\d.]+/) || u.match(/iPhone|Macintosh|Windows|Linux/) || ['?'])[0];
+    return (b + '_' + o).replace(/\s+/g, '');
+  }
+  function finishBench() {
+    BN.on = false;
+    const hzIdle = 1000 / pct(BN.recs[0].iv, 0.5);
+    const all = []; for (let i = 1; i < PH.length; i++) for (const v of BN.recs[i].iv) all.push(v);
+    const hzFast = 1000 / pct(all, 0.1);
+    const hz = Math.max(snapHz(hzIdle), snapHz(hzFast)) || 60, P = 1000 / hz;
+    let pass = true; const fails = [], rows = [];
+    for (let i = 1; i < PH.length; i++) {
+      const ph = PH[i], r = BN.recs[i], iv = r.iv, n = iv.length, sum = iv.reduce((a, b) => a + b, 0);
+      const rate = n ? 100 * (n / (sum / 1000)) / hz : 0, late = n ? 100 * iv.filter((v) => v > 1.5 * P).length / n : 100;
+      const ok = rate >= 90 && late <= 5; // the decision rule in NOTES.md
+      if (!ph.extra && !ok) { pass = false; fails.push(ph.name); }
+      rows.push({ ph, n, rate, med: pct(iv, 0.5), p95: pct(iv, 0.95), max: n ? Math.max(...iv) : NaN, late, js: pct(r.js, 0.5), gpu: pct(r.gpu, 0.5), ok });
+    }
+    const head = ['B66.1', pass ? 'PASS' : 'FAIL', 'hz=' + hz, 'idle=' + f1(hzIdle), 'fast=' + f1(hzFast), 'art=' + (R.size.Wf - 2) + 'x' + (R.size.Hf - 2), 's=' + R.size.s,
+      'dpr=' + (window.devicePixelRatio || 1).toFixed(2), 'css=' + innerWidth + 'x' + innerHeight, 'fs=' + (document.fullscreenElement ? 1 : 0), 'if=' + (window.top !== window.self ? 1 : 0),
+      'tod=' + S.tod, 'gtq=' + (TQ.ext ? 1 : 0), 'gl=' + glName(), 'ua=' + uaShort()].join(' ');
+    const body = rows.map((r) => r.ph.k + ':' + Math.round(r.rate) + ',' + f1(r.med) + ',' + f1(r.p95) + ',' + f1(r.max) + ',' + f1(r.late) + ',' + f1(r.js) + ',' + f1(r.gpu)).join(' ');
+    $('bench-code').value = head + ' | ' + body;
+    const tb = $('bench-table'), tbody = tb.querySelector('tbody'); tbody.textContent = '';
+    for (const r of rows) {
+      const tr = document.createElement('tr');
+      for (const v of [r.ph.name, Math.round(r.rate) + '%', f1(r.med) + ' ms', f1(r.p95) + ' ms', f1(r.max) + ' ms', f1(r.late) + '%', r.ok ? 'full' : 'short']) { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }
+      tr.lastChild.className = r.ok ? 'ok' : 'bad';
+      tbody.appendChild(tr);
+    }
+    tb.hidden = false;
+    benchRestore(); exitPlay();
+    $('bench-run').disabled = false; $('bench-copy').disabled = false;
+    $('bench-status').textContent = (pass ? 'WebGL kept the full refresh rate (' + hz + ' Hz) at every zoom.' : 'WebGL fell short of ' + hz + ' Hz at: ' + fails.join(', ') + '.') + ' Copy the code and paste it back.';
+    $('bench-status').scrollIntoView({ block: 'center' });
+  }
+  $('bench-run').addEventListener('click', startBench);
+  $('bench-copy').addEventListener('click', async () => {
+    const ta = $('bench-code'); let ok = false;
+    try { await navigator.clipboard.writeText(ta.value); ok = true; } catch (e) { ok = false; }
+    if (!ok) { try { ta.focus(); ta.select(); ok = document.execCommand('copy'); } catch (e) { ok = false; } }
+    $('bench-status').textContent = ok ? 'Copied. Paste it back in the chat.' : 'Copying was blocked here: press and hold the code, choose Select all, then Copy.';
+  });
+  const readyNow = () => (typeof Planet === 'undefined' || Planet.ready) && R.farReady();
+  const readyPoll = setInterval(() => { if (readyNow()) { clearInterval(readyPoll); $('bench-run').disabled = false; $('bench-status').textContent = 'Ready. Takes about a minute.'; } }, 400);
+
+  /* ---- B66 (PRE-22) crawl count, run headless by tools/crawl.mjs ----
+     Crawl: an art pixel at a fixed place on screen changes colour although the surface under it moved
+     less than one art pixel since the last frame. Each frame's surface positions come from its depth. */
+  function capture() {
+    const L = R.last, c = L.cam, W = R.size.Wf, H = R.size.Hf;
+    const col = new Uint8Array(W * H * 4), dep = new Uint8Array(W * H * 4);
+    R.X.bind(L.post); gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, col);
+    R.X.bind(L.img); gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, dep);
+    R.X.bind(null);
+    return { c, W, H, c32: new Uint32Array(col.buffer), dep, off: c.off.slice(), mix: L.mix, newStep: L.newStep };
+  }
+  const m2 = (x, y) => (x * 2 + y * 3) % 4;
+  const bayer4 = (x, y) => { const bx = x % 4, by = y % 4; return (4 * m2(bx % 2, by % 2) + m2(bx >> 1, by >> 1) + 0.5) / 16; }; // same as upscaleFS
+  /* What the screen shows, on the new picture's art grid: colour and surface position per art pixel. */
+  function compose(cap, old) {
+    const { W, H } = cap, n = W * H, col = new Uint32Array(n), wp = new Float32Array(n * 3).fill(NaN);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x; let src = cap, sx = x, sy = y;
+      if (old && bayer4(x, y) >= cap.mix) {
+        src = old; sx = Math.floor(x + 0.5 + old.off[0] - cap.off[0]); sy = Math.floor(y + 0.5 + old.off[1] - cap.off[1]);
+        if (sx < 0 || sy < 0 || sx >= W || sy >= H) continue;
+      }
+      const j = sy * W + sx; col[i] = src.c32[j];
+      const d16 = src.dep[j * 4 + 2] * 256 + src.dep[j * 4 + 3];
+      if (d16 < 65535) { const w = worldAt(src.c, sx, sy, d16 / 65535); wp[i * 3] = w[0]; wp[i * 3 + 1] = w[1]; wp[i * 3 + 2] = w[2]; }
+    }
+    return { W, H, c: cap.c, off: cap.off, col, wp };
+  }
+  function crawlPair(A, B, mark) {
+    const { W, H } = A, c = B.c, dox = B.off[0] - A.off[0], doy = B.off[1] - A.off[1];
+    let valid = 0, elig = 0, crawl = 0, changed = 0;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x, wx = A.wp[i * 3]; if (wx !== wx) continue;
+      const x1 = Math.floor(x + 0.5 + dox), y1 = Math.floor(y + 0.5 + doy);
+      if (x1 < 1 || y1 < 1 || x1 >= W - 1 || y1 >= H - 1) continue;
+      valid++;
+      const j = y1 * W + x1, ch = A.col[i] !== B.col[j], wy = A.wp[i * 3 + 1], wz = A.wp[i * 3 + 2];
+      const qx = (c.R[0] * wx + c.R[1] * wy + c.R[2] * wz - c.left) / c.texel, qy = (c.U[0] * wx + c.U[1] * wy + c.U[2] * wz - c.bottom) / c.texel;
+      const mx = (qx - B.off[0]) - (x + 0.5 - A.off[0]), my = (qy - B.off[1]) - (y + 0.5 - A.off[1]);
+      const small = mx * mx + my * my < 1;
+      if (small) elig++;
+      if (ch) { changed++; if (small) crawl++; if (mark) mark[j] = small ? 1 : 2; }
+    }
+    return { valid, elig, crawl, changed };
+  }
+  function pairPng(wst, o) {
+    const { A, B, mark } = wst, W = A.W, H = A.H, cw = o.crop[0], chh = o.crop[1], sc = o.scale || 2, gap = 6;
+    const x0 = Math.floor(W / 2 - cw / 2), y0 = Math.floor(H / 2 - chh / 2) + (o.cropDy || 0);
+    const dox = B.off[0] - A.off[0], doy = B.off[1] - A.off[1];
+    const cv = document.createElement('canvas'); cv.width = cw * sc * 3 + gap * 2; cv.height = chh * sc;
+    const ctx = cv.getContext('2d'), im = ctx.createImageData(cv.width, cv.height);
+    for (let p = 0; p < 3; p++) for (let y = 0; y < chh; y++) for (let x = 0; x < cw; x++) {
+      const ax = x0 + x, ay = y0 + (chh - 1 - y); // art row 0 is the bottom
+      let v, r, g, b;
+      if (p === 0) v = A.col[ay * W + ax];
+      else { const bx = Math.floor(ax + 0.5 + dox), by = Math.floor(ay + 0.5 + doy); v = B.col[by * W + bx]; const mk = mark[by * W + bx]; if (p === 2) { v = mk === 1 ? 0x2020ff : mk === 2 ? 0x30d0ff : v; } if (p === 2 && !mk) { r = (v & 255) * 0.3; g = ((v >> 8) & 255) * 0.3; b = ((v >> 16) & 255) * 0.3; } }
+      if (r === undefined) { r = v & 255; g = (v >> 8) & 255; b = (v >> 16) & 255; }
+      for (let sy = 0; sy < sc; sy++) for (let sx = 0; sx < sc; sx++) {
+        const k = ((y * sc + sy) * cv.width + p * (cw * sc + gap) + x * sc + sx) * 4;
+        im.data[k] = r; im.data[k + 1] = g; im.data[k + 2] = b; im.data[k + 3] = 255;
+      }
+    }
+    ctx.putImageData(im, 0, 0);
+    return cv.toDataURL('image/png');
+  }
+  window.__b66 = {
+    crawl(o) {
+      const saved = { yaw: S.yaw, zoom: S.zoom, pan: S.pan.slice(), fix: S.fix, cut: S.cut, focusK: S.focusK };
+      R.setSize(o.Wd, o.Hd, o.s);
+      S.fix = o.fix; R.resetFix(); S.yaw = HOME_YAW; S.zoom = o.zoom === undefined ? 0.16 : o.zoom; S.pan = [0, 0]; S.cut = false; S.focusK = 0;
+      const z0 = S.zoom, tot = { frames: 0, valid: 0, elig: 0, crawl: 0, changed: 0, changedFrames: 0 };
+      let prev = null, prevCap = null, oldCap = null, worst = null;
+      for (let k = 0; k <= o.frames; k++) {
+        if (o.motion === 'turn') S.yaw = HOME_YAW + o.rate * k;
+        else if (o.motion === 'zoom') S.zoom = z0 + o.rate * k;
+        else if (o.motion === 'pan') S.pan = [o.rate * k, 0.58 * o.rate * k];
+        R.render(STILL_T, 10 + k / 60); // scene time fixed; the camera alone moves, one 60 Hz step per frame
+        const cap = capture();
+        if (S.fix === 'fade' && cap.newStep) oldCap = prevCap;
+        const D = compose(cap, S.fix === 'fade' && cap.mix < 1 ? oldCap : null);
+        if (prev) {
+          const mark = new Uint8Array(D.W * D.H), r = crawlPair(prev, D, mark);
+          tot.frames++; tot.valid += r.valid; tot.elig += r.elig; tot.crawl += r.crawl; tot.changed += r.changed; if (r.changed) tot.changedFrames++;
+          if (!worst || r.crawl > worst.crawl) worst = { k, crawl: r.crawl, changed: r.changed, A: prev, B: D, mark };
+        }
+        prev = D; prevCap = cap;
+      }
+      const png = o.png && worst ? pairPng(worst, o) : null;
+      S.yaw = saved.yaw; S.zoom = saved.zoom; S.pan = saved.pan; S.cut = saved.cut; S.focusK = saved.focusK; S.fix = saved.fix; R.resetFix();
+      R.setSize(devW, devH, pixelScale(window.devicePixelRatio || 1)); dirty = true; kick();
+      return Object.assign(tot, { worstK: worst ? worst.k : -1, worstCrawl: worst ? worst.crawl : 0, art: [o.Wd, o.Hd, o.s], png });
+    },
+    bench: () => BN, enterPlay, exitPlay, setFix,
+  };
+
   // a small handle for scripted screenshots
   window.__view = { R, S, render: (t) => R.render(t === undefined ? STILL_T : t), set(o) { Object.assign(S, o); R.render(o.t === undefined ? STILL_T : o.t); },
     ready: () => (typeof Planet === 'undefined' || Planet.ready) && R.farReady() };
