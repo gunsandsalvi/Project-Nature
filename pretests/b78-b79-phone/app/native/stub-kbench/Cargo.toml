@@ -1,0 +1,19 @@
+[package]
+name = "kbench"
+version = "0.0.1"
+edition = "2021"
+publish = false
+# B78: stand-in for the B01/B02 kbench crate, with the same interface. Used only if the real one fails to build.
+
+[lib]
+name = "kbench"
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = []
+android = ["dep:jni"]
+
+[dependencies]
+serde_json = "1"
+libc = "0.2"
+jni = { version = "0.21", optional = true, default-features = false }

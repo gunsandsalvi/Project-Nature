@@ -4,7 +4,7 @@
 # Writes results/parta-<half>.csv (units of work per 10 s, CPU shares incl. steal from /proc/stat)
 # and results/parta-<half>-vmstat.txt (vmstat every 60 s; its "st" column is steal).
 HERE=$(cd "$(dirname "$0")" && pwd)
-CACHE=${CACHE:-/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/cache}
+CACHE=${CACHE:?set CACHE to the shared cache folder}
 BIN=${B80_BIN:-$CACHE/b80-target/release/b80}
 HALF=$1
 mkdir -p "$HERE/results"

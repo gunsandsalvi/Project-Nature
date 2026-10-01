@@ -16,6 +16,7 @@ fn main() {
         "checks" => checks::run(),
         "nesting" => checks::nesting(),
         "iso" => iso::run(),
+        "iso-more" => iso::more_fields(),
         "bench" => bench::run(),
         "all" => {
             checks::run();
@@ -23,6 +24,6 @@ fn main() {
             iso::run();
             bench::run();
         }
-        _ => eprintln!("usage: b10-map [checks|nesting|iso|bench|all]"),
+        _ => eprintln!("usage: b10-map [checks|nesting|iso|iso-more|bench|all]"),
     }
 }

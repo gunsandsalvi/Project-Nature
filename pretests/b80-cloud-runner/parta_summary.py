@@ -13,7 +13,7 @@ R = Path(__file__).resolve().parent / "results"
 def minutes(half):
     with open(R / f"parta-{half}.csv") as f:
         rows = list(csv.DictReader(f))
-    nthreads = sum(1 for k in rows[0] if k.startswith("units_t"))
+    nthreads = sum(1 for k in rows[0] if re.fullmatch(r"units_t\d+", k))
     out = []
     for m in range(len(rows) // 6):
         chunk = rows[m * 6:(m + 1) * 6]

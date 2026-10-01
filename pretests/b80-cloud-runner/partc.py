@@ -22,8 +22,7 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-CACHE = Path(os.environ.get(
-    "CACHE", "/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/cache"))
+CACHE = Path(os.environ["CACHE"])  # the shared cache folder (see NOTES.md, How to re-run)
 BIN = os.environ.get("B80_BIN", str(CACHE / "b80-target/release/b80"))
 WORK = CACHE / "b80-partc"
 SEED, DAYS, EVERY, MIND = 11, 7300, 30, 20  # 20 simulated years, a checkpoint every simulated month

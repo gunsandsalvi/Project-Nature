@@ -1,0 +1,13 @@
+mind_ms,cpu_hours,hours_per_world_on_1_core,mode,cpu_hours_per_week,weeks,under_threshold
+1,1521,5.1,"a) only while the owner's sessions are active: 15 h a week, experiments get 3 of 4 cores",39,39.3,True
+1,1521,5.1,"b) scheduled fresh sessions: one routine an hour, each runs 2 h (so 2 at once), 15 min of each spent on setup and saving",1011,1.5,False
+1,1521,5.1,"b2) same, but only one session at a time (1-hour runs, 15 min setup)",433,3.5,False
+1,1521,5.1,"c) 4 sessions at once, kept going all week, 15 min per 2 h on setup",2023,0.8,False
+5,7604,25.3,"a) only while the owner's sessions are active: 15 h a week, experiments get 3 of 4 cores",39,196.5,True
+5,7604,25.3,"b) scheduled fresh sessions: one routine an hour, each runs 2 h (so 2 at once), 15 min of each spent on setup and saving",1011,7.5,False
+5,7604,25.3,"b2) same, but only one session at a time (1-hour runs, 15 min setup)",433,17.5,False
+5,7604,25.3,"c) 4 sessions at once, kept going all week, 15 min per 2 h on setup",2023,3.8,False
+50,76042,253.5,"a) only while the owner's sessions are active: 15 h a week, experiments get 3 of 4 cores",39,1965.0,True
+50,76042,253.5,"b) scheduled fresh sessions: one routine an hour, each runs 2 h (so 2 at once), 15 min of each spent on setup and saving",1011,75.2,False
+50,76042,253.5,"b2) same, but only one session at a time (1-hour runs, 15 min setup)",433,175.4,False
+50,76042,253.5,"c) 4 sessions at once, kept going all week, 15 min per 2 h on setup",2023,37.6,False

@@ -630,9 +630,11 @@ impl<T: SumNum> Kernel for Sum<T> {
             times.push(t.elapsed().as_secs_f64());
         }
         times.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        // fx32 sums are Q16.16 held in an i64, not Q32.32.
+        let val = |a: T::Acc| if T::FMT == Format::Fx32 { a.bits() as i64 as f64 / 65_536.0 } else { a.to_f64() };
         json!({
-            "tree_value": tree.to_f64(),
-            "naive_value": naive.to_f64(),
+            "tree_value": val(tree),
+            "naive_value": val(naive),
             "naive_checksum": format!("{:016x}", mix64(fnv(FNV_OFF, naive.bits()))),
             "naive_differs": naive.bits() != tree.bits(),
             "naive_ops_per_sec_1t": SUM_N as f64 / times[1],

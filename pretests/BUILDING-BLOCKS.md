@@ -625,6 +625,13 @@ The engine everything else runs on.
   - **Serves:** `PLT-05`, `SCP-15`, `RES-01`, `RES-05`, `PRN-15`
   - **Needs:** `B01`, `B07`
   - **To settle:** how much computing a session really offers (cores, memory, how long it may run), and so how many world-years an hour; how long Experiment 1 (100 worlds of 500 years) would take; how the statistical comparison with the phone build is run; the size of a saved moment sent to the phone.
+  - **Result** (1 October 2026; `pretests/b80-cloud-runner/`):
+    - **Design:** one process per world, four at a time per session, with a checkpoint every simulated month: written to a temporary file, flushed, renamed, and checked on loading. Plan with 3.4 effective cores per session.
+    - **Same result after interruptions (`X11`):** in 10 trials, each killed twice at random moments and resumed, every run ended bit-identical to the uninterrupted one, even when the number of threads changed at a resume. Half-written and damaged checkpoints were never loaded. What made it exact: keyed draws, fixed read-then-write phases, whole-number counts, a fixed order for births, deaths and saving, and the full state saved in a fixed layout with a hash.
+    - **Speed held:** over 20 minutes, the 4 cores kept 94–101% of their first-minute speed, with 1.5% lost to other machines on the host.
+    - **Parallel worlds:** four worlds as four processes ran 3.7–3.9 times as fast as one; one world on four threads gained only 1.1 to 3.4 times, so it is used only when there are fewer worlds than cores, as on the phone.
+    - **Experiment 1:** 1,521, 7,604 or 76,042 CPU-hours at 1, 5 or 50 ms per person per simulated day. The owner's own sessions give about 39 CPU-hours a week, under the 100 that makes it practical, so more computing must be raised with you (`SCP-15`). A routine every hour (about 1,000 CPU-hours a week) or four sessions at once (about 2,000) would finish it in weeks if minds cost 5 ms or less, and if usage limits allow.
+    - **Still open:** how long a detached process survives beyond 2 hours and through idle time (a heartbeat is running), and where checkpoints live between sessions.
 
 ## 14. Research tools
 

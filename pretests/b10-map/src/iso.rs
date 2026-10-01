@@ -52,8 +52,14 @@ fn line(label: &str, v: &mut [f64]) {
 pub fn run() {
     open_ground();
     torus_pairs();
-    obstacles(false, 300);
-    obstacles(true, 60);
+    obstacles(false, 300, 32);
+    obstacles(true, 60, 31);
+}
+
+/// Two more obstacle fields, to see whether one field's result holds.
+pub fn more_fields() {
+    obstacles(false, 300, 33);
+    obstacles(false, 300, 34);
 }
 
 /// Open ground, uniform directions, 20 to 200 cells apart. Endpoints snap to their cells.
@@ -292,10 +298,10 @@ fn raw_and_smoothed(
 
 /// Ground with obstacles: 256 x 256 cells, 25% blocked in blobs 5 to 20 cells across, pairs 20 to
 /// 80 cells apart. "True" length: the same search plus smoothing on squares 8 times finer.
-fn obstacles(open: bool, pairs: usize) {
+fn obstacles(open: bool, pairs: usize, seed: u64) {
     let title = if open { "no obstacles (sanity check)" } else { "25% of the ground blocked" };
-    println!("== B10 isotropy, {title}: path / reference - 1 ==");
-    let mut rng = Rng::new(if open { 31 } else { 32 });
+    println!("== B10 isotropy, {title} (field {seed}): path / reference - 1 ==");
+    let mut rng = Rng::new(seed);
     let f = Field::new(&mut rng, open);
     let s = hex_s();
     let sqw = SqWin::new(1.0, &f);

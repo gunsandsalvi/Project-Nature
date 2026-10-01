@@ -25,7 +25,7 @@ MODES = [
      EFF_CORES * 3 / 4 * 15),
     ("b) scheduled fresh sessions: one routine an hour, each runs 2 h (so 2 at once), "
      "15 min of each spent on setup and saving", 2 * EFF_CORES * (105 / 120) * 168),
-    ("b') same, but only one session at a time (1-hour runs, 15 min setup)", EFF_CORES * (45 / 60) * 168),
+    ("b2) same, but only one session at a time (1-hour runs, 15 min setup)", EFF_CORES * (45 / 60) * 168),
     ("c) 4 sessions at once, kept going all week, 15 min per 2 h on setup", 4 * EFF_CORES * (105 / 120) * 168),
 ]
 
@@ -56,6 +56,11 @@ def main():
         print(f"{ms} ms: {r['cpu_hours']} CPU-hours in all; one world takes {r['hours_per_world_on_1_core']} h on one core")
     print("break-even for (a): hours of active session a week for 100 CPU-h:",
           round(THRESHOLD / (EFF_CORES * 3 / 4), 1))
+    per_session_week = EFF_CORES * (105 / 120) * 168  # one session kept running all week
+    for ms in MIND_MS:
+        cpu_h = person_days * ms / 1000 / 3600
+        print(f"{ms} ms: {cpu_h / per_session_week:.0f} session-weeks "
+              f"(one session running all week gives {per_session_week:.0f} CPU-h)")
 
 
 if __name__ == "__main__":
