@@ -2,9 +2,9 @@
 
 The elementary pieces Kindling is built from, and the questions to settle by testing before choosing how to build each one.
 
-`PROJECT.md` says what Kindling must do. This file breaks that down into the building blocks the game needs, to prepare the architecture and the implementation plan. For each block it records the open "how" questions, so that small throwaway tests can settle them cheaply before anything permanent is built. The tests are deleted afterwards; their results stay here.
+`PROJECT.md` says what Kindling must do. This file breaks that down into the building blocks the game needs, to prepare the architecture and the implementation plan. For each block it records the open "how" questions, so that small throwaway tests can settle them cheaply before anything permanent is built. The tests are thrown away afterwards; their results stay here.
 
-This is a working document. The finished project has only three documents: the project file, the architecture and the implementation plan (`PRC-04`). Once the architecture is written, what this file records moves there, and this file is removed.
+This is a working document, kept with the tests in the temporary `pretests` folder. The finished project has only three documents: the project file, the architecture and the implementation plan (`PRC-04`). Once the architecture is written, what this file records moves there, and the whole folder is deleted.
 
 ## Contents
 
@@ -43,7 +43,7 @@ This is a working document. The finished project has only three documents: the p
   3. The test is the smallest setup that answers the question, with a time limit.
   4. It runs in the AI's cloud sessions where possible. Phone tests are bundled into one test app per wave: you install it, tap run, and paste back the short result code it shows.
   5. Some answers need your eyes and ears: the look (`B66`, `B67`, `B69`, `B70`), pictures (`B54`), writing (`B73`), and sound, speech and music (`B75`, `B76`, `B77`).
-  6. The result is recorded under the block, and the test code is deleted.
+  6. The result is recorded under the block. The test's code stays in its own folder here until the architecture is written.
 - This file changes nothing in `PROJECT.md`. If a test shows that a decided item can't work as written, it is raised with you (`PRC-07`).
 
 ## Crossroads: choices that shape everything
@@ -70,9 +70,11 @@ These choices cut across many blocks. Each is settled by the tests of the blocks
 
 - `X10` **Technology and toolchain.** The programming language, engine and graphics interface (`PRC-03`), judged first on speed on the phone, then on how reliably AI agents write and test it, and on whether the cloud sessions can build the phone app and run the same rules without graphics. *Settled by* `B01`, `B66`, `B78`, `B80`.
 
+- `X11` **Same phone, same result.** *Decided:* chance is local (`TIM-06`), so on the same phone and version, a branch with no change repeats the original, and a changed branch differs only where the change reaches. The simulation's results must therefore never depend on thread timing, the order in which work finishes, or anything outside the saved state. *Settled by* `B02`, `B05`, `B07`.
+
 ## Map of the blocks
 
-82 blocks in 14 layers: 24 critical, 35 to choose, 23 to measure.
+82 blocks in 14 layers: 24 critical, 34 to choose, 24 to measure.
 
 - **Foundations:** `B01` fast numbers on the phone · `B02` random draws · `B03` clock and scheduler · `B04` world state and memory · `B05` using every core · `B06` event record and causes · `B07` saved moments and branches · `B08` detail levels · `B09` catalogues and real-world data
 - **Space:** `B10` the wrap-around map · `B11` land at every scale · `B12` movement, paths and sight
@@ -101,7 +103,7 @@ Tests run in waves, and each wave informs the next. Waves 0 to 2 settle what the
 
 ### Combined tests
 
-Some questions span several blocks, so they get tests of their own. They come from the feasibility review, and keep its numbers.
+Some questions span several blocks, so they get tests of their own. They keep the numbers the feasibility review gave them.
 
 - `T1` **What a mind costs** (wave 1; `B04`, `B39`): a stripped-down loop of perceiving, remembering, deciding and learning, with realistic memory sizes, timed on the phone for 30 minutes and in the cloud. Over about 1 ms per person per simulated day, Experiment 1 doesn't fit one cloud session; over about 5 ms, simplified minds become essential; over about 1 MB per person, detailed populations stop in the low thousands.
 - `T2` **Experiment 0** (wave 1, cloud only; `B26`, `B28`, `B34` to `B41`, `B45`): 100 toy worlds with about ten materials described only by their properties, generic actions with continuous force and angle, a fracture law based on properties, and the planned learners. Then the same with ten decoy materials and actions, and with a made-up material whose useful property nobody designed for. If discovery happens only when senses and actions are shaped around knapping, or collapses with the decoys, the minds are rethought before the engine is built.
@@ -115,13 +117,13 @@ The engine everything else runs on.
   - **Does:** chooses how the simulation does its maths, for the most simulation per watt on the phone (`X1`).
   - **Serves:** `PLT-01`, `PLT-05`, `RES-05`
   - **Needs:** `B78` for the phone side
-  - **To settle:** which number formats and which hardware (fast cores, slow cores, the graphics chip) give the most simulation per watt for typical work: heat flow, random walks, large sums, learning updates; whether the cloud build still gives the same statistics (`RES-05`).
+  - **To settle:** which number formats and which hardware (fast cores, slow cores, the graphics chip) give the most simulation per watt for typical work: heat flow, random walks, large sums, learning updates; whether the cloud build still gives the same statistics (`RES-05`); whether results repeat exactly from run to run on the same phone, on each kind of hardware (`X11`).
 
-- `B02` **Random draws** · *Choose*
-  - **Does:** gives every random event its own draw, so that mechanisms don't disturb each other.
-  - **Serves:** `PRN-14`, `RES-10`, `GOD-04`
+- `B02` **Random draws** · *Measure*
+  - **Does:** gives every chance event its own draw, computed from a key (world, system, being, moment, purpose), so that mechanisms don't disturb each other and a branch differs only where its changes reach.
+  - **Serves:** `TIM-06`, `PRN-14`, `RES-10`, `GOD-04`
   - **Needs:** `B01`
-  - **To settle:** one shared random sequence, where adding anything shifts every later draw, against draws computed from a key (world, system, being, moment, purpose), so that adding or switching off a mechanism leaves every other draw unchanged and comparison runs stay clean; statistical quality and speed.
+  - **To settle:** decided: chance is local (`TIM-06`), so draws come from keys, not from one shared sequence. The test picks the keyed generator: statistical quality, including between neighbouring keys, and speed on the phone and in the cloud; how a retry for fortune gets its own draw (`GOD-04`).
 
 - `B03` **Clock and scheduler** · *Choose*
   - **Does:** runs dozens of systems at their natural rates, from a strike lasting a moment to ice ages, at any speed from natural to centuries per minute.
@@ -139,7 +141,7 @@ The engine everything else runs on.
   - **Does:** spreads the simulation over all the phone's cores, and the graphics chip where it helps.
   - **Serves:** `PRN-11`, `PLT-01`, `PLT-04`
   - **Needs:** `B01`, `B03`, `B04`
-  - **To settle:** how to split the work (by region, by system, or in read-then-write phases) on the phone's mix of fast and slow cores; whether the graphics chip pays off for large fields such as weather, water and plants; the real speed-up on the phone.
+  - **To settle:** how to split the work (by region, by system, or in read-then-write phases) on the phone's mix of fast and slow cores; whether the graphics chip pays off for large fields such as weather, water and plants; the real speed-up on the phone; keeping results independent of thread timing (`X11`).
 
 - `B06` **Event record and causes** · *Choose*
   - **Does:** records what happened, to whom, where, and what caused it. It is the base of the chronicle, live moments, the scientist's view and research.
@@ -149,9 +151,9 @@ The engine everything else runs on.
 
 - `B07` **Saved moments and branches** · *Choose*
   - **Does:** saves the world continuously, keeps full saved moments to look at and branch from, exports and imports worlds, and keeps history across updates.
-  - **Serves:** `PRN-15`, `TIM-06`, `TIM-08`, `PLT-05`, `PLT-07`, `PLT-08`, `PLT-09`, `RSK-12`
+  - **Serves:** `PRN-15`, `TIM-06`, `TIM-08`, `PLT-05`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`, `RSK-12`
   - **Needs:** `B04`, `B06`
-  - **To settle:** the size of a saved moment, and how often to keep one (dense near the present, sparse further back) against storage, for worlds that need only last between big updates (`PLT-09`); storage per thousand years and per branch; saving without stutter, and without loss when the app is killed mid-save (`X4`).
+  - **To settle:** the size of a saved moment, and the fixed rule for thinning them with age (`PLT-10`), against storage, for worlds that need only last between big updates (`PLT-09`); proof that a branch with no change repeats the original exactly (`X11`); storage per thousand years and per branch; saving without stutter, and without loss when the app is killed mid-save (`X4`).
 
 - `B08` **Detail levels** · *Critical*
   - **Does:** simulates coarsely where little is happening and finely where it matters, and moves between the two without contradiction.
@@ -171,7 +173,7 @@ The engine everything else runs on.
   - **Does:** handles places, distances and neighbours on a world that wraps both ways, with latitude and seasons, and maps it onto a globe for display.
   - **Serves:** `WLD-01`, `WLD-02`, `WLD-03`
   - **Needs:** `B01`
-  - **To settle:** square or six-sided cells, and how they nest across scales; distances across the wrap; drawing the polar seam on the globe.
+  - **To settle:** square or six-sided cells, and how they nest across scales; distances across the wrap; the polar seam as a permanent ice cap that weather systems stop at and nothing crosses (`WLD-01`), and how it looks on the globe.
 
 - `B11` **Land at every scale, above and below ground** · *Critical*
   - **Does:** represents the land from whole regions down to the metre: cliffs, caves, overhangs, rock layers, soils, underground water and buried things.
@@ -201,9 +203,9 @@ The engine everything else runs on.
 
 - `B15` **Climate from geography** · *Choose*
   - **Does:** works out each place's seasons of rain, temperature and wind from latitude, height, the sea and mountains.
-  - **Serves:** `WLD-05`, `WLD-09`, `WLD-16`
+  - **Serves:** `WLD-05`, `WLD-09`, `WLD-16`, `WLD-30`
   - **Needs:** `B13`, `B14`
-  - **To settle:** a simple physical model (sunlight, heat balance, moisture carried by winds) against rules distilled from Earth's climates; whether rain shadows, coastal and inland climates and climate belts look right; speed. Real air physics on a world this small would not behave like Earth's, so "Earth's patterns, compressed" (`WLD-05`) is itself a modelling choice to confirm.
+  - **To settle:** a simple physical model (sunlight, heat balance, moisture carried by winds) against rules distilled from Earth's climates; whether rain shadows, coastal and inland climates and climate belts look right; speed. Decided: quantities set by distance (climate belts, weather systems, currents and migrations) scale with the world, and everything local stays real (`WLD-30`); the test confirms the scaled patterns still look and behave right.
 
 - `B16` **Species from Earth families** · *Choose*
   - **Does:** adapts Earth's plant and animal families into each world's 50 or so animals and 200 or so plants, with traits and body chemistry.
@@ -212,15 +214,15 @@ The engine everything else runs on.
   - **To settle:** a quick evolution run over traits, or rule-based adaptation; the data needed per family (size, diet, breeding, seasons, chemistry, with sources) and the time to gather it; whether the results feel new but familiar.
 
 - `B17` **Choosing the best world** · *Measure*
-  - **Does:** generates many candidate worlds, scores them, keeps the best and finds where history begins.
+  - **Does:** generates many candidate worlds, scores them, offers you the best three and finds where history begins.
   - **Serves:** `WLD-10`, `WLD-11`, `WLD-24`
   - **Needs:** `B13`, `B14`, `B15`, `B16`, `B21`, `B22`
-  - **To settle:** the whole generation in under a minute per world on the phone; whether high scores match the worlds a person would pick.
+  - **To settle:** generating the candidates and finding the best three within a few minutes in total on the phone (`WLD-11`); whether high scores match the worlds a person would pick.
 
 ## 4. The living planet
 
 - `B18` **Weather** · *Choose*
-  - **Does:** draws daily weather from the climate, moves storms across the land, and runs the long cycles: ice ages, eruption winters, and the effect of people on the land.
+  - **Does:** draws daily weather from the climate, moves storms across the land, and runs the long cycles: ice ages at real cycle lengths, with worlds starting as one ends (`WLD-16`), eruption winters, and the effect of people on the land.
   - **Serves:** `WLD-16`, `WLD-22`, `WLD-25`, `GOD-02`
   - **Needs:** `B15`
   - **To settle:** a statistical weather generator with moving storms, or a simplified dynamic model; extremes at natural rates; nudging without leaving the climate's range (`B59`).
@@ -251,9 +253,9 @@ The engine everything else runs on.
 
 - `B23` **Heredity** · *Choose*
   - **Does:** passes body and mind traits from parents to young in people, animals and plants at real speeds, with the evolution dial for experiments.
-  - **Serves:** `BIO-06`, `BIO-07`, `BIO-08`, `WLD-20`, `MND-20`
+  - **Serves:** `BIO-06`, `BIO-07`, `BIO-08`, `BIO-22`, `WLD-20`, `MND-20`
   - **Needs:** `B02`
-  - **To settle:** explicit genes, the simpler model where a child's trait is the parents' average plus some scatter, or a mix; whether selection works at real speeds (for example, foxes bred for tameness); heredity for herds and plant patches simulated as groups.
+  - **To settle:** explicit genes, the simpler model where a child's trait is the parents' average plus some scatter, or a mix; whether selection works at real speeds (for example, foxes bred for tameness); heredity for herds and plant patches simulated as groups; looks that vary by region with sunlight at real speeds (`BIO-22`).
 
 - `B24` **Microbes and disease** · *Choose*
   - **Does:** rot, fermentation and disease as living microbes that grow, spread and evolve.
@@ -405,7 +407,7 @@ The engine everything else runs on.
   - **Does:** words agreed through use for each person's own concepts, drifting into dialects and languages; names for people, places and things, with English glosses.
   - **Serves:** `BIO-02`, `CUL-04`, `CUL-14`, `CUL-18`, `PRE-12`, `PRE-38`
   - **Needs:** `B35`, `B46`
-  - **To settle:** "naming games" (repeated attempts to be understood) when speakers' concepts differ; how fast a band's words settle; drift against the real rate at which languages replace words.
+  - **To settle:** "naming games" (repeated attempts to be understood) when speakers' concepts differ; how fast a band's words settle; drift against the real rate at which languages replace words; labels made from each world's own sounds until people's own names emerge (`PRE-38`).
 
 - `B48` **Sounds and sound change** · *Choose*
   - **Does:** gives each language its own sounds and changes words by regular sound laws, so related languages form families you can trace.
@@ -447,7 +449,7 @@ The engine everything else runs on.
   - **Does:** paintings and carvings composed from memories and myths in a culture's style and real pigments, and the small scenes of memories you use to shape dreams.
   - **Serves:** `CUL-09`, `CUL-25`, `PRE-15`, `GOD-10`
   - **Needs:** `B53`, `B56`, `B66`, `B69`
-  - **To settle:** how a picture is described in data (what is shown, and how) and drawn as pixel art; whether you can recognise the event it shows.
+  - **To settle:** decided: a picture is kept as what it shows and how (composition, style, skill and pigments, `CUL-25`). The test settles how it is drawn as pixel art from that, and whether you can recognise the event it shows.
 
 - `B55` **Music and dance** · *Measure*
   - **Does:** rhythms, scales, songs, instruments and dances that grow out of each culture and drift.
@@ -497,13 +499,13 @@ The engine everything else runs on.
   - **Does:** shows where you intervened and what changed because of it, in the scientist's view only.
   - **Serves:** `GOD-07`, `GOD-08`, `GOD-09`
   - **Needs:** `B06`, `B07`
-  - **To settle:** tagging consequences as they spread, or branching from the saved moment before the intervention and comparing (slower, and chance differs too); cost and clarity.
+  - **To settle:** decided: the chain of causes by default, and a comparison branch on request, which differs only where the act reached (`GOD-09`, `X11`). The test settles how the chain is followed through the record, and how long a comparison branch takes from the nearest saved moment.
 
 ## 10. Time and history
 
 - `B63` **Time control and the speed table** · *Measure*
   - **Does:** ties the speed of time to zoom, with pause, a speed dial and a lock, and natural speed close up; pauses when the app is closed.
-  - **Serves:** `TIM-01`, `TIM-04`, `TIM-05`, `TIM-07`, `TIM-10`, `TIM-14`
+  - **Serves:** `TIM-01`, `TIM-04`, `TIM-05`, `TIM-07`, `TIM-10`, `TIM-14`, `TIM-15`
   - **Needs:** `B03`, `B39`
   - **To settle:** the speeds actually reachable at each zoom, once the cost of minds and nature is known, against the first target: a thousand years in one night for a few hundred people (`TIM-07`).
 
@@ -517,7 +519,7 @@ The engine everything else runs on.
   - **Does:** spots important moments, slows time around them, raises live moments, and skips to the next one.
   - **Serves:** `TIM-02`, `TIM-03`, `TIM-11`, `PRE-08`, `RSK-03`
   - **Needs:** `B03`, `B07`, `B64`
-  - **To settle:** scoring importance from the record; whether running ahead of the screen (`X5`) lets it slow down before a moment; how often it interrupts you.
+  - **To settle:** scoring importance from the record; whether running ahead of the screen (`X5`) lets it slow down before a moment; how often it interrupts you, within about one interruption a minute (`PRE-08`).
 
 ## 11. Presentation
 
@@ -541,7 +543,7 @@ The engine everything else runs on.
 
 - `B69` **Figures and animation** · *Critical*
   - **Does:** small 3D figures built from parts, animated at 8–12 poses a second for any action the simulation produces, with faces, hair and clothing. From far away, figures become markers, then glowing points.
-  - **Serves:** `PRE-27`, `PRE-28`, `MAT-12`
+  - **Serves:** `PRE-27`, `PRE-28`, `MAT-12`, `BIO-22`, `PRE-18`
   - **Needs:** `B66`
   - **To settle:** tiny-cube models or low-poly models; whether animation built from the body's basic actions can show any action, including ones nobody planned; readability at 40–60 art pixels tall; cost with hundreds on screen.
 
@@ -549,25 +551,25 @@ The engine everything else runs on.
   - **Does:** chooses colour ladders, sheen and texture from what a thing is made of, and its look from its simulated shape and its culture's style, so unplanned things still look right.
   - **Serves:** `PRE-20`, `MAT-03`, `CUL-12`, `PRN-07`
   - **Needs:** `B26`, `B27`, `B56`, `B66`
-  - **To settle:** the mapping from properties to colour ladders; whether invented objects look right without being drawn by hand.
+  - **To settle:** decided: ladders are made automatically from the simulated colour, with hand-picked ladders for common materials (`PRE-20`). The test settles the mapping, and whether invented objects look right without being drawn by hand.
 
 - `B71` **Screen, gestures, cards and settings** · *Measure*
   - **Does:** the world-first interface: gestures, cards, both orientations, and settings such as live moments, the content setting, subtitles and vibration.
-  - **Serves:** `PRE-18`, `PRE-32`, `PRE-33`, `PRE-34`, `PRE-35`, `GOD-10`, `PLT-02`, `VIS-10`
+  - **Serves:** `PRE-18`, `PRE-32`, `PRE-33`, `PRE-34`, `PRE-35`, `PRE-40`, `TIM-15`, `GOD-10`, `PLT-02`, `VIS-10`
   - **Needs:** `B66`
-  - **To settle:** gestures that don't clash (pinch sets both zoom and the speed of time; twist; long-press); comfortable one-handed use in portrait.
+  - **To settle:** decided: one-thumb zoom, drawing an area from the long-press menu, views from the bottom edge, and a brief touch for the time control (`PRE-33`). The test settles how they feel in the hand, one-handed in portrait and two-handed in landscape.
 
 - `B72` **Views and overlays** · *Measure*
   - **Does:** the chronicle, following a soul, map overlays, family trees and legends, their sky and maps, the bestiary, the language tree, the two views of a mind, comparing timelines, and any further view the data supports.
   - **Serves:** `PRE-05`, `PRE-06`, `PRE-07`, `PRE-10`, `PRE-11`, `PRE-12`, `PRE-13`, `PRE-14`, `PRE-16`, `PRE-36`, `TIM-08`, `TIM-13`, `GOD-09`, `PRN-04`
   - **Needs:** `B06`, `B66`
-  - **To settle:** one common way to build views from data, so each new view is cheap (`PRN-14`); speed of queries over long histories.
+  - **To settle:** one common way to build views from data, so each new view is cheap (`PRN-14`), each with a story version and a scientist's version (`PRE-14`); speed of queries over long histories.
 
 - `B73` **Writer AI** · *Critical*
   - **Does:** turns simulation data into the chronicle, life stories, myths, dreams and summaries, in chosen voices, on the phone, and checks every text against its data.
-  - **Serves:** `PRE-17`, `PRE-19`, `PRE-37`, `PRE-38`, `PRN-06`, `VIS-15`, `TIM-12`, `RSK-08`
+  - **Serves:** `PRE-17`, `PRE-19`, `PRE-37`, `PRE-38`, `PRE-41`, `PRN-06`, `VIS-15`, `TIM-12`, `RSK-08`
   - **Needs:** `B06`, `B53`, `B79`
-  - **To settle:** which model and runtime (the phone's built-in AI model, or an open model run by the app); words per second, memory and battery alongside the simulation and drawing; whether the writing is good enough (`RSK-08`); how to catch any fact, name or real-world knowledge that isn't in the data; whether text can keep pace with history or must be written when you open it. This can be tested now, on hand-made sample data.
+  - **To settle:** which model and runtime (the phone's built-in AI model, or an open model run by the app); words per second, memory and battery alongside the simulation and drawing; whether the writing is good enough (`RSK-08`); how to catch any fact, name or real-world knowledge that isn't in the data; how quickly text appears when you open something, since it is written when first opened or during pauses (`PRE-41`). This can be tested now, on hand-made sample data.
 
 ## 12. Sound
 
@@ -601,7 +603,7 @@ The engine everything else runs on.
   - **Does:** builds the phone app in the AI's cloud sessions, delivers it as a download, and handles the app's life: pausing when closed, both orientations, working offline, saving, export and import.
   - **Serves:** `PLT-01`, `PLT-02`, `PLT-03`, `PLT-06`, `PLT-07`, `PLT-08`, `TIM-05`, `PRC-11`
   - **Needs:** nothing
-  - **To settle:** whether a cloud session can fetch the Android tools and build, sign and publish an installable app; how you download it, now and under the 2027 install rules (`RSK-18`); whether saving survives the app being killed mid-write. Every phone test depends on this.
+  - **To settle:** whether a cloud session can fetch the Android tools and build, sign and publish an installable app; how you download it, and signing builds for your free hobbyist developer account under the 2027 install rules (`PLT-06`, `RSK-18`); whether saving survives the app being killed mid-write. Every phone test depends on this.
 
 - `B79` **Phone budgets and heat** · *Critical*
   - **Does:** measures and manages what the phone can sustain (processor, graphics, memory, battery, heat), keeps frames smooth by slowing time under load, and runs overnight mode on the charger.
@@ -619,7 +621,7 @@ The engine everything else runs on.
 
 - `B81` **Experiment runner and reports** · *Measure*
   - **Does:** defines experiments with criteria fixed first, runs comparison runs with mechanisms switched off, gathers results as ranges, logs surprises, and writes report pages with charts and links to saved moments.
-  - **Serves:** `RES-01`, `RES-02`, `RES-03`, `RES-06`, `RES-07`, `RES-08`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-14`, `RES-15`, `RES-16`, `RES-17`, `RES-18`, `RES-19`, `PRN-05`, `PRN-12`, `BIO-07`
+  - **Serves:** `RES-01`, `RES-02`, `RES-03`, `RES-06`, `RES-07`, `RES-08`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-14`, `RES-15`, `RES-16`, `RES-17`, `RES-18`, `RES-19`, `RES-20`, `PRN-05`, `PRN-12`, `BIO-07`
   - **Needs:** `B64`, `B80`
   - **To settle:** little beyond standard work. This is where the rule that every mechanism has an off switch is set (`X7`), with the rules for tuning, confirming on fresh seeds and re-running the signature moments (`RES-16`, `RES-17`).
 
