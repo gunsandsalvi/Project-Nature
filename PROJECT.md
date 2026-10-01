@@ -468,15 +468,71 @@ You are an invisible force of nature. This section defines exactly what you can 
 
 ## 5. Time and history
 
-- `TIM-01` **Time follows zoom** *(Decided)*: This is the default. Close up, a day passes in minutes; zoomed out to the whole world, centuries pass in minutes. One gesture controls both space and time.
-- `TIM-02` **Story director** *(Decided)*: It slows down for important moments (a first, a death, a war) and races through quiet years.
-- `TIM-03` **The director never touches events** *(Proposed)*: It controls speed only. It chooses where to slow down but never makes anything happen.
-- `TIM-04` **Manual control** *(Decided)*: You can separate zoom and speed whenever you want.
-- `TIM-05` **Pauses when closed** *(Decided)*: The world only moves while the app is open.
-- `TIM-06` **Rewind and branch** *(Decided)*: Go back to any moment, change something, then keep both timelines and compare them.
-- `TIM-07` **Pacing** *(To test)*: There is no fixed target for how long history takes to watch. It is measured and tuned during development.
-- `TIM-08` **Saved worlds and timelines** *(Proposed)*: Keep several worlds and timelines, and switch between them.
-- `TIM-09` **If everyone dies** *(Open)*: What happens when humanity dies out in a world.
+After the camera, time is your main control. This section defines how fast time runs, what decides its speed, what happens while you're away, and how you go back in history. Two principles shape all of it: pacing comes only from controlling time (`PRN-12`), and when the phone can't keep up, time slows rather than the simulation cutting corners (`PRN-11`).
+
+### 5.1 How fast time runs
+
+- `TIM-01` **Time follows zoom** *(Decided)*
+  - **What:** By default, the speed of time is tied to the zoom. The closer you look, the slower time runs; the further out, the faster. One gesture controls both where you look and how fast history moves.
+  - **The scale** *(Proposed; exact values are tuned by measurement, `TIM-07`)*:
+    - **one person:** natural speed (`TIM-10`);
+    - **a camp:** a day passes in a few minutes;
+    - **a valley:** a season passes in about a minute;
+    - **a region:** years pass every minute;
+    - **the whole world:** centuries pass every minute.
+  - **Why:** Close-up moments are lived; distant eras are watched.
+  - **Example:** You watch the knapper strike, flake by flake. Then you pull back over the valley, and a whole summer passes while the herds move north.
+
+- `TIM-10` **Natural speed up close** *(Decided)*: At the closest zoom, people and animals move at real-life speed. You can watch a flake come off the stone.
+
+- `TIM-04` **Manual control** *(Decided)*: You can unlink speed from zoom whenever you want. *(Proposed controls: pause, play, a speed dial, and a lock that keeps the current speed while you move the camera.)*
+
+### 5.2 The story director
+
+- `TIM-02` **Story director** *(Decided)*
+  - **What:** The director watches the whole world for important moments and adjusts the speed of time around them. When nothing important is happening, it lets quiet years race past, up to the top speed your zoom allows.
+  - **When something important happens elsewhere** *(Decided)*: time slows, a live moment appears (`PRE-08`), and one tap takes you there. You stay in control of the camera.
+  - **What counts as important** *(Proposed)*:
+    - firsts: the first time anyone does something new;
+    - births and deaths among the people you follow;
+    - discoveries spreading or being lost;
+    - conflicts, disasters and migrations;
+    - a band forming, splitting or ending;
+    - the consequences of your own interventions.
+  - **Why:** In a world that runs itself, the best moments are easy to miss (`RSK-03`).
+
+- `TIM-03` **The director never touches events** *(Decided; follows from `PRN-10` and `PRN-12`)*: The director controls speed only. It decides where to slow down but never causes, changes or hides anything.
+
+- `TIM-11` **Skip to the next moment** *(Proposed)*: A control that runs time at top speed until the next important moment, then slows down. Useful for short check-ins (`VIS-10`).
+
+### 5.3 While you're away
+
+- `TIM-05` **Pauses when closed** *(Decided)*: When the app is closed or in the background, the world stops. Nothing happens while you're away, and every session starts exactly where the last one ended.
+
+- `TIM-12` **Overnight mode** *(Decided)*
+  - **What:** Leave the app open on the charger and switch on overnight mode. The world runs at top speed with the screen dimmed. When you come back, a summary tells you what happened, drawn from the chronicle (`PRE-05`).
+  - **Why:** Deep simulation runs slowly on a phone (`PRN-11`). Overnight mode gives history the hours it needs without you having to watch.
+  - **Safeguards** *(Proposed)*: it runs only while the phone is charging, and it stops if the phone gets too hot.
+  - **Example:** You start it before bed. In the morning: "312 years passed. Two bands merged by the river; a long drought pushed the eastern band over the hills; on the coast, someone began drying fish."
+
+### 5.4 Going back
+
+- `TIM-06` **Rewind and branch** *(Decided)*
+  - **What:** Go back to any moment in a world's history and carry on from there, changing something or nothing. The original timeline is kept, and the new one becomes a branch.
+  - **Why:** Curiosity (`VIS-08`): the only way to really answer "what if?".
+  - **Example:** You rewind to before the plague, send a mild winter instead, and compare the two histories (`MOM-10`).
+
+- `TIM-13` **Comparing timelines** *(Proposed)*: Two branches side by side: their chronicles, their maps, and key numbers (population, discoveries, languages, beliefs), with the moment they split clearly marked.
+
+- `TIM-08` **Saved worlds and timelines** *(Proposed)*: Several worlds, each with its own tree of timelines, kept on the phone. Branches can be named, and you can switch between them.
+
+- `TIM-14` **Dates** *(Proposed)*: The game counts years from the moment a world's history begins ("year 2,314"), with days and seasons set by that world's own sun and moons (`WLD-06`). The people's own calendars are separate (`CUL-13`).
+
+### 5.5 Pacing and endings
+
+- `TIM-07` **Pacing** *(To test)*: There is no fixed target for how long history takes to watch. It is measured and tuned during development (`PLT-04`).
+
+- `TIM-09` **If everyone dies** *(Decided)*: The world goes on without them. Nature carries on, and you can keep watching, rewind to before the end, or start a new world.
 
 ## 6. World
 
@@ -770,7 +826,7 @@ Reviewed at every milestone.
 Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also needs your confirmation.
 
 - **Vision:** `VIS-16` (name)
-- **Time and history:** `TIM-07`, `TIM-09`
+- **Time and history:** `TIM-07`
 - **World:** `WLD-04`
 - **Minds:** `MND-15` (limits)
 - **Presentation:** `PRE-19`
@@ -793,6 +849,7 @@ Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also
 - **Describing model:** the AI language model that turns simulation data into readable text. It never decides anything.
 - **Story view / scientist's view:** the two ways to look into a mind (`PRE-14`).
 - **Story director:** sets the speed of time according to what is happening. It never causes events.
+- **Overnight mode:** the world running at top speed, screen dimmed, while the phone charges (`TIM-12`).
 - **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
 - **Signature moment:** a story the simulation must be able to produce without it being scripted (`MOM`).
 - **Milestone:** a stage of the project that ends with a report you review (`MIL`).
