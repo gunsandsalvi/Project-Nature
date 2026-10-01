@@ -53,10 +53,11 @@ class ModelDownload(
         false
     }
 
-    /** Deletes the file and any partial download; returns the bytes freed. */
+    /** Deletes the file, any partial download and the check mark; returns the model bytes freed. */
     fun deleteAll(): Long {
         var freed = 0L
-        for (f in listOf(dest, part, okFile)) if (f.exists()) { freed += f.length(); f.delete() }
+        for (f in listOf(dest, part)) if (f.exists()) { freed += f.length(); f.delete() }
+        okFile.delete()
         return freed
     }
 
