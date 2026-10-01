@@ -1293,11 +1293,39 @@ This section turns "research standard" into practice: how the project proves tha
 
 ## 15. Project and process
 
-- `PRC-01` **Passion project, built by AI** *(Decided)*: You direct; AI agents write, test and review the code.
-- `PRC-02` **Your role** *(Decided)*: You review milestones and experiment reports and set direction. The AI handles code review and testing.
+How the project is run: you direct, and AI agents build. This section defines the roles, the documents, how this file changes, and how work flows from an idea to your phone.
+
+### 15.1 Roles
+
+- `PRC-01` **Passion project, built by AI** *(Decided)*: You direct; AI agents write, test and review the code. *(Proposed: there are no running costs beyond the AI sessions themselves, since the writer AI runs on the phone and there is no store.)*
+
+- `PRC-02` **Your role** *(Decided)*: You read the milestone reports, try the builds, set direction, and approve changes to this file. The AI handles code review and testing.
+
 - `PRC-03` **Technology** *(Decided)*: Chosen by the AI and proposed in the implementation plan for your approval.
+
+### 15.2 Documents
+
 - `PRC-04` **Source of truth** *(Decided)*: This file says what to build, and the implementation plan says how. Code and tests link back here by ID.
-- `PRC-05` **Section deep dives** *(Decided)*: Each section is expanded with more detail, one at a time. *Proposed* items are confirmed or changed along the way.
+
+- `PRC-06` **A guide for AI agents** *(Decided)*: A short file in the repository (`CLAUDE.md`) that every AI agent reads first. It tells them to read this file, follow the principles, link all work to IDs, and never mark anything Decided without you.
+
+- `PRC-07` **Changes to this file** *(Decided)*: AI agents can suggest additions or changes, marked *Proposed*. Nothing becomes *Decided*, and no decided item changes, without your OK.
+
+- `PRC-05` **Section deep dives** *(Decided)*: Each section is expanded with more detail, one at a time, and *Proposed* items are confirmed or changed along the way.
+
+- `PRC-08` **Next: the implementation plan** *(Proposed)*: Once this file is complete and the project is named (`VIS-16`), the implementation plan follows, starting with the technology proposal (`PRC-03`) and the first milestone (`MIL-01`).
+
+### 15.3 How work flows
+
+- `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches. Work joins the main version only after every automatic check passes and an independent AI review approves it. You review at milestones.
+
+- `PRC-10` **The checks** *(Proposed)*:
+  - **before any work joins the main version:** the tests, the reality checklist (`RES-04`), reproducibility (`RES-05`) and the general-rules check (`PRN-07`);
+  - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
+
+- `PRC-11` **Builds between milestones** *(Decided)*: A new version whenever something you can see or try has changed, with a one-line note, installed by download (`PLT-06`). The full report still comes at each milestone.
+
+- `PRC-12` **Nothing gets lost** *(Proposed)*: An automatic coverage check lists any ID in this file that has no task in the implementation plan, and any task that names no ID.
 
 ## 16. Risks
 
