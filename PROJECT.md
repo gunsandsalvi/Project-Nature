@@ -1713,6 +1713,7 @@ How people think is in Minds.
     - **No death roll:** chance enters only through events, such as a slip, a strike's error or a germ caught, and through each body's own variation (`TIM-06`), never as a chance of dying.
     - **Old age kills through frailty:** an old body has less in reserve and heals and defends itself less (`BIO-16`), so a cold, a fall or a fever that a younger body would survive passes the limit; the record names both, such as "pneumonia, in old age".
     - **The record:** each death keeps its cause and the chain behind it, as far as the simulation knows it, such as "bleeding, from a boar's tusk, while hunting", for the history and its views (`PRN-15`).
+  - **Check:** every death record names the fatal limit that was passed and its cause; a code search finds no chance-of-death draw anywhere.
 
 ### 8.4 A life
 
@@ -1724,25 +1725,48 @@ How people think is in Minds.
     - around four in ten children die before the age of 15;
     - adults who reach 15 often live into their 60s and 70s;
     - women stop having children in their 40s.
+  - **How it works:**
+    - **Growth:** each child grows along measured growth curves for their sex toward their inherited height (`BIO-06`), held back by hunger and illness (`BIO-08`); strength, stamina and skills grow with age and use.
+    - **Stages are body states, not labels:** a baby lives on milk; how long babies nurse is up to their mothers' minds and culture, while the body sets how much milk is made and what a child can eat.
+      Puberty starts when the body reaches its measured size and fat for its age, earlier when well fed, and brings adult fertility.
+    - **Birth spacing is not a rule:** a woman can conceive only when her energy balance and fat allow it, and frequent nursing holds her fertility back for months to years (measured), so the spacing of births comes out of nursing and food (`BIO-15`).
+    - **Children die of the same causes as anyone** (`BIO-14`), with weaker defences and smaller bodies.
+    - **The target figures above are checked, never set** (`RES-14`).
 
 - `BIO-15` **Pregnancy and birth** *(Decided)*: Children come from pairs, through pregnancy, birth and nursing, with their real risks.
   Who pairs with whom, and how families are formed, is cultural (`CUL-07`).
   Pairing and conception are simulated abstractly, never as explicit acts, so sexual violence is not modelled.
   Follows from `PRN-05`.
+  - **How it works:**
+    - **Pairing is a relationship:** who pairs with whom is decided by minds and culture (`CUL-07`) and kept as a relationship between two people (`MND-24`); pairing and conception are never actions or animations.
+    - **Conception:** each cycle, a paired woman who is fertile (`BIO-04`) and living with her partner conceives at the measured chance for both their ages.
+    - **Pregnancy:** about 38 weeks, with a measured spread; it costs the mother measured extra energy and nutrients (`BIO-09`, `BIO-10`), miscarriage comes at measured rates by age and health, the baby grows on what she eats, and late in pregnancy she tires sooner and moves more slowly.
+    - **Birth:** its dangers come at measured rates, raised by the mother's age, small size or poor food and by the baby's size and position: long labour, bleeding, and infection afterwards (`BIO-05`); the newborn's weight and health come from the pregnancy, and twins come at the measured rate.
+      Help from others works through the same body laws: warmth, cleaning and feeding.
+    - **Nursing:** milk costs the mother measured energy, is made in amounts set by how often the baby nurses and how well she eats, feeds the baby fully for months and partly for years, and holds back her fertility (`BIO-04`).
+    - **Inheritance:** the child's genes come from both parents (`BIO-06`).
 
 - `BIO-16` **Ageing** *(Decided)*: Strength, senses and fertility decline with age.
   Ageing also brings wear and frailty: wounds heal more slowly and defences against disease weaken, so old age kills through real causes (`BIO-14`).
   Knowledge and experience don't decline, so elders can matter as keepers of what the band knows (`CUL-02`).
   Follows from `PRN-05`.
+  - **How it works:**
+    - **Declines at measured rates:** muscle and strength fall by about a percent a year after middle age; stamina falls; eyes lose near focus in the 40s and sharpness after; hearing loses high sounds; healing slows; defences weaken; bones thin and break more easily; and women's fertility ends in their 40s, while men's falls slowly.
+    - **Wear:** old injuries and years of heavy work add to it (estimated).
+    - **Frailty** is all of these together (`BIO-14`).
+    - **Minds:** what a person knows and can do stays; how fast they learn and recall slows somewhat with age, at measured rates (see Minds).
 
 ### 8.5 The sexes
 
 - `BIO-17` **Real biology, culture decides** *(Decided)*
-  - **What:** Bodies differ only in real biological ways: reproduction, and average differences in size and strength, with wide overlap between individuals.
+  - **What:** Bodies differ only in real biological ways: reproduction, and average differences in size, strength and body fat, with wide overlap between individuals.
   - **What doesn't:** Who hunts, gathers, leads or makes things is decided entirely by each culture, and can differ between cultures.
     The simulation never assigns a role by sex.
   - **Minds:** Minds don't differ by sex from birth.
     Every inborn mental trait has the same average in both sexes (`BIO-08`, `MND-20`), and any difference in behaviour comes from culture or from bodies.
+  - **How it works:** each sex's body numbers are drawn from its measured ranges, with their wide overlap: upper-body strength differs most, lower-body strength and height less, and women carry a measured higher share of body fat, tied to pregnancy and nursing.
+    No rule, action or law reads a person's sex except the body's own rules for reproduction, size, strength and body fat, and every inborn mental trait is drawn from the same spread for both sexes.
+  - **Check:** a code search finds a person's sex read only by those body rules.
 
 ### 8.6 Senses and actions
 
