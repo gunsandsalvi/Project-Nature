@@ -21,7 +21,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 
 ## Status
 
-- **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner.
+- **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner; `B01` and `B02` in the cloud, waiting for the phone.
 - **Running:** `B01` numbers and languages, `B02` random draws, `B78` building the phone app, `B79` what the phone sustains, `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B73` writer AI, `B74` sound, `B76` speech.
 
 ## The blocks
@@ -29,10 +29,19 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B01` **Numbers and languages** · running (`pretests/b01-b02-numbers-random/`)
   - **Question:** which language (Rust, C++, or managed code as Android runs it) and which number formats (decimals of 32 or 64 bits, or whole-number fixed point) give the most simulation per watt on each kind of phone core, and which results repeat exactly (`TIM-06`).
   - **Approaches:** the same small kernels (heat flow on a wrapping grid, random walks, large sums, learning updates) in each language and format, timed in the cloud and on the phone, on one core of each kind and on all of them.
+  - **Result so far** (1 October 2026, cloud only; the phone's numbers are final):
+    - **Language: Rust.** Rust and C++ ran equally fast. Rust gave bit-identical results on this cloud machine and on the phone's kind of chip (run under emulation), decimals included; C++ differed there unless one compiler setting is switched off. Java ran at a quarter to a third of native speed: fine for the app's screens, not for the simulation.
+    - **Numbers: 32-bit decimals** were fastest for every kind of work. Fixed point may catch up on the phone's chip, so the phone decides.
+    - **Repeatable:** every kernel gave identical results across runs and across thread counts (`TIM-06`). With Rust, the cloud even reproduces the phone's results exactly, which isn't required (`PLT-05`) but helps comparisons.
+    - **Phone:** the same library is in the first test app.
 
 - `B02` **Random draws** · running (`pretests/b01-b02-numbers-random/`)
   - **Question:** which generator makes each draw from a key (world, system, being, moment, purpose), as local chance requires (`TIM-06`).
   - **Approaches:** six keyed generators, compared on statistical quality, including between neighbouring keys, and on speed in the cloud and on the phone.
+  - **Result so far** (1 October 2026, cloud only):
+    - **Generator: a guarded hash of the wyhash family.** All six passed the quality tests on single streams and on neighbouring keys. The fastest, plain wyhash-style (1.1 billion draws a second on one core), gives every being the same draw at one rare moment per stream, so the guarded version is used: about a fifth slower, and still faster than the others.
+    - **Fortune retries** get their own independent draw by flipping one bit of the key, with no detectable link to the first draw (`GOD-04`).
+    - **Phone:** the first test app measures its speed on each kind of core.
 
 - `B04` **Storing data** · running (`pretests/b04-b11-storage-terrain/`)
   - **Question:** how to hold the world in memory and on the phone's storage (`PRN-15`, `PLT-07`, `PLT-10`).
