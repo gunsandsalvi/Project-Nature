@@ -48,8 +48,8 @@ def main(path):
         rows.append({"pass": name, "id": r["id"], "dark": rec["dark"], "flags": flags,
                      "copied": copy_share(rec, voice, text) if text else None,
                      "dark_fail": dark_failure(rec, flags) or (rec["dark"] and not text),
-                     "ttfw_s": r.get("ttfw_s", (r.get("ttfw_ms") or 0) / 1000),
-                     "wps": r.get("words_per_s", r.get("wps")), "words": r.get("words")})
+                     "ttfw_s": r.get("ttfw_s", r["ttfw_ms"] / 1000 if r.get("ttfw_ms") is not None else None) if text else None,
+                     "wps": r.get("words_per_s", r.get("wps")) if text else None, "words": r.get("words")})
     for row in rows:
         mark = "PASS" if not row["flags"] else "FLAG"
         print(f'{row["pass"]:>14} {row["id"]:8} {mark} {"DARK-FAIL " if row["dark_fail"] else ""}'
@@ -66,7 +66,7 @@ def main(path):
             "flagged": sum(bool(r["flags"]) for r in rs),
             "dark_texts": sum(r["dark"] for r in rs),
             "dark_failed": sum(r["dark_fail"] for r in rs),
-            "median_first_word_s": round(statistics.median([r["ttfw_s"] for r in rs]), 2) if rs else None,
+            "median_first_word_s": round(statistics.median(t), 2) if (t := [r["ttfw_s"] for r in rs if r["ttfw_s"] is not None]) else None,
             "median_words_per_s": round(statistics.median(wps), 2) if wps else None,
             "median_copied": statistics.median([r["copied"] for r in rs if r["copied"] is not None] or [0]),
             "flag_counts": {},

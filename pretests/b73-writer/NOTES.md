@@ -86,6 +86,7 @@ V2_RESULTS
 - I, an AI agent, labelled the real errors. Please spot-check `results/review.json`.
 - The checker, the planted errors and the faithful texts all come from the same author, and only run 1 was blind.
 - 20 texts is a small sample: each text is 5%. Each prompt ran once.
+- The v2 rules were written from the v1 failures, and even name this set's forcing words ("made", "left behind"). So v2's results are a best case, not a fresh measure.
 - The checker is only as good as its word lists. New kinds of record need new synonyms, or it rejects good text.
 
 ## What only the phone can answer
@@ -97,7 +98,7 @@ V2_RESULTS
 ## How to re-run
 
 ```sh
-CACHE=/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/cache
+. ../b78-b79-phone/tools/env.sh  # sets CACHE (the shared cache), ANDROID_HOME, GRADLE_USER_HOME
 PY=$CACHE/b73/venv/bin/python   # venv with llama-cpp-python 0.3.36 (built from PyPI source), nltk, wordfreq
 # models into $CACHE/b73/models, from huggingface.co/<repo>/resolve/main/<file>:
 #   Qwen/Qwen2.5-1.5B-Instruct-GGUF qwen2.5-1.5b-instruct-q4_k_m.gguf; ggml-org/gemma-4-E2B-it-GGUF gemma-4-E2B-it-Q4_0.gguf
@@ -106,7 +107,7 @@ flock $CACHE/cpu.lock timeout 840 $PY run_standin.py --name gemma-4-e2b --prompt
     --model $CACHE/b73/models/gemma-4-E2B-it-Q4_0.gguf                  # stand-in, about 5 min
 $PY check_texts.py results/standin-gemma-4-e2b-v2.json                 # check any texts, phone ones too
 python3 make_prompts.py        # after editing records or prompts: re-embeds them in phone/WriterTest.kt
-# compile check (outputs go to $CACHE): cd phone-check; then, with ANDROID_HOME=$CACHE/android-sdk,
-# GRADLE_USER_HOME=$CACHE/gradle-home and CACHE set:
-#   flock $CACHE/cpu.lock gradle --no-daemon --project-cache-dir $CACHE/b73/phone-check-gradle assembleDebug assembleRelease
+# compile check, outputs in $CACHE (about 90 s):
+cd phone-check && flock $CACHE/cpu.lock timeout 600 gradle --no-daemon \
+    --project-cache-dir $CACHE/b73/phone-check-gradle assembleDebug assembleRelease
 ```

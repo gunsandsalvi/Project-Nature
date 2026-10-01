@@ -56,7 +56,7 @@ object WriterTest {
     private suspend fun runAll(ctx: Context, budgetMs: Long): JSONObject {
         val t0 = now()
         val deadline = t0 + budgetMs
-        val out = JSONObject().put("b73", VERSION).put("api", "mlkit genai-prompt 1.0.0-beta4")
+        val out = JSONObject().put("b73", VERSION).put("prompts", PROMPTS_VERSION).put("api", "mlkit genai-prompt 1.0.0-beta4")
             .put("device", deviceInfo(ctx)).put("before", vitals(ctx))
         val passes = JSONArray()
         out.put("passes", passes)
@@ -260,6 +260,7 @@ object WriterTest {
     private fun thermalStatus(ctx: Context): Int = ctx.getSystemService(PowerManager::class.java)?.currentThermalStatus ?: -1
 
     // BEGIN GENERATED PROMPTS (make_prompts.py)
+    const val PROMPTS_VERSION = "v2"
     val PROMPTS: List<Prompt> = listOf(
         Prompt("r01-doc", "r01", "documentary", false, """Write one entry for the chronicle of a band of early humans.
 

@@ -1,0 +1,6 @@
+motion,fix,frames,valid_pixel_frames,small_motion_pixel_frames,crawl,crawl_pct_of_small,crawl_vs_base,changed,changed_vs_base,frames_that_changed,worst_pair_end,worst_pair_crawl
+zoom,base,60,9667860,9663445,952794,9.860,1.000,953367,1.000,60,60,18600
+zoom,steps,60,9667860,9432208,877757,9.306,0.921,911127,0.956,54,54,17539
+zoom,fade,60,9667860,7164418,874,0.012,0.001,234228,0.246,20,49,75
+zoom,majority,60,9667860,9663439,929578,9.620,0.976,930136,0.976,60,60,18164
+zoom,sticky,60,9667860,9663439,877840,9.084,0.921,878396,0.921,60,60,17406

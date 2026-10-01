@@ -48,7 +48,14 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 
 ## Results
 
-(to fill in)
+**Speed on the phone** (first test app, 1 October; `pretests/b78-b79-phone/results/phone-r1.json`, key `wv`). The mockup as it is, in an Android WebView, for 30 s: half a turn and two zoom sweeps from close up to the valley.
+- 120 Hz screen; 3,543 frames, about 118 a second: 98% of the refresh rate.
+- Frame interval: median 8.3 ms, 99% under 16.6 ms, worst 58.3 ms. 51 late frames (1.4%).
+- The page's script took 2.0 ms a frame (99% under 4.4 ms) of the 8.3 ms available.
+- A plain OpenGL ES scene in the same app: 0.2% late, 99% under 10.6 ms.
+- Drawn at 224 × 279 art pixels (the mockup's box, not the full screen). Graphics: PowerVR, through ANGLE on Vulkan.
+
+**Crawl** (`results/crawl-*.csv`; 60 frames per motion, 269 × 599 art pixels):
 
 ## Verdict so far
 

@@ -4,7 +4,7 @@ import json
 import pathlib
 import re
 
-from writer import all_prompts
+from writer import PROMPTS, all_prompts
 
 HERE = pathlib.Path(__file__).resolve().parent
 
@@ -17,7 +17,8 @@ def main():
         t = p["prompt"]
         assert '"""' not in t and "$" not in t, p["id"]  # Kotlin raw strings can't hold these
         rows.append(f'        Prompt("{p["id"]}", "{p["rec"]}", "{p["voice"]}", {str(p["dark"]).lower()}, """{t}"""),')
-    block = "    val PROMPTS: List<Prompt> = listOf(\n" + "\n".join(rows) + "\n    )\n"
+    block = (f'    const val PROMPTS_VERSION = "{PROMPTS}"\n'
+             + "    val PROMPTS: List<Prompt> = listOf(\n" + "\n".join(rows) + "\n    )\n")
     kt = HERE / "phone" / "WriterTest.kt"
     src = kt.read_text()
     src = re.sub(r"(// BEGIN GENERATED PROMPTS[^\n]*\n).*?(    // END GENERATED PROMPTS)",

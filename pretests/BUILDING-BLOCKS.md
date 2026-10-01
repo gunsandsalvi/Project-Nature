@@ -115,7 +115,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
     - **Speed held:** over 20 minutes, the 4 cores kept 94–101% of their first-minute speed, with 1.5% lost to other machines on the host.
     - **Parallel worlds:** four worlds as four processes ran 3.7–3.9 times as fast as one; one world on four threads gained only 1.1 to 3.4 times, so it is used only when there are fewer worlds than cores, as on the phone.
     - **Experiment 1 at its old full size** (300 worlds of 500 years, about 100 people each): 1,521, 7,604 or 76,042 CPU-hours at a guessed 1, 5 or 50 ms per person per simulated day. Far too much, so experiments now run mainly in small sandboxes sized to a computing budget stated up front, confirmed in a few full worlds (`RES-21`).
-    - **Still open:** how long a detached process survives beyond 2 hours and through idle time (a heartbeat is running), and where checkpoints live between sessions.
+    - **Long runs:** a detached process has kept running for over 2 hours 25 minutes without a missed beat while the session was in use, so long runs needn't be cut into 2-hour pieces. Still open: what happens when the session goes idle, and where checkpoints live between sessions.
 
 ## Moved out of the pre-tests
 

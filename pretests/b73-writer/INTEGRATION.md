@@ -43,7 +43,7 @@
 ## What comes back
 
 ```text
-b73: version, api, device {model, soc, android, sdk, aicore, play_services, ...},
+b73: version, prompts (v2), api, device {model, soc, android, sdk, aicore, play_services, ...},
      before / after {battery_c, thermal, headroom_10s, avail_mem_mb},
      passes: [ {preference: FULL | FAST, status, base_model, token_limit, warmup_ms,
                 runs: [ {id, voice, dark, ttfw_ms, total_ms, words, wps, wps_all, finish, text,
