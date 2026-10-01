@@ -106,7 +106,7 @@ Tests run in waves, and each wave informs the next. Waves 0 to 2 settle what the
 Some questions span several blocks, so they get tests of their own. They keep the numbers the feasibility review gave them.
 
 - `T1` **What a mind costs** (wave 1; `B04`, `B39`): a stripped-down loop of perceiving, remembering, deciding and learning, with realistic memory sizes, timed on the phone for 30 minutes and in the cloud. Over about 1 ms per person per simulated day, Experiment 1 doesn't fit one cloud session; over about 5 ms, simplified minds become essential; over about 1 MB per person, detailed populations stop in the low thousands.
-- `T2` **Experiment 0** (wave 1, cloud only; `B26`, `B28`, `B34` to `B41`, `B45`): 100 toy worlds with about ten materials described only by their properties, generic actions with continuous force and angle, a fracture law based on properties, and the planned learners. Then the same with ten decoy materials and actions, and with a made-up material whose useful property nobody designed for. If discovery happens only when senses and actions are shaped around knapping, or collapses with the decoys, the minds are rethought before the engine is built.
+- `T2` **Experiment 0** (wave 1, cloud only; `B26`, `B28`, `B34` to `B41`, `B45`): 100 runs of a toy sandbox (`RES-21`) with about ten materials described only by their properties, generic actions with continuous force and angle, a fracture law based on properties, and the planned learners. Then the same with ten decoy materials and actions, and with a made-up material whose useful property nobody designed for. If discovery happens only when senses and actions are shaped around knapping, or collapses with the decoys, the minds are rethought before the engine is built.
 - `T5` **Simplified versus full minds** (wave 2; `B43`): whether a band-level model reproduces the full model's discovery, spread, loss and population in Experiment 0's worlds. If none does, the far-zoom speeds and large populations are restated with you.
 
 ## 1. Foundations
@@ -637,16 +637,16 @@ The engine everything else runs on.
     - **Same result after interruptions (`X11`):** in 10 trials, each killed twice at random moments and resumed, every run ended bit-identical to the uninterrupted one, even when the number of threads changed at a resume. Half-written and damaged checkpoints were never loaded. What made it exact: keyed draws, fixed read-then-write phases, whole-number counts, a fixed order for births, deaths and saving, and the full state saved in a fixed layout with a hash.
     - **Speed held:** over 20 minutes, the 4 cores kept 94–101% of their first-minute speed, with 1.5% lost to other machines on the host.
     - **Parallel worlds:** four worlds as four processes ran 3.7–3.9 times as fast as one; one world on four threads gained only 1.1 to 3.4 times, so it is used only when there are fewer worlds than cores, as on the phone.
-    - **Experiment 1:** 1,521, 7,604 or 76,042 CPU-hours at 1, 5 or 50 ms per person per simulated day. The owner's own sessions give about 39 CPU-hours a week, under the 100 that makes it practical, so more computing must be raised with you (`SCP-15`). A routine every hour (about 1,000 CPU-hours a week) or four sessions at once (about 2,000) would finish it in weeks if minds cost 5 ms or less, and if usage limits allow.
+    - **Experiment 1 at its old full size** (300 worlds of 500 years, about 100 people each): 1,521, 7,604 or 76,042 CPU-hours at a guessed 1, 5 or 50 ms per person per simulated day. Far too much, so experiments now run mainly in small sandboxes sized to a computing budget stated up front, confirmed in a few full worlds (`RES-21`).
     - **Still open:** how long a detached process survives beyond 2 hours and through idle time (a heartbeat is running), and where checkpoints live between sessions.
 
 ## 14. Research tools
 
 - `B81` **Experiment runner and reports** · *Measure*
   - **Does:** defines experiments with criteria fixed first, runs comparison runs with mechanisms switched off, gathers results as ranges, logs surprises, and writes report pages with charts and links to saved moments.
-  - **Serves:** `RES-01`, `RES-02`, `RES-03`, `RES-06`, `RES-07`, `RES-08`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-14`, `RES-15`, `RES-16`, `RES-17`, `RES-18`, `RES-19`, `RES-20`, `PRN-05`, `PRN-12`, `BIO-07`
+  - **Serves:** `RES-01`, `RES-02`, `RES-03`, `RES-06`, `RES-07`, `RES-08`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-14`, `RES-15`, `RES-16`, `RES-17`, `RES-18`, `RES-19`, `RES-20`, `RES-21`, `PRN-05`, `PRN-12`, `BIO-07`
   - **Needs:** `B64`, `B80`
-  - **To settle:** little beyond standard work. This is where the rule that every mechanism has an off switch is set (`X7`), with the rules for tuning, confirming on fresh seeds and re-running the signature moments (`RES-16`, `RES-17`).
+  - **To settle:** how quickly a sandbox can be set up from the real rules, and how many runs a question needs within its budget (`RES-21`). This is also where the rule that every mechanism has an off switch is set (`X7`), with the rules for tuning, confirming on fresh seeds and re-running the signature moments (`RES-16`, `RES-17`).
 
 - `B82` **Automatic checks** · *Choose*
   - **Does:** runs the reality checklist, the general-rules check, the coverage check, the phone and cloud statistical comparison at milestones, and the screenshot tour for the visual review.

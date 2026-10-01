@@ -334,7 +334,7 @@ Success is judged by the experience; the research rigour of `VIS-05` is how we g
     - every chronicle entry can be traced back to the simulated events behind it.
 
 - `VIS-05` **Quality bar** *(Decided)*: The rigour of a research project and the craft of a well-funded studio.
-  - **Research rigour:** what the simulation is claimed to do is tested by experiments that can fail, across many worlds, with real-world values and repeatable results.
+  - **Research rigour:** what the simulation is claimed to do is tested by experiments that can fail, across many runs, with real-world values and repeatable results.
   - **Studio craft:** art, sound, interface and performance polished to the standard of a well-funded studio.
   - Rigour is the method, not the goal.
     It exists so that the wonder is earned and the histories are real.
@@ -393,10 +393,10 @@ The rules every part of the project follows.
 - `PRN-05` **Real numbers, testable claims** *(Decided)*
   - **What:** Every quantity in the world comes from a real measurement, or from a stated rule or published model applied to real measurements: temperatures, hardness, energy, growth rates, how fast genes change.
     Values with no measurement are labelled chosen or tuned, and listed in every milestone report.
-    Every claim about what the simulation produces is tested by experiments that can fail, across many worlds.
+    Every claim about what the simulation produces is tested by experiments that can fail, across many runs (`RES-13`).
   - **Why:** Real numbers make discoveries meaningful: copper really does need a furnace.
     Experiments that can fail stop us fooling ourselves.
-  - **Example:** "Bands discover how to chip stone" is accepted as true only after Experiment 1 passes its criteria across 100 worlds (`RES-03`).
+  - **Example:** "Bands discover how to chip stone" is accepted as true only after Experiment 1 passes its criteria in its sandbox runs and is confirmed in full worlds (`RES-03`, `RES-21`).
   - **Check:** every value names its source, or is labelled chosen or tuned and listed in the milestone report; every claim in a milestone report is backed by an experiment.
 
 - `PRN-12` **Speed up time, never bend the rules** *(Decided)*
@@ -515,7 +515,7 @@ This section sets the boundaries of the project: what it includes, where history
   - **Presentation** (see Presentation): detailed pixel art, one continuous zoom from the globe to a single person, and many ways to follow the story: the chronicle, following one person's life, map overlays, archaeology and more.
   - **Sound** (see Sound): a living soundscape first, then their music, their voices and a score.
   - **The phone app** (see Platform and performance): built for one phone, in portrait and landscape, smooth at all times.
-  - **Research tools** (see Research and validation): experiments across many worlds, run in the cloud, with reports and saved moments you review on the phone.
+  - **Research tools** (see Research and validation): experiments in small sandboxes, confirmed in full worlds, run in the cloud, with reports and saved moments you review on the phone.
 
 ### 3.2 Where history starts
 
@@ -551,7 +551,7 @@ This section sets the boundaries of the project: what it includes, where history
 
 ### 3.4 How it gets built
 
-- `SCP-03` **Experiments first** *(Decided)*: Core ideas are proven in experiments before the game builds on them (`RES-01`), and a phone app grows alongside, so you can watch the results from the start.
+- `SCP-03` **Experiments first** *(Decided)*: Core ideas are proven in experiments, mostly in small sandboxes, before the game builds on them (`RES-01`), and a phone app grows alongside, so you can watch the results from the start.
 
 - `SCP-15` **Experiments run in the AI's cloud sessions** *(Decided)*
   - **What:** Experiments run in the same cloud sessions where the AI builds the game, within those sessions' computing limits.
@@ -1816,7 +1816,7 @@ How much simulation fits on it is found by measuring, not guessing.
 
 ### 13.4 The cloud
 
-- `PLT-05` **Experiments in the cloud** *(Decided)*: The simulation also runs without graphics in the AI's cloud sessions, many worlds at a time.
+- `PLT-05` **Experiments in the cloud** *(Decided)*: The simulation also runs without graphics in the AI's cloud sessions, many runs at a time.
   The phone build comes first and is optimised for the phone; the cloud build doesn't have to match it exactly, only behave the same statistically (`RES-05`).
   An experiment's world can be opened on the phone at any of its saved moments.
   Follows from `SCP-15`.
@@ -1828,11 +1828,21 @@ This section turns "research standard" into practice: how the project proves tha
 ### 14.1 How experiments work
 
 - `RES-01` **Experiments lead** *(Decided)*
-  - **What:** Core ideas are proven in experiments across many random worlds, run without graphics, before the game builds on them (`SCP-03`).
+  - **What:** Core ideas are proven in experiments, run without graphics, before the game builds on them (`SCP-03`): first in sandboxes, then confirmed in full worlds (`RES-21`).
   - **Why:** The biggest risk is that nothing emerges (`RSK-01`).
     Experiments find out early and cheaply.
 
-- `RES-08` **What every experiment has** *(Decided)*: A question; a setup (world settings, starting kit, population, length); the number of worlds; what is measured; pass and fail criteria; and comparison runs.
+- `RES-21` **Sandboxes, then full worlds** *(Decided)*
+  - **What:** Most experiments run in sandboxes: small settings built for one question, such as a band on a riverbank with flint, granite and decoy stones, or a winter camp whose fire is dying.
+    A sandbox uses the game's own rules and minds, with no special rules and nothing scripted inside it (`PRN-07`); only its setting is chosen, and it includes decoys and materials nobody designed for.
+    Each experiment states its computing budget up front, and its sandbox is sized to fit it (`RES-16`).
+    Sandbox runs are cheap and repeat exactly from their seed (`TIM-06`), so each question gets many runs.
+    At every milestone, a few full worlds from the play generator confirm that what the sandboxes showed also happens in a real world, within the sandboxes' ranges.
+  - **Why:** Whole worlds are far too costly to run by the hundred (`RSK-14`), while a sandbox answers one question cheaply and repeatably.
+    The full worlds guard against a sandbox so well arranged that it makes the result likely by design.
+  - **Check:** every claim names its sandbox and its full-world confirmation, and a result seen only in sandboxes is reported as such.
+
+- `RES-08` **What every experiment has** *(Decided)*: A question; a setup (the sandbox or world settings, starting kit, population, length); the number of runs; what is measured; pass and fail criteria; and comparison runs.
 
 - `RES-09` **Criteria fixed first** *(Decided)*: Each experiment's pass and fail criteria, with exact numbers and definitions, are written down before it runs, checked by the independent reviewer (`RES-11`) for ways the experiment couldn't fail, and approved by you.
   They are never adjusted afterwards.
@@ -1844,7 +1854,7 @@ This section turns "research standard" into practice: how the project proves tha
 - `RES-12` **Surprises log** *(Decided)*: Unexpected results are recorded even when they weren't the question.
   They often become new signature moments (`MOM`).
 
-- `RES-13` **Many worlds, reported as ranges** *(Decided)*: Every claim rests on many worlds (100 per setup unless stated) and is reported as a range, for example "discovered in 62 of 100 worlds; typically around year 140".
+- `RES-13` **Many runs, reported as ranges** *(Decided)*: Every claim rests on many runs (100 sandbox runs per setup unless stated), confirmed in a few full worlds (`RES-21`), and is reported as a range, for example "discovered in 62 of 100 runs; typically around year 140".
 
 - `RES-14` **Compared with reality where possible** *(Decided)*: Where real-world data exist, such as hunter-gatherer populations or rates of learning and cultural change, results are compared with them.
 
@@ -1855,10 +1865,11 @@ This section turns "research standard" into practice: how the project proves tha
   - **When it fails:** a failed confirmation holds the milestone until you choose: redesign, a weaker claim, or dropping the claim.
   - **Why:** Re-running on the same worlds until something passes would make "experiments that can fail" meaningless (`PRN-05`).
 
-- `RES-17` **Signature moments keep passing** *(Decided)*: A signature moment passes if it happens in at least 1 world in 10 within its time window, unless its own criteria say otherwise.
-  A small sample re-runs before every merge and the full set at every milestone, and a failure blocks the milestone (`PRC-10`).
+- `RES-17` **Signature moments keep passing** *(Decided)*: Each signature moment has its own sandbox, and passes if it happens in at least 1 run in 10 within its time window, unless its own criteria say otherwise (`RES-21`).
+  A small sample of these sandboxes re-runs before every merge and all of them at every milestone, and a failure blocks the milestone (`PRC-10`).
+  Each milestone report also says which moments appeared in its full worlds.
 
-- `RES-18` **Experiment worlds are play worlds** *(Decided)*: Experiments use the same world generator as play (`WLD-10`).
+- `RES-18` **Same rules as play** *(Decided)*: Sandboxes use the same rules as play, and the full worlds that confirm them come from the play generator (`WLD-10`, `RES-21`).
   Scripted events and dials appear only in clearly labelled experiments, and a moment that passes only with a dial doesn't count as passing in play (`PRN-12`).
 
 - `RES-19` **Promises are tested** *(Decided)*: Every claim in Minds and in Culture and society that something emerges either gets an experiment before its milestone closes, or is marked "possible, not promised".
@@ -1868,17 +1879,17 @@ This section turns "research standard" into practice: how the project proves tha
 
 - `RES-04` **Reality checklist first** *(Decided)*: The physics must pass every reality check (`RCK`) before any discovery that depends on it is trusted.
 
-- `RES-05` **Reproducibility** *(Decided)*: Results are reproducible statistically: re-running an experiment on fresh worlds gives results within its stated ranges, and the cloud build gives the same statistics as the phone build.
+- `RES-05` **Reproducibility** *(Decided)*: Results are reproducible statistically: re-running an experiment on fresh seeds gives results within its stated ranges, and the cloud build gives the same statistics as the phone build.
   Exact repeats of a history are not required (`PRN-15`).
   Checked at every milestone.
 
 ### 14.2 The experiments
 
 - `RES-02` **Experiment 1: sharp stone** *(Decided)*: Do bands that only bash rocks discover how to chip sharp flakes, and does the skill spread?
-  Its world includes uses for a sharp edge: carcasses to butcher, and hides and wood to work.
+  Its sandbox includes uses for a sharp edge: carcasses to butcher, and hides and wood to work.
 
-- `RES-03` **Experiment 1 pass criteria** *(Decided)*: starting values, fixed before it runs (`RES-09`):
-  - **Discovery:** happens in at least half of 100 random worlds, within 500 simulated years.
+- `RES-03` **Experiment 1 pass criteria** *(Decided)*: starting values, fixed before it runs (`RES-09`), met in its sandbox runs and confirmed in full worlds (`RES-21`):
+  - **Discovery:** happens in at least half of the runs, within 500 simulated years.
   - **Variety:** discovery times differ widely between worlds, and at least two different routes to the discovery appear, for example an accident someone notices versus deliberate tinkering.
   - **Spread:** once discovered, at least three quarters of the adults in the discovering band can do it within 50 simulated years.
   - **Loss:** the skill is lost noticeably more often in small, isolated groups than in large, connected ones.
@@ -2105,7 +2116,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood high, impact high.
   - **Risk:** Experiment 1 alone may need months of a cloud session's computing (`SCP-15`).
   - **Signs:** runs that can't finish within a session; experiments cut short.
-  - **Response:** measure early; stop each test once its result is clear (`RES-16`); leaner minds; and raise more computing with you first (`SCP-15`).
+  - **Response:** sandboxes instead of whole worlds, each sized to a computing budget stated up front (`RES-21`); stop each test once its result is clear (`RES-16`); leaner minds; and raise more computing with you first (`SCP-15`).
 
 - `RSK-16` **Invented sources** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
@@ -2160,7 +2171,8 @@ New suggestions from AI agents are marked *Proposed* and listed here until you c
 - **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
 - **Recogniser:** the part of the game that spots and names what emerges, for you only.
   It never feeds back into the world (`PRE-39`).
-- **Run:** one simulation of a world for an experiment.
+- **Run:** one simulation of a sandbox or a world for an experiment.
+- **Sandbox:** a small setting built for one research question, using the game's own rules and minds, with nothing scripted (`RES-21`).
 - **Saved moment:** a point in a world's past whose full state was saved, so you can look at it or branch from it (`PRN-15`, `TIM-06`).
 - **Scientist's view / story view:** the two ways to look into a mind: raw beliefs and evidence, or their own words (`PRE-14`).
 - **Seed:** the number a world is generated from.
