@@ -1,0 +1,56 @@
+dist/kindling-pretests-r2.apk (28561613 bytes)
+  ok   signed v3
+  ok   same signing key as round 1 (b8eef7b23ef6e8eb9c10882da8269da9779c555ac28565d9e02ebaf88e8895ce)
+  ok   zip entries aligned (16 KB for .so)
+  ok   ABIs: arm64-v8a 
+  ok   B04/B11 storage: libkstorage.so (2828728 bytes), LOAD align 0x4000 
+  ok   B04/B11 storage: stored uncompressed
+  ok   B04/B11 storage: exports Java_dev_kindling_pretests_Storage_run
+  ok   B04/B11 storage: needs only public libraries (libdl.so libm.so libc.so )
+  ok   B74 sound: libksound.so (526240 bytes), LOAD align 0x4000 
+  ok   B74 sound: stored uncompressed
+  ok   B74 sound: exports Java_dev_kindling_pretests_Sound_run
+  ok   B74 sound: needs only public libraries (libaaudio.so libdl.so libm.so libc.so )
+  ok   B73 Gemma (LiteRT-LM): liblitertlm_jni.so (21802952 bytes), LOAD align 0x4000 
+  ok   B73 Gemma (LiteRT-LM): stored uncompressed
+  ok   B73 Gemma (LiteRT-LM): exports Java_com_google_ai_edge_litertlm_LiteRtLmJni_nativeCreateEngine
+  ok   B73 Gemma (LiteRT-LM): exports Java_com_google_ai_edge_litertlm_LiteRtLmJni_nativeCreateConversation
+  ok   B73 Gemma (LiteRT-LM): exports Java_com_google_ai_edge_litertlm_LiteRtLmJni_nativeSendMessageAsync
+  ok   B73 Gemma (LiteRT-LM): needs only public libraries (libandroid.so libz.so libGLESv2.so libEGL.so libGLESv3.so liblog.so libdl.so libm.so libc.so )
+  ok   no other native libraries
+  ok   kept class dev.kindling.pretests.Storage
+  ok   kept dev.kindling.pretests.Storage.run
+  ok   kept class dev.kindling.pretests.Sound
+  ok   kept dev.kindling.pretests.Sound.run
+  ok   kept class dev.kindling.pretests.WriterTest
+  ok   kept class com.google.mlkit.genai.prompt.Generation
+  ok   kept class com.google.ai.edge.litertlm.LiteRtLmJni
+  ok   kept com.google.ai.edge.litertlm.LiteRtLmJni.nativeCreateEngine
+  ok   kept class com.google.ai.edge.litertlm.LiteRtLmJniException
+  ok   kept com.google.ai.edge.litertlm.SamplerConfig.getTopK
+  ok   kept com.google.ai.edge.litertlm.SamplerConfig.getTopP
+  ok   kept com.google.ai.edge.litertlm.SamplerConfig.getTemperature
+  ok   kept com.google.ai.edge.litertlm.SamplerConfig.getSeed
+  ok   kept com.google.ai.edge.litertlm.ThinkingConfig.getEnableThinking
+  ok   kept com.google.ai.edge.litertlm.ThinkingConfig.getThinkingTokenBudget
+  ok   kept com.google.ai.edge.litertlm.LiteRtLmJni$JniMessageCallback.onMessage
+  ok   kept com.google.ai.edge.litertlm.LiteRtLmJni$JniMessageCallback.onDone
+  ok   kept com.google.ai.edge.litertlm.LiteRtLmJni$JniMessageCallback.onError
+  ok   kept com.google.ai.edge.litertlm.InputData$Text.getText
+  ok   kept class com.google.ai.edge.litertlm.BenchmarkInfo
+  ok   package dev.kindling.pretests, versionCode 2, r2
+  ok   minSdk 31
+  ok   targetSdk 36
+  info launchable-activity: name='dev.kindling.pretests.MainActivity'  label='' icon=''
+  info native-code: 'arm64-v8a'
+  ok   permissions: android.permission.ACCESS_NETWORK_STATE android.permission.INTERNET com.google.android.apps.aicore.service.BIND_SERVICE dev.kindling.pretests.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION 
+  ok   may open libOpenCL.so
+  ok   may open libOpenCL-pixel.so
+  ok   may open libvndksupport.so
+  ok   may open libedgetpu_litert.so
+  ok   may open libedgetpu_util.so
+  ok   may open libedgetpu_client.google.so
+  ok   may open libedgetpu_tachyon.google.so
+  ok   share provider dev.kindling.pretests.files
+  ok   ML Kit usage upload removed (no network use but the model download)
+  ok   native libraries load from the APK

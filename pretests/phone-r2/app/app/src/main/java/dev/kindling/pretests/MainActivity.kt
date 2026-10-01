@@ -55,6 +55,7 @@ class MainActivity : Activity() {
         @SuppressLint("StaticFieldLeak")
         @Volatile private var active: MainActivity? = null
         @Volatile private var running = false
+        @SuppressLint("StaticFieldLeak") // holds the application context only
         @Volatile private var gemma: GemmaTest? = null
     }
 
@@ -323,12 +324,11 @@ class MainActivity : Activity() {
         if (!running && !rating && started) showCode(finished)
         else for (v in listOf(codeLabel, codeView, copyButton, shareNote, shareButton)) v.visibility = View.GONE
         io.execute {
-            val present = GemmaTest.modelFile(this).let { it.exists() || File(it.path + ".part").exists() }
+            val present = GemmaTest.modelFile(this).let { it.exists() || File(it.path + ".part").exists() } ||
+                GemmaTest.cacheDir(this).exists()
             onUi { deleteButton.visibility = if (present && !running && started) View.VISIBLE else View.GONE }
         }
     }
-
-    private var codeTrim = 0
 
     /** Builds the code off the screen thread, then shows it. */
     private fun showCode(finished: Boolean) {
@@ -339,7 +339,6 @@ class MainActivity : Activity() {
                 Logic.Code("error: $t", 0, "")
             }
             onUi {
-                codeTrim = c.trim
                 codeView.text = c.code
                 codeLabel.text = if (finished) "Result code (${c.code.length} characters). Copy it and paste it back in the chat:"
                 else "Result code so far (${c.code.length} characters; the tests are not finished):"
@@ -383,7 +382,7 @@ class MainActivity : Activity() {
         AlertDialog.Builder(this).setMessage("Delete the Gemma model (3.3 GB)? A later test round would download it again.")
             .setPositiveButton("Delete") { _, _ ->
                 io.execute {
-                    val freed = try { GemmaTest.download(this).deleteAll() } catch (_: Throwable) { -1L }
+                    val freed = try { GemmaTest.deleteModel(this) } catch (_: Throwable) { -1L }
                     onUi {
                         Toast.makeText(this, if (freed >= 0) "Deleted (${Logic.gb(freed)} freed)." else "Could not delete it.", Toast.LENGTH_SHORT).show()
                         refresh()
@@ -423,17 +422,14 @@ class MainActivity : Activity() {
 
     private fun startRun(continuing: Boolean) {
         if (running) return
-        val warn = ArrayList<String>()
-        val level = probe.level()
-        if (probe.plugged() <= 0 && level in 0..59) warn.add("the battery is at $level% and not charging: please plug in the charger")
-        if (!probe.onWifi()) warn.add("the phone is not on Wi-Fi, which the Gemma download needs")
-        say(if (warn.isEmpty()) "" else "Note: ${warn.joinToString("; ")}. The tests start anyway.")
+        say("")
         rateBox.visibility = View.GONE
         setRunning(true)
         Thread {
             try {
                 if (!continuing) store.reset(JSONObject().put("v", 2).put("app", BuildConfig.VERSION_NAME)
                     .put("t0", System.currentTimeMillis() / 1000))
+                warnings()
                 runSteps()
             } catch (t: Throwable) {
                 store.error("run", t)
@@ -444,6 +440,19 @@ class MainActivity : Activity() {
                 startRating()
             }
         }.apply { name = "kindling-tests" }.start()
+    }
+
+    /** What the owner may still fix (before-you-start list); the tests start anyway. */
+    private fun warnings() {
+        val warn = ArrayList<String>()
+        val level = probe.level()
+        if (probe.plugged() <= 0 && level in 0..59) warn.add("the battery is at $level% and not charging: please plug in the charger")
+        if (!probe.onWifi()) warn.add("the phone is not on Wi-Fi, which the Gemma download needs")
+        if (!store.isDone("gm") && !GemmaTest.download(this).ready()) {
+            val free = probe.freeBytes()
+            if (free in 0 until 4_000_000_000L) warn.add("only ${Logic.gb(free)} is free: Gemma needs 4 GB, or it is left out")
+        }
+        if (warn.isNotEmpty()) say("Note: ${warn.joinToString("; ")}. The tests start anyway.")
     }
 
     private val steps: List<Step> by lazy {
@@ -525,7 +534,9 @@ class MainActivity : Activity() {
     /** B73, Gemini Nano: pretests/b73-writer/INTEGRATION.md; its own limits (at most about 4.5 minutes) apply. */
     private fun nanoStep() {
         progress("Checking whether Gemini Nano is ready...", -1.0)
-        WriterTest.onProgress = { m -> progress("Gemini Nano, $m.", -1.0) }
+        WriterTest.onProgress = { m ->
+            progress("Gemini Nano, " + m.replace("FULL:", "main model:").replace("FAST:", "its fast variant:") + ".", -1.0)
+        }
         try {
             // WriterTest stops itself within its 270 s budget; the extra wait only guards against a hang.
             val r = withTimeout("gemini-nano", 400_000L) { WriterTest.run(applicationContext) }

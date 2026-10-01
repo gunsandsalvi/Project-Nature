@@ -1,7 +1,5 @@
 package dev.kindling.pretests
 
-import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpServer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -9,7 +7,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.File
-import java.net.InetSocketAddress
+import java.io.IOException
+import java.io.OutputStream
+import java.net.InetAddress
+import java.net.ServerSocket
+import java.net.Socket
 import java.nio.file.Files
 import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicInteger
@@ -23,58 +25,73 @@ import kotlin.random.Random
 class DownloadTest {
     private val blob = Random(7).nextBytes(5_000_000 + 123)
     private val sha = MessageDigest.getInstance("SHA-256").digest(blob).joinToString("") { "%02x".format(it) }
-    private lateinit var server: HttpServer
+    private lateinit var server: ServerSocket
     private lateinit var base: String
     private val requests = AtomicInteger(0)
     private val ranged = AtomicInteger(0)
     @Volatile private var cutFirstAt = -1 // cut the first body after this many bytes
     @Volatile private var ignoreRange = false
-    @Volatile private var redirects = true
 
+    /** A minimal HTTP/1.1 server on a local port: one request per connection, then close. */
     @Before fun start() {
-        server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
-        server.createContext("/repo/resolve/main/model.bin") { ex ->
-            if (redirects) {
-                ex.responseHeaders.add("Location", "/cdn/abc?signed=1")
-                ex.sendResponseHeaders(302, -1)
-                ex.close()
-            } else serve(ex)
-        }
-        server.createContext("/cdn/abc") { ex -> serve(ex) }
-        server.start()
-        base = "http://127.0.0.1:${server.address.port}"
+        server = ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"))
+        base = "http://127.0.0.1:${server.localPort}"
+        Thread {
+            while (!server.isClosed) {
+                val s = try { server.accept() } catch (_: IOException) { break }
+                Thread { handle(s) }.apply { isDaemon = true }.start()
+            }
+        }.apply { isDaemon = true }.start()
     }
 
-    @After fun stop() = server.stop(0)
+    @After fun stop() = server.close()
 
-    private fun serve(ex: HttpExchange) {
+    private fun handle(sock: Socket) {
+        sock.use { s ->
+            val input = s.getInputStream().bufferedReader(Charsets.ISO_8859_1)
+            val path = (input.readLine() ?: return).split(" ").getOrNull(1) ?: return
+            val headers = HashMap<String, String>()
+            while (true) {
+                val line = input.readLine() ?: break
+                if (line.isEmpty()) break
+                headers[line.substringBefore(':').trim().lowercase()] = line.substringAfter(':').trim()
+            }
+            val out = s.getOutputStream()
+            when {
+                path == "/repo/resolve/main/model.bin" -> head(out, "302 Found", "Location: /cdn/abc?signed=1", 0)
+                path.startsWith("/cdn/abc") -> serve(out, headers["range"])
+                else -> head(out, "404 Not Found", null, 0)
+            }
+            out.flush()
+        }
+    }
+
+    private fun head(out: OutputStream, status: String, extra: String?, length: Long) {
+        val h = StringBuilder("HTTP/1.1 $status\r\nContent-Length: $length\r\nConnection: close\r\n")
+        if (extra != null) h.append(extra).append("\r\n")
+        out.write(h.append("\r\n").toString().toByteArray(Charsets.ISO_8859_1))
+    }
+
+    private fun serve(out: OutputStream, range: String?) {
         val n = requests.incrementAndGet()
-        val range = ex.requestHeaders.getFirst("Range")
         var from = 0
         if (range != null && !ignoreRange) {
             from = range.removePrefix("bytes=").substringBefore('-').toInt()
             ranged.incrementAndGet()
-            ex.responseHeaders.add("Content-Range", "bytes $from-${blob.size - 1}/${blob.size}")
-            ex.sendResponseHeaders(206, (blob.size - from).toLong())
+            head(out, "206 Partial Content", "Content-Range: bytes $from-${blob.size - 1}/${blob.size}", (blob.size - from).toLong())
         } else {
-            ex.sendResponseHeaders(200, blob.size.toLong())
+            head(out, "200 OK", null, blob.size.toLong())
         }
+        // The first body can be cut part-way, as a dropped connection.
+        val end = if (n == 1 && cutFirstAt > 0) cutFirstAt else blob.size
         try {
-            ex.responseBody.use { out ->
-                val end = if (n == 1 && cutFirstAt > 0) cutFirstAt else blob.size
-                var i = from
-                while (i < end) {
-                    val m = minOf(64 * 1024, end - i)
-                    out.write(blob, i, m)
-                    i += m
-                }
-                if (end < blob.size) throw java.io.IOException("cut on purpose")
+            var i = from
+            while (i < end) {
+                val m = minOf(64 * 1024, end - i)
+                out.write(blob, i, m)
+                i += m
             }
-        } catch (_: java.io.IOException) {
-            // A cut connection: the client sees the body end early.
-        } finally {
-            ex.close()
-        }
+        } catch (_: IOException) {}
     }
 
     private fun dir() = Files.createTempDirectory("dl").toFile()

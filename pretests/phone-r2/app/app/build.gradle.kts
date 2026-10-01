@@ -83,6 +83,8 @@ tasks.withType<Test>().configureEach {
     systemProperty("b73.prompts", writerPrompts.absolutePath)
     systemProperty("b73.results", File(pretests, "b73-writer/results").absolutePath)
     systemProperty("b04.cloud", File(pretests, "b04-b11-storage-terrain/results/phone-cloud.json").absolutePath)
+    // A sample code from synthetic results, for checking tools/decode-result.py end to end.
+    systemProperty("r2.sampleDir", layout.buildDirectory.dir("r2-sample").get().asFile.absolutePath)
 }
 
 // Native libraries for arm64, 16 KB aligned. Cargo is incremental, and --locked leaves the crates' lock files alone.

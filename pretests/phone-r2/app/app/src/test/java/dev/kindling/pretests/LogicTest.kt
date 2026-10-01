@@ -103,7 +103,9 @@ class LogicTest {
         assertEquals(0, c.trim)
         val back = JSONObject(Logic.unBase64Gunzip(c.code))
         val tx = back.getJSONArray("tx")
-        assertEquals(40, tx.length())
+        // Each distinct text once (the small stand-in model sometimes wrote the same text for both voices).
+        val distinct = (texts("standin-qwen2.5-1.5b-v2.json") + texts("standin-gemma-4-e2b-v2.json")).map { it.trim() }.toSet()
+        assertEquals(distinct.size, tx.length())
         // Every text comes back exactly, through its index.
         val nanoRuns = back.getJSONObject("nano").getJSONArray("passes").getJSONObject(0).getJSONArray("runs")
         val want = texts("standin-qwen2.5-1.5b-v2.json")
@@ -122,21 +124,47 @@ class LogicTest {
         assertTrue(back.getBoolean("finished"))
     }
 
-    @Test fun anOversizedCodeDropsTheFastPassTextsFirst() {
+    /** Writes a sample code (both models, a FAST pass, a rating) for checking tools/decode-result.py. */
+    @Test fun writesASampleCodeForTheDecoder() {
+        val dir = File(System.getProperty("r2.sampleDir") ?: return).apply { mkdirs() }
         val r = results(withFast = true)
-        val c = Logic.resultCode(r)
-        println("round-2 code with a full FAST pass too: code ${c.code.length} chars, trim ${c.trim}")
+        File(dir, "code.txt").writeText(Logic.resultCode(r).code)
+        File(dir, "results.json").writeText(r.toString())
+        File(dir, "code-trimmed.txt").writeText(Logic.resultCode(r, limit = 9_000).code)
+    }
+
+    @Test fun aFastPassStillFitsButAnOversizedCodeDropsItsTextsFirst() {
+        val r = results(withFast = true)
+        val fits = Logic.resultCode(r)
+        println("round-2 code with a full FAST pass too: code ${fits.code.length} chars, trim ${fits.trim}")
+        assertTrue("code is ${fits.code.length} chars", fits.code.length <= 15_500)
+        // Over a (lower) limit, the FAST pass's texts go first.
+        val c = Logic.resultCode(r, limit = fits.code.length - 1000)
         val back = JSONObject(Logic.unBase64Gunzip(c.code))
-        assertTrue(c.trim >= 1)
+        assertEquals(1, c.trim)
         assertEquals(c.trim, back.getInt("trim"))
         val tx = back.getJSONArray("tx")
-        assertEquals(40, tx.length()) // FULL and Gemma kept; FAST dropped
+        val main = (texts("standin-qwen2.5-1.5b-v2.json") + texts("standin-gemma-4-e2b-v2.json")).map { it.trim() }.toSet()
+        assertEquals(main.size, tx.length()) // FULL and Gemma kept; FAST dropped
         val fast = back.getJSONObject("nano").getJSONArray("passes").getJSONObject(1).getJSONArray("runs")
-        for (i in 0 until fast.length()) assertEquals(-1, fast.getJSONObject(i).getInt("t"))
+        for (i in 0 until fast.length()) {
+            // A FAST text left in the code is one a main pass also wrote (kept once, shared).
+            val ti = fast.getJSONObject(i).getInt("t")
+            assertTrue(ti == -1 || tx.getString(ti) in main)
+        }
+        assertTrue((0 until fast.length()).count { fast.getJSONObject(it).getInt("t") == -1 } >= 15)
         val full = back.getJSONObject("nano").getJSONArray("passes").getJSONObject(0).getJSONArray("runs")
         for (i in 0 until full.length()) assertTrue(full.getJSONObject(i).getInt("t") >= 0)
         val gm = back.getJSONObject("gm").getJSONArray("runs")
         for (i in 0 until gm.length()) assertTrue(gm.getJSONObject(i).getInt("t") >= 0)
+        // However small the limit, the main texts stay; every trim step is applied, in order.
+        val tiny = Logic.resultCode(r, limit = 100)
+        val t = JSONObject(Logic.unBase64Gunzip(tiny.code))
+        assertEquals(7, t.getInt("trim"))
+        assertEquals(main.size, t.getJSONArray("tx").length())
+        assertTrue(t.getJSONObject("st").has("gen") && t.getJSONObject("st").has("detail"))
+        assertFalse(t.getJSONObject("snd").has("per_cpu") || t.getJSONObject("snd").has("offline"))
+        assertTrue(t.getJSONObject("snd").has("audio"))
     }
 
     @Test fun textsAreKeptOnceAndKeysAreShort() {
@@ -145,7 +173,8 @@ class LogicTest {
         // Gemini Nano writing the same text as Gemma for one prompt: the text is kept once.
         r.getJSONObject("nano").getJSONArray("passes").getJSONObject(0).getJSONArray("runs").getJSONObject(0).put("text", t[0])
         val (c, table) = Logic.compact(r)
-        assertEquals(39, c.getJSONArray("tx").length())
+        val distinct = (listOf(t[0]) + texts("standin-qwen2.5-1.5b-v2.json").drop(1) + t).map { it.trim() }.toSet()
+        assertEquals(distinct.size, c.getJSONArray("tx").length())
         assertEquals(setOf("nano-FULL", "gemma"), table.users[table.texts.indexOf(t[0].trim())])
         val run = c.getJSONObject("gm").getJSONArray("runs").getJSONObject(0)
         assertFalse(run.has("text") || run.has("voice") || run.has("dark") || run.has("ttfw_ms"))

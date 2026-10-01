@@ -64,7 +64,17 @@ class GemmaTest(
         const val MAX_NEW_TOKENS = 256
 
         fun modelFile(ctx: Context) = File(File(ctx.filesDir, "models"), FILE)
+        /** LiteRT-LM's own cache (compiled programs and the like), beside the model, so deleting removes both. */
+        fun cacheDir(ctx: Context) = File(File(ctx.filesDir, "models"), "litertlm-cache")
         fun download(ctx: Context) = ModelDownload(URL, modelFile(ctx), SIZE, SHA256)
+
+        /** The owner's "Delete the model" button: the model, any partial download and the runtime's cache. */
+        fun deleteModel(ctx: Context): Long {
+            val cache = cacheDir(ctx)
+            val cached = cache.walkTopDown().filter { it.isFile }.sumOf { it.length() }
+            cache.deleteRecursively()
+            return download(ctx).deleteAll() + cached
+        }
 
         fun label(b: String) = when (b) {
             "GOOGLE_TENSOR" -> "the Tensor chip's AI unit"
@@ -110,6 +120,7 @@ class GemmaTest(
             gm.put("mem", m.stop())
             val e = engine
             if (e != null && !stuck) runCatching { e.close() }.onFailure { gm.put("closeErr", it.toString().take(120)) }
+            runCatching { gm.put("cacheMB", cacheDir(ctx).walkTopDown().filter { it.isFile }.sumOf { it.length() } shr 20) }
         }
         end(when {
             engine == null && gm.optBoolean("hung") -> "failed: start-up never finished"
@@ -189,7 +200,9 @@ class GemmaTest(
         gm.put("dl", dl.log)
         return when {
             status == "done" || status == "ready" -> { save(); true }
-            status.startsWith("stopped") -> { end("skipped: download ${status.removePrefix("stopped: ")} (what came is kept, for next time)"); false }
+            status.startsWith("stopped: you tapped Skip") -> { end("skipped: you tapped Skip during the download (what came is kept for next time)"); false }
+            status.startsWith("stopped: over") -> { end("skipped: the download took ${status.removePrefix("stopped: ")} (what came is kept for next time)"); false }
+            status.startsWith("stopped") -> { end("skipped: download ${status} (what came is kept for next time)"); false }
             status == "no-network" -> { end("skipped: not on Wi-Fi"); false }
             status == "bad-hash" -> { end("failed: the downloaded file was damaged, so it was deleted"); false }
             else -> { end("failed: download: ${status.removePrefix("failed: ")}"); false }
@@ -232,8 +245,10 @@ class GemmaTest(
             "GPU" -> Backend.GPU()
             else -> Backend.CPU()
         }
-        // ":nocache": no runtime caches on storage, so every start-up is a first start-up (and nothing else is written).
-        val config = EngineConfig(modelPath = path, backend = backend, cacheDir = ":nocache")
+        // The runtime's cache goes in a folder of its own beside the model (Google's sample app lets it default to
+        // the model's folder); its size is recorded, and "Delete the model" removes it too.
+        val cache = cacheDir(ctx).apply { mkdirs() }
+        val config = EngineConfig(modelPath = path, backend = backend, cacheDir = cache.path)
         val result = AtomicReference<Engine?>()
         val error = AtomicReference<Throwable?>()
         val gaveUp = AtomicBoolean(false)
@@ -251,7 +266,9 @@ class GemmaTest(
         t.start()
         t.join(INIT_MS)
         synchronized(lock) {
+            result.get()?.let { return it to null }
             if (t.isAlive) {
+                // Still starting: let it finish (and close itself) in the background; never load the model twice.
                 gaveUp.set(true)
                 gm.put("hung", true)
                 return null to "start-up still running after ${INIT_MS / 1000} s"
@@ -392,11 +409,11 @@ class GemmaTest(
                 }
             })
             val finished = done.await(timeoutMs, TimeUnit.MILLISECONDS)
+            val end = now() // a text cut off at the limit counts up to the limit, as for Gemini Nano
             if (!finished) {
                 runCatching { conv.cancelProcess() }
                 stuck = !done.await(5_000, TimeUnit.MILLISECONDS)
             }
-            val end = now()
             val t = text.toString().trim()
             Logic.measures(r, start, first.get(), end, t)
             r.put("finish", if (!finished) "timeout" else if (error.get() != null) "error" else "done")

@@ -13,6 +13,9 @@
 -keep class dev.kindling.pretests.Storage { *; }
 -keep class dev.kindling.pretests.Sound { *; }
 -keepclasseswithmembernames,includedescriptorclasses class * { native <methods>; }
+# The app's own code keeps its names and line numbers, so a crash written down on the phone reads plainly.
+-keep class dev.kindling.pretests.** { *; }
+-keepattributes SourceFile,LineNumberTable
 
 # Kotlin reflection, pulled in by LiteRT-LM, warns about optional classes that are not on Android.
 -dontwarn kotlin.reflect.jvm.internal.**

@@ -1,0 +1,15 @@
+[package]
+name = "native-run"
+version = "0.1.0"
+edition = "2021"
+publish = false
+# Round-2 check: runs the storage (B04/B11) and sound (B74) libraries' phone entry points, as the app calls
+# them, on this machine or on arm64 under qemu. Builds the other pre-tests' crates from their own folders.
+
+[dependencies]
+kstorage = { path = "../../../b04-b11-storage-terrain/phone" }
+ksound = { path = "../../../b74-b76-sound-speech" }
+
+[profile.release]
+opt-level = 3
+codegen-units = 1

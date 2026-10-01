@@ -99,10 +99,10 @@ class ModelDownload(
             var have = if (part.isFile) part.length() else 0L
             if (have > size) { part.delete(); have = 0L }
             if (have == size) break
+            val gotBefore = got
             try {
-                val n = fetch(have)
-                got += n
-                if (n > 0) failures = 0
+                fetch(have)
+                failures = 0
             } catch (e: Stop) {
                 return finish("stopped: ${e.message}")
             } catch (e: Fatal) {
@@ -110,6 +110,8 @@ class ModelDownload(
                 return finish("failed: ${e.message}")
             } catch (e: IOException) {
                 note(e)
+                // Only connections that bring nothing count towards giving up.
+                if (got > gotBefore) failures = 0
                 if (++failures > maxFailures) return finish("failed: ${e.toString().take(120)}")
                 log.put("retries", log.optInt("retries") + 1)
                 sleepMs(minOf(30_000L, 1000L shl minOf(failures, 5)))
@@ -167,7 +169,7 @@ class ModelDownload(
         throw IOException("too many redirects")
     }
 
-    /** One connection: appends to the partial file; returns the bytes written. */
+    /** One connection: appends to the partial file (counting into `got`); returns the bytes written. */
     private fun fetch(have: Long): Long {
         val conn = open(have)
         try {
@@ -217,6 +219,7 @@ class ModelDownload(
                             throw e
                         }
                         written += n
+                        got += n
                         sinceSync += n
                         if (base + written > size) throw IOException("more data than expected")
                         if (sinceSync >= (256L shl 20)) { out.fd.sync(); sinceSync = 0 }

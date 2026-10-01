@@ -131,7 +131,7 @@ object Logic {
     fun needFreeBytes(total: Long, have: Long, fresh: Long = 4_000_000_000L, margin: Long = 700_000_000L): Long =
         if (have <= 0L) fresh else maxOf(0L, total - have) + margin
 
-    /** "bytes 100-199/1000" gives (100, 199, 1000); "bytes */1000" gives (-1, -1, 1000); null if unreadable. */
+    /** "bytes 100-199/1000" gives (100, 199, 1000); a star for the range gives (-1, -1, 1000); null if unreadable. */
     fun parseContentRange(h: String?): Triple<Long, Long, Long>? {
         val m = Regex("""bytes\s+(?:(\d+)-(\d+)|\*)/(\d+|\*)""").find(h?.trim() ?: return null) ?: return null
         val total = m.groupValues[3].toLongOrNull() ?: -1L
