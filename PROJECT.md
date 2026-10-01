@@ -296,6 +296,12 @@ These rules apply to every part of the project, and they outrank everything else
   - **Example:** Experiment 1 (sharp stone) needs to know how stone breaks, not how metal is smelted. Smelting waits until an experiment needs it, but matter is designed from the start so it can be added without rework.
   - **Check:** every task in the implementation plan names the experiment or feature that needs it.
 
+- `PRN-14` **Modular by design** *(Decided)*
+  - **What:** Every system grows by adding self-contained pieces (materials, laws, species, behaviours, views, checks), never by rewriting what already works. Adding something should be easy and effortless.
+  - **Why:** A project with no ceiling grows forever, and only a modular one stays buildable.
+  - **Example:** Adding tin ore to the world needs one new ingredient entry and its checks. Smelting tin already works, because the smelting law never named copper.
+  - **Check:** every milestone report lists what was added and confirms that nothing earlier had to be rewritten, or explains why it had to be.
+
 ## 3. Scope and non-goals
 
 This section sets the boundaries of the project: what it includes, where history starts, who it's for, how it gets built, and what it deliberately leaves out.
@@ -642,28 +648,118 @@ How animals think is covered in `MND-16`.
 
 ## 7. Matter and physics
 
-- `MAT-01` **Made of real ingredients** *(Decided)*: All matter is built from a few dozen real ingredients with real chemical makeup: for example silica, limestone-type minerals, clays, metal ores, water, salts, plant fibres, starches, sugars, proteins, fats, collagen and tannins. Results come from how these interact, not from rules written for each material.
-- `MAT-02` **Structure matters** *(Proposed)*: Matter also records how it's put together: crystal or glass, fibrous, porous or dense, coarse or fine grain, wet or dry. Sand, flint and obsidian are all mostly silica, but only flint and obsidian chip into blades.
-- `MAT-03` **Properties are derived** *(Decided)*: Hardness, strength, nutrition, toxicity, and how something breaks, burns or melts all follow from what it's made of and how it's put together.
-- `MAT-04` **A few dozen general laws** *(Decided)*: Change comes from general laws, each using real temperatures and conditions. No law names a product. A starting list (*Proposed*): burning, charring, melting, freezing, drying, dissolving, mixing, breaking, wearing away, rotting, fermenting, cooking, smelting.
-- `MAT-05` **Real-world values** *(Decided)*: Temperatures, hardness, energy content, toxicity and every other number come from real measurements.
+This is where "no recipes" lives. Nothing in the world is a recipe item: everything is matter with real chemistry and structure, changed by a few dozen general laws using real-world numbers. Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
+
+### 7.1 What things are made of
+
+- `MAT-01` **Made of real ingredients** *(Decided)*
+  - **What:** All matter is built from real ingredients: real minerals, compounds and the substances of living things. Results come from how these interact, never from rules written for each material.
+  - **Examples by group:**
+    - **rock and minerals:** silica (as quartz, flint, chert, obsidian or sand), calcite (limestone, chalk), clays, iron oxides (yellow and red ochre), copper minerals, tin ore, salt;
+    - **water and air:** water as ice, liquid and vapour; the gases of the air;
+    - **living matter:** cellulose and lignin (wood, plant fibres), starches, sugars, proteins, fats, collagen (hide, sinew, bone), bone mineral, resins, tannins, and the plant chemicals that make things poisonous or medicinal.
+
+- `MAT-09` **Elements and energy are kept** *(Decided)*
+  - **What:** Every ingredient has its real elemental makeup (carbon, hydrogen, oxygen, nitrogen, silicon, calcium, iron, copper, tin and so on), and every change keeps elements and energy balanced. Nothing ever comes from nothing.
+  - **Why:** It makes the world honest, and it keeps the door open to any chemistry people might reach later (`VIS-03`).
+  - **Example:** Smelting copper ore yields exactly the copper that was in it, plus gases. Burning wood releases the energy stored in it as heat and light, and leaves ash holding its minerals.
+
+- `MAT-02` **Structure matters** *(Decided)*
+  - **What:** Matter also records how it's put together: crystal or glass, fibrous, porous or dense, coarse or fine grain, wet or dry. Grinding, melting, cooling and drying change structure without changing makeup.
+  - **Example:** Sand, flint and obsidian are all mostly silica, but only flint and obsidian chip into blades. Sand melted with plant ash and cooled becomes glass.
+
+- `MAT-03` **Properties are derived** *(Decided)*: Every property follows from what something is made of and how it's put together:
+  - **mechanical:** weight, hardness, strength, toughness, springiness, and how it breaks (in shell-like flakes, in splinters, or by crumbling);
+  - **heat:** how it burns, melts, holds heat and passes it on;
+  - **water:** how it soaks up water, dissolves, softens or swells;
+  - **the body:** nutrition, poison, medicine, taste and smell;
+  - **the senses:** colour, sheen, texture, and the sound it makes when struck (`MND-03`);
+  - **time:** how fast it rots, rusts, wears or weathers.
+
+- `MAT-10` **Things** *(Decided)*: Everything in the world is a thing with a makeup, a structure, a shape, a size and a temperature. Things can be split, joined, worn down, heated, mixed and carried.
+
+### 7.2 How things change
+
+- `MAT-04` **A few dozen general laws** *(Decided)*: Change comes from general laws, each using real temperatures and conditions. No law ever names a product. A starting list *(Proposed)*:
+  - **force:** breaking, cutting, scraping and grinding, bending and springing back, pressing and pounding, friction, twisting and binding, joining by tying, gluing or fitting;
+  - **heat:** heating and cooling, burning with more or less air, charring, melting and setting, drying, roasting;
+  - **water:** wetting and soaking, dissolving and leaching, swelling, freezing;
+  - **chemistry:** rusting and smelting, burning lime, setting of mortar, tanning, glass-making;
+  - **life:** growing, digesting, healing, rotting and fermenting, with microbes at work (`WLD-21`).
+
+- `MAT-07` **One law, many inventions** *(Decided; follows from `PRN-07`)*: Laws are general enough that one law covers many inventions. For example, "metal ores give up their metal when heated hot enough in contact with burning charcoal" covers copper, tin, lead and iron. Each needs its own real conditions, so they become possible in a natural order that nobody wrote down.
+
 - `MAT-06` **Actions are physical** *(Decided)*: Every action has force, angle, speed, duration and temperature, and the physics decides the outcome. Technique matters: a clumsy strike shatters the stone.
-- `MAT-07` **One law, many inventions** *(Proposed)*: Laws are general enough that one law covers many inventions. For example, "metal ores give up their metal when heated hot enough in contact with burning charcoal" covers copper, tin, lead and iron. Each needs its own real conditions, so they become possible in a natural order that nobody wrote down.
-- `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time. They feed the archaeology view (`PRE-09`).
 
-### Reality checklist
+- `MAT-11` **Mechanics** *(Decided; follows from `MAT-06`)*: Weight, momentum, leverage, springiness and friction follow real physics. Throwing sticks, spear-throwers and bows can work only because the physics makes them work.
 
-The physics must reproduce every item below without any rule written specially for it. All items are *Proposed*; the list will be extended in the matter deep dive.
+- `MAT-12` **What a body can do** *(Proposed)*: The basic actions everything else is built from: grasp, carry, put down, drop, throw, strike, press, rub, twist, bend, tear, dig, cut or scrape with an edge, pierce with a point, pour, blow, chew, and put into fire or water. Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn.
 
-- `RCK-01` **Flint chips, granite doesn't**: Flint and obsidian chip into sharp flakes; granite doesn't.
-- `RCK-02` **Fire by friction**: Rubbing wood fast enough can light dry tinder.
-- `RCK-03` **Cooking helps**: Cooking makes food more nourishing.
-- `RCK-04` **Pottery needs fire**: Fired clay becomes pottery; sun-dried clay softens again in water.
-- `RCK-05` **Lime**: Burned limestone becomes lime.
-- `RCK-06` **Leather**: Hides soaked with oak bark become leather instead of rotting.
-- `RCK-07` **Fermentation**: Fruit sugars ferment.
-- `RCK-08` **Copper needs a furnace**: Copper smelts in a charcoal furnace with forced air, but not over a campfire.
-- `RCK-09` **Rot**: Untreated meat and hides rot, faster when warm and wet.
+- `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time, feeding the archaeology view (`PRE-09`). *(Proposed detail: what survives depends on the material and the ground. Stone lasts; bone survives in dry caves and limestone; wood, hide and plant fibre usually rot, except in waterlogged, frozen or very dry ground.)*
+
+### 7.3 Real numbers
+
+- `MAT-05` **Real-world values** *(Decided)*
+  - **What:** Temperatures, hardness, energy content, toxicity and every other number come from real measurements, each with its source (`PRN-05`).
+  - **Example:** Copper melts at about 1,085 °C. An open wood fire reaches roughly 600–900 °C; a charcoal furnace with forced air passes 1,100 °C. So copper waits until someone builds a hotter fire.
+
+### 7.4 How matter grows
+
+Matter must be easy to extend, forever (`PRN-14`).
+
+- `MAT-13` **Four catalogues** *(Proposed)*: Matter is described in four catalogues: ingredients, structures, laws and reality checks. Each entry stands alone, is written in plain language a person can read and check, gives its real-world values and sources, and names the reality checks that prove it.
+
+- `MAT-14` **Adding without rewriting** *(Proposed)*
+  - **What:** Adding an ingredient, structure, law or check never requires changing the others.
+  - **Why it works:** Laws never name products (`PRN-07`), so a new ingredient automatically takes part in every existing law.
+  - **Example:** Adding tin ore needs no new smelting rule; the smelting law already covers it.
+
+- `MAT-15` **Every addition proves itself** *(Proposed)*: Each new entry comes with the reality checks it must pass, and the whole checklist runs again, so nothing that worked before breaks.
+
+- `MAT-16` **Matter grows in layers** *(Proposed)*: Each milestone adds a layer without rewriting earlier ones:
+  1. stone, wood, bone and water (Experiment 1);
+  2. heat and fire;
+  3. food and the body's chemistry;
+  4. fibres, hides and joining;
+  5. clay, lime and pigments;
+  6. metals and glass;
+  7. further layers as experiments call for them.
+
+### 7.5 Reality checklist
+
+The physics must reproduce every item below without any rule written specially for it. The checklist grows with each layer (`MAT-16`), and every item is run again whenever anything changes (`MAT-15`).
+
+**Core**
+
+- `RCK-01` **Flint chips, granite doesn't** *(Decided)*: Flint and obsidian chip into sharp flakes; granite doesn't.
+- `RCK-02` **Fire by friction** *(Decided)*: Rubbing wood fast enough can light dry tinder.
+- `RCK-03` **Cooking helps** *(Decided)*: Cooking makes food more nourishing.
+- `RCK-04` **Pottery needs fire** *(Decided)*: Fired clay becomes pottery; sun-dried clay softens again in water.
+- `RCK-05` **Lime** *(Decided)*: Burned limestone becomes lime.
+- `RCK-06` **Leather** *(Decided)*: Hides soaked with oak bark become leather instead of rotting.
+- `RCK-07` **Fermentation** *(Decided)*: Fruit sugars ferment.
+- `RCK-08` **Copper needs a furnace** *(Decided)*: Copper smelts in a charcoal furnace with forced air, but not over a campfire.
+- `RCK-09` **Rot** *(Decided)*: Untreated meat and hides rot, faster when warm and wet.
+
+**Early crafts and food**
+
+- `RCK-10` **Heat-treated flint** *(Decided)*: Flint gently heated in a fire chips more easily and more predictably.
+- `RCK-11` **Cord** *(Decided)*: Plant fibres twisted together make cord far stronger than the single fibres.
+- `RCK-12` **Glue from bark** *(Decided)*: Birch bark heated without air gives a tar that glues a stone point to a shaft.
+- `RCK-13` **Leaching** *(Decided)*: Soaking in running water draws the bitterness out of acorns.
+- `RCK-14` **Keeping meat** *(Decided)*: Salting, smoking and drying make meat keep far longer.
+
+**Colour and art**
+
+- `RCK-15` **Ochre turns red** *(Decided)*: Yellow ochre turns red when heated.
+- `RCK-16` **Paint that lasts** *(Decided)*: Charcoal and ochre mixed with fat or water make paint that lasts on rock.
+
+**Later crafts**
+
+- `RCK-17` **Bronze** *(Decided)*: Copper with a little tin is harder than copper.
+- `RCK-18` **Iron** *(Decided)*: Iron needs a hotter, longer charcoal fire than copper and comes out spongy; it must be hammered to make it useful.
+- `RCK-19` **Mortar** *(Decided)*: Lime mortar hardens in the air.
+- `RCK-20` **Glass** *(Decided)*: Sand with plant ash melts into glass in a very hot fire.
 
 ## 8. People: bodies and lives
 
