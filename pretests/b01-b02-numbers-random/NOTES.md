@@ -129,7 +129,7 @@ flock $LOCK bash -c 'cd kbench && cargo build --release && cargo test --release'
 flock $LOCK scripts/build-practrand.sh             # PractRand into the shared cache
 flock $LOCK scripts/build-arm.sh                   # phone .so (cargo-ndk) + aarch64 tool for qemu
 scripts/run-all.sh                                 # slots A-F, each under the lock (needs ~50 min of lock time)
-python3 scripts/bench.py summarize <raw dir>       # rewrites results/*.csv
+python3 scripts/bench.py summarize $RAW           # rewrites results/*.csv; then: bench.py decide, bench.py tables
 ```
 
 One run: `$KBENCH '{"kernel":"rust:heat","format":"f32","threads":4,"seconds":2}'`. Java: `java jvm/Kernels.java '{"kernel":"java:heat","format":"fx32"}'`. On the phone: `Bench.run(json)`, where `{"list":true}` gives the plan and `"cpus":[7]` pins the workers.

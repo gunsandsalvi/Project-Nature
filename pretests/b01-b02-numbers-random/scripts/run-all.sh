@@ -1,6 +1,7 @@
 #!/bin/bash
 # B01/B02: all cloud measurements, each slot under the shared CPU lock (< 15 min each).
-# Usage: scripts/run-all.sh [slotA slotB slotC slotD]   (default: all four)
+# Usage: scripts/run-all.sh [slotA ... slotF]   (default: all six)
+# Run it with a background limit of at least 90 minutes: slots queue behind other tests.
 # Raw output goes to $RAW (scratchpad); summaries go to results/.
 set -e
 . "$(dirname "$0")/env.sh"
