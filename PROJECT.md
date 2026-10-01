@@ -1020,14 +1020,61 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
   Everything goes down to the metre where people are, or where something new or critical is happening.
   Where you look changes only the picture, never the simulation (`WLD-13`).
   Follows from `PRN-11`.
+  - **How it works:**
+    - **Levels:** each system keeps its state at its own level of the nested cells (`WLD-01`):
+      - **weather:** cells of about 8 km (tuned), small enough for storms about 50 km across (`WLD-30`); the weather at any smaller place comes from its cell by physical rules: air cools with height, cold air pools in hollows, slopes facing the sun warm faster, and wind drops in shelter;
+      - **water and soils:** rivers, lakes and ground water on cells of about 1 km, with each soil's makeup and slow change there too; the water and nutrients that plants draw on are kept per plant patch;
+      - **plants:** patches of about 250 m, each holding every species present with the amounts of its leaves, wood, roots, flowers, fruit and seed, and the ages of its trees;
+      - **animals:** each species' animals counted per patch, whole animals only, by age and sex, and moved between patches each day by where food, cover and danger are; river life per stretch of river, and sea life per cell of a few kilometres, with shores and shellfish beds in patches like the land;
+      - **the metre:** single things: stones, plants, animals as individuals, and the shape of the ground.
+    - **Steps:** each level moves by its own rates on one world clock: weather by the hour, rivers by the day and by the hour in floods, plants in steps as short as their changes need (days in a spring flush, weeks in winter), animal counts by the day, and single beings and things in fine steps while they act.
+      Grid levels are worked out many cells at once, on the graphics chip where that helps (`PLT-01`).
+    - **Where people are:** what a person's senses can reach is real at metre detail.
+      Things are made from the seed as senses reach them, large ones far off and small ones only close, by what each sense could pick out at that distance (`BIO-18`).
+      The ground takes its metre shape wherever bodies use it: where they walk, sit, climb, dig or build, and in the shelters they live in.
+      Anything touched is stored from then on (`MAT-10`).
+    - **Animals near people:** within the distance its species covers in a day of any person (estimated from body size and diet), an animal of a kind people meet one at a time (larger mammals and birds, and anything that can hurt a person; set per species, estimated) is an individual with a mind (`MND-16`), drawn from its patch's count with its own traits from the species' spread.
+      It rejoins the count when no person is near, its learned wariness of people passing into the population's traits.
+      Any animal that has dealt with people (hunted, wounded, fed, tamed, or known to someone) stays an individual for good.
+      Other animals stay counted, and one is made on its own only when something acts on it, as with matter: a fish caught, a grub dug up.
+    - **Something new or critical:** detail also goes down to the metre, near people or not, wherever a process depends on finer detail than its level: a fire spreading, water breaking out of its channel, ground giving way, lava and ash, a lightning strike.
+      It starts with the event and ends when the event does, and the results are written back to the coarser levels.
+    - **Between levels:** the coarser level always holds the totals.
+      When detail starts, single things are made from the current amounts and the seed; whatever is taken, eaten, killed, cut or burned at metre detail is taken off its patch at once.
+      Plants touched by people merge back into their patch once untouched for a season, keeping their place and identity from the seed, so the same tree is found again, grown or gone as its patch's amounts say.
+    - **The rule reads only the world:** what sets the level is people, animals and events, never the camera (`WLD-13`).
+    - **Checked:** each level is run in sandboxes against a finer one, and the same area run both ways must give the same statistics (`PRN-11`), such as plant amounts, animal numbers and how far fires spread.
 
 - `WLD-13` **Looking changes nothing** *(Decided)*: Where you look never changes what happens.
   Fine detail drawn for the picture is generated the same way every time, and never contradicts what was simulated.
   Follows from `PRN-10`.
+  - **How it works:**
+    - **One way only:** the picture and sound read the simulation; nothing in the simulation reads the camera, the zoom, or anything made only for the picture.
+    - **The same generator:** detail made for the picture where the simulation has none yet, such as ground, stones and plants close up, comes from the seed and the current coarser state by the same rules the simulation uses (`WLD-12`), so what you saw is what people will find.
+      It is never stored and never read back.
+    - **Animals that are counted:** where animals are counted rather than individuals (`MND-16`), the picture shows those real animals in the patches they are in, by age and sex.
+      Where each stands within its patch, and how it moves there, are filled in from the seed, and no event is shown that the counts didn't have (`PRN-10`).
+    - **Speed changes nothing:** step lengths come from the world's own rates, never from how fast time runs or how busy the phone is (`PRN-11`).
+      Fast or slow, only the batching changes: up close the steps run in small slices between frames, and at speed in large batches, with the same results.
+  - **Check:** the same saved state, run with the camera in different places and at different speeds, gives the same results bit for bit on the same phone (`TIM-06`); and a code check finds no path from the picture's data into the simulation.
 
 ### 6.5 Natural systems
 
 - `WLD-29` **Systems feed each other** *(Decided)*: All the natural systems below are simulated in depth, and each feeds the others: weather shapes soils and plants, plants feed animals, fire and floods change the land, and people come to change them all (`WLD-25`).
+  - **How it works:**
+    - **Shared places:** every system reads and writes the same cells and patches (`WLD-12`), so what one changes, the others read at their next step.
+    - **What feeds what:**
+      - weather feeds water (rain, snow, melt, evaporation), soils (wetting, freezing), plants (warmth, light, water, frost), animals and people (heat, cold, snow cover) and fire (dry fuel, lightning, wind);
+      - water feeds soils and plants (wetness, flooding), the land (cutting and settling) and the weather (water returned to the air);
+      - soils feed plants (water and nutrients) and decide what buried things keep (wetness, air, acidity: `MAT-08`);
+      - plants feed animals (food, cover), soils (fallen leaves and roots, with their nutrients), water (what roots draw up and leaves give off), the weather (how much sunlight the land reflects and how much water it returns to the air) and fire (fuel);
+      - animals feed plants (grazing, trampling, spreading seed, pollinating, dung), other animals (hunting, competing) and microbes (hosts, carcasses);
+      - microbes feed soils (rot releasing nutrients), every living thing (disease) and stored food (rot, fermenting) (`WLD-21`);
+      - fire feeds plants (burned, then regrowth), soils (ash, and bare ground that erodes), the air (smoke) and animals (killed or driven off);
+      - changes to the land (erosion, slides, floods, quakes, eruptions) feed everything where they happen.
+    - **Nothing lost:** water, carbon, nutrients and heat pass between systems with their elements and energy counted (`MAT-09`): the nitrogen in grass eaten by a deer goes into the deer, its dung and in time its carcass, and back to the soil.
+    - **Order:** within a step the systems run in a fixed order, and a slow system takes the faster ones' totals over its step, such as the week's warmth and water for plants, so nothing reads a value from the future.
+    - **People are one more feeder:** what people do at metre detail goes into the same cells and patches (plants cleared, land burned, earth dug, animals killed), so its effects travel the same links (`WLD-25`).
 
 - `WLD-14` **Geology and materials** *(Decided)*
   - **What:** Rocks, minerals, soils and ores lie in realistic places, so what can be discovered depends on what's underfoot.
