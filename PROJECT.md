@@ -741,19 +741,30 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
     - **a region:** years pass every minute;
     - **the whole world:** centuries pass every minute.
   - **The past at any speed:** history that has already happened, for example overnight, can be played back at any speed from the saved history (`PRN-15`), so a thousand years can still sweep past like weather (`VIS-07`).
+  - **How it works:**
+    - **One world clock:** every system advances to the same clock, in steps set by the world's own rates (`WLD-12`); the speed asked for is how much simulated time should pass per real second.
+    - **Zoom asks for a speed:** each zoom level has its target from the list above, blended smoothly between levels.
+    - **As fast as the phone can, up to that speed:** each frame, the simulation runs as many steps as the phone's budget allows while the screen stays smooth (`PLT-04`); if it can't reach the speed asked, time runs slower and the speed shown is the real one (`PRN-11`).
+      The steps themselves never depend on the speed (`WLD-13`).
+    - **What is drawn at speed:** each frame shows the world's state at that moment; nothing is drawn that the simulation didn't have (`PRN-10`).
+    - **The past at any speed:** a view of the past reads the saved history and plays it at any speed, filling in movement between saved states without adding events (`PRN-15`).
   - **Why:** Close-up moments are lived; distant eras are watched.
   - **Example:** You watch the knapper strike, flake by flake.
     Then you pull back over the valley, and a whole summer passes while the herds move north.
 
 - `TIM-10` **Natural speed up close** *(Decided)*: At the closest zoom, people and animals move at real-life speed.
   You can watch a flake come off the stone.
+  - **How it works:** at the closest zoom the speed asked is one simulated second per real second; each action is animated over its real duration from its settings (`MAT-06`), and sounds play in real time (`SND-07`).
 
 - `TIM-04` **Manual control** *(Decided)*: You can unlink speed from zoom whenever you want.
   The controls: pause, play, a speed dial, and a lock that keeps the current speed while you move the camera.
+  - **How it works:** pause asks for no time at all; play hands the speed back to zoom; the dial asks for the speed you set; and the lock keeps the speed asked when you started moving the camera.
+    The real speed still can't pass what the phone manages (`PRN-11`).
 
 - `TIM-15` **Who sets the speed** *(Decided)*: Your pause and speed lock beat the story director (`TIM-02`), and the director beats zoom.
   Choosing a power pauses time.
   Overnight mode (`TIM-12`) ignores the director, but keeps its moments for the morning.
+  - **How it works:** the speed asked comes from the highest active source in this order: pause and the lock, then the director, then zoom; choosing a power sets pause until you confirm or cancel it (`GOD-10`).
 
 ### 5.2 The story director
 
@@ -769,20 +780,29 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
     - conflicts, disasters and migrations;
     - a band forming, splitting or ending;
     - the consequences of your own interventions.
+  - **How it works:**
+    - **It reads the event stream:** every event the simulation records (`PRN-15`) passes the recognisers (see Presentation), which tag what kind of importance it has, by patterns in the records and never by the simulation naming anything: a first (an outcome of a kind this world's history has never recorded), births and deaths of the people you follow, a skill or belief reaching a new band or losing its last holder, fighting between groups, disasters past a size, a band leaving its range, a band forming, splitting or ending, and events traced back to one of your acts.
+    - **Signs before outcomes:** it also watches present states that often come before such events, such as someone trying something new, a predator closing on a band, or a storm building, so it can slow down before the outcome; it never looks ahead in time.
+    - **Scores and speed:** each tag carries a score by kind and size (tuned with you); while a score passes the threshold, the director asks for a slower speed around it, and when nothing does, it lets time race up to the top speed your zoom allows.
+    - **Catching up:** key moments are saved in full (`PRN-15`), so a live moment (`PRE-08`) can be replayed from just before it began.
   - **Why:** In a world that runs itself, the best moments are easy to miss (`RSK-03`).
 
 - `TIM-03` **The director never touches events** *(Decided)*: The director controls speed only.
   It decides where to slow down but never causes, changes or hides anything.
   Follows from `PRN-10` and `PRN-12`.
+  - **How it works:** the director only reads the event stream and the world's state, and only sets the speed asked and the live-moment prompts; it cannot write to the simulation, and since speed changes nothing (`WLD-13`), history is the same with or without it.
+  - **Check:** the same saved state run with the director on and off gives the same results bit for bit on the same phone (`TIM-06`), and a code check finds no path from the director into the simulation.
 
 - `TIM-11` **Skip to the next moment** *(Decided)*: A control that runs time at top speed until the next important moment, then slows down.
   Useful for short check-ins (`VIS-10`).
+  - **How it works:** it asks for the top speed until the director's next score passes its threshold (`TIM-02`), then hands the speed back to the director and zoom.
 
 ### 5.3 While you're away
 
 - `TIM-05` **Pauses when closed** *(Decided)*: When the app is closed or in the background, the world stops.
   Nothing happens while you're away, and every session starts exactly where the last one ended.
   Opening the app resumes time.
+  - **How it works:** when the app leaves the screen, the simulation finishes its current step, stops, and saves its state (`PLT-07`); nothing runs in the background, and reopening loads that state and carries on from the same step.
 
 - `TIM-12` **Overnight mode** *(Decided)*
   - **What:** Leave the app open on the charger and switch on overnight mode.
@@ -791,6 +811,9 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
   - **Why:** Deep simulation runs slowly on a phone (`PRN-11`).
     Overnight mode gives history the hours it needs without you having to watch.
   - **Safeguards:** it runs only while the phone is charging, and it stops if the phone gets too hot.
+  - **How it works:** it asks for the top speed, draws only a dim, slowly updated picture, and queues the director's moments instead of slowing for them (`TIM-15`).
+    It reads the phone's own temperature warnings and slows, then pauses, before the phone gets hot (`PLT-04`), and it pauses when the charger is unplugged.
+    The morning summary takes the night's most important events by the director's scores, from the chronicle (`PRE-05`), worded by the writer, with dark events given as plain facts (`PRE-37`).
   - **Example:** You start it before bed.
     In the morning: "312 years passed.
     Two bands merged by the river; a long drought pushed the eastern band over the hills; on the coast, someone began drying fish."
@@ -803,26 +826,38 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
   - **Chance is local:** each chance event belongs to one being and one moment.
     On the same phone and version, a branch therefore differs from the original only where its changes reach, and a branch with no change repeats the original.
     So a comparison shows what a change did, not luck.
+  - **How it works:**
+    - **Going back:** loading a saved moment restores the world's full state (`PRN-15`); to start from a time between saved moments, the simulation runs forward from the one before it, which repeats the original exactly up to that time.
+    - **Branching:** carrying on from there, with or without a change, is new simulation, saved as a new branch; the original's later history is kept.
+    - **Chance is local:** every chance draw is made from a key of world, system, being, moment and purpose, so the same being at the same moment for the same purpose gets the same draw in every branch; on the same phone and version, a branch differs only where its change reaches.
+    - **After an update:** a branch from before a small update runs under the current rules (`PLT-09`).
   - **Why:** Curiosity (`VIS-08`): the only way to really answer "what if?".
   - **Example:** You rewind to before the plague, send a mild winter instead, and compare the two histories (`MOM-10`).
 
 - `TIM-13` **Comparing timelines** *(Decided)*: Two branches side by side: their chronicles, their maps, and key numbers (population, discoveries, languages, beliefs), with the moment they split clearly marked.
+  - **How it works:** each branch's saved records give its chronicle (`PRE-05`), its maps at the same dates (`PRE-07`), and its numbers, counted from the records the same way for both: people alive, firsts found by the recognisers, languages and beliefs as the views measure them (`CUL-23`).
+    The events that differ are traced back to the split, so the comparison shows how far the change reached.
 
 - `TIM-08` **Saved worlds and timelines** *(Decided)*: Several worlds, each with its own tree of timelines, kept on the phone.
   Branches can be named, and you can switch between them.
+  - **How it works:** each world keeps its seed and generator version (`WLD-08`), its saved moments and event history (`PLT-10`), and its tree of branches, each with its parent, the moment it split, and its name; switching loads that branch's latest saved moment.
 
 - `TIM-14` **Dates** *(Decided)*: The game counts years from the moment a world's history begins ("year 2,314"), with days and seasons set by that world's own sun and moons (`WLD-06`).
   The people's own calendars are separate (`CUL-13`).
   Inside the simulation, and in every target and criterion, time is counted in Earth days and years; on screen, dates use the world's own years and ages use Earth years.
   Bodies are adapted to their world's day length.
+  - **How it works:** the clock counts Earth seconds; the world's own days and years come from its spin and orbit (`WLD-06`) and are worked out from the clock only for display, counting years from year 0.
+    Each body's daily rhythm follows the world's day, so people sleep through its nights, and the share of the day spent asleep is kept (estimated).
 
 ### 5.5 Pacing and endings
 
 - `TIM-07` **Pacing** *(To test)*: How fast history runs is measured and tuned during development (`PLT-04`).
   The first target for the tests: a thousand years in one night for a world of a few hundred people.
+  - **How it works:** every build runs a benchmark world at overnight speed on the phone and reports the years passed per hour, at each zoom and for each number of people (`PLT-04`); the speed comes only from the mechanisms above and from engineering, never from cutting depth (`PRN-11`).
 
 - `TIM-09` **If everyone dies** *(Decided)*: The world goes on without them.
   Nature carries on, and you can keep watching, rewind to before the end, or start a new world.
+  - **How it works:** the last death is a key moment for the director; the world's systems carry on as before, faster with no minds to run, and the choices offered are to keep watching, rewind (`TIM-06`) or start a new world (`WLD-10`).
 
 ## 6. World
 
