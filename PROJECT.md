@@ -763,7 +763,12 @@ The physics must reproduce every item below without any rule written specially f
 
 ## 8. People: bodies and lives
 
-- `BIO-01` **One species, modern minds** *(Decided)*: Their brains are as capable as ours. Their culture starts almost empty.
+Every person has a body that must be fed, watered, kept warm and rested; that can be hurt, fall sick and heal; and that grows, ages, has children and dies. All of it follows real biology with real-world numbers (`PRN-05`). How people think is in section 9.
+
+### 8.1 Who they are
+
+- `BIO-01` **One species, modern minds** *(Decided)*: Their bodies and brains are as capable as ours. Their culture starts almost empty.
+
 - `BIO-02` **Starting kit** *(Decided)*:
   - **Language:** a few dozen shared words and calls; grammar must grow.
   - **Fire:** they can feed a fire found after lightning or a wildfire, but cannot make one.
@@ -772,11 +777,69 @@ The physics must reproduce every item below without any rule written specially f
   - **Shelter:** natural caves and overhangs.
   - **Food:** gathering, scavenging, some ambush hunting.
   - **Beliefs:** none are set in advance.
-- `BIO-03` **Starting population** *(Decided)*: 3–4 family bands of 15–30 people each.
-- `BIO-04` **Life cycle** *(Proposed)*: Birth, childhood, adulthood, ageing and death; pairing and having children.
-- `BIO-05` **Health** *(Proposed)*: Nutrition comes from what they actually eat. Injuries heal or don't. Illness comes from microbes (`WLD-21`).
+
+- `BIO-03` **Starting population** *(Decided)*: 3–4 family bands of 15–30 people each, about 45–120 people in all, living in one region (`WLD-24`).
+
+- `BIO-08` **Everyone is different** *(Decided; follows from `BIO-06` and `PRN-05`)*: Height, strength, stamina, senses, health, temperament, curiosity, memory and learning speed vary from person to person, with real-world spreads. *(Proposed: these traits are partly inherited and partly shaped by how a person grew up, through childhood food, illness and activity.)*
+
+### 8.2 Staying alive
+
+- `BIO-09` **Basic needs** *(Decided; follows from `PRN-05`)*: Food, water, warmth and sleep, in real-world amounts that depend on body size, activity and climate.
+
+- `BIO-10` **Nutrition** *(Decided)*
+  - **What:** Food provides energy, protein, fat and key vitamins and minerals, all from the real chemistry of what is eaten (`MAT-03`). A missing vitamin causes its real deficiency disease.
+  - **Why:** Diet becomes something people can discover and get wrong.
+  - **Example:** A band that winters on dried meat suffers bleeding gums every spring (scurvy, from a lack of vitamin C). Eventually someone notices that the people who ate the first green shoots recovered.
+
+- `BIO-11` **Heat and cold** *(Decided; follows from `MAT-03` and `PRN-05`)*
+  - **What:** Bodies lose and gain heat by real physics. Clothing, shelter, fire and huddling together keep them warm. Cold can kill; heat exhausts.
+  - **Example:** In an ice-age winter, sewn clothing can matter more than food.
+
+- `BIO-12` **Poison and medicine** *(Decided; follows from `MAT-03`)*: The chemistry of plants, animals and minerals acts on the body. Some things poison, some heal, and some do either depending on the dose. For example, willow bark eases pain.
+
+### 8.3 Harm and healing
+
+- `BIO-13` **Injuries to body parts** *(Decided)*
+  - **What:** Wounds, fractures, burns and infections affect specific parts of the body. They heal, scar, or leave a lasting disability. Care from others (food, water, protection, cleaning a wound) changes the outcome.
+  - **Example:** A hunter with a broken leg survives the winter because the band carries and feeds them. They never hunt again, but they become the best stoneworker in the valley.
+
+- `BIO-05` **Disease** *(Decided; follows from `WLD-21`)*: Illness comes from microbes that enter through wounds, food, water, air, touch or animals. People who recover can become immune. Crowding, and living close to animals, bring epidemics.
+
+- `BIO-14` **Every death has a cause** *(Decided; follows from `PRN-10`)*: Nobody dies of random chance. Every death comes from something in the simulation: hunger, cold, disease, injury, childbirth, violence, accident or old age.
+
+### 8.4 A life
+
+- `BIO-04` **Life cycle** *(Decided; follows from `PRN-05`)*
+  - **What:** Birth, childhood, adolescence, adulthood, old age and death, following the life patterns of real hunter-gatherers.
+  - **Typical figures** *(Proposed, from studies of hunter-gatherers)*:
+    - children are weaned at about 2–4 years, and a mother has a child about every 3–4 years;
+    - around four in ten children die before the age of 15;
+    - adults who reach 15 often live into their 60s and 70s;
+    - women stop having children in their 40s.
+
+- `BIO-15` **Pregnancy and birth** *(Decided; follows from `PRN-05`)*: Children come from pairs, through pregnancy, birth and nursing, with their real risks. Who pairs with whom, and how families are formed, is cultural (`CUL-07`).
+
+- `BIO-16` **Ageing** *(Decided; follows from `PRN-05`)*: Strength, senses and fertility decline with age. Knowledge and experience don't, so elders can matter as keepers of what the band knows (`CUL-02`).
+
+### 8.5 The sexes
+
+- `BIO-17` **Real biology, culture decides** *(Decided)*
+  - **What:** Bodies differ only in real biological ways: reproduction, and average differences in size and strength, with wide overlap between individuals.
+  - **What doesn't:** Who hunts, gathers, leads or makes things is decided entirely by each culture, and can differ between cultures. The simulation never assigns a role by sex.
+
+### 8.6 Senses
+
+- `BIO-18` **Senses** *(Proposed)*: Sight (limited by light, fog and distance), hearing, smell, taste and touch, each with real ranges and differences between people, and declining with age. They are how people learn about the world (`MND-03`).
+
+### 8.7 Inheritance
+
 - `BIO-06` **Heredity** *(Decided)*: Body traits and mental traits (curiosity, memory, learning speed, temperament) pass from parents to children. They shift over generations at real-world speeds as some people survive and have children and others don't. Minds barely change over thousands of years; culture does the heavy lifting, as in our own history.
-- `BIO-07` **Evolution dial** *(Decided)*: A setting speeds up genetic change for experiments.
+
+- `BIO-07` **Evolution dial** *(Decided)*: A setting speeds up genetic change for experiments (`PRN-12`).
+
+### 8.8 Animals
+
+- `BIO-19` **Animal bodies** *(Proposed)*: Animals have bodies that work in the same way, with their own species' traits (`WLD-19`): needs, injuries, disease, life cycles and senses.
 
 ## 9. Minds
 
