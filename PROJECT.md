@@ -1829,10 +1829,16 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 ### 9.1 Ground rules
 
 - `MND-01` **No AI language model thinks for them** *(Decided)*: Every belief and invention comes from the mechanisms in this section (`PRN-06`).
+  - **How it works:** a mind's mechanisms are small numerical rules over its own records; no language model is ever called by a mind or reads a mind to choose anything.
+    The only language model in the game, the writer (`PRE-37`), reads finished records to write text, and nothing it writes goes back into the simulation.
+  - **Check:** a code check finds no call from the simulation to any language model, and no path from the writer's output back into the simulation.
 
 - `MND-02` **Knowledge only from inside the world** *(Decided)*: Any learning a mind does draws only on experience in its own world.
   Nothing carries real-world knowledge in.
   Follows from `PRN-01` and `PRN-06`.
+  - **How it works:** a mind starts with only its starting records (`BIO-20`), drawn from its own world; every later record comes from its own senses, its own actions' results, and what others in the world show or tell it.
+    The mechanisms' tuned values, such as learning rates, are settings, never content; the catalogues are the world's physics, and no mind can read them.
+  - **Check:** mind code reads only the mind's own records and percepts, and a code search finds no catalogue name or real-world word list in it.
 
 - `MND-17` **Why ordinary minds are enough** *(Decided)*: No single mind needs to be a genius.
   A people's intelligence comes from four sources, and only one of them is inside a head:
@@ -1845,10 +1851,26 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 ### 9.2 Perceiving and knowing
 
 - `MND-03` **Senses, not labels** *(Decided)*: People perceive properties (weight, hardness, colour, smell, taste, warmth, sound) through their senses (`BIO-18`), never the game's names for things.
+  - **How it works:**
+    - **Percepts:** what the senses pass on reaches the mind as a percept: the thing's properties as that sense gives them, blurred by distance, light and the person's sharpness.
+      For sight: colour, gloss, size, shape, texture and movement; for sound: pitch, loudness and timbre; for smell: the mix of smell substances; for taste: the five tastes; for touch: hardness, weight, warmth, wetness and sharpness.
+      A percept also holds where the thing is, and a pointer to the thing itself so the person can act on it, never its kind or name.
+    - **Appearance kept with the thing:** each thing's visible properties are worked out once from its makeup and structure (`MAT-03`) and kept until it changes, so many viewers cost little.
+    - **Attention:** each moment, a mind takes in only its few most noticeable percepts, about four, as measured for real attention: those it didn't expect, those that move or are loud, and those that match what it is looking for or what its drives want.
+      The rest pass unnoticed, which is also how people miss things.
+    - **Recognised once:** a percept is matched to the person's own concepts (`MND-04`), and a recognised thing stays linked to its concept until it changes.
 
 - `MND-04` **Their own concepts** *(Decided)*
   - **What:** People sort what they perceive into their own categories.
     Categories differ between groups and can be wrong.
+  - **How it works:**
+    - **A concept** is a mind's own group: a typical example (the average of the properties of what it has grouped), how widely its members vary, and how much each property counts in deciding what belongs.
+    - **Forming:** a percept that fits no concept well starts a new one; percepts that fit are added and nudge the typical example toward them.
+    - **Learning what matters:** properties that predicted outcomes come to count more: if glossy stones chipped and dull ones crumbled, gloss gains weight; and things that behaved alike are pulled into one concept even if they look different.
+    - **Kinds of concept:** things, places, people, animals, actions (such as striking or carrying), properties (such as sharp or red) and events (such as fire after lightning).
+    - **Concepts can be wrong:** a poisonous berry whose looks fit a safe berry's concept is taken as safe until something tells them apart, such as taste or a sickness.
+    - **Groups differ:** each person's concepts come from their own experience and from the words others use for things (`CUL-04`), so bands come to divide the world differently.
+    - **Open:** concepts of things, places and events are well understood; abstract ones, such as number, debt or spirit, form from patterns across events and relationships, which is less well understood, and experiments test it.
   - **Example:** One band lumps flint and chert together as "cutting stone"; another confuses a poisonous berry with a safe one.
 
 - `MND-05` **Cause-and-effect beliefs** *(Decided)*
