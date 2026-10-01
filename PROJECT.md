@@ -384,16 +384,87 @@ Things the project deliberately does not do, and why.
 
 ## 4. The player as god
 
-- `GOD-01` **Role** *(Decided)*: A distant, invisible god in a pure sandbox. You nudge; you never command anyone.
-- `GOD-02` **Power: nature and disasters** *(Decided)*: Weather, storms, floods, droughts, eruptions and lightning, which might hand them fire. Always within the world's physics.
-- `GOD-03` **Power: dreams** *(Decided)*: Plant a dream in one person's sleep. A dream can only recombine things that person has experienced. They still have to work out the "how" themselves.
-- `GOD-04` **Power: fortune and fate** *(Decided)*: Bless or curse fertility, health, luck in the hunt, sickness and plague. Luck shifts the odds within what nature allows and never guarantees an outcome.
-- `GOD-05` **Only natural means** *(Decided)*: Every act must be something nature could do. No miracles, and no limited supply of power to spend.
-- `GOD-06` **Never known** *(Decided)*: People experience your interventions as nature. Any explanation they form, right or wrong, is their own.
-- `GOD-07` **No tally of your help in the story view** *(Decided)*: The story view never shows how much you helped.
-- `GOD-08` **Interventions recorded behind the scenes** *(Proposed)*: Rewind and branching depend on this record.
-- `GOD-09` **Interventions in the scientist's view** *(Open)*: Whether the scientist's view can show your interventions and their effects.
-- `GOD-10` **Using your powers on the phone** *(Open)*: Gestures, how you target a place or person, and how you choose the memories a dream combines.
+You are an invisible force of nature. This section defines exactly what you can do, how strong each power is, and the limits that keep every act natural. Two principles govern all of it: you are nature (`PRN-03`), and the rules never bend (`PRN-12`).
+
+### 4.1 Your role
+
+- `GOD-01` **Role** *(Decided)*
+  - **What:** A distant, invisible god in a pure sandbox. You can watch everything, everywhere, and you can nudge, but you never command or control anyone (`SCP-17`).
+  - **Why:** Every achievement in the world stays theirs.
+  - **Example:** You can't tell Ama to twirl sticks. You can only give her a dream and see what she does with it.
+
+- `GOD-06` **Never known** *(Decided)*
+  - **What:** People experience your interventions as nature: weather, luck, dreams. They may explain them as spirits or gods, and whatever they believe is their own interpretation, right or wrong. Nothing in the world can ever detect you directly.
+  - **Why:** Their beliefs stay their own, and religion grows from the same machinery as discovery (`CUL-05`).
+  - **Example:** After a run of lucky hunts that you sent, a band gives the credit to the bones they buried at the cave mouth. A ritual of burying bones begins.
+
+- `GOD-05` **Only natural means** *(Decided)*
+  - **What:** Every act must be something nature could do. Your powers feed into the world's own systems (weather, chance, sleep). They never create anything from nothing and never break a rule (`PRN-12`). There is no limited supply of power to spend, but nature's own limits always apply. Those limits *(the list is Proposed)*:
+    - lightning comes from storm clouds, so to strike a tree you first need a storm overhead, which you can bring;
+    - disasters happen only where conditions allow: eruptions at volcanoes with magma beneath them, earthquakes on faults, floods where rain can swell the rivers, wildfires where fuel is dry enough to burn;
+    - weather stays within what the climate can produce at that place and season, so there is no snow in a tropical summer;
+    - a person or animal has at most one dream per sleep;
+    - fortune works on chance, never on the rules (`GOD-04`).
+  - **Why:** A single miracle would make the world's history untrustworthy.
+  - **Check:** every intervention passes the same physical checks as a natural event would.
+
+### 4.2 Your powers
+
+- `GOD-02` **Nature and disasters** *(Decided)*
+  - **What:** Three scales of influence:
+    - **Small events, placed exactly:** a lightning strike, a shower, a gust of wind, a cold night, a fog.
+    - **Seasons, pushed over a region:** a wet spring over a valley, a dry year over a region, a hard winter.
+    - **Disasters, where conditions allow:** floods, droughts, storms, wildfires, eruptions, earthquakes, landslides.
+  - **Not included:** changing the climate directly. If an eruption you trigger is big enough to cool the world for a few years, that is physics at work, not a power.
+  - **Why:** Weather is the most natural lever there is, and the one people have always tried to explain.
+  - **Example:** You bring a storm over the ridge and send lightning into a dead pine. Fire runs down the slope, and the band upwind gathers burning branches.
+
+- `GOD-03` **Dreams** *(Decided)*
+  - **What:** While someone sleeps, you can shape their dream from their own memories and feelings. A dream can:
+    - bring two of their memories together, such as the smoking stick and the warmth of fire;
+    - relive one memory vividly, so it stays strong and comes to mind more easily;
+    - carry a feeling (fear, longing, hope or awe) that shapes what they make of it.
+
+    A dream can only use what the dreamer has actually experienced. They still have to work out the "how" themselves, and they may never act on it at all.
+  - **What follows:** The dream becomes a memory of its own. It makes certain ideas more likely to come to mind, and the dreamer may tell others about it, which can feed myth and belief (`CUL-05`).
+  - **Why:** Dreams are where minds recombine experience (`MND-12`), so they are the most natural way for a god to touch an idea without supplying it.
+  - **Example:** The session story in `VIS-11`.
+
+- `GOD-12` **Animal dreams** *(Decided)*
+  - **What:** Animals can be sent simpler dreams: one memory relived, coloured by a feeling.
+  - **Why:** Animals learn too (`MND-16`). Dreams let you lean on that slowly, for example toward taming.
+  - **Example:** A wolf dreams again of the warmth and the scraps by the fire, and comes a little closer to the camp the next night (`MOM-06`).
+
+- `GOD-04` **Fortune and fate** *(Decided)*
+  - **What:** You can bless or curse a person, a family, a band, an animal herd or a place. Fortune can touch luck in the hunt, finding food or materials, fertility, health and recovery, and sickness and plague.
+  - **How strong:** Gentle. A blessing at most doubles a chance: a hunt with a 10% chance of success gets 20%. Their skill still matters most, and nothing is ever certain. A curse works the same way in reverse, at most halving a chance *(Proposed)*. A blessing or curse lasts as long as you set, from a single hunt to a few years *(Proposed)*.
+  - **Fortune works on chance, never on the rules:** it changes which of the possible outcomes happens, never what is possible. A plague needs a disease that already exists in the world.
+  - **Why:** Luck is how the world feels to the people in it. Fortune lets you lean on it without taking over.
+  - **Example:** You bless a band's hunters for one winter. They come home with meat a little more often, but whether they survive still depends on how well they hunt and share.
+
+### 4.3 Using your powers
+
+- `GOD-10` **Using your powers on the phone** *(Proposed)*
+  - **Touch first:** tap a person, animal, group or place to see what you can do there.
+  - **Nature:** draw around an area to push its weather or season; tap a spot for a small event.
+  - **Dreams:** open a sleeper's memories, shown as small pixel-art scenes, choose what the dream is made of, and pick a feeling.
+  - **Fortune:** choose what to bless or curse, and for how long.
+  - Everything then plays out through the simulation. Nothing happens faster than nature could make it happen.
+
+- `GOD-11` **What's possible here** *(Proposed)*
+  - **What:** The game only offers what nature could do at that place or to that being right now, and says briefly why other powers aren't available, such as "no volcano here" or "she is awake".
+  - **Why:** You never have to guess what's natural, and you never try a miracle by accident.
+
+### 4.4 Records of your interventions
+
+- `GOD-08` **Recorded behind the scenes** *(Decided)*: Every intervention is recorded with its time, place and target. Rewinding, branching and replays depend on this record (`PRN-08`, `TIM-06`).
+
+- `GOD-07` **No trace in the story view** *(Decided)*: The story view never shows where you intervened or how much you helped.
+
+- `GOD-09` **Interventions in the scientist's view** *(Decided)*
+  - **What:** The scientist's view shows where and when you intervened, and traces what changed because of it.
+  - **Why:** Curiosity (`VIS-08`): you can find out what your nudges actually did. Branching (`TIM-06`) lets you compare history with and without them.
+  - **Example:** You select the dream you sent Ama and follow what came of it: eleven days of twirling sticks, the first fire, and fire-making spreading along the river.
 
 ## 5. Time and history
 
@@ -644,7 +715,6 @@ Reviewed at every milestone.
 Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also needs your confirmation.
 
 - **Vision:** `VIS-16` (name)
-- **The player as god:** `GOD-09`, `GOD-10`
 - **Time and history:** `TIM-07`, `TIM-09`
 - **World:** `WLD-04`
 - **Minds:** `MND-15` (limits)
