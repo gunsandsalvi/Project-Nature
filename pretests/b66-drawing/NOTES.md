@@ -45,7 +45,7 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 - **Benchmark** (about 60 s, full screen, every frame drawn): 2.5 s to measure the refresh rate with almost nothing drawn; each zoom stop (Person, Camp, Valley, Region, Planet) for 7 s while turning slowly; a full turn in 8 s; a zoom out to the planet and back in 8 s; then 6 s of the Sticky fix, to price it (not part of the verdict). The first second of each phase is warm-up. Frame times come from requestAnimationFrame. The code also carries the script time per frame and, if the browser allows it, the graphics chip's time per frame.
   - Code format: `B66.1 PASS|FAIL hz= idle= fast= art= s= dpr= css= fs= if= tod= gtq= gl= ua= |` then one group per phase, `letter:rate,median,p95,worst,late,script,graphics` (rate and late in %, times in ms, `-` if unknown). Letters: P person, C camp, V valley, R region, G planet, T full turn, Z zoom sweep, M Sticky fix.
 - **Crawl count** (headless Chromium, WebGL on the CPU): the phone's screen in portrait (1344 × 2992 device pixels, 5 per art pixel, so 269 × 599 art pixels), scene animation frozen so only the camera moves, 60 frames at a 60 Hz step per motion: a slow turn (0.11° a frame), a slow zoom (0.3% a frame), and a slow pan as a control (under 0.2 art pixels a frame; snapping should leave nothing). Each art pixel is compared with the one at the same place on screen in the next frame; the surface it shows is re-projected from the depth buffer to see how far it moved.
-- **Gestures:** a headless smoke test drives each one with synthetic touches. That checks the wiring only; the feel is yours to judge.
+- **Gestures:** a headless smoke test drives each one with synthetic touches. That checks the wiring only; the feel is yours to judge. Drawing pauses during those checks: headless frames take half a second, which would trip the long-press and double-tap timers (on the phone a frame takes about 2 ms of script).
 
 ## Results
 
@@ -82,7 +82,8 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 - **Crawl: Fade is the only fix by the rule.** It cuts crawl by 99.6% in the turn and 99.9% in the zoom, and changes fewer pixels overall, so it isn't flagged "jumpy". Steps fixes only the turn; Majority and Sticky barely help and cost about 4 times the scene drawing.
   - But Fade wins by moving the picture in small steps with a quick crossfade. Your eye decides whether that feels steady or stepped, given that turns must ease to rest (`PRE-22`).
   - If you reject its look, the next step is tuning Fade's step size and crossfade time with you on the phone, since nothing else came close.
-- **Gestures:** all are in the page; headless check pending. Their feel waits for you.
+- **Gestures:** all are in the page and pass the headless check with synthetic touches: each one does what it should and nothing else (a drag never turns; "Draw an area" draws instead of moving). Their feel waits for you.
+- **Also found, in the mockup itself:** its "The live view needs WebGL" note is always drawn over the working scene, and it takes every touch meant for the picture, so dragging and pinching on the view can't work there. One CSS line fixes it; fixed in this copy only, `mockups/visual-style.html` is untouched.
 
 ## Caveats
 
@@ -112,6 +113,6 @@ The scene is the mockup's camp, copied into `drawing-test.html`. No game systems
 
 From `pretests/b66-drawing`, each under the shared CPU lock:
 - `node tools/crawl.mjs --motion turn`, then `--motion zoom`, then `--motion pan` (about 5 minutes each). Results go to `results/`.
-- `node tools/smoke.mjs` (about 2 minutes): a shortened benchmark and every gesture, headless.
+- `node tools/smoke.mjs` (about 2 minutes): a shortened benchmark, every gesture, and the benchmark's statistics with the drawing stubbed out (it must find 60 Hz and pass every phase). Set `SHOTS_DIR` to also save two layout screenshots there.
 
 Both need Playwright for Node and its Chromium; set `PLAYWRIGHT_PATH` and `CHROMIUM_PATH` if they aren't at the paths at the top of each tool.

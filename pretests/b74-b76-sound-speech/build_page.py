@@ -54,14 +54,47 @@ for k in ("s1_espeak_cy", "s1_espeak_en-us", "s2_english", "s2_welsh"):
 json.dump(summary, open(f"{RES}/summary.json", "w"), indent=1, ensure_ascii=False)
 
 # ---------- clips ----------
+def wav_levels(path):
+    """(active RMS in dBFS over 20 ms windows within 30 dB of the loudest, peak in dBFS)."""
+    import wave
+    import numpy as np
+    with wave.open(path) as w:
+        a = np.frombuffer(w.readframes(w.getnframes()), dtype="<i2").astype(np.float64) / 32767
+        sr = w.getframerate()
+    n = int(0.02 * sr)
+    p = np.array([np.mean(a[i:i + n] ** 2) for i in range(0, len(a) - n, n)]) + 1e-20
+    act = p[p > p.max() * 1e-3]
+    return 10 * np.log10(act.mean()), 20 * np.log10(np.abs(a).max() + 1e-12)
+
+
+GAIN = {}
+
+
+def match(paths, target=-20.0, ceiling=-1.0):
+    """Give a comparison group the same active loudness, as close to `target` as peaks allow,
+    so a by-ear choice isn't swayed by one clip being louder."""
+    lv = {p: wav_levels(p) for p in paths}
+    t = min([target] + [rms + (ceiling - peak) for rms, peak in lv.values()])
+    for p, (rms, _) in lv.items():
+        GAIN[p] = t - rms
+
+
 def opus(path, kbps, stereo=False):
-    out = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "2" if stereo else "1", "-c:a", "libopus", "-b:a", f"{kbps}k",
+    if path not in GAIN:
+        match([path])
+    out = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-af", f"volume={GAIN[path]:.2f}dB", "-ac", "2" if stereo else "1", "-c:a", "libopus", "-b:a", f"{kbps}k",
                           "-vbr", "on", "-application", "audio", "-f", "ogg", "-"], capture_output=True, check=True).stdout
     return "data:audio/ogg;base64," + base64.b64encode(out).decode()
 
 
 CLIPS = f"{RUN}/clips"
 SPEECH = f"{RUN}/speech"
+for k in ("flint", "granite", "wood", "bone"):
+    match([f"{CLIPS}/impact-{k}-modal.wav", f"{CLIPS}/impact-{k}-noise.wav"])
+match([f"{CLIPS}/camp-modal.wav", f"{CLIPS}/camp-noise.wav"])
+for n in range(1, 6):
+    match([f"{SPEECH}/s1-espeak-{n}.wav", f"{SPEECH}/s2-english-{n}.wav", f"{SPEECH}/s2-welsh-{n}.wav"])
+match([f"{SPEECH}/s1-espeak-people.wav", f"{SPEECH}/s2-english-people.wav"])
 desc = load("describe.json", {})
 mats = {m["material"]: m for m in desc.get("materials", [])}
 flutes = {f["flute"]: f for f in desc.get("flutes", [])}
@@ -118,7 +151,8 @@ def notes_line(f):
 def drum_line(d):
     if not d:
         return ""
-    return f'<p class="facts">Lowest modes {", ".join(f"{x:.0f}" for x in d["lowest_modes_hz"][:5])} Hz (ratios {", ".join(f"{x:.2f}" for x in d["ratios"][:5])}).</p>'
+    lows = sorted(set(round(x) for x in d["lowest_modes_hz"]))[:4]
+    return f'<p class="facts">Strongest low modes {", ".join(str(x) for x in lows)} Hz, struck 60% of the way out.</p>'
 
 
 inst = [
@@ -129,7 +163,7 @@ inst = [
     f'<article class="card"><h3>Hide drum, small and tight <span>30 cm across, 3,500 N/m</span></h3>{drum_line(drums.get("small"))}'
     + player(opus(f"{CLIPS}/drum-small.wav", 40), "Hand at the centre twice, near the edge twice, then hand and stick. Listen for the centre deep and short, the edge ringing.", "Drum ·") + "</article>",
     f'<article class="card"><h3>Hide drum, large and slack <span>60 cm across, 1,200 N/m</span></h3>{drum_line(drums.get("large"))}'
-    + player(opus(f"{CLIPS}/drum-large.wav", 40), "The same strikes on a bigger, looser hide. Listen for a deep boom that is clearly lower than the small drum.", "Drum ·") + "</article>",
+    + player(opus(f"{CLIPS}/drum-large.wav", 40), "The same strikes on a bigger, looser hide. Listen for a deeper boom than the small drum (a phone speaker can't play its lowest notes).", "Drum ·") + "</article>",
 ]
 parts.append(f'<section id="instruments"><h2>Instruments from their shapes <small>B74 · CUL-10</small></h2><p class="lede">The flutes\' notes come only from the bone\'s length, bore and holes, and the drums\' from the hide\'s size, tension and weight. Nothing is tuned to a scale.</p>{"".join(inst)}</section>')
 
@@ -149,8 +183,8 @@ for i, (sent, gloss, eng) in enumerate(SENTENCES):
     who = people[i]["s1"] if i < len(people) else S1_PEOPLE[i % 3][0]
     vo = people[i]["s2_english"] if i < len(people) else "one speaker"
     clips = (player(opus(f"{SPEECH}/s1-espeak-{n}.wav", 24), f"espeak-ng fed the phonemes, {e(who)}. Listen for every sound present but a robotic voice.", "S1 synthetic ·")
-             + player(opus(f"{SPEECH}/s2-english-{n}.wav", 24), f"Piper, trained on English, {e(vo)}. Listen for whether ɬ, x, q, r and plain e, o survive.", "S2 English-trained ·")
-             + player(opus(f"{SPEECH}/s2-welsh-{n}.wav", 24), "Piper, trained on Welsh. Listen for ɬ and x kept, and whether it just sounds Welsh.", "S2 Welsh-trained ·"))
+             + player(opus(f"{SPEECH}/s2-english-{n}.wav", 24), f'Piper, trained on English, {e(vo)}. Listen for whether <span class="ipa">ɬ x q r</span> and plain <span class="ipa">e o</span> survive.', "S2 English-trained ·")
+             + player(opus(f"{SPEECH}/s2-welsh-{n}.wav", 24), 'Piper, trained on Welsh. Listen for <span class="ipa">ɬ</span> and <span class="ipa">x</span> kept, and whether it just sounds Welsh.', "S2 Welsh-trained ·"))
     scards.append(f'<article class="card"><h3 class="ipa sent">{e(sent)}</h3><p class="gloss">{e(gloss)} · <i>{e(eng)}</i></p>{clips}</article>')
 spk = ", ".join(f'{s["label"]} ({s["median_f0_hz"]} Hz)' for s in meta.get("speakers", []))
 parts.append(f'<section id="speech"><h2>Speech in an invented language <small>B76 · SND-03, CUL-17</small></h2>'
@@ -243,7 +277,7 @@ page = f"""<title>Kindling Sound and Speech</title>
 <header><p class="eyebrow">Pre-test B74 and B76 · listening page</p><h1>Struck stone, bone flutes and an invented tongue</h1>
 <p class="lede">Every sound here is made from numbers, not recordings: what things are made of, their shape and size, and how they are struck. Your ear makes the final choice. For each section, tell us which version sounds right, or that neither does.</p></header>
 {body}
-<footer>Clips are Ogg Opus at 24 to 64 kbps. Material values are plausible stand-ins, not sourced. Made by the B74 and B76 pre-test; code in pretests/b74-b76-sound-speech.</footer>
+<footer>Clips are Ogg Opus at 24 to 64 kbps, and each comparison is matched for loudness. Material values are plausible stand-ins, not sourced. Made by the B74 and B76 pre-test; code in pretests/b74-b76-sound-speech.</footer>
 </main>
 """
 open(f"{HERE}/listen.html", "w", encoding="utf-8").write(page)

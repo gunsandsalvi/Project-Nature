@@ -11,7 +11,7 @@ mkdir -p "$OUT" "$HERE/results"
 cd "$HERE"
 PY=$CACHE/b76/venv/bin/python
 step() { echo "== $(date +%T) $*"; }
-STEPS=${STEPS:-rust bench android speech}
+STEPS=${STEPS:-rust bench android speech page}
 
 if [[ $STEPS == *rust* ]]; then
   step "B74 host build and tests"
@@ -66,21 +66,3 @@ if [[ $STEPS == *page* ]]; then
 fi
 step done
 
-# Second pass (added while the first run was going): the B74 tool after a borrow fix.
-if [[ ${SECOND_PASS:-1} == 1 ]]; then
-  step "B74 host build and tests, second pass"
-  if cargo test --release -q > "$OUT/test2.log" 2>&1 && cargo build --release -q --bin render >> "$OUT/test2.log" 2>&1; then
-    grep -E "test result" "$OUT/test2.log"
-    R=$CARGO_TARGET_DIR/release/render
-    step "B74 clips"; $R clips "$OUT/clips"
-    step "B74 describe"; $R describe > "$HERE/results/describe.json"
-    for i in 1 2 3; do
-      step "B74 bench run $i (one core)"
-      taskset -c 1 "$R" bench > "$HERE/results/bench-run$i.json"
-    done
-    step "listening page"; $PY build_page.py "$OUT"
-  else
-    echo "RUST BUILD FAILED AGAIN"; grep -E "^error" -A8 "$OUT/test2.log" | head -40
-  fi
-  step "second pass done"
-fi

@@ -13,6 +13,8 @@ const exe = process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-
 const browser = await chromium.launch({ executablePath: exe, args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true, isMobile: true });
 const page = await ctx.newPage();
+// the published page gets a phone viewport tag from its wrapper; give the local file the same
+await page.addInitScript(() => { document.addEventListener('DOMContentLoaded', () => { const m = document.createElement('meta'); m.name = 'viewport'; m.content = 'width=device-width, initial-scale=1'; document.head.appendChild(m); }); });
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text().slice(0, 300)); });
@@ -39,8 +41,25 @@ check('benchmark leaves the full screen', !(await page.$eval('#view', (v) => v.c
 await page.click('#play');
 await page.waitForTimeout(400);
 check('gesture test fills the screen', await page.$eval('#view', (v) => v.classList.contains('play')));
+// Touches: real ones through the DevTools protocol if they reach the canvas; otherwise touch-type
+// PointerEvents dispatched on the canvas, which drive the same gesture code (the output says which).
 const cdp = await ctx.newCDPSession(page);
-const touch = (type, pts) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: pts.map(([x, y], id) => ({ x, y, id, radiusX: 4, radiusY: 4, force: 1 })) });
+let via = 'cdp', active = [];
+async function touch(type, pts) {
+  if (via === 'cdp') return cdp.send('Input.dispatchTouchEvent', { type, touchPoints: pts.map(([x, y], id) => ({ x, y, id, radiusX: 4, radiusY: 4, force: 1 })) });
+  await page.evaluate(([t, p, prev]) => {
+    const c = document.getElementById('cv');
+    const fire = (k, id, x, y) => c.dispatchEvent(new PointerEvent(k, { pointerId: 10 + id, pointerType: 'touch', isPrimary: id === 0, clientX: x, clientY: y, buttons: k === 'pointerup' ? 0 : 1, bubbles: true, cancelable: true }));
+    if (t === 'touchStart') p.forEach(([x, y], id) => { if (id >= prev.length) fire('pointerdown', id, x, y); });
+    else if (t === 'touchMove') p.forEach(([x, y], id) => fire('pointermove', id, x, y));
+    else prev.forEach(([x, y], id) => fire('pointerup', id, x, y));
+  }, [type, pts, active]);
+  active = type === 'touchEnd' ? [] : pts;
+}
+await page.evaluate(() => { window.__pd = 0; document.getElementById('cv').addEventListener('pointerdown', () => { window.__pd++; }, true); });
+// Headless frames take about half a second on the CPU, which delays touch handling past the long-press
+// and double-tap timers. Pause drawing during the gesture checks (picking uses the last real frame).
+await page.evaluate(() => { const R = window.__view.R; window.__realRender = R.render; window.__view.render(); R.render = () => {}; });
 const S = () => page.evaluate(() => ({ yaw: window.__view.S.yaw, zoom: window.__view.S.zoom, pan: window.__view.S.pan.slice() }));
 const shown = (id) => page.$eval('#' + id, (e) => !e.hidden);
 const sleep = (ms) => page.waitForTimeout(ms);
@@ -56,6 +75,14 @@ async function drag(from, to, steps = 8, holdMs = 0) {
 await sleep(700);
 await touch('touchStart', [[cx, cy]]); await sleep(60); await touch('touchEnd', []);
 await sleep(150);
+if (!(await page.evaluate(() => window.__pd))) {
+  via = 'synthetic';
+  console.log('note: DevTools touches did not reach the canvas here; using touch PointerEvents on the canvas');
+  await sleep(400);
+  await touch('touchStart', [[cx, cy]]); await sleep(60); await touch('touchEnd', []);
+  await sleep(150);
+}
+console.log('touch input: ' + via + ', pointerdowns seen ' + (await page.evaluate(() => window.__pd)));
 check('brief touch shows date, speed and time control', await shown('hud'), await page.$eval('#hud .txt', (e) => e.textContent.trim()));
 if (shots) await page.screenshot({ path: path.join(shots, 'play.png') });
 check('tap selects (stub highlight)', await shown('mark'), await page.$eval('#toast', (e) => e.textContent));
@@ -122,16 +149,24 @@ await sleep(2500);
 await drag([cx, H - 30], [cx + 5, H - 160], 8);
 await sleep(150);
 check('swipe up from the bottom edge opens views', await shown('sheet'));
-await page.click('#play-exit');
+if (await shown('sheet')) await page.click('#play-exit'); else await page.evaluate(() => window.__b66.exitPlay());
 await sleep(300);
 check('leaving the test restores the page', !(await page.$eval('#view', (v) => v.classList.contains('play'))));
 
+await page.evaluate(() => { window.__view.R.render = window.__realRender; });
 // each pixel fix draws without errors
 for (const f of ['steps', 'fade', 'majority', 'sticky', 'base']) {
   await page.click(`[data-fix="${f}"]`);
   await page.evaluate(() => { window.__view.S.yaw += 0.05; window.__view.render(); });
   await sleep(150);
 }
+// benchmark statistics, with the drawing stubbed out so frames arrive at the headless 60 Hz (last: it stops drawing)
+await page.evaluate(() => { document.getElementById('bench-code').value = ''; window.__view.R.render = () => {}; window.__b66.bench().scale = 0.25; });
+await page.click('#bench-run');
+await page.waitForFunction(() => document.getElementById('bench-code').value.length > 0, null, { timeout: 120000 });
+const code2 = await page.$eval('#bench-code', (e) => e.value);
+const phases = code2.split('|')[1].trim().split(' ').map((g) => { const [k, v] = g.split(':'); return { k, rate: +v.split(',')[0], late: +v.split(',')[4] }; });
+check('benchmark statistics (drawing stubbed): 60 Hz found, every phase near full rate', /^B66\.1 PASS hz=60 /.test(code2) && phases.length === 8 && phases.every((p) => p.rate >= 90 && p.late <= 5), '\n     ' + code2);
 check('no page errors', errors.length === 0, errors.join(' | '));
 console.log(results.every((r) => r.ok) ? '\nALL OK' : '\nSOME FAILED');
 await browser.close();

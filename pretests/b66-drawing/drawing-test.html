@@ -62,6 +62,9 @@ h1 { font-size: clamp(2.2rem, 9vw, 3.6rem); line-height: 1; }
 .view canvas:focus-visible { outline: 3px solid var(--red); outline-offset: -3px; }
 .nogl { position: absolute; inset: 0; display: grid; align-content: center; gap: 8px; padding: 24px; color: var(--plate-ink); text-align: center; }
 .nogl-title { font-family: var(--font-display); font-size: 1.25rem; }
+/* B66: the display above overrides the hidden attribute, so the WebGL failure note covered the working view
+   and took every touch meant for the canvas. Inherited from the mockup; fixed here only. */
+.nogl[hidden] { display: none; }
 @media (min-width: 640px) { .view { aspect-ratio: 16 / 10; } }
 @media (orientation: landscape) and (max-height: 520px) { .view { aspect-ratio: auto; height: 78vh; } }
 
@@ -4569,11 +4572,11 @@ const Renderer = (() => {
   }
 
   /* ---- the gesture test fills the screen (PRE-32 world first) ---- */
-  let pushed = false;
+  let pushed = false, fsOn = false; // fsOn: this session itself went full screen
   function enterPlay(opts) {
     if (B66.playing) return;
     const bench = !!(opts && opts.bench);
-    B66.playing = true; view.classList.add('play'); document.body.classList.add('playing');
+    B66.playing = true; fsOn = false; view.classList.add('play'); document.body.classList.add('playing');
     if (!bench) {
       try { history.pushState({ b66: 1 }, ''); pushed = true; } catch (e) { pushed = false; }
       toast('Drag to move. Twist to turn. Pinch, or double-tap and drag, to zoom. Swipe up from the bottom for views.', 5000);
@@ -4587,11 +4590,18 @@ const Renderer = (() => {
     ['hud', 'menu', 'sheet', 'toast', 'mark', 'blabel'].forEach((id) => { $(id).hidden = true; }); lassoShow(false);
     G.pts.clear(); G.mode = null; G.lassoArmed = false; clearTimeout(G.lpTimer); anim.panV = [0, 0];
     if (pushed && !fromPop) { pushed = false; try { history.back(); } catch (e) { /* ignore */ } } else pushed = false;
+    fsOn = false;
     try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (e) { /* ignore */ }
     measure(); dirty = true; kick();
   }
   window.addEventListener('popstate', () => { if (B66.playing && pushed) { pushed = false; exitPlay(true); } });
-  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && B66.playing && !BN.on) exitPlay(); });
+  // leaving full screen (the back gesture) ends the test, but only for the session that entered it:
+  // a late event from the previous session must not close a new one
+  document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement === view) { if (B66.playing) fsOn = true; return; }
+    const was = fsOn; fsOn = false;
+    if (was && B66.playing && !BN.on) exitPlay();
+  });
   $('play').addEventListener('click', () => enterPlay());
   $('play-exit').addEventListener('click', () => exitPlay());
   canvas.addEventListener('contextmenu', (e) => { if (B66.playing) e.preventDefault(); });

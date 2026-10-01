@@ -2,7 +2,7 @@
 //! phone's own storage: saved-moment write, flush and read speed (`B04`, `PLT-07`), small-append
 //! flush cost (history journal), and one terrain generation method plus metre detail (`B11`,
 //! `WLD-11`). Hashes in the result let the lead compare the phone's bits with the cloud's.
-//! Config: {"dir": "<writable folder>", "div": 2, "reps": 3, "gen_w": 1024, "formats": ["custom-none","custom-zstd"]}
+//! Config: {"dir": "<writable folder>", "div": 2, "reps": 5, "gen_w": 1024, "formats": ["custom-none","custom-zstd"]}
 //! Other formats: "custom-lz4", "sqlite-none", "sqlite-lz4", "sqlite-zstd".
 
 pub mod data;
@@ -46,7 +46,7 @@ fn run_inner(cfg: &str) -> Result<Value, String> {
     let v: Value = serde_json::from_str(cfg).map_err(|e| format!("bad json: {e}"))?;
     let dir = PathBuf::from(v.get("dir").and_then(Value::as_str).ok_or("missing \"dir\"")?).join("b04b11");
     let div = v.get("div").and_then(Value::as_u64).unwrap_or(2) as usize;
-    let reps = v.get("reps").and_then(Value::as_u64).unwrap_or(3).max(1) as usize;
+    let reps = v.get("reps").and_then(Value::as_u64).unwrap_or(5).max(1) as usize;
     let gen_w = v.get("gen_w").and_then(Value::as_u64).unwrap_or(1024) as usize;
     let formats: Vec<String> = v
         .get("formats")

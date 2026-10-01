@@ -71,6 +71,11 @@ fn main() {
         "damage" => damage(&arg(2, "custom"), arg(3, "100").parse().unwrap()),
         "gen" => gen(arg(2, "3").parse().unwrap(), &arg(3, "warp,erode,plates")),
         "detail" => detail(arg(2, "3").parse().unwrap()),
+        "previews" => {
+            for m in ["warp", "erode", "plates", "warpfill"] {
+                preview(&gen_variant(m, 2048, 1024, 4), &format!("previews/{m}.png"));
+            }
+        }
         "phone" => {
             let d = fresh("phone");
             let cfg = arg(2, "{}").replace("DIR", &d.to_string_lossy());
@@ -607,15 +612,20 @@ fn gen_variant(m: &str, w: usize, h: usize, threads: usize) -> terrain::Map {
 fn preview(m: &terrain::Map, path: &str) {
     let (rec, _) = terrain::receivers(m);
     let acc = terrain::drainage(m, &rec);
-    let (w, h) = (m.w / 2, m.h / 2);
+    const F: usize = 3; // one preview pixel per 3 x 3 cells
+    let (w, h) = (m.w / F, m.h / F);
     let mut img = vec![0u8; w * h * 3];
     let z = |x: usize, y: usize| m.z[(y % m.h) * m.w + (x % m.w)];
     for y in 0..h {
         for x in 0..w {
-            let (sx, sy) = (x * 2, y * 2);
-            let e = (z(sx, sy) + z(sx + 1, sy) + z(sx, sy + 1) + z(sx + 1, sy + 1)) / 4.0;
-            let shade = ((z(sx + 2, sy + 2) - z(sx, sy)) / 400.0).clamp(-0.5, 0.5);
-            let river = (0..4).any(|k| acc[((sy + k / 2) % m.h) * m.w + (sx + k % 2)] > 400.0);
+            let (sx, sy) = (x * F, y * F);
+            let mut e = 0.0;
+            for k in 0..F * F {
+                e += z(sx + k % F, sy + k / F);
+            }
+            e /= (F * F) as f32;
+            let shade = ((z(sx + F, sy + F) - z(sx, sy)) / 600.0).clamp(-0.5, 0.5);
+            let river = (0..F * F).any(|k| acc[((sy + k / F) % m.h) * m.w + (sx + k % F)] > 400.0);
             let c: [f32; 3] = if e <= 0.0 {
                 let d = (-e / 4000.0).min(1.0);
                 [20.0 + 40.0 * (1.0 - d), 50.0 + 70.0 * (1.0 - d), 110.0 + 80.0 * (1.0 - d)]
@@ -628,7 +638,7 @@ fn preview(m: &terrain::Map, path: &str) {
                 [base[0] * k, base[1] * k, base[2] * k]
             };
             for i in 0..3 {
-                img[(y * w + x) * 3 + i] = c[i].clamp(0.0, 255.0) as u8;
+                img[(y * w + x) * 3 + i] = (c[i].clamp(0.0, 255.0) as u8) & 0xF8;
             }
         }
     }
