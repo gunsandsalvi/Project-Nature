@@ -1957,7 +1957,8 @@ This section defines the roles, the documents, how this file changes, and how wo
 
 - `PRC-05` **Reviewed with you** *(Decided)*: Changes to this file are worked through with you, section by section or in rounds of questions, and *Proposed* items are confirmed, changed or dropped in those reviews (`PRC-07`).
 
-- `PRC-08` **Next: tests, then the architecture and the plan** *(Decided)*: Before the architecture and the implementation plan are written, small throwaway tests settle how each building block is best built.
+- `PRC-08` **Next: tests, then the architecture and the plan** *(Decided)*: Before the architecture and the implementation plan are written, small throwaway tests settle the basic technical choices, such as the language, storing data, the map, drawing, sound, speech and the writer AI.
+  Each block is tested on its own, with no working world; anything that needs a world is designed in the architecture and tested in sandboxes (`RES-21`).
   The architecture follows, starting with the technology proposal (`PRC-03`), then the implementation plan, starting with the first milestone (`MIL-01`).
 
 ### 15.3 How work flows
