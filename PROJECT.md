@@ -888,7 +888,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 - `MND-19` **Feelings** *(Decided)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride and awe. They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
 
-- `MND-20` **Personality** *(Proposed)*: A few inborn tendencies (curiosity, boldness, sociability, patience, dominance, readiness to conform), partly inherited (`BIO-06`) and shaped by what happens to each person.
+- `MND-20` **Personality** *(Decided)*: A few inborn tendencies (curiosity, boldness, sociability, patience, dominance, readiness to conform), partly inherited (`BIO-06`) and shaped by what happens to each person.
 
 - `MND-21` **Inborn tendencies** *(Decided)*
   - **What:** The biases evolution gave humans: a taste for sweet and fat and a wariness of bitter; quicker fear of snakes, heights and the dark; attachment between parent and child; the urge to imitate; and suspecting a hidden someone behind unexplained events.
@@ -905,7 +905,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 - `MND-13` **Learning over a lifetime** *(Decided)*: People get better at things through their own experience.
 
-- `MND-22` **Planning ahead** *(Proposed)*: People can plan days and seasons ahead once they have learned the patterns, such as storing nuts before winter. Tools from culture, such as calendars, counting and records, make longer plans reliable (`CUL-03`).
+- `MND-22` **Planning ahead** *(Decided)*: People can plan days and seasons ahead once they have learned the patterns, such as storing nuts before winter. Tools from culture, such as calendars, counting and records, make longer plans reliable (`CUL-03`).
 
 ### 9.5 New ideas
 
@@ -937,7 +937,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
   - **Why:** This is what makes teaching, cooperation, gossip and deception possible.
   - **Example:** Tamo keeps a good flint source secret, believing nobody knows about it. Ama has noticed the fresh flakes Tamo brings back, and follows one morning.
 
-- `MND-24` **Relationships** *(Proposed)*: People know who's who: family, friends, rivals, and who owes whom. Trust and affection grow and fade with shared experience.
+- `MND-24` **Relationships** *(Decided)*: People know who's who: family, friends, rivals, and who owes whom. Trust and affection grow and fade with shared experience.
 
 ### 9.7 Scale and inspection
 
@@ -968,7 +968,7 @@ Culture is everything people pass to each other rather than inherit through thei
 
 - `CUL-03` **Memory outside heads** *(Decided)*: Marks, symbols, writing and records can emerge, letting knowledge outlive the people who had it. Signs gain meaning the same way words do, by agreement (`CUL-04`): tally marks for counting, pictures that tell, and eventually signs that stand for words.
 
-- `CUL-16` **How things spread** *(Proposed)*: Knowledge, words, styles and beliefs spread through contact: shared camps, marriages between bands, trade and conflict. Isolation makes groups drift apart.
+- `CUL-16` **How things spread** *(Decided)*: Knowledge, words, styles and beliefs spread through contact: shared camps, marriages between bands, trade and conflict. Isolation makes groups drift apart.
 
 ### 10.2 Language
 
@@ -978,7 +978,7 @@ Culture is everything people pass to each other rather than inherit through thei
   - **What:** Each language has its own sounds, words and grammar, starting from the few dozen shared words and calls of the starting kit (`BIO-02`). Words drift through regular sound changes, so related languages share telltale patterns and form families you can trace.
   - **Example:** After the eastern band crosses the hills, its words drift away from those of the band left behind. Centuries later, their words for water, fire and stone still differ in the same regular way, which shows they were once one language.
 
-- `CUL-18` **Names** *(Proposed)*: People, places, peoples and things are named in their own languages, often after events, features or traits. You see the original name with a translation (`PRE-12`), and later hear it spoken (`SND-03`).
+- `CUL-18` **Names** *(Decided)*: People, places, peoples and things are named in their own languages, often after events, features or traits. You see the original name with a translation (`PRE-12`), and later hear it spoken (`SND-03`).
 
 ### 10.3 Belief
 
@@ -987,9 +987,9 @@ Culture is everything people pass to each other rather than inherit through thei
   - **Why:** Religion grows from the same machinery as discovery (`MND-05`), and your own acts become part of what people try to explain (`GOD-06`).
   - **Example:** Your lightning becomes a god (`MOM-03`).
 
-- `CUL-19` **Dreams and the dead** *(Proposed)*: Dreams of dead relatives can lead people to believe the dead live on in some form. That can shape burials, rites for ancestors and ideas of a soul.
+- `CUL-19` **Dreams and the dead** *(Decided)*: Dreams of dead relatives can lead people to believe the dead live on in some form. That can shape burials, rites for ancestors and ideas of a soul.
 
-- `CUL-20` **Taboos** *(Proposed)*: Beliefs can harden into rules about what not to eat, where not to go and what not to do. Some protect people by accident; others cost them dearly.
+- `CUL-20` **Taboos** *(Decided)*: Beliefs can harden into rules about what not to eat, where not to go and what not to do. Some protect people by accident; others cost them dearly.
 
 ### 10.4 Society
 
@@ -997,9 +997,9 @@ Culture is everything people pass to each other rather than inherit through thei
 
 - `CUL-07` **Nothing social is scripted** *(Decided)*: Family and marriage rules, sharing, exchange, trade, leadership, alliances, conflict and war all come from people's interactions.
 
-- `CUL-21` **Sharing and exchange** *(Proposed)*: Food sharing, gifts, trade between bands, specialists, rules about who owns what and, perhaps one day, money. Each emerges from need and repeated habit.
+- `CUL-21` **Sharing and exchange** *(Decided)*: Food sharing, gifts, trade between bands, specialists, rules about who owns what and, perhaps one day, money. Each emerges from need and repeated habit.
 
-- `CUL-22` **Leadership and status** *(Proposed)*: Depending on the culture, status comes from skill, generosity, age, success, fear or birth. Leaders, councils and chiefs emerge where a group needs to act together.
+- `CUL-22` **Leadership and status** *(Decided)*: Depending on the culture, status comes from skill, generosity, age, success, fear or birth. Leaders, councils and chiefs emerge where a group needs to act together.
 
 - `CUL-08` **Dark history can happen** *(Decided)*: War, slavery, sacrifice and cruelty can emerge like anything else. What is shown is controlled by the content setting (`PRE-18`).
 
@@ -1045,7 +1045,7 @@ This is how the world looks. It is written to stand on its own, without needing 
   - **Why:** Crisp silhouettes keep small things readable on a phone screen.
 
 - `PRE-22` **Stable pixels** *(Decided)*
-  - **What:** Pixels never crawl or shimmer as the camera moves: the picture stays locked to its pixel grid, and turns ease to rest. One art pixel is always the same size on screen, in portrait and in landscape, so turning the phone only changes the framing. *(Proposed: about 4 screen pixels per art pixel.)*
+  - **What:** Pixels never crawl or shimmer as the camera moves: the picture stays locked to its pixel grid, and turns ease to rest. One art pixel is always the same size on screen, in portrait and in landscape, so turning the phone only changes the framing. About 4 screen pixels make one art pixel.
   - **Why:** Shimmering pixels are the most common flaw of 3D pixel art, and the first thing that makes it look cheap.
 
 - `PRE-23` **Rock faces** *(Decided)*
@@ -1064,7 +1064,7 @@ This is how the world looks. It is written to stand on its own, without needing 
   - **What:** Rivers meander and change width, with gravel bars, reeds, lines that follow the current, ripples at fords, glints of sun and drifting mist. From far away a river never becomes thinner than one or two art pixels, so it stays readable.
 
 - `PRE-27` **People and animals** *(Decided)*
-  - **What:** People and animals are small 3D figures drawn through the same pixel look and animated at a deliberate, sprite-like rhythm of about 8–12 poses a second. They look like crisp pixel art from any angle and turn properly with the camera. At the closest zoom, a person is about 40–60 art pixels tall *(Proposed)*: enough for a face, hair, clothing and gestures.
+  - **What:** People and animals are small 3D figures drawn through the same pixel look and animated at a deliberate, sprite-like rhythm of about 8–12 poses a second. They look like crisp pixel art from any angle and turn properly with the camera. At the closest zoom, a person is about 40–60 art pixels tall: enough for a face, hair, clothing and gestures.
   - **Why:** The simulation will produce actions nobody planned (`PRN-01`). Figures built from parts can perform any of them from any angle, without a new drawing for each.
 
 - `PRE-28` **Readable from far away** *(Decided)*: As you zoom out, people become tiny outlined figures in strong clothing colours, then groups become small markers, then a camp becomes a glowing point.
@@ -1080,7 +1080,7 @@ This is how the world looks. It is written to stand on its own, without needing 
 
 - `PRE-04` **Sharp at every zoom** *(Decided)*: The pixel art stays sharp and readable at every zoom level (`PRE-22`, `PRE-28`, `PRE-29`).
 
-- `PRE-31` **Visual review** *(Proposed)*
+- `PRE-31` **Visual review** *(Decided)*
   - **Done when:** at every milestone, screenshots at each zoom level, in both orientations and at every time of day, pass a review for:
     - clean colour, with no speckled surfaces;
     - crisp silhouettes;
@@ -1114,7 +1114,7 @@ This is how the world looks. It is written to stand on its own, without needing 
 
 - `PRE-06` **Follow a soul** *(Decided)*: Pick anyone and follow their life: the camera stays with them, and their card shows what they feel, want and think (`PRE-14`). When they die, the game offers to follow someone close to them.
 
-- `PRE-07` **Map overlays** *(Decided)*: Information shown spread across the land. *(Proposed list: beliefs; knowledge, meaning who knows which skill; moods; languages and dialects; family ties; territories and paths; food and water; disease; climate and seasons; rock and resources.)*
+- `PRE-07` **Map overlays** *(Decided)*: Information shown spread across the land. The overlays: beliefs; knowledge, meaning who knows which skill; moods; languages and dialects; family ties; territories and paths; food and water; disease; climate and seasons; rock and resources.
 
 - `PRE-08` **Live moments** *(Decided)*: Only what matters interrupts you: firsts, deaths of people you follow, disasters, and big turns in history ("someone has made fire for the first time"). Everything else waits in the chronicle. The level can be adjusted in settings, and one tap takes you to the moment (`TIM-02`).
 
@@ -1122,7 +1122,7 @@ This is how the world looks. It is written to stand on its own, without needing 
   - **What:** Dig down through the buried layers of past life with the cut-away view (`PRE-25`): hearths, graves, lost tools, rubbish heaps. Tap a find to see who made or left it, and when.
   - **Example:** The dig in `MOM-09`.
 
-- `PRE-10` **Family trees and legends** *(Decided)*: Genealogies across generations, and the legends their culture keeps. *(Proposed: each legend can be set side by side with what really happened.)*
+- `PRE-10` **Family trees and legends** *(Decided)*: Genealogies across generations, and the legends their culture keeps. Each legend can be set side by side with what really happened.
 
 - `PRE-11` **Their sky and calendar** *(Decided)*: The sky as they understand it: their constellations, the seasons they track, their festivals.
 
@@ -1130,9 +1130,9 @@ This is how the world looks. It is written to stand on its own, without needing 
 
 - `PRE-14` **Two views of every mind** *(Decided)*: A story view in their own words, and a scientist's view of their raw beliefs, how certain they are, and the evidence behind each belief.
 
-- `PRE-15` **Art that remembers** *(Proposed)*: Tap a painting or carving to see the event or myth it depicts.
+- `PRE-15` **Art that remembers** *(Decided)*: Tap a painting or carving to see the event or myth it depicts.
 
-- `PRE-16` **Bestiary** *(Proposed)*: Each world's tree of life and its species.
+- `PRE-16` **Bestiary** *(Decided)*: Each world's tree of life and its species.
 
 - `PRE-36` **Language family tree** *(Proposed)*: How their languages split and drifted over time (`CUL-17`).
 
@@ -1416,9 +1416,7 @@ These are suggestions written into this file while it was being built. They guid
 
 **Whole items**
 
-- **Minds:** `MND-20`, `MND-22`, `MND-24`
-- **Culture and society:** `CUL-16`, `CUL-18`, `CUL-19`, `CUL-20`, `CUL-21`, `CUL-22`
-- **Presentation:** `PRE-15`, `PRE-16`, `PRE-31`, `PRE-33`, `PRE-35`, `PRE-36`
+- **Presentation:** `PRE-33`, `PRE-35`, `PRE-36`
 - **Sound:** `SND-05`, `SND-07`, `SND-08`, `SND-09`
 - **Platform and performance:** `PLT-07`
 - **Research and validation:** `RES-13`, `RES-14`
@@ -1427,7 +1425,6 @@ These are suggestions written into this file while it was being built. They guid
 
 **Decided items with proposed details**
 
-- **Presentation:** `PRE-07`, `PRE-10`, `PRE-22`, `PRE-27`
 - **Platform and performance:** `PLT-04`, `PLT-05`, `PLT-06`
 - **Research and validation:** `RES-03`, `RES-07`
 - **Project and process:** `PRC-01`
