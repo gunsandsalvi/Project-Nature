@@ -70,9 +70,12 @@ pub enum Gen {
     Pcg = 3,
     Wy = 4,
     ChaCha8 = 5,
+    /// Extra (not one of the six candidates): wyhash's guarded multiply, see `WySafe`.
+    WySafe = 6,
 }
 
-pub const ALL_GENS: [Gen; 6] = [Gen::SplitMix, Gen::Philox, Gen::Squares, Gen::Pcg, Gen::Wy, Gen::ChaCha8];
+pub const ALL_GENS: [Gen; 7] =
+    [Gen::SplitMix, Gen::Philox, Gen::Squares, Gen::Pcg, Gen::Wy, Gen::ChaCha8, Gen::WySafe];
 
 impl Gen {
     pub fn name(self) -> &'static str {
@@ -83,6 +86,7 @@ impl Gen {
             Gen::Pcg => "pcg",
             Gen::Wy => "wy",
             Gen::ChaCha8 => "chacha8",
+            Gen::WySafe => "wysafe",
         }
     }
     pub fn from_name(s: &str) -> Option<Gen> {
@@ -96,6 +100,7 @@ impl Gen {
             Gen::Pcg => "PCG-style hash: LCG step + RXS-M-XS, applied as pcg(pcg(k0^being) + moment)",
             Gen::Wy => "wyhash-style: wyhash of the 16 bytes (being, moment) seeded by k0",
             Gen::ChaCha8 => "ChaCha8 block: key = (world, system, purpose), counter = moment, nonce = being",
+            Gen::WySafe => "wy with the guarded multiply (inputs xored back in): no all-equal draws at moment = seed",
         }
     }
 }
@@ -280,6 +285,32 @@ impl KeyedGen for Wy {
     }
 }
 
+/// Extra variant: plain wy multiplies (being ^ P1) by (moment ^ seed), so at the one
+/// moment equal to the stream's seed every being gets the same draw. wyhash's guarded
+/// multiply xors the inputs back into the product halves, which removes that case.
+#[derive(Clone, Copy)]
+pub struct WySafe {
+    seed: u64,
+}
+impl WySafe {
+    pub fn new(s: &Stream) -> Self {
+        WySafe { seed: s.wy_seed }
+    }
+}
+#[inline(always)]
+fn wymum_safe(a: u64, b: u64) -> (u64, u64) {
+    let (lo, hi) = wymum(a, b);
+    (a ^ lo, b ^ hi)
+}
+impl KeyedGen for WySafe {
+    #[inline(always)]
+    fn draw(&self, being: u64, moment: u64) -> u64 {
+        let (a, b) = wymum_safe(being ^ WY_P1, moment ^ self.seed);
+        let (c, d) = wymum_safe(a ^ WY_P0 ^ 16, b ^ WY_P1);
+        c ^ d
+    }
+}
+
 // ---------- ChaCha8 (Bernstein 2008), one block per draw ----------
 #[inline(always)]
 fn qr(x: &mut [u32; 16], a: usize, b: usize, c: usize, d: usize) {
@@ -343,6 +374,7 @@ macro_rules! with_gen {
             $crate::rng::Gen::Pcg => { let $v = $crate::rng::Pcg::new($stream); $body }
             $crate::rng::Gen::Wy => { let $v = $crate::rng::Wy::new($stream); $body }
             $crate::rng::Gen::ChaCha8 => { let $v = $crate::rng::ChaCha8::new($stream); $body }
+            $crate::rng::Gen::WySafe => { let $v = $crate::rng::WySafe::new($stream); $body }
         }
     };
 }
@@ -396,6 +428,15 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn wy_zero_product_case() {
+        // Plain wy: at moment == seed every being gets the same draw; the guarded one does not.
+        let st = Stream::new(1, 2, 3);
+        let m = st.wy_seed;
+        assert_eq!(draw(Gen::Wy, &st, 1, m), draw(Gen::Wy, &st, 2, m));
+        assert_ne!(draw(Gen::WySafe, &st, 1, m), draw(Gen::WySafe, &st, 2, m));
     }
 
     #[test]

@@ -104,6 +104,20 @@ struct GWy {
   }
 };
 
+// Extra variant (see rng.rs WySafe): guarded multiply, inputs xored back into the product.
+struct GWySafe {
+  uint64_t seed;
+  explicit GWySafe(const KbStream& s) : seed(s.wy_seed) {}
+  inline uint64_t draw(uint64_t b, uint64_t m) const {
+    uint64_t x = b ^ WY_P1, y = m ^ seed;
+    unsigned __int128 r = (unsigned __int128)x * y;
+    uint64_t a = x ^ (uint64_t)r, bb = y ^ (uint64_t)(r >> 64);
+    uint64_t x2 = a ^ WY_P0 ^ 16, y2 = bb ^ WY_P1;
+    unsigned __int128 r2 = (unsigned __int128)x2 * y2;
+    return (x2 ^ (uint64_t)r2) ^ (y2 ^ (uint64_t)(r2 >> 64));
+  }
+};
+
 #define KB_QR(a, b, c, d)                    \
   x[a] += x[b]; x[d] = rotl32(x[d] ^ x[a], 16); \
   x[c] += x[d]; x[b] = rotl32(x[b] ^ x[c], 12); \
@@ -137,7 +151,8 @@ inline auto with_gen(int gen, const KbStream& s, F&& f) -> decltype(f(GSplit(s))
     case 2: return f(GSquares(s));
     case 3: return f(GPcg(s));
     case 4: return f(GWy(s));
-    default: return f(GChaCha(s));
+    case 5: return f(GChaCha(s));
+    default: return f(GWySafe(s));
   }
 }
 
