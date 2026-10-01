@@ -1,0 +1,28 @@
+[package]
+name = "kstorage"
+version = "0.1.0"
+edition = "2021"
+publish = false
+# B04/B11 pre-test: phone part (save formats on the phone's storage, terrain generation).
+# Also the shared code the cloud bench in ../ uses, so both measure the same code.
+
+[lib]
+name = "kstorage"
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = []
+android = ["dep:jni"]
+
+[dependencies]
+serde_json = "1"
+libc = "0.2"
+lz4_flex = { version = "0.11", default-features = false, features = ["std", "safe-encode", "safe-decode"] }
+zstd = { version = "0.13", default-features = false }
+rusqlite = { version = "0.32", features = ["bundled"] }
+jni = { version = "0.21", optional = true, default-features = false }
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "thin"

@@ -59,6 +59,23 @@ class LogicTest {
         assertEquals(listOf("java:heat/f32", "java:heat/fx32", "java:rng/splitmix"), Logic.planFrom(managed).map { Logic.label(it) })
     }
 
+    @Test fun predictedChecksums() {
+        val csv = """kernel,format,rng,lang,threads_seen,runs,one_checksum_all_runs_and_threads,x86_checksum,arm_qemu_checksum,arm_matches_x86
+heat,f32,-,cpp,1/2/3/4,14,True,bfee68acb6afaa0f,cd2f3aa53fb498ea,False
+heat,f32,-,java,1/2/3/4,16,True,bfee68acb6afaa0f,,
+rng,-,wysafe,rust,1/2/3/4,8,True,dcc9bb792364f047,,
+walk,f32,splitmix,rust,1/2/3/4,14,True,1111111111111111,2222222222222222,False
+"""
+        val p = Logic.predictions(csv)
+        assertEquals("cd2f3aa53fb498ea", p[Logic.predictionKey(JSONObject("""{"kernel":"cpp:heat","format":"f32"}"""))])
+        assertEquals("bfee68acb6afaa0f", p[Logic.predictionKey(JSONObject("""{"kernel":"java:heat","format":"f32"}"""))])
+        assertNull("no ARM prediction yet", p[Logic.predictionKey(JSONObject("""{"kernel":"rust:rng","rng":"wysafe"}"""))])
+        assertEquals("2222222222222222", p[Logic.predictionKey(JSONObject("""{"kernel":"rust:walk","format":"f32","rng":"splitmix"}"""))])
+        assertEquals('1', Logic.predictionMark("ABC", "abc"))
+        assertEquals('0', Logic.predictionMark("abc", "abd"))
+        assertEquals('?', Logic.predictionMark(null, "abc"))
+    }
+
     @Test fun budgetGivesAboutOneSecondRuns() {
         // 45 configs, 3 clusters, 300 s: each config gets about 6.7 s.
         val s = Logic.secondsPerRun(300.0, 45, 3, 2.5)
@@ -69,7 +86,7 @@ class LogicTest {
 
     /** A full-size round-1 result must fit the ~4 KB result code, and decode back exactly. */
     @Test fun fullSizeResultCodeFitsAndRoundTrips() {
-        val r = syntheticResults(configs = 45, clusters = 3)
+        val r = syntheticResults(configs = 47, clusters = 3)
         val json = r.toString()
         val code = Logic.resultCode(r)
         println("results JSON ${json.length} chars -> code ${code.length} chars, trim=${JSONObject(Logic.unBase64Gunzip(code)).optInt("trim")}")
@@ -101,7 +118,7 @@ class LogicTest {
             k.getJSONArray("ck").put("%08x".format(rnd.nextInt()))
             sb.append('1')
         }
-        k.put("rep", sb.toString()).put("x", sb.toString()).put("pinMiss", 0)
+        k.put("rep", sb.toString()).put("x", sb.toString()).put("p", sb.toString().replace('1', '?')).put("pinMiss", 0)
         val w = 20
         fun series(f: () -> Any) = JSONArray((0 until w).map { f() })
         val sus = JSONObject().put("k", "rust:heat/f32").put("s", 600).put("w", 30).put("calls", 540)
@@ -122,6 +139,7 @@ class LogicTest {
             .put("lib", JSONObject("""{"loaded":true,"kphone":true,"managed":true,"plan":45,"clusters":[[0,1],[2,3,4,5],[6]],"selftest":true}"""))
             .put("idle", JSONObject("""{"mA":-410,"mV":4200,"n":50,"mw":1722}"""))
             .put("fp", JSONObject("""{"req":120,"hz":120,"n":2397,"fps":119.8,"p50":8.33,"p90":8.4,"p99":9.1,"p999":16.6,"max":25,"miss":3,"missPct":0.13,"gl":"PowerVR D-Series DXT-48-1536 | OpenGL ES 3.2 build 25.1","done":true}"""))
+            .put("wv", JSONObject("""{"n":3410,"p50":8.33,"p90":16.6,"p99":33.4,"max":120.5,"miss":312,"r50":4.12,"r99":11.8,"art":[338,752],"css":[412,733],"dpr":3.25,"wait":2310,"gl":"PowerVR D-Series DXT-48-1536"}"""))
             .put("k", k).put("sus", sus)
             .put("mem", JSONObject("""{"end":"killed","mib":9728,"dyingAt":9984,"lowAt":7168,"rssMax":9850,"availLast":620,"s":41.2,"availGiB":[9000,8000,7000,6000,5000,4000,3000,2000,1000]}"""))
             .put("done", JSONArray((0 until configs + 6).map { "k$it" }))

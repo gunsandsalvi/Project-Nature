@@ -1,0 +1,21 @@
+[package]
+name = "b04b11"
+version = "0.1.0"
+edition = "2021"
+publish = false
+# B04/B11 pre-test, cloud bench. Throwaway code, see NOTES.md. Shared code lives in phone/ (kstorage).
+
+[dependencies]
+kstorage = { path = "phone" }
+hecs = "0.10"
+flatbuffers = "2.1"
+png = "0.17"
+rusqlite = { version = "0.32", features = ["bundled"] }
+libc = "0.2"
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "thin"
+debug = false

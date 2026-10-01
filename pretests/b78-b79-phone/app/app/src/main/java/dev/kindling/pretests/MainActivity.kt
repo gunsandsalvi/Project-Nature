@@ -295,6 +295,9 @@ class MainActivity : Activity() {
     }
 
     private var clusters: List<Logic.Cluster> = emptyList()
+    private val predicted: Map<String, String> by lazy {
+        try { Logic.predictions(assets.open("determinism.csv").bufferedReader().readText()) } catch (_: Throwable) { emptyMap() }
+    }
     private var kUsed = 0.0 // kernel-phase seconds used so far
     private var kFixedSum = 0.0 // per config: time beyond the timed seconds (setup, warm-up, repeats)
     private var kFixedN = 0
@@ -363,6 +366,7 @@ class MainActivity : Activity() {
 
     private fun libStep(plan: List<Pair<JSONObject, Boolean>>) {
         val o = JSONObject().put("loaded", Bench.loaded).put("kphone", Native.loaded).put("managed", Managed.available)
+            .put("predicted", predicted.size)
             .put("plan", plan.size).put("clusters", JSONArray(clusters.map { c -> Logic.jsonInts(c.cpus) }))
         Bench.loadError?.let { o.put("loadErr", it.take(150)) }
         if (Bench.loaded) try {
@@ -424,6 +428,8 @@ class MainActivity : Activity() {
         k.put("rep", k.optString("rep") + if (err && ck == null) "-" else if (repOk) "1" else "0")
         k.put("x", k.optString("x") + if (err && ck == null) "-" else if (same) "1" else "0")
         k.put("pinMiss", k.optInt("pinMiss") + pinMiss)
+        // p: the phone gave the checksum predicted from the cloud's ARM build (X11, X1).
+        k.put("p", k.optString("p") + Logic.predictionMark(predicted[Logic.predictionKey(cfg)], ck))
         if (err) k.put("errs", k.optInt("errs") + 1)
         val detail = store.full.optJSONObject("k") ?: JSONObject().also { store.full.put("k", it) }
         detail.put("k$i", JSONObject().put("cfg", cfg).put("managed", managed).put("runs", runs))

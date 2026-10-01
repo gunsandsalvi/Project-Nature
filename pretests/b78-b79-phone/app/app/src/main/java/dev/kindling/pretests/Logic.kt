@@ -169,5 +169,42 @@ object Logic {
         return code
     }
 
+    /**
+     * B01/X11: checksums the phone should give, from the other pre-test's determinism.csv
+     * (its ARM column; for Java, the x86 column, since Java arithmetic is the same everywhere).
+     * Key: "lang:kernel|format|rng", as made by predictionKey.
+     */
+    fun predictions(csv: String): Map<String, String> {
+        val lines = csv.lines().filter { it.isNotBlank() }
+        if (lines.isEmpty()) return emptyMap()
+        val head = lines.first().split(',')
+        val ki = head.indexOf("kernel"); val fi = head.indexOf("format"); val ri = head.indexOf("rng"); val li = head.indexOf("lang")
+        val ai = head.indexOf("arm_qemu_checksum"); val xi = head.indexOf("x86_checksum")
+        if (listOf(ki, fi, ri, li, ai, xi).any { it < 0 }) return emptyMap()
+        val out = HashMap<String, String>()
+        for (line in lines.drop(1)) {
+            val c = line.split(',')
+            if (c.size < head.size) continue
+            val pred = c[ai].ifEmpty { if (c[li] == "java") c[xi] else "" }
+            if (pred.isNotEmpty()) out["${c[li]}:${c[ki]}|${c[fi]}|${c[ri]}"] = pred
+        }
+        return out
+    }
+
+    fun predictionKey(cfg: JSONObject): String {
+        val kernel = cfg.optString("kernel", "?:?")
+        val name = kernel.substringAfter(':')
+        val format = if (name == "rng") "-" else cfg.optString("format", "-")
+        val rng = if (name == "rng" || name == "walk") cfg.optString("rng", "splitmix") else "-"
+        return "$kernel|$format|$rng"
+    }
+
+    /** '1' the phone gave the predicted checksum, '0' it didn't, '?' no prediction or no checksum. */
+    fun predictionMark(predicted: String?, got: String?): Char = when {
+        predicted.isNullOrEmpty() || got.isNullOrEmpty() -> '?'
+        predicted.equals(got, ignoreCase = true) -> '1'
+        else -> '0'
+    }
+
     fun jsonInts(xs: Iterable<Int>): JSONArray = JSONArray().also { a -> xs.forEach { a.put(it) } }
 }

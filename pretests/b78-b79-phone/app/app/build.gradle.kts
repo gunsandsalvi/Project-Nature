@@ -91,8 +91,11 @@ val cargoKbench by tasks.registering(Exec::class) {
             "build", "--release", "-p", "kbench", "--features", "android")
     }
 }
+// B01/X11: the checksums the phone should give, from the other pre-test (if present).
+val predicted = rootProject.file("../../b01-b02-numbers-random/results/determinism.csv")
 val copyMockup by tasks.registering(Copy::class) {
     from(mockup)
+    from(predicted)
     into(mockupAssets)
 }
 tasks.named("preBuild") { dependsOn(cargoKphone, cargoKbench, copyMockup) }
