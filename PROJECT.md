@@ -4,10 +4,6 @@ The project file: what Project Nature is, and every feature and target it must r
 
 It contains no implementation details. Those belong in the implementation plan, which will link back to this file by ID, as will the code. Every item has a permanent ID so that no feature gets lost on the way from idea to code.
 
-**Version 2** · 2026-10-01
-
-**Progress:** section 1 is written in full detail. Sections 2–18 are still in their first, short form and are being expanded one at a time, in order.
-
 ## Contents
 
 - [How this file works](#how-this-file-works)
@@ -29,7 +25,6 @@ It contains no implementation details. Those belong in the implementation plan, 
 - [16. Risks](#16-risks)
 - [17. Not yet decided](#17-not-yet-decided)
 - [18. Glossary](#18-glossary)
-- [Change log](#change-log)
 
 ---
 
@@ -53,6 +48,7 @@ Every item starts with its ID, a short name and its status. Detailed items then 
 - **Why:** the reason it exists.
 - **Example:** a concrete illustration.
 - **Done when:** checks that prove it has been delivered. The implementation plan and the tests link to these. A check marked *(Proposed)* is a suggested target awaiting confirmation.
+- **Check:** for rules that always apply, such as principles, how we verify they are being followed.
 
 ### IDs and links
 
@@ -61,7 +57,6 @@ Every item starts with its ID, a short name and its status. Detailed items then 
 3. Items are never deleted. If something is cut, its status becomes *Dropped* with a one-line reason.
 4. The implementation plan (a separate file, still to come) names the IDs each task delivers. Every ID that isn't *Dropped* must appear in at least one task.
 5. Code and tests name the IDs they implement, so any feature can be followed from this file to the plan to the code, and back.
-6. Every change to this file is recorded in the [change log](#change-log).
 
 ### Area codes
 
@@ -206,27 +201,99 @@ Who it's for: you alone (`SCP-02`). Success is judged by the experience; the res
 
 ### 1.9 Name
 
-- `VIS-16` **Name** *(Open)*: "Project Nature" is the working title. Shortlist:
-  - **Kindling:** what a fire grows from; small things that catch and spread, like knowledge.
-  - **Strata:** layers of rock and layers of history; deep time you can dig through.
-  - **Ochre:** humanity's first pigment, and one of the oldest signs of art and symbolic thought.
-  - **Untaught:** everything they know, they learned with no one to teach them.
-  - **The Long Dawn:** the long beginning of humanity, watched with wonder.
-  - **Unseen:** you, the god they never see, and the unseen beings they invent to explain the world.
+- `VIS-16` **Name** *(Open)*: "Project Nature" is the working title. The final name is chosen once the rest of this file is complete.
 
 ## 2. Principles
 
-These rules apply everywhere. If a decision conflicts with one of them, the principle wins unless this file is changed.
+These rules apply to every part of the project, and they outrank everything else in this file. If any decision conflicts with a principle, the principle wins. A principle changes only if you change it here. Every milestone review goes through the principles using the **Check** line under each one.
 
-- `PRN-01` **The world is the only teacher** *(Decided)*: Everything people know comes from their senses, their own trials, other people or their dreams. No recipes, no tech tree, no scripted discoveries.
-- `PRN-02` **Depth over breadth** *(Decided)*: A small world simulated deeply beats a large shallow one.
-- `PRN-03` **You are nature** *(Decided)*: The player acts only through natural means and is never known to exist.
-- `PRN-04` **If the simulation knows it, you can see it** *(Decided)*: Any view the simulation's data can support may exist.
-- `PRN-05` **Real numbers, testable claims** *(Decided)*: The physics uses real-world measurements. Every claim about what emerges is checked by experiments that can fail.
-- `PRN-06` **AI language models describe, never decide** *(Decided)*: They turn simulation data into readable text. They never choose, invent or know anything on behalf of the people of the world.
-- `PRN-07` **No hidden recipes** *(Proposed)*: The vocabulary of a discovery (flake, knapping, fire-making, pottery and so on) never appears in the logic that makes people or animals decide. It may appear only in descriptions of matter and in text written for the player.
-- `PRN-08` **Same seed, same history** *(Proposed)*: A history is fully determined by its world's seed and the player's interventions. It plays out identically on the phone and in the cloud.
-- `PRN-09` **Only as deep as the next experiment needs** *(Proposed)*: Each system is built to the depth the next experiment requires, on foundations that can go deeper later.
+### 2.1 The world
+
+- `PRN-01` **The world is the only teacher** *(Decided)*
+  - **What:** Everything the people of the world know, they learned inside it: from their senses, their own trials, other people or their dreams. Nothing is handed to them. There are no recipes, no tech tree, no scripted discoveries, and no knowledge given at the start beyond the starting kit (`BIO-02`).
+  - **Why:** This is the heart of the project. A discovery only means something if it was really made.
+  - **Example:** Nobody tells a band that flint makes good blades. Someone strikes one stone against another, notices a sharp edge, and over time the band learns which stones break that way.
+  - **Check:** every discovery in an experiment can be traced back to the experiences that produced it, and the general-rules check (`PRN-07`) passes.
+
+- `PRN-02` **Depth over breadth** *(Decided)*
+  - **What:** A small world simulated deeply beats a large shallow one. When choosing between more things and deeper things, choose deeper.
+  - **Why:** Discovery, belief and history all come from detail. A shallow world can't surprise anyone.
+  - **Example:** The world is about 1,000 km from pole to pole (`WLD-03`), not the size of Earth, so the effort goes into what's actually there.
+  - **Check:** any feature that adds breadth at the cost of depth needs an explicit reason in the implementation plan.
+
+- `PRN-07` **General rules only** *(Decided)*
+  - **What:** Everything in the world (matter, living things, minds, societies) follows general rules. No rule is ever written for one particular discovery, material, species or event. The name of a discovery (flake, knapping, fire-making, pottery and so on) never appears in the logic that decides what people or animals do. Those words appear only in descriptions of matter and in text written for you.
+  - **Why:** A rule written for one outcome is a recipe in disguise. General rules are also what let the world produce things nobody planned.
+  - **Example:** There is no "make pottery" rule. Clay changes when heated past a certain temperature, just as the general law of heat says any material can. Pottery is what people make of that.
+  - **Check:** an automated search of the decision-making logic finds no discovery vocabulary, and reviews flag any rule that applies to only one material, species or event.
+
+- `PRN-05` **Real numbers, testable claims** *(Decided)*
+  - **What:** Every quantity in the world comes from real-world measurements: temperatures, hardness, energy, growth rates, how fast genes change. Every claim about what the simulation produces is tested by experiments that can fail, across many worlds.
+  - **Why:** Real numbers make discoveries meaningful: copper really does need a furnace. Experiments that can fail stop us fooling ourselves.
+  - **Example:** "Bands discover how to chip stone" is accepted as true only after Experiment 1 passes its criteria across 100 worlds (`RES-03`).
+  - **Check:** every value names its real-world source, and every claim in a milestone report is backed by an experiment.
+
+- `PRN-12` **Speed up time, never bend the rules** *(Decided)*
+  - **What:** Pacing only ever comes from controlling time: zoom, the story director, and manual speed (section 5). The world's rules never change during play to make things faster or more dramatic. Dials that bend the rules, such as faster evolution (`BIO-07`), exist only for experiments.
+  - **Why:** If the rules bent for drama, nothing the world produced could be trusted, and its histories would stop being real.
+  - **Example:** Real genetic change is slow, so you won't see minds evolve in a single evening. To watch that, you run an experiment with the evolution dial turned up, clearly labelled as such.
+  - **Check:** play has no rule-bending settings, and every experiment report lists any dial that was changed.
+
+### 2.2 The player
+
+- `PRN-03` **You are nature** *(Decided)*
+  - **What:** The player acts only through natural means (`GOD-05`) and is never known to exist (`GOD-06`).
+  - **Why:** A god who could command people or appear to them would make every achievement partly yours. Every belief about gods would be true, instead of theirs.
+  - **Example:** You can't hand a band fire. You can make lightning strike a dry tree near their camp.
+  - **Check:** every power produces only events the world could produce on its own.
+
+### 2.3 What you see
+
+- `PRN-04` **If the simulation knows it, you can see it** *(Decided)*
+  - **What:** Anything the simulation keeps track of can be shown to you: maps of beliefs, family trees, buried layers, a person's memories.
+  - **Why:** Curiosity (`VIS-08`) needs ways to find out why. A rich world you can't look into is wasted.
+  - **Example:** The simulation tracks who taught whom to chip stone, so you can see that chain as a family tree of knowledge.
+  - **Check:** everything the simulation keeps track of has at least one view that shows it, if only in the scientist's view (`PRE-14`).
+
+- `PRN-10` **Nothing is faked** *(Decided)*
+  - **What:** Everything you see, hear or read reflects what actually happened in the simulation. When you zoom in, detail can be filled in, but it never contradicts what was simulated and never invents events for show.
+  - **Why:** Histories are only worth reading (`VIS-15`) if they are true to the world. Curiosity only works if every clue is real.
+  - **Example:** Zooming into a camp that was being simulated in less detail, the game can show people walking between shelters. It cannot show a fight that never happened.
+  - **Check:** every live moment, chronicle entry and on-screen event can be traced back to a simulated event.
+
+- `PRN-13` **Every choice can be explained** *(Decided)*
+  - **What:** Why anyone, person or animal, did something can always be traced to their beliefs, drives and memories, and shown in the scientist's view (`PRE-14`). Fine physical detail, such as the exact force of a strike, can simply be numbers.
+  - **Why:** Curiosity and research both depend on asking "why?" and getting a real answer.
+  - **Example:** Why did Ama walk to the river at dawn? She was thirsty, and she believes the river is safe at dawn because she has never seen wolves there at that hour.
+  - **Check:** for any action in any run, the scientist's view shows the beliefs, drives and memories behind it.
+
+- `PRN-06` **AI language models describe, never decide** *(Decided)*
+  - **What:** AI language models are used only to turn simulation data into readable text: the chronicle, life stories, myths, dreams. They never choose, invent or know anything for the people or animals of the world, and never add facts the simulation doesn't contain (`PRE-17`).
+  - **Why:** A language model knows our history. If it did their thinking, our knowledge would leak into their world and their discoveries would no longer be theirs.
+  - **Example:** The model can tell you, in the voice of their tradition, how Ama "stole the fire that sleeps inside the wood". It cannot decide that she tries twirling sticks.
+  - **Check:** nothing a language model writes ever feeds back into the simulation, and its descriptions are checked against the data they came from.
+
+### 2.4 How it runs
+
+- `PRN-08` **Same seed, same history** *(Decided)*
+  - **What:** A world's history is fully determined by its seed and your interventions. Running it again gives exactly the same history, on the phone or in the cloud.
+  - **Why:** Rewinding and branching (`TIM-06`), experiments in the cloud (`PLT-05`) and replays on the phone all depend on it. It also means any strange result can be reproduced and investigated.
+  - **Example:** An experiment in the cloud finds a world where fire-making is discovered in year 41. You open that world on your phone and watch year 41 happen exactly as reported.
+  - **Check:** automated runs from the same seed and interventions produce identical histories on the phone and in the cloud (`RES-05`).
+
+- `PRN-11` **Time slows, depth stays** *(Decided)*
+  - **What:** The screen never stutters. When the phone can't keep up, the simulation doesn't cut corners; history simply moves more slowly. The only simplification allowed is the planned one: less detail for what no one is watching (`WLD-12`, `MND-14`), restored without contradiction when you look (`PRN-10`).
+  - **Why:** Depth is the point of the project (`PRN-02`), and a smooth screen is part of the joy on the phone (`VIS-14`). Slowing time protects both.
+  - **Example:** A fight breaks out between two bands while you watch. The phone works harder, so a day takes longer to pass, but everyone in the fight is still fully simulated and the screen stays smooth.
+  - **Check:** measurements show no stutter under heavy load (`PLT-04`), and what you're watching is simulated in the same detail whatever the load.
+
+### 2.5 How it's built
+
+- `PRN-09` **Only as deep as the next experiment needs** *(Decided)*
+  - **What:** Each system is built to the depth the next experiment requires, on foundations that can go deeper later without starting over. This sets the order of work, not the ambition: in the end, every system is as deep as `PRN-02` asks.
+  - **Why:** "No ceiling" plus "everything deep" could never be finished all at once. Building in the order the experiments need keeps the project moving and every step testable.
+  - **Example:** Experiment 1 (sharp stone) needs to know how stone breaks, not how metal is smelted. Smelting waits until an experiment needs it, but matter is designed from the start so it can be added without rework.
+  - **Check:** every task in the implementation plan names the experiment or feature that needs it.
 
 ## 3. Scope and non-goals
 
@@ -472,9 +539,9 @@ Added in layers, starting with the living soundscape.
   - **Variety:** discovery times differ widely between worlds, and at least two different routes to the discovery appear (for example, an accident someone notices versus deliberate tinkering).
   - **Spread:** once discovered, at least three quarters of the adults in the discovering band can do it within 50 simulated years.
   - **Loss:** the skill is lost noticeably more often in small, isolated groups than in large, connected ones.
-  - **No hidden recipe:** the check in `PRN-07` passes.
+  - **General rules only:** the check in `PRN-07` passes.
 - `RES-04` **Reality checklist** *(Proposed)*: The physics must pass every `RCK` item before any discovery that depends on it is trusted.
-- `RES-05` **Reproducibility** *(Proposed)*: Re-running a seed with the same interventions gives the same history on the phone and in the cloud (`PRN-08`). Checked from the first build.
+- `RES-05` **Reproducibility** *(Decided)*: Re-running a seed with the same interventions gives the same history on the phone and in the cloud (`PRN-08`). Checked from the first build.
 - `RES-06` **Milestone reports** *(Decided)*: Every milestone ends with a report for you: what was tested, charts, what emerged, and replays to watch on the phone.
 - `RES-07` **Candidate later experiments** *(Open)*:
   - making fire;
@@ -535,9 +602,4 @@ Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also
 - **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
 - **Signature moment:** a story the simulation must be able to produce without it being scripted (`MOM`).
 - **Live moment:** a notable event the game surfaces to you as it happens (`PRE-08`).
-- **No-hidden-recipe check:** confirms that no discovery's vocabulary appears in decision-making logic (`PRN-07`).
-
-## Change log
-
-- **2026-10-01 · v1:** First version, from the first sounding-board session.
-- **2026-10-01 · v2:** Section 1 (Vision) written in full: one-paragraph description, feelings, rhythms of play, a session told as a story, signature moments (`MOM-01` to `MOM-12`), what makes it different, inspirations, success criteria and a name shortlist. Added the item format and the `MOM` area code.
+- **General-rules check:** confirms that no rule is written for one particular discovery, material, species or event, and that no discovery's name appears in decision-making logic (`PRN-07`).
