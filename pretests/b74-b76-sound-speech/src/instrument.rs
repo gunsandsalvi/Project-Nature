@@ -240,5 +240,44 @@ pub fn drum_modes(d: &Drum, r_frac: f64, tau: f64, fmax: f64) -> Vec<Mode> {
     v
 }
 
+/// How well a hide note with `m` lines of stillness across it radiates, as a share of what it
+/// would at full efficiency (round 2, after the drums sounded weak). Neighbouring lobes push
+/// the air in opposite directions and cancel until the air's wavelength is short enough, so a
+/// note radiates as a multipole of order m + 1 until ka reaches about m + 2. Checked against
+/// measured kettledrum ring times (Christian et al. 1984, quoted by Packer 1993).
+pub fn radiation_v2(m: u32, ka: f64) -> f64 {
+    let x = ka / (m as f64 + 2.0);
+    let order = 2 * (m as i32 + 1);
+    x.powi(order) / (1.0 + x.powi(order))
+}
+
+/// Round 2 drum modes: as `drum_modes`, but with `radiation_v2`, and sound pressure going
+/// with the square root of the radiated power.
+pub fn drum_modes_v2(d: &Drum, r_frac: f64, tau: f64, fmax: f64) -> Vec<Mode> {
+    let c_air = 343.0;
+    let mut v = Vec::new();
+    for (m, zeros) in J_ZEROS.iter().enumerate() {
+        for &j in zeros {
+            let sigma = d.density + 2.0 * RHO_AIR * d.radius / j;
+            let f = j / (TAU * d.radius) * (d.tension / sigma).sqrt();
+            if f > fmax {
+                continue;
+            }
+            let ka = TAU * f / c_air * d.radius;
+            let radiation = radiation_v2(m as u32, ka);
+            let shape = bessel_j(m as u32, j * r_frac);
+            let amp = TAU * f * shape.abs() * contact_spectrum(f, tau) * radiation.sqrt();
+            let decay = PI * f * d.eta + RHO_AIR * c_air * radiation / (2.0 * d.density);
+            v.push(Mode { freq: f, amp, decay, energy: 0.0 });
+            if m > 0 {
+                v.push(Mode { freq: f * 1.006, amp: amp * 0.3, decay, energy: 0.0 });
+            }
+        }
+    }
+    v.sort_by(|a, b| b.amp.partial_cmp(&a.amp).unwrap());
+    v.truncate(MAXM);
+    v
+}
+
 pub const HAND_TAU: f64 = 0.003;
 pub const STICK_TAU: f64 = 0.0006;

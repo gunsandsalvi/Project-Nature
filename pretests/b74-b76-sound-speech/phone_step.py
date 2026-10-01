@@ -198,7 +198,7 @@ def main():
         res["clips"][name] = {"as_before_phone_lu": round(flutes[-1], 1)}
     target = float(np.mean(flutes))
     res["target_phone_lu"] = round(target, 1)
-    for name in ("drum-small", "drum-large", "camp-noise"):
+    for name in ("drum-small", "drum-large", "drum-small-ring", "drum-large-ring", "camp-noise"):
         x = read(f"{clips}/{name}.wav")
         before = x * 10 ** (page_gain(x) / 20)
         hp = iir(iir(x, "hp", 150), "hp", 150)
@@ -211,14 +211,15 @@ def main():
                         "most_phone_lu": round(most, 1), "below_flutes_db": round(target - loudness(y), 1)}
         res["clips"][name] = row
         print(name, json.dumps(row), flush=True)
-    d = {k: res["clips"][k] for k in ("drum-small", "drum-large")}
-    # the rule: within 3 dB of the flutes at most 12 dB of limiting; bass worth at least 6 dB more
-    res["louder_passes"] = all(target - v["louder"]["most_phone_lu"] <= 3.0 for v in d.values())
-    lg = d["drum-large"]
-    res["bass_extra_db_large"] = round(lg["bass"]["most_phone_lu"] - lg["louder"]["most_phone_lu"], 1)
-    res["bass_passes"] = res["bass_extra_db_large"] >= 6.0
+    # the rules: within 3 dB of the flutes at most 12 dB of limiting; bass worth at least 6 dB more
+    for law, sfx in (("as_before", ""), ("rings_longer", "-ring")):
+        d = {k: res["clips"][f"drum-{k}{sfx}"] for k in ("small", "large")}
+        bass_extra = round(d["large"]["bass"]["most_phone_lu"] - d["large"]["louder"]["most_phone_lu"], 1)
+        step = "bass" if bass_extra >= 6.0 else "louder"
+        res[law] = {"bass_extra_db_large": bass_extra, "bass_passes": bass_extra >= 6.0, "step_used": step,
+                    "passes": all(target - v[step]["most_phone_lu"] <= 3.0 for v in d.values())}
     json.dump(res, open(f"{HERE}/results/phone-step.json", "w"), indent=1)
-    print(json.dumps({k: res[k] for k in ("target_phone_lu", "louder_passes", "bass_extra_db_large", "bass_passes")}))
+    print(json.dumps({k: res[k] for k in ("target_phone_lu", "as_before", "rings_longer")}))
 
 
 if __name__ == "__main__":

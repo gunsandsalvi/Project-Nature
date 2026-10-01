@@ -168,6 +168,20 @@ fn run_inner(cfg: &str) -> Result<Value, String> {
 mod tests {
     use super::*;
 
+    /// Round 2 drums: the new radiation law against measured kettledrum ring times (64 cm,
+    /// mylar, 5,360 N/m; Christian et al. 1984, quoted by Packer 1993, Tables 7.1 and 7.2).
+    /// The notes with one ring of stillness, at the edge, must land within a factor of 2.
+    #[test]
+    fn drum_v2_matches_kettledrum() {
+        let (a, sigma, eta) = (0.32, 0.262, 0.002);
+        for (m, f, measured) in [(1u32, 172.0, 0.8), (2, 258.0, 1.7), (3, 340.0, 2.7), (4, 420.0, 1.7), (5, 501.0, 2.6)] {
+            let ka = crate::dsp::TAU * f / 343.0 * a;
+            let d = crate::dsp::PI * f * eta + 1.2 * 343.0 * crate::instrument::radiation_v2(m, ka) / (2.0 * sigma);
+            let t60 = 6.91 / d;
+            assert!(t60 / measured < 2.0 && measured / t60 < 2.0, "({m},1): {t60:.2} s against {measured} s");
+        }
+    }
+
     #[test]
     fn run_returns_json_and_errors_as_json() {
         let r: Value = serde_json::from_str(&run(r#"{"voices":[4],"offline_seconds":0.05,"skip_per_cpu":true}"#)).unwrap();

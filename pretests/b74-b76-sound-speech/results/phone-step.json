@@ -46,6 +46,44 @@
     "below_flutes_db": 7.6
    }
   },
+  "drum-small-ring": {
+   "as_before_phone_lu": -31.5,
+   "as_before_full_lu": -27.9,
+   "share_below_350hz": 0.474,
+   "louder": {
+    "phone_lu": -26.2,
+    "gain_db": 16.0,
+    "deepest_limit_db": 12.0,
+    "most_phone_lu": -26.2,
+    "below_flutes_db": 7.2
+   },
+   "bass": {
+    "phone_lu": -25.8,
+    "gain_db": 16.0,
+    "deepest_limit_db": 12.0,
+    "most_phone_lu": -25.8,
+    "below_flutes_db": 6.8
+   }
+  },
+  "drum-large-ring": {
+   "as_before_phone_lu": -43.6,
+   "as_before_full_lu": -22.7,
+   "share_below_350hz": 0.996,
+   "louder": {
+    "phone_lu": -31.7,
+    "gain_db": 22.0,
+    "deepest_limit_db": 12.0,
+    "most_phone_lu": -31.7,
+    "below_flutes_db": 12.7
+   },
+   "bass": {
+    "phone_lu": -26.3,
+    "gain_db": 14.2,
+    "deepest_limit_db": 12.0,
+    "most_phone_lu": -26.3,
+    "below_flutes_db": 7.2
+   }
+  },
   "camp-noise": {
    "as_before_phone_lu": -19.0,
    "as_before_full_lu": -19.0,
@@ -67,7 +105,16 @@
   }
  },
  "target_phone_lu": -19.0,
- "louder_passes": false,
- "bass_extra_db_large": 3.9,
- "bass_passes": false
+ "as_before": {
+  "bass_extra_db_large": 3.9,
+  "bass_passes": false,
+  "step_used": "louder",
+  "passes": false
+ },
+ "rings_longer": {
+  "bass_extra_db_large": 5.4,
+  "bass_passes": false,
+  "step_used": "louder",
+  "passes": false
+ }
 }

@@ -137,6 +137,14 @@ fn drum_set(d: &Drum, r: f64, tau: f64) -> Vec<Mode> {
     m
 }
 
+/// Round 2: the same strike with the corrected radiation law (`drum_modes_v2`).
+fn drum_set_v2(d: &Drum, r: f64, tau: f64) -> Vec<Mode> {
+    let mut m = drum_modes_v2(d, r, tau, 20_000.0);
+    let sum: f64 = m.iter().map(|x| x.amp).sum();
+    m.iter_mut().for_each(|x| x.amp *= DRUM_PEAK_PA / sum);
+    m
+}
+
 fn clips(dir: &str) {
     std::fs::create_dir_all(dir).unwrap();
     // 1. four materials, three strikes each, by A1 and A2 (same strikes)
@@ -179,12 +187,14 @@ fn clips(dir: &str) {
         normalize(&mut out, -3.0);
         write_wav(&format!("{dir}/flute-{tag}.wav"), 1, &out);
     }
-    // 4. drums: two hand strikes at the centre, two near the edge, then a short rhythm
-    for (tag, d) in [("small", DRUM_SMALL_TIGHT), ("large", DRUM_LARGE_SLACK)] {
+    // 4. drums: two hand strikes at the centre, two near the edge, then a short rhythm;
+    //    "-ring" is round 2's corrected radiation law
+    for (tag, d, v2) in [("small", DRUM_SMALL_TIGHT, false), ("large", DRUM_LARGE_SLACK, false), ("small-ring", DRUM_SMALL_TIGHT, true), ("large-ring", DRUM_LARGE_SLACK, true)] {
+        let set = if v2 { drum_set_v2 } else { drum_set };
         let mut out = vec![0f32; secs(6.0)];
-        let centre = drum_set(&d, 0.1, HAND_TAU);
-        let edge = drum_set(&d, 0.85, HAND_TAU);
-        let stick = drum_set(&d, 0.85, STICK_TAU);
+        let centre = set(&d, 0.1, HAND_TAU);
+        let edge = set(&d, 0.85, HAND_TAU);
+        let stick = set(&d, 0.85, STICK_TAU);
         let mut t = 0.1;
         for set in [&centre, &centre, &edge, &edge] {
             modal_into(&mut out, secs(t), set, 1.0);
@@ -342,10 +352,21 @@ fn describe() -> Value {
         let mut m = drum_modes(&d, 0.6, HAND_TAU, 20_000.0);
         m.sort_by(|a, b| a.freq.partial_cmp(&b.freq).unwrap());
         let f0 = m[0].freq;
+        // round 2: ring time (60 dB) of the six lowest notes under each law, and of a whole strike
+        let mut m2 = drum_modes_v2(&d, 0.6, HAND_TAU, 20_000.0);
+        m2.sort_by(|a, b| a.freq.partial_cmp(&b.freq).unwrap());
+        let ring = |ms: &[Mode]| ms.iter().take(6).map(|x| (6.91 / x.decay * 1000.0).round() / 1000.0).collect::<Vec<_>>();
+        let strike = |ms: &[Mode]| {
+            let mut out = vec![0f32; secs(3.0)];
+            modal_into(&mut out, 0, ms, 1.0);
+            t60(&out)
+        };
         drums.push(json!({"drum": tag, "radius_m": d.radius, "tension_n_per_m": d.tension,
             "lowest_modes_hz": m.iter().take(6).map(|x| x.freq.round()).collect::<Vec<_>>(),
             "ratios": m.iter().take(6).map(|x| (x.freq / f0 * 100.0).round() / 100.0).collect::<Vec<_>>(),
-            "ideal_ratios_no_air": [1.0, 1.59, 2.14, 2.30, 2.65, 2.92]}));
+            "ideal_ratios_no_air": [1.0, 1.59, 2.14, 2.30, 2.65, 2.92],
+            "ring_s_v1": ring(&m), "ring_s_v2": ring(&m2),
+            "strike_ring_s_v1": strike(&drum_set(&d, 0.6, HAND_TAU)), "strike_ring_s_v2": strike(&drum_set_v2(&d, 0.6, HAND_TAU))}));
     }
     json!({"materials": mats, "flutes": flutes, "drums": drums})
 }
