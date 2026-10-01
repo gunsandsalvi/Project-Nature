@@ -265,10 +265,10 @@ These rules apply to every part of the project, and they outrank everything else
   - **Check:** every live moment, chronicle entry and on-screen event can be traced back to a simulated event.
 
 - `PRN-13` **Every choice can be explained** *(Decided)*
-  - **What:** Why anyone, person or animal, did something can always be traced to their beliefs, drives and memories, and shown in the scientist's view (`PRE-14`). Fine physical detail, such as the exact force of a strike, can simply be numbers.
+  - **What:** Why anyone, person or animal, does something can be traced to their beliefs, drives and memories, and shown in the scientist's view (`PRE-14`): for anything happening now, and for the choices behind every event the history keeps (`PRN-15`). Fine physical detail, such as the exact force of a strike, can simply be numbers.
   - **Why:** Curiosity and research both depend on asking "why?" and getting a real answer.
   - **Example:** Why did Ama walk to the river at dawn? She was thirsty, and she believes the river is safe at dawn because she has never seen wolves there at that hour.
-  - **Check:** for any action in any run, the scientist's view shows the beliefs, drives and memories behind it.
+  - **Check:** for any action under way, and for the choices behind every saved event, the scientist's view shows the beliefs, drives and memories behind them.
 
 - `PRN-06` **AI language models describe, never decide** *(Decided)*
   - **What:** AI language models are used only to turn simulation data into readable text: the chronicle, life stories, myths, dreams. They never choose, invent or know anything for the people or animals of the world, and never add facts the simulation doesn't contain (`PRE-17`).
@@ -278,17 +278,19 @@ These rules apply to every part of the project, and they outrank everything else
 
 ### 2.4 How it runs
 
-- `PRN-08` **Same seed, same history** *(Decided)*
-  - **What:** A world's history is fully determined by its seed and your interventions. Running it again under the same version of the rules gives exactly the same history, on the phone or in the cloud. When the rules are updated, the timeline marks where they changed (`PLT-09`).
-  - **Why:** Rewinding and branching (`TIM-06`), experiments in the cloud (`PLT-05`) and replays on the phone all depend on it. It also means any strange result can be reproduced and investigated.
-  - **Example:** An experiment in the cloud finds a world where fire-making is discovered in year 41. You open that world on your phone and watch year 41 happen exactly as reported.
-  - **Check:** automated runs from the same seed and interventions produce identical histories on the phone and in the cloud (`RES-05`).
+- `PRN-15` **History is saved, not re-run** *(Decided)*
+  - **What:** The past is kept as saved data, chosen for what the game uses: the chronicle and the events behind it, key moments in full, the full state of the world at saved moments, and the records each view of the past needs. The past is never recomputed, and the phone and cloud builds don't have to produce identical histories (`PLT-05`). A seed decides how a world is generated, not how its history unfolds.
+  - **Why:** Re-running history exactly would need identical maths on every device, and every old version of the rules kept forever. Saving what matters avoids those costs, so the effort goes into depth on the phone.
+  - **Example:** You tap a cave painting of a great hunt. The hunt was a key moment, so it was saved in full, and you watch it again as it happened.
+  - **Check:** every view of the past reads saved data, and nothing re-simulates the past.
+
+- `PRN-08` **Same seed, same history** *(Dropped)*: History is now saved rather than re-run (`PRN-15`), and the phone and cloud builds no longer need to match exactly (`PLT-05`).
 
 - `PRN-11` **Time slows, depth stays** *(Decided)*
-  - **What:** The screen never stutters. When the phone can't keep up, the simulation doesn't cut corners; history simply moves more slowly. The only simplification allowed is the planned one: less detail for what no one is watching (`WLD-12`, `MND-14`), restored without contradiction when you look (`PRN-10`).
+  - **What:** The screen never stutters. When the phone can't keep up, the simulation doesn't cut corners; history simply moves more slowly. The only simplification allowed is the planned one: less detail for what is routine, decided by the world's own rule and never by where you look (`WLD-12`, `MND-14`). A simpler form is used only once an experiment shows it gives the same history, statistically, as full detail, and moving between forms never contradicts what happened (`PRN-10`).
   - **Why:** Depth is the point of the project (`PRN-02`), and a smooth screen is part of the joy on the phone (`VIS-14`). Slowing time protects both.
   - **Example:** A fight breaks out between two bands while you watch. The phone works harder, so a day takes longer to pass, but everyone in the fight is still fully simulated and the screen stays smooth.
-  - **Check:** measurements show no stutter under heavy load (`PLT-04`), and what you're watching is simulated in the same detail whatever the load.
+  - **Check:** measurements show no stutter under heavy load (`PLT-04`), and whatever runs in full stays in full whatever the load.
 
 ### 2.5 How it's built
 
@@ -321,7 +323,7 @@ This section sets the boundaries of the project: what it includes, where history
   - **Presentation** (section 11): detailed pixel art, one continuous zoom from the globe to a single person, and many ways to follow the story: the chronicle, following one person's life, map overlays, archaeology and more.
   - **Sound** (section 12): a living soundscape first, then their music, their voices and a score.
   - **The phone app** (section 13): built for one phone, in portrait and landscape, smooth at all times.
-  - **Research tools** (section 14): experiments across many worlds, run in the cloud, with reports and replays you review on the phone.
+  - **Research tools** (section 14): experiments across many worlds, run in the cloud, with reports and saved moments you review on the phone.
 
 ### 3.2 Where history starts
 
@@ -364,7 +366,7 @@ This section sets the boundaries of the project: what it includes, where history
 
 - `SCP-16` **Milestones** *(Decided)*: The project moves through these milestones in order. Each ends with a report you review (`RES-06`). Tasks and dates live in the implementation plan.
 
-  1. `MIL-01` **Foundations:** a small generated valley that plays out identically on the phone and in the cloud (`PRN-08`), the experiment runner and its first report, and a basic phone viewer for replays. *Now possible:* watching a generated valley pass through its days and seasons on your phone.
+  1. `MIL-01` **Foundations:** a small generated valley that runs on the phone and in the cloud with the same statistics (`RES-05`), the experiment runner and its first report, and a basic phone viewer for saved history. *Now possible:* watching a generated valley pass through its days and seasons on your phone.
   2. `MIL-02` **Sharp stone (Experiment 1):** stone that breaks by real rules; people who perceive, form concepts, learn cause and effect, build skills and learn from each other; just enough food and terrain to live on. *Now possible:* watching a band discover how to chip stone, and seeing the skill spread or be lost.
   3. `MIL-03` **Fire and the first power:** heat, burning and friction; keeping and making fire; dreams, your first power; rewinding and branching history. *Now possible:* a band that can only keep fire learns to make it, and you can send a dream and compare what happens with and without it.
   4. `MIL-04` **A living world:** plants and animals in food webs, with weather and seasons; animals with simpler minds; hunting; your powers over nature and fortune; the living soundscape. *Now possible:* hunting becomes an arms race, and your storms and blessings change lives.
@@ -465,7 +467,7 @@ You are an invisible force of nature. This section defines exactly what you can 
 
 ### 4.4 Records of your interventions
 
-- `GOD-08` **Recorded behind the scenes** *(Decided)*: Every intervention is recorded with its time, place and target. Rewinding, branching and replays depend on this record (`PRN-08`, `TIM-06`).
+- `GOD-08` **Recorded behind the scenes** *(Decided)*: Every intervention is recorded with its time, place, target and details, as part of the saved history (`PRN-15`). The scientist's view of your interventions depends on this record (`GOD-09`).
 
 - `GOD-07` **No trace in the story view** *(Decided)*: The story view never shows where you intervened or how much you helped.
 
@@ -481,13 +483,14 @@ After the camera, time is your main control. This section defines how fast time 
 ### 5.1 How fast time runs
 
 - `TIM-01` **Time follows zoom** *(Decided)*
-  - **What:** By default, the speed of time is tied to the zoom. The closer you look, the slower time runs; the further out, the faster. One gesture controls both where you look and how fast history moves.
-  - **The scale** *(exact values are tuned by measurement, `TIM-07`)*:
+  - **What:** By default, the speed of time follows the zoom: the closer you look, the slower time runs; the further out, the faster, up to whatever the phone can manage at the detail the world needs (`PRN-11`). One gesture controls both where you look and how fast history moves.
+  - **What zoom asks for** *(how fast history can actually run depends on how much of the world needs full detail at that moment, and is measured, `TIM-07`)*:
     - **one person:** natural speed (`TIM-10`);
     - **a camp:** a day passes in a few minutes;
     - **a valley:** a season passes in about a minute;
     - **a region:** years pass every minute;
     - **the whole world:** centuries pass every minute.
+  - **The past at any speed:** history that has already happened, for example overnight, can be played back at any speed from the saved history (`PRN-15`), so a thousand years can still sweep past like weather (`VIS-07`).
   - **Why:** Close-up moments are lived; distant eras are watched.
   - **Example:** You watch the knapper strike, flake by flake. Then you pull back over the valley, and a whole summer passes while the herds move north.
 
@@ -526,7 +529,7 @@ After the camera, time is your main control. This section defines how fast time 
 ### 5.4 Going back
 
 - `TIM-06` **Rewind and branch** *(Decided)*
-  - **What:** Go back to any moment in a world's history and carry on from there, changing something or nothing. The original timeline is kept, and the new one becomes a branch.
+  - **What:** Go back to any saved moment in a world's history (`PRN-15`) and carry on from there, changing something or nothing. The new branch runs on from the saved state, so even with no change, chance can take it somewhere new. The original timeline is kept, and the new one becomes a branch.
   - **Why:** Curiosity (`VIS-08`): the only way to really answer "what if?".
   - **Example:** You rewind to before the plague, send a mild winter instead, and compare the two histories (`MOM-10`).
 
@@ -538,7 +541,7 @@ After the camera, time is your main control. This section defines how fast time 
 
 ### 5.5 Pacing and endings
 
-- `TIM-07` **Pacing** *(To test)*: There is no fixed target for how long history takes to watch. It is measured and tuned during development (`PLT-04`).
+- `TIM-07` **Pacing** *(To test)*: How fast history runs is measured and tuned during development (`PLT-04`). The first target for the tests: a thousand years in one night for a world of a few hundred people.
 
 - `TIM-09` **If everyone dies** *(Decided)*: The world goes on without them. Nature carries on, and you can keep watching, rewind to before the end, or start a new world.
 
@@ -603,9 +606,9 @@ The world is a small planet with everything a planet has: rock, water, air, plan
 
 ### 6.4 Detail
 
-- `WLD-12` **Detail where it matters** *(Decided; follows from `PRN-11`)*: Each system runs at the coarsest scale that keeps it true. Climate is worked out region by region; rivers and soils kilometre by kilometre; plants and animals in patches of a few hundred metres. Everything goes down to the metre where people are or where you look.
+- `WLD-12` **Detail where it matters** *(Decided; follows from `PRN-11`)*: Each system runs at the coarsest scale that keeps it true. Climate is worked out region by region; rivers and soils kilometre by kilometre; plants and animals in patches of a few hundred metres. Everything goes down to the metre where people are, or where something new or critical is happening. Where you look changes only the picture, never the simulation (`WLD-13`).
 
-- `WLD-13` **Nothing changes when you look away** *(Decided; follows from `PRN-10`)*: Fine detail is generated the same way every time and never contradicts what was simulated more coarsely.
+- `WLD-13` **Looking changes nothing** *(Decided; follows from `PRN-10`)*: Where you look never changes what happens. Fine detail drawn for the picture is generated the same way every time, and never contradicts what was simulated.
 
 ### 6.5 Natural systems
 
@@ -941,7 +944,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 ### 9.7 Scale and inspection
 
-- `MND-14` **Detail follows attention** *(Decided; follows from `PRN-11`)*: Minds far from your attention run in simpler form (habits, and knowledge held by the group as a whole). They sharpen again when you zoom in, with no break in their story.
+- `MND-14` **Detail follows what matters** *(Decided; follows from `PRN-11`)*: Everyone is always an individual, with their own body, family, memories, skills and beliefs. People in routine situations may run more cheaply, even as part of their band, but only once an experiment shows this gives the same history, statistically, as full detail. Anyone facing something new, risky or important runs in full. The rule depends only on the world, never on where you look.
 
 - `MND-15` **No population cap** *(Decided)*: How many minds the phone can run at each level of detail is found by measurement (`PLT-04`).
 
@@ -952,6 +955,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
 - `MND-16` **Animals** *(Decided)*
   - **What:** Animals have the same kind of mind with fewer abilities. They learn fear, routes and habits, so hunting becomes an arms race and taming becomes possible.
   - **What animals lack:** language, deliberate teaching, long plans and abstract concepts. Species differ: wolves hunt together, deer are wary grazers.
+  - **Detail:** near people, animals are individuals with minds. Elsewhere they are populations that carry inherited and learned traits, such as wariness of people (`WLD-12`).
 
 ## 10. Culture and society
 
@@ -1192,7 +1196,7 @@ Kindling is built for one phone, and nothing else is used to play it (`SCP-02`).
 
 ### 13.1 The phone
 
-- `PLT-01` **One phone** *(Decided)*: Built for your Pixel 11 Pro XL, and free to use that phone's specific hardware wherever it helps, such as its graphics chip for the pixel-rendered 3D (`PRE-02`) and its AI hardware for the writer AI (`PRE-37`).
+- `PLT-01` **One phone** *(Decided)*: Built and optimised for your Pixel 11 Pro XL, and free to use that phone's specific hardware wherever it helps: its graphics chip for the pixel-rendered 3D (`PRE-02`), its AI hardware for the writer AI (`PRE-37`), and either of them for the simulation itself (`PLT-05`).
 
 - `PLT-02` **Portrait and landscape** *(Decided)*: Both are supported, and the layout adapts (`PRE-34`).
 
@@ -1226,7 +1230,7 @@ When the phone can't keep up, time slows and depth stays (`PRN-11`).
 
 ### 13.4 The cloud
 
-- `PLT-05` **Experiments in the cloud** *(Decided; follows from `SCP-15`)*: The simulation also runs without graphics in the AI's cloud sessions, many worlds at a time. Any experiment's world can be opened on the phone at any moment of its history.
+- `PLT-05` **Experiments in the cloud** *(Decided; follows from `SCP-15`)*: The simulation also runs without graphics in the AI's cloud sessions, many worlds at a time. The phone build comes first and is optimised for the phone; the cloud build doesn't have to match it exactly, only behave the same statistically (`RES-05`). An experiment's world can be opened on the phone at any of its saved moments.
 
 ## 14. Research and validation
 
@@ -1254,7 +1258,7 @@ This section turns "research standard" into practice: how the project proves tha
 
 - `RES-04` **Reality checklist first** *(Decided)*: The physics must pass every reality check (`RCK`) before any discovery that depends on it is trusted.
 
-- `RES-05` **Reproducibility** *(Decided)*: Re-running a seed with the same interventions, under the same version of the rules, gives the same history on the phone and in the cloud (`PRN-08`). Checked from the first build.
+- `RES-05` **Reproducibility** *(Decided)*: Results are reproducible statistically: re-running an experiment on fresh worlds gives results within its stated ranges, and the cloud build gives the same statistics as the phone build. Exact repeats of a history are not required (`PRN-15`). Checked at every milestone.
 
 ### 14.2 The experiments
 
@@ -1269,7 +1273,7 @@ This section turns "research standard" into practice: how the project proves tha
   - **Comparison runs:** without imitation, the skill does not spread; without curiosity, discovery is much rarer (`RES-10`).
 
 - `RES-07` **The series** *(Decided)*: Experiments follow the signature moments in milestone order, adjusted after each report:
-  - **Foundations (`MIL-01`):** reproducibility and performance baselines.
+  - **Foundations (`MIL-01`):** the phone and cloud statistical match, and performance baselines.
   - **Sharp stone (`MIL-02`):** Experiment 1.
   - **Fire and the first power (`MIL-03`):** fire from wood (`MOM-01`), with and without a dream, to show a dream raises the odds without guaranteeing anything.
   - **A living world (`MIL-04`):** the lost craft (`MOM-02`).
@@ -1288,9 +1292,9 @@ This section turns "research standard" into practice: how the project proves tha
   - the measurements (`PLT-04`);
   - what was added (`PRN-14`) and how the principles were checked;
   - the risks (section 16);
-  - links to replays.
+  - links to saved moments in the game.
 
-- `RES-15` **A page on the phone** *(Decided)*: Each report is a readable page with charts and plain conclusions, whose links open the replays in the game. A copy is kept in the repository.
+- `RES-15` **A page on the phone** *(Decided)*: Each report is a readable page with charts and plain conclusions, whose links open saved moments in the game. A copy is kept in the repository.
 
 ## 15. Project and process
 
@@ -1321,8 +1325,8 @@ How the project is run: you direct, and AI agents build. This section defines th
 - `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches. Work joins the main version only after every automatic check passes and an independent AI review approves it. You review at milestones.
 
 - `PRC-10` **The checks** *(Decided)*:
-  - **before any work joins the main version:** the tests, the reality checklist (`RES-04`), reproducibility (`RES-05`) and the general-rules check (`PRN-07`);
-  - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
+  - **before any work joins the main version:** the tests, the reality checklist (`RES-04`) and the general-rules check (`PRN-07`);
+  - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the phone and cloud statistical match (`RES-05`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
 
 - `PRC-11` **Builds between milestones** *(Decided)*: A new version whenever something you can see or try has changed, with a one-line note, installed by download (`PLT-06`). The full report still comes at each milestone.
 
@@ -1364,7 +1368,7 @@ What could stop Kindling from succeeding, how we would notice early, and what we
 - `RSK-10` **History too slow to watch** · likelihood medium · impact medium
   - **Risk:** Even with fast time and overnight mode, a deep simulation may take too long to reach interesting points.
   - **Signs:** overnight runs covering only a few years; quiet centuries dominating the chronicle.
-  - **Response:** measure from the start (`TIM-07`); detail follows attention (`WLD-12`, `MND-14`); overnight mode (`TIM-12`); the story director skipping quiet years (`TIM-02`).
+  - **Response:** measure from the start (`TIM-07`); less detail for what is routine (`WLD-12`, `MND-14`); overnight mode (`TIM-12`); the story director skipping quiet years (`TIM-02`).
 
 - `RSK-11` **Pixel look hard to keep clean** · likelihood medium · impact medium
   - **Risk:** Keeping pixel-rendered 3D free of speckle and shimmer at every zoom may be harder than it looks.
@@ -1376,12 +1380,12 @@ What could stop Kindling from succeeding, how we would notice early, and what we
 - `RSK-02` **The phone can't keep up** · likelihood high · impact medium
   - **Risk:** Deep minds, chemistry and detailed pixel art add up.
   - **Signs:** dropped frames; simulated time per minute falling as the population grows; the phone getting hot.
-  - **Response:** measure from the first week (`PLT-04`); lower detail where no one is looking (`WLD-12`, `MND-14`); time slows rather than the simulation cutting corners (`PRN-11`).
+  - **Response:** measure from the first week (`PLT-04`); less detail for what is routine (`WLD-12`, `MND-14`); time slows rather than the simulation cutting corners (`PRN-11`).
 
-- `RSK-04` **Phone and cloud disagree** · likelihood medium · impact high
-  - **Risk:** Different processors can calculate slightly differently, which would break rewinding and the transfer of experiments to the phone.
-  - **Signs:** reproducibility checks failing; replays drifting apart.
-  - **Response:** reproducibility checks from the first build (`RES-05`).
+- `RSK-04` **Cloud experiments drift from the phone** · likelihood medium · impact high
+  - **Risk:** The phone build is optimised on its own (`PLT-05`), so cloud experiments may stop showing what actually happens on the phone.
+  - **Signs:** the milestone comparison finds different statistics on the phone and in the cloud.
+  - **Response:** one set of rules for both builds, and the statistical comparison at every milestone (`RES-05`).
 
 - `RSK-12` **Updates change worlds in odd ways** · likelihood medium · impact low
   - **Risk:** A world that continues under new rules (`PLT-09`) may change suddenly at the point of the update.
@@ -1427,19 +1431,20 @@ None. Every proposal made while this file was being written has been reviewed an
 - **Institution:** a shared, named pattern of behaviour (a norm, role, rank or rite) that people know, teach and enforce (`CUL-06`).
 - **Intervention:** anything you do with your powers (section 4).
 - **Law:** a general rule of change, such as burning or smelting, that never names a product (`MAT-04`).
-- **Level of detail:** how finely something is being simulated at a given moment (`WLD-12`, `MND-14`).
+- **Level of detail:** how finely something is being simulated at a given moment, set by the world's own rule and never by where you look (`WLD-12`, `MND-14`).
 - **Live moment:** a notable event the game shows you as it happens (`PRE-08`).
 - **Milestone:** a stage of the project that ends with a report you review (`MIL`).
 - **Overnight mode:** the world running at top speed, screen dimmed, while the phone charges (`TIM-12`).
 - **People (a people):** a group recognised by its shared language, beliefs, customs and style (`CUL-23`).
 - **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
 - **Run:** one simulation of a world for an experiment.
+- **Saved moment:** a point in a world's past whose full state was saved, so you can look at it or branch from it (`PRN-15`, `TIM-06`).
 - **Scientist's view / story view:** the two ways to look into a mind: raw beliefs and evidence, or their own words (`PRE-14`).
-- **Seed:** the number a world is generated from. Same seed, same world.
+- **Seed:** the number a world is generated from. It decides the world, not its history (`PRN-15`).
 - **Signature moment:** a story the simulation must be able to produce without it being scripted (`MOM`).
 - **Skill:** a learned way of doing something, which improves with practice (`MND-06`).
 - **Story director:** sets the speed of time according to what is happening. It never causes events (`TIM-02`, `TIM-03`).
 - **Structure:** how matter is put together: crystal or glass, fibrous, porous or dense, grain, wetness (`MAT-02`).
-- **Timeline / branch:** one history of a world. Rewinding and changing something starts a new branch (`TIM-06`).
+- **Timeline / branch:** one history of a world. Going back to a saved moment and carrying on starts a new branch (`TIM-06`).
 - **World:** one generated planet (section 6).
 - **Writer AI:** the AI language model, running on the phone, that turns simulation data into readable text. It never decides anything (`PRE-17`, `PRE-37`).
