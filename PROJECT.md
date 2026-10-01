@@ -1059,6 +1059,7 @@ Matter must be easy to extend, forever (`PRN-14`).
 
 - `MAT-13` **Four catalogues** *(Decided)*: Matter is described in four catalogues: ingredients, structures, laws and reality checks.
   Each entry stands alone, is written in plain language a person can read and check, gives its key values with their sources and the rules or ranges for the rest, and names the reality checks that prove it.
+  Once checked, a key value is locked: changing it means sourcing and checking it again (`RSK-16`).
 
 - `MAT-14` **Adding without rewriting** *(Decided)*
   - **What:** Adding an ingredient, structure, law or check never requires changing the others.
@@ -2124,7 +2125,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood medium, impact medium.
   - **Risk:** AI agents may cite sources that don't exist, or don't say what is claimed (`PRN-05`).
   - **Signs:** values whose quoted passage can't be found in the source.
-  - **Response:** only key values are sourced (`PRN-05`); each is checked against a saved copy of its source, with the supporting passage copied by a tool, never typed.
+  - **Response:** only key values are sourced (`PRN-05`); each is checked once, when it is added, against the fetched source, with the supporting passage copied by a tool, never typed; the value is then locked, keeping only the source's name, link and quote, and the fetched copy is deleted.
 
 - `RSK-23` **Your time** *(Decided)*
   - **Rating:** likelihood medium, impact medium.

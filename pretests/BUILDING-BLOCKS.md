@@ -171,10 +171,10 @@ The engine everything else runs on.
     - **Cost:** about 3 minutes per checked entry, or 27 seconds a value; 10,000 values come to about 76 agent-hours, plus review.
     - **Quotes:** always copied by a tool from the fetched text, never typed. All 34 tool-copied quotes matched; a summarising fetch tool got 5 of 10 wrong or missing.
     - **Checks:** the checker caught all 168 planted errors, but not a value taken from the wrong column of the right table, so an independent reviewer still checks meaning.
-    - **Sources:** a third of the pages tried couldn't be read by a script, so each source's text is saved with its entry and checked against that copy.
+    - **Sources:** a third of the pages tried couldn't be read by a script later, so each value is checked once, when it is added, while its source is at hand.
     - **The real limit is gaps, not time:** 15% of properties had no checkable source, and 6 values are stand-ins, such as wood in general for birch.
     - **Licences:** use USGS, the USDA Wood Handbook, Wikipedia and CC BY papers; cite only NIST's data, The Engineering ToolBox and the Handbook of Mineralogy; avoid the CRC Handbook and MatWeb.
-    - **Since then:** only key values are sourced, a few hundred growing layer by layer, each checked against a saved copy of its source (`PRN-05`, `RSK-16`). Everything else, stand-ins included, is a labelled estimate.
+    - **Since then:** only key values are sourced, a few hundred growing layer by layer, each checked once when added, then locked, keeping only the source's name, link and quote; fetched copies are deleted (`PRN-05`, `RSK-16`). The trial's 5 entries alone had left 47 MB of fetched pages. Everything else, stand-ins included, is a labelled estimate.
 
 ## 2. Space
 
