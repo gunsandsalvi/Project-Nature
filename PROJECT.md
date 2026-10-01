@@ -165,7 +165,7 @@ Every other section serves it.
   Nothing tells them what to do.
   There are no recipes, no tech tree and no list of eras to unlock.
   They learn the way real people learned: by noticing, trying, failing, copying, teaching and dreaming.
-  Everything they ever achieve, from a sharp flake of stone to rituals, languages, farms and perhaps cities, has to come from what they discover in the world and pass on to each other.
+  Everything they ever achieve, from a sharp flake of stone to rituals, languages and farms, has to come from what they discover in the world and pass on to each other.
   You watch it all on your phone as an invisible force of nature.
   You can nudge the weather, luck and dreams, but you can never command anyone.
 
@@ -334,6 +334,7 @@ Every other section serves it.
     Some peoples may reach farming, writing, metals and beyond; some may take paths our own history never took.
     Nothing about the order of our history is guaranteed, except where physics forces it: no one smelts copper without a fire hot enough.
     Collapse, stagnation and extinction are all valid histories.
+    The one limit is the phone: a world grows only as far as the phone can run every person at full depth (`MND-15`), so cities and farming-scale worlds are out of reach.
 
 ### 1.6 What makes it different
 
@@ -642,7 +643,7 @@ This section sets the boundaries of the project: what it includes, where history
   6. `MIL-06` **The whole world** *(Decided)*: the full wrap-around world, migrations, many bands and diverging cultures, one continuous zoom from the globe to a single person, and archaeology.
      *Now possible:* watching peoples spread, split and meet again across a whole world.
   7. `MIL-07` **Open-ended growth** *(Decided)*: taming animals, farming, settlements and whatever comes after, each built when an experiment calls for it.
-     *Now possible:* history keeps going, with no ceiling.
+     *Now possible:* history keeps going for as long as the world's people fit what the phone can run at full depth (`MND-15`).
 
 ### 3.5 Non-goals
 
@@ -1004,6 +1005,7 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 - `WLD-04` **How many people it can feed** *(To test)*: Estimated at roughly 50,000 hunter-gatherers (about one person per 10 km² of good land), or about half a million to five million once farming exists, since farming supports 10 to 100 times more people on the same land.
   These are orders of magnitude only: on the wrap-around map a third of the area lies beyond 60° latitude, so there is less good land than Earth intuition suggests.
   Measured in experiments.
+  These are what the land could feed, not what the phone can run (`MND-15`).
   - **How it works:** it is set nowhere: it is however many people the food the land really produces (`WLD-18`) can keep alive (`BIO-09`), measured by running worlds.
 
 ### 6.2 The planet
@@ -2234,6 +2236,8 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
     - **Checked:** the same sandboxes run with and without the routine path, and their discoveries, the spread of skills and words, and deaths are compared (`PRN-11`).
 
 - `MND-15` **No population cap** *(Decided)*: How many minds the phone can run at each level of detail is found by measurement (`PLT-04`).
+  That number is the limit of a world: every person stays a full individual (`MND-14`), so history slows as a world nears it, and the game tells you when it is reached.
+  By rough estimates, each mind needs about 0.3–1 MB and about a millisecond of computing per simulated day, so the limit is a few thousand people at a watchable speed; cities and farming-scale worlds of hundreds of thousands are beyond any phone.
   - **How it works:** nothing in the code limits how many people or animals there are: food and the body rules set their numbers (`WLD-04`); when there are more than the phone can run at the speed asked for, time slows (`PRN-11`); and how many run at each speed and level of detail is measured (`PLT-04`).
 
 - `MND-25` **Thoughts are structured; words come later** *(Decided)*: What a person thinks is kept as beliefs, intentions, feelings and memories, never as sentences.
