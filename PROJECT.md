@@ -536,42 +536,107 @@ After the camera, time is your main control. This section defines how fast time 
 
 ## 6. World
 
-**Shape and size**
+The world is a small planet with everything a planet has: rock, water, air, plants, animals and microbes, all following real rules. This section defines the world's shape and size, how a world is made, how detail is managed, and each natural system. What matter is made of is in section 7; how animals think is in section 9.
 
-- `WLD-01` **Torus with latitude** *(Decided)*: The map wraps around both east–west and north–south. An equator runs across the middle, and polar ice lies along the line where the map wraps north–south. Climate zones and seasons behave as on a planet, with seasons reversed between the two halves.
-- `WLD-02` **Globe view** *(Decided)*: Fully zoomed out, the world is drawn as a globe. The wrap only shows at the poles, which are ice nobody crosses.
-- `WLD-03` **Size** *(Decided)*: About 1,000 km pole to pole and about 2,000 km around.
-- `WLD-04` **How many people it can feed** *(To test)*: Estimated at roughly 50,000 hunter-gatherers, or around ten million people once farming exists.
-- `WLD-05` **Climate on a small world** *(Proposed)*: Climate zones sit closer together than on Earth, a few days' walk apart. Weather follows realistic patterns of rain, temperature and storms for each season, rather than full atmospheric physics.
+### 6.1 Shape and size
 
-**The planet**
+- `WLD-01` **Torus with latitude** *(Decided)*
+  - **What:** The map wraps around in both directions. Walk east long enough and you come back from the west; walk north across the polar ice and you come back from the south. An equator runs across the middle of the map, and polar ice lies along the line where it wraps north–south. Climate zones and seasons behave as on a planet, with seasons reversed between the northern and southern halves.
+  - **Why:** There are no edges and no stretched or squashed regions, so every place can be simulated in the same way.
 
-- `WLD-06` **Varied within reason** *(Decided)*: Each world has its own day length, axial tilt (and so its own seasons), moons, and ratio of land to sea. All stay within ranges that allow human-like life.
-- `WLD-07` **The sky** *(Proposed)*: The sun, moon or moons, stars and planets move realistically for each world. They are the raw material for calendars, navigation and myth.
+- `WLD-02` **Globe view** *(Decided)*: Fully zoomed out, the world is drawn as a globe. The wrap only shows at the poles. Someone crossing the polar ice would seem to jump from one pole to the other on the globe, which is rare and harmless.
 
-**Making a world**
+- `WLD-03` **Size** *(Decided)*
+  - **What:** About 1,000 km from pole to pole and about 2,000 km around: roughly 2 million km² in all, land and sea together.
+  - **What follows:** Each climate zone is roughly 100 km wide, about four to five days' walk.
+  - **Why:** It is big enough for many separate peoples and small enough to simulate deeply (`PRN-02`).
 
-- `WLD-08` **Realistic, not from scratch** *(Decided)*: Worlds are generated directly in a realistic present-day state, and generating one is cheap.
-- `WLD-09` **What generation covers** *(Proposed)*: Tectonic plates and mountain ranges, erosion, rivers and lakes, dry land on the sheltered side of mountains, soils, landscapes, and minerals and ores in geologically plausible places.
-- `WLD-10` **Generate many, keep the best** *(Decided)*: The generator makes many candidate worlds and scores them for varied landscapes, natural barriers and unevenly spread resources (flint here, copper there). It keeps the best. Choosing, never editing.
-- `WLD-11` **Generation time** *(Proposed)*: About a minute per candidate world on the phone.
+- `WLD-04` **How many people it can feed** *(To test)*: Estimated at roughly 50,000 hunter-gatherers (about one person per 10 km² of good land), or around ten million once farming exists, since farming supports 10 to 100 times more people on the same land. Measured in experiments.
 
-**Detail**
+### 6.2 The planet
 
-- `WLD-12` **Detail where it matters** *(Proposed)*: Coarse where nothing lives and no one is looking. Fine, down to the metre, where people are or where you look.
-- `WLD-13` **Nothing changes when you look away** *(Proposed)*: Fine detail is generated the same way every time, so looking away and back changes nothing.
+- `WLD-06` **Varied within reason** *(Decided)*: Each world has its own day length, year length, axial tilt (and so the strength of its seasons), moons, and share of land, all within ranges that allow human-like life. *(Proposed ranges: day 18–36 hours, year 250–500 days, tilt 5°–35°, 0–3 moons, 25–50% land. Gravity, air and chemistry stay Earth-like.)*
 
-**Natural systems** (all simulated in depth)
+- `WLD-07` **A rich sky** *(Decided)*
+  - **What:** The sun, moons, stars and planets move realistically for each world's orbit and tilt. Eclipses, comets, meteor showers and auroras happen.
+  - **Why:** The sky is the first calendar, the first compass and a great source of myth (`CUL-13`).
+  - **Example:** A comet that hangs over the valley for a month, the same month the old chief dies, becomes part of how the band remembers that winter.
 
-- `WLD-14` **Geology and materials** *(Decided)*: Rocks, minerals, soils and ores in realistic places. What can be discovered depends on what's underfoot.
-- `WLD-15` **Living geology** *(Proposed)*: Slow change continues during play: erosion, landslides, earthquakes, eruptions, rivers shifting course.
-- `WLD-16` **Climate and weather** *(Decided)*: Seasons, storms and droughts. Over thousands of years, ice ages and warm periods move coastlines and push migrations.
-- `WLD-17` **Water** *(Decided)*: Rivers, lakes, springs, underground water and floods. Life and settlement gather around them.
-- `WLD-18` **Ecology** *(Decided)*: Plants and animals in food webs, with migrations, and populations that boom and crash. What's edible, dangerous or tameable.
-- `WLD-19` **Species from Earth families** *(Decided)*: Earth's families of plants and animals are the starting point. Generation adapts them into each world's own species to fit its landscapes.
-- `WLD-20` **Heredity in plants and animals** *(Proposed)*: Inheritance continues during play, so adaptation and domestication (wolves into dogs, wild grasses into grain) can happen on their own.
-- `WLD-21` **Microbes** *(Proposed)*: Rot, fermentation and disease are microbes at work, and they are part of the same world.
-- `WLD-22` **Natural disasters** *(Proposed)*: Eruptions, earthquakes, floods, droughts, storms, wildfires and lightning come from the world's own systems, not only from the player.
+### 6.3 Making a world
+
+- `WLD-08` **Realistic, not from scratch** *(Decided)*: Worlds are generated directly in a realistic present-day state, using fast methods that imitate what deep time would have produced. Generating one is cheap.
+
+- `WLD-09` **What generation produces** *(Decided)*, in this order:
+  1. tectonic plates, mountain ranges, volcanoes and faults;
+  2. rock types and layers, with minerals and ores in geologically plausible places;
+  3. erosion: valleys, rivers, lakes, deltas and coastlines;
+  4. climate, worked out from the geography (`WLD-16`);
+  5. soils, from rock, climate and time;
+  6. vegetation and landscapes;
+  7. animals and microbes adapted to them (`WLD-19`).
+
+- `WLD-19` **Species from Earth families** *(Decided)*
+  - **What:** Earth's families of plants and animals (deer, wolves, wild cattle, salmon, grasses, birches, oaks, berries and so on) are the starting point. Generation adapts them into each world's own species to fit its landscapes. Every species gets its traits: size, diet, behaviour, seasons, and the chemistry of its body, which decides what is edible, poisonous, medicinal or useful (section 7).
+  - **Why:** Familiar enough to understand, new enough that each world has its own tree of life to discover.
+
+- `WLD-23` **Richness of life** *(Decided)*: About 50 animal and 200 plant species per world, across all groups: mammals, birds, fish, shellfish and insects; trees, shrubs, grasses, herbs and fungi.
+
+- `WLD-10` **Generate many, keep the best** *(Decided)*
+  - **What:** The generator makes many candidate worlds and scores each one. It keeps the best, and never edits it.
+  - **What scores well** *(Proposed)*:
+    - varied landscapes and climates;
+    - natural barriers (mountains, seas, deserts) that let separate cultures form;
+    - resources spread unevenly (flint here, copper there);
+    - a good place to begin (`WLD-24`).
+
+- `WLD-24` **Where history begins** *(Proposed)*: The bands start in a temperate region with caves, fresh water and varied food within reach. The region is found by the scoring, never placed by hand.
+
+- `WLD-11` **Generation time** *(Proposed)*: A candidate world takes under a minute to generate on the phone, so choosing the best of a dozen takes a few minutes.
+
+### 6.4 Detail
+
+- `WLD-12` **Detail where it matters** *(Decided; follows from `PRN-11`)*: Each system runs at the coarsest scale that keeps it true. Climate is worked out region by region; rivers and soils kilometre by kilometre; plants and animals in patches of a few hundred metres. Everything goes down to the metre where people are or where you look.
+
+- `WLD-13` **Nothing changes when you look away** *(Decided; follows from `PRN-10`)*: Fine detail is generated the same way every time and never contradicts what was simulated more coarsely.
+
+### 6.5 Natural systems
+
+All of these are simulated in depth, and each feeds the others.
+
+- `WLD-14` **Geology and materials** *(Decided)*
+  - **What:** Rocks, minerals, soils and ores lie in realistic places, so what can be discovered depends on what's underfoot.
+  - **Example:** Flint comes out of chalk and limestone, obsidian near volcanoes, copper ores in certain mountains, clay along rivers, salt in dry basins.
+
+- `WLD-15` **Living geology** *(Decided)*: Change continues during play. Erosion wears the land, rivers shift their course, landslides fall, earthquakes strike along faults, volcanoes erupt, and coastlines move as the sea rises and falls.
+
+- `WLD-27` **Soils** *(Decided)*: Soils form from rock, climate, plants and time. They hold water and nutrients, decide what grows where, and can later be enriched or exhausted by people.
+
+- `WLD-16` **Climate and weather** *(Decided)*
+  - **Climate from geography:** Each place's climate (rain, temperature and winds through the seasons) is worked out from real physics: latitude, height, distance from the sea, prevailing winds, and mountains that block rain.
+  - **Daily weather** is drawn from that climate, with storm systems that move across the land.
+  - **Long cycles:** over thousands of years, ice ages and warm periods move coastlines and push migrations. A great eruption can cool the world for a few years.
+  - **Example:** Rain clouds coming off the western sea drop their rain on the mountains, so the valleys beyond are dry grassland with forest only along the rivers.
+
+- `WLD-05` **Climate on a small world** *(Decided)*: Climate zones sit closer together than on Earth, a few days' walk apart, and weather systems are scaled to fit the world.
+
+- `WLD-25` **People change the climate** *(Decided)*: What covers the land and, much later, fuel burned at scale feed back into the climate through the same physics. Clearing a forest can dry a region; centuries of burning could warm the world.
+
+- `WLD-17` **Fresh water** *(Decided)*: Rivers, lakes, wetlands, springs, underground water, ice and floods. Life and settlement gather around them.
+
+- `WLD-26` **Seas** *(Proposed)*: Oceans with currents that carry heat and moisture, tides set by the moons, and a sea level that rises and falls with the ice ages. At low tide, shellfish beds are exposed on the shore.
+
+- `WLD-18` **Ecology** *(Decided)*
+  - **What:** Plants grow, flower, fruit and die back with the seasons. Animals eat, breed, migrate and die. Everything is tied together in food webs, with populations that boom and crash.
+  - **Why:** It is what people live from, and what they will one day change.
+  - **Example:** A run of mild winters lets the deer multiply; the wolves follow; then a hard winter cuts both down, and the hunters go hungry.
+
+- `WLD-28` **Fire in the landscape** *(Proposed)*: Lightning and dry fuel start wildfires, which spread with wind and slope; landscapes regrow after them, and some plants depend on fire. People can learn to use fire on the land.
+
+- `WLD-20` **Heredity in plants and animals** *(Decided)*: Inheritance continues during play, so adaptation and domestication (wolves into dogs, wild grasses into grain) can happen on their own.
+
+- `WLD-21` **Microbes** *(Decided)*: Rot, fermentation and disease are living microbes that spread and evolve. Crowding, and living close to animals, bring epidemics.
+
+- `WLD-22` **Natural disasters** *(Decided; follows from `GOD-05` and the systems above)*: Eruptions, earthquakes, floods, droughts, storms, wildfires and lightning come from the world's own systems, not only from you.
 
 How animals think is covered in `MND-16`.
 
