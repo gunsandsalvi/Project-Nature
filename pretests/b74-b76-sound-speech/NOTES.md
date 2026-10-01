@@ -151,3 +151,19 @@ Results land in `results/`; clips and build outputs stay in the cache.
 - "Louder" passes if both drums come within 3 dB of the flutes with at most 12 dB of limiting.
 - "Phone bass" earns its place if it raises the large drum's loudness on the phone stand-in by at least 6 dB more than "Louder" alone, with the same limit on limiting.
 - Your ear then picks among "as before", "louder" and "louder, with phone bass". The step goes into the app's sound only if you pick it.
+
+**Result: the phone step alone fails the rule** (`results/phone-step.json`; loudness on the phone stand-in, flutes at -19.0):
+
+| Clip | As before | Louder | Louder, with phone bass |
+|---|---|---|---|
+| Small drum | -32.9 | -27.8 | -27.3 |
+| Large drum | -43.7 | -30.5 | -26.6 |
+
+At the 12 dB limit on limiting, the drums stay 8 to 12 dB below the flutes, and phone bass adds 3.9 dB on the large drum, not 6.
+
+**The real cause: the drum model rings far too briefly.** Its strikes die in a few hundredths of a second, so even at full level they are short taps. The model lets every note of the hide pass its energy to the air as if nothing cancelled. In a real drum, a note with lines of stillness across the hide pushes air one way on one side of each line and the other way on the other side, so it radiates poorly and rings for a long time.
+- Source, checked once: Christian and others (1984), measured ring times of a 64 cm kettledrum at 5,360 N/m, quoted in T. A. Packer, *Acoustics of the orchestral kettledrum*, MSc thesis, Durham University, 1993, Tables 7.1 and 7.2 (https://etheses.durham.ac.uk/id/eprint/5633/). Quote: "(1,1) 0.8 [s] ... (2,1) 1.7 ... (3,1) 2.7 ... (4,1) 1.7 ... (5,1) 2.6"; the plain boom, (0,1), under 0.3 s. Fetched copy deleted.
+- Fix: a note with m lines across the hide now radiates fully only once the drum is m + 2 times wider than the air's wavelength divided by 2π, rather than once. Its sound pressure goes with the square root of the power it radiates, rather than with the power itself.
+- Check on that kettledrum: the old law gives every note 0.01 to 0.02 s. The new one gives the five notes with one ring of stillness (at the edge) 0.6 to 2.6 s, within 1.5 times the measured values. Fitted: the "+ 2", from the (1,1) note, and the head's own losses, from the (3,1) note; the other three are the check. Notes with an inner ring of stillness still die about 10 times too fast, so the new drum is still a little dry.
+
+**Rule for the corrected drum (set before rendering it).** It passes if, through the phone step (with phone bass only if it earns its place, by the rule above), both drums come within 3 dB of the flutes with at most 12 dB of limiting. Your ear then picks among "as before", "rings longer" and "rings longer, with the phone step".
