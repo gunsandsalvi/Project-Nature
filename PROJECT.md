@@ -2489,11 +2489,11 @@ It is written to stand on its own, without needing any image to understand it.
   - **Why:** Crisp silhouettes keep small things readable on a phone screen.
 
 - `PRE-22` **Stable pixels** *(Decided)*
-  - **What:** Pixels never crawl or shimmer as the camera moves: the picture stays locked to its pixel grid, and turns ease to rest.
+  - **What:** Pixels never crawl or shimmer while the camera is still or panning: the picture stays locked to its pixel grid, and turns ease to rest.
+    During a free turn or zoom, some crawling can't be avoided at this resolution without blur; the fix that best lessens it is chosen on a real world at the first visual review (`PRE-31`).
     One art pixel is always the same size on screen, in portrait and in landscape, so turning the phone only changes the framing.
     About 4 screen pixels make one art pixel.
   - **How it works:** the camera's position is snapped to whole art pixels, and turns ease to rest; each art pixel is a fixed block of about 4 by 4 screen pixels in both orientations.
-    Pixels still crawl while the camera turns or zooms; the fix for that is chosen on a real world at the first visual review (`PRE-31`).
   - **Why:** Shimmering pixels are the most common flaw of 3D pixel art, and the first thing that makes it look cheap.
 
 - `PRE-23` **Rock faces** *(Decided)*
@@ -2557,7 +2557,7 @@ It is written to stand on its own, without needing any image to understand it.
   - **Done when:** at every milestone, screenshots at each zoom level, in both orientations and at every time of day, pass a review for:
     - clean colour, with no speckled surfaces;
     - crisp silhouettes;
-    - pixels that stay still while the camera moves;
+    - pixels that stay still while the camera is still or panning, and crawl as little as possible while it turns or zooms;
     - people and animals readable at phone size.
   - **How it works:** a tool captures the screenshots on the phone from a fixed set of saved worlds, at each zoom, in both orientations and at each time of day; the review checks them against the list, and you take part as the final judge (`PRC-10`).
 
