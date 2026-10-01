@@ -94,7 +94,7 @@ This section says what Kindling is, what it feels like, and what success means. 
 
 - `VIS-01` **In one sentence** *(Decided)*: A bottom-up simulation of humanity on a generated Earth-like world, where a few bands of early humans living in caves learn, entirely by themselves, to survive, build, believe and organise.
 
-- `VIS-06` **In one paragraph** *(Decided)*: Kindling simulates a whole world from the ground up: rock, water, weather, plants, animals and people. It begins with a few bands of early humans sheltering in caves. They have modern brains but almost no culture: a handful of words, no way to make fire, nothing but rough stones and sticks. Nothing tells them what to do. There are no recipes, no tech tree and no list of eras to unlock. They learn the way real people learned: by noticing, trying, failing, copying, teaching and dreaming. Everything they ever achieve, from a sharp flake of stone to rituals, languages, farms and perhaps cities, has to come from what they discover in the world and pass on to each other. You watch it all on your phone as an invisible force of nature. You can nudge the weather, luck and dreams, but you can never command anyone.
+- `VIS-06` **In one paragraph** *(Decided)*: Kindling simulates a whole world from the ground up: rock, water, weather, plants, animals and people. It begins with a few bands of early humans sheltering in caves. They have modern brains but almost no culture: a few dozen words, no way to make fire, nothing but rough stones and sticks. Nothing tells them what to do. There are no recipes, no tech tree and no list of eras to unlock. They learn the way real people learned: by noticing, trying, failing, copying, teaching and dreaming. Everything they ever achieve, from a sharp flake of stone to rituals, languages, farms and perhaps cities, has to come from what they discover in the world and pass on to each other. You watch it all on your phone as an invisible force of nature. You can nudge the weather, luck and dreams, but you can never command anyone.
 
 - `VIS-02` **The fantasy** *(Decided)*: You are nature.
   - **What:** You are the weather, the luck and the dreams. You can send a storm, bless a hunt, or let someone dream two of their own memories side by side. You can't speak, appear or work miracles, and the people of the world never learn you exist.
@@ -231,10 +231,10 @@ These rules apply to every part of the project, and they outrank everything else
   - **Check:** an automated search of the decision-making logic finds no discovery vocabulary, and reviews flag any rule that applies to only one material, species or event.
 
 - `PRN-05` **Real numbers, testable claims** *(Decided)*
-  - **What:** Every quantity in the world comes from real-world measurements: temperatures, hardness, energy, growth rates, how fast genes change. Every claim about what the simulation produces is tested by experiments that can fail, across many worlds.
+  - **What:** Every quantity in the world comes from a real measurement, or from a stated rule or published model applied to real measurements: temperatures, hardness, energy, growth rates, how fast genes change. Values with no measurement are labelled chosen or tuned, and listed in every milestone report. Every claim about what the simulation produces is tested by experiments that can fail, across many worlds.
   - **Why:** Real numbers make discoveries meaningful: copper really does need a furnace. Experiments that can fail stop us fooling ourselves.
   - **Example:** "Bands discover how to chip stone" is accepted as true only after Experiment 1 passes its criteria across 100 worlds (`RES-03`).
-  - **Check:** every value names its real-world source, and every claim in a milestone report is backed by an experiment.
+  - **Check:** every value names its source, or is labelled chosen or tuned and listed in the milestone report; every claim in a milestone report is backed by an experiment.
 
 - `PRN-12` **Speed up time, never bend the rules** *(Decided)*
   - **What:** Pacing only ever comes from controlling time: zoom, the story director, and manual speed (section 5). The world's rules never change during play to make things faster or more dramatic. Dials that bend the rules, such as faster evolution (`BIO-07`), exist only for experiments.
@@ -774,16 +774,23 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
 
 - `BIO-01` **One species, modern minds** *(Decided)*: Their bodies and brains are as capable as ours. Their culture starts almost empty.
 
-- `BIO-02` **Starting kit** *(Decided)*:
+- `BIO-02` **Starting kit** *(Decided)*: The first people are generated like the world: realistic, not grown from nothing. Families, ages and relationships follow real hunter-gatherer patterns. Each adult knows their home range (its food, water, dangers and seasons) and nothing beyond it. The details are in `BIO-20`.
   - **Language:** a few dozen shared words and calls; grammar must grow.
-  - **Fire:** they can feed a fire found after lightning or a wildfire, but cannot make one.
+  - **Fire:** they can feed a fire found after lightning or a wildfire, but cannot make one. A band may start with a fire it is keeping, depending on recent weather.
   - **Tools:** unshaped stones for bashing, and sticks.
   - **Clothing:** none.
   - **Shelter:** natural caves and overhangs.
   - **Food:** gathering, scavenging, some ambush hunting.
-  - **Beliefs:** none are set in advance.
+  - **Beliefs:** only the practical knowledge of their home range; none about spirits, hidden causes or how to make things.
 
 - `BIO-03` **Starting population** *(Decided)*: 3–4 family bands of 15–30 people each, about 45–120 people in all, living in one region (`WLD-24`).
+
+- `BIO-20` **Starting knowledge in detail** *(Proposed)*:
+  - **Bands:** each band is a few related families. The bands are neighbours who sometimes meet, and share one language.
+  - **What adults know:** where water, shelter and the main foods are in each season; which local plants and animals are food, which are poison and which are dangerous; the routes of their home range; who is kin to whom. Children know less, according to their age.
+  - **Words:** water, fire, food, danger, kin, the main animals and plants of home, and simple actions such as come, go, eat and look.
+  - **Fire:** they know how to carry embers to keep a fire alive on the move.
+  - **Memories:** adults begin with their knowledge but no remembered events; their stories start at year 0.
 
 - `BIO-08` **Everyone is different** *(Decided; follows from `BIO-06` and `PRN-05`)*: Height, strength, stamina, senses, health, temperament, curiosity, memory and learning speed vary from person to person, with real-world spreads. These traits are partly inherited and partly shaped by how a person grew up, through childhood food, illness and activity.
 
@@ -1122,6 +1129,11 @@ This is how the world looks. It is written to stand on its own, without needing 
 
 - `PRE-08` **Live moments** *(Decided)*: Only what matters interrupts you: firsts, deaths of people you follow, disasters, and big turns in history ("someone has made fire for the first time"). Everything else waits in the chronicle. The level can be adjusted in settings, and one tap takes you to the moment (`TIM-02`).
 
+- `PRE-39` **Recognising what emerges** *(Decided)*
+  - **What:** The game spots and names what emerges, for you only: firsts and discoveries, skills, languages, institutions, peoples and eras. It uses both general detection of anything new and a catalogue of notable outcomes, such as fire made by friction.
+  - **Rules:** recognisers sit on the describing side. They never feed back into the world, and are kept provably apart from the logic that decides what people and animals do (`PRN-07`). Their thresholds, such as when a dialect becomes a language, are set in the implementation plan and listed in milestone reports. A first counts both worldwide and for each people, and a rediscovery after a loss is marked as one.
+  - **Why:** The director (`TIM-02`), live moments (`PRE-08`), the chronicle (`PRE-05`), overlays (`PRE-07`), timeline comparisons (`TIM-13`) and experiment measures (`RES-03`) all need to know what happened, without the simulation ever naming it.
+
 - `PRE-09` **Archaeology** *(Decided)*
   - **What:** Dig down through the buried layers of past life with the cut-away view (`PRE-25`): hearths, graves, lost tools, rubbish heaps. Tap a find to see who made or left it, and when.
   - **Example:** The dig in `MOM-09`.
@@ -1244,7 +1256,7 @@ This section turns "research standard" into practice: how the project proves tha
 
 - `RES-08` **What every experiment has** *(Decided)*: A question; a setup (world settings, starting kit, population, length); the number of worlds; what is measured; pass and fail criteria; and comparison runs.
 
-- `RES-09` **Criteria fixed first** *(Decided)*: Pass and fail criteria are written down before the experiment runs, and never adjusted afterwards.
+- `RES-09` **Criteria fixed first** *(Decided)*: Each experiment's pass and fail criteria, with exact numbers and definitions, are written down before it runs, checked by the independent reviewer (`RES-11`) for ways the experiment couldn't fail, and approved by you. They are never adjusted afterwards.
 
 - `RES-10` **Comparison runs** *(Decided)*: Each experiment also runs with one mechanism switched off, such as imitation, to show that what emerged depends on it.
 
@@ -1256,13 +1268,24 @@ This section turns "research standard" into practice: how the project proves tha
 
 - `RES-14` **Compared with reality where possible** *(Decided)*: Where real-world data exist, such as hunter-gatherer populations or rates of learning and cultural change, results are compared with them.
 
+- `RES-16` **Tuning and failure** *(Decided)*
+  - **What:** Values are tuned on development seeds, then confirmed once on fresh seeds kept back for that. Every attempt and every tuned value is logged, with what it was tuned against. A test may stop early once its result is clear, within a stated computing budget.
+  - **When it fails:** a failed confirmation holds the milestone until you choose: redesign, a weaker claim, or dropping the claim.
+  - **Why:** Re-running on the same worlds until something passes would make "experiments that can fail" meaningless (`PRN-05`).
+
+- `RES-17` **Signature moments keep passing** *(Decided)*: A signature moment passes if it happens in at least 1 world in 10 within its time window, unless its own criteria say otherwise. A small sample re-runs before every merge and the full set at every milestone, and a failure blocks the milestone (`PRC-10`).
+
+- `RES-18` **Experiment worlds are play worlds** *(Decided)*: Experiments use the same world generator as play (`WLD-10`). Scripted events and dials appear only in clearly labelled experiments, and a moment that passes only with a dial doesn't count as passing in play (`PRN-12`).
+
+- `RES-19` **Promises are tested** *(Decided)*: Every claim in sections 9 (Minds) and 10 (Culture and society) that something emerges either gets an experiment before its milestone closes, or is marked "possible, not promised".
+
 - `RES-04` **Reality checklist first** *(Decided)*: The physics must pass every reality check (`RCK`) before any discovery that depends on it is trusted.
 
 - `RES-05` **Reproducibility** *(Decided)*: Results are reproducible statistically: re-running an experiment on fresh worlds gives results within its stated ranges, and the cloud build gives the same statistics as the phone build. Exact repeats of a history are not required (`PRN-15`). Checked at every milestone.
 
 ### 14.2 The experiments
 
-- `RES-02` **Experiment 1: sharp stone** *(Decided)*: Do bands that only bash rocks discover how to chip sharp flakes, and does the skill spread?
+- `RES-02` **Experiment 1: sharp stone** *(Decided)*: Do bands that only bash rocks discover how to chip sharp flakes, and does the skill spread? Its world includes uses for a sharp edge: carcasses to butcher, and hides and wood to work.
 
 - `RES-03` **Experiment 1 pass criteria** *(Decided as starting values; fixed before it runs, `RES-09`)*:
   - **Discovery:** happens in at least half of 100 random worlds, within 500 simulated years.
@@ -1271,6 +1294,7 @@ This section turns "research standard" into practice: how the project proves tha
   - **Loss:** the skill is lost noticeably more often in small, isolated groups than in large, connected ones.
   - **General rules only:** the check in `PRN-07` passes.
   - **Comparison runs:** without imitation, the skill does not spread; without curiosity, discovery is much rarer (`RES-10`).
+  - **Exact numbers:** words such as "widely", "noticeably" and "much rarer", and what counts as a discovery and as being able to do it, are given exact values before the run (`RES-09`).
 
 - `RES-07` **The series** *(Decided)*: Experiments follow the signature moments in milestone order, adjusted after each report:
   - **Foundations (`MIL-01`):** the phone and cloud statistical match, and performance baselines.
@@ -1325,8 +1349,8 @@ How the project is run: you direct, and AI agents build. This section defines th
 - `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches. Work joins the main version only after every automatic check passes and an independent AI review approves it. You review at milestones.
 
 - `PRC-10` **The checks** *(Decided)*:
-  - **before any work joins the main version:** the tests, the reality checklist (`RES-04`) and the general-rules check (`PRN-07`);
-  - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the phone and cloud statistical match (`RES-05`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
+  - **before any work joins the main version:** the tests, the reality checklist (`RES-04`), the general-rules check (`PRN-07`) and a small sample of the signature-moment tests (`RES-17`);
+  - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the phone and cloud statistical match (`RES-05`), the full signature-moment tests (`RES-17`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
 
 - `PRC-11` **Builds between milestones** *(Decided)*: A new version whenever something you can see or try has changed, with a one-line note, installed by download (`PLT-06`). The full report still comes at each milestone.
 
@@ -1415,7 +1439,9 @@ What could stop Kindling from succeeding, how we would notice early, and what we
 
 ### 17.2 Proposals awaiting confirmation
 
-None. Every proposal made while this file was being written has been reviewed and confirmed. New suggestions from AI agents are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
+New suggestions from AI agents are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
+
+- **People:** `BIO-20`, the starting knowledge in detail.
 
 ## 18. Glossary
 
@@ -1437,6 +1463,7 @@ None. Every proposal made while this file was being written has been reviewed an
 - **Overnight mode:** the world running at top speed, screen dimmed, while the phone charges (`TIM-12`).
 - **People (a people):** a group recognised by its shared language, beliefs, customs and style (`CUL-23`).
 - **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
+- **Recogniser:** the part of the game that spots and names what emerges, for you only. It never feeds back into the world (`PRE-39`).
 - **Run:** one simulation of a world for an experiment.
 - **Saved moment:** a point in a world's past whose full state was saved, so you can look at it or branch from it (`PRN-15`, `TIM-06`).
 - **Scientist's view / story view:** the two ways to look into a mind: raw beliefs and evidence, or their own words (`PRE-14`).
