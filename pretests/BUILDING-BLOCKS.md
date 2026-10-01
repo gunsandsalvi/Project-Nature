@@ -109,7 +109,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Result so far** (1 October 2026; `pretests/b74-b76-sound-speech/`):
     - **Cost is no issue:** one cloud core mixes about 3,000 impact sounds, either way.
     - **Instruments from their shapes work:** every flute note came within 3.3 cents of the pitch worked out from its bore and holes.
-    - **For you:** which way sounds real, made from ringing modes or from shaped noise, on the listening page. The phone's audio delay is measured by the second test app.
+    - **Your ear: shaped noise (A2) sounds much better** than sound built from ringing modes (A1). Impacts are made as noise shaped by the material's properties, so they still come from the physics (`SND-06`); it is also the cheaper way. The instruments still wait for your verdict, and the phone's audio delay is measured by the second test app.
 
 - `B76` **Speech** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how to speak an invented language on the phone (`SND-03`).
@@ -117,7 +117,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Result so far** (1 October 2026; `pretests/b74-b76-sound-speech/`):
     - **Both are cheap:** the synthetic voice uses 0.16% of a core while speaking, the neural voice about 9%.
     - **Neural voices bend sounds toward their training language:** an English-trained voice lost 7 of the language's 20 sounds and a Welsh-trained one lost 2; the synthetic voice kept all 20.
-    - **For you:** robotic but faithful, or natural but accented, on the listening page.
+    - **Your ear: the synthetic voice is terrible,** so speech uses a neural voice. Next: find a neural voice that keeps more of each invented language's sounds (the Welsh-trained one kept 18 of 20), so speech stays close to their own sounds (`SND-03`).
 
 - `B78` **Building the phone app** · running (`pretests/b78-b79-phone/`)
   - **Question:** the best way to build and deliver the app from the cloud sessions (`PLT-06`): Kotlin with a Rust or C++ core, pure native, or a web view; build time, size, and how easily one core builds for both the phone and the cloud. Signing for your free hobbyist developer account comes later.

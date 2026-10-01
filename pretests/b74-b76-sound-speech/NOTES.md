@@ -132,3 +132,9 @@ From this folder:
 2. `timeout 3600 flock $CACHE/cpu.lock timeout 840 ./run_all.sh` builds and tests the Rust library, renders the clips, times everything three times, builds the Android library, makes the speech clips, and writes `listen.html` and `results/summary.json`. About 2 minutes. `STEPS=page` (or any of `rust bench android speech page`) runs only those steps.
 
 Results land in `results/`; clips and build outputs stay in the cache.
+
+## The owner's verdict (1 October 2026)
+
+- **Impacts:** A2 (noise shaped by the material's properties) sounds much better than A1 (ringing modes). A2 is chosen.
+- **Speech:** the synthetic voice (S1, espeak-ng) is terrible. A neural voice (S2) is chosen; the next step is a neural voice that keeps more of an invented language's sounds.
+- **Instruments:** no verdict yet.
