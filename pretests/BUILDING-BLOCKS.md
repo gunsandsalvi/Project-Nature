@@ -183,6 +183,13 @@ The engine everything else runs on.
   - **Serves:** `WLD-01`, `WLD-02`, `WLD-03`
   - **Needs:** `B01`
   - **To settle:** square or six-sided cells, and how they nest across scales; distances across the wrap; the polar seam as a permanent ice cap that weather systems stop at and nothing crosses (`WLD-01`), and how it looks on the globe.
+  - **Result** (1 October 2026; `pretests/b10-map/`):
+    - **Square cells in a quadtree.** Hexagons lost on every count: a coarse hexagon is never exactly its children (7–44% of the area lands in the wrong parent), rolling fine data up was 4.5 times slower, and their paths were less accurate.
+    - **Paths:** on square cells, raw paths run about 6% longer than the true distance, and 1% after a simple smoothing; hexagons ran about 10%, and 1.3% smoothed. For `B12`: 1 path in 20 is still about 4% long after smoothing.
+    - **Wrapping:** correct across both seams; with the ice cap blocked, no path crosses it.
+    - **Fit:** squares divide the 2:1 world exactly at every scale, from the whole map down to the metre.
+    - **Globe:** map columns become longitude and rows latitude, on a globe of radius 318 km. East–west distances shrink with latitude, to a half at 60°, so the third of the map beyond 60° fills 13% of the globe.
+    - **For you:** `WLD-01` doesn't say how wide the polar ice cap is.
 
 - `B11` **Land at every scale, above and below ground** · *Critical*
   - **Does:** represents the land from whole regions down to the metre: cliffs, caves, overhangs, rock layers, soils, underground water and buried things.
