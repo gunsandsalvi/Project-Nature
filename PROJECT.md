@@ -1096,7 +1096,7 @@ This is how the world looks. It is written to stand on its own, without needing 
 
 - `PRE-34` **Both orientations** *(Decided; follows from `PLT-02`)*: Every screen works one-handed in portrait and two-handed in landscape (`VIS-14`).
 
-- `PRE-33` **Gestures** *(Proposed)*:
+- `PRE-33` **Gestures** *(Decided)*:
   - drag to move, and twist with two fingers to turn;
   - pinch to zoom, which also sets the speed of time (`TIM-01`);
   - tap to select;
@@ -1104,7 +1104,7 @@ This is how the world looks. It is written to stand on its own, without needing 
   - swipe up for views;
   - a small corner control for time: pause, speed and speed lock (`TIM-04`).
 
-- `PRE-35` **Cards** *(Proposed)*: Selecting anything opens a card with what matters about it, such as a person's name, age, mood, and what they are doing and why, or a place's land and history. Links lead into deeper views: the story view, the scientist's view, family trees, archaeology.
+- `PRE-35` **Cards** *(Decided)*: Selecting anything opens a card with what matters about it, such as a person's name, age, mood, and what they are doing and why, or a place's land and history. Links lead into deeper views: the story view, the scientist's view, family trees, archaeology.
 
 ### 11.3 Following the story
 
@@ -1134,7 +1134,7 @@ This is how the world looks. It is written to stand on its own, without needing 
 
 - `PRE-16` **Bestiary** *(Decided)*: Each world's tree of life and its species.
 
-- `PRE-36` **Language family tree** *(Proposed)*: How their languages split and drifted over time (`CUL-17`).
+- `PRE-36` **Language family tree** *(Decided)*: How their languages split and drifted over time (`CUL-17`).
 
 - `PRE-13` **Every view the simulation allows** *(Decided)*: Any further view the simulation's data supports, within physical limits (`PRN-04`).
 
@@ -1168,7 +1168,7 @@ Sound comes in layers, added over time, starting with the living soundscape. Lik
 
 - `SND-04` **Score** *(Decided; later layer)*: Background music generated live from the world. It is assembled from short themes that respond to time of day, season, events and the people nearby, and it draws on their own scales and rhythms as their music develops. It is never the same twice.
 
-- `SND-05` **Order of the layers** *(Proposed)*: The soundscape arrives with the living world (`MIL-04`), voices with words and beliefs (`MIL-05`), and their music and the score after that.
+- `SND-05` **Order of the layers** *(Decided)*: The soundscape arrives with the living world (`MIL-04`), voices with words and beliefs (`MIL-05`), and their music and the score after that.
 
 ### 12.2 How sound is made
 
@@ -1176,11 +1176,11 @@ Sound comes in layers, added over time, starting with the living soundscape. Lik
   - **What:** Impacts, fire, water and instruments are created from what things are made of (`MAT-03`). A strike on flint sounds unlike one on granite, and an instrument they invent sounds the way its materials would. Background wind, rain and birdsong can use recordings.
   - **Why:** General rules (`PRN-07`) apply to sound as well. Nobody has to record the sound of an instrument nobody planned.
 
-- `SND-07` **Sound follows time** *(Proposed)*: At natural speed (`TIM-10`), every sound plays in real time. When time runs fast, single sounds give way to the feel of the period: seasons of wind and rain, the hum of a busy camp.
+- `SND-07` **Sound follows time** *(Decided)*: At natural speed (`TIM-10`), every sound plays in real time. When time runs fast, single sounds give way to the feel of the period: seasons of wind and rain, the hum of a busy camp.
 
-- `SND-08` **Space and distance** *(Proposed)*: Sounds come from where they happen and fade and muffle with distance; caves echo. A sound can draw your attention to something off-screen, such as a scream or thunder.
+- `SND-08` **Space and distance** *(Decided)*: Sounds come from where they happen and fade and muffle with distance; caves echo. A sound can draw your attention to something off-screen, such as a scream or thunder.
 
-- `SND-09` **Silence** *(Proposed)*: Quiet is part of the design. Nights are hushed, deep snow muffles everything, and the whole world seen from above is close to silent.
+- `SND-09` **Silence** *(Decided)*: Quiet is part of the design. Nights are hushed, deep snow muffles everything, and the whole world seen from above is close to silent.
 
 ### 12.3 Touch
 
@@ -1198,7 +1198,7 @@ Kindling is built for one phone, and nothing else is used to play it (`SCP-02`).
 
 - `PLT-03` **Works offline** *(Decided)*: Everything works without a connection, including the text descriptions, which are written on the phone (`PRE-37`).
 
-- `PLT-06` **Installing new versions** *(Decided)*: Each new version is a file you download on the phone and install, after allowing installs from your browser once. No store, no accounts, no fees. *(Proposed: each milestone report links to its version.)*
+- `PLT-06` **Installing new versions** *(Decided)*: Each new version is a file you download on the phone and install, after allowing installs from your browser once. No store, no accounts, no fees. Each milestone report links to its version.
 
 ### 13.2 Performance
 
@@ -1209,13 +1209,13 @@ Kindling is built for one phone, and nothing else is used to play it (`SCP-02`).
   - battery use and heat per hour of play;
   - time to generate a world.
 
-  *(Proposed targets, from `VIS-14`: the camera stays smooth at the screen's full refresh rate; the app opens to your world in about three seconds; an hour's session stays comfortable for battery and heat.)*
+  The targets, from `VIS-14`: the camera stays smooth at the screen's full refresh rate; the app opens to your world in about three seconds; an hour's session stays comfortable for battery and heat.
 
 When the phone can't keep up, time slows and depth stays (`PRN-11`).
 
 ### 13.3 Worlds on the phone
 
-- `PLT-07` **Always saved** *(Proposed)*: Worlds save continuously, so closing the app or a flat battery never loses anything (`TIM-05`).
+- `PLT-07` **Always saved** *(Decided)*: Worlds save continuously, so closing the app or a flat battery never loses anything (`TIM-05`).
 
 - `PLT-08` **Manual export** *(Decided)*: Export a world, with all its timelines, as a file whenever you want, and import it again on the same phone or a new one. The export keeps the full record, so an imported world opens exactly as it was. There are no automatic backups.
 
@@ -1226,7 +1226,7 @@ When the phone can't keep up, time slows and depth stays (`PRN-11`).
 
 ### 13.4 The cloud
 
-- `PLT-05` **Experiments in the cloud** *(Decided; follows from `SCP-15`)*: The simulation also runs without graphics in the AI's cloud sessions, many worlds at a time. *(Proposed: any experiment's world can be opened on the phone at any moment of its history.)*
+- `PLT-05` **Experiments in the cloud** *(Decided; follows from `SCP-15`)*: The simulation also runs without graphics in the AI's cloud sessions, many worlds at a time. Any experiment's world can be opened on the phone at any moment of its history.
 
 ## 14. Research and validation
 
@@ -1248,9 +1248,9 @@ This section turns "research standard" into practice: how the project proves tha
 
 - `RES-12` **Surprises log** *(Decided)*: Unexpected results are recorded even when they weren't the question. They often become new signature moments (`MOM`).
 
-- `RES-13` **Many worlds, reported as ranges** *(Proposed)*: Every claim rests on many worlds (100 per setup unless stated) and is reported as a range, for example "discovered in 62 of 100 worlds; typically around year 140".
+- `RES-13` **Many worlds, reported as ranges** *(Decided)*: Every claim rests on many worlds (100 per setup unless stated) and is reported as a range, for example "discovered in 62 of 100 worlds; typically around year 140".
 
-- `RES-14` **Compared with reality where possible** *(Proposed)*: Where real-world data exist, such as hunter-gatherer populations or rates of learning and cultural change, results are compared with them.
+- `RES-14` **Compared with reality where possible** *(Decided)*: Where real-world data exist, such as hunter-gatherer populations or rates of learning and cultural change, results are compared with them.
 
 - `RES-04` **Reality checklist first** *(Decided)*: The physics must pass every reality check (`RCK`) before any discovery that depends on it is trusted.
 
@@ -1266,10 +1266,9 @@ This section turns "research standard" into practice: how the project proves tha
   - **Spread:** once discovered, at least three quarters of the adults in the discovering band can do it within 50 simulated years.
   - **Loss:** the skill is lost noticeably more often in small, isolated groups than in large, connected ones.
   - **General rules only:** the check in `PRN-07` passes.
+  - **Comparison runs:** without imitation, the skill does not spread; without curiosity, discovery is much rarer (`RES-10`).
 
-  *(Proposed comparison runs: without imitation, the skill should not spread; without curiosity, discovery should be much rarer.)*
-
-- `RES-07` **The series** *(Decided: experiments follow the signature moments in milestone order, adjusted after each report)*. *(Proposed order:)*
+- `RES-07` **The series** *(Decided)*: Experiments follow the signature moments in milestone order, adjusted after each report:
   - **Foundations (`MIL-01`):** reproducibility and performance baselines.
   - **Sharp stone (`MIL-02`):** Experiment 1.
   - **Fire and the first power (`MIL-03`):** fire from wood (`MOM-01`), with and without a dream, to show a dream raises the odds without guaranteeing anything.
@@ -1299,7 +1298,7 @@ How the project is run: you direct, and AI agents build. This section defines th
 
 ### 15.1 Roles
 
-- `PRC-01` **Passion project, built by AI** *(Decided)*: You direct; AI agents write, test and review the code. *(Proposed: there are no running costs beyond the AI sessions themselves, since the writer AI runs on the phone and there is no store.)*
+- `PRC-01` **Passion project, built by AI** *(Decided)*: You direct; AI agents write, test and review the code. There are no running costs beyond the AI sessions themselves, since the writer AI runs on the phone and there is no store.
 
 - `PRC-02` **Your role** *(Decided)*: You read the milestone reports, try the builds, set direction, and approve changes to this file. The AI handles code review and testing.
 
@@ -1416,18 +1415,12 @@ These are suggestions written into this file while it was being built. They guid
 
 **Whole items**
 
-- **Presentation:** `PRE-33`, `PRE-35`, `PRE-36`
-- **Sound:** `SND-05`, `SND-07`, `SND-08`, `SND-09`
-- **Platform and performance:** `PLT-07`
-- **Research and validation:** `RES-13`, `RES-14`
 - **Project and process:** `PRC-08`, `PRC-10`, `PRC-12`
 - **Risks:** `RSK-12`, and the ratings of every risk
 
 **Decided items with proposed details**
 
-- **Platform and performance:** `PLT-04`, `PLT-05`, `PLT-06`
-- **Research and validation:** `RES-03`, `RES-07`
-- **Project and process:** `PRC-01`
+- None.
 
 ## 18. Glossary
 
