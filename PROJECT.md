@@ -1569,6 +1569,7 @@ How people think is in Minds.
 
 - `BIO-01` **One species, modern minds** *(Decided)*: Their bodies and brains are as capable as ours.
   Their culture starts almost empty.
+  - **How it works:** each body's numbers (size, strength, stamina, senses, healing and defences) are drawn within the measured ranges of living people, foragers above all (`BIO-08`), and every mind has the full set of modern human abilities (see Minds); their culture is only what `BIO-02` and `BIO-20` give them.
 
 - `BIO-02` **Starting kit** *(Decided)*: The first people are generated like the world: realistic, not grown from nothing.
   Families, ages and relationships follow real hunter-gatherer patterns.
@@ -1582,8 +1583,16 @@ How people think is in Minds.
   - **Shelter:** natural caves and overhangs.
   - **Food:** gathering, scavenging, some ambush hunting.
   - **Beliefs:** only the practical knowledge of their home range; none about spirits, hidden causes or how to make things.
+  - **How it works:**
+    - **Families from a short run:** the generator starts a few generations back and runs births, pairings and deaths at forager rates (`BIO-04`), with bodies only, up to year 0, so ages, families, kinship and genes (`BIO-06`) fit together.
+      Only the result is kept, with no memories of it (`BIO-20`).
+    - **Bodies:** each person's body is grown to their age from their genes and the food their region gives (`BIO-08`), with healed old injuries and scars at foragers' measured rates.
+    - **Things they carry:** a few unshaped stones and sticks taken from their own range's ground: real things (`MAT-10`), nothing shaped.
+    - **A kept fire:** a band starts with a fire only if lightning or a wildfire burned in its home range during the last months of settling (`WLD-08`, tuned); otherwise it has none.
+    - **Skills:** adults start with skills for gathering, scavenging and ambush hunting with their kit (`MND-06`), at levels set by age (estimated); children have less.
 
 - `BIO-03` **Starting population** *(Decided)*: 3–4 family bands of 15–30 people each, about 45–120 people in all, living in one region (`WLD-24`).
+  - **How it works:** the short run of `BIO-02` is sized from the seed so that it ends with 3 or 4 bands of 15–30 people, within what the start region feeds (`WLD-24`).
 
 - `BIO-20` **Starting knowledge in detail** *(Decided)*:
   - **Bands:** each band is a few related families.
@@ -1593,10 +1602,20 @@ How people think is in Minds.
   - **Words:** water, fire, food, danger, kin, the main animals and plants of home, and simple actions such as come, go, eat and look.
   - **Fire:** they know how to carry embers to keep a fire alive on the move.
   - **Memories:** adults begin with their knowledge but no remembered events; their stories start at year 0.
+  - **How it works:**
+    - **Written from the world's truth:** starting beliefs are made from the settled world (`WLD-08`): where water, shelter and each main food are in each season; which local species are food, poison or dangerous, from their real chemistry and behaviour (`WLD-19`); the routes of the home range; and who is kin to whom.
+      They are stored as records in each mind (see Minds).
+    - **True but incomplete:** every starting belief is true; each adult knows the common things of their home range and fewer of the rare ones, more with age, and children know a share by their age (estimated).
+      So every mistake comes from something that happens in play, and each has a cause.
+    - **Words:** the few dozen shared words are drawn from the language's own sounds, each linked to its meaning in every adult's mind (see Culture and society).
 
 - `BIO-08` **Everyone is different** *(Decided)*: Height, strength, stamina, senses, health, temperament, curiosity, memory and learning speed vary from person to person, with real-world spreads.
   These traits are partly inherited and partly shaped by how a person grew up, through childhood food, illness and activity.
   Follows from `BIO-06` and `PRN-05`.
+  - **How it works:**
+    - **Each trait is three parts:** an inherited value (`BIO-06`), how the person grew up, and chance.
+      Childhood hunger and serious illness hold back growth in height and strength at measured rates, and activity builds strength and stamina; the spread of each trait, and the share each part explains, are sourced where measured and estimated otherwise.
+    - **Traits that go together:** linked traits keep their measured links, so taller people are heavier and stronger on average, with wide overlap.
 
 ### 8.2 Staying alive
 
