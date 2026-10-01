@@ -228,7 +228,13 @@ These rules apply to every part of the project, and they outrank everything else
   - **What:** Everything in the world (matter, living things, minds, societies) follows general rules. No rule is ever written for one particular discovery, material, species or event. The name of a discovery (flake, knapping, fire-making, pottery and so on) never appears in the logic that decides what people or animals do. Those words appear only in descriptions of matter and in text written for you.
   - **Why:** A rule written for one outcome is a recipe in disguise. General rules are also what let the world produce things nobody planned.
   - **Example:** There is no "make pottery" rule. Clay changes when heated past a certain temperature, just as the general law of heat says any material can. Pottery is what people make of that.
-  - **Check:** an automated search of the decision-making logic finds no discovery vocabulary, and reviews flag any rule that applies to only one material, species or event.
+  - **Check:**
+    - an automated search of the decision-making logic finds no discovery vocabulary;
+    - decision logic reads only what people and animals perceive, never what a thing is;
+    - swapping two materials' identities changes no behaviour;
+    - every law applies to at least two materials;
+    - discovery still happens with decoy materials, and with a made-up material nobody designed for;
+    - reviews flag any rule that applies to only one material, species or event.
 
 - `PRN-05` **Real numbers, testable claims** *(Decided)*
   - **What:** Every quantity in the world comes from a real measurement, or from a stated rule or published model applied to real measurements: temperatures, hardness, energy, growth rates, how fast genes change. Values with no measurement are labelled chosen or tuned, and listed in every milestone report. Every claim about what the simulation produces is tested by experiments that can fail, across many worlds.
@@ -677,7 +683,7 @@ This is where "no recipes" lives. Nothing in the world is a recipe item: everyth
   - **What:** Matter also records how it's put together: crystal or glass, fibrous, porous or dense, coarse or fine grain, wet or dry. Grinding, melting, cooling and drying change structure without changing makeup.
   - **Example:** Sand, flint and obsidian are all mostly silica, but only flint and obsidian chip into blades. Sand melted with plant ash and cooled becomes glass.
 
-- `MAT-03` **Properties are derived** *(Decided)*: Every property follows from what something is made of and how it's put together:
+- `MAT-03` **Properties from data and rules** *(Decided)*: Every property comes from measured data for each ingredient and structure, combined by stated rules for mixtures and structures (`MAT-05`):
   - **mechanical:** weight, hardness, strength, toughness, springiness, and how it breaks (in shell-like flakes, in splinters, or by crumbling);
   - **heat:** how it burns, melts, holds heat and passes it on;
   - **water:** how it soaks up water, dissolves, softens or swells;
@@ -689,11 +695,13 @@ This is where "no recipes" lives. Nothing in the world is a recipe item: everyth
 
 ### 7.2 How things change
 
-- `MAT-04` **A few dozen general laws** *(Decided)*: Change comes from general laws, each using real temperatures and conditions. No law ever names a product. The starting list:
+- `MAT-04` **A few dozen general laws** *(Decided)*: Change comes from general laws, each decided by real data on heat and rates of change. No law ever names a product. The starting list:
   - **force:** breaking, cutting, scraping and grinding, bending and springing back, pressing and pounding, friction, twisting and binding, joining by tying, gluing or fitting;
   - **heat:** heating and cooling, burning with more or less air, charring, melting and setting, drying, roasting;
   - **water:** wetting and soaking, dissolving and leaching, swelling, freezing;
-  - **chemistry:** rusting and smelting, burning lime, setting of mortar, tanning, glass-making;
+  - **flow:** floating and sinking, and flowing water and air, such as a draught that feeds a fire;
+  - **vibration:** how struck, plucked or blown things ring (`SND-06`);
+  - **chemistry:** metals giving up or taking up oxygen (smelting and rusting), minerals breaking down when heated (as limestone does), taking up gases from the air (as lime does when it sets), tannins binding to proteins, and fluxes lowering the melting point of silica;
   - **life:** growing, digesting, healing, rotting and fermenting, with microbes at work (`WLD-21`).
 
 - `MAT-07` **One law, many inventions** *(Decided; follows from `PRN-07`)*: Laws are general enough that one law covers many inventions. For example, "metal ores give up their metal when heated hot enough in contact with burning charcoal" covers copper, tin, lead and iron. Each needs its own real conditions, so they become possible in a natural order that nobody wrote down.
@@ -702,7 +710,7 @@ This is where "no recipes" lives. Nothing in the world is a recipe item: everyth
 
 - `MAT-11` **Mechanics** *(Decided; follows from `MAT-06`)*: Weight, momentum, leverage, springiness and friction follow real physics. Throwing sticks, spear-throwers and bows can work only because the physics makes them work.
 
-- `MAT-12` **What a body can do** *(Decided)*: The basic actions everything else is built from: grasp, carry, put down, drop, throw, strike, press, rub, twist, bend, tear, dig, cut or scrape with an edge, pierce with a point, pour, blow, chew, and put into fire or water. Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn.
+- `MAT-12` **What a body can do** *(Decided)*: The basic actions everything else is built from: grasp, carry, put down, drop, throw, strike, press, rub, twist, bend, tear, dig, cut or scrape with an edge, pierce with a point, pour, blow, chew, and put into fire or water. Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn. These are actions on matter; moving, eating, sleeping and acts between people are in `BIO-21`.
 
 - `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time, feeding the archaeology view (`PRE-09`). What survives depends on the material and the ground: stone lasts; bone survives in dry caves and limestone; wood, hide and plant fibre usually rot, except in waterlogged, frozen or very dry ground.
 
@@ -734,6 +742,8 @@ Matter must be easy to extend, forever (`PRN-14`).
   6. metals and glass;
   7. further layers as experiments call for them.
 
+- `MAT-17` **How reality checks work** *(Decided)*: Each check has a real-world range and, where it helps, a "must not" partner, such as "green wood doesn't light by friction". Results are judged by properties, not names: leather is hide that stops rotting and stays supple. A check becomes active once its layer is built (`MAT-16`). This file keeps the checks that define what the world must do; the catalogues hold the rest, each naming the item it supports (`MAT-13`).
+
 ### 7.5 Reality checklist
 
 The physics must reproduce every item below without any rule written specially for it. The checklist grows with each layer (`MAT-16`), and every item is run again whenever anything changes (`MAT-15`).
@@ -749,6 +759,8 @@ The physics must reproduce every item below without any rule written specially f
 - `RCK-07` **Fermentation** *(Decided)*: Fruit sugars ferment.
 - `RCK-08` **Copper needs a furnace** *(Decided)*: Copper smelts in a charcoal furnace with forced air, but not over a campfire.
 - `RCK-09` **Rot** *(Decided)*: Untreated meat and hides rot, faster when warm and wet.
+- `RCK-21` **Floating** *(Decided)*: A dry log floats; a stone sinks.
+- `RCK-22` **Air feeds fire** *(Decided)*: Blowing on embers makes them hotter.
 
 **Early crafts and food**
 
@@ -833,7 +845,7 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
     - adults who reach 15 often live into their 60s and 70s;
     - women stop having children in their 40s.
 
-- `BIO-15` **Pregnancy and birth** *(Decided; follows from `PRN-05`)*: Children come from pairs, through pregnancy, birth and nursing, with their real risks. Who pairs with whom, and how families are formed, is cultural (`CUL-07`).
+- `BIO-15` **Pregnancy and birth** *(Decided; follows from `PRN-05`)*: Children come from pairs, through pregnancy, birth and nursing, with their real risks. Who pairs with whom, and how families are formed, is cultural (`CUL-07`). Pairing and conception are simulated abstractly, never as explicit acts, so sexual violence is not modelled.
 
 - `BIO-16` **Ageing** *(Decided; follows from `PRN-05`)*: Strength, senses and fertility decline with age. Knowledge and experience don't, so elders can matter as keepers of what the band knows (`CUL-02`).
 
@@ -843,9 +855,11 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
   - **What:** Bodies differ only in real biological ways: reproduction, and average differences in size and strength, with wide overlap between individuals.
   - **What doesn't:** Who hunts, gathers, leads or makes things is decided entirely by each culture, and can differ between cultures. The simulation never assigns a role by sex.
 
-### 8.6 Senses
+### 8.6 Senses and actions
 
 - `BIO-18` **Senses** *(Decided)*: Sight (limited by light, fog and distance), hearing, smell, taste and touch, each with real ranges and differences between people, and declining with age. They are how people learn about the world (`MND-03`).
+
+- `BIO-21` **Moving, eating and acting together** *(Decided)*: Alongside the actions on matter (`MAT-12`), bodies move (walk, run, climb, crouch, swim), eat and drink, sleep, touch, hold and give, and communicate (call, sing, point, gesture). Walking, running, climbing, calling and pointing are inborn; swimming is learned, as is everything people come to do with these acts.
 
 ### 8.7 Inheritance
 
@@ -886,6 +900,8 @@ How people think, and in simpler form how animals think. Everything a mind knows
   - **Why:** Discovery and superstition come from the same mechanism, with different luck.
   - **Example:** Striking glassy stone makes sharp edges: a discovery. The band sang before a hunt that went well: a superstition, which can become a rite (`MOM-04`).
 
+- `MND-27` **Kinds of belief** *(Decided)*: Beliefs come in several kinds, each held with a certainty and the evidence behind it: cause and effect (`MND-05`); that something exists, such as an unseen being; what others know and want (`MND-23`); rules, such as what not to eat (`CUL-20`); and plain facts, such as where the water is.
+
 - `MND-18` **Memory** *(Decided)*: People remember:
   - events they lived through;
   - places, as a mental map with the seasons attached ("hazelnuts on the south slope in autumn");
@@ -898,15 +914,26 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 ### 9.3 Wanting and feeling
 
-- `MND-07` **Drives** *(Decided)*: Hunger, thirst, cold, tiredness, fear, belonging, status, curiosity and the urge to have children.
+- `MND-07` **Drives** *(Decided)*: Hunger, thirst, cold, tiredness, fear, belonging, status, curiosity, sexual desire and attachment. Nobody knows at first that sex leads to children; that has to be learned (`PRN-01`).
 
 - `MND-19` **Feelings** *(Decided)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride, awe, longing and hope. They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
 
 - `MND-20` **Personality** *(Decided)*: A few inborn tendencies (curiosity, boldness, sociability, patience, dominance, readiness to conform), partly inherited (`BIO-06`) and shaped by what happens to each person.
 
 - `MND-21` **Inborn tendencies** *(Decided)*
-  - **What:** The biases evolution gave humans: a taste for sweet and fat and a wariness of bitter; quicker fear of snakes, heights and the dark; attachment between parent and child; the urge to imitate; and suspecting a hidden someone behind unexplained events.
+  - **What:** The biases evolution gave humans: a taste for sweet and fat and a wariness of bitter; quicker fear of long, legless things that move suddenly (such as snakes), of heights and of the dark; attachment between parent and child; the urge to imitate; and suspecting a hidden someone behind unexplained events.
   - **Why:** They make some lessons easier to learn but teach nothing by themselves, so the world stays the only teacher (`PRN-01`).
+  - **More:** further tendencies are proposed in `MND-26`.
+
+- `MND-26` **More inborn tendencies** *(Proposed)*: Added to `MND-21` from research, each with its sources and a comparison run (`RES-10`) showing what it changes:
+  - pain, and avoiding what causes it;
+  - favouring kin, and caring for the hurt and the sick;
+  - returning favours, and anger at cheats;
+  - favouring one's own group;
+  - not desiring those one was raised with;
+  - shared attention and pointing;
+  - readiness to learn words;
+  - moving together to a beat.
 
 ### 9.4 Deciding and doing
 
@@ -994,6 +1021,8 @@ Culture is everything people pass to each other rather than inherit through thei
   - **Example:** After the eastern band crosses the hills, its words drift away from those of the band left behind. Centuries later, their words for water, fire and stone still differ in the same regular way, which shows they were once one language.
 
 - `CUL-18` **Names** *(Decided)*: People, places, peoples and things are named in their own languages, often after events, features or traits. You see the original name with a translation (`PRE-12`), and later hear it spoken (`SND-03`).
+
+- `CUL-24` **Conversations** *(Decided)*: People tell each other things: warnings, questions, news, teaching and retold stories. What they say is held as meaning first (`MND-25`), and their language puts it into words (`CUL-04`). Being told something is weighed against one's own experience, by how far the speaker is trusted (`MND-24`).
 
 ### 10.3 Belief
 
@@ -1446,12 +1475,13 @@ What could stop Kindling from succeeding, how we would notice early, and what we
 New suggestions from AI agents are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 - **People:** `BIO-20`, the starting knowledge in detail.
+- **Minds:** `MND-26`, more inborn tendencies.
 
 ## 18. Glossary
 
 - **Art pixel:** one pixel of the low-resolution picture, enlarged on screen (`PRE-22`).
 - **Band:** a small group of people, usually family, who live and move together.
-- **Belief:** a person's idea of what causes what, held with more or less certainty (`MND-05`).
+- **Belief:** something a person holds true, with more or less certainty: a cause and effect, that something exists, what others think, a rule, or a plain fact (`MND-27`).
 - **Catalogue:** one of the four lists that describe matter: ingredients, structures, laws and reality checks (`MAT-13`).
 - **Comparison run:** an experiment run again with one mechanism switched off, to show what depends on it (`RES-10`).
 - **Concept:** a category a person forms from what they perceive, such as "cutting stone" (`MND-04`).
