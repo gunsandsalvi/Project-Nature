@@ -1,6 +1,6 @@
-# Project Nature
+# Kindling
 
-The project file: what Project Nature is, and every feature and target it must reach. It is written so that someone with no prior context can read it and understand the whole project.
+The project file: what Kindling is, and every feature and target it must reach. It is written so that someone with no prior context can read it and understand the whole project.
 
 It contains no implementation details. Those belong in the implementation plan, which will link back to this file by ID, as will the code. Every item has a permanent ID so that no feature gets lost on the way from idea to code.
 
@@ -88,13 +88,13 @@ Items listed under a parent item, such as the signature moments and the mileston
 
 ## 1. Vision
 
-This section says what Project Nature is, what it feels like, and what success means. Every other section serves it.
+This section says what Kindling is, what it feels like, and what success means. Every other section serves it.
 
 ### 1.1 The game in brief
 
 - `VIS-01` **In one sentence** *(Decided)*: A bottom-up simulation of humanity on a generated Earth-like world, where a few bands of early humans living in caves learn, entirely by themselves, to survive, build, believe and organise.
 
-- `VIS-06` **In one paragraph** *(Decided)*: Project Nature simulates a whole world from the ground up: rock, water, weather, plants, animals and people. It begins with a few bands of early humans sheltering in caves. They have modern brains but almost no culture: a handful of words, no way to make fire, nothing but rough stones and sticks. Nothing tells them what to do. There are no recipes, no tech tree and no list of eras to unlock. They learn the way real people learned: by noticing, trying, failing, copying, teaching and dreaming. Everything they ever achieve, from a sharp flake of stone to rituals, languages, farms and perhaps cities, has to come from what they discover in the world and pass on to each other. You watch it all on your phone as an invisible force of nature. You can nudge the weather, luck and dreams, but you can never command anyone.
+- `VIS-06` **In one paragraph** *(Decided)*: Kindling simulates a whole world from the ground up: rock, water, weather, plants, animals and people. It begins with a few bands of early humans sheltering in caves. They have modern brains but almost no culture: a handful of words, no way to make fire, nothing but rough stones and sticks. Nothing tells them what to do. There are no recipes, no tech tree and no list of eras to unlock. They learn the way real people learned: by noticing, trying, failing, copying, teaching and dreaming. Everything they ever achieve, from a sharp flake of stone to rituals, languages, farms and perhaps cities, has to come from what they discover in the world and pass on to each other. You watch it all on your phone as an invisible force of nature. You can nudge the weather, luck and dreams, but you can never command anyone.
 
 - `VIS-02` **The fantasy** *(Decided)*: You are nature.
   - **What:** You are the weather, the luck and the dreams. You can send a storm, bless a hunt, or let someone dream two of their own memories side by side. You can't speak, appear or work miracles, and the people of the world never learn you exist.
@@ -204,7 +204,7 @@ Who it's for: you alone (`SCP-02`). Success is judged by the experience; the res
 
 ### 1.9 Name
 
-- `VIS-16` **Name** *(Open)*: "Project Nature" is the working title. The final name is chosen once the rest of this file is complete.
+- `VIS-16` **Name** *(Decided)*: **Kindling**, what a fire grows from: small things that catch and spread, like knowledge. "Project Nature" was the working title.
 
 ## 2. Principles
 
@@ -343,7 +343,7 @@ This section sets the boundaries of the project: what it includes, where history
 ### 3.3 Who it's for
 
 - `SCP-02` **Just you** *(Decided)*
-  - **What:** Project Nature is built for one person, on one phone.
+  - **What:** Kindling is built for one person, on one phone.
   - **In practice:**
     - no public release, store listing, onboarding or tutorial;
     - no support for other phones, tablets or computers (experiments in the cloud are a research tool, not a way to play);
@@ -1188,7 +1188,7 @@ Sound comes in layers, added over time, starting with the living soundscape. Lik
 
 ## 13. Platform and performance
 
-Project Nature is built for one phone, and nothing else is used to play it (`SCP-02`). The phone must stay smooth, cool and responsive (`VIS-14`, `PRN-11`). How much simulation fits on it is found by measuring, not guessing.
+Kindling is built for one phone, and nothing else is used to play it (`SCP-02`). The phone must stay smooth, cool and responsive (`VIS-14`, `PRN-11`). How much simulation fits on it is found by measuring, not guessing.
 
 ### 13.1 The phone
 
@@ -1331,7 +1331,7 @@ How the project is run: you direct, and AI agents build. This section defines th
 
 ## 16. Risks
 
-What could stop Project Nature from succeeding, how we would notice early, and what we do about it. Each risk has a likelihood and an impact *(the ratings are Proposed)*, the early signs to watch for, and a response. Every milestone report reviews all of them (`RES-06`).
+What could stop Kindling from succeeding, how we would notice early, and what we do about it. Each risk has a likelihood and an impact *(the ratings are Proposed)*, the early signs to watch for, and a response. Every milestone report reviews all of them (`RES-06`).
 
 ### 16.1 The core idea
 
@@ -1405,7 +1405,6 @@ What could stop Project Nature from succeeding, how we would notice early, and w
 
 ### 17.1 Open, or settled by measurement
 
-- **Name** (`VIS-16`): the final name, chosen once the rest of this file is complete.
 - **Pacing** (`TIM-07`): how long history takes to watch; measured during development.
 - **How many people the world can feed** (`WLD-04`): measured in experiments.
 - **Storytelling voices** (`PRE-19`): tried live and chosen by ear.

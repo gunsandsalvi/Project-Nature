@@ -1,6 +1,6 @@
-# Project Nature: guide for AI agents
+# Kindling: guide for AI agents
 
-Read `PROJECT.md` before doing anything else. It is the source of truth for what Project Nature is and must do. The implementation plan (still to come) says how; code and tests link back to both by ID.
+Read `PROJECT.md` before doing anything else. It is the source of truth for what Kindling is and must do. The implementation plan (still to come) says how; code and tests link back to both by ID.
 
 ## Rules
 
