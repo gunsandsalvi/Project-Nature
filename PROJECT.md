@@ -1329,15 +1329,75 @@ How the project is run: you direct, and AI agents build. This section defines th
 
 ## 16. Risks
 
-Reviewed at every milestone.
+What could stop Project Nature from succeeding, how we would notice early, and what we do about it. Each risk has a likelihood and an impact *(the ratings are Proposed)*, the early signs to watch for, and a response. Every milestone report reviews all of them (`RES-06`).
 
-- `RSK-01` **Nothing emerges**: The minds and physics might not produce discoveries often enough. *Response:* Experiment 1 tests this early and cheaply.
-- `RSK-02` **The phone can't keep up**: Deep minds, chemistry and detailed pixel art add up. *Response:* measure from the first week (`PLT-04`), and lower detail where no one is looking (`WLD-12`, `MND-14`).
-- `RSK-03` **Real but dull to watch**: Simulated worlds often hide their best stories. *Response:* the story director, live moments and the two views of each mind bring them out, and every report judges whether they do.
-- `RSK-04` **Phone and cloud disagree**: Different processors can calculate slightly differently, which would break rewind and experiments. *Response:* reproducibility checks from the first build (`RES-05`).
-- `RSK-05` **The scope never ends**: "No ceiling" plus "everything deep" never finishes. *Response:* `PRN-09`.
-- `RSK-06` **The chemistry gives absurd results**: *Response:* the reality checklist (`RCK-01` onwards).
-- `RSK-07` **Our own knowledge leaks in**: through the describing model or design shortcuts. *Response:* `PRN-06`, `PRN-07`, `MND-02`.
+### 16.1 The core idea
+
+- `RSK-01` **Nothing emerges** · likelihood medium · impact high
+  - **Risk:** The minds and physics might not produce discoveries often enough.
+  - **Signs:** Experiment 1 discovery rates far below its criteria; discoveries by only one route; skills that never spread.
+  - **Response:** Experiment 1 tests this early and cheaply (`RES-02`), with comparison runs showing which mechanism is missing (`RES-10`).
+
+- `RSK-07` **Our own knowledge leaks in** · likelihood medium · impact high
+  - **Risk:** Real-world knowledge slips in through the writer AI or through design shortcuts, so discoveries stop being theirs.
+  - **Signs:** the general-rules check finds discovery words in decision logic; discoveries happening suspiciously fast; descriptions containing facts the simulation doesn't.
+  - **Response:** `PRN-06`, `PRN-07` and `MND-02`, enforced by the checks (`PRC-10`) and independent review (`RES-11`).
+
+- `RSK-06` **The chemistry gives absurd results** · likelihood medium · impact medium
+  - **Risk:** General laws combine in ways that produce nonsense.
+  - **Signs:** reality checks failing; odd outcomes in the surprises log, such as things burning that shouldn't.
+  - **Response:** the reality checklist (`RCK`), run in full after every addition (`MAT-15`).
+
+### 16.2 The experience
+
+- `RSK-03` **Real but dull to watch** · likelihood medium · impact high
+  - **Risk:** Simulated worlds often hide their best stories.
+  - **Signs:** in milestone reviews, you skim the chronicle; few live moments; long stretches of years where nothing seems to happen.
+  - **Response:** the story director, live moments and the two views of each mind bring the stories out (`TIM-02`, `PRE-08`, `PRE-14`), and every report judges whether they do.
+
+- `RSK-08` **Writing too plain** · likelihood medium · impact high
+  - **Risk:** The writer AI on the phone (`PRE-37`) produces flat or repetitive text, undermining histories worth reading (`VIS-15`).
+  - **Signs:** chronicle entries that read alike; storytelling voices you can't tell apart.
+  - **Response:** voices tested live (`PRE-19`); rich, structured simulation data for the writer to draw on; if it still falls short, it is raised at a milestone review with options.
+
+- `RSK-10` **History too slow to watch** · likelihood medium · impact medium
+  - **Risk:** Even with fast time and overnight mode, a deep simulation may take too long to reach interesting points.
+  - **Signs:** overnight runs covering only a few years; quiet centuries dominating the chronicle.
+  - **Response:** measure from the start (`TIM-07`); detail follows attention (`WLD-12`, `MND-14`); overnight mode (`TIM-12`); the story director skipping quiet years (`TIM-02`).
+
+- `RSK-11` **Pixel look hard to keep clean** · likelihood medium · impact medium
+  - **Risk:** Keeping pixel-rendered 3D free of speckle and shimmer at every zoom may be harder than it looks.
+  - **Signs:** visual reviews failing on speckled surfaces, crawling pixels or unreadable figures.
+  - **Response:** the style is defined in words (section 11.1) and checked at every milestone (`PRE-31`).
+
+### 16.3 The phone
+
+- `RSK-02` **The phone can't keep up** · likelihood high · impact medium
+  - **Risk:** Deep minds, chemistry and detailed pixel art add up.
+  - **Signs:** dropped frames; simulated time per minute falling as the population grows; the phone getting hot.
+  - **Response:** measure from the first week (`PLT-04`); lower detail where no one is looking (`WLD-12`, `MND-14`); time slows rather than the simulation cutting corners (`PRN-11`).
+
+- `RSK-04` **Phone and cloud disagree** · likelihood medium · impact high
+  - **Risk:** Different processors can calculate slightly differently, which would break rewinding and the transfer of experiments to the phone.
+  - **Signs:** reproducibility checks failing; replays drifting apart.
+  - **Response:** reproducibility checks from the first build (`RES-05`).
+
+- `RSK-12` **Updates change worlds in odd ways** *(Proposed)* · likelihood medium · impact low
+  - **Risk:** A world that continues under new rules (`PLT-09`) may change suddenly at the point of the update.
+  - **Signs:** sudden jumps in a world's state just after an update.
+  - **Response:** history before the update is kept and the change is marked (`PLT-09`); the reality checklist runs before every release; branching lets you compare.
+
+### 16.4 The project
+
+- `RSK-05` **The scope never ends** · likelihood high · impact medium
+  - **Risk:** "No ceiling" plus "everything deep" never finishes.
+  - **Signs:** milestones slipping again and again; a growing pile of proposed items.
+  - **Response:** build only as deep as the next experiment needs (`PRN-09`), in milestones (`MIL`).
+
+- `RSK-09` **AI-built code drifts** · likelihood medium · impact high
+  - **Risk:** A large codebase built by many AI sessions slowly drifts from what this file says.
+  - **Signs:** gaps in the coverage check; reviews finding behaviour that contradicts this file.
+  - **Response:** the guide for AI agents (`PRC-06`), IDs and the coverage check (`PRC-12`), independent review (`PRC-09`) and modular design (`PRN-14`).
 
 ## 17. Not yet decided
 
