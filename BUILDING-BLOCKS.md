@@ -94,10 +94,18 @@ These choices cut across many blocks. Each is settled by the tests of the blocks
 Tests run in waves, and each wave informs the next. Waves 0 to 2 settle what the architecture must get right from day one. Waves 3 and 4 can use lighter tests that mainly confirm the architecture can host those layers later (`PRN-09`). Where a test needs a block from a later wave, it uses a simple stand-in.
 
 - **Wave 0, can we build and measure at all?** `B01`, `B02`, `B78`, `B79`, `B80`. Everything else depends on these.
-- **Wave 1, the engine:** `B03` to `B12`, `B81`, `B82`. Your decision on detail and the camera (`X2`) is needed during this wave.
+- **Wave 1, the engine:** `B03` to `B12`, `B81`, `B82`. In parallel, the two biggest research risks run as combined tests: what a mind costs (`T1`) and Experiment 0 (`T2`).
 - **Wave 2, matter, bodies and minds for the first experiments, and the first look on the phone:** `B24` to `B43`, `B45`, `B64`, `B66`, `B69`, `B73`.
 - **Wave 3, fire and a living world:** `B13` to `B23`, `B44`, `B58` to `B63`, `B65`, `B67`, `B70`, `B71`, `B74`, `B75`.
 - **Wave 4, words, beliefs and the whole world:** `B46` to `B57`, `B68`, `B72`, `B76`, `B77`.
+
+### Combined tests
+
+Some questions span several blocks, so they get tests of their own. They come from the feasibility review, and keep its numbers.
+
+- `T1` **What a mind costs** (wave 1; `B04`, `B39`): a stripped-down loop of perceiving, remembering, deciding and learning, with realistic memory sizes, timed on the phone for 30 minutes and in the cloud. Over about 1 ms per person per simulated day, Experiment 1 doesn't fit one cloud session; over about 5 ms, simplified minds become essential; over about 1 MB per person, detailed populations stop in the low thousands.
+- `T2` **Experiment 0** (wave 1, cloud only; `B26`, `B28`, `B34` to `B41`, `B45`): 100 toy worlds with about ten materials described only by their properties, generic actions with continuous force and angle, a fracture law based on properties, and the planned learners. Then the same with ten decoy materials and actions, and with a made-up material whose useful property nobody designed for. If discovery happens only when senses and actions are shaped around knapping, or collapses with the decoys, the minds are rethought before the engine is built.
+- `T5` **Simplified versus full minds** (wave 2; `B43`): whether a band-level model reproduces the full model's discovery, spread, loss and population in Experiment 0's worlds. If none does, the far-zoom speeds and large populations are restated with you.
 
 ## 1. Foundations
 
@@ -117,9 +125,9 @@ The engine everything else runs on.
 
 - `B03` **Clock and scheduler** · *Choose*
   - **Does:** runs dozens of systems at their natural rates, from a strike lasting a moment to ice ages, at any speed from natural to centuries per minute.
-  - **Serves:** `TIM-01`, `TIM-04`, `TIM-10`, `PRN-11`, `WLD-12`
+  - **Serves:** `TIM-01`, `TIM-04`, `TIM-10`, `TIM-14`, `PRN-11`, `WLD-12`, `WLD-29`
   - **Needs:** `B01`, `B02`
-  - **To settle:** one global tick, a fixed rate per system, a queue of timed events, or a hybrid; overhead per simulated day; proof that the speed of time never changes the size of the simulation's steps (`X3`).
+  - **To settle:** one global tick, a fixed rate per system, a queue of timed events, or a hybrid; how systems pass their effects to each other (`WLD-29`); overhead per simulated day, in Earth time (`TIM-14`); proof that the speed of time never changes the size of the simulation's steps (`X3`).
 
 - `B04` **World state and memory** · *Measure*
   - **Does:** stores everything that exists (land, things, plants, animals, people, minds) compactly and quick to update.
@@ -143,7 +151,7 @@ The engine everything else runs on.
   - **Does:** saves the world continuously, keeps full saved moments to look at and branch from, exports and imports worlds, and keeps history across updates.
   - **Serves:** `PRN-15`, `TIM-06`, `TIM-08`, `PLT-05`, `PLT-07`, `PLT-08`, `PLT-09`, `RSK-12`
   - **Needs:** `B04`, `B06`
-  - **To settle:** the size of a saved moment, and how often to keep one (dense near the present, sparse further back) against storage; storage per thousand years and per branch; saving without stutter, and without loss when the app is killed mid-save (`X4`).
+  - **To settle:** the size of a saved moment, and how often to keep one (dense near the present, sparse further back) against storage, for worlds that need only last between big updates (`PLT-09`); storage per thousand years and per branch; saving without stutter, and without loss when the app is killed mid-save (`X4`).
 
 - `B08` **Detail levels** · *Critical*
   - **Does:** simulates coarsely where little is happening and finely where it matters, and moves between the two without contradiction.
@@ -155,7 +163,7 @@ The engine everything else runs on.
   - **Does:** keeps every ingredient, structure, law, reality check and species as a stand-alone entry in plain language, with real values and sources, readable by people and loaded by the simulation.
   - **Serves:** `MAT-05`, `MAT-13`, `MAT-14`, `MAT-15`, `PRN-05`, `PRN-14`, `WLD-19`
   - **Needs:** nothing
-  - **To settle:** an entry format you can read on a phone and a program can check; how long it takes to source and verify one entry, since there will be thousands; the licences of the data sources.
+  - **To settle:** an entry format you can read on a phone and a program can check; how long it takes to source and verify one entry, since there will be thousands, with every value checked against the fetched source and the supporting passage quoted (`RSK-16`); the licences of the data sources.
 
 ## 2. Space
 
@@ -172,8 +180,8 @@ The engine everything else runs on.
   - **To settle:** a height map with local 3D pieces for caves and cliffs, columns of stacked layers, or sparse grids of tiny cubes (voxels); memory for 2 million km²; how fast metre-level detail appears near people, identical every time; how changes such as digging, erosion and burial are stored on top.
 
 - `B12` **Movement, paths and sight** · *Choose*
-  - **Does:** lets people and animals find their way and see what is around them.
-  - **Serves:** `BIO-18`, `MND-03`, `MND-16`, `MND-18`, `CUL-16`
+  - **Does:** lets people and animals move (walk, run, climb, swim), find their way, and see what is around them.
+  - **Serves:** `BIO-18`, `BIO-21`, `MND-03`, `MND-16`, `MND-18`, `CUL-16`
   - **Needs:** `B11`
   - **To settle:** paths planned on each mind's own mental map, or on the true land; route-finding over long distances in layers; the cost of lines of sight with light, fog and terrain; travel times on slopes checked against real walking data.
 
@@ -262,7 +270,7 @@ The engine everything else runs on.
   - **To settle:** whole-number bookkeeping that stays exact through millions of changes; cost per change.
 
 - `B26` **Structure and derived properties** · *Critical*
-  - **Does:** derives every property (hardness, how it breaks, how it burns, taste, colour, sound) from makeup and structure.
+  - **Does:** gives every property (hardness, how it breaks, how it burns, taste, colour, sound) from measured data for each ingredient and structure, combined by stated rules (`MAT-03`).
   - **Serves:** `MAT-02`, `MAT-03`, `MAT-05`, `PRN-07`
   - **Needs:** `B25`
   - **To settle:** the smallest set of structural descriptions (grain size, glassiness, porosity, fibres, moisture, flaws) and rules for combining them that reproduce measured properties of the first layer, with no rule for any single material: flint, chert, obsidian, quartzite, granite, basalt, limestone and sandstone; oak, birch and pine, wet and dry; bone and antler; ice. Which properties are stored per ingredient, and which are derived.
@@ -281,7 +289,7 @@ The engine everything else runs on.
 
 - `B29` **Heat and fire** · *Choose*
   - **Does:** heat moving between things, ignition, burning with more or less air, embers, charring, and the temperatures fires reach.
-  - **Serves:** `MAT-04`, `RCK-02`, `RCK-08`, `BIO-11`, `WLD-28`
+  - **Serves:** `MAT-04`, `RCK-02`, `RCK-08`, `RCK-22`, `BIO-11`, `WLD-28`
   - **Needs:** `B26`, `B27`, `B31`
   - **To settle:** one temperature per thing, or finer detail inside things; whether friction lights dry tinder but not damp, an open fire reaches 600–900 °C and a charcoal furnace with forced air passes 1,100 °C, all from general physics; cost per fire at natural speed and in fast time.
 
@@ -292,8 +300,8 @@ The engine everything else runs on.
   - **To settle:** whether a small engine with a dozen kinds of reaction and about 30 ingredients passes the reality checks with zero special cases; whether adding tin ore gives bronze with no new law; which real data tables are needed, and whether they exist with usable licences. Metals come late, but the shape of this engine must be right from the start (`PRN-09`).
 
 - `B31` **Mechanics: bodies, tools and structures** · *Choose*
-  - **Does:** weight, momentum, leverage, springiness and friction for the body's basic actions; throwing, spear-throwers, bows, cord, cutting and scraping; shelters that stand or fall.
-  - **Serves:** `MAT-06`, `MAT-11`, `MAT-12`, `RCK-11`
+  - **Does:** weight, momentum, leverage, springiness and friction for the body's basic actions; throwing, spear-throwers, bows, cord, cutting and scraping; floating and sinking, and flowing water and air; shelters that stand or fall.
+  - **Serves:** `MAT-04`, `MAT-06`, `MAT-11`, `MAT-12`, `RCK-11`, `RCK-21`, `BIO-21`
   - **Needs:** `B27`
   - **To settle:** a physics engine, or simple physical formulas for each kind of interaction; whether throwing sticks, spear-throwers and bows work purely from physics, at speeds that match real ones; cost.
 
@@ -307,9 +315,9 @@ The engine everything else runs on.
 
 - `B33` **Life course and population** · *Critical*
   - **Does:** growth, ageing, fertility, pregnancy, birth and nursing, and the population patterns of real hunter-gatherers.
-  - **Serves:** `BIO-03`, `BIO-04`, `BIO-14`, `BIO-15`, `BIO-16`, `TIM-09`, `WLD-04`
+  - **Serves:** `BIO-02`, `BIO-03`, `BIO-04`, `BIO-14`, `BIO-15`, `BIO-16`, `BIO-20`, `TIM-09`, `WLD-04`
   - **Needs:** `B23`, `B24`, `B32`
-  - **To settle:** whether real life tables (four in ten children dying before 15, adults living into their 60s and 70s, a child every three to four years) emerge from causes alone, since no death may be random (`BIO-14`); how often a starting population of 45–120 dies out within 500 years, which decides how many worlds Experiment 1 needs.
+  - **To settle:** whether real life tables (four in ten children dying before 15, adults living into their 60s and 70s, a child every three to four years) emerge from causes alone, since no death may be random (`BIO-14`); how often a starting population of 45–120 dies out within 500 years, which decides how many worlds Experiment 1 needs; generating the first people like the world, with families, ages and relationships from real patterns (`BIO-02`).
 
 ## 7. Minds
 
@@ -333,15 +341,15 @@ The engine everything else runs on.
 
 - `B37` **Cause-and-effect learning** · *Critical*
   - **Does:** forms beliefs such as "doing this to that, in this situation, leads to this", with a certainty that follows the evidence, superstitions included.
-  - **Serves:** `MND-05`, `MND-13`, `BIO-02`, `PRN-01`
+  - **Serves:** `MND-05`, `MND-13`, `MND-27`, `BIO-02`, `BIO-20`, `PRN-01`
   - **Needs:** `B35`, `B36`
-  - **To settle:** certainty from counting outcomes, learning by association, or small causal models; how a learner finds which features mattered (the stone, the angle, the song) and links effects that come hours later, such as food poisoning; whether discovery and superstition rates match human studies of learning from coincidences; cost per update.
+  - **To settle:** certainty from counting outcomes, learning by association, or small causal models; how a learner finds which features mattered (the stone, the angle, the song) and links effects that come hours later, such as food poisoning; whether discovery and superstition rates match human studies of learning from coincidences; holding the several kinds of belief, each with a certainty and its evidence (`MND-27`); cost per update.
 
 - `B38` **Drives, feelings and personality** · *Measure*
   - **Does:** needs and urges, emotions that colour choices and memories, inborn temperament, and humanity's inborn biases.
-  - **Serves:** `MND-07`, `MND-19`, `MND-20`, `MND-21`
+  - **Serves:** `MND-07`, `MND-19`, `MND-20`, `MND-21`, `MND-26`
   - **Needs:** `B32`
-  - **To settle:** a light model in which what an event means for a person's goals decides the feeling; inborn biases that tilt learning without teaching anything.
+  - **To settle:** a light model in which what an event means for a person's goals decides the feeling; inborn biases that tilt learning without teaching anything; which further tendencies (`MND-26`) change outcomes in comparison runs.
 
 - `B39` **Choosing what to do** · *Critical*
   - **Does:** habits for routine; planning backwards from a need through believed causes when habits fail or the stakes rise; exploring in play and in desperation; every choice recorded with its reasons.
@@ -389,9 +397,9 @@ The engine everything else runs on.
 
 - `B46` **Conversations** · *Choose*
   - **Does:** what people actually say to each other (warnings, questions, news, teaching, stories), held as structured meanings before any words.
-  - **Serves:** `CUL-01`, `CUL-04`, `MND-23`, `MND-25`, `SND-03`
+  - **Serves:** `CUL-01`, `CUL-04`, `CUL-24`, `MND-23`, `MND-25`, `SND-03`
   - **Needs:** `B39`, `B42`
-  - **To settle:** what a message can say; how talk changes beliefs, weighted by trust in the speaker; cost. `PROJECT.md` implies this block (teaching, gossip, real speech) without naming it.
+  - **To settle:** what a message can say; how talk changes beliefs, weighted by trust in the speaker; cost. It is now an item of its own (`CUL-24`).
 
 - `B47` **Words and names** · *Choose*
   - **Does:** words agreed through use for each person's own concepts, drifting into dialects and languages; names for people, places and things, with English glosses.
@@ -427,7 +435,7 @@ The engine everything else runs on.
   - **Does:** pairing and family rules, sharing, gifts, trade, ownership, leadership and status, conflict, war and cruelty.
   - **Serves:** `BIO-15`, `BIO-17`, `CUL-07`, `CUL-08`, `CUL-21`, `CUL-22`
   - **Needs:** `B42`, `B51`
-  - **To settle:** whether hunter-gatherer patterns, such as sharing out large game, arise from general mechanisms (kinship, give and take, norms); whether feuds and alliances follow from interests and memory (`MOM-11`); cost.
+  - **To settle:** whether hunter-gatherer patterns, such as sharing out large game, arise from general mechanisms (kinship, give and take, norms); whether feuds and alliances follow from interests and memory (`MOM-11`); pairing and conception kept abstract (`BIO-15`); cost.
 
 - `B53` **Stories and myths** · *Choose*
   - **Does:** keeps stories as structured accounts (who, what, why) built from memories, beliefs and dreams, retold with drift; genealogies and legends.
@@ -437,13 +445,13 @@ The engine everything else runs on.
 
 - `B54` **Pictures: art and remembered scenes** · *Choose*
   - **Does:** paintings and carvings composed from memories and myths in a culture's style and real pigments, and the small scenes of memories you use to shape dreams.
-  - **Serves:** `CUL-09`, `PRE-15`, `GOD-10`
+  - **Serves:** `CUL-09`, `CUL-25`, `PRE-15`, `GOD-10`
   - **Needs:** `B53`, `B56`, `B66`, `B69`
   - **To settle:** how a picture is described in data (what is shown, and how) and drawn as pixel art; whether you can recognise the event it shows.
 
 - `B55` **Music and dance** · *Measure*
   - **Does:** rhythms, scales, songs, instruments and dances that grow out of each culture and drift.
-  - **Serves:** `CUL-10`
+  - **Serves:** `CUL-10`, `CUL-25`
   - **Needs:** `B31`, `B45`
   - **To settle:** how scales follow from the instruments people make (where the holes are bored on a flute sets its notes); how musical traditions drift.
 
@@ -471,19 +479,19 @@ The engine everything else runs on.
   - **Does:** places small events exactly, pushes seasons over a region, and sets off disasters where conditions allow, always within the climate's range.
   - **Serves:** `GOD-02`, `GOD-05`, `WLD-22`
   - **Needs:** `B18`, `B19`, `B20`, `B21`
-  - **To settle:** leaning on the weather's random draws, or adding moisture or energy to the weather; check: a pushed season stays within what the climate produces naturally.
+  - **To settle:** decided: nudges shift the weather's own draws within the climate's real range, a run of them can't exceed the climate's worst natural stretch, and quakes and eruptions use up stored strain and magma (`GOD-05`). The test checks that these budgets hold and stay cheap.
 
 - `B60` **Dreams as a power** · *Choose*
   - **Does:** lets you browse a sleeper's memories, compose a dream from memories and a feeling, and have it act on their mind.
   - **Serves:** `GOD-03`, `GOD-10`, `GOD-12`
   - **Needs:** `B36`, `B41`, `B54`
-  - **To settle:** how strongly a dream acts, measured in a fire-making test bench: it must raise the odds without guaranteeing anything (`RES-07`).
+  - **To settle:** decided: a sent dream is never stronger than the strongest natural dream (`GOD-03`). A fire-making test bench measures how much that raises the odds, without guaranteeing anything (`RES-07`).
 
 - `B61` **Fortune** · *Choose*
   - **Does:** blesses or curses people, groups, herds and places, at most doubling or halving a chance.
   - **Serves:** `GOD-04`
   - **Needs:** `B02`
-  - **To settle:** how to change the odds of outcomes decided by physics, since a hunt has no single "chance" to double. One candidate: a blessed failure may be redrawn once, which can never more than double the chance, and a cursed success is redrawn at most half the time, which can never more than halve it. Check: the limits hold for hunts, foraging, fertility, recovery and sickness, and nothing impossible becomes possible.
+  - **To settle:** decided: a blessed failure gets one more try, and a cursed success is retried at most half the time, with at most one retry per chance event (`GOD-04`). Check: the limits hold for hunts, foraging, fertility, recovery and sickness, and nothing impossible becomes possible.
 
 - `B62` **Tracing your influence** · *Choose*
   - **Does:** shows where you intervened and what changed because of it, in the scientist's view only.
@@ -497,13 +505,13 @@ The engine everything else runs on.
   - **Does:** ties the speed of time to zoom, with pause, a speed dial and a lock, and natural speed close up; pauses when the app is closed.
   - **Serves:** `TIM-01`, `TIM-04`, `TIM-05`, `TIM-07`, `TIM-10`, `TIM-14`
   - **Needs:** `B03`, `B39`
-  - **To settle:** the speeds actually reachable at each zoom, once the cost of minds and nature is known (`TIM-07`).
+  - **To settle:** the speeds actually reachable at each zoom, once the cost of minds and nature is known, against the first target: a thousand years in one night for a few hundred people (`TIM-07`).
 
 - `B64` **Recognisers: naming what happened** · *Critical*
   - **Does:** watches events and labels them for you: firsts and discoveries ("fire made by friction for the first time"), institutions, peoples, eras, dark content. It never feeds back into the world.
-  - **Serves:** `CUL-06`, `CUL-23`, `PRE-05`, `PRE-08`, `PRE-18`, `TIM-02`, `RES-03`, `PRN-07`
+  - **Serves:** `CUL-06`, `CUL-23`, `PRE-05`, `PRE-08`, `PRE-18`, `PRE-39`, `TIM-02`, `RES-03`, `PRN-07`
   - **Needs:** `B06`
-  - **To settle:** whether discoveries can be recognised reliably from raw events (Experiment 1 must count who "can chip sharp flakes"); peoples that don't flicker in and out over time; keeping this code provably apart from the code that decides (`X8`). `PROJECT.md` implies this block (firsts, named institutions, peoples, research measures) without naming it.
+  - **To settle:** whether discoveries can be recognised reliably from raw events (Experiment 1 must count who "can chip sharp flakes"); peoples that don't flicker in and out over time; keeping this code provably apart from the code that decides (`X8`). It is now an item of its own (`PRE-39`).
 
 - `B65` **Story director and running ahead** · *Choose*
   - **Does:** spots important moments, slows time around them, raises live moments, and skips to the next one.
@@ -593,13 +601,13 @@ The engine everything else runs on.
   - **Does:** builds the phone app in the AI's cloud sessions, delivers it as a download, and handles the app's life: pausing when closed, both orientations, working offline, saving, export and import.
   - **Serves:** `PLT-01`, `PLT-02`, `PLT-03`, `PLT-06`, `PLT-07`, `PLT-08`, `TIM-05`, `PRC-11`
   - **Needs:** nothing
-  - **To settle:** whether a cloud session can fetch the Android tools and build, sign and publish an installable app; how you download it; whether saving survives the app being killed mid-write. Every phone test depends on this.
+  - **To settle:** whether a cloud session can fetch the Android tools and build, sign and publish an installable app; how you download it, now and under the 2027 install rules (`RSK-18`); whether saving survives the app being killed mid-write. Every phone test depends on this.
 
 - `B79` **Phone budgets and heat** · *Critical*
   - **Does:** measures and manages what the phone can sustain (processor, graphics, memory, battery, heat), keeps frames smooth by slowing time under load, and runs overnight mode on the charger.
   - **Serves:** `PLT-04`, `PRN-11`, `VIS-14`, `MND-15`, `TIM-12`, `RSK-02`
   - **Needs:** `B78`
-  - **To settle:** the sustained speed of each kind of core before the phone throttles, over minutes and over hours; frame pacing at full refresh; using the phone's own heat warnings to slow time before it gets hot; battery per hour; the split between simulation, drawing, writer AI and sound (`X9`).
+  - **To settle:** the sustained speed of each kind of core before the phone throttles, over minutes and over hours; frame pacing at full refresh; using the phone's own heat warnings to slow time before it gets hot; the split between simulation, drawing, writer AI and sound (`X9`). Known: the phone has 16 GB of memory, so the app can use about 10 GiB (`PLT-01`), and the battery budget is 25–30% an hour (`VIS-14`).
 
 - `B80` **Cloud runner and moving worlds** · *Critical*
   - **Does:** runs the same rules without graphics in the AI's cloud sessions, many worlds at once; checks that the cloud gives the same statistics as the phone; and moves an experiment's saved moments to the phone.
@@ -611,12 +619,12 @@ The engine everything else runs on.
 
 - `B81` **Experiment runner and reports** · *Measure*
   - **Does:** defines experiments with criteria fixed first, runs comparison runs with mechanisms switched off, gathers results as ranges, logs surprises, and writes report pages with charts and links to saved moments.
-  - **Serves:** `RES-01`, `RES-02`, `RES-03`, `RES-06`, `RES-07`, `RES-08`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-14`, `RES-15`, `PRN-05`, `PRN-12`, `BIO-07`
+  - **Serves:** `RES-01`, `RES-02`, `RES-03`, `RES-06`, `RES-07`, `RES-08`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-14`, `RES-15`, `RES-16`, `RES-17`, `RES-18`, `RES-19`, `PRN-05`, `PRN-12`, `BIO-07`
   - **Needs:** `B64`, `B80`
-  - **To settle:** little beyond standard work. This is where the rule that every mechanism has an off switch is set (`X7`).
+  - **To settle:** little beyond standard work. This is where the rule that every mechanism has an off switch is set (`X7`), with the rules for tuning, confirming on fresh seeds and re-running the signature moments (`RES-16`, `RES-17`).
 
 - `B82` **Automatic checks** · *Choose*
   - **Does:** runs the reality checklist, the general-rules check, the coverage check, the phone and cloud statistical comparison at milestones, and the screenshot tour for the visual review.
-  - **Serves:** `MAT-15`, `PRE-31`, `PRN-07`, `PRC-10`, `PRC-12`, `RES-04`, `RES-05`, `RES-11`
+  - **Serves:** `MAT-15`, `MAT-17`, `PRE-31`, `PRN-07`, `PRC-10`, `PRC-12`, `RES-04`, `RES-05`, `RES-11`
   - **Needs:** `B78`, `B80`
-  - **To settle:** how the phone runs its share of the statistical comparison with little of your time; how the code is laid out so the general-rules search means something (`X8`); taking screenshots on the phone or in the cloud.
+  - **To settle:** how the phone runs its share of the statistical comparison with little of your time; how the code is laid out so the general-rules search means something (`X8`); the stronger general-rules check, with identity swaps, decoys and a made-up material (`PRN-07`); the file check and the coverage check (`PRC-10`, `PRC-12`); taking screenshots on the phone or in the cloud.
