@@ -1,0 +1,11 @@
+planted error                     caught
+wrong value (x1.1)                31/31
+quote with one word changed       31/31
+unknown unit                      31/31
+missing source                    31/31
+YAML number read as text          4/4
+TOML number written as text       1/1
+Markdown table drifts from block  34/34
+YAML and TOML disagree            5/5
+TOTAL                             168/168
+blind spot: value swapped for another number in its own quote: caught 0/19

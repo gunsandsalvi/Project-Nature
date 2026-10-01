@@ -1,0 +1,30 @@
+== format md: 5 files
+  birch-wood-dry.md: PROBLEMS (8 values)
+    TABLE    table row 5: can't read value cell '1.7 kJ/(kg·K)'
+    TABLE    table row 6: can't read value cell '0.18 W/(m·K)'
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #2 hardness: no range or uncertainty (source gives none?)
+    warning  #3 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #5 specific_heat: no range or uncertainty (source gives none?)
+    warning  #6 thermal_conductivity: no range or uncertainty (source gives none?)
+    warning  #7 heat_of_combustion: no range or uncertainty (source gives none?)
+  cortical-bone.md: PROBLEMS (7 values)
+    TABLE    table row 7: can't read value cell '0.68 W/(m·K) ± 0.01'
+    warning  #4 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #5 tensile_strength: no range or uncertainty (source gives none?)
+  flint.md: PROBLEMS (6 values)
+    TABLE    table row 5: can't read value cell '8.1 mcal/(cm·s·°C)'
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #2 hardness: no range or uncertainty (source gives none?)
+    warning  #5 thermal_conductivity: no range or uncertainty (source gives none?)
+  granite.md: PROBLEMS (7 values)
+    TABLE    table row 4: can't read value cell '0.79 kJ/(kg·K)'
+    TABLE    table row 5: can't read value cell '2.85 W/(m·K) (1.7–4.0)'
+    warning  #2 fracture_toughness: no range or uncertainty (source gives none?)
+    warning  #3 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #4 specific_heat: no range or uncertainty (source gives none?)
+    warning  #6 compressive_strength: no range or uncertainty (source gives none?)
+  obsidian.md: ok (6 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #4 compressive_strength: no range or uncertainty (source gives none?)
+== same data in every format?

@@ -1,0 +1,93 @@
+{
+ "cross_format_differences": 0,
+ "formats": {
+  "md": {
+   "entries": 5,
+   "mismatches": 0,
+   "parse_errors": 0,
+   "table_mismatches": 0,
+   "validation_errors": 0,
+   "warnings": 17
+  },
+  "toml": {
+   "entries": 5,
+   "mismatches": 0,
+   "parse_errors": 0,
+   "table_mismatches": 0,
+   "validation_errors": 0,
+   "warnings": 17
+  },
+  "yaml": {
+   "entries": 5,
+   "mismatches": 0,
+   "parse_errors": 0,
+   "table_mismatches": 0,
+   "validation_errors": 0,
+   "warnings": 17
+  }
+ },
+ "quotes": {
+  "found": 34,
+  "not_found": 0,
+  "unfetchable": 0,
+  "values": 34
+ },
+ "sources": {
+  "https://alutiiqmuseum.org/collection/Detail/word/635": "ok",
+  "https://arxiv.org/pdf/cond-mat/0507559": "ok (pdf)",
+  "https://corescholar.libraries.wright.edu/biology/288/": "ok",
+  "https://discovery.ucl.ac.uk/id/eprint/10098172/1/Nasseri%20PAGeoph%202009.pdf": "ok (pdf)",
+  "https://en.wikipedia.org/wiki/Conchoidal_fracture": "ok",
+  "https://en.wikipedia.org/wiki/Granite": "ok",
+  "https://en.wikipedia.org/wiki/Obsidian": "ok",
+  "https://meetings.copernicus.org/www.cosis.net/abstracts/EGU2007/04479/EGU2007-J-04479-1.pdf": "ok (pdf)",
+  "https://pubs.usgs.gov/of/1988/0690/report.pdf": "ok (pdf)",
+  "https://research.fs.usda.gov/download/treesearch/37415.pdf": "ok (pdf)",
+  "https://research.fs.usda.gov/download/treesearch/37427.pdf": "ok (pdf)",
+  "https://research.fs.usda.gov/download/treesearch/37428.pdf": "ok (pdf)",
+  "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC3909231/fullTextXML": "ok",
+  "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC4820859/fullTextXML": "ok",
+  "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9718382/fullTextXML": "ok",
+  "https://www.ecmjournal.org/papers/vol035/vol035a03.php": "ok",
+  "https://www.engineeringtoolbox.com/specific-heat-solids-d_154.html": "ok",
+  "https://www.engineeringtoolbox.com/thermal-conductivity-d_429.html": "ok",
+  "https://www.engineeringtoolbox.com/young-modulus-d_417.html": "ok",
+  "https://www.handbookofmineralogy.org/pdfs/quartz.pdf": "ok (pdf)"
+ },
+ "values": {
+  "birch-wood-dry #1 density [wh-ch5]": "found (exact)",
+  "birch-wood-dry #2 hardness [wh-ch5]": "found (exact)",
+  "birch-wood-dry #3 youngs_modulus [wh-ch5]": "found (exact)",
+  "birch-wood-dry #4 fracture_toughness [wh-ch5]": "found (exact)",
+  "birch-wood-dry #5 specific_heat [wh-ch4]": "found (exact)",
+  "birch-wood-dry #6 thermal_conductivity [wh-ch4]": "found (exact)",
+  "birch-wood-dry #7 heat_of_combustion [wh-ch18]": "found (exact)",
+  "birch-wood-dry #8 ignition_temperature [wh-ch18]": "found (exact)",
+  "cortical-bone #1 density [feng-2014]": "found (exact)",
+  "cortical-bone #2 hardness [feng-2014]": "found (exact)",
+  "cortical-bone #3 fracture_toughness [feng-2014]": "found (exact)",
+  "cortical-bone #4 youngs_modulus [sellani-2016]": "found (exact)",
+  "cortical-bone #5 tensile_strength [sellani-2016]": "found (exact)",
+  "cortical-bone #6 compressive_strength [feng-2014]": "found (exact)",
+  "cortical-bone #7 thermal_conductivity [feldmann-2018]": "found (exact)",
+  "flint #1 density [usgs-ofr-88-690]": "found (exact)",
+  "flint #2 hardness [hom-quartz]": "found (exact)",
+  "flint #3 fracture_toughness [nickel-schmidt-2022]": "found (exact)",
+  "flint #4 youngs_modulus [nickel-schmidt-2022]": "found (exact)",
+  "flint #5 thermal_conductivity [usgs-ofr-88-690]": "found (exact)",
+  "flint #6 fracture_habit [wikipedia-conchoidal]": "found (exact)",
+  "granite #1 density [wikipedia-granite]": "found (exact)",
+  "granite #2 fracture_toughness [nasseri-2009]": "found (exact)",
+  "granite #3 youngs_modulus [etb-modulus]": "found (exact)",
+  "granite #4 specific_heat [etb-specific-heat]": "found (exact)",
+  "granite #5 thermal_conductivity [etb-conductivity]": "found (exact)",
+  "granite #6 compressive_strength [wikipedia-granite]": "found (exact)",
+  "granite #7 fracture_habit [alutiiq-museum]": "found (exact)",
+  "obsidian #1 density [wikipedia-obsidian]": "found (exact)",
+  "obsidian #2 hardness [wikipedia-obsidian]": "found (exact)",
+  "obsidian #3 youngs_modulus [wagner-heide-2005]": "found (exact)",
+  "obsidian #4 compressive_strength [smith-egu-2007]": "found (exact)",
+  "obsidian #5 thermal_diffusivity [romine-2012]": "found (exact)",
+  "obsidian #6 fracture_habit [wikipedia-obsidian]": "found (exact)"
+ }
+}

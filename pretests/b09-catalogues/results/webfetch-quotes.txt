@@ -1,0 +1,9 @@
+Quotes returned by the summarising fetch tool, checked against the raw fetched text
+found (exact)                https://en.wikipedia.org/wiki/Granite
+found (exact)                https://en.wikipedia.org/wiki/Obsidian
+found (exact)                https://en.wikipedia.org/wiki/Conchoidal_fracture
+found (exact)                https://www.ecmjournal.org/papers/vol035/vol035a03.php
+NOT FOUND                    https://corescholar.libraries.wright.edu/biology/288/
+found (exact)                https://alutiiqmuseum.org/collection/Detail/word/635
+NOT FOUND                    https://www.engineeringtoolbox.com/thermal-conductivity-d_429.html
+3 more requests (arXiv, Wood Handbook ch. 18, EGU abstract: all PDFs) returned no quote: the tool could not read the PDF.

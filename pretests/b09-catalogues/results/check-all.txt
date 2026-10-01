@@ -1,0 +1,112 @@
+== format yaml: 5 files
+  birch-wood-dry.yaml: ok (8 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #2 hardness: no range or uncertainty (source gives none?)
+    warning  #3 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #5 specific_heat: no range or uncertainty (source gives none?)
+    warning  #6 thermal_conductivity: no range or uncertainty (source gives none?)
+    warning  #7 heat_of_combustion: no range or uncertainty (source gives none?)
+  cortical-bone.yaml: ok (7 values)
+    warning  #4 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #5 tensile_strength: no range or uncertainty (source gives none?)
+  flint.yaml: ok (6 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #2 hardness: no range or uncertainty (source gives none?)
+    warning  #5 thermal_conductivity: no range or uncertainty (source gives none?)
+  granite.yaml: ok (7 values)
+    warning  #2 fracture_toughness: no range or uncertainty (source gives none?)
+    warning  #3 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #4 specific_heat: no range or uncertainty (source gives none?)
+    warning  #6 compressive_strength: no range or uncertainty (source gives none?)
+  obsidian.yaml: ok (6 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #4 compressive_strength: no range or uncertainty (source gives none?)
+== format toml: 5 files
+  birch-wood-dry.toml: ok (8 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #2 hardness: no range or uncertainty (source gives none?)
+    warning  #3 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #5 specific_heat: no range or uncertainty (source gives none?)
+    warning  #6 thermal_conductivity: no range or uncertainty (source gives none?)
+    warning  #7 heat_of_combustion: no range or uncertainty (source gives none?)
+  cortical-bone.toml: ok (7 values)
+    warning  #4 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #5 tensile_strength: no range or uncertainty (source gives none?)
+  flint.toml: ok (6 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #2 hardness: no range or uncertainty (source gives none?)
+    warning  #5 thermal_conductivity: no range or uncertainty (source gives none?)
+  granite.toml: ok (7 values)
+    warning  #2 fracture_toughness: no range or uncertainty (source gives none?)
+    warning  #3 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #4 specific_heat: no range or uncertainty (source gives none?)
+    warning  #6 compressive_strength: no range or uncertainty (source gives none?)
+  obsidian.toml: ok (6 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #4 compressive_strength: no range or uncertainty (source gives none?)
+== format md: 5 files
+  birch-wood-dry.md: ok (8 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #2 hardness: no range or uncertainty (source gives none?)
+    warning  #3 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #5 specific_heat: no range or uncertainty (source gives none?)
+    warning  #6 thermal_conductivity: no range or uncertainty (source gives none?)
+    warning  #7 heat_of_combustion: no range or uncertainty (source gives none?)
+  cortical-bone.md: ok (7 values)
+    warning  #4 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #5 tensile_strength: no range or uncertainty (source gives none?)
+  flint.md: ok (6 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #2 hardness: no range or uncertainty (source gives none?)
+    warning  #5 thermal_conductivity: no range or uncertainty (source gives none?)
+  granite.md: ok (7 values)
+    warning  #2 fracture_toughness: no range or uncertainty (source gives none?)
+    warning  #3 youngs_modulus: no range or uncertainty (source gives none?)
+    warning  #4 specific_heat: no range or uncertainty (source gives none?)
+    warning  #6 compressive_strength: no range or uncertainty (source gives none?)
+  obsidian.md: ok (6 values)
+    warning  #1 density: no range or uncertainty (source gives none?)
+    warning  #4 compressive_strength: no range or uncertainty (source gives none?)
+== same data in every format?
+  birch-wood-dry: identical in yaml, toml, md
+  cortical-bone: identical in yaml, toml, md
+  flint: identical in yaml, toml, md
+  granite: identical in yaml, toml, md
+  obsidian: identical in yaml, toml, md
+== quotes against the fetched sources
+  found     birch-wood-dry #1 density [wh-ch5]: exact
+  found     birch-wood-dry #2 hardness [wh-ch5]: exact
+  found     birch-wood-dry #3 youngs_modulus [wh-ch5]: exact
+  found     birch-wood-dry #4 fracture_toughness [wh-ch5]: exact
+  found     birch-wood-dry #5 specific_heat [wh-ch4]: exact
+  found     birch-wood-dry #6 thermal_conductivity [wh-ch4]: exact
+  found     birch-wood-dry #7 heat_of_combustion [wh-ch18]: exact
+  found     birch-wood-dry #8 ignition_temperature [wh-ch18]: exact
+  found     cortical-bone #1 density [feng-2014]: exact
+  found     cortical-bone #2 hardness [feng-2014]: exact
+  found     cortical-bone #3 fracture_toughness [feng-2014]: exact
+  found     cortical-bone #4 youngs_modulus [sellani-2016]: exact
+  found     cortical-bone #5 tensile_strength [sellani-2016]: exact
+  found     cortical-bone #6 compressive_strength [feng-2014]: exact
+  found     cortical-bone #7 thermal_conductivity [feldmann-2018]: exact
+  found     flint #1 density [usgs-ofr-88-690]: exact
+  found     flint #2 hardness [hom-quartz]: exact
+  found     flint #3 fracture_toughness [nickel-schmidt-2022]: exact
+  found     flint #4 youngs_modulus [nickel-schmidt-2022]: exact
+  found     flint #5 thermal_conductivity [usgs-ofr-88-690]: exact
+  found     flint #6 fracture_habit [wikipedia-conchoidal]: exact
+  found     granite #1 density [wikipedia-granite]: exact
+  found     granite #2 fracture_toughness [nasseri-2009]: exact
+  found     granite #3 youngs_modulus [etb-modulus]: exact
+  found     granite #4 specific_heat [etb-specific-heat]: exact
+  found     granite #5 thermal_conductivity [etb-conductivity]: exact
+  found     granite #6 compressive_strength [wikipedia-granite]: exact
+  found     granite #7 fracture_habit [alutiiq-museum]: exact
+  found     obsidian #1 density [wikipedia-obsidian]: exact
+  found     obsidian #2 hardness [wikipedia-obsidian]: exact
+  found     obsidian #3 youngs_modulus [wagner-heide-2005]: exact
+  found     obsidian #4 compressive_strength [smith-egu-2007]: exact
+  found     obsidian #5 thermal_diffusivity [romine-2012]: exact
+  found     obsidian #6 fracture_habit [wikipedia-obsidian]: exact
+== sources: 20 fetched, 20 readable, 0 unfetchable
+== quotes: 34 found, 0 not found, 0 not checkable (source unfetchable), of 34 values

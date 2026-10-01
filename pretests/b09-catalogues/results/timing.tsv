@@ -1,0 +1,9 @@
+step	start_utc	end_utc	note
+checker-build	13:30:48	13:32:28	fixed cost, before sourcing
+flint	13:32:28	13:37:27	6 values + 1 gap; first check: 6/6 quotes found, 0 mismatches; 7 searches, ~18 URLs tried; specific-heat gap search ran to 13:38:30
+obsidian	13:37:53	13:40:10	6 values + 3 gaps; first check: 6/6 quotes found, 0 mismatches; 5 searches + 1 WebFetch, ~12 URLs tried (cache now 33)
+granite	13:40:25	13:42:17	7 values + 1 gap; first check: 7/7 found, 0 mismatches; 3 searches, ~10 URLs (cache now 41); 3 values from an aggregator
+birch-wood-dry	13:42:29	13:45:28	8 values + 0 gaps; first check: 8/8 found, 0 mismatches; 1 search, ~7 URLs (cache now 49); one handbook covers all; checker gained PDF layout reading
+cortical-bone	13:45:34	13:48:56	7 values + 1 gap; first check: 7/7 found, 0 mismatches; 4 searches, ~20 URLs (cache now 74); PMC pages bot-blocked, Europe PMC API 500 for 6 of 8 papers; one source has a unit error
+toml-transcribe	13:49:27	13:50:40	0 parse, 0 validation errors, identical to YAML; hand-written from the YAML entries
+md-transcribe	13:50:51	13:52:49	first check: 6 table cells unreadable (checker parser bug: units with brackets), 0 real drift; after parser fix 0 problems; hand-written: table + sources + YAML block

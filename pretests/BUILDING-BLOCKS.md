@@ -166,6 +166,15 @@ The engine everything else runs on.
   - **Serves:** `MAT-05`, `MAT-13`, `MAT-14`, `MAT-15`, `PRN-05`, `PRN-14`, `WLD-19`
   - **Needs:** nothing
   - **To settle:** an entry format you can read on a phone and a program can check; how long it takes to source and verify one entry, since there will be thousands, with every value checked against the fetched source and the supporting passage quoted (`RSK-16`); the licences of the data sources.
+  - **Result** (1 October 2026; `pretests/b09-catalogues/`):
+    - **Format:** Markdown, with the data block inside each entry as the single source and the table generated from it. All three formats tried (YAML, TOML, Markdown) had no errors, so readability on a phone decided.
+    - **Cost:** about 3 minutes per checked entry, or 27 seconds a value; 10,000 values come to about 76 agent-hours, plus review.
+    - **Quotes:** always copied by a tool from the fetched text, never typed. All 34 tool-copied quotes matched; a summarising fetch tool got 5 of 10 wrong or missing.
+    - **Checks:** the checker caught all 168 planted errors, but not a value taken from the wrong column of the right table, so an independent reviewer still checks meaning.
+    - **Sources:** a third of the pages tried couldn't be read by a script, so each source's text is saved with its entry and checked against that copy.
+    - **The real limit is gaps, not time:** 15% of properties had no checkable source, and 6 values are stand-ins, such as wood in general for birch.
+    - **Licences:** use USGS, the USDA Wood Handbook, Wikipedia and CC BY papers; cite only NIST's data, The Engineering ToolBox and the Handbook of Mineralogy; avoid the CRC Handbook and MatWeb.
+    - **For you:** saved copies change the wording of `RSK-16`; and whether stand-in values are allowed, and how they are labelled.
 
 ## 2. Space
 
