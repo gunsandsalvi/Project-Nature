@@ -525,7 +525,7 @@ The engine everything else runs on.
   - **Does:** draws the world in 3D at low resolution with hard pixels: colour in steps, fine patterns only in narrow bands and fixed to surfaces, outlines and lit edges, stable pixels, shadows, firelight, haze, and palettes for time and season.
   - **Serves:** `PRE-01`, `PRE-02`, `PRE-04`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-30`, `PRE-31`, `VIS-14`
   - **Needs:** `B78`, `B79`
-  - **To settle:** the graphics interface and engine; frame time at the screen's full refresh rate with about 4 screen pixels per art pixel; pixels that stay still while the camera moves and turns; battery and heat. The cleaned-up mockup is the visual reference.
+  - **To settle:** the graphics interface and engine; frame time at the screen's full refresh rate with about 4 screen pixels per art pixel; pixels that stay still while the camera moves and turns; battery and heat. The cleaned-up mockup (`mockups/visual-style.html`) is the visual reference; its pixels still crawl while the camera turns or zooms.
 
 - `B67` **Land on screen at every zoom** · *Critical*
   - **Does:** draws terrain, rock faces with their layers, caves and overhangs, plants and water, from close up through the map look to the globe, in one continuous zoom.
