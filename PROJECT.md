@@ -2392,11 +2392,14 @@ This is how the world looks.
 It is written to stand on its own, without needing any image to understand it.
 
 - `PRE-01` **Detailed pixel art** *(Decided)*: Everything on screen is crisp pixel art: limited colours, hard pixel edges, no blur and no smooth gradients.
+  - **How it works:** the picture is drawn at a low resolution, about a quarter of the screen's in each direction (`PRE-22`), and enlarged by whole pixels with no smoothing; every colour comes from the material ladders of one palette (`PRE-20`), so there is no blur and no smooth gradient.
 
 - `PRE-02` **Pixel-rendered 3D** *(Decided)*
   - **What:** The world is a real 3D world, drawn at low resolution and enlarged with hard pixel edges.
     It looks like hand-made pixel art but has real depth, scale and structure.
     The camera turns freely and zooms continuously.
+  - **How it works:** the 3D scene is built from the simulation's own state: the land from its heights and 3D pieces at the detail each distance needs (`WLD-12`), things from their records' shapes (`MAT-10`), and plants and animals from their records or their patches' counts (`WLD-13`).
+    It is drawn on the graphics chip at the low resolution of `PRE-01`, which was measured fast enough on the phone.
   - **Why:** Real 3D shows height, depth, sizes and structures (cliffs, caves, shelters, later buildings) at every zoom.
     The land comes straight from the simulation instead of being hand-drawn, which suits generated worlds.
   - **Example:** At dusk, from an oblique angle, you see a band's camp below a limestone cliff: the cave mouth in shadow, long shadows across the grass, the river beyond.
@@ -2408,52 +2411,65 @@ It is written to stand on its own, without needing any image to understand it.
     Light chooses a step on the ladder.
     Where two steps meet, a fine pixel pattern blends them in a narrow band only; surfaces are never speckled all over.
     The pattern is fixed to the surface, so it doesn't swim when the camera moves.
+  - **How it works:** each material's ladder is made from its simulated colour (`MAT-03`) by choosing 4–7 palette colours from its darkest to its lightest shade, or taken from its hand-picked ladder.
+    The light reaching each point of a surface (sun, sky, fire and shadow, `PRE-30`) picks the step, and only within a narrow band at each step's edge does a fine pattern, fixed in the surface's own coordinates, mix the two steps.
   - **Why:** Clean colour is what separates pixel art from a shrunken photograph.
 
 - `PRE-21` **Outlines and lit edges** *(Decided)*
   - **What:** A one-pixel dark outline wherever one thing stands in front of another: people, animals, trees, rocks, the top edge of a cliff.
     A one-pixel bright edge where the sun or a fire catches a shape, such as the sunlit rim of a cliff or the fire-facing side of a person.
+  - **How it works:** a dark pixel is drawn wherever the depth jumps between neighbouring pixels, where one thing stands in front of another; a bright pixel is drawn at a shape's edge where its surface faces the sun or a fire strongly (`PRE-30`).
   - **Why:** Crisp silhouettes keep small things readable on a phone screen.
 
 - `PRE-22` **Stable pixels** *(Decided)*
   - **What:** Pixels never crawl or shimmer as the camera moves: the picture stays locked to its pixel grid, and turns ease to rest.
     One art pixel is always the same size on screen, in portrait and in landscape, so turning the phone only changes the framing.
     About 4 screen pixels make one art pixel.
+  - **How it works:** the camera's position is snapped to whole art pixels, and turns ease to rest; each art pixel is a fixed block of about 4 by 4 screen pixels in both orientations.
+    Pixels still crawl while the camera turns or zooms; the fix for that is chosen on a real world at the first visual review (`PRE-31`).
   - **Why:** Shimmering pixels are the most common flaw of 3D pixel art, and the first thing that makes it look cheap.
 
 - `PRE-23` **Rock faces** *(Decided)*
   - **What:** Cliffs show their geology: horizontal rock layers of different thicknesses, irregular vertical cracks, a few long fissures, lichen, water stains, soot above inhabited caves, grass hanging over the top edge, and scree at the foot.
     The same layers continue underground (`PRE-25`).
+  - **How it works:** a cliff is drawn from its rock column (`WLD-09`): each layer's rock and thickness, cracks spaced as its joints are, and long fissures from faults; lichen and water stains from how wet and how old the face is and which way it faces (`WLD-16`); soot where hearth smoke has settled above lived-in caves (`MAT-04`); overhanging grass from the plants of the patch at the top (`WLD-12`); and scree from the loose rock actually lying at the foot (`WLD-14`).
   - **Why:** Geology is part of the story (`WLD-14`).
     What people can find depends on what the land is made of, and the rock should show it.
 
 - `PRE-24` **Real shapes** *(Decided)*
   - **What:** Overhangs, caves, rock shelters and, later, buildings have real depth.
+  - **How it works:** caves, overhangs and shelters are the land's 3D pieces (`WLD-12`), and built things are drawn from the things and joints they are made of (`MAT-10`); inside, light comes only from openings and fires (`PRE-30`), so the depths stay dark.
   - **Example:** Looking into a cave mouth from an angle, you see its dark interior, the firelit floor and the hide windbreak across the entrance.
 
 - `PRE-25` **Cut-away view** *(Decided)*
   - **What:** The ground can be sliced open to show what lies beneath: rock layers, soils, underground water, and the buried layers of past life (hearths, tools, bones, graves).
+  - **How it works:** a slice along the line you choose is drawn from the rock columns (`WLD-09`), the soil layers (`WLD-27`), the ground water (`WLD-17`), and the buried things at their depths, in the layers that buried them (`MAT-08`).
   - **Why:** It is how you see geology and dig through history.
     The archaeology view (`PRE-09`) uses it.
 
 - `PRE-26` **Water** *(Decided)*
   - **What:** Rivers meander and change width, with gravel bars, reeds, lines that follow the current, ripples at fords, glints of sun and drifting mist.
     From far away a river never becomes thinner than one or two art pixels, so it stays readable.
+  - **How it works:** a river is drawn from its channel line and width (`WLD-15`) and its flow (`WLD-17`): lines that follow the current's direction and speed, gravel bars and reeds from the patches along it, ripples where it runs shallow, glints by the sun's angle (`PRE-30`), and mist where the weather makes fog (`WLD-16`); seen from far away, it is drawn at least one or two art pixels wide.
 
 - `PRE-27` **People and animals** *(Decided)*
   - **What:** People and animals are small 3D figures drawn through the same pixel look and animated at a deliberate, sprite-like rhythm of about 8–12 poses a second.
     They look like crisp pixel art from any angle and turn properly with the camera.
     At the closest zoom, a person is about 40–60 art pixels tall: enough for a face, hair, clothing and gestures.
+  - **How it works:** each figure is a 3D body made of parts, shaped by that body's own measurements and looks (`BIO-08`, `BIO-22`) and wearing what it actually wears; its pose comes from the action under way (`MAT-12`), animated from the action's settings (`MAT-06`), and its face shows its strongest feeling (`MND-19`).
+    It is drawn through the pixel look, with poses changing 8–12 times a second.
   - **Why:** The simulation will produce actions nobody planned (`PRN-01`).
     Figures built from parts can perform any of them from any angle, without a new drawing for each.
 
 - `PRE-28` **Readable from far away** *(Decided)*: As you zoom out, people become tiny outlined figures in strong clothing colours, then groups become small markers, then a camp becomes a glowing point.
+  - **How it works:** by its size on screen (tuned thresholds), a figure is drawn in full, then as a tiny outlined figure in its clothing's strongest colour; a group close together becomes one marker at its centre, and a camp a glowing point at its hearth.
 
 - `PRE-29` **From above** *(Decided)*
   - **What:** As the camera rises, it tilts toward looking straight down, and the land shifts into a clean map look: crisp colours for forest, grassland, rock and water, rivers as lines, shaded hills.
     Map overlays (`PRE-07`) sit on this view.
     At the very top, the whole world appears as a globe (`WLD-02`).
     Close up to globe is one continuous zoom (`PRE-03`).
+  - **How it works:** as the camera rises past set heights, its tilt eases toward straight down and the land's drawing blends into the map look: each patch in a flat colour for its cover (`WLD-12`), rivers as lines, and hills shaded from the heights.
   - **Why:** A landscape seen from high up at an angle turns to mush.
     A map stays clear at every height.
 
@@ -2461,10 +2477,14 @@ It is written to stand on its own, without needing any image to understand it.
   - **What:** One master palette, with versions for each time of day (dawn, day, dusk, night) and each season.
     The sun casts real shadows, the sky tints everything, and distance adds haze.
     A fire lights its surroundings with a warm, flickering glow that fades with distance, warms the faces of people nearby, and sends up smoke and embers.
+  - **How it works:** the sun's and moons' places in the sky (`WLD-07`) set the light's direction, and the time of day and season pick the palette's version, blended through the changes; shadows come from the 3D scene, and haze grows with distance.
+    Each fire is a light whose brightness comes from the heat it gives off (`MAT-04`), flickering as its burning varies and fading with distance, with smoke and embers from what it burns.
 
 - `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the whole world, drawn as a globe, down to one person chipping flint.
+  - **How it works:** one camera rises continuously from a person's height to the globe; the drawing changes with on-screen size (`PRE-28`, `PRE-29`), and detail made for the picture streams in from the simulation's own generator (`WLD-13`), so there is never a loading break.
 
 - `PRE-04` **Sharp at every zoom** *(Decided)*: The pixel art stays sharp and readable at every zoom level (`PRE-22`, `PRE-28`, `PRE-29`).
+  - **How it works:** the art pixel never changes size (`PRE-22`), small things switch to forms that stay readable (`PRE-28`), and high views become the map (`PRE-29`).
 
 - `PRE-31` **Visual review** *(Decided)*
   - **Done when:** at every milestone, screenshots at each zoom level, in both orientations and at every time of day, pass a review for:
@@ -2472,6 +2492,7 @@ It is written to stand on its own, without needing any image to understand it.
     - crisp silhouettes;
     - pixels that stay still while the camera moves;
     - people and animals readable at phone size.
+  - **How it works:** a tool captures the screenshots on the phone from a fixed set of saved worlds, at each zoom, in both orientations and at each time of day; the review checks them against the list, and you take part as the final judge (`PRC-10`).
 
 ### 11.2 On the screen
 
@@ -2480,12 +2501,14 @@ It is written to stand on its own, without needing any image to understand it.
     Controls and panels appear only when you ask for them: tap a person, animal, group or place to open its card, or swipe up for the chronicle and other views.
     Nothing stays on screen unless you called it up, apart from a live moment appearing briefly (`PRE-08`).
     A brief touch shows the date, the real speed of time and the time control (`PRE-33`).
+  - **How it works:** nothing is drawn over the world until you call it: a tap opens the card of what is under your finger, a swipe up opens the views, and both close when dismissed; the brief touch shows the date, the real speed and the time controls, which fade after a few seconds (tuned).
   - **Why:** The world is the point.
     It should feel like looking at a living place, not at a dashboard.
   - **Example:** You open the app to nothing but the valley at dusk, exactly as you left it.
 
 - `PRE-34` **Both orientations** *(Decided)*: Every screen works one-handed in portrait and two-handed in landscape (`VIS-14`).
   Follows from `PLT-02`.
+  - **How it works:** each screen has a portrait layout, with its controls within one thumb's reach at the bottom, and a landscape layout for two hands; the art pixel keeps its size in both (`PRE-22`).
 
 - `PRE-33` **Gestures** *(Decided)*:
   - drag to move, and twist with two fingers to turn;
@@ -2494,12 +2517,15 @@ It is written to stand on its own, without needing any image to understand it.
   - long-press for your powers at that spot (`GOD-10`), including drawing an area, so a drag always moves the camera;
   - swipe up from the bottom edge for views;
   - a brief touch anywhere shows the date, the real speed of time and the time control: pause, speed and speed lock (`TIM-04`).
+  - **How it works:** each gesture is told apart by its number of fingers, its length and its path; a tap selects the nearest thing under the finger, and zooming also sets the speed asked for (`TIM-01`).
 
 - `PRE-35` **Cards** *(Decided)*: Selecting anything opens a card with what matters about it, such as a person's name, age, mood, and what they are doing and why, or a place's land and history.
   Links lead into deeper views: the story view, the scientist's view, family trees, archaeology.
+  - **How it works:** a card reads the chosen thing's records: for a person, their name (`PRE-38`), age, strongest feelings (`MND-19`), and current activity with the reasons recorded for choosing it (`MND-09`); for a place, its land (`WLD-12`) and the events recorded there; for a thing, its makeup and history (`MAT-10`); each link opens a view on the same thing.
 
 - `PRE-40` **Screens** *(Decided)*: Besides the world itself: a first-launch screen, a list of your worlds, and settings.
   Short help cards appear the first time you use something; there is no tutorial (`SCP-02`).
+  - **How it works:** the first launch goes straight to making a world (`WLD-10`); the list shows each world with its tree of branches (`TIM-08`); settings hold the content level (`PRE-18`) and the live-moment level (`PRE-08`); and each help card shows once, the first time its control is used.
 
 ### 11.3 Following the story
 
@@ -2507,20 +2533,25 @@ It is written to stand on its own, without needing any image to understand it.
   - **What:** An automatically written history of the world, organised as a book of ages, with a timeline for each people.
     Eras are named by their own people, or after the events that defined them.
     Every entry links to the moments and people behind it (`VIS-15`).
+  - **How it works:** the chronicle is built from the recognisers' tagged events (`PRE-39`): events above a tuned importance become entries, grouped into ages that begin at turning points set by fixed rules (`PRE-41`), on one timeline for each people (`CUL-23`); each entry is written by the writer from its records (`PRE-37`) and links back to them.
+    An era takes the name its people have for that time, if they have one (`CUL-18`), and is otherwise named after its defining events.
   - **Why:** It is the main way to read a world's history, and the measure of "histories worth reading".
 
 - `PRE-06` **Follow a soul** *(Decided)*: Pick anyone and follow their life: their card shows what they feel, want and think (`PRE-14`), and the camera can stay with them.
   The people you follow are kept in a list, separate from the camera, so you can follow several and still look elsewhere.
   When they die, the game offers to follow someone close to them.
+  - **How it works:** the list holds the people you follow; their cards update as they live, the camera can lock onto one of them, and at a death the game offers those with the strongest bonds to the dead (`MND-24`).
 
 - `PRE-07` **Map overlays** *(Decided)*: Information shown spread across the land.
   The overlays: beliefs; knowledge, meaning who knows which skill; moods; languages and dialects; family ties; territories and paths; food and water; disease; climate and seasons; rock and resources.
+  - **How it works:** each overlay colours the land from the records at that date: the share of people in each place holding a belief, and how strongly; who holds which skill (`MND-06`); average feelings (`MND-19`); languages and dialects as measured (`CUL-23`); kinship lines (`MND-24`); home ranges and paths from where people actually go; food and water from the patches (`WLD-12`); the sick; the weather and seasons (`WLD-16`); and surface rock and ores (`WLD-14`); each has a story and a scientist's version (`PRE-14`).
 
 - `PRE-08` **Live moments** *(Decided)*: Only what matters interrupts you: firsts, deaths of people you follow, disasters, and big turns in history ("someone has made fire for the first time").
   What can interrupt is one shared list, also used by the story director (`TIM-02`).
   At most about one interruption comes a minute, and the closer you are watching, the more important something must be to interrupt.
   Live moments you don't take wait in a list; everything else waits in the chronicle.
   The level can be adjusted in settings, and one tap takes you to the moment.
+  - **How it works:** each tagged event carries the director's importance score (`TIM-02`); it interrupts only if its score passes a threshold that rises the closer you are watching and with your setting, and no more often than about once a minute; the rest wait in the list, and a tap takes the camera there.
 
 - `PRE-39` **Recognising what emerges** *(Decided)*
   - **What:** The game spots and names what emerges, for you only: firsts and discoveries, skills, languages, institutions, peoples and eras.
@@ -2529,55 +2560,75 @@ It is written to stand on its own, without needing any image to understand it.
     They never feed back into the world, and are kept provably apart from the logic that decides what people and animals do (`PRN-07`).
     Their thresholds, such as when a dialect becomes a language, are set in the implementation plan and listed in milestone reports.
     A first counts both worldwide and for each people, and a rediscovery after a loss is marked as one.
+  - **How it works:**
+    - **Anything new:** each recorded outcome, such as a thing with a new mix of properties, an act never recorded before, or a belief newly shared by many, is compared by its pattern of properties with the world's history; one never recorded before is a first, for the world and for that people, and a first that a people once held and lost is marked as a rediscovery.
+    - **Notable outcomes:** a catalogue defines each by a pattern in the records, such as a fire whose ignition came from a person rubbing wood (`RCK-02`), and gives the names you see.
+    - **Skills, languages, institutions, peoples and eras** are found by measures over the records (`MND-06`, `CUL-17`, `CUL-06`, `CUL-23`).
+    - **Kept apart:** recognisers read finished records after each step and write only to the describing side (`PRN-07`).
   - **Why:** The director (`TIM-02`), live moments (`PRE-08`), the chronicle (`PRE-05`), overlays (`PRE-07`), timeline comparisons (`TIM-13`) and experiment measures (`RES-03`) all need to know what happened, without the simulation ever naming it.
 
 - `PRE-09` **Archaeology** *(Decided)*
   - **What:** Dig down through the buried layers of past life with the cut-away view (`PRE-25`): hearths, graves, lost tools, rubbish heaps.
     Tap a find to see who made or left it, and when.
+  - **How it works:** the cut-away (`PRE-25`) shows what the trace laws kept, in its layer (`MAT-08`); tapping a find reads its record: who last made or changed it and when (`MAT-10`), or, for merged leftovers, who left them and when.
   - **Example:** The dig in `MOM-09`.
 
 - `PRE-10` **Family trees and legends** *(Decided)*: Genealogies across generations, and the legends their culture keeps.
   Each legend can be set side by side with what really happened.
+  - **How it works:** the true tree comes from the birth records, each child with its parents (`BIO-15`); the culture's own genealogies and legends (`CUL-15`) are shown beside it, each linked to the true events it tells of.
 
 - `PRE-11` **Their sky and calendar (view)** *(Decided)*: The sky as they understand it: their constellations, the seasons they track, their festivals.
+  - **How it works:** the real sky (`WLD-07`) is drawn with the people's own star groups over it, from their concepts and names, and with the cycles and festivals they keep, from their beliefs and rites (`CUL-13`).
 
 - `PRE-12` **Their maps and names (view)** *(Decided)*: Their place names with translation, and the maps they draw, compared with the real land.
+  - **How it works:** place names come from their words, with the meaning of each part translated (`CUL-18`); their drawn maps (`CUL-14`) are shown beside the real land, matched place by place.
 
 - `PRE-14` **Two views of every mind** *(Decided)*: A story view in their own words, and a scientist's view of their raw beliefs, how certain they are, and the evidence behind each belief.
   Other views, such as the chronicle, the map overlays and archaeology, also have a story version and a scientist's version, switched separately in each view.
   Story versions never show your interventions (`GOD-07`).
+  - **How it works:** the story view hands the person's records (feelings, wants, beliefs and memories) to the writer, phrased through their own concepts (`PRE-38`); the scientist's view shows the records raw: each belief with its certainty and evidence (`MND-05`), drives and feelings as numbers, and the reasons recorded for each choice (`MND-09`).
 
 - `PRE-15` **Art that remembers** *(Decided)*: Tap a painting or carving to see it, what its maker meant, and the event or myth it depicts.
   If that event was saved as a key moment, you can watch it as it really happened (`PRN-15`).
+  - **How it works:** a painting's content record (`CUL-25`) gives what it depicts and the memories or myths its maker drew on; these link to the event or story records, and to the saved key moment if there is one (`PRN-15`).
 
 - `PRE-16` **Bestiary** *(Decided)*: Each world's tree of life and its species.
+  - **How it works:** each species is shown from its records (`WLD-19`): its traits, body chemistry and range in the scientist's view, and its place in the world's tree; the story view shows what each people believes about it and calls it (`MND-04`, `CUL-18`).
 
 - `PRE-36` **Language family tree** *(Decided)*: How their languages split and drifted over time (`CUL-17`).
+  - **How it works:** the tree is drawn from the measured history of languages: a branch splits, with its date, when two groups' words drift past the threshold for separate languages (`PRE-39`), and example words show their regular sound changes (`CUL-17`).
 
 - `PRE-13` **Every view the simulation allows** *(Decided)*: Any further view the simulation's data supports, within physical limits (`PRN-04`).
+  - **How it works:** every kind of record can be shown raw in the scientist's view, and new views are added from the same records without touching the simulation (`PRN-04`, `PRN-14`).
 
 ### 11.4 Text written for you
 
 - `PRE-17` **Descriptions stick to the data** *(Decided)*: The AI language model only turns simulation data into text: life stories, myths, dreams, the chronicle.
   It never adds facts the simulation doesn't contain (`PRN-06`).
+  - **How it works:** the writer receives only the records a text is about and the voice to use (`PRE-19`), and is told to phrase them and add nothing; every text is checked against those records before it is shown (`PRE-41`); and dark events are never left to it: they are stated as plain facts taken from the data.
+  - **Check:** the fact checker runs on every text before it is shown, and a sample of texts is reviewed at each milestone for added or changed facts.
 
 - `PRE-37` **The writer AI runs on the phone** *(Decided)*: All text is written on the phone, fully offline, with no running cost.
   If the writing turns out too plain for histories worth reading (`VIS-15`), that is raised at a milestone review.
+  - **How it works:** the phone's own built-in language model writes all text, offline and at no running cost; dark events never go to it (`PRE-17`), and its prompts are fixed when the writer is built.
 
 - `PRE-41` **How text is written** *(Decided)*: Text is written when it is first opened or during pauses, checked against the data it came from, stored, and never silently rewritten.
   You can ask for a rewrite.
   Text that fails its check is replaced by plain factual text.
   What the chronicle covers, and where its ages begin, come from fixed rules (`PRE-39`), not from the writer's taste.
   The writer chooses words and rhythm, never content: every claim, cause, motive, image and name must be in the data (`PRE-17`).
+  - **How it works:** text is written when first opened, or while the phone is otherwise idle, and checked by a fact checker that compares every name, number, cause and event in it with its records, with no language model involved; text that passes is stored beside its records and never rewritten unless you ask, and text that fails is replaced by plain factual text built from the records by fixed patterns.
 
 - `PRE-38` **English** *(Decided)*: The interface, the chronicle and translations are in English.
   Their own words appear in their own languages, with English translations (`PRE-12`).
   Until their own names emerge, people, places and peoples get labels made from that world's own sounds, marked as the game's (`CUL-18`).
   English text describes things through their concepts, such as "cutting stone" (`MND-04`); our own words for them, such as "flint", appear only in the scientist's view.
+  - **How it works:** until people name something, it gets a label made from that world's own sounds (`CUL-17`), marked as the game's; English text names things by the people's concept, described by the properties that define it for them (`MND-04`), or by a translation of their word for it.
 
 - `PRE-19` **Storytelling voices** *(To test)*: Documentary, archaeologist, their own tradition, and intimate.
   Each is tried live on real simulation output and chosen by ear.
   Different views may use different voices.
+  - **How it works:** each voice is a fixed set of instructions to the writer (who speaks, tone and tense); the same real records are written in each voice, and you choose by reading and listening, view by view.
 
 ### 11.5 Content
 
@@ -2587,6 +2638,7 @@ It is written to stand on its own, without needing any image to understand it.
   - **Gentle:** dark events mentioned briefly, in the chronicle only.
 
   The simulation underneath never changes (`CUL-08`), and bodies are drawn without sexual detail at every level.
+  - **How it works:** the recognisers tag how dark each event is (violence, injury, captivity, sacrifice or cruelty, `PRE-39`), and the setting filters only what the views show: everything; no graphic pictures or sounds, with injuries drawn without detail and text kept plain; or a brief mention in the chronicle only.
 
 ## 12. Sound
 
