@@ -1228,23 +1228,68 @@ When the phone can't keep up, time slows and depth stays (`PRN-11`).
 
 ## 14. Research and validation
 
-- `RES-01` **Experiments lead** *(Decided)*: Core ideas are proven in experiments across many random worlds, run without graphics, before the game builds on them.
+This section turns "research standard" into practice: how the project proves that its world really does what it claims (`PRN-05`).
+
+### 14.1 How experiments work
+
+- `RES-01` **Experiments lead** *(Decided)*
+  - **What:** Core ideas are proven in experiments across many random worlds, run without graphics, before the game builds on them (`SCP-03`).
+  - **Why:** The biggest risk is that nothing emerges (`RSK-01`). Experiments find out early and cheaply.
+
+- `RES-08` **What every experiment has** *(Decided)*: A question; a setup (world settings, starting kit, population, length); the number of worlds; what is measured; pass and fail criteria; and comparison runs.
+
+- `RES-09` **Criteria fixed first** *(Decided)*: Pass and fail criteria are written down before the experiment runs, and never adjusted afterwards.
+
+- `RES-10` **Comparison runs** *(Decided)*: Each experiment also runs with one mechanism switched off, such as imitation, to show that what emerged depends on it.
+
+- `RES-11` **Independent review** *(Decided)*: A separate AI agent, not the one that built the experiment, checks it and tries to find flaws in the results.
+
+- `RES-12` **Surprises log** *(Decided)*: Unexpected results are recorded even when they weren't the question. They often become new signature moments (`MOM`).
+
+- `RES-13` **Many worlds, reported as ranges** *(Proposed)*: Every claim rests on many worlds (100 per setup unless stated) and is reported as a range, for example "discovered in 62 of 100 worlds; typically around year 140".
+
+- `RES-14` **Compared with reality where possible** *(Proposed)*: Where real-world data exist, such as hunter-gatherer populations or rates of learning and cultural change, results are compared with them.
+
+- `RES-04` **Reality checklist first** *(Decided)*: The physics must pass every reality check (`RCK`) before any discovery that depends on it is trusted.
+
+- `RES-05` **Reproducibility** *(Decided)*: Re-running a seed with the same interventions, under the same version of the rules, gives the same history on the phone and in the cloud (`PRN-08`). Checked from the first build.
+
+### 14.2 The experiments
+
 - `RES-02` **Experiment 1: sharp stone** *(Decided)*: Do bands that only bash rocks discover how to chip sharp flakes, and does the skill spread?
-- `RES-03` **Experiment 1 pass criteria** *(Proposed; numbers to be calibrated)*:
+
+- `RES-03` **Experiment 1 pass criteria** *(Decided as starting values; fixed before it runs, `RES-09`)*:
   - **Discovery:** happens in at least half of 100 random worlds, within 500 simulated years.
-  - **Variety:** discovery times differ widely between worlds, and at least two different routes to the discovery appear (for example, an accident someone notices versus deliberate tinkering).
+  - **Variety:** discovery times differ widely between worlds, and at least two different routes to the discovery appear, for example an accident someone notices versus deliberate tinkering.
   - **Spread:** once discovered, at least three quarters of the adults in the discovering band can do it within 50 simulated years.
   - **Loss:** the skill is lost noticeably more often in small, isolated groups than in large, connected ones.
   - **General rules only:** the check in `PRN-07` passes.
-- `RES-04` **Reality checklist** *(Proposed)*: The physics must pass every `RCK` item before any discovery that depends on it is trusted.
-- `RES-05` **Reproducibility** *(Decided)*: Re-running a seed with the same interventions gives the same history on the phone and in the cloud (`PRN-08`). Checked from the first build.
-- `RES-06` **Milestone reports** *(Decided)*: Every milestone ends with a report for you: what was tested, charts, what emerged, and replays to watch on the phone.
-- `RES-07` **Candidate later experiments** *(Open)*:
-  - making fire;
-  - skills lost in small, isolated groups;
-  - superstition and ritual;
-  - shared words and dialects;
-  - taming animals.
+
+  *(Proposed comparison runs: without imitation, the skill should not spread; without curiosity, discovery should be much rarer.)*
+
+- `RES-07` **The series** *(Decided: experiments follow the signature moments in milestone order, adjusted after each report)*. *(Proposed order:)*
+  - **Foundations (`MIL-01`):** reproducibility and performance baselines.
+  - **Sharp stone (`MIL-02`):** Experiment 1.
+  - **Fire and the first power (`MIL-03`):** fire from wood (`MOM-01`), with and without a dream, to show a dream raises the odds without guaranteeing anything.
+  - **A living world (`MIL-04`):** the lost craft (`MOM-02`).
+  - **Words and beliefs (`MIL-05`):** the song that does nothing (`MOM-04`), your lightning becomes a god (`MOM-03`), two tongues (`MOM-05`).
+  - **The whole world (`MIL-06`):** rivals, then in-laws (`MOM-11`).
+  - **Open-ended growth (`MIL-07`):** the camp wolf (`MOM-06`), seeds on the rubbish heap (`MOM-08`), metal from green stone (`MOM-12`).
+
+  The remaining signature moments (a painting that remembers, the dig, and two endings) are features, checked at milestone reviews rather than run as experiments.
+
+### 14.3 Reports
+
+- `RES-06` **Milestone reports** *(Decided)*: Every milestone ends with a report for you, covering:
+  - what was tested and the results, with charts;
+  - the comparison runs;
+  - what emerged, and the surprises;
+  - the measurements (`PLT-04`);
+  - what was added (`PRN-14`) and how the principles were checked;
+  - the risks (section 16);
+  - links to replays.
+
+- `RES-15` **A page on the phone** *(Decided)*: Each report is a readable page with charts and plain conclusions, whose links open the replays in the game. A copy is kept in the repository.
 
 ## 15. Project and process
 
@@ -1276,7 +1321,6 @@ Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also
 - **Minds:** `MND-15` (limits)
 - **Presentation:** `PRE-19`
 - **Platform and performance:** `PLT-04`
-- **Research and validation:** `RES-07`
 
 ## 18. Glossary
 
