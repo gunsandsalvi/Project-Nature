@@ -1,10 +1,12 @@
 # Project Nature
 
-The project file: what Project Nature is, and every feature and target it must reach.
+The project file: what Project Nature is, and every feature and target it must reach. It is written so that someone with no prior context can read it and understand the whole project.
 
 It contains no implementation details. Those belong in the implementation plan, which will link back to this file by ID, as will the code. Every item has a permanent ID so that no feature gets lost on the way from idea to code.
 
-**Version 1** · 2026-10-01 · From the first sounding-board session.
+**Version 2** · 2026-10-01
+
+**Progress:** section 1 is written in full detail. Sections 2–18 are still in their first, short form and are being expanded one at a time, in order.
 
 ## Contents
 
@@ -43,6 +45,15 @@ It contains no implementation details. Those belong in the implementation plan, 
 | *Open* | Not decided yet. |
 | *Dropped* | No longer planned. Kept for the record, with the reason. |
 
+### Item format
+
+Every item starts with its ID, a short name and its status. Detailed items then add some of the following:
+
+- **What:** what it is, in plain words.
+- **Why:** the reason it exists.
+- **Example:** a concrete illustration.
+- **Done when:** checks that prove it has been delivered. The implementation plan and the tests link to these. A check marked *(Proposed)* is a suggested target awaiting confirmation.
+
 ### IDs and links
 
 1. Every feature and target has a permanent ID: an area code plus a number, such as `WLD-01`.
@@ -57,6 +68,7 @@ It contains no implementation details. Those belong in the implementation plan, 
 | Code | Area |
 |---|---|
 | `VIS` | Vision |
+| `MOM` | Signature moments (part of the vision) |
 | `PRN` | Principles |
 | `SCP` | Scope and non-goals |
 | `GOD` | The player as god |
@@ -78,15 +90,129 @@ It contains no implementation details. Those belong in the implementation plan, 
 
 ## 1. Vision
 
-- `VIS-01` **The game** *(Decided)*: A bottom-up simulation of humanity on a generated Earth-like world. A few bands of early humans living in caves learn, by themselves, to survive, build, believe and organise. There are no recipes and no tech tree.
-- `VIS-02` **The fantasy** *(Decided)*: You are nature. You are an invisible god who shapes weather, luck and dreams, watching a people discover their world. They never know you exist.
-- `VIS-03` **Horizon** *(Decided)*: No ceiling. History goes as far as the simulation allows, including paths our own history never took.
-- `VIS-04` **Inspiration** *(Decided)*: [world-sim](https://world.world-sim.uk), a living world whose villagers discover fire, pottery and bronze for themselves. Project Nature differs in four ways:
-  - it starts much earlier, with cave-dwelling hunter-gatherers;
-  - it simulates a much deeper physical world: geology, climate, weather, ecology and chemistry;
-  - it has no recipes at all;
-  - it runs on your phone.
+This section says what Project Nature is, what it feels like, and what success means. Every other section serves it.
+
+### 1.1 The game in brief
+
+- `VIS-01` **In one sentence** *(Decided)*: A bottom-up simulation of humanity on a generated Earth-like world, where a few bands of early humans living in caves learn, entirely by themselves, to survive, build, believe and organise.
+
+- `VIS-06` **In one paragraph** *(Decided)*: Project Nature simulates a whole world from the ground up: rock, water, weather, plants, animals and people. It begins with a few bands of early humans sheltering in caves. They have modern brains but almost no culture: a handful of words, no way to make fire, nothing but rough stones and sticks. Nothing tells them what to do. There are no recipes, no tech tree and no list of eras to unlock. They learn the way real people learned: by noticing, trying, failing, copying, teaching and dreaming. Everything they ever achieve, from a sharp flake of stone to rituals, languages, farms and perhaps cities, has to come from what they discover in the world and pass on to each other. You watch it all on your phone as an invisible force of nature. You can nudge the weather, luck and dreams, but you can never command anyone.
+
+- `VIS-02` **The fantasy** *(Decided)*: You are nature.
+  - **What:** You are the weather, the luck and the dreams. You can send a storm, bless a hunt, or let someone dream two of their own memories side by side. You can't speak, appear or work miracles, and the people of the world never learn you exist.
+  - **Why:** A god who can't command anyone leaves every achievement theirs. Whatever gods they come to believe in are their own explanations of the world, and sometimes of you.
+  - **Example:** A lightning strike you send to start a wildfire becomes, generations later, the myth of the storm spirit who first gave them fire.
+
+### 1.2 What it feels like
+
+- `VIS-07` **Wonder** *(Decided)*
+  - **What:** Awe at a world that runs itself and keeps surprising you, its maker included.
+  - **Why:** Nothing is authored. The rules are known; what they produce is not.
+  - **Example:** You zoom out from one campfire to the whole world and watch a thousand years of migrations, languages and beliefs move across the land like weather.
+
+- `VIS-08` **Curiosity** *(Decided)*
+  - **What:** The urge to understand why something happened, and to try "what if".
+  - **Why:** Every event has real causes, and the game lets you find them: the scientist's view of a mind (`PRE-14`), the buried layers of a site (`PRE-09`), and rewinding and branching history (`TIM-06`).
+  - **Example:** A band abandons its cave. You look into their minds and find a run of failed hunts and a belief that the cave turned against them after a death. You rewind, send a good hunting season, and see whether they stay.
+
+- `VIS-09` **Other feelings** *(Proposed)*: Attachment to particular people, and the harshness of nature, will arise from the simulation and are welcome, but the design isn't built around them. When design choices conflict, wonder and curiosity decide.
+
+### 1.3 How you play
+
+- `VIS-10` **Two rhythms of play** *(Decided)*
+  - **Short check-ins (5–15 minutes):** open the app, catch up on the latest live moments, follow someone for a while, nudge, close.
+  - **Long sessions (an hour or more):** watch an era unfold at speed, read the chronicle, dig through the past, branch a "what if" and compare the outcomes.
+  - **Why it matters:** both must feel natural. A check-in can't require any setup, and a long session needs tools for depth.
+  - The world pauses when the app is closed (`TIM-05`), so every session starts exactly where the last one ended.
+
+- `VIS-11` **A session, as a story** *(Proposed; an illustration, not a script)*
+
+  > You open the app. The world is exactly where you left it: late autumn in the valley of two rivers, year 2,314. A live moment is waiting: *the eastern band has lost its fire*. You zoom in, and time slows to walking pace. The camp is cold; children huddle under hides; wolves circle at the edge of the scree.
+  >
+  > You could send a dry spell to the forest on the ridge and hope lightning finds it. Instead you look through the memories of Ama, the band's most curious woman. Last summer, boring a hole in a piece of wood, she saw the stick begin to smoke. You give her a dream that sets that smoking stick beside the warmth of a fire. The next morning she is twirling sticks. It takes her eleven days.
+  >
+  > You zoom out, and decades pass in seconds. On the knowledge overlay, fire-making spreads from band to band along the river. In the chronicle, the story is already being retold as myth: *Ama stole the fire that sleeps inside the wood*. You close the app, and the world waits for you.
+
+### 1.4 Signature moments
+
+- `VIS-12` **Signature moments** *(Proposed)*: Stories the simulation must be able to produce. None of them is scripted. Each is an example of what the rules should make possible, and each becomes a long-term test (the `MOM` items below). The IDs in brackets are the parts of the project each moment depends on.
+
+  - `MOM-01` **Fire from wood**: In a hard winter, a band whose fire has died learns to make fire by friction. (`MND-11`, `RCK-02`, `GOD-03`)
+  - `MOM-02` **The lost craft**: A fever kills a band's best stoneworkers. For generations its blades are cruder, until the skill is rediscovered or learned again from neighbours. (`CUL-01`, `CUL-02`)
+  - `MOM-03` **Your lightning becomes a god**: A lightning strike you sent kills a hunter on a hilltop. The band avoids the hill, then leaves offerings there, then tells stories about the one who lives in the storm. (`GOD-02`, `GOD-06`, `CUL-05`)
+  - `MOM-04` **The song that does nothing**: A band sings before a hunt that goes well. The song becomes a hunting rite and is kept for centuries, though it changes nothing. (`MND-05`, `CUL-06`)
+  - `MOM-05` **Two tongues**: Two bands are separated by a rising sea and drift apart in speech. When their descendants meet again, they can hardly understand each other. (`CUL-04`, `WLD-16`)
+  - `MOM-06` **The camp wolf**: The boldest wolves scavenge at the edge of camp. Their pups grow tamer each generation, until a child raises one. (`MND-16`, `WLD-20`)
+  - `MOM-07` **A painting that remembers**: A painting of a great hunt outlasts everyone who saw it. You tap it and see the hunt. (`CUL-09`, `PRE-15`)
+  - `MOM-08` **Seeds on the rubbish heap**: Seeds thrown on a rubbish heap sprout near camp. Years later, someone starts planting on purpose. (`MND-11`, `WLD-18`)
+  - `MOM-09` **The dig**: Under a village, you find the hearths of the first band and the bones of the animals they ate. (`MAT-08`, `PRE-09`)
+  - `MOM-10` **Two endings**: You rewind to before a plague, send a mild winter instead, and compare two histories of the same people. (`TIM-06`)
+  - `MOM-11` **Rivals, then in-laws**: Two bands fight over a valley, then marry into each other. Each side's descendants tell the story differently. (`CUL-07`, `CUL-11`)
+  - `MOM-12` **Metal from green stone**: A kiln built very hot for pottery leaves a bead of shiny metal where green stones lined the fire, and someone notices. (`MAT-07`, `RCK-08`)
+
+### 1.5 The arc of a world
+
+- `VIS-03` **No ceiling** *(Decided)*
+  - **What:** There are no eras, levels or end state. A world's history goes as far as its people take it.
+  - **Why:** Any fixed sequence of eras would be a tech tree in disguise.
+  - **In practice:** some worlds may stall for tens of thousands of years, and some bands will die out. Some peoples may reach farming, writing, metals and beyond; some may take paths our own history never took. Nothing about the order of our history is guaranteed, except where physics forces it: no one smelts copper without a fire hot enough. Collapse, stagnation and extinction are all valid histories.
+
+### 1.6 What makes it different
+
+- `VIS-13` **Seven differences** *(Decided; a summary of decisions made in other sections)*
+  - **No recipes.** Discoveries come from physics, not from lists (`PRN-01`, section 7).
+  - **Minds that learn.** People form their own concepts, beliefs and skills. Science and superstition come from the same mechanism (section 9).
+  - **Real matter.** Real chemistry and real-world numbers decide what is possible (section 7).
+  - **You are nature.** An invisible god, limited to what nature could do (section 4).
+  - **Every story can be traced.** Two views of every mind, archaeology, and rewinding and branching history (sections 5 and 11).
+  - **Rigour behind the wonder.** Experiments that can fail decide what the simulation really does (section 14).
+  - **In your pocket.** Designed for one phone, with detailed pixel art and one continuous zoom from the whole world to a single person (sections 11 and 13).
+
+### 1.7 Inspirations
+
+- `VIS-04` **Inspirations** *(Decided)*: What we take from each, and where we differ.
+  - **[world-sim](https://world.world-sim.uk):** a living world whose villagers discover fire, pottery and bronze for themselves, with named souls, graves and a book of ages. *We take* its care for individual lives and a history worth reading. *We differ:* we start much earlier, simulate a far deeper physical world, have no tech tree or list of eras, and run on a phone.
+  - **Dwarf Fortress:** deep simulation, and generated legends you can read. *We take* history as the main product. *We avoid* an interface that hides its stories.
+  - **RimWorld:** stories that emerge from the simulation, paced by an AI storyteller. *We take* its care for pacing. *We differ:* our story director only controls the speed of time; it never creates events (`TIM-03`).
+  - **WorldBox:** a pixel-art god sandbox made for phones. *We take* the joy of a living world in your hand. *We differ:* a far deeper simulation, and powers limited to what nature could do.
+  - **Black & White:** a god whose acts shape what villagers believe. *We differ:* there is no worship and no visible god.
+  - **Ancestors: The Humankind Odyssey:** early humans learning by experimenting. *We take* the thrill of discovery by trial. *We differ:* nobody is controlled, and discoveries come from physics, not from an unlockable skill tree.
+  - **Noita and falling-sand games:** matter that follows rules, so interactions nobody designed still work. *We take* rules over recipes. *We differ:* matter is described by its chemistry and structure, not simulated grain by grain.
+  - **Science:** research on cultural evolution, cognition, the origins of religion and the emergence of language. Each source is cited in the section that uses it.
+
+### 1.8 Success
+
+Who it's for: you alone (`SCP-02`). Success is judged by the experience; the research rigour of `VIS-05` is how we get there.
+
+- `VIS-14` **A joy on the phone** *(Decided)*
+  - **What:** Beautiful, smooth and absorbing in your hand.
+  - **Done when** *(Proposed; exact limits set from the measurements in `PLT-04`)*:
+    - zooming and panning stay smooth at the screen's full refresh rate, at every zoom level;
+    - the app opens to your world, ready to play, within about three seconds;
+    - an hour's session stays comfortable for battery and heat;
+    - every screen works one-handed in portrait and two-handed in landscape.
+
+- `VIS-15` **Histories worth reading** *(Decided)*
+  - **What:** Every world produces a history you would want to read, and no two are alike.
+  - **Done when** *(Proposed)*:
+    - in milestone reviews, you'd choose to read a world's chronicle for pleasure;
+    - worlds from different seeds tell clearly different stories;
+    - every chronicle entry can be traced back to the simulated events behind it.
+
 - `VIS-05` **Quality bar** *(Decided)*: The rigour of a research project and the craft of a well-funded studio.
+  - **Research rigour:** what the simulation is claimed to do is tested by experiments that can fail, across many worlds, with real-world values and repeatable results.
+  - **Studio craft:** art, sound, interface and performance polished to the standard of a well-funded studio.
+  - Rigour is the method, not the goal. It exists so that the wonder is earned and the histories are real.
+
+### 1.9 Name
+
+- `VIS-16` **Name** *(Open)*: "Project Nature" is the working title. Shortlist:
+  - **Kindling:** what a fire grows from; small things that catch and spread, like knowledge.
+  - **Strata:** layers of rock and layers of history; deep time you can dig through.
+  - **Ochre:** humanity's first pigment, and one of the oldest signs of art and symbolic thought.
+  - **Untaught:** everything they know, they learned with no one to teach them.
+  - **The Long Dawn:** the long beginning of humanity, watched with wonder.
+  - **Unseen:** you, the god they never see, and the unseen beings they invent to explain the world.
 
 ## 2. Principles
 
@@ -381,6 +507,7 @@ Reviewed at every milestone.
 
 Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also needs your confirmation.
 
+- **Vision:** `VIS-16` (name)
 - **The player as god:** `GOD-09`, `GOD-10`
 - **Time and history:** `TIM-07`, `TIM-09`
 - **World:** `WLD-04`
@@ -406,8 +533,11 @@ Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also
 - **Story view / scientist's view:** the two ways to look into a mind (`PRE-14`).
 - **Story director:** sets the speed of time according to what is happening. It never causes events.
 - **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
+- **Signature moment:** a story the simulation must be able to produce without it being scripted (`MOM`).
+- **Live moment:** a notable event the game surfaces to you as it happens (`PRE-08`).
 - **No-hidden-recipe check:** confirms that no discovery's vocabulary appears in decision-making logic (`PRN-07`).
 
 ## Change log
 
 - **2026-10-01 · v1:** First version, from the first sounding-board session.
+- **2026-10-01 · v2:** Section 1 (Vision) written in full: one-paragraph description, feelings, rhythms of play, a session told as a story, signature moments (`MOM-01` to `MOM-12`), what makes it different, inspirations, success criteria and a name shortlist. Added the item format and the `MOM` area code.
