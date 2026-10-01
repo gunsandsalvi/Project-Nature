@@ -5,7 +5,6 @@
 # Under the CPU lock (about 12 minutes).
 set -e
 . "$(dirname "$0")/env.sh"
-RAW=${RAW:-/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/b01/raw}
 python3 - "$RAW" <<'EOF'
 import json, sys
 rows = []

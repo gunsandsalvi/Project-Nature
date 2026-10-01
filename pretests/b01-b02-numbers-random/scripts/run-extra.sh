@@ -3,7 +3,6 @@
 # added because single 1 s runs on this shared VM vary by +-10-30%. Under the CPU lock.
 set -e
 . "$(dirname "$0")/env.sh"
-RAW=${RAW:-/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/b01/raw}
 JCLS=$RAW/jclasses
 flock $LOCK bash -c "
   $KBENCH --batch $RAW/sweep.jsonl > $RAW/sweep2.out.jsonl

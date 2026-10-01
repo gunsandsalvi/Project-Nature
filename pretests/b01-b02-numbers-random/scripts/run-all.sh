@@ -4,7 +4,6 @@
 # Raw output goes to $RAW (scratchpad); summaries go to results/.
 set -e
 . "$(dirname "$0")/env.sh"
-RAW=${RAW:-/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/b01/raw}
 ARM_KBENCH=$CARGO_TARGET_DIR/aarch64-unknown-linux-gnu/release/kbench
 mkdir -p $RAW
 python3 $B01/scripts/bench.py gen $RAW
