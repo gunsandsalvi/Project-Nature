@@ -233,36 +233,96 @@ Every other section serves it.
 
   - `MOM-01` **Fire from wood** *(Decided)*: In a hard winter, a band whose fire has died learns to make fire by friction.
     (`MND-11`, `RCK-02`, `GOD-03`)
+    - **How it works:**
+      1. The band keeps a fire found after lightning (`BIO-02`), with beliefs that dry wood feeds it and rain kills it (`MND-05`).
+      2. Twirling a stick to bore a hole heats its tip by friction (`MAT-11`), and the smoke is a surprise that leaves a weak belief (`MND-10`).
+      3. In a hard winter the fire dies; cold and fear push the most curious to explore (`MND-09`), and planning reaches for smoke as a sign of fire (`MND-11`).
+      4. Faster, longer twirling with drier wood heats the dust past its ignition point (`RCK-02`): an ember, then flame.
+      5. Success strengthens the belief and the skill (`MND-05`, `MND-06`), and others watch, copy and are taught (`CUL-01`).
+      6. A dream you send can pair the smoking stick with fire, raising the odds without guaranteeing anything (`GOD-03`).
   - `MOM-02` **The lost craft** *(Decided)*: A fever kills a band's best stoneworkers.
     For generations its blades are cruder, until the skill is rediscovered or learned again from neighbours.
     (`CUL-01`, `CUL-02`)
+    - **How it works:**
+      1. The best stoneworkers hold the finest knapping settings (`MND-06`), and others copy from them (`CUL-01`).
+      2. A fever spreads through the band by real contact (`WLD-21`) and kills them (`BIO-14`).
+      3. The survivors copy from the best who remain, whose settings are worse, so blades come out cruder (`CUL-02`).
+      4. Blades improve again only through practice and lucky variation (`MND-06`), or by copying neighbours who kept the skill, met through contact (`CUL-16`).
+      5. The recognisers mark the loss and any rediscovery (`PRE-39`).
   - `MOM-03` **Your lightning becomes a god** *(Decided)*: A lightning strike you sent kills a hunter on a hilltop.
     The band avoids the hill, then leaves offerings there, then tells stories about the one who lives in the storm.
     (`GOD-02`, `GOD-06`, `CUL-05`)
+    - **How it works:**
+      1. You bring a storm and send lightning to the hilltop (`GOD-02`), and it kills the hunter there (`WLD-28`, `BIO-14`).
+      2. The band sees a death with no believed cause: the hidden-someone tendency makes a weak belief in an unseen someone in the storm (`MND-21`, `CUL-05`), and fear ties itself to the hill (`MND-08`).
+      3. They avoid the hill; later visits that pass safely after things were left there are credited to the leaving (`MND-05`), and the offerings become a rite (`CUL-06`).
+      4. Retold stories of the one in the storm become a myth (`CUL-11`), and nothing marks the strike as yours (`GOD-06`).
   - `MOM-04` **The song that does nothing** *(Decided)*: A band sings before a hunt that goes well.
     The song becomes a hunting rite and is kept for centuries, though it changes nothing.
     (`MND-05`, `CUL-06`)
+    - **How it works:**
+      1. The band happens to sing before a hunt, and the hunt goes well (`WLD-18`).
+      2. Credit spreads over what came before, the song included (`MND-05`), and the success is remembered vividly (`MND-08`).
+      3. Singing again before hunts is a cheap try, and hunts succeed often enough through skill and luck that the belief survives; copying spreads it (`CUL-01`).
+      4. Shared expectation turns it into a rite (`CUL-06`), taught and kept long after anyone remembers why (`CUL-20`).
   - `MOM-05` **Two tongues** *(Decided)*: Two bands are separated by a rising sea and drift apart in speech.
     When their descendants meet again, they can hardly understand each other.
     (`CUL-04`, `WLD-16`)
+    - **How it works:**
+      1. As the ice age ends, melting ice raises the sea (`WLD-16`, `WLD-26`), and it floods the low land between two bands' ranges (`WLD-15`).
+      2. Without contact, words and sound changes are copied only within each band (`CUL-16`), so each takes up its own regular sound changes and new words (`CUL-17`).
+      3. When their descendants meet again, too few of their words match for them to understand each other (`CUL-04`), and the language tree shows the split (`PRE-36`).
   - `MOM-06` **The camp wolf** *(Decided)*: The boldest wolves scavenge at the edge of camp.
     Their pups grow tamer each generation, until a child raises one.
     (`MND-16`, `WLD-20`)
+    - **How it works:**
+      1. Wolves near the camp are individuals with minds (`WLD-12`, `MND-16`); food smells and scraps draw the boldest to the camp's edge (`MND-07`, `MND-20`).
+      2. Wolves that are fed and not harmed lose their fear of people and grow attached (`MND-16`), and their dreams replay the warm scraps (`MND-12`, `GOD-12`).
+      3. The bolder wolves raise more pups near people, and boldness is inherited (`WLD-20`).
+      4. A child who feeds and plays with a pup grows attached to it, and it to the child (`MND-07`, `MND-24`), and the pup is raised in camp.
   - `MOM-07` **A painting that remembers** *(Decided)*: A painting of a great hunt outlasts everyone who saw it.
     You tap it and see the hunt.
     (`CUL-09`, `PRE-15`)
+    - **How it works:**
+      1. A great hunt is a vivid shared memory (`MND-08`).
+      2. Someone paints it on a sheltered wall with prepared ochre (`CUL-09`, `RCK-15`), and the painting's record keeps what it shows and the memories it came from (`CUL-25`).
+      3. Paint in shelter weathers slowly (`RCK-16`), so the painting outlasts everyone who saw the hunt.
+      4. The hunt was important enough to be saved as a key moment (`PRN-15`), so tapping the painting replays it (`PRE-15`).
   - `MOM-08` **Seeds on the rubbish heap** *(Decided)*: Seeds thrown on a rubbish heap sprout near camp.
     Years later, someone starts planting on purpose.
     (`MND-11`, `WLD-18`)
+    - **How it works:**
+      1. People eat seeds and fruit and throw the waste on a heap by the camp, and some seeds survive in it (`MAT-10`).
+      2. The heap is rich from waste and ash (`WLD-27`), so the seeds sprout and grow well there (`WLD-18`).
+      3. People notice food plants growing where seeds were thrown (`MND-10`) and form a belief linking thrown seed to plants (`MND-05`).
+      4. When food runs short, someone puts seeds in the ground on purpose (`MND-11`); the plants that come up confirm it, and planting spreads by copying (`CUL-01`).
   - `MOM-09` **The dig** *(Decided)*: Under a village, you find the hearths of the first band and the bones of the animals they ate.
     (`MAT-08`, `PRE-09`)
+    - **How it works:**
+      1. The first band's hearths, bones and tools stay where they were left, as things or as merged leftovers (`MAT-10`).
+      2. Layer by layer the place is buried as the land builds up (`MAT-08`), and what survives depends on the soil's wetness, air and acidity (`WLD-27`).
+      3. Centuries later a village stands above; the cut-away shows the layers (`PRE-25`), and each find's record tells who left it and when (`PRE-09`).
   - `MOM-10` **Two endings** *(Decided)*: You rewind to before a plague, send a mild winter instead, and compare two histories of the same people.
     (`TIM-06`)
+    - **How it works:**
+      1. After a hard winter weakens bodies (`BIO-05`), a plague spreads by real contact (`WLD-21`).
+      2. You rewind to a saved moment before it (`TIM-06`) and push a mild winter instead (`GOD-02`).
+      3. With chance kept local, the branch differs only where the milder winter reaches (`TIM-06`): bodies are stronger, and the plague spreads less or not at all.
+      4. The comparison shows the two histories side by side (`TIM-13`).
   - `MOM-11` **Rivals, then in-laws** *(Decided)*: Two bands fight over a valley, then marry into each other.
     Each side's descendants tell the story differently.
     (`CUL-07`, `CUL-11`)
+    - **How it works:**
+      1. Two bands depend on one valley's food (`WLD-18`); meeting there, fear, anger and hunger make fighting a choice each side weighs (`MND-09`, `CUL-08`).
+      2. Losses on both sides, small bands, and desire held down toward those one grew up with (`MND-26`) make pairing across the bands a better choice for some (`BIO-15`, `CUL-07`).
+      3. Pairings make kin across the bands (`MND-24`), and favouring kin makes fighting costlier to choose (`MND-26`).
+      4. Each side keeps its own memories of the fight, retold through its own beliefs, so their stories differ (`MND-18`, `CUL-11`).
   - `MOM-12` **Metal from green stone** *(Decided)*: A kiln built very hot for pottery leaves a bead of shiny metal where green stones lined the fire, and someone notices.
     (`MAT-07`, `RCK-08`)
+    - **How it works:**
+      1. People build a kiln for pottery, enclosing a charcoal fire with clay or stone and blowing it, so it runs hotter (`MAT-04`, `RCK-04`).
+      2. Green copper-bearing stones lining the fire touch burning charcoal past the temperature at which charcoal takes their oxygen (`MAT-07`), and copper runs out as a bead once the fire passes its melting point (`RCK-08`).
+      3. The bead's shine and weight are a surprise (`MND-10`); whoever notices links it to the green stones and the hot fire (`MND-05`), and may try again on purpose.
 
 ### 1.5 The arc of a world
 
