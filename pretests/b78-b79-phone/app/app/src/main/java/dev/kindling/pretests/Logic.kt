@@ -140,7 +140,16 @@ object Logic {
      * If too long, detail is dropped in a fixed order, and "trim" says how much.
      */
     fun resultCode(results: JSONObject, limit: Int = 4000): String {
-        var r = JSONObject(results.toString())
+        val r = JSONObject(results.toString())
+        // Step bookkeeping stays on the phone; only the kernel phase's total time goes in the code.
+        r.remove("done")
+        r.optJSONObject("time")?.let { t ->
+            val short = JSONObject()
+            var kSum = 0.0
+            for (key in t.keys()) if (key.startsWith("k")) kSum += t.optDouble(key, 0.0) else short.put(key, t.opt(key))
+            short.put("k", dp(kSum, 0))
+            r.put("time", short)
+        }
         var code = gzipBase64(r.toString())
         val cuts = listOf<(JSONObject) -> Unit>(
             { it.optJSONObject("k")?.remove("mw") },

@@ -24,3 +24,20 @@ rng=RNG_stdin64, seed=unknown
 length= 1 gigabyte (2^30 bytes), time= 16.6 seconds
   no anomalies in 246 test result(s)
 
+rng=RNG_stdin64, seed=unknown
+length= 2 gigabytes (2^31 bytes), time= 26.7 seconds
+  no anomalies in 263 test result(s)
+
+rng=RNG_stdin64, seed=unknown
+length= 4 gigabytes (2^32 bytes), time= 46.3 seconds
+  no anomalies in 279 test result(s)
+
+rng=RNG_stdin64, seed=unknown
+length= 8 gigabytes (2^33 bytes), time= 83.4 seconds
+  no anomalies in 295 test result(s)
+
+rng=RNG_stdin64, seed=unknown
+length= 16 gigabytes (2^34 bytes), time= 158 seconds
+  no anomalies in 311 test result(s)
+
+# finished 2026-10-01T14:39:27Z

@@ -12,6 +12,7 @@ RESULTS = os.path.join(HERE, '..', 'results')
 FORMATS = {'heat': ['f32', 'f64', 'fx32', 'fx64'], 'walk': ['f32', 'f64', 'fx32', 'fx64'],
            'sum': ['f32', 'f64', 'fx32', 'fx64'], 'learn': ['f32', 'f64', 'fx32']}
 GENS = ['splitmix', 'philox', 'squares', 'pcg', 'wy', 'chacha8']
+EXTRA_GENS = ['wysafe']  # guarded wy variant, added after the first results (not an R1 candidate)
 
 
 def native_configs(langs, threads, seconds, min_reps=3):
@@ -77,7 +78,7 @@ def load(rawdir, names):
 
 def summarize(rawdir):
     os.makedirs(RESULTS, exist_ok=True)
-    timed = load(rawdir, ['sweep.out.jsonl', 'sweep2.out.jsonl', 'java.out.jsonl', 'java2.out.jsonl'])
+    timed = load(rawdir, ['sweep.out.jsonl', 'sweep2.out.jsonl', 'java.out.jsonl', 'java2.out.jsonl', 'wysafe.out.jsonl'])
     extra = load(rawdir, ['threads.out.jsonl'])
     qemu = load(rawdir, ['qemu.out.jsonl'])
     # --- speed table: median of the timed runs (1 s each), spread = (max-min)/median
@@ -152,7 +153,7 @@ def decide(rawdir):
     sp = {(r['kernel'], r['format'], r['rng'], r['lang'], int(r['threads'])): float(r['median_Mops']) for r in rows}
     det_ok = {(r['kernel'], r['format'], r['rng'], r['lang']): r['one_checksum_all_runs_and_threads'] == 'True' for r in det}
     print('\nR1 generator: PractRand + speed (rng kernel, 1 thread, best of Rust and C++)')
-    for g in GENS:
+    for g in GENS + EXTRA_GENS:
         verdicts = []
         for mode in ('moments', 'beings'):
             final, flags = practrand(os.path.join(RESULTS, 'practrand', f'{g}-{mode}.txt'))
@@ -231,9 +232,9 @@ def tables():
     print('\nGenerators: million draws per second (rng kernel) and agent-steps per second (walk f32), 1 thread, best of Rust and C++; PractRand result per stream.\n')
     print('| Generator | Draws | Walk | One key | Neighbours | Retry |')
     print('|---|---|---|---|---|---|')
-    for g in GENS:
-        d = max(float(sp[('rng', '-', g, l, 1)]['median_Mops']) for l in ('rust', 'cpp'))
-        w = max(float(sp[('walk', 'f32', g, l, 1)]['median_Mops']) for l in ('rust', 'cpp'))
+    for g in GENS + EXTRA_GENS:
+        d = max(float(sp.get(('rng', '-', g, l, 1), {'median_Mops': 0})['median_Mops']) for l in ('rust', 'cpp'))
+        w = max(float(sp.get(('walk', 'f32', g, l, 1), {'median_Mops': 0})['median_Mops']) for l in ('rust', 'cpp'))
         res = []
         for mode in ('moments', 'beings', 'retry'):
             final, flags = practrand(os.path.join(RESULTS, 'practrand', f'{g}-{mode}.txt'))
