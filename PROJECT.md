@@ -620,12 +620,67 @@ How people think, and in simpler form, how animals think. Everything here is lea
 
 ## 11. Presentation
 
-**Look**
+### 11.1 Visual style
 
-- `PRE-01` **Detailed pixel art** *(Decided)*.
-- `PRE-02` **Art direction** *(Decided)*: Pixel-rendered 3D (direction D in the art-direction mockups): a real 3D world drawn at low resolution as detailed pixel art, refined with the best elements of the other directions. The refinements are set in the Presentation deep dive.
+This is how the world looks. It is written to stand on its own, without needing any image to understand it.
+
+- `PRE-01` **Detailed pixel art** *(Decided)*: Everything on screen is crisp pixel art: limited colours, hard pixel edges, no blur and no smooth gradients.
+
+- `PRE-02` **Pixel-rendered 3D** *(Decided)*
+  - **What:** The world is a real 3D world, drawn at low resolution and enlarged with hard pixel edges. It looks like hand-made pixel art but has real depth, scale and structure. The camera turns freely and zooms continuously.
+  - **Why:** Real 3D shows height, depth, sizes and structures (cliffs, caves, shelters, later buildings) at every zoom. The land comes straight from the simulation instead of being hand-drawn, which suits generated worlds.
+  - **Example:** At dusk, from an oblique angle, you see a band's camp below a limestone cliff: the cave mouth in shadow, long shadows across the grass, the river beyond. You turn the camera and fly down until one person fills the screen.
+
+- `PRE-20` **Colour in steps** *(Decided)*
+  - **What:** Every material has a short, hand-picked ladder of shades, about 4–7 colours, drawn from one master palette. Light chooses a step on the ladder. Where two steps meet, a fine pixel pattern blends them in a narrow band only; surfaces are never speckled all over. The pattern is fixed to the surface, so it doesn't swim when the camera moves.
+  - **Why:** Clean colour is what separates pixel art from a shrunken photograph.
+
+- `PRE-21` **Outlines and lit edges** *(Decided)*
+  - **What:** A one-pixel dark outline wherever one thing stands in front of another: people, animals, trees, rocks, the top edge of a cliff. A one-pixel bright edge where the sun or a fire catches a shape, such as the sunlit rim of a cliff or the fire-facing side of a person.
+  - **Why:** Crisp silhouettes keep small things readable on a phone screen.
+
+- `PRE-22` **Stable pixels** *(Decided)*
+  - **What:** Pixels never crawl or shimmer as the camera moves: the picture stays locked to its pixel grid, and turns ease to rest. One art pixel is always the same size on screen, in portrait and in landscape, so turning the phone only changes the framing. *(Proposed: about 4 screen pixels per art pixel.)*
+  - **Why:** Shimmering pixels are the most common flaw of 3D pixel art, and the first thing that makes it look cheap.
+
+- `PRE-23` **Rock faces** *(Decided)*
+  - **What:** Cliffs show their geology: horizontal rock layers of different thicknesses, irregular vertical cracks, a few long fissures, lichen, water stains, soot above inhabited caves, grass hanging over the top edge, and scree at the foot. The same layers continue underground (`PRE-25`).
+  - **Why:** Geology is part of the story (`WLD-14`). What people can find depends on what the land is made of, and the rock should show it.
+
+- `PRE-24` **Real shapes** *(Decided)*
+  - **What:** Overhangs, caves, rock shelters and, later, buildings have real depth.
+  - **Example:** Looking into a cave mouth from an angle, you see its dark interior, the firelit floor and the hide windbreak across the entrance.
+
+- `PRE-25` **Cut-away view** *(Decided)*
+  - **What:** The ground can be sliced open to show what lies beneath: rock layers, soils, underground water, and the buried layers of past life (hearths, tools, bones, graves).
+  - **Why:** It is how you see geology and dig through history. The archaeology view (`PRE-09`) uses it.
+
+- `PRE-26` **Water** *(Decided)*
+  - **What:** Rivers meander and change width, with gravel bars, reeds, lines that follow the current, ripples at fords, glints of sun and drifting mist. From far away a river never becomes thinner than one or two art pixels, so it stays readable.
+
+- `PRE-27` **People and animals** *(Decided)*
+  - **What:** People and animals are small 3D figures drawn through the same pixel look and animated at a deliberate, sprite-like rhythm of about 8–12 poses a second. They look like crisp pixel art from any angle and turn properly with the camera. At the closest zoom, a person is about 40–60 art pixels tall *(Proposed)*: enough for a face, hair, clothing and gestures.
+  - **Why:** The simulation will produce actions nobody planned (`PRN-01`). Figures built from parts can perform any of them from any angle, without a new drawing for each.
+
+- `PRE-28` **Readable from far away** *(Decided)*: As you zoom out, people become tiny outlined figures in strong clothing colours, then groups become small markers, then a camp becomes a glowing point.
+
+- `PRE-29` **From above** *(Decided)*
+  - **What:** As the camera rises, it tilts toward looking straight down, and the land shifts into a clean map look: crisp colours for forest, grassland, rock and water, rivers as lines, shaded hills. Map overlays (`PRE-07`) sit on this view. At the very top, the whole world appears as a globe (`WLD-02`). Close up to globe is one continuous zoom (`PRE-03`).
+  - **Why:** A landscape seen from high up at an angle turns to mush. A map stays clear at every height.
+
+- `PRE-30` **Light, time and season** *(Decided)*
+  - **What:** One master palette, with versions for each time of day (dawn, day, dusk, night) and each season. The sun casts real shadows, the sky tints everything, and distance adds haze. A fire lights its surroundings with a warm, flickering glow that fades with distance, warms the faces of people nearby, and sends up smoke and embers.
+
 - `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the whole world, drawn as a globe, down to one person chipping flint.
-- `PRE-04` **Sharp at every zoom** *(Proposed)*: The pixel art stays sharp and readable at every zoom level.
+
+- `PRE-04` **Sharp at every zoom** *(Decided)*: The pixel art stays sharp and readable at every zoom level (`PRE-22`, `PRE-28`, `PRE-29`).
+
+- `PRE-31` **Visual review** *(Proposed)*
+  - **Done when:** at every milestone, screenshots at each zoom level, in both orientations and at every time of day, pass a review for:
+    - clean colour, with no speckled surfaces;
+    - crisp silhouettes;
+    - pixels that stay still while the camera moves;
+    - people and animals readable at phone size.
 
 **Following the story**
 
