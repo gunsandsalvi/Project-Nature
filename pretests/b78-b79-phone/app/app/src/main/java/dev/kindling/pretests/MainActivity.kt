@@ -386,6 +386,12 @@ class MainActivity : Activity() {
             .put("cl", JSONArray(clusters.map { c -> JSONArray().put(Logic.representative(c)).put(c.maxKHz / 1000) }))
             .put("lab", JSONArray()).put("s", JSONArray()).put("ops", JSONArray()).put("mw", JSONArray())
             .put("ck", JSONArray()).put("rep", "").put("x", "").put("pinMiss", 0)
+        // Hard cap, to protect the owner's time (RSK-23): past 1.6x the budget, the rest is skipped and counted.
+        if (kUsed > KERNEL_BUDGET_S * 1.6) {
+            k.put("skipped", k.optInt("skipped") + 1)
+            store.put("k", k)
+            return
+        }
         // Seconds per timed run, so the whole kernel phase ends near its budget.
         val fixed = if (kFixedN == 0) 2.5 else kFixedSum / kFixedN
         val seconds = Logic.secondsPerRun(KERNEL_BUDGET_S - kUsed, plan.size - i, clusters.size, fixed)

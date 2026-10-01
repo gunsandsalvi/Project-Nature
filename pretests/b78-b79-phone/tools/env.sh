@@ -1,6 +1,6 @@
 # B78: build environment for every shell and the round-1 app. Source it: `. tools/env.sh`
 # Big downloads and caches live in the shared cache, never in the repo.
-export CACHE=${CACHE:-/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/cache}
+export CACHE=${CACHE:?set CACHE to the shared download cache folder first (see NOTES.md, How to re-run)}
 export ANDROID_HOME=$CACHE/android-sdk
 export ANDROID_SDK_ROOT=$ANDROID_HOME
 export ANDROID_NDK_HOME=$(cat "$CACHE/android-ndk.ready")

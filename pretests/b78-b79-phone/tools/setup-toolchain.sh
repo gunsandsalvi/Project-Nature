@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # B78 (X10): fetch the Android toolchain into the shared cache, never into the repo.
 # Safe to re-run: every step is skipped when already done.
-# Writes download sizes to results/downloads.csv (for the toolchain-size criterion).
+# Logs local archive sizes to results/downloads-local.csv; official sizes are in results/downloads.csv.
 set -euo pipefail
 
-CACHE=${CACHE:-/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/cache}
+CACHE=${CACHE:?set CACHE to the shared download cache folder first (see NOTES.md, How to re-run)}
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 SDK=$CACHE/android-sdk
-CSV=$HERE/results/downloads.csv
+CSV=$HERE/results/downloads-local.csv   # results/downloads.csv holds the official sizes
 mkdir -p "$CACHE" "$SDK" "$HERE/results"
 [ -f "$CSV" ] || echo "item,bytes" > "$CSV"
 

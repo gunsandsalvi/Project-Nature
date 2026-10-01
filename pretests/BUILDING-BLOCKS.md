@@ -21,8 +21,9 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 
 ## Status
 
-- **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner; `B01` and `B02` in the cloud, waiting for the phone.
-- **Running:** `B01` numbers and languages, `B02` random draws, `B78` building the phone app, `B79` what the phone sustains, `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B73` writer AI, `B74` sound, `B76` speech.
+- **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app.
+- **Waiting for your phone:** `B01` and `B02` (done in the cloud) and `B79`, all measured by the first test app.
+- **Running:** `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B73` writer AI, `B74` sound, `B76` speech.
 
 ## The blocks
 
@@ -92,6 +93,11 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - `B78` **Building the phone app** · running (`pretests/b78-b79-phone/`)
   - **Question:** the best way to build and deliver the app from the cloud sessions (`PLT-06`): Kotlin with a Rust or C++ core, pure native, or a web view; build time, size, and how easily one core builds for both the phone and the cloud. Signing for your free hobbyist developer account comes later.
   - **Also:** produces the first phone test app, which runs `B01`, `B02` and `B79` on the phone.
+  - **Result** (1 October 2026; `pretests/b78-b79-phone/`):
+    - **All four ways build easily from the cloud:** clean builds took 18–37 seconds, a one-line rebuild about 2 seconds, and the apps came out at 44–742 KB. The tools take 1.1–1.4 GB to download, mostly the native toolkit.
+    - **Choice so far: a Kotlin screen with a native core.** The written rule put Kotlin with C++ one point ahead of Kotlin with Rust, but the rule mixed two questions: the core's language is settled by `B01`, which chose Rust. Kotlin with Rust is the base of the test app.
+    - **The first test app** (`dist/kindling-pretests-r1.apk`, 1.1 MB) is built and checked as far as possible here: its native code ran correctly on the phone's kind of chip under emulation, and its unit tests and Android's code checks passed. It has not yet run on a real phone.
+    - **Not tried:** the Godot game engine; time ran out.
 
 - `B79` **What the phone sustains** · running (`pretests/b78-b79-phone/`)
   - **Question:** the sustained speed of each kind of core before the phone heats up; frame pacing at full refresh; how much memory the app can really use, about 10 GiB (`PLT-01`); and battery per hour, against 25–30% (`VIS-14`).
