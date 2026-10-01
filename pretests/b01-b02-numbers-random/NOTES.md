@@ -25,7 +25,20 @@ Determinism checks (`X11`), used by R2 and R4. A kernel/format/language passes i
 
 ## Method
 
-(Filled in after the runs.)
+- **Library.** `kbench/` is a Rust crate; build.rs compiles the C++ kernels into the same library twice: `cpp` (compiler defaults, as an NDK build) and `cppnc` (fused multiply-add off, for checksum comparison only). `run(json) -> json`, a command-line tool, and JNI exports for `dev.kindling.pretests.Bench` (feature `android`). `{"list":true}` lists kernels and a ready-made phone run plan; `{"selftest":true}` checks known answers and that Rust and C++ draws agree.
+- **Kernels.** heat: 512 x 512 torus, 5-point stencil, alpha 0.2, double buffer, 64 steps per rep. walk: 100,000 agents, 1024 x 1024 torus, direction from the top 2 bits of draw(agent, step), 16 steps per rep. sum: 2^24 values (magnitudes 2^-16 to 2^15), fixed tree (blocks of 4,096, then the 4,096 block results). learn: 4,096 learners x 64 weights, delta rule, learning rate 1/64, dot product in 8 fixed lanes, 32 steps per rep. rng: beings 0 to 65,535 at moments 0 to 15.
+- **Timing.** One untimed warm-up rep, then reps for at least 1 s (at least 3). Every rep restarts from the same state, so its checksum must equal the warm-up's. Threads get a fixed contiguous share and meet at a spinning barrier between steps.
+- **Cloud build.** x86-64-v2 (128-bit vectors, no FMA: the closest x86 match to the phone's 128-bit NEON), clang 18 for C++ (the NDK's compiler family), Rust 1.97, OpenJDK 21 for Java. Speeds: 3 interleaved rounds of 1 s runs under the shared CPU lock; median and spread (max - min) / median.
+- **Determinism (`X11`).** Checksums from the 3 timed runs on 1 and 4 threads, plus short runs on 2 and 3 threads, for Rust, C++, C++ without FMA and Java.
+- **ARM.** An aarch64 Linux build (clang for C++, like the NDK) runs under qemu-aarch64-static; its checksums are compared with x86. The phone library itself builds with `cargo ndk -t arm64-v8a --platform 29 build --release --features android`.
+- **Random quality (`B02`).** PractRand pre0.95, `RNG_test stdin64 -tlmax 34 -multithreaded` (2^34 bytes = 16 GiB per stream): (i) one key, moments 0, 1, 2...; (ii) beings 0, 1, 2... at one moment. Extra: (iii) each chance event's first draw interleaved with its fortune retry (`GOD-04`), to 2^32 bytes.
+- **How each generator takes the key.** World, system and purpose are folded once per loop into a stream key k0 (purpose's top bit marks a fortune retry, so a retry is simply another key). Per draw:
+  - splitmix: mix(mix(k0 xor being) + (moment + 1) x golden ratio constant);
+  - Philox4x32-10: counter = (moment, being), all 128 bits; key = k0;
+  - Squares64: key made from k0 by Widynski's digit rules; counter = mix(k1 xor being) + moment;
+  - PCG-style: pcg(pcg(k0 xor being) + moment), pcg = one LCG step + the RXS-M-XS output;
+  - wyhash-style: wyhash of the 16 bytes (being, moment) with seed k0;
+  - ChaCha8: key = (world, system, purpose) as is; counter = moment; nonce = being; first 64 bits of the block.
 
 ## Results
 
@@ -45,4 +58,14 @@ Determinism checks (`X11`), used by R2 and R4. A kernel/format/language passes i
 
 ## How to re-run
 
-(Filled in after the runs.)
+```
+cd pretests/b01-b02-numbers-random
+. scripts/env.sh                                   # cache paths, lock, compilers
+flock $LOCK bash -c 'cd kbench && cargo build --release && cargo test --release'
+flock $LOCK scripts/build-practrand.sh             # PractRand into the shared cache
+flock $LOCK scripts/build-arm.sh                   # phone .so (cargo-ndk) + aarch64 tool for qemu
+scripts/run-all.sh                                 # all runs, each slot under the lock
+python3 scripts/bench.py summarize <raw dir>       # rewrites results/*.csv
+```
+
+One run: `$KBENCH '{"kernel":"rust:heat","format":"f32","threads":4,"seconds":2}'`. Java: `java jvm/Kernels.java '{"kernel":"java:heat","format":"fx32"}'`. On the phone: `Bench.run(json)`, where `{"list":true}` gives the plan and `"cpus":[7]` pins the workers.
