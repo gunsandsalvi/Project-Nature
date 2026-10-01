@@ -2071,12 +2071,21 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 
 - `MND-23` **Understanding others** *(Decided)*
   - **What:** People track what others know, want and believe, and can reason one step deeper ("she thinks I don't know").
+  - **How it works:**
+    - **A model of each known person:** kept in their record (`MND-24`): what they know, want and believe, each as a belief about their mind with its certainty (`MND-27`).
+    - **How it is built:** from what the other was present for and could perceive (if she was there when the fire went out, she knows it went out), from what they said, and from what they did, explained by the simplest want that fits (walking to the spring means thirst), as in well-studied models of how people read others' actions.
+    - **One step deeper:** beliefs can be about what another believes about oneself or a third person ("she thinks I don't know"), to one extra level only.
+    - **What it makes possible:** teaching (I know, she doesn't, and I want her to, so I show slowly and correct); cooperation (we both want the deer, and I expect him to go round); gossip (telling what someone did); and deception (acting or speaking to make someone believe what isn't so, when the person believes it pays, such as hiding a flint source).
+    - **Children** grow into it with age, at the measured pace, understanding others' false beliefs from about four.
   - **Why:** This is what makes teaching, cooperation, gossip and deception possible.
   - **Example:** Tamo keeps a good flint source secret, believing nobody knows about it.
     Ama has noticed the fresh flakes Tamo brings back, and follows one morning.
 
 - `MND-24` **Relationships** *(Decided)*: People know who's who: family, friends, rivals, and who owes whom.
   Trust and affection grow and fade with shared experience.
+  - **How it works:**
+    - **A record for each known person:** how they are recognised (face, voice and smell, as concepts of that one person, `MND-04`); kinship as believed; affection, trust, respect and fear; the favours owed each way (`MND-26`); shared memories (`MND-18`); and the model of their mind (`MND-23`).
+    - **Changing:** each shared experience adjusts these: help and shared success raise affection and trust; harm, cheating and broken promises lower them, more in close bonds; and time apart lets them fade slowly (estimated).
 
 ### 9.7 Scale and inspection
 
@@ -2085,12 +2094,22 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
   Anyone facing something new, risky or important runs in full.
   The rule depends only on the world, never on where you look.
   Follows from `PRN-11`.
+  - **How it works:**
+    - **Full detail is already sparing:** a mind works only when something happens (`MND-09`) and takes in only its few most noticeable percepts (`MND-03`), so a quiet day already costs little.
+    - **Always in full when:** a surprise passes its threshold (`MND-10`); there is a threat, an injury or an illness; there is a conflict or an unusual social event, such as a stranger, a quarrel, a birth or a death; no habit fits; or the person chooses to explore (`MND-09`).
+      This is the world's own rule, never the camera's (`WLD-13`).
+    - **The cheaper routine path, only after its experiment:** while a person runs a habit and every outcome matches what they expected, every action still happens with its physics, but learning updates are applied at the end of each activity, and runs of the same action, such as picking berry after berry, are worked out together.
+      Nothing is skipped or summarised.
+    - **Checked:** the same sandboxes run with and without the routine path, and their discoveries, the spread of skills and words, and deaths are compared (`PRN-11`).
 
 - `MND-15` **No population cap** *(Decided)*: How many minds the phone can run at each level of detail is found by measurement (`PLT-04`).
+  - **How it works:** nothing in the code limits how many people or animals there are: food and the body rules set their numbers (`WLD-04`); when there are more than the phone can run at the speed asked for, time slows (`PRN-11`); and how many run at each speed and level of detail is measured (`PLT-04`).
 
 - `MND-25` **Thoughts are structured; words come later** *(Decided)*: What a person thinks is kept as beliefs, intentions, feelings and memories, never as sentences.
   The story view (`PRE-14`) turns them into words through the writer AI (`PRE-37`); the scientist's view shows them raw.
   Follows from `PRN-06`.
+  - **How it works:** everything in a mind is a record: concepts, beliefs, plans, feelings, memories, skills and relationships, each made of references to concepts, things, places and people, with numbers; nothing is stored as a sentence.
+    The scientist's view shows the records raw; the story view hands them to the writer, which only phrases them (`PRE-17`), and nothing it writes is read back (`MND-01`).
 
 ### 9.8 Animals
 
@@ -2101,6 +2120,13 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
     Species differ: wolves hunt together, deer are wary grazers.
   - **Detail:** near people, animals are individuals with minds.
     Elsewhere they are populations that carry inherited and learned traits, such as wariness of people (`WLD-12`).
+  - **How it works:**
+    - **The same mechanisms, with fewer parts:** percepts, concepts, cause-and-effect beliefs, memory with a mental map, drives and feelings, habits, short plans and dreams work as in people; animals have no words, no teaching, plans of only a step or two, simple models of others at most, and no abstract concepts.
+    - **Species settings:** each species' drives, instincts (herding, pack hunting, territory, caching food), senses (`BIO-19`), learning speed and how much it can hold come from its family (`WLD-19`), measured where possible and estimated otherwise.
+    - **Fear of people:** animals that are chased or wounded, or that see others killed by people, learn wariness of people and of their signs (`MND-08`), so hunting grows harder where people hunt.
+    - **Taming:** an animal that is fed and not harmed by people loses its fear of them and grows attached to particular people (`MND-07`); over generations, boldness near people is inherited (`WLD-20`).
+    - **Hunting together:** each wolf moves to keep the prey between itself and its packmates, as in a published model of pack hunting, so a pack surrounds its prey with no plan.
+    - **Counted populations** carry learned wariness and routes as population traits (`WLD-12`, `WLD-20`).
 
 ## 10. Culture and society
 
