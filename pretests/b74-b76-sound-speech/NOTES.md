@@ -138,3 +138,16 @@ Results land in `results/`; clips and build outputs stay in the cache.
 - **Impacts:** A2 (noise shaped by the material's properties) sounds much better than A1 (ringing modes). A2 is chosen.
 - **Speech:** the synthetic voice (S1, espeak-ng) is terrible. A neural voice (S2) is chosen; the next step is a neural voice that keeps more of an invented language's sounds.
 - **Instruments:** the flutes are fine; the drums sound a bit weak.
+
+## Drums, round 2: more body (after your verdict)
+
+**Why they sound weak.** The page plays each clip as loud as its peaks allow. A drum strike is one short spike, so its peak stops it early. Through a stand-in for a phone speaker (it loses almost everything below about 350 Hz), the page played the small drum about 14 dB quieter than the flutes, and the large drum about 25 dB quieter: 96% of the large drum's sound is below what a phone speaker can play.
+
+**What's tried.** A last step before the speaker, used only when the phone plays through its own speaker (headphones keep the full sound). The drums themselves don't change.
+- **Louder:** a fast limiter that holds back only the first instant of each strike, so a drum can play as loud as a flute.
+- **Louder, with phone bass:** the same, plus overtones of the deep notes in the range a phone can play, so the ear still hears the deep note. Most phones and small speakers use this effect.
+
+**Decision rule (set before measuring).** Loudness is measured through the phone stand-in, with the standard loudness weighting, over the louder moments.
+- "Louder" passes if both drums come within 3 dB of the flutes with at most 12 dB of limiting.
+- "Phone bass" earns its place if it raises the large drum's loudness on the phone stand-in by at least 6 dB more than "Louder" alone, with the same limit on limiting.
+- Your ear then picks among "as before", "louder" and "louder, with phone bass". The step goes into the app's sound only if you pick it.
