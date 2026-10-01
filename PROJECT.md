@@ -1977,16 +1977,40 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 - `MND-09` **Choosing what to do** *(Decided)*: Habits handle routine.
   Deliberate planning takes over when habits fail or the stakes rise: working backwards from a need through what they believe causes what.
   People explore most when they are comfortable (play) and when they are desperate (need).
+  - **How it works:**
+    - **When a mind decides:** only when its activity ends or fails, when something it notices interrupts (a surprise, a threat or a call, `MND-03`), when a drive passes its threshold, or when a plan's time comes (`MND-22`); in between, the body carries on with the chosen activity and the mind costs nothing.
+    - **An activity** is a goal with its steps: a skill (`MND-06`), or a short run of actions toward a target, such as going to the spring to drink.
+    - **Habits first:** a habit links a situation (place, time of day, season, drives, who is near) to an activity, with a value learned from how well it went; if one fits and no drive presses beyond it, it runs with no further thought.
+    - **Deliberate planning:** when no habit fits, a habit fails or the stakes rise, the mind works backward from what its most pressing drive wants, through its cause-and-effect beliefs (`MND-05`), to actions it can take now: warmth needs fire, fire needs feeding, feeding needs wood, and wood lies by the river.
+      It chains a few steps (tuned), and weighs each option by how much it should meet the drives, given the beliefs' strength and certainty, against effort, time, risk (weighted by boldness), the future (weighted by patience, `MND-20`), and others' expectations and the group's rules (`CUL-20`); chance from the person's own draws (`TIM-06`) settles near-ties.
+    - **Exploring:** instead of the best known option, the mind sometimes tries something new: a varied skill setting, a known action on an unfamiliar thing, or an analogy (`MND-11`); it explores most when its drives are low (play, more for the curious and the young) and when they are high with no believed way out, and least in between.
+    - **Reasons kept:** each decision records the drives, beliefs, memories and feelings that won, for the scientist's view (`PRN-13`).
+    - **Habits form:** a choice that keeps working in the same situation becomes a habit.
 
 - `MND-06` **Skills** *(Decided)*
   - **What:** Learned sequences of actions with fine control (angle, force, timing), built from the body's basic actions (`MAT-12`), that improve with practice.
+  - **How it works:**
+    - **A skill's record:** a sequence of steps, each a basic action (`MAT-12`) on a kind of target (a concept), with its settings (force, angle, point of contact and timing) as a typical value and a spread, plus how often it has worked and how much it has been practised.
+    - **Doing it:** each try draws its settings around the typical value with the skill's spread, adds the body's own error (`MAT-06`), and the physics decides the result.
+    - **Practice:** after each try, the typical settings move toward those that worked better, at the person's learning speed (`BIO-08`); the spread shrinks with practice by the measured power law of practice, and failures widen the search a little.
+    - **Where skills come from:** a person's own tries (`MND-11`), copying what others are seen doing, with copying errors (`CUL-01`), and being taught.
+    - **Knowing is not doing:** a belief that striking makes flakes (`MND-05`) gives no settings; only practice does.
+    - **Fading:** skills unused for long slowly lose their precision (estimated).
   - **Why:** Knowing something can be done is not the same as doing it well.
   - **Example:** A child who has watched knapping knows that striking makes flakes, but shatters a dozen stones before getting one good edge.
 
 - `MND-13` **Learning over a lifetime** *(Decided)*: People get better at things through their own experience.
+  - **How it works:** every kind of learning in this section goes on for life: beliefs by surprise (`MND-05`), concepts (`MND-04`), skills by practice (`MND-06`), habits (`MND-09`), the mental map (`MND-18`) and knowledge of people (`MND-24`).
+    Each person learns at their own speed (`BIO-08`), fastest in childhood and somewhat slower with age (`BIO-16`), at measured rates.
 
 - `MND-22` **Planning ahead** *(Decided)*: People can plan days and seasons ahead once they have learned the patterns, such as storing nuts before winter.
   Tools from culture, such as calendars, counting and records, make longer plans reliable (`CUL-03`).
+  - **How it works:**
+    - **A plan** is a goal, its steps, and when each should start, kept in the mind and checked when its time comes (`MND-09`).
+    - **From learned patterns:** facts and cause-and-effect beliefs about the seasons (hazelnuts come in autumn; late winter brings hunger) let the backward search reach future needs: late winter needs food, stored nuts give it, so gather nuts in autumn and keep them.
+    - **The future counts less:** future needs weigh less than present ones, by the person's patience (`MND-20`), and less again when the pattern is uncertain.
+    - **How far:** a person holds only a few plans and chains only a few steps (tuned); counts and dates kept outside the head, such as tally marks or a calendar (`CUL-03`), let plans reach further and keep them reliable.
+    - **Revised:** when a plan's time comes and things differ from what was expected, it is decided again.
 
 ### 9.5 New ideas
 
