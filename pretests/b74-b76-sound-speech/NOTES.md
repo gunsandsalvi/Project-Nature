@@ -137,4 +137,4 @@ Results land in `results/`; clips and build outputs stay in the cache.
 
 - **Impacts:** A2 (noise shaped by the material's properties) sounds much better than A1 (ringing modes). A2 is chosen.
 - **Speech:** the synthetic voice (S1, espeak-ng) is terrible. A neural voice (S2) is chosen; the next step is a neural voice that keeps more of an invented language's sounds.
-- **Instruments:** no verdict yet.
+- **Instruments:** the flutes are fine; the drums sound a bit weak.

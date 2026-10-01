@@ -133,3 +133,8 @@ The owner ran the Benchmark on the Pixel 11 Pro XL, inside the Claude app's page
 | Sticky fix | 99% | 8.3 ms | 16.7 ms | 1.0% | 3.0 ms |
 
 **Verdict: PASS at every zoom** (rule: at least 90% of the refresh rate and at most 5% late frames), so no native engine. The full turn is the weakest phase (3.1% late, each late frame one refresh). The graphics chip's own time wasn't available in this viewer.
+
+## The owner's verdict (1 October 2026)
+
+- **Fade:** not liked. No pixel fix is accepted yet.
+- **Gestures:** fine for now.
