@@ -1210,40 +1210,63 @@ Matter must be easy to extend, forever (`PRN-14`).
 
 The physics must reproduce these without any rule written specially for them (`PRN-07`).
 How the checks work is set out in `MAT-17`, and they all run again whenever anything changes (`MAT-15`).
+Each check's exact numbers are sourced when its layer is built (`PRN-05`).
 
 **Core**
 
 - `RCK-01` **Flint chips, granite doesn't** *(Decided)*: Flint and obsidian chip into sharp flakes; granite doesn't.
+  - **Check:** 1,000 hammerstone strikes each, at a spread of strengths and angles, on glassy, very fine-grained and coarse-grained stone: the fine and glassy stones give thin flakes that cut hide, in the share of well-placed strikes found in knapping experiments; the coarse stone gives grit and chunks, and never a flake that cuts.
 - `RCK-02` **Fire by friction** *(Decided)*: Rubbing wood fast enough can light dry tinder.
+  - **Check:** a dry stick twirled on dry soft wood, at the speeds and pressures hands can manage, over dry tinder, gives an ember within the time range found in experiments; green or wet wood never does.
 - `RCK-03` **Cooking helps** *(Decided)*: Cooking makes food more nourishing.
+  - **Check:** the same roots and meat, raw and cooked, eaten by a body: cooked food yields more usable energy, by the measured margin (`BIO-10`).
 - `RCK-04` **Pottery needs fire** *(Decided)*: Fired clay becomes pottery; sun-dried clay softens again in water.
+  - **Check:** sun-dried clay softens and falls apart in water; the same clay heated past its measured firing temperature, for long enough, stays hard in water.
 - `RCK-05` **Lime** *(Decided)*: Burned limestone becomes lime.
+  - **Check:** limestone heated past its measured breakdown temperature turns to quicklime and gives off gas; below that temperature, nothing changes.
 - `RCK-06` **Leather** *(Decided)*: Hides soaked with oak bark become leather instead of rotting.
+  - **Check:** hides soaked for weeks with crushed oak bark stop rotting and stay supple when dried; hides soaked in plain water rot.
 - `RCK-07` **Fermentation** *(Decided)*: Fruit sugars ferment.
+  - **Check:** crushed sweet fruit left warm with wild yeasts turns sugar into alcohol over days, at real rates; boiled and sealed, it does not.
 - `RCK-08` **Copper needs a furnace** *(Decided)*: Copper smelts in a charcoal furnace with forced air, but not over a campfire.
+  - **Check:** copper ore in an open fire never yields liquid copper; in charcoal enclosed by clay or stone and blown through tubes it does, but only once the fire law's temperature passes copper's melting point (`MAT-04`, `MAT-07`).
 - `RCK-09` **Rot** *(Decided)*: Untreated meat and hides rot, faster when warm and wet.
+  - **Check:** meat and hide rot at measured rates: within days when warm and wet, far slower when cold or dry.
 - `RCK-21` **Floating** *(Decided)*: A dry log floats; a stone sinks.
+  - **Check:** a dry log floats, sitting as deep as its density says; a stone sinks.
 - `RCK-22` **Air feeds fire** *(Decided)*: Blowing on embers makes them hotter.
+  - **Check:** blowing on embers at a person's measured breath rate raises their temperature within the real range; smothering them lowers it.
 
 **Early crafts and food**
 
 - `RCK-10` **Heat-treated flint** *(Decided)*: Flint gently heated in a fire chips more easily and more predictably.
+  - **Check:** flint heated slowly into its measured range and cooled slowly needs less force per flake and gives more regular flakes; heated fast or too hot, it cracks.
 - `RCK-11` **Cord** *(Decided)*: Plant fibres twisted together make cord far stronger than the single fibres.
+  - **Check:** twisted plant fibres hold several times the load of the same fibres laid side by side, as measured.
 - `RCK-12` **Glue from bark** *(Decided)*: Birch bark heated without air gives a tar that glues a stone point to a shaft.
+  - **Check:** birch bark heated without air, within its measured range, gives tar that holds a stone point to a shaft under a real pull; heated in open air, it only burns.
 - `RCK-13` **Leaching** *(Decided)*: Soaking in running water draws the bitterness out of acorns.
+  - **Check:** crushed acorns in running water lose their bitterness below the level that stops a body eating them, within real times; in still water it takes longer.
 - `RCK-14` **Keeping meat** *(Decided)*: Salting, smoking and drying make meat keep far longer.
+  - **Check:** salted, smoked or dried meat stays edible many times longer than fresh meat at the same temperature.
 
 **Colour and art**
 
 - `RCK-15` **Ochre turns red** *(Decided)*: Yellow ochre turns red when heated.
+  - **Check:** yellow ochre heated past its measured change temperature turns red; below that temperature, it stays yellow.
 - `RCK-16` **Paint that lasts** *(Decided)*: Charcoal and ochre mixed with fat or water make paint that lasts on rock.
+  - **Check:** charcoal or ochre mixed with fat or water and spread on rock stays visible for years where sheltered, weathering at real rates; on exposed rock it fades faster.
 
 **Later crafts**
 
 - `RCK-17` **Bronze** *(Decided)*: Copper with a little tin is harder than copper.
+  - **Check:** copper with about a tenth tin is measurably harder than copper.
 - `RCK-18` **Iron** *(Decided)*: Iron needs a hotter, longer charcoal fire than copper and comes out spongy; it must be hammered to make it useful.
+  - **Check:** iron ore in a blown, enclosed charcoal fire, run hotter and longer than copper needs, gives a spongy lump mixed with waste; hammering it hot squeezes the waste out; it never runs liquid in such a fire.
 - `RCK-19` **Mortar** *(Decided)*: Lime mortar hardens in the air.
+  - **Check:** quicklime mixed with water and sand hardens in air over weeks to months; kept away from air, it stays soft.
 - `RCK-20` **Glass** *(Decided)*: Sand with plant ash melts into glass in a very hot fire.
+  - **Check:** sand with plant ash melts into glass past the mixture's measured melting range; at those temperatures, sand alone does not melt.
 
 ## 8. People: bodies and lives
 
