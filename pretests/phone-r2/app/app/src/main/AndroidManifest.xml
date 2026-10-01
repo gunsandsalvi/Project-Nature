@@ -20,16 +20,12 @@
         android:hardwareAccelerated="true"
         android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
 
-        <!-- B73, Gemma: phone libraries LiteRT-LM may open. Apps must name them since Android 12;
-             optional, so the app installs either way. GPU (OpenCL), then the Tensor TPU. -->
+        <!-- B73, Gemma on the GPU: phone libraries LiteRT-LM may open. Apps must name them since Android 12;
+             optional, so the app installs either way (the CPU needs none of them). -->
         <uses-native-library android:name="libOpenCL.so" android:required="false" />
         <uses-native-library android:name="libOpenCL-pixel.so" android:required="false" />
         <uses-native-library android:name="libOpenCL-car.so" android:required="false" />
         <uses-native-library android:name="libvndksupport.so" android:required="false" />
-        <uses-native-library android:name="libedgetpu_litert.so" android:required="false" />
-        <uses-native-library android:name="libedgetpu_util.so" android:required="false" />
-        <uses-native-library android:name="libedgetpu_client.google.so" android:required="false" />
-        <uses-native-library android:name="libedgetpu_tachyon.google.so" android:required="false" />
 
         <!-- Handles rotation and similar changes itself, so a running test is never restarted. -->
         <activity

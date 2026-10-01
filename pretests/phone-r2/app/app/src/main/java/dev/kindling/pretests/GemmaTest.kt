@@ -24,16 +24,17 @@ import java.util.concurrent.atomic.AtomicReference
 
 /**
  * B73, Gemma 4 E2B on the phone (PRE-37; RSK-15, RSK-22), following pretests/b73-writer/GEMMA.md.
- * - Downloads the public Tensor G6 build once over Wi-Fi, resuming if cut (ModelDownload), after checking
- *   there is room; skips politely if not.
- * - Starts it with Google's LiteRT-LM runtime on the GOOGLE_TENSOR backend, or on GPU if that fails, and
- *   records which worked.
+ * - Downloads the public general build (gemma-4-E2B-it.litertlm, 2.6 GB; it runs on GPU or CPU) once over
+ *   Wi-Fi, resuming if cut (ModelDownload), after checking there is room; skips politely if not.
+ * - Starts it with Google's LiteRT-LM runtime on the GPU, or on the CPU if the GPU fails, and records which
+ *   worked. The phone's AI unit is not tried this round (NOT_TRIED says why).
  * - Runs the same 20 prompts as Gemini Nano (WriterTest.PROMPTS) with the same settings: temperature 0.3,
  *   top-k 20, seed 73, at most 256 new tokens, and top-p 0.95 as in the cloud stand-in run. It records the
  *   same measures, plus the app's memory while it writes (decision rule 5).
  * - Keeps the model file for later rounds; only the owner's "Delete the model" button removes it.
- * - Crash-safe: a marker names each part (download, start-up on one backend, one prompt). If the app dies,
- *   the next launch records which part, and the test carries on from the next one.
+ * - Crash-safe: a marker names each part (download, start-up on one backend, one prompt on one backend).
+ *   If the app dies on the GPU, at start-up or while writing, the next launch records it against the GPU and
+ *   Continue goes on to the CPU. On the CPU, the last backend, it carries on from the next prompt.
  * Language models describe, never decide (PRN-06): nothing written here feeds back into anything.
  */
 class GemmaTest(
@@ -48,41 +49,39 @@ class GemmaTest(
     companion object {
         const val REPO = "litert-community/gemma-4-E2B-it-litert-lm"
         const val REVISION = "b3ca0d2f076785a8f4b2219ddbd2bdb99954eae1" // the repo's main on 1 October 2026
-        const val FILE = "gemma-4-E2B-it_Google_Tensor_G6.litertlm"
-        const val SIZE = 3_313_938_293L
-        const val SHA256 = "f86c7c19c736e9307267946edef58b0a45494a9127036d54d90dd6b7617c95b7"
+        const val FILE = "gemma-4-E2B-it.litertlm" // the general build, for CPU and GPU
+        const val SIZE = 2_588_147_712L
+        const val SHA256 = "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c" // its LFS oid
         const val URL = "https://huggingface.co/$REPO/resolve/$REVISION/$FILE"
-        /** GOOGLE_TENSOR first, then GPU, as asked for this round. */
-        val BACKENDS = listOf("GOOGLE_TENSOR", "GPU")
-        const val BUDGET_MS = 270_000L // all prompts, as WriterTest's default budget for Gemini Nano
+        /** GPU first, then CPU, as decided for this round. */
+        val BACKENDS = listOf("GPU", "CPU")
+        const val NOT_TRIED = "The phone's AI unit (GOOGLE_TENSOR or NPU) was not tried: its Tensor G6 build " +
+            "needs Google's Tensor dispatch library, which is not public."
+        const val BUDGET_MS = 270_000L // all prompts on one backend, as WriterTest's default budget for Gemini Nano
         const val PROMPT_MS = 60_000L // each prompt cut off at 60 s, as for Gemini Nano
         const val MIN_LEFT_MS = 15_000L // never start a prompt with less than 15 s left, as for Gemini Nano
         const val INIT_MS = 240_000L // start-up limit for one backend
         const val DOWNLOAD_MS = 45 * 60_000L
         const val MAX_CRASHES = 3
         const val MAX_NEW_TOKENS = 256
+        /** A backend (other than the last) that writes nothing in its first prompts gives way to the next. */
+        const val NO_TEXT_LIMIT = 2
+        private const val STUCK = "a text never stopped"
 
         fun modelFile(ctx: Context) = File(File(ctx.filesDir, "models"), FILE)
-        /** LiteRT-LM's own cache (compiled programs and the like), beside the model, so deleting removes both. */
-        fun cacheDir(ctx: Context) = File(File(ctx.filesDir, "models"), "litertlm-cache")
         fun download(ctx: Context) = ModelDownload(URL, modelFile(ctx), SIZE, SHA256)
 
-        /** The owner's "Delete the model" button: the model, any partial download and the runtime's cache. */
-        fun deleteModel(ctx: Context): Long {
-            val cache = cacheDir(ctx)
-            val cached = cache.walkTopDown().filter { it.isFile }.sumOf { it.length() }
-            cache.deleteRecursively()
-            return download(ctx).deleteAll() + cached
-        }
+        /** The owner's "Delete the model" button: the model and any partial download. */
+        fun deleteModel(ctx: Context): Long = download(ctx).deleteAll()
 
         fun label(b: String) = when (b) {
-            "GOOGLE_TENSOR" -> "the Tensor chip's AI unit"
-            "GPU" -> "the graphics chip"
+            "GPU" -> "the graphics chip (GPU)"
+            "CPU" -> "the main processor (CPU)"
             else -> b
         }
 
-        private val LOG_WORDS = listOf("litert", "tflite", "tensor", "dispatch", "npu", "tpu", "gpu", "opencl",
-            "engine", "backend", "model", "delegate", "accelerator", "error", "fail")
+        private val LOG_WORDS = listOf("litert", "tflite", "xnnpack", "gpu", "opencl", "vulkan", "delegate",
+            "accelerator", "engine", "backend", "model", "error", "fail")
     }
 
     /** Set by the owner's Skip button. */
@@ -93,6 +92,10 @@ class GemmaTest(
     private fun now() = SystemClock.elapsedRealtime()
     private fun save() = store.put("gm", JSONObject(gm.toString()), JSONObject().put("memSeries", mem?.series() ?: JSONArray()))
     private fun arr(key: String) = gm.optJSONArray(key) ?: JSONArray().also { gm.put(key, it) }
+    private fun tryOf(b: String): JSONObject? = gm.optJSONArray("tries")?.let { t ->
+        (0 until t.length()).mapNotNull { t.optJSONObject(it) }.lastOrNull { it.optString("b") == b }
+    }
+
     private fun end(status: String) {
         gm.put("status", status)
         save()
@@ -100,7 +103,7 @@ class GemmaTest(
 
     fun run() {
         if (gm.has("status")) return // this test already ended (done, skipped or failed)
-        gm.put("file", FILE)
+        gm.put("file", FILE).put("notTried", NOT_TRIED)
         applyCrashes()
         val crashes = store.partCrashes("gm").size
         if (crashes > MAX_CRASHES) return end("failed: the app closed $crashes times during this test")
@@ -110,45 +113,81 @@ class GemmaTest(
         if (!dl.ready() && !download(dl)) return
         val m = Mem().also { it.start() }
         mem = m
-        var engine: Engine? = null
+        var used: String? = null
         var stuck = false
         try {
-            engine = start()
-            if (engine != null) stuck = write(engine, m)
+            while (true) {
+                val b = Logic.nextBackend(BACKENDS, gm.optJSONArray("tries")) ?: break
+                val engine = start(b, m) ?: continue // a failed start-up is recorded; the next backend follows
+                val last = b == BACKENDS.last()
+                val outcome = write(engine, b, m, last) // null: done; otherwise why this backend gave up
+                if (outcome != STUCK) close(engine) // never close an engine that is still writing
+                if (outcome == STUCK) stuck = true
+                if (outcome == null || last) {
+                    used = b
+                    break
+                }
+                giveUp(b, outcome)
+            }
         } catch (t: Throwable) {
             gm.put("error", t.toString().take(300))
         } finally {
             gm.put("mem", m.stop())
-            val e = engine
-            if (e != null && !stuck) runCatching { e.close() }.onFailure { gm.put("closeErr", it.toString().take(120)) }
-            runCatching { gm.put("cacheMB", cacheDir(ctx).walkTopDown().filter { it.isFile }.sumOf { it.length() } shr 20) }
         }
+        val runs = gm.optJSONArray("runs")
+        val texts = runs?.let { r -> (0 until r.length()).count { r.optJSONObject(it)?.has("error_code") == false } } ?: 0
+        if (runs != null) gm.put("summary", Logic.summary(runs))
         end(when {
             gm.has("error") -> "failed: ${gm.optString("error").take(160)}"
-            engine == null && gm.optBoolean("hung") -> "failed: start-up never finished"
-            engine == null -> "failed: no backend could run the model"
-            stuck -> "done (a text never stopped)"
-            else -> "done"
+            used == null && texts > 0 -> "stopped on ${gm.optString("be")}: it could not start again ($texts texts kept)"
+            used == null -> "failed: no backend could run the model"
+            texts == 0 -> "failed: no texts on $used"
+            stuck -> "done on $used (a text never stopped)"
+            else -> "done on $used"
         })
+    }
+
+    private fun close(engine: Engine) {
+        runCatching { engine.close() }.onFailure { gm.put("closeErr", it.toString().take(120)) }
+    }
+
+    /** This backend gave up while writing: its texts move into its entry, and the next backend starts afresh. */
+    private fun giveUp(b: String, why: String) {
+        val t = tryOf(b) ?: return
+        t.put("w", why)
+        gm.optJSONArray("runs")?.let { if (it.length() > 0) t.put("runs", it) }
+        if (gm.has("cfg")) t.put("cfg", gm.optInt("cfg"))
+        for (k in listOf("runs", "be", "cfg", "summary", "before", "after", "stopped")) gm.remove(k)
+        save()
     }
 
     // ------------------------------------------------------------------ crashes from earlier launches
 
-    /** Turns crashes recorded at launch ("init-GPU", "run-r04-doc") into entries, once each. */
+    /**
+     * Turns crashes recorded at launch into entries, once each: "init-GPU" (the app closed while the model
+     * started on the GPU), "run-GPU-r04-doc" (while the GPU wrote r04-doc). A crash on any backend but the last
+     * counts against that backend; on the last one, only the prompt is lost.
+     */
     private fun applyCrashes() {
         for (part in store.partCrashes("gm")) {
             when {
                 part.startsWith("init-") -> {
                     val b = part.removePrefix("init-")
-                    val tries = arr("tries")
-                    if ((0 until tries.length()).none { tries.optJSONObject(it)?.optString("b") == b })
-                        tries.put(JSONObject().put("b", b).put("ok", false).put("e", "the app closed during start-up"))
+                    val t = tryOf(b)
+                    if (t == null) arr("tries").put(JSONObject().put("b", b).put("ok", false).put("e", "the app closed during start-up"))
+                    else if (t.optBoolean("ok") && !t.has("w")) t.put("w", "the app closed while starting it again")
                 }
                 part.startsWith("run-") -> {
-                    val id = part.removePrefix("run-")
-                    val runs = arr("runs")
-                    if ((0 until runs.length()).none { runs.optJSONObject(it)?.optString("id") == id })
-                        runs.put(JSONObject().put("id", id).put("error_code", "APP_CLOSED"))
+                    val b = part.removePrefix("run-").substringBefore('-')
+                    val id = part.removePrefix("run-$b-")
+                    if (b != BACKENDS.last()) {
+                        val t = tryOf(b)
+                        if (t != null && !t.has("w")) giveUp(b, "the app closed while writing $id")
+                    } else {
+                        val runs = arr("runs")
+                        if ((0 until runs.length()).none { runs.optJSONObject(it)?.optString("id") == id })
+                            runs.put(JSONObject().put("id", id).put("error_code", "APP_CLOSED"))
+                    }
                 }
             }
         }
@@ -171,7 +210,7 @@ class GemmaTest(
             "check" -> show("Gemma: checking the downloaded file (${(f * 100).toInt()}%).", f)
             else -> {
                 val left = if (bps > 1) Logic.minutes((total - done) / bps) + " left" else "starting"
-                show("Downloading Gemma (once, 3.3 GB): ${Logic.gb(done)} so far, ${"%.0f".format(bps / 1e6)} MB/s, $left. " +
+                show("Downloading Gemma (once, 2.6 GB): ${Logic.gb(done)} so far, ${"%.0f".format(bps / 1e6)} MB/s, $left. " +
                     "You can tap Skip to leave Gemma out.", f)
             }
         }
@@ -213,44 +252,35 @@ class GemmaTest(
 
     // ------------------------------------------------------------------ start-up
 
-    /** Starts the engine on the first backend that works (or the one that worked before a crash). */
-    private fun start(): Engine? {
-        val path = modelFile(ctx).path
-        while (true) {
-            val tries = arr("tries")
-            val b = Logic.nextBackend(BACKENDS, tries) ?: return null
-            val worked = (0 until tries.length()).any { tries.optJSONObject(it)?.let { t -> t.optString("b") == b && t.optBoolean("ok") } == true }
-            show("Writer AI, Gemma: starting the model on ${label(b)}${if (worked) " again" else ""} (this can take a minute)...", -1.0)
-            if (!gm.has("memBase")) gm.put("memBase", JSONArray(probe.procMem().toList()))
-            store.markStart("gm/init-$b")
-            val t0 = now()
-            val (engine, err) = initEngine(path, b)
-            store.markStart("gm")
-            val ms = now() - t0
-            if (worked) {
-                if (engine == null) gm.put("restartErr", (err ?: "?").take(200))
-                return engine
-            }
-            val t = JSONObject().put("b", b).put("ok", engine != null).put("ms", ms)
-            if (err != null) t.put("e", err.take(300)).put("log", logTail())
-            tries.put(t)
-            if (engine != null) gm.put("be", b).put("init_ms", ms)
+    /** Starts the engine on one backend and records how it went; null if it failed (the try says why). */
+    private fun start(b: String, mem: Mem): Engine? {
+        val earlier = tryOf(b) // it worked before the app closed while writing: started again to carry on
+        show("Writer AI, Gemma: starting the model on ${label(b)}${if (earlier != null) " again" else ""} (this can take a minute)...", -1.0)
+        if (!gm.has("memBase")) gm.put("memBase", JSONArray(probe.procMem().toList()))
+        mem.phase = "init-$b"
+        store.markStart("gm/init-$b")
+        val t0 = now()
+        val (engine, err) = initEngine(modelFile(ctx).path, b)
+        store.markStart("gm")
+        val ms = now() - t0
+        if (earlier != null) {
+            if (engine == null) earlier.put("w", "could not start again: ${(err ?: "?").take(200)}")
             save()
-            if (engine != null) return engine
-            if (gm.optBoolean("hung")) return null // a start-up still running: don't load the model twice
+            return engine
         }
+        val t = JSONObject().put("b", b).put("ok", engine != null).put("ms", ms)
+        if (err != null) t.put("e", err.take(300)).put("log", logTail())
+        arr("tries").put(t)
+        save()
+        return engine
     }
 
     private fun initEngine(path: String, b: String): Pair<Engine?, String?> {
-        val backend = when (b) {
-            "GOOGLE_TENSOR" -> Backend.GOOGLE_TENSOR()
-            "GPU" -> Backend.GPU()
-            else -> Backend.CPU()
-        }
-        // The runtime's cache goes in a folder of its own beside the model (Google's sample app lets it default to
-        // the model's folder); its size is recorded, and "Delete the model" removes it too.
-        val cache = cacheDir(ctx).apply { mkdirs() }
-        val config = EngineConfig(modelPath = path, backend = backend, cacheDir = cache.path)
+        val backend = if (b == "GPU") Backend.GPU() else Backend.CPU()
+        // ":nocache": the runtime writes no caches to storage (on the CPU, its packed weights; on the GPU, its
+        // converted weights and programs), so the app never uses more storage than the model itself. A first
+        // start-up creates those caches anyway, so its time is a first start-up's either way.
+        val config = EngineConfig(modelPath = path, backend = backend, cacheDir = ":nocache")
         val result = AtomicReference<Engine?>()
         val error = AtomicReference<Throwable?>()
         val gaveUp = AtomicBoolean(false)
@@ -263,16 +293,15 @@ class GemmaTest(
             } catch (x: Throwable) {
                 error.set(x)
             }
-        }, "gemma-start")
+        }, "gemma-start-$b")
         t.isDaemon = true
         t.start()
         t.join(INIT_MS)
         synchronized(lock) {
             result.get()?.let { return it to null }
             if (t.isAlive) {
-                // Still starting: let it finish (and close itself) in the background; never load the model twice.
+                // Still starting: it is left to finish (and close itself) in the background.
                 gaveUp.set(true)
-                gm.put("hung", true)
                 return null to "start-up still running after ${INIT_MS / 1000} s"
             }
         }
@@ -305,12 +334,12 @@ class GemmaTest(
 
     // ------------------------------------------------------------------ writing
 
-    /**
-     * Conversation settings, from ours down to the engine's own, in case a backend refuses some of them
-     * (Google's own sample app passes no sampler settings to the phone's AI unit). The level used is recorded.
-     */
     private fun sampler() = SamplerConfig(topK = 20, topP = 0.95, temperature = 0.3, seed = 73)
 
+    /**
+     * Conversation settings, from ours down to the engine's own, in case a backend refuses some of them.
+     * The level used is recorded.
+     */
     private fun conversationConfig(level: Int): ConversationConfig = when (level) {
         0 -> ConversationConfig(samplerConfig = sampler(), maxOutputToken = MAX_NEW_TOKENS, thinkingConfig = ThinkingConfig(enableThinking = false))
         1 -> ConversationConfig(samplerConfig = sampler(), maxOutputToken = MAX_NEW_TOKENS)
@@ -334,9 +363,15 @@ class GemmaTest(
         }
     }
 
-    /** Runs the prompts not done yet; true if a text never stopped (then nothing is closed, to stay safe). */
-    private fun write(engine: Engine, mem: Mem): Boolean {
+    /**
+     * Runs the prompts not done yet on backend `b`. Returns null when done (all prompts, or the time budget),
+     * STUCK if a text never stopped, or, on a backend other than the last, why it gave up: no text from its
+     * first prompts.
+     */
+    private fun write(engine: Engine, b: String, mem: Mem, last: Boolean): String? {
+        gm.put("be", b)
         level = gm.optInt("cfg", 0)
+        anyText = false
         val runs = arr("runs")
         val done = HashSet<String>()
         for (i in 0 until runs.length()) runs.optJSONObject(i)?.let {
@@ -344,10 +379,10 @@ class GemmaTest(
             if (!it.has("error_code")) anyText = true
         }
         if (!gm.has("before")) gm.put("before", probe.vitals())
+        save()
         val deadline = now() + BUDGET_MS
         val prompts = WriterTest.PROMPTS
-        mem.phase = "write"
-        var stuck = false
+        mem.phase = "write-$b"
         for (p in prompts) {
             if (p.id in done) continue
             val left = deadline - now()
@@ -355,9 +390,8 @@ class GemmaTest(
                 gm.put("stopped", "time budget")
                 break
             }
-            show("Writer AI, Gemma on ${label(gm.optString("be"))}: text ${runs.length() + 1} of ${prompts.size}.",
-                runs.length().toDouble() / prompts.size)
-            store.markStart("gm/run-${p.id}")
+            show("Writer AI, Gemma on ${label(b)}: text ${runs.length() + 1} of ${prompts.size}.", runs.length().toDouble() / prompts.size)
+            store.markStart("gm/run-$b-${p.id}")
             var r = runOne(engine, p, minOf(PROMPT_MS, left), mem)
             // The first texts failing on our settings: try the engine's own, as for creating a conversation.
             while (!anyText && level < 3 && r.optString("error_code") in setOf("ERROR", "EXCEPTION") &&
@@ -373,13 +407,14 @@ class GemmaTest(
             if (!r.has("error_code")) anyText = true
             save()
             if (r.optBoolean("stuck")) {
-                stuck = true
-                gm.put("stopped", "a text never stopped")
-                break
+                gm.put("stopped", STUCK)
+                return STUCK
             }
+            if (!last && !anyText && runs.length() >= NO_TEXT_LIMIT) return "no text from its first $NO_TEXT_LIMIT prompts"
         }
         gm.put("cfg", level).put("summary", Logic.summary(runs)).put("after", probe.vitals())
-        return stuck
+        save()
+        return null
     }
 
     private fun runOne(engine: Engine, p: WriterTest.Prompt, timeoutMs: Long, mem: Mem): JSONObject {
@@ -441,12 +476,13 @@ class GemmaTest(
     /**
      * Samples this process's memory while Gemma is loaded: resident memory (RSS) twice a second, split into
      * anonymous and file-backed pages (the model file is mapped, so much of it is file-backed and reclaimable),
-     * plus PSS, graphics memory and the phone's free memory every 4 s. Keeps the peaks per phase and per text.
+     * plus PSS, graphics memory and the phone's free memory every 4 s. Keeps the peaks per phase (start-up and
+     * writing, per backend) and per text.
      */
     private inner class Mem {
-        @Volatile var phase = "init"
+        @Volatile var phase = "start"
         private val running = AtomicBoolean(true)
-        private val peaks = HashMap<String, LongArray>() // phase -> rss, anon, file, pss, gfx
+        private val peaks = LinkedHashMap<String, LongArray>() // phase -> rss, anon, file, pss, gfx
         private val memSeries = JSONArray() // every 4 s: seconds, phase, rss, anon, file, pss, graphics, phone's free
         @Volatile private var runMax = 0L
         private var availMin = Long.MAX_VALUE

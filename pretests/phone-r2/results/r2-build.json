@@ -1,9 +1,9 @@
 {
  "apk": {
   "file": "dist/kindling-pretests-r2.apk (not committed)",
-  "bytes": 28561617,
-  "sha256": "3c2ddddae9fa3552f91a77857212ae417efcd9f97642ced3fbc6d6e26f9db182",
-  "debugBytes": 41984784,
+  "bytes": 28561497,
+  "sha256": "ecca653c6ca818ff211a44cafa7ea08fbfa64c3214fdd954df2253bc7cfc2d16",
+  "debugBytes": 41985264,
   "package": "dev.kindling.pretests",
   "versionCode": 2,
   "versionName": "r2",
@@ -38,9 +38,14 @@
  "model": {
   "repo": "litert-community/gemma-4-E2B-it-litert-lm",
   "revision": "b3ca0d2f076785a8f4b2219ddbd2bdb99954eae1",
-  "file": "gemma-4-E2B-it_Google_Tensor_G6.litertlm",
-  "bytes": 3313938293,
-  "sha256": "f86c7c19c736e9307267946edef58b0a45494a9127036d54d90dd6b7617c95b7"
+  "file": "gemma-4-E2B-it.litertlm",
+  "bytes": 2588147712,
+  "sha256": "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c",
+  "backends": [
+   "GPU",
+   "CPU"
+  ],
+  "notTried": "the phone's AI unit: its Tensor G6 build needs Google's Tensor dispatch library, which is not public"
  },
  "checks": {
   "unitTests": {
@@ -54,7 +59,7 @@
    }
   },
   "lint": "0 errors, 17 warnings, 1 hint (results/lint-release.txt)",
-  "apk": "all pass (results/verify-apk-release.txt)",
+  "apk": "all 51 pass (results/verify-apk-release.txt)",
   "resultCodeChars": {
    "bothModels": 9604,
    "bothModelsAndFastPass": 11544,

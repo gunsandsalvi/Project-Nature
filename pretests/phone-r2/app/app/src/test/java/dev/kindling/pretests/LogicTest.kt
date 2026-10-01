@@ -59,8 +59,8 @@ class LogicTest {
             .put("done", JSONArray(listOf("dev", "st", "snd", "nano", "gm")))
         if (withGemma) {
             val gm = JSONObject().put("file", GemmaTest.FILE).put("free0", 120.5).put("need", 4.0)
-                .put("dl", JSONObject().put("status", "done").put("got", 3313938293L).put("s", 140.2).put("mbps", 23.6).put("hashS", 6.1))
-                .put("tries", JSONArray().put(JSONObject().put("b", "GOOGLE_TENSOR").put("ok", false).put("ms", 1234)
+                .put("dl", JSONObject().put("status", "done").put("got", 2588147712L).put("s", 140.2).put("mbps", 23.6).put("hashS", 6.1))
+                .put("tries", JSONArray().put(JSONObject().put("b", "GPU").put("ok", false).put("ms", 1234)
                     .put("e", "com.google.ai.edge.litertlm.LiteRtLmJniException: Failed to create engine: NOT_FOUND: No available engine for backend")
                     .put("log", JSONArray((1..12).map { "E litert: line $it about the dispatch library not being found in the native library folder" }))
                 ).put(JSONObject().put("b", "GPU").put("ok", true).put("ms", 9876)))
@@ -256,21 +256,24 @@ class LogicTest {
         assertEquals(Triple(-1L, -1L, 3313938293L), Logic.parseContentRange("bytes */3313938293"))
         assertNull(Logic.parseContentRange("nonsense"))
         assertNull(Logic.parseContentRange(null))
-        assertEquals(4_000_000_000L, Logic.needFreeBytes(3_313_938_293L, 0))
-        assertEquals(1_000_000_000L + 700_000_000L, Logic.needFreeBytes(3_000_000_000L, 2_000_000_000L))
+        assertEquals(3_500_000_000L, Logic.needFreeBytes(2_588_147_712L, 0))
+        assertEquals(1_000_000_000L + 900_000_000L, Logic.needFreeBytes(3_000_000_000L, 2_000_000_000L))
         assertEquals("about 3 minutes", Logic.minutes(170.0))
         assertEquals("under a minute", Logic.minutes(20.0))
     }
 
     @Test fun backendOrderAndResumingAfterACrash() {
-        val order = listOf("GOOGLE_TENSOR", "GPU")
-        assertEquals("GOOGLE_TENSOR", Logic.nextBackend(order, null))
-        val tries = JSONArray().put(JSONObject().put("b", "GOOGLE_TENSOR").put("ok", false))
-        assertEquals("GPU", Logic.nextBackend(order, tries))
-        tries.put(JSONObject().put("b", "GPU").put("ok", false))
+        val order = listOf("GPU", "CPU")
+        assertEquals("GPU", Logic.nextBackend(order, null))
+        val tries = JSONArray().put(JSONObject().put("b", "GPU").put("ok", false))
+        assertEquals("CPU", Logic.nextBackend(order, tries))
+        tries.put(JSONObject().put("b", "CPU").put("ok", false))
         assertNull(Logic.nextBackend(order, tries))
-        // A backend that worked before the app closed is started again.
-        val worked = JSONArray().put(JSONObject().put("b", "GOOGLE_TENSOR").put("ok", true))
-        assertEquals("GOOGLE_TENSOR", Logic.nextBackend(order, worked))
+        // A backend that worked before the app closed is started again...
+        val worked = JSONArray().put(JSONObject().put("b", "GPU").put("ok", true))
+        assertEquals("GPU", Logic.nextBackend(order, worked))
+        // ...unless it gave up part-way ("w" says why): then the next one.
+        val gaveUp = JSONArray().put(JSONObject().put("b", "GPU").put("ok", true).put("w", "crashed while writing"))
+        assertEquals("CPU", Logic.nextBackend(order, gaveUp))
     }
 }

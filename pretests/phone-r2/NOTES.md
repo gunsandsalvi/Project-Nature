@@ -15,11 +15,11 @@ It runs, in this order, with a progress line for each test:
 3. **Sound** (`B74`; `SND-01`, `SND-08`): the screen first says "Sound test: the phone will play clicks and tones for about 35 seconds." Then the `ksound` library plays its test pattern through AAudio with its default settings and reports output delay, dropouts and load at 8, 32 and 128 voices. The media volume is recorded beside it.
 4. **Writer AI, Gemini Nano** (`B73`; `PRE-37`): `WriterTest.kt` from `pretests/b73-writer/phone/`, as its `INTEGRATION.md` says, with all its limits (4.5-minute budget, 60 s a prompt, none started with under 15 s left). The only change is a progress hook for the screen. Its 20 prompts are exactly those of `prompts/v2/all-prompts.json` (a unit test compares them text for text). That file holds no settings; the settings are WriterTest's: temperature 0.3, top-k 20, seed 73, at most 256 new tokens. Availability (ready, downloading, unavailable) is recorded per pass; prompts run only when the model is ready. If Gemini Nano is downloading, it waits up to 90 s, then moves on.
 5. **Writer AI, Gemma 4 E2B** (`B73`; `PRE-37`, `RSK-15`, `RSK-22`), following `GEMMA.md`, with LiteRT-LM 0.17.1:
-   - **Download:** `gemma-4-E2B-it_Google_Tensor_G6.litertlm` (3,313,938,293 bytes) from `https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/<revision>/<file>`, with the revision pinned to the repository's current state (`b3ca0d2f…`), checked against its public file listing. It first checks for at least 4 GB free and for Wi-Fi (it waits up to 3 minutes), and skips Gemma politely if either is missing. It shows the amount done, speed and time left, resumes after any interruption, even after the app closes, and then checks the file's SHA-256 before using it. A "Skip Gemma" button shows during the download; it gives up after 45 minutes. What was downloaded is kept for next time.
-   - **Start-up:** GOOGLE_TENSOR first, then GPU if that fails; each try is recorded with its time, its error and the app's own recent log lines, and the one that worked is named.
+   - **Download:** the general build, `gemma-4-E2B-it.litertlm` (2,588,147,712 bytes; SHA-256 `18193810…a63c`), from `https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/<revision>/<file>`, with the revision pinned to the repository's current state (`b3ca0d2f…`), checked against its public file listing. It first checks for at least 3.5 GB free and for Wi-Fi (it waits up to 3 minutes), and skips Gemma politely if either is missing. It shows the amount done, speed and time left, resumes after any interruption, even after the app closes, and then checks the file's SHA-256 before using it. A "Skip Gemma" button shows during the download; it gives up after 45 minutes. What was downloaded is kept for next time.
+   - **Start-up:** the graphics chip (GPU) first, then the main processor (CPU) if that fails. Each try is recorded with its time, its error and the app's own recent log lines, and the one that worked is named. If the app closes on the GPU, at start-up or while writing, the next launch records it against the GPU and Continue goes on to the CPU. The phone's AI unit is not tried this round (see "Why the general build").
    - **Writing:** the same 20 prompts and settings as Gemini Nano (top-p 0.95, as in the cloud stand-in run), each in a fresh conversation with "thinking" off, the same limits, and the same measures. If a backend refuses these settings, it steps down to the engine's own, and records that.
    - **Memory** (decision rule 5): the app's resident memory twice a second, split into anonymous and file-backed parts (the model file is mapped, so much of it is reclaimable), plus PSS, graphics memory and the phone's free memory every 4 s. The peaks are recorded for start-up and for writing, and per text.
-   - The model is kept for later rounds. The end screen has a "Delete the model (3.3 GB)" button; nothing else deletes it.
+   - The model is kept for later rounds. The end screen has a "Delete the model (2.6 GB)" button; nothing else deletes it.
 6. **Your rating** (`B73` rule 6, `RSK-08`): a short tone, then the feud killing, the dream and the sky-fire sign (`r04`, `r06`, `r08`) in both voices, one at a time, with Poor, Acceptable and Good buttons. Gemini Nano's texts, or Gemma's if Gemini Nano wrote none; if both wrote, both, model by model (12 at most). Each text says which model wrote it and in which voice. "Show the facts" reveals the data it was written from, and "Back" lets you change a rating.
 
 Then the result code, with a Copy button.
@@ -53,44 +53,34 @@ Then the result code, with a Copy button.
   - the download, against a local server shaped like Hugging Face's: through a redirect, a cut connection, a partial file from an earlier run, a server that ignores ranges, a damaged file, Skip, a missing file, and no Wi-Fi.
 - **The native crates' own tests:** pass on x86, and on arm64 under qemu (`kstorage` 1, `ksound` 5).
 - **The storage library on arm64 under qemu**, run as the app calls it (`tools/native-run`): the default run works, and gives the cloud's generation hash, metre-detail hash and saved-world content hash bit for bit (`results/storage-arm64-qemu.json`).
-- **The APK** (`tools/verify-apk.sh`, `results/verify-apk-release.txt`, 53 checks):
+- **The APK** (`tools/verify-apk.sh`, `results/verify-apk-release.txt`, 51 checks):
   - It is signed with round 1's key, and its zip entries are 16 KB aligned.
   - It holds arm64 libraries only. All three native libraries are present, uncompressed and 16 KB aligned; each exports its entry points and needs only Android's public libraries.
   - R8 kept every class and method that native code looks up.
   - The package, version and SDK levels are right, and the permissions are exactly the four expected.
-  - It declares the vendor GPU and Tensor libraries LiteRT-LM may open, and the share provider. The ML Kit upload is gone.
+  - It declares the vendor GPU libraries LiteRT-LM may open, and no Tensor AI-unit library, plus the share provider. The ML Kit upload is gone.
 - **End to end:** a sample code made by the app's code decodes with `tools/decode-result.py`, and the decoded texts go through the writer test's fact checker.
 - **Dependencies:** ML Kit and LiteRT-LM share coroutines 1.11.0 and the Kotlin 2.4.0 library, with no version split. Removing ML Kit's upload only drops its events: its library logs a warning and never throws (checked in its bytecode).
 
 ## What remains untested (only the phone can tell)
 
 - Nothing in this app has run on a phone: no screen, no JNI call, no ML Kit or LiteRT-LM call, no AAudio stream, no download over the phone's Wi-Fi, no share sheet, no crash recovery. Round 1's shell did run cleanly, and round 2 reuses it.
-- **Gemma may not run at all; see the next section.**
+- Whether Gemma runs on the phone's graphics chip. Google's own sample app turns the GPU off on the Pixel 10, so it may fall back to the main processor, which is slower.
 - Whether Gemini Nano is ready on the phone, and how its quotas and safety filter treat the dark prompts.
 - Whether the phone's speed and timings match the estimates: about 15 to 30 minutes in all, mostly the download.
 - The memory readings on the phone, especially graphics memory, which depends on the driver.
 - The terrain hashes on the real chip, rather than under emulation.
 
-## For the lead: Gemma's GPU fallback cannot work with this file
+## Why the general build
 
-I checked the Tensor G6 file without downloading it, by reading its section table and parts of its main section with ranged requests:
-- Its decoder is compiled for the Tensor chip's AI unit: it is a `DISPATCH_OP` holding Edge TPU programs and firmware.
-- The GPU backend can't run that, so if GOOGLE_TENSOR fails, the GPU try will fail too, and there will be no Gemma texts this round.
-- The GOOGLE_TENSOR backend ("GOOGLE_TENSOR_ARTISAN") is closed source. LiteRT-LM's public code says it was enabled by an internal change, and its public engine list has no entry for it, so it may well fail.
-- The documented way to run this file is the NPU backend with Google's Tensor dispatch library, which is not in the Maven package. It comes with the Google Tensor SDK (beta, by sign-up) or the LiteRT release files, which are not reachable from here.
-
-The app records each failure, with the runtime's own log lines, so the code will say exactly why. If you want Gemma texts from this round, two options:
-- add a second download of the general build (`gemma-4-E2B-it.litertlm`, 2.6 GB; runs on GPU or CPU) when both backends fail; or
-- use that build with GPU, then CPU, from the start.
-
-Both change the storage needed (6 GB or 3.3 GB) and the delete button's text. Note that Google's own sample app turns GPU off on the Pixel 10, so CPU may be the safe second choice.
+The model build made for the Tensor G6 (`gemma-4-E2B-it_Google_Tensor_G6.litertlm`, 3.3 GB) was checked without downloading it, by reading its section table with ranged requests. Its decoder is compiled for the Tensor chip's AI unit (a `DISPATCH_OP` holding Edge TPU programs), so the GPU can't run it. The documented way to run it needs Google's Tensor dispatch library, which isn't in the public package, and LiteRT-LM's GOOGLE_TENSOR backend is closed source. So this round uses the general build, which runs on the GPU or the CPU, the route the game could actually use today. The AI unit is recorded as not tried, with that reason.
 
 ## For the owner
 
 **Before you run it:**
 1. In the Play Store, update **Android AICore**, **Private Compute Services** and **Google Play services** (search for each; tap Update if it shows).
-2. Be on **Wi-Fi**: the app downloads a 3.3 GB model once.
-3. Have **at least 4 GB free** (Settings, Storage).
+2. Be on **Wi-Fi**: the app downloads a 2.6 GB model once.
+3. Have **at least 3.5 GB free** (Settings, Storage).
 4. **Plug in the charger**, or have the battery **above 60%**.
 5. Set the **media volume to about half**: one test plays clicks and tones.
 
@@ -112,7 +102,7 @@ Both change the storage needed (6 GB or 3.3 GB) and the delete button's text. No
 
 **Paste back:** tap **Copy result code** and paste it into the chat. If the screen says the code could not hold everything, also tap **Share results file** and send that file in the chat.
 
-**Afterwards:** the Gemma model stays on the phone for later rounds. To free its 3.3 GB, tap **Delete the model (3.3 GB)**.
+**Afterwards:** the Gemma model stays on the phone for later rounds. To free its 2.6 GB, tap **Delete the model (2.6 GB)**.
 
 ## How to re-run
 

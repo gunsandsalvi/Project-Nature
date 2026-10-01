@@ -90,9 +90,11 @@ PERMS=$("$BT/aapt2" dump permissions "$APK" 2>/dev/null | grep "uses-permission"
 WANT="android.permission.ACCESS_NETWORK_STATE android.permission.INTERNET com.google.android.apps.aicore.service.BIND_SERVICE dev.kindling.pretests.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION "
 [ "$PERMS" = "$WANT" ] && ok "permissions: $PERMS" || bad "permissions: $PERMS (want $WANT)"
 XML=$("$BT/aapt2" dump xmltree --file AndroidManifest.xml "$APK" 2>/dev/null)
-for lib in libOpenCL.so libOpenCL-pixel.so libvndksupport.so libedgetpu_litert.so libedgetpu_util.so libedgetpu_client.google.so libedgetpu_tachyon.google.so; do
+for lib in libOpenCL.so libOpenCL-pixel.so libOpenCL-car.so libvndksupport.so; do
   grep -q "\"$lib\"" <<<"$XML" && ok "may open $lib" || bad "uses-native-library $lib missing"
 done
+# this round runs Gemma on the GPU, then the CPU; the Tensor AI unit's libraries are not declared
+grep -q 'libedgetpu' <<<"$XML" && bad "a Tensor AI-unit library is still declared" || ok "no Tensor AI-unit libraries declared"
 grep -q '"dev.kindling.pretests.files"' <<<"$XML" && ok "share provider dev.kindling.pretests.files" || bad "FileProvider missing"
 grep -q "CctBackendFactory" <<<"$XML" && bad "ML Kit usage upload still registered" || ok "ML Kit usage upload removed (no network use but the model download)"
 grep -q 'extractNativeLibs(0x010104ea)=false' <<<"$XML" && ok "native libraries load from the APK" || bad "extractNativeLibs"

@@ -36,13 +36,13 @@ class StoreTest {
         val dir = dir()
         val s = Store(dir)
         s.reset(JSONObject().put("t0", 1))
-        s.markStart("gm/init-GOOGLE_TENSOR") // the app dies while the model starts on one backend
+        s.markStart("gm/init-GPU") // the app dies while the model starts on one backend
         val next = Store(dir)
         val marker = next.leftoverMarker()!!
         assertEquals("gm", marker.substringBefore('/'))
         assertEquals(1, next.recordPartCrash("gm", marker.substringAfter('/')))
         assertFalse(next.isCrashed("gm"))
-        assertEquals(listOf("init-GOOGLE_TENSOR"), Store(dir).partCrashes("gm"))
+        assertEquals(listOf("init-GPU"), Store(dir).partCrashes("gm"))
         assertEquals(2, Store(dir).recordPartCrash("gm", "run-r04-doc"))
     }
 

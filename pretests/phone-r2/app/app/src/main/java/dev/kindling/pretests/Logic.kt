@@ -127,8 +127,8 @@ object Logic {
 
     // ------------------------------------------------------------------ the Gemma download (B73)
 
-    /** Free storage needed before downloading: 4 GB from scratch, else what is left plus a margin. */
-    fun needFreeBytes(total: Long, have: Long, fresh: Long = 4_000_000_000L, margin: Long = 700_000_000L): Long =
+    /** Free storage needed before downloading: 3.5 GB from scratch, else what is left plus a margin. */
+    fun needFreeBytes(total: Long, have: Long, fresh: Long = 3_500_000_000L, margin: Long = 900_000_000L): Long =
         if (have <= 0L) fresh else maxOf(0L, total - have) + margin
 
     /** "bytes 100-199/1000" gives (100, 199, 1000); a star for the range gives (-1, -1, 1000); null if unreadable. */
@@ -140,12 +140,15 @@ object Logic {
         return Triple(a, b, total)
     }
 
-    /** The next Gemma backend to try: the first not yet tried, unless one already worked. */
+    /**
+     * The next Gemma backend: one that started and has not given up (to carry on after the app closed),
+     * else the first not yet tried; null when none is left. A try gave up when it has "w" (why).
+     */
     fun nextBackend(order: List<String>, tries: JSONArray?): String? {
         val tried = HashSet<String>()
         if (tries != null) for (i in 0 until tries.length()) {
             val t = tries.optJSONObject(i) ?: continue
-            if (t.optBoolean("ok")) return t.optString("b")
+            if (t.optBoolean("ok") && !t.has("w")) return t.optString("b")
             tried.add(t.optString("b"))
         }
         return order.firstOrNull { it !in tried }
@@ -233,6 +236,10 @@ object Logic {
             }
         }
         compactRuns(r.optJSONObject("gm"), texts, "gemma")
+        // Texts from a Gemma backend that gave up part-way (kept in its try).
+        r.optJSONObject("gm")?.optJSONArray("tries")?.let { t ->
+            for (i in 0 until t.length()) compactRuns(t.optJSONObject(i), texts, "gemma-partial")
+        }
         r.put("tx", JSONArray(texts.texts))
         roundDeep(r, 4)
         return r to texts
@@ -252,6 +259,7 @@ object Logic {
         }
         r.optJSONObject("nano")?.optJSONArray("passes")?.let { p -> for (i in 0 until p.length()) fix(p.optJSONObject(i)) }
         fix(r.optJSONObject("gm"))
+        r.optJSONObject("gm")?.optJSONArray("tries")?.let { t -> for (i in 0 until t.length()) fix(t.optJSONObject(i)) }
         r.put("tx", kept)
     }
 
@@ -262,14 +270,20 @@ object Logic {
         }
         r.optJSONObject("nano")?.optJSONArray("passes")?.let { p -> for (i in 0 until p.length()) each(p.optJSONObject(i)) }
         each(r.optJSONObject("gm"))
+        r.optJSONObject("gm")?.optJSONArray("tries")?.let { t -> for (i in 0 until t.length()) each(t.optJSONObject(i)) }
     }
 
     /**
      * Trim steps, least needed first, used only while the code is over its limit. The main texts
-     * (Gemini Nano's FULL pass and Gemma) are never dropped: the lead fact-checks them.
+     * (Gemini Nano's FULL pass, or its FAST pass if FULL wrote nothing, and Gemma's final backend) are never
+     * dropped: the lead fact-checks them. Texts from a Gemma backend that gave up part-way go first.
      */
     private fun trims(texts: TextTable): List<(JSONObject) -> Unit> = listOf(
-        { r -> dropTexts(r, texts) { users -> users.any { it != "nano-FAST" } } },
+        { r ->
+            val fullWrote = texts.users.any { "nano-FULL" in it }
+            val extra = if (fullWrote) setOf("nano-FAST", "gemma-partial") else setOf("gemma-partial")
+            dropTexts(r, texts) { users -> users.any { it !in extra } }
+        },
         { r ->
             r.optJSONObject("gm")?.optJSONArray("tries")?.let { a ->
                 for (i in 0 until a.length()) a.optJSONObject(i)?.optJSONArray("log")?.let { log ->

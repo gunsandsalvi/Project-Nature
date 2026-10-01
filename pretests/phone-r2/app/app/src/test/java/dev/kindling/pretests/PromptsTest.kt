@@ -43,10 +43,11 @@ class PromptsTest {
         assertTrue(!facts.contains("Rules:"))
     }
 
-    @Test fun gemmaDownloadsThePublicTensorG6File() {
+    @Test fun gemmaDownloadsThePublicGeneralBuild() {
         assertEquals("https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/" +
-            "b3ca0d2f076785a8f4b2219ddbd2bdb99954eae1/gemma-4-E2B-it_Google_Tensor_G6.litertlm", GemmaTest.URL)
-        assertEquals(3_313_938_293L, GemmaTest.SIZE)
-        assertEquals(listOf("GOOGLE_TENSOR", "GPU"), GemmaTest.BACKENDS)
+            "b3ca0d2f076785a8f4b2219ddbd2bdb99954eae1/gemma-4-E2B-it.litertlm", GemmaTest.URL)
+        assertEquals(2_588_147_712L, GemmaTest.SIZE)
+        assertEquals("181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c", GemmaTest.SHA256)
+        assertEquals(listOf("GPU", "CPU"), GemmaTest.BACKENDS)
     }
 }

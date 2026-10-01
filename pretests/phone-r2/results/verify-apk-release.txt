@@ -1,4 +1,4 @@
-dist/kindling-pretests-r2.apk (28561617 bytes)
+dist/kindling-pretests-r2.apk (28561497 bytes)
   ok   signed v3
   ok   same signing key as round 1 (b8eef7b23ef6e8eb9c10882da8269da9779c555ac28565d9e02ebaf88e8895ce)
   ok   zip entries aligned (16 KB for .so)
@@ -46,11 +46,9 @@ dist/kindling-pretests-r2.apk (28561617 bytes)
   ok   permissions: android.permission.ACCESS_NETWORK_STATE android.permission.INTERNET com.google.android.apps.aicore.service.BIND_SERVICE dev.kindling.pretests.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION 
   ok   may open libOpenCL.so
   ok   may open libOpenCL-pixel.so
+  ok   may open libOpenCL-car.so
   ok   may open libvndksupport.so
-  ok   may open libedgetpu_litert.so
-  ok   may open libedgetpu_util.so
-  ok   may open libedgetpu_client.google.so
-  ok   may open libedgetpu_tachyon.google.so
+  ok   no Tensor AI-unit libraries declared
   ok   share provider dev.kindling.pretests.files
   ok   ML Kit usage upload removed (no network use but the model download)
   ok   native libraries load from the APK

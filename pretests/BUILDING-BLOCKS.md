@@ -24,7 +24,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 - **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app.
 - **Measured on your phone:** `B01`, `B02` and `B79` (first test app).
 - **Done in the cloud, waiting for your phone, eyes or ears:** `B04` storing data and `B11` terrain (phone parts in the second test app), `B66` drawing and gestures (the drawing page), `B73` writer AI (second test app), `B74` sound and `B76` speech (the listening page).
-- **Started:** `B81` built things.
+- **Paused by you:** `B81` built things (nothing built yet).
 
 ## The blocks
 
@@ -148,7 +148,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
     - **Experiment 1 at its old full size** (300 worlds of 500 years, about 100 people each): 1,521, 7,604 or 76,042 CPU-hours at a guessed 1, 5 or 50 ms per person per simulated day. Far too much, so experiments now run mainly in small sandboxes sized to a computing budget stated up front, confirmed in a few full worlds (`RES-21`).
     - **Long runs:** a detached process ran for just under 3 hours without a missed beat, then stopped when the cloud machine restarted; the files on disk survived the restart. So long runs save checkpoints and resume, as tested above. Still open: where checkpoints live between sessions.
 
-- `B81` **Built things** · started (`pretests/b81-built-things/`)
+- `B81` **Built things** · paused by you before it began (`pretests/b81-built-things/`)
   - **Question:** how a built thing is held in code (`MAT-18`), and whether a learner that changes one thing at a time can find its way through the vocabulary: from stones round a fire to a kiln, then to a fire hot enough to smelt copper (`RCK-04`, `RCK-08`, `MOM-12`).
   - **Approaches:**
     - a record of an arrangement in a short vocabulary: shapes (pit, ring, wall, cover, opening, tube, pile), materials (stone, clay, earth) and joins (stacked, which leaks air, or plastered);

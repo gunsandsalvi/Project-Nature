@@ -190,8 +190,8 @@ class MainActivity : Activity() {
         col.addView(text(
             "Before you start:\n" +
                 "• Update AICore, Private Compute Services and Google Play services in the Play Store.\n" +
-                "• Be on Wi-Fi: the Gemma model (3.3 GB) downloads once.\n" +
-                "• Have at least 4 GB free.\n" +
+                "• Be on Wi-Fi: the Gemma model (2.6 GB) downloads once.\n" +
+                "• Have at least 3.5 GB free.\n" +
                 "• Plug in the charger, or have the battery above 60%.\n" +
                 "• Set the media volume to about half: one test plays clicks and tones.\n" +
                 "• Then leave the app open and the phone alone until it asks you to rate some texts. " +
@@ -251,7 +251,7 @@ class MainActivity : Activity() {
         col.addView(shareNote)
         shareButton = button("Share results file", visible = false) { shareFile() }
         col.addView(shareButton)
-        deleteButton = button("Delete the model (3.3 GB)", visible = false) { askDeleteModel() }
+        deleteButton = button("Delete the model (2.6 GB)", visible = false) { askDeleteModel() }
         col.addView(deleteButton)
         col.addView(text(
             "The Gemma model stays on the phone for later rounds unless you delete it here.\n\n" +
@@ -329,8 +329,7 @@ class MainActivity : Activity() {
         if (!running && !rating && started) showCode(finished)
         else for (v in listOf(codeLabel, codeView, copyButton, shareNote, shareButton)) v.visibility = View.GONE
         background {
-            val present = GemmaTest.modelFile(this).let { it.exists() || File(it.path + ".part").exists() } ||
-                GemmaTest.cacheDir(this).exists()
+            val present = GemmaTest.modelFile(this).let { it.exists() || File(it.path + ".part").exists() }
             onUi { deleteButton.visibility = if (present && !running && started) View.VISIBLE else View.GONE }
         }
     }
@@ -384,7 +383,7 @@ class MainActivity : Activity() {
     }
 
     private fun askDeleteModel() {
-        AlertDialog.Builder(this).setMessage("Delete the Gemma model (3.3 GB)? A later test round would download it again.")
+        AlertDialog.Builder(this).setMessage("Delete the Gemma model (2.6 GB)? A later test round would download it again.")
             .setPositiveButton("Delete") { _, _ ->
                 background {
                     val freed = try { GemmaTest.deleteModel(this) } catch (_: Throwable) { -1L }
@@ -455,7 +454,7 @@ class MainActivity : Activity() {
         if (!probe.onWifi()) warn.add("the phone is not on Wi-Fi, which the Gemma download needs")
         if (!store.isDone("gm") && !GemmaTest.download(this).ready()) {
             val free = probe.freeBytes()
-            if (free in 0 until 4_000_000_000L) warn.add("only ${Logic.gb(free)} is free: Gemma needs 4 GB, or it is left out")
+            if (free in 0 until Logic.needFreeBytes(GemmaTest.SIZE, 0L)) warn.add("only ${Logic.gb(free)} is free: Gemma needs 3.5 GB, or it is left out")
         }
         if (warn.isNotEmpty()) say("Note: ${warn.joinToString("; ")}. The tests start anyway.")
     }
