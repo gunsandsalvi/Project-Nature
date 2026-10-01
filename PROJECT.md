@@ -2858,7 +2858,7 @@ This section turns "research standard" into practice: how the project proves tha
     A sandbox uses the game's own rules and minds, with no special rules and nothing scripted inside it (`PRN-07`); only its setting is chosen, and it includes decoys and materials nobody designed for.
     Each experiment states its computing budget up front, and its sandbox is sized to fit it (`RES-16`).
     Sandbox runs are cheap and repeat exactly from their seed (`TIM-16`), so each question gets many runs.
-    At every milestone, a few full worlds from the play generator confirm that what the sandboxes showed also happens in a real world, within the sandboxes' ranges.
+    At every milestone, one or two full worlds from the play generator, run overnight on your phone, confirm that what the sandboxes showed also happens in a real world, within the sandboxes' ranges.
   - **Why:** Whole worlds are far too costly to run by the hundred (`RSK-14`), while a sandbox answers one question cheaply and repeatably.
     The full worlds guard against a sandbox so well arranged that it makes the result likely by design.
   - **Check:** every claim names its sandbox and its full-world confirmation, and a result seen only in sandboxes is reported as such.
@@ -2880,7 +2880,7 @@ This section turns "research standard" into practice: how the project proves tha
   They often become new signature moments (`MOM`).
   - **How it works:** the runner flags every measure outside its expected range and every first the recognisers find that the question didn't ask about (`PRE-39`); each goes into the log and into the report's surprises.
 
-- `RES-13` **Many runs, reported as ranges** *(Decided)*: Every claim rests on many runs (100 sandbox runs per setup unless stated), confirmed in a few full worlds (`RES-21`), and is reported as a range, for example "discovered in 62 of 100 runs; typically around year 140".
+- `RES-13` **Many runs, reported as ranges** *(Decided)*: Every claim rests on many runs (about 20 sandbox runs per setup unless stated, as many as the experiment's computing budget allows), confirmed in one or two full worlds (`RES-21`), and is reported as a range, for example "discovered in 13 of 20 runs; typically around year 140".
   - **Check:** every claim in a report states its number of runs and its range.
 
 - `RES-14` **Compared with reality where possible** *(Decided)*: Where real-world data exist, such as hunter-gatherer populations or rates of learning and cultural change, results are compared with them.
@@ -2895,9 +2895,9 @@ This section turns "research standard" into practice: how the project proves tha
   - **How it works:** the runner draws development seeds and held-back seeds from separate pools, logs every attempt and every tuned value, and refuses to run the held-back seeds a second time for the same claim.
 
 - `RES-17` **Signature moments keep passing** *(Decided)*: Each signature moment has its own sandbox, and passes if it happens in at least 1 run in 10 within its time window, unless its own criteria say otherwise (`RES-21`).
-  A small sample of these sandboxes re-runs before every merge and all of them at every milestone, and a failure blocks the milestone (`PRC-10`).
+  Each moment's sandbox runs at the milestone it belongs to, and again only when something it depends on changes; before a merge, only the short ones run, and a failure blocks the milestone (`PRC-10`).
   Each milestone report also says which moments appeared in its full worlds.
-  - **How it works:** each moment's sandbox and pass rule are files beside its experiment (`RES-08`); the merge check runs a small random sample of them, and the milestone check runs them all (`PRC-10`).
+  - **How it works:** each moment's sandbox and pass rule are files beside its experiment (`RES-08`); the merge check runs the short ones, and each milestone runs those that are due (`PRC-10`).
 
 - `RES-18` **Same rules as play** *(Decided)*: Sandboxes use the same rules as play, and the full worlds that confirm them come from the play generator (`WLD-10`, `RES-21`).
   Scripted events and dials appear only in clearly labelled experiments, and a moment that passes only with a dial doesn't count as passing in play (`PRN-12`).
@@ -3011,8 +3011,8 @@ This section defines the roles, the documents, how this file changes, and how wo
   - **Check:** the main version accepts work only from branches whose checks passed and whose independent review approved them (`PRC-10`).
 
 - `PRC-10` **The checks** *(Decided)*:
-  - **before any work joins the main version:** the tests, the reality checklist (`RES-04`), the general-rules check (`PRN-07`), a small sample of the signature-moment tests (`RES-17`), and the file check: every ID defined once, every reference resolving, every status valid, and no live item pointing to a dropped one;
-  - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the phone and cloud statistical match (`RES-05`), the full signature-moment tests (`RES-17`), the coverage check (`PRC-12`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
+  - **before any work joins the main version:** the tests, the reality checklist (`RES-04`), the general-rules check (`PRN-07`), the short signature-moment tests (`RES-17`), and the file check: every ID defined once, every reference resolving, every status valid, and no live item pointing to a dropped one;
+  - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the phone and cloud statistical match (`RES-05`), the signature-moment tests that are due (`RES-17`), the coverage check (`PRC-12`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
   - **How it works:** the checks run automatically on every request to join the main version and at each milestone gate, and any failure blocks it.
 
 - `PRC-11` **Builds between milestones** *(Decided)*: A new version whenever something you can see or try has changed, with a one-line note, installed by download (`PLT-06`).
@@ -3166,7 +3166,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood high, impact high.
   - **Risk:** Experiment 1 alone may need months of a cloud session's computing (`SCP-15`).
   - **Signs:** runs that can't finish within a session; experiments cut short.
-  - **Response:** sandboxes instead of whole worlds, each sized to a computing budget stated up front (`RES-21`); stop each test once its result is clear (`RES-16`); leaner minds; and raise more computing with you first (`SCP-15`).
+  - **Response:** sandboxes instead of whole worlds, each sized to a computing budget stated up front (`RES-21`); about 20 runs per setup (`RES-13`); stop each test once its result is clear (`RES-16`); leaner minds; and raise more computing with you first (`SCP-15`).
 
 - `RSK-16` **Invented sources** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
