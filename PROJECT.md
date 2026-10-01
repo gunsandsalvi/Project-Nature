@@ -78,8 +78,8 @@ Every item, including the signature moments, milestones and risks, starts with e
 Each area has a default kind, and the exceptions are listed here, in one place:
 
 - **Context:** `VIS`, `MIL` and `RSK`, plus `SCP-01`, `SCP-13`, `SCP-16`, `GOD-01`, `MND-17`, `RES-07`, `PRC-01` and `PRC-08`.
-- **Rules:** `PRN`, `MOM` (checked by experiment), `SCP`, `RCK`, `RES` and `PRC`, plus `GOD-05`, `GOD-06`, `GOD-07`, `TIM-03`, `WLD-13`, `MAT-09`, `MAT-13`, `MAT-14`, `MAT-15`, `MAT-17`, `BIO-14`, `BIO-17`, `MND-01`, `MND-02`, `CUL-07`, `PRE-17` and `PRE-31`.
-- **Features:** every other area, plus `SCP-14`, `RES-02`, `RES-03`, `RES-06`, `RES-12`, `RES-15`, `PRC-06` and `PRC-12`.
+- **Rules:** `PRN`, `MOM` (checked by experiment), `SCP`, `RCK`, `RES` and `PRC`, plus `GOD-05`, `GOD-06`, `GOD-07`, `TIM-03`, `WLD-13`, `WLD-30`, `MAT-09`, `MAT-13`, `MAT-14`, `MAT-15`, `MAT-17`, `BIO-14`, `BIO-17`, `MND-01`, `MND-02`, `CUL-07`, `PRE-17` and `PRE-31`.
+- **Features:** every other area, plus `SCP-14`, `RES-02`, `RES-03`, `RES-06`, `RES-12`, `RES-15`, `RES-20`, `PRC-06` and `PRC-12`.
 
 ### Item format
 
@@ -543,7 +543,7 @@ This section sets the boundaries of the project: what it includes, where history
 - `SCP-02` **Just you** *(Decided)*
   - **What:** Kindling is built for one person, on one phone.
   - **In practice:**
-    - no public release, store listing, onboarding or tutorial;
+    - no public release, store listing or tutorial, only short help cards (`PRE-40`);
     - no support for other phones, tablets or computers (experiments in the cloud are a research tool, not a way to play);
     - no accounts, purchases, ads or analytics;
     - free to use your phone's specific hardware (`PLT-01`).
@@ -697,8 +697,8 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
 
 - `GOD-10` **Using your powers on the phone** *(Decided)*
   - **Touch first:** long-press a person, animal, group or place to see what you can do there (`PRE-33`).
-  - **Nature:** draw around an area to push its weather or season; tap a spot for a small event.
-  - **Dreams:** open a sleeper's memories, shown as small pixel-art scenes, choose what the dream is made of, and pick a feeling.
+  - **Nature:** choose "draw an area" and draw around it to push its weather or season; tap a spot for a small event.
+  - **Dreams:** open a sleeper's memories, shown as small pixel-art scenes of what they remember (which can differ from what happened), choose what the dream is made of, and pick a feeling.
   - **Fortune:** choose what to bless or curse, and for how long.
   - Everything then plays out through the simulation.
     Nothing happens faster than nature could make it happen.
@@ -709,13 +709,14 @@ Two principles govern all of it: you are nature (`PRN-03`), and the rules never 
 
 ### 4.4 Records of your interventions
 
-- `GOD-08` **Recorded behind the scenes** *(Decided)*: Every intervention is recorded with its time, place, target and details, as part of the saved history (`PRN-15`).
+- `GOD-08` **Recorded behind the scenes** *(Decided)*: Every intervention is recorded with its time, place, target and every detail (the memories chosen, the feeling, the region drawn, the duration), as part of the saved history (`PRN-15`).
   The scientist's view of your interventions depends on this record (`GOD-09`).
 
 - `GOD-07` **No trace in the story view** *(Decided)*: The story view never shows where you intervened or how much you helped.
 
 - `GOD-09` **Interventions in the scientist's view** *(Decided)*
   - **What:** The scientist's view shows where and when you intervened, and traces what changed because of it.
+    By default it follows the chain of causes from your act through the saved history; on request, it runs a comparison branch without the act (`TIM-06`, `TIM-13`).
   - **Why:** Curiosity (`VIS-08`): you can find out what your nudges actually did.
     Branching (`TIM-06`) lets you compare history with and without them.
   - **Example:** You select the dream you sent Ama and follow what came of it: eleven days of twirling sticks, the first fire, and fire-making spreading along the river.
@@ -748,6 +749,10 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
 - `TIM-04` **Manual control** *(Decided)*: You can unlink speed from zoom whenever you want.
   The controls: pause, play, a speed dial, and a lock that keeps the current speed while you move the camera.
 
+- `TIM-15` **Who sets the speed** *(Decided)*: Your pause and speed lock beat the story director (`TIM-02`), and the director beats zoom.
+  Choosing a power pauses time.
+  Overnight mode (`TIM-12`) ignores the director, but keeps its moments for the morning.
+
 ### 5.2 The story director
 
 - `TIM-02` **Story director** *(Decided)*
@@ -775,6 +780,7 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
 
 - `TIM-05` **Pauses when closed** *(Decided)*: When the app is closed or in the background, the world stops.
   Nothing happens while you're away, and every session starts exactly where the last one ended.
+  Opening the app resumes time.
 
 - `TIM-12` **Overnight mode** *(Decided)*
   - **What:** Leave the app open on the charger and switch on overnight mode.
@@ -791,8 +797,10 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
 
 - `TIM-06` **Rewind and branch** *(Decided)*
   - **What:** Go back to any saved moment in a world's history (`PRN-15`) and carry on from there, changing something or nothing.
-    The new branch runs on from the saved state, so even with no change, chance can take it somewhere new.
     The original timeline is kept, and the new one becomes a branch.
+  - **Chance is local:** each chance event belongs to one being and one moment.
+    On the same phone and version, a branch therefore differs from the original only where its changes reach, and a branch with no change repeats the original.
+    So a comparison shows what a change did, not luck.
   - **Why:** Curiosity (`VIS-08`): the only way to really answer "what if?".
   - **Example:** You rewind to before the plague, send a mild winter instead, and compare the two histories (`MOM-10`).
 
@@ -824,20 +832,26 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 
 - `WLD-01` **Torus with latitude** *(Decided)*
   - **What:** The map wraps around in both directions.
-    Walk east long enough and you come back from the west; walk north across the polar ice and you come back from the south.
-    An equator runs across the middle of the map, and polar ice lies along the line where it wraps north–south.
+    Walk east long enough and you come back from the west.
+    An equator runs across the middle of the map, and the poles lie along the line where it wraps north–south.
     Climate zones and seasons behave as on a planet, with seasons reversed between the northern and southern halves.
+  - **The polar seam:** Along the line where the map wraps north–south lies a wide, permanent ice cap.
+    Weather systems stop at it, and it is too wide and barren for any animal or person to cross, so nothing ever passes from one pole to the other.
+    This is a stated exception to real physics (`PRN-05`).
   - **Why:** There are no edges and no stretched or squashed regions, so every place can be simulated in the same way.
 
 - `WLD-02` **Globe view** *(Decided)*: Fully zoomed out, the world is drawn as a globe.
   The wrap only shows at the poles.
   The globe squeezes the polar regions, which on the map are as wide as the equator; this is a known exception in the display only, and the map keeps every place at its true size.
-  Someone crossing the polar ice would seem to jump from one pole to the other on the globe, which is rare and harmless.
 
 - `WLD-03` **Size** *(Decided)*
   - **What:** About 1,000 km from pole to pole and about 2,000 km around: roughly 2 million km² in all, land and sea together.
   - **What follows:** Each climate zone is roughly 100 km wide, about four to five days' walk.
   - **Why:** It is big enough for many separate peoples and small enough to simulate deeply (`PRN-02`).
+
+- `WLD-30` **What scales with the world** *(Decided)*: Quantities set by distance (weather systems, ocean currents, migrations and climate belts) scale with the world's size.
+  Local quantities (bodies, chemistry, materials and rates of change) stay real.
+  Every scaled value is labelled as scaled, with the real value it came from (`PRN-05`).
 
 - `WLD-04` **How many people it can feed** *(To test)*: Estimated at roughly 50,000 hunter-gatherers (about one person per 10 km² of good land), or about half a million to five million once farming exists, since farming supports 10 to 100 times more people on the same land.
   These are orders of magnitude only: on the wrap-around map a third of the area lies beyond 60° latitude, so there is less good land than Earth intuition suggests.
@@ -878,8 +892,9 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 - `WLD-23` **Richness of life** *(Decided)*: About 50 animal and 200 plant species per world, across all groups: mammals, birds, fish, shellfish and insects; trees, shrubs, grasses, herbs and fungi.
 
 - `WLD-10` **Generate many, keep the best** *(Decided)*
-  - **What:** The generator makes many candidate worlds and scores each one.
-    It keeps the best, and never edits it.
+  - **What:** The generator makes many candidate worlds, scores each one, and never edits them.
+    "New world" shows the best three as small globes, each with a one-line summary.
+    You pick one or let the game pick, and you can also enter a seed instead.
   - **What scores well:**
     - varied landscapes and climates;
     - natural barriers (mountains, seas, deserts) that let separate cultures form;
@@ -889,7 +904,7 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 - `WLD-24` **Where history begins** *(Decided)*: The bands start in a temperate region with caves, fresh water and varied food within reach.
   The region is found by the scoring, never placed by hand.
 
-- `WLD-11` **Generation time** *(Decided)*: Generating the candidate worlds and choosing the best takes a few minutes in total on the phone.
+- `WLD-11` **Generation time** *(Decided)*: Generating the candidate worlds and finding the best three takes a few minutes in total on the phone.
 
 ### 6.4 Detail
 
@@ -920,11 +935,12 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 - `WLD-16` **Climate and weather** *(Decided)*
   - **Climate from geography:** Each place's climate (rain, temperature and winds through the seasons) is worked out by rules derived from real physics and calibrated to Earth, not by a full physical climate model: latitude, height, distance from the sea, prevailing winds, and mountains that block rain.
   - **Daily weather** is drawn from that climate, with storm systems that move across the land.
-  - **Long cycles:** over thousands of years, ice ages and warm periods move coastlines and push migrations.
+  - **Long cycles:** ice ages and warm periods follow real cycle lengths, tens of thousands of years long, moving coastlines and pushing migrations.
+    Worlds begin as an ice age ends, so seas rise over the first ten thousand years or so and can cut bands apart (`MOM-05`).
     A great eruption can cool the world for a few years.
   - **Example:** Rain clouds coming off the western sea drop their rain on the mountains, so the valleys beyond are dry grassland with forest only along the rivers.
 
-- `WLD-05` **Climate on a small world** *(Decided)*: Climate zones sit closer together than on Earth, a few days' walk apart, and weather systems are scaled to fit the world.
+- `WLD-05` **Climate on a small world** *(Decided)*: Climate zones sit closer together than on Earth, a few days' walk apart, and weather systems are scaled to fit the world (`WLD-30`).
 
 - `WLD-25` **People change the climate** *(Decided)*: What covers the land and, much later, fuel burned at scale feed back into the climate through the same physics.
   Clearing a forest can dry a region; centuries of burning could warm the world.
@@ -1129,7 +1145,7 @@ How people think is in Minds.
 
 - `BIO-03` **Starting population** *(Decided)*: 3–4 family bands of 15–30 people each, about 45–120 people in all, living in one region (`WLD-24`).
 
-- `BIO-20` **Starting knowledge in detail** *(Proposed)*:
+- `BIO-20` **Starting knowledge in detail** *(Decided)*:
   - **Bands:** each band is a few related families.
     The bands are neighbours who sometimes meet, and share one language.
   - **What adults know:** where water, shelter and the main foods are in each season; which local plants and animals are food, which are poison and which are dangerous; the routes of their home range; who is kin to whom.
@@ -1211,6 +1227,8 @@ How people think is in Minds.
   - **What:** Bodies differ only in real biological ways: reproduction, and average differences in size and strength, with wide overlap between individuals.
   - **What doesn't:** Who hunts, gathers, leads or makes things is decided entirely by each culture, and can differ between cultures.
     The simulation never assigns a role by sex.
+  - **Minds:** Minds don't differ by sex from birth.
+    Every inborn mental trait has the same average in both sexes (`BIO-08`, `MND-20`), and any difference in behaviour comes from culture or from bodies.
 
 ### 8.6 Senses and actions
 
@@ -1227,6 +1245,9 @@ How people think is in Minds.
   Minds barely change over thousands of years; culture does the heavy lifting, as in our own history.
 
 - `BIO-07` **Evolution dial** *(Decided)*: A setting speeds up genetic change for experiments (`PRN-12`).
+
+- `BIO-22` **Looks** *(Decided)*: Skin, hair and faces are inherited (`BIO-06`) and vary by region with sunlight, as in real biology and at real speeds, so they change slowly.
+  They are designed so that no people reads as a copy of a real one (`SCP-20`).
 
 ### 8.8 Animals
 
@@ -1295,9 +1316,9 @@ Everything a mind knows is learned inside the world (`PRN-01`), every choice can
 - `MND-21` **Inborn tendencies** *(Decided)*
   - **What:** The biases evolution gave humans: a taste for sweet and fat and a wariness of bitter; quicker fear of long, legless things that move suddenly (such as snakes), of heights and of the dark; attachment between parent and child; the urge to imitate; and suspecting a hidden someone behind unexplained events.
   - **Why:** They make some lessons easier to learn but teach nothing by themselves, so the world stays the only teacher (`PRN-01`).
-  - **More:** further tendencies are proposed in `MND-26`.
+  - **More:** further tendencies are in `MND-26`.
 
-- `MND-26` **More inborn tendencies** *(Proposed)*: Added to `MND-21` from research, each with its sources and a comparison run (`RES-10`) showing what it changes:
+- `MND-26` **More inborn tendencies** *(Decided)*: Added to `MND-21` from research, each with its sources and a comparison run (`RES-10`) showing what it changes:
   - pain, and avoiding what causes it;
   - favouring kin, and caring for the hurt and the sick;
   - returning favours, and anger at cheats;
@@ -1462,7 +1483,8 @@ It grows out of minds (see Minds) living together, and it changes, spreads, spli
 - `CUL-22` **Leadership and status** *(Decided)*: Depending on the culture, status comes from skill, generosity, age, success, fear or birth.
   Leaders, councils and chiefs emerge where a group needs to act together.
 
-- `CUL-08` **Dark history can happen** *(Decided)*: War, slavery, sacrifice and cruelty can emerge like anything else.
+- `CUL-08` **Dark history can happen** *(Decided)*: Violence and war, captivity and slavery, sacrifice, cruelty, infanticide and cannibalism can emerge like anything else.
+  Sexual acts stay abstract (`BIO-15`).
   What is shown is controlled by the content setting (`PRE-18`).
 
 - `CUL-23` **Peoples** *(Decided)*: The game recognises peoples by what their members share (language, beliefs, customs and style) and names them by what they call themselves.
@@ -1472,6 +1494,7 @@ It grows out of minds (see Minds) living together, and it changes, spreads, spli
 ### 10.5 Expression
 
 - `CUL-25` **Expression is real** *(Decided)*: Each form of expression exists as a real thing in the world: paint on rock, marks on wood and bone, sound in the air, movement in a dance.
+  What it holds is kept as content: a song as its notes and rhythm; a picture or map as what it shows and how (composition, style, skill and pigments), from which the game draws it.
 
 - `CUL-09` **Visual art** *(Decided)*: Paintings, carvings and body decoration composed from their own memories and myths, made with real pigments and tools (`RCK-15`, `RCK-16`) on cave walls, objects and bodies.
   What they depict reflects what matters to them (`MOM-07`).
@@ -1508,7 +1531,8 @@ It is written to stand on its own, without needing any image to understand it.
     You turn the camera and fly down until one person fills the screen.
 
 - `PRE-20` **Colour in steps** *(Decided)*
-  - **What:** Every material has a short, hand-picked ladder of shades, about 4–7 colours, drawn from one master palette.
+  - **What:** Every material has a short ladder of shades, about 4–7 colours, drawn from one master palette.
+    Ladders are made automatically from each material's simulated colour (`MAT-03`) and matched to the palette; common materials, such as grass, limestone and water, get hand-picked ladders instead.
     Light chooses a step on the ladder.
     Where two steps meet, a fine pixel pattern blends them in a narrow band only; surfaces are never speckled all over.
     The pattern is fixed to the surface, so it doesn't swim when the camera moves.
@@ -1583,6 +1607,7 @@ It is written to stand on its own, without needing any image to understand it.
   - **What:** The world fills the screen.
     Controls and panels appear only when you ask for them: tap a person, animal, group or place to open its card, or swipe up for the chronicle and other views.
     Nothing stays on screen unless you called it up, apart from a live moment appearing briefly (`PRE-08`).
+    A brief touch shows the date, the real speed of time and the time control (`PRE-33`).
   - **Why:** The world is the point.
     It should feel like looking at a living place, not at a dashboard.
   - **Example:** You open the app to nothing but the valley at dusk, exactly as you left it.
@@ -1592,14 +1617,17 @@ It is written to stand on its own, without needing any image to understand it.
 
 - `PRE-33` **Gestures** *(Decided)*:
   - drag to move, and twist with two fingers to turn;
-  - pinch to zoom, which also sets the speed of time (`TIM-01`);
+  - pinch to zoom, or double-tap and drag with one thumb, which also sets the speed of time (`TIM-01`);
   - tap to select;
-  - long-press for your powers at that spot (`GOD-10`);
-  - swipe up for views;
-  - a small corner control for time: pause, speed and speed lock (`TIM-04`).
+  - long-press for your powers at that spot (`GOD-10`), including drawing an area, so a drag always moves the camera;
+  - swipe up from the bottom edge for views;
+  - a brief touch anywhere shows the date, the real speed of time and the time control: pause, speed and speed lock (`TIM-04`).
 
 - `PRE-35` **Cards** *(Decided)*: Selecting anything opens a card with what matters about it, such as a person's name, age, mood, and what they are doing and why, or a place's land and history.
   Links lead into deeper views: the story view, the scientist's view, family trees, archaeology.
+
+- `PRE-40` **Screens** *(Decided)*: Besides the world itself: a first-launch screen, a list of your worlds, and settings.
+  Short help cards appear the first time you use something; there is no tutorial (`SCP-02`).
 
 ### 11.3 Following the story
 
@@ -1609,15 +1637,18 @@ It is written to stand on its own, without needing any image to understand it.
     Every entry links to the moments and people behind it (`VIS-15`).
   - **Why:** It is the main way to read a world's history, and the measure of "histories worth reading".
 
-- `PRE-06` **Follow a soul** *(Decided)*: Pick anyone and follow their life: the camera stays with them, and their card shows what they feel, want and think (`PRE-14`).
+- `PRE-06` **Follow a soul** *(Decided)*: Pick anyone and follow their life: their card shows what they feel, want and think (`PRE-14`), and the camera can stay with them.
+  The people you follow are kept in a list, separate from the camera, so you can follow several and still look elsewhere.
   When they die, the game offers to follow someone close to them.
 
 - `PRE-07` **Map overlays** *(Decided)*: Information shown spread across the land.
   The overlays: beliefs; knowledge, meaning who knows which skill; moods; languages and dialects; family ties; territories and paths; food and water; disease; climate and seasons; rock and resources.
 
 - `PRE-08` **Live moments** *(Decided)*: Only what matters interrupts you: firsts, deaths of people you follow, disasters, and big turns in history ("someone has made fire for the first time").
-  Everything else waits in the chronicle.
-  The level can be adjusted in settings, and one tap takes you to the moment (`TIM-02`).
+  What can interrupt is one shared list, also used by the story director (`TIM-02`).
+  At most about one interruption comes a minute, and the closer you are watching, the more important something must be to interrupt.
+  Live moments you don't take wait in a list; everything else waits in the chronicle.
+  The level can be adjusted in settings, and one tap takes you to the moment.
 
 - `PRE-39` **Recognising what emerges** *(Decided)*
   - **What:** The game spots and names what emerges, for you only: firsts and discoveries, skills, languages, institutions, peoples and eras.
@@ -1641,8 +1672,11 @@ It is written to stand on its own, without needing any image to understand it.
 - `PRE-12` **Their maps and names (view)** *(Decided)*: Their place names with translation, and the maps they draw, compared with the real land.
 
 - `PRE-14` **Two views of every mind** *(Decided)*: A story view in their own words, and a scientist's view of their raw beliefs, how certain they are, and the evidence behind each belief.
+  Other views, such as the chronicle, the map overlays and archaeology, also have a story version and a scientist's version, switched separately in each view.
+  Story versions never show your interventions (`GOD-07`).
 
-- `PRE-15` **Art that remembers** *(Decided)*: Tap a painting or carving to see the event or myth it depicts.
+- `PRE-15` **Art that remembers** *(Decided)*: Tap a painting or carving to see it, what its maker meant, and the event or myth it depicts.
+  If that event was saved as a key moment, you can watch it as it really happened (`PRN-15`).
 
 - `PRE-16` **Bestiary** *(Decided)*: Each world's tree of life and its species.
 
@@ -1658,8 +1692,16 @@ It is written to stand on its own, without needing any image to understand it.
 - `PRE-37` **The writer AI runs on the phone** *(Decided)*: All text is written on the phone, fully offline, with no running cost.
   If the writing turns out too plain for histories worth reading (`VIS-15`), that is raised at a milestone review.
 
+- `PRE-41` **How text is written** *(Decided)*: Text is written when it is first opened or during pauses, checked against the data it came from, stored, and never silently rewritten.
+  You can ask for a rewrite.
+  Text that fails its check is replaced by plain factual text.
+  What the chronicle covers, and where its ages begin, come from fixed rules (`PRE-39`), not from the writer's taste.
+  The writer chooses words and rhythm, never content: every claim, cause, motive, image and name must be in the data (`PRE-17`).
+
 - `PRE-38` **English** *(Decided)*: The interface, the chronicle and translations are in English.
   Their own words appear in their own languages, with English translations (`PRE-12`).
+  Until their own names emerge, people, places and peoples get labels made from that world's own sounds, marked as the game's (`CUL-18`).
+  English text describes things through their concepts, such as "cutting stone" (`MND-04`); our own words for them, such as "flint", appear only in the scientist's view.
 
 - `PRE-19` **Storytelling voices** *(To test)*: Documentary, archaeologist, their own tradition, and intimate.
   Each is tried live on real simulation output and chosen by ear.
@@ -1667,8 +1709,12 @@ It is written to stand on its own, without needing any image to understand it.
 
 ### 11.5 Content
 
-- `PRE-18` **Content setting** *(Decided)*: You choose how much of history's darker side is shown.
-  The simulation underneath never changes (`CUL-08`).
+- `PRE-18` **Content setting** *(Decided)*: You choose how much of history's darker side is shown, at one of three levels:
+  - **Show:** everything, with pictures and sounds;
+  - **Plain:** no graphic pictures or sounds, and factual text;
+  - **Gentle:** dark events mentioned briefly, in the chronicle only.
+
+  The simulation underneath never changes (`CUL-08`), and bodies are drawn without sexual detail at every level.
 
 ## 12. Sound
 
@@ -1732,7 +1778,8 @@ How much simulation fits on it is found by measuring, not guessing.
 - `PLT-03` **Works offline** *(Decided)*: Everything works without a connection, including the text descriptions, which are written on the phone (`PRE-37`).
 
 - `PLT-06` **Installing new versions** *(Decided)*: Each new version is a file you download on the phone and install, after allowing installs from your browser once.
-  No store, no accounts, no fees.
+  Builds are signed for your free hobbyist developer account with Google, so they keep installing this way under Android's developer rules from 2027 (`RSK-18`).
+  No store and no fees.
   Each milestone report links to its version.
 
 ### 13.2 Performance
@@ -1762,6 +1809,10 @@ How much simulation fits on it is found by measuring, not guessing.
   - **Why:** Fitting a new layer into a running world would be costly, and could make its past dishonest.
     Starting a new world keeps every world true to one set of rules.
   - Going back to a saved moment from before a small update and branching runs the new branch under the current rules.
+
+- `PLT-10` **Storage** *(Decided)*: Saved moments are kept densely near the present and thinned with age by a fixed rule; key moments are always kept (`PRN-15`).
+  You can delete worlds and branches.
+  When the phone nears full, the game warns you and asks what to delete; it never deletes anything else by itself.
 
 ### 13.4 The cloud
 
@@ -1811,6 +1862,9 @@ This section turns "research standard" into practice: how the project proves tha
   Scripted events and dials appear only in clearly labelled experiments, and a moment that passes only with a dial doesn't count as passing in play (`PRN-12`).
 
 - `RES-19` **Promises are tested** *(Decided)*: Every claim in Minds and in Culture and society that something emerges either gets an experiment before its milestone closes, or is marked "possible, not promised".
+
+- `RES-20` **Your own experiments** *(Decided)*: You can ask for an experiment in any cloud session (`SCP-15`).
+  An experiment's world can be opened on the phone (`PLT-05`) and played on; it keeps its dial settings for good and always shows them, so it is never mistaken for a play world (`PRN-12`).
 
 - `RES-04` **Reality checklist first** *(Decided)*: The physics must pass every reality check (`RCK`) before any discovery that depends on it is trusted.
 
@@ -2007,7 +2061,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood medium, impact medium.
   - **Risk:** Long histories with saved moments and key moments may fill the phone (`PRN-15`).
   - **Signs:** worlds growing by gigabytes every thousand years.
-  - **Response:** measure early; keep saved moments dense near the present and sparse further back; warn before space runs out.
+  - **Response:** measure early; thin saved moments with age by a fixed rule, and ask before deleting anything (`PLT-10`).
 
 - `RSK-21` **Losing a world to a bad update** *(Decided)*
   - **Rating:** likelihood medium, impact high.
@@ -2025,7 +2079,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
   - **Rating:** likelihood medium, impact low.
   - **Risk:** From 2027, certified Android phones require apps from registered developers, which affects installing by download (`PLT-06`).
   - **Signs:** installs blocked or warned against.
-  - **Response:** a free hobbyist developer account, the one-off advanced unlock, or a USB cable; decided with you before 2027.
+  - **Response:** builds are signed for your free hobbyist developer account (`PLT-06`); the one-off advanced unlock and a USB cable remain as fallbacks.
 
 - `RSK-24` **The phone ages or is replaced** *(Decided)*
   - **Rating:** likelihood low, impact medium.
@@ -2081,8 +2135,7 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
 New suggestions from AI agents are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- **People:** `BIO-20`, the starting knowledge in detail.
-- **Minds:** `MND-26`, more inborn tendencies.
+- None at the moment.
 <!-- end generated -->
 
 ## 18. Glossary
