@@ -4,6 +4,8 @@ The elementary pieces Kindling is built from, and the questions to settle by tes
 
 `PROJECT.md` says what Kindling must do. This file breaks that down into the building blocks the game needs, to prepare the architecture and the implementation plan. For each block it records the open "how" questions, so that small throwaway tests can settle them cheaply before anything permanent is built. The tests are deleted afterwards; their results stay here.
 
+This is a working document. The finished project has only three documents: the project file, the architecture and the implementation plan (`PRC-04`). Once the architecture is written, what this file records moves there, and this file is removed.
+
 ## Contents
 
 - [How this file works](#how-this-file-works)

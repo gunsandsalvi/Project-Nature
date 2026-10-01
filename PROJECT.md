@@ -2,7 +2,7 @@
 
 The project file: what Kindling is, and every feature and target it must reach. It is written so that someone with no prior context can read it and understand the whole project.
 
-It contains no implementation details. Those belong in the implementation plan, which will link back to this file by ID, as will the code. Every item has a permanent ID so that no feature gets lost on the way from idea to code.
+It contains no implementation details. Those belong in the two other documents, the architecture and the implementation plan, which link back to this file by ID, as will the code. Every item has a permanent ID so that no feature gets lost on the way from idea to code.
 
 ## Contents
 
@@ -187,7 +187,7 @@ Who it's for: you alone (`SCP-02`). Success is judged by the experience; the res
   - **Done when** *(exact limits set from the measurements in `PLT-04`)*:
     - zooming and panning stay smooth at the screen's full refresh rate, at every zoom level;
     - the app opens to your world, ready to play, within about three seconds;
-    - an hour's session stays comfortable for battery and heat;
+    - an hour's session uses about 25–30% of the battery, with longer sessions on the charger, and the phone never gets uncomfortably hot;
     - every screen works one-handed in portrait and two-handed in landscape.
 
 - `VIS-15` **Histories worth reading** *(Decided)*
@@ -370,7 +370,7 @@ This section sets the boundaries of the project: what it includes, where history
   - **Why:** There's nothing extra to set up, maintain or pay for.
   - If an experiment ever needs more computing power than a session offers, that is raised with you before anything else is set up.
 
-- `SCP-16` **Milestones** *(Decided)*: The project moves through these milestones in order. Each ends with a report you review (`RES-06`). Tasks and dates live in the implementation plan.
+- `SCP-16` **Milestones** *(Decided)*: The project moves through these milestones in order. Each ends with a report you review (`RES-06`). This file keeps each milestone's goal and order; the implementation plan maps every item to a milestone, with tasks and dates.
 
   1. `MIL-01` **Foundations:** a small generated valley that runs on the phone and in the cloud with the same statistics (`RES-05`), the experiment runner and its first report, and a basic phone viewer for saved history. *Now possible:* watching a generated valley pass through its days and seasons on your phone.
   2. `MIL-02` **Sharp stone (Experiment 1):** stone that breaks by real rules; people who perceive, form concepts, learn cause and effect, build skills and learn from each other; just enough food and terrain to live on. *Now possible:* watching a band discover how to chip stone, and seeing the skill spread or be lost.
@@ -733,8 +733,8 @@ Matter must be easy to extend, forever (`PRN-14`).
 
 - `MAT-15` **Every addition proves itself** *(Decided)*: Each new entry comes with the reality checks it must pass, and the whole checklist runs again, so nothing that worked before breaks.
 
-- `MAT-16` **Matter grows in layers** *(Decided)*: Each milestone adds a layer without rewriting earlier ones:
-  1. stone, wood, bone and water (Experiment 1);
+- `MAT-16` **Matter grows in layers** *(Decided)*: Matter is built in layers, in this order, each added without rewriting the earlier ones. The implementation plan sets when each arrives:
+  1. stone, wood, bone and water;
   2. heat and fire;
   3. food and the body's chemistry;
   4. fibres, hides and joining;
@@ -839,7 +839,7 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
 
 - `BIO-04` **Life cycle** *(Decided; follows from `PRN-05`)*
   - **What:** Birth, childhood, adolescence, adulthood, old age and death, following the life patterns of real hunter-gatherers.
-  - **Typical figures** *(from studies of hunter-gatherers)*:
+  - **Target figures** *(from studies of hunter-gatherers; they must come out of the causes, never be programmed, and are checked by experiment with tolerances, `RES-14`)*:
     - children are weaned at about 2–4 years, and a mother has a child about every 3–4 years;
     - around four in ten children die before the age of 15;
     - adults who reach 15 often live into their 60s and 70s;
@@ -847,7 +847,7 @@ Every person has a body that must be fed, watered, kept warm and rested; that ca
 
 - `BIO-15` **Pregnancy and birth** *(Decided; follows from `PRN-05`)*: Children come from pairs, through pregnancy, birth and nursing, with their real risks. Who pairs with whom, and how families are formed, is cultural (`CUL-07`). Pairing and conception are simulated abstractly, never as explicit acts, so sexual violence is not modelled.
 
-- `BIO-16` **Ageing** *(Decided; follows from `PRN-05`)*: Strength, senses and fertility decline with age. Knowledge and experience don't, so elders can matter as keepers of what the band knows (`CUL-02`).
+- `BIO-16` **Ageing** *(Decided; follows from `PRN-05`)*: Strength, senses and fertility decline with age. Ageing also brings wear and frailty: wounds heal more slowly and defences against disease weaken, so old age kills through real causes (`BIO-14`). Knowledge and experience don't decline, so elders can matter as keepers of what the band knows (`CUL-02`).
 
 ### 8.5 The sexes
 
@@ -1217,7 +1217,7 @@ Sound comes in layers, added over time, starting with the living soundscape. Lik
 
 - `SND-04` **Score** *(Decided; later layer)*: Background music generated live from the world. It is assembled from short themes that respond to time of day, season, events and the people nearby, and it draws on their own scales and rhythms as their music develops. It is never the same twice.
 
-- `SND-05` **Order of the layers** *(Decided)*: The soundscape arrives with the living world (`MIL-04`), voices with words and beliefs (`MIL-05`), and their music and the score after that.
+- `SND-05` **Order of the layers** *(Decided)*: The soundscape comes first, then their voices, then their music and the score. The implementation plan sets when each arrives.
 
 ### 12.2 How sound is made
 
@@ -1241,7 +1241,7 @@ Kindling is built for one phone, and nothing else is used to play it (`SCP-02`).
 
 ### 13.1 The phone
 
-- `PLT-01` **One phone** *(Decided)*: Built and optimised for your Pixel 11 Pro XL, and free to use that phone's specific hardware wherever it helps: its graphics chip for the pixel-rendered 3D (`PRE-02`), its AI hardware for the writer AI (`PRE-37`), and either of them for the simulation itself (`PLT-05`).
+- `PLT-01` **One phone** *(Decided)*: Built and optimised for your Pixel 11 Pro XL (16 GB of memory and 512 GB of storage, so the app can use about 10 GiB), and free to use that phone's specific hardware wherever it helps: its graphics chip for the pixel-rendered 3D (`PRE-02`), its AI hardware for the writer AI (`PRE-37`), and either of them for the simulation itself (`PLT-05`).
 
 - `PLT-02` **Portrait and landscape** *(Decided)*: Both are supported, and the layout adapts (`PRE-34`).
 
@@ -1258,7 +1258,7 @@ Kindling is built for one phone, and nothing else is used to play it (`SCP-02`).
   - battery use and heat per hour of play;
   - time to generate a world.
 
-  The targets, from `VIS-14`: the camera stays smooth at the screen's full refresh rate; the app opens to your world in about three seconds; an hour's session stays comfortable for battery and heat.
+  The targets, from `VIS-14`: the camera stays smooth at the screen's full refresh rate; the app opens to your world in about three seconds; an hour's session uses about 25–30% of the battery, without the phone getting uncomfortably hot.
 
 When the phone can't keep up, time slows and depth stays (`PRN-11`).
 
@@ -1329,14 +1329,14 @@ This section turns "research standard" into practice: how the project proves tha
   - **Comparison runs:** without imitation, the skill does not spread; without curiosity, discovery is much rarer (`RES-10`).
   - **Exact numbers:** words such as "widely", "noticeably" and "much rarer", and what counts as a discovery and as being able to do it, are given exact values before the run (`RES-09`).
 
-- `RES-07` **The series** *(Decided)*: Experiments follow the signature moments in milestone order, adjusted after each report:
-  - **Foundations (`MIL-01`):** the phone and cloud statistical match, and performance baselines.
-  - **Sharp stone (`MIL-02`):** Experiment 1.
-  - **Fire and the first power (`MIL-03`):** fire from wood (`MOM-01`), with and without a dream, to show a dream raises the odds without guaranteeing anything.
-  - **A living world (`MIL-04`):** the lost craft (`MOM-02`).
-  - **Words and beliefs (`MIL-05`):** the song that does nothing (`MOM-04`), your lightning becomes a god (`MOM-03`), two tongues (`MOM-05`).
-  - **The whole world (`MIL-06`):** rivals, then in-laws (`MOM-11`).
-  - **Open-ended growth (`MIL-07`):** the camp wolf (`MOM-06`), seeds on the rubbish heap (`MOM-08`), metal from green stone (`MOM-12`).
+- `RES-07` **The series** *(Decided)*: Experiments follow the signature moments in milestone order, adjusted after each report. The implementation plan sets which experiment closes which milestone. The order:
+  1. the phone and cloud statistical match, and performance baselines;
+  2. Experiment 1, sharp stone;
+  3. fire from wood (`MOM-01`), with and without a dream, to show a dream raises the odds without guaranteeing anything;
+  4. the lost craft (`MOM-02`);
+  5. the song that does nothing (`MOM-04`), and your lightning becomes a god (`MOM-03`);
+  6. two tongues (`MOM-05`), once seas and the whole world exist, and rivals, then in-laws (`MOM-11`);
+  7. the camp wolf (`MOM-06`), seeds on the rubbish heap (`MOM-08`), and metal from green stone (`MOM-12`).
 
   The remaining signature moments (a painting that remembers, the dig, and two endings) are features, checked at milestone reviews rather than run as experiments.
 
@@ -1363,11 +1363,11 @@ How the project is run: you direct, and AI agents build. This section defines th
 
 - `PRC-02` **Your role** *(Decided)*: You read the milestone reports, try the builds, set direction, and approve changes to this file. The AI handles code review and testing.
 
-- `PRC-03` **Technology** *(Decided)*: Chosen by the AI and proposed in the implementation plan for your approval.
+- `PRC-03` **Technology** *(Decided)*: Chosen by the AI and proposed in the architecture for your approval.
 
 ### 15.2 Documents
 
-- `PRC-04` **Source of truth** *(Decided)*: This file says what to build, and the implementation plan says how. Code and tests link back here by ID.
+- `PRC-04` **Three documents** *(Decided)*: The finished project has three documents. This file is the source of truth for what to build; the architecture says how it is built; the implementation plan says in what order, mapping every item to a milestone and its tasks. Code and tests link back here by ID.
 
 - `PRC-06` **A guide for AI agents** *(Decided)*: A short file in the repository (`CLAUDE.md`) that every AI agent reads first. It tells them to read this file, follow the principles, link all work to IDs, and never mark anything Decided without you.
 
@@ -1375,7 +1375,7 @@ How the project is run: you direct, and AI agents build. This section defines th
 
 - `PRC-05` **Built section by section** *(Decided)*: This file was written with you one section at a time. *Proposed* items are confirmed, changed or dropped in later reviews (`PRC-07`).
 
-- `PRC-08` **Next: the implementation plan** *(Decided)*: Once this file is complete and the project is named (`VIS-16`), the implementation plan follows, starting with the technology proposal (`PRC-03`) and the first milestone (`MIL-01`).
+- `PRC-08` **Next: tests, then the architecture and the plan** *(Decided)*: Before the architecture and the implementation plan are written, small throwaway tests settle how each building block is best built. The architecture follows, starting with the technology proposal (`PRC-03`), then the implementation plan, starting with the first milestone (`MIL-01`).
 
 ### 15.3 How work flows
 
