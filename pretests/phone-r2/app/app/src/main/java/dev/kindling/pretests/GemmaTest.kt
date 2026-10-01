@@ -60,7 +60,6 @@ class GemmaTest(
         const val INIT_MS = 240_000L // start-up limit for one backend
         const val DOWNLOAD_MS = 45 * 60_000L
         const val MAX_CRASHES = 3
-        val SAMPLER = SamplerConfig(topK = 20, topP = 0.95, temperature = 0.3, seed = 73)
         const val MAX_NEW_TOKENS = 256
 
         fun modelFile(ctx: Context) = File(File(ctx.filesDir, "models"), FILE)
@@ -116,6 +115,8 @@ class GemmaTest(
         try {
             engine = start()
             if (engine != null) stuck = write(engine, m)
+        } catch (t: Throwable) {
+            gm.put("error", t.toString().take(300))
         } finally {
             gm.put("mem", m.stop())
             val e = engine
@@ -123,6 +124,7 @@ class GemmaTest(
             runCatching { gm.put("cacheMB", cacheDir(ctx).walkTopDown().filter { it.isFile }.sumOf { it.length() } shr 20) }
         }
         end(when {
+            gm.has("error") -> "failed: ${gm.optString("error").take(160)}"
             engine == null && gm.optBoolean("hung") -> "failed: start-up never finished"
             engine == null -> "failed: no backend could run the model"
             stuck -> "done (a text never stopped)"
@@ -307,9 +309,11 @@ class GemmaTest(
      * Conversation settings, from ours down to the engine's own, in case a backend refuses some of them
      * (Google's own sample app passes no sampler settings to the phone's AI unit). The level used is recorded.
      */
+    private fun sampler() = SamplerConfig(topK = 20, topP = 0.95, temperature = 0.3, seed = 73)
+
     private fun conversationConfig(level: Int): ConversationConfig = when (level) {
-        0 -> ConversationConfig(samplerConfig = SAMPLER, maxOutputToken = MAX_NEW_TOKENS, thinkingConfig = ThinkingConfig(enableThinking = false))
-        1 -> ConversationConfig(samplerConfig = SAMPLER, maxOutputToken = MAX_NEW_TOKENS)
+        0 -> ConversationConfig(samplerConfig = sampler(), maxOutputToken = MAX_NEW_TOKENS, thinkingConfig = ThinkingConfig(enableThinking = false))
+        1 -> ConversationConfig(samplerConfig = sampler(), maxOutputToken = MAX_NEW_TOKENS)
         2 -> ConversationConfig(maxOutputToken = MAX_NEW_TOKENS)
         else -> ConversationConfig()
     }

@@ -95,7 +95,7 @@ class ModelDownload(
         var failures = 0
         while (true) {
             stop()?.let { return finish("stopped: $it") }
-            if (!canUseNetwork() && !waitForNetwork()) return finish("no-network")
+            if (!canUseNetwork() && !waitForNetwork()) return finish(stop()?.let { "stopped: $it" } ?: "no-network")
             var have = if (part.isFile) part.length() else 0L
             if (have > size) { part.delete(); have = 0L }
             if (have == size) break

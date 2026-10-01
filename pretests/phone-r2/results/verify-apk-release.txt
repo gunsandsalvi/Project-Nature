@@ -1,4 +1,4 @@
-dist/kindling-pretests-r2.apk (28561613 bytes)
+dist/kindling-pretests-r2.apk (28561617 bytes)
   ok   signed v3
   ok   same signing key as round 1 (b8eef7b23ef6e8eb9c10882da8269da9779c555ac28565d9e02ebaf88e8895ce)
   ok   zip entries aligned (16 KB for .so)

@@ -1,0 +1,69 @@
+{
+ "apk": {
+  "file": "dist/kindling-pretests-r2.apk (not committed)",
+  "bytes": 28561617,
+  "sha256": "3c2ddddae9fa3552f91a77857212ae417efcd9f97642ced3fbc6d6e26f9db182",
+  "debugBytes": 41984784,
+  "package": "dev.kindling.pretests",
+  "versionCode": 2,
+  "versionName": "r2",
+  "minSdk": 31,
+  "targetSdk": 36,
+  "abi": "arm64-v8a",
+  "nativeLibs": {
+   "libksound.so": 526240,
+   "libkstorage.so": 2828728,
+   "liblitertlm_jni.so": 21802952
+  },
+  "signer": "pretests/b78-b79-phone/test-key (same as round 1)"
+ },
+ "toolchain": {
+  "gradle": "8.14.3",
+  "agp": "8.13.2",
+  "kotlin": "2.3.21",
+  "r8": "9.1.56 (Kotlin 2.4 metadata)",
+  "buildTools": "36.1.0",
+  "compileSdk": 36,
+  "ndk": "r30 (30.0.16248370)",
+  "rust": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "cargoNdk": "4.1.2"
+ },
+ "libraries": {
+  "mlkit genai-prompt": "1.0.0-beta4",
+  "litertlm-android": "0.17.1",
+  "kotlin-stdlib (from LiteRT-LM)": "2.4.0",
+  "kotlinx-coroutines": "1.11.0",
+  "androidx.core": "1.9.0"
+ },
+ "model": {
+  "repo": "litert-community/gemma-4-E2B-it-litert-lm",
+  "revision": "b3ca0d2f076785a8f4b2219ddbd2bdb99954eae1",
+  "file": "gemma-4-E2B-it_Google_Tensor_G6.litertlm",
+  "bytes": 3313938293,
+  "sha256": "f86c7c19c736e9307267946edef58b0a45494a9127036d54d90dd6b7617c95b7"
+ },
+ "checks": {
+  "unitTests": {
+   "testDebugUnitTest": {
+    "tests": 25,
+    "failed": 0
+   },
+   "testReleaseUnitTest": {
+    "tests": 25,
+    "failed": 0
+   }
+  },
+  "lint": "0 errors, 17 warnings, 1 hint (results/lint-release.txt)",
+  "apk": "all pass (results/verify-apk-release.txt)",
+  "resultCodeChars": {
+   "bothModels": 9604,
+   "bothModelsAndFastPass": 11544,
+   "limit": 15500
+  },
+  "nativeTests": {
+   "kstorage": "1 passed, x86 and arm64 (qemu)",
+   "ksound": "5 passed, x86 and arm64 (qemu)"
+  },
+  "storageOnArm64Qemu": "generation 895e636495687a48, metre detail 5e3b0c482d789a49, saved-world content fbc37595570f0797: all as in the cloud (results/storage-arm64-qemu.json)"
+ }
+}

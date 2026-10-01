@@ -65,6 +65,11 @@ class MainActivity : Activity() {
     private lateinit var probe: Probe
     private val ui = Handler(Looper.getMainLooper())
     private val io = Executors.newSingleThreadExecutor() // file writes and the code, off the screen thread
+
+    /** Work for the helper thread; an error there is shown, never a crash. */
+    private fun background(f: () -> Unit) = io.execute {
+        try { f() } catch (t: Throwable) { say("Error: $t") }
+    }
     private var backCallback: OnBackInvokedCallback? = null
 
     private lateinit var scroll: ScrollView
@@ -323,7 +328,7 @@ class MainActivity : Activity() {
         // The code shows once everything is done, or when a run stopped part-way (a code so far is better than none).
         if (!running && !rating && started) showCode(finished)
         else for (v in listOf(codeLabel, codeView, copyButton, shareNote, shareButton)) v.visibility = View.GONE
-        io.execute {
+        background {
             val present = GemmaTest.modelFile(this).let { it.exists() || File(it.path + ".part").exists() } ||
                 GemmaTest.cacheDir(this).exists()
             onUi { deleteButton.visibility = if (present && !running && started) View.VISIBLE else View.GONE }
@@ -332,7 +337,7 @@ class MainActivity : Activity() {
 
     /** Builds the code off the screen thread, then shows it. */
     private fun showCode(finished: Boolean) {
-        io.execute {
+        background {
             val c = try {
                 Logic.resultCode(store.snapshot().first, CODE_LIMIT)
             } catch (t: Throwable) {
@@ -357,7 +362,7 @@ class MainActivity : Activity() {
 
     /** "Share results file": everything (results and detail) as one file, through the share sheet. */
     private fun shareFile() {
-        io.execute {
+        background {
             try {
                 val (results, full) = store.snapshot()
                 val dir = File(store.dir, "share").apply { mkdirs() }
@@ -381,7 +386,7 @@ class MainActivity : Activity() {
     private fun askDeleteModel() {
         AlertDialog.Builder(this).setMessage("Delete the Gemma model (3.3 GB)? A later test round would download it again.")
             .setPositiveButton("Delete") { _, _ ->
-                io.execute {
+                background {
                     val freed = try { GemmaTest.deleteModel(this) } catch (_: Throwable) { -1L }
                     onUi {
                         Toast.makeText(this, if (freed >= 0) "Deleted (${Logic.gb(freed)} freed)." else "Could not delete it.", Toast.LENGTH_SHORT).show()
@@ -567,7 +572,7 @@ class MainActivity : Activity() {
     private fun key(it: Logic.RateItem) = "${it.model}|${it.id}"
 
     private fun startRating() {
-        io.execute {
+        background {
             val nano = store.copyOf("nano")
             val gm = store.copyOf("gm")
             val saved = store.copyArray("rate")
@@ -620,7 +625,7 @@ class MainActivity : Activity() {
         ratings[key(plan[rateIndex])] = value
         val arr = JSONArray()
         for (p in plan) ratings[key(p)]?.let { r -> arr.put(JSONObject().put("m", p.model).put("i", p.id).put("r", r)) }
-        io.execute { store.put("rate", arr) }
+        background { store.put("rate", arr) }
         rateIndex++
         if (rateIndex >= plan.size) finishRun(null) else showRateItem()
     }
@@ -628,7 +633,7 @@ class MainActivity : Activity() {
     private fun finishRun(note: String?) {
         rateBox.visibility = View.GONE
         if (note != null) say(note)
-        io.execute {
+        background {
             store.put("finished", true)
             onUi { setRunning(false) }
         }

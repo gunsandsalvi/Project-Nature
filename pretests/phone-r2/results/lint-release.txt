@@ -66,7 +66,7 @@ app/app/src/main/AndroidManifest.xml:17: Warning: Should explicitly set android:
 
    https://developer.android.com/studio/publish/preparing#publishing-configure
 
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:315: Warning: Use the KTX extension property View.isVisible instead? [UseKtx]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:320: Warning: Use the KTX extension property View.isVisible instead? [UseKtx]
         val rating = rateBox.visibility == View.VISIBLE
                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -141,37 +141,37 @@ app/app/build.gradle.kts:74: Hint: Add suffix -ktx to enable the Kotlin extensio
 
    https://developer.android.com/kotlin/ktx
 
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:107: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:112: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
             stepText.text = "The tests are running..."
                              ~~~~~~~~~~~~~~~~~~~~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:320: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:325: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
             stepText.text = "All done. Thank you."
                              ~~~~~~~~~~~~~~~~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:591: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:597: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
                 stepText.text = "The automatic tests are done."
                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:607: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:613: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
         rateHead.text = "Text ${rateIndex + 1} of ${plan.size}, written by ${modelName(it.model)}$before"
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:607: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:613: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
         rateHead.text = "Text ${rateIndex + 1} of ${plan.size}, written by ${modelName(it.model)}$before"
                                 ~~~~~~~~~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:607: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:613: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
         rateHead.text = "Text ${rateIndex + 1} of ${plan.size}, written by ${modelName(it.model)}$before"
                          ~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:607: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:613: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
         rateHead.text = "Text ${rateIndex + 1} of ${plan.size}, written by ${modelName(it.model)}$before"
                                               ~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:607: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:613: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
         rateHead.text = "Text ${rateIndex + 1} of ${plan.size}, written by ${modelName(it.model)}$before"
                                                               ~~~~~~~~~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:608: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:614: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
         rateTitle.text = "${Logic.RECORD_TITLES[it.id.substringBefore('-')] ?: it.id}, in the ${voiceName(it.id)}"
                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:608: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:614: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
         rateTitle.text = "${Logic.RECORD_TITLES[it.id.substringBefore('-')] ?: it.id}, in the ${voiceName(it.id)}"
                                                                                      ~~~~~~~~~
-app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:612: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+app/app/src/main/java/dev/kindling/pretests/MainActivity.kt:618: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
         factsButton.text = "Show the facts it was written from"
                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
