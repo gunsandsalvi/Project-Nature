@@ -1171,13 +1171,21 @@ Matter must be easy to extend, forever (`PRN-14`).
 - `MAT-13` **Four catalogues** *(Decided)*: Matter is described in four catalogues: ingredients, structures, laws and reality checks.
   Each entry stands alone, is written in plain language a person can read and check, gives its key values with their sources and the rules or ranges for the rest, and names the reality checks that prove it.
   Once checked, a key value is locked: changing it means sourcing and checking it again (`RSK-16`).
+  - **How it works:** each entry is readable text with its values and their sources, and the simulation loads the catalogues when a world starts; nothing in them is code.
+    - **Ingredients:** elements and measured values (`MAT-01`).
+    - **Structures:** each form, and how it changes properties (`MAT-02`, `MAT-03`).
+    - **Laws:** each law's plain statement, the properties it reads, its data, and the code that computes it, which never names a product (`MAT-04`).
+    - **Reality checks:** each check's setup, its real range and its "must not" partner (`MAT-17`).
 
 - `MAT-14` **Adding without rewriting** *(Decided)*
   - **What:** Adding an ingredient, structure, law or check never requires changing the others.
   - **Why it works:** Laws never name products (`PRN-07`), so a new ingredient automatically takes part in every existing law.
+  - **How it works:** laws find what they act on by reading properties, so a new ingredient takes part in every law whose conditions it meets, and a new law acts on every existing ingredient.
+    Adding an entry changes no other entry.
   - **Example:** Adding tin ore needs no new smelting rule; the smelting law already covers it.
 
 - `MAT-15` **Every addition proves itself** *(Decided)*: Each new entry comes with the reality checks it must pass, and the whole checklist runs again, so nothing that worked before breaks.
+  - **How it works:** each entry names the checks it supports; on every change, the whole checklist runs automatically before the work can join the main version (`PRC-10`), and a failing check blocks it.
 
 - `MAT-16` **Matter grows in layers** *(Decided)*: Matter is built in layers, in this order, each added without rewriting the earlier ones.
   The implementation plan sets when each arrives:
@@ -1188,11 +1196,15 @@ Matter must be easy to extend, forever (`PRN-14`).
   5. clay, lime and pigments;
   6. metals and glass;
   7. further layers as experiments call for them.
+  - **How it works:** each layer is a set of ingredients, structures, laws and checks; its checks switch on when it is added (`MAT-17`), and later layers only add entries (`MAT-14`).
 
 - `MAT-17` **How reality checks work** *(Decided)*: Each check has a real-world range and, where it helps, a "must not" partner, such as "green wood doesn't light by friction".
   Results are judged by properties, not names: leather is hide that stops rotting and stays supple.
   A check becomes active once its layer is built (`MAT-16`).
   This file keeps the checks that define what the world must do; the catalogues hold the rest, each naming the item it supports (`MAT-13`).
+  - **How it works:** each check is a small sandbox built from catalogue entries, whose things are defined by their makeup and structure, never by name.
+    It applies fixed actions and conditions, such as a strike at a set energy or a fire with set fuel and air, and runs many times with different chance draws.
+    The measured result must fall within the real range, and the "must not" partner must never happen.
 
 ### 7.5 Reality checklist
 
