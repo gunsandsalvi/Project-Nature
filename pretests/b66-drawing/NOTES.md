@@ -116,3 +116,20 @@ From `pretests/b66-drawing`, each under the shared CPU lock:
 - `node tools/smoke.mjs` (about 2 minutes): a shortened benchmark, every gesture, and the benchmark's statistics with the drawing stubbed out (it must find 60 Hz and pass every phase). Set `SHOTS_DIR` to also save two layout screenshots there.
 
 Both need Playwright for Node and its Chromium; set `PLAYWRIGHT_PATH` and `CHROMIUM_PATH` if they aren't at the paths at the top of each tool.
+
+## Phone benchmark (1 October 2026)
+
+The owner ran the Benchmark on the Pixel 11 Pro XL, inside the Claude app's page viewer (an Android web view, not full screen): 270 x 489 art pixels at 4 screen pixels each, which is nearly the whole screen. Raw code: `results/phone-bench-1.txt`.
+
+| Phase | Share of 120 Hz | Median frame | Worst | Late | Drawing time on the processor |
+|---|---|---|---|---|---|
+| Person | 100% | 8.3 ms | 16.7 ms | 0.1% | 3.3 ms |
+| Camp | 99% | 8.3 ms | 16.7 ms | 1.0% | 3.1 ms |
+| Valley | 100% | 8.3 ms | 8.5 ms | 0% | 3.8 ms |
+| Region | 100% | 8.3 ms | 8.5 ms | 0% | 0.4 ms |
+| Planet | 100% | 8.3 ms | 8.5 ms | 0% | 0.4 ms |
+| Full turn | 97% | 8.3 ms | 16.8 ms | 3.1% | 2.8 ms |
+| Zoom sweep | 99% | 8.3 ms | 16.8 ms | 1.3% | 1.5 ms |
+| Sticky fix | 99% | 8.3 ms | 16.7 ms | 1.0% | 3.0 ms |
+
+**Verdict: PASS at every zoom** (rule: at least 90% of the refresh rate and at most 5% late frames), so no native engine. The full turn is the weakest phase (3.1% late, each late frame one refresh). The graphics chip's own time wasn't available in this viewer.
