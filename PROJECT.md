@@ -66,6 +66,7 @@ Every item starts with its ID, a short name and its status. Detailed items then 
 | `MOM` | Signature moments (part of the vision) |
 | `PRN` | Principles |
 | `SCP` | Scope and non-goals |
+| `MIL` | Milestones (part of scope) |
 | `GOD` | The player as god |
 | `TIM` | Time and history |
 | `WLD` | World |
@@ -297,21 +298,89 @@ These rules apply to every part of the project, and they outrank everything else
 
 ## 3. Scope and non-goals
 
-- `SCP-01` **Starting point** *(Decided)*: Modern minds with very little culture (details in `BIO-02`).
-- `SCP-02` **Audience** *(Decided)*: Just you. No public release, onboarding or support for other devices is planned.
-- `SCP-03` **Build order** *(Decided)*: Experiments lead (`RES-01`), and a basic phone app grows alongside them.
+This section sets the boundaries of the project: what it includes, where history starts, who it's for, how it gets built, and what it deliberately leaves out.
 
-**Non-goals**
+### 3.1 What the project includes
 
-- `SCP-04` **No recipes or tech tree** *(Decided)*.
-- `SCP-05` **No other human species** *(Decided)*: There is one human species only.
-- `SCP-06` **No AI language model making decisions inside the simulation** *(Decided)*.
-- `SCP-07` **No goals, scores, wins or losses** *(Decided)*: It is a pure sandbox.
-- `SCP-08` **No worship of the player** *(Decided)*: The player's power does not depend on faith, and the humans never learn the player exists.
-- `SCP-09` **No terraforming power** *(Decided)*: The player cannot reshape land, or add or remove species.
-- `SCP-10` **No shared online world or multiplayer** *(Decided)*.
-- `SCP-11` **No real-Earth map** *(Decided)*: Every world is generated.
-- `SCP-12` **No simulated planet formation** *(Decided)*: Worlds are generated directly in a realistic present-day state.
+- `SCP-13` **The whole project at a glance** *(Decided; a summary of the sections that follow)*
+  - **A generated world** (section 6): a small planet that wraps around, with real geology, climate, weather, water, soils, plants and animals.
+  - **Real matter** (section 7): everything is made of real ingredients and changed by general laws, using real-world values.
+  - **People** (section 8): one human species with modern minds, and bodies that eat, heal, age, have children and pass on traits.
+  - **Minds** (section 9): people and animals who perceive, form their own concepts, learn cause and effect, build skills, dream, and choose for reasons that can be explained.
+  - **Culture and society** (section 10): learning from others, language, belief, institutions, art, music, myths and style, all emerging on their own.
+  - **Your powers** (section 4): weather and disasters, dreams, and fortune.
+  - **Time and history** (section 5): time that follows zoom, a story director, and rewinding and branching history.
+  - **Presentation** (section 11): detailed pixel art, one continuous zoom from the globe to a single person, and many ways to follow the story: the chronicle, following one person's life, map overlays, archaeology and more.
+  - **Sound** (section 12): a living soundscape first, then their music, their voices and a score.
+  - **The phone app** (section 13): built for one phone, in portrait and landscape, smooth at all times.
+  - **Research tools** (section 14): experiments across many worlds, run in the cloud, with reports and replays you review on the phone.
+
+### 3.2 Where history starts
+
+- `SCP-01` **Starting point** *(Decided)*: Modern minds with very little culture.
+  - **What:** Every world begins with 3–4 family bands of modern humans who have almost no culture: a few dozen words, no way to make fire, nothing but rough stones and sticks. The full starting kit is in `BIO-02`.
+  - **Why:** Because their minds are already modern, progress depends on learning and culture, not on waiting millions of years for brains to evolve. Because they start with almost nothing, the great early discoveries happen in play: making fire, shaping stone, clothing, language.
+  - This is a deliberate starting point, not a real moment in history. Real early humans already had more culture than this.
+
+- `SCP-14` **Other starting points later** *(Decided)*
+  - **What:** Worlds can later begin from other starting points:
+    - **Ice-age hunters:** like humans of roughly 50,000–40,000 years ago, with full language, fire-making and fine stone blades.
+    - **Ancestral minds:** smaller brains whose abilities must evolve over many generations.
+    - **A blank slate:** modern brains with no language, fire or tools at all.
+
+    Each still has a single human species (`SCP-05`).
+  - **Why:** A starting point is just the knowledge and abilities put into people's heads at the beginning, so alternatives cost little and make good experiments.
+  - They come after the main starting point works (`PRN-09`).
+
+### 3.3 Who it's for
+
+- `SCP-02` **Just you** *(Decided)*
+  - **What:** Project Nature is built for one person, on one phone.
+  - **In practice:**
+    - no public release, store listing, onboarding or tutorial;
+    - no support for other phones, tablets or computers (experiments in the cloud are a research tool, not a way to play);
+    - no accounts, purchases, ads or analytics;
+    - free to use your phone's specific hardware (`PLT-01`).
+  - **Why:** Building for one person and one device removes whole categories of work, so the effort goes into depth and polish.
+
+### 3.4 How it gets built
+
+- `SCP-03` **Experiments lead** *(Decided)*
+  - **What:** Core ideas are proven first, in experiments across many random worlds run without graphics (`RES-01`). A phone app grows alongside them, so you can watch the results from the start.
+  - **Why:** The biggest risk is that nothing emerges (`RSK-01`). Experiments find out early and cheaply.
+
+- `SCP-15` **Experiments run in the AI's cloud sessions** *(Decided)*
+  - **What:** Experiments run in the same cloud sessions where the AI builds the game, within those sessions' computing limits.
+  - **Why:** There's nothing extra to set up, maintain or pay for.
+  - If an experiment ever needs more computing power than a session offers, that is raised with you before anything else is set up.
+
+- `SCP-16` **Milestones** *(Decided; the list itself is Proposed)*: The project moves through these milestones in order. Each ends with a report you review (`RES-06`). Tasks and dates live in the implementation plan.
+
+  1. `MIL-01` **Foundations:** a small generated valley that plays out identically on the phone and in the cloud (`PRN-08`), the experiment runner and its first report, and a basic phone viewer for replays. *Now possible:* watching a generated valley pass through its days and seasons on your phone.
+  2. `MIL-02` **Sharp stone (Experiment 1):** stone that breaks by real rules; people who perceive, form concepts, learn cause and effect, build skills and learn from each other; just enough food and terrain to live on. *Now possible:* watching a band discover how to chip stone, and seeing the skill spread or be lost.
+  3. `MIL-03` **Fire and the first power:** heat, burning and friction; keeping and making fire; dreams, your first power; rewinding and branching history. *Now possible:* a band that can only keep fire learns to make it, and you can send a dream and compare what happens with and without it.
+  4. `MIL-04` **A living world:** plants and animals in food webs, with weather and seasons; animals with simpler minds; hunting; your powers over nature and fortune; the living soundscape. *Now possible:* hunting becomes an arms race, and your storms and blessings change lives.
+  5. `MIL-05` **Words and beliefs:** language emerging, explanations, ritual and myth; the chronicle and life stories written by the describing model. *Now possible:* rites form, dialects drift apart, and the chronicle reads like a history.
+  6. `MIL-06` **The whole world:** the full wrap-around world, migrations, many bands and diverging cultures, one continuous zoom from the globe to a single person, and archaeology. *Now possible:* watching peoples spread, split and meet again across a whole world.
+  7. `MIL-07` **Open-ended growth:** taming animals, farming, settlements and whatever comes after, each built when an experiment calls for it. *Now possible:* history keeps going, with no ceiling.
+
+### 3.5 Non-goals
+
+Things the project deliberately does not do, and why.
+
+- `SCP-04` **No recipes or tech tree** *(Decided)*: Discoveries come from physics and learning (`PRN-01`, `PRN-07`).
+- `SCP-05` **No other human species** *(Decided)*: There is one human species, so the story stays about how one people learns.
+- `SCP-06` **No AI language model making decisions** *(Decided)*: Our own knowledge would leak into their world (`PRN-06`).
+- `SCP-07` **No goals, scores, wins or losses** *(Decided)*: It is a sandbox; the story is whatever happens.
+- `SCP-08` **No worship of the player** *(Decided)*: Your power doesn't depend on their faith, and they never learn you exist (`GOD-06`).
+- `SCP-09` **No terraforming** *(Decided)*: You can't reshape land or add or remove species. You act only as nature could (`GOD-05`).
+- `SCP-10` **No shared online world or multiplayer** *(Decided)*: It's yours alone (`SCP-02`).
+- `SCP-11` **No real-Earth map** *(Decided)*: Every world is generated (section 6).
+- `SCP-12` **No simulated planet formation** *(Decided)*: Worlds are generated directly in a realistic present-day state, which keeps generation cheap (`WLD-08`).
+- `SCP-17` **No direct control** *(Decided)*: You never control any person or animal, not even briefly (`GOD-01`).
+- `SCP-18` **No scripted story** *(Decided)*: There is no campaign, no quests and no authored events. Every story comes from the simulation (`PRN-01`).
+- `SCP-19` **No magic in the world** *(Decided)*: Nothing supernatural exists in the world's physics. Spirits and gods exist only in people's beliefs. The only unseen force is you, and you act through nature.
+- `SCP-20` **No borrowed real cultures** *(Decided)*: Their peoples, names, languages and customs are their own. Nothing is copied from real cultures, and descriptions never compare them to real peoples.
 
 ## 4. The player as god
 
@@ -601,5 +670,6 @@ Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also
 - **Story director:** sets the speed of time according to what is happening. It never causes events.
 - **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
 - **Signature moment:** a story the simulation must be able to produce without it being scripted (`MOM`).
+- **Milestone:** a stage of the project that ends with a report you review (`MIL`).
 - **Live moment:** a notable event the game surfaces to you as it happens (`PRE-08`).
 - **General-rules check:** confirms that no rule is written for one particular discovery, material, species or event, and that no discovery's name appears in decision-making logic (`PRN-07`).
