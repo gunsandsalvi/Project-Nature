@@ -2,7 +2,8 @@
 //! phone's own storage: saved-moment write, flush and read speed (`B04`, `PLT-07`), small-append
 //! flush cost (history journal), and one terrain generation method plus metre detail (`B11`,
 //! `WLD-11`). Hashes in the result let the lead compare the phone's bits with the cloud's.
-//! Config: {"dir": "<writable folder>", "div": 2, "reps": 3, "gen_w": 1024, "formats": ["custom-none","custom-lz4","sqlite-lz4"]}
+//! Config: {"dir": "<writable folder>", "div": 2, "reps": 3, "gen_w": 1024, "formats": ["custom-none","custom-zstd"]}
+//! Other formats: "custom-lz4", "sqlite-none", "sqlite-lz4", "sqlite-zstd".
 
 pub mod data;
 pub mod hist;
@@ -51,7 +52,7 @@ fn run_inner(cfg: &str) -> Result<Value, String> {
         .get("formats")
         .and_then(Value::as_array)
         .map(|a| a.iter().filter_map(|x| x.as_str().map(String::from)).collect())
-        .unwrap_or_else(|| vec!["custom-none".into(), "custom-lz4".into(), "sqlite-lz4".into()]);
+        .unwrap_or_else(|| vec!["custom-none".into(), "custom-zstd".into()]);
     let parts: Vec<String> = v
         .get("parts")
         .and_then(Value::as_array)
