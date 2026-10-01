@@ -2650,20 +2650,29 @@ Like everything you see, everything you hear reflects what is actually happening
 - `SND-01` **Living soundscape** *(Decided)*
   - **What:** Wind, rain, rivers, animals, fire and people at work, driven by what is actually happening where you're looking.
     Zoom changes the mix: close up you hear single sounds; further out they blend; from the whole world, near silence.
+  - **How it works:** every sound comes from something simulated near the camera: a strike or a break (`MAT-04`), a fire's burning, a river's flow (`WLD-17`), the wind and rain of the weather cell (`WLD-16`), an animal's call, people at work, and voices.
+    Close up, single sounds play, the loudest at the camera first, up to the measured limit of 32 at once on the phone; further out, the sounds of one kind in an area are summed into one blended sound from their number and loudness, such as wind over a forest or the hum of a camp; from the whole world, near silence (`SND-09`).
+    Calls of counted animals (`WLD-12`) come at their species' calling rates from the animals counted there, filled in as the picture is (`WLD-13`).
   - **Example:** At the camp at dusk: the crackle of the fire, the tap of the knapper's hammerstone, a child laughing, the river beyond, a wolf far off.
 
 - `SND-03` **Their voices** *(Decided)*: Zoomed in, you hear real speech: actual sentences in their language, spoken with its own sounds and word order (`CUL-17`), with English subtitles if you want them.
   Further out, talk blends into a murmur.
+  - **How it works:** when a person speaks (`CUL-24`), their words are said in order (`CUL-17`), each as its sequence of the language's sounds (`BIO-21`), by a natural-sounding speech voice fed those sounds, chosen over a synthetic one by your ear in the pre-tests, with pitch and quality from the speaker's body, age and feeling (`MND-19`); subtitles give the meaning in English (`PRE-38`).
+    Voices beyond a set distance are mixed without words, as a murmur.
+    Such voices bend unfamiliar sounds toward their training language, so the voice used is the one that keeps most of each language's sounds.
 
 - `SND-02` **Their music** *(Decided)*: Songs, rhythms and instruments from each culture (`CUL-10`), heard when you are near.
   Their scales and rhythms develop and drift, as their languages do.
+  - **How it works:** songs and tunes are played from their content records (`CUL-25`): notes, rhythm and words, with instruments sounding by the physics of their shapes and materials (`SND-06`) and voices by the speech voice held on the notes' pitches; they are heard by distance like any sound (`SND-08`).
 
 - `SND-04` **Score** *(Decided)*: Background music generated live from the world.
   It is assembled from short themes that respond to time of day, season, events and the people nearby, and it draws on their own scales and rhythms as their music develops.
   It is never the same twice.
+  - **How it works:** short composed themes are chosen and varied live from the world's state: time of day and season, the director's current scores (`TIM-02`), events such as a death or a first, and the moods of people nearby (`MND-19`); once a people's own music exists (`CUL-10`), the score takes up its scales and rhythms from their songs' records, and variation is drawn so it never repeats exactly.
 
 - `SND-05` **Order of the layers** *(Decided)*: The soundscape comes first, then their voices, then their music and the score.
   The implementation plan sets when each arrives.
+  - **How it works:** each layer is a separate source in one mixer, switched on when it is built, in this order.
 
 ### 12.2 How sound is made
 
@@ -2671,21 +2680,30 @@ Like everything you see, everything you hear reflects what is actually happening
   - **What:** Impacts, fire, water and instruments are created from what things are made of (`MAT-03`).
     A strike on flint sounds unlike one on granite, and an instrument they invent sounds the way its materials would.
     Background wind and rain can use recordings, and so can birdsong, but only where matching birds are simulated.
+  - **How it works:**
+    - **Impacts:** each time a contact law runs (a strike, a break, a fall), its sound is made as noise shaped by the materials' stiffness, density and damping, the things' sizes and the force of the impact (`MAT-03`, `MAT-04`), the method your ear chose in the pre-tests, so flint and granite sound different.
+    - **Fire and water:** a fire's crackle and roar come from how fast it burns and what it burns (`MAT-04`); water's sound from its speed and depth (`WLD-17`).
+    - **Instruments:** notes come from shape and material by the vibration law (`MAT-04`); flute notes from a bore and holes matched their worked-out pitch within a few cents in the pre-tests, and drums are still to be tuned.
+    - **The phone's speaker:** a last step tuned to the speaker lifts deep sounds it can't play well, and switches off with headphones.
   - **Why:** General rules (`PRN-07`) apply to sound as well.
     Nobody has to record the sound of an instrument nobody planned.
 
 - `SND-07` **Sound follows time** *(Decided)*: At natural speed (`TIM-10`), every sound plays in real time.
   When time runs fast, single sounds give way to the feel of the period: seasons of wind and rain, the hum of a busy camp.
+  - **How it works:** at natural speed, each sound plays as its event happens; when time runs faster, the mixer plays each kind of sound as a blend at the rate its events are happening (`SND-01`), so the weather's sounds follow the state of each frame and a camp becomes its hum.
 
 - `SND-08` **Space and distance** *(Decided)*: Sounds come from where they happen and fade and muffle with distance; caves echo.
   A sound can draw your attention to something off-screen, such as a scream or thunder.
+  - **How it works:** each sound plays from its place in 3D: placed by its direction from the camera, quieter with distance, its high pitches fading faster, muffled by land in between, and echoing in caves by their size and shape (`PRE-24`); a loud sound off-screen plays from its direction.
 
 - `SND-09` **Silence** *(Decided)*: Quiet is part of the design.
   Nights are hushed, deep snow muffles everything, and the whole world seen from above is close to silent.
+  - **How it works:** quiet comes from the same rules: at night fewer things make sound, since people and most animals sleep; snow cover soaks up sound by its measured absorption; and from high above only blends remain, fading with height; nothing adds sound where nothing happens.
 
 ### 12.3 Touch
 
 - `SND-10` **Vibration for big moments** *(Decided)*: Subtle and optional: thunder, an earthquake, the heartbeat of someone you follow when they are in danger.
+  - **How it works:** when the setting is on, the phone's vibration plays a pattern for thunder near the camera, its strength from the thunder's loudness; for an earthquake, from the shaking where the camera is (`WLD-15`); and for someone you follow, a heartbeat while their fear is high (`MND-19`).
 
 ## 13. Platform and performance
 
