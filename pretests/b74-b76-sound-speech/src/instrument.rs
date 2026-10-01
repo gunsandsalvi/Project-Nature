@@ -227,10 +227,10 @@ pub fn drum_modes(d: &Drum, r_frac: f64, tau: f64, fmax: f64) -> Vec<Mode> {
             let shape = bessel_j(m as u32, j * r_frac);
             let amp = TAU * f * shape.abs() * contact_spectrum(f, tau) * radiation;
             let decay = PI * f * d.eta + RHO_AIR * c_air * radiation / (2.0 * d.density);
-            v.push(Mode { freq: f, amp, decay });
+            v.push(Mode { freq: f, amp, decay, energy: 0.0 });
             if m > 0 {
                 // the twin mode at right angles, split by uneven hide
-                v.push(Mode { freq: f * 1.006, amp: amp * 0.3, decay });
+                v.push(Mode { freq: f * 1.006, amp: amp * 0.3, decay, energy: 0.0 });
             }
         }
     }

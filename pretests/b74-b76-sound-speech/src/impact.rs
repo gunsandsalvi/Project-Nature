@@ -104,11 +104,16 @@ pub const LONG_BONE: Object = Object { mat: BONE, shape: Shape::Rod { l: 0.24, r
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Mode {
     pub freq: f64,
-    /// Pressure amplitude at 1 m, Pa (relative scale shared by all objects).
+    /// Pressure amplitude at 1 m, Pa (for object modes: per unit of impulse times contact spectrum).
     pub amp: f64,
     /// Amplitude decay rate, 1/s.
     pub decay: f64,
+    /// Vibration energy per unit (impulse x contact spectrum) squared, J/(N s)^2.
+    pub energy: f64,
 }
+
+/// Share of the energy lost in the collision that ends up as vibration (stand-in).
+const VIBRATION_SHARE: f64 = 0.3;
 
 /// Hertz contact: duration (s) and impulse (N s) for a strike at `speed` m/s.
 pub fn contact(obj: &Object, s: &Striker, speed: f64) -> (f64, f64) {
@@ -168,8 +173,8 @@ pub fn mode_freqs(obj: &Object) -> Vec<(f64, f64)> {
     out
 }
 
-/// A1: the object's modes before the contact: amplitude per unit impulse with a perfectly
-/// short contact. Computed once per object; `strike_amp` applies a strike to it.
+/// A1: the object's modes before any strike: pressure and energy per unit impulse with a
+/// perfectly short contact. Computed once per object; `strike_amps` applies a strike.
 pub fn object_modes(obj: &Object, fmax: f64) -> Vec<Mode> {
     let mass = obj.mass();
     let (area, d) = (obj.shape.area(), obj.shape.width());
@@ -177,14 +182,15 @@ pub fn object_modes(obj: &Object, fmax: f64) -> Vec<Mode> {
         .into_iter()
         .filter(|&(f, _)| f < fmax)
         .map(|(f, weight)| {
-            let omega = TAU * f;
-            let kd = omega / C_AIR * d;
+            let kd = TAU * f / C_AIR * d;
             let radiation = kd * kd / (1.0 + kd * kd); // small or narrow things radiate low notes poorly
-            let accel = omega * 4.0 / mass; // struck near an end, where every mode moves
+            // struck near an end, where every mode moves: end speed 4 J/M per mode, surface average half that
+            let v_avg = 2.0 * weight / mass;
             Mode {
                 freq: f,
-                amp: RHO_AIR / TAU * area * radiation * accel * weight,
+                amp: RHO_AIR * C_AIR * v_avg * (area * radiation / (4.0 * PI)).sqrt(),
                 decay: PI * f * obj.mat.eta + obj.support,
+                energy: 2.0 * weight * weight / mass,
             }
         })
         .collect();
@@ -193,15 +199,32 @@ pub fn object_modes(obj: &Object, fmax: f64) -> Vec<Mode> {
     v
 }
 
-/// One mode's amplitude for a strike with this contact duration and impulse.
-#[inline]
-pub fn strike_amp(m: &Mode, tau: f64, impulse: f64) -> f64 {
-    m.amp * impulse * contact_spectrum(m.freq, tau)
+/// Mode amplitudes for one strike, written into `out` (no allocation): each mode's share
+/// follows the contact spectrum, and the total vibration energy can't exceed its share of
+/// the energy the collision loses. `strike_point` gives each mode's share at the strike point.
+pub fn strike_amps(modes: &[Mode], obj: &Object, s: &Striker, speed: f64, strike_point: &[f64], out: &mut [Mode]) -> (f64, f64) {
+    let (tau, impulse) = contact(obj, s, speed);
+    let m = obj.mass();
+    let m_star = m * s.mass / (m + s.mass);
+    let available = VIBRATION_SHARE * (1.0 - s.restitution * s.restitution) * 0.5 * m_star * speed * speed;
+    let mut total = 0.0;
+    for (k, (mo, o)) in modes.iter().zip(out.iter_mut()).enumerate() {
+        let jg = impulse * contact_spectrum(mo.freq, tau) * strike_point.get(k).copied().unwrap_or(1.0);
+        total += mo.energy * jg * jg;
+        *o = Mode { amp: mo.amp * jg, ..*mo };
+    }
+    let scale = if total > available { (available / total).sqrt() } else { 1.0 };
+    for o in out.iter_mut().take(modes.len()) {
+        o.amp *= scale;
+    }
+    (tau, impulse)
 }
 
-/// A1: the modes a strike excites, strongest first.
-pub fn strike_modes(obj: &Object, tau: f64, impulse: f64, fmax: f64) -> Vec<Mode> {
-    let mut v: Vec<Mode> = object_modes(obj, fmax).iter().map(|m| Mode { amp: strike_amp(m, tau, impulse), ..*m }).collect();
+/// A1: the modes one strike excites, strongest first.
+pub fn strike_modes(obj: &Object, s: &Striker, speed: f64, strike_point: &[f64], fmax: f64) -> Vec<Mode> {
+    let base = object_modes(obj, fmax);
+    let mut v = vec![Mode::default(); base.len()];
+    strike_amps(&base, obj, s, speed, strike_point, &mut v);
     v.sort_by(|a, b| b.amp.partial_cmp(&a.amp).unwrap());
     v
 }
@@ -424,13 +447,11 @@ pub struct Strike {
     pub click_len: usize,
 }
 
-/// Prepare one strike. `rng` varies where it lands (each mode's share), as real strikes do.
+/// Prepare one strike (offline use). `rng` varies where it lands, as real strikes do.
 pub fn prepare_strike(obj: &Object, s: &Striker, speed: f64, rng: &mut Rng, sr: f64) -> Strike {
+    let point: Vec<f64> = (0..MAXM).map(|_| rng.range(0.25, 1.0)).collect();
+    let modes = strike_modes(obj, s, speed, &point, (0.45 * sr).min(20_000.0));
     let (tau, impulse) = contact(obj, s, speed);
-    let mut modes = strike_modes(obj, tau, impulse, (0.45 * sr).min(20_000.0));
-    for m in modes.iter_mut() {
-        m.amp *= rng.range(0.25, 1.0); // the strike point: each mode's shape there
-    }
     let mut click = [0f32; CLICK_MAX];
     let click_len = strike_click(obj, s, tau, impulse, sr, rng, &mut click);
     Strike { tau, impulse, modes, click, click_len }

@@ -22,7 +22,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
 ## Status
 
 - **Done:** `B09` data catalogues, `B10` map cells, `B80` cloud runner, `B78` building the phone app.
-- **Measured on your phone:** `B01`, `B02` and `B79` (first test app); the memory test is still to run.
+- **Measured on your phone:** `B01`, `B02` and `B79` (first test app).
 - **Running:** `B04` storing data, `B11` terrain, `B66` drawing and gestures, `B73` writer AI, `B74` sound, `B76` speech.
 
 ## The blocks
@@ -105,7 +105,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Result** (1 October 2026, from the first test app; `pretests/b78-b79-phone/`):
     - **Sustained speed:** under full load on all 7 cores, speed fell within 2 minutes to about 43% of a short burst, then held steady for the rest of the 10 minutes. The phone stayed cool (battery 37.6 °C, thermal status "light") at about 3 W, using 14.6% of the battery an hour, inside the 25–30% budget with room for drawing. Plan the simulation on the held speed, not the burst.
     - **Smoothness:** a simple scene kept 120 Hz with 0.2% missed frames. The mockup's WebGL drawing took about 2 ms of the 8.3 ms each frame allows, with 1.4% missed frames.
-    - **Memory:** not measured yet; the memory test is a separate button.
+    - **Memory:** the app took and used 10 GiB, the test's limit, with no warning and without being closed. At most 8.4 GiB stayed in fast memory at once, and the phone's free memory fell to under 1 GB, so 10 GiB (`PLT-01`) is reachable but at the edge; the simulation should plan on about 8 GiB.
 
 - `B80` **Cloud runner** · done (`pretests/b80-cloud-runner/`)
   - **Question:** how much computing the cloud sessions give, and a runner that survives interruptions without changing results (`PLT-05`, `SCP-15`).

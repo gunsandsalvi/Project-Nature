@@ -196,4 +196,4 @@ The owner's result code, decoded, is in `results/phone-r1.json`. Pixel 11 Pro XL
 | Results repeat exactly | all 47 runs, across repeats and thread counts; all 45 with a cloud prediction matched it bit for bit |
 | Simple scene at 120 Hz | 0.2% missed frames, 99% of frames under 10.6 ms |
 | The mockup (WebGL in a web view) at 120 Hz | 1.4% missed frames; drawing took 2 ms per frame (99% under 4.4 ms) of the 8.3 ms available |
-| Memory test | not run yet |
+| Memory test | the app took and used the full 10 GiB the test allows, in 4.5 seconds, with no warning from the system and no closing. At most 8.4 GiB stayed in fast memory at once (the system compresses the rest), and the phone's free memory fell from 7.5 GB to about 0.4 GB before recovering to 0.8 GB. Raw data: `results/phone-r1-mem.json`. |
