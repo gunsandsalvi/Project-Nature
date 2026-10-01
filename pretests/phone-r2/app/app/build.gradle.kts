@@ -77,8 +77,13 @@ dependencies {
     testImplementation("org.json:json:20240303")
 }
 
-// The unit tests check that the app's prompts are exactly the writer test's prompt file (B73).
-tasks.withType<Test>().configureEach { systemProperty("b73.prompts", writerPrompts.absolutePath) }
+// The unit tests read other pre-tests' files: the writer test's prompt file (the app's prompts must equal it),
+// its cloud stand-in texts (real model texts, to size the result code), and the storage test's cloud result.
+tasks.withType<Test>().configureEach {
+    systemProperty("b73.prompts", writerPrompts.absolutePath)
+    systemProperty("b73.results", File(pretests, "b73-writer/results").absolutePath)
+    systemProperty("b04.cloud", File(pretests, "b04-b11-storage-terrain/results/phone-cloud.json").absolutePath)
+}
 
 // Native libraries for arm64, 16 KB aligned. Cargo is incremental, and --locked leaves the crates' lock files alone.
 val cargoKstorage by tasks.registering(Exec::class) {

@@ -137,9 +137,11 @@ Results land in `results/`; clips and build outputs stay in the cache.
 
 - **Impacts:** A2 (noise shaped by the material's properties) sounds much better than A1 (ringing modes). A2 is chosen.
 - **Speech:** the synthetic voice (S1, espeak-ng) is terrible. A neural voice (S2) is chosen; the next step is a neural voice that keeps more of an invented language's sounds.
-- **Instruments:** the flutes are fine; the drums sound a bit weak.
+- **Instruments:** the flutes are fine; the drums sound a bit weak, meaning not as good as the flutes (you clarified: the sound, not the loudness).
 
 ## Drums, round 2: more body (after your verdict)
+
+*This round read "weak" as "too quiet"; you meant "not as good as the flutes". What it found about the phone's speaker holds as a general lesson, but it doesn't explain your verdict.*
 
 **Why they sound weak.** The page plays each clip as loud as its peaks allow. A drum strike is one short spike, so its peak stops it early. Through a stand-in for a phone speaker (it loses almost everything below about 350 Hz), the page played the small drum about 14 dB quieter than the flutes, and the large drum about 25 dB quieter: 96% of the large drum's sound is below what a phone speaker can play.
 
@@ -174,6 +176,7 @@ At the 12 dB limit on limiting, the drums stay 8 to 12 dB below the flutes, and 
 - Why: the model gives the hide only 21 notes, the lowest ones. On the large drum all of them lie below about 300 Hz, so 99.6% of its sound is below what a phone speaker plays. A real hide has hundreds of higher notes. Each is weak, but together they make the slap you hear at every strike, and that slap is what a phone speaker can play.
 
 **Stopped here (your question, 1 October 2026: general, or one instrument?).** The planned next test, the whole hide, was not run. Tuning one instrument's physics belongs after the architecture, not in a pre-test. Drum tuning is parked; the corrected law stays in the code as `drum_modes_v2`, unused by the mixer.
+The likely cause of the gap you heard, for when drums are picked up: they are the one sound still made only of ringing notes (A1), the way you found worse for struck stones, and their notes die far too fast. First try: the A2 way with the corrected law; if that loses their pitch, ringing notes plus noise, as the flutes do.
 
 **What carries over to all sound:**
 - **A phone speaker can't play deep sound.** It loses almost everything below about 350 Hz. Every deep sound will come out weak through it: drums, thunder, rockfalls, large animals, deep voices. Sounds must be judged through the phone's own speaker, or a stand-in for it.

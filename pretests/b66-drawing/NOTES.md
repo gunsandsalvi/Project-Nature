@@ -137,4 +137,5 @@ The owner ran the Benchmark on the Pixel 11 Pro XL, inside the Claude app's page
 ## The owner's verdict (1 October 2026)
 
 - **Fade:** not liked. No pixel fix is accepted yet.
+- **Pixel fix:** `PRE-22` stays as it is. The fix is picked at the first visual review (`PRE-31`), on a real world; the drawing keeps a slot for it.
 - **Gestures:** fine for now.

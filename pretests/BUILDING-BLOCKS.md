@@ -88,7 +88,7 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Approaches:** the mockup's scene (`mockups/visual-style.html`) drawn as it is with WebGL, and by a native engine (Vulkan or OpenGL ES): frame time, battery and heat; a fix for pixels crawling while the camera turns or zooms (`PRE-22`); and the decided gestures, which you try.
   - **Result so far** (1 October 2026; `pretests/b66-drawing/`):
     - **WebGL is fast enough.** Your phone's Benchmark run passed at every zoom, from one person to the planet, at nearly full screen (270 x 489 art pixels at 4 screen pixels each): 97–100% of 120 Hz, with at most 3.1% of frames late (the full turn), inside the limits set beforehand (90% and 5%). Drawing took 0.4–3.8 ms of the processor's time per 8.3 ms frame. So no native graphics engine is needed; if that ever changes, the native route reuses the mockup's shaders, at about 4 agent-days.
-    - **Crawling pixels (`PRE-22`):** of four fixes, only "Fade" cut crawling to almost nothing, by turning and zooming in small fixed steps with a quick dithered crossfade, and you don't like how it looks. So no fix is accepted yet; pixels still crawl while the camera turns or zooms.
+    - **Crawling pixels (`PRE-22`):** of four fixes, only "Fade" cut crawling to almost nothing, by turning and zooming in small fixed steps with a quick dithered crossfade, and you don't like how it looks. So no fix is accepted yet; pixels still crawl while the camera turns or zooms. You agreed to leave `PRE-22` as it is and pick the fix at the first visual review (`PRE-31`), on a real world. The drawing keeps a slot for it; nothing else depends on which fix wins.
     - **Gestures (`PRE-33`):** all of them work in an automated test, and they feel fine to you for now.
 
 - `B73` **Writer AI** · running (`pretests/b73-writer/`)
@@ -109,8 +109,9 @@ This is a working document, kept with the tests in the temporary `pretests` fold
   - **Result so far** (1 October 2026; `pretests/b74-b76-sound-speech/`):
     - **Cost is no issue:** one cloud core mixes about 3,000 impact sounds, either way.
     - **Instruments from their shapes work:** every flute note came within 3.3 cents of the pitch worked out from its bore and holes.
-    - **Your ear: shaped noise (A2) sounds much better** than sound built from ringing modes (A1). Impacts are made as noise shaped by the material's properties, so they still come from the physics (`SND-06`); it is also the cheaper way. The flutes are fine; the drums sound a bit weak. The phone's audio delay is measured by the second test app.
-    - **Why the drums sound weak, and what that means for all sound:** a phone speaker loses almost everything below about 350 Hz, so every deep sound (drums, thunder, rockfalls, large animals) comes out weak through it. A last step at the end of the mix, tuned to the speaker and off with headphones, lifted deep sounds by 4 to 17 dB; the architecture should include one. The rest of the drums' weakness is the drum's own physics, which is tuning for later, so that work is parked (`SND-02`).
+    - **Your ear: shaped noise (A2) sounds much better** than sound built from ringing modes (A1). Impacts are made as noise shaped by the material's properties, so they still come from the physics (`SND-06`); it is also the cheaper way. The flutes are fine; the drums don't sound as good as the flutes. The phone's audio delay is measured by the second test app.
+    - **Drums, parked:** they are the one sound still made only of ringing notes (A1), the way you found worse for struck stones, and their notes die far too fast. Making them the chosen way is tuning for after the architecture (`SND-02`).
+    - **Found along the way:** a phone speaker loses almost everything below about 350 Hz, so every deep sound (drums, thunder, rockfalls, large animals) comes out weak through it. A last step at the end of the mix, tuned to the speaker and off with headphones, lifted deep sounds by 4 to 17 dB; the architecture should include one.
 
 - `B76` **Speech** · running (`pretests/b74-b76-sound-speech/`)
   - **Question:** how to speak an invented language on the phone (`SND-03`).

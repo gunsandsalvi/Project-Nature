@@ -60,6 +60,9 @@ class Store(val dir: File) {
 
     /** A copy of one result, safe to read while the test thread keeps writing. */
     @Synchronized fun copyOf(key: String): JSONObject? = results.optJSONObject(key)?.let { JSONObject(it.toString()) }
+    @Synchronized fun copyArray(key: String): JSONArray? = results.optJSONArray(key)?.let { JSONArray(it.toString()) }
+    @Synchronized fun flag(key: String): Boolean = results.optBoolean(key)
+    @Synchronized fun has(key: String): Boolean = results.has(key)
 
     /** A copy of everything, for the result code and the shared file. */
     @Synchronized fun snapshot(): Pair<JSONObject, JSONObject> = JSONObject(results.toString()) to JSONObject(full.toString())
