@@ -1130,12 +1130,32 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
   - **Long cycles:** ice ages and warm periods follow real cycle lengths, tens of thousands of years long, moving coastlines and pushing migrations.
     Worlds begin as an ice age ends, so seas rise over the first ten thousand years or so and can cut bands apart (`MOM-05`).
     A great eruption can cool the world for a few years.
+  - **How it works:**
+    - **What drives it:** for each weather cell (`WLD-12`) and day of the year, rules from physics, calibrated to Earth, set the sunlight (from latitude and the date, `WLD-01`); the wind belts at Earth's latitudes, shifting with the seasons and bending around land and sea (warm land in summer draws in moist sea air, cold land in winter pushes dry air out); and the storm belts, where storms form and the paths they take, strongest where warm and cold air meet, with tropical storms only over seas warmer than a measured temperature.
+    - **Storms are drawn from the climate:** storm systems are drawn from their belts' real statistics (how often, how big and how fast, with sizes scaled, `WLD-30`), and move along their belts.
+    - **Weather is worked out hour by hour:** each cell keeps its air's temperature, moisture, cloud, wind and pressure.
+      Air moves with the belts and the storms; it takes up water from seas, lakes, wet ground and plants by measured rules; it cools as it rises over hills or in storms, and rain or snow falls once it cools past what it can hold.
+      The sun warms the ground by day by how much light the ground takes in (snow and sand reflect most, forest least), and the ground cools at night, most under clear skies; fog and frost form where moist air cools at night, most in hollows and over water.
+      So what storms bring, and all other weather, comes from the land and water as they are now, which is how forests, lakes, snow and people's clearing change it (`WLD-25`).
+    - **Thunderstorms** build where the air is warm, moist and rising, and give lightning (`WLD-28`).
+    - **Climate is the weather's long-run average:** checked against Earth in calibration (`WLD-08`), such as each kind of climate's share and where it lies.
+    - **Long cycles:** the slow wobble of the world's tilt and orbit, drawn from the seed within Earth-like ranges, changes how much summer sun high latitudes get.
+      Where winter snow outlasts the summer, ice sheets grow and reflect more sunlight, and the air's carbon dioxide falls and rises with the ice by the relation measured in Earth's ice cores, deepening each swing.
+      Why Earth's ice ages keep the rhythm they do is not fully understood, so the timing follows the orbit and the feedbacks are tuned until the ice and the sea match the size of Earth's record (`WLD-26`).
+    - **Eruptions:** gas from a great eruption dims the sun for a few years through the same sunlight balance (`WLD-15`).
   - **Example:** Rain clouds coming off the western sea drop their rain on the mountains, so the valleys beyond are dry grassland with forest only along the rivers.
 
 - `WLD-05` **Climate on a small world** *(Decided)*: Climate zones sit closer together than on Earth, a few days' walk apart, and weather systems are scaled to fit the world (`WLD-30`).
+  - **How it works:** latitude changes about 20 times faster per kilometre than on Earth, about one degree every 5.6 km, so the belts the climate rules give (`WLD-16`) are a few days' walk wide.
+    Storm systems, fronts and the great loops of wind and current are scaled (`WLD-30`); local weather, such as thunderstorms, sea and valley breezes and frost hollows, keeps its real size.
 
 - `WLD-25` **People change the climate** *(Decided)*: What covers the land and, much later, fuel burned at scale feed back into the climate through the same physics.
   Clearing a forest can dry a region; centuries of burning could warm the world.
+  - **How it works:**
+    - **Land cover:** each weather cell reads, at every step, how much sunlight its land reflects, how much water its plants and soil give back to the air, and how rough its surface is, from the patches beneath it (`WLD-29`).
+      Clearing a forest makes the land brighter, drier and smoother, and downwind gets less of the water the forest gave back, so the region can dry by itself, with no rule for it.
+    - **The air's carbon:** everything that burns, rots or breathes gives off carbon dioxide, and growing plants take it in (`MAT-09`); it mixes through the world's air, and the sea takes some up slowly at measured rates.
+      More of it warms the world by the measured amount for each doubling, through the same sunlight balance (`WLD-16`), so centuries of burning at scale would warm the world.
 
 - `WLD-17` **Fresh water** *(Decided)*: Rivers, lakes, wetlands, springs, underground water, ice and floods.
   Life and settlement gather around them.
@@ -1177,6 +1197,19 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 
 - `WLD-28` **Fire in the landscape** *(Decided)*: Lightning and dry fuel start wildfires, which spread with wind and slope; landscapes regrow after them, and some plants depend on fire.
   People can learn to use fire on the land.
+  - **How it works:**
+    - **Fuel:** each patch's fuel comes from its plants (`WLD-12`): dead grass, fallen leaves and twigs, dead wood and living foliage, each with its amount and wetness.
+      Dead fuel dries and wets with the weather, fine fuel within hours and logs over weeks (measured rates); living foliage's wetness follows the season and the soil water.
+    - **Lightning:** strikes come from thunderstorms (`WLD-16`), each landing by chance, more often on high ground and tall trees; it injures or kills what it hits (`BIO-13`) and lights fuel dry enough to catch (`MAT-04`).
+    - **Starting:** any heat source lights fuel the same way: lightning, lava, embers blown from a fire, or a fire people left.
+    - **Spreading:** while a fire burns, its area is worked out at finer detail (`WLD-12`).
+      It spreads from cell to cell at a speed set by the fuel's amount, size and dryness, the wind and the slope, by the heat that reaches unburned fuel ahead of the flames, calibrated by measured fire spread.
+      Wind throws embers ahead to start new fires, and fire climbs into tree crowns where low branches and wind let it (measured thresholds).
+      It stops where fuel runs out, rain falls, or it meets water, bare rock or burned ground.
+    - **After fire:** each patch loses plants according to how hot the fire was; ash returns nutrients (`WLD-27`), and bare ground erodes until plants return (`WLD-15`).
+      Regrowth follows each species' fire traits (`WLD-19`): some sprout again from their roots, some seeds sprout only after heat or smoke, some cones open only in fire, and grasses return within weeks; grazers come back to the new growth.
+    - **How often places burn** is a result of their climate, lightning and fuel, checked in calibration against Earth's measured fire intervals for each kind of landscape (`WLD-08`).
+    - **People:** a fire people start spreads by the same law; whether they ever burn land on purpose is up to their minds (`PRN-01`).
 
 - `WLD-20` **Heredity in plants and animals** *(Decided)*: Inheritance continues during play, so adaptation and domestication (wolves into dogs, wild grasses into grain) can happen on their own.
 
@@ -1185,6 +1218,10 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 
 - `WLD-22` **Natural disasters** *(Decided)*: Eruptions, earthquakes, floods, droughts, storms, wildfires and lightning come from the world's own systems, not only from you.
   Follows from `GOD-05` and the natural systems in this section.
+  - **How it works:** no disaster is ever scheduled or drawn as a disaster: each is the far end of its own system.
+    Eruptions and earthquakes come from pressure and strain (`WLD-15`); floods from the water balance (`WLD-17`); droughts from runs of dry weather when storms keep to other paths (`WLD-16`); storms from the storm systems, whose winds fell trees and wreck built things by force (`MAT-11`); wildfires and lightning from fuel and thunderstorms (`WLD-28`).
+    Your powers act through the same systems (`GOD-05`).
+    How often each comes is a result, checked in calibration against Earth's records, such as lightning strikes per square kilometre in each climate and how often rivers flood (`WLD-08`).
 
 How animals think is covered in `MND-16`.
 
