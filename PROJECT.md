@@ -1621,10 +1621,27 @@ How people think is in Minds.
 
 - `BIO-09` **Basic needs** *(Decided)*: Food, water, warmth and sleep, in real-world amounts that depend on body size, activity and climate.
   Follows from `PRN-05`.
+  - **How it works:**
+    - **What the body keeps:** its fat and lean mass, the food in its gut, its water, its core and skin temperature (`BIO-11`), and its need for sleep.
+    - **Energy:** at each step the body burns energy: its resting rate from its size, age and sex (measured equations); each action's cost (`MAT-06`), and walking by distance, slope and load (measured rules); shivering or sweating (`BIO-11`); and growth, pregnancy and nursing (`BIO-15`).
+      Digested food adds energy (`BIO-10`), and the difference goes into or out of fat (measured energy per kilogram).
+      When fat runs low, lean mass is burned and strength falls, and below measured limits the body dies of hunger (`BIO-14`).
+    - **Water:** lost through sweat (by heat and effort), breath, urine and illness, and gained by drinking and from food; losing water weakens and confuses at measured shares of body weight, and kills beyond them.
+    - **Sleep:** the need for sleep builds with time awake and is cleared by sleep, at measured rates by age; lack of it slows body and mind and widens the error of every action (`MAT-06`).
+    - **Felt, not known:** hunger, thirst, cold, heat and tiredness are what the mind feels of these stores (see Minds); the stores themselves decide survival.
 
 - `BIO-10` **Nutrition** *(Decided)*
   - **What:** Food provides energy, protein, fat and key vitamins and minerals, all from the real chemistry of what is eaten (`MAT-03`).
     A missing vitamin causes its real deficiency disease.
+  - **How it works:**
+    - **What food gives:** each food's ingredients (`MAT-01`) give energy (from protein, starch, sugar and fat, at measured values per gram), protein, essential fats, and the vitamins and minerals in them.
+      How much the gut takes from them depends on the food's structure and on cooking, which breaks down starch and toughness (`RCK-03`), at measured rates; food is digested over hours at measured rates, and the stomach holds only so much.
+    - **A store for each key nutrient:** vitamins C, A, D, thiamine, niacin, B12 and folate; iron, iodine, calcium and salt.
+      Each is filled by food, and vitamin D also by sunlight on skin, by latitude, season and skin colour (`BIO-22`); each is used up at its measured daily rate.
+    - **Deficiency:** when a store falls below its measured threshold, its real disease develops at its real pace: scurvy (vitamin C), night blindness (vitamin A), rickets and soft bones (vitamin D), beriberi (thiamine), pellagra (niacin), anaemia (iron, B12, folate) and goitre (iodine, where soil and water lack it, `WLD-27`); eating the nutrient again cures it.
+    - **Too much harms too:** some nutrients poison in excess, at measured doses, such as the vitamin A in some animals' livers.
+    - **Growing bodies:** shortfalls of energy and protein in childhood hold back growth (`BIO-08`).
+    - **More later:** other nutrients can be added as a layer (`MAT-16`).
   - **Why:** Diet becomes something people can discover and get wrong.
   - **Example:** A band that winters on dried meat suffers bleeding gums every spring (scurvy, from a lack of vitamin C).
     Eventually someone notices that the people who ate the first green shoots recovered.
@@ -1634,12 +1651,27 @@ How people think is in Minds.
   - **What:** Bodies lose and gain heat by real physics.
     Clothing, shelter, fire and huddling together keep them warm.
     Cold can kill; heat exhausts.
+  - **How it works:**
+    - **A heat balance at each step:** heat made (resting, activity, and shivering up to measured limits) against heat lost or gained: to moving air, by the wind and the difference between skin and air; by radiation, to a clear night sky and from the sun or a fire, by distance; by contact, with cold ground and with water, which takes heat about 25 times faster than air; and by evaporating sweat and breath.
+    - **What shields the body:** its fat; clothing, by its insulation, measured from what it is made of (`MAT-03`) and much less when wet; shelter, which cuts wind and rain and gives back warmth from its walls; huddling, which hides part of each body; and a fire's radiant heat.
+    - **Core and skin:** core temperature follows the balance by the body's heat capacity; past measured thresholds people shiver, then slow, grow confused (so their actions' errors grow, `MAT-06`) and die of cold, or tire, faint and die of heatstroke.
+      Sweating and shivering respond by themselves.
+    - **Hands, feet and face** cool first; flesh that freezes is frostbite, an injury to that part (`BIO-13`).
+    - **Size matters:** children and old people lose heat faster for their size (measured).
   - **Example:** In an ice-age winter, sewn clothing can matter more than food.
 
 - `BIO-12` **Poison and medicine** *(Decided)*: The chemistry of plants, animals and minerals acts on the body.
   Some things poison, some heal, and some do either depending on the dose.
   For example, willow bark eases pain.
   Follows from `MAT-03`.
+  - **How it works:**
+    - **Doses:** each chemical in what is eaten, drunk or breathed, or put on skin or a wound, enters the body at its measured rate, and its dose is counted per kilogram of body.
+    - **Effects by measured dose curves:** each acts on its body systems (pain, gut, heart, breathing, nerves, liver, skin or mind) by its measured dose–effect curve, for as long as it stays, and the body clears it at its measured rate.
+      So a small dose of willow bark eases pain and a large one harms the gut, and foxglove steadies the heart or stops it, by dose.
+    - **Bodies differ:** size, age, health and each person's own sensitivity (`BIO-08`) shift the curve.
+    - **Processing changes doses:** soaking, leaching, cooking, drying and fermenting change the chemicals by the laws of matter (`MAT-04`): acorns lose their bitterness in running water (`RCK-13`), and some poisons break down with heat.
+    - **Warnings are partial:** many poisons taste bitter (`BIO-18`), but not all; what people learn about them is up to their minds.
+    - **Sources:** doses that decide life and death are sourced; the rest are estimated (`PRN-05`).
 
 ### 8.3 Harm and healing
 
