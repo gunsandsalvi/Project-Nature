@@ -277,7 +277,7 @@ These rules apply to every part of the project, and they outrank everything else
 ### 2.4 How it runs
 
 - `PRN-08` **Same seed, same history** *(Decided)*
-  - **What:** A world's history is fully determined by its seed and your interventions. Running it again gives exactly the same history, on the phone or in the cloud.
+  - **What:** A world's history is fully determined by its seed and your interventions. Running it again under the same version of the rules gives exactly the same history, on the phone or in the cloud. When the rules are updated, the timeline marks where they changed (`PLT-09`).
   - **Why:** Rewinding and branching (`TIM-06`), experiments in the cloud (`PLT-05`) and replays on the phone all depend on it. It also means any strange result can be reproduced and investigated.
   - **Example:** An experiment in the cloud finds a world where fire-making is discovered in year 41. You open that world on your phone and watch year 41 happen exactly as reported.
   - **Check:** automated runs from the same seed and interventions produce identical histories on the phone and in the cloud (`RES-05`).
@@ -1186,16 +1186,45 @@ Sound comes in layers, added over time, starting with the living soundscape. Lik
 
 ## 13. Platform and performance
 
-- `PLT-01` **One phone** *(Decided)*: Built for your Pixel 11 Pro XL, and free to use that phone's specific hardware wherever it helps.
-- `PLT-02` **Portrait and landscape** *(Decided)*: Both are supported, and the layout adapts.
+Project Nature is built for one phone, and nothing else is used to play it (`SCP-02`). The phone must stay smooth, cool and responsive (`VIS-14`, `PRN-11`). How much simulation fits on it is found by measuring, not guessing.
+
+### 13.1 The phone
+
+- `PLT-01` **One phone** *(Decided)*: Built for your Pixel 11 Pro XL, and free to use that phone's specific hardware wherever it helps, such as its graphics chip for the pixel-rendered 3D (`PRE-02`) and its AI hardware for the writer AI (`PRE-37`).
+
+- `PLT-02` **Portrait and landscape** *(Decided)*: Both are supported, and the layout adapts (`PRE-34`).
+
 - `PLT-03` **Works offline** *(Decided)*: Everything works without a connection, including the text descriptions, which are written on the phone (`PRE-37`).
+
+- `PLT-06` **Installing new versions** *(Decided)*: Each new version is a file you download on the phone and install, after allowing installs from your browser once. No store, no accounts, no fees. *(Proposed: each milestone report links to its version.)*
+
+### 13.2 Performance
+
 - `PLT-04` **Measured limits** *(To test)*: Measured from the first build and reported at every milestone:
   - smoothness of zooming and panning;
   - simulated time per real minute at each zoom level;
   - how many people the phone can run at each level of detail;
   - battery use and heat per hour of play;
   - time to generate a world.
-- `PLT-05` **Experiments in the cloud** *(Proposed)*: The simulation also runs without graphics on cloud computers, many worlds at a time. Results can be replayed on the phone.
+
+  *(Proposed targets, from `VIS-14`: the camera stays smooth at the screen's full refresh rate; the app opens to your world in about three seconds; an hour's session stays comfortable for battery and heat.)*
+
+When the phone can't keep up, time slows and depth stays (`PRN-11`).
+
+### 13.3 Worlds on the phone
+
+- `PLT-07` **Always saved** *(Proposed)*: Worlds save continuously, so closing the app or a flat battery never loses anything (`TIM-05`).
+
+- `PLT-08` **Manual export** *(Decided)*: Export a world, with all its timelines, as a file whenever you want, and import it again on the same phone or a new one. The export keeps the full record, so an imported world opens exactly as it was. There are no automatic backups.
+
+- `PLT-09` **Updates keep history** *(Decided)*
+  - **What:** The game's rules will keep growing (`PRN-14`). When you update, everything that already happened in a world stays exactly as it was. When you continue, the world runs under the new rules, and the change is marked on its timeline.
+  - **Why:** Worlds are long-lived, so they shouldn't be thrown away with each update, and the past should never change.
+  - *(Proposed: rewinding to before an update and branching runs the new branch under the current rules.)*
+
+### 13.4 The cloud
+
+- `PLT-05` **Experiments in the cloud** *(Decided; follows from `SCP-15`)*: The simulation also runs without graphics in the AI's cloud sessions, many worlds at a time. *(Proposed: any experiment's world can be opened on the phone at any moment of its history.)*
 
 ## 14. Research and validation
 
