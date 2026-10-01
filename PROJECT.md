@@ -389,9 +389,9 @@ Success is judged by the experience; the research rigour of `VIS-05` is how we g
     - worlds from different seeds tell clearly different stories;
     - every chronicle entry can be traced back to the simulated events behind it.
 
-- `VIS-05` **Quality bar** *(Decided)*: The rigour of a research project and the craft of a well-funded studio.
+- `VIS-05` **Quality bar** *(Decided)*: The rigour of a research project, and craft polished as far as the tools allow.
   - **Research rigour:** what the simulation is claimed to do is tested by experiments that can fail, across many runs, with real-world values and repeatable results.
-  - **Studio craft:** art, sound, interface and performance polished to the standard of a well-funded studio.
+  - **Craft:** art, sound, interface and performance polished as far as procedural art, animation and sound made by AI agents allow, judged by you at every visual review (`PRE-31`).
   - Rigour is the method, not the goal.
     It exists so that the wonder is earned and the histories are real.
 
