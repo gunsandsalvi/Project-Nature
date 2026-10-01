@@ -35,7 +35,7 @@ It contains no implementation details. Those belong in the implementation plan, 
 | Status | Meaning |
 |---|---|
 | *Decided* | Agreed in our sessions. |
-| *Proposed* | Suggested but not yet confirmed. To be confirmed or changed in that section's deep dive. |
+| *Proposed* | Suggested but not yet confirmed. You confirm, change or drop it (`PRC-07`); section 17 lists them all. |
 | *To test* | Settled by experiment or measurement, not by opinion. |
 | *Open* | Not decided yet. |
 | *Dropped* | No longer planned. Kept for the record, with the reason. |
@@ -49,6 +49,8 @@ Every item starts with its ID, a short name and its status. Detailed items then 
 - **Example:** a concrete illustration.
 - **Done when:** checks that prove it has been delivered. The implementation plan and the tests link to these. A check marked *(Proposed)* is a suggested target awaiting confirmation.
 - **Check:** for rules that always apply, such as principles, how we verify they are being followed.
+
+Items listed under a parent item, such as the signature moments and the milestones, share their parent's status unless marked otherwise. Risks carry a likelihood and impact rating instead of a status.
 
 ### IDs and links
 
@@ -366,7 +368,7 @@ This section sets the boundaries of the project: what it includes, where history
   2. `MIL-02` **Sharp stone (Experiment 1):** stone that breaks by real rules; people who perceive, form concepts, learn cause and effect, build skills and learn from each other; just enough food and terrain to live on. *Now possible:* watching a band discover how to chip stone, and seeing the skill spread or be lost.
   3. `MIL-03` **Fire and the first power:** heat, burning and friction; keeping and making fire; dreams, your first power; rewinding and branching history. *Now possible:* a band that can only keep fire learns to make it, and you can send a dream and compare what happens with and without it.
   4. `MIL-04` **A living world:** plants and animals in food webs, with weather and seasons; animals with simpler minds; hunting; your powers over nature and fortune; the living soundscape. *Now possible:* hunting becomes an arms race, and your storms and blessings change lives.
-  5. `MIL-05` **Words and beliefs:** language emerging, explanations, ritual and myth; the chronicle and life stories written by the describing model. *Now possible:* rites form, dialects drift apart, and the chronicle reads like a history.
+  5. `MIL-05` **Words and beliefs:** language emerging, explanations, ritual and myth; the chronicle and life stories written by the writer AI. *Now possible:* rites form, dialects drift apart, and the chronicle reads like a history.
   6. `MIL-06` **The whole world:** the full wrap-around world, migrations, many bands and diverging cultures, one continuous zoom from the globe to a single person, and archaeology. *Now possible:* watching peoples spread, split and meet again across a whole world.
   7. `MIL-07` **Open-ended growth:** taming animals, farming, settlements and whatever comes after, each built when an experiment calls for it. *Now possible:* history keeps going, with no ceiling.
 
@@ -451,7 +453,7 @@ You are an invisible force of nature. This section defines exactly what you can 
 ### 4.3 Using your powers
 
 - `GOD-10` **Using your powers on the phone** *(Proposed)*
-  - **Touch first:** tap a person, animal, group or place to see what you can do there.
+  - **Touch first:** long-press a person, animal, group or place to see what you can do there (`PRE-33`).
   - **Nature:** draw around an area to push its weather or season; tap a spot for a small event.
   - **Dreams:** open a sleeper's memories, shown as small pixel-art scenes, choose what the dream is made of, and pick a feeling.
   - **Fortune:** choose what to bless or curse, and for how long.
@@ -943,7 +945,7 @@ How people think, and in simpler form how animals think. Everything a mind knows
 
 - `MND-15` **No population cap** *(Decided)*: How many minds the phone can run at each level of detail is found by measurement (`PLT-04`).
 
-- `MND-25` **Thoughts are structured; words come later** *(Decided; follows from `PRN-06`)*: What a person thinks is kept as beliefs, intentions, feelings and memories, never as sentences. The story view (`PRE-14`) turns them into words through the describing model; the scientist's view shows them raw.
+- `MND-25` **Thoughts are structured; words come later** *(Decided; follows from `PRN-06`)*: What a person thinks is kept as beliefs, intentions, feelings and memories, never as sentences. The story view (`PRE-14`) turns them into words through the writer AI (`PRE-37`); the scientist's view shows them raw.
 
 ### 9.8 Animals
 
@@ -982,7 +984,7 @@ Culture is everything people pass to each other rather than inherit through thei
 
 - `CUL-05` **Belief from explanation** *(Decided)*
   - **What:** Big unexplained events (death, sickness, storms, your interventions) demand a cause. When no physical cause is known, the inborn tendency to suspect a hidden someone (`MND-21`) suggests an unseen being. Beliefs that seem to work spread and last. They become ritual, gain specialists such as shamans and priests, and in time grow into religions with their own myths, rules and sacred places.
-  - **Why:** Religion grows from the same machinery as discovery (`MND-05`), and the player's own acts become part of what people try to explain (`GOD-06`).
+  - **Why:** Religion grows from the same machinery as discovery (`MND-05`), and your own acts become part of what people try to explain (`GOD-06`).
   - **Example:** Your lightning becomes a god (`MOM-03`).
 
 - `CUL-19` **Dreams and the dead** *(Proposed)*: Dreams of dead relatives can lead people to believe the dead live on in some form. That can shape burials, rites for ancestors and ideas of a soul.
@@ -1311,7 +1313,7 @@ How the project is run: you direct, and AI agents build. This section defines th
 
 - `PRC-07` **Changes to this file** *(Decided)*: AI agents can suggest additions or changes, marked *Proposed*. Nothing becomes *Decided*, and no decided item changes, without your OK.
 
-- `PRC-05` **Section deep dives** *(Decided)*: Each section is expanded with more detail, one at a time, and *Proposed* items are confirmed or changed along the way.
+- `PRC-05` **Built section by section** *(Decided)*: This file was written with you one section at a time. *Proposed* items are confirmed, changed or dropped in later reviews (`PRC-07`).
 
 - `PRC-08` **Next: the implementation plan** *(Proposed)*: Once this file is complete and the project is named (`VIS-16`), the implementation plan follows, starting with the technology proposal (`PRC-03`) and the first milestone (`MIL-01`).
 
@@ -1401,34 +1403,77 @@ What could stop Project Nature from succeeding, how we would notice early, and w
 
 ## 17. Not yet decided
 
-Items marked *Open* or *To test*, for the deep dives. Every *Proposed* item also needs your confirmation.
+### 17.1 Open, or settled by measurement
 
-- **Vision:** `VIS-16` (name)
-- **Time and history:** `TIM-07`
-- **World:** `WLD-04`
-- **Minds:** `MND-15` (limits)
-- **Presentation:** `PRE-19`
-- **Platform and performance:** `PLT-04`
+- **Name** (`VIS-16`): the final name, chosen once the rest of this file is complete.
+- **Pacing** (`TIM-07`): how long history takes to watch; measured during development.
+- **How many people the world can feed** (`WLD-04`): measured in experiments.
+- **Storytelling voices** (`PRE-19`): tried live and chosen by ear.
+- **The phone's limits** (`PLT-04`): measured from the first build.
+
+### 17.2 Proposals awaiting confirmation
+
+These are suggestions written into this file while it was being built. They guide the work until they are confirmed, changed or dropped (`PRC-07`).
+
+**Whole items**
+
+- **Vision:** `VIS-09`, `VIS-11`, `VIS-12` (with the signature moments `MOM-01` to `MOM-12`)
+- **The player as god:** `GOD-10`, `GOD-11`
+- **Time and history:** `TIM-08`, `TIM-11`, `TIM-13`, `TIM-14`
+- **World:** `WLD-11`, `WLD-24`, `WLD-26`, `WLD-28`
+- **Matter and physics:** `MAT-12`, `MAT-13`, `MAT-14`, `MAT-15`, `MAT-16`
+- **People:** `BIO-18`, `BIO-19`
+- **Minds:** `MND-18`, `MND-19`, `MND-20`, `MND-22`, `MND-24`
+- **Culture and society:** `CUL-16`, `CUL-18`, `CUL-19`, `CUL-20`, `CUL-21`, `CUL-22`
+- **Presentation:** `PRE-15`, `PRE-16`, `PRE-31`, `PRE-33`, `PRE-35`, `PRE-36`
+- **Sound:** `SND-05`, `SND-07`, `SND-08`, `SND-09`
+- **Platform and performance:** `PLT-07`
+- **Research and validation:** `RES-13`, `RES-14`
+- **Project and process:** `PRC-08`, `PRC-10`, `PRC-12`
+- **Risks:** `RSK-12`, and the ratings of every risk
+
+**Decided items with proposed details**
+
+- **Vision:** `VIS-14`, `VIS-15` (the "Done when" checks)
+- **Scope:** `SCP-16` (the milestones `MIL-01` to `MIL-07`)
+- **The player as god:** `GOD-04`, `GOD-05`
+- **Time and history:** `TIM-01`, `TIM-02`, `TIM-04`, `TIM-12`
+- **World:** `WLD-06`, `WLD-10`
+- **Matter and physics:** `MAT-04`, `MAT-08`
+- **People:** `BIO-04`, `BIO-08`
+- **Minds:** `MND-16`
+- **Presentation:** `PRE-07`, `PRE-10`, `PRE-22`, `PRE-27`
+- **Platform and performance:** `PLT-04`, `PLT-05`, `PLT-06`, `PLT-09`
+- **Research and validation:** `RES-03`, `RES-07`
+- **Project and process:** `PRC-01`
 
 ## 18. Glossary
 
+- **Art pixel:** one pixel of the low-resolution picture, enlarged on screen (`PRE-22`).
 - **Band:** a small group of people, usually family, who live and move together.
-- **World:** one generated planet.
-- **Seed:** the number a world is generated from. Same seed, same world.
-- **Timeline / branch:** one history of a world. Rewinding and changing something starts a new branch.
-- **Intervention:** anything the player does with their powers.
-- **Run:** one simulation of a world for an experiment.
-- **Concept:** a category a person forms from what they perceive, such as "cutting stone".
-- **Belief:** a person's idea of what causes what, held with more or less certainty.
-- **Skill:** a learned way of doing something, which improves with practice.
-- **Institution:** a shared, named pattern of behaviour (a norm, role, rank or rite) that people know, teach and enforce.
-- **Level of detail:** how finely something is being simulated at a given moment.
-- **Describing model:** the AI language model that turns simulation data into readable text. It never decides anything.
-- **Story view / scientist's view:** the two ways to look into a mind (`PRE-14`).
-- **Story director:** sets the speed of time according to what is happening. It never causes events.
-- **Overnight mode:** the world running at top speed, screen dimmed, while the phone charges (`TIM-12`).
-- **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
-- **Signature moment:** a story the simulation must be able to produce without it being scripted (`MOM`).
-- **Milestone:** a stage of the project that ends with a report you review (`MIL`).
-- **Live moment:** a notable event the game surfaces to you as it happens (`PRE-08`).
+- **Belief:** a person's idea of what causes what, held with more or less certainty (`MND-05`).
+- **Catalogue:** one of the four lists that describe matter: ingredients, structures, laws and reality checks (`MAT-13`).
+- **Comparison run:** an experiment run again with one mechanism switched off, to show what depends on it (`RES-10`).
+- **Concept:** a category a person forms from what they perceive, such as "cutting stone" (`MND-04`).
+- **Cut-away view:** the ground sliced open to show rock layers and buried traces of past life (`PRE-25`).
 - **General-rules check:** confirms that no rule is written for one particular discovery, material, species or event, and that no discovery's name appears in decision-making logic (`PRN-07`).
+- **Ingredient:** a real mineral, compound or substance of living things that matter is made of (`MAT-01`).
+- **Institution:** a shared, named pattern of behaviour (a norm, role, rank or rite) that people know, teach and enforce (`CUL-06`).
+- **Intervention:** anything you do with your powers (section 4).
+- **Law:** a general rule of change, such as burning or smelting, that never names a product (`MAT-04`).
+- **Level of detail:** how finely something is being simulated at a given moment (`WLD-12`, `MND-14`).
+- **Live moment:** a notable event the game shows you as it happens (`PRE-08`).
+- **Milestone:** a stage of the project that ends with a report you review (`MIL`).
+- **Overnight mode:** the world running at top speed, screen dimmed, while the phone charges (`TIM-12`).
+- **People (a people):** a group recognised by its shared language, beliefs, customs and style (`CUL-23`).
+- **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
+- **Run:** one simulation of a world for an experiment.
+- **Scientist's view / story view:** the two ways to look into a mind: raw beliefs and evidence, or their own words (`PRE-14`).
+- **Seed:** the number a world is generated from. Same seed, same world.
+- **Signature moment:** a story the simulation must be able to produce without it being scripted (`MOM`).
+- **Skill:** a learned way of doing something, which improves with practice (`MND-06`).
+- **Story director:** sets the speed of time according to what is happening. It never causes events (`TIM-02`, `TIM-03`).
+- **Structure:** how matter is put together: crystal or glass, fibrous, porous or dense, grain, wetness (`MAT-02`).
+- **Timeline / branch:** one history of a world. Rewinding and changing something starts a new branch (`TIM-06`).
+- **World:** one generated planet (section 6).
+- **Writer AI:** the AI language model, running on the phone, that turns simulation data into readable text. It never decides anything (`PRE-17`, `PRE-37`).
