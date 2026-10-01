@@ -897,6 +897,20 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
 
 - `WLD-08` **Realistic, not from scratch** *(Decided)*: Worlds are generated directly in a realistic present-day state, using fast methods that imitate what deep time would have produced.
   Generating one is cheap.
+  - **How it works:**
+    - **Stages:** generation runs the stages of `WLD-09` in order, each worked out from the seed and the stages before it.
+      Each stage uses the real rule for its process, such as uplift where plates meet or water cutting valleys, run in a few long steps instead of through geological time.
+    - **The same rules as play:** where play has a law for the same process, such as erosion, soil change or plant growth, the generator uses that law, so play carries on from the generated state without a jump.
+    - **What is kept:** the stages' results are stored with the world, from whole regions down to cells of about 1 km, and patches of a few hundred metres for plants and animals (`WLD-12`).
+      Finer detail, down to the metre, is never made in advance: it comes from the same rules when needed, the same way every time (`MAT-10`).
+    - **Exactly repeatable:** the generator uses exact, repeatable maths, so a seed gives the same world bit for bit on the phone and in the cloud, and an untouched place always comes back as it was.
+      So any change to the generator counts as a big update (`PLT-09`).
+    - **Settling:** once you pick a world, it runs the years before year 0 by the play rules, with no people, until water, plant cover and animal numbers stop trending and only rise and fall with the seasons and the weather, up to a limit in years (tuned).
+      History then begins from a state the world's own rules keep.
+      At year 0, the animals around the bands are given the wariness of people that living beside hunters gives (`MND-16`, estimated), just as the bands start with their knowledge (`BIO-02`).
+      Named simplification: the bands' own small effect on the land before year 0, such as their hunting, is left out.
+    - **Calibrated to Earth:** run on many seeds during development, each stage's results are compared with Earth's measured figures, such as the spread of heights and slopes, how rivers branch and lengthen, how rough coastlines are, the sizes of lakes, and the share of each kind of climate.
+      The rules are tuned until worlds fall inside Earth's ranges, and the figures used are sourced (`PRN-05`).
 
 - `WLD-09` **What generation produces** *(Decided)*: using rules derived from real physics and calibrated to Earth, not full physical models, generation produces, in this order:
   1. tectonic plates, mountain ranges, volcanoes and faults;
@@ -906,14 +920,53 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
   5. soils, from rock, climate and time;
   6. vegetation and landscapes;
   7. animals and microbes adapted to them (`WLD-19`).
+  - **How it works:**
+    - **Plates:** the seed draws about 6 to 12 plates (tuned), each moving its own way, with ocean or continental crust; the continents make up the land share (`WLD-06`).
+      Continents are pieced together from blocks of different ages, so they have old worn-down ranges, basins and rifts inside them, and ragged edges.
+      Where plates meet, their motion sets what happens: plates pushing together raise ranges; an ocean plate sinking under another raises a line of volcanoes; plates pulling apart open rifts; plates sliding past each other leave faults.
+      The height and width of each range follow rules calibrated on Earth's ranges of the same kind.
+      Volcanoes, faults and hot spots are kept as features that stay active in play (`WLD-15`).
+    - **Rock:** each cell of about 1 km gets a column of rock layers down to about 1 km deep (estimated), each with its rock, thickness, tilt and cracks, set by the cell's history: old crystalline rock under the continents; sandstone, shale, limestone and chalk where seas and basins lay; lava and ash near volcanoes; folded and baked rock in ranges; granite where molten rock cooled underground.
+      A catalogue of rock settings lists, for each setting, the rocks it makes and the minerals and ores that come with them and how often, from geology: flint in chalk, obsidian in young silica-rich lava, copper ores near granites in volcanic ranges with green weathered tops (`MOM-12`), tin in granites and in the river gravels below them, salt in dry basins, ochre where iron-rich rock weathers, and clay from weathered rock and along rivers.
+      Ore bodies are single features with a place, a size and a share of metal, drawn from the seed.
+      Caves form where water dissolves limestone along its cracks, where lava drained out of tubes, and where soft rock wore away under hard, leaving overhangs; each is kept as a 3D piece.
+    - **Erosion:** water cuts the land faster where more water flows (from the area upstream and the rain), where it is steeper, and where the rock is softer; slopes creep, and slide where steeper than they can hold; carried sediment settles where the water slows, in fans, floodplains, lakes and deltas.
+      Run in long steps until the land nears a balance (tuned), it makes valleys, river networks, lakes (hollows fill up to their outlets) and coastlines.
+      It runs with the sea at its ice-age low, so valleys run out across the shelves the rising sea will flood (`WLD-16`).
+      Where ice lay, the land is carved as glaciers carve: U-shaped valleys, lake basins, ridges of rubble, and, beyond the ice, spreads of wind-blown silt.
+    - **Climate:** worked out on the finished land by the climate rules (`WLD-16`), for the start date and for the long cycle ahead.
+    - **Soils:** worked out by the soil rules (`WLD-27`) from the material underneath (the rock, or river silt, rubble left by ice, wind-blown silt or ash), the climate, the slope, the plant cover, and how long the surface has stood: young where the ice has just left.
+    - **Plants:** plant species are made to fit the world's climates and soils (`WLD-19`), and each species' tolerances (of cold, drought, flooding, shade, acid soil and fire) decide where it can grow.
+      Each patch of a few hundred metres gets the plants its conditions support, at a stage of regrowth since its last fire, flood or storm, drawn from the seed at the rates such events have in that climate on Earth (estimated): so the land is a mosaic of old forest, burned and regrowing patches, meadow, marsh and scrub.
+      Each patch keeps each species' amount and, for trees, their ages; single plants come from that when needed (`MAT-10`).
+    - **Animals and microbes:** animal species are made to fit the habitats and foods (`WLD-19`).
+      Each patch's numbers of each species come from the food the patch grows and that species' needs, which follow from its body size (`BIO-09`), so plant eaters follow the plants, and hunters their prey.
+      Herds that migrate get summer and winter ranges from where their food is in each season.
+      Numbers are kept by age and sex, and individuals come from them when needed (`MND-16`, `WLD-12`).
+      Microbes come from Earth families in the same way: decomposers in soil and water, yeasts on fruit, and diseases in their hosts (`WLD-21`).
+    - **Stages that need each other:** erosion needs rain before the climate stage, and soils need plants before the plant stage.
+      So each uses a first, rough version of the later stage (rain from latitude, the sea and the heights; plant cover from the climate alone), and the later stage then works on the finished result.
 
 - `WLD-19` **Species from Earth families** *(Decided)*
   - **What:** Earth's families of plants and animals (deer, wolves, wild cattle, salmon, grasses, birches, oaks, berries and so on) are the starting point.
     Generation adapts them into each world's own species to fit its landscapes.
     Every species gets its traits: size, diet, behaviour, seasons, and the chemistry of its body, which decides what is edible, poisonous, medicinal or useful (see Matter and physics).
+  - **How it works:**
+    - **A catalogue of Earth families:** each entry is a group of related Earth species, such as deer, wolves, salmon, birches or grasses, with its real ranges: body size; diet; lifespan, age at first breeding and number of young; group size and behaviour (`MND-16`); the climates, soils and habitats it tolerates; and the makeup of each body part as ingredients (`MAT-01`), including its defensive chemicals and their doses.
+      Values that decide what is possible, such as nutrition, poisons and sizes, are sourced (`PRN-05`).
+    - **Choosing families:** the generator lists the habitats the world has and draws families that fit them, weighted by how common each family is in such places on Earth (estimated), so every world has its own mix.
+    - **From family to species:** where a family's habitat is split by a barrier it can't cross, such as a sea for deer or a watershed for river fish, each side gets its own species, so species follow the world's geography as they do on Earth.
+      Each species draws its traits within its family's real ranges, then shifts them by real patterns of how living things fit their climate: bigger bodies where it is colder, shorter limbs and ears in the cold, changes in size on islands, and darker colours where it is humid.
+      Traits tied to size, such as food needs, lifespan, age at first breeding and range, follow measured scaling laws.
+    - **Use comes from chemistry:** whether something is edible, poisonous, medicinal or useful is never a label: it is the ingredients in each part and their doses, acting on bodies by their measured effects (`BIO-12`).
+      Each species' defensive chemicals are drawn within its family's range, so a berry that is food in one world can have a bitter, poisonous cousin in another.
+    - **No two alike:** every trait has a real spread between individuals and a real share that is inherited (`WLD-20`, `BIO-06`).
+    - **The tree is kept:** species of one family share an ancestor, and families sit in Earth's own tree, so each world has a tree of life you can look at (`PRN-04`).
   - **Why:** Familiar enough to understand, new enough that each world has its own tree of life to discover.
 
 - `WLD-23` **Richness of life** *(Decided)*: About 50 animal and 200 plant species per world, across all groups: mammals, birds, fish, shellfish and insects; trees, shrubs, grasses, herbs and fungi.
+  - **How it works:** the generator draws families (`WLD-19`) until the world has about 50 animal and 200 plant species, with every group listed, and every habitat having its plant eaters, hunters, scavengers, pollinators and decomposers.
+    Species that can't hold on through settling (`WLD-08`) die out, as they would in play, so the generator aims a little higher (tuned).
 
 - `WLD-10` **Generate many, keep the best** *(Decided)*
   - **What:** The generator makes many candidate worlds, scores each one, and never edits them.
@@ -924,11 +977,41 @@ What matter is made of is in Matter and physics; how animals think is in Minds.
     - natural barriers (mountains, seas, deserts) that let separate cultures form;
     - resources spread unevenly (flint here, copper there);
     - a good place to begin (`WLD-24`).
+  - **How it works:**
+    - **Two passes:** about 100 candidates (tuned to fit `WLD-11`), each with its own seed, go through the plates, rock, erosion and a first climate at low detail, and are scored on what those decide.
+      The best 10 then go through every stage in full and are scored again.
+    - **Each score is a measurement:**
+      - **variety:** how many kinds of climate and land the world has with a fair share of the land each, and how evenly the land is shared among them;
+      - **barriers:** how many regions big enough to feed a people of several bands (`WLD-04`) are cut off from each other by sea, or by land that takes more than a few days (tuned) to cross on foot by the body's walking rules (slope, rivers, marsh, snow and desert);
+      - **uneven resources:** each key material, such as stone that flakes, copper ore, tin ore, clay, salt and ochre, is found in some regions and missing from others, judged by makeup and properties, never by name;
+      - **a good start:** the best start region's score (`WLD-24`).
+    - **Choosing:** a world must have a start region that qualifies; worlds that do are ranked by the sum of their scores, with weights that are tuned and listed (`PRN-05`).
+      If fewer than three qualify, more candidates are made.
+    - **Never edited:** a world is offered exactly as generated, or not at all.
+    - **What you see:** the best three as small globes drawn from their land and climate, each with a one-line summary built from its scores and facts by fixed sentence patterns, so it says only what the world holds (`PRN-10`).
+      Letting the game pick takes the top score.
+    - **Your own seed:** entering a seed makes that one world, the same as before for the same version (`WLD-08`); it skips the search, still finds its start region by scoring, and tells you if none qualifies.
 
 - `WLD-24` **Where history begins** *(Decided)*: The bands start in a temperate region with caves, fresh water and varied food within reach.
   The region is found by the scoring, never placed by hand.
+  - **How it works:**
+    - **Where it looks:** every stretch of land big enough to feed the starting bands all year (`BIO-03`), counting only food they can get with the starting kit (`BIO-02`).
+    - **What a region must have,** judged by the world's own rules:
+      - **temperate:** a real cool season, with the coldest month below about 10 °C (tuned), that people with the starting kit, with no clothes and no fire, can live through in the region's caves, huddled together, by the body's own heat rules (`BIO-11`) in an ordinary year; and a warm season that doesn't overheat them in shade with water;
+      - **caves:** a dry cave or overhang for each band, big enough to shelter it (floor area per person estimated);
+      - **fresh water:** water within about 2 km of each shelter (estimated) that lasts through an ordinary year's dry season, from a river, lake or spring;
+      - **varied food within reach:** within about 10 km of the shelters, a day's walk there and back (estimated), food the starting kit can get (gathered by hand, scavenged or ambushed) that meets the bands' needs (`BIO-09`) in every season with a margin (tuned), from several kinds, such as plants, land animals and water life, so one failing doesn't starve them;
+      - **stone that flakes:** within the same reach, stone that breaks into sharp flakes, judged by its makeup and structure by the breaking rule (`RCK-01`), never by name, so Experiment 1 can happen in every world (`RES-02`).
+    - **Ranking:** among regions that qualify, a bigger margin of food, more kinds of food, and more shelters and water score higher (weights tuned); ties go by the seed.
+    - **Found again after settling:** the search runs once more on the settled world (`WLD-08`), so the bands start from what is really there.
+    - **The bands' places:** each band gets one shelter as its home base, and its home range is the land around it that feeds it, next to its neighbours' (`BIO-20`).
 
 - `WLD-11` **Generation time** *(Decided)*: Generating the candidate worlds and finding the best three takes a few minutes in total on the phone.
+  - **How it works:**
+    - **Only the best get full detail:** the two passes of `WLD-10` keep most of the work on the few worlds that might be chosen, and nothing is made down to the metre in advance (`WLD-08`).
+    - **All cores:** candidates are made side by side on all the phone's cores.
+    - **Fewer worlds, never less detail:** if a milestone's measurement (`PLT-04`) shows generation running past a few minutes, fewer candidates are made; each world keeps its full detail.
+    - **Settling** the world you pick (`WLD-08`) comes after this and takes as long as the world's own rules need; its time is measured too (`PLT-04`).
 
 ### 6.4 Detail
 
