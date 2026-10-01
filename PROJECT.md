@@ -1314,23 +1314,23 @@ How the project is run: you direct, and AI agents build. This section defines th
 
 - `PRC-05` **Built section by section** *(Decided)*: This file was written with you one section at a time. *Proposed* items are confirmed, changed or dropped in later reviews (`PRC-07`).
 
-- `PRC-08` **Next: the implementation plan** *(Proposed)*: Once this file is complete and the project is named (`VIS-16`), the implementation plan follows, starting with the technology proposal (`PRC-03`) and the first milestone (`MIL-01`).
+- `PRC-08` **Next: the implementation plan** *(Decided)*: Once this file is complete and the project is named (`VIS-16`), the implementation plan follows, starting with the technology proposal (`PRC-03`) and the first milestone (`MIL-01`).
 
 ### 15.3 How work flows
 
 - `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches. Work joins the main version only after every automatic check passes and an independent AI review approves it. You review at milestones.
 
-- `PRC-10` **The checks** *(Proposed)*:
+- `PRC-10` **The checks** *(Decided)*:
   - **before any work joins the main version:** the tests, the reality checklist (`RES-04`), reproducibility (`RES-05`) and the general-rules check (`PRN-07`);
   - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
 
 - `PRC-11` **Builds between milestones** *(Decided)*: A new version whenever something you can see or try has changed, with a one-line note, installed by download (`PLT-06`). The full report still comes at each milestone.
 
-- `PRC-12` **Nothing gets lost** *(Proposed)*: An automatic coverage check lists any ID in this file that has no task in the implementation plan, and any task that names no ID.
+- `PRC-12` **Nothing gets lost** *(Decided)*: An automatic coverage check lists any ID in this file that has no task in the implementation plan, and any task that names no ID.
 
 ## 16. Risks
 
-What could stop Kindling from succeeding, how we would notice early, and what we do about it. Each risk has a likelihood and an impact *(the ratings are Proposed)*, the early signs to watch for, and a response. Every milestone report reviews all of them (`RES-06`).
+What could stop Kindling from succeeding, how we would notice early, and what we do about it. Each risk has a likelihood and an impact, the early signs to watch for, and a response. Every milestone report reviews all of them (`RES-06`).
 
 ### 16.1 The core idea
 
@@ -1383,7 +1383,7 @@ What could stop Kindling from succeeding, how we would notice early, and what we
   - **Signs:** reproducibility checks failing; replays drifting apart.
   - **Response:** reproducibility checks from the first build (`RES-05`).
 
-- `RSK-12` **Updates change worlds in odd ways** *(Proposed)* · likelihood medium · impact low
+- `RSK-12` **Updates change worlds in odd ways** · likelihood medium · impact low
   - **Risk:** A world that continues under new rules (`PLT-09`) may change suddenly at the point of the update.
   - **Signs:** sudden jumps in a world's state just after an update.
   - **Response:** history before the update is kept and the change is marked (`PLT-09`); the reality checklist runs before every release; branching lets you compare.
@@ -1411,16 +1411,7 @@ What could stop Kindling from succeeding, how we would notice early, and what we
 
 ### 17.2 Proposals awaiting confirmation
 
-These are suggestions written into this file while it was being built. They guide the work until they are confirmed, changed or dropped (`PRC-07`).
-
-**Whole items**
-
-- **Project and process:** `PRC-08`, `PRC-10`, `PRC-12`
-- **Risks:** `RSK-12`, and the ratings of every risk
-
-**Decided items with proposed details**
-
-- None.
+None. Every proposal made while this file was being written has been reviewed and confirmed. New suggestions from AI agents are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 ## 18. Glossary
 
