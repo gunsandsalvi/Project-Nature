@@ -1772,24 +1772,54 @@ How people think is in Minds.
 
 - `BIO-18` **Senses** *(Decided)*: Sight (limited by light, fog and distance), hearing, smell, taste and touch, each with real ranges and differences between people, and declining with age.
   They are how people learn about the world (`MND-03`).
+  - **How it works:**
+    - **Sight:** a thing is seen when it is in view and not hidden by land or plants; lit enough, by sun, moon or fire; big enough for its distance against the eye's measured sharpness; and different enough from its background, so camouflage works.
+      Fog, rain, dust and smoke cut how far anyone can see (`WLD-16`), and movement catches the eye.
+    - **Hearing:** a sound fades with distance, high pitches fastest, and is blocked by land; it is heard if it passes the listener's measured threshold for its pitch, which rises with age, and stands out from the background noise of wind, water and rain; its direction is heard roughly.
+    - **Smell:** a smell spreads from its source downwind with the weather's wind, and is noticed where it passes the measured threshold for that substance (estimated where none is measured); its direction is found only by moving.
+    - **Taste:** sweet, salty, sour, bitter and savoury, from the ingredients of what is in the mouth (`MAT-01`), by measured thresholds.
+    - **Touch:** on contact: texture, hardness, weight when lifted, warmth, wetness, sharpness and pain.
+    - **People differ:** each sense's sharpness comes from the person (`BIO-08`) and age (`BIO-16`); an injured eye or ear (`BIO-13`) or a cold dulls it.
+    - **No scanning:** senses never sweep the world.
+      Whatever makes light, sound or smell (a strike, a call, a fire, an animal moving) is passed once to the bodies within its physical reach, and each checks it against its own senses; looking, listening and sniffing are things a mind chooses to do (see Minds).
 
 - `BIO-21` **Moving, eating and acting together** *(Decided)*: Alongside the actions on matter (`MAT-12`), bodies move (walk, run, climb, crouch, swim), eat and drink, sleep, touch, hold and give, and communicate (call, sing, point, gesture).
   Walking, running, climbing, calling and pointing are inborn; swimming is learned, as is everything people come to do with these acts.
+  - **How it works:**
+    - **Moving:** walking speed is set by slope, ground and load (measured rules), at its measured energy cost (`BIO-09`); running is faster and costlier, limited by stamina; climbing needs holds and strength, and a slip is a real fall (`MAT-11`, `BIO-13`); crouching makes a body slower, quieter and harder to see; swimming costs measured energy, and water over the face drowns (`BIO-14`).
+    - **Inborn and learned:** walking, running, climbing, calling and pointing start as working skills; swimming starts unskilled, with large errors (`MAT-06`), and improves only with practice (`MND-06`).
+    - **Eating, drinking and sleeping:** food is put in the mouth, chewed and swallowed into the gut (`BIO-10`), and water drunk by mouth or hand; asleep, the senses are dulled, but loud sounds, pain or cold wake the body.
+    - **Holding and giving:** passing a thing from one person to another needs both to hold it; touching another body passes warmth and is felt.
+    - **Communicating:** calls and songs are sounds with pitch, loudness and length, heard by hearing (`BIO-18`); pointing is an arm aimed along a line, and what lies along it is up to the onlooker's mind; gestures are poses and movements that others see.
+    - **Speech sounds:** each sound of a language is a set of real articulation features, where and how the mouth makes it, so ease of saying and of hearing apart can shape how languages change (see Culture and society).
+      Named simplification: the throat itself is not simulated.
 
 ### 8.7 Inheritance
 
 - `BIO-06` **Heredity** *(Decided)*: Body traits and mental traits (curiosity, memory, learning speed, temperament) pass from parents to children.
   They shift over generations at real-world speeds as some people survive and have children and others don't.
   Minds barely change over thousands of years; culture does the heavy lifting, as in our own history.
+  - **How it works:**
+    - **An inherited value for each trait:** each person carries one for every body and mind trait (`BIO-08`), such as height, build, strength, stamina, senses, defences, curiosity, memory, learning speed and temperament (`MND-20`), plus the single genes behind looks (`BIO-22`).
+    - **From both parents:** a child's inherited value is the parents' average plus variation, by the trait's measured share that is inherited; traits set by single genes pass by Mendel's rules; and mutation adds new variation at measured rates, as for plants and animals (`WLD-20`).
+    - **Selection is only what happens:** who survives and has children (`BIO-14`, `BIO-15`) shifts the averages over generations, at real speed, with no fitness rule; at real rates, mind traits move too slowly to notice within thousands of years.
 
 - `BIO-07` **Evolution dial** *(Decided)*: A setting speeds up genetic change for experiments (`PRN-12`).
+  - **How it works:** one experiment setting multiplies the new variation mutation adds each generation by a stated factor, so selection has more to work with and traits move faster; it cannot be set in play, and every experiment report lists it.
 
 - `BIO-22` **Looks** *(Decided)*: Skin, hair and faces are inherited (`BIO-06`) and vary by region with sunlight, as in real biology and at real speeds, so they change slowly.
   They are designed so that no people reads as a copy of a real one (`SCP-20`).
+  - **How it works:**
+    - **Genes for looks:** skin colour, hair colour and form, eye colour and face shape are each inherited through many genes (`BIO-06`).
+    - **Sunlight shapes skin by the body's own rules:** strong sunlight destroys folate in pale skin, and weak sunlight makes too little vitamin D in dark skin (`BIO-10`), so who survives and has children shifts skin colour toward what each region's sunlight favours, over thousands of years.
+    - **The rest drifts:** hair, eyes and faces change by chance and by who has children with whom, so peoples kept apart slowly come to look different.
+    - **No copy of a real people:** the starting look genes are drawn from wide ranges and mixed so that no group matches the typical look of any real people.
 
 ### 8.8 Animals
 
 - `BIO-19` **Animal bodies** *(Decided)*: Animals have bodies that work in the same way, with their own species' traits (`WLD-19`): needs, injuries, disease, life cycles and senses.
+  - **How it works:** animals' bodies run the same rules as people's (`BIO-09` to `BIO-18`) with their species' numbers: needs scaled to their size (`WLD-18`); warmth kept by fur, feathers or fat (`BIO-11`); injuries to their own body parts; disease (`WLD-21`); life cycles; and senses with each species' measured ranges, so dogs smell far better than people and birds of prey see farther.
+    Individual animals have full bodies (`WLD-12`); for counted animals, the same rules act on each age and sex group in a patch, deciding births and deaths with their causes (`WLD-18`).
 
 ## 9. Minds
 
