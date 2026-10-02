@@ -1,11 +1,12 @@
-#version 300 es
-// The lit cube of α00 (A11.1 grows from here). Shared by the phone and the web unchanged (A2.6).
-layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 aNrm;
+// The golden cube (T01a.6, A11.12): world position and normal for the scene shader; the camera looks down -z.
+in vec3 aPos;
+in vec3 aNrm;
 uniform mat4 uMVP;
-uniform mat3 uNrm;
+uniform mat4 uModel;
+out vec3 vWorld;
 out vec3 vNrm;
 void main() {
-    vNrm = uNrm * aNrm;
-    gl_Position = uMVP * vec4(aPos, 1.0);
+  vWorld = (uModel * vec4(aPos, 1.0)).xyz;
+  vNrm = mat3(uModel) * aNrm;
+  gl_Position = uMVP * vec4(aPos, 1.0);
 }

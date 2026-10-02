@@ -1,24 +1,41 @@
-//! kd-render: the renderer (A11); in α00 the lit cube on OpenGL ES 3.0 and WebGL2 through `glow` (A1.3, A2.5, A2.6).
-//! Implements PRC-11 in part.
+//! kd-render: the renderer (A11) on OpenGL ES 3.0 and WebGL2 through `glow` (A1.3, A2.5, A2.6), the approved mockup
+//! ported to Rust (A11.1): the palette as data (A11.3), the art target, post and upscale passes (A11.2), the golden
+//! cube as pixel art (A11.12) and the UI pass (A12.1).
+//! Implements PRE-01, PRE-20, PRE-21, PRE-22, PRE-30 and PRE-32 in part, and PRC-11 in part.
 
 pub mod cube;
 pub mod mat;
 pub mod palette;
+pub mod pass;
+pub mod target;
+pub mod ui;
 
 use glow::HasContext;
+use kd_data::Catalogue;
+use kd_view::{FontAtlas, Snapshot, UiDrawList};
 use mat::Mat4;
+use pass::{Passes, PostParams, Prog};
 use std::fmt;
 
-/// The palette's `void`, `#0d0b14` (the mockup's).
-const VOID: [f32; 3] = [13.0 / 255.0, 11.0 / 255.0, 20.0 / 255.0];
-/// The cube's colour, `#c8ad56` (the mockup's `g6`).
-const GOLD: [f32; 3] = [200.0 / 255.0, 173.0 / 255.0, 86.0 / 255.0];
-/// The light's direction before normalising.
-const LIGHT: [f32; 3] = [0.4, 0.8, 0.45];
-/// Vertical field of view, degrees.
+/// The sun's direction in view space for the cube scene (T01a.6).
+const SUN: [f32; 3] = [0.4, 0.8, 0.45];
+/// The cube's field of view across the shorter side, degrees.
 const FOV_DEG: f32 = 40.0;
+/// The camera's distance from the cube's centre, cube sides.
+const CAMERA_Z: f32 = 3.0;
+/// The cube scene's depth range in cube sides: from in front of the cube to behind it.
+const DEPTH_NEAR: f32 = -1.0;
+const DEPTH_SPAN: f32 = 2.0;
+/// Metres a cube side stands for in the post pass's depth thresholds, so the cube reads as a boulder (category rock)
+/// whose silhouette is outlined and whose faces are not.
+const CUBE_SIDE_M: f32 = 20.0;
+/// Light settings of the mockup's dusk (`TOD.dusk`).
+const SUN_I: f32 = 1.0;
+const AMBIENT: f32 = 0.5;
+/// The dither band's width (the mockup's `uBand`).
+const BAND: f32 = 0.32;
 
-/// Why the renderer could not start (A3.8): the shader's or linker's info log.
+/// Why the renderer could not start (A3.8): the shader's or linker's info log, or a GPU resource.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum RenderError {
     Shader(String),
@@ -36,68 +53,107 @@ impl fmt::Display for RenderError {
     }
 }
 
-/// What one frame shows; grows into A11.1's `Frame` in α01a.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct Frame {
-    pub yaw: f32,
-    pub pitch: f32,
+/// Switches of how a frame is drawn (A11.1).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct DrawSettings {
+    pub outlines: bool,
 }
 
-/// The renderer: owns the GL context and the cube's GPU resources. Lives on the GL thread (A2.5).
-pub struct Renderer {
-    gl: glow::Context,
-    program: glow::Program,
-    vao: glow::VertexArray,
-    u_mvp: Option<glow::UniformLocation>,
-    u_nrm: Option<glow::UniformLocation>,
-    u_base: Option<glow::UniformLocation>,
-    u_light: Option<glow::UniformLocation>,
-    count: i32,
-    w: u32,
-    h: u32,
-}
-
-fn bytes(v: impl Iterator<Item = [u8; 4]>) -> Vec<u8> {
-    v.flatten().collect()
-}
-
-#[allow(unsafe_code)]
-unsafe fn compile(gl: &glow::Context, kind: u32, src: &str) -> Result<glow::Shader, RenderError> {
-    unsafe {
-        let s = gl.create_shader(kind).map_err(RenderError::Resource)?;
-        gl.shader_source(s, src);
-        gl.compile_shader(s);
-        if !gl.get_shader_compile_status(s) {
-            let log = gl.get_shader_info_log(s);
-            gl.delete_shader(s);
-            return Err(RenderError::Shader(log));
-        }
-        Ok(s)
+impl Default for DrawSettings {
+    fn default() -> DrawSettings {
+        DrawSettings { outlines: true }
     }
 }
 
+/// What one frame shows beyond the snapshot (A11.1): unpaused real seconds and the palette row now; the camera joins
+/// in α01b, display time and speed in α03a.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Frame {
+    pub real_s: f64,
+    pub palette_row: f32,
+    pub set: DrawSettings,
+}
+
+/// What a frame cost (A11.11): draw calls now; GPU times per pass join with timer queries.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct FrameStats {
+    pub draws: u32,
+}
+
+/// What the renderer loads at start besides the catalogue: the font's atlas (A12.1).
+#[derive(Clone, Debug, Default)]
+pub struct Assets {
+    pub font: FontAtlas,
+}
+
+struct CubeMesh {
+    prog: Prog,
+    vao: glow::VertexArray,
+    count: i32,
+}
+
+/// The renderer: owns the GL context and every GPU resource. Lives on the GL thread (A2.5).
+pub struct Renderer {
+    gl: glow::Context,
+    passes: Passes,
+    ui: ui::UiPass,
+    cube: CubeMesh,
+    pal: glow::Texture,
+    ramps: glow::Texture,
+    luts: glow::Texture,
+    palette_rgba: Vec<u8>,
+    w: u32,
+    h: u32,
+    scale: u32,
+}
+
 impl Renderer {
-    /// Compiles and links the shaders and uploads the cube (A11.1).
+    /// Builds the palette textures from the catalogue, compiles the programs and makes the targets (A11.1).
     #[allow(unsafe_code)]
-    pub fn new(gl: glow::Context) -> Result<Renderer, RenderError> {
+    pub fn new(gl: glow::Context, cat: &Catalogue, assets: &Assets) -> Result<Renderer, RenderError> {
+        let tx = palette::PaletteTextures::build(cat);
+        let defines = palette::shader_defines(cat);
         unsafe {
-            let vs = compile(&gl, glow::VERTEX_SHADER, include_str!("../shaders/cube.vert"))?;
-            let fs = compile(&gl, glow::FRAGMENT_SHADER, include_str!("../shaders/cube.frag"))?;
-            let program = gl.create_program().map_err(RenderError::Resource)?;
-            gl.attach_shader(program, vs);
-            gl.attach_shader(program, fs);
-            gl.link_program(program);
-            gl.delete_shader(vs);
-            gl.delete_shader(fs);
-            if !gl.get_program_link_status(program) {
-                return Err(RenderError::Link(gl.get_program_info_log(program)));
-            }
+            let pal = target::texture(
+                &gl,
+                256,
+                palette::VERSION_ROWS as u32,
+                glow::RGBA8,
+                glow::RGBA,
+                Some(&tx.palette),
+            )?;
+            let ramps = target::texture(
+                &gl,
+                8,
+                palette::RAMP_ROWS as u32,
+                glow::RGBA8,
+                glow::RGBA,
+                Some(&tx.ladders),
+            )?;
+            let luts = target::texture(
+                &gl,
+                256,
+                palette::TABLE_ROWS as u32,
+                glow::RGBA8,
+                glow::RGBA,
+                Some(&tx.tables),
+            )?;
+            let passes = Passes::new(&gl, &defines)?;
+            let ui = ui::UiPass::new(&gl, &assets.font)?;
+            let prog = Prog::new(
+                &gl,
+                include_str!("../shaders/cube.vert"),
+                include_str!("../shaders/cube.frag"),
+                &defines,
+                true,
+                &[(0, "aPos"), (1, "aNrm")],
+            )?;
             let (verts, idx) = cube::mesh();
             let vao = gl.create_vertex_array().map_err(RenderError::Resource)?;
             gl.bind_vertex_array(Some(vao));
             let vbo = gl.create_buffer().map_err(RenderError::Resource)?;
             gl.bind_buffer(glow::ARRAY_BUFFER, Some(vbo));
-            let vb = bytes(verts.iter().flatten().map(|f| f.to_le_bytes()));
+            let vb: Vec<u8> = verts.iter().flatten().flat_map(|f| f.to_le_bytes()).collect();
             gl.buffer_data_u8_slice(glow::ARRAY_BUFFER, &vb, glow::STATIC_DRAW);
             let ebo = gl.create_buffer().map_err(RenderError::Resource)?;
             gl.bind_buffer(glow::ELEMENT_ARRAY_BUFFER, Some(ebo));
@@ -108,19 +164,22 @@ impl Renderer {
             gl.vertex_attrib_pointer_f32(1, 3, glow::FLOAT, false, 24, 12);
             gl.enable_vertex_attrib_array(1);
             gl.bind_vertex_array(None);
-            let u = |n: &str| gl.get_uniform_location(program, n);
-            let (u_mvp, u_nrm, u_base, u_light) = (u("uMVP"), u("uNrm"), u("uBase"), u("uLight"));
             Ok(Renderer {
                 gl,
-                program,
-                vao,
-                u_mvp,
-                u_nrm,
-                u_base,
-                u_light,
-                count: idx.len() as i32,
+                passes,
+                ui,
+                cube: CubeMesh {
+                    prog,
+                    vao,
+                    count: idx.len() as i32,
+                },
+                pal,
+                ramps,
+                luts,
+                palette_rgba: tx.palette,
                 w: 1,
                 h: 1,
+                scale: 4,
             })
         }
     }
@@ -137,38 +196,96 @@ impl Renderer {
         }
     }
 
-    /// The drawing surface's new size in pixels.
-    pub fn resize(&mut self, w: u32, h: u32) {
-        self.w = w.max(1);
-        self.h = h.max(1);
+    /// The window's size in screen pixels and the screen pixels an art pixel spans (4: `PRE-22`); the art target
+    /// follows, so turning the phone keeps the pixel's size.
+    #[allow(unsafe_code)]
+    pub fn resize(&mut self, w_px: u32, h_px: u32, scale: u32) {
+        self.w = w_px.max(1);
+        self.h = h_px.max(1);
+        self.scale = scale.max(1);
+        let (aw, ah) = self.art_size();
+        if let Err(e) = unsafe { self.passes.resize(&self.gl, aw, ah) } {
+            log::error!(target: "kd::render", "{e}");
+        }
     }
 
-    /// Draws one frame: the void, then the lit cube, back faces culled (no depth buffer on the window, A2.5).
+    /// The art target's size now.
+    pub fn art_size(&self) -> (u32, u32) {
+        target::art_size(self.w, self.h, self.scale)
+    }
+
+    /// A palette row's colours as RGBA bytes, 256 of them (the web test hook's `palette only` check).
+    pub fn palette_row_rgba(&self, row: usize) -> &[u8] {
+        let r = row.min(palette::VERSION_ROWS - 1);
+        &self.palette_rgba[r * 256 * 4..(r + 1) * 256 * 4]
+    }
+
+    /// Draws one frame: the scene into the art target, post, upscale, then the UI (A11.2's passes 2, 3, 5 and 6).
     #[allow(unsafe_code)]
-    pub fn draw(&mut self, f: &Frame) {
-        let aspect = self.w as f32 / self.h as f32;
-        let model = Mat4::rot_x(f.pitch).mul(&Mat4::rot_y(f.yaw));
-        let mvp = Mat4::perspective(FOV_DEG.to_radians(), aspect, 0.1, 10.0)
-            .mul(&Mat4::translate(0.0, 0.0, -3.0))
-            .mul(&model);
-        let len = (LIGHT[0] * LIGHT[0] + LIGHT[1] * LIGHT[1] + LIGHT[2] * LIGHT[2]).sqrt();
+    pub fn draw(&mut self, f: &Frame, snap: &Snapshot, ui: &UiDrawList) -> FrameStats {
+        let (aw, ah) = self.art_size();
         let gl = &self.gl;
+        let mut draws = 0;
+        // The cube's camera: perspective, the field of view across the shorter side, looking down −z at the cube.
+        let aspect = aw as f32 / ah as f32;
+        let tan_half = (FOV_DEG.to_radians() / 2.0).tan() / aspect.min(1.0);
+        let fovy = 2.0 * tan_half.atan();
+        let texel = 2.0 * CAMERA_Z * tan_half / ah as f32 * CUBE_SIDE_M;
+        let len = (SUN[0] * SUN[0] + SUN[1] * SUN[1] + SUN[2] * SUN[2]).sqrt();
+        let sun = SUN.map(|x| x / len);
         unsafe {
-            gl.viewport(0, 0, self.w as i32, self.h as i32);
-            gl.clear_color(VOID[0], VOID[1], VOID[2], 1.0);
-            gl.clear(glow::COLOR_BUFFER_BIT);
-            gl.enable(glow::CULL_FACE);
-            gl.cull_face(glow::BACK);
-            gl.front_face(glow::CCW);
-            gl.use_program(Some(self.program));
-            gl.uniform_matrix_4_f32_slice(self.u_mvp.as_ref(), false, &mvp.0);
-            gl.uniform_matrix_3_f32_slice(self.u_nrm.as_ref(), false, &model.normal3());
-            gl.uniform_3_f32(self.u_base.as_ref(), GOLD[0], GOLD[1], GOLD[2]);
-            gl.uniform_3_f32(self.u_light.as_ref(), LIGHT[0] / len, LIGHT[1] / len, LIGHT[2] / len);
-            gl.bind_vertex_array(Some(self.vao));
-            gl.draw_elements(glow::TRIANGLES, self.count, glow::UNSIGNED_SHORT, 0);
-            gl.bind_vertex_array(None);
+            self.passes.begin_scene(gl);
+            if let Some(c) = snap.cube {
+                let model = Mat4::rot_x(c.pitch).mul(&Mat4::rot_y(c.yaw));
+                let mvp = Mat4::perspective(fovy, aspect, 0.1, 10.0)
+                    .mul(&Mat4::translate(0.0, 0.0, -CAMERA_Z))
+                    .mul(&model);
+                gl.enable(glow::CULL_FACE);
+                gl.cull_face(glow::BACK);
+                gl.front_face(glow::CCW);
+                let g = &self.cube.prog;
+                g.bind(gl);
+                g.f(gl, "uMVP", &mvp.0);
+                g.f(gl, "uModel", &model.0);
+                g.tex(gl, "uRamps", 0, Some(self.ramps));
+                g.tex(gl, "uLuts", 1, Some(self.luts));
+                g.f(gl, "uDith", &[0.0, 0.0]);
+                g.f(gl, "uBand", &[BAND]);
+                g.f(gl, "uScreenDither", &[0.0]);
+                g.f(gl, "uTexel", &[texel]);
+                g.f(gl, "uSunDir", &sun);
+                g.f(gl, "uSunI", &[SUN_I]);
+                g.f(gl, "uAmb", &[AMBIENT]);
+                g.f(gl, "uCamF", &[0.0, 0.0, -1.0]);
+                g.f(gl, "uDepthR", &[DEPTH_NEAR, 1.0 / DEPTH_SPAN]);
+                g.f(gl, "uHaze", &[0.0, 0.0, 0.0]);
+                g.f(gl, "uDbgA", &[0.0]);
+                gl.bind_vertex_array(Some(self.cube.vao));
+                gl.draw_elements(glow::TRIANGLES, self.cube.count, glow::UNSIGNED_SHORT, 0);
+                gl.bind_vertex_array(None);
+                draws += 1;
+            }
+            let sl = (sun[0] * sun[0] + sun[1] * sun[1]).sqrt().max(1e-6);
+            let post = PostParams {
+                sun_scr: [sun[0] / sl, sun[1] / sl],
+                fire_scr: [-1.0e5, -1.0e5, 0.0],
+                outlines: f.set.outlines,
+                palette_row: f.palette_row,
+                depth_m: DEPTH_SPAN * CUBE_SIDE_M,
+                texel,
+            };
+            self.passes.post(gl, self.pal, self.luts, &post);
+            let off = pass::offset((aw, ah), self.w, self.h, self.scale);
+            self.passes.upscale(gl, (self.w, self.h), off, self.scale);
+            draws += 2;
+            let grid = ui::Grid {
+                win: (self.w, self.h),
+                off,
+                s: self.scale,
+            };
+            draws += self.ui.draw(gl, ui, self.pal, f.palette_row, grid);
         }
+        FrameStats { draws }
     }
 
     /// The GL error flag (`glGetError`), 0 when none.

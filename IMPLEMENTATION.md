@@ -826,6 +826,9 @@ Smallest change that works: the note gives the fingerprint and asks the owner to
 **Conflict (T01a.3):** the light tables' OKLab multipliers and offsets must reach `kd-render`'s port in doubles, exactly as the mockup writes them (A11.3), but `kd-data` is a simulation crate, where `kd check layers` refuses the type `f64` (A3.2).
 Smallest change that works: `data/palette/light.md` writes them as decimal strings (`mul = ["0.42", "0.55", "0.55"]`), which the compiler checks are plain decimal numbers and carries unchanged in the blob, and `kd-render` parses them as `f64`; `toward` stays integers.
 
+**Conflict (T01a.7):** T01a.7 puts `UiDrawList` in `kd-ui`, but `kd-render` draws it and may not depend on `kd-ui` (A2.3: the front-end crates depend on `kd-view` and `kd-data` only).
+Smallest change that works: `UiDrawList`, `UiRect` and `GlyphRun` live in `kd-view`, which A2.2 gives the UI draw lists, with `show` (1 to 0) for the strip's fade; `kd-ui` builds them and owns the font, whose `Font::atlas()` gives the renderer a `kd_view::FontAtlas` (the glyph bitmap, cells and advances) through `Assets`; `kd-view` also holds `Insets`, which the shells now send (`Native.insets` on the phone, the page's safe-area insets on the web).
+
 ### α01b The valley (about 5 hours)
 
 **Goal:** a 256 m piece of land with a cliff, made from B11's shaped noise, fills the screen as pixel-art ground, lit by a low sun with crisp shadows, and the owner pans, pinches and twists the camera from a few metres up to the whole piece, with pixels that never crawl while panning.

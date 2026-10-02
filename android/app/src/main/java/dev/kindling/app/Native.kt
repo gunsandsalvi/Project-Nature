@@ -13,5 +13,6 @@ object Native {
     @JvmStatic external fun glResized(h: Long, width: Int, height: Int)
     @JvmStatic external fun glDraw(h: Long, frameNanos: Long): Int
     @JvmStatic external fun touch(h: Long, action: Int, index: Int, ids: IntArray, xs: FloatArray, ys: FloatArray, timeNanos: Long)
+    @JvmStatic external fun insets(h: Long, top: Float, right: Float, bottom: Float, left: Float)
     @JvmStatic external fun takeRequests(h: Long): String?
 }

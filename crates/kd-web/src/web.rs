@@ -1,6 +1,6 @@
 //! The web shell's exports (A2.6): one thread, so every call is direct.
 
-use kd_app::{App, AppConfig, AppMsg, InputEvent, InputKind, Platform, Request};
+use kd_app::{App, AppConfig, AppMsg, InputEvent, InputKind, Insets, Platform, Request};
 use std::sync::{Arc, Mutex};
 use wasm_bindgen::JsCast;
 use wasm_bindgen::prelude::*;
@@ -134,8 +134,28 @@ impl WebApp {
         Some(json)
     }
 
+    /// The page's safe-area insets in device pixels (A12.1: nothing under the insets).
+    pub fn insets(&mut self, top: f32, right: f32, bottom: f32, left: f32) {
+        self.app.handle(AppMsg::Insets(Insets {
+            top,
+            bottom,
+            left,
+            right,
+        }));
+    }
+
     /// The cube's turn, for the test hook.
     pub fn yaw(&self) -> f32 {
         self.app.yaw()
+    }
+
+    /// Shows a fixed golden scene, time and drag frozen (A11.12); false for an unknown name.
+    pub fn golden(&mut self, name: &str) -> bool {
+        self.app.golden(name)
+    }
+
+    /// The current palette row's colours, RGB bytes, for the `palette only` check.
+    pub fn palette_rgb(&self) -> Vec<u8> {
+        self.app.palette_rgb()
     }
 }

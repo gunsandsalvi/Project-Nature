@@ -228,14 +228,15 @@ impl PaletteTextures {
 }
 
 /// The shader lines naming each ladder's row and each table's row (the mockup's `SH.rampDefs`): `#define R_BIRCH 14.0`,
-/// `#define L_RIM_SUN 7.0`, `#define RAMP_ROWS 512.0`, and `#define I_INK` for the post pass's figure outline.
+/// `#define L_HAZE1 3.0`, `#define RAMP_ROWS 512.0`, and `#define I_INK` for the post pass's figure outline. Names are
+/// the ids upper-cased without underscores (`grass_damp` gives `R_GRASSDAMP`), as the mockup's shaders spell them.
 pub fn shader_defines(cat: &Catalogue) -> String {
     let mut s = String::new();
     for (k, l) in cat.body.ladders.iter().enumerate() {
-        s.push_str(&format!("#define R_{} {k}.0\n", l.id.to_uppercase()));
+        s.push_str(&format!("#define R_{} {k}.0\n", define_name(&l.id)));
     }
     for (k, t) in cat.light_rows(LightRole::Table).enumerate() {
-        s.push_str(&format!("#define L_{} {k}.0\n", t.id.to_uppercase()));
+        s.push_str(&format!("#define L_{} {k}.0\n", define_name(&t.id)));
     }
     s.push_str(&format!("#define RAMP_ROWS {RAMP_ROWS}.0\n"));
     s.push_str(&format!(
@@ -243,6 +244,10 @@ pub fn shader_defines(cat: &Catalogue) -> String {
         cat.colour("ink").map(|c| c.0).unwrap_or(1)
     ));
     s
+}
+
+fn define_name(id: &str) -> String {
+    id.replace('_', "").to_uppercase()
 }
 
 #[cfg(test)]
@@ -391,9 +396,11 @@ mod tests {
         }
         let defs = shader_defines(&cat);
         assert!(
-            defs.contains("#define R_BIRCH 14.0\n") && defs.contains("#define L_RIM_SUN 7.0\n"),
+            defs.contains("#define R_BIRCH 14.0\n")
+                && defs.contains("#define L_RIMSUN 7.0\n")
+                && defs.contains("#define L_HAZE1 3.0\n"),
             "{defs}"
         );
-        assert!(defs.contains("#define I_INK 1.0\n"));
+        assert!(defs.contains("#define I_INK 1.0\n") && defs.contains("#define R_GRASSDAMP 1.0\n"));
     }
 }
