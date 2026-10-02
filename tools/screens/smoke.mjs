@@ -1,5 +1,7 @@
 // The alpha page's smoke test (A15.4, A15.11): loads dist/web with ?test=1, checks the cube draws and turns.
-// From pretests/b66-drawing/tools/smoke.mjs, cut to the alpha page. Usage: node tools/screens/smoke.mjs
+// From pretests/b66-drawing/tools/smoke.mjs, cut to the alpha page. Usage: node tools/screens/smoke.mjs [--save]
+// The screenshot goes to target/screens/smoke/ (not committed), or with --save to results/screens/<versionName>/,
+// so a plain run never changes a committed file (α00's review).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,7 +28,8 @@ try {
   // checks: PRC-11
   await page.waitForTimeout(1500);
   const png = await page.screenshot();
-  const out = path.join(root, 'results/screens/a00');
+  const version = /^versionName=(.*)$/m.exec(fs.readFileSync(path.join(root, 'android/version.properties'), 'utf8'))[1].trim();
+  const out = process.argv.includes('--save') ? path.join(root, 'results/screens', version) : path.join(root, 'target/screens/smoke');
   fs.mkdirSync(out, { recursive: true });
   fs.writeFileSync(path.join(out, 'cube.png'), png);
   const px = await pixels(page, png);

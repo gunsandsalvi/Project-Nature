@@ -94,7 +94,7 @@ What the alphas ask of you, all in their notes, none of it blocking the next alp
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
 | α00 | Skeleton on the phone | 1 | 1 | done 2 October 2026 |
-| α00b | The checks in full | 1 | 3 | Not started |
+| α00b | The checks in full | 1 | 1 | done 2 October 2026 |
 | α01a | Pixel art | 1 | 5 | Not started |
 | α01b | The valley | 1 | 5 | Not started |
 | α02a | The island | 1 | 4.5 | Not started |
@@ -720,6 +720,8 @@ Smallest change that works: the check requires v3 and reports a missing v2 as an
 **Conflict (T00b.5):** the session cannot sign in to the owner's developer account, so it cannot confirm there that the console accepts an EC certificate (A15.5).
 Android's registration guide (developer.android.com, developer verification, Android Developer Console, read 2 October 2026) asks only for the package name and the signing certificate's SHA-256 fingerprint and names no key type, and every Android from minSdk 31 verifies ECDSA P-256 signatures.
 Smallest change that works: the note gives the fingerprint and asks the owner to register it; if the console refuses it, A15.5's fallback (a base64 RSA keystore in the secret, read by `signing-key.py`) is built in the next alpha.
+
+**From α00's review (T00b.5, T00b.6):** A15.3 now says the APK is signed with scheme v3 alone (α00's Conflict note); `tools/screens/smoke.mjs` saves its screenshot under the uncommitted `target/screens/smoke/`, or with `--save` into `results/screens/<versionName>/`, so a check run no longer changes `results/screens/a00/cube.png`.
 
 ### α01a Pixel art (about 5 hours)
 
