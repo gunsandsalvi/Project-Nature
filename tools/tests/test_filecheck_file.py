@@ -98,7 +98,7 @@ class FileCheckTest(unittest.TestCase):
         two = PLAN.replace("1. `T00b.1` **One (`ABC-01`).**", "1. `T00b.1` **One.**\n2. `T00b.1` **Two.**")
         self.assertTrue(any("repeats" in p for p in check(plan=two)))
         no_id = PLAN.replace("1. `T00b.1` **One (`ABC-01`).**", "1. **One (`ABC-01`).**")
-        self.assertTrue(any("no task ID" in p for p in check(plan=no_id)))
+        self.assertTrue(any("line 17: α00b's Tasks hold a numbered line with no task ID" in p for p in check(plan=no_id)))
 
 
 class CommitCheckTest(unittest.TestCase):
