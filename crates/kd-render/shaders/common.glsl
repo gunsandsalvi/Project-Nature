@@ -1,7 +1,7 @@
 // Shared fragment code, prepended to every scene shader after the generated defines (A11.1, A11.3): the mockup's
 // `noise` and `common` blocks from mockups/visual-style.html, written in GLSL ES 3.00 by its convert() rules
 // (texture2D -> texture, varying -> in). Ramps (ladders), tables, dithering, light, shadow and output packing.
-// `packShadow` stays out: the shadow pass writes a depth texture (A11.2, alpha 01b).
+// `packShadow` stays out: the shadow pass writes a depth texture (A11.2), which shadowAt samples directly.
 uniform sampler2D uRamps;
 uniform sampler2D uLuts;
 uniform sampler2D uShadow;
@@ -65,7 +65,6 @@ float rampPick(float r, float v, float b) {
   return rampAt(r, i);
 }
 float lut(float row, float idx) { return floor(texture(uLuts, vec2((idx + 0.5) / 256.0, (row + 0.5) / 16.0)).r * 255.0 + 0.5); }
-float unpackD(vec4 c) { return dot(c, vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0)); }
 float shadowAt(vec3 wp, vec3 n) {
   if (uShadowOn < 0.5) return 1.0;
   float ndl = clamp(dot(n, uSunDir), 0.0, 1.0);
@@ -73,7 +72,8 @@ float shadowAt(vec3 wp, vec3 n) {
   vec4 lp = uLightVP * vec4(wp + n * uShadowBias.x * k, 1.0);
   vec3 q = lp.xyz * 0.5 + 0.5;
   if (q.x < 0.0 || q.y < 0.0 || q.x > 1.0 || q.y > 1.0) return 1.0;
-  return q.z - uShadowBias.y * k > unpackD(texture(uShadow, q.xy)) ? 0.0 : 1.0;
+  // the shadow map is a depth texture sampled directly (A11.2), not the mockup's depth packed into RGBA8
+  return q.z - uShadowBias.y * k > texture(uShadow, q.xy).r ? 0.0 : 1.0;
 }
 /* Sun on a surface, normalised so flat open ground in sun reads 1. */
 float sunLight(vec3 n, float sh) {

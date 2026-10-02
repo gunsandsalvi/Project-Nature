@@ -12,9 +12,12 @@ pub mod pass;
 pub mod target;
 pub mod ui;
 
+use camera::ArtSize;
 use glow::HasContext;
+use ground::{GroundGpu, GroundUniforms};
+use kd_core::geo;
 use kd_data::Catalogue;
-use kd_view::{FontAtlas, Snapshot, UiDrawList};
+use kd_view::{CameraPose, FontAtlas, GroundGrid, Snapshot, UiDrawList};
 use mat::Mat4;
 use pass::{Passes, PostParams, Prog};
 use std::fmt;
@@ -36,6 +39,11 @@ const SUN_I: f32 = 1.0;
 const AMBIENT: f32 = 0.5;
 /// The dither band's width (the mockup's `uBand`).
 const BAND: f32 = 0.32;
+/// The ground's sun until α03a brings the clock (T01b.5): the mockup's `TOD.dusk`, from its `SUN` direction across
+/// the ground (x east, y south) at 21 degrees up, strength 1.0, sky 0.5.
+const DUSK_SUN_G: [f32; 2] = [-0.93, 0.37];
+const DUSK_SUN_EL_DEG: f32 = 21.0;
+const DUSK_HAZE: f32 = 1.0;
 
 /// Why the renderer could not start (A3.8): the shader's or linker's info log, or a GPU resource.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -115,13 +123,26 @@ impl Default for DrawSettings {
     }
 }
 
-/// What one frame shows beyond the snapshot (A11.1): unpaused real seconds and the palette row now; the camera joins
-/// in α01b, display time and speed in α03a.
+/// What one frame shows beyond the snapshot (A11.1): unpaused real seconds, the palette row and the camera now;
+/// display time and speed join in α03a.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Frame {
     pub real_s: f64,
     pub palette_row: f32,
     pub set: DrawSettings,
+    pub camera: CameraPose,
+}
+
+fn dot3(a: [f32; 3], b: [f32; 3]) -> f32 {
+    a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+}
+
+/// The ground's sun direction in GPU axes (x east, y up, z south): the mockup's `sunDir` for dusk.
+pub fn dusk_sun() -> [f32; 3] {
+    let [gx, gy] = DUSK_SUN_G;
+    let l = (gx * gx + gy * gy).sqrt();
+    let el = DUSK_SUN_EL_DEG.to_radians();
+    [gx / l * el.cos(), el.sin(), gy / l * el.cos()]
 }
 
 /// What a frame cost (A11.11): draw calls now; GPU times per pass join with timer queries.
@@ -148,6 +169,7 @@ pub struct Renderer {
     passes: Passes,
     ui: ui::UiPass,
     cube: CubeMesh,
+    ground: GroundGpu,
     pal: glow::Texture,
     ramps: glow::Texture,
     luts: glow::Texture,
@@ -190,6 +212,7 @@ impl Renderer {
             )?;
             let passes = Passes::new(&gl, &defines)?;
             let ui = ui::UiPass::new(&gl, &assets.font)?;
+            let ground = GroundGpu::new(&gl, &defines, cat)?;
             let prog = Prog::new(
                 &gl,
                 include_str!("../shaders/cube.vert"),
@@ -223,6 +246,7 @@ impl Renderer {
                     vao,
                     count: idx.len() as i32,
                 },
+                ground,
                 pal,
                 ramps,
                 luts,
@@ -257,6 +281,12 @@ impl Renderer {
         if let Err(e) = unsafe { self.passes.resize(&self.gl, aw, ah) } {
             log::error!(target: "kd::render", "{e}");
         }
+    }
+
+    /// Uploads a view area's ground, drawn whenever no golden cube shows (A11.5).
+    #[allow(unsafe_code)]
+    pub fn set_ground(&mut self, g: &GroundGrid) -> Result<(), RenderError> {
+        unsafe { self.ground.upload(&self.gl, g) }
     }
 
     /// The art target's size now.
@@ -316,7 +346,7 @@ impl Renderer {
                 draws += 1;
             }
             let sl = (sun[0] * sun[0] + sun[1] * sun[1]).sqrt().max(1e-6);
-            let post = PostParams {
+            let mut post = PostParams {
                 sun_scr: [sun[0] / sl, sun[1] / sl],
                 fire_scr: [-1.0e5, -1.0e5, 0.0],
                 outlines: f.set.outlines,
@@ -324,8 +354,29 @@ impl Renderer {
                 depth_m: DEPTH_SPAN * CUBE_SIDE_M,
                 texel,
             };
+            // the scene's grid moves with the camera's sub-pixel shift, and the UI stays on it (A12.1: a UI pixel is
+            // an art pixel)
+            let mut off = pass::offset((aw, ah), self.w, self.h, self.scale);
+            if snap.cube.is_none() && self.ground.ready() {
+                let size = ArtSize {
+                    wf: aw,
+                    hf: ah,
+                    wd: self.w,
+                    hd: self.h,
+                    s: self.scale,
+                };
+                let cam = camera::compute(&f.camera, size, self.ground.lo_m, self.ground.hi_m);
+                draws += self.draw_ground(&cam, aw, ah);
+                let sun = dusk_sun();
+                let ss = [dot3(sun, cam.r), dot3(sun, cam.u)];
+                let sl = (ss[0] * ss[0] + ss[1] * ss[1]).sqrt().max(1e-6);
+                post.sun_scr = [ss[0] / sl, ss[1] / sl];
+                post.depth_m = cam.far - cam.near;
+                post.texel = cam.texel;
+                off = cam.off;
+            }
+            let gl = &self.gl;
             self.passes.post(gl, self.pal, self.luts, &post);
-            let off = pass::offset((aw, ah), self.w, self.h, self.scale);
             self.passes.upscale(gl, (self.w, self.h), off, self.scale);
             draws += 2;
             let grid = ui::Grid {
@@ -336,6 +387,51 @@ impl Renderer {
             draws += self.ui.draw(gl, ui, self.pal, f.palette_row, grid);
         }
         FrameStats { draws }
+    }
+
+    /// Pass 2 for the ground: its chunks into the art target at the spacing for the camera's art pixels, with the
+    /// mockup's light, dither and haze uniforms. Returns the draw calls.
+    #[allow(unsafe_code)]
+    fn draw_ground(&self, cam: &camera::Camera, aw: u32, ah: u32) -> u32 {
+        let gl = &self.gl;
+        let sun = dusk_sun();
+        let d = geo::delta(cam.origin, self.ground.origin);
+        // haze toward the far part of the view (the mockup's `uHaze`)
+        let span = (ah as f32 * cam.texel / 2.0) / cam.pitch.tan().max(0.05);
+        let haze = [
+            dot3(cam.f, cam.tg) + 0.15 * span,
+            1.0 / (1.6 * span).max(1.0),
+            3.0 * DUSK_HAZE * 0.8,
+        ];
+        unsafe {
+            gl.disable(glow::CULL_FACE);
+            let g = &self.ground.prog;
+            g.bind(gl);
+            g.tex(gl, "uRamps", 0, Some(self.ramps));
+            g.tex(gl, "uLuts", 1, Some(self.luts));
+            g.f(gl, "uDith", &[cam.dith[0] as f32, cam.dith[1] as f32]);
+            g.f(gl, "uBand", &[BAND]);
+            g.f(gl, "uScreenDither", &[0.0]);
+            g.f(gl, "uTexel", &[cam.texel]);
+            g.f(gl, "uSunDir", &sun);
+            g.f(gl, "uSunI", &[SUN_I]);
+            g.f(gl, "uAmb", &[AMBIENT]);
+            g.f(gl, "uShadowOn", &[0.0]);
+            g.f(gl, "uCamF", &cam.f);
+            g.f(gl, "uDepthR", &[cam.near, 1.0 / (cam.far - cam.near)]);
+            g.f(gl, "uHaze", &haze);
+            g.f(gl, "uFire", &[0.0, 0.0, 0.0, 0.0]);
+            g.f(gl, "uFire2", &[0.0, 0.0, 0.0, 0.0]);
+            g.f(gl, "uFbo", &[aw as f32, ah as f32]);
+            g.f(gl, "uDbgA", &[0.0]);
+            g.f(gl, "uDbgB", &[0.0]);
+            let u = GroundUniforms {
+                vp: &cam.vp.0,
+                area_off: [d.x, 0.0, d.y],
+                step: ground::step_for(cam.texel),
+            };
+            self.ground.draw(gl, g, &u)
+        }
     }
 
     /// The GL error flag (`glGetError`), 0 when none.

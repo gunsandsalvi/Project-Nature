@@ -76,7 +76,10 @@ fn round_trip_of_the_compiled_fixture() {
         let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/clean/data");
         let c = crate::compile::compile(&root, false).unwrap();
         let loaded = Catalogue::load(&c.blob).unwrap();
-        assert_eq!(Catalogue::encode(loaded.major, loaded.minor, loaded.generator, &loaded.body), c.blob);
+        assert_eq!(
+            Catalogue::encode(loaded.major, loaded.minor, loaded.generator, &loaded.body),
+            c.blob
+        );
         let ladders: Vec<_> = c
             .entries
             .iter()
@@ -89,7 +92,11 @@ fn round_trip_of_the_compiled_fixture() {
         assert_eq!(loaded.body.ladders.len(), ladders.len());
         for (rec, l) in loaded.body.ladders.iter().zip(&ladders) {
             assert_eq!(rec.id, l.common.id);
-            let names: Vec<&str> = rec.steps.iter().map(|&k| loaded.body.colours[k as usize].name.as_str()).collect();
+            let names: Vec<&str> = rec
+                .steps
+                .iter()
+                .map(|&k| loaded.body.colours[k as usize].name.as_str())
+                .collect();
             assert_eq!(names, l.steps, "ladder `{}`", rec.id);
         }
     }

@@ -115,8 +115,9 @@ pub struct Camera {
     pub f: [f32; 3],
     pub r: [f32; 3],
     pub u: [f32; 3],
-    /// The floating origin: the area corner nearest the target (A11.2).
+    /// The floating origin: the area corner nearest the target (A11.2), and the target from it.
     pub origin: Pos,
+    pub tg: [f32; 3],
     pub vp: Mat4,
     pub near: f32,
     pub far: f32,
@@ -202,6 +203,7 @@ pub fn compute(pose: &CameraPose, size: ArtSize, lo_m: f32, hi_m: f32) -> Camera
         r,
         u,
         origin,
+        tg,
         vp: Mat4(vp),
         near,
         far,

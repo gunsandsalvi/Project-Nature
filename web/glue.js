@@ -95,6 +95,11 @@ async function main() {
       golden: (name) => app.golden(name),
       palette: () => Array.from(app.palette_rgb()),
       glMs: () => app.gl_ms(),
+      camera: (p) => {
+        if (p) app.set_camera(p.x, p.y, p.yaw, p.zoom);
+        const [x, y, yaw, zoom] = Array.from(app.camera());
+        return { x, y, yaw, zoom };
+      },
     };
   }
 }

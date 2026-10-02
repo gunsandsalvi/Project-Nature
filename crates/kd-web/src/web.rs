@@ -154,6 +154,16 @@ impl WebApp {
         self.app.golden(name)
     }
 
+    /// The camera: x and y metres from the ground's corner, its turn and zoom (the test hook's `camera()`).
+    pub fn camera(&self) -> Vec<f32> {
+        self.app.camera().to_vec()
+    }
+
+    /// Points the camera (the test hook's `camera(pose)`).
+    pub fn set_camera(&mut self, x: f32, y: f32, yaw: f32, zoom: f32) {
+        self.app.set_camera(x, y, yaw, zoom);
+    }
+
     /// The GL thread's milliseconds a frame, averaged over the last frames (the bench file's `frame_ms_web`).
     pub fn gl_ms(&self) -> f32 {
         self.app.frame_figures().1

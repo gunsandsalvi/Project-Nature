@@ -1,10 +1,11 @@
 //! kd-app: the app object: frame loop, input, the self-check (A2.2, A2.4, A3.8, A15.4); implements PRC-11, PRE-22,
 //! PRE-32 and PLT-02 in part.
-//! In α01a it turns the golden cube as pixel art with the version strip over it; the simulation and I/O threads join
-//! from α03a and α07a.
+//! In α01b it shows the valley, the demo area as pixel-art ground under the camera, with the version strip over it;
+//! the cube stays as the golden scene `cube`. The simulation and I/O threads join from α03a and α07a.
 
 pub mod json;
 pub mod selfcheck;
+pub mod valley;
 
 pub use json::{json_str, requests_json};
 pub use kd_view::{InputEvent, InputKind, Insets};
@@ -12,7 +13,7 @@ pub use kd_view::{InputEvent, InputKind, Insets};
 use kd_data::Catalogue;
 use kd_render::{Assets, DrawSettings, Frame, Renderer};
 use kd_ui::{Font, Ui};
-use kd_view::{CubeView, Snapshot};
+use kd_view::{CameraPose, CubeView, GroundGrid, Snapshot};
 use std::sync::Arc;
 
 /// What the app needs from its shell (A2.2); `storage` arrives in α07a, `cores` in α02b.
@@ -95,8 +96,6 @@ impl FrameRing {
 
 /// Spin of the cube, radians a second of unpaused time.
 const SPIN_PER_S: f32 = 0.6;
-/// The cube's tilt, radians.
-const PITCH: f32 = 0.5;
 /// Radians of turn across a drag of the whole width (the mockup's `yawPerPx`).
 const YAW_PER_WIDTH: f32 = 4.2;
 /// The narrowest width the drag scale assumes, pixels (the mockup's).
@@ -123,6 +122,8 @@ pub struct App {
     ring: FrameRing,
     last_frame_ns: Option<u64>,
     golden: Option<CubeView>,
+    ground: GroundGrid,
+    cam: CameraPose,
     gl_info: String,
     fail: Vec<String>,
     reported: bool,
@@ -154,6 +155,8 @@ impl App {
         });
         let assets = Assets { font: font.atlas() };
         let ui = Ui::new(font, &catalogue);
+        let ground = valley::ground(&catalogue);
+        let cam = valley::start(&ground);
         App {
             platform: p,
             cfg,
@@ -168,6 +171,8 @@ impl App {
             },
             last_frame_ns: None,
             golden: None,
+            ground,
+            cam,
             gl_info: String::new(),
             fail,
             reported: false,
@@ -192,6 +197,9 @@ impl App {
             Ok(mut r) => {
                 self.gl_info = r.gl_info();
                 r.resize(self.w, self.h, SCALE);
+                if let Err(e) = r.set_ground(&self.ground) {
+                    self.fail.push(format!("ground: {e}"));
+                }
                 self.renderer = Some(r);
             }
             Err(e) => {
@@ -287,6 +295,17 @@ impl App {
         }
     }
 
+    /// The camera as (x, y) metres from the ground's corner, its turn and its zoom (the web test hook).
+    pub fn camera(&self) -> [f32; 4] {
+        let d = kd_core::geo::delta(self.ground.origin, self.cam.target);
+        [d.x, d.y, self.cam.yaw, self.cam.zoom]
+    }
+
+    /// Points the camera at (`x`, `y`) metres from the ground's corner with a turn and a zoom (the web test hook).
+    pub fn set_camera(&mut self, x: f32, y: f32, yaw: f32, zoom: f32) {
+        self.cam = valley::pose_at(&self.ground, x, y, yaw, zoom);
+    }
+
     /// The palette row in use: dusk 0, dawn 1, day 2, night 3 (`PRE-30`).
     pub fn palette_row(&self) -> usize {
         if self.golden.is_some() {
@@ -341,11 +360,10 @@ impl App {
             real_s: f64::from(self.spin_s),
             palette_row: self.palette_row() as f32,
             set: DrawSettings::default(),
+            camera: self.cam,
         };
-        let pitch = self.golden.map_or(PITCH, |c| c.pitch);
-        let snap = Snapshot {
-            cube: Some(CubeView { yaw: self.yaw(), pitch }),
-        };
+        // the cube shows only as the golden scene `cube`; otherwise the ground
+        let snap = Snapshot { cube: self.golden };
         if let Some(r) = &mut self.renderer {
             r.draw(&f, &snap, &ui);
         }
