@@ -1,6 +1,6 @@
 # Kindling: guide for AI agents
 
-Read `PROJECT.md` before doing anything else. It is the source of truth for what Kindling is and must do. The finished project has two more documents, both still to come: the architecture says how it is built, and the implementation plan says in what order. Code and tests link back to them by ID (`PRC-04`). Until the architecture exists, the `pretests` folder holds the list of building blocks (`pretests/BUILDING-BLOCKS.md`) and the throwaway tests that settle how each is best built (`PRC-08`). The whole folder is deleted once the architecture is written.
+Read `PROJECT.md` before doing anything else. It is the source of truth for what Kindling is and must do. `ARCHITECTURE.md` says how it is built, and `IMPLEMENTATION.md` says in what order: it lists the playable alphas, and its "How to use this plan" says how to build the next one. Code and tests link back to them by ID (`PRC-04`, `PRC-12`) and by architecture section (`A6.3`). The pre-tests that settled how each building block is best built (`PRC-08`) are recorded in `ARCHITECTURE.md` (A1.4); their code was removed from the working tree and stays in git history (A2.9).
 
 ## Rules
 
