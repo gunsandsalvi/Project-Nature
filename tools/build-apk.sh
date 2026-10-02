@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 # Builds, signs and checks the APK (A15.3, A15.5). Usage: tools/build-apk.sh release|check
-# release signs with the release key when KINDLING_SIGNING_PASSPHRASE is set (only tools/signing-key.py reads it),
-# else with the public throwaway key; check signs with a key made for the run and thrown away.
+# release signs with the release key from KINDLING_SIGNING_PASSPHRASE (only tools/signing-key.py reads it), and fails
+# without it once android/keys/release-cert.der exists (the throwaway key signed only before that); check signs with a
+# key made for the run and thrown away.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd); cd "$ROOT"; MODE=${1:-release}
+# Once the release certificate exists, a delivered APK signed with any other key could not update the phone (A15.5).
+if [ "$MODE" = release ] && [ -f android/keys/release-cert.der ] && [ -z "${KINDLING_SIGNING_PASSPHRASE:-}" ]; then
+  echo "APK: release builds need KINDLING_SIGNING_PASSPHRASE (A15.5); tools/build-apk.sh check signs with a session key"
+  exit 1
+fi
 [ -f "${KD_CACHE:-$HOME/.cache/kindling}/android-ndk.ready" ] || tools/setup.sh
 . tools/env.sh; . android/version.properties
 export KD_BUILD="$versionName $(git rev-parse --short HEAD)"

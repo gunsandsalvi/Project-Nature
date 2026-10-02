@@ -211,6 +211,9 @@ def check_plan_layout(plan_text):
         if fields != ALPHA_FIELDS:
             problems.append(f"IMPLEMENTATION.md line {line}: α{code}'s field labels are {fields}, not the template's "
                             f"{len(ALPHA_FIELDS)} in order")
+        for l in field_text(body, "Tasks").split("\n"):
+            if re.match(r"^\d+\.\s", l) and not TASK_LINE.match(l):
+                problems.append(f"IMPLEMENTATION.md: α{code}'s Tasks hold a numbered line with no task ID: {l[:60]}")
         for k, l in enumerate(body.split("\n"), line + 1):
             m = TASK_LINE.match(l)
             if not m:
