@@ -717,6 +717,10 @@ Smallest change that works: the check requires v3 and reports a missing v2 as an
 - The developer console refusing an EC certificate: A15.5's fallback, a base64 RSA keystore kept in the secret, with `signing-key.py` reading it instead.
 - Clippy changing its message wording: `check-banned.sh` matches `error: use of a disallowed`, the wording of Rust 1.97.0's clippy; a toolchain change re-runs the fixture (A15.1).
 
+**Conflict (T00b.5):** the session cannot sign in to the owner's developer account, so it cannot confirm there that the console accepts an EC certificate (A15.5).
+Android's registration guide (developer.android.com, developer verification, Android Developer Console, read 2 October 2026) asks only for the package name and the signing certificate's SHA-256 fingerprint and names no key type, and every Android from minSdk 31 verifies ECDSA P-256 signatures.
+Smallest change that works: the note gives the fingerprint and asks the owner to register it; if the console refuses it, A15.5's fallback (a base64 RSA keystore in the secret, read by `signing-key.py`) is built in the next alpha.
+
 ### α01a Pixel art (about 5 hours)
 
 **Goal:** the turning cube becomes pixel art: drawn at art resolution into palette indices with stepped light, a one-pixel outline and a sunlit rim, then upscaled so one art pixel is 4 screen pixels in both orientations; its colours, ladders and light tables come from data through the new catalogue compiler, and a pixel font shows the version line after a touch.

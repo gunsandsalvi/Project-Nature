@@ -17,7 +17,7 @@ step "1 banned fixture";  tools/check-banned.sh
 step "2 layers";          cargo run -q --profile fast -p kd-tools --locked -- check layers
 step "3 tests";           cargo test --workspace --locked
 step "3 arm64 tests";     cargo test -p kd-core --target aarch64-unknown-linux-gnu --locked
-step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/filecheck.py selftest
+step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/filecheck.py selftest && python3 tools/signing-key.py selftest
 step "4 catalogue";       echo "   from α01a"
 step "5 scenes";          echo "   from α07c"
 step "6 repeat";          echo "   α00: kd-core's stored draws and maths on x86 and arm64 (step 3) and wasm (step 9); kd det from α03c"
