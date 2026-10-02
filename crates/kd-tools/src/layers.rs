@@ -100,32 +100,43 @@ pub fn check_graph(meta: &Value, rules: &Rules) -> Vec<String> {
                 ));
             }
         }
-        if name != SWITCH_HOLDER && default_turns_on_switches(&p["features"]) {
-            breaches.push(format!("{name}: its default features turn on {SWITCHES} (A3.9)"));
+        if name != SWITCH_HOLDER {
+            for f in features_turning_on_switches(&p["features"]) {
+                breaches.push(format!("{name}: its feature {f} turns on {SWITCHES} (A3.9)"));
+            }
         }
     }
     breaches
 }
 
-/// Whether a package's `default` feature reaches `test-switches`, its own or a dependency's.
-fn default_turns_on_switches(features: &Value) -> bool {
-    let Some(map) = features.as_object() else { return false };
-    let mut seen = BTreeSet::new();
-    let mut todo = vec!["default".to_owned()];
-    while let Some(f) = todo.pop() {
-        if !seen.insert(f.clone()) {
-            continue;
-        }
-        if f == SWITCHES || f.ends_with(&format!("/{SWITCHES}")) {
-            return true;
-        }
-        for x in map.get(&f).and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]) {
-            if let Some(s) = x.as_str() {
-                todo.push(s.to_owned());
+/// The package's own features, other than `test-switches` itself, that reach `test-switches`, its own or a
+/// dependency's: building a play target with any of them would hold the switches (A3.9).
+fn features_turning_on_switches(features: &Value) -> Vec<String> {
+    let Some(map) = features.as_object() else {
+        return Vec::new();
+    };
+    let reaches = |start: &str| {
+        let mut seen = BTreeSet::new();
+        let mut todo = vec![start.to_owned()];
+        while let Some(f) = todo.pop() {
+            if !seen.insert(f.clone()) {
+                continue;
+            }
+            if f == SWITCHES || f.ends_with(&format!("/{SWITCHES}")) {
+                return true;
+            }
+            for x in map.get(&f).and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]) {
+                if let Some(s) = x.as_str() {
+                    todo.push(s.to_owned());
+                }
             }
         }
-    }
-    false
+        false
+    };
+    map.keys()
+        .filter(|f| f.as_str() != SWITCHES && reaches(f))
+        .cloned()
+        .collect()
 }
 
 /// What a source scan flags.
@@ -447,7 +458,18 @@ outside = []
         m["packages"][1]["features"] = serde_json::json!({ "default": ["play"], "play": ["kd-core/test-switches"] });
         assert_eq!(
             check_graph(&m, &rules),
-            vec!["kd-sim: its default features turn on test-switches (A3.9)"]
+            vec![
+                "kd-sim: its feature default turns on test-switches (A3.9)",
+                "kd-sim: its feature play turns on test-switches (A3.9)"
+            ]
+        );
+        // A non-default feature is caught too; a crate's own test-switches feature, forwarding it, is allowed.
+        let mut m = meta(clean());
+        m["packages"][2]["features"] =
+            serde_json::json!({ "debug": ["kd-core/test-switches"], "test-switches": ["kd-core/test-switches"] });
+        assert_eq!(
+            check_graph(&m, &rules),
+            vec!["kd-app: its feature debug turns on test-switches (A3.9)"]
         );
     }
 }

@@ -77,6 +77,9 @@ class FileCheckTest(unittest.TestCase):
         self.assertTrue(any("defined twice" in p for p in check(PROJECT + "- `ABC-02` **Again** *(Decided)*\n")))
         self.assertTrue(any("not one of" in p for p in check(PROJECT.replace("*(Decided)*\n", "*(Done)*\n"))))
         self.assertTrue(any("is not an ID" in p for p in check(PROJECT + "- `AB-4` **Bad** *(Decided)*\n")))
+        # A marker that lost its backticks or its bold name is caught, not skipped.
+        self.assertTrue(any("does not parse" in p for p in check(PROJECT + "- ABC-04 **Bare** *(Proposed)*\n")))
+        self.assertTrue(any("does not parse" in p for p in check(PROJECT + "- `ABC-04` Plain *(Proposed)*\n")))
 
     # checks: PRC-10
     def test_references(self):

@@ -723,7 +723,7 @@ Smallest change that works: the note gives the fingerprint and asks the owner to
 
 **From α00's review (T00b.5, T00b.6):** A15.3 now says the APK is signed with scheme v3 alone (α00's Conflict note); `tools/screens/smoke.mjs` saves its screenshot under the uncommitted `target/screens/smoke/`, or with `--save` into `results/screens/<versionName>/`, so a check run no longer changes `results/screens/a00/cube.png`.
 
-**From α00b's review:** once `android/keys/release-cert.der` exists, `tools/build-apk.sh release` fails without the passphrase secret instead of falling back to the throwaway key (A15.5: a release build fails without the key); `tools/filecheck.py file` also fails a numbered line in an alpha's Tasks that opens with no task ID.
+**From α00b's review:** once `android/keys/release-cert.der` exists, `tools/build-apk.sh release` fails without the passphrase secret instead of falling back to the throwaway key (A15.5: a release build fails without the key); `tools/filecheck.py file` also fails a numbered line in an alpha's Tasks that opens with no task ID, and a list entry in `PROJECT.md` that opens with an ID-like token but has lost its backticks or bold name; `kd check layers` fails any feature of a crate other than `kd-tools`, not only `default`, that turns on `test-switches`.
 
 ### α01a Pixel art (about 5 hours)
 

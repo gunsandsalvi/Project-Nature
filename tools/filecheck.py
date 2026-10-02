@@ -23,8 +23,10 @@ SESSION = re.compile(r"session_[A-Za-z0-9]+")
 ID = r"[A-Z]{3}-\d{2,3}"
 ID_RE = re.compile(r"\b" + ID + r"\b")
 STATUSES = ("Decided", "Proposed", "To test", "Dropped")
-# A line that sets out to be an item marker: a list entry opening with a backticked token and a bold name.
+# A line that sets out to be an item marker: a list entry opening with a backticked token and a bold name, or
+# opening with something ID-like however it is wrapped, so a marker that lost its backticks or bold is still caught.
 CANDIDATE = re.compile(r"^\s*(?:-|\d+\.)\s+`([^`]+)`\s+\*\*")
+ID_LIKE_ENTRY = re.compile(r"^\s*(?:[-*+]|\d+\.)\s+(?:\*\*)?`?([A-Z]{2,4}-?\d{1,4})\b")
 MARKER = re.compile(r"^\s*(?:- |\d+\. )`(" + ID + r")` \*\*(.+?)\*\* \*\(([^)]*)\)\*(?::.*)?$")
 SPAN = re.compile(r"`([^`\n]+)`")
 SECTION = re.compile(r"(?<![\w.#/-])(A\d{1,2}(?:\.\d{1,2})?)(?!\w)")
@@ -115,7 +117,7 @@ def parse_project(text):
         if line.startswith("#"):
             current = None
             continue
-        c = CANDIDATE.match(line)
+        c = CANDIDATE.match(line) or ID_LIKE_ENTRY.match(line)
         if not c:
             if current:
                 current.end = i
