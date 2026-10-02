@@ -1364,7 +1364,7 @@ A10.7's `Director` runs on the sim thread beside the world, outside it (in the f
 
 - The speeds hold while the largest cluster keeps under about a quarter of the people, which `L = 4 km` gives at forager density (A4.8); a bigger one slows time (`PRN-11`) and shows in the report.
 - **Gaps** at A8.21's figure: 300 people make about 4.7, not 5 (5 holds to about 260, or at 300 with about 1.0 ms a person in all), and the aim of 2 at 1,000 needs about 1.1 ms in all; A16.3 carries both to you (`PLT-04`).
-- **Stage budgets** (`PLT-04`): A16.3's stage table gives, for each stage close, what runs, its cost a person and the speed this model reaches at 1,000 people, against `PLT-04`'s 8, 6, 5, 3, 2, 1.5 and 1 game years a minute, and carries the gap to you.
+- **Stage budgets** (`PLT-04`): A16.3's stage table gives, for each stage close, what runs, its cost a person and the speed this model reaches at 1,000 people, against `PLT-04`'s 3, 2, 2, 1.7, 1.7, 1.5 and 1 game years a minute.
 - **Overnight,** at full duty on 3.4 effective cores (A16.3), 1,000 people make about 1,050 game years in 8 hours (`TIM-12`).
 - Fallback, if a bench world's largest cluster passes its bound: 3-minute windows (`M` 0.75 km, `L` 3.0 km), a rules update.
 
