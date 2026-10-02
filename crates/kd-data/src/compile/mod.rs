@@ -9,9 +9,9 @@ pub mod lock;
 pub mod source;
 pub mod tables;
 
-use crate::blob::{Body, Catalogue, ColourRec, FamilyRec, LadderRec, LightRec};
+use crate::blob::{Body, Catalogue, ColourRec, FamilyRec, LadderRec, LightRec, SurfaceRec};
 use crate::kinds::{self, KindName};
-use crate::schema::{ColourFamily, Common, Ladder, LightMethod, LightRole, LightTable, Version};
+use crate::schema::{ColourFamily, Common, Ladder, LightMethod, LightRole, LightTable, Surface, Version};
 use lock::Lock;
 use source::RawEntry;
 use std::collections::{BTreeMap, BTreeSet};
@@ -84,6 +84,7 @@ pub enum Parsed {
     ColourFamily(ColourFamily),
     Ladder(Ladder),
     LightTable(Box<LightTable>),
+    Surface(Surface),
 }
 
 impl Parsed {
@@ -92,6 +93,7 @@ impl Parsed {
             Parsed::ColourFamily(e) => &e.common,
             Parsed::Ladder(e) => &e.common,
             Parsed::LightTable(e) => &e.common,
+            Parsed::Surface(e) => &e.common,
         }
     }
 }
@@ -161,6 +163,7 @@ fn parse_block(kind: KindName, block: &str) -> Result<Parsed, (Rule, String)> {
         KindName::ColourFamily => toml::from_str(block).map(Parsed::ColourFamily),
         KindName::Ladder => toml::from_str(block).map(Parsed::Ladder),
         KindName::LightTable => toml::from_str(block).map(|t| Parsed::LightTable(Box::new(t))),
+        KindName::Surface => toml::from_str(block).map(Parsed::Surface),
     };
     r.map_err(|e| {
         let m = e.message().to_string();
@@ -501,7 +504,76 @@ fn build_body(entries: &[Entry], errs: &mut Errors) -> Body {
             "over 16 tables (the table texture's rows)".into(),
         );
     }
+    let ladder_at: BTreeMap<&str, u8> = body
+        .ladders
+        .iter()
+        .enumerate()
+        .map(|(k, l)| (l.id.as_str(), k.min(255) as u8))
+        .collect();
+    let mut surfaces = Vec::new();
+    for e in entries {
+        let Parsed::Surface(s) = &e.parsed else { continue };
+        surfaces.push(surface_rec(s, e, &ladder_at, errs));
+    }
+    if surfaces.len() > 64 {
+        errs.add(
+            Rule::BadValue,
+            "models/surfaces.md",
+            0,
+            "over 64 surfaces (the surfaces texture's rows)".into(),
+        );
+    }
+    body.surfaces = surfaces;
     body
+}
+
+/// A decimal string of at most three decimals in thousandths: `"0.38"` is 380, `"2"` is 2,000.
+pub fn thousandths(s: &str) -> Option<u32> {
+    if !source::is_decimal(s) || s.starts_with('-') {
+        return None;
+    }
+    let (whole, frac) = s.split_once('.').unwrap_or((s, ""));
+    if frac.len() > 3 || whole.len() > 6 {
+        return None;
+    }
+    let w: u32 = whole.parse().ok()?;
+    let f: u32 = format!("{frac:0<3}").parse().ok()?;
+    Some(w * 1000 + f)
+}
+
+fn surface_rec(s: &Surface, e: &Entry, ladder_at: &BTreeMap<&str, u8>, errs: &mut Errors) -> SurfaceRec {
+    let id = &s.common.id;
+    let ladder = ladder_at.get(s.ladder.as_str()).copied().unwrap_or_else(|| {
+        errs.add(
+            Rule::UnresolvedReference,
+            &e.file,
+            e.raw.line,
+            format!("`{id}`: no ladder `{}`", s.ladder),
+        );
+        0
+    });
+    let mut num = |field: &str, v: &str, max: u32, unit: &str| -> u16 {
+        match thousandths(v) {
+            Some(k) if k <= max => k as u16,
+            _ => {
+                let m = format!("`{id}`: {field} `{v}` is not a decimal of at most three places from 0 to {}{unit}", max / 1000);
+                errs.add(Rule::BadValue, &e.file, e.raw.line, m);
+                0
+            }
+        }
+    };
+    let stone_density = num("stone_density", &s.stone_density, 1000, "");
+    let stone_size_mm = num("stone_size", &s.stone_size, 10_000, " m");
+    let tuft_density = num("tuft_density", &s.tuft_density, 1000, "");
+    SurfaceRec {
+        id: id.clone(),
+        name: s.common.name.clone(),
+        ladder,
+        stone_density,
+        stone_size_mm,
+        tuft_density,
+        flags: s.flags.iter().fold(0, |b, f| b | f.bit()),
+    }
 }
 
 fn light_rec(

@@ -85,3 +85,7 @@ light_table version_dusk 12
 light_table version_dawn 13
 light_table version_day 14
 light_table version_night 15
+surface grass 0
+surface dirt 1
+surface rock 2
+surface scree 3
