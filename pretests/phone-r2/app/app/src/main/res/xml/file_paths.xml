@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- "Share results file": only the share folder inside the app's own files is ever handed out. -->
-<paths>
-    <files-path name="share" path="r2/share/" />
-</paths>

@@ -1,7 +1,0 @@
-item,download_bytes,needed_by
-cmdline-tools (sdkmanager),181052239,all (only to fetch the packages below)
-platform-tools (adb),9054187,none for building (device only)
-build-tools 36.1.0,64195204,all
-platform android-36,65878410,all
-NDK r30,738633529,all (native code)
-cmake 3.31.6 (SDK),30771638,approach 2 only

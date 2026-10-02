@@ -1,5 +1,0 @@
-format  bytes(5 files)  lines  lines>50ch  lines>80ch  syntax chars per value
-yaml             19715    527         142          27    17.8
-toml             20018    574         135          45    40.7
-md               25445    681         173          52    24.9
-md human part only: 5663 bytes, table rows 39, widest table row 53 chars

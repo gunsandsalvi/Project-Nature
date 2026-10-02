@@ -1,7 +1,0 @@
-[package]
-name = "kcore"
-version = "0.1.0"
-edition = "2021"
-# B78 (X10): the stand-in "simulation core" shared by the Rust shells and a headless Linux build (PLT-05).
-
-[dependencies]

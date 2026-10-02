@@ -1,5 +1,0 @@
-# B04-3 history log: 100 people x 20 years = 7300000 events (10 per person per day)
-custom-none    233.7 MB  32.01 B/event  =>    11.7 GB per 1,000 years | append all (flushed daily)   5110.6 (4972.4-5256.6) ms | person query      3.0 (2.0-6.4) ms (73000 events) | region query     12.6 (8.5-22.3) ms (475083 events)
-custom-lz4     130.9 MB  17.93 B/event  =>     6.5 GB per 1,000 years | append all (flushed daily)   4819.9 (4497.7-5282.0) ms | person query      5.5 (4.2-7.2) ms (73000 events) | region query     19.1 (15.0-29.0) ms (475083 events)
-custom-zstd     93.5 MB  12.81 B/event  =>     4.7 GB per 1,000 years | append all (flushed daily)   5024.1 (4822.7-5249.9) ms | person query      9.4 (6.9-14.5) ms (73000 events) | region query     31.2 (22.9-40.3) ms (475083 events)
-sqlite         463.4 MB  63.48 B/event  =>    23.2 GB per 1,000 years | append all (flushed daily)  48201.6 (46680.2-49104.0) ms | person query     55.5 (42.8-75.0) ms (73000 events) | region query    166.8 (137.4-211.5) ms (475083 events)

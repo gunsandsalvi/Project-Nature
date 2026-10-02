@@ -1,4 +1,0 @@
-# The APK (about 29 MB) is sent to the owner directly, never committed.
-dist/
-# Kotlin 2.x session folders (not covered by pretests/.gitignore)
-.kotlin/

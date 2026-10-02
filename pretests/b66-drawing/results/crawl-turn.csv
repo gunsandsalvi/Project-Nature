@@ -1,6 +1,0 @@
-motion,fix,frames,valid_pixel_frames,small_motion_pixel_frames,crawl,crawl_pct_of_small,crawl_vs_base,changed,changed_vs_base,frames_that_changed,worst_pair_end,worst_pair_crawl
-turn,base,60,9667860,9463815,548012,5.791,1.000,580618,1.000,60,29,10017
-turn,steps,60,9667860,8489245,168964,1.990,0.308,318690,0.549,17,30,11561
-turn,fade,60,9667860,7222470,2292,0.032,0.004,147784,0.255,20,38,167
-turn,majority,60,9667860,9460839,542206,5.731,0.989,573919,0.988,60,29,9921
-turn,sticky,60,9667860,9461090,476959,5.041,0.870,508395,0.876,60,60,8722
