@@ -9,6 +9,7 @@ pub mod ground;
 pub mod mat;
 pub mod palette;
 pub mod pass;
+pub mod shadow;
 pub mod target;
 pub mod ui;
 
@@ -20,6 +21,7 @@ use kd_data::Catalogue;
 use kd_view::{CameraPose, FontAtlas, GroundGrid, Snapshot, UiDrawList};
 use mat::Mat4;
 use pass::{Passes, PostParams, Prog};
+use shadow::{LightCam, ShadowMap};
 use std::fmt;
 
 /// The sun's direction in view space for the cube scene (T01a.6).
@@ -170,6 +172,7 @@ pub struct Renderer {
     ui: ui::UiPass,
     cube: CubeMesh,
     ground: GroundGpu,
+    shadow: ShadowMap,
     pal: glow::Texture,
     ramps: glow::Texture,
     luts: glow::Texture,
@@ -213,6 +216,7 @@ impl Renderer {
             let passes = Passes::new(&gl, &defines)?;
             let ui = ui::UiPass::new(&gl, &assets.font)?;
             let ground = GroundGpu::new(&gl, &defines, cat)?;
+            let shadow = ShadowMap::new(&gl)?;
             let prog = Prog::new(
                 &gl,
                 include_str!("../shaders/cube.vert"),
@@ -247,6 +251,7 @@ impl Renderer {
                     count: idx.len() as i32,
                 },
                 ground,
+                shadow,
                 pal,
                 ramps,
                 luts,
@@ -313,6 +318,18 @@ impl Renderer {
         let texel = 2.0 * CAMERA_Z * tan_half / ah as f32 * CUBE_SIDE_M;
         let len = (SUN[0] * SUN[0] + SUN[1] * SUN[1] + SUN[2] * SUN[2]).sqrt();
         let sun = SUN.map(|x| x / len);
+        let size = ArtSize {
+            wf: aw,
+            hf: ah,
+            wd: self.w,
+            hd: self.h,
+            s: self.scale,
+        };
+        // the ground's camera, and pass 1, its shadows, when no golden cube shows
+        let ground_cam = (snap.cube.is_none() && self.ground.ready())
+            .then(|| camera::compute(&f.camera, size, self.ground.lo_m, self.ground.hi_m));
+        let light = ground_cam.as_ref().and_then(|cam| self.draw_shadow(cam));
+        draws += u32::from(light.is_some()) * 16;
         unsafe {
             self.passes.begin_scene(gl);
             if let Some(c) = snap.cube {
@@ -357,16 +374,8 @@ impl Renderer {
             // the scene's grid moves with the camera's sub-pixel shift, and the UI stays on it (A12.1: a UI pixel is
             // an art pixel)
             let mut off = pass::offset((aw, ah), self.w, self.h, self.scale);
-            if snap.cube.is_none() && self.ground.ready() {
-                let size = ArtSize {
-                    wf: aw,
-                    hf: ah,
-                    wd: self.w,
-                    hd: self.h,
-                    s: self.scale,
-                };
-                let cam = camera::compute(&f.camera, size, self.ground.lo_m, self.ground.hi_m);
-                draws += self.draw_ground(&cam, aw, ah);
+            if let Some(cam) = &ground_cam {
+                draws += self.draw_ground(cam, light.as_ref(), aw, ah);
                 let sun = dusk_sun();
                 let ss = [dot3(sun, cam.r), dot3(sun, cam.u)];
                 let sl = (ss[0] * ss[0] + ss[1] * ss[1]).sqrt().max(1e-6);
@@ -389,10 +398,36 @@ impl Renderer {
         FrameStats { draws }
     }
 
-    /// Pass 2 for the ground: its chunks into the art target at the spacing for the camera's art pixels, with the
-    /// mockup's light, dither and haze uniforms. Returns the draw calls.
+    /// Pass 1 for the ground: while the sun is up and art pixels are under 3.2 m, its chunks into the shadow map from
+    /// the sun's camera fitted round the view (A11.2). Returns that camera when drawn.
     #[allow(unsafe_code)]
-    fn draw_ground(&self, cam: &camera::Camera, aw: u32, ah: u32) -> u32 {
+    fn draw_shadow(&self, cam: &camera::Camera) -> Option<LightCam> {
+        let sun = dusk_sun();
+        if cam.texel >= shadow::SHADOW_MAX_TEXEL || sun[1] <= shadow::SHADOW_MIN_SUN_UP {
+            return None;
+        }
+        let light = shadow::light_for(&cam.foot, sun);
+        let gl = &self.gl;
+        let d = geo::delta(cam.origin, self.ground.origin);
+        unsafe {
+            self.shadow.begin(gl);
+            gl.disable(glow::CULL_FACE);
+            let g = &self.ground.shadow_prog;
+            g.bind(gl);
+            let u = GroundUniforms {
+                vp: &light.vp.0,
+                area_off: [d.x, 0.0, d.y],
+                step: ground::step_for(cam.texel),
+            };
+            self.ground.draw(gl, g, &u);
+        }
+        Some(light)
+    }
+
+    /// Pass 2 for the ground: its chunks into the art target at the spacing for the camera's art pixels, with the
+    /// mockup's light, shadow, dither and haze uniforms. Returns the draw calls.
+    #[allow(unsafe_code)]
+    fn draw_ground(&self, cam: &camera::Camera, light: Option<&LightCam>, aw: u32, ah: u32) -> u32 {
         let gl = &self.gl;
         let sun = dusk_sun();
         let d = geo::delta(cam.origin, self.ground.origin);
@@ -416,7 +451,15 @@ impl Renderer {
             g.f(gl, "uSunDir", &sun);
             g.f(gl, "uSunI", &[SUN_I]);
             g.f(gl, "uAmb", &[AMBIENT]);
-            g.f(gl, "uShadowOn", &[0.0]);
+            g.tex(gl, "uShadow", 2, Some(self.shadow.tex));
+            match light {
+                Some(l) => {
+                    g.f(gl, "uShadowOn", &[1.0]);
+                    g.f(gl, "uLightVP", &l.vp.0);
+                    g.f(gl, "uShadowBias", &l.bias());
+                }
+                None => g.f(gl, "uShadowOn", &[0.0]),
+            }
             g.f(gl, "uCamF", &cam.f);
             g.f(gl, "uDepthR", &[cam.near, 1.0 / (cam.far - cam.near)]);
             g.f(gl, "uHaze", &haze);
