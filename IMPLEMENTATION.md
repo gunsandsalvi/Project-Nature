@@ -93,7 +93,7 @@ What the alphas ask of you, all in their notes, none of it blocking the next alp
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α00 | Skeleton on the phone | 1 | 5 | Not started |
+| α00 | Skeleton on the phone | 1 | 1 | done 2 October 2026 |
 | α00b | The checks in full | 1 | 3 | Not started |
 | α01a | Pixel art | 1 | 5 | Not started |
 | α01b | The valley | 1 | 5 | Not started |
