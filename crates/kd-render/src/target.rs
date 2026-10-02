@@ -163,5 +163,6 @@ mod tests {
         assert_eq!(super::art_size(1080, 2404, 4), (272, 603));
         assert_eq!(super::art_size(2404, 1080, 4), (603, 272));
         assert_eq!(super::art_size(412, 860, 4), (105, 217));
+        assert_eq!(super::art_size(1081, 2405, 4), (273, 604));
     }
 }

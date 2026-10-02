@@ -1,10 +1,12 @@
 //! Compiles `data/` into the catalogue blob the app embeds (A3.6): `$OUT_DIR/catalogue.bin`, rebuilt only when `data/`
-//! changes. A catalogue that fails to compile fails the build, each problem printed as a warning.
+//! or `PROJECT.md` (whose IDs the `checks` and `stage` fields name) changes. A catalogue that fails to compile fails
+//! the build, each problem printed as a warning.
 
 use std::path::Path;
 
 fn main() {
     println!("cargo:rerun-if-changed=../../data");
+    println!("cargo:rerun-if-changed=../../PROJECT.md");
     let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
     let out = Path::new(&std::env::var("OUT_DIR").expect("cargo sets OUT_DIR")).join("catalogue.bin");
     match kd_data::compile::compile(&data, false) {
