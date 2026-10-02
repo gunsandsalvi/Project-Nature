@@ -7,6 +7,7 @@ pub mod selfcheck;
 pub use json::{json_str, requests_json};
 pub use kd_view::{InputEvent, InputKind};
 
+use kd_data::Catalogue;
 use kd_render::{Frame, Renderer};
 use std::sync::Arc;
 
@@ -45,6 +46,9 @@ pub fn build_line() -> &'static str {
     option_env!("KD_BUILD").unwrap_or("dev")
 }
 
+/// The catalogue blob compiled from `data/` by the build script (A3.6).
+pub static CATALOGUE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/catalogue.bin"));
+
 /// Spin of the cube, radians a second of unpaused time.
 const SPIN_PER_S: f32 = 0.6;
 /// The cube's tilt, radians.
@@ -69,6 +73,7 @@ pub struct App {
     platform: Arc<dyn Platform>,
     cfg: AppConfig,
     renderer: Option<Renderer>,
+    catalogue: Catalogue,
     gl_info: String,
     fail: Vec<String>,
     reported: bool,
@@ -89,11 +94,16 @@ pub struct App {
 impl App {
     /// Builds the app and runs kd-core's part of the self-check (A15.4; in α00 at every start).
     pub fn new(p: Arc<dyn Platform>, cfg: AppConfig) -> App {
-        let fail = kd_core::selfcheck::core_check().into_iter().map(String::from).collect();
+        let mut fail: Vec<String> = kd_core::selfcheck::core_check().into_iter().map(String::from).collect();
+        let catalogue = Catalogue::load(CATALOGUE).unwrap_or_else(|e| {
+            fail.push(format!("catalogue: {e}"));
+            Catalogue::default()
+        });
         App {
             platform: p,
             cfg,
             renderer: None,
+            catalogue,
             gl_info: String::new(),
             fail,
             reported: false,
@@ -226,11 +236,22 @@ impl App {
         if self.frames >= 2 && !self.reported {
             self.reported = true;
             if !self.fail.is_empty() {
-                let json = selfcheck::report_json(build_line(), &self.cfg.device, &self.gl_info, &self.fail);
+                let json = selfcheck::report_json(
+                    build_line(),
+                    &self.cfg.device,
+                    &self.gl_info,
+                    &self.catalogue.version_line(),
+                    &self.fail,
+                );
                 self.platform.post(Request::SelfCheck { json });
             }
         }
         0
+    }
+
+    /// The loaded catalogue (A3.6).
+    pub fn catalogue(&self) -> &Catalogue {
+        &self.catalogue
     }
 
     /// What failed so far in the self-check.
@@ -324,5 +345,14 @@ mod tests {
         assert_eq!(out.len(), 1);
         let Request::SelfCheck { json } = &out[0];
         assert!(json.contains("\"fail\":[\"shader: planted\"]") && json.contains("\"dev\":\"test\""));
+        assert!(json.contains("\"cat\":\"1.0 "), "{json}");
+    }
+
+    // checks: PLT-09 PRC-11
+    #[test]
+    fn the_embedded_catalogue_loads() {
+        let app = App::new(Arc::new(TestPlatform::default()), AppConfig::default());
+        assert!(app.failures().is_empty(), "{:?}", app.failures());
+        assert_eq!((app.catalogue().major, app.catalogue().minor), (1, 0));
     }
 }
