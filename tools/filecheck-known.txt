@@ -1,0 +1,3 @@
+# Findings of `python3 tools/filecheck.py file` that only the owner can fix, because they are in PROJECT.md (PRC-07).
+# One a line: <the finding, exactly as the check prints it> | <date> | awaiting owner OK
+# The check skips a listed finding while it lasts; each is raised in the next alpha's note.

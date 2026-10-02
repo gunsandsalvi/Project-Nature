@@ -1,29 +1,30 @@
-# Kindling α00: Skeleton on the phone
+# Kindling α00b: The checks in full
 
 ## What is new
-- A golden cube turns slowly on a dark violet background, on the phone and in the browser. It is the game's skeleton: the same Rust code draws it on both.
-- Under it: game time and dates, keyed chance, and maths that give the same results on the phone, in the browser and in the cloud.
-- Scripts that build, sign, check and deliver every later alpha.
+- Nothing new to see: the same golden cube. This alpha builds the safety net under every later one.
+- Before any work joins the main version, the checks now also confirm that each part of the game only uses the parts below it, that banned clocks, files and platform maths really are banned, that every ID and section the three project files cite exists, that a change to the project file names the items it changed, and that every feature has its place in the plan and, once built, a test.
+- The APK is now signed with your release key, made from your passphrase. From the next alpha on, each one updates Kindling in place.
 
 ## What to try
-1. Open the phone check link: the top line should read `WebAssembly works`. Reply "works", or "blocked" with the last line (`KDP1 ...`).
-2. Tap the APK button at the top of this page. Allow installs from the browser if asked, install, and open "Kindling" (an orange flame icon).
-3. You should see a golden cube turning slowly on a dark violet background, filling the screen with no bars.
-4. Drag a finger sideways: the cube turns with it and keeps spinning a moment after you let go.
-5. Turn the phone to landscape and back: the cube keeps turning without a restart, still filling the screen.
-6. Press Back: the app goes to the background. Reopen it from recent apps: the cube is still turning.
-7. Open the web link: the same cube, with a line at the bottom starting `WebAssembly works · WebGL2 works · core OK`.
-8. If a box titled "Kindling self-check" appears in either, tap Copy and paste the code in your reply.
+1. Tap the APK button. This once Android refuses the update, because the key changed: uninstall Kindling (long-press its icon, Uninstall), then tap the APK button again and install. Nothing is lost: there are no worlds yet.
+2. Open Kindling: the same golden cube turns as before; nothing else has changed for you.
+3. In your free hobbyist account on the Android Developer Console, register the package `dev.kindling.app` with this SHA-256 certificate fingerprint:
+   `D7:A2:CB:DD:0A:69:17:5E:49:BC:6F:ED:82:EC:6F:F0:DC:69:54:3E:83:49:9B:49:D8:BE:B5:85:4D:A3:48:63`
+   If the console refuses it, reply with its message.
+4. From the next alpha on, the APK button offers to update Kindling rather than install it anew.
 
 ## What is rough
-- No world yet: just the cube. In portrait the cube runs past the screen's sides.
-- The APK is signed with a public throwaway key. The signing passphrase secret is not set yet; once it is (see the plan's "Before α00"), the next build switches to your release key and needs one uninstall and reinstall. Nothing is lost before α07a, the first alpha that keeps worlds.
-- Once, please make `main` the default branch on GitHub: Settings, General, Default branch. New sessions then start from it.
+- One uninstall and reinstall, this once.
+- I could not sign in to your developer account, so whether the console takes this kind of key (EC) is confirmed from Google's guide only, which asks just for the fingerprint. If it refuses, the next alpha switches to the fallback key type.
+- Still only the cube.
+
+## Your α00 results
+Recorded from your reply: the phone check page passed in full (WebAssembly, loading files, modules, WebGL2 and storage all work), and the APK installed and the cube works on the phone.
 
 ## IDs delivered
-In part: `TIM-16`, `TIM-14`, `TIM-18`, `RES-05`, `PRC-09`, `PRC-10`, `PRC-11`, `SCP-03`, `SCP-15`, `PLT-01`, `PLT-02`, `PLT-03`, `PLT-06`.
+In part: `PRN-14`, `PRC-07`, `PRC-10`, `PRC-12`, `PLT-06`.
 
 ## Links
-- APK: [kindling.apk](https://github.com/gunsandsalvi/Project-Nature/raw/a00/dist/kindling.apk) (497 KB, version a00, code 1000)
+- APK: [kindling.apk](https://github.com/gunsandsalvi/Project-Nature/raw/a00b/dist/kindling.apk) (497 KB, version a00b, code 1002, release key)
 - Web: [Kindling alpha](https://claude.ai/artifact/NmypTQyKQUAFZs18TNJELH)
 - Phone check: [Kindling phone check](https://claude.ai/artifact/RZuafpPi6Hdmu9o9nu5dHi)
