@@ -16,11 +16,11 @@ step "1 web lints";       cargo clippy -p kd-web --target wasm32-unknown-unknown
 step "1 banned fixture";  tools/check-banned.sh
 step "2 layers";          cargo run -q --profile fast -p kd-tools --locked -- check layers && cargo run -q --profile fast -p kd-tools --locked -- check names
 step "3 tests";           cargo test --workspace --locked
-step "3 arm64 tests";     cargo test -p kd-core --target aarch64-unknown-linux-gnu --locked
+step "3 arm64 tests";     cargo test -p kd-core -p kd-world --target aarch64-unknown-linux-gnu --locked
 step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/filecheck.py selftest && python3 tools/signing-key.py selftest
 step "4 catalogue";       cargo run -q --profile fast -p kd-tools --locked -- catalog check
 step "5 scenes";          echo "   from α07c"
-step "6 repeat";          echo "   α00: kd-core's stored draws and maths on x86 and arm64 (step 3) and wasm (step 9); kd det from α03c"
+step "6 repeat";          echo "   α00: kd-core's stored draws and maths on x86 and arm64 (step 3) and wasm (step 9); α01b: B11's relief hash on x86 and arm64 (step 3); kd det from α03c"
 step "7 file check";      python3 tools/filecheck.py file
 step "8 coverage";        python3 tools/filecheck.py ids --merge
 step "9 builds"
