@@ -500,7 +500,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 - `SCP-04` **No tech tree** *(Decided)*: Blueprints exist, but they are hidden and generic, found only in play, by accident, by experimenting, in dreams or by copying (`MND-11`), and never chosen from a menu or unlocked with points (`PRN-07`).
   People never choose from a list; the only list of blueprints is the one your Revelation picks from (`GOD-13`).
-  - **Check:** the game has no menu, list or tree of discoveries to choose from, and nothing on screen shows a blueprint nobody in the world has found, apart from an idea dream and the marks on memories that can become one (`GOD-03`).
+  - **Check:** the game has no menu, list or tree of discoveries for people to choose from, and nothing on screen shows a blueprint nobody in the world has found, apart from an idea dream and the marks on memories that can become one (`GOD-03`), and the list your Revelation picks from (`GOD-13`).
 - `SCP-05` **No other human species** *(Decided)*: There is one human species, so the story stays about how one people learns.
   - **Check:** the game holds one human species, and no catalogue adds another.
 - `SCP-06` **No AI language model making decisions** *(Decided)*: Our own knowledge would leak into their world (`PRN-06`).
