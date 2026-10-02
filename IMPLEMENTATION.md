@@ -634,6 +634,9 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 - No `main` branch, or a session unable to create one: the GitHub tool's `create_branch` needs no push rights to other branches; failing both, the builder still asks nothing and finishes the alpha from its own branch (the links, the APK and the review need no `main`), leaves the pull request unmerged, and the note's What is rough asks the owner to create `main` from the default branch in GitHub's web page; α00b's session then merges α00 first.
 - `tools/check.sh` over 20 minutes cold: the Gradle and wasm builds dominate; they run only when their files change, or with `--deliver`.
 
+**Conflict (T00.6):** `tools/verify-apk.sh` was to check a v2 and a v3 signature, but `apksigner` leaves the v2 block out when `--min-sdk-version` is 28 or more and v3 is on, since every Android that installs the APK (minSdk 31) reads v3.
+Smallest change that works: the check requires v3 and reports a missing v2 as an `info` line; signing is unchanged.
+
 ### α00b The checks in full (about 3 hours)
 
 **Goal:** before any other work joins, `tools/check.sh` runs the layering, banned-item, file, commit and coverage checks of `PRC-10` and `PRC-12`, and builds sign with the release key once the owner sets the passphrase secret; on the phone, α00's cube now updates in place, as every later alpha will.
