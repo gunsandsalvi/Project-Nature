@@ -556,7 +556,10 @@ fn surface_rec(s: &Surface, e: &Entry, ladder_at: &BTreeMap<&str, u8>, errs: &mu
         match thousandths(v) {
             Some(k) if k <= max => k as u16,
             _ => {
-                let m = format!("`{id}`: {field} `{v}` is not a decimal of at most three places from 0 to {}{unit}", max / 1000);
+                let m = format!(
+                    "`{id}`: {field} `{v}` is not a decimal of at most three places from 0 to {}{unit}",
+                    max / 1000
+                );
                 errs.add(Rule::BadValue, &e.file, e.raw.line, m);
                 0
             }

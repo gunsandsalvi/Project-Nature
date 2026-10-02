@@ -102,7 +102,15 @@ fn surfaces_resolve_their_ladders() {
         .body
         .surfaces
         .iter()
-        .map(|s| (s.id.as_str(), s.ladder, s.stone_density, s.stone_size_mm, s.tuft_density))
+        .map(|s| {
+            (
+                s.id.as_str(),
+                s.ladder,
+                s.stone_density,
+                s.stone_size_mm,
+                s.tuft_density,
+            )
+        })
         .collect();
     let ladder = |id: &str| cat.ladder(id).unwrap().0;
     assert_eq!(
