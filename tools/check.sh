@@ -21,7 +21,7 @@ step "3 tool tests";      python3 -m unittest discover -s tools/tests -q
 step "4 catalogue";       echo "   from α01a"
 step "5 scenes";          echo "   from α07c"
 step "6 repeat";          echo "   α00: kd-core's stored draws and maths on x86 and arm64 (step 3) and wasm (step 9); kd det from α03c"
-step "7 file check";      echo "   from α00b"
+step "7 file check";      python3 tools/filecheck.py file
 step "8 coverage";        echo "   from α00b"
 step "9 builds"
 if [ $DELIVER = 1 ] || changed web crates; then tools/build-web.sh && node tools/screens/smoke.mjs; fi
