@@ -5,6 +5,7 @@ import android.opengl.GLSurfaceView
 import android.view.MotionEvent
 import android.view.Surface
 import android.view.SurfaceHolder
+import android.view.WindowInsets
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -31,6 +32,13 @@ class GameView(context: Context, private val handle: Long, private val onRequest
             }
         })
         renderMode = RENDERMODE_CONTINUOUSLY
+        // The bars' and the camera cutout's insets, whether the bars show or not, so nothing is drawn under them
+        // (A12.1); bars that swipe in over the game never hide the UI.
+        setOnApplyWindowInsetsListener { _, insets ->
+            val i = insets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            queueEvent { Native.insets(handle, i.top.toFloat(), i.right.toFloat(), i.bottom.toFloat(), i.left.toFloat()) }
+            insets
+        }
         holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceCreated(h: SurfaceHolder) {
                 try {

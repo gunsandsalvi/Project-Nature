@@ -4,8 +4,8 @@
 use crate::platform::AndroidPlatform;
 use jni::JNIEnv;
 use jni::objects::{JClass, JFloatArray, JIntArray, JString};
-use jni::sys::{jint, jlong, jstring};
-use kd_app::{App, AppConfig, AppMsg, InputEvent, InputKind};
+use jni::sys::{jfloat, jint, jlong, jstring};
+use kd_app::{App, AppConfig, AppMsg, InputEvent, InputKind, Insets};
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::sync::Arc;
 
@@ -144,6 +144,26 @@ pub extern "system" fn Java_dev_kindling_app_Native_touch(
             ACTION_CANCEL => (0..n).for_each(|k| send(InputKind::Cancel, k)),
             _ => {}
         }
+    });
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_dev_kindling_app_Native_insets(
+    _: JNIEnv,
+    _: JClass,
+    h: jlong,
+    top: jfloat,
+    right: jfloat,
+    bottom: jfloat,
+    left: jfloat,
+) {
+    with_shell(h, "insets", (), |s| {
+        s.app.handle(AppMsg::Insets(Insets {
+            top,
+            bottom,
+            left,
+            right,
+        }))
     });
 }
 

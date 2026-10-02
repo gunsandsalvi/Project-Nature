@@ -18,6 +18,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NOTE_HEADINGS = ["What is new", "What to try", "What is rough", "IDs delivered", "Links"]
 SESSION = re.compile(r"session_[A-Za-z0-9]+")
+# A reviewer started as a fresh subagent of the builder's session has no session of its own (A15.13 step 2).
+SUBAGENT = re.compile(r"subagent:[a-z0-9][a-z0-9-]*")
 
 # The file check (PRC-10) and the commit check (PRC-07).
 ID = r"[A-Z]{3}-\d{2,3}"
@@ -69,8 +71,8 @@ def gate(description, head, head_only_results, head_passed, parent_passed, trail
     if not (head_passed or (head_only_results and parent_passed)):
         problems.append(f"no passing results/checks for {head12} or, with a results-only head, its parent")
     rs = set(SESSION.findall(reviewer))
-    if not rs:
-        problems.append(f"reviewer session {reviewer} names no session")
+    if not rs and not SUBAGENT.fullmatch(reviewer):
+        problems.append(f"reviewer {reviewer} names no session and no subagent")
     builders = set()
     for t in trailer_sessions:
         builders.update(SESSION.findall(t))

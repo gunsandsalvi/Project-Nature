@@ -42,8 +42,19 @@ async function main() {
   }
   say(`WebAssembly works · WebGL2 works · core ${core_check() ? 'OK' : 'MISMATCH'} · ${build_line()} · running`);
 
+  // The safe-area insets (a notch, rounded corners), read through a probe element styled with env().
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:' +
+    'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
+  document.body.append(probe);
+  const insets = () => {
+    const cs = getComputedStyle(probe), dpr = window.devicePixelRatio || 1;
+    const px = (k) => (parseFloat(cs[k]) || 0) * dpr;
+    app.insets(px('paddingTop'), px('paddingRight'), px('paddingBottom'), px('paddingLeft'));
+  };
   new ResizeObserver(() => {
     app.resize(canvas.clientWidth, canvas.clientHeight, window.devicePixelRatio || 1);
+    insets();
   }).observe(canvas);
 
   const kinds = { pointerdown: 0, pointermove: 1, pointerup: 2, pointercancel: 3 };
@@ -57,8 +68,12 @@ async function main() {
   }
   document.addEventListener('visibilitychange', () => { if (document.hidden) app.pause(); else app.resume(); });
 
+  let afterFrame = [];
   const loop = (t) => {
     app.frame(t);
+    const waiting = afterFrame;
+    afterFrame = [];
+    for (const f of waiting) f();
     const req = app.take_requests();
     if (req) {
       for (const r of JSON.parse(req)) {
@@ -70,7 +85,17 @@ async function main() {
   requestAnimationFrame(loop);
 
   if (new URLSearchParams(location.search).get('test') === '1') {
-    window.kd = { ready: () => true, yaw: () => app.yaw() }; // A12.4's test hook, grown later
+    // A12.4's test hook, grown later: shot() is the canvas as a PNG data URL right after the next frame is drawn;
+    // golden(name) freezes time and the drag on a fixed scene (A11.12); palette() is the current row's colours.
+    const shot = () => new Promise((res) => { afterFrame.push(() => res(canvas.toDataURL('image/png'))); });
+    window.kd = {
+      ready: () => true,
+      yaw: () => app.yaw(),
+      shot,
+      golden: (name) => app.golden(name),
+      palette: () => Array.from(app.palette_rgb()),
+      glMs: () => app.gl_ms(),
+    };
   }
 }
 

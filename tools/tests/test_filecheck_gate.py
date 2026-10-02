@@ -37,6 +37,15 @@ class GateTest(unittest.TestCase):
     def test_builders_own_session_fails(self):
         self.assertNotEqual(gate("Review: APPROVE 0123456789ab https://claude.ai/code/session_01Builder"), [])
 
+    # checks: PRC-09
+    def test_subagent_reviewer_passes(self):
+        self.assertEqual(gate("Review: APPROVE 0123456789ab subagent:a01a-review-2"), [])
+
+    # checks: PRC-09
+    def test_unnamed_reviewer_fails(self):
+        for who in ("someone", "subagent:", "subagent:Bad_Label", "agent:a01a-review"):
+            self.assertNotEqual(gate(f"Review: APPROVE 0123456789ab {who}"), [], who)
+
     # checks: PRC-09 PRC-10
     def test_unchecked_head_fails(self):
         self.assertNotEqual(gate("Review: APPROVE 0123456789ab session_01Reviewer", head_passed=False), [])

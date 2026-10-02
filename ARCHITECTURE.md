@@ -708,6 +708,7 @@ data/INDEX.md              generated index of all entries
 data/items/<class>.md      items (A6.2)
 data/blueprints/<sector>.md  blueprints (A6.7)
 data/plants/  animals/  illnesses/  culture/  sounds/  models/
+data/palette/              colours, ladders, light tables and palette versions (A11.3)
 data/tuning/<system>.md    tuned numbers (PRN-17)
 data/TUNING-LOG.md         each tuned value, what it was tuned against, the tuning seeds (RES-16)
 data/writer/               voice instructions (PRE-19)
@@ -3325,7 +3326,7 @@ First needed: `MIL-01`.
 
 ### A11.3 Palette, ladders and lookup tables
 
-- **Master palette** (`data/palette.md`): at most 255 colours plus `void`: the mockup's 84, plus spring and summer greens, flowers and berries, stone greys, skin and hair families for varied looks (`BIO-22`), clear water, sand and ice.
+- **Master palette** (`data/palette/colours.md`; ladders in `ladders.md` and tables and versions in `light.md` beside it, one kind of entry per file, A3.6): at most 255 colours plus `void`: the mockup's 84, plus spring and summer greens, flowers and berries, stone greys, skin and hair families for varied looks (`BIO-22`), clear water, sand and ice.
 - **Ladders** (`PRE-20`): 4–7 indices, dark to light, per material; hand-picked for common materials from the mockup's 51 `RAMPS`; for the rest, `kd catalog build` aims at seven lightnesses from 0.42 to 1.3 times the catalogue colour's (`MAT-10`) in OKLab and matches each with `nearest()` outside the fire, map and mist families; plants get ladders per season state and growth stage, animals per coat part.
 - **Tables** (`table()`, index to index): warm 1–3, haze 1–3, outline, sun rim, fire rim, darker, lighter, snow.
 - **Versions** (`PRE-30`): dusk, dawn, day and night (`variant()`) for each season, the mockup's being autumn's.
@@ -4491,12 +4492,12 @@ Before a stage closes, `PRC-10`'s list runs, with `kd check ids --stage` (all of
 
 The gate is `tools/check.sh` plus the review recorded in the pull request's description; no branch protection or commit status is needed (the reviews' decision).
 1. The builder's pull request description holds only facts: IDs delivered, tests added, pass rules changed with reasons, architecture sections touched, its `Checks: PASS` line; none of its reasoning (`PRC-09`).
-2. A reviewer in a separate session (`create_session`) re-runs format, clippy, tests and quick scenes, and reverts each new test to see it fail.
+2. A reviewer in a separate session (`create_session`), or a fresh subagent of the builder's session given only the diff, the alpha's section and the items it cites (since 2 October 2026, when the owner moved all building into one session), re-runs format, clippy, tests and quick scenes, and reverts each new test to see it fail.
 3. It checks with `tools/review-checklist.md`: each claimed ID's What, Done when and Check lines; no test weakened or pass rule loosened (`RES-09`); catalogue entries naming their checks (`MAT-17`); the principles, above all `PRN-01`, `PRN-06`, `PRN-07`, `PRN-12` and `PRN-14`; determinism, layering, budget flags; no implementation in `PROJECT.md` (`PRC-04`).
-4. It adds `Review: APPROVE <commit> <its session>`, or `Review: CHANGES` with its findings, to the description; a later push voids an approval.
+4. It adds `Review: APPROVE <commit> <its session>` (a subagent, having no session of its own, names itself `subagent:<label>`), or `Review: CHANGES` with its findings, to the description; a later push voids an approval.
 5. If they still disagree after one round of fixes, a second fresh reviewer decides; anything changing what `PROJECT.md` means goes to the owner (`PRC-09`).
-6. The builder runs `tools/check.sh --gate <saved description>`: the head is the approved commit, its checks passed, and the reviewer's session differs from every `Claude-Session` trailer on the branch; it then merges (`merge_pull_request`, a merge commit) with both lines in the message.
-7. `kd check ids --stage` confirms every merge into `main` since the last stage carries both lines with different sessions; any other is reviewed before the stage closes.
+6. The builder runs `tools/check.sh --gate <saved description>`: the head is the approved commit, its checks passed, and the reviewer is a subagent or a session that differs from every `Claude-Session` trailer on the branch; it then merges (`merge_pull_request`, a merge commit) with both lines in the message.
+7. `kd check ids --stage` confirms every merge into `main` since the last stage carries both lines, the reviewer a subagent or a session other than the builder's; any other is reviewed before the stage closes.
 
 ### A15.14 Stage reports
 

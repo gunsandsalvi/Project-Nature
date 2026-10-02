@@ -1,13 +1,18 @@
-//! kd-app: the app object: frame loop, input, the self-check (A2.2, A2.4, A3.8, A15.4); implements PRC-11 in part.
-//! In α00 it turns a lit cube; the simulation and I/O threads join from α03a and α07a.
+//! kd-app: the app object: frame loop, input, the self-check (A2.2, A2.4, A3.8, A15.4); implements PRC-11, PRE-22,
+//! PRE-32 and PLT-02 in part.
+//! In α01a it turns the golden cube as pixel art with the version strip over it; the simulation and I/O threads join
+//! from α03a and α07a.
 
 pub mod json;
 pub mod selfcheck;
 
 pub use json::{json_str, requests_json};
-pub use kd_view::{InputEvent, InputKind};
+pub use kd_view::{InputEvent, InputKind, Insets};
 
-use kd_render::{Frame, Renderer};
+use kd_data::Catalogue;
+use kd_render::{Assets, DrawSettings, Frame, Renderer};
+use kd_ui::{Font, Ui};
+use kd_view::{CubeView, Snapshot};
 use std::sync::Arc;
 
 /// What the app needs from its shell (A2.2); `storage` arrives in α07a, `cores` in α02b.
@@ -29,6 +34,8 @@ pub enum Request {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AppMsg {
     Input(InputEvent),
+    /// The system's insets, screen pixels (A2.2).
+    Insets(Insets),
     Pause,
     Resume,
     Back,
@@ -43,6 +50,47 @@ pub struct AppConfig {
 /// The build's version line: the alpha and commit set by the build scripts in `KD_BUILD`, else `dev` (A15.3).
 pub fn build_line() -> &'static str {
     option_env!("KD_BUILD").unwrap_or("dev")
+}
+
+/// The catalogue blob compiled from `data/` by the build script (A3.6).
+pub static CATALOGUE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/catalogue.bin"));
+
+/// Screen pixels an art pixel spans, in both orientations, on the phone and on the web (`PRE-22`, A11.2).
+pub const SCALE: u32 = 4;
+/// Frames kept for the frame-time figures (A11.11).
+const RING: usize = 1024;
+/// Frames the strip's averages cover.
+const AVERAGE: usize = 120;
+
+/// The last 1,024 frames' intervals and GL thread times, milliseconds (A11.11).
+struct FrameRing {
+    interval_ms: Vec<f32>,
+    gl_ms: Vec<f32>,
+    n: usize,
+}
+
+impl FrameRing {
+    fn push(&mut self, interval_ms: f32, gl_ms: f32) {
+        let i = self.n % RING;
+        self.interval_ms[i] = interval_ms;
+        self.gl_ms[i] = gl_ms;
+        self.n += 1;
+    }
+
+    /// The mean of the last frames, up to `AVERAGE`, of one column.
+    fn mean(&self, col: &[f32]) -> f32 {
+        let k = self.n.min(AVERAGE);
+        if k == 0 {
+            return 0.0;
+        }
+        (1..=k).map(|j| col[(self.n - j) % RING]).sum::<f32>() / k as f32
+    }
+
+    /// Frames a second and GL thread milliseconds, averaged.
+    fn figures(&self) -> (f32, f32) {
+        let iv = self.mean(&self.interval_ms);
+        (if iv > 0.0 { 1000.0 / iv } else { 0.0 }, self.mean(&self.gl_ms))
+    }
 }
 
 /// Spin of the cube, radians a second of unpaused time.
@@ -69,6 +117,12 @@ pub struct App {
     platform: Arc<dyn Platform>,
     cfg: AppConfig,
     renderer: Option<Renderer>,
+    catalogue: Catalogue,
+    assets: Assets,
+    ui: Ui,
+    ring: FrameRing,
+    last_frame_ns: Option<u64>,
+    golden: Option<CubeView>,
     gl_info: String,
     fail: Vec<String>,
     reported: bool,
@@ -89,11 +143,31 @@ pub struct App {
 impl App {
     /// Builds the app and runs kd-core's part of the self-check (A15.4; in α00 at every start).
     pub fn new(p: Arc<dyn Platform>, cfg: AppConfig) -> App {
-        let fail = kd_core::selfcheck::core_check().into_iter().map(String::from).collect();
+        let mut fail: Vec<String> = kd_core::selfcheck::core_check().into_iter().map(String::from).collect();
+        let catalogue = Catalogue::load(CATALOGUE).unwrap_or_else(|e| {
+            fail.push(format!("catalogue: {e}"));
+            Catalogue::default()
+        });
+        let font = Font::parse(kd_ui::font::GLYPHS_7).unwrap_or_else(|e| {
+            fail.push(format!("font: {e}"));
+            Font::default()
+        });
+        let assets = Assets { font: font.atlas() };
+        let ui = Ui::new(font, &catalogue);
         App {
             platform: p,
             cfg,
             renderer: None,
+            catalogue,
+            assets,
+            ui,
+            ring: FrameRing {
+                interval_ms: vec![0.0; RING],
+                gl_ms: vec![0.0; RING],
+                n: 0,
+            },
+            last_frame_ns: None,
+            golden: None,
             gl_info: String::new(),
             fail,
             reported: false,
@@ -114,10 +188,10 @@ impl App {
 
     /// A GL context is ready: (re)builds the renderer; a failure is remembered as `shader: <log>`.
     pub fn gl_ready(&mut self, gl: glow::Context) {
-        match Renderer::new(gl) {
+        match Renderer::new(gl, &self.catalogue, &self.assets) {
             Ok(mut r) => {
                 self.gl_info = r.gl_info();
-                r.resize(self.w, self.h);
+                r.resize(self.w, self.h, SCALE);
                 self.renderer = Some(r);
             }
             Err(e) => {
@@ -133,14 +207,21 @@ impl App {
         self.w = w.max(1);
         self.h = h.max(1);
         if let Some(r) = &mut self.renderer {
-            r.resize(self.w, self.h);
+            r.resize(self.w, self.h, SCALE);
         }
+        self.ui.resize(self.w, SCALE);
     }
 
     /// The next message from the shell.
     pub fn handle(&mut self, m: AppMsg) {
         match m {
-            AppMsg::Input(e) => self.input(e),
+            AppMsg::Input(e) => {
+                // A touch on the UI belongs to it; the cube never sees it (A12.2).
+                if !self.ui.input(&e) {
+                    self.input(e);
+                }
+            }
+            AppMsg::Insets(i) => self.ui.set_insets(i),
             AppMsg::Pause => {
                 self.paused = true;
                 self.last_ns = None;
@@ -188,12 +269,55 @@ impl App {
 
     /// The cube's current turn, radians (the web test hook).
     pub fn yaw(&self) -> f32 {
-        self.spin_s * SPIN_PER_S + self.drag_yaw
+        match self.golden {
+            Some(c) => c.yaw,
+            None => self.spin_s * SPIN_PER_S + self.drag_yaw,
+        }
     }
 
-    /// One frame: spins, draws, and once per run posts the self-check if anything failed; returns how many cards
-    /// or views Back would close (none in α00).
+    /// Freezes time and the drag and shows a fixed golden scene (A11.12, A12.4): `cube`, at yaw 0.6 and pitch 0.5 on
+    /// dusk's row, with no strip. Returns whether the scene exists.
+    pub fn golden(&mut self, name: &str) -> bool {
+        match name {
+            "cube" => {
+                self.golden = Some(CubeView { yaw: 0.6, pitch: 0.5 });
+                true
+            }
+            _ => false,
+        }
+    }
+
+    /// The palette row in use: dusk 0, dawn 1, day 2, night 3 (`PRE-30`).
+    pub fn palette_row(&self) -> usize {
+        if self.golden.is_some() {
+            0
+        } else {
+            self.ui.palette_row()
+        }
+    }
+
+    /// The current palette row's colours as RGB bytes, the catalogue's colours only (the web test hook's
+    /// `palette only` check).
+    pub fn palette_rgb(&self) -> Vec<u8> {
+        let n = self.catalogue.body.colours.len();
+        self.renderer.as_ref().map_or_else(Vec::new, |r| {
+            r.palette_row_rgba(self.palette_row())
+                .chunks(4)
+                .take(n)
+                .flat_map(|c| [c[0], c[1], c[2]])
+                .collect()
+        })
+    }
+
+    /// One frame at the shell's frame time: spins, builds the UI, draws, measures the GL thread's time into the
+    /// ring (A11.11), and once per run posts the self-check if anything failed; returns how many cards or views Back
+    /// would close (none yet).
     pub fn frame(&mut self, now_ns: u64) -> u16 {
+        let t0 = self.platform.now_ns();
+        let interval_ms = self
+            .last_frame_ns
+            .map_or(0.0, |l| now_ns.saturating_sub(l) as f32 / 1e6);
+        self.last_frame_ns = Some(now_ns);
         if !self.paused {
             if let Some(last) = self.last_ns {
                 self.spin_s += now_ns.saturating_sub(last) as f32 / 1e9;
@@ -207,12 +331,27 @@ impl App {
                 self.momentum = 0.0;
             }
         }
+        let (hz, gl_ms) = self.ring.figures();
+        let ui = if self.golden.is_some() {
+            kd_view::UiDrawList::default()
+        } else {
+            self.ui.build(now_ns as f64 / 1e9, build_line(), hz, gl_ms)
+        };
         let f = Frame {
-            yaw: self.yaw(),
-            pitch: PITCH,
+            real_s: f64::from(self.spin_s),
+            palette_row: self.palette_row() as f32,
+            set: DrawSettings::default(),
+        };
+        let pitch = self.golden.map_or(PITCH, |c| c.pitch);
+        let snap = Snapshot {
+            cube: Some(CubeView { yaw: self.yaw(), pitch }),
         };
         if let Some(r) = &mut self.renderer {
-            r.draw(&f);
+            r.draw(&f, &snap, &ui);
+        }
+        let gl = self.platform.now_ns().saturating_sub(t0) as f32 / 1e6;
+        if interval_ms > 0.0 {
+            self.ring.push(interval_ms, gl);
         }
         self.frames += 1;
         if self.frames == 2
@@ -226,11 +365,27 @@ impl App {
         if self.frames >= 2 && !self.reported {
             self.reported = true;
             if !self.fail.is_empty() {
-                let json = selfcheck::report_json(build_line(), &self.cfg.device, &self.gl_info, &self.fail);
+                let json = selfcheck::report_json(
+                    build_line(),
+                    &self.cfg.device,
+                    &self.gl_info,
+                    &self.catalogue.version_line(),
+                    &self.fail,
+                );
                 self.platform.post(Request::SelfCheck { json });
             }
         }
         0
+    }
+
+    /// Frames a second and the GL thread's milliseconds a frame, over the last frames (A11.11).
+    pub fn frame_figures(&self) -> (f32, f32) {
+        self.ring.figures()
+    }
+
+    /// The loaded catalogue (A3.6).
+    pub fn catalogue(&self) -> &Catalogue {
+        &self.catalogue
     }
 
     /// What failed so far in the self-check.
@@ -324,5 +479,43 @@ mod tests {
         assert_eq!(out.len(), 1);
         let Request::SelfCheck { json } = &out[0];
         assert!(json.contains("\"fail\":[\"shader: planted\"]") && json.contains("\"dev\":\"test\""));
+        assert!(json.contains("\"cat\":\"1.0 "), "{json}");
+    }
+
+    // checks: PRE-22 PRE-30
+    #[test]
+    fn golden_freezes_the_cube() {
+        let mut app = App::new(Arc::new(TestPlatform::default()), AppConfig::default());
+        assert!(!app.golden("nothing"));
+        assert!(app.golden("cube"));
+        app.frame(0);
+        app.frame(1_000_000_000);
+        app.handle(touch(InputKind::Down, 300.0, 0));
+        app.handle(touch(InputKind::Move, 100.0, 16));
+        assert_eq!(app.yaw(), 0.6, "time and the drag are frozen");
+        assert_eq!(app.palette_row(), 0, "on dusk's row");
+    }
+
+    // checks: PRE-32
+    #[test]
+    fn frame_ring_averages() {
+        let mut r = FrameRing {
+            interval_ms: vec![0.0; RING],
+            gl_ms: vec![0.0; RING],
+            n: 0,
+        };
+        assert_eq!(r.figures(), (0.0, 0.0));
+        for _ in 0..2000 {
+            r.push(8.0, 0.5);
+        }
+        assert_eq!(r.figures(), (125.0, 0.5));
+    }
+
+    // checks: PLT-09 PRC-11
+    #[test]
+    fn the_embedded_catalogue_loads() {
+        let app = App::new(Arc::new(TestPlatform::default()), AppConfig::default());
+        assert!(app.failures().is_empty(), "{:?}", app.failures());
+        assert_eq!((app.catalogue().major, app.catalogue().minor), (1, 0));
     }
 }

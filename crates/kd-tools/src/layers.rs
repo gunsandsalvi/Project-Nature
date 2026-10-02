@@ -9,7 +9,7 @@ const SWITCHES: &str = "test-switches";
 /// The one crate whose normal dependencies may turn the switches on (A3.9).
 const SWITCH_HOLDER: &str = "kd-tools";
 /// Where the rules live, relative to the workspace root.
-const RULES_FILE: &str = "tools/layers.toml";
+pub const RULES_FILE: &str = "tools/layers.toml";
 
 /// One crate's table in `tools/layers.toml`.
 #[derive(Debug, Default)]
@@ -261,7 +261,7 @@ fn blank_comments_and_literals(text: &str) -> String {
 }
 
 /// Every `.rs` file of a crate outside `tests/` folders and `tests.rs` files, as paths relative to the crate, sorted.
-fn sources(crate_dir: &Path) -> Vec<String> {
+pub fn sources(crate_dir: &Path) -> Vec<String> {
     fn walk(dir: &Path, rel: &str, out: &mut Vec<String>) {
         let Ok(entries) = std::fs::read_dir(dir) else { return };
         let mut names: Vec<(String, PathBuf)> = entries
