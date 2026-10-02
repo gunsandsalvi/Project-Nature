@@ -5,5 +5,12 @@ edition.workspace = true
 rust-version.workspace = true
 publish.workspace = true
 
+[features]
+# The catalogue compiler (A3.6): reads data/ and PROJECT.md; only kd-tools and kd-app's build script turn it on (A2.3 rule 4).
+compile = ["dep:toml"]
+
 [dependencies]
 kd-core.workspace = true
+serde.workspace = true
+postcard.workspace = true
+toml = { workspace = true, optional = true }

@@ -2,6 +2,7 @@
 #![deny(unsafe_code)]
 
 pub mod chance;
+pub mod kinds;
 pub mod m;
 pub mod num;
 pub mod selfcheck;
