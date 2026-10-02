@@ -832,6 +832,9 @@ Smallest change that works: `UiDrawList`, `UiRect` and `GlyphRun` live in `kd-vi
 **Conflict (T01a.6):** T01a.6 lights the cube with `sunLight(n, 1.0) + sky(n)`, which depends only on the normal, so each flat face gets one value: one shade, with no narrow speckled band inside a face (On the phone step 2, `PRE-20`); and at that scale the sunlit edge does not rim (`PRE-21`).
 Smallest change that works: `cube.frag` lights with `0.04 + 0.42 * (sunLight(n, 1.0) + sky(n)) + 0.25 * dot(vWorld, uSunDir)`, the plan's sun and sky scaled down so the sunlit edge rims, plus a gentle fall-off across each face toward the sun, so steps meet inside the faces; the golden cube (T01a.8) holds the result.
 
+**Conflict (review, A15.13):** on 2 October 2026 the owner moved all building into one session, with no other sessions, so the independent review can no longer run in a separate session as A15.13 says, and `tools/filecheck.py gate` refuses a reviewer without a session of its own.
+Smallest change that works: the builder's session starts the reviewer as a fresh subagent, given only the diff, this section and the items it cites, which keeps `PRC-09`'s fresh, separate agent without the builder's reasoning; the subagent names itself `subagent:<label>` in its `Review:` line, and the gate accepts that form while still refusing a builder's session; A15.13 and `tools/review-checklist.md` say so.
+
 ### α01b The valley (about 5 hours)
 
 **Goal:** a 256 m piece of land with a cliff, made from B11's shaped noise, fills the screen as pixel-art ground, lit by a low sun with crisp shadows, and the owner pans, pinches and twists the camera from a few metres up to the whole piece, with pixels that never crawl while panning.
