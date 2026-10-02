@@ -1,0 +1,11 @@
+# The banned fixture (A2.3 rule 6, A3.2, A15.1): uses each entry of the root clippy.toml exactly once, so
+# tools/check-banned.sh can confirm clippy flags every ban. Outside the workspace; never built into anything.
+[package]
+name = "kd-banned-fixture"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
