@@ -12,6 +12,6 @@ Read `PROJECT.md` before doing anything else. It is the source of truth for what
 6. **Build modularly** (`PRN-14`).
 7. **Language models describe, never decide** (`PRN-06`).
 8. **Before work joins the main version**, the checks in `PRC-10` must pass and an independent AI review must approve it (`PRC-09`).
-9. **Write plainly.** The owner reads everything on a phone.
+9. **Write plainly.** The owner reads everything on a phone, so give every command a short plain description of what it does.
 
 Changes to this guide need the owner's OK.
