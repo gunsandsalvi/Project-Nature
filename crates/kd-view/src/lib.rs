@@ -4,6 +4,7 @@
 
 pub mod ui;
 
+pub use kd_core::geo::Pos;
 pub use ui::{FontAtlas, GlyphRun, UiDrawList, UiRect};
 
 /// What a touch or pointer did (A12.2).
@@ -43,8 +44,30 @@ pub struct CubeView {
     pub pitch: f32,
 }
 
-/// What the renderer reads each frame (A11.9); in α01a only the cube.
+/// What the renderer reads each frame (A11.9): until the world fills it in α03a, the cube of the golden scene `cube`
+/// when it shows; otherwise the ground.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Snapshot {
     pub cube: Option<CubeView>,
+}
+
+/// The camera (A11.1, A11.2): the ground position it looks at, its turn in radians and its zoom, 0 at the person
+/// stop to 1 at the globe (A11.5).
+/// Implements `PRE-03` in part, see A11.2.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct CameraPose {
+    pub target: Pos,
+    pub yaw: f32,
+    pub zoom: f32,
+}
+
+/// An area's ground for the picture (A11.5): heights at `side` × `side` points a metre apart, in metres above sea
+/// level, rows from the north-west corner at `origin`; and a surface per square metre, its row of the surfaces
+/// table (`data/models/surfaces.md`).
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct GroundGrid {
+    pub origin: Pos,
+    pub side: usize,
+    pub heights_m: Vec<f32>,
+    pub surface: Vec<u8>,
 }

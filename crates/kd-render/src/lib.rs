@@ -4,6 +4,7 @@
 //! Implements PRE-01, PRE-20, PRE-21, PRE-22, PRE-30 and PRE-32 in part, and PRC-11 in part.
 
 pub mod cube;
+pub mod ground;
 pub mod mat;
 pub mod palette;
 pub mod pass;
