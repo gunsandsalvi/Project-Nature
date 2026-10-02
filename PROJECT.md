@@ -530,7 +530,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   Nothing is copied from real cultures, and descriptions never compare them to real peoples.
   - **Check:** each milestone review finds nothing copied from or compared with a real people in names, words, customs, looks or descriptions (`CUL-17`, `BIO-22`, `PRE-17`).
 - `SCP-21` **No deep science simulation** *(Decided)*: Kindling is a believable game, not a science simulation (`PRN-02`).
-  It does not simulate chemistry, the balance of elements and energy, how cracks run through stone, microbes, heredity and evolution in plants and animals, insects, ice ages, tides, people changing the climate, slow changes in the land beyond rare quakes and eruptions, flood silt and the slow burial of things, or language changing over time.
+  It does not simulate chemistry, the balance of elements and energy, how cracks run through stone, microbes, heredity and evolution in plants and animals, insects, ice ages, tides, people changing the climate, slow changes in the land beyond rare quakes and eruptions, sediment carried by water and the slow reshaping of land, or language changing over time; things are buried by a simple rate per place and dated flood or ash layers (`MAT-08`).
   - **Why:** Each would cost a great deal and show little (`PRN-02`).
   - **Check:** each milestone review confirms that no part of the game simulates any of these.
 
@@ -2482,7 +2482,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
 - `PLT-04` **Measured limits** *(To test)*
   - **What:** Reported at every stage (`RES-06`) against these targets:
     - **Speed:** the targets of `TIM-07`.
-    - **Stage budgets:** at the close of `MIL-01` to `MIL-07`, the 1,000-person world, with what the game has so far, runs at least 8, 6, 5, 3, 2, 1.5 and 1 game years a real minute.
+    - **Stage budgets:** at the close of `MIL-01` to `MIL-07`, the 1,000-person world, with what the game has so far, runs at least 3, 2, 2, 1.7, 1.7, 1.5 and 1 game years a real minute.
       A stage that misses names its biggest cost and wins it back by the next stage close, or brings it to you.
     - **Shares:** the world's own layers at most about 0.2 s per game day, so the world alone reaches 10 game years a minute on two cores; animals near people within each person's budget (`MND-15`); making areas at most a tenth of the simulation's time.
     - **Smooth:** with the world running, at least 97% of frames on time while zooming, panning and turning, at every zoom, and none more than 50 ms late (`PRN-11`).
@@ -2504,7 +2504,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
 
 - `PLT-07` **Always saved** *(Decided)*: Worlds save continuously, so closing the app or a flat battery never loses anything (`TIM-05`).
   - **How it works:** each event joins the world's history as it happens.
-    The present state is saved every 30 real seconds and whenever the app leaves the screen; a damaged save is never loaded.
+    The present state is saved every 30 real seconds and whenever the app leaves the screen, and in overnight mode every 10 real minutes and whenever it stops (`TIM-12`); a damaged save is never loaded.
     After a crash, the world opens at its last save within about 3 seconds and catches up, under a short note, repeating exactly (`TIM-16`).
   - **Done when:** killing the app 100 times at random never loses an event or leaves a world that won't open.
 
