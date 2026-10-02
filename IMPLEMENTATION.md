@@ -93,7 +93,7 @@ What the alphas ask of you, all in their notes, none of it blocking the next alp
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α00 | Skeleton on the phone | 1 | 5 | Not started |
+| α00 | Skeleton on the phone | 1 | 1 | done 2 October 2026 |
 | α00b | The checks in full | 1 | 3 | Not started |
 | α01a | Pixel art | 1 | 5 | Not started |
 | α01b | The valley | 1 | 5 | Not started |
@@ -633,6 +633,9 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 - The owner's phone refusing an install signed with the throwaway key under Android's developer verification: install by the one-off advanced unlock or `adb`, then register the release key as soon as the passphrase secret exists (A17.5).
 - No `main` branch, or a session unable to create one: the GitHub tool's `create_branch` needs no push rights to other branches; failing both, the builder still asks nothing and finishes the alpha from its own branch (the links, the APK and the review need no `main`), leaves the pull request unmerged, and the note's What is rough asks the owner to create `main` from the default branch in GitHub's web page; α00b's session then merges α00 first.
 - `tools/check.sh` over 20 minutes cold: the Gradle and wasm builds dominate; they run only when their files change, or with `--deliver`.
+
+**Conflict (T00.6):** `tools/verify-apk.sh` was to check a v2 and a v3 signature, but `apksigner` leaves the v2 block out when `--min-sdk-version` is 28 or more and v3 is on, since every Android that installs the APK (minSdk 31) reads v3.
+Smallest change that works: the check requires v3 and reports a missing v2 as an `info` line; signing is unchanged.
 
 ### α00b The checks in full (about 3 hours)
 

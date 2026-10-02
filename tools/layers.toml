@@ -1,0 +1,98 @@
+# Layering (A2.3), read by `kd check layers` from α00b: per crate, whether it is a simulation crate,
+# the workspace crates it may name, and the outside crates allowed in it (A2.2).
+
+[kd-core]
+sim = true
+deps = []
+outside = ["bytemuck", "libm", "log", "rayon", "serde", "xxhash-rust"]
+
+[kd-data]
+sim = true
+deps = ["kd-core"]
+outside = ["bytemuck", "libm", "log", "postcard", "serde", "toml"]
+
+[kd-world]
+sim = true
+deps = ["kd-core", "kd-data"]
+outside = ["bytemuck", "libm", "log", "serde"]
+
+[kd-things]
+sim = true
+deps = ["kd-core", "kd-data"]
+outside = ["bytemuck", "libm", "log", "serde"]
+
+[kd-life]
+sim = true
+deps = ["kd-core", "kd-data"]
+outside = ["bytemuck", "libm", "log", "serde"]
+
+[kd-people]
+sim = true
+deps = ["kd-world", "kd-things", "kd-life", "kd-core", "kd-data"]
+outside = ["bytemuck", "libm", "log", "serde"]
+
+[kd-culture]
+sim = true
+deps = ["kd-people", "kd-world", "kd-things", "kd-life", "kd-core", "kd-data"]
+outside = ["bytemuck", "libm", "log", "serde"]
+
+[kd-player]
+sim = true
+deps = ["kd-culture", "kd-people", "kd-world", "kd-things", "kd-life", "kd-core", "kd-data"]
+outside = ["bytemuck", "libm", "log", "serde"]
+
+[kd-view]
+sim = true
+deps = ["kd-core"]
+outside = ["libm", "log", "serde"]
+
+[kd-sim]
+sim = true
+deps = ["kd-player", "kd-culture", "kd-people", "kd-world", "kd-things", "kd-life", "kd-data", "kd-core", "kd-view"]
+outside = ["bytemuck", "libm", "log", "serde"]
+unsafe_files = ["src/cluster/split.rs"]
+
+[kd-save]
+sim = true
+deps = ["kd-sim", "kd-core"]
+outside = ["bytemuck", "libm", "log", "ruzstd", "serde", "zstd"]
+
+[kd-render]
+sim = false
+deps = ["kd-core", "kd-view", "kd-data"]
+outside = ["glow", "libm", "log", "serde"]
+
+[kd-ui]
+sim = false
+deps = ["kd-core", "kd-view", "kd-data"]
+outside = ["libm", "log", "serde"]
+
+[kd-audio]
+sim = false
+deps = ["kd-core", "kd-view", "kd-data"]
+outside = ["libm", "log", "rtrb", "serde"]
+
+[kd-text]
+sim = false
+deps = ["kd-core", "kd-view", "kd-data"]
+outside = ["libm", "log", "serde"]
+
+[kd-app]
+sim = false
+deps = ["kd-core", "kd-data", "kd-view", "kd-world", "kd-sim", "kd-save", "kd-render", "kd-ui", "kd-audio", "kd-text"]
+outside = ["glow", "libm", "log", "serde"]
+
+[kd-android]
+sim = false
+deps = ["kd-app", "kd-core", "kd-view"]
+outside = ["glow", "jni", "libc", "libm", "log", "serde", "serde_json"]
+
+[kd-web]
+sim = false
+deps = ["kd-app", "kd-core", "kd-view"]
+outside = ["console_error_panic_hook", "glow", "js-sys", "libm", "log", "serde", "wasm-bindgen", "web-sys"]
+
+[kd-tools]
+sim = false
+deps = ["kd-core", "kd-data", "kd-world", "kd-things", "kd-sim", "kd-save", "kd-text", "kd-audio"]
+outside = ["libm", "log", "png", "serde", "serde_json", "toml"]
