@@ -22,7 +22,6 @@
 - On a computer screen the browser's pixels are bigger than the phone's, so the strip's text looks large there; on the phone it fits one or two lines.
 - The milliseconds shown are the processor's time for a frame; the graphics chip's time joins later.
 - Still only the cube: the valley comes in α01b.
-- During this alpha another session passed on a request to let sessions use their tools without asking you to tap Allow. I did not make that permission change, because it reached me second-hand: if you want it, ask for it directly in a session and it can be done there.
 
 ## Your α00b results
 Recorded from your messages: you uninstalled and reinstalled once, so every alpha from now on installs over the last. You registered the release key's fingerprint and the package `dev.kindling.app` in your hobbyist Android Developer Console account, and it accepted the EC key, so the RSA fallback is not needed.
@@ -31,6 +30,6 @@ Recorded from your messages: you uninstalled and reinstalled once, so every alph
 In part: `MAT-13`, `MAT-17`, `PRN-17`, `PLT-09`, `PRE-01`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-30`, `PRE-32`, `PLT-02`.
 
 ## Links
-- APK: [kindling.apk](https://github.com/gunsandsalvi/Project-Nature/raw/a01a/dist/kindling.apk) (629 KB, version a01a, code 1011, release key)
+- APK: [kindling.apk](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) (629 KB, version a01a, code 1011, release key)
 - Web: [Kindling alpha](https://claude.ai/artifact/NmypTQyKQUAFZs18TNJELH)
 - Phone check: [Kindling phone check](https://claude.ai/artifact/RZuafpPi6Hdmu9o9nu5dHi)
