@@ -3,6 +3,7 @@
 //! cube as pixel art (A11.12) and the UI pass (A12.1).
 //! Implements PRE-01, PRE-20, PRE-21, PRE-22, PRE-30 and PRE-32 in part, and PRC-11 in part.
 
+pub mod camera;
 pub mod cube;
 pub mod ground;
 pub mod mat;
