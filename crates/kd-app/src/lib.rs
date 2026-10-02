@@ -378,6 +378,11 @@ impl App {
         0
     }
 
+    /// Frames a second and the GL thread's milliseconds a frame, over the last frames (A11.11).
+    pub fn frame_figures(&self) -> (f32, f32) {
+        self.ring.figures()
+    }
+
     /// The loaded catalogue (A3.6).
     pub fn catalogue(&self) -> &Catalogue {
         &self.catalogue

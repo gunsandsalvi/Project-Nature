@@ -94,6 +94,7 @@ async function main() {
       shot,
       golden: (name) => app.golden(name),
       palette: () => Array.from(app.palette_rgb()),
+      glMs: () => app.gl_ms(),
     };
   }
 }

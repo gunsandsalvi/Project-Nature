@@ -154,6 +154,11 @@ impl WebApp {
         self.app.golden(name)
     }
 
+    /// The GL thread's milliseconds a frame, averaged over the last frames (the bench file's `frame_ms_web`).
+    pub fn gl_ms(&self) -> f32 {
+        self.app.frame_figures().1
+    }
+
     /// The current palette row's colours, RGB bytes, for the `palette only` check.
     pub fn palette_rgb(&self) -> Vec<u8> {
         self.app.palette_rgb()

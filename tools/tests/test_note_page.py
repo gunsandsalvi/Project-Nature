@@ -35,6 +35,21 @@ class NotePageTest(unittest.TestCase):
         for token in ["--bg:", "prefers-color-scheme: dark", "overflow-x: hidden", "background: var(--bg)"]:
             self.assertIn(token, out)
 
+    # checks: PRC-11
+    def test_image(self):
+        import base64
+        import tempfile
+        png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "cube.png"), "wb") as f:
+                f.write(png)
+            out = note_page.page("# Note\n\nText.\n\n![The golden cube](cube.png)\n", d)
+        data = base64.b64encode(png).decode("ascii")
+        self.assertIn(f'<img src="data:image/png;base64,{data}" alt="The golden cube">', out)
+        self.assertIn("<figcaption>The golden cube</figcaption>", out)
+        self.assertIn("<p>Text.</p>", out)
+        self.assertNotIn("cube.png", out, "the page holds the picture itself, so it stays one file")
+
 
 if __name__ == "__main__":
     unittest.main()

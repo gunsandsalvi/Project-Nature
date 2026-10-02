@@ -95,7 +95,7 @@ What the alphas ask of you, all in their notes, none of it blocking the next alp
 |---|---|---|---|---|
 | α00 | Skeleton on the phone | 1 | 1 | done 2 October 2026 |
 | α00b | The checks in full | 1 | 1 | done 2 October 2026 |
-| α01a | Pixel art | 1 | 5 | Not started |
+| α01a | Pixel art | 1 | 2 | done 2 October 2026 |
 | α01b | The valley | 1 | 5 | Not started |
 | α02a | The island | 1 | 4.5 | Not started |
 | α02b | The ground up close | 1 | 5 | Not started |
