@@ -154,14 +154,25 @@ impl WebApp {
         self.app.golden(name)
     }
 
-    /// The camera: x and y metres from the ground's corner, its turn and zoom (the test hook's `camera()`).
+    /// The camera: x and y metres from the ground's corner, its height, turn and zoom, metres per art pixel, and its
+    /// place within an art pixel (the test hook's `camera()`).
     pub fn camera(&self) -> Vec<f32> {
         self.app.camera().to_vec()
     }
 
-    /// Points the camera (the test hook's `camera(pose)`).
-    pub fn set_camera(&mut self, x: f32, y: f32, yaw: f32, zoom: f32) {
-        self.app.set_camera(x, y, yaw, zoom);
+    /// Points the camera, at the ground's height when `z` is left out (the test hook's `camera(pose)`).
+    pub fn set_camera(&mut self, x: f32, y: f32, z: Option<f32>, yaw: f32, zoom: f32) {
+        self.app.set_camera(x, y, z, yaw, zoom);
+    }
+
+    /// Whether the frame after the ground's upload has drawn (the test hook's `ready()`).
+    pub fn ready(&self) -> bool {
+        self.app.ready()
+    }
+
+    /// B66's crawl count as JSON (the test hook's `crawl()`, A11.10); `null` for an unknown fix.
+    pub fn crawl(&mut self, motion: &str, rate: f32, frames: u32, fix: &str, zoom: Option<f32>) -> Option<String> {
+        self.app.crawl(motion, rate, frames, fix, zoom)
     }
 
     /// The GL thread's milliseconds a frame, averaged over the last frames (the bench file's `frame_ms_web`).

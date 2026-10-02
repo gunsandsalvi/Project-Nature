@@ -3305,7 +3305,7 @@ pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Noth
 | 6 | UI (A12.1) | window, same 4-pixel grid |
 
 - **Shadow:** the scene shaders under `#define SHADOW` draw into a depth-only texture, sampled directly; the mockup packed depth into RGBA8 (`packShadow`) only for WebGL1; fallback: that packing.
-- **Art target:** `ceil(W/s) + 2` by `ceil(H/s) + 2`, with `s` 4 screen pixels on the phone and 4 device pixels on the web (`PRE-22`): 272 × 603 in portrait on 1080 × 2404, 0.66 MB a surface; the border carries the sub-pixel shift.
+- **Art target:** `ceil(W/s) + 3` by `ceil(H/s) + 3`, with `s` 4 screen pixels on the phone and 4 device pixels on the web (`PRE-22`): 273 × 604 in portrait on 1080 × 2404, 0.66 MB a surface; the border carries the upscale's shift, which spans two art pixels as the view snaps to even ones (α01b's Conflict note).
 - **Colour 0** (`packOut`): R the palette index (0 void); G the category (bits 0–2), sunlit (3), firelit (4) and, new, which of 8 fire lights is strongest (5–7); B and A the view depth in 16 bits.
 - **Outlines by category** keep `postFS`'s depth thresholds for rock, plants, figures (in ink) and things; ground, water and effects have none (`PRE-21`).
 - **Colour 1:** a 24-bit index into the frame's pick table and an 8-bit kind (ground 0).
@@ -3317,9 +3317,11 @@ pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Noth
 **Camera** (`zoomToTexel`, `viewFor`, `computeCamera`):
 - Orthographic; the pitch depends only on metres per art pixel (`texel`), by the mockup's `PITCH` knots, from 27° at 0.03 m to 90° from 20 m.
 - `texel(zoom)` is log-linear between the stops of A11.5; the globe fits 0.84 of the shorter side (`texelMax`), so both orientations share one scale.
-- The view snaps to whole art pixels; the remainder is the upscale shift, and `dith = (sx − W/2) mod 4` keeps dither fixed to surfaces (`PRE-20`).
-- **Decision:** a floating origin at the area corner nearest the target, with GPU positions in `f32` metres from it; why: `f32` world metres resolve only 0.125–0.25 m at 2,000 km; fallback: none needed.
-- The depth range spans the footprint from the lowest to the highest ground in view, ± 30 m; the shadow camera fits the footprint and snaps to its own texels (`lightFor`), so shadows never swim.
+- The view snaps to even art pixels, counted from the world's corner; the remainder is the upscale shift, and `dith = (sx − W/2) mod 4` keeps dither fixed to surfaces (`PRE-20`); snapping by two keeps the GPU's 2 × 2 pixel groups, over which `fwidth` sets the dither band, on the same ground.
+- **Decision:** a floating origin at the area corner nearest the ground in the middle of the view's block (below), with GPU positions in `f32` metres from it, each area's vertices from its own corner plus the corner's offset (`uAreaOff`); why: `f32` world metres resolve only 0.125–0.25 m at 2,000 km; fallback: none needed.
+- **Blocks:** within a block of 512 art pixels every frame draws with the same projection, over the art target plus a block, and the art target's viewport moves by whole pixels instead, so a pan moves the picture by whole pixels exactly; a projection moved by the pan would round differently and flip pixels on edges. The viewport stays within OpenGL ES 3.0's least size on the phone (its screen's 2,404 pixels).
+- Drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, so turns and zooms pivot on the ground in the middle of the screen while the picture stays still.
+- The depth range spans the block's footprint from the lowest to the highest ground in view, ± 30 m; the shadow camera fits the view's footprint and snaps to its own texels, counted from the world's corner (`lightFor`), keeping its projection within blocks of 256 texels and its depth range on 16 m steps, so shadows never swim; the ground's patterns add the origin's place within 8,192 m of the world (`uWorldOff`).
 
 Tested by: a one-art-pixel pan moves the picture exactly 4 screen pixels; a tap on each kind of thing in a fixed scene picks it.
 First needed: `MIL-01`.

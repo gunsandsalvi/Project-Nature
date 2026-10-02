@@ -1,8 +1,8 @@
 use super::*;
 
 const SIZE: ArtSize = ArtSize {
-    wf: 105,
-    hf: 217,
+    wf: 106,
+    hf: 218,
     wd: 412,
     hd: 860,
     s: 4,
@@ -83,4 +83,49 @@ fn turns_ease_and_zoom_keeps_its_range() {
     assert_eq!(c.pose.zoom, ZOOM_MAX);
     c.apply(CameraCmd::Zoom { dz: -5.0 }, SIZE, &g);
     assert_eq!(c.pose.zoom, ZOOM_MIN);
+}
+
+/// Ground rising 0.2 m a metre to the east.
+fn slope() -> GroundGrid {
+    let side = 257;
+    GroundGrid {
+        side,
+        heights_m: (0..side * side).map(|k| 300.0 + 0.2 * (k % side) as f32).collect(),
+        surface: vec![0; 256 * 256],
+        ..GroundGrid::default()
+    }
+}
+
+// checks: PRE-22 PRE-33
+#[test]
+fn drags_keep_the_height_and_turns_pivot_on_the_ground() {
+    let g = slope();
+    let mut c = CameraCtl::new(crate::valley::pose_at(&g, 128.0, 128.0, 0.5, 0.2));
+    let z0 = c.pose.target.z;
+    // a drag across the slope keeps the target's height, so the picture only slides (A11.2's test)
+    c.apply(CameraCmd::Drag { dx: -300.0, dy: 40.0 }, SIZE, &g);
+    let (x, y) = at(&c, &g);
+    assert_eq!(c.pose.target.z, z0);
+    let off_ground = crate::valley::height_at(&g, x, y) - z0 as f32 / 256.0;
+    assert!(off_ground.abs() > 2.0, "the drag crossed the slope: {off_ground}");
+    // the first turn slides the target along the view's centre line onto the ground, and the picture stays put
+    let before = rcam::compute(&c.pose, SIZE, 290.0, 360.0);
+    c.apply(CameraCmd::Turn { rad: 0.0 }, SIZE, &g);
+    let after = rcam::compute(&c.pose, SIZE, 290.0, 360.0);
+    let (x, y) = at(&c, &g);
+    let z = c.pose.target.z as f32 / 256.0;
+    assert!(
+        (z - crate::valley::height_at(&g, x, y)).abs() < 0.01,
+        "{z} at ({x}, {y})"
+    );
+    let place = |k: &rcam::Camera, i: usize| k.snapped[i] as f32 + k.off[i];
+    for i in 0..2 {
+        let moved = place(&after, i) - place(&before, i);
+        assert!(moved.abs() < 0.02, "the picture moved {moved} art pixels");
+    }
+    // later turns spin round that ground point, which stays in the middle of the screen
+    let pivot = c.pose.target;
+    c.apply(CameraCmd::Turn { rad: 0.8 }, SIZE, &g);
+    c.apply(CameraCmd::Zoom { dz: -0.05 }, SIZE, &g);
+    assert_eq!(c.pose.target, pivot);
 }

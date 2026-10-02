@@ -8,13 +8,15 @@ in vec3 vNrm;
 in vec4 vB;
 in float vFlags;
 uniform sampler2D uSurf;
+// where the floating origin lies within an 8,192 m block of the world, so the patterns stay on the ground
+uniform vec2 uWorldOff;
 out vec4 fragColor;
 void main() {
 #ifdef SHADOW
   fragColor = vec4(1.0);
 #else
   vec3 n = normalize(vNrm);
-  vec2 p = vWorld.xz;
+  vec2 p = vWorld.xz + uWorldOff;
   float z = vWorld.y;
   vec4 s0 = texelFetch(uSurf, ivec2(0, int(vB.x + 0.5)), 0);
   float ramp = floor(s0.r * 255.0 + 0.5);

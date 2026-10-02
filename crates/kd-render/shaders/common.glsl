@@ -17,6 +17,7 @@ uniform vec4 uFire2;
 uniform mat4 uLightVP;
 uniform float uShadowOn;
 uniform vec2 uShadowBias;
+uniform vec3 uShadowWin;
 uniform vec3 uCamF;
 uniform vec2 uDepthR;
 uniform vec4 uCut;
@@ -71,9 +72,12 @@ float shadowAt(vec3 wp, vec3 n) {
   float k = 1.0 + 2.5 * (1.0 - ndl);
   vec4 lp = uLightVP * vec4(wp + n * uShadowBias.x * k, 1.0);
   vec3 q = lp.xyz * 0.5 + 0.5;
-  if (q.x < 0.0 || q.y < 0.0 || q.x > 1.0 || q.y > 1.0) return 1.0;
-  // the shadow map is a depth texture sampled directly (A11.2), not the mockup's depth packed into RGBA8
-  return q.z - uShadowBias.y * k > texture(uShadow, q.xy).r ? 0.0 : 1.0;
+  // the light's projection spans uShadowWin.x texels, the map's corner at uShadowWin.yz in it, so the map's texel is
+  // found in whole numbers; the map is a depth texture read directly (A11.2), not the mockup's RGBA8 packing
+  ivec2 t = ivec2(floor(q.xy * uShadowWin.x)) - ivec2(uShadowWin.yz);
+  ivec2 size = textureSize(uShadow, 0);
+  if (t.x < 0 || t.y < 0 || t.x >= size.x || t.y >= size.y) return 1.0;
+  return q.z - uShadowBias.y * k > texelFetch(uShadow, t, 0).r ? 0.0 : 1.0;
 }
 /* Sun on a surface, normalised so flat open ground in sun reads 1. */
 float sunLight(vec3 n, float sh) {
@@ -120,7 +124,9 @@ vec4 packOut(float idx, float cat, float flags) {
 }
 /* Tiny grass tufts: points fixed in the world, each drawn as the same few pixels on screen.
    Returns 2 = highlight, 1 = mid, -1 = shadow, 0 = none. */
-uniform mat4 uVP; uniform vec2 uFbo;
+// uView is the scene pass's viewport (x, y, width, height): the projection spans its width and height (A11.2)
+uniform mat4 uVP; uniform vec4 uView;
+vec2 pixelOf(vec4 q) { return floor((q.xy / q.w * 0.5 + 0.5) * uView.zw + uView.xy); }
 float stampTuft(vec2 p, float z, float cell, float dens) {
   if (uTexel > 0.095) return 0.0;
   vec2 base = floor(p / cell - 0.5);
@@ -130,7 +136,7 @@ float stampTuft(vec2 p, float z, float cell, float dens) {
     if (hash12(c + 7.0) > dens) continue;
     vec2 w = (c + 0.2 + 0.6 * vec2(hash12(c + 11.0), hash12(c + 19.0))) * cell;
     vec4 q = uVP * vec4(w.x, z, w.y, 1.0);
-    vec2 px = floor((q.xy / q.w * 0.5 + 0.5) * uFbo);
+    vec2 px = pixelOf(q);
     vec2 o = floor(gl_FragCoord.xy) - px;
     float tall = hash12(c + 23.0) > 0.5 ? 1.0 : 0.0;
     if (o.y == 0.0 && abs(o.x) <= 1.0) r = -1.0;
@@ -154,7 +160,7 @@ float stampStone(vec2 p, float z, float cell, float dens, float sizeM, float see
     if (wpx < 1.0) continue;
     float hpx = max(1.0, floor(wpx * 0.55 + 0.25));
     vec4 q = uVP * vec4(w.x, z, w.y, 1.0);
-    vec2 o = floor(gl_FragCoord.xy) - floor((q.xy / q.w * 0.5 + 0.5) * uFbo) + vec2(floor(wpx * 0.5), 0.0);
+    vec2 o = floor(gl_FragCoord.xy) - pixelOf(q) + vec2(floor(wpx * 0.5), 0.0);
     if (o.x < 0.0 || o.x > wpx - 1.0 || o.y < 0.0 || o.y > hpx - 1.0) continue;
     if (wpx > 2.5 && hpx > 1.5 && (o.x < 0.5 || o.x > wpx - 1.5) && (o.y < 0.5 || o.y > hpx - 1.5)) continue;
     float lvl = o.y > hpx - 1.5 ? 3.0 : (o.y < 0.5 ? 1.0 : 2.0);

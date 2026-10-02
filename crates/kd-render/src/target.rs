@@ -6,11 +6,12 @@ use crate::RenderError;
 use glow::HasContext;
 
 /// The art target's size for a window of `w` by `h` screen pixels at `s` screen pixels an art pixel (A11.2):
-/// `ceil(W/s) + 2` by `ceil(H/s) + 2`, the border carrying the sub-pixel shift. The scale never changes with the
-/// orientation, so a pixel keeps its size when the phone turns (`PRE-22`).
+/// `ceil(W/s) + 3` by `ceil(H/s) + 3`, the border carrying the upscale's shift, which spans two art pixels as the
+/// view snaps to even ones (`camera::compute`). The scale never changes with the orientation, so a pixel keeps its
+/// size when the phone turns (`PRE-22`).
 pub fn art_size(w: u32, h: u32, s: u32) -> (u32, u32) {
     let s = s.max(1);
-    (w.div_ceil(s) + 2, h.div_ceil(s) + 2)
+    (w.div_ceil(s) + 3, h.div_ceil(s) + 3)
 }
 
 /// A texture, nearest-filtered and clamped (`X.texture`); `data` is row 0 first.
@@ -160,9 +161,9 @@ mod tests {
     // checks: PRE-22 PLT-02
     #[test]
     fn art_size() {
-        assert_eq!(super::art_size(1080, 2404, 4), (272, 603));
-        assert_eq!(super::art_size(2404, 1080, 4), (603, 272));
-        assert_eq!(super::art_size(412, 860, 4), (105, 217));
-        assert_eq!(super::art_size(1081, 2405, 4), (273, 604));
+        assert_eq!(super::art_size(1080, 2404, 4), (273, 604));
+        assert_eq!(super::art_size(2404, 1080, 4), (604, 273));
+        assert_eq!(super::art_size(412, 860, 4), (106, 218));
+        assert_eq!(super::art_size(1081, 2405, 4), (274, 605));
     }
 }

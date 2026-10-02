@@ -4,6 +4,7 @@
 //! Implements PRE-01, PRE-20, PRE-21, PRE-22, PRE-30 and PRE-32 in part, and PRC-11 in part.
 
 pub mod camera;
+pub mod crawl;
 pub mod cube;
 pub mod ground;
 pub mod mat;
@@ -14,6 +15,7 @@ pub mod target;
 pub mod ui;
 
 use camera::ArtSize;
+use crawl::{Base, Capture, CrawlSlot};
 use glow::HasContext;
 use ground::{GroundGpu, GroundUniforms};
 use kd_core::geo;
@@ -46,6 +48,9 @@ const BAND: f32 = 0.32;
 const DUSK_SUN_G: [f32; 2] = [-0.93, 0.37];
 const DUSK_SUN_EL_DEG: f32 = 21.0;
 const DUSK_HAZE: f32 = 1.0;
+/// The ground's patterns (patches, tufts, stones) take positions from the world's corner within blocks of this many
+/// metres (`uWorldOff`), so they stay put when the floating origin moves; a block's edge is the only seam.
+const WORLD_OFF_M: f64 = 8_192.0;
 
 /// Why the renderer could not start (A3.8): the shader's or linker's info log, or a GPU resource.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -173,6 +178,10 @@ pub struct Renderer {
     cube: CubeMesh,
     ground: GroundGpu,
     shadow: ShadowMap,
+    /// Pass 4's fix: `Base` until the owner's review (A11.10).
+    slot: Box<dyn CrawlSlot>,
+    /// The last frame's ground camera, for the crawl counter.
+    last_cam: Option<camera::Camera>,
     pal: glow::Texture,
     ramps: glow::Texture,
     luts: glow::Texture,
@@ -252,6 +261,8 @@ impl Renderer {
                 },
                 ground,
                 shadow,
+                slot: Box::new(Base),
+                last_cam: None,
                 pal,
                 ramps,
                 luts,
@@ -326,8 +337,10 @@ impl Renderer {
             s: self.scale,
         };
         // the ground's camera, and pass 1, its shadows, when no golden cube shows
+        let pose = self.slot.quantise(f.camera);
         let ground_cam = (snap.cube.is_none() && self.ground.ready())
-            .then(|| camera::compute(&f.camera, size, self.ground.lo_m, self.ground.hi_m));
+            .then(|| camera::compute(&pose, size, self.ground.lo_m, self.ground.hi_m));
+        self.last_cam = ground_cam;
         let light = ground_cam.as_ref().and_then(|cam| self.draw_shadow(cam));
         draws += u32::from(light.is_some()) * 16;
         unsafe {
@@ -386,8 +399,11 @@ impl Renderer {
             }
             let gl = &self.gl;
             self.passes.post(gl, self.pal, self.luts, &post);
+            let p = &self.passes;
+            self.slot
+                .resolve(gl, &p.post, &p.post, &p.crawl, (f.real_s * 1000.0) as f32);
             self.passes.upscale(gl, (self.w, self.h), off, self.scale);
-            draws += 2;
+            draws += 3;
             let grid = ui::Grid {
                 win: (self.w, self.h),
                 off,
@@ -406,11 +422,11 @@ impl Renderer {
         if cam.texel >= shadow::SHADOW_MAX_TEXEL || sun[1] <= shadow::SHADOW_MIN_SUN_UP {
             return None;
         }
-        let light = shadow::light_for(&cam.foot, sun);
+        let light = shadow::light_for(&cam.foot, &cam.foot_block, sun, cam.origin_m());
         let gl = &self.gl;
         let d = geo::delta(cam.origin, self.ground.origin);
         unsafe {
-            self.shadow.begin(gl);
+            self.shadow.begin(gl, &light);
             gl.disable(glow::CULL_FACE);
             let g = &self.ground.shadow_prog;
             g.bind(gl);
@@ -457,15 +473,23 @@ impl Renderer {
                     g.f(gl, "uShadowOn", &[1.0]);
                     g.f(gl, "uLightVP", &l.vp.0);
                     g.f(gl, "uShadowBias", &l.bias());
+                    g.f(gl, "uShadowWin", &l.window());
                 }
                 None => g.f(gl, "uShadowOn", &[0.0]),
             }
+            // the patterns are fixed to the world: the origin's place within 8,192 m blocks of it
+            let o = cam.origin_m();
+            g.f(
+                gl,
+                "uWorldOff",
+                &[(o[0] % WORLD_OFF_M) as f32, (o[2] % WORLD_OFF_M) as f32],
+            );
             g.f(gl, "uCamF", &cam.f);
             g.f(gl, "uDepthR", &[cam.near, 1.0 / (cam.far - cam.near)]);
             g.f(gl, "uHaze", &haze);
             g.f(gl, "uFire", &[0.0, 0.0, 0.0, 0.0]);
             g.f(gl, "uFire2", &[0.0, 0.0, 0.0, 0.0]);
-            g.f(gl, "uFbo", &[aw as f32, ah as f32]);
+            g.f(gl, "uView", &cam.view.map(|v| v as f32));
             g.f(gl, "uDbgA", &[0.0]);
             g.f(gl, "uDbgB", &[0.0]);
             let u = GroundUniforms {
@@ -473,8 +497,52 @@ impl Renderer {
                 area_off: [d.x, 0.0, d.y],
                 step: ground::step_for(cam.texel),
             };
-            self.ground.draw(gl, g, &u)
+            // the projection spans the view's block; the viewport puts the view on the art target
+            let [x, y, w, h] = cam.view;
+            gl.viewport(x, y, w, h);
+            let n = self.ground.draw(gl, g, &u);
+            gl.viewport(0, 0, aw as i32, ah as i32);
+            n
         }
+    }
+
+    /// The last frame for the crawl counter (B66's `capture`): the post target's colours and the scene's view depth,
+    /// with its ground camera; `None` when the last frame drew no ground.
+    #[allow(unsafe_code)]
+    pub fn capture(&self) -> Option<Capture> {
+        let cam = self.last_cam?;
+        let gl = &self.gl;
+        let (w, h) = (self.passes.post.w, self.passes.post.h);
+        let n = (w * h) as usize;
+        let (mut col, mut scene) = (vec![0u8; n * 4], vec![0u8; n * 4]);
+        unsafe {
+            for (t, buf) in [(&self.passes.post, &mut col), (&self.passes.scene, &mut scene)] {
+                t.bind(gl);
+                gl.read_pixels(
+                    0,
+                    0,
+                    w as i32,
+                    h as i32,
+                    glow::RGBA,
+                    glow::UNSIGNED_BYTE,
+                    glow::PixelPackData::Slice(Some(buf)),
+                );
+            }
+            gl.bind_framebuffer(glow::FRAMEBUFFER, None);
+        }
+        Some(Capture {
+            w,
+            h,
+            col: col
+                .chunks(4)
+                .map(|c| u32::from_le_bytes([c[0], c[1], c[2], c[3]]))
+                .collect(),
+            dep16: scene
+                .chunks(4)
+                .map(|c| u16::from(c[2]) << 8 | u16::from(c[3]))
+                .collect(),
+            cam,
+        })
     }
 
     /// The GL error flag (`glGetError`), 0 when none.

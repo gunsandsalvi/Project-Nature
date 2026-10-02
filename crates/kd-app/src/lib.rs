@@ -14,10 +14,11 @@ pub use kd_view::{InputEvent, InputKind, Insets};
 use camera::CameraCtl;
 use kd_data::Catalogue;
 use kd_render::camera::ArtSize;
+use kd_render::crawl::{self, PairCount};
 use kd_render::{Assets, DrawSettings, Frame, Renderer};
 use kd_ui::gestures::Gestures;
 use kd_ui::{Font, Ui};
-use kd_view::{CubeView, GroundGrid, Snapshot};
+use kd_view::{CameraPose, CubeView, GroundGrid, Snapshot};
 use std::sync::Arc;
 
 /// What the app needs from its shell (A2.2); `storage` arrives in α07a, `cores` in α02b.
@@ -98,6 +99,17 @@ impl FrameRing {
     }
 }
 
+/// A fixed golden scene (A11.12): the cube, or the valley from a fixed pose.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Golden {
+    Cube(CubeView),
+    Valley(CameraPose),
+}
+
+/// The art pixels of the phone's screen in portrait, where the crawl counter measures (A11.10).
+const PHONE_W: u32 = 1080;
+const PHONE_H: u32 = 2404;
+
 /// The app object (A2.2): owned by the GL thread on the phone, by the page on the web.
 pub struct App {
     platform: Arc<dyn Platform>,
@@ -108,7 +120,9 @@ pub struct App {
     ui: Ui,
     ring: FrameRing,
     last_frame_ns: Option<u64>,
-    golden: Option<CubeView>,
+    golden: Option<Golden>,
+    /// Frames drawn since the renderer took the ground (`ready`).
+    frames_since_ground: u32,
     ground: GroundGrid,
     ctl: CameraCtl,
     gestures: Gestures,
@@ -154,6 +168,7 @@ impl App {
             },
             last_frame_ns: None,
             golden: None,
+            frames_since_ground: 0,
             ground,
             ctl,
             gestures: Gestures::new(SCALE, 1),
@@ -178,6 +193,7 @@ impl App {
                 if let Err(e) = r.set_ground(&self.ground) {
                     self.fail.push(format!("ground: {e}"));
                 }
+                self.frames_since_ground = 0;
                 self.renderer = Some(r);
             }
             Err(e) => {
@@ -243,7 +259,8 @@ impl App {
     /// The turn shown, radians (the web test hook): the golden cube's, else the camera's.
     pub fn yaw(&self) -> f32 {
         match self.golden {
-            Some(c) => c.yaw,
+            Some(Golden::Cube(c)) => c.yaw,
+            Some(Golden::Valley(p)) => p.yaw,
             None => self.ctl.pose.yaw,
         }
     }
@@ -253,29 +270,119 @@ impl App {
         self.run_s
     }
 
-    /// Freezes time and the drag and shows a fixed golden scene (A11.12, A12.4): `cube`, at yaw 0.6 and pitch 0.5 on
-    /// dusk's row, with no strip. Returns whether the scene exists.
+    /// Freezes time and the camera and shows a fixed golden scene (A11.12, A12.4) on dusk's row, with no strip:
+    /// `cube`, at yaw 0.6 and pitch 0.5; `valley-camp` and `valley-close`, the start's view of the cliff at the camp
+    /// stop (zoom 0.30) and the close camp stop (0.14). Returns whether the scene exists.
     pub fn golden(&mut self, name: &str) -> bool {
-        match name {
-            "cube" => {
-                self.golden = Some(CubeView { yaw: 0.6, pitch: 0.5 });
-                true
-            }
-            _ => false,
-        }
+        let (x, y) = valley::START_AT;
+        let valley = |zoom| Golden::Valley(valley::pose_at(&self.ground, x, y, valley::START_YAW, zoom));
+        self.golden = match name {
+            "cube" => Some(Golden::Cube(CubeView { yaw: 0.6, pitch: 0.5 })),
+            "valley-camp" => Some(valley(0.30)),
+            "valley-close" => Some(valley(0.14)),
+            _ => return false,
+        };
+        true
     }
 
-    /// The camera as (x, y) metres from the ground's corner, its turn and its zoom (the web test hook).
-    pub fn camera(&self) -> [f32; 4] {
+    /// The camera (the web test hook): its target as (x, y) metres from the ground's corner and its height, its
+    /// turn, its zoom, metres per art pixel, and where the target lies within its art pixel along right and up.
+    pub fn camera(&self) -> [f32; 8] {
         let p = self.ctl.pose;
         let d = kd_core::geo::delta(self.ground.origin, p.target);
-        [d.x, d.y, p.yaw, p.zoom]
+        let c = kd_render::camera::compute(&p, self.art(), 0.0, 1.0);
+        [
+            d.x,
+            d.y,
+            p.target.z as f32 / 256.0,
+            p.yaw,
+            p.zoom,
+            c.texel,
+            c.frac[0],
+            c.frac[1],
+        ]
     }
 
-    /// Points the camera at (`x`, `y`) metres from the ground's corner with a turn and a zoom (the web test hook).
-    pub fn set_camera(&mut self, x: f32, y: f32, yaw: f32, zoom: f32) {
+    /// Points the camera at (`x`, `y`) metres from the ground's corner, at height `z` or else the ground's, with a
+    /// turn and a zoom (the web test hook).
+    pub fn set_camera(&mut self, x: f32, y: f32, z: Option<f32>, yaw: f32, zoom: f32) {
         let zoom = zoom.clamp(camera::ZOOM_MIN, camera::ZOOM_MAX);
-        self.ctl = CameraCtl::new(valley::pose_at(&self.ground, x, y, yaw, zoom));
+        let mut pose = valley::pose_at(&self.ground, x, y, yaw, zoom);
+        if let Some(z) = z {
+            pose.target.z = (z * 256.0).round() as i32;
+        }
+        self.ctl = CameraCtl::new(pose);
+    }
+
+    /// Whether the frame after the ground's upload has drawn (the test hook's `ready()`).
+    pub fn ready(&self) -> bool {
+        self.renderer.is_some() && self.frames_since_ground > 0
+    }
+
+    /// B66's crawl count (A11.10), the test hook's `crawl()`: on the phone's art target in portrait, from the start's
+    /// view at `zoom` (the camp stop, 0.30, unless given), the camera moves one 60 Hz step a frame for `frames`
+    /// frames, turning by `rate` radians, zooming by `rate`, or panning `rate` metres east and 0.58 of that north at
+    /// the start's height, as a drag does; each frame is drawn and captured, and each pair counted. Only the fix
+    /// `base` exists until the owner's review. `None` without a renderer.
+    pub fn crawl(&mut self, motion: &str, rate: f32, frames: u32, fix: &str, zoom: Option<f32>) -> Option<String> {
+        if fix != "base" {
+            return None;
+        }
+        let (w, h) = (self.w, self.h);
+        self.renderer.as_mut()?.resize(PHONE_W, PHONE_H, SCALE);
+        let (x, y) = valley::START_AT;
+        let start = valley::pose_at(&self.ground, x, y, valley::START_YAW, zoom.unwrap_or(0.30));
+        let (mut tot, mut changed_frames, mut worst) = (PairCount::default(), 0u32, (0u32, 0u64));
+        let mut prev: Option<crawl::Shown> = None;
+        for k in 0..=frames {
+            let t = k as f32;
+            let pose = match motion {
+                "turn" => CameraPose {
+                    yaw: start.yaw + rate * t,
+                    ..start
+                },
+                "zoom" => CameraPose {
+                    zoom: start.zoom + rate * t,
+                    ..start
+                },
+                _ => {
+                    let p = valley::pose_at(&self.ground, x + rate * t, y - 0.58 * rate * t, start.yaw, start.zoom);
+                    CameraPose {
+                        target: kd_core::geo::Pos {
+                            z: start.target.z,
+                            ..p.target
+                        },
+                        ..p
+                    }
+                }
+            };
+            let f = Frame {
+                real_s: 10.0 + f64::from(t) / 60.0,
+                palette_row: 0.0,
+                set: DrawSettings::default(),
+                camera: pose,
+            };
+            let r = self.renderer.as_mut()?;
+            r.draw(&f, &Snapshot::default(), &kd_view::UiDrawList::default());
+            let shown = crawl::compose(&r.capture()?);
+            if let Some(p) = &prev {
+                let n = crawl::pair(p, &shown);
+                tot.valid += n.valid;
+                tot.elig += n.elig;
+                tot.crawl += n.crawl;
+                tot.changed += n.changed;
+                changed_frames += u32::from(n.changed > 0);
+                if n.crawl > worst.1 {
+                    worst = (k, n.crawl);
+                }
+            }
+            prev = Some(shown);
+        }
+        self.renderer.as_mut()?.resize(w, h, SCALE);
+        Some(format!(
+            "{{\"frames\":{frames},\"valid\":{},\"elig\":{},\"crawl\":{},\"changed\":{},\"changedFrames\":{changed_frames},\"worstK\":{},\"worstCrawl\":{},\"art\":[{PHONE_W},{PHONE_H},{SCALE}]}}",
+            tot.valid, tot.elig, tot.crawl, tot.changed, worst.0, worst.1
+        ))
     }
 
     /// The palette row in use: dusk 0, dawn 1, day 2, night 3 (`PRE-30`).
@@ -325,16 +432,25 @@ impl App {
         } else {
             self.ui.build(now_ns as f64 / 1e9, build_line(), hz, gl_ms)
         };
-        let f = Frame {
+        let mut f = Frame {
             real_s: self.run_s,
             palette_row: self.palette_row() as f32,
             set: DrawSettings::default(),
             camera: self.ctl.pose,
         };
-        // the cube shows only as the golden scene `cube`; otherwise the ground
-        let snap = Snapshot { cube: self.golden };
+        // the cube shows only as the golden scene `cube`; otherwise the ground, from a golden pose when one is set
+        let snap = Snapshot {
+            cube: match self.golden {
+                Some(Golden::Cube(c)) => Some(c),
+                _ => None,
+            },
+        };
+        if let Some(Golden::Valley(p)) = self.golden {
+            f.camera = p;
+        }
         if let Some(r) = &mut self.renderer {
             r.draw(&f, &snap, &ui);
+            self.frames_since_ground = self.frames_since_ground.saturating_add(1);
         }
         let gl = self.platform.now_ns().saturating_sub(t0) as f32 / 1e6;
         if interval_ms > 0.0 {
@@ -416,7 +532,7 @@ mod tests {
         let mut app = App::new(p.clone(), AppConfig::default());
         app.resize(412, 860);
         // looking north: right on the screen is east
-        app.set_camera(128.0, 128.0, 0.0, 0.2);
+        app.set_camera(128.0, 128.0, None, 0.0, 0.2);
         let texel = kd_render::camera::texel(0.2, app.art());
         app.handle(touch(InputKind::Down, 300.0, 0));
         for i in 1..=10 {
@@ -475,6 +591,31 @@ mod tests {
         let Request::SelfCheck { json } = &out[0];
         assert!(json.contains("\"fail\":[\"shader: planted\"]") && json.contains("\"dev\":\"test\""));
         assert!(json.contains("\"cat\":\"1.0 "), "{json}");
+    }
+
+    // checks: PRE-22 PRE-03
+    #[test]
+    fn valley_goldens_freeze_the_camera() {
+        let mut app = App::new(Arc::new(TestPlatform::default()), AppConfig::default());
+        assert!(app.golden("valley-camp"));
+        assert_eq!(app.yaw(), valley::START_YAW);
+        assert_eq!(app.palette_row(), 0);
+        assert!(app.golden("valley-close"));
+        // a drag moves the live camera, not the frozen one
+        app.handle(touch(InputKind::Down, 300.0, 0));
+        app.handle(touch(InputKind::Move, 100.0, 16));
+        assert_eq!(app.yaw(), valley::START_YAW);
+        assert!(!app.ready(), "no renderer, so not ready");
+        assert_eq!(
+            app.crawl("turn", 0.002, 4, "base", None),
+            None,
+            "no renderer, so no count"
+        );
+        assert_eq!(
+            app.crawl("turn", 0.002, 4, "fade", None),
+            None,
+            "only base until the review"
+        );
     }
 
     // checks: PRE-22 PRE-30
