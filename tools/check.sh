@@ -14,7 +14,7 @@ step "1 lints";           cargo clippy --workspace --all-targets --locked -- -D 
 step "1 phone lints";     cargo clippy -p kd-android --target aarch64-linux-android --locked -- -D warnings
 step "1 web lints";       cargo clippy -p kd-web --target wasm32-unknown-unknown --locked -- -D warnings
 step "1 banned fixture";  echo "   from α00b"
-step "2 layers";          echo "   from α00b"
+step "2 layers";          cargo run -q --profile fast -p kd-tools --locked -- check layers
 step "3 tests";           cargo test --workspace --locked
 step "3 arm64 tests";     cargo test -p kd-core --target aarch64-unknown-linux-gnu --locked
 step "3 tool tests";      python3 -m unittest discover -s tools/tests -q
