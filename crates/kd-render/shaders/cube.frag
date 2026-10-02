@@ -7,7 +7,7 @@ out vec4 fragColor;
 void main() {
   vec3 n = normalize(vNrm);
   float sun = sunLight(n, 1.0);
-  float v = 0.1 + 0.5 * (sun + sky(n)) + 0.3 * dot(vWorld, uSunDir);
+  float v = 0.04 + 0.42 * (sun + sky(n)) + 0.25 * dot(vWorld, uSunDir);
   setBand(v);
   float b = bayer();
   float idx = rampPick(R_BIRCH, v, b);

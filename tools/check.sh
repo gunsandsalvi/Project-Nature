@@ -24,7 +24,7 @@ step "6 repeat";          echo "   α00: kd-core's stored draws and maths on x86
 step "7 file check";      python3 tools/filecheck.py file
 step "8 coverage";        python3 tools/filecheck.py ids --merge
 step "9 builds"
-if [ $DELIVER = 1 ] || changed web crates; then tools/build-web.sh && node tools/screens/smoke.mjs; fi
+if [ $DELIVER = 1 ] || changed web crates; then tools/build-web.sh && node tools/screens/smoke.mjs && node tools/screens/golden.mjs; fi
 if [ $DELIVER = 1 ] || changed android crates; then tools/build-apk.sh check; fi
 mkdir -p results/checks
 printf '{"commit":"%s","result":"PASS","minutes":%d,"deliver":%d}\n' "$COMMIT" $(( ($(date +%s) - T0) / 60 )) "$DELIVER" > "results/checks/$COMMIT.json"
