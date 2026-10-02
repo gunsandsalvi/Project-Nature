@@ -1,6 +1,6 @@
 // Pass 3, post (A11.2): outlines by category with their depth thresholds, ink for figures, the sun rim through the
 // rim_sun table toward uSunScr, the fire rim through rim_fire toward uFireScr (kept for alpha 14a), then the palette
-// row uPalRow. The mockup's postFS, in GLSL ES 3.00.
+// row uPalRow. The mockup's postFS, in GLSL ES 3.00, with categories named by kd_render::Cat's defines.
 out vec4 fragColor;
 uniform sampler2D uImg; uniform sampler2D uPal; uniform sampler2D uLuts;
 uniform vec2 uRes; uniform vec2 uSunScr; uniform vec3 uFireScr; uniform float uOutline; uniform float uPalRow;
@@ -16,9 +16,9 @@ void main() {
   float g = floor(c.g * 255.0 + 0.5);
   float cat = mod(g, 8.0), flags = floor(g / 8.0);
   float sunlit = mod(flags, 2.0), firelit = floor(flags / 2.0);
-  if (uOutline > 0.5 && cat > 1.5 && cat != 3.0 && cat != 7.0) {
+  if (uOutline > 0.5 && cat > C_GROUND && cat != C_WATER && cat != C_EFFECT) {
     float d = dep(c) * uDepthM;
-    float thr = cat == 5.0 ? max(0.22, uTexel * 2.0) : cat == 4.0 ? max(2.4, uTexel * 4.0) : cat == 2.0 ? max(1.2, uTexel * 3.5) : max(0.3, uTexel * 2.0);
+    float thr = cat == C_FIGURE ? max(0.22, uTexel * 2.0) : cat == C_PLANT ? max(2.4, uTexel * 4.0) : cat == C_ROCK ? max(1.2, uTexel * 3.5) : max(0.3, uTexel * 2.0);
     vec4 nr = px(p + vec2(1.0, 0.0)), nl = px(p - vec2(1.0, 0.0)), nu = px(p + vec2(0.0, 1.0)), nd = px(p - vec2(0.0, 1.0));
     float fr = dep(nr) * uDepthM - d > thr ? 1.0 : 0.0;
     float fl = dep(nl) * uDepthM - d > thr ? 1.0 : 0.0;
@@ -31,8 +31,8 @@ void main() {
       vec2 fdir = uFireScr.xy - p; float fdist = length(fdir); fdir /= max(fdist, 0.001);
       float towardFire = max(max(fr * fdir.x, fl * -fdir.x), max(fu * fdir.y, fd * -fdir.y));
       if (firelit > 0.5 && towardFire > 0.35 && fdist < uFireScr.z) idx = lut(8.0, idx);
-      else if (sunlit > 0.5 && towardSun > 0.4 && cat != 6.0) idx = lut(7.0, idx);
-      else idx = cat == 5.0 ? I_INK : lut(6.0, idx);
+      else if (sunlit > 0.5 && towardSun > 0.4 && cat != C_THING) idx = lut(7.0, idx);
+      else idx = cat == C_FIGURE ? I_INK : lut(6.0, idx);
     }
   }
   fragColor = texture(uPal, vec2((idx + 0.5) / 256.0, (uPalRow + 0.5) / 4.0));

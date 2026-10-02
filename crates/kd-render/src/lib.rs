@@ -53,6 +53,54 @@ impl fmt::Display for RenderError {
     }
 }
 
+/// What an art pixel shows, for the post pass's outlines and rims (A11.2): the mockup's `packOut` categories, kept in
+/// the low three bits of the art target's green channel, where 0 is the cleared `void` (T01a.5). The shaders name
+/// them only through the `#define C_<NAME>` lines of [`Cat::defines`], so the numbers live here.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum Cat {
+    Ground = 1,
+    Rock = 2,
+    Water = 3,
+    Plant = 4,
+    Figure = 5,
+    Thing = 6,
+    Effect = 7,
+}
+
+impl Cat {
+    pub const ALL: [Cat; 7] = [
+        Cat::Ground,
+        Cat::Rock,
+        Cat::Water,
+        Cat::Plant,
+        Cat::Figure,
+        Cat::Thing,
+        Cat::Effect,
+    ];
+
+    /// The category's name in the shaders.
+    pub fn define_name(self) -> &'static str {
+        match self {
+            Cat::Ground => "C_GROUND",
+            Cat::Rock => "C_ROCK",
+            Cat::Water => "C_WATER",
+            Cat::Plant => "C_PLANT",
+            Cat::Figure => "C_FIGURE",
+            Cat::Thing => "C_THING",
+            Cat::Effect => "C_EFFECT",
+        }
+    }
+
+    /// The shader lines naming every category: `#define C_GROUND 1.0` to `#define C_EFFECT 7.0`.
+    pub fn defines() -> String {
+        Cat::ALL
+            .iter()
+            .map(|&c| format!("#define {} {}.0\n", c.define_name(), c as u8))
+            .collect()
+    }
+}
+
 /// Switches of how a frame is drawn (A11.1).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct DrawSettings {
@@ -112,7 +160,7 @@ impl Renderer {
     #[allow(unsafe_code)]
     pub fn new(gl: glow::Context, cat: &Catalogue, assets: &Assets) -> Result<Renderer, RenderError> {
         let tx = palette::PaletteTextures::build(cat);
-        let defines = palette::shader_defines(cat);
+        let defines = format!("{}{}", palette::shader_defines(cat), Cat::defines());
         unsafe {
             let pal = target::texture(
                 &gl,
@@ -292,5 +340,33 @@ impl Renderer {
     #[allow(unsafe_code)]
     pub fn gl_error(&self) -> u32 {
         unsafe { self.gl.get_error() }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Cat;
+
+    // checks: PRE-21
+    #[test]
+    fn categories_match_pack_out() {
+        // The mockup's packOut numbers, 1 to 7 (0 is void), each with its define.
+        let defs = Cat::defines();
+        for (k, &c) in Cat::ALL.iter().enumerate() {
+            assert_eq!(c as usize, k + 1, "{c:?}");
+            let line = format!("#define {} {}.0\n", c.define_name(), k + 1);
+            assert!(defs.contains(&line), "{defs}");
+        }
+        // The shaders pack and compare categories by name only, never by a bare number.
+        let cube = include_str!("../shaders/cube.frag");
+        assert!(cube.contains("packOut(idx, C_ROCK,"), "the cube packs as rock");
+        for (file, src) in [("cube.frag", cube), ("post.frag", include_str!("../shaders/post.frag"))] {
+            for op in ["cat == ", "cat != ", "cat > ", "cat < "] {
+                for (i, _) in src.match_indices(op) {
+                    let next = src[i + op.len()..].chars().next();
+                    assert_eq!(next, Some('C'), "{file}: a bare category number after `{op}`");
+                }
+            }
+        }
     }
 }
