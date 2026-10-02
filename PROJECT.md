@@ -1368,66 +1368,63 @@ Cut from the launch design (see also `SCP-21`): microbes as a simulated system, 
 
 The core of the game: what things are, and how people change them.
 Every thing has the same 18 characteristics, and every way of making or changing things is a blueprint: hidden, generic and found only in play (`SCP-04`, `PRN-07`).
-Nothing underneath simulates chemistry or cracks (`SCP-21`): values are plausible and set by hand (`MAT-05`), and short reality rules keep results believable (7.6).
+Nothing simulates chemistry or cracks underneath (`SCP-21`): values are plausible and set by hand (`MAT-05`), and short reality rules keep results believable (7.6).
 How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-11`, `MND-13`).
 
 ### 7.1 Things
 
 - `MAT-01` **Things are made of materials** *(Decided)*: Every thing is made of one or more materials, such as flint, birch wood, deer hide or clay; a spear is hazel, flint and sinew.
-  - **How it works:** a material has a colour, base values for the 18 characteristics (`MAT-03`), and one of nine classes: stone, earth (clay, sand, ochre, salt), wood, plant (bark, grass, reeds, fibre, fruit, seeds, roots), bone (with antler, horn, shell and teeth), hide (with fur and sinew), flesh (with fat), metal or water.
+  - **How it works:** a material has a colour, base values for the 18 characteristics (`MAT-03`), and one of nine classes: stone, earth (clay, sand, ochre, salt), wood, plant, bone (with antler, horn and teeth), hide (with fur and sinew), flesh (with fat), metal or water.
     The class sets a thing's sounds (`SND-06`), whether it rots (`MAT-19`) and how long it lasts in the ground (`MAT-08`).
-    Each part of a made thing keeps its own material, so it is drawn in it (`PRE-42`), and a broken spear leaves a shaft and a point.
+    Each part of a made thing keeps its material and is drawn in it (`PRE-42`); a broken spear leaves a shaft and a point.
 
 - `MAT-10` **Items** *(Decided)*: An item is a kind of thing in the catalogue, such as flint, sharp flake or sewn cloak: about 200 at launch.
   - **How it works:**
-    - **About 90 are raw:** stones and earths, woods, barks, fibres, plant foods, herbs, animal parts, water, ash and charcoal; species that yield alike share items, so most deer give the same hide (`WLD-31`, `WLD-32`).
-    - **About 110 are made:** tools, weapons, containers, clothing, shelters, foods, medicines, art, instruments and copper things (`MAT-23`).
-    - **Each item** lists its materials, form, 18 characteristics, usual size, what each timer makes of it (`MAT-19`), what it breaks into, and its model, icon and sound (`MAT-21`).
-    - **A thing** is one item in the world, lying in an area (`WLD-12`), with its own size, wear and quality (`MAT-20`), timers under way, maker, date and style (`PRE-43`); a heap of small things, such as nuts in a basket, is one thing with an amount.
+    - **About 90 raw:** stones, earths, woods, barks, fibres, plant foods, herbs, animal parts, water, ash and charcoal; species that yield alike share items, so most deer give the same hide (`WLD-31`, `WLD-32`).
+    - **About 110 made:** tools, weapons, containers, clothing, shelters, foods, medicines, art, instruments and copper things (`MAT-23`).
+    - **Each item** lists its materials, form, characteristics, usual size, what each timer makes of it (`MAT-19`), what it breaks into, and its model, icon and sound (`MAT-21`).
+    - **A thing** is one item in the world, lying in an area (`WLD-12`), with its own size, wear, quality (`MAT-20`), timers, maker, date and style (`PRE-43`); a heap of small things, such as nuts in a basket, is one thing with an amount.
 
 - `MAT-02` **Shape and size matter** *(Decided)*: A thing's form and size count as much as its material.
   - **How it works:**
     - **Form:** lump, flake, blade, point, rod, pole, sheet, strand, powder, paste, liquid, container or structure; it sets some characteristics, so a flake has an edge and a nodule hasn't (`MAT-03`).
-    - **Size** is in real units: length, or amount for loose things, with weight in kilograms from the size and the weight characteristic.
-    - **Blueprints ask for sizes** (`MAT-04`), such as a core fist-sized or bigger or a hut pole 2–4 m long, and size sets amounts: a bigger log burns longer, a bigger pot holds more, more poles make a bigger hut (`PRE-42`).
+    - **Size** is in real units, length or amount, with weight in kilograms from the size and the weight characteristic.
+    - **Blueprints ask for sizes** (`MAT-04`), such as a fist-sized core or a hut pole 2–4 m long, and size sets amounts: a bigger log burns longer, a bigger pot holds more, more poles make a bigger hut.
 
 - `MAT-03` **Characteristics** *(Decided)*: Every item has the same 18 characteristics, each from 0 (none) to 5 (as much as any launch material has).
   They come from its material and its form: a flint nodule and a flint flake share flaking 5 but differ in edge.
   - **The 18,** with typical values:
-    1. **hardness:** resists scratches and blows, and serves as a hammer or grinder: flint 5, granite 4, bone 3, oak 2, hide 1, meat 0.
-    2. **edge:** how well it cuts or pierces now: flint flake 5, bone splinter 3, sharpened stick 2, flint nodule 1, river cobble 0.
-    3. **toughness:** takes blows and loads without breaking: quartzite cobble 5, oak and hide 4, bone 3, flint 2, obsidian 1, sun-dried clay 0.
-    4. **flaking:** breaks into sharp, predictable flakes when struck: obsidian and flint 5, chert 4, quartzite 2, bone 1, granite 0.
-    5. **flexibility:** bends and springs back without breaking: green hazel rod 5, sinew and soft hide 4, dry stick 1, stone 0.
-    6. **weight:** how heavy it is for its size, against water: feathers 0, dry wood 1 (about half), water and flesh 2 (the same), bone and clay 3 (about twice), stone 4 (nearly three times), copper 5 (nine times).
-    7. **burn:** how readily it catches fire and passes it on: dry grass, tinder fungus and birch bark 5, dry twigs 4, dry logs 2, green wood 1, stone 0.
-    8. **fuel:** how much heat it gives, and for how long, for its size: charcoal 5, dry hardwood and fat 4, dry dung 3, bone 2, dry grass 1.
+    1. **hardness:** resists scratches and blows, and serves as a hammer: flint 5, granite 4, bone 3, oak 2, hide 1.
+    2. **edge:** how well it cuts or pierces now: flint flake 5, bone splinter 3, sharpened stick 2, flint nodule 1.
+    3. **toughness:** takes blows and loads without breaking: quartzite cobble 5, oak and hide 4, bone 3, flint 2, obsidian 1.
+    4. **flaking:** breaks into sharp, predictable flakes when struck: obsidian and flint 5, chert 4, quartzite 2, granite 0.
+    5. **flexibility:** bends and springs back: green hazel rod 5, sinew and soft hide 4, dry stick 1, stone 0.
+    6. **weight:** how heavy for its size, against water: feathers 0, dry wood 1 (half), water and flesh 2 (the same), bone and clay 3 (twice), stone 4 (nearly three times), copper 5 (nine times).
+    7. **burn:** how readily it catches fire: dry grass, tinder fungus and birch bark 5, dry twigs 4, dry logs 2, green wood 1.
+    8. **fuel:** how much heat it gives, and for how long: charcoal 5, dry hardwood and fat 4, dry dung 3, bone 2, dry grass 1.
     9. **food:** how much it nourishes: fat 5, hazelnuts and cooked meat 4, raw meat 3, berries and raw roots 2, grass 0.
     10. **water:** how much water it holds or gives: water 5, berries 4, fresh meat and wet clay 3, green wood 2, dried meat 0.
-    11. **poison:** how much harm it does when eaten: deadly nightshade berries 5, rotten meat 3, raw acorns 2, most foods 0.
-    12. **medicine:** how much it helps healing, eaten or put on a wound: willow bark and yarrow 3, moss 2, most things 0.
-    13. **warmth:** how well it keeps warmth in, worn, slept on or as a wall: fur 5, hide 3, woven grass 2, bark 1, stone 0.
-    14. **fibre:** how much long, strong fibre it gives for cord and sewing: sinew 5, nettle and lime bast 4, grass 2, wood 1.
+    11. **poison:** how much harm it does eaten: deadly nightshade berries 5, rotten meat 3, raw acorns 2, most foods 0.
+    12. **medicine:** how much it helps healing, eaten or put on a wound: willow bark and yarrow 3, moss 2.
+    13. **warmth:** how well it keeps warmth in, worn, slept on or as a wall: fur 5, hide 3, woven grass 2, bark 1.
+    14. **fibre:** how much long, strong fibre it gives for cord and sewing: sinew 5, nettle and lime bast 4, grass 2.
     15. **stickiness:** how well it glues: birch tar 5, pine resin and hide glue 4, wet clay 2, fat 1.
-    16. **plasticity:** how well it takes and keeps a shape pressed or hammered into it: wet clay 5, copper 3, fat 2, dried clay and stone 0.
-    17. **waterproof:** how well it keeps water in or out: stone 5, birch bark 4, fired pot and rawhide 3, woven basket 1, grass 0.
-    18. **pigment:** how strongly it colours what it is rubbed on: red ochre 5, charcoal and yellow ochre 4, chalk and green copper ore 3, clay 1.
+    16. **plasticity:** how well it takes and keeps a shape pressed or hammered into it: wet clay 5, copper 3, fat 2, dried clay 0.
+    17. **waterproof:** how well it keeps water in or out: stone 5, birch bark 4, fired pot and rawhide 3, basket 1.
+    18. **pigment:** how strongly it colours what it is rubbed on: red ochre 5, charcoal and yellow ochre 4, chalk and green copper ore 3.
   - **Seen or learned:** hardness, edge, flexibility, weight, water, fibre, stickiness, plasticity and pigment are known on sight or in the hand; toughness, flaking, burn, fuel, food, poison, medicine, warmth and waterproof only by use or by being told (`MND-04`).
-    Size and colour are always seen.
-  - **Example:** A flint nodule has hardness 5, edge 1, toughness 2, flaking 5, weight 4, waterproof 5 and 0 for the rest; a flake struck from it is the same but for edge 5 and toughness 1.
+  - **Example:** A flint nodule has hardness 5, edge 1, toughness 2, flaking 5, weight 4, waterproof 5 and 0 for the rest; a flake struck from it differs only in edge 5 and toughness 1.
 
 - `MAT-20` **Wear and quality** *(Decided)*: Things wear with use and break; quality, how well a thing is made, comes from its maker's skill and its inputs.
   - **How it works:**
     - **Wear** runs from 0 (new) to 5 (broken).
       Each use adds the wear its blueprint sets, less for tougher things: a flake dulls after butchering about one deer, a scraper after about one hide, a cloak after about two game years, and a hammerstone lasts for years.
       Things left out wear too: hides and baskets in a season or two, wood in a few years, stone hardly at all.
-      An edge falls a step for each step of wear, and a broken thing becomes what its item breaks into, such as sherds, or a shaft and a point.
-      Blueprints can mend: retouch an edge, rebind a haft, patch a roof.
+      An edge falls a step for each step of wear; a broken thing becomes what its item breaks into, such as sherds; and blueprints can mend, such as retouching an edge or rebinding a haft.
     - **Quality,** 0 to 5, is set when a thing is made: half the maker's level for the try (`MAT-04`), rounded down; a step up for fine inputs (quality 4–5 on average) or down for poor ones (0–1); a step up or down by chance; and a step up if the maker is inspired (`MND-29`).
-      Raw things take a quality from their source, so some flint is better than other flint (`WLD-14`).
-    - **What quality does:** at 0–1 the thing's main characteristic (edge for a blade, warmth for a cloak) is a step lower and it wears twice as fast; at 4–5 it is a step higher and wears half as fast, raises its maker's respect (`MND-24`) and is prized in gifts and trade (`CUL-21`).
-      It shows on the thing (`PRE-42`).
-  - **Example:** A master knapper's blades cut better and last twice as long as a beginner's, so a band that loses its master feels it in every hunt (`MOM-02`).
+      Raw things take their quality from their source: some flint is better than other flint (`WLD-14`).
+    - **What quality does:** at 0–1 a thing's main characteristic (edge for a blade, warmth for a cloak) is a step lower and it wears twice as fast; at 4–5 it is a step higher, wears half as fast, raises its maker's respect (`MND-24`) and is prized in gifts and trade (`CUL-21`).
+      It shows on the thing (`PRE-42`), so a band that loses its best knapper sees its blades grow cruder (`MOM-02`).
 
 - `MAT-09` **Nothing from nothing** *(Decided)*: Every result uses up its inputs, and nothing appears from nowhere.
   - **How it works:** a blueprint uses up what it works: a core shrinks with each flake, a hide becomes a cloak, fuel becomes ash.
@@ -1442,8 +1439,8 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
   Each has its animation (`PRE-44`) and its sounds by material (`SND-06`).
   - **The 21:**
     1. **gather:** pick up loose things or pluck a plant's yields, or fill a container with water.
-    2. **dig:** move earth with hands, a stick or a tool: roots, clay, flint, pits, graves, postholes, fields.
-    3. **strike:** hit one thing with another: knap stone, crack nuts and bones, split wood, fell a tree, hammer copper.
+    2. **dig:** move earth with hands, a stick or a tool, for roots, clay, flint, pits, graves or fields.
+    3. **strike:** hit one thing with another: knap stone, crack nuts and bones, split wood, hammer copper.
     4. **press:** push or squeeze hard: flake an edge with a bone tip, squeeze out juice, work fat into a hide.
     5. **cut:** draw an edge through something: meat, hide, sinew, reeds, wood, notches in a tally.
     6. **scrape:** draw an edge across a surface to take a layer off: flesh from a hide, bark from a shaft.
@@ -1452,33 +1449,32 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
     9. **bind:** tie or sew things together: a point to a shaft, poles into a frame, hides into a cloak.
     10. **weave:** interlace bendable strands into baskets, mats, nets, fences and fish traps.
     11. **shape:** form something soft or bendable by hand: clay into a pot, green rods into a frame.
-    12. **drill:** turn a pointed stick or tool back and forth against something: fire by friction, holes in beads, needles and hides.
+    12. **drill:** turn a pointed stick back and forth against something: fire by friction, holes in beads and hides.
     13. **heat:** put things in, on or by a fire, or build a fire in a pit, kiln or furnace (`MAT-18`).
     14. **soak:** put things in still or running water (`MAT-19`).
     15. **dry:** lay or hang things in sun and wind or by a fire (`MAT-19`).
-    16. **mix:** combine soft or loose things: pigment with fat into paint, clay with sand, resin with ash into glue.
+    16. **mix:** combine soft or loose things: pigment with fat into paint, clay with sand, resin with ash.
     17. **stack:** pile or set things into a heap or a structure: firewood, a hearth ring, a hut frame, a kiln.
     18. **plant:** put seeds, roots or cuttings into the ground on purpose (`RCK-23`).
-    19. **throw:** send something through the air: stones, spears, darts or arrows at prey, rubbish onto the heap.
+    19. **throw:** send something through the air: stones, spears or arrows at prey, rubbish onto the heap.
     20. **feed:** give food to an animal or a person, or fuel to a fire.
     21. **apply:** put one thing onto another: paint on rock, a poultice on a wound, clay on a basket, earth on a fire.
-  - **Plain uses:** gather, dig, throw, feed, stack, heat, soak, dry and apply also work without a blueprint, to take, move, wet, warm or dry things, which can set their timers going (`MAT-19`).
-    Anything that makes a new kind of thing is a blueprint (`MAT-04`).
+  - **Plain uses:** gather, dig, throw, feed, stack, heat, soak, dry and apply also work without a blueprint, to take, move, wet, warm or dry things, which can set timers going (`MAT-19`); anything that makes a new kind of thing needs a blueprint (`MAT-04`).
   - **Everyday activities,** such as walking, eating, sleeping, talking, fighting and dancing, are not base actions, and no blueprint matches them (`BIO-21`).
 
-- `MAT-12` **What a body can do** *(Decided)*: A body does base actions within its strength, hands and health; who can do what follows from their body, never from rules for each blueprint.
+- `MAT-12` **What a body can do** *(Decided)*: A body does base actions within its strength, hands and health, never by rules for each blueprint.
   - **How it works:**
-    - **Hands:** most base actions need two hands, and gather, cut, throw, feed and apply need one; a broken arm stops two-handed work, and a hurt hand lowers every chance of success (`BIO-13`).
-    - **Strength:** heavy work, such as felling, digging pits, lifting stones and carrying loads, goes slower for the weak, children and the old, and some of it is beyond them (`BIO-16`).
-    - **Children** help from about age 5 with light work, such as gathering, carrying small loads, twisting cord and tending fires, and copy adults' work in play (`CUL-01`).
+    - **Hands:** gather, cut, throw, feed and apply need one hand, the rest two; a broken arm stops two-handed work, and a hurt hand lowers every chance of success (`BIO-13`).
+    - **Strength:** heavy work, such as felling, digging pits and carrying loads, goes slower for the weak, children and the old, and some is beyond them (`BIO-16`).
+    - **Children** help from about age 5 with light work, such as gathering, twisting cord and tending fires, and copy adults' work in play (`CUL-01`).
     - **State:** tiredness, cold, pain, sickness and darkness slow work and lower its chance of success (`MAT-04`).
 
 - `MAT-11` **Simple physics** *(Decided)*: Things are carried, fall, float, burn and topple by a few simple rules from their characteristics and size, with no fracture physics and no exact paths (`SCP-21`).
   - **How it works:**
-    - **Carrying:** an adult carries about a quarter of their own weight all day, and more over short distances, more slowly (`BIO-09`); loose small things need a container, and liquids one with waterproof 3 or more.
-    - **Falling:** a thing dropped or knocked down breaks if it is not tough enough for the fall: a pot (toughness 1) dropped from waist height usually breaks, a stone never; people who fall are hurt (`BIO-13`).
-    - **Floating:** things of weight 0–1 float, 2 float low, and 3–5 sink (`RCK-21`); floating things drift with the current (`WLD-17`).
-    - **Throwing:** reach and harm come from the thrower's strength and the thing's weight and edge: a thrown stone stuns at about 10 m, a thrown spear wounds at about 15 m, a dart from a spear-thrower at about 30 m and an arrow at about 40 m (tuned).
+    - **Carrying:** an adult carries about a quarter of their own weight all day, more for short distances (`BIO-09`); small loose things need a container, and liquids one with waterproof 3 or more.
+    - **Falling:** a dropped thing breaks if it is not tough enough for the fall: a pot (toughness 1) dropped from waist height usually breaks, a stone never; people who fall are hurt (`BIO-13`).
+    - **Floating:** weight 0–1 floats, 2 floats low and 3–5 sinks (`RCK-21`), and floating things drift with the current (`WLD-17`).
+    - **Throwing:** reach and harm come from the thrower's strength and the thing's weight and edge: a stone stuns at about 10 m, a thrown spear wounds at about 15 m, a dart from a spear-thrower at about 30 m and an arrow at about 40 m (tuned).
     - **Toppling:** stacks and buildings stand until strong wind, heavy snow or a quake knocks them down, poorly made ones first (`MAT-20`, `WLD-15`, `WLD-22`).
     - **Burning** follows the fire rules (`MAT-18`).
 
@@ -1487,42 +1483,40 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
 - `MAT-18` **Fire** *(Decided)*: A fire is fuel burning at a heat level from 0 to 5: 0 out, 1 embers, 2 small fire, 3 campfire (about 700 °C), 4 pit or kiln (about 900 °C), 5 furnace with forced air (over 1,100 °C, enough to melt copper).
   It burns fuel by the fuel's value, spreads to things by their burn value, and is fed or smothered.
   - **How it works:**
-    - **Highest level:** an open fire reaches 3; a walled and covered pit or kiln reaches 4 with fuel 3 or more; only an enclosed fire of fuel 5 (charcoal), with air blown in through tubes or hide bellows the whole time, reaches 5.
+    - **Highest level:** an open fire reaches 3; a walled, covered pit or kiln reaches 4 with fuel 3 or more; only an enclosed fire of fuel 5 (charcoal), with air blown in through tubes or hide bellows all the time, reaches 5.
     - **Lighting:** an ember or a flame in tinder (burn 4–5) makes a small fire within a minute, and kindling, then wood, a campfire within about 10 minutes.
-      Blowing raises embers or a small fire a level while someone blows (`RCK-22`); things with water 3 or more don't catch, and lower a fire they are put on.
-    - **Fuel:** a campfire burns about an armful of dry wood (5 kg) an hour, a hotter fire faster and better fuel slower.
+      Blowing raises embers or a small fire a level while someone blows (`RCK-22`); things with water 3 or more don't catch, and damp a fire they are put on.
+    - **Fuel:** a campfire burns about 5 kg of dry wood an hour, a hotter fire more and better fuel less.
       Unfed, it falls to embers within about an hour, and embers die within a few hours unless banked under ash, which keeps them overnight.
-    - **Spreading:** a fire of level 2 or more lights things within about a metre, sooner the higher their burn: dry grass within minutes, green wood almost never; wind carries sparks a few metres, and a hearth ring stops it creeping along the ground.
-      Across the land it spreads by `WLD-28`.
-    - **Putting out:** earth, sand or water puts it out, leaving its half-burnt wood as charcoal; rain lowers an open fire a level an hour, and heavy rain puts it out unless it is roofed.
-    - **Effects:** it warms and lights (`BIO-11`), keeps animals off (`WLD-32`), cooks, dries, smokes and fires what is in or by it (`MAT-19`), burns what is put in it to ash, and burns people (`BIO-13`); green wood makes thick smoke.
-    - **Carrying fire:** embers in a bundle of tinder fungus or rotten wood last about a day on the move (known at the start, `BIO-20`), and a torch burns about an hour.
+    - **Spreading:** a fire of level 2 or more lights things within about a metre, sooner the higher their burn: dry grass within minutes, green wood almost never; wind carries sparks a few metres, and a hearth ring stops it creeping; across the land it spreads by `WLD-28`.
+    - **Putting out:** earth, sand or water puts it out, leaving half-burnt wood as charcoal; rain lowers an open fire a level an hour, and heavy rain puts it out unless it is roofed.
+    - **Effects:** it warms and lights (`BIO-11`), keeps animals off (`WLD-32`), cooks, dries, smokes and fires what is in or by it (`MAT-19`), and burns people (`BIO-13`); green wood makes thick smoke.
+    - **Carrying fire:** embers in a bundle of tinder fungus or rotten wood last about a day on the move (known at the start, `BIO-20`), and a torch about an hour.
   - **Done when:** in scenes, a fed fire lasts for days, an unfed one dies within hours, a banked one lives through the night, and dry grass by a campfire catches while green wood does not.
 
 - `MAT-19` **Timers** *(Decided)*: Slow changes run on things by themselves while their conditions hold, meant or not: rotting, drying, cooking, smoking, soaking, fermenting, setting and firing.
   - **How it works:**
-    - **A timer** has a usual time, sped up, slowed or stopped by conditions (wet, heat, smoke, sealed, cold, frozen).
-      When it runs out, the thing's values change or it becomes the kind its item lists for that timer: raw meat becomes cooked, dried, smoked or rotten meat.
-    - **Rotting** (flesh, fresh hide, fruit, leaves): food falls and poison rises; fresh meat rots in about 3 days in summer, about 2 weeks near freezing and never frozen, and dried, smoked, salted or tanned things many times slower (`RCK-09`, `RCK-14`).
-    - **Drying** (wet things in sun and wind or by a fire): meat strips in about 2–3 days, a stretched hide or a shaped pot in about 2, green poles in a season; rain and damp shade stop it.
+    - **A timer** has a usual time, sped up, slowed or stopped by conditions (wet, heat, smoke, sealed, cold, frozen); when it ends, the thing's values change or it becomes the kind its item lists for that timer: raw meat becomes cooked, dried, smoked or rotten meat.
+    - **Rotting** (flesh, fresh hide, fruit, leaves): food falls and poison rises; fresh meat rots in about 3 days in summer, about 2 weeks near freezing and never frozen; dried, smoked, salted or tanned things rot many times slower (`RCK-09`, `RCK-14`), and dead wood on damp ground over a few years.
+    - **Drying** (wet things in sun and wind or by a fire): meat strips in 2–3 days, a stretched hide or a shaped pot in about 2, green poles in a season; rain and damp shade stop it.
     - **Cooking** (food at heat 2–3, or in boiling water): about an hour; food rises a step and some poisons fall (`RCK-03`); left twice as long, or at heat 4 or more, it burns to food 0.
-    - **Smoking** (in thick smoke at heat 1–2): about 2 days; meat and fish then keep for a season, and hides stay soft after wetting.
-    - **Soaking** (in water): crushed acorns lose their bitterness in about 2 days in running water and 6 in still (`RCK-13`); a hide with crushed bitter bark becomes leather in about 10 days (`RCK-06`); plant stems loosen their fibres in a week.
+    - **Smoking** (in thick smoke at heat 1–2): about 2 days; meat and fish then keep a season, and hides stay soft after wetting.
+    - **Soaking:** crushed acorns lose their bitterness in about 2 days in running water and 6 in still (`RCK-13`), and a hide with crushed bitter bark becomes leather in about 10 days (`RCK-06`).
     - **Fermenting** (sweet fruit or grain mash with water, closed and warm): about 3 days, giving a mild drink that lifts the mood (`MND-29`); cold slows it and frost stops it (`RCK-07`).
-    - **Setting** (glues): tar and resin set as they cool, hide glue in about a day; a joint is weak until set.
-    - **Firing** (at a set heat): clay at 3 or more for about 4 hours becomes fired clay (`RCK-04`); yellow ochre at 2 for an hour turns red (`RCK-15`); flaking stone buried under a fire at 2 for half a day flakes better (`RCK-10`); limestone at 4 for half a day becomes quicklime (`RCK-05`); wood covered from the air at 3 for a day becomes charcoal; birch bark covered from the air at 2–3 for an hour gives tar (`RCK-12`); green copper ore among charcoal at 5 for an hour gives copper (`RCK-08`).
+    - **Setting:** tar and resin set as they cool, hide glue in about a day; a glued joint is weak until set.
+    - **Firing:** clay at heat 3 or more for about 4 hours becomes fired clay, a step tougher and tighter if fired at 4 or more (`RCK-04`); yellow ochre at 2 for an hour turns red (`RCK-15`); flaking stone buried under a fire at 2 for half a day flakes better (`RCK-10`); limestone at 4 for half a day becomes quicklime (`RCK-05`); wood covered from the air at 3 for a day becomes charcoal; birch bark covered from the air at 2–3 for an hour gives tar (`RCK-12`); green copper ore among charcoal at 5 for an hour gives copper (`RCK-08`).
       Wet clay, or stone heated too fast, cracks.
-    - **On purpose or by accident:** a blueprint can set a timer going, such as hanging meat to dry or firing pots; its result lands when the timer ends (`TIM-17`), and the blueprint's chance decides whether it comes out well (`MAT-04`).
-      Without a blueprint, it comes out as for someone with no skill, and meat cooked by falling into the fire, a clay hearth fired hard or a copper bead in a hot kiln can be noticed and teach (`MND-10`, `MOM-12`).
+    - **Meant or not:** a blueprint can set a timer going, such as hanging meat to dry or firing pots; its result lands when the timer ends (`TIM-17`), and the blueprint's chance decides whether it comes out well (`MAT-04`).
+      Without one, a timer comes out as for someone with no skill, and meat cooked by falling into the fire, a clay hearth fired hard or a copper bead in a hot kiln can be noticed (`MND-10`, `MOM-12`).
   - **Done when:** in scenes, each timer runs in its stated time under each condition, and each firing change happens at its heat and never below it.
 
 - `MAT-08` **Traces last** *(Decided)*: Paths, rubbish heaps, old camps, bones and graves stay in the world, are slowly buried and decay by their materials, for later people, and you, to find (`PRE-09`).
   - **How it works:**
-    - **Paths:** ground walked often becomes a trodden path that people follow; unused for a few years, it grows over.
-    - **Rubbish heaps:** a camp's food waste, bones, ash and broken things pile into a heap, rich ground where thrown seeds sprout (`RCK-23`, `MOM-08`) and scavengers such as wolves come (`MOM-06`).
+    - **Paths:** ground walked often becomes a trodden path that people follow, and grows over after a few unused years.
+    - **Rubbish heaps:** a camp's food waste, bones, ash and broken things make a heap of rich ground, where thrown seeds sprout (`RCK-23`, `MOM-08`) and wolves come to scavenge (`MOM-06`).
     - **Old camps:** hearths, hut remains, chips, tools, rubbish and graves (`CUL-19`) stay where they were left, with who left them and when; chips, bones and ash are kept as heaps, and tools, art, hearths and graves as single things.
-    - **Burial:** things sink under new ground at each place's pace: a cave floor a few centimetres a game century, a river flat with each flood (`WLD-17`), a slope not at all; digging turns them up (`MOM-09`).
-    - **What survives:** stone, fired clay and copper last; bone lasts in caves and lime-rich ground and rots in acid ground within a few centuries; wood, hide and fibre rot within a few years, except in waterlogged, frozen or very dry ground (`WLD-27`).
+    - **Burial:** a cave floor rises a few centimetres a game century, a river flat with each flood (`WLD-17`), a slope not at all; digging turns buried things up (`MOM-09`).
+    - **What survives:** stone, fired clay and copper last; bone lasts in caves and lime-rich ground but rots in acid ground within a few centuries; wood, hide and fibre rot within a few years, except in waterlogged, frozen or very dry ground (`WLD-27`).
     - **Found again:** whoever finds an old thing can copy it (`MND-11`), and you can see the buried layers (`PRE-25`).
 
 ### 7.4 Blueprints
@@ -1534,9 +1528,9 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
     1. **Named result:** the item made (`MAT-21`) and how much; its main characteristic, the one quality moves (`MAT-20`); which input each part is made of (`PRE-42`); and leftovers, such as chips or ash.
     2. **Actions:** one base action, or a sequence of up to four done as one activity (`MAT-06`).
     3. **Inputs:** each with its role (worked thing, tool, binding, fuel or container), ranges of characteristics, size and amount, and whether it is used up or kept; a kept tool takes the wear the blueprint sets (`MAT-20`).
-    4. **Place:** conditions, such as near a fire of at least some heat (`MAT-18`), in still or running water, dry or sheltered, in a pit, in smoke, or in the growing season.
+    4. **Place:** conditions, such as near a fire of at least some heat (`MAT-18`), in water, dry or sheltered, in a pit, in smoke, or in the growing season.
     5. **Sector and difficulty:** one of the 15 sectors (`MND-06`), and a difficulty from 1 to 10.
-    6. **Time:** how long the activity takes, shorter with better tools (a sharper edge, a harder hammer, tuned), and any timer it starts (`MAT-19`).
+    6. **Time:** how long the activity takes, shorter with better tools (tuned), and any timer it starts (`MAT-19`).
     7. **Chance:** from the difficulty and the maker's level (below).
     8. **Failures:** what failed tries give, and how often: lost time, spoiled inputs (shattered, burnt, cracked, torn), a poor result (quality 0) or a hurt (`BIO-13`); and which failures hint at the blueprint, such as smoke but no ember (`MND-11`).
   - **How it works:**
@@ -1544,9 +1538,9 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
       At a level equal to the difficulty, one try in two succeeds; each level above adds a tenth and each below takes a tenth, within 5% and 95%.
       Fine inputs (quality 4–5) add a tenth and poor ones (0–1) take a tenth; tiredness, pain, cold and darkness take more (`MAT-12`, tuned).
     - **Unknown blueprints:** when an action ends, any blueprint it fits that the person doesn't know has a small chance of working anyway: smallest by accident, bigger when experimenting, bigger again with a hunch (`MND-11`), all tuned for pace (`PRN-17`).
-    - **Results land** when the activity, or the timer it started, ends (`TIM-17`); an interrupted try keeps the work done and can be picked up later.
+    - **Results land** when the activity, or the timer it started, ends (`TIM-17`); an interrupted try keeps the work done.
   - **Example: sharp flake by striking,** the first blueprint in most worlds:
-    - **Named result:** one flake, 3–8 cm, of the core's stone, with its hardness and flaking, an edge equal to its flaking (5 from flint) and toughness 1; main characteristic edge; leftovers, a scatter of chips (`MAT-08`).
+    - **Named result:** one flake, 3–8 cm, of the core's stone, with its hardness and flaking, an edge equal to its flaking (5 from flint) and toughness 1; main characteristic edge; leftovers, chips (`MAT-08`).
     - **Action:** strike.
     - **Inputs:** a core, worked and partly used up: hardness 4–5, flaking 3–5, 8–30 cm; and a striker, kept: hardness 3–5, toughness 3–5, 6–12 cm.
       Either may be the one that moves, so a flint cobble that hits a stone anvil can lose a flake too.
@@ -1554,7 +1548,7 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
     - **Sector and difficulty:** stone, 2.
     - **Time:** about half a minute a try; a core gives up to about 10 flakes.
     - **Chance:** 30% at level 0, 50% at level 2, 90% at level 6.
-    - **Failures:** most failures knock off only crumbs, one in four shatters the core into chunks, and one in twenty cuts the holding hand.
+    - **Failures:** most knock off only crumbs, one in four shatters the core into chunks, and one in twenty cuts the holding hand.
     - **Discovery:** nobody knows it at the start (`BIO-20`), but cracking nuts or bones with a flint cobble fits it, so a flake can come off by accident (`MND-11`).
   - **Done when:** every launch blueprint has every field, and its scene shows it succeeding about as often, and taking about as long, as its fields say (`RES-23`).
 
@@ -1566,12 +1560,12 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
 - `MAT-22` **Chains** *(Decided)*: Results feed other blueprints, so most things take a chain of steps, each a blueprint discovered or learned on its own.
   A people can stall at any step, or get round it by another route (`MAT-07`).
   - **Example: from hide to clothing:**
-    1. **Sharp flake:** strike (stone, difficulty 2), as in `MAT-04`.
+    1. **Sharp flake:** strike; stone, difficulty 2 (`MAT-04`).
     2. **Scraper:** press small chips off a flake's edge with bone, antler or soft stone (hardness 2–4), leaving a steep, strong edge (edge 3, toughness 3); stone, difficulty 3, about 5 minutes.
     3. **Fresh hide:** cut the skin from a carcass with an edge of 2 or more; hunting, difficulty 2, about an hour for a deer.
-    4. **Scraped hide:** scrape the flesh and fat off a fresh hide (warmth 2–5, toughness 3–5, water 2–5) with an edge of 2–4 and toughness 3 or more; hides, difficulty 2, about 3 hours, within about 2 days of the kill, before it rots (`MAT-19`).
+    4. **Scraped hide:** scrape flesh and fat off a fresh hide (warmth 2–5, toughness 3–5, water 2–5) with an edge of 2–4 and toughness 3 or more; hides, difficulty 2, about 3 hours, within about 2 days of the kill, before it rots (`MAT-19`).
     5. **Dried hide:** stretch it on stakes or a frame in sun and wind (dry); hides, difficulty 1, about 2 days; stiff (flexibility 1), but it no longer rots.
-    6. **Soft hide:** work fat into it, then pull and rub it until supple (apply, press); hides, difficulty 3, about 3 hours; flexibility 4.
+    6. **Soft hide:** work fat into it, then pull and rub it supple (apply, press); hides, difficulty 3, about 3 hours; flexibility 4.
     7. **Awl and thread:** grind a bone splinter to a point on sandstone (grind; hides, difficulty 2, about an hour), and twist dried sinew into thread (twist; hides, difficulty 2).
     8. **Sewn cloak:** cut the soft hide to shape, pierce holes along its edges with the awl and sew them with the thread (cut, drill, bind); hides, difficulty 4, about a day; warmth 3, or 5 with the fur left on (`RCK-26`).
   - **Shorter routes:** a dried hide tied on with a thong is clothing after step 5, warm but stiff and quick to wear out; a cape of woven grass needs no hide, but keeps far less warmth.
@@ -1579,10 +1573,10 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
 - `MAT-21` **Named discoveries** *(Decided)*: Every named result has a name, a prepared model, an icon and a sound.
   A people's first success at making one is a named discovery, named in their language and written in the book of ages with who made it.
   - **How it works:**
-    - **Names:** each named result has an English name for you, such as sharp flake, and each people coins its own word for it when it first makes it, shown with its meaning (`CUL-18`).
-    - **Model, icon and sound:** one prepared model for each named result, whose parts take the materials used (`PRE-42`), an icon drawn from it, and a sound blueprint for its action and materials (`SND-06`).
+    - **Names:** an English name for you, such as sharp flake, and each people's own word, coined when it first makes it and shown with its meaning (`CUL-18`).
+    - **Model, icon and sound:** one prepared model per named result, whose parts take the materials used (`PRE-42`), an icon drawn from it, and a sound blueprint for its action and materials (`SND-06`).
     - **The entry:** who, when, where, by which route (accident, experiment, dream or copying, `MND-11`), from what, and the new word (`PRE-05`); a result a timer gives by accident counts too, such as copper from a kiln (`MOM-12`).
-    - **Size of entry:** the steps of the arc (`TIM-19`) and firsts in the whole world are major entries and live moments (`PRE-08`); a people's first of something others already make is short, a new route is one line, and a lost craft and its return are marked (`CUL-02`).
+    - **Size of entry:** the steps of the arc (`TIM-19`) and firsts in the whole world are major entries and live moments (`PRE-08`); a people's first of something others already make is short; a lost craft and its return are marked (`CUL-02`).
   - **Example:** "Year 3, summer, day 9: Ama of the Hazel band strikes the first sharp flake, which her people name kel-tam, stone that bites."
 
 - `MAT-23` **The launch blueprints** *(Decided)*: About 150 blueprints cover the arc from caves to first copper, across the 15 sectors (`MND-06`); a blueprint's sector follows its purpose.
@@ -1606,17 +1600,13 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
 
 ### 7.5 Values and catalogues
 
-- `MAT-05` **Plausible values** *(Decided)*: Every value in this section, such as a characteristic, a size, a time or a chance, is a plausible estimate, set by hand from the real thing and tuned so the game feels right (`PRN-05`).
-  - **How it works:** values keep the real order of things: flint is harder than bone, fur warmer than hide, a furnace hotter than a campfire.
-    The orders that decide what is possible are fixed by the reality rules (7.6), and tuned values are logged with what they were tuned against (`RES-16`).
-  - **Example:** A campfire is heat 3 and smelting needs 5, because a real campfire reaches about 700 °C and copper needs over 1,000 °C.
+- `MAT-05` **Plausible values** *(Decided)*: Every value here, such as a characteristic, a size, a time or a chance, is a plausible estimate, set by hand from the real thing and tuned so the game feels right (`PRN-05`).
+  - **How it works:** values keep the real order of things, such as flint harder than bone, fur warmer than hide and a furnace hotter than a campfire; the orders that decide what is possible are fixed by the reality rules (7.6), and tuned values are logged with what they were tuned against (`RES-16`).
   - **Check:** the catalogue checks hold every value to the orders the reality rules fix (`MAT-17`).
 
-- `MAT-13` **The catalogues** *(Decided)*: The game's content is game data in catalogues, written by AI agents and checked by automated tests: items (about 200, `MAT-10`), blueprints (about 150, `MAT-23`), plants (about 60, `WLD-31`), animals (about 30, `WLD-32`) and illnesses (about 15, `BIO-05`).
+- `MAT-13` **The catalogues** *(Decided)*: The game's content is data in catalogues, written by AI agents and checked by automated tests: items (about 200, `MAT-10`), blueprints (about 150, `MAT-23`), plants (about 60, `WLD-31`), animals (about 30, `WLD-32`) and illnesses (about 15, `BIO-05`).
   Other sections keep their prepared lists the same way, such as belief templates, art motifs and dance moves (`CUL-07`, `CUL-09`, `CUL-10`).
-  - **How it works:** each entry stands alone, in plain words a person can read, with all its values and the checks it supports (`MAT-17`).
-    Entries name other entries only as results, such as a blueprint's named result or an animal's yields, never as inputs (`PRN-07`).
-    Every rule in them is physical or biological, and none depends on what people believe (`SCP-19`).
+  - **How it works:** each entry stands alone, in plain words, with all its values and the checks it supports (`MAT-17`); entries name others only as results, such as a blueprint's named result or an animal's yields, never as inputs (`PRN-07`); and every rule in them is physical or biological, never depending on beliefs (`SCP-19`).
   - **Check:** the catalogue checks find no entry that names another as an input.
 
 - `MAT-14` **Adding without rewriting** *(Decided)*: Adding an item, blueprint, plant, animal or illness never needs the others changed (`PRN-14`).
@@ -1639,7 +1629,7 @@ How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-1
   - **How it works:**
     - **Complete:** every item has its 18 values, size, class, model, icon and sound, and every blueprint every field of `MAT-04`, with inputs as ranges, never named items (`PRN-07`).
     - **Reachable from the start:** following blueprints and timers from what the start region holds and what the bands know (`BIO-20`), every named result can be made by at least one route, using only things the world has (`WLD-14`), and no chain needs its own result first, such as a copper tool to make the first copper.
-    - **Possible:** every condition can be met: each heat a blueprint needs can be reached with a fuel and a setting the catalogue has (`MAT-18`), and every input size exists.
+    - **Possible:** each heat a blueprint needs can be reached with a fuel and a setting the catalogue has (`MAT-18`), and every input size exists.
     - **Reality rules:** each rule in 7.6 is checked over the catalogue, by matching every blueprint and timer against every item, and, where chance matters, in a sandbox scene run about 20 times (`RES-13`, `RES-23`).
     - **Matches nobody planned:** each change lists the new pairings of items and blueprints it makes possible, for the review to look at, so an axe of bark or a pot of sand is caught (`RSK-06`).
     - **Pace** is checked on whole worlds by the pace tests (`RES-07`).
@@ -1653,31 +1643,31 @@ They keep results believable (`RSK-06`) and fix the orders that decide what is p
 **Stone, fire and food**
 
 - `RCK-01` **Flint flakes, granite doesn't** *(Decided)*: Stones that flake, such as flint, chert and obsidian, give sharp flakes; coarse stones, such as granite, sandstone and limestone, never do.
-  - **Check:** every coarse stone has flaking 0–1, and only items with flaking 3 or more fit the blueprints that make flakes, blades and points; without stone that flakes, the sharp-stone test never makes a flake (`RES-03`).
+  - **Check:** every coarse stone has flaking 0–1, and only items with flaking 3 or more fit the flake, blade and point blueprints; without stone that flakes, the sharp-stone test never makes a flake (`RES-03`).
 
 - `RCK-02` **Fire by friction** *(Decided)*: Dry wood, drilled or ploughed hard enough, gives an ember; green or wet wood never does, and wet tinder never catches.
-  - **Check:** the fire-making blueprints accept only wood and tinder with water 0–1; in a scene, someone who knows fire by drilling gets an ember within about 5 minutes in most tries with dry wood, and never with green wood.
+  - **Check:** the fire-making blueprints accept only wood and tinder with water 0–1; in a scene, someone who knows fire by drilling makes an ember within about 5 minutes in most tries with dry wood, and never with green wood.
 
 - `RCK-22` **Air feeds fire** *(Decided)*: Blowing on embers makes them flare; smothering puts a fire out.
-  - **Check:** in a scene, blowing on embers makes a small fire within a minute in most tries, and earth heaped on a campfire puts it out (`MAT-18`).
+  - **Check:** in a scene, blowing on embers makes a small fire within a minute in most tries, and earth on a campfire puts it out (`MAT-18`).
 
 - `RCK-08` **Copper needs a furnace** *(Decided)*: Green copper ore gives copper only at heat 5, in an enclosed charcoal fire with forced air, never in a campfire or a kiln; native copper can be hammered cold.
-  - **Check:** every route to copper starts from green ore at heat 5 or from native copper, and heat 5 needs fuel 5 and forced air (`MAT-18`); in a scene, ore in a campfire or a kiln never gives copper, and in a furnace it does in most tries.
+  - **Check:** every route to copper starts from green ore at heat 5 or from native copper, and heat 5 needs fuel 5 and forced air (`MAT-18`); in a scene, ore never gives copper in a campfire or a kiln, and does in a furnace in most tries.
 
 - `RCK-03` **Cooking helps** *(Decided)*: Cooked meat, roots and grain nourish more than raw, and cooking lowers some poisons.
-  - **Check:** every cooked kind of meat, roots and grain has food a step above its raw kind, and no cooked kind has more poison than its raw kind.
+  - **Check:** every cooked meat, root and grain has food a step above its raw kind, and no cooked kind has more poison than its raw kind.
 
 - `RCK-09` **Rot** *(Decided)*: Meat, fish and fresh hides rot within days when warm, far slower when cold or dry, and not at all when frozen.
-  - **Check:** every flesh and fresh hide item rots, fresh meat in about 3 days in summer and about 2 weeks near freezing, and nothing rots frozen (`MAT-19`).
+  - **Check:** every flesh and fresh hide item rots at the times in `MAT-19`, and nothing rots frozen.
 
 - `RCK-14` **Keeping food** *(Decided)*: Drying, smoking and salting make meat and fish keep for a season or more, and dry grain and nuts keep for a year in a dry store.
-  - **Check:** dried, smoked and salted meat rots at least 10 times slower than fresh, and dry grain and nuts in a covered, dry store keep a full year (`MAT-19`).
+  - **Check:** dried, smoked and salted meat rots at least 10 times slower than fresh, and dry grain and nuts keep a year in a dry store (`MAT-19`).
 
 - `RCK-13` **Leaching** *(Decided)*: Soaking crushed acorns in running water draws out their bitterness.
-  - **Check:** crushed acorns go from poison 2 to 0 in about 2 days in running water and about 6 in still water, and whole acorns hardly change (`MAT-19`).
+  - **Check:** crushed acorns go from poison 2 to 0 at the times in `MAT-19`, and whole ones hardly change.
 
 - `RCK-07` **Fermenting** *(Decided)*: Crushed sweet fruit or grain mash, kept warm and closed, ferments in a few days; cold slows it, frost stops it, and dry things never ferment.
-  - **Check:** only things with food 2 or more and water 3 or more ferment, in about 3 days when warm, and never when frozen (`MAT-19`).
+  - **Check:** only things with food 2 or more and water 3 or more ferment, and never frozen (`MAT-19`).
 
 - `RCK-21` **Floating** *(Decided)*: Dry wood floats; stone sinks.
   - **Check:** every dry wood, bark, reed and charcoal item has weight 0–1, and every stone, earth and metal item 3 or more (`MAT-11`).
@@ -1685,7 +1675,7 @@ They keep results believable (`RSK-06`) and fix the orders that decide what is p
 **Crafts**
 
 - `RCK-10` **Heat-treated stone** *(Decided)*: Flaking stone buried under a fire and cooled slowly flakes better; put straight into the flames, it cracks.
-  - **Check:** the treated kind of every flaking stone has flaking a step higher, or quality a step higher if its flaking is already 5; in a scene, stone put into a campfire cracks in most tries.
+  - **Check:** every flaking stone's treated kind has flaking a step higher, or quality a step higher if its flaking is already 5; in a scene, stone put into a campfire cracks in most tries.
 
 - `RCK-11` **Cord** *(Decided)*: Fibres twisted into cord are far stronger than the loose fibres, and only fibrous things make cord.
   - **Check:** only items with fibre 3 or more fit the cord blueprints, and every cord is at least two steps tougher than its loose fibres.
@@ -1702,7 +1692,7 @@ They keep results believable (`RSK-06`) and fix the orders that decide what is p
 - `RCK-05` **Lime** *(Decided)*: Limestone burned at heat 4 or more becomes quicklime, which mixed with water sets into white plaster; below heat 4 nothing changes.
   - **Check:** quicklime comes only from limestone fired at heat 4 or more (`MAT-19`).
 
-- `RCK-06` **Leather** *(Decided)*: Scraped hides soaked for about 10 days with crushed bark that is bitter and stains, such as oak or willow, become leather that stays supple and doesn't rot; hides soaked in plain water rot.
+- `RCK-06` **Leather** *(Decided)*: Scraped hides soaked for about 10 days with crushed bark that is bitter and stains, such as oak, become leather that stays supple and doesn't rot; hides in plain water rot.
   - **Check:** the tanning blueprint accepts only barks with poison 2–3 and pigment 2 or more, and its leather doesn't rot; in a scene, a hide in plain water rots on time (`MAT-19`).
 
 - `RCK-26` **Warmth from the material** *(Decided)*: Clothes, bedding and shelters keep warmth by what they are made of: fur most, then hide and leather, then woven grass, reeds and bark; wet, they keep far less.
@@ -1719,8 +1709,7 @@ They keep results believable (`RSK-06`) and fix the orders that decide what is p
 **Growing and taming**
 
 - `RCK-23` **Seeds grow** *(Decided)*: Seeds in fertile, moist ground in the growing season sprout; planted and tended ones grow better, which is farming.
-  - **How it works:** a handful of seed thrown on rich, damp ground, such as a rubbish heap, gives a few plants the next season (`MOM-08`); dug in and covered, most seeds sprout; weeded and watered, a plot yields about twice as much as one left alone (tuned).
-    Roots and cuttings planted the same way grow too.
+  - **How it works:** a handful of seed thrown on rich, damp ground, such as a rubbish heap, gives a few plants the next season (`MOM-08`); dug in and covered, most seeds sprout; weeded and watered, a plot yields about twice as much as one left alone (tuned); roots and cuttings planted the same way grow too.
   - **Check:** every food plant's seeds, roots or cuttings list their growing season and ground (`WLD-31`); in a scene, seeds thrown on a heap sprout in some runs, and a tended plot yields at least twice an untended one.
 
 - `RCK-24` **Young animals grow tame** *(Decided)*: Young animals raised and fed by people grow tame; adults rarely do.
@@ -1729,16 +1718,16 @@ They keep results believable (`RSK-06`) and fix the orders that decide what is p
 **Beyond the launch arc**
 
 - `RCK-17` **Bronze** *(Dropped)*
-  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`); a later layer can add it (`MAT-16`).
+  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`).
 
 - `RCK-18` **Iron** *(Dropped)*
-  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`); a later layer can add it (`MAT-16`).
+  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`).
 
 - `RCK-19` **Mortar** *(Dropped)*
-  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`); a later layer can add it (`MAT-16`).
+  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`).
 
 - `RCK-20` **Glass** *(Dropped)*
-  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`); a later layer can add it (`MAT-16`).
+  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`).
 
 ## 8. People: bodies and lives
 
