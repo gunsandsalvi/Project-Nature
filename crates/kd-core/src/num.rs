@@ -27,5 +27,12 @@ pub fn hash64(b: &[u8]) -> u64 {
     xxhash_rust::xxh3::xxh3_64(b)
 }
 
+/// Hash of a pair, for pair purposes and stable looks (A3.2, A3.3).
+#[inline]
+pub fn hash2(a: u64, b: u64) -> u64 {
+    use crate::chance::hash::{GOLDEN, mix64};
+    mix64(a ^ mix64(b ^ GOLDEN))
+}
+
 #[cfg(test)]
 mod tests;

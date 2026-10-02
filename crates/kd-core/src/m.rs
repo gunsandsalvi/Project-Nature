@@ -35,3 +35,6 @@ pub fn powf(x: f32, y: f32) -> f32 {
 pub fn hypot(x: f32, y: f32) -> f32 {
     libm::hypotf(x, y)
 }
+
+#[cfg(test)]
+mod tests;
