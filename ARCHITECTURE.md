@@ -128,7 +128,7 @@ This table is the technology proposal of `PRC-03`; the evidence behind each row 
 ### A1.4 The pre-test record
 
 The pre-tests ran on 1 October 2026, in the cloud and on the owner's phone; this record keeps their results for good, since `pretests/` is deleted once this architecture exists (`PRC-08`).
-The code and raw results stay in git history in the commit before the deletion, found by `git log --diff-filter=D -1 -- pretests/BUILDING-BLOCKS.md`; A2.9 lists what to recover.
+The code and raw results stay in git history in the commit before the deletion, found by `git log --diff-filter=D -1 -- pretests/BUILDING-BLOCKS.md` (in a shallow clone, after `git fetch --unshallow origin`); A2.9 lists what to recover.
 
 **The phone (B79 and both test apps)**
 - Pixel 11 Pro XL, Tensor G6, Android 17 (SDK 37), 4 KB pages, 15,655 MiB of memory, 512 GB storage, 5,340 mAh battery.
@@ -485,6 +485,7 @@ A large test world is never shipped: it is remade from its seed and command line
 ### A2.9 Pre-test files to recover
 
 Recover with `git show <commit>^:pretests/<path> > <destination>`, `<commit>` being the deletion (A1.4); name the source in the commit message.
+A cloud session may clone only recent history: when `git rev-parse --is-shallow-repository` prints `true`, run `git fetch --unshallow origin` first (the repository is small).
 Recovered code is a starting point, renamed, tested and linked to IDs like new code.
 
 | From `pretests/` | To (what it gives) |
