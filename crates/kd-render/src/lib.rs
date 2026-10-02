@@ -3,6 +3,7 @@
 
 pub mod cube;
 pub mod mat;
+pub mod palette;
 
 use glow::HasContext;
 use mat::Mat4;
