@@ -823,6 +823,9 @@ Smallest change that works: the note gives the fingerprint and asks the owner to
 - The in-house font reading poorly at 7 pixels: the owner's eye decides at `MIL-02` with the 9-pixel font beside it (A12.1).
 - A build script compiling `data/` slows every build: it reruns only when `data/` changes.
 
+**Conflict (T01a.3):** the light tables' OKLab multipliers and offsets must reach `kd-render`'s port in doubles, exactly as the mockup writes them (A11.3), but `kd-data` is a simulation crate, where `kd check layers` refuses the type `f64` (A3.2).
+Smallest change that works: `data/palette/light.md` writes them as decimal strings (`mul = ["0.42", "0.55", "0.55"]`), which the compiler checks are plain decimal numbers and carries unchanged in the blob, and `kd-render` parses them as `f64`; `toward` stays integers.
+
 ### α01b The valley (about 5 hours)
 
 **Goal:** a 256 m piece of land with a cliff, made from B11's shaped noise, fills the screen as pixel-art ground, lit by a low sun with crisp shadows, and the owner pans, pinches and twists the camera from a few metres up to the whole piece, with pixels that never crawl while panning.

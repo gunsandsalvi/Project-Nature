@@ -708,6 +708,7 @@ data/INDEX.md              generated index of all entries
 data/items/<class>.md      items (A6.2)
 data/blueprints/<sector>.md  blueprints (A6.7)
 data/plants/  animals/  illnesses/  culture/  sounds/  models/
+data/palette/              colours, ladders, light tables and palette versions (A11.3)
 data/tuning/<system>.md    tuned numbers (PRN-17)
 data/TUNING-LOG.md         each tuned value, what it was tuned against, the tuning seeds (RES-16)
 data/writer/               voice instructions (PRE-19)
@@ -3325,7 +3326,7 @@ First needed: `MIL-01`.
 
 ### A11.3 Palette, ladders and lookup tables
 
-- **Master palette** (`data/palette.md`): at most 255 colours plus `void`: the mockup's 84, plus spring and summer greens, flowers and berries, stone greys, skin and hair families for varied looks (`BIO-22`), clear water, sand and ice.
+- **Master palette** (`data/palette/colours.md`; ladders in `ladders.md` and tables and versions in `light.md` beside it, one kind of entry per file, A3.6): at most 255 colours plus `void`: the mockup's 84, plus spring and summer greens, flowers and berries, stone greys, skin and hair families for varied looks (`BIO-22`), clear water, sand and ice.
 - **Ladders** (`PRE-20`): 4–7 indices, dark to light, per material; hand-picked for common materials from the mockup's 51 `RAMPS`; for the rest, `kd catalog build` aims at seven lightnesses from 0.42 to 1.3 times the catalogue colour's (`MAT-10`) in OKLab and matches each with `nearest()` outside the fire, map and mist families; plants get ladders per season state and growth stage, animals per coat part.
 - **Tables** (`table()`, index to index): warm 1–3, haze 1–3, outline, sun rim, fire rim, darker, lighter, snow.
 - **Versions** (`PRE-30`): dusk, dawn, day and night (`variant()`) for each season, the mockup's being autumn's.
