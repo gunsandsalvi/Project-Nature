@@ -24,7 +24,7 @@ Every item has a permanent ID so that no feature gets lost on the way from idea 
 - [6.
   World](#6-world)
 - [7.
-  Matter and physics](#7-matter-and-physics)
+  Things and blueprints](#7-things-and-blueprints)
 - [8.
   People: bodies and lives](#8-people-bodies-and-lives)
 - [9.
@@ -38,7 +38,7 @@ Every item has a permanent ID so that no feature gets lost on the way from idea 
 - [13.
   Platform and performance](#13-platform-and-performance)
 - [14.
-  Research and validation](#14-research-and-validation)
+  Testing](#14-testing)
 - [15.
   Project and process](#15-project-and-process)
 - [16.
@@ -78,8 +78,8 @@ Every item, including the signature moments, milestones and risks, starts with e
 Each area has a default kind, and the exceptions are listed here, in one place:
 
 - **Context:** `VIS`, `MIL` and `RSK`, plus `SCP-01`, `SCP-13`, `SCP-16`, `GOD-01`, `MND-17`, `RES-07`, `PRC-01` and `PRC-08`.
-- **Rules:** `PRN`, `MOM` (checked by experiment), `SCP`, `RCK`, `RES` and `PRC`, plus `GOD-05`, `GOD-06`, `GOD-07`, `TIM-03`, `WLD-13`, `WLD-30`, `MAT-09`, `MAT-13`, `MAT-14`, `MAT-15`, `MAT-17`, `BIO-14`, `BIO-17`, `MND-01`, `MND-02`, `CUL-07`, `PRE-17` and `PRE-31`.
-- **Features:** every other area, plus `SCP-14`, `RES-02`, `RES-03`, `RES-06`, `RES-12`, `RES-15`, `RES-20`, `PRC-06` and `PRC-12`.
+- **Rules:** `PRN`, `MOM` (checked by test scenes), `SCP`, `RCK`, `RES` and `PRC`, plus `GOD-05`, `GOD-06`, `GOD-07`, `TIM-03`, `TIM-16`, `TIM-17`, `WLD-13`, `WLD-30`, `MAT-09`, `MAT-13`, `MAT-14`, `MAT-15`, `MAT-17`, `BIO-14`, `BIO-17`, `MND-01`, `MND-02`, `MND-14`, `CUL-07`, `PRE-17` and `PRE-31`.
+- **Features:** every other area, plus `RES-02`, `RES-03`, `RES-06`, `RES-12`, `RES-15`, `RES-22`, `PRC-06` and `PRC-12`.
 
 ### Item format
 
@@ -136,7 +136,7 @@ Tests link to items.
 | `GOD` | The player as god |
 | `TIM` | Time and history |
 | `WLD` | World |
-| `MAT` | Matter and physics |
+| `MAT` | Things and blueprints |
 | `RCK` | Reality checklist |
 | `BIO` | People: bodies and lives |
 | `MND` | Minds |
@@ -144,7 +144,7 @@ Tests link to items.
 | `PRE` | Presentation |
 | `SND` | Sound |
 | `PLT` | Platform and performance |
-| `RES` | Research and validation |
+| `RES` | Testing |
 | `PRC` | Project and process |
 | `RSK` | Risks |
 
@@ -157,222 +157,231 @@ Every other section serves it.
 
 ### 1.1 The game in brief
 
-- `VIS-01` **In one sentence** *(Decided)*: A bottom-up simulation of humanity on a generated Earth-like world, where a few bands of early humans living in caves learn, entirely by themselves, to survive, build, believe and organise.
+- `VIS-01` **In one sentence** *(Decided)*: A realistic life and world game for one phone, in which a few bands of early humans living in caves find their own way to sharp stone, fire, huts, pottery, herds, fields and first copper, while you watch over them as a hidden god.
 
-- `VIS-06` **In one paragraph** *(Decided)*: Kindling simulates a whole world from the ground up: rock, water, weather, plants, animals and people.
-  It begins with a few bands of early humans sheltering in caves.
-  They have modern brains but almost no culture: a few dozen words, no way to make fire, nothing but rough stones and sticks.
+- `VIS-06` **In one paragraph** *(Decided)*: Kindling is a living world in your pocket: land, weather, plants, animals and people, all running at once.
+  It begins with three or four family bands, 45–120 people in all, sheltering in caves.
+  They are modern humans with a language of their own but almost no culture: no shaped tools, no clothes, and no way to make fire, only to keep one they have found.
+  Each is a full person, with a name, needs, moods, memories, friends and rivals.
   Nothing tells them what to do.
-  There are no recipes, no tech tree and no list of eras to unlock.
-  They learn the way real people learned: by noticing, trying, failing, copying, teaching and dreaming.
-  Everything they ever achieve, from a sharp flake of stone to rituals, languages and farms, has to come from what they discover in the world and pass on to each other.
-  You watch it all on your phone as an invisible force of nature.
-  You can nudge the weather, luck and dreams, but you can never command anyone.
+  Hidden in the world are about 150 blueprints: what happens when someone strikes, heats, soaks or shapes things with the right characteristics.
+  People find them by accident, by experimenting, in dreams and by copying, and each first success becomes a named discovery in the book of ages.
+  A game year lasts 60 days, so a typical world goes from sharp flakes to first copper in a few hundred game years.
+  You watch it all as a hidden god: you can send weather, dreams and luck, but you can never command anyone, and nobody ever learns you exist.
 
-- `VIS-02` **The fantasy** *(Decided)*: You are nature.
+- `VIS-02` **The fantasy** *(Decided)*: You are a hidden god who acts only through nature.
   - **What:** You are the weather, the luck and the dreams.
-    You can send a storm, bless a hunt, or let someone dream two of their own memories side by side.
+    You can bring a storm, send lightning, push a dry season, bless a hunt, or give someone a dream made of their own memories.
     You can't speak, appear or work miracles, and the people of the world never learn you exist.
   - **Why:** A god who can't command anyone leaves every achievement theirs.
     Whatever gods they come to believe in are their own explanations of the world, and sometimes of you.
-  - **Example:** A lightning strike you send to start a wildfire becomes, generations later, the myth of the storm spirit who first gave them fire.
+  - **Example:** Lightning you send sets a pine burning on the ridge, and a band carries the fire home.
+    Generations later, their myths tell of the storm spirit who first gave them fire.
 
 ### 1.2 What it feels like
 
 - `VIS-07` **Wonder** *(Decided)*
   - **What:** Awe at a world that runs itself and keeps surprising you, its maker included.
-  - **Why:** Nothing is authored.
+  - **Why:** Nothing is scripted.
     The rules are known; what they produce is not.
-  - **Example:** Night after night, you zoom out from one campfire to the whole world and watch migrations, languages and beliefs move across the land like weather.
+  - **Example:** Night after night, you zoom out from one campfire to the whole globe and watch herds, peoples and beliefs move across the land like weather.
 
 - `VIS-08` **Curiosity** *(Decided)*
   - **What:** The urge to understand why something happened, and to try "what if".
-  - **Why:** Every event has real causes, and the game lets you find them: the scientist's view of a mind (`PRE-14`), the buried layers of a site (`PRE-09`), and the chronicle with the events behind it (`PRE-05`).
-  - **Example:** A band is about to abandon its cave.
+  - **Why:** Every event has real causes, and the game lets you find them: the details view of each mind (`PRE-14`), graves and old camps (`PRE-09`), and the book of ages, whose every entry leads back to what happened (`PRE-05`).
+  - **Example:** A band is about to leave its cave.
     You look into their minds and find a run of failed hunts and a belief that the cave turned against them after a death.
     You send a good hunting season, and see whether they stay.
 
+- `VIS-17` **Life** *(Decided)*
+  - **What:** The pleasure of a world that is always busy, with everyone doing something for reasons of their own.
+  - **Why:** A world that runs itself is only worth watching if it feels alive at every zoom.
+  - **Example:** At dusk in camp, a man knaps flint by the fire, a woman scrapes a hide, children chase each other round the hearth, and the murmur of talk rises and falls (`SND-01`).
+    Pull back to the valley, and a season passes in a minute: herds drift north, a band moves camp, hunters come home.
+
 - `VIS-09` **Other feelings** *(Decided)*: Attachment to particular people, and the harshness of nature, will arise from the simulation and are welcome, but the design isn't built around them.
-  When design choices conflict, wonder and curiosity decide.
+  When design choices conflict, wonder, curiosity and life decide.
 
 ### 1.3 How you play
 
 - `VIS-10` **Two rhythms of play** *(Decided)*
-  - **Short check-ins (5–15 minutes):** open the app, catch up on the latest live moments, follow someone for a while, nudge, close.
-  - **Long sessions (an hour or more):** watch an era unfold at speed, read the chronicle, dig through the past, and try a "what if" with your powers to see what follows.
-  - **Why it matters:** both must feel natural.
-    A check-in can't require any setup, and a long session needs tools for depth.
+  - **Short check-ins (5–15 minutes):** open the app, catch up on the live moments waiting, follow someone for a while, nudge, close.
+  - **Long sessions (an hour or more):** watch a season or a century go by, read the book of ages, visit graves and old camps, and try a "what if" with your powers.
+  - **Why it matters:** both rhythms must feel natural.
+    A check-in can't need any setup, and a long session needs tools for depth.
   - The world pauses when the app is closed (`TIM-05`), so every session starts exactly where the last one ended.
 
 - `VIS-11` **A session, as a story** *(Decided)*: An illustration, not a script.
 
   > You open the app.
-  > The world is exactly where you left it: late autumn in the valley of two rivers, year 2,314.
-  > A live moment is waiting: *the eastern band has lost its fire*.
-  > You zoom in, and time slows to walking pace.
-  > The camp is cold; children huddle under hides; wolves circle at the edge of the scree.
+  > The world is where you left it: Year 19, autumn, day 8, a week before winter, in the valley of two rivers.
+  > A live moment is waiting: *the cliff band has lost its fire*.
+  > You tap it, the camera swoops down, and time slows to real speed.
+  > Under the cliff the camp should be loud with children and the crack of stone on stone.
+  > Tonight it is cold, the murmur of voices is low and worried, and wolves pace at the edge of the scree.
   >
-  > You could send a dry spell to the forest on the ridge and hope lightning finds it.
-  > Instead you look through the memories of Ama, the band's most curious woman.
-  > Last summer, boring a hole in a piece of wood, she saw the stick begin to smoke.
-  > You give her a dream that sets that smoking stick beside the warmth of a fire.
-  > The next morning she is twirling sticks.
-  > It takes her eleven days.
+  > You could bring a storm over the ridge and hope lightning finds a dry pine.
+  > Instead you open the memories of Ama, the band's most curious woman.
+  > Last summer, drilling a hole through a piece of dry wood, she saw smoke curl from the tip of her stick.
+  > While she sleeps, you give her a dream that sets that smoking stick beside the warmth of a fire.
+  > Nobody will ever know the dream was yours.
+  > In the morning she is drilling again, longer and harder, with the driest wood she can find.
+  > You pull back to the camp, and the days pass in minutes.
+  > On day 12 an ember glows in the dust, and she breathes it into flame.
+  > The book of ages records a named discovery: *hesoru*, "fire from wood", first made by Ama in Year 19.
+  > By spring, four others can do it.
   >
   > You leave the world running overnight on the charger.
-  > By morning, on the knowledge overlay, fire-making has spread from band to band along the river.
-  > In the chronicle, the story is already being retold as myth: *Ama stole the fire that sleeps inside the wood*.
+  > In the morning, the summary is waiting: 282 years have passed.
+  > The river peoples live all year in villages of reed huts, keep goats and dogs, and sow wild grain on their old rubbish heaps.
+  > In the book of ages, Ama's story has become a myth: *Ama took the fire that sleeps inside the wood*.
   > You close the app, and the world waits for you.
 
 ### 1.4 Signature moments
 
-- `VIS-12` **Signature moments** *(Decided)*: Stories the simulation must be able to produce.
+- `VIS-12` **Signature moments** *(Decided)*: Stories the game must be able to produce.
   None of them is scripted.
-  Each is an example of what the rules should make possible, and each becomes a long-term test (the `MOM` items below).
-  The IDs in brackets are the parts of the project each moment depends on.
+  Each is an example of what the rules should make possible, and each has a sandbox scene that must keep producing it (`RES-17`).
+  The IDs in brackets are the parts of the game each moment depends on.
 
-  - `MOM-01` **Fire from wood** *(Decided)*: In a hard winter, a band whose fire has died learns to make fire by friction.
+  - `MOM-01` **Fire from wood** *(Decided)*: In a hard winter, a band whose fire has died learns to make fire by drilling, a trick one of them stumbled on by accident.
     (`MND-11`, `RCK-02`, `GOD-03`)
     - **How it works:**
-      1. The band keeps a fire found after lightning (`BIO-02`), with beliefs that dry wood feeds it and rain kills it (`MND-05`).
-      2. Twirling a stick to bore a hole heats its tip by friction (`MAT-11`), and the smoke is a surprise that leaves a weak belief (`MND-10`).
-      3. In a hard winter the fire dies; cold and fear push the most curious to explore (`MND-09`), and planning reaches for smoke as a sign of fire (`MND-11`).
-      4. Faster, longer twirling with drier wood heats the dust past its ignition point (`RCK-02`): an ember, then flame.
-      5. Success strengthens the belief and the skill (`MND-05`, `MND-06`), and others watch, copy and are taught (`CUL-01`).
-      6. A dream you send can pair the smoking stick with fire, raising the odds without guaranteeing anything (`GOD-03`).
-  - `MOM-02` **The lost craft** *(Decided)*: A fever kills a band's best stoneworkers.
-    For generations its blades are cruder, until the skill is rediscovered or learned again from neighbours.
-    (`CUL-01`, `CUL-02`)
+      1. The band keeps a fire found after lightning, and carries its embers when it moves (`BIO-02`).
+      2. Someone drilling a hole in dry wood happens to match the blueprint for fire by drilling (`RCK-02`), and fails in its usual way, with smoke but no ember; the surprise leaves a weak belief (`MND-05`).
+      3. In a hard winter the fire dies, and cold and fear push the most curious to experiment: they drill again, longer, with drier wood (`MND-11`).
+      4. Each try's chance rises with experience and drier wood; at last an ember glows, and the first success becomes a named discovery (`MAT-21`).
+      5. Others watch, copy and are taught (`MND-13`), and the skill spreads (`CUL-01`).
+      6. A dream you send can set the smoking stick beside the warmth of a fire, raising the odds without guaranteeing anything (`GOD-03`).
+  - `MOM-02` **The lost craft** *(Decided)*: A fever kills a band's last good knapper.
+    For generations its blades are cruder, until the craft is found again, learned from neighbours, or copied from an old blade.
+    (`CUL-02`, `MND-06`)
     - **How it works:**
-      1. The best stoneworkers hold the finest knapping settings (`MND-06`), and others copy from them (`CUL-01`).
-      2. A fever spreads through the band by real contact (`WLD-21`) and kills them (`BIO-14`).
-      3. The survivors copy from the best who remain, whose settings are worse, so blades come out cruder (`CUL-02`).
-      4. Blades improve again only through practice and lucky variation (`MND-06`), or by copying neighbours who kept the skill, met through contact (`CUL-16`).
-      5. The recognisers mark the loss and any rediscovery (`PRE-39`).
+      1. Fine blades are a blueprint that only people with long experience in stone make well (`MND-06`); the young learn it by watching and being taught (`MND-13`).
+      2. A fever spreads by breath and touch (`BIO-05`) and kills the last people who knew it (`BIO-14`).
+      3. Knowledge dies with its last holder (`CUL-02`): the survivors still make plain flakes, so their tools are cruder and wear out sooner (`MAT-20`).
+      4. The craft comes back only by experimenting, by learning from neighbours met through marriage or trade (`CUL-16`), or by copying an old blade (`MND-11`).
+      5. The book of ages marks the loss and the return (`PRE-39`).
   - `MOM-03` **Your lightning becomes a god** *(Decided)*: A lightning strike you sent kills a hunter on a hilltop.
     The band avoids the hill, then leaves offerings there, then tells stories about the one who lives in the storm.
     (`GOD-02`, `GOD-06`, `CUL-05`)
     - **How it works:**
-      1. You bring a storm and send lightning to the hilltop (`GOD-02`), and it kills the hunter there (`WLD-28`, `BIO-14`).
-      2. The band sees a death with no believed cause: the hidden-someone tendency makes a weak belief in an unseen someone in the storm (`MND-21`, `CUL-05`), and fear ties itself to the hill (`MND-08`).
-      3. They avoid the hill; later visits that pass safely after things were left there are credited to the leaving (`MND-05`), and the offerings become a rite (`CUL-06`).
-      4. Retold stories of the one in the storm become a myth (`CUL-11`), and nothing marks the strike as yours (`GOD-06`).
+      1. You bring a storm and send lightning to the hilltop (`GOD-02`), and it kills the hunter there (`BIO-14`).
+      2. The death has no cause they know, so they explain it with an unseen someone in the storm (`MND-21`, `CUL-05`), and fear ties itself to the hill (`MND-19`).
+      3. They avoid the hill (`CUL-20`); when visits after leaving something there pass safely, the gift gets the credit (`MND-05`), and the offerings become a rite (`CUL-06`).
+      4. Retold, the story becomes a myth of the one in the storm (`CUL-11`), and in time part of their religion (`CUL-26`).
+      5. Nothing marks the strike as yours (`GOD-06`).
   - `MOM-04` **The song that does nothing** *(Decided)*: A band sings before a hunt that goes well.
     The song becomes a hunting rite and is kept for centuries, though it changes nothing.
     (`MND-05`, `CUL-06`)
     - **How it works:**
-      1. The band happens to sing before a hunt, and the hunt goes well (`WLD-18`).
-      2. Credit spreads over what came before, the song included (`MND-05`), and the success is remembered vividly (`MND-08`).
-      3. Singing again before hunts is a cheap try, and hunts succeed often enough through skill and luck that the belief survives; copying spreads it (`CUL-01`).
-      4. Shared expectation turns it into a rite (`CUL-06`), taught and kept long after anyone remembers why (`CUL-20`).
-  - `MOM-05` **Two tongues** *(Decided)*: Two bands are separated by a rising sea and drift apart in speech.
-    When their descendants meet again, they can hardly understand each other.
-    (`CUL-04`, `WLD-16`)
-    - **How it works:**
-      1. As the ice age ends, melting ice raises the sea (`WLD-16`, `WLD-26`), and it floods the low land between two bands' ranges (`WLD-15`).
-      2. Without contact, words and sound changes are copied only within each band (`CUL-16`), so each takes up its own regular sound changes and new words (`CUL-17`).
-      3. When their descendants meet again, too few of their words match for them to understand each other (`CUL-04`), and the language tree shows the split (`PRE-36`).
+      1. A band happens to sing before a hunt, and the hunt goes well.
+      2. People link a strong outcome to something unusual that came before it, so the song gets the credit (`MND-05`), and the hunt is remembered vividly (`MND-18`).
+      3. Singing before hunts costs little, and hunts succeed often enough through skill and luck that the belief survives; others copy it (`CUL-01`).
+      4. Shared habit turns it into a rite (`CUL-06`), taught and kept long after anyone remembers why.
+  - `MOM-05` **Two tongues** *(Dropped)*
+    - **Dropped because:** each world now has one language that doesn't change over time (`CUL-17`), so peoples never drift apart in speech.
   - `MOM-06` **The camp wolf** *(Decided)*: The boldest wolves scavenge at the edge of camp.
-    Their pups grow tamer each generation, until a child raises one.
-    (`MND-16`, `WLD-20`)
+    A child raises a pup, and generations later the band keeps dogs.
+    (`WLD-33`, `RCK-24`)
     - **How it works:**
-      1. Wolves near the camp are individuals with minds (`WLD-12`, `MND-16`); food smells and scraps draw the boldest to the camp's edge (`MND-07`, `MND-20`).
-      2. Wolves that are fed and not harmed lose their fear of people and grow attached (`MND-16`), and their dreams replay the warm scraps (`MND-12`, `GOD-12`).
-      3. The bolder wolves raise more pups near people, and boldness is inherited (`WLD-20`).
-      4. A child who feeds and plays with a pup grows attached to it, and it to the child (`MND-07`, `MND-24`), and the pup is raised in camp.
+      1. Near people, wolves are single animals with simple minds (`WLD-32`, `MND-16`), and the bones and scraps by the camp draw the boldest close.
+      2. Wolves that are fed and not harmed lose their fear of people (`MND-16`), and you can send one a dream of the warm scraps by the fire (`GOD-12`).
+      3. A child who feeds and plays with a pup raises it in camp, and young animals raised by people grow tame (`RCK-24`).
+      4. Tame wolves breed near camp and their pups are born tame; after several generations kept by people, the line becomes dogs (`WLD-33`), and the book of ages records the first ones (`PRE-05`).
   - `MOM-07` **A painting that remembers** *(Decided)*: A painting of a great hunt outlasts everyone who saw it.
-    You tap it and read what really happened in that hunt.
+    You tap it and read what really happened that day.
     (`CUL-09`, `PRE-15`)
     - **How it works:**
-      1. A great hunt is a vivid shared memory (`MND-08`).
-      2. Someone paints it on a sheltered wall with prepared ochre (`CUL-09`, `RCK-15`), and the painting's record keeps what it shows and the memories it came from (`CUL-25`).
-      3. Paint in shelter weathers slowly (`RCK-16`), so the painting outlasts everyone who saw the hunt.
-      4. The hunt's events are in the saved history (`PRN-15`), so tapping the painting shows what really happened (`PRE-15`).
-  - `MOM-08` **Seeds on the rubbish heap** *(Decided)*: Seeds thrown on a rubbish heap sprout near camp.
-    Years later, someone starts planting on purpose.
-    (`MND-11`, `WLD-18`)
+      1. A great hunt becomes a vivid shared memory, retold around the fire (`MND-18`).
+      2. Someone grinds red ochre, mixes it with fat and paints the hunt on a sheltered wall, in their people's style, with the animals and hunters that were really there (`CUL-09`).
+      3. Paint in shelter lasts for centuries (`RCK-16`), so the painting outlasts everyone who saw the hunt.
+      4. The hunt was kept in the saved history (`PRN-15`), so tapping the painting shows what it depicts and what really happened (`PRE-15`).
+  - `MOM-08` **Seeds on the rubbish heap** *(Decided)*: Seeds thrown on the rubbish heap sprout near camp.
+    Years later, someone sows them on purpose.
+    (`RCK-23`, `MND-11`)
     - **How it works:**
-      1. People eat seeds and fruit and throw the waste on a heap by the camp, and some seeds survive in it (`MAT-10`).
-      2. The heap is rich from waste and ash (`WLD-27`), so the seeds sprout and grow well there (`WLD-18`).
-      3. People notice food plants growing where seeds were thrown (`MND-10`) and form a belief linking thrown seed to plants (`MND-05`).
-      4. When food runs short, someone puts seeds in the ground on purpose (`MND-11`); the plants that come up confirm it, and planting spreads by copying (`CUL-01`).
-  - `MOM-09` **The dig** *(Decided)*: Under a village, you find the hearths of the first band and the bones of the animals they ate.
-    (`MAT-08`, `PRE-09`)
+      1. People eat wild grain and fruit and throw the waste on a heap by the camp (`MAT-08`).
+      2. The heap is rich and damp, so in the growing season some seeds sprout there (`RCK-23`, `WLD-31`).
+      3. People notice food plants where seeds were thrown, and the surprise leaves a belief linking thrown seeds to plants (`MND-05`).
+      4. When food runs short, someone experiments by putting seeds in the ground on purpose (`MND-11`); planted and tended seeds grow better (`RCK-23`), the harvest confirms the belief, and sowing spreads by copying and teaching (`CUL-01`).
+  - `MOM-09` **The dig** *(Decided)*: Digging a pit on an old campsite, someone turns up a tool nobody living knows how to make, and copies it.
+    (`MND-11`, `MAT-08`)
     - **How it works:**
-      1. The first band's hearths, bones and tools stay where they were left, as things or as merged leftovers (`MAT-10`).
-      2. Layer by layer the place is buried as the land builds up (`MAT-08`), and what survives depends on the soil's wetness, air and acidity (`WLD-27`).
-      3. Centuries later a village stands above; the cut-away shows the layers (`PRE-25`), and each find's record tells who left it and when (`PRE-09`).
+      1. A band that made eyed bone needles dies out or moves away; its camp, hearths and tools stay where they were left and are slowly buried (`MAT-08`).
+      2. Generations later, another band camps there and digs a storage pit, and a woman finds a needle.
+      3. Seeing a finished thing is enough to try making it: she copies it, and her experience decides how soon she succeeds (`MND-11`, `MND-06`).
+      4. The book of ages marks it as a rediscovery (`PRE-39`), and the craft spreads again (`CUL-01`).
+      5. You can see the same layers in the cut-away, and each find tells who left it and when (`PRE-09`).
   - `MOM-10` **Two endings** *(Dropped)*
     - **Dropped because:** rewinding and branching were cut in the realism pass: a world keeps only its present state and its chronicle (`PRN-15`).
   - `MOM-11` **Rivals, then in-laws** *(Decided)*: Two bands fight over a valley, then marry into each other.
     Each side's descendants tell the story differently.
-    (`CUL-07`, `CUL-11`)
+    (`CUL-27`, `CUL-11`)
     - **How it works:**
-      1. Two bands depend on one valley's food (`WLD-18`); meeting there, fear, anger and hunger make fighting a choice each side weighs (`MND-09`, `CUL-08`).
-      2. Losses on both sides, small bands, and desire held down toward those one grew up with (`MND-26`) make pairing across the bands a better choice for some (`BIO-15`, `CUL-07`).
-      3. Pairings make kin across the bands (`MND-24`), and favouring kin makes fighting costlier to choose (`MND-26`).
+      1. Two bands rely on one valley's game and nuts (`MND-28`); when they meet there, fear, anger and hunger make a raid a choice each side weighs (`MND-09`, `CUL-08`).
+      2. Losses on both sides, and too few partners at home, make marrying across the bands the better choice for some (`CUL-27`).
+      3. Marriages make kin across the bands (`MND-24`), and few choose to raid their own kin, so fights grow rarer (`MND-09`).
       4. Each side keeps its own memories of the fight, retold through its own beliefs, so their stories differ (`MND-18`, `CUL-11`).
-  - `MOM-12` **Metal from green stone** *(Decided)*: A kiln built very hot for pottery leaves a bead of shiny metal where green stones lined the fire, and someone notices.
-    (`MAT-07`, `RCK-08`)
+  - `MOM-12` **Metal from green stone** *(Decided)*: A pottery kiln, fired hotter than ever, leaves a bead of shiny metal where green stones lined the fire, and someone notices.
+    (`RCK-08`, `MND-11`)
     - **How it works:**
-      1. People build a kiln for pottery, enclosing a charcoal fire with clay or stone and blowing it, so it runs hotter (`MAT-04`, `RCK-04`).
-      2. Green copper-bearing stones lining the fire touch burning charcoal past the temperature at which charcoal takes their oxygen (`MAT-07`), and copper runs out as a bead once the fire passes its melting point (`RCK-08`).
-      3. The bead's shine and weight are a surprise (`MND-10`); whoever notices links it to the green stones and the hot fire (`MND-05`), and may try again on purpose.
+      1. Potters find ways to make their kilns hotter, until one burns as hot as a furnace (`MAT-18`, `RCK-04`).
+      2. Green copper ore, picked up for its colour, lines the hottest part of the fire (`WLD-14`); at furnace heat it matches the blueprint for smelting (`RCK-08`), and copper runs out as a bead.
+      3. The shine and the weight are a surprise (`MND-10`); whoever notices links them to the green stones and the hot fire (`MND-05`), and may try again on purpose (`MND-11`).
+      4. The first success is a named discovery (`MAT-21`), and a new age begins in the book of ages (`PRE-05`).
 
 ### 1.5 The arc of a world
 
-- `VIS-03` **No ceiling** *(Decided)*
-  - **What:** There are no eras, levels or end state.
-    A world's history goes as far as its people take it.
-  - **Why:** Any fixed sequence of eras would be a tech tree in disguise.
-  - **In practice:** some worlds may stall for tens of thousands of years, and some bands will die out.
-    Some peoples may reach farming, writing, metals and beyond; some may take paths our own history never took.
-    Nothing about the order of our history is guaranteed, except where physics forces it: no one smelts copper without a fire hot enough.
-    Collapse, stagnation and extinction are all valid histories.
-    The one limit is the phone: a world grows only as far as the phone can run every person at full depth (`MND-15`), so cities and farming-scale worlds are out of reach.
+- `VIS-03` **The arc of a world** *(Decided)*
+  - **What:** Every world starts in caves (`SCP-01`), and over a few hundred game years its people can find their way to fire, huts, pottery, dogs, herds, villages, fields and first copper.
+    After that, history goes on within the launch catalogue, for as long as you watch.
+  - **The arc, in game years from the start** (targets for typical worlds, tuned by testing, `TIM-19`): sharp flakes 1–5; fire-making 5–30; clothing and huts 10–40; pottery 60–150; tame dogs 80–150; herding 120–250; villages 100–300; farming 200–350; copper 300–500.
+  - **No scripted eras:** each step happens only when someone discovers it (`PRN-17`), so the order differs between worlds, and stalls, lost crafts and peoples dying out are all valid histories.
+    Only the blueprints and the world set what is possible: no one smelts copper without a furnace (`RCK-08`).
+  - **Room to grow:** later layers, such as bronze or writing, can extend the arc by adding items and blueprints (`PRN-14`).
+  - **The phone's limit:** up to about 2,000 people at a watchable speed; beyond that, time slows rather than detail being cut (`MND-15`).
 
 ### 1.6 What makes it different
 
 - `VIS-13` **Seven differences** *(Decided)*: A summary of decisions made in other sections.
-  - **No recipes.** Discoveries come from physics, not from lists (`PRN-01`; see Matter and physics).
-  - **Minds that learn.** People form their own concepts, beliefs and skills.
-    Science and superstition come from the same mechanism (see Minds).
-  - **Real matter.** Real chemistry and real-world numbers decide what is possible (see Matter and physics).
-  - **You are nature.** An invisible god, limited to what nature could do (see The player as god).
-  - **Every story can be traced.** Two views of every mind, archaeology, and a chronicle whose every entry leads back to what happened (see Presentation).
-  - **Rigour behind the wonder.** Experiments that can fail decide what the simulation really does (see Research and validation).
-  - **In your pocket.** Designed for one phone, with detailed pixel art and one continuous zoom from the whole world to a single person (see Presentation and Platform and performance).
+  - **No tech tree.** About 150 hidden, generic blueprints, found only in play (`SCP-04`).
+  - **Minds that learn and believe.** People form their own beliefs, and science and superstition grow from the same habit of mind (see Minds).
+  - **Things look like what they are made of.** Every tool, hut and pot shows what went into it (`PRE-42`).
+  - **A hidden god.** You act only as nature could, and nobody ever learns you exist (see The player as god).
+  - **History at a watchable pace.** A 60-day year, real speed up close and centuries overnight (`PRN-17`).
+  - **Every story can be traced.** The book of ages, graves and old camps, and the details view of each mind all lead back to what really happened (see Presentation).
+  - **In your pocket.** Built for one phone, with pixel-rendered 3D and one zoom from the globe to one person's hands (see Presentation and Platform and performance).
 
 ### 1.7 Inspirations
 
 - `VIS-04` **Inspirations** *(Decided)*: What we take from each, and where we differ.
-  - **[world-sim](https://world.world-sim.uk):** a living world whose villagers discover fire, pottery and bronze for themselves, with named souls, graves and a book of ages.
-    *We take* its care for individual lives and a history worth reading.
-    *We differ:* we start much earlier, simulate a far deeper physical world, have no tech tree or list of eras, and run on a phone.
-  - **Dwarf Fortress:** deep simulation, and generated legends you can read.
-    *We take* history as the main product.
+  Where this file leaves a design question open, start from what these games do, adapted to the principles.
+  - **[world-sim](https://world.world-sim.uk):** a living world of named souls, graves and a book of ages, whose villagers discover pottery and bronze for themselves.
+    *We take* the named souls, the graves and the book of ages.
+    *We differ:* we start earlier, in caves, have no tech tree or list of eras, and run on a phone.
+  - **Dwarf Fortress:** personalities, memories, legends, and artworks that depict real events.
+    *We take* history as the main product, and art that remembers.
     *We avoid* an interface that hides its stories.
-  - **RimWorld:** stories that emerge from the simulation, paced by an AI storyteller.
-    *We take* its care for pacing.
+  - **RimWorld:** needs, moods built from thoughts that last a while, a storyteller, and 60-day years.
+    *We take* its needs, its moods, its 60-day year and its care for pacing.
     *We differ:* our story director only controls the speed of time; it never creates events (`TIM-03`).
-  - **WorldBox:** a pixel-art god sandbox made for phones.
+  - **WorldBox:** a pixel-art god game for phones, where you watch peoples rise.
     *We take* the joy of a living world in your hand.
-    *We differ:* a far deeper simulation, and powers limited to what nature could do.
+    *We differ:* a far deeper life for each person, and powers limited to what nature could do.
+  - **The Sims:** needs that pull each person toward what serves them best, and an animation for every action.
+    *We take* both.
+    *We differ:* nobody is controlled.
   - **Black & White:** a god whose acts shape what villagers believe.
     *We differ:* there is no worship and no visible god.
-  - **Ancestors: The Humankind Odyssey:** early humans learning by experimenting.
+  - **Ancestors: The Humankind Odyssey:** early humans learning by trying things.
     *We take* the thrill of discovery by trial.
-    *We differ:* nobody is controlled, and discoveries come from physics, not from an unlockable skill tree.
-  - **Noita and falling-sand games:** matter that follows rules, so interactions nobody designed still work.
-    *We take* rules over recipes.
-    *We differ:* matter is described by its chemistry and structure, not simulated grain by grain.
-  - **Science:** research on cultural evolution, cognition, the origins of religion and the emergence of language.
-    Each source is cited in the section that uses it.
+    *We differ:* nobody is controlled, and discoveries come from hidden blueprints found in play, not from a skill tree.
 
 ### 1.8 Success
 
 Who it's for: you alone (`SCP-02`).
-Success is judged by the experience; the research rigour of `VIS-05` is how we get there.
+Success is judged by playing it; the tests and reviews of `VIS-05` are how we get there.
 
 - `VIS-14` **A joy on the phone** *(Decided)*
   - **What:** Beautiful, smooth and absorbing in your hand.
@@ -385,15 +394,14 @@ Success is judged by the experience; the research rigour of `VIS-05` is how we g
 - `VIS-15` **Histories worth reading** *(Decided)*
   - **What:** Every world produces a history you would want to read, and no two are alike.
   - **Done when** (judged by you at milestone reviews):
-    - in milestone reviews, you'd choose to read a world's chronicle for pleasure;
+    - you'd choose to read a world's book of ages for pleasure;
     - worlds from different seeds tell clearly different stories;
-    - every chronicle entry can be traced back to the simulated events behind it.
+    - every entry in the book of ages can be traced back to the events behind it.
 
-- `VIS-05` **Quality bar** *(Decided)*: The rigour of a research project, and craft polished as far as the tools allow.
-  - **Research rigour:** what the simulation is claimed to do is tested by experiments that can fail, across many runs, with real-world values and repeatable results.
-  - **Craft:** art, sound, interface and performance polished as far as procedural art, animation and sound made by AI agents allow, judged by you at every visual review (`PRE-31`).
-  - Rigour is the method, not the goal.
-    It exists so that the wonder is earned and the histories are real.
+- `VIS-05` **Quality bar** *(Decided)*: A believable game, tested at every step, and craft polished as far as the tools allow.
+  - **Tested:** what the game is meant to do is checked by automated tests that can fail, at every alpha: its rules, blueprint chains, behaviours, pace and speed (`RES-01`).
+  - **Craft:** art, animation, sound, interface and performance polished as far as AI agents can take them, judged by you at every visual review (`PRE-31`).
+  - Tests are the method, not the goal: they exist so the world stays believable and its histories stay true.
 
 ### 1.9 Name
 
@@ -402,9 +410,9 @@ Success is judged by the experience; the research rigour of `VIS-05` is how we g
 
 ## 2. Principles
 
-The rules every part of the project follows.
+The rules every part of the game follows.
 
-- `PRN-16` **Principles come first** *(Decided)*: These rules apply to every part of the project, and outrank everything else in this file: if any decision conflicts with a principle, the principle wins.
+- `PRN-16` **Principles come first** *(Decided)*: These rules apply to every part of the game, and outrank everything else in this file: if any decision conflicts with a principle, the principle wins.
   A principle changes only if you change it here.
   Every milestone review goes through the principles, using the **Check** line under each one.
   - **Check:** every milestone report lists each principle with the result of its Check line (`RES-06`).
@@ -412,60 +420,65 @@ The rules every part of the project follows.
 ### 2.1 The world
 
 - `PRN-01` **The world is the only teacher** *(Decided)*
-  - **What:** Everything the people of the world know, they learned inside it: from their senses, their own trials, other people or their dreams.
-    Nothing is handed to them.
-    There are no recipes, no tech tree, no scripted discoveries, and no knowledge given at the start beyond the starting kit (`BIO-02`).
-  - **Why:** This is the heart of the project.
+  - **What:** Everything the people of the world know, they learned inside it: from their senses, their own tries, other people or their dreams.
+    Nothing is handed to them beyond the little they know at the start (`BIO-02`).
+    Nobody knows a blueprint until they discover it or learn it from someone (`MND-11`).
+    Their choices never use a blueprint they don't know, or a fact they haven't seen or been told (`MND-09`).
+  - **Why:** This is the heart of the game.
     A discovery only means something if it was really made.
   - **Example:** Nobody tells a band that flint makes good blades.
-    Someone strikes one stone against another, notices a sharp edge, and over time the band learns which stones break that way.
-  - **Check:** every discovery in an experiment can be traced back to the experiences that produced it, and the general-rules check (`PRN-07`) passes.
+    Someone cracking nuts with a flint sees a sharp flake come off, and over time the band learns which stones break that way.
+  - **Check:** every discovery can be traced to how it was made (by accident, by experimenting, from a dream or by copying), and tests find no choice that used an unknown blueprint or an unseen fact.
 
-- `PRN-02` **Depth over breadth** *(Decided)*
-  - **What:** A small world simulated deeply beats a large shallow one.
-    When choosing between more things and deeper things, choose deeper.
-  - **Why:** Discovery, belief and history all come from detail.
-    A shallow world can't surprise anyone.
-  - **Example:** The world is about 1,000 km from pole to pole (`WLD-03`), not the size of Earth, so the effort goes into what's actually there.
-  - **Check:** any feature that adds breadth at the cost of depth needs an explicit reason in the implementation plan.
+- `PRN-02` **Believable over exact** *(Decided)*
+  - **What:** The world looks, sounds and behaves like the real one, without simulating how the real one works underneath.
+    Where an exact model would be costly, a simple rule that gives a believable result wins (`SCP-21`).
+  - **Why:** A game is judged by what you see, hear and read, so the effort goes into what shows.
+  - **Example:** Flint gives sharp flakes and granite doesn't because flint's characteristics say it flakes well (`RCK-01`), not because the game simulates cracks running through stone.
+  - **Check:** each milestone review flags any system whose detail changes nothing you can see or read.
 
-- `PRN-07` **General rules only** *(Decided)*
-  - **What:** Everything in the world (matter, living things, minds, societies) follows general rules.
-    No rule is ever written for one particular discovery, material, species or event.
-    The name of a discovery (flake, knapping, fire-making, pottery and so on) never appears in the logic that decides what people or animals do.
-    Those words appear only in descriptions of matter and in text written for you.
+- `PRN-07` **Generic blueprints** *(Decided)*
+  - **What:** Every way of making or changing things is a blueprint, and every blueprint is generic: it asks for actions, characteristics and conditions, never for particular items (`MAT-04`).
+    So one blueprint works for everything with the right characteristics, and people can find routes nobody listed.
+    The rules that decide what people and animals do are the same for every blueprint: they never single one out by name, and see only what people perceive and know.
+    Names such as "flake" or "pottery" appear only in the catalogue and in text written for you.
   - **Why:** A rule written for one outcome is a recipe in disguise.
-    General rules are also what let the world produce things nobody planned.
-  - **Example:** There is no "make pottery" rule.
-    Clay changes when heated past a certain temperature, just as the general law of heat says any material can.
-    Pottery is what people make of that.
+    Generic blueprints let the world surprise its makers.
+  - **Example:** The blueprint for a scraper asks for something hard that flakes well and has a good edge, never for flint by name.
+    Obsidian and chert work too, and so would a stone added years later.
   - **Check:**
-    - an automated search of the decision-making logic finds no discovery vocabulary;
-    - decision logic reads only what people and animals perceive, never what a thing is;
-    - swapping two materials' identities changes no behaviour;
-    - every law applies to at least two materials;
-    - discovery still happens with decoy materials, and with a made-up material nobody designed for;
-    - reviews flag any rule that applies to only one material, species or event.
+    - tests confirm that every blueprint's inputs are ranges of characteristics, never named items;
+    - a search of the rules that decide what people and animals do finds no blueprint, discovery or item names;
+    - swapping the names of two materials changes no behaviour;
+    - a made-up material with the right characteristics works in every blueprint it fits.
 
-- `PRN-05` **Real numbers, testable claims** *(Decided)*
-  - **What:** The values that decide what is possible come from real measurements, each with its source: such as melting and ignition points, how stones break, the energy in food, and the thresholds of the reality checks (`RCK`).
-    Everything else is estimated, by stated rules from those values or as plausible ranges, and labelled as an estimate: for example, wood strength from its density, or an animal's needs from its body size.
-    Values that are chosen or tuned instead are labelled so, and listed in every milestone report.
-    Every claim about what the simulation produces is tested by experiments that can fail, across many runs (`RES-13`).
-  - **Why:** Real numbers make discoveries meaningful: copper really does need a furnace.
-    Sourcing only the values that decide outcomes keeps this affordable.
-    Experiments that can fail stop us fooling ourselves.
-  - **Example:** "Bands discover how to chip stone" is accepted as true only after Experiment 1 passes its criteria in its sandbox runs and is confirmed in full worlds (`RES-03`, `RES-21`).
-  - **Check:** every key value names its source; every estimate names its rule or range; chosen or tuned values are listed in the milestone report; every claim in a milestone report is backed by an experiment.
+- `PRN-05` **Plausible numbers** *(Decided)*
+  - **What:** Every value in the game, such as a material's characteristics, a plant's yield, an animal's speed or an illness's danger, is a plausible estimate, set by hand from what the real thing is like and tuned so the game feels right.
+    No value needs a sourced measurement.
+    Every claim about what the game produces is checked by a test that can fail (`RES-01`).
+  - **Why:** Sourcing every value would cost far more than it adds to a game.
+    Plausible values, tuned and tested, keep the world believable and the work affordable.
+  - **Example:** A flint flake's edge sits near the top of the scale and a granite chip's near the bottom, because that is how they cut in the hand, not because of a measured number.
+  - **Check:** the catalogue tests pass (`MAT-17`), and every claim in a milestone report is backed by a test.
 
 - `PRN-12` **Speed up time, never bend the rules** *(Decided)*
-  - **What:** Pacing only ever comes from controlling time: zoom, the story director, and manual speed (see Time and history).
-    The world's rules never change during play to make things faster or more dramatic.
-    Dials that bend the rules, such as faster evolution (`BIO-07`), exist only for experiments.
-  - **Why:** If the rules bent for drama, nothing the world produced could be trusted, and its histories would stop being real.
-  - **Example:** Real genetic change is slow, so you won't see minds evolve in a single evening.
-    To watch that, you run an experiment with the evolution dial turned up, clearly labelled as such.
-  - **Check:** play has no rule-bending settings, and every experiment report lists any dial that was changed.
+  - **What:** In play, pace comes only from controlling time: zoom, the story director and manual speed (see Time and history).
+    Tuning happens when the game is made, the same for every world (`PRN-17`).
+    The rules never change during play to make things faster or more dramatic, and nothing happens because it would make a better story.
+    Sandbox scenes for tests may set up a starting situation, but they run the same rules as play (`RES-18`).
+  - **Why:** If the rules bent for drama, nothing the world produced could be trusted.
+  - **Example:** When a band is close to making fire, the story director slows time so you can watch.
+    It never makes the fire come sooner.
+  - **Check:** play has no rule-bending settings, and the same saved world runs the same with the story director on or off (`TIM-03`).
+
+- `PRN-17` **History at a watchable pace** *(Decided)*
+  - **What:** Discoveries come at a pace you can watch, set by the pace targets (`TIM-19`).
+    The pace comes from tuning chances and amounts, the same for every world: how often people experiment, how likely a blueprint is to succeed, how fast experience grows, how much food the land gives.
+    No discovery is ever scripted or forced by a date.
+  - **Why:** A world where nothing changes for ten thousand years may be true to history, but it is no fun to watch.
+  - **Example:** If tests show fire-making arriving around year 80 instead of within 5–30, the chance of an ember from drilling is raised for every world.
+    No world is ever told to find fire by year 20.
+  - **Check:** overnight pace tests on whole worlds show each step landing in its target range in typical worlds, not always in the same order, with nothing scripted (`RES-07`).
 
 ### 2.2 The player
 
@@ -479,125 +492,113 @@ The rules every part of the project follows.
 
 ### 2.3 What you see
 
-- `PRN-04` **If the simulation knows it, you can see it** *(Decided)*
-  - **What:** Anything the simulation keeps track of can be shown to you: maps of beliefs, family trees, buried layers, a person's memories.
+- `PRN-04` **If the game knows it, you can see it** *(Decided)*
+  - **What:** Anything the game keeps track of can be shown to you: a person's needs, mood, memories, beliefs and the blueprints they know; family trees; who taught whom; graves and old camps.
   - **Why:** Curiosity (`VIS-08`) needs ways to find out why.
     A rich world you can't look into is wasted.
-  - **Example:** The simulation tracks who taught whom to chip stone, so you can see that chain as a family tree of knowledge.
-  - **Check:** everything the simulation keeps track of has at least one view that shows it, if only in the scientist's view (`PRE-14`).
+  - **Example:** The game tracks who taught whom to drill fire, so you can follow the chain back to the first person who did it.
+  - **Check:** everything the game keeps track of has at least one view that shows it, if only a card (`PRE-35`) or the details view of a mind (`PRE-14`).
 
 - `PRN-10` **Nothing is faked** *(Decided)*
-  - **What:** Everything you see, hear or read reflects what actually happened in the simulation.
-    When you zoom in, detail can be filled in, but it never contradicts what was simulated and never invents events for show.
-  - **Why:** Histories are only worth reading (`VIS-15`) if they are true to the world.
-    Curiosity only works if every clue is real.
-  - **Example:** Zooming into a camp that was being simulated in less detail, the game can show people walking between shelters.
-    It cannot show a fight that never happened.
-  - **Check:** every live moment, chronicle entry and on-screen event can be traced back to a simulated event.
+  - **What:** Every picture, sound and word shows what is really there and what really happened in the world.
+    Places nobody has visited are drawn from the world's seed, just as they are made when someone first goes there (`WLD-13`).
+    Nothing is added for show.
+  - **Why:** Histories are only worth reading (`VIS-15`) if they are true to the world, and curiosity only works if every clue is real.
+  - **Example:** The murmur at a camp comes from people really talking there (`SND-03`), and a painting shows the hunt that really happened (`MOM-07`).
+  - **Check:** every live moment, entry in the book of ages, sound and on-screen event can be traced back to something that happened in the world.
 
 - `PRN-13` **Every choice can be explained** *(Decided)*
-  - **What:** Why anyone, person or animal, does something can be traced to their beliefs, drives and memories, and shown in the scientist's view (`PRE-14`): for anything happening now, and for the choices behind every event the history keeps (`PRN-15`).
-    Fine physical detail, such as the exact force of a strike, can simply be numbers.
-  - **Why:** Curiosity and research both depend on asking "why?" and getting a real answer.
+  - **What:** Why anyone, person or animal, does something can be traced to their needs, personality, plans, beliefs and memories.
+    Each choice keeps its top reasons, and the details view shows them (`PRE-14`), for what is happening now and for the choices behind the events the history keeps (`PRN-15`).
+  - **Why:** Curiosity depends on asking "why?" and getting a real answer.
   - **Example:** Why did Ama walk to the river at dawn?
     She was thirsty, and she believes the river is safe at dawn because she has never seen wolves there at that hour.
-  - **Check:** for any action under way, and for the choices behind every saved event, the scientist's view shows the beliefs, drives and memories behind them.
+  - **Check:** for any activity under way, and for the choices behind every saved event, the details view shows the reasons kept with it.
 
 - `PRN-06` **AI language models describe, never decide** *(Decided)*
-  - **What:** AI language models are used only to turn simulation data into readable text: the chronicle, life stories, myths, dreams.
-    They never choose, invent or know anything for the people or animals of the world, and never add facts the simulation doesn't contain (`PRE-17`).
+  - **What:** AI language models are used only to turn what the game records into readable text: the book of ages, life stories, myths, dreams.
+    They never choose, invent or know anything for the people or animals of the world, and never add facts the game doesn't contain (`PRE-17`).
   - **Why:** A language model knows our history.
     If it did their thinking, our knowledge would leak into their world and their discoveries would no longer be theirs.
-  - **Example:** The model can tell you, in the voice of their tradition, how Ama "stole the fire that sleeps inside the wood".
-    It cannot decide that she tries twirling sticks.
-  - **Check:** nothing a language model writes ever feeds back into the simulation, and its descriptions are checked against the data they came from.
+  - **Example:** The model can tell you, in the voice of their tradition, how Ama "took the fire that sleeps inside the wood".
+    It cannot decide that she tries drilling.
+  - **Check:** nothing a language model writes ever feeds back into the game, and its texts are checked against what they came from.
 
 ### 2.4 How it runs
 
 - `PRN-15` **History is saved, not re-run** *(Decided)*
-  - **What:** The past is kept only as the chronicle and the events behind it, with the records each view of the past needs.
+  - **What:** The past is kept as the book of ages and the events behind it, with what each view of the past needs: graves, old camps, family trees, art.
     The world's full state is kept only for the present (`PLT-07`), so the past can't be replayed or returned to.
-    The past is never recomputed, and the phone and cloud builds don't have to produce identical histories (`PLT-05`).
-    A seed decides how a world is generated, not how its history unfolds.
-  - **Why:** Re-running history exactly would need identical maths on every device, and every old version of the rules kept forever.
-    Saving what matters avoids those costs, so the effort goes into depth on the phone.
+    A seed decides how a world is made, not how its history unfolds.
+  - **Why:** Replaying history exactly would need identical maths on every device, and every old version of the rules kept forever.
+    Saving what matters avoids that cost.
   - **Example:** You tap a cave painting of a great hunt.
-    The hunt's events were saved, so you can read who was there, what happened and how it ended.
-  - **Check:** every view of the past reads saved data, and nothing re-simulates the past.
+    The hunt was saved, so you can read who was there, what happened and how it ended.
+  - **Check:** every view of the past reads what was saved, and nothing re-runs the past.
 
 - `PRN-08` **Same seed, same history** *(Dropped)*
   - **Dropped because:** history is now saved rather than re-run (`PRN-15`), and the phone and cloud builds no longer need to match exactly (`PLT-05`).
 
-- `PRN-11` **Time slows, depth stays** *(Decided)*
+- `PRN-11` **Time slows, the screen stays smooth** *(Decided)*
   - **What:** The screen never stutters.
-    When the phone can't keep up, the simulation doesn't cut corners; history simply moves more slowly.
-    The only simplification allowed is the planned one: less detail for what is routine, decided by the world's own rule and never by where you look (`WLD-12`, `MND-14`).
-    A simpler form is used only once an experiment shows it gives the same history, statistically, as full detail, and moving between forms never contradicts what happened (`PRN-10`).
-  - **Why:** Depth is the point of the project (`PRN-02`), and a smooth screen is part of the joy on the phone (`VIS-14`).
-    Slowing time protects both.
+    When the phone can't keep up, the world doesn't cut detail: time simply runs more slowly.
+    Every person is a full individual at all times, watched or not (`MND-14`).
+    The only simplifications are the planned ones, the same whether you look or not: herds far from people are counts rather than single animals, and plant cover far away is kept per world cell (`WLD-12`).
+  - **Why:** A smooth screen is part of the joy on the phone (`VIS-14`), and cutting detail under load would make history depend on how busy the phone is.
   - **Example:** A fight breaks out between two bands while you watch.
-    The phone works harder, so a day takes longer to pass, but everyone in the fight is still fully simulated and the screen stays smooth.
-  - **Check:** measurements show no stutter under heavy load (`PLT-04`), and whatever runs in full stays in full whatever the load.
+    The phone works harder, so the season takes longer to pass, but everyone in the fight is fully simulated and the screen stays smooth.
+  - **Check:** measurements show no stutter under heavy load (`PLT-04`), and the same saved world gives the same results at every speed and zoom (`TIM-17`).
 
 ### 2.5 How it's built
 
-- `PRN-09` **Only as deep as the next experiment needs** *(Decided)*
-  - **What:** Each system is built to the depth the next experiment requires, on foundations that can go deeper later without starting over.
-    This sets the order of work, not the ambition: in the end, every system is as deep as `PRN-02` asks.
-  - **Why:** "No ceiling" plus "everything deep" could never be finished all at once.
-    Building in the order the experiments need keeps the project moving and every step testable.
-  - **Example:** Experiment 1 (sharp stone) needs to know how stone breaks, not how metal is smelted.
-    Smelting waits until an experiment needs it, but matter is designed from the start so it can be added without rework.
-  - **Check:** every task in the implementation plan names the experiment or feature that needs it.
+- `PRN-09` **Build in playable steps** *(Decided)*
+  - **What:** The game is built as a series of playable alphas, each ending with something you can open and play on your phone (`SCP-03`).
+    Each alpha builds only what it needs, on foundations that later ones extend without starting over.
+  - **Why:** A game you can play at every step shows early what works and what is fun, and keeps the project moving.
+  - **Example:** The first alpha is one band in one generated area, eating, drinking and sleeping through day and night (`MIL-01`).
+    Copper waits for the last milestone (`MIL-07`), but things and blueprints are designed from the start so it can be added without rework.
+  - **Check:** every alpha ends with a build you can install and play (`PRC-11`), and every task in the implementation plan names the items it delivers.
 
 - `PRN-14` **Modular by design** *(Decided)*
-  - **What:** Every system grows by adding self-contained pieces (materials, laws, species, behaviours, views, checks), and never rewrites what already works without a stated reason.
-    Adding something should be easy and effortless.
-  - **Why:** A project with no ceiling grows forever, and only a modular one stays buildable.
-  - **Example:** Adding tin ore to the world needs one new ingredient entry and its checks.
-    Smelting tin already works, because the smelting law never named copper.
+  - **What:** Every system grows by adding self-contained pieces (items, blueprints, plants, animals, illnesses, behaviours, views, tests), and never rewrites what already works without a stated reason.
+    Adding something should be easy.
+  - **Why:** A game that keeps growing stays buildable only if it is modular.
+  - **Example:** Adding a new animal later needs one catalogue entry, with its model, sounds and tests.
+    Hunting, taming and herding already work for it, because their rules never named a species.
   - **Check:** every milestone report lists what was added and confirms that nothing earlier had to be rewritten, or explains why it had to be.
 
 ## 3. Scope and non-goals
 
-This section sets the boundaries of the project: what it includes, where history starts, who it's for, how it gets built, and what it deliberately leaves out.
+This section sets the boundaries of the game: what it includes, where history starts, who it's for, how it gets built, and what it deliberately leaves out.
 
-### 3.1 What the project includes
+### 3.1 What the game includes
 
-- `SCP-13` **The whole project at a glance** *(Decided)*: A summary of the sections that follow.
-  - **A generated world** (see World): a small planet that wraps around, with real geology, climate, weather, water, soils, plants and animals.
-  - **Real matter** (see Matter and physics): everything is made of real ingredients and changed by general laws, using real-world values where they decide what is possible.
-  - **People** (see People: bodies and lives): one human species with modern minds, and bodies that eat, heal, age, have children and pass on traits.
-  - **Minds** (see Minds): people and animals who perceive, form their own concepts, learn cause and effect, build skills, dream, and choose for reasons that can be explained.
-  - **Culture and society** (see Culture and society): learning from others, language, belief, institutions, art, music, myths and style, all emerging on their own.
-  - **Your powers** (see The player as god): weather and disasters, dreams, and fortune.
-  - **Time and history** (see Time and history): time that follows zoom, a story director, and a chronicle of everything that happened.
-  - **Presentation** (see Presentation): detailed pixel art, one continuous zoom from the globe to a single person, and many ways to follow the story: the chronicle, following one person's life, map overlays, archaeology and more.
-  - **Sound** (see Sound): a living soundscape first, then their music, their voices and a score.
+- `SCP-13` **The whole game at a glance** *(Decided)*: A summary of the sections that follow.
+  - **You, a hidden god** (see The player as god): weather and natural disasters where nature allows, dreams, and fortune.
+  - **Time and history** (see Time and history): a 60-day year, real speed up close, centuries overnight, and a story director that slows time for what matters.
+  - **A generated world** (see World): about 2,000 km around, with climate and weather, about 60 kinds of plant and 30 of animal, and flint, clay, ochre and copper ore where the rocks put them.
+  - **Things and blueprints** (see Things and blueprints): about 200 kinds of item, 21 base actions, and about 150 hidden blueprints, from sharp flakes to copper.
+  - **People** (see People: bodies and lives): bodies with needs, wounds and illnesses, from birth to old age.
+  - **Minds** (see Minds): needs, personality, moods, memories, beliefs, plans, friends and rivals, and choices whose reasons you can read.
+  - **Culture and society** (see Culture and society): one language from the start, teaching, religion, kin and marriage, leaders, peoples, trade and raids, villages, art, music and festivals.
+  - **Presentation** (see Presentation): pixel-rendered 3D, one zoom from the globe to one person, things that look like what they are made of, and the book of ages.
+  - **Sound** (see Sound): a lively camp, the murmur of their language, and their songs.
   - **The phone app** (see Platform and performance): built for one phone, in portrait and landscape, smooth at all times.
-  - **Research tools** (see Research and validation): experiments in small sandboxes, confirmed in full worlds, run in the cloud, with reports and experiment worlds you review on the phone.
+  - **Testing** (see Testing): automated tests at every alpha, sandbox scenes for every blueprint chain, overnight pace tests on whole worlds, and your reviews.
 
 ### 3.2 Where history starts
 
-- `SCP-01` **Starting point** *(Decided)*: Modern minds with very little culture.
-  - **What:** Every world begins with 3–4 family bands of modern humans who have almost no culture: a few dozen words, no way to make fire, nothing but rough stones and sticks.
-    The full starting kit is in `BIO-02`.
-  - **Why:** Because their minds are already modern, progress depends on learning and culture, not on waiting millions of years for brains to evolve.
-    Because they start with almost nothing, the great early discoveries happen in play: making fire, shaping stone, clothing, language.
+- `SCP-01` **Starting point** *(Decided)*: Modern minds with almost no culture.
+  - **What:** Every world begins with 3–4 family bands of 15–30 people, 45–120 in all, in one start region, sharing one language (`BIO-03`, `CUL-17`).
+    They are modern humans with almost no culture: no shaped tools, no clothing, natural shelter only, and no way to make fire, though they can keep a found fire alive and carry its embers (`BIO-02`).
+    This is the only starting point.
+  - **Why:** Because their minds are already modern, progress depends on discovery and culture, not on waiting for brains to evolve.
+    Because they start with almost nothing, the great early discoveries happen in play: sharp stone, fire-making, clothing and huts.
   - This is a deliberate starting point, not a real moment in history.
     Real early humans already had more culture than this.
 
-- `SCP-14` **Other starting points later** *(Decided)*
-  - **What:** Worlds can later begin from other starting points:
-    - **Ice-age hunters:** like humans of roughly 50,000–40,000 years ago, with full language, fire-making and fine stone blades.
-    - **Ancestral minds:** smaller brains whose abilities must evolve over many generations.
-      For experiments only, since minds barely change within a history you could watch (`BIO-06`).
-    - **A blank slate:** modern brains with no language, fire or tools at all.
-
-    Each still has a single human species (`SCP-05`).
-  - **Why:** A starting point is just the knowledge and abilities put into people's heads at the beginning, so alternatives cost little and make good experiments.
-  - They come after the main starting point works (`PRN-09`).
-  - **How it works:** a starting point is a set of starting records and settings for the short run before year 0 and the starting kit (`BIO-02`, `BIO-20`): ice-age hunters start with the words, skills and beliefs of foragers of that time; ancestral minds start with lower settings for learning, memory and planning, inherited and able to evolve (`BIO-06`); a blank slate starts with no words, skills or fire; the world itself is made the same way.
+- `SCP-14` **Other starting points later** *(Dropped)*
+  - **Dropped because:** every world starts the same way (`SCP-01`), which keeps the game smaller and its tests comparable.
 
 ### 3.3 Who it's for
 
@@ -605,50 +606,51 @@ This section sets the boundaries of the project: what it includes, where history
   - **What:** Kindling is built for one person, on one phone.
   - **In practice:**
     - no public release, store listing or tutorial, only short help cards (`PRE-40`);
-    - no support for other phones, tablets or computers (experiments in the cloud are a research tool, not a way to play);
+    - no support for other phones, tablets or computers (tests in the cloud are a building tool, not a way to play);
     - no accounts, purchases, ads or analytics;
     - free to use your phone's specific hardware (`PLT-01`).
-  - **Why:** Building for one person and one device removes whole categories of work, so the effort goes into depth and polish.
+  - **Why:** Building for one person and one device removes whole categories of work, so the effort goes into the game itself.
   - **Check:** the builds hold no account, purchase, advertising or analytics code, and target only your phone (`PLT-01`).
 
 ### 3.4 How it gets built
 
-- `SCP-03` **Experiments first** *(Decided)*: Core ideas are proven in experiments, mostly in small sandboxes, before the game builds on them (`RES-01`), and a phone app grows alongside, so you can watch the results from the start.
-  - **Check:** every milestone report traces its features to experiments that passed (`RES-06`).
+- `SCP-03` **Playable alphas** *(Decided)*: The game is built as a series of playable alphas, each a few hours of AI work, each ending with something you can install, open and play on your phone (`PRN-09`, `PRC-11`).
+  Every alpha comes with its automated tests (`RES-01`).
+  - **Check:** every alpha has a build you can install, its tests pass (`PRC-10`), and its note says what you can now see or do.
 
-- `SCP-15` **Experiments run in the AI's cloud sessions** *(Decided)*
-  - **What:** Experiments run in the same cloud sessions where the AI builds the game, within those sessions' computing limits.
+- `SCP-15` **Tests run in the AI's cloud sessions** *(Decided)*
+  - **What:** Automated tests, including the overnight pace tests on whole worlds, run in the same cloud sessions where the AI builds the game, within those sessions' computing limits.
   - **Why:** There's nothing extra to set up, maintain or pay for.
-  - If an experiment ever needs more computing power than a session offers, that is raised with you before anything else is set up.
-  - **Check:** every experiment report states where it ran and within what computing budget (`RES-16`).
+  - If a test ever needs more computing than a session offers, that is raised with you before anything else is set up.
+  - **Check:** every milestone report states where its tests ran and how much computing they used (`RES-06`).
 
-- `SCP-16` **Milestones** *(Decided)*: The project moves through these milestones in order.
-  Each ends with a report you review (`RES-06`).
-  This file keeps each milestone's goal and order; the implementation plan maps every item to a milestone, with tasks and dates.
+- `SCP-16` **Milestones** *(Decided)*: The game is built in seven milestones, in order, each a stage of several playable alphas (`SCP-03`).
+  Each milestone ends with a report you review (`RES-06`).
+  This file keeps each milestone's goal and order; the implementation plan maps every item to a milestone, with its alphas and tasks.
 
-  1. `MIL-01` **Foundations** *(Decided)*: a small generated valley that runs on the phone and in the cloud with the same statistics (`RES-05`), the experiment runner and its first report, and a basic phone viewer for saved history.
-     *Now possible:* watching a generated valley pass through its days and seasons on your phone.
-  2. `MIL-02` **Sharp stone (Experiment 1)** *(Decided)*: stone that breaks by real rules; people who perceive, form concepts, learn cause and effect, build skills and learn from each other; just enough food and terrain to live on.
-     *Now possible:* watching a band discover how to chip stone, and seeing the skill spread or be lost.
-  3. `MIL-03` **Fire and the first power** *(Decided)*: heat, burning and friction; keeping and making fire; dreams, your first power.
-     *Now possible:* a band that can only keep fire learns to make it, and you can send a dream and see what comes of it.
-  4. `MIL-04` **A living world** *(Decided)*: plants and animals in food webs, with weather and seasons; animals with simpler minds; hunting; your powers over nature and fortune; the living soundscape.
-     *Now possible:* hunting becomes an arms race, and your storms and blessings change lives.
-  5. `MIL-05` **Words and beliefs** *(Decided)*: language emerging, explanations, ritual and myth; the chronicle and life stories written by the writer AI.
-     *Now possible:* rites form, dialects drift apart, and the chronicle reads like a history.
-  6. `MIL-06` **The whole world** *(Decided)*: the full wrap-around world, migrations, many bands and diverging cultures, one continuous zoom from the globe to a single person, and archaeology.
-     *Now possible:* watching peoples spread, split and meet again across a whole world.
-  7. `MIL-07` **Open-ended growth** *(Decided)*: taming animals, farming, settlements and whatever comes after, each built when an experiment calls for it.
-     *Now possible:* history keeps going for as long as the world's people fit what the phone can run at full depth (`MND-15`).
+  1. `MIL-01` **First camp** *(Decided)*: a generated area with one band; needs (hunger, thirst, warmth, rest); gathering, eating, drinking and sleeping; day and night; zoom from the area to one person; time controls; saving.
+     *Now possible:* watching a band live through its days and nights at the foot of a cliff.
+  2. `MIL-02` **Sharp stone** *(Decided)*: items and their characteristics, base actions, blueprints, discovery, experience and teaching; sharp flakes discovered; the first entries in the book of ages.
+     *Now possible:* watching someone find that struck flint gives a sharp edge, and the skill spread or be lost.
+  3. `MIL-03` **Fire and the first power** *(Decided)*: fire and heat, fire-making by drilling, and cooking; local weather with lightning; your first powers, lightning and dreams; the first sounds and the murmur.
+     *Now possible:* a band that can only keep fire learns to make it, and you can send a storm or a dream and see what comes of it.
+  4. `MIL-04` **A living world** *(Decided)*: the whole world generated; the map layers and zoom out to the globe; plants, animals and hunting; seasons and weather; illness.
+     *Now possible:* following herds and hunters across a whole world, season by season.
+  5. `MIL-05` **Minds and beliefs** *(Decided)*: full minds (personality, mood, memories, relationships, beliefs); conversations; belief templates and religion; the writer AI's texts; the details view of each mind.
+     *Now possible:* rites and taboos form, and the book of ages reads like a history.
+  6. `MIL-06` **Many peoples** *(Decided)*: bands splitting into named peoples with territories; marriage, trade, feuds and raids; the story director; overnight mode.
+     *Now possible:* watching peoples spread, split, fight and marry, centuries at a time overnight.
+  7. `MIL-07` **Herds, fields and villages** *(Decided)*: taming and herding, farming, villages, pottery, copper, art, music and festivals; the full launch catalogue; the pace targets met (`TIM-19`).
+     *Now possible:* the whole arc, from caves to first copper, in a few hundred game years.
 
 ### 3.5 Non-goals
 
-Things the project deliberately does not do, and why.
+Things the game deliberately does not do, and why.
 
-- `SCP-04` **No recipes or tech tree** *(Decided)*: Discoveries come from physics and learning (`PRN-01`, `PRN-07`).
-  - **Check:** the general-rules check passes (`PRN-07`), and the code holds no list of recipes or unlocks.
+- `SCP-04` **No tech tree** *(Decided)*: Blueprints exist, but they are hidden and generic, found only in play, by accident, by experimenting, in dreams or by copying (`MND-11`), and never chosen from a menu or unlocked with points (`PRN-07`).
+  - **Check:** the game has no menu, list or tree of discoveries to choose from, and nothing on screen shows a blueprint nobody in the world has found.
 - `SCP-05` **No other human species** *(Decided)*: There is one human species, so the story stays about how one people learns.
-  - **Check:** the species catalogue holds one human species, and no starting point adds another (`SCP-14`).
+  - **Check:** the game holds one human species, and no catalogue adds another.
 - `SCP-06` **No AI language model making decisions** *(Decided)*: Our own knowledge would leak into their world (`PRN-06`).
   - **Check:** the check of `MND-01` passes.
 - `SCP-07` **No goals, scores, wins or losses** *(Decided)*: It is a sandbox; the story is whatever happens.
@@ -657,258 +659,351 @@ Things the project deliberately does not do, and why.
   - **Check:** no power reads any mind's beliefs, and the check of `GOD-06` passes.
 - `SCP-09` **No terraforming** *(Decided)*: You can't reshape land or add or remove species.
   You act only as nature could (`GOD-05`).
-  - **Check:** every power is a request to a natural system (`GOD-05`); none reshapes land or adds or removes a species.
+  - **Check:** every power works through a natural system (`GOD-05`); none reshapes land or adds or removes a species.
 - `SCP-10` **No shared online world or multiplayer** *(Decided)*: It's yours alone (`SCP-02`).
   - **Check:** nothing in play uses a network connection (`PLT-03`), and the app has no online features.
 - `SCP-11` **No real-Earth map** *(Decided)*: Every world is generated (see World).
-  - **Check:** worlds come only from the generator (`WLD-10`), and the app holds no real-Earth map data.
-- `SCP-12` **No simulated planet formation** *(Decided)*: Worlds are generated directly in a realistic present-day state, which keeps generation cheap (`WLD-08`).
+  - **Check:** worlds come only from the generator (`WLD-10`), and the app holds no real-Earth map.
+- `SCP-12` **No simulated planet formation** *(Decided)*: Worlds are generated directly in a realistic present-day state, which keeps generation to a few minutes (`WLD-08`).
   - **Check:** generation runs only the stages of `WLD-09`.
 - `SCP-17` **No direct control** *(Decided)*: You never control any person or animal, not even briefly (`GOD-01`).
-  - **Check:** no control in the app sets any being's actions; your only way into the simulation is your powers (`GOD-05`).
+  - **Check:** no control in the app sets any being's actions; your only way into the world is your powers (`GOD-05`).
 - `SCP-18` **No scripted story** *(Decided)*: There is no campaign, no quests and no authored events.
-  Every story comes from the simulation (`PRN-01`).
-  - **Check:** a code search finds no authored events, quests or campaign data; every event comes from the rules.
-- `SCP-19` **No magic in the world** *(Decided)*: Nothing supernatural exists in the world's physics.
+  Every story comes from the world's rules (`PRN-01`).
+  - **Check:** a search of the game finds no authored events, quests or campaign; every event comes from the rules.
+- `SCP-19` **No magic in the world** *(Decided)*: Nothing supernatural exists in the world's rules.
   Spirits and gods exist only in people's beliefs.
   The only unseen force is you, and you act through nature.
-  - **Check:** every law in the catalogue is physical or biological (`MAT-13`), and no law reads people's beliefs about spirits.
+  - **Check:** every blueprint and world rule is physical or biological (`MAT-13`), and no rule of the world reads people's beliefs about spirits.
 - `SCP-20` **No borrowed real cultures** *(Decided)*: Their peoples, names, languages and customs are their own.
   Nothing is copied from real cultures, and descriptions never compare them to real peoples.
   - **Check:** each milestone review checks names, words, customs and descriptions for anything copied from or compared with a real people; languages draw on their own sounds (`CUL-17`), starting looks are mixed (`BIO-22`), and the writer's instructions forbid comparisons (`PRE-17`).
+- `SCP-21` **No deep science simulation** *(Decided)*: Kindling is a believable game, not a science simulation (`PRN-02`).
+  It does not simulate chemistry, the balance of elements and energy, how cracks run through stone, microbes, heredity and evolution in plants and animals, insects, ice ages, tides, people changing the climate, slow changes in the land beyond rare quakes and eruptions, or language changing over time.
+  - **Why:** Each would cost a great deal and show little; what does show comes from simpler rules, such as blueprints (`MAT-04`), illnesses that spread by real routes (`BIO-05`) and taming (`WLD-33`).
+  - **Check:** each milestone review confirms that no part of the game simulates any of these.
 
 ## 4. The player as god
 
 You are an invisible force of nature.
-This section defines exactly what you can do, how strong each power is, and the limits that keep every act natural.
+You have four kinds of power: weather, dreams, animal dreams and fortune.
+This section sets what each can do, its limits and costs, and how you use it on the phone.
 Two principles govern all of it: you are nature (`PRN-03`), and the rules never bend (`PRN-12`).
 
 ### 4.1 Your role
 
 - `GOD-01` **Role** *(Decided)*
-  - **What:** A distant, invisible god in a pure sandbox.
+  - **What:** A distant, invisible god in a sandbox.
     You can watch everything, everywhere, and you can nudge, but you never command or control anyone (`SCP-17`).
   - **Why:** Every achievement in the world stays theirs.
-  - **Example:** You can't tell Ama to twirl sticks.
-    You can only give her a dream and see what she does with it.
+  - **Example:** You can't tell Ama to drill a stick into dry wood.
+    You can only send her a dream and see what she does with it.
 
 - `GOD-06` **Never known** *(Decided)*
-  - **What:** People experience your interventions as nature: weather, luck, dreams.
-    They may explain them as spirits or gods, and whatever they believe is their own interpretation, right or wrong.
-    Nothing in the world can ever detect you directly.
-  - **How it works:** every intervention enters the world only as a change to a natural system's own inputs: a storm system added to the weather (`WLD-16`), a season's chances shifted, stored strain or magma released (`WLD-15`), a dream's content chosen (`MND-12`), or a chance draw retried (`GOD-04`).
-    People perceive only the weather, the luck and the dreams, through their senses (`MND-03`), and nothing anyone can perceive marks an event as yours; what they make of it forms by the usual mechanisms (`CUL-05`).
-  - **Check:** a code check finds no path from the record of your interventions (`GOD-08`) into anything a mind can perceive.
-  - **Why:** Their beliefs stay their own, and religion grows from the same machinery as discovery (`CUL-05`).
-  - **Example:** After a run of lucky hunts that you sent, a band gives the credit to the bones they buried at the cave mouth.
-    A ritual of burying bones begins.
+  - **What:** People and animals meet your acts only as nature: weather, dreams and luck.
+    Nothing in the world can tell that an event was yours.
+    People explain your acts as they explain any event, through spirits, ancestors or not at all (`CUL-05`), and what they believe is their own, right or wrong.
+  - **Check:** a test confirms that nothing a person or animal can sense, remember or believe records whether an event was your act.
+  - **Why:** Their beliefs stay their own, and religion grows from the same events as everything else (`CUL-26`).
+  - **Example:** You bless a band's best hunter for a season, and his hunts go well.
+    The band credits the bones they buried at the cave mouth, and burying bones before a hunt becomes a rite.
 
 - `GOD-05` **Only natural means** *(Decided)*
-  - **What:** Every act must be something nature could do.
-    Your powers feed into the world's own systems (weather, chance, sleep).
-    They never create anything from nothing and never break a rule (`PRN-12`).
-    There is no limited supply of power to spend, but nature's own limits always apply.
-    Those limits:
-    - lightning comes from storm clouds, so to strike a tree you first need a storm overhead.
-      You can bring one, and it builds over hours, as weather does;
-    - disasters happen only where conditions allow: eruptions at volcanoes with magma beneath them, earthquakes on faults, floods where rain can swell the rivers, wildfires where fuel is dry enough to burn;
-    - weather nudges shift the weather's own chances within what the climate can produce at that place and season, so there is no snow in a tropical summer, and a run of nudges can't push a place beyond its climate's worst natural stretch;
-    - a season can be pushed over a region at most about one climate zone across, roughly 100 km;
-    - earthquakes and eruptions use up the stored strain and magma that make them possible: you choose where and when, and nature's stores decide how big;
-    - a person or animal has at most one dream per sleep;
-    - fortune works on chance, never on the rules (`GOD-04`).
-  - **How it works:** each power is a request to a natural system, which carries it out by its own rules: a storm is added only where the weather could form one, drawn as its storm belt would draw it, and builds over hours (`WLD-16`); lightning needs a storm overhead; a pushed season shifts the weather's chances within the place's climate (`WLD-16`); quakes and eruptions release strain and magma already stored, so their size is nature's (`WLD-15`); floods and fires need the water and fuel to be there.
-    Each request is checked against the same conditions the world uses for natural events, and refused if it fails them (`GOD-11`).
-  - **Why:** A single miracle would make the world's history untrustworthy.
-  - **Check:** every intervention passes the same physical checks as a natural event would.
+  - **What:** Every act is something the world itself could do, at a place and time where it could happen.
+    Your powers work only through the world's own weather, sleep and luck.
+    They never make anything from nothing (`MAT-09`) and never bend a rule (`PRN-12`).
+    There is no power to collect or spend; instead, every power has the same kinds of limits and costs.
+  - **Limits:**
+    - **needs:** lightning needs a thunderstorm overhead, rain needs moist air, a flood a river, a quake a fault, and a dream a sleeper, made only from what they know;
+    - **strength:** you choose where and when, and the world sets how strong, as it would for a natural event there and then;
+    - **rest:** each power rests before it can be used again, as its item says.
+  - **Costs:**
+    - **time:** nothing is instant: a storm gathers over hours, a flood rises over a day or two, a drought bites over days, a dream works only after waking, and fortune only when chance comes up;
+    - **no favourites:** weather falls on everyone in reach, friend or rival, people and animals alike, and lightning burns or kills whatever it hits;
+    - **no undo:** what has happened stays.
+  - **Why:** A single miracle would make the world's history untrustworthy, and limits make every act a real choice.
+  - **Check:** a test tries each power across many places, seasons and targets, and confirms that it is offered only where its conditions hold, and that what it brings matches a natural event of the same kind and size.
 
 ### 4.2 Your powers
 
-- `GOD-02` **Nature and disasters** *(Decided)*
-  - **What:** Three scales of influence:
-    - **Small events, placed exactly:** a lightning strike, a shower, a gust of wind, a cold night, a fog.
-    - **Seasons, pushed over a region:** a wet spring over a valley, a dry year over a region, a hard winter.
-    - **Disasters, where conditions allow:** floods, droughts, storms, wildfires, eruptions, earthquakes, landslides.
-  - **Not included:** changing the climate directly.
-    If an eruption you trigger is big enough to cool the world for a few years, that is physics at work, not a power.
-  - **How it works:**
-    - **Small events:** each sets its weather cell's own physics to what gives it, within what that cell's weather could do that hour (`WLD-16`): a lightning strike lands at the spot you chose under a storm overhead (`WLD-28`); a shower falls from cloud that is there; a gust, a cold night or a fog comes from shifting the cell's wind, sky or air within its range.
-    - **Seasons:** over a region you draw, up to about one climate zone across, storms are drawn more or less often and the air is nudged warmer, colder, wetter or drier, within the place's natural range for that season (`GOD-05`).
-    - **Disasters:** a flood comes from rain sent over a river's catchment, with the water balance doing the rest (`WLD-17`); a drought from storms held away; a storm from one drawn in its belt; a wildfire from lightning on dry fuel (`WLD-28`); an eruption or earthquake from releasing what is stored, at its stored size (`WLD-15`).
+- `GOD-02` **Weather and disasters** *(Decided)*
+  - **What:** Seven powers over weather and land:
+    - **Lightning:** under a thunderstorm, you aim its next strike at a spot.
+      It hits the tallest thing within a few metres, such as a tree, a rock or a person in the open, and can split, burn, wound or kill (`MAT-18`, `BIO-13`).
+      Strikes come at the storm's own pace, about one every few minutes (tuned).
+    - **Rain:** where there is cloud or moist air, rain falls over that weather cell, about 10 km across, for up to a day, or snow where it is cold enough.
+    - **Storm:** where that place's climate has storms in that season, one gathers upwind and arrives within a few hours (`WLD-16`).
+      It brings strong wind and heavy rain or snow, with thunder where the air is warm and moist, and moves on with the wind after hours to a day.
+    - **Drought:** rain is held away from a region up to about 50 km across for up to a season: springs and rivers fall, plants wither, and fire catches easily.
+    - **Cold snap:** a region up to about 50 km across gets up to three days as cold as that place ever gets in that season: frost in autumn, deep cold in winter, but no frost where that season never has any.
+    - **Flood:** where a storm could come, it stalls over a river's upper valley for a day, and over the next day or two the river rises and spills over its banks downstream, as far as its valley allows (`WLD-17`).
+    - **Quake or eruption:** only on a fault or at a volcano the world has (`WLD-15`).
+      You choose when; the world sets how big, as for a natural one.
+  - **Rest:**
+    - one storm of yours at a time, a flood's included, and one rain;
+    - one drought and one cold snap at a time, and afterwards that region can't be dried again for a year or chilled again for a season;
+    - a fault or volcano you set off stays quiet as long as it would after a natural quake or eruption, usually many years.
+  - **Not included:** changing the climate, reshaping the land, or adding or removing species (`SCP-09`).
   - **Why:** Weather is the most natural lever there is, and the one people have always tried to explain.
-  - **Example:** You bring a storm over the ridge and send lightning into a dead pine.
-    Fire runs down the slope, and the band upwind gathers burning branches.
+  - **Example:** You bring a storm over the ridge and aim its lightning at a dead pine.
+    Fire runs down the slope, and the band upwind carries burning branches home.
 
-- `GOD-03` **Sending dreams** *(Decided)*
-  - **What:** While someone sleeps, you can shape their dream from their own memories and feelings.
-    A dream can:
-    - bring two of their memories together, such as the smoking stick and the warmth of fire;
-    - relive one memory vividly, so it stays strong and comes to mind more easily;
-    - carry a feeling (fear, longing, hope or awe) that shapes what they make of it.
-
-    A dream can only use what the dreamer has actually experienced.
-    They still have to work out the "how" themselves, and they may never act on it at all.
-  - **How strong:** a dream you send replaces that night's own dream, and is never stronger than the strongest natural dream: you only choose what it contains.
-    Sending the same dream again follows the mind's normal rules for recurring dreams, and nothing marks your dreams out from natural ones (`GOD-06`).
-  - **What follows:** The dream becomes a memory of its own.
-    It makes certain ideas more likely to come to mind, and the dreamer may tell others about it, which can feed myth and belief (`CUL-05`).
-  - **How it works:** you choose, from the sleeper's own memory records (`MND-18`), one memory to relive or two to bring together, and a feeling; that night's dream uses your choice in place of its own random recombination (`MND-12`), at the strength of the night's strongest natural dream.
-    It then works as any dream does: the relived memory is renewed, a pairing leaves a weak new belief, the feeling colours both, and the dream is remembered and can be told (`CUL-24`); sending it again follows the same rules as a natural recurring dream.
-  - **Why:** Dreams are where minds recombine experience (`MND-12`), so they are the most natural way for a god to touch an idea without supplying it.
-  - **Example:** The session story in `VIS-11`.
+- `GOD-03` **Dreams** *(Decided)*
+  - **What:** While someone sleeps, you can choose what they dream, from what they have seen and done.
+    There are five kinds of dream:
+    - **a place** they know (`MND-28`): they feel drawn to go there;
+    - **an animal** they have met: they feel drawn to hunt, watch or feed it;
+    - **a person** they know: they feel drawn to seek them out, to talk, help, court or make peace;
+    - **a fear** of a place, an animal or a person they know: they keep away from it;
+    - **an idea:** you pick a memory of something they did or handled, and the dream sets it beside what a blueprint they don't know yet could give, such as the smoking stick beside the warmth of a fire.
+      The blueprint must start from that memory and lie near their experience: they know its action and have handled things like its inputs (if several fit, the nearest to what they know).
+      They wake with a hunch, and may try it when they have time and the things in reach (`MND-11`); whether it works is down to the blueprint's chance and their experience (`MAT-04`).
+  - **How strong:** a dream's pull lasts a few days (tuned).
+    It can tip a close choice (`MND-09`), but never beats hunger, danger or a firm plan, and they may never act on it at all.
+  - **Limits and costs:**
+    - one dream per sleeper per night, and up to three dreams a night in all, animal dreams included;
+    - only what the dreamer knows: never a place, animal, person or thing they have not met, and only memories that lead to such a blueprint can become an idea;
+    - your dream replaces that night's own dream (`MND-12`), and any hint it might have brought;
+    - sending the same dream again keeps it fresh but doesn't make it stronger.
+  - **What follows:** the dream is remembered like any other, and may be told, so it can spread and feed belief (`CUL-05`).
+  - **Why:** Dreams are where minds recombine what they know (`MND-12`), so they are the most natural way to touch an idea without supplying it.
+  - **Example:** Ama once saw smoke curl from her stick as she drilled a hole in dry wood.
+    The band's fire dies, and while she sleeps you pick that memory for an idea.
+    She dreams of the smoking stick beside the warmth of a fire, and in the morning she is drilling again, longer and harder, with the driest wood she can find.
 
 - `GOD-12` **Animal dreams** *(Decided)*
-  - **What:** Animals can be sent simpler dreams: one memory relived, coloured by a feeling.
-  - **How it works:** in a sleeping animal, you choose one of its memories and a feeling; its simpler replay (`MND-16`, `MND-12`) renews that memory and shifts the feelings tied to it, so a camp relived with ease leaves a little less fear of it.
-  - **Why:** Animals learn too (`MND-16`).
-    Dreams let you lean on that slowly, for example toward taming.
-  - **Example:** A wolf dreams again of the warmth and the scraps by the fire, and comes a little closer to the camp the next night (`MOM-06`).
+  - **What:** While an animal or a herd rests, you can send it one of three simple dreams:
+    - **toward a place** within its range, such as the scraps at a camp's edge: over the next few days it drifts there, but a herd never leaves its range for that season (`WLD-32`);
+    - **calmer:** for a few days it startles less, flees later and fights less, so it is easier to approach, hunt or tame (`WLD-33`);
+    - **bolder:** for a few days it comes closer to people and camps and stands its ground, but is also quicker to fight when cornered.
+  - **Limits and costs:** one dream per animal or herd per night, within the three a night (`GOD-03`); repeats keep it fresh but don't add up; and a bolder wolf is bolder with everyone, children included.
+  - **Why:** Animals learn and move by their own simple minds (`MND-16`), and dreams let you lean on them gently, toward a hunt or toward taming.
+  - **Example:** A young wolf dreams of the scraps at the camp's edge and comes a little closer the next night (`MOM-06`).
 
-- `GOD-04` **Fortune and fate** *(Decided)*
-  - **What:** You can bless or curse a person, a family, a band, an animal herd or a place.
-    Fortune can touch luck in the hunt, finding food or materials, fertility, health and recovery, and sickness and plague.
-  - **How it works:** Fortune acts only on the chance events around its target, such as whether a deer looks up, which way a spear wobbles, or whether a wound turns bad.
-    A blessed failure gets one more try; a cursed success is retried at most half the time.
-    Each chance event gets at most one retry, however many blessings and curses overlap.
-  - **How strong:** Gentle.
-    A blessing can never more than double a chance: a hunt with a 10% chance of success gets at most 20%.
-    A curse can never more than halve one.
-    Their skill still matters most, nothing is ever certain, and no one's choices are touched.
-    There is one strength; you choose the target and how long it lasts, from a single hunt to a few years.
-  - **Fortune works on chance, never on the rules:** it changes which of the possible outcomes happens, never what is possible.
-    A plague needs a disease that already exists in the world.
-  - **Why:** Luck is how the world feels to the people in it.
-    Fortune lets you lean on it without taking over.
-  - **Example:** You bless a band's hunters for one winter.
-    They come home with meat a little more often, but whether they survive still depends on how well they hunt and share.
+- `GOD-04` **Fortune** *(Decided)*
+  - **What:** You can bless or curse one person for a day, a season or a year.
+    Fortune changes only their luck: which of the possible outcomes comes about in what they do and what befalls them, such as a hunt, a find, a try at a blueprint, a birth, a wound or an illness.
+    It never changes what is possible, and never touches their choices.
+  - **How strong:** when chance goes against a blessed person, it gets a second roll.
+    When chance goes a cursed person's way, it is rolled again half the time.
+    So a blessing never more than doubles a chance, and a curse never more than halves one: a hunt with a 10% chance becomes about 19% blessed and 5.5% cursed, and one with a 50% chance becomes 75% or about 37%.
+    Their skill still matters most, and nothing becomes certain.
+  - **Limits:** one fortune per person at a time, and up to three people carrying your fortune at once.
+  - **Why:** Luck is how the world feels to the people in it, and fortune lets you lean on it without taking over.
+  - **Example:** You bless a band's best hunter for one winter.
+    He brings meat home a little more often, but whether the band gets through still depends on how well they hunt and share.
 
 ### 4.3 Using your powers
 
 - `GOD-10` **Using your powers on the phone** *(Decided)*
-  - **Touch first:** long-press a person, animal, group or place to see what you can do there (`PRE-33`).
-  - **Nature:** choose "draw an area" and draw around it to push its weather or season; tap a spot for a small event.
-  - **Dreams:** open a sleeper's memories, shown as small pixel-art scenes of what they remember (which can differ from what happened), choose what the dream is made of, and pick a feeling.
-  - **Fortune:** choose what to bless or curse, and for how long.
-  - Everything then plays out through the simulation.
-    Nothing happens faster than nature could make it happen.
-  - **How it works:** a long-press opens the powers that pass the checks for that target (`GOD-11`); time is paused while you choose (`TIM-15`); a drawn area is traced on the map with a finger; a sleeper's memories are shown as scenes drawn from their memory records, as they remember them (`MND-18`); and confirming sends the request to its natural system (`GOD-05`), with your choices recorded (`GOD-08`).
+  - **Touch first:** long-press a person, animal, herd or place, and a ring shows the powers possible there (`PRE-33`, `GOD-11`).
+    While the ring is open, faint marks show your acts at work nearby, such as a storm you brought or a blessed person.
+  - **Weather:** pick a power and tap the spot; for a drought or cold snap, draw the region with a finger, up to about 50 km across, and pick how long.
+  - **Dreams:** on a sleeper, pick the kind of dream, then what it is about, from small pictures of the places, animals, people and memories they have.
+  - **Animal dreams:** on a resting animal or herd, pick calmer, bolder, or a place, then tap the place.
+  - **Fortune:** on a person, pick bless or curse, then a day, a season or a year.
+  - **Confirm or cancel:** time pauses while you choose (`TIM-15`); confirming hands the act to the world, which carries it out by its own rules, and cancelling leaves everything as it was.
+  - **Ending early:** a drought, cold snap or fortune can be ended early from its page (`GOD-09`); a storm runs its course.
 
-- `GOD-11` **What's possible here** *(Decided)*
-  - **What:** The game only offers what nature could do at that place or to that being right now, and says briefly why other powers aren't available, such as "no volcano here" or "she is awake".
-  - **How it works:** for the chosen target, each power's conditions are checked against the world's present state: a storm overhead for lightning, magma for an eruption, strain on a fault, fuel dry enough, the target asleep for a dream (`GOD-05`); powers that pass are offered, and each that fails shows the condition it failed.
-  - **Why:** You never have to guess what's natural, and you never try a miracle by accident.
+- `GOD-11` **What's possible here** *(Decided)*: The ring offers only what nature could do at that place, or to that being, right now.
+  Each power that isn't possible says why in a few words, such as "no storm overhead", "she is awake", "no fault here" or "resting: ready in 2 days".
+  - **Why:** You never have to guess what is natural, and you never try a miracle by accident.
 
-### 4.4 Records of your interventions
+### 4.4 Records of your acts
 
-- `GOD-08` **Recorded behind the scenes** *(Decided)*: Every intervention is recorded with its time, place, target and every detail (the memories chosen, the feeling, the region drawn, the duration), as part of the saved history (`PRN-15`).
-  The scientist's view of your interventions depends on this record (`GOD-09`).
-  - **How it works:** each intervention is an event record holding every choice you made, saved in the history like any event and marked as yours (`PRN-15`); it is kept out of anything minds can perceive (`GOD-06`) and out of the story view (`GOD-07`).
+- `GOD-08` **Recorded behind the scenes** *(Decided)*: Every act is saved with the world's history: when, where, on whom, and every choice you made (`PRN-15`).
+  Minds can never sense it (`GOD-06`), and no text ever uses it (`GOD-07`); it feeds only your own marked lines and the pages of what came of your acts (`GOD-09`).
 
-- `GOD-07` **No trace in the story view** *(Decided)*: The story view never shows where you intervened or how much you helped.
-  - **How it works:** the story view and the writer receive the records with your intervention records left out, and events your acts caused look like natural ones; only the scientist's view reads the intervention records (`GOD-09`).
-  - **Check:** a test runs the story view on a history with interventions and finds no trace of them in what it shows or writes.
+- `GOD-07` **No trace in the story** *(Decided)*: The book of ages, live moments and every text written for you tell what happened, never that it was your doing.
+  There, your acts read as nature.
+  If you choose, your acts show beside the story as separate lines marked as yours, never woven into the text (`PRE-05`).
+  - **Check:** a test runs a world with many acts and finds no mention of them in any entry, live moment or text, apart from the marked lines.
 
-- `GOD-09` **Interventions in the scientist's view** *(Decided)*
-  - **What:** The scientist's view shows where and when you intervened, and traces what changed because of it.
-    It follows the chain of causes from your act through the saved events.
-  - **How it works:** the view lists your interventions from their records (`GOD-08`) and follows their consequences through the cause links the history keeps: what lit each fire, the memories behind each belief (`MND-05`), the chain behind each death (`BIO-14`).
-  - **Why:** Curiosity (`VIS-08`): you can find out what your nudges actually did.
-  - **Example:** You select the dream you sent Ama and follow what came of it: eleven days of twirling sticks, the first fire, and fire-making spreading along the river.
+- `GOD-09` **What came of your acts** *(Decided)*
+  - **What:** For each act, a page shows its date, place and target, and what followed:
+    - what your lightning hit, and any fire it lit;
+    - each roll your fortune turned;
+    - what a dreamer did after your dream, and any discovery it led to;
+    - where a herd you drew went, and the hunts that followed;
+    - for weather over a region, the notable events there while it lasted and soon after.
+
+    You reach it from the act's marked line in the book of ages (`PRE-05`), from the details of a person it touched (`PRE-14`), or from its mark in the world while it lasts (`GOD-10`).
+  - **How it works:** each act's direct results are saved with it, and the page follows them on through the history the world keeps, such as who learned a discovery from whom (`PRN-15`).
+  - **Why:** Curiosity (`VIS-08`): you can find out what your nudges really did.
+  - **Example:** You open the dream you sent Ama: the days of drilling that followed, the first fire made by drilling, and the people she taught.
 
 ## 5. Time and history
 
-After the camera, time is your main control.
-This section defines how fast time runs, what decides its speed, what happens while you're away, and how worlds, chance and dates are kept.
-Two principles shape all of it: pacing comes only from controlling time (`PRN-12`), and when the phone can't keep up, time slows rather than the simulation cutting corners (`PRN-11`).
+Time works one way for everything in the world: activities that start and end on one world clock, through a 60-day year, by the same rules at every zoom and every speed.
+After the camera, time is also your main control.
+This section sets how time works, how fast it runs and who sets its speed, what happens while you're away, how worlds and chance are kept, and the pace history should keep.
+Two principles shape it: pace comes only from controlling time (`PRN-12`), and when the phone can't keep up, time slows rather than the world cutting corners (`PRN-11`).
 
-### 5.1 How fast time runs
+### 5.1 How time works
+
+- `TIM-17` **Activities with an end** *(Decided)*
+  - **What:** Everything people and animals do is an activity with a start and an end: a walk to the spring, a strike at a flint, a meal, a night's sleep.
+    Its results land when it ends.
+    Anything can be interrupted, by the same rules for everyone.
+    There are no separate close-up and far-away versions of anyone: everyone runs by the same rules wherever they are, at every zoom and every speed, so looking changes nothing (`WLD-13`).
+  - **How it works:**
+    - **One world clock:** everything in the world runs on one clock of game time, and the speed of time is only how fast that clock runs against real time (`TIM-01`).
+    - **Length:** each activity lasts as long as it would in life (`TIM-18`): a strike a few seconds, a meal some minutes, a walk as long as the way takes at the walker's pace, and work by a blueprint the time the blueprint gives (`MAT-04`).
+      A person's day holds about 10–30 activities.
+    - **Results at the end:** the flake comes off as the strike ends, the meal feeds as it ends, and whether a blueprint succeeds is settled as it ends (`MAT-04`).
+      Work can repeat within one activity, such as striking flake after flake, and each flake lands as its strike ends.
+    - **The body keeps count:** hunger, thirst, warmth and rest change with the time that passes and the effort spent (`BIO-09`), and an activity ends early at the moment one of them turns urgent.
+    - **Choosing:** when an activity ends, the doer chooses the next (`MND-09`, `MND-16`).
+    - **Interruptions:** an activity also ends early when something the doer notices matters more than finishing it, such as a threat, a call or pain, or when the time comes for one of their plans (`MND-03`, `MND-09`, `MND-22`); a blow, a fall or death ends it at once.
+    - **What an interruption keeps:** a walker stands where they had got to, and a sleeper keeps the rest they had; work on a thing stays in it, so a half-scraped hide or a half-built hut needs only the time left from whoever takes it up; anything else cut short simply doesn't happen.
+    - **On the way:** where a walker is at any moment follows from the way and their pace, so they can be seen, met or attacked on the way.
+    - **Things and the land:** fire and the timers on things, such as rotting and drying, end when their time is up, sooner or later as conditions change (`MAT-18`, `MAT-19`); weather, water, plants and herds far from people move in rounds of set length on the same clock (`WLD-12`).
+    - **Same at any speed:** whatever ends at a given moment ends then, whether you watch it at real speed or race through the year, and things that end at the same moment are always settled in the same order.
+  - **Why:** One simple way of running time keeps the world believable up close and fast from afar, and makes history the same whether or not you watch.
+  - **Done when:** in test scenes, an interrupted walk leaves the walker where they had got to, a sleeper woken early keeps the rest they had, and a half-scraped hide is finished by someone else in the time left.
+  - **Check:** the same saved world, run at different speeds and zooms, gives the same results on the same phone (`TIM-16`).
+  - **Example:** Ama sets off for the flint cliff, two hours' walk away.
+    Follow her step by step, or let the season race past over the valley: she reaches the cliff at the same moment.
+    If a bear crosses the path halfway, her walk ends where she stands, and she chooses again.
+
+- `TIM-18` **The game year** *(Decided)*
+  - **What:** A game year is 60 days: four seasons of 15 days, spring, summer, autumn and winter.
+    A day has 24 hours.
+    What happens within days takes its real time, while what takes months or years in life is squeezed into the 60-day year, so it runs about six times faster.
+  - **Real time:**
+    - what people and animals do (`TIM-17`): walking 20–30 km a day, knapping a flake in seconds, a meal, a night's sleep;
+    - hunger, thirst, warmth and rest (`BIO-09`), and the course of an illness, over days as in life (`BIO-05`);
+    - weather, and day and night (`WLD-16`, `WLD-07`);
+    - fire and the timers on things: meat rots in a few days, a hide dries over days, a pot fires in hours (`MAT-18`, `MAT-19`).
+  - **Squeezed into the year:**
+    - the seasons, with their warmth, daylight and weather (`WLD-05`);
+    - plants: grasses and herbs grow within a season, trees over decades, and a crop goes from sowing to harvest within the growing seasons (`WLD-31`, `RCK-23`);
+    - animals' breeding seasons, growing up and migrations (`WLD-32`);
+    - people's lives: childhood to about 14 game years, old age from about 45, most dead by 70 (`BIO-04`, `BIO-16`), pregnancy about 45 days, three quarters of a year (`BIO-15`), and nursing;
+    - healing, so even a broken bone mends over days (`BIO-13`);
+    - slow decay: huts falling in, and bones and tools left behind being buried (`MAT-08`).
+  - **Why:** Real years would make history far too slow to watch, and squeezed days would make every day look rushed.
+    Squeezing only what takes months and years keeps each day believable while generations pass in an evening.
+  - **Check:** catalogue tests confirm that every duration is real or squeezed as these lists say.
+  - **Example:** Ama walks to the flint cliff and back between dawn and dusk, as she would in life.
+    A child she conceives as spring begins is born as winter begins, and is grown 14 years later.
+
+- `TIM-14` **Dates** *(Decided)*: Dates give the year, the season and the day, such as "Year 112, autumn, day 6".
+  - **How it works:**
+    - **Years** count from the start of history, which begins on Year 1, spring, day 1; each season's days run from 1 to 15 (`TIM-18`).
+    - **One calendar:** seasons are named as in the half of the world where history begins; in the other half they are reversed (`WLD-01`), but dates keep the same names, so a date means the same day everywhere.
+    - **Game time throughout:** ages, durations, targets and tests in this file are in game days and game years (`TIM-18`).
+    - **Their own calendars** are separate: each people reckons time by its own signs (`CUL-13`).
+
+### 5.2 How fast time runs
 
 - `TIM-01` **Time follows zoom** *(Decided)*
-  - **What:** By default, the speed of time follows the zoom: the closer you look, the slower time runs; the further out, the faster, up to whatever the phone can manage at the detail the world needs (`PRN-11`).
-    One gesture controls both where you look and how fast history moves.
-  - **What zoom asks for** (how fast history can actually run depends on how much of the world needs full detail at that moment, and is measured, `TIM-07`):
-    - **one person:** natural speed (`TIM-10`);
-    - **a camp:** a day passes in a few minutes;
-    - **a valley:** a season passes in about a minute;
-    - **a region:** years pass every minute;
-    - **the whole world:** as fast as the phone can.
+  - **What:** By default, the closer you look, the slower time runs, and the further out, the faster.
+    One gesture sets both where you look and how fast history moves (`PRE-33`).
+  - **Speeds zoom asks for,** changing smoothly in between:
+    - **one person:** real-life speed, one game second each real second (`TIM-10`);
+    - **a camp,** a few hundred metres across: a day in a few minutes;
+    - **a valley,** about 10 km across: a season in about a minute;
+    - **a region,** about 100 km across: a few years a minute;
+    - **the whole world,** the world map and the globe: top speed, as fast as the phone can (`TIM-07`).
   - **How it works:**
-    - **One world clock:** every system advances to the same clock, in steps set by the world's own rates (`WLD-12`); the speed asked for is how much simulated time should pass per real second.
-    - **Zoom asks for a speed:** each zoom level has its target from the list above, blended smoothly between levels.
-    - **As fast as the phone can, up to that speed:** each frame, the simulation runs as many steps as the phone's budget allows while the screen stays smooth (`PLT-04`); if it can't reach the speed asked, time runs slower and the speed shown is the real one (`PRN-11`).
-      The steps themselves never depend on the speed (`WLD-13`).
-    - **What is drawn at speed:** each frame shows the world's state at that moment; nothing is drawn that the simulation didn't have (`PRN-10`).
-  - **Why:** Close-up moments are lived; distant eras are watched.
+    - **Asked and real:** time runs at the speed asked, or as fast as the phone can while the screen stays smooth, whichever is slower (`PRN-11`); the speed shown is always the real one.
+    - **Only the pace changes:** the rules are the same at every speed (`TIM-17`).
+    - **What you see at speed:** the picture always shows the world as it is at that moment (`PRN-10`), and each figure keeps showing what it is doing even when it passes too fast to follow (`PRE-44`).
+  - **Why:** Close-up moments are lived; distant ages are watched.
   - **Example:** You watch the knapper strike, flake by flake.
-    Then you pull back over the valley, and a whole summer passes while the herds move north.
+    Then you pull back over the valley, and a whole summer passes in a minute while the herds move north.
 
-- `TIM-10` **Natural speed up close** *(Decided)*: At the closest zoom, people and animals move at real-life speed.
+- `TIM-10` **Natural speed up close** *(Decided)*: At the closest zoom, one game second passes each real second, so people and animals move at real-life speed.
   You can watch a flake come off the stone.
-  - **How it works:** at the closest zoom the speed asked is one simulated second per real second; each action is animated over its real duration from its settings (`MAT-06`), and sounds play in real time (`SND-07`).
+  - **How it works:** each activity plays over its real length with its animation (`TIM-17`, `PRE-44`), and sounds play in real time (`SND-07`).
 
 - `TIM-04` **Manual control** *(Decided)*: You can unlink speed from zoom whenever you want.
-  The controls: pause, play, a speed dial, and a lock that keeps the current speed while you move the camera.
-  - **How it works:** pause asks for no time at all; play hands the speed back to zoom; the dial asks for the speed you set; and the lock keeps the speed asked when you started moving the camera.
+  The controls: pause, play, a speed dial, and a lock that keeps the current speed while you move the camera (`PRE-33`).
+  - **How it works:** pause stops time; play hands the speed back to zoom; the dial sets a speed, from real speed to top speed, that stays wherever you look; and the lock keeps the speed you had when you set it.
     The real speed still can't pass what the phone manages (`PRN-11`).
 
-- `TIM-15` **Who sets the speed** *(Decided)*: Your pause and speed lock beat the story director (`TIM-02`), and the director beats zoom.
+- `TIM-15` **Who sets the speed** *(Decided)*: Your controls beat the story director, and the director beats zoom.
   Choosing a power pauses time.
-  Overnight mode (`TIM-12`) ignores the director, but keeps its moments for the morning.
-  - **How it works:** the speed asked comes from the highest active source in this order: pause and the lock, then the director, then zoom; choosing a power sets pause until you confirm or cancel it (`GOD-10`).
+  - **How it works:** the first of these that is active sets the speed, and none can make time run faster than the phone can (`PRN-11`):
+    1. **pause,** yours or while you choose a power (`GOD-10`): no time passes;
+    2. **overnight mode** (`TIM-12`): top speed, with the director's moments kept for the morning instead of slowing time;
+    3. **skip** (`TIM-11`): top speed until the next important moment;
+    4. **the dial or the lock** (`TIM-04`): the speed you set;
+    5. **the story director** (`TIM-02`): a slower speed around an important moment;
+    6. **zoom** (`TIM-01`): at all other times.
 
-### 5.2 The story director
+- `TIM-07` **Speed target** *(To test)*: How fast history can run at the world view on your phone, in game years per real minute, by the number of people.
+  - **Targets:**
+    - **1,000 people:** at least 1 game year per real minute, aiming for 2–10;
+    - **about 2,000 people:** at least half a game year per real minute, still watchable; beyond that, time slows further (`MND-15`);
+    - **fewer people** run faster;
+    - **overnight,** about 8 hours: a few hundred to a thousand game years (`TIM-12`).
+  - **What it takes:** each person does about 10–30 activities a game day (`TIM-17`), so 1,000 people at 1 game year a minute need about 10,000–30,000 activities settled every real second, each ending in a choice (`MND-09`).
+  - **How it is measured:** at every stage, fixed saved worlds of about 100, 500, 1,000 and 2,000 people run at the world view on your phone, at the speed it can hold without heating up (`PLT-01`, `PLT-04`); the same worlds run in the cloud at every alpha to catch slowdowns early (`PLT-05`).
+  - **Never by cutting depth:** speed comes only from these rules and from good engineering, never from simpler minds or bodies (`PRN-11`, `MND-14`).
+
+### 5.3 The story director
 
 - `TIM-02` **Story director** *(Decided)*
-  - **What:** The director watches the whole world for important moments and adjusts the speed of time around them.
-    When nothing important is happening, it lets quiet years race past, up to the top speed your zoom allows.
-  - **When something important happens elsewhere:** time slows, a live moment appears (`PRE-08`), and one tap takes you there.
+  - **What:** The director watches the whole world for important moments and sets the speed of time around them.
+    When nothing important is happening, quiet years race past at the speed your zoom asks.
+    When something important happens, or is about to, time slows, a live moment appears (`PRE-08`), and one tap takes you there.
     You stay in control of the camera.
   - **What counts as important:**
-    - firsts: the first time anyone does something new;
-    - births and deaths among the people you follow;
-    - discoveries spreading or being lost;
-    - conflicts, disasters and migrations;
-    - a band forming, splitting or ending;
-    - the consequences of your own interventions.
+    - named discoveries and other firsts (`MAT-21`, `PRE-39`);
+    - births and deaths among the people you follow (`PRE-06`);
+    - crafts reaching a new people, or lost with their last holder (`CUL-02`);
+    - fights, raids and feuds between groups (`CUL-31`);
+    - disasters, such as wildfires, floods, quakes and hard winters (`WLD-22`);
+    - peoples forming, splitting or dying out, and villages founded (`CUL-23`, `CUL-28`);
+    - what follows your own acts (`GOD-09`).
   - **How it works:**
-    - **It reads the event stream:** every event the simulation records (`PRN-15`) passes the recognisers (see Presentation), which tag what kind of importance it has, by patterns in the records and never by the simulation naming anything: a first (an outcome of a kind this world's history has never recorded), births and deaths of the people you follow, a skill or belief reaching a new band or losing its last holder, fighting between groups, disasters past a size, a band leaving its range, a band forming, splitting or ending, and events traced back to one of your acts.
-    - **Signs before outcomes:** it also watches present states that often come before such events, such as someone trying something new, a predator closing on a band, or a storm building, so it can slow down before the outcome; it never looks ahead in time.
-    - **Scores and speed:** each tag carries a score by kind and size (tuned with you); while a score passes the threshold, the director asks for a slower speed around it, and when nothing does, it lets time race up to the top speed your zoom allows.
-    - **Catching up:** a moment you miss waits in the list of live moments (`PRE-08`), with its chronicle entry (`PRE-05`).
+    - **Reading what happens:** it reads what the game recognises as notable (`PRE-39`).
+    - **Signs:** it also watches present signs that often come before such moments, such as someone trying something new again and again, a predator stalking someone, a storm building over a camp, or two hostile groups meeting, so time can slow before the outcome; it never looks ahead in time.
+    - **Importance:** each kind of moment or sign has a score, higher the more people it touches and when you follow them, tuned with you.
+    - **Slowing down:** when a score passes the bar for live moments (`PRE-08`), time slows, more for higher scores: to valley speed for most moments, and to camp speed for the biggest, such as a named discovery or a death you follow (`TIM-01`).
+      If you don't tap the moment within about half a minute (tuned), time speeds up again and the moment waits in the list.
+    - **Only slower:** the director never asks for a faster speed than zoom does.
   - **Why:** In a world that runs itself, the best moments are easy to miss (`RSK-03`).
+  - **Done when:** in test worlds watched from the globe, every named discovery and every death of someone you follow slows time and offers a live moment, and quiet stretches run at the speed zoom asks.
+  - **Example:** You are watching the globe, and quiet years race by.
+    Far to the east, a woman of the Tavu has been drilling dry wood all morning, and time slows.
+    You tap the live moment, swoop down, and arrive in time to see the first ember glow.
 
 - `TIM-03` **The director never touches events** *(Decided)*: The director controls speed only.
-  It decides where to slow down but never causes, changes or hides anything.
-  Follows from `PRN-10` and `PRN-12`.
-  - **How it works:** the director only reads the event stream and the world's state, and only sets the speed asked and the live-moment prompts; it cannot write to the simulation, and since speed changes nothing (`WLD-13`), history is the same with or without it.
-  - **Check:** the same saved state run with the director on and off gives the same results bit for bit on the same phone (`TIM-16`), and a code check finds no path from the director into the simulation.
+  It decides where to slow down, but never causes, changes or hides anything.
+  - **Follows from:** `PRN-10` and `PRN-12`.
+  - **How it works:** it only reads what has happened and the world as it is, and only sets the speed and the live moments; since speed changes nothing (`TIM-17`), history is the same with or without it.
+  - **Check:** the same saved world, run with the director on and off, gives the same results on the same phone (`TIM-16`), and a code check finds no path from the director into the world.
 
 - `TIM-11` **Skip to the next moment** *(Decided)*: A control that runs time at top speed until the next important moment, then slows down.
   Useful for short check-ins (`VIS-10`).
-  - **How it works:** it asks for the top speed until the director's next score passes its threshold (`TIM-02`), then hands the speed back to the director and zoom.
+  - **How it works:** it asks for top speed until the director's next moment passes the bar (`TIM-02`), or until a game year has passed, then hands the speed back to whatever set it before (`TIM-15`).
 
-### 5.3 While you're away
+### 5.4 While you're away
 
 - `TIM-05` **Pauses when closed** *(Decided)*: When the app is closed or in the background, the world stops.
   Nothing happens while you're away, and every session starts exactly where the last one ended.
   Opening the app resumes time.
-  - **How it works:** when the app leaves the screen, the simulation finishes its current step, stops, and saves its state (`PLT-07`); nothing runs in the background, and reopening loads that state and carries on from the same step.
+  - **How it works:** when the app leaves the screen, the world stops at that moment and is saved (`PLT-07`); nothing runs in the background, and reopening carries on from the same moment, with every activity under way where it was.
+  - **Done when:** closing and reopening the app at any moment gives the same history as never closing it (`TIM-16`).
 
 - `TIM-12` **Overnight mode** *(Decided)*
   - **What:** Leave the app open on the charger and switch on overnight mode.
-    The world runs at top speed with the screen dimmed.
-    When you come back, a summary tells you what happened, drawn from the chronicle (`PRE-05`).
-  - **Why:** Deep simulation runs slowly on a phone (`PRN-11`).
-    Overnight mode gives history the hours it needs without you having to watch.
-  - **Safeguards:** it runs only while the phone is charging, and it stops if the phone gets too hot.
-  - **How it works:** it asks for the top speed, draws only a dim, slowly updated picture, and queues the director's moments instead of slowing for them (`TIM-15`).
-    It reads the phone's own temperature warnings and slows, then pauses, before the phone gets hot (`PLT-04`), and it pauses when the charger is unplugged.
-    The morning summary takes the night's most important events by the director's scores, from the chronicle (`PRE-05`), worded by the writer, with dark events given as plain facts (`PRE-37`).
+    The world runs at top speed with the screen dimmed: a few hundred to a thousand game years in a night (`TIM-07`).
+    When you come back, a summary tells you what happened, drawn from the book of ages (`PRE-05`).
+  - **Why:** A living world needs hours to make its history (`PRN-11`).
+    Overnight mode gives it those hours without you having to watch.
+  - **Safeguards:** it runs only while the phone is charging, and it slows, then pauses, before the phone gets hot.
+  - **How it works:** it asks for top speed, draws only a dim picture updated now and then, and keeps the director's moments for the morning instead of slowing for them (`TIM-15`).
+    It follows the phone's own temperature warnings (`PLT-04`), and it pauses when the charger is unplugged.
+    The morning summary takes the night's most important moments by the director's scores, worded by the writer from the book of ages (`PRE-37`), with dark events stated as plain facts (`PRE-17`).
   - **Example:** You start it before bed.
-    In the morning: "312 years passed.
-    Two bands merged by the river; a long drought pushed the eastern band over the hills; on the coast, someone began drying fish."
+    In the morning: "540 years passed.
+    Two bands merged by the river; a long drought pushed the eastern band over the hills; on the coast, people now keep goats."
 
-### 5.4 Worlds, chance and dates
+### 5.5 Worlds and chance
 
 - `TIM-06` **Rewind and branch** *(Dropped)*
   - **Dropped because:** saved history was cut in the realism pass: one full save of the world is estimated at a few GB, so a world keeps only its present state and its chronicle (`PRN-15`).
@@ -920,1572 +1015,1678 @@ Two principles shape all of it: pacing comes only from controlling time (`PRN-12
 - `TIM-13` **Comparing timelines** *(Dropped)*
   - **Dropped because:** branching was cut with saved history in the realism pass (`PRN-15`).
 
-- `TIM-08` **Saved worlds** *(Decided)*: Several worlds kept on the phone, each with its present state and its chronicle.
+- `TIM-08` **Saved worlds** *(Decided)*: Several worlds are kept on the phone, each with its present state and its book of ages.
   You can switch between them.
-  - **How it works:** each world keeps its seed and generator version (`WLD-08`), its present state (`PLT-07`), and its event history and chronicle (`PLT-10`); switching saves the current world and loads the other.
+  - **How it works:** each world keeps its seed and generator version (`WLD-08`), its present state and the areas people have changed (`PLT-07`, `WLD-12`), and its history and book of ages (`PLT-10`); switching saves the current world and opens the other.
 
-- `TIM-14` **Dates** *(Decided)*: The game counts years from the moment a world's history begins ("year 2,314"), with days and seasons set by that world's own sun and moons (`WLD-06`).
-  The people's own calendars are separate (`CUL-13`).
-  Inside the simulation, and in every target and criterion, time is counted in Earth days and years; on screen, dates use the world's own years and ages use Earth years.
-  Bodies are adapted to their world's day length.
-  - **How it works:** the clock counts Earth seconds; the world's own days and years come from its spin and orbit (`WLD-06`) and are worked out from the clock only for display, counting years from year 0.
-    Each body's daily rhythm follows the world's day, so people sleep through its nights, and the share of the day spent asleep is kept (estimated).
+### 5.6 Pace and endings
 
-### 5.5 Pacing and endings
-
-- `TIM-07` **Pacing** *(To test)*: How fast history runs is measured and tuned during development (`PLT-04`).
-  The first target for the tests: a thousand years in one night for a world of a few hundred people.
-  - **How it works:** every build runs a benchmark world at overnight speed on the phone and reports the years passed per hour, at each zoom and for each number of people (`PLT-04`); the speed comes only from the mechanisms above and from engineering, never from cutting depth (`PRN-11`).
+- `TIM-19` **Pace of discovery** *(To test)*: In typical worlds, each step of the arc first happens within its window of years.
+  - **The windows,** in the world's dates (`TIM-14`):
+    - sharp stone flakes: Years 1–5;
+    - making fire: 5–30;
+    - clothing and huts, each: 10–40;
+    - pottery: 60–150;
+    - tame dogs: 80–150;
+    - herding: 120–250;
+    - villages, with people living all year in one place: 100–300;
+    - farming: 200–350;
+    - copper: 300–500.
+  - **When a step counts:** the first time the book of ages records it anywhere in the world:
+    - for a craft (flakes, fire-making, clothing, huts, pottery, copper), its first named discovery (`MAT-21`);
+    - for tame dogs, the first wolves kept long enough to become dogs, and for herding, the first herd kept and bred (`WLD-33`);
+    - for villages, the first village (`CUL-28`);
+    - for farming, the first crop sown and harvested on purpose (`RCK-23`).
+  - **Typical worlds:** not every world reaches every step, and the order can differ; stalls and lost crafts are valid histories (`VIS-03`).
+  - **How it is met:** only by tuning chances and amounts, the same for every world, never by scripting or dates (`PRN-17`, `RES-16`).
+    A window changes only with your OK (`RES-09`).
+  - **Check:** the pace tests (`RES-07`): for each step, at least half of about 20 whole worlds reach it inside its window, and at most a quarter before it opens.
 
 - `TIM-09` **If everyone dies** *(Decided)*: The world goes on without them.
   Nature carries on, and you can keep watching or start a new world.
-  - **How it works:** the last death is an important moment for the director; the world's systems carry on as before, faster with no minds to run, and the choices offered are to keep watching or start a new world (`WLD-10`).
+  - **How it works:** the last death is an important moment for the director (`TIM-02`) and an entry in the book of ages (`PRE-05`); the land, weather, plants and animals carry on by the same rules, faster with no people, and the game asks whether you want to keep watching or start a new world (`WLD-10`).
 
 ## 6. World
 
-The world is a small planet with everything a planet has: rock, water, air, plants, animals and microbes, all following real rules.
-This section defines the world's shape and size, how a world is made, how detail is managed, and each natural system.
-What matter is made of is in Matter and physics; how animals think is in Minds.
+The world is a small planet that wraps around, made once in realistic detail: moving plates, mountains, rivers, climate, soils, plants, herds, and deposits of useful stone where geology puts them.
+After that it lives at a pace the phone can carry: weather every game hour on cells of about 10 km; plant cover, fire, water and herds on cells of about 1 km; full detail only where people are.
+Things and their materials are in section 7, bodies and illness in section 8, and how animals think in `MND-16`.
 
 ### 6.1 Shape and size
 
 - `WLD-01` **Torus with latitude** *(Decided)*
-  - **What:** The map wraps around in both directions.
-    Walk east long enough and you come back from the west.
-    An equator runs across the middle of the map, and the poles lie along the line where it wraps north–south.
-    Climate zones and seasons behave as on a planet, with seasons reversed between the northern and southern halves.
-  - **The polar seam:** Along the line where the map wraps north–south lies a wide, permanent ice cap.
-    Weather systems stop at it, and it is too wide and barren for any animal or person to cross, so nothing ever passes from one pole to the other.
-    This is a stated exception to real physics (`PRN-05`).
+  - **What:** The map wraps both ways: walk east long enough and you come back from the west.
+    The equator runs across the middle and the poles lie along the line where the map wraps north to south, so climate and seasons behave as on a planet, with the seasons reversed between the northern and southern halves.
+  - **The polar seam:** a permanent ice cap about 200 km wide, about two weeks' walk, lies along that line.
+    Weather stops at it, and nothing ever crosses its middle, not even a people able to carry food and fuel over that much ice: a deliberate exception, so the wrap never shows.
+  - **Why:** There are no edges and no stretched regions, so every place is simulated the same way.
+
+- `WLD-02` **Globe view** *(Decided)*: Fully zoomed out, the world is drawn as a globe, with the polar ice hiding the seam.
+  The globe squeezes the polar lands, which on the map are as wide as the equator; this is in the picture only, and the map keeps every place at its true size.
+
+- `WLD-03` **Size** *(Decided)*: About 1,000 km from pole to pole and 2,000 km around: about 2 million km² of land and sea.
+  A climate zone is roughly 100 km wide, four or five days' walk.
+  - **Why:** Big enough for many separate peoples, small enough for one phone to keep all of it alive.
+
+- `WLD-30` **What scales with the world** *(Decided)*: Things set by distance are scaled to this small world, about 1 to 20; things set by bodies and materials keep their real size.
+  - **How it works:** a storm system is about 50 km across instead of 1,000, climate belts are about 100 km wide, and herds migrate tens of kilometres instead of hundreds.
+    A person, a tree, a day's walk and a fire keep their real sizes, and winds their real speeds, so storms cross this world faster.
+    Times measured in years are squeezed into the 60-day year instead (`TIM-18`, `WLD-05`).
+  - **Check:** every scaled value in the catalogues is marked as scaled, with the Earth value it came from.
+
+- `WLD-04` **How many people it can feed** *(To test)*: Estimated at tens of thousands of foragers, about one person per 10 km² of good land, and ten to a hundred times more with farming.
+  Nothing sets this number: it is however many people the land's food keeps alive (`WLD-18`, `BIO-09`), measured by running worlds.
+  It lies far above what the phone runs (`MND-15`), so the land limits people only locally: a crowded valley, a hard winter.
+
+### 6.2 Layers and systems
+
+- `WLD-12` **Map layers** *(Decided)*: The world is held in four layers, each kept at its own pace.
+  Detail is made where people are, and looking never changes it (`WLD-13`).
+  1. **World cells,** about 1 km across, about 2 million of them: height, rock, soil fertility, biome and plant cover, rivers and lakes, sea, deposits of useful stone, clay, ochre and ore, snow, fire, and the herds passing through.
+     They are always simulated, at a coarse pace: plant cover, fire, water and herds.
+  2. **Areas,** about 256 m across, 16 to a world cell, with detail down to about 1 m: the ground's shape and material, rocks and loose stones, each tree, bush and flower, caves and overhangs, and water.
+  3. **Things and creatures** live inside areas: every person, every animal near people, and every item (`MAT-10`).
+  4. **Weather cells,** about 10 km across, about 20,000 of them, updated every game hour (`WLD-16`).
   - **How it works:**
-    - **The map** is a rectangle about 2,000 km east to west and 1,000 km north to south, whose opposite edges join, so positions wrap both ways and every distance and neighbour is measured across the wrap.
-    - **Cells:** the map is cut into square cells that nest, from the whole map down to 1 m, in about 21 halvings.
-    - **Latitude:** the middle line is the equator, and latitude rises toward the north–south wrap line, which is both poles at once.
-      The sun's height and the length of the day at any place and date follow from latitude, tilt and orbit (`WLD-06`) by standard astronomy formulas, so seasons reverse between the two halves on their own.
-    - **The polar seam:** the ice along the wrap line is about 200 km wide, about two weeks' walk, and stays permanent through every change of climate (`WLD-16`).
-      Weather stops at it, and, as the named exception, nothing crosses its centre line, so the promise holds even for a people who could carry food and fuel across that much ice.
-  - **Why:** There are no edges and no stretched or squashed regions, so every place can be simulated in the same way.
+    - **Paces:** weather every game hour; a wildfire every hour while it burns (`WLD-28`); water and herds once a game day, and water every hour during a flood (`WLD-17`, `WLD-32`); plant cover every few days (`WLD-31`); people, animals and things by their own activities (`TIM-17`).
+      All run on one world clock, and each pace is tuned by measurement (`PLT-04`).
+    - **Areas are made when needed:** an area is made from the world's seed and its world cell when people first go there, or when you look at it, which makes the same area.
+      It matches its cell: a forest cell gives a wood of its species and ages, a river cell its stream and banks, a chalk cell its flint.
+    - **Kept or forgotten:** an area people have changed (something made, moved, left, cut, dug or burned) is kept; an unchanged one is forgotten once no one is near, and made again the same way when needed.
+      Kept areas live on by the same rules whether anyone is there or not.
+    - **The layers agree:** what happens in an area counts in its world cell, so a grove cut or a slope burned lowers the cell's plant cover, and an animal killed leaves its herd's count.
+      What happens to the cell, such as a fire, a flood or the turn of the season, reaches its areas by the same rules.
+    - **Animals:** far from people, herds are counts in world cells; near people, their animals become individuals in areas (`WLD-32`).
+    - **Weather on the ground:** each place takes its weather cell's weather, adjusted for its own height and shelter (`WLD-16`).
+    - **Zoom:** the globe and the world map show world cells, a region adds the weather, and closer in you see areas with their things and creatures (`PRE-03`).
+  - **Done when:** in test scenes, a stretch of land run with its areas made, and with them forgotten, ends a year with the same plant cover and herd numbers, within a tuned margin.
 
-- `WLD-02` **Globe view** *(Decided)*: Fully zoomed out, the world is drawn as a globe.
-  The wrap only shows at the poles.
-  The globe squeezes the polar regions, which on the map are as wide as the equator; this is a known exception in the display only, and the map keeps every place at its true size.
-  - **How it works:** a picture only: east–west position becomes longitude, latitude stays as on the map, and the result is drawn on a sphere, with the polar ice hiding the seam.
-    The simulation never uses the globe.
-
-- `WLD-03` **Size** *(Decided)*
-  - **What:** About 1,000 km from pole to pole and about 2,000 km around: roughly 2 million km² in all, land and sea together.
-  - **What follows:** Each climate zone is roughly 100 km wide, about four to five days' walk.
-  - **How it works:** areas are measured on the flat map, so a square kilometre is the same everywhere; only the globe view squeezes the poles.
-    Climate zones are whatever the climate rules give at each latitude (`WLD-16`).
-  - **Why:** It is big enough for many separate peoples and small enough to simulate deeply (`PRN-02`).
-
-- `WLD-30` **What scales with the world** *(Decided)*: Quantities set by distance (weather systems, ocean currents, migrations and climate belts) scale with the world's size.
-  Local quantities (bodies, chemistry, materials and rates of change) stay real.
-  Every scaled value is labelled as scaled, with the real value it came from (`PRN-05`).
-  - **How it works:** the scale factor is the world's pole-to-pole distance over Earth's, about 1 to 20.
-    A value set by distance is its real value times that factor, kept in the catalogue with the real value it came from: a storm system here is about 50 km across instead of 1,000.
-    Winds keep their real speeds, so storms cross the smaller world faster.
-    Local values, such as a body's needs, a stone's hardness or a fire's heat, are never scaled.
-
-- `WLD-04` **How many people it can feed** *(To test)*: Estimated at roughly 50,000 hunter-gatherers (about one person per 10 km² of good land), or about half a million to five million once farming exists, since farming supports 10 to 100 times more people on the same land.
-  These are orders of magnitude only: on the wrap-around map a third of the area lies beyond 60° latitude, so there is less good land than Earth intuition suggests.
-  Measured in experiments.
-  These are what the land could feed, not what the phone can run (`MND-15`).
-  - **How it works:** it is set nowhere: it is however many people the food the land really produces (`WLD-18`) can keep alive (`BIO-09`), measured by running worlds.
-
-### 6.2 The planet
-
-- `WLD-06` **Varied within reason** *(Decided)*: Each world has its own day length, year length, axial tilt (and so the strength of its seasons), moons, and share of land, all within ranges that allow human-like life.
-  The ranges: day 18–36 hours, year 250–500 days, tilt 5°–35°, 0–3 moons, 25–50% land.
-  Gravity, air and chemistry stay Earth-like.
-  - **How it works:** the seed draws day length, year length, tilt, the number of moons with their sizes and orbits, and the land share, within the ranges.
-    They feed the sun's path and the seasons (`WLD-01`), the tides (`WLD-26`) and the climate (`WLD-16`).
-
-- `WLD-07` **A rich sky** *(Decided)*
-  - **What:** The sun, moons, stars and planets move realistically for each world's orbit and tilt.
-    Eclipses, comets, meteor showers and auroras happen.
+- `WLD-13` **Looking changes nothing** *(Decided)*: Where you look, and how fast time runs, never change what happens.
+  Places nobody has visited are drawn from the seed and their world cell, exactly as people would find them (`PRN-10`).
   - **How it works:**
-    - **Drawn from the seed:** the world's orbit, spin and tilt, its moons' orbits, a few planets on their own orbits, and the star field; where each one is at any moment comes from standard orbit formulas.
-    - **Events:** eclipses happen when orbits line up, comets come on orbits drawn from the seed, meteor showers return on the same dates each year, and auroras follow a seeded activity cycle, seen at high latitudes.
-    - **Seen like anything else:** people see the sky by sight (`BIO-18`), and minds can learn its cycles (`CUL-13`).
-  - **Why:** The sky is the first calendar, the first compass and a great source of myth (`CUL-13`).
-  - **Example:** A comet that hangs over the valley for a month, the same month the old chief dies, becomes part of how the band remembers that winter.
+    - **One way only:** the picture and sound read the world; nothing in the world reads the camera, the zoom or the speed.
+    - **The same area:** an area made for the picture is the one people would get (`WLD-12`).
+    - **Counted herds** are drawn as that many animals of the right kinds and ages, placed from the seed, and show nothing the counts don't hold.
+    - **Speed:** the same rules run at every speed and zoom (`TIM-17`); only how much game time passes per real second changes.
+  - **Check:** the same saved world, run with the camera in different places and at different speeds, gives the same results on the same phone (`TIM-16`).
+
+- `WLD-29` **Systems feed each other** *(Decided)*: Weather, water, soils, plants, animals and fire read and change the same world cells, so each feeds the others.
+  - **How it works:** weather brings rain, snow, warmth, frost, wind and lightning; water feeds plants, and floods leave silt; soils feed plants; plants feed animals and fuel fires; animals graze plants and feed hunters; fire clears plants, leaves ash and brings new grass.
+    People change plants, soils and herds through the same links, never the climate (`SCP-21`).
+    Nothing comes from nothing: what is eaten, cut or burned comes off the cover or herd it came from (`MAT-09`).
 
 ### 6.3 Making a world
 
-- `WLD-08` **Realistic, not from scratch** *(Decided)*: Worlds are generated directly in a realistic present-day state, using fast methods that imitate what deep time would have produced.
-  Generating one is cheap.
+- `WLD-08` **Realistic, not from scratch** *(Decided)*: Each world is made directly in a believable present-day state, by fast rules that imitate what deep time would have made, without simulating its history (`SCP-12`).
   - **How it works:**
-    - **Stages:** generation runs the stages of `WLD-09` in order, each worked out from the seed and the stages before it.
-      Each stage uses the real rule for its process, such as uplift where plates meet or water cutting valleys, run in a few long steps instead of through geological time.
-    - **The same rules as play:** where play has a law for the same process, such as erosion, soil change or plant growth, the generator uses that law, so play carries on from the generated state without a jump.
-    - **What is kept:** the stages' results are stored with the world, from whole regions down to cells of about 1 km, and patches of a few hundred metres for plants and animals (`WLD-12`).
-      Finer detail, down to the metre, is never made in advance: it comes from the same rules when needed, the same way every time (`MAT-10`).
-    - **Exactly repeatable:** the generator uses exact, repeatable maths, so a seed gives the same world bit for bit on the phone and in the cloud, and an untouched place always comes back as it was.
-      So any change to the generator counts as a big update (`PLT-09`).
-    - **Settling:** once you pick a world, it runs the years before year 0 by the play rules, with no people, until water, plant cover and animal numbers stop trending and only rise and fall with the seasons and the weather, up to a limit in years (tuned).
-      History then begins from a state the world's own rules keep.
-      At year 0, the animals around the bands are given the wariness of people that living beside hunters gives (`MND-16`, estimated), just as the bands start with their knowledge (`BIO-02`).
-      Named simplification: the bands' own small effect on the land before year 0, such as their hunting, is left out.
-    - **Calibrated to Earth:** run on many seeds during development, each stage's results are compared with Earth's measured figures, such as the spread of heights and slopes, how rivers branch and lengthen, how rough coastlines are, the sizes of lakes, and the share of each kind of climate.
-      The rules are tuned until worlds fall inside Earth's ranges, and the figures used are sourced (`PRN-05`).
+    - **Stages:** generation runs the stages of `WLD-09` in order, each from the seed and the stages before it.
+    - **What is made:** world cells and weather cells for the whole world; areas are never made in advance (`WLD-12`).
+    - **Repeatable:** the same seed always makes the same world in the same version of the game, so any change to the generator is a big update (`PLT-09`).
+    - **Settling:** once you pick a world, its plant cover, water and herds run for a few game years (tuned) by the play rules, with no people, until they only swing with the seasons.
+      Then the start region is found again (`WLD-24`), and history begins in year 0.
+      Animals around the start begin with the wariness that living beside hunters gives (`WLD-32`).
+  - **Done when:** across many seeds, worlds fall inside Earth's usual ranges for the spread of heights and slopes, how rivers branch, how ragged the coasts are, the sizes of lakes, and the share of each kind of climate.
 
-- `WLD-09` **What generation produces** *(Decided)*: using rules derived from real physics and calibrated to Earth, not full physical models, generation produces, in this order:
-  1. tectonic plates, mountain ranges, volcanoes and faults;
-  2. rock types and layers, with minerals and ores in geologically plausible places;
-  3. erosion: valleys, rivers, lakes, deltas and coastlines;
-  4. climate, worked out from the geography (`WLD-16`);
-  5. soils, from rock, climate and time;
-  6. vegetation and landscapes;
-  7. animals and microbes adapted to them (`WLD-19`).
+- `WLD-09` **What generation makes** *(Decided)*: Generation follows the real order of causes, each stage built on the ones before, by rules modelled on how Earth's land took shape:
+  1. plates, mountain ranges, volcanoes and faults;
+  2. rock layers;
+  3. erosion: valleys, rivers, lakes, coasts and caves;
+  4. climate, from the geography (`WLD-16`);
+  5. soils (`WLD-27`);
+  6. deposits of useful stone, clay, ochre, salt and ore (`WLD-14`);
+  7. biomes and plant cover (`WLD-31`);
+  8. animals (`WLD-32`).
   - **How it works:**
-    - **Plates:** the seed draws about 6 to 12 plates (tuned), each moving its own way, with ocean or continental crust; the continents make up the land share (`WLD-06`).
-      Continents are pieced together from blocks of different ages, so they have old worn-down ranges, basins and rifts inside them, and ragged edges.
-      Where plates meet, their motion sets what happens: plates pushing together raise ranges; an ocean plate sinking under another raises a line of volcanoes; plates pulling apart open rifts; plates sliding past each other leave faults.
-      The height and width of each range follow rules calibrated on Earth's ranges of the same kind.
-      Volcanoes, faults and hot spots are kept as features that stay active in play (`WLD-15`).
-    - **Rock:** each cell of about 1 km gets a column of rock layers down to about 1 km deep (estimated), each with its rock, thickness, tilt and cracks, set by the cell's history: old crystalline rock under the continents; sandstone, shale, limestone and chalk where seas and basins lay; lava and ash near volcanoes; folded and baked rock in ranges; granite where molten rock cooled underground.
-      A catalogue of rock settings lists, for each setting, the rocks it makes and the minerals and ores that come with them and how often, from geology: flint in chalk, obsidian in young silica-rich lava, copper ores near granites in volcanic ranges with green weathered tops (`MOM-12`), tin in granites and in the river gravels below them, salt in dry basins, ochre where iron-rich rock weathers, and clay from weathered rock and along rivers.
-      Ore bodies are single features with a place, a size and a share of metal, drawn from the seed.
-      Caves form where water dissolves limestone along its cracks, where lava drained out of tubes, and where soft rock wore away under hard, leaving overhangs; each is kept as a 3D piece.
-    - **Erosion:** water cuts the land faster where more water flows (from the area upstream and the rain), where it is steeper, and where the rock is softer; slopes creep, and slide where steeper than they can hold; carried sediment settles where the water slows, in fans, floodplains, lakes and deltas.
-      Run in long steps until the land nears a balance (tuned), it makes valleys, river networks, lakes (hollows fill up to their outlets) and coastlines.
-      It runs with the sea at its ice-age low, so valleys run out across the shelves the rising sea will flood (`WLD-16`).
-      Where ice lay, the land is carved as glaciers carve: U-shaped valleys, lake basins, ridges of rubble, and, beyond the ice, spreads of wind-blown silt.
-    - **Climate:** worked out on the finished land by the climate rules (`WLD-16`), for the start date and for the long cycle ahead.
-    - **Soils:** worked out by the soil rules (`WLD-27`) from the material underneath (the rock, or river silt, rubble left by ice, wind-blown silt or ash), the climate, the slope, the plant cover, and how long the surface has stood: young where the ice has just left.
-    - **Plants:** plant species are made to fit the world's climates and soils (`WLD-19`), and each species' tolerances (of cold, drought, flooding, shade, acid soil and fire) decide where it can grow.
-      Each patch of a few hundred metres gets the plants its conditions support, at a stage of regrowth since its last fire, flood or storm, drawn from the seed at the rates such events have in that climate on Earth (estimated): so the land is a mosaic of old forest, burned and regrowing patches, meadow, marsh and scrub.
-      Each patch keeps each species' amount and, for trees, their ages; single plants come from that when needed (`MAT-10`).
-    - **Animals and microbes:** animal species are made to fit the habitats and foods (`WLD-19`).
-      Each patch's numbers of each species come from the food the patch grows and that species' needs, which follow from its body size (`BIO-09`), so plant eaters follow the plants, and hunters their prey.
-      Herds that migrate get summer and winter ranges from where their food is in each season.
-      Numbers are kept by age and sex, and individuals come from them when needed (`MND-16`, `WLD-12`).
-      Microbes come from Earth families in the same way: decomposers in soil and water, yeasts on fruit, and diseases in their hosts (`WLD-21`).
-    - **Stages that need each other:** erosion needs rain before the climate stage, and soils need plants before the plant stage.
-      So each uses a first, rough version of the later stage (rain from latitude, the sea and the heights; plant cover from the climate alone), and the later stage then works on the finished result.
+    - **Plates:** about 6 to 12 plates (tuned), each of ocean or continental crust and each moving its own way; the continents make up the world's share of land (`WLD-06`).
+      Where plates push together, mountain ranges rise; where an ocean plate dives under another, a line of volcanoes rises beside a deep trench; where plates pull apart, rift valleys open; where they slide past each other, faults run.
+      Continents are pieced together from older blocks, so they hold worn-down old ranges, basins and ragged coasts, not flat plains with straight edges.
+    - **Rock:** each world cell gets its stack of rock layers from its history: old hard rock under the continents; sandstone, shale, limestone and chalk where seas and basins lay; lava and ash near volcanoes; folded rock in the ranges; granite where molten rock cooled underground.
+    - **Erosion:** rain gathers into streams and rivers that cut valleys, deepest where the most water flows, the slope is steep and the rock soft; slopes slump to what they can hold; sand and mud settle where the water slows, building floodplains, fans and deltas.
+      Hollows fill into lakes up to their outlets, and every river reaches the sea or a lake.
+      High mountains and the polar lands keep glaciers, with wide U-shaped valleys and lakes below them.
+    - **Caves** form where water dissolves limestone along its cracks, where lava drained out of tubes, and where soft rock wore away under hard, leaving overhangs.
+      Each world cell records its caves and their sizes; their exact shape comes with their area (`WLD-12`).
+    - **Biomes and plant cover:** each world cell gets the biome its climate, soil and wetness support, and a cover at some stage of regrowth since its last fire or flood, drawn at the rates such events have in that climate, so the land is a patchwork of old forest, regrowing burns, meadow, marsh and scrub.
+    - **Animals:** each species' herds are placed where its food and cover are, in the numbers that food can feed; herds that migrate get summer and winter ranges.
+    - **Stages that need each other:** erosion needs rain before the climate exists, so it uses a first, rough climate from latitude, the sea and the heights.
 
-- `WLD-19` **Species from Earth families** *(Decided)*
-  - **What:** Earth's families of plants and animals (deer, wolves, wild cattle, salmon, grasses, birches, oaks, berries and so on) are the starting point.
-    Generation adapts them into each world's own species to fit its landscapes.
-    Every species gets its traits: size, diet, behaviour, seasons, and the chemistry of its body, which decides what is edible, poisonous, medicinal or useful (see Matter and physics).
+- `WLD-14` **Deposits placed by geology** *(Decided)*
+  - **What:** Useful stone, clay, ochre, salt and ore lie where the rocks and rivers put them, so what a people can discover depends on where it lives.
   - **How it works:**
-    - **A catalogue of Earth families:** each entry is a group of related Earth species, such as deer, wolves, salmon, birches or grasses, with its real ranges: body size; diet; lifespan, age at first breeding and number of young; group size and behaviour (`MND-16`); the climates, soils and habitats it tolerates; and the makeup of each body part as ingredients (`MAT-01`), including its defensive chemicals and their doses.
-      Values that decide what is possible, such as nutrition, poisons and sizes, are sourced (`PRN-05`).
-    - **Choosing families:** the generator lists the habitats the world has and draws families that fit them, weighted by how common each family is in such places on Earth (estimated), so every world has its own mix.
-    - **From family to species:** where a family's habitat is split by a barrier it can't cross, such as a sea for deer or a watershed for river fish, each side gets its own species, so species follow the world's geography as they do on Earth.
-      Each species draws its traits within its family's real ranges, then shifts them by real patterns of how living things fit their climate: bigger bodies where it is colder, shorter limbs and ears in the cold, changes in size on islands, and darker colours where it is humid.
-      Traits tied to size, such as food needs, lifespan, age at first breeding and range, follow measured scaling laws.
-    - **Use comes from chemistry:** whether something is edible, poisonous, medicinal or useful is never a label: it is the ingredients in each part and their doses, acting on bodies by their measured effects (`BIO-12`).
-      Each species' defensive chemicals are drawn within its family's range, so a berry that is food in one world can have a bitter, poisonous cousin in another.
-    - **No two alike:** every trait has a real spread between individuals and a real share that is inherited (`WLD-20`, `BIO-06`).
-    - **The tree is kept:** species of one family share an ancestor, and families sit in Earth's own tree, so each world has a tree of life you can look at (`PRN-04`).
-  - **Why:** Familiar enough to understand, new enough that each world has its own tree of life to discover.
+    - **Where each lies:** flint as nodules in chalk, and chert in some limestones; obsidian in young lava from sticky, silica-rich volcanoes; tough stones for hammering and grinding, such as quartzite, basalt and sandstone, where those rocks show; clay along rivers, in old river bends and lake beds, and where feldspar-rich rock weathers; red and yellow ochre where iron-rich rock weathers; salt where closed lakes dry, at salty springs and in shore lagoons; green and blue copper ore, with a little native copper, at the weathered tops of copper-bearing rock near granites in volcanic ranges.
+    - **How much:** each world cell records which deposits it holds and how rich each is.
+    - **Rivers carry stones:** a river's gravel holds stones from the rocks upstream, rounded with distance, so flint from chalk hills turns up in valley gravels far away.
+    - **Seen where the land is cut:** in river banks, cliffs, screes, cave walls and the roots of fallen trees; deeper deposits are reached only by digging (`MAT-06`).
+    - **In areas,** deposits become things: nodules in a chalk bank, cobbles on a gravel bar, a bed of clay in a river bend; pieces vary in quality (`MAT-20`), so some flint is better than other flint.
+    - **Seen, not labelled:** a deposit looks like what it is (a green stain, red earth, a dark glassy rock), and what it is good for is learned by use (`MAT-03`, `PRN-01`).
+  - **Example:** Three valleys from the first camps, a cliff of green-stained rock waits for a people whose kilns already burn hot (`MOM-12`).
 
-- `WLD-23` **Richness of life** *(Decided)*: About 50 animal and 200 plant species per world, across all groups: mammals, birds, fish, shellfish and insects; trees, shrubs, grasses, herbs and fungi.
-  - **How it works:** the generator draws families (`WLD-19`) until the world has about 50 animal and 200 plant species, with every group listed, and every habitat having its plant eaters, hunters, scavengers, pollinators and decomposers.
-    Species that can't hold on through settling (`WLD-08`) die out, as they would in play, so the generator aims a little higher (tuned).
-
-- `WLD-10` **Generate many, keep the best** *(Decided)*
-  - **What:** The generator makes many candidate worlds, scores each one, and never edits them.
-    "New world" shows the best three as small globes, each with a one-line summary.
-    You pick one or let the game pick, and you can also enter a seed instead.
-  - **What scores well:**
-    - varied landscapes and climates;
-    - natural barriers (mountains, seas, deserts) that let separate cultures form;
-    - resources spread unevenly (flint here, copper there);
-    - a good place to begin (`WLD-24`).
+- `WLD-19` **Species from Earth families** *(Decided)*: The plants and animals are Earth species or close kin, with their real habits, seasons and sizes, so the world is familiar and believable.
   - **How it works:**
-    - **Two passes:** about 100 candidates (tuned to fit `WLD-11`), each with its own seed, go through the plates, rock, erosion and a first climate at low detail, and are scored on what those decide.
-      The best 10 then go through every stage in full and are scored again.
-    - **Each score is a measurement:**
-      - **variety:** how many kinds of climate and land the world has with a fair share of the land each, and how evenly the land is shared among them;
-      - **barriers:** how many regions big enough to feed a people of several bands (`WLD-04`) are cut off from each other by sea, or by land that takes more than a few days (tuned) to cross on foot by the body's walking rules (slope, rivers, marsh, snow and desert);
-      - **uneven resources:** each key material, such as stone that flakes, copper ore, tin ore, clay, salt and ochre, is found in some regions and missing from others, judged by makeup and properties, never by name;
-      - **a good start:** the best start region's score (`WLD-24`).
-    - **Choosing:** a world must have a start region that qualifies; worlds that do are ranked by the sum of their scores, with weights that are tuned and listed (`PRN-05`).
-      If fewer than three qualify, more candidates are made.
-    - **Never edited:** a world is offered exactly as generated, or not at all.
-    - **What you see:** the best three as small globes drawn from their land and climate, each with a one-line summary built from its scores and facts by fixed sentence patterns, so it says only what the world holds (`PRN-10`).
-      Letting the game pick takes the top score.
-    - **Your own seed:** entering a seed makes that one world, the same as before for the same version (`WLD-08`); it skips the search, still finds its start region by scoring, and tells you if none qualifies.
+    - **The catalogue** holds about 60 plants (`WLD-31`) and about 30 animals (`WLD-32`), each with where it can live (warmth, wetness, soil, cover), its seasons, its size, and what it yields, with the characteristics of each yield (`MAT-03`), set by hand from the real species (`PRN-05`).
+    - **Use is learned:** whether a berry is food, poison or medicine is in its characteristics, which people learn by trying; some look-alikes differ, such as a sweet root and a deadly one (`MAT-03`).
+  - **Why:** Familiar species make the world readable at a glance, and their real habits make gathering, hunting and taming believable.
 
-- `WLD-24` **Where history begins** *(Decided)*: The bands start in a temperate region with caves, fresh water and varied food within reach.
-  The region is found by the scoring, never placed by hand.
+- `WLD-23` **Every habitat lived in** *(Decided)*: Every landscape has its plants, its plant eaters and hunters, its birds, and fish in its waters, so no land is empty or still.
+  - **How it works:** the catalogue covers every biome a world can have, from tundra to the warm belt and from desert to marsh, and generation places each species wherever its needs are met (`WLD-09`), so a world uses most of the catalogue.
+
+- `WLD-10` **Generate several, offer the best three** *(Decided)*
+  - **What:** The game makes several candidate worlds, scores each, and never edits them.
+    "New world" shows the best three as small globes, each with a one-line summary of its facts.
+    You pick one, let the game pick the top score, or enter a seed instead.
   - **How it works:**
-    - **Where it looks:** every stretch of land big enough to feed the starting bands all year (`BIO-03`), counting only food they can get with the starting kit (`BIO-02`).
-    - **What a region must have,** judged by the world's own rules:
-      - **temperate:** a real cool season, with the coldest month below about 10 °C (tuned), that people with the starting kit, with no clothes and no fire, can live through in the region's caves, huddled together, by the body's own heat rules (`BIO-11`) in an ordinary year; and a warm season that doesn't overheat them in shade with water;
-      - **caves:** a dry cave or overhang for each band, big enough to shelter it (floor area per person estimated);
-      - **fresh water:** water within about 2 km of each shelter (estimated) that lasts through an ordinary year's dry season, from a river, lake or spring;
-      - **varied food within reach:** within about 10 km of the shelters, a day's walk there and back (estimated), food the starting kit can get (gathered by hand, scavenged or ambushed) that meets the bands' needs (`BIO-09`) in every season with a margin (tuned), from several kinds, such as plants, land animals and water life, so one failing doesn't starve them;
-      - **stone that flakes:** within the same reach, stone that breaks into sharp flakes, judged by its makeup and structure by the breaking rule (`RCK-01`), never by name, so Experiment 1 can happen in every world (`RES-02`).
-    - **Ranking:** among regions that qualify, a bigger margin of food, more kinds of food, and more shelters and water score higher (weights tuned); ties go by the seed.
-    - **Found again after settling:** the search runs once more on the settled world (`WLD-08`), so the bands start from what is really there.
-    - **The bands' places:** each band gets one shelter as its home base, and its home range is the land around it that feeds it, next to its neighbours' (`BIO-20`).
+    - **Two passes:** about 20 candidates (tuned to fit `WLD-11`) go through plates, rock, erosion and a rough climate, and are scored on those; the best few go through every stage and are scored again.
+    - **Must have:** a start region that qualifies (`WLD-24`) and, on the same landmass, everything the arc needs (`TIM-19`): stone that flakes, clay, wild grains, wolves and a herd animal with a domestic kind (`WLD-33`), and copper ore.
+    - **Scores:** varied landscapes and climates; barriers such as mountains, seas and deserts that let separate peoples form; resources spread unevenly, flint here and copper there; and the start region's own score.
+      The weights are tuned.
+    - **Never edited:** a world is offered exactly as made, or not at all; if fewer than three qualify, more are made.
+    - **Your own seed** makes that one world and finds its start region the same way, or says it has none.
 
-- `WLD-11` **Generation time** *(Decided)*: Generating the candidate worlds and finding the best three takes a few minutes in total on the phone.
+- `WLD-24` **Where history begins** *(Decided)*: The bands start in a temperate region with caves, fresh water, varied food and stone that flakes within reach, found by scoring, never placed by hand.
+  - **How it works:** a region qualifies when, by the world's own rules:
+    - **winters** matter, with the coldest season averaging below about 10 °C (tuned), yet people without clothes or fire can live through them, sheltering in caves and huddling together (`BIO-11`);
+    - **caves:** there is a dry cave or overhang big enough for each band;
+    - **water** lasts all year within about 2 km of each shelter;
+    - **food** the bands can get with the starting kit (`BIO-02`) is enough within about 10 km of the shelters, a day's walk there and back, in every season with a margin (tuned), from several kinds, so that one failing doesn't starve them;
+    - **stone that flakes** lies within the same reach, so the sharp-stone test can happen in every world (`RES-02`).
+  - **Ranking:** among regions that qualify, bigger margins of food, more kinds of food, and more shelters and water score higher.
+  - **The bands' places:** each band gets one shelter as its home and the land around it as its home range, next to its neighbours (`BIO-03`).
+
+- `WLD-11` **Generation time** *(Decided)*: Making the candidates and offering the best three takes a few minutes on the phone.
+  - **How it works:** only the best few candidates get every stage (`WLD-10`), and nothing is made down to the metre in advance (`WLD-12`).
+    If measurement (`PLT-04`) shows it running long, fewer candidates are made, never less detail in each.
+    Settling the chosen world (`WLD-08`) comes after, and is measured too.
+
+### 6.4 Sky, climate and weather
+
+- `WLD-06` **Varied within reason** *(Decided)*: Each world has its own axial tilt (15° to 30°, which sets how strong its seasons are), share of land (25% to 50%), continents, seas and star field, all drawn from the seed.
+  Every world has one moon, a 24-hour day and the 60-day year (`TIM-18`); gravity, air and water are as on Earth.
+
+- `WLD-07` **The sky** *(Decided)*
+  - **What:** The sun, moon and stars move as they would for the world's tilt, with the year squeezed into 60 days (`TIM-18`).
+    Eclipses, comets, meteor showers and auroras happen.
   - **How it works:**
-    - **Only the best get full detail:** the two passes of `WLD-10` keep most of the work on the few worlds that might be chosen, and nothing is made down to the metre in advance (`WLD-08`).
-    - **All cores:** candidates are made side by side on all the phone's cores.
-    - **Fewer worlds, never less detail:** if a milestone's measurement (`PLT-04`) shows generation running past a few minutes, fewer candidates are made; each world keeps its full detail.
-    - **Settling** the world you pick (`WLD-08`) comes after this and takes as long as the world's own rules need; its time is measured too (`PLT-04`).
-
-### 6.4 Detail
-
-- `WLD-12` **Detail where it matters** *(Decided)*: Each system runs at the coarsest scale that keeps it true.
-  Climate is worked out region by region; rivers and soils kilometre by kilometre; plants and animals in patches of a few hundred metres.
-  Everything goes down to the metre where people are, or where something new or critical is happening.
-  Where you look changes only the picture, never the simulation (`WLD-13`).
-  Follows from `PRN-11`.
-  - **How it works:**
-    - **Levels:** each system keeps its state at its own level of the nested cells (`WLD-01`):
-      - **weather:** cells of about 8 km (tuned), small enough for storms about 50 km across (`WLD-30`); the weather at any smaller place comes from its cell by physical rules: air cools with height, cold air pools in hollows, slopes facing the sun warm faster, and wind drops in shelter;
-      - **water and soils:** rivers, lakes and ground water on cells of about 1 km, with each soil's makeup and slow change there too; the water and nutrients that plants draw on are kept per plant patch;
-      - **plants:** patches of about 250 m, each holding every species present with the amounts of its leaves, wood, roots, flowers, fruit and seed, and the ages of its trees;
-      - **animals:** each species' animals counted per patch, whole animals only, by age and sex, and moved between patches each day by where food, cover and danger are; river life per stretch of river, and sea life per cell of a few kilometres, with shores and shellfish beds in patches like the land;
-      - **the metre:** single things: stones, plants, animals as individuals, and the shape of the ground.
-    - **Steps:** each level moves by its own rates on one world clock: weather by the hour, rivers by the day and by the hour in floods, plants in steps as short as their changes need (days in a spring flush, weeks in winter), animal counts by the day, and single beings and things in fine steps while they act.
-      Grid levels are worked out many cells at once, on the graphics chip where that helps (`PLT-01`).
-    - **Where people are:** what a person's senses can reach is real at metre detail.
-      Things are made from the seed as senses reach them, large ones far off and small ones only close, by what each sense could pick out at that distance (`BIO-18`).
-      The ground takes its metre shape wherever bodies use it: where they walk, sit, climb, dig or build, and in the shelters they live in.
-      Anything touched is stored from then on (`MAT-10`).
-    - **Animals near people:** within the distance its species covers in a day of any person (estimated from body size and diet), an animal of a kind people meet one at a time (larger mammals and birds, and anything that can hurt a person; set per species, estimated) is an individual with a mind (`MND-16`), drawn from its patch's count with its own traits from the species' spread.
-      It rejoins the count when no person is near, its learned wariness of people passing into the population's traits.
-      Any animal that has dealt with people (hunted, wounded, fed, tamed, or known to someone) stays an individual for good.
-      Other animals stay counted, and one is made on its own only when something acts on it, as with matter: a fish caught, a grub dug up.
-    - **Something new or critical:** detail also goes down to the metre, near people or not, wherever a process depends on finer detail than its level: a fire spreading, water breaking out of its channel, ground giving way, lava and ash, a lightning strike.
-      It starts with the event and ends when the event does, and the results are written back to the coarser levels.
-    - **Between levels:** the coarser level always holds the totals.
-      When detail starts, single things are made from the current amounts and the seed; whatever is taken, eaten, killed, cut or burned at metre detail is taken off its patch at once.
-      Plants touched by people merge back into their patch once untouched for a season, keeping their place and identity from the seed, so the same tree is found again, grown or gone as its patch's amounts say.
-    - **The rule reads only the world:** what sets the level is people, animals and events, never the camera (`WLD-13`).
-    - **Checked:** each level is run in sandboxes against a finer one, and the same area run both ways must give the same statistics (`PRN-11`), such as plant amounts, animal numbers and how far fires spread.
-
-- `WLD-13` **Looking changes nothing** *(Decided)*: Where you look never changes what happens.
-  Fine detail drawn for the picture is generated the same way every time, and never contradicts what was simulated.
-  Follows from `PRN-10`.
-  - **How it works:**
-    - **One way only:** the picture and sound read the simulation; nothing in the simulation reads the camera, the zoom, or anything made only for the picture.
-    - **The same generator:** detail made for the picture where the simulation has none yet, such as ground, stones and plants close up, comes from the seed and the current coarser state by the same rules the simulation uses (`WLD-12`), so what you saw is what people will find.
-      It is never stored and never read back.
-    - **Animals that are counted:** where animals are counted rather than individuals (`MND-16`), the picture shows those real animals in the patches they are in, by age and sex.
-      Where each stands within its patch, and how it moves there, are filled in from the seed, and no event is shown that the counts didn't have (`PRN-10`).
-    - **Speed changes nothing:** step lengths come from the world's own rates, never from how fast time runs or how busy the phone is (`PRN-11`).
-      Fast or slow, only the batching changes: up close the steps run in small slices between frames, and at speed in large batches, with the same results.
-  - **Check:** the same saved state, run with the camera in different places and at different speeds, gives the same results bit for bit on the same phone (`TIM-16`); and a code check finds no path from the picture's data into the simulation.
-
-### 6.5 Natural systems
-
-- `WLD-29` **Systems feed each other** *(Decided)*: All the natural systems below are simulated in depth, and each feeds the others: weather shapes soils and plants, plants feed animals, fire and floods change the land, and people come to change them all (`WLD-25`).
-  - **How it works:**
-    - **Shared places:** every system reads and writes the same cells and patches (`WLD-12`), so what one changes, the others read at their next step.
-    - **What feeds what:**
-      - weather feeds water (rain, snow, melt, evaporation), soils (wetting, freezing), plants (warmth, light, water, frost), animals and people (heat, cold, snow cover) and fire (dry fuel, lightning, wind);
-      - water feeds soils and plants (wetness, flooding), the land (cutting and settling) and the weather (water returned to the air);
-      - soils feed plants (water and nutrients) and decide what buried things keep (wetness, air, acidity: `MAT-08`);
-      - plants feed animals (food, cover), soils (fallen leaves and roots, with their nutrients), water (what roots draw up and leaves give off), the weather (how much sunlight the land reflects and how much water it returns to the air) and fire (fuel);
-      - animals feed plants (grazing, trampling, spreading seed, pollinating, dung), other animals (hunting, competing) and microbes (hosts, carcasses);
-      - microbes feed soils (rot releasing nutrients), every living thing (disease) and stored food (rot, fermenting) (`WLD-21`);
-      - fire feeds plants (burned, then regrowth), soils (ash, and bare ground that erodes), the air (smoke) and animals (killed or driven off);
-      - changes to the land (erosion, slides, floods, quakes, eruptions) feed everything where they happen.
-    - **Nothing lost:** water, carbon, nutrients and heat pass between systems with their elements and energy counted (`MAT-09`): the nitrogen in grass eaten by a deer goes into the deer, its dung and in time its carcass, and back to the soil.
-    - **Order:** within a step the systems run in a fixed order, and a slow system takes the faster ones' totals over its step, such as the week's warmth and water for plants, so nothing reads a value from the future.
-    - **People are one more feeder:** what people do at metre detail goes into the same cells and patches (plants cleared, land burned, earth dug, animals killed), so its effects travel the same links (`WLD-25`).
-
-- `WLD-14` **Geology and materials** *(Decided)*
-  - **What:** Rocks, minerals, soils and ores lie in realistic places, so what can be discovered depends on what's underfoot.
-  - **Example:** Flint comes out of chalk and limestone, obsidian near volcanoes, copper ores in certain mountains, clay along rivers, salt in dry basins.
-  - **How it works:**
-    - **What lies at the surface:** each place's surface comes from its rock layers (`WLD-09`) and what has happened above them: bare rock where slopes are steep or soil is thin; soil elsewhere (`WLD-27`); loose blocks where frost and roots break rock along its cracks, sized by how far apart the cracks are; scree below cliffs; and gravel, sand and mud where water or ice left them.
-    - **Stones travel:** a river's gravel holds stones from every rock upstream, in proportion to how much of each is exposed and how well it resists wear, rounded and sorted by size with distance; beaches take theirs from nearby cliffs and rivers, and rubble left by ice comes from wherever the ice came from.
-      So flint from chalk hills turns up in valley gravels far away, and tin in the gravels below granite.
-    - **Every piece differs:** each rock in the settings catalogue is a set of ingredients and a structure (`MAT-01`, `MAT-02`) with real ranges of grain, flaws and impurities, and each piece draws its own within them, so some flint breaks better than other flint.
-    - **Seen through layers:** layers show wherever something cuts through them: river banks, cliffs, cave walls, landslide scars, the roots of fallen trees, and burrows; beneath the soil, digging reaches them (`MAT-12`).
-    - **Ores show themselves as they really do:** by colour (green and blue copper minerals, red and yellow iron), by weight for their size, by sheen, and by collecting in gravels because they are heavy; they are perceived through the senses like anything else, never labelled (`PRN-07`).
-    - **Salt and clay:** salt forms crusts where closed lakes dry (`WLD-17`), and seeps out at salty springs where ground water passes through salt layers; clay settles where water stands still, in floodplain hollows, old river bends and lake beds, and forms in place where feldspar-rich rock weathers.
-
-- `WLD-15` **Living geology** *(Decided)*: Change continues during play.
-  Erosion wears the land, rivers shift their course, landslides fall, earthquakes strike along faults, volcanoes erupt, and coastlines move as the sea rises and falls.
-  - **How it works:**
-    - **Erosion:** the same law as in generation (`WLD-09`): water cuts faster where more of it flows, where it is steeper and where the rock is softer, and slopes creep down.
-      Bare ground wears away many times faster than ground under plants (measured ranges), so a burned or cleared slope loses its soil in a few heavy rains.
-      It is worked out on the 1 km cells each year and after heavy rain, and on patches where the plant cover has been stripped.
-    - **Rivers shift:** each river's channel is kept as a line with a width, finer than its cell.
-      The outside of each bend wears back and the inside builds up at measured rates, so bends wander, and a flood can cut through a narrow neck and leave an old bend as a lake.
-      Where a channel has built itself up above its floodplain, a flood can break out and take a new course.
-    - **Landslides:** a slope fails when the pull down it passes its strength, which falls as the ground fills with water; heavy rain, melting snow, shaking, or a river or people cutting away its foot can set one off.
-      Only slopes steep enough ever to fail are checked, and only after such a trigger.
-      The moving ground runs out until the slope eases, burying what lies below, and can dam a river into a lake that may later burst (`WLD-17`).
-    - **Earthquakes:** each fault from generation builds strain at the speed its plates move, and slips when the strain passes the fault's strength, which varies from the seed.
-      The length that slips sets the size, and shaking fades with distance, both by measured rules.
-      Shaking pulls on everything joined or stacked, so built things fall by their joints' strength (`MAT-10`), slopes give way, and a fault under the sea raises a wave (`WLD-26`).
-    - **Volcanoes:** each volcano from generation fills with molten rock at its own rate, and erupts when the pressure passes its limit, sized by how much has built up (measured eruption sizes).
-      Runny lava pours out and flows downhill at speeds set by its stiffness and the slope, cooling as it goes (`MAT-04`); sticky, silica-rich lava blows out ash and glowing flows, and leaves domes and obsidian.
-      Ash rises with the eruption's size, drifts with the winds of the day, and falls thinner with distance; the largest eruptions put enough gas into the air to cool the world for a few years (`WLD-16`).
-      Swarms of small quakes, swelling ground, gas and warmer springs come before, with measured lead times of days to months.
-    - **Coasts move:** the sea's level follows the ice on land (`WLD-26`), and each year the coastline is wherever the land lies below it.
-      The rising sea drowns shores, kills plants with salt and covers what lay there (`MAT-08`); land freed of ice rises slowly at measured rates; cliffs wear back and spits grow by the waves.
-
-- `WLD-27` **Soils** *(Decided)*: Soils form from rock, climate, plants and time.
-  They hold water and nutrients, decide what grows where, and can later be enriched or exhausted by people.
-  - **How it works:**
-    - **What a soil holds:** its depth and layers; the shares of sand, silt and clay; stones; dead plant matter; nutrients (nitrogen, phosphorus, potassium, calcium and others) as amounts of each element, some free for roots and some bound; acidity; water; and temperature (`WLD-12`).
-    - **Water:** each day, rain and melt soak in up to what the soil can take, the rest runs off to the rivers (`WLD-17`), plants draw water up, the surface dries, and any extra drains down to the ground water.
-      How much a soil holds and how fast it drains come from its sand, silt and clay by measured rules.
-    - **Nutrients:** plants take them up as they grow; fallen leaves, dead roots, dung, carcasses and ash return them; microbes free them from dead matter, faster when warm and moist (`WLD-21`); rain washes some away, most in wet climates and sandy soils; weathering rock adds a little each year; and some plants, and lightning, add nitrogen from the air.
-      Every element is counted (`MAT-09`).
-    - **Acidity:** it rises as rain washes out calcium and under some plants' litter, and falls with ash or lime; it decides which nutrients roots can reach and which plants thrive.
-    - **Slow change:** dead matter builds up where plants grow and is lost where they are cleared; soil deepens as rock weathers below and thins as erosion takes its top (`WLD-15`); this is worked out each year.
-    - **People enrich or exhaust it through the same flows:** crops carried away take their nutrients with them, so a plot used year after year yields less; dung, ash and rotted waste put nutrients back; trampled ground lets less water in; cleared ground erodes.
-      There is no fertility score.
-    - **What grows where:** each plant grows by its access to water, nutrients, warmth and light, against its own needs and limits (`WLD-18`).
+    - **Sun:** its height and the length of daylight follow latitude and date, so summer days are long and winter days short, more so toward the poles, with midnight sun and polar night near the ice.
+    - **Moon:** it waxes and wanes once a season, every 15 days, so each season has one full moon; full-moon nights are bright enough to walk and hunt by.
+    - **Events:** eclipses when sun and moon line up, a few in a lifetime at any place; comets on paths drawn from the seed; meteor showers on the same days each year; auroras near the poles.
+    - **Seen like anything else:** people see the sky with their senses (`BIO-18`) and can learn its cycles (`CUL-13`).
+  - **Why:** The sky is the first calendar, and a great source of myth.
+  - **Example:** A comet hangs over the valley through the autumn the old leader dies, and the band remembers that winter by it.
 
 - `WLD-16` **Climate and weather** *(Decided)*
-  - **Climate from geography:** Each place's climate (rain, temperature and winds through the seasons) is worked out by rules derived from real physics and calibrated to Earth, not by a full physical climate model: latitude, height, distance from the sea, prevailing winds, and mountains that block rain.
-  - **Daily weather** is drawn from that climate, with storm systems that move across the land.
-  - **Long cycles:** ice ages and warm periods follow real cycle lengths, tens of thousands of years long, moving coastlines and pushing migrations.
-    Worlds begin as an ice age ends, so seas rise over the first ten thousand years or so and can cut bands apart (`MOM-05`).
-    A great eruption can cool the world for a few years.
+  - **Climate from geography:** at generation, each place's climate (its warmth, rain, snow and winds through the seasons) is worked out by rules modelled on Earth's.
+    The sun's warmth comes from latitude; wind belts are like Earth's, steady easterlies near the equator and westerlies farther out, shifting with the seasons; rain falls where moist sea air is lifted over land and mountains, leaving dry rain shadows behind them; deserts lie in the dry belts either side of the tropics and far inland; warm currents make coasts mild and wet, cold ones cool and foggy (`WLD-26`); and the air is colder higher up.
+    The climate stays the same through history: no ice ages, and no change made by people (`SCP-21`).
+  - **Weather** in each weather cell, every game hour: temperature, humidity, wind, cloud, rain and snow.
   - **How it works:**
-    - **What drives it:** for each weather cell (`WLD-12`) and day of the year, rules from physics, calibrated to Earth, set the sunlight (from latitude and the date, `WLD-01`); the wind belts at Earth's latitudes, shifting with the seasons and bending around land and sea (warm land in summer draws in moist sea air, cold land in winter pushes dry air out); and the storm belts, where storms form and the paths they take, strongest where warm and cold air meet, with tropical storms only over seas warmer than a measured temperature.
-    - **Storms are drawn from the climate:** storm systems are drawn from their belts' real statistics (how often, how big and how fast, with sizes scaled, `WLD-30`), and move along their belts.
-    - **Weather is worked out hour by hour:** each cell keeps its air's temperature, moisture, cloud, wind and pressure.
-      Air moves with the belts and the storms; it takes up water from seas, lakes, wet ground and plants by measured rules; it cools as it rises over hills or in storms, and rain or snow falls once it cools past what it can hold.
-      The sun warms the ground by day by how much light the ground takes in (snow and sand reflect most, forest least), and the ground cools at night, most under clear skies; fog and frost form where moist air cools at night, most in hollows and over water.
-      So what storms bring, and all other weather, comes from the land and water as they are now, which is how forests, lakes, snow and people's clearing change it (`WLD-25`).
-    - **Thunderstorms** build where the air is warm, moist and rising, and give lightning (`WLD-28`).
-    - **Climate is the weather's long-run average:** checked against Earth in calibration (`WLD-08`), such as each kind of climate's share and where it lies.
-    - **Long cycles:** the slow wobble of the world's tilt and orbit, drawn from the seed within Earth-like ranges, changes how much summer sun high latitudes get.
-      Where winter snow outlasts the summer, ice sheets grow and reflect more sunlight, and the air's carbon dioxide falls and rises with the ice by the relation measured in Earth's ice cores, deepening each swing.
-      Why Earth's ice ages keep the rhythm they do is not fully understood, so the timing follows the orbit and the feedbacks are tuned until the ice and the sea match the size of Earth's record (`WLD-26`).
-    - **Eruptions:** gas from a great eruption dims the sun for a few years through the same sunlight balance (`WLD-15`).
-  - **Example:** Rain clouds coming off the western sea drop their rain on the mountains, so the valleys beyond are dry grassland with forest only along the rivers.
+    - **Seasons** come from latitude and tilt (`WLD-06`), squeezed into the 60-day year (`WLD-05`), and reversed between the two halves of the world.
+    - **Day and night:** the sun warms the land by day and clear nights are coldest; deserts swing most, coasts least.
+    - **Storm systems** are drawn from each place's climate (how often, how big and how wet, by season) and move with the prevailing winds, dropping most of their rain on the slopes that face them.
+    - **Thunderstorms** build in warm, moist air and bring lightning (`WLD-28`).
+    - **Snow** falls when it is cold enough and lies on each world cell until warmth melts it, feeding the rivers (`WLD-17`).
+    - **Height and shelter:** air is about 6 °C colder for each 1,000 m up; within a weather cell, each place's weather is adjusted for its height, slope and shelter, with cold air and frost pooling in hollows.
+    - **Good and bad years:** chance brings runs of wet, dry, warm and cold years at about the rates such runs have on Earth in that climate (tuned), which is where droughts and harsh winters come from (`WLD-22`).
+    - **A great eruption** can cool the world for a year or two (`WLD-15`).
+  - **Done when:** across many test worlds, the weather's long-run average matches each place's climate, and each kind of climate's share and place are like Earth's.
+  - **Example:** Rain off the western sea falls on the mountains, so the valleys beyond are dry grassland, with forest only along the rivers.
 
-- `WLD-05` **Climate on a small world** *(Decided)*: Climate zones sit closer together than on Earth, a few days' walk apart, and weather systems are scaled to fit the world (`WLD-30`).
-  - **How it works:** latitude changes about 20 times faster per kilometre than on Earth, about one degree every 5.6 km, so the belts the climate rules give (`WLD-16`) are a few days' walk wide.
-    Storm systems, fronts and the great loops of wind and current are scaled (`WLD-30`); local weather, such as thunderstorms, sea and valley breezes and frost hollows, keeps its real size.
-
-- `WLD-25` **People change the climate** *(Decided)*: What covers the land and, much later, fuel burned at scale feed back into the climate through the same physics.
-  Clearing a forest can dry a region; centuries of burning could warm the world.
+- `WLD-05` **Climate on a small world** *(Decided)*: Climate zones sit closer together than on Earth, a few days' walk apart, and the seasons are squeezed into the 60-day year while each day's weather runs at real speed.
   - **How it works:**
-    - **Land cover:** each weather cell reads, at every step, how much sunlight its land reflects, how much water its plants and soil give back to the air, and how rough its surface is, from the patches beneath it (`WLD-29`).
-      Clearing a forest makes the land brighter, drier and smoother, and downwind gets less of the water the forest gave back, so the region can dry by itself, with no rule for it.
-    - **The air's carbon:** everything that burns, rots or breathes gives off carbon dioxide, and growing plants take it in (`MAT-09`); it mixes through the world's air, and the sea takes some up slowly at measured rates.
-      More of it warms the world by the measured amount for each doubling, through the same sunlight balance (`WLD-16`), so centuries of burning at scale would warm the world.
+    - **In space:** latitude changes about one degree every 5.6 km, so climate belts are about 100 km wide; storm systems are scaled (`WLD-30`), while thunderstorms, breezes and frost hollows keep their real size.
+    - **In time:** storms, showers, snowfall and melt, and each day's warming and cooling run at real rates.
+      The seasons' warmth and daylight follow the squeezed year (`TIM-18`), with land and sea warming and cooling within it, so a season here is as warm or as cold as on Earth at the same latitude.
 
-- `WLD-17` **Fresh water** *(Decided)*: Rivers, lakes, wetlands, springs, underground water, ice and floods.
-  Life and settlement gather around them.
+### 6.5 Water and soil
+
+- `WLD-17` **Fresh water** *(Decided)*: Rivers, lakes, springs, marshes, snow and ice, with floods and dry spells; life and settlement gather around them.
   - **How it works:**
-    - **Each cell's water, day by day:** rain and snow come from the weather; snow lies until warmth melts it; water soaks into the soil or runs off (`WLD-27`); soil water drains to the ground water, which seeps slowly downhill through the rock, fast through cracked limestone and caves and slowly through clay (measured ranges).
-    - **Springs:** ground water comes out where it meets the surface, at the foot of slopes and where water-bearing rock lies on rock that holds it back; springs and seeping ground keep rivers flowing in dry seasons.
-    - **Rivers:** each cell passes its water downhill along the network from generation, at the speed its slope and channel allow (measured rules), so a storm's water reaches the lower valley later, as a flood wave.
-      Each stretch's channel is as wide and deep as its usual flow makes it (measured rules); when the flow passes what the channel holds, the water spreads over the floodplain, worked out at finer detail while it lasts (`WLD-12`), leaving silt and drowning or carrying things.
-    - **Lakes:** a lake rises with what flows in and falls with what flows out over its outlet and what evaporates; a lake with no outlet in a dry land turns salty and leaves salt where it dries (`WLD-14`).
-    - **Wetlands:** where ground water stays at the surface, on flat or badly drained ground and below springs, soils stay waterlogged, reeds and sedges grow, and peat builds up and keeps what falls into it (`MAT-08`).
-    - **Ice:** snow that outlasts the summer builds glaciers, which flow downhill at rates set by their thickness and slope (a measured law) and melt at their ends, feeding rivers in summer.
-      Lakes and rivers freeze when cold enough, and the ice bears a person once it is thick enough (measured thickness); in the coldest places the ground stays frozen all year.
-    - **Floods** come from heavy rain, fast melt, ice jams, or a burst dam of rubble or ice, all from the same water balance.
-    - **What the water carries:** salt, mud, warmth, and microbes from dung and waste upstream (`WLD-21`), which decide whether it is safe to drink (`BIO-05`).
-    - **Gathering around water:** nothing is placed there; plants grow better where water is, and animals and people go to it because their bodies need it each day (`BIO-09`).
+    - **Each world cell's water,** once a game day: rain and melt soak into the soil or run off, more off clay and frozen ground (`WLD-27`); ground water seeps downhill and comes out as springs at the foot of slopes and in limestone country, keeping streams flowing in dry spells.
+    - **Rivers** carry water downhill along the network from generation at real speeds, so a storm's water reaches the lower valley later as a flood wave; small streams dry up in a long dry spell, and big rivers shrink.
+      Rivers keep their courses; each has its line, width and depth, from which areas make their banks, bars and pools.
+    - **Lakes** rise with what flows in and fall with what flows out and dries away; a lake with no outlet in a dry land turns salty and leaves salt where it dries (`WLD-14`).
+    - **Floods** come from heavy rain, fast melt or a burst ice dam: water spreads over the floodplain, drowning and carrying things, and leaves silt that raises the soil's fertility (`WLD-27`) and buries what lay there (`MAT-08`).
+    - **Marshes** form on flat or badly drained ground and below springs, with reeds, and with peat that keeps what falls into it (`MAT-08`).
+    - **Ice:** rivers and lakes freeze in hard cold, and the ice bears a person once it is thick enough; thin ice breaks.
+      Glaciers stay as generated, and their summer melt feeds rivers.
+    - **Clean water:** water below camps, herds or carcasses, or standing still, can carry illness (`BIO-05`).
+    - **Gathering around water:** nothing is placed there; plants grow better near water, and animals and people go to it because they need it every day (`BIO-09`).
 
-- `WLD-26` **Seas** *(Decided)*: Oceans with currents that carry heat and moisture, tides set by the moons and the sun (so worlds without moons still have weaker tides), and a sea level that rises and falls with the ice ages.
-  At low tide, shellfish beds are exposed on the shore.
+- `WLD-26` **Seas** *(Decided)*: Seas and oceans with currents that carry warmth, a fixed sea level with no tides, and shores rich in food.
   - **How it works:**
-    - **Currents:** worked out from the winds and the shapes of the seas, and again when either changes, such as when a rising sea opens a strait (`WLD-16`).
-      Great loops of current turn with the winds; warm water flows poleward along one side of each sea and cold water returns along the other; and where wind pushes surface water away from a coast, cold water rich in nutrients rises.
-      Each sea cell keeps its temperature, saltiness, nutrients and current, and passes heat and water to the weather above it, so coasts by warm water are mild and wet.
-    - **Tides:** worked out each hour from where the sun and moons are (`WLD-07`); each body's pull sets its share, so tides swell when they line up and ease when they don't, and several moons make a richer pattern.
-      Heights are Earth's, scaled by each body's pull relative to Earth's moon and by the shape of each coast: a named exception (`PRN-05`), since a planet this small with Earth's gravity is not real physics, so its tides can't be worked out from it.
-      With no moon, the sun alone gives about a third of the range of Earth's highest tides.
-    - **Sea level:** set by how much water is locked up as ice on land (`WLD-16`), within Earth's measured range between ice ages and warm times; coastlines follow (`WLD-15`).
-    - **The shore:** each shore patch has its height against the sea, so each hour it is either under water or bare; shellfish beds can be reached only while bare, so gathering follows the tides.
-    - **Sea life:** fish and sea mammals per sea cell (`WLD-12`), most where cold, rich water rises and in shallow seas; shellfish and seaweed on the shore patches.
-    - **Storms and waves:** storm winds raise waves and surges that flood low coasts, and quakes under the sea raise great waves (`WLD-15`).
-    - **Sea ice:** cold seas freeze in winter, thick enough in places to walk on; the polar ice never melts (`WLD-01`).
-    - **Salt water** can't be drunk safely (`BIO-09`), and leaves salt where it dries.
+    - **Currents** are worked out at generation from the winds and the shapes of the seas: warm water flows toward the poles along one side of each ocean and cold water returns along the other; where wind pushes surface water off a coast, cold water rich in food wells up, with the best fishing.
+    - **Each sea cell** keeps its warmth through the seasons, its ice, and its fish and sea mammals (`WLD-32`), most where rich water wells up and in shallow seas.
+    - **Shores** are beaches, rocky shores, estuaries and salt marsh, from the rocks and rivers; shellfish beds in the shallows are gathered like plants and grow back by the season.
+    - **No tides,** and the sea stays at one level, so coasts never move (`SCP-21`).
+    - **Storms** raise waves that pound coasts and flood low shores; cold seas freeze in winter, in places thick enough to walk on; the polar ice never melts (`WLD-01`).
+    - **Salt water** can't be drunk (`BIO-09`), and leaves salt where it dries in shallow lagoons (`WLD-14`).
 
-- `WLD-18` **Ecology** *(Decided)*
-  - **What:** Plants grow, flower, fruit and die back with the seasons.
-    Animals eat, breed, migrate and die.
-    Everything is tied together in food webs, with populations that boom and crash.
-  - **Why:** It is what people live from, and what they will one day change.
+- `WLD-27` **Soils** *(Decided)*: Each world cell has a soil and a fertility from 0 to 5, which decide what grows there and how well.
   - **How it works:**
-    - **Plants grow by what they catch and draw:** each step, each species in a patch (`WLD-12`) grows by the light its leaves catch, with taller plants shading shorter ones, limited by water, nutrients and warmth against its needs (`WLD-27`), at measured rates for its family (`WLD-19`).
-      The growth goes to leaves, wood, roots, stores, flowers and seed by the species' own rules for its age and the season.
-    - **Seasons come from warmth and day length:** each species leafs out, flowers, fruits and dies back when its sums of warmth and the day's length reach its own thresholds, so a cold spring delays everything and a warm one brings fruit early.
-    - **Seed:** flowers set seed when pollinated, by the wind or by the pollinating insects in the patch (`WLD-23`); seed is carried by wind, water and the animals that eat it, and waits in the soil until warmth, wetness, light or fire lets it sprout.
-    - **Plants die** of drought, frost beyond their limits, fire, shade, being eaten past recovery, disease and old age; dead matter falls as litter, rots (`WLD-21`), returns its nutrients (`WLD-27`) and is fuel (`WLD-28`).
-    - **Animals live by the same body rules as people:** each day, each animal needs food energy and nutrients by its body size and activity (`BIO-09`), and eats what its diet allows from its patch, sharing it with every other eater there; what is eaten comes off the patch.
-      Fed animals build fat and hungry ones burn it; cold and deep snow cost energy and bury food.
-    - **Moving:** counted animals move between patches each day toward food, water and cover and away from hunters, by their species' rules and what the population has learned (`MND-16`); herds move together, and migrations follow the seasons' food along routes the population has learned.
-    - **Breeding:** in its season, set by day length and warmth, each species breeds at its measured rates, with more young from females in good condition; young grow and mature at the species' measured ages.
-    - **Hunting:** hunters meet prey at rates set by both their numbers in a patch and how well the prey escapes, by measured rules; each kill is a whole animal, decided by chance from the rate, and the carcass feeds scavengers and then rots.
-    - **Every death has a cause:** hunger, a hunter, disease, cold, drowning, fire, old age or people, and each is counted with its cause, as for people (`BIO-14`).
-    - **Booms and crashes:** nothing sets them; they come from these rules and the weather, as in the example.
-    - **Checked:** in sandboxes, each kind's numbers fall within real densities for its habitat, and hunters and prey keep real ratios (`RES-14`).
-  - **Example:** A run of mild winters lets the deer multiply; the wolves follow; then a hard winter cuts both down, and the hunters go hungry.
+    - **At generation,** the soil comes from what lies beneath (rock, river silt, wind-blown dust, volcanic ash or peat), the climate, the slope and the plants: deep and rich on river silt, wind-blown dust, ash and old grassland; poor on sand, steep slopes and peat, and where heavy rain in hot lands washes it out.
+    - **Its kind** decides how it holds water (sand dries fast, clay stays wet and puddles) and how easily it is dug.
+    - **Fertility changes with use:** each harvest carried away lowers it, so a field yields less year after year; resting land recovers over a few years; ash, dung, rotted waste and flood silt raise it quickly.
+      Fields and other worked ground keep their own fertility, in their area (`WLD-12`).
+    - **Rich spots:** ground where ash, dung and food waste pile up, such as a camp's rubbish heap, grows richer than the cell around it, so seeds dropped there grow well (`MOM-08`, `RCK-23`).
+    - **What buried things keep:** wet, airless peat keeps wood and hide, dry caves keep bone, and acid soils eat bone away (`MAT-08`).
 
-- `WLD-28` **Fire in the landscape** *(Decided)*: Lightning and dry fuel start wildfires, which spread with wind and slope; landscapes regrow after them, and some plants depend on fire.
+### 6.6 Plants and animals
+
+- `WLD-31` **Plants** *(Decided)*
+  - **What:** About 60 species from Earth families: trees, bushes, grasses including wild grains, herbs, roots, reeds and flowers, with a few mushrooms and tinder fungi counted among them.
+    Each has where it can grow, its seasons, its growth, and its yields (fruit, nuts, seeds, wood, bark, fibre, leaves or roots), each with its characteristics (`MAT-03`).
+  - **How it works:**
+    - **In areas,** each plant is a thing (`MAT-10`) with a growth stage (seedling, young, grown, old or dead), a season state (bud, leaf, flower, fruit or bare) and yields that ripen with the season and are taken by gatherers and animals.
+    - **Seasons:** each species buds, flowers, fruits and goes bare at its own time of year, earlier after a warm spell and later after a cold one (`WLD-16`).
+    - **Growth** is squeezed with the year (`TIM-18`): grasses and herbs grow within a season, bushes over a few years, trees over decades.
+    - **Spreading:** each season, each plant has a chance to start a new one of its kind nearby, where the ground suits it and there is light and room; seeds people drop can sprout too (`RCK-23`).
+    - **Dying:** from drought, frost beyond its limits, fire, deep shade, being eaten or trampled, or old age; dead wood lies as fuel and rots (`MAT-19`).
+    - **Far from people,** each world cell keeps its plant cover, worked out every few days: how much is trees, bushes, grass and herbs, reeds and bare ground; which species lead; how old the trees are; and how much food is ripe now.
+      Cover grows back toward its biome at each species' pace, follows the season, and is grazed, burned and flooded.
+    - **Biome and cover:** the biome is what the cell's climate, soil and wetness would grow if left alone, such as pine forest, oak wood, grassland, scrub, tundra, desert or marsh; the cover is what grows there now, so a burned oak wood is grass and young trees on the way back to oak.
+  - **Example:** A hazel thicket by the river fruits in early autumn; the band strips it, wild boar take the fallen nuts, and next autumn it fruits again.
+
+- `WLD-32` **Animals** *(Decided)*
+  - **What:** About 30 species from Earth families, no insects: mammals, birds, fish and a few reptiles.
+    Each has its diet, group size, speed, danger, yields (meat, fat, hide, fur, bone, antler, sinew or feathers) and seasonal habits, such as breeding, moulting, migrating and sleeping through winter.
+  - **How it works:**
+    - **Far from people,** big animals live in herds, packs, flocks or alone, each kept as a count of adults and young, with its condition and its wariness of people, passing through the world cells.
+      Once a game day each moves toward food, water and cover and away from hunters, along seasonal routes where it migrates.
+      Small, plentiful animals, such as hares, small birds and most fish, are kept as how many live in each world cell or stretch of water.
+    - **Numbers change at a coarse pace:** young are born once a year in each species' season, more when the mothers are well fed, and grow up and age in game years (`TIM-18`); animals die of hunger, cold, hunters, illness and old age (`WLD-18`).
+    - **Near people,** within about 3 km of anyone (tuned), a herd's animals become individuals in the areas they are in, each with a body (`BIO-19`) and a simple mind (`MND-16`), its age, sex and condition drawn from the count.
+      They rejoin the count once no one has been near for a day; animals people have hunted, wounded, fed or tamed stay individuals for good.
+    - **Fear of people:** a herd that loses animals to hunters, or is chased, grows warier, fleeing sooner and keeping farther off; where no one hunts, wariness fades over the years, and the young take it from their herd.
+    - **Fish runs:** fish that swim upriver to breed crowd the rivers in their season, a time of plenty.
+    - **Danger:** big hunters such as wolves, bears and big cats may attack people when hungry, cornered or guarding young; numbers, noise and fire keep them off (`MND-16`).
+    - **Illness:** some animals carry illnesses that pass to people who handle them, eat them or share their water (`BIO-05`).
+    - **Your animal dreams** can draw a herd toward a place, or make it calmer or bolder (`GOD-12`).
+  - **Example:** In a valley hunted every autumn, red deer bolt at a hundred metres; over the ridge, where nobody hunts, they let a person walk close.
+
+- `WLD-33` **Taming and domestic kinds** *(Decided)*
+  - **What:** Animals fed and kept near people grow tame; young born to tame animals kept by people are tame from birth; and a line kept by people for several generations becomes a domestic kind, such as wolf to dog or wild goat to goat.
+  - **How it works:**
+    - **Tameness** runs from 0 (wild) to 5 (tame) for each animal: food, and time near people without harm, raise it slowly, and harm lowers it; young raised by people tame fast, grown animals rarely (`RCK-24`).
+    - **Tame animals** stay near people, follow them, can be penned or tethered, and breed there when kept together.
+    - **Domestic kinds:** only species with a domestic kind in the catalogue can become one: wolf to dog, wild goat to goat, wild sheep to sheep, wild cattle to cattle, wild boar to pig.
+      Others, such as deer, can be tamed one by one but never bred into a kind.
+      After about five generations (tuned) born among people, a line becomes its domestic kind: calmer, quicker to breed, with its own look.
+    - **Kept herds** are individuals that graze the plant cover around them (`WLD-31`), need water and guarding, and are the start of herding.
+    - **Recorded:** a people's first domestic kind enters the book of ages, named in their language (`PRE-05`).
+  - **Example:** Children feed scraps to pups from a wolf den near camp; the pups' own pups grow up at the hearth; five generations on, the band has dogs (`MOM-06`).
+
+- `WLD-18` **Ecology** *(Decided)*: Plants grow, fruit and die back with the seasons; animals eat, breed, migrate and die; numbers boom and crash with the weather and with each other, never by script.
+  - **How it works:**
+    - **Plant eaters** eat the cover of the cells they are in (grazers grass, browsers bushes and young trees, others fruit, nuts and roots); what they eat comes off the cover, and heavy grazing thins it.
+    - **Hunters** take prey by chance each day, more often when both are plentiful and the prey is young or weak; each kill is a whole animal, and its carcass feeds scavengers.
+    - **Condition:** well-fed animals fatten and breed well; hungry ones grow thin, breed less, and die first in a hard winter or deep snow.
+  - **Done when:** test worlds run for 100 game years without people keep every species within believable numbers for its habitat and believable ratios of hunters to prey, with none dying out or overrunning the land.
+  - **Example:** A run of mild winters lets the deer multiply; the wolves follow; a hard winter cuts both down, and the hunters go hungry.
+
+### 6.7 Fire, quakes and other events
+
+- `WLD-28` **Fire in the landscape** *(Decided)*: Lightning and dry fuel start wildfires that spread with wind and slope; the land regrows after them, and some plants need fire.
   People can learn to use fire on the land.
   - **How it works:**
-    - **Fuel:** each patch's fuel comes from its plants (`WLD-12`): dead grass, fallen leaves and twigs, dead wood and living foliage, each with its amount and wetness.
-      Dead fuel dries and wets with the weather, fine fuel within hours and logs over weeks (measured rates); living foliage's wetness follows the season and the soil water.
-    - **Lightning:** strikes come from thunderstorms (`WLD-16`), each landing by chance, more often on high ground and tall trees; it injures or kills what it hits (`BIO-13`) and lights fuel dry enough to catch (`MAT-04`).
-    - **Starting:** any heat source lights fuel the same way: lightning, lava, embers blown from a fire, or a fire people left.
-    - **Spreading:** while a fire burns, its area is worked out at finer detail (`WLD-12`).
-      It spreads from cell to cell at a speed set by the fuel's amount, size and dryness, the wind and the slope, by the heat that reaches unburned fuel ahead of the flames, calibrated by measured fire spread.
-      Wind throws embers ahead to start new fires, and fire climbs into tree crowns where low branches and wind let it (measured thresholds).
-      It stops where fuel runs out, rain falls, or it meets water, bare rock or burned ground.
-    - **After fire:** each patch loses plants according to how hot the fire was; ash returns nutrients (`WLD-27`), and bare ground erodes until plants return (`WLD-15`).
-      Regrowth follows each species' fire traits (`WLD-19`): some sprout again from their roots, some seeds sprout only after heat or smoke, some cones open only in fire, and grasses return within weeks; grazers come back to the new growth.
-    - **How often places burn** is a result of their climate, lightning and fuel, checked in calibration against Earth's measured fire intervals for each kind of landscape (`WLD-08`).
-    - **People:** a fire people start spreads by the same law; whether they ever burn land on purpose is up to their minds (`PRN-01`).
+    - **Fuel** comes from each world cell's plant cover, and dries or wets with the weather: dead grass dries within a day of sun, forest litter over days, logs over weeks.
+    - **Starting:** lightning (`WLD-16`), lava (`WLD-15`), or a fire people leave or set, wherever the fuel is dry enough.
+    - **Spreading,** checked every hour while it burns: from cell to cell, fastest through dry grass, downwind and uphill, slowly through damp forest, with wind throwing embers ahead; it stops at water, bare rock, snow and burned ground, and in rain.
+    - **In areas,** it burns thing by thing by the fire rules (`MAT-18`), so people can fight it, flee it or be caught.
+    - **After fire:** cover burns by how hot the fire was; ash raises fertility for a few years (`WLD-27`); grass returns within the season, bushes over a few years, forest over decades (`WLD-31`); some trees sprout from their roots or drop seed only after fire; grazers come to the new grass.
+    - **How often places burn** follows from climate, lightning and fuel, checked against Earth's usual intervals: grassland every few years, dry forest every few decades, wet forest rarely.
+    - **People** spread fire by the same rules; whether they ever burn land on purpose, to drive game or bring new grass, is theirs to discover (`PRN-01`).
 
-- `WLD-20` **Heredity in plants and animals** *(Decided)*: Inheritance continues during play, so adaptation and domestication (wolves into dogs, wild grasses into grain) can happen on their own.
+- `WLD-15` **Quakes and eruptions** *(Decided)*: Rare earthquakes strike along the faults made at generation, and volcanoes erupt where geology allows; otherwise the land keeps the shape it was made with.
   - **How it works:**
-    - **Traits are numbers:** body size, growth, tolerances, seed size, whether seeds stay on the stalk, poison doses, boldness and fear, breeding season, and the rest of each species' traits (`WLD-19`).
-    - **Individuals inherit from their parents:** an animal or plant that is an individual (near people, or touched by them, `WLD-12`) carries its own traits.
-      Its young get their parents' average plus variation, by each trait's measured share that is inherited; traits set by one or two genes in Earth's species, such as seeds that stay on the stalk or coat colour, pass by Mendel's rules.
-    - **Counted populations inherit as a whole:** each keeps, per weather cell, the average and spread of each trait and the share of each gene.
-      Who dies and who breeds is decided by the same body rules across the spread, such as cold killing more of the small, and the next generation's average shifts by the breeder's rule: the measured share that is inherited, times the difference between the parents and the whole.
-      Animals moving between cells mix their traits, and an individual rejoining its count adds its traits to the average.
-    - **New variation:** mutation adds a little new spread each generation at measured rates, so traits can move beyond their starting range over long times.
-    - **Selection is only what happens:** no one writes a fitness rule; survival and breeding come from cold, hunger, hunters, people and the rest of the world.
-      So bolder wolves that eat at the edge of camp raise more pups near people (`MOM-06`), and grass seeds that stay on the stalk are the ones gathered by cutting and carried home, so if people sow saved seed, that gene spreads.
-    - **Real speed:** change takes as many generations as it takes; only the experiment dial speeds it up (`BIO-07`, `PRN-12`).
+    - **How often:** each fault and volcano has its own chance each year, set by its kind, at about Earth's rates for the same area, so a people may see a large quake or eruption once in several lifetimes (tuned).
+    - **Quakes:** shaking is strongest near the fault and fades with distance; shelters and stacked things fall (`MAT-11`), and rocks drop from cliffs and cave roofs; a strong quake under the sea sends a great wave onto low coasts.
+    - **Eruptions** give warning days to weeks ahead (small quakes, rumbling, gas, warm springs), which people can notice (`BIO-18`).
+      Runny lava flows slowly downhill, setting fires (`WLD-28`); sticky lava blasts out ash and leaves obsidian (`WLD-14`).
+      Ash drifts with the wind and falls thinner with distance, smothering plants and fouling water, and in later years makes rich soil (`WLD-27`).
+      A great eruption dims the sun and cools the world for a year or two (`WLD-16`).
+    - **Nothing else moves:** during play the land does not wear down, rivers do not wander, slopes do not slide on their own, and coasts stay put.
 
-- `WLD-21` **Microbes** *(Decided)*: Rot, fermentation and disease are living microbes that spread and evolve.
-  Crowding, and living close to animals, bring epidemics.
+- `WLD-22` **Natural events** *(Decided)*: Lightning, wildfires, storms, droughts, floods and harsh winters, and rarely quakes and eruptions, come from the world's own systems, not only from you.
+  - **How it works:** none is ever scheduled; each is the far end of its own system: droughts and harsh winters from runs of bad years (`WLD-16`), floods from rain and melt (`WLD-17`), storms whose winds fell trees and flatten shelters (`MAT-11`), wildfires (`WLD-28`), and quakes and eruptions (`WLD-15`).
+    Your powers work through the same systems (`GOD-05`).
+    Big events that touch people enter the book of ages (`PRE-05`).
+  - **Check:** how often each kind of event comes, in each climate, stays within Earth's usual rates, and every event traces back to the state of its system.
+
+### 6.8 Cut from the world
+
+Cut from the launch design (see also `SCP-21`): microbes as a simulated system, heredity and evolution of plants and animals, insects, ice ages, tides, people changing the climate, and slow geology during play.
+
+- `WLD-20` **Heredity in plants and animals** *(Dropped)*
+  - **Dropped because:** plants and animals don't evolve during play; tame lines and domestic kinds take its place (`WLD-33`).
+
+- `WLD-21` **Microbes** *(Dropped)*
+  - **Dropped because:** microbes are not simulated; rot and fermenting are timers on things (`MAT-19`), and illness has its own rules (`BIO-05`).
+
+- `WLD-25` **People change the climate** *(Dropped)*
+  - **Dropped because:** cut from the launch design (`SCP-21`); people change plants, soils and herds, never the climate.
+
+## 7. Things and blueprints
+
+The core of the game: what things are, and how people change them.
+Every thing has the same 18 characteristics, and every way of making or changing things is a blueprint: hidden, generic and found only in play (`SCP-04`, `PRN-07`).
+Nothing underneath simulates chemistry or cracks (`SCP-21`): values are plausible and set by hand (`MAT-05`), and short reality rules keep results believable (7.6).
+How people discover, practise and teach blueprints is in Minds (`MND-06`, `MND-11`, `MND-13`).
+
+### 7.1 Things
+
+- `MAT-01` **Things are made of materials** *(Decided)*: Every thing is made of one or more materials, such as flint, birch wood, deer hide or clay; a spear is hazel, flint and sinew.
+  - **How it works:** a material has a colour, base values for the 18 characteristics (`MAT-03`), and one of nine classes: stone, earth (clay, sand, ochre, salt), wood, plant (bark, grass, reeds, fibre, fruit, seeds, roots), bone (with antler, horn, shell and teeth), hide (with fur and sinew), flesh (with fat), metal or water.
+    The class sets a thing's sounds (`SND-06`), whether it rots (`MAT-19`) and how long it lasts in the ground (`MAT-08`).
+    Each part of a made thing keeps its own material, so it is drawn in it (`PRE-42`), and a broken spear leaves a shaft and a point.
+
+- `MAT-10` **Items** *(Decided)*: An item is a kind of thing in the catalogue, such as flint, sharp flake or sewn cloak: about 200 at launch.
   - **How it works:**
-    - **Kinds:** microbes come from Earth families (`WLD-09`): decomposers in soil, litter and carcasses; fermenters on fruit, grain and milk; and about 20 kinds of disease (tuned), several for each way in (a wound, food or water, breath, touch, a bite) and for the main animal hosts.
-    - **Where they live:** as amounts on things (each piece of food or dead matter carries its load, `MAT-10`), in each patch's soil and litter, in each stretch of water, and in each infected body.
-    - **Rot and fermenting are laws over time** (`MAT-04`): microbes on food or dead matter grow at measured rates set by warmth, wetness, air, salt and acidity, and turn its ingredients into others, balanced (`MAT-09`): sugars into acids, alcohol and gas, flesh into rot.
-      So meat rots fast when warm and wet and slowly when cold, dry, salted or smoked, and crushed fruit ferments (`RCK-07`, `RCK-09`, `RCK-14`).
-    - **Disease in a body:** a germ gets in by its way in; if the dose beats the body's defences (immunity, condition, age), it multiplies at its rate and does its harm until the body clears it, it kills, or it stays (`BIO-05`); those who recover stay immune for the germ's measured time.
-    - **Spread:** a sick body sheds the germ by its way out: into the air nearby, into water and soil with its dung, onto what it touches, or into the insects that bite it.
-      Others catch it only from where they really are and what they really do, such as sharing a shelter, drinking downstream or butchering a carcass, never from an assumed contact rate.
-    - **From animals:** germs that live in animals reach people through bites, meat, dung and shared water, more often the closer and more often people deal with animals.
-    - **Crowding:** a germ that kills fast or leaves lasting immunity runs out of new hosts in small, scattered bands and dies out; only a large, close-packed population keeps it going, so epidemics arrive with crowding by themselves.
-      This is checked against real figures for the population a disease needs to persist (`RES-14`).
-    - **Evolving:** each germ's traits, such as how easily it spreads, how harmful it is, how long immunity lasts and which hosts it can live in, vary and are inherited with mutation as in `WLD-20`, over many generations a day, so the strains that spread best take over.
-      A strain that gains a new host can jump from animals to people; there is no measured rate for such jumps, so it is estimated and tuned.
-    - **Counted animals:** in counted populations, the sick, the recovered and the dead are counted per patch (`WLD-12`).
+    - **About 90 are raw:** stones and earths, woods, barks, fibres, plant foods, herbs, animal parts, water, ash and charcoal; species that yield alike share items, so most deer give the same hide (`WLD-31`, `WLD-32`).
+    - **About 110 are made:** tools, weapons, containers, clothing, shelters, foods, medicines, art, instruments and copper things (`MAT-23`).
+    - **Each item** lists its materials, form, 18 characteristics, usual size, what each timer makes of it (`MAT-19`), what it breaks into, and its model, icon and sound (`MAT-21`).
+    - **A thing** is one item in the world, lying in an area (`WLD-12`), with its own size, wear and quality (`MAT-20`), timers under way, maker, date and style (`PRE-43`); a heap of small things, such as nuts in a basket, is one thing with an amount.
 
-- `WLD-22` **Natural disasters** *(Decided)*: Eruptions, earthquakes, floods, droughts, storms, wildfires and lightning come from the world's own systems, not only from you.
-  Follows from `GOD-05` and the natural systems in this section.
-  - **How it works:** no disaster is ever scheduled or drawn as a disaster: each is the far end of its own system.
-    Eruptions and earthquakes come from pressure and strain (`WLD-15`); floods from the water balance (`WLD-17`); droughts from runs of dry weather when storms keep to other paths (`WLD-16`); storms from the storm systems, whose winds fell trees and wreck built things by force (`MAT-11`); wildfires and lightning from fuel and thunderstorms (`WLD-28`).
-    Your powers act through the same systems (`GOD-05`).
-    How often each comes is a result, checked in calibration against Earth's records, such as lightning strikes per square kilometre in each climate and how often rivers flood (`WLD-08`).
-
-How animals think is covered in `MND-16`.
-
-## 7. Matter and physics
-
-This is where "no recipes" lives.
-Nothing in the world is a recipe item: everything is matter with real chemistry and structure, changed by a few dozen general laws using real-world numbers.
-Discovery means people finding out what those laws allow (`PRN-01`, `PRN-07`).
-
-### 7.1 What things are made of
-
-- `MAT-01` **Made of real ingredients** *(Decided)*
-  - **What:** All matter is built from real ingredients: real minerals, compounds and the substances of living things.
-    Results come from how these interact, never from rules written for each material.
-  - **Examples by group:**
-    - **rock and minerals:** silica (as quartz, flint, chert, obsidian or sand), calcite (limestone, chalk), clays, iron oxides (yellow and red ochre), copper minerals, tin ore, salt;
-    - **water and air:** water as ice, liquid and vapour; the gases of the air;
-    - **living matter:** cellulose and lignin (wood, plant fibres), starches, sugars, proteins, fats, collagen (hide, sinew, bone), bone mineral, resins, tannins, and the plant chemicals that make things poisonous or medicinal.
-  - **How it works:** the ingredients catalogue (`MAT-13`) gives each ingredient its elements (`MAT-09`) and, for each state (solid, liquid and gas), its measured values:
-    - density, and melting and boiling points;
-    - heat capacity, and how well it conducts heat;
-    - stiffness, hardness and resistance to cracking;
-    - how it burns: ignition temperature, heat released and air needed;
-    - how it dissolves;
-    - colour and gloss;
-    - for foods and poisons, nutrition and effects per dose.
-
-    A thing's properties come only from its ingredients and structure (`MAT-03`); no rule ever reads a thing's name.
-
-- `MAT-09` **Elements and energy are kept** *(Decided)*
-  - **What:** Every ingredient has its real elemental makeup (carbon, hydrogen, oxygen, nitrogen, silicon, calcium, iron, copper, tin and so on), and every change keeps elements and energy balanced.
-    Nothing ever comes from nothing.
-  - **How it works:** every law is written as a balanced change: the ingredients going in and coming out, with the elements counted on both sides, and the heat taken in or given off, from measured values.
-    Gases go into the air of the place, such as smoke and steam; ash stays behind as a thing.
-    An automatic check runs every law on test cases and fails if any element or any energy appears or disappears.
-  - **Why:** It makes the world honest, and it keeps the door open to any chemistry people might reach later (`VIS-03`).
-  - **Example:** Smelting copper ore yields exactly the copper that was in it, plus gases.
-    Burning wood releases the energy stored in it as heat and light, and leaves ash holding its minerals.
-
-- `MAT-02` **Structure matters** *(Decided)*
-  - **What:** Matter also records how it's put together: crystal or glass, fibrous, porous or dense, coarse or fine grain, wet or dry.
-    Grinding, melting, cooling and drying change structure without changing makeup.
+- `MAT-02` **Shape and size matter** *(Decided)*: A thing's form and size count as much as its material.
   - **How it works:**
-    - **Stored for each thing:** its form (crystal, glass, fibre, grains, powder, paste or liquid), grain size, pores (the share of empty space), the direction of any fibres or layers, moisture, and how many tiny flaws it has.
-    - **Changed only by laws (`MAT-04`):** grinding makes grains finer; melting turns any form to liquid, and cooling gives glass if fast or crystals if slow; drying removes moisture; heating clay past a measured temperature turns grains and water into a fired solid; gentle heating removes flaws (`RCK-10`).
-  - **Example:** Sand, flint and obsidian are all mostly silica, but only flint and obsidian chip into blades.
-    Sand melted with plant ash and cooled becomes glass.
+    - **Form:** lump, flake, blade, point, rod, pole, sheet, strand, powder, paste, liquid, container or structure; it sets some characteristics, so a flake has an edge and a nodule hasn't (`MAT-03`).
+    - **Size** is in real units: length, or amount for loose things, with weight in kilograms from the size and the weight characteristic.
+    - **Blueprints ask for sizes** (`MAT-04`), such as a core fist-sized or bigger or a hut pole 2–4 m long, and size sets amounts: a bigger log burns longer, a bigger pot holds more, more poles make a bigger hut (`PRE-42`).
 
-- `MAT-03` **Properties from data and rules** *(Decided)*: Every property comes from measured data where it decides what is possible, and otherwise from estimates, combined by stated rules for mixtures and structures (`MAT-05`):
-  - **mechanical:** weight, hardness, strength, toughness, springiness, and how it breaks (in shell-like flakes, in splinters, or by crumbling);
-  - **heat:** how it burns, melts, holds heat and passes it on;
-  - **water:** how it soaks up water, dissolves, softens or swells;
-  - **the body:** nutrition, poison, medicine, taste and smell;
-  - **the senses:** colour, sheen, texture, and the sound it makes when struck (`MND-03`);
-  - **time:** how fast it rots, rusts, wears or weathers.
-  - **How it works:** each property is a rule over makeup, structure and temperature, worked out when one of them changes and kept until the next change.
-    For example:
-    - **how it breaks:** in shell-like flakes when the solid is glassy or very fine-grained and even throughout, by crumbling when coarse-grained, and by splitting along fibres when fibrous (`RCK-01`);
-    - **density:** the ingredients' densities, weighted by their shares, less the pores;
-    - **heat:** heat capacity and conduction mixed by share, and burning from the burnable ingredients;
-    - **food energy:** from protein, starch, sugar and fat, at measured values per gram;
-    - **for the senses:** colour mixed from the ingredients, gloss from glassy structure, and the sound when struck from stiffness, density and shape (`SND-06`).
+- `MAT-03` **Characteristics** *(Decided)*: Every item has the same 18 characteristics, each from 0 (none) to 5 (as much as any launch material has).
+  They come from its material and its form: a flint nodule and a flint flake share flaking 5 but differ in edge.
+  - **The 18,** with typical values:
+    1. **hardness:** resists scratches and blows, and serves as a hammer or grinder: flint 5, granite 4, bone 3, oak 2, hide 1, meat 0.
+    2. **edge:** how well it cuts or pierces now: flint flake 5, bone splinter 3, sharpened stick 2, flint nodule 1, river cobble 0.
+    3. **toughness:** takes blows and loads without breaking: quartzite cobble 5, oak and hide 4, bone 3, flint 2, obsidian 1, sun-dried clay 0.
+    4. **flaking:** breaks into sharp, predictable flakes when struck: obsidian and flint 5, chert 4, quartzite 2, bone 1, granite 0.
+    5. **flexibility:** bends and springs back without breaking: green hazel rod 5, sinew and soft hide 4, dry stick 1, stone 0.
+    6. **weight:** how heavy it is for its size, against water: feathers 0, dry wood 1 (about half), water and flesh 2 (the same), bone and clay 3 (about twice), stone 4 (nearly three times), copper 5 (nine times).
+    7. **burn:** how readily it catches fire and passes it on: dry grass, tinder fungus and birch bark 5, dry twigs 4, dry logs 2, green wood 1, stone 0.
+    8. **fuel:** how much heat it gives, and for how long, for its size: charcoal 5, dry hardwood and fat 4, dry dung 3, bone 2, dry grass 1.
+    9. **food:** how much it nourishes: fat 5, hazelnuts and cooked meat 4, raw meat 3, berries and raw roots 2, grass 0.
+    10. **water:** how much water it holds or gives: water 5, berries 4, fresh meat and wet clay 3, green wood 2, dried meat 0.
+    11. **poison:** how much harm it does when eaten: deadly nightshade berries 5, rotten meat 3, raw acorns 2, most foods 0.
+    12. **medicine:** how much it helps healing, eaten or put on a wound: willow bark and yarrow 3, moss 2, most things 0.
+    13. **warmth:** how well it keeps warmth in, worn, slept on or as a wall: fur 5, hide 3, woven grass 2, bark 1, stone 0.
+    14. **fibre:** how much long, strong fibre it gives for cord and sewing: sinew 5, nettle and lime bast 4, grass 2, wood 1.
+    15. **stickiness:** how well it glues: birch tar 5, pine resin and hide glue 4, wet clay 2, fat 1.
+    16. **plasticity:** how well it takes and keeps a shape pressed or hammered into it: wet clay 5, copper 3, fat 2, dried clay and stone 0.
+    17. **waterproof:** how well it keeps water in or out: stone 5, birch bark 4, fired pot and rawhide 3, woven basket 1, grass 0.
+    18. **pigment:** how strongly it colours what it is rubbed on: red ochre 5, charcoal and yellow ochre 4, chalk and green copper ore 3, clay 1.
+  - **Seen or learned:** hardness, edge, flexibility, weight, water, fibre, stickiness, plasticity and pigment are known on sight or in the hand; toughness, flaking, burn, fuel, food, poison, medicine, warmth and waterproof only by use or by being told (`MND-04`).
+    Size and colour are always seen.
+  - **Example:** A flint nodule has hardness 5, edge 1, toughness 2, flaking 5, weight 4, waterproof 5 and 0 for the rest; a flake struck from it is the same but for edge 5 and toughness 1.
 
-    Values for pure ingredients carry their source; mixing rules are labelled as estimates (`PRN-05`).
-
-- `MAT-10` **Things** *(Decided)*: Everything in the world is a thing with a makeup, a structure, a shape, a size and a temperature.
-  Things can be split, joined, worn down, heated, mixed and carried.
+- `MAT-20` **Wear and quality** *(Decided)*: Things wear with use and break; quality, how well a thing is made, comes from its maker's skill and its inputs.
   - **How it works:**
-    - **Everything exists, fixed by the seed:** the world generator defines all matter everywhere, such as rock layers, soil, loose stones, fallen wood and sand, with each patch's kinds and amounts set by its geology and plants (`WLD-09`).
-      Any single stone is fixed by the seed: generating it twice gives the same stone.
-    - **Stored once touched:** a piece of matter becomes a stored thing the moment anything acts on it (picks it up, strikes, moves, burns or eats it), and it stays stored from then on.
-      Each patch records what was taken from it and what was left in it; places where nothing has changed store nothing, and are regenerated from the seed when needed.
-    - **A thing's record**, about 100 bytes: its makeup (up to about 8 ingredients with their shares by mass, `MAT-01`), its structure (`MAT-02`), its shape (a simple form with sizes, such as a slab, rod, block, lump, sheet or tube), its mass, its temperature at the surface and at the core, where it is (on the ground, held, inside or tied to something), and who last changed it and when.
-    - **Fine shape on demand:** when an action depends on exact shape, such as striking a stone to break it, carving, or fitting two pieces together, the simple form is refined into a detailed 3D surface, the same way every time, and kept.
-    - **Small units in bulk:** berries, seeds and sand are kept as one lot (so many units, with one total mass) until a unit is taken out.
-    - **Joined things** keep their parts as things, plus each joint: tied, glued or fitted, and its strength.
-    - **Bulk water and air are not things:** rivers, lakes and the air belong to the world's water and weather systems (`WLD-16`, `WLD-17`); water in a container is a thing.
-    - **Leftovers merge after a season:** ordinary leftovers, such as knapping debris, that nothing has touched for a season merge into their patch's record: so many pieces, of what, made by whom and when.
-      Anything later taken from that record is generated from it, the same way every time.
-      Tools, art, graves and hearths always stay individual (`MAT-08`).
+    - **Wear** runs from 0 (new) to 5 (broken).
+      Each use adds the wear its blueprint sets, less for tougher things: a flake dulls after butchering about one deer, a scraper after about one hide, a cloak after about two game years, and a hammerstone lasts for years.
+      Things left out wear too: hides and baskets in a season or two, wood in a few years, stone hardly at all.
+      An edge falls a step for each step of wear, and a broken thing becomes what its item breaks into, such as sherds, or a shaft and a point.
+      Blueprints can mend: retouch an edge, rebind a haft, patch a roof.
+    - **Quality,** 0 to 5, is set when a thing is made: half the maker's level for the try (`MAT-04`), rounded down; a step up for fine inputs (quality 4–5 on average) or down for poor ones (0–1); a step up or down by chance; and a step up if the maker is inspired (`MND-29`).
+      Raw things take a quality from their source, so some flint is better than other flint (`WLD-14`).
+    - **What quality does:** at 0–1 the thing's main characteristic (edge for a blade, warmth for a cloak) is a step lower and it wears twice as fast; at 4–5 it is a step higher and wears half as fast, raises its maker's respect (`MND-24`) and is prized in gifts and trade (`CUL-21`).
+      It shows on the thing (`PRE-42`).
+  - **Example:** A master knapper's blades cut better and last twice as long as a beginner's, so a band that loses its master feels it in every hunt (`MOM-02`).
 
-### 7.2 How things change
+- `MAT-09` **Nothing from nothing** *(Decided)*: Every result uses up its inputs, and nothing appears from nowhere.
+  - **How it works:** a blueprint uses up what it works: a core shrinks with each flake, a hide becomes a cloak, fuel becomes ash.
+    Tools are kept but wear (`MAT-20`).
+    A result is never bigger or heavier than what went into it, counting water soaked up.
+    Gathering takes from a plant's yields (`WLD-31`), butchering from the animal's body (`WLD-32`) and digging from the ground (`WLD-14`); timers change things in place (`MAT-19`).
+  - **Check:** an automated check runs every blueprint and timer on test things and fails if a result outweighs its inputs or appears without them; whole-world runs flag any thing from nothing (`RES-12`).
 
-- `MAT-04` **A few dozen general laws** *(Decided)*: Change comes from general laws, each decided by real data on heat and rates of change.
-  No law ever names a product.
-  The starting list:
-  - **force:** breaking, cutting, scraping and grinding, bending and springing back, pressing and pounding, friction, twisting and binding, joining by tying, gluing or fitting;
-  - **heat:** heating and cooling, burning with more or less air, charring, melting and setting, drying, roasting;
-  - **water:** wetting and soaking, dissolving and leaching, swelling, freezing;
-  - **flow:** floating and sinking, and flowing water and air, such as a draught that feeds a fire;
-  - **vibration:** how struck, plucked or blown things ring (`SND-06`);
-  - **chemistry:** metals giving up or taking up oxygen (smelting and rusting), minerals breaking down when heated (as limestone does), taking up gases from the air (as lime does when it sets), tannins binding to proteins, and fluxes lowering the melting point of silica;
-  - **life:** growing, digesting, healing, rotting and fermenting, with microbes at work (`WLD-21`).
+### 7.2 Actions
+
+- `MAT-06` **Base actions** *(Decided)*: People change things with 21 base actions, and every blueprint is built from them.
+  Each has its animation (`PRE-44`) and its sounds by material (`SND-06`).
+  - **The 21:**
+    1. **gather:** pick up loose things or pluck a plant's yields, or fill a container with water.
+    2. **dig:** move earth with hands, a stick or a tool: roots, clay, flint, pits, graves, postholes, fields.
+    3. **strike:** hit one thing with another: knap stone, crack nuts and bones, split wood, fell a tree, hammer copper.
+    4. **press:** push or squeeze hard: flake an edge with a bone tip, squeeze out juice, work fat into a hide.
+    5. **cut:** draw an edge through something: meat, hide, sinew, reeds, wood, notches in a tally.
+    6. **scrape:** draw an edge across a surface to take a layer off: flesh from a hide, bark from a shaft.
+    7. **grind:** rub one thing hard against another: grain into flour, ochre into powder, an axe to a polish, a stick along a groove until it smokes.
+    8. **twist:** twist fibres or strips into cord, thread or rope.
+    9. **bind:** tie or sew things together: a point to a shaft, poles into a frame, hides into a cloak.
+    10. **weave:** interlace bendable strands into baskets, mats, nets, fences and fish traps.
+    11. **shape:** form something soft or bendable by hand: clay into a pot, green rods into a frame.
+    12. **drill:** turn a pointed stick or tool back and forth against something: fire by friction, holes in beads, needles and hides.
+    13. **heat:** put things in, on or by a fire, or build a fire in a pit, kiln or furnace (`MAT-18`).
+    14. **soak:** put things in still or running water (`MAT-19`).
+    15. **dry:** lay or hang things in sun and wind or by a fire (`MAT-19`).
+    16. **mix:** combine soft or loose things: pigment with fat into paint, clay with sand, resin with ash into glue.
+    17. **stack:** pile or set things into a heap or a structure: firewood, a hearth ring, a hut frame, a kiln.
+    18. **plant:** put seeds, roots or cuttings into the ground on purpose (`RCK-23`).
+    19. **throw:** send something through the air: stones, spears, darts or arrows at prey, rubbish onto the heap.
+    20. **feed:** give food to an animal or a person, or fuel to a fire.
+    21. **apply:** put one thing onto another: paint on rock, a poultice on a wound, clay on a basket, earth on a fire.
+  - **Plain uses:** gather, dig, throw, feed, stack, heat, soak, dry and apply also work without a blueprint, to take, move, wet, warm or dry things, which can set their timers going (`MAT-19`).
+    Anything that makes a new kind of thing is a blueprint (`MAT-04`).
+  - **Everyday activities,** such as walking, eating, sleeping, talking, fighting and dancing, are not base actions, and no blueprint matches them (`BIO-21`).
+
+- `MAT-12` **What a body can do** *(Decided)*: A body does base actions within its strength, hands and health; who can do what follows from their body, never from rules for each blueprint.
   - **How it works:**
-    - **A law is a rule over properties:** it states which things it applies to, by their properties and situation and never by name; what it computes; and when it runs.
-      Its numbers come from the catalogues (`MAT-13`), with sources wherever they decide what is possible.
-    - **Laws at a contact** (breaking, cutting, scraping, pressing, bending, joining) run when force is applied, by an action (`MAT-06`) or by something falling, rolling or flowing.
-      They compute the result from the force, speed, angle and point of contact and the materials' properties.
-      For example, the breaking law decides whether a strike knocks a piece off, and gives the piece's shape: a flake from glassy stone, fragments from coarse stone, a split along the grain of wood.
-    - **Laws over time** (heating and cooling, burning, drying, wetting, dissolving, freezing and melting, chemical change, rotting) run as rates for as long as their conditions hold.
-      The rates come from measured data: how fast heat flows, how fast fuel burns with the air it gets, how fast a reaction goes at a given temperature.
-    - **Only what is changing is computed:** a thing under a law over time is checked again sooner or later depending on how fast it is changing: every few seconds in a fire, hourly for a drying hide, never for a cold, dry stone.
-      Untouched matter costs nothing.
-    - **Fire is a law, not a thing:** burning things form a fire, whose heat balance is worked out at each step.
-      Heat comes in from the fuel burned, limited by the air that reaches it: still air, a draught through gaps, or someone blowing.
-      Heat goes out to the air, to the surroundings and into the ground.
-      Stones, earth or walls around a fire hold heat and cut its losses, so open, enclosed and blown fires reach different temperatures without any of them being named; fire temperatures are results, never set (`MAT-05`, `RCK-02`, `RCK-08`, `RCK-22`).
-    - **Vibration** is the law the sound tests already use: a struck, plucked or blown thing rings at frequencies set by its stiffness, density and shape (`SND-06`).
-    - **Life's laws** (growing, digesting, healing, rotting and fermenting) run over time on living ingredients, with microbes as living things (`WLD-21`); their details are written with bodies and the world.
-    - **Checks:** every law has its reality checks and its balance check (`MAT-09`), and the general-rules check (`PRN-07`) searches the law code for product names.
-    - **Open:** knapping's breaking rule comes from experiments that relate flake size to how deep into the edge and at what angle a stone is struck, mostly on glass cores; whether it holds for the varied stones people pick up is tested in Experiment 1 (`RES-02`).
-      Some chemistry, such as tanning and fermenting, has no measured rate and rests on estimates, labelled as such.
+    - **Hands:** most base actions need two hands, and gather, cut, throw, feed and apply need one; a broken arm stops two-handed work, and a hurt hand lowers every chance of success (`BIO-13`).
+    - **Strength:** heavy work, such as felling, digging pits, lifting stones and carrying loads, goes slower for the weak, children and the old, and some of it is beyond them (`BIO-16`).
+    - **Children** help from about age 5 with light work, such as gathering, carrying small loads, twisting cord and tending fires, and copy adults' work in play (`CUL-01`).
+    - **State:** tiredness, cold, pain, sickness and darkness slow work and lower its chance of success (`MAT-04`).
 
-- `MAT-07` **One law, many inventions** *(Decided)*: Laws are general enough that one law covers many inventions.
-  For example, "metal ores give up their metal when heated hot enough in contact with burning charcoal" covers copper, tin, lead and iron.
-  Each needs its own real conditions, so they become possible in a natural order that nobody wrote down.
-  Follows from `PRN-07`.
-  - **How it works,** taking smelting as the example: any metal-bearing mineral touching burning charcoal gives up its metal once the fire passes the temperature at which charcoal pulls oxygen from that metal more strongly than the metal holds it; standard measured tables give that point for each metal.
-    The metal melts only if the fire is also hotter than its own melting point.
-    So lead and tin come out at lower temperatures, copper runs out as liquid at about 1,085 °C, and iron comes out as a spongy lump that such a fire never melts (`RCK-18`): one law, measured data, and an order nobody wrote down.
-
-- `MAT-06` **Actions are physical** *(Decided)*: Every action has force, angle, speed, duration and temperature, and the physics decides the outcome.
-  Technique matters: a clumsy strike shatters the stone.
+- `MAT-11` **Simple physics** *(Decided)*: Things are carried, fall, float, burn and topple by a few simple rules from their characteristics and size, with no fracture physics and no exact paths (`SCP-21`).
   - **How it works:**
-    - **An action is an instruction from a mind to its body:** which basic action (`MAT-12`), with which hand or body part, the thing held if any, the target (a thing or a spot), and its settings: force or speed, direction and angle against the target's surface, point of contact, duration and number of repeats.
-    - **The body carries it out within its limits:** strength caps force and speed, and reach and posture limit where it can act.
-    - **Error is real:** the settings that reach the target are the intended ones plus a random error.
-      Practice shrinks the error (`MND-06`); fatigue, cold hands, poor light and haste grow it.
-      Each error comes from that being's own chance at that moment (`TIM-16`).
-    - **The physics decides the result:** the contact laws (`MAT-04`) take the actual settings, not the intended ones.
-      Struck at the right point and angle, a stone gives off a flake; struck too hard or off the point, it crushes or shatters.
-    - **Named simplification:** the body is not simulated muscle by muscle.
-      Each action is a stroke with physical settings, limited by the body, and the picture animates it.
+    - **Carrying:** an adult carries about a quarter of their own weight all day, and more over short distances, more slowly (`BIO-09`); loose small things need a container, and liquids one with waterproof 3 or more.
+    - **Falling:** a thing dropped or knocked down breaks if it is not tough enough for the fall: a pot (toughness 1) dropped from waist height usually breaks, a stone never; people who fall are hurt (`BIO-13`).
+    - **Floating:** things of weight 0–1 float, 2 float low, and 3–5 sink (`RCK-21`); floating things drift with the current (`WLD-17`).
+    - **Throwing:** reach and harm come from the thrower's strength and the thing's weight and edge: a thrown stone stuns at about 10 m, a thrown spear wounds at about 15 m, a dart from a spear-thrower at about 30 m and an arrow at about 40 m (tuned).
+    - **Toppling:** stacks and buildings stand until strong wind, heavy snow or a quake knocks them down, poorly made ones first (`MAT-20`, `WLD-15`, `WLD-22`).
+    - **Burning** follows the fire rules (`MAT-18`).
 
-- `MAT-11` **Mechanics** *(Decided)*: Weight, momentum, leverage, springiness and friction follow real physics.
-  Throwing sticks, spear-throwers and bows can work only because the physics makes them work.
-  Follows from `MAT-06`.
+### 7.3 Fire, timers and traces
+
+- `MAT-18` **Fire** *(Decided)*: A fire is fuel burning at a heat level from 0 to 5: 0 out, 1 embers, 2 small fire, 3 campfire (about 700 °C), 4 pit or kiln (about 900 °C), 5 furnace with forced air (over 1,100 °C, enough to melt copper).
+  It burns fuel by the fuel's value, spreads to things by their burn value, and is fed or smothered.
   - **How it works:**
-    - **Moving things:** anything set moving (thrown, dropped, falling or rolling) follows its path in fine steps, with gravity, air drag from its shape, and spin.
-      It stops at what it hits, and the contact laws decide what happens there.
-    - **Throwing:** release speed comes from how fast the body swings, times how far from the pivot the thing is held.
-      A spear held at the end of a rigid stick is further from the pivot, so the same arm throws it faster and further; that is the only reason a spear-thrower works.
-    - **Bending:** a bent thing stores energy set by its stiffness (from its material and thickness) and by how far it is bent, and gives it back, less losses, when released.
-      So a bent stick and a cord can drive a dart, if the numbers make it worth it.
-    - **Levers:** force applied far along a rigid thing is multiplied at the near end.
-    - **Friction:** sliding under pressure turns work into heat where the surfaces touch, set by the pressure, the speed and the materials, and the heat law spreads it.
-      So fast, hard twirling of dry wood can push its dust past ignition (`RCK-02`).
-    - **Weight:** carrying costs the body energy, by weight and distance (`BIO-09`).
+    - **Highest level:** an open fire reaches 3; a walled and covered pit or kiln reaches 4 with fuel 3 or more; only an enclosed fire of fuel 5 (charcoal), with air blown in through tubes or hide bellows the whole time, reaches 5.
+    - **Lighting:** an ember or a flame in tinder (burn 4–5) makes a small fire within a minute, and kindling, then wood, a campfire within about 10 minutes.
+      Blowing raises embers or a small fire a level while someone blows (`RCK-22`); things with water 3 or more don't catch, and lower a fire they are put on.
+    - **Fuel:** a campfire burns about an armful of dry wood (5 kg) an hour, a hotter fire faster and better fuel slower.
+      Unfed, it falls to embers within about an hour, and embers die within a few hours unless banked under ash, which keeps them overnight.
+    - **Spreading:** a fire of level 2 or more lights things within about a metre, sooner the higher their burn: dry grass within minutes, green wood almost never; wind carries sparks a few metres, and a hearth ring stops it creeping along the ground.
+      Across the land it spreads by `WLD-28`.
+    - **Putting out:** earth, sand or water puts it out, leaving its half-burnt wood as charcoal; rain lowers an open fire a level an hour, and heavy rain puts it out unless it is roofed.
+    - **Effects:** it warms and lights (`BIO-11`), keeps animals off (`WLD-32`), cooks, dries, smokes and fires what is in or by it (`MAT-19`), burns what is put in it to ash, and burns people (`BIO-13`); green wood makes thick smoke.
+    - **Carrying fire:** embers in a bundle of tinder fungus or rotten wood last about a day on the move (known at the start, `BIO-20`), and a torch burns about an hour.
+  - **Done when:** in scenes, a fed fire lasts for days, an unfed one dies within hours, a banked one lives through the night, and dry grass by a campfire catches while green wood does not.
 
-- `MAT-12` **What a body can do** *(Decided)*: The basic actions everything else is built from: grasp, carry, put down, drop, throw, strike, press, rub, twist, bend, tear, dig, cut or scrape with an edge, pierce with a point, pour, blow, chew, and put into fire or water.
-  Anything more, such as knapping, sewing or smelting, is a sequence of these that someone has to learn.
-  These are actions on matter; moving, eating, sleeping and acts between people are in `BIO-21`.
-  - **How it works:** each basic action is defined by the contact or motion it creates and the laws it calls:
-    - **grasp:** holds a thing if it fits the hand and is not too heavy.
-      Touching it gives the senses its weight, warmth, texture and sharpness, and a sharp edge gripped hard can cut the hand (the injury law);
-    - **carry, put down and drop:** move a thing with the body, or let it go; a dropped thing falls (`MAT-11`);
-    - **throw:** releases a thing at speed (`MAT-11`);
-    - **strike:** drives the hand or a held thing into a target, calling the contact laws: breaking, crushing and cutting;
-    - **press:** force spread over an area presses; through an edge it cuts, and through a point it pierces;
-    - **rub:** sliding under pressure, giving friction heat and wear: grinding, polishing, fire by friction;
-    - **twist:** turning force, which twists fibres together or bores a hole;
-    - **bend:** turning force on a long thing, which springs back or breaks;
-    - **tear:** pulls a thing apart;
-    - **dig:** moves earth into a heap, and the patch records it;
-    - **cut or scrape with an edge, and pierce with a point:** edges drawn and points driven, calling the cutting and piercing laws;
-    - **pour:** tips a container so liquid flows out;
-    - **blow:** pushes air from the lungs, at a measured rate, at a spot, and a fire there gets that air (`MAT-04`);
-    - **chew:** crushes and softens what is in the mouth;
-    - **put into fire or water:** moves a thing there, where the laws over time take over.
-
-    Sequences are learned, never built in: knapping or sewing exist only as skills a mind has learned (`MND-06`), sequences of these actions with learned settings.
-    Nothing in the body or the laws knows them.
-
-- `MAT-08` **Traces last** *(Decided)*: Hearths, tools, bones, graves and rubbish heaps stay in the world and get buried over time, feeding the archaeology view (`PRE-09`).
-  What survives depends on the material and the ground: stone lasts; bone survives in dry caves and limestone; wood, hide and plant fibre usually rot, except in waterlogged, frozen or very dry ground.
+- `MAT-19` **Timers** *(Decided)*: Slow changes run on things by themselves while their conditions hold, meant or not: rotting, drying, cooking, smoking, soaking, fermenting, setting and firing.
   - **How it works:**
-    - **Burial:** each patch's surface builds up at a rate set by the land: a river flat silts up in floods, a cave floor gathers dust and fallen rock, and a slope loses soil (`WLD-15`).
-      Things lying there sink into the layer of their time.
-    - **What survives** is decided by the slow laws over time, still running in the ground: rot needs water, air and warmth; acid ground dissolves bone and lime-rich ground keeps it; waterlogged, frozen or very dry ground stops rot.
-      Each layer's wetness, air and acidity come from the soils (`WLD-27`).
-    - **Checked rarely:** buried things are checked every few years, since they change slowly, so a buried world costs little.
-    - **For archaeology:** notable things stay individual and ordinary leftovers stay merged in their layer's record (`MAT-10`); the archaeology view reads both (`PRE-09`).
+    - **A timer** has a usual time, sped up, slowed or stopped by conditions (wet, heat, smoke, sealed, cold, frozen).
+      When it runs out, the thing's values change or it becomes the kind its item lists for that timer: raw meat becomes cooked, dried, smoked or rotten meat.
+    - **Rotting** (flesh, fresh hide, fruit, leaves): food falls and poison rises; fresh meat rots in about 3 days in summer, about 2 weeks near freezing and never frozen, and dried, smoked, salted or tanned things many times slower (`RCK-09`, `RCK-14`).
+    - **Drying** (wet things in sun and wind or by a fire): meat strips in about 2–3 days, a stretched hide or a shaped pot in about 2, green poles in a season; rain and damp shade stop it.
+    - **Cooking** (food at heat 2–3, or in boiling water): about an hour; food rises a step and some poisons fall (`RCK-03`); left twice as long, or at heat 4 or more, it burns to food 0.
+    - **Smoking** (in thick smoke at heat 1–2): about 2 days; meat and fish then keep for a season, and hides stay soft after wetting.
+    - **Soaking** (in water): crushed acorns lose their bitterness in about 2 days in running water and 6 in still (`RCK-13`); a hide with crushed bitter bark becomes leather in about 10 days (`RCK-06`); plant stems loosen their fibres in a week.
+    - **Fermenting** (sweet fruit or grain mash with water, closed and warm): about 3 days, giving a mild drink that lifts the mood (`MND-29`); cold slows it and frost stops it (`RCK-07`).
+    - **Setting** (glues): tar and resin set as they cool, hide glue in about a day; a joint is weak until set.
+    - **Firing** (at a set heat): clay at 3 or more for about 4 hours becomes fired clay (`RCK-04`); yellow ochre at 2 for an hour turns red (`RCK-15`); flaking stone buried under a fire at 2 for half a day flakes better (`RCK-10`); limestone at 4 for half a day becomes quicklime (`RCK-05`); wood covered from the air at 3 for a day becomes charcoal; birch bark covered from the air at 2–3 for an hour gives tar (`RCK-12`); green copper ore among charcoal at 5 for an hour gives copper (`RCK-08`).
+      Wet clay, or stone heated too fast, cracks.
+    - **On purpose or by accident:** a blueprint can set a timer going, such as hanging meat to dry or firing pots; its result lands when the timer ends (`TIM-17`), and the blueprint's chance decides whether it comes out well (`MAT-04`).
+      Without a blueprint, it comes out as for someone with no skill, and meat cooked by falling into the fire, a clay hearth fired hard or a copper bead in a hot kiln can be noticed and teach (`MND-10`, `MOM-12`).
+  - **Done when:** in scenes, each timer runs in its stated time under each condition, and each firing change happens at its heat and never below it.
 
-### 7.3 Real numbers
+- `MAT-08` **Traces last** *(Decided)*: Paths, rubbish heaps, old camps, bones and graves stay in the world, are slowly buried and decay by their materials, for later people, and you, to find (`PRE-09`).
+  - **How it works:**
+    - **Paths:** ground walked often becomes a trodden path that people follow; unused for a few years, it grows over.
+    - **Rubbish heaps:** a camp's food waste, bones, ash and broken things pile into a heap, rich ground where thrown seeds sprout (`RCK-23`, `MOM-08`) and scavengers such as wolves come (`MOM-06`).
+    - **Old camps:** hearths, hut remains, chips, tools, rubbish and graves (`CUL-19`) stay where they were left, with who left them and when; chips, bones and ash are kept as heaps, and tools, art, hearths and graves as single things.
+    - **Burial:** things sink under new ground at each place's pace: a cave floor a few centimetres a game century, a river flat with each flood (`WLD-17`), a slope not at all; digging turns them up (`MOM-09`).
+    - **What survives:** stone, fired clay and copper last; bone lasts in caves and lime-rich ground and rots in acid ground within a few centuries; wood, hide and fibre rot within a few years, except in waterlogged, frozen or very dry ground (`WLD-27`).
+    - **Found again:** whoever finds an old thing can copy it (`MND-11`), and you can see the buried layers (`PRE-25`).
 
-- `MAT-05` **Real-world values** *(Decided)*
-  - **What:** The numbers that decide what is possible, such as temperatures, hardness, energy content and toxic doses, come from real measurements, each with its source; the rest are estimated by stated rules or plausible ranges (`PRN-05`).
-  - **Example:** Copper melts at about 1,085 °C.
-    An open wood fire reaches roughly 600–900 °C; a charcoal furnace with forced air passes 1,100 °C.
-    So copper waits until someone builds a hotter fire.
-  - **How it works:** values that decide what is possible live in the catalogues with their source and a quote, are checked once and locked (`RSK-16`): melting points, ignition temperatures, heats of burning and of reaction, hardness, resistance to cracking, toxic doses and nutrition.
-    Fire temperatures are not stored values: they come out of the fire law (`MAT-04`) and are checked against real ranges, such as the two above.
-    Estimated values name the rule or range they come from, and tuned values are listed in every milestone report (`PRN-05`).
+### 7.4 Blueprints
 
-### 7.4 How matter grows
+- `MAT-04` **Blueprints** *(Decided)*: A blueprint says: if someone does these actions, on things with these characteristics, in these conditions, with this much experience in this sector, then this happens.
+  Blueprints are hidden: nobody knows one until they discover or learn it (`MND-11`), and none is picked from a menu (`SCP-04`).
+  They are generic: inputs are ranges of characteristics and sizes, never named items, so one blueprint works for everything that fits (`PRN-07`).
+  - **The fields:**
+    1. **Named result:** the item made (`MAT-21`) and how much; its main characteristic, the one quality moves (`MAT-20`); which input each part is made of (`PRE-42`); and leftovers, such as chips or ash.
+    2. **Actions:** one base action, or a sequence of up to four done as one activity (`MAT-06`).
+    3. **Inputs:** each with its role (worked thing, tool, binding, fuel or container), ranges of characteristics, size and amount, and whether it is used up or kept; a kept tool takes the wear the blueprint sets (`MAT-20`).
+    4. **Place:** conditions, such as near a fire of at least some heat (`MAT-18`), in still or running water, dry or sheltered, in a pit, in smoke, or in the growing season.
+    5. **Sector and difficulty:** one of the 15 sectors (`MND-06`), and a difficulty from 1 to 10.
+    6. **Time:** how long the activity takes, shorter with better tools (a sharper edge, a harder hammer, tuned), and any timer it starts (`MAT-19`).
+    7. **Chance:** from the difficulty and the maker's level (below).
+    8. **Failures:** what failed tries give, and how often: lost time, spoiled inputs (shattered, burnt, cracked, torn), a poor result (quality 0) or a hurt (`BIO-13`); and which failures hint at the blueprint, such as smoke but no ember (`MND-11`).
+  - **How it works:**
+    - **Level and chance:** a try's level is the average of the maker's skill in the blueprint and experience in its sector (`MND-06`), taught or not (`MND-13`).
+      At a level equal to the difficulty, one try in two succeeds; each level above adds a tenth and each below takes a tenth, within 5% and 95%.
+      Fine inputs (quality 4–5) add a tenth and poor ones (0–1) take a tenth; tiredness, pain, cold and darkness take more (`MAT-12`, tuned).
+    - **Unknown blueprints:** when an action ends, any blueprint it fits that the person doesn't know has a small chance of working anyway: smallest by accident, bigger when experimenting, bigger again with a hunch (`MND-11`), all tuned for pace (`PRN-17`).
+    - **Results land** when the activity, or the timer it started, ends (`TIM-17`); an interrupted try keeps the work done and can be picked up later.
+  - **Example: sharp flake by striking,** the first blueprint in most worlds:
+    - **Named result:** one flake, 3–8 cm, of the core's stone, with its hardness and flaking, an edge equal to its flaking (5 from flint) and toughness 1; main characteristic edge; leftovers, a scatter of chips (`MAT-08`).
+    - **Action:** strike.
+    - **Inputs:** a core, worked and partly used up: hardness 4–5, flaking 3–5, 8–30 cm; and a striker, kept: hardness 3–5, toughness 3–5, 6–12 cm.
+      Either may be the one that moves, so a flint cobble that hits a stone anvil can lose a flake too.
+    - **Place:** anywhere.
+    - **Sector and difficulty:** stone, 2.
+    - **Time:** about half a minute a try; a core gives up to about 10 flakes.
+    - **Chance:** 30% at level 0, 50% at level 2, 90% at level 6.
+    - **Failures:** most failures knock off only crumbs, one in four shatters the core into chunks, and one in twenty cuts the holding hand.
+    - **Discovery:** nobody knows it at the start (`BIO-20`), but cracking nuts or bones with a flint cobble fits it, so a flake can come off by accident (`MND-11`).
+  - **Done when:** every launch blueprint has every field, and its scene shows it succeeding about as often, and taking about as long, as its fields say (`RES-23`).
 
-Matter must be easy to extend, forever (`PRN-14`).
+- `MAT-07` **Several routes** *(Decided)*: The same named result can come from different materials, since blueprints are generic, or from different blueprints, so peoples reach the same things by different paths.
+  - **Examples:** flakes of flint, chert or obsidian; huts of poles and hides or of poles and reeds; an ember by drilling or by ploughing a stick along a groove; boiled food from hot stones dropped into a hide-lined pit or from a pot on the fire; glue from birch tar or from resin mixed with ash; copper hammered from native copper or smelted from green ore (`RCK-08`).
+  - **How it works:** routes differ in what they need and how they look (`PRE-42`): a reed hut is as dry as a hide one but colder, and obsidian is sharper than flint but breaks sooner.
+    Which route a people finds first depends on what lies around it (`WLD-14`) and on chance, so histories differ.
 
-- `MAT-13` **Four catalogues** *(Decided)*: Matter is described in four catalogues: ingredients, structures, laws and reality checks.
-  Each entry stands alone, is written in plain language a person can read and check, gives its key values with their sources and the rules or ranges for the rest, and names the reality checks that prove it.
-  Once checked, a key value is locked: changing it means sourcing and checking it again (`RSK-16`).
-  - **How it works:** each entry is readable text with its values and their sources, and the simulation loads the catalogues when a world starts; nothing in them is code.
-    - **Ingredients:** elements and measured values (`MAT-01`).
-    - **Structures:** each form, and how it changes properties (`MAT-02`, `MAT-03`).
-    - **Laws:** each law's plain statement, the properties it reads, its data, and the code that computes it, which never names a product (`MAT-04`).
-    - **Reality checks:** each check's setup, its real range and its "must not" partner (`MAT-17`).
+- `MAT-22` **Chains** *(Decided)*: Results feed other blueprints, so most things take a chain of steps, each a blueprint discovered or learned on its own.
+  A people can stall at any step, or get round it by another route (`MAT-07`).
+  - **Example: from hide to clothing:**
+    1. **Sharp flake:** strike (stone, difficulty 2), as in `MAT-04`.
+    2. **Scraper:** press small chips off a flake's edge with bone, antler or soft stone (hardness 2–4), leaving a steep, strong edge (edge 3, toughness 3); stone, difficulty 3, about 5 minutes.
+    3. **Fresh hide:** cut the skin from a carcass with an edge of 2 or more; hunting, difficulty 2, about an hour for a deer.
+    4. **Scraped hide:** scrape the flesh and fat off a fresh hide (warmth 2–5, toughness 3–5, water 2–5) with an edge of 2–4 and toughness 3 or more; hides, difficulty 2, about 3 hours, within about 2 days of the kill, before it rots (`MAT-19`).
+    5. **Dried hide:** stretch it on stakes or a frame in sun and wind (dry); hides, difficulty 1, about 2 days; stiff (flexibility 1), but it no longer rots.
+    6. **Soft hide:** work fat into it, then pull and rub it until supple (apply, press); hides, difficulty 3, about 3 hours; flexibility 4.
+    7. **Awl and thread:** grind a bone splinter to a point on sandstone (grind; hides, difficulty 2, about an hour), and twist dried sinew into thread (twist; hides, difficulty 2).
+    8. **Sewn cloak:** cut the soft hide to shape, pierce holes along its edges with the awl and sew them with the thread (cut, drill, bind); hides, difficulty 4, about a day; warmth 3, or 5 with the fur left on (`RCK-26`).
+  - **Shorter routes:** a dried hide tied on with a thong is clothing after step 5, warm but stiff and quick to wear out; a cape of woven grass needs no hide, but keeps far less warmth.
 
-- `MAT-14` **Adding without rewriting** *(Decided)*
-  - **What:** Adding an ingredient, structure, law or check never requires changing the others.
-  - **Why it works:** Laws never name products (`PRN-07`), so a new ingredient automatically takes part in every existing law.
-  - **How it works:** laws find what they act on by reading properties, so a new ingredient takes part in every law whose conditions it meets, and a new law acts on every existing ingredient.
-    Adding an entry changes no other entry.
-  - **Example:** Adding tin ore needs no new smelting rule; the smelting law already covers it.
+- `MAT-21` **Named discoveries** *(Decided)*: Every named result has a name, a prepared model, an icon and a sound.
+  A people's first success at making one is a named discovery, named in their language and written in the book of ages with who made it.
+  - **How it works:**
+    - **Names:** each named result has an English name for you, such as sharp flake, and each people coins its own word for it when it first makes it, shown with its meaning (`CUL-18`).
+    - **Model, icon and sound:** one prepared model for each named result, whose parts take the materials used (`PRE-42`), an icon drawn from it, and a sound blueprint for its action and materials (`SND-06`).
+    - **The entry:** who, when, where, by which route (accident, experiment, dream or copying, `MND-11`), from what, and the new word (`PRE-05`); a result a timer gives by accident counts too, such as copper from a kiln (`MOM-12`).
+    - **Size of entry:** the steps of the arc (`TIM-19`) and firsts in the whole world are major entries and live moments (`PRE-08`); a people's first of something others already make is short, a new route is one line, and a lost craft and its return are marked (`CUL-02`).
+  - **Example:** "Year 3, summer, day 9: Ama of the Hazel band strikes the first sharp flake, which her people name kel-tam, stone that bites."
 
-- `MAT-15` **Every addition proves itself** *(Decided)*: Each new entry comes with the reality checks it must pass, and the whole checklist runs again, so nothing that worked before breaks.
-  - **How it works:** each entry names the checks it supports; on every change, the whole checklist runs automatically before the work can join the main version (`PRC-10`), and a failing check blocks it.
+- `MAT-23` **The launch blueprints** *(Decided)*: About 150 blueprints cover the arc from caves to first copper, across the 15 sectors (`MND-06`); a blueprint's sector follows its purpose.
+  - **Known at the start** (`BIO-20`): crack nuts and bones with a stone, butcher a carcass with a broken stone or bare hands (slowly, wasting much), make a bed of grass or leaves, bank a fire under ash, and carry embers.
+  - **By sector,** with some of their named results:
+    - **stone (about 12):** sharp flake, blade, scraper, borer, hand axe, spear point, arrowhead, heat-treated stone, polished axe, grinding stone;
+    - **wood (about 12):** sharpened stick, digging stick, fire-hardened spear, club, shaft, handle, throwing stick, spear-thrower, bow, wooden bowl;
+    - **fire (about 8):** ember by drilling, ember by ploughing, tinder bundle, hearth ring, torch, fat lamp, charcoal;
+    - **cooking (about 15):** roast meat and roots, stone-boiled food, pot-boiled food, dried meat, smoked fish, salted meat, rendered fat, leached acorns, flour, flatbread, porridge, fermented drink;
+    - **hunting (about 10):** butchered carcass, hafted spear, darts, arrows, snare, net, fish trap, fish spear, bone hook;
+    - **gathering (about 8):** basket, net bag, stripped fibre, cut reeds, harvested wild grain, birch sap;
+    - **hides (about 15):** scraped hide, dried hide, soft hide, smoked hide, leather, thong, sinew thread, awl, eyed needle, hide wrap, sewn cloak, tunic and leggings, shoes, hide bag, fur blanket;
+    - **building (about 14):** windbreak, lean-to, pole hut, reed hut, pit house, post house with daub, lime plaster, storage pit, drying rack, fence, kiln, furnace;
+    - **healing (about 8):** moss dressing, yarrow poultice, willow-bark drink, splint, washed wound, fat salve for burns;
+    - **pottery (about 8):** tempered clay, shaped pot, fired pot, kiln-fired pot, clay figure, clay-lined basket, clay lamp;
+    - **herding (about 4):** tether, pen, winter hay;
+    - **farming (about 8):** cleared plot, dug plot, sown plot, planted roots or cuttings, weeded plot, sickle, threshed grain, seed store;
+    - **metal (about 5):** hammered copper, smelted copper, copper awl, copper bead, copper axe;
+    - **art (about 10):** ochre powder, paint, rock painting, body paint, engraving, carved figure, bead, pendant, tally stick;
+    - **music (about 5):** bone flute, hide drum, rattle, clappers, bullroarer.
 
-- `MAT-16` **Matter grows in layers** *(Decided)*: Matter is built in layers, in this order, each added without rewriting the earlier ones.
-  The implementation plan sets when each arrives:
-  1. stone, wood, bone and water;
-  2. heat and fire;
-  3. food and the body's chemistry;
-  4. fibres, hides and joining;
-  5. clay, lime and pigments;
-  6. metals and glass;
-  7. further layers as experiments call for them.
-  - **How it works:** each layer is a set of ingredients, structures, laws and checks; its checks switch on when it is added (`MAT-17`), and later layers only add entries (`MAT-14`).
+### 7.5 Values and catalogues
 
-- `MAT-17` **How reality checks work** *(Decided)*: Each check has a real-world range and, where it helps, a "must not" partner, such as "green wood doesn't light by friction".
-  Results are judged by properties, not names: leather is hide that stops rotting and stays supple.
-  A check becomes active once its layer is built (`MAT-16`).
-  This file keeps the checks that define what the world must do; the catalogues hold the rest, each naming the item it supports (`MAT-13`).
-  - **How it works:** each check is a small sandbox built from catalogue entries, whose things are defined by their makeup and structure, never by name.
-    It applies fixed actions and conditions, such as a strike at a set energy or a fire with set fuel and air, and runs many times with different chance draws.
-    The measured result must fall within the real range, and the "must not" partner must never happen.
+- `MAT-05` **Plausible values** *(Decided)*: Every value in this section, such as a characteristic, a size, a time or a chance, is a plausible estimate, set by hand from the real thing and tuned so the game feels right (`PRN-05`).
+  - **How it works:** values keep the real order of things: flint is harder than bone, fur warmer than hide, a furnace hotter than a campfire.
+    The orders that decide what is possible are fixed by the reality rules (7.6), and tuned values are logged with what they were tuned against (`RES-16`).
+  - **Example:** A campfire is heat 3 and smelting needs 5, because a real campfire reaches about 700 °C and copper needs over 1,000 °C.
+  - **Check:** the catalogue checks hold every value to the orders the reality rules fix (`MAT-17`).
 
-### 7.5 Reality checklist
+- `MAT-13` **The catalogues** *(Decided)*: The game's content is game data in catalogues, written by AI agents and checked by automated tests: items (about 200, `MAT-10`), blueprints (about 150, `MAT-23`), plants (about 60, `WLD-31`), animals (about 30, `WLD-32`) and illnesses (about 15, `BIO-05`).
+  Other sections keep their prepared lists the same way, such as belief templates, art motifs and dance moves (`CUL-07`, `CUL-09`, `CUL-10`).
+  - **How it works:** each entry stands alone, in plain words a person can read, with all its values and the checks it supports (`MAT-17`).
+    Entries name other entries only as results, such as a blueprint's named result or an animal's yields, never as inputs (`PRN-07`).
+    Every rule in them is physical or biological, and none depends on what people believe (`SCP-19`).
+  - **Check:** the catalogue checks find no entry that names another as an input.
 
-The physics must reproduce these without any rule written specially for them (`PRN-07`).
-How the checks work is set out in `MAT-17`, and they all run again whenever anything changes (`MAT-15`).
-Each check's exact numbers are sourced when its layer is built (`PRN-05`).
+- `MAT-14` **Adding without rewriting** *(Decided)*: Adding an item, blueprint, plant, animal or illness never needs the others changed (`PRN-14`).
+  - **How it works:** a new item takes part in every blueprint its characteristics fit, and a new blueprint works on every item in its ranges.
+  - **Example:** Adding jasper, a stone with flaking 4, gives jasper flakes, scrapers and points at once.
+  - **Check:** a made-up item added for testing works in every blueprint it fits, with no other entry changed.
 
-**Core**
+- `MAT-15` **Every addition proves itself** *(Decided)*: Each new or changed entry comes with its checks, and all the catalogue checks run again before the change joins the main version (`PRC-10`); a failing check blocks it.
+  - **Check:** the review confirms that every new entry names its checks (`PRC-09`).
 
-- `RCK-01` **Flint chips, granite doesn't** *(Decided)*: Flint and obsidian chip into sharp flakes; granite doesn't.
-  - **Check:** 1,000 hammerstone strikes each, at a spread of strengths and angles, on glassy, very fine-grained and coarse-grained stone: the fine and glassy stones give thin flakes that cut hide, in the share of well-placed strikes found in knapping experiments; the coarse stone gives grit and chunks, and never a flake that cuts.
-- `RCK-02` **Fire by friction** *(Decided)*: Rubbing wood fast enough can light dry tinder.
-  - **Check:** a dry stick twirled on dry soft wood, at the speeds and pressures hands can manage, over dry tinder, gives an ember within the time range found in experiments; green or wet wood never does.
-- `RCK-03` **Cooking helps** *(Decided)*: Cooking makes food more nourishing.
-  - **Check:** the same roots and meat, raw and cooked, eaten by a body: cooked food yields more usable energy, by the measured margin (`BIO-10`).
-- `RCK-04` **Pottery needs fire** *(Decided)*: Fired clay becomes pottery; sun-dried clay softens again in water.
-  - **Check:** sun-dried clay softens and falls apart in water; the same clay heated past its measured firing temperature, for long enough, stays hard in water.
-- `RCK-05` **Lime** *(Decided)*: Burned limestone becomes lime.
-  - **Check:** limestone heated past its measured breakdown temperature turns to quicklime and gives off gas; below that temperature, nothing changes.
-- `RCK-06` **Leather** *(Decided)*: Hides soaked with oak bark become leather instead of rotting.
-  - **Check:** hides soaked for weeks with crushed oak bark stop rotting and stay supple when dried; hides soaked in plain water rot.
-- `RCK-07` **Fermentation** *(Decided)*: Fruit sugars ferment.
-  - **Check:** crushed sweet fruit left warm with wild yeasts turns sugar into alcohol over days, at real rates; boiled and sealed, it does not.
-- `RCK-08` **Copper needs a furnace** *(Decided)*: Copper smelts in a charcoal furnace with forced air, but not over a campfire.
-  - **Check:** copper ore in an open fire never yields liquid copper; in charcoal enclosed by clay or stone and blown through tubes it does, but only once the fire law's temperature passes copper's melting point (`MAT-04`, `MAT-07`).
-- `RCK-09` **Rot** *(Decided)*: Untreated meat and hides rot, faster when warm and wet.
-  - **Check:** meat and hide rot at measured rates: within days when warm and wet, far slower when cold or dry.
-- `RCK-21` **Floating** *(Decided)*: A dry log floats; a stone sinks.
-  - **Check:** a dry log floats, sitting as deep as its density says; a stone sinks.
-- `RCK-22` **Air feeds fire** *(Decided)*: Blowing on embers makes them hotter.
-  - **Check:** blowing on embers at a person's measured breath rate raises their temperature within the real range; smothering them lowers it.
+- `MAT-16` **The catalogue grows by milestone** *(Decided)*: The catalogues grow with the milestones (`SCP-16`), each adding only what its steps need, without rewriting earlier entries:
+  - **first camp** (`MIL-01`): only the wild foods and water the band lives on;
+  - **sharp stone** (`MIL-02`): the start region's stones and wood, the blueprints known at the start (`BIO-20`), and flaking, cutting and scraping;
+  - **fire** (`MIL-03`): fuels, heat levels, fire-making, cooking, drying and smoking;
+  - **a living world** (`MIL-04`): every plant's and animal's yields, hunting weapons, hides, cord, clothing, huts and healing;
+  - **herds, fields and villages** (`MIL-07`): pottery, herding, farming, houses and stores, copper, art and instruments, completing the launch catalogue;
+  - **later** layers, such as bronze or writing, the same way (`VIS-03`).
 
-**Early crafts and food**
+- `MAT-17` **How the catalogue checks work** *(Decided)*: Automated checks keep the catalogues complete and believable, and run on every change (`MAT-15`).
+  - **How it works:**
+    - **Complete:** every item has its 18 values, size, class, model, icon and sound, and every blueprint every field of `MAT-04`, with inputs as ranges, never named items (`PRN-07`).
+    - **Reachable from the start:** following blueprints and timers from what the start region holds and what the bands know (`BIO-20`), every named result can be made by at least one route, using only things the world has (`WLD-14`), and no chain needs its own result first, such as a copper tool to make the first copper.
+    - **Possible:** every condition can be met: each heat a blueprint needs can be reached with a fuel and a setting the catalogue has (`MAT-18`), and every input size exists.
+    - **Reality rules:** each rule in 7.6 is checked over the catalogue, by matching every blueprint and timer against every item, and, where chance matters, in a sandbox scene run about 20 times (`RES-13`, `RES-23`).
+    - **Matches nobody planned:** each change lists the new pairings of items and blueprints it makes possible, for the review to look at, so an axe of bark or a pot of sand is caught (`RSK-06`).
+    - **Pace** is checked on whole worlds by the pace tests (`RES-07`).
+  - **Check:** no change joins the main version without these checks passing (`PRC-10`).
 
-- `RCK-10` **Heat-treated flint** *(Decided)*: Flint gently heated in a fire chips more easily and more predictably.
-  - **Check:** flint heated slowly into its measured range and cooled slowly needs less force per flake and gives more regular flakes; heated fast or too hot, it cracks.
-- `RCK-11` **Cord** *(Decided)*: Plant fibres twisted together make cord far stronger than the single fibres.
-  - **Check:** twisted plant fibres hold several times the load of the same fibres laid side by side, as measured.
-- `RCK-12` **Glue from bark** *(Decided)*: Birch bark heated without air gives a tar that glues a stone point to a shaft.
-  - **Check:** birch bark heated without air, within its measured range, gives tar that holds a stone point to a shaft under a real pull; heated in open air, it only burns.
-- `RCK-13` **Leaching** *(Decided)*: Soaking in running water draws the bitterness out of acorns.
-  - **Check:** crushed acorns in running water lose their bitterness below the level that stops a body eating them, within real times; in still water it takes longer.
-- `RCK-14` **Keeping meat** *(Decided)*: Salting, smoking and drying make meat keep far longer.
-  - **Check:** salted, smoked or dried meat stays edible many times longer than fresh meat at the same temperature.
+### 7.6 Reality rules
+
+Short rules on the catalogues that must always hold, each with its automated check (`MAT-17`).
+They keep results believable (`RSK-06`) and fix the orders that decide what is possible (`MAT-05`).
+
+**Stone, fire and food**
+
+- `RCK-01` **Flint flakes, granite doesn't** *(Decided)*: Stones that flake, such as flint, chert and obsidian, give sharp flakes; coarse stones, such as granite, sandstone and limestone, never do.
+  - **Check:** every coarse stone has flaking 0–1, and only items with flaking 3 or more fit the blueprints that make flakes, blades and points; without stone that flakes, the sharp-stone test never makes a flake (`RES-03`).
+
+- `RCK-02` **Fire by friction** *(Decided)*: Dry wood, drilled or ploughed hard enough, gives an ember; green or wet wood never does, and wet tinder never catches.
+  - **Check:** the fire-making blueprints accept only wood and tinder with water 0–1; in a scene, someone who knows fire by drilling gets an ember within about 5 minutes in most tries with dry wood, and never with green wood.
+
+- `RCK-22` **Air feeds fire** *(Decided)*: Blowing on embers makes them flare; smothering puts a fire out.
+  - **Check:** in a scene, blowing on embers makes a small fire within a minute in most tries, and earth heaped on a campfire puts it out (`MAT-18`).
+
+- `RCK-08` **Copper needs a furnace** *(Decided)*: Green copper ore gives copper only at heat 5, in an enclosed charcoal fire with forced air, never in a campfire or a kiln; native copper can be hammered cold.
+  - **Check:** every route to copper starts from green ore at heat 5 or from native copper, and heat 5 needs fuel 5 and forced air (`MAT-18`); in a scene, ore in a campfire or a kiln never gives copper, and in a furnace it does in most tries.
+
+- `RCK-03` **Cooking helps** *(Decided)*: Cooked meat, roots and grain nourish more than raw, and cooking lowers some poisons.
+  - **Check:** every cooked kind of meat, roots and grain has food a step above its raw kind, and no cooked kind has more poison than its raw kind.
+
+- `RCK-09` **Rot** *(Decided)*: Meat, fish and fresh hides rot within days when warm, far slower when cold or dry, and not at all when frozen.
+  - **Check:** every flesh and fresh hide item rots, fresh meat in about 3 days in summer and about 2 weeks near freezing, and nothing rots frozen (`MAT-19`).
+
+- `RCK-14` **Keeping food** *(Decided)*: Drying, smoking and salting make meat and fish keep for a season or more, and dry grain and nuts keep for a year in a dry store.
+  - **Check:** dried, smoked and salted meat rots at least 10 times slower than fresh, and dry grain and nuts in a covered, dry store keep a full year (`MAT-19`).
+
+- `RCK-13` **Leaching** *(Decided)*: Soaking crushed acorns in running water draws out their bitterness.
+  - **Check:** crushed acorns go from poison 2 to 0 in about 2 days in running water and about 6 in still water, and whole acorns hardly change (`MAT-19`).
+
+- `RCK-07` **Fermenting** *(Decided)*: Crushed sweet fruit or grain mash, kept warm and closed, ferments in a few days; cold slows it, frost stops it, and dry things never ferment.
+  - **Check:** only things with food 2 or more and water 3 or more ferment, in about 3 days when warm, and never when frozen (`MAT-19`).
+
+- `RCK-21` **Floating** *(Decided)*: Dry wood floats; stone sinks.
+  - **Check:** every dry wood, bark, reed and charcoal item has weight 0–1, and every stone, earth and metal item 3 or more (`MAT-11`).
+
+**Crafts**
+
+- `RCK-10` **Heat-treated stone** *(Decided)*: Flaking stone buried under a fire and cooled slowly flakes better; put straight into the flames, it cracks.
+  - **Check:** the treated kind of every flaking stone has flaking a step higher, or quality a step higher if its flaking is already 5; in a scene, stone put into a campfire cracks in most tries.
+
+- `RCK-11` **Cord** *(Decided)*: Fibres twisted into cord are far stronger than the loose fibres, and only fibrous things make cord.
+  - **Check:** only items with fibre 3 or more fit the cord blueprints, and every cord is at least two steps tougher than its loose fibres.
+
+- `RCK-12` **Glue from bark** *(Decided)*: Birch bark heated without air gives a tar that glues a point to a shaft; in an open fire it only burns.
+  - **Check:** tar comes only from birch bark covered from the air at heat 2–3 (`MAT-19`); in a scene, birch bark in an open fire leaves only ash.
+
+- `RCK-25` **Hafting** *(Decided)*: A head bound to a shaft or handle with cord or sinew, or glued with tar, gives the head's edge with the shaft's reach, so a flint-tipped spear wounds deeper than a sharpened stick.
+  - **Check:** every hafted result takes its edge from its head and its toughness from the weakest of head, binding and shaft, and hafting accepts only bindings with fibre 3 or more or glues with stickiness 4 or more.
+
+- `RCK-04` **Pottery needs fire** *(Decided)*: Shaped clay dried in the sun softens again in water; only clay fired at heat 3 or more stays hard and holds water.
+  - **Check:** every unfired clay thing has waterproof 0 and turns back to wet clay when soaked, every fired one has waterproof 3 or more, and no route makes a waterproof clay thing without heat 3 (`MAT-19`).
+
+- `RCK-05` **Lime** *(Decided)*: Limestone burned at heat 4 or more becomes quicklime, which mixed with water sets into white plaster; below heat 4 nothing changes.
+  - **Check:** quicklime comes only from limestone fired at heat 4 or more (`MAT-19`).
+
+- `RCK-06` **Leather** *(Decided)*: Scraped hides soaked for about 10 days with crushed bark that is bitter and stains, such as oak or willow, become leather that stays supple and doesn't rot; hides soaked in plain water rot.
+  - **Check:** the tanning blueprint accepts only barks with poison 2–3 and pigment 2 or more, and its leather doesn't rot; in a scene, a hide in plain water rots on time (`MAT-19`).
+
+- `RCK-26` **Warmth from the material** *(Decided)*: Clothes, bedding and shelters keep warmth by what they are made of: fur most, then hide and leather, then woven grass, reeds and bark; wet, they keep far less.
+  - **Check:** fur has warmth 5, hide and leather 3, and woven plant things 1–2; every made thing takes the warmth of its main material, halved when wet (`BIO-11`).
 
 **Colour and art**
 
-- `RCK-15` **Ochre turns red** *(Decided)*: Yellow ochre turns red when heated.
-  - **Check:** yellow ochre heated past its measured change temperature turns red; below that temperature, it stays yellow.
-- `RCK-16` **Paint that lasts** *(Decided)*: Charcoal and ochre mixed with fat or water make paint that lasts on rock.
-  - **Check:** charcoal or ochre mixed with fat or water and spread on rock stays visible for years where sheltered, weathering at real rates; on exposed rock it fades faster.
+- `RCK-15` **Ochre turns red** *(Decided)*: Yellow ochre heated at heat 2 or more turns red; below that, it stays yellow.
+  - **Check:** yellow ochre's firing result is red ochre at heat 2 or more, and nothing else turns it red (`MAT-19`).
 
-**Later crafts**
+- `RCK-16` **Paint that lasts** *(Decided)*: Charcoal or ochre mixed with fat or water and put on rock lasts for centuries where sheltered; on open rock, rain wears it away within years.
+  - **Check:** a painting in a cave or under an overhang wears at most a step a game century, and one on open rock in the rain at least a step every few game years (`MAT-20`).
 
-- `RCK-17` **Bronze** *(Decided)*: Copper with a little tin is harder than copper.
-  - **Check:** copper with about a tenth tin is measurably harder than copper.
-- `RCK-18` **Iron** *(Decided)*: Iron needs a hotter, longer charcoal fire than copper and comes out spongy; it must be hammered to make it useful.
-  - **Check:** iron ore in a blown, enclosed charcoal fire, run hotter and longer than copper needs, gives a spongy lump mixed with waste; hammering it hot squeezes the waste out; it never runs liquid in such a fire.
-- `RCK-19` **Mortar** *(Decided)*: Lime mortar hardens in the air.
-  - **Check:** quicklime mixed with water and sand hardens in air over weeks to months; kept away from air, it stays soft.
-- `RCK-20` **Glass** *(Decided)*: Sand with plant ash melts into glass in a very hot fire.
-  - **Check:** sand with plant ash melts into glass past the mixture's measured melting range; at those temperatures, sand alone does not melt.
+**Growing and taming**
+
+- `RCK-23` **Seeds grow** *(Decided)*: Seeds in fertile, moist ground in the growing season sprout; planted and tended ones grow better, which is farming.
+  - **How it works:** a handful of seed thrown on rich, damp ground, such as a rubbish heap, gives a few plants the next season (`MOM-08`); dug in and covered, most seeds sprout; weeded and watered, a plot yields about twice as much as one left alone (tuned).
+    Roots and cuttings planted the same way grow too.
+  - **Check:** every food plant's seeds, roots or cuttings list their growing season and ground (`WLD-31`); in a scene, seeds thrown on a heap sprout in some runs, and a tended plot yields at least twice an untended one.
+
+- `RCK-24` **Young animals grow tame** *(Decided)*: Young animals raised and fed by people grow tame; adults rarely do.
+  - **Check:** in a scene, wolf pups fed daily by people from their first days reach tameness 5 within a season (`WLD-33`), while grown wolves fed for a season stay at 2 or below in most runs.
+
+**Beyond the launch arc**
+
+- `RCK-17` **Bronze** *(Dropped)*
+  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`); a later layer can add it (`MAT-16`).
+
+- `RCK-18` **Iron** *(Dropped)*
+  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`); a later layer can add it (`MAT-16`).
+
+- `RCK-19` **Mortar** *(Dropped)*
+  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`); a later layer can add it (`MAT-16`).
+
+- `RCK-20` **Glass** *(Dropped)*
+  - **Dropped because:** beyond the launch arc, which ends at first copper (`VIS-03`); a later layer can add it (`MAT-16`).
 
 ## 8. People: bodies and lives
 
-Every person has a body that must be fed, watered, kept warm and rested; that can be hurt, fall sick and heal; and that grows, ages, has children and dies.
-All of it follows real biology with real-world numbers (`PRN-05`).
+Every person has a body that must be fed, watered, kept warm and rested; that can be hurt, fall ill and heal; and that grows, ages, has children and dies.
+The rules are simple and the numbers plausible (`PRN-05`), so bodies look and behave believably without simulating biology (`PRN-02`, `SCP-21`).
+Ages are in game years of 60 days (`TIM-18`).
 How people think is in Minds.
 
 ### 8.1 Who they are
 
-- `BIO-01` **One species, modern minds** *(Decided)*: Their bodies and brains are as capable as ours.
-  Their culture starts almost empty.
-  - **How it works:** each body's numbers (size, strength, stamina, senses, healing and defences) are drawn within the measured ranges of living people, foragers above all (`BIO-08`), and every mind has the full set of modern human abilities (see Minds); their culture is only what `BIO-02` and `BIO-20` give them.
+- `BIO-01` **Modern humans** *(Decided)*: The people are one human species, with bodies and minds as able as ours (`SCP-05`).
+  Only their culture starts almost empty (`SCP-01`): what they can do grows from what they discover and pass on, never from a limit built into them.
 
-- `BIO-02` **Starting kit** *(Decided)*: The first people are generated like the world: realistic, not grown from nothing.
-  Families, ages and relationships follow real hunter-gatherer patterns.
-  Each adult knows their home range (its food, water, dangers and seasons) and nothing beyond it.
-  The details are in `BIO-20`.
-  - **Language:** a few dozen shared words and calls; word order and new words must grow.
-  - **Fire:** they can feed a fire found after lightning or a wildfire, but cannot make one.
-    A band may start with a fire it is keeping, depending on recent weather.
-  - **Tools:** unshaped stones for bashing, and sticks.
+- `BIO-02` **Starting kit** *(Decided)*: The first people have almost no culture, but they share one language and know a few blueprints and their home range.
+  - **Language:** the world's language, from the start (`CUL-17`).
+  - **Fire:** they can feed a fire, bank it under ash and carry its embers, but cannot make one (`MAT-18`).
+    About one band in three (tuned) starts with a fire taken from lightning, and the others must find one (`WLD-28`).
+  - **Tools:** none shaped; unshaped stones for bashing and sticks for digging.
   - **Clothing:** none.
-  - **Shelter:** natural caves and overhangs.
-  - **Food:** gathering, scavenging, some ambush hunting.
-  - **Beliefs:** only the practical knowledge of their home range; none about spirits, hidden causes or how to make things.
-  - **How it works:**
-    - **Families from a short run:** the generator starts a few generations back and runs births, pairings and deaths at forager rates (`BIO-04`), with bodies only, up to year 0, so ages, families, kinship and genes (`BIO-06`) fit together.
-      Only the result is kept, with no memories of it (`BIO-20`).
-    - **Bodies:** each person's body is grown to their age from their genes and the food their region gives (`BIO-08`), with healed old injuries and scars at foragers' measured rates.
-    - **Things they carry:** a few unshaped stones and sticks taken from their own range's ground: real things (`MAT-10`), nothing shaped.
-    - **A kept fire:** a band starts with a fire only if lightning or a wildfire burned in its home range during the last months of settling (`WLD-08`, tuned); otherwise it has none.
-    - **Skills:** adults start with skills for gathering, scavenging and ambush hunting with their kit (`MND-06`), at levels set by age (estimated); children have less.
+  - **Shelter:** caves and overhangs, with beds of grass or leaves.
+  - **Food:** gathering, scavenging, and small game taken with thrown stones and sticks.
+  - **Knowledge and beliefs:** a few blueprints, their home range and which local things are food or poison (`BIO-20`); no beliefs about spirits or hidden causes.
+  - **Done when:** every new world's bands start with exactly this kit, and the sharp-stone test runs from it (`RES-02`).
 
-- `BIO-03` **Starting population** *(Decided)*: 3–4 family bands of 15–30 people each, about 45–120 people in all, living in one region (`WLD-24`).
-  - **How it works:** the short run of `BIO-02` is sized from the seed so that it ends with 3 or 4 bands of 15–30 people, within what the start region feeds (`WLD-24`).
-
-- `BIO-20` **Starting knowledge in detail** *(Decided)*:
-  - **Bands:** each band is a few related families.
-    The bands are neighbours who sometimes meet, and share one language.
-  - **What adults know:** where water, shelter and the main foods are in each season; which local plants and animals are food, which are poison and which are dangerous; the routes of their home range; who is kin to whom.
-    Children know less, according to their age.
-  - **Words:** water, fire, food, danger, kin, the main animals and plants of home, and simple actions such as come, go, eat and look.
-  - **Fire:** they know how to carry embers to keep a fire alive on the move.
-  - **Memories:** adults begin with their knowledge but no remembered events; their stories start at year 0.
+- `BIO-03` **Starting population** *(Decided)*: 3–4 family bands of 15–30 people, 45–120 in all, in one start region (`WLD-24`).
+  Together they are one people, with one language and a name for themselves (`CUL-17`, `CUL-23`).
   - **How it works:**
-    - **Written from the world's truth:** starting beliefs are made from the settled world (`WLD-08`): where water, shelter and each main food are in each season; which local species are food, poison or dangerous, from their real chemistry and behaviour (`WLD-19`); the routes of the home range; and who is kin to whom.
-      They are stored as records in each mind (see Minds).
-    - **True but incomplete:** every starting belief is true; each adult knows the common things of their home range and fewer of the rare ones, more with age, and children know a share by their age (estimated).
-      So every mistake comes from something that happens in play, and each has a cause.
-    - **Words:** the few dozen shared words are drawn from the language's own sounds, each linked to its meaning in every adult's mind (see Culture and society).
+    - **Families:** each band is a few related families of believable ages, with some orphans and widowed people, and kin in the other bands (`CUL-27`, `CUL-30`).
+      They come from a few generations of births, pairings and deaths, run by this section's rules with bodies only, before history begins (`TIM-14`).
+    - **Ages:** about two in five are children under 14, a few are over 45, and men and women are about equal in number (tuned).
+    - **Bodies** are grown to their ages from their inherited traits (`BIO-06`), with old scars and healed injuries.
+    - **Places:** each band has its own shelter and home range (`WLD-24`).
+  - **Done when:** every start has 3–4 bands of 15–30 people, every child has a living parent or kin to care for it, and every mother was about 15–45 at each child's birth.
 
-- `BIO-08` **Everyone is different** *(Decided)*: Height, strength, stamina, senses, health, temperament, curiosity, memory and learning speed vary from person to person, with real-world spreads.
-  These traits are partly inherited and partly shaped by how a person grew up, through childhood food, illness and activity.
-  Follows from `BIO-06` and `PRN-05`.
+- `BIO-20` **Starting knowledge** *(Decided)*: Each adult starts knowing a few blueprints, their home range, which local things are food or poison, and their kin.
+  Every starting fact is true, so every mistake comes from play.
   - **How it works:**
-    - **Each trait is three parts:** an inherited value (`BIO-06`), how the person grew up, and chance.
-      Childhood hunger and serious illness hold back growth in height and strength at measured rates, and activity builds strength and stamina; the spread of each trait, and the share each part explains, are sourced where measured and estimated otherwise.
-    - **Traits that go together:** linked traits keep their measured links, so taller people are heavier and stronger on average, with wide overlap.
+    - **Blueprints:** the five foragers everywhere know (`MAT-23`): cracking nuts and bones with a stone, butchering a carcass with a broken stone or bare hands, making a bed of grass or leaves, banking a fire under ash, and carrying embers in a bundle of tinder fungus or rotten wood.
+      Adults know them at a skill set by age, and children learn them as they grow (`MND-06`).
+    - **Experience:** adults have some in gathering, hunting and fire, more with age, and none in the other sectors; children have less (`MND-06`).
+    - **Mental map:** the places within about 10 km of their shelter (`WLD-24`), with water, shelter, food by season, stone, routes and dangers, and where the other bands live (`MND-28`); older adults know more, and children a share by age.
+    - **Things:** which common local plants and animals are food, poison or dangerous (`MND-04`).
+    - **People:** their band and kin, with a few friendships and grudges (`MND-24`).
+    - **Memories:** none from before history begins (`MND-18`).
+  - **Done when:** in a new world every adult knows exactly this, and nothing more (`MND-02`).
+
+- `BIO-08` **Everyone is different** *(Decided)*: Each person has their own height, build, strength, stamina, resistance, sight, hearing and learning speed.
+  - **How it works:**
+    - **Spread:** each is drawn around the human average, most people within about a fifth of it (tuned), from inheritance (`BIO-06`), sex (`BIO-17`), age (`BIO-16`) and chance.
+      Long hunger or serious illness in childhood leaves people shorter and weaker for life.
+    - **What each does:** height and build set size, food needs and looks; strength sets loads, blows and heavy work; stamina, how long people walk, run and work; resistance, how well the body fights illness and infection and how fast it heals (`BIO-05`, `BIO-13`); sight and hearing, what reaches the mind (`BIO-18`); and learning speed, how fast skill grows (`MND-06`).
+    - **Shown** in words on the card, such as "tall, strong, sharp-eyed" (`PRE-35`).
+  - **Done when:** each number's spread in a starting population matches the stated range, and children who went hungry for long grow up shorter and weaker on average.
 
 ### 8.2 Staying alive
 
-- `BIO-09` **Basic needs** *(Decided)*: Food, water, warmth and sleep, in real-world amounts that depend on body size, activity and climate.
-  Follows from `PRN-05`.
+- `BIO-09` **Needs of the body** *(Decided)*: Hunger, thirst, warmth and rest, each felt by the mind as a need (`MND-07`), with real effects on the body when unmet.
   - **How it works:**
-    - **What the body keeps:** its fat and lean mass, the food in its gut, its water, its core and skin temperature (`BIO-11`), and its need for sleep.
-    - **Energy:** at each step the body burns energy: its resting rate from its size, age and sex (measured equations); each action's cost (`MAT-06`), and walking by distance, slope and load (measured rules); shivering or sweating (`BIO-11`); and growth, pregnancy and nursing (`BIO-15`).
-      Digested food adds energy (`BIO-10`), and the difference goes into or out of fat (measured energy per kilogram).
-      When fat runs low, lean mass is burned and strength falls, and below measured limits the body dies of hunger (`BIO-14`).
-    - **Water:** lost through sweat (by heat and effort), breath, urine and illness, and gained by drinking and from food; losing water weakens and confuses at measured shares of body weight, and kills beyond them.
-    - **Sleep:** the need for sleep builds with time awake and is cleared by sleep, at measured rates by age; lack of it slows body and mind and widens the error of every action (`MAT-06`).
-    - **Felt, not known:** hunger, thirst, cold, heat and tiredness are what the mind feels of these stores (see Minds); the stores themselves decide survival.
+    - **Hunger:** the body uses about a day's food a day (`BIO-10`), more for hard work, heavy loads (`MAT-11`), cold, growth, pregnancy and nursing; the belly holds at most a day and a half's food.
+    - **Condition:** the body's reserve, from 0 (starved) to 100 (well padded), seen as thin or stout (`PRE-27`); it rises when people eat more than they use and falls when they eat less.
+      Below about 30, people are weaker, heal and fight illness worse, and women stop conceiving (`BIO-15`); at 0 they die (`BIO-14`), which takes a well-fed adult about 20 days without food (tuned).
+    - **Thirst:** an adult needs about 3 litres of water a day, up to twice that in heat or hard work (tuned), from drink and food (`BIO-10`); without it, people weaken within a day, grow confused within two and die in about three, and salt water makes it worse (`WLD-26`).
+    - **Warmth:** see `BIO-11`.
+    - **Rest:** adults need about 8 hours' sleep a day, children about 10 and babies most of the day (tuned); hard work tires faster, and cold, hunger or pain spoil sleep.
+      Tired people work slower and fail more often (`MAT-04`), and after about a day and a half awake they fall asleep where they are.
+    - **Out of breath:** running, fighting and heavy work tire people within minutes, and a few minutes' rest restores them (`BIO-08`).
+  - **Done when:** in test scenes, a person without food dies in about the stated time, one without water in about three days, and a band with enough food, water and shelter keeps its condition through a mild year.
 
-- `BIO-10` **Nutrition** *(Decided)*
-  - **What:** Food provides energy, protein, fat and key vitamins and minerals, all from the real chemistry of what is eaten (`MAT-03`).
-    A missing vitamin causes its real deficiency disease.
+- `BIO-10` **Food** *(Decided)*: A thing feeds by its food value; varied food keeps people strong, and one kind of food for long makes them weak.
   - **How it works:**
-    - **What food gives:** each food's ingredients (`MAT-01`) give energy (from protein, starch, sugar and fat, at measured values per gram), protein, essential fats, and the vitamins and minerals in them.
-      How much the gut takes from them depends on the food's structure and on cooking, which breaks down starch and toughness (`RCK-03`), at measured rates; food is digested over hours at measured rates, and the stomach holds only so much.
-    - **A store for each key nutrient:** vitamins C, A, D, thiamine, niacin, B12 and folate; iron, iodine, calcium and salt.
-      Each is filled by food, and vitamin D also by sunlight on skin, by latitude, season and skin colour (`BIO-22`); each is used up at its measured daily rate.
-    - **Deficiency:** when a store falls below its measured threshold, its real disease develops at its real pace: scurvy (vitamin C), night blindness (vitamin A), rickets and soft bones (vitamin D), beriberi (thiamine), pellagra (niacin), anaemia (iron, B12, folate) and goitre (iodine, where soil and water lack it, `WLD-27`); eating the nutrient again cures it.
-    - **Too much harms too:** some nutrients poison in excess, at measured doses, such as the vitamin A in some animals' livers.
-    - **Growing bodies:** shortfalls of energy and protein in childhood hold back growth (`BIO-08`).
-    - **More later:** other nutrients can be added as a layer (`MAT-16`).
-  - **Why:** Diet becomes something people can discover and get wrong.
-  - **Example:** A band that winters on dried meat suffers bleeding gums every spring (scurvy, from a lack of vitamin C).
-    Eventually someone notices that the people who ate the first green shoots recovered.
+    - **Food value:** each step up the food characteristic (`MAT-03`) about doubles what a kilogram gives, so a day's food for an adult is about 4 kg at food 2 (berries, raw roots), 2 kg at 3 (raw meat), 1 kg at 4 (nuts, cooked meat) or half a kilogram at 5 (fat) (tuned).
+      Cooking raises food a step (`RCK-03`), and a thing's water characteristic counts toward thirst.
+    - **Four food groups:** meat and fish (with eggs and milk), fruit and greens (with berries, shoots and mushrooms), nuts and seeds (with grain), and roots; the catalogue puts each food in one (`MAT-13`).
+    - **Variety:** someone who has eaten from only one group over the last 10 days (tuned) grows weak: strength, stamina, healing and resistance drop by about a fifth until they eat more widely.
+    - **Scurvy:** after about 15 days without fresh fruit, berries, greens or shoots, gums bleed and wounds stop healing, until a few days of them cure it.
+  - **Example:** A band that winters on dried meat and nuts gets bleeding gums every spring, until someone notices that those who ate the first green shoots got better (`MND-05`).
+  - **Done when:** in test scenes, people living on one food group for 10 days grow weak, people on dried food for 15 days get scurvy and recover on fresh greens, and cooked meat feeds more than raw.
 
-- `BIO-11` **Heat and cold** *(Decided)*
-  - **Follows from:** `MAT-03` and `PRN-05`.
-  - **What:** Bodies lose and gain heat by real physics.
-    Clothing, shelter, fire and huddling together keep them warm.
-    Cold can kill; heat exhausts.
+- `BIO-11` **Heat and cold** *(Decided)*: Bodies keep warm by work, clothing, shelter, fire and each other; cold can kill, and heat exhausts.
   - **How it works:**
-    - **A heat balance at each step:** heat made (resting, activity, and shivering up to measured limits) against heat lost or gained: to moving air, by the wind and the difference between skin and air; by radiation, to a clear night sky and from the sun or a fire, by distance; by contact, with cold ground and with water, which takes heat about 25 times faster than air; and by evaporating sweat and breath.
-    - **What shields the body:** its fat; clothing, by its insulation, measured from what it is made of (`MAT-03`) and much less when wet; shelter, which cuts wind and rain and gives back warmth from its walls; huddling, which hides part of each body; and a fire's radiant heat.
-    - **Core and skin:** core temperature follows the balance by the body's heat capacity; past measured thresholds people shiver, then slow, grow confused (so their actions' errors grow, `MAT-06`) and die of cold, or tire, faint and die of heatstroke.
-      Sweating and shivering respond by themselves.
-    - **Hands, feet and face** cool first; flesh that freezes is frostbite, an injury to that part (`BIO-13`).
-    - **Size matters:** children and old people lose heat faster for their size (measured).
-  - **Example:** In an ice-age winter, sewn clothing can matter more than food.
+    - **Comfort:** felt temperature is the air's (`WLD-16`), colder in wind or when wet and warmer in sun or shelter; naked and at rest, people are comfortable down to about 24 °C of it.
+      Each point of warmth in what they wear (`MAT-03`), counted by how much of the body it covers, lowers that limit by about 6 °C, and work lowers it by about 10 °C more (tuned); wet clothing keeps only half its warmth (`RCK-26`).
+    - **Shelter, bedding and fire:** a shelter cuts wind and rain and is warmer inside by the warmth of its walls, a cave by a few degrees (tuned); bedding counts like clothing for sleepers, and huddling as one point of warmth; and a campfire warms those within about 2 m by about 15 °C (`MAT-18`).
+    - **Cold:** below the limit people shiver; about 10 °C below, they grow clumsy and slow; about 20 °C below, they freeze, grow confused and fall asleep, and die within a few hours (tuned).
+      Hours of freezing on bare arms, legs or head bring frostbite, a burn from cold (`BIO-13`), and children and the old chill faster.
+    - **Heat:** above about 32 °C felt, people sweat and need more water (`BIO-09`), and hard work in great heat brings fainting and heatstroke, which can kill.
+  - **Done when:** in winter test scenes, a naked band huddled in a cave lives through the night, a lone person outside on a freezing night without fire or cover gets frostbite or dies, and people in warm clothing work outdoors all day.
 
-- `BIO-12` **Poison and medicine** *(Decided)*: The chemistry of plants, animals and minerals acts on the body.
-  Some things poison, some heal, and some do either depending on the dose.
-  For example, willow bark eases pain.
-  Follows from `MAT-03`.
+- `BIO-12` **Poison and medicine** *(Decided)*: Poison and medicine come from the characteristics of what is eaten or put on the body (`MAT-03`), and some things do both, by how much is taken.
   - **How it works:**
-    - **Doses:** each chemical in what is eaten, drunk or breathed, or put on skin or a wound, enters the body at its measured rate, and its dose is counted per kilogram of body.
-    - **Effects by measured dose curves:** each acts on its body systems (pain, gut, heart, breathing, nerves, liver, skin or mind) by its measured dose–effect curve, for as long as it stays, and the body clears it at its measured rate.
-      So a small dose of willow bark eases pain and a large one harms the gut, and foxglove steadies the heart or stops it, by dose.
-    - **Bodies differ:** size, age, health and each person's own sensitivity (`BIO-08`) shift the curve.
-    - **Processing changes doses:** soaking, leaching, cooking, drying and fermenting change the chemicals by the laws of matter (`MAT-04`): acorns lose their bitterness in running water (`RCK-13`), and some poisons break down with heat.
-    - **Warnings are partial:** many poisons taste bitter (`BIO-18`), but not all; what people learn about them is up to their minds.
-    - **Sources:** doses that decide life and death are sourced; the rest are estimated (`PRN-05`).
+    - **Poison** acts within hours, by its value and the amount eaten against the eater's size: 1–2 brings cramps and vomiting for a day; 3 makes people ill for days and can kill a child; 4 can kill an adult who eats a meal of it; 5 can kill anyone who eats a mouthful (tuned).
+      It runs like a short illness (`BIO-05`), worst for children, the old and the weak.
+    - **Medicine,** eaten or put on a wound, eases pain by its value for some hours and helps the body fight illness and infection (`BIO-05`, `BIO-13`); strong medicine (3 or more) taken for a few days clears worms.
+      A thing with both helps in small amounts and harms in large ones, as willow bark eases pain but upsets the gut when chewed to excess.
+    - **Other sources:** a venomous snake's bite poisons by its kind (`WLD-32`), and food grows poisonous as it rots (`MAT-19`).
+    - **Making food safe:** leaching, cooking and drying can lower poison, as each blueprint's result says, so leached acorns lose their bitterness (`RCK-13`).
+    - **Learned by use:** both are hidden until tried (`MND-04`), and many poisons taste bitter, though not all (`MND-21`).
+  - **Done when:** in test scenes, a mouthful of something with poison 5 kills an adult in most runs, poison-2 berries make the eater ill for a day, and wounds treated with medicine hurt less and get infected less often.
 
 ### 8.3 Harm and healing
 
-- `BIO-13` **Injuries to body parts** *(Decided)*
-  - **What:** Wounds, fractures, burns and infections affect specific parts of the body.
-    They heal, scar, or leave a lasting disability.
-    Care from others (food, water, protection, cleaning a wound) changes the outcome.
+- `BIO-13` **Body parts and wounds** *(Decided)*: Every body has six parts, head, torso, two arms and two legs (hands and feet count with their limbs), each with its own health.
+  Wounds bleed, can get infected and heal over days; a broken leg slows, a broken arm stops two-handed work, and a bad head or torso wound can kill.
   - **How it works:**
-    - **Body parts:** each body has a head, eyes, neck, chest, belly, back, and each arm, hand, leg and foot, made of skin, fat, muscle, bone or organs, sized from the body's measurements; each part has its work: a leg carries weight, a hand grips, an eye sees.
-    - **Injuries come from the laws of matter:** the contact laws (`MAT-04`) act on tissue like any material: an edge cuts as deep as its force and sharpness allow against the tissue's measured toughness; a point pierces; a blow bruises, or breaks bone past its measured strength; heat burns by temperature and time (measured thresholds); cold freezes (`BIO-11`); a fall strikes by its height and what is hit.
-      Bites, horns and claws are edges and points driven by the animal's force.
-    - **An injury's record:** the part, the kind (cut, puncture, bruise, fracture, burn, frostbite or bite), its size and depth, its bleeding, the dirt and germs in it (`WLD-21`), its pain, and how much the part still works.
-    - **Bleeding:** blood is lost at a rate set by the wound's depth and place; losing measured shares of the body's blood weakens, then kills; pressing a wound slows it.
-    - **Working parts:** a broken leg can't take weight, a cut hand grips weaker and a damaged eye sees less; pain makes every action less exact (`MAT-06`) and is felt by the mind.
-    - **Healing:** each injury heals at measured rates for its kind (skin in weeks, bone in months), slower with poor food, age, cold and infection, and faster with rest.
-    - **Outcomes:** a clean heal; a scar, stiffer and visible; or a lasting disability: a bone that moves while it heals knits crooked and leaves a limp, a cut tendon leaves a weak hand, and an infection can spread (`BIO-05`) and kill.
-    - **Care is actions under the same laws:** pressing a wound slows bleeding; washing removes dirt and germs; a stick tied along a broken limb keeps the bone still so it knits straight; food, water, warmth and carrying keep the injured alive while they can't fend for themselves.
-      Nothing heals a body except its own rates under better conditions.
-  - **Example:** A hunter with a broken leg survives the winter because the band carries and feeds them.
-    They never hunt again, but they become the best stoneworker in the valley.
+    - **Health:** each part runs from 100 (sound) to 0, and each wound takes its size from its part until it heals.
+    - **Five kinds of wound:** cuts (edges and points), bruises (blows and falls), bites (teeth, horns and claws), burns (fire, hot things and freezing cold) and broken bones (a blow or fall of more than about 25 on an arm or leg).
+    - **Size** comes from the cause: the striker's strength and the weapon's weight, hardness or edge (`MAT-03`), the animal's kind (`WLD-32`), the heat (`MAT-18`) or the height of a fall (`MAT-11`); a knapping slip gives about 5, a club or a dog bite about 20, and a spear thrust or a bear's swipe 40 or more (tuned).
+      Blows land by chance, most on the torso and least on the head, unless the event decides (a fall lands on the legs).
+    - **Bleeding:** cuts and bites bleed by size, small ones stopping within minutes and big ones only when pressed or dressed (`BIO-23`).
+      Blood counts from 100: losing about 25 weakens, 35 makes people collapse, and 50 kills; it comes back at about 10 a day (tuned).
+    - **Effects:** pain grows with every wound, slowing work and lowering mood (`MND-29`).
+      A broken leg allows only a hobble at a quarter speed, and a broken arm stops two-handed work (`MAT-12`); lesser wounds slow walking, or slow work and lower its chance of success.
+      Below half health a hurt head dazes and a hurt torso weakens, below a quarter a hurt head knocks its owner out, and either at 0 kills (`BIO-14`); an arm or leg at 0 is useless for life.
+    - **Infection:** a cut, bite or burn can get infected in its first two days, more if big or dirty and less if washed or dressed (`BIO-23`) or in a strong body (`BIO-08`); it then stops healing until the body clears it, and may spread into wound fever (`BIO-05`).
+    - **Healing,** squeezed like the year (`TIM-18`): bruises and small cuts in 1–3 days, deep cuts, bites and burns in 3–6, and broken bones in about 10; faster with rest, food and warmth, and slower with age, hunger and cold (tuned).
+    - **Lasting harm:** big wounds scar, and a broken bone not kept still may heal crooked, leaving a limp or a weak arm for life; all of it shows on the figure, in how it moves and on the card (`PRE-27`, `PRE-44`, `PRE-35`).
+  - **Example:** A hunter with a broken leg lives through the winter because the band carries and feeds him; he limps ever after and never hunts again, but becomes the best knapper in the valley.
+  - **Done when:** in test scenes, a deep cut left alone bleeds to death while a pressed or dressed one doesn't, a broken leg hobbles its owner for about 10 days, dirty wounds get infected more often than washed ones, and a head or torso at 0 kills.
 
-- `BIO-05` **Disease** *(Decided)*: Illness comes from microbes that enter through wounds, food, water, air, touch or animals.
-  People who recover can become immune.
-  Crowding, and living close to animals, bring epidemics.
-  Follows from `WLD-21`.
+- `BIO-05` **Illness** *(Decided)*: About 15 illnesses, each with its routes, a time before it shows, a course, a danger and, for some, immunity afterwards.
+  Some spread only where many people live close together, as in real history.
   - **How it works:**
-    - **What a disease does:** each disease's effects come from its traits (`WLD-21`), with measured courses (how long before it shows, how long it lasts): fever, which burns more energy (`BIO-09`); diarrhoea and vomiting, which lose water and food; cough, weakness and pain; and damage to particular parts or organs.
-    - **Defences:** the body fights each germ with its defences, stronger in well-fed adults and weaker in babies, the old (`BIO-16`), the starving and the injured.
-      After recovery, immunity to that germ lasts its measured time and also guards against close strains; mother's milk gives babies some protection (measured).
-    - **Being sick:** weakness and fever slow the body and widen its errors (`MAT-06`), and the mind feels the sickness (see Minds).
-    - **Care works through the body's needs:** water, food and warmth given by others keep a sick body's stores up so its defences can win; replacing the water lost to diarrhoea saves lives, by measured amounts.
-      Medicines act by `BIO-12`.
+    - **Catching:** breath illnesses pass to people sharing a shelter or hearth with the sick; touch illnesses to those who tend them or share their bed or food; others come through fouled water (`WLD-17`), raw meat and fish, wounds (`BIO-13`), or sick animals' bites, carcasses and milk (`WLD-32`).
+      Each contact has the illness's own daily chance (tuned), from a day before the signs show until recovery, and the immune don't catch it.
+    - **Where it starts:** everyday illnesses start now and then in any group, each at its own rate per season (tuned), breath illnesses most in winter; animal ones come from the few sick animals of the kinds that carry them.
+    - **Crowd illnesses** start only in villages of at least about 200 people that keep herds, at a small chance each year (tuned), and travel with visits, trade, marriages and raids (`CUL-28`); in a band they burn out once all have had them, while villages, with new babies always coming, keep them.
+    - **The fight:** once it shows, an illness grows each day by its strength while the body fights back by its resistance (`BIO-08`), weaker in babies, the old, the hungry, the cold, the tired and the wounded, and stronger with rest, food, water, warmth, care and medicine (`BIO-23`, `BIO-12`).
+      If the illness peaks first, a deadly one kills (`BIO-14`), and strengths are tuned so each kills about its stated share.
+    - **Courses** of days run as in life, and longer ones are squeezed like the year (`TIM-18`); the sick look and act ill, and others notice (`MND-03`) and may keep away (`MND-05`).
+  - **The illnesses** (routes; days before the signs show), each a catalogue entry (`MAT-13`); deaths are among untreated healthy adults, and babies, the old and the hungry fare worse:
+    - **Cold** (breath, touch; 1–2 days): sniffles and cough for about 5 days; harmless itself, but it can turn to chest fever in the weak; immunity for a year.
+    - **Coughing fever** (breath, touch; worst in winter; 1–3 days): fever, aches and cough for about a week; kills 1 in 50, and 1 in 8 babies and old people; immunity for a few years.
+    - **Chest fever** (not catching; follows a cold, a coughing fever, freezing or near-drowning): hard breathing and high fever for 7–10 days; kills 1 in 4.
+    - **Gut sickness** (fouled water or food; within a day): cramps and the runs for 2–5 days; kills few adults but about 1 in 20 babies and old people, through lost water that drinking replaces.
+    - **Worms** (raw or undercooked meat and fish): slow thinning and weakness until strong medicine clears them (`BIO-12`); cooking prevents them.
+    - **Wound fever** (an infected wound, or a birth; 1–3 days): fever and spreading redness for 5–10 days; kills 1 in 3.
+    - **Lockjaw** (deep wounds soiled by earth or dung; 3–15 days): a jaw and body that stiffen for 10–20 days; kills 1 in 2.
+    - **Foaming madness** (the bite of a mad wolf, dog or other meat-eater; 5–20 days): rage, fear of water and death within days, always; mad animals lose their fear of people.
+    - **Hunter's fever** (skinning or eating sick hares and other small game; 2–5 days): fever and sores for about 2 weeks; kills 1 in 20; immunity for life.
+    - **Herder's fever** (kept goats, sheep and cattle, through raw milk and helping births; 5–15 days): fevers that come and go for 15–30 days; rarely kills; immunity for life.
+    - **Sore eyes** (touch; worst in crowded, smoky camps; 2–5 days): red, crusted eyes for about 10 days; many bouts can blind (`BIO-18`).
+    - **Spotted fever** (crowd; breath; about 10 days): fever and spots for about 10 days; kills 1 in 10, more of children; immunity for life.
+    - **Pox** (crowd; breath, touch; about 12 days): fever and blisters that leave scars, for about 15 days; kills 3 in 10; immunity for life.
+    - **Bloody flux** (crowd; water fouled by a village's waste; 1–3 days): cramps and bloody runs for about a week; kills 1 in 10.
+    - **Wasting cough** (crowd; long close living, and sick cattle's milk; a season or more): cough and wasting over one to three years; kills about half.
+  - **Why:** Illness shapes history: a fever can take a band's last knapper (`MOM-02`), and villages pay for their numbers with crowd illnesses.
+  - **Done when:** over 20 runs of test scenes (`RES-13`), each illness spreads only by its routes, runs about its stated course and kills about its stated share, and a crowd illness that reaches a band burns out while a village keeps it.
 
-- `BIO-14` **Every death has a cause** *(Decided)*: Nobody dies of random chance.
-  Every death comes from something in the simulation: hunger, cold, disease, injury, childbirth, violence, accident or old age.
-  Follows from `PRN-10`.
+- `BIO-23` **Care and healing** *(Decided)*: The hurt and the sick do better with care, and some treatments are blueprints to discover.
+  Nothing heals a body but the body itself; care and medicine only help it.
   - **How it works:**
-    - **Death only by a body's own limits:** a body dies only when one of its stores or parts passes a fatal limit: too little energy (hunger), water (thirst) or blood (bleeding); a core too cold or too hot (`BIO-11`); no air (drowning or smothering); a vital part destroyed; an organ failed by poison or germ (`BIO-12`, `BIO-05`); or birth's own dangers (`BIO-15`).
-    - **No death roll:** chance enters only through events, such as a slip, a strike's error or a germ caught, and through each body's own variation (`TIM-16`), never as a chance of dying.
-    - **Old age kills through frailty:** an old body has less in reserve and heals and defends itself less (`BIO-16`), so a cold, a fall or a fever that a younger body would survive passes the limit; the record names both, such as "pneumonia, in old age".
-    - **The record:** each death keeps its cause and the chain behind it, as far as the simulation knows it, such as "bleeding, from a boar's tusk, while hunting", for the history and its views (`PRN-15`).
-  - **Check:** every death record names the fatal limit that was passed and its cause; a code search finds no chance-of-death draw anywhere.
+    - **Plain care,** an everyday activity anyone can do, drawn by the caring leaning (`MND-26`): pressing a bleeding wound slows it by about three quarters, and a few minutes of it stop all but the worst; food, water, warmth, carrying and company help the body (`BIO-05`).
+    - **Healing blueprints** (`MAT-23`), found or learned like any other (`MND-11`): washing a wound with clean water halves its chance of infection; a moss dressing bound on stops the bleeding and halves the chance of infection again; a splint of straight sticks and cord lets a broken bone heal straight; a yarrow poultice or a willow-bark drink gives medicine (`BIO-12`); and a fat salve eases a burn and keeps it clean like a dressing.
+    - **Skill:** care works better with the carer's healing experience, up to about twice as well for a master (`MND-06`, tuned).
+    - **Overall,** the sick and wounded cared for every day die about half as often as those left alone (tuned).
+    - **Rites and comfort** ease pain and lift mood but cure nothing, so belief in healing rites rests on recoveries that would have come anyway (`MND-05`, `CUL-26`).
+    - **Healers** are sought out, and where food allows, some heal for a living (`CUL-32`).
+  - **Done when:** in test scenes, cared-for people die about half as often as those left alone, washed wounds get infected about half as often, and splinted breaks heal straight far more often.
+
+- `BIO-14` **Every death has a cause** *(Decided)*: Nobody dies for no reason: every death comes from hunger, thirst, cold, heat, bleeding, a wound, illness, poison, drowning, childbirth, violence, an accident or old age.
+  - **How it works:**
+    - **Only through the body:** a person dies only when the body passes a limit: condition, water or blood running out (`BIO-09`, `BIO-13`), freezing or heatstroke (`BIO-11`), a head or torso at 0 (`BIO-13`), a deadly illness or poison (`BIO-05`, `BIO-12`), too long under water (`BIO-21`), or an old body giving out (`BIO-16`).
+    - **Chance comes through events,** such as a slip, a blow that lands, an illness caught or a hard birth, which your fortune can tilt (`GOD-04`).
+    - **The record:** each death keeps its cause and how it came about, such as "bleeding, from a boar's tusk, while hunting", for the book of ages, graves and cards (`PRE-05`, `PRE-09`, `PRE-35`).
+  - **Check:** every death in test runs and overnight worlds names its cause and how it came about, and none is unknown.
 
 ### 8.4 A life
 
-- `BIO-04` **Life cycle** *(Decided)*
-  - **Follows from:** `PRN-05`.
-  - **What:** Birth, childhood, adolescence, adulthood, old age and death, following the life patterns of real hunter-gatherers.
-  - **Target figures** (from studies of hunter-gatherers; they must come out of the causes, never be programmed, and are checked by experiment with tolerances, `RES-14`):
-    - children are weaned at about 2–4 years, and a mother has a child about every 3–4 years;
-    - around four in ten children die before the age of 15;
-    - adults who reach 15 often live into their 60s and 70s;
-    - women stop having children in their 40s.
+- `BIO-04` **Life cycle** *(Decided)*: Childhood to about 14, adulthood, old age from about 45, and death, mostly before 70, in game years (`TIM-18`).
   - **How it works:**
-    - **Growth:** each child grows along measured growth curves for their sex toward their inherited height (`BIO-06`), held back by hunger and illness (`BIO-08`); strength, stamina and skills grow with age and use.
-    - **Stages are body states, not labels:** a baby lives on milk; how long babies nurse is up to their mothers' minds and culture, while the body sets how much milk is made and what a child can eat.
-      Puberty starts when the body reaches its measured size and fat for its age, earlier when well fed, and brings adult fertility.
-    - **Birth spacing is not a rule:** a woman can conceive only when her energy balance and fat allow it, and frequent nursing holds her fertility back for months to years (measured), so the spacing of births comes out of nursing and food (`BIO-15`).
-    - **Children die of the same causes as anyone** (`BIO-14`), with weaker defences and smaller bodies.
-    - **The target figures above are checked, never set** (`RES-14`).
+    - **Stages:** a baby lives on milk and is carried (`BIO-15`); a child walks at about 1, talks at about 2 and is weaned at 2 to 3; from about 5, children help with gathering and carrying, play a lot, and learn by watching and being taught (`MND-13`).
+      Adulthood begins at about 14, with full growth by about 16 and children possible from about 15, and old age at about 45 (`BIO-16`).
+    - **Growth:** children grow toward their inherited height and build (`BIO-06`), held back for life by long hunger or serious illness (`BIO-08`).
+  - **Target ranges** on whole worlds (`RES-14`), coming out of the rules, never set:
+    - about 1 baby in 5 dies in its first year, and about 2 children in 5 before 14;
+    - those who reach 14 live on average to about 50–60, most die before 70, and few pass 80;
+    - a woman who lives through her childbearing years has about 5 to 7 children;
+    - in good times numbers grow by about 1% a year, reaching the low thousands by the copper age (`TIM-19`).
+  - **Done when:** overnight whole worlds land within these ranges in at least 16 of 20 runs (`RES-13`).
 
-- `BIO-15` **Pregnancy and birth** *(Decided)*: Children come from pairs, through pregnancy, birth and nursing, with their real risks.
-  Who pairs with whom, and how families are formed, is cultural (`CUL-07`).
-  Pairing and conception are simulated abstractly, never as explicit acts, so sexual violence is not modelled.
-  Follows from `PRN-05`.
+- `BIO-15` **Pregnancy and birth** *(Decided)*: Children come from couples, through a pregnancy of about 45 days, a birth with real risks, and years of nursing.
+  Who pairs with whom is cultural (`CUL-27`), and pairing and conception are never shown, so sexual violence is not part of the game.
   - **How it works:**
-    - **Pairing is a relationship:** who pairs with whom is decided by minds and culture (`CUL-07`) and kept as a relationship between two people (`MND-24`); pairing and conception are never actions or animations.
-    - **Conception:** each cycle, a paired woman who is fertile (`BIO-04`) and living with her partner conceives at the measured chance for both their ages.
-    - **Pregnancy:** about 38 weeks, with a measured spread; it costs the mother measured extra energy and nutrients (`BIO-09`, `BIO-10`), miscarriage comes at measured rates by age and health, the baby grows on what she eats, and late in pregnancy she tires sooner and moves more slowly.
-    - **Birth:** its dangers come at measured rates, raised by the mother's age, small size or poor food and by the baby's size and position: long labour, bleeding, and infection afterwards (`BIO-05`); the newborn's weight and health come from the pregnancy, and twins come at the measured rate.
-      Help from others works through the same body laws: warmth, cleaning and feeding.
-    - **Nursing:** milk costs the mother measured energy, is made in amounts set by how often the baby nurses and how well she eats, feeds the baby fully for months and partly for years, and holds back her fertility (`BIO-04`).
-    - **Inheritance:** the child's genes come from both parents (`BIO-06`).
+    - **Conception:** a partnered woman of about 15 to 45 (`BIO-16`), in fair condition (`BIO-09`) and not nursing a baby under about 2, conceives within about 30 days on average (tuned); it is never an action, an animation or a description.
+    - **Pregnancy** lasts about 45 days; the mother needs about a fifth more food, and in the last 15 days she tires sooner and moves more slowly; about 1 in 6 ends early, more in hungry, ill or older mothers (tuned).
+    - **Birth** takes hours; about 1 in 10 is hard, more for a first child or a young, old, small or hungry mother (tuned), and can bleed (`BIO-13`) or kill the baby.
+      Wound fever can follow (`BIO-05`), about 1 birth in 100 kills the mother, a helper makes it safer, a skilled one more so (`BIO-23`), and twins come about once in 80.
+    - **Nursing:** milk alone feeds a baby for about half a year, then with soft food until weaning at 2 to 3; the mother needs about a quarter more food, and a hungry one makes less milk.
+      Nursing holds back the next pregnancy, so births come about every 3 years in bands, sooner where porridge or animal milk lets babies wean early (`CUL-28`); a baby whose mother dies lives only if another nursing woman feeds it, or, once older, on soft food.
+    - **The record:** each birth is kept with mother, father (her partner), date and place (`PRE-10`, `PRE-05`).
+  - **Done when:** in test scenes and whole worlds, pregnancies last about 45 days, births in bands come about every 3 years, about 1 birth in 100 kills the mother, and a young baby left without milk dies unless another mother feeds it.
 
-- `BIO-16` **Ageing** *(Decided)*: Strength, senses and fertility decline with age.
-  Ageing also brings wear and frailty: wounds heal more slowly and defences against disease weaken, so old age kills through real causes (`BIO-14`).
-  Knowledge and experience don't decline, so elders can matter as keepers of what the band knows (`CUL-02`).
-  Follows from `PRN-05`.
+- `BIO-16` **Ageing** *(Decided)*: From about 45, bodies slowly weaken, heal more slowly and fight illness worse, so most people die before 70.
+  Knowledge and skill don't fade, so elders matter as keepers of what their people knows (`CUL-02`).
   - **How it works:**
-    - **Declines at measured rates:** muscle and strength fall by about a percent a year after middle age; stamina falls; eyes lose near focus in the 40s and sharpness after; hearing loses high sounds; healing slows; defences weaken; bones thin and break more easily; and women's fertility ends in their 40s, while men's falls slowly.
-    - **Wear:** old injuries and years of heavy work add to it (estimated).
-    - **Frailty** is all of these together (`BIO-14`).
-    - **Minds:** what a person knows and can do stays; how fast they learn and recall slows somewhat with age, at measured rates (see Minds).
+    - **Decline:** from about 45, strength, stamina, healing and resistance fall by about 2% a year (tuned); eyes lose near sight and then sharpness, hearing loses quiet sounds (`BIO-18`), hair greys and backs bend (`BIO-22`).
+    - **Fertility:** women's falls from the late 30s and ends at about 45; men's falls slowly.
+    - **Giving out:** from about 55 the body itself can give out, through a failing heart or a stroke, at a chance of about 1 in 50 a year that doubles every 7 years or so (tuned).
+      With frailty in illness, cold and falls, this makes most adults die before 70 and few pass 80 (`BIO-04`).
+    - **Minds:** what people know stays, though the old learn more slowly (`MND-06`).
+  - **Done when:** ages at death on whole worlds match `BIO-04`, and in test scenes the old heal and recover from illness more slowly than the young.
 
 ### 8.5 The sexes
 
-- `BIO-17` **Real biology, culture decides** *(Decided)*
-  - **What:** Bodies differ only in real biological ways: reproduction, and average differences in size, strength and body fat, with wide overlap between individuals.
-  - **What doesn't:** Who hunts, gathers, leads or makes things is decided entirely by each culture, and can differ between cultures.
-    The simulation never assigns a role by sex.
-  - **Minds:** Minds don't differ by sex from birth.
-    Every inborn mental trait has the same average in both sexes (`BIO-08`, `MND-20`), and any difference in behaviour comes from culture or from bodies.
-  - **How it works:** each sex's body numbers are drawn from its measured ranges, with their wide overlap: upper-body strength differs most, lower-body strength and height less, and women carry a measured higher share of body fat, tied to pregnancy and nursing.
-    No rule, action or law reads a person's sex except the body's own rules for reproduction, size, strength and body fat, and every inborn mental trait is drawn from the same spread for both sexes.
-  - **Check:** a code search finds a person's sex read only by those body rules.
+- `BIO-17` **Real biology, culture decides** *(Decided)*: Men and women differ only in real body ways: pregnancy and nursing, and on average size, strength and body fat, with wide overlap.
+  Who hunts, gathers, leads or makes things is up to each culture (`CUL-27`), and minds don't differ by sex.
+  - **How it works:** on average men are a little taller (about 7%) and stronger (about a third, most in the arms), and women carry more body fat (tuned); every mind trait has the same spread in both sexes (`MND-20`).
+    No rule gives anyone a task or role by sex.
+  - **Check:** a review of the rules finds a person's sex used only for pregnancy, nursing, size, strength, body fat, looks and voice, and test scenes show no task or role given by sex.
 
-### 8.6 Senses and actions
+### 8.6 Senses and activities
 
-- `BIO-18` **Senses** *(Decided)*: Sight (limited by light, fog and distance), hearing, smell, taste and touch, each with real ranges and differences between people, and declining with age.
-  They are how people learn about the world (`MND-03`).
+- `BIO-18` **Senses** *(Decided)*: Sight, hearing, smell, taste and touch, with plausible ranges that change with light, weather, the person and age.
+  They decide what reaches each mind (`MND-03`).
   - **How it works:**
-    - **Sight:** a thing is seen when it is in view and not hidden by land or plants; lit enough, by sun, moon or fire; big enough for its distance against the eye's measured sharpness; and different enough from its background, so camouflage works.
-      Fog, rain, dust and smoke cut how far anyone can see (`WLD-16`), and movement catches the eye.
-    - **Hearing:** a sound fades with distance, high pitches fastest, and is blocked by land; it is heard if it passes the listener's measured threshold for its pitch, which rises with age, and stands out from the background noise of wind, water and rain; its direction is heard roughly.
-    - **Smell:** a smell spreads from its source downwind with the weather's wind, and is noticed where it passes the measured threshold for that substance (estimated where none is measured); its direction is found only by moving.
-    - **Taste:** sweet, salty, sour, bitter and savoury, from the ingredients of what is in the mouth (`MAT-01`), by measured thresholds.
-    - **Touch:** on contact: texture, hardness, weight when lifted, warmth, wetness, sharpness and pain.
-    - **People differ:** each sense's sharpness comes from the person (`BIO-08`) and age (`BIO-16`); an injured eye or ear (`BIO-13`) or a cold dulls it.
-    - **No scanning:** senses never sweep the world.
-      Whatever makes light, sound or smell (a strike, a call, a fire, an animal moving) is passed once to the bodies within its physical reach, and each checks it against its own senses; looking, listening and sniffing are things a mind chooses to do (see Minds).
+    - **Sight:** by day in the open, people see a moving person or deer at about 1 km and spot small things, such as a flint nodule, within about 30 m (tuned).
+      Land, trees and walls block it, and night, fog, rain, snow and smoke cut it (`WLD-16`); movement catches the eye, and a still, crouching body is harder to see.
+    - **Hearing:** a shout carries about 1 km in still air, talk about 50 m and footsteps about 20 m (tuned); wind, rain and rushing water drown sounds.
+    - **Smell:** smoke and rot carry a few hundred metres downwind, and many animals smell far better (`BIO-19`).
+    - **Taste:** sweet, salty, sour, bitter and savoury; bitterness warns of many poisons, though not all (`MND-21`).
+    - **Touch:** texture, hardness, warmth, wetness, sharpness, weight and pain.
+    - **People differ** by body (`BIO-08`) and age (`BIO-16`), and scarred eyes see less (`BIO-05`).
+  - **Done when:** in test scenes, people spot a deer in the open at about the stated range by day and far nearer at night or in fog, hear a shout at about 1 km, and wolves find people from farther downwind than upwind.
 
-- `BIO-21` **Moving, eating and acting together** *(Decided)*: Alongside the actions on matter (`MAT-12`), bodies move (walk, run, climb, crouch, swim), eat and drink, sleep, touch, hold and give, and communicate (call, sing, point, gesture).
-  Walking, running, climbing, calling and pointing are inborn; swimming is learned, as is everything people come to do with these acts.
+- `BIO-21` **Everyday activities** *(Decided)*: The body's side of the everyday activities: walk, carry, eat, drink, sleep, talk, play, fight, flee, care for someone, teach, watch, sing and dance.
+  Everyone can do them from the start, and none is a blueprint (`MAT-06`).
   - **How it works:**
-    - **Moving:** walking speed is set by slope, ground and load (measured rules), at its measured energy cost (`BIO-09`); running is faster and costlier, limited by stamina; climbing needs holds and strength, and a slip is a real fall (`MAT-11`, `BIO-13`); crouching makes a body slower, quieter and harder to see; swimming costs measured energy, and water over the face drowns (`BIO-14`).
-    - **Inborn and learned:** walking, running, climbing, calling and pointing start as working skills; swimming starts unskilled, with large errors (`MAT-06`), and improves only with practice (`MND-06`).
-    - **Eating, drinking and sleeping:** food is put in the mouth, chewed and swallowed into the gut (`BIO-10`), and water drunk by mouth or hand; asleep, the senses are dulled, but loud sounds, pain or cold wake the body.
-    - **Holding and giving:** passing a thing from one person to another needs both to hold it; touching another body passes warmth and is felt.
-    - **Communicating:** calls and songs are sounds with pitch, loudness and length, heard by hearing (`BIO-18`); pointing is an arm aimed along a line, and what lies along it is up to the onlooker's mind; gestures are poses and movements that others see.
-    - **Speech sounds:** each sound of a language is a set of real articulation features, where and how the mouth makes it, so ease of saying and of hearing apart can shape how languages change (see Culture and society).
-      Named simplification: the throat itself is not simulated.
+    - **Walking:** about 4–5 km an hour on open, flat ground, slower uphill, in forest, marsh or snow, or loaded, so a day's walk covers 20–30 km (tuned); the young, the old, the hurt and the heavily pregnant go slower.
+    - **Water and heights:** people wade to waist depth; deeper water must be swum, which tires and can drown the weak in cold or fast water, and about 3 minutes under water drowns anyone (`BIO-14`); a slip while climbing is a fall (`MAT-11`).
+    - **Carrying:** an adult carries about a quarter of their own weight all day, more for a short way (`MAT-11`), by their strength (`BIO-08`).
+    - **Running and fleeing:** about three times walking speed, until out of breath (`BIO-09`).
+    - **Eating, drinking and sleeping:** a meal takes a quarter to half an hour and a drink a minute (`BIO-10`); sleepers wake to loud sounds, pain, cold or a touch.
+    - **Fighting:** blows land by chance, by strength and hunting experience (`MND-06`), and wound a part (`BIO-13`); most fights end when one is hurt, flees or gives up (`MND-33`).
+    - **The rest,** caring (`BIO-23`), talking, teaching, watching, singing, playing and dancing, use voice, eyes and body, and play and dance tire like work.
+  - **Done when:** in test scenes, people walk 20–30 km a day on open ground and less loaded or uphill, someone fleeing a bear is out of breath within minutes, and the hurt and the heavily pregnant fall behind.
 
 ### 8.7 Inheritance
 
-- `BIO-06` **Heredity** *(Decided)*: Body traits and mental traits (curiosity, memory, learning speed, temperament) pass from parents to children.
-  They shift over generations at real-world speeds as some people survive and have children and others don't.
-  Minds barely change over thousands of years; culture does the heavy lifting, as in our own history.
+- `BIO-06` **Inherited traits** *(Decided)*: Looks, build and personality leanings come from both parents, with variation; families resemble each other, but nothing evolves.
   - **How it works:**
-    - **An inherited value for each trait:** each person carries one for every body and mind trait (`BIO-08`), such as height, build, strength, stamina, senses, defences, curiosity, memory, learning speed and temperament (`MND-20`), plus the single genes behind looks (`BIO-22`).
-    - **From both parents:** a child's inherited value is the parents' average plus variation, by the trait's measured share that is inherited; traits set by single genes pass by Mendel's rules; and mutation adds new variation at measured rates, as for plants and animals (`WLD-20`).
-    - **Selection is only what happens:** who survives and has children (`BIO-14`, `BIO-15`) shifts the averages over generations, at real speed, with no fitness rule; at real rates, mind traits move too slowly to notice within thousands of years.
+    - **What passes on:** the body numbers of `BIO-08`, the twelve personality traits (`MND-20`), and looks (`BIO-22`).
+    - **How:** a child's value is its parents' average, pulled about halfway back toward the human average, plus chance (tuned for each); so tall parents have tall children, though less tall, and brothers and sisters differ.
+    - **No evolution:** because every value is pulled back toward the same human average, no family line or people drifts from it over generations, whoever survives, and each trait's spread stays as it was at the start.
+    - **Life adds the rest:** childhood hunger and illness shape the body (`BIO-08`), and big events nudge personality (`MND-20`).
+  - **Done when:** over 20 generations of whole-world runs, the average and spread of every inherited trait stay within about 5% of the start, while children resemble their parents.
 
-- `BIO-07` **Evolution dial** *(Decided)*: A setting speeds up genetic change for experiments (`PRN-12`).
-  - **How it works:** one experiment setting multiplies the new variation mutation adds each generation by a stated factor, so selection has more to work with and traits move faster; it cannot be set in play, and every experiment report lists it.
+- `BIO-07` **Evolution dial** *(Dropped)*
+  - **Dropped because:** nothing evolves (`BIO-06`), and play has no rule-bending settings (`PRN-12`).
 
-- `BIO-22` **Looks** *(Decided)*: Skin, hair and faces are inherited (`BIO-06`) and vary by region with sunlight, as in real biology and at real speeds, so they change slowly.
-  They are designed so that no people reads as a copy of a real one (`SCP-20`).
+- `BIO-22` **Looks** *(Decided)*: Skin, hair, eyes and faces are inherited, so children look like a mix of their parents, and no people looks like a copy of a real one (`SCP-20`).
   - **How it works:**
-    - **Genes for looks:** skin colour, hair colour and form, eye colour and face shape are each inherited through many genes (`BIO-06`).
-    - **Sunlight shapes skin by the body's own rules:** strong sunlight destroys folate in pale skin, and weak sunlight makes too little vitamin D in dark skin (`BIO-10`), so who survives and has children shifts skin colour toward what each region's sunlight favours, over thousands of years.
-    - **The rest drifts:** hair, eyes and faces change by chance and by who has children with whom, so peoples kept apart slowly come to look different.
-    - **No copy of a real people:** the starting look genes are drawn from wide ranges and mixed so that no group matches the typical look of any real people.
+    - **Two copies:** each person carries two values for each feature (skin tone, hair colour, hair form, eye colour and face shape), one from each parent, shows a blend of them, and passes one, by chance, to each child.
+      So brothers and sisters differ, and a grandparent's red hair can come back.
+    - **Peoples apart:** a people grown from a few families keeps its founders' looks, so peoples long apart come to look somewhat different; looks never help anyone survive.
+    - **Mixed at the start:** the first people's looks are drawn from wide ranges and mixed, so that no group matches any real people's typical look.
+    - **Age and life:** hair greys and skin wrinkles (`BIO-16`), and scars, limps and pox marks stay (`BIO-13`, `BIO-05`), all shown on the figure (`PRE-27`).
+  - **Done when:** in test scenes children visibly mix their parents' looks, and in whole worlds peoples apart for centuries look somewhat different.
 
 ### 8.8 Animals
 
-- `BIO-19` **Animal bodies** *(Decided)*: Animals have bodies that work in the same way, with their own species' traits (`WLD-19`): needs, injuries, disease, life cycles and senses.
-  - **How it works:** animals' bodies run the same rules as people's (`BIO-09` to `BIO-18`) with their species' numbers: needs scaled to their size (`WLD-18`); warmth kept by fur, feathers or fat (`BIO-11`); injuries to their own body parts; disease (`WLD-21`); life cycles; and senses with each species' measured ranges, so dogs smell far better than people and birds of prey see farther.
-    Individual animals have full bodies (`WLD-12`); for counted animals, the same rules act on each age and sex group in a patch, deciding births and deaths with their causes (`WLD-18`).
+- `BIO-19` **Animal bodies** *(Decided)*: Animals near people have bodies on the same pattern: a head, a body and legs, with wings or fins where they have them.
+  - **How it works:**
+    - **Wounds** work as for people (`BIO-13`): hurt legs slow an animal, a broken wing grounds a bird, and a speared animal bleeds and slows, or runs off to die later, leaving a blood trail hunters can follow.
+    - **Needs** follow the same rules with their kind's numbers (`WLD-32`): food and water by size, warmth from fur, feathers or fat, and rest; their condition (`BIO-09`) shows in the fat they yield (`WLD-18`).
+    - **Illness:** a few animals of the kinds that carry an illness are sick, and pass it on by bites, carcasses, milk or water (`BIO-05`).
+    - **Life:** they are born in their season, grow, age and die in game years (`WLD-32`), of the same causes as people (`BIO-14`).
+    - **Senses** have their kind's ranges: wolves and dogs smell people about 1 km downwind, and birds of prey see farther than people (tuned).
+    - **Far from people,** herds are counts without bodies (`WLD-32`).
+  - **Done when:** in test scenes, a speared deer bleeds, slows and can be tracked and found, weak animals die first in a hard winter, and a mad wolf can pass foaming madness by a bite.
 
 ## 9. Minds
 
 How people think, and in simpler form how animals think.
-Everything a mind knows is learned inside the world (`PRN-01`), every choice can be explained (`PRN-13`), and no AI language model ever thinks for anyone (`PRN-06`).
+Minds are the heart of the game.
+They are built the way the best life games build them: needs, and choices weighed by how well each option serves them (The Sims); thoughts that lift or lower mood for a while, and breakdowns (RimWorld); personalities, memories, relationships and legends (Dwarf Fortress).
+Every mind learns only from its own world (`PRN-01`), every choice can be explained (`PRN-13`), and no AI language model thinks for anyone (`PRN-06`).
 
 ### 9.1 Ground rules
 
-- `MND-01` **No AI language model thinks for them** *(Decided)*: Every belief and invention comes from the mechanisms in this section (`PRN-06`).
-  - **How it works:** a mind's mechanisms are small numerical rules over its own records; no language model is ever called by a mind or reads a mind to choose anything.
-    The only language model in the game, the writer (`PRE-37`), reads finished records to write text, and nothing it writes goes back into the simulation.
-  - **Check:** a code check finds no call from the simulation to any language model, and no path from the writer's output back into the simulation.
+- `MND-01` **No AI language model thinks for them** *(Decided)*: Every choice, belief and discovery comes from the rules in this section (`PRN-06`).
+  - **How it works:** minds run only on the game's own rules and numbers.
+    The writer AI (`PRE-37`) only reads finished records to write text for you, and nothing it writes goes back into the world (`PRE-17`).
+  - **Check:** an automated check finds no call from the simulation to any language model, and no path from the writer's text back into the simulation.
 
-- `MND-02` **Knowledge only from inside the world** *(Decided)*: Any learning a mind does draws only on experience in its own world.
-  Nothing carries real-world knowledge in.
-  Follows from `PRN-01` and `PRN-06`.
-  - **How it works:** a mind starts with only its starting records (`BIO-20`), drawn from its own world; every later record comes from its own senses, its own actions' results, and what others in the world show or tell it.
-    The mechanisms' tuned values, such as learning rates, are settings, never content; the catalogues are the world's physics, and no mind can read them.
-  - **Check:** mind code reads only the mind's own records and percepts, and a code search finds no catalogue name or real-world word list in it.
+- `MND-02` **Knowledge only from inside the world** *(Decided)*: A mind knows only its starting knowledge (`BIO-20`) and what it has since seen, done, been told or dreamt.
+  Nobody knows a blueprint, a hidden characteristic or a far place until they find it out or learn it (`PRN-01`).
+  - **How it works:** every choice is built from the person's own blueprints (`MND-06`), knowledge of things (`MND-04`), mental map (`MND-28`) and beliefs (`MND-27`).
+    The catalogues are the world's rules, and no mind reads them.
+  - **Check:** test scenes confirm that nobody chooses a blueprint they don't know or heads for food they never learned of, and the reasons kept with each choice (`MND-09`) name only what the person knows.
 
-- `MND-17` **Why ordinary minds are enough** *(Decided)*: No single mind needs to be a genius.
-  A people's intelligence comes from four sources, and only one of them is inside a head:
-  1. **a world made of properties, not recipes** (see Matter and physics), so simple learning finds real things;
-  2. **small, well-understood learning mechanisms**, the ones described in this section;
-  3. **many minds over generations**, copying imperfectly, varying and passing things on (`CUL-01`).
-     Researchers call this cumulative cultural evolution;
-  4. **time:** an accident with a one-in-ten-thousand chance happens routinely over centuries.
+- `MND-17` **Why ordinary minds are enough** *(Decided)*: Nobody needs to be a genius.
+  A people's cleverness comes from four things, and only one of them is inside a head:
+  1. **generic blueprints** (`MAT-04`): one blueprint works for anything with the right characteristics, so simple tries find real results;
+  2. **simple rules in each mind**, the ones in this section;
+  3. **many minds over generations**, copying, teaching and improving (`CUL-01`);
+  4. **time:** a one-in-a-thousand chance comes up routinely over a few centuries.
 
-### 9.2 Perceiving and knowing
+### 9.2 Needs and personality
 
-- `MND-03` **Senses, not labels** *(Decided)*: People perceive properties (weight, hardness, colour, smell, taste, warmth, sound) through their senses (`BIO-18`), never the game's names for things.
+- `MND-07` **Needs** *(Decided)*: Nine needs drive everyone: hunger, thirst, warmth and rest for the body (`BIO-09`), and safety, belonging, status, curiosity and love for the mind.
   - **How it works:**
-    - **Percepts:** what the senses pass on reaches the mind as a percept: the thing's properties as that sense gives them, blurred by distance, light and the person's sharpness.
-      For sight: colour, gloss, size, shape, texture and movement; for sound: pitch, loudness and timbre; for smell: the mix of smell substances; for taste: the five tastes; for touch: hardness, weight, warmth, wetness and sharpness.
-      A percept also holds where the thing is, and a pointer to the thing itself so the person can act on it, never its kind or name.
-    - **Appearance kept with the thing:** each thing's visible properties are worked out once from its makeup and structure (`MAT-03`) and kept until it changes, so many viewers cost little.
-    - **Attention:** each moment, a mind takes in only its few most noticeable percepts, about four, as measured for real attention: those it didn't expect, those that move or are loud, and those that match what it is looking for or what its drives want.
-      The rest pass unnoticed, which is also how people miss things.
-    - **Recognised once:** a percept is matched to the person's own concepts (`MND-04`), and a recognised thing stays linked to its concept until it changes.
+    - **A level for each,** from 0 (desperate) to 100 (met).
+      The body's needs follow the body (`BIO-09`, `BIO-11`), and the mind's follow life:
+      - **safety** falls with danger seen or believed near, and rises in shelter, by a fire and among many;
+      - **belonging** falls with time alone or shunned, and rises with company, talk, shared work and rites;
+      - **status** follows the respect others show (`MND-24`), raised by praise and being followed, lowered by insults and failing in front of others;
+      - **curiosity** falls with sameness and idle time, and rises with new places, things, stories and experiments;
+      - **love** falls with time apart from partner, children and close friends, and rises with time together; adults also want a partner.
+    - **Weights:** personality sets each need's pull (`MND-20`).
+      The most pressing needs weigh most in every choice (`MND-09`), and unmet ones bring bad thoughts (`MND-29`).
+    - **Children:** babies feel only the body's needs, safety and love, and cry to have them met; the other needs grow in through childhood (`BIO-04`).
 
-- `MND-04` **Their own concepts** *(Decided)*
-  - **What:** People sort what they perceive into their own categories.
-    Categories differ between groups and can be wrong.
+- `MND-20` **Personality** *(Decided)*: Twelve traits make each person different: curious, brave, cautious, patient, hard-working, playful, sociable, kind, greedy, hot-tempered, proud and spiritual.
   - **How it works:**
-    - **A concept** is a mind's own group: a typical example (the average of the properties of what it has grouped), how widely its members vary, and how much each property counts in deciding what belongs.
-    - **Forming:** a percept that fits no concept well starts a new one; percepts that fit are added and nudge the typical example toward them.
-    - **Learning what matters:** properties that predicted outcomes come to count more: if glossy stones chipped and dull ones crumbled, gloss gains weight; and things that behaved alike are pulled into one concept even if they look different.
-    - **Kinds of concept:** things, places, people, animals, actions (such as striking or carrying), properties (such as sharp or red) and events (such as fire after lightning).
-    - **Concepts can be wrong:** a poisonous berry whose looks fit a safe berry's concept is taken as safe until something tells them apart, such as taste or a sickness.
-    - **Groups differ:** each person's concepts come from their own experience and from the words others use for things (`CUL-04`), so bands come to divide the world differently.
-    - **Open:** concepts of things, places and events are well understood; abstract ones, such as number, debt or spirit, form from patterns across events and relationships, which is less well understood, and experiments test it.
-  - **Example:** One band lumps flint and chert together as "cutting stone"; another confuses a poisonous berry with a safe one.
+    - **A level for each,** from −3 to +3, where the low end is the opposite: timid, generous, calm and so on.
+      Most people sit near the middle, and a few are extreme.
+    - **Inherited and shaped:** traits are set at birth from both parents, with variation (`BIO-06`), the same way for both sexes (`BIO-17`).
+      Big events nudge them for life: a child who survives a bear attack grows more cautious.
+    - **What each does** in every choice (`MND-09`):
+      - **curious:** new things, places and experiments pull harder, and surprises are noticed more (`MND-10`);
+      - **brave:** danger and pain count less, and fear fades faster;
+      - **cautious:** the unknown seems riskier, so new foods, places and ways are tried less, and custom, warnings and taboos weigh more;
+      - **patient:** the future counts more (`MND-22`), and long tasks tire less;
+      - **hard-working:** work beats idling, so they practise more and learn faster;
+      - **playful:** play, music and dance pull harder, and play often turns into experimenting;
+      - **sociable:** belonging matters more, and they talk and visit more;
+      - **kind:** others' needs count, so they share, help, comfort and teach more;
+      - **greedy:** they want more, share less, bargain hard and may steal;
+      - **hot-tempered:** anger comes fast and lasts, so they quarrel and fight more;
+      - **proud:** status matters more, insults hurt more, and they want to lead;
+      - **spiritual:** unseen beings seem likelier and matter more (`MND-31`), and rites pull harder.
+    - **Shown as words** on the card, such as "very curious, hot-tempered, generous" (`PRE-35`).
 
-- `MND-05` **Cause-and-effect beliefs** *(Decided)*
-  - **What:** "Doing this to that, in this situation, leads to this." Each belief is held with more or less certainty, which rises and falls as evidence comes in.
+- `MND-21` **Inborn leanings** *(Decided)*: Leanings every human is born with.
+  They make some lessons easier but teach nothing by themselves (`PRN-01`).
+  - **How it works:** each is a fixed lean in the rules, never a belief:
+    - **taste:** sweet and fat taste good and bitter bad (`MND-29`), so many bitter poisons are avoided, though not all;
+    - **pain and ready fears:** whatever caused pain, and snakes, heights, the dark and big predators, are feared after one fright, where other fears need several (`MND-08`);
+    - **parents and babies** love each other from birth (`MND-07`);
+    - **copying:** seeing others do something makes doing it likelier (`CUL-01`);
+    - **a hidden someone:** when something important happens and no believed cause explains it, people may come to believe an unseen being did it (`MND-31`), the spiritual more often.
+
+- `MND-26` **Social leanings** *(Decided)*: Social instincts every human is born with, and the only social leanings built into the rules (`CUL-07`):
+  - **kin:** the good of kin counts in choices, more for closer kin, as kinship is believed (`MND-24`);
+  - **caring:** seeing someone hurt, sick or hungry pulls toward helping, more for kin and friends;
+  - **favours:** help received leaves a debt that pulls toward repaying, and taking without returning angers and costs trust (`MND-24`);
+  - **own group:** people of one's own band or people, known by shared words, ways and looks, are trusted more than strangers;
+  - **raised together:** people who lived closely as small children never want each other as partners;
+  - **shared attention:** people follow another's gaze and pointing, which makes teaching work (`MND-13`);
+  - **a beat:** a shared beat draws people to move together, which warms them to each other (`CUL-10`).
+
+### 9.3 Mood and feelings
+
+- `MND-29` **Mood and thoughts** *(Decided)*: Mood sums up how a person feels about life.
+  It comes from their needs and recent thoughts, each lifting or lowering mood for a while, as in RimWorld.
   - **How it works:**
-    - **A belief's record:** an action or event, what it acts on, the situation (place, season and what else is there), the outcome, how strongly the outcome is expected, and its evidence: how many times it held and failed, and links to the memories behind it.
-    - **Learning by surprise:** after anything happens, beliefs that predicted it grow and beliefs that predicted something else shrink, by the size of the surprise (the gap between what was expected and what happened), at a rate set by the person's learning speed (`BIO-08`), as in the Rescorla–Wagner rule, a well-tested model from psychology.
-      So a fully expected outcome teaches little, and a cause that adds nothing to an already known cause gets no credit, as in real learning.
-    - **Credit over time:** recent actions and events leave fading traces, so an outcome credits what came before it in proportion to how recent and how noticeable each was; some links span hours, as when sickness is tied to a meal.
-    - **Certainty is the evidence:** many confirmations and few failures make a confident belief; one striking event makes a strong but uncertain one.
-    - **Discovery and superstition** both come from this: repeated tries sort real causes, which keep working, from coincidences, which fail, unless a belief is never tested again.
-    - **Tuned in Experiment 1:** the learning rate and the length of the traces (`RES-02`).
-  - **Why:** Discovery and superstition come from the same mechanism, with different luck.
-  - **Example:** Striking glassy stone makes sharp edges: a discovery.
-    The band sang before a hunt that went well: a superstition, which can become a rite (`MOM-04`).
+    - **Thoughts:** events and states give thoughts with a size and a duration, such as "ate cooked meat" (+5 for a day), "slept cold" (−4 for a day), "insulted by Tamo" (−5 for three days) and "my child died" (−20 for 30 days, fading).
+      They come from a set list of about 100 kinds (tuned).
+    - **Bent by personality** (`MND-20`): the kind feel others' losses more, and the proud feel insults twice over.
+      The same thought repeated adds less each time.
+    - **Feelings and memories:** a strong feeling brings its thought while it lasts (`MND-19`), and recalling a strong memory brings its thought back for a while (`MND-18`).
+    - **Mood** runs from 0 to 100, moving over a few hours toward 50 plus all live thoughts, including those from unmet needs.
+    - **What it does:** low mood slows work, sours talk and risks a breakdown (`MND-30`).
+      High mood speeds work, and above about 85 it can bring a few days of inspiration, with more experimenting and better-made things (`MND-11`, `MAT-20`).
 
-- `MND-27` **Kinds of belief** *(Decided)*: Beliefs come in several kinds, each held with a certainty and the evidence behind it: cause and effect (`MND-05`); that something exists, such as an unseen being; what others know and want (`MND-23`); rules, such as what not to eat (`CUL-20`); and plain facts, such as where the water is.
+- `MND-19` **Feelings** *(Decided)*: Seven strong feelings, each with its own duration: fear, anger, grief, joy, love, shame and awe.
   - **How it works:**
-    - **One record per belief,** of its kind, with its certainty and its evidence: cause and effect (`MND-05`); existence, that something is, or is at a place, including something never seen (`MND-21`); others' minds (`MND-23`); rules, that an act is required or forbidden and what follows breaking it (`CUL-20`); and facts of where and when, such as the water at the spring or hazelnuts on the south slope in autumn.
-    - **Sources:** each belief records where it came from: the person's own experience, seeing someone else's, or being told, and by whom; trust in the source sets its starting certainty (`MND-24`).
-    - **Clashes:** when beliefs disagree, the more certain one guides choices, and evidence decides between them over time.
+    - **What sets them off:** fear, danger close or believed close; anger, harm, insult or a goal blocked; grief, losing someone loved; joy, success, a birth or a feast; love, warmth toward one person, growing with time and kindness shared (`MND-24`); shame, breaking a rule one holds (`CUL-20`) or failing in front of others; awe, something vast or unexplained, such as a great storm, a rite or a strange dream.
+    - **Duration:** fear lasts minutes to hours, anger hours to days, joy a day or two, shame and awe days, grief seasons, and love as long as it is fed.
+      Personality bends them: the hot-tempered anger faster, and the brave fear less (`MND-20`).
+    - **What they do:** they push choices (fear to flee, anger to quarrel or fight, grief to stillness, joy to company, love to stay close, shame to hide, awe to rites and art).
+      They also give thoughts (`MND-29`), strengthen memories (`MND-08`), and show in faces and poses (`PRE-27`).
 
-- `MND-18` **Memory** *(Decided)*: People remember:
-  - events they lived through;
-  - places, as a mental map with the seasons attached ("hazelnuts on the south slope in autumn");
-  - people: who's who, family, and who owes whom;
-  - know-how (`MND-06`) and beliefs (`MND-05`).
-
-  Vivid and repeated memories last; others fade.
-  Retelling can change a memory.
+- `MND-30` **Breakdowns** *(Decided)*: When mood stays very low, a person may break: in a rage, by running off, or in despair.
   - **How it works:**
-    - **Events:** each noticed event becomes a memory record: what happened (its concepts and things), who was there, where and when, what it led to, and how the person felt (`MND-19`).
-    - **Places:** a mental map of places, each with where it is, linked by the routes walked and how long they took, with facts attached by season (`MND-27`).
-    - **People** each have a record (`MND-24`); **know-how and beliefs** are their own records (`MND-06`, `MND-05`).
-    - **Fading:** each memory has a strength that fades with time by the measured forgetting curve, and is renewed whenever it is recalled, retold or replayed in sleep (`MND-12`); strong feelings make it start stronger (`MND-08`).
-      Below a threshold its details are lost: what it taught stays in the beliefs it fed, and the event itself is forgotten.
-    - **Recall:** a memory comes back when something cues it: the same place, people, things or feelings; the strongest matches come first.
-    - **Retelling changes memory:** each recall rebuilds the event from what remains and what the person now believes, so details drift toward expectations, and a story heard from others can replace a person's own details.
-    - **Size:** memory is large but finite, and the weakest records go first; the size per person is measured in Experiment 1 (`RES-02`).
+    - **The risk:** below a mood of about 20 a breakdown can start, likelier the lower and the longer mood stays down (tuned).
+      The hot-tempered rage, the proud and the brave run off, and the rest despair (`MND-20`).
+    - **Rage:** shouting, smashing things, or attacking whoever angered them (`MND-33`).
+    - **Running off:** leaving the band alone for a day or more, which can end in a return, in joining another band, or in death in the cold.
+    - **Despair:** lying still, refusing work and food, for a day or more.
+    - **After:** a short lift in mood.
+      The breakdown is remembered by all who saw it (`MND-18`), and others may comfort or shun them (`MND-24`).
+  - **Why:** Hard times should show in people and start stories, such as a feud that began with one rage.
+  - **Done when:** in a test scene of a starving winter some people break down, and in a good season almost nobody does.
 
-- `MND-08` **Feelings shape memory** *(Decided)*: Strong feelings decide what is remembered and how strongly.
-  A terrifying storm stays for life; an ordinary day fades.
-  - **How it works:** a new memory's starting strength is multiplied by how strongly the person felt at the time (`MND-19`), by the measured link between arousal and memory; very strong feelings also fade more slowly (estimated).
-    Fear and pain tie their feeling to the place, people and things that were there, so meeting them again brings the feeling back, as in real fear learning.
+### 9.4 Memory and knowledge
 
-### 9.3 Wanting and feeling
+- `MND-03` **Noticing** *(Decided)*: People take in only some of what their senses reach (`BIO-18`): what is close, moving, loud, new, dangerous, or useful for a pressing need.
+  - **How it works:** whatever happens is offered to everyone within sight or hearing, and each takes it in or misses it.
+    Danger and their own task are always noticed; anything else less when busy, tired, frightened or asleep, and more if curious (`MND-20`).
+    A thing's visible characteristics are known on sight (`MND-04`).
+    What is noticed can give a thought (`MND-29`), a feeling (`MND-19`), a memory (`MND-18`), news for the mental map (`MND-28`) or a surprise (`MND-10`).
 
-- `MND-07` **Drives** *(Decided)*: Hunger, thirst, cold, tiredness, fear, belonging, status, curiosity, sexual desire and attachment.
-  Nobody knows at first that sex leads to children; that has to be learned (`PRN-01`).
+- `MND-18` **Memories** *(Decided)*: People remember events with their importance.
+  Memories fade unless they matter or are recalled, and those retold in talk become shared stories.
   - **How it works:**
-    - **Each drive is a number** read from the body or the social world: hunger, thirst, cold or heat, and tiredness from the body's stores (`BIO-09`, `BIO-11`); fear from harm the person believes is coming (`MND-05`); belonging from time apart from the band and kin, and from being shunned or included; status from how others treat the person (`MND-24`); curiosity from unexplained surprises and new things noticed (`MND-10`); sexual desire from adult age and the body's state; and attachment toward particular people, rising with time apart from them.
-    - **Weights:** personality scales each drive's pull (`MND-20`), so the curious feel curiosity more and the dominant feel status more.
-    - **What drives do:** the most pressing drives set what a mind wants now (`MND-09`); meeting them lowers them, and how they rise and fall feeds feelings (`MND-19`).
-    - **Sex and children:** no belief links them at the start; with a delay of nine months and no sure sign, that link is hard to learn from evidence (`MND-05`), so it may take a long time.
+    - **What is kept:** events that touched the person (a birth, a death, a hunt, a fight, a gift, a first, a dream, a story heard), with what happened, who was there, where, when, and how they felt (`MND-19`).
+    - **Importance** comes from the kind of event and the strength of feeling (`MND-08`): a child's death lasts a lifetime, a good meal a few days.
+    - **Fading:** memories weaken with time, more slowly the more important they are, and are renewed when recalled, told or dreamt (`MND-12`).
+      A person holds about 200 (tuned), and the weakest go first.
+    - **Recall:** places, people and things bring back their memories, and with them their thoughts (`MND-29`): passing the river where her son drowned brings back Ama's grief.
+    - **Retelling:** hearers keep told memories (`CUL-24`) as stories from that person, weaker than their own.
+      Each telling can drift: numbers grow, the teller's part swells, and causes shift toward the teller's beliefs (`MND-31`).
+      Stories retold through a band become shared stories, then legends and myths (`CUL-11`).
 
-- `MND-19` **Feelings** *(Decided)*: Fear, anger, joy, grief, disgust, surprise, affection, shame, pride, awe, longing and hope.
-  They colour choices and memories, and some last: grief for months, or a fear of the forest for life after a wolf attack.
+- `MND-08` **Feelings shape memory** *(Decided)*: The stronger the feeling at the time, the longer a memory lasts.
+  A terrifying storm stays for life; an ordinary day fades in days.
+  - **How it works:** a memory's importance grows with the strength of the feeling when it was made (`MND-19`).
+    Fear also ties itself to the place, animal or person that caused it, so meeting them again brings the fear back, and people may avoid them for years: a band that lost a hunter on a hill shuns the hill.
+
+- `MND-04` **Knowing things** *(Decided)*: People learn what things are like by seeing and using them.
+  Visible characteristics, such as size, colour and edge, are known at a glance; hidden ones, such as poison, medicine, fuel and flaking, only by use or by being told (`MAT-03`).
   - **How it works:**
-    - **Feelings come from judging events:** each arises when an event is judged against the person's drives, goals and beliefs, by the rules of appraisal theory, a well-tested family of models in psychology: surprise, an outcome far from what was expected; fear, likely harm ahead; anger, a goal blocked or harm done by someone; joy, a goal met; grief, losing someone or something the person is attached to; disgust, rot, filth or acts learned to be foul; affection, warmth from shared good experience; shame and pride, one's own act judged by the group's rules (`CUL-20`) and by others' regard; awe, something vast or unexplained; longing, missing someone or somewhere; and hope, a good outcome believed possible.
-    - **Strength and fading:** each feeling has a strength that fades at its own rate (measured where possible, estimated otherwise): surprise in seconds, anger in hours, grief over months; learned links can make one last for life (`MND-08`).
-    - **What feelings do:** they shift choices (fear makes risks loom larger, anger makes striking back likelier, affection draws people together, grief slows them), strengthen memories (`MND-08`), and show in face, posture and voice, which others can see (`MND-23`).
+    - **Kinds they know:** for each kind of item they have met (`MAT-10`), its visible characteristics and the hidden ones learned, each with how sure they are.
+      Each people names the kinds in its own language (`CUL-18`).
+    - **Learning by use:** eating shows food and poison (`MND-05`), burning shows fuel, striking shows flaking, and a wound shows medicine.
+      Being told passes it on, weighed by trust (`MND-24`).
+    - **Look-alikes:** an untried kind is taken to be like the known kind it looks most like.
+      So a band that knows flint may take chert for flint, and a poisonous berry like a safe one is eaten until a sickness teaches otherwise.
 
-- `MND-20` **Personality** *(Decided)*: A few inborn tendencies (curiosity, boldness, sociability, patience, dominance, readiness to conform), partly inherited (`BIO-06`) and shaped by what happens to each person.
+- `MND-28` **Mental map** *(Decided)*: What each person knows of places: food, water, stone, shelter and dangers, by season.
+  It is learned by going there and shared by talk.
   - **How it works:**
-    - **Six numbers per person,** each an inherited value plus upbringing plus chance (`BIO-08`), with measured spreads and the same spread for both sexes (`BIO-17`).
-    - **What each does:** curiosity raises the pull of new things and unexplained surprises (`MND-10`); boldness lowers how much risk and fear weigh; sociability raises belonging and the pull of company; patience makes future rewards count more against present ones; dominance raises the status drive and the readiness to challenge; and readiness to conform raises the weight of doing what most others do (`CUL-01`).
-    - **Shaped by life:** strong experiences shift them slowly (estimated): repeated harm makes a person less bold, and repeated success bolder.
+    - **Places,** from a spring to a valley, each with the way there and roughly how long it takes.
+      Each holds what is there and when: food plants and when they ripen, game and when it passes, water, stone, clay, wood, shelter, and dangers such as cliffs, bears and strangers: "hazelnuts on the south slope in autumn".
+    - **Learning:** by seeing (`MND-03`) and by being told (`CUL-24`).
+      Each fact keeps when it was last seen and how sure it is, and old facts can be wrong: the berries eaten, the spring dry.
+    - **Using it:** where to gather, hunt, fetch stone, shelter or move comes from it (`MND-09`), and exploring adds to it.
+    - **Start and size:** adults start knowing their home range (`BIO-20`).
+      A person knows up to a few hundred places (tuned), and the least used fade.
 
-- `MND-21` **Inborn tendencies** *(Decided)*
-  - **What:** The biases evolution gave humans: a taste for sweet and fat and a wariness of bitter; quicker fear of long, legless things that move suddenly (such as snakes), of heights and of the dark; attachment between parent and child; the urge to imitate; and suspecting a hidden someone behind unexplained events.
-  - **Why:** They make some lessons easier to learn but teach nothing by themselves, so the world stays the only teacher (`PRN-01`).
-  - **More:** further tendencies are in `MND-26`.
-  - **How it works:** each is a bias in the mechanisms, never a belief or a name:
-    - sweet and fat tastes add to how good food feels, and bitter takes away (`BIO-18`);
-    - fear links to percepts of long, legless, suddenly moving things, to heights and to darkness form from less evidence, as measured in studies of prepared fear;
-    - parents and children feel attachment toward each other from birth (`MND-07`);
-    - watching others act raises the pull to copy them (`CUL-01`);
-    - when an important event has no cause the mind believes in, it forms a weak belief that an unseen someone caused it (`MND-27`), which later events can strengthen or weaken.
+### 9.5 Beliefs
 
-    The evidence for this last tendency is debated; like every tendency, its comparison run shows what it changes (`RES-10`).
-
-- `MND-26` **More inborn tendencies** *(Decided)*: Added to `MND-21` from research, each with its sources and a comparison run (`RES-10`) showing what it changes:
-  - pain, and avoiding what causes it;
-  - favouring kin, and caring for the hurt and the sick;
-  - returning favours, and anger at cheats;
-  - favouring one's own group;
-  - not desiring those one was raised with;
-  - shared attention and pointing;
-  - readiness to learn words;
-  - moving together to a beat.
-  - **How it works:** each is a bias in the mechanisms, like those in `MND-21`:
-    - **pain** is a strong bad feeling from injuries (`BIO-13`) that teaches avoiding its cause quickly;
-    - **favouring kin:** the wellbeing of kin, as the person believes kinship to be, counts in their choices, more for closer kin;
-    - **caring:** seeing someone hurt or sick raises the pull to help, more for kin and friends;
-    - **returning favours:** a favour received creates a debt in the giver's record (`MND-24`) that pulls toward repaying, and seeing someone take without returning raises anger and lowers trust;
-    - **one's own group:** people taken to be of one's own group, by learned signs such as shared words or ways, get more trust;
-    - **not desiring those raised with:** desire is held down toward anyone a person lived closely with as a young child, as measured in real studies, whoever they are;
-    - **shared attention:** people follow others' gaze and pointing to the same thing (`BIO-21`) and know they both attend to it;
-    - **learning words:** children pair sounds they hear with things attended to together quickly (`CUL-04`);
-    - **a beat:** a steady beat pulls movements into time with it and raises closeness among those moving together.
-
-### 9.4 Deciding and doing
-
-- `MND-09` **Choosing what to do** *(Decided)*: Habits handle routine.
-  Deliberate planning takes over when habits fail or the stakes rise: working backwards from a need through what they believe causes what.
-  People explore most when they are comfortable (play) and when they are desperate (need).
+- `MND-27` **Beliefs** *(Decided)*: A belief is something a person holds true, with a strength from a faint guess to certain, and a source.
   - **How it works:**
-    - **When a mind decides:** only when its activity ends or fails, when something it notices interrupts (a surprise, a threat or a call, `MND-03`), when a drive passes its threshold, or when a plan's time comes (`MND-22`); in between, the body carries on with the chosen activity and the mind costs nothing.
-    - **An activity** is a goal with its steps: a skill (`MND-06`), or a short run of actions toward a target, such as going to the spring to drink.
-    - **Habits first:** a habit links a situation (place, time of day, season, drives, who is near) to an activity, with a value learned from how well it went; if one fits and no drive presses beyond it, it runs with no further thought.
-    - **Deliberate planning:** when no habit fits, a habit fails or the stakes rise, the mind works backward from what its most pressing drive wants, through its cause-and-effect beliefs (`MND-05`), to actions it can take now: warmth needs fire, fire needs feeding, feeding needs wood, and wood lies by the river.
-      It chains a few steps (tuned), and weighs each option by how much it should meet the drives, given the beliefs' strength and certainty, against effort, time, risk (weighted by boldness), the future (weighted by patience, `MND-20`), and others' expectations and the group's rules (`CUL-20`); chance from the person's own draws (`TIM-16`) settles near-ties.
-    - **Exploring:** instead of the best known option, the mind sometimes tries something new: a varied skill setting, a known action on an unfamiliar thing, or an analogy (`MND-11`); it explores most when its drives are low (play, more for the curious and the young) and when they are high with no believed way out, and least in between.
-    - **Reasons kept:** each decision records the drives, beliefs, memories and feelings that won, for the scientist's view (`PRN-13`).
-    - **Habits form:** a choice that keeps working in the same situation becomes a habit.
+    - **Kinds:** what things are like (`MND-04`); places and seasons (`MND-28`); causes, including hunches about making things (`MND-05`, `MND-11`); unseen beings (`MND-31`); rules (`CUL-20`); and what others know (`MND-23`).
+    - **Sources:** their own experience, something seen, a dream, or being told, and by whom.
+      Own experience counts most, a trusted elder strongly, a stranger little.
+    - **Clashes:** the stronger belief guides choices, and later evidence settles it.
+    - **Shown to you** with its strength, source and the memories behind it, in the details view (`PRE-14`).
 
-- `MND-06` **Skills** *(Decided)*
-  - **What:** Learned sequences of actions with fine control (angle, force, timing), built from the body's basic actions (`MAT-12`), that improve with practice.
+- `MND-05` **Beliefs about causes** *(Decided)*: After a strong outcome, people link it to something unusual that came before.
+  Later outcomes strengthen or weaken the link.
+  This is how real knowledge arises, and also wrong beliefs, taboos and rituals.
   - **How it works:**
-    - **A skill's record:** a sequence of steps, each a basic action (`MAT-12`) on a kind of target (a concept), with its settings (force, angle, point of contact and timing) as a typical value and a spread, plus how often it has worked and how much it has been practised.
-    - **Doing it:** each try draws its settings around the typical value with the skill's spread, adds the body's own error (`MAT-06`), and the physics decides the result.
-    - **Practice:** after each try, the typical settings move toward those that worked better, at the person's learning speed (`BIO-08`); the spread shrinks with practice by the measured power law of practice, and failures widen the search a little.
-    - **Where skills come from:** a person's own tries (`MND-11`), copying what others are seen doing, with copying errors (`CUL-01`), and being taught.
-    - **Knowing is not doing:** a belief that striking makes flakes (`MND-05`) gives no settings; only practice does.
-    - **Fading:** skills unused for long slowly lose their precision (estimated).
-  - **Why:** Knowing something can be done is not the same as doing it well.
-  - **Example:** A child who has watched knapping knows that striking makes flakes, but shatters a dozen stones before getting one good edge.
+    - **Linking:** after a strong outcome (a big hunt, a death, an illness, a storm, a sudden recovery), the person looks over the day or two before for the most unusual thing, something they rarely do or meet.
+      It may be a food, a place, an act (a song, a gift, a broken rule), an animal, a person, or a sign in the sky.
+      They link it, "this brings that", and the link keeps the memories behind it (`MND-18`).
+    - **Testing:** each time the cause comes again, an outcome that follows strengthens the link and its absence weakens it; weak links are forgotten.
+      Hits count more than misses, as with real people, so a link that holds only by chance can last.
+    - **Wrong beliefs last:** "this brings harm" makes people avoid the cause, so it is never tested again: a taboo (`CUL-20`).
+      "This brings luck" costs little to keep doing, and luck comes often enough: a ritual (`CUL-06`).
+    - **Shared:** links are told (`CUL-24`), and those many hold become their people's lore.
+  - **Example:** Eating a new root the day before a fever teaches "that root brings fever", true or not.
+    Singing before a good hunt can become a rite (`MOM-04`).
+  - **Done when:** in a test scene, both a real poison and a harmless food eaten before a chance fever come to be avoided, and in some runs a song sung before lucky hunts becomes a habit.
 
-- `MND-13` **Learning over a lifetime** *(Decided)*: People get better at things through their own experience.
-  - **How it works:** every kind of learning in this section goes on for life: beliefs by surprise (`MND-05`), concepts (`MND-04`), skills by practice (`MND-06`), habits (`MND-09`), the mental map (`MND-18`) and knowledge of people (`MND-24`).
-    Each person learns at their own speed (`BIO-08`), fastest in childhood and somewhat slower with age (`BIO-16`), at measured rates.
-
-- `MND-22` **Planning ahead** *(Decided)*: People can plan days and seasons ahead once they have learned the patterns, such as storing nuts before winter.
-  Tools from culture, such as calendars, counting and records, make longer plans reliable (`CUL-03`).
+- `MND-31` **Beliefs about the unseen** *(Decided)*: People can come to believe in beings nobody sees: spirits of places, animals and weather, and the dead.
   - **How it works:**
-    - **A plan** is a goal, its steps, and when each should start, kept in the mind and checked when its time comes (`MND-09`).
-    - **From learned patterns:** facts and cause-and-effect beliefs about the seasons (hazelnuts come in autumn; late winter brings hunger) let the backward search reach future needs: late winter needs food, stored nuts give it, so gather nuts in autumn and keep them.
-    - **The future counts less:** future needs weigh less than present ones, by the person's patience (`MND-20`), and less again when the pattern is uncertain.
-    - **How far:** a person holds only a few plans and chains only a few steps (tuned); counts and dates kept outside the head, such as tally marks or a calendar (`CUL-03`), let plans reach further and keep them reliable.
-    - **Revised:** when a plan's time comes and things differ from what was expected, it is decided again.
+    - **Start:** a big event with no known cause can, through the hidden-someone leaning (`MND-21`), leave a weak belief that an unseen being did it.
+      The event shapes it: the spirit of that hill, the storm or the bears, or a dead grandmother (`CUL-05`); dreams of the dead feed belief in ancestors (`CUL-19`).
+    - **Growth:** later events of the same kind are put down to the same being, acts before good outcomes are credited with pleasing it (`MND-05`), and dreams and stories strengthen it (`CUL-24`).
+    - **Effect:** believers weigh what the being is believed to want (offerings, rites, keeping away from its places), and doing it brings a good thought and a sense of safety (`MND-29`).
+    - **Your acts** are explained the same way, and never known as yours (`GOD-06`).
+      Beliefs many share grow into religion (`CUL-26`).
 
-### 9.5 New ideas
+### 9.6 Choosing and planning
 
-- `MND-10` **Curiosity in minds** *(Decided)*: Attention goes where expectations fail.
-  Surprises are remembered and tried again.
+- `MND-09` **Choosing what to do** *(Decided)*: Every option is scored by how well it serves the person's needs, personality, plans and beliefs, and the best usually wins.
+  The top reasons are kept and shown.
   - **How it works:**
-    - **Surprise draws attention:** a percept or outcome far from what beliefs predicted is attended to first (`MND-03`) and raises the curiosity drive (`MND-07`), by the person's curiosity (`MND-20`).
-    - **Kept and tried again:** a surprise is remembered strongly (`MND-18`) and leaves a weak belief linking what came before with what happened (`MND-05`); when drives allow, the mind repeats what came before, varied a little, to see whether it happens again (`MND-09`), and each try's result strengthens or kills the belief.
-    - **Curiosity follows learning, not noise:** it is drawn most to what the mind is learning fastest about, and fades for what has stopped teaching anything, as in well-studied models of curiosity, so people don't fixate on pure chance.
+    - **When:** a choice comes when an activity ends or is interrupted (a threat, a call, pain, an urgent need), or when a plan's time comes (`TIM-17`): about 10 to 30 times a game day.
+    - **Options:** about 30 at most: meeting a need from what they know (the store, the hazel slope, the spring, sleep), a step of a plan or ambition, a known blueprint with things in reach, a request or a group plan, a social act (`MND-33`), play, rest, exploring or experimenting (`MND-11`).
+      Only known blueprints, places and beliefs make options (`MND-02`).
+    - **Score:** how much the option should meet each need, weighted by how pressing that need is and by personality, plus plans and ambition.
+      Beliefs add or take away (luck from a rite, harm from a broken taboo), and so do others' expectations (`CUL-06`).
+      Effort, time, distance and risk take away, with risk weighed by bravery and caution, and the whole is scaled by the chance they expect it to work.
+    - **Habits:** what they usually do at that place, time and season scores a little higher, so days have a rhythm, and habits a group shares become customs (`CUL-06`).
+    - **Picking:** usually the best, sometimes one close behind by chance (`TIM-16`), so people are not machines.
+    - **Reasons kept:** the three biggest, such as "thirsty; believes the river is safe at dawn; plans to check the fish trap".
+      They are shown on the card and in the details view (`PRE-35`, `PRE-14`), and kept with any event the choice led to (`PRN-13`).
+  - **Done when:** in test scenes, hungry people go to the nearest food they know of, frightened people flee, and every choice shows three reasons that name only what the person knows.
 
-- `MND-11` **Where new ideas come from** *(Decided)*:
-  - accidents someone notices;
-  - watching nature, such as fire after lightning, or seeds sprouting from a rubbish heap;
-  - tinkering with skills they already have;
-  - analogy: what works on wood might work on bone;
-  - dreams (`MND-12`).
-
-  Every idea is a guess until the physics says yes or no.
-
-  **How fire-making could be discovered with no recipe:**
-  1. A band keeps fires found after lightning.
-     They have learned that dry wood feeds fire, rain kills it, and losing it means cold nights and wolves.
-  2. The physics knows that friction makes heat, and that dry tinder catches fire above a certain temperature.
-     There is no "make fire" rule.
-  3. Someone twirls a stick against wood to bore a hole.
-     The tip gets hot and smokes.
-     Smoke means fire to them, so this is surprising and is remembered as a weak hunch.
-  4. Winter comes and their fire goes out, so the need is desperate.
-     A curious person tries twirling again, faster, longer, with drier wood.
-     An ember appears, then the tinder catches, then flame.
-  5. Others watch and copy imperfectly.
-     Some succeed, teach others and improve the method.
-     The band now knows how to make fire, a skill nobody programmed.
-  6. You might help: during that crisis, a dream puts "smoking stick" next to "fire" in the most curious person's head (`GOD-03`).
-
-  - **How it works:** every new idea is a new try, built from what is already in the mind:
-    - **accidents:** an action meant for one thing gives an unexpected result, and the surprise makes it a weak belief (`MND-10`);
-    - **watching nature:** an event seen with no one acting, such as fire after lightning, is learned like any outcome (`MND-05`), with the event before it as its cause;
-    - **tinkering:** a skill's settings pushed beyond their usual range, its steps reordered, or the skill used on a new target (`MND-06`);
-    - **analogy:** an action believed to work on one thing is tried on another that shares the properties the belief rests on, so what scrapes wood might scrape bone (`MND-04`);
-    - **signs of the goal:** in planning, what usually comes with a goal can be sought as a step toward it (`MND-09`): smoke comes with fire, so a smoking stick becomes a hunch about fire, as in step 3;
-    - **dreams:** new links between memories, held as weak beliefs (`MND-12`).
-
-    The physics decides each try (`MAT-04`), and the belief grows or dies (`MND-05`).
-    A discovery happens only through a chain whose every step pays off enough to be repeated, like the one above; a step that never pays off is reached only by rare luck over long times (`MND-17`).
-
-- `MND-12` **Dreaming** *(Decided)*: During sleep, people replay and recombine their own memories.
-  This strengthens what they learned, sometimes connects things in a new way, and is also your lever (`GOD-03`).
+- `MND-22` **Plans** *(Decided)*: Short plans tie choices together over days and seasons: store food before winter, build a shelter, make a spear for tomorrow's hunt, fetch flint from the far cliff.
   - **How it works:**
-    - **Replay:** during sleep, the day's strongest memories, by feeling, surprise and how much they matter to pressing drives, are replayed, a limited number each night (estimated); each replay renews the memory (`MND-18`) and its beliefs and skill settings, like a little more practice, as real sleep does.
-    - **Recombination:** pieces of different replayed memories (their things, places and people) are put together at random, weighted by how active each is; a pairing that matches a pressing want or an open question (`MND-10`) leaves a weak new belief, such as "smoking stick" next to "fire", which waking tries can test (`MND-11`).
-      Experiments have shown sleep helping people find a hidden rule.
-    - **Dream records:** each night's dream is kept as a record of what was replayed and combined, with its feelings, for the views and the writer.
-    - **Your lever:** you can choose which pieces one sleeper's dream combines, from what is already in their mind; nothing new is added (`GOD-03`).
-    - **Animals** replay their memories too, more simply (`MND-16`).
+    - **Sources:** needs foreseen through beliefs about the seasons (late winter brings hunger, so store nuts in autumn, `MND-28`); the chain of blueprints a goal needs (a cloak needs a scraper, scraped and dried hides, then sewing); ambitions (`MND-32`); and requests or group plans (`CUL-22`).
+    - **A plan** is a goal with steps and times, and each step scores higher in choosing (`MND-09`) until the plan is done, fails or is dropped.
+    - **Limits:** about five plans at once, of a few steps each.
+      The patient plan further ahead (`MND-20`), and tallies and a calendar let plans reach further (`CUL-03`, `CUL-13`).
 
-### 9.6 Other minds
-
-- `MND-23` **Understanding others** *(Decided)*
-  - **What:** People track what others know, want and believe, and can reason one step deeper ("she thinks I don't know").
+- `MND-32` **Ambitions** *(Decided)*: Each adult has a life ambition that colours their choices for years: master a craft, lead, raise a big family, be a great hunter, heal, know the unseen, find new land, grow rich, or avenge a death.
   - **How it works:**
-    - **A model of each known person:** kept in their record (`MND-24`): what they know, want and believe, each as a belief about their mind with its certainty (`MND-27`).
-    - **How it is built:** from what the other was present for and could perceive (if she was there when the fire went out, she knows it went out), from what they said, and from what they did, explained by the simplest want that fits (walking to the spring means thirst), as in well-studied models of how people read others' actions.
-    - **One step deeper:** beliefs can be about what another believes about oneself or a third person ("she thinks I don't know"), to one extra level only.
-    - **What it makes possible:** teaching (I know, she doesn't, and I want her to, so I show slowly and correct); cooperation (we both want the deer, and I expect him to go round); gossip (telling what someone did); and deception (acting or speaking to make someone believe what isn't so, when the person believes it pays, such as hiding a flint source).
-    - **Children** grow into it with age, at the measured pace, understanding others' false beliefs from about four.
-  - **Why:** This is what makes teaching, cooperation, gossip and deception possible.
-  - **Example:** Tamo keeps a good flint source secret, believing nobody knows about it.
-    Ama has noticed the fresh flakes Tamo brings back, and follows one morning.
+    - **Chosen in youth,** at about 14 (`BIO-04`), from personality and life so far: a curious youth who watched a master knapper may want to master stone, a proud one to lead.
+      Big events can change it, as a killing can bring a wish for revenge.
+    - **Effect:** options that move it forward score higher (`MND-09`), and it makes plans (`MND-22`).
+    - **Fulfilled or lost:** reaching it brings a long, strong good thought (`MND-29`) and a memory for life.
+      Losing hope of it brings a lasting bad thought, and perhaps a new ambition.
+    - **Shown** on the card, with how close they are (`PRE-35`).
 
-- `MND-24` **Relationships** *(Decided)*: People know who's who: family, friends, rivals, and who owes whom.
-  Trust and affection grow and fade with shared experience.
+### 9.7 Skills and discovery
+
+- `MND-06` **Experience and skill** *(Decided)*: People get better at things by doing them.
+  Each person has experience in 15 sectors and a skill in each blueprint they know, both from 0 (none) to 10 (master).
   - **How it works:**
-    - **A record for each known person:** how they are recognised (face, voice and smell, as concepts of that one person, `MND-04`); kinship as believed; affection, trust, respect and fear; the favours owed each way (`MND-26`); shared memories (`MND-18`); and the model of their mind (`MND-23`).
-    - **Changing:** each shared experience adjusts these: help and shared success raise affection and trust; harm, cheating and broken promises lower them, more in close bonds; and time apart lets them fade slowly (estimated).
+    - **Sectors:** stone, wood, fire, cooking, hunting, gathering, hides, building, healing, pottery, herding, farming, metal, art and music.
+    - **Blueprint skill** starts higher for people experienced in the blueprint's sector.
+      Skill and experience both raise its chance of success and the quality of what is made (`MAT-04`, `MAT-20`).
+    - **Rising with use:** every try adds a little, more on a success and more when taught (`MND-13`), and less at high levels, so the first steps come fast and mastery takes years.
+      Everyday work in a sector, such as caring for the sick or singing, adds to its experience too.
+      The hard-working practise more (`MND-20`), and each person learns at their own speed (`BIO-08`), children fastest and the old slower (`BIO-16`).
+    - **Fading:** unused skill and experience fade slowly, never below about half their best.
+    - **Dying out:** a blueprint is lost with its last holder, though things they made may survive to be copied (`CUL-02`, `MND-11`).
+  - **Example:** A girl taught to knap knows the blueprint, but at skill 1 she shatters most stones before one good flake.
 
-### 9.7 Scale and inspection
-
-- `MND-14` **Detail follows what matters** *(Decided)*: Everyone is always an individual, with their own body, family, memories, skills and beliefs.
-  People in routine situations may run more cheaply, even as part of their band, but only once an experiment shows this gives the same history, statistically, as full detail.
-  Anyone facing something new, risky or important runs in full.
-  The rule depends only on the world, never on where you look.
-  Follows from `PRN-11`.
+- `MND-13` **Learning and teaching** *(Decided)*: People learn blueprints, skills and facts from each other by watching, being taught and talk.
+  Being taught is fastest.
   - **How it works:**
-    - **Full detail is already sparing:** a mind works only when something happens (`MND-09`) and takes in only its few most noticeable percepts (`MND-03`), so a quiet day already costs little.
-    - **Always in full when:** a surprise passes its threshold (`MND-10`); there is a threat, an injury or an illness; there is a conflict or an unusual social event, such as a stranger, a quarrel, a birth or a death; no habit fits; or the person chooses to explore (`MND-09`).
-      This is the world's own rule, never the camera's (`WLD-13`).
-    - **The cheaper routine path, only after its experiment:** while a person runs a habit and every outcome matches what they expected, every action still happens with its physics, but learning updates are applied at the end of each activity, and runs of the same action, such as picking berry after berry, are worked out together.
-      Nothing is skipped or summarised.
-    - **Checked:** the same sandboxes run with and without the routine path, and their discoveries, the spread of skills and words, and deaths are compared (`PRN-11`).
+    - **Watching** someone use a blueprint you don't know gives a hunch for it (`MND-11`).
+      Watching it several times can teach it at low skill, and watching someone more skilled adds a little skill.
+    - **Being taught:** someone who knows a blueprint, believes another doesn't (`MND-23`) and wants them to (kin, friends, the kind, or for a gift) can teach, the two spending the activity together.
+      A taught try adds several times the skill of a try alone (tuned), more with a better teacher, and the first taught success makes the blueprint known.
+    - **Being told:** facts, places and beliefs pass in talk (`CUL-24`), weighed by trust (`MND-24`).
+    - **Children** learn fastest, mostly from family and band, helped by pointing and a shared gaze (`MND-26`).
+    - **Across a group,** who copies whom, and how crafts spread or die out, is in Culture (`CUL-01`, `CUL-02`).
 
-- `MND-15` **No population cap** *(Decided)*: How many minds the phone can run at each level of detail is found by measurement (`PLT-04`).
-  That number is the limit of a world: every person stays a full individual (`MND-14`), so history slows as a world nears it, and the game tells you when it is reached.
-  By rough estimates, each mind needs about 0.3–1 MB and about a millisecond of computing per simulated day, so the limit is a few thousand people at a watchable speed; cities and farming-scale worlds of hundreds of thousands are beyond any phone.
-  - **How it works:** nothing in the code limits how many people or animals there are: food and the body rules set their numbers (`WLD-04`); when there are more than the phone can run at the speed asked for, time slows (`PRN-11`); and how many run at each speed and level of detail is measured (`PLT-04`).
+- `MND-10` **Surprises** *(Decided)*: Something unexpected catches the eye and sticks: a stick smoking as it is drilled, seeds sprouting on the rubbish heap, a bead of shiny metal in the ashes.
+  - **How it works:** a result or sight never met before, or one their beliefs did not expect, is noticed more often by the curious (`MND-20`) and less by the busy, tired or frightened (`MND-03`).
+    It gives a strong memory (`MND-18`), a pull to look into it (`MND-07`), and a link between what came before and what happened (`MND-05`), often a hunch (`MND-11`).
+    With spare time, they may repeat what came before to see whether it happens again.
 
-- `MND-25` **Thoughts are structured; words come later** *(Decided)*: What a person thinks is kept as beliefs, intentions, feelings and memories, never as sentences.
-  The story view (`PRE-14`) turns them into words through the writer AI (`PRE-37`); the scientist's view shows them raw.
-  Follows from `PRN-06`.
-  - **How it works:** everything in a mind is a record: concepts, beliefs, plans, feelings, memories, skills and relationships, each made of references to concepts, things, places and people, with numbers; nothing is stored as a sentence.
-    The scientist's view shows the records raw; the story view hands them to the writer, which only phrases them (`PRE-17`), and nothing it writes is read back (`MND-01`).
-
-### 9.8 Animals
-
-- `MND-16` **Animals** *(Decided)*
-  - **What:** Animals have the same kind of mind with fewer abilities.
-    They learn fear, routes and habits, so hunting becomes an arms race and taming becomes possible.
-  - **What animals lack:** language, deliberate teaching, long plans and abstract concepts.
-    Species differ: wolves hunt together, deer are wary grazers.
-  - **Detail:** near people, animals are individuals with minds.
-    Elsewhere they are populations that carry inherited and learned traits, such as wariness of people (`WLD-12`).
+- `MND-11` **Four routes to discovery** *(Decided)*: Nobody knows a blueprint until they discover it or learn it (`PRN-01`).
+  Discoveries come by accident, by experimenting, from a dream's hint, or by copying.
   - **How it works:**
-    - **The same mechanisms, with fewer parts:** percepts, concepts, cause-and-effect beliefs, memory with a mental map, drives and feelings, habits, short plans and dreams work as in people; animals have no words, no teaching, plans of only a step or two, simple models of others at most, and no abstract concepts.
-    - **Species settings:** each species' drives, instincts (herding, pack hunting, territory, caching food), senses (`BIO-19`), learning speed and how much it can hold come from its family (`WLD-19`), measured where possible and estimated otherwise.
-    - **Fear of people:** animals that are chased or wounded, or that see others killed by people, learn wariness of people and of their signs (`MND-08`), so hunting grows harder where people hunt.
-    - **Taming:** an animal that is fed and not harmed by people loses its fear of them and grows attached to particular people (`MND-07`); over generations, boldness near people is inherited (`WLD-20`).
-    - **Hunting together:** each wolf moves to keep the prey between itself and its packmates, as in a published model of pack hunting, so a pack surrounds its prey with no plan.
-    - **Counted populations** carry learned wariness and routes as population traits (`WLD-12`, `WLD-20`).
+    - **Hunches:** a hunch is a guess that some things, with some action, might give some result, such as "twirling a stick on dry wood might make fire".
+      It is a belief with a strength (`MND-27`) that guides experiments, and a person holds a handful at a time.
+    - **By accident:** an action on things that happen to fit an unknown blueprint (`MAT-04`) has a small chance to work anyway, or to end in one of its failures that hints at it, such as smoke but no ember.
+      If noticed (`MND-10`), a success teaches the blueprint at low skill, and a hint gives a hunch.
+      So cracking nuts with a flint can knock off a sharp flake.
+    - **By experimenting:** curious people with spare time and a fair mood try actions on things in reach: a hunch first, else an action they know works on something that looks similar (what scrapes wood might scrape bone), else something new.
+      A try that fits a blueprint can succeed, less often than a taught one, and a failure still teaches about the things tried (`MND-04`).
+      Hard times push people to experiment too.
+    - **From a dream's hint:** a dream can join a thing, an action and a needed result from different memories into a hunch (`MND-12`), real or not.
+      You can send one whose hint is near the dreamer's experience (`GOD-03`).
+    - **By copying:** a thing they can't make, made by others or found in an abandoned camp (`MAT-08`), gives a hunch to make it from things like its materials.
+      Seeing it made gives a stronger hunch, with the actions (`MND-13`).
+    - **The blueprint decides every try** (`MAT-04`), and a people's first success is a named discovery in the book of ages, with who made it (`MAT-21`).
+    - **Pace:** the chances of accidents and untaught tries are tuned so that discoveries come at a pace you can watch (`PRN-17`, `TIM-19`).
+  - **Example:** Drilling a hole in dry wood, Ama sees the stick smoke and keeps a hunch.
+    In a hard winter, with the band's fire dead, she twirls faster and longer with drier wood until an ember catches, and others watch and are taught (`MOM-01`).
+  - **Done when:** in sandbox scenes each route leads to discoveries in some runs, and the sharp-stone test passes (`RES-03`).
+
+- `MND-12` **Dreams** *(Decided)*: Each night a sleeper has one dream, made from recent strong memories.
+  Dreams keep memories alive, stir feelings, sometimes hint at something new, and are your lever (`GOD-03`).
+  - **How it works:**
+    - **Made from** the last few days' strongest memories, by feeling, surprise and need, now and then with an older one; those memories then fade more slowly (`MND-18`).
+    - **Feelings:** the dream's feeling lingers as a thought (`MND-29`).
+      A nightmare after a wolf attack leaves fear, and a dream of a dead mother leaves grief and feeds belief in the dead (`CUL-19`).
+    - **Hints:** a dream can join pieces of memories into a hunch (`MND-11`), more often when a need presses; the chance is small (tuned).
+    - **Remembered and told** (`CUL-24`), dreams feed stories and beliefs about the unseen (`MND-31`).
+    - **Your lever:** a dream you send replaces that night's own and uses only what the dreamer has lived: a place, an animal, a person, a fear, or a hint at a blueprint near their experience (`GOD-03`).
+      Nothing marks it as yours (`GOD-06`).
+    - **Animals** dream more simply (`MND-16`).
+
+### 9.8 Life together
+
+- `MND-24` **Relationships** *(Decided)*: People know who is who: kin, friends, rivals, partners and enemies.
+  Each has an opinion of everyone they know, with trust and respect, that grow and fade with what happens between them.
+  - **How it works:**
+    - **For each person they know,** up to about 150: face and name, kinship as believed, an opinion from −100 to +100, trust, respect, favours owed (`MND-26`), shared memories (`MND-18`), and what they know of them (`MND-23`).
+    - **Opinion** rises with help, gifts, shared food, kind words and shared success, and falls with insults, harm, cheating and broken promises (`MND-33`).
+      It drifts back toward neutral when they don't meet; like personalities get on better, and a hot temper wears on everyone.
+    - **Trust** sets how far their word is believed (`MND-27`) and whether they are followed.
+      **Respect** follows their skill, success, age and generosity, as their culture values them (`CUL-22`).
+    - **Bonds:** lasting high opinion makes friends; love between adults who court makes partners (`CUL-27`); rivalry over status, a partner or a place makes rivals; harm makes enemies, and a killing can start a feud (`CUL-08`).
+    - **Shown** on cards and family trees (`PRE-35`, `PRE-10`).
+
+- `MND-33` **Social acts** *(Decided)*: What people do with each other: chat, share, help, comfort, tell, ask, play, court, teach, gossip, insult, quarrel, fight and steal.
+  - **How it works:**
+    - **Chosen like anything else** (`MND-09`): the sociable chat more, the kind comfort and share, the hot-tempered quarrel, and mood colours it all (`MND-29`).
+    - **Effects:** each act moves both people's opinions (`MND-24`) and needs: a chat meets belonging, praise meets status, comfort eases grief, and an insult hurts.
+    - **Talk:** what is said (news, places, memories, warnings, requests, lies) is set out in Culture (`CUL-24`), and is heard as a murmur, never as real words.
+    - **Courtship:** an adult wanting a partner (`MND-07`) courts someone they like with time together, gifts and help.
+      If love grows on both sides, they pair as their customs allow (`CUL-27`, `BIO-15`).
+    - **Quarrels** can turn into fights when anger runs high (`MND-19`); fights hurt (`BIO-13`), and others step in, take sides or remember.
+    - **Gossip** spreads what someone did, and opinions with it.
+
+- `MND-23` **Who knows what** *(Decided)*: People track what others know, want and feel, as far as they can tell.
+  This makes teaching, news, secrets and lies possible.
+  - **How it works:**
+    - **Tracked** for each person they know (`MND-24`): which of their own blueprints and places that person knows (seen using them, gone there together, or told), what they seem to need, and how they seem to feel toward them.
+    - **Teaching and telling** go only to those believed to lack it (`MND-13`, `CUL-24`).
+    - **Secrets:** a good flint source, a food store or a broken taboo can be kept from others, who may still find out by watching, following or gossip.
+    - **Lies:** people say what they don't believe when they think it pays, the greedy and the proud more often; a lie found out costs trust (`MND-24`).
+    - **Children** manage this from about age four.
+  - **Example:** Tamo keeps a good flint source secret.
+    Ama has noticed the fresh flakes he brings back, and follows him one morning.
+
+### 9.9 Scale
+
+- `MND-14` **Every person has a full mind** *(Decided)*: Every person has every part of this section at all times.
+  Nobody gets a cheaper or simpler mind for being far away or unwatched (`WLD-13`).
+  - **How it works:** minds stay cheap because they work only when something happens: they choose when an activity ends or is interrupted (`TIM-17`, `MND-09`), take in only what they notice (`MND-03`), and keep capped numbers of memories, places, hunches and plans (`MND-18`, `MND-28`, `MND-11`, `MND-22`).
+  - **Check:** the same saved world, run with the camera in different places and at different speeds, gives the same choices (`WLD-13`).
+
+- `MND-15` **Population limit** *(To test)*: How many people a world can hold at a watchable speed is found by measuring the phone (`PLT-04`).
+  The design target is about 2,000 people, with at least one game year per real minute for 1,000 people (`TIM-07`).
+  - **How it works:** nothing caps births: food, illness and danger set numbers.
+    As a world nears the limit, time slows, no mind is ever simplified (`PRN-11`), and the game tells you.
+    To fit the target, a whole person, body and mind together, should use about a thousandth of a second of computing per game day, or less.
+
+- `MND-25` **Minds hold records, not sentences** *(Decided)*: Everything in a mind (needs, thoughts, memories, beliefs, plans and the reasons for each choice) is kept as structured records about people, places, things and events, with numbers, never as sentences.
+  The writer AI turns them into words for you (`PRE-37`), and nothing it writes is read back (`MND-01`).
+  - **How it works:** the details view shows the records as they are or as the writer's text (`PRE-14`), and talk passes them between minds as topics (`CUL-24`).
+
+### 9.10 Animals
+
+- `MND-16` **Animal minds** *(Decided)*: Animals have simpler minds: needs, fear, herd behaviour, learned fear of people, and taming.
+  Near people each animal has its own mind; far away, herds are counts that keep only their wariness and their routes (`WLD-32`).
+  - **How it works:**
+    - **Needs:** hunger, thirst, warmth, rest and safety, plus their kind's urges: herding, pack hunting, guarding young, territory and the breeding season.
+    - **Choosing:** the same scoring as people (`MND-09`) over a few options (graze, hunt, drink, rest, flee, follow the herd, fight, play), with no blueprints, talk or plans.
+    - **Fear:** danger seen, heard or smelt makes them flee or fight as their kind does, and herds flee together.
+      Hunted animals learn to fear people, their smell and their camps, so hunting grows harder where people hunt (`WLD-32`).
+    - **Boldness:** each is born more or less bold, which sets how near people it dares to come.
+    - **Memory:** a few places, and the people and animals they know, such as the boy who feeds them or the hunter who wounded them.
+    - **Taming:** animals fed and not harmed lose their fear and grow attached to particular people.
+      Young raised by people grow up tame (`RCK-24`), and lines kept for generations become domestic kinds (`WLD-33`).
+    - **Dreams:** a simple replay of one memory; you can send one that draws an animal or herd toward a place, or makes it calmer or bolder (`GOD-12`).
+    - **Explained:** an animal's reasons can be seen like a person's (`PRN-13`).
 
 ## 10. Culture and society
 
-Culture is everything people pass to each other rather than inherit through their bodies: skills, words, beliefs, customs and art.
-None of it is scripted (`PRN-01`, `PRN-07`).
-It grows out of minds (see Minds) living together, and it changes, spreads, splits and dies.
+Culture is what people pass to each other rather than inherit: crafts, words, beliefs, customs and art.
+With minds, it is the heart of the game.
+Templates give it shapes, and the world's events decide which shapes appear (`CUL-07`).
+It spreads, changes, splits and dies.
 
-### 10.1 Passing things on
+### 10.1 How culture works
 
-- `CUL-01` **Learning from others** *(Decided)*
-  - **What:** People imitate (and imperfect copying creates variation), teach (possible because they understand what others know, `MND-23`), and copy whoever succeeds or whatever most people do.
+- `CUL-07` **Nothing social is scripted** *(Decided)*: Templates give the shapes; events decide which happen.
+  - **What:** The game holds fixed templates for beliefs, customs, roles, dealings between groups, and art, songs and myths.
+    A template says what kind of event can lead to what kind of belief, custom or role, such as "an unexplained death may make people believe an angry spirit lives where it happened".
+    None is set off by a script, a date or an era: each needs its conditions in the world and people's own choices (`MND-09`), and the real event fills it in.
+    Like blueprints, templates never name a particular people, person, place or date (`PRN-07`).
+    Templates, art motifs, dance moves and story shapes are catalogues, written in advance and checked by automated tests (`MAT-13`).
+    What a group comes to share is named in its language, and its first appearance enters the book of ages (`PRE-05`).
+  - **Check:** an automated test finds no template tied to a date, an era or a named people, place or person; sandbox scenes show each template appearing only after its triggering events; and across 20 test worlds, peoples end with different spirits, customs and kinds of leader.
+
+- `CUL-33` **Pace of culture** *(To test)*: When culture first shows, in game years from the start, in typical worlds over many runs, alongside the pace of discovery (`TIM-19`).
+  - First shared belief in a spirit or in the dead: within 5 years.
+  - First rite kept as a custom: 5–20.
+  - First myth: 10–40.
+  - First band split: 10–50.
+  - First festival: 10–60.
+  - First new people: 60–150.
+  - First chief: 150–350, after the first villages.
+  - **Why:** A lively world shows culture early and keeps changing it (`PRN-17`); these targets show whether templates come too rarely or too often (`RSK-26`).
+
+### 10.2 Passing things on
+
+- `CUL-01` **Learning from others** *(Decided)*: People pass on what they know by watching, teaching and talk (`MND-13`).
   - **How it works:**
-    - **Watching:** a person who notices someone act (`MND-03`) sees the action, roughly its settings, and its outcome.
-      The outcome updates their own beliefs (`MND-05`), more weakly than their own experience would, weighted by their trust in the one acting (`MND-24`); and they copy the steps and settings they saw into a skill of their own (`MND-06`), blurred by distance and attention and changed by their own body, so copies vary.
-    - **Whom to copy:** each person weights others by their seen success and prestige, by kinship and likeness, and by how many people do a thing the same way, the pull to conform that is well studied in cultural evolution; their readiness to conform (`MND-20`) sets the balance.
-    - **Teaching:** someone who believes another lacks a skill or belief they have (`MND-23`), and wants them to have it, may teach: doing the steps slowly in view, pointing out the key parts (`MND-26`), correcting the learner's errors, and using words once there are words for it (`CUL-04`).
-      Teaching makes copying faster and more exact, as measured in experiments on learning to knap.
-    - **Building up:** imperfect copying makes variation, and copying the successful keeps the better kinds, so culture builds up over generations (`MND-17`).
-  - **Why:** This is how a people becomes cleverer than any of its members (`MND-17`).
-  - **Example:** The best knapper's technique spreads because others copy whoever succeeds.
-    Small copying errors make each band's blades slightly different (`CUL-12`).
+    - **Watching:** someone who watches a blueprint being used close by may learn it, more likely with experience in its sector.
+      Children learn most this way, copying adults' work in play.
+    - **Teaching:** a skilled person works beside a learner, who learns surely and gains skill faster.
+      People teach their children, kin and friends, and, where it is the custom, apprentices (`CUL-32`).
+    - **Talk:** a listener told that something can be made, and from what, finds it far sooner when they try (`MND-11`); talk also carries news, beliefs, stories and customs (`CUL-24`).
+    - **Whom they learn from:** those they trust and respect, the most skilled, and kin (`MND-24`); and most people do things the way their group does.
+  - **Example:** The first knapper's daughter learns beside her, other children copy in play, and within a few years half the band can make flakes.
 
-- `CUL-02` **Knowledge can be lost** *(Decided)*: Knowledge lives in heads and dies with them unless it is passed on.
-  Small, isolated groups can lose skills, as may have happened in Tasmania (`MOM-02`).
-  - **How it works:** knowledge exists only as records in minds, and later in marks (`CUL-03`); a person's records end at death, and a skill survives only if others have learned it, while unused skills and beliefs fade (`MND-18`).
-    A group copies mostly from its best (`CUL-01`); in a small group the best may not be very good, and copies of copies decay, so whether a complex skill survives depends on the group's size and contact with others, as in the published model of Tasmania's losses.
-    No rule makes it happen.
-
-- `CUL-03` **Memory outside heads** *(Decided)*: Marks, symbols, writing and records can emerge, letting knowledge outlive the people who had it.
-  Signs gain meaning the same way words do, by agreement (`CUL-04`): tally marks for counting, pictures that tell, and eventually signs that stand for words.
+- `CUL-02` **Knowledge can be lost** *(Decided)*: A craft lives only in the people who know it and dies with the last of them, so small or isolated groups lose crafts most easily (`MOM-02`).
   - **How it works:**
-    - **Marks are real things:** a scratch, paint, a knot or a notch is a change to a thing made by an action (`MAT-10`, `CUL-25`), seen by sight.
-    - **Meaning by linking:** a mark comes to mean something when people link its look to a concept, as words are linked (`CUL-04`): by making it while attending to something together, and by others seeing and copying the link; one notch for each day becomes a tally that others can read.
-    - **Pictures:** people who see a picture recall the things it shows (`MND-04`).
-    - **Meaning lives with the link:** a sign keeps its meaning only while someone who knows the link can read it; after that the thing remains, but its meaning is lost.
-    - **Open:** how far counting goes depends on number concepts forming, which is less well understood (`MND-04`).
+    - **Lost:** when the last holder of a blueprint dies, or nobody has used it for so long that the skill has faded (`MND-06`), the people loses it; songs, stories and rites go the same way.
+    - **Fragile:** in a band of twenty, one person may hold a craft, and one fever or fall can take it; elders hold the most, so losing them costs most (`BIO-16`).
+    - **Regained:** by finding it again (`MND-11`), by learning it from neighbours who kept it (`CUL-16`), or by copying things left in an old camp (`MAT-08`).
+      The book of ages marks the loss and any rediscovery (`PRE-05`).
 
-- `CUL-16` **How things spread** *(Decided)*: Knowledge, words, styles and beliefs spread through contact: shared camps, marriages between bands, trade and conflict.
-  Isolation makes groups drift apart.
-  - **How it works:** everything cultural passes only when people are actually together and perceive each other (`CUL-01`, `CUL-24`): sharing a camp, a person moving to another band by marriage, meeting to trade, raids and captives.
-    So distance, barriers (`WLD-10`) and people's own choices set how often two groups meet, and the less they meet, the more their copying errors pull them apart.
+- `CUL-16` **How things spread** *(Decided)*: Crafts, beliefs, customs, songs and words spread only where people meet.
+  - **How it works:** they pass in shared camps, visits and festivals (`CUL-29`), with a spouse who moves to another band (`CUL-27`), through trade (`CUL-21`) and with captives (`CUL-31`); a traded or found thing can also be copied by people who never met its maker (`MND-11`).
+    Mountains, seas, wide rivers and distance set how often groups meet, and groups that rarely meet grow apart in customs, beliefs, style and new words.
 
-### 10.2 Language
-
-- `CUL-04` **Language emerges** *(Decided)*: Words are labels a group agrees on, and they spread through use.
-  Groups that separate drift into dialects, then separate languages.
-  Language makes teaching faster and lets people talk about things that aren't there: plans, the dead, spirits.
+- `CUL-03` **Memory outside heads** *(Decided)*: Marks, tallies and pictures let some knowledge outlast the people who had it.
+  Writing is not part of the launch arc.
   - **How it works:**
-    - **A word** is a sequence of the language's sounds (`BIO-21`) linked in a person's mind to a concept (`MND-04`), with a strength for that link; a person can have several words for one concept, and one word for several.
-    - **Speaking and hearing:** a speaker picks, for each concept, the word they link to it most strongly; a hearer matches the sounds to their own words, allowing small differences, and recovers the concepts; with shared attention (`MND-26`), the hearer links a new word to what both attend to.
-    - **Agreement through use:** when a word works (the hearer does what was meant, or shared attention confirms it), both speaker and hearer strengthen that link and weaken its rivals; when it fails, it weakens, as in the naming-game models that show how groups come to agree on words.
-    - **New words:** a speaker with no word for what they want to say makes one: new sounds shaped like the language's other words, or a compound of words it has (`CUL-17`), helped by pointing and gesture (`BIO-21`).
-    - **Children** learn words fastest, from what is said about what they attend to (`MND-26`).
-    - **Drift:** groups that rarely talk (`CUL-16`) make different choices and different sound changes (`CUL-17`); dialects become separate languages once their speakers no longer understand each other.
-    - **What it makes possible:** teaching with words (`CUL-01`), and passing on beliefs about things that aren't there, such as plans, the dead and unseen beings, as told beliefs weighed by trust (`CUL-24`).
+    - **Tallies** cut in bone or wood count days, kills or debts (`MAT-04`), so people can count the days to a festival or a plan (`CUL-13`, `MND-22`).
+    - **Pictures** of real events remind those who see them (`CUL-09`), and painted rocks, piled stones and cut trees mark paths, graves, sacred places and borders (`CUL-23`).
+    - **Meaning needs a reader:** when the last person taught what a mark stands for dies, the mark remains but the people lose its meaning, though you can still see it (`PRE-15`).
 
-- `CUL-17` **Sounds, words and word order** *(Decided)*
-  - **What:** Each language has its own sounds, words, word order and compound words, starting from the few dozen shared words and calls of the starting kit (`BIO-02`).
-    Words drift through regular sound changes, so related languages share telltale patterns and form families you can trace.
-    Richer grammar, such as word endings, may grow but is not promised (`RES-19`).
+### 10.3 Language
+
+- `CUL-04` **Language emerges** *(Dropped)*
+  - **Dropped because:** each world now has one language from the start, which never changes (`CUL-17`).
+
+- `CUL-17` **A language from the start** *(Decided)*: Each world has one language, made with the world, spoken by all its peoples, and never changing.
   - **How it works:**
-    - **Sounds:** each language has its own set of sounds, each a set of articulation features (`BIO-21`), starting from the starting kit's (`BIO-20`).
-    - **Regular sound change:** each speaker's way of saying a sound in a given position drifts a little, toward what is easier to say and with copying errors; such a change is a rule over a sound in its surroundings, not over one word, so once a group takes it up by the usual copying (`CUL-01`), every word with that sound in that position changes together.
-    - **Families you can trace:** separated groups take up different changes, so their languages keep regular matches between them, as historical linguists find in real ones, and the family tree can be shown (see Presentation).
-    - **Word order:** when a speaker says several concepts together (who did what to whom), they put them in an order; hearers use the order to tell the roles apart, and orders that work get copied, so each language settles on its own preferred orders.
-    - **Compound words:** two words often said together for one thing become one word, and wear down in sound over time.
-    - **Richer grammar:** endings and sentence structure could grow as common words wear down and fuse with others, but no tested model shows they will, so they are possible, not promised.
-  - **Example:** After the eastern band crosses the hills, its words drift away from those of the band left behind.
-    Centuries later, their words for water, fire and stone still differ in the same regular way, which shows they were once one language.
+    - **Made with the world:** its own sounds, how they join into words, and a few hundred everyday words (kin, body, food, animals and plants, land, actions, feelings, small numbers).
+      It copies no real language (`SCP-20`).
+    - **Every name** comes from it: of people, places, peoples, spirits, discoveries, festivals and songs (`CUL-18`).
+    - **Never changes:** no drift, no dialects and no new grammar, so peoples that split still understand each other.
+    - **New words:** each people coins its own for new things, such as a named discovery (`MAT-21`), by joining old words ("stone-that-cuts") or making one in the language's shape.
+      So peoples that split come to differ in their newer words, and a craft learned from neighbours usually keeps their word, showing where it came from.
+    - **Heard as a murmur** of its sounds, never as real words (`SND-03`); what is said is known as topics (`CUL-24`).
 
-- `CUL-18` **Names** *(Decided)*: People, places, peoples and things are named in their own languages, often after events, features or traits.
-  You see the original name with a translation (`PRE-12`), and later hear it spoken (`SND-03`).
-  - **How it works:** a name is a word for one person, place, people or thing, linked to the concept of that one (`MND-04`), and made like any word (`CUL-04`): from new sounds, or as a compound of words for something about it, such as an event there ("where the boar died"), a feature ("red cliff") or a trait ("tall one").
-    Names are made when people need to talk about something, by whoever speaks of it first, and spread by use.
-    The game shows the original sounds with the meaning of their parts; a name whose parts no longer match any words is shown without one, and its old meaning stays in the scientist's view.
+- `CUL-18` **Names** *(Decided)*: People, places, peoples, spirits and things are named in the language, often after events, features or traits, and shown with their meaning in English (`PRE-38`).
+  - **How it works:** parents name a child after a trait, an event at the birth or an honoured ancestor (`CUL-19`), and a striking deed can earn a second name, such as "Bear-killer".
+    Places are named the first time people talk of them, after a feature ("Red Cliff"), an event ("Where the Boar Died"), a person or a spirit.
+    Spirits, discoveries, customs, festivals, songs and peoples are named when they first appear, by whoever first talks of them, and names spread with talk.
 
-- `CUL-24` **Conversations** *(Decided)*: People tell each other things: warnings, questions, news, teaching and retold stories.
-  What they say is held as meaning first (`MND-25`), and their language puts it into words (`CUL-04`).
-  Being told something is weighed against one's own experience, by how far the speaker is trusted (`MND-24`).
+- `CUL-24` **Conversations** *(Decided)*: People talk all day; what they say is kept as topics, never as sentences, and heard as a murmur.
   - **How it works:**
-    - **Saying:** a speaker chooses what to tell, as meaning first: a belief, a memory, a plan, a question or a warning (`MND-25`), when they believe the hearer lacks it and want them to have it, or want something from them (`MND-23`); their language turns it into words in order (`CUL-17`), and it becomes sound in the air (`BIO-21`), heard by anyone in range (`BIO-18`).
-    - **Understanding:** the hearer matches the words to their own (`CUL-04`) and recovers what meaning they can; words they don't share lose part of it, so misunderstandings are real.
-    - **Weighing:** what is understood becomes a told belief or memory, its certainty set by trust in the speaker and how well it fits the hearer's own experience (`MND-27`); a retold story can replace a person's own details (`MND-18`).
-    - **Questions and lies:** a question asks for a belief, and the hearer may answer; a speaker can also say what they don't believe, when they believe it pays (`MND-23`).
+    - **Topics:** news (food, water, danger, a death), a memory retold as a story (`MND-18`), a belief, how something is made (`CUL-01`), gossip and opinions of others, a plan or request (hunt together, move camp, marry), a question, comfort, and quarrels.
+    - **Weighed by trust:** what is heard is held less firmly than what one lived through, and more firmly the more the speaker is trusted (`MND-24`, `MND-27`).
+    - **Effects:** a good talk raises affection, a quarrel lowers it, and gossip changes what listeners think of others.
+    - **Secrets and lies:** people keep secrets when telling would cost them, such as a good flint source, and may lie when they believe it pays (`MND-23`); a lie found out costs trust.
+    - **For you:** a murmur shaped by the language and the speaker's mood (`SND-03`); the details view of each mind lists the topics (`PRE-14`), which the writer AI can put into English (`PRE-17`).
 
-### 10.3 Belief
+### 10.4 Belief and religion
 
-- `CUL-05` **Belief from explanation** *(Decided)*
-  - **What:** Big unexplained events (death, sickness, storms, your interventions) demand a cause.
-    When no physical cause is known, the inborn tendency to suspect a hidden someone (`MND-21`) suggests an unseen being.
-    Beliefs that seem to work spread and last.
-    They become ritual, gain specialists such as shamans and priests, and in time grow into religions with their own myths, rules and sacred places.
+- `CUL-05` **Beliefs from events** *(Decided)*: Strong events nobody can explain give rise to spirits, rites, offerings and taboos, shaped by a few templates.
+  Your acts as god are explained the same way.
   - **How it works:**
-    - **An unseen someone:** when an event matters (a death, a sickness, a storm, fire from the sky, or one of your acts, `GOD-06`) and no believed cause explains it, the hidden-someone tendency (`MND-21`) makes a weak belief that an unseen someone caused it (`MND-27`), tied to the event's own concepts, such as the sky and its fire.
-    - **It grows like any belief:** later events of the same kind are tied to the same unseen someone; acts done before good outcomes, such as singing before a hunt, are credited by the usual learning (`MND-05`) and become things done to win its favour or turn away its harm; outcomes vary by chance, and vivid ones are remembered best (`MND-08`), so such beliefs can last.
-    - **Shared:** told and retold (`CUL-24`), these beliefs spread by trust and by the pull to conform (`CUL-01`); a band's common beliefs about unseen beings are its religion.
-    - **Ritual and specialists:** acts repeated to sway the unseen harden into rites (`CUL-06`); someone others believe knows the unseen better, through dreams, success or age, is asked, followed and rewarded, and the role becomes a shaman's or, later, a priest's.
-    - **Myths, rules and sacred places** come from the same records: stories about the unseen (`CUL-11`), rules said to please or avoid them (`CUL-20`), and places tied to them, such as where lightning struck.
-  - **Why:** Religion grows from the same machinery as discovery (`MND-05`), and your own acts become part of what people try to explain (`GOD-06`).
+    - **The trigger:** a strong event that those who saw it cannot explain with what they know (`MND-05`): a sudden death or illness, a great or deadly hunt, lightning, a storm, a flood, a drought, a hard winter, a quake, or a vivid dream.
+    - **The templates**, each filled in with the real event (`CUL-07`):
+      - a spirit of the place where it happened;
+      - a spirit of an animal kind, after a great or deadly hunt;
+      - a spirit of the sky or the weather;
+      - the dead living on (`CUL-19`);
+      - a taboo, when harm follows an act (`CUL-20`);
+      - a rite, when a good outcome follows an act, which is then repeated before the same task (`MOM-04`);
+      - an offering, when a bad time ends after something was given or left.
+    - **Who believes:** any witness may, the spiritual, the frightened and the grieving more often (`MND-20`, `MND-19`); a spirit is kind or angry as the event helped or harmed.
+    - **Growing and fading:** fitting events and retelling (`CUL-24`) strengthen a belief, events that go against it weaken it, and one that nothing renews fades over years.
+      When most of a band holds it, it is the band's, and it gets a name (`CUL-18`).
+    - **What beliefs do:** people avoid feared places, keep taboos, hold rites and leave offerings, at a cost in time and things (`MND-09`).
+    - **Your acts** reach people only as nature (lightning, luck, dreams), so they feed the same templates (`GOD-06`).
+    - **Only beliefs:** spirits exist only in minds (`MND-27`), and nothing in nature answers them (`SCP-19`).
   - **Example:** Your lightning becomes a god (`MOM-03`).
 
-- `CUL-19` **Dreams and the dead** *(Decided)*: Dreams of dead relatives can lead people to believe the dead live on in some form.
-  That can shape burials, rites for ancestors and ideas of a soul.
-  - **How it works:** sleep replays memories of the dead (`MND-12`), so a dead relative is seen acting and speaking in a dream, and a dream is remembered as an event (`MND-18`) that the mind does not always tell apart from waking life (estimated share).
-    Each such dream, and each one told by others (`CUL-24`), feeds a belief that the dead person still exists somewhere (`MND-27`); that belief can lead to care for the body, gifts to the dead and rites for ancestors (`CUL-06`), and to the idea of a part of a person that lives on.
+- `CUL-19` **Ancestors** *(Decided)*: Grief and dreams of the dead lead people to believe the dead live on and watch over their kin.
+  - **How it works:** those who loved a dead person dream of them (`MND-12`), and each dream strengthens the belief, in the dreamer and in those who hear it told (`CUL-05`).
+    Respected elders and leaders are dreamt of most and become the strongest ancestors.
+    From the belief come graves with things for the dead (`MAT-08`), gifts and rites at graves, children named after ancestors (`CUL-18`), asking the dead for help, and fear of the dead who were wronged.
+    A dream you send of a dead person works like any other (`GOD-03`).
 
-- `CUL-20` **Taboos** *(Decided)*: Beliefs can harden into rules about what not to eat, where not to go and what not to do.
-  Some protect people by accident; others cost them dearly.
-  - **How it works:** a rule is a belief that an act is forbidden or required, with a feared result (`MND-27`); it forms when an act is followed by harm (sickness after eating something, a death after entering a cave, `MND-05`) or when others tell it, and becomes the group's rule once it is shared and others punish or shun those who break it (`CUL-06`).
-    Whether a rule helps depends on whether its cause was real: a ban on a poisonous plant protects, while a ban on a good food after a chance illness costs, and the mechanism can't tell which is which.
-    Breaking a rule one holds brings fear and shame (`MND-19`), so rules can outlast the memory of why they began.
+- `CUL-20` **Taboos** *(Decided)*: Acts that come to be forbidden: eating a food, entering a place, killing an animal, working at a sacred time, marrying certain kin (`CUL-27`).
+  - **How it works:** harm that follows an act, such as sickness after eating a fish or a death after entering a cave, can make the act forbidden (`MND-05`); taboos also come with spirits and from being told.
+    Breaking a taboo one holds brings fear and shame (`MND-19`), and others who hold it may punish the breaker (`CUL-06`).
+    A taboo on a poisonous plant protects and one on a good food costs, the people cannot tell which is which, and many taboos outlive their cause.
 
-### 10.4 Society
-
-- `CUL-06` **Institutions form from habit** *(Decided)*: Repeated behaviour hardens into shared, named things that people know, teach and enforce: a norm, a role, a rank, a rite.
-  They can change, split and dissolve, and they become the named things the chronicle and overlays talk about, such as "the rite of first fire" or "the elders' council".
+- `CUL-26` **Religion** *(Decided)*: Shared beliefs grow into religion: rites, sacred places, shamans and later priests, and myths.
   - **How it works:**
-    - **Shared expectations:** when many in a group do the same thing in the same situation (a shared habit, `MND-09`), each comes to believe the others will do it and expect it (`MND-23`); once people react to those who don't, with disapproval or punishment (`MND-26`), the shared expectation is a norm.
-    - **Roles and ranks:** when particular people keep doing particular things for others, such as leading the hunt or tending the sick, others come to expect it of them, which makes a role; shared expectations of who defers to whom make ranks.
-    - **Rites** are fixed sequences of acts done together at set times or events (`CUL-05`).
-    - **Named, taught and enforced:** people come to have words for them (`CUL-04`), teach them to children (`CUL-01`) and enforce them.
-    - **Change:** when behaviour changes, expectations follow; institutions split when groups split, and dissolve when nobody keeps them.
-    - **Named for you:** the game finds these patterns in the records and names them for the chronicle and overlays, while the simulation itself never names them (see Presentation).
+    - **A people's religion** is its shared spirits and ancestors, with their rites, taboos, sacred places and myths, named after its greatest spirit.
+    - **It grows in steps, each when its conditions hold:**
+      1. **Shared spirits** that a band names, fears or thanks (`CUL-05`).
+      2. **Rites** done together before the hunt, at graves or at festivals (`CUL-06`, `CUL-29`).
+      3. **Sacred places,** such as a struck hill, a spring or a field of graves, marked with paint, stones or offerings.
+      4. **A shaman:** the one others turn to about spirits, usually spiritual, respected and known for vivid dreams or for surviving a grave illness, who leads rites, heals with rites and herbs, and whose explanations others believe most.
+      5. **Myths** about the spirits and the people's beginnings (`CUL-11`).
+      6. **Priests and shrines:** in a village that can feed a full-time specialist (`CUL-32`), the shaman's role can become a priest's, often passed down in a family, with a built shrine and rites on the calendar (`CUL-13`).
+    - **Gods:** a spirit a whole people holds strongly, with rites, myths and a sacred place, is a god in all but name.
+    - **Change:** religions travel with marriages, trade and conquest (`CUL-16`), and gain and lose spirits as events come and go.
+    - **Effects:** shared rites lift mood and bind people, offerings and sometimes lives are given (`CUL-08`), and shamans and priests gain influence (`CUL-22`).
 
-- `CUL-07` **Nothing social is scripted** *(Decided)*: Family and marriage rules, sharing, exchange, trade, leadership, alliances, conflict and war all come from people's interactions.
-  - **How it works:** no rule in the code sets marriage, sharing, trade, leadership, alliances, conflict or war; each comes from minds choosing actions for their drives through their beliefs about the world and each other (`MND-09`, `MND-23`), and the inborn tendencies (`MND-21`, `MND-26`) are the only built-in social leanings.
-  - **Check:** a code search finds no social outcome named in decision logic (`PRN-07`), and comparison runs show social patterns differing between cultures.
+### 10.5 Society
 
-- `CUL-21` **Sharing and exchange** *(Decided)*: Food sharing, gifts, trade between bands, specialists, rules about who owns what and, perhaps one day, money.
-  Each emerges from need and repeated habit.
+- `CUL-30` **Bands** *(Decided)*: People live in bands of a few families that move, camp and share together; bands split when too big and join others when too small.
   - **How it works:**
-    - **Giving is an action:** passing a thing to someone (`BIO-21`) moves it to them.
-    - **Why people give:** to kin and those they're attached to (`MND-26`), to repay a debt (`MND-24`), to earn regard (generosity that others see raises their respect), and because others expect it (`CUL-06`).
-    - **Sharing food:** a big kill rots before one family can eat it (`WLD-21`), and sharing it leaves debts in others' records, so sharing pays off in lean times, as forager studies find.
-    - **Exchange:** one thing is given for another when each side values what it gets more, by its own needs and beliefs; between bands it needs contact and trust (`CUL-16`), and repeated exchanges become habits and then norms, with set partners, places and times.
-    - **Specialists:** someone much more skilled (`MND-06`), whose products others give things for, can spend more of their time on that skill.
-    - **Ownership:** rules about who may take what form as norms (`CUL-06`), from repeated expectations such as "I made it", "I found it" or "this is our place".
-    - **Money,** a thing many accept because others accept it, is possible, not promised (`RES-19`).
+    - **Belonging:** children belong to their parents' band, and married people to the one their custom names (`CUL-27`).
+    - **Moving:** each season the band chooses where to camp by its leader's plan and its members' mental maps (`CUL-22`, `MND-28`), moving a few times a year until it settles (`CUL-28`).
+    - **Splitting:** past about 40 people (tuned), when food runs short, or after a bitter quarrel or a failed challenge to the leader, some families leave to found a new band nearby; the two stay kin and keep meeting.
+    - **Joining:** a band below about 10 people (tuned) joins kin in another band.
+  - **Why:** Splitting spreads people over the land and begins new peoples (`CUL-23`).
 
-- `CUL-22` **Leadership and status** *(Decided)*: Depending on the culture, status comes from skill, generosity, age, success, fear or birth.
-  Leaders, councils and chiefs emerge where a group needs to act together.
+- `CUL-27` **Kin and marriage** *(Decided)*: Everyone knows their kin; who may marry whom, where couples live and what is given are customs that differ between peoples.
   - **How it works:**
-    - **Status** is how much others regard a person (respect in their records, `MND-24`); it rises with whatever others value in that culture, whether skill, generosity, success, age, fear or a parent's standing, and what is valued is itself copied (`CUL-01`).
-    - **Leaders:** when a group must act together (a hunt, a move, a fight), people follow someone they trust and respect who proposes a plan, expecting others to follow too (`MND-23`); done again and again, it becomes a role (`CUL-06`).
-    - **Councils and chiefs:** groups that often decide together settle on fixed ways of deciding, as norms (`CUL-06`); leadership passes to a child when others come to expect it.
-    - **Force:** boldness, dominance (`MND-20`) and strength can win status through fear, and others' anger at bullies (`MND-26`) limits it.
+    - **Kin:** parents, children, brothers and sisters and partners, and through them grandparents, cousins and in-laws (`MND-24`), favoured in sharing, help and revenge.
+    - **Marriage:** two adults drawn to each other court and pair (`MND-24`), and it is a marriage once their families accept it, often with gifts or a feast; pairing itself is never shown (`BIO-15`).
+    - **Customs**, set by what most marriages have done (`CUL-06`):
+      - who may not marry: always close family, from the inborn aversion to those one was raised with (`MND-21`), and for some peoples cousins or the whole band;
+      - where couples live: with the man's kin, the woman's kin, or either;
+      - what is given to the partner's family, and whether a marriage can end.
+    - **Marriages bind groups:** kin across bands make feuds costlier and alliances easier (`CUL-31`, `MOM-11`).
+    - **Work:** customs about who does what arise the same way, and no rule gives work by sex (`BIO-17`).
 
-- `CUL-08` **Dark history can happen** *(Decided)*: Violence and war, captivity and slavery, sacrifice, cruelty, infanticide and cannibalism can emerge like anything else.
+- `CUL-06` **Customs, norms and punishments** *(Decided)*: What most of a group does the same way becomes a custom; customs people expect are norms, and breaking one brings punishment.
+  - **How it works:**
+    - **Customs:** something most of a group has done the same way for a few years (tuned), such as sharing meat, burying the dead or holding a rite, is named (`CUL-18`), taught to children (`CUL-01`) and kept after its reason is forgotten (`MOM-04`).
+    - **Norms:** people think less of anyone who breaks a custom they expect (`MND-24`).
+    - **Punishments**, from mild to harsh: scorn and gossip, being left out of sharing, gifts paid to the wronged, a beating, being driven out, and under some chiefs death (`CUL-08`).
+      Who punishes, and how hard, is itself a custom (`CUL-22`).
+    - **Change:** customs shift with behaviour, split when groups split, and end when nobody keeps them.
+
+- `CUL-22` **Leaders, councils and chiefs** *(Decided)*: Bands follow leaders, bigger groups decide in councils, and settled or warring groups come to have chiefs.
+  - **How it works:**
+    - **Status** is how much others respect a person (`MND-24`), from skill, generosity, success, age, courage, a parent's standing or fear; which counts most is a custom of each people.
+    - **Leaders:** when a band must choose together (where to camp, whether to fight), it follows its most respected and trusted member, with no title at first.
+      A leader whose plans fail loses followers, and can be challenged or left behind (`CUL-30`).
+    - **Councils:** at gatherings of bands, in villages and in any group above about 40 people (tuned), the heads of families decide together.
+    - **Chiefs:** where there are stores, herds or fields to share out, or raids every few years, one leader may gain lasting power to settle quarrels, lead raids, share out stores and punish (`CUL-06`).
+      Once people expect a chief's child to follow, leadership is inherited.
+
+- `CUL-32` **Specialists** *(Decided)*: People known for a craft work for others, and where food allows, some do it full time.
+  - **How it works:** someone with much experience in a sector, such as stone, healing or music (`MND-06`), is sought out and repaid with food or gifts (`CUL-21`), and takes apprentices (`CUL-01`).
+    Where stores, fields or herds can feed people who neither gather nor hunt, mostly in villages (`CUL-28`), a knapper, potter, healer, priest (`CUL-26`) or copper-worker can live by the craft.
+    Specialists reach high skill and quality (`MAT-20`), which makes long chains such as copper practical, but a craft held by one specialist dies with them (`CUL-02`).
+
+- `CUL-21` **Sharing and trade** *(Decided)*: Food is shared, gifts bind people, and groups trade what they have plenty of for what they lack.
+  - **How it works:**
+    - **Sharing:** big kills are shared across the band by custom (`CUL-06`), since meat rots before one family can eat it (`MAT-19`), and shared food is repaid in lean times (`MND-24`).
+    - **Gifts** raise affection and leave a debt to repay (`MND-24`).
+    - **Trade:** when groups meet, at festivals or set places, each side swaps what it has plenty of, such as flint, ochre, shells, salt, furs, pots or copper, for what it lacks, valued by need and scarcity, never at a fixed price.
+      Regular partners in different bands come to trust and host each other.
+    - **Ownership:** what one makes is one's own; once people settle, houses, stores, fields and herds belong to families (`CUL-28`); and a people's land is its own (`CUL-23`).
+    - **No money** in the launch arc.
+
+- `CUL-31` **Feuds, raids and alliances** *(Decided)*: Killings breed feuds; hunger, greed and revenge breed raids; marriages, trade and shared enemies breed alliances.
+  - **How it works:**
+    - **Quarrels:** insults, theft, rivalry in love and unfair sharing sour opinions and can end in fights (`MND-24`).
+    - **Feuds:** a killing or a bad wound makes the victim's kin want revenge, weighed against the risk (`MND-09`), and each revenge can bring another.
+      A feud ends with payment, a marriage between the sides, a council's or chief's ruling, or one side leaving.
+    - **Raids:** a hungry, greedy or vengeful group may raid another when its leader believes it can win by numbers, weapons or surprise, to take food, stores, herds, land or captives (`CUL-08`).
+      Raids are rare between kin, common between hostile peoples, and grow with villages worth raiding.
+    - **Alliances:** groups on good terms help each other in raids and defence and share hunting grounds, often sealed with a marriage or a feast, until relations sour.
+    - **Wars:** years of raids back and forth between two peoples make a war, which the book of ages names (`PRE-05`).
+
+- `CUL-08` **Dark history can happen** *(Decided)*: Violence and war, captivity and slavery, sacrifice, cruelty, infanticide and cannibalism can arise like anything else.
   Sexual acts stay abstract (`BIO-15`).
-  What is shown is controlled by the content setting (`PRE-18`).
-  - **How it works:** these come from the same mechanisms as everything else: violence is striking a person (`MAT-12`, `BIO-13`), chosen when a mind believes it serves its drives, such as fear, anger, status or hunger, at a cost it weighs (`MND-09`); captivity is holding someone by force; sacrifice is a killing believed to please an unseen someone (`CUL-05`); infanticide comes when parents believe a child can't be kept alive; and cannibalism comes from starvation or rite.
-    None is a rule, and no action exists for sexual violence (`BIO-15`).
+  What is shown is set by the content setting (`PRE-18`).
+  - **How it works:** these come from the same rules as everything else, never from a script: violence is a choice weighed against its cost (`MND-09`); captives taken in raids can be kept to work (`CUL-31`); sacrifice is an offering of a life where fear and belief run high (`CUL-05`); infanticide comes when parents believe they cannot feed a newborn; and cannibalism comes from starvation or rite.
+    No action exists for sexual violence.
+    Dark events are always stated as plain facts from the data, never written by the writer AI (`PRE-17`).
 
-- `CUL-23` **Peoples** *(Decided)*: The game recognises peoples by what their members share (language, beliefs, customs and style) and names them by what they call themselves.
-  Boundaries can be blurry and shift over time.
-  Peoples split, merge and disappear.
-  - **How it works:** the game measures how much groups share: words (`CUL-04`), beliefs (`MND-27`), customs (`CUL-06`) and style (`CUL-12`), together with how often they meet; people who share much and meet often are grouped into a people, by tuned thresholds.
-    This is done by the views, never by the simulation (see Presentation), and is worked out again as things change, so one person can belong partly to two peoples, and peoples split, merge and disappear.
-    A people is named by what its members call themselves (`CUL-18`), if they have such a name, and otherwise described.
-
-### 10.5 Expression
-
-- `CUL-25` **Expression is real** *(Decided)*: Each form of expression exists as a real thing in the world: paint on rock, marks on wood and bone, sound in the air, movement in a dance.
-  What it holds is kept as content: a song as its notes and rhythm; a picture or map as what it shows and how (composition, style, skill and pigments), from which the game draws it.
+- `CUL-23` **Peoples and territories** *(Decided)*: Bands that share a name, customs and beliefs make a people with its own land; peoples split, merge and vanish.
   - **How it works:**
-    - **A real thing:** paint is pigment on a surface (`MAT-10`), weathering by the laws (`RCK-16`); marks are cuts (`MAT-04`); a song is sound in the air, from voices or instruments; a dance is bodies moving (`BIO-21`).
-    - **Made by skills:** drawing, carving, singing and dancing are skills (`MND-06`): the maker intends content drawn from their memories and beliefs, and their strokes land with their own error (`MAT-06`), so a clumsy painter's deer is harder to recognise.
-    - **Content kept:** a picture's record holds what it shows and where, its style, the maker's skill and the pigments used; a song's, its notes, rhythm and words; a dance's, its sequence of movements.
-    - **Perceived by others** through sight or hearing (`MND-03`), who recognise in it the things they know (`CUL-03`).
+    - **The first people:** the starting bands are one people, with a name for themselves (`BIO-03`).
+    - **New peoples:** bands that have rarely met, married or feasted with the rest of their people for about two generations (about 50 game years, tuned) become a new people, with its own name from a place, a founder or a spirit.
+      From then on its customs, beliefs, style and new words go their own way.
+    - **Merging and ending:** a people can be absorbed by marriage or conquest, and it ends when its last band dies out or joins another.
+    - **Territory:** the land its bands use (camps, hunting grounds, sacred places, graves), shifting as they move; strangers there are met with caution, and driven off or raided if relations are bad (`CUL-31`).
+    - **Relations:** each people stands toward each other one somewhere from friendly to hostile, warmed by marriages, trade and festivals and chilled by raids and killings; people trust their own people most.
+    - **Shown** on the map (`PRE-07`) and in the book of ages, with one timeline for each people (`PRE-05`).
 
-- `CUL-09` **Visual art** *(Decided)*: Paintings, carvings and body decoration composed from their own memories and myths, made with real pigments and tools (`RCK-15`, `RCK-16`) on cave walls, objects and bodies.
-  What they depict reflects what matters to them (`MOM-07`).
-  - **How it works:** a person makes a picture when their drives and beliefs favour it, such as play, regard from others, a rite (`CUL-05`), or a memory that matters, and its content comes from their strongest memories and beliefs at the time (`MND-18`).
-    Pigments must be found and prepared, such as ochre ground and mixed with fat or water (`RCK-15`, `RCK-16`), and surfaces are real; style is copied from others (`CUL-12`).
-
-- `CUL-10` **Music and dance** *(Decided)*: Rhythms, scales, songs and instruments that grow out of each culture.
-  Instruments follow real acoustics (`MAT-03`), from bone flutes to drums of stretched hide.
+- `CUL-28` **Villages** *(Decided)*: A band settles all year in one place once nearby food lasts all year, and much changes when it does.
   - **How it works:**
-    - **Sound patterns:** voices and struck, blown or plucked things make sounds with pitch, loudness and timing (`BIO-21`, `MAT-04`); people repeat patterns they enjoy, pulled by the beat tendency (`MND-26`), and copy others' (`CUL-01`), so a group's songs come to share their scales and rhythms, which drift (`CUL-12`).
-    - **Instruments:** anything that rings when struck, blown or plucked sounds by the vibration law (`SND-06`); people who notice that a hole or a length changes the pitch can learn to make the notes they want (`MND-05`).
-    - **Scales:** which pitches sound well together comes from the physics of overtones, but which scale a culture uses is copied, never set.
-    - **Dance:** moving together to a beat (`MND-26`), in sequences learned and copied like any skill.
+    - **Settling:** when stores, fields, herds or rich fishing feed the band through every season, staying beats moving (`CUL-30`); after a full year in one place, its camp is a village.
+    - **What changes:**
+      - lasting houses, stores and pens replace huts (`MAT-04`), and rubbish heaps grow (`MAT-08`);
+      - villages grow to a few hundred people, and families own houses, stores, fields and herds, so some grow rich (`CUL-21`);
+      - councils, chiefs (`CUL-22`), full-time specialists (`CUL-32`), priests and shrines (`CUL-26`) become possible;
+      - crowd illnesses spread (`BIO-05`), stores draw raiders (`CUL-31`), and firewood and game grow scarce nearby.
+    - **Abandoned:** drought, failed harvests, illness or raids can empty a village, leaving an old camp for later people to find (`PRE-09`).
+    - **Pace:** villages appear 100–300 years from the start in typical worlds (`TIM-19`).
 
-- `CUL-11` **Myths and stories** *(Decided)*: Built from the band's own memories, beliefs and dreams, told and retold, and changing a little with each telling.
-  - **How it works:** a story is a retold run of memories, beliefs or dreams (`CUL-24`); hearers keep it as a memory told by that person, and each retelling rebuilds it (`MND-18`), drifting toward what the teller believes and what moves the listeners (`MND-08`).
-    Myths are stories about unseen beings and beginnings, built from the band's beliefs (`CUL-05`), memories and dreams (`CUL-19`); stories told often at gatherings become shared.
-    They are kept as records, which the writer puts into words for you (`PRE-37`).
+### 10.6 Expression
 
-- `CUL-12` **Style and ornament** *(Decided)*: Each culture's look in tools, clothing and buildings, drifting over time, so objects could be dated by their style.
-  - **How it works:** style is the settings people copy: the shapes, sizes and angles in a toolmaking skill (`MND-06`), and the patterns and forms in what they make (`CUL-25`), copied with small errors (`CUL-01`), so each group's style drifts at a pace set by copying error and contact (`CUL-16`).
-    Ornament, such as marks, beads or paint, is added when drives favour it, such as regard from others or showing one's group (`MND-26`).
-    Because the drift is gradual and every thing keeps its shape, things carry their time's style and can be dated by it (see Presentation).
+- `CUL-25` **Expression is real** *(Decided)*: Every work of art is a real thing or a real performance, and keeps what it shows and who made it.
+  - **How it works:** paintings, carvings, beads, figures and instruments are made by blueprints from real materials (`MAT-04`) and wear away like any thing (`MAT-20`); songs, dances and told stories leave nothing behind and live on in memory (`CUL-01`).
+    Each work keeps the real event or myth it shows, its maker, its people's style and its date, so you can tap it and see its story (`PRE-15`), and people who see or hear it recall what it shows (`CUL-03`).
 
-- `CUL-13` **Their sky and calendar** *(Decided)*: Constellations they name, seasons they track, festivals they keep (`WLD-07`).
-  - **How it works:** the sky is seen like anything else (`BIO-18`); its cycles, such as moon phases, where the sun rises and which stars rise at dawn, become beliefs about time (`MND-27`), such as "when that star rises at dawn, the salmon come", which plans can use (`MND-22`).
-    Groups of stars become concepts when people point them out and name them (`CUL-18`), tied to stories (`CUL-11`); gatherings at set points of the year become festivals (`CUL-06`); and tallies of days or moons (`CUL-03`) make the counting reliable.
+- `CUL-09` **Visual art** *(Decided)*: Paintings and carvings composed from prepared motifs in each people's style, most often showing real events.
+  - **How it works:**
+    - **Motifs:** about 100 small pictures drawn by the designers: each animal kind, people in poses (hunting, dancing, carrying, lying dead), tools and weapons, fire, sun, rain, lightning, water, trees, huts and hands, and patterns such as dots, zigzags and spirals.
+    - **What is shown:** one of the maker's strongest memories, often a hunt, a death, a flood or a festival, or a myth (`CUL-11`), with motifs for its real animals, people and things set into a scene.
+    - **How it looks:** drawn in the people's style (`CUL-12`), in the colours of the pigments used (`RCK-15`, `RCK-16`), as true and fine as the maker's art skill allows (`MND-06`).
+    - **Where:** cave and shelter walls, rocks, bone, antler, wood, hides, pots and bodies, and small carved figures and beads.
+    - **Why people make it:** after a strong event, at rites, for respect or for play, the playful and the spiritual more often (`MND-20`); art at a sacred place strengthens its beliefs (`CUL-26`).
+  - **Example:** A painting that remembers (`MOM-07`).
 
-- `CUL-14` **Their maps and names** *(Decided)*: Places named in their own languages, and maps drawn the way they see the land.
-  - **How it works:** places are named as people talk about them (`CUL-18`); a map is a picture (`CUL-25`) of places from the maker's mental map (`MND-18`), laid out by routes and travel times rather than true distance and showing what matters to them, such as water and danger, drawn when someone wants to show another a place.
+- `CUL-10` **Music and dance** *(Decided)*: Songs generated in each people's musical style, played on instruments made from blueprints, and danced to with each people's own steps.
+  - **How it works:**
+    - **Musical style:** each people has a scale of a few notes, favourite rhythms and a pace, taken from its parent people and drifting slowly (`CUL-12`).
+    - **Songs:** now and then someone with music skill makes a new one in that style, about what matters to them (a hunt, a death, a spirit, a child, a love, a festival), and names it (`CUL-18`).
+      Songs pass on by singing together (`CUL-01`), change a little as they do, and are lost when nobody remembers them.
+    - **Instruments** are blueprints (`MAT-04`): bone flutes, hide drums, rattles, clappers and bullroarers, each sounding by its materials (`SND-06`).
+    - **Dances** join about 20 prepared moves (steps, stamps, turns, jumps, raised arms) into each people's own dances; dancing together lifts mood and draws people closer.
+    - **Uses:** lullabies, work songs, laments, hunting songs and rites (`MOM-04`), heard when you are near (`SND-02`).
 
-- `CUL-15` **Remembered lives** *(Decided)*: Genealogies, and legends of remarkable people as their culture remembers them.
-  - **How it works:** genealogies are kinship as people believe and tell it (`MND-24`, `CUL-24`), passed down while it is remembered and retold, with gaps and errors (`MND-18`); legends are retold stories about people whose deeds were memorable (`CUL-11`), changing with each telling and sometimes merging people or adding the unseen (`CUL-05`).
-    The simulation keeps the true record too (`PRE-10`), so legend can be set against what really happened.
+- `CUL-11` **Myths and stories** *(Decided)*: Retold memories become stories, and stories of spirits and beginnings become myths, changing a little with each telling.
+  - **How it works:**
+    - **Stories:** a memory retold often becomes a story the group shares (`MND-18`, `CUL-24`).
+    - **Myths** take one of about a dozen story shapes, filled with the people's real events (`CUL-07`): how a spirit came to be, how a gift such as fire came, how the people began, a great flood or winter, a hero's deed, why a taboo is kept, or a journey to new land.
+    - **Changing:** a retelling can change one detail: numbers grow, a deed moves to a more famous person, or a spirit's part grows.
+    - **Kept by telling** at the fire, at rites and at festivals, learned by children, and lost if nobody tells them.
+    - **Written for you** in prose by the writer AI from the myth's facts, adding none (`PRE-17`).
+  - **Example:** Ama's first fire becomes "Ama stole the fire that sleeps inside the wood".
+
+- `CUL-15` **Remembered lives** *(Decided)*: Genealogies and legends: who descends from whom, and the remarkable people a culture remembers.
+  - **How it works:** people remember their forebears back a few generations, further where ancestors are honoured (`CUL-19`), with gaps and errors (`MND-18`), and chiefs and priests may claim descent from a founder or a spirit (`CUL-22`).
+    Legends are stories of remarkable people, growing with each retelling (`CUL-11`).
+    The true family tree is kept too, so legend can be set against what happened (`PRE-10`).
+
+- `CUL-12` **Style and ornament** *(Decided)*: Each people has its own look in tools, clothes, huts, art and music, drifting over time, so a thing shows who made it and roughly when.
+  - **How it works:** a style is a few choices for each kind of thing, such as proportions, patterns and favourite colours, and the way it draws motifs (`CUL-09`) and makes songs (`CUL-10`).
+    A new people starts with its parent's style, slightly changed; each generation copies it with small changes, and peoples in contact borrow from each other (`CUL-16`).
+    Every made thing carries its maker's people's style (`PRE-43`), so finds can be told apart and roughly dated (`PRE-09`).
+    Beads, pendants, body paint and decorated clothes show status and belonging.
+
+- `CUL-14` **Their maps** *(Decided)*: Maps drawn the way they see the land, right or wrong.
+  - **How it works:** someone showing others a far place may draw a map on the ground, a hide, bone or rock: motifs for rivers, hills, camps and herds (`CUL-09`), laid out as the maker remembers them (`MND-28`), so distances bend and mistakes stay.
+    Those who see it and know its marks learn those places, as if told (`CUL-24`), and a map on the ground is gone by the next rain.
+
+- `CUL-13` **Their calendar** *(Decided)*: People learn the year's signs, name its seasons and mark the times that matter, which set their plans and festivals.
+  - **How it works:** the seasons of the 60-day year (`TIM-18`) show in signs people learn (`MND-28`): first frost, herds passing, nuts falling, the river rising, the longest day.
+    A people names its seasons and key moments (`CUL-18`), such as "when the salmon come", and plans by them (`MND-22`), and tallies of days (`CUL-03`) keep festivals on the right days (`CUL-29`).
+    Each people's calendar is its own, apart from the game's dates (`TIM-14`).
+
+- `CUL-29` **Festivals** *(Decided)*: Gatherings at set times of their calendar for feasts, rites, songs and dances, marriages and trade.
+  - **How it works:**
+    - **Beginning:** when bands meet at the same place and season a few years running (tuned), usually where food is then plentiful (a salmon run, a nut harvest, a herd crossing), the meeting becomes a custom (`CUL-06`), held each year by their calendar (`CUL-13`), often at a sacred place (`CUL-26`).
+    - **What happens:** feasts, rites to spirits and ancestors, songs and dances (`CUL-10`), myths (`CUL-11`), marriages (`CUL-27`), trade (`CUL-21`), games, and councils of leaders (`CUL-22`).
+    - **Effects:** joy and belonging run high for days (`MND-19`), and crafts, beliefs, songs and news spread between bands (`CUL-16`), so peoples that feast together stay alike.
+    - **Named** and entered in the book of ages (`PRE-05`); a festival not held for a few years is forgotten.
 
 ## 11. Presentation
 
 ### 11.1 Visual style
 
-This is how the world looks.
+This is how the world looks: the look you approved on the visual-style mockup.
 It is written to stand on its own, without needing any image to understand it.
 
 - `PRE-01` **Detailed pixel art** *(Decided)*: Everything on screen is crisp pixel art: limited colours, hard pixel edges, no blur and no smooth gradients.
-  - **How it works:** the picture is drawn at a low resolution, about a quarter of the screen's in each direction (`PRE-22`), and enlarged by whole pixels with no smoothing; every colour comes from the material ladders of one palette (`PRE-20`), so there is no blur and no smooth gradient.
+  - **How it works:** the picture is drawn at a low resolution, about a quarter of the screen's in each direction (`PRE-22`), and enlarged by whole pixels with no smoothing; every colour comes from the material ladders of one palette (`PRE-20`).
 
 - `PRE-02` **Pixel-rendered 3D** *(Decided)*
   - **What:** The world is a real 3D world, drawn at low resolution and enlarged with hard pixel edges.
     It looks like hand-made pixel art but has real depth, scale and structure.
     The camera turns freely and zooms continuously.
-  - **How it works:** the 3D scene is built from the simulation's own state: the land from its heights and 3D pieces at the detail each distance needs (`WLD-12`), things from their records' shapes (`MAT-10`), and plants and animals from their records or their patches' counts (`WLD-13`).
-    It is drawn on the graphics chip at the low resolution of `PRE-01`, which was measured fast enough on the phone.
-  - **Why:** Real 3D shows height, depth, sizes and structures (cliffs, caves, shelters, later buildings) at every zoom.
-    The land comes straight from the simulation instead of being hand-drawn, which suits generated worlds.
+  - **How it works:** the picture shows what the world holds at that moment: the ground's shape, rock, water and plants from its areas and world cells (`WLD-12`), each thing from its model (`PRE-42`), and people and animals as they are (`PRE-27`).
+    Places nobody has visited are drawn from the seed, exactly as people will find them (`WLD-13`).
+    The look was measured smooth on the phone at every zoom.
+  - **Why:** Real 3D shows height, depth, sizes and structures (cliffs, caves, huts, later villages) at every zoom.
+    The land comes straight from the world instead of being hand-drawn, which suits generated worlds.
   - **Example:** At dusk, from an oblique angle, you see a band's camp below a limestone cliff: the cave mouth in shadow, long shadows across the grass, the river beyond.
     You turn the camera and fly down until one person fills the screen.
 
 - `PRE-20` **Colour in steps** *(Decided)*
   - **What:** Every material has a short ladder of shades, about 4–7 colours, drawn from one master palette.
-    Ladders are made automatically from each material's simulated colour (`MAT-03`) and matched to the palette; common materials, such as grass, limestone and water, get hand-picked ladders instead.
+    Ladders are made automatically from each material's colour (`MAT-10`) and matched to the palette; common materials, such as grass, limestone and water, get hand-picked ladders instead.
     Light chooses a step on the ladder.
     Where two steps meet, a fine pixel pattern blends them in a narrow band only; surfaces are never speckled all over.
     The pattern is fixed to the surface, so it doesn't swim when the camera moves.
-  - **How it works:** each material's ladder is made from its simulated colour (`MAT-03`) by choosing 4–7 palette colours from its darkest to its lightest shade, or taken from its hand-picked ladder.
-    The light reaching each point of a surface (sun, sky, fire and shadow, `PRE-30`) picks the step, and only within a narrow band at each step's edge does a fine pattern, fixed in the surface's own coordinates, mix the two steps.
+  - **How it works:** a ladder runs from a material's darkest shade to its lightest; the light reaching each point of a surface (sun, sky, fire and shadow, `PRE-30`) picks the step, and only in a narrow band at each step's edge does the fine pattern mix two steps.
   - **Why:** Clean colour is what separates pixel art from a shrunken photograph.
 
 - `PRE-21` **Outlines and lit edges** *(Decided)*
   - **What:** A one-pixel dark outline wherever one thing stands in front of another: people, animals, trees, rocks, the top edge of a cliff.
     A one-pixel bright edge where the sun or a fire catches a shape, such as the sunlit rim of a cliff or the fire-facing side of a person.
-  - **How it works:** a dark pixel is drawn wherever the depth jumps between neighbouring pixels, where one thing stands in front of another; a bright pixel is drawn at a shape's edge where its surface faces the sun or a fire strongly (`PRE-30`).
+  - **How it works:** a dark pixel is drawn wherever something near meets something farther behind it, and a bright pixel at a shape's edge where its surface faces the sun or a fire strongly (`PRE-30`).
   - **Why:** Crisp silhouettes keep small things readable on a phone screen.
 
 - `PRE-22` **Stable pixels** *(Decided)*
@@ -2499,44 +2700,45 @@ It is written to stand on its own, without needing any image to understand it.
 - `PRE-23` **Rock faces** *(Decided)*
   - **What:** Cliffs show their geology: horizontal rock layers of different thicknesses, irregular vertical cracks, a few long fissures, lichen, water stains, soot above inhabited caves, grass hanging over the top edge, and scree at the foot.
     The same layers continue underground (`PRE-25`).
-  - **How it works:** a cliff is drawn from its rock column (`WLD-09`): each layer's rock and thickness, cracks spaced as its joints are, and long fissures from faults; lichen and water stains from how wet and how old the face is and which way it faces (`WLD-16`); soot where hearth smoke has settled above lived-in caves (`MAT-04`); overhanging grass from the plants of the patch at the top (`WLD-12`); and scree from the loose rock actually lying at the foot (`WLD-14`).
+  - **How it works:** a cliff is drawn from the rock layers where it stands (`WLD-09`), each with its rock and thickness, cracks and fissures.
+    Lichen and water stains come from how wet the face is and which way it faces (`WLD-16`), soot from the smoke of fires below over the years (`MAT-18`), the overhanging grass from the plants growing at the top (`WLD-31`), and the scree from the loose stones at the foot (`WLD-12`).
   - **Why:** Geology is part of the story (`WLD-14`).
     What people can find depends on what the land is made of, and the rock should show it.
 
 - `PRE-24` **Real shapes** *(Decided)*
   - **What:** Overhangs, caves, rock shelters and, later, buildings have real depth.
-  - **How it works:** caves, overhangs and shelters are the land's 3D pieces (`WLD-12`), and built things are drawn from the things and joints they are made of (`MAT-10`); inside, light comes only from openings and fires (`PRE-30`), so the depths stay dark.
+  - **How it works:** caves, overhangs and shelters are part of the ground's real shape in each area (`WLD-12`), and built things are drawn from their models and materials (`PRE-42`); inside, light comes only from openings and fires (`PRE-30`), so the depths stay dark.
   - **Example:** Looking into a cave mouth from an angle, you see its dark interior, the firelit floor and the hide windbreak across the entrance.
 
 - `PRE-25` **Cut-away view** *(Decided)*
   - **What:** The ground can be sliced open to show what lies beneath: rock layers, soils, underground water, and the buried layers of past life (hearths, tools, bones, graves).
-  - **How it works:** a slice along the line you choose is drawn from the rock columns (`WLD-09`), the soil layers (`WLD-27`), the ground water (`WLD-17`), and the buried things at their depths, in the layers that buried them (`MAT-08`).
+  - **How it works:** a slice along the line you choose shows the rock layers (`WLD-09`), the soil (`WLD-27`), water held in the ground (`WLD-17`), and buried things at their depths, in the layers that buried them (`MAT-08`).
   - **Why:** It is how you see geology and dig through history.
-    The archaeology view (`PRE-09`) uses it.
+    The view of graves and old camps (`PRE-09`) uses it.
 
 - `PRE-26` **Water** *(Decided)*
   - **What:** Rivers meander and change width, with gravel bars, reeds, lines that follow the current, ripples at fords, glints of sun and drifting mist.
     From far away a river never becomes thinner than one or two art pixels, so it stays readable.
-  - **How it works:** a river is drawn from its channel line and width (`WLD-15`) and its flow (`WLD-17`): lines that follow the current's direction and speed, gravel bars and reeds from the patches along it, ripples where it runs shallow, glints by the sun's angle (`PRE-30`), and mist where the weather makes fog (`WLD-16`); seen from far away, it is drawn at least one or two art pixels wide.
+  - **How it works:** a river is drawn from its course, width and flow (`WLD-17`): lines that follow the current's direction and speed, gravel bars and reeds from the ground and plants along it (`WLD-12`), ripples where it runs shallow, glints by the sun's angle (`PRE-30`), and mist where the weather makes fog (`WLD-16`).
 
 - `PRE-27` **People and animals** *(Decided)*
-  - **What:** People and animals are small 3D figures drawn through the same pixel look and animated at a deliberate, sprite-like rhythm of about 8–12 poses a second.
-    They look like crisp pixel art from any angle and turn properly with the camera.
+  - **What:** People and animals are small 3D figures built from tiny blocks, with separate parts (head, torso, arms and legs), drawn through the same pixel look.
+    They are posed like sprites, about 10 poses a second (`PRE-44`), so they look like crisp pixel art from any angle and turn properly with the camera.
     At the closest zoom, a person is about 40–60 art pixels tall: enough for a face, hair, clothing and gestures.
-  - **How it works:** each figure is a 3D body made of parts, shaped by that body's own measurements and looks (`BIO-08`, `BIO-22`) and wearing what it actually wears; its pose comes from the action under way (`MAT-12`), animated from the action's settings (`MAT-06`), and its face shows its strongest feeling (`MND-19`).
-    It is drawn through the pixel look, with poses changing 8–12 times a second.
-  - **Why:** The simulation will produce actions nobody planned (`PRN-01`).
-    Figures built from parts can perform any of them from any angle, without a new drawing for each.
+  - **How it works:** each figure is built from its body's parts (`BIO-13`), shaped by its own build, age and looks (`BIO-08`, `BIO-22`), and wears and carries what that person actually has, drawn from its materials (`PRE-42`).
+    Its face shows its strongest feeling (`MND-19`), and its wounds show in how it moves (`PRE-44`).
+    Animals are built the same way on their own body pattern, with wings or fins where they have them (`BIO-19`).
+  - **Why:** Figures built from parts can play every animation from any side, and show each person's own body and clothes, without a new drawing for each.
 
-- `PRE-28` **Readable from far away** *(Decided)*: As you zoom out, people become tiny outlined figures in strong clothing colours, then groups become small markers, then a camp becomes a glowing point.
-  - **How it works:** by its size on screen (tuned thresholds), a figure is drawn in full, then as a tiny outlined figure in its clothing's strongest colour; a group close together becomes one marker at its centre, and a camp a glowing point at its hearth.
+- `PRE-28` **Readable from far away** *(Decided)*: As you zoom out, people become tiny outlined figures in their strongest colours, then groups become small markers, then a camp becomes a point that glows if it has a fire.
+  - **How it works:** by its size on screen (tuned thresholds), a figure is drawn in full, then as a tiny outlined figure in its strongest colour; a group close together becomes one marker at its centre, and a camp a point at its hearth.
 
 - `PRE-29` **From above** *(Decided)*
   - **What:** As the camera rises, it tilts toward looking straight down, and the land shifts into a clean map look: crisp colours for forest, grassland, rock and water, rivers as lines, shaded hills.
     Map overlays (`PRE-07`) sit on this view.
     At the very top, the whole world appears as a globe (`WLD-02`).
     Close up to globe is one continuous zoom (`PRE-03`).
-  - **How it works:** as the camera rises past set heights, its tilt eases toward straight down and the land's drawing blends into the map look: each patch in a flat colour for its cover (`WLD-12`), rivers as lines, and hills shaded from the heights.
+  - **How it works:** as the camera rises past set heights, its tilt eases toward straight down and the land's drawing blends into the map look: each world cell in a flat colour for its plant cover (`WLD-12`), rivers as lines, and hills shaded from their heights.
   - **Why:** A landscape seen from high up at an angle turns to mush.
     A map stays clear at every height.
 
@@ -2544,31 +2746,58 @@ It is written to stand on its own, without needing any image to understand it.
   - **What:** One master palette, with versions for each time of day (dawn, day, dusk, night) and each season.
     The sun casts real shadows, the sky tints everything, and distance adds haze.
     A fire lights its surroundings with a warm, flickering glow that fades with distance, warms the faces of people nearby, and sends up smoke and embers.
-  - **How it works:** the sun's and moons' places in the sky (`WLD-07`) set the light's direction, and the time of day and season pick the palette's version, blended through the changes; shadows come from the 3D scene, and haze grows with distance.
-    Each fire is a light whose brightness comes from the heat it gives off (`MAT-04`), flickering as its burning varies and fading with distance, with smoke and embers from what it burns.
+  - **How it works:** the sun's direction and height come from the time of day, the season (`TIM-18`) and the latitude (`WLD-01`), and the time of day and season pick the palette's version, blended through the changes; shadows come from the 3D scene, and haze grows with distance.
+    Each fire is a light as bright as its heat (`MAT-18`), flickering as it burns and fading with distance, with smoke and embers from what it burns.
 
 - `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the whole world, drawn as a globe, down to one person chipping flint.
-  - **How it works:** one camera rises continuously from a person's height to the globe; the drawing changes with on-screen size (`PRE-28`, `PRE-29`), and detail made for the picture streams in from the simulation's own generator (`WLD-13`), so there is never a loading break.
+  - **How it works:** one camera moves continuously from the globe through the world map, a region, a valley and a camp down to one person; the drawing changes with size on screen (`PRE-28`, `PRE-29`), and an area seen for the first time is made from the seed as you arrive, exactly as people will find it (`WLD-13`), so there is never a loading break.
 
-- `PRE-04` **Sharp at every zoom** *(Decided)*: The pixel art stays sharp and readable at every zoom level (`PRE-22`, `PRE-28`, `PRE-29`).
-  - **How it works:** the art pixel never changes size (`PRE-22`), small things switch to forms that stay readable (`PRE-28`), and high views become the map (`PRE-29`).
+- `PRE-04` **Sharp at every zoom** *(Decided)*: The pixel art stays sharp and readable at every zoom level: the art pixel never changes size (`PRE-22`), small things switch to forms that stay readable (`PRE-28`), and high views become the map (`PRE-29`).
 
 - `PRE-31` **Visual review** *(Decided)*
-  - **Done when:** at every milestone, screenshots at each zoom level, in both orientations and at every time of day, pass a review for:
+  - **Done when:** at every milestone stage, screenshots at each zoom level, in both orientations and at every time of day, and short clips of people at work, pass a review for:
     - clean colour, with no speckled surfaces;
     - crisp silhouettes;
     - pixels that stay still while the camera is still or panning, and crawl as little as possible while it turns or zooms;
-    - people and animals readable at phone size.
-  - **How it works:** a tool captures the screenshots on the phone from a fixed set of saved worlds, at each zoom, in both orientations and at each time of day; the review checks them against the list, and you take part as the final judge (`PRC-10`).
+    - people and animals readable at phone size;
+    - things that show what they are made of (`PRE-42`), and animations that read clearly as what they show (`PRE-44`).
+  - **How it works:** a tool captures the screenshots and clips on the phone from a fixed set of saved worlds; the review checks them against the list, and you take part as the final judge (`PRC-10`).
 
-### 11.2 On the screen
+### 11.2 Things and movement
+
+- `PRE-42` **Built from their materials** *(Decided)*
+  - **What:** Each thing is drawn from a prepared model whose parts take the colours and shapes of the materials actually used.
+    A hut of birch poles and hides looks pale and brown; one of reeds looks straw-yellow; more poles make a bigger hut.
+  - **How it works:** each named result (`MAT-21`) has one model, and each of its parts stands for one input of its blueprint (`MAT-04`), taking that input's colour ladder (`PRE-20`) and form (a pole, a hide, a bundle, a stone), with the amounts used setting its size and count; its icon, for cards and the book of ages, is drawn from the same model.
+    Raw materials and found things are drawn at their real size and colour (`MAT-10`), and plants by their growth stage and season, from bud to bare (`WLD-31`).
+    Wear, quality and timers show too: edges chip, bindings fray, a well-made thing looks even, and meat darkens as it dries (`MAT-19`, `MAT-20`).
+  - **Why:** You can read a camp at a glance, and two routes to one result look as different as their materials (`MAT-07`).
+  - **Done when:** every named result in the launch catalogue has its model, and one result made from two different materials looks clearly different at camp zoom.
+
+- `PRE-43` **Variety** *(Decided)*: No two things look quite alike: each gets its own small differences in proportions, lean, wear and colour, and the style of the people who made it.
+  Two huts in one camp differ a little; huts of two peoples differ more.
+  - **How it works:** each thing's differences come from its own seed, within limits set for its model, so it looks the same every time you see it; its maker people's style (`CUL-12`) sets proportions and ornament, and shifts slowly as it is copied, so things can be dated by their look.
+    Trees, bushes and rocks vary the same way (`WLD-31`).
+  - **Why:** Variety makes a generated world believable instead of tiled.
+
+- `PRE-44` **Animations** *(Decided)*
+  - **What:** Every base action and everyday activity has its own animation, with variants, posed about 10 times a second.
+    You can tell at a glance who is knapping, scraping a hide, carrying wood, tending a child or dancing.
+  - **How it works:**
+    - **One for each** of the 21 base actions (`MAT-06`) and of the everyday activities, such as walking, eating, sleeping, talking, playing, fighting, fleeing, teaching, singing and dancing (`BIO-21`), lasting as long as the activity does (`TIM-17`).
+    - **Variants:** a few versions of each, shaded by who does it: a child or an elder, a limp from a wound (`BIO-13`), slumped in grief or quick in fear (`MND-19`), clumsy or skilled (`MND-06`), hunched in the cold, with small random differences so a crowd never moves in step.
+    - **Animals:** each body pattern (four legs, wings, fins) has its own set, from grazing and resting to fighting, fleeing, swimming or flying (`BIO-19`).
+    - **At speed:** each figure keeps showing its current activity at a steady pace, even when each stroke would be too fast to see (`TIM-01`).
+  - **Why:** Lively, varied movement is what makes a camp feel alive.
+  - **Done when:** every base action and everyday activity has an animation with at least two versions, shaded as above, that reads clearly at camp zoom (`PRE-31`).
+
+### 11.3 On the screen
 
 - `PRE-32` **World first** *(Decided)*
   - **What:** The world fills the screen.
-    Controls and panels appear only when you ask for them: tap a person, animal, group or place to open its card, or swipe up for the chronicle and other views.
-    Nothing stays on screen unless you called it up, apart from a live moment appearing briefly (`PRE-08`).
-    A brief touch shows the date, the real speed of time and the time control (`PRE-33`).
-  - **How it works:** nothing is drawn over the world until you call it: a tap opens the card of what is under your finger, a swipe up opens the views, and both close when dismissed; the brief touch shows the date, the real speed and the time controls, which fade after a few seconds (tuned).
+    Controls and panels appear only when you ask for them: tap a person, animal, group, thing or place to open its card, or swipe up for the book of ages and other views.
+    Nothing stays on screen unless you called it up, apart from a live moment appearing briefly (`PRE-08`) and talk bubbles at close zoom (`PRE-45`).
+    A brief touch shows the date, the real speed of time and the time control (`PRE-33`), which fade after a few seconds (tuned).
   - **Why:** The world is the point.
     It should feel like looking at a living place, not at a dashboard.
   - **Example:** You open the app to nothing but the valley at dusk, exactly as you left it.
@@ -2586,406 +2815,453 @@ It is written to stand on its own, without needing any image to understand it.
   - a brief touch anywhere shows the date, the real speed of time and the time control: pause, speed and speed lock (`TIM-04`).
   - **How it works:** each gesture is told apart by its number of fingers, its length and its path; a tap selects the nearest thing under the finger, and zooming also sets the speed asked for (`TIM-01`).
 
-- `PRE-35` **Cards** *(Decided)*: Selecting anything opens a card with what matters about it, such as a person's name, age, mood, and what they are doing and why, or a place's land and history.
-  Links lead into deeper views: the story view, the scientist's view, family trees, archaeology.
-  - **How it works:** a card reads the chosen thing's records: for a person, their name (`PRE-38`), age, strongest feelings (`MND-19`), and current activity with the reasons recorded for choosing it (`MND-09`); for a place, its land (`WLD-12`) and the events recorded there; for a thing, its makeup and history (`MAT-10`); each link opens a view on the same thing.
+- `PRE-35` **Cards** *(Decided)*: Selecting anything opens a card with what matters about it, and links to the deeper views.
+  A person: name, age, people, mood, and what they are doing and why (`MND-09`).
+  A thing: what it is made of, its characteristics marked by which ones people know, its wear and quality, and who made it and when (`MAT-10`, `MAT-20`).
+  A place: its name and meaning, its land, and what happened there.
+  A band or people: its name, numbers and territory, the crafts it knows with how many hold each, its beliefs, rites, calendar and festivals, its leaders, friends and enemies (`CUL-23`).
+
+- `PRE-45` **What they talk about** *(Decided)*: Speech is a murmur, never real words (`SND-03`), so at close zoom a small bubble over the speaker shows a picture of the topic: a deer, fire, a face, a place.
+  The speaker's card lists recent talk in plain words, such as "Ama told Tor where flint lies".
+  - **How it works:** conversations are held as topics (`CUL-24`); bubbles show only at the person and camp zooms, and the card's lines come from the same records by fixed patterns, without the writer.
 
 - `PRE-40` **Screens** *(Decided)*: Besides the world itself: a first-launch screen, a list of your worlds, and settings.
   Short help cards appear the first time you use something; there is no tutorial (`SCP-02`).
-  - **How it works:** the first launch goes straight to making a world (`WLD-10`); the list shows your worlds (`TIM-08`); settings hold the content level (`PRE-18`) and the live-moment level (`PRE-08`); and each help card shows once, the first time its control is used.
+  - **How it works:** the first launch goes straight to making a world, offering the best candidates to choose from (`WLD-10`), and the list shows your worlds (`TIM-08`).
+    Settings hold the content level (`PRE-18`), the live-moment level (`PRE-08`), the volume of music, voices and the world, and vibration (`SND-10`); each help card shows once, the first time its control is used.
 
-### 11.3 Following the story
+### 11.4 Following the story
 
-- `PRE-05` **Chronicle** *(Decided)*
-  - **What:** An automatically written history of the world, organised as a book of ages, with a timeline for each people.
-    Eras are named by their own people, or after the events that defined them.
-    Every entry links to the moments and people behind it (`VIS-15`).
-  - **How it works:** the chronicle is built from the recognisers' tagged events (`PRE-39`): events above a tuned importance become entries, grouped into ages that begin at turning points set by fixed rules (`PRE-41`), on one timeline for each people (`CUL-23`); each entry is written by the writer from its records (`PRE-37`) and links back to them.
-    An era takes the name its people have for that time, if they have one (`CUL-18`), and is otherwise named after its defining events.
-  - **Why:** It is the main way to read a world's history, and the measure of "histories worth reading".
+- `PRE-05` **Book of ages** *(Decided)*
+  - **What:** The world's chronicle, written as history happens, with a timeline for each people (`CUL-23`).
+    It records named discoveries and who made them (`MAT-21`), notable lives and deaths, peoples forming and splitting, feuds and alliances, disasters, villages, religions and festivals.
+    Every entry is dated (`TIM-14`) and links to the people, places and things behind it.
+  - **How it works:** events the recognisers mark as notable (`PRE-39`) become entries, grouped into ages that begin at turning points set by fixed rules and are named after their defining events (`PRE-41`); the writer words each entry from its records (`PRE-37`), with dark events stated as plain facts (`PRE-17`).
+    Your own acts can be shown as separate marked lines, never in the text (`GOD-07`), and tapping one shows what came of it (`GOD-09`).
+  - **Why:** It is the main way to read a world's history (`VIS-15`).
+  - **Example:** "Year 112, autumn, day 6: Ama of the Tavu struck the first sharp flake by the river.
+    They call it *kesh*, 'bite stone'."
 
-- `PRE-06` **Follow a soul** *(Decided)*: Pick anyone and follow their life: their card shows what they feel, want and think (`PRE-14`), and the camera can stay with them.
-  The people you follow are kept in a list, separate from the camera, so you can follow several and still look elsewhere.
-  When they die, the game offers to follow someone close to them.
-  - **How it works:** the list holds the people you follow; their cards update as they live, the camera can lock onto one of them, and at a death the game offers those with the strongest bonds to the dead (`MND-24`).
+- `PRE-06` **Follow a soul** *(Decided)*: Pick anyone and follow their life: the camera can stay with them, their card shows what they do and why (`PRE-35`), and the details of their mind are one tap away (`PRE-14`).
+  The people you follow are kept in a list, separate from the camera, so you can follow several and still look elsewhere, and their notable moments come to you as live moments (`PRE-08`).
+  When one dies, the game offers to follow those with the strongest bonds to them (`MND-24`).
 
-- `PRE-07` **Map overlays** *(Decided)*: Information shown spread across the land.
-  The overlays: beliefs; knowledge, meaning who knows which skill; moods; languages and dialects; family ties; territories and paths; food and water; disease; climate and seasons; rock and resources.
-  - **How it works:** each overlay colours the land from the records at that date: the share of people in each place holding a belief, and how strongly; who holds which skill (`MND-06`); average feelings (`MND-19`); languages and dialects as measured (`CUL-23`); kinship lines (`MND-24`); home ranges and paths from where people actually go; food and water from the patches (`WLD-12`); the sick; the weather and seasons (`WLD-16`); and surface rock and ores (`WLD-14`); each has a story and a scientist's version (`PRE-14`).
+- `PRE-07` **Map overlays** *(Decided)*: Information spread across the land, over the map look (`PRE-29`), always from the world as it is now:
+  - where each people lives and travels (`CUL-23`);
+  - who holds each blueprint (`MND-06`);
+  - the share of people holding a belief, and how strongly (`CUL-26`), and their average mood (`MND-19`);
+  - kin and marriage lines (`CUL-27`);
+  - the land as a chosen person or people knows it (`MND-28`);
+  - plants, water and stone people can use (`WLD-31`, `WLD-17`), and herds and tame animals (`WLD-32`, `WLD-33`);
+  - the sick (`BIO-05`), and the weather and seasons (`WLD-16`);
+  - surface rock and deposits (`WLD-14`).
 
-- `PRE-08` **Live moments** *(Decided)*: Only what matters interrupts you: firsts, deaths of people you follow, disasters, and big turns in history ("someone has made fire for the first time").
-  What can interrupt is one shared list, also used by the story director (`TIM-02`).
-  At most about one interruption comes a minute, and the closer you are watching, the more important something must be to interrupt.
-  Live moments you don't take wait in a list; everything else waits in the chronicle.
-  The level can be adjusted in settings, and one tap takes you to the moment.
-  - **How it works:** each tagged event carries the director's importance score (`TIM-02`); it interrupts only if its score passes a threshold that rises the closer you are watching and with your setting, and no more often than about once a minute; the rest wait in the list, and a tap takes the camera there.
+- `PRE-08` **Live moments** *(Decided)*: Only what matters interrupts you: named discoveries, deaths of people you follow, disasters, and big turns in history ("the Tavu have made fire for the first time").
+  What can interrupt is one shared list, scored for importance by the story director (`TIM-02`).
+  At most about one interruption comes a minute, and the closer you are watching, the higher the score must be.
+  Live moments you don't take wait in a list; everything else waits in the book of ages.
+  The level can be adjusted in settings, and one tap takes the camera to the moment.
 
 - `PRE-39` **Recognising what emerges** *(Decided)*
-  - **What:** The game spots and names what emerges, for you only: firsts and discoveries, skills, languages, institutions, peoples and eras.
-    It uses both general detection of anything new and a catalogue of notable outcomes, such as fire made by friction.
-  - **Rules:** recognisers sit on the describing side.
-    They never feed back into the world, and are kept provably apart from the logic that decides what people and animals do (`PRN-07`).
-    Their thresholds, such as when a dialect becomes a language, are set in the implementation plan and listed in milestone reports.
+  - **What:** The game spots and names what is worth telling, for you only: named discoveries and other firsts, crafts lost and found again, peoples, religions, villages, leaders, feuds and alliances, disasters, and the ages of history.
     A first counts both worldwide and for each people, and a rediscovery after a loss is marked as one.
   - **How it works:**
-    - **Anything new:** each recorded outcome, such as a thing with a new mix of properties, an act never recorded before, or a belief newly shared by many, is compared by its pattern of properties with the world's history; one never recorded before is a first, for the world and for that people, and a first that a people once held and lost is marked as a rediscovery.
-    - **Notable outcomes:** a catalogue defines each by a pattern in the records, such as a fire whose ignition came from a person rubbing wood (`RCK-02`), and gives the names you see.
-    - **Skills, languages, institutions, peoples and eras** are found by measures over the records (`MND-06`, `CUL-17`, `CUL-06`, `CUL-23`).
-    - **Kept apart:** recognisers read finished records after each step and write only to the describing side (`PRN-07`).
-  - **Why:** The director (`TIM-02`), live moments (`PRE-08`), the chronicle (`PRE-05`), overlays (`PRE-07`) and experiment measures (`RES-03`) all need to know what happened, without the simulation ever naming it.
+    - **Named discoveries:** a people's first success with a blueprint is a named discovery (`MAT-21`), and the death of a craft's last holder marks it lost (`CUL-02`).
+    - **Other firsts:** any event of a kind the world's or a people's history has never recorded, such as a first burial or festival.
+    - **Peoples, religions, villages and ages** are found by fixed measures over the records (`CUL-23`, `CUL-26`, `CUL-28`), with thresholds set in the implementation plan and listed in stage reports.
+  - **Why:** The story director (`TIM-02`), live moments (`PRE-08`), the book of ages (`PRE-05`), overlays (`PRE-07`) and the pace tests (`RES-07`) all need to know what happened and how much it matters.
+  - **Check:** recognisers only read the world, and a code check finds no path from them back into it (`WLD-13`).
 
-- `PRE-09` **Archaeology** *(Decided)*
-  - **What:** Dig down through the buried layers of past life with the cut-away view (`PRE-25`): hearths, graves, lost tools, rubbish heaps.
-    Tap a find to see who made or left it, and when.
-  - **How it works:** the cut-away (`PRE-25`) shows what the trace laws kept, in its layer (`MAT-08`); tapping a find reads its record: who last made or changed it and when (`MAT-10`), or, for merged leftovers, who left them and when.
+- `PRE-09` **Graves and old camps** *(Decided)*: The dead and the places people left stay in the world, and a list holds them all, by people and by date, so you can visit any of them.
+  A grave shows who lies there, how they died, who buried them and what was laid with them; an old camp shows its hearths, rubbish heaps, lost tools and bones, and who lived there and when.
+  - **How it works:** they are real places with real things in them (`MAT-08`), buried over time and seen in their layers with the cut-away (`PRE-25`); tapping a grave opens the dead person's card, with the cause of death (`BIO-14`) and a life story written from their records (`PRE-37`), and tapping a find shows who made or left it, and when.
+    People in the world find old camps too, and can copy what they find there (`MND-11`).
   - **Example:** The dig in `MOM-09`.
 
-- `PRE-10` **Family trees and legends** *(Decided)*: Genealogies across generations, and the legends their culture keeps.
+- `PRE-10` **Family trees and legends** *(Decided)*: Family trees across generations, with marriages and lines of teaching, and the legends their culture keeps.
   Each legend can be set side by side with what really happened.
-  - **How it works:** the true tree comes from the birth records, each child with its parents (`BIO-15`); the culture's own genealogies and legends (`CUL-15`) are shown beside it, each linked to the true events it tells of.
+  - **How it works:** the true tree comes from the birth records (`BIO-15`) and marriages (`CUL-27`), and a line of teaching shows who taught each craft to whom (`MND-13`); the people's own remembered genealogies and legends (`CUL-15`) are shown beside it, each linked to the true events it tells of.
 
-- `PRE-11` **Their sky and calendar (view)** *(Decided)*: The sky as they understand it: their constellations, the seasons they track, their festivals.
-  - **How it works:** the real sky (`WLD-07`) is drawn with the people's own star groups over it, from their concepts and names, and with the cycles and festivals they keep, from their beliefs and rites (`CUL-13`).
+- `PRE-11` **Their sky and calendar (view)** *(Dropped)*
+  - **Dropped because:** it did not earn its own screen; a people's calendar and festivals show on its card (`PRE-35`) and in the book of ages (`PRE-05`).
 
-- `PRE-12` **Their maps and names (view)** *(Decided)*: Their place names with translation, and the maps they draw, compared with the real land.
-  - **How it works:** place names come from their words, with the meaning of each part translated (`CUL-18`); their drawn maps (`CUL-14`) are shown beside the real land, matched place by place.
+- `PRE-12` **Their maps and names (view)** *(Dropped)*
+  - **Dropped because:** it did not earn its own screen; names with their meanings show on every card (`PRE-38`), what people know of the land is an overlay (`PRE-07`), and maps they draw show like any art (`PRE-15`).
 
-- `PRE-14` **Two views of every mind** *(Decided)*: A story view in their own words, and a scientist's view of their raw beliefs, how certain they are, and the evidence behind each belief.
-  Other views, such as the chronicle, the map overlays and archaeology, also have a story version and a scientist's version, switched separately in each view.
-  Story versions never show your interventions (`GOD-07`).
-  - **How it works:** the story view hands the person's records (feelings, wants, beliefs and memories) to the writer, phrased through their own concepts (`PRE-38`); the scientist's view shows the records raw: each belief with its certainty and evidence (`MND-05`), drives and feelings as numbers, and the reasons recorded for each choice (`MND-09`).
+- `PRE-14` **Details of a mind** *(Decided)*
+  - **What:** For anyone, everything in their mind, shown plainly under a short summary in words.
+  - **How it works:**
+    - **Needs and mood:** each need (`MND-07`), and the mood with each thought that lifts or lowers it and for how long, beside their feelings (`MND-19`) and personality (`MND-20`).
+    - **Memories**, most important first (`MND-18`), and **knowledge**: their mental map (`MND-28`) and the blueprints they know, with skill and experience by sector (`MND-06`).
+    - **Beliefs**, each with how sure they are and the events behind it (`MND-05`); **plans and ambitions** (`MND-22`); **relationships** (`MND-24`).
+    - **Reasons:** the top reasons for what they are doing now, and the options it beat (`MND-09`).
+    - **The summary** is written from these records (`PRE-37`); your own acts on them, such as a dream you sent, are marked as yours (`GOD-09`).
+  - **Why:** Every choice can be explained (`PRN-13`), and this is where you see how.
 
-- `PRE-15` **Art that remembers** *(Decided)*: Tap a painting or carving to see it, what its maker meant, and the event or myth it depicts.
+- `PRE-15` **Art that remembers** *(Decided)*: Tap a painting or carving to see it, who made it, and the event or myth it shows.
   You can then read what really happened, from the saved events (`PRN-15`).
-  - **How it works:** a painting's content record (`CUL-25`) gives what it depicts and the memories or myths its maker drew on; these link to the event or story records (`PRN-15`).
+  A map someone drew is shown beside the real land it describes (`CUL-14`).
+  - **How it works:** a picture's record keeps what it shows and the memories or myths its maker drew on (`CUL-25`), and these link to the saved events and stories (`PRN-15`).
 
-- `PRE-16` **Bestiary** *(Decided)*: Each world's tree of life and its species.
-  - **How it works:** each species is shown from its records (`WLD-19`): its traits, body chemistry and range in the scientist's view, and its place in the world's tree; the story view shows what each people believes about it and calls it (`MND-04`, `CUL-18`).
+- `PRE-16` **Bestiary** *(Decided)*: A page for each of the world's plants and animals.
+  - **How it works:** each page shows the species as it is (`WLD-31`, `WLD-32`): its look in each season, where and when it lives, its yields, how dangerous it is, and, for animals, their numbers and herds; tame and domestic kinds get their own pages (`WLD-33`).
+    What each people calls it and believes about it shows once that people knows it (`CUL-18`).
 
-- `PRE-36` **Language family tree** *(Decided)*: How their languages split and drifted over time (`CUL-17`).
-  - **How it works:** the tree is drawn from the measured history of languages: a branch splits, with its date, when two groups' words drift past the threshold for separate languages (`PRE-39`), and example words show their regular sound changes (`CUL-17`).
+- `PRE-36` **Language family tree** *(Dropped)*
+  - **Dropped because:** the language no longer changes, so there is no family of languages to show.
 
-- `PRE-13` **Every view the simulation allows** *(Decided)*: Any further view the simulation's data supports, within physical limits (`PRN-04`).
-  - **How it works:** every kind of record can be shown raw in the scientist's view, and new views are added from the same records without touching the simulation (`PRN-04`, `PRN-14`).
+- `PRE-13` **Few screens, everything findable** *(Decided)*: Anything the world keeps track of can be found from the views in this section, mostly on a card (`PRN-04`).
+  A new screen is added only when no card, overlay or page of the book of ages can show something well.
+  - **Check:** each stage review confirms that every kind of record the world keeps shows on at least one card or view.
 
-### 11.4 Text written for you
+### 11.5 Text written for you
 
-- `PRE-17` **Descriptions stick to the data** *(Decided)*: The AI language model only turns simulation data into text: life stories, myths, dreams, the chronicle.
-  It never adds facts the simulation doesn't contain (`PRN-06`).
+- `PRE-17` **Descriptions stick to the data** *(Decided)*: The writer AI only turns records into text: the book of ages, life stories, myths, dreams and summaries.
+  It never adds facts the world doesn't contain (`PRN-06`).
   - **How it works:** the writer receives only the records a text is about and the voice to use (`PRE-19`), and is told to phrase them and add nothing; every text is checked against those records before it is shown (`PRE-41`); and dark events are never left to it: they are stated as plain facts taken from the data.
-  - **Check:** the fact checker runs on every text before it is shown, and a sample of texts is reviewed at each milestone for added or changed facts.
+  - **Check:** the fact checker runs on every text before it is shown, and a sample of texts is reviewed at each milestone stage for added or changed facts.
 
-- `PRE-37` **The writer AI runs on the phone** *(Decided)*: All text is written on the phone, fully offline, with no running cost.
-  If the writing turns out too plain for histories worth reading (`VIS-15`), that is raised at a milestone review.
-  - **How it works:** the phone's own built-in language model writes all text, offline and at no running cost; dark events never go to it (`PRE-17`), and its prompts are fixed when the writer is built.
+- `PRE-37` **The writer AI runs on the phone** *(Decided)*: All text is written by the phone's built-in writer AI, fully offline, with no running cost.
+  If the writing turns out too plain for histories worth reading (`VIS-15`), that is raised at a stage review.
+  - **How it works:** the phone's own built-in language model writes all text; dark events never go to it (`PRE-17`), and its instructions are tightened when the writer is built.
 
-- `PRE-41` **How text is written** *(Decided)*: Text is written when it is first opened or during pauses, checked against the data it came from, stored, and never silently rewritten.
-  You can ask for a rewrite.
-  Text that fails its check is replaced by plain factual text.
-  What the chronicle covers, and where its ages begin, come from fixed rules (`PRE-39`), not from the writer's taste.
+- `PRE-41` **How text is written** *(Decided)*: Text is written when it is first opened or while the phone is idle, checked, stored beside its records, and never silently rewritten; you can ask for a rewrite.
+  The check compares every name, number, cause and event in a text with its records, with no language model involved, and a text that fails is replaced by plain factual text built from the records by fixed patterns.
+  What the book of ages covers, and where its ages begin, come from fixed rules (`PRE-39`), not from the writer's taste.
   The writer chooses words and rhythm, never content: every claim, cause, motive, image and name must be in the data (`PRE-17`).
-  - **How it works:** text is written when first opened, or while the phone is otherwise idle, and checked by a fact checker that compares every name, number, cause and event in it with its records, with no language model involved; text that passes is stored beside its records and never rewritten unless you ask, and text that fails is replaced by plain factual text built from the records by fixed patterns.
 
-- `PRE-38` **English** *(Decided)*: The interface, the chronicle and translations are in English.
-  Their own words appear in their own languages, with English translations (`PRE-12`).
-  Until their own names emerge, people, places and peoples get labels made from that world's own sounds, marked as the game's (`CUL-18`).
-  English text describes things through their concepts, such as "cutting stone" (`MND-04`); our own words for them, such as "flint", appear only in the scientist's view.
-  - **How it works:** until people name something, it gets a label made from that world's own sounds (`CUL-17`), marked as the game's; English text names things by the people's concept, described by the properties that define it for them (`MND-04`), or by a translation of their word for it.
+- `PRE-38` **English, with their names** *(Decided)*: The interface and the book of ages are in English.
+  People, places, peoples, spirits and discoveries carry their names in their own language (`CUL-18`), shown with the English meaning where the name has one, such as *kesh*, 'bite stone'.
+  Kinds of things are called by their English names, such as flint or birch bark, with each people's own word beside them on cards.
+  - **How it works:** every name comes from the world's language (`CUL-17`), and its meaning from the words it was made from; a card shows both, and the book of ages gives the meaning the first time a name appears.
 
 - `PRE-19` **Storytelling voices** *(To test)*: Documentary, archaeologist, their own tradition, and intimate.
-  Each is tried live on real simulation output and chosen by ear.
-  Different views may use different voices.
-  - **How it works:** each voice is a fixed set of instructions to the writer (who speaks, tone and tense); the same real records are written in each voice, and you choose by reading and listening, view by view.
+  Each is tried on real worlds and chosen by reading, and different views may use different voices.
+  In the first trial, the documentary voice read best and the tradition voice worst.
+  - **How it works:** each voice is a fixed set of instructions to the writer (who speaks, tone and tense); the same real records are written in each voice, and you choose, view by view.
 
-### 11.5 Content
+### 11.6 Content
 
 - `PRE-18` **Content setting** *(Decided)*: You choose how much of history's darker side is shown, at one of three levels:
   - **Show:** everything, with pictures and sounds;
   - **Plain:** no graphic pictures or sounds, and factual text;
-  - **Gentle:** dark events mentioned briefly, in the chronicle only.
+  - **Gentle:** dark events mentioned briefly, in the book of ages only.
 
-  The simulation underneath never changes (`CUL-08`), and bodies are drawn without sexual detail at every level.
-  - **How it works:** the recognisers tag how dark each event is (violence, injury, captivity, sacrifice or cruelty, `PRE-39`), and the setting filters only what the views show: everything; no graphic pictures or sounds, with injuries drawn without detail and text kept plain; or a brief mention in the chronicle only.
+  The world underneath never changes (`CUL-08`), and bodies are drawn without sexual detail at every level.
+  - **How it works:** the recognisers tag how dark each event is (violence, injury, captivity, sacrifice or cruelty, `PRE-39`), and the setting filters only what the views show: everything; no graphic pictures or sounds, with injuries drawn without detail and text kept plain; or a brief mention in the book of ages only.
 
 ## 12. Sound
 
-Sound comes in layers, added over time, starting with the living soundscape.
+Sound comes in layers, added stage by stage, starting with the sounds of the camp.
 Like everything you see, everything you hear reflects what is actually happening (`PRN-10`).
 
 ### 12.1 The layers
 
-- `SND-01` **Living soundscape** *(Decided)*
-  - **What:** Wind, rain, rivers, animals, fire and people at work, driven by what is actually happening where you're looking.
-    Zoom changes the mix: close up you hear single sounds; further out they blend; from the whole world, near silence.
-  - **How it works:** every sound comes from something simulated near the camera: a strike or a break (`MAT-04`), a fire's burning, a river's flow (`WLD-17`), the wind and rain of the weather cell (`WLD-16`), an animal's call, people at work, and voices.
-    Close up, single sounds play, the loudest at the camera first, up to the measured limit of 32 at once on the phone; further out, the sounds of one kind in an area are summed into one blended sound from their number and loudness, such as wind over a forest or the hum of a camp; from the whole world, near silence (`SND-09`).
-    Calls of counted animals (`WLD-12`) come at their species' calling rates from the animals counted there, filled in as the picture is (`WLD-13`).
-  - **Example:** At the camp at dusk: the crackle of the fire, the tap of the knapper's hammerstone, a child laughing, the river beyond, a wolf far off.
+- `SND-01` **A lively camp** *(Decided)*
+  - **What:** A camp sounds alive: murmuring voices, children playing and crying, the tap of stone on stone, scraping, chopping and grinding, the fire, dogs, and the animals around it.
+    Zoom changes the mix: close up you hear single sounds; further out they blend into the hum of the camp; from the whole world, near silence.
+  - **How it works:** every sound comes from something happening near the camera: a person's activity (`SND-06`), talk (`SND-03`), a fire by its heat (`MAT-18`), an animal's call (`WLD-32`), and the place around it (`SND-11`).
+    Close up, the nearest and loudest sounds play singly, up to 32 at once, as measured on the phone; further out, sounds of one kind blend into one by how many there are and how loud; from the whole world, near silence (`SND-09`).
+  - **Example:** At the camp at dusk: the crackle of the fire, the tap of the knapper's hammerstone, a child laughing, a dog barking at the dark, the murmur of talk, the river beyond, a wolf far off.
 
-- `SND-03` **Their voices** *(Decided)*: Zoomed in, you hear real speech: actual sentences in their language, spoken with its own sounds and word order (`CUL-17`), with English subtitles if you want them.
-  Further out, talk blends into a murmur.
-  - **How it works:** when a person speaks (`CUL-24`), their words are said in order (`CUL-17`), each as its sequence of the language's sounds (`BIO-21`), by a natural-sounding speech voice fed those sounds, chosen over a synthetic one by your ear in the pre-tests, with pitch and quality from the speaker's body, age and feeling (`MND-19`); subtitles give the meaning in English (`PRE-38`).
-    Voices beyond a set distance are mixed without words, as a murmur.
-    Such voices bend unfamiliar sounds toward their training language, so the voice used is the one that keeps most of each language's sounds.
+- `SND-11` **Ambience** *(Decided)*: Each place has its own background sound, set by its land, plants and water, the weather, the time of day and the season.
+  Wind in grass or in pines, a river, the sea on the shore, rain on leaves, thunder, birdsong at a spring dawn, the hush of snow.
+  - **How it works:** a small set of sounds for each kind of place is chosen by its plant cover and water (`WLD-31`, `WLD-17`), shaped by the weather as it changes (`WLD-16`), and changed by time of day and season (`TIM-18`); it fades as you rise toward the globe (`SND-09`).
 
-- `SND-02` **Their music** *(Decided)*: Songs, rhythms and instruments from each culture (`CUL-10`), heard when you are near.
-  Their scales and rhythms develop and drift, as their languages do.
-  - **How it works:** songs and tunes are played from their content records (`CUL-25`): notes, rhythm and words, with instruments sounding by the physics of their shapes and materials (`SND-06`) and voices by the speech voice held on the notes' pitches; they are heard by distance like any sound (`SND-08`).
+- `SND-03` **The murmur** *(Decided)*: People talk in a murmur built from the sounds of their language, never in real words.
+  It rises and falls with mood: quick and loud in anger, soft and slow in grief.
+  Laughing, crying, calling and screaming come from the same voices, and what they talk about shows as pictures (`PRE-45`).
+  - **How it works:** when someone talks (`CUL-24`), the murmur strings together the sounds and word shapes of their language (`CUL-17`) for as long as they speak, in a natural-sounding voice, chosen by your ear, that keeps as many of those sounds as it can.
+    Each voice takes its pitch and tone from the speaker's age, sex and build (`BIO-08`), and its loudness, speed and tune from their feelings (`MND-19`); many voices blend into the camp's murmur, and further out into its hum (`SND-01`).
 
-- `SND-04` **Score** *(Decided)*: Background music generated live from the world.
-  It is assembled from short themes that respond to time of day, season, events and the people nearby, and it draws on their own scales and rhythms as their music develops.
-  It is never the same twice.
-  - **How it works:** short composed themes are chosen and varied live from the world's state: time of day and season, the director's current scores (`TIM-02`), events such as a death or a first, and the moods of people nearby (`MND-19`); once a people's own music exists (`CUL-10`), the score takes up its scales and rhythms from their songs' records, and variation is drawn so it never repeats exactly.
+- `SND-02` **Their music** *(Decided)*: Songs, rhythms and instruments from each people (`CUL-10`), heard when you are near: at a festival, around the fire, at a burial.
+  - **How it works:** each song is played from its record: its notes, rhythm and words, in its people's own scale (`CUL-25`).
+    Instruments are things made from blueprints (`MAT-21`), each sounding by its own sound blueprint (`SND-06`): a longer flute or a bigger drum is lower, bone is brighter than wood, and a slack hide is duller than a tight one.
+    Voices sing on the murmur's sounds (`SND-03`), and music is heard by distance like any sound (`SND-08`).
+  - **Example:** At the midwinter festival (`CUL-29`), two bone flutes and a hide drum play the old hunting song while the camp dances.
 
-- `SND-05` **Order of the layers** *(Decided)*: The soundscape comes first, then their voices, then their music and the score.
-  The implementation plan sets when each arrives.
-  - **How it works:** each layer is a separate source in one mixer, switched on when it is built, in this order.
+- `SND-04` **Score** *(Decided)*: Background music made live from the world, from short themes that answer the time of day, the season, events and the people nearby.
+  Once a people has music of its own, the score takes up its scales and rhythms.
+  It is never the same twice, and you can turn it down or off (`PRE-40`).
+  - **How it works:** short composed themes are chosen and varied live by the time of day and season, the story director's current moment (`TIM-02`), events such as a death or a first, and the mood of the people nearby (`MND-19`); once a people's own music exists (`CUL-10`), the score borrows its scales and rhythms.
+
+- `SND-05` **Order of the layers** *(Decided)*: The first sounds and the murmur come with the fire stage (`MIL-03`); the camp and the land grow fuller at each stage after it; their music and the score come with the last stage (`MIL-07`).
+  - **How it works:** each layer is a separate part of one mix, switched on when it is built, in this order.
 
 ### 12.2 How sound is made
 
-- `SND-06` **Sounds from the physics** *(Decided)*
-  - **What:** Impacts, fire, water and instruments are created from what things are made of (`MAT-03`).
-    A strike on flint sounds unlike one on granite, and an instrument they invent sounds the way its materials would.
-    Background wind and rain can use recordings, and so can birdsong, but only where matching birds are simulated.
+- `SND-06` **Sound blueprints** *(Decided)*
+  - **What:** Every sound comes from a small base set of short sounds, picked by what is happening and to what material, and adjusted by the things involved: harder is brighter, heavier and bigger is deeper and longer, wetter is duller.
+    Random variation means no two sounds are quite the same.
   - **How it works:**
-    - **Impacts:** each time a contact law runs (a strike, a break, a fall), its sound is made as noise shaped by the materials' stiffness, density and damping, the things' sizes and the force of the impact (`MAT-03`, `MAT-04`), the method your ear chose in the pre-tests, so flint and granite sound different.
-    - **Fire and water:** a fire's crackle and roar come from how fast it burns and what it burns (`MAT-04`); water's sound from its speed and depth (`WLD-17`).
-    - **Instruments:** notes come from shape and material by the vibration law (`MAT-04`); flute notes from a bore and holes matched their worked-out pitch within a few cents in the pre-tests, and drums are still to be tuned.
-    - **The phone's speaker:** a last step tuned to the speaker lifts deep sounds it can't play well, and switches off with headphones.
-  - **Why:** General rules (`PRN-07`) apply to sound as well.
-    Nobody has to record the sound of an instrument nobody planned.
+    - **The base set:** short sounds for each base action and everyday activity (`MAT-06`, `BIO-21`) on each class of material (stone, wood, bone, hide, plant, earth, water, flesh, metal), made by the game from noise shaped to each material, or taken from a small set of free-licence recordings.
+    - **A sound blueprint** picks the base sound for an action on a class of material, and sets how the things' characteristics (`MAT-03`) and sizes (`MAT-02`) change it.
+      Each blueprint's sound (`MAT-21`) is one of these, so a new route to a known result needs no new sound (`MAT-07`).
+    - **Animals** call by species and size (`WLD-32`), and **instruments** sound by kind, size and material (`SND-02`).
+    - **The phone's speaker:** a last step tuned to the speaker lifts the deep sounds it plays badly, and switches off with headphones.
+  - **Example:** Flint struck on flint gives a sharp, bright click; the same strike on a wet log, a dull thud; a big granite block dropped, a deep, long crunch.
 
 - `SND-07` **Sound follows time** *(Decided)*: At natural speed (`TIM-10`), every sound plays in real time.
   When time runs fast, single sounds give way to the feel of the period: seasons of wind and rain, the hum of a busy camp.
-  - **How it works:** at natural speed, each sound plays as its event happens; when time runs faster, the mixer plays each kind of sound as a blend at the rate its events are happening (`SND-01`), so the weather's sounds follow the state of each frame and a camp becomes its hum.
+  - **How it works:** at natural speed each sound plays as its activity happens; faster, each kind of sound plays as a blend at the rate it is happening (`SND-01`), so the weather follows the seasons as they pass and a camp becomes its hum.
 
 - `SND-08` **Space and distance** *(Decided)*: Sounds come from where they happen and fade and muffle with distance; caves echo.
   A sound can draw your attention to something off-screen, such as a scream or thunder.
-  - **How it works:** each sound plays from its place in 3D: placed by its direction from the camera, quieter with distance, its high pitches fading faster, muffled by land in between, and echoing in caves by their size and shape (`PRE-24`); a loud sound off-screen plays from its direction.
+  - **How it works:** each sound plays from its direction, quieter and duller with distance, muffled by land in between, and echoing in caves by their size (`PRE-24`); a loud sound off-screen plays from its direction.
 
 - `SND-09` **Silence** *(Decided)*: Quiet is part of the design.
   Nights are hushed, deep snow muffles everything, and the whole world seen from above is close to silent.
-  - **How it works:** quiet comes from the same rules: at night fewer things make sound, since people and most animals sleep; snow cover soaks up sound by its measured absorption; and from high above only blends remain, fading with height; nothing adds sound where nothing happens.
+  - **How it works:** quiet comes from the same rules: at night fewer things make sound, since people and most animals sleep; snow muffles what sound there is; and from high above only blends remain, fading with height; nothing adds sound where nothing happens.
+
+- `SND-12` **Sound review** *(Decided)*
+  - **Done when:** at every milestone stage that adds sound, recordings at each zoom, by day and night and in each season, pass your review on the phone's speaker and on headphones: sounds match what is on screen, no two strikes or steps sound exactly alike, voices sound like talk but never like real words, and nothing is harsh.
+  - **How it works:** a tool records them on the phone from a fixed set of saved worlds, as for the visual review (`PRE-31`).
 
 ### 12.3 Touch
 
 - `SND-10` **Vibration for big moments** *(Decided)*: Subtle and optional: thunder, an earthquake, the heartbeat of someone you follow when they are in danger.
-  - **How it works:** when the setting is on, the phone's vibration plays a pattern for thunder near the camera, its strength from the thunder's loudness; for an earthquake, from the shaking where the camera is (`WLD-15`); and for someone you follow, a heartbeat while their fear is high (`MND-19`).
+  - **How it works:** when the setting is on, the phone's vibration plays a pattern for thunder near the camera, by its loudness; for a quake, by the shaking where the camera is (`WLD-15`); and for someone you follow, a heartbeat while their fear is high (`MND-19`).
 
 ## 13. Platform and performance
 
 Kindling is built for one phone, and nothing else is used to play it (`SCP-02`).
 The phone must stay smooth, cool and responsive (`VIS-14`, `PRN-11`).
-How much simulation fits on it is found by measuring, not guessing.
+How much fits on it is found by measuring, not guessing, and the pre-tests have already measured the phone itself.
 
 ### 13.1 The phone
 
-- `PLT-01` **One phone** *(Decided)*: Built and optimised for your Pixel 11 Pro XL (16 GB of memory and 512 GB of storage, so the app can use about 10 GiB), and free to use that phone's specific hardware wherever it helps: its graphics chip for the pixel-rendered 3D (`PRE-02`), its AI hardware for the writer AI (`PRE-37`), and either of them for the simulation itself (`PLT-05`).
-  - **How it works:** the app is built for that phone's processor, graphics chip and memory: the simulation runs on its cores and, for grid systems, its graphics chip (`WLD-12`); the picture on the graphics chip (`PRE-02`); and the writer on its AI hardware (`PRE-37`); everything fits in about 10 GiB, as measured (`PLT-04`).
+- `PLT-01` **One phone** *(Decided)*
+  - **What:** Built and tuned for your Pixel 11 Pro XL (16 GB of memory, 512 GB of storage), and free to use its own hardware wherever it helps: its graphics chip for the picture (`PRE-02`), its built-in AI for the text (`PRE-37`), and either for the simulation where that helps.
+  - **Measured in the pre-tests:**
+    - **Cores:** 2 small, 4 middle and 1 fastest.
+      The middle ones do the most work for the battery they use; the fastest is 1.7 times as fast as a middle one, at twice the energy per step.
+    - **Held speed:** under full load on every core, speed settles within 2 minutes to about 43% of a short burst and holds there, at about 3 W, with the phone cool and using about 15% of the battery an hour.
+      The game plans on that held speed, not the burst.
+    - **Memory:** the app could take 10 GiB, but only at the edge, with the phone's free memory falling under 1 GB, so the game plans on about 8 GiB.
 
 - `PLT-02` **Portrait and landscape** *(Decided)*: Both are supported, and the layout adapts (`PRE-34`).
   - **How it works:** turning the phone switches between the two layouts of `PRE-34`, keeping the world, the camera and the art pixel's size (`PRE-22`).
 
-- `PLT-03` **Works offline** *(Decided)*: Everything works without a connection, including the text descriptions, which are written on the phone (`PRE-37`).
-  - **How it works:** everything the game needs is on the phone: the simulation, the catalogues, the writer and the voices; nothing in play makes a network call.
+- `PLT-03` **Works offline** *(Decided)*: Everything works without a connection, including the text, which the phone's built-in writer AI writes (`PRE-37`).
+  - **How it works:** everything the game needs is on the phone: the game itself, its catalogues, the writer AI and every sound; nothing in play makes a network call.
 
 - `PLT-06` **Installing new versions** *(Decided)*: Each new version is a file you download on the phone and install, after allowing installs from your browser once.
   Builds are signed for your free hobbyist developer account with Google, so they keep installing this way under Android's developer rules from 2027 (`RSK-18`).
   No store and no fees.
-  Each milestone report links to its version.
-  - **How it works:** each build is signed for your developer account and published as a file linked from its note or report (`PRC-11`); you download and install it, and worlds carry over by `PLT-09`.
+  - **How it works:** each alpha's build is signed for your developer account and linked from its note (`PRC-11`); you download and install it, and your worlds carry on (`PLT-09`).
 
 ### 13.2 Performance
 
-- `PLT-04` **Measured limits** *(To test)*: Measured from the first build and reported at every milestone:
-  - smoothness of zooming and panning;
-  - simulated time per real minute at each zoom level;
-  - how many people the phone can run at each level of detail;
-  - battery use and heat per hour of play;
-  - time to generate a world.
-
-  The targets, from `VIS-14`: the camera stays smooth at the screen's full refresh rate; the app opens to your world in about three seconds; an hour's session uses about 25–30% of the battery, without the phone getting uncomfortably hot.
-  - **How it works:** at each milestone, a benchmark on the phone records frame times while zooming and panning, simulated time per real minute at each zoom, how many people run at each level of detail and speed, battery use and temperature per hour from the phone's own counters, and the time to generate and settle a world (`WLD-11`); the results go into the report (`RES-06`).
+- `PLT-04` **Measured limits** *(To test)*
+  - **What:** Measured from the first alpha and reported at every stage (`RES-06`), against these targets:
+    - **Smooth:** zooming and panning at the screen's full 120 frames a second (`VIS-14`); in the pre-tests, the settled look kept 97–100% of frames on time at every zoom, using less than half of each frame's time.
+    - **Speed:** at least 1 game year per real minute for 1,000 people at the world view, aiming for 2–10 (`TIM-07`).
+    - **People:** up to about 2,000 at a watchable speed; beyond that, time slows (`MND-15`).
+    - **Memory:** within about 8 GiB (`PLT-01`).
+    - **Battery and heat:** an hour's play uses about 25–30% of the battery, and the phone never gets uncomfortably hot (`VIS-14`).
+    - **Opening:** the app opens to your world in about three seconds; in the pre-tests, a large world's save would open in about 0.8 seconds.
+    - **Making land:** a new world in a few minutes (`WLD-11`), and a new area quickly enough that nobody waits; in the pre-tests, a square kilometre of ground detailed to the metre took about a third of a second.
+  - **How it works:** the cloud runs the speed benchmark at every alpha, to catch slowdowns early (`PLT-05`).
+    At each stage, the build has a benchmark you start with one tap: it runs fixed saved worlds at each zoom for a few minutes, reads battery and temperature from the phone's own counters, and shows a short result you send back.
 
 ### 13.3 Worlds on the phone
 
 - `PLT-07` **Always saved** *(Decided)*: Worlds save continuously, so closing the app or a flat battery never loses anything (`TIM-05`).
-  - **How it works:** each event is added to the history log as it happens (a small addition took under a tenth of a millisecond on your phone in the pre-tests); the present state is saved whenever the app leaves the screen (`TIM-05`) and at set intervals, each time as a new file that replaces the old only once complete, so a damaged file is never loaded (in the pre-tests, 1,000 kills mid-write never left one).
-    After a crash, the world reopens at its last save and runs forward to where it stopped, repeating exactly (`TIM-16`), so nothing is lost.
+  - **How it works:** each event joins the world's history as it happens; on your phone, a small addition took under a tenth of a millisecond.
+    The present state is saved whenever the app leaves the screen and at set intervals, each time as a new copy that replaces the old only once complete, so a damaged save is never loaded: in the pre-tests, 1,000 kills mid-save never left one, and a quarter of a large world saved in 0.41 seconds.
+    After a crash, the world reopens at its last save and runs forward to where it stopped, repeating exactly (`TIM-16`).
 
-- `PLT-08` **Manual export** *(Decided)*: Export a world, with its present state and its chronicle, as a file whenever you want, and import it again on the same phone or a new one.
+- `PLT-08` **Manual export** *(Decided)*: Export a world, with its present state and its book of ages, as a file whenever you want, and import it on the same phone or a new one.
   The export keeps the full record, so an imported world opens exactly as it was.
   There are no automatic backups.
-  - **How it works:** export packs a world's whole folder (seed and generator version, present state, history log, stored things and written text, `TIM-08`) into one file; import checks the file and unpacks it, and the world opens exactly as it was.
+  - **How it works:** the export holds everything the world keeps (`TIM-08`): its seed and generator version, its present state, the areas people have changed, its history and its written text; import checks the file before opening it.
 
 - `PLT-09` **Worlds across updates** *(Decided)*
-  - **What:** The game's rules will keep growing (`PRN-14`).
-    After a small update, a world carries on: everything that already happened stays as it was, the world continues under the new rules, and the change is marked in its chronicle.
-    A big update, one that adds a new layer of the world such as new matter, species or systems, may need a new world.
+  - **What:** The game keeps growing, alpha by alpha (`PRN-14`).
+    After a small update, such as fixes, tuning or new blueprints, a world carries on: everything that already happened stays as it was, the world continues under the new rules, and the change is marked in its book of ages.
+    A big update, one that changes how worlds are generated or adds new kinds of plants, animals or materials to the land, may need a new world.
     Worlds are only promised to last between big updates.
-  - **Why:** Fitting a new layer into a running world would be costly, and could make its past dishonest.
-    Starting a new world keeps every world true to one set of rules.
-  - **How it works:** each world records the version of the rules it runs under, and each update declares itself small or big; after a small update, worlds carry on under the new rules with the change marked in their chronicle; after a big update, including any change to the generator (`WLD-08`), an older world's chronicle can still be read if its files can be, but carrying it on needs a new world.
+  - **Why:** Fitting new land or species into a running world would be costly, and could make its past dishonest.
+  - **How it works:** each world records the version of the rules it runs under, and each update declares itself small or big; after a big update, an older world's book of ages can still be read, but carrying the world on needs a new one.
 
-- `PLT-10` **Storage** *(Decided)*: Each world keeps its present state and its event history (`PRN-15`).
-  The event history thins with age by a fixed rule: recent years keep every event, and older history keeps what the chronicle and the views use, such as births, deaths and firsts.
+- `PLT-10` **Storage** *(Decided)*: Each world keeps its present state, the areas people have changed, and its history (`PRN-15`); unchanged areas are remade from the seed when needed (`WLD-13`).
+  The history thins with age by a fixed rule: recent years keep every event, and older years keep what the book of ages and the views use, such as births, deaths and firsts.
   You can delete worlds.
-  When the phone nears full, the game warns you and asks what to delete; it never deletes anything else by itself.
-  - **How it works:** the history log keeps every event for recent years, and for older years only the kinds the chronicle and the views use (`PRE-39`), by a fixed rule (tuned); a storage check warns before the phone fills.
+  When the phone nears full, the game warns you and asks what to delete; it never deletes anything by itself.
+  - **Why:** Kept whole, the history of 1,000 people would take about 8 GB or more every thousand game years, going by the size of an event measured in the pre-tests.
+  - **How it works:** the thinning rule is tuned by measurement (`PLT-04`), and a storage check warns before the phone fills.
 
 ### 13.4 The cloud
 
-- `PLT-05` **Experiments in the cloud** *(Decided)*: The simulation also runs without graphics in the AI's cloud sessions, many runs at a time.
-  The phone build comes first and is optimised for the phone; the cloud build doesn't have to match it exactly, only behave the same statistically (`RES-05`).
-  An experiment's world can be opened on the phone as it stands at the end of its run.
+- `PLT-05` **Tests in the cloud** *(Decided)*: The game also runs without picture or sound in the AI's cloud sessions, several worlds at a time, for the tests (`RES-21`, `RES-07`).
   Follows from `SCP-15`.
-  - **How it works:** the same simulation core is built for the cloud without picture or sound, runs many sandboxes at once, and writes the same saved files, which the phone opens (`TIM-08`); its statistics are compared with the phone's at every milestone (`RES-05`).
+  - **What:**
+    - The phone build comes first; the cloud build must give the same results, at least statistically (`RES-05`), and in the pre-tests it gave exactly the phone's results.
+    - A test's world can be opened on the phone as it stands at the end of its run; it is marked as a test world and shows any switch it used (`RES-10`).
+    - You can ask for any test or run in a cloud session, and get its report as a page (`RES-15`).
+  - **Measured in the pre-tests:** a cloud session gives about 3.4 cores of steady computing; four worlds side by side ran nearly four times as fast as one; and a run stopped and resumed ended exactly like one that never stopped.
+  - **How it works:** the same game, built without picture or sound, runs several worlds side by side, saves its progress often so an interrupted run carries on where it was, and writes the same saved worlds the phone opens (`TIM-08`).
 
-## 14. Research and validation
+## 14. Testing
 
-This section turns "research standard" into practice: how the project proves that its world really does what it claims (`PRN-05`).
+How the game shows it does what this file says, alpha by alpha: automated tests, small sandbox scenes, pace tests on whole worlds overnight, speed benchmarks on the phone, and your reviews at each stage.
+Testing is sized to what fits in the AI's cloud sessions (`SCP-15`, `PLT-05`).
 
-### 14.1 How experiments work
+### 14.1 How testing works
 
-- `RES-01` **Experiments lead** *(Decided)*
-  - **What:** Core ideas are proven in experiments, run without graphics, before the game builds on them (`SCP-03`): first in sandboxes, then confirmed in full worlds (`RES-21`).
-  - **Why:** The biggest risk is that nothing emerges (`RSK-01`).
-    Experiments find out early and cheaply.
-  - **Check:** every milestone report traces its features to experiments that passed (`RES-06`).
+- `RES-01` **Tests lead** *(Decided)*
+  - **What:** Every alpha comes with automated tests for what it adds.
+    The quick ones run before any work joins the main version, and the long ones overnight (`PRC-10`).
+    A feature counts as built only when its tests pass, and every test names the IDs it checks.
+  - **Why:** A world where things emerge breaks in quiet ways, such as a craft that is never passed on; tests catch it while the change is still small.
+  - **Check:** the coverage check finds a test for every feature and rule built so far (`PRC-12`).
 
-- `RES-21` **Sandboxes, then full worlds** *(Decided)*
-  - **What:** Most experiments run in sandboxes: small settings built for one question, such as a band on a riverbank with flint, granite and decoy stones, or a winter camp whose fire is dying.
-    A sandbox uses the game's own rules and minds, with no special rules and nothing scripted inside it (`PRN-07`); only its setting is chosen, and it includes decoys and materials nobody designed for.
-    Each experiment states its computing budget up front, and its sandbox is sized to fit it (`RES-16`).
-    Sandbox runs are cheap and repeat exactly from their seed (`TIM-16`), so each question gets many runs.
-    At every milestone, one or two full worlds from the play generator, run overnight on your phone, confirm that what the sandboxes showed also happens in a real world, within the sandboxes' ranges.
-  - **Why:** Whole worlds are far too costly to run by the hundred (`RSK-14`), while a sandbox answers one question cheaply and repeatably.
-    The full worlds guard against a sandbox so well arranged that it makes the result likely by design.
-  - **Check:** every claim names its sandbox and its full-world confirmation, and a result seen only in sandboxes is reported as such.
+- `RES-21` **Scenes, then whole worlds** *(Decided)*
+  - **What:** Most tests run in sandbox scenes: small settings built for one check, such as a band on a riverbank with flint, granite and decoy stones in reach, or a winter camp whose fire is dying.
+    Only a scene's setting is chosen (`RES-18`), and it includes decoys and things nobody designed for.
+    Scenes are quick and repeat exactly from their seed (`TIM-16`), so each check can run many times.
+    Every scene also checks that nobody used a blueprint they didn't know or a fact they hadn't seen (`PRN-01`).
+    Whole worlds from the play generator (`WLD-10`), run overnight in the cloud, then confirm that what scenes show also happens in real play; until whole worlds exist (`MIL-04`), the start region and all its bands stand in for them.
+  - **Why:** A scene answers one question in minutes, while whole worlds guard against a scene so well arranged that it makes its result likely by design.
+  - **Check:** each stage report names, for every result, its scenes and its whole-world confirmation (`RES-06`).
 
-- `RES-08` **What every experiment has** *(Decided)*: A question; a setup (the sandbox or world settings, starting kit, population, length); the number of runs; what is measured; pass and fail criteria; and comparison runs.
-  - **How it works:** each experiment is a file with these fields, kept in the repository, and the runner refuses one with any field missing.
+- `RES-18` **Same rules as play** *(Decided)*: Scenes use the same rules, minds and catalogues as play, and the worlds that confirm them come from the play generator (`WLD-10`).
+  Nothing in a scene is scripted.
+  A result that needs a switch (`RES-10`) or a scripted event doesn't count as passing in play (`PRN-12`).
+  - **Check:** scenes and play run on one and the same game, and every run records any switch it used.
 
-- `RES-09` **Criteria fixed first** *(Decided)*: Each experiment's pass and fail criteria, with exact numbers and definitions, are written down before it runs, checked by the independent reviewer (`RES-11`) for ways the experiment couldn't fail, and approved by you.
-  They are never adjusted afterwards.
-  - **Check:** the criteria file is committed and approved before the first run, and every run records which version of it was used.
+- `RES-09` **Pass rules come first** *(Decided)*: Every test states, before it first runs, what it checks (by ID), its scene or worlds, its number of runs, and its pass rule in exact numbers.
+  A pass rule is never loosened in the change that makes it pass.
+  Loosening one needs a stated reason and the independent reviewer's OK (`PRC-09`), and the pace windows change only with you (`TIM-19`).
+  - **Why:** The easiest way to make a failing test pass is to weaken it.
+  - **Check:** the review sees every change to a pass rule, with its reason.
 
-- `RES-10` **Comparison runs** *(Decided)*: Each experiment also runs with one mechanism switched off, such as imitation, to show that what emerged depends on it.
-  - **How it works:** each mechanism can be switched off by a setting that exists only in experiments (`PRN-12`), and every report includes the run without it.
+- `RES-13` **About 20 runs where chance matters** *(Decided)*: Where chance decides the outcome, a check runs about 20 times, each from a different seed, and its pass rule counts runs, such as "in at least 16 of 20".
+  Results are reported as ranges, such as "fire made in 18 of 20 worlds, typically around year 15".
+  More runs are used only where 20 can't tell pass from fail, and fewer only when they don't fit, which the report then says.
+  - **Check:** every result in a report states its number of runs and its range.
 
-- `RES-11` **Independent review** *(Decided)*: A separate AI agent, not the one that built the experiment, checks it and tries to find flaws in the results.
-  - **Check:** each report carries the reviewer's findings and names a reviewer other than the builder.
+- `RES-05` **Repeatable runs** *(Decided)*: On the same build, a run from the same seed gives the same result every time, so any failure can be replayed and examined step by step (`TIM-16`).
+  The cloud must give the same results as the phone, at least statistically (`PLT-05`); in the pre-tests it gave exactly the same.
+  - **Check:** at every stage, the phone benchmark's fixed worlds (`PLT-04`) also run in the cloud and the results are compared; a difference beyond the stated tolerance fails the stage (`PRC-10`).
 
-- `RES-12` **Surprises log** *(Decided)*: Unexpected results are recorded even when they weren't the question.
-  They often become new signature moments (`MOM`).
-  - **How it works:** the runner flags every measure outside its expected range and every first the recognisers find that the question didn't ask about (`PRE-39`); each goes into the log and into the report's surprises.
+- `RES-10` **Switch-off runs** *(Decided)*: To find out what a result depends on, a scene can run with one thing switched off, such as teaching, copying, dreams or a personality trait.
+  They show what is missing when a pace test or a moment fails (`RSK-01`), and whether a mechanism earns its cost.
+  Switches exist only in tests (`PRN-12`), and a test world that used one always shows it (`PLT-05`).
 
-- `RES-13` **Many runs, reported as ranges** *(Decided)*: Every claim rests on many runs (about 20 sandbox runs per setup unless stated, as many as the experiment's computing budget allows), confirmed in one or two full worlds (`RES-21`), and is reported as a range, for example "discovered in 13 of 20 runs; typically around year 140".
-  - **Check:** every claim in a report states its number of runs and its range.
+- `RES-16` **Tuning the pace** *(Decided)*
+  - **What:** The pace is tuned only by changing chances and amounts (`PRN-17`), such as how likely an accident is to be noticed, how much spare time people have, or how fast experience grows.
+    Tuning uses a fixed set of tuning seeds, and the pace tests then confirm on fresh seeds never used for tuning (`RES-07`).
+    Every tuned value is logged with what it was tuned against.
+    If fresh seeds fail where tuning seeds passed, tuning goes on; if it can't fix the pace, the stage report sets out the options for you: a redesign, another window, or accepting it.
+  - **Why:** Tuning until the same worlds pass would only fit those worlds.
+  - **Check:** the tuning log lists every tuned value, and the pace tests' seeds never appear in it.
 
-- `RES-14` **Compared with reality where possible** *(Decided)*: Where real-world data exist, such as hunter-gatherer populations or rates of learning and cultural change, results are compared with them.
-  - **Check:** wherever a measure has named real-world data, the report shows the comparison.
+- `RES-04` **Reality checklist first** *(Dropped)*
+  - **Dropped because:** the reality rules are now checks on the blueprint catalogue (`MAT-17`), run before any work joins the main version (`PRC-10`).
 
-- `RES-16` **Tuning and failure** *(Decided)*
-  - **What:** Values are tuned on development seeds, then confirmed once on fresh seeds kept back for that.
-    Every attempt and every tuned value is logged, with what it was tuned against.
-    A test may stop early once its result is clear, within a stated computing budget.
-  - **When it fails:** a failed confirmation holds the milestone until you choose: redesign, a weaker claim, or dropping the claim.
-  - **Why:** Re-running on the same worlds until something passes would make "experiments that can fail" meaningless (`PRN-05`).
-  - **How it works:** the runner draws development seeds and held-back seeds from separate pools, logs every attempt and every tuned value, and refuses to run the held-back seeds a second time for the same claim.
+- `RES-08` **What every experiment has** *(Dropped)*
+  - **Dropped because:** merged into `RES-09`, which says what every test states.
 
-- `RES-17` **Signature moments keep passing** *(Decided)*: Each signature moment has its own sandbox, and passes if it happens in at least 1 run in 10 within its time window, unless its own criteria say otherwise (`RES-21`).
-  Each moment's sandbox runs at the milestone it belongs to, and again only when something it depends on changes; before a merge, only the short ones run, and a failure blocks the milestone (`PRC-10`).
-  Each milestone report also says which moments appeared in its full worlds.
-  - **How it works:** each moment's sandbox and pass rule are files beside its experiment (`RES-08`); the merge check runs the short ones, and each milestone runs those that are due (`PRC-10`).
+- `RES-11` **Independent review** *(Dropped)*
+  - **Dropped because:** merged into `PRC-09`, whose independent review covers every change, tests included.
 
-- `RES-18` **Same rules as play** *(Decided)*: Sandboxes use the same rules as play, and the full worlds that confirm them come from the play generator (`WLD-10`, `RES-21`).
-  Scripted events and dials appear only in clearly labelled experiments, and a moment that passes only with a dial doesn't count as passing in play (`PRN-12`).
-  - **Check:** sandboxes and play are built from one simulation core, and every run records any dial or scripted event it used.
+- `RES-20` **Your own experiments** *(Dropped)*
+  - **Dropped because:** merged into `PLT-05`: you can ask for any test or run in a cloud session.
 
-- `RES-19` **Promises are tested** *(Decided)*: Every claim in Minds and in Culture and society that something emerges either gets an experiment before its milestone closes, or is marked "possible, not promised".
-  - **Check:** the coverage check lists every emergence claim in Minds and in Culture and society with its experiment or its "possible, not promised" mark (`PRC-12`).
+### 14.2 The tests
 
-- `RES-20` **Your own experiments** *(Decided)*: You can ask for an experiment in any cloud session (`SCP-15`).
-  An experiment's world can be opened on the phone (`PLT-05`) and played on; it keeps its dial settings for good and always shows them, so it is never mistaken for a play world (`PRN-12`).
-  - **How it works:** you describe the question in a cloud session; the AI writes the experiment file (`RES-08`) and its criteria for your approval (`RES-09`), runs it, and reports it as a page (`RES-15`).
+- `RES-23` **Every blueprint and behaviour has a scene** *(Decided)*: Each blueprint has a scene in which someone who knows it, with suitable things in reach, makes its result in about its expected time and succeeds about as often as its chances say (`MAT-04`).
+  Each chain is also run end to end, such as flake, scraper, scraped hide, dried hide, sewn clothing.
+  Everyday behaviour has scenes too: a thirsty person finds water, a cold band keeps its fire alive, a mother feeds her child, a band flees a predator.
+  - **Check:** the coverage check finds a scene for every blueprint in the catalogue (`PRC-12`).
 
-- `RES-04` **Reality checklist first** *(Decided)*: The physics must pass every reality check (`RCK`) before any discovery that depends on it is trusted.
-  - **Check:** the runner refuses to report a discovery whose reality checks are not all passing on that build.
+- `RES-02` **The sharp-stone test** *(Decided)*: Does a band that has never made a sharp flake discover how, and does the skill spread?
+  - **What:** A band with the starting kit (`BIO-02`) by a river, with flint in reach among granite, sandstone and other decoy stones, nuts to crack, carcasses to butcher, and hides and wood to work.
+    Nobody in it knows how to make a flake.
+    It runs 20 times, for up to 5 game years each.
+    A second scene, the same but with no stone that flakes, is the control.
+  - **How it works:** the year of the first flake is read from the book of ages (`MAT-21`), and who can make flakes from each adult's skills (`MND-06`).
 
-- `RES-05` **Reproducibility** *(Decided)*: Results are reproducible statistically: re-running an experiment on fresh seeds gives results within its stated ranges, and the cloud build gives the same statistics as the phone build.
-  Exact repeats of a history are not required (`PRN-15`).
-  Checked at every milestone.
-  - **How it works:** the same experiment runs on fresh seeds in the cloud and on the phone, and each measure's ranges are compared; a difference beyond the stated tolerance fails the check (`PRC-10`).
+- `RES-03` **Sharp-stone pass rule** *(Decided)*: Fixed before the test first runs (`RES-09`):
+  - **Discovery:** flakes are discovered within 5 game years in at least 16 of 20 runs.
+  - **Spread:** in those runs, at least 3 in 4 of the band's adults can make flakes within 2 game years of the first.
+  - **Routes:** across the runs, at least two routes of discovery appear (`MND-11`), such as an accident while cracking nuts and deliberate experimenting.
+  - **Control:** without stone that flakes, no run ever makes a flake (`RCK-01`).
 
-### 14.2 The experiments
+- `RES-07` **The pace tests** *(Decided)*: One check for each pace target (`TIM-19`), added at the stage that delivers its step (`SCP-16`).
+  - **What:** About 20 whole worlds from the play generator (`WLD-10`) run overnight in cloud sessions, for up to 500 game years or as far as the stage's steps need.
+    The year each world first reached each step is read from its book of ages (`MAT-21`).
+    They run on the latest alpha on any night after the minds, the blueprints or the catalogues changed, and always before a stage closes (`PRC-10`).
+    If 20 worlds don't fit in a night, the test runs over more nights or with fewer worlds, and the report says which (`RES-13`).
+  - **Pass rule,** for each step:
+    - **in the window:** at least half the worlds reach it inside its window;
+    - **not too soon:** at most a quarter reach it before its window opens;
+    - **not always the same:** where windows overlap, the steps don't come in the same order in every world.
+  - **Example:** pottery passes if at least 10 of 20 worlds first fire a pot between game years 60 and 150, and no more than 5 before year 60.
+  - **Why:** The pace is what makes history watchable (`PRN-17`), and only whole worlds show it.
 
-- `RES-02` **Experiment 1: sharp stone** *(Decided)*: Do bands that only bash rocks discover how to chip sharp flakes, and does the skill spread?
-  Its sandbox includes uses for a sharp edge: carcasses to butcher, and hides and wood to work.
-  - **How it works:** a sandbox valley holds a band with the starting kit (`BIO-02`), glassy, fine-grained and coarse stones with decoys among them (`RES-21`), and carcasses, hides and wood, run for up to 500 simulated years per run; the recognisers mark the first struck flake used to cut (`PRE-39`), and the measures of `RES-03` are counted from the records.
+- `RES-17` **Signature moments keep happening** *(Decided)*: Each signature moment (`MOM`) has its own scene, and passes if it happens in at least 2 of 20 runs within its time window, unless its own rule says otherwise.
+  Each moment's scene runs at the stage it belongs to, and again whenever something it depends on changes; the short ones run before any work joins the main version (`PRC-10`).
+  - **Check:** each stage report gives every moment's latest result, and which moments appeared in the whole worlds (`RES-06`).
 
-- `RES-03` **Experiment 1 pass criteria** *(Decided)*: starting values, fixed before it runs (`RES-09`), met in its sandbox runs and confirmed in full worlds (`RES-21`):
-  - **Discovery:** happens in at least half of the runs, within 500 simulated years.
-  - **Variety:** discovery times differ widely between worlds, and at least two different routes to the discovery appear, for example an accident someone notices versus deliberate tinkering.
-  - **Spread:** once discovered, at least three quarters of the adults in the discovering band can do it within 50 simulated years.
-  - **Loss:** the skill is lost noticeably more often in small, isolated groups than in large, connected ones.
-  - **General rules only:** the check in `PRN-07` passes.
-  - **Comparison runs:** without imitation, the skill does not spread; without curiosity, discovery is much rarer (`RES-10`).
-  - **Exact numbers:** words such as "widely", "noticeably" and "much rarer", and what counts as a discovery and as being able to do it, are given exact values before the run (`RES-09`).
-  - **How it works:** each measure is counted from the records: discovery as the first use of a struck flake to cut, marked by the recognisers; spread as the share of the band's adults whose skill records make such flakes; loss as a skill with no living holder; and each is set against the comparison runs.
+- `RES-19` **Every promise has a test** *(Decided)*: Everything this file says will arise in play rather than be built directly, such as a taboo, a religion, a feud, a village or a lost craft, gets a scene or a whole-world check by the stage that delivers it, or is marked "possible, not promised".
+  - **Check:** the coverage check lists each such promise with its test or its mark (`PRC-12`).
 
-- `RES-07` **The series** *(Decided)*: Experiments follow the signature moments in milestone order, adjusted after each report.
-  The implementation plan sets which experiment closes which milestone.
-  The order:
-  1. the phone and cloud statistical match, and performance baselines;
-  2. Experiment 1, sharp stone;
-  3. fire from wood (`MOM-01`), with and without a dream, to show a dream raises the odds without guaranteeing anything;
-  4. the lost craft (`MOM-02`);
-  5. the song that does nothing (`MOM-04`), and your lightning becomes a god (`MOM-03`);
-  6. two tongues (`MOM-05`), once seas and the whole world exist, and rivals, then in-laws (`MOM-11`);
-  7. the camp wolf (`MOM-06`), seeds on the rubbish heap (`MOM-08`), and metal from green stone (`MOM-12`).
+- `RES-14` **Believable outcomes** *(Decided)*: Whole worlds are checked against plausible ranges from real hunter-gatherers and early farmers: band sizes, births and deaths, life spans, how fast numbers grow, how far bands travel and how much they eat.
+  The ranges are set where each subject is described, such as in People: bodies and lives.
+  A world far outside them is a bug to look into, not a finding (`PRN-02`).
+  - **How it works:** the overnight worlds report these measures, and each stage report shows them against their ranges (`RES-06`).
 
-  The remaining signature moments (a painting that remembers, and the dig) are features, checked at milestone reviews rather than run as experiments.
+- `RES-12` **Oddities are flagged** *(Decided)*: Whole-world runs flag anything out of the ordinary: a step far outside its window, a result out of order (a pot before any fire), people starving beside plenty, someone stuck repeating one action, or a thing from nothing (`MAT-09`).
+  They also flag anything that breaks over long play, such as a crash, memory creeping up, or a save that won't reopen.
+  Each is looked into: a bug is fixed with a test that would catch it again, and a good surprise can become a new signature moment (`MOM`).
+  - **How it works:** the overnight runs compare every world with its expected ranges and with simple "never" rules, and list what they find in the report (`RES-06`).
 
-### 14.3 Reports
+### 14.3 Your reviews and reports
 
-- `RES-06` **Milestone reports** *(Decided)*: Every milestone ends with a report for you, covering:
-  - what was tested and the results, with charts;
-  - the comparison runs;
-  - what emerged, and the surprises;
-  - the measurements (`PLT-04`);
-  - what was added (`PRN-14`) and how the principles were checked;
+- `RES-22` **Your reviews** *(Decided)*: At each stage, you play the latest alpha and judge what tests can't: whether it looks right (`PRE-31`) and sounds right, feels lively and believable, keeps a watchable pace, and has a book of ages worth reading (`VIS-15`).
+  Work goes on meanwhile, and the stage closes once you have reviewed it (`PRC-10`).
+  - **How it works:** the stage report ends with a short list of what to look at and try, with saved worlds that show it; you answer in a few lines, and what you find goes into the next alphas.
+  - **Check:** each closed stage records your review.
+
+- `RES-06` **Stage reports** *(Decided)*: Every stage ends with a short report for you, covering:
+  - what was added, and what you can now see and try;
+  - the test results with charts, above all the pace (`RES-07`);
+  - the phone measurements (`PLT-04`);
+  - the signature moments seen, the oddities and the surprises (`RES-17`, `RES-12`);
+  - how each principle's check came out (`PRN-16`);
   - the risks (see Risks);
-  - links to the experiments' worlds and chronicles in the game.
-  - **How it works:** the report is built from the experiment results, the measurements and the coverage check, checked by the independent reviewer (`RES-11`), and published as a page (`RES-15`).
+  - what needs your judgement (`RES-22`);
+  - links to the worlds and book-of-ages entries it talks about.
+  - **How it works:** it is built from the test results, the measurements and the coverage check, checked by an independent AI reviewer (`PRC-09`), and published as a page (`RES-15`).
 
-- `RES-15` **A page on the phone** *(Decided)*: Each report is a readable page with charts and plain conclusions, whose links open the experiments' worlds and chronicles in the game.
+- `RES-15` **A page on the phone** *(Decided)*: Each report is a short, readable page with charts and plain conclusions, whose links open its worlds and book-of-ages entries in the game.
   A copy is kept in the repository.
-  - **How it works:** each report is a page with its charts, whose links open an experiment's world or chronicle entry on the phone; its source is committed beside the experiment.
 
 ## 15. Project and process
 
-How the project is run: you direct, and AI agents build.
-This section defines the roles, the documents, how this file changes, and how work flows from an idea to your phone.
+How the project is run: you direct, and AI agents build the game in playable alphas that reach your phone.
+This section sets out the roles, the documents, how this file changes, and how work flows from an idea to your phone.
 
 ### 15.1 Roles
 
 - `PRC-01` **Passion project, built by AI** *(Decided)*: You direct; AI agents write, test and review the code.
-  There are no running costs beyond the AI sessions themselves, since the writer AI runs on the phone and there is no store.
+  There are no running costs beyond the AI sessions themselves, since the writer AI is built into the phone and there is no store.
 
-- `PRC-02` **Your role** *(Decided)*: You read the milestone reports, try the builds, set direction, and approve changes to this file.
-  The AI handles code review and testing.
+- `PRC-02` **Your role** *(Decided)*: You play the alphas when you like, review each stage (`RES-22`), set direction, and approve changes to this file.
+  The AI handles building, testing and code review.
   - **Check:** every change to this file names your OK in its commit (`PRC-07`).
 
-- `PRC-03` **Technology** *(Decided)*: Chosen by the AI and proposed in the architecture for your approval.
+- `PRC-03` **Technology** *(Decided)*: Chosen by the AI from what the pre-tests measured (`PRC-08`), and set out in the architecture for your approval.
   - **Check:** the architecture's technology proposal records your approval before building starts.
 
 ### 15.2 Documents
 
 - `PRC-04` **Three documents** *(Decided)*: The finished project has three documents.
-  This file is the source of truth for what to build; the architecture says how it is built; the implementation plan says in what order, mapping every item to a milestone and its tasks.
+  This file is the source of truth for what to build; the architecture says how it is built; the implementation plan says in what order, mapping every item to a stage and its alphas, with their tasks.
   Code and tests link back here by ID.
-  - **Check:** the repository holds these documents, and each milestone review checks that this file holds no implementation details.
+  - **Check:** the repository holds these documents, and each stage review checks that this file holds no implementation details.
 
 - `PRC-06` **A guide for AI agents** *(Decided)*: A short file in the repository (`CLAUDE.md`) that every AI agent reads first.
   It tells them to read this file, follow the principles, link all work to IDs, and never mark anything Decided without you.
@@ -2999,142 +3275,161 @@ This section defines the roles, the documents, how this file changes, and how wo
 - `PRC-05` **Reviewed with you** *(Decided)*: Changes to this file are worked through with you, section by section or in rounds of questions, and *Proposed* items are confirmed, changed or dropped in those reviews (`PRC-07`).
   - **Check:** every change to this file names, in its commit, the review or instruction from you that it came from.
 
-- `PRC-08` **Next: tests, then the architecture and the plan** *(Decided)*: Before the architecture and the implementation plan are written, small throwaway tests settle the basic technical choices, such as the language, storing data, the map, drawing, sound, speech and the writer AI.
-  Each block is tested on its own, with no working world; anything that needs a world is designed in the architecture and tested in sandboxes (`RES-21`).
-  The architecture follows, starting with the technology proposal (`PRC-03`), then the implementation plan, starting with the first milestone (`MIL-01`).
+- `PRC-08` **Next: the architecture and the plan** *(Decided)*: The pre-tests are done.
+  Small throwaway tests settled the basic technical choices, such as the language, storing data, the map, drawing, sound, speech and the writer AI, and measured what the phone can sustain.
+  The architecture comes next, starting with the technology proposal (`PRC-03`), then the implementation plan, starting with the first stage (`MIL-01`).
+  What the pre-tests found moves into the architecture, and the pre-test folder is deleted once the architecture is written.
 
 ### 15.3 How work flows
 
 - `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches.
-  Work joins the main version only after every automatic check passes and an independent AI review approves it.
-  You review at milestones.
-  - **Check:** the main version accepts work only from branches whose checks passed and whose independent review approved them (`PRC-10`).
+  Work joins the main version only after every automatic check passes (`PRC-10`) and an independent AI review approves it.
+  The reviewer is a separate agent, not the one that did the work: it reads the change and its tests, looks for flaws, and checks that no test was weakened to pass (`RES-09`).
+  You review at each stage (`RES-22`).
+  - **Check:** the main version accepts work only from branches whose checks passed and whose review approved them, and each review names a reviewer other than the builder.
 
-- `PRC-10` **The checks** *(Decided)*:
-  - **before any work joins the main version:** the tests, the reality checklist (`RES-04`), the general-rules check (`PRN-07`), the short signature-moment tests (`RES-17`), and the file check: every ID defined once, every reference resolving, every status valid, and no live item pointing to a dropped one;
-  - **before a milestone closes:** the visual review (`PRE-31`), the measurements (`PLT-04`), the phone and cloud statistical match (`RES-05`), the signature-moment tests that are due (`RES-17`), the coverage check (`PRC-12`), the independent review of experiments (`RES-11`) and the report (`RES-06`).
-  - **How it works:** the checks run automatically on every request to join the main version and at each milestone gate, and any failure blocks it.
+- `PRC-10` **The checks** *(Decided)*
+  - **Before any work joins the main version:**
+    - the quick tests (`RES-01`) and the short scenes, the signature moments' included (`RES-23`, `RES-17`);
+    - the catalogue checks, reality rules included (`MAT-17`, `RCK`);
+    - the file check: every ID defined once, every reference resolving, every status valid, and no live item citing a dropped one.
+  - **Before a stage closes:** the pace tests (`RES-07`), the phone measurements (`PLT-04`), the phone and cloud match (`RES-05`), the signature-moment scenes that are due (`RES-17`), the coverage check (`PRC-12`), the report (`RES-06`) and your review (`RES-22`).
+  - **How it works:** the checks run by themselves on every request to join the main version and when a stage closes, and any failure blocks it; your review is the last step of a stage.
 
-- `PRC-11` **Builds between milestones** *(Decided)*: A new version whenever something you can see or try has changed, with a one-line note, installed by download (`PLT-06`).
-  The full report still comes at each milestone.
-  - **How it works:** each build that changes something you can see or try gets a one-line note and its download link (`PLT-06`).
+- `PRC-11` **Each alpha reaches your phone** *(Decided)*: Every playable alpha (`SCP-03`) ends with a build you can install and play on the phone (`PLT-06`), with a short note: what is new, what to try, and what is still rough.
+  You play it when you like; only the stage reviews wait for you (`RES-22`).
+  - **How it works:** each alpha's build is signed, linked from its note, and opens your existing worlds (`PLT-09`).
+  - **Check:** every alpha's note links its build and names the IDs it delivers.
 
-- `PRC-12` **Nothing gets lost** *(Decided)*: An automatic coverage check, run at every milestone gate (`PRC-10`), confirms that every feature and rule that isn't *Dropped* or *Proposed* is mapped to a milestone in the implementation plan, that the current milestone's items have tasks, that every task names the IDs it delivers, and that every ID named in code and tests exists and isn't dropped.
-  - **How it works:** a script reads this file's IDs and statuses, the plan's map of items to milestones and tasks, and the IDs named in code and tests, and fails on any feature or rule left unmapped, any current item without tasks, any task without IDs, and any ID in code or tests that doesn't exist or is dropped.
+- `PRC-12` **Nothing gets lost** *(Decided)*: An automatic coverage check, run when each stage closes (`PRC-10`), confirms that:
+  - every feature and rule that isn't *Dropped* or *Proposed* is mapped to a stage in the implementation plan, and the current stage's items have tasks;
+  - every task names the IDs it delivers, and every ID named in code and tests exists and isn't dropped;
+  - every feature and rule built so far has a test (`RES-01`), every blueprint a scene (`RES-23`), and every promise a test or a "possible, not promised" mark (`RES-19`).
+  - **How it works:** it reads this file's IDs and statuses, the plan's map of items to stages and tasks, and the IDs named in code and tests, and fails on anything missing.
 
 ## 16. Risks
 
 What could stop Kindling from succeeding, how we would notice early, and what we do about it.
 Each risk has a rating (likelihood and impact), the early signs to watch for, and a response.
-Every milestone report reviews them all (`RES-06`), and AI agents may update the ratings there.
+Every stage report reviews them all (`RES-06`), and AI agents may update the ratings there.
 
-### 16.1 The core idea
+### 16.1 The game itself
 
-- `RSK-01` **Nothing emerges** *(Decided)*
+- `RSK-01` **Discoveries stall** *(Decided)*
   - **Rating:** likelihood medium, impact high.
-  - **Risk:** The minds and physics might not produce discoveries often enough.
-  - **Signs:** Experiment 1 discovery rates far below its criteria; discoveries by only one route; skills that never spread.
-  - **Response:** Experiment 1 tests this early and cheaply (`RES-02`), with comparison runs showing which mechanism is missing (`RES-10`).
+  - **Risk:** People may rarely find blueprints by accident, experiment, dream or copying, or find them and fail to pass them on, so history stops at the first steps.
+  - **Signs:** the sharp-stone test failing (`RES-03`); pace tests in which worlds never reach fire or clothing (`RES-07`); skills that never spread beyond whoever found them.
+  - **Response:** the sharp-stone test comes first (`MIL-02`); switch-off runs show which mechanism is missing (`RES-10`); and the pace is tuned by chances and amounts, never by scripting (`PRN-17`, `RES-16`).
 
-- `RSK-07` **Our own knowledge leaks in** *(Decided)*
+- `RSK-26` **The pace is off** *(Decided)*
+  - **Rating:** likelihood high, impact high.
+  - **Risk:** Discoveries come far too fast or too slow, or always in the same order, so history becomes a rush, a long wait, or the same every time.
+  - **Signs:** pace tests outside their windows (`RES-07`); every world reaching each step in nearly the same year and order.
+  - **Response:** pace tests on whole worlds from the early stages (`RES-07`); tuning on separate seeds (`RES-16`); several routes to each result (`MAT-07`) and varied worlds to keep histories apart; windows that prove wrong are changed with you (`TIM-19`).
+
+- `RSK-19` **Belief fails to emerge** *(Decided)*
   - **Rating:** likelihood medium, impact high.
-  - **Risk:** Real-world knowledge slips in through the writer AI or through design shortcuts, so discoveries stop being theirs.
-  - **Signs:** the general-rules check finds discovery words in decision logic; discoveries happening suspiciously fast; descriptions containing facts the simulation doesn't.
-  - **Response:** `PRN-06`, `PRN-07` and `MND-02`, enforced by the checks (`PRC-10`) and independent review (`RES-11`).
+  - **Risk:** Linking strong outcomes to what came before may give no beliefs worth noticing, or only noise: taboos nobody keeps, rites that never settle, no religion (`CUL-05`, `CUL-26`).
+  - **Signs:** belief scenes failing (`RES-19`); whole worlds with no shared belief, rite or sacred place after a hundred game years; every people believing the same things.
+  - **Response:** belief templates (spirits, ancestors, taboos, rituals, offerings) give the links a shape (`CUL-05`); scenes for each kind of belief, and for your lightning becoming a god (`MOM-03`), from the stage that brings minds and beliefs (`MIL-05`); tuning how strongly outcomes are linked and remembered.
 
-- `RSK-06` **The chemistry gives absurd results** *(Decided)*
+- `RSK-06` **Blueprints give absurd results** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
-  - **Risk:** General laws combine in ways that produce nonsense.
-  - **Signs:** reality checks failing; odd outcomes in the surprises log, such as things burning that shouldn't.
-  - **Response:** the reality checklist (`RCK`), run in full after every addition (`MAT-15`).
+  - **Risk:** Generic blueprints (`PRN-07`) match things nobody planned for and give nonsense, such as an axe of bark, pots from sand or fire from wet moss.
+    Values set by hand (`MAT-05`) can be off too, such as a hide warmer than fur.
+  - **Signs:** catalogue checks failing (`MAT-17`); oddities in whole-world runs (`RES-12`); your reviews spotting things that look wrong.
+  - **Response:** reality rules on the catalogue (`RCK`), checked on every change (`PRC-10`); narrower characteristic ranges where a blueprint matches too much; every oddity fixed with a test that would catch it again.
 
-- `RSK-13` **Simplified minds behave differently** *(Decided)*
+- `RSK-07` **People know what they can't** *(Decided)*
   - **Rating:** likelihood medium, impact high.
-  - **Risk:** People run more cheaply in routine situations (`MND-14`) may discover, spread or lose things differently from full minds.
-  - **Signs:** the comparison experiment shows different statistics for simplified and full minds.
-  - **Response:** no simplified form is used until it matches (`PRN-11`), and the comparison is repeated at every milestone.
+  - **Risk:** Choices may use what people can't know, such as a blueprint nobody taught them or a place they never saw, or the writer AI may slip our own knowledge into the text, so discoveries stop being theirs and the game feels scripted.
+  - **Signs:** scenes finding a choice that used an unknown blueprint or an unseen fact (`RES-21`); steps reached suspiciously fast; texts with facts the records don't hold.
+  - **Response:** `PRN-01` and `PRN-06`, checked in every scene (`RES-21`), by the writer's fact check (`PRE-17`) and by the independent review (`PRC-09`).
 
-- `RSK-19` **Language or belief fails to emerge** *(Decided)*
-  - **Rating:** likelihood medium, impact high.
-  - **Risk:** Agreed words and word order, rich beliefs or rituals may not emerge from general mechanisms (`CUL-17`, `CUL-05`).
-  - **Signs:** small language tests and later experiments failing.
-  - **Response:** test early with small models; if needed, restate the promise with you, for example as "agreed words alone".
+- `RSK-27` **People act oddly** *(Decided)*
+  - **Rating:** likelihood high, impact medium.
+  - **Risk:** Scored choices can go wrong in ways you notice at once: people dithering between two tasks, starving beside food, all doing the same thing at the same moment, or walking into danger.
+  - **Signs:** oddities flagged in whole worlds (`RES-12`); reasons for a choice that make no sense (`PRN-13`); your reviews.
+  - **Response:** scenes for everyday behaviour from the first camp (`RES-23`, `MIL-01`); every choice keeps its reasons, so odd ones can be traced (`PRN-13`); each fix comes with a test.
 
 ### 16.2 The experience
 
 - `RSK-03` **Real but dull to watch** *(Decided)*
   - **Rating:** likelihood medium, impact high.
-  - **Risk:** Simulated worlds often hide their best stories.
-  - **Signs:** in milestone reviews, you skim the chronicle; few live moments; long stretches of years where nothing seems to happen.
-  - **Response:** the story director, live moments and the two views of each mind bring the stories out (`TIM-02`, `PRE-08`, `PRE-14`), and every report judges whether they do.
+  - **Risk:** A believable world can still hide its best stories, or have long stretches where nothing seems to happen.
+  - **Signs:** in your reviews, you skim the book of ages; few live moments; long quiet stretches.
+  - **Response:** a watchable pace (`PRN-17`); the story director and live moments (`TIM-02`, `PRE-08`), the book of ages (`PRE-05`) and following someone (`PRE-06`) bring the stories out; every stage review judges whether they do (`RES-22`).
 
 - `RSK-08` **Writing too plain** *(Decided)*
-  - **Rating:** likelihood medium, impact high.
-  - **Risk:** The writer AI on the phone (`PRE-37`) produces flat or repetitive text, undermining histories worth reading (`VIS-15`).
-  - **Signs:** chronicle entries that read alike; storytelling voices you can't tell apart.
-  - **Response:** voices tested live (`PRE-19`); rich, structured simulation data for the writer to draw on; if it still falls short, it is raised at a milestone review with options.
+  - **Rating:** likelihood high, impact medium.
+  - **Risk:** The phone's built-in writer (`PRE-37`) writes flat, repetitive text, so the book of ages isn't worth reading (`VIS-15`).
+  - **Signs:** entries that read alike; in the pre-tests, both models copied most of their phrasing straight from the data, and you rated half their texts acceptable.
+  - **Response:** rich records for the writer to draw on; the documentary voice, which you rated acceptable or good in 5 of 6 pre-test texts (`PRE-19`); tighter instructions; and if it still falls short, options at a stage review.
 
-- `RSK-10` **History too slow to watch** *(Decided)*
-  - **Rating:** likelihood medium, impact medium.
-  - **Risk:** Even with fast time and overnight mode, a deep simulation may take too long to reach interesting points.
-  - **Signs:** overnight runs covering only a few years; quiet centuries dominating the chronicle.
-  - **Response:** measure from the start (`TIM-07`); less detail for what is routine (`WLD-12`, `MND-14`); overnight mode (`TIM-12`); the story director skipping quiet years (`TIM-02`).
+- `RSK-17` **The writer AI softens dark history** *(Decided)*
+  - **Rating:** likelihood high, impact low.
+  - **Risk:** The writer may refuse or soften violence, raids or sacrifice (`CUL-08`); in the pre-tests, both models softened forced labour in a raid.
+  - **Signs:** vague or missing entries for dark events.
+  - **Response:** dark events are never left to it: they are always stated as plain facts from the data (`PRE-17`).
 
 - `RSK-11` **Pixel look hard to keep clean** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
   - **Risk:** Keeping pixel-rendered 3D free of speckle and shimmer at every zoom may be harder than it looks.
+    Pixels still crawl while the camera turns or zooms, and the one fix that stopped it in the pre-tests didn't look right to you.
   - **Signs:** visual reviews failing on speckled surfaces, crawling pixels or unreadable figures.
-  - **Response:** the style is defined in words (see Visual style) and checked at every milestone (`PRE-31`).
+  - **Response:** the fix is chosen on a real world at the first visual review (`PRE-22`, `PRE-31`), and the look is checked at every stage.
 
-- `RSK-17` **The writer AI softens dark history** *(Decided)*
-  - **Rating:** likelihood medium, impact low.
-  - **Risk:** A safety-tuned model may refuse or soften violence, slavery or sacrifice (`CUL-08`), breaking `PRE-17`.
-  - **Signs:** vague or missing chronicle entries for dark events.
-  - **Response:** test it early; when it refuses, plain factual text is shown instead.
+- `RSK-28` **Sound falls flat** *(Decided)*
+  - **Rating:** likelihood medium, impact medium.
+  - **Risk:** A lively camp needs good sound (`SND-01`), but the phone's speaker loses deep sounds, and in the pre-tests you found the synthetic voice terrible and the drums weaker than the flutes.
+  - **Signs:** a camp that sounds thin or fake in your listening reviews.
+  - **Response:** a last step that lifts deep sounds on the speaker; the murmur chosen by ear (`SND-03`); sound blueprints tuned with you (`SND-06`); listening at every stage review (`RES-22`).
 
 ### 16.3 The phone
 
-- `RSK-02` **The phone can't keep up** *(Decided)*
-  - **Rating:** likelihood high, impact medium.
-  - **Risk:** Deep minds, chemistry and detailed pixel art add up.
-  - **Signs:** dropped frames; simulated time per minute falling as the population grows; the phone getting hot.
-  - **Response:** measure from the first week (`PLT-04`); less detail for what is routine (`WLD-12`, `MND-14`); time slows rather than the simulation cutting corners (`PRN-11`).
-
-- `RSK-04` **Cloud experiments drift from the phone** *(Decided)*
+- `RSK-02` **Too slow at 2,000 people** *(Decided)*
   - **Rating:** likelihood medium, impact high.
-  - **Risk:** The phone build is optimised on its own (`PLT-05`), so cloud experiments may stop showing what actually happens on the phone.
-  - **Signs:** the milestone comparison finds different statistics on the phone and in the cloud.
-  - **Response:** one set of rules for both builds, and the statistical comparison at every milestone (`RES-05`).
-
-- `RSK-12` **Updates change worlds in odd ways** *(Decided)*
-  - **Rating:** likelihood medium, impact medium.
-  - **Risk:** A world that continues under new rules (`PLT-09`) may change suddenly at the point of the update.
-  - **Signs:** sudden jumps in a world's state just after an update.
-  - **Response:** history before the update is kept and the change is marked (`PLT-09`); the reality checklist runs before every release.
+  - **Risk:** A full mind for every person (`MND-14`), each doing 10–30 activities a game day, may be too slow.
+    The target is at least 1 game year per real minute for 1,000 people (`TIM-07`), and a watchable speed up to about 2,000 (`MND-15`).
+  - **Signs:** the benchmark's game years per minute falling below target as people multiply (`PLT-04`); the phone getting hot; overnight runs covering only a few dozen years.
+  - **Response:** measure from the first alpha, in the cloud at every alpha and on the phone at every stage (`PLT-04`); keep each choice cheap by weighing only what is in reach and known; time slows rather than detail being cut (`PRN-11`); if needed, the population limit is set lower by measurement (`MND-15`).
 
 - `RSK-15` **The memory limit** *(Decided)*
-  - **Rating:** likelihood high, impact medium.
-  - **Risk:** About 10 GiB must hold the simulation, the picture and the writer AI (`PLT-01`).
-  - **Signs:** the system slowing or closing the app; fewer detailed people than planned.
-  - **Response:** measure memory per person early, and keep history in storage rather than in memory (`PRN-15`).
+  - **Rating:** likelihood medium, impact medium.
+  - **Risk:** About 8 GiB must hold the people, the areas in use, the world cells and the picture (`PLT-01`); the pre-tests showed 10 GiB is reachable, but only at the edge.
+  - **Signs:** the phone closing the app; areas forgotten and remade too often; fewer people than planned.
+  - **Response:** measure memory per person and per area from the start (`PLT-04`); unchanged areas are forgotten and remade from the seed (`WLD-12`); history is kept in storage, not in memory (`PRN-15`).
 
 - `RSK-20` **Saved worlds grow too large** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
-  - **Risk:** Long event histories may fill the phone (`PRN-15`).
-  - **Signs:** worlds growing by gigabytes every thousand years.
-  - **Response:** measure early; thin old events with age by a fixed rule, and ask before deleting anything (`PLT-10`).
+  - **Risk:** Long histories and every area people have changed may fill the phone (`PRN-15`).
+  - **Signs:** worlds growing by gigabytes every thousand game years.
+  - **Response:** measure early; thin old events with age by a fixed rule; ask before deleting anything (`PLT-10`).
+
+- `RSK-12` **Updates change worlds in odd ways** *(Decided)*
+  - **Rating:** likelihood medium, impact medium.
+  - **Risk:** A world that carries on under new rules (`PLT-09`) may change suddenly at the point of the update.
+  - **Signs:** sudden jumps in a world's state just after an update.
+  - **Response:** history before the update is kept and the change is marked (`PLT-09`); every check runs before each new build (`PRC-10`).
 
 - `RSK-21` **Losing a world to a bad update** *(Decided)*
   - **Rating:** likelihood medium, impact high.
   - **Risk:** A bug in an update, or a damaged save, could make a world unreadable, and there are no automatic backups (`PLT-08`).
   - **Signs:** worlds failing to open after an update.
-  - **Response:** a safety copy before any update touches a world, and tests that open old saves.
+  - **Response:** a safety copy before any update touches a world, and tests that open worlds saved by earlier alphas.
 
-- `RSK-22` **The writer AI too slow or too large** *(Decided)*
-  - **Rating:** likelihood medium, impact medium.
-  - **Risk:** The model may be too slow, too big or too hot to run beside the simulation (`PRE-37`).
-  - **Signs:** entries taking a minute to appear; memory pressure.
-  - **Response:** test it early on the phone; write text when it is first needed, and keep it.
+- `RSK-22` **The built-in writer changes** *(Decided)*
+  - **Rating:** likelihood medium, impact low.
+  - **Risk:** The writer AI belongs to the phone's system, not to the game (`PRE-37`), so a system update could change how it writes, or take it away.
+    Speed is not the worry: in the pre-tests it began in a quarter of a second and wrote 77 words a second.
+  - **Signs:** texts changing in style after a phone update; the writer missing.
+  - **Response:** text is stored once written, so old entries never change (`PRE-41`); without the writer, plain factual text is shown, and the game plays the same.
+
+- `RSK-04` **Cloud tests drift from the phone** *(Decided)*
+  - **Rating:** likelihood low, impact high.
+  - **Risk:** The phone build is tuned on its own (`PLT-05`), so cloud tests may stop showing what happens on the phone.
+  - **Signs:** the stage comparison finds different results on the phone and in the cloud (`RES-05`).
+  - **Response:** one game for both builds, and the comparison at every stage (`RES-05`); in the pre-tests the cloud gave exactly the phone's results.
 
 - `RSK-18` **New install rules** *(Decided)*
   - **Rating:** likelihood medium, impact low.
@@ -3144,41 +3439,50 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
 
 - `RSK-24` **The phone ages or is replaced** *(Decided)*
   - **Rating:** likelihood low, impact medium.
-  - **Risk:** The project is built for one phone (`PLT-01`), which will age, break or be replaced.
+  - **Risk:** The game is built for one phone (`PLT-01`), which will age, break or be replaced.
   - **Signs:** battery wear; a new phone.
   - **Response:** worlds move by export (`PLT-08`), and moving to a new model is planned with you.
 
 ### 16.4 The project
 
+- `RSK-25` **Too much content** *(Decided)*
+  - **Rating:** likelihood high, impact high.
+  - **Risk:** About 200 items, 150 blueprints, 60 plants, 30 animals and 15 illnesses, with their models, animations, icons and sounds, take far longer to make and check than planned.
+  - **Signs:** stages slipping on catalogue work; blueprints waiting for models or sounds; entries that are thin or all alike.
+  - **Response:** each stage adds only the content its steps need (`SCP-16`); models are built from parts that take their materials' colours (`PRE-42`), and sounds from a base set (`SND-06`), so one model or sound serves many things; automated checks catch gaps (`MAT-17`); the launch numbers are targets, cut with you if needed.
+
 - `RSK-05` **The scope never ends** *(Decided)*
   - **Rating:** likelihood high, impact medium.
-  - **Risk:** "No ceiling" plus "everything deep" never finishes.
-  - **Signs:** milestones slipping again and again; a growing pile of proposed items.
-  - **Response:** build only as deep as the next experiment needs (`PRN-09`), in milestones (`MIL`).
+  - **Risk:** A world that can always go deeper never gets finished.
+  - **Signs:** stages slipping again and again; alphas that add little you can see.
+  - **Response:** playable alphas of a few hours each (`PRN-09`), in stages with fixed goals (`SCP-16`); the launch arc ends at first copper (`VIS-03`); what was cut stays cut (`SCP-21`).
 
 - `RSK-09` **AI-built code drifts** *(Decided)*
   - **Rating:** likelihood medium, impact high.
   - **Risk:** A large codebase built by many AI sessions slowly drifts from what this file says.
-  - **Signs:** gaps in the coverage check; reviews finding behaviour that contradicts this file.
-  - **Response:** the guide for AI agents (`PRC-06`), IDs and the coverage check (`PRC-12`), independent review (`PRC-09`) and modular design (`PRN-14`).
+  - **Signs:** gaps in the coverage check; reviews finding behaviour that contradicts this file; tests quietly weakened.
+  - **Response:** the guide for AI agents (`PRC-06`); IDs in every test and the coverage check (`RES-01`, `PRC-12`); pass rules that can't be quietly loosened (`RES-09`); independent review (`PRC-09`); and modular design (`PRN-14`).
 
-- `RSK-14` **Experiments too big for the cloud** *(Decided)*
-  - **Rating:** likelihood high, impact high.
-  - **Risk:** Experiment 1 alone may need months of a cloud session's computing (`SCP-15`).
-  - **Signs:** runs that can't finish within a session; experiments cut short.
-  - **Response:** sandboxes instead of whole worlds, each sized to a computing budget stated up front (`RES-21`); about 20 runs per setup (`RES-13`); stop each test once its result is clear (`RES-16`); leaner minds; and raise more computing with you first (`SCP-15`).
-
-- `RSK-16` **Invented sources** *(Decided)*
+- `RSK-14` **Tests too big for the cloud** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
-  - **Risk:** AI agents may cite sources that don't exist, or don't say what is claimed (`PRN-05`).
-  - **Signs:** values whose quoted passage can't be found in the source.
-  - **Response:** only key values are sourced (`PRN-05`); each is checked once, when it is added, against the fetched source, with the supporting passage copied by a tool, never typed; the value is then locked, keeping only the source's name, link and quote, and the fetched copy is deleted.
+  - **Risk:** The pace tests need about 20 whole worlds of up to 500 game years (`RES-07`), which may not fit overnight in the cloud sessions (`SCP-15`).
+  - **Signs:** overnight runs that don't finish; pace tests cut short.
+  - **Response:** scenes instead of whole worlds wherever a scene can answer (`RES-21`); several sessions side by side; more nights or fewer worlds, stated in the report (`RES-13`); the speed work for the phone speeds the tests too (`RSK-02`); more computing only after asking you (`SCP-15`).
 
 - `RSK-23` **Your time** *(Decided)*
   - **Rating:** likelihood medium, impact medium.
-  - **Risk:** Reviews, phone tests and judgements of look and sound all need you, so the project moves only as fast as your time allows.
-  - **Signs:** milestones waiting on reviews.
-  - **Response:** phone tests bundled into one app per round; short, clear reports; you are asked only what needs you.
+  - **Risk:** Playing alphas, reviews, and judging look and sound all need you, so the project moves only as fast as your time allows.
+  - **Signs:** stages waiting on reviews; alphas piling up untried.
+  - **Response:** alphas are yours to try when you like, and only stage reviews wait for you (`PRC-11`); each review comes with a short list of what to look at (`RES-22`); reports are short (`RES-15`); the phone benchmark takes one tap (`PLT-04`).
+
+- `RSK-10` **History too slow to watch** *(Dropped)*
+  - **Dropped because:** covered by `RSK-02` (speed on the phone) and `RSK-26` (the pace of discovery).
+
+- `RSK-13` **Simplified minds behave differently** *(Dropped)*
+  - **Dropped because:** every person always has a full mind (`MND-14`), so there are no simplified minds.
+
+- `RSK-16` **Invented sources** *(Dropped)*
+  - **Dropped because:** values are now plausible estimates set by hand, not sourced (`MAT-05`); values that feel wrong are covered by `RSK-06`.
 
 ## 17. Not yet decided
 
@@ -3186,7 +3490,10 @@ Every milestone report reviews them all (`RES-06`), and AI agents may update the
 
 <!-- generated: open items -->
 - **Pacing** (`TIM-07`): how long history takes to watch; measured during development.
+- **Pace of discovery** (`TIM-19`): settled by measurement during development.
 - **How many people the world can feed** (`WLD-04`): measured in experiments.
+- **Population limit** (`MND-15`): settled by measurement during development.
+- **Pace of culture** (`CUL-33`): settled by measurement during development.
 - **Storytelling voices** (`PRE-19`): tried live and chosen by ear.
 - **The phone's limits** (`PLT-04`): measured from the first build.
 <!-- end generated -->
@@ -3201,36 +3508,66 @@ New suggestions from AI agents are marked *Proposed* and listed here until you c
 
 ## 18. Glossary
 
+- **Activity:** anything a person or animal does, with a start and an end; its results land when it ends (`TIM-17`).
+- **Alpha:** one playable step of the build, a few hours of AI work, ending with a version you can install and play on your phone (`SCP-03`, `PRC-11`).
+- **Area:** a patch of land about 256 m across, about 16 to a world cell, detailed down to about a metre: ground, stones, each tree and bush, caves and water (`WLD-12`).
+  It is made from the seed when people first go there (`WLD-13`).
 - **Art pixel:** one pixel of the low-resolution picture, enlarged on screen (`PRE-22`).
 - **Band:** a small group of people, usually family, who live and move together.
-- **Belief:** something a person holds true, with more or less certainty: a cause and effect, that something exists, what others think, a rule, or a plain fact (`MND-27`).
-- **Catalogue:** one of the four lists that describe matter: ingredients, structures, laws and reality checks (`MAT-13`).
-- **Comparison run:** an experiment run again with one mechanism switched off, to show what depends on it (`RES-10`).
-- **Concept:** a category a person forms from what they perceive, such as "cutting stone" (`MND-04`).
-- **Cut-away view:** the ground sliced open to show rock layers and buried traces of past life (`PRE-25`).
-- **General-rules check:** confirms that no rule is written for one particular discovery, material, species or event, and that no discovery's name appears in decision-making logic (`PRN-07`).
-- **Ingredient:** a real mineral, compound or substance of living things that matter is made of (`MAT-01`).
+- **Base action:** one of the 21 actions people do to things, such as strike, cut, heat or bind (`MAT-06`).
+  Everyday activities, such as walking, eating or talking, are not base actions.
+- **Belief:** something a person holds true, with more or less certainty, such as a cause and its effect, a spirit, a taboo or what others think; some beliefs are wrong (`MND-27`).
+- **Belief template:** a shape people give to what they can't explain: a spirit of a place, animal or weather, an ancestor, a taboo, a ritual or an offering (`CUL-05`).
+- **Blueprint:** a hidden rule of the game: if someone does these actions, on things with these characteristics, in these conditions, a named result follows, more surely with experience (`MAT-04`).
+  It works for anything with the right characteristics, and nobody knows it until they discover it or learn it (`PRN-01`).
+- **Book of ages:** a world's chronicle: named discoveries and who made them, births and deaths, feuds, migrations and disasters, written as prose (`PRE-05`).
+- **Catalogue:** one of the game's lists of content, written by AI agents and checked by tests: items, blueprints, plants, animals and illnesses (`MAT-13`).
+- **Characteristic:** one of 18 qualities every item has, scored 0–5, such as hardness, edge, warmth or poison (`MAT-03`).
+  Some show at a glance; others are learned only by use.
+- **Chronicle:** see Book of ages.
+- **Details view:** the view into one mind: needs, mood, thoughts, memories, beliefs, and the reasons behind each choice (`PRE-14`).
+- **Discovery:** learning a blueprint by accident, by experimenting, from a dream's hint or by copying (`MND-11`).
+  A people's first success is a named discovery, named in their language and written in the book of ages (`MAT-21`).
+- **Domestic kind:** a line of animals kept by people for generations and born tame, such as the dog from the wolf (`WLD-33`).
+- **Dream:** something you can send a sleeping person: a place, an animal, a person, a fear, or a hint of a blueprint close to what they already know (`GOD-03`).
+- **Experience:** how practised someone is in one of the 15 sectors; it grows with use, fades slowly without it, and grows faster when someone teaches them (`MND-06`).
+- **Game year:** 60 game days, in four seasons of 15 (`TIM-18`).
+  Growing up, ageing, pregnancy and the growth of plants are squeezed into it; everything within a day takes its real time.
+- **Heat level:** how hot a fire is, from 1, embers, to 5, a furnace with forced air (`MAT-18`).
+- **Herd count:** how animals far from people are kept: a number in each world cell that moves with food and season; near people, they become single animals (`WLD-32`).
 - **Institution:** a shared, named pattern of behaviour (a norm, role, rank or rite) that people know, teach and enforce (`CUL-06`).
 - **Intervention:** anything you do with your powers (see The player as god).
-- **Law:** a general rule of change, such as burning or smelting, that never names a product (`MAT-04`).
-- **Level of detail:** how finely something is being simulated at a given moment, set by the world's own rule and never by where you look (`WLD-12`, `MND-14`).
+- **Item:** a kind of thing, a material or something made, with its characteristics; about 200 at launch (`MAT-10`).
 - **Live moment:** a notable event the game shows you as it happens (`PRE-08`).
-- **Milestone:** a stage of the project that ends with a report you review (`MIL`).
+- **Mental map:** what a person knows of places: where to find food, water, stone and shelter, and where danger lies, by season (`MND-28`).
+- **Milestone:** see Stage.
+- **Mood:** how a person feels overall, from their needs and recent thoughts; very low mood can end in a breakdown (see Minds).
+- **Murmur:** how speech sounds in the game: a babble made from the language's own sounds and the speaker's mood, never real words (`SND-03`).
+- **Need:** something a person must keep up: hunger, thirst, warmth and rest for the body (`BIO-09`), and safety, belonging, status, curiosity and love for the mind (see Minds).
 - **Overnight mode:** the world running at top speed, screen dimmed, while the phone charges (`TIM-12`).
-- **People (a people):** a group recognised by its shared language, beliefs, customs and style (`CUL-23`).
-- **Reality checklist:** real-world changes the physics must reproduce without special rules (`RCK`).
-- **Recogniser:** the part of the game that spots and names what emerges, for you only.
-  It never feeds back into the world (`PRE-39`).
-- **Run:** one simulation of a sandbox or a world for an experiment.
-- **Sandbox:** a small setting built for one research question, using the game's own rules and minds, with nothing scripted (`RES-21`).
-- **Scientist's view / story view:** the two ways to look into a mind: raw beliefs and evidence, or their own words (`PRE-14`).
-- **Seed:** the number a world is generated from.
-  It decides the world, not its history (`PRN-15`).
-- **Signature moment:** a story the simulation must be able to produce without it being scripted (`MOM`).
-- **Skill:** a learned way of doing something, which improves with practice (`MND-06`).
-- **Story director:** sets the speed of time according to what is happening.
-  It never causes events (`TIM-02`, `TIM-03`).
-- **Structure:** how matter is put together: crystal or glass, fibrous, porous or dense, grain, wetness (`MAT-02`).
-- **World:** one generated planet (see World).
-- **Writer AI:** the AI language model, running on the phone, that turns simulation data into readable text.
-  It never decides anything (`PRE-17`, `PRE-37`).
+- **Pace target:** the span of game years in which typical worlds reach a step, such as making fire in years 5–30 (`TIM-19`).
+- **Pace test:** the test that runs whole worlds overnight to check every pace target (`RES-07`).
+- **People (a people):** a named group with its own territory, customs, beliefs and style (`CUL-23`).
+- **Quality:** how well a thing is made, from 0 to 5, set by its maker's skill and its inputs (`MAT-20`).
+- **Reality rule:** a rule the blueprint catalogue must obey, such as "flint flakes and granite doesn't" or "copper needs a furnace", checked by an automated test (`RCK`).
+- **Run:** one play-through of a scene or a world for a test (`RES-13`).
+- **Scene:** a small setting built for one test, such as a band by a river with flint and decoy stones, run by the game's own rules with nothing scripted (`RES-21`).
+- **Season:** a quarter of the game year: 15 days of spring, summer, autumn or winter (`TIM-18`).
+- **Sector:** one of 15 fields of experience: stone, wood, fire, cooking, hunting, gathering, hides, building, healing, pottery, herding, farming, metal, art and music (`MND-06`).
+- **Seed:** the number a world is generated from; every area is made from it too, so an area comes out the same whenever it is made (`WLD-13`).
+- **Signature moment:** a story the game must be able to produce without it being scripted (`MOM`).
+- **Skill:** how good someone is at one blueprint they know; it grows with practice and fades without it (`MND-06`).
+- **Stage:** one of the seven milestones of the build, from First camp (`MIL-01`) to Herds, fields and villages (`MIL-07`).
+  Each is a group of alphas and ends with a report and your review (`RES-06`, `RES-22`).
+- **Story director:** sets the speed of time by what is happening, slowing for important moments and racing through quiet years (`TIM-02`).
+  It never causes events (`TIM-03`).
+- **Switch-off run:** a scene run with one thing switched off, such as teaching or dreams, to see what a result depends on; it exists only in tests (`RES-10`).
+- **Taming:** animals fed and kept near people grow tame, and young raised by people grow up tame (`WLD-33`, `RCK-24`).
+- **Thought:** a reaction to something that happened, which lifts or lowers mood for a while, such as a fine meal or a friend's death (see Minds).
+- **Timer:** a slow change on a thing, such as rotting, drying, cooking, smoking, fermenting, setting or firing, sped up or slowed by conditions (`MAT-19`).
+- **Wear:** how used a thing is, from new to broken (`MAT-20`).
+- **Weather cell:** a patch of sky about 10 km across, with its own temperature, wind, cloud, rain and snow, updated every game hour (`WLD-12`).
+- **World:** one generated planet, about 2,000 km around and 1,000 km from pole to pole, wrapping both ways (see World).
+- **World cell:** a square of land about 1 km across, about 2 million to a world, holding its height, rock, soil, plants, water, deposits and passing herds; it is always simulated, at a coarse pace (`WLD-12`).
+- **Writer AI:** the phone's built-in AI language model, which turns the game's records into prose (`PRE-37`).
+  It never decides anything, and dark events are never left to it (`PRE-17`).
