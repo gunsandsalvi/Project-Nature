@@ -152,6 +152,10 @@ pub struct App {
     demo_ns: u64,
     /// Where the camera looks, the gesture moving it and its easing (A11.2, A12.2).
     control: camera::Control,
+    /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles (the bench,
+    /// A15.10).
+    upload_ns: u64,
+    triangles: u64,
 }
 
 /// The golden scenes of A11.12, drawn with time frozen and no strip.
@@ -241,6 +245,8 @@ impl App {
             demo_meshes: None,
             demo_ns: 0,
             control: camera::Control::new(CameraPose::default()),
+            upload_ns: 0,
+            triangles: 0,
         };
         let t0 = app.platform.now_ns();
         match Catalogue::load(CATALOGUE) {
@@ -398,8 +404,15 @@ impl App {
                 cam: self.control.pose,
                 card,
             };
+            let t0 = self.platform.now_ns();
+            if r.upload_areas() > 0 {
+                self.upload_ns = self.upload_ns.max(self.platform.now_ns().saturating_sub(t0));
+            }
             match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f, &list))) {
-                Ok(_) => self.panics_in_row = 0,
+                Ok(stats) => {
+                    self.panics_in_row = 0;
+                    self.triangles = stats.triangles;
+                }
                 Err(e) => {
                     self.panics_in_row += 1;
                     let msg = e
@@ -590,6 +603,11 @@ impl App {
     /// How long making the demo area took, in nanoseconds.
     pub fn demo_ns(&self) -> u64 {
         self.demo_ns
+    }
+
+    /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles.
+    pub fn ground_stats(&self) -> (u64, u64) {
+        (self.upload_ns, self.triangles)
     }
 
     /// Where the camera looks.

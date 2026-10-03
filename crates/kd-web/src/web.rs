@@ -202,6 +202,17 @@ impl WebApp {
         )
     }
 
+    /// Test hook (A15.10): the ground's times and size, as JSON: making the demo area and the longest frame's area
+    /// uploads in milliseconds, and the last frame's ground triangles.
+    pub fn timings(&self) -> String {
+        let (upload_ns, triangles) = self.app.ground_stats();
+        format!(
+            "{{\"demo_ms\":{},\"upload_ms\":{},\"triangles\":{triangles}}}",
+            self.app.demo_ns() as f64 / 1e6,
+            upload_ns as f64 / 1e6
+        )
+    }
+
     /// Test hook (A12.4): the ground under a point of the canvas in device pixels, as a position in ticks.
     pub fn ground_at(&self, x: f32, y: f32) -> Vec<i32> {
         self.app

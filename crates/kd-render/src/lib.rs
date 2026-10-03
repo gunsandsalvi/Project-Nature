@@ -193,6 +193,16 @@ impl Renderer {
         }
     }
 
+    /// Makes the textures of areas taken since the last frame (A11.5): the app times it for the bench; `draw` does
+    /// it too, so a frame never draws an area without them. Returns how many areas were uploaded.
+    pub fn upload_areas(&mut self) -> usize {
+        let before = self.store.uploaded();
+        if let Err(e) = self.store.upload(&self.gl) {
+            log::error!(target: "kd::render", "area textures: {e}");
+        }
+        self.store.uploaded() - before
+    }
+
     /// The view of a camera pose on the current art target (A11.2), its depth fitted to the loaded ground.
     pub fn view_of(&self, cam: &CameraPose) -> Option<View> {
         let art = self.view?;

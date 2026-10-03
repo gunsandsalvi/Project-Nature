@@ -104,6 +104,7 @@ async function main() {
       // A synthetic touch, in device pixels from the canvas's top-left: kind 0 down, 1 move, 2 up, 3 cancel.
       touch: (kind, id, x, y, tMs) => app.pointer(kind, id, x, y, tMs),
       groundAt: (x, y) => Array.from(app.ground_at(x, y)),
+      timings: () => JSON.parse(app.timings()),
       screenOf: (p) => Array.from(app.screen_of(p[0], p[1], p[2])),
       // The next frame as a PNG data URL, or with `art` one pixel an art pixel (the grid starts at the top-left).
       shot: ({ art = false } = {}) => {

@@ -164,6 +164,11 @@ impl Store {
         Ok(())
     }
 
+    /// How many areas have their textures.
+    pub fn uploaded(&self) -> usize {
+        self.areas.iter().filter(|a| a.gpu.is_some()).count()
+    }
+
     /// Makes the textures of areas that lack them: heights `R32F`, gradients `RG32F`, surfaces `R8` (A11.5).
     pub fn upload(&mut self, gl: &glow::Context) -> Result<(), RenderError> {
         for a in self.areas.iter_mut().filter(|a| a.gpu.is_none()) {

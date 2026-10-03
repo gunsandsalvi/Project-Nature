@@ -279,6 +279,41 @@ mod tests {
         println!("TIMINGS blob_load_us {blob:.1} palette_row_us {row_us:.1} tables_us {tables_us:.1}");
     }
 
+    // The ground's times for the bench (A15.10): making the demo area, handing it over as meshes, and taking it
+    // into the renderer's CPU store (its gradients). Run with
+    // `cargo test --profile fast -p kd-app --lib ground_timings -- --ignored --nocapture`.
+    #[test]
+    #[ignore]
+    fn ground_timings() {
+        let median = |f: &mut dyn FnMut()| {
+            let mut t: Vec<u128> = (0..21)
+                .map(|_| {
+                    let t0 = std::time::Instant::now();
+                    f();
+                    t0.elapsed().as_nanos()
+                })
+                .collect();
+            t.sort_unstable();
+            t[10] as f64 / 1e6
+        };
+        let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
+        let numbers = crate::ground::surface_numbers(&cat).unwrap();
+        let g = kd_world::area::demo::make(kd_world::area::demo::SEED);
+        let make_ms = median(&mut || {
+            std::hint::black_box(kd_world::area::demo::make(kd_world::area::demo::SEED));
+        });
+        let meshes_ms = median(&mut || {
+            std::hint::black_box(crate::ground::area_meshes(&g, &numbers));
+        });
+        let m = crate::ground::area_meshes(&g, &numbers);
+        let store_ms = median(&mut || {
+            let mut s = kd_render::ground::Store::default();
+            s.insert(m.clone()).unwrap();
+            std::hint::black_box(s.areas.len());
+        });
+        println!("TIMINGS demo_make_ms {make_ms:.2} area_meshes_ms {meshes_ms:.2} store_insert_ms {store_ms:.2}");
+    }
+
     // checks: MAT-13 PLT-09
     #[test]
     fn catalogue_loads_at_start() {
