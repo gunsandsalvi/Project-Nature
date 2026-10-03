@@ -1,0 +1,4 @@
+# Findings of tools/filecheck.py that wait for the owner's OK (PRC-07): one a line, as
+#   <the finding exactly as the check prints it, after its prefix> | <date> | awaiting owner OK
+# A listed finding is reported as known instead of failing the check; it leaves this file once the owner decides.
+# None at present.

@@ -38,6 +38,8 @@ if ! cargo test --workspace --locked >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"
 echo "   $(grep -c '^test .* ok$' "$LOG") Rust tests passed"
 rm -f "$LOG"
 step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/signing-key.py selftest
+SELF="$(python3 tools/filecheck.py selftest)" || { echo "$SELF"; exit 1; }
+echo "   ${SELF##*$'\n'}"
 step "4 catalogue";       later α01a
 step "5 scenes";          later α07c
 step "6 cross-target"
@@ -46,8 +48,8 @@ if ! cargo test -p kd-core --locked --target aarch64-unknown-linux-gnu >"$LOG" 2
 rm -f "$LOG"
 echo "   the core's stored bits equal on arm64 under qemu; in the browser with the smoke test (step 9)"
 step "6 repeat";          later α07c
-step "7 file check";      later α00b
-step "8 coverage";        later α00b
+step "7 file check";      python3 tools/filecheck.py file
+step "8 coverage";        python3 tools/filecheck.py ids --merge
 step "9 builds"
 if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-render crates/kd-core; then
   tools/build-web.sh

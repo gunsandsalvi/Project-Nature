@@ -4574,6 +4574,7 @@ On the phone, each stage, the Tests screen's Review button renders the same set 
    At a delivery the APK is rebuilt with a key made for the check, and the committed release APK is checked against its SHA-256 and A2.5's checks, since a release build made after that commit would name a newer commit in its build line and change the file (measured at α00).
 
 **Decision:** `kd check file` and `kd check ids` are the modes `file` and `ids` of `tools/filecheck.py`, Python's standard library alone, since text checks over Markdown and sources are simplest there and every session has it.
+Of `PROJECT.md`'s generated lists, the contents are checked word for word, and the open items and the proposals by the IDs they list, in order, since their words are written by hand (α00b); `selftest` plants one fault per message on a clean fixture (`tools/tests/filecheck/clean/`), each of which must fail with that message alone.
 It writes `results/checks/<commit>.json` and prints `Checks: PASS <commit>`; a later commit touching only `results/` keeps that pass.
 Over 20 minutes, the scenes of items the change doesn't touch move to the background first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining (`PRC-10`).
 When a background run ends, its results are read before anything else: a check that passed before and now fails is fixed, or the change behind it undone, before other work joins, and a pace target not yet met goes to tuning (`RES-16`), blocking only the stage close.
