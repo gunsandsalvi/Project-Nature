@@ -1,6 +1,0 @@
-# Permanent numbers of catalogue entries (A3.6, PLT-09): `<kind> <id> <number>`, `retired` appended for a
-# removed entry. Written by `kd catalog build --assign`; a number is never changed or used again.
-colour_family void 0
-colour_family limestone 1
-ladder lime 0
-ladder LimeLit 1
