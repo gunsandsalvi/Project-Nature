@@ -360,6 +360,8 @@ impl App {
         };
         self.renderer = match Renderer::new(gl, cat, &assets) {
             Ok(mut r) => {
+                let platform = Arc::clone(&self.platform);
+                r.set_clock(Box::new(move || platform.now_ns()));
                 if let Some([w, h]) = self.size
                     && let Err(e) = r.resize(w, h, ART_SCALE)
                 {
@@ -423,6 +425,8 @@ impl App {
                 sky: sky_at(self.hour),
                 cam: self.control.pose,
                 card,
+                // A golden scene's frame finishes its fields at once (A11.11).
+                field_ns: self.golden.is_none().then_some(kd_render::field::SUN_FIELD_FRAME_NS),
             };
             let t0 = self.platform.now_ns();
             if r.upload_areas() > 0 {

@@ -75,6 +75,9 @@ pub struct Frame {
     pub cam: CameraPose,
     /// The light card instead of the ground, for its golden scenes (A11.12).
     pub card: Option<passes::scene::card::CardFrame>,
+    /// How long the frame may spend on sun fields worked out over frames, in nanoseconds by the renderer's clock
+    /// (A11.11); none, or no clock, finishes each at once, as the golden scenes and test hooks need.
+    pub field_ns: Option<u64>,
 }
 
 /// What a frame drew.
@@ -107,6 +110,8 @@ pub struct Renderer {
     lighting: Option<Lighting>,
     palette_tex: Texture,
     tables_tex: Texture,
+    /// The app's monotonic clock in nanoseconds, timing the frame's share of field work (A11.11).
+    clock: Option<Box<dyn Fn() -> u64>>,
 }
 
 impl Renderer {
@@ -143,7 +148,14 @@ impl Renderer {
             lighting: None,
             palette_tex,
             tables_tex,
+            clock: None,
         })
+    }
+
+    /// Gives the renderer the app's monotonic clock, in nanoseconds, so a frame can stop its field work when its
+    /// share is spent (A11.11).
+    pub fn set_clock(&mut self, clock: Box<dyn Fn() -> u64>) {
+        self.clock = Some(clock);
     }
 
     /// The frame's light and palette, the haze seen along `view`, uploading the palette's textures when its row or
@@ -246,7 +258,11 @@ impl Renderer {
         let mut off = art.off;
         let mut depth_m = passes::scene::card::DEPTH_M;
         if let Some(l) = &self.lighting {
-            self.store.follow_light(l.light.dir);
+            // The frame's share of field work, timed from here.
+            let clock = self.clock.as_deref();
+            let until = f.field_ns.zip(clock).map(|(ns, now)| now() + ns);
+            let mut more = || until.zip(clock).is_none_or(|(end, now)| now() < end);
+            self.store.follow_light(l.light.dir, &mut more);
         }
         if let Err(e) = self.store.upload(&self.gl) {
             log::error!(target: "kd::render", "area textures: {e}");

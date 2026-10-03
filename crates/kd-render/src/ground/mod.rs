@@ -13,7 +13,7 @@ use kd_view::{AREA_SIDE, AREA_SQUARES, AreaMeshes};
 
 use crate::RenderError;
 use crate::camera::View;
-use crate::field::{self, SunField};
+use crate::field::{self, SunField, SunJob};
 use crate::frame::Lighting;
 use crate::gl::{self, Format, Program, State, Texture, unit};
 use crate::light::{LUM, dot};
@@ -109,6 +109,8 @@ pub struct Area {
     pub sky: Vec<u8>,
     /// The sun field for the light's azimuth, none until the first frame's light (A11.5).
     pub sun: Option<SunField>,
+    /// The next sun field, worked out over frames while the light moves a little (A11.11).
+    sun_job: Option<SunJob>,
     /// Whether the sun field is newer than its texture.
     sun_fresh: bool,
     gpu: Option<[Texture; 5]>,
@@ -171,6 +173,7 @@ impl Store {
             surfaces: m.surfaces,
             span_m: [lo, hi],
             sun: None,
+            sun_job: None,
             sun_fresh: false,
             gpu: None,
         };
@@ -184,17 +187,35 @@ impl Store {
         self.areas.iter().filter(|a| a.gpu.is_some()).count()
     }
 
-    /// Works out the sun field of each area that has none, or one made for an azimuth `SUN_FIELD_STEP_DEG` or more
-    /// from the light's `dir` (east, north, up; A11.5); its texture follows at the next upload. Returns how many
-    /// it made.
-    pub fn follow_light(&mut self, dir: [f32; 3]) -> usize {
+    /// Keeps each area's sun field on the light's azimuth `dir` (east, north, up; A11.5, A11.11): made at once for
+    /// an area that has none or a jump of `SUN_JUMP_DEG` or more, as the strip's hours make; for a smaller move of
+    /// `SUN_FIELD_STEP_DEG` or more, worked out over frames while `more()` allows, the old field drawn until the new
+    /// one is whole. Its texture follows at the next upload. Returns how many fields it finished.
+    pub fn follow_light(&mut self, dir: [f32; 3], more: &mut dyn FnMut() -> bool) -> usize {
         let mut made = 0;
         for a in &mut self.areas {
-            if a.sun.as_ref().is_none_or(|f| f.stale(dir)) {
-                a.sun = Some(field::sun_field(&a.heights, dir));
-                a.sun_fresh = true;
-                made += 1;
-            }
+            let field = match &a.sun {
+                Some(f) if !f.jumped(dir) => {
+                    if a.sun_job.is_none() && f.stale(dir) {
+                        a.sun_job = SunJob::new(dir);
+                    }
+                    let Some(job) = &mut a.sun_job else {
+                        continue;
+                    };
+                    let Some(field) = job.step(&a.heights, more) else {
+                        continue;
+                    };
+                    a.sun_job = None;
+                    field
+                }
+                _ => {
+                    a.sun_job = None;
+                    field::sun_field(&a.heights, dir)
+                }
+            };
+            a.sun = Some(field);
+            a.sun_fresh = true;
+            made += 1;
         }
         made
     }
@@ -491,6 +512,48 @@ mod tests {
                 0.1 * x + 3.0 * (x * 0.31).sin() * (y * 0.17).cos() + if x > 120.0 { 8.0 } else { 0.0 }
             })
             .collect()
+    }
+
+    // checks: PRE-30 PRE-02
+    #[test]
+    fn a_small_move_of_the_light_is_worked_over_frames_a_jump_at_once() {
+        // A light 12° high from the north-west, and the same an eighth of a degree round, then 40° round.
+        let light = |az: f32| {
+            let (e, az) = (12f32.to_radians(), az.to_radians());
+            [e.cos() * az.sin(), e.cos() * az.cos(), e.sin()]
+        };
+        let mut store = Store::default();
+        store
+            .insert(AreaMeshes {
+                id: AreaId(7),
+                base_m: 100.0,
+                heights: test_heights(),
+                surfaces: vec![0; AREA_SQUARES * AREA_SQUARES],
+            })
+            .expect("a whole area");
+        let heights = store.areas[0].heights.clone();
+        // A new area's field comes at once, whatever the frame's share.
+        assert_eq!(store.follow_light(light(315.0), &mut || false), 1);
+        assert_eq!(store.areas[0].sun, Some(field::sun_field(&heights, light(315.0))));
+        // A move under the step changes nothing.
+        assert_eq!(store.follow_light(light(315.05), &mut || false), 0);
+        assert!(store.areas[0].sun_job.is_none());
+        // A small move: a piece a frame with no time to spare, the old field drawn until the new one is whole.
+        let mut frames = 1;
+        while store.follow_light(light(315.125), &mut || false) == 0 {
+            assert_eq!(store.areas[0].sun, Some(field::sun_field(&heights, light(315.0))));
+            frames += 1;
+        }
+        assert!(frames > 100, "{frames} frames");
+        assert_eq!(store.areas[0].sun, Some(field::sun_field(&heights, light(315.125))));
+        // With time to spare, the next small move lands in one frame.
+        assert_eq!(store.follow_light(light(315.25), &mut || true), 1);
+        // A jump, as a tap of the strip makes, comes at once and drops any field under way.
+        assert_eq!(store.follow_light(light(315.4), &mut || false), 0);
+        assert!(store.areas[0].sun_job.is_some());
+        assert_eq!(store.follow_light(light(355.0), &mut || false), 1);
+        assert!(store.areas[0].sun_job.is_none());
+        assert_eq!(store.areas[0].sun, Some(field::sun_field(&heights, light(355.0))));
     }
 
     // checks: PRE-02 PRE-22

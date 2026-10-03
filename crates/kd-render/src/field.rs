@@ -17,6 +17,10 @@
 //! sky field keeps the share of the sky each point's horizon leaves open: the mean over 16 directions of cos² of
 //! the horizon's height.
 //!
+//! A sun field takes longer than a frame can spare (A11.11), so it is also a job, `SunJob`, worked a row at a time:
+//! the store makes it at once for a new area or a jump of the light, as the strip's hours make, and over frames for
+//! the clock's small moves, the old field drawn until the new one is whole.
+//!
 //! Until neighbours come (α02b), the ground runs on `GROUND_MARGIN_M` beyond the area's edge, each edge point's
 //! height carried straight out, and beyond that lies open air, so the edges are drawn as their own inner points.
 //!
@@ -27,6 +31,11 @@ use kd_view::AREA_SIDE;
 
 /// How far the light's azimuth may move before an area's sun field is worked out again: 0.1° (A11.5).
 pub const SUN_FIELD_STEP_DEG: f32 = 0.1;
+/// The most of a frame spent on sun fields worked out over frames, in nanoseconds: A11.11's 2 ms an area.
+pub const SUN_FIELD_FRAME_NS: u64 = 2_000_000;
+/// How far the light's azimuth may jump for an area's sun field to be made at once rather than over frames: a tap
+/// of the strip moves it by degrees, the clock by `SUN_FIELD_STEP_DEG` at a time (A11.5, A11.11).
+pub const SUN_JUMP_DEG: f32 = 1.0;
 /// The directions the sky field looks along, evenly round (A11.5).
 pub const SKY_DIRECTIONS: usize = 16;
 /// The nearest ground that counts toward a horizon, in metres: nearer, the surface's own slope shades it (`n·l`),
@@ -74,6 +83,15 @@ pub fn azimuth(dir: [f32; 3]) -> Option<([f32; 2], f32)> {
 impl SunField {
     /// Whether light from `dir` comes from an azimuth `SUN_FIELD_STEP_DEG` or more from the field's.
     pub fn stale(&self, dir: [f32; 3]) -> bool {
+        self.moved(dir, SUN_FIELD_STEP_DEG)
+    }
+
+    /// Whether light from `dir` comes from an azimuth `SUN_JUMP_DEG` or more from the field's.
+    pub fn jumped(&self, dir: [f32; 3]) -> bool {
+        self.moved(dir, SUN_JUMP_DEG)
+    }
+
+    fn moved(&self, dir: [f32; 3], deg: f32) -> bool {
         let Some((t, _)) = azimuth(dir) else {
             // Overhead, no ground shades another: any field will do.
             return false;
@@ -82,7 +100,7 @@ impl SunField {
             self.toward[0] * t[1] - self.toward[1] * t[0],
             self.toward[0] * t[0] + self.toward[1] * t[1],
         );
-        dot <= 0.0 || cross.abs() >= SUN_FIELD_STEP_DEG.to_radians().sin()
+        dot <= 0.0 || cross.abs() >= deg.to_radians().sin()
     }
 }
 
@@ -139,22 +157,8 @@ impl Rows {
         span_of(self.point(k, 0.0), self.a)
     }
 
-    /// Every row's ground over its whole stretch, as `line_profile` gives it.
-    fn profiles(&self, heights: &[f32]) -> Vec<Vec<(f32, f32)>> {
-        let mut scratch = Scratch::default();
-        (0..self.count())
-            .map(|k| {
-                let mut out = Vec::new();
-                if let Some(span) = self.span(k) {
-                    line_profile(heights, self.point(k, 0.0), self.a, span, &mut scratch, &mut out);
-                }
-                out
-            })
-            .collect()
-    }
-
-    /// The rows each of the area's points reads: the two either side of it, each with the point's share. The points
-    /// are put in order along the rows once, so each row's readers come out in rising `t`.
+    /// The rows each of the area's points reads: the two either side of it, each with the point's share, put in
+    /// order along a row as the row is read.
     fn readers(&self) -> Readers {
         let n = self.count();
         let place = |i: usize| {
@@ -163,27 +167,64 @@ impl Rows {
             let k = (r as usize).min(n - 2);
             (dx * self.a[0] + dy * self.a[1], k, r - k as f32)
         };
-        let mut order: Vec<(f32, u32)> = (0..SIDE * SIDE).map(|i| (place(i).0, i as u32)).collect();
-        order.sort_unstable_by(|p, q| p.0.total_cmp(&q.0));
         let mut start = vec![0usize; n + 1];
-        for &(_, i) in &order {
-            let (_, k, _) = place(i as usize);
+        for i in 0..SIDE * SIDE {
+            let (_, k, _) = place(i);
             start[k + 1] += 1;
             start[k + 2] += 1;
         }
         for k in 1..=n {
             start[k] += start[k - 1];
         }
+        // Taken across and down the way `t` rises, each row's readers come nearly in order, so sorting them as the
+        // row is read finds long runs.
+        let along = |v: f32, j: usize| if v < 0.0 { SIDE - 1 - j } else { j };
         let mut next = start.clone();
         let mut entries = vec![(0.0, 0, 0.0); 2 * SIDE * SIDE];
-        for &(t, i) in &order {
-            let (_, k, f) = place(i as usize);
-            entries[next[k]] = (t, i, 1.0 - f);
-            entries[next[k + 1]] = (t, i, f);
-            next[k] += 1;
-            next[k + 1] += 1;
+        for y in (0..SIDE).map(|j| along(self.a[1], j)) {
+            for x in (0..SIDE).map(|j| along(self.a[0], j)) {
+                let i = y * SIDE + x;
+                let (t, k, f) = place(i);
+                entries[next[k]] = (t, i as u32, 1.0 - f);
+                entries[next[k + 1]] = (t, i as u32, f);
+                next[k] += 1;
+                next[k + 1] += 1;
+            }
         }
         Readers { start, entries }
+    }
+
+    /// Row `k`'s ground, and its readers' horizons beyond `NEAR_M` looking along `a` into `ahead` and against it
+    /// into `behind`, where given.
+    fn sweep(
+        &self,
+        heights: &[f32],
+        k: usize,
+        readers: &mut Readers,
+        line: &mut Line,
+        ahead: Option<&mut Far>,
+        behind: Option<&mut Far>,
+    ) {
+        let Some(span) = self.span(k) else {
+            return;
+        };
+        let readers = readers.sorted(k);
+        if readers.is_empty() {
+            return;
+        }
+        line_profile(
+            heights,
+            self.point(k, 0.0),
+            self.a,
+            span,
+            &mut line.scratch,
+            &mut line.profile,
+        );
+        for (way, far) in [(true, ahead), (false, behind)] {
+            if let Some(far) = far {
+                self.read(heights, &line.profile, readers, way, |i, share, m| far.add(i, share, m));
+            }
+        }
     }
 
     /// Each reader's horizon over row `k`'s ground `profile` beyond `NEAR_M`, as a slope, looking toward rising `t`
@@ -248,35 +289,6 @@ impl Rows {
             use_it(i, share, Some(slope(lo)));
         }
     }
-
-    /// Every point's horizon looking along `a` (`ahead`) or against it: its own ray's within `NEAR_M`, and the
-    /// rows' beyond, whichever is steeper; 0, level ground running on, where neither has ground.
-    fn horizons(&self, heights: &[f32], profiles: &[Vec<(f32, f32)>], readers: &Readers, ahead: bool) -> Vec<f32> {
-        let (mut far, mut weight) = (vec![0.0f32; SIDE * SIDE], vec![0.0f32; SIDE * SIDE]);
-        for (k, profile) in profiles.iter().enumerate() {
-            let readers = readers.row(k);
-            if !readers.is_empty() {
-                self.read(heights, profile, readers, ahead, |i, share, m| {
-                    if let Some(m) = m {
-                        far[i] += share * m;
-                        weight[i] += share;
-                    }
-                });
-            }
-        }
-        let way = if ahead { self.a } else { [-self.a[0], -self.a[1]] };
-        let near = Near::new(way);
-        (0..SIDE * SIDE)
-            .map(|i| {
-                let far = (weight[i] > 0.0).then(|| far[i] / weight[i]);
-                match (near.horizon(heights, i), far) {
-                    (Some(n), Some(f)) => n.max(f),
-                    (Some(m), None) | (None, Some(m)) => m,
-                    (None, None) => 0.0,
-                }
-            })
-            .collect()
-    }
 }
 
 /// The stretch of the line through `o` along `a` over the ground, from and to as `t`, or none where it misses.
@@ -297,17 +309,63 @@ fn span_of(o: [f32; 2], a: [f32; 2]) -> Option<(f32, f32)> {
     (lo <= hi).then_some((lo, hi))
 }
 
-/// Each row's readers in one list: row `k`'s are `entries[start[k]..start[k + 1]]`, as (t, point, share) in
-/// rising `t`.
+/// Each row's readers in one list: row `k`'s are `entries[start[k]..start[k + 1]]`, as (t, point, share).
 struct Readers {
     start: Vec<usize>,
     entries: Vec<(f32, u32, f32)>,
 }
 
 impl Readers {
-    fn row(&self, k: usize) -> &[(f32, u32, f32)] {
-        &self.entries[self.start[k]..self.start[k + 1]]
+    /// Row `k`'s readers in rising `t`.
+    fn sorted(&mut self, k: usize) -> &[(f32, u32, f32)] {
+        let row = &mut self.entries[self.start[k]..self.start[k + 1]];
+        row.sort_by(|p, q| p.0.total_cmp(&q.0));
+        row
     }
+}
+
+/// Each point's horizon beyond `NEAR_M` one way, from the rows it reads, weighted by their shares.
+struct Far {
+    sum: Vec<f32>,
+    weight: Vec<f32>,
+}
+
+impl Far {
+    fn new() -> Far {
+        Far {
+            sum: vec![0.0; SIDE * SIDE],
+            weight: vec![0.0; SIDE * SIDE],
+        }
+    }
+
+    fn add(&mut self, i: usize, share: f32, m: Option<f32>) {
+        if let Some(m) = m {
+            self.sum[i] += share * m;
+            self.weight[i] += share;
+        }
+    }
+
+    /// Point `i`'s horizon, none where no row it reads has ground that far.
+    fn at(&self, i: usize) -> Option<f32> {
+        (self.weight[i] > 0.0).then(|| self.sum[i] / self.weight[i])
+    }
+}
+
+/// A point's horizon from its own ray's within `NEAR_M` and the rows' beyond, whichever is steeper; 0, level ground
+/// running on, where neither has ground.
+fn combine(near: Option<f32>, far: Option<f32>) -> f32 {
+    match (near, far) {
+        (Some(n), Some(f)) => n.max(f),
+        (Some(m), None) | (None, Some(m)) => m,
+        (None, None) => 0.0,
+    }
+}
+
+/// A row's ground, and the lists `line_profile` fills again for each line, kept so they need not be made anew.
+#[derive(Default)]
+struct Line {
+    scratch: Scratch,
+    profile: Vec<(f32, f32)>,
 }
 
 /// Lists `line_profile` fills again for each line, kept so it need not make them anew.
@@ -562,19 +620,89 @@ impl Near {
     }
 }
 
-/// An area's sun field for light from `dir` (east, north, up; A11.5): level horizons for light overhead.
+/// A sun field worked out a piece at a time (A11.5, A11.11): row by row the ground along it and its readers'
+/// horizons beyond `NEAR_M`, then line by line of the area each point's own ray within it, each piece a few
+/// hundredths of a millisecond on the cloud's cores, so a frame stops when its share is spent.
+pub struct SunJob {
+    toward: [f32; 2],
+    rows: Rows,
+    readers: Readers,
+    far: Far,
+    near: Near,
+    line: Line,
+    horizon: Vec<f32>,
+    /// The next row, then from `rows.count()` on the next line of the area's points.
+    next: usize,
+}
+
+impl SunJob {
+    /// The job for light from `dir` (east, north, up); none for light overhead, whose field is level horizons.
+    pub fn new(dir: [f32; 3]) -> Option<SunJob> {
+        let (toward, _) = azimuth(dir)?;
+        // Rows run toward the light, east and south.
+        let a = [toward[0], -toward[1]];
+        let rows = Rows::new(a);
+        Some(SunJob {
+            toward,
+            readers: rows.readers(),
+            rows,
+            far: Far::new(),
+            near: Near::new(a),
+            line: Line::default(),
+            horizon: vec![0.0; SIDE * SIDE],
+            next: 0,
+        })
+    }
+
+    /// The light's azimuth the field is for.
+    pub fn toward(&self) -> [f32; 2] {
+        self.toward
+    }
+
+    /// Works one piece and on while `more()` allows; the field once it is whole.
+    pub fn step(&mut self, heights: &[f32], more: &mut dyn FnMut() -> bool) -> Option<SunField> {
+        assert_eq!(heights.len(), SIDE * SIDE, "an area's heights");
+        let rows = self.rows.count();
+        loop {
+            if self.next < rows {
+                let far = Some(&mut self.far);
+                self.rows
+                    .sweep(heights, self.next, &mut self.readers, &mut self.line, far, None);
+            } else {
+                let y = self.next - rows;
+                for i in y * SIDE..(y + 1) * SIDE {
+                    self.horizon[i] = combine(self.near.horizon(heights, i), self.far.at(i));
+                }
+            }
+            self.next += 1;
+            if self.next == rows + SIDE {
+                return Some(SunField {
+                    toward: self.toward,
+                    horizon: std::mem::take(&mut self.horizon),
+                });
+            }
+            if !more() {
+                return None;
+            }
+        }
+    }
+}
+
+/// An area's sun field for light from `dir` (east, north, up; A11.5), all at once: level horizons for light
+/// overhead.
 pub fn sun_field(heights: &[f32], dir: [f32; 3]) -> SunField {
     assert_eq!(heights.len(), SIDE * SIDE, "an area's heights");
-    let Some((toward, _)) = azimuth(dir) else {
+    let Some(mut job) = SunJob::new(dir) else {
         return SunField {
             toward: [0.0, 1.0],
             horizon: vec![0.0; SIDE * SIDE],
         };
     };
-    // Rows run toward the light, east and south.
-    let rows = Rows::new([toward[0], -toward[1]]);
-    let horizon = rows.horizons(heights, &rows.profiles(heights), &rows.readers(), true);
-    SunField { toward, horizon }
+    loop {
+        if let Some(field) = job.step(heights, &mut || true) {
+            return field;
+        }
+    }
 }
 
 /// An area's sky field (A11.5): at each 1 m point the share of the sky its horizon leaves open, from 0 to 1: the
@@ -582,12 +710,19 @@ pub fn sun_field(heights: &[f32], dir: [f32; 3]) -> SunField {
 pub fn sky_field(heights: &[f32]) -> Vec<f32> {
     assert_eq!(heights.len(), SIDE * SIDE, "an area's heights");
     let mut sum = vec![0.0f32; SIDE * SIDE];
+    let mut line = Line::default();
     for a in HALF_ROUND {
         let rows = Rows::new(a);
-        let (profiles, readers) = (rows.profiles(heights), rows.readers());
-        for ahead in [true, false] {
-            for (s, m) in sum.iter_mut().zip(rows.horizons(heights, &profiles, &readers, ahead)) {
-                *s += 1.0 / (1.0 + m.max(0.0) * m.max(0.0));
+        let mut readers = rows.readers();
+        let (mut ahead, mut behind) = (Far::new(), Far::new());
+        for k in 0..rows.count() {
+            rows.sweep(heights, k, &mut readers, &mut line, Some(&mut ahead), Some(&mut behind));
+        }
+        for (way, far) in [(a, &ahead), ([-a[0], -a[1]], &behind)] {
+            let near = Near::new(way);
+            for (i, s) in sum.iter_mut().enumerate() {
+                let m = combine(near.horizon(heights, i), far.at(i)).max(0.0);
+                *s += 1.0 / (1.0 + m * m);
             }
         }
     }
@@ -769,6 +904,31 @@ mod tests {
         let f = sun_field(&flat, light(30.0, 180.0));
         assert!(!f.stale(light(30.0, 180.05)) && !f.stale(light(50.0, 180.0)));
         assert!(f.stale(light(30.0, 180.2)) && f.stale(light(30.0, 0.0)));
+    }
+
+    // checks: PRE-30
+    #[test]
+    fn a_field_worked_over_frames_equals_one_made_at_once() {
+        // A job stopped after every piece, as a frame with no time to spare stops it, ends with the same field, to
+        // the bit, as one made at once; and it takes many pieces, each frame's share small.
+        let ground = test_ground();
+        for (e, az) in [(15.0, 250.0), (40.0, 95.0)] {
+            let dir = light(e, az);
+            let mut job = SunJob::new(dir).expect("a light off the zenith");
+            let mut pieces = 1;
+            let field = loop {
+                if let Some(f) = job.step(&ground, &mut || false) {
+                    break f;
+                }
+                pieces += 1;
+            };
+            assert_eq!(field, sun_field(&ground, dir), "light {e}° high from {az}°");
+            assert!(pieces > 300, "{pieces} pieces");
+            // A move under the step keeps the field; one of a degree is a jump.
+            assert!(!field.stale(light(e, az + 0.05)) && field.stale(light(e, az + 0.2)));
+            assert!(!field.jumped(light(e, az + 0.5)) && field.jumped(light(e, az + 1.5)));
+        }
+        assert!(SunJob::new([0.0, 0.0, 1.0]).is_none(), "light overhead needs no job");
     }
 
     // checks: PRE-30
