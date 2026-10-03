@@ -126,6 +126,8 @@ try {
   b = await cam();
   check('pinch zooms in', a.zoom - b.zoom > 0.08, `zoom ${a.zoom.toFixed(3)} -> ${b.zoom.toFixed(3)}`);
 
+  // checks: PRE-34
+  // one thumb zooms: double-tap, then drag (portrait, one-handed)
   await reset(0.35);
   a = await cam();
   await gesture([['pointerdown', [[1, cx, cy]]], ['pointerup', [[1, cx, cy]]], ...line(1, [cx, cy], [cx, cy + 200])]);

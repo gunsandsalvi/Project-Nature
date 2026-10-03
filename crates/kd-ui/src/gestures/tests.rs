@@ -59,7 +59,7 @@ fn pair(t: u64, kind: InputKind, a: f32, r: f32) -> [InputEvent; 2] {
     ]
 }
 
-// checks: PRE-33
+// checks: PRE-33 PRE-34
 #[test]
 fn scripted_traces() {
     use InputKind::{Down, Move, Up};
