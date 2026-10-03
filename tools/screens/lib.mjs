@@ -1,7 +1,8 @@
 // Shared by the screen scripts (A15.11): serves dist/web/ to the session's Chromium through Playwright (WebGL
-// through SwiftShader: pixels count, not speed), and decodes screenshots, since the session's Node has no PNG
-// library.
+// through SwiftShader: pixels count, not speed), decodes screenshots, since the session's Node has no PNG library,
+// and runs the steadiness counts' motions and zoom strip, and finds the bench file that recorded them (A11.12).
 import { createServer } from 'node:http';
+import { readFileSync, readdirSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -143,4 +144,57 @@ export function decodePng(buf) {
       return [out[o], out[o + 1], out[o + 2]];
     },
   };
+}
+
+// The steadiness counts' stops (A11.12): the golden scenes each starts from, at 16:30 with time held.
+export const STEADY_STOPS = { camp: 'valley-camp', close_camp: 'valley-close' };
+// The zoom strip: 1% of the zoom's range a step, through the close camp and camp stops (A11.12).
+export const STRIP = { from: 0.1, to: 0.34, step: 0.01 };
+
+/** A slow camera motion from a golden scene's pose, each frame against the last (A11.10): the counts, and how far
+ * the first frame's target moved on the screen, in device pixels. */
+export async function slowMotion(page, golden, motion, rate, frames) {
+  return page.evaluate(
+    ({ g, m, r, n }) => {
+      window.kd.hour(4);
+      window.kd.golden(g);
+      window.kd.frame(1);
+      const target = window.kd.camera().target;
+      const before = window.kd.screenOf(target);
+      const counts = window.kd.crawl({ motion: m, rate: r, frames: n });
+      const after = window.kd.screenOf(target);
+      return { counts, moved: [after[0] - before[0], after[1] - before[1]] };
+    },
+    { g: golden, m: motion, r: rate, n: frames },
+  );
+}
+
+/** The zoom strip from a golden scene's place and heading (A11.12): each step's shares of the art target's pixels
+ * that changed where they show and that crawled, to four places. */
+export async function zoomStrip(page, golden) {
+  const counts = await page.evaluate(
+    ({ g, s }) => {
+      window.kd.hour(4);
+      window.kd.golden(g);
+      window.kd.frame(1);
+      return window.kd.zoomstrip(s);
+    },
+    { g: golden, s: STRIP },
+  );
+  const share = (c) => Number((c / counts.pixels).toFixed(4));
+  return { changed: counts.changed.map(share), crawl: counts.crawl.map(share), pixels: counts.pixels };
+}
+
+/** The newest bench file in bench/cloud/ holding `key`, other than the file `except`: its alpha and that value. */
+export function newestBench(key, except = null) {
+  const dir = path.join(ROOT, 'bench', 'cloud');
+  const files = readdirSync(dir)
+    .filter((f) => f.endsWith('.json') && path.join(dir, f) !== except)
+    .sort()
+    .reverse();
+  for (const f of files) {
+    const d = JSON.parse(readFileSync(path.join(dir, f), 'utf8'));
+    if (d[key] !== undefined) return { alpha: d.alpha, value: d[key] };
+  }
+  return null;
 }
