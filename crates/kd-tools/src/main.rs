@@ -2,6 +2,7 @@
 
 #![deny(unsafe_code)]
 
+mod catalog;
 mod fixtures;
 mod layers;
 mod names;
@@ -10,6 +11,9 @@ mod scan;
 use std::path::PathBuf;
 
 const USAGE: &str = "usage: kd <command>
+  kd catalog build [--assign]  compile data/ into the catalogue blob; --assign numbers new entries (A3.6)
+  kd catalog check           the catalogue compiles, numbered, with its tables and index current (A15.12 step 4)
+  kd catalog tables          write the entries' generated tables and data/INDEX.md
   kd check layers            each crate names only what tools/layers.toml allows (A2.3)
   kd check names             no catalogue name written in a simulation crate's code (A2.3 rule 5)
   kd fixtures write          store the core's probes as the bits every target must give (A15.9)";
@@ -23,6 +27,10 @@ fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let args: Vec<&str> = args.iter().map(String::as_str).collect();
     let result = match args.as_slice() {
+        ["catalog", "build"] => catalog::build(&root(), false),
+        ["catalog", "build", "--assign"] => catalog::build(&root(), true),
+        ["catalog", "check"] => catalog::check(&root()),
+        ["catalog", "tables"] => catalog::tables(&root()),
         ["check", "layers"] => layers::run(&root()),
         ["check", "names"] => names::run(&root()),
         ["fixtures", "write"] => fixtures::write(),

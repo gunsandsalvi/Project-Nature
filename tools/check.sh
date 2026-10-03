@@ -47,7 +47,7 @@ rm -f "$LOG"
 step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/signing-key.py selftest
 SELF="$(python3 tools/filecheck.py selftest)" || { echo "$SELF"; exit 1; }
 echo "   ${SELF##*$'\n'}"
-step "4 catalogue";       later α01a
+step "4 catalogue";       target/fast/kd catalog check
 step "5 scenes";          later α07c
 step "6 cross-target"
 LOG="$(mktemp)"
