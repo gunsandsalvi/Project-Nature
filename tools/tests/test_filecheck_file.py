@@ -11,14 +11,13 @@ PROJECT = """# P
 ## How this file works
 
 - Examples such as `WLD-01` and `RCK-100` are not checked here.
+- Retired IDs: `ABC-03`.
 
 ## 1. Area
 
 - `ABC-01` **First** *(Decided)*: cites `ABC-02`.
   - **What:** plain.
 - `ABC-02` **Second** *(Decided)*
-1. `ABC-03` **Third** *(Dropped)*
-  - **Dropped because:** merged into `ABC-01`.
 """
 
 ARCH = """# A
@@ -69,7 +68,7 @@ class FileCheckTest(unittest.TestCase):
     def test_clean_documents_pass(self):
         problems, items, citations = filecheck.file_check(PROJECT, ARCH, PLAN, [])
         self.assertEqual(problems, [])
-        self.assertEqual(items, 3)
+        self.assertEqual(items, 2)
         self.assertGreater(citations, 5)
 
     # checks: PRC-10
@@ -85,11 +84,13 @@ class FileCheckTest(unittest.TestCase):
     def test_references(self):
         self.assertTrue(any("`ABC-09` is not defined" in p for p in check(PROJECT + "\nSee `ABC-09`.\n")))
         live = PROJECT.replace("cites `ABC-02`", "cites `ABC-03`")
-        self.assertTrue(any("live `ABC-01` cites dropped `ABC-03`" in p for p in check(live)))
+        self.assertTrue(any("cites retired `ABC-03`" in p for p in check(live)))
         self.assertTrue(any("section A2.4" in p for p in check(arch=ARCH + "And A2.4.\n")))
-        self.assertTrue(any("`ABC-03` is Dropped" in p for p in check(plan=PLAN + "\n`ABC-03`\n")))
-        # The architecture may cite a dropped item; SHA-256 in prose is not an ID.
-        self.assertEqual(check(arch=ARCH + "Once `ABC-03`; SHA-256.\n"), [])
+        self.assertTrue(any("cites retired `ABC-03`" in p for p in check(plan=PLAN + "\n`ABC-03`\n")))
+        self.assertTrue(any("cites retired `ABC-03`" in p for p in check(arch=ARCH + "Once `ABC-03`.\n")))
+        # A retired ID may not come back; SHA-256 in prose is not an ID.
+        self.assertTrue(any("reuses a retired ID" in p for p in check(PROJECT + "- `ABC-03` **Again** *(Proposed)*\n")))
+        self.assertEqual(check(arch=ARCH + "SHA-256.\n"), [])
 
     # checks: PRC-10
     def test_plan_layout(self):

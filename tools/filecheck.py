@@ -24,7 +24,9 @@ SUBAGENT = re.compile(r"subagent:[a-z0-9][a-z0-9-]*")
 # The file check (PRC-10) and the commit check (PRC-07).
 ID = r"[A-Z]{3}-\d{2,3}"
 ID_RE = re.compile(r"\b" + ID + r"\b")
-STATUSES = ("Decided", "Proposed", "To test", "Dropped")
+STATUSES = ("Decided", "Proposed", "To test")
+# A cut item is removed and its ID retired, listed on one line of `## How this file works` (IDs and links, rule 3).
+RETIRED_LINE = re.compile(r"^\s*(?:- )?Retired IDs:(.*)$", re.M)
 # A line that sets out to be an item marker: a list entry opening with a backticked token and a bold name, or
 # opening with something ID-like however it is wrapped, so a marker that lost its backticks or bold is still caught.
 CANDIDATE = re.compile(r"^\s*(?:-|\d+\.)\s+`([^`]+)`\s+\*\*")
@@ -108,6 +110,12 @@ def gate(description, head, head_only_results, head_passed, parent_passed, trail
     return problems
 
 
+def retired_ids(project_text):
+    """The IDs PROJECT.md lists as retired: never reused, and cited nowhere."""
+    m = RETIRED_LINE.search(project_text)
+    return set(ID_RE.findall(m.group(1))) if m else set()
+
+
 class Item:
     """One PROJECT.md item: its ID, name, status and its own lines (0-based, marker to the next item or heading)."""
 
@@ -141,6 +149,7 @@ def parse_project(text):
     """PROJECT.md's items by ID, in order, and the problems with their markers (PRC-10's file check).
     Implements PRC-10, see A15.12 step 7."""
     lines = blank_skipped(text.split("\n"))
+    retired = retired_ids(text)
     items, problems, current = {}, [], None
     for i, line in enumerate(lines):
         if line.startswith("#"):
@@ -163,6 +172,8 @@ def parse_project(text):
         id_, name, status = m.group(1), m.group(2), m.group(3)
         if status not in STATUSES:
             problems.append(f"PROJECT.md line {i + 1}: `{id_}` has status *{status}*, not one of {', '.join(STATUSES)}")
+        if id_ in retired:
+            problems.append(f"PROJECT.md line {i + 1}: `{id_}` reuses a retired ID")
         if id_ in items:
             problems.append(f"PROJECT.md line {i + 1}: `{id_}` defined twice (first on line {items[id_].start + 1})")
             current = None
@@ -172,21 +183,17 @@ def parse_project(text):
 
 
 def check_project(text, items):
-    """Every cited ID resolves, and no live item cites a dropped one in its own lines (PRC-10)."""
+    """Every cited ID resolves, and none is retired (PRC-10)."""
     lines = blank_skipped(text.split("\n"))
     areas = {i[:3] for i in items}
+    retired = retired_ids(text)
     problems, count = [], 0
     for n, x in cited_ids("\n".join(lines), areas):
         count += 1
-        if x not in items:
+        if x in retired and x not in items:  # one defined again is reported as reused
+            problems.append(f"PROJECT.md line {n}: cites retired `{x}`")
+        elif x not in items:
             problems.append(f"PROJECT.md line {n}: `{x}` is not defined")
-    for it in items.values():
-        if it.status == "Dropped":
-            continue
-        own = "\n".join(lines[it.start:it.end + 1])
-        for n, x in cited_ids(own, areas):
-            if x in items and items[x].status == "Dropped":
-                problems.append(f"PROJECT.md line {it.start + n}: live `{it.id}` cites dropped `{x}`")
     return problems, count
 
 
@@ -195,17 +202,17 @@ def arch_sections(arch_text):
     return set(ARCH_HEADING.findall(arch_text))
 
 
-def check_citations(name, text, items, sections, live_only):
-    """Every ID a document cites exists (and, with live_only, is not Dropped); every section it cites is a heading
-    in ARCHITECTURE.md (PRC-10)."""
+def check_citations(name, text, items, sections, retired):
+    """Every ID a document cites exists and is not retired; every section it cites is a heading in ARCHITECTURE.md
+    (PRC-10)."""
     problems, count = [], 0
-    areas = {i[:3] for i in items}
+    areas = {i[:3] for i in items} | {i[:3] for i in retired}
     for n, x in cited_ids(text, areas):
         count += 1
-        if x not in items:
+        if x in retired:
+            problems.append(f"{name} line {n}: cites retired `{x}`")
+        elif x not in items:
             problems.append(f"{name} line {n}: `{x}` is not defined in PROJECT.md")
-        elif live_only and items[x].status == "Dropped":
-            problems.append(f"{name} line {n}: `{x}` is Dropped")
     for n, line in enumerate(text.split("\n"), 1):
         if line.startswith("#") and name == "ARCHITECTURE.md":
             continue  # a heading defines its section rather than citing it
@@ -315,9 +322,10 @@ def file_check(project, arch, plan, commits):
     p, c1 = check_project(project, items)
     problems += p
     sections = arch_sections(arch)
-    p, c2 = check_citations("ARCHITECTURE.md", arch, items, sections, live_only=False)
+    retired = retired_ids(project)
+    p, c2 = check_citations("ARCHITECTURE.md", arch, items, sections, retired)
     problems += p
-    p, c3 = check_citations("IMPLEMENTATION.md", plan, items, sections, live_only=True)
+    p, c3 = check_citations("IMPLEMENTATION.md", plan, items, sections, retired)
     problems += p + check_plan_layout(plan)
     for sha, message, old, new in commits:
         problems += check_commit(sha, message, old, new)
@@ -415,9 +423,10 @@ def ids_check(files):
     Implements PRC-12, see A15.12 step 8."""
     project, plan = files["PROJECT.md"], files["IMPLEMENTATION.md"]
     items, _ = parse_project(project)
+    retired = retired_ids(project)
     kinds = item_kinds(project, items)
     problems, named_by_tests, n_named, n_tests = [], set(), 0, 0
-    # 1. Every ID named in code, tests, catalogues and scenes exists and is not dropped.
+    # 1. Every ID named in code, tests, catalogues and scenes exists and is not retired.
     for path in sorted(p for p in files if p not in ("PROJECT.md", "ARCHITECTURE.md", "IMPLEMENTATION.md")):
         text = files[path]
         for n, kind, ids in id_lines(path, text):
@@ -425,10 +434,10 @@ def ids_check(files):
                 problems.append(f"{path}:{n}: a checks line names no ID")
             for x in ids:
                 n_named += 1
-                if x not in items:
+                if x in retired:
+                    problems.append(f"{path}:{n}: names retired `{x}`")
+                elif x not in items:
                     problems.append(f"{path}:{n}: `{x}` is not defined in PROJECT.md")
-                elif items[x].status == "Dropped":
-                    problems.append(f"{path}:{n}: `{x}` is Dropped")
                 elif kind == "checks":
                     named_by_tests.add(x)
         # 2. Every #[test] in crates/ names what it checks on a // checks: line among the four lines above it.
@@ -452,7 +461,7 @@ def ids_check(files):
         ids = ID_RE.findall(field_text(body, "Serves"))
         serves_of[code] = ids
         served.update(ids)
-    live = [i for i in items.values() if i.status not in ("Dropped", "Proposed") and kinds[i.id] in ("Feature", "Rule")]
+    live = [i for i in items.values() if i.status != "Proposed" and kinds[i.id] in ("Feature", "Rule")]
     for it in live:
         if it.id not in served and it.id not in kept:
             problems.append(f"`{it.id}` ({kinds[it.id].lower()}) is not mapped: in no alpha's Serves line "

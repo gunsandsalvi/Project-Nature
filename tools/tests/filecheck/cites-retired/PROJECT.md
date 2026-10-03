@@ -16,7 +16,7 @@ Retired IDs: `ABC-03`.
 
 ## 1. Things
 
-- `ABC-01` **Feature one** *(Decided)*: cites `ABC-09`.
+- `ABC-01` **Feature one** *(Decided)*: cites `ABC-03`.
   - **What:** plain.
 - `ABC-02` **Feature two** *(Decided)*
 - `ABC-04` **A rule** *(Decided)*
