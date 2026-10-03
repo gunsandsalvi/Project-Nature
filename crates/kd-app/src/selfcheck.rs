@@ -279,9 +279,10 @@ mod tests {
         println!("TIMINGS blob_load_us {blob:.1} palette_row_us {row_us:.1} tables_us {tables_us:.1}");
     }
 
-    // The ground's times for the bench (A15.10): making the demo area, handing it over as meshes, and taking it
-    // into the renderer's CPU store (its gradients). Run with
-    // `cargo test --profile fast -p kd-app --lib ground_timings -- --ignored --nocapture`.
+    // checks: WLD-12 PRE-02
+    /// The ground's times for the bench file (A15.10): making the demo area, handing it over as meshes, and taking
+    /// it into the renderer's CPU store (its gradients):
+    /// `cargo test --profile fast -p kd-app --lib ground_timings -- --ignored --nocapture`.
     #[test]
     #[ignore]
     fn ground_timings() {
