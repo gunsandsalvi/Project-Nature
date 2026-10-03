@@ -168,26 +168,54 @@ vec2 edge_wobble(vec2 w, float inv_texel) {
         faded_noise(w, EDGE_OCTAVES, inv_texel, uint(SEED_EDGE_Y)));
 }
 
-// The four squares nearest q: the lowest one's column and row, at most max_base, and where q lies between their
-// centres, as pixel::vote_base.
-void vote_base(vec2 q, int max_base, out ivec2 base, out vec2 f) {
-    base = clamp(ivec2(floor(q - 0.5)), ivec2(0), ivec2(max_base));
-    f = clamp(q - 0.5 - vec2(base), vec2(0.0), vec2(1.0));
+// One coverage texture's four shares at q (metres from its corner, 1 m texels at level 0, side to a side) at whole
+// level l: bilinear between the four texels round q, clamped at the edge, read by texelFetch so every GPU gives the
+// twin's numbers.
+vec4 cover_bilinear(highp sampler2D tex, vec2 q, int l, int side) {
+    int n = max(side >> l, 1);
+    vec2 p = q * (1.0 / float(1 << l)) - 0.5;
+    vec2 i = floor(p);
+    vec2 f = p - i;
+    ivec2 lo = clamp(ivec2(i), ivec2(0), ivec2(n - 1));
+    ivec2 hi = clamp(ivec2(i) + 1, ivec2(0), ivec2(n - 1));
+    vec4 a = texelFetch(tex, lo, l);
+    vec4 b = texelFetch(tex, ivec2(hi.x, lo.y), l);
+    vec4 c = texelFetch(tex, ivec2(lo.x, hi.y), l);
+    vec4 d = texelFetch(tex, hi, l);
+    vec4 upper = a + (b - a) * f.x;
+    vec4 lower = c + (d - c) * f.x;
+    return upper + (lower - upper) * f.y;
 }
 
-// The surface four squares vote for at f, ids in the order (0, 0), (1, 0), (0, 1), (1, 1), as pixel::vote4.
-int vote4(vec2 f, ivec4 ids) {
-    vec4 w = vec4((1.0 - f.x) * (1.0 - f.y), f.x * (1.0 - f.y), (1.0 - f.x) * f.y, f.x * f.y);
-    int best = ids.x;
-    float best_w = -1.0;
+// The shares at q read at mip level `level` of a coverage `top` levels deep: bilinear at the levels either side,
+// mixed by the level's fraction, as pixel::cover_sample.
+vec4 cover_sample(highp sampler2D tex, vec2 q, float level, int side, int top) {
+    int l0 = min(int(floor(max(level, 0.0))), top);
+    int l1 = min(l0 + 1, top);
+    float t = level - float(l0);
+    vec4 lo = cover_bilinear(tex, q, l0, side);
+    if (t <= 0.0 || l1 == l0) {
+        return lo;
+    }
+    vec4 hi = cover_bilinear(tex, q, l1, side);
+    return lo + (hi - lo) * t;
+}
+
+// The surface with the largest share among the eight channels holding one (ids -1 for none); a tie goes to the
+// earlier channel, the lower number, as pixel::cover_pick.
+int cover_pick(vec4 a, vec4 b, ivec4 ida, ivec4 idb) {
+    int best = -1;
+    float best_v = -1.0;
     for (int k = 0; k < 4; k++) {
-        float t = 0.0;
-        for (int m = 0; m < 4; m++) {
-            t += ids[m] == ids[k] ? w[m] : 0.0;
+        if (ida[k] >= 0 && a[k] > best_v) {
+            best = ida[k];
+            best_v = a[k];
         }
-        if (t > best_w || (t == best_w && ids[k] < best)) {
-            best_w = t;
-            best = ids[k];
+    }
+    for (int k = 0; k < 4; k++) {
+        if (idb[k] >= 0 && b[k] > best_v) {
+            best = idb[k];
+            best_v = b[k];
         }
     }
     return best;

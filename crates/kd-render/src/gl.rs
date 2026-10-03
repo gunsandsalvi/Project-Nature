@@ -23,10 +23,12 @@ pub mod unit {
     pub const PROBE: u32 = 4;
     /// The pixel font's atlas, read by the UI pass.
     pub const FONT: u32 = 5;
-    /// An area's heights, their gradients and its surfaces, read by the ground (A11.5).
+    /// An area's heights and their gradients, read by the ground (A11.5).
     pub const HEIGHTS: u32 = 6;
     pub const GRADS: u32 = 7;
-    pub const SURFACES: u32 = 8;
+    /// An area's coverage, four surfaces a texture, read by the ground and the probe (A11.5).
+    pub const COVER0: u32 = 8;
+    pub const COVER1: u32 = 11;
     /// An area's sun and sky fields, read by the ground (A11.5).
     pub const SUN: u32 = 9;
     pub const SKY: u32 = 10;
@@ -80,7 +82,7 @@ impl Format {
     }
 }
 
-/// A 2D texture, nearest-sampled and clamped.
+/// A 2D texture, nearest-sampled and clamped; with levels, each read whole by `texelFetch`.
 pub struct Texture {
     pub handle: glow::Texture,
     pub format: Format,
@@ -129,6 +131,62 @@ impl Texture {
                 format.channel_type(),
                 glow::PixelUnpackData::Slice(data),
             );
+            gl.bind_texture(glow::TEXTURE_2D, None);
+            Ok(Texture { handle, format, w, h })
+        }
+    }
+
+    /// A texture of `w` × `h` texels with its mip levels, level `k` holding `levels[k]`, (w >> k) × (h >> k) texels
+    /// of at least one, so shaders may read any level by `texelFetch` (A11.5's coverage).
+    pub fn with_levels(
+        gl: &glow::Context,
+        format: Format,
+        w: u32,
+        h: u32,
+        levels: &[Vec<u8>],
+    ) -> Result<Texture, RenderError> {
+        let size = |k: usize| ((w >> k).max(1), (h >> k).max(1));
+        for (k, d) in levels.iter().enumerate() {
+            let (lw, lh) = size(k);
+            if d.len() != lw as usize * lh as usize * format.bytes() {
+                return Err(RenderError::Gl(format!(
+                    "texture level {k} of {} bytes for {lw} x {lh} {format:?}",
+                    d.len()
+                )));
+            }
+        }
+        if levels.is_empty() {
+            return Err(RenderError::Gl("a texture with no levels".into()));
+        }
+        // SAFETY: plain GL calls on the current context; each level was checked to hold exactly its texels.
+        unsafe {
+            let handle = gl.create_texture().map_err(RenderError::Gl)?;
+            gl.bind_texture(glow::TEXTURE_2D, Some(handle));
+            for (p, v) in [
+                (glow::TEXTURE_MIN_FILTER, glow::NEAREST_MIPMAP_NEAREST as i32),
+                (glow::TEXTURE_MAG_FILTER, glow::NEAREST as i32),
+                (glow::TEXTURE_WRAP_S, glow::CLAMP_TO_EDGE as i32),
+                (glow::TEXTURE_WRAP_T, glow::CLAMP_TO_EDGE as i32),
+                (glow::TEXTURE_BASE_LEVEL, 0),
+                (glow::TEXTURE_MAX_LEVEL, levels.len() as i32 - 1),
+            ] {
+                gl.tex_parameter_i32(glow::TEXTURE_2D, p, v);
+            }
+            gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
+            for (k, d) in levels.iter().enumerate() {
+                let (lw, lh) = size(k);
+                gl.tex_image_2d(
+                    glow::TEXTURE_2D,
+                    k as i32,
+                    format.internal() as i32,
+                    lw as i32,
+                    lh as i32,
+                    0,
+                    format.format(),
+                    format.channel_type(),
+                    glow::PixelUnpackData::Slice(Some(d)),
+                );
+            }
             gl.bind_texture(glow::TEXTURE_2D, None);
             Ok(Texture { handle, format, w, h })
         }
@@ -386,6 +444,13 @@ pub fn set_ivec2_array(gl: &glow::Context, loc: Option<&glow::UniformLocation>, 
 pub fn set_ivec4(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [i32; 4]) {
     // SAFETY: as above.
     unsafe { gl.uniform_4_i32(loc, v[0], v[1], v[2], v[3]) }
+}
+
+/// An array of `ivec4`, from its first element's location.
+pub fn set_ivec4_array(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: &[[i32; 4]]) {
+    let flat: Vec<i32> = v.iter().flatten().copied().collect();
+    // SAFETY: as above; the array holds whole ivec4s.
+    unsafe { gl.uniform_4_i32_slice(loc, &flat) }
 }
 
 /// An array of `vec2`, from its first element's location.

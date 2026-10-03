@@ -1,12 +1,15 @@
 // The probe scene (A11.13 rule 2): one art pixel per fixed input, through the same formulas as every lit pixel, so
 // the read-back answers can be compared with the Rust twins exactly. The lowest third holds the light's steps, lit
-// by what a point's fields and normal give; the middle third the surface the four nearest squares vote for at a
-// place the edges' noise moved, and the look its split noise picks; the top third whether the plane test outlines a
-// pixel and the haze's level.
+// by what a point's fields and normal give; the middle third the surface with the largest share of a fixture's
+// coverage, read at a mip level at a place the edges' noise moved, and the look its split noise picks; the top third
+// whether the plane test outlines a pixel and the haze's level.
 uniform sampler2D u_inputs;  // R32F, PROBE_W * PROBE_H wide: the light's PROBE_LIGHT_ROWS rows, then the surfaces',
                              // then from PROBE_EDGE_ROW the top third's
 uniform vec2 u_y;            // the light's luminance from the sky and from the sun facing it
 uniform vec2 u_range;        // the path's range in lightness
+uniform highp sampler2D u_cover0;  // the surface band's coverage, PROBE_COVER_SIDE wide at level 0, mipmapped
+uniform highp sampler2D u_cover1;
+uniform ivec4 u_cover_ids[2];      // the surface each channel holds
 out vec4 o_colour;
 
 float input_at(int i, int row) {
@@ -36,14 +39,12 @@ void main() {
         vec2 q = vec2(input_at(i, r), input_at(i, r + 1));
         vec2 w = vec2(input_at(i, r + 2), input_at(i, r + 3));
         float inv_texel = input_at(i, r + 4);
-        ivec4 ids = ivec4(int(input_at(i, r + 5) + 0.5), int(input_at(i, r + 6) + 0.5), int(input_at(i, r + 7) + 0.5),
-            int(input_at(i, r + 8) + 0.5));
-        vec4 oct = vec4(input_at(i, r + 10), input_at(i, r + 11), input_at(i, r + 12), input_at(i, r + 13));
-        ivec2 base;
-        vec2 f;
-        vote_base(q + edge_wobble(w, inv_texel), 0, base, f);
-        int surface = vote4(f, ids);
-        int look = split_look(faded_noise(w, oct, inv_texel, uint(SEED_SPLIT)), vec2(input_at(i, r + 9), 2.0), 2);
+        float level = input_at(i, r + 5);
+        vec4 oct = vec4(input_at(i, r + 7), input_at(i, r + 8), input_at(i, r + 9), input_at(i, r + 10));
+        vec2 at = q + edge_wobble(w, inv_texel);
+        int surface = cover_pick(cover_sample(u_cover0, at, level, PROBE_COVER_SIDE, PROBE_COVER_TOP),
+            cover_sample(u_cover1, at, level, PROBE_COVER_SIDE, PROBE_COVER_TOP), u_cover_ids[0], u_cover_ids[1]);
+        int look = split_look(faded_noise(w, oct, inv_texel, uint(SEED_SPLIT)), vec2(input_at(i, r + 6), 2.0), 2);
         o_colour = pack_out(surface * 3 + look, CAT_GROUND, 0, 0.0);
     }
 }

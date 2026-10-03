@@ -1,5 +1,5 @@
 //! The ground (A11.5): the CPU store of the loaded areas, their textures, the morphing patch and the ground's draw.
-//! Each area keeps its heights, their gradients, its surfaces and its light fields on the CPU, so after a lost
+//! Each area keeps its heights, their gradients, its surfaces' coverage and its light fields on the CPU, so after a lost
 //! context its textures are made again from them alone (A11.13 rule 5): the sky field once, as it arrives, and the
 //! sun field for the light's azimuth, made again as the azimuth moves (`field`). One shared 16 × 16 patch of quads, made from vertex and instance
 //! numbers with no vertex buffer, covers the area at the spacing the art pixel asks for, its odd vertices sliding
@@ -18,6 +18,7 @@ use crate::frame::Lighting;
 use crate::gl::{self, Format, Program, State, Texture, unit};
 use crate::light::{LUM, dot};
 use crate::looks::Layout;
+use crate::pixel::{COVER_CHANNELS, cover_level};
 use crate::shaders::{self, Stage};
 
 /// Quads along a patch's side.
@@ -28,6 +29,110 @@ pub const SKIRT_M: f32 = 4.0;
 pub const MAX_SURFACES: usize = 16;
 /// Looks a surface may name (A11.5).
 pub const SURFACE_LOOKS: usize = 3;
+/// Levels of an area's coverage, from its 256 × 256 square metres to one texel (A11.5).
+pub const COVER_LEVELS: usize = 9;
+
+/// A patch of ground's surfaces as coverage (A11.5): each surface's share of each texel in 255ths at every mip level,
+/// from the square metres, each wholly one surface, to one texel, the shares of a texel summing to 255 exactly; up
+/// to `COVER_CHANNELS` surfaces, four to a texture.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Coverage {
+    /// Texels along a side at level 0, a power of two.
+    pub side: usize,
+    /// The surface each channel holds, those present in rising number, −1 for none.
+    pub ids: [i32; COVER_CHANNELS],
+    /// Each level's texels row by row, `side >> level` to a side, each its channels' shares.
+    pub levels: Vec<Vec<[u8; COVER_CHANNELS]>>,
+}
+
+impl Coverage {
+    /// The coverage of `side` × `side` squares' surface numbers, row by row; an error with more than
+    /// `COVER_CHANNELS` surfaces.
+    pub fn new(surfaces: &[u8], side: usize) -> Result<Coverage, String> {
+        if !side.is_power_of_two() || surfaces.len() != side * side {
+            return Err(format!("{} squares for a coverage {side} to a side", surfaces.len()));
+        }
+        let mut present = surfaces.to_vec();
+        present.sort_unstable();
+        present.dedup();
+        if present.len() > COVER_CHANNELS {
+            return Err(format!(
+                "{} surfaces in one area, at most {COVER_CHANNELS}",
+                present.len()
+            ));
+        }
+        let mut ids = [-1; COVER_CHANNELS];
+        let mut channel = [0usize; 256];
+        for (k, &n) in present.iter().enumerate() {
+            ids[k] = i32::from(n);
+            channel[usize::from(n)] = k;
+        }
+        let mut levels = vec![
+            surfaces
+                .iter()
+                .map(|&n| {
+                    let mut t = [0u8; COVER_CHANNELS];
+                    t[channel[usize::from(n)]] = 255;
+                    t
+                })
+                .collect::<Vec<_>>(),
+        ];
+        let mut n = side;
+        while n > 1 {
+            let prev = &levels[levels.len() - 1];
+            let half = n / 2;
+            let next = (0..half * half)
+                .map(|i| {
+                    let (x, y) = (2 * (i % half), 2 * (i / half));
+                    average([
+                        prev[y * n + x],
+                        prev[y * n + x + 1],
+                        prev[(y + 1) * n + x],
+                        prev[(y + 1) * n + x + 1],
+                    ])
+                })
+                .collect();
+            levels.push(next);
+            n = half;
+        }
+        Ok(Coverage { side, ids, levels })
+    }
+
+    /// How many textures of four channels the surfaces present take.
+    pub fn textures(&self) -> usize {
+        if self.ids[4] < 0 { 1 } else { 2 }
+    }
+
+    /// Texture `t`'s levels as RGBA8 texels, for the GL layer.
+    pub fn texture_levels(&self, t: usize) -> Vec<Vec<u8>> {
+        self.levels
+            .iter()
+            .map(|level| level.iter().flat_map(|c| c[4 * t..4 * t + 4].iter().copied()).collect())
+            .collect()
+    }
+}
+
+/// Four texels' shares averaged, each channel's sum divided by four and rounded down, then a 255th more for the
+/// channels with the largest remainders, the earlier first, so the shares still sum to 255.
+fn average(kids: [[u8; COVER_CHANNELS]; 4]) -> [u8; COVER_CHANNELS] {
+    let mut sum = [0u32; COVER_CHANNELS];
+    for kid in kids {
+        for (s, &v) in sum.iter_mut().zip(&kid) {
+            *s += u32::from(v);
+        }
+    }
+    let mut out = sum.map(|s| (s / 4) as u8);
+    let mut left = 255 - out.iter().map(|&v| u32::from(v)).sum::<u32>();
+    for r in [3, 2, 1] {
+        for (o, &s) in out.iter_mut().zip(&sum) {
+            if left > 0 && s % 4 == r {
+                *o += 1;
+                left -= 1;
+            }
+        }
+    }
+    out
+}
 
 /// The mesh's spacing for art pixels of `texel` metres, and how far its odd vertices have slid onto the next
 /// spacing's mesh: the smallest power of two `s` with `s ≥ 1.25 × texel` and `s ≥ 1`, so triangles stay one to two
@@ -102,7 +207,9 @@ pub struct Area {
     pub base_m: f32,
     pub heights: Vec<f32>,
     pub gradients: Vec<[f32; 2]>,
+    /// Each square metre's surface number, and the surfaces as coverage (A11.5).
     pub surfaces: Vec<u8>,
+    pub coverage: Coverage,
     /// Its lowest and highest points, metres above `base_m`.
     pub span_m: [f32; 2],
     /// The share of the sky each point's horizon leaves open, in 255ths (A11.5).
@@ -113,7 +220,17 @@ pub struct Area {
     sun_job: Option<SunJob>,
     /// Whether the sun field is newer than its texture.
     sun_fresh: bool,
-    gpu: Option<[Texture; 5]>,
+    gpu: Option<AreaTextures>,
+}
+
+/// An area's textures while the context lives (A11.13 rule 5).
+struct AreaTextures {
+    heights: Texture,
+    grads: Texture,
+    /// One or two RGBA8 textures with their mip levels.
+    cover: Vec<Texture>,
+    sun: Texture,
+    sky: Texture,
 }
 
 impl Area {
@@ -160,6 +277,8 @@ impl Store {
         let heights: Vec<f32> = m.heights.iter().map(|h| h + (m.base_m - base_m)).collect();
         let lo = heights.iter().copied().fold(f32::INFINITY, f32::min);
         let hi = heights.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+        let coverage =
+            Coverage::new(&m.surfaces, AREA_SQUARES).map_err(|e| RenderError::Gl(format!("area {}: {e}", m.id.0)))?;
         let sky = field::sky_field(&heights)
             .iter()
             .map(|v| (v.clamp(0.0, 1.0) * 255.0).round() as u8)
@@ -171,6 +290,7 @@ impl Store {
             sky,
             heights,
             surfaces: m.surfaces,
+            coverage,
             span_m: [lo, hi],
             sun: None,
             sun_job: None,
@@ -220,8 +340,9 @@ impl Store {
         made
     }
 
-    /// Makes the textures of areas that lack them (heights `R32F`, gradients `RG32F`, surfaces `R8`, the sun field
-    /// `R32F` and the sky field `R8`), and brings a sun field's texture up to date when it was made again (A11.5).
+    /// Makes the textures of areas that lack them (heights `R32F`, gradients `RG32F`, coverage `RGBA8` with its mip
+    /// levels, the sun field `R32F` and the sky field `R8`), and brings a sun field's texture up to date when it was
+    /// made again (A11.5).
     pub fn upload(&mut self, gl: &glow::Context) -> Result<(), RenderError> {
         let (side, squares) = (AREA_SIDE as u32, AREA_SQUARES as u32);
         for a in &mut self.areas {
@@ -233,7 +354,7 @@ impl Store {
             match &a.gpu {
                 Some(t) => {
                     if a.sun_fresh {
-                        t[3].update(gl, &sun())?;
+                        t.sun.update(gl, &sun())?;
                     }
                 }
                 None => {
@@ -251,10 +372,20 @@ impl Store {
                         side,
                         Some(&f32_bytes(a.gradients.iter().flatten().copied())),
                     )?;
-                    let surfaces = Texture::new(gl, Format::R8, squares, squares, Some(&a.surfaces))?;
+                    let cover = (0..a.coverage.textures())
+                        .map(|t| {
+                            Texture::with_levels(gl, Format::Rgba8, squares, squares, &a.coverage.texture_levels(t))
+                        })
+                        .collect::<Result<Vec<_>, _>>()?;
                     let sun_tex = Texture::new(gl, Format::R32F, side, side, Some(&sun()))?;
                     let sky = Texture::new(gl, Format::R8, side, side, Some(&a.sky))?;
-                    a.gpu = Some([heights, grads, surfaces, sun_tex, sky]);
+                    a.gpu = Some(AreaTextures {
+                        heights,
+                        grads,
+                        cover,
+                        sun: sun_tex,
+                        sky,
+                    });
                 }
             }
             a.sun_fresh = false;
@@ -312,7 +443,7 @@ impl SurfaceTable {
 }
 
 /// The ground's uniforms, in `GroundPass::u`'s order.
-const UNIFORMS: [&str; 26] = [
+const UNIFORMS: [&str; 29] = [
     "u_spacing",
     "u_morph",
     "u_patches",
@@ -339,6 +470,9 @@ const UNIFORMS: [&str; 26] = [
     "u_haze_scale",
     "u_eye",
     "u_haze_levels",
+    "u_cover_ids[0]",
+    "u_cover_textures",
+    "u_cover_level",
 ];
 
 /// The ground's program and its uniforms (A11.13 rule 3).
@@ -384,7 +518,8 @@ impl GroundPass {
         )?;
         program.set_sampler(gl, "u_heights", unit::HEIGHTS);
         program.set_sampler(gl, "u_grads", unit::GRADS);
-        program.set_sampler(gl, "u_surfaces", unit::SURFACES);
+        program.set_sampler(gl, "u_cover0", unit::COVER0);
+        program.set_sampler(gl, "u_cover1", unit::COVER1);
         program.set_sampler(gl, "u_sun", unit::SUN);
         program.set_sampler(gl, "u_sky", unit::SKY);
         Ok(GroundPass {
@@ -444,6 +579,9 @@ impl GroundPass {
             u_haze_scale,
             u_eye,
             u_haze_levels,
+            u_cover_ids,
+            u_cover_textures,
+            u_cover_level,
         ] = &self.u;
         let (s, morph) = spacing(view.texel as f32);
         gl::set_f32(gl, u_spacing.as_ref(), s as f32);
@@ -468,19 +606,34 @@ impl GroundPass {
         gl::set_vec2(gl, u_haze_scale.as_ref(), scale);
         gl::set_vec2(gl, u_eye.as_ref(), view.eye());
         gl::set_vec3(gl, u_haze_levels.as_ref(), self.haze_levels);
+        // The coverage's level the art pixel's footprint reads, the same everywhere in an orthographic view.
+        gl::set_f32(
+            gl,
+            u_cover_level.as_ref(),
+            cover_level(view.texel as f32, COVER_LEVELS - 1),
+        );
         for area in &store.areas {
-            let Some([heights, grads, surfaces, sun, sky]) = &area.gpu else {
+            let Some(t) = &area.gpu else {
                 continue;
             };
             let Some(patches) = patches_in_view(view, area, s) else {
                 continue;
             };
             let p = view.area(area.corner());
-            heights.bind(gl, unit::HEIGHTS);
-            grads.bind(gl, unit::GRADS);
-            surfaces.bind(gl, unit::SURFACES);
-            sun.bind(gl, unit::SUN);
-            sky.bind(gl, unit::SKY);
+            t.heights.bind(gl, unit::HEIGHTS);
+            t.grads.bind(gl, unit::GRADS);
+            for (k, cover) in t.cover.iter().enumerate() {
+                cover.bind(gl, [unit::COVER0, unit::COVER1][k]);
+            }
+            t.sun.bind(gl, unit::SUN);
+            t.sky.bind(gl, unit::SKY);
+            let ids = area.coverage.ids;
+            gl::set_ivec4_array(
+                gl,
+                u_cover_ids.as_ref(),
+                &[[ids[0], ids[1], ids[2], ids[3]], [ids[4], ids[5], ids[6], ids[7]]],
+            );
+            gl::set_i32(gl, u_cover_textures.as_ref(), t.cover.len() as i32);
             gl::set_vec2(gl, u_area_frac.as_ref(), p.frac);
             gl::set_vec2(gl, u_area_px.as_ref(), p.px);
             gl::set_vec2(gl, u_depth.as_ref(), p.depth);
@@ -512,6 +665,43 @@ mod tests {
                 0.1 * x + 3.0 * (x * 0.31).sin() * (y * 0.17).cos() + if x > 120.0 { 8.0 } else { 0.0 }
             })
             .collect()
+    }
+
+    // checks: PRE-20
+    #[test]
+    fn coverage_sums_to_one() {
+        // Five surfaces in patches and specks over a whole area: each square is wholly its own surface, every texel
+        // of every level, down to the one that spans the area, shares out exactly 255, and each surface's share of
+        // the whole area is its count of squares, to within the rounding of the levels between.
+        let surfaces: Vec<u8> = (0..AREA_SQUARES * AREA_SQUARES)
+            .map(|i| {
+                let (x, y) = ((i % AREA_SQUARES) as u64, (i / AREA_SQUARES) as u64);
+                if kd_core::num::hash2(7, x * 977 + y).is_multiple_of(23) {
+                    9
+                } else {
+                    [1, 4, 6, 12][((x / 37 + y / 23) % 4) as usize]
+                }
+            })
+            .collect();
+        let c = Coverage::new(&surfaces, AREA_SQUARES).unwrap();
+        assert_eq!(c.ids, [1, 4, 6, 9, 12, -1, -1, -1]);
+        assert_eq!((c.levels.len(), c.textures()), (COVER_LEVELS, 2));
+        for (l, level) in c.levels.iter().enumerate() {
+            assert_eq!(level.len(), (AREA_SQUARES >> l).pow(2));
+            for t in level {
+                assert_eq!(t.iter().map(|&v| u32::from(v)).sum::<u32>(), 255, "level {l}");
+            }
+        }
+        assert!(c.levels[0].iter().all(|t| t.iter().filter(|&&v| v > 0).count() == 1));
+        let whole = c.levels[COVER_LEVELS - 1][0];
+        for (k, &id) in c.ids.iter().enumerate().take(5) {
+            let want = surfaces.iter().filter(|&&n| i32::from(n) == id).count() as f32 / surfaces.len() as f32;
+            assert!((f32::from(whole[k]) / 255.0 - want).abs() < 0.02, "surface {id}");
+        }
+        // Texture 1 holds the fifth surface's shares; four surfaces take one texture; nine are too many.
+        assert_eq!(c.texture_levels(1)[0].len(), AREA_SQUARES * AREA_SQUARES * 4);
+        assert_eq!(Coverage::new(&[3; 16], 4).unwrap().textures(), 1);
+        assert!(Coverage::new(&(0..16).map(|i| (i % 9) as u8).collect::<Vec<_>>(), 4).is_err());
     }
 
     // checks: PRE-30 PRE-02

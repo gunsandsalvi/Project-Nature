@@ -5,7 +5,7 @@
 use std::fmt::Write;
 
 use crate::camera::VIEWPORT;
-use crate::ground::{MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LOOKS};
+use crate::ground::{COVER_LEVELS, MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LOOKS};
 use crate::looks::{PALETTE_SIZE, TABLE_ROWS, table};
 use crate::passes::scene::card;
 use crate::pixel::{
@@ -52,6 +52,10 @@ pub fn defines() -> String {
         ("PATCH_QUADS", PATCH_QUADS),
         ("MAX_SURFACES", MAX_SURFACES as i32),
         ("SURFACE_LOOKS", SURFACE_LOOKS as i32),
+        ("COVER_SIDE", kd_view::AREA_SQUARES as i32),
+        ("COVER_TOP", COVER_LEVELS as i32 - 1),
+        ("PROBE_COVER_SIDE", probe::COVER_SIDE as i32),
+        ("PROBE_COVER_TOP", probe::COVER_TOP as i32),
         ("SEED_EDGE_X", SEED_EDGE_X as i32),
         ("SEED_EDGE_Y", SEED_EDGE_Y as i32),
         ("SEED_SPLIT", SEED_SPLIT as i32),
@@ -167,8 +171,8 @@ mod tests {
             "octave_fade",
             "faded_noise",
             "edge_wobble",
-            "vote_base",
-            "vote4",
+            "cover_sample",
+            "cover_pick",
             "split_look",
         ] {
             assert!(LIB.contains(&format!(" {name}(")), "{name} missing from lib.glsl");

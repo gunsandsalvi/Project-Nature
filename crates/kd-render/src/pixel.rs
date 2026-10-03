@@ -266,7 +266,7 @@ pub fn faded_noise(p: [f32; 2], oct: [f32; 4], inv_texel: f32, seed: u32) -> f32
 }
 
 /// How far, in metres, the edges between surfaces wander, and the octaves of the noise they wander by, as
-/// (λ, 1/λ) pairs (A11.5, until α01d's coverage).
+/// (λ, 1/λ) pairs (A11.5).
 pub const EDGE_WOBBLE_M: f32 = 0.45;
 pub const EDGE_OCTAVES: [f32; 4] = [4.0, 0.25, 1.0, 1.0];
 /// Seeds of the wobble's two directions and of the looks' split.
@@ -282,38 +282,79 @@ pub fn edge_wobble(w: [f32; 2], inv_texel: f32) -> [f32; 2] {
     ]
 }
 
-/// The four squares nearest position `q` (metres east and south of the area's corner, squares 1 m with centres at
-/// halves): the lowest one's column and row, at most `max_base`, and where `q` lies between their centres, 0 to 1.
-pub fn vote_base(q: [f32; 2], max_base: i32) -> ([i32; 2], [f32; 2]) {
-    let base = q.map(|v| ((v - 0.5).floor() as i32).clamp(0, max_base));
-    let f = [
-        (q[0] - 0.5 - base[0] as f32).clamp(0.0, 1.0),
-        (q[1] - 0.5 - base[1] as f32).clamp(0.0, 1.0),
-    ];
-    (base, f)
+/// Surfaces an area's coverage holds: four to a texture, two textures (A11.5).
+pub const COVER_CHANNELS: usize = 8;
+
+/// The level of coverage an art pixel of `texel` metres reads: its footprint, `log2(texel / 1 m)`, from level 0,
+/// the square metres, to `top` (A11.5).
+pub fn cover_level(texel: f32, top: usize) -> f32 {
+    m::log2(texel).clamp(0.0, top as f32)
 }
 
-/// The surface four squares vote for at `f` between their centres, each by its bilinear weight, a surface's
-/// squares adding up; `ids` in the order (0, 0), (1, 0), (0, 1), (1, 1); a tie goes to the lower number (A11.5).
-pub fn vote4(f: [f32; 2], ids: [i32; 4]) -> i32 {
-    let w = [
-        (1.0 - f[0]) * (1.0 - f[1]),
-        f[0] * (1.0 - f[1]),
-        (1.0 - f[0]) * f[1],
-        f[0] * f[1],
-    ];
-    let (mut best, mut best_w) = (ids[0], -1.0f32);
-    for k in 0..4 {
-        let mut t = 0.0;
-        for m in 0..4 {
-            t += if ids[m] == ids[k] { w[m] } else { 0.0 };
-        }
-        if t > best_w || (t == best_w && ids[k] < best) {
-            best_w = t;
+/// Each channel's share at `q` (metres east and south of the coverage's corner, its level-0 texels 1 m and `side`
+/// to a side) read at mip `level`: bilinear between the four texels round `q` at the levels either side, clamped at
+/// the edge, and mixed between them by the level's fraction, as the shader reads them by `texelFetch` (A11.5).
+pub fn cover_sample(
+    levels: &[Vec<[u8; COVER_CHANNELS]>],
+    side: usize,
+    q: [f32; 2],
+    level: f32,
+) -> [f32; COVER_CHANNELS] {
+    let top = levels.len() - 1;
+    let l0 = (level.floor().max(0.0) as usize).min(top);
+    let l1 = (l0 + 1).min(top);
+    let t = level - l0 as f32;
+    let bilinear = |l: usize| -> [f32; COVER_CHANNELS] {
+        let n = (side >> l).max(1) as i32;
+        let scale = 1.0 / (1u32 << l) as f32;
+        let p = [q[0] * scale - 0.5, q[1] * scale - 0.5];
+        let i = p.map(f32::floor);
+        let f = [p[0] - i[0], p[1] - i[1]];
+        let texel = |dx: i32, dy: i32| {
+            let x = (i[0] as i32 + dx).clamp(0, n - 1);
+            let y = (i[1] as i32 + dy).clamp(0, n - 1);
+            levels[l][(y * n + x) as usize]
+        };
+        let (a, b, c, d) = (texel(0, 0), texel(1, 0), texel(0, 1), texel(1, 1));
+        std::array::from_fn(|k| {
+            let v = |t: [u8; COVER_CHANNELS]| f32::from(t[k]) / 255.0;
+            let upper = v(a) + (v(b) - v(a)) * f[0];
+            let lower = v(c) + (v(d) - v(c)) * f[0];
+            upper + (lower - upper) * f[1]
+        })
+    };
+    let lo = bilinear(l0);
+    if t <= 0.0 || l1 == l0 {
+        return lo;
+    }
+    let hi = bilinear(l1);
+    std::array::from_fn(|k| lo[k] + (hi[k] - lo[k]) * t)
+}
+
+/// The surface with the largest share among the channels holding one (`ids` −1 for none); a tie goes to the
+/// earlier channel, the lower number (A11.5).
+pub fn cover_pick(shares: [f32; COVER_CHANNELS], ids: [i32; COVER_CHANNELS]) -> i32 {
+    let (mut best, mut best_v) = (-1, -1.0f32);
+    for k in 0..COVER_CHANNELS {
+        if ids[k] >= 0 && shares[k] > best_v {
             best = ids[k];
+            best_v = shares[k];
         }
     }
     best
+}
+
+/// How far `cover_pick` is from picking otherwise: the largest share less the next (for the probe's clearance).
+pub fn cover_margin(shares: [f32; COVER_CHANNELS], ids: [i32; COVER_CHANNELS]) -> f32 {
+    let mut held: Vec<f32> = (0..COVER_CHANNELS)
+        .filter(|&k| ids[k] >= 0)
+        .map(|k| shares[k])
+        .collect();
+    held.sort_by(|a, b| b.total_cmp(a));
+    match held.as_slice() {
+        [a, b, ..] => a - b,
+        _ => 1.0,
+    }
 }
 
 /// Which of a surface's `looks` the split noise `v` picks: the next look wherever `v` is above its take-over value.
@@ -393,26 +434,50 @@ mod tests {
         );
     }
 
-    // checks: PRE-20
+    // checks: PRE-20 PRE-22
     #[test]
-    fn surface_vote_by_weight() {
-        // Each square counts by how near its centre the pixel lies, and a surface's squares add up: one square of
-        // rock beside three of grass wins only close to its own centre.
-        let (grass, rock) = (0, 2);
-        assert_eq!(vote4([0.1, 0.1], [rock, grass, grass, grass]), rock);
-        assert_eq!(vote4([0.4, 0.4], [rock, grass, grass, grass]), grass);
-        // Two squares each: the nearer pair wins, and at the exact middle the tie goes to the lower number.
-        assert_eq!(vote4([0.3, 0.5], [rock, grass, rock, grass]), rock);
-        assert_eq!(vote4([0.7, 0.5], [rock, grass, rock, grass]), grass);
-        assert_eq!(vote4([0.5, 0.5], [rock, grass, rock, grass]), grass);
-        // Three surfaces: a split pair outweighs a single square of the third.
-        assert_eq!(vote4([0.5, 0.45], [1, 1, 3, 2]), 1);
-        // The lookup finds the four squares round a place and where it lies between their centres, clamped at the
-        // area's edge, where the edge's squares alone vote.
-        let (base, f) = vote_base([3.7, 10.2], 254);
-        assert_eq!(base, [3, 9]);
-        assert!((f[0] - 0.2).abs() < 1e-5 && (f[1] - 0.7).abs() < 1e-5, "{f:?}");
-        assert_eq!(vote_base([0.1, 255.9], 254), ([0, 254], [0.0, 1.0]));
+    fn coverage_takes_the_largest_share() {
+        // A strip of rock 2 m wide across grass, and one square of dirt on its own, 16 m to a side.
+        let side = 16;
+        let (grass, dirt, rock) = (0, 1, 2);
+        let surfaces: Vec<u8> = (0..side * side)
+            .map(|i| match (i % side, i / side) {
+                (6 | 7, _) => rock,
+                (12, 3) => dirt,
+                _ => grass,
+            })
+            .collect();
+        let c = crate::ground::Coverage::new(&surfaces, side).unwrap();
+        assert_eq!(c.ids[..4], [0, 1, 2, -1]);
+        let shares = |q: [f32; 2], level: f32| cover_sample(&c.levels, side, q, level);
+        let at = |q: [f32; 2], level: f32| cover_pick(shares(q, level), c.ids);
+        // Read square by square, each square is its own surface and an edge lies half way between two squares'
+        // centres; at the exact middle the tie goes to the lower number.
+        assert_eq!(at([6.5, 8.0], 0.0), i32::from(rock));
+        assert_eq!(at([5.9, 8.0], 0.0), i32::from(grass));
+        assert_eq!(at([6.1, 8.0], 0.0), i32::from(rock));
+        assert_eq!(at([6.0, 8.0], 0.0), i32::from(grass));
+        assert_eq!(at([12.5, 3.5], 0.0), i32::from(dirt));
+        // Read 4 m a texel, the lone square is a sixteenth of its texel and the grass round it wins; the strip, half
+        // its texel's width, still shows 2 m a texel (no detail finer than two art pixels, A11.1 rule 2).
+        assert_eq!(at([12.5, 3.5], 2.0), i32::from(grass));
+        assert_eq!(at([7.0, 8.0], 1.0), i32::from(rock));
+        // Between levels the shares mix, so the dirt fades as the footprint grows, with no jump at a whole level.
+        let mut last = 1.0f32;
+        for k in 0..=300 {
+            let v = shares([12.5, 3.5], k as f32 / 100.0)[1];
+            assert!(
+                v <= last + 1e-6 && last - v < 0.05,
+                "level {}: {v} after {last}",
+                k as f32 / 100.0
+            );
+            last = v;
+        }
+        // An edge read between levels runs smooth: crossing it, the pick changes once.
+        let picks: Vec<i32> = (0..=75).map(|k| at([4.0 + k as f32 * 0.04, 8.0], 1.5)).collect();
+        assert_eq!(picks.windows(2).filter(|w| w[0] != w[1]).count(), 1, "{picks:?}");
+        // The margin is the winner's share less the next one's.
+        assert!((cover_margin(shares([5.9, 8.0], 0.0), c.ids) - 0.2).abs() < 1e-5);
         // The wobble moves the place by at most its size, and is fixed to the world: the same place, the same move.
         for k in 0..1_000 {
             let w = [k as f32 * 7.31, k as f32 * 3.17];

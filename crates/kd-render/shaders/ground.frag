@@ -1,6 +1,7 @@
 // The ground's pixels (A11.5): the normal from the heights' central differences blended between the four points
-// round the pixel, the surface the four nearest squares vote for at a place moved by the edges' world-fixed wobble,
-// the surface's look by its split noise, both faded below four art pixels (A11.1 rule 2); the sky factor from the
+// round the pixel, the surface with the largest share of the coverage read at the art pixel's footprint, at a place
+// moved by the edges' world-fixed wobble, the surface's look by its split noise, both faded below four art pixels
+// (A11.1 rule 2); the sky factor from the
 // sky field, the share of the sky the horizon leaves open, and the sun factor from the sun field, the share of the
 // sun's disc above the horizon toward it, both blended between the four points too (A11.4); the light's step
 // dithered only in the band; the category ground, or rock for a rock surface (A11.2); and the haze's level from
@@ -8,7 +9,11 @@
 uniform highp sampler2D u_grads;     // RG32F, 257 x 257: each point's slope east and south
 uniform highp sampler2D u_sun;       // R32F, 257 x 257: each point's horizon toward the light, as a slope
 uniform highp sampler2D u_sky;       // R8, 257 x 257: the share of the sky each point's horizon leaves open
-uniform highp sampler2D u_surfaces;  // R8, 256 x 256: each square metre's surface number
+uniform highp sampler2D u_cover0;    // RGBA8, 256 x 256 at level 0, mipmapped: four surfaces' shares
+uniform highp sampler2D u_cover1;    // the next four, for an area of more than four surfaces
+uniform ivec4 u_cover_ids[2];        // the surface each channel holds, -1 for none
+uniform int u_cover_textures;        // how many coverage textures the area has, 1 or 2
+uniform float u_cover_level;         // the level the art pixel's footprint reads, log2(texel / 1 m)
 uniform vec2 u_pattern_off;          // the area's corner within its 8,192 m block of the world, east and south
 uniform float u_inv_texel;           // art pixels a metre
 uniform ivec2 u_dither;              // the art target's corner in the world's art pixels, modulo 4
@@ -29,10 +34,6 @@ in float v_depth;
 in vec2 v_air;
 out vec4 o_colour;
 
-int surface_at(ivec2 square) {
-    return int(texelFetch(u_surfaces, square, 0).r * 255.0 + 0.5);
-}
-
 void main() {
     vec2 x = clamp(v_local, vec2(0.0), vec2(256.0));
     ivec2 i0 = min(ivec2(floor(x)), ivec2(255));
@@ -47,11 +48,10 @@ void main() {
     float sigma = sky_factor(open, n.z);
     float tau = sun_factor(horizon, u_light_tan, dot(n, u_light_dir));
     vec2 w = u_pattern_off + x;
-    ivec2 base;
-    vec2 f;
-    vote_base(x + edge_wobble(w, u_inv_texel), 254, base, f);
-    int surface = vote4(f, ivec4(surface_at(base), surface_at(base + ivec2(1, 0)), surface_at(base + ivec2(0, 1)),
-        surface_at(base + ivec2(1, 1))));
+    vec2 q = x + edge_wobble(w, u_inv_texel);
+    vec4 shares0 = cover_sample(u_cover0, q, u_cover_level, COVER_SIDE, COVER_TOP);
+    vec4 shares1 = u_cover_textures > 1 ? cover_sample(u_cover1, q, u_cover_level, COVER_SIDE, COVER_TOP) : vec4(0.0);
+    int surface = max(cover_pick(shares0, shares1, u_cover_ids[0], u_cover_ids[1]), 0);
     ivec2 info = u_surface_info[surface];
     int look = split_look(faded_noise(w, u_split_oct[surface], u_inv_texel, uint(SEED_SPLIT)), u_split_at[surface],
         info.x);

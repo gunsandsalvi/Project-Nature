@@ -1,8 +1,9 @@
 //! The probe scene (A11.13 rule 2): fixed inputs drawn one art pixel each through the shaders' per-pixel formulas into
 //! a small target, read back and compared with the Rust twins (`pixel`) exactly; headless Chromium runs it every
 //! alpha, and the phone in its self-check. Its lowest third holds the light's steps (α01a), from α01c lit by what a
-//! point's fields and normal give (the sky and sun factors); its middle third the surface the four nearest squares
-//! vote for at a place the edges' noise moved, and the look the split noise picks (α01b); its top third, from α01c,
+//! point's fields and normal give (the sky and sun factors); its middle third the surface with the largest share of
+//! a fixture's coverage, read at a mip level at a place the edges' noise moved, and the look the split noise picks
+//! (α01b, from α01d by coverage); its top third, from α01c,
 //! whether the plane test outlines a pixel and the haze's level (A11.2, A11.4).
 //!
 //! Implements PRE-20 and PRE-01, see A11.13: the GPU picks exactly the steps, surfaces and looks the twins pick.
@@ -12,9 +13,11 @@ use kd_core::num::hash2;
 use crate::RenderError;
 use crate::camera::View;
 use crate::gl::{self, Format, Program, State, Target, Texture, unit};
+use crate::ground::Coverage;
 use crate::pixel::{
-    OUTLINE_GAP_M, SEED_SPLIT, SUN_TAN, edge_wobble, faded_noise, haze, haze_level, haze_margin, ladder_pos,
-    light_step, lightness, margin, outline_toward, sky_factor, split_look, sun_factor, vote_base, vote4,
+    OUTLINE_GAP_M, SEED_SPLIT, SUN_TAN, cover_level, cover_margin, cover_pick, cover_sample, edge_wobble, faded_noise,
+    haze, haze_level, haze_margin, ladder_pos, light_step, lightness, margin, outline_toward, sky_factor, split_look,
+    sun_factor,
 };
 use crate::shaders::{self, Stage};
 
@@ -25,7 +28,7 @@ pub const N: usize = (W * H) as usize;
 /// Rows of the input texture: the light's 7, then the surfaces' `SURFACE_ROWS`, then the edges' and haze's
 /// `EDGE_ROWS`.
 pub const LIGHT_ROWS: usize = 7;
-pub const SURFACE_ROWS: usize = 14;
+pub const SURFACE_ROWS: usize = 11;
 pub const EDGE_ROWS: usize = 7;
 /// How far from deciding otherwise every plane test stays, in metres, so the GPU's rounding of depths hundreds of
 /// metres off cannot change it.
@@ -36,8 +39,11 @@ pub const PROBE_BETA: [f32; 2] = [3e-4, 1.2e-5];
 pub const PROBE_SCALE: [f32; 2] = [1200.0, 8000.0];
 pub const PROBE_EYE: [f32; 2] = [2000.0, 0.3];
 pub const PROBE_LEVELS: [f32; 3] = [0.1, 0.25, 0.45];
-/// How far from deciding otherwise every surface input stays, in shares of a vote or in noise.
+/// How far from deciding otherwise every surface input stays, in shares of the coverage or in noise.
 pub const SURFACE_CLEARANCE: f32 = 1e-3;
+/// The surface band's fixture: a coverage 16 m to a side, so its levels run from 0 to 4.
+pub const COVER_SIDE: usize = 16;
+pub const COVER_TOP: usize = 4;
 /// The probe's light: the luminance of the sky and of the sun facing it.
 pub const Y_SKY: f32 = 0.12;
 pub const Y_SUN: f32 = 0.85;
@@ -129,52 +135,61 @@ pub fn twins(inputs: &[Input]) -> Vec<u8> {
         .collect()
 }
 
-/// One fixed surface input: a place among four squares' centres (metres east and south of the first square's
-/// corner, the squares 1 m), the world-fixed place the noises read, art pixels a metre, the four squares' surfaces,
-/// and a split: its take-over value and its octaves as (λ₀, 1/λ₀, λ₁, 1/λ₁).
+/// One fixed surface input: a place on the fixture's coverage (metres east and south of its corner), the
+/// world-fixed place the noises read, art pixels a metre and the coverage's level they read, and a split: its
+/// take-over value and its octaves as (λ₀, 1/λ₀, λ₁, 1/λ₁).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SurfaceInput {
     pub q: [f32; 2],
     pub w: [f32; 2],
     pub inv_texel: f32,
-    pub ids: [i32; 4],
+    pub level: f32,
     pub split_at: f32,
     pub oct: [f32; 4],
 }
 
+/// The surface band's coverage: eight surfaces in blocks of 4 m, each twice, sprinkled with single squares of
+/// others, so every surface wins at every level and some texels are near ties.
+pub fn cover_fixture() -> Coverage {
+    let surfaces: Vec<u8> = (0..COVER_SIDE * COVER_SIDE)
+        .map(|i| {
+            let (x, y) = (i % COVER_SIDE, i / COVER_SIDE);
+            let h = hash2(0x636f_7672, i as u64);
+            if h.is_multiple_of(9) {
+                ((h >> 8) % 8) as u8
+            } else {
+                ((x / 4 + 2 * (y / 4)) % 8) as u8
+            }
+        })
+        .collect();
+    Coverage::new(&surfaces, COVER_SIDE).expect("eight surfaces fit")
+}
+
 /// What a surface input gives, as the GPU and the twins work it out: the surface, its look, and how far each was
 /// from going the other way.
-fn surface_answer(p: &SurfaceInput) -> (i32, i32, f32) {
+fn surface_answer(p: &SurfaceInput, fixture: &Coverage) -> (i32, i32, f32) {
     let wobble = edge_wobble(p.w, p.inv_texel);
-    let (_, f) = vote_base([p.q[0] + wobble[0], p.q[1] + wobble[1]], 0);
-    let surface = vote4(f, p.ids);
+    let q = [p.q[0] + wobble[0], p.q[1] + wobble[1]];
+    let shares = cover_sample(&fixture.levels, fixture.side, q, p.level);
+    let surface = cover_pick(shares, fixture.ids);
     let v = faded_noise(p.w, p.oct, p.inv_texel, SEED_SPLIT);
     let look = split_look(v, [p.split_at, 2.0], 2);
-    // The vote's margin: the winner's share less the best other surface's.
-    let w = [
-        (1.0 - f[0]) * (1.0 - f[1]),
-        f[0] * (1.0 - f[1]),
-        (1.0 - f[0]) * f[1],
-        f[0] * f[1],
-    ];
-    let share = |id: i32| (0..4).filter(|&m| p.ids[m] == id).map(|m| w[m]).sum::<f32>();
-    let other = p
-        .ids
-        .iter()
-        .filter(|&&id| id != surface)
-        .map(|&id| share(id))
-        .fold(0.0, f32::max);
-    (surface, look, (share(surface) - other).min((v - p.split_at).abs()))
+    (
+        surface,
+        look,
+        cover_margin(shares, fixture.ids).min((v - p.split_at).abs()),
+    )
 }
 
 /// Whether a surface input lies `SURFACE_CLEARANCE` or more from deciding otherwise, so a GPU's rounding cannot
 /// change its answer.
-pub fn clear(p: &SurfaceInput) -> bool {
-    surface_answer(p).2 >= SURFACE_CLEARANCE
+pub fn clear(p: &SurfaceInput, fixture: &Coverage) -> bool {
+    surface_answer(p, fixture).2 >= SURFACE_CLEARANCE
 }
 
 /// The surface inputs: drawn from a fixed sequence of hashes, kept only when clear of deciding otherwise.
 pub fn surface_inputs() -> Vec<SurfaceInput> {
+    let fixture = cover_fixture();
     let mut out = Vec::with_capacity(N);
     let mut n = 0u64;
     while out.len() < N {
@@ -182,13 +197,15 @@ pub fn surface_inputs() -> Vec<SurfaceInput> {
         let g = hash2(0x7375_7267, n);
         n += 1;
         let unit = |v: u64, shift: u32| ((v >> shift) & 0xffff) as f32 / 65536.0;
-        let texel = [0.03, 0.13, 0.4, 1.1, 2.2][(g % 5) as usize];
+        // From the person stop past the camp stop, some at whole levels, some between.
+        let texel = [0.03, 0.13, 0.4, 1.1, 2.0, 2.2, 4.0, 4.4, 9.0][(g % 9) as usize];
         let lambda = 2.0 + 38.0 * unit(g, 8);
+        let side = COVER_SIDE as f32;
         let p = SurfaceInput {
-            q: [0.2 + 1.6 * unit(h, 0), 0.2 + 1.6 * unit(h, 16)],
+            q: [side * unit(h, 0), side * unit(h, 16)],
             w: [8000.0 * unit(h, 32), 8000.0 * unit(h, 48)],
             inv_texel: 1.0 / texel,
-            ids: [0, 1, 2, 3].map(|k| ((g >> (24 + 2 * k)) & 3) as i32),
+            level: cover_level(texel, COVER_TOP),
             split_at: unit(g, 40) - 0.5,
             oct: if g >> 63 == 1 {
                 [lambda, 1.0 / lambda, lambda / 4.0, 4.0 / lambda]
@@ -196,7 +213,7 @@ pub fn surface_inputs() -> Vec<SurfaceInput> {
                 [lambda, 1.0 / lambda, 0.0, 0.0]
             },
         };
-        if clear(&p) {
+        if clear(&p, &fixture) {
             out.push(p);
         }
     }
@@ -205,10 +222,11 @@ pub fn surface_inputs() -> Vec<SurfaceInput> {
 
 /// The twins' answer for each surface input, as the probe writes it: surface × 3 + look.
 pub fn surface_twins(inputs: &[SurfaceInput]) -> Vec<u8> {
+    let fixture = cover_fixture();
     inputs
         .iter()
         .map(|p| {
-            let (surface, look, _) = surface_answer(p);
+            let (surface, look, _) = surface_answer(p, &fixture);
             (surface * 3 + look) as u8
         })
         .collect()
@@ -288,8 +306,8 @@ pub fn edge_twins(inputs: &[EdgeInput]) -> Vec<u8> {
 }
 
 /// All the inputs as an R32F texture `N` wide: the light's rows (the open sky, the normal's upward part, the
-/// horizon, the light's slope, n·l, the band and the steps), then the surfaces' q, w, 1/texel, their four surfaces,
-/// the take-over value and the octaves, then the top third's depths, gap, air depth, height and band.
+/// horizon, the light's slope, n·l, the band and the steps), then the surfaces' q, w, 1/texel, level, take-over
+/// value and octaves, then the top third's depths, gap, air depth, height and band.
 pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput], edges: &[EdgeInput]) -> Vec<u8> {
     let light = |f: &dyn Fn(&Input) -> f32| inputs.iter().map(f).collect::<Vec<f32>>();
     let mut rows: Vec<Vec<f32>> = vec![
@@ -308,11 +326,9 @@ pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput], edges: &[EdgeI
         field(&|p| p.w[0]),
         field(&|p| p.w[1]),
         field(&|p| p.inv_texel),
+        field(&|p| p.level),
+        field(&|p| p.split_at),
     ]);
-    for k in 0..4 {
-        rows.push(field(&|p| p.ids[k] as f32));
-    }
-    rows.push(field(&|p| p.split_at));
     for k in 0..4 {
         rows.push(field(&|p| p.oct[k]));
     }
@@ -401,7 +417,11 @@ pub struct ProbePass {
     program: Program,
     u_y: Option<glow::UniformLocation>,
     u_range: Option<glow::UniformLocation>,
+    u_cover_ids: Option<glow::UniformLocation>,
     inputs: Texture,
+    /// The surface band's coverage, two textures with their levels, and the surface each channel holds.
+    cover: [Texture; 2],
+    cover_ids: [i32; 8],
     target: Target,
     twins: Vec<u8>,
 }
@@ -415,8 +435,17 @@ impl ProbePass {
             &shaders::source(Stage::Fragment, shaders::PROBE_FRAG),
         )?;
         program.set_sampler(gl, "u_inputs", unit::PROBE);
+        program.set_sampler(gl, "u_cover0", unit::COVER0);
+        program.set_sampler(gl, "u_cover1", unit::COVER1);
         let u_y = program.uniform(gl, "u_y");
         let u_range = program.uniform(gl, "u_range");
+        let u_cover_ids = program.uniform(gl, "u_cover_ids[0]");
+        let fixture = cover_fixture();
+        let side = COVER_SIDE as u32;
+        let cover = [
+            Texture::with_levels(gl, Format::Rgba8, side, side, &fixture.texture_levels(0))?,
+            Texture::with_levels(gl, Format::Rgba8, side, side, &fixture.texture_levels(1))?,
+        ];
         let (list, surfaces, edges) = (inputs(), surface_inputs(), edge_inputs());
         let rows = (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS) as u32;
         let bytes = texture_bytes(&list, &surfaces, &edges);
@@ -429,7 +458,10 @@ impl ProbePass {
             program,
             u_y,
             u_range,
+            u_cover_ids,
             inputs,
+            cover,
+            cover_ids: fixture.ids,
             target,
             twins: answers,
         })
@@ -441,6 +473,14 @@ impl ProbePass {
         gl::apply(gl, &State::flat(W, 3 * H));
         self.program.bind(gl);
         self.inputs.bind(gl, unit::PROBE);
+        self.cover[0].bind(gl, unit::COVER0);
+        self.cover[1].bind(gl, unit::COVER1);
+        let ids = self.cover_ids;
+        gl::set_ivec4_array(
+            gl,
+            self.u_cover_ids.as_ref(),
+            &[[ids[0], ids[1], ids[2], ids[3]], [ids[4], ids[5], ids[6], ids[7]]],
+        );
         gl::set_vec2(gl, self.u_y.as_ref(), [Y_SKY, Y_SUN]);
         gl::set_vec2(gl, self.u_range.as_ref(), range());
         gl::draw_full_target(gl, vao);
@@ -521,38 +561,47 @@ mod tests {
     // checks: PRE-20 PRE-22
     #[test]
     fn surface_inputs_cover_every_case() {
-        // Every surface wins somewhere, both looks are picked, the vote is sometimes split between squares of the
-        // same surface, and the art pixel's size ranges from the person stop to beyond the camp stop.
+        // Every surface wins somewhere, both looks are picked, and the coverage is read at level 0, at whole levels
+        // above it and between levels, from the person stop's art pixel to beyond the camp stop's.
+        let fixture = cover_fixture();
+        assert_eq!(fixture.ids, [0, 1, 2, 3, 4, 5, 6, 7]);
         let list = surface_inputs();
         assert_eq!(list.len(), N);
         let answers = surface_twins(&list);
-        for surface in 0..4u8 {
+        for surface in 0..8u8 {
             assert!(answers.iter().any(|a| a / 3 == surface), "surface {surface} never wins");
         }
         assert!(answers.iter().any(|a| a % 3 == 0) && answers.iter().any(|a| a % 3 == 1));
-        assert!(
-            list.iter()
-                .any(|p| p.ids.iter().filter(|&&i| i == p.ids[0]).count() == 2)
-        );
-        assert!(list.iter().any(|p| p.inv_texel > 30.0) && list.iter().any(|p| p.inv_texel < 0.5));
-        assert!(list.iter().all(clear));
+        assert!(list.iter().any(|p| p.level == 0.0));
+        assert!(list.iter().any(|p| p.level >= 1.0 && p.level.fract() == 0.0));
+        assert!(list.iter().any(|p| p.level > 3.0 && p.level.fract() > 0.0));
+        assert!(list.iter().any(|p| p.inv_texel > 30.0) && list.iter().any(|p| p.inv_texel < 0.2));
+        assert!(list.iter().all(|p| clear(p, &fixture)));
         assert_eq!(surface_inputs(), list);
-        // An input on a decision's edge is refused: two surfaces tied at the middle of four squares, or the split
-        // noise at its take-over value (art pixels so large the noises have faded to 0).
+        // An input on a decision's edge is refused: half way between the centres of two squares of different
+        // surfaces, read square by square with the noises faded away, or the split noise at its take-over value.
+        let level0 = &fixture.levels[0];
+        let x = (0..COVER_SIDE - 1).find(|&x| level0[x] != level0[x + 1]).unwrap();
         let edge = SurfaceInput {
-            q: [1.0, 1.0],
+            q: [x as f32 + 1.0, 0.5],
             w: [100.0, 100.0],
             inv_texel: 1e-3,
-            ids: [0, 1, 0, 1],
+            level: 0.0,
             split_at: 0.3,
             oct: [24.0, 1.0 / 24.0, 0.0, 0.0],
         };
-        assert!(!clear(&edge));
-        assert!(!clear(&SurfaceInput {
-            ids: [2; 4],
-            split_at: 0.0,
+        assert!(!clear(&edge, &fixture));
+        let inside = SurfaceInput {
+            q: [x as f32 + 0.5, 0.5],
             ..edge
-        }));
-        assert!(clear(&SurfaceInput { ids: [2; 4], ..edge }));
+        };
+        assert!(clear(&inside, &fixture));
+        assert!(!clear(
+            &SurfaceInput {
+                split_at: 0.0,
+                ..inside
+            },
+            &fixture
+        ));
     }
 }
