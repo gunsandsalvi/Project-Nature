@@ -127,8 +127,13 @@ fn surface_answer(p: &SurfaceInput) -> (i32, i32, f32) {
     (surface, look, (share(surface) - other).min((v - p.split_at).abs()))
 }
 
-/// The surface inputs: drawn from a fixed sequence of hashes, kept only when `SURFACE_CLEARANCE` from deciding
-/// otherwise, every one with some of each answer.
+/// Whether a surface input lies `SURFACE_CLEARANCE` or more from deciding otherwise, so a GPU's rounding cannot
+/// change its answer.
+pub fn clear(p: &SurfaceInput) -> bool {
+    surface_answer(p).2 >= SURFACE_CLEARANCE
+}
+
+/// The surface inputs: drawn from a fixed sequence of hashes, kept only when clear of deciding otherwise.
 pub fn surface_inputs() -> Vec<SurfaceInput> {
     let mut out = Vec::with_capacity(N);
     let mut n = 0u64;
@@ -151,7 +156,7 @@ pub fn surface_inputs() -> Vec<SurfaceInput> {
                 [lambda, 1.0 / lambda, 0.0, 0.0]
             },
         };
-        if surface_answer(&p).2 >= SURFACE_CLEARANCE {
+        if clear(&p) {
             out.push(p);
         }
     }
@@ -291,7 +296,24 @@ mod tests {
                 .any(|p| p.ids.iter().filter(|&&i| i == p.ids[0]).count() == 2)
         );
         assert!(list.iter().any(|p| p.inv_texel > 30.0) && list.iter().any(|p| p.inv_texel < 0.5));
-        assert!(list.iter().all(|p| surface_answer(p).2 >= SURFACE_CLEARANCE));
+        assert!(list.iter().all(clear));
         assert_eq!(surface_inputs(), list);
+        // An input on a decision's edge is refused: two surfaces tied at the middle of four squares, or the split
+        // noise at its take-over value (art pixels so large the noises have faded to 0).
+        let edge = SurfaceInput {
+            q: [1.0, 1.0],
+            w: [100.0, 100.0],
+            inv_texel: 1e-3,
+            ids: [0, 1, 0, 1],
+            split_at: 0.3,
+            oct: [24.0, 1.0 / 24.0, 0.0, 0.0],
+        };
+        assert!(!clear(&edge));
+        assert!(!clear(&SurfaceInput {
+            ids: [2; 4],
+            split_at: 0.0,
+            ..edge
+        }));
+        assert!(clear(&SurfaceInput { ids: [2; 4], ..edge }));
     }
 }
