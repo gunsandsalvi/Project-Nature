@@ -2,12 +2,11 @@
 // exactly 4 × 4 device pixels in portrait, in landscape and on a screen of scale 2, the core's maths and draws and
 // the demo area's ground give the cloud's bits in the browser (A15.9 item 5, the self-check), the probe scene's
 // steps, surfaces, looks, outlines and haze levels and the palette rows equal the Rust twins' and the cloud's
-// (A11.13 rule 2), a still
-// camera's frames are the same, the hour lights the ground, a one-art-pixel pan moves the picture by exactly 4
-// device pixels inside a block and across a move of the floating origin (A11.2), each gesture does what it should
-// and nothing else, two fingers keep the land under them through a pinch and a twist (A12.2), and a panic leaves
-// its message in the status line (A3.8). (Chromium's emulated fractional scales, like the phone's 2.625, misreport
-// the canvas's device size, so they are left to the phone itself.)
+// (A11.13 rule 2), a still camera's frames are the same, the hour lights the ground, a one-art-pixel pan moves the
+// picture by exactly 4 device pixels inside a block and across a move of the floating origin (A11.2), each gesture
+// does what it should and nothing else, two fingers keep the land under them through a pinch and a twist (A12.2),
+// and a panic leaves its message in the status line (A3.8). (Chromium's emulated fractional scales, like the
+// phone's 2.625, misreport the canvas's device size, so they are left to the phone itself.)
 // Usage: node tools/screens/smoke.mjs [--save <dir>]   (after tools/build-web.sh)
 // Screenshots go to target/screens/smoke/, which is never committed, or to --save's folder.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';

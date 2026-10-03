@@ -829,9 +829,11 @@ mod tests {
     // checks: PRE-30
     #[test]
     fn sky_field_matches_a_march() {
+        // The field's 16 directions against a march along 64, every 6 m, within 0.02 of the open sky.
         let ground = test_ground();
         let v = sky_field(&ground);
-        let mut worst = 0.0f32;
+        // The worst point: its error, place, field and march.
+        let mut worst = (0.0f32, 0, 0, 0.0, 0.0);
         for y in (2..SIDE - 2).step_by(6) {
             for x in (2..SIDE - 2).step_by(6) {
                 let mut sum = 0.0;
@@ -842,14 +844,13 @@ mod tests {
                 }
                 let want = sum / 64.0;
                 let err = (v[y * SIDE + x] - want).abs();
-                if err > worst {
-                    eprintln!("({x}, {y}): {} against {want}", v[y * SIDE + x]);
+                if err > worst.0 {
+                    worst = (err, x, y, v[y * SIDE + x], want);
                 }
-                worst = worst.max(err);
             }
         }
-        eprintln!("sky field: worst {worst}");
-        assert!(worst <= 0.02);
+        let (err, x, y, got, want) = worst;
+        assert!(err <= 0.02, "at ({x}, {y}): {got} against {want}");
     }
 
     // checks: PRE-30
