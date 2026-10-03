@@ -131,6 +131,19 @@ mod tests {
         );
     }
 
+    // checks: MAT-13 PLT-09
+    #[test]
+    fn catalogue_loads_at_start() {
+        // The embedded blob loads, checked, well inside A3.6's 10 ms, and a new app reports nothing about it.
+        let t0 = std::time::Instant::now();
+        let cat = kd_data::Catalogue::load(crate::CATALOGUE).expect("the embedded catalogue loads");
+        assert!(t0.elapsed().as_millis() < 10, "{:?}", t0.elapsed());
+        assert_eq!((cat.colours[0].id.as_str(), cat.looks.len()), ("void", 5));
+        let outbox = Arc::new(Outbox(Mutex::new(Vec::new())));
+        let app = App::new(outbox.clone(), AppConfig { device: "test".into() });
+        assert!(app.catalogue().is_some() && outbox.0.lock().unwrap().is_empty());
+    }
+
     // checks: PRC-11
     #[test]
     fn gl_versions() {

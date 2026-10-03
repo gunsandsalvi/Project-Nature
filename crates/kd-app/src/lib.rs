@@ -12,6 +12,7 @@ pub mod selfcheck;
 use std::panic::{self, AssertUnwindSafe};
 use std::sync::Arc;
 
+use kd_data::Catalogue;
 use kd_render::{ART_SCALE, Frame, Renderer};
 use kd_view::{InputEvent, Insets};
 
@@ -54,6 +55,9 @@ pub struct AppConfig {
     pub device: String,
 }
 
+/// The catalogue blob, compiled from `data/` by the build script (A3.6).
+pub static CATALOGUE: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/catalogue.kdcat"));
+
 /// The build's version line, set by the build scripts (`KD_BUILD`), such as `a00 · 1000 · 4f2c9e1`.
 pub fn build_line() -> &'static str {
     option_env!("KD_BUILD").unwrap_or("dev")
@@ -72,6 +76,10 @@ pub struct App {
     report_sent: bool,
     /// Whether the core's maths and draws give the cloud's bits here (A15.9 item 5).
     core_bits: bool,
+    /// The catalogue, loaded at start; none if its blob failed its checks, which the self-check reports.
+    catalogue: Option<Catalogue>,
+    /// How long loading the catalogue took, in nanoseconds (A3.6: under 10 ms on the phone).
+    catalogue_ns: u64,
 }
 
 impl App {
@@ -94,7 +102,16 @@ impl App {
             report,
             report_sent: false,
             core_bits: true,
+            catalogue: None,
+            catalogue_ns: 0,
         };
+        let t0 = app.platform.now_ns();
+        match Catalogue::load(CATALOGUE) {
+            Ok(c) => app.catalogue = Some(c),
+            Err(e) => app.check_failed(format!("catalogue: {e}")),
+        }
+        app.catalogue_ns = app.platform.now_ns().saturating_sub(t0);
+        log::info!(target: "kd::app", "catalogue loaded in {} µs", app.catalogue_ns / 1000);
         // The core's probes, made here and hashed, against the cloud's hashes: about a millisecond (A15.9 item 5).
         if let Some(line) = selfcheck::core_line(&kd_core::bits::differences()) {
             app.core_bits = false;
@@ -220,6 +237,16 @@ impl App {
     /// Whether the core's maths and draws give the cloud's bits on this device.
     pub fn core_bits(&self) -> bool {
         self.core_bits
+    }
+
+    /// The catalogue, if its blob loaded.
+    pub fn catalogue(&self) -> Option<&Catalogue> {
+        self.catalogue.as_ref()
+    }
+
+    /// How long the catalogue took to load, in nanoseconds.
+    pub fn catalogue_ns(&self) -> u64 {
+        self.catalogue_ns
     }
 
     fn check_failed(&mut self, what: String) {

@@ -281,7 +281,7 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
                     };
                     (head, table, Compiled::Look(entry))
                 }),
-                Kind::Air => parse::<AirSrc>(&e, &mut problems).map(|s| {
+                Kind::Light => parse::<AirSrc>(&e, &mut problems).map(|s| {
                     check_air(&s, &e, &mut problems);
                     (
                         head(&s.id, &s.name, &s.stage, &s.checks),
@@ -338,19 +338,13 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
         }
     }
 
-    // Kind-wide rules: void is fixed colour 0, there is exactly one air, and the palette holds them all.
+    // Kind-wide rules: there is exactly one air, and the palette holds every colour. That fixed colour 0 is void,
+    // palette index 0, the renderer's tests check, since rules here never name an entry (A2.3 rule 5).
     colours.sort_by_key(|c| c.0);
     looks.sort_by_key(|l| l.0);
-    if !colours.iter().any(|(n, c)| *n == 0 && c.id == "void") {
-        problems.push(at(
-            Kind::Colour.place(),
-            1,
-            "fixed colour 0 must be void, palette index 0 (A11.3)".into(),
-        ));
-    }
     if airs.len() != 1 {
         problems.push(at(
-            Kind::Air.place(),
+            Kind::Light.place(),
             1,
             format!("{} entries of air; there is exactly one (A11.4)", airs.len()),
         ));
@@ -717,7 +711,7 @@ fn index_text(index: &BTreeMap<Kind, Vec<(u16, String, String, String)>>) -> Str
         let title = match kind {
             Kind::Colour => "Fixed colours",
             Kind::Look => "Looks",
-            Kind::Air => "The air",
+            Kind::Light => "The air",
         };
         s.push_str(&format!(
             "\n## {title} (`{}`)\n\n| Number | Id | Name | Stage |\n|---|---|---|---|\n",
@@ -742,6 +736,10 @@ fn parse_lock(text: &str, problems: &mut Vec<Problem>) -> BTreeMap<String, KindL
         }
     };
     for (kind, v) in table {
+        if !Kind::ALL.iter().any(|k| k.name() == kind) {
+            problems.push(at(LOCK_FILE, 1, format!("[{kind}] is not a kind of entry")));
+            continue;
+        }
         let mut lock = KindLock::default();
         let Some(t) = v.as_table() else {
             problems.push(at(LOCK_FILE, 1, format!("[{kind}] is not a table")));
@@ -829,7 +827,7 @@ mod tests {
             src(VERSION_FILE, VERSION.into()),
             src(Kind::Colour.place(), colours),
             src(Kind::Look.place(), looks),
-            src(Kind::Air.place(), air),
+            src(Kind::Light.place(), air),
         ]
     }
 
@@ -923,7 +921,7 @@ mod tests {
             "is not #rrggbb",
         );
         fails(
-            &with(&s, Kind::Air.place(), "turbidity = 0.08", "turbidity = 1.5"),
+            &with(&s, Kind::Light.place(), "turbidity = 0.08", "turbidity = 1.5"),
             "turbidity outside",
         );
         fails(
@@ -989,7 +987,10 @@ mod tests {
         });
         fails(&s, "no kind of entry claims this file");
         let mut two_airs = clean();
-        let a = two_airs.iter_mut().find(|x| x.path == Kind::Air.place()).expect("air");
+        let a = two_airs
+            .iter_mut()
+            .find(|x| x.path == Kind::Light.place())
+            .expect("air");
         a.text = a.text.clone()
             + &a.text
                 .replace("# The air\n", "")
@@ -998,14 +999,60 @@ mod tests {
             Err(p) => assert!(p.iter().any(|x| x.message.contains("2 entries of air")), "{p:?}"),
             Ok(_) => panic!("compiled with two airs"),
         }
-        // Fixed colour 0 is void, palette index 0.
-        let dark = with(&clean(), Kind::Colour.place(), "## Void\n", "## Dark\n");
-        let dark = with(&dark, Kind::Colour.place(), "name = \"Void\"", "name = \"Dark\"");
-        let dark = with(&dark, Kind::Colour.place(), "id = \"void\"", "id = \"dark\"");
-        match compile(&dark, true) {
-            Err(p) => assert!(p.iter().any(|x| x.message.contains("must be void")), "{p:?}"),
-            Ok(_) => panic!("compiled without void"),
+    }
+
+    /// The repository's own catalogue, as the build script reads it.
+    fn real() -> Vec<Source> {
+        let src = |p: &str, t: &str| Source {
+            path: p.into(),
+            text: t.into(),
+        };
+        vec![
+            src(VERSION_FILE, include_str!("../../../data/VERSION.toml")),
+            src(LOCK_FILE, include_str!("../../../data/ids.lock")),
+            src(INDEX_FILE, include_str!("../../../data/INDEX.md")),
+            src(Kind::Colour.place(), include_str!("../../../data/palette/colours.md")),
+            src(Kind::Look.place(), include_str!("../../../data/palette/looks.md")),
+            src(Kind::Light.place(), include_str!("../../../data/palette/light.md")),
+        ]
+    }
+
+    // checks: PRE-34 PRE-01
+    #[test]
+    fn text_contrast() {
+        // Body text is at least 7:1 on its panel (A11.3, A12.1); dim text, words and links at least 4.5:1.
+        let cat = compile(&real(), false).expect("the catalogue compiles").catalogue;
+        let luminance = |id: &str| {
+            let c = cat
+                .colour(id)
+                .expect("a fixed colour")
+                .rgb
+                .map(|v| crate::schema::srgb_to_linear(f32::from(v) / 255.0));
+            0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+        };
+        let ratio = |a: &str, b: &str| (luminance(a) + 0.05) / (luminance(b) + 0.05);
+        assert!(ratio("ui_text", "ui_panel") >= 7.0, "{}", ratio("ui_text", "ui_panel"));
+        for id in ["ui_text_dim", "ui_word", "ui_link", "ui_select"] {
+            assert!(ratio(id, "ui_panel") >= 4.5, "{id}: {}", ratio(id, "ui_panel"));
         }
+    }
+
+    // checks: MAT-13 MAT-17
+    #[test]
+    fn real_catalogue_is_clean() {
+        let out = compile(&real(), false).expect("the catalogue compiles");
+        assert!(
+            out.stale.is_empty(),
+            "stale: {:?}",
+            out.stale.iter().map(|x| &x.0).collect::<Vec<_>>()
+        );
+        assert_eq!(out.lock, include_str!("../../../data/ids.lock"));
+        let looks: Vec<&str> = out.catalogue.looks.iter().map(|l| l.id.as_str()).collect();
+        assert_eq!(looks, ["grass_lush", "grass_dry", "dirt", "limestone", "scree"]);
+        assert_eq!(
+            out.catalogue.air.turbidity, 0.08,
+            "the owner's choice of 3 October 2026"
+        );
     }
 
     // checks: MAT-17
