@@ -1,6 +1,6 @@
 # Bans for the simulation crates and kd-view (A2.3 rules 3 and 4, A3.2, A3.5). The front-end crates, the
 # shells and kd-tools each carry their own clippy.toml without them, which clippy finds first.
-# tests/banned/ (from α00b) uses each entry once, and tools/check-banned.sh fails unless clippy flags every one.
+# tests/banned/ uses each entry once, and tools/check-banned.sh fails unless clippy flags every one.
 # f32::minimum and f32::maximum (A3.2) are unstable on Rust 1.97.0, so stable code cannot call them at all;
 # they join this list when they become stable.
 disallowed-types = [

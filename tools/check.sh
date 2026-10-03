@@ -27,8 +27,11 @@ step "1 format";          cargo fmt --all --check
 step "1 lints";           cargo clippy --workspace --all-targets --locked -q -- -D warnings
 step "1 phone lints";     cargo clippy -p kd-android --target aarch64-linux-android --locked -q -- -D warnings
 step "1 web lints";       cargo clippy -p kd-web --target wasm32-unknown-unknown --locked -q -- -D warnings
-step "1 banned items";    later α00b
-step "2 layers, names";   later α00b
+step "1 banned items";    tools/check-banned.sh
+step "2 layers, names"
+cargo build --profile fast -p kd-tools --locked -q
+target/fast/kd check layers
+target/fast/kd check names
 step "3 tests"
 LOG="$(mktemp)"
 if ! cargo test --workspace --locked >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"; exit 1; fi
@@ -46,7 +49,6 @@ step "6 repeat";          later α07c
 step "7 file check";      later α00b
 step "8 coverage";        later α00b
 step "9 builds"
-cargo build --profile fast -p kd-tools --locked -q
 if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-render crates/kd-core; then
   tools/build-web.sh
   node tools/screens/smoke.mjs
