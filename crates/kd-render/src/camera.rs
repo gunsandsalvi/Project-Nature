@@ -38,6 +38,15 @@ pub fn texel(zoom: f32) -> f32 {
     (f64::from(a0).ln() + t * (f64::from(a1).ln() - f64::from(a0).ln())).exp() as f32
 }
 
+/// The zoom whose art pixel is `texel` metres: `texel`'s inverse, held to the stops.
+pub fn zoom_of(texel_m: f32) -> f32 {
+    let lt = f64::from(texel_m).ln();
+    let ln = |i: usize| f64::from(STOPS[i].1).ln();
+    let i = (0..3).find(|&i| lt <= ln(i + 1)).unwrap_or(2);
+    let t = ((lt - ln(i)) / (ln(i + 1) - ln(i))).clamp(0.0, 1.0);
+    STOPS[i].0 + (t as f32) * (STOPS[i + 1].0 - STOPS[i].0)
+}
+
 /// The view's angle below the horizon, in degrees, for art pixels of `texel` metres: the one cubic in the log of
 /// the art pixel through the four knots, held at its ends, so a zoom never tilts back (A11.2).
 pub fn pitch_deg(texel: f64) -> f64 {
@@ -475,6 +484,10 @@ mod tests {
             assert!((texel(z) - t).abs() < t * 1e-5, "zoom {z}: {}", texel(z));
         }
         assert!((texel(0.07) - (0.03f32 * 0.13).sqrt()).abs() < 1e-5);
+        for i in 0..=50 {
+            let z = i as f32 / 100.0;
+            assert!((zoom_of(texel(z)) - z).abs() < 1e-5, "zoom {z}");
+        }
         assert!(
             (texel(ZOOM_IN_REACH[1]) - 2.22).abs() < 0.01,
             "{}",

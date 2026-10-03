@@ -6,6 +6,7 @@
 //! Implements PRC-11 and RES-05, see A15.4 and A15.9: the self-check on a build's first start, the core's bits
 //! among its checks.
 
+pub mod camera;
 pub mod ground;
 pub mod json;
 pub mod selfcheck;
@@ -149,8 +150,8 @@ pub struct App {
     demo_meshes: Option<AreaMeshes>,
     /// How long making the demo area took, in nanoseconds (the bench, A15.10).
     demo_ns: u64,
-    /// Where the camera looks (A11.2).
-    cam: CameraPose,
+    /// Where the camera looks, the gesture moving it and its easing (A11.2, A12.2).
+    control: camera::Control,
 }
 
 /// The golden scenes of A11.12, drawn with time frozen.
@@ -204,7 +205,7 @@ impl App {
             demo: None,
             demo_meshes: None,
             demo_ns: 0,
-            cam: CameraPose::default(),
+            control: camera::Control::new(CameraPose::default()),
         };
         let t0 = app.platform.now_ns();
         match Catalogue::load(CATALOGUE) {
@@ -244,7 +245,7 @@ impl App {
         }
         let o = g.id.origin();
         let middle = kd_world::area::SQUARES / 2;
-        self.cam = CameraPose {
+        self.control = camera::Control::new(CameraPose {
             target: kd_core::geo::Pos {
                 x: o.x + middle as i32 * 256,
                 y: o.y + middle as i32 * 256,
@@ -252,16 +253,25 @@ impl App {
             },
             yaw: 0.0,
             zoom: 0.30,
-        };
+        });
         self.demo = Some(g);
     }
 
     pub fn handle(&mut self, m: AppMsg) {
         match m {
             AppMsg::Input(e) => {
-                // Any touch shows the strip; a tap on it steps the hour (A12.2), until the clock runs time (α03a).
-                if let Some(UiAction::StepHour) = self.ui.input(&e, ART_SCALE, self.screen_ui(), self.inset_ui()) {
-                    self.set_hour(self.hour + 1);
+                // Any touch shows the strip and stops the camera's easing; a tap on the strip steps the hour, until
+                // the clock runs time (α03a); the land's gestures move the camera (A12.2).
+                if e.kind == kd_view::InputKind::Down {
+                    self.control.hold();
+                }
+                match self.ui.input(&e, ART_SCALE, self.screen_ui(), self.inset_ui()) {
+                    Some(UiAction::StepHour) => self.set_hour(self.hour + 1),
+                    Some(UiAction::Camera(g)) => {
+                        let window = self.size.unwrap_or([1, 1]);
+                        self.control.gesture(g, window, self.demo.as_ref(), e.t_ns);
+                    }
+                    None => {}
                 }
             }
             AppMsg::Insets(i) => self.insets = i,
@@ -340,11 +350,14 @@ impl App {
         let list = self.ui_list(now_ns);
         // The light card shows only as its golden scenes now the ground has come (α01b).
         let card = self.golden.map(|_| self.card_frame(now_ns.saturating_sub(start)));
+        if self.golden.is_none() {
+            self.control.tick(now_ns);
+        }
         if let Some(r) = self.renderer.as_mut() {
             let f = Frame {
                 count: self.frames,
                 sky: sky_at(self.hour),
-                cam: self.cam,
+                cam: self.control.pose,
                 card,
             };
             match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f, &list))) {
@@ -524,7 +537,22 @@ impl App {
 
     /// Where the camera looks.
     pub fn camera(&self) -> CameraPose {
-        self.cam
+        self.control.pose
+    }
+
+    /// Points the camera (a test hook), the zoom held within the stops in reach.
+    pub fn set_camera(&mut self, pose: CameraPose) {
+        let [lo, hi] = kd_render::camera::ZOOM_IN_REACH;
+        self.control.set(CameraPose {
+            zoom: pose.zoom.clamp(lo, hi),
+            ..pose
+        });
+    }
+
+    /// The last frame's view of the ground, for the test hooks: the art pixel's size, the upscale's shift and the
+    /// art target's corner in the world's grid.
+    pub fn view(&self) -> Option<kd_render::camera::View> {
+        self.renderer.as_ref()?.last_view().copied()
     }
 
     /// The demo area's ground, as the world made it.
