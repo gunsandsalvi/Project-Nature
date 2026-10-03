@@ -1,8 +1,10 @@
-# The independent review's checklist (PRC-09, A15.13 step 3)
+# The review's checklist (PRC-09, A15.13 step 3)
 
-The reviewer works in its own session, or as a fresh subagent of the builder's session, from the pull request's diff, the alpha's section of `IMPLEMENTATION.md` and
-the items it cites, never the builder's reasoning. It re-runs format, clippy, the tests and the quick scenes, and
-reverts each new test's code to see the test fail.
+Since the owner's instruction of 3 October 2026, the builder reviews each lettered alpha that a later letter of its
+number follows, in a pass of its own after the delivery; the alpha that ends its number gets one fresh subagent (or a
+reviewer in its own session), which works from the whole number's diff, its alphas' sections of `IMPLEMENTATION.md`
+and the items they cite, never the builder's reasoning. Either reviewer re-runs format, clippy, the tests and the
+quick scenes, and reverts each new test's code to see the test fail.
 
 1. **Items.** For each ID the alpha claims, read its What, Done when and Check lines in `PROJECT.md`: the diff does
    what the alpha's part of it asks, and no more than the alpha says.
@@ -31,5 +33,5 @@ reverts each new test's code to see the test fail.
     and shadows fall where the shapes and the light put them; and nothing is smeared, noisy, streaked, banded or
     broken that should not be. Name each fault with its picture and where in it, and say how it should look.
 
-Verdict, added to the pull request's description: `Review: APPROVE <commit> <reviewer session>` (a subagent writes
-`subagent:<label>` in place of a session) or `Review: CHANGES` with the findings.
+Verdict, added to the pull request's description: `Review: APPROVE <commit> <reviewer>`, the reviewer `builder`,
+`subagent:<label>` or a session, or `Review: CHANGES` with the findings.

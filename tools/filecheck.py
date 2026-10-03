@@ -53,16 +53,32 @@ def check_note(text):
     return problems
 
 
-def gate(description, head, head_only_results, head_passed, parent_passed, trailer_sessions):
+ALPHA = re.compile(r"α(\d{2})([a-e]?)")
+STATUS_ROW = re.compile(r"^\|\s*α(\d{2})([a-e]?)\s*\|", re.M)
+
+
+def ends_its_number(alpha, plan):
+    """Whether `alpha` (as `α02c`) is the last alpha of its number in the plan's status table (PRC-09): no row of the
+    same number with a later letter follows."""
+    m = ALPHA.fullmatch(alpha)
+    rows = [(n, s) for n, s in STATUS_ROW.findall(plan)]
+    return not any(n == m.group(1) and s > m.group(2) for n, s in rows)
+
+
+def gate(description, head, head_only_results, head_passed, parent_passed, trailer_sessions, plan=""):
     """Problems with a merge (A15.13 step 6).
 
-    description: the pull request's description; head: the head commit's full hash;
+    description: the pull request's description, opening with its alpha's name; head: the head commit's full hash;
     head_only_results: True when the head changes only results/; head_passed, parent_passed: results/checks says PASS
-    for the head, and for its parent; trailer_sessions: every Claude-Session trailer on the branch.
+    for the head, and for its parent; trailer_sessions: every Claude-Session trailer on the branch; plan:
+    IMPLEMENTATION.md, whose status table says whether the alpha ends its number. Since the owner's instruction of 3
+    October 2026 (PRC-09), the builder approves an alpha that a later lettered alpha of its number follows
+    (`builder`), and only the alpha ending its number is approved by a subagent or another session, for the whole
+    number.
     """
     m = re.search(r"^\s*Review: APPROVE\s+([0-9a-f]{7,40})\s+(\S+)", description, re.M)
     if not m:
-        return ["no 'Review: APPROVE <commit> <session>' line"]
+        return ["no 'Review: APPROVE <commit> <reviewer>' line"]
     problems = []
     commit, reviewer = m.group(1), m.group(2)
     if len(commit) < 12 or commit[:12] != head[:12]:
@@ -70,9 +86,20 @@ def gate(description, head, head_only_results, head_passed, parent_passed, trail
     head12 = head[:12]
     if not (head_passed or (head_only_results and parent_passed)):
         problems.append(f"no passing results/checks for {head12} or, with a results-only head, its parent")
+    a = ALPHA.search(description.strip().split("\n", 1)[0])
+    if not a:
+        return problems + ["the description does not open with its alpha's name (as α02c)"]
+    alpha = a.group(0)
+    last = ends_its_number(alpha, plan)
+    if reviewer == "builder":
+        if last:
+            problems.append(f"{alpha} ends its number, so a subagent or another session reviews it, not the builder")
+        return problems
     rs = set(SESSION.findall(reviewer))
     if not rs and not SUBAGENT.fullmatch(reviewer):
-        problems.append(f"reviewer {reviewer} names no session and no subagent")
+        problems.append(f"reviewer {reviewer} names no session, no subagent and is not the builder")
+    if not last:
+        problems.append(f"{alpha} does not end its number, so the builder reviews it (the owner's rule, PRC-09)")
     builders = set()
     for t in trailer_sessions:
         builders.update(SESSION.findall(t))
@@ -578,13 +605,18 @@ def main(argv):
         return selftest()
     if len(argv) >= 2 and argv[0] == "gate":
         description = open(argv[1], encoding="utf-8").read()
+        try:  # the pull request as the API gives it, or its description alone
+            description = json.loads(description)["body"]
+        except (ValueError, KeyError, TypeError):
+            pass
         head = git("rev-parse", "HEAD").strip()
         parent = git("rev-parse", "HEAD^").strip()
         files = [f for f in git("diff", "--name-only", "HEAD^", "HEAD").split("\n") if f]
         only_results = bool(files) and all(f.startswith("results/") for f in files)
         trailers = git("log", "--format=%(trailers:key=Claude-Session,valueonly)", "origin/main..HEAD").split("\n")
         sessions = [t for t in trailers if t.strip()]
-        problems = gate(description, head, only_results, result_passes(head[:12]), result_passes(parent[:12]), sessions)
+        problems = gate(description, head, only_results, result_passes(head[:12]), result_passes(parent[:12]), sessions,
+                        read("IMPLEMENTATION.md"))
         for p in problems:
             print(f"Gate: {p}")
         if problems:

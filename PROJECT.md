@@ -2694,10 +2694,12 @@ How the project is run.
 
 ### 15.3 How work flows
 
-- `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches, and work joins the main version only after every automatic check passes (`PRC-10`) and an independent AI review approves it.
-  - **How it works:** a fresh, separate agent reviews the change, its tests and results, and the items it claims, without the builder's reasoning, against those items' What, Done when and Check lines, and checks that no test was weakened to pass (`RES-09`).
+- `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches, and work joins the main version only after every automatic check passes (`PRC-10`) and a review approves it.
+  An alpha that is split into lettered steps is reviewed by its builder, step by step; an independent AI review verifies the whole alpha once, at its last step.
+  - **How it works:** at each step the builder reviews its own change against the items it claims, re-running the checks and making each new test fail once.
+    At the alpha's last step, a fresh, separate agent reviews the whole alpha, its tests and results, and the items it claims, without the builder's reasoning, against those items' What, Done when and Check lines, and checks that no test was weakened to pass (`RES-09`).
     If builder and reviewer still disagree after one round of fixes, a second fresh reviewer decides; anything that changes what this file means goes to you.
-  - **Check:** the main version accepts only branches whose checks passed and whose review approved them, each review naming a reviewer other than the builder.
+  - **Check:** the main version accepts only branches whose checks passed and whose review approved them, each alpha's last step naming a reviewer other than the builder.
 
 - `PRC-10` **The checks** *(Decided)*
   - **Before any work joins the main version,** within about 20 minutes on one cloud machine, anything longer running overnight:

@@ -5,7 +5,7 @@ It follows `PROJECT.md` (what the game must be) and `ARCHITECTURE.md` (how it is
 The game is built as **playable alphas**: each takes an AI agent a few hours (3 to 5.5 in this plan, never more than 6) and ends with something you can open on your phone and try in two to five minutes (`PRN-09`, `SCP-03`).
 The alphas are grouped into the seven stages of `SCP-16` (`MIL-01` to `MIL-07`); a stage is done when all its alphas are done and its stage report is accepted (`RES-06`).
 
-**Status (2 October 2026): settled.** Each stage had its own adversarial review, Stages 1–4 and 5–7 a second-level review each, and the whole plan two full reviews; there are no more plan reviews. From α00 on, each alpha gets its own independent review before it merges (`PRC-09`).
+**Status (2 October 2026): settled.** Each stage had its own adversarial review, Stages 1–4 and 5–7 a second-level review each, and the whole plan two full reviews; there are no more plan reviews. From α00 on, each alpha gets its own independent review before it merges (`PRC-09`); since 3 October 2026, at the owner's instruction, the builder reviews each lettered alpha itself and a subagent verifies each numbered alpha once, at its last letter.
 
 ## How to use this plan
 
@@ -23,8 +23,10 @@ For the AI agent building an alpha:
 5. **Deliver** (A15.4, `PRC-11`): build the web build and the APK (every alpha; committed with its checksum, at most 50 MB); publish the web build and the note at the alpha's links; write `dist/NOTE.md` (what is new, what to try, what is rough, the IDs delivered, both links) and `dist/LINKS.md`; and mark the alpha done in the status table, with the date and the measured hours.
 6. **Run the checks last** (`tools/check.sh --deliver`, A15.12, `PRC-10`) until they pass, and commit only their result, `results/checks/<commit>.json`.
    Nothing else is committed after it: the gate merges only a head whose checks passed on it, or on its parent when the head adds only `results/` (A15.12, A15.13).
-7. **Get the independent review** (`PRC-09`, A15.13) of that head: open a pull request from the session's branch into `main`; a separate AI agent, given only the diff, this alpha's section and the cited items, checks that every task is done, every test named in the alpha exists and passes, nothing outside the alpha's scope changed without a note, and the rules of `PROJECT.md` hold, and its approval of the head's commit goes in the pull request's description.
-   If it asks for fixes, make them, then deliver (step 5) and run the checks (step 6) again, until it approves.
+7. **Get the review** (`PRC-09`, A15.13) of that head: open a pull request from the session's branch into `main`, its description opening with the alpha's name.
+   An alpha that a later letter of its number follows (α02a before α02b) is reviewed by its builder, in a pass of its own: the checklist (`tools/review-checklist.md`), each new test made to fail once, and the pictures looked at, its approval written `builder`.
+   The alpha that ends its number (α02c, or one never split) gets one separate AI agent, given only the whole number's diff, its alphas' sections and the cited items, which checks that every task is done, every test named exists and passes, nothing outside the scope changed without a note, and the rules of `PROJECT.md` hold; its approval of the head's commit goes in the pull request's description.
+   If the review asks for fixes, make them, then deliver (step 5) and run the checks (step 6) again, until it approves.
 8. **Merge and tell the owner:** `tools/check.sh --gate` confirms the approved head passed its checks, the pull request is merged into `main` (A15.12, A15.13), and the owner gets two or three lines with the note link.
 
 For the owner: each alpha's **On the phone** steps say what to open and what you should see.
@@ -55,7 +57,7 @@ The next stage starts while your reply is pending; the stage closes when your re
 2. `tools/check.sh` passes: formatting, lints with warnings as errors, all tests, the catalogue checks, the plan file check (`tools/filecheck.py`), the ID coverage check (`PRC-12`), the layering check, the web build, the APK build when Android files changed, and the exact-repeat check (`RES-05`).
 3. The alpha's scenes pass at their stated thresholds; every earlier quick scene still passes in `tools/check.sh`, and from α12 the other scenes in the latest nightly runs (A15.8); a stage close reruns them all (`kd scene run --stage`).
 4. The benchmarks are recorded (frame time at each zoom stop in reach, simulation cost per person per game day, memory); a slowdown of more than 10% against the previous alpha carries a note and a fix or a reason.
-5. The independent review approves.
+5. The review approves: the builder's for a lettered alpha that does not end its number, an independent subagent's for the alpha that does (`PRC-09`).
 6. The web build is published and its link works; the APK is built, signed and committed; `dist/NOTE.md` is written.
 7. What the alpha adds to a world is findable and kept safely: every new kind of record kept has its `World::record_kinds()` name and `FINDABLE` line (`PRE-13`); every new event kind is in the event-kind table (A14.8); every changed save chunk brings its migration and a fixture world (A14.9); and a change to area contents or to the kinds of materials, plants or animals raises `major`, with `generator` too when generation or area-making changes (A3.6, `PLT-09`).
 8. The status table is updated.
