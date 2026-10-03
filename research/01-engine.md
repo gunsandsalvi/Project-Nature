@@ -47,3 +47,17 @@ If you'd rather choose now: **Bevy**.
 - It leaves us full control of the pixel-art passes, which Holland's Godot work shows we will need.
 
 Its risks are a less polished Android path and an upgrade every few months, pinned to one version between upgrades.
+
+## Decision (3 October 2026): Godot
+
+- **The bake-off:** the Godot scene reached the look of research 04 in a couple of hours.
+  The Bevy side stopped early, because the same effects needed much more hand-written plumbing.
+  For example, a leaf's sway has to be written again for its shadow in Bevy, while Godot applies it everywhere at once.
+- **You chose Godot:** stable, much help online, easy to build in, its source open to change, and the most liked.
+- **What follows:**
+  - The simulation of people runs as a native plug-in (GDExtension), not in Godot's script.
+    It will be in Rust if a quick test shows the plug-in running on your phone, otherwise in C++, Godot's official way.
+  - There is no browser preview, since Godot's web build is about 40 MB against the private page's 15 MB.
+    You try every build on the phone, and the cloud tests run Godot itself on a software Vulkan driver.
+  - The outline pass uses the normal buffer of the Forward+ renderer.
+    The phone's frame times from the test app decide whether it stays, or moves to the Mobile renderer with normals drawn by our own pass.

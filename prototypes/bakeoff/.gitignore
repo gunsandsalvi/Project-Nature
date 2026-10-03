@@ -8,3 +8,4 @@ build/
 shots/
 # Made by make_scene.py from the scripts.
 assets/
+*.idsig
