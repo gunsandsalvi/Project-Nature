@@ -27,6 +27,7 @@
 - Close up, the cliff's top edge shows 1 m steps, because cliffs are still drawn as a height map. Proper cliff shapes come with α02c.
 - Up close the ground is plain colour, without stones, tufts or texture (α01d).
 - Beyond the piece of land is dark void. The island around it comes in α02a.
+- Two timings grew by more than a tenth since α01a, both as expected: building the app takes 50 seconds, up from 40, with the new code; and loading the catalogue takes 2.2 millionths of a second, up from 1.5, as it now holds the ground's surfaces. You won't notice either.
 - The gestures use the design's thresholds: a drag starts after a small move, a pinch after the fingers' distance changes by 6%, and a twist after 6 degrees. A second finger landing more than 0.15 s after the first is ignored. Tell me if any of this feels wrong.
 
 ## IDs delivered
