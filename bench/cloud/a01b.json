@@ -1,0 +1,30 @@
+{
+  "alpha": "a01b",
+  "version_code": 1012,
+  "built_from": "8df40656fce171e00ecab468d6e378089c46f0af",
+  "measured": "2026-10-03",
+  "machine": "cloud session, 4 cores",
+  "build_seconds": {
+    "apk": 50,
+    "web": 29,
+    "how": "each from an empty profile folder, with the toolchain, crates and Gradle's downloads already cached"
+  },
+  "apk_bytes": 709898,
+  "wasm_bytes": 487507,
+  "area_milliseconds": {
+    "demo_make_cloud": 24.3,
+    "demo_make_wasm": 34.3,
+    "area_meshes_cloud": 0.04,
+    "store_insert_cloud": 0.59,
+    "upload_chromium": 2.8,
+    "how": "making the demo area, handing it over as AreaMeshes and taking it into the renderer's CPU store (gradients): median of 21 runs on one core, profile fast (kd-app's ground_timings); in the browser, App::new's making time and the first frame's texture uploads, headless Chromium with SwiftShader, so the phone's upload is its own"
+  },
+  "ground_triangles": {
+    "person": 12288,
+    "close_camp": 30720,
+    "camp": 33792,
+    "farthest_in_reach": 8704,
+    "how": "the demo area's middle, north up, at the phone's 270 x 601 art pixels: patches in view plus the skirts, at zoom 0.00, 0.14, 0.30 and 0.34 (window.kd.timings)"
+  },
+  "worlds": "none yet: kd bench and its worlds arrive in α07d (A15.10)"
+}

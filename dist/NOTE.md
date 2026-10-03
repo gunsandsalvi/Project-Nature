@@ -1,32 +1,37 @@
-# Kindling α01a: Colour from light
+# Kindling α01b: The ground
 
 ## What is new
 
-- The game's colours now come from a model of sunlight and skylight. Each material (lush grass, dry grass, dirt, limestone and scree) has a ladder of shades, worked out for the light of the hour: warm in the sun, bluish in shade.
-- A light card replaces the test card: each material's shades as a row of swatches, and a limestone block slowly turning.
-- Tap the strip at the bottom to step through eight hours: dawn, morning, noon, afternoon, late afternoon, dusk, twilight and night.
-- The game's own pixel font, drawn for Kindling, shows the hour and the version line.
-- Behind the scenes: the catalogue of materials and colours, checked whenever the game is built; and a check that your phone's graphics chip picks exactly the same shade as the build computer for 256 test pixels.
+- A real piece of land, 256 m across, drawn in pixel art: hilly grass with patches gone dry, a 30 m cliff of pale rock crossing it, and scree at its foot. It is lit by the same light model as the light card, at the strip's hour.
+- You can move the camera: drag to move the land, pinch to zoom from a few metres up to the whole piece, twist with two fingers to turn, and double-tap then drag to zoom with one thumb. The land stays under your fingers, and a quick drag glides to rest.
+- Every drag moves the picture by whole pixels, so nothing shimmers while you move.
+- As you zoom, the ground's shape blends smoothly between levels of detail instead of jumping.
+- Behind the scenes: positions on the wrap-around world; and the ground is made exactly the same on every device. Your phone checks this when it starts.
 
 ## What to try
 
-1. Tap **Download and install** at the top of this page. It installs over α00b. Open Kindling.
-2. You should see the swatches and a pale block turning in late-afternoon light: warm on its sunny face, bluish in shade.
-3. Tap the strip at the bottom, again and again: dawn (gold), morning, noon (white light), afternoon, late afternoon, dusk (red), twilight (blue, no sun) and night (dim and moonlit). Every swatch changes with the light.
-4. The strip fades after 3 seconds; touch anywhere to bring it back. Under the hour is the version line, in the game's own font.
-5. Turn the phone: the block moves beside the swatches.
-6. Open the web link: the same card in the browser.
-7. If a box with a code appears, tap Copy and paste the code into your reply.
+1. Tap **Download and install** at the top of this page. It installs over α01a. Open Kindling.
+2. You should see a valley floor of grass, a pale cliff crossing it and scree at its foot, in late-afternoon light.
+3. Drag: the land moves under your finger and glides to rest when you let go quickly.
+4. Pinch in to a few metres and out to the whole piece; twist with two fingers. The land stays under your fingers.
+5. Pinch slowly from close to far: the ground's shape blends smoothly, with no sudden jumps.
+6. Tap once, then touch again and drag down to zoom in, up to zoom out.
+7. Tap the strip at the bottom: the light steps through the eight hours over the land.
+8. Turn the phone: the land fills the screen either way.
+9. Open the web link: the same land in the browser, moved with the mouse.
+10. If a box with a code appears, tap Copy and paste the code into your reply.
 
 ## What is rough
 
-- There is still no land. The ground comes next (α01b), then shadows, outlines and haze (α01c).
-- I tuned two of the light's numbers by eye on the card: twilight first came out purple, then an electric blue, and is now a slate blue. Tell me if any hour looks wrong to you.
-- The green square from α00b went with the test card. If your phone's maths ever differs from the build computer's, the code box appears instead.
+- No shadows yet. In the late afternoon the cliff's face is in its own shade, but it casts no shadow across the valley. Shadows, darker hollows, outlines and haze come next (α01c).
+- Close up, the cliff's top edge shows 1 m steps, because cliffs are still drawn as a height map. Proper cliff shapes come with α02c.
+- Up close the ground is plain colour, without stones, tufts or texture (α01d).
+- Beyond the piece of land is dark void. The island around it comes in α02a.
+- The gestures use the design's thresholds: a drag starts after a small move, a pinch after the fingers' distance changes by 6%, and a twist after 6 degrees. A second finger landing more than 0.15 s after the first is ignored. Tell me if any of this feels wrong.
 
 ## IDs delivered
 
-`PRE-01` (part: every art pixel one palette colour), `PRE-20` (part: looks of 4–7 steps, the light picks the step, a narrow dithered band), `PRE-30` (part: light from the sun, the sky and the air; the palette by hour; the vivid grade), `PRE-32` (part: the strip and the version line, nothing else on screen), `MAT-13` (part: the catalogue compiler), `MAT-17` (part: every entry names its checks; the compiler's rules), `PLT-09` (part: the catalogue's versions and hash), `WLD-07` (part: the sun's path by season and latitude).
+`PRE-02` (part: a real 3D ground drawn at low resolution), `PRE-03` (part: the person, close camp and camp stops; the pitch), `PRE-20` (part: surfaces in their looks' steps), `PRE-22` (part: snapping, whole-pixel pans, turns easing to rest), `PRE-33` (part: drag, pinch, twist and double-tap drag, following the fingers), `PRE-34` (part: both orientations), `WLD-01` (part: positions on the wrap-around world), `WLD-12` (part: an area's ground to the metre).
 
 ## Links
 
