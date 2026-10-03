@@ -193,11 +193,10 @@ impl Renderer {
         }
     }
 
-    /// The view of a camera pose on the current art target (A11.2): until the camera's zoom arrives, the camp stop's
-    /// 1.1 m art pixels seen from 52° above.
+    /// The view of a camera pose on the current art target (A11.2), its depth fitted to the loaded ground.
     pub fn view_of(&self, cam: &CameraPose) -> Option<View> {
         let art = self.view?;
-        let mut v = View::new(cam.target, f64::from(cam.yaw), 52f64.to_radians(), 1.1, &art);
+        let mut v = View::from_pose(cam, &art);
         v.fit_depth(self.store.areas.iter().map(|a| (a.corner(), a.span_m)));
         Some(v)
     }
