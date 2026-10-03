@@ -8,13 +8,15 @@ use crate::shaders::{self, Stage};
 /// The test card's layout, in art pixels from the screen's top-left corner; the shaders take these as generated
 /// defines (A11.13 rule 6).
 pub mod card {
-    pub const MARGIN: i32 = 4;
+    /// 96 screen pixels in from each edge, so a phone's rounded screen corner (a radius up to about 320 screen
+    /// pixels) never clips the checker.
+    pub const MARGIN: i32 = 24;
     pub const CHECKER: i32 = 32;
     pub const GREY_STEPS: i32 = 8;
     pub const GREY_W: i32 = 11;
-    pub const GREY_Y: i32 = 44;
+    pub const GREY_Y: i32 = MARGIN + CHECKER + 8;
     pub const GREY_H: i32 = 16;
-    pub const BAR_Y: i32 = 68;
+    pub const BAR_Y: i32 = GREY_Y + GREY_H + 8;
     pub const BAR_H: i32 = 32;
 }
 

@@ -26,10 +26,10 @@ const isBar = ([r, g, b]) => r >= 220 && g >= 110 && g <= 170 && b <= 60;
 // alternating, white at its top-left.
 function checkerOk(img) {
   let x0 = Infinity, y0 = Infinity, x1 = -1, y1 = -1;
-  // Its 32 art pixels from art pixel 4 lie within 4 × 40 device pixels of the corner (the top row of art pixels
-  // may show in part); the grey steps below it hold black and white too, so they are left out.
-  for (let y = 0; y < Math.min(img.height, 4 * 40); y++) {
-    for (let x = 0; x < Math.min(img.width, 4 * 40); x++) {
+  // Its 32 art pixels from art pixel 24 (card::MARGIN) lie within 4 × 60 device pixels of the corner (the top row
+  // of art pixels may show in part); the grey steps from art row 64 hold black and white too, so they are left out.
+  for (let y = 0; y < Math.min(img.height, 4 * 60); y++) {
+    for (let x = 0; x < Math.min(img.width, 4 * 60); x++) {
       const c = img.at(x, y);
       if (isWhite(c) || isBlack(c)) {
         x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
