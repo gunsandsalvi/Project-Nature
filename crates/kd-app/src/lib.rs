@@ -2,6 +2,9 @@
 //! and settings (A2.2, A2.4, A4). It lives on the GL thread; both shells drive it the same way.
 //! It draws the renderer's test card each frame, keeps a panicking frame from taking the app down (A3.8), and
 //! runs the self-check (A15.4): the shaders, the GL version, and from α00b the core's bits against the cloud's.
+//!
+//! Implements PRC-11 and RES-05, see A15.4 and A15.9: the self-check on a build's first start, the core's bits
+//! among its checks.
 
 pub mod json;
 pub mod selfcheck;

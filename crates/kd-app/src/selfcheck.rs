@@ -87,11 +87,11 @@ mod tests {
             prefix: PREFIX.into(),
             json,
         };
-        let text = requests_json(&[req]);
-        assert!(text.starts_with(
-            "[{\"ShowCode\":{\"title\":\"Kindling self-check\",\"prefix\":\"KDS1:\",\"json\":\"{\\\"v\\\""
-        ));
-        assert!(text.ends_with("0:1 error\\\"]}\"}}]"));
+        // The whole request, exactly: the report's quotes and backslashes escaped once more inside its string.
+        assert_eq!(
+            requests_json(&[req]),
+            r#"[{"ShowCode":{"title":"Kindling self-check","prefix":"KDS1:","json":"{\"v\":\"a00 · 1000 · abc1234\",\"dev\":\"Google Pixel 11 Pro XL SDK 37\",\"gl\":\"Mali | OpenGL ES 3.2\",\"fail\":[\"shader \\\"upscale\\\" did not compile:\\n0:1 error\"]}"}}]"#
+        );
         assert_eq!(requests_json(&[]), "[]");
     }
 

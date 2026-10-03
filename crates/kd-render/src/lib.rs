@@ -2,6 +2,9 @@
 //! holds each pass with its program and targets, and every shader shares `shaders/lib.glsl` and the constants
 //! generated from Rust. It runs on the GL thread only, through `glow`: OpenGL ES 3.0 on the phone, WebGL2 on the web.
 //! α00 draws a test card at art resolution and enlarges it so an art pixel is 4 × 4 screen pixels (A11.2).
+//!
+//! Implements PRE-22 and PLT-01, see A11.2 and A11.13: an art pixel exactly 4 × 4 screen pixels, drawn with OpenGL
+//! ES 3.0 on the phone.
 
 pub mod gl;
 pub mod passes;

@@ -277,16 +277,69 @@ def changed_ids(old, new):
     return ids
 
 
+CHANGED = re.compile(rf"^Changed:\s*(?P<ids>{ID}(?:,\s*{ID})*)\s*\((?P<why>.*)\)$", re.S)
+
+
+def changed_entries(message):
+    """A commit message's `Changed:` entries, each with the lines its brackets run onto, joined by spaces."""
+    entries, current = [], None
+    for line in message.split("\n"):
+        if line.strip().startswith("Changed:"):
+            current = [line.strip()]
+            entries.append(current)
+        elif current is not None and " ".join(current).count("(") > " ".join(current).count(")"):
+            current.append(line.strip())
+        else:
+            current = None
+    return [" ".join(e) for e in entries]
+
+
+def item_words(project, item):
+    """An item's text with its spacing evened, so a blank line or a rewrapped sentence changes no words."""
+    return " ".join(" ".join(project.split("\n")[item.start:item.end + 1]).split())
+
+
+def needs_owner(old, new):
+    """The IDs whose words a change makes or changes while Decided, or takes from Decided (PRC-07)."""
+    old_items, _ = items_of(old)
+    new_items, _ = items_of(new)
+    out = set()
+    for id_ in set(old_items) | set(new_items):
+        a, b = old_items.get(id_), new_items.get(id_)
+        if "Decided" not in (a and a.status, b and b.status):
+            continue
+        if a is None or b is None or item_words(old, a) != item_words(new, b):
+            out.add(id_)
+    return out
+
+
 def check_commit(sha, message, old, new):
-    """A commit changing PROJECT.md names every ID whose lines it changed on its `Changed:` lines (PRC-07).
+    """A commit changing PROJECT.md names every ID whose lines it changed on its `Changed:` lines, each with its
+    reason in brackets, and the owner's OK for every item it makes Decided or changes while Decided (PRC-07).
     Implements PRC-07, see A15.12 step 7."""
-    lines = [line for line in message.split("\n") if line.strip().startswith("Changed:")]
-    if not lines:
+    entries = changed_entries(message)
+    if not entries:
         return [f"commit {sha[:12]} changes PROJECT.md with no `Changed:` line (PRC-07)"]
-    missing = sorted(changed_ids(old, new) - set(ID_RE.findall("\n".join(lines))))
+    problems, named, approved, unreasoned = [], set(), set(), set()
+    for e in entries:
+        ids = set(ID_RE.findall(e))
+        named |= ids
+        m = CHANGED.match(e)
+        if not m or not ID_RE.sub("", m.group("why")).strip(" ,;:"):
+            unreasoned |= ids
+            problems.append(f"commit {sha[:12]}: `{e[:60]}` gives no reason in brackets after its IDs (PRC-07)")
+        elif "owner OK" in m.group("why"):
+            approved |= set(ID_RE.findall(m.group("ids")))
+    missing = sorted(changed_ids(old, new) - named)
     if missing:
-        return [f"commit {sha[:12]} changes {', '.join(missing)} in PROJECT.md without naming them on `Changed:`"]
-    return []
+        problems.append(f"commit {sha[:12]} changes {', '.join(missing)} in PROJECT.md without naming them on "
+                        "`Changed:`")
+    # An ID left unnamed, or named without a reason, has failed already.
+    unapproved = sorted((needs_owner(old, new) & named) - approved - unreasoned)
+    if unapproved:
+        problems.append(f"commit {sha[:12]} makes or changes {', '.join(unapproved)} as Decided with no `owner OK` "
+                        "in its reason (PRC-07)")
+    return problems
 
 
 def file_check(project, arch, plan, commits):
@@ -579,6 +632,10 @@ PLANTED = [
      "with no `Changed:` line"),
     ("Changed misses one", {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-01 (x)\n"},
      "changes ONE-02 in PROJECT.md without naming"),
+    ("Changed without reason", {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-02\n"},
+     "gives no reason in brackets"),
+    ("Decided without OK", {"PROJECT.md": ("Its words.", "Its new words."),
+                            "commit": "Edit\n\nChanged: ONE-02 (new words)\n"}, "with no `owner OK`"),
     ("code names undefined", {"crates/kd-one/src/lib.rs": ("// checks: ONE-01", "// checks: ONE-08")},
      "`ONE-08` is not defined in PROJECT.md"),
     ("code names retired", {"crates/kd-one/src/lib.rs": ("// checks: ONE-01", "// checks: ONE-01 ONE-09")},

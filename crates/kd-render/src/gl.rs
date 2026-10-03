@@ -359,6 +359,201 @@ pub fn apply(gl: &glow::Context, s: &State) {
     }
 }
 
+/// A vertex attribute's component type, as the shader reads it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Component {
+    F32,
+    /// Bytes read as floats 0 to 1.
+    U8Norm,
+    /// Signed bytes read as floats −1 to 1.
+    I8Norm,
+    /// Read as whole numbers (`in uint`, `in uvecN`).
+    U16,
+    U32,
+}
+
+impl Component {
+    pub const fn bytes(self) -> usize {
+        match self {
+            Component::F32 | Component::U32 => 4,
+            Component::U8Norm | Component::I8Norm => 1,
+            Component::U16 => 2,
+        }
+    }
+
+    pub const fn gl_type(self) -> u32 {
+        match self {
+            Component::F32 => glow::FLOAT,
+            Component::U8Norm => glow::UNSIGNED_BYTE,
+            Component::I8Norm => glow::BYTE,
+            Component::U16 => glow::UNSIGNED_SHORT,
+            Component::U32 => glow::UNSIGNED_INT,
+        }
+    }
+
+    /// Whether the shader reads whole numbers (`glVertexAttribIPointer`) rather than floats.
+    pub const fn integer(self) -> bool {
+        matches!(self, Component::U16 | Component::U32)
+    }
+}
+
+/// One attribute of a vertex: its `layout(location = n)` in the shader, its type and its 1 to 4 components.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Attr {
+    pub location: u32,
+    pub component: Component,
+    pub count: u8,
+}
+
+/// A mesh's vertex layout, declared once beside its shader (A11.13 rule 3): the attributes packed in order, each
+/// starting on a multiple of 4 bytes, which OpenGL ES 3.0 and WebGL2 both accept.
+#[derive(Clone, Copy, Debug)]
+pub struct Layout {
+    pub attrs: &'static [Attr],
+}
+
+impl Layout {
+    /// Each attribute's byte offset, and the stride.
+    pub fn offsets(&self) -> (Vec<usize>, usize) {
+        let mut at = 0;
+        let mut offsets = Vec::with_capacity(self.attrs.len());
+        for a in self.attrs {
+            offsets.push(at);
+            at += (a.component.bytes() * a.count as usize).next_multiple_of(4);
+        }
+        (offsets, at)
+    }
+
+    /// The layout's mistakes: no attributes, a count outside 1 to 4, or a location used twice or beyond the 16
+    /// every device has.
+    pub fn check(&self) -> Result<(), String> {
+        if self.attrs.is_empty() {
+            return Err("a layout with no attributes".into());
+        }
+        for (i, a) in self.attrs.iter().enumerate() {
+            if !(1..=4).contains(&a.count) {
+                return Err(format!("location {} has {} components", a.location, a.count));
+            }
+            if a.location >= 16 {
+                return Err(format!("location {} is beyond the 16 every device has", a.location));
+            }
+            if self.attrs[..i].iter().any(|b| b.location == a.location) {
+                return Err(format!("location {} is used twice", a.location));
+            }
+        }
+        Ok(())
+    }
+}
+
+/// The vertices or indices a mesh's draw takes: whole vertices of `stride` bytes, whole triangles, and every index
+/// naming a vertex.
+fn draw_count(stride: usize, vertex_bytes: usize, indices: Option<&[u32]>) -> Result<i32, String> {
+    if !vertex_bytes.is_multiple_of(stride) {
+        return Err(format!(
+            "{vertex_bytes} vertex bytes are not whole vertices of {stride}"
+        ));
+    }
+    let vertices = vertex_bytes / stride;
+    let count = match indices {
+        Some(ix) => {
+            if let Some(i) = ix.iter().find(|&&i| i as usize >= vertices) {
+                return Err(format!("index {i} beyond the {vertices} vertices"));
+            }
+            ix.len()
+        }
+        None => vertices,
+    };
+    if !count.is_multiple_of(3) {
+        return Err(format!("{count} corners are not whole triangles"));
+    }
+    i32::try_from(count).map_err(|_| format!("{count} corners in one mesh"))
+}
+
+/// A mesh of triangles: vertices in a declared layout and, if given, 32-bit indices into them.
+pub struct Mesh {
+    pub vao: glow::VertexArray,
+    pub vertices: glow::Buffer,
+    pub indices: Option<glow::Buffer>,
+    /// The vertices or indices one draw takes.
+    pub count: i32,
+}
+
+impl Mesh {
+    /// A mesh from `vertices`, whole vertices in `layout`'s bytes, and `indices` into them; mistakes in either are
+    /// refused before any GL call.
+    pub fn new(
+        gl: &glow::Context,
+        layout: &Layout,
+        vertices: &[u8],
+        indices: Option<&[u32]>,
+    ) -> Result<Mesh, RenderError> {
+        layout.check().map_err(RenderError::Gl)?;
+        let (offsets, stride) = layout.offsets();
+        let count = draw_count(stride, vertices.len(), indices).map_err(RenderError::Gl)?;
+        // SAFETY: plain GL calls on the current context, with the sizes checked above; the vertex array is unbound
+        // before the index buffer could be, so it keeps its indices.
+        unsafe {
+            let vao = gl.create_vertex_array().map_err(RenderError::Gl)?;
+            gl.bind_vertex_array(Some(vao));
+            let buffer = gl.create_buffer().map_err(RenderError::Gl)?;
+            gl.bind_buffer(glow::ARRAY_BUFFER, Some(buffer));
+            gl.buffer_data_u8_slice(glow::ARRAY_BUFFER, vertices, glow::STATIC_DRAW);
+            for (a, &offset) in layout.attrs.iter().zip(&offsets) {
+                let (size, ty, stride, offset) = (a.count as i32, a.component.gl_type(), stride as i32, offset as i32);
+                gl.enable_vertex_attrib_array(a.location);
+                if a.component.integer() {
+                    gl.vertex_attrib_pointer_i32(a.location, size, ty, stride, offset);
+                } else {
+                    gl.vertex_attrib_pointer_f32(a.location, size, ty, a.component != Component::F32, stride, offset);
+                }
+            }
+            let index_buffer = match indices {
+                Some(ix) => {
+                    let b = gl.create_buffer().map_err(RenderError::Gl)?;
+                    gl.bind_buffer(glow::ELEMENT_ARRAY_BUFFER, Some(b));
+                    let bytes: Vec<u8> = ix.iter().flat_map(|i| i.to_ne_bytes()).collect();
+                    gl.buffer_data_u8_slice(glow::ELEMENT_ARRAY_BUFFER, &bytes, glow::STATIC_DRAW);
+                    Some(b)
+                }
+                None => None,
+            };
+            gl.bind_vertex_array(None);
+            gl.bind_buffer(glow::ARRAY_BUFFER, None);
+            Ok(Mesh {
+                vao,
+                vertices: buffer,
+                indices: index_buffer,
+                count,
+            })
+        }
+    }
+
+    /// Draws the triangles with the program and the state the pass set.
+    pub fn draw(&self, gl: &glow::Context) {
+        // SAFETY: plain GL calls on the current context; the indices were checked against the vertices.
+        unsafe {
+            gl.bind_vertex_array(Some(self.vao));
+            if self.indices.is_some() {
+                gl.draw_elements(glow::TRIANGLES, self.count, glow::UNSIGNED_INT, 0);
+            } else {
+                gl.draw_arrays(glow::TRIANGLES, 0, self.count);
+            }
+            gl.bind_vertex_array(None);
+        }
+    }
+
+    pub fn delete(self, gl: &glow::Context) {
+        // SAFETY: the mesh's objects belong to this context and are not used again.
+        unsafe {
+            gl.delete_vertex_array(self.vao);
+            gl.delete_buffer(self.vertices);
+            if let Some(b) = self.indices {
+                gl.delete_buffer(b);
+            }
+        }
+    }
+}
+
 /// An empty vertex array, for passes that make their vertices from `gl_VertexID`.
 pub fn empty_vertex_array(gl: &glow::Context) -> Result<glow::VertexArray, RenderError> {
     // SAFETY: plain GL call on the current context.
@@ -414,5 +609,63 @@ mod tests {
                 "{f:?}"
             );
         }
+    }
+
+    const fn attr(location: u32, component: Component, count: u8) -> Attr {
+        Attr {
+            location,
+            component,
+            count,
+        }
+    }
+
+    // checks: PLT-01
+    #[test]
+    fn mesh_layouts() {
+        // A position, a normal in signed bytes and a whole-number index: each attribute starts on 4 bytes.
+        const LAYOUT: Layout = Layout {
+            attrs: &[
+                attr(0, Component::F32, 2),
+                attr(1, Component::I8Norm, 3),
+                attr(2, Component::U16, 1),
+            ],
+        };
+        assert_eq!(LAYOUT.check(), Ok(()));
+        assert_eq!(LAYOUT.offsets(), (vec![0, 8, 12], 16));
+        // The types are core in OpenGL ES 3.0 and WebGL2; whole numbers go through glVertexAttribIPointer.
+        let types: Vec<(u32, usize, bool)> = [
+            Component::F32,
+            Component::U8Norm,
+            Component::I8Norm,
+            Component::U16,
+            Component::U32,
+        ]
+        .map(|c| (c.gl_type(), c.bytes(), c.integer()))
+        .into();
+        assert_eq!(
+            types,
+            [
+                (0x1406, 4, false),
+                (0x1401, 1, false),
+                (0x1400, 1, false),
+                (0x1403, 2, true),
+                (0x1405, 4, true)
+            ]
+        );
+        // Mistakes are refused before any GL call.
+        const TWICE: [Attr; 2] = [attr(0, Component::F32, 1), attr(0, Component::U8Norm, 4)];
+        const FIVE: [Attr; 1] = [attr(0, Component::F32, 5)];
+        const BEYOND: [Attr; 1] = [attr(16, Component::F32, 1)];
+        let problem = |attrs: &'static [Attr]| Layout { attrs }.check().unwrap_err();
+        assert!(problem(&TWICE).contains("used twice"), "{}", problem(&TWICE));
+        assert!(problem(&[]).contains("no attributes"));
+        assert!(problem(&FIVE).contains("5 components"));
+        assert!(problem(&BEYOND).contains("beyond the 16"));
+        // Whole vertices, whole triangles, and indices naming vertices.
+        assert_eq!(draw_count(16, 48, None), Ok(3));
+        assert_eq!(draw_count(16, 48, Some(&[0, 1, 2, 2, 1, 0])), Ok(6));
+        assert!(draw_count(16, 40, None).is_err());
+        assert!(draw_count(16, 64, None).is_err());
+        assert!(draw_count(16, 48, Some(&[0, 1, 3])).is_err());
     }
 }

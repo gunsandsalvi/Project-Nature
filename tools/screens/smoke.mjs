@@ -1,7 +1,9 @@
 // The web build's smoke test (A15.4, A15.11): the page loads without errors, an art pixel is exactly 4 × 4
 // device pixels in portrait, in landscape and on a screen of scale 2, the test card's bar moves one art pixel
-// a frame, and the core's maths and draws give the cloud's bits in the browser (A15.9 item 5), its block green. (Chromium's emulated fractional scales, like the phone's 2.625, misreport the canvas's device size, so
-// they are left to the phone itself.) Usage: node tools/screens/smoke.mjs [--save <dir>]   (after tools/build-web.sh)
+// a frame, the core's maths and draws give the cloud's bits in the browser (A15.9 item 5), its block green, and a
+// panic leaves its message in the status line (A3.8). (Chromium's emulated fractional scales, like the phone's
+// 2.625, misreport the canvas's device size, so they are left to the phone itself.)
+// Usage: node tools/screens/smoke.mjs [--save <dir>]   (after tools/build-web.sh)
 // Screenshots go to target/screens/smoke/, which is never committed, or to --save's folder.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -110,6 +112,21 @@ try {
     check(`no page errors, ${label}`, errors.length === 0, errors.slice(0, 3).join('; '));
     await close();
   }
+  // checks: PRC-11
+  // A panic stops the instance, since WebAssembly cannot unwind here; its message stays in the status line.
+  const { page, close } = await open(browser, `${server.url}?test=1`, { width: 412, height: 915, scale: 1 });
+  await page.waitForFunction(() => window.kd && window.kd.ready(), null, { timeout: 60000 });
+  const thrown = await page.evaluate(() => {
+    try {
+      window.kd.crash();
+      return '';
+    } catch (e) {
+      return String(e);
+    }
+  });
+  const line = await page.evaluate(() => document.getElementById('status').textContent);
+  check('a panic shows in the status line', thrown !== '' && line.startsWith('Kindling stopped:') && line.includes('a test panic'), line);
+  await close();
 } finally {
   await browser.close();
   server.close();

@@ -82,6 +82,38 @@ class Note(unittest.TestCase):
                          ["no link to dist/kindling.apk"])
 
 
+class Commit(unittest.TestCase):
+    OLD = "# K\n\n## 1. One\n\n- `ONE-01` **First** *(Decided)*: Its words.\n\n- `ONE-02` **Second** *(Proposed)*: More.\n"
+
+    def check(self, message, new):
+        return filecheck.check_commit("0" * 40, message, self.OLD, new)
+
+    # checks: PRC-07
+    def test_made_decided_needs_the_owner(self):
+        decided = self.OLD.replace("*(Proposed)*", "*(Decided)*")
+        problems = self.check("x\n\nChanged: ONE-02 (agreed)\n", decided)
+        self.assertEqual(len(problems), 1, problems)
+        self.assertIn("ONE-02 as Decided with no `owner OK`", problems[0])
+        self.assertEqual(self.check("x\n\nChanged: ONE-02 (agreed; owner OK, 3 October 2026)\n", decided), [])
+        # A reason may run onto the next line, inside its brackets.
+        self.assertEqual(self.check("x\n\nChanged: ONE-02 (agreed; owner OK, 3\nOctober 2026)\n", decided), [])
+        # Removing a decided item needs the OK too.
+        gone = self.OLD.replace("- `ONE-01` **First** *(Decided)*: Its words.\n\n", "")
+        self.assertIn("no `owner OK`", " ".join(self.check("x\n\nChanged: ONE-01 (cut)\n", gone)))
+
+    # checks: PRC-07
+    def test_reasons_and_what_needs_no_owner(self):
+        # A proposal reworded needs a reason but no OK; a decided item rewrapped changes no words.
+        reworded = self.OLD.replace("More.", "More words.")
+        self.assertEqual(self.check("x\n\nChanged: ONE-02 (clearer)\n", reworded), [])
+        rewrapped = self.OLD.replace("Its words.", "Its\n  words.")
+        self.assertEqual(self.check("x\n\nChanged: ONE-01 (rewrapped)\n", rewrapped), [])
+        bare = self.check("x\n\nChanged: ONE-02\n", reworded)
+        self.assertEqual(len(bare), 1, bare)
+        self.assertIn("gives no reason in brackets", bare[0])
+        self.assertIn("gives no reason", " ".join(self.check("x\n\nChanged: ONE-02 (ONE-01)\n", reworded)))
+
+
 class Lists(unittest.TestCase):
     # checks: PRC-10
     def test_contents_as_the_file_writes_them(self):

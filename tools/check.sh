@@ -2,7 +2,8 @@
 # The checks before work joins main (PRC-10, A15.12), in A15.12's nine numbered steps; a step whose tool has not
 # been built yet says which alpha brings it. Stops at the first failure.
 # Usage: tools/check.sh [--deliver | --gate <description>]
-#   --deliver             also builds the web page and an APK, and checks the committed release APK (step 9)
+#   --deliver             also builds the web page and an APK, and checks the note and the committed release APK
+#                         (step 9)
 #   --gate <description>  only the merge gate (A15.13 step 6) on a saved pull request description, or the pull
 #                         request as the API gives it: the approved head, its checks, and the right reviewer
 # It writes results/checks/<commit>.json and ends with "Checks: PASS <commit>".
@@ -50,7 +51,8 @@ step "4 catalogue";       later α01a
 step "5 scenes";          later α07c
 step "6 cross-target"
 LOG="$(mktemp)"
-if ! cargo test -p kd-core --locked --target aarch64-unknown-linux-gnu >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"; exit 1; fi
+# One test thread: qemu 8.2 crashes now and then running several (3 runs in 20, measured at α00b).
+if ! cargo test -p kd-core --locked --target aarch64-unknown-linux-gnu -- --test-threads=1 >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"; exit 1; fi
 rm -f "$LOG"
 echo "   the core's stored bits equal on arm64 under qemu; in the browser with the smoke test (step 9)"
 step "6 repeat";          later α07c
@@ -62,7 +64,9 @@ if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-rende
   node tools/screens/smoke.mjs
 fi
 if [ "$DELIVER" = 1 ]; then
-  # The build still works, and the delivered APK, as committed, is a correct release build.
+  # The note has its headings and the APK's link (PRC-11); the build still works, and the delivered APK, as
+  # committed, is a correct release build.
+  python3 tools/filecheck.py note
   tools/build-apk.sh check
   (cd dist && sha256sum --quiet -c kindling.apk.sha256)
   tools/verify-apk.sh dist/kindling.apk release
