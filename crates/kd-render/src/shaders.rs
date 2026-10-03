@@ -23,6 +23,10 @@ pub fn defines() -> String {
         ("CARD_GREY_H", card::GREY_H),
         ("CARD_BAR_Y", card::BAR_Y),
         ("CARD_BAR_H", card::BAR_H),
+        ("CARD_CORE_X", card::CORE_X),
+        ("CARD_CORE_Y", card::CORE_Y),
+        ("CARD_CORE_W", card::CORE_W),
+        ("CARD_CORE_H", card::CORE_H),
     ] {
         let _ = writeln!(s, "#define {name} {value}");
     }

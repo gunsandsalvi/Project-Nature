@@ -92,12 +92,20 @@ async function main() {
         return app.frames();
       },
       artSize: () => Array.from(app.art_size()),
+      core: () => app.core_hashes(),
+      crash: () => app.crash(),
     };
     return;
   }
+  // A panic's hook has written its line by the time its trap reaches here (A3.8); any other error is written now.
   const loop = (t) => {
-    app.frame(t);
-    drain();
+    try {
+      app.frame(t);
+      drain();
+    } catch (e) {
+      if (!status.textContent.startsWith('Kindling stopped')) say(`Kindling stopped: ${e}`);
+      return;
+    }
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);

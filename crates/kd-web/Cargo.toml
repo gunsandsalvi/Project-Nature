@@ -18,5 +18,5 @@ glow.workspace = true
 log.workspace = true
 wasm-bindgen.workspace = true
 js-sys.workspace = true
-web-sys = { workspace = true, features = ["Window", "Document", "HtmlCanvasElement", "WebGl2RenderingContext", "Performance", "Navigator"] }
+web-sys = { workspace = true, features = ["Window", "Document", "Element", "Node", "HtmlCanvasElement", "WebGl2RenderingContext", "Performance", "Navigator"] }
 console_error_panic_hook.workspace = true

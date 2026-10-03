@@ -1,0 +1,16 @@
+{
+  "alpha": "a00b",
+  "version_code": 1002,
+  "built_from": "84acc304226afe1373fa39a19bdb422d95fdafec",
+  "measured": "2026-10-03",
+  "machine": "cloud session, 4 cores",
+  "build_seconds": {
+    "apk": 42,
+    "web": 24,
+    "how": "each from an empty target folder, with the toolchain, crates and Gradle's downloads already cached"
+  },
+  "check_seconds": 48,
+  "apk_bytes": 505098,
+  "wasm_bytes": 227812,
+  "worlds": "none yet: kd bench and its worlds arrive in α07d (A15.10)"
+}

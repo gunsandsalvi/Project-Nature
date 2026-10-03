@@ -89,7 +89,6 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α00b | Foundations and checks | 1 | 5 | Not started |
 | α01a | Colour from light | 1 | 6 | Not started |
 | α01b | The ground | 1 | 6 | Not started |
 | α01c | Shadows and air | 1 | 5.5 | Not started |
@@ -204,86 +203,17 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 | α53a | Export and worlds across updates | 7 | 4 | Not started |
 | α53b | Release candidate and Stage 7 review | 7 | 5.5 | Not started |
 
-114 alphas still to build, about 562 hours of agent work in all.
+113 alphas still to build, about 557 hours of agent work in all.
 
 ## Stage 1: First camp (MIL-01)
 
 This stage builds the island of the first region and one band at the foot of its cliff, who gather, eat, drink, sleep, talk, court, pair, bear children, grow old and die through a 60-day year, with reasons on every card, saved every 30 seconds, tested in scenes and timed on the phone (`SCP-16` item 1).
 `SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows.
-Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 26 still to build take about 134.5 hours.
+Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 25 still to build take about 129.5 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
 The renderer is designed in A11 (A11.1), and α01a to α01d build it from that reasoning, in the form of code A11.13 sets; each task names the A11 sections it builds.
 On 3 October 2026 the owner had the codebase deleted and these first steps planned again from scratch, so α00 started from the three documents and the release certificate alone (A15.5).
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
-
-### α00b Foundations and checks (about 5 hours)
-
-**Goal:** `kd-core` gains the numbers, game time and keyed chance every system builds on, with the same bits on the phone, in the browser and in the cloud; and before any other work joins, `tools/check.sh` runs the layering, banned-item, file, commit and coverage checks and the gate; on the phone, the test card shows a green block when the phone's own maths and draws equal the cloud's.
-
-**Serves:** `TIM-16` (part: keyed chance, the same draws on every target), `TIM-14` (part: dates), `TIM-18` (part: game lengths), `RES-05` (part: maths and draws repeat across targets), `PRN-14` (part: layering enforced), `PRC-07` (part: the commit check), `PRC-09` (part: the gate and the review checklist), `PRC-10` (part: the checks before work joins), `PRC-12` (part: the coverage check and its self-test).
-
-**Architecture:** `A2.3`, `A2.7`, `A3.1`, `A3.2`, `A3.3`, `A4.1`, `A4.2`, `A15.1`, `A15.9`, `A15.12`, `A15.13`.
-
-**Needs:** α00.
-
-**Crates and files touched:** `kd-core` (`num`, `m`, `time`, `chance`), `kd-tools` (`kd check layers`, `kd check names`), `kd-app` (the self-check's core part), `kd-render` (the test card's core block), `tests/banned/`, `tools/` (`check.sh`, `check-banned.sh`, `filecheck.py`, `filecheck-known.txt`, `tests/`, `review-checklist.md`).
-
-**Tasks:**
-
-1. `T00b.1` **Numbers (`RES-05`, A3.2).**
-   `kd_core::num`: `min` and `max` by plain comparison; `clean` (adds 0.0, turning −0.0 into +0.0; NaN and infinity assert in tests and are stored as 0, logged once, in release); `hash64` (XXH3-64) and `hash2` (A3.3's `mix64` pair); `sum_f32` by A3.2's fixed tree and `dot_f32` in 8 fixed lanes; `fixed!` and the `Fixed` marker on `bytemuck::Pod`, asserting each saved type's size at compile time.
-   `kd_core::m`: A3.2's sixteen functions over `libm`, the only maths the simulation may call.
-   Commit `T00b.1: numbers and maths (RES-05, A3.2)`.
-
-2. `T00b.2` **Game time (`TIM-14`, `TIM-18`, A4.1, A4.2).**
-   `kd_core::time`: `GameTime(u64)` with A4.1's units (window, quarter hour, hour, day, season, year), `window`, `next_barrier` and `date(history_start)` giving `Date { year, season, day, second }`, written as `TIM-14` writes dates; `Dur { game_s }`, `Freq { per_game_s }` and `game_length(life)` by A4.2's three rows, the in-between row taking the entry's given length (A3.6's check rejects a missing one).
-   Commit `T00b.2: game time and the 60-day year (TIM-14, TIM-18, A4.1, A4.2)`.
-
-3. `T00b.3` **Keyed chance (`TIM-16`, A3.3).**
-   `kd_core::chance`: `stream_seed` and `draw` exactly as A3.3 writes them; `Stream` (a purpose's cached seed) with `unit`, `chance`, `below`, `range`, `pick_weighted` and `normal`; `systems` (A3.3's 13); the `purposes!` macro giving each purpose its number, name, subject kind and `Fortune { Good, Bad, None }`, with each system's `RETIRED` list; `registry.rs`, which joins every crate's list (the joining test runs in `kd-sim` once systems exist, A3.3).
-   Commit `T00b.3: keyed chance (TIM-16, A3.3)`.
-
-4. `T00b.4` **The same bits on every target (`RES-05`, `TIM-16`, A3.1, A15.9).**
-   Stored values in `crates/kd-core/tests/fixtures/`: each `m` function at 1,000 fixed inputs, and 10,000 draws over fixed keys, each file with its `num::hash64`.
-   They are checked on x86-64, on arm64 under qemu (`cargo test -p kd-core --target aarch64-unknown-linux-gnu`) and as wasm in the browser (`window.kd.core()` returns the hashes, which the smoke test compares), as `tools/check.sh` step 6's first form (A15.9 item 5).
-   The self-check computes the same hashes on the phone; the test card gains a block, green when they equal the cloud's, red otherwise, the code dialog then naming what differs.
-   Commit `T00b.4: maths and draws equal on every target (RES-05, A15.9)`.
-
-5. `T00b.5` **Layering and banned items (`PRN-14`, A2.3, A15.1).**
-   `kd check layers`: `cargo metadata` against `tools/layers.toml`; it fails a workspace or outside crate a crate may not name, `unsafe` outside the allowed files, and any feature but `kd-tools`' that turns on `test-switches` (A3.9).
-   `kd check names` (A2.3 rule 5): no catalogue id written as a string in a simulation crate; until the catalogue exists (α01a) it checks an empty list.
-   `tests/banned/`, outside the workspace, uses each banned type and method once; `tools/check-banned.sh` fails unless clippy flags every one, so a mistyped ban can't silently ban nothing.
-   Commit `T00b.5: layering and banned items (PRN-14, A2.3)`.
-
-6. `T00b.6` **The file, commit and coverage checks (`PRC-07`, `PRC-10`, `PRC-12`, A15.12).**
-   `tools/filecheck.py` (Python's standard library only, A15.12): `file`: `PROJECT.md`'s markers, statuses, unique and retired IDs and generated lists; every ID and section the three documents cite exists; each alpha section holds the eleven fields in order, with task IDs matching its alpha; and the commit check of `PRC-07` over `origin/main..HEAD` (every `Changed:` line naming each ID whose lines changed).
-   `ids --merge`: A15.12 step 8, built items read from the code's `Implements` lines, and the plan's coverage map current; `map [--write]` makes the map; `note` checks `dist/NOTE.md`'s five headings and APK link; `gate <description>` is A15.13 step 6; `selftest` runs one planted fixture per message and a clean one that passes; unit tests in `tools/tests/`; `tools/filecheck-known.txt` lists findings awaiting the owner.
-   Commit `T00b.6: the file, commit and coverage checks (PRC-07, PRC-10, PRC-12, A15.12)`.
-
-7. `T00b.7` **The gate and the review (`PRC-09`, `PRC-10`, A15.12, A15.13).**
-   `tools/review-checklist.md` (A15.13 step 3, with the pictures looked at as a pixel artist and a designer would); `tools/check.sh --gate <description>` runs `filecheck.py gate`; `check.sh` now runs A15.12's steps 1–3 and 6–9, with steps 4 and 5 waiting for the catalogue (α01a) and scenes (α07c).
-   Commit `T00b.7: the gate and the review checklist (PRC-09, A15.13)`.
-
-8. `T00b.8` **Deliver, and α00's verification (`PRC-11`, `PRC-09`).**
-   `versionCode=1002`, `versionName=a00b`; then P0's steps 5 to 8, now with the gate, and one independent subagent verifying the whole of α00 (α00 and α00b, their sections as the plan held them when α00 began), as α00b ends α00.
-
-**Data:** none.
-
-**Tests:**
-- `kd-core` (`TIM-16`, `RES-05`, `TIM-14`, `TIM-18`): `num::tests::{min_max_signed_zero, clean_turns_negative_zero, sum_tree_fixed_order, hash2_mixes}`; `m::tests::stored_bits` (x86-64, arm64 under qemu, wasm); `time::tests::{date_round_trips_at_every_edge, barriers_near_2_pow_40, game_length_rows}` (14, 15, 84, 85 and 365 days); `chance::tests::{known_answers, stored_draws, uniform_in_64_bins, helpers_in_range, normal_mean_and_spread}`.
-- `kd-tools` (`PRN-14`): `layers::tests::{forbidden_edge_fails, unsafe_outside_allowed_fails, test_switches_only_from_kd_tools}`.
-- Tools: `tools/check-banned.sh` (every ban flagged); `python3 tools/filecheck.py selftest`; `python3 -m unittest discover -s tools/tests`; `python3 tools/filecheck.py file` and `ids --merge` on the real documents.
-- Screens: smoke `core hashes equal`.
-
-**On the phone:**
-1. Install the update from the note's link (it installs over α00) and open it.
-2. The test card has gained a block in one corner: green means the phone's maths and random draws give exactly the cloud's bits; if it is red, a box with a code appears: copy it into your reply.
-
-**Not in this alpha:** catalogue checks (α01a); scenes and the repeat check on worlds (α07c); the stage coverage check `ids --stage` (α07e).
-
-**Risks:**
-- `libm` giving different bits on arm64 than on x86-64 for some input: the stored-bits test finds it, and that function gets a polynomial in plain arithmetic (A3.2's allowance).
-- Citation errors across the three documents taking long to fix: the documents already pass the same rules; anything needing the owner waits in `tools/filecheck-known.txt`.
 
 ### α01a Colour from light (about 6 hours)
 
@@ -8623,7 +8553,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRN-15` History is saved, not re-run: α07a, α07b
 - `PRN-11` Time slows, the screen stays smooth: α03a, α03c, α07d, α43b
 - `PRN-09` Build in playable steps: every alpha
-- `PRN-14` Modular by design: α00b, α53b
+- `PRN-14` Modular by design: α53b
 - `SCP-01` Starting point: α12
 - `SCP-02` Just you: α53b
 - `SCP-03` Playable alphas: every alpha
@@ -8664,8 +8594,8 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `GOD-07` No trace in the story: α16, α20b, α31, α35b
 - `GOD-09` What came of your acts: α16, α20b, α20c, α22b, α35b
 - `TIM-17` Activities with an end: α03c, α03d, α04b, α09, α09b, α10a, α12, α12c, α22b, α23, α26a, α26b, α47a
-- `TIM-18` The game year: α00b, α03a, α04b, α05, α13, α17b, α20a, α20c
-- `TIM-14` Dates: α00b, α03a, α11b, α27b
+- `TIM-18` The game year: α03a, α04b, α05, α13, α17b, α20a, α20c
+- `TIM-14` Dates: α03a, α11b, α27b
 - `TIM-01` Time follows zoom: α03a, α19b, α27c, α35c, α43c, α53b
 - `TIM-10` Natural speed up close: α03a, α03c
 - `TIM-04` Manual control: α03a
@@ -8676,7 +8606,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `TIM-11` Skip to the next moment: α11b
 - `TIM-05` Pauses when closed: α03a, α07a
 - `TIM-12` Overnight mode: α43a, α43c, α46a
-- `TIM-16` Chance is local: α00b, α02a, α02b, α02c, α02d, α03c, α07a, α07b, α07c, α12, α35b
+- `TIM-16` Chance is local: α02a, α02b, α02c, α02d, α03c, α07a, α07b, α07c, α12, α35b
 - `TIM-08` Saved worlds: α07b, α27a, α53a
 - `TIM-19` Pace of discovery: α12, α15, α17c, α25a, α25b, α27b, α27c, α35b, α35c, α41, α42, α43c, α44, α45, α46a, α47b, α52, α53b
 - `TIM-09` If everyone dies: α06c, α11b
@@ -8895,7 +8825,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `RES-18` Same rules as play: α07c, α19a
 - `RES-09` Pass rules come first: α07c
 - `RES-13` About 20 runs where chance matters: α07c, α17b, α24a, α52
-- `RES-05` Repeatable runs: α00b, α07a, α07c, α07d, α43b, α53a, α53b
+- `RES-05` Repeatable runs: α07a, α07c, α07d, α43b, α53a, α53b
 - `RES-10` Switch-off runs: α07c, α10a, α11a, α12, α17b, α31, α31b
 - `RES-16` Tuning the pace: α12d, α17c, α18b, α27c, α35c, α43c, α52, α53b
 - `RES-24` Blueprint trials: α09, α23, α23b, α23c, α24a, α41, α49
@@ -8915,12 +8845,12 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRC-03` Technology: every alpha
 - `PRC-04` Three documents: every alpha
 - `PRC-06` A guide for AI agents: every alpha
-- `PRC-07` Changes to this file: α00b
+- `PRC-07` Changes to this file: every alpha
 - `PRC-08` Next: the architecture and the plan: every alpha
-- `PRC-09` Branches, checks and review: α00b, α07e, α12d, α17c, α27c, α35c, α43c, α53b
-- `PRC-10` The checks: α00b, α07c
+- `PRC-09` Branches, checks and review: α07e, α12d, α17c, α27c, α35c, α43c, α53b
+- `PRC-10` The checks: α07c
 - `PRC-11` Each alpha reaches your phone: α07c, α16b, α35a, α53b
-- `PRC-12` Nothing gets lost: α00b, α07c, α07e, α12d, α17c, α27c, α35c, α43c, α53b
+- `PRC-12` Nothing gets lost: α07c, α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `RSK-01` Discoveries stall: α52
 - `RSK-26` The pace is off: α52
 - `RSK-19` Belief fails to emerge: α31, α31b, α32c, α35c

@@ -18,6 +18,12 @@ pub mod card {
     pub const GREY_H: i32 = 16;
     pub const BAR_Y: i32 = GREY_Y + GREY_H + 8;
     pub const BAR_H: i32 = 32;
+    /// The self-check's block, right of the checker: green when the core's maths and draws give the cloud's bits,
+    /// red when they do not, grey before the check (A15.9 item 5).
+    pub const CORE_X: i32 = MARGIN + CHECKER + 8;
+    pub const CORE_Y: i32 = MARGIN;
+    pub const CORE_W: i32 = 32;
+    pub const CORE_H: i32 = 32;
 }
 
 /// Where the art target sits behind the window, worked out on the CPU (A11.13 rule 1).
@@ -60,6 +66,7 @@ pub struct ScenePass {
     program: Program,
     u_top_left: Option<glow::UniformLocation>,
     u_bar_x: Option<glow::UniformLocation>,
+    u_core: Option<glow::UniformLocation>,
     pub target: Option<Target>,
 }
 
@@ -73,10 +80,12 @@ impl ScenePass {
         )?;
         let u_top_left = program.uniform(gl, "u_top_left");
         let u_bar_x = program.uniform(gl, "u_bar_x");
+        let u_core = program.uniform(gl, "u_core");
         Ok(ScenePass {
             program,
             u_top_left,
             u_bar_x,
+            u_core,
             target: None,
         })
     }
@@ -94,13 +103,16 @@ impl ScenePass {
         Ok(())
     }
 
-    pub fn draw(&self, gl: &glow::Context, view: &ArtView, bar_x: i32, vao: glow::VertexArray) {
+    /// Draws the test card; `core` is 0 before the self-check, 1 when the core's bits equal the cloud's, 2 when
+    /// they differ.
+    pub fn draw(&self, gl: &glow::Context, view: &ArtView, bar_x: i32, core: i32, vao: glow::VertexArray) {
         let Some(t) = &self.target else { return };
         t.bind(gl);
         gl::apply(gl, &State::flat(t.w, t.h));
         self.program.bind(gl);
         gl::set_ivec2(gl, self.u_top_left.as_ref(), view.top_left);
         gl::set_i32(gl, self.u_bar_x.as_ref(), bar_x);
+        gl::set_i32(gl, self.u_core.as_ref(), core);
         gl::draw_full_target(gl, vao);
     }
 }

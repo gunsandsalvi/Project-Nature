@@ -32,10 +32,19 @@ impl Platform for WebPlatform {
     }
 }
 
-/// A panic aborts the instance, since `wasm32-unknown-unknown` cannot unwind; the hook shows its message (A3.8).
+/// A panic aborts the instance, since `wasm32-unknown-unknown` cannot unwind: the hook logs it to the console and
+/// writes it in the page's status line, so the game never stops without a word (A3.8).
 #[wasm_bindgen(start)]
 pub fn start() {
-    console_error_panic_hook::set_once();
+    std::panic::set_hook(Box::new(|info| {
+        console_error_panic_hook::hook(info);
+        if let Some(line) = web_sys::window()
+            .and_then(|w| w.document())
+            .and_then(|d| d.get_element_by_id("status"))
+        {
+            line.set_text_content(Some(&format!("Kindling stopped: {info}")));
+        }
+    }));
 }
 
 /// The build's version line.
@@ -139,5 +148,16 @@ impl WebApp {
     /// Test hook (A12.4): the art target's width and height, or nothing before the first size.
     pub fn art_size(&self) -> Vec<u32> {
         self.app.art_size().map(|a| a.to_vec()).unwrap_or_default()
+    }
+
+    /// Test hook (A15.9 item 5): the core's probes made in this browser and hashed, in `hashes.txt`'s form, for
+    /// the smoke test to compare with the cloud's.
+    pub fn core_hashes(&self) -> String {
+        kd_core::bits::hashes_text(&kd_core::bits::probes())
+    }
+
+    /// Test hook (A3.8): a panic, for the smoke test to see its message in the status line.
+    pub fn crash(&self) {
+        panic!("a test panic, asked for by the smoke test");
     }
 }

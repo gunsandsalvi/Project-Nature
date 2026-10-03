@@ -1,6 +1,7 @@
 //! The self-check (A15.4, `PRC-11`): what a new build checks on the phone at start, and the report it sends back
-//! as a `KDS1:` code when something fails. α00 checks that every shader compiled and that the GL version is
-//! OpenGL ES 3 or WebGL2; the core's bits (α00b), the catalogue (α01a) and the rest join with their alphas.
+//! as a `KDS1:` code when something fails: every shader compiled, the GL version OpenGL ES 3 or WebGL2, and the
+//! core's maths and draws equal to the cloud's bits (α00b); the catalogue (α01a) and the rest join with their
+//! alphas.
 
 use crate::json::json_str;
 
@@ -31,6 +32,16 @@ impl Report {
             fails.join(",")
         )
     }
+}
+
+/// The report's line for core probes whose hashes differ from the cloud's, naming each with the hash made here,
+/// or nothing when all are equal (A15.9 item 5).
+pub fn core_line(differences: &[(&str, u64)]) -> Option<String> {
+    if differences.is_empty() {
+        return None;
+    }
+    let each: Vec<String> = differences.iter().map(|(name, h)| format!("{name} {h:016x}")).collect();
+    Some(format!("core bits differ from the cloud's: {}", each.join(", ")))
 }
 
 /// Whether the driver is OpenGL ES 3 or WebGL2, which every shader is written for (A11.1).
@@ -76,11 +87,11 @@ mod tests {
             prefix: PREFIX.into(),
             json,
         };
-        let text = requests_json(&[req]);
-        assert!(text.starts_with(
-            "[{\"ShowCode\":{\"title\":\"Kindling self-check\",\"prefix\":\"KDS1:\",\"json\":\"{\\\"v\\\""
-        ));
-        assert!(text.ends_with("0:1 error\\\"]}\"}}]"));
+        // The whole request, exactly: the report's quotes and backslashes escaped once more inside its string.
+        assert_eq!(
+            requests_json(&[req]),
+            r#"[{"ShowCode":{"title":"Kindling self-check","prefix":"KDS1:","json":"{\"v\":\"a00 · 1000 · abc1234\",\"dev\":\"Google Pixel 11 Pro XL SDK 37\",\"gl\":\"Mali | OpenGL ES 3.2\",\"fail\":[\"shader \\\"upscale\\\" did not compile:\\n0:1 error\"]}"}}]"#
+        );
         assert_eq!(requests_json(&[]), "[]");
     }
 
@@ -102,6 +113,22 @@ mod tests {
         let Request::ShowCode { prefix, json, .. } = &posted[0];
         assert_eq!(prefix, PREFIX);
         assert!(json.contains("\"fail\":[\"shader x did not compile\",\"GL version: OpenGL ES 2.0\"]"));
+    }
+
+    // checks: RES-05 PRC-11
+    #[test]
+    fn core_bits_named() {
+        // On the build machine the core's bits are the stored ones, so a new app reports nothing.
+        assert!(kd_core::bits::differences().is_empty());
+        let outbox = Arc::new(Outbox(Mutex::new(Vec::new())));
+        let app = App::new(outbox.clone(), AppConfig { device: "test".into() });
+        assert!(app.core_bits() && outbox.0.lock().unwrap().is_empty());
+        // A difference names each probe with the hash made here.
+        assert_eq!(core_line(&[]), None);
+        assert_eq!(
+            core_line(&[("m.sin", 0xab), ("chance.draws", 1)]).as_deref(),
+            Some("core bits differ from the cloud's: m.sin 00000000000000ab, chance.draws 0000000000000001")
+        );
     }
 
     // checks: PRC-11

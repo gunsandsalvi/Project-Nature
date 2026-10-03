@@ -453,6 +453,7 @@ kd sound render|bench|pack|page|check   (A13.14)
 kd det <scene or world>                 the determinism checks (A3.1)
 kd diverge <a> <b>                      the first barrier, store and column that differ (A15.9)
 kd check layers|names|ids|file          (A2.3, A15); ids --merge|--stage, file --note (A15.12)
+kd fixtures write                       the core's probes stored as the bits every target must give (A15.9)
 kd report --stage MIL-0n | --run <id>   stage and run reports (A15.14)
 kd tune <system> --values <file>        tuning runs, never counted as passes (A3.9)
 ```
@@ -955,7 +956,8 @@ Why: one rule in one place can't drift, and the catalogue check proves every ent
 | 85 days or more | squeezed | life × 60 / 365, so a year becomes a game year |
 | in between | between | given by the entry, `{ life = "6 w", game = "10 d" }`, from 7 days up to the life length; a missing one fails the build |
 
-- **Decision:** squeezing starts at 85 days, where a sixth of the life length reaches two weeks, so no squeezed length is shorter than a real one.
+- **Decision:** squeezing starts at 85 days, where the squeezed length comes within an hour of two weeks, the longest real one, so the two classes meet with no gap.
+  With the exact factor 60/365, rounded down to the second, 85 days gives 13.97 days (1,207,232 s), 40 minutes under two weeks, so from 85 to 85.2 days a squeezed length is a little shorter than the longest real one; from 85.2 days on, it is two weeks or more (measured at α00b).
 - In-between items are `TIM-18`'s, each tuned: healing, starving, scurvy, long illness waits and courses (`BIO-05`, `BIO-09`, `BIO-13`); pregnancy becomes 45 game days (`BIO-15`).
 
 **Rates:** `"/d"` keeps the real chance or amount per day (eating, tiring, work, weather, accidents); `"/y"`, for what comes a few times a year in life (births, crops, outbreaks, droughts, floods, wildfires, quakes), comes as often per game year; deaths before old age come through tuned illness and birth risks (`BIO-04`), never more accidents.
@@ -4451,6 +4453,7 @@ Size and build times are measured every alpha; growth over 5 MB is flagged in th
 ### A15.5 Signing
 
 One key signs every delivered build from the first alpha (`PLT-06`, `RSK-29`); no debug-signed APK is ever delivered, and a release build fails without the key.
+The owner set the passphrase secret before α00, so every delivered build has carried the release key and there was never a throwaway key; α00 removed the throwaway-key lines from A15.3 and from α53b's T53b.5 for that reason.
 **Decision:** the release key is derived from a passphrase kept as the environment secret `KINDLING_SIGNING_PASSPHRASE`; why: a passphrase is easy to keep and back up on a phone, while a keystore file would have to pass through the chat or the public repository; fallback: a base64 keystore in the secret.
 - `tools/signing-key.py` (Python `cryptography`, in the session image): scrypt of the passphrase (n = 2^17, r = 8, p = 1: 128 MiB, about a second; salt `kindling-release-v1`) to 48 bytes, reduced to a P-256 key as FIPS 186-4's extra-random-bits method does (`d = c mod (n − 1) + 1`, `c` the 48 bytes read as a big-endian number, `n` the curve's order), written as PKCS#8 to a temporary file deleted after signing.
   Why scrypt, not HKDF: the certificate is public, so with no work factor a weak passphrase could be guessed offline.
@@ -4531,6 +4534,8 @@ Short forms at every merge, long forms in the background (`TIM-16`, `RES-05`):
 3. Speed, zoom and camera change nothing: frame lengths varied, view areas made elsewhere, the story director on and off (`TIM-17`, `WLD-13`, `MND-14`, `TIM-03`).
 4. The repeat check (`PRC-10`): one scene and one bench world each run on 1 worker and on 4 with a stop and resume between, ending identical.
 5. Across targets: at every merge one fixed short scene gives one state hash on x86-64, on arm64 under qemu and as wasm in headless Chromium (B01: the cloud reproduced the phone's bits); in the background every quick scene, and both profiles.
+   Until scenes run (α07c), the core's probes stand in (`kd_core::bits`): each `m` function at 1,000 inputs, 10,000 draws and a few fixed-order sums, stored by `kd fixtures write` with their hashes, compared value by value on x86-64 and on arm64 under qemu, by hash in the browser, and by the phone's self-check, whose block on the test card turns green or red.
+   Under qemu the tests run on one thread: qemu 8.2 crashed in 3 of 20 runs with several and in none of 20 with one (measured at α00b's review).
 6. Phone and cloud: the phone benchmark's state hashes after fixed spans equal the cloud's (`RES-05`); a difference blocks the stage until found, and settling for matching ranges needs the owner's OK (A17.6).
 7. Kills, damage and catch-up (A14.13).
 
@@ -4565,12 +4570,13 @@ On the phone, each stage, the Tests screen's Review button renders the same set 
 4. `kd catalog check` and `kd catalog trials` (`MAT-17`, `RES-24`).
 5. `kd scene run --quick`: every scene up to 10 game years, signature moments included (`RES-23`, `RES-17`).
 6. The repeat check and the cross-target scene (A15.9, items 4 and 5).
-7. `kd check file`: `PRC-10`'s file check on `PROJECT.md` (generated lists current too), every ID and section the architecture and plan cite existing, and the commit check (`PRC-07`).
+7. `kd check file`: `PRC-10`'s file check on `PROJECT.md` (generated lists current too), every ID and section the architecture and plan cite existing, and the commit check (`PRC-07`): every changed ID named on a `Changed:` line with its reason in brackets, and `owner OK` in the reason of each item made, changed or removed while Decided (spacing aside; a **Proposed change:** beneath a decided item needs only its reason, as it waits for the owner).
 8. `kd check ids --merge`: every ID in code and tests live, every new test naming IDs, every changed pass rule with its reason (`PRC-12`, `RES-09`); every live feature and rule served by an alpha still in the plan, kept by every alpha, or implemented in code (an `Implements` line names it); every ID that code implements named by a test, a scene or a catalogue entry, the plan keeping no record of done alphas; and the plan's coverage map current (`map --write` regenerates it).
 9. Builds: `kd` always; the release APK and wasm at a delivery, or when `android/`, `web/`, `kd-android` or `kd-web` change.
    At a delivery the APK is rebuilt with a key made for the check, and the committed release APK is checked against its SHA-256 and A2.5's checks, since a release build made after that commit would name a newer commit in its build line and change the file (measured at α00).
 
 **Decision:** `kd check file` and `kd check ids` are the modes `file` and `ids` of `tools/filecheck.py`, Python's standard library alone, since text checks over Markdown and sources are simplest there and every session has it.
+Of `PROJECT.md`'s generated lists, the contents are checked word for word, and the open items and the proposals by the IDs they list, in order, since their words are written by hand (α00b), a proposal being a *Proposed* item or a decided one with a **Proposed change:** beneath it; `selftest` plants one fault per message on a clean fixture (`tools/tests/filecheck/clean/`), each of which must fail with that message alone, and makes changes that must pass, such as a proposal with its reason and no owner's OK.
 It writes `results/checks/<commit>.json` and prints `Checks: PASS <commit>`; a later commit touching only `results/` keeps that pass.
 Over 20 minutes, the scenes of items the change doesn't touch move to the background first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining (`PRC-10`).
 When a background run ends, its results are read before anything else: a check that passed before and now fails is fixed, or the change behind it undone, before other work joins, and a pace target not yet met goes to tuning (`RES-16`), blocking only the stage close.
