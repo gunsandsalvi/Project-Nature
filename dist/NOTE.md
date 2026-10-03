@@ -24,7 +24,7 @@
 - While you turn or pinch slowly, about 3 in 100 pixels crawl each frame at the camp view, and 2 in 100 close up; a drag moves whole pixels and crawls not at all. Choosing the fix for this is part of the first visual review, where you will see the candidates side by side.
 - Working out the light takes longer than planned. The share of open sky over each point (the darker hollows) takes about 0.2 seconds when the land loads, ten times the plan's 20 ms; it is done once. Each tap of the strip works out the new shadows in about 15 ms, seven times the plan's 2 ms; you may see one frame skip. When the clock runs (α03a), the shadows will follow the sun in small steps spread over frames, 2 ms each, which this alpha already builds and tests.
 - The app is a little larger: the download is 763 KB, up from 710 KB, and the web page's code 558 KB, up from 488 KB, with the light's new code.
-- Things only cast shadows once there are things (α02c). Up close the ground is still plain colour (α01d), the cliff's top shows 1 m steps (α02c), and beyond the piece of land is dark (α02a).
+- The cliff is still drawn as a steep slope of 1 m squares, so close up its top edge shows 1 m steps and the shade down its face has saw-tooth edges; real cliff faces come with α02c, as do shadows from things. Up close the ground is still plain colour (α01d), and beyond the piece of land is dark (α02a).
 
 ## IDs delivered
 
