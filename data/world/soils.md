@@ -2,6 +2,8 @@
 
 The kinds of soil (A5.11, `WLD-27`): how much water each holds and how fast it takes rain in, how hard it is to dig (`MAT-06`), and what it keeps of things buried in it (`MAT-08`).
 Acid soils on granite and sand eat bone within a few centuries, peat keeps wood and hide, and lime-rich soils keep bone.
+Each is as fertile as its land's base, or a step richer or poorer: silt and ash richer, sand, peat and the thin and stony soils poorer.
+A land takes its own soil except where one forms on a kind of ground: silt on a river's floodplain, thin soil on an escarpment's high side, stony soil at its face and foot (A5.6).
 Water held and taken in are depths of water: a soil holding 150 mm holds as much as 150 mm of rain.
 
 ## Sand
@@ -13,6 +15,8 @@ Loose sand: rain sinks in at once and drains away, and it digs easily; acid, so 
 |---|---|
 | Water held | holds 50 mm, takes in 30 mm a game hour |
 | Digging | 2 of 10 |
+| Fertility | -1 on its land's |
+| Forms on | its land's choice |
 | Keeps | nothing buried |
 <!-- end table -->
 
@@ -25,6 +29,7 @@ capacity = "50 mm"
 intake = "30 mm"
 dig = 2
 keeps = []
+fertility_shift = -1
 ```
 
 ## Loam
@@ -36,6 +41,8 @@ The good brown soil of woods and grassland, a mix of sand, silt and clay: it hol
 |---|---|
 | Water held | holds 150 mm, takes in 10 mm a game hour |
 | Digging | 3 of 10 |
+| Fertility | its land's |
+| Forms on | its land's choice |
 | Keeps | bone |
 <!-- end table -->
 
@@ -48,6 +55,7 @@ capacity = "150 mm"
 intake = "10 mm"
 dig = 3
 keeps = ["bone"]
+fertility_shift = 0
 ```
 
 ## Clay
@@ -59,6 +67,8 @@ Heavy sticky soil: it holds the most water of the mineral soils but takes rain i
 |---|---|
 | Water held | holds 200 mm, takes in 3 mm a game hour |
 | Digging | 5 of 10 |
+| Fertility | its land's |
+| Forms on | its land's choice |
 | Keeps | bone and wood |
 <!-- end table -->
 
@@ -71,6 +81,7 @@ capacity = "200 mm"
 intake = "3 mm"
 dig = 5
 keeps = ["bone", "wood"]
+fertility_shift = 0
 ```
 
 ## Silt
@@ -82,6 +93,8 @@ A river's fine soil on its floodplain, rich and easy to dig.
 |---|---|
 | Water held | holds 180 mm, takes in 8 mm a game hour |
 | Digging | 3 of 10 |
+| Fertility | +1 on its land's |
+| Forms on | a river's floodplain |
 | Keeps | bone |
 <!-- end table -->
 
@@ -94,6 +107,8 @@ capacity = "180 mm"
 intake = "8 mm"
 dig = 3
 keeps = ["bone"]
+fertility_shift = 1
+landform = "floodplain"
 ```
 
 ## Peat
@@ -105,6 +120,8 @@ Dead plants that never rotted, in wet ground: it holds the most water of all, an
 |---|---|
 | Water held | holds 300 mm, takes in 6 mm a game hour |
 | Digging | 2 of 10 |
+| Fertility | -1 on its land's |
+| Forms on | its land's choice |
 | Keeps | wood and hide |
 <!-- end table -->
 
@@ -117,6 +134,7 @@ capacity = "300 mm"
 intake = "6 mm"
 dig = 2
 keeps = ["wood", "hide"]
+fertility_shift = -1
 ```
 
 ## Ash
@@ -128,6 +146,8 @@ Soil of volcanic ash: light, easy to dig and quickly fertile.
 |---|---|
 | Water held | holds 120 mm, takes in 15 mm a game hour |
 | Digging | 2 of 10 |
+| Fertility | +1 on its land's |
+| Forms on | its land's choice |
 | Keeps | bone |
 <!-- end table -->
 
@@ -140,6 +160,7 @@ capacity = "120 mm"
 intake = "15 mm"
 dig = 2
 keeps = ["bone"]
+fertility_shift = 1
 ```
 
 ## Stony soil
@@ -151,6 +172,8 @@ Soil full of broken rock, as below a cliff: rain sinks in fast between the stone
 |---|---|
 | Water held | holds 60 mm, takes in 20 mm a game hour |
 | Digging | 7 of 10 |
+| Fertility | -1 on its land's |
+| Forms on | an escarpment's face and foot |
 | Keeps | bone |
 <!-- end table -->
 
@@ -163,6 +186,8 @@ capacity = "60 mm"
 intake = "20 mm"
 dig = 7
 keeps = ["bone"]
+fertility_shift = -1
+landform = "scarp_foot"
 ```
 
 ## Thin soil
@@ -174,6 +199,8 @@ A few centimetres of soil over rock, as on the chalk above the escarpment: it ho
 |---|---|
 | Water held | holds 40 mm, takes in 12 mm a game hour |
 | Digging | 6 of 10 |
+| Fertility | -1 on its land's |
+| Forms on | an escarpment's high side |
 | Keeps | bone |
 <!-- end table -->
 
@@ -186,4 +213,6 @@ capacity = "40 mm"
 intake = "12 mm"
 dig = 6
 keeps = ["bone"]
+fertility_shift = -1
+landform = "scarp_top"
 ```

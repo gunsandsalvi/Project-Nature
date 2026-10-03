@@ -30,3 +30,10 @@ Tuning runs never use the pace tests' seeds.
 - **Tuned against:** the close camp's goldens at 16:30 and the person stop's view of the demo area's scree and grass.
 - **Why:** the contact shade first widened the light's dither band too, which speckled lit grass, so it now only darkens; tufts vanished into the ground in shade until their feet saw less of the sky than their tips; stones vanished on scree of their own look until their sides did the same. The cap keeps a dense clump from blacking out the ground.
 - **Seeds:** the demo area's own stones and tufts, seeded by its number; no pace test's seed.
+
+## 3 October 2026, α02a: where streams begin
+
+- **Changed:** `data/tuning/world.md`, `stream_min_km2` 1 to 5.
+- **Tuned against:** the first region's water map (the note's `kd map preview --layer water`): the share of land cells holding a stream and the springs at their heads.
+- **Why:** every 1 km cell drains its own 1.05 km², so at 1 every land cell held a stream (59% even counting only the land draining into a cell), and a spring rose at nearly every head; at 5 a stream drains about five cells, a quarter of the island's cells hold one, and the network reads like a 1:250,000 map's.
+- **Seeds:** the first region's seed 1; no pace test's seed.

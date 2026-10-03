@@ -25,6 +25,8 @@ use crate::cells::{
 };
 use crate::purposes;
 
+mod layers;
+
 /// The numbers `data/tuning/lands.md` sets (A5.6), in metres where they are lengths.
 #[derive(Clone, Debug, PartialEq)]
 pub struct LandTuning {
@@ -52,8 +54,24 @@ pub struct LandTuning {
     pub cave_depth_m: [f32; 2],
     pub cave_dry_share: f32,
     pub camp_within_m: f32,
-    /// From `data/tuning/world.md`: how often an escarpment has a gap people can climb.
+    pub stretch_max_m: f32,
+    pub springs_per_cave_cell: u32,
+    pub spring_foot_out_m: f32,
+    pub river_reeds: f32,
+    pub floodplain_grass: f32,
+    pub face_bare: f32,
+    pub tree_age: [f32; 2],
+    pub wetland_km2: f32,
+    pub wetland_slope_deg: f32,
+    pub cooling_per_km_c: f32,
+    /// From `data/tuning/world.md`: how often an escarpment has a gap people can climb; the river rating's powers
+    /// and its bankfull depth; where streams begin.
     pub gap_every_m: f32,
+    pub width_exp: f32,
+    pub depth_exp: f32,
+    pub bankfull_depth_m: f32,
+    pub stream_min_km2: f32,
+    pub stream_min_rain_m: f32,
 }
 
 impl LandTuning {
@@ -95,7 +113,22 @@ impl LandTuning {
             cave_depth_m: [len("caves.depth_min")?, len("caves.depth_max")?],
             cave_dry_share: num("caves.dry_share")?,
             camp_within_m: len("caves.camp_within")?,
+            stretch_max_m: len("valley.stretch_max")?,
+            springs_per_cave_cell: count("springs.per_cave_cell")?,
+            spring_foot_out_m: len("springs.foot_out")?,
+            river_reeds: num("cover.river_reeds")?,
+            floodplain_grass: num("cover.floodplain_grass")?,
+            face_bare: num("cover.face_bare")?,
+            tree_age: [num("cover.tree_age_min")?, num("cover.tree_age_max")?],
+            wetland_km2: num("wetland.drainage_km2")?,
+            wetland_slope_deg: t.get("wetland.slope", Measure::Angle)?,
+            cooling_per_km_c: t.get("climate.cooling_per_km", Measure::Temperature)?,
             gap_every_m: world.get("escarpment_gap_every", Measure::Length)?,
+            width_exp: world.number("river_rating.width_exp")?,
+            depth_exp: world.number("river_rating.depth_exp")?,
+            bankfull_depth_m: world.get("river_rating.bankfull_depth", Measure::Length)?,
+            stream_min_km2: world.number("stream_min_km2")?,
+            stream_min_rain_m: world.get("stream_min_rain", Measure::Length)?,
         })
     }
 }
@@ -110,7 +143,7 @@ pub struct Window {
 
 impl Window {
     /// Its cells, row by row from the north-west.
-    pub fn cells(self) -> impl Iterator<Item = CellIx> {
+    pub fn cells(self) -> impl Iterator<Item = CellIx> + Clone {
         (0..self.size * self.size).map(move |k| CellIx::at(self.x0 + k % self.size, self.y0 + k / self.size))
     }
 
@@ -129,6 +162,8 @@ pub struct PresetWorld {
     pub centre: CellIx,
     pub river: Vec<[i32; 2]>,
     pub river_level: Vec<f32>,
+    /// Each weather cell's climate over the island and its sea (A5.8).
+    pub climate: crate::climate::ClimateMap,
 }
 
 /// The `Side` from the island's middle toward each way, as a unit step in metres (x east, y south).
@@ -529,18 +564,32 @@ pub fn build(p: &Land, seed: u64, cat: &Catalogue) -> Result<PresetWorld, String
         caves(p, seed, &t, &mut f, &l, frame, valley.as_ref())?;
     }
 
-    let (river, river_level) = valley.map_or((Vec::new(), Vec::new()), |v| {
-        (v.points.iter().map(|&q| frame.world(q)).collect(), v.level)
+    let (river, river_level) = valley.as_ref().map_or((Vec::new(), Vec::new()), |v| {
+        (v.points.iter().map(|&q| frame.world(q)).collect(), v.level.clone())
     });
+    let mut state = crate::cells::CellState::new();
+    let made = layers::Made {
+        p,
+        seed,
+        t: &t,
+        cat,
+        window,
+        frame,
+        valley: valley.as_ref(),
+        river: &river,
+        river_level: &river_level,
+    };
+    let climate = layers::water_soils_cover(&made, &mut f, &mut state)?;
     Ok(PresetWorld {
         cells: WorldCells {
             fixed: std::sync::Arc::new(f),
-            state: crate::cells::CellState::new(),
+            state,
         },
         window,
         centre,
         river,
         river_level,
+        climate,
     })
 }
 
@@ -966,5 +1015,183 @@ mod tests {
         assert_eq!(first_region(&cat), w);
         let other = build(cat.land("first_region").unwrap(), 2, &cat).unwrap();
         assert_ne!(other.cells.fixed.height, f.height);
+    }
+
+    // checks: WLD-17 WLD-34 PRE-26
+    #[test]
+    fn river_reaches_the_sea() {
+        // From its source, the river's cells chain to a sea cell, each cell's exit the next one's entry on the edge
+        // they share, the water falling toward the sea; its width and depth the rating's at 8 m³/s.
+        let cat = catalogue();
+        let w = first_region(&cat);
+        let f = &w.cells.fixed;
+        assert!(f.rivers.len() > 50, "{} river cells", f.rivers.len());
+        assert_eq!(f.rivers[0].entry, w.river[0]);
+        for pair in f.rivers.windows(2) {
+            assert_eq!(pair[0].exit, pair[1].entry);
+            let (a, b) = (pair[0].cell.xy(), pair[1].cell.xy());
+            assert!(a.0.abs_diff(b.0) <= 1 && a.1.abs_diff(b.1) <= 1 && a != b);
+            assert!(pair[1].level_m <= pair[0].level_m + 0.01);
+        }
+        let last = f.rivers.last().unwrap();
+        let into = CellIx::of(Pos {
+            x: last.exit[0],
+            y: last.exit[1],
+            z: 0,
+        });
+        assert!(into == last.cell || f.water[into.0 as usize] & water::SEA != 0);
+        assert!(f.rivers.iter().all(|r| f.water[r.cell.0 as usize] & water::RIVER != 0));
+        assert!((f.rivers[0].level_m - 300.0).abs() < 80.0, "{}", f.rivers[0].level_m);
+        assert!(last.level_m < 10.0);
+        assert!(f.rivers.iter().all(|r| (r.width_m, r.depth_m) == (18.0, 1.2)));
+        // Stretches of at most 10 km, in order, the last into the sea.
+        let s = &f.stretches;
+        assert!(s.len() >= 5 && s.iter().all(|x| x.length_m <= 10_000.0 && x.flow_m3s == 8.0));
+        assert_eq!(s.last().unwrap().down, crate::cells::TO_SEA);
+        // Every land cell drains: its flow points somewhere, and streams carry land beyond their own.
+        let land = w
+            .window
+            .cells()
+            .filter(|c| f.water[c.0 as usize] & (water::SEA | water::VOID) == 0);
+        assert!(land.clone().all(|c| f.flow[c.0 as usize] != NONE));
+        let streams = land
+            .clone()
+            .filter(|c| f.water[c.0 as usize] & water::STREAM != 0)
+            .count();
+        let total = land.count();
+        assert!(
+            streams > total / 10 && streams < total,
+            "{streams} streams in {total} cells"
+        );
+        // Springs at the escarpment's foot, two below each cell of its face with a cave or shelter, and at stream
+        // heads.
+        let foot = f
+            .springs
+            .iter()
+            .filter(|s| s.kind == crate::cells::SpringKind::CliffFoot)
+            .count();
+        let cave_cells = w.window.cells().filter(|c| f.caves[c.0 as usize] & 3 != 0).count();
+        assert_eq!(foot, 2 * cave_cells);
+        assert!(
+            f.springs
+                .iter()
+                .all(|s| f.water[s.cell.0 as usize] & water::SPRING != 0)
+        );
+    }
+
+    // checks: WLD-14 WLD-09
+    #[test]
+    fn flint_only_in_chalk() {
+        // Flint lies in every cell with chalk in its beds and nowhere else, at richness 2 to 4; river gravel in the
+        // river's cells, its richness falling downstream of the escarpment.
+        let cat = catalogue();
+        let w = first_region(&cat);
+        let f = &w.cells.fixed;
+        let chalk = cat.rock("chalk").unwrap().number as u8;
+        let flint = (cat.deposit("flint_in_chalk").unwrap().number + 1) as u8;
+        let gravel = (cat.deposit("river_gravel").unwrap().number + 1) as u8;
+        let mut with_flint = 0;
+        for c in w.window.cells() {
+            let i = c.0 as usize;
+            let dep = f.deposits[i];
+            let has = |k: u8| dep[0] == k || dep[2] == k;
+            let rich = |k: u8| if dep[0] == k { dep[1] } else { dep[3] };
+            assert_eq!(
+                has(flint),
+                f.rock[i].contains(&chalk) && f.water[i] & (water::SEA | water::VOID) == 0,
+                "{c:?}"
+            );
+            if has(flint) {
+                with_flint += 1;
+                assert!((2..=4).contains(&rich(flint)));
+            }
+            assert_eq!(has(gravel), f.water[i] & water::RIVER != 0);
+        }
+        assert!(with_flint > 500);
+        let along: Vec<u8> = f
+            .rivers
+            .iter()
+            .map(|r| {
+                let d = f.deposits[r.cell.0 as usize];
+                if d[0] == gravel { d[1] } else { d[3] }
+            })
+            .collect();
+        assert_eq!(along[0], 3);
+        assert!(along.windows(2).all(|p| p[1] <= p[0]), "{along:?}");
+        assert!(*along.last().unwrap() < 3);
+    }
+
+    // checks: WLD-12 WLD-31 WLD-27 WLD-16
+    #[test]
+    fn cover_sums_to_255() {
+        // Every cell's cover sums to 255: the land's shares, reeds and grass on the floodplain, bare rock on the
+        // escarpment's face; soils and biomes by the ground they form on; the climate over the island and its sea.
+        let cat = catalogue();
+        let w = first_region(&cat);
+        let (f, st) = (&w.cells.fixed, &w.cells.state);
+        let num = |s: &str| cat.soil(s).unwrap().number as u8;
+        let biome = |s: &str| cat.biome(s).unwrap().number as u8;
+        for c in w.window.cells() {
+            let i = c.0 as usize;
+            assert_eq!(st.cover[i].iter().map(|&v| u32::from(v)).sum::<u32>(), 255, "{c:?}");
+            let land = f.water[i] & (water::SEA | water::VOID) == 0;
+            if !land {
+                continue;
+            }
+            if f.cliff[i] != 0 {
+                assert!((150..=156).contains(&st.cover[i][4]), "{c:?}: {:?}", st.cover[i]);
+                assert_eq!(f.soil[i], num("stony"));
+            }
+            if f.water[i] & water::RIVER != 0 {
+                assert!((49..=53).contains(&st.cover[i][3]));
+                assert_eq!(f.soil[i], num("silt"));
+            }
+            if st.cover[i][0] > 0 {
+                assert!((20..=80).contains(&st.tree_age[i]));
+            }
+            assert!(f.soil_base[i] <= 200 && f.soil_base[i] % 40 == 0);
+            assert_eq!(st.fertility[i], f.soil_base[i]);
+        }
+        // Thin soil on the escarpment's high side away from the river; loam at fertility 3 in the south.
+        let north = CellIx::at(1010, 230);
+        assert_eq!(f.soil[north.0 as usize], num("thin"));
+        assert_eq!(f.soil_base[north.0 as usize], 80);
+        let south = CellIx::at(1010, 260);
+        assert_eq!(
+            (f.soil[south.0 as usize], f.soil_base[south.0 as usize]),
+            (num("loam"), 120)
+        );
+        assert_eq!(f.biome[south.0 as usize], biome("broadleaf_forest"));
+        // Marsh on the lower river's flat floodplain, where it drains over 200 km².
+        let marsh: Vec<CellIx> = w
+            .window
+            .cells()
+            .filter(|c| f.biome[c.0 as usize] == biome("marsh"))
+            .collect();
+        assert!(marsh.len() > 10, "{} marsh cells", marsh.len());
+        assert!(marsh.iter().all(|c| f.soil[c.0 as usize] == num("silt")));
+        // Shore round the coast, the sea's biome in the sea, none in the void.
+        let coast = w
+            .window
+            .cells()
+            .filter(|c| f.biome[c.0 as usize] == biome("shore"))
+            .count();
+        assert!(coast > 60, "{coast}");
+        let sea = w
+            .window
+            .cells()
+            .find(|c| f.water[c.0 as usize] & water::SEA != 0)
+            .unwrap();
+        assert_eq!(f.biome[sea.0 as usize], biome("sea"));
+        assert_eq!(f.biome[CellIx::at(w.window.x0, w.window.y0).0 as usize], NONE);
+        // The climate: every weather cell over the island and its sea has the land's record, the cells' warmth set
+        // off by their height, colder on the uplands than at the coast.
+        let rec = w.climate.of(w.centre.weather()).expect("the middle's climate");
+        assert_eq!((rec.mean_c, rec.range_c), ([9.0, 19.0, 11.0, 3.0], 9.0));
+        assert!(rec.ref_height_m > 100.0);
+        let records = w.climate.records.iter().flatten().count();
+        assert!((200..=256).contains(&records), "{records}");
+        let high = w.window.cells().max_by_key(|c| f.height[c.0 as usize]).unwrap();
+        assert!(f.clim[high.0 as usize][0] < 0);
     }
 }

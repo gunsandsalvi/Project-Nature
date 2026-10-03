@@ -46,6 +46,30 @@ pub struct Rock {
     pub look: u16,
 }
 
+/// A kind of ground a soil or a biome forms on in place of its land's own (A5.6, A5.7 steps 8 and 10): a river's
+/// floodplain, a flat floodplain that drains a wide land (wetland), a cell by the sea, the sea, an escarpment's high
+/// side and its foot.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Landform {
+    Floodplain,
+    Wetland,
+    Coast,
+    Sea,
+    ScarpTop,
+    ScarpFoot,
+}
+
+impl Landform {
+    pub const ALL: [Landform; 6] = [
+        Landform::Floodplain,
+        Landform::Wetland,
+        Landform::Coast,
+        Landform::Sea,
+        Landform::ScarpTop,
+        Landform::ScarpFoot,
+    ];
+}
+
 /// What a soil keeps of buried things, as flags (A5.11, `MAT-08`).
 pub mod keeps {
     pub const BONE: u8 = 1;
@@ -68,6 +92,10 @@ pub struct Soil {
     pub dig: u8,
     /// `keeps` flags.
     pub keeps: u8,
+    /// How much richer or poorer it is than its land's base fertility (A5.11: high on silt, low on sand).
+    pub fertility_shift: i8,
+    /// The kind of ground it forms on in place of its land's soil, if any.
+    pub landform: Option<Landform>,
 }
 
 /// How many cover groups a cell's ground is split between (A5.2), in this order: trees, bushes, grass and herbs,
@@ -83,6 +111,8 @@ pub struct Biome {
     pub number: u16,
     pub look: u16,
     pub cover: [u8; COVER_GROUPS],
+    /// The kind of ground it takes in place of its land's biome, if any.
+    pub landform: Option<Landform>,
 }
 
 /// How a deposit is carried downstream: the share kept every so many metres (A5.7 step 9).

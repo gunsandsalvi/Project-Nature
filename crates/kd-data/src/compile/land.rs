@@ -8,8 +8,31 @@ use super::{Compiled, Entry, Head, Problem, and_list, at, head, parse};
 use crate::schema::Look;
 use crate::units::{Dim, amount, value};
 use crate::world::{
-    Biome, COVER_GROUPS, Carried, Climate, Deposit, Escarpment, Herd, Land, Rock, Side, Soil, Valley, keeps, shares_255,
+    Biome, COVER_GROUPS, Carried, Climate, Deposit, Escarpment, Herd, Land, Landform, Rock, Side, Soil, Valley, keeps,
+    shares_255,
 };
+
+/// The landforms' words, as entries write them.
+const LANDFORM_WORDS: [(&str, Landform); 6] = [
+    ("floodplain", Landform::Floodplain),
+    ("wetland", Landform::Wetland),
+    ("coast", Landform::Coast),
+    ("sea", Landform::Sea),
+    ("scarp_top", Landform::ScarpTop),
+    ("scarp_foot", Landform::ScarpFoot),
+];
+
+/// A landform's words in the tables.
+fn landform_words(l: Landform) -> &'static str {
+    match l {
+        Landform::Floodplain => "a river's floodplain",
+        Landform::Wetland => "a flat floodplain draining a wide land",
+        Landform::Coast => "land by the sea",
+        Landform::Sea => "the sea",
+        Landform::ScarpTop => "an escarpment's high side",
+        Landform::ScarpFoot => "an escarpment's face and foot",
+    }
+}
 
 /// The cover groups' words in the tables, in their order (A5.2).
 const COVER_WORDS: [&str; COVER_GROUPS] = ["trees", "bushes", "grass and herbs", "reeds", "bare ground"];
@@ -43,6 +66,10 @@ struct SoilSrc {
     intake: String,
     dig: u8,
     keeps: Vec<String>,
+    fertility_shift: i8,
+    /// Written for a soil that forms on a kind of ground, and only then.
+    #[serde(default)]
+    landform: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -64,6 +91,9 @@ struct BiomeSrc {
     checks: Vec<String>,
     look: String,
     cover: SharesSrc,
+    /// Written for a biome a kind of ground takes, and only then.
+    #[serde(default)]
+    landform: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -222,6 +252,17 @@ impl Report<'_> {
         })
     }
 
+    /// A landform's word.
+    fn landform(&mut self, word: Option<&str>) -> Option<Landform> {
+        let w = word?;
+        let found = LANDFORM_WORDS.iter().find(|l| l.0 == w).map(|l| l.1);
+        if found.is_none() {
+            let all: Vec<String> = LANDFORM_WORDS.iter().map(|l| l.0.to_string()).collect();
+            self.bad(format!("field `landform`: {w:?} is not {}", and_list(&all)));
+        }
+        found
+    }
+
     /// Cover shares of the five groups, each 0 to 1 and summing to 1, as 255ths.
     fn shares(&mut self, field: &str, s: [f32; COVER_GROUPS]) -> [u8; COVER_GROUPS] {
         let sum: f32 = s.iter().sum();
@@ -319,6 +360,10 @@ pub(super) fn soil(e: &Entry, problems: &mut Vec<Problem>) -> Out {
     if !(1..=10).contains(&s.dig) {
         r.bad(format!("dig {} is outside 1 to 10 (MAT-06)", s.dig));
     }
+    if !(-2..=2).contains(&s.fertility_shift) {
+        r.bad(format!("fertility_shift {} is outside −2 to 2", s.fertility_shift));
+    }
+    let landform = r.landform(s.landform.as_deref());
     let mut flags = 0;
     for word in &s.keeps {
         match KEEPS_WORDS.iter().find(|w| w.0 == word) {
@@ -342,6 +387,17 @@ pub(super) fn soil(e: &Entry, problems: &mut Vec<Problem>) -> Out {
         ),
         ("Digging".to_string(), format!("{} of 10", s.dig)),
         (
+            "Fertility".to_string(),
+            match s.fertility_shift {
+                0 => "its land's".to_string(),
+                n => format!("{n:+} on its land's"),
+            },
+        ),
+        (
+            "Forms on".to_string(),
+            landform.map_or("its land's choice".to_string(), |l| landform_words(l).to_string()),
+        ),
+        (
             "Keeps".to_string(),
             if kept.is_empty() {
                 "nothing buried".into()
@@ -358,6 +414,8 @@ pub(super) fn soil(e: &Entry, problems: &mut Vec<Problem>) -> Out {
         intake_m: intake,
         dig: s.dig,
         keeps: flags,
+        fertility_shift: s.fertility_shift,
+        landform,
     };
     Some((head(&s.id, &s.name, &s.stage, &s.checks), table, Compiled::Soil(entry)))
 }
@@ -372,6 +430,7 @@ pub(super) fn biome(e: &Entry, looks: &[(u16, Look)], problems: &mut Vec<Problem
     let look = r.resolve("look", &s.look, looks, look_id, "look");
     let c = &s.cover;
     let cover = r.shares("cover", [c.trees, c.bushes, c.grass, c.reeds, c.bare]);
+    let landform = r.landform(s.landform.as_deref());
     let look_name = looks
         .iter()
         .find(|l| l.0 == look)
@@ -379,6 +438,10 @@ pub(super) fn biome(e: &Entry, looks: &[(u16, Look)], problems: &mut Vec<Problem
     let table = vec![
         ("Map look".to_string(), look_name),
         ("Cover".to_string(), shares_words(cover)),
+        (
+            "Takes".to_string(),
+            landform.map_or("its land's choice".to_string(), |l| landform_words(l).to_string()),
+        ),
     ];
     let entry = Biome {
         id: s.id.clone(),
@@ -386,6 +449,7 @@ pub(super) fn biome(e: &Entry, looks: &[(u16, Look)], problems: &mut Vec<Problem
         number: 0,
         look,
         cover,
+        landform,
     };
     Some((head(&s.id, &s.name, &s.stage, &s.checks), table, Compiled::Biome(entry)))
 }

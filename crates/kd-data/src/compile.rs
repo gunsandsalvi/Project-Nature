@@ -456,6 +456,30 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
     deposits.sort_by_key(|d| d.0);
     lands.sort_by_key(|l| l.0);
     tunings.sort_by_key(|t| t.0);
+    // A landform takes one soil and one biome at most, so a land's builder never has to choose.
+    for lf in crate::world::Landform::ALL {
+        let on = |ids: Vec<&str>, kind: Kind, problems: &mut Vec<Problem>| {
+            if ids.len() > 1 {
+                problems.push(at(
+                    kind.place(),
+                    1,
+                    format!("{} all form on {lf:?}; a landform takes one", ids.join(", ")),
+                ));
+            }
+        };
+        let s: Vec<&str> = soils
+            .iter()
+            .filter(|s| s.1.landform == Some(lf))
+            .map(|s| s.1.id.as_str())
+            .collect();
+        on(s, Kind::Soil, &mut problems);
+        let b: Vec<&str> = biomes
+            .iter()
+            .filter(|b| b.1.landform == Some(lf))
+            .map(|b| b.1.id.as_str())
+            .collect();
+        on(b, Kind::Biome, &mut problems);
+    }
     if airs.len() != 1 {
         problems.push(at(
             Kind::Light.place(),
@@ -1569,7 +1593,7 @@ Soils.
 Good.
 
 ```toml
-id = \"loam\"\nname = \"Loam\"\nstage = \"MIL-01\"\nchecks = [\"WLD-27\"]\ncapacity = \"150 mm\"\nintake = \"10 mm\"\ndig = 3\nkeeps = [\"bone\"]\n```\n");
+id = \"loam\"\nname = \"Loam\"\nstage = \"MIL-01\"\nchecks = [\"WLD-27\"]\ncapacity = \"150 mm\"\nintake = \"10 mm\"\ndig = 3\nkeeps = [\"bone\"]\nfertility_shift = 0\n```\n");
         add(&mut s, Kind::Biome.place(), "# Biomes
 
 Biomes.

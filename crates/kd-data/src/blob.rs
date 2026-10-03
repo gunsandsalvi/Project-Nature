@@ -207,6 +207,8 @@ pub(crate) mod tests {
                 intake_m: 0.01,
                 dig: 3,
                 keeps: 3,
+                fertility_shift: 0,
+                landform: None,
             }],
             biomes: vec![Biome {
                 id: "grassland".into(),
@@ -214,6 +216,7 @@ pub(crate) mod tests {
                 number: 0,
                 look: 0,
                 cover: [5, 26, 204, 5, 15],
+                landform: Some(crate::world::Landform::Coast),
             }],
             deposits: vec![Deposit {
                 id: "river_gravel".into(),

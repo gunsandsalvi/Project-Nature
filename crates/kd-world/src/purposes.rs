@@ -12,6 +12,9 @@ kd_core::purposes! {
     5 CAVE_PLACE "where along an escarpment a cave or shelter opens" subject Place fortune None;
     6 CAVE_SIZE "how deep a cave or shelter runs" subject Place fortune None;
     7 CAVE_DRY "whether a cave is dry" subject Place fortune None;
+    8 SPRING_PLACE "where along a cell of an escarpment's face a spring rises" subject Place fortune None;
+    9 TREE_AGE "how old a cell's trees are on average" subject Place fortune None;
+    10 DEPOSIT_RICHNESS "how rich a cell's deposit runs" subject Place fortune None;
     retired [];
 }
 

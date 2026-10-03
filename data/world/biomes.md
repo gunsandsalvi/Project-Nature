@@ -2,6 +2,7 @@
 
 The kinds of living cover a world cell can have (A5.7 step 10, `WLD-31`): each takes its own look on the map (A11.5, `PRE-29`) and starts its cells with its shares of the five cover groups: trees, bushes, grass and herbs, reeds, and bare ground, which sum to the whole cell.
 The first region has woods, grassland, marsh, shore and sea; the rest of the world's biomes join with generation (Î±21).
+A land takes its own biome except where one forms on a kind of ground: marsh on a flat floodplain draining a wide land, shore by the sea, and the sea (A5.6).
 
 ## Broadleaf forest
 
@@ -12,6 +13,7 @@ Oak, elm, lime and hazel woods with glades, the island's own cover.
 |---|---|
 | Map look | Woodland |
 | Cover | trees 55%, bushes 15%, grass and herbs 25%, reeds 2% and bare ground 3% |
+| Takes | its land's choice |
 <!-- end table -->
 
 ```toml
@@ -32,6 +34,7 @@ Open grass and herbs with scattered bushes and the odd tree.
 |---|---|
 | Map look | Lush grass |
 | Cover | trees 2%, bushes 10%, grass and herbs 80%, reeds 2% and bare ground 6% |
+| Takes | its land's choice |
 <!-- end table -->
 
 ```toml
@@ -52,6 +55,7 @@ Wet flat ground of reeds and sedges, with alder and willow on its drier spots.
 |---|---|
 | Map look | Marsh |
 | Cover | trees 5%, bushes 10%, grass and herbs 20%, reeds 60% and bare ground 5% |
+| Takes | a flat floodplain draining a wide land |
 <!-- end table -->
 
 ```toml
@@ -61,6 +65,7 @@ stage = "MIL-01"
 checks = ["WLD-31", "PRE-29"]
 look = "marsh"
 cover = { trees = 0.05, bushes = 0.1, grass = 0.2, reeds = 0.6, bare = 0.05 }
+landform = "wetland"
 ```
 
 ## Shore
@@ -72,6 +77,7 @@ Sand and shingle where the land meets the sea, with grass behind it.
 |---|---|
 | Map look | Sand |
 | Cover | trees 0%, bushes 5%, grass and herbs 20%, reeds 5% and bare ground 70% |
+| Takes | land by the sea |
 <!-- end table -->
 
 ```toml
@@ -81,6 +87,7 @@ stage = "MIL-01"
 checks = ["WLD-31", "PRE-29"]
 look = "sand"
 cover = { trees = 0, bushes = 0.05, grass = 0.2, reeds = 0.05, bare = 0.7 }
+landform = "coast"
 ```
 
 ## Sea
@@ -92,6 +99,7 @@ Open water: nothing grows in it that the game keeps.
 |---|---|
 | Map look | Water |
 | Cover | trees 0%, bushes 0%, grass and herbs 0%, reeds 0% and bare ground 100% |
+| Takes | the sea |
 <!-- end table -->
 
 ```toml
@@ -101,6 +109,7 @@ stage = "MIL-01"
 checks = ["WLD-31", "PRE-29"]
 look = "water"
 cover = { trees = 0, bushes = 0, grass = 0, reeds = 0, bare = 1 }
+landform = "sea"
 ```
 
 ## Barren
@@ -112,6 +121,7 @@ Bare ground where nothing grows, for the test lands that hold no plant at all (Î
 |---|---|
 | Map look | Dirt |
 | Cover | trees 0%, bushes 0%, grass and herbs 0%, reeds 0% and bare ground 100% |
+| Takes | its land's choice |
 <!-- end table -->
 
 ```toml
