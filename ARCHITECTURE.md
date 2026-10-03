@@ -128,7 +128,7 @@ This table is the technology proposal of `PRC-03`; the evidence behind each row 
 ### A1.4 The pre-test record
 
 The pre-tests ran on 1 October 2026, in the cloud and on the owner's phone; this record keeps their results for good, since `pretests/` is deleted once this architecture exists (`PRC-08`).
-The code and raw results stay in git history in the commit before the deletion, found by `git log --diff-filter=D -1 -- pretests/BUILDING-BLOCKS.md` (in a shallow clone, after `git fetch --unshallow origin`); A2.9 lists what to recover.
+The code and raw results stay in git history in the commit before the deletion, found by `git log --diff-filter=D -1 -- pretests/BUILDING-BLOCKS.md` (in a shallow clone, after `git fetch --unshallow origin`); A2.9 says how they serve: as evidence, never as code to copy.
 
 **The phone (B79 and both test apps)**
 - Pixel 11 Pro XL, Tensor G6, Android 17 (SDK 37), 4 KB pages, 15,655 MiB of memory, 512 GB storage, 5,340 mAh battery.
@@ -226,7 +226,7 @@ Game terms are in `PROJECT.md`'s glossary; technical terms are defined where fir
 
 ## A2. Code layout and targets
 
-What it covers: where files live, what each crate does and may depend on, how the three targets differ, the Android, web and headless entry points, the toolchain, and what to recover from the pre-tests.
+What it covers: where files live, what each crate does and may depend on, how the three targets differ, the Android, web and headless entry points, the toolchain, and how the pre-tests serve as evidence.
 Serves: `PRN-14`, `PRC-04`, `PRC-08`, `PRC-09`, `PRC-11`, `PLT-01`, `PLT-02`, `PLT-03`, `PLT-05`, `PLT-06`, `PLT-08`, `SCP-15`.
 
 ### A2.1 Repository layout
@@ -368,8 +368,8 @@ impl App {                                           // Send, not Sync: owned by
 - `MainActivity.kt`: lifecycle, immersive full screen, insets, Back, keep-screen-on, brightness.
 - `GameView.kt`: a `GLSurfaceView` (ES 3.0, RGBA 8888, no depth, stencil or multisampling on the window, since 3D passes draw into A11's art-resolution targets; `preserveEGLContextOnPause`; continuous rendering unless `Request::RenderMode` asks for on-demand, A11.11) that queues touches and requests 120 Hz with `setFrameRate(120f, FRAME_RATE_COMPATIBILITY_DEFAULT, CHANGE_FRAME_RATE_ALWAYS)` (B79).
 - `Native.kt`: the functions below.
-- `Writer.kt`, started from B73's `WriterTest.kt`: calls Gemini Nano with A12.7's settings (temperature 0.3, top-k 20, at most 256 new tokens), one request at a time; errors passed on as codes.
-- `Device.kt`, started from B79's `Probe.kt`: battery and charging, thermal status by listener, headroom once a second, the audio route.
+- `Writer.kt`: calls Gemini Nano with A12.7's settings (B73 measured this path) (temperature 0.3, top-k 20, at most 256 new tokens), one request at a time; errors passed on as codes.
+- `Device.kt`: battery and charging (B79 measured each reading), thermal status by listener, headroom once a second, the audio route.
 - `Files.kt`: export, import and share through the system pickers and a `FileProvider`, copying via `cacheDir`.
 - Manifest: one activity with `configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|layoutDirection|locale"`, no fixed orientation (`PLT-02`), an intent filter for `kindling://open` links from stage reports (A12.4, A15.14), `allowBackup="false"` (`PLT-08`), and ML Kit's usage upload removed as in the second test app.
 
@@ -481,32 +481,11 @@ A large test world is never shipped: it is remade from its seed and command line
   Without it, `tools/build-apk.sh` runs the script before its first build; `tools/env.sh` then sets `ANDROID_HOME`, `ANDROID_NDK_HOME` and `GRADLE_USER_HOME`.
 - **Limits:** no session can make GitHub releases or set commit statuses, so the merge gate is `tools/check.sh` plus the independent review recorded in the pull request description, and long runs keep their checkpoints on the session's disk, pushing small compressed ones (under 50 MB each, oldest pruned) to the `runs` branch (A15).
 
-### A2.9 Pre-test files to recover
+### A2.9 Pre-tests as evidence
 
-Recover with `git show <commit>^:pretests/<path> > <destination>`, `<commit>` being the deletion (A1.4); name the source in the commit message.
-A cloud session may clone only recent history: when `git rev-parse --is-shallow-repository` prints `true`, run `git fetch --unshallow origin` first (the repository is small).
-Recovered code is a starting point, renamed, tested and linked to IDs like new code.
-
-| From `pretests/` | To (what it gives) |
-|---|---|
-| `b01-b02-numbers-random/kbench/src/rng.rs` (`mix64`, `wymum_safe`, `WySafe`, `Stream::new`, tests) | `crates/kd-core/src/chance/hash.rs` (A3.3) |
-| `b01-b02-numbers-random/kbench/src/kernels.rs` (`tree_in_place`, `block_sum`) | `crates/kd-core/src/num/sum.rs` (the fixed-tree sum) |
-| `b80-cloud-runner/src/ckpt.rs` (atomic save, newest valid load) | `crates/kd-save/src/files.rs`, `open.rs` |
-| `b80-cloud-runner/src/par.rs`, `heartbeat.sh` | reference for A4's read-then-write phases; `tools/heartbeat.sh` |
-| `b04-b11-storage-terrain/phone/src/save.rs`, `hist.rs` | `crates/kd-save/src/pack.rs`, `log.rs` (zstd chunks with hash; yearly log segments) |
-| `b04-b11-storage-terrain/phone/src/terrain.rs` | `crates/kd-world/src/gen/`, `area/relief.rs` (its hashes as a porting check) |
-| `b10-map/src/sq.rs`, `path.rs` | `crates/kd-core/src/geo/grid.rs`, `crates/kd-world/src/path/smooth.rs` |
-| `b74-b76-sound-speech/src/mix.rs`, `impact.rs`, `instrument.rs`, `dsp.rs` | `crates/kd-audio/src/` (mixer, shaped noise, flute, `drum_modes_v2`) |
-| `b74-b76-sound-speech/src/android.rs`; `phone_step.py` | `crates/kd-android/src/aaudio.rs`; port to `crates/kd-audio/src/speaker.rs` |
-| `b73-writer/checker.py`; `data/*.json` | port to `crates/kd-text/src/check.rs`; `crates/kd-text/tests/fixtures/` |
-| `b73-writer/prompts/v2/documentary.txt`; `phone/WriterTest.kt` | `data/writer/documentary.txt`; `android/.../Writer.kt` |
-| `b78-b79-phone/shells/s1-kotlin-rust/` | `android/`, `.cargo/config.toml` (the template that built and ran) |
-| `b78-b79-phone/tools/setup-toolchain.sh`, `env.sh`; `phone-r2/tools/verify-apk.sh` | `tools/` |
-| `phone-r2/app/app/src/main/AndroidManifest.xml` | merged into `android/app/src/main/AndroidManifest.xml` (ML Kit upload removal) |
-| `b78-b79-phone/app/.../Probe.kt`, `FrameTest.kt`, `Logic.kt`; `tools/decode-result.py` | `Device.kt`, `GameView.kt` (120 Hz request); the phone benchmark (A16); `tools/decode-bench.py` (`PLT-04`) |
-| `b66-drawing/tools/crawl.mjs`, `smoke.mjs` | `tools/screens/` (crawl count, gesture smoke test) |
-
-Not recovered: benchmark kernels, the other generators, SQLite and FlatBuffers code, the sourcing checker, speech scripts, the Gemma code and both test keys.
+The pre-tests measured how each building block is best built; what they found is recorded in A1.4, and each design in this architecture cites the measurement it rests on (B01 to B80).
+Their code stays in git history (`git show <commit>^:pretests/<path>`, `<commit>` being the deletion, A1.4) and may be read to understand a measured result, but is never copied: every part is built from this architecture's reasoning, with its own tests (the owner's instruction of 3 October 2026).
+A measured result a part must match (a speed, a latency, a pass rate, a sound within 25% of a recording) is stated in the part's own section, never as a pre-test's code or hash to reproduce.
 
 ## A3. Foundations
 
@@ -571,7 +550,7 @@ Every chance event is a pure function of its key, with no generator position, so
 | subject | 64 | the uid of what the draw is about: a being, thing, plant, herd, group or place (A3.4) |
 | moment | 64 | `(game_second << 16) + slot`; the slot (0–65,535) separates several draws by one subject for one purpose in one second |
 
-B02's guarded wyhash, ported bit for bit (A2.9):
+A guarded wyhash (B02 measured its speed and quality):
 
 ```rust
 const GOLDEN: u64 = 0x9e37_79b9_7f4a_7c15;
@@ -1411,7 +1390,7 @@ Plants and animals themselves (`WLD-18`, `WLD-31`, `WLD-32`, `WLD-33`) are A7's;
 | Things and creatures | in areas, or on the cells' ground | | their stores | A6 to A8 |
 
 Paces are A5.9's, scheduled by A4.9.
-Modules of `kd-world`, each named in its subsection: `cells`, `plants`, `area` (relief from B11), `lands`, `gen`, `timed`, `weather`, `ground`, `fire`, `water`, `soil`, `path`, and `purposes`, the draws of systems 1, 2, 3 and 7 (A3.3).
+Modules of `kd-world`, each named in its subsection: `cells`, `plants`, `area` (relief, A5.3), `lands`, `gen`, `timed`, `weather`, `ground`, `fire`, `water`, `soil`, `path`, and `purposes`, the draws of systems 1, 2, 3 and 7 (A3.3).
 
 Rules for the whole section:
 - Every result is a pure function of the seed, the generator version, the catalogue, the fixed layers, the changing state and keyed draws (A3.1, A3.3); generation and area draws use place uids at moment 0.
@@ -1480,9 +1459,9 @@ An area is `f(seed, generator version, catalogue, its cell's and the 4 × 4 near
 It is made in parts, each a pure function:
 
 1. **Skeleton:** what crosses it: rivers (each river cell's fixed entry and exit points) and streams (a crossing on the edge toward the `flow` neighbour, keyed on the pair of cells, so both sides agree), joined by a keyed meander about 10 widths long; lake and sea shores; the escarpment (B11's noisy edge line) with gaps, at least one a cell at its lowest point (A5.12); caves from the cave record; springs; exposures (banks, scree, cliff foot).
-2. **Ground:** bicubic blend of the cells' heights + B11's 7-octave detail scaled by `rough` + the escarpment step + river beds + the record's pits, heaps and plots, rounded to decimetres; material from the rock layer at that height, soil by slope, sand, gravel and silt by water, scree under cliffs.
-3. **3D pieces**, in buckets the skeleton marks: solid rock except soft layers cut back up to 6 m under a hard cap (B11's overhangs and shelters) and caves of 2–6 ellipsoid chambers joined by passages, sized by the cave record; the chambers' volume and surface give A13.8 its cave echo.
-   **Decision:** sized chambers, not B11's crossing-noise caves, so each band finds a cave big enough (`WLD-24`; fallback: B11's, kept when big enough); a piece stores each column's air gaps (pairs of `u16` decimetres), under 1 KB, not B11's 4 KB cube blocks (fallback: cube blocks).
+2. **Ground:** bicubic blend of the cells' heights + detail (7 octaves of periodic gradient noise, 256 m down to 4 m, each half the last's height) scaled by `rough` + the escarpment step + river beds + the record's pits, heaps and plots, rounded to decimetres; material from the rock layer at that height, soil by slope, sand, gravel and silt by water, scree under cliffs.
+3. **3D pieces**, in buckets the skeleton marks: solid rock except soft layers cut back up to 6 m under a hard cap (overhangs and shelters, as B11 made them) and caves of 2–6 ellipsoid chambers joined by passages, sized by the cave record; the chambers' volume and surface give A13.8 its cave echo.
+   **Decision:** sized chambers, not B11's crossing-noise caves, so each band finds a cave big enough (`WLD-24`; fallback: B11's caves where two noise surfaces cross, kept when big enough); a piece stores each column's air gaps (pairs of `u16` decimetres), under 1 KB, not B11's 4 KB cube blocks (fallback: cube blocks).
 4. **Contents** per bucket (`WLD-31`, `WLD-14`): 64 spots on a jittered 2 m grid; a spot holds a tree or bush when its keyed value is under its group's density (`plants::density`, blended between cell centres), species by keyed weight from the cell's species mix (A5.2), size from `tree_age`.
    So a small change of cover adds or removes only the marginal plants, and a known wood stays put; densities are capped at about 5,000 single plants an area.
    Ground cover: 16 patches a bucket, up to 2 kinds each, with density, and from the date and `warmth` their season state and yields: fruit and seed when ripe; roots, reeds, bark, fibre and a stand's dead wood standing, regrowing at their rates (A7).
@@ -1620,16 +1599,16 @@ small = { hare = 6, birds = 20, fish = 30 }   # per km² of habitat
 ### A5.7 World generation
 
 `gen::generate(seed, version, cat, res) -> GenWorld` runs `WLD-09`'s stages in order, each a pure function of the seed and the stages before (`WLD-08`, `SCP-12`), at 1 km (2,000 × 1,000) or, for first-pass candidates, 2 km (1,000 × 500).
-B11's `terrain.rs` is the start (A2.9) and must first reproduce its plate hash `895e636495687a48` at 1024 × 512.
+The generator is built from this section's design, not from B11's code (A2.9); B11 showed the approach works, its plates and erosion running at 1024 × 512 on the phone in the times below.
 A candidate runs on one worker; row-parallel steps use fixed partitions and priority floods run alone, so the thread count never changes results (B11: same bits on 1 and 4 threads).
 
 | # | Step | Method | 1 km: cloud core; held phone core |
 |---|---|---|---|
 | 0 | World numbers | keyed: tilt 15–30°, land 25–50%, 6–12 plates, the sky (`Sky`, A3.7: moon start, node cycle), stars (`WLD-06`, `WLD-07`) | — |
-| 1 | Plates | Voronoi on the torus, edges warped at 256 and 64 km; each plate a velocity (B11's, no trigonometry) and a crust; continents built of 3–6 older blocks | 2.3; 3.5 s with step 3 (B11) |
+| 1 | Plates | Voronoi on the torus, edges warped at two scales; each plate a keyed velocity and a crust; continents built of 3–6 older blocks (below) | 2.3; 3.5 s with step 3 (B11) |
 | 2 | Rock layers | by geology class, below | 0.1; 0.15 s |
-| 3 | Uplift | B11's rule: continents +300 m, ocean −3,200 m, meeting plates up to +4,200 m, volcano lines by trenches, rifts −900 m, ridge and detail noise; peaks held to 3,000–4,500 m, most land under 1,000 m (`WLD-30`); sea level at the land share; faults and volcanoes on plate edges | in step 1 |
-| 4 | Erosion | 3 rounds of priority-flood fill, steepest descent, drainage and implicit stream power (Braun and Willett 2013; k = 0.004 × rock softness 0.5–2 × rain from a rough climate by latitude, sea distance and height, `WLD-09`), 2 hillslope passes, a last fill that marks lakes instead of raising them | 1.0; 1.5 s (B11) |
+| 3 | Uplift | the plate rule below: continents +300 m, ocean −3,200 m, meeting plates up to +4,200 m, volcano lines by trenches, rifts −900 m, ridge and detail noise; peaks held to 3,000–4,500 m, most land under 1,000 m (`WLD-30`); sea level at the land share; faults and volcanoes on plate edges | in step 1 |
+| 4 | Erosion | 3 rounds of priority-flood fill, steepest descent, drainage and implicit stream power (Braun and Willett 2013; k = 0.004 × rock softness 0.5–2 × rain from a rough climate by latitude, sea distance and height, `WLD-09`), 2 hillslope passes, a last fill that marks lakes instead of raising them (below) | 1.0; 1.5 s (B11) |
 | 5 | Waters and landforms | rivers where drainage ≥ 50 km², with fixed entry and exit points per cell, in stretches ≤ 10 km; streams below, with their drainage; lakes to their outlets; floodplains, fans, deltas and glacial valleys by simple rules; caves in limestone and chalk, tubes in lava, shelters under hard caps; lower rock exposed where cut | ~0.5; 0.8 s |
 | 6 | Seas and ice | polar ice within about 100 km of the seam (`WLD-01`); depth, shelves, shores; currents warm poleward on each ocean's western side, cold on its eastern, upwelling off eastern coasts (`WLD-26`) | ~0.2; 0.3 s |
 | 7 | Climate | per weather cell and season: warmth from sunlight (latitude, tilt, day), inland swing, 6 °C per 1,000 m, currents; wind belts moving with the season; rain from a moisture march along the wind (gained over sea, dropped where air rises) times belt factors; climate record, storm calibration, runoff table (A5.8, A5.10) | ~0.3; 0.5 s |
@@ -1642,7 +1621,14 @@ A candidate runs on one worker; row-parallel steps use fixed partitions and prio
 About 5 s on a cloud core and 8 s on a held middle core at 1 km, a quarter of that at 2 km; beyond B11's steps 1, 3 and 4 all are estimates (B11 ran plates and erosion at 1024 × 512 on the phone in 0.45 s, same bits as the cloud).
 **Rock by geology class**, top first (12 kinds, with lava and ash, river gravel, silt): old worn land, sandstone or quartzite on granite or slate; basins where seas lay, chalk or limestone, shale, sandstone; folded ranges, slate, quartzite and folded limestone, granite in the cores; volcanic lines, lava and ash, glassy lava by sticky-lava volcanoes, basalt, granite; rifts and sea floor, basalt and sandstone.
 
-**B11's flat continents with straight edges** are fixed by older blocks inside continents (worn ranges +300–800 m on their joins, basins −100–300 m), two-scale edge warping, coasts from shelf noise and broad inland relief (±400 m), checked by `WLD-08`'s numbers and your look at 20 globes at `MIL-04`; fallback: B11's erosion over warped noise, which passed every number.
+**Plates, uplift and erosion** (steps 1, 3 and 4; B11 tried this method and met the numbers under "Tested by"):
+- **Plates:** a cell's position is first warped by fbm offsets at two scales (period 256 km, ±64 km; period 64 km, ±16 km); its plate is the nearest keyed site by wrapped distance (A3.7), the second nearest is the plate across its edge, and its edge distance e is half the difference of the two distances.
+- **Motion:** each plate gets a keyed direction (through `kd_core::m`, A3.2) times 1–5 cm a year; a cell's convergence c is the two plates' relative velocity along the line from its plate's site to the other's, in units of 5 cm a year (−2 to 2), positive when they close.
+- **Uplift:** with b = 1 ÷ (1 + (e ÷ 48 km)²), a cell's base (+300 m continental, −3,200 m oceanic) is blended toward the other plate's by 0.5 ÷ (1 + 2e ÷ 48 km), half-way at the edge; closing plates add c × 4,200 m × b (× 0.7 unless both are continental), parting ones c × 900 m × b, a rift's trough; then detail fbm (period 256 km, ±900 m), ridged fbm (period 64 km) × b × 1,500 m, the older blocks and the broad relief below; sea level is set at the land share's quantile.
+- **Erosion,** 3 rounds: a priority-flood fill from the sea (queued by height, then cell index; each cell raised to at least 1 cm per cell step above the one it was reached from, so every land cell drains, and the settling order kept); each cell's receiver, its steepest neighbour of 8 by drop over distance; drainage area summed from the highest cell down; then, in settling order, z ← (z + f z_r) ÷ (1 + f) with f = k √(area in km²) ÷ (the step's length in km), Braun and Willett's implicit stream-power step, stable at any k.
+  Then 2 hillslope passes on land (z ← 0.6 z + 0.1 × the 4 neighbours' sum) and a last fill that marks lake cells instead of raising them.
+
+**Flat continents with straight edges**, B11's fault, are fixed by older blocks inside continents (worn ranges +300–800 m on their joins, basins −100–300 m), two-scale edge warping, coasts from shelf noise and broad inland relief (±400 m), checked by `WLD-08`'s numbers and your look at 20 globes at `MIL-04`; fallback: erosion over domain-warped noise without plates, which passed every number in B11.
 
 **Candidates and the best three** (`WLD-10`, `WLD-11`):
 - Candidate `i` has seed `mix64(session ^ i)`, one per worker in index order.
@@ -3593,8 +3579,9 @@ trait CrawlSlot {
 ```
 
 - B66's candidates, at its camp view, where Base crawled on 5.8% of art pixels a frame turning and 9.9% zooming: Fade (1.5° and 4% steps, an 80 ms dithered crossfade) cut both by over 99%, but the owner disliked its look; Steps (turn and zoom steps that move the view's edge by one art pixel) cut the turn's by 69%; Majority (twice the resolution, each art pixel its samples' majority) and Sticky (keeping last frame's index while half agree) barely helped, at 4 times the cost.
-- A2.9 recovers their code from `drawing-test.html` (`fixSteps`, `FADE_YAW`, `FADE_ZOOM`, `FADE_DUR`, `compose`, `resolveFS`) to `crates/kd-render/src/crawl/reference/`, and its counter (`window.__b66.crawl`, `capture`, `crawlPair`) to `tools/screens/`.
-- `window.kd` gains `crawl({ motion, rate, frames, fix })`, which freezes animation, captures each frame's indices and depth and returns B66's counts, run every alpha.
+- The four are built from these descriptions when the review needs them (A2.9: B66's code is evidence, not a source).
+- **Crawl** is an art pixel whose palette index changes between two frames while the surface it shows, re-projected through the depth buffer, moved less than one art pixel; every other change is the picture really moving.
+- `window.kd.crawl({ motion, rate, frames, fix })` freezes animation, captures each frame's indices and depth, and returns the crawl and all changed pixels; `tools/screens/crawl.mjs` runs it every alpha over 60 frames of a slow turn (0.11° a frame) and a slow zoom (0.3% a frame), with a slow pan as the control, which must count almost none.
 - The slot holds `Base` until the review, where the Tests screen offers all five; the choice becomes a tuned value in `data/tuning/render.md` (`PRN-17`).
 
 First needed: `Base` at `MIL-01`; the fix at `MIL-01`'s stage review.
@@ -3789,14 +3776,14 @@ From `MIL-05`, on Android only, the phone's built-in model rewords the pattern s
 - **Flow:** `kd-text` sends only the numbered pattern sentences of the facts that are not dark, under the voice's prompt (`PRE-17`); names, meanings and a myth's images are already in them (A12.6).
   A request holds at most 6 sentences and about 80 tokens of patterns (counted at 1.4 tokens a word), so a 150-word text goes in three, and the longest reply check 1 allows fits B73's cap of 256 new tokens.
   `kd-app` posts `Request::Write` (A2.2); Kotlin's `Writer.kt` calls Gemini Nano through ML Kit's Prompt API (temperature 0.3, top-k 20, at most 256 new tokens, a seed from the record and a new one for a rewrite, one request at a time); `writerResult` brings the reply.
-- **Prompt:** `data/writer/documentary.txt`, B73's best-rated voice (`PRE-19`) turned to rewording: the same numbers, one sentence each, the one who acts first, nothing added.
-- **Checks,** per sentence, rule-based (`kd_text::check`, ported from B73's `checker.py`):
+- **Prompt:** `data/writer/documentary.txt`, written for rewording in the documentary voice (`PRE-19`), which the owner rated best in B73: the same numbers, one sentence each, the one who acts first, nothing added.
+- **Checks,** per sentence, rule-based (`kd_text::check`, built from these rules; B73's checker measured them):
   1. shape: as many numbered sentences, in order, each under twice its pattern's length plus 8 words;
   2. names: its pattern's names and words in their language, letter for letter, or a pronoun for the previous sentence's doer when it matches their sex and nobody else of that sex is named in either sentence (a request's first sentence keeps its names);
   3. roles: the doer's name before that of the one acted on, with no passive turn ("was … by") between;
   4. numbers: the same, as digits or words;
   5. words: each content word comes from its pattern sentence (or is a form of one), the kind's synonym set (A12.6) or the voice's closed list of neutral words (`data/writer/neutral.md`, no verbs), and each content word of the pattern is kept or swapped within that set;
-  6. no hedges or softeners ("perhaps", "passed away", an agentless "were taken"), and every forcing word kept.
+  6. no hedges or softeners (the voice's closed list in `data/writer/softeners.md`, such as "perhaps" and "passed away", and an agentless "were taken"), and every forcing word kept.
 
   A failing sentence is replaced by its pattern sentence; the rest stand.
 - **Dark events never reach the writer** (`PRE-17`, `RSK-08`): their facts are not sent, and each one's pattern sentence is put back in date order, which the check confirms.
@@ -3840,7 +3827,7 @@ Serves: `SND-01`, `SND-02`, `SND-03`, `SND-06`, `SND-07`, `SND-08`, `SND-11`, `S
 ### A13.2 The audio engine
 
 **Output**
-- Android: AAudio from `kd-android` (B74's `android.rs`): exclusive, low latency, 48 kHz float stereo, 96-frame bursts (2 ms), a 960-frame buffer, usage "game"; B74: 24 ms to the speaker, no dropouts up to 128 sounds.
+- Android: AAudio from `kd-android`: exclusive, low latency, 48 kHz float stereo, 96-frame bursts (2 ms), a 960-frame buffer, usage "game"; B74: 24 ms to the speaker, no dropouts up to 128 sounds.
   Fallback: shared mode if exclusive is refused, at a cap of 24 (A13.3).
 - Web: an AudioWorklet at 48 kHz, fed 128-frame blocks mixed each frame with about 80 ms queued (A2.6); under 30 ms, mixing comes before simulating.
 - Headless: the same mixer writes WAV files; another device rate (44.1 kHz on some headsets) runs the mixer at that rate.
@@ -3913,7 +3900,7 @@ Fallback: if a phone check (A13.13) is over budget, the cap falls to 24, then 16
 
 ### A13.4 The speaker stage and headphones
 
-`speaker.rs` ports B74's `phone_step.py` and runs on the whole mix when the phone's own speaker plays:
+`speaker.rs` runs on the whole mix when the phone's own speaker plays (B74 measured this stage):
 1. A high-pass at 150 Hz (two second-order sections), since the speaker can't play lower.
 2. Phone bass: overtones 2–5 of the band below 200 Hz (the band over its own envelope, through Chebyshev polynomials), kept to 250–1,500 Hz, mixed in at 0.7.
 3. A gain of +6 dB, then a limiter looking 2 ms ahead and letting go over 80 ms, ceiling −1 dBFS, at most 12 dB of limiting.
@@ -3962,8 +3949,8 @@ As B74 advised, metal keeps a few ringing notes under its noise, and each base s
 | Wetter is duller (`MAT-19`) | contact stiffness × 0.3, η × 2, crunch × 0.3 | low-pass × 0.5, −3 dB |
 
 - η (energy lost per cycle) and crunch come from the class; crunch is × (1 − 0.18 × flaking), so flint barely crunches and granite does, and η × (1 + 0.5 × flexibility).
-- Form sets B74's shape: lumps, flakes, blades and points are slabs; rods, poles and strands rods; sheets and containers plates.
-- Calibration: flint, granite, dry wood and bone made this way match B74's strongest ring, ring time and contact within 25% (flint slab: 4.2 kHz, 0.53 s, 249 µs).
+- Form sets the shape: lumps, flakes, blades and points are slabs; rods, poles and strands rods; sheets and containers plates.
+- Calibration, each struck by a 350 g quartzite hammerstone: a 16 cm flint slab, a 30 cm granite stone on the ground, a 50 cm dry stick held in one hand and a 24 cm hollow long bone, made this way, come within 25% of B74's strongest ring, ring time and contact: flint 4.2 kHz, 0.53 s, 249 µs; granite 3.1 kHz, 0.07 s, 196 µs; dry wood 473 Hz, 0.36 s, 634 µs; bone 1.3 kHz, 0.12 s, 247 µs.
 
 **Random variation** (`SND-06`), seeded by source and mark: strike speed × 0.6–1.4 and each ring's share 0.25–1 (as B74); pitch × 0.97–1.03; level ±2 dB; a fresh noise seed; steps and grains ±10 ms.
 
@@ -4097,10 +4084,14 @@ No voice model or ONNX Runtime ships in the app.
 ### A13.10 Music
 
 **Instruments from their shapes** (`SND-02`, `CUL-10`), each a made thing whose shape A6 keeps:
-- **Flute:** B74's model: a note is the register × the speed of sound (from the air's temperature) ÷ (2 × the bore's acoustic length to the first open hole), corrected for holes and open ends; at most 8 harmonics plus a breath band shaped by the bore, clearer for bone than wood; B74's notes fell within 3.3 cents of the shape's pitch, and the test allows 10.
+- **Flute:** a note is the register × the speed of sound (from the air's temperature) ÷ (2 × the bore's acoustic length to the first open hole), corrected for holes and open ends; at most 8 harmonics plus a breath band shaped by the bore, clearer for bone than wood; B74's flutes built this way played within 3.3 cents of their shape's pitch, and the test allows 10.
 - A song's note goes to the nearest of the flute's own notes (each hole pattern, two registers); makers place holes for their people's scale, more exactly with skill (A6), so a clumsy flute plays out of tune.
-- **Drum:** parked by B74; remade at `MIL-05`, before any drum is heard: first, shaped noise at the strongest `drum_modes_v2` notes plus a 1–4 kHz slap band for the hide's many high notes; a bigger drum is lower, a thicker hide duller.
-  It passes when, through the speaker stage, both B74 drums come within 3 dB of the flutes with at most 12 dB of limiting, then by the owner's ear; fallback: ringing notes plus noise, as the flutes.
+- **Drum:** parked by B74; remade at `MIL-05`, before any drum is heard.
+  Its notes are the round hide's: f = j ÷ (2π r) × √(T ÷ σ′), j a zero of the Bessel function J_m, T the hide's tension, σ its mass per area and σ′ = σ + 2 ρ_air r ÷ j, the air it moves on both faces, which lowers the low notes most.
+  A note with m lines of stillness across the hide pushes the air both ways and radiates as a multipole: its share of full radiation is x^(2m+2) ÷ (1 + x^(2m+2)) with x = k r ÷ (m + 2), k the air's wavenumber; it decays at π f η plus that share × ρ_air c ÷ (2σ), and its pressure goes with the share's square root.
+  Fitted to a 64 cm kettledrum (5,360 N/m, 0.262 kg/m², η 0.002) whose (1,1) to (5,1) notes, at 172, 258, 340, 420 and 501 Hz, ring 0.8, 1.7, 2.7, 1.7 and 2.6 s to −60 dB (Christian and others, 1984), this law gives each within 1.5 times its measured time (B74), the ring time being 6.91 ÷ the decay.
+  First try: shaped noise at its strongest notes plus a 1–4 kHz slap band for the hide's many high notes; a bigger drum is lower, a thicker hide duller.
+  It passes when, through the speaker stage, a small tight drum (radius 15 cm, 3,500 N/m, 0.6 kg/m²) and a large slack one (30 cm, 1,200 N/m, 0.9 kg/m²) both come within 3 dB of the flutes with at most 12 dB of limiting, then by the owner's ear; fallback: ringing notes plus noise, as the flutes.
 - **Rattles:** a base sound (A13.5), voiced by their parts' sizes and materials.
 
 **Songs**
@@ -4151,13 +4142,13 @@ A later layer that adds it would bring all four together.
 2. Shares: a storm over a festival with screams never breaks a share or a layer's units, seats every loud sound and steals only by rule.
 3. The law, for every sound blueprint: brighter with hardness, lower and longer with size, duller when wet; B74's four materials within 25%; flute notes within 10 cents.
 4. Variation: no two of 100 renders of one strike or step correlate above 0.98, so 20 flint strikes in a row all differ (`SND-06`).
-5. Speaker stage: deep test sounds gain at least 4 dB through B74's speaker stand-in; with headphones it is bypassed exactly.
+5. Speaker stage: deep test sounds gain at least 4 dB through a stand-in for the phone's speaker (two second-order high-passes at 300 and 400 Hz and a low-pass at 14 kHz, as B74 modelled the speaker), measured K-weighted as the mean of the loudest fifth of 400 ms windows; with headphones it is bypassed exactly.
 6. Murmur: in 100 worlds, every phrase strings from the bank with only kept sounds and no blocked word; at most 4 single voices; anger faster and louder than grief.
 7. Ambience (`SND-11`): a test valley differs by at least 6 dB in some octave band between dawn and night and between rain and calm, and the bird slot is silent where the cell has no small birds.
 8. Scenes (A15.7): `kd sound render <scene> --camera <path>` writes a WAV and a log of every slot and bed with its source; every sound traces to a snapshot entry (`PRN-10`), and A13.11's checks pass.
 9. Cost: `kd sound bench` mixes the dearest mix (55 units) in the cloud each alpha (A16.1's factor); the phone benchmark (A15.10) plays the stage's scene live, counting dropouts.
 
-An alpha that changes a sound links an optional page of before-and-after clips, loudness-matched as in B74 (`RSK-28`).
+An alpha that changes a sound links an optional page of before-and-after clips, loudness-matched by test 5's K-weighted measure, without the stand-in (`RSK-28`).
 
 **The owner's review** (`SND-12`, `RES-22`), at each stage that adds sound:
 - The Tests screen's Review button (A15.11) plays a reel of about 3 minutes from the fixed review worlds: the close camp at dusk and at night, its hum from camp zoom, a valley in a storm and the globe.
@@ -4282,7 +4273,7 @@ The catch-up repeats at most one autosave interval, so it takes at most about 30
 
 ### A14.8 The history log, the book of ages and texts
 
-History log (B04's custom log, zstd):
+History log (a custom log, zstd; B04 measured it):
 - The simulation hands events to an `EventSink`; clusters buffer them, merged in (time, uid, sequence) order at each barrier and pause (A4.8), the same at any thread count.
 - Event core, 32 bytes (`time: u64`, `kind: u16`, `flags: u16`, `place: u32`, `actor: u64`, `target: u64`), with an optional payload such as a choice's 24-byte reasons (`PRN-13`, A8.15), logged only with each activity's end in the journal and with events kept forever, in a side column; a catalogue table (A3) says which kinds are logged and which kept forever.
 - Your acts and their results never enter this log, which minds and the recognisers read: `act_result` and `fortune_turned` go only to `acts.log` and the `player` chunk, never through `EventSink`, linked to what followed by time and place (`GOD-06`, `GOD-07`, `GOD-09`).
