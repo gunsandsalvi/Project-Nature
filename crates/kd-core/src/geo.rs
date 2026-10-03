@@ -1,7 +1,7 @@
 //! Positions on the wrap-around world (A3.7, `WLD-01`): ticks of 1/256 m on a torus 2,048 km around and 1,024 km
-//! from pole to pole, the short way between two positions across either seam, and the cell and area indices a
-//! position shifts down to. α02a completes A3.7's index table (buckets, metres, weather cells, regions,
-//! neighbours).
+//! from pole to pole, the short way between two positions across either seam, and A3.7's indices a position shifts
+//! down to: the world cell, the area, the bucket and the metre in its area, and the weather cell and region a cell
+//! lies in; a cell's eight neighbours, wrapped, and the seam's row.
 //!
 //! Implements WLD-01, see A3.7: the world wraps both ways, the poles along the north–south seam.
 
@@ -20,9 +20,20 @@ pub const AREAS_Y: u32 = 4_000;
 /// An area's side in metres, and in ticks.
 pub const AREA_M: i32 = 256;
 pub const AREA_TICKS: i32 = AREA_M * TICKS_PER_M;
-/// From ticks to a cell's column or row, and to an area's (A3.7: level 10 and level 8).
+/// The weather-cell grid: 200 × 100 cells of 10 × 10 world cells; the region grid: 20 × 10 regions of 100 × 100
+/// world cells (A3.7).
+pub const WEATHER_X: u32 = 200;
+pub const WEATHER_Y: u32 = 100;
+pub const REGIONS_X: u32 = 20;
+pub const REGIONS_Y: u32 = 10;
+/// World cells along a weather cell's side, and a region's.
+pub const WEATHER_CELLS: u32 = 10;
+pub const REGION_CELLS: u32 = 100;
+/// From ticks to a cell's column or row, an area's, a bucket's and a metre's (A3.7: levels 10, 8, 4 and 0).
 const CELL_SHIFT: u32 = 18;
 const AREA_SHIFT: u32 = 16;
+const BUCKET_SHIFT: u32 = 12;
+const METRE_SHIFT: u32 = 8;
 
 /// A place in the world, in ticks of 1/256 m (A3.7): `x` east in [0, `W`), `y` from the north pole (0) to the
 /// south pole (`H`), `z` the height above sea level.
@@ -99,6 +110,26 @@ pub struct CellIx(pub u32);
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AreaId(pub u32);
 
+/// A bucket of 16 m in its area: `by × 16 + bx` (A3.7).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Bucket(pub u8);
+
+/// A square metre in its area: `my × 256 + mx` (A3.7).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Metre(pub u16);
+
+/// A weather cell, 10 × 10 world cells: `wy × 200 + wx` (A3.7).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct WeatherIx(pub u16);
+
+/// A region, 100 × 100 world cells: `ry × 20 + rx` (A3.7).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct RegionIx(pub u8);
+
+/// The eight neighbours' steps in columns and rows, in B10's order: counter-clockwise from east, north being a row
+/// up.
+pub const NEIGHBOURS8: [(i32, i32); 8] = [(1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1)];
+
 /// Whether a position lies on the world, as every stored position does.
 fn on_world(p: Pos) -> bool {
     (0..W).contains(&p.x) && (0..H).contains(&p.y)
@@ -126,6 +157,55 @@ impl CellIx {
     pub fn areas(self) -> [AreaId; 16] {
         let (cx, cy) = self.xy();
         std::array::from_fn(|k| AreaId::at(cx * 4 + k as u32 % 4, cy * 4 + k as u32 / 4))
+    }
+
+    /// Its north-west corner at sea level.
+    pub fn origin(self) -> Pos {
+        let (cx, cy) = self.xy();
+        Pos {
+            x: (cx << CELL_SHIFT) as i32,
+            y: (cy << CELL_SHIFT) as i32,
+            z: 0,
+        }
+    }
+
+    /// Its middle at sea level.
+    pub fn centre(self) -> Pos {
+        let o = self.origin();
+        let half = 1 << (CELL_SHIFT - 1);
+        Pos {
+            x: o.x + half,
+            y: o.y + half,
+            z: 0,
+        }
+    }
+
+    /// Its eight neighbours in B10's order, counter-clockwise from east, wrapped across both seams (A3.7).
+    pub fn neighbours8(self) -> [CellIx; 8] {
+        let (cx, cy) = self.xy();
+        NEIGHBOURS8.map(|(dx, dy)| {
+            CellIx::at(
+                (cx as i32 + dx).rem_euclid(CELLS_X as i32) as u32,
+                (cy as i32 + dy).rem_euclid(CELLS_Y as i32) as u32,
+            )
+        })
+    }
+
+    /// Whether it lies in the seam's row, the middle of the polar ice, which paths treat as blocked (A3.7).
+    pub fn on_seam(self) -> bool {
+        self.xy().1 == 0
+    }
+
+    /// The weather cell it lies in.
+    pub fn weather(self) -> WeatherIx {
+        let (cx, cy) = self.xy();
+        WeatherIx::at(cx / WEATHER_CELLS, cy / WEATHER_CELLS)
+    }
+
+    /// The region it lies in.
+    pub fn region(self) -> RegionIx {
+        let (cx, cy) = self.xy();
+        RegionIx::at(cx / REGION_CELLS, cy / REGION_CELLS)
     }
 }
 
@@ -161,6 +241,123 @@ impl AreaId {
             y: (ay << AREA_SHIFT) as i32,
             z: 0,
         }
+    }
+}
+
+impl Bucket {
+    /// The bucket at column `bx` and row `by` of its area.
+    pub fn at(bx: u32, by: u32) -> Bucket {
+        debug_assert!(bx < 16 && by < 16, "bucket ({bx}, {by}) is off its area");
+        Bucket((by * 16 + bx) as u8)
+    }
+
+    /// The bucket of its area a position lies in.
+    pub fn of(p: Pos) -> Bucket {
+        debug_assert!(on_world(p), "{p:?} is off the world");
+        Bucket::at((p.x >> BUCKET_SHIFT) as u32 & 15, (p.y >> BUCKET_SHIFT) as u32 & 15)
+    }
+
+    /// Its column and row in its area.
+    pub fn xy(self) -> (u32, u32) {
+        (u32::from(self.0) % 16, u32::from(self.0) / 16)
+    }
+
+    /// Its north-west corner in `area`, at sea level.
+    pub fn origin_in(self, area: AreaId) -> Pos {
+        let (bx, by) = self.xy();
+        let o = area.origin();
+        Pos {
+            x: o.x + (bx << BUCKET_SHIFT) as i32,
+            y: o.y + (by << BUCKET_SHIFT) as i32,
+            z: 0,
+        }
+    }
+}
+
+impl Metre {
+    /// The square metre at column `mx` and row `my` of its area.
+    pub fn at(mx: u32, my: u32) -> Metre {
+        debug_assert!(mx < 256 && my < 256, "metre ({mx}, {my}) is off its area");
+        Metre((my * 256 + mx) as u16)
+    }
+
+    /// The square metre of its area a position lies in.
+    pub fn of(p: Pos) -> Metre {
+        debug_assert!(on_world(p), "{p:?} is off the world");
+        Metre::at((p.x >> METRE_SHIFT) as u32 & 255, (p.y >> METRE_SHIFT) as u32 & 255)
+    }
+
+    /// Its column and row in its area.
+    pub fn xy(self) -> (u32, u32) {
+        (u32::from(self.0) % 256, u32::from(self.0) / 256)
+    }
+
+    /// Its north-west corner in `area`, at sea level.
+    pub fn origin_in(self, area: AreaId) -> Pos {
+        let (mx, my) = self.xy();
+        let o = area.origin();
+        Pos {
+            x: o.x + (mx << METRE_SHIFT) as i32,
+            y: o.y + (my << METRE_SHIFT) as i32,
+            z: 0,
+        }
+    }
+
+    /// The bucket it lies in.
+    pub fn bucket(self) -> Bucket {
+        let (mx, my) = self.xy();
+        Bucket::at(mx / 16, my / 16)
+    }
+}
+
+impl WeatherIx {
+    /// The weather cell at column `wx` and row `wy`.
+    pub fn at(wx: u32, wy: u32) -> WeatherIx {
+        debug_assert!(
+            wx < WEATHER_X && wy < WEATHER_Y,
+            "weather cell ({wx}, {wy}) is off the world"
+        );
+        WeatherIx((wy * WEATHER_X + wx) as u16)
+    }
+
+    /// The weather cell a position lies in.
+    pub fn of(p: Pos) -> WeatherIx {
+        CellIx::of(p).weather()
+    }
+
+    /// Its column and row.
+    pub fn xy(self) -> (u32, u32) {
+        (u32::from(self.0) % WEATHER_X, u32::from(self.0) / WEATHER_X)
+    }
+
+    /// Its north-west world cell.
+    pub fn first_cell(self) -> CellIx {
+        let (wx, wy) = self.xy();
+        CellIx::at(wx * WEATHER_CELLS, wy * WEATHER_CELLS)
+    }
+}
+
+impl RegionIx {
+    /// The region at column `rx` and row `ry`.
+    pub fn at(rx: u32, ry: u32) -> RegionIx {
+        debug_assert!(rx < REGIONS_X && ry < REGIONS_Y, "region ({rx}, {ry}) is off the world");
+        RegionIx((ry * REGIONS_X + rx) as u8)
+    }
+
+    /// The region a position lies in.
+    pub fn of(p: Pos) -> RegionIx {
+        CellIx::of(p).region()
+    }
+
+    /// Its column and row.
+    pub fn xy(self) -> (u32, u32) {
+        (u32::from(self.0) % REGIONS_X, u32::from(self.0) / REGIONS_X)
+    }
+
+    /// Its north-west world cell.
+    pub fn first_cell(self) -> CellIx {
+        let (rx, ry) = self.xy();
+        CellIx::at(rx * REGION_CELLS, ry * REGION_CELLS)
     }
 }
 
@@ -304,11 +501,11 @@ mod tests {
         assert!((far - 1_144_866.3).abs() < 1.0, "{far}");
     }
 
-    // checks: WLD-01
+    // checks: WLD-01 WLD-12
     #[test]
-    fn area_cell_round_trips() {
+    fn areas_nest_in_cells() {
         // Every cell's 16 areas lie in that cell, and between them the cells name each of the 32 million areas
-        // once.
+        // once (A3.7).
         let mut seen = vec![0u64; (AREAS_X * AREAS_Y).div_ceil(64) as usize];
         for c in 0..CELLS_X * CELLS_Y {
             for a in CellIx(c).areas() {
@@ -319,44 +516,138 @@ mod tests {
             }
         }
         assert_eq!(seen.iter().map(|w| w.count_ones()).sum::<u32>(), AREAS_X * AREAS_Y);
-        // At the world's corners, and across it, a position's area and cell hold it, and an area's corner lies in
-        // it.
+        // And every weather cell holds 10 × 10 cells, every region 100 × 100, each cell in one of each.
+        let mut weather = vec![0u32; (WEATHER_X * WEATHER_Y) as usize];
+        let mut regions = vec![0u32; (REGIONS_X * REGIONS_Y) as usize];
+        for c in 0..CELLS_X * CELLS_Y {
+            weather[usize::from(CellIx(c).weather().0)] += 1;
+            regions[usize::from(CellIx(c).region().0)] += 1;
+        }
+        assert!(weather.iter().all(|&n| n == 100) && regions.iter().all(|&n| n == 10_000));
+    }
+
+    // checks: WLD-01
+    #[test]
+    fn indices_round_trip_at_corners() {
+        // At the world's corners, along its seams and across it, each index a position shifts down to holds it,
+        // and its corner gives the index back: the cell, the area, the bucket and the metre in the area, the
+        // weather cell and the region.
         let corners = [(0, 0), (W - 1, 0), (0, H - 1), (W - 1, H - 1)];
         let mut places: Vec<Pos> = corners.iter().map(|&(x, y)| Pos { x, y, z: 7 }).collect();
         places.extend(near_seams());
         places.extend((0..10_000).map(|i| pos(6, i)));
+        let within =
+            |p: Pos, o: Pos, ticks: i32| (0..ticks).contains(&(p.x - o.x)) && (0..ticks).contains(&(p.y - o.y));
         for p in places {
-            let a = AreaId::of(p);
-            let o = a.origin();
+            let (c, a) = (CellIx::of(p), AreaId::of(p));
             assert!(
-                (0..AREA_TICKS).contains(&(p.x - o.x)) && (0..AREA_TICKS).contains(&(p.y - o.y)),
+                within(p, c.origin(), 1 << CELL_SHIFT) && CellIx::of(c.origin()) == c,
                 "{p:?}"
             );
-            assert_eq!(AreaId::of(o), a);
-            assert_eq!(a.cell(), CellIx::of(p), "{p:?}");
-            assert!(CellIx::of(p).areas().contains(&a));
+            assert!(
+                within(p, a.origin(), AREA_TICKS) && AreaId::of(a.origin()) == a,
+                "{p:?}"
+            );
+            assert_eq!(a.cell(), c, "{p:?}");
+            assert!(c.areas().contains(&a));
+            let (b, m) = (Bucket::of(p), Metre::of(p));
+            assert!(
+                within(p, b.origin_in(a), 1 << BUCKET_SHIFT) && Bucket::of(b.origin_in(a)) == b,
+                "{p:?}"
+            );
+            assert!(
+                within(p, m.origin_in(a), 1 << METRE_SHIFT) && Metre::of(m.origin_in(a)) == m,
+                "{p:?}"
+            );
+            assert_eq!(m.bucket(), b, "{p:?}");
+            let (w, r) = (WeatherIx::of(p), RegionIx::of(p));
+            let (cx, cy) = c.xy();
+            let ((wx, wy), (rx, ry)) = (w.first_cell().xy(), r.first_cell().xy());
+            assert!(
+                (wx..wx + WEATHER_CELLS).contains(&cx) && (wy..wy + WEATHER_CELLS).contains(&cy),
+                "{p:?}"
+            );
+            assert!(
+                (rx..rx + REGION_CELLS).contains(&cx) && (ry..ry + REGION_CELLS).contains(&cy),
+                "{p:?}"
+            );
+            assert_eq!((w.first_cell().weather(), r.first_cell().region()), (w, r));
+            // The cell's middle lies in it, half a cell from its corner.
+            let mid = c.centre();
+            assert_eq!(CellIx::of(mid), c);
+            assert_eq!(dist(c.origin(), mid), 512.0 * std::f32::consts::SQRT_2);
         }
-        assert_eq!(
-            AreaId::of(Pos {
-                x: W - 1,
-                y: H - 1,
-                z: 0
-            }),
-            AreaId(AREAS_X * AREAS_Y - 1)
-        );
-        assert_eq!(
-            CellIx::of(Pos {
-                x: W - 1,
-                y: H - 1,
-                z: 0
-            }),
-            CellIx(CELLS_X * CELLS_Y - 1)
-        );
+        // The last of each, at the south-east corner.
+        let last = Pos {
+            x: W - 1,
+            y: H - 1,
+            z: 0,
+        };
+        assert_eq!(AreaId::of(last), AreaId(AREAS_X * AREAS_Y - 1));
+        assert_eq!(CellIx::of(last), CellIx(CELLS_X * CELLS_Y - 1));
+        assert_eq!((Bucket::of(last), Metre::of(last)), (Bucket(255), Metre(65_535)));
+        assert_eq!(WeatherIx::of(last), WeatherIx((WEATHER_X * WEATHER_Y - 1) as u16));
+        assert_eq!(RegionIx::of(last), RegionIx((REGIONS_X * REGIONS_Y - 1) as u8));
         assert_eq!(CellIx(2_001).areas()[5], AreaId::at(5, 5));
+        // A3.7's table: a cell's column is x >> 18, a weather cell's cx / 10, a region's cx / 100.
+        let p = Pos {
+            x: 1234 << 18,
+            y: 567 << 18,
+            z: 0,
+        };
+        assert_eq!(CellIx::of(p), CellIx(567 * 2_000 + 1234));
+        assert_eq!(WeatherIx::of(p), WeatherIx(56 * 200 + 123));
+        assert_eq!(RegionIx::of(p), RegionIx(5 * 20 + 12));
         // Latitude and longitude at the poles, the equator and the date line.
         assert_eq!(lat_deg(0), 90.0);
         assert_eq!(lat_deg(H / 2), 0.0);
         assert!((lat_deg(H - 1) + 90.0).abs() < 1e-4);
         assert_eq!(lon_deg(W / 2), 180.0);
+    }
+
+    // checks: WLD-01
+    #[test]
+    fn neighbours_wrap_both_seams() {
+        // B10's order, counter-clockwise from east, north a row up; at the corners the neighbours wrap across
+        // both seams; every neighbour has the cell as its opposite neighbour, and its centre lies a cell or a
+        // diagonal away, the short way round.
+        let corner = CellIx::at(0, 0);
+        assert_eq!(
+            corner.neighbours8(),
+            [
+                CellIx::at(1, 0),
+                CellIx::at(1, 999),
+                CellIx::at(0, 999),
+                CellIx::at(1999, 999),
+                CellIx::at(1999, 0),
+                CellIx::at(1999, 1),
+                CellIx::at(0, 1),
+                CellIx::at(1, 1),
+            ]
+        );
+        let cells = [(0, 0), (1999, 0), (0, 999), (1999, 999), (1000, 500), (1, 998)];
+        for (cx, cy) in cells {
+            let c = CellIx::at(cx, cy);
+            let n = c.neighbours8();
+            for (k, &m) in n.iter().enumerate() {
+                assert_eq!(m.neighbours8()[(k + 4) % 8], c, "{c:?} neighbour {k}");
+                let want = if k % 2 == 0 {
+                    1024.0
+                } else {
+                    1024.0 * std::f32::consts::SQRT_2
+                };
+                assert!(
+                    (dist(c.centre(), m.centre()) - want).abs() < 1e-3,
+                    "{c:?} neighbour {k}"
+                );
+            }
+            let mut sorted = n.to_vec();
+            sorted.sort();
+            sorted.dedup();
+            assert_eq!(sorted.len(), 8);
+        }
+        // Only row 0 is the seam's.
+        assert!(corner.on_seam() && CellIx::at(1999, 0).on_seam());
+        assert!(!CellIx::at(0, 1).on_seam() && !CellIx::at(0, 999).on_seam());
     }
 }
