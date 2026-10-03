@@ -17,6 +17,10 @@ pub mod unit {
     pub const PALETTE: u32 = 1;
     /// The tables, 256 × 16 R8 (A11.3).
     pub const TABLES: u32 = 2;
+    /// The scene's colour 0, read by post.
+    pub const SCENE: u32 = 3;
+    /// The probe scene's inputs.
+    pub const PROBE: u32 = 4;
 }
 
 /// The texture formats the renderer uses (A11.13 rule 3).
@@ -230,6 +234,28 @@ impl Target {
         unsafe { gl.bind_framebuffer(glow::FRAMEBUFFER, Some(self.framebuffer)) }
     }
 
+    /// Reads the first colour attachment back as RGBA8, rows from the bottom: for the probe and tests, never per
+    /// frame, since it waits for the GPU.
+    pub fn read_rgba8(&self, gl: &glow::Context) -> Vec<u8> {
+        let mut out = vec![0u8; self.w as usize * self.h as usize * 4];
+        // SAFETY: plain GL calls on the current context; `out` holds exactly w × h RGBA8 pixels.
+        unsafe {
+            gl.bind_framebuffer(glow::FRAMEBUFFER, Some(self.framebuffer));
+            gl.pixel_store_i32(glow::PACK_ALIGNMENT, 1);
+            gl.read_pixels(
+                0,
+                0,
+                self.w as i32,
+                self.h as i32,
+                glow::RGBA,
+                glow::UNSIGNED_BYTE,
+                glow::PixelPackData::Slice(Some(&mut out)),
+            );
+            gl.bind_framebuffer(glow::FRAMEBUFFER, None);
+        }
+        out
+    }
+
     pub fn delete(self, gl: &glow::Context) {
         // SAFETY: the framebuffer and its attachments belong to this context and are not used again.
         unsafe {
@@ -339,6 +365,13 @@ pub fn set_i32(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: i32) 
 pub fn set_ivec2(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [i32; 2]) {
     // SAFETY: as above.
     unsafe { gl.uniform_2_i32(loc, v[0], v[1]) }
+}
+
+/// An array of `ivec2`, from its first element's location.
+pub fn set_ivec2_array(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: &[[i32; 2]]) {
+    let flat: Vec<i32> = v.iter().flatten().copied().collect();
+    // SAFETY: as above; the array holds whole ivec2s.
+    unsafe { gl.uniform_2_i32_slice(loc, &flat) }
 }
 
 pub fn set_f32(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: f32) {

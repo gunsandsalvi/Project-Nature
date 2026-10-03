@@ -156,6 +156,17 @@ impl WebApp {
         kd_core::bits::hashes_text(&kd_core::bits::probes())
     }
 
+    /// Test hook (A11.13 rule 2): the probe scene's steps, `{"gpu":[…],"twins":[…]}`, or `null` before the renderer.
+    pub fn probe(&mut self) -> String {
+        match self.app.probe() {
+            Some((gpu, twins)) => {
+                let list = |v: &[u8]| v.iter().map(u8::to_string).collect::<Vec<_>>().join(",");
+                format!("{{\"gpu\":[{}],\"twins\":[{}]}}", list(&gpu), list(&twins))
+            }
+            None => "null".to_string(),
+        }
+    }
+
     /// Test hook (A3.8): a panic, for the smoke test to see its message in the status line.
     pub fn crash(&self) {
         panic!("a test panic, asked for by the smoke test");

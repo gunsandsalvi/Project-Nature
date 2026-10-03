@@ -1,7 +1,8 @@
 //! kd-render: the renderer (A11), organised as A11.13 sets it: `gl` is the one layer that calls OpenGL, `passes`
 //! holds each pass with its program and targets, and every shader shares `shaders/lib.glsl` and the constants
 //! generated from Rust. It runs on the GL thread only, through `glow`: OpenGL ES 3.0 on the phone, WebGL2 on the web.
-//! α00 draws a test card at art resolution and enlarges it so an art pixel is 4 × 4 screen pixels (A11.2).
+//! α01a draws the light card as palette indices, turns them into the palette's colours under the light of the hour,
+//! and enlarges the result so an art pixel is 4 × 4 screen pixels (A11.2, A11.3).
 //!
 //! Implements PRE-22 and PLT-01, see A11.2 and A11.13: an art pixel exactly 4 × 4 screen pixels, drawn with OpenGL
 //! ES 3.0 on the phone.
@@ -11,13 +12,17 @@ pub mod gl;
 pub mod light;
 pub mod looks;
 pub mod passes;
+pub mod pixel;
+pub mod probe;
 pub mod shaders;
 
 use std::fmt;
 
 use kd_data::Catalogue;
+use passes::post::PostPass;
 use passes::scene::{ArtView, ScenePass};
 use passes::upscale::UpscalePass;
+use probe::ProbePass;
 
 use frame::Lighting;
 use gl::{Format, Texture};
@@ -50,14 +55,11 @@ fn clean(log: &str) -> &str {
     log.trim_matches(|c: char| c == '\0' || c.is_whitespace())
 }
 
-/// One frame's inputs (A11.1); the camera, the light and the display time join with their alphas.
+/// One frame's inputs (A11.1); the camera and the display time join with their alphas.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Frame {
-    /// Frames drawn since the app started: the test card's bar moves one art pixel a frame.
+    /// Frames drawn since the app started.
     pub count: u64,
-    /// The self-check's core bits, shown on the test card: none before the check, then whether they equal the
-    /// cloud's (A15.9 item 5).
-    pub core_bits: Option<bool>,
     /// The sky the frame is lit by (A11.4).
     pub sky: kd_view::SkyView,
 }
@@ -73,7 +75,9 @@ pub struct Renderer {
     info: String,
     vao: glow::VertexArray,
     scene: ScenePass,
+    post: PostPass,
     upscale: UpscalePass,
+    probe: ProbePass,
     view: Option<ArtView>,
     cat: Catalogue,
     layout: Layout,
@@ -91,7 +95,9 @@ impl Renderer {
         let layout = Layout::new(cat).map_err(RenderError::Gl)?;
         let vao = gl::empty_vertex_array(&gl)?;
         let scene = ScenePass::new(&gl)?;
+        let post = PostPass::new(&gl)?;
         let upscale = UpscalePass::new(&gl)?;
+        let probe = ProbePass::new(&gl)?;
         let palette_tex = Texture::new(&gl, Format::Rgba8, PALETTE_SIZE as u32, 1, None)?;
         let tables_tex = Texture::new(&gl, Format::R8, PALETTE_SIZE as u32, TABLE_ROWS as u32, None)?;
         Ok(Renderer {
@@ -99,7 +105,9 @@ impl Renderer {
             info,
             vao,
             scene,
+            post,
             upscale,
+            probe,
             view: None,
             cat: cat.clone(),
             layout,
@@ -148,6 +156,7 @@ impl Renderer {
         }
         let view = ArtView::new(w_px, h_px, scale);
         self.scene.resize(&self.gl, &view)?;
+        self.post.resize(&self.gl, &view)?;
         self.view = Some(view);
         Ok(())
     }
@@ -157,17 +166,17 @@ impl Renderer {
             return FrameStats::default();
         };
         self.light_frame(f);
-        let bar_x = (f.count % u64::from(view.visible[0].max(1))) as i32;
-        let core = match f.core_bits {
-            None => 0,
-            Some(true) => 1,
-            Some(false) => 2,
-        };
-        self.scene.draw(&self.gl, &view, bar_x, core, self.vao);
-        if let Some(t) = &self.scene.target {
-            self.upscale.draw(&self.gl, &view, &t.colours[0], self.vao);
+        self.scene.draw(&self.gl, &view, &self.layout, self.vao);
+        if let (Some(scene), Some(post)) = (&self.scene.target, &self.post.target) {
+            self.post.draw(&self.gl, &scene.colours[0], &self.palette_tex, self.vao);
+            self.upscale.draw(&self.gl, &view, &post.colours[0], self.vao);
         }
         FrameStats { art: view.art }
+    }
+
+    /// Runs the probe scene (A11.13 rule 2): the steps the GPU picks for the fixed inputs, and the twins' steps.
+    pub fn probe(&mut self) -> (Vec<u8>, Vec<u8>) {
+        self.probe.run(&self.gl, self.vao)
     }
 
     /// The art target's size, once the window's is known.

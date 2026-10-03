@@ -1,29 +1,24 @@
-//! Pass 2, the scene, and its art target (A11.2). In α00 the scene is a test card; the light card (α01a) and the
-//! ground (α01b) replace it.
+//! Pass 2, the scene, and its art target (A11.2). In α01a the scene is the light card, drawn as palette indices into
+//! colour 0; the ground (α01b) replaces it.
 
 use crate::RenderError;
 use crate::gl::{self, Format, Program, State, Target};
+use crate::looks::Layout;
 use crate::shaders::{self, Stage};
 
-/// The test card's layout, in art pixels from the screen's top-left corner; the shaders take these as generated
+/// The light card's layout, in art pixels from the screen's top-left corner; the shaders take these as generated
 /// defines (A11.13 rule 6).
 pub mod card {
-    /// 96 screen pixels in from each edge, so a phone's rounded screen corner (a radius up to about 320 screen
-    /// pixels) never clips the checker.
-    pub const MARGIN: i32 = 24;
-    pub const CHECKER: i32 = 32;
-    pub const GREY_STEPS: i32 = 8;
-    pub const GREY_W: i32 = 11;
-    pub const GREY_Y: i32 = MARGIN + CHECKER + 8;
-    pub const GREY_H: i32 = 16;
-    pub const BAR_Y: i32 = GREY_Y + GREY_H + 8;
-    pub const BAR_H: i32 = 32;
-    /// The self-check's block, right of the checker: green when the core's maths and draws give the cloud's bits,
-    /// red when they do not, grey before the check (A15.9 item 5).
-    pub const CORE_X: i32 = MARGIN + CHECKER + 8;
-    pub const CORE_Y: i32 = MARGIN;
-    pub const CORE_W: i32 = 32;
-    pub const CORE_H: i32 = 32;
+    /// 128 screen pixels in from each edge, clear of a phone's rounded corners and camera cut-out.
+    pub const MARGIN: i32 = 32;
+    /// A swatch's side.
+    pub const SWATCH: i32 = 16;
+    /// The line above each row of swatches that holds the look's name.
+    pub const NAME_H: i32 = 9;
+    /// From one look's row to the next: its name, its swatches and a gap.
+    pub const ROW: i32 = NAME_H + SWATCH + 7;
+    /// Looks the card shows; more would not fit a portrait screen with the block (A11.12).
+    pub const MAX_LOOKS: usize = 8;
 }
 
 /// Where the art target sits behind the window, worked out on the CPU (A11.13 rule 1).
@@ -65,8 +60,9 @@ impl ArtView {
 pub struct ScenePass {
     program: Program,
     u_top_left: Option<glow::UniformLocation>,
-    u_bar_x: Option<glow::UniformLocation>,
-    u_core: Option<glow::UniformLocation>,
+    u_swatches: Option<glow::UniformLocation>,
+    u_looks: Option<glow::UniformLocation>,
+    u_ladders: Option<glow::UniformLocation>,
     pub target: Option<Target>,
 }
 
@@ -74,18 +70,16 @@ impl ScenePass {
     pub fn new(gl: &glow::Context) -> Result<ScenePass, RenderError> {
         let program = Program::new(
             gl,
-            "test card",
+            "light card",
             &shaders::source(Stage::Vertex, shaders::FULL_TARGET_VERT),
-            &shaders::source(Stage::Fragment, shaders::TEST_CARD_FRAG),
+            &shaders::source(Stage::Fragment, shaders::LIGHT_CARD_FRAG),
         )?;
-        let u_top_left = program.uniform(gl, "u_top_left");
-        let u_bar_x = program.uniform(gl, "u_bar_x");
-        let u_core = program.uniform(gl, "u_core");
         Ok(ScenePass {
+            u_top_left: program.uniform(gl, "u_top_left"),
+            u_swatches: program.uniform(gl, "u_swatches"),
+            u_looks: program.uniform(gl, "u_looks"),
+            u_ladders: program.uniform(gl, "u_ladders[0]"),
             program,
-            u_top_left,
-            u_bar_x,
-            u_core,
             target: None,
         })
     }
@@ -103,16 +97,22 @@ impl ScenePass {
         Ok(())
     }
 
-    /// Draws the test card; `core` is 0 before the self-check, 1 when the core's bits equal the cloud's, 2 when
-    /// they differ.
-    pub fn draw(&self, gl: &glow::Context, view: &ArtView, bar_x: i32, core: i32, vao: glow::VertexArray) {
+    /// Draws the light card: each look's ladder of the palette's `layout` as a row of swatches.
+    pub fn draw(&self, gl: &glow::Context, view: &ArtView, layout: &Layout, vao: glow::VertexArray) {
         let Some(t) = &self.target else { return };
         t.bind(gl);
         gl::apply(gl, &State::flat(t.w, t.h));
         self.program.bind(gl);
+        let ladders: Vec<[i32; 2]> = layout
+            .ladders
+            .iter()
+            .take(card::MAX_LOOKS)
+            .map(|l| [i32::from(l.base), i32::from(l.steps)])
+            .collect();
         gl::set_ivec2(gl, self.u_top_left.as_ref(), view.top_left);
-        gl::set_i32(gl, self.u_bar_x.as_ref(), bar_x);
-        gl::set_i32(gl, self.u_core.as_ref(), core);
+        gl::set_ivec2(gl, self.u_swatches.as_ref(), [card::MARGIN, card::MARGIN]);
+        gl::set_i32(gl, self.u_looks.as_ref(), ladders.len() as i32);
+        gl::set_ivec2_array(gl, self.u_ladders.as_ref(), &ladders);
         gl::draw_full_target(gl, vao);
     }
 }

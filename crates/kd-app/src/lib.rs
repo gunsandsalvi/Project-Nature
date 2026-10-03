@@ -177,6 +177,11 @@ impl App {
                 {
                     self.check_failed(e.to_string());
                 }
+                // The probe scene: the GPU must pick exactly the twins' steps (A11.13 rule 2).
+                let (gpu, twins) = r.probe();
+                if let Some(line) = selfcheck::probe_line(&gpu, &twins) {
+                    self.check_failed(line);
+                }
                 Some(r)
             }
             Err(e) => {
@@ -211,7 +216,6 @@ impl App {
         if let Some(r) = self.renderer.as_mut() {
             let f = Frame {
                 count: self.frames,
-                core_bits: Some(self.core_bits),
                 sky: sky_at(self.hour),
             };
             match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f))) {
@@ -238,6 +242,11 @@ impl App {
         }
         self.frames += 1;
         0
+    }
+
+    /// Test hook (A11.13 rule 2): the probe scene's steps from the GPU and from the twins, once the renderer exists.
+    pub fn probe(&mut self) -> Option<(Vec<u8>, Vec<u8>)> {
+        self.renderer.as_mut().map(Renderer::probe)
     }
 
     /// Frames drawn so far.

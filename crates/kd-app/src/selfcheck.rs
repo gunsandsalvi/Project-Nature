@@ -1,7 +1,7 @@
 //! The self-check (A15.4, `PRC-11`): what a new build checks on the phone at start, and the report it sends back
 //! as a `KDS1:` code when something fails: every shader compiled, the GL version OpenGL ES 3 or WebGL2, and the
-//! core's maths and draws equal to the cloud's bits (α00b); the catalogue (α01a) and the rest join with their
-//! alphas.
+//! core's maths and draws equal to the cloud's bits (α00b); the catalogue and the probe scene's steps equal to the
+//! twins' (α01a); the rest join with their alphas.
 
 use crate::json::json_str;
 
@@ -42,6 +42,23 @@ pub fn core_line(differences: &[(&str, u64)]) -> Option<String> {
     }
     let each: Vec<String> = differences.iter().map(|(name, h)| format!("{name} {h:016x}")).collect();
     Some(format!("core bits differ from the cloud's: {}", each.join(", ")))
+}
+
+/// The report's line for a probe scene whose steps differ from the twins', or nothing when they are equal (A11.13
+/// rule 2): how many differ, and the first one.
+pub fn probe_line(gpu: &[u8], twins: &[u8]) -> Option<String> {
+    let differ: Vec<usize> = (0..gpu.len().max(twins.len()))
+        .filter(|&i| gpu.get(i) != twins.get(i))
+        .collect();
+    let &first = differ.first()?;
+    let show = |v: Option<&u8>| v.map_or("none".to_string(), u8::to_string);
+    Some(format!(
+        "probe: {} of {} steps differ from the twins, the first at {first}: GPU {}, twin {}",
+        differ.len(),
+        twins.len(),
+        show(gpu.get(first)),
+        show(twins.get(first))
+    ))
 }
 
 /// Whether the driver is OpenGL ES 3 or WebGL2, which every shader is written for (A11.1).
@@ -128,6 +145,20 @@ mod tests {
         assert_eq!(
             core_line(&[("m.sin", 0xab), ("chance.draws", 1)]).as_deref(),
             Some("core bits differ from the cloud's: m.sin 00000000000000ab, chance.draws 0000000000000001")
+        );
+    }
+
+    // checks: PRE-20 PRC-11
+    #[test]
+    fn probe_named() {
+        assert_eq!(probe_line(&[1, 2, 3], &[1, 2, 3]), None);
+        assert_eq!(
+            probe_line(&[1, 4, 3, 0], &[1, 2, 3, 5]).as_deref(),
+            Some("probe: 2 of 4 steps differ from the twins, the first at 1: GPU 4, twin 2")
+        );
+        assert_eq!(
+            probe_line(&[], &[7]).as_deref(),
+            Some("probe: 1 of 1 steps differ from the twins, the first at 0: GPU none, twin 7")
         );
     }
 

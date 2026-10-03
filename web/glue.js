@@ -93,6 +93,7 @@ async function main() {
       },
       artSize: () => Array.from(app.art_size()),
       core: () => app.core_hashes(),
+      probe: () => JSON.parse(app.probe()),
       crash: () => app.crash(),
     };
     return;
