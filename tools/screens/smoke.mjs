@@ -172,15 +172,14 @@ try {
       const stirred = shifted(still, await screen(page), 0, band.bottom);
       check(`a still camera holds still, ${label}`, stirred === '', stirred);
       // checks: PRE-30 PRE-20
-      // The ground is lit by the hour: noon's picture differs from late afternoon's.
-      const before = await page.evaluate(() => window.kd.shot({ art: true }));
-      const after = await page.evaluate(() => {
-        window.kd.hour(2);
-        const noon = window.kd.shot({ art: true });
-        window.kd.hour(4);
-        return noon;
-      });
-      check(`the hour lights the ground, ${label}`, before !== after, before === after ? 'noon looks like 16:30' : '');
+      // The ground is lit by the hour: noon's picture differs from late afternoon's above the strip, whose own line
+      // names the hour.
+      const late = await screen(page);
+      await page.evaluate(() => window.kd.hour(2));
+      const noon = await screen(page);
+      await page.evaluate(() => window.kd.hour(4));
+      const lit = shifted(late, noon, 0, band.bottom);
+      check(`the hour lights the ground, ${label}`, lit !== '', lit ? '' : 'noon looks like 16:30 above the strip');
     }
     check(`no page errors, ${label}`, errors.length === 0, errors.slice(0, 3).join('; '));
     await close();
