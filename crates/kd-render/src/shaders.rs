@@ -5,11 +5,15 @@
 use std::fmt::Write;
 
 use crate::camera::VIEWPORT;
-use crate::ground::{MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LOOKS};
+use crate::ground::cover::{
+    BLADE_FOOT_SKY, BLADE_HALF_PX, CONTACT_LEVELS, CONTACT_M, CONTACT_SIDE, ITEMS_ROW, Kind, SEED_BLADE, STONE_FOOT_SKY,
+};
+use crate::ground::{COVER_LEVELS, MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LOOKS};
 use crate::looks::{PALETTE_SIZE, TABLE_ROWS, table};
 use crate::passes::scene::card;
 use crate::pixel::{
-    Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, OUTLINE_GAP_M, SEED_EDGE_X, SEED_EDGE_Y, SEED_SPLIT, SUN_TAN, flag,
+    Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, OUTLINE_GAP_M, RELIEF_OCTAVES, SEED_EDGE_X, SEED_EDGE_Y, SEED_RELIEF_X,
+    SEED_RELIEF_Y, SEED_SPLIT, SUN_TAN, flag,
 };
 use crate::probe;
 
@@ -23,6 +27,8 @@ pub const UI_VERT: &str = include_str!("../shaders/ui.vert");
 pub const UI_FRAG: &str = include_str!("../shaders/ui.frag");
 pub const GROUND_VERT: &str = include_str!("../shaders/ground.vert");
 pub const GROUND_FRAG: &str = include_str!("../shaders/ground.frag");
+pub const COVER_VERT: &str = include_str!("../shaders/cover.vert");
+pub const COVER_FRAG: &str = include_str!("../shaders/cover.frag");
 
 /// The generated defines.
 pub fn defines() -> String {
@@ -48,13 +54,30 @@ pub fn defines() -> String {
         ("PROBE_H", probe::H as i32),
         ("PROBE_LIGHT_ROWS", probe::LIGHT_ROWS as i32),
         ("PROBE_EDGE_ROW", (probe::LIGHT_ROWS + probe::SURFACE_ROWS) as i32),
+        (
+            "PROBE_RELIEF_ROW",
+            (probe::LIGHT_ROWS + probe::SURFACE_ROWS + probe::EDGE_ROWS) as i32,
+        ),
         ("VIEWPORT", VIEWPORT),
         ("PATCH_QUADS", PATCH_QUADS),
         ("MAX_SURFACES", MAX_SURFACES as i32),
         ("SURFACE_LOOKS", SURFACE_LOOKS as i32),
+        ("COVER_SIDE", kd_view::AREA_SQUARES as i32),
+        ("COVER_TOP", COVER_LEVELS as i32 - 1),
+        ("PROBE_COVER_SIDE", probe::COVER_SIDE as i32),
+        ("PROBE_COVER_TOP", probe::COVER_TOP as i32),
         ("SEED_EDGE_X", SEED_EDGE_X as i32),
         ("SEED_EDGE_Y", SEED_EDGE_Y as i32),
         ("SEED_SPLIT", SEED_SPLIT as i32),
+        ("SEED_RELIEF_X", SEED_RELIEF_X as i32),
+        ("SEED_RELIEF_Y", SEED_RELIEF_Y as i32),
+        ("RELIEF_OCTAVES", RELIEF_OCTAVES as i32),
+        ("CONTACT_SIDE", CONTACT_SIDE as i32),
+        ("CONTACT_TOP", CONTACT_LEVELS as i32 - 1),
+        ("ITEMS_ROW", ITEMS_ROW as i32),
+        ("COVER_STONE", Kind::Stone as i32),
+        ("COVER_TUFT", Kind::Tuft as i32),
+        ("SEED_BLADE", SEED_BLADE as i32),
     ] {
         let _ = writeln!(s, "#define {name} {value}");
     }
@@ -62,6 +85,10 @@ pub fn defines() -> String {
     let _ = writeln!(s, "#define SKIRT_M {SKIRT_M:?}");
     let _ = writeln!(s, "#define EDGE_WOBBLE_M {EDGE_WOBBLE_M:?}");
     let _ = writeln!(s, "#define SUN_TAN {SUN_TAN:?}");
+    let _ = writeln!(s, "#define CONTACT_M {CONTACT_M:?}");
+    let _ = writeln!(s, "#define BLADE_HALF_PX {BLADE_HALF_PX:?}");
+    let _ = writeln!(s, "#define BLADE_FOOT_SKY {BLADE_FOOT_SKY:?}");
+    let _ = writeln!(s, "#define STONE_FOOT_SKY {STONE_FOOT_SKY:?}");
     let _ = writeln!(s, "#define CARD_DEPTH_M {:?}", card::DEPTH_M);
     let (b, sc, e, l) = (
         probe::PROBE_BETA,
@@ -124,12 +151,15 @@ mod tests {
             UI_FRAG,
             GROUND_VERT,
             GROUND_FRAG,
+            COVER_VERT,
+            COVER_FRAG,
             LIB,
         ] {
             for word in body.split(|c: char| !(c.is_ascii_alphanumeric() || c == '_')) {
                 let generated = [
                     "CAT_", "FLAG_", "CARD_", "PROBE_", "PALETTE_", "TABLE_", "VIEWPORT", "PATCH_", "MAX_SURF",
-                    "SURFACE_", "SEED_", "SKIRT_", "EDGE_",
+                    "SURFACE_", "SEED_", "SKIRT_", "EDGE_", "COVER_", "RELIEF_", "CONTACT_", "ITEMS_", "BLADE_",
+                    "STONE_",
                 ];
                 if generated.iter().any(|p| word.starts_with(p)) {
                     assert!(defined.contains(&format!("#define {word} ")), "{word} is not generated");
@@ -167,12 +197,18 @@ mod tests {
             "octave_fade",
             "faded_noise",
             "edge_wobble",
-            "vote_base",
-            "vote4",
+            "cover_sample",
+            "cover_pick",
+            "relief_tilt",
+            "ground_normal",
             "split_look",
+            "cover_shows",
         ] {
             assert!(LIB.contains(&format!(" {name}(")), "{name} missing from lib.glsl");
-            assert!(twins.contains(&format!("fn {name}(")), "{name} missing from pixel.rs");
+            assert!(
+                twins.contains(&format!("fn {name}(")) || twins.contains(&format!("fn {name}<")),
+                "{name} missing from pixel.rs"
+            );
         }
         assert!(LIB.contains(" pack_out(") && twins.contains("fn pack("));
         // The ground's morph has its twin in ground.rs.

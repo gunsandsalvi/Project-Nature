@@ -1,8 +1,9 @@
 //! The Rust twins of the shaders' per-pixel formulas (A11.13 rule 2), under the same names as in `lib.glsl` and
 //! with the same constants: the light's lightness from the sky and sun factors, its step on a ladder, the band's
 //! 4 × 4 Bayer dither fixed to the world grid, colour 0's packing, and from α01b the world-fixed noise faded below
-//! four art pixels, the surface the four nearest squares vote for, and the split between a surface's looks. Tests
-//! use the twins, and the probe scene (`probe`) checks that the GPU gives the same answers exactly.
+//! four art pixels and the split between a surface's looks; from α01c the shadows, outlines and haze; from α01d the
+//! surfaces' coverage read at the art pixel's footprint, the looks' micro-relief, and which stones and tufts show.
+//! Tests use the twins, and the probe scene (`probe`) checks that the GPU gives the same answers exactly.
 //!
 //! Implements PRE-20, PRE-22 and PRE-01, see A11.1, A11.3, A11.5 and A11.13: the light picks the step, a narrow band
 //! round each threshold is dithered and nowhere else, no pattern is finer than two art pixels, and every pixel is a
@@ -266,7 +267,7 @@ pub fn faded_noise(p: [f32; 2], oct: [f32; 4], inv_texel: f32, seed: u32) -> f32
 }
 
 /// How far, in metres, the edges between surfaces wander, and the octaves of the noise they wander by, as
-/// (λ, 1/λ) pairs (A11.5, until α01d's coverage).
+/// (λ, 1/λ) pairs (A11.5).
 pub const EDGE_WOBBLE_M: f32 = 0.45;
 pub const EDGE_OCTAVES: [f32; 4] = [4.0, 0.25, 1.0, 1.0];
 /// Seeds of the wobble's two directions and of the looks' split.
@@ -282,43 +283,133 @@ pub fn edge_wobble(w: [f32; 2], inv_texel: f32) -> [f32; 2] {
     ]
 }
 
-/// The four squares nearest position `q` (metres east and south of the area's corner, squares 1 m with centres at
-/// halves): the lowest one's column and row, at most `max_base`, and where `q` lies between their centres, 0 to 1.
-pub fn vote_base(q: [f32; 2], max_base: i32) -> ([i32; 2], [f32; 2]) {
-    let base = q.map(|v| ((v - 0.5).floor() as i32).clamp(0, max_base));
-    let f = [
-        (q[0] - 0.5 - base[0] as f32).clamp(0.0, 1.0),
-        (q[1] - 0.5 - base[1] as f32).clamp(0.0, 1.0),
-    ];
-    (base, f)
+/// Surfaces an area's coverage holds: four to a texture, two textures (A11.5).
+pub const COVER_CHANNELS: usize = 8;
+
+/// The level of coverage an art pixel of `texel` metres reads: its footprint, `log2(texel / 1 m)`, from level 0,
+/// the square metres, to `top` (A11.5).
+pub fn cover_level(texel: f32, top: usize) -> f32 {
+    m::log2(texel).clamp(0.0, top as f32)
 }
 
-/// The surface four squares vote for at `f` between their centres, each by its bilinear weight, a surface's
-/// squares adding up; `ids` in the order (0, 0), (1, 0), (0, 1), (1, 1); a tie goes to the lower number (A11.5).
-pub fn vote4(f: [f32; 2], ids: [i32; 4]) -> i32 {
-    let w = [
-        (1.0 - f[0]) * (1.0 - f[1]),
-        f[0] * (1.0 - f[1]),
-        (1.0 - f[0]) * f[1],
-        f[0] * f[1],
-    ];
-    let (mut best, mut best_w) = (ids[0], -1.0f32);
-    for k in 0..4 {
-        let mut t = 0.0;
-        for m in 0..4 {
-            t += if ids[m] == ids[k] { w[m] } else { 0.0 };
-        }
-        if t > best_w || (t == best_w && ids[k] < best) {
-            best_w = t;
+/// Each channel's share at `q` (in level-0 texels from the texture's corner, `side` to a side: metres for the
+/// coverage, half metres for the contact shade) read at mip `level`: bilinear between the four texels round `q` at
+/// the levels either side, clamped at the edge, and mixed between them by the level's fraction, as the shader reads
+/// them by `texelFetch` (A11.5).
+pub fn cover_sample<const N: usize>(levels: &[Vec<[u8; N]>], side: usize, q: [f32; 2], level: f32) -> [f32; N] {
+    let top = levels.len() - 1;
+    let l0 = (level.floor().max(0.0) as usize).min(top);
+    let l1 = (l0 + 1).min(top);
+    let t = level - l0 as f32;
+    let bilinear = |l: usize| -> [f32; N] {
+        let n = (side >> l).max(1) as i32;
+        let scale = 1.0 / (1u32 << l) as f32;
+        let p = [q[0] * scale - 0.5, q[1] * scale - 0.5];
+        let i = p.map(f32::floor);
+        let f = [p[0] - i[0], p[1] - i[1]];
+        let texel = |dx: i32, dy: i32| {
+            let x = (i[0] as i32 + dx).clamp(0, n - 1);
+            let y = (i[1] as i32 + dy).clamp(0, n - 1);
+            levels[l][(y * n + x) as usize]
+        };
+        let (a, b, c, d) = (texel(0, 0), texel(1, 0), texel(0, 1), texel(1, 1));
+        std::array::from_fn(|k| {
+            let v = |t: [u8; N]| f32::from(t[k]) / 255.0;
+            let upper = v(a) + (v(b) - v(a)) * f[0];
+            let lower = v(c) + (v(d) - v(c)) * f[0];
+            upper + (lower - upper) * f[1]
+        })
+    };
+    let lo = bilinear(l0);
+    if t <= 0.0 || l1 == l0 {
+        return lo;
+    }
+    let hi = bilinear(l1);
+    std::array::from_fn(|k| lo[k] + (hi[k] - lo[k]) * t)
+}
+
+/// The surface with the largest share among the channels holding one (`ids` −1 for none); a tie goes to the
+/// earlier channel, the lower number (A11.5).
+pub fn cover_pick(shares: [f32; COVER_CHANNELS], ids: [i32; COVER_CHANNELS]) -> i32 {
+    let (mut best, mut best_v) = (-1, -1.0f32);
+    for k in 0..COVER_CHANNELS {
+        if ids[k] >= 0 && shares[k] > best_v {
             best = ids[k];
+            best_v = shares[k];
         }
     }
     best
 }
 
+/// How far `cover_pick` is from picking otherwise: the largest share less the next (for the probe's clearance).
+pub fn cover_margin(shares: [f32; COVER_CHANNELS], ids: [i32; COVER_CHANNELS]) -> f32 {
+    let mut held: Vec<f32> = (0..COVER_CHANNELS)
+        .filter(|&k| ids[k] >= 0)
+        .map(|k| shares[k])
+        .collect();
+    held.sort_by(|a, b| b.total_cmp(a));
+    match held.as_slice() {
+        [a, b, ..] => a - b,
+        _ => 1.0,
+    }
+}
+
+/// Octaves a surface's micro-relief may have, and the seeds of its two tilts (A11.5).
+pub const RELIEF_OCTAVES: usize = 4;
+pub const SEED_RELIEF_X: u32 = 14;
+pub const SEED_RELIEF_Y: u32 = 15;
+
+/// How many octaves a micro-relief of wavelengths from `smallest` to `largest` metres has: from the largest,
+/// halving, down to the smallest, at most `RELIEF_OCTAVES`.
+pub fn relief_octaves(smallest: f32, largest: f32) -> usize {
+    let (mut n, mut lambda) = (0, largest);
+    while n < RELIEF_OCTAVES && lambda >= smallest * (1.0 - 1e-4) {
+        n += 1;
+        lambda *= 0.5;
+    }
+    n
+}
+
+/// The micro-relief's tilt of the ground at world-fixed `w` metres, a slope east and south added to the ground's
+/// (A11.5): `relief` is (λ₀, 1/λ₀, octaves, each octave's greatest tilt), each octave gradient noise half the last's
+/// wavelength and as strong in slope, as a self-similar surface's bumps are, faded below four art pixels (A11.1
+/// rule 2).
+pub fn relief_tilt(w: [f32; 2], relief: [f32; 4], inv_texel: f32) -> [f32; 2] {
+    let (mut lambda, mut inv) = (relief[0], relief[1]);
+    let octaves = ((relief[2] + 0.5) as usize).min(RELIEF_OCTAVES);
+    let mut sum = [0.0f32; 2];
+    for k in 0..octaves {
+        let fade = octave_fade(lambda, inv_texel);
+        if fade > 0.0 {
+            let p = [w[0] * inv, w[1] * inv];
+            let s = (k as u32) << 16;
+            sum[0] += fade * noise2(p, SEED_RELIEF_X ^ s);
+            sum[1] += fade * noise2(p, SEED_RELIEF_Y ^ s);
+        }
+        lambda *= 0.5;
+        inv *= 2.0;
+    }
+    [sum[0] * relief[3], sum[1] * relief[3]]
+}
+
+/// The ground's normal (east, north, up) where its slope east and south is `slope`, tilted by `tilt`.
+pub fn ground_normal(slope: [f32; 2], tilt: [f32; 2]) -> [f32; 3] {
+    let g = [slope[0] + tilt[0], slope[1] + tilt[1]];
+    let v = [-g[0], g[1], 1.0];
+    let inv = 1.0 / (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+    [v[0] * inv, v[1] * inv, v[2] * inv]
+}
+
 /// Which of a surface's `looks` the split noise `v` picks: the next look wherever `v` is above its take-over value.
 pub fn split_look(v: f32, at: [f32; 2], looks: i32) -> i32 {
     i32::from(looks > 1 && v > at[0]) + i32::from(looks > 2 && v > at[1])
+}
+
+/// Whether a stone or tuft `size` metres across (a tuft: tall) shows at art pixels of 1 / `inv_texel` metres:
+/// while it spans `1.5 + 2u` art pixels, `u` its seeded importance, so as the art pixel grows the items drop out one
+/// by one, the least important first (A11.1 rule 3, A11.5).
+pub fn cover_shows(size: f32, u: f32, inv_texel: f32) -> bool {
+    size * inv_texel >= 1.5 + 2.0 * u
 }
 
 #[cfg(test)]
@@ -393,26 +484,50 @@ mod tests {
         );
     }
 
-    // checks: PRE-20
+    // checks: PRE-20 PRE-22
     #[test]
-    fn surface_vote_by_weight() {
-        // Each square counts by how near its centre the pixel lies, and a surface's squares add up: one square of
-        // rock beside three of grass wins only close to its own centre.
-        let (grass, rock) = (0, 2);
-        assert_eq!(vote4([0.1, 0.1], [rock, grass, grass, grass]), rock);
-        assert_eq!(vote4([0.4, 0.4], [rock, grass, grass, grass]), grass);
-        // Two squares each: the nearer pair wins, and at the exact middle the tie goes to the lower number.
-        assert_eq!(vote4([0.3, 0.5], [rock, grass, rock, grass]), rock);
-        assert_eq!(vote4([0.7, 0.5], [rock, grass, rock, grass]), grass);
-        assert_eq!(vote4([0.5, 0.5], [rock, grass, rock, grass]), grass);
-        // Three surfaces: a split pair outweighs a single square of the third.
-        assert_eq!(vote4([0.5, 0.45], [1, 1, 3, 2]), 1);
-        // The lookup finds the four squares round a place and where it lies between their centres, clamped at the
-        // area's edge, where the edge's squares alone vote.
-        let (base, f) = vote_base([3.7, 10.2], 254);
-        assert_eq!(base, [3, 9]);
-        assert!((f[0] - 0.2).abs() < 1e-5 && (f[1] - 0.7).abs() < 1e-5, "{f:?}");
-        assert_eq!(vote_base([0.1, 255.9], 254), ([0, 254], [0.0, 1.0]));
+    fn coverage_takes_the_largest_share() {
+        // A strip of rock 2 m wide across grass, and one square of dirt on its own, 16 m to a side.
+        let side = 16;
+        let (grass, dirt, rock) = (0, 1, 2);
+        let surfaces: Vec<u8> = (0..side * side)
+            .map(|i| match (i % side, i / side) {
+                (6 | 7, _) => rock,
+                (12, 3) => dirt,
+                _ => grass,
+            })
+            .collect();
+        let c = crate::ground::Coverage::new(&surfaces, side).unwrap();
+        assert_eq!(c.ids[..4], [0, 1, 2, -1]);
+        let shares = |q: [f32; 2], level: f32| cover_sample(&c.levels, side, q, level);
+        let at = |q: [f32; 2], level: f32| cover_pick(shares(q, level), c.ids);
+        // Read square by square, each square is its own surface and an edge lies half way between two squares'
+        // centres; at the exact middle the tie goes to the lower number.
+        assert_eq!(at([6.5, 8.0], 0.0), i32::from(rock));
+        assert_eq!(at([5.9, 8.0], 0.0), i32::from(grass));
+        assert_eq!(at([6.1, 8.0], 0.0), i32::from(rock));
+        assert_eq!(at([6.0, 8.0], 0.0), i32::from(grass));
+        assert_eq!(at([12.5, 3.5], 0.0), i32::from(dirt));
+        // Read 4 m a texel, the lone square is a sixteenth of its texel and the grass round it wins; the strip, half
+        // its texel's width, still shows 2 m a texel (no detail finer than two art pixels, A11.1 rule 2).
+        assert_eq!(at([12.5, 3.5], 2.0), i32::from(grass));
+        assert_eq!(at([7.0, 8.0], 1.0), i32::from(rock));
+        // Between levels the shares mix, so the dirt fades as the footprint grows, with no jump at a whole level.
+        let mut last = 1.0f32;
+        for k in 0..=300 {
+            let v = shares([12.5, 3.5], k as f32 / 100.0)[1];
+            assert!(
+                v <= last + 1e-6 && last - v < 0.05,
+                "level {}: {v} after {last}",
+                k as f32 / 100.0
+            );
+            last = v;
+        }
+        // An edge read between levels runs smooth: crossing it, the pick changes once.
+        let picks: Vec<i32> = (0..=75).map(|k| at([4.0 + k as f32 * 0.04, 8.0], 1.5)).collect();
+        assert_eq!(picks.windows(2).filter(|w| w[0] != w[1]).count(), 1, "{picks:?}");
+        // The margin is the winner's share less the next one's.
+        assert!((cover_margin(shares([5.9, 8.0], 0.0), c.ids) - 0.2).abs() < 1e-5);
         // The wobble moves the place by at most its size, and is fixed to the world: the same place, the same move.
         for k in 0..1_000 {
             let w = [k as f32 * 7.31, k as f32 * 3.17];
@@ -425,6 +540,71 @@ mod tests {
         assert_eq!(split_look(0.2, [0.25, 2.0], 2), 0);
         assert_eq!(split_look(0.9, [-0.5, 0.5], 3), 2);
         assert_eq!(split_look(0.9, [-0.5, 0.5], 1), 0);
+    }
+
+    // checks: PRE-20 PRE-22
+    #[test]
+    fn relief_fades_below_two_pixels() {
+        // Each surface's relief from the catalogue: fixed to the world, and at every point within what its octaves
+        // still showing allow, a bound that only shrinks as the art pixel grows, reaching 0 once the largest octave
+        // spans two art pixels or fewer; on average strong close up and fading as the camera rises.
+        for s in &crate::tests::catalogue().surfaces {
+            let [smallest, largest] = s.relief_m;
+            let n = relief_octaves(smallest, largest);
+            assert!((1..=RELIEF_OCTAVES).contains(&n), "{}", s.id);
+            let relief = [largest, 1.0 / largest, n as f32, s.relief_tilt];
+            let bound = |texel: f32| {
+                let showing: f32 = (0..n)
+                    .map(|k| octave_fade(largest / (1 << k) as f32, 1.0 / texel))
+                    .sum();
+                s.relief_tilt * showing
+            };
+            let rms = |texel: f32| {
+                let sum: f32 = (0..1_000)
+                    .map(|k| {
+                        let w = [100.0 + k as f32 * 3.37, 200.0 + k as f32 * 1.91];
+                        let t = relief_tilt(w, relief, 1.0 / texel);
+                        assert!(
+                            t.iter().all(|v| v.abs() <= bound(texel) + 1e-6),
+                            "{} at {texel} m",
+                            s.id
+                        );
+                        assert_eq!(t, relief_tilt(w, relief, 1.0 / texel));
+                        t[0] * t[0] + t[1] * t[1]
+                    })
+                    .sum();
+                (sum / 1_000.0).sqrt()
+            };
+            let close = rms(0.02);
+            assert!(close > 0.1 * s.relief_tilt, "{}: {close}", s.id);
+            let (mut last_bound, mut last_rms) = (bound(0.02), close);
+            for k in 1..=40 {
+                let texel = 0.02 * 1.12f32.powi(k);
+                let (b, r) = (bound(texel), rms(texel));
+                assert!(b <= last_bound, "{} at {texel} m: bound {b} after {last_bound}", s.id);
+                assert!(
+                    r <= last_rms * 1.05 + 1e-6,
+                    "{} at {texel} m: {r} after {last_rms}",
+                    s.id
+                );
+                (last_bound, last_rms) = (b, r);
+            }
+            assert_eq!(bound(largest / 2.0), 0.0, "{}", s.id);
+            assert_eq!(rms(largest / 2.0), 0.0, "{}", s.id);
+        }
+        // The octaves run from the largest wavelength halving down to the smallest.
+        assert_eq!(
+            [
+                relief_octaves(0.4, 1.6),
+                relief_octaves(0.3, 1.0),
+                relief_octaves(0.2, 2.0),
+                relief_octaves(0.2, 0.8)
+            ],
+            [3, 2, 4, 3]
+        );
+        // A tilt leans the normal, which stays a unit vector.
+        let n = ground_normal([0.2, -0.1], [0.3, 0.0]);
+        assert!(n[0] < -0.4 && (n.iter().map(|v| v * v).sum::<f32>() - 1.0).abs() < 1e-6);
     }
 
     // checks: PRE-22 PRE-20

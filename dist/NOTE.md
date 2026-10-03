@@ -1,34 +1,36 @@
-# Kindling α01c: Shadows and air
+# Kindling α01d: Steady detail
 
 ## What is new
 
-- The cliff casts real shadows that follow the hour. A shadow is sharp right at the cliff and softer the farther it reaches, the way the sun's disc makes it.
-- Hollows and the foot of the cliff are a little darker and bluer, where the land hides part of the sky.
-- Outlines only where something stands in front of what lies behind it: the cliff's edge against the valley below, the land's edge against the dark. A slope seen edge-on gets none. Where the sun catches such an edge, it shines instead of darkening.
-- Haze that grows with the real distance through the air, warmer toward the sun and cooler away from it. It is built and tested, but too faint to see yet (see below).
-- Behind the scenes: a counter for the pixels that "crawl" (change colour while the land under them hardly moves) as the camera turns or zooms, so the fix chosen at the first visual review can be measured; and test pictures of the valley at five hours.
+- Up close the ground has texture: grass grows in clumps, dirt in clods, rock in facets and scree in small bumps, each look with its own fine relief, fixed to the land. As you zoom away it fades out smoothly, before it could flicker.
+- Stones and grass tufts: small stones lie on the scree below the cliff, and a few in the grass and on the dirt; grass and dirt grow little tufts of three to five blades. Each is a real small 3D shape, lit by the sun and the sky like the ground, with a darker foot. As you zoom out they drop away one by one, the smallest and least important first, until none are left at the camp view.
+- The ground round a stone or a tuft is a little darker, where it hides part of the sky.
+- The edges between grass, dirt, rock and scree are read from each surface's share of the ground under the pixel, so they stay smooth and never shimmer at any zoom.
+- Behind the scenes, α01 ends with its steadiness counts: the tests record how many pixels each step of a pinch changes at the camp and close camp views and fail a later version that changes more without saying so, and a slow drag must change nothing but whole-pixel moves.
 
 ## What to try
 
-1. Tap **Download and install** at the top of this page. It installs over α01b. Open Kindling.
-2. It opens in the late afternoon: the cliff throws a long shadow east across the valley floor, crisp near the cliff and softer far from it. The cliff's foot and the hollows are a little darker and bluer.
-3. Tap the strip: at noon the shadows are short; at 18:30 the sun is down and nothing casts a shadow; at night the valley is dark.
-4. Pinch slowly in and out: the shadows, the light and the cliff's outline stay on the land; only the pixel grid resamples.
-5. Look at the cliff's top edge in the late afternoon: a dark line where it stands in front of the valley below. At 06:30, with the sun on the cliff's side, that edge shines instead.
+1. Tap **Download and install** at the top of this page. It installs over α01c. Open Kindling.
+2. Pinch in all the way near the foot of the cliff and look at the grass and the scree: small V-shaped tufts with dark feet in the grass, small stones on the scree, and clumps in the grass's light.
+3. Pinch slowly out: the tufts and stones thin out one by one and the clumps soften, until the camp view shows plain ground again. Nothing should flicker or change all at once.
+4. Drag slowly: the stones and tufts move with the land, whole pixels at a time, with no shimmer.
+5. Tap the strip for other hours: the tufts and stones are lit with the land, and in the cliff's shadow they show as dark sprigs and stones.
 6. Open the web link: the same in the browser, moved with the mouse.
 7. If a box with a code appears, tap Copy and paste the code into your reply.
 
 ## What is rough
 
-- You can't see the haze yet. The land in reach is under a kilometre away and over 300 m up, where the air's haze stays under 8 in 100, and the picture shows haze only from 10 in 100. It shows when the zoom reaches out over the island (α02a).
-- While you turn or pinch slowly, about 3 in 100 pixels crawl each frame at the camp view, and 2 in 100 close up; a drag moves whole pixels and crawls not at all. Choosing the fix for this is part of the first visual review, where you will see the candidates side by side.
-- Working out the light takes longer than planned. The share of open sky over each point (the darker hollows) takes about 0.2 seconds when the land loads, ten times the plan's 20 ms; it is done once. Each tap of the strip works out the new shadows in about 15 ms, seven times the plan's 2 ms; you may see one frame skip. When the clock runs (α03a), the shadows will follow the sun in small steps spread over frames, 2 ms each, which this alpha already builds and tests.
-- The app is a little larger: the download is 763 KB, up from 710 KB, and the web page's code 558 KB, up from 488 KB, with the light's new code.
-- The cliff is still drawn as a steep slope of 1 m squares, so close up its top edge shows 1 m steps and the shade down its face has saw-tooth edges; real cliff faces come with α02c, as do shadows from things. Up close the ground is still plain colour (α01d), and beyond the piece of land is dark (α02a).
+- The texture costs some steadiness close up: while you turn or pinch slowly at the close camp view, about 3 in 100 pixels crawl each frame, up from 2 in 100 in α01c; at the camp view it stays about 3 in 100, and a drag still moves whole pixels and crawls not at all. The fix chosen at the first visual review is meant to cut this.
+- Each 0.01 step of a pinch now changes up to about half the pixels close up, up from two in five, because the ground there has texture; nearly all of that is the land really moving, and at most 3 in 10,000 pixels change where the land stays put.
+- In full sun the stones on the bright scree are hard to tell from its bumps; they stand out in shade and when the sun is low.
+- The stones and tufts are placed by the renderer for now; from α21 the land's own patches will place them.
+- Loading the land takes a little longer in the browser, about 0.28 seconds instead of 0.24: the stones and tufts add a few hundredths of a second to the light's fields, which still take longer than planned, as in α01c (about 0.2 seconds once as the land loads, and about 15 ms at each tap of the strip).
+- The app is a little larger: the download is 825 KB, up from 763 KB, and the web page's code 625 KB, up from 558 KB.
+- Still as before: the cliff is a steep slope of 1 m squares, so close up its top edge shows steps (α02c); the haze is too faint to see within reach, and beyond the piece of land is dark (α02a).
 
 ## IDs delivered
 
-`PRE-30` (part: real shadows by the hour, sharp near and softer far; darker hollows; haze by distance, warmer toward the sun), `PRE-21` (part: outlines only where one thing stands in front of another; lit edges), `PRE-22` (part: light and shading holding still while zooming; the crawl slot and its counter), `PRE-02` (part).
+`PRE-20` (part: smooth surface edges; each look's fine relief), `PRE-22` (part: detail that fades before it can flicker; the steadiness counts), `PRE-46` (part: stones and tufts), `PRE-02` (part), `WLD-12` (part: stones and ground cover on the areas' ground).
 
 ## Links
 

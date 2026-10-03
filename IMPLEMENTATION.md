@@ -89,7 +89,6 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α01d | Steady detail | 1 | 5 | Not started |
 | α02a | The island | 1 | 4.5 | Not started |
 | α02b | The ground up close | 1 | 5 | Not started |
 | α02c | Cliffs and caves | 1 | 5.5 | Not started |
@@ -200,66 +199,17 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 | α53a | Export and worlds across updates | 7 | 4 | Not started |
 | α53b | Release candidate and Stage 7 review | 7 | 5.5 | Not started |
 
-110 alphas still to build, about 539.5 hours of agent work in all.
+109 alphas still to build, about 534.5 hours of agent work in all.
 
 ## Stage 1: First camp (MIL-01)
 
 This stage builds the island of the first region and one band at the foot of its cliff, who gather, eat, drink, sleep, talk, court, pair, bear children, grow old and die through a 60-day year, with reasons on every card, saved every 30 seconds, tested in scenes and timed on the phone (`SCP-16` item 1).
 `SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows.
-Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 22 still to build take about 112 hours.
+Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 21 still to build take about 107 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
 The renderer is designed in A11 (A11.1), and α01a to α01d build it from that reasoning, in the form of code A11.13 sets; each task names the A11 sections it builds.
 On 3 October 2026 the owner had the codebase deleted and these first steps planned again from scratch, so α00 started from the three documents and the release certificate alone (A15.5).
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
-
-### α01d Steady detail (about 5 hours)
-
-**Goal:** the ground's detail holds at every zoom: surfaces meet along smooth edges that never shimmer, every look has a fine relief that fades before it can flicker, and stones and tufts are small lit shapes that thin out one by one as the camera rises; α01 ends, verified once by an independent subagent.
-
-**Serves:** `PRE-20` (part: smooth surface edges), `PRE-22` (part: detail that never flickers), `PRE-46` (part: stones and tufts), `PRE-02` (part).
-
-**Architecture:** `A11.1`, `A11.5`, `A11.12`, `A11.13`.
-
-**Needs:** α01c.
-
-**Crates and files touched:** `kd-render` (`ground` coverage and relief, `ground::cover` new, `pixel`, `shaders/`), `kd-app` (stones and tufts per area), `data/models/surfaces.md`, `tools/screens/`, `tests/golden/`.
-
-**Tasks:**
-
-1. `T01d.1` **Surfaces as coverage (`PRE-20`, A11.5).**
-   Each area's surfaces as mipmapped `RGBA8` coverage, four surfaces a texture, a surface's share of each square metre; the shader reads it at the art pixel's footprint (mip level `log2(texel ÷ 1 m)`) and takes the largest share, the edge wobbling by world-fixed noise whose octaves fade below four art pixels; the vote of four squares goes; the twins follow.
-   Commit `T01d.1: surfaces as mipmapped coverage (PRE-20, A11.5)`.
-
-2. `T01d.2` **Micro-relief (`PRE-20`, A11.5).**
-   Each look's relief in `data/models/surfaces.md` (grass clumps 0.4–1.6 m, dirt clods 0.3–1 m, rock facets 0.2–2 m, scree 0.2–0.8 m): band-limited noise added to the normal, each octave's strength times `smoothstep(2, 4, wavelength ÷ texel)` (A11.1 rule 2).
-   Commit `T01d.2: band-limited relief of each look (PRE-20, A11.5)`.
-
-3. `T01d.3` **Stones and tufts (`PRE-46`, `WLD-12`, A11.5).**
-   `kd_render::ground::cover`: per area, a seeded list by the surfaces' densities (scree's stones, grass's tufts, a few stones on grass and dirt) of instanced meshes: eight-faced stones 0.05–0.6 m across in the scree's look, and tufts of 3–5 blades widened to at least an art pixel in the grass's; each with a seeded importance `u`, shown while it spans `1.5 + 2u` art pixels; a contact shade under each in the sky factor; drawn in 16 m buckets culled by the view.
-   Commit `T01d.3: stones and tufts as instanced shapes (PRE-46, WLD-12, A11.5)`.
-
-4. `T01d.4` **Steadiness counts (`PRE-22`, A11.12).**
-   The crawl and zoom-strip counts at the camp and close camp stops recorded in the bench file; the smoke test fails a slow zoom whose 1% steps change more art pixels than the note records, or a pan that changes any pixel but by whole-pixel moves.
-   Commit `T01d.4: steadiness counts (PRE-22, A11.12)`.
-
-5. `T01d.5` **Deliver, and α01's verification (`PRC-11`, `PRC-09`).**
-   `versionCode=1014`, `versionName=a01d`; then P0's steps 5 to 8, with one independent subagent verifying the whole of α01 (α01a to α01d, their sections as the plan held them when α01 began), as α01d ends α01.
-
-**Data:** `data/models/surfaces.md` (relief and cover densities per surface).
-
-**Tests:**
-- `kd-render` (`PRE-20`, `PRE-46`, `PRE-22`): `ground::cover::tests::{seeded_and_stable, thin_out_by_importance}`; `ground::tests::coverage_sums_to_one`; `pixel::tests::{coverage_takes_the_largest_share, relief_fades_below_two_pixels}`.
-- Screens: goldens redrawn with stones and tufts; the steadiness counts.
-
-**On the phone:**
-1. Install the update: the valley as before, now with stones on the scree and tufts in the grass when you come close.
-2. Pinch slowly out from the closest zoom: tufts and stones thin out one at a time, and the edges between grass, rock and scree stay smooth.
-3. Compare with α01c: the land's texture fades as you zoom out instead of flickering.
-
-**Not in this alpha:** water (α02b); plants (α02d).
-
-**Risks:**
-- Too many tufts in view at the closest zoom: they show only below about 0.1 m art pixels, in culled buckets; the bench file records the triangles.
 
 ### α02a The island (about 4.5 hours)
 
@@ -292,6 +242,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
    `data/world/soils.md`: A5.11's eight kinds `sand`, `loam`, `clay`, `silt`, `peat`, `ash`, `stony`, `thin`, each with `capacity` (sand 50, loam 150, clay 200, peat 300 mm; silt 180, ash 120, stony 60, thin 40), `intake` (mm a game hour: sand 30, loam 10, clay 3, silt 8, peat 6, ash 15, stony 20, thin 12), `dig` (difficulty 1–10: sand 2, loam 3, clay 5, silt 3, peat 2, ash 2, stony 7, thin 6) and `keeps` (`bone`, `wood`, `hide` as A5.11 says), `checks = ["WLD-27"]`.
    `data/world/biomes.md`: `broadleaf_forest`, `grassland`, `marsh`, `shore`, `sea` (the island's), each with its map-look `look` and default cover shares, and `barren` (bare ground that grows nothing, all five shares bare, for the test lands of α04b, `checks = ["BIO-09"]`); the others of `WLD-31` join at α21.
    `data/world/deposits.md`: `flint_in_chalk` (in `chalk`, richness 1–5 by bed) and `river_gravel` (carried downstream, its share falling by 0.8 every 10 km, A5.7 step 9), `checks = ["WLD-14"]`; what each yields joins at α08, when stones are items.
+   `data/tuning/render.md`, one entry `render`: `stream_line_min_km2 = 100` (T02a.7), and α01d's four tuned numbers for the stones and tufts, which `kd-render`'s `ground::cover` then reads from the catalogue instead of its constants (A11.13 rule 6): `cover_contact = 0.6`, `cover_contact_max = 0.7`, `stone_foot_sky = 0.6`, `blade_foot_sky = 0.45` (A11.5).
    `data/tuning/world.md`: `settle_years = 10` (A4.1, `WLD-08`), `land_yield_scale = 0.1667` and `animal_density_scale = 0.1667` (A5.13, read from α04a), `river_rating = { width_exp = 0.5, depth_exp = 0.4, bankfull_depth = "1.2 m" }`, `stream_min_km2 = 1`, `river_min_km2 = 50` (A5.7 step 5), `stream_min_rain = "100 mm"` (a year's rain), `escarpment_gap_every = "3 km"`.
    Commit `T02a.3: the first region's data (WLD-34, WLD-14, WLD-27, A5.6)`.
 
@@ -338,7 +289,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 9. `T02a.9` **Deliver (`PRC-11`).**
    `versionCode=1021`, `versionName=a02a`; `bench/cloud/a02a.json` adds the island's build time and `heap_bytes`; the note shows the four `kd map preview` pictures; then P0's steps 5 to 8.
 
-**Data:** `data/lands/first-region.md` (`first_region`); `data/world/rocks.md` (`chalk`, `sandstone`, `granite`, `river_gravel`, `silt`); `data/world/soils.md` (`sand`, `loam`, `clay`, `silt`, `peat`, `ash`, `stony`, `thin`); `data/world/biomes.md` (`broadleaf_forest`, `grassland`, `marsh`, `shore`, `sea`, `barren`); `data/world/deposits.md` (`flint_in_chalk`, `river_gravel`); `data/tuning/world.md` (`world`); `data/tuning/render.md` (`render`: `stream_line_min_km2 = 100`).
+**Data:** `data/lands/first-region.md` (`first_region`); `data/world/rocks.md` (`chalk`, `sandstone`, `granite`, `river_gravel`, `silt`); `data/world/soils.md` (`sand`, `loam`, `clay`, `silt`, `peat`, `ash`, `stony`, `thin`); `data/world/biomes.md` (`broadleaf_forest`, `grassland`, `marsh`, `shore`, `sea`, `barren`); `data/world/deposits.md` (`flint_in_chalk`, `river_gravel`); `data/tuning/world.md` (`world`); `data/tuning/render.md` (`render`: `stream_line_min_km2 = 100`, and α01d's `cover_contact`, `cover_contact_max`, `stone_foot_sky` and `blade_foot_sky`).
 
 **Tests:**
 - `kd-core`: `geo::tests::indices_round_trip_at_corners`; `geo::tests::areas_nest_in_cells` (all 32 million areas, A3.7); `geo::tests::triangle_rule` (one million random triples: `dist(a, c) ≤ dist(a, b) + dist(b, c)` + 1 mm); `geo::tests::neighbours_wrap_both_seams`; `ids::tests::place_uid_fields`.
@@ -8560,10 +8511,10 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `CUL-12` Style and ornament: α25b, α33, α33b, α34a, α34b, α36c, α41, α43c
 - `CUL-29` Gatherings and festivals: α36a, α40, α46a, α48
 - `PRE-01` Detailed pixel art: built
-- `PRE-02` Pixel-rendered 3D: α01d, α02b, α19b
-- `PRE-20` Colour in steps: α01d, α02d
+- `PRE-02` Pixel-rendered 3D: α02b, α19b
+- `PRE-20` Colour in steps: α02d
 - `PRE-21` Outlines and lit edges: α02c
-- `PRE-22` Stable pixels: α01d, α07e
+- `PRE-22` Stable pixels: α07e
 - `PRE-23` Rock faces: α02c
 - `PRE-24` Real shapes: α02c, α16c, α25b, α46a
 - `PRE-25` Cut-away view: α24b
@@ -8577,7 +8528,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRE-42` Built from their materials: α08, α23c, α25a, α25b, α45, α46a, α47b, α49
 - `PRE-43` Variety: α02d, α21, α25b, α33b, α36c
 - `PRE-44` Animations: α03b, α03c, α06b, α06c, α09, α09b, α12, α12b, α14a, α19a, α22a, α23, α28, α28b, α30a, α30b, α32a, α34b, α51
-- `PRE-46` The model kit: α01d, α02d, α03b, α08, α21, α22a, α23b, α25a, α25b, α33, α33b, α41, α44, α49, α50, α51
+- `PRE-46` The model kit: α02d, α03b, α08, α21, α22a, α23b, α25a, α25b, α33, α33b, α41, α44, α49, α50, α51
 - `PRE-32` World first: α04d
 - `PRE-34` Both orientations: α03a, α04d, α12d, α53a, α53b
 - `PRE-33` Gestures: α03a, α03c, α16

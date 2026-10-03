@@ -201,7 +201,10 @@ mod tests {
             crate::version_line("dev", &cat, 0),
             format!("dev · catalogue {rules} 00000000")
         );
-        assert_eq!(rules, "1.1", "surfaces were a small update (α01b)");
+        assert_eq!(
+            rules, "1.3",
+            "the surfaces (α01b), their relief and their stones and tufts (α01d) were small updates"
+        );
         // The hours' words, every one drawable in the font.
         assert_eq!(crate::hour_line(4), "Late afternoon · 16:30");
         assert_eq!(crate::hour_line(5), "Dusk · 17:45");
@@ -281,7 +284,7 @@ mod tests {
 
     // checks: WLD-12 PRE-02
     /// The ground's times for the bench file (A15.10): making the demo area, handing it over as meshes, and taking
-    /// it into the renderer's CPU store (its gradients):
+    /// it into the renderer's CPU store (its gradients, coverage, sky field, and stones and tufts, timed alone too):
     /// `cargo test --profile fast -p kd-app --lib ground_timings -- --ignored --nocapture`.
     #[test]
     #[ignore]
@@ -307,12 +310,35 @@ mod tests {
             std::hint::black_box(crate::ground::area_meshes(&g, &numbers));
         });
         let m = crate::ground::area_meshes(&g, &numbers);
+        let layout = kd_render::looks::Layout::new(&cat).unwrap();
+        let table = kd_render::ground::cover::CoverTable::new(&cat, &layout).unwrap();
         let store_ms = median(&mut || {
-            let mut s = kd_render::ground::Store::default();
+            let mut s = kd_render::ground::Store {
+                cover: table.clone(),
+                ..Default::default()
+            };
             s.insert(m.clone()).unwrap();
             std::hint::black_box(s.areas.len());
         });
-        println!("TIMINGS demo_make_ms {make_ms:.2} area_meshes_ms {meshes_ms:.2} store_insert_ms {store_ms:.2}");
+        let heights: Vec<f32> = m
+            .heights
+            .iter()
+            .map(|h| h + (m.base_m - (m.base_m * 256.0).round() / 256.0))
+            .collect();
+        let corner = kd_core::geo::Pos {
+            z: (m.base_m * 256.0).round() as i32,
+            ..m.id.origin()
+        };
+        let mut items = 0;
+        let cover_ms = median(&mut || {
+            let c = kd_render::ground::cover::Cover::new(m.id, corner, &heights, &m.surfaces, &table);
+            items = c.items.len();
+            std::hint::black_box(c);
+        });
+        println!(
+            "TIMINGS demo_make_ms {make_ms:.2} area_meshes_ms {meshes_ms:.2} store_insert_ms {store_ms:.2} \
+             cover_ms {cover_ms:.2} items {items}"
+        );
     }
 
     // checks: PRE-30

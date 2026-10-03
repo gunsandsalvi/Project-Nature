@@ -1,17 +1,19 @@
 // The web build's smoke test (A15.4, A15.11): the page loads without errors, an art pixel and a UI pixel are each
 // exactly 4 × 4 device pixels in portrait, in landscape and on a screen of scale 2, the core's maths and draws and
 // the demo area's ground give the cloud's bits in the browser (A15.9 item 5, the self-check), the probe scene's
-// steps, surfaces, looks, outlines and haze levels and the palette rows equal the Rust twins' and the cloud's
+// steps, surfaces, looks, outlines, haze levels and relief and the palette rows equal the Rust twins' and the cloud's
 // (A11.13 rule 2), a still camera's frames are the same, the hour lights the ground, a one-art-pixel pan moves the
-// picture by exactly 4 device pixels inside a block and across a move of the floating origin (A11.2), each gesture
-// does what it should and nothing else, two fingers keep the land under them through a pinch and a twist (A12.2),
-// and a panic leaves its message in the status line (A3.8). (Chromium's emulated fractional scales, like the
+// picture by exactly 4 device pixels inside a block and across a move of the floating origin (A11.2), at the camp
+// and close camp stops a slow pan changes no pixel but by whole-pixel moves and each 0.01 zoom step changes no more
+// art pixels than the newest bench file records for the note (A11.12), each gesture does what it should and nothing
+// else, two fingers keep the land under them through a pinch and a twist (A12.2), and a panic leaves its message in
+// the status line (A3.8). (Chromium's emulated fractional scales, like the
 // phone's 2.625, misreport the canvas's device size, so they are left to the phone itself.)
 // Usage: node tools/screens/smoke.mjs [--save <dir>]   (after tools/build-web.sh)
 // Screenshots go to target/screens/smoke/, which is never committed, or to --save's folder.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { ROOT, decodePng, launch, open, serve } from './lib.mjs';
+import { ROOT, STEADY_STOPS, STRIP, decodePng, launch, newestBench, open, serve, slowMotion, zoomStrip } from './lib.mjs';
 
 const saveAt = process.argv.indexOf('--save');
 const outDir = saveAt > 0 ? path.resolve(process.argv[saveAt + 1]) : path.join(ROOT, 'target', 'screens', 'smoke');
@@ -125,7 +127,7 @@ try {
       // checks: PRE-20 PRE-01
       const probe = await page.evaluate(() => window.kd.probe());
       const wrong = probe ? probe.gpu.filter((g, i) => g !== probe.twins[i]).length : -1;
-      check(`probe equals the twins, ${label}`, probe && probe.gpu.length === 768 && wrong === 0,
+      check(`probe equals the twins, ${label}`, probe && probe.gpu.length === 1024 && wrong === 0,
         probe ? `${wrong} of ${probe.gpu.length} differ` : 'no probe');
       // checks: PRE-30 RES-05
       const rows = await page.evaluate((n) => {
@@ -222,6 +224,43 @@ try {
       across !== null && across.why === '' && across.from.view.block[0] !== across.to.view.block[0],
       across ? across.why || `origin ${across.from.view.origin} to ${across.to.view.origin}` : 'no edge moved the origin');
     check('no page errors, pans', errors.length === 0, errors.slice(0, 3).join('; '));
+    await close();
+  }
+
+  // checks: PRE-22
+  // The steadiness counts (A11.12) at the camp and close camp stops, at the phone's size: a slow pan, 0.37 art pixels
+  // a frame, changes no art pixel but by whole-pixel moves and moves the picture its 11.1 art pixels; and no step of
+  // the zoom strip changes more art pixels than the newest bench file records, which the alpha's note quotes.
+  {
+    const { page, errors, close } = await open(browser, `${server.url}?test=1`, { width: 270, height: 601, scale: 4 });
+    await page.waitForFunction(() => window.kd && window.kd.ready(), null, { timeout: 60000 });
+    const recorded = newestBench('zoom_strip');
+    const frames = 30;
+    for (const [stop, golden] of Object.entries(STEADY_STOPS)) {
+      const { counts, moved } = await slowMotion(page, golden, 'pan', 0.37, frames);
+      const sum = (xs) => xs.reduce((a, b) => a + b, 0);
+      const changes = sum(counts.changed) + sum(counts.crawl);
+      const want = -frames * 0.37 * 4;
+      check(`${stop}: a slow pan changes no pixel but by whole-pixel moves`,
+        counts.changed.length === frames && changes === 0 && Math.abs(moved[0] - want) < 0.5 && Math.abs(moved[1]) < 0.5,
+        `${changes} changes in ${counts.changed.length} frames; moved ${moved.map((v) => v.toFixed(2))} device pixels`);
+      const strip = await zoomStrip(page, golden);
+      // a01c recorded the camp stop's strip alone, at the top of its entry.
+      const limit = recorded && (recorded.value[stop] ?? (stop === 'camp' && recorded.value.changed ? recorded.value : null));
+      if (!limit) {
+        console.log(`       ${stop}: no zoom strip recorded yet; its delivery records one`);
+        continue;
+      }
+      const same = ['from', 'to', 'step'].every((k) => recorded.value[k] === STRIP[k]) && limit.changed.length === strip.changed.length;
+      const over = strip.changed
+        .map((c, k) => ({ k, c, l: limit.changed[k] }))
+        .filter(({ c, l }) => c > l)
+        .map(({ k, c, l }) => `${(STRIP.from + STRIP.step * k).toFixed(2)}: ${(100 * c).toFixed(2)}% over ${(100 * l).toFixed(2)}%`);
+      check(`${stop}: no zoom step changes more art pixels than ${recorded.alpha} recorded`, same && over.length === 0,
+        same ? over.slice(0, 3).join('; ') : 'the strip differs from the one recorded');
+    }
+    await page.evaluate(() => window.kd.golden(''));
+    check('no page errors, steadiness', errors.length === 0, errors.slice(0, 3).join('; '));
     await close();
   }
 

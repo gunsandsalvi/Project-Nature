@@ -123,6 +123,17 @@ pub struct Surface {
     pub split_at: Vec<f32>,
     /// Drawn in the rock category, whose outlines are finer than the ground's (A11.2).
     pub rock: bool,
+    /// The micro-relief (A11.5): its noise's smallest and largest wavelengths in metres, octaves from the largest
+    /// halving down to the smallest, at most four; and how far each octave tilts the ground's normal at most, as a
+    /// slope.
+    pub relief_m: [f32; 2],
+    pub relief_tilt: f32,
+    /// Its ground cover (A11.5, `PRE-46`): stones a square metre and the look they are drawn in; tufts a square
+    /// metre and their look, or one for each of the surface's looks, picked by its split where a tuft stands.
+    pub stones_per_m2: f32,
+    pub stone_look: Option<u16>,
+    pub tufts_per_m2: f32,
+    pub tuft_looks: Vec<u16>,
 }
 
 /// The whole compiled catalogue, as the blob holds it.

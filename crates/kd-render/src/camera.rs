@@ -70,6 +70,16 @@ pub const DEPTH_MARGIN_M: f64 = 30.0;
 /// Patterns read positions from the corner of the world's block of this many metres that holds the area (A11.2).
 pub const PATTERN_BLOCK_M: i32 = 8_192;
 
+/// An area's corner within its block of `PATTERN_BLOCK_M` metres of the world, metres east and south: where the
+/// ground's patterns read their positions from (A11.2).
+pub fn pattern_off(corner: Pos) -> [f32; 2] {
+    let block = PATTERN_BLOCK_M * 256;
+    [
+        corner.x.rem_euclid(block) as f32 / 256.0,
+        corner.y.rem_euclid(block) as f32 / 256.0,
+    ]
+}
+
 /// The view's directions as the shaders take them.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Basis {
@@ -278,16 +288,12 @@ impl View {
             px[k] = whole as f32;
         }
         let span = self.depth[1] - self.depth[0];
-        let block = PATTERN_BLOCK_M * 256;
         let o = self.world_m(self.origin);
         AreaProjection {
             frac,
             px,
             depth: [(dot(m, self.fwd) - self.depth[0]) as f32, (1.0 / span) as f32],
-            pattern_off: [
-                corner.x.rem_euclid(block) as f32 / 256.0,
-                corner.y.rem_euclid(block) as f32 / 256.0,
-            ],
+            pattern_off: pattern_off(corner),
             area_off: [(m[0] - o[0]) as f32, (m[1] - o[1]) as f32],
             air: [
                 (dot(m, self.fwd) - dot(self.world_m(self.target), self.fwd)) as f32,

@@ -7,13 +7,12 @@
 // one over the last alpha's recorded share by more than a tenth is listed for the note to explain.
 // Usage: node tools/screens/crawl.mjs [--bench <bench json>]   (after tools/build-web.sh; the numbers go in the
 // bench file under "crawl")
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { ROOT, launch, open, serve } from './lib.mjs';
+import { ROOT, STEADY_STOPS, launch, newestBench, open, serve, slowMotion } from './lib.mjs';
 
 const benchAt = process.argv.indexOf('--bench');
 const bench = benchAt > 0 ? path.resolve(process.argv[benchAt + 1]) : null;
-const STOPS = { camp: 'valley-camp', close_camp: 'valley-close' };
 const MOTIONS = { turn: 0.11, zoom: 0.003, pan: 0.37 };
 const FRAMES = 60;
 // The most a pan may count: a few art pixels a frame where the depth's 16 bits round a surface across a boundary.
@@ -28,43 +27,17 @@ const mean = (xs) => xs.reduce((a, b) => a + b, 0) / Math.max(xs.length, 1);
 const share = (x) => Number(x.toFixed(5));
 const percent = (x) => `${(100 * x).toFixed(2)}%`;
 
-// The newest other bench file's crawl shares, for the tenth's rule.
-function lastRecorded() {
-  const dir = path.join(ROOT, 'bench', 'cloud');
-  const files = readdirSync(dir)
-    .filter((f) => f.endsWith('.json') && (!bench || path.join(dir, f) !== bench))
-    .sort();
-  for (const f of files.reverse()) {
-    const d = JSON.parse(readFileSync(path.join(dir, f), 'utf8'));
-    if (d.crawl) return { alpha: d.alpha, crawl: d.crawl };
-  }
-  return null;
-}
-
 const server = await serve(path.join(ROOT, 'dist', 'web'));
 const browser = await launch();
 const out = {};
 try {
   const { page, errors, close } = await open(browser, `${server.url}?test=1`, { width: 270, height: 601, scale: 4 });
   await page.waitForFunction(() => window.kd && window.kd.ready(), null, { timeout: 60000 });
-  for (const [stop, golden] of Object.entries(STOPS)) {
+  for (const [stop, golden] of Object.entries(STEADY_STOPS)) {
     out[stop] = {};
     for (const [motion, rate] of Object.entries(MOTIONS)) {
       // checks: PRE-22
-      const { counts, moved } = await page.evaluate(
-        ({ g, m, r, n }) => {
-          window.kd.hour(4);
-          window.kd.golden(g);
-          window.kd.frame(1);
-          // Where the first frame's target shows before and after, in device pixels.
-          const target = window.kd.camera().target;
-          const before = window.kd.screenOf(target);
-          const counts = window.kd.crawl({ motion: m, rate: r, frames: n });
-          const after = window.kd.screenOf(target);
-          return { counts, moved: [after[0] - before[0], after[1] - before[1]] };
-        },
-        { g: golden, m: motion, r: rate, n: FRAMES },
-      );
+      const { counts, moved } = await slowMotion(page, golden, motion, rate, FRAMES);
       const crawl = mean(counts.crawl) / counts.pixels;
       const changed = mean(counts.changed) / counts.pixels;
       out[stop][motion] = { crawl: share(crawl), changed: share(changed) };
@@ -91,11 +64,11 @@ try {
   server.close();
 }
 
-const last = lastRecorded();
+const last = newestBench('crawl', bench);
 const grown = [];
 for (const [stop, motions] of Object.entries(out)) {
   for (const [motion, s] of Object.entries(motions)) {
-    const before = last?.crawl?.[stop]?.[motion]?.crawl;
+    const before = last?.value?.[stop]?.[motion]?.crawl;
     if (motion !== 'pan' && before !== undefined && s.crawl > before * 1.1) {
       grown.push(`${stop} ${motion} ${percent(before)} to ${percent(s.crawl)}`);
     }

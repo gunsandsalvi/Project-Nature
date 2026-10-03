@@ -11,7 +11,7 @@ use kd_core::num::hash64;
 
 pub const MAGIC: &[u8; 5] = b"KDCAT";
 /// The blob's own format: raised whenever the compiled entries' layout changes.
-pub const FORMAT: u16 = 2;
+pub const FORMAT: u16 = 4;
 /// Magic, format, three versions and the hash.
 pub const HEADER_BYTES: usize = 5 + 2 + 3 * 2 + 8;
 
@@ -181,6 +181,12 @@ pub(crate) mod tests {
                 split_m: vec![],
                 split_at: vec![],
                 rock: true,
+                relief_m: [0.2, 2.0],
+                relief_tilt: 0.5,
+                stones_per_m2: 0.0,
+                stone_look: None,
+                tufts_per_m2: 0.0,
+                tuft_looks: vec![],
             }],
         }
     }

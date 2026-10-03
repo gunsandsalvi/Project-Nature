@@ -140,6 +140,16 @@ struct SurfaceSrc {
     split_at: Vec<f32>,
     #[serde(default)]
     rock: bool,
+    relief_m: [f32; 2],
+    relief_tilt: f32,
+    #[serde(default)]
+    stones_per_m2: f32,
+    #[serde(default)]
+    stone_look: Option<String>,
+    #[serde(default)]
+    tufts_per_m2: f32,
+    #[serde(default)]
+    tuft_looks: Vec<String>,
 }
 
 #[derive(Deserialize)]
@@ -313,14 +323,15 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
                 }),
                 Kind::Surface => parse::<SurfaceSrc>(&e, &mut problems).map(|s| {
                     let entry = surface_of(&s, &e, &looks, &mut problems);
-                    let names: Vec<&str> = entry
-                        .looks
-                        .iter()
-                        .filter_map(|&n| looks.iter().find(|l| l.0 == n).map(|l| l.1.name.as_str()))
-                        .collect();
+                    let name_of = |n: u16| {
+                        looks
+                            .iter()
+                            .find(|l| l.0 == n)
+                            .map_or(String::new(), |l| l.1.name.clone())
+                    };
                     (
                         head(&s.id, &s.name, &s.stage, &s.checks),
-                        surface_table(&entry, &names),
+                        surface_table(&entry, &name_of),
                         Compiled::Surface(entry),
                     )
                 }),
@@ -645,17 +656,16 @@ fn surface_of(s: &SurfaceSrc, e: &Entry, looks: &[(u16, Look)], problems: &mut V
     if !(1..=3).contains(&s.looks.len()) {
         bad(format!("{} looks; a surface has 1 to 3 (A11.5)", s.looks.len()));
     }
-    let numbers: Vec<u16> = s
-        .looks
-        .iter()
-        .filter_map(|id| {
-            let n = looks.iter().find(|l| &l.1.id == id).map(|l| l.0);
-            if n.is_none() {
-                bad(format!("look {id:?} is not a look in {}", Kind::Look.place()));
-            }
-            n
-        })
-        .collect();
+    let mut look_number = |id: &String| {
+        let n = looks.iter().find(|l| &l.1.id == id).map(|l| l.0);
+        if n.is_none() {
+            bad(format!("look {id:?} is not a look in {}", Kind::Look.place()));
+        }
+        n
+    };
+    let numbers: Vec<u16> = s.looks.iter().filter_map(&mut look_number).collect();
+    let stone_look = s.stone_look.as_ref().and_then(&mut look_number);
+    let tuft_looks: Vec<u16> = s.tuft_looks.iter().filter_map(&mut look_number).collect();
     if (1..s.looks.len()).any(|i| s.looks[..i].contains(&s.looks[i])) {
         bad("names a look twice".into());
     }
@@ -672,6 +682,24 @@ fn surface_of(s: &SurfaceSrc, e: &Entry, looks: &[(u16, Look)], problems: &mut V
     {
         bad("the split has one take-over value fewer than its looks, rising within −1 to 1".into());
     }
+    let [smallest, largest] = s.relief_m;
+    if !(smallest > 0.0 && smallest <= largest && largest <= 16.0 && largest < 16.0 * smallest) {
+        bad("the relief's wavelengths run from a smallest to a largest within 16 m, at most four octaves".into());
+    }
+    if !(0.0..=1.0).contains(&s.relief_tilt) {
+        bad("the relief's tilt is a slope from 0 to 1".into());
+    }
+    if !(0.0..=8.0).contains(&s.stones_per_m2) || !(0.0..=8.0).contains(&s.tufts_per_m2) {
+        bad("its stones and tufts number 0 to 8 a square metre".into());
+    }
+    if (s.stones_per_m2 > 0.0) != s.stone_look.is_some() {
+        bad("stones come with the look they are drawn in, and only then".into());
+    }
+    if (s.tufts_per_m2 > 0.0) == s.tuft_looks.is_empty()
+        || !(s.tuft_looks.len() <= 1 || s.tuft_looks.len() == s.looks.len())
+    {
+        bad("tufts come with one look, or one for each of the surface's looks, and only then".into());
+    }
     Surface {
         id: s.id.clone(),
         name: s.name.clone(),
@@ -680,6 +708,12 @@ fn surface_of(s: &SurfaceSrc, e: &Entry, looks: &[(u16, Look)], problems: &mut V
         split_m: s.split_m.clone(),
         split_at: s.split_at.clone(),
         rock: s.rock,
+        relief_m: s.relief_m,
+        relief_tilt: s.relief_tilt,
+        stones_per_m2: s.stones_per_m2,
+        stone_look,
+        tufts_per_m2: s.tufts_per_m2,
+        tuft_looks,
     }
 }
 
@@ -692,12 +726,12 @@ fn and_list(words: &[String]) -> String {
     }
 }
 
-fn surface_table(s: &Surface, look_names: &[&str]) -> Vec<(String, String)> {
+fn surface_table(s: &Surface, name_of: &dyn Fn(u16) -> String) -> Vec<(String, String)> {
     let numbers = |v: &[f32]| and_list(&v.iter().map(f32::to_string).collect::<Vec<_>>());
     vec![
         (
             "Looks".into(),
-            and_list(&look_names.iter().map(|n| n.to_string()).collect::<Vec<_>>()),
+            and_list(&s.looks.iter().map(|&n| name_of(n)).collect::<Vec<_>>()),
         ),
         (
             "Split".into(),
@@ -712,7 +746,40 @@ fn surface_table(s: &Surface, look_names: &[&str]) -> Vec<(String, String)> {
             },
         ),
         ("Draws as rock".into(), if s.rock { "yes" } else { "no" }.into()),
+        (
+            "Relief".into(),
+            format!(
+                "{} to {} m across, each octave tilting the ground by up to {}",
+                s.relief_m[0], s.relief_m[1], s.relief_tilt
+            ),
+        ),
+        ("Cover".into(), cover_words(s, name_of)),
     ]
+}
+
+/// The cover row's words: stones and tufts a square metre and their looks' names.
+fn cover_words(s: &Surface, names: &dyn Fn(u16) -> String) -> String {
+    let mut parts = Vec::new();
+    if let Some(look) = s.stone_look.filter(|_| s.stones_per_m2 > 0.0) {
+        parts.push(format!(
+            "stones, {} a square metre, in {}",
+            s.stones_per_m2,
+            names(look)
+        ));
+    }
+    if s.tufts_per_m2 > 0.0 {
+        let looks: Vec<String> = s.tuft_looks.iter().map(|&l| names(l)).collect();
+        parts.push(format!(
+            "tufts, {} a square metre, in {}",
+            s.tufts_per_m2,
+            and_list(&looks)
+        ));
+    }
+    if parts.is_empty() {
+        "none".into()
+    } else {
+        parts.join("; ")
+    }
 }
 
 fn three(v: [f32; 3]) -> String {
@@ -941,7 +1008,7 @@ mod tests {
     }
 
     fn surfaces() -> String {
-        "# Surfaces\n\nThe ground's surfaces.\n\n## Rock\n\nBare rock.\n\n```toml\nid = \"rock\"\nname = \"Rock\"\nstage = \"MIL-01\"\nchecks = [\"PRE-20\"]\nlooks = [\"limestone\"]\nrock = true\n```\n".to_string()
+        "# Surfaces\n\nThe ground's surfaces.\n\n## Rock\n\nBare rock.\n\n```toml\nid = \"rock\"\nname = \"Rock\"\nstage = \"MIL-01\"\nchecks = [\"PRE-20\"]\nlooks = [\"limestone\"]\nrock = true\nrelief_m = [0.2, 2.0]\nrelief_tilt = 0.5\n```\n".to_string()
     }
 
     fn sources(colours: String, looks: String, air: String) -> Vec<Source> {
@@ -1137,6 +1204,37 @@ mod tests {
             "one take-over value fewer than its looks",
         );
         fails(&surface("rock = true", "rock = \"yes\""), "invalid type");
+        fails(
+            &surface("relief_m = [0.2, 2.0]", "relief_m = [2.0, 0.2]"),
+            "from a smallest to a largest",
+        );
+        fails(
+            &surface("relief_m = [0.2, 2.0]", "relief_m = [0.1, 2.0]"),
+            "at most four octaves",
+        );
+        fails(
+            &surface("relief_tilt = 0.5", "relief_tilt = 1.5"),
+            "a slope from 0 to 1",
+        );
+        // Cover (WLD-12): stones need the look they are drawn in, tufts one look or one a look.
+        fails(
+            &surface("relief_tilt = 0.5", "relief_tilt = 0.5\nstones_per_m2 = 1.0"),
+            "stones come with the look they are drawn in",
+        );
+        fails(
+            &surface(
+                "relief_tilt = 0.5",
+                "relief_tilt = 0.5\ntufts_per_m2 = 1.0\ntuft_looks = [\"limestone\", \"limestone\"]",
+            ),
+            "tufts come with one look, or one for each",
+        );
+        fails(
+            &surface(
+                "relief_tilt = 0.5",
+                "relief_tilt = 0.5\nstones_per_m2 = 9.0\nstone_look = \"limestone\"",
+            ),
+            "0 to 8 a square metre",
+        );
         // A stray file no kind claims fails.
         let mut s = clean();
         s.push(Source {

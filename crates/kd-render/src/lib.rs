@@ -84,8 +84,9 @@ pub struct Frame {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct FrameStats {
     pub art: [u32; 2],
-    /// The ground's triangles (A11.11).
+    /// The ground's triangles, and the stones and tufts handed to the GPU (A11.11).
     pub triangles: u64,
+    pub items: u64,
 }
 
 pub struct Renderer {
@@ -129,6 +130,10 @@ impl Renderer {
         let ui = UiPass::new(&gl, &assets.font)?;
         let probe = ProbePass::new(&gl)?;
         let ground = GroundPass::new(&gl, cat, &layout)?;
+        let store = Store {
+            cover: ground::cover::CoverTable::new(cat, &layout).map_err(RenderError::Gl)?,
+            ..Store::default()
+        };
         let palette_tex = Texture::new(&gl, Format::Rgba8, PALETTE_SIZE as u32, 1, None)?;
         let tables_tex = Texture::new(&gl, Format::R8, PALETTE_SIZE as u32, TABLE_ROWS as u32, None)?;
         Ok(Renderer {
@@ -142,7 +147,7 @@ impl Renderer {
             probe,
             crawl: Box::new(Base),
             ground,
-            store: Store::default(),
+            store,
             view: None,
             last_view: None,
             cat: cat.clone(),
@@ -262,7 +267,7 @@ impl Renderer {
         self.light_frame(f, basis.fwd);
         let mut stats = FrameStats {
             art: art.art,
-            triangles: 0,
+            ..FrameStats::default()
         };
         let mut off = art.off;
         let mut depth_m = passes::scene::card::DEPTH_M;
@@ -287,10 +292,8 @@ impl Renderer {
                     if let Some(t) = &self.scene.target {
                         t.bind(&self.gl);
                         gl::clear(&self.gl, [0.0; 4], 1.0);
-                        stats.triangles = self
-                            .ground
-                            .draw(&self.gl, &view, &self.store, lighting, self.vao)
-                            .triangles;
+                        let g = self.ground.draw(&self.gl, &view, &self.store, lighting, self.vao);
+                        (stats.triangles, stats.items) = (g.triangles, g.items);
                         off = view.off;
                         depth_m = (view.depth[1] - view.depth[0]) as f32;
                         self.last_view = Some(view);
