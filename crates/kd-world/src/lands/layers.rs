@@ -89,10 +89,16 @@ pub(super) fn water_soils_cover(m: &Made, f: &mut FixedCells, st: &mut CellState
             flow_m3s: p.valley.flow_m3s,
             stretch_max_m: t.stretch_max_m,
         };
-        let (rivers, stretches) = river_cells(&spec, f)?;
+        let (rivers, mut stretches) = river_cells(&spec, f)?;
         for (k, r) in rivers.iter().enumerate() {
             f.water[ix(r.cell)] |= water::RIVER;
             f.river[ix(r.cell)] = k as u32;
+        }
+        // Each stretch's drainage, at its last cell.
+        for s in &mut stretches {
+            let (x, y) = rivers[(s.first + s.cells - 1) as usize].cell.xy();
+            let k = (y - m.window.y0) as usize * size + (x - m.window.x0) as usize;
+            s.drainage_km2 = d.area_km2[k];
         }
         f.rivers = rivers;
         f.stretches = stretches;

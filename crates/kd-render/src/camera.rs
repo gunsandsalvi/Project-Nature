@@ -22,8 +22,8 @@ use crate::passes::scene::ArtView;
 
 /// A11.5's zoom stops as (zoom, metres an art pixel): person, close camp, camp and valley.
 pub const STOPS: [(f32, f32); 4] = [(0.00, 0.03), (0.14, 0.13), (0.30, 1.1), (0.50, 37.0)];
-/// The zoom α01b reaches: the person, close camp and camp stops (the valley stop is α02a's).
-pub const ZOOM_IN_REACH: [f32; 2] = [0.0, 0.34];
+/// The zoom in reach: from the person stop to the valley stop (α02a; α19b opens it to the globe).
+pub const ZOOM_IN_REACH: [f32; 2] = [0.0, 0.50];
 /// The pitch's knots as (metres an art pixel, degrees below the horizon) (A11.2).
 pub const PITCH_KNOTS: [(f64, f64); 4] = [(0.03, 30.0), (0.13, 38.0), (1.1, 52.0), (37.0, 90.0)];
 /// The art pixels in a block, within which the projection stays put (A11.2).
@@ -337,24 +337,24 @@ impl View {
         Some([x0, x1, y0, y1])
     }
 
-    /// Fits the depth range to boxes of ground, each an area's corner and its lowest and highest points above it,
-    /// with `DEPTH_MARGIN_M` either side, over the areas the block may show (A11.2): its depth stays put while the
-    /// window moves within the block.
-    pub fn fit_depth(&mut self, boxes: impl Iterator<Item = (Pos, [f32; 2])>) {
+    /// Fits the depth range to boxes of ground, each a corner, its lowest and highest points above it and its side
+    /// in metres (an area's or a coarse tile's), with `DEPTH_MARGIN_M` either side, over the boxes the block may show
+    /// (A11.2): its depth stays put while the window moves within the block.
+    pub fn fit_depth(&mut self, boxes: impl Iterator<Item = (Pos, [f32; 2], f64)>) {
         let (mut near, mut far) = (f64::MAX, f64::MIN);
         let mut block_view = *self;
         block_view.corner = self.block;
         block_view.art = [self.art[0] + BLOCK as u32, self.art[1] + BLOCK as u32];
-        for (corner, span) in boxes {
+        for (corner, span, side) in boxes {
             let Some(f) = block_view.local_footprint(corner, span) else {
                 continue;
             };
-            if f[1] < 0.0 || f[0] > 256.0 || f[3] < 0.0 || f[2] > 256.0 {
+            if f[1] < 0.0 || f[0] > side || f[3] < 0.0 || f[2] > side {
                 continue;
             }
             let c = self.world_m(corner);
-            for x in [0.0, 256.0] {
-                for y in [0.0, -256.0] {
+            for x in [0.0, side] {
+                for y in [0.0, -side] {
                     for h in span {
                         let d = dot([c[0] + x, c[1] + y, c[2] + f64::from(h)], self.fwd);
                         near = near.min(d);
@@ -476,7 +476,7 @@ mod tests {
         // The depth range holds the ground with 30 m to spare, and stays put within a block.
         let mut v = View::from_pose(&pose(10.0), &phone());
         let mut w = View::from_pose(&pose(10.5), &phone());
-        let area = [(target(0.0, 0.0), [0.0f32, 60.0])];
+        let area = [(target(0.0, 0.0), [0.0f32, 60.0], 256.0)];
         v.fit_depth(area.into_iter());
         w.fit_depth(area.into_iter());
         assert_eq!(v.block, w.block);
@@ -512,7 +512,7 @@ mod tests {
             assert!((zoom_of(texel(z)) - z).abs() < 1e-5, "zoom {z}");
         }
         assert!(
-            (texel(ZOOM_IN_REACH[1]) - 2.22).abs() < 0.01,
+            (texel(ZOOM_IN_REACH[1]) - 37.0).abs() < 0.01,
             "{}",
             texel(ZOOM_IN_REACH[1])
         );

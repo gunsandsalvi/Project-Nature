@@ -5,7 +5,7 @@
 use serde::Deserialize;
 
 use super::{Compiled, Entry, Head, Problem, and_list, at, head, parse};
-use crate::schema::Look;
+use crate::schema::{Look, Surface};
 use crate::units::{Dim, amount, value};
 use crate::world::{
     Biome, COVER_GROUPS, Carried, Climate, Deposit, Escarpment, Herd, Land, Landform, Rock, Side, Soil, Valley, keeps,
@@ -91,9 +91,21 @@ struct BiomeSrc {
     checks: Vec<String>,
     look: String,
     cover: SharesSrc,
+    surfaces: CoverSurfacesSrc,
     /// Written for a biome a kind of ground takes, and only then.
     #[serde(default)]
     landform: Option<String>,
+}
+
+/// The surface each cover group shows as, by id.
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct CoverSurfacesSrc {
+    trees: String,
+    bushes: String,
+    grass: String,
+    reeds: String,
+    bare: String,
 }
 
 #[derive(Deserialize)]
@@ -420,7 +432,7 @@ pub(super) fn soil(e: &Entry, problems: &mut Vec<Problem>) -> Out {
     Some((head(&s.id, &s.name, &s.stage, &s.checks), table, Compiled::Soil(entry)))
 }
 
-pub(super) fn biome(e: &Entry, looks: &[(u16, Look)], problems: &mut Vec<Problem>) -> Out {
+pub(super) fn biome(e: &Entry, looks: &[(u16, Look)], surfaces: &[(u16, Surface)], problems: &mut Vec<Problem>) -> Out {
     let s = parse::<BiomeSrc>(e, problems)?;
     let mut r = Report {
         e,
@@ -430,14 +442,29 @@ pub(super) fn biome(e: &Entry, looks: &[(u16, Look)], problems: &mut Vec<Problem
     let look = r.resolve("look", &s.look, looks, look_id, "look");
     let c = &s.cover;
     let cover = r.shares("cover", [c.trees, c.bushes, c.grass, c.reeds, c.bare]);
+    let v = &s.surfaces;
+    let shows = [&v.trees, &v.bushes, &v.grass, &v.reeds, &v.bare]
+        .map(|id| r.resolve("surfaces", id, surfaces, |k: &Surface| &k.id, "surface"));
     let landform = r.landform(s.landform.as_deref());
     let look_name = looks
         .iter()
         .find(|l| l.0 == look)
         .map_or(String::new(), |l| l.1.name.clone());
+    let surface_name = |n: u16| {
+        surfaces
+            .iter()
+            .find(|k| k.0 == n)
+            .map_or(String::new(), |k| k.1.name.clone())
+    };
+    let shown: Vec<String> = COVER_WORDS
+        .iter()
+        .zip(shows)
+        .map(|(g, n)| format!("{g} as {}", surface_name(n)))
+        .collect();
     let table = vec![
         ("Map look".to_string(), look_name),
         ("Cover".to_string(), shares_words(cover)),
+        ("Shows".to_string(), and_list(&shown)),
         (
             "Takes".to_string(),
             landform.map_or("its land's choice".to_string(), |l| landform_words(l).to_string()),
@@ -449,6 +476,7 @@ pub(super) fn biome(e: &Entry, looks: &[(u16, Look)], problems: &mut Vec<Problem
         number: 0,
         look,
         cover,
+        surfaces: shows,
         landform,
     };
     Some((head(&s.id, &s.name, &s.stage, &s.checks), table, Compiled::Biome(entry)))

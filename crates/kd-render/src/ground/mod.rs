@@ -8,6 +8,7 @@
 //! Implements PRE-02 and PRE-20, see A11.5: a real 3D ground drawn at low resolution, its surfaces in their looks'
 //! steps.
 
+pub mod coarse;
 pub mod cover;
 
 use kd_core::geo::{AreaId, Pos};
@@ -496,7 +497,8 @@ impl SurfaceTable {
 }
 
 /// The ground's uniforms, in `GroundPass::u`'s order.
-const UNIFORMS: [&str; 31] = [
+const UNIFORMS: [&str; 32] = [
+    "u_unit",
     "u_spacing",
     "u_morph",
     "u_patches",
@@ -557,9 +559,15 @@ pub fn light_tan(dir: [f32; 3]) -> f32 {
 /// The patches of an area a view needs: the first patch's column and row, and how many columns and rows, from the
 /// view's footprint on the ground between the area's lowest and highest points (A11.5).
 pub fn patches_in_view(view: &View, area: &Area, s: i32) -> Option<[i32; 4]> {
+    patches_of(view, area.corner(), area.span_m, 1.0, s)
+}
+
+/// The patches of a grid of 257 × 257 points `unit` metres apart, its corner at `corner` and its ground between
+/// `span_m` above it, that a view needs at a spacing of `s` points: an area's, or coarse ground's tile's.
+pub fn patches_of(view: &View, corner: Pos, span_m: [f32; 2], unit: f32, s: i32) -> Option<[i32; 4]> {
     let n = 256 / (PATCH_QUADS * s);
-    let bounds = view.local_footprint(area.corner(), area.span_m)?;
-    let size = (PATCH_QUADS * s) as f64;
+    let bounds = view.local_footprint(corner, span_m)?;
+    let size = f64::from(PATCH_QUADS * s) * f64::from(unit);
     let lo = |v: f64| ((v / size).floor() as i32).clamp(0, n);
     let hi = |v: f64| ((v / size).ceil() as i32).clamp(0, n);
     let (x0, x1, y0, y1) = (lo(bounds[0]), hi(bounds[1]), lo(bounds[2]), hi(bounds[3]));
@@ -613,6 +621,7 @@ impl GroundPass {
         );
         self.program.bind(gl);
         let [
+            u_unit,
             u_spacing,
             u_morph,
             u_patches,
@@ -646,6 +655,7 @@ impl GroundPass {
             u_contact_level,
         ] = &self.u;
         let (s, morph) = spacing(view.texel as f32);
+        gl::set_f32(gl, u_unit.as_ref(), 1.0);
         gl::set_f32(gl, u_spacing.as_ref(), s as f32);
         gl::set_f32(gl, u_morph.as_ref(), morph);
         let b = view.basis_f32();

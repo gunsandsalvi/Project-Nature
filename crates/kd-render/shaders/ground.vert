@@ -1,8 +1,14 @@
 // The ground's vertices (A11.5): one shared patch of PATCH_QUADS x PATCH_QUADS quads made from the vertex and
 // instance numbers, no vertex buffer, each vertex reading its height from the area's texture; or, with u_skirt,
-// the skirt hanging SKIRT_M below the area's edge. Projected from the area's own corner by area_place (A11.2).
+// the skirt hanging SKIRT_M below the area's edge. Projected from the area's own corner by area_place (A11.2). The
+// same patch draws coarse ground's tiles, whose points lie u_unit metres apart, and, under SEA, the sea's flat
+// surface over them (A11.6).
 uniform highp sampler2D u_heights;  // R32F, 257 x 257: metres above the area's corner
-uniform float u_spacing;            // metres between vertices, a power of two
+uniform float u_unit;               // metres between the heights' points: 1 for an area, 32 for coarse ground
+#ifdef SEA
+uniform float u_level;              // the sea's surface, metres above the tile's corner
+#endif
+uniform float u_spacing;            // points between vertices, a power of two
 uniform float u_morph;              // 0 to 1: how far the odd vertices have slid onto the next spacing's mesh
 uniform ivec4 u_patches;            // the first patch's column and row, and how many columns and rows are drawn
 uniform int u_skirt;                // 1 for the skirts, 0 for the patches
@@ -59,11 +65,14 @@ void main() {
         g = edge[side];
         h = vertex_height(g, s, u_morph) - (CORNERS[gl_VertexID].y == 1 ? SKIRT_M : 0.0);
     }
-    vec3 l = vec3(float(g.x), -float(g.y), h);
+#ifdef SEA
+    h = u_level;
+#endif
+    vec3 l = vec3(float(g.x) * u_unit, -float(g.y) * u_unit, h);
     vec2 a = area_place(l, vec2(0.0), u_right, u_up, u_inv_texel, u_area_frac, u_area_px);
     float dz = (dot(l, u_fwd) + u_depth.x) * u_depth.y;
     gl_Position = vec4(a / float(VIEWPORT / 2) - 1.0, dz * 2.0 - 1.0, 1.0);
-    v_local = vec2(g);
+    v_local = vec2(g) * u_unit;
     v_depth = dz;
     v_air = vec2(dot(l, u_fwd) + u_area_air.x, h + u_area_air.y);
 }

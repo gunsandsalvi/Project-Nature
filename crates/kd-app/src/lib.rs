@@ -20,7 +20,9 @@ use kd_render::{ART_SCALE, Frame, Renderer};
 use kd_ui::strip::Colours;
 use kd_ui::{Ui, UiAction};
 use kd_view::{AreaMeshes, CameraPose, FontAtlas, InputEvent, Insets, UiDrawList};
-use kd_world::area::{Ground, demo};
+use kd_world::area::{Ground, Material, demo};
+use kd_world::cells::CellCtx;
+use kd_world::lands::{self, PresetWorld};
 
 pub use json::{counts_json, requests_json};
 
@@ -54,8 +56,8 @@ pub enum AppMsg {
     Back,
 }
 
-/// The eight hours the strip steps through until the clock runs them (α03a), at 21° N on the spring equinox
-/// (A11.4): their names and their hours.
+/// The eight hours the strip steps through until the clock runs them (α03a), on the spring equinox at the camera's
+/// latitude (A11.4): their names and their hours.
 pub const HOURS: [(&str, f32); 8] = [
     ("dawn", 6.5),
     ("morning", 9.0),
@@ -66,8 +68,16 @@ pub const HOURS: [(&str, f32); 8] = [
     ("twilight", 18.5),
     ("night", 23.0),
 ];
-/// The latitude the hours are seen from.
+/// The demo area's latitude, which its golden scenes are lit at.
 pub const HOURS_LAT: f32 = 21.0;
+/// The land the app shows, its seed, and how its tiles of coarse ground are fed to the renderer: those within
+/// `TILE_WANT_M` of the view made, nearest first, for up to `TILE_FRAME_NS` of a frame; those beyond `TILE_KEEP_M`
+/// dropped (A11.5).
+pub const FIRST_LAND: &str = "first_region";
+pub const ISLAND_SEED: u64 = 1;
+pub const TILE_WANT_M: f64 = 2_000.0;
+pub const TILE_KEEP_M: f64 = 8_000.0;
+pub const TILE_FRAME_NS: u64 = 4_000_000;
 /// Late afternoon, the hour the app opens on.
 pub const FIRST_HOUR: usize = 4;
 
@@ -91,11 +101,17 @@ impl Motion {
     }
 }
 
-/// The sky at one of `HOURS`: spring day 1, the equinox, at that hour (A3.7).
-pub fn sky_at(hour: usize) -> kd_view::SkyView {
+/// The sky at one of `HOURS` at latitude `lat`: spring day 1, the equinox, at that hour (A3.7).
+pub fn sky_at(hour: usize, lat: f32) -> kd_view::SkyView {
     let (_, h) = HOURS[hour % HOURS.len()];
     let t = kd_core::time::GameTime((h * 3600.0) as u64);
-    kd_render::light::sky_view(&kd_core::sky::sun_moon(t, HOURS_LAT, 0.0, &kd_core::sky::Sky::FIRST))
+    kd_render::light::sky_view(&kd_core::sky::sun_moon(t, lat, 0.0, &kd_core::sky::Sky::FIRST))
+}
+
+/// The latitude of a place, in whole degrees north, which its light is seen from until the clock comes (α03a).
+pub fn latitude(p: kd_core::geo::Pos) -> f32 {
+    let y = (f64::from(p.y) + 0.5) / f64::from(kd_core::geo::H);
+    (90.0 - 180.0 * y).round() as f32
 }
 
 /// What the shell knows at start.
@@ -170,6 +186,17 @@ pub struct App {
     demo_meshes: Option<AreaMeshes>,
     /// How long making the demo area took, in nanoseconds (the bench, A15.10).
     demo_ns: u64,
+    /// The first region (A5.6), how long building it took, in nanoseconds, its highest ground, and the surface each
+    /// material shows as.
+    island: Option<PresetWorld>,
+    island_ns: u64,
+    island_top_m: f64,
+    surfaces: Option<[u8; Material::ALL.len()]>,
+    /// The longest a frame spent making tiles of coarse ground, in nanoseconds, and how many it has made (A15.10).
+    tile_ns: u64,
+    tiles_made: u64,
+    /// Test hook (A12.4): the next frame makes every tile it needs and finishes every light field.
+    settle_next: bool,
     /// Where the camera looks, the gesture moving it and its easing (A11.2, A12.2).
     control: camera::Control,
     /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles (the bench,
@@ -268,6 +295,13 @@ impl App {
             demo: None,
             demo_meshes: None,
             demo_ns: 0,
+            island: None,
+            island_ns: 0,
+            island_top_m: 0.0,
+            surfaces: None,
+            tile_ns: 0,
+            tiles_made: 0,
+            settle_next: false,
             control: camera::Control::new(CameraPose::default()),
             upload_ns: 0,
             insert_ns: 0,
@@ -291,7 +325,96 @@ impl App {
             app.check_failed(line);
         }
         app.make_demo();
+        app.make_island();
         app
+    }
+
+    /// Builds the first region (A5.6) and points the camera at its first camp's cave mouth from the valley stop,
+    /// looking north-north-east up the valley (T02a.7).
+    fn make_island(&mut self) {
+        let Some(cat) = &self.catalogue else {
+            return;
+        };
+        let Some(land) = cat.land(FIRST_LAND) else {
+            self.check_failed(format!("the catalogue has no land {FIRST_LAND}"));
+            return;
+        };
+        let t0 = self.platform.now_ns();
+        let built = lands::build(land, ISLAND_SEED, cat);
+        self.island_ns = self.platform.now_ns().saturating_sub(t0);
+        match built {
+            Ok(w) => {
+                log::info!(target: "kd::app", "island built in {} ms", self.island_ns / 1_000_000);
+                let f = &w.cells.fixed;
+                self.island_top_m = w
+                    .window
+                    .cells()
+                    .map(|c| f64::from(f.height[c.0 as usize]))
+                    .fold(0.0, f64::max)
+                    + 60.0;
+                if let Some(camp) = f.cave_records.iter().find(|r| r.first_camp) {
+                    let mouth = kd_core::geo::Pos {
+                        x: camp.mouth[0],
+                        y: camp.mouth[1],
+                        z: 0,
+                    };
+                    let z = w.cells.coarse_z(mouth).max(0.0);
+                    self.control = camera::Control::new(CameraPose {
+                        target: kd_core::geo::Pos {
+                            z: (z * 256.0).round() as i32,
+                            ..mouth
+                        },
+                        yaw: START_YAW,
+                        zoom: START_ZOOM,
+                    });
+                }
+                self.island = Some(w);
+            }
+            Err(e) => self.check_failed(format!("island: {e}")),
+        }
+    }
+
+    /// The land the gestures read: the demo area's ground where it has any, else the island's.
+    fn lands<'a>(demo: &'a Option<Ground>, island: &'a Option<PresetWorld>, top_m: f64) -> camera::Lands<'a> {
+        camera::Lands {
+            demo: demo.as_ref(),
+            island: island.as_ref().map(|w| camera::Island {
+                cells: &w.cells,
+                window: w.window,
+                top_m,
+            }),
+        }
+    }
+
+    /// Feeds the renderer the tiles of coarse ground the view needs (A11.5): drops those beyond `TILE_KEEP_M`, and
+    /// makes those within `TILE_WANT_M` it lacks, nearest first, until `budget_ns` of the frame is spent, all of
+    /// them with none.
+    fn feed_tiles(&mut self, budget_ns: Option<u64>) {
+        let (Some(r), Some(w), Some(cat), Some(surfaces)) =
+            (self.renderer.as_mut(), &self.island, &self.catalogue, &self.surfaces)
+        else {
+            return;
+        };
+        let pose = self.control.pose;
+        let keep = r.tiles_wanted(&pose, TILE_KEEP_M);
+        r.retain_tiles(&keep);
+        let t0 = self.platform.now_ns();
+        let cx = CellCtx {
+            seed: ISLAND_SEED,
+            cells: &w.cells,
+            cat,
+        };
+        for tile in r.tiles_wanted(&pose, TILE_WANT_M) {
+            if r.has_tile(tile) || !tile_in(w, tile) {
+                continue;
+            }
+            r.upload_tile(ground::coarse_tile(&cx, tile, surfaces, kd_core::time::GameTime(0)));
+            self.tiles_made += 1;
+            if budget_ns.is_some_and(|b| self.platform.now_ns().saturating_sub(t0) >= b) {
+                break;
+            }
+        }
+        self.tile_ns = self.tile_ns.max(self.platform.now_ns().saturating_sub(t0));
     }
 
     /// Makes the demo area (α01b), checks its ground against the cloud's hash (A15.9 item 5), turns its materials
@@ -306,7 +429,10 @@ impl App {
         }
         if let Some(cat) = &self.catalogue {
             match ground::surface_numbers(cat) {
-                Ok(n) => self.demo_meshes = Some(ground::area_meshes(&g, &n)),
+                Ok(n) => {
+                    self.demo_meshes = Some(ground::area_meshes(&g, &n));
+                    self.surfaces = Some(n);
+                }
                 Err(e) => self.check_failed(format!("demo area: {e}")),
             }
         }
@@ -336,7 +462,8 @@ impl App {
                     Some(UiAction::StepHour) => self.set_hour(self.hour + 1),
                     Some(UiAction::Camera(g)) => {
                         let window = self.size.unwrap_or([1, 1]);
-                        self.control.gesture(g, window, self.demo.as_ref(), e.t_ns);
+                        let land = App::lands(&self.demo, &self.island, self.island_top_m);
+                        self.control.gesture(g, window, Some(&land), e.t_ns);
                     }
                     None => {}
                 }
@@ -427,14 +554,23 @@ impl App {
         if self.golden.is_none() {
             self.control.tick(now_ns);
         }
+        // A golden scene's frame, or a settled one, has all its tiles, as its fields (A11.11).
+        let whole = self.golden.is_some() || std::mem::take(&mut self.settle_next);
+        self.feed_tiles((!whole).then_some(TILE_FRAME_NS));
+        // The light card is lit at the demo's latitude, as it always was; the ground at its own.
+        let lat = if self.golden.is_some_and(Golden::card) {
+            HOURS_LAT
+        } else {
+            latitude(self.control.pose.target)
+        };
         if let Some(r) = self.renderer.as_mut() {
             let f = Frame {
                 count: self.frames,
-                sky: sky_at(self.hour),
+                sky: sky_at(self.hour, lat),
                 cam: self.control.pose,
                 card,
-                // A golden scene's frame finishes its fields at once (A11.11).
-                field_ns: self.golden.is_none().then_some(kd_render::field::SUN_FIELD_FRAME_NS),
+                // A golden scene's frame, or a settled one, finishes its fields at once (A11.11).
+                field_ns: (!whole).then_some(kd_render::field::SUN_FIELD_FRAME_NS),
             };
             let t0 = self.platform.now_ns();
             if r.upload_areas() > 0 {
@@ -503,6 +639,12 @@ impl App {
         }
     }
 
+    /// Test hook (A12.4): the next frame makes every tile of coarse ground its view needs and finishes every light
+    /// field, as a golden scene's does, so a picture of any pose is whole.
+    pub fn settle(&mut self) {
+        self.settle_next = true;
+    }
+
     /// Test hook (A11.12): shows a golden scene with time frozen and no strip, a ground scene from its pose, or
     /// the live ground again.
     pub fn set_golden(&mut self, golden: Option<Golden>) {
@@ -514,12 +656,8 @@ impl App {
 
     /// Test hook (A12.4): the ground under a window point in screen pixels, as a position.
     pub fn ground_at(&self, p: [f32; 2]) -> Option<kd_core::geo::Pos> {
-        Some(camera::ground_point(
-            &self.control.pose,
-            self.size?,
-            self.demo.as_ref(),
-            p,
-        ))
+        let land = App::lands(&self.demo, &self.island, self.island_top_m);
+        Some(camera::ground_point(&self.control.pose, self.size?, Some(&land), p))
     }
 
     /// Test hook (A12.4): where a position shows in the window, in screen pixels.
@@ -635,6 +773,17 @@ impl App {
     /// How long making the demo area took, in nanoseconds.
     pub fn demo_ns(&self) -> u64 {
         self.demo_ns
+    }
+
+    /// The first region, once built.
+    pub fn island(&self) -> Option<&PresetWorld> {
+        self.island.as_ref()
+    }
+
+    /// How long building the first region took, in nanoseconds; the longest a frame spent making tiles of coarse
+    /// ground, and how many it has made.
+    pub fn island_stats(&self) -> (u64, u64, u64) {
+        (self.island_ns, self.tile_ns, self.tiles_made)
     }
 
     /// The longest a frame's area uploads took, in nanoseconds, the last frame's ground triangles, and the stones
@@ -756,4 +905,16 @@ impl App {
             json: self.report.to_json(),
         });
     }
+}
+
+/// Where the app opens (T02a.7): the valley stop, looking north-north-east up the valley.
+pub const START_ZOOM: f32 = 0.50;
+pub const START_YAW: f32 = -0.45;
+
+/// Whether any of a tile's cells lies in the island's square.
+fn tile_in(w: &PresetWorld, tile: kd_core::geo::CellIx) -> bool {
+    let (x, y) = tile.xy();
+    let (wx, wy, n) = (w.window.x0, w.window.y0, w.window.size);
+    let t = kd_view::TILE_CELLS;
+    x < wx + n && x + t > wx && y < wy + n && y + t > wy
 }

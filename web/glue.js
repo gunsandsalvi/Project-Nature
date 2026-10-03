@@ -101,6 +101,8 @@ async function main() {
       golden: (name) => app.golden(name),
       camera: () => JSON.parse(app.camera()),
       aim: (target, yaw, zoom) => app.aim(target[0], target[1], target[2], yaw, zoom),
+      // The next frame makes every tile of coarse ground it needs and finishes every light field (A11.5).
+      settle: () => app.settle(),
       // A synthetic touch, in device pixels from the canvas's top-left: kind 0 down, 1 move, 2 up, 3 cancel.
       touch: (kind, id, x, y, tMs) => app.pointer(kind, id, x, y, tMs),
       groundAt: (x, y) => Array.from(app.ground_at(x, y)),

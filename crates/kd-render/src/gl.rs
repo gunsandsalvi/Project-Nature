@@ -35,6 +35,12 @@ pub mod unit {
     /// An area's contact shade, read by the ground, and its stones and tufts, read by their vertices (A11.5).
     pub const CONTACT: u32 = 12;
     pub const ITEMS: u32 = 13;
+    /// A coarse tile's cells' cover and the surfaces its groups show as, where the sea lies, and its water lines
+    /// (A11.5, A11.6).
+    pub const CELLS: u32 = 14;
+    pub const GROUPS: u32 = 15;
+    pub const SEA: u32 = 16;
+    pub const LINES: u32 = 17;
 }
 
 /// The texture formats the renderer uses (A11.13 rule 3).
@@ -476,6 +482,11 @@ pub fn set_vec4_array(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v
 pub fn set_f32(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: f32) {
     // SAFETY: as above.
     unsafe { gl.uniform_1_f32(loc, v) }
+}
+
+pub fn set_vec4(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [f32; 4]) {
+    // SAFETY: as above.
+    unsafe { gl.uniform_4_f32(loc, v[0], v[1], v[2], v[3]) }
 }
 
 pub fn set_vec3(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [f32; 3]) {

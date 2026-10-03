@@ -705,28 +705,94 @@ pub fn sun_field(heights: &[f32], dir: [f32; 3]) -> SunField {
     }
 }
 
-/// An area's sky field (A11.5): at each 1 m point the share of the sky its horizon leaves open, from 0 to 1: the
-/// mean over 16 directions of `cos²` of the horizon's height, `1 / (1 + m²)` for its slope `m` above level.
-pub fn sky_field(heights: &[f32]) -> Vec<f32> {
-    assert_eq!(heights.len(), SIDE * SIDE, "an area's heights");
-    let mut sum = vec![0.0f32; SIDE * SIDE];
-    let mut line = Line::default();
-    for a in HALF_ROUND {
+/// A sky field worked out a piece at a time (A11.5, A11.11), as `SunJob` is: for each of the eight directions of half
+/// the round, row by row the ground along it and its readers' horizons beyond `NEAR_M` both ways, then line by line
+/// each point's own rays within it both ways, adding up each point's share of the open sky; coarse ground's tiles
+/// make theirs so, never stalling a frame.
+pub struct SkyJob {
+    sum: Vec<f32>,
+    /// The direction under way, its rows, their readers and the far horizons ahead and behind.
+    dir: usize,
+    rows: Rows,
+    readers: Readers,
+    ahead: Far,
+    behind: Far,
+    near: [Near; 2],
+    line: Line,
+    /// The next row, then from `rows.count()` on the next line of the area's points.
+    next: usize,
+}
+
+impl Default for SkyJob {
+    fn default() -> SkyJob {
+        SkyJob::new()
+    }
+}
+
+impl SkyJob {
+    pub fn new() -> SkyJob {
+        let a = HALF_ROUND[0];
         let rows = Rows::new(a);
-        let mut readers = rows.readers();
-        let (mut ahead, mut behind) = (Far::new(), Far::new());
-        for k in 0..rows.count() {
-            rows.sweep(heights, k, &mut readers, &mut line, Some(&mut ahead), Some(&mut behind));
+        SkyJob {
+            sum: vec![0.0; SIDE * SIDE],
+            dir: 0,
+            readers: rows.readers(),
+            rows,
+            ahead: Far::new(),
+            behind: Far::new(),
+            near: [Near::new(a), Near::new([-a[0], -a[1]])],
+            line: Line::default(),
+            next: 0,
         }
-        for (way, far) in [(a, &ahead), ([-a[0], -a[1]], &behind)] {
-            let near = Near::new(way);
-            for (i, s) in sum.iter_mut().enumerate() {
-                let m = combine(near.horizon(heights, i), far.at(i)).max(0.0);
-                *s += 1.0 / (1.0 + m * m);
+    }
+
+    /// Works one piece and on while `more()` allows; the field once it is whole.
+    pub fn step(&mut self, heights: &[f32], more: &mut dyn FnMut() -> bool) -> Option<Vec<f32>> {
+        assert_eq!(heights.len(), SIDE * SIDE, "an area's heights");
+        loop {
+            let rows = self.rows.count();
+            if self.next < rows {
+                let (ahead, behind) = (Some(&mut self.ahead), Some(&mut self.behind));
+                self.rows
+                    .sweep(heights, self.next, &mut self.readers, &mut self.line, ahead, behind);
+            } else {
+                let y = self.next - rows;
+                for i in y * SIDE..(y + 1) * SIDE {
+                    for (near, far) in [(&self.near[0], &self.ahead), (&self.near[1], &self.behind)] {
+                        let m = combine(near.horizon(heights, i), far.at(i)).max(0.0);
+                        self.sum[i] += 1.0 / (1.0 + m * m);
+                    }
+                }
+            }
+            self.next += 1;
+            if self.next == rows + SIDE {
+                self.dir += 1;
+                let Some(&a) = HALF_ROUND.get(self.dir) else {
+                    let sum = std::mem::take(&mut self.sum);
+                    return Some(sum.into_iter().map(|s| s / SKY_DIRECTIONS as f32).collect());
+                };
+                self.rows = Rows::new(a);
+                self.readers = self.rows.readers();
+                (self.ahead, self.behind) = (Far::new(), Far::new());
+                self.near = [Near::new(a), Near::new([-a[0], -a[1]])];
+                self.next = 0;
+            }
+            if !more() {
+                return None;
             }
         }
     }
-    sum.into_iter().map(|s| s / SKY_DIRECTIONS as f32).collect()
+}
+
+/// An area's sky field (A11.5), all at once: at each 1 m point the share of the sky its horizon leaves open, from 0
+/// to 1: the mean over 16 directions of `cos²` of the horizon's height, `1 / (1 + m²)` for its slope `m` above level.
+pub fn sky_field(heights: &[f32]) -> Vec<f32> {
+    let mut job = SkyJob::new();
+    loop {
+        if let Some(field) = job.step(heights, &mut || true) {
+            return field;
+        }
+    }
 }
 
 #[cfg(test)]
@@ -851,6 +917,24 @@ mod tests {
         }
         let (err, x, y, got, want) = worst;
         assert!(err <= 0.02, "at ({x}, {y}): {got} against {want}");
+    }
+
+    // checks: PRE-30 PRE-03
+    #[test]
+    fn sky_job_over_frames_gives_the_field_at_once() {
+        // A piece a frame with no time to spare, as coarse ground's tiles make theirs: hundreds of pieces, the same
+        // field to the bit.
+        let ground = test_ground();
+        let mut job = SkyJob::new();
+        let mut pieces = 1;
+        let field = loop {
+            if let Some(f) = job.step(&ground, &mut || false) {
+                break f;
+            }
+            pieces += 1;
+        };
+        assert!(pieces > 1_000, "{pieces} pieces");
+        assert_eq!(field, sky_field(&ground));
     }
 
     // checks: PRE-30

@@ -68,6 +68,9 @@ grass = 0
 dirt = 1
 rock = 2
 scree = 3
+woodland = 4
+reeds = 5
+sand = 6
 
 [tuning]
 render = 0

@@ -378,7 +378,7 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
                 }),
                 Kind::Rock => land::rock(&e, &looks, &mut problems),
                 Kind::Soil => land::soil(&e, &mut problems),
-                Kind::Biome => land::biome(&e, &looks, &mut problems),
+                Kind::Biome => land::biome(&e, &looks, &surfaces, &mut problems),
                 Kind::Deposit => land::deposit(&e, &rocks, &mut problems),
                 Kind::Land => {
                     let known = land::Known {
@@ -1443,9 +1443,13 @@ mod tests {
                 "water"
             ]
         );
-        // The four surfaces of T01b.3: grass split between its lush and dry looks, the others one look each.
+        // The four surfaces of T01b.3, grass split between its lush and dry looks, the others one look each, and
+        // α02a's three the cover of coarse ground shows as.
         let surfaces: Vec<&str> = out.catalogue.surfaces.iter().map(|s| s.id.as_str()).collect();
-        assert_eq!(surfaces, ["grass", "dirt", "rock", "scree"]);
+        assert_eq!(
+            surfaces,
+            ["grass", "dirt", "rock", "scree", "woodland", "reeds", "sand"]
+        );
         let grass = out.catalogue.surface("grass").expect("grass");
         assert_eq!(
             (grass.looks.as_slice(), grass.split_m.as_slice()),
@@ -1485,6 +1489,12 @@ mod tests {
         assert_eq!(x.rocks, [rock("chalk"), rock("sandstone"), rock("granite")]);
         assert_eq!((land.soil, land.fertility), (cat.soil("loam").expect("loam").number, 3));
         assert_eq!(land.biome, cat.biome("broadleaf_forest").expect("woods").number);
+        // The woods show their trees as a canopy and their bare ground as dirt; the shore its bare ground as sand.
+        let surface = |id: &str| cat.surface(id).expect(id).number;
+        let woods = cat.biome("broadleaf_forest").expect("woods");
+        assert_eq!(woods.surfaces[0], surface("woodland"));
+        assert_eq!(woods.surfaces[4], surface("dirt"));
+        assert_eq!(cat.biome("shore").expect("shore").surfaces[4], surface("sand"));
         assert_eq!(land.cover, [140, 38, 64, 5, 8]);
         let c = &land.climate;
         assert_eq!(c.mean_c, [9.0, 19.0, 11.0, 3.0]);
@@ -1603,7 +1613,7 @@ Biomes.
 Trees.
 
 ```toml
-id = \"woods\"\nname = \"Woods\"\nstage = \"MIL-01\"\nchecks = [\"WLD-31\"]\nlook = \"limestone\"\ncover = { trees = 0.55, bushes = 0.15, grass = 0.25, reeds = 0.02, bare = 0.03 }\n```\n");
+id = \"woods\"\nname = \"Woods\"\nstage = \"MIL-01\"\nchecks = [\"WLD-31\"]\nlook = \"limestone\"\ncover = { trees = 0.55, bushes = 0.15, grass = 0.25, reeds = 0.02, bare = 0.03 }\nsurfaces = { trees = \"rock\", bushes = \"rock\", grass = \"rock\", reeds = \"rock\", bare = \"rock\" }\n```\n");
         add(&mut s, Kind::Deposit.place(), "# Deposits
 
 Stone.
@@ -1680,6 +1690,14 @@ id = \"world\"\nname = \"World\"\nstage = \"MIL-01\"\nchecks = [\"WLD-08\"]\nset
         fails(
             &with(&s, Kind::Rock.place(), "look = \"limestone\"", "look = \"chalk\""),
             "\"chalk\" is not a look",
+        );
+        fails(
+            &with(&s, Kind::Biome.place(), "reeds = \"rock\"", "reeds = \"marsh\""),
+            "field `surfaces`: \"marsh\" is not a surface",
+        );
+        fails(
+            &with(&s, Kind::Biome.place(), ", bare = \"rock\" }", " }"),
+            "missing field `bare`",
         );
         // Values with units, each in its field's own kind.
         fails(

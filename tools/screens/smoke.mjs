@@ -127,16 +127,22 @@ try {
       // checks: PRE-20 PRE-01
       const probe = await page.evaluate(() => window.kd.probe());
       const wrong = probe ? probe.gpu.filter((g, i) => g !== probe.twins[i]).length : -1;
-      check(`probe equals the twins, ${label}`, probe && probe.gpu.length === 1024 && wrong === 0,
+      // Five bands of 16 x 16 answers: the light, the surfaces, the edges and haze, the relief, coarse ground.
+      check(`probe equals the twins, ${label}`, probe && probe.gpu.length === 1280 && wrong === 0,
         probe ? `${wrong} of ${probe.gpu.length} differ` : 'no probe');
       // checks: PRE-30 RES-05
+      // Seen from the demo area's latitude, as the cloud lit the stored rows; the island lies farther north.
       const rows = await page.evaluate((n) => {
         const out = [];
+        const cam = window.kd.camera();
+        window.kd.golden('valley-camp');
         for (let h = 0; h < n; h++) {
           window.kd.hour(h);
           window.kd.frame(1);
           out.push(window.kd.palette());
         }
+        window.kd.golden('');
+        window.kd.aim(cam.target, cam.yaw, cam.zoom);
         window.kd.hour(4);
         return out;
       }, storedRows.length);
@@ -167,8 +173,13 @@ try {
       const [stripOk, stripWhy] = blocksOk(img, band.strip[0], band.strip[1], { fixed: true, least: 3 });
       check(`strip pixel 4x4 from the top-left, ${label}`, stripOk, stripWhy);
       // checks: PRE-22
-      // With the camera still, the picture holds still: frames half a second apart are the same above the strip.
+      // With the camera still, the picture holds still: frames half a second apart are the same above the strip,
+      // once the view's coarse ground and light fields have come, which they do over frames (A11.5).
       // (This takes the place of α01a's turning block: the ground, unlike the light card, moves only when asked.)
+      await page.evaluate(() => {
+        window.kd.settle();
+        window.kd.frame(1);
+      });
       const still = await screen(page);
       await page.waitForTimeout(500);
       const stirred = shifted(still, await screen(page), 0, band.bottom);

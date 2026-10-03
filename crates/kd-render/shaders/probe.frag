@@ -1,11 +1,13 @@
 // The probe scene (A11.13 rule 2): one art pixel per fixed input, through the same formulas as every lit pixel, so
-// the read-back answers can be compared with the Rust twins exactly. The lowest third holds the light's steps, lit
-// by what a point's fields and normal give; the middle third the surface with the largest share of a fixture's
-// coverage, read at a mip level at a place the edges' noise moved, and the look its split noise picks; the third band
-// whether the plane test outlines a pixel and the haze's level; the top band the light's step of a point whose
-// normal a surface's micro-relief tilts.
+// the read-back answers can be compared with the Rust twins exactly. The lowest band holds the light's steps, lit
+// by what a point's fields and normal give; the second the surface with the largest share of a fixture's coverage,
+// read at a mip level at a place the edges' noise moved, and the look its split noise picks; the third whether the
+// plane test outlines a pixel and the haze's level; the fourth the light's step of a point whose normal a surface's
+// micro-relief tilts; the top band coarse ground's: whether a crown stands over a point, the cover group the flat
+// cover's draw picks, and the water's step.
 uniform sampler2D u_inputs;  // R32F, PROBE_W * PROBE_H wide: the light's PROBE_LIGHT_ROWS rows, then the surfaces',
-                             // then from PROBE_EDGE_ROW the third band's, then from PROBE_RELIEF_ROW the relief's
+                             // then from PROBE_EDGE_ROW the third band's, from PROBE_RELIEF_ROW the relief's, and
+                             // from PROBE_COARSE_ROW coarse ground's
 uniform vec2 u_y;            // the light's luminance from the sky and from the sun facing it
 uniform vec2 u_range;        // the path's range in lightness
 uniform highp sampler2D u_cover0;  // the surface band's coverage, PROBE_COVER_SIDE wide at level 0, mipmapped
@@ -19,7 +21,20 @@ float input_at(int i, int row) {
 
 void main() {
     ivec2 p = art_pixel();
-    if (p.y < PROBE_H) {
+    if (p.y >= 4 * PROBE_H) {
+        int i = (p.y - 4 * PROBE_H) * PROBE_W + p.x;
+        int r = PROBE_COARSE_ROW;
+        vec2 w = vec2(input_at(i, r), input_at(i, r + 1));
+        vec4 shares = vec4(input_at(i, r + 2), input_at(i, r + 3), input_at(i, r + 4), input_at(i, r + 5));
+        float inv_texel = input_at(i, r + 6);
+        bool crown = crown_at(w, shares.x, inv_texel, PROBE_CROWN_R).w > 0.0;
+        int group = cover_group(shares, cover_draw(w, inv_texel, PROBE_COVER_OCT, PROBE_COVER_SPREAD));
+        float k = water_light(input_at(i, r + 7), input_at(i, r + 8), PROBE_WATER);
+        int steps = int(input_at(i, r + 11) + 0.5);
+        float lit = lightness(k, k * sun_factor(0.0, input_at(i, r + 9), input_at(i, r + 10)), u_y.x, u_y.y);
+        int step = light_step(ladder_pos(lit, u_range, steps), 0.0, steps, p);
+        o_colour = pack_out((crown ? 50 : 0) + group * 10 + step, CAT_GROUND, 0, 0.0);
+    } else if (p.y < PROBE_H) {
         int i = p.y * PROBE_W + p.x;
         float sigma = sky_factor(input_at(i, 0), input_at(i, 1));
         float tau = sun_factor(input_at(i, 2), input_at(i, 3), input_at(i, 4));

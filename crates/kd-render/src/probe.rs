@@ -4,8 +4,9 @@
 //! point's fields and normal give (the sky and sun factors); its middle third the surface with the largest share of
 //! a fixture's coverage, read at a mip level at a place the edges' noise moved, and the look the split noise picks
 //! (α01b, from α01d by coverage); its third band, from α01c, whether the plane test outlines a pixel and the
-//! haze's level (A11.2, A11.4); its top band, from α01d, the light's step of a point whose normal a surface's
-//! micro-relief tilts (A11.5).
+//! haze's level (A11.2, A11.4); its fourth band, from α01d, the light's step of a point whose normal a surface's
+//! micro-relief tilts (A11.5); its top band, from α02a, coarse ground's answers: whether a crown stands over a point,
+//! the cover group the flat cover's draw picks, and the water's step (A11.5, A11.6).
 //!
 //! Implements PRE-20 and PRE-01, see A11.13: the GPU picks exactly the steps, surfaces and looks the twins pick.
 
@@ -15,10 +16,12 @@ use crate::RenderError;
 use crate::camera::View;
 use crate::gl::{self, Format, Program, State, Target, Texture, unit};
 use crate::ground::Coverage;
+use crate::ground::coarse::CoarseLook;
 use crate::pixel::{
-    OUTLINE_GAP_M, SEED_SPLIT, SUN_TAN, cover_level, cover_margin, cover_pick, cover_sample, edge_wobble, faded_noise,
-    ground_normal, haze, haze_level, haze_margin, ladder_pos, light_step, lightness, margin, outline_toward,
-    relief_octaves, relief_tilt, sky_factor, split_look, sun_factor,
+    CROWN_GRID_M, OUTLINE_GAP_M, SEED_CROWN, SEED_SPLIT, SUN_TAN, cover_draw, cover_group, cover_level, cover_margin,
+    cover_pick, cover_sample, crown_at, edge_wobble, faded_noise, ground_normal, hash3, haze, haze_level, haze_margin,
+    ladder_pos, light_step, lightness, margin, outline_toward, relief_octaves, relief_tilt, sky_factor, split_look,
+    sun_factor, water_light,
 };
 use crate::shaders::{self, Stage};
 
@@ -27,13 +30,14 @@ pub const W: u32 = 16;
 pub const H: u32 = 16;
 pub const N: usize = (W * H) as usize;
 /// Rows of the input texture: the light's 7, then the surfaces' `SURFACE_ROWS`, then the edges' and haze's
-/// `EDGE_ROWS`, then the relief's `RELIEF_ROWS`.
+/// `EDGE_ROWS`, then the relief's `RELIEF_ROWS`, then coarse ground's `COARSE_ROWS`.
 pub const LIGHT_ROWS: usize = 7;
 pub const SURFACE_ROWS: usize = 11;
 pub const EDGE_ROWS: usize = 7;
 pub const RELIEF_ROWS: usize = 17;
+pub const COARSE_ROWS: usize = 12;
 /// The bands, bottom to top.
-pub const BANDS: u32 = 4;
+pub const BANDS: u32 = 5;
 /// How far from deciding otherwise every plane test stays, in metres, so the GPU's rounding of depths hundreds of
 /// metres off cannot change it.
 pub const EDGE_CLEARANCE: f32 = 0.01;
@@ -43,6 +47,13 @@ pub const PROBE_BETA: [f32; 2] = [3e-4, 1.2e-5];
 pub const PROBE_SCALE: [f32; 2] = [1200.0, 8000.0];
 pub const PROBE_EYE: [f32; 2] = [2000.0, 0.3];
 pub const PROBE_LEVELS: [f32; 3] = [0.1, 0.25, 0.45];
+/// The probe's own numbers for coarse ground's formulas, as it has its own air: the catalogue's at α02a.
+pub const PROBE_LOOK: CoarseLook = CoarseLook {
+    crown_r: [2.0, 2.8],
+    cover_oct: [24.0, 1.0 / 24.0, 6.0, 1.0 / 6.0],
+    cover_spread: 1.2,
+    water: [0.25, 4.75],
+};
 /// How far from deciding otherwise every surface input stays, in shares of the coverage or in noise.
 pub const SURFACE_CLEARANCE: f32 = 1e-3;
 /// The surface band's fixture: a coverage 16 m to a side, so its levels run from 0 to 4.
@@ -394,15 +405,132 @@ pub fn relief_twins(inputs: &[ReliefInput]) -> Vec<u8> {
     inputs.iter().enumerate().map(|(i, p)| relief_answer(i, p).0).collect()
 }
 
+/// One fixed input of coarse ground's band (the top one): a world-fixed place (metres), the shares of trees, bushes,
+/// reeds and bare ground there, art pixels a metre, and water's depth, the view's cosine from straight down, the
+/// light's slope and its upward part, and a ladder's steps.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct CoarseInput {
+    pub w: [f32; 2],
+    pub shares: [f32; 4],
+    pub inv_texel: f32,
+    pub depth: f32,
+    pub cos_view: f32,
+    pub tan_e: f32,
+    pub up: f32,
+    pub steps: i32,
+}
+
+/// Coarse input `i`'s pixel in the target, as `gl_FragCoord` counts: the top band.
+fn coarse_pixel(i: usize) -> (i32, i32) {
+    let (x, y) = pixel_of(i);
+    (x, y + 4 * H as i32)
+}
+
+/// What a coarse input gives, as the GPU and the twins work it out: whether a crown stands over it, the cover group
+/// the draw picks, the water's step, and how far, in their own measures, each lies from going the other way.
+fn coarse_answer(i: usize, p: &CoarseInput) -> (bool, i32, u8, f32) {
+    let (x, y) = coarse_pixel(i);
+    let l = PROBE_LOOK;
+    let crown = crown_at(p.w, p.shares[0], p.inv_texel, l.crown_r).is_some();
+    // The crown's decisions: each nearby square's hash against the share, its size against its importance, and the
+    // place against its edge.
+    let inv = 1.0 / CROWN_GRID_M;
+    let c = [(p.w[0] * inv).floor(), (p.w[1] * inv).floor()];
+    let mut crown_clear = f32::INFINITY;
+    for dy in -1..=1 {
+        for dx in -1..=1 {
+            let g = [c[0] + dx as f32, c[1] + dy as f32];
+            let h = hash3(g[0] as i32 as u32, g[1] as i32 as u32, SEED_CROWN);
+            let byte = |at: u32| ((h >> at) & 255) as f32 / 255.0;
+            crown_clear = crown_clear.min((byte(0) - p.shares[0]).abs());
+            let r = l.crown_r[0] + (l.crown_r[1] - l.crown_r[0]) * byte(8);
+            crown_clear = crown_clear.min((2.0 * r * p.inv_texel - 1.5 - 2.0 * byte(16)).abs());
+            let nib = |at: u32| ((h >> at) & 15) as f32 / 15.0;
+            let centre = [
+                (g[0] + 0.25 + 0.5 * nib(24)) * CROWN_GRID_M,
+                (g[1] + 0.25 + 0.5 * nib(28)) * CROWN_GRID_M,
+            ];
+            let d = ((p.w[0] - centre[0]).powi(2) + (p.w[1] - centre[1]).powi(2)).sqrt();
+            crown_clear = crown_clear.min((d - r).abs());
+        }
+    }
+    let u = cover_draw(p.w, p.inv_texel, l.cover_oct, l.cover_spread);
+    let group = cover_group(p.shares, u);
+    let herbs = (1.0 - p.shares[0] - p.shares[1] - p.shares[2] - p.shares[3]).max(0.0);
+    let mut total = 0.0;
+    let mut group_clear = f32::INFINITY;
+    for v in [p.shares[0], p.shares[1], herbs, p.shares[2]] {
+        total += v;
+        group_clear = group_clear.min((u - total).abs());
+    }
+    let k = water_light(p.depth, p.cos_view, l.water);
+    let range = range();
+    let lit = lightness(k, k * sun_factor(0.0, p.tan_e, p.up), Y_SKY, Y_SUN);
+    let s = ladder_pos(lit, range, p.steps);
+    let water_clear = margin(s, 0.0, p.steps, x, y) * (range[1] - range[0]) / (p.steps - 1) as f32;
+    (
+        crown,
+        group,
+        light_step(s, 0.0, p.steps, x, y) as u8,
+        crown_clear.min(group_clear).min(water_clear),
+    )
+}
+
+/// Coarse ground's inputs: places over 8 km at the camp stop's art pixels and closer, where crowns show and fade,
+/// shares from bare to dense woods, and water from a ford to the deep sea seen from the person stop to straight down;
+/// drawn from a fixed sequence of hashes and kept only when `CLEARANCE` from any flip.
+pub fn coarse_inputs() -> Vec<CoarseInput> {
+    let mut out = Vec::with_capacity(N);
+    let mut n = 0u64;
+    while out.len() < N {
+        let (h, g, k) = (hash2(0x636f_6172, n), hash2(0x636f_6173, n), hash2(0x636f_6174, n));
+        n += 1;
+        let unit = |v: u64, shift: u32| ((v >> shift) & 0xffff) as f32 / 65536.0;
+        // Shares summing to under 1, the rest grass and herbs.
+        let raw = [unit(g, 0), unit(g, 16), 0.2 * unit(g, 32), 0.3 * unit(g, 48)];
+        let sum: f32 = raw.iter().sum();
+        let scale = if sum > 0.95 { 0.95 / sum } else { 1.0 };
+        let e = (80.0 * unit(k, 32) - 5.0).to_radians();
+        let p = CoarseInput {
+            w: [8000.0 * unit(h, 0), 8000.0 * unit(h, 16)],
+            shares: raw.map(|v| v * scale),
+            inv_texel: 1.0 / [0.05, 0.13, 0.4, 0.8, 1.1, 1.6, 2.5, 4.0][(h >> 32) as usize % 8],
+            depth: [0.3, 1.2, 4.0, 20.0, 150.0][((h >> 40) % 5) as usize] * (0.5 + unit(k, 0)),
+            cos_view: 0.5 + 0.5 * unit(k, 16),
+            tan_e: e.tan(),
+            up: e.sin(),
+            steps: 4 + ((h >> 48) % 4) as i32,
+        };
+        if coarse_answer(out.len(), &p).3 >= CLEARANCE {
+            out.push(p);
+        }
+    }
+    out
+}
+
+/// The twins' answer for each coarse input, as the probe writes it: crown × 50 + group × 10 + the water's step.
+pub fn coarse_twins(inputs: &[CoarseInput]) -> Vec<u8> {
+    inputs
+        .iter()
+        .enumerate()
+        .map(|(i, p)| {
+            let (crown, group, step, _) = coarse_answer(i, p);
+            (i32::from(crown) * 50 + group * 10 + i32::from(step)) as u8
+        })
+        .collect()
+}
+
 /// All the inputs as an R32F texture `N` wide: the light's rows (the open sky, the normal's upward part, the
 /// horizon, the light's slope, n·l, the band and the steps), then the surfaces' q, w, 1/texel, level, take-over
 /// value and octaves, then the third band's depths, gap, air depth, height and band, then the relief's open sky,
-/// horizon, light, slope, place, 1/texel, relief, band and steps.
+/// horizon, light, slope, place, 1/texel, relief, band and steps, then coarse ground's place, shares, 1/texel,
+/// depth, view, light and steps.
 pub fn texture_bytes(
     inputs: &[Input],
     surfaces: &[SurfaceInput],
     edges: &[EdgeInput],
     reliefs: &[ReliefInput],
+    coarse: &[CoarseInput],
 ) -> Vec<u8> {
     let light = |f: &dyn Fn(&Input) -> f32| inputs.iter().map(f).collect::<Vec<f32>>();
     let mut rows: Vec<Vec<f32>> = vec![
@@ -456,6 +584,21 @@ pub fn texture_bytes(
         relief(&|p| p.relief[3]),
         relief(&|p| p.band),
         relief(&|p| p.steps as f32),
+    ]);
+    let land = |f: &dyn Fn(&CoarseInput) -> f32| coarse.iter().map(f).collect::<Vec<f32>>();
+    rows.extend([
+        land(&|p| p.w[0]),
+        land(&|p| p.w[1]),
+        land(&|p| p.shares[0]),
+        land(&|p| p.shares[1]),
+        land(&|p| p.shares[2]),
+        land(&|p| p.shares[3]),
+        land(&|p| p.inv_texel),
+        land(&|p| p.depth),
+        land(&|p| p.cos_view),
+        land(&|p| p.tan_e),
+        land(&|p| p.up),
+        land(&|p| p.steps as f32),
     ]);
     rows.iter().flatten().flat_map(|v| v.to_ne_bytes()).collect()
 }
@@ -562,14 +705,16 @@ impl ProbePass {
             Texture::with_levels(gl, Format::Rgba8, side, side, &fixture.texture_levels(1))?,
         ];
         let (list, surfaces, edges, reliefs) = (inputs(), surface_inputs(), edge_inputs(), relief_inputs());
-        let rows = (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS + RELIEF_ROWS) as u32;
-        let bytes = texture_bytes(&list, &surfaces, &edges, &reliefs);
+        let coarse = coarse_inputs();
+        let rows = (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS + RELIEF_ROWS + COARSE_ROWS) as u32;
+        let bytes = texture_bytes(&list, &surfaces, &edges, &reliefs, &coarse);
         let inputs = Texture::new(gl, Format::R32F, N as u32, rows, Some(&bytes))?;
         let target = Target::new(gl, W, BANDS * H, &[Format::Rgba8], false)?;
         let mut answers = twins(&list);
         answers.extend(surface_twins(&surfaces));
         answers.extend(edge_twins(&edges));
         answers.extend(relief_twins(&reliefs));
+        answers.extend(coarse_twins(&coarse));
         Ok(ProbePass {
             program,
             u_y,
@@ -640,8 +785,8 @@ mod tests {
         assert_eq!(inputs(), list);
         let (surfaces, edges, reliefs) = (surface_inputs(), edge_inputs(), relief_inputs());
         assert_eq!(
-            texture_bytes(&list, &surfaces, &edges, &reliefs).len(),
-            N * (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS + RELIEF_ROWS) * 4
+            texture_bytes(&list, &surfaces, &edges, &reliefs, &coarse_inputs()).len(),
+            N * (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS + RELIEF_ROWS + COARSE_ROWS) * 4
         );
     }
 
@@ -671,6 +816,27 @@ mod tests {
         assert!(changed > 30, "{changed}");
         assert!(list.iter().enumerate().all(|(i, p)| relief_answer(i, p).1 >= CLEARANCE));
         assert_eq!(relief_inputs(), list);
+    }
+
+    // checks: PRE-03 PRE-29 PRE-26
+    #[test]
+    fn coarse_inputs_cover_every_case() {
+        // Crowns standing and not, every cover group, the water's every step, all clear of a flip and the same every
+        // time.
+        let list = coarse_inputs();
+        assert_eq!(list.len(), N);
+        let answers = coarse_twins(&list);
+        assert!(answers.iter().any(|a| a / 50 == 1) && answers.iter().any(|a| a / 50 == 0));
+        for group in 0..5u8 {
+            assert!(
+                answers.iter().any(|a| a % 50 / 10 == group),
+                "group {group} never picked"
+            );
+        }
+        let steps: std::collections::BTreeSet<u8> = answers.iter().map(|a| a % 10).collect();
+        assert!(steps.len() >= 5, "{steps:?}");
+        assert!(list.iter().enumerate().all(|(i, p)| coarse_answer(i, p).3 >= CLEARANCE));
+        assert_eq!(coarse_inputs(), list);
     }
 
     // checks: PRE-21 PRE-30

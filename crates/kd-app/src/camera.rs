@@ -13,6 +13,8 @@ use kd_render::camera::{ZOOM_IN_REACH, basis, pitch_deg, texel, zoom_of};
 use kd_ui::gestures::{EASE_S, Gesture, Similarity};
 use kd_view::CameraPose;
 use kd_world::area::{Ground, SIDE};
+use kd_world::cells::WorldCells;
+use kd_world::lands::Window;
 
 type V3 = [f64; 3];
 
@@ -92,6 +94,76 @@ fn from_middle(p: [f32; 2], window: [u32; 2]) -> [f64; 2] {
     ]
 }
 
+/// The ground the gestures keep under the fingers (A12.2): its height at a place, and the heights it keeps within.
+pub trait Land {
+    /// The height in metres above sea level at `e`, `n` metres east and north of `target`, or none where it has no
+    /// ground.
+    fn height(&self, target: Pos, e: f64, n: f64) -> Option<f64>;
+    /// Its lowest and highest heights, metres.
+    fn range(&self) -> (f64, f64);
+}
+
+impl Land for Ground {
+    fn height(&self, target: Pos, e: f64, n: f64) -> Option<f64> {
+        ground_height(self, target, e, n)
+    }
+
+    fn range(&self) -> (f64, f64) {
+        let lo = f64::from(self.base_dm) / 10.0;
+        (
+            lo,
+            lo + f64::from(self.heights.iter().copied().max().unwrap_or(0)) / 10.0,
+        )
+    }
+}
+
+/// The island's ground for the gestures: its coarse ground (A5.5) within its square, the sea's surface over its
+/// sea, nothing over the void.
+pub struct Island<'a> {
+    pub cells: &'a WorldCells,
+    pub window: Window,
+    /// Its highest ground, metres.
+    pub top_m: f64,
+}
+
+impl Land for Island<'_> {
+    fn height(&self, target: Pos, e: f64, n: f64) -> Option<f64> {
+        let p = moved(target, [e, n]);
+        let c = kd_core::geo::CellIx::of(p);
+        if !self.window.contains(c) || self.cells.fixed.is_void(c) {
+            return None;
+        }
+        Some(f64::from(self.cells.coarse_z(p)).max(0.0))
+    }
+
+    fn range(&self) -> (f64, f64) {
+        (0.0, self.top_m)
+    }
+}
+
+/// The demo area and the island together: the demo's ground where it has any, else the island's.
+pub struct Lands<'a> {
+    pub demo: Option<&'a Ground>,
+    pub island: Option<Island<'a>>,
+}
+
+impl Land for Lands<'_> {
+    fn height(&self, target: Pos, e: f64, n: f64) -> Option<f64> {
+        self.demo
+            .and_then(|d| d.height(target, e, n))
+            .or_else(|| self.island.as_ref().and_then(|i| i.height(target, e, n)))
+    }
+
+    fn range(&self) -> (f64, f64) {
+        let ranges = [self.demo.map(Land::range), self.island.as_ref().map(Land::range)];
+        let mut out: Option<(f64, f64)> = None;
+        for r in ranges.into_iter().flatten() {
+            out = Some(out.map_or(r, |o| (o.0.min(r.0), o.1.max(r.1))));
+        }
+        out.unwrap_or((0.0, 0.0))
+    }
+}
+
 /// The ground's height in metres above sea level at `e`, `n` metres from `target`, between its 1 m points, or none
 /// beyond the area.
 pub fn ground_height(g: &Ground, target: Pos, e: f64, n: f64) -> Option<f64> {
@@ -111,8 +183,8 @@ pub fn ground_height(g: &Ground, target: Pos, e: f64, n: f64) -> Option<f64> {
 }
 
 /// The ground under window point `f` (art pixels from the window's middle) for a pose, in metres from its target
-/// and above sea level: where the view's ray meets the area's ground, or else the level of the target.
-fn ground_under(pose: &CameraPose, f: [f64; 2], g: Option<&Ground>) -> V3 {
+/// and above sea level: where the view's ray meets the land's ground, or else the level of the target.
+fn ground_under(pose: &CameraPose, f: [f64; 2], g: Option<&dyn Land>) -> V3 {
     let o = Optics::pose(pose);
     let tz = f64::from(pose.target.z) / 256.0;
     let start = [
@@ -128,14 +200,16 @@ fn ground_under(pose: &CameraPose, f: [f64; 2], g: Option<&Ground>) -> V3 {
         ]
     };
     if let Some(g) = g {
-        // March down the ray through the ground's heights in quarter metres, then halve the step between.
-        let lo = f64::from(g.base_dm) / 10.0 - 1.0;
-        let hi = lo + f64::from(g.heights.iter().copied().max().unwrap_or(0)) / 10.0 + 2.0;
+        // March down the ray through the ground's heights in quarter metres, or quarter art pixels where those are
+        // larger, then halve the step between.
+        let (lo, hi) = g.range();
+        let (lo, hi) = (lo - 1.0, hi + 1.0);
         let (l0, l1) = ((start[2] - hi) / -o.fwd[2], (start[2] - lo) / -o.fwd[2]);
         let above = |l: f64| {
             let p = at(l);
-            ground_height(g, pose.target, p[0], p[1]).map(|h| p[2] - h)
+            g.height(pose.target, p[0], p[1]).map(|h| p[2] - h)
         };
+        let step = (0.25 * o.texel).max(0.25);
         let mut prev: Option<(f64, f64)> = None;
         let mut l = l0;
         while l <= l1 {
@@ -159,7 +233,7 @@ fn ground_under(pose: &CameraPose, f: [f64; 2], g: Option<&Ground>) -> V3 {
             } else {
                 prev = None;
             }
-            l += 0.25;
+            l += step;
         }
     }
     at((start[2] - tz) / -o.fwd[2])
@@ -307,7 +381,7 @@ fn solve_two(base: &CameraPose, g: [V3; 2], f: [[f64; 2]; 2], scale: bool, turn:
 
 /// The ground under a window point (screen pixels from the window's top-left) for a pose, as a position: where
 /// the view's ray meets the ground, or else the level of the target.
-pub fn ground_point(pose: &CameraPose, window: [u32; 2], g: Option<&Ground>, p: [f32; 2]) -> Pos {
+pub fn ground_point(pose: &CameraPose, window: [u32; 2], g: Option<&dyn Land>, p: [f32; 2]) -> Pos {
     let q = ground_under(pose, from_middle(p, window), g);
     Pos {
         z: (q[2] * 256.0).round() as i32,
@@ -339,7 +413,7 @@ impl Control {
     }
 
     /// The pose with its target slid along the view's centre line onto the ground: the picture does not move.
-    fn on_ground(&self, g: Option<&Ground>) -> CameraPose {
+    fn on_ground(&self, g: Option<&dyn Land>) -> CameraPose {
         let p = ground_under(&self.pose, [0.0, 0.0], g);
         CameraPose {
             target: Pos {
@@ -351,7 +425,7 @@ impl Control {
     }
 
     /// What the fingers ask, on a window of `window` screen pixels over the ground `g`.
-    pub fn gesture(&mut self, gesture: Gesture, window: [u32; 2], g: Option<&Ground>, now_ns: u64) {
+    pub fn gesture(&mut self, gesture: Gesture, window: [u32; 2], g: Option<&dyn Land>, now_ns: u64) {
         self.ease = None;
         match gesture {
             Gesture::Drag { from, to } => {
@@ -528,10 +602,10 @@ mod tests {
         let mut c = Control::new(start);
         // A drag across the cliff's slope: the ground under the finger stays under it, to a hundredth of a pixel.
         let from = [500.0, 1300.0];
-        let ground = ground_under(&start, from_middle(from, WINDOW), Some(&g));
+        let ground = ground_under(&start, from_middle(from, WINDOW), Some(&g as &dyn Land));
         for k in 1..=20 {
             let to = [500.0 + 13.0 * k as f32, 1300.0 - 21.0 * k as f32];
-            c.gesture(Gesture::Drag { from, to }, WINDOW, Some(&g), 0);
+            c.gesture(Gesture::Drag { from, to }, WINDOW, Some(&g as &dyn Land), 0);
             let at = shows_at(&c.pose, start.target, ground);
             assert!(
                 (at[0] - f64::from(to[0])).abs() < 0.05 && (at[1] - f64::from(to[1])).abs() < 0.05,
@@ -546,14 +620,14 @@ mod tests {
                 about: [0.0; 2],
             },
             WINDOW,
-            Some(&g),
+            Some(&g as &dyn Land),
             0,
         );
         // A pinch and twist together: both fingers' ground stays under them while the zoom and the pitch change.
         let pose = c.pose;
         let from = [[300.0, 1000.0], [800.0, 1500.0]];
-        let base = c.on_ground(Some(&g));
-        let ground = from.map(|p| ground_under(&base, from_middle(p, WINDOW), Some(&g)));
+        let base = c.on_ground(Some(&g as &dyn Land));
+        let ground = from.map(|p| ground_under(&base, from_middle(p, WINDOW), Some(&g as &dyn Land)));
         for k in 1..=20 {
             let f = k as f32 / 20.0;
             let to = [
@@ -569,7 +643,7 @@ mod tests {
                     turn: true,
                 },
                 WINDOW,
-                Some(&g),
+                Some(&g as &dyn Land),
                 0,
             );
             for i in 0..2 {
@@ -606,8 +680,8 @@ mod tests {
         // two ground points under the fingers' midpoint.
         let (g, start) = demo_start();
         let from = [[300.0, 1000.0], [800.0, 1500.0]];
-        let base = Control::new(start).on_ground(Some(&g));
-        let ground = from.map(|p| ground_under(&base, from_middle(p, WINDOW), Some(&g)));
+        let base = Control::new(start).on_ground(Some(&g as &dyn Land));
+        let ground = from.map(|p| ground_under(&base, from_middle(p, WINDOW), Some(&g as &dyn Land)));
         let m = [0, 1, 2].map(|k| (ground[0][k] + ground[1][k]) / 2.0);
         let mut c = Control::new(start);
         let spread = [[250.0, 950.0], [850.0, 1550.0]];
@@ -620,7 +694,7 @@ mod tests {
                 turn: false,
             },
             WINDOW,
-            Some(&g),
+            Some(&g as &dyn Land),
             0,
         );
         assert_eq!(c.pose.yaw, start.yaw);
@@ -638,7 +712,7 @@ mod tests {
                 turn: true,
             },
             WINDOW,
-            Some(&g),
+            Some(&g as &dyn Land),
             0,
         );
         assert_eq!(c.pose.zoom, start.zoom);
@@ -663,15 +737,15 @@ mod tests {
         // ground along the view's centre line, which moves nothing on the screen.
         c.pose.target.z += 5 * 256;
         let lifted = c.pose;
-        let middle = ground_under(&lifted, [0.0, 0.0], Some(&g));
+        let middle = ground_under(&lifted, [0.0, 0.0], Some(&g as &dyn Land));
         let before = shows_at(&lifted, lifted.target, middle);
-        c.gesture(Gesture::Zoom { delta: 0.0 }, WINDOW, Some(&g), 0);
+        c.gesture(Gesture::Zoom { delta: 0.0 }, WINDOW, Some(&g as &dyn Land), 0);
         let after = shows_at(&c.pose, lifted.target, middle);
         assert!((before[0] - after[0]).abs() < 0.05 && (before[1] - after[1]).abs() < 0.05);
         let h = ground_height(&g, c.pose.target, 0.0, 0.0).unwrap();
         assert!((f64::from(c.pose.target.z) / 256.0 - h).abs() < 0.02, "on the ground");
         // Zooming then keeps that ground in the middle of the screen.
-        c.gesture(Gesture::Zoom { delta: -0.15 }, WINDOW, Some(&g), 0);
+        c.gesture(Gesture::Zoom { delta: -0.15 }, WINDOW, Some(&g as &dyn Land), 0);
         assert!((c.pose.zoom - (start.zoom - 0.15)).abs() < 1e-6);
         let mid = shows_at(&c.pose, lifted.target, middle);
         // Within the target's ticks of 1/256 m, a tenth of a screen pixel at this zoom.
@@ -680,7 +754,7 @@ mod tests {
             "{mid:?}"
         );
         // The zoom stays within the stops in reach.
-        c.gesture(Gesture::Zoom { delta: 2.0 }, WINDOW, Some(&g), 0);
+        c.gesture(Gesture::Zoom { delta: 2.0 }, WINDOW, Some(&g as &dyn Land), 0);
         assert_eq!(c.pose.zoom, ZOOM_IN_REACH[1]);
     }
 
@@ -696,7 +770,7 @@ mod tests {
                 about: [540.0, 1202.0],
             },
             WINDOW,
-            Some(&g),
+            Some(&g as &dyn Land),
             0,
         );
         // The glide goes on for about τ's worth of the speed, each frame less than the last, then stops.
@@ -725,10 +799,10 @@ mod tests {
                 about: [700.0, 900.0],
             },
             WINDOW,
-            Some(&g),
+            Some(&g as &dyn Land),
             0,
         );
-        let pivot = ground_under(&c.pose, from_middle([700.0, 900.0], WINDOW), Some(&g));
+        let pivot = ground_under(&c.pose, from_middle([700.0, 900.0], WINDOW), Some(&g as &dyn Land));
         let base = c.pose;
         c.tick(3_000_000_000);
         let turned = (f64::from(c.pose.yaw) - f64::from(base.yaw)).rem_euclid(std::f64::consts::TAU);

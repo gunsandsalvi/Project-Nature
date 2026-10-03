@@ -265,6 +265,78 @@ bool cover_shows(float size, float u, float inv_texel) {
     return size * inv_texel >= 1.5 + 2.0 * u;
 }
 
+// How much of the ground coarse ground's map look takes at art pixels of `texel` metres (A11.5), as
+// pixel::map_weight.
+float map_weight(float texel) {
+    return clamp((texel - MAP_LOOK_M.x) / (MAP_LOOK_M.y - MAP_LOOK_M.x), 0.0, 1.0);
+}
+
+// The flat cover's draw at world-fixed w metres, under 1, by the noise of octaves `oct` spread by `spread`, as
+// pixel::cover_draw.
+float cover_draw(vec2 w, float inv_texel, vec4 oct, float spread) {
+    return clamp(0.5 + 0.5 * spread * faded_noise(w, oct, inv_texel, uint(SEED_GROUPS)), 0.0, COVER_DRAW_TOP);
+}
+
+// The cover group a draw u picks from shares of trees, bushes, reeds and bare ground, grass and herbs the rest, in
+// the groups' order, as pixel::cover_group.
+int cover_group(vec4 shares, float u) {
+    float herbs = max(1.0 - shares.x - shares.y - shares.z - shares.w, 0.0);
+    float order[5] = float[5](shares.x, shares.y, herbs, shares.z, shares.w);
+    float total = 0.0;
+    for (int k = 0; k < 5; k++) {
+        total += order[k];
+        if (u < total) {
+            return k;
+        }
+    }
+    return 4;
+}
+
+// The crown over world-fixed w metres where trees take `trees` of the ground, its radius within `radius`: its normal
+// (east, north, up) and 1, or 0 everywhere where none stands, as pixel::crown_at.
+vec4 crown_at(vec2 w, float trees, float inv_texel, vec2 radius) {
+    float inv = 1.0 / CROWN_GRID_M;
+    vec2 c = floor(vec2(w.x * inv, w.y * inv));
+    float best_z = -1.0;
+    vec4 best = vec4(0.0);
+    for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -1; dx <= 1; dx++) {
+            vec2 g = c + vec2(float(dx), float(dy));
+            uint h = hash3(uint(int(g.x)), uint(int(g.y)), uint(SEED_CROWN));
+            if (float(h & 255u) / 255.0 >= trees) {
+                continue;
+            }
+            float r = radius.x + (radius.y - radius.x) * (float((h >> 8u) & 255u) / 255.0);
+            if (!cover_shows(2.0 * r, float((h >> 16u) & 255u) / 255.0, inv_texel)) {
+                continue;
+            }
+            vec2 centre = vec2((g.x + 0.25 + 0.5 * (float((h >> 24u) & 15u) / 15.0)) * CROWN_GRID_M,
+                (g.y + 0.25 + 0.5 * (float((h >> 28u) & 15u) / 15.0)) * CROWN_GRID_M);
+            vec2 d = vec2(w.x - centre.x, w.y - centre.y);
+            float d2 = d.x * d.x + d.y * d.y;
+            if (d2 >= r * r) {
+                continue;
+            }
+            float z = sqrt(r * r - d2);
+            if (z > best_z) {
+                best_z = z;
+                best = vec4(d.x / r, -d.y / r, z / r, 1.0);
+            }
+        }
+    }
+    return best;
+}
+
+// How much of the light falling on water comes back to the eye, for water `depth` metres deep seen at cos_view
+// from straight down, deep water's floor and the depth over which the bed fades by e in `water` (A11.6), as
+// pixel::water_light.
+float water_light(float depth, float cos_view, vec2 water) {
+    float c = 1.0 - clamp(cos_view, 0.0, 1.0);
+    float fresnel = 0.02 + 0.98 * (c * c * c * c * c);
+    float below = water.x + (1.0 - water.x) * exp(-max(depth, 0.0) / water.y);
+    return (1.0 - fresnel) * below + fresnel;
+}
+
 #ifdef KD_VERTEX
 // A point l metres (east, north, up) from an area's corner, moved `shift` art pixels across the screen, as a place
 // in the viewport's art pixels (A11.2): the corner's fraction of an art pixel is added and the place rounded to

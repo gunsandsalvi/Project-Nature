@@ -102,8 +102,9 @@ pub struct Soil {
 /// reeds, and bare ground.
 pub const COVER_GROUPS: usize = 5;
 
-/// A biome (A5.7 step 10, `WLD-31`, `data/world/biomes.md`): the look it takes on the map (A11.5) and its cover's
-/// default shares, in 255ths summing to 255, by cover group.
+/// A biome (A5.7 step 10, `WLD-31`, `data/world/biomes.md`): the look it takes on the map (A11.5), its cover's
+/// default shares, in 255ths summing to 255, by cover group, and the surface each group shows as where coarse ground
+/// draws its cover (A11.5).
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Biome {
     pub id: String,
@@ -111,6 +112,8 @@ pub struct Biome {
     pub number: u16,
     pub look: u16,
     pub cover: [u8; COVER_GROUPS],
+    /// The surface each cover group shows as, by number.
+    pub surfaces: [u16; COVER_GROUPS],
     /// The kind of ground it takes in place of its land's biome, if any.
     pub landform: Option<Landform>,
 }

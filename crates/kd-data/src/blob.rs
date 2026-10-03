@@ -216,6 +216,7 @@ pub(crate) mod tests {
                 number: 0,
                 look: 0,
                 cover: [5, 26, 204, 5, 15],
+                surfaces: [0, 0, 0, 0, 0],
                 landform: Some(crate::world::Landform::Coast),
             }],
             deposits: vec![Deposit {

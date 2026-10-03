@@ -153,6 +153,7 @@ pub fn river_cells(spec: &RiverSpec, f: &FixedCells) -> Result<(Vec<RiverCell>, 
                 cells: 0,
                 length_m: 0.0,
                 flow_m3s: spec.flow_m3s,
+                drainage_km2: 0.0,
                 down: TO_SEA,
             });
             run = 0.0;

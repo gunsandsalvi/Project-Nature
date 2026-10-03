@@ -412,9 +412,217 @@ pub fn cover_shows(size: f32, u: f32, inv_texel: f32) -> bool {
     size * inv_texel >= 1.5 + 2.0 * u
 }
 
+/// The art pixels between which coarse ground's map look dissolves in (A11.5, `PRE-29`): none of it at the first,
+/// all of it from the second.
+pub const MAP_LOOK_M: [f32; 2] = [1.2, 4.5];
+
+/// How much of the ground the map look takes at art pixels of `texel` metres, from 0 to 1: a pixel shows it where
+/// its Bayer threshold lies below this, so it dissolves in by the world-fixed pattern (A11.5).
+pub fn map_weight(texel: f32) -> f32 {
+    ((texel - MAP_LOOK_M[0]) / (MAP_LOOK_M[1] - MAP_LOOK_M[0])).clamp(0.0, 1.0)
+}
+
+/// The seed of the noise coarse ground picks its flat cover by (A11.5).
+pub const SEED_GROUPS: u32 = 17;
+/// The highest draw, just under 1, so the last group always takes it.
+pub const COVER_DRAW_TOP: f32 = 0.999_999;
+
+/// The flat cover's draw at world-fixed `w` metres, from 0 to under 1: the noise of octaves `oct`, as (λ₀, 1/λ₀, λ₁,
+/// 1/λ₁), spread round a half by `spread`, so patches of each group stay where they are and keep their edges; as
+/// its octaves fade below four art pixels, every draw goes to a half, and the group in the middle of a cell's shares
+/// takes the ground, as in the map look (A11.5).
+pub fn cover_draw(w: [f32; 2], inv_texel: f32, oct: [f32; 4], spread: f32) -> f32 {
+    (0.5 + 0.5 * spread * faded_noise(w, oct, inv_texel, SEED_GROUPS)).clamp(0.0, COVER_DRAW_TOP)
+}
+
+/// The cover group a draw `u` picks from shares of trees, bushes, reeds and bare ground (grass and herbs the rest),
+/// in the groups' order, trees, bushes, grass and herbs, reeds, bare ground: the first whose running total passes
+/// `u` (A11.5).
+pub fn cover_group(shares: [f32; 4], u: f32) -> i32 {
+    let herbs = (1.0 - shares[0] - shares[1] - shares[2] - shares[3]).max(0.0);
+    let mut total = 0.0;
+    for (k, v) in [shares[0], shares[1], herbs, shares[2], shares[3]]
+        .into_iter()
+        .enumerate()
+    {
+        total += v;
+        if u < total {
+            return k as i32;
+        }
+    }
+    4
+}
+
+/// The world-fixed grid coarse ground's crowns stand on, metres, and their seed (A11.5).
+pub const CROWN_GRID_M: f32 = 5.0;
+pub const SEED_CROWN: u32 = 18;
+
+/// The crown over world-fixed `w` metres where trees take `trees` of the ground, at art pixels of 1 / `inv_texel`
+/// metres (A11.5): of the 3 × 3 squares of the grid round `w`, each whose hash falls under `trees` holds one, a dome
+/// of a radius within `radius` (metres, least and most), round a point in the middle half of its square, showing
+/// while it spans 1.5 + 2u art pixels, as stones and tufts do; over `w` the highest wins. Its normal there (east,
+/// north, up), or none.
+pub fn crown_at(w: [f32; 2], trees: f32, inv_texel: f32, radius: [f32; 2]) -> Option<[f32; 3]> {
+    let inv = 1.0 / CROWN_GRID_M;
+    let c = [(w[0] * inv).floor(), (w[1] * inv).floor()];
+    let mut best: Option<(f32, [f32; 3])> = None;
+    for dy in -1..=1 {
+        for dx in -1..=1 {
+            let g = [c[0] + dx as f32, c[1] + dy as f32];
+            let h = hash3(g[0] as i32 as u32, g[1] as i32 as u32, SEED_CROWN);
+            let byte = |at: u32| ((h >> at) & 255) as f32 / 255.0;
+            if byte(0) >= trees {
+                continue;
+            }
+            let r = radius[0] + (radius[1] - radius[0]) * byte(8);
+            if !cover_shows(2.0 * r, byte(16), inv_texel) {
+                continue;
+            }
+            let nib = |at: u32| ((h >> at) & 15) as f32 / 15.0;
+            let centre = [
+                (g[0] + 0.25 + 0.5 * nib(24)) * CROWN_GRID_M,
+                (g[1] + 0.25 + 0.5 * nib(28)) * CROWN_GRID_M,
+            ];
+            let d = [w[0] - centre[0], w[1] - centre[1]];
+            let d2 = d[0] * d[0] + d[1] * d[1];
+            if d2 >= r * r {
+                continue;
+            }
+            let z = (r * r - d2).sqrt();
+            if best.is_none_or(|(top, _)| z > top) {
+                best = Some((z, [d[0] / r, -d[1] / r, z / r]));
+            }
+        }
+    }
+    best.map(|b| b.1)
+}
+
+/// How much of the light falling on water comes back to the eye, from 0 to 1, for water `depth` metres deep seen at
+/// `cos_view`, the cosine of the view's angle from straight down (A11.6): the bed's light darkened by the depth, by
+/// `e` over `water[1]` metres down and back up, over a floor `water[0]` of light scattered in the water, mixed by
+/// Fresnel's term (Schlick's, 0.02 looking straight down) with the sky's light the surface reflects.
+pub fn water_light(depth: f32, cos_view: f32, water: [f32; 2]) -> f32 {
+    let c = 1.0 - cos_view.clamp(0.0, 1.0);
+    let fresnel = 0.02 + 0.98 * (c * c * c * c * c);
+    let below = water[0] + (1.0 - water[0]) * m::exp(-depth.max(0.0) / water[1]);
+    (1.0 - fresnel) * below + fresnel
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // checks: PRE-29 PRE-03
+    #[test]
+    fn map_look_dissolves_in_between_its_art_pixels() {
+        assert_eq!(map_weight(0.03), 0.0);
+        assert_eq!(map_weight(MAP_LOOK_M[0]), 0.0);
+        assert_eq!(map_weight(MAP_LOOK_M[1]), 1.0);
+        assert_eq!(map_weight(37.0), 1.0);
+        let mut last = 0.0;
+        for k in 0..=100 {
+            let w = map_weight(1.0 + 0.04 * k as f32);
+            assert!(w >= last);
+            last = w;
+        }
+        // Each pixel of a 4 x 4 block takes the map look in its Bayer order: none at the first, all at the second.
+        let showing = |texel: f32| {
+            (0..4)
+                .flat_map(|y| (0..4).map(move |x| (x, y)))
+                .filter(|&(x, y)| bayer(x, y) < map_weight(texel))
+                .count()
+        };
+        assert_eq!((showing(1.2), showing(2.85), showing(4.5)), (0, 8, 16));
+    }
+
+    // checks: PRE-03 PRE-29
+    #[test]
+    fn cover_groups_take_their_shares() {
+        // Draws spread evenly over 0 to 1 pick each group in its share; the herbs take what the others leave.
+        let shares = [0.55, 0.15, 0.02, 0.03];
+        let mut counts = [0usize; 5];
+        let n = 100_000;
+        for k in 0..n {
+            counts[cover_group(shares, (k as f32 + 0.5) / n as f32) as usize] += 1;
+        }
+        for (count, want) in counts.iter().zip([0.55, 0.15, 0.25, 0.02, 0.03]) {
+            assert!((*count as f32 / n as f32 - want).abs() < 1e-3, "{counts:?}");
+        }
+        // The top draw goes to the last group with any share; a cell of bare ground is all bare.
+        assert_eq!(cover_group(shares, COVER_DRAW_TOP), 4);
+        assert_eq!(cover_group([0.0, 0.0, 0.0, 1.0], 0.0), 4);
+        // The draw is world-fixed and within its range; as its octaves fade, every draw goes to a half, so the
+        // group in the middle of the shares takes the ground.
+        let w = [1234.5, 678.25];
+        let oct = [24.0, 1.0 / 24.0, 6.0, 1.0 / 6.0];
+        assert_eq!(cover_draw(w, 1.0, oct, 1.2), cover_draw(w, 1.0, oct, 1.2));
+        for k in 0..1000 {
+            let u = cover_draw([k as f32 * 3.7, k as f32 * 1.3], 1.0, oct, 1.2);
+            assert!((0.0..=COVER_DRAW_TOP).contains(&u));
+        }
+        assert_eq!(cover_draw(w, 1e-3, oct, 1.2), 0.5);
+        assert_eq!(cover_group(shares, cover_draw(w, 1e-3, oct, 1.2)), 0);
+    }
+
+    // checks: PRE-03 PRE-46
+    #[test]
+    fn crowns_stand_where_trees_do() {
+        // Over 200 m square of points every half metre: no crown without trees, more ground under crowns as trees
+        // grow denser, each crown's normal a unit facing up, and none once a crown spans under 1.5 art pixels.
+        let cover = |trees: f32, inv_texel: f32| {
+            let mut n = 0;
+            for j in 0..400 {
+                for i in 0..400 {
+                    let w = [100.0 + i as f32 * 0.5, 300.0 + j as f32 * 0.5];
+                    if let Some(c) = crown_at(w, trees, inv_texel, [2.0, 2.8]) {
+                        let len = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();
+                        assert!((len - 1.0).abs() < 1e-4 && c[2] >= 0.0);
+                        n += 1;
+                    }
+                }
+            }
+            n as f32 / 160_000.0
+        };
+        let close = 10.0;
+        assert_eq!(cover(0.0, close), 0.0);
+        let (sparse, dense) = (cover(0.2, close), cover(0.8, close));
+        assert!(
+            sparse > 0.05 && dense > 2.5 * sparse && dense < 0.95,
+            "{sparse} {dense}"
+        );
+        // All still stand at the camp stop; beyond it they fade one by one, the least important first.
+        let (camp, mid, far) = (cover(0.8, 1.0 / 1.1), cover(0.8, 1.0 / 1.8), cover(0.8, 1.0 / 2.6));
+        assert!(
+            camp == dense && mid < camp && far < mid && far > 0.0,
+            "{dense} {camp} {mid} {far}"
+        );
+        assert_eq!(cover(0.8, 1.0 / 4.0), 0.0);
+        // World-fixed: the same place gives the same crown.
+        let w = [2000.25, 1500.75];
+        assert_eq!(crown_at(w, 0.6, close, [2.0, 2.8]), crown_at(w, 0.6, close, [2.0, 2.8]));
+    }
+
+    // checks: PRE-26 PRE-30
+    #[test]
+    fn water_darkens_with_depth_and_mirrors_at_a_slant() {
+        // Straight down, still water a hand deep sends back nearly all the light, deep water its floor, and between
+        // it darkens with depth; Fresnel's term lifts it toward a mirror as the view grazes it.
+        let water = [0.25, 4.75];
+        assert!((water_light(0.0, 1.0, water) - 1.0).abs() < 1e-6);
+        let deep = water_light(200.0, 1.0, water);
+        assert!((deep - (0.98 * 0.25 + 0.02)).abs() < 1e-4, "{deep}");
+        let mut last = 2.0;
+        for d in [0.0, 0.5, 1.2, 4.0, 10.0, 40.0] {
+            let v = water_light(d, 1.0, water);
+            assert!(v < last, "{d} m");
+            last = v;
+        }
+        // At its depth scale the bed's share has fallen by e.
+        let at_scale = water_light(4.75, 1.0, water);
+        assert!((at_scale - (0.98 * (0.25 + 0.75 / std::f32::consts::E) + 0.02)).abs() < 1e-4);
+        assert!(water_light(20.0, 0.2, water) > water_light(20.0, 0.9, water));
+        assert!((water_light(20.0, 0.0, water) - 1.0).abs() < 1e-6);
+    }
 
     // checks: PRE-20
     #[test]

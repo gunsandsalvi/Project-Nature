@@ -37,3 +37,10 @@ Tuning runs never use the pace tests' seeds.
 - **Tuned against:** the first region's water map (the note's `kd map preview --layer water`): the share of land cells holding a stream and the springs at their heads.
 - **Why:** every 1 km cell drains its own 1.05 km², so at 1 every land cell held a stream (59% even counting only the land draining into a cell), and a spring rose at nearly every head; at 5 a stream drains about five cells, a quarter of the island's cells hold one, and the network reads like a 1:250,000 map's.
 - **Seeds:** the first region's seed 1; no pace test's seed.
+
+## 3 October 2026, α02a: coarse ground's woods, cover and water
+
+- **Changed:** first values, in `data/tuning/render.md`: crowns 2 to 2.8 m in radius (`crown.radius_min`, `crown.radius_max`), the flat cover's noise of 24 and 6 m octaves (`cover.noise_large`, `cover.noise_small`) spread 1.2 times round a half (`cover.spread`), and water keeping 0.9 of its light a metre (`water.keeps`, A11.6's green) over a floor of 0.25 (`water.scatter`).
+- **Tuned against:** settled pictures of the first region from the person stop to the valley stop over the first camp, and at the river's mouth, at 16:30.
+- **Why:** crowns of about 5 m across fill a 5 m grid's squares without merging into one canopy, and fade out one by one between the camp stop and 4 m art pixels; the cover's noise borrows the grass's split octaves, so glades and woods keep sizes the eye knows, and spread wider than the noise's own range so a group of a few percent still shows; a deep sea at a quarter of its light reads dark, as from a plane, and the shallows near the shore lighten.
+- **Seeds:** the first region's seed 1; no pace test's seed.

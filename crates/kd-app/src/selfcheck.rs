@@ -154,18 +154,28 @@ mod tests {
         );
     }
 
-    // checks: WLD-12 RES-05 PRC-11
+    // checks: WLD-12 WLD-34 PRE-03 RES-05 PRC-11
     #[test]
     fn demo_area_checked() {
-        // A new app makes the demo area with the cloud's hash, so it reports nothing, hands the renderer one
-        // surface a square, and looks at the area's middle on its ground.
+        // A new app makes the demo area with the cloud's hash and builds the first region, so it reports nothing;
+        // it opens over the first camp's cave mouth, on its ground, from the valley stop, looking north-north-east.
         let outbox = Arc::new(Outbox(Mutex::new(Vec::new())));
         let app = App::new(outbox.clone(), AppConfig { device: "test".into() });
         let g = app.demo().expect("the demo area");
         assert_eq!(g.hash(), kd_world::area::demo::HASH);
+        let w = app.island().expect("the island");
+        let camp = w
+            .cells
+            .fixed
+            .cave_records
+            .iter()
+            .find(|r| r.first_camp)
+            .expect("the first camp");
         let cam = app.camera();
-        assert_eq!(kd_core::geo::AreaId::of(cam.target), g.id);
-        assert!((f64::from(cam.target.z) / 256.0 - f64::from(g.height_m(128, 128))).abs() < 0.01);
+        assert_eq!([cam.target.x, cam.target.y], camp.mouth);
+        let ground = f64::from(w.cells.coarse_z(cam.target));
+        assert!((f64::from(cam.target.z) / 256.0 - ground).abs() < 0.01);
+        assert_eq!((cam.zoom, cam.yaw), (crate::START_ZOOM, crate::START_YAW));
         assert!(outbox.0.lock().unwrap().is_empty());
         // A different ground names both hashes.
         assert_eq!(demo_line(5, 5), None);
@@ -226,9 +236,14 @@ mod tests {
         let layout = kd_render::looks::Layout::new(&cat).unwrap();
         let text: String = (0..crate::HOURS.len())
             .map(|h| {
-                let row = kd_render::frame::Lighting::new(&cat, &layout, &crate::sky_at(h), kd_render::frame::VIEW)
-                    .palette
-                    .row;
+                let row = kd_render::frame::Lighting::new(
+                    &cat,
+                    &layout,
+                    &crate::sky_at(h, crate::HOURS_LAT),
+                    kd_render::frame::VIEW,
+                )
+                .palette
+                .row;
                 let hex: Vec<String> = row
                     .iter()
                     .map(|c| format!("{:02x}{:02x}{:02x}", c[0], c[1], c[2]))
@@ -265,7 +280,7 @@ mod tests {
         };
         let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
         let layout = kd_render::looks::Layout::new(&cat).unwrap();
-        let light = kd_render::light::light(&cat.air, &crate::sky_at(4));
+        let light = kd_render::light::light(&cat.air, &crate::sky_at(4, crate::HOURS_LAT));
         let (row, radiance) = kd_render::looks::row(&cat, &layout, &light);
         let blob = median(&mut || {
             std::hint::black_box(kd_data::Catalogue::load(crate::CATALOGUE).unwrap());
@@ -356,7 +371,7 @@ mod tests {
         let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
         let numbers = crate::ground::surface_numbers(&cat).unwrap();
         let m = crate::ground::area_meshes(&kd_world::area::demo::make(kd_world::area::demo::SEED), &numbers);
-        let dir = kd_render::light::light(&cat.air, &crate::sky_at(4)).dir;
+        let dir = kd_render::light::light(&cat.air, &crate::sky_at(4, crate::HOURS_LAT)).dir;
         let at_once = median(
             (0..21)
                 .map(|_| {

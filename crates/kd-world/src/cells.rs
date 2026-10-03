@@ -11,11 +11,15 @@
 //! Implements WLD-12 and WLD-01, see A5.2 and A3.7: every cell's layers, read the same way at every place, the
 //! world wrapping east and west and never across the seam.
 
+mod coarse;
+
 use std::sync::Arc;
 
 use kd_core::geo::{CELLS_X, CELLS_Y, CellIx, NEIGHBOURS8, Pos, TICKS_PER_M, W, wrap};
 use kd_core::num;
 use kd_data::world::Side;
+
+pub use coarse::{COARSE_M, COARSE_SIDE, CellCtx, CoarseGround, WaterLine, coarse_ground, coarse_point};
 
 /// Cells in the grid.
 pub const CELLS: usize = (CELLS_X * CELLS_Y) as usize;
@@ -125,6 +129,8 @@ pub struct Stretch {
     pub length_m: f32,
     /// Its flow, fixed until routing runs (A5.10).
     pub flow_m3s: f32,
+    /// The area draining through its last cell, km² (A5.7 step 4).
+    pub drainage_km2: f32,
     /// The stretch it runs into, or `TO_SEA`.
     pub down: u32,
 }
@@ -226,15 +232,25 @@ impl EscarpmentLine {
         s
     }
 
+    /// Whether a place along the line lies in one of its gaps.
+    fn in_gap(&self, along: i32) -> bool {
+        self.gaps
+            .iter()
+            .any(|&g| ((along - g) as f32).abs() <= GAP_HALF_M * TICKS_PER_M as f32)
+    }
+
+    /// Where a place lies across the face, in ticks toward its high side, where it has one: none in a gap, nor where
+    /// the step has faded below half its sharpness toward the face's ends and breaks.
+    pub(crate) fn face_across(&self, p: [i32; 2]) -> Option<i32> {
+        let (d, along) = self.across_along(p);
+        (!self.in_gap(along) && self.sharpness(along) >= 0.5).then_some(d)
+    }
+
     /// The step's share at a point between the blend's cells: 0 or 1 across the line, a slope under 35° through a
     /// gap.
     fn step_at(&self, p: [i32; 2]) -> f32 {
         let (d, along) = self.across_along(p);
-        let in_gap = self
-            .gaps
-            .iter()
-            .any(|&g| ((along - g) as f32).abs() <= GAP_HALF_M * TICKS_PER_M as f32);
-        if in_gap {
+        if self.in_gap(along) {
             let run = GAP_RUN * self.height_m * TICKS_PER_M as f32;
             num::min(1.0, num::max(0.0, 0.5 + d as f32 / run))
         } else if d > 0 {
@@ -415,6 +431,7 @@ impl FixedCells {
             e.u32(s.cells);
             e.f32(s.length_m);
             e.f32(s.flow_m3s);
+            e.f32(s.drainage_km2);
             e.u32(s.down);
         }
         e.u32(self.cave_records.len() as u32);

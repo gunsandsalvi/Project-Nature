@@ -1,11 +1,12 @@
 //! kd-view: the types the world hands the front end: snapshots, commands, view requests, input, UI draw lists,
 //! sound events and text records (A4, A11 to A13).
 //! α00 holds raw input, the system insets and an empty snapshot; α01a adds the sky, the font atlas and the UI draw
-//! list; α01b an area's ground for the renderer and the camera's pose; the world fills the snapshot from α03a.
+//! list; α01b an area's ground for the renderer and the camera's pose; α02a a tile of coarse ground; the world fills
+//! the snapshot from α03a.
 
 #![deny(unsafe_code)]
 
-use kd_core::geo::{AreaId, Pos};
+use kd_core::geo::{AreaId, CellIx, Pos};
 
 /// One raw touch or pointer event, in screen pixels from the screen's top-left corner (A12.2).
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -105,6 +106,50 @@ pub struct AreaMeshes {
     pub heights: Vec<f32>,
     /// `AREA_SQUARES` × `AREA_SQUARES` surface numbers (`kd_data::Surface::number`).
     pub surfaces: Vec<u8>,
+}
+
+/// World cells along a coarse tile's side, metres between its points, and its points along a side (A11.5): 8 km
+/// tiles of 257 × 257 points, as an area's are, 32 m apart.
+pub const TILE_CELLS: u32 = 8;
+pub const TILE_POINT_M: f32 = 32.0;
+pub const TILE_SIDE: usize = 257;
+/// A tile's cells with a ring of their neighbours round them, along a side.
+pub const TILE_RING: usize = TILE_CELLS as usize + 2;
+
+/// A piece of a water line over coarse ground (A11.6): its ends in metres east and south of the tile's corner and
+/// up from its base, its bankfull half-width and depth, whether it is a river's, and the area it drains.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct WaterPiece {
+    pub from: [f32; 3],
+    pub to: [f32; 3],
+    pub half_width_m: f32,
+    pub depth_m: f32,
+    pub river: bool,
+    pub drainage_km2: f32,
+}
+
+/// Coarse ground as `kd-app` hands it to the renderer (A11.5): a tile of `TILE_CELLS` × `TILE_CELLS` world cells,
+/// its heights every 32 m from its north-west corner, a surface per 32 m square, where the sea's surface lies, its
+/// cells' cover and the surface each cover group shows as, and its water lines.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct CoarseTile {
+    /// Its north-west cell; its column and row are multiples of `TILE_CELLS`.
+    pub cell: CellIx,
+    /// The height the heights count from, in metres above sea level.
+    pub base_m: f32,
+    /// `TILE_SIDE` × `TILE_SIDE` heights in metres above `base_m`, rows from the north-west corner.
+    pub heights: Vec<f32>,
+    /// `TILE_SIDE - 1` × `TILE_SIDE - 1` surface numbers, one a square between four points.
+    pub surfaces: Vec<u8>,
+    /// The surface that shows its cell's cover instead (A11.5): the soil's.
+    pub soil_surface: u8,
+    /// `TILE_SIDE` × `TILE_SIDE`: 1 where the sea's surface lies over the point, else 0.
+    pub sea: Vec<u8>,
+    /// `TILE_RING` × `TILE_RING` cells, the tile's and the ring round them, rows from the north-west: each one's
+    /// cover, trees, bushes, grass and herbs, reeds and bare ground in 255ths, and the surface each shows as.
+    pub cover: Vec<[u8; 5]>,
+    pub cover_surfaces: Vec<[u8; 5]>,
+    pub water: Vec<WaterPiece>,
 }
 
 /// Where the camera looks (A11.1): the ground point at the middle of the screen, the view's heading in radians,

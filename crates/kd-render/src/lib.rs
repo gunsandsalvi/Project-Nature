@@ -3,7 +3,8 @@
 //! generated from Rust. It runs on the GL thread only, through `glow`: OpenGL ES 3.0 on the phone, WebGL2 on the web.
 //! α01a draws the light card as palette indices, turns them into the palette's colours under the light of the hour,
 //! and enlarges the result so an art pixel is 4 × 4 screen pixels (A11.2, A11.3); α01b draws the loaded areas'
-//! ground through the camera instead, keeping the card for its golden scenes.
+//! ground through the camera instead, keeping the card for its golden scenes; α02a coarse ground's tiles beside
+//! them, with the sea and the water lines (A11.5, A11.6).
 //!
 //! Implements PRE-22 and PLT-01, see A11.2 and A11.13: an art pixel exactly 4 × 4 screen pixels, drawn with OpenGL
 //! ES 3.0 on the phone.
@@ -22,8 +23,9 @@ pub mod shaders;
 
 use std::fmt;
 
+use kd_core::geo::CellIx;
 use kd_data::Catalogue;
-use kd_view::{AreaMeshes, CameraPose};
+use kd_view::{AreaMeshes, CameraPose, CoarseTile};
 use passes::crawl::{Base, CrawlSlot, Resolved};
 use passes::post::{PostFrame, PostPass};
 use passes::scene::{ArtView, ScenePass};
@@ -34,6 +36,7 @@ use probe::ProbePass;
 use camera::View;
 use frame::Lighting;
 use gl::{Format, Texture};
+use ground::coarse::{CoarsePass, CoarseStore, TILE_M};
 use ground::{GroundPass, Store};
 use looks::{Layout, PALETTE_SIZE, Palette, TABLE_ROWS};
 
@@ -84,10 +87,17 @@ pub struct Frame {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct FrameStats {
     pub art: [u32; 2],
-    /// The ground's triangles, and the stones and tufts handed to the GPU (A11.11).
+    /// The ground's triangles, coarse ground's with them, and the stones and tufts handed to the GPU (A11.11).
     pub triangles: u64,
     pub items: u64,
+    /// Coarse ground's tiles drawn, and its water lines' pieces.
+    pub tiles: u64,
+    pub pieces: u64,
 }
+
+/// The heights the view's footprint is taken between when choosing coarse tiles, metres: the deepest sea floor to
+/// above the highest land.
+pub const TILE_SPAN_M: [f32; 2] = [-250.0, 600.0];
 
 pub struct Renderer {
     gl: glow::Context,
@@ -102,6 +112,8 @@ pub struct Renderer {
     crawl: Box<dyn CrawlSlot>,
     ground: GroundPass,
     store: Store,
+    coarse: CoarsePass,
+    tiles: CoarseStore,
     view: Option<ArtView>,
     /// The last frame's camera view, for the test hooks.
     last_view: Option<View>,
@@ -134,6 +146,8 @@ impl Renderer {
             cover: ground::cover::CoverTable::new(cat, &layout).map_err(RenderError::Gl)?,
             ..Store::default()
         };
+        let coarse = CoarsePass::new(&gl, cat, &layout)?;
+        let tiles = CoarseStore::new(cat).map_err(RenderError::Gl)?;
         let palette_tex = Texture::new(&gl, Format::Rgba8, PALETTE_SIZE as u32, 1, None)?;
         let tables_tex = Texture::new(&gl, Format::R8, PALETTE_SIZE as u32, TABLE_ROWS as u32, None)?;
         Ok(Renderer {
@@ -148,6 +162,8 @@ impl Renderer {
             crawl: Box::new(Base),
             ground,
             store,
+            coarse,
+            tiles,
             view: None,
             last_view: None,
             cat: cat.clone(),
@@ -235,11 +251,44 @@ impl Renderer {
         self.store.uploaded() - before
     }
 
+    /// Takes a tile of coarse ground for drawing (A11.5), its textures made at the next frame and its light fields
+    /// over the frames after; a malformed tile is logged and left out.
+    pub fn upload_tile(&mut self, t: CoarseTile) {
+        if let Err(e) = self.tiles.insert(t) {
+            log::error!(target: "kd::render", "upload_tile: {e}");
+        }
+    }
+
+    /// Whether a tile of coarse ground is loaded.
+    pub fn has_tile(&self, cell: CellIx) -> bool {
+        self.tiles.has(cell)
+    }
+
+    /// The tiles of coarse ground a camera pose's view needs, within `margin_m` of what it shows, nearest its target
+    /// first (A11.5); none before the window's size is known.
+    pub fn tiles_wanted(&self, cam: &CameraPose, margin_m: f64) -> Vec<CellIx> {
+        let Some(art) = self.view else {
+            return Vec::new();
+        };
+        ground::coarse::tiles_in_view(&View::from_pose(cam, &art), TILE_SPAN_M, margin_m)
+    }
+
+    /// Drops every tile of coarse ground but those `keep` names.
+    pub fn retain_tiles(&mut self, keep: &[CellIx]) {
+        self.tiles.retain(keep);
+    }
+
     /// The view of a camera pose on the current art target (A11.2), its depth fitted to the loaded ground.
     pub fn view_of(&self, cam: &CameraPose) -> Option<View> {
         let art = self.view?;
         let mut v = View::from_pose(cam, &art);
-        v.fit_depth(self.store.areas.iter().map(|a| (a.corner(), a.span_m)));
+        let areas = self.store.areas.iter().map(|a| (a.corner(), a.span_m, 256.0));
+        let tiles = self
+            .tiles
+            .tiles
+            .iter()
+            .map(|t| (t.corner(), t.span_m, f64::from(TILE_M)));
+        v.fit_depth(areas.chain(tiles));
         Some(v)
     }
 
@@ -278,12 +327,17 @@ impl Renderer {
             let mut more = || until.zip(clock).is_none_or(|(end, now)| now() < end);
             let t0 = clock.map(|now| now());
             self.store.follow_light(l.light.dir, &mut more);
+            let near = [f64::from(cam.target.x) / 256.0, f64::from(cam.target.y) / 256.0];
+            self.tiles.follow_light(l.light.dir, near, &mut more);
             if let (Some(t0), Some(now)) = (t0, clock) {
                 self.longest_field_ns = self.longest_field_ns.max(now().saturating_sub(t0));
             }
         }
         if let Err(e) = self.store.upload(&self.gl) {
             log::error!(target: "kd::render", "area textures: {e}");
+        }
+        if let Err(e) = self.tiles.upload(&self.gl) {
+            log::error!(target: "kd::render", "tile textures: {e}");
         }
         if let Some(lighting) = &self.lighting {
             match (&f.card, view) {
@@ -293,7 +347,16 @@ impl Renderer {
                         t.bind(&self.gl);
                         gl::clear(&self.gl, [0.0; 4], 1.0);
                         let g = self.ground.draw(&self.gl, &view, &self.store, lighting, self.vao);
-                        (stats.triangles, stats.items) = (g.triangles, g.items);
+                        let c = self.coarse.draw(
+                            &self.gl,
+                            &view,
+                            &self.tiles,
+                            lighting,
+                            self.cat.air.haze_levels,
+                            self.vao,
+                        );
+                        (stats.triangles, stats.items) = (g.triangles + c.triangles, g.items);
+                        (stats.tiles, stats.pieces) = (c.tiles, c.pieces);
                         off = view.off;
                         depth_m = (view.depth[1] - view.depth[0]) as f32;
                         self.last_view = Some(view);

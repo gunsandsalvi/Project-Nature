@@ -233,6 +233,12 @@ impl WebApp {
             .unwrap_or_default()
     }
 
+    /// Test hook (A12.4): the next frame makes every tile of coarse ground its view needs and finishes every light
+    /// field, so its picture is whole.
+    pub fn settle(&mut self) {
+        self.app.settle();
+    }
+
     /// Test hook (A12.4): points the camera at a target in ticks, with a heading in radians and a zoom.
     pub fn aim(&mut self, x: i32, y: i32, z: i32, yaw: f32, zoom: f32) {
         self.app.set_camera(kd_view::CameraPose {

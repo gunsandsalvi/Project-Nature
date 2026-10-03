@@ -1,6 +1,7 @@
 # Biomes
 
 The kinds of living cover a world cell can have (A5.7 step 10, `WLD-31`): each takes its own look on the map (A11.5, `PRE-29`) and starts its cells with its shares of the five cover groups: trees, bushes, grass and herbs, reeds, and bare ground, which sum to the whole cell.
+Each also names the surface every group shows as where the ground is drawn from its cell (A11.5's coarse ground and map look): woods as a canopy, grass as grass, and bare ground as dirt, or as sand by the sea.
 The first region has woods, grassland, marsh, shore and sea; the rest of the world's biomes join with generation (Î±21).
 A land takes its own biome except where one forms on a kind of ground: marsh on a flat floodplain draining a wide land, shore by the sea, and the sea (A5.6).
 
@@ -13,6 +14,7 @@ Oak, elm, lime and hazel woods with glades, the island's own cover.
 |---|---|
 | Map look | Woodland |
 | Cover | trees 55%, bushes 15%, grass and herbs 25%, reeds 2% and bare ground 3% |
+| Shows | trees as Woodland, bushes as Woodland, grass and herbs as Grass, reeds as Reeds and bare ground as Dirt |
 | Takes | its land's choice |
 <!-- end table -->
 
@@ -23,6 +25,7 @@ stage = "MIL-01"
 checks = ["WLD-31", "PRE-29"]
 look = "woodland"
 cover = { trees = 0.55, bushes = 0.15, grass = 0.25, reeds = 0.02, bare = 0.03 }
+surfaces = { trees = "woodland", bushes = "woodland", grass = "grass", reeds = "reeds", bare = "dirt" }
 ```
 
 ## Grassland
@@ -34,6 +37,7 @@ Open grass and herbs with scattered bushes and the odd tree.
 |---|---|
 | Map look | Lush grass |
 | Cover | trees 2%, bushes 10%, grass and herbs 80%, reeds 2% and bare ground 6% |
+| Shows | trees as Woodland, bushes as Woodland, grass and herbs as Grass, reeds as Reeds and bare ground as Dirt |
 | Takes | its land's choice |
 <!-- end table -->
 
@@ -44,6 +48,7 @@ stage = "MIL-01"
 checks = ["WLD-31", "PRE-29"]
 look = "grass_lush"
 cover = { trees = 0.02, bushes = 0.1, grass = 0.8, reeds = 0.02, bare = 0.06 }
+surfaces = { trees = "woodland", bushes = "woodland", grass = "grass", reeds = "reeds", bare = "dirt" }
 ```
 
 ## Marsh
@@ -55,6 +60,7 @@ Wet flat ground of reeds and sedges, with alder and willow on its drier spots.
 |---|---|
 | Map look | Marsh |
 | Cover | trees 5%, bushes 10%, grass and herbs 20%, reeds 60% and bare ground 5% |
+| Shows | trees as Woodland, bushes as Woodland, grass and herbs as Grass, reeds as Reeds and bare ground as Dirt |
 | Takes | a flat floodplain draining a wide land |
 <!-- end table -->
 
@@ -65,6 +71,7 @@ stage = "MIL-01"
 checks = ["WLD-31", "PRE-29"]
 look = "marsh"
 cover = { trees = 0.05, bushes = 0.1, grass = 0.2, reeds = 0.6, bare = 0.05 }
+surfaces = { trees = "woodland", bushes = "woodland", grass = "grass", reeds = "reeds", bare = "dirt" }
 landform = "wetland"
 ```
 
@@ -77,6 +84,7 @@ Sand and shingle where the land meets the sea, with grass behind it.
 |---|---|
 | Map look | Sand |
 | Cover | trees 0%, bushes 5%, grass and herbs 20%, reeds 5% and bare ground 70% |
+| Shows | trees as Woodland, bushes as Woodland, grass and herbs as Grass, reeds as Reeds and bare ground as Sand |
 | Takes | land by the sea |
 <!-- end table -->
 
@@ -87,6 +95,7 @@ stage = "MIL-01"
 checks = ["WLD-31", "PRE-29"]
 look = "sand"
 cover = { trees = 0, bushes = 0.05, grass = 0.2, reeds = 0.05, bare = 0.7 }
+surfaces = { trees = "woodland", bushes = "woodland", grass = "grass", reeds = "reeds", bare = "sand" }
 landform = "coast"
 ```
 
@@ -99,6 +108,7 @@ Open water: nothing grows in it that the game keeps.
 |---|---|
 | Map look | Water |
 | Cover | trees 0%, bushes 0%, grass and herbs 0%, reeds 0% and bare ground 100% |
+| Shows | trees as Woodland, bushes as Woodland, grass and herbs as Grass, reeds as Reeds and bare ground as Sand |
 | Takes | the sea |
 <!-- end table -->
 
@@ -109,6 +119,7 @@ stage = "MIL-01"
 checks = ["WLD-31", "PRE-29"]
 look = "water"
 cover = { trees = 0, bushes = 0, grass = 0, reeds = 0, bare = 1 }
+surfaces = { trees = "woodland", bushes = "woodland", grass = "grass", reeds = "reeds", bare = "sand" }
 landform = "sea"
 ```
 
@@ -121,6 +132,7 @@ Bare ground where nothing grows, for the test lands that hold no plant at all (Î
 |---|---|
 | Map look | Dirt |
 | Cover | trees 0%, bushes 0%, grass and herbs 0%, reeds 0% and bare ground 100% |
+| Shows | trees as Woodland, bushes as Woodland, grass and herbs as Grass, reeds as Reeds and bare ground as Dirt |
 | Takes | its land's choice |
 <!-- end table -->
 
@@ -131,4 +143,5 @@ stage = "MIL-01"
 checks = ["BIO-09"]
 look = "dirt"
 cover = { trees = 0, bushes = 0, grass = 0, reeds = 0, bare = 1 }
+surfaces = { trees = "woodland", bushes = "woodland", grass = "grass", reeds = "reeds", bare = "dirt" }
 ```
