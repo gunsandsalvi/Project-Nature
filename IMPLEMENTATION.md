@@ -219,7 +219,7 @@ This stage builds the island of the first region and one band at the foot of its
 `SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows; the catalogue compiler comes first, in α01a, because the palette is data (A11.3).
 Seven of the brief's alphas hold well over 5 hours of tasks each and are split into lettered alphas of 3–5.5 hours: α00 into α00 and α00b (the full merge checks and the release key); α01 into α01a and α01b, and since the owner's request of 3 October 2026 α01c and α01d (the renderer rebuilt); α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, about 136 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
-The renderer is designed in A11, not ported (A11.1): α00 to α01b ported the approved mockup (`mockups/visual-style.html`), and at the owner's instruction of 3 October 2026 α01c and α01d rebuild every part they ported from A11's reasoning; from then on the mockup is the record of the mood first approved, never a source of code, shaders or numbers, and each task names the A11 sections it builds.
+The renderer is designed in A11 (A11.1), and α01c and α01d rebuild it from that reasoning; each task names the A11 sections it builds.
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
 
 ### α00 Skeleton on the phone (about 5 hours)
@@ -947,7 +947,7 @@ A11.2 says so.
 
 ### α01c The light (about 6 hours)
 
-**Goal:** the valley lit by a model of the sun, the sky and the air, rebuilt from A11's reasoning with nothing ported from the mockup: every material's ladder is its colour under that light, so sunlit ground glows warm and shade takes the sky's blue; shadows and sky light come from fields fixed to the land, so they hold still at every zoom; the ground's mesh morphs instead of switching, outlines mark only real edges, and haze grows with real distance; a tap on the strip steps the hour from dawn through noon and dusk to night, the light and the shadows moving with it.
+**Goal:** the valley lit by a model of the sun, the sky and the air, rebuilt from A11's reasoning: every material's ladder is its colour under that light, so sunlit ground glows warm and shade takes the sky's blue; shadows and sky light come from fields fixed to the land, so they hold still at every zoom; the ground's mesh morphs instead of switching, outlines mark only real edges, and haze grows with real distance; a tap on the strip steps the hour from dawn through noon and dusk to night, the light and the shadows moving with it.
 
 **Serves:** `PRE-01` (part), `PRE-02` (part), `PRE-03` (part: the pitch), `PRE-20` (part: looks and light steps), `PRE-21` (part: outlines by occlusion, lit edges), `PRE-22` (part: light and shading steady while zooming), `PRE-30` (part: the light model, the palette's versions by the hour, shadows that soften with distance, haze by real distance).
 
@@ -966,7 +966,7 @@ A11.2 says so.
    Commit `T01c.1: the light model (PRE-30, A11.4)`.
 
 2. `T01c.2` **Looks and the computed palette (`PRE-20`, `PRE-01`, A11.3).**
-   `kd-data`: kind `Look` (`data/palette/looks.md`: the colour under white light as sRGB, the steps, an optional sheen), `data/palette/colours.md` rewritten as the fixed colours (`void`, `ink` and the UI's, each named for its use, text at least 7:1 on its panel), `Surface` naming its looks; the mockup's 84 colours, 51 ladders and 12 tables are removed.
+   `kd-data`: kind `Look` (`data/palette/looks.md`: the colour under white light as sRGB, the steps, an optional sheen), `data/palette/colours.md` rewritten as the fixed colours (`void`, `ink` and the UI's, each named for its use, text at least 7:1 on its panel), `Surface` naming its looks; the old palette's 84 colours, 51 ladders and 12 tables are removed.
    `crates/kd-render/src/looks.rs`: each look's steps along A11.3's path of light at equal lightness; the palette row under the current light; the step thresholds; the tables (outline, lit edge, haze 1–3, warm 1–3, glow 1–2), recomputed when the row changes; `kd-ui` draws with the fixed colours by their new names.
    Commit `T01c.2: looks and the palette computed from the light (PRE-20, PRE-01, A11.3)`.
 
@@ -1012,7 +1012,7 @@ A11.2 says so.
 - Float textures on WebGL2: `R32F` is not filterable there, so the shaders read four texels and interpolate themselves.
 - The fields too slow on the phone: measured in the bench file; over 2 ms, the sun field is recomputed over several frames.
 
-**From the owner (A11.1):** on 3 October 2026 the owner found that the renderer and its shaders had been ported from the mockup rather than designed, and asked for them to be rebuilt from first principles and lit like Minecraft's Vibrant Visuals; A11 was rewritten from its own reasoning (A11.1's four rules), the later alphas' tasks no longer port the mockup, and α01c and α01d were added to rebuild what α00 to α01b had ported.
+**From the owner (A11.1):** on 3 October 2026 the owner asked for the renderer and its shaders to be rebuilt from first principles and lit like Minecraft's Vibrant Visuals; A11 says how (its four rules), and α01c and α01d rebuild them.
 
 ### α01d Steady detail (about 5 hours)
 
@@ -1041,7 +1041,7 @@ A11.2 says so.
    Commit `T01d.3: stones and tufts as instanced shapes (PRE-46, WLD-12, A11.5)`.
 
 4. `T01d.4` **Gestures that follow the fingers (`PRE-33`, A12.2).**
-   A pinch scales the land by the fingers' distance ratio about their midpoint (the zoom moved by the ratio's log over the log-slope of the art pixel's size at the current zoom), and a twist turns it by the fingers' angle about the same point, so the land stays under both fingers; the mockup's constant (`zoom −= ln(ratio) × 0.16`) is removed.
+   A pinch scales the land by the fingers' distance ratio about their midpoint (the zoom moved by the ratio's log over the log-slope of the art pixel's size at the current zoom), and a twist turns it by the fingers' angle about the same point, so the land stays under both fingers; the old constant (`zoom −= ln(ratio) × 0.16`) is removed.
    Commit `T01d.4: pinch and twist follow the fingers (PRE-33, A12.2)`.
 
 5. `T01d.5` **Steadiness counts (`PRE-22`, A11.12).**

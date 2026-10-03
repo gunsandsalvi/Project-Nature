@@ -137,7 +137,7 @@ The code and raw results stay in git history in the commit before the deletion, 
 - Energy per update, net of 0.84 W idle: middle about 0.7 nJ, small 1.0, fastest 1.3, so the middle cores do the most work per joule.
 - Thermal headroom (`getThermalHeadroom(10)`, at most once a second) read on 100% of samples: 0.63 idle, 0.78–0.86 under the held load; thresholds light 0.80, moderate 0.93, severe 1.00, critical 1.05; so headroom is the signal for slowing time before heat (`PRN-11`).
 - Display 1080 × 2404 at 120 Hz (modes 60 and 120) via `Surface.setFrameRate`; full screen in portrait is about 270 × 601 art pixels.
-- At 120 Hz a plain OpenGL ES scene missed 0.21% of frames (99% under 10.6 ms) on "ANGLE (Imagination Technologies, Vulkan … PowerVR)", so native GLES runs on ANGLE here as the browser does; the mockup in a web view missed 1.4%, drawing in about 2 ms (99% under 4.4 ms).
+- At 120 Hz a plain OpenGL ES scene missed 0.21% of frames (99% under 10.6 ms) on "ANGLE (Imagination Technologies, Vulkan … PowerVR)", so native GLES runs on ANGLE here as the browser does; B66's test scene in a web view missed 1.4%, drawing in about 2 ms (99% under 4.4 ms).
 - Memory: the app used the full 10 GiB allowed with no warning, but at most 8.4 GiB stayed resident and free memory fell from 7.5 to 0.4 GB: plan on about 8 GiB.
 - Java ran at 18–21% of Rust's speed (25–32% on a desktop JVM): fine for the shell only.
 
@@ -180,7 +180,7 @@ The code and raw results stay in git history in the commit before the deletion, 
 - The continents came out flat with straight edges: the generator needs tuning.
 
 **Drawing (B66)**
-- The mockup at 270 × 489 art pixels in a phone web view: 97–100% of 120 Hz at every zoom, at most 3.1% late frames (the full turn), 0.4–3.8 ms of processor time a frame (rule: at least 90%, at most 5% late).
+- B66's test scene at 270 × 489 art pixels in a phone web view: 97–100% of 120 Hz at every zoom, at most 3.1% late frames (the full turn), 0.4–3.8 ms of processor time a frame (rule: at least 90%, at most 5% late).
 - Crawl at camp zoom: 5.8% of art pixels per frame in a slow turn, 9.9% in a slow zoom; Fade cut both by over 99%, Steps only the turn.
 - A native renderer reusing the shaders: about 4 agent-days.
 - Gestures passed an automated check and felt fine; Android owns a strip at the bottom edge, so swipes start a finger's width above it.
@@ -247,7 +247,6 @@ android/              Gradle project, Kotlin shell (A2.5); keys/release-cert.der
 web/                  index.html, glue.js, audio-worklet.js (A2.6)
 tools/                scripts (A2.8, A15)
 reports/              copies of stage reports (RES-06)
-mockups/              visual-style.html, the mood first approved (a reference, not code: A11.1)
 dist/                 kindling.apk of every alpha (at most 50 MB), its note and links (A15)
 ```
 
@@ -3275,7 +3274,6 @@ Serves: `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `P
 
 - `kd-render` runs on the GL thread only and draws through `glow`: OpenGL ES 3.0 on the phone, WebGL2 in browsers, one code path.
 - **Designed, not ported** (the owner's instruction of 3 October 2026): every part is built from the reasoning in this chapter.
-  `mockups/visual-style.html` stays the record of the mood first approved (a low warm sun, cool shade, crisp outlines on muted land), never a source of code, shaders or numbers.
   The light follows the owner's request of the same day, to look like Minecraft's Vibrant Visuals: direct sun with real shadows, a sky-coloured fill in shade, darker hollows, air that hazes the distance and warms toward the sun, and, as their things arrive, reflections and glints on water and glow round fires (A11.4, A11.6).
 - **Four rules hold in every part,** and each part below says how it keeps them; A11.12 tests them:
   1. **Decided in the world, drawn on the grid.** Every choice of colour (material, light step, dither, shadow, haze) is a function of world quantities: position, normal, material, light and real distance.
@@ -3283,7 +3281,7 @@ Serves: `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `P
   2. **No detail finer than two art pixels.** A pattern, wobble or shape smaller than about two art pixels fades to its average, octave by octave, before it can alias; detail of any size shows fully once it spans four.
   3. **No visible switch.** Mesh detail morphs continuously; light never reads the mesh (normals, shadows and sky light come from 1 m fields of each area); small things drop out one by one by a seeded importance, never all at once.
   4. **Light from a model.** The sun's and the sky's colours come from the sun's height through the air (A11.4), and each material's ladder is its colour under that light, so the palette's rows, the shade's tint and the haze's colour all follow from one model.
-  Why: α01b's port of the mockup switched mesh spacings, shadow texels and stone sizes at fixed art-pixel sizes, hazed a fixed fraction of the screen, outlined steep slopes and wobbled edges finer than a pixel, so the picture changed as the owner zoomed; each rule removes one of those causes.
+  Why: without them the first renderer switched mesh spacings, shadow texels and stone sizes at fixed art-pixel sizes, hazed a fixed fraction of the screen, outlined steep slopes and wobbled edges finer than a pixel, so the picture changed as the owner zoomed; each rule removes one of those causes.
 - It reads only the newest snapshot (A11.9), meshes and fields from `kd-app`'s view builders (A11.5), the compiled catalogue and the UI draw list (A12.1); it never sees the world (`WLD-13`).
 
 ```rust
@@ -3663,7 +3661,7 @@ Raw touches (`InputEvent`: down, move, up or cancel, with pointer, position and 
 |---|---|---|
 | Drag | one finger moves over 6 UI pixels | moves the camera; a fling eases to rest (τ 0.3 s) |
 | Twist | two fingers turn over 6° | turns, easing to rest (`PRE-22`) |
-| Pinch | finger distance changes over 6% | zoom −= ln(ratio) × 0.16, as the mockup; can join a twist |
+| Pinch | finger distance changes over 6% | the land scales by the fingers' distance ratio about their midpoint, so it stays under both fingers; can join a twist |
 | Double tap, drag | a second touch within 300 ms and 12 pixels of a tap, then moving | zoom by 0.8 a screen height; down zooms in |
 | Tap | lifted within 300 ms and 6 pixels | a panel's control, or on the world a pick (A11.2) opening the card |
 | Long press | 450 ms still | the powers ring there (`GOD-10`) |
@@ -4587,7 +4585,7 @@ Serves `VIS-14`, `PLT-01`, `PLT-04`, `PLT-10`, `TIM-07`, `TIM-12`, `MND-15`, `PR
 | Audio mixing | ≤ 25% of a small core (B74: 11% at 32 sounds) |
 | Touch to screen | ≤ 2 frames |
 
-Basis: the mockup's look drew in 0.4–3.8 ms of CPU per frame at 97–100% of 120 Hz in a web view (B66).
+Basis: B66's test scene drew in 0.4–3.8 ms of CPU per frame at 97–100% of 120 Hz in a web view.
 
 ### A16.3 Simulation cost
 

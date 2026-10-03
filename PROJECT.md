@@ -2159,7 +2159,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 ### 11.1 Visual style
 
-The look you approved on the visual-style mockup, written to stand without any image.
+The look, written to stand without any image.
 
 - `PRE-01` **Detailed pixel art** *(Decided)*: Everything on screen is crisp pixel art, drawn in art pixels (`PRE-22`): limited colours from one palette (`PRE-20`), hard edges, no blur, no smooth gradients.
   - **Done when:** each art pixel of the world is one solid palette colour.
@@ -2214,7 +2214,7 @@ The look you approved on the visual-style mockup, written to stand without any i
   - **close camp:** about 20–50 m, a person about 10–25 art pixels tall, every figure in full;
   - **camp:** a few hundred metres, people as tiny figures (`PRE-28`);
   - **valley,** about 10 km; **region,** about 100 km; the **world map**; the **globe** (`PRE-29`).
-  - **How it works,** by distance from where the camera looks, as in the mockup: within about 300 m, from camp zoom inward, full areas (`WLD-12`), made for the picture without changing anything (`WLD-13`); out to about 10 km, each area's coarse ground, made from the seed in a moment, shaped every few tens of metres, under its cover (its cell's, or a kept area's own) drawn as forest canopy, scrub, grass or bare ground; beyond, and from region zoom out, the world cells (`PRE-29`).
+  - **How it works,** by distance from where the camera looks: within about 300 m, from camp zoom inward, full areas (`WLD-12`), made for the picture without changing anything (`WLD-13`); out to about 10 km, each area's coarse ground, made from the seed in a moment, shaped every few tens of metres, under its cover (its cell's, or a kept area's own) drawn as forest canopy, scrub, grass or bare ground; beyond, and from region zoom out, the world cells (`PRE-29`).
     People, herds, camps and buildings show at every distance (`PRE-28`), and a full area being made shows its coarse ground until its detail fades in, within about a second.
   - **Done when:** a pinch from globe to person over unvisited land never stalls, and full detail is in within about a second.
 
