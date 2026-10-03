@@ -107,7 +107,7 @@ This table is the technology proposal of `PRC-03`; the evidence behind each row 
 | Chance | keyed draws from a guarded wyhash of (world, system, purpose, subject, moment); a fortune retry flips one key bit (A3.3; B02) | keyed splitmix64 (also passed) |
 | App | Kotlin shell, Rust core `libkindling.so` over JNI, arm64 only, minSdk 31, targetSdk 36 (A2.5; B78) | a pure Rust shell with hand-written JNI per service |
 | Toolchain | NDK r30, Gradle 8.14.3, AGP 8.13.2, Kotlin 2.3.21 and the rest of A2.8; Google's mirror of Maven Central first (B78) | refetch with `tools/setup-toolchain.sh` |
-| Drawing | OpenGL ES 3.0 and WebGL2 through `glow`; the mockup's GLSL ES 3.00 shaders ported; one art pixel is 4 screen pixels (B66) | fewer passes or art pixels; no Vulkan |
+| Drawing | OpenGL ES 3.0 and WebGL2 through `glow`; GLSL ES 3.00 shaders written for the renderer's own design (A11.1); one art pixel is 4 screen pixels (B66) | fewer passes or art pixels; no Vulkan |
 | Crawling pixels | a slot in the renderer for the fix chosen at the first visual review (`PRE-22`, `PRE-31`; B66) | Fade, tuned with the owner |
 | Memory layout | struct of arrays per kind, generational handles, permanent uids (A3.4; B04) | none needed |
 | Saves | chunks in a new pack per save, committed by a manifest (A14.4), zstd level 1 per chunk, temporary file, flush, rename, hash checked on load; every 30 real seconds, through a `Storage` trait with a file and an IndexedDB version (A14; B04) | uncompressed chunks |
@@ -247,7 +247,7 @@ android/              Gradle project, Kotlin shell (A2.5); keys/release-cert.der
 web/                  index.html, glue.js, audio-worklet.js (A2.6)
 tools/                scripts (A2.8, A15)
 reports/              copies of stage reports (RES-06)
-mockups/              visual-style.html, the approved look
+mockups/              visual-style.html, the mood first approved (a reference, not code: A11.1)
 dist/                 kindling.apk of every alpha (at most 50 MB), its note and links (A15)
 ```
 
@@ -3274,9 +3274,17 @@ Serves: `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `P
 ### A11.1 The renderer at a glance
 
 - `kd-render` runs on the GL thread only and draws through `glow`: OpenGL ES 3.0 on the phone, WebGL2 in browsers, one code path.
-- It ports the approved mockup (`mockups/visual-style.html`): its GLSL ES 1.00, as its `convert()` turns it into GLSL ES 3.00, becomes files in `shaders/`, and its JavaScript builders become Rust modules split the same way, plus new `pick`, `icons`, `decals`, `crawl` and `stats`; each subsection names what it ports.
-  Why: the mockup is the settled look, drawn at 97–100% of 120 Hz on this phone (B66); fallback: fewer passes or a larger art pixel (A1.3).
-- It reads only the newest snapshot (A11.9), meshes from `kd-app`'s view builders (A11.5), the compiled catalogue and the UI draw list (A12.1); it never sees the world (`WLD-13`).
+- **Designed, not ported** (the owner's instruction of 3 October 2026): every part is built from the reasoning in this chapter.
+  `mockups/visual-style.html` stays the record of the mood first approved (a low warm sun, cool shade, crisp outlines on muted land), never a source of code, shaders or numbers.
+  The light follows the owner's request of the same day, to look like Minecraft's Vibrant Visuals: direct sun with real shadows, a sky-coloured fill in shade, darker hollows, air that hazes the distance and warms toward the sun, and, as their things arrive, reflections and glints on water and glow round fires (A11.4, A11.6).
+- **Four rules hold in every part,** and each part below says how it keeps them; A11.12 tests them:
+  1. **Decided in the world, drawn on the grid.** Every choice of colour (material, light step, dither, shadow, haze) is a function of world quantities: position, normal, material, light and real distance.
+     Only the pixel grid and the width of a dither band depend on the screen, so a pan moves the picture by whole pixels and a turn or zoom only resamples it.
+  2. **No detail finer than two art pixels.** A pattern, wobble or shape smaller than about two art pixels fades to its average, octave by octave, before it can alias; detail of any size shows fully once it spans four.
+  3. **No visible switch.** Mesh detail morphs continuously; light never reads the mesh (normals, shadows and sky light come from 1 m fields of each area); small things drop out one by one by a seeded importance, never all at once.
+  4. **Light from a model.** The sun's and the sky's colours come from the sun's height through the air (A11.4), and each material's ladder is its colour under that light, so the palette's rows, the shade's tint and the haze's colour all follow from one model.
+  Why: α01b's port of the mockup switched mesh spacings, shadow texels and stone sizes at fixed art-pixel sizes, hazed a fixed fraction of the screen, outlined steep slopes and wobbled edges finer than a pixel, so the picture changed as the owner zoomed; each rule removes one of those causes.
+- It reads only the newest snapshot (A11.9), meshes and fields from `kd-app`'s view builders (A11.5), the compiled catalogue and the UI draw list (A12.1); it never sees the world (`WLD-13`).
 
 ```rust
 impl Renderer {                                                   // A2.2 takes these signatures
@@ -3287,8 +3295,9 @@ impl Renderer {                                                   // A2.2 takes 
     pub fn pick(&mut self, at_px: [f32; 2]);                       // take_pick answers 1–2 frames later
     pub fn take_pick(&mut self) -> Option<Pick>;
 }
-pub struct Frame { pub t_d: f64, pub real_s: f64, pub speed: f32, pub cam: CameraPose, pub set: DrawSettings }
-// t_d: A4.11's display time; real_s: unpaused real seconds; speed: game seconds a real second
+pub struct Frame { pub t_d: f64, pub real_s: f64, pub speed: f32, pub cam: CameraPose, pub sky: SkyView, pub set: DrawSettings }
+// t_d: A4.11's display time; real_s: unpaused real seconds; speed: game seconds a real second;
+// sky: the sun's and moon's directions, the moon's phase and the air's haze, from kd_core::sky (A11.4)
 pub struct CameraPose { pub target: Pos, pub yaw: f32, pub zoom: f32 }  // zoom 0 person … 1 globe
 pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Nothing }
 ```
@@ -3297,88 +3306,111 @@ pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Noth
 
 | # | Pass (`Renderer.render`'s order) | Target |
 |---|---|---|
-| 1 | Shadow, while sun or moon is up and art pixels are under 3.2 m | 2048² 24-bit depth texture, 16 MB |
+| 0 | Light fields, on the CPU when the sun moves or areas arrive (A11.5) | per-area textures |
+| 1 | Object shadows, while the sun or moon is up and things or plants stand in view | 2048² 24-bit depth texture, 16 MB |
 | 2 | Scene | art target: colours 0 and 1 RGBA8, depth 24 and stencil 8 |
-| 3 | Post: outlines, lit edges, selection, palette colours | art-size RGBA8 |
+| 3 | Post: outlines, lit edges, haze and glow, selection, the palette row | art-size RGBA8 |
 | 4 | Crawl fix (A11.10) | art-size RGBA8 |
 | 5 | Upscale: nearest, whole-number scale, sub-pixel shift | window |
 | 6 | UI (A12.1) | window, same 4-pixel grid |
 
-- **Shadow:** the scene shaders under `#define SHADOW` draw into a depth-only texture, sampled directly; the mockup packed depth into RGBA8 (`packShadow`) only for WebGL1; fallback: that packing.
-- **Art target:** `ceil(W/s) + 3` by `ceil(H/s) + 3`, with `s` 4 screen pixels on the phone and 4 device pixels on the web (`PRE-22`): 273 × 604 in portrait on 1080 × 2404, 0.66 MB a surface; the border carries the upscale's shift, which spans two art pixels as the view snaps to even ones (α01b's Conflict note).
-- **Colour 0** (`packOut`): R the palette index (0 void); G the category (bits 0–2), sunlit (3), firelit (4) and, new, which of 8 fire lights is strongest (5–7); B and A the view depth in 16 bits.
-- **Outlines by category** keep `postFS`'s depth thresholds for rock, plants, figures (in ink) and things; ground, water and effects have none (`PRE-21`).
+- **Object shadows** (from the first things, plants and figures): their meshes under `#define SHADOW` into a depth texture whose texels are a power of two in metres, counted from the world's corner, chosen at most as large as half an art pixel and changed only when the art pixel doubles or halves, so a zoom within an octave keeps every shadow texel where it was (A11.1's rules 1 and 3); the ground casts and takes its own shadows from its fields (A11.5), not this map.
+- **Art target:** `ceil(W/s) + 3` by `ceil(H/s) + 3`, with `s` 4 screen pixels on the phone and 4 device pixels on the web (`PRE-22`): 273 × 604 in portrait on 1080 × 2404, 0.66 MB a surface; the border carries the upscale's shift, which spans two art pixels as the view snaps to even ones.
+- **Colour 0:** R the palette index of the lit surface before outlines, haze and glow (0 void); G the category (bits 0–2), sunlit (3), the haze level 0–3 (4–5), firelit (6) and glowing (7); B and A the view depth in 16 bits.
+  The scene decides the haze level, since only it knows each pixel's air (A11.4); post applies it after the outline, so an outline hazes like what it outlines.
 - **Colour 1:** a 24-bit index into the frame's pick table and an 8-bit kind (ground 0).
   A tap reads 13 × 13 art pixels through a pixel-pack buffer and a fence, without stalling; the nearest id wins, figure before herd before thing before plant; with none, the centre's depth gives a ground position.
   Why: exact picking of whatever is drawn; fallback: rays against figure boxes and the height field.
-- **Post** ports `postFS`, adding the fire rim toward the pixel's own fire and a one-pixel `f3` edge round the selected id.
-- **Upscale** (`upscaleFS`) samples `floor(off + fragCoord/s)`, so panning moves in whole screen pixels while the art grid stays locked to the world.
+- **Outlines** (`PRE-21`): a pixel is on a silhouette where a neighbour lies farther than the plane through the pixel and its opposite neighbour predicts, by more than its category's gap (figures 0.25 m, things 0.3 m, plants 1 m, rock 1.5 m, ground 6 m); it takes its look two steps darker (figures: ink).
+  Why: a plain depth jump also flags steep slopes seen edge-on, which drew α01b's black streaks down the cliff; predicting the slope flags only real occlusion.
+- **Lit edges:** a silhouette pixel that is sunlit and whose far neighbour lies toward the sun on screen takes its look's top step; toward a fire, the warm table instead.
+- **Post** then applies the haze table of the pixel's level, the glow tables (A11.4), the selection's one-pixel edge, and the palette row.
+- **Upscale** samples `floor(off + fragCoord/s)`, so panning moves in whole screen pixels while the art grid stays locked to the world.
 
-**Camera** (`zoomToTexel`, `viewFor`, `computeCamera`):
-- Orthographic; the pitch depends only on metres per art pixel (`texel`), by the mockup's `PITCH` knots, from 27° at 0.03 m to 90° from 20 m.
-- `texel(zoom)` is log-linear between the stops of A11.5; the globe fits 0.84 of the shorter side (`texelMax`), so both orientations share one scale.
-- The view snaps to even art pixels, counted from the world's corner; the remainder is the upscale shift, and `dith = (sx − W/2) mod 4` keeps dither fixed to surfaces (`PRE-20`); snapping by two keeps the GPU's 2 × 2 pixel groups, over which `fwidth` sets the dither band, on the same ground.
+**Camera:**
+- Orthographic: every art pixel spans the same ground, which whole-pixel panning needs.
+- `texel(zoom)` is log-linear between A11.5's stops, each stop's art pixel being its view's width (`PRE-03`) over the 273 art pixels of a portrait screen; the globe fits 0.84 of the shorter side (`texelMax`), so both orientations share one scale.
+- **Pitch:** a monotone cubic in the log of the art pixel's size through four knots chosen for what each stop must show: 30° at 0.03 m (the person stop: faces and the fronts of figures), 38° at 0.13 m (close camp: work, groups and the ground between them), 52° at 1.1 m (camp: a vertical face keeps cos 52°, about two thirds, of its height, so cliffs still read while the layout shows), 90° from 37 m (the valley's map look, `PRE-29`).
+  Monotone, so a zoom never tilts back; one cubic, so the tilt has no plateaus at the knots.
+- The view snaps to even art pixels, counted from the world's corner; the remainder is the upscale shift, and `dith = (sx − W/2) mod 4` keeps the dither pattern fixed to surfaces while panning (`PRE-20`); snapping by two keeps the GPU's 2 × 2 pixel groups, over which `fwidth` sets the dither band, on the same ground.
 - **Decision:** a floating origin at the area corner nearest the ground in the middle of the view's block (below), with GPU positions in `f32` metres from it, each area's vertices from its own corner plus the corner's offset (`uAreaOff`); why: `f32` world metres resolve only 0.125–0.25 m at 2,000 km; fallback: none needed.
 - **Blocks:** within a block of 512 art pixels every frame draws with the same projection, over the art target plus a block, and the art target's viewport moves by whole pixels instead, so a pan moves the picture by whole pixels exactly; a projection moved by the pan would round differently and flip pixels on edges. The viewport stays within OpenGL ES 3.0's least size on the phone (its screen's 2,404 pixels).
 - Drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, so turns and zooms pivot on the ground in the middle of the screen while the picture stays still.
-- The depth range spans the block's footprint from the lowest to the highest ground in view, ± 30 m; the shadow camera fits the view's footprint and snaps to its own texels, counted from the world's corner (`lightFor`), keeping its projection within blocks of 256 texels and its depth range on 16 m steps, so shadows never swim; the ground's patterns read positions from the corner of the block of 8,192 m of the world that holds the drawn area (`uWorldOff`, the area's corner within its block less `uAreaOff`), so they never depend on where the origin lies, and a block's edge is their only seam.
+- The depth range spans the block's footprint from the lowest to the highest ground in view, ± 30 m; the ground's patterns read positions from the corner of the block of 8,192 m of the world that holds the drawn area (`uWorldOff`, the area's corner within its block less `uAreaOff`), so they never depend on where the origin lies, and a block's edge is their only seam.
 
-Tested by: a one-art-pixel pan moves the picture exactly 4 screen pixels, both where the origin stays put and where the pan moves it; a tap on each kind of thing in a fixed scene picks it.
+Tested by: a one-art-pixel pan moves the picture exactly 4 screen pixels, both where the origin stays put and where the pan moves it; a slope seen edge-on draws no outline, a ridge in front of lower ground does; the pitch rises monotonically through its knots; a tap on each kind of thing in a fixed scene picks it.
 First needed: `MIL-01`.
 
-### A11.3 Palette, ladders and lookup tables
+### A11.3 Palette, looks and tables
 
-- **Master palette** (`data/palette/colours.md`; ladders in `ladders.md` and tables and versions in `light.md` beside it, one kind of entry per file, A3.6): at most 255 colours plus `void`: the mockup's 84, plus spring and summer greens, flowers and berries, stone greys, skin and hair families for varied looks (`BIO-22`), clear water, sand and ice.
-- **Ladders** (`PRE-20`): 4–7 indices, dark to light, per material; hand-picked for common materials from the mockup's 51 `RAMPS`; for the rest, `kd catalog build` aims at seven lightnesses from 0.42 to 1.3 times the catalogue colour's (`MAT-10`) in OKLab and matches each with `nearest()` outside the fire, map and mist families; plants get ladders per season state and growth stage, animals per coat part.
-- **Tables** (`table()`, index to index): warm 1–3, haze 1–3, outline, sun rim, fire rim, darker, lighter, snow.
-- **Versions** (`PRE-30`): dusk, dawn, day and night (`variant()`) for each season, the mockup's being autumn's.
-  The row in use is computed on the CPU by OKLab interpolation of its two neighbouring versions, in steps of an eighth, and uploaded (1 KB) when it changes, so each frame uses one row and no palette is ever dithered (`PRE-01`, `PRE-20`).
-- **Textures:** palette 256 × 1, ladders 8 × up to 512, tables 256 × 16; under 40 KB.
-- **Steps:** a fragment's light gives a value 0–1, which `rampPick()` quantises with a 4 × 4 Bayer threshold only in a band about two pixels wide at each step's edge (`setBand`, `qlevel`); `finish()` then applies warm and haze steps.
+- **The palette is computed, not picked.** Index 0 is `void`; then the **fixed colours** (`data/palette/colours.md`): ink, and the UI's colours, chosen for contrast (body text at least 7:1 on its panel); then the **looks** (`data/palette/looks.md`), look `j`'s step `k` at index `base_j + k`.
+  A look is a material's colour under white light (`MAT-10`, its sRGB value taken to linear albedo), its number of steps (4–7, `PRE-20`) and, where it has them, a sheen for wet or smooth surfaces and a glow for flames.
+  At most 255 entries besides `void`; when looks outgrow that, steps whose colours stay within 0.02 of each other in OKLab under every light of a day (A11.4) are merged, and `kd catalog check` fails a catalogue that still does not fit.
+- **Light steps.** Under the current light (A11.4: the sky's light on level ground `E_sky` and the sun's light facing it `E_sun`, both RGB), a surface receives `σ E_sky + τ E_sun`: `σ`, its **sky factor**, is how much of the sky it sees (its field's sky visibility times `(1 + n_y)/2`); `τ`, its **sun factor**, is its sunlit share times `n·l`.
+  A look's steps lie on one path through that light: from deep shade (`σ` 0.3, `τ` 0) to open shade (`σ` 1, `τ` 0) to full sun (`σ` 1, `τ` 1), at equal steps of lightness (the cube root of luminance, as OKLab's L for greys) between its ends.
+  A step's colour is the look's albedo times its light, exposed, tone-mapped (A11.4) and put in sRGB.
+  So shade steps take the sky's colour and lit steps the sun's: the cool shade and warm light a pixel artist paints by hand come from the light itself, and change with the hour; and the steps of every ladder look evenly spaced at every hour.
+- **The light picks the step** (`PRE-20`): the shader computes the pixel's light luminance `Y = σ Y_sky + τ Y_sun` and compares its lightness with the thresholds midway between the steps, which are the same for every look and set as uniforms; within a band about two art pixels wide round a threshold (from `fwidth` of the lightness), a 4 × 4 Bayer pattern fixed to the world grid mixes the two steps, and nowhere else.
+- **Tables** (index to index), computed on the CPU whenever the palette row changes (about 0.3 ms):
+  - outline: the look two steps down (ink for figures); lit edge: the look's top step;
+  - haze 1–3: the nearest palette colour to the colour mixed toward the frame's haze colour (A11.4) by 0.15, 0.33 and 0.55;
+  - warm 1–3: the look relit with a fire's light added (A11.4), so warming is exact, never a guess from the colour; never a flame colour;
+  - glow 1–2: toward a glow's colour, for the rings round fires and glints (A11.4).
+- **The row in use** is computed on the CPU from the light whenever one of its colours would move by a whole 1/255 (a few times a minute while the sun moves at real time; held while light is averaged at speed, A11.4) and uploaded (1 KB); a frame uses one row, and no palette is ever dithered between rows (`PRE-01`).
+- **Textures:** palette 256 × 1, tables 256 × 16, under 20 KB; the step thresholds are uniforms.
 
-Tested by: every ladder entry a palette index; tables never leave the palette and warming never yields flame colours; the OKLab code gives the mockup's indices on 1,000 colours.
+Tested by: every step of every look a palette index inside its look; the steps' lightness evenly spaced within 0.01 at dawn, noon, dusk and night; shade steps bluer than lit steps whenever the sun is up; tables never leave the palette and warming never gives a flame colour; the outline step two below and the lit edge the top of the pixel's own look.
 First needed: `MIL-01`.
 
-### A11.4 Light, time of day, seasons, sky and weather
+### A11.4 Light: sun, sky, air and time
 
-- **Sun and moon** come from `kd_core::sky::sun_moon(game_time, lat, lon, &sky) -> SkyState` (sun and moon directions, the moon's phase; `sky` the world's tilt and moon cycles, A3.7), the one sun-and-moon function, which A5's weather and A9's calendars share (`WLD-07`).
-- **Light by the sun's height**, interpolating the mockup's `TOD` presets:
-
-| Sun height | Light from | Strength | Sky | Fire | Haze | Palette row |
-|---|---|---|---|---|---|---|
-| below −6° | moon | 0.32 × phase (0.2 new, 1 full) | 0.34 | 1.0 | 0.5 | night |
-| −6° to 6° | blend | blend | 0.42 | 0.9 | 1.1 | blend |
-| 6° to 25°, morning | sun | 0.85 | 0.5 | 0.6 | 1.2 | dawn |
-| 6° to 25°, evening | sun | 1.0 | 0.5 | 0.95 | 1.0 | dusk |
-| above 25° | sun | 1.0 | 0.68 | 0.3 | 0.6 | day |
-
-  Values blend over 4° at each border, the palette stepping through its in-between rows (A11.3).
-- **Day and night at speed** (`VIS-14`): from the region stop outward, and whenever a game day passes in under about 10 real seconds, light is averaged over the day, so nothing flashes: the palette row between day and night by the night's share for the place and season, shadows held at the season's noon sun, cloud and fog averaged over the same day.
-  Closer in and slower, day and night are drawn as they are, at `T_d`; a switch between the two eases over 1 real second.
+- **Sun and moon** come from `kd_core::sky::sun_moon(game_time, lat, lon, &sky) -> SkyState` (sun and moon directions, the moon's phase; `sky` the world's tilt and moon cycles, A3.7), the one sun-and-moon function, which A5's weather and A9's calendars share (`WLD-07`); until the clock arrives (`MIL-01`'s time alpha), the app sets the hour.
+- **The air model** (`kd-render`'s `light` module), from the sun's height `h`, per colour channel at 680, 550 and 440 nm:
+  - the air mass `m(h)` by Kasten and Young's formula (1 overhead, 37.9 at the horizon);
+  - zenith optical depths: Rayleigh scattering 0.041, 0.097 and 0.243; the haze aerosol `β λ^−1.3` with `β` the air's turbidity (0.04 clear, 0.12 hazy; from weather when it comes, `WLD-16`), 0.066, 0.087 and 0.116 when clear; ozone's Chappuis band 0.020, 0.027 and 0.002;
+  - the **sun's light** facing it: `exp(−m τ)` of the sun's white: near white at noon, golden at 15°, red near the horizon;
+  - the **sky's light** on level ground: `sin h` × (half of what Rayleigh scattering takes from the beam, and 0.7 of what the aerosol takes), blue by day and paler and brighter round a low sun;
+  - **twilight**, from the horizon to −12°: no sun; the sky's light falls by `e` every 1.2° and turns toward blue (ozone);
+  - **night:** the moon as a second sun of its own colour (white tinged blue) and phase, weakened 400,000 times against the sun, and starlight; until the moon comes (`MIL-04`) a half moon.
+  Why: one model gives every hour, season and latitude its own colours, as `PRE-30`'s palette versions and shadows by hour, season and latitude need; presets per time of day could not blend or follow latitude.
+- **Exposure** follows the light partly, as eyes do: the scene's light is scaled by the inverse of the global light on level ground raised to 0.85, so night stays darker than day but readable; under a ten-thousandth of noon's light (deep twilight), colours lose saturation toward blue-grey (rod vision), fully by a ten-millionth (a moonless night).
+- **Tone:** per channel, a filmic curve (Narkowicz's fit of ACES) after exposure, then sRGB, which keeps sunlit colours saturated and rolls bright ones off without clipping.
+- **Palette versions** (`PRE-30`): the model at dawn, day, dusk and night in each season and latitude is the "master palette with versions"; the row in use is the model at the displayed time (A11.3).
+- **Day and night at speed** (`VIS-14`): from the region stop outward, and whenever a game day passes in under about 10 real seconds, light is averaged over the day, so nothing flashes: the model's sun and sky light averaged over the place's day, shadows held at the season's noon sun, cloud and fog averaged over the same day.
+  Closer in and slower, light follows `T_d`; a switch between the two eases over 1 real second.
   Seasons blend over a season's first two game days, and hold a steady mix of all four when one passes in under 10 real seconds.
-- **Fires** (`MAT-18`): up to 8 fire lights a frame, the strongest by heat and nearness to the view centre, of strength by heat (embers 0.25, small 0.6, campfire 0.95, kiln or furnace 0.6 through its openings) times the fire column above, flickering by the mockup's three sines in steps of a twelfth; flames, smoke and puffs are `fxFS` modes 0, 3 and 1, embers one-pixel points; green wood smokes thicker.
+- **Shadows** (`PRE-30`): the ground's from its sun field (A11.5), things' and figures' from pass 1.
+  A shadow's edge softens with its caster's distance as the sun's disc (0.53°) makes it: the field keeps each point's caster distance `d`, and the sunlit share ramps over `d × 0.0093` m, which the step bands draw as dither where that spans pixels and as a hard edge where it does not.
+- **Sky light** reaches a point by the share of the sky its horizon leaves open (A11.5's sky field), so hollows, gullies and a cliff's foot are darker and cooler than open ground.
+- **Air** (`PRE-30`: distance adds haze): the view is given an eye at the distance where a 40° perspective view would span the same width (1.37 times the view's width); each pixel's ray runs from its point to that eye's plane, and its optical depth integrates the air's density, falling with height (aerosol over 1.2 km, Rayleigh over 8 km), in closed form.
+  Its haze, `1 − exp(−depth)`, is quantised into levels 0–3 at 0.1, 0.25 and 0.45 with the same narrow dither bands, and post maps each level through its table.
+  The haze's colour is the light the air scatters toward the eye: the sky's light, plus the sun's by the angle between the view and the sun (Rayleigh's phase, and Henyey and Greenstein's with `g` 0.7 for the aerosol), so looking toward a low sun warms the distance and looking away cools it; it is one colour a frame, since every ray of an orthographic view is parallel.
+  So at the camp stop air is all but clear, at the valley stop it gives depth, and at the region stop it veils the land, as from a mountain or a plane.
+- **Light shafts** (with mist and smoke, `MIL-03`): where mist or smoke thickens the air, the scene marches each pixel's ray through the sun field in 8 steps and adds the lit air's share as haze toward the sun's colour, so shafts fall through gaps in cliffs and trees; in clear air they stay invisible, as in life (`PRN-10`).
+- **Glow** (fires `MIL-03`, glints on water `MIL-04`): an emissive pixel sets the glow flag; post steps the colours within 1 and 3 art pixels of glowing pixels through glow tables 2 and 1, in hard rings, never blurred (`PRE-01`).
+- **Fires** (`MAT-18`): up to 8 fire lights a frame, the strongest by heat and nearness to the view centre, of strength by heat (embers 0.25, small 0.6, campfire 0.95, kiln or furnace 0.6 through its openings) times the fire column above, flickering by three seeded sines in steps of a twelfth; each adds its warm light to the sun factor's lightness and takes the warm tables (A11.3); flames, smoke and puffs are emissive and translucent sprites, embers one-pixel points; green wood smokes thicker.
 - **Inside** caves and overhangs, sky light falls as `exp(−d / 3 m)` with distance from open air (`PRE-24`).
-- **Weather** at the camera: cloud lowers the sun by up to 0.7 and ends shadows above 0.8 cover; fog raises haze up to 2 and adds mist wisps (`fxFS` mode 2); rain and snow are falling one-pixel points, up to 1,500 a frame, placed by a hash of the weather cell and time step, below 2 m art pixels.
-- **Lightning** is a jagged bolt line for two frames; the picture flashes (one frame of the `lighter` table) only at speeds up to a game hour a real second and at most once a real second, so the screen never strobes.
-- **Decision:** the sky is not drawn, since the camera looks down at every stop; the sun and moon act through light and shadow, an eclipse dims the light, and stars and comets (`WLD-07`) show round the globe; why: a sky band needs a second camera model; fallback: a sky strip at the person stop.
+- **Weather** at the camera: cloud dims the sun's light and widens the penumbra, and ends shadows above 0.8 cover; fog thickens the air (above), adding light shafts; rain and snow are falling one-pixel points, up to 1,500 a frame, placed by a hash of the weather cell and time step, below 2 m art pixels.
+- **Lightning** is a jagged bolt line for two frames; the picture flashes (one frame of the glow table) only at speeds up to a game hour a real second and at most once a real second, so the screen never strobes.
+- **Decision:** no sky is drawn as a backdrop, since the camera looks down at every stop; the sun and moon act through light, shadow, air and reflections (A11.6), an eclipse dims the light, and stars and comets (`WLD-07`) show round the globe; why: a sky band needs a second camera model; fallback: a sky strip at the person stop.
 
-Tested by: no light value jumps over 0.05 across borders; at the valley's speed, and paused at the region stop, mean brightness varies under 2% over 10 real seconds, while at the camp's speed it follows the hour; one place at dawn, noon, dusk and night, in summer and winter, shows each palette and its shadows (`PRE-30`).
-First needed: day, night and seasons `MIL-01`; fire and weather `MIL-03`; moon, eclipses and comets `MIL-04`.
+Tested by: the sun's colour at 60°, 15° and 3° and the sky's at noon match the model's formula; no light value jumps over 0.05 across the twilight's borders; mean brightness at dusk below day's and at night below dusk's; at the valley's speed, and paused at the region stop, mean brightness varies under 2% over 10 real seconds, while at the camp's speed it follows the hour; haze grows with the air's path and is warmer toward the sun; one place at dawn, noon, dusk and night, in summer and winter, shows each palette and its shadows (`PRE-30`).
+First needed: day and night `MIL-01`; seasons, fire and weather `MIL-03`; moon, eclipses and comets `MIL-04`.
 
 ### A11.5 The ground at every zoom stop
 
 | Stop (`PRE-03`) | Zoom | Art pixel | Across, portrait | Ground from | Beings (`PRE-28`) |
 |---|---|---|---|---|---|
-| person | 0.00 | 0.03 m | 8 m | view areas, 1 m grid, 0.5 m on cliffs | full figures, double resolution |
-| close camp | 0.14 | 0.13 m | 35 m (20–50) | view areas, 1 m | full figures |
-| camp | 0.30 | 1.1 m | 300 m | view areas, 2 m | tiny figures |
+| person | 0.00 | 0.03 m | 8 m | view areas | full figures, double resolution |
+| close camp | 0.14 | 0.13 m | 35 m (20–50) | view areas | full figures |
+| camp | 0.30 | 1.1 m | 300 m | view areas | tiny figures |
 | valley | 0.50 | 37 m | 10 km | coarse ground, map look | group and herd marks, camp points |
 | region | 0.68 | 370 m | 100 km | world cells | camp points |
 | world map | 0.84 | 7.6 km | whole width | map texture | camp points |
 | globe | 1.00 | about 2.9 km | the sphere | map texture on a sphere | camp points |
 
-Tiny figures are full figures enlarged to at least 6 art pixels tall (as `drawActors`) up to 1.6 m art pixels; then groups and herds become 5 × 5 marks, and camps 1–3 pixel points that glow with a fire, down to the globe (`Planet.overlay`).
-Every switch is a dither dissolve with ±6% hysteresis (`Trees.stepFade`), at thresholds tuned from these.
+Tiny figures are full figures enlarged to at least 6 art pixels tall up to 1.6 m art pixels; then groups and herds become 5 × 5 marks, and camps 1–3 pixel points that glow with a fire, down to the globe.
+Every change of form is a dissolve by seeded importance over 12% of the art pixel's size, each item changing on its own (A11.1's rule 3).
 
 **View areas** (camp stop inward, within about 300 m of where the camera looks, A5.5's bounds; `WLD-12`):
 - `kd-app`'s **view builders** make each area with A5's picture function `area::make_for_picture(cx: &AreaCtx, a: AreaId, order: &[Bucket], out: &mut AreaPicture) -> Progress`, its `AreaCtx` carrying the seed, the cell and its neighbours, the date and any kept record as a `RecordView` (A5.3, A5.5), bucket by bucket nearest the view centre first.
@@ -3387,63 +3419,82 @@ Every switch is a dither dissolve with ±6% hysteresis (`Trees.stepFade`), at th
 - **Decision:** `make_for_picture` applies a kept area's record (marks, patch sets, layers) exactly as the simulation's point reads do, reading the snapshot's live record or a dormant area's `KeptView` through the same `RecordView` (A5.5); the builders lay on only things, figures and fires, plus marks newer than the record version the picture was made from, by their own shapes (a pit or grave lowers the ground, a heap raises it, a path, plot or burn sets surface flags, a stump replaces its plant, soot darkens the rock above a fire), until the picture is remade; why: one rule applies a record, so a pit is lowered once, never twice or not at all; fallback: none needed.
 - A dormant kept area is drawn from its block, which the builders read through kd-save's read-only `Blocks` and bring to `T_d` with `kd-sim`'s `kept_view` on copies (A5.4), so old camps, graves and heaps show their marks and looking wakes nothing (`WLD-13`).
 - **Decision:** two builder threads, one per small core, below the audio thread's priority, never touching world state; why: an area by a cliff takes up to 0.55 s on a small core; fallback: 2 ms slices on the GL thread, as always on the web, where A2.6's simulation budget subtracts them.
-- Costs on a small core (A5.5 × 1.33): an area's picture ≤ 55 ms, or ≤ 0.55 s by a cliff or cave; its meshes, by 16 m bucket nearest the view centre first, ≤ 0.07 ms a bucket as height field, ≤ 3 ms of 3D pieces at 1 m, ≤ 12 ms at 0.5 m (estimates, measured at `MIL-01` by a pan along the cliff at camp zoom).
+- Costs on a small core (A5.5 × 1.33): an area's picture ≤ 55 ms, or ≤ 0.55 s by a cliff or cave; its meshes and fields, by 16 m bucket nearest the view centre first, ≤ 0.07 ms a bucket as height field, ≤ 3 ms of 3D pieces at 1 m, ≤ 12 ms at 0.5 m, and its sky field ≤ 20 ms (estimates, measured at `MIL-01` by a pan along the cliff at camp zoom).
   So the view centre's detail lands within about 0.1 s, or 0.6 s by a cliff, and a camp view (about 12 areas, a quarter by the cliff) within about 1.5 s.
   A pinch inward starts the area under the view centre as the zoom nears the camp stop, so a pinch to one person has its detail within about a second (`PRE-03`).
 - **Fallback from `MIL-01`:** until an area's picture and meshes are ready, or whenever the builders fall behind, its land is coarse ground (below), never void, and the detail dissolves in when ready (`PRE-03`); no frame waits for a builder.
 - View areas and their meshes stay within A11.11's memory lines, dropped beyond 1.5 km, never saved (A14.1).
 
-**Height-field chunks** (`buildGrid`): 64 m square, one vertex spacing a frame since the view is orthographic: 1 m below 0.6 m art pixels, 2 m below 1.3, 4 m below 2.6, else 8 m.
-Vertices (20 bytes) carry A5's surface material and a byte each of water distance, wear, cover and flags, in place of the mockup's `aA` and `aB`; normals come from heights blurred three times; 4 m skirts hide edges (`addSkirts`).
-The ground shader reads the surface per pixel from the area's surface map (a byte a square metre), the surface weighing most among the four nearest squares, with edges wandering a little by noise fixed to the world, since a surface blended across a triangle draws surfaces the rule never placed (α01b's review).
-The **ground shader** ports `terrainFS`, with a row of `data/models/surfaces.md` per surface material (ladder by season, stone density and size, flags for grikes, ash, gravel, mud, sand) in place of the mockup's fixed choices; ground cover is drawn by the picture's 4 m patches (kind, density, season state) as tuft and flower stamps below 0.095 m art pixels (`stampTuft`, `stampStone`, `PRE-46`); upward faces take the snow ladder by each vertex's snow (`WLD-16`).
+**The height field** (A11.1's rule 3): each area's heights are a 257 × 257 `R32F` texture, 1 m apart.
+- **Mesh:** one shared grid patch of 16 × 16 quads is drawn over each 16-quad square of the loaded ground at spacing `s = 2^k` m, the smallest with `s ≥ 1.25 × texel` and `s ≥ 1`, so triangles stay one to two art pixels across; every vertex reads its height from the texture.
+  Over the upper half of each spacing's range, the odd vertices slide onto the line between their even neighbours, which is the next spacing's mesh, so at a switch the two meshes coincide and nothing jumps (continuous level of detail, as Strugar's CDLOD; one spacing serves the whole view, since every art pixel spans the same ground).
+  Why: α01b switched fixed 1, 2, 4 and 8 m meshes, and each switch reshaped the cliff and reshaded every slope.
+- **Normals per pixel:** the fragment shader takes the normal from the height texture (central differences of bilinear heights), plus the look's micro-relief (below), so light never follows the mesh's spacing.
+- 4 m skirts hang from the loaded ground's outer edge.
+
+**Light fields** (pass 0; `kd-render`'s `field` module, on the CPU, deterministic and unit-tested), covering the view areas' ground, with neighbours' heights read across area edges and coarse ground's beyond:
+- **Sun field:** for the current sun, each 1 m point's shadow height `H` (the height above which it sees the sun's centre) and its caster's distance `d`.
+  Heights are resampled onto a grid turned to the sun's azimuth, and along each of its rows a running maximum of `h(s′) − s′ tan e` from the sun's side gives `H` (and the arg-max gives `d`), O(n) a row, about a millisecond for an area of 257²; the result is resampled back.
+  The ground shader's sunlit share is `clamp((z − H + d × 0.0047) / (d × 0.0093), 0, 1)`: the visible part of the sun's disc (A11.4).
+  Recomputed when the sun moves by 0.1° or areas arrive, never within a frame; why: a fixed 1 m field compared per pixel draws shadow edges as smooth world-fixed curves at every zoom, which a shadow map, re-fitted to each view, did not (A11.1's rules 1 and 3).
+- **Sky field:** for each point the share of the sky dome its horizon leaves open, `V`, the mean of `cos² (horizon height)` over 16 directions, each direction's horizons found along lines by the upper convex hull of the profile behind, O(n log n); once per area, in its view builder.
+- Textures: the sun field `RG32F` (`H`, `d`), the sky field `R8`, both 1 m.
+
+**Surfaces** (`PRE-20`, A11.1's rule 2): each area's surfaces as coverage: per surface, its share of each square metre, four surfaces to an `RGBA8` texture, mipmapped; the shader reads them at the art pixel's footprint (mip level `log2(texel / 1 m)`) and takes the surface with the largest share, its edge wobbling by world-fixed noise whose octaves fade below four art pixels, so edges run smooth at every zoom and never shimmer.
+Each surface in `data/models/surfaces.md` names one to three looks: grass its lush and dry looks, split by a world-fixed noise of 24 m and 6 m octaves, so patches stay put and keep their edges; dirt, rock and scree their own.
+- **Micro-relief** (the "texture" of a look): band-limited noise added to the normal: grass clumps of 0.4–1.6 m, rock facets of 0.2–2 m, dirt clods of 0.3–1 m; each octave's strength times `smoothstep(2, 4, wavelength / texel)`.
+- **Stones and tufts** (`PRE-46`'s ground cover): each area's seeded list, by its surfaces' densities, of instanced meshes: stones as eight-faced rocks 0.05–0.6 m across, lit by the stone look; tufts as 3–5 blades at least an art pixel wide (the vertex shader widens them), lit by the grass's look; each has a seeded importance `u` and shows while it spans at least `1.5 + 2u` art pixels, so as the camera rises they thin out one by one; their footprint darkens the sky factor beneath them (contact shade).
+  Why: α01b stamped them as 2D shapes sized by the art pixel and rounded each frame, so they reshuffled as the camera zoomed.
 
 **Cliffs, overhangs and caves** (`PRE-23`, `PRE-24`):
 - A bucket with 3D pieces, or a height step over 1.5 m, drops its height-field quads and is meshed by **surface nets** on the picture's pieces: z crossings exact from their decimetre air gaps (A5.3), x and y crossings at midpoints, then one relaxation pass; corners every 1 m, 0.5 m at the two closest stops.
-  Why: one method gives rims, ledges, overhangs and caves without a 1 m staircase; fallback: the mockup's cliff-following grid and face (`faceRows`, `buildFace`, `buildCave`), fed with A5's escarpment line.
-- Faces over 50° use the **face shader** (`faceFS`): beds, partings, lips, joints and fissures from a strata row per area, made like `strataTextures()` and the mockup's `STRATA`, the cell's rock layers (A5.2) split into beds 0.3–3 m thick by a hash of cell and layer, each rock with its own ladder (`WLD-09`); water stains; soot from A5.4's soot marks; lichen; grass over grassy rims; the sunlit lip.
-  The mockup's `aF` (foot, rim, kind, cave depth) is computed while meshing, the cave depth by a flood fill through air up to 40 m.
-- Loose rocks are instanced `blockMesh` and `rockMesh`; roofs in front of the view centre fade out at the two closest stops, as trees do (`Trees.stepCut`), so you see into huts (`PRE-24`).
+  Why: one method gives rims, ledges, overhangs and caves without a 1 m staircase; fallback: a cliff-following grid and face fed with A5's escarpment line.
+- Faces over 50° take the **face looks**: beds, partings, lips, joints and fissures from a strata row per area, the cell's rock layers (A5.2) split into beds 0.3–3 m thick by a hash of cell and layer, each rock with its own look (`WLD-09`); water stains; soot from A5.4's soot marks; lichen; grass over grassy rims; the sunlit lip.
+  Each face vertex carries its foot, rim, kind and cave depth, computed while meshing, the cave depth by a flood fill through air up to 40 m.
+- Loose rocks are instanced meshes; roofs in front of the view centre dissolve at the two closest stops, as trees do, so you see into huts (`PRE-24`).
 
 **Coarse ground** (out to about 10 km, A5.5's bounds; the valley stop, and from `MIL-01` the placeholder nearer in): A5's `cells::coarse_ground(cx: &CellCtx, c: CellIx) -> Ground` gives a cell's ground as 33 × 33 heights every 32 m, equal to its areas' heights at those points, and `plants::density(st: &CellState, group: PlantGroup, date: GameTime) -> f32` its cover by plant group.
-It is batched in 4 km tiles and drawn by the ground shader's map-look branch (`mapIndex`, `uFar`): forest as single crowns on a 5 m grid, kept where a hash of the point is under the trees' density, while they span a few pixels, then flat cover; the map look dissolves in between 1.2 and 4.5 m art pixels as the camera tilts to straight down (`PRE-29`).
+It is batched in 4 km tiles and drawn by the ground's shader with the same light, fields and rules: cover as looks (forest as single crowns on a 5 m grid, kept where a hash of the point is under the trees' density, while they span a few pixels, then flat cover); the map look takes over between 1.2 and 4.5 m art pixels as the camera tilts toward straight down (`PRE-29`).
 **World cells** (region stop): tiles of 32 × 32 cells, coloured by cover, rock, wetness and water; before `MIL-04`, the void cells beyond the first region's sea are drawn as haze here and on the map and globe (A5.6).
 
 **World map and globe** (`WLD-02`): a 2,000 × 1,000 RGBA8 **map texture** (16-bit height, cover class, water flags, forest density) with A3.7's block levels 11–13, keeping cover by dominant class and water flags by any, chosen so a texel covers at least an art pixel.
-One lat–long mesh (256 × 128 quads) puts each vertex at `mix(flat, sphere, g)`; map and sphere share the equator's 2,048 km (radius 326 km), so the map wraps onto the globe as `g` goes from 0 to 1, with no cut (`PRE-03`); its shader ports `planetFS` (cover, relief against the season's noon sun, polar ice over the seam, rim, stars, comets), each latitude lit by its day's average light (A11.4) in place of a moving night side.
+One lat–long mesh (256 × 128 quads) puts each vertex at `mix(flat, sphere, g)`; map and sphere share the equator's 2,048 km (radius 326 km), so the map wraps onto the globe as `g` goes from 0 to 1, with no cut (`PRE-03`); its shader draws cover, relief against the season's noon sun, polar ice over the seam, a rim, stars and comets, each latitude lit by its day's average light (A11.4) in place of a moving night side.
 Rivers draining about 1,000 km² or more (tuned) are lines at least one art pixel wide at the region, map and globe stops, from A5's river table (`PRE-26`, `PRE-29`).
 
-**Cut-away** (`PRE-25`; `buildSection`, `sectFS`): along a line you draw (A12.2), a vertical section runs from 20 m below the lowest ground to the surface; scene shaders discard the camera's side (`cutTest`), and figures there are left out whole.
-It shows beds, soil (`WLD-27`), the water table (`WLD-17`) and burial layers from a section query (A12.3), with buried things near the plane as side-view icons at their depths (`MAT-08`), in place of the mockup's drawn ones.
+**Cut-away** (`PRE-25`): along a line you draw (A12.2), a vertical section runs from 20 m below the lowest ground to the surface; scene shaders discard the camera's side, and figures there are left out whole.
+It shows beds, soil (`WLD-27`), the water table (`WLD-17`) and burial layers from a section query (A12.3), with buried things near the plane as side-view icons at their depths (`MAT-08`).
 
-Tested by: builders against fixed areas (counts, hashes, matching chunk edges); surface nets watertight on 100 random pieces; an unchanged area's picture hashes equal to the simulation's area on that date, and coarse ground equals its areas' heights at its points (A5.5); the builders never write world state (layer check); A11.11's pinch from globe to person never stalls and has full detail within a second (`PRE-03`).
+Tested by: builders against fixed areas (counts, hashes, matching chunk edges); the mesh's morph keeps every vertex's height continuous across a spacing switch; the sun field matches a brute-force march within 0.05 m on fixed areas, and the sky field a 64-direction march within 0.02; surface nets watertight on 100 random pieces; an unchanged area's picture hashes equal to the simulation's area on that date, and coarse ground equals its areas' heights at its points (A5.5); the builders never write world state (layer check); A11.12's zoom and turn counts; A11.11's pinch from globe to person never stalls and has full detail within a second (`PRE-03`).
 First needed: view areas, cliffs, caves and coarse ground `MIL-01`; cells, map, globe and cut-away `MIL-04`.
 
 ### A11.6 Water
 
-- **Rivers** (`PRE-26`, `WLD-17`): ribbons four vertices across along A5's river lines (`buildWater`): in view areas a point every 1–2 m with half-widths, depth and flow, beyond them the cells' river table.
-  `waterVS`/`waterFS`: a deep middle, light shallows, flow lines drifting with the current, a lighter bank edge, riffles under 0.3 m deep (fords), sun glints; a river is widened to at least 0.95 art pixel each side and lifted 1.2 m while widened (`uMinHW`, `uLift`), so every river is at least one art pixel wide from the valley stop inward, and farther out those draining about 1,000 km² or more (tuned, `PRE-26`), the rest left out there.
-- **Lakes, floods and sea:** a water grid per chunk (4 m) at the water level with depth per vertex; ice takes the ice ladder; floods raise the level from the cells.
-- **Reeds:** strips never narrower than an art pixel, nodding in 8 steps a second (`Reeds`).
+- **Rivers** (`PRE-26`, `WLD-17`): ribbons four vertices across along A5's river lines: in view areas a point every 1–2 m with half-widths, depth and flow, beyond them the cells' river table.
+  A river is widened to at least 0.95 art pixel each side and lifted 1.2 m while widened, so every river is at least one art pixel wide from the valley stop inward, and farther out those draining about 1,000 km² or more (tuned, `PRE-26`), the rest left out there.
+- **The water's colour** (A11.4's light): what lies below, the bed's look darkened by depth (each metre keeps 0.80, 0.90 and 0.93 of the light) with a little of the water's own colour scattered back, mixed by Fresnel's term (Schlick's, 0.02 looking straight down) with what the surface reflects: the model's sky light in the mirrored direction, and things above the water (banks, cliffs, trees, figures) found by marching the mirrored ray through the scene's depth, 16 steps at art resolution.
+  The surface's normal comes from ripples carried by the flow, band-limited by A11.1's rule 2, with riffles where it runs under 0.3 m deep (fords) and lines that follow the current; the sun's glint shows where the half-vector meets the ripples' normal, as one or two glowing pixels (A11.4's glow).
+  The result takes the nearest step of the water's look, so water stays palette pixel art.
+- **Lakes, floods and sea:** a water grid per chunk (4 m) at the water level with depth per vertex; ice takes the ice look; floods raise the level from the cells.
+- **Reeds:** blades never narrower than an art pixel, nodding in 8 steps a second.
 
-Tested by: minimum width at every stop, for every river from the valley stop inward and for those draining about 1,000 km² or more beyond; flow lines run downhill.
+Tested by: minimum width at every stop, for every river from the valley stop inward and for those draining about 1,000 km² or more beyond; flow lines run downhill; a cliff beside still water shows in it, upside down; the glint lies on the sun's side.
 First needed: rivers and reeds `MIL-01`; lakes, sea, floods and ice `MIL-04`.
 
 ### A11.7 The model kit
 
 Everything is drawn from one fixed kit, so the content stays countable (`PRE-46`, `PRE-42`, `PRE-43`, `RSK-25`); models are catalogue entries in `data/models/` (A3.6).
 
-- **Voxel models** port `Vox.Model` (`set`, `box`, `ell`, `line`, `paint`) and its mesher `builder()`, which emits exposed faces only and keeps faces between bones; voxels are 0.073 m (the mockup's `VS`), and 0.0365 m for things under 0.5 m and for people at the person stop (`refine`).
-- **Low-poly generators** port `rockMesh`, `blockMesh`, `shrubMesh` and the trees' `ellipsoid`, `tube` and `tier`.
-- **Vertex**, 8 bytes: position, face or normal, a **material slot** 0–3 with a tone offset, a bone; an instance supplies four ladders, so one mesh serves every material (the mockup baked a ladder per voxel); a person's own mesh bakes its ladders.
+- **Voxel models** are built from boxes, ellipsoids and lines painted with material slots, and meshed into exposed faces only, keeping faces between bones; voxels are 0.073 m, about 2.4 art pixels at the person stop, and 0.0365 m for things under 0.5 m and for people at the person stop (refined).
+- **Low-poly generators** make seeded rocks and blocks, shrubs, and trees from ellipsoids, tubes and tiers.
+- **Vertex**, 8 bytes: position, face or normal, a **material slot** 0–3 with a tone offset, a bone; an instance supplies four looks (A11.3), so one mesh serves every material; a person's own mesh bakes its looks.
 
-| Kit part | What | Ported from | Count |
+| Kit part | What | Made from | Count |
 |---|---|---|---|
-| Shared shapes | one per form of `MAT-02`, sized and coloured by the thing | `rockMesh`, `Model.ell`, `line`, `Props.log`, `bones`, `flakes` | 12 |
-| Layouts | one per named result (`MAT-21`) | `Props.hideFrame`, `rack`, `woodpile`, `windbreak`, `hearth` | about 100 |
-| Plant forms | the 8 of `PRE-46` | `Trees.pine`, `birch`, `shrubMesh`, `Reeds`, `stampTuft` | 8 |
-| Body patterns | the 6 of `PRE-46` | `Vox.deer`, `wolf`; four new | 6 |
-| People | one figure, about 8 garment kinds, hair, beads, paint | `Vox.human`, `refine`, `attach` | 1 |
+| Shared shapes | one per form of `MAT-02`, sized and coloured by the thing | seeded rocks and blocks, ellipsoids, lines, logs, bones, flakes | 12 |
+| Layouts | one per named result (`MAT-21`) | the layout format's primitives (below) | about 100 |
+| Plant forms | the 8 of `PRE-46` | trunks, tiers and crowns; blades for grass and reeds | 8 |
+| Body patterns | the 6 of `PRE-46` | voxel bodies on at most 12 bones | 6 |
+| People | one figure, about 8 garment kinds, hair, beads, paint | a voxel body on 11 bones, refined at the person stop | 1 |
 
 **Layout format:** at most 4 drawn parts, each `{ role, slot, primitive, params, count, decorated }`, the role being an input role of the result's blueprint (`MAT-04`).
 - Primitives: `line`, `ring`, `sheet_between` (a skin between two lines, with sag), `cone`, `dome`, `box`, `heap`, `hang`; params in voxels, scaled by the size band; `count` a function of the amount band.
@@ -3458,9 +3509,9 @@ Everything is drawn from one fixed kit, so the content stays countable (`PRE-46`
 5. Each thing's own differences (proportions ±8%, lean ±4°, a tone step on 1 voxel in 8) come from `num::hash2(uid, salt)` (A3.3), so it looks the same every time; trees, bushes and rocks vary likewise, without style.
 
 - **Mesh cache:** key = model, each part's form and count band, size band, wear, quality band, style, variant 0–3; materials stay out of the key, and scale, lean, turn and tone vary per instance in the vertex shader, so 4 variants a key suffice; 128 MB, least recently used dropped.
-- **Batching:** things still for 10 game minutes are baked into their chunk's mesh by a view builder (`Figures.bake`), keeping each thing's pick index per vertex; others are instanced by cache key; heaps of chips, ash and bones are one-pixel points, one per about 20 items, at most 64 (`flakePts`).
+- **Batching:** things still for 10 game minutes are baked into their chunk's mesh by a view builder, keeping each thing's pick index per vertex; others are instanced by cache key; heaps of chips, ash and bones are one-pixel points, one per about 20 items, at most 64.
 - **Plants** (`WLD-31`): a species is numbers on its form (height, crown, trunk, ladders by season state and growth stage).
-  Trees are instanced by form, variant and level (the mockup's `aI0` and `aI1`, plus four ladders): two levels swap at 0.22 m art pixels, a third of 20–30 triangles serves trees under about 12 art pixels tall, and all dissolve into the map canopy at 1.25 m (`Trees.stepFade`); a tree in front of the view's subject fades out whole, its shadow staying (`stepCut`); herbs and flowers are tiny instanced models below 0.2 m.
+  Trees are instanced by form, variant and level (per instance: form, variant, level, turn, scale and four looks): two levels swap at 0.22 m art pixels, a third of 20–30 triangles serves trees under about 12 art pixels tall, and all dissolve into the map canopy at 1.25 m, each by its seeded importance (A11.1's rule 3); a tree in front of the view's subject fades out whole, its shadow staying; herbs and flowers are tiny instanced models below 0.2 m.
   **Decision:** an outer limit of 16,000 trees and bushes drawn as models, by bucket nearest the view centre, the rest as coarse ground's crowns; why: a dense forest at the camp stop holds up to about 18,000 in view; fallback: a lower limit, tuned at `MIL-01` by the dense-forest run (A11.11).
 - **Animals** (`WLD-32`, `BIO-19`): a species is its pattern's proportions, coat ladders (back, belly, pale patch) and antlers, horns or tusks as parametric lines (as `deer`); domestic kinds have their own look (`WLD-33`).
 - **People** (`PRE-27`): `human` builds each from height, build, age and sex, and `refine` doubles the resolution at the person stop (a face and hair); garments are worn in the materials used; hair, beads and paint follow the people's style; carved and clay figures reuse the person or animal shown, small, in their material (`PRE-46`).
@@ -3474,8 +3525,8 @@ First needed: shapes, the first region's plants, people `MIL-01`; first layouts 
 
 ### A11.8 Figures, herds and movements
 
-- **Bones:** people have the mockup's 11 (hips, torso, head, upper and lower arms and legs), and every pattern at most 12; `boneMats()` turns a pose (a rotation per bone and a lift) into matrices; held things hang on the lower arm or back (`attach`).
-- **Poses:** key poses are blended and stepped 10 times a second (`actorPose`, `blendPose`, `POSE_RATE`, `PRE-27`), plus one step on the frame a mark falls, showing that mark's key pose; a finished activity's last mark pose holds one step past its end.
+- **Bones:** people have 11 (hips, torso, head, upper and lower arms and legs), and every pattern at most 12; a pose (a rotation per bone and a lift) becomes bone matrices by walking the bones from the hips outward; held things hang on the lower arm or back.
+- **Poses:** key poses are blended and stepped 10 times a second (`PRE-27`), plus one step on the frame a mark falls, showing that mark's key pose; a finished activity's last mark pose holds one step past its end.
 - **The clock** is one `kd-view` function, `loop_phase(uid, act, shared, t_d, real_s, speed) -> f32`, which A13 also uses as its `AnimClock`.
   While the display speed is at most 4 times real, the phase follows display time: repeated work plays one loop per strike or step, each landing as it ends (`TIM-17`), shifted so its contact or stroke mark falls on that landing; other activities fit a whole number of loops into their planned length.
   So the strike pose, the flake and its tap share one frame (`TIM-10`, `SND-07`).
@@ -3503,7 +3554,7 @@ First needed: shapes, the first region's plants, people `MIL-01`; first layouts 
 - **Herds kept as counts** (A4.13, A7.7): each `HerdView` is drawn as its animals, each at the leg's place at `T_d` plus A7.8's `kd_core::motion::herd_offset(herd, ordinal, spread, t)`, keyed on the herd's uid and the animal's ordinal, wandering slowly by seed.
   They take no figure slots: each species and age class is one instanced mesh with 8 shared pose rows in the figure texture (graze, walk and rest at staggered phases), so a herd of any size costs one call per class in view; a tap gives `Pick::Herd`, and at the valley stop a herd is one 5 × 5 mark.
 
-Tested by: `boneMats` within 1e-6 of the mockup's; at real speed, in a run of strikes, each frame where a flake first shows also shows the contact pose; 1,000 figures at close camp draw in 2 calls a pass; each rule changes the movements it applies to; two figures out of step, two dancers in step; a herd coming within 1 km of a person shows no jump as its animals become individuals; on the model sheet at close camp, standing work, ground work, carrying, walking, resting, fighting and dancing are told apart (`PRE-44`).
+Tested by: bone matrices within 1e-6 of their composition written out by hand for three poses; at real speed, in a run of strikes, each frame where a flake first shows also shows the contact pose; 1,000 figures at close camp draw in 2 calls a pass; each rule changes the movements it applies to; two figures out of step, two dancers in step; a herd coming within 1 km of a person shows no jump as its animals become individuals; on the model sheet at close camp, standing work, ground work, carrying, walking, resting, fighting and dancing are told apart (`PRE-44`).
 First needed: walk, carry, eat, drink, sleep, talk, play, care, nursing, lying dead, gather `MIL-01`; other base actions, body signs, faces, and the first region's animals and herds `MIL-02` (`SCP-16`); heat and blowing `MIL-03`; hunting, swim, climb, and animals everywhere `MIL-04`; dances, gestures, rage, despair `MIL-05`.
 
 ### A11.9 What the simulation hands the renderer
@@ -3554,8 +3605,9 @@ First needed: `Base` at `MIL-01`; the fix at `MIL-01`'s stage review.
 
 | Budget | Target | Split |
 |---|---|---|
-| GPU (A16.2) | ≤ 4 ms | shadow 0.8, scene 2.2, post 0.3, crawl 0.2, upscale 0.2, UI 0.3 |
-| GL thread CPU | ≤ 2 ms | snapshot and poses 0.4, culling and draws 1.0, UI 0.4, uploads 0.2 |
+| GPU (A16.2) | ≤ 4 ms | object shadows 0.6, scene 2.4 (ground 1.0 with its fields, the rest 1.4), post 0.3, crawl 0.2, upscale 0.2, UI 0.3 |
+| GL thread CPU | ≤ 2 ms | snapshot and poses 0.4, culling and draws 0.9, UI 0.4, uploads 0.2, palette row and tables 0.1 (when the light moves) |
+| Light fields (CPU, pass 0) | sun field ≤ 2 ms an area when the sun moves 0.1°, off the GL thread where builders exist | sky field ≤ 20 ms an area, once, in its builder |
 | Triangles | scene ≤ 1.0 million, shadow ≤ 0.5 million | figures ≤ 400,000 faces; trees ≤ 500,000, at most 16,000 as models (A11.7); at the camp stop only trees within 300 m of the view centre cast shadows |
 | Draw calls | scene ≤ 250, shadow ≤ 150 | ground 100, water 10, things 60, trees 32, figures 2, herds 12 |
 | Late frames | ≤ 1%, none over 50 ms (`PLT-04`) | late = over 1.5 refresh periods |
@@ -3567,14 +3619,15 @@ First needed: `Base` at `MIL-01`; the fix at `MIL-01`'s stage review.
 - **The camp stop** (1.1 m art pixels, about 300 × 810 m of ground) was never measured, as B66 stopped at 0.5 m: its numbers above are budgets until the forest run at `MIL-01`, and if it misses them, the tree limit and then the shadow radius are lowered (`data/tuning/render.md`).
 - **Drawing less** (A16.6): a full frame only when the camera moves, input arrives or the picture changes; otherwise the last image is re-presented by the upscale alone (0.1 ms).
   Paused and untouched for 2 s, `kd-app` posts `Request::RenderMode(OnDemand)` (A2.2), which `GameView.setRenderMode` follows (A2.5); a touch or resume posts `Continuous`; overnight mode (`TIM-12`) draws a frame every 2 s, dimmed.
-- Over budget the frame stays whole and time slows (`PRN-11`); inside drawing the only fallback is a 1,024 shadow map after 2 s over the GPU budget, reported.
+- Over budget the frame stays whole and time slows (`PRN-11`); inside drawing the only fallback is a 1,024 object shadow map after 2 s over the GPU budget, reported.
 
 First needed: `MIL-01`.
 
 ### A11.12 Tests and screenshots
 
-- **CPU tests**, no GPU: snapping, palette and tables, meshers, layouts, poses and variants, `loop_phase`, icons, decals, pick tables.
-- **Golden scenes** in headless Chromium (Playwright with SwiftShader, as B66): at `?test=1`, `window.kd` (A12.4) loads fixed scenes (a palette card per row, a cliff with a cave, a turning figure, a ford, the model sheet), compared exactly with stored PNGs for that Chromium version.
+- **CPU tests**, no GPU: snapping and pitch, the light model, palette steps and tables, the light fields against brute-force marches, the mesh's morph, meshers, layouts, poses and variants, `loop_phase`, icons, decals, pick tables.
+- **Golden scenes** in headless Chromium (Playwright with SwiftShader, as B66): at `?test=1`, `window.kd` (A12.4) loads fixed scenes (a palette card per row, the valley at several hours, a cliff with a cave, a turning figure, a ford, the model sheet), compared exactly with stored PNGs for that Chromium version.
+- **Steadiness counts** (A11.1's rules), every alpha, with B66's crawl counter (A11.10): a pan changes no pixel but by whole-pixel moves; a slow turn and a slow zoom at the camp and close camp stops change at most the share of art pixels the alpha's note records, and never more than the previous alpha's by over a tenth without a note; each zoom step of 1% keeps every art pixel's look and step except along boundaries the resampled grid crosses.
 - **Screenshot set** (A15.11): each stop at dawn, noon, dusk and night, portrait and landscape, from the review worlds, every alpha, flagging shots over 5% changed; the owner's contact sheet (`PRE-31`) takes its shots from this set, plus the model sheet and three clips of people at work (30 frames at 10 a second).
 
 First needed: `MIL-01`.

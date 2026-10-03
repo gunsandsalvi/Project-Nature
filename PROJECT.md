@@ -2204,6 +2204,10 @@ The look you approved on the visual-style mockup, written to stand without any i
 - `PRE-30` **Light, time and season** *(Decided)*: One master palette with versions for dawn, day, dusk and night in each season; the sun casts real shadows by hour, season (`TIM-18`) and latitude (`WLD-01`), the sky tints everything, and distance adds haze.
   A fire is a warm, flickering light as bright as its heat (`MAT-18`), warming nearby faces and sending up smoke and embers.
   - **Done when:** one place at dawn, noon, dusk and night, in summer and winter, shows each palette and its shadows.
+  - **Proposed change:** Light follows the sun, the sky and the air, as in Minecraft's Vibrant Visuals: the sun's and the sky's colours come from the sun's height through the air, and the master palette's versions for dawn, day, dusk and night in each season are that light on every material.
+    The sun casts real shadows by hour, season (`TIM-18`) and latitude (`WLD-01`), sharp near what casts them and softer as they lengthen; shade takes the sky's colour and hollows are darker; distance adds haze, warmer toward the sun; water reflects the sky and what stands above it, and glints.
+    A fire is a warm, flickering light as bright as its heat (`MAT-18`), warming nearby faces, glowing, and sending up smoke and embers.
+    Why: you asked on 3 October 2026 for the look of Minecraft's Vibrant Visuals; the text above says what that look means here.
 
 - `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the globe down to one person chipping flint, through these stops, each with its speed in `TIM-01`:
   - **person:** about 8 m across, a person about 58 art pixels tall;
@@ -2871,7 +2875,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at the moment.
+- **Vibrant light** (`PRE-30`): light follows a model of the sun, the sky and the air, as in Minecraft's Vibrant Visuals (proposed on 3 October 2026, at your request).
 <!-- end generated -->
 
 ## 18. Glossary
