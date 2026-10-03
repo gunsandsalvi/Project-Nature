@@ -956,6 +956,7 @@ Why: one rule in one place can't drift, and the catalogue check proves every ent
 | in between | between | given by the entry, `{ life = "6 w", game = "10 d" }`, from 7 days up to the life length; a missing one fails the build |
 
 - **Decision:** squeezing starts at 85 days, where a sixth of the life length reaches two weeks, so no squeezed length is shorter than a real one.
+  With the exact factor 60/365, rounded down to the second, 85 days gives 13.97 days (1,207,232 s), 40 minutes under two weeks; from 85.2 days on, a squeezed length is two weeks or more (measured at α00b).
 - In-between items are `TIM-18`'s, each tuned: healing, starving, scurvy, long illness waits and courses (`BIO-05`, `BIO-09`, `BIO-13`); pregnancy becomes 45 game days (`BIO-15`).
 
 **Rates:** `"/d"` keeps the real chance or amount per day (eating, tiring, work, weather, accidents); `"/y"`, for what comes a few times a year in life (births, crops, outbreaks, droughts, floods, wildfires, quakes), comes as often per game year; deaths before old age come through tuned illness and birth risks (`BIO-04`), never more accidents.
