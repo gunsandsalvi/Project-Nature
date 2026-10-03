@@ -1,8 +1,9 @@
 //! Pass 2, the scene, and its art target (A11.2). In α00 the scene is a test card; the light card (α01a) and the
 //! ground (α01b) replace it.
 
+use crate::RenderError;
 use crate::gl::{self, Format, Program, State, Target};
-use crate::{RenderError, shaders};
+use crate::shaders::{self, Stage};
 
 /// The test card's layout, in art pixels from the screen's top-left corner; the shaders take these as generated
 /// defines (A11.13 rule 6).
@@ -10,7 +11,7 @@ pub mod card {
     pub const MARGIN: i32 = 4;
     pub const CHECKER: i32 = 32;
     pub const GREY_STEPS: i32 = 8;
-    pub const GREY_W: i32 = 16;
+    pub const GREY_W: i32 = 11;
     pub const GREY_Y: i32 = 44;
     pub const GREY_H: i32 = 16;
     pub const BAR_Y: i32 = 68;
@@ -65,8 +66,8 @@ impl ScenePass {
         let program = Program::new(
             gl,
             "test card",
-            &shaders::source(shaders::FULL_TARGET_VERT),
-            &shaders::source(shaders::TEST_CARD_FRAG),
+            &shaders::source(Stage::Vertex, shaders::FULL_TARGET_VERT),
+            &shaders::source(Stage::Fragment, shaders::TEST_CARD_FRAG),
         )?;
         let u_top_left = program.uniform(gl, "u_top_left");
         let u_bar_x = program.uniform(gl, "u_bar_x");

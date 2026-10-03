@@ -4,7 +4,7 @@
 use crate::RenderError;
 use crate::gl::{self, Program, State, Texture, unit};
 use crate::passes::scene::ArtView;
-use crate::shaders;
+use crate::shaders::{self, Stage};
 
 pub struct UpscalePass {
     program: Program,
@@ -17,8 +17,8 @@ impl UpscalePass {
         let program = Program::new(
             gl,
             "upscale",
-            &shaders::source(shaders::FULL_TARGET_VERT),
-            &shaders::source(shaders::UPSCALE_FRAG),
+            &shaders::source(Stage::Vertex, shaders::FULL_TARGET_VERT),
+            &shaders::source(Stage::Fragment, shaders::UPSCALE_FRAG),
         )?;
         program.set_sampler(gl, "u_art", unit::ART);
         let u_off = program.uniform(gl, "u_off");

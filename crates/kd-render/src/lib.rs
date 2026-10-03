@@ -26,12 +26,17 @@ pub enum RenderError {
 impl fmt::Display for RenderError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            RenderError::Shader { name, log } => write!(f, "shader {name} did not compile: {}", log.trim()),
-            RenderError::Link { name, log } => write!(f, "program {name} did not link: {}", log.trim()),
+            RenderError::Shader { name, log } => write!(f, "shader {name} did not compile: {}", clean(log)),
+            RenderError::Link { name, log } => write!(f, "program {name} did not link: {}", clean(log)),
             RenderError::Target(s) => write!(f, "render target: {s}"),
             RenderError::Gl(s) => write!(f, "GL: {s}"),
         }
     }
+}
+
+/// A driver's log without the NULs and blank ends some drivers add.
+fn clean(log: &str) -> &str {
+    log.trim_matches(|c: char| c == '\0' || c.is_whitespace())
 }
 
 /// One frame's inputs (A11.1); the camera, the light and the display time join with their alphas.

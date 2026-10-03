@@ -416,10 +416,10 @@ The build goes to `dist/web/` and is published as a private page, where WebAssem
 
 ```rust
 #[wasm_bindgen] impl WebApp {   // holds the App; one thread, so every call is direct
-    pub fn new(canvas: HtmlCanvasElement, files: js_sys::Map, dpr: f32) -> Result<WebApp, JsValue>;
+    pub fn new(canvas: HtmlCanvasElement, files: js_sys::Map) -> Result<WebApp, JsValue>;
     pub fn frame(&mut self, now_ms: f64);   // input, simulation within budget, snapshot, draw, audio
     pub fn pointer(&mut self, kind: u8, id: i32, x: f32, y: f32, t_ms: f64);
-    pub fn resize(&mut self, css_w: u32, css_h: u32, dpr: f32);
+    pub fn resize(&mut self, w_px: u32, h_px: u32);              // the canvas in device pixels
     pub fn pause(&mut self); pub fn resume(&mut self);
     pub fn take_writes(&mut self) -> js_sys::Array;               // (path, bytes or null) pairs: one transaction
     pub fn take_audio(&mut self) -> Option<js_sys::Float32Array>; // blocks for the worklet
@@ -430,7 +430,7 @@ The build goes to `dist/web/` and is published as a private page, where WebAssem
 ```
 
 - **Loop:** each `requestAnimationFrame` calls `frame`, which gives the simulation A4.12's budget, about 3–6 ms at 120 Hz on the phone (B66); the speed shown is the real one (`TIM-01`).
-- **WebGL2:** `alpha: false, antialias: false, depth: false, stencil: false, powerPreference: "high-performance"`; backing size = CSS size × `devicePixelRatio`; an art pixel is 4 device pixels; a lost context pauses drawing until `gl_ready` runs again; the GLSL ES 3.00 shaders are shared with the phone unchanged.
+- **WebGL2:** `alpha: false, antialias: false, depth: false, stencil: false, powerPreference: "high-performance"`; backing size = the canvas's size in device pixels (`devicePixelContentBoxSize` when it agrees with CSS size × `devicePixelRatio`, else that product rounded), so an art pixel is exactly 4 device pixels; a lost context pauses drawing until `gl_ready` runs again; the GLSL ES 3.00 shaders are shared with the phone unchanged.
 - **Audio:** an `AudioContext` at 48 kHz starts on the first touch (browsers block sound before one); about 80 ms of blocks stay queued; an underrun plays silence.
 - **Storage:** `IdbStorage` (A14.11, A14.12) keeps the world's files in memory, filled at start from IndexedDB (database `kindling`, store `files`, key = path) with the last world and the settings; the glue commits each frame's writes as one transaction, in order (`take_writes`), and a save lands whole because its manifest goes last; `free_bytes` is the browser's last estimate.
   Without IndexedDB the game runs in memory and says so.

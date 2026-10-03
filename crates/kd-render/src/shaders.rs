@@ -29,10 +29,21 @@ pub fn defines() -> String {
     s
 }
 
-/// A program stage's full source.
-pub fn source(body: &str) -> String {
+/// A program's stages.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Stage {
+    Vertex,
+    Fragment,
+}
+
+/// A stage's full source: `lib.glsl` sees `KD_VERTEX` or `KD_FRAGMENT`, so each stage gets only its own helpers.
+pub fn source(stage: Stage, body: &str) -> String {
+    let marker = match stage {
+        Stage::Vertex => "KD_VERTEX",
+        Stage::Fragment => "KD_FRAGMENT",
+    };
     format!(
-        "#version 300 es\nprecision highp float;\nprecision highp int;\nprecision highp sampler2D;\n{}{}\n{}",
+        "#version 300 es\nprecision highp float;\nprecision highp int;\nprecision highp sampler2D;\n#define {marker}\n{}{}\n{}",
         defines(),
         LIB,
         body
@@ -55,6 +66,10 @@ mod tests {
                 }
             }
         }
-        assert!(source("void main() {}").starts_with("#version 300 es\n"));
+        assert!(source(Stage::Vertex, "void main() {}").starts_with("#version 300 es\n"));
+        // A helper reading a fragment-only variable never reaches a vertex shader.
+        let vertex = source(Stage::Vertex, FULL_TARGET_VERT);
+        assert!(vertex.contains("#define KD_VERTEX") && !vertex.contains("#define KD_FRAGMENT"));
+        assert!(LIB.contains("#ifdef KD_FRAGMENT"));
     }
 }
