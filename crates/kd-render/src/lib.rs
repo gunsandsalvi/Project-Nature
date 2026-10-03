@@ -48,9 +48,18 @@ const BAND: f32 = 0.32;
 const DUSK_SUN_G: [f32; 2] = [-0.93, 0.37];
 const DUSK_SUN_EL_DEG: f32 = 21.0;
 const DUSK_HAZE: f32 = 1.0;
-/// The ground's patterns (patches, tufts, stones) take positions from the world's corner within blocks of this many
-/// metres (`uWorldOff`), so they stay put when the floating origin moves; a block's edge is the only seam.
-const WORLD_OFF_M: f64 = 8_192.0;
+/// The ground's patterns (patches, tufts, stones) take positions from the corner of the block of the world, this many
+/// ticks (8,192 m) a side, that holds the drawn area (`uWorldOff`), so they stay put wherever the floating origin
+/// lies; a block's edge is the only seam. The world is a whole number of blocks each way.
+const PATTERN_BLOCK: i32 = 8_192 * geo::TICKS_PER_M;
+
+/// `uWorldOff` for the area whose corner is `corner`, `area_off` metres from the floating origin (`uAreaOff`): what
+/// turns positions from the origin into positions from the corner of the pattern block holding the area, so the
+/// ground's patterns never depend on where the origin lies (α01b's second review).
+fn pattern_off(corner: geo::Pos, area_off: geo::Vec2) -> [f32; 2] {
+    let m = |v: i32| v.rem_euclid(PATTERN_BLOCK) as f32 / geo::TICKS_PER_M as f32;
+    [m(corner.x) - area_off.x, m(corner.y) - area_off.y]
+}
 
 /// Why the renderer could not start (A3.8): the shader's or linker's info log, or a GPU resource.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -478,13 +487,8 @@ impl Renderer {
                 }
                 None => g.f(gl, "uShadowOn", &[0.0]),
             }
-            // the patterns are fixed to the world: the origin's place within 8,192 m blocks of it
-            let o = cam.origin_m();
-            g.f(
-                gl,
-                "uWorldOff",
-                &[(o[0] % WORLD_OFF_M) as f32, (o[2] % WORLD_OFF_M) as f32],
-            );
+            // the patterns are fixed to the world: positions from the corner of the area's pattern block
+            g.f(gl, "uWorldOff", &pattern_off(self.ground.origin, d));
             g.f(gl, "uCamF", &cam.f);
             g.f(gl, "uDepthR", &[cam.near, 1.0 / (cam.far - cam.near)]);
             g.f(gl, "uHaze", &haze);
@@ -556,6 +560,68 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use super::Cat;
+    use kd_core::geo::{self, Pos, Vec2};
+
+    /// Where the ground shader's patterns read a point `a` metres from the corner of the area at `corner`, drawn from
+    /// the floating origin `origin`: `vWorld` (the point from the origin) plus `uWorldOff`.
+    fn pattern_p(corner: Pos, origin: Pos, a: [f32; 2]) -> [f32; 2] {
+        let d = geo::delta(origin, corner);
+        let off = super::pattern_off(corner, d);
+        [a[0] + d.x + off[0], a[1] + d.y + off[1]]
+    }
+
+    // checks: PRE-20 PRE-22
+    #[test]
+    fn patterns_stay_put_wherever_the_origin_lies() {
+        let block = super::PATTERN_BLOCK;
+        let near = |p: [f32; 2], q: [f32; 2]| (p[0] - q[0]).abs() < 1e-3 && (p[1] - q[1]).abs() < 1e-3;
+        // the demo area's corner lies on a block's corner (α01b's second review: from origins west or north of it,
+        // the patterns read positions 8,192 m away and jumped); and an area whose corner is off the blocks' corners
+        let corners = [
+            Pos {
+                x: 128 * block,
+                y: 48 * block,
+                z: 0,
+            },
+            Pos {
+                x: 128 * block + 768 * 256,
+                y: 48 * block + 3 * 65_536,
+                z: 0,
+            },
+        ];
+        let origins = [
+            (-256.0, 0.0),
+            (0.0, -256.0),
+            (-512.0, -256.0),
+            (256.0, 512.0),
+            (-3_072.0, 2_560.0),
+        ];
+        for corner in corners {
+            for a in [[0.0, 0.0], [10.5, 3.25], [255.75, 128.0]] {
+                let want = pattern_p(corner, corner, a);
+                for (x, y) in origins {
+                    let got = pattern_p(corner, geo::offset(corner, Vec2 { x, y }), a);
+                    assert!(
+                        near(got, want),
+                        "{a:?} from an origin at ({x}, {y}) m: {got:?}, not {want:?}"
+                    );
+                }
+            }
+        }
+        // two areas in one block put the same point at the same place in the patterns, so they meet without a seam
+        let west = Pos {
+            x: 128 * block + 256 * 256,
+            y: 48 * block,
+            z: 0,
+        };
+        let east = geo::offset(west, Vec2 { x: 256.0, y: 0.0 });
+        let origin = geo::offset(west, Vec2 { x: -100.0, y: 40.0 });
+        let (p, q) = (
+            pattern_p(west, origin, [300.0, 20.0]),
+            pattern_p(east, origin, [44.0, 20.0]),
+        );
+        assert!(near(p, q), "{p:?} and {q:?}");
+    }
 
     // checks: PRE-21
     #[test]

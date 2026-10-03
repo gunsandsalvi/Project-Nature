@@ -288,11 +288,13 @@ impl App {
     }
 
     /// The camera (the web test hook): its target as (x, y) metres from the ground's corner and its height, its
-    /// turn, its zoom, metres per art pixel, and where the target lies within its art pixel along right and up.
-    pub fn camera(&self) -> [f32; 8] {
+    /// turn, its zoom, metres per art pixel, where the target lies within its art pixel along right and up, and the
+    /// floating origin as (x, y) metres from the ground's corner.
+    pub fn camera(&self) -> [f32; 10] {
         let p = self.ctl.pose;
         let d = kd_core::geo::delta(self.ground.origin, p.target);
         let c = kd_render::camera::compute(&p, self.art(), 0.0, 1.0);
+        let o = kd_core::geo::delta(self.ground.origin, c.origin);
         [
             d.x,
             d.y,
@@ -302,6 +304,8 @@ impl App {
             c.texel,
             c.frac[0],
             c.frac[1],
+            o.x,
+            o.y,
         ]
     }
 

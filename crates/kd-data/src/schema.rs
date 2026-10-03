@@ -98,7 +98,8 @@ pub struct LightTable {
     pub keep_colours: Vec<String>,
 }
 
-/// A mark of a surface's ground (A11.5): grikes in limestone, ash, gravel, mud or sand; the ground shader draws each.
+/// A mark of a surface's ground (A11.5): grikes in limestone, ash, gravel, mud or sand; the ground shader is to draw
+/// each, and reads none yet.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SurfaceFlag {

@@ -125,8 +125,8 @@ vec4 packOut(float idx, float cat, float flags) {
 /* Tiny grass tufts: points fixed in the world, each drawn as the same few pixels on screen.
    Returns 2 = highlight, 1 = mid, -1 = shadow, 0 = none. */
 // uView is the scene pass's viewport (x, y, width, height): the projection spans its width and height (A11.2).
-// The stamps take positions fixed to the world (metres from the floating origin plus uWorldOff, where the origin lies
-// within an 8,192 m block of the world) and take uWorldOff off again to project them with uVP.
+// The stamps take positions fixed to the world (metres from the floating origin plus uWorldOff: metres from the corner
+// of the 8,192 m block of the world that holds the drawn area) and take uWorldOff off again to project them with uVP.
 uniform mat4 uVP; uniform vec4 uView; uniform vec2 uWorldOff;
 vec2 pixelOf(vec4 q) { return floor((q.xy / q.w * 0.5 + 0.5) * uView.zw + uView.xy); }
 float stampTuft(vec2 p, float z, float cell, float dens) {

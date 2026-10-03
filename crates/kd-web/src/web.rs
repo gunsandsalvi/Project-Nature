@@ -154,8 +154,9 @@ impl WebApp {
         self.app.golden(name)
     }
 
-    /// The camera: x and y metres from the ground's corner, its height, turn and zoom, metres per art pixel, and its
-    /// place within an art pixel (the test hook's `camera()`).
+    /// The camera: x and y metres from the ground's corner, its height, turn and zoom, metres per art pixel, its
+    /// place within an art pixel, and the floating origin's x and y from the ground's corner (the test hook's
+    /// `camera()`).
     pub fn camera(&self) -> Vec<f32> {
         self.app.camera().to_vec()
     }

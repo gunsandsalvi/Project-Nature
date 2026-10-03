@@ -88,8 +88,8 @@ async function main() {
     // A12.4's test hook, grown later: shot() is the canvas as a PNG data URL right after the next frame is drawn;
     // golden(name) freezes time and the camera on a fixed scene (A11.12); palette() is the current row's colours;
     // camera(pose) reads or sets the camera (x, y and z metres, z left out for the ground's height; fx and fy are
-    // the target's place within its art pixel); ready() is true once the ground has drawn; frame(n) waits n frames;
-    // crawl(o) runs B66's crawl count (A11.10).
+    // the target's place within its art pixel, ox and oy the floating origin's metres from the ground's corner);
+    // ready() is true once the ground has drawn; frame(n) waits n frames; crawl(o) runs B66's crawl count (A11.10).
     const shot = () => new Promise((res) => { afterFrame.push(() => res(canvas.toDataURL('image/png'))); });
     window.kd = {
       ready: () => app.ready(),
@@ -110,8 +110,8 @@ async function main() {
       glMs: () => app.gl_ms(),
       camera: (p) => {
         if (p) app.set_camera(p.x, p.y, p.z, p.yaw, p.zoom);
-        const [x, y, z, yaw, zoom, texel, fx, fy] = Array.from(app.camera());
-        return { x, y, z, yaw, zoom, texel, fx, fy };
+        const [x, y, z, yaw, zoom, texel, fx, fy, ox, oy] = Array.from(app.camera());
+        return { x, y, z, yaw, zoom, texel, fx, fy, ox, oy };
       },
     };
   }

@@ -51,16 +51,18 @@ try {
 
   // checks: PRE-22
   // A pan of one art pixel to the right moves the whole picture exactly 4 screen pixels left (A11.2's test): the art
-  // grid stays on the ground, both inside an area and where the pan moves the floating origin to the next area's
-  // corner (at x 128 m). A drag keeps the target's height, so the pan here does too.
-  const pan = async (x0) => {
-    await page.evaluate((x) => window.kd.camera({ x, y: 150, yaw: 0, zoom: 0.2 }), x0);
-    let c = await page.evaluate(() => window.kd.camera());
+  // grid and the ground's patterns stay on the ground, both where the floating origin stays put and where the pan
+  // crosses the edge of the view's block and the origin moves to another area's corner (α01b's second review). The
+  // hook reports the origin, so the check knows it moved. A drag keeps the target's height, so the pans here do too.
+  const Y = 150;
+  const aim = (x, z, zoom) => page.evaluate((p) => window.kd.camera(p), { x, y: Y, z, yaw: 0, zoom });
+  const pan = async (x0, zoom, z) => {
+    let c = await aim(x0, z, zoom);
     // the target mid-pixel first, so rounding the move to whole ticks of 1/256 m cannot cross a pixel's edge
-    c = await page.evaluate((c) => window.kd.camera({ x: c.x + (0.5 - c.fx) * c.texel, y: c.y, z: c.z, yaw: c.yaw, zoom: c.zoom }), c);
+    c = await aim(c.x + (0.5 - c.fx) * c.texel, c.z, zoom);
     await page.evaluate(() => window.kd.frame(2));
     const A = await pixels(page, await page.screenshot());
-    await page.evaluate((c) => window.kd.camera({ x: c.x + c.texel, y: c.y, z: c.z, yaw: c.yaw, zoom: c.zoom }), c);
+    const d = await aim(c.x + c.texel, c.z, zoom);
     await page.evaluate(() => window.kd.frame(2));
     const B = await pixels(page, await page.screenshot());
     let bad = 0, n = 0;
@@ -72,12 +74,34 @@ try {
         if (A.data[a] !== B.data[b] || A.data[a + 1] !== B.data[b + 1] || A.data[a + 2] !== B.data[b + 2]) bad++;
       }
     }
-    return { bad, n, x: c.x, texel: c.texel };
+    return { bad, n, x: c.x, texel: c.texel, moved: c.ox !== d.ox || c.oy !== d.oy, from: [c.ox, c.oy], to: [d.ox, d.oy] };
   };
-  const inside = await pan(100);
-  const across = await pan(128 - inside.texel / 2);
-  check('pan stays crisp', inside.n > 0 && inside.bad === 0 && across.bad === 0,
-    `${inside.bad} and ${across.bad} of ${inside.n} pixels not where a 4-pixel shift puts them, from x ${inside.x.toFixed(2)} and ${across.x.toFixed(2)} m (texel ${inside.texel.toFixed(3)} m)`);
+  // where, at the camp stop's zoom, a pan east from x 40 m first moves the origin: whole blocks east until it has
+  // moved, then halves of the step back to within a twentieth of an art pixel of the block's edge. There the origin
+  // moves from west of the ground's corner to east of it, across the edge of a block of the ground's patterns, where
+  // they jumped before α01b's second review.
+  const CAMP = 0.3;
+  const findMove = async () => {
+    const c0 = await aim(40, undefined, CAMP);
+    const moved = (c) => c.ox !== c0.ox || c.oy !== c0.oy;
+    let lo = c0.x, hi = c0.x;
+    for (let k = 0; k < 8; k++) {
+      hi = lo + 512 * c0.texel;
+      if (moved(await aim(hi, c0.z, CAMP))) break;
+      lo = hi;
+    }
+    while (hi - lo > c0.texel / 20) {
+      const mid = (lo + hi) / 2;
+      if (moved(await aim(mid, c0.z, CAMP))) hi = mid; else lo = mid;
+    }
+    return { edge: hi, texel: c0.texel, z: c0.z };
+  };
+  const inside = await pan(100, 0.2);
+  const m = await findMove();
+  const across = await pan(m.edge - m.texel / 2, CAMP, m.z);
+  check('pan stays crisp', inside.n > 0 && inside.bad === 0 && !inside.moved && across.bad === 0 && across.moved,
+    `${inside.bad} of ${inside.n} pixels not where a 4-pixel shift puts them from x ${inside.x.toFixed(2)} m (zoom 0.20, texel ${inside.texel.toFixed(3)} m, origin kept); ` +
+    `${across.bad} from x ${across.x.toFixed(2)} m (zoom 0.30, texel ${across.texel.toFixed(3)} m, origin ${across.moved ? 'moved' : 'NOT moved'} from (${across.from}) to (${across.to}) m)`);
 
   // checks: PRE-33
   // B66's gesture checks, with touch-type pointer events on the canvas; each starts from the same view.

@@ -1,6 +1,6 @@
 use super::*;
 
-// checks: WLD-12 PRE-23
+// checks: WLD-12
 #[test]
 fn window_holds_the_cliff() {
     let a = demo_area(99);
