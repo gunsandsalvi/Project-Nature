@@ -4,9 +4,9 @@
 //!
 //! Implements PRE-32, see A12.1: the strip and the version line, nothing else on screen.
 
-use kd_view::{FontAtlas, UiDrawList, UiItem};
+use kd_view::{FontAtlas, UiDrawList};
 
-use crate::font::run;
+use crate::draw;
 
 /// The strip's height in UI pixels.
 pub const HEIGHT: i32 = 24;
@@ -92,26 +92,10 @@ impl Strip {
             return;
         }
         let (at, size) = Strip::rect(screen, inset_bottom);
-        list.items.push(UiItem::Rect {
-            at,
-            size,
-            colour: c.panel,
-            fade,
-        });
-        list.items.push(UiItem::Rect {
-            at,
-            size: [size[0], 1],
-            colour: c.line,
-            fade,
-        });
-        for (text, dy, colour) in [(hour, 1, c.text), (version, 12, c.dim)] {
-            list.items.push(UiItem::Text {
-                at: [TEXT_X, at[1] + dy],
-                colour,
-                fade,
-                glyphs: run(font, text),
-            });
-        }
+        draw::rect(list, at, size, c.panel, fade);
+        draw::rect(list, at, [size[0], 1], c.line, fade);
+        draw::text(list, font, [TEXT_X, at[1] + 1], c.text, fade, hour);
+        draw::text(list, font, [TEXT_X, at[1] + 12], c.dim, fade, version);
     }
 }
 

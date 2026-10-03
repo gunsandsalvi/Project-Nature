@@ -17,7 +17,7 @@ use kd_render::passes::scene::card;
 use kd_render::{ART_SCALE, Frame, Renderer};
 use kd_ui::strip::Colours;
 use kd_ui::{Ui, UiAction};
-use kd_view::{FontAtlas, InputEvent, Insets, UiDrawList, UiItem};
+use kd_view::{FontAtlas, InputEvent, Insets, UiDrawList};
 
 pub use json::requests_json;
 
@@ -384,12 +384,14 @@ impl App {
             for (row, look) in cat.looks.iter().take(card::MAX_LOOKS).enumerate() {
                 // The cell's cap height starts two rows down, on the row's name line.
                 let y = card::MARGIN + row as i32 * card::ROW - 2;
-                list.items.push(UiItem::Text {
-                    at: [card::MARGIN, y],
-                    colour: self.colours.text,
-                    fade: 1.0,
-                    glyphs: kd_ui::font::run(&self.font, &look.name),
-                });
+                kd_ui::draw::text(
+                    &mut list,
+                    &self.font,
+                    [card::MARGIN, y],
+                    self.colours.text,
+                    1.0,
+                    &look.name,
+                );
             }
         }
         if self.golden.is_some() {

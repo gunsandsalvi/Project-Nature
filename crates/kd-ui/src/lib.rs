@@ -3,6 +3,7 @@
 
 #![deny(unsafe_code)]
 
+pub mod draw;
 pub mod font;
 pub mod strip;
 

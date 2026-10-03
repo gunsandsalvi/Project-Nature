@@ -212,6 +212,41 @@ mod tests {
         );
     }
 
+    // checks: PRE-30 MAT-13
+    /// The cloud's timings for the bench file (A15.10): `cargo test --profile fast -p kd-app -- --ignored --nocapture`.
+    #[test]
+    #[ignore]
+    fn light_timings() {
+        let median = |f: &mut dyn FnMut()| {
+            let mut t: Vec<u128> = (0..201)
+                .map(|_| {
+                    let t0 = std::time::Instant::now();
+                    f();
+                    t0.elapsed().as_nanos()
+                })
+                .collect();
+            t.sort_unstable();
+            t[100] as f64 / 1000.0
+        };
+        let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
+        let layout = kd_render::looks::Layout::new(&cat).unwrap();
+        let light = kd_render::light::light(&cat.air, &crate::sky_at(4));
+        let (row, radiance) = kd_render::looks::row(&cat, &layout, &light);
+        let blob = median(&mut || {
+            std::hint::black_box(kd_data::Catalogue::load(crate::CATALOGUE).unwrap());
+        });
+        let row_us = median(&mut || {
+            std::hint::black_box(kd_render::looks::row(&cat, &layout, &light));
+        });
+        let view = kd_render::frame::VIEW;
+        let tables_us = median(&mut || {
+            std::hint::black_box(kd_render::looks::tables(
+                &cat.air, &layout, &light, &row, &radiance, view,
+            ));
+        });
+        println!("TIMINGS blob_load_us {blob:.1} palette_row_us {row_us:.1} tables_us {tables_us:.1}");
+    }
+
     // checks: MAT-13 PLT-09
     #[test]
     fn catalogue_loads_at_start() {

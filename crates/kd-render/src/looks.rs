@@ -132,22 +132,13 @@ impl Palette {
     /// The palette of `cat` under `light`, with the haze seen along `view` (east, north, up, from the eye into the
     /// scene; A11.4).
     pub fn new(cat: &Catalogue, layout: &Layout, light: &Light, view: [f32; 3]) -> Palette {
-        let air = &cat.air;
-        let range = range(light);
-        let mut row: Vec<[u8; 3]> = cat.colours.iter().map(|c| c.rgb).collect();
-        // Each step's albedo times its light, which the haze tables mix toward the haze.
-        let mut radiance = Vec::with_capacity(layout.len - layout.fixed);
-        for (look, ladder) in cat.looks.iter().zip(&layout.ladders) {
-            let albedo = look.albedo();
-            let n = usize::from(ladder.steps);
-            for k in 0..n {
-                let e = path_light(light, step_lightness(range, k, n));
-                row.push(shade(air, light, albedo, e));
-                radiance.push([0, 1, 2].map(|i| albedo[i] * e[i]));
-            }
+        let (row, radiance) = row(cat, layout, light);
+        let tables = tables(&cat.air, layout, light, &row, &radiance, view);
+        Palette {
+            row,
+            range: range(light),
+            tables,
         }
-        let tables = tables(air, layout, light, &row, &radiance, view);
-        Palette { row, range, tables }
     }
 
     /// The row as the palette texture's bytes: `PALETTE_SIZE` RGBA entries, unused ones as `void`.
@@ -171,8 +162,26 @@ fn lab_of(c: [u8; 3]) -> [f32; 3] {
     to_oklab(c.map(|v| kd_data::schema::srgb_to_linear(f32::from(v) / 255.0)))
 }
 
+/// The palette row under `light`: the fixed colours, then each ladder's steps; and each step's albedo times its
+/// light, which the haze tables mix toward the haze.
+pub fn row(cat: &Catalogue, layout: &Layout, light: &Light) -> (Vec<[u8; 3]>, Vec<Rgb>) {
+    let range = range(light);
+    let mut row: Vec<[u8; 3]> = cat.colours.iter().map(|c| c.rgb).collect();
+    let mut radiance = Vec::with_capacity(layout.len - layout.fixed);
+    for (look, ladder) in cat.looks.iter().zip(&layout.ladders) {
+        let albedo = look.albedo();
+        let n = usize::from(ladder.steps);
+        for k in 0..n {
+            let e = path_light(light, step_lightness(range, k, n));
+            row.push(shade(&cat.air, light, albedo, e));
+            radiance.push([0, 1, 2].map(|i| albedo[i] * e[i]));
+        }
+    }
+    (row, radiance)
+}
+
 /// The tables for a row (A11.3); `radiance` holds each look step's albedo times its light, in layout order.
-fn tables(
+pub fn tables(
     air: &Air,
     layout: &Layout,
     light: &Light,
