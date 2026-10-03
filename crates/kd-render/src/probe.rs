@@ -10,6 +10,7 @@
 use kd_core::num::hash2;
 
 use crate::RenderError;
+use crate::camera::View;
 use crate::gl::{self, Format, Program, State, Target, Texture, unit};
 use crate::pixel::{
     OUTLINE_GAP_M, SEED_SPLIT, SUN_TAN, edge_wobble, faded_noise, haze, haze_level, haze_margin, ladder_pos,
@@ -326,6 +327,74 @@ pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput], edges: &[EdgeI
         edge(&|p| p.band),
     ]);
     rows.iter().flatten().flat_map(|v| v.to_ne_bytes()).collect()
+}
+
+/// One frame as the crawl counter sees it (A11.10): its view, and each art pixel of the art target, bottom row
+/// first, as post coloured it, with its depth along the view in metres from the world's corner, none for void.
+#[derive(Clone, Debug)]
+pub struct Capture {
+    pub view: View,
+    pub colours: Vec<[u8; 3]>,
+    pub depths: Vec<Option<f64>>,
+}
+
+/// What changed between two frames (A11.10).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct CrawlCount {
+    /// Art pixels whose colour changed while the surface they show moved less than one art pixel on the screen.
+    pub crawl: u32,
+    /// Art pixels whose colour changed where they show on the screen.
+    pub changed: u32,
+    /// Art pixels counted: the art target's, less a border of two.
+    pub pixels: u32,
+}
+
+/// Counts what changed between frames `prev` and `next` (A11.10). Each art pixel of `next` showing ground is put
+/// back through `prev`'s view, its surface found from its depth: where that surface moved less than one art pixel
+/// on the screen and `prev` showed it in another colour, it crawled. Every art pixel whose colour differs from what
+/// `prev` showed at the same place on the screen changed; the rest of a turn's or zoom's changes are the picture
+/// really moving.
+pub fn count(prev: &Capture, next: &Capture) -> CrawlCount {
+    let (v, p) = (&next.view, &prev.view);
+    let (w, h) = (i64::from(v.art[0]), i64::from(v.art[1]));
+    let (pw, ph) = (i64::from(p.art[0]), i64::from(p.art[1]));
+    let shown =
+        |x: i64, y: i64| ((0..pw).contains(&x) && (0..ph).contains(&y)).then(|| prev.colours[(y * pw + x) as usize]);
+    let mut out = CrawlCount::default();
+    for y in 2..h - 2 {
+        for x in 2..w - 2 {
+            out.pixels += 1;
+            let i = (y * w + x) as usize;
+            let colour = next.colours[i];
+            // Where the pixel's middle shows on the screen, in art pixels from the window's corner.
+            let at = [
+                x as f64 + 0.5 - f64::from(v.off[0]),
+                y as f64 + 0.5 - f64::from(v.off[1]),
+            ];
+            let there = |k: usize| (at[k] + f64::from(p.off[k])).floor() as i64;
+            if shown(there(0), there(1)).is_some_and(|c| c != colour) {
+                out.changed += 1;
+            }
+            let Some(depth) = next.depths[i] else {
+                continue;
+            };
+            // The surface the pixel shows, from its middle on the screen and its depth, and where `prev` put it.
+            let s = [
+                (v.corner[0] as f64 + x as f64 + 0.5) * v.texel,
+                (v.corner[1] as f64 + y as f64 + 0.5) * v.texel,
+            ];
+            let m = [0, 1, 2].map(|k| v.right[k] * s[0] + v.up[k] * s[1] + v.fwd[k] * depth);
+            let q = p.screen(m);
+            let q = [q[0] - p.corner[0] as f64, q[1] - p.corner[1] as f64];
+            let moved = (0..2)
+                .map(|k| (q[k] - f64::from(p.off[k]) - at[k]).abs())
+                .fold(0.0, f64::max);
+            if moved < 1.0 && shown(q[0].floor() as i64, q[1].floor() as i64).is_some_and(|c| c != colour) {
+                out.crawl += 1;
+            }
+        }
+    }
+    out
 }
 
 pub struct ProbePass {

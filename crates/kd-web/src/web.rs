@@ -91,7 +91,7 @@ impl WebApp {
 
     /// One frame: an art pixel moves on a whole number of device pixels whatever the time (`PRE-22`).
     pub fn frame(&mut self, now_ms: f64) {
-        self.app.frame((now_ms.max(0.0) * 1e6) as u64);
+        self.app.frame(ms_to_ns(now_ms));
     }
 
     /// A pointer event, positions in device pixels from the canvas's top-left; `kind` 0 down, 1 move, 2 up,
@@ -103,7 +103,7 @@ impl WebApp {
             2 => InputKind::Up,
             _ => InputKind::Cancel,
         };
-        let t_ns = (t_ms.max(0.0) * 1e6) as u64;
+        let t_ns = ms_to_ns(t_ms);
         self.app.handle(AppMsg::Input(InputEvent {
             kind,
             pointer: id,
@@ -238,8 +238,28 @@ impl WebApp {
         });
     }
 
+    /// Test hook (A11.10): a slow camera motion's frames, each against the last, as
+    /// `{"crawl":[…],"changed":[…],"pixels":n}`: `motion` is `turn` (degrees a frame), `zoom` (a share of the art
+    /// pixel a frame) or `pan` (art pixels a frame along the screen's right).
+    pub fn crawl(&mut self, motion: &str, rate: f32, frames: u32, now_ms: f64) -> String {
+        match kd_app::Motion::named(motion) {
+            Some(m) => kd_app::counts_json(&self.app.crawl(m, rate, frames, ms_to_ns(now_ms))),
+            None => "null".to_string(),
+        }
+    }
+
+    /// Test hook (A11.12): what each step of the zoom changes, from `from` to `to` by `step`, as `crawl` gives it.
+    pub fn zoom_strip(&mut self, from: f32, to: f32, step: f32, now_ms: f64) -> String {
+        kd_app::counts_json(&self.app.zoom_strip(from, to, step, ms_to_ns(now_ms)))
+    }
+
     /// Test hook (A3.8): a panic, for the smoke test to see its message in the status line.
     pub fn crash(&self) {
         panic!("a test panic, asked for by the smoke test");
     }
+}
+
+/// A time from `performance.now()`, in milliseconds, as the app's nanoseconds; never before 0.
+fn ms_to_ns(ms: f64) -> u64 {
+    (ms.max(0.0) * 1e6) as u64
 }

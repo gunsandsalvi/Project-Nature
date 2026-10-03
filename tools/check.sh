@@ -63,6 +63,8 @@ if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-rende
   tools/build-web.sh
   node tools/screens/smoke.mjs
   node tools/screens/golden.mjs
+  node tools/screens/crawl.mjs
+  node tools/screens/zoomstrip.mjs
 fi
 if [ "$DELIVER" = 1 ]; then
   # The note has its headings and the APK's link (PRC-11); the build still works, and the delivered APK, as

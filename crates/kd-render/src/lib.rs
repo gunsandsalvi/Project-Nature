@@ -24,6 +24,7 @@ use std::fmt;
 
 use kd_data::Catalogue;
 use kd_view::{AreaMeshes, CameraPose};
+use passes::crawl::{Base, CrawlSlot, Resolved};
 use passes::post::{PostFrame, PostPass};
 use passes::scene::{ArtView, ScenePass};
 use passes::ui::UiPass;
@@ -93,6 +94,8 @@ pub struct Renderer {
     upscale: UpscalePass,
     ui: UiPass,
     probe: ProbePass,
+    /// The crawl fix (A11.10): `Base` until the first visual review.
+    crawl: Box<dyn CrawlSlot>,
     ground: GroundPass,
     store: Store,
     view: Option<ArtView>,
@@ -130,6 +133,7 @@ impl Renderer {
             upscale,
             ui,
             probe,
+            crawl: Box::new(Base),
             ground,
             store: Store::default(),
             view: None,
@@ -218,8 +222,10 @@ impl Renderer {
         let Some(art) = self.view else {
             return FrameStats::default();
         };
-        // The ground's view, or the light card's own: north, the card's pitch below the horizon.
-        let view = if f.card.is_some() { None } else { self.view_of(&f.cam) };
+        // The ground's view, through the crawl fix's snapping, or the light card's own: north, the card's pitch
+        // below the horizon.
+        let cam = self.crawl.quantise(f.cam);
+        let view = if f.card.is_some() { None } else { self.view_of(&cam) };
         let (sp, cp) = (
             passes::scene::card::PITCH_DEG.to_radians().sin(),
             passes::scene::card::PITCH_DEG.to_radians().cos(),
@@ -279,7 +285,9 @@ impl Renderer {
                 frame,
                 self.vao,
             );
-            self.upscale.draw(&self.gl, &art, off, &post.colours[0], self.vao);
+            match self.crawl.resolve() {
+                Resolved::Post => self.upscale.draw(&self.gl, &art, off, &post.colours[0], self.vao),
+            }
         }
         self.ui.draw(&self.gl, &art, ui, &self.palette_tex);
         stats
@@ -288,6 +296,26 @@ impl Renderer {
     /// The last frame's camera view, if it drew the ground.
     pub fn last_view(&self) -> Option<&View> {
         self.last_view.as_ref()
+    }
+
+    /// The last frame of the ground as the crawl counter sees it (A11.10): post's colours and colour 0's depths,
+    /// read back; none before the ground has drawn.
+    pub fn capture(&self) -> Option<probe::Capture> {
+        let view = self.last_view?;
+        let colours = self.post.target.as_ref()?.read_rgba8(&self.gl);
+        let scene = self.scene.target.as_ref()?.read_rgba8(&self.gl);
+        let span = view.depth[1] - view.depth[0];
+        Some(probe::Capture {
+            view,
+            colours: colours.chunks(4).map(|c| [c[0], c[1], c[2]]).collect(),
+            depths: scene
+                .chunks(4)
+                .map(|c| {
+                    let d = f64::from(u16::from(c[2]) << 8 | u16::from(c[3])) / 65535.0;
+                    (c[1] & 7 != pixel::Cat::Void as u8).then_some(view.depth[0] + d * span)
+                })
+                .collect(),
+        })
     }
 
     /// Runs the probe scene (A11.13 rule 2): the steps the GPU picks for the fixed inputs, and the twins' steps.
