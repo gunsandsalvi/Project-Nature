@@ -7,6 +7,7 @@
 //! ES 3.0 on the phone.
 
 pub mod gl;
+pub mod light;
 pub mod passes;
 pub mod shaders;
 
@@ -50,6 +51,8 @@ pub struct Frame {
     /// The self-check's core bits, shown on the test card: none before the check, then whether they equal the
     /// cloud's (A15.9 item 5).
     pub core_bits: Option<bool>,
+    /// The sky the frame is lit by (A11.4).
+    pub sky: kd_view::SkyView,
 }
 
 /// What a frame drew.
@@ -127,5 +130,31 @@ impl Renderer {
     /// The first GL error since the last call, or 0.
     pub fn gl_error(&self) -> u32 {
         gl::error(&self.gl)
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use kd_data::Catalogue;
+    use kd_data::compile::{Source, compile};
+
+    /// The repository's catalogue, compiled as the app's build script compiles it.
+    pub(crate) fn catalogue() -> Catalogue {
+        let src = |p: &str, t: &str| Source {
+            path: p.into(),
+            text: t.into(),
+        };
+        let sources = [
+            src("data/VERSION.toml", include_str!("../../../data/VERSION.toml")),
+            src("data/ids.lock", include_str!("../../../data/ids.lock")),
+            src("data/INDEX.md", include_str!("../../../data/INDEX.md")),
+            src(
+                "data/palette/colours.md",
+                include_str!("../../../data/palette/colours.md"),
+            ),
+            src("data/palette/looks.md", include_str!("../../../data/palette/looks.md")),
+            src("data/palette/light.md", include_str!("../../../data/palette/light.md")),
+        ];
+        compile(&sources, false).expect("the catalogue compiles").catalogue
     }
 }

@@ -48,6 +48,30 @@ pub enum AppMsg {
     Back,
 }
 
+/// The eight hours the strip steps through until the clock runs them (α03a), at 21° N on the spring equinox
+/// (A11.4): their names and their hours.
+pub const HOURS: [(&str, f32); 8] = [
+    ("dawn", 6.5),
+    ("morning", 9.0),
+    ("noon", 12.0),
+    ("afternoon", 15.0),
+    ("late afternoon", 16.5),
+    ("dusk", 17.75),
+    ("twilight", 18.5),
+    ("night", 23.0),
+];
+/// The latitude the hours are seen from.
+pub const HOURS_LAT: f32 = 21.0;
+/// Late afternoon, the hour the app opens on.
+pub const FIRST_HOUR: usize = 4;
+
+/// The sky at one of `HOURS`: spring day 1, the equinox, at that hour (A3.7).
+pub fn sky_at(hour: usize) -> kd_view::SkyView {
+    let (_, h) = HOURS[hour % HOURS.len()];
+    let t = kd_core::time::GameTime((h * 3600.0) as u64);
+    kd_render::light::sky_view(&kd_core::sky::sun_moon(t, HOURS_LAT, 0.0, &kd_core::sky::Sky::FIRST))
+}
+
 /// What the shell knows at start.
 #[derive(Clone, Debug, Default)]
 pub struct AppConfig {
@@ -80,6 +104,8 @@ pub struct App {
     catalogue: Option<Catalogue>,
     /// How long loading the catalogue took, in nanoseconds (A3.6: under 10 ms on the phone).
     catalogue_ns: u64,
+    /// Which of `HOURS` lights the frame.
+    hour: usize,
 }
 
 impl App {
@@ -104,6 +130,7 @@ impl App {
             core_bits: true,
             catalogue: None,
             catalogue_ns: 0,
+            hour: FIRST_HOUR,
         };
         let t0 = app.platform.now_ns();
         match Catalogue::load(CATALOGUE) {
@@ -180,6 +207,7 @@ impl App {
             let f = Frame {
                 count: self.frames,
                 core_bits: Some(self.core_bits),
+                sky: sky_at(self.hour),
             };
             match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f))) {
                 Ok(_) => self.panics_in_row = 0,
@@ -237,6 +265,16 @@ impl App {
     /// Whether the core's maths and draws give the cloud's bits on this device.
     pub fn core_bits(&self) -> bool {
         self.core_bits
+    }
+
+    /// Which of `HOURS` lights the frame.
+    pub fn hour(&self) -> usize {
+        self.hour
+    }
+
+    /// Lights the frame at one of `HOURS` (the strip's tap steps it, α01a; the clock replaces it, α03a).
+    pub fn set_hour(&mut self, hour: usize) {
+        self.hour = hour % HOURS.len();
     }
 
     /// The catalogue, if its blob loaded.

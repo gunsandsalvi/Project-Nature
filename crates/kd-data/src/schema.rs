@@ -74,15 +74,22 @@ pub struct Air {
     /// The shares of what Rayleigh scattering and the aerosol take from the beam that light the sky.
     pub sky_rayleigh_share: f32,
     pub sky_aerosol_share: f32,
-    /// Twilight runs from the horizon to this sun height, its sky light falling by e every `twilight_fall_deg`.
+    /// The sky's light on level ground at sunset, as a share of the sky's scattering, fading over
+    /// `horizon_fade_deg` above the horizon, so twilight starts where the day ends.
+    pub horizon_sky: f32,
+    pub horizon_fade_deg: f32,
+    /// Twilight runs from the horizon to this sun height, its sky light falling by e every `twilight_fall_deg` and
+    /// turning blue through `twilight_ozone_per_deg` more air masses of ozone for each degree.
     pub twilight_end_deg: f32,
     pub twilight_fall_deg: f32,
+    pub twilight_ozone_per_deg: f32,
     /// How many times weaker the moon's light is than the sun's, and its tint.
     pub moon_weakness: f32,
     pub moon_tint: [f32; 3],
     /// Starlight, as a share of noon's light on level ground.
     pub starlight: f32,
-    /// Exposure scales the light by the global light to the minus this power.
+    /// Exposure scales the light by `exposure_scale` over the global light to the power `exposure_power`.
+    pub exposure_scale: f32,
     pub exposure_power: f32,
     /// Below the first share of noon's light, colour fades toward rod vision's blue-grey, fully by the second.
     pub rods_start: f32,

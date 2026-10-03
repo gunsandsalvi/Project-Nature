@@ -35,3 +35,13 @@ pub struct Insets {
 /// What the world hands the renderer each frame (A4.13, A11.9); empty until the world exists (α03a).
 #[derive(Clone, Debug, Default)]
 pub struct Snapshot {}
+
+/// The sky a frame is lit by (A11.4): the sun's and the moon's directions (east, north, up) and the moon's phase from
+/// `kd_core::sky`, and the air's turbidity from the weather, 0 meaning the catalogue's air until weather comes.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct SkyView {
+    pub sun_dir: [f32; 3],
+    pub moon_dir: [f32; 3],
+    pub moon_phase: f32,
+    pub turbidity: f32,
+}

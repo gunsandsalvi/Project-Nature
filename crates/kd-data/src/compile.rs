@@ -105,11 +105,15 @@ struct AirSrc {
     ozone: [f32; 3],
     sky_rayleigh_share: f32,
     sky_aerosol_share: f32,
+    horizon_sky: f32,
+    horizon_fade_deg: f32,
     twilight_end_deg: f32,
     twilight_fall_deg: f32,
+    twilight_ozone_per_deg: f32,
     moon_weakness: f32,
     moon_tint: [f32; 3],
     starlight: f32,
+    exposure_scale: f32,
     exposure_power: f32,
     rods_start: f32,
     rods_full: f32,
@@ -578,11 +582,15 @@ fn air_of(s: &AirSrc) -> Air {
         ozone: s.ozone,
         sky_rayleigh_share: s.sky_rayleigh_share,
         sky_aerosol_share: s.sky_aerosol_share,
+        horizon_sky: s.horizon_sky,
+        horizon_fade_deg: s.horizon_fade_deg,
         twilight_end_deg: s.twilight_end_deg,
         twilight_fall_deg: s.twilight_fall_deg,
+        twilight_ozone_per_deg: s.twilight_ozone_per_deg,
         moon_weakness: s.moon_weakness,
         moon_tint: s.moon_tint,
         starlight: s.starlight,
+        exposure_scale: s.exposure_scale,
         exposure_power: s.exposure_power,
         rods_start: s.rods_start,
         rods_full: s.rods_full,
@@ -617,16 +625,17 @@ fn air_table(s: &AirSrc) -> Vec<(String, String)> {
         (
             "Sky light".into(),
             format!(
-                "Rayleigh's share {}, the aerosol's {}",
-                s.sky_rayleigh_share, s.sky_aerosol_share
+                "Rayleigh's share {}, the aerosol's {}; at sunset {}, fading over {}°",
+                s.sky_rayleigh_share, s.sky_aerosol_share, s.horizon_sky, s.horizon_fade_deg
             ),
         ),
         (
             "Twilight, night".into(),
             format!(
-                "to {}°, e every {}°; moon 1/{}, tint {}; starlight {}",
+                "to {}°, e every {}°, ozone {} air masses a degree; moon 1/{}, tint {}; starlight {}",
                 s.twilight_end_deg,
                 s.twilight_fall_deg,
+                s.twilight_ozone_per_deg,
                 s.moon_weakness,
                 three(s.moon_tint),
                 s.starlight
@@ -635,8 +644,8 @@ fn air_table(s: &AirSrc) -> Vec<(String, String)> {
         (
             "Exposure, rods".into(),
             format!(
-                "power {}; colour fades from {} to {} of noon",
-                s.exposure_power, s.rods_start, s.rods_full
+                "scale {}, power {}; colour fades from {} to {} of noon",
+                s.exposure_scale, s.exposure_power, s.rods_start, s.rods_full
             ),
         ),
         (
@@ -815,7 +824,7 @@ mod tests {
     }
 
     fn air() -> String {
-        "# The air\n\nThe light model's numbers.\n\n## Air\n\nA fine summer day.\n\n```toml\nid = \"air\"\nname = \"Air\"\nstage = \"MIL-01\"\nchecks = [\"PRE-30\"]\nwavelengths_nm = [680.0, 550.0, 440.0]\nrayleigh = [0.041, 0.097, 0.243]\nturbidity = 0.08\naerosol_exponent = 1.3\nozone = [0.02, 0.027, 0.002]\nsky_rayleigh_share = 0.5\nsky_aerosol_share = 0.7\ntwilight_end_deg = -12.0\ntwilight_fall_deg = 1.2\nmoon_weakness = 400000.0\nmoon_tint = [0.9, 0.95, 1.0]\nstarlight = 2e-8\nexposure_power = 0.85\nrods_start = 1e-4\nrods_full = 1e-7\ngrade_chroma = 1.2\nhaze_levels = [0.1, 0.25, 0.45]\nhaze_mixes = [0.15, 0.33, 0.55]\nhaze_g = 0.7\naerosol_height_m = 1200.0\nrayleigh_height_m = 8000.0\n```\n".to_string()
+        "# The air\n\nThe light model's numbers.\n\n## Air\n\nA fine summer day.\n\n```toml\nid = \"air\"\nname = \"Air\"\nstage = \"MIL-01\"\nchecks = [\"PRE-30\"]\nwavelengths_nm = [680.0, 550.0, 440.0]\nrayleigh = [0.041, 0.097, 0.243]\nturbidity = 0.08\naerosol_exponent = 1.3\nozone = [0.02, 0.027, 0.002]\nsky_rayleigh_share = 0.5\nsky_aerosol_share = 0.7\nhorizon_sky = 0.04\nhorizon_fade_deg = 3.0\ntwilight_end_deg = -12.0\ntwilight_fall_deg = 1.2\ntwilight_ozone_per_deg = 10.0\nmoon_weakness = 400000.0\nmoon_tint = [0.9, 0.95, 1.0]\nstarlight = 2e-8\nexposure_scale = 2.0\nexposure_power = 0.85\nrods_start = 1e-4\nrods_full = 1e-7\ngrade_chroma = 1.2\nhaze_levels = [0.1, 0.25, 0.45]\nhaze_mixes = [0.15, 0.33, 0.55]\nhaze_g = 0.7\naerosol_height_m = 1200.0\nrayleigh_height_m = 8000.0\n```\n".to_string()
     }
 
     fn sources(colours: String, looks: String, air: String) -> Vec<Source> {

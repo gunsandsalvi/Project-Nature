@@ -11,3 +11,7 @@ kd-data.workspace = true
 kd-view.workspace = true
 glow.workspace = true
 log.workspace = true
+
+[dev-dependencies]
+# Tests compile the repository's catalogue as the app's build script does (A3.6).
+kd-data = { workspace = true, features = ["compile"] }
