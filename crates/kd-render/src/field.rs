@@ -139,30 +139,51 @@ impl Rows {
         span_of(self.point(k, 0.0), self.a)
     }
 
-    /// Row `k`'s ground over its whole stretch, as `line_profile` gives it.
-    fn profile(&self, heights: &[f32], k: usize) -> Vec<(f32, f32)> {
-        self.span(k)
-            .map_or_else(Vec::new, |span| line_profile(heights, self.point(k, 0.0), self.a, span))
+    /// Every row's ground over its whole stretch, as `line_profile` gives it.
+    fn profiles(&self, heights: &[f32]) -> Vec<Vec<(f32, f32)>> {
+        let mut scratch = Scratch::default();
+        (0..self.count())
+            .map(|k| {
+                let mut out = Vec::new();
+                if let Some(span) = self.span(k) {
+                    line_profile(heights, self.point(k, 0.0), self.a, span, &mut scratch, &mut out);
+                }
+                out
+            })
+            .collect()
     }
 
-    /// The rows each of the area's points reads: the two either side of it, each with the point's share, as row by
-    /// row (t, point, share) in rising `t`.
-    fn readers(&self) -> Vec<Vec<(f32, u32, f32)>> {
+    /// The rows each of the area's points reads: the two either side of it, each with the point's share. The points
+    /// are put in order along the rows once, so each row's readers come out in rising `t`.
+    fn readers(&self) -> Readers {
         let n = self.count();
-        let mut out = vec![Vec::new(); n];
-        for i in 0..SIDE * SIDE {
+        let place = |i: usize| {
             let (dx, dy) = ((i % SIDE) as f32 - MID, (i / SIDE) as f32 - MID);
-            let t = dx * self.a[0] + dy * self.a[1];
             let r = dx * self.b[0] + dy * self.b[1] + self.half as f32;
             let k = (r as usize).min(n - 2);
-            let f = r - k as f32;
-            out[k].push((t, i as u32, 1.0 - f));
-            out[k + 1].push((t, i as u32, f));
+            (dx * self.a[0] + dy * self.a[1], k, r - k as f32)
+        };
+        let mut order: Vec<(f32, u32)> = (0..SIDE * SIDE).map(|i| (place(i).0, i as u32)).collect();
+        order.sort_unstable_by(|p, q| p.0.total_cmp(&q.0));
+        let mut start = vec![0usize; n + 1];
+        for &(_, i) in &order {
+            let (_, k, _) = place(i as usize);
+            start[k + 1] += 1;
+            start[k + 2] += 1;
         }
-        for row in &mut out {
-            row.sort_unstable_by(|p, q| p.0.total_cmp(&q.0));
+        for k in 1..=n {
+            start[k] += start[k - 1];
         }
-        out
+        let mut next = start.clone();
+        let mut entries = vec![(0.0, 0, 0.0); 2 * SIDE * SIDE];
+        for &(t, i) in &order {
+            let (_, k, f) = place(i as usize);
+            entries[next[k]] = (t, i, 1.0 - f);
+            entries[next[k + 1]] = (t, i, f);
+            next[k] += 1;
+            next[k + 1] += 1;
+        }
+        Readers { start, entries }
     }
 
     /// Each reader's horizon over row `k`'s ground `profile` beyond `NEAR_M`, as a slope, looking toward rising `t`
@@ -230,15 +251,10 @@ impl Rows {
 
     /// Every point's horizon looking along `a` (`ahead`) or against it: its own ray's within `NEAR_M`, and the
     /// rows' beyond, whichever is steeper; 0, level ground running on, where neither has ground.
-    fn horizons(
-        &self,
-        heights: &[f32],
-        profiles: &[Vec<(f32, f32)>],
-        readers: &[Vec<(f32, u32, f32)>],
-        ahead: bool,
-    ) -> Vec<f32> {
+    fn horizons(&self, heights: &[f32], profiles: &[Vec<(f32, f32)>], readers: &Readers, ahead: bool) -> Vec<f32> {
         let (mut far, mut weight) = (vec![0.0f32; SIDE * SIDE], vec![0.0f32; SIDE * SIDE]);
-        for (profile, readers) in profiles.iter().zip(readers) {
+        for (k, profile) in profiles.iter().enumerate() {
+            let readers = readers.row(k);
             if !readers.is_empty() {
                 self.read(heights, profile, readers, ahead, |i, share, m| {
                     if let Some(m) = m {
@@ -281,53 +297,105 @@ fn span_of(o: [f32; 2], a: [f32; 2]) -> Option<(f32, f32)> {
     (lo <= hi).then_some((lo, hi))
 }
 
-/// The ground along the line through `o` along `a` from `t0` to `t1`, as (t, height) in rising `t`: its ends,
-/// every point where it crosses one of the grid's lines, between which the ground along it is a quadratic, and the
-/// top of any hump between two of them.
-fn line_profile(heights: &[f32], o: [f32; 2], a: [f32; 2], (t0, t1): (f32, f32)) -> Vec<(f32, f32)> {
-    let crossings = |i: usize| -> Vec<f32> {
+/// Each row's readers in one list: row `k`'s are `entries[start[k]..start[k + 1]]`, as (t, point, share) in
+/// rising `t`.
+struct Readers {
+    start: Vec<usize>,
+    entries: Vec<(f32, u32, f32)>,
+}
+
+impl Readers {
+    fn row(&self, k: usize) -> &[(f32, u32, f32)] {
+        &self.entries[self.start[k]..self.start[k + 1]]
+    }
+}
+
+/// Lists `line_profile` fills again for each line, kept so it need not make them anew.
+#[derive(Default)]
+struct Scratch {
+    xs: Vec<f32>,
+    ys: Vec<f32>,
+    /// Each place along the line, and the axis whose grid line it lies on: 0 east, 1 south, 2 neither.
+    ts: Vec<(f32, u8)>,
+}
+
+/// The ground's height where a line crosses grid line `g` of `axis` (0 a column, 1 a row) at `v` along the other
+/// axis: between the two grid points either side, beyond the area its edge's height carried straight out.
+fn height_on_line(heights: &[f32], axis: u8, g: f32, v: f32) -> f32 {
+    let g = (g.round().clamp(0.0, EDGE)) as usize;
+    let v = v.clamp(0.0, EDGE);
+    let j = (v as usize).min(SIDE - 2);
+    let f = v - j as f32;
+    let at = |j: usize| {
+        if axis == 0 {
+            heights[j * SIDE + g]
+        } else {
+            heights[g * SIDE + j]
+        }
+    };
+    at(j) + (at(j + 1) - at(j)) * f
+}
+
+/// The ground along the line through `o` along `a` from `t0` to `t1`, as (t, height) in rising `t` into `out`: its
+/// ends, every point where it crosses one of the grid's lines, between which the ground along it is a quadratic,
+/// and the top of any hump between two of them.
+fn line_profile(
+    heights: &[f32],
+    o: [f32; 2],
+    a: [f32; 2],
+    (t0, t1): (f32, f32),
+    scratch: &mut Scratch,
+    out: &mut Vec<(f32, f32)>,
+) {
+    let Scratch { xs, ys, ts } = scratch;
+    for (i, list) in [(0, &mut *xs), (1, &mut *ys)] {
+        list.clear();
         if a[i].abs() < 1e-6 {
-            return Vec::new();
+            continue;
         }
         let (c0, c1) = (o[i] + t0 * a[i], o[i] + t1 * a[i]);
-        let mut ts: Vec<f32> = ((c0.min(c1).ceil() as i32)..=(c0.max(c1).floor() as i32))
-            .map(|g| (g as f32 - o[i]) / a[i])
-            .filter(|&t| t > t0 && t < t1)
-            .collect();
+        list.extend(
+            ((c0.min(c1).ceil() as i32)..=(c0.max(c1).floor() as i32))
+                .map(|g| (g as f32 - o[i]) / a[i])
+                .filter(|&t| t > t0 && t < t1),
+        );
         if a[i] < 0.0 {
-            ts.reverse();
+            list.reverse();
         }
-        ts
-    };
-    let (xs, ys) = (crossings(0), crossings(1));
-    let mut ts = Vec::with_capacity(xs.len() + ys.len() + 2);
-    ts.push(t0);
+    }
+    ts.clear();
+    ts.push((t0, 2));
     let (mut i, mut j) = (0, 0);
     while i < xs.len() || j < ys.len() {
-        let t = if j >= ys.len() || (i < xs.len() && xs[i] <= ys[j]) {
+        let (t, axis) = if j >= ys.len() || (i < xs.len() && xs[i] <= ys[j]) {
             i += 1;
-            xs[i - 1]
+            (xs[i - 1], 0)
         } else {
             j += 1;
-            ys[j - 1]
+            (ys[j - 1], 1)
         };
-        if t > ts[ts.len() - 1] + 1e-4 {
-            ts.push(t);
+        if t > ts[ts.len() - 1].0 + 1e-4 {
+            ts.push((t, axis));
         }
     }
-    if t1 > ts[ts.len() - 1] + 1e-4 {
-        ts.push(t1);
+    if t1 > ts[ts.len() - 1].0 + 1e-4 {
+        ts.push((t1, 2));
     }
-    let h = |t: f32| height_at(heights, [o[0] + t * a[0], o[1] + t * a[1]]);
-    let mut out: Vec<(f32, f32)> = Vec::with_capacity(2 * ts.len());
-    for (n, &t) in ts.iter().enumerate() {
-        let here = h(t);
+    let at = |t: f32| [o[0] + t * a[0], o[1] + t * a[1]];
+    out.clear();
+    for (n, &(t, axis)) in ts.iter().enumerate() {
+        let p = at(t);
+        let here = match axis {
+            0 => height_on_line(heights, 0, p[0], p[1]),
+            1 => height_on_line(heights, 1, p[1], p[0]),
+            _ => height_at(heights, p),
+        };
         if n > 0 {
             // Between two crossings the ground is one quadratic, so its ends and middle fix it.
             let (ta, ha) = out[out.len() - 1];
             let w = 0.5 * (t - ta);
             let tm = ta + w;
-            let hm = h(tm);
+            let hm = height_at(heights, at(tm));
             let curve = (ha - 2.0 * hm + here) / (2.0 * w * w);
             if curve < 0.0 {
                 let slope = (here - ha) / (2.0 * w);
@@ -339,7 +407,6 @@ fn line_profile(heights: &[f32], o: [f32; 2], a: [f32; 2], (t0, t1): (f32, f32))
         }
         out.push((t, here));
     }
-    out
 }
 
 /// The steepest slope from the area's point `i` to the ground along its own ray toward `a`, from
@@ -351,42 +418,71 @@ fn near_horizon(heights: &[f32], i: usize, a: [f32; 2]) -> Option<f32> {
         return None;
     }
     let h0 = heights[i];
-    line_profile(heights, o, a, (NEAREST_CASTER_M, end.min(NEAR_M)))
-        .iter()
-        .map(|&(t, h)| (h - h0) / t)
-        .reduce(f32::max)
+    let mut out = Vec::new();
+    line_profile(
+        heights,
+        o,
+        a,
+        (NEAREST_CASTER_M, end.min(NEAR_M)),
+        &mut Scratch::default(),
+        &mut out,
+    );
+    out.iter().map(|&(t, h)| (h - h0) / t).reduce(f32::max)
 }
 
-/// One place on every near ray: how far along it lies, and the four grid points round it, as offsets from the
-/// ray's start, with their bilinear weights.
+/// One place on every near ray: how far along it lies, and the grid points round it, as offsets from the ray's
+/// start, with their bilinear weights: two on a grid line, else four.
 #[derive(Clone, Copy, Debug)]
 struct Tap {
     s: f32,
-    at: [(i32, i32, f32); 4],
+    at: [(isize, f32); 4],
+    n: usize,
 }
 
 impl Tap {
-    fn new(a: [f32; 2], s: f32) -> Tap {
+    /// The place `s` along `a`, on the grid line of `axis` (0 a column, 1 a row) or, with 2, anywhere.
+    fn new(a: [f32; 2], s: f32, axis: u8) -> Tap {
         let (px, py) = (s * a[0], s * a[1]);
         let (ix, iy) = (px.floor(), py.floor());
         let (fx, fy) = (px - ix, py - iy);
-        let (ix, iy) = (ix as i32, iy as i32);
-        Tap {
-            s,
-            at: [
-                (ix, iy, (1.0 - fx) * (1.0 - fy)),
-                (ix + 1, iy, fx * (1.0 - fy)),
-                (ix, iy + 1, (1.0 - fx) * fy),
-                (ix + 1, iy + 1, fx * fy),
-            ],
+        let (ix, iy) = (ix as isize, iy as isize);
+        let side = SIDE as isize;
+        let at = |dx: isize, dy: isize, w: f32| (dy * side + dx, w);
+        match axis {
+            0 => {
+                let ix = px.round() as isize;
+                Tap {
+                    s,
+                    at: [at(ix, iy, 1.0 - fy), at(ix, iy + 1, fy), (0, 0.0), (0, 0.0)],
+                    n: 2,
+                }
+            }
+            1 => {
+                let iy = py.round() as isize;
+                Tap {
+                    s,
+                    at: [at(ix, iy, 1.0 - fx), at(ix + 1, iy, fx), (0, 0.0), (0, 0.0)],
+                    n: 2,
+                }
+            }
+            _ => Tap {
+                s,
+                at: [
+                    at(ix, iy, (1.0 - fx) * (1.0 - fy)),
+                    at(ix + 1, iy, fx * (1.0 - fy)),
+                    at(ix, iy + 1, (1.0 - fx) * fy),
+                    at(ix + 1, iy + 1, fx * fy),
+                ],
+                n: 4,
+            },
         }
     }
 
-    /// The ground's height at this place on the ray from grid point `(x, y)`, which must lie clear of the edges.
-    fn height(&self, heights: &[f32], x: i32, y: i32) -> f32 {
-        self.at
+    /// The ground's height at this place on the ray from the grid point at index `i`, clear of the edges.
+    fn height(&self, heights: &[f32], i: usize) -> f32 {
+        self.at[..self.n]
             .iter()
-            .map(|&(dx, dy, w)| w * heights[((y + dy) as usize) * SIDE + (x + dx) as usize])
+            .map(|&(d, w)| w * heights[(i as isize + d) as usize])
             .sum()
     }
 }
@@ -404,21 +500,25 @@ struct Near {
 
 impl Near {
     fn new(a: [f32; 2]) -> Near {
-        let mut ts = vec![NEAREST_CASTER_M, NEAR_M];
-        for along in a.map(f32::abs).into_iter().filter(|&v| v >= 1e-6) {
+        let mut ts = vec![(NEAREST_CASTER_M, 2), (NEAR_M, 2)];
+        for (axis, along) in [(0u8, a[0].abs()), (1, a[1].abs())] {
+            if along < 1e-6 {
+                continue;
+            }
             let mut g = 1;
             while g as f32 / along < NEAR_M {
                 let t = g as f32 / along;
                 if t > NEAREST_CASTER_M {
-                    ts.push(t);
+                    ts.push((t, axis));
                 }
                 g += 1;
             }
         }
-        ts.sort_by(f32::total_cmp);
-        ts.dedup_by(|p, q| (*p - *q).abs() < 1e-4);
-        let taps: Vec<Tap> = ts.iter().map(|&t| Tap::new(a, t)).collect();
-        let middles = ts.windows(2).map(|w| Tap::new(a, 0.5 * (w[0] + w[1]))).collect();
+        ts.sort_by(|p, q| p.0.total_cmp(&q.0));
+        // Where two lines cross at once, the ray passes through a grid point: either line's two points will do.
+        ts.dedup_by(|p, q| (p.0 - q.0).abs() < 1e-4);
+        let taps: Vec<Tap> = ts.iter().map(|&(t, axis)| Tap::new(a, t, axis)).collect();
+        let middles = ts.windows(2).map(|w| Tap::new(a, 0.5 * (w[0].0 + w[1].0), 2)).collect();
         Near {
             a,
             taps,
@@ -440,12 +540,12 @@ impl Near {
         let mut best = f32::NEG_INFINITY;
         let mut last = (0.0, 0.0);
         for (k, tap) in self.taps.iter().enumerate() {
-            let here = tap.height(heights, x, y);
+            let here = tap.height(heights, i);
             if k > 0 {
                 // Between two crossings the ground is one quadratic, so its ends and middle fix it.
                 let (ta, ha) = last;
                 let w = 0.5 * (tap.s - ta);
-                let hm = self.middles[k - 1].height(heights, x, y);
+                let hm = self.middles[k - 1].height(heights, i);
                 let curve = (ha - 2.0 * hm + here) / (2.0 * w * w);
                 if curve < 0.0 {
                     let slope = (here - ha) / (2.0 * w);
@@ -473,8 +573,7 @@ pub fn sun_field(heights: &[f32], dir: [f32; 3]) -> SunField {
     };
     // Rows run toward the light, east and south.
     let rows = Rows::new([toward[0], -toward[1]]);
-    let profiles: Vec<_> = (0..rows.count()).map(|k| rows.profile(heights, k)).collect();
-    let horizon = rows.horizons(heights, &profiles, &rows.readers(), true);
+    let horizon = rows.horizons(heights, &rows.profiles(heights), &rows.readers(), true);
     SunField { toward, horizon }
 }
 
@@ -485,8 +584,7 @@ pub fn sky_field(heights: &[f32]) -> Vec<f32> {
     let mut sum = vec![0.0f32; SIDE * SIDE];
     for a in HALF_ROUND {
         let rows = Rows::new(a);
-        let profiles: Vec<_> = (0..rows.count()).map(|k| rows.profile(heights, k)).collect();
-        let readers = rows.readers();
+        let (profiles, readers) = (rows.profiles(heights), rows.readers());
         for ahead in [true, false] {
             for (s, m) in sum.iter_mut().zip(rows.horizons(heights, &profiles, &readers, ahead)) {
                 *s += 1.0 / (1.0 + m.max(0.0) * m.max(0.0));
