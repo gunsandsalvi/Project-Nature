@@ -308,7 +308,8 @@ pub trait Platform: Send + Sync {
 }
 pub enum Request { Write { id: u32, prompt: String, max_tokens: u16 },
     KeepScreenOn(bool), Brightness(Option<f32>), RenderMode(RenderMode), Export { path: String },
-    Import, Share { path: String }, Copy(String) }
+    Import, Share { path: String }, Copy(String),
+    ShowCode { title: String, prefix: String, json: String } }  // the code dialog: the shell gzips json, base64s it after prefix, shows it with Copy (A15.4)
 pub enum AppMsg { Input(InputEvent), Insets(Insets), Pause, Resume, Back, TrimMemory(u8),
     Device(DeviceState), AudioRoute { speaker: bool }, Reply(Reply), Link(String) }  // Reply: writer and file results; Link: kindling://open
 impl App {                                           // Send, not Sync: owned by the GL thread
@@ -3641,14 +3642,14 @@ The codebase was deleted on 3 October 2026 at the owner's instruction and is reb
 | `field` | an area's sun and sky fields (A11.5) | no |
 | `pixel` | the Rust twins of the shaders' per-pixel formulas (rule 2) | no |
 | `ground` | the CPU store of loaded areas (heights, fields, coverage, cover lists), their textures, the morphing patch, the ground's draw (A11.5) | yes |
-| `passes` | the scene, post, crawl slot, upscale and UI passes, each a struct holding its program and targets (A11.2, A11.10, A12.1) | yes |
+| `passes` | the object shadows (from the first things), scene, post, crawl slot, upscale and UI passes, each a struct holding its program and targets (A11.2, A11.10, A12.1) | yes |
 | `frame` | one frame's plan from its inputs (camera, light, row, field jobs, the frame's uniform block), then the passes in A11.2's order | both |
 | `gl` | the GL layer (rule 3) | yes |
 | `probe` | test hooks: the palette row, captures for the crawl counter (A11.10), the probe scene | yes |
 | `shaders/` | `lib.glsl` (shared: categories, packing, Bayer, steps, haze levels) and one file per program | GPU |
 
 **A frame:** `frame::plan` runs on the CPU first: the camera from the pose (A11.2); the light at the displayed time, kept while the sun moves under 0.01°; the palette row and tables when one of the row's colours would move by a whole 1/255 (A11.3); field jobs for the areas whose sun field is older than 0.1° of sun; the frame's values in one `std140` uniform block.
-Then uploads (at most 0.2 ms a frame, A11.1), then the passes: scene (ground, then things), post, crawl slot, upscale, UI.
+Then uploads (at most 0.2 ms a frame, A11.1), then the passes: object shadows (once things stand in view), scene (ground, then things), post, crawl slot, upscale, UI.
 
 **What it reads:** the frame (A11.1), the snapshot (A11.9), areas from `kd-app`'s builders (A11.5), and from the catalogue the fixed colours (kind `Colour`, `data/palette/colours.md`), the looks (`Look`, `data/palette/looks.md`), the air's numbers (`Air`, `data/palette/light.md`) and the surfaces (`Surface`, `data/models/surfaces.md`).
 
@@ -4440,8 +4441,8 @@ Size and build times are measured every alpha; growth over 5 MB is flagged in th
 
 - APK, every alpha (`PRC-11`, `SCP-03`): `tools/build-apk.sh release`, committed as `dist/kindling.apk` on the work branch and linked as `https://github.com/gunsandsalvi/Project-Nature/raw/<branch>/dist/kindling.apk`; the repository is public, so no sign-in is needed, and nothing secret is committed.
 - Installing (`PLT-06`): download in the browser and tap, allowing the browser once; the same key and a higher `versionCode` update in place, and worlds carry on (`PLT-09`).
-- Self-check (`PRC-11`): on the first launch of a new `versionCode`, kd-app spends at most 5 s on the catalogue blob's hash, a 10-person scene run one game day against a state hash baked in at build, a save and reopen in `cacheDir`, every shader compiled, AAudio opened and closed, and the writer's status; a failure shows a `KDS1:` code (gzip, base64, ≤ 2 KB) with Copy, decoded by `tools/decode-bench.py`.
-- Web: the first alpha publishes a probe page (a 1 KB WebAssembly module, a WebGL2 triangle) that shows the owner "WebAssembly works" or "blocked"; if it works, `dist/web/` is published as a private page at every alpha, at one URL kept in `dist/LINKS.md`; if not, A17.3.
+- Self-check (`PRC-11`): on the first launch of a new `versionCode`, kd-app spends at most 5 s on the catalogue blob's hash, a 10-person scene run one game day against a state hash baked in at build, a save and reopen in `cacheDir`, every shader compiled, AAudio opened and closed, and the writer's status; a failure shows a `KDS1:` code (gzip, base64, ≤ 2 KB) in the code dialog (`Request::ShowCode`: the shell gzips the report into the code and shows it with Copy, so it works before any UI exists and no compression crate enters Rust), decoded by `tools/decode-bench.py`.
+- Web: `dist/web/` is published as a private page at every alpha, at one URL kept in `dist/LINKS.md` (WebAssembly and WebGL2 ran in the private page from the first build); if that ever stops, A17.3.
 - Note (`PRC-11`): `dist/NOTE.md` (what is new, what to try, what is rough, the IDs delivered, the links), published as a private page with the APK link at its top and reused in the pull request and the owner's message; `kd check file --note` checks it.
 - Test worlds (`PLT-05`): a world whose slim export (A14.10) is under 50 MB goes on the `runs` branch, linked in the note; a larger one is made on the phone by a seeded command instead of being shipped.
   The note then carries a `KDW1:` code (seed, versions, compiled setting, switches, end time, state hashes expected on the way); the Tests screen's "Make test world" runs it at top speed under overnight mode's safeguards (`TIM-12`), checks each hash, and shows a test world with its switches (`RES-10`); a Year-500 world takes about a night.

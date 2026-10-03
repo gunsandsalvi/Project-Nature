@@ -89,11 +89,15 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α01c | The light | 1 | 6 | Not started |
-| α01d | Steady detail | 1 | 6 | Not started |
+| α00 | Skeleton on the phone | 1 | 6 | Not started |
+| α00b | Foundations and checks | 1 | 5 | Not started |
+| α01a | Colour from light | 1 | 6 | Not started |
+| α01b | The ground | 1 | 6 | Not started |
+| α01c | Shadows and air | 1 | 5.5 | Not started |
+| α01d | Steady detail | 1 | 5 | Not started |
 | α02a | The island | 1 | 4.5 | Not started |
 | α02b | The ground up close | 1 | 5 | Not started |
-| α02c | Cliffs and caves | 1 | 5 | Not started |
+| α02c | Cliffs and caves | 1 | 5.5 | Not started |
 | α02d | Plants and stones | 1 | 5 | Not started |
 | α03a | Time and light | 1 | 5.5 | Not started |
 | α03b | People appear | 1 | 5 | Not started |
@@ -201,143 +205,407 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 | α53a | Export and worlds across updates | 7 | 4 | Not started |
 | α53b | Release candidate and Stage 7 review | 7 | 5.5 | Not started |
 
-111 alphas still to build, about 546 hours of agent work in all.
+115 alphas still to build, about 568 hours of agent work in all.
 
 ## Stage 1: First camp (MIL-01)
 
 This stage builds the island of the first region and one band at the foot of its cliff, who gather, eat, drink, sleep, talk, court, pair, bear children, grow old and die through a 60-day year, with reasons on every card, saved every 30 seconds, tested in scenes and timed on the phone (`SCP-16` item 1).
 `SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows.
-Alphas over about 5 hours of tasks are split into lettered alphas: α01's rebuilt renderer into α01c and α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so what remains of the stage is 23 alphas, about 118.5 hours.
+Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, about 140.5 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
-The renderer is designed in A11 (A11.1), and α01c and α01d rebuild it from that reasoning; each task names the A11 sections it builds.
+The renderer is designed in A11 (A11.1), and α01a to α01d build it from that reasoning, in the form of code A11.13 sets; each task names the A11 sections it builds.
+On 3 October 2026 the owner had the codebase deleted and these first steps planned again from scratch, so α00 starts from the three documents and the release certificate alone (A15.5).
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
 
-### α01c The light (about 6 hours)
+### α00 Skeleton on the phone (about 6 hours)
 
-**Goal:** the valley lit by a model of the sun, the sky and the air, rebuilt from A11's reasoning: every material's ladder is its colour under that light, so sunlit ground glows warm and shade takes the sky's blue; shadows and sky light come from fields fixed to the land, so they hold still at every zoom; the ground's mesh morphs instead of switching, outlines mark only real edges, and haze grows with real distance; a tap on the strip steps the hour from dawn through noon and dusk to night, the light and the shadows moving with it.
+**Goal:** the empty repository becomes A2's workspace with all 19 crates, built, checked and delivered by scripts every later alpha reuses; the app opens on the phone, signed with the release key, and in a private web page, and draws a test card at art resolution: one art pixel is 4 × 4 screen pixels in portrait and landscape, and a bar moves one art pixel each frame.
 
-**Serves:** `PRE-01` (part), `PRE-02` (part), `PRE-03` (part: the pitch), `PRE-20` (part: looks and light steps), `PRE-21` (part: outlines by occlusion, lit edges), `PRE-22` (part: light and shading steady while zooming), `PRE-30` (part: the light model, the palette's versions by the hour, shadows that soften with distance, haze by real distance).
+**Serves:** `PRC-11` (part: an APK and a web page each alpha, its note, the self-check's first part), `SCP-15` (part: everything built and checked in the cloud session), `PLT-01` (part: an arm64 build running on the phone), `PLT-02` (part: rotation never restarts the app, and the art pixel keeps its size), `PLT-03` (part: no network permission), `PLT-06` (part: an APK installed from the browser, signed with the one release key), `PRE-22` (part: an art pixel is 4 × 4 screen pixels), `PRC-09` (part: work joins `main` by pull request), `PRC-10` (part: the first check script).
 
-**Architecture:** `A11.1`, `A11.2`, `A11.3`, `A11.4`, `A11.5`, `A11.12`.
+**Architecture:** `A2.1`, `A2.2`, `A2.3`, `A2.4`, `A2.5`, `A2.6`, `A2.7`, `A2.8`, `A3.8`, `A11.2`, `A11.13`, `A12.4`, `A15.1`, `A15.2`, `A15.3`, `A15.4`, `A15.5`, `A15.12`.
 
-**Needs:** none.
+**Needs:** none; the passphrase secret and the release certificate (`android/keys/`) exist (A15.5).
 
-**Crates and files touched:** `kd-render` (new `light`, `looks` and `field` modules; `camera`, `ground`, `pass`, `palette` and every shader rewritten), `kd-data` (kinds `Look`, `Air` and fixed colours in place of the ported ladders and light tables; `Surface` names looks), `kd-view` (`SkyView`), `kd-ui` (the strip's tap steps the hour; the UI's colours), `kd-app` (the hour and its sky), `kd-tools` (`kd catalog` for the new kinds), `data/palette/`, `data/models/surfaces.md`, `tools/screens/`.
+**Crates and files touched:** all new: the root files (`Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `.cargo/config.toml`, `clippy.toml`, `rustfmt.toml`), `crates/kd-*/` (19 crates), `tools/` (`setup.sh`, `env.sh`, `layers.toml`, `signing-key.py`, `build-apk.sh`, `verify-apk.sh`, `build-web.sh`, `check.sh`, `decode-bench.py`, `note-page.py`, `screens/`), `android/` (beside the kept `keys/`), `web/`, `dist/`, `bench/cloud/a00.json`, `results/`.
 
 **Tasks:**
 
-1. `T01c.1` **The light model (`PRE-30`, A11.4).**
-   `crates/kd-render/src/light.rs`: the air mass by Kasten and Young; per channel at 680, 550 and 440 nm the optical depths of Rayleigh scattering, the aerosol by turbidity and ozone; the sun's light facing it, the sky's light on level ground, twilight to −12°, night with a half moon and starlight; exposure following the light to the 0.85 power, rod vision's loss of colour in the dark, Narkowicz's filmic curve and sRGB; the haze's colour by the view's angle to the sun (Rayleigh's phase and Henyey and Greenstein's, `g` 0.7).
-   `kd-view::SkyView { sun: [f32; 3], moon: [f32; 3], moon_phase: f32, turbidity: f32 }`, carried by the frame; `kd-app` gives the demo area's eight hours at its latitude (21° N) at the equinox: dawn 06:30, morning 09:00, noon, afternoon 15:00, late afternoon 16:30 (the start), dusk 17:45, twilight 18:30 and night 23:00.
-   The model's numbers in `data/palette/light.md` (kind `Air`), each with its reason.
-   Commit `T01c.1: the light model (PRE-30, A11.4)`.
+1. `T00.1` **The workspace and the 19 crates (`PRN-14`, `PRC-09`, A2.1–A2.3, A15.1).**
+   Fetch `main` by name and bring the session's branch to it (P0's step 3); pull requests target `main`.
+   `rust-toolchain.toml`: Rust 1.97.0 with clippy, rustfmt and A2.8's three extra targets; `.cargo/config.toml` (A2.8): 16 KB pages for the phone, the arm64 linker and qemu runner for arm64 tests, `simd128` for the web, and no `target-cpu` or fast-math flag (A3.2).
+   `Cargo.toml`: the workspace; each outside crate of A2.2 pinned once in `[workspace.dependencies]` with a one-line reason; A15.1's profiles: `release` for the APK, `release-web` (`panic = "abort"`, which `wasm32` needs) for the wasm, `fast` for `kd`, scenes and benchmarks, and `dev` at `opt-level = 2` so tests run quickly with debug assertions and overflow checks on (A3.2).
+   The 19 crates of A2.2, each declaring now the workspace crates its row may depend on, so layering is checked from α00b; each `lib.rs` opens with what the crate owns, its sections and the IDs it implements, then `#![deny(unsafe_code)]` everywhere but `kd-render`, `kd-app`, `kd-android` and `kd-web`; `kd-android` and `kd-web` compile their modules only for their own targets, so a workspace build on x86 makes them empty libraries; `kd-tools` builds the binary `kd`, printing its usage until commands arrive.
+   `tools/layers.toml`: per crate, whether it is a simulation crate, the workspace and outside crates it may name, and for `kd-sim` the one file allowed `unsafe` (A4.8); `clippy.toml` at the root holds A2.3's and A3.2's bans for the simulation crates and `kd-view`, and each front-end crate and `kd-tools` has its own `clippy.toml` without them; `rustfmt.toml` sets 120 columns.
+   `cargo build --workspace --locked` ends with no warning.
+   Commit `T00.1: the workspace and the 19 crates (PRN-14, A2.1–A2.3)`.
 
-2. `T01c.2` **Looks and the computed palette (`PRE-20`, `PRE-01`, A11.3).**
-   `kd-data`: kind `Look` (`data/palette/looks.md`: the colour under white light as sRGB, the steps, an optional sheen), `data/palette/colours.md` rewritten as the fixed colours (`void`, `ink` and the UI's, each named for its use, text at least 7:1 on its panel), `Surface` naming its looks; the old palette's 84 colours, 51 ladders and 12 tables are removed.
-   `crates/kd-render/src/looks.rs`: each look's steps along A11.3's path of light at equal lightness; the palette row under the current light; the step thresholds; the tables (outline, lit edge, haze 1–3, warm 1–3, glow 1–2), recomputed when the row changes; `kd-ui` draws with the fixed colours by their new names.
-   Commit `T01c.2: looks and the palette computed from the light (PRE-20, PRE-01, A11.3)`.
+2. `T00.2` **The toolchain on a fresh session (`SCP-15`, A2.8, A15.2).**
+   `tools/setup.sh`, the one command a fresh session runs, safe to run again: Rust's targets and components; `cargo-ndk` 4.1.2 and the `wasm-bindgen` CLI at `Cargo.lock`'s version into `$KD_CACHE/cargo`; qemu and the arm64 linker from apt; the Android SDK's command-line tools, platform-tools, `build-tools;36.1.0`, `platforms;android-36` and NDK r30 into `$KD_CACHE/android`, each only if missing, each download's size logged under `$KD_CACHE`, never in the repository; on any failure it prints the command and its exit code (A15.2).
+   `tools/env.sh`, sourced by every build script: `KD_CACHE` (default `~/.cache/kindling`), `ANDROID_HOME`, `ANDROID_NDK_HOME`, `GRADLE_USER_HOME`, the NDK's compiler and linker for `aarch64-linux-android`, and the session image's Playwright and Chromium paths.
+   Commit `T00.2: toolchain setup for a fresh session (SCP-15, A2.8)`.
 
-3. `T01c.3` **Light fields (`PRE-30`, A11.5).**
-   `crates/kd-render/src/field.rs`: the sun field (heights resampled onto a grid turned to the sun's azimuth, a running maximum along each row from the sun's side, the caster's distance from its arg-max, resampled back) and the sky field (16 directions, the upper convex hull of each line's profile, `V` the mean of `cos²` of the horizon); uploaded as textures, the sun field recomputed when the hour changes.
-   Commit `T01c.3: sun and sky fields (PRE-30, A11.5)`.
+3. `T00.3` **The app, its platform and the renderer's GL layer (`PRC-11`, `PRE-22`, A2.2, A2.4, A3.8, A11.2, A11.13).**
+   `kd-view`: `InputEvent`, `Insets`, and an empty `Snapshot` (the world fills it from α03a).
+   `kd-render`, from A11.13: the `gl` module (programs with uniform locations found once at link, textures in the formats A11.13 lists, targets, meshes with declared layouts, and the full pipeline state each pass sets); `passes::scene` and its art target, `ceil(W/s) + 3` by `ceil(H/s) + 3` with `s` = 4 screen pixels (A11.2), into which the test card draws; `passes::upscale` (nearest, whole-number scale, the sub-pixel shift); `shaders/lib.glsl` with the defines generated from Rust constants (A11.13 rule 6); and a **test card** drawn at art resolution: a checker of single art pixels in one corner, a row of eight grey steps, and a bar moving one art pixel a frame; `Renderer::new`, `resize`, `draw` and `gl_info`.
+   `kd-app`: `App` with A2.2's `Platform` (`now_ns`, `post`; storage and cores join with their alphas) and `AppMsg` (input, insets, pause, resume, back); the frame loop; a panic on the GL thread skips the frame and three in a row show an error (A3.8); `selfcheck.rs` (A15.4): every shader compiled and the GL version read, a failure posting `Request::ShowCode { title, prefix: "KDS1:", json }` with the report as compact JSON, which each shell gzips and base64-encodes into the code and shows in the code dialog with Copy, so no compression crate enters Rust; requests reach the shells as a JSON array written by hand (`kd_app::requests_json`), since only `kd-android` may use `serde_json` (A2.2).
+   Commit `T00.3: the app, the GL layer and the test card (PRC-11, PRE-22, A11.2, A11.13)`.
 
-4. `T01c.4` **The ground, rebuilt (`PRE-02`, `PRE-20`, `PRE-22`, A11.5).**
-   Each area's heights as an `R32F` texture; one 16 × 16 grid patch drawn at the spacing `s = 2^k` m for the art pixel, its odd vertices morphing onto the next spacing over the upper half of each range; normals per pixel from the height texture.
-   `shaders/ground.vert` and `ground.frag`, written for A11's rules: the surface from the area's map (the present vote of the four nearest squares, until α01d's coverage), the grass split into its lush and dry looks by a world-fixed noise whose octaves fade below four art pixels; the sky factor from the sky field and the normal, the sun factor from the sun field's penumbra and `n·l`; the light's lightness to its step, dithered only in the band at a threshold; the pixel's haze level from its air path (A11.4).
-   The shadow-map pass and the stamped stones and tufts are removed (no things cast shadows yet; α01d brings stones and tufts back as instances).
-   Commit `T01c.4: the ground rebuilt on fields, morphing mesh and light steps (PRE-02, PRE-20, PRE-22, A11.5)`.
+4. `T00.4` **The Android shell, signed with the release key (`PLT-01`, `PLT-02`, `PLT-03`, `PLT-06`, A2.5, A15.3, A15.5).**
+   `android/`: the Gradle files with A2.5's versions and A2.8's repositories and retries; `MainActivity.kt` (immersive full screen, insets, Back, the screen kept on while drawing, `configChanges` so rotation never restarts it); `GameView.kt` (`GLSurfaceView`, ES 3.0, RGBA 8888 with no depth, `preserveEGLContextOnPause`, the 120 Hz request, touches queued to the GL thread in order); `Native.kt`; the code dialog (an `AlertDialog` with the code selectable and a Copy button, the code being the prefix and the base64 of the gzipped JSON); the manifest (one activity, no `INTERNET`, `allowBackup="false"`); `android/version.properties` (`versionCode`, `versionName`) and `android/permissions.txt` (the merged manifest's exact permissions: none yet).
+   `kd-android`: the JNI entries of A2.5's table that this alpha needs (`create`, `destroy`, `onResume`, `onPause`, `glCreated`, `glResized`, `glDraw`, `touch`, `insets`, `back`, `takeRequests`), each catching panics (A3.8); `glow` loaded through `eglGetProcAddress`; logs to logcat.
+   `tools/signing-key.py` (A15.5): scrypt of `KINDLING_SIGNING_PASSPHRASE` to a P-256 key, checked against `android/keys/release-cert.der` before anything is signed and written to a temporary file deleted afterwards; `selftest` derives a key from a test passphrase and checks it against a certificate it makes for the test.
+   `tools/build-apk.sh release|check`: Gradle under `env -u KINDLING_SIGNING_PASSPHRASE`, then `apksigner` with scheme v3 and the release key (`release`), or a key made and thrown away in the session (`check`); then `tools/verify-apk.sh`: the v3 signature and, for `release`, the certificate's SHA-256 equal to `android/keys/release-cert.sha256`; 16 KB alignment of zip entries and native segments; arm64 only; native libraries stored uncompressed; the JNI names kept; exactly the permissions in `android/permissions.txt`, never `INTERNET`; the APK and its SHA-256 go to `dist/`.
+   Commit `T00.4: the Android shell and the signed APK (PLT-01, PLT-06, A2.5, A15.5)`.
 
-5. `T01c.5` **Post, outlines and the camera (`PRE-21`, `PRE-03`, A11.2).**
-   `shaders/post.frag` written anew: outlines where a neighbour lies beyond the plane through the pixel and its opposite neighbour by more than the category's gap, lit edges toward the sun, then the haze and glow tables and the palette row; the camera's pitch a monotone cubic in the log of the art pixel through 30° at 0.03 m, 38° at 0.13 m, 52° at 1.1 m and 90° from 37 m; the golden cube drawn anew as a block of the limestone look in the late afternoon's light.
-   Commit `T01c.5: post, outlines and the pitch (PRE-21, PRE-03, A11.2)`.
+5. `T00.5` **The web shell and the smoke test (`PRC-11`, `PLT-02`, A2.6, A15.4).**
+   `kd-web`: `WebApp` with A2.6's `new`, `frame`, `pointer`, `resize`, `pause`, `resume` and `take_requests`; WebGL2 with A2.6's attributes; an art pixel 4 device pixels; a panic hook that shows the error line.
+   `web/index.html` (a full-window canvas, no scrolling, a dark ground, a one-line status) and `web/glue.js` (loads the wasm, forwards pointer events, runs the frame loop, pauses while the page is hidden, shows the code dialog with Copy, gzipping by `CompressionStream`); `tools/build-web.sh` (`wasm-bindgen --target web` into `dist/web/`, the wasm at most 12 MB).
+   `tools/screens/lib.mjs` (serves `dist/web/` to the session's Chromium through Playwright) and `tools/screens/smoke.mjs`: the page loads with no page error; `?test=1` exposes `window.kd` with `ready()`, `frame(n)` and `artSize()`; the test card's checker shows each art pixel as exactly 4 × 4 device pixels, in portrait and in landscape; the bar moves one art pixel a frame.
+   Commit `T00.5: the web shell and the smoke test (PRC-11, A2.6)`.
 
-6. `T01c.6` **The hour on the strip, the screens (`PRE-30`, `PRE-22`, A11.12).**
-   A tap on the strip steps the hour instead of the palette row; `window.kd` gains `hour(n)`; the golden scenes are drawn anew (`cube`; `valley-camp`, `valley-close` and `valley-near` at 16:30; `valley-noon` and `valley-night` at the camp stop), the smoke's palette check reading the computed row; the crawl counter measured at the camp stop and at zoom 0.16; `tools/screens/zoomstrip.mjs` (new) counts the art pixels changed by each 1% zoom step from 0.10 to 0.34.
-   Commit `T01c.6: the hour on the strip, goldens and counts (PRE-30, PRE-22, A11.12)`.
+6. `T00.6` **The first check script and the delivery tools (`PRC-10`, `PRC-11`, A15.4, A15.12).**
+   `tools/check.sh` prints each of A15.12's nine steps on a numbered line and runs those that exist so far: format, clippy with warnings as errors, `cargo check` for the phone and web targets, `cargo test --workspace --locked`, the smoke test, and with `--deliver` the release APK and the web build; the others print as waiting for their alpha; it writes `results/checks/<commit>.json` and prints `Checks: PASS <commit>`.
+   `tools/decode-bench.py` turns a `KDS1:` code back into JSON (later alphas add their codes); `tools/note-page.py` turns `dist/NOTE.md` into the note's private page with the APK link at its top; `dist/LINKS.md` keeps the web page's and the note's links.
+   Commit `T00.6: first checks and delivery tools (PRC-10, PRC-11, A15.12)`.
 
-7. `T01c.7` **Deliver (`PRC-11`).**
-   `versionCode=1013`, `versionName=a01c`; `bench/cloud/a01c.json` adds the palette row's and the fields' times; then P0's steps 5 to 8, the review the builder's own (α01c does not end α01).
+7. `T00.7` **Deliver (`PRC-11`, `PLT-06`).**
+   `versionCode=1000`, `versionName=a00`; `bench/cloud/a00.json` holds the build times and the APK's and wasm's sizes (A15.3); then P0's steps 5 to 8, the review the builder's own (α00 does not end α00), the note asking for one uninstall of the earlier Kindling first, since the version numbers start again.
+   **Bootstrap:** α00 joins `main` with its own checks; the layering, banned-item, file, commit and coverage checks and the gate arrive in α00b, before any other work joins.
 
-**Data:** `data/palette/colours.md` (`void`, `ink`, `ui_panel`, `ui_line`, `ui_text`, `ui_text_dim`, `ui_word`, `ui_link`, `ui_select`); `data/palette/looks.md` (`grass_lush`, `grass_dry`, `dirt`, `limestone`, `scree`); `data/palette/light.md` (`air`); `data/models/surfaces.md` (looks in place of ladders).
+**Data:** none.
 
 **Tests:**
-- `kd-render`: `light::tests::{sun_colour_follows_the_air, sky_is_blue_by_day, twilight_has_no_jumps, night_darker_than_dusk_darker_than_day, haze_warmer_toward_the_sun}`; `looks::tests::{steps_evenly_spaced, shade_steps_bluer_than_lit, tables_stay_in_the_palette, warming_never_flame, outline_and_edge_in_own_look, palette_fits}`; `field::tests::{sun_field_matches_a_march, sky_field_matches_a_march, open_flat_ground_sees_sun_and_sky}`; `ground::tests::{morph_is_continuous, spacing_follows_the_pixel}`; `camera::tests::pitch_rises_through_its_knots`.
-- `kd-data`: `compile::tests::looks_resolve` (every surface's looks exist; fixed colours and looks have unique ids).
-- `kd-ui`: a tap on the strip steps the hour.
-- Screens: the six goldens; the smoke's `pan stays crisp`, `palette only` and gestures; the crawl counts and the zoom strip's counts recorded in the bench file.
+- `kd-render`: `passes::scene::tests::art_size` (1080 × 2404 screen pixels give 273 × 604 art pixels, turned 604 × 273); `gl::tests::formats` (each texture format's GL constants and bytes a texel).
+- `kd-app`: `selfcheck::tests::report_as_requests` (a failing report is compact JSON with the version, the device, the GL line and the failures, and `requests_json` wraps it in a `ShowCode` request exactly).
+- Tools: `python3 tools/signing-key.py selftest`; `tools/verify-apk.sh` on the release APK; `python3 -m unittest discover -s tools/tests` (`test_decode.py`: a code made as the shells make it, gzip then base64, decodes to its JSON; `test_note_page.py`).
+- Screens: smoke `page loads`, `no page errors`, `art pixel 4x4 portrait`, `art pixel 4x4 landscape`, `bar moves a pixel a frame`.
 
 **On the phone:**
-1. Install and open: the valley in late-afternoon light: warm sun from the west, long cool shadows to the east, sunny slopes bright and hollows darker.
-2. Tap the strip again and again: dawn (gold light from the east), morning, noon (white light, short shadows), afternoon, late afternoon, dusk (red light, shadows across the valley), twilight (no shadows, all blue) and night (dim and moonlit), then dawn again.
-3. Pinch from the closest zoom out and back: light, shadows and outlines stay on the land and nothing flickers on and off; only the pixel grid resamples.
-4. Drag, twist and double-tap as before.
+1. Uninstall the old Kindling first (the version numbers start again), then install this APK from the note's link and open it.
+2. A test card fills the screen: a fine checker of single art pixels in one corner, eight grey steps and a bar sliding across.
+3. Turn the phone: the card is laid out again at once with the same pixel size, and nothing restarts.
+4. Open the note's web link: the same card in the browser.
 
-**Not in this alpha:** stones and tufts, surface edges from coverage, micro-relief and gestures that follow the fingers (α01d); water, glints and reflections (α02b); fire and glow (α14a); light shafts (with mist, α13); the clock (α03a).
+**Not in this alpha:** the layering, banned-item, file and coverage checks, and the core's numbers, time and chance (α00b); colours from light, the font and the strip (α01a); the land (α01b).
 
 **Risks:**
-- The model's colours too strong or too dull: the air's and the exposure's numbers in `data/palette/light.md` are tuned by eye on the goldens and logged in `data/TUNING-LOG.md` (`RES-16`).
-- Float textures on WebGL2: `R32F` is not filterable there, so the shaders read four texels and interpolate themselves.
+- Gradle's downloads failing in a fresh session: Google's mirror of Maven Central comes first, with 8 retries (A2.8); rerun once before investigating.
+- WebAssembly blocked in the private page: the APK is the only route (A17.3), and the note says so.
+- The derived key not matching the kept certificate (a changed passphrase): the build stops before signing and the note asks the owner to restore the passphrase; nothing is ever signed with another key.
+
+### α00b Foundations and checks (about 5 hours)
+
+**Goal:** `kd-core` gains the numbers, game time and keyed chance every system builds on, with the same bits on the phone, in the browser and in the cloud; and before any other work joins, `tools/check.sh` runs the layering, banned-item, file, commit and coverage checks and the gate; on the phone, the test card shows a green block when the phone's own maths and draws equal the cloud's.
+
+**Serves:** `TIM-16` (part: keyed chance, the same draws on every target), `TIM-14` (part: dates), `TIM-18` (part: game lengths), `RES-05` (part: maths and draws repeat across targets), `PRN-14` (part: layering enforced), `PRC-07` (part: the commit check), `PRC-09` (part: the gate and the review checklist), `PRC-10` (part: the checks before work joins), `PRC-12` (part: the coverage check and its self-test).
+
+**Architecture:** `A2.3`, `A2.7`, `A3.1`, `A3.2`, `A3.3`, `A4.1`, `A4.2`, `A15.1`, `A15.9`, `A15.12`, `A15.13`.
+
+**Needs:** α00.
+
+**Crates and files touched:** `kd-core` (`num`, `m`, `time`, `chance`), `kd-tools` (`kd check layers`, `kd check names`), `kd-app` (the self-check's core part), `kd-render` (the test card's core block), `tests/banned/`, `tools/` (`check.sh`, `check-banned.sh`, `filecheck.py`, `filecheck-known.txt`, `tests/`, `review-checklist.md`).
+
+**Tasks:**
+
+1. `T00b.1` **Numbers (`RES-05`, A3.2).**
+   `kd_core::num`: `min` and `max` by plain comparison; `clean` (adds 0.0, turning −0.0 into +0.0; NaN and infinity assert in tests and are stored as 0, logged once, in release); `hash64` (XXH3-64) and `hash2` (A3.3's `mix64` pair); `sum_f32` by A3.2's fixed tree and `dot_f32` in 8 fixed lanes; `fixed!` and the `Fixed` marker on `bytemuck::Pod`, asserting each saved type's size at compile time.
+   `kd_core::m`: A3.2's sixteen functions over `libm`, the only maths the simulation may call.
+   Commit `T00b.1: numbers and maths (RES-05, A3.2)`.
+
+2. `T00b.2` **Game time (`TIM-14`, `TIM-18`, A4.1, A4.2).**
+   `kd_core::time`: `GameTime(u64)` with A4.1's units (window, quarter hour, hour, day, season, year), `window`, `next_barrier` and `date(history_start)` giving `Date { year, season, day, second }`, written as `TIM-14` writes dates; `Dur { game_s }`, `Freq { per_game_s }` and `game_length(life)` by A4.2's three rows, the in-between row taking the entry's given length (A3.6's check rejects a missing one).
+   Commit `T00b.2: game time and the 60-day year (TIM-14, TIM-18, A4.1, A4.2)`.
+
+3. `T00b.3` **Keyed chance (`TIM-16`, A3.3).**
+   `kd_core::chance`: `stream_seed` and `draw` exactly as A3.3 writes them; `Stream` (a purpose's cached seed) with `unit`, `chance`, `below`, `range`, `pick_weighted` and `normal`; `systems` (A3.3's 13); the `purposes!` macro giving each purpose its number, name, subject kind and `Fortune { Good, Bad, None }`, with each system's `RETIRED` list; `registry.rs`, which joins every crate's list (the joining test runs in `kd-sim` once systems exist, A3.3).
+   Commit `T00b.3: keyed chance (TIM-16, A3.3)`.
+
+4. `T00b.4` **The same bits on every target (`RES-05`, `TIM-16`, A3.1, A15.9).**
+   Stored values in `crates/kd-core/tests/fixtures/`: each `m` function at 1,000 fixed inputs, and 10,000 draws over fixed keys, each file with its `num::hash64`.
+   They are checked on x86-64, on arm64 under qemu (`cargo test -p kd-core --target aarch64-unknown-linux-gnu`) and as wasm in the browser (`window.kd.core()` returns the hashes, which the smoke test compares), as `tools/check.sh` step 6's first form (A15.9 item 5).
+   The self-check computes the same hashes on the phone; the test card gains a block, green when they equal the cloud's, red otherwise, the code dialog then naming what differs.
+   Commit `T00b.4: maths and draws equal on every target (RES-05, A15.9)`.
+
+5. `T00b.5` **Layering and banned items (`PRN-14`, A2.3, A15.1).**
+   `kd check layers`: `cargo metadata` against `tools/layers.toml`; it fails a workspace or outside crate a crate may not name, `unsafe` outside the allowed files, and any feature but `kd-tools`' that turns on `test-switches` (A3.9).
+   `kd check names` (A2.3 rule 5): no catalogue id written as a string in a simulation crate; until the catalogue exists (α01a) it checks an empty list.
+   `tests/banned/`, outside the workspace, uses each banned type and method once; `tools/check-banned.sh` fails unless clippy flags every one, so a mistyped ban can't silently ban nothing.
+   Commit `T00b.5: layering and banned items (PRN-14, A2.3)`.
+
+6. `T00b.6` **The file, commit and coverage checks (`PRC-07`, `PRC-10`, `PRC-12`, A15.12).**
+   `tools/filecheck.py` (Python's standard library only, A15.12): `file`: `PROJECT.md`'s markers, statuses, unique and retired IDs and generated lists; every ID and section the three documents cite exists; each alpha section holds the eleven fields in order, with task IDs matching its alpha; and the commit check of `PRC-07` over `origin/main..HEAD` (every `Changed:` line naming each ID whose lines changed).
+   `ids --merge`: A15.12 step 8, built items read from the code's `Implements` lines, and the plan's coverage map current; `map [--write]` makes the map; `note` checks `dist/NOTE.md`'s five headings and APK link; `gate <description>` is A15.13 step 6; `selftest` runs one planted fixture per message and a clean one that passes; unit tests in `tools/tests/`; `tools/filecheck-known.txt` lists findings awaiting the owner.
+   Commit `T00b.6: the file, commit and coverage checks (PRC-07, PRC-10, PRC-12, A15.12)`.
+
+7. `T00b.7` **The gate and the review (`PRC-09`, `PRC-10`, A15.12, A15.13).**
+   `tools/review-checklist.md` (A15.13 step 3, with the pictures looked at as a pixel artist and a designer would); `tools/check.sh --gate <description>` runs `filecheck.py gate`; `check.sh` now runs A15.12's steps 1–3 and 6–9, with steps 4 and 5 waiting for the catalogue (α01a) and scenes (α07c).
+   Commit `T00b.7: the gate and the review checklist (PRC-09, A15.13)`.
+
+8. `T00b.8` **Deliver, and α00's verification (`PRC-11`, `PRC-09`).**
+   `versionCode=1002`, `versionName=a00b`; then P0's steps 5 to 8, now with the gate, and one independent subagent verifying the whole of α00 (α00 and α00b, their sections as the plan held them when α00 began), as α00b ends α00.
+
+**Data:** none.
+
+**Tests:**
+- `kd-core` (`TIM-16`, `RES-05`, `TIM-14`, `TIM-18`): `num::tests::{min_max_signed_zero, clean_turns_negative_zero, sum_tree_fixed_order, hash2_mixes}`; `m::tests::stored_bits` (x86-64, arm64 under qemu, wasm); `time::tests::{date_round_trips_at_every_edge, barriers_near_2_pow_40, game_length_rows}` (14, 15, 84, 85 and 365 days); `chance::tests::{known_answers, stored_draws, uniform_in_64_bins, helpers_in_range, normal_mean_and_spread}`.
+- `kd-tools` (`PRN-14`): `layers::tests::{forbidden_edge_fails, unsafe_outside_allowed_fails, test_switches_only_from_kd_tools}`.
+- Tools: `tools/check-banned.sh` (every ban flagged); `python3 tools/filecheck.py selftest`; `python3 -m unittest discover -s tools/tests`; `python3 tools/filecheck.py file` and `ids --merge` on the real documents.
+- Screens: smoke `core hashes equal`.
+
+**On the phone:**
+1. Install the update from the note's link (it installs over α00) and open it.
+2. The test card has gained a block in one corner: green means the phone's maths and random draws give exactly the cloud's bits; if it is red, a box with a code appears: copy it into your reply.
+
+**Not in this alpha:** catalogue checks (α01a); scenes and the repeat check on worlds (α07c); the stage coverage check `ids --stage` (α07e).
+
+**Risks:**
+- `libm` giving different bits on arm64 than on x86-64 for some input: the stored-bits test finds it, and that function gets a polynomial in plain arithmetic (A3.2's allowance).
+- Citation errors across the three documents taking long to fix: the documents already pass the same rules; anything needing the owner waits in `tools/filecheck-known.txt`.
+
+### α01a Colour from light (about 6 hours)
+
+**Goal:** the game's colours come from a model of the light: the catalogue holds each material's look and the air's numbers, the renderer turns them into the palette at any hour, and a light card shows every look's shades and a turning limestone block, warm in the sun and blue in shade, as the strip steps through eight hours from dawn to night; the version line is set in the game's own pixel font.
+
+**Serves:** `PRE-01` (part: every art pixel one palette colour), `PRE-20` (part: looks of 4–7 steps, the light picks the step, a narrow dithered band), `PRE-30` (part: the light from the sun, the sky and the air; the palette's versions by hour; the vivid grade), `PRE-32` (part: the strip and the version line, nothing else on screen), `MAT-13` (part: the catalogue compiler), `MAT-17` (part: every entry names its checks; the compiler's rules), `PLT-09` (part: the blob's versions and hash).
+
+**Architecture:** `A3.6`, `A3.7` (the sky), `A11.1`, `A11.2`, `A11.3`, `A11.4`, `A11.12`, `A11.13`, `A12.1`, `A12.2`.
+
+**Needs:** α00b.
+
+**Crates and files touched:** `kd-core` (`sky`, `kinds`), `kd-data` (`schema`, `kinds`, `blob`, `compile` behind feature `compile`), `kd-tools` (`kd catalog build|check|tables`; `kd check names` reads the catalogue), `kd-view` (`SkyView`, `UiDrawList`, `FontAtlas`), `kd-render` (`light`, `looks`, `pixel`, `frame`, `probe`, `passes::post`, `passes::ui`, `shaders/`), `kd-ui` (`font`, `draw`, `strip`), `kd-app` (`build.rs` embedding the blob; the hour), `kd-web` and `web/glue.js` (`window.kd`'s `hour`, `palette`, `probe`, `golden` and `shot`), `data/` (`VERSION.toml`, `ids.lock`, `INDEX.md`, `palette/colours.md`, `palette/looks.md`, `palette/light.md`), `assets/font/`, `assets/LICENSES.md`, `tools/screens/golden.mjs`, `tests/golden/`, `tools/check.sh` (step 4).
+
+**Tasks:**
+
+1. `T01a.1` **The catalogue compiler (`MAT-13`, `MAT-17`, `PLT-09`, A3.6).**
+   `kd-data`, its compiler behind feature `compile`: A3.6's five steps (every `data/**/*.md` in sorted path order, split at `##`, exactly one `toml` block an entry; parsed into its kind's schema with no unknown or missing field; ids resolved to their numbers in `data/ids.lock`, `--assign` adding new ones; per-kind tables in number order; the blob encoded with `postcard` behind the `KDCAT` header: format, rules and generator versions, and `num::hash64` of the body) and validation rules 1, 2, 4 and 6 for the kinds so far; `kinds.rs` names the kind each file or folder under `data/` holds, and a Markdown file no kind claims fails; `Catalogue::load` checks magic, format and hash.
+   The human tables between each entry's markers and `data/INDEX.md` are generated (A3.6); `kd catalog build [--assign]`, `kd catalog check` (a stale table fails) and `kd catalog tables`; `tools/check.sh` step 4 runs `kd catalog check`.
+   Commit `T01a.1: the catalogue compiler (MAT-13, MAT-17, PLT-09, A3.6)`.
+
+2. `T01a.2` **Fixed colours, looks and the air (`PRE-20`, `PRE-30`, A11.3, A11.4).**
+   Kind `Colour` (`data/palette/colours.md`): `void`, `ink` and the UI's colours of A12.1, each a `#rrggbb` value with its use, the check proving body text at least 7:1 on its panel.
+   Kind `Look` (`data/palette/looks.md`): a material's colour under white light (sRGB, taken to linear albedo), its steps (4–7) and an optional sheen; the first five, `grass_lush`, `grass_dry`, `dirt`, `limestone` and `scree`, from measured reflectances where known and plausible estimates otherwise (`PRN-05`).
+   Kind `Air` (`data/palette/light.md`, one entry `air`): every number of A11.4's model (the three wavelengths, the optical depths, turbidity, twilight's fall per degree, the moon's weakness, starlight, exposure's power, rod vision's two thresholds, the grade's chroma factor, the haze levels and their mixes), each with its reason in the entry's text.
+   `kd-app`'s build script compiles `data/` and embeds the blob; the app loads it at start (under 10 ms, A3.6); a catalogue that fails its checks fails the build.
+   Commit `T01a.2: fixed colours, looks and the air as data (PRE-20, PRE-30, A11.3, A11.4)`.
+
+3. `T01a.3` **The sun and the light model (`PRE-30`, `WLD-07`, A3.7, A11.4).**
+   `kd_core::sky` (A3.7): `pub struct Sky { tilt_deg, moon_start, node_period, node_start }`, `pub struct SkyState { sun_dir: [f32; 3], sun_height_deg, day_hours, moon_dir, moon_phase, moon_lit, eclipse }` and `pub fn sun_moon(t, lat, lon, sky) -> SkyState` with A3.7's formulas for declination, hour angle with longitude (local noon 4 minutes earlier per degree east), direction (east, north, up) and day length with latitude held within ±89.9°; the moon full once a season; `eclipse` 0 until `MIL-04`; all maths through `kd_core::m`; a fixed `Sky` (tilt 23.5°) until the world draws its own (α03a).
+   `kd_render::light` (A11.4): the air mass by Kasten and Young; the optical depths per channel at 680, 550 and 440 nm; the sun's light facing it; the sky's light on level ground; twilight to −12°; night with a half moon and starlight; exposure following the light to the 0.85 power; rod vision's loss of colour; Narkowicz's filmic curve; the vivid grade (chroma × 1.2 at unchanged lightness, kept inside sRGB by chroma alone); sRGB; the haze colour by the angle to the sun (Rayleigh's phase and Henyey and Greenstein's, `g` 0.7).
+   `kd-view::SkyView` (the sun's and moon's directions, the moon's phase, the turbidity) carried by the frame; `kd-app` sets the hour from a list of eight at 21° N at the equinox (dawn 06:30, morning 09:00, noon, afternoon 15:00, late afternoon 16:30, dusk 17:45, twilight 18:30, night 23:00) through `sun_moon`, until the clock runs it (α03a).
+   Commit `T01a.3: the sun and the light model (PRE-30, WLD-07, A3.7, A11.4)`.
+
+4. `T01a.4` **Looks into the palette (`PRE-20`, `PRE-01`, A11.3).**
+   `kd_render::looks`: each look's steps on A11.3's path through the light (deep shade, open shade, full sun) at equal lightness; the palette row under the current light: `void`, the fixed colours, then each look's steps; the step thresholds, the same for every look; the tables (outline, lit edge, haze 1–3, warm 1–3, glow 1–2), recomputed with the row; the row recomputed only when one of its colours would move by a whole 1/255 (A11.3); the palette (256 × 1) and tables (256 × 16) uploaded as textures (A11.13).
+   Commit `T01a.4: looks into the palette under the light (PRE-20, PRE-01, A11.3)`.
+
+5. `T01a.5` **Post, the twins and the probe (`PRE-01`, `PRE-20`, A11.13).**
+   The scene writes A11.2's colour 0 (the palette index, the category, the flags, the view depth); `kd_render::Cat` numbers the categories (void 0, ground 1, rock 2, water 3, plant 4, figure 5, thing 6, effect 7) and `lib.glsl` takes them as generated defines (A11.13 rule 6); `passes::post` writes each art pixel's palette colour from its index and the row (outlines, haze and glow join in α01c); `kd_render::pixel`, the Rust twins (A11.13 rule 2) of the light's lightness from the sky and sun factors, its step against the thresholds, and the band's 4 × 4 world-fixed Bayer dither; the **probe scene** draws a grid of fixed inputs, one art pixel each, and `window.kd.probe()` returns their indices, which the smoke test compares with the twins exactly.
+   Commit `T01a.5: post, the pixel twins and the probe scene (PRE-01, PRE-20, A11.13)`.
+
+6. `T01a.6` **The pixel font and the strip (`PRE-32`, `PRE-01`, A12.1, A12.2).**
+   `assets/font/glyphs-7.txt`: the 7-pixel proportional font drawn as text art, A12.1's fallback, every printable ASCII character, 2-pixel descenders, and the letters with accents the languages' words need (A9.2); `kd-ui::font` reads it into a `FontAtlas` (glyph bitmap, cells, advances) and lays out runs; `kd-ui::draw` builds the `UiDrawList`; `passes::ui` draws it after the upscale, one UI pixel an art pixel, in the fixed colours.
+   The bottom strip (24 UI pixels tall, above the gesture strip and the insets): a tap steps the hour, and the version line (`a01a · 1011 · catalogue 1.0 <hash>`) sits under it, smaller; any touch shows the strip for 3 seconds, then it dissolves by the 4 × 4 Bayer pattern (`PRE-32`).
+   Commit `T01a.6: the pixel font and the strip (PRE-32, A12.1)`.
+
+7. `T01a.7` **The light card (`PRE-20`, `PRE-30`, A11.12).**
+   The card shows each look's steps as a row of swatches with its name, and a 2 m limestone block (category rock) turning slowly in front of `void`: each face's sky factor `(1 + n_y)/2` and sun factor `n·l` give its light, whose lightness picks the step, dithered only in the band (A11.3); the hours step with the strip.
+   `window.kd` gains `hour(n)`, `palette()`, `golden(name)` (a fixed scene with time frozen) and `shot({ art })` (the next frame as a PNG, or with `art` one pixel an art pixel); `tools/screens/golden.mjs` compares exactly with stored PNGs for the session's Chromium the goldens `light-card` at 06:30, 12:00, 16:30, 18:30 and 23:00 and `block` at 16:30, written once when missing.
+   Commit `T01a.7: the light card and its goldens (PRE-20, PRE-30, A11.12)`.
+
+8. `T01a.8` **Deliver (`PRC-11`).**
+   `versionCode=1011`, `versionName=a01a`; `bench/cloud/a01a.json` adds the palette row's and the tables' times and the blob's load time; then P0's steps 5 to 8, the review the builder's own (α01a does not end α01).
+
+**Data:** `data/VERSION.toml` (`major = 1`, `minor = 0`, `generator = 1`); `data/ids.lock`; `data/palette/colours.md` (`void`, `ink`, `ui_panel`, `ui_line`, `ui_text`, `ui_text_dim`, `ui_word`, `ui_link`, `ui_select`); `data/palette/looks.md` (`grass_lush`, `grass_dry`, `dirt`, `limestone`, `scree`); `data/palette/light.md` (`air`); `assets/font/glyphs-7.txt`.
+
+**Tests:**
+- `kd-data` (`MAT-13`, `MAT-17`, `PLT-09`): `compile::tests` with one planted error per validation rule so far; `blob::tests::{round_trip, bad_hash_refused, bad_magic_refused}`; `compile::tests::text_contrast` (body text at least 7:1 on its panel).
+- `kd-core` (`WLD-07`): `sky::tests::equinox_days_are_12_hours` (spring day 1 and autumn day 1, latitudes 0–60°, within 0.1 h); `sky::tests::day_length_formula` (46° N at the summer solstice gives the standard formula's 15.6 h at tilt 23.5°, within 0.1 h); `sky::tests::midnight_sun_and_polar_night` (beyond 90° − tilt); `sky::tests::full_moon_once_a_season`; the same tests on arm64 under qemu.
+- `kd-render` (`PRE-30`, `PRE-20`): `light::tests::{sun_colour_follows_the_air, sky_is_blue_by_day, twilight_has_no_jumps, night_darker_than_dusk_darker_than_day, haze_warmer_toward_the_sun, grade_keeps_lightness}`; `looks::tests::{steps_evenly_spaced, shade_steps_bluer_than_lit, tables_stay_in_the_palette, outline_and_edge_in_own_look, palette_fits}`; `pixel::tests::{step_at_thresholds, dither_only_in_the_band}`.
+- `kd-ui` (`PRE-32`): `font::tests::{every_glyph_fits_its_cell, descenders_two_pixels}`; `strip::tests::tap_steps_the_hour`.
+- Screens: smoke `probe equals the twins`, `palette row equals the cloud's`; goldens `light-card` (five hours) and `block`.
+
+**On the phone:**
+1. Install the update and open it: a card of colour swatches, one row a material, and a pale limestone block turning in late-afternoon light, warm on its sunny face and bluish in shade.
+2. Tap the strip at the bottom again and again: dawn (gold), morning, noon (white light), afternoon, late afternoon, dusk (red), twilight (blue, no sun) and night (dim and moonlit); every swatch changes with the light.
+3. Read the version line under the strip, in the game's own pixel font.
+
+**Not in this alpha:** the land (α01b); shadows, outlines, lit edges and haze (α01c); fire's warmth and glow (α14a); the clock (α03a).
+
+**Risks:**
+- The model's colours too strong or too dull: the air's and the grade's numbers in `data/palette/light.md` are tuned by eye on the goldens and logged in `data/TUNING-LOG.md` (`RES-16`).
+- Rounding differing between the GPU and the twins at a threshold: thresholds are set where no input of the probe lies within 1e-4 of them, and the probe finds any other difference.
+
+### α01b The ground (about 6 hours)
+
+**Goal:** a 256 m piece of land with a 30 m cliff fills the screen as pixel-art ground, its grass, dirt, rock and scree lit by the light model at the strip's hour; its mesh blends between levels of detail instead of switching; and the owner drags, pinches and twists from a few metres up to the whole piece, the land staying under the fingers and every pan moving the picture by whole pixels.
+
+**Serves:** `PRE-02` (part: a real 3D ground drawn at low resolution), `PRE-03` (part: the person, close camp and camp stops; the pitch), `PRE-20` (part: surfaces in their looks' steps), `PRE-22` (part: snapping, whole-pixel pans, turns easing to rest), `PRE-33` (part: drag, pinch, twist and double-tap drag, following the fingers), `PRE-34` (part: both orientations), `WLD-01` (part: positions on the wrap-around world), `WLD-12` (part: an area's ground to the metre).
+
+**Architecture:** `A3.7`, `A5.3`, `A11.2`, `A11.5`, `A11.13`, `A12.2`.
+
+**Needs:** α01a.
+
+**Crates and files touched:** `kd-core` (`geo`), `kd-data` (kind `Surface`), `kd-world` (`area/relief.rs`, `area/demo.rs`), `kd-view` (`CameraPose`, `AreaMeshes`), `kd-render` (`camera`, `ground`, `pixel`, `shaders/ground.vert`, `shaders/ground.frag`), `kd-ui` (`gestures`), `kd-app` (the camera's pose and easing; the demo area), `data/models/surfaces.md`, `tools/screens/smoke.mjs`, `tests/golden/`.
+
+**Tasks:**
+
+1. `T01b.1` **Positions (`WLD-01`, A3.7).**
+   `kd_core::geo`: `Pos` in ticks of 1/256 m, `W` and `H`, `wrap`, `delta` the short way across either seam, `dist`, `offset`, `lat_deg`, `lon_deg`, `Vec2`; `AreaId` and `CellIx` with their conversions both ways (`AreaId::cell`, `AreaId::origin`, `CellIx::areas`); α02a completes A3.7's index table.
+   Commit `T01b.1: positions on the wrap-around world (WLD-01, A3.7)`.
+
+2. `T01b.2` **The relief noise and the demo area (`WLD-12`, A5.3).**
+   `kd-world::area::relief` (A5.3): `key`, the gradient noise with its quintic fade, and `fbm`, each octave half the last's period and height, scaled to ±1, lattice indices wrapping at the world's size.
+   `kd-world::area::demo`: the stand-in area until α02b makes areas from cells: a 256 m window whose ground is the blend of four corner heights (310, 342, 365 and 330 m), plus the relief's 7 octaves from a 256 m period at ±6 m, plus a 30 m escarpment along a line wandering ±150 m by 4 octaves of the relief noise, rising over 4 m; rock beds by height (1.5–6 m thick, a quarter of them soft, keyed by height band); each square metre's material: soil on slopes under 30°, the bed showing at that height where steeper than 45°, bare dirt between, scree within 6 m of the cliff's foot; heights in decimetres above the area's lowest point (A5.3).
+   Commit `T01b.2: the relief noise and the demo area (WLD-12, A5.3)`.
+
+3. `T01b.3` **Surfaces (`PRE-20`, A11.5).**
+   Kind `Surface` (`data/models/surfaces.md`): each surface names one to three looks and how they split (grass: `grass_lush` and `grass_dry` by a world-fixed noise of 24 m and 6 m octaves, A11.5); `grass`, `dirt`, `rock` (the `limestone` look) and `scree`; the demo's materials map to them.
+   Commit `T01b.3: surfaces naming their looks (PRE-20, A11.5)`.
+
+4. `T01b.4` **The ground on the GPU (`PRE-02`, `PRE-20`, `PRE-22`, A11.5, A11.13).**
+   `kd_render::ground`: the CPU store of the loaded area (heights, surface map) and its textures: heights as a 257 × 257 `R32F` texture and the surfaces as an `R8` map, a byte a square metre; one shared 16 × 16 grid patch drawn over each 16-quad square at the spacing `s = 2^k` m, the smallest with `s ≥ 1.25 × texel` and `s ≥ 1`, its odd vertices sliding onto the next spacing's mesh over the upper half of each spacing's range, so nothing jumps (A11.5); every vertex reads its height from the texture, interpolating itself; 4 m skirts at the area's edge; `kd-app` hands the demo area over as `AreaMeshes` through `upload_area` (A11.1).
+   `shaders/ground.vert` and `ground.frag` from A11's rules: the normal per pixel from the heights' central differences; the surface from the four nearest squares' vote by weight (until α01d's coverage), its edges wandering by world-fixed noise whose octaves fade below four art pixels (A11.1 rule 2); grass split into its two looks by the same rule; the sky factor `(1 + n_y)/2` and the sun factor `n·l` until α01c's fields; the light's lightness to its step, dithered only in the band; the category ground, or rock where the surface is a rock's (A11.2); the twins in `pixel` gain the surface vote and the faded noise, and the probe scene covers them.
+   Commit `T01b.4: the ground on the GPU, morphing and lit (PRE-02, PRE-20, A11.5)`.
+
+5. `T01b.5` **The camera (`PRE-03`, `PRE-22`, A11.2).**
+   `kd_render::camera`, all on the CPU (A11.13): `texel(zoom)` log-linear between A11.5's stops, the person, close camp and camp stops in reach (zoom 0.00–0.34); the pitch as a monotone cubic in the log of the art pixel through 30° at 0.03 m, 38° at 0.13 m, 52° at 1.1 m and 90° from 37 m; an orthographic view; the view snapped to even art pixels counted from the world's corner in `f64`, the remainder the upscale's shift and the dither's phase; blocks of 512 art pixels within which the projection stays put and the viewport moves by whole pixels; the floating origin at the area corner nearest the ground in the middle of the view's block, every area's vertices from its own corner plus that corner's offset; the depth range over the block's footprint, ±30 m (A11.2).
+   Commit `T01b.5: the camera, snapped and blocked (PRE-03, PRE-22, A11.2)`.
+
+6. `T01b.6` **Gestures that follow the fingers (`PRE-33`, `PRE-34`, `PRE-22`, A12.2).**
+   `kd-ui::gestures`, A12.2's recognisers for raw touches: a drag moves the ground under the finger and a fling eases to rest (τ 0.3 s); a pinch scales the land by the fingers' distance ratio about their midpoint and a twist turns it about the same point, so the land stays under both fingers; a double-tap drag zooms by 0.8 a screen height; a tap; the thresholds of A12.2's table; a touch starting on the strip belongs to the strip.
+   `kd-app` holds the pose and its easing; drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, so turns and zooms pivot on the ground in the middle of the screen while the picture stays still (A11.2).
+   Commit `T01b.6: gestures that follow the fingers (PRE-33, A12.2)`.
+
+7. `T01b.7` **The screens (`PRE-22`, `PRE-02`, A11.12).**
+   `window.kd` gains `camera()` and `aim(target, yaw, zoom)`; the smoke test gains `pan stays crisp` (a one-art-pixel pan moves the picture by exactly 4 screen pixels, both inside a block and across a move of the floating origin), the gestures driven by synthetic touches (each does what it should and nothing else), and the land kept under two synthetic fingers through a pinch and a twist within half an art pixel.
+   Goldens `valley-camp`, `valley-close` and `valley-near` at 16:30.
+   Commit `T01b.7: pan, gesture and valley screens (PRE-22, A11.12)`.
+
+8. `T01b.8` **Deliver (`PRC-11`).**
+   `versionCode=1012`, `versionName=a01b`; `bench/cloud/a01b.json` adds the area's making and upload times and the triangles at each stop; then P0's steps 5 to 8, the review the builder's own.
+
+**Data:** `data/models/surfaces.md` (`grass`, `dirt`, `rock`, `scree`).
+
+**Tests:**
+- `kd-core` (`WLD-01`): `geo::tests::{delta_symmetric_across_seams, offset_then_delta_round_trips, triangle_rule, area_cell_round_trips}`.
+- `kd-world` (`WLD-12`): `area::relief::tests::{octaves_periodic_and_bounded, same_bits_on_every_target}`; `area::demo::tests::{escarpment_in_the_window, materials_by_slope_bed_and_foot, golden_demo_hash}` (x86-64 and arm64 under qemu).
+- `kd-render` (`PRE-02`, `PRE-22`, `PRE-03`): `ground::tests::{morph_is_continuous, spacing_follows_the_pixel}`; `camera::tests::{snap_moves_whole_pixels, origin_stays_put_within_a_block, pitch_rises_through_its_knots}`; `pixel::tests::{surface_vote_by_weight, noise_fades_below_four_pixels}`.
+- `kd-ui` (`PRE-33`): `gestures::tests::{drag_is_not_a_tap, pinch_keeps_the_land_under_the_fingers, twist_keeps_the_land_under_the_fingers, double_tap_drag_zooms}`.
+- Screens: smoke `pan stays crisp`, the gestures, `land under the fingers`, `probe equals the twins`; goldens `valley-camp`, `valley-close`, `valley-near`.
+
+**On the phone:**
+1. Install the update and open it: a valley floor of grass, a pale cliff crossing it and scree at its foot, in late-afternoon light.
+2. Drag: the land moves under your finger and glides to rest; pinch in to a few metres and out to the whole piece; twist with two fingers: the land stays under your fingers.
+3. Pinch slowly from close to far: the ground's shape blends smoothly, with no sudden jumps.
+4. Tap the strip: the light steps through the eight hours over the land (shadows come in α01c).
+
+**Not in this alpha:** shadows, darker hollows, outlines, lit edges and haze (α01c); smooth surface edges by coverage, fine relief, stones and tufts (α01d); the island and its zoom stops beyond the camp (α02a).
+
+**Risks:**
+- `R32F` heights in the vertex shader on the phone's GPU: they are core in OpenGL ES 3.0 and WebGL2 with nearest sampling, which A11.13 rule 3 uses; the self-check reports a link failure.
+- Gestures feeling wrong on the phone: the thresholds are A12.2's, the owner says so in the reply, and the numbers move to `data/tuning/render.md` (`PRN-17`).
+
+### α01c Shadows and air (about 5.5 hours)
+
+**Goal:** the cliff casts real shadows that are sharp near it and soften as they lengthen, hollows and the cliff's foot are darker and cooler, the cliff's edge has a one-pixel outline only where it stands in front of the land behind, its sunlit rim catches the light, and haze grows with real distance, warmer toward the sun; light, shadow and outlines stay on the land while the owner zooms, as the steadiness counts measure.
+
+**Serves:** `PRE-30` (part: real shadows by the hour, sharp near and softer far; darker hollows; haze by distance, warmer toward the sun), `PRE-21` (part: outlines only where one thing stands in front of another; lit edges), `PRE-22` (part: light and shading holding still while zooming; the crawl slot and its counter), `PRE-02` (part).
+
+**Architecture:** `A11.1`, `A11.2`, `A11.4`, `A11.5`, `A11.10`, `A11.12`, `A11.13`.
+
+**Needs:** α01b.
+
+**Crates and files touched:** `kd-render` (`field`, `ground`, `pixel`, `passes::post`, `passes::crawl`, `probe`, `shaders/`), `kd-app` (field jobs), `kd-web` (`window.kd.crawl`), `tools/screens/` (`crawl.mjs`, `zoomstrip.mjs`), `tests/golden/`.
+
+**Tasks:**
+
+1. `T01c.1` **Light fields (`PRE-30`, A11.5).**
+   `kd_render::field`, on the CPU (A11.13): the sun field (the heights resampled onto a grid turned to the sun's azimuth; along each row from the sun's side a running maximum of `h − s′ tan e` giving each point's shadow height `H`, and its arg-max the caster's distance `d`; resampled back) and the sky field (16 directions, each line's horizons by the upper convex hull of the profile behind, `V` the mean of `cos²` of the horizon's height); uploaded as `RG32F` and `R8` textures; the sun field recomputed when the sun moves by 0.1°, the sky field once an area.
+   Commit `T01c.1: sun and sky fields (PRE-30, A11.5)`.
+
+2. `T01c.2` **The ground lit by its fields (`PRE-30`, A11.3, A11.4).**
+   The ground shader's sky factor becomes `V × (1 + n_y)/2` and its sun factor the sunlit share `clamp((z − H + d × 0.0047) / (d × 0.0093), 0, 1)` times `n·l`: the sun's disc's penumbra, so a shadow's edge is sharp near its caster and softer as it lengthens, drawn as dither where it spans pixels and as a hard edge where it does not (A11.4); the twins gain both factors.
+   Commit `T01c.2: the ground lit by its fields (PRE-30, A11.4)`.
+
+3. `T01c.3` **Outlines, lit edges and haze (`PRE-21`, `PRE-30`, A11.2, A11.4).**
+   The scene writes each pixel's category, sunlit flag, haze level and view depth (A11.2's colour 0); `passes::post`: an outline where a neighbour lies farther than the plane through the pixel and its opposite neighbour predicts by more than the category's gap (ground 6 m, rock 1.5 m), the look two steps darker; a lit edge where the silhouette pixel is sunlit and the far neighbour lies toward the sun on screen, the look's top step; then the haze table of the pixel's level.
+   Haze (A11.4): the eye at 1.37 times the view's width; each pixel's optical depth along its ray through the air's two layers (aerosol over 1.2 km, Rayleigh over 8 km), in closed form; `1 − exp(−depth)` quantised into levels 0–3 at 0.1, 0.25 and 0.45 with the band's dither; the haze colour from the light model, one a frame; the twins gain the plane test and the haze level.
+   Commit `T01c.3: outlines by occlusion, lit edges and haze (PRE-21, PRE-30, A11.2, A11.4)`.
+
+4. `T01c.4` **The crawl slot and the steadiness counts (`PRE-22`, A11.10, A11.12).**
+   `passes::crawl`: A11.10's `CrawlSlot` holding `Base`, which passes the post target through; `window.kd.crawl({ motion, rate, frames, fix })` freezes animation, captures each frame's indices and depth and counts crawl as A11.10 defines it, and all changed pixels.
+   `tools/screens/crawl.mjs` runs it over 60 frames of a slow turn, a slow zoom and a slow pan (the control) at the camp and close camp stops; `tools/screens/zoomstrip.mjs` counts the art pixels each 1% zoom step changes from zoom 0.10 to 0.34; both write their numbers to the bench file.
+   Commit `T01c.4: the crawl slot and the steadiness counts (PRE-22, A11.10, A11.12)`.
+
+5. `T01c.5` **Goldens by the hour (`PRE-30`, `PRE-21`, A11.12).**
+   Goldens `valley-camp` at 06:30, 12:00, 16:30, 18:30 and 23:00, `valley-close` and `valley-near` at 16:30, and `block` at 16:30 with its outline and rim.
+   Commit `T01c.5: the valley's goldens by the hour (PRE-30, A11.12)`.
+
+6. `T01c.6` **Deliver (`PRC-11`).**
+   `versionCode=1013`, `versionName=a01c`; `bench/cloud/a01c.json` adds the fields' times (A11.11: the sun field at most 2 ms an area), the crawl counts and the zoom strip's counts; then P0's steps 5 to 8, the review the builder's own.
+
+**Data:** none.
+
+**Tests:**
+- `kd-render` (`PRE-30`, `PRE-21`, `PRE-22`): `field::tests::{sun_field_matches_a_march, sky_field_matches_a_march, open_flat_ground_sees_sun_and_sky, penumbra_widens_with_distance}`; `pixel::tests::{outline_only_where_something_stands_in_front, steep_slope_seen_edge_on_has_no_outline, haze_grows_with_the_air_path, haze_warmer_toward_the_sun}`; `passes::crawl::tests::base_passes_through`.
+- Screens: goldens by the hour; smoke `pan stays crisp` and `probe equals the twins`; `crawl.mjs`: the pan's control counts no crawl; the zoom strip's counts recorded.
+
+**On the phone:**
+1. Install the update: in the late afternoon the cliff throws a long shadow across the valley floor, crisp near the cliff and softer far from it; the cliff's foot and the hollows are a little darker and bluer.
+2. Tap the strip: at noon the shadows are short; at dusk they reach far across; at twilight there are none.
+3. Pinch slowly in and out: shadows, light and the cliff's outline stay on the land; only the pixel grid resamples.
+4. Zoom right out: the far land fades into warm haze toward the sun and cool haze away from it.
+
+**Not in this alpha:** smooth surface edges by coverage, fine relief, stones and tufts (α01d); objects' shadows from pass 1 (with the first things, α02c); light shafts in mist (α13).
+
+**Risks:**
 - The fields too slow on the phone: measured in the bench file; over 2 ms, the sun field is recomputed over several frames.
+- Penumbra dither shimmering as the sun moves: the sun field changes only every 0.1° of sun, and the clock's own pacing smooths it (α03a).
 
-**From the owner (A11.1):** on 3 October 2026 the owner asked for the renderer and its shaders to be rebuilt from first principles and lit like Minecraft's Vibrant Visuals; A11 says how (its four rules), and α01c and α01d rebuild them.
+### α01d Steady detail (about 5 hours)
 
-### α01d Steady detail (about 6 hours)
+**Goal:** the ground's detail holds at every zoom: surfaces meet along smooth edges that never shimmer, every look has a fine relief that fades before it can flicker, and stones and tufts are small lit shapes that thin out one by one as the camera rises; α01 ends, verified once by an independent subagent.
 
-**Goal:** the ground's detail holds at every zoom: surfaces meet along smooth edges that never shimmer, every look has a fine relief that fades before it can flicker, stones and tufts are small lit shapes that thin out one by one as the camera rises, and a pinch or twist moves the land exactly with the fingers; α01 ends, verified once by an independent subagent.
+**Serves:** `PRE-20` (part: smooth surface edges), `PRE-22` (part: detail that never flickers), `PRE-46` (part: stones and tufts), `PRE-02` (part).
 
-**Serves:** `PRE-20` (part), `PRE-22` (part), `PRE-46` (part: stones and tufts), `PRE-33` (part: pinch and twist follow the fingers), `PRE-02` (part), `WLD-12` (part: the demo area's relief, rebuilt).
-
-**Architecture:** `A11.1`, `A11.5`, `A11.10`, `A11.12`, `A12.2`, `A2.9`, `A3.3`, `A5.3`.
+**Architecture:** `A11.1`, `A11.5`, `A11.12`, `A11.13`.
 
 **Needs:** α01c.
 
-**Crates and files touched:** `kd-render` (`ground` coverage and relief, new `cover` module for stones and tufts, shaders, the crawl counter), `kd-ui` (`gestures`), `kd-app` (stones and tufts per area), `kd-world` (`area/relief.rs`, `area/demo.rs`), `kd-core` (`chance` tests), `data/models/surfaces.md`, `tools/screens/`, `tools/check.sh`.
+**Crates and files touched:** `kd-render` (`ground` coverage and relief, `ground::cover` new, `pixel`, `shaders/`), `kd-app` (stones and tufts per area), `data/models/surfaces.md`, `tools/screens/`, `tests/golden/`.
 
 **Tasks:**
 
 1. `T01d.1` **Surfaces as coverage (`PRE-20`, A11.5).**
-   Each area's surfaces as mipmapped `RGBA8` coverage, four surfaces a texture; the shader reads it at the art pixel's footprint and takes the largest share, the edge wobbling by world-fixed noise whose octaves fade below four art pixels; the vote of the four nearest squares is removed.
+   Each area's surfaces as mipmapped `RGBA8` coverage, four surfaces a texture, a surface's share of each square metre; the shader reads it at the art pixel's footprint (mip level `log2(texel ÷ 1 m)`) and takes the largest share, the edge wobbling by world-fixed noise whose octaves fade below four art pixels; the vote of four squares goes; the twins follow.
    Commit `T01d.1: surfaces as mipmapped coverage (PRE-20, A11.5)`.
 
 2. `T01d.2` **Micro-relief (`PRE-20`, A11.5).**
-   Each look's relief in `data/models/surfaces.md` (grass clumps 0.4–1.6 m, dirt clods 0.3–1 m, rock facets 0.2–2 m, scree 0.2–0.8 m), band-limited noise added to the normal, each octave's strength times `smoothstep(2, 4, wavelength / texel)`.
+   Each look's relief in `data/models/surfaces.md` (grass clumps 0.4–1.6 m, dirt clods 0.3–1 m, rock facets 0.2–2 m, scree 0.2–0.8 m): band-limited noise added to the normal, each octave's strength times `smoothstep(2, 4, wavelength ÷ texel)` (A11.1 rule 2).
    Commit `T01d.2: band-limited relief of each look (PRE-20, A11.5)`.
 
 3. `T01d.3` **Stones and tufts (`PRE-46`, `WLD-12`, A11.5).**
-   `crates/kd-render/src/cover.rs`: per area, a seeded list by the surfaces' densities (scree's stones, grass's tufts, a few stones on grass and dirt) of instanced meshes, eight-faced stones 0.05–0.6 m across in the scree's look and tufts of 3–5 blades widened to at least an art pixel in the grass's; each with a seeded importance `u`, shown while it spans `1.5 + 2u` art pixels; contact shade under each; drawn in 16 m buckets culled by the view.
+   `kd_render::ground::cover`: per area, a seeded list by the surfaces' densities (scree's stones, grass's tufts, a few stones on grass and dirt) of instanced meshes: eight-faced stones 0.05–0.6 m across in the scree's look, and tufts of 3–5 blades widened to at least an art pixel in the grass's; each with a seeded importance `u`, shown while it spans `1.5 + 2u` art pixels; a contact shade under each in the sky factor; drawn in 16 m buckets culled by the view.
    Commit `T01d.3: stones and tufts as instanced shapes (PRE-46, WLD-12, A11.5)`.
 
-4. `T01d.4` **Gestures that follow the fingers (`PRE-33`, A12.2).**
-   A pinch scales the land by the fingers' distance ratio about their midpoint (the zoom moved by the ratio's log over the log-slope of the art pixel's size at the current zoom), and a twist turns it by the fingers' angle about the same point, so the land stays under both fingers; the old constant (`zoom −= ln(ratio) × 0.16`) is removed.
-   Commit `T01d.4: pinch and twist follow the fingers (PRE-33, A12.2)`.
+4. `T01d.4` **Steadiness counts (`PRE-22`, A11.12).**
+   The crawl and zoom-strip counts at the camp and close camp stops recorded in the bench file; the smoke test fails a slow zoom whose 1% steps change more art pixels than the note records, or a pan that changes any pixel but by whole-pixel moves.
+   Commit `T01d.4: steadiness counts (PRE-22, A11.12)`.
 
-5. `T01d.5` **What earlier alphas took from the pre-tests, rebuilt (`WLD-12`, `TIM-16`, `PRE-22`, A2.9, A3.3, A5.3, A11.10).**
-   `crates/kd-world/src/area/relief.rs` and the demo area, ported from B11, are written afresh from A5.3: periodic gradient noise (keyed lattice gradients through `relief::key`, a quintic fade) and its octave sum; rock beds by height; the demo area a 256 m window of a made-up site that a 30 m escarpment crosses along a wandering line, its heights the corners' blend plus the detail octaves plus the step, its material by slope, bed and the cliff's foot; B11's 3D pieces and caves go, as α02b builds A5.3's own.
-   Each part is tested on its own terms (each octave periodic on its lattice and within ±1; the step's height and width; the materials' shares), and the demo area's own hash is recorded as a golden on x86 and arm64 (`tools/check.sh`'s repeat step); `b11_detail_hash` and its copy of B11's byte hash go.
-   The crawl counter (`crates/kd-render/src/crawl.rs`'s count, `tools/screens/crawl.mjs`) is written afresh from A11.10's definition of crawl; `kd-core`'s `chance/b02_reference.rs`, a copy of B02's code kept for a port test, goes with that test, A3.3's stored draws being the hash's known answers.
-   The build tools started from pre-test scripts (`tools/setup-toolchain.sh`, `tools/env.sh`, `tools/verify-apk.sh`, `tools/screens/lib.mjs` and `smoke.mjs`, the Android shell's Gradle files) are read line by line against A2.5, A2.8 and A15, each line with no reason there rewritten or removed, and their notes naming a pre-test as source go.
-   Commit `T01d.5: relief, demo area and crawl counter rebuilt from the architecture (WLD-12, PRE-22, A2.9)`.
-
-6. `T01d.6` **Steadiness counts (`PRE-22`, A11.12).**
-   The crawl counter at the camp and close-camp stops and the zoom strip, recorded in the bench file; the smoke fails a slow zoom whose 1% steps change more art pixels than the note records.
-   Commit `T01d.6: steadiness counts (PRE-22, A11.12)`.
-
-7. `T01d.7` **Deliver, and α01's verification (`PRC-11`, `PRC-09`).**
-   First, a search of the code, data and tools finds no mention of the mockup, no part said to be ported from a pre-test, and no comment citing a task of an alpha that has left the plan (A11.1, A2.9).
-   `versionCode=1014`, `versionName=a01d`; then P0's steps 5 to 8, with one independent subagent verifying the whole of α01 (α01a to α01d; α01a's and α01b's sections as the plan held them at commit `7ea3e4c`), as α01d ends α01.
+5. `T01d.5` **Deliver, and α01's verification (`PRC-11`, `PRC-09`).**
+   `versionCode=1014`, `versionName=a01d`; then P0's steps 5 to 8, with one independent subagent verifying the whole of α01 (α01a to α01d, their sections as the plan held them when α01 began), as α01d ends α01.
 
 **Data:** `data/models/surfaces.md` (relief and cover densities per surface).
 
 **Tests:**
-- `kd-render`: `cover::tests::{seeded_and_stable, thin_out_by_importance}`; `ground::tests::coverage_sums_to_one`.
-- `kd-ui`: `gestures::tests::pinch_keeps_the_land_under_the_fingers`, `twist_keeps_the_land_under_the_fingers`.
-- `kd-world`: `area::relief::tests::{octaves_periodic_and_bounded, beds_cover_every_height}`; `area::demo::tests::{escarpment_step_in_the_window, materials_by_slope_and_foot, golden_demo_hash}` (x86 and arm64 under qemu).
+- `kd-render` (`PRE-20`, `PRE-46`, `PRE-22`): `ground::cover::tests::{seeded_and_stable, thin_out_by_importance}`; `ground::tests::coverage_sums_to_one`; `pixel::tests::{coverage_takes_the_largest_share, relief_fades_below_two_pixels}`.
 - Screens: goldens redrawn with stones and tufts; the steadiness counts.
 
 **On the phone:**
-1. Install and open: the valley as in α01c, now with stones on the scree and tufts in the grass when you come close.
-2. Pinch slowly out from the closest zoom: tufts and stones thin out one at a time, and edges between grass, rock and scree stay smooth.
-3. Pinch and twist: the land stays under your fingers.
+1. Install the update: the valley as before, now with stones on the scree and tufts in the grass when you come close.
+2. Pinch slowly out from the closest zoom: tufts and stones thin out one at a time, and the edges between grass, rock and scree stay smooth.
+3. Compare with α01c: the land's texture fades as you zoom out instead of flickering.
 
 **Not in this alpha:** water (α02b); plants (α02d).
 
@@ -370,7 +638,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 
 3. `T02a.3` **The island's data (`WLD-34`, `WLD-14`, `WLD-27`, A5.6, A5.11).**
    New kinds in `kd-data`: `Land` (A5.6's block, every field required, `herds` and `small` read and kept for α12b), `Rock`, `Soil`, `Biome`, `Deposit`, and `Tuning` (a named table of numbers with units, one entry a system).
-   `data/lands/first-region.md`, one entry `first_region` holding A5.6's block exactly (`centre_cell = [1000, 244]`, `island_km = 60`, `sea_km = 50`, `base_height = "220 m"`, `relief = "120 m"`, `valley = { flow = "8 m3/s", width = "18 m", floodplain = "800 m", from = "north" }`, `escarpment = { side = "north", height = "30 m", rocks = ["chalk", "sandstone", "granite"], caves = 6, shelters = 4 }`, `soil = { kind = "loam", fertility = 3 }`, `cover = { biome = "broadleaf_forest", trees = 0.55, bushes = 0.15, grass = 0.25, reeds = 0.02, bare = 0.03 }`, the climate line, the herds and small lines), plus `sky = { tilt = "23.5 deg" }` for α03a's sun, `checks = ["WLD-34", "WLD-24"]`.
+   `data/lands/first-region.md`, one entry `first_region` holding A5.6's block exactly (`centre_cell = [1000, 244]`, `island_km = 60`, `sea_km = 50`, `base_height = "220 m"`, `relief = "120 m"`, `valley = { flow = "8 m3/s", width = "18 m", floodplain = "800 m", from = "north" }`, `escarpment = { side = "north", height = "30 m", rocks = ["chalk", "sandstone", "granite"], caves = 6, shelters = 4 }`, `soil = { kind = "loam", fertility = 3 }`, `cover = { biome = "broadleaf_forest", trees = 0.55, bushes = 0.15, grass = 0.25, reeds = 0.02, bare = 0.03 }`, the climate line, the herds and small lines), plus `sky = { tilt = "23.5 deg" }` for the world's `Sky`, which α03a draws, `checks = ["WLD-34", "WLD-24"]`.
    `data/world/rocks.md`: `chalk`, `sandstone`, `granite`, `river_gravel`, `silt`, each with `softness` (A5.7's 0.5–2), `beds` (thickness range, `"0.3-3 m"`), `caves` (true for chalk), `look` (a look id in `data/palette/looks.md`, added here: `chalk`, `sandstone`, `granite`, `gravel`, `silt`, each its rock's colour under white light, A11.3) and `checks = ["WLD-09", "PRE-23"]`.
    `data/world/soils.md`: A5.11's eight kinds `sand`, `loam`, `clay`, `silt`, `peat`, `ash`, `stony`, `thin`, each with `capacity` (sand 50, loam 150, clay 200, peat 300 mm; silt 180, ash 120, stony 60, thin 40), `intake` (mm a game hour: sand 30, loam 10, clay 3, silt 8, peat 6, ash 15, stony 20, thin 12), `dig` (difficulty 1–10: sand 2, loam 3, clay 5, silt 3, peat 2, ash 2, stony 7, thin 6) and `keeps` (`bone`, `wood`, `hide` as A5.11 says), `checks = ["WLD-27"]`.
    `data/world/biomes.md`: `broadleaf_forest`, `grassland`, `marsh`, `shore`, `sea` (the island's), each with its map-look `look` and default cover shares, and `barren` (bare ground that grows nothing, all five shares bare, for the test lands of α04b, `checks = ["BIO-09"]`); the others of `WLD-31` join at α21.
@@ -405,7 +673,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 
 7. `T02a.7` **Coarse ground, the map look and the sea (`PRE-03`, `PRE-26`, `PRE-29`, A5.5, A11.5, A11.6).**
    `kd-world::cells::coarse_ground(cx: &CellCtx, c: CellIx) -> Ground`: 33 × 33 heights every 32 m (bicubic over the cell and its neighbours, plus the escarpment step), a material per point and water surfaces (A5.5); `kd-life::plants::density(st, group, date) -> f32` returns the cell's cover share of a group until α02d adds species.
-   `kd-render/src/ground/coarse.rs`: coarse ground batched in 4 km tiles of 32 m heights, drawn by α01c's ground patch and shader with the same light, fields and rules (A11.5): cover as looks, forest as single crowns on a 5 m grid where a point's hash is under the tree share, while they span a few pixels, then flat cover; the map look dissolving in between 1.2 and 4.5 m art pixels as the camera tilts toward straight down (`PRE-29`); the region stop's tiles of world cells are α19b's (A11.5: `MIL-04`).
+   `kd-render/src/ground/coarse.rs`: coarse ground batched in 4 km tiles of 32 m heights, drawn by α01b's ground patch and shader with α01c's fields and the same light and rules (A11.5): cover as looks, forest as single crowns on a 5 m grid where a point's hash is under the tree share, while they span a few pixels, then flat cover; the map look dissolving in between 1.2 and 4.5 m art pixels as the camera tilts toward straight down (`PRE-29`); the region stop's tiles of world cells are α19b's (A11.5: `MIL-04`).
    Rivers at the valley stop: lines from the river table, at least one art pixel wide (`PRE-26`, A11.5); streams the same once their drainage passes 100 km² (tuned in `data/tuning/render.md`).
    The sea: a flat water grid at level 0 over sea cells in the water's look, darker by depth and reflecting the sky by Fresnel's term (A11.6's sea, without waves and ice, which come at α20c).
    The camera's zoom range opens to 0.00–0.50 (person to valley; α19b opens it to the globe); until α02b, closer than the valley stop shows coarse ground, which is A11.5's own fallback (`PRE-03`).
@@ -498,7 +766,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 **Tests:**
 - `kd-world` (`WLD-12`, `WLD-13`): `area::tests::unchanged_area_identical` (an area made, dropped and remade on two different days, unchanged, gives one hash); `area::tests::edges_match` (on 200 pairs of neighbouring areas, shared edge heights equal exactly, A5.3); `area::tests::rivers_unbroken` (rivers and streams run unbroken through 1,000 areas along their lines, A5.3); `area::tests::picture_equals_point_reads` (10,000 points, same date and record, A5.5); `area::tests::coarse_equals_height_at` (all 33 × 33 points of 50 cells, A5.5); `area::tests::escarpment_has_gaps` (every escarpment cell holds a gap under 35°); `area::tests::golden_areas` (x86, arm64).
 - `kd-app`: `views::tests::builders_never_write_world` (the layering check covers it: `kd-app`'s builders take `&` only); `views::tests::nearest_first` (the build order is by distance from the view centre, ties by bucket index).
-- Screens: golden `river-ford`, `escarpment-gap`; smoke `detail_arrives` (after a pinch to the camp stop, `window.kd.ready()` within 2 s of headless time, detail chunks visible).
+- Screens: golden `river-ford`, `escarpment-gap`; smoke `detail_arrives` (after a pinch to the camp stop, `window.kd.ready()` within 2 s of headless time, the area's detail drawn in place of coarse ground).
 
 **On the phone:**
 1. Open the app over the camp and pinch in to close range: within about a second the blocky ground gives way to detailed ground, grass, earth and pale rock, without a jump.
@@ -513,17 +781,17 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 - Builders falling behind on a fast pan: coarse ground covers the gap (A11.5), and the phone benchmark (α07d, run at the stage close in α07e) measures how fast detail arrives while panning at each stop (`PRE-03`).
 - Too little memory headroom on the web for view areas: A11.11's 40 MB for view-area data holds about 16 areas; the cache drops the farthest first.
 
-### α02c Cliffs and caves (about 5 hours)
+### α02c Cliffs and caves (about 5.5 hours)
 
-**Goal:** the escarpment becomes a real cliff: layered rock faces with lips, joints and stains, overhangs where soft beds are cut back under hard ones, caves you can see into, dark inside but for the light from their mouths, and fallen blocks at the foot.
+**Goal:** the escarpment becomes a real cliff: layered rock faces with lips, joints and stains, overhangs where soft beds are cut back under hard ones, caves you can see into, dark inside but for the light from their mouths, and fallen blocks at the foot, casting their own shadows.
 
-**Serves:** `PRE-23` (part: layered faces, cracks, stains, scree; soot comes with fire, α14a), `PRE-24` (part: overhangs and caves with real depth, lit only from their openings), `WLD-12` (part: caves, overhangs and cliffs in areas), `WLD-13` (part), `PRE-21` (part: the sunlit lip), `TIM-16` (part).
+**Serves:** `PRE-23` (part: layered faces, cracks, stains, scree; soot comes with fire, α14a), `PRE-24` (part: overhangs and caves with real depth, lit only from their openings), `WLD-12` (part: caves, overhangs and cliffs in areas), `WLD-13` (part), `PRE-21` (part: the sunlit lip), `PRE-30` (part: things cast shadows), `TIM-16` (part).
 
-**Architecture:** `A5.3` (part 3, `solid_at`), `A5.5`, `A11.4` (inside), `A11.5` (cliffs, overhangs and caves), `A11.7` (loose rocks), `A11.12`.
+**Architecture:** `A5.3` (part 3, `solid_at`), `A5.5`, `A11.2` (object shadows), `A11.4` (inside), `A11.5` (cliffs, overhangs and caves), `A11.7` (loose rocks), `A11.12`.
 
 **Needs:** α02b.
 
-**Crates and files touched:** `kd-world` (`area/pieces.rs`, `area/ground.rs`, `area/picture.rs`), `kd-render` (`ground/nets.rs`, `ground/faces.rs`, `rocks.rs`, `shaders/face.*`, `shaders/obj.*`), `kd-app` (`views/`), `data/world/rocks.md`, `data/models/shapes.md`.
+**Crates and files touched:** `kd-world` (`area/pieces.rs`, `area/ground.rs`, `area/picture.rs`), `kd-render` (`ground/nets.rs`, `ground/faces.rs`, `rocks.rs`, `passes::shadow`, `shaders/face.*`, `shaders/obj.*`), `kd-app` (`views/`), `data/world/rocks.md`, `data/models/shapes.md`.
 
 **Tasks:**
 
@@ -536,7 +804,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 2. `T02c.2` **Surface nets (`PRE-24`, A11.5).**
    `crates/kd-render/src/ground/nets.rs`: a bucket with pieces, or with a height step over 1.5 m, drops its height-field quads and is meshed by surface nets over the solid field: z crossings exact from the decimetre air gaps, x and y crossings at cell midpoints, one relaxation pass; corners every 1 m, every 0.5 m at the person and close-camp stops (A11.5's **Decision**).
    Each vertex carries its face data as A11.5 computes it while meshing: the face's foot and rim heights, its kind (face, overhang roof, cave wall, cave floor) and the cave depth, by a flood fill through air from open sky up to 40 m (A11.5).
-   Height-field chunks and net chunks meet without cracks: the net extends half a cell into each neighbouring height-field bucket and the height field skips those quads.
+   The height field and the nets meet without cracks: the ground shader discards its pixels over net buckets (a mask of each area's 16 × 16 buckets), the net's vertices on its bucket's edge take the height field's heights there, and a 1 m skirt hangs from that edge, so no gap shows where the patch's spacing is coarser (A11.5).
    Commit `T02c.2: surface nets for cliffs, overhangs and caves (PRE-24, A11.5)`.
 
 3. `T02c.3` **Rock faces (`PRE-23`, `PRE-21`, A11.5).**
@@ -546,7 +814,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
    Commit `T02c.3: layered rock faces (PRE-23, PRE-21, A11.5)`.
 
 4. `T02c.4` **Inside caves (`PRE-24`, A11.4, A11.5).**
-   Sky light inside caves and under overhangs falls as `exp(−d / 3 m)` with the cave depth `d` from the nearest open air (A11.4), through `aF`'s depth; the sun lights only what it reaches through the mouth (the shadow pass already covers roofs).
+   Sky light inside caves and under overhangs falls as `exp(−d / 3 m)` with the cave depth `d` from the nearest open air (A11.4), through the face vertices' cave depth; the sun field, made from the ground's top heights, already shades all that lies under a roof (A11.5).
    At the person and close-camp stops, roof and wall pieces between the camera and the view centre dissolve by seeded importance (A11.1's rule 3, A11.5), so you see into a cave from outside.
    Commit `T02c.4: light inside caves and the roof cut (PRE-24, A11.4)`.
 
@@ -556,23 +824,27 @@ Every alpha ships an APK and the web build at its private page; until α07a save
    These are the area's seed contents of kind stone: drawn here, they become things only when taken (A6.4, from α08).
    Commit `T02c.5: fallen blocks and boulders (PRE-23, A11.7)`.
 
-6. `T02c.6` **Golden cliff and cave (`PRE-24`, A11.12).**
+6. `T02c.6` **Object shadows (`PRE-30`, A11.2, A11.4).**
+   `passes::shadow`, pass 1 (A11.2), with the first things: while the sun or moon is up and things stand in view, the blocks' and boulders' meshes under `#define SHADOW` into a 2048² 24-bit depth texture whose texels are a power of two in metres counted from the world's corner, at most half an art pixel, changed only when the art pixel doubles or halves, so a zoom within an octave keeps every shadow texel where it was (A11.1's rules 1 and 3); the ground, face and object shaders take the lower of their sun field's share and this map's, read with `texelFetch`; the ground never draws into it, since it shades itself from its fields (A11.5); α02d's trees and α03b's figures draw into it by the same path.
+   Commit `T02c.6: object shadows (PRE-30, A11.2)`.
+
+7. `T02c.7` **Golden cliff and cave (`PRE-24`, A11.12).**
    Golden scenes `cliff-cave` (A11.12's "a cliff with a cave": the first camp's cave mouth at zoom 0.14, yaw facing it) and `overhang` (zoom 0.05 under a cut-back bed).
    The view builders' meshing time of a cliff bucket is logged per area (A11.5's estimate: 3 ms of pieces at 1 m on a small core), and the 0.5 m nets at the closest stops checked against A11.11's 400,000-face line.
-   Commit `T02c.6: golden cliff and overhang scenes (A11.12)`.
+   Commit `T02c.7: golden cliff and overhang scenes (PRE-24, A11.12)`.
 
-7. `T02c.7` **Deliver (`PRC-11`).**
+8. `T02c.8` **Deliver (`PRC-11`).**
    `versionCode=1023`, `versionName=a02c`; `bench/cloud/a02c.json` adds a cliff bucket's pieces time and a cliff area's picture time on one cloud core (A5.5: at most 6 ms and 400 ms on a held middle core); then P0's steps 5 to 8.
 
 **Data:** `data/world/rocks.md` gains each rock's `soft_share` (chalk 0.25, sandstone 0.35, granite 0) and bed `tone` range; `data/models/shapes.md` (`boulder`, `block`).
 
 **Tests:**
 - `kd-world` (`PRE-24`, `WLD-12`): `area::pieces::tests::solid_equals_pieces` (`solid_at` at 10,000 points equals the pieces' air gaps); `area::pieces::tests::cave_fits_its_record` (each cave's chambers reach the record's size within 20%, and the first camp's cave floor holds at least 30 m² that sleepers fit on, `WLD-24`); `area::pieces::tests::piece_under_1kb`; `area::tests::golden_areas` updated for the escarpment and cave areas, with `generator = 2` in `data/VERSION.toml` and `tests/golden/generator.toml` (A14.9: a changed golden hash needs a new generator version; `major` stays 1, since no world is saved before α07a).
-- `kd-render`: `ground::nets::tests::watertight` (100 random pieces: every edge shared by exactly two faces, A11.5); `ground::nets::tests::meets_height_field` (no gap at the seam with neighbouring height-field buckets); `ground::faces::tests::beds_within_limits` (0.3–3 m, hardness and tone per rock).
+- `kd-render` (`PRE-24`, `PRE-30`): `ground::nets::tests::watertight` (100 random pieces: every edge shared by exactly two faces, A11.5); `passes::shadow::tests::texel_held_within_an_octave` (the shadow texel is a power of two in metres, at most half an art pixel, unchanged while the art pixel stays within its octave); `ground::nets::tests::meets_height_field` (no gap at the seam with neighbouring height-field buckets); `ground::faces::tests::beds_within_limits` (0.3–3 m, hardness and tone per rock).
 - Screens: golden `cliff-cave`, `overhang`.
 
 **On the phone:**
-1. Open over the camp and pinch in on the cliff: a pale chalk face in layers, some beds standing out, others cut back into overhangs, with stains below wet spots, grass hanging over the top, scree and fallen blocks at its foot.
+1. Open over the camp and pinch in on the cliff: a pale chalk face in layers, some beds standing out, others cut back into overhangs, with stains below wet spots, grass hanging over the top, scree and fallen blocks at its foot, each block with its own shadow.
 2. Turn the camera to face the cave mouth and pinch in: the cave's roof fades away in front, and inside is dark, lit only near the mouth.
 3. Turn the camera round the cliff: the faces stay outlined and crisp, the lit edge catches the sun.
 
@@ -587,7 +859,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 
 **Goal:** the island is wooded: oaks, birches, pines and crab apples, hazel and bramble thickets, grass, nettles and wild garlic, reeds along the river and stones on the ground, each plant where its cell's cover and its own needs put it, the same every time, dissolving into the map's canopy as the camera rises.
 
-**Serves:** `WLD-31` (part: 12 species with their habits and sizes; single plants and ground cover in areas; cover per cell), `WLD-12` (part: single trees, bushes, ground cover and stones in areas), `WLD-13` (part), `PRE-46` (part: the plant forms), `PRE-43` (part: plants vary by their own seed), `PRE-20` (part: new ladders), `PRE-28` (part: woods readable from far away), `TIM-16` (part).
+**Serves:** `WLD-31` (part: 12 species with their habits and sizes; single plants and ground cover in areas; cover per cell), `WLD-12` (part: single trees, bushes, ground cover and stones in areas), `WLD-13` (part), `PRE-46` (part: the plant forms), `PRE-43` (part: plants vary by their own seed), `PRE-20` (part: new looks), `PRE-28` (part: woods readable from far away), `TIM-16` (part).
 
 **Architecture:** `A5.2` (species mix), `A5.3` (part 4), `A5.5` (`density`), `A7.1`, `A7.2`, `A7.3`, `A11.3`, `A11.5`, `A11.6` (reeds), `A11.7` (plants), `A11.11`.
 
@@ -618,12 +890,13 @@ Every alpha ships an APK and the web build at its private page; until α07a save
    `crates/kd-render/src/plants/` (A11.7): seeded generators of ellipsoids, tubes and tiers, the broad crown of clumped ellipsoids (`birch`), the tiered needle crown (`pine`), bushes; a species is numbers on its form (height, crown, trunk, looks by season state and stage, A11.7), four variants a form; `shaders/tree.vert` and `tree.frag` under A11.4's light, leaves passing a little light to their far side (instance data: position, scale, turn, lean, look set, seed, A11.7).
    Levels: two swapping at 0.22 m art pixels, a third of 20–30 triangles for trees under about 12 art pixels tall, all dissolving into the map canopy at 1.25 m, each tree by its seeded importance (A11.1's rule 3); a tree between the camera and the view centre fades out whole, its shadow staying.
    Each plant's own differences (proportions ±8%, lean ±4°, a tone step) come from `num::hash2(spot uid, salt)` (`PRE-43`, A11.7).
+   Trees and bushes cast shadows through α02c's object shadows, at the camp stop only within 300 m of the view centre (A11.11).
    **Decision (A11.7):** at most 16,000 trees and bushes as models, by bucket nearest the view centre, the rest as coarse ground's crowns; the dense-forest phone run at the stage close (α07e) may lower it (`data/tuning/render.md` `tree_models_max = 16000`).
    Category plant (4).
    Commit `T02d.3: trees and bushes drawn (PRE-46, PRE-43, A11.7)`.
 
 4. `T02d.4` **Ground cover, reeds and stones (`PRE-46`, `PRE-26`, A11.5, A11.6).**
-   Ground cover follows the picture's 4 m patches (kind, density, season state) as α01d's tufts and flowers in the species' looks in their season, instanced and thinning by importance (A11.5); herbs and flowers are tiny instanced models below 0.2 m art pixels (A11.7).
+   Ground cover follows the picture's 4 m patches (kind, density, season state) as α01d's instanced tufts, with flowers among them, in the species' looks in their season, instanced and thinning by importance (A11.5); herbs and flowers are tiny instanced models below 0.2 m art pixels (A11.7).
    `crates/kd-render/src/reeds.rs` and `shaders/reed.*` (A11.6): blades never narrower than an art pixel, nodding in 8 steps a second, along banks where the patch holds `reedmace`.
    α01d's instanced stones draw the stone patches' stones (density and size from the patch) and pebbles in river gravel (A11.5).
    Commit `T02d.4: ground cover, reeds and stones (PRE-46, PRE-26, A11.5)`.
@@ -661,20 +934,19 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 
 **Goal:** the world runs on its own clock: the island settles for ten game years before history starts at Year 1, spring, day 1, then the sun crosses the sky by hour and season with its shadows, through dawn, day, dusk and night, with the moon at night; a touch shows the date and the speed, zoom sets the speed, and the owner can pause, set the dial or lock a speed.
 
-**Serves:** `TIM-01` (part: speeds by zoom), `TIM-04`, `TIM-05` (part: time stops while the app is away), `TIM-10` (part: real speed at the person stop), `TIM-14` (part: dates shown), `TIM-15` (part: pause, dial and lock, and zoom; skip and the director come in Stage 2), `TIM-18` (part: the 60-day year on the clock), `WLD-07` (part: the sun and the moon), `WLD-08` (part: the first region settles), `WLD-16` (part: the preset's daily and seasonal temperatures), `PRE-30` (part: light by hour and season), `PRE-33` (part: every touch shows the date, the speed and the controls), `PRE-34` (part), `PRN-11` (part: time slows when the phone cannot keep up, never the detail).
+**Serves:** `TIM-01` (part: speeds by zoom), `TIM-04`, `TIM-05` (part: time stops while the app is away), `TIM-10` (part: real speed at the person stop), `TIM-14` (part: dates shown), `TIM-15` (part: pause, dial and lock, and zoom; skip and the director come in Stage 2), `TIM-18` (part: the 60-day year on the clock), `WLD-07` (part: the sun and the moon on the world's clock, its `Sky` drawn), `WLD-08` (part: the first region settles), `WLD-16` (part: the preset's daily and seasonal temperatures), `PRE-30` (part: light by hour and season), `PRE-33` (part: every touch shows the date, the speed and the controls), `PRE-34` (part), `PRN-11` (part: time slows when the phone cannot keep up, never the detail).
 
 **Architecture:** `A2.2` (`Pool`, `Serial`), `A3.7` (the sky), `A4.1`, `A4.9`, `A4.10`, `A4.11`, `A4.12`, `A4.13`, `A5.8` (the preset's mean cycle), `A11.3` (the row in use), `A11.4`, `A12.1`, `A12.2`, `A15.11`.
 
 **Needs:** α02d.
 
-**Crates and files touched:** `kd-core` (`pool`, `sky`), `kd-sim` (`world`, `header`, `batch`, `step`, `snapshot`, `weather`), `kd-world` (`weather/preset.rs`, `climate`), `kd-view` (`Snapshot`, `SimControl`, `LightView`), `kd-app` (`sim`, `pace`, `speed`, `triple`), `kd-ui` (`time_bar`), `kd-render` (`light`), `web/glue.js`, `tools/screenshots.mjs`, `data/tuning/time.md`.
+**Crates and files touched:** `kd-core` (`pool`), `kd-sim` (`world`, `header`, `batch`, `step`, `snapshot`, `weather`), `kd-world` (`weather/preset.rs`, `climate`), `kd-view` (`Snapshot`, `SimControl`, `LightView`), `kd-app` (`sim`, `pace`, `speed`, `triple`), `kd-ui` (`time_bar`), `kd-render` (`light`, `frame`), `web/glue.js`, `tools/screenshots.mjs`, `data/tuning/time.md`.
 
 **Tasks:**
 
-1. `T03a.1` **Pools and the sky (`WLD-07`, A2.2, A3.7).**
-   `kd-core::pool`: `pub trait Pool: Sync { fn workers(&self) -> usize; fn run<R: Send>(&self, jobs: usize, job: impl Fn(usize) -> R + Sync) -> Vec<R>; }` (results in job order, never a trait object) and `Serial`; `Workers` joins with the repeat check (α07c).
-   `kd-core::sky` (A3.7): `pub struct Sky { tilt_deg, moon_start, node_period, node_start }`, `pub struct SkyState { sun_dir: [f32; 3], sun_height_deg, day_hours, moon_dir, moon_phase, moon_lit, eclipse }` and `pub fn sun_moon(t, lat, lon, sky) -> SkyState` with A3.7's formulas for declination, hour angle with longitude (local noon 4 minutes earlier per degree east), direction (east, north, up), day length with latitude held within ±89.9°, the moon full once a season; `eclipse` stays 0 until `MIL-04`; all maths through `kd_core::m`.
-   Commit `T03a.1: pools and the sun and moon (WLD-07, A2.2, A3.7)`.
+1. `T03a.1` **Pools (`TIM-16`, A2.2).**
+   `kd-core::pool`: `pub trait Pool: Sync { fn workers(&self) -> usize; fn run<R: Send>(&self, jobs: usize, job: impl Fn(usize) -> R + Sync) -> Vec<R>; }` (results in job order, never a trait object, so a result never depends on how many workers ran it) and `Serial`; `Workers` joins with the repeat check (α07c); the sun and moon are α01a's `kd_core::sky`.
+   Commit `T03a.1: pools (TIM-16, A2.2)`.
 
 2. `T03a.2` **The world and its settling (`WLD-08`, `TIM-14`, A4.1, A5.7, A5.8).**
    `crates/kd-sim/src/world.rs`: `pub struct World { header: Header, now: GameTime, cells: WorldCells, weather: WeatherState, batch: BatchState }` with `Header { seed, rules: (u16, u16), generator: u32, catalogue_hash: u64, history_start: GameTime, switches: SwitchSet, sky: Sky }` (A3.9: the switch set stays empty in play, `PRN-12`); `World::from_land(land: &Land, seed: u64, cat: &Catalogue) -> World` builds the cells (α02a), draws the `Sky` (tilt from the land's `sky`, the moon's start and node by keyed draws on the region's place uid, A5.7 step 0), then settles: `history_start = settle_years × YEAR` (`data/tuning/world.md`), and the world advances to it with nobody in it (`WLD-08`; at this stage only the weather runs, so it takes well under a second).
@@ -687,7 +959,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
    Commit `T03a.3: barriers, the batch schedule and advance_to (A4.9, A4.10)`.
 
 4. `T03a.4` **Snapshots and the triple buffer (`PRN-11`, A4.13).**
-   `kd-view::Snapshot` (A4.13, A11.9) gains `t_w: GameTime`, `history_start`, `asked_speed`, `real_speed` (game seconds a real second), `light: LightView { sky: SkyState at the view's place, temp_c, wind }` and the view it was built for; `cube` goes.
+   `kd-view::Snapshot` (A4.13, A11.9) gains `t_w: GameTime`, `history_start`, `asked_speed`, `real_speed` (game seconds a real second), `light: LightView { sky: SkyState at the view's place, temp_c, wind }` and the view it was built for.
    `kd-sim::snapshot::build(world: &World, view: &ViewRequest, out: &mut Snapshot)` reuses the slot's buffers (no allocation in steady state).
    `kd-app::triple`: three `Snapshot` slots and one atomic index word; the sim thread fills the free slot and swaps it to ready; the GL thread takes ready when newer; neither waits (A4.13, `PRN-11`).
    Commit `T03a.4: snapshots and the triple buffer (A4.13)`.
@@ -706,16 +978,15 @@ Every alpha ships an APK and the web build at its private page; until α07a save
    Commit `T03a.6: speed by zoom, pause, dial and lock (TIM-01, TIM-04, TIM-15, A4.11)`.
 
 7. `T03a.7` **The time bar (`PRE-33`, `PRE-34`, `TIM-04`, A12.1, A12.2).**
-   `kd-ui::time_bar`: any touch shows it for 3 seconds (A12.2), in the bottom third in portrait and in the side column in landscape (A12.1, `PRE-34`), never under the insets: the date by `TIM-14` with the hour (`Year 1, spring, day 3, 14:20`); the real speed in words (`real time`, `an hour a minute`, `a day in 3 minutes`, `a season a minute`, `3 years a minute`, `as fast as it can`, and between stops `about <n> <unit> a minute`, from `data/text/time.md`); pause and play; a dial (a slider from real time to top speed on a log scale, which holds its speed wherever you look); a lock (keeps the current speed while the camera moves); the version line under it, smaller.
+   `kd-ui::time_bar`, in place of α01a's strip, whose tap stepped the hour: any touch shows it for 3 seconds (A12.2), in the bottom third in portrait and in the side column in landscape (A12.1, `PRE-34`), never under the insets: the date by `TIM-14` with the hour (`Year 1, spring, day 3, 14:20`); the real speed in words (`real time`, `an hour a minute`, `a day in 3 minutes`, `a season a minute`, `3 years a minute`, `as fast as it can`, and between stops `about <n> <unit> a minute`, from `data/text/time.md`); pause and play; a dial (a slider from real time to top speed on a log scale, which holds its speed wherever you look); a lock (keeps the current speed while the camera moves); the version line under it, smaller.
    Touch targets at least 24 UI pixels (A12.1); a touch that starts on the bar belongs to it, never to the camera (A12.2).
    Commit `T03a.7: the time bar (PRE-33, TIM-04, A12.2)`.
 
-8. `T03a.8` **Light, time and season (`PRE-30`, A11.3, A11.4).**
-   `crates/kd-render/src/light.rs`: from the snapshot's `SkyState` at the view's place, light by the sun's height per A11.4's table (below −6° the moon, at 0.32 × a phase factor from 0.2 new to 1 full; −6° to 6° a blend; 6° to 25° the dawn row in the morning and the dusk row in the evening; above 25° the day row), values blending over 4° at each border; the sun's direction to `uSunDir` in GL coordinates (x east, y up, z south), and the shadow pass following it.
-   The palette row in use is computed on the CPU by OKLab interpolation between its two neighbouring versions in steps of an eighth and uploaded (1 KB) when it changes (A11.3), so each frame uses one row; the palette texture keeps the four versions for the tables.
-   Day and night at speed (A11.4): from the region stop outward, and whenever a game day passes in under 10 real seconds, light is averaged over the day (the row between day and night by the night's share for the place and season, shadows held at the season's noon sun); a switch between the two eases over one real second; seasons blend over a season's first two game days.
+8. `T03a.8` **Light from the clock (`PRE-30`, A11.3, A11.4).**
+   α01a's light model now runs from the snapshot's `SkyState` at the view's place at the displayed time, in place of the strip's eight hours: the sun field follows the sun at each 0.1° (α01c), object shadows follow it too, and the palette row is recomputed whenever one of its colours would move by a whole 1/255 (A11.3).
+   Day and night at speed (A11.4): from the region stop outward, and whenever a game day passes in under 10 real seconds (`day_average_below_s`), the sun's and the sky's light are averaged over the place's day, shadows held at the season's noon sun, and the row held while it lasts (A11.3); a switch between the two eases over one real second.
    The picture's date (A5.5) now comes from the snapshot, so plants' season states follow it and areas are made again once a game day has passed (A11.5).
-   Commit `T03a.8: light by hour and season (PRE-30, A11.3, A11.4)`.
+   Commit `T03a.8: light from the clock, averaged at speed (PRE-30, A11.3, A11.4)`.
 
 9. `T03a.9` **Screens and delivery (`PRE-30`, `PRC-11`, A15.11).**
    `window.kd` gains `time(t)` (sets the world's paused time for tests: advances or rebuilds to it) and `orient(portrait|landscape)`; `tools/screenshots.mjs` (A15.11) serves `dist/web/`, and for each stop in reach (person, close camp, camp, valley) at dawn, noon, dusk and night, in portrait and landscape, saves the art-resolution image (`kd.shot({ art: true })`, one pixel per art pixel) into `results/screens/<alpha>/`, fails on page errors or blank frames, and flags shots changed in over 5% of pixels since the last alpha's set.
@@ -724,10 +995,10 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 **Data:** `data/tuning/time.md` (`zoom_speeds`, `lead_frames`, `day_average_below_s = 10`); `data/text/time.md` (the speed words; kind `TextPatterns`, `checks = ["TIM-01", "PRE-37"]`); `data/lands/first-region.md` (`sky`).
 
 **Tests:**
-- `kd-core` (`WLD-07`): `sky::tests::equinox_days_are_12_hours` (spring day 1 and autumn day 1, latitudes 0–60°, within 0.1 h); `sky::tests::day_length_formula` (46° N at the summer solstice gives the standard formula's 15.6 h at tilt 23.5°, within 0.1 h); `sky::tests::midnight_sun_and_polar_night` (beyond 90° − tilt); `sky::tests::full_moon_once_a_season`; the same tests on arm64 under qemu.
-- `kd-sim`: `world::tests::history_starts_settled` (after `from_land`, `now == history_start` and the date reads `Year 1, spring, day 1, 00:00`); `step::tests::split_anywhere` (advancing to 100 s then 200 s equals advancing to 200 s; 50 random splits over 10 game days give one state hash, A4.10); `weather::tests::daily_and_seasonal_cycle` (warmest within an hour of 15:00, coldest within an hour of 03:00, each season's mean within 0.1 °C of the preset's, `WLD-16`).
+- `kd-core` (`TIM-16`): `pool::tests::serial_keeps_job_order`.
+- `kd-sim`: `world::tests::sky_drawn_from_the_land` (the tilt from the land's `sky`, the moon's start and node the same for one seed on every run); `world::tests::history_starts_settled` (after `from_land`, `now == history_start` and the date reads `Year 1, spring, day 1, 00:00`); `step::tests::split_anywhere` (advancing to 100 s then 200 s equals advancing to 200 s; 50 random splits over 10 game days give one state hash, A4.10); `weather::tests::daily_and_seasonal_cycle` (warmest within an hour of 15:00, coldest within an hour of 03:00, each season's mean within 0.1 °C of the preset's, `WLD-16`).
 - `kd-app` (`TIM-15`, `PRN-11`): `triple::tests::no_torn_snapshot` (a reader and a writer swapping one million times, A4.13); `pace::tests::fake_clock` (with a fake clock and a slow world, real speed never passes asked and `T_d` never passes the world, A4.11); `speed::tests::who_sets_the_speed` (each pair among pause, dial, lock and zoom set at once gives `TIM-15`'s order); `speed::tests::stops_ask_their_speeds`.
-- `kd-render` (`PRE-30`): `light::tests::no_jump_at_borders` (no light value jumps over 0.05 across a border, A11.4); `light::tests::averaged_at_speed` (at the valley stop's speed, and paused at the region stop's zoom of 0.68 set in the test, mean brightness varies under 2% over 10 real seconds; at the camp stop's speed it follows the hour).
+- `kd-render` (`PRE-30`): `light::tests::eases_into_the_average` (switching between light by the hour and light averaged over the day moves no value by over 0.05 a frame); `light::tests::averaged_at_speed` (at the valley stop's speed, and paused at the region stop's zoom of 0.68 set in the test, mean brightness varies under 2% over 10 real seconds; at the camp stop's speed it follows the hour).
 - Screens: `tools/screenshots.mjs` passes, its shots committed in `results/screens/a03a/`.
 
 **On the phone:**
@@ -1291,7 +1562,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 
 **Needs:** α04d.
 
-**Crates and files touched:** `kd-world` (`weather/preset.rs` day's sums), `kd-life` (`plants/ripe.rs`, `plants/cover.rs`, `plants/ground.rs`), `kd-sim` (`batch.rs` rows), `kd-people` (`body/warmth.rs`, `body/limits.rs`, `setup.rs`), `kd-render` (`plants/`, `palette.rs`, `light.rs`), `data/plants/`, `data/palette/light.md`, `data/items/plant.md`, `data/tuning/`, `scenes/lands/cold-test.toml`.
+**Crates and files touched:** `kd-world` (`weather/preset.rs` day's sums), `kd-life` (`plants/ripe.rs`, `plants/cover.rs`, `plants/ground.rs`), `kd-sim` (`batch.rs` rows), `kd-people` (`body/warmth.rs`, `body/limits.rs`, `setup.rs`), `kd-render` (`plants/`, `looks`, `light`), `data/plants/`, `data/palette/light.md`, `data/items/plant.md`, `data/tuning/`, `scenes/lands/cold-test.toml`.
 
 **Tasks:**
 
@@ -1311,7 +1582,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
    Commit `T05.3: plant cover on cells every five days (WLD-12, WLD-31, A7.4)`.
 
 4. `T05.4` **The look of each season (`PRE-30`, A11.3, A11.4, A11.7).**
-   `data/palette/light.md` gains the air's turbidity by season (spring 0.06, summer 0.10, autumn 0.07, winter 0.04: summer's haze, winter's clear air) and the plants' looks gain their season states (A11.7); with the sun's height by date and latitude, A11.4's model then gives A11.3's versions for each season; the row in use is interpolated in time of day and in season, seasons blending over a season's first two game days and holding a steady mix of all four when one passes in under 10 real seconds (A11.4).
+   `data/palette/light.md` gains the air's turbidity by season (spring 0.06, summer 0.10, autumn 0.07, winter 0.04: summer's haze, winter's clear air) and the plants' looks gain their season states (A11.7); with the sun's height by date and latitude, A11.4's model then gives each season its own light (A11.3's versions); the turbidity and the plants' season looks blend over a season's first two game days, and hold a steady mix of all four when one passes in under 10 real seconds (A11.4).
    Plants are drawn by their season state and stage (A11.7): budding pale, leaves in `leaf_spring`, `leaf_summer` and `oak_autumn`, blossom in its look, ripe fruit as α04a draws it, bare deciduous trees as trunk and branches (a tube for each branch, no crown clumps), dead trees grey and bare; ground cover's tufts thin and fade with the season.
    Commit `T05.4: the look of every season (PRE-30, A11.3, A11.7)`.
 
@@ -1930,7 +2201,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 5. `T07d.5` **The Tests screen and the phone benchmark (`PLT-04`, `RES-05`, `TIM-07`, `PRE-40`, A11.11, A12.4, A15.10).**
    `crates/kd-ui/src/views/tests.rs` (A12.4), opened by a long press on Settings' version line (α07b): `Benchmark`, `Frame times` (the last 1,024 frames' CPU time and GPU time per pass, A11.11), `Diagnostics` (panics, exit reasons and catch-up mismatches, α07b) and `Review` (α07e).
    `crates/kd-app/src/bench.rs`, the phone benchmark (A15.10), about 20 minutes, first asking for the phone to be unplugged and left alone: a 3-minute warm-up at full load; for each bench world in the blob (the cloud's seven and `bench-7000`): its open time, 90 s at the world view at top speed (game years a real minute, µs per person per game day by system, worker load), a save, and its state hashes after 1, 5 and 10 game days; drawing (A11.11): each stop in reach (person, close camp, camp and valley) for 10 s while turning, `bench-village-300` at close camp, `bench-forest` at the camp stop turning, a pan along the cliff at the camp stop (also timing how long newly seen ground stays coarse before its area arrives, A11.5), each with its worst frame, late frames (over 1.5 refresh periods) and GPU time per pass; a 5-minute steady phase at the valley stop at top speed for battery (current × voltage) and heat (battery temperature, thermal status, headroom, B79); and the diagnostics; a phase stops early at thermal status "severe" and says so (A16.6).
-   Result code (A15.10): compact JSON, gzipped, base64, prefixed `KDB1:`, at most 15.5 KB, shown with Copy in the code dialog (A15.4) (`Request::BenchResult { json }`, gzipped by Kotlin, and by `CompressionStream` on the web, as `KDS1:` is); a larger result keeps its summary within the limit, the "Share results file" button coming with `Files.kt` in α53a.
+   Result code (A15.10): compact JSON, gzipped, base64, prefixed `KDB1:`, at most 15.5 KB, shown with Copy in the code dialog (A15.4) (`Request::ShowCode` with the prefix `KDB1:`, gzipped by the shell as `KDS1:` is, α00); a larger result keeps its summary within the limit, the "Share results file" button coming with `Files.kt` in α53a.
    `tools/decode-bench.py` gains `KDB1:`: it writes `bench/phone/<version>.json`, compares its state hashes with `bench/cloud/<version>.json`'s for the same worlds and spans, and prints `Hashes: EQUAL` or the first difference (A15.9 item 6: a difference blocks the stage until found).
    The web build runs the same code path at `?bench=1` with 2-second phases, for the smoke test only (speeds under SwiftShader mean nothing).
    Commit `T07d.5: the Tests screen and the phone benchmark with its KDB1 code (PLT-04, RES-05, A15.10)`.
@@ -1970,7 +2241,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 
 **Needs:** α07d.
 
-**Crates and files touched:** `kd-render` (`crawl/`: `Steps`, `Fade`, `Majority`, `Sticky`), `kd-app` (the review runner and clips), `kd-ui` (`views/tests.rs` Review, `views/contact.rs`), `kd-tools` (`kd report`), `tools/filecheck.py` (`ids --stage`), `tools/screenshots.mjs`, `tools/screens/crawl.mjs`, `scenes/review-*.toml`, `data/tuning/render.md`, `reports/risks.toml`, `reports/principles.toml`, `reports/stage-1.html`, `reports/stage-1-review.md`.
+**Crates and files touched:** `kd-render` (`passes::crawl`: `Steps`, `Fade`, `Majority`, `Sticky`), `kd-app` (the review runner and clips), `kd-ui` (`views/tests.rs` Review, `views/contact.rs`), `kd-tools` (`kd report`), `tools/filecheck.py` (`ids --stage`), `tools/screenshots.mjs`, `tools/screens/crawl.mjs`, `scenes/review-*.toml`, `data/tuning/render.md`, `reports/risks.toml`, `reports/principles.toml`, `reports/stage-1.html`, `reports/stage-1-review.md`.
 
 **Tasks:**
 
@@ -2004,7 +2275,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 **Data:** `scenes/review-camp.toml`, `scenes/review-winter.toml`, `scenes/review-model-sheet.toml`; `data/tuning/render.md` (`crawl_fix`); `reports/risks.toml`; `reports/principles.toml`.
 
 **Tests:**
-- `kd-render` (`PRE-22`): `crawl::tests::steps_move_the_edge_one_pixel`; `crawl::tests::fade_snaps_and_crossfades` (1.5° and 4% steps, an 80 ms crossfade); `crawl::tests::majority_takes_the_most_common_index`; `crawl::tests::sticky_keeps_the_last_index_while_half_agree`.
+- `kd-render` (`PRE-22`): `passes::crawl::tests::steps_move_the_edge_one_pixel`; `passes::crawl::tests::fade_snaps_and_crossfades` (1.5° and 4% steps, an 80 ms crossfade); `passes::crawl::tests::majority_takes_the_most_common_index`; `passes::crawl::tests::sticky_keeps_the_last_index_while_half_agree`.
 - `tools/screens/crawl.mjs`: each fix measured turning and zooming; `Fade` cutting turning crawl by less than 90% against `Base` (B66 measured over 99%) is flagged in the report.
 - `kd-tools` (`RES-06`): `report::tests::every_part_present` (a report missing a part of `RES-06` fails); `report::tests::self_contained` (no outside fetch).
 - `python3 tools/filecheck.py selftest` gains `ids --stage` fixtures (an unmapped `MIL-01` feature, a merge without its review line), each failing.
@@ -2025,7 +2296,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 
 ### Stage 1 notes
 
-- Splits: α01's rebuilt renderer → α01c and α01d; α02, α03, α04 → a to d; α06 → α06a and α06c around the brief's α06b; α07 → α07a (saving), α07b (history, worlds, settings), α07c (scenes, repeat check, switches), α07d (benchmark), α07e (stage review).
+- Splits: α00 → α00 (the app on the phone) and α00b (the core's numbers, time and chance, and the checks); α01 → α01a (colour from light), α01b (the ground), α01c (shadows and air) and α01d (steady detail); α02, α03, α04 → a to d; α06 → α06a and α06c around the brief's α06b; α07 → α07a (saving), α07b (history, worlds, settings), α07c (scenes, repeat check, switches), α07d (benchmark), α07e (stage review).
 - Cut as over-reach: the region stop's world-cell tiles (A11.5 and P4's T19b.2 build them at `MIL-04`): Stage 1 zooms from one person to the valley stop, and the speed table's region row waits for α19b with its stop; `kd bench chance` (B02 measured it; the benchmark starts in α07d).
 - The `MIL-01` stage budget is 3 game years a real minute at 1,000 people (`PLT-04`, A16.3, the owner's decision); A4.15's old sentence ("8, 6, 5, 3, 2, 1.5 and 1") has since been corrected in the frozen architecture to A16.3's 3, 2, 2, 1.7, 1.7, 1.5 and 1.
 - The frozen A8.7, A8.10, A8.18 and A12.4 already hold the settled numbers for fertility, ageing, birth bleeding, chat, pairing, the needs' daily rates and the minimal mind view, so P1 follows them with no decision; the one remaining decision is kin weights in `MIL-01` (A8.23 lists them at `MIL-02`; sharing needs them, α06b).
@@ -2894,7 +3165,7 @@ The frozen architecture places all of this at `MIL-03` (A4.17, A5.8, A5.9, A6.11
 - nothing vibrates, since `PROJECT.md` dropped vibration from the launch (A13.12 is not built).
 
 Built in earlier stages and grown here, never rebuilt:
-- the world: α02a's climate record (`kd_world::climate`) and cell columns (`dry`, `snow`, `fire`, `ash`, `since`), α03a's mean-cycle weather and `local` (`kd_world::weather::preset`), the sun and moon (`kd_core::sky`) and `LightView`, α05's day's sums, daily-cells job and felt temperature (`kd-people/src/body/warmth.rs`), α03d's ways;
+- the world: α02a's climate record (`kd_world::climate`) and cell columns (`dry`, `snow`, `fire`, `ash`, `since`), α03a's mean-cycle weather and `local` (`kd_world::weather::preset`) and `LightView`, α01a's sun and moon (`kd_core::sky`), α05's day's sums, daily-cells job and felt temperature (`kd-people/src/body/warmth.rs`), α03d's ways;
 - things: α04a's timers, `put` and `wet`, α08's items (`dead_stick` among them) and demo worlds, α09's blueprint schema, `data/actions.md`, `data/minds/start.md` and `data/blueprints/fire.md` with `bank_fire` and `carry_embers`, `kd scene gen` and trials;
 - people: α04c's senses (`sense.rs`) and options, α09b's wounds (`kd_life::body`, `body/wound.rs`) and plain care (`body/care.rs`, `carers`), α10a's memories, dreams, `dream_slot` and loud events, α11a's discovery routes, experiments and hunch tries, α12's set-up of the bands, teaching and watching, α12c's danger and fleeing;
 - culture and the player: α06a's band records (`fires held`) and language (`cul.lang`), α11b's `PlayerView` (`kd-player/src/view.rs`), recognisers, director, signs and pattern text;
@@ -2954,10 +3225,10 @@ Scenes run on the first region (`WLD-34`) or a scene land, 20 runs each with run
 6. `T13.6` **Weather reaches people and things (`BIO-11`, `BIO-18`, `MAT-19`, `MAT-04`, A6.1, A6.12, A8.5, A8.9, A6.7).** α04a's `ThingWorld::conditions(place, t)` (A6.1) now reads the hour's local weather: temperature band, rain or snow, wind and light; α04a's timer groups on open ground (`kd-things/src/timers.rs`) step when rain starts or stops over them, changing only their clocks' rates (A6.12: drying stops in rain), and set their buckets' versions (A6.8); a thing leaving a rained-on group takes α04a's `wet`.
    α05's felt temperature (`kd-people/src/body/warmth.rs`) keeps its formula and now reads the hour's local air, wind and cloud for its wind and sun terms, and its wet term (−5 °C): a person outside shelter in rain or snow is wet until an hour after it stops, kept in a new hot column `dry_at: u32` (game minutes); felt is still re-based at each hourly weather barrier and at every change of shelter.
    α04c's senses (`kd-people/src/sense.rs`, A8.9) gain fog × 0.15 and rain or snow × 0.4 on far sight, and rain × 0.6 on hearing, with wind's cut on hearing now read from the hour's wind; α10a's glances and α12c's danger pairs read them unchanged.
-   `kd-sim`'s `light_at(pos, t) -> Light { Day, Dim, Dark }` (`Light` in `kd-things` beside A6.1's `Conditions`, which carries it, so the rule crates can name it) from the sun's height (α03a's `sun_moon`) and the hour's cloud: `Day` while the sun is above 6° (`Dim` under cloud of 0.9 or more), `Dim` from −6° to 6°, else `Dark`; α09's darkness penalty in `ThingWorld::doer` (A6.7: 0.1, and tries 4/3 as long, `MAT-04`) now reads `Dark` beyond firelight (α14a), and α09's `place.light_min` and A8.9's dark and night factors read it too.
+   `kd-sim`'s `light_at(pos, t) -> Light { Day, Dim, Dark }` (`Light` in `kd-things` beside A6.1's `Conditions`, which carries it, so the rule crates can name it) from the sun's height (α01a's `sun_moon`) and the hour's cloud: `Day` while the sun is above 6° (`Dim` under cloud of 0.9 or more), `Dim` from −6° to 6°, else `Dark`; α09's darkness penalty in `ThingWorld::doer` (A6.7: 0.1, and tries 4/3 as long, `MAT-04`) now reads `Dark` beyond firelight (α14a), and α09's `place.light_min` and A8.9's dark and night factors read it too.
    The thought `rain_soaked` (−3, 6 hours) while wet outside joins α09b's `data/minds/thoughts.md`.
    No option is added: chill from rain and wind pulls people to the warmth at hand, the cave or overhang, through α04c's options and α05's warmth need (A8.15).
-7. `T13.7` **Drawing weather (`PRE-30`, A11.4, A11.5).** In `kd-render` (`src/light.rs` and the effects pass), as A11.4 sets: α03a's sun and moon light dimmed by cloud at the camera (up to 0.7) with a wider penumbra, shadows ending above 0.8 cover; fog thickening the air, with light shafts and mist wisps (A11.4); rain and snow as falling one-pixel points, at most 1,500 a frame, placed by a hash of weather cell and time step, below 2 m art pixels; snow lying on upward faces by each vertex's cell snow (the snow look, A11.5); a lightning strike as a jagged bolt line for two frames at its place, and a flash of one frame of the glow table only at speeds up to a game hour a real second and at most once a real second; at speed, cloud and fog are averaged over the day with the light (A11.4).
+7. `T13.7` **Drawing weather (`PRE-30`, A11.4, A11.5).** In `kd-render` (`src/light.rs` and the effects pass), as A11.4 sets: the light model's sun and moon light dimmed by cloud at the camera (up to 0.7) with a wider penumbra, shadows ending above 0.8 cover; fog thickening the air, with light shafts and mist wisps (A11.4); rain and snow as falling one-pixel points, at most 1,500 a frame, placed by a hash of weather cell and time step, below 2 m art pixels; snow lying on upward faces by each vertex's cell snow (the snow look, A11.5); a lightning strike as a jagged bolt line for two frames at its place, and a flash of one frame of the glow table only at speeds up to a game hour a real second and at most once a real second; at speed, cloud and fog are averaged over the day with the light (A11.4).
    **Addition to A11.4,** written into the architecture in this branch: from the valley stop out, each weather cell's cloud dims its ground by up to half, blended between cell centres, so storms can be watched crossing the island.
    The snapshot (A4.13): α03a's `LightView` gains the camera's cloud, fog, rain or snow and their rates beside its temperature and wind, and the cell tiles carry cloud and snow per cell.
    `kd-ui`: α03a's time control adds the camera's weather in words from `data/text/weather.md`, such as "Rain, 7 °C, wind from the west"; α04d's place card adds the hour's weather and the snow depth; the person card says "wet" while `dry_at` lies ahead.
@@ -3662,7 +3933,7 @@ Scenes run on the first region (`WLD-34`) or a scene land, 20 runs each with run
 - **Splits:** the brief's α14 → α14a (fire in camp) and α14b (fire in the land); the brief's α17 (first sounds) → α16b (the engine and the camp's work), a new **α16c** (the land, weather and animals heard, with land in between and caves) and α17 (the murmur); α16 keeps the powers and α17b the everyday illnesses; a new **α17c** closes the stage (`RES-06`), as α07e and α12d do.
   Ten alphas, about 51.5 hours: α13 5.5, α14a 5.5, α14b 5, α15 4.5, α16 5.5, α16b 5.5, α16c 5, α17 5.5, α17b 5, α17c 4.5.
   `versionCode`s: α13 3130, α14a 3141, α14b 3142, α15 3150, α16 3160, α16b 3162, α16c 3163, α17 3170, α17b 3172, α17c 3173.
-- **Moved or cut:** the moon was α03a's already, so α13 does not rebuild it; eclipses and the moon in rules stay at `MIL-04` (A3.7, A11.4) with α20a; tar, setting and treated stone move from α14a to α15; frostbite stays α09b's (CROSS); leaching and fermenting stay Stage 4's (A6.12); a band losing its fire is a moment from its logged event, not a book entry (`PRE-39` lists no such entry); the fire store keeps A6.11's 48 bytes (no `keeper` field: a kept fire is one within 50 m of its band's camp); the hunch sign is α11b's, used as it is, and the badly-wounded sign is α11b's, grown; neither is re-added.
+- **Moved or cut:** the moon was α01a's already, so α13 does not rebuild it; eclipses and the moon in rules stay at `MIL-04` (A3.7, A11.4) with α20a; tar, setting and treated stone move from α14a to α15; frostbite stays α09b's (CROSS); leaching and fermenting stay Stage 4's (A6.12); a band losing its fire is a moment from its logged event, not a book entry (`PRE-39` lists no such entry); the fire store keeps A6.11's 48 bytes (no `keeper` field: a kept fire is one within 50 m of its band's camp); the hunch sign is α11b's, used as it is, and the badly-wounded sign is α11b's, grown; neither is re-added.
 - **Architecture updates the Stage 3 branches make:**
   - A5.10 and A4.9: river and stream routing, springs, soil and ground water and ice move from `MIL-03` to `MIL-04` (α20a; routing α20c); α02a's river and streams keep their fixed levels until then (α13's intro).
   - A11.4: from the valley stop out, each weather cell's cloud dims its ground by up to half (α13).
@@ -3687,7 +3958,7 @@ Scenes run on the first region (`WLD-34`) or a scene land, 20 runs each with run
 This stage turns the hand-set island into whole generated worlds you can zoom from one person to the globe, with weather, water, plants and herds alive everywhere, and gives people hunting, illness from animals and healing, burial, clothing and huts, plans with times, leaders and group plans, while your other weather powers and animal dreams arrive (`SCP-16`).
 The brief's ten alphas hold about twice their hours of tasks, so they are split at natural seams: α18 in three; α19 in three, a whole world's saving (α19c) on its own; α20 in three, rivers, floods and seas (α20c) on their own; α23 in three, snares and fishing (α23b) and bark trays, hot stones and acorns (α23c) on their own; α22, α24, α25 and α26 in two; α27 in three, the stage's close (α27c) on its own; α21 stays whole: 24 alphas of about 119 hours against the brief's 10 and 43.
 Built earlier and grown here, never rebuilt: the island's cells, its drainage (`gen/drain.rs`), rivers, caves, areas and ways (α02a–α03d), its kept areas (α04a), its plants (α02d, α05), wounds and care (α09b, α17b), herds, predators and kills (α12b), danger pairs, the stalk of a person and its sign, and small game (α12c), the sun and moon (α03a), weather, lightning and the climate record (α13), fire in camp and in the land with its disasters (α14a, α14b), the ring, dreams and the record of acts (α16), the mixer, the land heard and the murmur (α16b, α16c, α17) and the everyday illnesses and fouled water (α17b).
-Homes for items the brief's list leaves out: the knowledge and craft overlays (`PRE-07`) in α19b; whole-world saving, dormant blocks and the memory pause in α19c; the moon in rules and eclipses (`WLD-07`, on α03a's sky) in α20a; gusts and quakes toppling stacks (`MAT-11`) in α20b, and huts in α25b; salt water (`BIO-09`) and the flood power in α20c; bark trays and boiling with hot stones (`MAT-18`), which Stage 3 left to this stage, in α23c, with leaching (`RCK-13`) and fermenting (`RCK-07`), whose timers A6.12 first needs at `MIL-04`; snares, fish traps and hook and line (A7.10's catching rows) in α23b, so Stage 7's fishing villages grow them instead of starting them; burial, the cut-away (`PRE-25`) and the lost-craft scene (`MOM-02`, due from `MIL-04`) in α24b; the first people's style and the 12 patterns (`PRE-43`, `CUL-12` in part) in α25b, as Stage 5 expects.
+Homes for items the brief's list leaves out: the knowledge and craft overlays (`PRE-07`) in α19b; whole-world saving, dormant blocks and the memory pause in α19c; the moon in rules and eclipses (`WLD-07`, on α01a's sky) in α20a; gusts and quakes toppling stacks (`MAT-11`) in α20b, and huts in α25b; salt water (`BIO-09`) and the flood power in α20c; bark trays and boiling with hot stones (`MAT-18`), which Stage 3 left to this stage, in α23c, with leaching (`RCK-13`) and fermenting (`RCK-07`), whose timers A6.12 first needs at `MIL-04`; snares, fish traps and hook and line (A7.10's catching rows) in α23b, so Stage 7's fishing villages grow them instead of starting them; burial, the cut-away (`PRE-25`) and the lost-craft scene (`MOM-02`, due from `MIL-04`) in α24b; the first people's style and the 12 patterns (`PRE-43`, `CUL-12` in part) in α25b, as Stage 5 expects.
 Each alpha's first phone step makes its demo world on the phone: a scene marked `demo = { name, run, at }`, compiled into the blob and built by the Tests screen's Make test world (α08's `kd-app/src/demo.rs`); the world-making alphas α18a–α18c use the Tests screen's world maker instead, and α27a and α27b New world; from α19a a scene may stand on a whole generated world (the setting key `generated`) or on land cut from one (`kd world cut`, into `scenes/lands/`).
 Every alpha ends with its delivery: goldens, its `versionCode` by A15.3's formula (α18a 4181, α18b 4182, α18c 4183, α19a 4191, α19b 4192, α19c 4193, α20a 4201, α20b 4202, α20c 4203, α21 4210, α22a 4221, α22b 4222, α23 4230, α23b 4232, α23c 4233, α24a 4241, α24b 4242, α25a 4251, α25b 4252, α26a 4261, α26b 4262, α27a 4271, α27b 4272, α27c 4273), `bench/cloud/<alpha>.json` rows, then P0's steps 5 to 8; each new kind of record joins `World::record_kinds()` with its `FINDABLE` line, each new logged event α07b's `data/history/event_kinds.md`, each new moment or sign α11b's `data/director/`, and each chunk schema change brings its migration and fixture.
 Each alpha keeps every earlier scene passing at its threshold (P0's definition of done, item 3), the island's `sharp-stone` test and its control (`RES-02`, `RES-03`) among them: island worlds keep their land, herds and climate, and of this half only α21's plant species and α19a's area rules reach the island.
@@ -3703,7 +3974,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 
 **Architecture:** `A5.7`, `A5.2`, `A3.7`, `A3.3`, `A3.2`, `A2.2`, `A14.1`, `A14.3`, `A14.9`, `A11.5`, `A12.4`, `A2.7`.
 
-**Needs:** α17c (Stage 3 done), with α02a's world-cell columns (`FixedCells`), preset builder (`lands::build`), rock kinds, drainage (`gen/drain.rs`) and `kd map preview`, α01d's relief (`area/relief.rs`, `relief::key`), α03a's sky draws and header, α07a's chunks, `kd world` and fixtures, and α07d's Tests screen.
+**Needs:** α17c (Stage 3 done), with α02a's world-cell columns (`FixedCells`), preset builder (`lands::build`), rock kinds, drainage (`gen/drain.rs`) and `kd map preview`, α01b's relief (`area/relief.rs`, `relief::key`), α03a's sky draws and header, α07a's chunks, `kd world` and fixtures, and α07d's Tests screen.
 
 **Crates and files touched:** `kd-world` (`src/gen/mod.rs`, `src/gen/plates.rs`, `src/gen/rock.rs`, `src/gen/uplift.rs`, `src/gen/features.rs`, `src/gen/erode.rs`, `src/gen/quality.rs`, all new; α02a's `src/gen/drain.rs`, `src/cells.rs` and `src/purposes.rs`), `kd-sim` (α03a's `src/world.rs`: the header's world numbers), `kd-save` (`world.fixed` per region, the header, migrations), `kd-tools` (`src/world.rs`: `kd world new` generating, `kd world check`; `src/map.rs`: `kd map preview` on a world folder), `kd-view` (`src/map.rs`: `MapTexture`), `kd-render` (`src/map.rs` new), `kd-ui` (`src/views/world_maker.rs` new, α07d's `src/views/tests.rs`, `src/findable.rs`), `kd-app` (`src/gen_job.rs` new), `data/world/rocks.md`, `data/palette/looks.md`, `data/tuning/world.md`, `data/VERSION.toml`, `tests/golden/generator.toml`, `tests/fixtures/worlds/`.
 
@@ -3965,7 +4236,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 
 **Architecture:** `A11.5`, `A11.2`, `A11.4`, `A11.6`, `A11.8`, `A11.11`, `A12.2`, `A12.3`, `A12.4`, `A4.11`, `A4.13`, `A5.5`, `A13.7`, `A13.11`, `A8.13`.
 
-**Needs:** α19a, with α01c's camera and `texel`, α03a's speeds by zoom and light, α03b's camp points, α12b's herd marks, α02b's rivers, α13's cell tiles, α16c's zoom gains, and α11b's `a11b-watched-from-the-valley`.
+**Needs:** α19a, with α01b's camera and `texel`, α03a's speeds by zoom and light, α03b's camp points, α12b's herd marks, α02b's rivers, α13's cell tiles, α16c's zoom gains, and α11b's `a11b-watched-from-the-valley`.
 
 **Crates and files touched:** `kd-render` (α18a's `src/map.rs`, `src/globe.rs` new, `src/cells.rs` new, `src/rivers.rs` new, `src/overlay.rs` new, α03b's `src/marks.rs`, shaders `planet.fs` and the ground shader's map-look branch), `kd-app` (the whole-world cell mirror, region tiles on the view builders), `kd-view` (`CellTiles`, `OverlayAsk`, `OverlayReply`), `kd-sim` (cell tiles in the snapshot, overlay queries), `kd-ui` (`src/views/overlays.rs` new, the views panel), `kd-audio` (α16c's zoom gains at the outer stops), `data/tuning/render.md`, `bench/budgets.toml`, `tools/screenshots.mjs`, `scenes/`.
 
@@ -3975,7 +4246,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 3. `T19b.3` **The world map and the globe (`PRE-03`, `WLD-02`, `WLD-07`, A11.5, A11.4, A3.7).** α18a's `MapTexture` is kept current from the mirror (cover class and snow by season), with A3.7's block levels 11–13 so a texel covers at least an art pixel; `kd-render/src/globe.rs` builds A11.5's lat–long mesh of 256 × 128 quads, each vertex at `mix(flat, sphere, g)` with the 326 km radius, `g` rising from 0 at the world-map stop to 1 at the globe, so the map wraps onto the sphere with no cut (`PRE-03`, `WLD-02`).
    Its shader (A11.5) draws cover, relief against the season's noon sun, the polar ice drawn over the seam so no seam shows, the rim, and each latitude lit by its day's average light (A11.4); east–west squeezing toward the poles exists in the picture only (`WLD-02`); stars round the globe come from `numbers.stars`, about 2,000 keyed points, with a few slow comets among them, as A11.4 and A11.5 draw them (`WLD-06`, `WLD-07`).
 4. `T19b.4` **Rivers and marks at every distance (`PRE-26`, `PRE-28`, A11.5, A11.6, A11.8).** Rivers are lines from the river table at the region, map and globe stops, at least one art pixel wide where they drain about 1,000 km² or more (`PRE-26`), the valley stop keeping α02b's ribbons; beings follow A11.5's table (`PRE-28`): tiny figures, enlarged to at least 6 art pixels, up to 1.6 m art pixels, then 5 × 5 marks for groups (people within 50 m of each other) beside α12b's herd marks, then α03b's camp points of 1–3 pixels that glow when they hold a fire, all the way to the globe; every switch a dissolve by seeded importance (A11.1's rule 3).
-5. `T19b.5` **The zoom chain, its speeds, its light and its sound (`TIM-01`, `PRE-03`, `SND-07`, A11.2, A4.11, A11.4, A13.7, A13.11).** α01c's `texel(zoom)` runs log-linear between all of A11.5's seven stops (person 0.03 m to globe about 2.9 km an art pixel) with the pitch knots (27° at 0.03 m to 90° from 20 m, A11.2); the zoom asks A4.11 for `TIM-01`'s speeds, now at every stop: region 3 game years a real minute, world map and globe top speed, eased in between, the shown speed always the real one.
+5. `T19b.5` **The zoom chain, its speeds, its light and its sound (`TIM-01`, `PRE-03`, `SND-07`, A11.2, A4.11, A11.4, A13.7, A13.11).** α01b's `texel(zoom)` runs log-linear between all of A11.5's seven stops (person 0.03 m to globe about 2.9 km an art pixel), the pitch straight down from the valley stop outward (A11.2); the zoom asks A4.11 for `TIM-01`'s speeds, now at every stop: region 3 game years a real minute, world map and globe top speed, eased in between, the shown speed always the real one.
    From the region stop out, light is averaged over the day and the season's mix held steady when a season passes in under 10 real seconds (A11.4); a pinch inward over unvisited land starts the area under the view centre as the zoom nears the camp stop (A11.5), its coarse ground shown until the detail fades in.
    α16c's zoom table (A13.7) now reaches its outer columns: beds at −18 dB at the region stop and off beyond, ambience at −18, −30 and off at the region, world-map and globe stops, singles only for thunder at the region stop, so the globe is near silent (`SND-07`), the check of A13.11 that α16c left for this alpha.
 6. `T19b.6` **Overlays: their frame, and what people know (`PRE-07`, `MND-28`, `MND-06`, A12.3, A8.13).** `kd-view` gains `OverlayAsk::{Knowledge { person: Option<Uid>, band: Option<Uid> }, Craft { blueprint: BlueprintKind, people: Option<Uid> }}` and `Query::Overlay(OverlayAsk)` (A12.3), answered from `&World` within 1 ms as a byte a cell for the cells changed since the last reply (zstd) plus a list of point marks; `kd-render/src/overlay.rs` blends the layer over the map look at the valley stop and outward, as a palette ramp at 50% with 2-texel edges between classes (tuned); later alphas add their kinds to this enum (weather α20a, land α21 and α22a, peoples α36a).
@@ -4074,9 +4345,9 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 
 **Architecture:** `A5.8`, `A5.9`, `A5.10`, `A5.11`, `A3.7`, `A4.9`, `A7.5`, `A8.9`, `A10.7`, `A11.4`, `A12.3`, `A12.5`, `A13.7`, `A15.8`, `A16.3`.
 
-**Needs:** α19c, with α13's hourly weather, storms, anomalies, snow, climate records and `light_at`, α03a's sun and moon (`kd_core::sky`, its `eclipse` 0 until now), α14b's fire in the land and its disaster recogniser, α16c's place slots, α19b's overlay frame, and α12's long runs (`tools/longruns.sh`).
+**Needs:** α19c, with α13's hourly weather, storms, anomalies, snow, climate records and `light_at`, α01a's sun and moon (`kd_core::sky`, its `eclipse` 0 until now), α14b's fire in the land and its disaster recogniser, α16c's place slots, α19b's overlay frame, and α12's long runs (`tools/longruns.sh`).
 
-**Crates and files touched:** `kd-core` (α03a's `src/sky.rs`: eclipses), `kd-world` (α13's `src/weather/hourly.rs`, `src/weather/storms.rs` and `src/weather/daily.rs`; `src/weather/spells.rs` new; `src/water/ground.rs` new: soil and ground water, springs and streams; α14b's `src/fire.rs`; `src/purposes.rs`), `kd-life` (α14b's `src/fire/front.rs`: fuel by every biome's cover), `kd-sim` (world-wide batches, the weather overlay, `light_at` by moonlight, the `spells` scene key), `kd-people` (α04c's `src/sense.rs`: moonlight), `kd-player` (α14b's disaster recogniser: droughts), `kd-render` (river and lake ice, eclipses), `kd-audio` (α16c's `src/plan/place.rs`), `kd-ui` (the overlay legend, `src/findable.rs`), `kd-tools` (`kd world check --weather`), `tools/longruns.sh`, `data/tuning/world.md`, `data/sounds/ambience.md`, `data/director/moments.md`, `data/text/disasters.md`, `data/history/event_kinds.md`, `tests/earth_climate.toml` new, `tests/fixtures/worlds/`, `scenes/lands/`, `scenes/`.
+**Crates and files touched:** `kd-core` (α01a's `src/sky.rs`: eclipses), `kd-world` (α13's `src/weather/hourly.rs`, `src/weather/storms.rs` and `src/weather/daily.rs`; `src/weather/spells.rs` new; `src/water/ground.rs` new: soil and ground water, springs and streams; α14b's `src/fire.rs`; `src/purposes.rs`), `kd-life` (α14b's `src/fire/front.rs`: fuel by every biome's cover), `kd-sim` (world-wide batches, the weather overlay, `light_at` by moonlight, the `spells` scene key), `kd-people` (α04c's `src/sense.rs`: moonlight), `kd-player` (α14b's disaster recogniser: droughts), `kd-render` (river and lake ice, eclipses), `kd-audio` (α16c's `src/plan/place.rs`), `kd-ui` (the overlay legend, `src/findable.rs`), `kd-tools` (`kd world check --weather`), `tools/longruns.sh`, `data/tuning/world.md`, `data/sounds/ambience.md`, `data/director/moments.md`, `data/text/disasters.md`, `data/history/event_kinds.md`, `tests/earth_climate.toml` new, `tests/fixtures/worlds/`, `scenes/lands/`, `scenes/`.
 
 **Tasks:**
 1. `T20a.1` **α13's weather over the whole world (`WLD-16`, `WLD-01`, A5.8, A5.9).** α13's hourly step (`weather::hourly`, A5.8: 4 jobs by rows of weather cells) runs on all 20,000 weather cells of a generated world, sea included, from α18c's climate records, ending α19a's active window for weather; fronts are born only over sea cells and showers anywhere, at α18c's calibrated rates, and storms end on reaching the middle of the polar ice instead of a void cell (`WLD-01`), about 400 at once.
@@ -4088,7 +4359,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
    Rivers keep their rated levels and lakes their generated ones until α20c's routing.
 4. `T20a.4` **Wildfire on every cell (`WLD-28`, `WLD-30`, A5.9, A7.5).** α14b's cell fire (the burning list, fronts, embers, lightning far from people and the after) runs on every land cell of a generated world, its fuel load and speed read from each biome's cover through A7.5: desert, ice and bare rock never burn, tundra burns slowly, grassland and savanna fastest; one job in time order within 5 µs a cell-hour.
    α14b's lightning base stays unless the world-alone check below finds a biome outside `WLD-28`'s intervals; then it and the fuel speeds are retuned on tuning seeds and logged (`RES-16`), never to fit a scene.
-5. `T20a.5` **The moon in rules, and eclipses (`WLD-07`, A3.7, A8.9, A11.4).** α03a's `kd_core::sky::sun_moon` runs on a generated world's own `Sky` (α18a's tilt of 15–30° and drawn moon); its `eclipse`, 0 until now, becomes A3.7's share of the sun hidden at a new moon, or of the moon at a full one, while the moon lies within the node cycle's window of the sun's path, the node period's range in `[sky]` tuned so each place on any world sees 2–8 eclipses in 70 game years (`WLD-07`); the picture's light dims by it (A11.4).
+5. `T20a.5` **The moon in rules, and eclipses (`WLD-07`, A3.7, A8.9, A11.4).** α01a's `kd_core::sky::sun_moon` runs on a generated world's own `Sky` (α18a's tilt of 15–30° and drawn moon); its `eclipse`, 0 until now, becomes A3.7's share of the sun hidden at a new moon, or of the moon at a full one, while the moon lies within the node cycle's window of the sun's path, the node period's range in `[sky]` tuned so each place on any world sees 2–8 eclipses in 70 game years (`WLD-07`); the picture's light dims by it (A11.4).
    The moon in rules: α13's `light_at` gives `Dim`, not `Dark`, at night under a moon at least three-quarters lit and above the horizon with cloud under 0.5, and α04c's night factor on far sight (A8.9's × 0.1) rises to × 0.3 under it (tuned), so a full moon is bright enough to walk and hunt by (`WLD-07`); polar days and nights follow the world's tilt, and the time control's light and moon follow the camera's latitude.
 6. `T20a.6` **The weather overlay, sounds and droughts as disasters (`PRE-07`, `SND-11`, `PRE-39`, `TIM-02`, `PRE-13`, A12.3, A13.7, A12.5, A10.7).** `OverlayAsk::Weather { field: Temperature | Rain | Snow | Wind | Drought, normal: bool }` (`PRE-07`): now, or the season's normal from the record, per weather cell, with point marks for storms.
    α16c's place slots (`data/sounds/ambience.md`, `kd-audio/src/plan/place.rs`, its `rain` and `flow` generators) gain the sea and waves on shores and lakes by wind, rain by what it falls on (leaves, ground, water, snow), snow of 10 cm or more damping the world bus above 2 kHz by 6 dB, and a storm's rumble at the valley stop (A13.7; A13.15's `MIL-04` row, wind by cover following with α21).
@@ -4111,7 +4382,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 
 **Tests:**
 - Unit, `crates/kd-world/tests/weather_world.rs`: `storms_end_at_the_polar_ice`; `windward_wetter_lee_drier_by_clim`; `anomalies_blend_between_regions`; `drought_blocks_storm_rain_in_its_stretch`; `cold_snap_frost_only_where_the_season_has_frost`; `stall_rains_1_to_24_hours`; `rain_fed_stream_dries_spring_fed_runs`; `ice_bears_from_10_cm`; `desert_ice_and_bare_rock_never_burn`; `one_hash_on_1_and_4_workers_and_as_one_job` (A5.9).
-- Sky, `crates/kd-core/tests/sky.rs`: `eclipses_2_to_8_in_70_years_on_20_worlds` (100 sampled places on each of 20 generated worlds); `daylight_follows_latitude_at_each_tilt` (tilts 15°, 23° and 30°: day length within 0.1 h of the standard formula at every 10° of latitude); α03a's one full moon a season, rerun on generated skies: together `WLD-07`'s Done when.
+- Sky, `crates/kd-core/tests/sky.rs`: `eclipses_2_to_8_in_70_years_on_20_worlds` (100 sampled places on each of 20 generated worlds); `daylight_follows_latitude_at_each_tilt` (tilts 15°, 23° and 30°: day length within 0.1 h of the standard formula at every 10° of latitude); α01a's one full moon a season, rerun on generated skies: together `WLD-07`'s Done when.
 - `crates/kd-sim/tests/light.rs`: `full_moon_lifts_dark_to_dim`; `night_sight_three_times_farther_under_a_full_moon`.
 - The world-alone set at this alpha's close (A15.8), its 20 worlds at 20 game years: `WLD-16`'s Done when, each place's rain within 10% of its climate's and warmth within 1 °C, and each 10° band's mean within about 2 °C of `tests/earth_climate.toml` at the same latitude, height and distance from the sea; `WLD-22`'s Check, storms, droughts, cold snaps, harsh winters and wildfires per game year within Earth's yearly ranges (`RES-13`), each traced to its system's state; `WLD-28`'s Done when for each biome, grassland and savanna burning every 2–5 game years, dry forest every 20–50, wet forest rarely.
 - Overlay: `weather_overlay_matches_cells` (20 sampled places, `PRE-07`).
@@ -6961,14 +7232,14 @@ The stage is 13 alphas of about 60 hours, against the brief's 8 and 32.
 
 **Architecture:** `A9.15`, `A9.7`, `A9.6`, `A9.11`, `A9.13`, `A9.3`, `A8.13`, `A8.16`, `A8.9`, `A10.7`, `A12.4`, `A13.3`, `A13.7`, `A13.13`, `A13.14`, `A14.9`, `A15.7`.
 
-**Needs:** α39b, with α26b's `camp_score` and the `go_to_gathering` row (`kd-culture/src/camps.rs`, `data/culture/plans.md`), α36a's gatherings and `meetings` rings, α32a's rites and `hold_rite` (`kd-culture/src/rites.rs`, whose `Occasion` holds `BeforeTask`, `AtPlace`, `AtThreat` and `AtDeath`) and question 9's rings (`customs.rs`), α37's `hold_feast`, α34a's and α34b's songs and dances (`kd-culture/src/music.rs`, `kd-audio/src/music.rs`), α30a's topics, α26a's plan `due`, α04a's mental-map facts and α06b's `place` topic, α03a's `kd_core::sky::sun_moon`, α39a's `end_feud`, α12's teaching and watching, α24b's `eyed_needle`, α16c's beds and α34a's `a34a-song-in-storm` in α07d's benchmark sound phase (`kd-app/src/bench.rs`).
+**Needs:** α39b, with α26b's `camp_score` and the `go_to_gathering` row (`kd-culture/src/camps.rs`, `data/culture/plans.md`), α36a's gatherings and `meetings` rings, α32a's rites and `hold_rite` (`kd-culture/src/rites.rs`, whose `Occasion` holds `BeforeTask`, `AtPlace`, `AtThreat` and `AtDeath`) and question 9's rings (`customs.rs`), α37's `hold_feast`, α34a's and α34b's songs and dances (`kd-culture/src/music.rs`, `kd-audio/src/music.rs`), α30a's topics, α26a's plan `due`, α04a's mental-map facts and α06b's `place` topic, α01a's `kd_core::sky::sun_moon`, α39a's `end_feud`, α12's teaching and watching, α24b's `eyed_needle`, α16c's beds and α34a's `a34a-song-in-storm` in α07d's benchmark sound phase (`kd-app/src/bench.rs`).
 
 **Crates and files touched:** `kd-culture` (`src/calendar.rs`, `src/festivals.rs` and `src/council.rs`, new; α36a's `src/gatherings.rs`; α26b's `src/camps.rs`; α32a's `src/rites.rs` and `src/customs.rs`; α39a's `src/conflict/feuds.rs`), `kd-people` (α04a's `src/mind/map.rs`: sign facts; α04c's `src/choose/options.rs` and `src/choose/score.rs`; α26a's `src/plan/mod.rs`), `kd-sim` (sign-noticing hooks, `src/scene.rs`: the `rites` key), `kd-player` (α11b's `src/director/`: the first festival), `kd-save` (the `cul.peoples` and `cul.groups` migrations), `kd-ui` (α36b's `src/views/people_card.rs`, α12's `src/views/band_card.rs`, α04d's `src/views/place.rs`, `src/findable.rs`), `kd-audio` (α16c's camp beds at a gathering), `kd-app` (α07d's `src/bench.rs`: the dearest scene), `kd-data` (kind `Sign`), `kd-text`, `data/culture/signs.md` new, `data/culture/plans.md`, `data/director/moments.md`, `data/minds/thoughts.md`, `data/tuning/culture.md`, `data/history/event_kinds.md`, `data/text/culture.md`, `data/text/cards.md`, `scenes/lands/nut-grove.toml`, `scenes/lands/grove-and-range.toml`, `scenes/a40-festival-storm.toml`, `tests/fixtures/worlds/`, `scenes/`.
 
 **Tasks:**
 1. `T40.1` **The pull of other bands (`CUL-29`, `CUL-22`, A9.15, A9.7).** α26b's `camp_score` gains a pull term for a band's decider: each member's wish to meet people of another band is the sum, capped at 30, of 20 × kin weight for kin there, 10 for each friend (opinion 60 or more) and 30 for a partner or the one they court; each candidate camp gains, for each other band whose last meeting in this season was within 5 km of it (α36a's `meetings` ring, or the members' map facts of that band's camp in this season last year), the summed wishes toward it ÷ 10 (`[gatherings] pull`, tuned), halved in a lean season (food in range below 1.5 times the band's need for the season); so in plenty bands head for where they last met (`CUL-29`).
    α26b's `go_to_gathering` row in `data/culture/plans.md` goes active (A9.7: set by a leader, chief or council; fewest half the band), offered when a festival's sign is 10 days off (T40.3) or the pull picks a camp within 5 km of another band's expected camp.
-2. `T40.2` **Yearly signs and the calendar (`CUL-29`, `MND-28`, `MND-22`, `WLD-07`, A9.15, A8.13).** `data/culture/signs.md` (new, kind `Sign` in the catalogue's registry), 10 entries, each with how it is noticed by a glance at its cause (A8.9) and its English pattern: `first_frost` (the first night below 0 °C after summer at camp), `first_snow`, `herds_passing` (a migrating herd's leg within 5 km of camp, A7.7), `fish_running` (a fish run starting in a river within 5 km, A7.10), `nuts_falling` (a nut tree species reaching its fruit-fall state within 2 km, A7.3), `birds_arriving` (a migrating bird's count rising in the cell), `river_rising` (the river at camp 30% above its mean), `longest_day` and `shortest_day`, and `full_moon` (once a season, `WLD-07`), these three read from α03a's `kd_core::sky::sun_moon` (A3.7).
+2. `T40.2` **Yearly signs and the calendar (`CUL-29`, `MND-28`, `MND-22`, `WLD-07`, A9.15, A8.13).** `data/culture/signs.md` (new, kind `Sign` in the catalogue's registry), 10 entries, each with how it is noticed by a glance at its cause (A8.9) and its English pattern: `first_frost` (the first night below 0 °C after summer at camp), `first_snow`, `herds_passing` (a migrating herd's leg within 5 km of camp, A7.7), `fish_running` (a fish run starting in a river within 5 km, A7.10), `nuts_falling` (a nut tree species reaching its fruit-fall state within 2 km, A7.3), `birds_arriving` (a migrating bird's count rising in the cell), `river_rising` (the river at camp 30% above its mean), `longest_day` and `shortest_day`, and `full_moon` (once a season, `WLD-07`), these three read from α01a's `kd_core::sky::sun_moon` (A3.7).
    A person who notices a sign keeps it as a mental-map fact of its camp place (α04a's facts: the sign, its day of the year, the year seen); seen again the next year within 3 days of the same day of the year, they know it (A9.15, `MND-28`) and tell it as α06b's `place` topic.
    `crates/kd-culture/src/calendar.rs` (new): when a knower first talks of it, it is named for their people (A9.3: "when the nuts fall" in their words) and joins the people's calendar (`People.calendar`, at most 12 a people, A9.15), its expected day the mean of its knowers' sightings, logged `sign_learned` (kept forever, first-able).
    A plan can be timed by a known sign (`MND-22`: α26a's `due` set to its expected day), and α32a's `Occasion` gains `Calendar(sign)`, so a rite tied to a sign is held on its day (`CUL-34`).
@@ -8430,11 +8701,11 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRN-15` History is saved, not re-run: α07a, α07b
 - `PRN-11` Time slows, the screen stays smooth: α03a, α03c, α07d, α43b
 - `PRN-09` Build in playable steps: every alpha
-- `PRN-14` Modular by design: α53b
+- `PRN-14` Modular by design: α00b, α53b
 - `SCP-01` Starting point: α12
 - `SCP-02` Just you: α53b
 - `SCP-03` Playable alphas: every alpha
-- `SCP-15` Tests run in the AI's cloud sessions: α07e, α12d, α17c, α27c, α35c, α43c, α52, α53b
+- `SCP-15` Tests run in the AI's cloud sessions: α00, α07e, α12d, α17c, α27c, α35c, α43c, α52, α53b
 - `SCP-16` Milestones: every alpha
 - `MIL-01` First camp: α04a, α07d, α07e
 - `MIL-02` Sharp stone: α12d
@@ -8471,8 +8742,8 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `GOD-07` No trace in the story: α16, α20b, α31, α35b
 - `GOD-09` What came of your acts: α16, α20b, α20c, α22b, α35b
 - `TIM-17` Activities with an end: α03c, α03d, α04b, α09, α09b, α10a, α12, α12c, α22b, α23, α26a, α26b, α47a
-- `TIM-18` The game year: α03a, α04b, α05, α13, α17b, α20a, α20c
-- `TIM-14` Dates: α03a, α11b, α27b
+- `TIM-18` The game year: α00b, α03a, α04b, α05, α13, α17b, α20a, α20c
+- `TIM-14` Dates: α00b, α03a, α11b, α27b
 - `TIM-01` Time follows zoom: α03a, α19b, α27c, α35c, α43c, α53b
 - `TIM-10` Natural speed up close: α03a, α03c
 - `TIM-04` Manual control: α03a
@@ -8483,16 +8754,16 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `TIM-11` Skip to the next moment: α11b
 - `TIM-05` Pauses when closed: α03a, α07a
 - `TIM-12` Overnight mode: α43a, α43c, α46a
-- `TIM-16` Chance is local: α02a, α02b, α02c, α02d, α03c, α07a, α07b, α07c, α12, α35b
+- `TIM-16` Chance is local: α00b, α02a, α02b, α02c, α02d, α03c, α07a, α07b, α07c, α12, α35b
 - `TIM-08` Saved worlds: α07b, α27a, α53a
 - `TIM-19` Pace of discovery: α12, α15, α17c, α25a, α25b, α27b, α27c, α35b, α35c, α41, α42, α43c, α44, α45, α46a, α47b, α52, α53b
 - `TIM-09` If everyone dies: α06c, α11b
-- `WLD-01` Torus with latitude: α02a, α03d, α18a, α18c, α19a, α20a, α22a
+- `WLD-01` Torus with latitude: α01b, α02a, α03d, α18a, α18c, α19a, α20a, α22a
 - `WLD-02` Globe view: α19b
 - `WLD-03` Size: α18a
 - `WLD-30` What scales with the world: α04a, α05, α13, α14b, α18a, α20a, α21, α22a
 - `WLD-04` How many people it can feed: α52
-- `WLD-12` Map layers: α01d, α02a, α02b, α02c, α02d, α03d, α04a, α05, α13, α14b, α18a, α18b, α19a, α19c, α21, α23, α23c, α45
+- `WLD-12` Map layers: α01b, α02a, α02b, α02c, α02d, α03d, α04a, α05, α13, α14b, α18a, α18b, α19a, α19c, α21, α23, α23c, α45
 - `WLD-13` Looking changes nothing: α02b, α02c, α02d, α03b, α03c, α14b, α19a, α19b, α19c, α21
 - `WLD-34` The first region: α02a, α12b, α13, α19a
 - `WLD-08` Realistic, not from scratch: α03a, α05, α07a, α18a, α18b, α18c, α27b, α27c
@@ -8532,10 +8803,10 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `MAT-21` Named discoveries: α11a, α11b, α14a, α15, α16b, α25a, α33, α33b, α35b, α36b, α41, α47b, α49
 - `MAT-23` The launch blueprints: α09, α14b, α15, α23, α23b, α23c, α24a, α24b, α25a, α25b, α33, α33b, α34a, α41, α44, α45, α46a, α47a, α47b, α49, α51
 - `MAT-05` Plausible values: α08
-- `MAT-13` The catalogues: α08, α17b, α51
+- `MAT-13` The catalogues: α01a, α08, α17b, α51
 - `MAT-14` Adding without rewriting: α09, α44, α49, α51
 - `MAT-16` The catalogue grows by milestone: α04a, α08, α21, α33, α49, α50
-- `MAT-17` How the catalogue checks work: α04a, α08, α09, α17b, α49, α50, α51
+- `MAT-17` How the catalogue checks work: α01a, α04a, α08, α09, α17b, α49, α50, α51
 - `RCK-01` Flint flakes, granite doesn't: α08, α09, α11a
 - `RCK-02` Fire by friction: α15
 - `RCK-22` Air feeds fire: α14a, α15, α47a
@@ -8638,11 +8909,11 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `CUL-11` Myths and stories: α32c, α36a, α39b
 - `CUL-12` Style and ornament: α25b, α33, α33b, α34a, α34b, α36c, α41, α43c
 - `CUL-29` Gatherings and festivals: α36a, α40, α46a, α48
-- `PRE-01` Detailed pixel art: α01c
-- `PRE-02` Pixel-rendered 3D: α01c, α01d, α02b, α19b
-- `PRE-20` Colour in steps: α01c, α01d, α02d
+- `PRE-01` Detailed pixel art: α01a
+- `PRE-02` Pixel-rendered 3D: α01b, α01c, α01d, α02b, α19b
+- `PRE-20` Colour in steps: α01a, α01b, α01d, α02d
 - `PRE-21` Outlines and lit edges: α01c, α02c
-- `PRE-22` Stable pixels: α01c, α01d, α07e
+- `PRE-22` Stable pixels: α00, α01b, α01c, α01d, α07e
 - `PRE-23` Rock faces: α02c
 - `PRE-24` Real shapes: α02c, α16c, α25b, α46a
 - `PRE-25` Cut-away view: α24b
@@ -8650,16 +8921,16 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRE-27` People and animals: α03b, α06c, α09b, α12b, α17b, α24a, α25a, α28, α46b
 - `PRE-28` Readable from far away: α02d, α03b, α12b, α14a, α19b
 - `PRE-29` From above: α02a, α18a, α19b
-- `PRE-30` Light, time and season: α01c, α03a, α05, α13, α14a, α47a
-- `PRE-03` Seamless zoom: α01c, α02a, α02b, α03b, α19b
+- `PRE-30` Light, time and season: α01a, α01c, α02c, α03a, α05, α13, α14a, α47a
+- `PRE-03` Seamless zoom: α01b, α02a, α02b, α03b, α19b
 - `PRE-31` Visual review: α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `PRE-42` Built from their materials: α08, α23c, α25a, α25b, α45, α46a, α47b, α49
 - `PRE-43` Variety: α02d, α21, α25b, α33b, α36c
 - `PRE-44` Animations: α03b, α03c, α06b, α06c, α09, α09b, α12, α12b, α14a, α19a, α22a, α23, α28, α28b, α30a, α30b, α32a, α34b, α51
 - `PRE-46` The model kit: α01d, α02d, α03b, α08, α21, α22a, α23b, α25a, α25b, α33, α33b, α41, α44, α49, α50, α51
-- `PRE-32` World first: α04d
-- `PRE-34` Both orientations: α03a, α04d, α12d, α53a, α53b
-- `PRE-33` Gestures: α01d, α03a, α03c, α16
+- `PRE-32` World first: α01a, α04d
+- `PRE-34` Both orientations: α01b, α03a, α04d, α12d, α53a, α53b
+- `PRE-33` Gestures: α01b, α03a, α03c, α16
 - `PRE-35` Cards: α04d, α06a, α06b, α06c, α08, α09b, α10a, α12, α12b, α14a, α17b, α19a, α21, α22a, α24a, α24b, α26a, α26b, α28, α28b, α29, α31, α31b, α32a, α32b, α32c, α34b, α36a, α36b, α36c, α38, α40, α46a, α48
 - `PRE-45` What they talk about: α30a, α30b
 - `PRE-40` Screens: α04d, α07b, α07d, α07e, α11b, α16b, α16c, α17, α27a, α27b, α43b, α51, α53a, α53b
@@ -8687,14 +8958,14 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `SND-07` Sound follows time: α16b, α16c, α19b
 - `SND-08` Space and distance: α16b, α16c, α17
 - `SND-12` Sound review: α17, α17c, α27c, α34a, α35c, α43c, α53b
-- `PLT-01` One phone: α07c, α07d
-- `PLT-02` Portrait and landscape: α04d, α53b
-- `PLT-03` Works offline: α17, α35a, α43a, α53b
-- `PLT-06` Installing new versions: α53b
+- `PLT-01` One phone: α00, α07c, α07d
+- `PLT-02` Portrait and landscape: α00, α04d, α53b
+- `PLT-03` Works offline: α00, α17, α35a, α43a, α53b
+- `PLT-06` Installing new versions: α00, α53b
 - `PLT-04` Measured limits: α02b, α07d, α07e, α12d, α17c, α19b, α19c, α20a, α27b, α27c, α35c, α43a, α43b, α43c, α46b, α52, α53a, α53b
 - `PLT-07` Always saved: α07a, α07b, α16, α19c, α43a
 - `PLT-08` Manual export: α53a
-- `PLT-09` Worlds across updates: α07a, α08, α10b, α12b, α14a, α18a, α18b, α18c, α19a, α20c, α21, α22a, α27a, α33, α41, α42, α44, α47b, α50, α53a
+- `PLT-09` Worlds across updates: α01a, α07a, α08, α10b, α12b, α14a, α18a, α18b, α18c, α19a, α20c, α21, α22a, α27a, α33, α41, α42, α44, α47b, α50, α53a
 - `PLT-10` Storage: α07a, α07b, α19c, α52, α53a
 - `PLT-05` Tests in the cloud: α07d, α08, α12, α19c, α52
 - `RES-01` Tests lead: every alpha
@@ -8702,7 +8973,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `RES-18` Same rules as play: α07c, α19a
 - `RES-09` Pass rules come first: α07c
 - `RES-13` About 20 runs where chance matters: α07c, α17b, α24a, α52
-- `RES-05` Repeatable runs: α07a, α07c, α07d, α43b, α53a, α53b
+- `RES-05` Repeatable runs: α00b, α07a, α07c, α07d, α43b, α53a, α53b
 - `RES-10` Switch-off runs: α07c, α10a, α11a, α12, α17b, α31, α31b
 - `RES-16` Tuning the pace: α12d, α17c, α18b, α27c, α35c, α43c, α52, α53b
 - `RES-24` Blueprint trials: α09, α23, α23b, α23c, α24a, α41, α49
@@ -8722,12 +8993,12 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRC-03` Technology: every alpha
 - `PRC-04` Three documents: every alpha
 - `PRC-06` A guide for AI agents: every alpha
-- `PRC-07` Changes to this file: every alpha
+- `PRC-07` Changes to this file: α00b
 - `PRC-08` Next: the architecture and the plan: every alpha
-- `PRC-09` Branches, checks and review: α07e, α12d, α17c, α27c, α35c, α43c, α53b
-- `PRC-10` The checks: α07c
-- `PRC-11` Each alpha reaches your phone: α07c, α16b, α35a, α53b
-- `PRC-12` Nothing gets lost: α07c, α07e, α12d, α17c, α27c, α35c, α43c, α53b
+- `PRC-09` Branches, checks and review: α00, α00b, α07e, α12d, α17c, α27c, α35c, α43c, α53b
+- `PRC-10` The checks: α00, α00b, α07c
+- `PRC-11` Each alpha reaches your phone: α00, α07c, α16b, α35a, α53b
+- `PRC-12` Nothing gets lost: α00b, α07c, α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `RSK-01` Discoveries stall: α52
 - `RSK-26` The pace is off: α52
 - `RSK-19` Belief fails to emerge: α31, α31b, α32c, α35c
