@@ -1,0 +1,22 @@
+{
+  "alpha": "a01a",
+  "version_code": 1011,
+  "built_from": "b3388e1359f45c0294c8ba718f0e2983eb3b94c6",
+  "measured": "2026-10-03",
+  "machine": "cloud session, 4 cores",
+  "build_seconds": {
+    "apk": 40,
+    "web": 26,
+    "how": "each from an empty target folder, with the toolchain, crates and Gradle's downloads already cached"
+  },
+  "check_seconds": 52,
+  "apk_bytes": 632074,
+  "wasm_bytes": 380226,
+  "light_microseconds": {
+    "catalogue_blob_load": 1.5,
+    "palette_row": 7.2,
+    "tables": 44.0,
+    "how": "median of 201 runs on one core, profile fast, at 16:30 (kd-app's light_timings); A11.3 allows about 300 for the row and tables together"
+  },
+  "worlds": "none yet: kd bench and its worlds arrive in α07d (A15.10)"
+}

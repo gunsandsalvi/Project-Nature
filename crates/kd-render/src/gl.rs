@@ -13,6 +13,16 @@ use crate::RenderError;
 pub mod unit {
     /// The art target, read by the upscale pass.
     pub const ART: u32 = 0;
+    /// The palette row, 256 × 1 RGBA8 (A11.3).
+    pub const PALETTE: u32 = 1;
+    /// The tables, 256 × 16 R8 (A11.3).
+    pub const TABLES: u32 = 2;
+    /// The scene's colour 0, read by post.
+    pub const SCENE: u32 = 3;
+    /// The probe scene's inputs.
+    pub const PROBE: u32 = 4;
+    /// The pixel font's atlas, read by the UI pass.
+    pub const FONT: u32 = 5;
 }
 
 /// The texture formats the renderer uses (A11.13 rule 3).
@@ -126,6 +136,37 @@ impl Texture {
         }
     }
 
+    /// Replaces every texel with `data`, exactly w × h × bytes.
+    pub fn update(&self, gl: &glow::Context, data: &[u8]) -> Result<(), RenderError> {
+        if data.len() != self.w as usize * self.h as usize * self.format.bytes() {
+            return Err(RenderError::Gl(format!(
+                "texture update of {} bytes for {} x {} {:?}",
+                data.len(),
+                self.w,
+                self.h,
+                self.format
+            )));
+        }
+        // SAFETY: plain GL calls on the current context; `data` was checked to hold exactly the texels named.
+        unsafe {
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.handle));
+            gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
+            gl.tex_sub_image_2d(
+                glow::TEXTURE_2D,
+                0,
+                0,
+                0,
+                self.w as i32,
+                self.h as i32,
+                self.format.format(),
+                self.format.channel_type(),
+                glow::PixelUnpackData::Slice(Some(data)),
+            );
+            gl.bind_texture(glow::TEXTURE_2D, None);
+        }
+        Ok(())
+    }
+
     pub fn delete(self, gl: &glow::Context) {
         // SAFETY: the texture belongs to this context and is not used again.
         unsafe { gl.delete_texture(self.handle) }
@@ -193,6 +234,28 @@ impl Target {
     pub fn bind(&self, gl: &glow::Context) {
         // SAFETY: plain GL call on the current context.
         unsafe { gl.bind_framebuffer(glow::FRAMEBUFFER, Some(self.framebuffer)) }
+    }
+
+    /// Reads the first colour attachment back as RGBA8, rows from the bottom: for the probe and tests, never per
+    /// frame, since it waits for the GPU.
+    pub fn read_rgba8(&self, gl: &glow::Context) -> Vec<u8> {
+        let mut out = vec![0u8; self.w as usize * self.h as usize * 4];
+        // SAFETY: plain GL calls on the current context; `out` holds exactly w × h RGBA8 pixels.
+        unsafe {
+            gl.bind_framebuffer(glow::FRAMEBUFFER, Some(self.framebuffer));
+            gl.pixel_store_i32(glow::PACK_ALIGNMENT, 1);
+            gl.read_pixels(
+                0,
+                0,
+                self.w as i32,
+                self.h as i32,
+                glow::RGBA,
+                glow::UNSIGNED_BYTE,
+                glow::PixelPackData::Slice(Some(&mut out)),
+            );
+            gl.bind_framebuffer(glow::FRAMEBUFFER, None);
+        }
+        out
     }
 
     pub fn delete(self, gl: &glow::Context) {
@@ -306,9 +369,21 @@ pub fn set_ivec2(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [i3
     unsafe { gl.uniform_2_i32(loc, v[0], v[1]) }
 }
 
+/// An array of `ivec2`, from its first element's location.
+pub fn set_ivec2_array(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: &[[i32; 2]]) {
+    let flat: Vec<i32> = v.iter().flatten().copied().collect();
+    // SAFETY: as above; the array holds whole ivec2s.
+    unsafe { gl.uniform_2_i32_slice(loc, &flat) }
+}
+
 pub fn set_f32(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: f32) {
     // SAFETY: as above.
     unsafe { gl.uniform_1_f32(loc, v) }
+}
+
+pub fn set_vec3(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [f32; 3]) {
+    // SAFETY: as above.
+    unsafe { gl.uniform_3_f32(loc, v[0], v[1], v[2]) }
 }
 
 pub fn set_vec2(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [f32; 2]) {
@@ -526,6 +601,24 @@ impl Mesh {
                 count,
             })
         }
+    }
+
+    /// Replaces the vertices of a mesh drawn without indices, in the layout it was made with: for a mesh that changes
+    /// every frame, such as the UI's.
+    pub fn refill(&mut self, gl: &glow::Context, layout: &Layout, vertices: &[u8]) -> Result<(), RenderError> {
+        if self.indices.is_some() {
+            return Err(RenderError::Gl("only a mesh without indices is refilled".into()));
+        }
+        let (_, stride) = layout.offsets();
+        self.count = draw_count(stride, vertices.len(), None).map_err(RenderError::Gl)?;
+        // SAFETY: plain GL calls on the current context; the vertex array keeps its attribute pointers, and the new
+        // data is whole vertices of the same layout.
+        unsafe {
+            gl.bind_buffer(glow::ARRAY_BUFFER, Some(self.vertices));
+            gl.buffer_data_u8_slice(glow::ARRAY_BUFFER, vertices, glow::DYNAMIC_DRAW);
+            gl.bind_buffer(glow::ARRAY_BUFFER, None);
+        }
+        Ok(())
     }
 
     /// Draws the triangles with the program and the state the pass set.

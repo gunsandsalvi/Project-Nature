@@ -1,6 +1,6 @@
 //! `kd check names` (A2.3 rule 5): rules never name content, so no catalogue id or English name appears as a
 //! string in a simulation crate's code; only `data/`, tests and scenes name entries (`PRN-07`, `MAT-13`).
-//! The catalogue arrives in α01a, which gives `catalogue_names` its list; until then the list is empty.
+//! The names come from the catalogue, compiled from `data/` (α01a).
 //!
 //! Implements PRN-07, see A2.3: rules never name a species, an item or a blueprint.
 
@@ -10,10 +10,9 @@ use crate::layers::{self, Crate, Row};
 use crate::scan;
 use std::collections::BTreeMap;
 
-/// Every catalogue id and English name the simulation crates must not write: none until the catalogue (α01a).
-pub fn catalogue_names(root: &Path) -> Vec<String> {
-    let _ = root;
-    Vec::new()
+/// Every catalogue id and English name the simulation crates must not write.
+pub fn catalogue_names(root: &Path) -> Result<Vec<String>, String> {
+    crate::catalog::names(root)
 }
 
 /// Every string literal in a simulation crate's code, outside its tests, that is a catalogue name.
@@ -55,7 +54,7 @@ pub fn check(names: &[String], rows: &BTreeMap<String, Row>, crates: &[Crate]) -
 pub fn run(root: &Path) -> Result<String, String> {
     let rows =
         layers::parse_rows(&std::fs::read_to_string(root.join("tools/layers.toml")).map_err(|e| e.to_string())?)?;
-    let names = catalogue_names(root);
+    let names = catalogue_names(root)?;
     let mut crates = Vec::new();
     for (name, row) in &rows {
         if row.sim {

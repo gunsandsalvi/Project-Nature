@@ -89,7 +89,6 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α01a | Colour from light | 1 | 6 | Not started |
 | α01b | The ground | 1 | 6 | Not started |
 | α01c | Shadows and air | 1 | 5.5 | Not started |
 | α01d | Steady detail | 1 | 5 | Not started |
@@ -203,90 +202,17 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 | α53a | Export and worlds across updates | 7 | 4 | Not started |
 | α53b | Release candidate and Stage 7 review | 7 | 5.5 | Not started |
 
-113 alphas still to build, about 557 hours of agent work in all.
+112 alphas still to build, about 551 hours of agent work in all.
 
 ## Stage 1: First camp (MIL-01)
 
 This stage builds the island of the first region and one band at the foot of its cliff, who gather, eat, drink, sleep, talk, court, pair, bear children, grow old and die through a 60-day year, with reasons on every card, saved every 30 seconds, tested in scenes and timed on the phone (`SCP-16` item 1).
 `SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows.
-Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 25 still to build take about 129.5 hours.
+Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 24 still to build take about 123.5 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
 The renderer is designed in A11 (A11.1), and α01a to α01d build it from that reasoning, in the form of code A11.13 sets; each task names the A11 sections it builds.
 On 3 October 2026 the owner had the codebase deleted and these first steps planned again from scratch, so α00 started from the three documents and the release certificate alone (A15.5).
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
-
-### α01a Colour from light (about 6 hours)
-
-**Goal:** the game's colours come from a model of the light: the catalogue holds each material's look and the air's numbers, the renderer turns them into the palette at any hour, and a light card shows every look's shades and a turning limestone block, warm in the sun and blue in shade, as the strip steps through eight hours from dawn to night; the version line is set in the game's own pixel font.
-
-**Serves:** `PRE-01` (part: every art pixel one palette colour), `PRE-20` (part: looks of 4–7 steps, the light picks the step, a narrow dithered band), `PRE-30` (part: the light from the sun, the sky and the air; the palette's versions by hour; the vivid grade), `PRE-32` (part: the strip and the version line, nothing else on screen), `MAT-13` (part: the catalogue compiler), `MAT-17` (part: every entry names its checks; the compiler's rules), `PLT-09` (part: the blob's versions and hash).
-
-**Architecture:** `A3.6`, `A3.7` (the sky), `A11.1`, `A11.2`, `A11.3`, `A11.4`, `A11.12`, `A11.13`, `A12.1`, `A12.2`.
-
-**Needs:** α00b.
-
-**Crates and files touched:** `kd-core` (`sky`, `kinds`), `kd-data` (`schema`, `kinds`, `blob`, `compile` behind feature `compile`), `kd-tools` (`kd catalog build|check|tables`; `kd check names` reads the catalogue), `kd-view` (`SkyView`, `UiDrawList`, `FontAtlas`), `kd-render` (`light`, `looks`, `pixel`, `frame`, `probe`, `passes::post`, `passes::ui`, `shaders/`), `kd-ui` (`font`, `draw`, `strip`), `kd-app` (`build.rs` embedding the blob; the hour), `kd-web` and `web/glue.js` (`window.kd`'s `hour`, `palette`, `probe`, `golden` and `shot`), `data/` (`VERSION.toml`, `ids.lock`, `INDEX.md`, `palette/colours.md`, `palette/looks.md`, `palette/light.md`), `assets/font/`, `assets/LICENSES.md`, `tools/screens/golden.mjs`, `tests/golden/`, `tools/check.sh` (step 4).
-
-**Tasks:**
-
-1. `T01a.1` **The catalogue compiler (`MAT-13`, `MAT-17`, `PLT-09`, A3.6).**
-   `kd-data`, its compiler behind feature `compile`: A3.6's five steps (every `data/**/*.md` in sorted path order, split at `##`, exactly one `toml` block an entry; parsed into its kind's schema with no unknown or missing field; ids resolved to their numbers in `data/ids.lock`, `--assign` adding new ones; per-kind tables in number order; the blob encoded with `postcard` behind the `KDCAT` header: format, rules and generator versions, and `num::hash64` of the body) and validation rules 1, 2, 4 and 6 for the kinds so far; `kinds.rs` names the kind each file or folder under `data/` holds, and a Markdown file no kind claims fails; `Catalogue::load` checks magic, format and hash.
-   The human tables between each entry's markers and `data/INDEX.md` are generated (A3.6); `kd catalog build [--assign]`, `kd catalog check` (a stale table fails) and `kd catalog tables`; `tools/check.sh` step 4 runs `kd catalog check`.
-   Commit `T01a.1: the catalogue compiler (MAT-13, MAT-17, PLT-09, A3.6)`.
-
-2. `T01a.2` **Fixed colours, looks and the air (`PRE-20`, `PRE-30`, A11.3, A11.4).**
-   Kind `Colour` (`data/palette/colours.md`): `void`, `ink` and the UI's colours of A12.1, each a `#rrggbb` value with its use, the check proving body text at least 7:1 on its panel.
-   Kind `Look` (`data/palette/looks.md`): a material's colour under white light (sRGB, taken to linear albedo), its steps (4–7) and an optional sheen; the first five, `grass_lush`, `grass_dry`, `dirt`, `limestone` and `scree`, from measured reflectances where known and plausible estimates otherwise (`PRN-05`).
-   Kind `Air` (`data/palette/light.md`, one entry `air`): every number of A11.4's model (the three wavelengths, the optical depths, turbidity, twilight's fall per degree, the moon's weakness, starlight, exposure's power, rod vision's two thresholds, the grade's chroma factor, the haze levels and their mixes), each with its reason in the entry's text; the turbidity starts at 0.08, a fine summer day's air, which the owner chose on 3 October 2026 from an example picture of this design (the clear 0.04 made shade too dark and too blue).
-   `kd-app`'s build script compiles `data/` and embeds the blob; the app loads it at start (under 10 ms, A3.6); a catalogue that fails its checks fails the build.
-   Commit `T01a.2: fixed colours, looks and the air as data (PRE-20, PRE-30, A11.3, A11.4)`.
-
-3. `T01a.3` **The sun and the light model (`PRE-30`, `WLD-07`, A3.7, A11.4).**
-   `kd_core::sky` (A3.7): `pub struct Sky { tilt_deg, moon_start, node_period, node_start }`, `pub struct SkyState { sun_dir: [f32; 3], sun_height_deg, day_hours, moon_dir, moon_phase, moon_lit, eclipse }` and `pub fn sun_moon(t, lat, lon, sky) -> SkyState` with A3.7's formulas for declination, hour angle with longitude (local noon 4 minutes earlier per degree east), direction (east, north, up) and day length with latitude held within ±89.9°; the moon full once a season; `eclipse` 0 until `MIL-04`; all maths through `kd_core::m`; a fixed `Sky` (tilt 23.5°) until the world draws its own (α03a).
-   `kd_render::light` (A11.4): the air mass by Kasten and Young; the optical depths per channel at 680, 550 and 440 nm; the sun's light facing it; the sky's light on level ground; twilight to −12°; night with a half moon and starlight; exposure following the light to the 0.85 power; rod vision's loss of colour; Narkowicz's filmic curve; the vivid grade (chroma × 1.2 at unchanged lightness, kept inside sRGB by chroma alone); sRGB; the haze colour by the angle to the sun (Rayleigh's phase and Henyey and Greenstein's, `g` 0.7).
-   `kd-view::SkyView` (the sun's and moon's directions, the moon's phase, the turbidity) carried by the frame; `kd-app` sets the hour from a list of eight at 21° N at the equinox (dawn 06:30, morning 09:00, noon, afternoon 15:00, late afternoon 16:30, dusk 17:45, twilight 18:30, night 23:00) through `sun_moon`, until the clock runs it (α03a).
-   Commit `T01a.3: the sun and the light model (PRE-30, WLD-07, A3.7, A11.4)`.
-
-4. `T01a.4` **Looks into the palette (`PRE-20`, `PRE-01`, A11.3).**
-   `kd_render::looks`: each look's steps on A11.3's path through the light (deep shade, open shade, full sun) at equal lightness; the palette row under the current light: `void`, the fixed colours, then each look's steps; the step thresholds, the same for every look; the tables (outline, lit edge, haze 1–3, warm 1–3, glow 1–2), recomputed with the row; the row recomputed only when one of its colours would move by a whole 1/255 (A11.3); the palette (256 × 1) and tables (256 × 16) uploaded as textures (A11.13).
-   Commit `T01a.4: looks into the palette under the light (PRE-20, PRE-01, A11.3)`.
-
-5. `T01a.5` **Post, the twins and the probe (`PRE-01`, `PRE-20`, A11.13).**
-   The scene writes A11.2's colour 0 (the palette index, the category, the flags, the view depth); `kd_render::Cat` numbers the categories (void 0, ground 1, rock 2, water 3, plant 4, figure 5, thing 6, effect 7) and `lib.glsl` takes them as generated defines (A11.13 rule 6); `passes::post` writes each art pixel's palette colour from its index and the row (outlines, haze and glow join in α01c); `kd_render::pixel`, the Rust twins (A11.13 rule 2) of the light's lightness from the sky and sun factors, its step against the thresholds, and the band's 4 × 4 world-fixed Bayer dither; the **probe scene** draws a grid of fixed inputs, one art pixel each, and `window.kd.probe()` returns their indices, which the smoke test compares with the twins exactly.
-   Commit `T01a.5: post, the pixel twins and the probe scene (PRE-01, PRE-20, A11.13)`.
-
-6. `T01a.6` **The pixel font and the strip (`PRE-32`, `PRE-01`, A12.1, A12.2).**
-   `assets/font/glyphs-7.txt`: the 7-pixel proportional font drawn as text art, A12.1's fallback, every printable ASCII character, 2-pixel descenders, and the letters with accents the languages' words need (A9.2); `kd-ui::font` reads it into a `FontAtlas` (glyph bitmap, cells, advances) and lays out runs; `kd-ui::draw` builds the `UiDrawList`; `passes::ui` draws it after the upscale, one UI pixel an art pixel, in the fixed colours.
-   The bottom strip (24 UI pixels tall, above the gesture strip and the insets): a tap steps the hour, and the version line (`a01a · 1011 · catalogue 1.0 <hash>`) sits under it, smaller; any touch shows the strip for 3 seconds, then it dissolves by the 4 × 4 Bayer pattern (`PRE-32`).
-   Commit `T01a.6: the pixel font and the strip (PRE-32, A12.1)`.
-
-7. `T01a.7` **The light card (`PRE-20`, `PRE-30`, A11.12).**
-   The card shows each look's steps as a row of swatches with its name, and a 2 m limestone block (category rock) turning slowly in front of `void`: each face's sky factor `(1 + n_y)/2` and sun factor `n·l` give its light, whose lightness picks the step, dithered only in the band (A11.3); the hours step with the strip.
-   `window.kd` gains `hour(n)`, `palette()`, `golden(name)` (a fixed scene with time frozen) and `shot({ art })` (the next frame as a PNG, or with `art` one pixel an art pixel); `tools/screens/golden.mjs` compares exactly with stored PNGs for the session's Chromium the goldens `light-card` at 06:30, 12:00, 16:30, 18:30 and 23:00 and `block` at 16:30, written once when missing.
-   Commit `T01a.7: the light card and its goldens (PRE-20, PRE-30, A11.12)`.
-
-8. `T01a.8` **Deliver (`PRC-11`).**
-   `versionCode=1011`, `versionName=a01a`; `bench/cloud/a01a.json` adds the palette row's and the tables' times and the blob's load time; then P0's steps 5 to 8, the review the builder's own (α01a does not end α01).
-
-**Data:** `data/VERSION.toml` (`major = 1`, `minor = 0`, `generator = 1`); `data/ids.lock`; `data/palette/colours.md` (`void`, `ink`, `ui_panel`, `ui_line`, `ui_text`, `ui_text_dim`, `ui_word`, `ui_link`, `ui_select`); `data/palette/looks.md` (`grass_lush`, `grass_dry`, `dirt`, `limestone`, `scree`); `data/palette/light.md` (`air`); `assets/font/glyphs-7.txt`.
-
-**Tests:**
-- `kd-data` (`MAT-13`, `MAT-17`, `PLT-09`): `compile::tests` with one planted error per validation rule so far; `blob::tests::{round_trip, bad_hash_refused, bad_magic_refused}`; `compile::tests::text_contrast` (body text at least 7:1 on its panel).
-- `kd-core` (`WLD-07`): `sky::tests::equinox_days_are_12_hours` (spring day 1 and autumn day 1, latitudes 0–60°, within 0.1 h); `sky::tests::day_length_formula` (46° N at the summer solstice gives the standard formula's 15.6 h at tilt 23.5°, within 0.1 h); `sky::tests::midnight_sun_and_polar_night` (beyond 90° − tilt); `sky::tests::full_moon_once_a_season`; the same tests on arm64 under qemu.
-- `kd-render` (`PRE-30`, `PRE-20`): `light::tests::{sun_colour_follows_the_air, sky_is_blue_by_day, twilight_has_no_jumps, night_darker_than_dusk_darker_than_day, haze_warmer_toward_the_sun, grade_keeps_lightness}`; `looks::tests::{steps_evenly_spaced, shade_steps_bluer_than_lit, tables_stay_in_the_palette, outline_and_edge_in_own_look, palette_fits}`; `pixel::tests::{step_at_thresholds, dither_only_in_the_band}`.
-- `kd-ui` (`PRE-32`): `font::tests::{every_glyph_fits_its_cell, descenders_two_pixels}`; `strip::tests::tap_steps_the_hour`.
-- Screens: smoke `probe equals the twins`, `palette row equals the cloud's`; goldens `light-card` (five hours) and `block`.
-
-**On the phone:**
-1. Install the update and open it: a card of colour swatches, one row a material, and a pale limestone block turning in late-afternoon light, warm on its sunny face and bluish in shade.
-2. Tap the strip at the bottom again and again: dawn (gold), morning, noon (white light), afternoon, late afternoon, dusk (red), twilight (blue, no sun) and night (dim and moonlit); every swatch changes with the light.
-3. Read the version line under the strip, in the game's own pixel font.
-
-**Not in this alpha:** the land (α01b); shadows, outlines, lit edges and haze (α01c); fire's warmth and glow (α14a); the clock (α03a).
-
-**Risks:**
-- The model's colours too strong or too dull: the air's and the grade's numbers in `data/palette/light.md` are tuned by eye on the goldens and logged in `data/TUNING-LOG.md` (`RES-16`).
-- Rounding differing between the GPU and the twins at a threshold: thresholds are set where no input of the probe lies within 1e-4 of them, and the probe finds any other difference.
 
 ### α01b The ground (about 6 hours)
 
@@ -8655,10 +8581,10 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `MAT-21` Named discoveries: α11a, α11b, α14a, α15, α16b, α25a, α33, α33b, α35b, α36b, α41, α47b, α49
 - `MAT-23` The launch blueprints: α09, α14b, α15, α23, α23b, α23c, α24a, α24b, α25a, α25b, α33, α33b, α34a, α41, α44, α45, α46a, α47a, α47b, α49, α51
 - `MAT-05` Plausible values: α08
-- `MAT-13` The catalogues: α01a, α08, α17b, α51
+- `MAT-13` The catalogues: α08, α17b, α51
 - `MAT-14` Adding without rewriting: α09, α44, α49, α51
 - `MAT-16` The catalogue grows by milestone: α04a, α08, α21, α33, α49, α50
-- `MAT-17` How the catalogue checks work: α01a, α04a, α08, α09, α17b, α49, α50, α51
+- `MAT-17` How the catalogue checks work: α04a, α08, α09, α17b, α49, α50, α51
 - `RCK-01` Flint flakes, granite doesn't: α08, α09, α11a
 - `RCK-02` Fire by friction: α15
 - `RCK-22` Air feeds fire: α14a, α15, α47a
@@ -8761,9 +8687,9 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `CUL-11` Myths and stories: α32c, α36a, α39b
 - `CUL-12` Style and ornament: α25b, α33, α33b, α34a, α34b, α36c, α41, α43c
 - `CUL-29` Gatherings and festivals: α36a, α40, α46a, α48
-- `PRE-01` Detailed pixel art: α01a
+- `PRE-01` Detailed pixel art: built
 - `PRE-02` Pixel-rendered 3D: α01b, α01c, α01d, α02b, α19b
-- `PRE-20` Colour in steps: α01a, α01b, α01d, α02d
+- `PRE-20` Colour in steps: α01b, α01d, α02d
 - `PRE-21` Outlines and lit edges: α01c, α02c
 - `PRE-22` Stable pixels: α01b, α01c, α01d, α07e
 - `PRE-23` Rock faces: α02c
@@ -8773,14 +8699,14 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRE-27` People and animals: α03b, α06c, α09b, α12b, α17b, α24a, α25a, α28, α46b
 - `PRE-28` Readable from far away: α02d, α03b, α12b, α14a, α19b
 - `PRE-29` From above: α02a, α18a, α19b
-- `PRE-30` Light, time and season: α01a, α01c, α02c, α03a, α05, α13, α14a, α47a
+- `PRE-30` Light, time and season: α01c, α02c, α03a, α05, α13, α14a, α47a
 - `PRE-03` Seamless zoom: α01b, α02a, α02b, α03b, α19b
 - `PRE-31` Visual review: α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `PRE-42` Built from their materials: α08, α23c, α25a, α25b, α45, α46a, α47b, α49
 - `PRE-43` Variety: α02d, α21, α25b, α33b, α36c
 - `PRE-44` Animations: α03b, α03c, α06b, α06c, α09, α09b, α12, α12b, α14a, α19a, α22a, α23, α28, α28b, α30a, α30b, α32a, α34b, α51
 - `PRE-46` The model kit: α01d, α02d, α03b, α08, α21, α22a, α23b, α25a, α25b, α33, α33b, α41, α44, α49, α50, α51
-- `PRE-32` World first: α01a, α04d
+- `PRE-32` World first: α04d
 - `PRE-34` Both orientations: α01b, α03a, α04d, α12d, α53a, α53b
 - `PRE-33` Gestures: α01b, α03a, α03c, α16
 - `PRE-35` Cards: α04d, α06a, α06b, α06c, α08, α09b, α10a, α12, α12b, α14a, α17b, α19a, α21, α22a, α24a, α24b, α26a, α26b, α28, α28b, α29, α31, α31b, α32a, α32b, α32c, α34b, α36a, α36b, α36c, α38, α40, α46a, α48
@@ -8817,7 +8743,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PLT-04` Measured limits: α02b, α07d, α07e, α12d, α17c, α19b, α19c, α20a, α27b, α27c, α35c, α43a, α43b, α43c, α46b, α52, α53a, α53b
 - `PLT-07` Always saved: α07a, α07b, α16, α19c, α43a
 - `PLT-08` Manual export: α53a
-- `PLT-09` Worlds across updates: α01a, α07a, α08, α10b, α12b, α14a, α18a, α18b, α18c, α19a, α20c, α21, α22a, α27a, α33, α41, α42, α44, α47b, α50, α53a
+- `PLT-09` Worlds across updates: α07a, α08, α10b, α12b, α14a, α18a, α18b, α18c, α19a, α20c, α21, α22a, α27a, α33, α41, α42, α44, α47b, α50, α53a
 - `PLT-10` Storage: α07a, α07b, α19c, α52, α53a
 - `PLT-05` Tests in the cloud: α07d, α08, α12, α19c, α52
 - `RES-01` Tests lead: every alpha

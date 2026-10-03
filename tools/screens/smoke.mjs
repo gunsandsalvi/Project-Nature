@@ -1,8 +1,8 @@
 // The web build's smoke test (A15.4, A15.11): the page loads without errors, an art pixel is exactly 4 × 4
-// device pixels in portrait, in landscape and on a screen of scale 2, the test card's bar moves one art pixel
-// a frame, the core's maths and draws give the cloud's bits in the browser (A15.9 item 5), its block green, and a
-// panic leaves its message in the status line (A3.8). (Chromium's emulated fractional scales, like the phone's
-// 2.625, misreport the canvas's device size, so they are left to the phone itself.)
+// device pixels in portrait, in landscape and on a screen of scale 2, the core's maths and draws give the cloud's
+// bits in the browser (A15.9 item 5), the probe scene's steps and the palette rows equal the Rust twins' and the
+// cloud's (A11.13 rule 2), the light card's block turns, and a panic leaves its message in the status line (A3.8). (Chromium's emulated fractional scales, like the phone's 2.625,
+// misreport the canvas's device size, so they are left to the phone itself.)
 // Usage: node tools/screens/smoke.mjs [--save <dir>]   (after tools/build-web.sh)
 // Screenshots go to target/screens/smoke/, which is never committed, or to --save's folder.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -19,55 +19,34 @@ const check = (name, ok, detail = '') => {
   console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${name}${detail ? ` (${detail})` : ''}`);
 };
 
-const isWhite = ([r, g, b]) => r >= 250 && g >= 250 && b >= 250;
-const isBlack = ([r, g, b]) => r <= 5 && g <= 5 && b <= 5;
-const isBar = ([r, g, b]) => r >= 220 && g >= 110 && g <= 170 && b <= 60;
-const isGreen = ([r, g, b]) => g >= 150 && r <= 100 && b <= 120;
-// The cloud's hashes of the core's probes, and the self-check block's middle in device pixels (card::CORE_X 64,
-// CORE_Y 24, 32 × 32 art pixels).
+// The cloud's hashes of the core's probes, and its palette row at each of the app's hours.
 const storedCore = readFileSync(path.join(ROOT, 'crates', 'kd-core', 'tests', 'fixtures', 'hashes.txt'), 'utf8');
-const coreMiddle = [4 * (64 + 16) + 2, 4 * (24 + 16) + 2];
+const storedRows = readFileSync(path.join(ROOT, 'tests', 'golden', 'palette.txt'), 'utf8').trim().split('\n')
+  .map((line) => line.split(' ').slice(1).join(' '));
 
-// checks: PRE-22 PLT-02
-// The checker of single art pixels: 32 × 32 art pixels, each exactly 4 × 4 device pixels of one colour,
-// alternating, white at its top-left.
-function checkerOk(img) {
-  let x0 = Infinity, y0 = Infinity, x1 = -1, y1 = -1;
-  // Its 32 art pixels from art pixel 24 (card::MARGIN) lie within 4 × 60 device pixels of the corner (the top row
-  // of art pixels may show in part); the grey steps from art row 64 hold black and white too, so they are left out.
-  for (let y = 0; y < Math.min(img.height, 4 * 60); y++) {
-    for (let x = 0; x < Math.min(img.width, 4 * 60); x++) {
-      const c = img.at(x, y);
-      if (isWhite(c) || isBlack(c)) {
-        x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
-      }
-    }
-  }
-  const w = x1 - x0 + 1, h = y1 - y0 + 1;
-  if (w !== 128 || h !== 128) return [false, `checker is ${w} × ${h} device pixels, not 128 × 128`];
-  for (let j = 0; j < 32; j++) {
-    for (let i = 0; i < 32; i++) {
-      const white = (i + j) % 2 === 0;
+// checks: PRE-22 PLT-02 PRE-01
+// Every art pixel is exactly 4 × 4 device pixels of one colour: each 4 × 4 block of the grid is one colour, down to
+// the last whole row. The grid starts at the screen's top-left corner, for the art and the UI alike (A12.1); the
+// picture must also hold more than a few colours, so a blank page cannot pass.
+function blocksOk(img, bottom) {
+  const same = (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+  const y0 = 0;
+  const colours = new Set();
+  let blocks = 0;
+  for (let by = y0; by + 4 <= bottom; by += 4) {
+    for (let bx = 0; bx + 4 <= img.width; bx += 4) {
+      const c = img.at(bx, by);
+      colours.add(c.slice(0, 3).join(','));
+      blocks += 1;
       for (let dy = 0; dy < 4; dy++) {
         for (let dx = 0; dx < 4; dx++) {
-          const c = img.at(x0 + 4 * i + dx, y0 + 4 * j + dy);
-          if (white ? !isWhite(c) : !isBlack(c)) return [false, `art pixel (${i}, ${j}) is not one colour over 4 × 4`];
+          if (!same(img.at(bx + dx, by + dy), c)) return [false, `art pixel at device pixel ${bx}, ${by} is not one colour`];
         }
       }
     }
   }
-  return [true, `at device pixel ${x0}, ${y0}`];
-}
-
-// The bar's columns in device pixels.
-function barColumns(img) {
-  let x0 = Infinity, x1 = -1;
-  for (let y = 0; y < img.height; y++) {
-    for (let x = 0; x < img.width; x++) {
-      if (isBar(img.at(x, y))) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); }
-    }
-  }
-  return [x0, x1];
+  if (colours.size < 10) return [false, `only ${colours.size} colours`];
+  return [true, `${blocks} art pixels, ${colours.size} colours`];
 }
 
 const server = await serve(path.join(ROOT, 'dist', 'web'));
@@ -94,20 +73,42 @@ try {
       const core = await page.evaluate(() => window.kd.core());
       const differ = core.split('\n').filter((line) => line && !storedCore.split('\n').includes(line));
       check(`core hashes equal, ${label}`, core === storedCore, differ.length ? `differ: ${differ.join('; ')}` : '');
+      // checks: PRE-20 PRE-01
+      const probe = await page.evaluate(() => window.kd.probe());
+      const wrong = probe ? probe.gpu.filter((g, i) => g !== probe.twins[i]).length : -1;
+      check(`probe equals the twins, ${label}`, probe && probe.gpu.length === 256 && wrong === 0,
+        probe ? `${wrong} of ${probe.gpu.length} differ` : 'no probe');
+      // checks: PRE-30 RES-05
+      const rows = await page.evaluate((n) => {
+        const out = [];
+        for (let h = 0; h < n; h++) {
+          window.kd.hour(h);
+          window.kd.frame(1);
+          out.push(window.kd.palette());
+        }
+        window.kd.hour(4);
+        return out;
+      }, storedRows.length);
+      const hours = rows.map((r, h) => (r === storedRows[h] ? -1 : h)).filter((h) => h >= 0);
+      check(`palette row equals the cloud's, ${label}`, rows.length === 8 && hours.length === 0,
+        hours.length ? `hours ${hours.join(', ')} differ` : '8 hours');
       await page.evaluate(() => window.kd.frame(1));
-      const first = await page.screenshot();
-      writeFileSync(path.join(outDir, `${label.replace(' ', '-')}.png`), first);
-      const a = decodePng(first);
-      const [ok, why] = checkerOk(a);
+      const shot = await page.screenshot();
+      writeFileSync(path.join(outDir, `${label.replace(' ', '-')}.png`), shot);
+      const bottom = await page.evaluate(() => {
+        const status = document.getElementById('status');
+        const h = Math.round(innerHeight * devicePixelRatio);
+        const top = status.textContent ? Math.floor(status.getBoundingClientRect().top * devicePixelRatio) : h;
+        return Math.min(top, h - (h % 4));
+      });
+      const [ok, why] = blocksOk(decodePng(shot), bottom);
       check(`art pixel 4x4, ${label}`, ok, why);
-      const block = a.at(...coreMiddle);
-      check(`core block green, ${label}`, isGreen(block), `colour ${block.slice(0, 3).join(', ')}`);
-      await page.evaluate(() => window.kd.frame(1));
-      const b = decodePng(await page.screenshot());
-      const [ax0, ax1] = barColumns(a);
-      const [bx0, bx1] = barColumns(b);
-      check(`bar moves a pixel a frame, ${label}`, ax1 - ax0 === 3 && bx1 - bx0 === 3 && bx0 - ax0 === 4,
-        `columns ${ax0}–${ax1}, then ${bx0}–${bx1}`);
+      // checks: PRE-30 PRC-11
+      // Frames keep coming: the block turns with real time, so two frames half a second apart differ.
+      const before = await page.evaluate(() => window.kd.shot({ art: true }));
+      await page.waitForTimeout(500);
+      const after = await page.evaluate(() => window.kd.shot({ art: true }));
+      check(`the block turns, ${label}`, before !== after, before === after ? 'two frames 0.5 s apart are the same' : '');
     }
     check(`no page errors, ${label}`, errors.length === 0, errors.slice(0, 3).join('; '));
     await close();

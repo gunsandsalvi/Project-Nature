@@ -1,0 +1,23 @@
+# Permanent numbers of every catalogue entry, per kind (A3.6), written by `kd catalog build --assign`, never by
+# hand. A removed entry's number stays, under its kind's `retired` table, and no number is ever given twice.
+
+[colour]
+void = 0
+ink = 1
+ui_panel = 2
+ui_line = 3
+ui_text = 4
+ui_text_dim = 5
+ui_word = 6
+ui_link = 7
+ui_select = 8
+
+[light]
+air = 0
+
+[look]
+grass_lush = 0
+grass_dry = 1
+dirt = 2
+limestone = 3
+scree = 4
