@@ -78,6 +78,9 @@ pub struct Basis {
     pub fwd: [f32; 3],
 }
 
+/// The haze's eye stands back 1 / (2 tan 20°) view widths: a 40° perspective view's distance for that width (A11.4).
+pub const EYE_PER_WIDTH: f64 = 1.373_7;
+
 /// An area's numbers for the ground shader (A11.2).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct AreaProjection {
@@ -91,6 +94,9 @@ pub struct AreaProjection {
     pub pattern_off: [f32; 2],
     /// The corner less the floating origin, metres east and north (`uAreaOff`): whole areas, exact in `f32`.
     pub area_off: [f32; 2],
+    /// The corner's depth beyond the plane through the target, along the view, and its height above the sea, in
+    /// metres: where its air begins (A11.4).
+    pub air: [f32; 2],
 }
 
 /// One frame's view (A11.2).
@@ -283,7 +289,18 @@ impl View {
                 corner.y.rem_euclid(block) as f32 / 256.0,
             ],
             area_off: [(m[0] - o[0]) as f32, (m[1] - o[1]) as f32],
+            air: [
+                (dot(m, self.fwd) - dot(self.world_m(self.target), self.fwd)) as f32,
+                m[2] as f32,
+            ],
         }
+    }
+
+    /// The eye the haze is seen from (A11.4): its plane's distance before the target, where a 40° perspective view
+    /// would span the view's width, and how steeply a ray climbs toward it, the sine of the pitch.
+    pub fn eye(&self) -> [f32; 2] {
+        let width = f64::from(self.art[0].saturating_sub(3)) * self.texel;
+        [(EYE_PER_WIDTH * width) as f32, (-self.fwd[2]) as f32]
     }
 
     /// The ground an area may show in the art target: its points between `span_m` metres above its corner whose

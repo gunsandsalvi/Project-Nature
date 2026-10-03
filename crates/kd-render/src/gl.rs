@@ -27,6 +27,9 @@ pub mod unit {
     pub const HEIGHTS: u32 = 6;
     pub const GRADS: u32 = 7;
     pub const SURFACES: u32 = 8;
+    /// An area's sun and sky fields, read by the ground (A11.5).
+    pub const SUN: u32 = 9;
+    pub const SKY: u32 = 10;
 }
 
 /// The texture formats the renderer uses (A11.13 rule 3).

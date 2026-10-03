@@ -26,6 +26,8 @@ pub mod card {
     /// The block: 2 m on a side, seen from 30° above the horizon, turning once in 24 seconds.
     pub const BLOCK_M: f32 = 2.0;
     pub const PITCH_DEG: f32 = 30.0;
+    /// The metres colour 0's depth spans on the card: the block's faces lie between 3 and 5 m from the ray's start.
+    pub const DEPTH_M: f32 = 8.0;
     pub const TURN_S: f32 = 24.0;
     /// Metres the block's outline may need on screen: 2√2 m across when turned, 3.1 m high from 30° above.
     const BLOCK_SPAN_M: f32 = 3.4;
@@ -263,7 +265,7 @@ mod tests {
         let block = cat.looks.iter().position(|l| l.id == "limestone").unwrap();
         let steps = i32::from(layout.ladders[block].steps);
         let step_at = |hour: f32, n: [f32; 3]| {
-            let lighting = Lighting::new(&cat, &layout, &crate::light::tests::sky_at(hour));
+            let lighting = Lighting::new(&cat, &layout, &crate::light::tests::sky_at(hour), crate::frame::VIEW);
             let l = &lighting.light;
             let sigma = (1.0 + n[2]) / 2.0;
             let tau = (n[0] * l.dir[0] + n[1] * l.dir[1] + n[2] * l.dir[2]).max(0.0);
@@ -281,7 +283,7 @@ mod tests {
         // ladder's, so it is darker than noon's step only in colour.
         assert!(step_at(12.0, up) > step_at(12.0, south_west));
         let shown = |hour: f32, n: [f32; 3]| {
-            let lighting = Lighting::new(&cat, &layout, &crate::light::tests::sky_at(hour));
+            let lighting = Lighting::new(&cat, &layout, &crate::light::tests::sky_at(hour), crate::frame::VIEW);
             let c = lighting.palette.row[usize::from(layout.ladders[block].base) + step_at(hour, n) as usize];
             u32::from(c[0]) + u32::from(c[1]) + u32::from(c[2])
         };

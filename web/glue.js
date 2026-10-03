@@ -106,6 +106,21 @@ async function main() {
       groundAt: (x, y) => Array.from(app.ground_at(x, y)),
       timings: () => JSON.parse(app.timings()),
       screenOf: (p) => Array.from(app.screen_of(p[0], p[1], p[2])),
+      // A slow camera motion with time held, each frame against the last (A11.10): `turn` in degrees a frame,
+      // `zoom` a share of the art pixel a frame, `pan` art pixels a frame; only the `base` fix is built so far.
+      crawl: ({ motion, rate, frames, fix = 'base' }) => {
+        if (fix !== 'base') throw new Error(`crawl fix ${fix} is not built yet (A11.10)`);
+        const counts = JSON.parse(app.crawl(motion, rate, frames, performance.now()));
+        drain();
+        if (counts === null) throw new Error(`no camera motion called ${motion}`);
+        return counts;
+      },
+      // What each zoom step changes, from `from` to `to` by `step`, the target and heading held (A11.12).
+      zoomstrip: ({ from, to, step }) => {
+        const counts = JSON.parse(app.zoom_strip(from, to, step, performance.now()));
+        drain();
+        return counts;
+      },
       // The next frame as a PNG data URL, or with `art` one pixel an art pixel (the grid starts at the top-left).
       shot: ({ art = false } = {}) => {
         app.frame(performance.now());

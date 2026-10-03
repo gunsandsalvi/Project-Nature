@@ -9,6 +9,7 @@
 //! ES 3.0 on the phone.
 
 pub mod camera;
+pub mod field;
 pub mod frame;
 pub mod gl;
 pub mod ground;
@@ -23,7 +24,8 @@ use std::fmt;
 
 use kd_data::Catalogue;
 use kd_view::{AreaMeshes, CameraPose};
-use passes::post::PostPass;
+use passes::crawl::{Base, CrawlSlot, Resolved};
+use passes::post::{PostFrame, PostPass};
 use passes::scene::{ArtView, ScenePass};
 use passes::ui::UiPass;
 use passes::upscale::UpscalePass;
@@ -73,6 +75,9 @@ pub struct Frame {
     pub cam: CameraPose,
     /// The light card instead of the ground, for its golden scenes (A11.12).
     pub card: Option<passes::scene::card::CardFrame>,
+    /// How long the frame may spend on sun fields worked out over frames, in nanoseconds by the renderer's clock
+    /// (A11.11); none, or no clock, finishes each at once, as the golden scenes and test hooks need.
+    pub field_ns: Option<u64>,
 }
 
 /// What a frame drew.
@@ -92,6 +97,8 @@ pub struct Renderer {
     upscale: UpscalePass,
     ui: UiPass,
     probe: ProbePass,
+    /// The crawl fix (A11.10): `Base` until the first visual review.
+    crawl: Box<dyn CrawlSlot>,
     ground: GroundPass,
     store: Store,
     view: Option<ArtView>,
@@ -103,6 +110,10 @@ pub struct Renderer {
     lighting: Option<Lighting>,
     palette_tex: Texture,
     tables_tex: Texture,
+    /// The app's monotonic clock in nanoseconds, timing the frame's share of field work (A11.11).
+    clock: Option<Box<dyn Fn() -> u64>>,
+    /// The longest a frame's field work has taken, in nanoseconds by that clock, for the bench (A15.10).
+    longest_field_ns: u64,
 }
 
 impl Renderer {
@@ -129,6 +140,7 @@ impl Renderer {
             upscale,
             ui,
             probe,
+            crawl: Box::new(Base),
             ground,
             store: Store::default(),
             view: None,
@@ -138,15 +150,30 @@ impl Renderer {
             lighting: None,
             palette_tex,
             tables_tex,
+            clock: None,
+            longest_field_ns: 0,
         })
     }
 
-    /// The frame's light and palette, uploading the palette's textures when its row or tables changed (A11.3).
-    fn light_frame(&mut self, f: &Frame) {
+    /// The longest a frame's sun field work has taken, in nanoseconds, for the bench (A15.10): a field made at once
+    /// for a new area or a jump of the light, or a frame's share of one worked over frames.
+    pub fn longest_field_ns(&self) -> u64 {
+        self.longest_field_ns
+    }
+
+    /// Gives the renderer the app's monotonic clock, in nanoseconds, so a frame can stop its field work when its
+    /// share is spent (A11.11).
+    pub fn set_clock(&mut self, clock: Box<dyn Fn() -> u64>) {
+        self.clock = Some(clock);
+    }
+
+    /// The frame's light and palette, the haze seen along `view`, uploading the palette's textures when its row or
+    /// tables changed (A11.3, A11.4).
+    fn light_frame(&mut self, f: &Frame, view: [f32; 3]) {
         let upload = match &mut self.lighting {
-            Some(l) => l.follow(&self.cat, &self.layout, &f.sky),
+            Some(l) => l.follow(&self.cat, &self.layout, &f.sky, view),
             None => {
-                self.lighting = Some(Lighting::new(&self.cat, &self.layout, &f.sky));
+                self.lighting = Some(Lighting::new(&self.cat, &self.layout, &f.sky, view));
                 true
             }
         };
@@ -216,20 +243,48 @@ impl Renderer {
         let Some(art) = self.view else {
             return FrameStats::default();
         };
-        self.light_frame(f);
+        // The ground's view, through the crawl fix's snapping, or the light card's own: north, the card's pitch
+        // below the horizon.
+        let cam = self.crawl.quantise(f.cam);
+        let view = if f.card.is_some() { None } else { self.view_of(&cam) };
+        let (sp, cp) = (
+            passes::scene::card::PITCH_DEG.to_radians().sin(),
+            passes::scene::card::PITCH_DEG.to_radians().cos(),
+        );
+        let basis = match &view {
+            Some(v) => v.basis_f32(),
+            None => camera::Basis {
+                right: [1.0, 0.0, 0.0],
+                up: [0.0, sp, cp],
+                fwd: [0.0, cp, -sp],
+            },
+        };
+        self.light_frame(f, basis.fwd);
         let mut stats = FrameStats {
             art: art.art,
             triangles: 0,
         };
         let mut off = art.off;
+        let mut depth_m = passes::scene::card::DEPTH_M;
+        if let Some(l) = &self.lighting {
+            // The frame's share of field work, timed from here.
+            let clock = self.clock.as_deref();
+            let until = f.field_ns.zip(clock).map(|(ns, now)| now() + ns);
+            let mut more = || until.zip(clock).is_none_or(|(end, now)| now() < end);
+            let t0 = clock.map(|now| now());
+            self.store.follow_light(l.light.dir, &mut more);
+            if let (Some(t0), Some(now)) = (t0, clock) {
+                self.longest_field_ns = self.longest_field_ns.max(now().saturating_sub(t0));
+            }
+        }
         if let Err(e) = self.store.upload(&self.gl) {
             log::error!(target: "kd::render", "area textures: {e}");
         }
         if let Some(lighting) = &self.lighting {
-            match &f.card {
-                Some(card) => self.scene.draw(&self.gl, &art, &self.layout, lighting, card, self.vao),
-                None => {
-                    if let (Some(view), Some(t)) = (self.view_of(&f.cam), &self.scene.target) {
+            match (&f.card, view) {
+                (Some(card), _) => self.scene.draw(&self.gl, &art, &self.layout, lighting, card, self.vao),
+                (None, Some(view)) => {
+                    if let Some(t) = &self.scene.target {
                         t.bind(&self.gl);
                         gl::clear(&self.gl, [0.0; 4], 1.0);
                         stats.triangles = self
@@ -237,14 +292,31 @@ impl Renderer {
                             .draw(&self.gl, &view, &self.store, lighting, self.vao)
                             .triangles;
                         off = view.off;
+                        depth_m = (view.depth[1] - view.depth[0]) as f32;
                         self.last_view = Some(view);
                     }
                 }
+                (None, None) => {}
             }
         }
+        let sun = self.lighting.as_ref().map_or([0.0; 3], |l| l.light.dir);
+        let dot3 = |a: [f32; 3], b: [f32; 3]| a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+        let frame = PostFrame {
+            depth_m,
+            sun_screen: [dot3(sun, basis.right), dot3(sun, basis.up)],
+        };
         if let (Some(scene), Some(post)) = (&self.scene.target, &self.post.target) {
-            self.post.draw(&self.gl, &scene.colours[0], &self.palette_tex, self.vao);
-            self.upscale.draw(&self.gl, &art, off, &post.colours[0], self.vao);
+            self.post.draw(
+                &self.gl,
+                &scene.colours[0],
+                &self.palette_tex,
+                &self.tables_tex,
+                frame,
+                self.vao,
+            );
+            match self.crawl.resolve() {
+                Resolved::Post => self.upscale.draw(&self.gl, &art, off, &post.colours[0], self.vao),
+            }
         }
         self.ui.draw(&self.gl, &art, ui, &self.palette_tex);
         stats
@@ -253,6 +325,26 @@ impl Renderer {
     /// The last frame's camera view, if it drew the ground.
     pub fn last_view(&self) -> Option<&View> {
         self.last_view.as_ref()
+    }
+
+    /// The last frame of the ground as the crawl counter sees it (A11.10): post's colours and colour 0's depths,
+    /// read back; none before the ground has drawn.
+    pub fn capture(&self) -> Option<probe::Capture> {
+        let view = self.last_view?;
+        let colours = self.post.target.as_ref()?.read_rgba8(&self.gl);
+        let scene = self.scene.target.as_ref()?.read_rgba8(&self.gl);
+        let span = view.depth[1] - view.depth[0];
+        Some(probe::Capture {
+            view,
+            colours: colours.chunks(4).map(|c| [c[0], c[1], c[2]]).collect(),
+            depths: scene
+                .chunks(4)
+                .map(|c| {
+                    let d = f64::from(u16::from(c[2]) << 8 | u16::from(c[3])) / 65535.0;
+                    (c[1] & 7 != pixel::Cat::Void as u8).then_some(view.depth[0] + d * span)
+                })
+                .collect(),
+        })
     }
 
     /// Runs the probe scene (A11.13 rule 2): the steps the GPU picks for the fixed inputs, and the twins' steps.

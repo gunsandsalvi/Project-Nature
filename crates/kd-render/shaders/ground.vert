@@ -15,8 +15,10 @@ uniform float u_inv_texel;          // art pixels a metre
 uniform vec2 u_area_frac;           // the area corner's place on the screen: the fraction of an art pixel
 uniform vec2 u_area_px;             // and the whole art pixels from the viewport's corner
 uniform vec2 u_depth;               // the corner's depth less the near plane's, and 1 / (far - near)
+uniform vec2 u_area_air;            // the corner's depth beyond the target's plane, and its height above the sea
 out vec2 v_local;                   // metres east and south of the area's corner
 out float v_depth;                  // 0 near to 1 far
+out vec2 v_air;                     // metres beyond the target's plane, and above the sea (A11.4)
 
 // The two triangles of a quad, split along its diagonal from the north-west.
 const ivec2 CORNERS[6] = ivec2[6](ivec2(0, 0), ivec2(1, 0), ivec2(1, 1), ivec2(0, 0), ivec2(1, 1), ivec2(0, 1));
@@ -67,4 +69,5 @@ void main() {
     gl_Position = vec4(a / float(VIEWPORT / 2) - 1.0, dz * 2.0 - 1.0, 1.0);
     v_local = vec2(g);
     v_depth = dz;
+    v_air = vec2(dot(l, u_fwd) + u_area_air.x, h + u_area_air.y);
 }

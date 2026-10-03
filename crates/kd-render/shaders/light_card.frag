@@ -64,7 +64,7 @@ void main() {
             index = u_block.x + light_step(s, 0.0, u_block.y, p);
             cat = CAT_ROCK;
             flags = tau > 0.0 ? FLAG_SUNLIT : 0;
-            depth = near / 8.0;
+            depth = near / CARD_DEPTH_M;
         }
     }
     o_colour = pack_out(index, cat, flags, depth);

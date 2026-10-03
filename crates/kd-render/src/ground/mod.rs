@@ -1,6 +1,7 @@
 //! The ground (A11.5): the CPU store of the loaded areas, their textures, the morphing patch and the ground's draw.
-//! Each area keeps its heights, their gradients and its surfaces on the CPU, so after a lost context its textures
-//! are made again from them alone (A11.13 rule 5). One shared 16 × 16 patch of quads, made from vertex and instance
+//! Each area keeps its heights, their gradients, its surfaces and its light fields on the CPU, so after a lost
+//! context its textures are made again from them alone (A11.13 rule 5): the sky field once, as it arrives, and the
+//! sun field for the light's azimuth, made again as the azimuth moves (`field`). One shared 16 × 16 patch of quads, made from vertex and instance
 //! numbers with no vertex buffer, covers the area at the spacing the art pixel asks for, its odd vertices sliding
 //! onto the next spacing's mesh as the spacing's range ends, so a change of spacing moves nothing (A11.1 rule 3).
 //!
@@ -12,6 +13,7 @@ use kd_view::{AREA_SIDE, AREA_SQUARES, AreaMeshes};
 
 use crate::RenderError;
 use crate::camera::View;
+use crate::field::{self, SunField, SunJob};
 use crate::frame::Lighting;
 use crate::gl::{self, Format, Program, State, Texture, unit};
 use crate::light::{LUM, dot};
@@ -103,7 +105,15 @@ pub struct Area {
     pub surfaces: Vec<u8>,
     /// Its lowest and highest points, metres above `base_m`.
     pub span_m: [f32; 2],
-    gpu: Option<[Texture; 3]>,
+    /// The share of the sky each point's horizon leaves open, in 255ths (A11.5).
+    pub sky: Vec<u8>,
+    /// The sun field for the light's azimuth, none until the first frame's light (A11.5).
+    pub sun: Option<SunField>,
+    /// The next sun field, worked out over frames while the light moves a little (A11.11).
+    sun_job: Option<SunJob>,
+    /// Whether the sun field is newer than its texture.
+    sun_fresh: bool,
+    gpu: Option<[Texture; 5]>,
 }
 
 impl Area {
@@ -150,13 +160,21 @@ impl Store {
         let heights: Vec<f32> = m.heights.iter().map(|h| h + (m.base_m - base_m)).collect();
         let lo = heights.iter().copied().fold(f32::INFINITY, f32::min);
         let hi = heights.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+        let sky = field::sky_field(&heights)
+            .iter()
+            .map(|v| (v.clamp(0.0, 1.0) * 255.0).round() as u8)
+            .collect();
         let area = Area {
             id: m.id,
             base_m,
             gradients: gradients(&heights),
+            sky,
             heights,
             surfaces: m.surfaces,
             span_m: [lo, hi],
+            sun: None,
+            sun_job: None,
+            sun_fresh: false,
             gpu: None,
         };
         self.areas.retain(|a| a.id != area.id);
@@ -169,26 +187,77 @@ impl Store {
         self.areas.iter().filter(|a| a.gpu.is_some()).count()
     }
 
-    /// Makes the textures of areas that lack them: heights `R32F`, gradients `RG32F`, surfaces `R8` (A11.5).
+    /// Keeps each area's sun field on the light's azimuth `dir` (east, north, up; A11.5, A11.11): made at once for
+    /// an area that has none or a jump of `SUN_JUMP_DEG` or more, as the strip's hours make; for a smaller move of
+    /// `SUN_FIELD_STEP_DEG` or more, worked out over frames while `more()` allows, the old field drawn until the new
+    /// one is whole. Its texture follows at the next upload. Returns how many fields it finished.
+    pub fn follow_light(&mut self, dir: [f32; 3], more: &mut dyn FnMut() -> bool) -> usize {
+        let mut made = 0;
+        for a in &mut self.areas {
+            let field = match &a.sun {
+                Some(f) if !f.jumped(dir) => {
+                    if a.sun_job.is_none() && f.stale(dir) {
+                        a.sun_job = SunJob::new(dir);
+                    }
+                    let Some(job) = &mut a.sun_job else {
+                        continue;
+                    };
+                    let Some(field) = job.step(&a.heights, more) else {
+                        continue;
+                    };
+                    a.sun_job = None;
+                    field
+                }
+                _ => {
+                    a.sun_job = None;
+                    field::sun_field(&a.heights, dir)
+                }
+            };
+            a.sun = Some(field);
+            a.sun_fresh = true;
+            made += 1;
+        }
+        made
+    }
+
+    /// Makes the textures of areas that lack them (heights `R32F`, gradients `RG32F`, surfaces `R8`, the sun field
+    /// `R32F` and the sky field `R8`), and brings a sun field's texture up to date when it was made again (A11.5).
     pub fn upload(&mut self, gl: &glow::Context) -> Result<(), RenderError> {
-        for a in self.areas.iter_mut().filter(|a| a.gpu.is_none()) {
-            let (side, squares) = (AREA_SIDE as u32, AREA_SQUARES as u32);
-            let heights = Texture::new(
-                gl,
-                Format::R32F,
-                side,
-                side,
-                Some(&f32_bytes(a.heights.iter().copied())),
-            )?;
-            let grads = Texture::new(
-                gl,
-                Format::Rg32F,
-                side,
-                side,
-                Some(&f32_bytes(a.gradients.iter().flatten().copied())),
-            )?;
-            let surfaces = Texture::new(gl, Format::R8, squares, squares, Some(&a.surfaces))?;
-            a.gpu = Some([heights, grads, surfaces]);
+        let (side, squares) = (AREA_SIDE as u32, AREA_SQUARES as u32);
+        for a in &mut self.areas {
+            // Before the first frame's light, level horizons: the field arrives with it.
+            let sun = || match &a.sun {
+                Some(f) => f32_bytes(f.horizon.iter().copied()),
+                None => f32_bytes(std::iter::repeat_n(0.0, AREA_SIDE * AREA_SIDE)),
+            };
+            match &a.gpu {
+                Some(t) => {
+                    if a.sun_fresh {
+                        t[3].update(gl, &sun())?;
+                    }
+                }
+                None => {
+                    let heights = Texture::new(
+                        gl,
+                        Format::R32F,
+                        side,
+                        side,
+                        Some(&f32_bytes(a.heights.iter().copied())),
+                    )?;
+                    let grads = Texture::new(
+                        gl,
+                        Format::Rg32F,
+                        side,
+                        side,
+                        Some(&f32_bytes(a.gradients.iter().flatten().copied())),
+                    )?;
+                    let surfaces = Texture::new(gl, Format::R8, squares, squares, Some(&a.surfaces))?;
+                    let sun_tex = Texture::new(gl, Format::R32F, side, side, Some(&sun()))?;
+                    let sky = Texture::new(gl, Format::R8, side, side, Some(&a.sky))?;
+                    a.gpu = Some([heights, grads, surfaces, sun_tex, sky]);
+                }
+            }
+            a.sun_fresh = false;
         }
         Ok(())
     }
@@ -243,7 +312,7 @@ impl SurfaceTable {
 }
 
 /// The ground's uniforms, in `GroundPass::u`'s order.
-const UNIFORMS: [&str; 20] = [
+const UNIFORMS: [&str; 26] = [
     "u_spacing",
     "u_morph",
     "u_patches",
@@ -257,6 +326,7 @@ const UNIFORMS: [&str; 20] = [
     "u_pattern_off",
     "u_dither",
     "u_light_dir",
+    "u_light_tan",
     "u_y",
     "u_range",
     "u_looks[0]",
@@ -264,6 +334,11 @@ const UNIFORMS: [&str; 20] = [
     "u_split_at[0]",
     "u_split_oct[0]",
     "u_skirt",
+    "u_area_air",
+    "u_haze_beta",
+    "u_haze_scale",
+    "u_eye",
+    "u_haze_levels",
 ];
 
 /// The ground's program and its uniforms (A11.13 rule 3).
@@ -271,12 +346,20 @@ pub struct GroundPass {
     program: Program,
     u: [Option<glow::UniformLocation>; UNIFORMS.len()],
     table: SurfaceTable,
+    /// Where the haze's levels 1 to 3 begin (A11.4).
+    haze_levels: [f32; 3],
 }
 
 /// Triangles drawn by the last frame, for the bench (A11.11).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct GroundStats {
     pub triangles: u64,
+}
+
+/// The light's slope, `tan e`, from its direction (east, north, up): what the sun field's horizons are measured
+/// against (A11.5), held below 10⁴ for light overhead.
+pub fn light_tan(dir: [f32; 3]) -> f32 {
+    field::azimuth(dir).map_or(1e4, |(_, t)| t.clamp(-1e4, 1e4))
 }
 
 /// The patches of an area a view needs: the first patch's column and row, and how many columns and rows, from the
@@ -302,10 +385,13 @@ impl GroundPass {
         program.set_sampler(gl, "u_heights", unit::HEIGHTS);
         program.set_sampler(gl, "u_grads", unit::GRADS);
         program.set_sampler(gl, "u_surfaces", unit::SURFACES);
+        program.set_sampler(gl, "u_sun", unit::SUN);
+        program.set_sampler(gl, "u_sky", unit::SKY);
         Ok(GroundPass {
             u: UNIFORMS.map(|name| program.uniform(gl, name)),
             program,
             table: SurfaceTable::new(cat, layout).map_err(RenderError::Gl)?,
+            haze_levels: cat.air.haze_levels,
         })
     }
 
@@ -345,6 +431,7 @@ impl GroundPass {
             u_pattern_off,
             u_dither,
             u_light_dir,
+            u_light_tan,
             u_y,
             u_range,
             u_looks,
@@ -352,6 +439,11 @@ impl GroundPass {
             u_split_at,
             u_split_oct,
             u_skirt,
+            u_area_air,
+            u_haze_beta,
+            u_haze_scale,
+            u_eye,
+            u_haze_levels,
         ] = &self.u;
         let (s, morph) = spacing(view.texel as f32);
         gl::set_f32(gl, u_spacing.as_ref(), s as f32);
@@ -364,14 +456,20 @@ impl GroundPass {
         gl::set_ivec2(gl, u_dither.as_ref(), view.dither());
         let light = &lighting.light;
         gl::set_vec3(gl, u_light_dir.as_ref(), light.dir);
+        gl::set_f32(gl, u_light_tan.as_ref(), light_tan(light.dir));
         gl::set_vec2(gl, u_y.as_ref(), [dot(LUM, light.sky), dot(LUM, light.sun)]);
         gl::set_vec2(gl, u_range.as_ref(), lighting.palette.range);
         gl::set_ivec2_array(gl, u_looks.as_ref(), &self.table.looks);
         gl::set_ivec2_array(gl, u_surface_info.as_ref(), &self.table.info);
         gl::set_vec2_array(gl, u_split_at.as_ref(), &self.table.split_at);
         gl::set_vec4_array(gl, u_split_oct.as_ref(), &self.table.split_oct);
+        let (beta, scale) = lighting.haze_air;
+        gl::set_vec2(gl, u_haze_beta.as_ref(), beta);
+        gl::set_vec2(gl, u_haze_scale.as_ref(), scale);
+        gl::set_vec2(gl, u_eye.as_ref(), view.eye());
+        gl::set_vec3(gl, u_haze_levels.as_ref(), self.haze_levels);
         for area in &store.areas {
-            let Some([heights, grads, surfaces]) = &area.gpu else {
+            let Some([heights, grads, surfaces, sun, sky]) = &area.gpu else {
                 continue;
             };
             let Some(patches) = patches_in_view(view, area, s) else {
@@ -381,10 +479,13 @@ impl GroundPass {
             heights.bind(gl, unit::HEIGHTS);
             grads.bind(gl, unit::GRADS);
             surfaces.bind(gl, unit::SURFACES);
+            sun.bind(gl, unit::SUN);
+            sky.bind(gl, unit::SKY);
             gl::set_vec2(gl, u_area_frac.as_ref(), p.frac);
             gl::set_vec2(gl, u_area_px.as_ref(), p.px);
             gl::set_vec2(gl, u_depth.as_ref(), p.depth);
             gl::set_vec2(gl, u_pattern_off.as_ref(), p.pattern_off);
+            gl::set_vec2(gl, u_area_air.as_ref(), p.air);
             // The patches, then the skirts round the area's edge: four sides of 256 / s segments.
             gl::set_ivec4(gl, u_patches.as_ref(), patches);
             gl::set_i32(gl, u_skirt.as_ref(), 0);
@@ -411,6 +512,48 @@ mod tests {
                 0.1 * x + 3.0 * (x * 0.31).sin() * (y * 0.17).cos() + if x > 120.0 { 8.0 } else { 0.0 }
             })
             .collect()
+    }
+
+    // checks: PRE-30 PRE-02
+    #[test]
+    fn a_small_move_of_the_light_is_worked_over_frames_a_jump_at_once() {
+        // A light 12° high from the north-west, and the same an eighth of a degree round, then 40° round.
+        let light = |az: f32| {
+            let (e, az) = (12f32.to_radians(), az.to_radians());
+            [e.cos() * az.sin(), e.cos() * az.cos(), e.sin()]
+        };
+        let mut store = Store::default();
+        store
+            .insert(AreaMeshes {
+                id: AreaId(7),
+                base_m: 100.0,
+                heights: test_heights(),
+                surfaces: vec![0; AREA_SQUARES * AREA_SQUARES],
+            })
+            .expect("a whole area");
+        let heights = store.areas[0].heights.clone();
+        // A new area's field comes at once, whatever the frame's share.
+        assert_eq!(store.follow_light(light(315.0), &mut || false), 1);
+        assert_eq!(store.areas[0].sun, Some(field::sun_field(&heights, light(315.0))));
+        // A move under the step changes nothing.
+        assert_eq!(store.follow_light(light(315.05), &mut || false), 0);
+        assert!(store.areas[0].sun_job.is_none());
+        // A small move: a piece a frame with no time to spare, the old field drawn until the new one is whole.
+        let mut frames = 1;
+        while store.follow_light(light(315.125), &mut || false) == 0 {
+            assert_eq!(store.areas[0].sun, Some(field::sun_field(&heights, light(315.0))));
+            frames += 1;
+        }
+        assert!(frames > 100, "{frames} frames");
+        assert_eq!(store.areas[0].sun, Some(field::sun_field(&heights, light(315.125))));
+        // With time to spare, the next small move lands in one frame.
+        assert_eq!(store.follow_light(light(315.25), &mut || true), 1);
+        // A jump, as a tap of the strip makes, comes at once and drops any field under way.
+        assert_eq!(store.follow_light(light(315.4), &mut || false), 0);
+        assert!(store.areas[0].sun_job.is_some());
+        assert_eq!(store.follow_light(light(355.0), &mut || false), 1);
+        assert!(store.areas[0].sun_job.is_none());
+        assert_eq!(store.areas[0].sun, Some(field::sun_field(&heights, light(355.0))));
     }
 
     // checks: PRE-02 PRE-22

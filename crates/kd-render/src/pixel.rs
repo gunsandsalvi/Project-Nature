@@ -59,6 +59,29 @@ pub fn bayer(x: i32, y: i32) -> f32 {
     (f32::from(BAYER[(y & 3) as usize][(x & 3) as usize]) + 0.5) / 16.0
 }
 
+/// The sun's disc, 0.53° across (A11.4), as the tangent of its width.
+pub const SUN_TAN: f32 = 0.009_25;
+
+/// The share of the light's disc showing over a point's horizon (A11.4, A11.5): `horizon` is the slope of the
+/// highest ground toward the light (its sun field) and `tan_e` the light's own slope. The disc rises clear over its
+/// 0.53° as the light climbs past the horizon, `(tan e − m) / (1 + m tan e)` being the tangent of the angle between
+/// them, so a shadow's edge is sharp near its caster and soft far from it; a light more than a right angle above
+/// the horizon, as from a peak, is clear of it.
+pub fn sunlit(horizon: f32, tan_e: f32) -> f32 {
+    ((tan_e - horizon) / (SUN_TAN * (1.0 + tan_e * horizon).max(1e-6)) + 0.5).clamp(0.0, 1.0)
+}
+
+/// The sun factor τ (A11.3): the sunlit share times how squarely the surface faces the light, `n·l`.
+pub fn sun_factor(horizon: f32, tan_e: f32, n_dot_l: f32) -> f32 {
+    sunlit(horizon, tan_e) * n_dot_l.max(0.0)
+}
+
+/// The sky factor σ (A11.3): the share of the sky the point's horizon leaves open (its sky field), times how much
+/// of the sky the surface faces, `(1 + n_up) / 2`.
+pub fn sky_factor(open: f32, n_up: f32) -> f32 {
+    open * (1.0 + n_up) / 2.0
+}
+
 /// The light's lightness at sky factor σ and sun factor τ: the cube root of `σ Y_sky + τ Y_sun`, taken as the
 /// shaders take it, `pow(y, 1/3)` (A11.3).
 pub fn lightness(sigma: f32, tau: f32, y_sky: f32, y_sun: f32) -> f32 {
@@ -100,6 +123,63 @@ pub fn margin(s: f32, band: f32, steps: i32, x: i32, y: i32) -> f32 {
     };
     (0..steps - 1)
         .map(|k| (s - (k as f32 + 0.5 + flip)).abs())
+        .fold(f32::INFINITY, f32::min)
+}
+
+/// How far, in metres, a neighbour must lie beyond the plane through a pixel and its opposite neighbour for the pixel
+/// to be on a silhouette, by category (A11.2): figures 0.25 m, things 0.3 m, plants 1 m, rock 1.5 m, ground and
+/// water 6 m; void and effects never.
+pub const OUTLINE_GAP_M: [f32; 8] = [1e9, 6.0, 1.5, 6.0, 1.0, 0.25, 0.3, 1e9];
+
+/// Whether a pixel at depth `depth` stands in front of its neighbour at `far` (A11.2): the neighbour lies beyond
+/// where the plane through the pixel and its opposite neighbour, at `opposite`, puts it by more than `gap`, all in
+/// metres. A slope seen edge-on keeps its neighbours on its plane however steep it is, so it draws no outline.
+pub fn outline_toward(depth: f32, far: f32, opposite: f32, gap: f32) -> bool {
+    far - (2.0 * depth - opposite) > gap
+}
+
+/// The haze at a point `depth` metres beyond the view's target plane and `height` metres above the sea (A11.4): the
+/// air's optical depth along its ray to the eye's plane, `eye[0]` metres before the target, climbing as the view
+/// tilts (`eye[1]`, the sine of its pitch), through the aerosol's and the air's layers, of extinction `beta` a metre
+/// at the sea's level falling over `scale` metres of height, in closed form; as `1 − exp(−depth)`.
+pub fn haze(depth: f32, height: f32, beta: [f32; 2], scale: [f32; 2], eye: [f32; 2]) -> f32 {
+    let rise = eye[1].max(1e-3);
+    let l = (eye[0] + depth).max(0.0);
+    let mut tau = 0.0;
+    for k in 0..2 {
+        tau += beta[k] * scale[k] / rise * m::exp(-height / scale[k]) * (1.0 - m::exp(-l * rise / scale[k]));
+    }
+    1.0 - m::exp(-tau)
+}
+
+/// The haze's level, 0 to 3: how many of `levels` the haze is above, each within `band` of its threshold mixed by
+/// the Bayer pattern at world pixel `(x, y)`, as the light's steps are (A11.4).
+pub fn haze_level(haze: f32, levels: [f32; 3], band: f32, x: i32, y: i32) -> i32 {
+    let b = bayer(x, y);
+    levels
+        .iter()
+        .map(|&at| {
+            let d = haze - at;
+            i32::from(if band > 0.0 && d.abs() < band {
+                (d + band) / (2.0 * band) > b
+            } else {
+                d >= 0.0
+            })
+        })
+        .sum()
+}
+
+/// How far haze `haze` lies from the nearest point where `haze_level`'s answer changes; the probe keeps only
+/// inputs well clear of these.
+pub fn haze_margin(haze: f32, levels: [f32; 3], band: f32, x: i32, y: i32) -> f32 {
+    let flip = if band > 0.0 {
+        band * (2.0 * bayer(x, y) - 1.0)
+    } else {
+        0.0
+    };
+    levels
+        .iter()
+        .map(|&at| (haze - (at + flip)).abs())
         .fold(f32::INFINITY, f32::min)
 }
 
@@ -387,6 +467,103 @@ mod tests {
             assert!((-1.0..=1.0).contains(&v));
             assert!((noise2([p[0] + 0.01, p[1]], 3) - v).abs() < 0.1);
         }
+    }
+
+    // checks: PRE-21
+    #[test]
+    fn outline_only_where_something_stands_in_front() {
+        // A row of pixels across a ridge in front of lower ground 30 m farther: the ridge's last pixel is outlined
+        // toward the ground behind it, and no other pixel is.
+        let depths = [100.0, 101.0, 102.0, 103.0, 133.0, 134.0, 135.0];
+        let gap = OUTLINE_GAP_M[Cat::Ground as usize];
+        let outlined: Vec<usize> = (1..depths.len() - 1)
+            .filter(|&i| {
+                outline_toward(depths[i], depths[i + 1], depths[i - 1], gap)
+                    || outline_toward(depths[i], depths[i - 1], depths[i + 1], gap)
+            })
+            .collect();
+        assert_eq!(outlined, vec![3]);
+        // Behind is not in front: the farther pixel across the step is not outlined toward the nearer.
+        assert!(!outline_toward(133.0, 103.0, 134.0, gap));
+        // A gap a little over the category's is outlined, one under is not; rock's gap is finer than the ground's.
+        assert!(outline_toward(10.0, 16.5, 10.0, gap) && !outline_toward(10.0, 15.5, 10.0, gap));
+        let rock = OUTLINE_GAP_M[Cat::Rock as usize];
+        assert!(outline_toward(10.0, 12.0, 10.0, rock) && !outline_toward(10.0, 12.0, 10.0, gap));
+        // Void is never outlined, as no gap is that large.
+        assert!(!outline_toward(10.0, 1e6, 10.0, OUTLINE_GAP_M[Cat::Void as usize]));
+    }
+
+    // checks: PRE-21
+    #[test]
+    fn steep_slope_seen_edge_on_has_no_outline() {
+        // A cliff's face seen nearly edge-on: each pixel lies 20 m beyond the last, far more than the ground's gap,
+        // but on one plane, so nothing is outlined; where the face meets the plain the plane bends, and a bend
+        // within the gap is not outlined either.
+        let face: Vec<f32> = (0..8).map(|i| 50.0 + 20.0 * i as f32).collect();
+        let gap = OUTLINE_GAP_M[Cat::Rock as usize];
+        for i in 1..face.len() - 1 {
+            assert!(!outline_toward(face[i], face[i + 1], face[i - 1], gap), "pixel {i}");
+            assert!(!outline_toward(face[i], face[i - 1], face[i + 1], gap), "pixel {i}");
+        }
+        assert!(!outline_toward(70.0, 91.0, 50.0, gap));
+        // A plain depth jump would have flagged every pixel of it.
+        assert!(face.windows(2).all(|w| w[1] - w[0] > gap));
+    }
+
+    // checks: PRE-30
+    #[test]
+    fn haze_grows_with_the_air_path() {
+        // The air of a fine day, at the camp stop's eye: haze grows with the ray's length and falls with height.
+        let air = crate::tests::catalogue().air;
+        let (beta, scale) = crate::light::haze_air(&air, air.turbidity);
+        let eye = [1.37 * 300.0, (52.0f32).to_radians().sin()];
+        let at = |depth: f32, height: f32| haze(depth, height, beta, scale, eye);
+        let mut last = 0.0;
+        for d in [-300.0, 0.0, 300.0, 1_000.0, 5_000.0, 20_000.0] {
+            let h = at(d, 300.0);
+            assert!(h > last && h < 1.0, "{d} m: {h}");
+            last = h;
+        }
+        assert!(at(500.0, 2_000.0) < at(500.0, 300.0));
+        // At the camp stop the air is all but clear; across a valley's 10 km it gives depth.
+        assert_eq!(haze_level(at(0.0, 300.0), air.haze_levels, 0.0, 0, 0), 0);
+        let valley = haze(0.0, 300.0, beta, scale, [1.37 * 10_000.0, 1.0]);
+        assert!(haze_level(valley, air.haze_levels, 0.0, 0, 0) >= 1, "{valley}");
+        // Levels climb through their thresholds, dithered only within the band.
+        let levels = air.haze_levels;
+        assert_eq!(haze_level(levels[1] + 0.01, levels, 0.0, 0, 0), 2);
+        let mixed: i32 = (0..16).map(|p| haze_level(levels[0], levels, 0.02, p % 4, p / 4)).sum();
+        assert_eq!(mixed, 8);
+        assert!(haze_margin(levels[2] + 0.0005, levels, 0.0, 0, 0) < 0.001);
+    }
+
+    // checks: PRE-30
+    #[test]
+    fn haze_warmer_toward_the_sun() {
+        // Late in the afternoon, the haze tables seen looking toward the low sun in the west map the ground's
+        // colours to warmer ones than looking away from it.
+        let cat = crate::tests::catalogue();
+        let layout = crate::looks::Layout::new(&cat).unwrap();
+        let light = crate::light::light(&cat.air, &crate::light::tests::sky_at(17.5));
+        let pitch = (38.0f32).to_radians();
+        let view = |east: f32| [east * pitch.cos(), 0.0, -pitch.sin()];
+        let warmth = |p: &crate::looks::Palette| {
+            let (mut red, mut blue) = (0.0, 0.0);
+            for i in layout.fixed..layout.len {
+                let c = p.row[usize::from(p.tables[crate::looks::table::HAZE[2]][i])];
+                red += f32::from(c[0]);
+                blue += f32::from(c[2]);
+            }
+            red / blue
+        };
+        let toward = crate::looks::Palette::new(&cat, &layout, &light, view(-1.0));
+        let away = crate::looks::Palette::new(&cat, &layout, &light, view(1.0));
+        assert!(
+            warmth(&toward) > warmth(&away),
+            "{} and {}",
+            warmth(&toward),
+            warmth(&away)
+        );
     }
 
     // checks: PRE-01

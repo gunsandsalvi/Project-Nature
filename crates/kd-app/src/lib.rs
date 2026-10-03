@@ -22,7 +22,7 @@ use kd_ui::{Ui, UiAction};
 use kd_view::{AreaMeshes, CameraPose, FontAtlas, InputEvent, Insets, UiDrawList};
 use kd_world::area::{Ground, demo};
 
-pub use json::requests_json;
+pub use json::{counts_json, requests_json};
 
 /// What the app needs from the shell it runs in (A2.2); storage and the CPU layout join with their alphas.
 pub trait Platform: Send + Sync {
@@ -70,6 +70,26 @@ pub const HOURS: [(&str, f32); 8] = [
 pub const HOURS_LAT: f32 = 21.0;
 /// Late afternoon, the hour the app opens on.
 pub const FIRST_HOUR: usize = 4;
+
+/// A slow camera motion for the crawl counter (A11.10): a turn, its rate in degrees a frame; a zoom, as a share of
+/// the art pixel a frame; or a pan along the screen's right, in art pixels a frame.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Motion {
+    Turn,
+    Zoom,
+    Pan,
+}
+
+impl Motion {
+    pub fn named(name: &str) -> Option<Motion> {
+        match name {
+            "turn" => Some(Motion::Turn),
+            "zoom" => Some(Motion::Zoom),
+            "pan" => Some(Motion::Pan),
+            _ => None,
+        }
+    }
+}
 
 /// The sky at one of `HOURS`: spring day 1, the equinox, at that hour (A3.7).
 pub fn sky_at(hour: usize) -> kd_view::SkyView {
@@ -155,6 +175,8 @@ pub struct App {
     /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles (the bench,
     /// A15.10).
     upload_ns: u64,
+    /// How long handing the demo area to the renderer took, its sky field with it, in nanoseconds (A15.10).
+    insert_ns: u64,
     triangles: u64,
 }
 
@@ -246,6 +268,7 @@ impl App {
             demo_ns: 0,
             control: camera::Control::new(CameraPose::default()),
             upload_ns: 0,
+            insert_ns: 0,
             triangles: 0,
         };
         let t0 = app.platform.now_ns();
@@ -340,6 +363,8 @@ impl App {
         };
         self.renderer = match Renderer::new(gl, cat, &assets) {
             Ok(mut r) => {
+                let platform = Arc::clone(&self.platform);
+                r.set_clock(Box::new(move || platform.now_ns()));
                 if let Some([w, h]) = self.size
                     && let Err(e) = r.resize(w, h, ART_SCALE)
                 {
@@ -351,7 +376,9 @@ impl App {
                     self.check_failed(line);
                 }
                 if let Some(m) = &self.demo_meshes {
+                    let t0 = self.platform.now_ns();
                     r.upload_area(m.clone());
+                    self.insert_ns = self.platform.now_ns().saturating_sub(t0);
                 }
                 Some(r)
             }
@@ -403,6 +430,8 @@ impl App {
                 sky: sky_at(self.hour),
                 cam: self.control.pose,
                 card,
+                // A golden scene's frame finishes its fields at once (A11.11).
+                field_ns: self.golden.is_none().then_some(kd_render::field::SUN_FIELD_FRAME_NS),
             };
             let t0 = self.platform.now_ns();
             if r.upload_areas() > 0 {
@@ -610,6 +639,13 @@ impl App {
         (self.upload_ns, self.triangles)
     }
 
+    /// The light fields' times, in nanoseconds (A15.10): handing the demo area to the renderer, its sky field with
+    /// it, and the longest a frame's sun field work has taken.
+    pub fn field_stats(&self) -> (u64, u64) {
+        let field = self.renderer.as_ref().map_or(0, Renderer::longest_field_ns);
+        (self.insert_ns, field)
+    }
+
     /// Where the camera looks.
     pub fn camera(&self) -> CameraPose {
         self.control.pose
@@ -633,6 +669,70 @@ impl App {
     /// The demo area's ground, as the world made it.
     pub fn demo(&self) -> Option<&Ground> {
         self.demo.as_ref()
+    }
+
+    /// Test hook (A11.10): `frames` frames of a slow camera motion on from where the camera looks, the `k`th frame
+    /// `k` times `rate` from it, all drawn at one moment so nothing else moves, and what changed between each frame
+    /// and the next; the camera is left at the last frame.
+    pub fn crawl(&mut self, motion: Motion, rate: f32, frames: u32, now_ns: u64) -> Vec<kd_render::probe::CrawlCount> {
+        let start = self.control.pose;
+        let texel = kd_render::camera::texel(start.zoom);
+        let mut out = Vec::new();
+        let mut last = None;
+        for k in 0..=frames {
+            let k = k as f32;
+            self.set_camera(match motion {
+                Motion::Turn => CameraPose {
+                    yaw: start.yaw + (k * rate).to_radians(),
+                    ..start
+                },
+                Motion::Zoom => CameraPose {
+                    zoom: kd_render::camera::zoom_of(texel * (1.0 + rate).powf(k)),
+                    ..start
+                },
+                Motion::Pan => {
+                    // Along the screen's right: east turned by the heading, counter-clockwise from north.
+                    let along = k * rate * texel * 256.0;
+                    CameraPose {
+                        target: kd_core::geo::Pos {
+                            x: start.target.x + (along * start.yaw.cos()).round() as i32,
+                            y: start.target.y - (along * start.yaw.sin()).round() as i32,
+                            ..start.target
+                        },
+                        ..start
+                    }
+                }
+            });
+            self.frame(now_ns);
+            let capture = self.renderer.as_ref().and_then(Renderer::capture);
+            if let (Some(a), Some(b)) = (&last, &capture) {
+                out.push(kd_render::probe::count(a, b));
+            }
+            last = capture;
+        }
+        out
+    }
+
+    /// Test hook (A11.12): what each step of the zoom changes, from zoom `from` to `to` by `step`, the camera's
+    /// target and heading held.
+    pub fn zoom_strip(&mut self, from: f32, to: f32, step: f32, now_ns: u64) -> Vec<kd_render::probe::CrawlCount> {
+        let mut out = Vec::new();
+        let mut last = None;
+        let steps = ((to - from) / step).round() as u32;
+        for k in 0..=steps {
+            let zoom = from + step * k as f32;
+            self.set_camera(CameraPose {
+                zoom,
+                ..self.control.pose
+            });
+            self.frame(now_ns);
+            let capture = self.renderer.as_ref().and_then(Renderer::capture);
+            if let (Some(a), Some(b)) = (&last, &capture) {
+                out.push(kd_render::probe::count(a, b));
+            }
+            last = capture;
+        }
+        out
     }
 
     fn check_failed(&mut self, what: String) {
