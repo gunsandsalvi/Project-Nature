@@ -266,6 +266,8 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 
 **Not in this alpha:** smooth surface edges by coverage, fine relief, stones and tufts (α01d); objects' shadows from pass 1 (with the first things, α02c); light shafts in mist (α13).
 
+**Conflict:** T01c.1 as planned keeps the highest shadow line `H` along rows turned to the sun and its caster's distance `d`, resampled from the rows. Built that way it failed its own tests: in the lit half of a soft edge the nearest ground's line lies above a far cliff's, so the soft edge was cut short (2.1 m of 2.6 m behind a 20 m wall at 15°), and resampling gave a cliff's sunlit rim its face's values, shading it. The smallest change that works: the field keeps each point's horizon toward the light's azimuth as a slope, read from the point's own place and height (along its own ray for 4 m, beyond from the rows either side), and the sunlit share is the share of the sun's disc above it, so the edge still widens with the caster's distance. The field follows the azimuth alone, the light's height being a uniform, and is an `R32F` texture. Its march test checks what shows rather than 0.05 m everywhere, which no row-based field meets where the light grazes a cliff's face: lit or not agrees at all but a thousandth of points, the horizon's angle within 0.05° at half and 2° at 99 in 100 (A11.5).
+
 **Risks:**
 - The fields too slow on the phone: measured in the bench file; over 2 ms, the sun field is recomputed over several frames.
 - Penumbra dither shimmering as the sun moves: the sun field changes only every 0.1° of sun, and the clock's own pacing smooths it (α03a).

@@ -9,6 +9,7 @@
 //! ES 3.0 on the phone.
 
 pub mod camera;
+pub mod field;
 pub mod frame;
 pub mod gl;
 pub mod ground;
@@ -222,6 +223,9 @@ impl Renderer {
             triangles: 0,
         };
         let mut off = art.off;
+        if let Some(l) = &self.lighting {
+            self.store.follow_light(l.light.dir);
+        }
         if let Err(e) = self.store.upload(&self.gl) {
             log::error!(target: "kd::render", "area textures: {e}");
         }

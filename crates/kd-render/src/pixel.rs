@@ -59,6 +59,29 @@ pub fn bayer(x: i32, y: i32) -> f32 {
     (f32::from(BAYER[(y & 3) as usize][(x & 3) as usize]) + 0.5) / 16.0
 }
 
+/// The sun's disc, 0.53° across (A11.4), as the tangent of its width.
+pub const SUN_TAN: f32 = 0.009_25;
+
+/// The share of the light's disc showing over a point's horizon (A11.4, A11.5): `horizon` is the slope of the
+/// highest ground toward the light (its sun field) and `tan_e` the light's own slope. The disc rises clear over its
+/// 0.53° as the light climbs past the horizon, `(tan e − m) / (1 + m tan e)` being the tangent of the angle between
+/// them, so a shadow's edge is sharp near its caster and soft far from it; a light more than a right angle above
+/// the horizon, as from a peak, is clear of it.
+pub fn sunlit(horizon: f32, tan_e: f32) -> f32 {
+    ((tan_e - horizon) / (SUN_TAN * (1.0 + tan_e * horizon).max(1e-6)) + 0.5).clamp(0.0, 1.0)
+}
+
+/// The sun factor τ (A11.3): the sunlit share times how squarely the surface faces the light, `n·l`.
+pub fn sun_factor(horizon: f32, tan_e: f32, n_dot_l: f32) -> f32 {
+    sunlit(horizon, tan_e) * n_dot_l.max(0.0)
+}
+
+/// The sky factor σ (A11.3): the share of the sky the point's horizon leaves open (its sky field), times how much
+/// of the sky the surface faces, `(1 + n_up) / 2`.
+pub fn sky_factor(open: f32, n_up: f32) -> f32 {
+    open * (1.0 + n_up) / 2.0
+}
+
 /// The light's lightness at sky factor σ and sun factor τ: the cube root of `σ Y_sky + τ Y_sun`, taken as the
 /// shaders take it, `pow(y, 1/3)` (A11.3).
 pub fn lightness(sigma: f32, tau: f32, y_sky: f32, y_sun: f32) -> f32 {

@@ -1,6 +1,7 @@
 //! The ground (A11.5): the CPU store of the loaded areas, their textures, the morphing patch and the ground's draw.
-//! Each area keeps its heights, their gradients and its surfaces on the CPU, so after a lost context its textures
-//! are made again from them alone (A11.13 rule 5). One shared 16 × 16 patch of quads, made from vertex and instance
+//! Each area keeps its heights, their gradients, its surfaces and its light fields on the CPU, so after a lost
+//! context its textures are made again from them alone (A11.13 rule 5): the sky field once, as it arrives, and the
+//! sun field for the light's azimuth, made again as the azimuth moves (`field`). One shared 16 × 16 patch of quads, made from vertex and instance
 //! numbers with no vertex buffer, covers the area at the spacing the art pixel asks for, its odd vertices sliding
 //! onto the next spacing's mesh as the spacing's range ends, so a change of spacing moves nothing (A11.1 rule 3).
 //!
@@ -12,6 +13,7 @@ use kd_view::{AREA_SIDE, AREA_SQUARES, AreaMeshes};
 
 use crate::RenderError;
 use crate::camera::View;
+use crate::field::{self, SunField};
 use crate::frame::Lighting;
 use crate::gl::{self, Format, Program, State, Texture, unit};
 use crate::light::{LUM, dot};
@@ -103,7 +105,13 @@ pub struct Area {
     pub surfaces: Vec<u8>,
     /// Its lowest and highest points, metres above `base_m`.
     pub span_m: [f32; 2],
-    gpu: Option<[Texture; 3]>,
+    /// The share of the sky each point's horizon leaves open, in 255ths (A11.5).
+    pub sky: Vec<u8>,
+    /// The sun field for the light's azimuth, none until the first frame's light (A11.5).
+    pub sun: Option<SunField>,
+    /// Whether the sun field is newer than its texture.
+    sun_fresh: bool,
+    gpu: Option<[Texture; 5]>,
 }
 
 impl Area {
@@ -150,13 +158,20 @@ impl Store {
         let heights: Vec<f32> = m.heights.iter().map(|h| h + (m.base_m - base_m)).collect();
         let lo = heights.iter().copied().fold(f32::INFINITY, f32::min);
         let hi = heights.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+        let sky = field::sky_field(&heights)
+            .iter()
+            .map(|v| (v.clamp(0.0, 1.0) * 255.0).round() as u8)
+            .collect();
         let area = Area {
             id: m.id,
             base_m,
             gradients: gradients(&heights),
+            sky,
             heights,
             surfaces: m.surfaces,
             span_m: [lo, hi],
+            sun: None,
+            sun_fresh: false,
             gpu: None,
         };
         self.areas.retain(|a| a.id != area.id);
@@ -169,26 +184,59 @@ impl Store {
         self.areas.iter().filter(|a| a.gpu.is_some()).count()
     }
 
-    /// Makes the textures of areas that lack them: heights `R32F`, gradients `RG32F`, surfaces `R8` (A11.5).
+    /// Works out the sun field of each area that has none, or one made for an azimuth `SUN_FIELD_STEP_DEG` or more
+    /// from the light's `dir` (east, north, up; A11.5); its texture follows at the next upload. Returns how many
+    /// it made.
+    pub fn follow_light(&mut self, dir: [f32; 3]) -> usize {
+        let mut made = 0;
+        for a in &mut self.areas {
+            if a.sun.as_ref().is_none_or(|f| f.stale(dir)) {
+                a.sun = Some(field::sun_field(&a.heights, dir));
+                a.sun_fresh = true;
+                made += 1;
+            }
+        }
+        made
+    }
+
+    /// Makes the textures of areas that lack them (heights `R32F`, gradients `RG32F`, surfaces `R8`, the sun field
+    /// `R32F` and the sky field `R8`), and brings a sun field's texture up to date when it was made again (A11.5).
     pub fn upload(&mut self, gl: &glow::Context) -> Result<(), RenderError> {
-        for a in self.areas.iter_mut().filter(|a| a.gpu.is_none()) {
-            let (side, squares) = (AREA_SIDE as u32, AREA_SQUARES as u32);
-            let heights = Texture::new(
-                gl,
-                Format::R32F,
-                side,
-                side,
-                Some(&f32_bytes(a.heights.iter().copied())),
-            )?;
-            let grads = Texture::new(
-                gl,
-                Format::Rg32F,
-                side,
-                side,
-                Some(&f32_bytes(a.gradients.iter().flatten().copied())),
-            )?;
-            let surfaces = Texture::new(gl, Format::R8, squares, squares, Some(&a.surfaces))?;
-            a.gpu = Some([heights, grads, surfaces]);
+        let (side, squares) = (AREA_SIDE as u32, AREA_SQUARES as u32);
+        for a in &mut self.areas {
+            // Before the first frame's light, level horizons: the field arrives with it.
+            let sun = || match &a.sun {
+                Some(f) => f32_bytes(f.horizon.iter().copied()),
+                None => f32_bytes(std::iter::repeat_n(0.0, AREA_SIDE * AREA_SIDE)),
+            };
+            match &a.gpu {
+                Some(t) => {
+                    if a.sun_fresh {
+                        t[3].update(gl, &sun())?;
+                    }
+                }
+                None => {
+                    let heights = Texture::new(
+                        gl,
+                        Format::R32F,
+                        side,
+                        side,
+                        Some(&f32_bytes(a.heights.iter().copied())),
+                    )?;
+                    let grads = Texture::new(
+                        gl,
+                        Format::Rg32F,
+                        side,
+                        side,
+                        Some(&f32_bytes(a.gradients.iter().flatten().copied())),
+                    )?;
+                    let surfaces = Texture::new(gl, Format::R8, squares, squares, Some(&a.surfaces))?;
+                    let sun_tex = Texture::new(gl, Format::R32F, side, side, Some(&sun()))?;
+                    let sky = Texture::new(gl, Format::R8, side, side, Some(&a.sky))?;
+                    a.gpu = Some([heights, grads, surfaces, sun_tex, sky]);
+                }
+            }
+            a.sun_fresh = false;
         }
         Ok(())
     }
@@ -302,6 +350,8 @@ impl GroundPass {
         program.set_sampler(gl, "u_heights", unit::HEIGHTS);
         program.set_sampler(gl, "u_grads", unit::GRADS);
         program.set_sampler(gl, "u_surfaces", unit::SURFACES);
+        program.set_sampler(gl, "u_sun", unit::SUN);
+        program.set_sampler(gl, "u_sky", unit::SKY);
         Ok(GroundPass {
             u: UNIFORMS.map(|name| program.uniform(gl, name)),
             program,
@@ -371,7 +421,7 @@ impl GroundPass {
         gl::set_vec2_array(gl, u_split_at.as_ref(), &self.table.split_at);
         gl::set_vec4_array(gl, u_split_oct.as_ref(), &self.table.split_oct);
         for area in &store.areas {
-            let Some([heights, grads, surfaces]) = &area.gpu else {
+            let Some([heights, grads, surfaces, sun, sky]) = &area.gpu else {
                 continue;
             };
             let Some(patches) = patches_in_view(view, area, s) else {
@@ -381,6 +431,8 @@ impl GroundPass {
             heights.bind(gl, unit::HEIGHTS);
             grads.bind(gl, unit::GRADS);
             surfaces.bind(gl, unit::SURFACES);
+            sun.bind(gl, unit::SUN);
+            sky.bind(gl, unit::SKY);
             gl::set_vec2(gl, u_area_frac.as_ref(), p.frac);
             gl::set_vec2(gl, u_area_px.as_ref(), p.px);
             gl::set_vec2(gl, u_depth.as_ref(), p.depth);
