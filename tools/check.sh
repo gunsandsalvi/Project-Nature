@@ -2,7 +2,7 @@
 # The checks before work joins main (PRC-10, A15.12), in A15.12's nine numbered steps; a step whose tool has not
 # been built yet says which alpha brings it. Stops at the first failure.
 # Usage: tools/check.sh [--deliver]
-#   --deliver  also builds the release APK and the web page, as a delivery needs (step 9)
+#   --deliver  also builds the web page and an APK, and checks the committed release APK (step 9)
 # It writes results/checks/<commit>.json and ends with "Checks: PASS <commit>".
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -47,7 +47,10 @@ if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-rende
   node tools/screens/smoke.mjs
 fi
 if [ "$DELIVER" = 1 ]; then
-  tools/build-apk.sh release
+  # The build still works, and the delivered APK, as committed, is a correct release build.
+  tools/build-apk.sh check
+  (cd dist && sha256sum --quiet -c kindling.apk.sha256)
+  tools/verify-apk.sh dist/kindling.apk release
 elif changed android crates/kd-android crates/kd-app crates/kd-render; then
   tools/build-apk.sh check
 fi

@@ -89,7 +89,6 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α00 | Skeleton on the phone | 1 | 6 | Not started |
 | α00b | Foundations and checks | 1 | 5 | Not started |
 | α01a | Colour from light | 1 | 6 | Not started |
 | α01b | The ground | 1 | 6 | Not started |
@@ -205,94 +204,17 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 | α53a | Export and worlds across updates | 7 | 4 | Not started |
 | α53b | Release candidate and Stage 7 review | 7 | 5.5 | Not started |
 
-115 alphas still to build, about 568 hours of agent work in all.
+114 alphas still to build, about 562 hours of agent work in all.
 
 ## Stage 1: First camp (MIL-01)
 
 This stage builds the island of the first region and one band at the foot of its cliff, who gather, eat, drink, sleep, talk, court, pair, bear children, grow old and die through a 60-day year, with reasons on every card, saved every 30 seconds, tested in scenes and timed on the phone (`SCP-16` item 1).
 `SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows.
-Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, about 140.5 hours.
+Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 26 still to build take about 134.5 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
 The renderer is designed in A11 (A11.1), and α01a to α01d build it from that reasoning, in the form of code A11.13 sets; each task names the A11 sections it builds.
-On 3 October 2026 the owner had the codebase deleted and these first steps planned again from scratch, so α00 starts from the three documents and the release certificate alone (A15.5).
+On 3 October 2026 the owner had the codebase deleted and these first steps planned again from scratch, so α00 started from the three documents and the release certificate alone (A15.5).
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
-
-### α00 Skeleton on the phone (about 6 hours)
-
-**Goal:** the empty repository becomes A2's workspace with all 19 crates, built, checked and delivered by scripts every later alpha reuses; the app opens on the phone, signed with the release key, and in a private web page, and draws a test card at art resolution: one art pixel is 4 × 4 screen pixels in portrait and landscape, and a bar moves one art pixel each frame.
-
-**Serves:** `PRC-11` (part: an APK and a web page each alpha, its note, the self-check's first part), `SCP-15` (part: everything built and checked in the cloud session), `PLT-01` (part: an arm64 build running on the phone), `PLT-02` (part: rotation never restarts the app, and the art pixel keeps its size), `PLT-03` (part: no network permission), `PLT-06` (part: an APK installed from the browser, signed with the one release key), `PRE-22` (part: an art pixel is 4 × 4 screen pixels), `PRC-09` (part: work joins `main` by pull request), `PRC-10` (part: the first check script).
-
-**Architecture:** `A2.1`, `A2.2`, `A2.3`, `A2.4`, `A2.5`, `A2.6`, `A2.7`, `A2.8`, `A3.8`, `A11.2`, `A11.13`, `A12.4`, `A15.1`, `A15.2`, `A15.3`, `A15.4`, `A15.5`, `A15.12`.
-
-**Needs:** none; the passphrase secret and the release certificate (`android/keys/`) exist (A15.5).
-
-**Crates and files touched:** all new: the root files (`Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `.cargo/config.toml`, `clippy.toml`, `rustfmt.toml`), `crates/kd-*/` (19 crates), `tools/` (`setup.sh`, `env.sh`, `layers.toml`, `signing-key.py`, `build-apk.sh`, `verify-apk.sh`, `build-web.sh`, `check.sh`, `decode-bench.py`, `note-page.py`, `screens/`), `android/` (beside the kept `keys/`), `web/`, `dist/`, `bench/cloud/a00.json`, `results/`.
-
-**Tasks:**
-
-1. `T00.1` **The workspace and the 19 crates (`PRN-14`, `PRC-09`, A2.1–A2.3, A15.1).**
-   Fetch `main` by name and bring the session's branch to it (P0's step 3); pull requests target `main`.
-   `rust-toolchain.toml`: Rust 1.97.0 with clippy, rustfmt and A2.8's three extra targets; `.cargo/config.toml` (A2.8): 16 KB pages for the phone, the arm64 linker and qemu runner for arm64 tests, `simd128` for the web, and no `target-cpu` or fast-math flag (A3.2).
-   `Cargo.toml`: the workspace; each outside crate of A2.2 pinned once in `[workspace.dependencies]` with a one-line reason; A15.1's profiles: `release` for the APK, `release-web` (`panic = "abort"`, which `wasm32` needs) for the wasm, `fast` for `kd`, scenes and benchmarks, and `dev` at `opt-level = 2` so tests run quickly with debug assertions and overflow checks on (A3.2).
-   The 19 crates of A2.2, each declaring now the workspace crates its row may depend on, so layering is checked from α00b; each `lib.rs` opens with what the crate owns, its sections and the IDs it implements, then `#![deny(unsafe_code)]` everywhere but `kd-render`, `kd-app`, `kd-android` and `kd-web`; `kd-android` and `kd-web` compile their modules only for their own targets, so a workspace build on x86 makes them empty libraries; `kd-tools` builds the binary `kd`, printing its usage until commands arrive.
-   `tools/layers.toml`: per crate, whether it is a simulation crate, the workspace and outside crates it may name, and for `kd-sim` the one file allowed `unsafe` (A4.8); `clippy.toml` at the root holds A2.3's and A3.2's bans for the simulation crates and `kd-view`, and each front-end crate and `kd-tools` has its own `clippy.toml` without them; `rustfmt.toml` sets 120 columns.
-   `cargo build --workspace --locked` ends with no warning.
-   Commit `T00.1: the workspace and the 19 crates (PRN-14, A2.1–A2.3)`.
-
-2. `T00.2` **The toolchain on a fresh session (`SCP-15`, A2.8, A15.2).**
-   `tools/setup.sh`, the one command a fresh session runs, safe to run again: Rust's targets and components; `cargo-ndk` 4.1.2 and the `wasm-bindgen` CLI at `Cargo.lock`'s version into `$KD_CACHE/cargo`; qemu and the arm64 linker from apt; the Android SDK's command-line tools, platform-tools, `build-tools;36.1.0`, `platforms;android-36` and NDK r30 into `$KD_CACHE/android`, each only if missing, each download's size logged under `$KD_CACHE`, never in the repository; on any failure it prints the command and its exit code (A15.2).
-   `tools/env.sh`, sourced by every build script: `KD_CACHE` (default `~/.cache/kindling`), `ANDROID_HOME`, `ANDROID_NDK_HOME`, `GRADLE_USER_HOME`, the NDK's compiler and linker for `aarch64-linux-android`, and the session image's Playwright and Chromium paths.
-   Commit `T00.2: toolchain setup for a fresh session (SCP-15, A2.8)`.
-
-3. `T00.3` **The app, its platform and the renderer's GL layer (`PRC-11`, `PRE-22`, A2.2, A2.4, A3.8, A11.2, A11.13).**
-   `kd-view`: `InputEvent`, `Insets`, and an empty `Snapshot` (the world fills it from α03a).
-   `kd-render`, from A11.13: the `gl` module (programs with uniform locations found once at link, textures in the formats A11.13 lists, targets, meshes with declared layouts, and the full pipeline state each pass sets); `passes::scene` and its art target, `ceil(W/s) + 3` by `ceil(H/s) + 3` with `s` = 4 screen pixels (A11.2), into which the test card draws; `passes::upscale` (nearest, whole-number scale, the sub-pixel shift); `shaders/lib.glsl` with the defines generated from Rust constants (A11.13 rule 6); and a **test card** drawn at art resolution: a checker of single art pixels in one corner, a row of eight grey steps, and a bar moving one art pixel a frame; `Renderer::new`, `resize`, `draw` and `gl_info`.
-   `kd-app`: `App` with A2.2's `Platform` (`now_ns`, `post`; storage and cores join with their alphas) and `AppMsg` (input, insets, pause, resume, back); the frame loop; a panic on the GL thread skips the frame and three in a row show an error (A3.8); `selfcheck.rs` (A15.4): every shader compiled and the GL version read, a failure posting `Request::ShowCode { title, prefix: "KDS1:", json }` with the report as compact JSON, which each shell gzips and base64-encodes into the code and shows in the code dialog with Copy, so no compression crate enters Rust; requests reach the shells as a JSON array written by hand (`kd_app::requests_json`), since only `kd-android` may use `serde_json` (A2.2).
-   Commit `T00.3: the app, the GL layer and the test card (PRC-11, PRE-22, A11.2, A11.13)`.
-
-4. `T00.4` **The Android shell, signed with the release key (`PLT-01`, `PLT-02`, `PLT-03`, `PLT-06`, A2.5, A15.3, A15.5).**
-   `android/`: the Gradle files with A2.5's versions and A2.8's repositories and retries; `MainActivity.kt` (immersive full screen, insets, Back, the screen kept on while drawing, `configChanges` so rotation never restarts it); `GameView.kt` (`GLSurfaceView`, ES 3.0, RGBA 8888 with no depth, `preserveEGLContextOnPause`, the 120 Hz request, touches queued to the GL thread in order); `Native.kt`; the code dialog (an `AlertDialog` with the code selectable and a Copy button, the code being the prefix and the base64 of the gzipped JSON); the manifest (one activity, no `INTERNET`, `allowBackup="false"`); `android/version.properties` (`versionCode`, `versionName`) and `android/permissions.txt` (the merged manifest's exact permissions: none yet).
-   `kd-android`: the JNI entries of A2.5's table that this alpha needs (`create`, `destroy`, `onResume`, `onPause`, `glCreated`, `glResized`, `glDraw`, `touch`, `insets`, `back`, `takeRequests`), each catching panics (A3.8); `glow` loaded through `eglGetProcAddress`; logs to logcat.
-   `tools/signing-key.py` (A15.5): scrypt of `KINDLING_SIGNING_PASSPHRASE` to a P-256 key, checked against `android/keys/release-cert.der` before anything is signed and written to a temporary file deleted afterwards; `selftest` derives a key from a test passphrase and checks it against a certificate it makes for the test.
-   `tools/build-apk.sh release|check`: Gradle under `env -u KINDLING_SIGNING_PASSPHRASE`, then `apksigner` with scheme v3 and the release key (`release`), or a key made and thrown away in the session (`check`); then `tools/verify-apk.sh`: the v3 signature and, for `release`, the certificate's SHA-256 equal to `android/keys/release-cert.sha256`; 16 KB alignment of zip entries and native segments; arm64 only; native libraries stored uncompressed; the JNI names kept; exactly the permissions in `android/permissions.txt`, never `INTERNET`; the APK and its SHA-256 go to `dist/`.
-   Commit `T00.4: the Android shell and the signed APK (PLT-01, PLT-06, A2.5, A15.5)`.
-
-5. `T00.5` **The web shell and the smoke test (`PRC-11`, `PLT-02`, A2.6, A15.4).**
-   `kd-web`: `WebApp` with A2.6's `new`, `frame`, `pointer`, `resize`, `pause`, `resume` and `take_requests`; WebGL2 with A2.6's attributes; an art pixel 4 device pixels; a panic hook that shows the error line.
-   `web/index.html` (a full-window canvas, no scrolling, a dark ground, a one-line status) and `web/glue.js` (loads the wasm, forwards pointer events, runs the frame loop, pauses while the page is hidden, shows the code dialog with Copy, gzipping by `CompressionStream`); `tools/build-web.sh` (`wasm-bindgen --target web` into `dist/web/`, the wasm at most 12 MB).
-   `tools/screens/lib.mjs` (serves `dist/web/` to the session's Chromium through Playwright) and `tools/screens/smoke.mjs`: the page loads with no page error; `?test=1` exposes `window.kd` with `ready()`, `frame(n)` and `artSize()`; the test card's checker shows each art pixel as exactly 4 × 4 device pixels, in portrait and in landscape; the bar moves one art pixel a frame.
-   Commit `T00.5: the web shell and the smoke test (PRC-11, A2.6)`.
-
-6. `T00.6` **The first check script and the delivery tools (`PRC-10`, `PRC-11`, A15.4, A15.12).**
-   `tools/check.sh` prints each of A15.12's nine steps on a numbered line and runs those that exist so far: format, clippy with warnings as errors, `cargo check` for the phone and web targets, `cargo test --workspace --locked`, the smoke test, and with `--deliver` the release APK and the web build; the others print as waiting for their alpha; it writes `results/checks/<commit>.json` and prints `Checks: PASS <commit>`.
-   `tools/decode-bench.py` turns a `KDS1:` code back into JSON (later alphas add their codes); `tools/note-page.py` turns `dist/NOTE.md` into the note's private page with the APK link at its top; `dist/LINKS.md` keeps the web page's and the note's links.
-   Commit `T00.6: first checks and delivery tools (PRC-10, PRC-11, A15.12)`.
-
-7. `T00.7` **Deliver (`PRC-11`, `PLT-06`).**
-   `versionCode=1000`, `versionName=a00`; `bench/cloud/a00.json` holds the build times and the APK's and wasm's sizes (A15.3); then P0's steps 5 to 8, the review the builder's own (α00 does not end α00), the note asking for one uninstall of the earlier Kindling first, since the version numbers start again.
-   **Bootstrap:** α00 joins `main` with its own checks; the layering, banned-item, file, commit and coverage checks and the gate arrive in α00b, before any other work joins.
-
-**Data:** none.
-
-**Tests:**
-- `kd-render`: `passes::scene::tests::art_size` (1080 × 2404 screen pixels give 273 × 604 art pixels, turned 604 × 273); `gl::tests::formats` (each texture format's GL constants and bytes a texel).
-- `kd-app`: `selfcheck::tests::report_as_requests` (a failing report is compact JSON with the version, the device, the GL line and the failures, and `requests_json` wraps it in a `ShowCode` request exactly).
-- Tools: `python3 tools/signing-key.py selftest`; `tools/verify-apk.sh` on the release APK; `python3 -m unittest discover -s tools/tests` (`test_decode.py`: a code made as the shells make it, gzip then base64, decodes to its JSON; `test_note_page.py`).
-- Screens: smoke `page loads`, `no page errors`, `art pixel 4x4 portrait`, `art pixel 4x4 landscape`, `bar moves a pixel a frame`.
-
-**On the phone:**
-1. Uninstall the old Kindling first (the version numbers start again), then install this APK from the note's link and open it.
-2. A test card fills the screen: a fine checker of single art pixels in one corner, eight grey steps and a bar sliding across.
-3. Turn the phone: the card is laid out again at once with the same pixel size, and nothing restarts.
-4. Open the note's web link: the same card in the browser.
-
-**Not in this alpha:** the layering, banned-item, file and coverage checks, and the core's numbers, time and chance (α00b); colours from light, the font and the strip (α01a); the land (α01b).
-
-**Risks:**
-- Gradle's downloads failing in a fresh session: Google's mirror of Maven Central comes first, with 8 retries (A2.8); rerun once before investigating.
-- WebAssembly blocked in the private page: the APK is the only route (A17.3), and the note says so.
-- The derived key not matching the kept certificate (a changed passphrase): the build stops before signing and the note asks the owner to restore the passphrase; nothing is ever signed with another key.
 
 ### α00b Foundations and checks (about 5 hours)
 
@@ -8705,7 +8627,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `SCP-01` Starting point: α12
 - `SCP-02` Just you: α53b
 - `SCP-03` Playable alphas: every alpha
-- `SCP-15` Tests run in the AI's cloud sessions: α00, α07e, α12d, α17c, α27c, α35c, α43c, α52, α53b
+- `SCP-15` Tests run in the AI's cloud sessions: α07e, α12d, α17c, α27c, α35c, α43c, α52, α53b
 - `SCP-16` Milestones: every alpha
 - `MIL-01` First camp: α04a, α07d, α07e
 - `MIL-02` Sharp stone: α12d
@@ -8913,7 +8835,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRE-02` Pixel-rendered 3D: α01b, α01c, α01d, α02b, α19b
 - `PRE-20` Colour in steps: α01a, α01b, α01d, α02d
 - `PRE-21` Outlines and lit edges: α01c, α02c
-- `PRE-22` Stable pixels: α00, α01b, α01c, α01d, α07e
+- `PRE-22` Stable pixels: α01b, α01c, α01d, α07e
 - `PRE-23` Rock faces: α02c
 - `PRE-24` Real shapes: α02c, α16c, α25b, α46a
 - `PRE-25` Cut-away view: α24b
@@ -8958,10 +8880,10 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `SND-07` Sound follows time: α16b, α16c, α19b
 - `SND-08` Space and distance: α16b, α16c, α17
 - `SND-12` Sound review: α17, α17c, α27c, α34a, α35c, α43c, α53b
-- `PLT-01` One phone: α00, α07c, α07d
-- `PLT-02` Portrait and landscape: α00, α04d, α53b
-- `PLT-03` Works offline: α00, α17, α35a, α43a, α53b
-- `PLT-06` Installing new versions: α00, α53b
+- `PLT-01` One phone: α07c, α07d
+- `PLT-02` Portrait and landscape: α04d, α53b
+- `PLT-03` Works offline: α17, α35a, α43a, α53b
+- `PLT-06` Installing new versions: α53b
 - `PLT-04` Measured limits: α02b, α07d, α07e, α12d, α17c, α19b, α19c, α20a, α27b, α27c, α35c, α43a, α43b, α43c, α46b, α52, α53a, α53b
 - `PLT-07` Always saved: α07a, α07b, α16, α19c, α43a
 - `PLT-08` Manual export: α53a
@@ -8995,9 +8917,9 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRC-06` A guide for AI agents: every alpha
 - `PRC-07` Changes to this file: α00b
 - `PRC-08` Next: the architecture and the plan: every alpha
-- `PRC-09` Branches, checks and review: α00, α00b, α07e, α12d, α17c, α27c, α35c, α43c, α53b
-- `PRC-10` The checks: α00, α00b, α07c
-- `PRC-11` Each alpha reaches your phone: α00, α07c, α16b, α35a, α53b
+- `PRC-09` Branches, checks and review: α00b, α07e, α12d, α17c, α27c, α35c, α43c, α53b
+- `PRC-10` The checks: α00b, α07c
+- `PRC-11` Each alpha reaches your phone: α07c, α16b, α35a, α53b
 - `PRC-12` Nothing gets lost: α00b, α07c, α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `RSK-01` Discoveries stall: α52
 - `RSK-26` The pace is off: α52

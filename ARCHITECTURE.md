@@ -525,6 +525,7 @@ Serves: `TIM-16`, `WLD-13`, `WLD-01`, `WLD-03`, `WLD-07`, `WLD-12`, `RES-05`, `R
 - **Only through `kd_core::m`** (wrappers on `libm`): `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `exp`, `exp2`, `ln`, `log2`, `log10`, `powf`, `hypot`, `cbrt`, `tanh`.
   Why: the standard library calls each platform's maths library, whose last bits differ (B01); hot loops may use polynomial approximations in plain arithmetic instead.
 - **Banned in simulation crates** (clippy `disallowed-methods`): the standard versions of those functions, `f32::min`, `max`, `minimum` and `maximum`, `mul_add` (fused only on some targets), `powi` (precision unspecified), and `f64` outside `kd-tools` and test statistics.
+  `minimum` and `maximum` are unstable on Rust 1.97.0, so stable code cannot call them at all; they join `clippy.toml` when they become stable, since its fixture must trip every entry (A2.3).
   Rust never fuses `a*b+c` on its own (B01 found none), and no fast-math option may be used or imitated.
 - **Sums:** `num::sum_f32` uses B01's fixed tree: blocks of 4,096 values, each halved repeatedly (element `i` plus element `i + h`), then the block results the same way, padded with zeros to a power of two; `num::dot_f32` keeps 8 fixed lanes; sums of up to 64 terms may run in index order; parallel sums combine per-chunk partials with the same tree.
 - **Draw to float:** `(draw >> 40) as f32 * (1.0 / 16_777_216.0)`, exact, in [0, 1).
@@ -4552,6 +4553,7 @@ Phone, every stage (`PLT-04`, `TIM-07`): the Tests screen (a long press on the v
 
 `tools/screenshots.mjs` serves `dist/web/` to Playwright's Chromium (WebGL through SwiftShader, B66: pixels count, not speed); `?test=1` exposes `window.kd` to load a world and set camera, time of day and orientation, and its `crawl` hook counts crawling pixels (A12.4, A11.10).
 Every alpha it saves each zoom stop at dawn, noon, dusk and night, portrait and landscape, from the fixed review worlds; it fails on page errors or blank frames and flags shots changed in over 5% of pixels since the last alpha.
+The screen scripts serve the page inside the artifact host's own page skeleton, so a test sees the page as the owner does, and test at screen scales 1 and 2: Chromium's emulated fractional scales, such as the phone's 2.625, misreport a canvas's size in device pixels (measured at α00), so a fractional scale is checked on the phone itself.
 On the phone, each stage, the Tests screen's Review button renders the same set and short clips of people at work, and plays A13.14's sound reel, beside the checklists of `PRE-31` and `SND-12`.
 
 ### A15.12 Checks before work joins the main version
@@ -4566,6 +4568,7 @@ On the phone, each stage, the Tests screen's Review button renders the same set 
 7. `kd check file`: `PRC-10`'s file check on `PROJECT.md` (generated lists current too), every ID and section the architecture and plan cite existing, and the commit check (`PRC-07`).
 8. `kd check ids --merge`: every ID in code and tests live, every new test naming IDs, every changed pass rule with its reason (`PRC-12`, `RES-09`); every live feature and rule served by an alpha still in the plan, kept by every alpha, or implemented in code (an `Implements` line names it); every ID that code implements named by a test, a scene or a catalogue entry, the plan keeping no record of done alphas; and the plan's coverage map current (`map --write` regenerates it).
 9. Builds: `kd` always; the release APK and wasm at a delivery, or when `android/`, `web/`, `kd-android` or `kd-web` change.
+   At a delivery the APK is rebuilt with a key made for the check, and the committed release APK is checked against its SHA-256 and A2.5's checks, since a release build made after that commit would name a newer commit in its build line and change the file (measured at α00).
 
 **Decision:** `kd check file` and `kd check ids` are the modes `file` and `ids` of `tools/filecheck.py`, Python's standard library alone, since text checks over Markdown and sources are simplest there and every session has it.
 It writes `results/checks/<commit>.json` and prints `Checks: PASS <commit>`; a later commit touching only `results/` keeps that pass.
