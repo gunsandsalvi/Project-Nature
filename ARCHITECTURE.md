@@ -4451,7 +4451,7 @@ Size and build times are measured every alpha; growth over 5 MB is flagged in th
 
 One key signs every delivered build from the first alpha (`PLT-06`, `RSK-29`); no debug-signed APK is ever delivered, and a release build fails without the key.
 **Decision:** the release key is derived from a passphrase kept as the environment secret `KINDLING_SIGNING_PASSPHRASE`; why: a passphrase is easy to keep and back up on a phone, while a keystore file would have to pass through the chat or the public repository; fallback: a base64 keystore in the secret.
-- `tools/signing-key.py` (Python `cryptography`, in the session image): scrypt of the passphrase (n = 2^17, r = 8, p = 1: 128 MiB, about a second; salt `kindling-release-v1`) to 48 bytes, reduced to a P-256 key, written as PKCS#8 to a temporary file deleted after signing.
+- `tools/signing-key.py` (Python `cryptography`, in the session image): scrypt of the passphrase (n = 2^17, r = 8, p = 1: 128 MiB, about a second; salt `kindling-release-v1`) to 48 bytes, reduced to a P-256 key as FIPS 186-4's extra-random-bits method does (`d = c mod (n − 1) + 1`, `c` the 48 bytes read as a big-endian number, `n` the curve's order), written as PKCS#8 to a temporary file deleted after signing.
   Why scrypt, not HKDF: the certificate is public, so with no work factor a weak passphrase could be guessed offline.
 - Only that script reads the secret: cargo, Gradle and npm run under `env -u KINDLING_SIGNING_PASSPHRASE`.
 - The certificate is made once and committed at `android/keys/release-cert.der` with its SHA-256 fingerprint; each build checks the derived key against it before `apksigner sign --key <pk8> --cert release-cert.der`, so a mistyped passphrase fails the build.

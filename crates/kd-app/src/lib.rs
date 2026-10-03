@@ -126,6 +126,12 @@ impl App {
         self.finish_check();
     }
 
+    /// No GL context could be made: the self-check says why.
+    pub fn gl_failed(&mut self, why: String) {
+        self.check_failed(format!("GL: {why}"));
+        self.finish_check();
+    }
+
     /// A new window size in screen pixels; an art pixel stays 4 × 4 of them (`PRE-22`).
     pub fn resize(&mut self, w: u32, h: u32) {
         self.size = Some([w, h]);
