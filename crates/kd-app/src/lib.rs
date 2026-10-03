@@ -13,8 +13,11 @@ use std::panic::{self, AssertUnwindSafe};
 use std::sync::Arc;
 
 use kd_data::Catalogue;
+use kd_render::passes::scene::card;
 use kd_render::{ART_SCALE, Frame, Renderer};
-use kd_view::{InputEvent, Insets};
+use kd_ui::strip::Colours;
+use kd_ui::{Ui, UiAction};
+use kd_view::{FontAtlas, InputEvent, Insets, UiDrawList, UiItem};
 
 pub use json::requests_json;
 
@@ -87,6 +90,28 @@ pub fn build_line() -> &'static str {
     option_env!("KD_BUILD").unwrap_or("dev")
 }
 
+/// The strip's version line (`PRE-32`): the alpha and its version code from the build line, then the catalogue's
+/// rules version and the start of its hash, such as `a01a · 1011 · catalogue 1.0 a11e44f9`.
+pub fn version_line(build: &str, cat: &Catalogue, hash: u64) -> String {
+    let alpha: Vec<&str> = build.split(" · ").take(2).collect();
+    format!(
+        "{} · catalogue {}.{} {:08x}",
+        alpha.join(" · "),
+        cat.versions.major,
+        cat.versions.minor,
+        hash >> 32
+    )
+}
+
+/// The strip's words for one of `HOURS`: its name and its time, such as `Late afternoon · 16:30`.
+pub fn hour_line(hour: usize) -> String {
+    let (name, h) = HOURS[hour % HOURS.len()];
+    let mut c = name.chars();
+    let first: String = c.next().map(|f| f.to_uppercase().collect()).unwrap_or_default();
+    let minutes = (h * 60.0) as u32;
+    format!("{first}{} · {:02}:{:02}", c.as_str(), minutes / 60, minutes % 60)
+}
+
 pub struct App {
     platform: Arc<dyn Platform>,
     cfg: AppConfig,
@@ -106,6 +131,12 @@ pub struct App {
     catalogue_ns: u64,
     /// Which of `HOURS` lights the frame.
     hour: usize,
+    /// The UI's state, its font and its fixed colours (A12.1).
+    ui: Ui,
+    font: FontAtlas,
+    colours: Colours,
+    /// The strip's version line, made once the catalogue is loaded.
+    version: String,
 }
 
 impl App {
@@ -131,10 +162,18 @@ impl App {
             catalogue: None,
             catalogue_ns: 0,
             hour: FIRST_HOUR,
+            ui: Ui::default(),
+            font: kd_ui::font::font(),
+            colours: Colours::default(),
+            version: build_line().to_string(),
         };
         let t0 = app.platform.now_ns();
         match Catalogue::load(CATALOGUE) {
-            Ok(c) => app.catalogue = Some(c),
+            Ok(c) => {
+                app.colours = Colours::from_catalogue(&c);
+                app.version = version_line(build_line(), &c, Catalogue::hash_of(CATALOGUE).unwrap_or(0));
+                app.catalogue = Some(c);
+            }
             Err(e) => app.check_failed(format!("catalogue: {e}")),
         }
         app.catalogue_ns = app.platform.now_ns().saturating_sub(t0);
@@ -149,7 +188,12 @@ impl App {
 
     pub fn handle(&mut self, m: AppMsg) {
         match m {
-            AppMsg::Input(_) => {} // gestures arrive in α01b
+            AppMsg::Input(e) => {
+                // Any touch shows the strip; a tap on it steps the hour (A12.2), until the clock runs time (α03a).
+                if let Some(UiAction::StepHour) = self.ui.input(&e, ART_SCALE, self.screen_ui(), self.inset_ui()) {
+                    self.set_hour(self.hour + 1);
+                }
+            }
             AppMsg::Insets(i) => self.insets = i,
             AppMsg::Pause => self.paused = true,
             AppMsg::Resume => self.paused = false,
@@ -170,7 +214,10 @@ impl App {
             self.finish_check();
             return;
         };
-        self.renderer = match Renderer::new(gl, cat) {
+        let assets = kd_view::Assets {
+            font: self.font.clone(),
+        };
+        self.renderer = match Renderer::new(gl, cat, &assets) {
             Ok(mut r) => {
                 if let Some([w, h]) = self.size
                     && let Err(e) = r.resize(w, h, ART_SCALE)
@@ -212,13 +259,17 @@ impl App {
     /// One frame; returns how many cards or views Back would close. A panic skips the frame, and after three in a
     /// row the shell shows a code to send back (A3.8).
     pub fn frame(&mut self, now_ns: u64) -> u16 {
-        let _ = now_ns; // time starts to matter with the clock (α03a)
+        // The strip shows for its 3 seconds when the app opens, as after a touch (PRE-32).
+        if !self.ui.strip.touched() {
+            self.ui.strip.touch(now_ns);
+        }
+        let list = self.ui_list(now_ns);
         if let Some(r) = self.renderer.as_mut() {
             let f = Frame {
                 count: self.frames,
                 sky: sky_at(self.hour),
             };
-            match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f))) {
+            match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f, &list))) {
                 Ok(_) => self.panics_in_row = 0,
                 Err(e) => {
                     self.panics_in_row += 1;
@@ -242,6 +293,46 @@ impl App {
         }
         self.frames += 1;
         0
+    }
+
+    /// The screen in UI pixels: whole ones across, and down to the last whole row, as the grid starts at the top-left
+    /// corner (A12.1).
+    fn screen_ui(&self) -> [i32; 2] {
+        let [w, h] = self.size.unwrap_or([0, 0]);
+        [w.div_ceil(ART_SCALE) as i32, (h / ART_SCALE) as i32]
+    }
+
+    /// The bottom inset (the gesture strip) in UI pixels.
+    fn inset_ui(&self) -> i32 {
+        self.insets.bottom.div_ceil(ART_SCALE) as i32
+    }
+
+    /// The frame's UI (A12.1): the light card's look names over their swatches, and the strip while it shows.
+    pub fn ui_list(&self, now_ns: u64) -> UiDrawList {
+        let mut list = UiDrawList::default();
+        if let Some(cat) = &self.catalogue {
+            for (row, look) in cat.looks.iter().take(card::MAX_LOOKS).enumerate() {
+                // The cell's cap height starts two rows down, on the row's name line.
+                let y = card::MARGIN + row as i32 * card::ROW - 2;
+                list.items.push(UiItem::Text {
+                    at: [card::MARGIN, y],
+                    colour: self.colours.text,
+                    fade: 1.0,
+                    glyphs: kd_ui::font::run(&self.font, &look.name),
+                });
+            }
+        }
+        self.ui.strip.draw(
+            &mut list,
+            &self.font,
+            now_ns,
+            self.screen_ui(),
+            self.inset_ui(),
+            &hour_line(self.hour),
+            &self.version,
+            self.colours,
+        );
+        list
     }
 
     /// Test hook (A11.13 rule 2): the probe scene's steps from the GPU and from the twins, once the renderer exists.

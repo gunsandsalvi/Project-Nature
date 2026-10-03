@@ -23,12 +23,12 @@ const check = (name, ok, detail = '') => {
 const storedCore = readFileSync(path.join(ROOT, 'crates', 'kd-core', 'tests', 'fixtures', 'hashes.txt'), 'utf8');
 
 // checks: PRE-22 PLT-02 PRE-01
-// Every art pixel is exactly 4 × 4 device pixels of one colour: each 4 × 4 block of the art grid is one colour,
-// down to the status line. The grid starts at the left edge and, counting up, at the bottom edge, as the upscale
-// samples it; the picture must also hold more than a few colours, so a blank page cannot pass.
+// Every art pixel is exactly 4 × 4 device pixels of one colour: each 4 × 4 block of the grid is one colour, down to
+// the last whole row. The grid starts at the screen's top-left corner, for the art and the UI alike (A12.1); the
+// picture must also hold more than a few colours, so a blank page cannot pass.
 function blocksOk(img, bottom) {
   const same = (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
-  const y0 = img.height % 4;
+  const y0 = 0;
   const colours = new Set();
   let blocks = 0;
   for (let by = y0; by + 4 <= bottom; by += 4) {
@@ -79,7 +79,12 @@ try {
       await page.evaluate(() => window.kd.frame(1));
       const shot = await page.screenshot();
       writeFileSync(path.join(outDir, `${label.replace(' ', '-')}.png`), shot);
-      const bottom = await page.evaluate(() => Math.floor(document.getElementById('status').getBoundingClientRect().top * devicePixelRatio));
+      const bottom = await page.evaluate(() => {
+        const status = document.getElementById('status');
+        const h = Math.round(innerHeight * devicePixelRatio);
+        const top = status.textContent ? Math.floor(status.getBoundingClientRect().top * devicePixelRatio) : h;
+        return Math.min(top, h - (h % 4));
+      });
       const [ok, why] = blocksOk(decodePng(shot), bottom);
       check(`art pixel 4x4, ${label}`, ok, why);
     }

@@ -21,6 +21,7 @@ use std::fmt;
 use kd_data::Catalogue;
 use passes::post::PostPass;
 use passes::scene::{ArtView, ScenePass};
+use passes::ui::UiPass;
 use passes::upscale::UpscalePass;
 use probe::ProbePass;
 
@@ -77,6 +78,7 @@ pub struct Renderer {
     scene: ScenePass,
     post: PostPass,
     upscale: UpscalePass,
+    ui: UiPass,
     probe: ProbePass,
     view: Option<ArtView>,
     cat: Catalogue,
@@ -88,15 +90,16 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    /// Builds every program, the shared vertex array and the palette's textures from the catalogue; a shader that
-    /// fails names itself and the driver's log, which the self-check reports (A15.4).
-    pub fn new(gl: glow::Context, cat: &Catalogue) -> Result<Renderer, RenderError> {
+    /// Builds every program, the shared vertex array, the palette's textures from the catalogue and the font's from
+    /// the assets; a shader that fails names itself and the driver's log, which the self-check reports (A15.4).
+    pub fn new(gl: glow::Context, cat: &Catalogue, assets: &kd_view::Assets) -> Result<Renderer, RenderError> {
         let info = gl::info(&gl);
         let layout = Layout::new(cat).map_err(RenderError::Gl)?;
         let vao = gl::empty_vertex_array(&gl)?;
         let scene = ScenePass::new(&gl)?;
         let post = PostPass::new(&gl)?;
         let upscale = UpscalePass::new(&gl)?;
+        let ui = UiPass::new(&gl, &assets.font)?;
         let probe = ProbePass::new(&gl)?;
         let palette_tex = Texture::new(&gl, Format::Rgba8, PALETTE_SIZE as u32, 1, None)?;
         let tables_tex = Texture::new(&gl, Format::R8, PALETTE_SIZE as u32, TABLE_ROWS as u32, None)?;
@@ -107,6 +110,7 @@ impl Renderer {
             scene,
             post,
             upscale,
+            ui,
             probe,
             view: None,
             cat: cat.clone(),
@@ -161,7 +165,8 @@ impl Renderer {
         Ok(())
     }
 
-    pub fn draw(&mut self, f: &Frame) -> FrameStats {
+    /// Draws a frame: the scene, post, the upscale, then the UI's list over them (A11.2's order).
+    pub fn draw(&mut self, f: &Frame, ui: &kd_view::UiDrawList) -> FrameStats {
         let Some(view) = self.view else {
             return FrameStats::default();
         };
@@ -171,6 +176,7 @@ impl Renderer {
             self.post.draw(&self.gl, &scene.colours[0], &self.palette_tex, self.vao);
             self.upscale.draw(&self.gl, &view, &post.colours[0], self.vao);
         }
+        self.ui.draw(&self.gl, &view, ui, &self.palette_tex);
         FrameStats { art: view.art }
     }
 

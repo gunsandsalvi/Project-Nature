@@ -162,6 +162,26 @@ mod tests {
         );
     }
 
+    // checks: PRE-32 PLT-09
+    #[test]
+    fn version_and_hour_lines() {
+        // The strip's version line: the alpha and version code, the catalogue's rules version and its hash.
+        let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
+        let line = crate::version_line("a01a · 1011 · 1a2b3c4", &cat, 0xa11e_44f9_8124_a890);
+        assert_eq!(line, "a01a · 1011 · catalogue 1.0 a11e44f9");
+        assert_eq!(crate::version_line("dev", &cat, 0), "dev · catalogue 1.0 00000000");
+        // The hours' words, every one drawable in the font.
+        assert_eq!(crate::hour_line(4), "Late afternoon · 16:30");
+        assert_eq!(crate::hour_line(5), "Dusk · 17:45");
+        assert_eq!(crate::hour_line(8), "Dawn · 06:30");
+        let font = kd_ui::font::font();
+        for h in 0..crate::HOURS.len() {
+            for c in crate::hour_line(h).chars() {
+                assert!(font.glyphs.iter().any(|g| g.0 == c), "{c:?} has no glyph");
+            }
+        }
+    }
+
     // checks: MAT-13 PLT-09
     #[test]
     fn catalogue_loads_at_start() {

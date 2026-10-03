@@ -15,6 +15,8 @@ pub const LIGHT_CARD_FRAG: &str = include_str!("../shaders/light_card.frag");
 pub const POST_FRAG: &str = include_str!("../shaders/post.frag");
 pub const PROBE_FRAG: &str = include_str!("../shaders/probe.frag");
 pub const UPSCALE_FRAG: &str = include_str!("../shaders/upscale.frag");
+pub const UI_VERT: &str = include_str!("../shaders/ui.vert");
+pub const UI_FRAG: &str = include_str!("../shaders/ui.frag");
 
 /// The generated defines.
 pub fn defines() -> String {
@@ -77,6 +79,8 @@ mod tests {
             POST_FRAG,
             PROBE_FRAG,
             UPSCALE_FRAG,
+            UI_VERT,
+            UI_FRAG,
             LIB,
         ] {
             for word in body.split(|c: char| !(c.is_ascii_alphanumeric() || c == '_')) {

@@ -81,7 +81,9 @@ async function main() {
     });
   }
   document.addEventListener('visibilitychange', () => (document.hidden ? app.pause() : app.resume()));
-  say(`Kindling ${build_line()}`);
+  // The game shows its own version line in the strip (PRE-32); the page's line stays for failures.
+  say('');
+  console.log(`Kindling ${build_line()}`);
   if (testing) {
     // A12.4's test hooks: frames are drawn only when a test asks, so every screenshot is exact.
     window.kd = {

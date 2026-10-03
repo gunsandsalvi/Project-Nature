@@ -21,6 +21,8 @@ pub mod unit {
     pub const SCENE: u32 = 3;
     /// The probe scene's inputs.
     pub const PROBE: u32 = 4;
+    /// The pixel font's atlas, read by the UI pass.
+    pub const FONT: u32 = 5;
 }
 
 /// The texture formats the renderer uses (A11.13 rule 3).
@@ -594,6 +596,24 @@ impl Mesh {
                 count,
             })
         }
+    }
+
+    /// Replaces the vertices of a mesh drawn without indices, in the layout it was made with: for a mesh that changes
+    /// every frame, such as the UI's.
+    pub fn refill(&mut self, gl: &glow::Context, layout: &Layout, vertices: &[u8]) -> Result<(), RenderError> {
+        if self.indices.is_some() {
+            return Err(RenderError::Gl("only a mesh without indices is refilled".into()));
+        }
+        let (_, stride) = layout.offsets();
+        self.count = draw_count(stride, vertices.len(), None).map_err(RenderError::Gl)?;
+        // SAFETY: plain GL calls on the current context; the vertex array keeps its attribute pointers, and the new
+        // data is whole vertices of the same layout.
+        unsafe {
+            gl.bind_buffer(glow::ARRAY_BUFFER, Some(self.vertices));
+            gl.buffer_data_u8_slice(glow::ARRAY_BUFFER, vertices, glow::DYNAMIC_DRAW);
+            gl.bind_buffer(glow::ARRAY_BUFFER, None);
+        }
+        Ok(())
     }
 
     /// Draws the triangles with the program and the state the pass set.

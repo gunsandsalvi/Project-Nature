@@ -32,8 +32,9 @@ pub struct ArtView {
     pub art: [u32; 2],
     /// Art pixels the window shows, counting a partly shown one.
     pub visible: [u32; 2],
-    /// Art pixels from the target's corner to the window's bottom-left corner: one in each direction until the
-    /// camera's snapping sets its own shift (α01b).
+    /// Art pixels from the target's corner to the window's bottom-left corner: one across, and up whatever puts an
+    /// art pixel's top edge on the window's top edge, so the art grid and the UI's grid, counted from the screen's
+    /// top-left, are one (A12.1); the camera's snapping sets its own shift from α01b.
     pub off: [f32; 2],
     /// The art pixel at the window's top-left corner: its column, and its row counted from the target's bottom.
     pub top_left: [i32; 2],
@@ -43,7 +44,8 @@ impl ArtView {
     pub fn new(w: u32, h: u32, scale: u32) -> ArtView {
         let s = scale.max(1);
         let visible = [w.div_ceil(s), h.div_ceil(s)];
-        let off = [1.0, 1.0];
+        // The window's top edge, at h / s art pixels, lands on a whole art pixel.
+        let off = [1.0, 1.0 + (s - h % s) as f32 % s as f32 / s as f32];
         // The window's top row of pixels has its centres at h − 0.5; the upscale shows floor(off + y / s) there.
         let top_row = (off[1] + (h as f32 - 0.5) / s as f32).floor() as i32;
         ArtView {
@@ -129,8 +131,12 @@ mod tests {
         assert_eq!((p.visible, p.art), ([270, 601], [273, 604]));
         let l = ArtView::new(2404, 1080, 4);
         assert_eq!((l.visible, l.art), ([601, 270], [604, 273]));
-        // A size that is not a whole number of art pixels shows the last one in part.
-        assert_eq!(ArtView::new(1081, 2401, 4).art, [274, 604]);
+        // A size that is not a whole number of art pixels shows the last one in part, at the bottom and the right:
+        // the art grid meets the screen's top-left corner, as the UI's does.
+        let odd = ArtView::new(1081, 2401, 4);
+        assert_eq!(odd.art, [274, 604]);
+        assert_eq!(odd.off, [1.0, 1.75]);
+        assert_eq!(((odd.off[1] + 2401.0 / 4.0) % 1.0, p.off), (0.0, [1.0, 1.0]));
         // The window's top-left art pixel lies inside the target, with the border round it.
         for v in [p, l, ArtView::new(1081, 2401, 4)] {
             assert_eq!(v.top_left[0], 1);
