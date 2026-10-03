@@ -4,6 +4,7 @@
 
 #![deny(unsafe_code)]
 
+pub mod bits;
 pub mod chance;
 pub mod m;
 pub mod num;

@@ -1,9 +1,9 @@
 // The web build's smoke test (A15.4, A15.11): the page loads without errors, an art pixel is exactly 4 × 4
-// device pixels in portrait, in landscape and on a screen of scale 2, and the test card's bar moves one art pixel
-// a frame. (Chromium's emulated fractional scales, like the phone's 2.625, misreport the canvas's device size, so
+// device pixels in portrait, in landscape and on a screen of scale 2, the test card's bar moves one art pixel
+// a frame, and the core's maths and draws give the cloud's bits in the browser (A15.9 item 5), its block green. (Chromium's emulated fractional scales, like the phone's 2.625, misreport the canvas's device size, so
 // they are left to the phone itself.) Usage: node tools/screens/smoke.mjs [--save <dir>]   (after tools/build-web.sh)
 // Screenshots go to target/screens/smoke/, which is never committed, or to --save's folder.
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { ROOT, decodePng, launch, open, serve } from './lib.mjs';
 
@@ -20,6 +20,11 @@ const check = (name, ok, detail = '') => {
 const isWhite = ([r, g, b]) => r >= 250 && g >= 250 && b >= 250;
 const isBlack = ([r, g, b]) => r <= 5 && g <= 5 && b <= 5;
 const isBar = ([r, g, b]) => r >= 220 && g >= 110 && g <= 170 && b <= 60;
+const isGreen = ([r, g, b]) => g >= 150 && r <= 100 && b <= 120;
+// The cloud's hashes of the core's probes, and the self-check block's middle in device pixels (card::CORE_X 64,
+// CORE_Y 24, 32 × 32 art pixels).
+const storedCore = readFileSync(path.join(ROOT, 'crates', 'kd-core', 'tests', 'fixtures', 'hashes.txt'), 'utf8');
+const coreMiddle = [4 * (64 + 16) + 2, 4 * (24 + 16) + 2];
 
 // checks: PRE-22 PLT-02
 // The checker of single art pixels: 32 × 32 art pixels, each exactly 4 × 4 device pixels of one colour,
@@ -83,12 +88,18 @@ try {
     if (loaded) {
       const report = await page.evaluate(() => (document.getElementById('code').hidden ? '' : document.getElementById('code-title').textContent));
       check(`self-check passes, ${label}`, report === '', report);
+      // checks: RES-05 TIM-16
+      const core = await page.evaluate(() => window.kd.core());
+      const differ = core.split('\n').filter((line) => line && !storedCore.split('\n').includes(line));
+      check(`core hashes equal, ${label}`, core === storedCore, differ.length ? `differ: ${differ.join('; ')}` : '');
       await page.evaluate(() => window.kd.frame(1));
       const first = await page.screenshot();
       writeFileSync(path.join(outDir, `${label.replace(' ', '-')}.png`), first);
       const a = decodePng(first);
       const [ok, why] = checkerOk(a);
       check(`art pixel 4x4, ${label}`, ok, why);
+      const block = a.at(...coreMiddle);
+      check(`core block green, ${label}`, isGreen(block), `colour ${block.slice(0, 3).join(', ')}`);
       await page.evaluate(() => window.kd.frame(1));
       const b = decodePng(await page.screenshot());
       const [ax0, ax1] = barColumns(a);

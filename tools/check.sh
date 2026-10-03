@@ -37,12 +37,17 @@ rm -f "$LOG"
 step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/signing-key.py selftest
 step "4 catalogue";       later α01a
 step "5 scenes";          later α07c
-step "6 repeat";          later α00b
+step "6 cross-target"
+LOG="$(mktemp)"
+if ! cargo test -p kd-core --locked --target aarch64-unknown-linux-gnu >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"; exit 1; fi
+rm -f "$LOG"
+echo "   the core's stored bits equal on arm64 under qemu; in the browser with the smoke test (step 9)"
+step "6 repeat";          later α07c
 step "7 file check";      later α00b
 step "8 coverage";        later α00b
 step "9 builds"
 cargo build --profile fast -p kd-tools --locked -q
-if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-render; then
+if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-render crates/kd-core; then
   tools/build-web.sh
   node tools/screens/smoke.mjs
 fi

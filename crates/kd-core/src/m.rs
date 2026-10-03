@@ -87,3 +87,16 @@ pub fn cbrt(x: f32) -> f32 {
 pub fn tanh(x: f32) -> f32 {
     libm::tanhf(x)
 }
+
+#[cfg(test)]
+mod tests {
+    // checks: RES-05
+    #[test]
+    fn stored_bits() {
+        // Each function at its 1,000 inputs gives the bits stored on x86-64; this runs on x86-64, on arm64 under
+        // qemu, and its hashes in the browser (A15.9 item 5).
+        for name in crate::bits::names().into_iter().filter(|n| n.starts_with("m.")) {
+            crate::bits::tests::compare(name);
+        }
+    }
+}

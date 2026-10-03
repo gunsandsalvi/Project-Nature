@@ -352,6 +352,13 @@ mod tests {
         assert_eq!(registry::check(&[demo::LIST]), Ok(()));
     }
 
+    // checks: TIM-16 RES-05
+    #[test]
+    fn stored_draws() {
+        // 10,000 draws over fixed keys give the bits stored on x86-64, on every target (A15.9 item 5).
+        crate::bits::tests::compare("chance.draws");
+    }
+
     /// The chi-square of counts in equal bins, against an equal share each, times the share: exact in integers.
     fn chi_square_times_share(counts: &[u64], n: u64) -> u64 {
         let share = n / counts.len() as u64;

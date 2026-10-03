@@ -140,4 +140,10 @@ impl WebApp {
     pub fn art_size(&self) -> Vec<u32> {
         self.app.art_size().map(|a| a.to_vec()).unwrap_or_default()
     }
+
+    /// Test hook (A15.9 item 5): the core's probes made in this browser and hashed, in `hashes.txt`'s form, for
+    /// the smoke test to compare with the cloud's.
+    pub fn core_hashes(&self) -> String {
+        kd_core::bits::hashes_text(&kd_core::bits::probes())
+    }
 }

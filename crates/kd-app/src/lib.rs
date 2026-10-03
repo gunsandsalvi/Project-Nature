@@ -1,7 +1,7 @@
 //! kd-app: the app object: the frame loop, the simulation, I/O and view-builder threads, snapshot hand-off, input
 //! and settings (A2.2, A2.4, A4). It lives on the GL thread; both shells drive it the same way.
-//! α00 draws the renderer's test card each frame, keeps a panicking frame from taking the app down (A3.8), and
-//! runs the first part of the self-check (A15.4).
+//! It draws the renderer's test card each frame, keeps a panicking frame from taking the app down (A3.8), and
+//! runs the self-check (A15.4): the shaders, the GL version, and from α00b the core's bits against the cloud's.
 
 pub mod json;
 pub mod selfcheck;
@@ -67,6 +67,8 @@ pub struct App {
     panics_in_row: u32,
     report: selfcheck::Report,
     report_sent: bool,
+    /// Whether the core's maths and draws give the cloud's bits here (A15.9 item 5).
+    core_bits: bool,
 }
 
 impl App {
@@ -77,7 +79,7 @@ impl App {
             gl: String::new(),
             fail: Vec::new(),
         };
-        App {
+        let mut app = App {
             platform,
             cfg,
             renderer: None,
@@ -88,7 +90,14 @@ impl App {
             panics_in_row: 0,
             report,
             report_sent: false,
+            core_bits: true,
+        };
+        // The core's probes, made here and hashed, against the cloud's hashes: about a millisecond (A15.9 item 5).
+        if let Some(line) = selfcheck::core_line(&kd_core::bits::differences()) {
+            app.core_bits = false;
+            app.check_failed(line);
         }
+        app
     }
 
     pub fn handle(&mut self, m: AppMsg) {
@@ -148,7 +157,10 @@ impl App {
     pub fn frame(&mut self, now_ns: u64) -> u16 {
         let _ = now_ns; // time starts to matter with the clock (α03a)
         if let Some(r) = self.renderer.as_mut() {
-            let f = Frame { count: self.frames };
+            let f = Frame {
+                count: self.frames,
+                core_bits: Some(self.core_bits),
+            };
             match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f))) {
                 Ok(_) => self.panics_in_row = 0,
                 Err(e) => {
@@ -200,6 +212,11 @@ impl App {
 
     pub fn device(&self) -> &str {
         &self.cfg.device
+    }
+
+    /// Whether the core's maths and draws give the cloud's bits on this device.
+    pub fn core_bits(&self) -> bool {
+        self.core_bits
     }
 
     fn check_failed(&mut self, what: String) {

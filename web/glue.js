@@ -92,6 +92,7 @@ async function main() {
         return app.frames();
       },
       artSize: () => Array.from(app.art_size()),
+      core: () => app.core_hashes(),
     };
     return;
   }

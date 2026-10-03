@@ -44,6 +44,9 @@ fn clean(log: &str) -> &str {
 pub struct Frame {
     /// Frames drawn since the app started: the test card's bar moves one art pixel a frame.
     pub count: u64,
+    /// The self-check's core bits, shown on the test card: none before the check, then whether they equal the
+    /// cloud's (A15.9 item 5).
+    pub core_bits: Option<bool>,
 }
 
 /// What a frame drew.
@@ -101,7 +104,12 @@ impl Renderer {
             return FrameStats::default();
         };
         let bar_x = (f.count % u64::from(view.visible[0].max(1))) as i32;
-        self.scene.draw(&self.gl, &view, bar_x, self.vao);
+        let core = match f.core_bits {
+            None => 0,
+            Some(true) => 1,
+            Some(false) => 2,
+        };
+        self.scene.draw(&self.gl, &view, bar_x, core, self.vao);
         if let Some(t) = &self.scene.target {
             self.upscale.draw(&self.gl, &view, &t.colours[0], self.vao);
         }

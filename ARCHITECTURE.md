@@ -453,6 +453,7 @@ kd sound render|bench|pack|page|check   (A13.14)
 kd det <scene or world>                 the determinism checks (A3.1)
 kd diverge <a> <b>                      the first barrier, store and column that differ (A15.9)
 kd check layers|names|ids|file          (A2.3, A15); ids --merge|--stage, file --note (A15.12)
+kd fixtures write                       the core's probes stored as the bits every target must give (A15.9)
 kd report --stage MIL-0n | --run <id>   stage and run reports (A15.14)
 kd tune <system> --values <file>        tuning runs, never counted as passes (A3.9)
 ```
@@ -4532,6 +4533,7 @@ Short forms at every merge, long forms in the background (`TIM-16`, `RES-05`):
 3. Speed, zoom and camera change nothing: frame lengths varied, view areas made elsewhere, the story director on and off (`TIM-17`, `WLD-13`, `MND-14`, `TIM-03`).
 4. The repeat check (`PRC-10`): one scene and one bench world each run on 1 worker and on 4 with a stop and resume between, ending identical.
 5. Across targets: at every merge one fixed short scene gives one state hash on x86-64, on arm64 under qemu and as wasm in headless Chromium (B01: the cloud reproduced the phone's bits); in the background every quick scene, and both profiles.
+   Until scenes run (α07c), the core's probes stand in (`kd_core::bits`): each `m` function at 1,000 inputs, 10,000 draws and a few fixed-order sums, stored by `kd fixtures write` with their hashes, compared value by value on x86-64 and on arm64 under qemu, by hash in the browser, and by the phone's self-check, whose block on the test card turns green or red.
 6. Phone and cloud: the phone benchmark's state hashes after fixed spans equal the cloud's (`RES-05`); a difference blocks the stage until found, and settling for matching ranges needs the owner's OK (A17.6).
 7. Kills, damage and catch-up (A14.13).
 
