@@ -4,6 +4,7 @@
 
 #![deny(unsafe_code)]
 
+pub mod chance;
 pub mod m;
 pub mod num;
 pub mod time;
