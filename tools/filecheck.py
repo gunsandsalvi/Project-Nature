@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Text checks over the repository (A15.12): `kd check file` and `kd check ids` are this script's modes.
+"""Text checks over the repository (A11).
 
-    python3 tools/filecheck.py file                the file check (PRC-10) and the commit check (PRC-07), step 7
-    python3 tools/filecheck.py ids --merge         the coverage check (PRC-12), step 8
+    python3 tools/filecheck.py file                the file check (PRC-10) and the commit check (PRC-07)
+    python3 tools/filecheck.py ids --merge         the coverage check (PRC-12)
     python3 tools/filecheck.py where <ID>          where the code does an item: every line naming it (PRC-12)
     python3 tools/filecheck.py note                dist/NOTE.md's five headings and its APK link (PRC-11)
     python3 tools/filecheck.py selftest            each planted fault fails with its own message; the clean
@@ -12,9 +12,10 @@ The code is the index: code names the items it implements and tests the items th
 item's code, and no document keeps a list of where things are done.
 
 The file check reads PROJECT.md's item markers, statuses, IDs (unique, never retired ones) and generated lists;
-every ID and architecture section the three documents cite; each alpha section's eleven fields and task IDs; and
-every commit since main that changes PROJECT.md. Findings awaiting the owner sit in tools/filecheck-known.txt.
-Python's standard library only.
+every ID and architecture section the three documents cite; the plan's milestones (`## M1 ...`, four fields each,
+in order) and steps (`### α1.2b ...`, six fields each, under their own milestone, serving only its items, with
+task IDs of their own); and every commit since main that changes PROJECT.md. Findings awaiting the owner sit in
+tools/filecheck-known.txt. Python's standard library only.
 """
 import difflib
 import os
@@ -40,11 +41,13 @@ RETIRED_LINE = re.compile(r"^\s*(?:- )?Retired IDs:(.*)$", re.M)
 EXAMPLES = "## How this file works"  # its IDs are examples, not references
 SECTION = re.compile(r"(?<![\w.#/-])(A\d{1,2}(?:\.\d{1,2})?)(?!\w)")
 ARCH_HEADING = re.compile(r"^#{1,6}\s+(A\d+(?:\.\d+)*)\.?\s", re.M)
-ALPHA_HEADING = re.compile(r"^### α(\d{2}[a-e]?)\b")
-FIELDS = ["Goal", "Serves", "Architecture", "Needs", "Crates and files touched", "Tasks", "Data", "Tests",
-          "On the phone", "Not in this alpha", "Risks"]
+MILESTONE_HEADING = re.compile(r"^## M(\d{1,2}) \S")
+ALPHA_HEADING = re.compile(r"^### α((\d{1,2})\.\d[a-e]?) \S")  # α1.2b: milestone 1, alpha 2, step b
+MILESTONE_FIELDS = ["Goal", "Serves", "You will see", "Risks"]
+ALPHA_FIELDS = ["Goal", "Serves", "Architecture", "Tasks", "Tests", "On the phone"]
 FIELD = re.compile(r"^\*\*([A-Z][^*:]*?):\*\*")
 TASK = re.compile(r"^\d+\. `([^`]+)`")
+TASK_ID = re.compile(r"T\d{1,2}\.\d[a-e]?\.\d+")
 GENERATED = re.compile(r"<!-- generated: ([a-z ]+) -->\n(.*?)<!-- end generated -->", re.S)
 NOTE_HEADINGS = ["What is new", "What to try", "What is rough", "IDs delivered", "Links"]
 RULES_HEADING = "## Rules every alpha keeps"
@@ -77,7 +80,7 @@ def retired(project):
 
 def items_of(project):
     """PROJECT.md's items by ID in file order, and the problems with their markers.
-    Implements PRC-10, see A15.12 step 7."""
+    Implements PRC-10, see A11."""
     gone = retired(project)
     items, problems, current = {}, [], None
     for i, line in enumerate(without_examples(project)):
@@ -202,22 +205,40 @@ def check_citations(name, text, items, gone, sections):
     return problems, count
 
 
-def alpha_sections(plan):
-    """(alpha such as `00b`, heading line from 1, the section's lines) for each `### α..` section of the plan."""
+def milestone_sections(plan):
+    """(milestone number, heading line from 1, its own lines up to its first step) for each `## M<n>` section."""
     lines = plan.split("\n")
     out = []
     for i, line in enumerate(lines):
-        m = ALPHA_HEADING.match(line)
+        m = MILESTONE_HEADING.match(line)
         if m:
             j = i + 1
             while j < len(lines) and not re.match(r"^#{1,3} ", lines[j]):
                 j += 1
-            out.append((m.group(1), i + 1, lines[i + 1:j]))
+            out.append((int(m.group(1)), i + 1, lines[i + 1:j]))
+    return out
+
+
+def alpha_sections(plan):
+    """(step such as `1.2b`, the milestone its name gives, the milestone it sits under or None, heading line from 1,
+    the section's lines) for each `### α..` section of the plan."""
+    lines = plan.split("\n")
+    out, under = [], None
+    for i, line in enumerate(lines):
+        if line.startswith("## "):
+            m = MILESTONE_HEADING.match(line)
+            under = int(m.group(1)) if m else None
+        a = ALPHA_HEADING.match(line)
+        if a:
+            j = i + 1
+            while j < len(lines) and not re.match(r"^#{1,3} ", lines[j]):
+                j += 1
+            out.append((a.group(1), int(a.group(2)), under, i + 1, lines[i + 1:j]))
     return out
 
 
 def field(lines, label):
-    """The text of an alpha's field: from its label to the next label."""
+    """The text of a milestone's or step's field: from its label to the next label."""
     out, inside = [], False
     for line in lines:
         f = FIELD.match(line)
@@ -228,13 +249,35 @@ def field(lines, label):
     return "\n".join(out)
 
 
+def labels(lines, wanted):
+    return [f.group(1) for f in map(FIELD.match, lines) if f and f.group(1) in wanted]
+
+
 def check_plan(plan):
-    """Each alpha section holds the eleven fields in order, and its task lines carry unique IDs of its alpha."""
-    problems, seen = [], {}
-    for alpha, line, body in alpha_sections(plan):
-        labels = [f.group(1) for f in map(FIELD.match, body) if f and f.group(1) in FIELDS]
-        if labels != FIELDS:
-            problems.append(f"IMPLEMENTATION.md line {line}: α{alpha}'s fields are {labels}, not the eleven in order")
+    """Each milestone holds its four fields in order, and is numbered one after the one before it; each step holds
+    its six fields in order, sits under its own milestone, serves only items its milestone's Serves line names, and
+    its task lines carry unique IDs of its own."""
+    problems, seen, named, before = [], {}, {}, None
+    for n, line, own in milestone_sections(plan):
+        found = labels(own, MILESTONE_FIELDS)
+        if found != MILESTONE_FIELDS:
+            problems.append(f"IMPLEMENTATION.md line {line}: M{n}'s fields are {found}, not the four in order")
+        if before is not None and n != before + 1:
+            problems.append(f"IMPLEMENTATION.md line {line}: M{n} follows M{before}")
+        before = n
+        named[n] = set(ID_RE.findall(field(own, "Serves")))
+    for alpha, number, under, line, body in alpha_sections(plan):
+        found = labels(body, ALPHA_FIELDS)
+        if found != ALPHA_FIELDS:
+            problems.append(f"IMPLEMENTATION.md line {line}: α{alpha}'s fields are {found}, not the six in order")
+        if under != number:
+            where = f"M{under}" if under is not None else "no milestone"
+            problems.append(f"IMPLEMENTATION.md line {line}: α{alpha} sits under {where}, not M{number}")
+        else:
+            for x in ID_RE.findall(field(body, "Serves")):
+                if x not in named[under]:
+                    problems.append(f"IMPLEMENTATION.md line {line}: α{alpha} serves `{x}`, which M{under}'s Serves "
+                                    "line doesn't name")
         in_tasks = False
         for k, text in enumerate(body, line + 1):
             f = FIELD.match(text)
@@ -246,7 +289,7 @@ def check_plan(plan):
             if not t:
                 continue
             task = t.group(1)
-            if not re.fullmatch(rf"T{alpha}\.\d+", task):
+            if not re.fullmatch(rf"T{re.escape(alpha)}\.\d+", task):
                 problems.append(f"IMPLEMENTATION.md line {k}: task `{task}` is not one of α{alpha}'s (T{alpha}.<n>)")
             if task in seen:
                 problems.append(f"IMPLEMENTATION.md line {k}: task `{task}` repeats line {seen[task]}")
@@ -337,7 +380,7 @@ def check_commit(sha, message, old, new):
     """A commit changing PROJECT.md names every ID whose lines it changed on its `Changed:` lines, each with its
     reason in brackets, and the owner's OK for every item it makes Decided or changes while Decided (PRC-07); a
     **Proposed change:** beneath a decided item needs only its reason.
-    Implements PRC-07, see A15.12 step 7."""
+    Implements PRC-07, see A11."""
     entries = changed_entries(message)
     if not entries:
         return [f"commit {sha[:12]} changes PROJECT.md with no `Changed:` line (PRC-07)"]
@@ -379,7 +422,7 @@ def file_check(project, arch, plan, commits):
     return problems, len(items), count
 
 
-# The coverage check (PRC-12, A15.12 step 8).
+# The coverage check (PRC-12, A11).
 
 SLASH = (".rs", ".js", ".mjs", ".kt", ".glsl", ".vert", ".frag")
 HASH = (".sh", ".py")
@@ -432,7 +475,7 @@ def tasks_of(plan):
     out, current = [], None
     for n, line in enumerate(plan.split("\n"), 1):
         t = TASK.match(line)
-        if t and re.fullmatch(r"T\d{2}[a-e]?\.\d+", t.group(1)):
+        if t and TASK_ID.fullmatch(t.group(1)):
             current = [t.group(1), n, [line]]
             out.append(current)
         elif current and (FIELD.match(line) or line.startswith("#")):
@@ -443,19 +486,21 @@ def tasks_of(plan):
 
 
 def serves(plan):
-    """{ID: [alphas]} from every alpha's Serves line, in plan order."""
+    """{ID: [milestones and steps]} from every milestone's and step's Serves line, in plan order."""
     out = {}
-    for alpha, _, body in alpha_sections(plan):
-        for x in ID_RE.findall(field(body, "Serves")):
+    entries = [(f"M{n}", own) for n, _, own in milestone_sections(plan)]
+    entries += [(f"α{alpha}", body) for alpha, _, _, _, body in alpha_sections(plan)]
+    for name, lines in entries:
+        for x in ID_RE.findall(field(lines, "Serves")):
             out.setdefault(x, [])
-            if alpha not in out[x]:
-                out[x].append(alpha)
+            if name not in out[x]:
+                out[x].append(name)
     return out
 
 
 def coverage(files):
     """The coverage check over a repository given as {path: text}: (problems, a summary).
-    Implements PRC-12, see A15.12 step 8."""
+    Implements PRC-12, see A11."""
     project, plan = files["PROJECT.md"], files["IMPLEMENTATION.md"]
     items, _ = items_of(project)
     gone, kinds = retired(project), kinds_of(project, items)
@@ -488,15 +533,15 @@ def coverage(files):
     for t, n, text in tasks:
         if not any(x in items for x in ID_RE.findall(text)):
             problems.append(f"IMPLEMENTATION.md line {n}: task {t} names no item of PROJECT.md")
-    # Every live feature and rule is served by an alpha still in the plan, kept by every alpha, or built (named by
-    # an `Implements` line), since the plan keeps no record of done alphas.
+    # Every live feature and rule is served by a milestone or step still in the plan, kept by every alpha, or built
+    # (named by an `Implements` line), since the plan keeps no record of done work.
     kept = set(ID_RE.findall(section_of(plan, RULES_HEADING)))
     served = serves(plan)
     live = [i for i in items.values() if i.status != "Proposed" and kinds[i.id] in ("Feature", "Rule")]
     for it in live:
         if it.id not in served and it.id not in kept and it.id not in implemented:
-            problems.append(f"`{it.id}` ({kinds[it.id].lower()}) is not mapped: no alpha's Serves line names it, "
-                            f"nor {RULES_HEADING}, nor an Implements line")
+            problems.append(f"`{it.id}` ({kinds[it.id].lower()}) is not mapped: no milestone's or step's Serves line "
+                            f"names it, nor {RULES_HEADING}, nor an Implements line")
     # Every ID code implements, the kept rules aside, is named by a test, a scene or a catalogue entry.
     for x in sorted(implemented - kept - tested):
         problems.append(f"`{x}` is implemented in code, but no test, scene or catalogue entry names it")
@@ -560,10 +605,18 @@ PLANTED = [
     ("retired cited", {"ARCHITECTURE.md": ("Serves `ONE-01`.", "Serves `ONE-09`.")}, "cites the retired `ONE-09`"),
     ("section", {"IMPLEMENTATION.md": ("**Architecture:** `A1.1`.", "**Architecture:** `A1.4`.")},
      "section A1.4 is not a heading"),
-    ("fields", {"IMPLEMENTATION.md": ("**Data:** none.\n", "")}, "not the eleven in order"),
-    ("task alpha", {"IMPLEMENTATION.md": ("1. `T01.1`", "1. `T02.1`")}, "is not one of α01's"),
-    ("task twice", {"IMPLEMENTATION.md": ("2. `T01.2`", "2. `T01.1`")}, "repeats line"),
-    ("task without ID", {"IMPLEMENTATION.md": ("2. `T01.2` **Second", "2. **Second")}, "has no task ID"),
+    ("step fields", {"IMPLEMENTATION.md": ("**Tests:** `kd-one`.\n", "")}, "not the six in order"),
+    ("milestone fields", {"IMPLEMENTATION.md": ("**You will see:** more.\n", "")}, "not the four in order"),
+    ("milestone order", {"IMPLEMENTATION.md": ("## M2 Two", "## M3 Two")}, "M3 follows M1"),
+    ("step under another milestone", {"IMPLEMENTATION.md": [("### α1.1a First", "### α2.1a First"),
+                                                           ("1. `T1.1a.1`", "1. `T2.1a.1`"),
+                                                           ("2. `T1.1a.2`", "2. `T2.1a.2`")]},
+     "α2.1a sits under M1, not M2"),
+    ("step serves beyond its milestone", {"IMPLEMENTATION.md": ("**Serves:** `ONE-01`, `ONE-02`.", "**Serves:** `ONE-01`.")},
+     "α1.1a serves `ONE-02`, which M1's Serves line doesn't name"),
+    ("task step", {"IMPLEMENTATION.md": ("1. `T1.1a.1`", "1. `T1.1b.1`")}, "is not one of α1.1a's"),
+    ("task twice", {"IMPLEMENTATION.md": ("2. `T1.1a.2`", "2. `T1.1a.1`")}, "repeats line"),
+    ("task without ID", {"IMPLEMENTATION.md": ("2. `T1.1a.2` **Second", "2. **Second")}, "has no task ID"),
     ("contents", {"PROJECT.md": ("- [1.\n  One](#1-one)", "- [1. One](#1-one)")}, "'contents' is not current"),
     ("open items", {"PROJECT.md": ("- **Third** (`ONE-03`): measured later.", "- None at present.")},
      "'open items' is not current"),
@@ -585,9 +638,9 @@ PLANTED = [
     ("empty checks", {"tools/tests/test_one.py": ("# checks: ONE-01", "# checks:")}, "a checks line names no ID"),
     ("test without checks", {"crates/kd-one/src/lib.rs": ("    // checks: ONE-01\n", "")},
      "no `// checks:` line"),
-    ("task without item", {"IMPLEMENTATION.md": ("(`ONE-02`, A1.1)", "(A1.1)")}, "task T01.2 names no item"),
-    ("not mapped", {"IMPLEMENTATION.md": ("**Serves:** `ONE-01`, `ONE-02`, `ONE-03`.", "**Serves:** `ONE-01`, `ONE-03`.")},
-     "`ONE-02` (feature) is not mapped"),
+    ("task without item", {"IMPLEMENTATION.md": ("(`ONE-02`, A1.1)", "(A1.1)")}, "task T1.1a.2 names no item"),
+    ("not mapped", {"IMPLEMENTATION.md": ("**Serves:** `ONE-03`.", "**Serves:** none.")},
+     "`ONE-03` (feature) is not mapped"),
     ("implemented untested", {"crates/kd-one/src/lib.rs": ("/// Implements ONE-01", "/// Implements ONE-01 ONE-03")},
      "`ONE-03` is implemented in code, but no test"),
 ]
@@ -619,7 +672,7 @@ def run_case(clean, faults):
 
 def selftest():
     """Prints a line a case and the verdict; returns the exit code.
-    Implements PRC-12, see A15.12 step 8."""
+    Implements PRC-12, see A11."""
     clean = fixture(os.path.join(FIXTURES, "clean"))
     bad = run_case(clean, {})
     print(("ok   " if not bad else "FAIL ") + "the clean fixture passes" + "".join(f"\n       {p}" for p in bad))
