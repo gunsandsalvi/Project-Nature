@@ -108,7 +108,7 @@ if (bench && !failed) {
   const d = JSON.parse(readFileSync(bench, 'utf8'));
   d.crawl = {
     ...out,
-    grown_since_last: grown.length ? `${grown.join('; ')} (since ${last.alpha})` : 'none',
+    grown_since_last: grown.length ? `${grown.join('; ')} (since ${last.alpha})` : last ? `none since ${last.alpha}` : 'no earlier crawl recorded',
     how: `mean over ${FRAMES} frames of each art pixel's crawl (A11.10) and change, as shares of the art target's pixels less a border of two; the demo area at 16:30, the phone's 270 x 601 art pixels, headless Chromium with SwiftShader; turn ${MOTIONS.turn}° a frame, zoom ${100 * MOTIONS.zoom}% of the art pixel a frame, pan ${MOTIONS.pan} art pixels a frame (tools/screens/crawl.mjs)`,
   };
   writeFileSync(bench, `${JSON.stringify(d, null, 2)}\n`);
