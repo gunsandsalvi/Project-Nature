@@ -92,11 +92,11 @@ pub fn lon_deg(x: i32) -> f32 {
 }
 
 /// A world cell, 1,024 m square: `cy × 2,000 + cx` (A3.7).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct CellIx(pub u32);
 
 /// An area, 256 m square: `ay × 8,000 + ax` (A3.7).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AreaId(pub u32);
 
 /// Whether a position lies on the world, as every stored position does.

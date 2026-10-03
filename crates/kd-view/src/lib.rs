@@ -1,9 +1,11 @@
 //! kd-view: the types the world hands the front end: snapshots, commands, view requests, input, UI draw lists,
 //! sound events and text records (A4, A11 to A13).
 //! α00 holds raw input, the system insets and an empty snapshot; α01a adds the sky, the font atlas and the UI draw
-//! list; the world fills the snapshot from α03a.
+//! list; α01b an area's ground for the renderer and the camera's pose; the world fills the snapshot from α03a.
 
 #![deny(unsafe_code)]
+
+use kd_core::geo::{AreaId, Pos};
 
 /// One raw touch or pointer event, in screen pixels from the screen's top-left corner (A12.2).
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -86,6 +88,32 @@ impl FontAtlas {
 #[derive(Clone, Debug, Default)]
 pub struct Assets {
     pub font: FontAtlas,
+}
+
+/// Height points along an area's side, 1 m apart, and its squares (A5.3).
+pub const AREA_SIDE: usize = 257;
+pub const AREA_SQUARES: usize = 256;
+
+/// One area's ground as `kd-app`'s view builders hand it to the renderer (A11.1, A11.5): heights at 257 × 257
+/// points 1 m apart and a surface per square metre, rows from the area's north-west corner.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct AreaMeshes {
+    pub id: AreaId,
+    /// The height the heights count from, in metres above sea level.
+    pub base_m: f32,
+    /// `AREA_SIDE` × `AREA_SIDE` heights in metres above `base_m`.
+    pub heights: Vec<f32>,
+    /// `AREA_SQUARES` × `AREA_SQUARES` surface numbers (`kd_data::Surface::number`).
+    pub surfaces: Vec<u8>,
+}
+
+/// Where the camera looks (A11.1): the ground point at the middle of the screen, the view's heading in radians,
+/// counter-clockwise from north, and the zoom, 0 at the person stop to 1 at the globe (`PRE-03`).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct CameraPose {
+    pub target: Pos,
+    pub yaw: f32,
+    pub zoom: f32,
 }
 
 /// One frame's UI, in UI pixels from the screen's top-left corner, drawn after the upscale (A12.1). A UI pixel is an

@@ -61,6 +61,12 @@ pub fn probe_line(gpu: &[u8], twins: &[u8]) -> Option<String> {
     ))
 }
 
+/// The report's line for a demo area whose ground hashes differently from the cloud's, or nothing when it is the
+/// same (A15.9 item 5): the world's ground must be the same on every target.
+pub fn demo_line(made: u64, stored: u64) -> Option<String> {
+    (made != stored).then(|| format!("demo area: ground {made:016x}, the cloud's {stored:016x}"))
+}
+
 /// Whether the driver is OpenGL ES 3 or WebGL2, which every shader is written for (A11.1).
 pub fn gl_version_ok(info: &str) -> bool {
     info.contains("OpenGL ES 3") || info.contains("WebGL 2")
@@ -145,6 +151,27 @@ mod tests {
         assert_eq!(
             core_line(&[("m.sin", 0xab), ("chance.draws", 1)]).as_deref(),
             Some("core bits differ from the cloud's: m.sin 00000000000000ab, chance.draws 0000000000000001")
+        );
+    }
+
+    // checks: WLD-12 RES-05 PRC-11
+    #[test]
+    fn demo_area_checked() {
+        // A new app makes the demo area with the cloud's hash, so it reports nothing, hands the renderer one
+        // surface a square, and looks at the area's middle on its ground.
+        let outbox = Arc::new(Outbox(Mutex::new(Vec::new())));
+        let app = App::new(outbox.clone(), AppConfig { device: "test".into() });
+        let g = app.demo().expect("the demo area");
+        assert_eq!(g.hash(), kd_world::area::demo::HASH);
+        let cam = app.camera();
+        assert_eq!(kd_core::geo::AreaId::of(cam.target), g.id);
+        assert!((f64::from(cam.target.z) / 256.0 - f64::from(g.height_m(128, 128))).abs() < 0.01);
+        assert!(outbox.0.lock().unwrap().is_empty());
+        // A different ground names both hashes.
+        assert_eq!(demo_line(5, 5), None);
+        assert_eq!(
+            demo_line(0xab, 0xcd).as_deref(),
+            Some("demo area: ground 00000000000000ab, the cloud's 00000000000000cd")
         );
     }
 

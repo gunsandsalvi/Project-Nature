@@ -2,13 +2,16 @@
 //! holds each pass with its program and targets, and every shader shares `shaders/lib.glsl` and the constants
 //! generated from Rust. It runs on the GL thread only, through `glow`: OpenGL ES 3.0 on the phone, WebGL2 on the web.
 //! α01a draws the light card as palette indices, turns them into the palette's colours under the light of the hour,
-//! and enlarges the result so an art pixel is 4 × 4 screen pixels (A11.2, A11.3).
+//! and enlarges the result so an art pixel is 4 × 4 screen pixels (A11.2, A11.3); α01b draws the loaded areas'
+//! ground through the camera instead, keeping the card for its golden scenes.
 //!
 //! Implements PRE-22 and PLT-01, see A11.2 and A11.13: an art pixel exactly 4 × 4 screen pixels, drawn with OpenGL
 //! ES 3.0 on the phone.
 
+pub mod camera;
 pub mod frame;
 pub mod gl;
+pub mod ground;
 pub mod light;
 pub mod looks;
 pub mod passes;
@@ -19,14 +22,17 @@ pub mod shaders;
 use std::fmt;
 
 use kd_data::Catalogue;
+use kd_view::{AreaMeshes, CameraPose};
 use passes::post::PostPass;
 use passes::scene::{ArtView, ScenePass};
 use passes::ui::UiPass;
 use passes::upscale::UpscalePass;
 use probe::ProbePass;
 
+use camera::View;
 use frame::Lighting;
 use gl::{Format, Texture};
+use ground::{GroundPass, Store};
 use looks::{Layout, PALETTE_SIZE, Palette, TABLE_ROWS};
 
 /// Screen pixels an art pixel on the phone, device pixels on the web (A11.2, `PRE-22`).
@@ -56,21 +62,25 @@ fn clean(log: &str) -> &str {
     log.trim_matches(|c: char| c == '\0' || c.is_whitespace())
 }
 
-/// One frame's inputs (A11.1); the camera and the display time join with their alphas.
+/// One frame's inputs (A11.1); the display time joins with its alpha.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Frame {
     /// Frames drawn since the app started.
     pub count: u64,
     /// The sky the frame is lit by (A11.4).
     pub sky: kd_view::SkyView,
-    /// What the light card shows (A11.12), α01a's scene.
-    pub card: passes::scene::card::CardFrame,
+    /// Where the camera looks (A11.2).
+    pub cam: CameraPose,
+    /// The light card instead of the ground, for its golden scenes (A11.12).
+    pub card: Option<passes::scene::card::CardFrame>,
 }
 
 /// What a frame drew.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct FrameStats {
     pub art: [u32; 2],
+    /// The ground's triangles (A11.11).
+    pub triangles: u64,
 }
 
 pub struct Renderer {
@@ -82,7 +92,11 @@ pub struct Renderer {
     upscale: UpscalePass,
     ui: UiPass,
     probe: ProbePass,
+    ground: GroundPass,
+    store: Store,
     view: Option<ArtView>,
+    /// The last frame's camera view, for the test hooks.
+    last_view: Option<View>,
     cat: Catalogue,
     layout: Layout,
     /// The light and palette of the last frame (A11.13 rule 4), none before the first.
@@ -103,6 +117,7 @@ impl Renderer {
         let upscale = UpscalePass::new(&gl)?;
         let ui = UiPass::new(&gl, &assets.font)?;
         let probe = ProbePass::new(&gl)?;
+        let ground = GroundPass::new(&gl, cat, &layout)?;
         let palette_tex = Texture::new(&gl, Format::Rgba8, PALETTE_SIZE as u32, 1, None)?;
         let tables_tex = Texture::new(&gl, Format::R8, PALETTE_SIZE as u32, TABLE_ROWS as u32, None)?;
         Ok(Renderer {
@@ -114,7 +129,10 @@ impl Renderer {
             upscale,
             ui,
             probe,
+            ground,
+            store: Store::default(),
             view: None,
+            last_view: None,
             cat: cat.clone(),
             layout,
             lighting: None,
@@ -167,22 +185,65 @@ impl Renderer {
         Ok(())
     }
 
+    /// Takes an area's ground for drawing (A11.1, A11.5): kept on the CPU, its textures made at the next frame. A
+    /// malformed area is logged and left out.
+    pub fn upload_area(&mut self, m: AreaMeshes) {
+        if let Err(e) = self.store.insert(m) {
+            log::error!(target: "kd::render", "upload_area: {e}");
+        }
+    }
+
+    /// The view of a camera pose on the current art target (A11.2): until the camera's zoom arrives, the camp stop's
+    /// 1.1 m art pixels seen from 52° above.
+    pub fn view_of(&self, cam: &CameraPose) -> Option<View> {
+        let art = self.view?;
+        let mut v = View::new(cam.target, f64::from(cam.yaw), 52f64.to_radians(), 1.1, &art);
+        v.fit_depth(self.store.areas.iter().map(|a| (a.corner(), a.span_m)));
+        Some(v)
+    }
+
     /// Draws a frame: the scene, post, the upscale, then the UI's list over them (A11.2's order).
     pub fn draw(&mut self, f: &Frame, ui: &kd_view::UiDrawList) -> FrameStats {
-        let Some(view) = self.view else {
+        let Some(art) = self.view else {
             return FrameStats::default();
         };
         self.light_frame(f);
+        let mut stats = FrameStats {
+            art: art.art,
+            triangles: 0,
+        };
+        let mut off = art.off;
+        if let Err(e) = self.store.upload(&self.gl) {
+            log::error!(target: "kd::render", "area textures: {e}");
+        }
         if let Some(lighting) = &self.lighting {
-            self.scene
-                .draw(&self.gl, &view, &self.layout, lighting, &f.card, self.vao);
+            match &f.card {
+                Some(card) => self.scene.draw(&self.gl, &art, &self.layout, lighting, card, self.vao),
+                None => {
+                    if let (Some(view), Some(t)) = (self.view_of(&f.cam), &self.scene.target) {
+                        t.bind(&self.gl);
+                        gl::clear(&self.gl, [0.0; 4], 1.0);
+                        stats.triangles = self
+                            .ground
+                            .draw(&self.gl, &view, &self.store, lighting, self.vao)
+                            .triangles;
+                        off = view.off;
+                        self.last_view = Some(view);
+                    }
+                }
+            }
         }
         if let (Some(scene), Some(post)) = (&self.scene.target, &self.post.target) {
             self.post.draw(&self.gl, &scene.colours[0], &self.palette_tex, self.vao);
-            self.upscale.draw(&self.gl, &view, &post.colours[0], self.vao);
+            self.upscale.draw(&self.gl, &art, off, &post.colours[0], self.vao);
         }
-        self.ui.draw(&self.gl, &view, ui, &self.palette_tex);
-        FrameStats { art: view.art }
+        self.ui.draw(&self.gl, &art, ui, &self.palette_tex);
+        stats
+    }
+
+    /// The last frame's camera view, if it drew the ground.
+    pub fn last_view(&self) -> Option<&View> {
+        self.last_view.as_ref()
     }
 
     /// Runs the probe scene (A11.13 rule 2): the steps the GPU picks for the fixed inputs, and the twins' steps.

@@ -4,9 +4,11 @@
 
 use std::fmt::Write;
 
+use crate::camera::VIEWPORT;
+use crate::ground::{MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LOOKS};
 use crate::looks::{PALETTE_SIZE, TABLE_ROWS};
 use crate::passes::scene::card;
-use crate::pixel::{Cat, flag};
+use crate::pixel::{Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, SEED_EDGE_X, SEED_EDGE_Y, SEED_SPLIT, flag};
 use crate::probe;
 
 const LIB: &str = include_str!("../shaders/lib.glsl");
@@ -17,6 +19,8 @@ pub const PROBE_FRAG: &str = include_str!("../shaders/probe.frag");
 pub const UPSCALE_FRAG: &str = include_str!("../shaders/upscale.frag");
 pub const UI_VERT: &str = include_str!("../shaders/ui.vert");
 pub const UI_FRAG: &str = include_str!("../shaders/ui.frag");
+pub const GROUND_VERT: &str = include_str!("../shaders/ground.vert");
+pub const GROUND_FRAG: &str = include_str!("../shaders/ground.frag");
 
 /// The generated defines.
 pub fn defines() -> String {
@@ -37,9 +41,25 @@ pub fn defines() -> String {
         ("CARD_ROW", card::ROW),
         ("PROBE_W", probe::W as i32),
         ("PROBE_H", probe::H as i32),
+        ("VIEWPORT", VIEWPORT),
+        ("PATCH_QUADS", PATCH_QUADS),
+        ("MAX_SURFACES", MAX_SURFACES as i32),
+        ("SURFACE_LOOKS", SURFACE_LOOKS as i32),
+        ("SEED_EDGE_X", SEED_EDGE_X as i32),
+        ("SEED_EDGE_Y", SEED_EDGE_Y as i32),
+        ("SEED_SPLIT", SEED_SPLIT as i32),
     ] {
         let _ = writeln!(s, "#define {name} {value}");
     }
+    // Floats as Rust writes them, which GLSL reads back to the same f32.
+    let _ = writeln!(s, "#define SKIRT_M {SKIRT_M:?}");
+    let _ = writeln!(s, "#define EDGE_WOBBLE_M {EDGE_WOBBLE_M:?}");
+    let o = EDGE_OCTAVES;
+    let _ = writeln!(
+        s,
+        "#define EDGE_OCTAVES vec4({:?}, {:?}, {:?}, {:?})",
+        o[0], o[1], o[2], o[3]
+    );
     s
 }
 
@@ -81,10 +101,15 @@ mod tests {
             UPSCALE_FRAG,
             UI_VERT,
             UI_FRAG,
+            GROUND_VERT,
+            GROUND_FRAG,
             LIB,
         ] {
             for word in body.split(|c: char| !(c.is_ascii_alphanumeric() || c == '_')) {
-                let generated = ["CAT_", "FLAG_", "CARD_", "PROBE_", "PALETTE_", "TABLE_"];
+                let generated = [
+                    "CAT_", "FLAG_", "CARD_", "PROBE_", "PALETTE_", "TABLE_", "VIEWPORT", "PATCH_", "MAX_SURF",
+                    "SURFACE_", "SEED_", "SKIRT_", "EDGE_",
+                ];
                 if generated.iter().any(|p| word.starts_with(p)) {
                     assert!(defined.contains(&format!("#define {word} ")), "{word} is not generated");
                 }
@@ -103,18 +128,29 @@ mod tests {
     #[test]
     fn twins_share_their_names() {
         // Every per-pixel formula the shaders compute has a Rust twin of the same name in pixel.rs (A11.13 rule 2).
-        for name in ["bayer", "lightness", "ladder_pos", "light_step", "pack_out"] {
-            assert!(LIB.contains(&format!(" {name}(")), "{name} missing from lib.glsl");
-        }
         let twins = include_str!("pixel.rs");
         for name in [
-            "fn bayer(",
-            "fn lightness(",
-            "fn ladder_pos(",
-            "fn light_step(",
-            "fn pack(",
+            "bayer",
+            "lightness",
+            "ladder_pos",
+            "light_step",
+            "hash3",
+            "fade5",
+            "noise2",
+            "octave_fade",
+            "faded_noise",
+            "edge_wobble",
+            "vote_base",
+            "vote4",
+            "split_look",
         ] {
-            assert!(twins.contains(name), "{name} missing from pixel.rs");
+            assert!(LIB.contains(&format!(" {name}(")), "{name} missing from lib.glsl");
+            assert!(twins.contains(&format!("fn {name}(")), "{name} missing from pixel.rs");
         }
+        assert!(LIB.contains(" pack_out(") && twins.contains("fn pack("));
+        // The ground's morph has its twin in ground.rs.
+        assert!(
+            GROUND_VERT.contains("float vertex_height(") && include_str!("ground/mod.rs").contains("fn vertex_height(")
+        );
     }
 }
