@@ -89,7 +89,6 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α01c | Shadows and air | 1 | 5.5 | Not started |
 | α01d | Steady detail | 1 | 5 | Not started |
 | α02a | The island | 1 | 4.5 | Not started |
 | α02b | The ground up close | 1 | 5 | Not started |
@@ -201,76 +200,17 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 | α53a | Export and worlds across updates | 7 | 4 | Not started |
 | α53b | Release candidate and Stage 7 review | 7 | 5.5 | Not started |
 
-111 alphas still to build, about 545 hours of agent work in all.
+110 alphas still to build, about 539.5 hours of agent work in all.
 
 ## Stage 1: First camp (MIL-01)
 
 This stage builds the island of the first region and one band at the foot of its cliff, who gather, eat, drink, sleep, talk, court, pair, bear children, grow old and die through a 60-day year, with reasons on every card, saved every 30 seconds, tested in scenes and timed on the phone (`SCP-16` item 1).
 `SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows.
-Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 23 still to build take about 117.5 hours.
+Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 22 still to build take about 112 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
 The renderer is designed in A11 (A11.1), and α01a to α01d build it from that reasoning, in the form of code A11.13 sets; each task names the A11 sections it builds.
 On 3 October 2026 the owner had the codebase deleted and these first steps planned again from scratch, so α00 started from the three documents and the release certificate alone (A15.5).
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
-
-### α01c Shadows and air (about 5.5 hours)
-
-**Goal:** the cliff casts real shadows that are sharp near it and soften as they lengthen, hollows and the cliff's foot are darker and cooler, the cliff's edge has a one-pixel outline only where it stands in front of the land behind, its sunlit rim catches the light, and haze grows with real distance, warmer toward the sun; light, shadow and outlines stay on the land while the owner zooms, as the steadiness counts measure.
-
-**Serves:** `PRE-30` (part: real shadows by the hour, sharp near and softer far; darker hollows; haze by distance, warmer toward the sun), `PRE-21` (part: outlines only where one thing stands in front of another; lit edges), `PRE-22` (part: light and shading holding still while zooming; the crawl slot and its counter), `PRE-02` (part).
-
-**Architecture:** `A11.1`, `A11.2`, `A11.4`, `A11.5`, `A11.10`, `A11.12`, `A11.13`.
-
-**Needs:** α01b.
-
-**Crates and files touched:** `kd-render` (`field`, `ground`, `pixel`, `passes::post`, `passes::crawl`, `probe`, `shaders/`), `kd-app` (field jobs), `kd-web` (`window.kd.crawl`), `tools/screens/` (`crawl.mjs`, `zoomstrip.mjs`), `tests/golden/`.
-
-**Tasks:**
-
-1. `T01c.1` **Light fields (`PRE-30`, A11.5).**
-   `kd_render::field`, on the CPU (A11.13): the sun field (the heights resampled onto a grid turned to the sun's azimuth; along each row from the sun's side a running maximum of `h − s′ tan e` giving each point's shadow height `H`, and its arg-max the caster's distance `d`; resampled back) and the sky field (16 directions, each line's horizons by the upper convex hull of the profile behind, `V` the mean of `cos²` of the horizon's height); uploaded as `RG32F` and `R8` textures; the sun field recomputed when the sun moves by 0.1°, the sky field once an area.
-   Commit `T01c.1: sun and sky fields (PRE-30, A11.5)`.
-
-2. `T01c.2` **The ground lit by its fields (`PRE-30`, A11.3, A11.4).**
-   The ground shader's sky factor becomes `V × (1 + n_y)/2` and its sun factor the sunlit share `clamp((z − H + d × 0.0047) / (d × 0.0093), 0, 1)` times `n·l`: the sun's disc's penumbra, so a shadow's edge is sharp near its caster and softer as it lengthens, drawn as dither where it spans pixels and as a hard edge where it does not (A11.4); the twins gain both factors.
-   Commit `T01c.2: the ground lit by its fields (PRE-30, A11.4)`.
-
-3. `T01c.3` **Outlines, lit edges and haze (`PRE-21`, `PRE-30`, A11.2, A11.4).**
-   The scene writes each pixel's category, sunlit flag, haze level and view depth (A11.2's colour 0); `passes::post`: an outline where a neighbour lies farther than the plane through the pixel and its opposite neighbour predicts by more than the category's gap (ground 6 m, rock 1.5 m), the look two steps darker; a lit edge where the silhouette pixel is sunlit and the far neighbour lies toward the sun on screen, the look's top step; then the haze table of the pixel's level.
-   Haze (A11.4): the eye at 1.37 times the view's width; each pixel's optical depth along its ray through the air's two layers (aerosol over 1.2 km, Rayleigh over 8 km), in closed form; `1 − exp(−depth)` quantised into levels 0–3 at 0.1, 0.25 and 0.45 with the band's dither; the haze colour from the light model, one a frame; the twins gain the plane test and the haze level.
-   Commit `T01c.3: outlines by occlusion, lit edges and haze (PRE-21, PRE-30, A11.2, A11.4)`.
-
-4. `T01c.4` **The crawl slot and the steadiness counts (`PRE-22`, A11.10, A11.12).**
-   `passes::crawl`: A11.10's `CrawlSlot` holding `Base`, which passes the post target through; `window.kd.crawl({ motion, rate, frames, fix })` freezes animation, captures each frame's indices and depth and counts crawl as A11.10 defines it, and all changed pixels.
-   `tools/screens/crawl.mjs` runs it over 60 frames of a slow turn, a slow zoom and a slow pan (the control) at the camp and close camp stops; `tools/screens/zoomstrip.mjs` counts the art pixels each 1% zoom step changes from zoom 0.10 to 0.34; both write their numbers to the bench file.
-   Commit `T01c.4: the crawl slot and the steadiness counts (PRE-22, A11.10, A11.12)`.
-
-5. `T01c.5` **Goldens by the hour (`PRE-30`, `PRE-21`, A11.12).**
-   Goldens `valley-camp` at 06:30, 12:00, 16:30, 18:30 and 23:00, `valley-close` and `valley-near` at 16:30, and `block` at 16:30 with its outline and rim.
-   Commit `T01c.5: the valley's goldens by the hour (PRE-30, A11.12)`.
-
-6. `T01c.6` **Deliver (`PRC-11`).**
-   `versionCode=1013`, `versionName=a01c`; `bench/cloud/a01c.json` adds the fields' times (A11.11: the sun field at most 2 ms an area), the crawl counts and the zoom strip's counts; then P0's steps 5 to 8, the review the builder's own.
-
-**Data:** none.
-
-**Tests:**
-- `kd-render` (`PRE-30`, `PRE-21`, `PRE-22`): `field::tests::{sun_field_matches_a_march, sky_field_matches_a_march, open_flat_ground_sees_sun_and_sky, penumbra_widens_with_distance}`; `pixel::tests::{outline_only_where_something_stands_in_front, steep_slope_seen_edge_on_has_no_outline, haze_grows_with_the_air_path, haze_warmer_toward_the_sun}`; `passes::crawl::tests::base_passes_through`.
-- Screens: goldens by the hour; smoke `pan stays crisp` and `probe equals the twins`; `crawl.mjs`: the pan's control counts no crawl; the zoom strip's counts recorded.
-
-**On the phone:**
-1. Install the update: in the late afternoon the cliff throws a long shadow across the valley floor, crisp near the cliff and softer far from it; the cliff's foot and the hollows are a little darker and bluer.
-2. Tap the strip: at noon the shadows are short; at dusk they reach far across; at twilight there are none.
-3. Pinch slowly in and out: shadows, light and the cliff's outline stay on the land; only the pixel grid resamples.
-4. Zoom right out: the far land fades into warm haze toward the sun and cool haze away from it.
-
-**Not in this alpha:** smooth surface edges by coverage, fine relief, stones and tufts (α01d); objects' shadows from pass 1 (with the first things, α02c); light shafts in mist (α13).
-
-**Conflict:** T01c.1 as planned keeps the highest shadow line `H` along rows turned to the sun and its caster's distance `d`, resampled from the rows. Built that way it failed its own tests: in the lit half of a soft edge the nearest ground's line lies above a far cliff's, so the soft edge was cut short (2.1 m of 2.6 m behind a 20 m wall at 15°), and resampling gave a cliff's sunlit rim its face's values, shading it. The smallest change that works: the field keeps each point's horizon toward the light's azimuth as a slope, read from the point's own place and height (along its own ray for 4 m, beyond from the rows either side), and the sunlit share is the share of the sun's disc above it, so the edge still widens with the caster's distance. The field follows the azimuth alone, the light's height being a uniform, and is an `R32F` texture. Its march test checks what shows rather than 0.05 m everywhere, which no row-based field meets where the light grazes a cliff's face: lit or not agrees at all but a thousandth of points, the horizon's angle within 0.05° at half and 2° at 99 in 100 (A11.5).
-
-**Risks:**
-- The fields too slow on the phone: measured in the bench file; over 2 ms, the sun field is recomputed over several frames.
-- Penumbra dither shimmering as the sun moves: the sun field changes only every 0.1° of sun, and the clock's own pacing smooths it (α03a).
 
 ### α01d Steady detail (about 5 hours)
 
@@ -411,6 +351,7 @@ Every alpha ships an APK and the web build at its private page; until α07a save
 2. Pinch in to the valley stop: the land becomes the flat map look, about 10 km across; drag south along the river to the coast and its dark blue sea; the river stays at least a pixel wide all the way. The note's map pictures show the whole island.
 3. Pinch back out toward the cliff: close up the ground is still blocky (shaped every 32 m); α02b brings the detail.
 4. Drag and twist anywhere over the island: it stays smooth.
+5. Pinch slowly out from the cliff toward the valley stop: the far land fades into haze, warmer toward the sun and cooler away from it (α01c's haze, too faint to see within α01c's reach).
 
 **Not in this alpha:** areas with metre detail (α02b); cliffs and caves as faces (α02c); plants and stones drawn up close (α02d); the clock, day and night and the moving sun (α03a); settling the island before history (α03a); herds (α12b) and small game (α12c); rain (α13); routing and floods (α20c); bench lands (α07d); the world map and globe stops (α19b).
 
@@ -8619,10 +8560,10 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `CUL-12` Style and ornament: α25b, α33, α33b, α34a, α34b, α36c, α41, α43c
 - `CUL-29` Gatherings and festivals: α36a, α40, α46a, α48
 - `PRE-01` Detailed pixel art: built
-- `PRE-02` Pixel-rendered 3D: α01c, α01d, α02b, α19b
+- `PRE-02` Pixel-rendered 3D: α01d, α02b, α19b
 - `PRE-20` Colour in steps: α01d, α02d
-- `PRE-21` Outlines and lit edges: α01c, α02c
-- `PRE-22` Stable pixels: α01c, α01d, α07e
+- `PRE-21` Outlines and lit edges: α02c
+- `PRE-22` Stable pixels: α01d, α07e
 - `PRE-23` Rock faces: α02c
 - `PRE-24` Real shapes: α02c, α16c, α25b, α46a
 - `PRE-25` Cut-away view: α24b
@@ -8630,7 +8571,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRE-27` People and animals: α03b, α06c, α09b, α12b, α17b, α24a, α25a, α28, α46b
 - `PRE-28` Readable from far away: α02d, α03b, α12b, α14a, α19b
 - `PRE-29` From above: α02a, α18a, α19b
-- `PRE-30` Light, time and season: α01c, α02c, α03a, α05, α13, α14a, α47a
+- `PRE-30` Light, time and season: α02c, α03a, α05, α13, α14a, α47a
 - `PRE-03` Seamless zoom: α02a, α02b, α03b, α19b
 - `PRE-31` Visual review: α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `PRE-42` Built from their materials: α08, α23c, α25a, α25b, α45, α46a, α47b, α49

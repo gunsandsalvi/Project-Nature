@@ -1,0 +1,138 @@
+{
+  "alpha": "a01c",
+  "version_code": 1013,
+  "built_from": "0bd6c0f1ff918425418ab254d1fdc044e8f6d522",
+  "measured": "2026-10-03",
+  "machine": "cloud session, 4 cores",
+  "build_seconds": {
+    "apk": 34,
+    "web": 26,
+    "how": "each from an empty profile folder, with the toolchain, crates and Gradle's downloads already cached"
+  },
+  "apk_bytes": 763146,
+  "wasm_bytes": 558154,
+  "area_milliseconds": {
+    "demo_make_cloud": 22.9,
+    "demo_make_wasm": 26.5,
+    "area_meshes_cloud": 0.04,
+    "store_insert_cloud": 190,
+    "store_insert_wasm": 239,
+    "upload_chromium": 2.2,
+    "how": "making the demo area, handing it over as AreaMeshes and taking it into the renderer's CPU store (gradients and, from α01c, the sky field): median of 21 runs on one core, profile fast (kd-app's ground_timings); in the browser, App::new's making time, the area's hand-over and the first frame's texture uploads, headless Chromium with SwiftShader, the middle of three page loads"
+  },
+  "field_milliseconds": {
+    "sun_field_at_once_cloud": 15,
+    "sun_field_at_once_wasm": 18.8,
+    "sun_job_start_cloud": 0.8,
+    "sun_job_longest_piece_cloud": 0.1,
+    "sun_job_pieces": 550,
+    "sky_field_cloud": 200,
+    "budget": "A11.11: the sun field 2 ms an area when the sun moves 0.1°, the sky field 20 ms an area, once",
+    "how": "the demo area's fields for the light at 16:30: median of 21 runs (the sky field 5) on one core, profile fast (kd-app's field_timings), the middle of three runs; in the browser the first frame's sun field, made at once (window.kd.timings' field_ms)"
+  },
+  "light_microseconds": {
+    "catalogue_blob_load": 2.1,
+    "palette_row": 7.6,
+    "tables": 45.8,
+    "how": "median of 201 runs on one core, profile fast, at 16:30 (kd-app's light_timings), tests one at a time"
+  },
+  "ground_triangles": {
+    "person": 12288,
+    "close_camp": 30720,
+    "camp": 33792,
+    "farthest_in_reach": 8704,
+    "how": "the demo area's middle, north up, at the phone's 270 x 601 art pixels: patches in view plus the skirts, at zoom 0.00, 0.14, 0.30 and 0.34 (window.kd.timings)"
+  },
+  "slower_than_a01b": "the area's hand-over to the renderer 0.6 to 190 ms on the cloud and 239 ms in the browser, as it now works out the sky field, about 10 times A11.11's 20 ms; the sun field 15 ms made at once, 7 times A11.11's 2 ms, so the clock's small moves will work it over frames at 2 ms a frame, while a new area and the strip's jumps of the hour take it at once (A11.5); both flagged in the note. Faster: the builds (APK 50 to 34 s, web 29 to 26 s) and making the demo area",
+  "worlds": "none yet: kd bench and its worlds arrive in α07d (A15.10)",
+  "crawl": {
+    "camp": {
+      "turn": {
+        "crawl": 0.03348,
+        "changed": 0.03474
+      },
+      "zoom": {
+        "crawl": 0.03249,
+        "changed": 0.0339
+      },
+      "pan": {
+        "crawl": 0,
+        "changed": 0
+      }
+    },
+    "close_camp": {
+      "turn": {
+        "crawl": 0.01786,
+        "changed": 0.01749
+      },
+      "zoom": {
+        "crawl": 0.02,
+        "changed": 0.02558
+      },
+      "pan": {
+        "crawl": 0,
+        "changed": 0
+      }
+    },
+    "grown_since_last": "no earlier crawl recorded",
+    "how": "mean over 60 frames of each art pixel's crawl (A11.10) and change, as shares of the art target's pixels less a border of two; the demo area at 16:30, the phone's 270 x 601 art pixels, headless Chromium with SwiftShader; turn 0.11° a frame, zoom 0.3% of the art pixel a frame, pan 0.37 art pixels a frame (tools/screens/crawl.mjs)"
+  },
+  "zoom_strip": {
+    "from": 0.1,
+    "to": 0.34,
+    "step": 0.01,
+    "changed": [
+      0.1757,
+      0.1933,
+      0.2081,
+      0.2262,
+      0.2711,
+      0.2745,
+      0.2741,
+      0.2915,
+      0.313,
+      0.3815,
+      0.3993,
+      0.3753,
+      0.3454,
+      0.3211,
+      0.296,
+      0.2592,
+      0.2345,
+      0.2051,
+      0.1936,
+      0.1837,
+      0.1593,
+      0.1183,
+      0.0816,
+      0.0603
+    ],
+    "crawl": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0.0001,
+      0.0001,
+      0.0001,
+      0.0001,
+      0.0001,
+      0.0001,
+      0.0001,
+      0.0001,
+      0.0001
+    ],
+    "how": "each zoom step against the last at the camp stop's place and heading: the shares of the art target's pixels, less a border of two, that changed where they show and that crawled (A11.10); the demo area at 16:30, the phone's 270 x 601 art pixels, headless Chromium with SwiftShader (tools/screens/zoomstrip.mjs)"
+  }
+}
