@@ -107,7 +107,7 @@ This table is the technology proposal of `PRC-03`; the evidence behind each row 
 | Numbers | `f32`; transcendental maths through the pure-Rust `libm`; no fused multiply-add; fixed-order sums; no `usize` or −0.0 in saved data (A3.2; B01) | `f64` locally, under the same rules |
 | Chance | keyed draws from a guarded wyhash of (world, system, purpose, subject, moment); a fortune retry flips one key bit (A3.3; B02) | keyed splitmix64 (also passed) |
 | App | Kotlin shell, Rust core `libkindling.so` over JNI, arm64 only, minSdk 31, targetSdk 36 (A2.5; B78) | a pure Rust shell with hand-written JNI per service |
-| Toolchain | NDK r30, Gradle 8.14.3, AGP 8.13.2, Kotlin 2.3.21 and the rest of A2.8; Google's mirror of Maven Central first (B78) | refetch with `tools/setup-toolchain.sh` |
+| Toolchain | NDK r30, Gradle 8.14.3, AGP 8.13.2, Kotlin 2.3.21 and the rest of A2.8; Google's mirror of Maven Central first (B78) | refetch with `tools/setup.sh` |
 | Drawing | OpenGL ES 3.0 and WebGL2 through `glow`; GLSL ES 3.00 shaders written for the renderer's own design (A11.1); one art pixel is 4 screen pixels (B66) | fewer passes or art pixels; no Vulkan |
 | Crawling pixels | a slot in the renderer for the fix chosen at the first visual review (`PRE-22`, `PRE-31`; B66) | Fade, tuned with the owner |
 | Memory layout | struct of arrays per kind, generational handles, permanent uids (A3.4; B04) | none needed |
@@ -280,7 +280,7 @@ dist/                 kindling.apk of every alpha (at most 50 MB), its note and 
 | `kd-web` | the WebAssembly entry: exports, WebGL2, `IdbStorage`, audio blocks | `kd-app` | A2.6 | `MIL-01` |
 | `kd-tools` | the `kd` command line | `kd-sim`, `kd-save` (`files`), `kd-core` (`threads`), `kd-data` (`compile`), `kd-things`, `kd-world`, `kd-text`, `kd-audio` | A2.7, A15 | `MIL-01` |
 
-**Outside crates**, pinned in `[workspace.dependencies]`, each allowed only where listed: `libm`, `serde`, `log` (all); `bytemuck` (store columns and saved types); `xxhash-rust` (`kd-core`, for `num::hash64`); `rayon` (`kd-core` with `threads`); `postcard` (`kd-data`); `toml` (`kd-data` with `compile`; `kd-tools`, which reads `tools/layers.toml`); `zstd` (`kd-save`, native); `ruzstd` (`kd-save`, `wasm32`); `glow` (`kd-render`, `kd-app`); `rtrb` (`kd-audio`, its command rings, A13.2); `jni` 0.21 and `libc` (`kd-android`); `serde_json` (`kd-android`; `kd-tools`, which reads `cargo metadata`); `wasm-bindgen`, `js-sys`, `web-sys`, `console_error_panic_hook` (`kd-web`); `png` (`kd-tools`).
+**Outside crates**, pinned in `[workspace.dependencies]`, each allowed only where listed: `libm`, `serde`, `log` (all); `bytemuck` (store columns and saved types); `xxhash-rust` (`kd-core`, for `num::hash64`); `rayon` (`kd-core` with `threads`); `postcard` (`kd-data`); `toml` (`kd-data` with `compile`; `kd-tools`, which reads `tools/layers.toml`); `zstd` (`kd-save`, native); `ruzstd` (`kd-save`, `wasm32`); `glow` (`kd-render`, `kd-app`, and the two shells, which make its context from EGL or the canvas, A2.5, A2.6); `rtrb` (`kd-audio`, its command rings, A13.2); `jni` 0.21 and `libc` (`kd-android`); `serde_json` (`kd-android`; `kd-tools`, which reads `cargo metadata`); `wasm-bindgen`, `js-sys`, `web-sys`, `console_error_panic_hook` (`kd-web`); `png` (`kd-tools`).
 A new one needs a one-line reason in `Cargo.toml` and the reviewer's OK (`PRC-09`); none may need the operating system's randomness (`getrandom`).
 
 **Interfaces**, sketched (the owning sections refine them):
@@ -412,7 +412,7 @@ Rust never calls Java: its requests wait in an outbox Kotlin polls each frame (`
 ### A2.6 The web shell
 
 **Files:** `web/index.html` (a full-window canvas, no scrolling, a dark background, a one-line status); `web/glue.js` (about 250 lines: loads the wasm, reads saves from IndexedDB, forwards pointer events, runs the frame loop, writes saves, feeds audio, pauses when the page is hidden); `web/audio-worklet.js` (about 60 lines: plays queued 128-frame stereo blocks, counts underruns); generated `web/pkg/` (`wasm-bindgen --target web`).
-The build goes to `dist/web/` and is published as a private page once the first alpha's probe shows WebAssembly runs in the artifact page; otherwise the APK is the only route, and it ships with every alpha either way (`PRC-11`, A15.4).
+The build goes to `dist/web/` and is published as a private page, where WebAssembly and WebGL2 ran from the first build; if that ever stops, the APK is the only route, and it ships with every alpha either way (`PRC-11`, A15.4, A17.3).
 
 ```rust
 #[wasm_bindgen] impl WebApp {   // holds the App; one thread, so every call is direct
@@ -479,7 +479,7 @@ A large test world is never shipped: it is remade from its seed and command line
 
 - Gradle repositories, in order: `google()`, `https://maven-central.storage-download.googleapis.com/maven2/`, `mavenCentral()`, `gradlePluginPortal()`; `gradle.properties` sets 8 retries with a 1 s initial back-off.
 - `.cargo/config.toml`: `-C link-arg=-Wl,-z,max-page-size=16384` for `aarch64-linux-android`; `linker = "aarch64-linux-gnu-gcc"` and `runner = "qemu-aarch64-static -L /usr/aarch64-linux-gnu"` for arm64 Linux tests; no `target-cpu` or fast-math flags (A3.2).
-- **A fresh session** starts on an empty machine (B80): the cloud environment's setup script, set once by the owner, runs `tools/setup-toolchain.sh`, which installs only what is missing into `$KD_CACHE` (default `~/.cache/kindling`, never the repository; sizes in A15.2).
+- **A fresh session** starts on an empty machine (B80): the cloud environment's setup script, set once by the owner, runs `tools/setup.sh`, which installs only what is missing into `$KD_CACHE` (default `~/.cache/kindling`, never the repository; sizes in A15.2).
   Without it, `tools/build-apk.sh` runs the script before its first build; `tools/env.sh` then sets `ANDROID_HOME`, `ANDROID_NDK_HOME` and `GRADLE_USER_HOME`.
 - **Limits:** no session can make GitHub releases or set commit statuses, so the merge gate is `tools/check.sh` plus the independent review recorded in the pull request description, and long runs keep their checkpoints on the session's disk, pushing small compressed ones (under 50 MB each, oldest pruned) to the `runs` branch (A15).
 
@@ -4423,7 +4423,7 @@ No cloud session can create GitHub releases or set commit statuses (the reviews'
 
 ### A15.2 A fresh cloud session
 
-A session starts on an empty machine (B80), so the environment's setup script runs `tools/setup-toolchain.sh` (A2.8), which installs what is missing into `$KD_CACHE`, qemu and the arm64 linker included.
+A session starts on an empty machine (B80), so the environment's setup script runs `tools/setup.sh` (A2.8), which installs what is missing into `$KD_CACHE`, qemu and the arm64 linker included.
 That is about 1.4 GB downloaded and 4.5 GB on disk (NDK 2.3 GB, SDK 0.7 GB, Gradle cache 1.3 GB), in about 5 minutes (B78).
 A shallow clone is enough, so binaries in old history never slow a start (A17.10); if setup fails, the session tells the owner the command and exit code.
 
@@ -4431,7 +4431,7 @@ A shallow clone is enough, so binaries in old history never slow a start (A17.10
 
 - Cloud and tests: `cargo build --profile fast -p kd-tools` gives `kd` (A2.7).
 - Web: `tools/build-web.sh` builds `kd-web` for wasm32 and runs `wasm-bindgen --target web` into `dist/web/` with `index.html`, the glue and the audio worklet; wasm at most 12 MB (the artifact host takes 15 MB a binary file); `dist/web/` is never committed, as the published page holds it.
-- Phone: `tools/build-apk.sh release|check` runs Gradle (A2.5: its `Exec` task builds `libkindling.so` into `build/rustJniLibs`), signs with scheme v3, which `apksigner` uses alone at minSdk 31 since every Android that installs the APK reads it (`release` with the release key, A15.5, or the throwaway key until its secret exists; `check` with a key made in the session and discarded), runs `tools/verify-apk.sh` (A2.5's checks, including exactly its permissions, never `INTERNET`, `PLT-03`), and puts the APK and its SHA-256 in `dist/`.
+- Phone: `tools/build-apk.sh release|check` runs Gradle (A2.5: its `Exec` task builds `libkindling.so` into `build/rustJniLibs`), signs with scheme v3, which `apksigner` uses alone at minSdk 31 since every Android that installs the APK reads it (`release` with the release key, A15.5; `check` with a key made in the session and discarded), runs `tools/verify-apk.sh` (A2.5's checks, including exactly its permissions, never `INTERNET`, `PLT-03`), and puts the APK and its SHA-256 in `dist/`.
 
 Package `dev.kindling.app` (A2.5, permanent once registered); `versionCode` = stage × 1000 + alpha × 10 + split (split `a` 1 to `e` 5, none 0: α00 1000, α06b 1062, α13 3130), so each alpha installs over the last; **Decision:** the split digit leaves room for lettered alphas such as α06b, which stage × 1000 + alpha did not.
 **Decision:** the APK is at most 50 MB (the reviews' cap; GitHub refuses files over 100 MB), expected about 30–36 MB: `libkindling.so` about 10–15 MB stored uncompressed, ML Kit and AndroidX about 5 MB, recordings about 4 MB, the murmur's two syllable banks about 10 MB (A13.9, A13.13: no voice model or ONNX Runtime), catalogue, font and textures about 2 MB.
@@ -4808,7 +4808,7 @@ Serves `RSK-02`, `RSK-04`, `RSK-08`, `RSK-09`, `RSK-14`, `RSK-15`, `RSK-18`, `RS
 ### A17.10 Smaller risks
 
 - Repository growth: each alpha's APK adds about 33 MB to `main`'s history (about 2.3 GB over some 70 alphas, A15.3), and the `runs` branch its checkpoints; shallow clones keep sessions fast and each stage report gives the size; past 3 GB the owner chooses between their own GitHub token, so binaries go to releases (the reviews' decision), and deleting old `runs` branches.
-- Toolchain downloads failing: `tools/setup-toolchain.sh` retries with backoff and uses the Maven mirror; versions change only on purpose.
+- Toolchain downloads failing: `tools/setup.sh` retries with backoff and uses the Maven mirror; versions change only on purpose.
 - The phone replaced (`RSK-24`): worlds move by export, and the new model is planned with the owner.
 
 ## A18. Traceability

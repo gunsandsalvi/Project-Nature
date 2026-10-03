@@ -1,0 +1,13 @@
+[package]
+name = "kd-render"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+kd-core.workspace = true
+kd-data.workspace = true
+kd-view.workspace = true
+glow.workspace = true
+log.workspace = true

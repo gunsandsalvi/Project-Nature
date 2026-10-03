@@ -1,0 +1,122 @@
+# What each crate may name (A2.2, A2.3), read by `kd check layers` from α00b.
+#   sim      a simulation crate (or kd-view): the root clippy.toml's bans hold there and f64 is refused (A3.2)
+#   deps     the workspace crates it may depend on: only crates below it in A2.3's arrows
+#   outside  the outside crates of A2.2 it may depend on
+#   unsafe   "none", "anywhere", or the list of files allowed `unsafe` (A4.8)
+# Every crate may also use libm, serde and log (A2.2).
+
+[kd-core]
+sim = true
+deps = []
+outside = ["bytemuck", "xxhash-rust", "rayon"]
+unsafe = "none"
+
+[kd-data]
+sim = true
+deps = ["kd-core"]
+outside = ["bytemuck", "postcard", "toml"]
+unsafe = "none"
+
+[kd-world]
+sim = true
+deps = ["kd-core", "kd-data"]
+outside = ["bytemuck"]
+unsafe = "none"
+
+[kd-things]
+sim = true
+deps = ["kd-core", "kd-data"]
+outside = ["bytemuck"]
+unsafe = "none"
+
+[kd-life]
+sim = true
+deps = ["kd-core", "kd-data"]
+outside = ["bytemuck"]
+unsafe = "none"
+
+[kd-people]
+sim = true
+deps = ["kd-core", "kd-data", "kd-world", "kd-things", "kd-life"]
+outside = ["bytemuck"]
+unsafe = "none"
+
+[kd-culture]
+sim = true
+deps = ["kd-core", "kd-data", "kd-world", "kd-things", "kd-life", "kd-people"]
+outside = ["bytemuck"]
+unsafe = "none"
+
+[kd-player]
+sim = true
+deps = ["kd-core", "kd-data", "kd-world", "kd-things", "kd-life", "kd-people", "kd-culture"]
+outside = ["bytemuck"]
+unsafe = "none"
+
+[kd-sim]
+sim = true
+deps = ["kd-core", "kd-data", "kd-world", "kd-things", "kd-life", "kd-people", "kd-culture", "kd-player", "kd-view"]
+outside = ["bytemuck"]
+unsafe = ["src/cluster/split.rs"]
+
+[kd-save]
+sim = true
+deps = ["kd-core", "kd-data", "kd-world", "kd-things", "kd-life", "kd-people", "kd-culture", "kd-player", "kd-view", "kd-sim"]
+outside = ["bytemuck", "zstd", "ruzstd"]
+unsafe = "none"
+
+[kd-view]
+sim = true
+deps = ["kd-core"]
+outside = ["bytemuck"]
+unsafe = "none"
+
+[kd-render]
+sim = false
+deps = ["kd-core", "kd-data", "kd-view"]
+outside = ["glow"]
+unsafe = "anywhere"
+
+[kd-ui]
+sim = false
+deps = ["kd-core", "kd-data", "kd-view"]
+outside = []
+unsafe = "none"
+
+[kd-audio]
+sim = false
+deps = ["kd-core", "kd-data", "kd-view"]
+outside = ["rtrb"]
+unsafe = "none"
+
+[kd-text]
+sim = false
+deps = ["kd-core", "kd-data", "kd-view"]
+outside = []
+unsafe = "none"
+
+[kd-app]
+sim = false
+deps = ["kd-core", "kd-data", "kd-world", "kd-things", "kd-life", "kd-people", "kd-culture", "kd-player", "kd-sim",
+        "kd-save", "kd-view", "kd-render", "kd-ui", "kd-audio", "kd-text"]
+outside = ["glow"]
+unsafe = "anywhere"
+
+[kd-android]
+sim = false
+deps = ["kd-core", "kd-view", "kd-app"]
+outside = ["glow", "jni", "libc", "serde_json"]
+unsafe = "anywhere"
+
+[kd-web]
+sim = false
+deps = ["kd-core", "kd-view", "kd-app"]
+outside = ["glow", "wasm-bindgen", "js-sys", "web-sys", "console_error_panic_hook"]
+unsafe = "anywhere"
+
+[kd-tools]
+sim = false
+deps = ["kd-core", "kd-data", "kd-world", "kd-things", "kd-life", "kd-people", "kd-culture", "kd-player", "kd-sim",
+        "kd-save", "kd-view", "kd-text", "kd-audio"]
+outside = ["toml", "serde_json", "png", "bytemuck"]
+unsafe = "none"

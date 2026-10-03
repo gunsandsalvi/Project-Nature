@@ -1,0 +1,75 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+exclude = ["tests/banned"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.97"
+publish = false
+
+[workspace.dependencies]
+# Outside crates (A2.2), each allowed only where tools/layers.toml says; a new one needs a one-line reason here
+# and the reviewer's OK (PRC-09), and none may need the operating system's randomness.
+libm = "0.2"                                            # maths with the same bits on every target (A3.2)
+serde = { version = "1", features = ["derive"] }        # catalogue and save types (A3.6, A14)
+log = "0.4"                                             # logging macros, one target per crate (A3.8)
+bytemuck = { version = "1", features = ["derive"] }     # store columns and saved types as plain bytes (A3.2)
+xxhash-rust = { version = "0.8", features = ["xxh3"] }  # num::hash64, XXH3-64 (A3.2)
+rayon = "1"                                             # kd-core's Workers pool, feature threads (A2.2)
+postcard = { version = "1", features = ["alloc"] }      # the catalogue blob (A3.6)
+toml = "1"                                              # the catalogue compiler; kd reads tools/layers.toml
+zstd = "0.14"                                           # save compression on native targets (A2.4)
+ruzstd = "0.9"                                          # the same format in pure Rust for the web (A2.4)
+glow = "0.18"                                           # OpenGL ES 3.0 and WebGL2 behind one interface (A11.1)
+rtrb = "0.4"                                            # the audio command rings (A13.2)
+jni = { version = "0.21", default-features = false }   # the Android entry points (A2.5)
+libc = "0.2"                                            # Android's clock and logcat (A2.5)
+serde_json = "1"                                        # kd-android's messages; kd reads cargo metadata
+wasm-bindgen = "0.2"                                    # the web entry (A2.6)
+js-sys = "0.3"                                          # JavaScript values for the web entry (A2.6)
+web-sys = "0.3"                                         # browser interfaces for the web entry (A2.6)
+console_error_panic_hook = "0.1"                        # a panic on the web shows its message (A3.8)
+png = "0.18"                                            # map previews and screenshots in kd (A2.7)
+kd-core = { path = "crates/kd-core" }
+kd-data = { path = "crates/kd-data" }
+kd-world = { path = "crates/kd-world" }
+kd-things = { path = "crates/kd-things" }
+kd-life = { path = "crates/kd-life" }
+kd-people = { path = "crates/kd-people" }
+kd-culture = { path = "crates/kd-culture" }
+kd-player = { path = "crates/kd-player" }
+kd-sim = { path = "crates/kd-sim" }
+kd-save = { path = "crates/kd-save" }
+kd-view = { path = "crates/kd-view" }
+kd-render = { path = "crates/kd-render" }
+kd-ui = { path = "crates/kd-ui" }
+kd-audio = { path = "crates/kd-audio" }
+kd-text = { path = "crates/kd-text" }
+kd-app = { path = "crates/kd-app" }
+kd-android = { path = "crates/kd-android" }
+kd-web = { path = "crates/kd-web" }
+kd-tools = { path = "crates/kd-tools" }
+
+[profile.dev]          # tests: quick, with debug assertions and integer overflow checks on (A3.2)
+opt-level = 2
+debug = "line-tables-only"
+
+[profile.release]      # the delivered APK only (A15.1)
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "unwind"       # JNI entries and the frame loop catch panics (A3.8)
+debug = "line-tables-only"
+
+[profile.release-web]  # the delivered wasm: wasm32-unknown-unknown cannot unwind (A2.6)
+inherits = "release"
+panic = "abort"
+
+[profile.fast]         # kd, scenes and benchmarks (A15.1)
+inherits = "release"
+lto = false
+codegen-units = 16
+incremental = true
+debug = false

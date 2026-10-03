@@ -4,7 +4,6 @@ __pycache__/
 /web/pkg/
 /dist/web/
 /dist/note/
-/dist/probe/
 /android/.gradle/
 /android/build/
 /android/app/build/

@@ -1,0 +1,11 @@
+[package]
+name = "kd-player"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+kd-core.workspace = true
+kd-data.workspace = true
+kd-culture.workspace = true
