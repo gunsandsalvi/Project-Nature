@@ -566,15 +566,36 @@ mod tests {
             let line = format!("#define {} {}.0\n", c.define_name(), k + 1);
             assert!(defs.contains(&line), "{defs}");
         }
-        // The shaders pack and compare categories by name only, never by a bare number.
+        // The shaders pack and compare categories by name only, never by a bare number, on either side of the
+        // comparison; and the post pass names the light tables it reads.
         let cube = include_str!("../shaders/cube.frag");
+        let post = include_str!("../shaders/post.frag");
         assert!(cube.contains("packOut(idx, C_ROCK,"), "the cube packs as rock");
-        for (file, src) in [("cube.frag", cube), ("post.frag", include_str!("../shaders/post.frag"))] {
-            for op in ["cat == ", "cat != ", "cat > ", "cat < "] {
-                for (i, _) in src.match_indices(op) {
-                    let next = src[i + op.len()..].chars().next();
-                    assert_eq!(next, Some('C'), "{file}: a bare category number after `{op}`");
+        let files = [
+            ("cube.frag", cube),
+            ("post.frag", post),
+            ("terrain.frag", include_str!("../shaders/terrain.frag")),
+        ];
+        for (file, src) in files {
+            for op in ["==", "!=", ">=", "<=", ">", "<"] {
+                let after = format!("cat {op} ");
+                for (i, _) in src.match_indices(&after) {
+                    let next = src[i + after.len()..].chars().next();
+                    assert_eq!(next, Some('C'), "{file}: a bare category number after `{after}`");
                 }
+                let before = format!(" {op} cat");
+                for (i, _) in src.match_indices(&before) {
+                    let word = src[..i].rsplit(|c: char| !(c.is_alphanumeric() || c == '_')).next();
+                    assert!(
+                        word.is_some_and(|w| w.starts_with("C_")),
+                        "{file}: a bare category number before `{before}`"
+                    );
+                }
+            }
+        }
+        for (i, _) in post.match_indices("lut(") {
+            if !post[..i].ends_with("float ") {
+                assert!(post[i + 4..].starts_with("L_"), "post.frag: a light table by number");
             }
         }
     }

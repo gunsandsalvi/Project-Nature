@@ -43,7 +43,9 @@ class GateTest(unittest.TestCase):
 
     # checks: PRC-09
     def test_unnamed_reviewer_fails(self):
-        for who in ("someone", "subagent:", "subagent:Bad_Label", "agent:a01a-review"):
+        # the whole name must match: no underscore, and no session riding behind a subagent's label
+        for who in ("someone", "subagent:", "subagent:Bad_Label", "agent:a01a-review", "subagent:a01a_x",
+                    "subagent:x/session_01Builder"):
             self.assertNotEqual(gate(f"Review: APPROVE 0123456789ab {who}"), [], who)
 
     # checks: PRC-09 PRC-10
