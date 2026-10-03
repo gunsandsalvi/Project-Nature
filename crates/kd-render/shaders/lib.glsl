@@ -9,6 +9,23 @@ float bayer(ivec2 p) {
     return (float(m[(p.y & 3) * 4 + (p.x & 3)]) + 0.5) / 16.0;
 }
 
+// The share of the light's disc showing over a horizon of slope `horizon` toward it, for light at slope `tan_e`
+// (A11.4, A11.5), as pixel::sunlit.
+float sunlit(float horizon, float tan_e) {
+    return clamp((tan_e - horizon) / (SUN_TAN * max(1.0 + tan_e * horizon, 1e-6)) + 0.5, 0.0, 1.0);
+}
+
+// The sun factor tau: the sunlit share times how squarely the surface faces the light, as pixel::sun_factor.
+float sun_factor(float horizon, float tan_e, float n_dot_l) {
+    return sunlit(horizon, tan_e) * max(n_dot_l, 0.0);
+}
+
+// The sky factor sigma: the share of the sky the horizon leaves open times how much of it the surface faces, as
+// pixel::sky_factor.
+float sky_factor(float open, float n_up) {
+    return open * (1.0 + n_up) / 2.0;
+}
+
 // The light's lightness at sky factor sigma and sun factor tau (A11.3), as pixel::lightness.
 float lightness(float sigma, float tau, float y_sky, float y_sun) {
     return pow(sigma * y_sky + tau * y_sun, 1.0 / 3.0);

@@ -1,8 +1,8 @@
 //! The probe scene (A11.13 rule 2): fixed inputs drawn one art pixel each through the shaders' per-pixel formulas into
 //! a small target, read back and compared with the Rust twins (`pixel`) exactly; headless Chromium runs it every
-//! alpha, and the phone in its self-check. Its lower half holds the light's steps (α01a), its upper half the
-//! surface the four nearest squares vote for at a place the edges' noise moved, and the look the split noise picks
-//! (α01b).
+//! alpha, and the phone in its self-check. Its lower half holds the light's steps (α01a), from α01c lit by what a
+//! point's fields and normal give (the sky and sun factors); its upper half the surface the four nearest squares
+//! vote for at a place the edges' noise moved, and the look the split noise picks (α01b).
 //!
 //! Implements PRE-20 and PRE-01, see A11.13: the GPU picks exactly the steps, surfaces and looks the twins pick.
 
@@ -11,7 +11,8 @@ use kd_core::num::hash2;
 use crate::RenderError;
 use crate::gl::{self, Format, Program, State, Target, Texture, unit};
 use crate::pixel::{
-    SEED_SPLIT, edge_wobble, faded_noise, ladder_pos, light_step, lightness, margin, split_look, vote_base, vote4,
+    SEED_SPLIT, SUN_TAN, edge_wobble, faded_noise, ladder_pos, light_step, lightness, margin, sky_factor, split_look,
+    sun_factor, vote_base, vote4,
 };
 use crate::shaders::{self, Stage};
 
@@ -19,8 +20,8 @@ use crate::shaders::{self, Stage};
 pub const W: u32 = 16;
 pub const H: u32 = 16;
 pub const N: usize = (W * H) as usize;
-/// Rows of the input texture: the light's 4, then the surfaces' `SURFACE_ROWS`.
-pub const LIGHT_ROWS: usize = 4;
+/// Rows of the input texture: the light's 7, then the surfaces' `SURFACE_ROWS`.
+pub const LIGHT_ROWS: usize = 7;
 pub const SURFACE_ROWS: usize = 14;
 /// How far from deciding otherwise every surface input stays, in shares of a vote or in noise.
 pub const SURFACE_CLEARANCE: f32 = 1e-3;
@@ -31,13 +32,28 @@ pub const Y_SUN: f32 = 0.85;
 /// risk α01a names).
 pub const CLEARANCE: f32 = 1e-4;
 
-/// One fixed input: the sky and sun factors, the band's half-width in steps, and the ladder's number of steps.
+/// One fixed input: what a point's fields and normal give (the share of the sky its horizon leaves open, the
+/// normal's upward part, its horizon toward the light, the light's slope, and `n·l`), the band's half-width in
+/// steps, and the ladder's number of steps.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Input {
-    pub sigma: f32,
-    pub tau: f32,
+    pub open: f32,
+    pub n_up: f32,
+    pub horizon: f32,
+    pub tan_e: f32,
+    pub n_dot_l: f32,
     pub band: f32,
     pub steps: i32,
+}
+
+impl Input {
+    /// Its sky and sun factors, σ and τ, as the twins give them.
+    pub fn factors(&self) -> (f32, f32) {
+        (
+            sky_factor(self.open, self.n_up),
+            sun_factor(self.horizon, self.tan_e, self.n_dot_l),
+        )
+    }
 }
 
 /// The path's range under the probe's light: deep shade to full sun.
@@ -50,23 +66,33 @@ fn pixel_of(i: usize) -> (i32, i32) {
     ((i as u32 % W) as i32, (i as u32 / W) as i32)
 }
 
-/// The probe's inputs: drawn from a fixed sequence of hashes, kept only when `CLEARANCE` from any flip.
+/// The probe's inputs: drawn from a fixed sequence of hashes, kept only when `CLEARANCE` from any flip. Half the
+/// horizons lie within the sun's disc of the light, where its share is partly shown.
 pub fn inputs() -> Vec<Input> {
     let range = range();
     let mut out = Vec::with_capacity(N);
     let mut n = 0u64;
     while out.len() < N {
-        let h = hash2(0x0070_726f_6265, n);
+        let (h, g) = (hash2(0x0070_726f_6265, n), hash2(0x0070_726f_6266, n));
         n += 1;
-        let unit = |shift: u32| ((h >> shift) & 0xffff) as f32 / 65536.0;
+        let unit = |v: u64, shift: u32| ((v >> shift) & 0xffff) as f32 / 65536.0;
+        let tan_e = 3.0 * unit(g, 0) - 0.2;
         let input = Input {
-            sigma: unit(0),
-            tau: unit(16),
+            open: unit(h, 0),
+            n_up: unit(h, 16),
+            horizon: if g >> 63 == 1 {
+                tan_e + SUN_TAN * (1.0 + tan_e * tan_e) * (unit(g, 16) - 0.5)
+            } else {
+                3.5 * unit(g, 16) - 0.5
+            },
+            tan_e,
+            n_dot_l: 1.2 * unit(g, 32) - 0.2,
             band: [0.0, 0.15, 0.35][((h >> 32) % 3) as usize],
             steps: 4 + ((h >> 40) % 4) as i32,
         };
         let (x, y) = pixel_of(out.len());
-        let s = ladder_pos(lightness(input.sigma, input.tau, Y_SKY, Y_SUN), range, input.steps);
+        let (sigma, tau) = input.factors();
+        let s = ladder_pos(lightness(sigma, tau, Y_SKY, Y_SUN), range, input.steps);
         let clear = margin(s, input.band, input.steps, x, y) * (range[1] - range[0]) / (input.steps - 1) as f32;
         if clear >= CLEARANCE {
             out.push(input);
@@ -83,7 +109,8 @@ pub fn twins(inputs: &[Input]) -> Vec<u8> {
         .enumerate()
         .map(|(i, p)| {
             let (x, y) = pixel_of(i);
-            let s = ladder_pos(lightness(p.sigma, p.tau, Y_SKY, Y_SUN), range, p.steps);
+            let (sigma, tau) = p.factors();
+            let s = ladder_pos(lightness(sigma, tau, Y_SKY, Y_SUN), range, p.steps);
             light_step(s, p.band, p.steps, x, y) as u8
         })
         .collect()
@@ -174,14 +201,19 @@ pub fn surface_twins(inputs: &[SurfaceInput]) -> Vec<u8> {
         .collect()
 }
 
-/// All the inputs as an R32F texture `N` wide: the light's rows σ, τ, band and steps, then the surfaces' q, w,
-/// 1/texel, their four surfaces, the take-over value and the octaves.
+/// All the inputs as an R32F texture `N` wide: the light's rows (the open sky, the normal's upward part, the
+/// horizon, the light's slope, n·l, the band and the steps), then the surfaces' q, w, 1/texel, their four surfaces,
+/// the take-over value and the octaves.
 pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput]) -> Vec<u8> {
+    let light = |f: &dyn Fn(&Input) -> f32| inputs.iter().map(f).collect::<Vec<f32>>();
     let mut rows: Vec<Vec<f32>> = vec![
-        inputs.iter().map(|p| p.sigma).collect(),
-        inputs.iter().map(|p| p.tau).collect(),
-        inputs.iter().map(|p| p.band).collect(),
-        inputs.iter().map(|p| p.steps as f32).collect(),
+        light(&|p| p.open),
+        light(&|p| p.n_up),
+        light(&|p| p.horizon),
+        light(&|p| p.tan_e),
+        light(&|p| p.n_dot_l),
+        light(&|p| p.band),
+        light(&|p| p.steps as f32),
     ];
     let field = |f: &dyn Fn(&SurfaceInput) -> f32| surfaces.iter().map(f).collect::<Vec<f32>>();
     rows.extend([
@@ -255,6 +287,7 @@ impl ProbePass {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::pixel::sunlit;
 
     // checks: PRE-20
     #[test]
@@ -270,6 +303,17 @@ mod tests {
         }
         let steps = twins(&list);
         assert!(steps.contains(&0) && steps.iter().zip(&list).any(|(&s, p)| i32::from(s) == p.steps - 1));
+        // Points in full sun, in shadow though facing the light, and in a shadow's soft edge; and some facing away.
+        let share = |p: &Input| sunlit(p.horizon, p.tan_e);
+        assert!(list.iter().any(|p| share(p) == 1.0 && p.n_dot_l > 0.0));
+        assert!(list.iter().any(|p| share(p) == 0.0 && p.n_dot_l > 0.0));
+        assert!(
+            list.iter()
+                .filter(|p| share(p) > 0.05 && share(p) < 0.95 && p.n_dot_l > 0.1)
+                .count()
+                > 20
+        );
+        assert!(list.iter().any(|p| p.n_dot_l < 0.0));
         // The same inputs every time, on every target: a fixed sequence.
         assert_eq!(inputs(), list);
         let surfaces = surface_inputs();

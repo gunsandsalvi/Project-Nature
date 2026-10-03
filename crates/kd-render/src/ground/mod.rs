@@ -291,7 +291,7 @@ impl SurfaceTable {
 }
 
 /// The ground's uniforms, in `GroundPass::u`'s order.
-const UNIFORMS: [&str; 20] = [
+const UNIFORMS: [&str; 21] = [
     "u_spacing",
     "u_morph",
     "u_patches",
@@ -305,6 +305,7 @@ const UNIFORMS: [&str; 20] = [
     "u_pattern_off",
     "u_dither",
     "u_light_dir",
+    "u_light_tan",
     "u_y",
     "u_range",
     "u_looks[0]",
@@ -325,6 +326,12 @@ pub struct GroundPass {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct GroundStats {
     pub triangles: u64,
+}
+
+/// The light's slope, `tan e`, from its direction (east, north, up): what the sun field's horizons are measured
+/// against (A11.5), held below 10⁴ for light overhead.
+pub fn light_tan(dir: [f32; 3]) -> f32 {
+    field::azimuth(dir).map_or(1e4, |(_, t)| t.clamp(-1e4, 1e4))
 }
 
 /// The patches of an area a view needs: the first patch's column and row, and how many columns and rows, from the
@@ -395,6 +402,7 @@ impl GroundPass {
             u_pattern_off,
             u_dither,
             u_light_dir,
+            u_light_tan,
             u_y,
             u_range,
             u_looks,
@@ -414,6 +422,7 @@ impl GroundPass {
         gl::set_ivec2(gl, u_dither.as_ref(), view.dither());
         let light = &lighting.light;
         gl::set_vec3(gl, u_light_dir.as_ref(), light.dir);
+        gl::set_f32(gl, u_light_tan.as_ref(), light_tan(light.dir));
         gl::set_vec2(gl, u_y.as_ref(), [dot(LUM, light.sky), dot(LUM, light.sun)]);
         gl::set_vec2(gl, u_range.as_ref(), lighting.palette.range);
         gl::set_ivec2_array(gl, u_looks.as_ref(), &self.table.looks);

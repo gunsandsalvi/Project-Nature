@@ -8,7 +8,7 @@ use crate::camera::VIEWPORT;
 use crate::ground::{MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LOOKS};
 use crate::looks::{PALETTE_SIZE, TABLE_ROWS};
 use crate::passes::scene::card;
-use crate::pixel::{Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, SEED_EDGE_X, SEED_EDGE_Y, SEED_SPLIT, flag};
+use crate::pixel::{Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, SEED_EDGE_X, SEED_EDGE_Y, SEED_SPLIT, SUN_TAN, flag};
 use crate::probe;
 
 const LIB: &str = include_str!("../shaders/lib.glsl");
@@ -41,6 +41,7 @@ pub fn defines() -> String {
         ("CARD_ROW", card::ROW),
         ("PROBE_W", probe::W as i32),
         ("PROBE_H", probe::H as i32),
+        ("PROBE_LIGHT_ROWS", probe::LIGHT_ROWS as i32),
         ("VIEWPORT", VIEWPORT),
         ("PATCH_QUADS", PATCH_QUADS),
         ("MAX_SURFACES", MAX_SURFACES as i32),
@@ -54,6 +55,7 @@ pub fn defines() -> String {
     // Floats as Rust writes them, which GLSL reads back to the same f32.
     let _ = writeln!(s, "#define SKIRT_M {SKIRT_M:?}");
     let _ = writeln!(s, "#define EDGE_WOBBLE_M {EDGE_WOBBLE_M:?}");
+    let _ = writeln!(s, "#define SUN_TAN {SUN_TAN:?}");
     let o = EDGE_OCTAVES;
     let _ = writeln!(
         s,
@@ -131,6 +133,9 @@ mod tests {
         let twins = include_str!("pixel.rs");
         for name in [
             "bayer",
+            "sunlit",
+            "sun_factor",
+            "sky_factor",
             "lightness",
             "ladder_pos",
             "light_step",
