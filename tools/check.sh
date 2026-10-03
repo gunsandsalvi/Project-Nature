@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# The checks before work joins main (PRC-10, A15.12), in A15.12's nine numbered steps; a step whose tool has not
+# been built yet says which alpha brings it. Stops at the first failure.
+# Usage: tools/check.sh [--deliver]
+#   --deliver  also builds the release APK and the web page, as a delivery needs (step 9)
+# It writes results/checks/<commit>.json and ends with "Checks: PASS <commit>".
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+. tools/env.sh
+DELIVER=0
+case "${1:-}" in
+  "") ;;
+  --deliver) DELIVER=1 ;;
+  *) echo "usage: tools/check.sh [--deliver]" >&2; exit 2 ;;
+esac
+COMMIT="$(git rev-parse --short=12 HEAD)"
+T0=$(date +%s)
+git fetch -q origin +refs/heads/main:refs/remotes/origin/main 2>/dev/null || true
+BASE="$(git merge-base HEAD origin/main 2>/dev/null || git rev-list --max-parents=0 HEAD | tail -1)"
+# Whether the branch changed any of these paths since it left main.
+changed() { [ -n "$(git diff --name-only "$BASE" -- "$@")" ]; }
+step() { echo "== $*"; }
+later() { echo "   from $1"; }
+
+step "1 format";          cargo fmt --all --check
+step "1 lints";           cargo clippy --workspace --all-targets --locked -q -- -D warnings
+step "1 phone lints";     cargo clippy -p kd-android --target aarch64-linux-android --locked -q -- -D warnings
+step "1 web lints";       cargo clippy -p kd-web --target wasm32-unknown-unknown --locked -q -- -D warnings
+step "1 banned items";    later α00b
+step "2 layers, names";   later α00b
+step "3 tests"
+LOG="$(mktemp)"
+if ! cargo test --workspace --locked >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"; exit 1; fi
+echo "   $(grep -c '^test .* ok$' "$LOG") Rust tests passed"
+rm -f "$LOG"
+step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/signing-key.py selftest
+step "4 catalogue";       later α01a
+step "5 scenes";          later α07c
+step "6 repeat";          later α00b
+step "7 file check";      later α00b
+step "8 coverage";        later α00b
+step "9 builds"
+cargo build --profile fast -p kd-tools --locked -q
+if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-render; then
+  tools/build-web.sh
+  node tools/screens/smoke.mjs
+fi
+if [ "$DELIVER" = 1 ]; then
+  tools/build-apk.sh release
+elif changed android crates/kd-android crates/kd-app crates/kd-render; then
+  tools/build-apk.sh check
+fi
+
+MINUTES=$((($(date +%s) - T0 + 59) / 60))
+mkdir -p results/checks
+printf '{"commit": "%s", "result": "PASS", "deliver": %s, "minutes": %d}\n' \
+  "$COMMIT" "$([ "$DELIVER" = 1 ] && echo true || echo false)" "$MINUTES" >"results/checks/$COMMIT.json"
+echo "Checks: PASS $COMMIT"
