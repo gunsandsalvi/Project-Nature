@@ -5,6 +5,7 @@
 - The numbers every part of the game will build on: maths, game time with the 60-day year, and chance. They give exactly the same bits on your phone, in the browser and on the build computer, so a world will play out the same everywhere and any problem can be replayed.
 - The test card has a new square, right of the checker: green means your phone's maths and random draws match the build computer's bit for bit.
 - Behind the scenes, the checks that now guard every change before it joins the main version: which parts of the code may use which, banned shortcuts, the project documents and their links, and the review before each merge.
+- If the web page ever stops with an error, its bottom line now says why, instead of the picture freezing silently.
 
 ## What to try
 
