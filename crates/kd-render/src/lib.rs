@@ -341,8 +341,9 @@ impl Renderer {
         let ground_cam = (snap.cube.is_none() && self.ground.ready())
             .then(|| camera::compute(&pose, size, self.ground.lo_m, self.ground.hi_m));
         self.last_cam = ground_cam;
-        let light = ground_cam.as_ref().and_then(|cam| self.draw_shadow(cam));
-        draws += u32::from(light.is_some()) * 16;
+        let shadow = ground_cam.as_ref().and_then(|cam| self.draw_shadow(cam));
+        draws += shadow.as_ref().map_or(0, |s| s.1);
+        let light = shadow.map(|s| s.0);
         unsafe {
             self.passes.begin_scene(gl);
             if let Some(c) = snap.cube {
@@ -415,9 +416,9 @@ impl Renderer {
     }
 
     /// Pass 1 for the ground: while the sun is up and art pixels are under 3.2 m, its chunks into the shadow map from
-    /// the sun's camera fitted round the view (A11.2). Returns that camera when drawn.
+    /// the sun's camera fitted round the view (A11.2). Returns that camera and the draw calls, when drawn.
     #[allow(unsafe_code)]
-    fn draw_shadow(&self, cam: &camera::Camera) -> Option<LightCam> {
+    fn draw_shadow(&self, cam: &camera::Camera) -> Option<(LightCam, u32)> {
         let sun = dusk_sun();
         if cam.texel >= shadow::SHADOW_MAX_TEXEL || sun[1] <= shadow::SHADOW_MIN_SUN_UP {
             return None;
@@ -435,9 +436,9 @@ impl Renderer {
                 area_off: [d.x, 0.0, d.y],
                 step: ground::step_for(cam.texel),
             };
-            self.ground.draw(gl, g, &u);
+            let n = self.ground.draw(gl, g, &u);
+            Some((light, n))
         }
-        Some(light)
     }
 
     /// Pass 2 for the ground: its chunks into the art target at the spacing for the camera's art pixels, with the

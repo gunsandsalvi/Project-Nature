@@ -3395,6 +3395,7 @@ Every switch is a dither dissolve with ±6% hysteresis (`Trees.stepFade`), at th
 
 **Height-field chunks** (`buildGrid`): 64 m square, one vertex spacing a frame since the view is orthographic: 1 m below 0.6 m art pixels, 2 m below 1.3, 4 m below 2.6, else 8 m.
 Vertices (20 bytes) carry A5's surface material and a byte each of water distance, wear, cover and flags, in place of the mockup's `aA` and `aB`; normals come from heights blurred three times; 4 m skirts hide edges (`addSkirts`).
+The ground shader reads the surface per pixel from the area's surface map (a byte a square metre), the surface weighing most among the four nearest squares, with edges wandering a little by noise fixed to the world, since a surface blended across a triangle draws surfaces the rule never placed (α01b's review).
 The **ground shader** ports `terrainFS`, with a row of `data/models/surfaces.md` per surface material (ladder by season, stone density and size, flags for grikes, ash, gravel, mud, sand) in place of the mockup's fixed choices; ground cover is drawn by the picture's 4 m patches (kind, density, season state) as tuft and flower stamps below 0.095 m art pixels (`stampTuft`, `stampStone`, `PRE-46`); upward faces take the snow ladder by each vertex's snow (`WLD-16`).
 
 **Cliffs, overhangs and caves** (`PRE-23`, `PRE-24`):

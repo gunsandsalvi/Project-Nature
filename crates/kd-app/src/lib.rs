@@ -271,8 +271,9 @@ impl App {
     }
 
     /// Freezes time and the camera and shows a fixed golden scene (A11.12, A12.4) on dusk's row, with no strip:
-    /// `cube`, at yaw 0.6 and pitch 0.5; `valley-camp` and `valley-close`, the start's view of the cliff at the camp
-    /// stop (zoom 0.30) and the close camp stop (0.14). Returns whether the scene exists.
+    /// `cube`, at yaw 0.6 and pitch 0.5; `valley-camp`, `valley-close` and `valley-near`, the start's view of the
+    /// cliff at the camp stop (zoom 0.30), the close camp stop (0.14) and the closest zoom (0.00), where tufts and
+    /// stones show and the floating origin is not the area's corner. Returns whether the scene exists.
     pub fn golden(&mut self, name: &str) -> bool {
         let (x, y) = valley::START_AT;
         let valley = |zoom| Golden::Valley(valley::pose_at(&self.ground, x, y, valley::START_YAW, zoom));
@@ -280,6 +281,7 @@ impl App {
             "cube" => Some(Golden::Cube(CubeView { yaw: 0.6, pitch: 0.5 })),
             "valley-camp" => Some(valley(0.30)),
             "valley-close" => Some(valley(0.14)),
+            "valley-near" => Some(valley(camera::ZOOM_MIN)),
             _ => return false,
         };
         true
@@ -601,6 +603,7 @@ mod tests {
         assert_eq!(app.yaw(), valley::START_YAW);
         assert_eq!(app.palette_row(), 0);
         assert!(app.golden("valley-close"));
+        assert!(app.golden("valley-near"));
         // a drag moves the live camera, not the frozen one
         app.handle(touch(InputKind::Down, 300.0, 0));
         app.handle(touch(InputKind::Move, 100.0, 16));

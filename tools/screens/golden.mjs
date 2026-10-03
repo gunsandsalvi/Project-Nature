@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { launch, serve, pixels } from './lib.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const SCENES = ['cube', 'valley-camp', 'valley-close'];
+const SCENES = ['cube', 'valley-camp', 'valley-close', 'valley-near'];
 const exe = process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const build = (/chromium-(\d+)/.exec(exe) || [, 'unknown'])[1];
 let pass = true;

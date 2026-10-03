@@ -52,6 +52,8 @@ pub struct GroundGpu {
     pub prog: Prog,
     pub shadow_prog: Prog,
     pub surf: glow::Texture,
+    /// The area's surface map, one byte a square metre, read per pixel so surfaces never blend across a triangle.
+    surf_map: Option<glow::Texture>,
     levels: Vec<(u32, Vec<GpuChunk>)>,
     /// The area's corner, and its lowest and highest ground in metres.
     pub origin: Pos,
@@ -80,6 +82,7 @@ impl GroundGpu {
                 prog,
                 shadow_prog,
                 surf,
+                surf_map: None,
                 levels: Vec::new(),
                 origin: Pos::default(),
                 lo_m: 0.0,
@@ -137,6 +140,18 @@ impl GroundGpu {
                 lo = lo.min(h);
                 hi = hi.max(h);
             }
+            if let Some(t) = self.surf_map.take() {
+                gl.delete_texture(t);
+            }
+            let sq = (g.side - 1) as u32;
+            self.surf_map = Some(crate::target::texture(
+                gl,
+                sq,
+                sq,
+                glow::R8,
+                glow::RED,
+                Some(&g.surface),
+            )?);
             self.origin = g.origin;
             self.lo_m = lo;
             self.hi_m = hi;
@@ -163,6 +178,7 @@ impl GroundGpu {
             prog.f(gl, "uVP", u.vp);
             prog.f(gl, "uAreaOff", &u.area_off);
             prog.tex(gl, "uSurf", 3, Some(self.surf));
+            prog.tex(gl, "uSurfMap", 4, self.surf_map);
             for c in chunks {
                 gl.bind_vertex_array(Some(c.vao));
                 gl.draw_elements(glow::TRIANGLES, c.count, glow::UNSIGNED_SHORT, 0);

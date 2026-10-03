@@ -31,7 +31,17 @@ fn pose(zoom: f32, yaw: f32) -> CameraPose {
 // checks: PRE-03
 #[test]
 fn stops_hit_their_texels() {
-    for (z, t) in STOPS {
+    // A11.5's table, written out here rather than read from `STOPS`, so a changed stop fails
+    let table = [
+        (0.00, 0.03),
+        (0.14, 0.13),
+        (0.30, 1.1),
+        (0.50, 37.0),
+        (0.68, 370.0),
+        (0.84, 7_600.0),
+    ];
+    assert_eq!(STOPS, table);
+    for (z, t) in table {
         let got = texel(z, PORTRAIT);
         assert!((got / t - 1.0).abs() < 0.001, "zoom {z}: {got} m, want {t} m");
     }

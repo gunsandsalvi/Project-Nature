@@ -165,13 +165,13 @@ impl Catalogue {
         format!("{}.{} {:08x}", self.major, self.minor, self.hash >> 32)
     }
 
-    /// The palette index of the colour with this name.
     /// A surface's number (its row of the surfaces texture) by id.
     pub fn surface(&self, id: &str) -> Option<u8> {
         let k = self.body.surfaces.iter().position(|s| s.id == id)?;
         u8::try_from(k).ok()
     }
 
+    /// The palette index of the colour with this name.
     pub fn colour(&self, name: &str) -> Option<ColourId> {
         let k = self.body.colours.iter().position(|c| c.name == name)?;
         u8::try_from(k).ok().map(ColourId)

@@ -124,8 +124,10 @@ vec4 packOut(float idx, float cat, float flags) {
 }
 /* Tiny grass tufts: points fixed in the world, each drawn as the same few pixels on screen.
    Returns 2 = highlight, 1 = mid, -1 = shadow, 0 = none. */
-// uView is the scene pass's viewport (x, y, width, height): the projection spans its width and height (A11.2)
-uniform mat4 uVP; uniform vec4 uView;
+// uView is the scene pass's viewport (x, y, width, height): the projection spans its width and height (A11.2).
+// The stamps take positions fixed to the world (metres from the floating origin plus uWorldOff, where the origin lies
+// within an 8,192 m block of the world) and take uWorldOff off again to project them with uVP.
+uniform mat4 uVP; uniform vec4 uView; uniform vec2 uWorldOff;
 vec2 pixelOf(vec4 q) { return floor((q.xy / q.w * 0.5 + 0.5) * uView.zw + uView.xy); }
 float stampTuft(vec2 p, float z, float cell, float dens) {
   if (uTexel > 0.095) return 0.0;
@@ -135,7 +137,7 @@ float stampTuft(vec2 p, float z, float cell, float dens) {
     vec2 c = base + vec2(float(i), float(j));
     if (hash12(c + 7.0) > dens) continue;
     vec2 w = (c + 0.2 + 0.6 * vec2(hash12(c + 11.0), hash12(c + 19.0))) * cell;
-    vec4 q = uVP * vec4(w.x, z, w.y, 1.0);
+    vec4 q = uVP * vec4(w.x - uWorldOff.x, z, w.y - uWorldOff.y, 1.0);
     vec2 px = pixelOf(q);
     vec2 o = floor(gl_FragCoord.xy) - px;
     float tall = hash12(c + 23.0) > 0.5 ? 1.0 : 0.0;
@@ -159,7 +161,7 @@ float stampStone(vec2 p, float z, float cell, float dens, float sizeM, float see
     float wpx = floor(clamp(sizeM * (0.55 + 0.9 * hash12(c + seed + 5.0)) / uTexel, 0.0, 9.0) + 0.5);
     if (wpx < 1.0) continue;
     float hpx = max(1.0, floor(wpx * 0.55 + 0.25));
-    vec4 q = uVP * vec4(w.x, z, w.y, 1.0);
+    vec4 q = uVP * vec4(w.x - uWorldOff.x, z, w.y - uWorldOff.y, 1.0);
     vec2 o = floor(gl_FragCoord.xy) - pixelOf(q) + vec2(floor(wpx * 0.5), 0.0);
     if (o.x < 0.0 || o.x > wpx - 1.0 || o.y < 0.0 || o.y > hpx - 1.0) continue;
     if (wpx > 2.5 && hpx > 1.5 && (o.x < 0.5 || o.x > wpx - 1.5) && (o.y < 0.5 || o.y > hpx - 1.5)) continue;

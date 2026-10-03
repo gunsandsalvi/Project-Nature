@@ -931,6 +931,10 @@ Smallest change that works: drags and glides keep the target's height, and the f
 `pan stays crisp` pans once inside an area and once across an area's midline, holding the target's height as a drag does, so `window.kd.camera()` also gives the height and the target's place within its art pixel (`z`, `fx`, `fy`) and takes `z`; `window.kd.crawl` takes an optional `zoom`, as B66 measured at zoom 0.16, not the camp stop's 0.30; and the golden `cube` is drawn again on the larger art target.
 A11.2 says so.
 
+**Conflict (T01b.4, A11.5; found by the review):** T01b.4 and A11.5 carry the surface in each vertex, but the GPU blends it across a triangle, and the rounded blend drew surfaces the rule never placed (dirt and rock between grass and scree) along the triangles' diagonals as a sawtooth; and the stamps, given positions fixed to the world, projected them as if they were metres from the floating origin, so stones and tufts vanished wherever the origin was not the area's north-west corner, the start view's scree among them.
+Smallest change that works: each area uploads its surface map (a byte a square metre, as its grid holds it), and the ground shader takes per pixel the surface whose squares weigh most among the four nearest squares' middles (bilinear weights), its edges wandering by up to 0.35 m with noise fixed to the world, so edges run smooth rather than as a staircase and only surfaces the rule placed show; the vertex keeps its byte, which the shader no longer reads; the stamps take `uWorldOff` off before projecting; and a fourth golden, `valley-near` (the start at the closest zoom, where the origin is not the area's corner), holds the stamps, failing by 4,496 pixels with the old projection.
+A11.5 says so.
+
 **From the owner (review, A15.13):** on 3 October 2026 the owner asked that the independent review, besides the code, look at the alpha's pictures as a pixel artist and a designer, to see whether the graphics are as they should be; `tools/review-checklist.md` (item 12) and A15.13 step 3 say so, from this alpha on.
 
 ### α02a The island (about 4.5 hours)
