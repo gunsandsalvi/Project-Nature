@@ -1463,6 +1463,15 @@ impl WorldCells {
 
 `CellNotice` reports a `kills` entry from its second while mass is left: birds over it by day, seen to 1 km, and rot smelled to 300 m downwind (A8.9), so foragers find carcasses to scavenge (`BIO-02`, `WLD-18`).
 
+**Built (α02a):** `kd_world::cells` holds the whole grid: `FixedCells` and its side tables in an `Arc`, `CellState` beside it, 132 MB (`heap_bytes`).
+- A void cell has the `water` flag `VOID` (the eighth bit beside A5.2's seven), a sea floor 200 m down and no rock, soil or biome (`NONE`, 255).
+- `cliff` holds the face's direction as an index into B10's eight in its top three bits and its height in 2 m steps below; `caves` holds the cell's count of cave records in bits 0–1 and its deepest's kind, dryness and depth in 4 m steps above; the records themselves sit in a side table in cell order.
+- A river cell's entry and exit are world positions in ticks, so a cell's exit equals the next cell's entry exactly, with its water's level and its bankfull width and depth.
+- **Escarpments** are a side table until faults and volcanoes join (`MIL-04`), and an escarpment's cells' `feature` holds its row plus one: each is a straight line (its y for a face looking north or south), its face's span along it, the breaks where a valley cuts it, its gaps and its height.
+  A cell's `height` is its mean, the step included: all of it on the high side, half on the line; so the blend of cells' heights alone would smear a 30 m cliff over 2 km.
+  `surface_z` (walks, A5.12), coarse ground (A5.5) and areas (A5.3) put it back sharp: the blend plus the height times the step's share at the point less the blend of the shares the cells hold; through a gap the step is a slope under 35°, and over 200 m past its face's ends and into a break the correction fades, leaving the blend's ramp, so a valley crosses the line with no face.
+- The fixed layers' saved encoding (A14.3) is each cell's 32 bytes in A5.2's column order, little-endian, and each side table's rows with floats as their bits.
+
 **Tested by:** round trips of every column; `within` across both seams; the A16.4 total from `heap_bytes`; a `kills` entry read on any day gives the mass A7.7's curve gives, and turned into a thing keeps it.
 **First needed:** `MIL-01` (the first region's cells); `kills` `MIL-02` (`SCP-16`); all 2 million at `MIL-04`.
 
