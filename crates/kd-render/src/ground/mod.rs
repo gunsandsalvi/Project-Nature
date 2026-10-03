@@ -18,7 +18,7 @@ use crate::frame::Lighting;
 use crate::gl::{self, Format, Program, State, Texture, unit};
 use crate::light::{LUM, dot};
 use crate::looks::Layout;
-use crate::pixel::{COVER_CHANNELS, cover_level};
+use crate::pixel::{COVER_CHANNELS, cover_level, relief_octaves};
 use crate::shaders::{self, Stage};
 
 /// Quads along a patch's side.
@@ -405,6 +405,8 @@ pub struct SurfaceTable {
     pub split_at: Vec<[f32; 2]>,
     /// The split's octaves as (λ₀, 1/λ₀, λ₁, 1/λ₁).
     pub split_oct: Vec<[f32; 4]>,
+    /// The micro-relief as (λ₀, 1/λ₀, octaves, greatest tilt) (A11.5).
+    pub relief: Vec<[f32; 4]>,
 }
 
 impl SurfaceTable {
@@ -414,6 +416,7 @@ impl SurfaceTable {
             info: vec![[1, 0]; MAX_SURFACES],
             split_at: vec![[0.0; 2]; MAX_SURFACES],
             split_oct: vec![[0.0; 4]; MAX_SURFACES],
+            relief: vec![[1.0, 1.0, 0.0, 0.0]; MAX_SURFACES],
         };
         for s in &cat.surfaces {
             let n = usize::from(s.number);
@@ -437,13 +440,20 @@ impl SurfaceTable {
                 t.split_oct[n][2 * k] = m;
                 t.split_oct[n][2 * k + 1] = 1.0 / m;
             }
+            let [smallest, largest] = s.relief_m;
+            t.relief[n] = [
+                largest,
+                1.0 / largest,
+                relief_octaves(smallest, largest) as f32,
+                s.relief_tilt,
+            ];
         }
         Ok(t)
     }
 }
 
 /// The ground's uniforms, in `GroundPass::u`'s order.
-const UNIFORMS: [&str; 29] = [
+const UNIFORMS: [&str; 30] = [
     "u_spacing",
     "u_morph",
     "u_patches",
@@ -473,6 +483,7 @@ const UNIFORMS: [&str; 29] = [
     "u_cover_ids[0]",
     "u_cover_textures",
     "u_cover_level",
+    "u_relief[0]",
 ];
 
 /// The ground's program and its uniforms (A11.13 rule 3).
@@ -582,6 +593,7 @@ impl GroundPass {
             u_cover_ids,
             u_cover_textures,
             u_cover_level,
+            u_relief,
         ] = &self.u;
         let (s, morph) = spacing(view.texel as f32);
         gl::set_f32(gl, u_spacing.as_ref(), s as f32);
@@ -601,6 +613,7 @@ impl GroundPass {
         gl::set_ivec2_array(gl, u_surface_info.as_ref(), &self.table.info);
         gl::set_vec2_array(gl, u_split_at.as_ref(), &self.table.split_at);
         gl::set_vec4_array(gl, u_split_oct.as_ref(), &self.table.split_oct);
+        gl::set_vec4_array(gl, u_relief.as_ref(), &self.table.relief);
         let (beta, scale) = lighting.haze_air;
         gl::set_vec2(gl, u_haze_beta.as_ref(), beta);
         gl::set_vec2(gl, u_haze_scale.as_ref(), scale);

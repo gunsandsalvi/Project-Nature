@@ -357,6 +357,52 @@ pub fn cover_margin(shares: [f32; COVER_CHANNELS], ids: [i32; COVER_CHANNELS]) -
     }
 }
 
+/// Octaves a surface's micro-relief may have, and the seeds of its two tilts (A11.5).
+pub const RELIEF_OCTAVES: usize = 4;
+pub const SEED_RELIEF_X: u32 = 14;
+pub const SEED_RELIEF_Y: u32 = 15;
+
+/// How many octaves a micro-relief of wavelengths from `smallest` to `largest` metres has: from the largest,
+/// halving, down to the smallest, at most `RELIEF_OCTAVES`.
+pub fn relief_octaves(smallest: f32, largest: f32) -> usize {
+    let (mut n, mut lambda) = (0, largest);
+    while n < RELIEF_OCTAVES && lambda >= smallest * (1.0 - 1e-4) {
+        n += 1;
+        lambda *= 0.5;
+    }
+    n
+}
+
+/// The micro-relief's tilt of the ground at world-fixed `w` metres, a slope east and south added to the ground's
+/// (A11.5): `relief` is (λ₀, 1/λ₀, octaves, each octave's greatest tilt), each octave gradient noise half the last's
+/// wavelength and as strong in slope, as a self-similar surface's bumps are, faded below four art pixels (A11.1
+/// rule 2).
+pub fn relief_tilt(w: [f32; 2], relief: [f32; 4], inv_texel: f32) -> [f32; 2] {
+    let (mut lambda, mut inv) = (relief[0], relief[1]);
+    let octaves = ((relief[2] + 0.5) as usize).min(RELIEF_OCTAVES);
+    let mut sum = [0.0f32; 2];
+    for k in 0..octaves {
+        let fade = octave_fade(lambda, inv_texel);
+        if fade > 0.0 {
+            let p = [w[0] * inv, w[1] * inv];
+            let s = (k as u32) << 16;
+            sum[0] += fade * noise2(p, SEED_RELIEF_X ^ s);
+            sum[1] += fade * noise2(p, SEED_RELIEF_Y ^ s);
+        }
+        lambda *= 0.5;
+        inv *= 2.0;
+    }
+    [sum[0] * relief[3], sum[1] * relief[3]]
+}
+
+/// The ground's normal (east, north, up) where its slope east and south is `slope`, tilted by `tilt`.
+pub fn ground_normal(slope: [f32; 2], tilt: [f32; 2]) -> [f32; 3] {
+    let g = [slope[0] + tilt[0], slope[1] + tilt[1]];
+    let v = [-g[0], g[1], 1.0];
+    let inv = 1.0 / (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+    [v[0] * inv, v[1] * inv, v[2] * inv]
+}
+
 /// Which of a surface's `looks` the split noise `v` picks: the next look wherever `v` is above its take-over value.
 pub fn split_look(v: f32, at: [f32; 2], looks: i32) -> i32 {
     i32::from(looks > 1 && v > at[0]) + i32::from(looks > 2 && v > at[1])
@@ -490,6 +536,71 @@ mod tests {
         assert_eq!(split_look(0.2, [0.25, 2.0], 2), 0);
         assert_eq!(split_look(0.9, [-0.5, 0.5], 3), 2);
         assert_eq!(split_look(0.9, [-0.5, 0.5], 1), 0);
+    }
+
+    // checks: PRE-20 PRE-22
+    #[test]
+    fn relief_fades_below_two_pixels() {
+        // Each surface's relief from the catalogue: fixed to the world, and at every point within what its octaves
+        // still showing allow, a bound that only shrinks as the art pixel grows, reaching 0 once the largest octave
+        // spans two art pixels or fewer; on average strong close up and fading as the camera rises.
+        for s in &crate::tests::catalogue().surfaces {
+            let [smallest, largest] = s.relief_m;
+            let n = relief_octaves(smallest, largest);
+            assert!((1..=RELIEF_OCTAVES).contains(&n), "{}", s.id);
+            let relief = [largest, 1.0 / largest, n as f32, s.relief_tilt];
+            let bound = |texel: f32| {
+                let showing: f32 = (0..n)
+                    .map(|k| octave_fade(largest / (1 << k) as f32, 1.0 / texel))
+                    .sum();
+                s.relief_tilt * showing
+            };
+            let rms = |texel: f32| {
+                let sum: f32 = (0..1_000)
+                    .map(|k| {
+                        let w = [100.0 + k as f32 * 3.37, 200.0 + k as f32 * 1.91];
+                        let t = relief_tilt(w, relief, 1.0 / texel);
+                        assert!(
+                            t.iter().all(|v| v.abs() <= bound(texel) + 1e-6),
+                            "{} at {texel} m",
+                            s.id
+                        );
+                        assert_eq!(t, relief_tilt(w, relief, 1.0 / texel));
+                        t[0] * t[0] + t[1] * t[1]
+                    })
+                    .sum();
+                (sum / 1_000.0).sqrt()
+            };
+            let close = rms(0.02);
+            assert!(close > 0.1 * s.relief_tilt, "{}: {close}", s.id);
+            let (mut last_bound, mut last_rms) = (bound(0.02), close);
+            for k in 1..=40 {
+                let texel = 0.02 * 1.12f32.powi(k);
+                let (b, r) = (bound(texel), rms(texel));
+                assert!(b <= last_bound, "{} at {texel} m: bound {b} after {last_bound}", s.id);
+                assert!(
+                    r <= last_rms * 1.05 + 1e-6,
+                    "{} at {texel} m: {r} after {last_rms}",
+                    s.id
+                );
+                (last_bound, last_rms) = (b, r);
+            }
+            assert_eq!(bound(largest / 2.0), 0.0, "{}", s.id);
+            assert_eq!(rms(largest / 2.0), 0.0, "{}", s.id);
+        }
+        // The octaves run from the largest wavelength halving down to the smallest.
+        assert_eq!(
+            [
+                relief_octaves(0.4, 1.6),
+                relief_octaves(0.3, 1.0),
+                relief_octaves(0.2, 2.0),
+                relief_octaves(0.2, 0.8)
+            ],
+            [3, 2, 4, 3]
+        );
+        // A tilt leans the normal, which stays a unit vector.
+        let n = ground_normal([0.2, -0.1], [0.3, 0.0]);
+        assert!(n[0] < -0.4 && (n.iter().map(|v| v * v).sum::<f32>() - 1.0).abs() < 1e-6);
     }
 
     // checks: PRE-22 PRE-20

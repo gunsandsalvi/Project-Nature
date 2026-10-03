@@ -221,6 +221,39 @@ int cover_pick(vec4 a, vec4 b, ivec4 ida, ivec4 idb) {
     return best;
 }
 
+// The micro-relief's tilt of the ground at world-fixed w metres, a slope east and south: relief is (lambda0,
+// 1/lambda0, octaves, each octave's greatest tilt), each octave half the last's wavelength and as strong in slope,
+// faded below four art pixels, as pixel::relief_tilt.
+vec2 relief_tilt(vec2 w, vec4 relief, float inv_texel) {
+    float lambda = relief.x;
+    float inv = relief.y;
+    int octaves = min(int(relief.z + 0.5), RELIEF_OCTAVES);
+    vec2 sum = vec2(0.0);
+    for (int k = 0; k < RELIEF_OCTAVES; k++) {
+        if (k >= octaves) {
+            break;
+        }
+        float fade = octave_fade(lambda, inv_texel);
+        if (fade > 0.0) {
+            vec2 p = vec2(w.x * inv, w.y * inv);
+            uint s = uint(k) << 16u;
+            sum.x += fade * noise2(p, uint(SEED_RELIEF_X) ^ s);
+            sum.y += fade * noise2(p, uint(SEED_RELIEF_Y) ^ s);
+        }
+        lambda *= 0.5;
+        inv *= 2.0;
+    }
+    return vec2(sum.x * relief.w, sum.y * relief.w);
+}
+
+// The ground's normal (east, north, up) where its slope east and south is slope, tilted by tilt, as
+// pixel::ground_normal.
+vec3 ground_normal(vec2 slope, vec2 tilt) {
+    vec2 g = slope + tilt;
+    vec3 v = vec3(-g.x, g.y, 1.0);
+    return v * (1.0 / sqrt(dot(v, v)));
+}
+
 // Which of a surface's looks the split noise v picks, as pixel::split_look.
 int split_look(float v, vec2 at, int looks) {
     return int(looks > 1 && v > at.x) + int(looks > 2 && v > at.y);

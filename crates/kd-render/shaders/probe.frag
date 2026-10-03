@@ -1,10 +1,11 @@
 // The probe scene (A11.13 rule 2): one art pixel per fixed input, through the same formulas as every lit pixel, so
 // the read-back answers can be compared with the Rust twins exactly. The lowest third holds the light's steps, lit
 // by what a point's fields and normal give; the middle third the surface with the largest share of a fixture's
-// coverage, read at a mip level at a place the edges' noise moved, and the look its split noise picks; the top third
-// whether the plane test outlines a pixel and the haze's level.
+// coverage, read at a mip level at a place the edges' noise moved, and the look its split noise picks; the third band
+// whether the plane test outlines a pixel and the haze's level; the top band the light's step of a point whose
+// normal a surface's micro-relief tilts.
 uniform sampler2D u_inputs;  // R32F, PROBE_W * PROBE_H wide: the light's PROBE_LIGHT_ROWS rows, then the surfaces',
-                             // then from PROBE_EDGE_ROW the top third's
+                             // then from PROBE_EDGE_ROW the third band's, then from PROBE_RELIEF_ROW the relief's
 uniform vec2 u_y;            // the light's luminance from the sky and from the sun facing it
 uniform vec2 u_range;        // the path's range in lightness
 uniform highp sampler2D u_cover0;  // the surface band's coverage, PROBE_COVER_SIDE wide at level 0, mipmapped
@@ -26,6 +27,19 @@ void main() {
         int steps = int(input_at(i, 6) + 0.5);
         float s = ladder_pos(lightness(sigma, tau, u_y.x, u_y.y), u_range, steps);
         o_colour = pack_out(light_step(s, band, steps, p), CAT_ROCK, 0, 0.0);
+    } else if (p.y >= 3 * PROBE_H) {
+        int i = (p.y - 3 * PROBE_H) * PROBE_W + p.x;
+        int r = PROBE_RELIEF_ROW;
+        vec3 l = vec3(input_at(i, r + 3), input_at(i, r + 4), input_at(i, r + 5));
+        vec2 slope = vec2(input_at(i, r + 6), input_at(i, r + 7));
+        vec2 w = vec2(input_at(i, r + 8), input_at(i, r + 9));
+        vec4 relief = vec4(input_at(i, r + 11), input_at(i, r + 12), input_at(i, r + 13), input_at(i, r + 14));
+        vec3 n = ground_normal(slope, relief_tilt(w, relief, input_at(i, r + 10)));
+        float sigma = sky_factor(input_at(i, r), n.z);
+        float tau = sun_factor(input_at(i, r + 1), input_at(i, r + 2), dot(n, l));
+        int steps = int(input_at(i, r + 16) + 0.5);
+        float s = ladder_pos(lightness(sigma, tau, u_y.x, u_y.y), u_range, steps);
+        o_colour = pack_out(light_step(s, input_at(i, r + 15), steps, p), CAT_ROCK, 0, 0.0);
     } else if (p.y >= 2 * PROBE_H) {
         int i = (p.y - 2 * PROBE_H) * PROBE_W + p.x;
         int r = PROBE_EDGE_ROW;

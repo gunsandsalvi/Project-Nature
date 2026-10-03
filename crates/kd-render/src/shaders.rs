@@ -9,7 +9,8 @@ use crate::ground::{COVER_LEVELS, MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LO
 use crate::looks::{PALETTE_SIZE, TABLE_ROWS, table};
 use crate::passes::scene::card;
 use crate::pixel::{
-    Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, OUTLINE_GAP_M, SEED_EDGE_X, SEED_EDGE_Y, SEED_SPLIT, SUN_TAN, flag,
+    Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, OUTLINE_GAP_M, RELIEF_OCTAVES, SEED_EDGE_X, SEED_EDGE_Y, SEED_RELIEF_X,
+    SEED_RELIEF_Y, SEED_SPLIT, SUN_TAN, flag,
 };
 use crate::probe;
 
@@ -48,6 +49,10 @@ pub fn defines() -> String {
         ("PROBE_H", probe::H as i32),
         ("PROBE_LIGHT_ROWS", probe::LIGHT_ROWS as i32),
         ("PROBE_EDGE_ROW", (probe::LIGHT_ROWS + probe::SURFACE_ROWS) as i32),
+        (
+            "PROBE_RELIEF_ROW",
+            (probe::LIGHT_ROWS + probe::SURFACE_ROWS + probe::EDGE_ROWS) as i32,
+        ),
         ("VIEWPORT", VIEWPORT),
         ("PATCH_QUADS", PATCH_QUADS),
         ("MAX_SURFACES", MAX_SURFACES as i32),
@@ -59,6 +64,9 @@ pub fn defines() -> String {
         ("SEED_EDGE_X", SEED_EDGE_X as i32),
         ("SEED_EDGE_Y", SEED_EDGE_Y as i32),
         ("SEED_SPLIT", SEED_SPLIT as i32),
+        ("SEED_RELIEF_X", SEED_RELIEF_X as i32),
+        ("SEED_RELIEF_Y", SEED_RELIEF_Y as i32),
+        ("RELIEF_OCTAVES", RELIEF_OCTAVES as i32),
     ] {
         let _ = writeln!(s, "#define {name} {value}");
     }
@@ -173,6 +181,8 @@ mod tests {
             "edge_wobble",
             "cover_sample",
             "cover_pick",
+            "relief_tilt",
+            "ground_normal",
             "split_look",
         ] {
             assert!(LIB.contains(&format!(" {name}(")), "{name} missing from lib.glsl");

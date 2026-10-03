@@ -140,6 +140,8 @@ struct SurfaceSrc {
     split_at: Vec<f32>,
     #[serde(default)]
     rock: bool,
+    relief_m: [f32; 2],
+    relief_tilt: f32,
 }
 
 #[derive(Deserialize)]
@@ -672,6 +674,13 @@ fn surface_of(s: &SurfaceSrc, e: &Entry, looks: &[(u16, Look)], problems: &mut V
     {
         bad("the split has one take-over value fewer than its looks, rising within −1 to 1".into());
     }
+    let [smallest, largest] = s.relief_m;
+    if !(smallest > 0.0 && smallest <= largest && largest <= 16.0 && largest < 16.0 * smallest) {
+        bad("the relief's wavelengths run from a smallest to a largest within 16 m, at most four octaves".into());
+    }
+    if !(0.0..=1.0).contains(&s.relief_tilt) {
+        bad("the relief's tilt is a slope from 0 to 1".into());
+    }
     Surface {
         id: s.id.clone(),
         name: s.name.clone(),
@@ -680,6 +689,8 @@ fn surface_of(s: &SurfaceSrc, e: &Entry, looks: &[(u16, Look)], problems: &mut V
         split_m: s.split_m.clone(),
         split_at: s.split_at.clone(),
         rock: s.rock,
+        relief_m: s.relief_m,
+        relief_tilt: s.relief_tilt,
     }
 }
 
@@ -712,6 +723,13 @@ fn surface_table(s: &Surface, look_names: &[&str]) -> Vec<(String, String)> {
             },
         ),
         ("Draws as rock".into(), if s.rock { "yes" } else { "no" }.into()),
+        (
+            "Relief".into(),
+            format!(
+                "{} to {} m across, each octave tilting the ground by up to {}",
+                s.relief_m[0], s.relief_m[1], s.relief_tilt
+            ),
+        ),
     ]
 }
 
@@ -941,7 +959,7 @@ mod tests {
     }
 
     fn surfaces() -> String {
-        "# Surfaces\n\nThe ground's surfaces.\n\n## Rock\n\nBare rock.\n\n```toml\nid = \"rock\"\nname = \"Rock\"\nstage = \"MIL-01\"\nchecks = [\"PRE-20\"]\nlooks = [\"limestone\"]\nrock = true\n```\n".to_string()
+        "# Surfaces\n\nThe ground's surfaces.\n\n## Rock\n\nBare rock.\n\n```toml\nid = \"rock\"\nname = \"Rock\"\nstage = \"MIL-01\"\nchecks = [\"PRE-20\"]\nlooks = [\"limestone\"]\nrock = true\nrelief_m = [0.2, 2.0]\nrelief_tilt = 0.5\n```\n".to_string()
     }
 
     fn sources(colours: String, looks: String, air: String) -> Vec<Source> {
@@ -1137,6 +1155,18 @@ mod tests {
             "one take-over value fewer than its looks",
         );
         fails(&surface("rock = true", "rock = \"yes\""), "invalid type");
+        fails(
+            &surface("relief_m = [0.2, 2.0]", "relief_m = [2.0, 0.2]"),
+            "from a smallest to a largest",
+        );
+        fails(
+            &surface("relief_m = [0.2, 2.0]", "relief_m = [0.1, 2.0]"),
+            "at most four octaves",
+        );
+        fails(
+            &surface("relief_tilt = 0.5", "relief_tilt = 1.5"),
+            "a slope from 0 to 1",
+        );
         // A stray file no kind claims fails.
         let mut s = clean();
         s.push(Source {

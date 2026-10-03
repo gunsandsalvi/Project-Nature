@@ -3,8 +3,9 @@
 //! alpha, and the phone in its self-check. Its lowest third holds the light's steps (α01a), from α01c lit by what a
 //! point's fields and normal give (the sky and sun factors); its middle third the surface with the largest share of
 //! a fixture's coverage, read at a mip level at a place the edges' noise moved, and the look the split noise picks
-//! (α01b, from α01d by coverage); its top third, from α01c,
-//! whether the plane test outlines a pixel and the haze's level (A11.2, A11.4).
+//! (α01b, from α01d by coverage); its third band, from α01c, whether the plane test outlines a pixel and the
+//! haze's level (A11.2, A11.4); its top band, from α01d, the light's step of a point whose normal a surface's
+//! micro-relief tilts (A11.5).
 //!
 //! Implements PRE-20 and PRE-01, see A11.13: the GPU picks exactly the steps, surfaces and looks the twins pick.
 
@@ -16,20 +17,23 @@ use crate::gl::{self, Format, Program, State, Target, Texture, unit};
 use crate::ground::Coverage;
 use crate::pixel::{
     OUTLINE_GAP_M, SEED_SPLIT, SUN_TAN, cover_level, cover_margin, cover_pick, cover_sample, edge_wobble, faded_noise,
-    haze, haze_level, haze_margin, ladder_pos, light_step, lightness, margin, outline_toward, sky_factor, split_look,
-    sun_factor,
+    ground_normal, haze, haze_level, haze_margin, ladder_pos, light_step, lightness, margin, outline_toward,
+    relief_octaves, relief_tilt, sky_factor, split_look, sun_factor,
 };
 use crate::shaders::{self, Stage};
 
-/// Each third of the probe target, one input an art pixel; the target is `W` × `3H`.
+/// Each band of the probe target, one input an art pixel; the target is `W` × `4H`.
 pub const W: u32 = 16;
 pub const H: u32 = 16;
 pub const N: usize = (W * H) as usize;
 /// Rows of the input texture: the light's 7, then the surfaces' `SURFACE_ROWS`, then the edges' and haze's
-/// `EDGE_ROWS`.
+/// `EDGE_ROWS`, then the relief's `RELIEF_ROWS`.
 pub const LIGHT_ROWS: usize = 7;
 pub const SURFACE_ROWS: usize = 11;
 pub const EDGE_ROWS: usize = 7;
+pub const RELIEF_ROWS: usize = 17;
+/// The bands, bottom to top.
+pub const BANDS: u32 = 4;
 /// How far from deciding otherwise every plane test stays, in metres, so the GPU's rounding of depths hundreds of
 /// metres off cannot change it.
 pub const EDGE_CLEARANCE: f32 = 0.01;
@@ -305,10 +309,101 @@ pub fn edge_twins(inputs: &[EdgeInput]) -> Vec<u8> {
         .collect()
 }
 
+/// One fixed relief input (the top band): a point lit as the ground lights it, its normal from the ground's slope
+/// east and south tilted by a surface's micro-relief at a world-fixed place: the share of the sky its horizon leaves
+/// open, its horizon toward the light and the light's slope and direction (east, north, up), the slope, the place
+/// (metres), art pixels a metre, the relief (λ₀, 1/λ₀, octaves, greatest tilt), the band and the steps.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ReliefInput {
+    pub open: f32,
+    pub horizon: f32,
+    pub tan_e: f32,
+    pub light: [f32; 3],
+    pub slope: [f32; 2],
+    pub w: [f32; 2],
+    pub inv_texel: f32,
+    pub relief: [f32; 4],
+    pub band: f32,
+    pub steps: i32,
+}
+
+/// Relief input `i`'s pixel in the target, as `gl_FragCoord` counts: the top band.
+fn relief_pixel(i: usize) -> (i32, i32) {
+    let (x, y) = pixel_of(i);
+    (x, y + 3 * H as i32)
+}
+
+/// What a relief input gives, as the GPU and the twins work it out: its step, and how far, in lightness, it lies
+/// from another.
+fn relief_answer(i: usize, p: &ReliefInput) -> (u8, f32) {
+    let (x, y) = relief_pixel(i);
+    let n = ground_normal(p.slope, relief_tilt(p.w, p.relief, p.inv_texel));
+    let n_dot_l = n[0] * p.light[0] + n[1] * p.light[1] + n[2] * p.light[2];
+    let range = range();
+    let lit = lightness(
+        sky_factor(p.open, n[2]),
+        sun_factor(p.horizon, p.tan_e, n_dot_l),
+        Y_SKY,
+        Y_SUN,
+    );
+    let s = ladder_pos(lit, range, p.steps);
+    let clear = margin(s, p.band, p.steps, x, y) * (range[1] - range[0]) / (p.steps - 1) as f32;
+    (light_step(s, p.band, p.steps, x, y) as u8, clear)
+}
+
+/// The relief inputs: the wavelengths of the catalogue's four reliefs at tilts up to 0.5, stronger than the
+/// catalogue's so more steps turn on them, at art pixels from 0.02 to 0.3 m, under lights from below the horizon to
+/// high, drawn from a fixed sequence of hashes and kept only when `CLEARANCE` from any flip.
+pub fn relief_inputs() -> Vec<ReliefInput> {
+    let reliefs = [(0.4, 1.6, 0.35), (0.3, 1.0, 0.3), (0.2, 2.0, 0.5), (0.2, 0.8, 0.45)];
+    let mut out = Vec::with_capacity(N);
+    let mut n = 0u64;
+    while out.len() < N {
+        let (h, g, k) = (hash2(0x7265_6c69, n), hash2(0x7265_6c6a, n), hash2(0x7265_6c6b, n));
+        n += 1;
+        let unit = |v: u64, shift: u32| ((v >> shift) & 0xffff) as f32 / 65536.0;
+        let (smallest, largest, tilt) = reliefs[(g % 4) as usize];
+        let e = (85.0 * unit(g, 8) - 5.0).to_radians();
+        let az = std::f32::consts::TAU * unit(g, 24);
+        let tan_e = e.tan();
+        let p = ReliefInput {
+            open: 0.2 + 0.8 * unit(h, 0),
+            horizon: if g >> 63 == 1 {
+                tan_e + SUN_TAN * (1.0 + tan_e * tan_e) * (unit(g, 40) - 0.5)
+            } else {
+                3.5 * unit(g, 40) - 0.5
+            },
+            tan_e,
+            light: [e.cos() * az.sin(), e.cos() * az.cos(), e.sin()],
+            slope: [1.6 * unit(h, 16) - 0.8, 1.6 * unit(h, 32) - 0.8],
+            w: [8000.0 * unit(h, 48), 8000.0 * unit(k, 0)],
+            inv_texel: 1.0 / [0.02, 0.04, 0.08, 0.15, 0.3][((k >> 16) % 5) as usize],
+            relief: [largest, 1.0 / largest, relief_octaves(smallest, largest) as f32, tilt],
+            band: [0.0, 0.15, 0.35][((k >> 24) % 3) as usize],
+            steps: 4 + ((k >> 32) % 4) as i32,
+        };
+        if relief_answer(out.len(), &p).1 >= CLEARANCE {
+            out.push(p);
+        }
+    }
+    out
+}
+
+/// The twins' step for each relief input, in the target's order.
+pub fn relief_twins(inputs: &[ReliefInput]) -> Vec<u8> {
+    inputs.iter().enumerate().map(|(i, p)| relief_answer(i, p).0).collect()
+}
+
 /// All the inputs as an R32F texture `N` wide: the light's rows (the open sky, the normal's upward part, the
 /// horizon, the light's slope, n·l, the band and the steps), then the surfaces' q, w, 1/texel, level, take-over
-/// value and octaves, then the top third's depths, gap, air depth, height and band.
-pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput], edges: &[EdgeInput]) -> Vec<u8> {
+/// value and octaves, then the third band's depths, gap, air depth, height and band, then the relief's open sky,
+/// horizon, light, slope, place, 1/texel, relief, band and steps.
+pub fn texture_bytes(
+    inputs: &[Input],
+    surfaces: &[SurfaceInput],
+    edges: &[EdgeInput],
+    reliefs: &[ReliefInput],
+) -> Vec<u8> {
     let light = |f: &dyn Fn(&Input) -> f32| inputs.iter().map(f).collect::<Vec<f32>>();
     let mut rows: Vec<Vec<f32>> = vec![
         light(&|p| p.open),
@@ -341,6 +436,26 @@ pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput], edges: &[EdgeI
         edge(&|p| p.air_depth),
         edge(&|p| p.height),
         edge(&|p| p.band),
+    ]);
+    let relief = |f: &dyn Fn(&ReliefInput) -> f32| reliefs.iter().map(f).collect::<Vec<f32>>();
+    rows.extend([
+        relief(&|p| p.open),
+        relief(&|p| p.horizon),
+        relief(&|p| p.tan_e),
+        relief(&|p| p.light[0]),
+        relief(&|p| p.light[1]),
+        relief(&|p| p.light[2]),
+        relief(&|p| p.slope[0]),
+        relief(&|p| p.slope[1]),
+        relief(&|p| p.w[0]),
+        relief(&|p| p.w[1]),
+        relief(&|p| p.inv_texel),
+        relief(&|p| p.relief[0]),
+        relief(&|p| p.relief[1]),
+        relief(&|p| p.relief[2]),
+        relief(&|p| p.relief[3]),
+        relief(&|p| p.band),
+        relief(&|p| p.steps as f32),
     ]);
     rows.iter().flatten().flat_map(|v| v.to_ne_bytes()).collect()
 }
@@ -446,14 +561,15 @@ impl ProbePass {
             Texture::with_levels(gl, Format::Rgba8, side, side, &fixture.texture_levels(0))?,
             Texture::with_levels(gl, Format::Rgba8, side, side, &fixture.texture_levels(1))?,
         ];
-        let (list, surfaces, edges) = (inputs(), surface_inputs(), edge_inputs());
-        let rows = (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS) as u32;
-        let bytes = texture_bytes(&list, &surfaces, &edges);
+        let (list, surfaces, edges, reliefs) = (inputs(), surface_inputs(), edge_inputs(), relief_inputs());
+        let rows = (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS + RELIEF_ROWS) as u32;
+        let bytes = texture_bytes(&list, &surfaces, &edges, &reliefs);
         let inputs = Texture::new(gl, Format::R32F, N as u32, rows, Some(&bytes))?;
-        let target = Target::new(gl, W, 3 * H, &[Format::Rgba8], false)?;
+        let target = Target::new(gl, W, BANDS * H, &[Format::Rgba8], false)?;
         let mut answers = twins(&list);
         answers.extend(surface_twins(&surfaces));
         answers.extend(edge_twins(&edges));
+        answers.extend(relief_twins(&reliefs));
         Ok(ProbePass {
             program,
             u_y,
@@ -470,7 +586,7 @@ impl ProbePass {
     /// Draws the probe and reads it back: the GPU's steps and the twins', in the same order.
     pub fn run(&self, gl: &glow::Context, vao: glow::VertexArray) -> (Vec<u8>, Vec<u8>) {
         self.target.bind(gl);
-        gl::apply(gl, &State::flat(W, 3 * H));
+        gl::apply(gl, &State::flat(W, BANDS * H));
         self.program.bind(gl);
         self.inputs.bind(gl, unit::PROBE);
         self.cover[0].bind(gl, unit::COVER0);
@@ -522,11 +638,39 @@ mod tests {
         assert!(list.iter().any(|p| p.n_dot_l < 0.0));
         // The same inputs every time, on every target: a fixed sequence.
         assert_eq!(inputs(), list);
-        let (surfaces, edges) = (surface_inputs(), edge_inputs());
+        let (surfaces, edges, reliefs) = (surface_inputs(), edge_inputs(), relief_inputs());
         assert_eq!(
-            texture_bytes(&list, &surfaces, &edges).len(),
-            N * (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS) * 4
+            texture_bytes(&list, &surfaces, &edges, &reliefs).len(),
+            N * (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS + RELIEF_ROWS) * 4
         );
+    }
+
+    // checks: PRE-20 PRE-22
+    #[test]
+    fn relief_inputs_cover_every_case() {
+        // Every one of the catalogue's reliefs, octaves shown whole and fading, light from below the horizon to
+        // high, and many points whose step the relief's tilt changes, so the band tests the relief and not only the
+        // light; all clear of a flip, and the same every time.
+        let list = relief_inputs();
+        assert_eq!(list.len(), N);
+        for largest in [1.6, 1.0, 2.0, 0.8] {
+            assert!(list.iter().any(|p| p.relief[0] == largest), "no relief of {largest} m");
+        }
+        let fade = |p: &ReliefInput| crate::pixel::octave_fade(p.relief[0] / 4.0, p.inv_texel);
+        assert!(list.iter().any(|p| fade(p) == 1.0) && list.iter().any(|p| fade(p) > 0.0 && fade(p) < 1.0));
+        assert!(list.iter().any(|p| p.tan_e < 0.0) && list.iter().any(|p| p.tan_e > 2.0));
+        let flat: Vec<ReliefInput> = list
+            .iter()
+            .map(|p| ReliefInput {
+                relief: [1.0, 1.0, 0.0, 0.0],
+                ..*p
+            })
+            .collect();
+        let (with, without) = (relief_twins(&list), relief_twins(&flat));
+        let changed = with.iter().zip(&without).filter(|(a, b)| a != b).count();
+        assert!(changed > 30, "{changed}");
+        assert!(list.iter().enumerate().all(|(i, p)| relief_answer(i, p).1 >= CLEARANCE));
+        assert_eq!(relief_inputs(), list);
     }
 
     // checks: PRE-21 PRE-30
