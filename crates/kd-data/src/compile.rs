@@ -37,6 +37,40 @@ pub struct Source {
     pub text: String,
 }
 
+/// The repository's catalogue files as `Source`s, read into the binary when it is built, for the tests of any crate
+/// under `crates/`: one list, which `real_catalogue_is_clean` keeps complete, since a file left out leaves the
+/// index stale.
+#[macro_export]
+macro_rules! repo_sources {
+    () => {{
+        macro_rules! file {
+            ($path:literal) => {
+                $crate::compile::Source {
+                    path: $path.into(),
+                    text: include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../../", $path)).into(),
+                }
+            };
+        }
+        vec![
+            file!("data/VERSION.toml"),
+            file!("data/ids.lock"),
+            file!("data/INDEX.md"),
+            file!("data/palette/colours.md"),
+            file!("data/palette/looks.md"),
+            file!("data/palette/light.md"),
+            file!("data/models/surfaces.md"),
+            file!("data/world/rocks.md"),
+            file!("data/world/soils.md"),
+            file!("data/world/biomes.md"),
+            file!("data/world/deposits.md"),
+            file!("data/lands/first-region.md"),
+            file!("data/tuning/lands.md"),
+            file!("data/tuning/render.md"),
+            file!("data/tuning/world.md"),
+        ]
+    }};
+}
+
 /// A problem, where it is.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Problem {
@@ -1331,29 +1365,7 @@ mod tests {
 
     /// The repository's own catalogue, as the build script reads it.
     fn real() -> Vec<Source> {
-        let src = |p: &str, t: &str| Source {
-            path: p.into(),
-            text: t.into(),
-        };
-        vec![
-            src(VERSION_FILE, include_str!("../../../data/VERSION.toml")),
-            src(LOCK_FILE, include_str!("../../../data/ids.lock")),
-            src(INDEX_FILE, include_str!("../../../data/INDEX.md")),
-            src(Kind::Colour.place(), include_str!("../../../data/palette/colours.md")),
-            src(Kind::Look.place(), include_str!("../../../data/palette/looks.md")),
-            src(Kind::Light.place(), include_str!("../../../data/palette/light.md")),
-            src(Kind::Surface.place(), include_str!("../../../data/models/surfaces.md")),
-            src(Kind::Rock.place(), include_str!("../../../data/world/rocks.md")),
-            src(Kind::Soil.place(), include_str!("../../../data/world/soils.md")),
-            src(Kind::Biome.place(), include_str!("../../../data/world/biomes.md")),
-            src(Kind::Deposit.place(), include_str!("../../../data/world/deposits.md")),
-            src(
-                "data/lands/first-region.md",
-                include_str!("../../../data/lands/first-region.md"),
-            ),
-            src("data/tuning/render.md", include_str!("../../../data/tuning/render.md")),
-            src("data/tuning/world.md", include_str!("../../../data/tuning/world.md")),
-        ]
+        crate::repo_sources!()
     }
 
     // checks: PRE-34 PRE-01

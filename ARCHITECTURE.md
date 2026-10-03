@@ -1620,6 +1620,13 @@ small = { hare = 6, birds = 20, fish = 30 }   # per km² of habitat
 - It settles as a generated world does (A5.7), and its fixed layers are saved like one's (about 820 KB for 160 × 160 cells), so retuning generation never moves land under its people (`PLT-09`).
 - A preset may list every cell's values instead (`form = "cells"`); `kd world cut` writes one from a window of a generated world, with that world's seed and place.
 - **Bench lands** (`PLT-04`): the island repeated as a grid of islands, each at its own place and so with its own draws, about 10 km² of land a person, for worlds of 100 to 7,000 people until `MIL-04` (A15.8).
+- **Built (α02a):** `kd_world::lands::build(p: &Land, seed, cat) -> Result<PresetWorld, String>` fills `2 ⌈(island ÷ 2 + sea) ÷ 1,024 m⌉ + 2` cells square round the centre (160 for the first region), refusing a square that crosses the world's edge or its seam; its shape's numbers are `data/tuning/lands.md`'s, and every draw is keyed on a place uid at moment 0 in system 1.
+  - The coast wanders by a noise a quarter of the island's width across, the relief noise's lattice scaled so any period serves; void lies beyond a circle the sea's width outside the island's radius, so the sea is 46 to 54 km wide.
+  - The land rises from the shore over 6 km to its base, hills and uplands, which the plan did not say: a full-height plateau would stand 220 m over the sea all round.
+  - The river's line runs on past the far coast until it reaches a sea cell; its floodplain is set 2 m above the water, and the valley's sides rise over 1.5 km beyond it (also added, so the valley shows at the coarse ground's 32 m).
+  - The escarpment's step stands on all the land of its high side, and its face runs along the cells of its row from coast to coast, broken where the valley's sides reach the line, the break out to cells' edges (A5.2's Built note); so a valley that crosses it slopes through, and the high side meets the sea in cliffs as high as the step.
+  - On the step's low side the top bed is thinned by the step's height, so where the chalk is under 30 m thick the sandstone below makes the surface.
+  - The first record is a dry cave within reach of the river, so the first camp always has one; the rest are placed by keyed draws along the face, retried at the next slot when too close or off the face.
 - **Tested by** (`WLD-34`): a cut window with its source's seed and place gives areas with the same hashes as the world's own, at least 2 cells inside the window; in 20 runs to Year 60 the bands still find food in their home ranges; no path leaves the island.
 - **First needed:** `MIL-01`, bench lands included; herds and small game `MIL-02`; cut presets `MIL-04`.
 

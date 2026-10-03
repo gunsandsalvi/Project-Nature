@@ -72,3 +72,4 @@ scree = 3
 [tuning]
 render = 0
 world = 1
+lands = 2

@@ -107,7 +107,8 @@ pub fn tables(root: &Path) -> Result<String, String> {
     Ok(format!("Tables: {} files written", out.stale.len()))
 }
 
-/// Every catalogue id and English name, for `kd check names`.
+/// Every catalogue id and English name, for `kd check names`: every kind's but the tuned numbers', which each system
+/// reads by its own table's name (A11.13 rule 6, `PRN-17`).
 pub fn names(root: &Path) -> Result<Vec<String>, String> {
     let cat = compiled(root, false)?.catalogue;
     let mut out: Vec<String> = Vec::new();
@@ -118,6 +119,11 @@ pub fn names(root: &Path) -> Result<Vec<String>, String> {
         .chain(cat.looks.iter().map(|l| (&l.id, &l.name)))
         .chain([(&cat.air.id, &cat.air.name)])
         .chain(cat.surfaces.iter().map(|s| (&s.id, &s.name)))
+        .chain(cat.rocks.iter().map(|r| (&r.id, &r.name)))
+        .chain(cat.soils.iter().map(|s| (&s.id, &s.name)))
+        .chain(cat.biomes.iter().map(|b| (&b.id, &b.name)))
+        .chain(cat.deposits.iter().map(|d| (&d.id, &d.name)))
+        .chain(cat.lands.iter().map(|l| (&l.id, &l.name)))
     {
         out.push(id.clone());
         out.push(name.clone());

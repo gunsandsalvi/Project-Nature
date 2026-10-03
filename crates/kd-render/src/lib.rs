@@ -369,49 +369,12 @@ impl Renderer {
 #[cfg(test)]
 pub(crate) mod tests {
     use kd_data::Catalogue;
-    use kd_data::compile::{Source, compile};
+    use kd_data::compile::compile;
 
     /// The repository's catalogue, compiled as the app's build script compiles it.
     pub(crate) fn catalogue() -> Catalogue {
-        let src = |p: &str, t: &str| Source {
-            path: p.into(),
-            text: t.into(),
-        };
-        let sources = [
-            src("data/VERSION.toml", include_str!("../../../data/VERSION.toml")),
-            src("data/ids.lock", include_str!("../../../data/ids.lock")),
-            src("data/INDEX.md", include_str!("../../../data/INDEX.md")),
-            src(
-                "data/palette/colours.md",
-                include_str!("../../../data/palette/colours.md"),
-            ),
-            src("data/palette/looks.md", include_str!("../../../data/palette/looks.md")),
-            src("data/palette/light.md", include_str!("../../../data/palette/light.md")),
-            src(
-                "data/models/surfaces.md",
-                include_str!("../../../data/models/surfaces.md"),
-            ),
-            src("data/world/rocks.md", include_str!("../../../data/world/rocks.md")),
-            src("data/world/soils.md", include_str!("../../../data/world/soils.md")),
-            src("data/world/biomes.md", include_str!("../../../data/world/biomes.md")),
-            src(
-                "data/world/deposits.md",
-                include_str!("../../../data/world/deposits.md"),
-            ),
-            src(
-                "data/lands/first-region.md",
-                include_str!("../../../data/lands/first-region.md"),
-            ),
-            src("data/tuning/render.md", include_str!("../../../data/tuning/render.md")),
-            src("data/tuning/world.md", include_str!("../../../data/tuning/world.md")),
-        ];
-        let out = compile(&sources, false).expect("the catalogue compiles");
-        // A file left out above leaves the index stale.
-        assert!(
-            out.stale.is_empty(),
-            "a data file is missing here: {:?}",
-            out.stale.iter().map(|s| &s.0).collect::<Vec<_>>()
-        );
-        out.catalogue
+        compile(&kd_data::repo_sources!(), false)
+            .expect("the catalogue compiles")
+            .catalogue
     }
 }

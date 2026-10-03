@@ -169,9 +169,10 @@ pub struct EscarpmentLine {
     pub facing: Side,
     /// The line, in ticks: its y for a face looking north or south, its x for one looking east or west.
     pub at: i32,
-    /// Where its face runs along the line, in ticks: from its west end to its east end (north to south).
+    /// Where its face runs along the line, in ticks: from its west end to its east end (north to south), on cells'
+    /// edges.
     pub span: [i32; 2],
-    /// Stretches of the line with no face, where a valley cuts through it, in ticks along it.
+    /// Stretches of the line with no face, where a valley cuts through it, in ticks along it, on cells' edges.
     pub breaks: Vec<[i32; 2]>,
     /// Where people can climb it, a slope under 35° some 20 m wide, in ticks along it (A5.12).
     pub gaps: Vec<i32>,
@@ -180,7 +181,7 @@ pub struct EscarpmentLine {
 
 /// How far either side of a gap's middle its slope runs along the line, metres.
 pub const GAP_HALF_M: f32 = 10.0;
-/// How far, metres, the sharp step fades into the blend at the ends of a face and of a break.
+/// How far, metres, the sharp step fades into the blend before the ends of a face and a break.
 const STEP_FADE_M: f32 = 200.0;
 /// The steepest a gap's slope is, as its run for each metre of rise: a slope under 35°.
 const GAP_RUN: f32 = 1.43;
@@ -212,15 +213,15 @@ impl EscarpmentLine {
         }
     }
 
-    /// How sharp the step is at a place along the line, 0 to 1: sharp along its face, fading to the blend over
-    /// `STEP_FADE_M` past its ends and into a break.
+    /// How sharp the step is at a place along the line, 0 to 1: sharp along its face, fading to the blend over its
+    /// last `STEP_FADE_M` before its ends and a break, so the face's cells hold all of it and no other cell any.
     fn sharpness(&self, along: i32) -> f32 {
         let fade = STEP_FADE_M * TICKS_PER_M as f32;
         let inside = |lo: i32, hi: i32| (along - lo).min(hi - along) as f32;
-        let mut s = num::min(1.0, num::max(0.0, inside(self.span[0], self.span[1]) / fade + 0.5));
+        let mut s = num::min(1.0, num::max(0.0, inside(self.span[0], self.span[1]) / fade));
         for b in &self.breaks {
             let out = -inside(b[0], b[1]);
-            s = num::min(s, num::max(0.0, num::min(1.0, out / fade + 0.5)));
+            s = num::min(s, num::max(0.0, num::min(1.0, out / fade)));
         }
         s
     }
