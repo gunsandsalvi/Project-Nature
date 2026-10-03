@@ -148,7 +148,9 @@ def generated_lists(project, items):
     return {
         "contents": "\n".join(lines) + "\n",
         "open items": [i.id for i in items.values() if i.status == "To test"],
-        "proposals": [i.id for i in items.values() if i.status == "Proposed"],
+        # A proposal is a Proposed item, or a decided one with a **Proposed change:** beneath it (PRC-07).
+        "proposals": [i.id for i in items.values()
+                      if i.status == "Proposed" or proposal_lines(without_examples(project), i)],
     }
 
 
@@ -179,7 +181,8 @@ def check_project(project):
             listed = ID_RE.findall(body)
             ok = listed == want[name] and (listed or body.strip() == "- None at present.")
         if not ok:
-            problems.append(f"PROJECT.md: the generated list '{name}' is not current")
+            should = "" if name == "contents" else f" (it should list {', '.join(want[name]) or 'none'})"
+            problems.append(f"PROJECT.md: the generated list '{name}' is not current{should}")
     return items, problems, len(cited)
 
 
@@ -294,9 +297,32 @@ def changed_entries(message):
     return [" ".join(e) for e in entries]
 
 
+PROPOSED_CHANGE = "**Proposed change:**"
+
+
+def proposal_lines(lines, item):
+    """The lines of an item's **Proposed change:** entries: each from its own line through the lines indented deeper
+    than it. They wait for the owner's OK (PRC-07), so they change none of a decided item's words."""
+    out, depth = set(), None
+    for i in range(item.start, min(item.end, len(lines) - 1) + 1):
+        line = lines[i]
+        indent = len(line) - len(line.lstrip(" "))
+        if PROPOSED_CHANGE in line:
+            out.add(i)
+            depth = indent
+        elif depth is not None and line.strip() and indent > depth:
+            out.add(i)
+        else:
+            depth = None
+    return out
+
+
 def item_words(project, item):
-    """An item's text with its spacing evened, so a blank line or a rewrapped sentence changes no words."""
-    return " ".join(" ".join(project.split("\n")[item.start:item.end + 1]).split())
+    """An item's text with its spacing evened and its proposed changes left out, so a blank line, a rewrapped
+    sentence or a proposal changes none of its words."""
+    lines = project.split("\n")
+    skip = proposal_lines(lines, item)
+    return " ".join(" ".join(lines[i] for i in range(item.start, item.end + 1) if i not in skip).split())
 
 
 def needs_owner(old, new):
@@ -315,7 +341,8 @@ def needs_owner(old, new):
 
 def check_commit(sha, message, old, new):
     """A commit changing PROJECT.md names every ID whose lines it changed on its `Changed:` lines, each with its
-    reason in brackets, and the owner's OK for every item it makes Decided or changes while Decided (PRC-07).
+    reason in brackets, and the owner's OK for every item it makes Decided or changes while Decided (PRC-07); a
+    **Proposed change:** beneath a decided item needs only its reason.
     Implements PRC-07, see A15.12 step 7."""
     entries = changed_entries(message)
     if not entries:
@@ -636,6 +663,8 @@ PLANTED = [
      "gives no reason in brackets"),
     ("Decided without OK", {"PROJECT.md": ("Its words.", "Its new words."),
                             "commit": "Edit\n\nChanged: ONE-02 (new words)\n"}, "with no `owner OK`"),
+    ("proposal unlisted", {"PROJECT.md": ("Its words.", "Its words.\n  - **Proposed change:** New words.\n    Why: x.")},
+     "it should list ONE-02"),
     ("code names undefined", {"crates/kd-one/src/lib.rs": ("// checks: ONE-01", "// checks: ONE-08")},
      "`ONE-08` is not defined in PROJECT.md"),
     ("code names retired", {"crates/kd-one/src/lib.rs": ("// checks: ONE-01", "// checks: ONE-01 ONE-09")},
@@ -653,12 +682,24 @@ PLANTED = [
 ]
 
 
+# (name, a change that must pass: {path: (old, new) or a list of them, "commit": its message}).
+PROPOSAL = "Its words.\n  - **Proposed change:** New words.\n    Why: x."
+ACCEPTED = [
+    ("a proposal needs a reason, not the owner's OK",
+     {"PROJECT.md": [("Its words.", PROPOSAL),
+                     ("<!-- generated: proposals -->\n- None at present.",
+                      "<!-- generated: proposals -->\n- **Second** (`ONE-02`): new words.")],
+      "commit": "Propose\n\nChanged: ONE-02 (a proposed change: new words)\n"}),
+]
+
+
 def run_case(clean, faults):
     files = dict(clean)
     commits = []
     for path, change in faults.items():
         if path not in ("commit", "stale map"):
-            files[path] = edit(files[path], *change)
+            for old, new in change if isinstance(change, list) else [change]:
+                files[path] = edit(files[path], old, new)
     if "stale map" not in faults:
         files["IMPLEMENTATION.md"] = with_map(files) or files["IMPLEMENTATION.md"]
     if "commit" in faults:
@@ -679,8 +720,12 @@ def selftest():
         good = len(problems) == 1 and expect in problems[0]
         failures += not good
         print(("ok   " if good else "FAIL ") + f"{name}: " + ("; ".join(problems) or f"passed, but must fail: {expect}"))
-    print(f"Selftest: OK ({len(PLANTED)} planted faults each fail alone, the clean fixture passes)" if not failures
-          else f"Selftest: FAIL ({failures})")
+    for name, change in ACCEPTED:
+        problems = run_case(clean, change)
+        failures += bool(problems)
+        print(("ok   " if not problems else "FAIL ") + f"{name}: " + ("; ".join(problems) or "passes"))
+    print(f"Selftest: OK ({len(PLANTED)} planted faults each fail alone; the clean fixture and {len(ACCEPTED)} "
+          "accepted change pass)" if not failures else f"Selftest: FAIL ({failures})")
     return 0 if not failures else 1
 
 

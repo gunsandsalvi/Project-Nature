@@ -114,6 +114,32 @@ class Commit(unittest.TestCase):
         self.assertIn("gives no reason", " ".join(self.check("x\n\nChanged: ONE-02 (ONE-01)\n", reworded)))
 
 
+class Proposals(unittest.TestCase):
+    OLD = Commit.OLD
+
+    # checks: PRC-07
+    def test_a_proposal_needs_a_reason_not_the_owner(self):
+        proposed = self.OLD.replace("Its words.\n", "Its words.\n  - **Proposed change:** New words.\n    Why: x.\n")
+        self.assertEqual(filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (proposed: new words)\n",
+                                                self.OLD, proposed), [])
+        # Words changed beside the proposal still need the owner.
+        both = proposed.replace("Its words.", "Its other words.")
+        problems = filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (proposed)\n", self.OLD, both)
+        self.assertTrue(any("no `owner OK`" in p for p in problems), problems)
+        # The owner's OK replaces the text: the proposal goes, the new words stay, with the OK named.
+        decided = self.OLD.replace("Its words.", "New words.")
+        self.assertEqual(filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (new words; owner OK)\n",
+                                                proposed, decided), [])
+
+    # checks: PRC-07 PRC-10
+    def test_a_decided_item_with_a_proposal_is_listed(self):
+        proposed = self.OLD.replace("Its words.\n", "Its words.\n  - **Proposed change:** New words.\n    Why: x.\n")
+        items, _ = filecheck.items_of(proposed)
+        self.assertEqual(filecheck.generated_lists(proposed, items)["proposals"], ["ONE-01", "ONE-02"])
+        items, _ = filecheck.items_of(self.OLD)
+        self.assertEqual(filecheck.generated_lists(self.OLD, items)["proposals"], ["ONE-02"])
+
+
 class Lists(unittest.TestCase):
     # checks: PRC-10
     def test_contents_as_the_file_writes_them(self):
