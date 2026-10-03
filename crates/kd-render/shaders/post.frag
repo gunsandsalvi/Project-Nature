@@ -30,9 +30,9 @@ void main() {
       float towardSun = max(max(fr * ls.x, fl * -ls.x), max(fu * ls.y, fd * -ls.y));
       vec2 fdir = uFireScr.xy - p; float fdist = length(fdir); fdir /= max(fdist, 0.001);
       float towardFire = max(max(fr * fdir.x, fl * -fdir.x), max(fu * fdir.y, fd * -fdir.y));
-      if (firelit > 0.5 && towardFire > 0.35 && fdist < uFireScr.z) idx = lut(8.0, idx);
-      else if (sunlit > 0.5 && towardSun > 0.4 && cat != C_THING) idx = lut(7.0, idx);
-      else idx = cat == C_FIGURE ? I_INK : lut(6.0, idx);
+      if (firelit > 0.5 && towardFire > 0.35 && fdist < uFireScr.z) idx = lut(L_RIMFIRE, idx);
+      else if (sunlit > 0.5 && towardSun > 0.4 && cat != C_THING) idx = lut(L_RIMSUN, idx);
+      else idx = cat == C_FIGURE ? I_INK : lut(L_OUTLINE, idx);
     }
   }
   fragColor = texture(uPal, vec2((idx + 0.5) / 256.0, (uPalRow + 0.5) / 4.0));

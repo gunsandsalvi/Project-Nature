@@ -169,9 +169,9 @@ mod tests {
     // checks: PRE-22 PRE-01
     #[test]
     fn ui_pixels_land_on_the_art_grid() {
-        // 412 x 860 at 4: art 105 x 217, so the upscale shifts by half an art pixel across and none down.
-        let off = crate::pass::offset((105, 217), 412, 860, 4);
-        assert_eq!(off, [0.5, 0.5]);
+        // 412 x 860 at 4: art 106 x 218, so the upscale shifts by one and a half art pixels each way.
+        let off = crate::pass::offset(crate::target::art_size(412, 860, 4), 412, 860, 4);
+        assert_eq!(off, [1.5, 1.5]);
         let (x0, y0) = grid_origin(off, 860, 4);
         assert_eq!((x0, y0), (-2.0, 862.0));
         // Each UI pixel's edges fall where the upscale's art pixels change: off + x / s is whole there.

@@ -1,6 +1,6 @@
-//! Shader programs and the passes of A11.2 built so far: pass 2 (the scene into the art target, cleared to `void`),
-//! pass 3 (post: outlines, rims, the palette row) and pass 5 (upscale to the window); passes 1 and 4 come in α01b,
-//! pass 6 (the UI) is in `ui`.
+//! Shader programs and the passes of A11.2: pass 2 (the scene into the art target, cleared to `void`), pass 3 (post:
+//! outlines, rims, the palette row) and pass 5 (upscale to the window) here; pass 1 is in `shadow`, pass 4's slot in
+//! `crawl` (its output target here), pass 6 (the UI) in `ui`.
 //! Implements `PRE-01`, `PRE-21` and `PRE-22` in part, see A11.2.
 
 use crate::RenderError;
@@ -165,6 +165,8 @@ pub struct PostParams {
 pub struct Passes {
     pub scene: Target,
     pub post: Target,
+    /// Pass 4's output, which the upscale reads (A11.10).
+    pub crawl: Target,
     quad: Quad,
     post_prog: Prog,
     up_prog: Prog,
@@ -180,6 +182,7 @@ impl Passes {
             Ok(Passes {
                 scene: Target::new(gl, 4, 4, true)?,
                 post: Target::new(gl, 4, 4, false)?,
+                crawl: Target::new(gl, 4, 4, false)?,
                 quad: Quad::new(gl)?,
                 post_prog: Prog::new(
                     gl,
@@ -209,7 +212,8 @@ impl Passes {
     pub unsafe fn resize(&mut self, gl: &glow::Context, w: u32, h: u32) -> Result<(), RenderError> {
         unsafe {
             self.scene.resize(gl, w, h)?;
-            self.post.resize(gl, w, h)
+            self.post.resize(gl, w, h)?;
+            self.crawl.resize(gl, w, h)
         }
     }
 
@@ -257,7 +261,7 @@ impl Passes {
         }
     }
 
-    /// Pass 5: the post target onto the window, `scale` screen pixels an art pixel, shifted by `off` art pixels.
+    /// Pass 5: pass 4's output onto the window, `scale` screen pixels an art pixel, shifted by `off` art pixels.
     ///
     /// # Safety
     /// Needs a current GL context on this thread.
@@ -267,8 +271,8 @@ impl Passes {
             bind_window(gl, win.0, win.1);
             let g = &self.up_prog;
             g.bind(gl);
-            g.tex(gl, "uImg", 0, self.post.tex);
-            g.f(gl, "uImgSize", &[self.post.w as f32, self.post.h as f32]);
+            g.tex(gl, "uImg", 0, self.crawl.tex);
+            g.f(gl, "uImgSize", &[self.crawl.w as f32, self.crawl.h as f32]);
             g.f(gl, "uOff", &off);
             g.f(gl, "uScale", &[scale as f32]);
             self.quad.draw(gl);

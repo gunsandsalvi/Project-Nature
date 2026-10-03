@@ -24,6 +24,12 @@ reverts each new test's code to see the test fail.
 10. **Scope:** nothing outside the alpha's scope changed without a note; Conflict notes name the smallest change.
 11. **`PROJECT.md`:** no implementation detail in it (`PRC-04`); any change carries its `Changed:` line and the owner's
     OK (`PRC-07`).
+12. **Pictures** (the owner's request of 3 October 2026): open every picture the alpha makes or changes (the goldens
+    in `tests/golden/`, the smoke's shot in `target/screens/smoke/`, the note's pictures) and look at them as a pixel
+    artist and a designer: the alpha's On the phone steps show in them; every pixel is a whole 4 × 4 block in the
+    palette's colours; light falls in clear steps, dithered only in narrow bands where two steps meet; outlines, rims
+    and shadows fall where the shapes and the light put them; and nothing is smeared, noisy, streaked, banded or
+    broken that should not be. Name each fault with its picture and where in it, and say how it should look.
 
 Verdict, added to the pull request's description: `Review: APPROVE <commit> <reviewer session>` (a subagent writes
 `subagent:<label>` in place of a session) or `Review: CHANGES` with the findings.

@@ -7,6 +7,7 @@ pub enum KindName {
     ColourFamily,
     Ladder,
     LightTable,
+    Surface,
 }
 
 impl KindName {
@@ -16,6 +17,7 @@ impl KindName {
             KindName::ColourFamily => "colour_family",
             KindName::Ladder => "ladder",
             KindName::LightTable => "light_table",
+            KindName::Surface => "surface",
         }
     }
 
@@ -25,6 +27,7 @@ impl KindName {
             KindName::ColourFamily => "Colour families",
             KindName::Ladder => "Ladders",
             KindName::LightTable => "Light tables and palette versions",
+            KindName::Surface => "Surfaces",
         }
     }
 
@@ -40,6 +43,7 @@ pub const KINDS: &[(&str, KindName)] = &[
     ("palette/colours.md", KindName::ColourFamily),
     ("palette/ladders.md", KindName::Ladder),
     ("palette/light.md", KindName::LightTable),
+    ("models/surfaces.md", KindName::Surface),
 ];
 
 /// Markdown files under `data/` that hold no entries: the generated index and the tuning log (A3.6).

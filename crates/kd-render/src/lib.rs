@@ -3,18 +3,27 @@
 //! cube as pixel art (A11.12) and the UI pass (A12.1).
 //! Implements PRE-01, PRE-20, PRE-21, PRE-22, PRE-30 and PRE-32 in part, and PRC-11 in part.
 
+pub mod camera;
+pub mod crawl;
 pub mod cube;
+pub mod ground;
 pub mod mat;
 pub mod palette;
 pub mod pass;
+pub mod shadow;
 pub mod target;
 pub mod ui;
 
+use camera::ArtSize;
+use crawl::{Base, Capture, CrawlSlot};
 use glow::HasContext;
+use ground::{GroundGpu, GroundUniforms};
+use kd_core::geo;
 use kd_data::Catalogue;
-use kd_view::{FontAtlas, Snapshot, UiDrawList};
+use kd_view::{CameraPose, FontAtlas, GroundGrid, Snapshot, UiDrawList};
 use mat::Mat4;
 use pass::{Passes, PostParams, Prog};
+use shadow::{LightCam, ShadowMap};
 use std::fmt;
 
 /// The sun's direction in view space for the cube scene (T01a.6).
@@ -34,6 +43,23 @@ const SUN_I: f32 = 1.0;
 const AMBIENT: f32 = 0.5;
 /// The dither band's width (the mockup's `uBand`).
 const BAND: f32 = 0.32;
+/// The ground's sun until α03a brings the clock (T01b.5): the mockup's `TOD.dusk`, from its `SUN` direction across
+/// the ground (x east, y south) at 21 degrees up, strength 1.0, sky 0.5.
+const DUSK_SUN_G: [f32; 2] = [-0.93, 0.37];
+const DUSK_SUN_EL_DEG: f32 = 21.0;
+const DUSK_HAZE: f32 = 1.0;
+/// The ground's patterns (patches, tufts, stones) take positions from the corner of the block of the world, this many
+/// ticks (8,192 m) a side, that holds the drawn area (`uWorldOff`), so they stay put wherever the floating origin
+/// lies; a block's edge is the only seam. The world is a whole number of blocks each way.
+const PATTERN_BLOCK: i32 = 8_192 * geo::TICKS_PER_M;
+
+/// `uWorldOff` for the area whose corner is `corner`, `area_off` metres from the floating origin (`uAreaOff`): what
+/// turns positions from the origin into positions from the corner of the pattern block holding the area, so the
+/// ground's patterns never depend on where the origin lies (α01b's second review).
+fn pattern_off(corner: geo::Pos, area_off: geo::Vec2) -> [f32; 2] {
+    let m = |v: i32| v.rem_euclid(PATTERN_BLOCK) as f32 / geo::TICKS_PER_M as f32;
+    [m(corner.x) - area_off.x, m(corner.y) - area_off.y]
+}
 
 /// Why the renderer could not start (A3.8): the shader's or linker's info log, or a GPU resource.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -113,13 +139,26 @@ impl Default for DrawSettings {
     }
 }
 
-/// What one frame shows beyond the snapshot (A11.1): unpaused real seconds and the palette row now; the camera joins
-/// in α01b, display time and speed in α03a.
+/// What one frame shows beyond the snapshot (A11.1): unpaused real seconds, the palette row and the camera now;
+/// display time and speed join in α03a.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Frame {
     pub real_s: f64,
     pub palette_row: f32,
     pub set: DrawSettings,
+    pub camera: CameraPose,
+}
+
+fn dot3(a: [f32; 3], b: [f32; 3]) -> f32 {
+    a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+}
+
+/// The ground's sun direction in GPU axes (x east, y up, z south): the mockup's `sunDir` for dusk.
+pub fn dusk_sun() -> [f32; 3] {
+    let [gx, gy] = DUSK_SUN_G;
+    let l = (gx * gx + gy * gy).sqrt();
+    let el = DUSK_SUN_EL_DEG.to_radians();
+    [gx / l * el.cos(), el.sin(), gy / l * el.cos()]
 }
 
 /// What a frame cost (A11.11): draw calls now; GPU times per pass join with timer queries.
@@ -146,6 +185,12 @@ pub struct Renderer {
     passes: Passes,
     ui: ui::UiPass,
     cube: CubeMesh,
+    ground: GroundGpu,
+    shadow: ShadowMap,
+    /// Pass 4's fix: `Base` until the owner's review (A11.10).
+    slot: Box<dyn CrawlSlot>,
+    /// The last frame's ground camera, for the crawl counter.
+    last_cam: Option<camera::Camera>,
     pal: glow::Texture,
     ramps: glow::Texture,
     luts: glow::Texture,
@@ -188,6 +233,8 @@ impl Renderer {
             )?;
             let passes = Passes::new(&gl, &defines)?;
             let ui = ui::UiPass::new(&gl, &assets.font)?;
+            let ground = GroundGpu::new(&gl, &defines, cat)?;
+            let shadow = ShadowMap::new(&gl)?;
             let prog = Prog::new(
                 &gl,
                 include_str!("../shaders/cube.vert"),
@@ -221,6 +268,10 @@ impl Renderer {
                     vao,
                     count: idx.len() as i32,
                 },
+                ground,
+                shadow,
+                slot: Box::new(Base),
+                last_cam: None,
                 pal,
                 ramps,
                 luts,
@@ -257,6 +308,12 @@ impl Renderer {
         }
     }
 
+    /// Uploads a view area's ground, drawn whenever no golden cube shows (A11.5).
+    #[allow(unsafe_code)]
+    pub fn set_ground(&mut self, g: &GroundGrid) -> Result<(), RenderError> {
+        unsafe { self.ground.upload(&self.gl, g) }
+    }
+
     /// The art target's size now.
     pub fn art_size(&self) -> (u32, u32) {
         target::art_size(self.w, self.h, self.scale)
@@ -281,6 +338,21 @@ impl Renderer {
         let texel = 2.0 * CAMERA_Z * tan_half / ah as f32 * CUBE_SIDE_M;
         let len = (SUN[0] * SUN[0] + SUN[1] * SUN[1] + SUN[2] * SUN[2]).sqrt();
         let sun = SUN.map(|x| x / len);
+        let size = ArtSize {
+            wf: aw,
+            hf: ah,
+            wd: self.w,
+            hd: self.h,
+            s: self.scale,
+        };
+        // the ground's camera, and pass 1, its shadows, when no golden cube shows
+        let pose = self.slot.quantise(f.camera);
+        let ground_cam = (snap.cube.is_none() && self.ground.ready())
+            .then(|| camera::compute(&pose, size, self.ground.lo_m, self.ground.hi_m));
+        self.last_cam = ground_cam;
+        let shadow = ground_cam.as_ref().and_then(|cam| self.draw_shadow(cam));
+        draws += shadow.as_ref().map_or(0, |s| s.1);
+        let light = shadow.map(|s| s.0);
         unsafe {
             self.passes.begin_scene(gl);
             if let Some(c) = snap.cube {
@@ -314,7 +386,7 @@ impl Renderer {
                 draws += 1;
             }
             let sl = (sun[0] * sun[0] + sun[1] * sun[1]).sqrt().max(1e-6);
-            let post = PostParams {
+            let mut post = PostParams {
                 sun_scr: [sun[0] / sl, sun[1] / sl],
                 fire_scr: [-1.0e5, -1.0e5, 0.0],
                 outlines: f.set.outlines,
@@ -322,10 +394,26 @@ impl Renderer {
                 depth_m: DEPTH_SPAN * CUBE_SIDE_M,
                 texel,
             };
+            // the scene's grid moves with the camera's sub-pixel shift, and the UI stays on it (A12.1: a UI pixel is
+            // an art pixel)
+            let mut off = pass::offset((aw, ah), self.w, self.h, self.scale);
+            if let Some(cam) = &ground_cam {
+                draws += self.draw_ground(cam, light.as_ref(), aw, ah);
+                let sun = dusk_sun();
+                let ss = [dot3(sun, cam.r), dot3(sun, cam.u)];
+                let sl = (ss[0] * ss[0] + ss[1] * ss[1]).sqrt().max(1e-6);
+                post.sun_scr = [ss[0] / sl, ss[1] / sl];
+                post.depth_m = cam.far - cam.near;
+                post.texel = cam.texel;
+                off = cam.off;
+            }
+            let gl = &self.gl;
             self.passes.post(gl, self.pal, self.luts, &post);
-            let off = pass::offset((aw, ah), self.w, self.h, self.scale);
+            let p = &self.passes;
+            self.slot
+                .resolve(gl, &p.post, &p.post, &p.crawl, (f.real_s * 1000.0) as f32);
             self.passes.upscale(gl, (self.w, self.h), off, self.scale);
-            draws += 2;
+            draws += 3;
             let grid = ui::Grid {
                 win: (self.w, self.h),
                 off,
@@ -334,6 +422,132 @@ impl Renderer {
             draws += self.ui.draw(gl, ui, self.pal, f.palette_row, grid);
         }
         FrameStats { draws }
+    }
+
+    /// Pass 1 for the ground: while the sun is up and art pixels are under 3.2 m, its chunks into the shadow map from
+    /// the sun's camera fitted round the view (A11.2). Returns that camera and the draw calls, when drawn.
+    #[allow(unsafe_code)]
+    fn draw_shadow(&self, cam: &camera::Camera) -> Option<(LightCam, u32)> {
+        let sun = dusk_sun();
+        if cam.texel >= shadow::SHADOW_MAX_TEXEL || sun[1] <= shadow::SHADOW_MIN_SUN_UP {
+            return None;
+        }
+        let light = shadow::light_for(&cam.foot, &cam.foot_block, sun, cam.origin_m());
+        let gl = &self.gl;
+        let d = geo::delta(cam.origin, self.ground.origin);
+        unsafe {
+            self.shadow.begin(gl, &light);
+            gl.disable(glow::CULL_FACE);
+            let g = &self.ground.shadow_prog;
+            g.bind(gl);
+            let u = GroundUniforms {
+                vp: &light.vp.0,
+                area_off: [d.x, 0.0, d.y],
+                step: ground::step_for(cam.texel),
+            };
+            let n = self.ground.draw(gl, g, &u);
+            Some((light, n))
+        }
+    }
+
+    /// Pass 2 for the ground: its chunks into the art target at the spacing for the camera's art pixels, with the
+    /// mockup's light, shadow, dither and haze uniforms. Returns the draw calls.
+    #[allow(unsafe_code)]
+    fn draw_ground(&self, cam: &camera::Camera, light: Option<&LightCam>, aw: u32, ah: u32) -> u32 {
+        let gl = &self.gl;
+        let sun = dusk_sun();
+        let d = geo::delta(cam.origin, self.ground.origin);
+        // haze toward the far part of the view (the mockup's `uHaze`)
+        let span = (ah as f32 * cam.texel / 2.0) / cam.pitch.tan().max(0.05);
+        let haze = [
+            dot3(cam.f, cam.tg) + 0.15 * span,
+            1.0 / (1.6 * span).max(1.0),
+            3.0 * DUSK_HAZE * 0.8,
+        ];
+        unsafe {
+            gl.disable(glow::CULL_FACE);
+            let g = &self.ground.prog;
+            g.bind(gl);
+            g.tex(gl, "uRamps", 0, Some(self.ramps));
+            g.tex(gl, "uLuts", 1, Some(self.luts));
+            g.f(gl, "uDith", &[cam.dith[0] as f32, cam.dith[1] as f32]);
+            g.f(gl, "uBand", &[BAND]);
+            g.f(gl, "uScreenDither", &[0.0]);
+            g.f(gl, "uTexel", &[cam.texel]);
+            g.f(gl, "uSunDir", &sun);
+            g.f(gl, "uSunI", &[SUN_I]);
+            g.f(gl, "uAmb", &[AMBIENT]);
+            g.tex(gl, "uShadow", 2, Some(self.shadow.tex));
+            match light {
+                Some(l) => {
+                    g.f(gl, "uShadowOn", &[1.0]);
+                    g.f(gl, "uLightVP", &l.vp.0);
+                    g.f(gl, "uShadowBias", &l.bias());
+                    g.f(gl, "uShadowWin", &l.window());
+                }
+                None => g.f(gl, "uShadowOn", &[0.0]),
+            }
+            // the patterns are fixed to the world: positions from the corner of the area's pattern block
+            g.f(gl, "uWorldOff", &pattern_off(self.ground.origin, d));
+            g.f(gl, "uCamF", &cam.f);
+            g.f(gl, "uDepthR", &[cam.near, 1.0 / (cam.far - cam.near)]);
+            g.f(gl, "uHaze", &haze);
+            g.f(gl, "uFire", &[0.0, 0.0, 0.0, 0.0]);
+            g.f(gl, "uFire2", &[0.0, 0.0, 0.0, 0.0]);
+            g.f(gl, "uView", &cam.view.map(|v| v as f32));
+            g.f(gl, "uDbgA", &[0.0]);
+            g.f(gl, "uDbgB", &[0.0]);
+            let u = GroundUniforms {
+                vp: &cam.vp.0,
+                area_off: [d.x, 0.0, d.y],
+                step: ground::step_for(cam.texel),
+            };
+            // the projection spans the view's block; the viewport puts the view on the art target
+            let [x, y, w, h] = cam.view;
+            gl.viewport(x, y, w, h);
+            let n = self.ground.draw(gl, g, &u);
+            gl.viewport(0, 0, aw as i32, ah as i32);
+            n
+        }
+    }
+
+    /// The last frame for the crawl counter (B66's `capture`): the post target's colours and the scene's view depth,
+    /// with its ground camera; `None` when the last frame drew no ground.
+    #[allow(unsafe_code)]
+    pub fn capture(&self) -> Option<Capture> {
+        let cam = self.last_cam?;
+        let gl = &self.gl;
+        let (w, h) = (self.passes.post.w, self.passes.post.h);
+        let n = (w * h) as usize;
+        let (mut col, mut scene) = (vec![0u8; n * 4], vec![0u8; n * 4]);
+        unsafe {
+            for (t, buf) in [(&self.passes.post, &mut col), (&self.passes.scene, &mut scene)] {
+                t.bind(gl);
+                gl.read_pixels(
+                    0,
+                    0,
+                    w as i32,
+                    h as i32,
+                    glow::RGBA,
+                    glow::UNSIGNED_BYTE,
+                    glow::PixelPackData::Slice(Some(buf)),
+                );
+            }
+            gl.bind_framebuffer(glow::FRAMEBUFFER, None);
+        }
+        Some(Capture {
+            w,
+            h,
+            col: col
+                .chunks(4)
+                .map(|c| u32::from_le_bytes([c[0], c[1], c[2], c[3]]))
+                .collect(),
+            dep16: scene
+                .chunks(4)
+                .map(|c| u16::from(c[2]) << 8 | u16::from(c[3]))
+                .collect(),
+            cam,
+        })
     }
 
     /// The GL error flag (`glGetError`), 0 when none.
@@ -346,6 +560,68 @@ impl Renderer {
 #[cfg(test)]
 mod tests {
     use super::Cat;
+    use kd_core::geo::{self, Pos, Vec2};
+
+    /// Where the ground shader's patterns read a point `a` metres from the corner of the area at `corner`, drawn from
+    /// the floating origin `origin`: `vWorld` (the point from the origin) plus `uWorldOff`.
+    fn pattern_p(corner: Pos, origin: Pos, a: [f32; 2]) -> [f32; 2] {
+        let d = geo::delta(origin, corner);
+        let off = super::pattern_off(corner, d);
+        [a[0] + d.x + off[0], a[1] + d.y + off[1]]
+    }
+
+    // checks: PRE-20 PRE-22
+    #[test]
+    fn patterns_stay_put_wherever_the_origin_lies() {
+        let block = super::PATTERN_BLOCK;
+        let near = |p: [f32; 2], q: [f32; 2]| (p[0] - q[0]).abs() < 1e-3 && (p[1] - q[1]).abs() < 1e-3;
+        // the demo area's corner lies on a block's corner (α01b's second review: from origins west or north of it,
+        // the patterns read positions 8,192 m away and jumped); and an area whose corner is off the blocks' corners
+        let corners = [
+            Pos {
+                x: 128 * block,
+                y: 48 * block,
+                z: 0,
+            },
+            Pos {
+                x: 128 * block + 768 * 256,
+                y: 48 * block + 3 * 65_536,
+                z: 0,
+            },
+        ];
+        let origins = [
+            (-256.0, 0.0),
+            (0.0, -256.0),
+            (-512.0, -256.0),
+            (256.0, 512.0),
+            (-3_072.0, 2_560.0),
+        ];
+        for corner in corners {
+            for a in [[0.0, 0.0], [10.5, 3.25], [255.75, 128.0]] {
+                let want = pattern_p(corner, corner, a);
+                for (x, y) in origins {
+                    let got = pattern_p(corner, geo::offset(corner, Vec2 { x, y }), a);
+                    assert!(
+                        near(got, want),
+                        "{a:?} from an origin at ({x}, {y}) m: {got:?}, not {want:?}"
+                    );
+                }
+            }
+        }
+        // two areas in one block put the same point at the same place in the patterns, so they meet without a seam
+        let west = Pos {
+            x: 128 * block + 256 * 256,
+            y: 48 * block,
+            z: 0,
+        };
+        let east = geo::offset(west, Vec2 { x: 256.0, y: 0.0 });
+        let origin = geo::offset(west, Vec2 { x: -100.0, y: 40.0 });
+        let (p, q) = (
+            pattern_p(west, origin, [300.0, 20.0]),
+            pattern_p(east, origin, [44.0, 20.0]),
+        );
+        assert!(near(p, q), "{p:?} and {q:?}");
+    }
 
     // checks: PRE-21
     #[test]
@@ -357,15 +633,36 @@ mod tests {
             let line = format!("#define {} {}.0\n", c.define_name(), k + 1);
             assert!(defs.contains(&line), "{defs}");
         }
-        // The shaders pack and compare categories by name only, never by a bare number.
+        // The shaders pack and compare categories by name only, never by a bare number, on either side of the
+        // comparison; and the post pass names the light tables it reads.
         let cube = include_str!("../shaders/cube.frag");
+        let post = include_str!("../shaders/post.frag");
         assert!(cube.contains("packOut(idx, C_ROCK,"), "the cube packs as rock");
-        for (file, src) in [("cube.frag", cube), ("post.frag", include_str!("../shaders/post.frag"))] {
-            for op in ["cat == ", "cat != ", "cat > ", "cat < "] {
-                for (i, _) in src.match_indices(op) {
-                    let next = src[i + op.len()..].chars().next();
-                    assert_eq!(next, Some('C'), "{file}: a bare category number after `{op}`");
+        let files = [
+            ("cube.frag", cube),
+            ("post.frag", post),
+            ("terrain.frag", include_str!("../shaders/terrain.frag")),
+        ];
+        for (file, src) in files {
+            for op in ["==", "!=", ">=", "<=", ">", "<"] {
+                let after = format!("cat {op} ");
+                for (i, _) in src.match_indices(&after) {
+                    let next = src[i + after.len()..].chars().next();
+                    assert_eq!(next, Some('C'), "{file}: a bare category number after `{after}`");
                 }
+                let before = format!(" {op} cat");
+                for (i, _) in src.match_indices(&before) {
+                    let word = src[..i].rsplit(|c: char| !(c.is_alphanumeric() || c == '_')).next();
+                    assert!(
+                        word.is_some_and(|w| w.starts_with("C_")),
+                        "{file}: a bare category number before `{before}`"
+                    );
+                }
+            }
+        }
+        for (i, _) in post.match_indices("lut(") {
+            if !post[..i].ends_with("float ") {
+                assert!(post[i + 4..].starts_with("L_"), "post.frag: a light table by number");
             }
         }
     }

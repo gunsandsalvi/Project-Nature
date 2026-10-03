@@ -3305,7 +3305,7 @@ pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Noth
 | 6 | UI (A12.1) | window, same 4-pixel grid |
 
 - **Shadow:** the scene shaders under `#define SHADOW` draw into a depth-only texture, sampled directly; the mockup packed depth into RGBA8 (`packShadow`) only for WebGL1; fallback: that packing.
-- **Art target:** `ceil(W/s) + 2` by `ceil(H/s) + 2`, with `s` 4 screen pixels on the phone and 4 device pixels on the web (`PRE-22`): 272 × 603 in portrait on 1080 × 2404, 0.66 MB a surface; the border carries the sub-pixel shift.
+- **Art target:** `ceil(W/s) + 3` by `ceil(H/s) + 3`, with `s` 4 screen pixels on the phone and 4 device pixels on the web (`PRE-22`): 273 × 604 in portrait on 1080 × 2404, 0.66 MB a surface; the border carries the upscale's shift, which spans two art pixels as the view snaps to even ones (α01b's Conflict note).
 - **Colour 0** (`packOut`): R the palette index (0 void); G the category (bits 0–2), sunlit (3), firelit (4) and, new, which of 8 fire lights is strongest (5–7); B and A the view depth in 16 bits.
 - **Outlines by category** keep `postFS`'s depth thresholds for rock, plants, figures (in ink) and things; ground, water and effects have none (`PRE-21`).
 - **Colour 1:** a 24-bit index into the frame's pick table and an 8-bit kind (ground 0).
@@ -3317,11 +3317,13 @@ pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Noth
 **Camera** (`zoomToTexel`, `viewFor`, `computeCamera`):
 - Orthographic; the pitch depends only on metres per art pixel (`texel`), by the mockup's `PITCH` knots, from 27° at 0.03 m to 90° from 20 m.
 - `texel(zoom)` is log-linear between the stops of A11.5; the globe fits 0.84 of the shorter side (`texelMax`), so both orientations share one scale.
-- The view snaps to whole art pixels; the remainder is the upscale shift, and `dith = (sx − W/2) mod 4` keeps dither fixed to surfaces (`PRE-20`).
-- **Decision:** a floating origin at the area corner nearest the target, with GPU positions in `f32` metres from it; why: `f32` world metres resolve only 0.125–0.25 m at 2,000 km; fallback: none needed.
-- The depth range spans the footprint from the lowest to the highest ground in view, ± 30 m; the shadow camera fits the footprint and snaps to its own texels (`lightFor`), so shadows never swim.
+- The view snaps to even art pixels, counted from the world's corner; the remainder is the upscale shift, and `dith = (sx − W/2) mod 4` keeps dither fixed to surfaces (`PRE-20`); snapping by two keeps the GPU's 2 × 2 pixel groups, over which `fwidth` sets the dither band, on the same ground.
+- **Decision:** a floating origin at the area corner nearest the ground in the middle of the view's block (below), with GPU positions in `f32` metres from it, each area's vertices from its own corner plus the corner's offset (`uAreaOff`); why: `f32` world metres resolve only 0.125–0.25 m at 2,000 km; fallback: none needed.
+- **Blocks:** within a block of 512 art pixels every frame draws with the same projection, over the art target plus a block, and the art target's viewport moves by whole pixels instead, so a pan moves the picture by whole pixels exactly; a projection moved by the pan would round differently and flip pixels on edges. The viewport stays within OpenGL ES 3.0's least size on the phone (its screen's 2,404 pixels).
+- Drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, so turns and zooms pivot on the ground in the middle of the screen while the picture stays still.
+- The depth range spans the block's footprint from the lowest to the highest ground in view, ± 30 m; the shadow camera fits the view's footprint and snaps to its own texels, counted from the world's corner (`lightFor`), keeping its projection within blocks of 256 texels and its depth range on 16 m steps, so shadows never swim; the ground's patterns read positions from the corner of the block of 8,192 m of the world that holds the drawn area (`uWorldOff`, the area's corner within its block less `uAreaOff`), so they never depend on where the origin lies, and a block's edge is their only seam.
 
-Tested by: a one-art-pixel pan moves the picture exactly 4 screen pixels; a tap on each kind of thing in a fixed scene picks it.
+Tested by: a one-art-pixel pan moves the picture exactly 4 screen pixels, both where the origin stays put and where the pan moves it; a tap on each kind of thing in a fixed scene picks it.
 First needed: `MIL-01`.
 
 ### A11.3 Palette, ladders and lookup tables
@@ -3393,6 +3395,7 @@ Every switch is a dither dissolve with ±6% hysteresis (`Trees.stepFade`), at th
 
 **Height-field chunks** (`buildGrid`): 64 m square, one vertex spacing a frame since the view is orthographic: 1 m below 0.6 m art pixels, 2 m below 1.3, 4 m below 2.6, else 8 m.
 Vertices (20 bytes) carry A5's surface material and a byte each of water distance, wear, cover and flags, in place of the mockup's `aA` and `aB`; normals come from heights blurred three times; 4 m skirts hide edges (`addSkirts`).
+The ground shader reads the surface per pixel from the area's surface map (a byte a square metre), the surface weighing most among the four nearest squares, with edges wandering a little by noise fixed to the world, since a surface blended across a triangle draws surfaces the rule never placed (α01b's review).
 The **ground shader** ports `terrainFS`, with a row of `data/models/surfaces.md` per surface material (ladder by season, stone density and size, flags for grikes, ash, gravel, mud, sand) in place of the mockup's fixed choices; ground cover is drawn by the picture's 4 m patches (kind, density, season state) as tuft and flower stamps below 0.095 m art pixels (`stampTuft`, `stampStone`, `PRE-46`); upward faces take the snow ladder by each vertex's snow (`WLD-16`).
 
 **Cliffs, overhangs and caves** (`PRE-23`, `PRE-24`):
@@ -4493,7 +4496,7 @@ Before a stage closes, `PRC-10`'s list runs, with `kd check ids --stage` (all of
 The gate is `tools/check.sh` plus the review recorded in the pull request's description; no branch protection or commit status is needed (the reviews' decision).
 1. The builder's pull request description holds only facts: IDs delivered, tests added, pass rules changed with reasons, architecture sections touched, its `Checks: PASS` line; none of its reasoning (`PRC-09`).
 2. A reviewer in a separate session (`create_session`), or a fresh subagent of the builder's session given only the diff, the alpha's section and the items it cites (since 2 October 2026, when the owner moved all building into one session), re-runs format, clippy, tests and quick scenes, and reverts each new test to see it fail.
-3. It checks with `tools/review-checklist.md`: each claimed ID's What, Done when and Check lines; no test weakened or pass rule loosened (`RES-09`); catalogue entries naming their checks (`MAT-17`); the principles, above all `PRN-01`, `PRN-06`, `PRN-07`, `PRN-12` and `PRN-14`; determinism, layering, budget flags; no implementation in `PROJECT.md` (`PRC-04`).
+3. It checks with `tools/review-checklist.md`: each claimed ID's What, Done when and Check lines; no test weakened or pass rule loosened (`RES-09`); catalogue entries naming their checks (`MAT-17`); the principles, above all `PRN-01`, `PRN-06`, `PRN-07`, `PRN-12` and `PRN-14`; determinism, layering, budget flags; no implementation in `PROJECT.md` (`PRC-04`); and, as the owner asked on 3 October 2026, it looks at the alpha's pictures (goldens, smoke shots, the note's pictures) as a pixel artist and a designer would, judging whether the graphics are as they should be.
 4. It adds `Review: APPROVE <commit> <its session>` (a subagent, having no session of its own, names itself `subagent:<label>`), or `Review: CHANGES` with its findings, to the description; a later push voids an approval.
 5. If they still disagree after one round of fixes, a second fresh reviewer decides; anything changing what `PROJECT.md` means goes to the owner (`PRC-09`).
 6. The builder runs `tools/check.sh --gate <saved description>`: the head is the approved commit, its checks passed, and the reviewer is a subagent or a session that differs from every `Claude-Session` trailer on the branch; it then merges (`merge_pull_request`, a merge commit) with both lines in the message.

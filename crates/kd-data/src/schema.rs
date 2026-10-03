@@ -98,6 +98,47 @@ pub struct LightTable {
     pub keep_colours: Vec<String>,
 }
 
+/// A mark of a surface's ground (A11.5): grikes in limestone, ash, gravel, mud or sand; the ground shader is to draw
+/// each, and reads none yet.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SurfaceFlag {
+    Gravel,
+    Mud,
+    Sand,
+    Ash,
+    Grikes,
+}
+
+impl SurfaceFlag {
+    /// The flag's bit in the blob and the surfaces texture.
+    pub fn bit(self) -> u8 {
+        match self {
+            SurfaceFlag::Gravel => 1,
+            SurfaceFlag::Mud => 2,
+            SurfaceFlag::Sand => 4,
+            SurfaceFlag::Ash => 8,
+            SurfaceFlag::Grikes => 16,
+        }
+    }
+}
+
+/// A ground surface (`data/models/surfaces.md`, A11.5, `PRE-20`): the ladder its light picks from, the share of its
+/// ground with stones and their size in metres, the share with tufts, and its flags. The numbers are decimal strings
+/// of at most three decimals, as the light tables' are (see the decision above).
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct Surface {
+    #[serde(flatten)]
+    pub common: Common,
+    pub ladder: String,
+    pub stone_density: String,
+    pub stone_size: String,
+    pub tuft_density: String,
+    #[serde(default)]
+    pub flags: Vec<SurfaceFlag>,
+}
+
 /// `data/VERSION.toml` (A3.6, `PLT-09`): the rules version and the generator version.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]

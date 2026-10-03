@@ -40,6 +40,15 @@ fn sample() -> Body {
             l_max: Some("0.24".into()),
             mask: vec![false, true],
         }],
+        surfaces: vec![SurfaceRec {
+            id: "s".into(),
+            name: "S".into(),
+            ladder: 0,
+            stone_density: 160,
+            stone_size_mm: 80,
+            tuft_density: 0,
+            flags: 16,
+        }],
     }
 }
 
@@ -52,18 +61,44 @@ fn round_trip() {
     assert_eq!((c.major, c.minor, c.generator), (1, 2, 3));
     assert_eq!(c.colour("y").map(|k| k.0), Some(1));
     assert_eq!(c.ladder("l").map(|k| k.0), Some(0));
+    assert_eq!(c.surface("s"), Some(0));
     assert_eq!(&blob[..5], b"KDCAT");
 }
 
 // checks: PLT-09 MAT-13
 #[test]
 fn round_trip_of_the_compiled_fixture() {
-    // Compiling then loading gives equal tables (the compiler loads what it encodes, so this checks both ways).
+    // Compiles the clean fixture, then checks the loaded tables against the entries' own words, and the blob against
+    // a fresh encoding of what was loaded, so a loss on either side shows.
     #[cfg(feature = "compile")]
     {
+        use crate::compile::Parsed;
         let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/clean/data");
         let c = crate::compile::compile(&root, false).unwrap();
-        assert_eq!(Catalogue::load(&c.blob).unwrap(), c.catalogue);
+        let loaded = Catalogue::load(&c.blob).unwrap();
+        assert_eq!(
+            Catalogue::encode(loaded.major, loaded.minor, loaded.generator, &loaded.body),
+            c.blob
+        );
+        let ladders: Vec<_> = c
+            .entries
+            .iter()
+            .filter_map(|e| match &e.parsed {
+                Parsed::Ladder(l) => Some(l),
+                _ => None,
+            })
+            .collect();
+        assert!(!ladders.is_empty());
+        assert_eq!(loaded.body.ladders.len(), ladders.len());
+        for (rec, l) in loaded.body.ladders.iter().zip(&ladders) {
+            assert_eq!(rec.id, l.common.id);
+            let names: Vec<&str> = rec
+                .steps
+                .iter()
+                .map(|&k| loaded.body.colours[k as usize].name.as_str())
+                .collect();
+            assert_eq!(names, l.steps, "ladder `{}`", rec.id);
+        }
     }
 }
 

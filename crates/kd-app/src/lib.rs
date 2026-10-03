@@ -1,18 +1,24 @@
 //! kd-app: the app object: frame loop, input, the self-check (A2.2, A2.4, A3.8, A15.4); implements PRC-11, PRE-22,
 //! PRE-32 and PLT-02 in part.
-//! In α01a it turns the golden cube as pixel art with the version strip over it; the simulation and I/O threads join
-//! from α03a and α07a.
+//! In α01b it shows the valley, the demo area as pixel-art ground under the camera, with the version strip over it;
+//! the cube stays as the golden scene `cube`. The simulation and I/O threads join from α03a and α07a.
 
+pub mod camera;
 pub mod json;
 pub mod selfcheck;
+pub mod valley;
 
 pub use json::{json_str, requests_json};
 pub use kd_view::{InputEvent, InputKind, Insets};
 
+use camera::CameraCtl;
 use kd_data::Catalogue;
+use kd_render::camera::ArtSize;
+use kd_render::crawl::{self, PairCount};
 use kd_render::{Assets, DrawSettings, Frame, Renderer};
+use kd_ui::gestures::Gestures;
 use kd_ui::{Font, Ui};
-use kd_view::{CubeView, Snapshot};
+use kd_view::{CameraPose, CubeView, GroundGrid, Snapshot};
 use std::sync::Arc;
 
 /// What the app needs from its shell (A2.2); `storage` arrives in α07a, `cores` in α02b.
@@ -93,24 +99,16 @@ impl FrameRing {
     }
 }
 
-/// Spin of the cube, radians a second of unpaused time.
-const SPIN_PER_S: f32 = 0.6;
-/// The cube's tilt, radians.
-const PITCH: f32 = 0.5;
-/// Radians of turn across a drag of the whole width (the mockup's `yawPerPx`).
-const YAW_PER_WIDTH: f32 = 4.2;
-/// The narrowest width the drag scale assumes, pixels (the mockup's).
-const MIN_WIDTH: f32 = 240.0;
-/// Momentum kept each frame after a release (the mockup's `step`).
-const MOMENTUM_KEEP: f32 = 0.88;
-/// Momentum under this, radians a frame, stops.
-const MOMENTUM_STOP: f32 = 0.0004;
-/// A release counts as moving when the last move was this recent, ns (the mockup's 90 ms).
-const RELEASE_WINDOW_NS: u64 = 90_000_000;
-/// Smallest release speed that keeps turning, radians a frame (the mockup's).
-const RELEASE_MIN: f32 = 0.0008;
-/// Largest momentum, radians a frame (the mockup's).
-const MOMENTUM_MAX: f32 = 0.08;
+/// A fixed golden scene (A11.12): the cube, or the valley from a fixed pose.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Golden {
+    Cube(CubeView),
+    Valley(CameraPose),
+}
+
+/// The art pixels of the phone's screen in portrait, where the crawl counter measures (A11.10).
+const PHONE_W: u32 = 1080;
+const PHONE_H: u32 = 2404;
 
 /// The app object (A2.2): owned by the GL thread on the phone, by the page on the web.
 pub struct App {
@@ -122,7 +120,12 @@ pub struct App {
     ui: Ui,
     ring: FrameRing,
     last_frame_ns: Option<u64>,
-    golden: Option<CubeView>,
+    golden: Option<Golden>,
+    /// Frames drawn since the renderer took the ground (`ready`).
+    frames_since_ground: u32,
+    ground: GroundGrid,
+    ctl: CameraCtl,
+    gestures: Gestures,
     gl_info: String,
     fail: Vec<String>,
     reported: bool,
@@ -130,14 +133,9 @@ pub struct App {
     w: u32,
     h: u32,
     paused: bool,
-    spin_s: f32,
+    /// Unpaused real seconds (`Frame::real_s`).
+    run_s: f64,
     last_ns: Option<u64>,
-    drag_yaw: f32,
-    pointer: Option<i32>,
-    last_x: f32,
-    last_move_ns: u64,
-    vel: f32,
-    momentum: f32,
 }
 
 impl App {
@@ -154,6 +152,8 @@ impl App {
         });
         let assets = Assets { font: font.atlas() };
         let ui = Ui::new(font, &catalogue);
+        let ground = valley::ground(&catalogue);
+        let ctl = CameraCtl::new(valley::start(&ground));
         App {
             platform: p,
             cfg,
@@ -168,6 +168,10 @@ impl App {
             },
             last_frame_ns: None,
             golden: None,
+            frames_since_ground: 0,
+            ground,
+            ctl,
+            gestures: Gestures::new(SCALE, 1),
             gl_info: String::new(),
             fail,
             reported: false,
@@ -175,14 +179,8 @@ impl App {
             w: 1,
             h: 1,
             paused: false,
-            spin_s: 0.0,
+            run_s: 0.0,
             last_ns: None,
-            drag_yaw: 0.0,
-            pointer: None,
-            last_x: 0.0,
-            last_move_ns: 0,
-            vel: 0.0,
-            momentum: 0.0,
         }
     }
 
@@ -192,6 +190,10 @@ impl App {
             Ok(mut r) => {
                 self.gl_info = r.gl_info();
                 r.resize(self.w, self.h, SCALE);
+                if let Err(e) = r.set_ground(&self.ground) {
+                    self.fail.push(format!("ground: {e}"));
+                }
+                self.frames_since_ground = 0;
                 self.renderer = Some(r);
             }
             Err(e) => {
@@ -210,13 +212,26 @@ impl App {
             r.resize(self.w, self.h, SCALE);
         }
         self.ui.resize(self.w, SCALE);
+        self.gestures.resize(SCALE, self.h);
+    }
+
+    /// The art target and the window, for the camera's sums.
+    fn art(&self) -> ArtSize {
+        let (wf, hf) = kd_render::target::art_size(self.w, self.h, SCALE);
+        ArtSize {
+            wf,
+            hf,
+            wd: self.w,
+            hd: self.h,
+            s: SCALE,
+        }
     }
 
     /// The next message from the shell.
     pub fn handle(&mut self, m: AppMsg) {
         match m {
             AppMsg::Input(e) => {
-                // A touch on the UI belongs to it; the cube never sees it (A12.2).
+                // A touch on the UI belongs to it; the camera never sees it (A12.2).
                 if !self.ui.input(&e) {
                     self.input(e);
                 }
@@ -231,60 +246,149 @@ impl App {
         }
     }
 
+    /// A touch the UI did not take: the gestures move the camera (A12.2).
     fn input(&mut self, e: InputEvent) {
-        let per_px = YAW_PER_WIDTH / kd_core::num::max(MIN_WIDTH, self.w as f32);
-        match e.kind {
-            InputKind::Down => {
-                if self.pointer.is_none() {
-                    self.pointer = Some(e.pointer);
-                    self.last_x = e.x;
-                    self.vel = 0.0;
-                    self.momentum = 0.0;
-                    self.last_move_ns = e.t_ns;
-                } else {
-                    // A second finger: no turn until all lift (pinch is α01b's).
-                    self.pointer = Some(-1);
-                }
-            }
-            InputKind::Move if self.pointer == Some(e.pointer) => {
-                let d = -(e.x - self.last_x) * per_px;
-                self.last_x = e.x;
-                self.drag_yaw += d;
-                let dt_ms = kd_core::num::max(8.0, e.t_ns.saturating_sub(self.last_move_ns) as f32 / 1e6);
-                self.last_move_ns = e.t_ns;
-                self.vel += (d * (16.0 / dt_ms) - self.vel) * 0.5;
-            }
-            InputKind::Move => {}
-            InputKind::Up if self.pointer == Some(e.pointer) => {
-                self.pointer = None;
-                if e.t_ns.saturating_sub(self.last_move_ns) < RELEASE_WINDOW_NS && self.vel.abs() > RELEASE_MIN {
-                    self.momentum = self.vel.clamp(-MOMENTUM_MAX, MOMENTUM_MAX);
-                }
-            }
-            InputKind::Up | InputKind::Cancel => {
-                self.pointer = None;
-            }
+        let mut cmds = Vec::new();
+        self.gestures.input(&e, &mut cmds);
+        let size = self.art();
+        for c in cmds {
+            self.ctl.apply(c, size, &self.ground);
         }
     }
 
-    /// The cube's current turn, radians (the web test hook).
+    /// The turn shown, radians (the web test hook): the golden cube's, else the camera's.
     pub fn yaw(&self) -> f32 {
         match self.golden {
-            Some(c) => c.yaw,
-            None => self.spin_s * SPIN_PER_S + self.drag_yaw,
+            Some(Golden::Cube(c)) => c.yaw,
+            Some(Golden::Valley(p)) => p.yaw,
+            None => self.ctl.pose.yaw,
         }
     }
 
-    /// Freezes time and the drag and shows a fixed golden scene (A11.12, A12.4): `cube`, at yaw 0.6 and pitch 0.5 on
-    /// dusk's row, with no strip. Returns whether the scene exists.
+    /// Unpaused real seconds so far.
+    pub fn real_s(&self) -> f64 {
+        self.run_s
+    }
+
+    /// Freezes time and the camera and shows a fixed golden scene (A11.12, A12.4) on dusk's row, with no strip:
+    /// `cube`, at yaw 0.6 and pitch 0.5; `valley-camp`, `valley-close` and `valley-near`, the start's view of the
+    /// cliff at the camp stop (zoom 0.30), the close camp stop (0.14) and the closest zoom (0.00), where tufts and
+    /// stones show and the floating origin is not the area's corner. Returns whether the scene exists.
     pub fn golden(&mut self, name: &str) -> bool {
-        match name {
-            "cube" => {
-                self.golden = Some(CubeView { yaw: 0.6, pitch: 0.5 });
-                true
-            }
-            _ => false,
+        let (x, y) = valley::START_AT;
+        let valley = |zoom| Golden::Valley(valley::pose_at(&self.ground, x, y, valley::START_YAW, zoom));
+        self.golden = match name {
+            "cube" => Some(Golden::Cube(CubeView { yaw: 0.6, pitch: 0.5 })),
+            "valley-camp" => Some(valley(0.30)),
+            "valley-close" => Some(valley(0.14)),
+            "valley-near" => Some(valley(camera::ZOOM_MIN)),
+            _ => return false,
+        };
+        true
+    }
+
+    /// The camera (the web test hook): its target as (x, y) metres from the ground's corner and its height, its
+    /// turn, its zoom, metres per art pixel, where the target lies within its art pixel along right and up, and the
+    /// floating origin as (x, y) metres from the ground's corner.
+    pub fn camera(&self) -> [f32; 10] {
+        let p = self.ctl.pose;
+        let d = kd_core::geo::delta(self.ground.origin, p.target);
+        let c = kd_render::camera::compute(&p, self.art(), 0.0, 1.0);
+        let o = kd_core::geo::delta(self.ground.origin, c.origin);
+        [
+            d.x,
+            d.y,
+            p.target.z as f32 / 256.0,
+            p.yaw,
+            p.zoom,
+            c.texel,
+            c.frac[0],
+            c.frac[1],
+            o.x,
+            o.y,
+        ]
+    }
+
+    /// Points the camera at (`x`, `y`) metres from the ground's corner, at height `z` or else the ground's, with a
+    /// turn and a zoom (the web test hook).
+    pub fn set_camera(&mut self, x: f32, y: f32, z: Option<f32>, yaw: f32, zoom: f32) {
+        let zoom = zoom.clamp(camera::ZOOM_MIN, camera::ZOOM_MAX);
+        let mut pose = valley::pose_at(&self.ground, x, y, yaw, zoom);
+        if let Some(z) = z {
+            pose.target.z = (z * 256.0).round() as i32;
         }
+        self.ctl = CameraCtl::new(pose);
+    }
+
+    /// Whether the frame after the ground's upload has drawn (the test hook's `ready()`).
+    pub fn ready(&self) -> bool {
+        self.renderer.is_some() && self.frames_since_ground > 0
+    }
+
+    /// B66's crawl count (A11.10), the test hook's `crawl()`: on the phone's art target in portrait, from the start's
+    /// view at `zoom` (the camp stop, 0.30, unless given), the camera moves one 60 Hz step a frame for `frames`
+    /// frames, turning by `rate` radians, zooming by `rate`, or panning `rate` metres east and 0.58 of that north at
+    /// the start's height, as a drag does; each frame is drawn and captured, and each pair counted. Only the fix
+    /// `base` exists until the owner's review. `None` without a renderer.
+    pub fn crawl(&mut self, motion: &str, rate: f32, frames: u32, fix: &str, zoom: Option<f32>) -> Option<String> {
+        if fix != "base" {
+            return None;
+        }
+        let (w, h) = (self.w, self.h);
+        self.renderer.as_mut()?.resize(PHONE_W, PHONE_H, SCALE);
+        let (x, y) = valley::START_AT;
+        let start = valley::pose_at(&self.ground, x, y, valley::START_YAW, zoom.unwrap_or(0.30));
+        let (mut tot, mut changed_frames, mut worst) = (PairCount::default(), 0u32, (0u32, 0u64));
+        let mut prev: Option<crawl::Shown> = None;
+        for k in 0..=frames {
+            let t = k as f32;
+            let pose = match motion {
+                "turn" => CameraPose {
+                    yaw: start.yaw + rate * t,
+                    ..start
+                },
+                "zoom" => CameraPose {
+                    zoom: start.zoom + rate * t,
+                    ..start
+                },
+                _ => {
+                    let p = valley::pose_at(&self.ground, x + rate * t, y - 0.58 * rate * t, start.yaw, start.zoom);
+                    CameraPose {
+                        target: kd_core::geo::Pos {
+                            z: start.target.z,
+                            ..p.target
+                        },
+                        ..p
+                    }
+                }
+            };
+            let f = Frame {
+                real_s: 10.0 + f64::from(t) / 60.0,
+                palette_row: 0.0,
+                set: DrawSettings::default(),
+                camera: pose,
+            };
+            let r = self.renderer.as_mut()?;
+            r.draw(&f, &Snapshot::default(), &kd_view::UiDrawList::default());
+            let shown = crawl::compose(&r.capture()?);
+            if let Some(p) = &prev {
+                let n = crawl::pair(p, &shown);
+                tot.valid += n.valid;
+                tot.elig += n.elig;
+                tot.crawl += n.crawl;
+                tot.changed += n.changed;
+                changed_frames += u32::from(n.changed > 0);
+                if n.crawl > worst.1 {
+                    worst = (k, n.crawl);
+                }
+            }
+            prev = Some(shown);
+        }
+        self.renderer.as_mut()?.resize(w, h, SCALE);
+        Some(format!(
+            "{{\"frames\":{frames},\"valid\":{},\"elig\":{},\"crawl\":{},\"changed\":{},\"changedFrames\":{changed_frames},\"worstK\":{},\"worstCrawl\":{},\"art\":[{PHONE_W},{PHONE_H},{SCALE}]}}",
+            tot.valid, tot.elig, tot.crawl, tot.changed, worst.0, worst.1
+        ))
     }
 
     /// The palette row in use: dusk 0, dawn 1, day 2, night 3 (`PRE-30`).
@@ -320,16 +424,13 @@ impl App {
         self.last_frame_ns = Some(now_ns);
         if !self.paused {
             if let Some(last) = self.last_ns {
-                self.spin_s += now_ns.saturating_sub(last) as f32 / 1e9;
+                let dt = now_ns.saturating_sub(last) as f64 / 1e9;
+                self.run_s += dt;
+                if self.golden.is_none() {
+                    self.ctl.step(dt as f32, &self.ground);
+                }
             }
             self.last_ns = Some(now_ns);
-        }
-        if self.momentum != 0.0 {
-            self.drag_yaw += self.momentum;
-            self.momentum *= MOMENTUM_KEEP;
-            if self.momentum.abs() < MOMENTUM_STOP {
-                self.momentum = 0.0;
-            }
         }
         let (hz, gl_ms) = self.ring.figures();
         let ui = if self.golden.is_some() {
@@ -337,17 +438,25 @@ impl App {
         } else {
             self.ui.build(now_ns as f64 / 1e9, build_line(), hz, gl_ms)
         };
-        let f = Frame {
-            real_s: f64::from(self.spin_s),
+        let mut f = Frame {
+            real_s: self.run_s,
             palette_row: self.palette_row() as f32,
             set: DrawSettings::default(),
+            camera: self.ctl.pose,
         };
-        let pitch = self.golden.map_or(PITCH, |c| c.pitch);
+        // the cube shows only as the golden scene `cube`; otherwise the ground, from a golden pose when one is set
         let snap = Snapshot {
-            cube: Some(CubeView { yaw: self.yaw(), pitch }),
+            cube: match self.golden {
+                Some(Golden::Cube(c)) => Some(c),
+                _ => None,
+            },
         };
+        if let Some(Golden::Valley(p)) = self.golden {
+            f.camera = p;
+        }
         if let Some(r) = &mut self.renderer {
             r.draw(&f, &snap, &ui);
+            self.frames_since_ground = self.frames_since_ground.saturating_add(1);
         }
         let gl = self.platform.now_ns().saturating_sub(t0) as f32 / 1e6;
         if interval_ms > 0.0 {
@@ -417,32 +526,40 @@ mod tests {
             kind,
             pointer: 0,
             x,
-            y: 0.0,
+            y: 400.0,
             t_ns: t_ms * 1_000_000,
         })
     }
 
-    // checks: PRC-11
+    // checks: PRC-11 PRE-33
     #[test]
-    fn drag_turns_and_momentum_fades() {
+    fn drag_moves_the_ground_and_glides_to_rest() {
         let p = Arc::new(TestPlatform::default());
         let mut app = App::new(p.clone(), AppConfig::default());
         app.resize(412, 860);
+        // looking north: right on the screen is east
+        app.set_camera(128.0, 128.0, None, 0.0, 0.2);
+        let texel = kd_render::camera::texel(0.2, app.art());
         app.handle(touch(InputKind::Down, 300.0, 0));
         for i in 1..=10 {
             app.handle(touch(InputKind::Move, 300.0 - 20.0 * i as f32, 16 * i));
         }
-        let after_drag = app.yaw();
-        assert!((after_drag - 200.0 * 4.2 / 412.0).abs() < 1e-4, "{after_drag}");
+        // the ground followed the finger 200 pixels left, 50 art pixels, so the target moved east by as much, within
+        // the rounding of ten moves to whole ticks of 1/256 m
+        let after_drag = app.camera()[0];
+        assert!((after_drag - (128.0 + 50.0 * texel)).abs() < 0.03, "{after_drag}");
         app.handle(touch(InputKind::Up, 100.0, 170));
-        app.frame(0);
-        assert!(app.yaw() > after_drag, "keeps turning after release");
-        for _ in 0..200 {
-            app.frame(0);
+        app.frame(170_000_000);
+        app.frame(186_000_000);
+        assert!(app.camera()[0] > after_drag, "glides on after release");
+        let mut t = 186_000_000;
+        for _ in 0..300 {
+            t += 16_000_000;
+            app.frame(t);
         }
-        let rest = app.yaw();
-        app.frame(0);
-        assert_eq!(app.yaw(), rest, "momentum fades to rest");
+        let rest = app.camera()[0];
+        app.frame(t + 16_000_000);
+        assert_eq!(app.camera()[0], rest, "the glide eases to rest");
         assert!(
             p.out.lock().unwrap().is_empty(),
             "core checks pass, so no self-check box"
@@ -451,18 +568,18 @@ mod tests {
 
     // checks: PRC-11
     #[test]
-    fn pause_stops_the_spin() {
+    fn pause_stops_real_time() {
         let mut app = App::new(Arc::new(TestPlatform::default()), AppConfig::default());
         app.frame(0);
         app.frame(1_000_000_000);
-        assert!((app.yaw() - 0.6).abs() < 1e-6);
+        assert!((app.real_s() - 1.0).abs() < 1e-9);
         app.handle(AppMsg::Pause);
         app.frame(5_000_000_000);
-        assert!((app.yaw() - 0.6).abs() < 1e-6);
+        assert!((app.real_s() - 1.0).abs() < 1e-9);
         app.handle(AppMsg::Resume);
         app.frame(6_000_000_000);
         app.frame(7_000_000_000);
-        assert!((app.yaw() - 1.2).abs() < 1e-6);
+        assert!((app.real_s() - 2.0).abs() < 1e-9);
         assert_eq!(app.frame(8_000_000_000), 0);
     }
 
@@ -480,6 +597,32 @@ mod tests {
         let Request::SelfCheck { json } = &out[0];
         assert!(json.contains("\"fail\":[\"shader: planted\"]") && json.contains("\"dev\":\"test\""));
         assert!(json.contains("\"cat\":\"1.0 "), "{json}");
+    }
+
+    // checks: PRE-22 PRE-03
+    #[test]
+    fn valley_goldens_freeze_the_camera() {
+        let mut app = App::new(Arc::new(TestPlatform::default()), AppConfig::default());
+        assert!(app.golden("valley-camp"));
+        assert_eq!(app.yaw(), valley::START_YAW);
+        assert_eq!(app.palette_row(), 0);
+        assert!(app.golden("valley-close"));
+        assert!(app.golden("valley-near"));
+        // a drag moves the live camera, not the frozen one
+        app.handle(touch(InputKind::Down, 300.0, 0));
+        app.handle(touch(InputKind::Move, 100.0, 16));
+        assert_eq!(app.yaw(), valley::START_YAW);
+        assert!(!app.ready(), "no renderer, so not ready");
+        assert_eq!(
+            app.crawl("turn", 0.002, 4, "base", None),
+            None,
+            "no renderer, so no count"
+        );
+        assert_eq!(
+            app.crawl("turn", 0.002, 4, "fade", None),
+            None,
+            "only base until the review"
+        );
     }
 
     // checks: PRE-22 PRE-30

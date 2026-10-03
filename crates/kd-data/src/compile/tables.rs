@@ -90,6 +90,19 @@ pub fn table(e: &Entry) -> String {
             row(&mut out, "Length", &l.steps.len().to_string());
         }
         Parsed::LightTable(t) => light_rows(&mut out, t),
+        Parsed::Surface(s) => {
+            row(&mut out, "Ladder", &s.ladder);
+            row(
+                &mut out,
+                "Stones",
+                &format!("share {}, about {} m across", s.stone_density, s.stone_size),
+            );
+            row(&mut out, "Tufts", &format!("share {}", s.tuft_density));
+            if !s.flags.is_empty() {
+                let f: Vec<String> = s.flags.iter().map(|f| format!("{f:?}").to_lowercase()).collect();
+                row(&mut out, "Marks", &list(&f));
+            }
+        }
     }
     out.push_str(TABLE_END);
     out

@@ -86,15 +86,33 @@ async function main() {
 
   if (new URLSearchParams(location.search).get('test') === '1') {
     // A12.4's test hook, grown later: shot() is the canvas as a PNG data URL right after the next frame is drawn;
-    // golden(name) freezes time and the drag on a fixed scene (A11.12); palette() is the current row's colours.
+    // golden(name) freezes time and the camera on a fixed scene (A11.12); palette() is the current row's colours;
+    // camera(pose) reads or sets the camera (x, y and z metres, z left out for the ground's height; fx and fy are
+    // the target's place within its art pixel, ox and oy the floating origin's metres from the ground's corner);
+    // ready() is true once the ground has drawn; frame(n) waits n frames; crawl(o) runs B66's crawl count (A11.10).
     const shot = () => new Promise((res) => { afterFrame.push(() => res(canvas.toDataURL('image/png'))); });
     window.kd = {
-      ready: () => true,
+      ready: () => app.ready(),
+      // resolves once `n` more frames have drawn
+      frame: (n = 1) => new Promise((res) => {
+        let left = n;
+        const tick = () => { if (--left <= 0) res(); else afterFrame.push(tick); };
+        afterFrame.push(tick);
+      }),
+      crawl: (o) => {
+        const r = app.crawl(o.motion, o.rate, o.frames, o.fix || 'base', o.zoom);
+        return r ? JSON.parse(r) : null;
+      },
       yaw: () => app.yaw(),
       shot,
       golden: (name) => app.golden(name),
       palette: () => Array.from(app.palette_rgb()),
       glMs: () => app.gl_ms(),
+      camera: (p) => {
+        if (p) app.set_camera(p.x, p.y, p.z, p.yaw, p.zoom);
+        const [x, y, z, yaw, zoom, texel, fx, fy, ox, oy] = Array.from(app.camera());
+        return { x, y, z, yaw, zoom, texel, fx, fy, ox, oy };
+      },
     };
   }
 }

@@ -96,7 +96,7 @@ What the alphas ask of you, all in their notes, none of it blocking the next alp
 | α00 | Skeleton on the phone | 1 | 1 | done 2 October 2026 |
 | α00b | The checks in full | 1 | 1 | done 2 October 2026 |
 | α01a | Pixel art | 1 | 2 | done 2 October 2026 |
-| α01b | The valley | 1 | 5 | Not started |
+| α01b | The valley | 1 | 10 | done 3 October 2026 |
 | α02a | The island | 1 | 4.5 | Not started |
 | α02b | The ground up close | 1 | 5 | Not started |
 | α02c | Cliffs and caves | 1 | 5 | Not started |
@@ -919,6 +919,27 @@ Smallest change that works: the builder's session starts the reviewer as a fresh
 - B11's hash not reproduced after the port: compare intermediate stages (`tops` hash, then heights, then pieces) against B11 run from git history in a scratch folder outside the repository; a different `f32` operation order is the usual cause.
 - Shadow acne or peter-panning on the steep cliff: the mockup's bias (`uShadowBias`, scaled by the light's texel and by 1 + 2.5 × (1 − n·l)) is ported as is; tune only the two constants in `data/tuning/render.md` if needed, logged (`RES-16`).
 - Gesture thresholds feeling wrong on the phone: B66's check passed with these numbers; the owner says so in the reply, and the numbers move to `data/tuning/render.md`.
+
+**Conflict (T01b.3):** T01b.3 stores vertex positions in metres from the floating origin, but the origin moves as the camera does, and every chunk would then be uploaded again each time it moved.
+Smallest change that works: positions are metres from their area's corner, and the vertex shader adds the corner's offset from the floating origin (`uAreaOff`), which A11.2's `f32` precision allows within a few kilometres.
+
+**Conflict (T01b.4):** T01b.4 lights the ground with `sunLight(n, shadowAt(...)) + sky(n)`, but sunlit flat ground then reads 1.5 and every slope facing the sun reaches the ladder's top step, so the ground loses its steps; the mockup's `terrainFS`, which T01b.4 ports, does not light it that way.
+Smallest change that works: `terrain.frag` keeps `terrainFS`'s ground light, `sun = mix(sh × sunI, sunLight(n, sh), 0.55)` and `lit = 0.36 sky(n) + 0.58 sun`, which softens how much small tilts change the low sun's light; the golden valley scenes hold the result.
+
+**Conflict (T01b.6, T01b.8, A11.2):** A11.2's test, a one-art-pixel pan moving the picture exactly 4 screen pixels, failed by a few hundred screen pixels a pan, for five reasons: the camera's target followed the ground's height, so a pan bobbed the view and moved the haze; the art grid and the shadow map's texels were counted from the floating origin, which jumps when the target crosses an area's midline; the ground's patterns hashed positions from that origin too; a projection moved by a pan rounds differently, so pixels on edges flip; and `setBand` sets the dither band with `fwidth`, which the GPU takes over 2 × 2 pixel groups, so a shift by an odd number of pixels changes the band where a pixel's partner changes.
+Smallest change that works: drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, which leaves the picture still, so turns and zooms pivot on the ground in the middle of the screen; the art grid and the shadow map's texels are counted from the world's corner in `f64`; the floating origin is the area corner nearest the ground in the middle of the view's block of 512 art pixels, and within a block every frame draws with the same projection while the art target's viewport moves by whole pixels, the shadow pass likewise within blocks of 256 texels, its depth range on 16 m steps from the world's corner, read with `texelFetch`; the ground's patterns add the origin's place within 8,192 m of the world (`uWorldOff`); and the view snaps to even art pixels, the upscale's shift spanning two, so the art target is `ceil(W/s) + 3` by `ceil(H/s) + 3` (273 × 604 on the phone in portrait) and `camera::tests::snap_moves_whole_pixels` checks that one art pixel moves the picture by one and two move the snapped view by two.
+`pan stays crisp` pans once inside an area and once across an origin move (as the second review fixed below), holding the target's height as a drag does, so `window.kd.camera()` also gives the height and the target's place within its art pixel (`z`, `fx`, `fy`) and takes `z`; `window.kd.crawl` takes an optional `zoom`, as B66 measured at zoom 0.16, not the camp stop's 0.30; and the golden `cube` is drawn again on the larger art target.
+A11.2 says so.
+
+**Conflict (T01b.4, A11.5; found by the review):** T01b.4 and A11.5 carry the surface in each vertex, but the GPU blends it across a triangle, and the rounded blend drew surfaces the rule never placed (dirt and rock between grass and scree) along the triangles' diagonals as a sawtooth; and the stamps, given positions fixed to the world, projected them as if they were metres from the floating origin, so stones and tufts vanished wherever the origin was not the area's north-west corner, the start view's scree among them.
+Smallest change that works: each area uploads its surface map (a byte a square metre, as its grid holds it), and the ground shader takes per pixel the surface whose squares weigh most among the four nearest squares' middles (bilinear weights), its edges wandering by up to 0.35 m with noise fixed to the world, so edges run smooth rather than as a staircase and only surfaces the rule placed show; the vertex keeps its byte, which the shader no longer reads; the stamps take `uWorldOff` off before projecting; and a fourth golden, `valley-near` (the start at the closest zoom, where the origin is not the area's corner), holds the stamps, failing by 4,496 pixels with the old projection.
+A11.5 says so.
+
+**Conflict (T01b.6, T01b.8, A11.2; found by the second review):** the ground's patterns added the floating origin's place within 8,192 m of the world, but the demo area's corner lies on a corner of those blocks, so wherever the origin was an area corner west or north of it, every patch, tuft, stone and surface edge was drawn as if 8,192 m away, and a pan, turn or zoom that moved the origin across that line redrew a third of the screen or more at once; and `pan stays crisp`'s second pan, meant to cross an origin move, never moved it, since the origin moves only at an edge of the view's block.
+Smallest change that works: `uWorldOff` is the drawn area's corner within its block of 8,192 m less `uAreaOff`, so the patterns read positions from that block's corner whatever the origin (`patterns_stay_put_wherever_the_origin_lies` checks origins on every side of the area); `window.kd.camera()` also gives the origin (`ox`, `oy`), and `pan stays crisp`'s second pan, at the camp stop's zoom, finds the edge of the view's block where the origin moves from west of the area's corner to east of it, and checks that it moved; with the old offset that pan fails by 102,992 pixels.
+A11.2 says so.
+
+**From the owner (review, A15.13):** on 3 October 2026 the owner asked that the independent review, besides the code, look at the alpha's pictures as a pixel artist and a designer, to see whether the graphics are as they should be; `tools/review-checklist.md` (item 12) and A15.13 step 3 say so, from this alpha on.
 
 ### α02a The island (about 4.5 hours)
 

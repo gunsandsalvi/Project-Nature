@@ -85,3 +85,42 @@ fn ids_and_numbers() {
         assert!(!source::is_decimal(bad), "{bad}");
     }
 }
+
+// checks: PRE-20 MAT-17
+#[test]
+fn surfaces_resolve_their_ladders() {
+    assert_eq!(thousandths("0.38"), Some(380));
+    assert_eq!(thousandths("2"), Some(2_000));
+    assert_eq!(thousandths("0.125"), Some(125));
+    for bad in ["0.1234", "-0.5", ".5", "1.", "x", ""] {
+        assert_eq!(thousandths(bad), None, "{bad}");
+    }
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../data");
+    let c = check(&root).unwrap();
+    let cat = &c.catalogue;
+    let s: Vec<(&str, u8, u16, u16, u16)> = cat
+        .body
+        .surfaces
+        .iter()
+        .map(|s| {
+            (
+                s.id.as_str(),
+                s.ladder,
+                s.stone_density,
+                s.stone_size_mm,
+                s.tuft_density,
+            )
+        })
+        .collect();
+    let ladder = |id: &str| cat.ladder(id).unwrap().0;
+    assert_eq!(
+        s,
+        vec![
+            ("grass", ladder("grass"), 0, 80, 380),
+            ("dirt", ladder("dirt"), 160, 80, 0),
+            ("rock", ladder("lime"), 0, 100, 0),
+            ("scree", ladder("scree"), 400, 250, 0),
+        ]
+    );
+    assert_eq!(cat.surface("scree"), Some(3));
+}

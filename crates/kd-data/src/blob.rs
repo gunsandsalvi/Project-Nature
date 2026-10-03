@@ -10,7 +10,7 @@ use std::fmt;
 /// The blob's first five bytes.
 pub const MAGIC: &[u8; 5] = b"KDCAT";
 /// The blob layout's version; a change to the header or the body's encoding raises it.
-pub const FORMAT: u16 = 1;
+pub const FORMAT: u16 = 2;
 /// Header length: magic, format, major, minor, generator, hash.
 pub const HEADER_LEN: usize = 5 + 2 + 2 + 2 + 2 + 8;
 
@@ -58,6 +58,19 @@ pub struct LightRec {
     pub mask: Vec<bool>,
 }
 
+/// A ground surface, in number order (A11.5): its ladder's number, the shares of stones and tufts in thousandths, a
+/// stone's size in millimetres, and its flags as bits (`SurfaceFlag::bit`).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SurfaceRec {
+    pub id: String,
+    pub name: String,
+    pub ladder: u8,
+    pub stone_density: u16,
+    pub stone_size_mm: u16,
+    pub tuft_density: u16,
+    pub flags: u8,
+}
+
 /// The catalogue's body: every kind's table in id-number order.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Body {
@@ -65,6 +78,7 @@ pub struct Body {
     pub colours: Vec<ColourRec>,
     pub ladders: Vec<LadderRec>,
     pub light: Vec<LightRec>,
+    pub surfaces: Vec<SurfaceRec>,
 }
 
 /// The loaded catalogue: the header's versions and hash, and the body.
@@ -149,6 +163,12 @@ impl Catalogue {
     /// `<major>.<minor> <first 8 hex digits of the hash>`, for the self-check (A15.4).
     pub fn version_line(&self) -> String {
         format!("{}.{} {:08x}", self.major, self.minor, self.hash >> 32)
+    }
+
+    /// A surface's number (its row of the surfaces texture) by id.
+    pub fn surface(&self, id: &str) -> Option<u8> {
+        let k = self.body.surfaces.iter().position(|s| s.id == id)?;
+        u8::try_from(k).ok()
     }
 
     /// The palette index of the colour with this name.

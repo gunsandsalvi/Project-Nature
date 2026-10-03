@@ -1,8 +1,10 @@
 //! kd-ui: the pixel UI (A12.1, A12.2); in α01a the pixel font and the version strip that any touch shows for three
-//! seconds (`PRE-32`), whose taps step the palette row (`PRE-30`). Implements PRE-32 in part.
+//! seconds (`PRE-32`), whose taps step the palette row (`PRE-30`); from α01b the gestures (A12.2). Implements PRE-32,
+//! PRE-33 and PRE-34 in part.
 
 pub mod draw;
 pub mod font;
+pub mod gestures;
 
 use kd_core::kinds::ColourId;
 use kd_data::Catalogue;
