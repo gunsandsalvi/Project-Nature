@@ -1,8 +1,6 @@
 // The ground's vertices (A11.5): one shared patch of PATCH_QUADS x PATCH_QUADS quads made from the vertex and
 // instance numbers, no vertex buffer, each vertex reading its height from the area's texture; or, with u_skirt,
-// the skirt hanging SKIRT_M below the area's edge. Projected from the area's own corner (A11.2): the fraction of an
-// art pixel is added and the place rounded to 1/256 of one before the whole pixels, and the viewport is
-// VIEWPORT pixels, so a picture moved by whole pixels draws every pixel the same.
+// the skirt hanging SKIRT_M below the area's edge. Projected from the area's own corner by area_place (A11.2).
 uniform highp sampler2D u_heights;  // R32F, 257 x 257: metres above the area's corner
 uniform float u_spacing;            // metres between vertices, a power of two
 uniform float u_morph;              // 0 to 1: how far the odd vertices have slid onto the next spacing's mesh
@@ -61,10 +59,8 @@ void main() {
         g = edge[side];
         h = vertex_height(g, s, u_morph) - (CORNERS[gl_VertexID].y == 1 ? SKIRT_M : 0.0);
     }
-    vec2 en = vec2(float(g.x), -float(g.y));
-    vec3 l = vec3(en, h);
-    vec2 a = vec2(dot(en, u_right), dot(l, u_up)) * u_inv_texel + u_area_frac;
-    a = floor(a * 256.0 + 0.5) / 256.0 + u_area_px;
+    vec3 l = vec3(float(g.x), -float(g.y), h);
+    vec2 a = area_place(l, vec2(0.0), u_right, u_up, u_inv_texel, u_area_frac, u_area_px);
     float dz = (dot(l, u_fwd) + u_depth.x) * u_depth.y;
     gl_Position = vec4(a / float(VIEWPORT / 2) - 1.0, dz * 2.0 - 1.0, 1.0);
     v_local = vec2(g);

@@ -204,12 +204,12 @@ impl WebApp {
 
     /// Test hook (A15.10): the ground's times and size, as JSON: making the demo area, the longest frame's area
     /// uploads, handing the area to the renderer with its sky field, and the longest frame's sun field work, in
-    /// milliseconds, and the last frame's ground triangles.
+    /// milliseconds, and the last frame's ground triangles and the stones and tufts it handed the GPU.
     pub fn timings(&self) -> String {
-        let (upload_ns, triangles) = self.app.ground_stats();
+        let (upload_ns, triangles, items) = self.app.ground_stats();
         let (insert_ns, field_ns) = self.app.field_stats();
         format!(
-            "{{\"demo_ms\":{},\"upload_ms\":{},\"insert_ms\":{},\"field_ms\":{},\"triangles\":{triangles}}}",
+            "{{\"demo_ms\":{},\"upload_ms\":{},\"insert_ms\":{},\"field_ms\":{},\"triangles\":{triangles},\"items\":{items}}}",
             self.app.demo_ns() as f64 / 1e6,
             upload_ns as f64 / 1e6,
             insert_ns as f64 / 1e6,

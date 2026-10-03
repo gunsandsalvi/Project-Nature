@@ -259,6 +259,23 @@ int split_look(float v, vec2 at, int looks) {
     return int(looks > 1 && v > at.x) + int(looks > 2 && v > at.y);
 }
 
+// Whether a stone or tuft `size` metres across (a tuft: tall) shows at art pixels of 1 / inv_texel metres: while it
+// spans 1.5 + 2u art pixels, u its importance (A11.5), as pixel::cover_shows.
+bool cover_shows(float size, float u, float inv_texel) {
+    return size * inv_texel >= 1.5 + 2.0 * u;
+}
+
+#ifdef KD_VERTEX
+// A point l metres (east, north, up) from an area's corner, moved `shift` art pixels across the screen, as a place
+// in the viewport's art pixels (A11.2): the corner's fraction of an art pixel is added and the place rounded to
+// 1/256 of one before the whole pixels, and the viewport is VIEWPORT pixels, so a picture moved by whole pixels
+// draws every pixel the same. The ground and its stones and tufts are placed by it alike.
+vec2 area_place(vec3 l, vec2 shift, vec2 right, vec3 up, float inv_texel, vec2 frac, vec2 px) {
+    vec2 a = vec2(dot(l.xy, right), dot(l, up)) * inv_texel + frac + shift;
+    return floor(a * 256.0 + 0.5) / 256.0 + px;
+}
+#endif
+
 #ifdef KD_FRAGMENT
 // The art pixel this fragment covers in the bound target, counted from its bottom-left corner.
 ivec2 art_pixel() {

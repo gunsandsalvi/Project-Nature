@@ -8,6 +8,8 @@
 //! Implements PRE-02 and PRE-20, see A11.5: a real 3D ground drawn at low resolution, its surfaces in their looks'
 //! steps.
 
+pub mod cover;
+
 use kd_core::geo::{AreaId, Pos};
 use kd_view::{AREA_SIDE, AREA_SQUARES, AreaMeshes};
 
@@ -20,6 +22,7 @@ use crate::light::{LUM, dot};
 use crate::looks::Layout;
 use crate::pixel::{COVER_CHANNELS, cover_level, relief_octaves};
 use crate::shaders::{self, Stage};
+use cover::{CONTACT_LEVELS, CONTACT_M, CONTACT_SIDE, Cover, CoverPass, CoverTable, ITEMS_ROW};
 
 /// Quads along a patch's side.
 pub const PATCH_QUADS: i32 = 16;
@@ -210,6 +213,8 @@ pub struct Area {
     /// Each square metre's surface number, and the surfaces as coverage (A11.5).
     pub surfaces: Vec<u8>,
     pub coverage: Coverage,
+    /// Its stones and tufts and their contact shade (A11.5).
+    pub cover: Cover,
     /// Its lowest and highest points, metres above `base_m`.
     pub span_m: [f32; 2],
     /// The share of the sky each point's horizon leaves open, in 255ths (A11.5).
@@ -231,6 +236,9 @@ struct AreaTextures {
     cover: Vec<Texture>,
     sun: Texture,
     sky: Texture,
+    /// The contact shade, `R8` with its mip levels, and the items, `RGBA32F`, none for an area with none.
+    contact: Texture,
+    items: Option<Texture>,
 }
 
 impl Area {
@@ -253,6 +261,8 @@ fn f32_bytes(values: impl Iterator<Item = f32>) -> Vec<u8> {
 #[derive(Default)]
 pub struct Store {
     pub areas: Vec<Area>,
+    /// What each surface's ground holds, from the catalogue; with none, areas have no stones or tufts.
+    pub cover: CoverTable,
 }
 
 impl Store {
@@ -279,6 +289,11 @@ impl Store {
         let hi = heights.iter().copied().fold(f32::NEG_INFINITY, f32::max);
         let coverage =
             Coverage::new(&m.surfaces, AREA_SQUARES).map_err(|e| RenderError::Gl(format!("area {}: {e}", m.id.0)))?;
+        let corner = Pos {
+            z: (base_m * 256.0).round() as i32,
+            ..m.id.origin()
+        };
+        let cover = Cover::new(m.id, corner, &heights, &m.surfaces, &self.cover);
         let sky = field::sky_field(&heights)
             .iter()
             .map(|v| (v.clamp(0.0, 1.0) * 255.0).round() as u8)
@@ -291,6 +306,7 @@ impl Store {
             heights,
             surfaces: m.surfaces,
             coverage,
+            cover,
             span_m: [lo, hi],
             sun: None,
             sun_job: None,
@@ -341,8 +357,8 @@ impl Store {
     }
 
     /// Makes the textures of areas that lack them (heights `R32F`, gradients `RG32F`, coverage `RGBA8` with its mip
-    /// levels, the sun field `R32F` and the sky field `R8`), and brings a sun field's texture up to date when it was
-    /// made again (A11.5).
+    /// levels, the sun field `R32F`, the sky field `R8`, the contact shade `R8` with its levels and the stones and
+    /// tufts `RGBA32F`), and brings a sun field's texture up to date when it was made again (A11.5).
     pub fn upload(&mut self, gl: &glow::Context) -> Result<(), RenderError> {
         let (side, squares) = (AREA_SIDE as u32, AREA_SQUARES as u32);
         for a in &mut self.areas {
@@ -379,12 +395,39 @@ impl Store {
                         .collect::<Result<Vec<_>, _>>()?;
                     let sun_tex = Texture::new(gl, Format::R32F, side, side, Some(&sun()))?;
                     let sky = Texture::new(gl, Format::R8, side, side, Some(&a.sky))?;
+                    let contact_levels: Vec<Vec<u8>> = a
+                        .cover
+                        .contact
+                        .iter()
+                        .map(|l| l.iter().map(|v| v[0]).collect())
+                        .collect();
+                    let contact = Texture::with_levels(
+                        gl,
+                        Format::R8,
+                        CONTACT_SIDE as u32,
+                        CONTACT_SIDE as u32,
+                        &contact_levels,
+                    )?;
+                    let items = if a.cover.items.is_empty() {
+                        None
+                    } else {
+                        let (rows, bytes) = a.cover.texture_bytes();
+                        Some(Texture::new(
+                            gl,
+                            Format::Rgba32F,
+                            2 * ITEMS_ROW as u32,
+                            rows,
+                            Some(&bytes),
+                        )?)
+                    };
                     a.gpu = Some(AreaTextures {
                         heights,
                         grads,
                         cover,
                         sun: sun_tex,
                         sky,
+                        contact,
+                        items,
                     });
                 }
             }
@@ -453,7 +496,7 @@ impl SurfaceTable {
 }
 
 /// The ground's uniforms, in `GroundPass::u`'s order.
-const UNIFORMS: [&str; 30] = [
+const UNIFORMS: [&str; 31] = [
     "u_spacing",
     "u_morph",
     "u_patches",
@@ -484,21 +527,25 @@ const UNIFORMS: [&str; 30] = [
     "u_cover_textures",
     "u_cover_level",
     "u_relief[0]",
+    "u_contact_level",
 ];
 
-/// The ground's program and its uniforms (A11.13 rule 3).
+/// The ground's program and its uniforms (A11.13 rule 3), and the stones' and tufts' pass.
 pub struct GroundPass {
     program: Program,
     u: [Option<glow::UniformLocation>; UNIFORMS.len()],
     table: SurfaceTable,
     /// Where the haze's levels 1 to 3 begin (A11.4).
     haze_levels: [f32; 3],
+    cover: CoverPass,
 }
 
-/// Triangles drawn by the last frame, for the bench (A11.11).
+/// The ground's triangles drawn by the last frame, and the stones and tufts handed to the GPU, for the bench
+/// (A11.11).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct GroundStats {
     pub triangles: u64,
+    pub items: u64,
 }
 
 /// The light's slope, `tan e`, from its direction (east, north, up): what the sun field's horizons are measured
@@ -533,11 +580,13 @@ impl GroundPass {
         program.set_sampler(gl, "u_cover1", unit::COVER1);
         program.set_sampler(gl, "u_sun", unit::SUN);
         program.set_sampler(gl, "u_sky", unit::SKY);
+        program.set_sampler(gl, "u_contact", unit::CONTACT);
         Ok(GroundPass {
             u: UNIFORMS.map(|name| program.uniform(gl, name)),
             program,
             table: SurfaceTable::new(cat, layout).map_err(RenderError::Gl)?,
             haze_levels: cat.air.haze_levels,
+            cover: CoverPass::new(gl)?,
         })
     }
 
@@ -594,6 +643,7 @@ impl GroundPass {
             u_cover_textures,
             u_cover_level,
             u_relief,
+            u_contact_level,
         ] = &self.u;
         let (s, morph) = spacing(view.texel as f32);
         gl::set_f32(gl, u_spacing.as_ref(), s as f32);
@@ -625,6 +675,11 @@ impl GroundPass {
             u_cover_level.as_ref(),
             cover_level(view.texel as f32, COVER_LEVELS - 1),
         );
+        gl::set_f32(
+            gl,
+            u_contact_level.as_ref(),
+            cover_level(view.texel as f32 / CONTACT_M, CONTACT_LEVELS - 1),
+        );
         for area in &store.areas {
             let Some(t) = &area.gpu else {
                 continue;
@@ -640,6 +695,7 @@ impl GroundPass {
             }
             t.sun.bind(gl, unit::SUN);
             t.sky.bind(gl, unit::SKY);
+            t.contact.bind(gl, unit::CONTACT);
             let ids = area.coverage.ids;
             gl::set_ivec4_array(
                 gl,
@@ -662,6 +718,7 @@ impl GroundPass {
             gl::draw_instanced(gl, vao, 6, 4 * 256 / s);
             stats.triangles += (count * per_patch / 3 + 2 * 4 * 256 / s) as u64;
         }
+        stats.items = self.cover.draw(gl, view, store, lighting, self.haze_levels, vao);
         stats
     }
 }

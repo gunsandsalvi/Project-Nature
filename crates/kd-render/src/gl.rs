@@ -29,9 +29,12 @@ pub mod unit {
     /// An area's coverage, four surfaces a texture, read by the ground and the probe (A11.5).
     pub const COVER0: u32 = 8;
     pub const COVER1: u32 = 11;
-    /// An area's sun and sky fields, read by the ground (A11.5).
+    /// An area's sun and sky fields, read by the ground and its stones and tufts (A11.5).
     pub const SUN: u32 = 9;
     pub const SKY: u32 = 10;
+    /// An area's contact shade, read by the ground, and its stones and tufts, read by their vertices (A11.5).
+    pub const CONTACT: u32 = 12;
+    pub const ITEMS: u32 = 13;
 }
 
 /// The texture formats the renderer uses (A11.13 rule 3).
@@ -41,6 +44,7 @@ pub enum Format {
     R8,
     R32F,
     Rg32F,
+    Rgba32F,
 }
 
 impl Format {
@@ -51,13 +55,14 @@ impl Format {
             Format::R8 => glow::R8,
             Format::R32F => glow::R32F,
             Format::Rg32F => glow::RG32F,
+            Format::Rgba32F => glow::RGBA32F,
         }
     }
 
     /// The format of the texels handed over.
     pub const fn format(self) -> u32 {
         match self {
-            Format::Rgba8 => glow::RGBA,
+            Format::Rgba8 | Format::Rgba32F => glow::RGBA,
             Format::R8 | Format::R32F => glow::RED,
             Format::Rg32F => glow::RG,
         }
@@ -67,7 +72,7 @@ impl Format {
     pub const fn channel_type(self) -> u32 {
         match self {
             Format::Rgba8 | Format::R8 => glow::UNSIGNED_BYTE,
-            Format::R32F | Format::Rg32F => glow::FLOAT,
+            Format::R32F | Format::Rg32F | Format::Rgba32F => glow::FLOAT,
         }
     }
 
@@ -78,6 +83,7 @@ impl Format {
             Format::R8 => 1,
             Format::R32F => 4,
             Format::Rg32F => 8,
+            Format::Rgba32F => 16,
         }
     }
 }
@@ -812,6 +818,7 @@ mod tests {
             (Format::R8, 0x8229, 0x1903, 0x1401, 1),
             (Format::R32F, 0x822E, 0x1903, 0x1406, 4),
             (Format::Rg32F, 0x8230, 0x8227, 0x1406, 8),
+            (Format::Rgba32F, 0x8814, 0x1908, 0x1406, 16),
         ];
         for (f, internal, format, ty, bytes) in expect {
             assert_eq!(

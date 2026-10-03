@@ -178,6 +178,8 @@ pub struct App {
     /// How long handing the demo area to the renderer took, its sky field with it, in nanoseconds (A15.10).
     insert_ns: u64,
     triangles: u64,
+    /// The stones and tufts the last frame handed the GPU (A11.5).
+    items: u64,
 }
 
 /// The golden scenes of A11.12, drawn with time frozen and no strip.
@@ -270,6 +272,7 @@ impl App {
             upload_ns: 0,
             insert_ns: 0,
             triangles: 0,
+            items: 0,
         };
         let t0 = app.platform.now_ns();
         match Catalogue::load(CATALOGUE) {
@@ -440,7 +443,7 @@ impl App {
             match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f, &list))) {
                 Ok(stats) => {
                     self.panics_in_row = 0;
-                    self.triangles = stats.triangles;
+                    (self.triangles, self.items) = (stats.triangles, stats.items);
                 }
                 Err(e) => {
                     self.panics_in_row += 1;
@@ -634,9 +637,10 @@ impl App {
         self.demo_ns
     }
 
-    /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles.
-    pub fn ground_stats(&self) -> (u64, u64) {
-        (self.upload_ns, self.triangles)
+    /// The longest a frame's area uploads took, in nanoseconds, the last frame's ground triangles, and the stones
+    /// and tufts it handed the GPU.
+    pub fn ground_stats(&self) -> (u64, u64, u64) {
+        (self.upload_ns, self.triangles, self.items)
     }
 
     /// The light fields' times, in nanoseconds (A15.10): handing the demo area to the renderer, its sky field with

@@ -201,7 +201,10 @@ mod tests {
             crate::version_line("dev", &cat, 0),
             format!("dev · catalogue {rules} 00000000")
         );
-        assert_eq!(rules, "1.2", "the surfaces (α01b), then their relief (α01d), were small updates");
+        assert_eq!(
+            rules, "1.3",
+            "the surfaces (α01b), their relief and their stones and tufts (α01d) were small updates"
+        );
         // The hours' words, every one drawable in the font.
         assert_eq!(crate::hour_line(4), "Late afternoon · 16:30");
         assert_eq!(crate::hour_line(5), "Dusk · 17:45");

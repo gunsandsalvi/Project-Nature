@@ -1,8 +1,9 @@
 //! The Rust twins of the shaders' per-pixel formulas (A11.13 rule 2), under the same names as in `lib.glsl` and
 //! with the same constants: the light's lightness from the sky and sun factors, its step on a ladder, the band's
 //! 4 × 4 Bayer dither fixed to the world grid, colour 0's packing, and from α01b the world-fixed noise faded below
-//! four art pixels, the surface the four nearest squares vote for, and the split between a surface's looks. Tests
-//! use the twins, and the probe scene (`probe`) checks that the GPU gives the same answers exactly.
+//! four art pixels and the split between a surface's looks; from α01c the shadows, outlines and haze; from α01d the
+//! surfaces' coverage read at the art pixel's footprint, the looks' micro-relief, and which stones and tufts show.
+//! Tests use the twins, and the probe scene (`probe`) checks that the GPU gives the same answers exactly.
 //!
 //! Implements PRE-20, PRE-22 and PRE-01, see A11.1, A11.3, A11.5 and A11.13: the light picks the step, a narrow band
 //! round each threshold is dithered and nowhere else, no pattern is finer than two art pixels, and every pixel is a
@@ -291,20 +292,16 @@ pub fn cover_level(texel: f32, top: usize) -> f32 {
     m::log2(texel).clamp(0.0, top as f32)
 }
 
-/// Each channel's share at `q` (metres east and south of the coverage's corner, its level-0 texels 1 m and `side`
-/// to a side) read at mip `level`: bilinear between the four texels round `q` at the levels either side, clamped at
-/// the edge, and mixed between them by the level's fraction, as the shader reads them by `texelFetch` (A11.5).
-pub fn cover_sample(
-    levels: &[Vec<[u8; COVER_CHANNELS]>],
-    side: usize,
-    q: [f32; 2],
-    level: f32,
-) -> [f32; COVER_CHANNELS] {
+/// Each channel's share at `q` (in level-0 texels from the texture's corner, `side` to a side: metres for the
+/// coverage, half metres for the contact shade) read at mip `level`: bilinear between the four texels round `q` at
+/// the levels either side, clamped at the edge, and mixed between them by the level's fraction, as the shader reads
+/// them by `texelFetch` (A11.5).
+pub fn cover_sample<const N: usize>(levels: &[Vec<[u8; N]>], side: usize, q: [f32; 2], level: f32) -> [f32; N] {
     let top = levels.len() - 1;
     let l0 = (level.floor().max(0.0) as usize).min(top);
     let l1 = (l0 + 1).min(top);
     let t = level - l0 as f32;
-    let bilinear = |l: usize| -> [f32; COVER_CHANNELS] {
+    let bilinear = |l: usize| -> [f32; N] {
         let n = (side >> l).max(1) as i32;
         let scale = 1.0 / (1u32 << l) as f32;
         let p = [q[0] * scale - 0.5, q[1] * scale - 0.5];
@@ -317,7 +314,7 @@ pub fn cover_sample(
         };
         let (a, b, c, d) = (texel(0, 0), texel(1, 0), texel(0, 1), texel(1, 1));
         std::array::from_fn(|k| {
-            let v = |t: [u8; COVER_CHANNELS]| f32::from(t[k]) / 255.0;
+            let v = |t: [u8; N]| f32::from(t[k]) / 255.0;
             let upper = v(a) + (v(b) - v(a)) * f[0];
             let lower = v(c) + (v(d) - v(c)) * f[0];
             upper + (lower - upper) * f[1]
@@ -406,6 +403,13 @@ pub fn ground_normal(slope: [f32; 2], tilt: [f32; 2]) -> [f32; 3] {
 /// Which of a surface's `looks` the split noise `v` picks: the next look wherever `v` is above its take-over value.
 pub fn split_look(v: f32, at: [f32; 2], looks: i32) -> i32 {
     i32::from(looks > 1 && v > at[0]) + i32::from(looks > 2 && v > at[1])
+}
+
+/// Whether a stone or tuft `size` metres across (a tuft: tall) shows at art pixels of 1 / `inv_texel` metres:
+/// while it spans `1.5 + 2u` art pixels, `u` its seeded importance, so as the art pixel grows the items drop out one
+/// by one, the least important first (A11.1 rule 3, A11.5).
+pub fn cover_shows(size: f32, u: f32, inv_texel: f32) -> bool {
+    size * inv_texel >= 1.5 + 2.0 * u
 }
 
 #[cfg(test)]
