@@ -222,6 +222,10 @@ pub(crate) mod tests {
             ),
             src("data/palette/looks.md", include_str!("../../../data/palette/looks.md")),
             src("data/palette/light.md", include_str!("../../../data/palette/light.md")),
+            src(
+                "data/models/surfaces.md",
+                include_str!("../../../data/models/surfaces.md"),
+            ),
         ];
         compile(&sources, false).expect("the catalogue compiles").catalogue
     }

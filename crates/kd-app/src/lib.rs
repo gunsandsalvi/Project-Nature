@@ -6,6 +6,7 @@
 //! Implements PRC-11 and RES-05, see A15.4 and A15.9: the self-check on a build's first start, the core's bits
 //! among its checks.
 
+pub mod ground;
 pub mod json;
 pub mod selfcheck;
 

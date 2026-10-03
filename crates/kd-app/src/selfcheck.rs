@@ -168,8 +168,13 @@ mod tests {
         // The strip's version line: the alpha and version code, the catalogue's rules version and its hash.
         let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
         let line = crate::version_line("a01a · 1011 · 1a2b3c4", &cat, 0xa11e_44f9_8124_a890);
-        assert_eq!(line, "a01a · 1011 · catalogue 1.0 a11e44f9");
-        assert_eq!(crate::version_line("dev", &cat, 0), "dev · catalogue 1.0 00000000");
+        let rules = format!("{}.{}", cat.versions.major, cat.versions.minor);
+        assert_eq!(line, format!("a01a · 1011 · catalogue {rules} a11e44f9"));
+        assert_eq!(
+            crate::version_line("dev", &cat, 0),
+            format!("dev · catalogue {rules} 00000000")
+        );
+        assert_eq!(rules, "1.1", "surfaces were a small update (α01b)");
         // The hours' words, every one drawable in the font.
         assert_eq!(crate::hour_line(4), "Late afternoon · 16:30");
         assert_eq!(crate::hour_line(5), "Dusk · 17:45");

@@ -2,7 +2,8 @@
 //! script run it. It takes the files' texts from its caller and reads no file itself: every `data/**/*.md` in sorted
 //! path order is split at its `##` headings, each entry's one `toml` block parsed into its kind's schema with no
 //! unknown or missing field, its id resolved to its number in `data/ids.lock`, and the entries put in number order
-//! and encoded as the blob. Rules 1, 2, 4 and 6 of A3.6's validation hold for the kinds so far.
+//! and encoded as the blob. Rules 1, 2, 4 and 6 of A3.6's validation hold for the kinds so far; rule 4's references
+//! are the looks each surface names.
 //!
 //! Implements MAT-17, see A3.6: every entry names its checks, and an entry that breaks a rule fails with its file
 //! and line.
@@ -15,7 +16,7 @@ use serde::de::DeserializeOwned;
 
 use crate::blob;
 use crate::kinds::{FileRole, Kind, role};
-use crate::schema::{Air, Catalogue, Colour, Look, Versions};
+use crate::schema::{Air, Catalogue, Colour, Look, Surface, Versions};
 
 pub const VERSION_FILE: &str = "data/VERSION.toml";
 pub const LOCK_FILE: &str = "data/ids.lock";
@@ -127,6 +128,22 @@ struct AirSrc {
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
+struct SurfaceSrc {
+    id: String,
+    name: String,
+    stage: String,
+    checks: Vec<String>,
+    looks: Vec<String>,
+    #[serde(default)]
+    split_m: Vec<f32>,
+    #[serde(default)]
+    split_at: Vec<f32>,
+    #[serde(default)]
+    rock: bool,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct VersionSrc {
     major: u16,
     minor: u16,
@@ -201,6 +218,7 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
     let mut colours: Vec<(u16, Colour)> = Vec::new();
     let mut looks: Vec<(u16, Look)> = Vec::new();
     let mut airs: Vec<(u16, Air)> = Vec::new();
+    let mut surfaces: Vec<(u16, Surface)> = Vec::new();
     let mut tables: BTreeMap<String, Vec<(usize, String)>> = BTreeMap::new();
     let mut index: BTreeMap<Kind, Vec<(u16, String, String, String)>> = BTreeMap::new();
     let mut count = 0;
@@ -293,6 +311,19 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
                         Compiled::Air(air_of(&s)),
                     )
                 }),
+                Kind::Surface => parse::<SurfaceSrc>(&e, &mut problems).map(|s| {
+                    let entry = surface_of(&s, &e, &looks, &mut problems);
+                    let names: Vec<&str> = entry
+                        .looks
+                        .iter()
+                        .filter_map(|&n| looks.iter().find(|l| l.0 == n).map(|l| l.1.name.as_str()))
+                        .collect();
+                    (
+                        head(&s.id, &s.name, &s.stage, &s.checks),
+                        surface_table(&entry, &names),
+                        Compiled::Surface(entry),
+                    )
+                }),
             };
             let Some((head, table, entry)) = compiled else { continue };
             // Rules 2 and 6: the id, the name, the stage and the checks.
@@ -338,6 +369,7 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
                 Compiled::Colour(c) => colours.push((number, Colour { number, ..c })),
                 Compiled::Look(l) => looks.push((number, Look { number, ..l })),
                 Compiled::Air(a) => airs.push((number, a)),
+                Compiled::Surface(s) => surfaces.push((number, Surface { number, ..s })),
             }
         }
     }
@@ -346,6 +378,7 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
     // palette index 0, the renderer's tests check, since rules here never name an entry (A2.3 rule 5).
     colours.sort_by_key(|c| c.0);
     looks.sort_by_key(|l| l.0);
+    surfaces.sort_by_key(|s| s.0);
     if airs.len() != 1 {
         problems.push(at(
             Kind::Light.place(),
@@ -369,6 +402,7 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
         colours: colours.into_iter().map(|c| c.1).collect(),
         looks: looks.into_iter().map(|l| l.1).collect(),
         air: airs.remove(0).1,
+        surfaces: surfaces.into_iter().map(|s| s.1).collect(),
     };
     let mut stale = Vec::new();
     for (s, _) in &files {
@@ -394,6 +428,7 @@ enum Compiled {
     Colour(Colour),
     Look(Look),
     Air(Air),
+    Surface(Surface),
 }
 
 /// The fields every entry has (A3.6).
@@ -603,6 +638,83 @@ fn air_of(s: &AirSrc) -> Air {
     }
 }
 
+/// A surface's looks resolved to their numbers (rule 4) and its split checked: one to three looks, a split noise
+/// of falling periods and rising take-over values between −1 and 1, one fewer than its looks.
+fn surface_of(s: &SurfaceSrc, e: &Entry, looks: &[(u16, Look)], problems: &mut Vec<Problem>) -> Surface {
+    let mut bad = |what: String| problems.push(at(&e.path, e.block_line, format!("{}: {what}", s.id)));
+    if !(1..=3).contains(&s.looks.len()) {
+        bad(format!("{} looks; a surface has 1 to 3 (A11.5)", s.looks.len()));
+    }
+    let numbers: Vec<u16> = s
+        .looks
+        .iter()
+        .filter_map(|id| {
+            let n = looks.iter().find(|l| &l.1.id == id).map(|l| l.0);
+            if n.is_none() {
+                bad(format!("look {id:?} is not a look in {}", Kind::Look.place()));
+            }
+            n
+        })
+        .collect();
+    if (1..s.looks.len()).any(|i| s.looks[..i].contains(&s.looks[i])) {
+        bad("names a look twice".into());
+    }
+    let many = s.looks.len() > 1;
+    if many == s.split_m.is_empty() {
+        bad("a split noise's octaves come with more than one look, and only then".into());
+    }
+    if !s.split_m.iter().all(|&p| p > 0.0) || s.split_m.windows(2).any(|w| w[1] >= w[0]) {
+        bad("the split's octaves are positive periods, each smaller than the last".into());
+    }
+    if s.split_at.len() + 1 != s.looks.len().max(1)
+        || !s.split_at.iter().all(|v| (-1.0..=1.0).contains(v))
+        || s.split_at.windows(2).any(|w| w[1] <= w[0])
+    {
+        bad("the split has one take-over value fewer than its looks, rising within −1 to 1".into());
+    }
+    Surface {
+        id: s.id.clone(),
+        name: s.name.clone(),
+        number: 0,
+        looks: numbers,
+        split_m: s.split_m.clone(),
+        split_at: s.split_at.clone(),
+        rock: s.rock,
+    }
+}
+
+/// Words in a list: "a", "a and b", "a, b and c".
+fn and_list(words: &[String]) -> String {
+    match words {
+        [] => String::new(),
+        [one] => one.clone(),
+        [rest @ .., last] => format!("{} and {last}", rest.join(", ")),
+    }
+}
+
+fn surface_table(s: &Surface, look_names: &[&str]) -> Vec<(String, String)> {
+    let numbers = |v: &[f32]| and_list(&v.iter().map(f32::to_string).collect::<Vec<_>>());
+    vec![
+        (
+            "Looks".into(),
+            and_list(&look_names.iter().map(|n| n.to_string()).collect::<Vec<_>>()),
+        ),
+        (
+            "Split".into(),
+            if s.split_m.is_empty() {
+                "none".into()
+            } else {
+                format!(
+                    "a noise of {} m octaves; the next look above {}",
+                    numbers(&s.split_m),
+                    numbers(&s.split_at)
+                )
+            },
+        ),
+        ("Draws as rock".into(), if s.rock { "yes" } else { "no" }.into()),
+    ]
+}
+
 fn three(v: [f32; 3]) -> String {
     format!("{}, {}, {}", v[0], v[1], v[2])
 }
@@ -721,6 +833,7 @@ fn index_text(index: &BTreeMap<Kind, Vec<(u16, String, String, String)>>) -> Str
             Kind::Colour => "Fixed colours",
             Kind::Look => "Looks",
             Kind::Light => "The air",
+            Kind::Surface => "Surfaces",
         };
         s.push_str(&format!(
             "\n## {title} (`{}`)\n\n| Number | Id | Name | Stage |\n|---|---|---|---|\n",
@@ -827,6 +940,10 @@ mod tests {
         "# The air\n\nThe light model's numbers.\n\n## Air\n\nA fine summer day.\n\n```toml\nid = \"air\"\nname = \"Air\"\nstage = \"MIL-01\"\nchecks = [\"PRE-30\"]\nwavelengths_nm = [680.0, 550.0, 440.0]\nrayleigh = [0.041, 0.097, 0.243]\nturbidity = 0.08\naerosol_exponent = 1.3\nozone = [0.02, 0.027, 0.002]\nsky_rayleigh_share = 0.5\nsky_aerosol_share = 0.7\nhorizon_sky = 0.04\nhorizon_fade_deg = 3.0\ntwilight_end_deg = -12.0\ntwilight_fall_deg = 1.2\ntwilight_ozone_per_deg = 10.0\nmoon_weakness = 400000.0\nmoon_tint = [0.9, 0.95, 1.0]\nstarlight = 2e-8\nexposure_scale = 2.0\nexposure_power = 0.85\nrods_start = 1e-4\nrods_full = 1e-7\ngrade_chroma = 1.2\nhaze_levels = [0.1, 0.25, 0.45]\nhaze_mixes = [0.15, 0.33, 0.55]\nhaze_g = 0.7\naerosol_height_m = 1200.0\nrayleigh_height_m = 8000.0\n```\n".to_string()
     }
 
+    fn surfaces() -> String {
+        "# Surfaces\n\nThe ground's surfaces.\n\n## Rock\n\nBare rock.\n\n```toml\nid = \"rock\"\nname = \"Rock\"\nstage = \"MIL-01\"\nchecks = [\"PRE-20\"]\nlooks = [\"limestone\"]\nrock = true\n```\n".to_string()
+    }
+
     fn sources(colours: String, looks: String, air: String) -> Vec<Source> {
         let src = |p: &str, t: String| Source {
             path: p.into(),
@@ -837,6 +954,7 @@ mod tests {
             src(Kind::Colour.place(), colours),
             src(Kind::Look.place(), looks),
             src(Kind::Light.place(), air),
+            src(Kind::Surface.place(), surfaces()),
         ]
     }
 
@@ -882,13 +1000,19 @@ mod tests {
             "{:?}",
             out.stale.iter().map(|x| &x.0).collect::<Vec<_>>()
         );
-        assert_eq!(out.entries, 4);
+        assert_eq!(out.entries, 5);
         let cat = &out.catalogue;
         assert_eq!(
             (cat.colours[0].id.as_str(), cat.colours[1].rgb),
             ("void", [0x14, 0x12, 0x1a])
         );
         assert_eq!((cat.looks[0].steps, cat.air.turbidity), (6, 0.08));
+        // The surface names its look by the look's number, and draws as rock.
+        let rock = cat.surface("rock").expect("the sample's surface");
+        assert_eq!(
+            (rock.looks.as_slice(), rock.rock),
+            ([cat.looks[0].number].as_slice(), true)
+        );
         assert_eq!(Catalogue::load(&out.blob).as_ref(), Ok(cat));
         // The lock gives numbers in order of appearance, kinds in name order.
         assert!(out.lock.contains("[colour]\nvoid = 0\nink = 1\n"), "{}", out.lock);
@@ -975,6 +1099,7 @@ mod tests {
         );
         // Assigning gives a new entry the next number, never a retired one.
         let renamed = with(&s, Kind::Look.place(), "id = \"limestone\"", "id = \"chalk\"");
+        let renamed = with(&renamed, Kind::Surface.place(), "[\"limestone\"]", "[\"chalk\"]");
         let retired = with(
             &renamed,
             LOCK_FILE,
@@ -985,10 +1110,34 @@ mod tests {
         assert!(out.lock.contains("[look]\nchalk = 1\n"), "{}", out.lock);
     }
 
-    // checks: MAT-17
+    // checks: MAT-17 PRE-20
     #[test]
     fn rule_4_and_files_claimed() {
-        // Rule 4 (references resolve): the kinds so far name no other entry; a stray file no kind claims fails.
+        // Rule 4 (references resolve): a surface's looks are looks; and its split fits its looks.
+        let s = clean();
+        let surface = |old: &str, new: &str| with(&s, Kind::Surface.place(), old, new);
+        fails(
+            &surface("[\"limestone\"]", "[\"marble\"]"),
+            "look \"marble\" is not a look",
+        );
+        fails(&surface("[\"limestone\"]", "[]"), "0 looks; a surface has 1 to 3");
+        fails(
+            &surface(
+                "[\"limestone\"]",
+                "[\"limestone\", \"limestone\"]\nsplit_m = [8.0]\nsplit_at = [0.0]",
+            ),
+            "names a look twice",
+        );
+        fails(
+            &surface("rock = true", "rock = true\nsplit_m = [24.0, 6.0]"),
+            "come with more than one look",
+        );
+        fails(
+            &surface("rock = true", "rock = true\nsplit_at = [0.2]"),
+            "one take-over value fewer than its looks",
+        );
+        fails(&surface("rock = true", "rock = \"yes\""), "invalid type");
+        // A stray file no kind claims fails.
         let mut s = clean();
         s.push(Source {
             path: "data/palette/stray.md".into(),
@@ -1023,6 +1172,7 @@ mod tests {
             src(Kind::Colour.place(), include_str!("../../../data/palette/colours.md")),
             src(Kind::Look.place(), include_str!("../../../data/palette/looks.md")),
             src(Kind::Light.place(), include_str!("../../../data/palette/light.md")),
+            src(Kind::Surface.place(), include_str!("../../../data/models/surfaces.md")),
         ]
     }
 
@@ -1058,6 +1208,15 @@ mod tests {
         assert_eq!(out.lock, include_str!("../../../data/ids.lock"));
         let looks: Vec<&str> = out.catalogue.looks.iter().map(|l| l.id.as_str()).collect();
         assert_eq!(looks, ["grass_lush", "grass_dry", "dirt", "limestone", "scree"]);
+        // The four surfaces of T01b.3: grass split between its lush and dry looks, the others one look each.
+        let surfaces: Vec<&str> = out.catalogue.surfaces.iter().map(|s| s.id.as_str()).collect();
+        assert_eq!(surfaces, ["grass", "dirt", "rock", "scree"]);
+        let grass = out.catalogue.surface("grass").expect("grass");
+        assert_eq!(
+            (grass.looks.as_slice(), grass.split_m.as_slice()),
+            ([0, 1].as_slice(), [24.0, 6.0].as_slice())
+        );
+        assert!(out.catalogue.surface("rock").is_some_and(|r| r.rock && r.looks == [3]));
         assert_eq!(
             out.catalogue.air.turbidity, 0.08,
             "the owner's choice of 3 October 2026"

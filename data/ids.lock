@@ -21,3 +21,9 @@ grass_dry = 1
 dirt = 2
 limestone = 3
 scree = 4
+
+[surface]
+grass = 0
+dirt = 1
+rock = 2
+scree = 3
