@@ -57,6 +57,14 @@ pub fn depths(air: &Air, turbidity: f32) -> Depths {
     }
 }
 
+/// The air the haze sees (A11.4): the aerosol's and the air's extinction a metre at the sea's level, as luminance,
+/// and their scale heights in metres.
+pub fn haze_air(air: &Air, turbidity: f32) -> ([f32; 2], [f32; 2]) {
+    let d = depths(air, turbidity);
+    let scale = [air.aerosol_height_m, air.rayleigh_height_m];
+    ([dot(LUM, d.aerosol) / scale[0], dot(LUM, d.rayleigh) / scale[1]], scale)
+}
+
 /// By day: the sun's light facing it, and the shares of the beam Rayleigh scattering and the aerosol take, at a sun
 /// height of `h_deg` ≥ 0.
 fn beam(d: &Depths, h_deg: f32) -> (Rgb, Rgb, Rgb) {

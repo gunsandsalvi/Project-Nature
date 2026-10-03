@@ -1,8 +1,9 @@
 //! The probe scene (A11.13 rule 2): fixed inputs drawn one art pixel each through the shaders' per-pixel formulas into
 //! a small target, read back and compared with the Rust twins (`pixel`) exactly; headless Chromium runs it every
-//! alpha, and the phone in its self-check. Its lower half holds the light's steps (α01a), from α01c lit by what a
-//! point's fields and normal give (the sky and sun factors); its upper half the surface the four nearest squares
-//! vote for at a place the edges' noise moved, and the look the split noise picks (α01b).
+//! alpha, and the phone in its self-check. Its lowest third holds the light's steps (α01a), from α01c lit by what a
+//! point's fields and normal give (the sky and sun factors); its middle third the surface the four nearest squares
+//! vote for at a place the edges' noise moved, and the look the split noise picks (α01b); its top third, from α01c,
+//! whether the plane test outlines a pixel and the haze's level (A11.2, A11.4).
 //!
 //! Implements PRE-20 and PRE-01, see A11.13: the GPU picks exactly the steps, surfaces and looks the twins pick.
 
@@ -11,18 +12,29 @@ use kd_core::num::hash2;
 use crate::RenderError;
 use crate::gl::{self, Format, Program, State, Target, Texture, unit};
 use crate::pixel::{
-    SEED_SPLIT, SUN_TAN, edge_wobble, faded_noise, ladder_pos, light_step, lightness, margin, sky_factor, split_look,
-    sun_factor, vote_base, vote4,
+    OUTLINE_GAP_M, SEED_SPLIT, SUN_TAN, edge_wobble, faded_noise, haze, haze_level, haze_margin, ladder_pos,
+    light_step, lightness, margin, outline_toward, sky_factor, split_look, sun_factor, vote_base, vote4,
 };
 use crate::shaders::{self, Stage};
 
-/// Each half of the probe target, one input an art pixel; the target is `W` × `2H`.
+/// Each third of the probe target, one input an art pixel; the target is `W` × `3H`.
 pub const W: u32 = 16;
 pub const H: u32 = 16;
 pub const N: usize = (W * H) as usize;
-/// Rows of the input texture: the light's 7, then the surfaces' `SURFACE_ROWS`.
+/// Rows of the input texture: the light's 7, then the surfaces' `SURFACE_ROWS`, then the edges' and haze's
+/// `EDGE_ROWS`.
 pub const LIGHT_ROWS: usize = 7;
 pub const SURFACE_ROWS: usize = 14;
+pub const EDGE_ROWS: usize = 7;
+/// How far from deciding otherwise every plane test stays, in metres, so the GPU's rounding of depths hundreds of
+/// metres off cannot change it.
+pub const EDGE_CLEARANCE: f32 = 0.01;
+/// The probe's air (A11.4): the aerosol's and the air's extinction a metre at the sea's level, their scale
+/// heights, the eye's distance and climb, and where the haze's levels begin.
+pub const PROBE_BETA: [f32; 2] = [3e-4, 1.2e-5];
+pub const PROBE_SCALE: [f32; 2] = [1200.0, 8000.0];
+pub const PROBE_EYE: [f32; 2] = [2000.0, 0.3];
+pub const PROBE_LEVELS: [f32; 3] = [0.1, 0.25, 0.45];
 /// How far from deciding otherwise every surface input stays, in shares of a vote or in noise.
 pub const SURFACE_CLEARANCE: f32 = 1e-3;
 /// The probe's light: the luminance of the sky and of the sun facing it.
@@ -201,10 +213,83 @@ pub fn surface_twins(inputs: &[SurfaceInput]) -> Vec<u8> {
         .collect()
 }
 
+/// One fixed input of the top third: a pixel's depth, its neighbour's and its opposite neighbour's, and its
+/// category's gap, in metres; and a point's depth beyond the target's plane, its height above the sea, and the
+/// haze band's half-width.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct EdgeInput {
+    pub depth: f32,
+    pub far: f32,
+    pub opposite: f32,
+    pub gap: f32,
+    pub air_depth: f32,
+    pub height: f32,
+    pub band: f32,
+}
+
+/// Input `i` of the top third's pixel in the target, as `gl_FragCoord` counts.
+fn edge_pixel(i: usize) -> (i32, i32) {
+    ((i as u32 % W) as i32, (2 * H + i as u32 / W) as i32)
+}
+
+/// What a top-third input gives, as the GPU and the twins work it out: whether it is outlined, its haze level, and
+/// how far each lies from deciding otherwise.
+fn edge_answer(i: usize, p: &EdgeInput) -> (bool, i32, f32, f32) {
+    let (x, y) = edge_pixel(i);
+    let hz = haze(p.air_depth, p.height, PROBE_BETA, PROBE_SCALE, PROBE_EYE);
+    (
+        outline_toward(p.depth, p.far, p.opposite, p.gap),
+        haze_level(hz, PROBE_LEVELS, p.band, x, y),
+        (p.far - (2.0 * p.depth - p.opposite) - p.gap).abs(),
+        haze_margin(hz, PROBE_LEVELS, p.band, x, y),
+    )
+}
+
+/// The top third's inputs: drawn from a fixed sequence of hashes, half the plane tests either side of their gap,
+/// kept only when clear of deciding otherwise.
+pub fn edge_inputs() -> Vec<EdgeInput> {
+    let mut out = Vec::with_capacity(N);
+    let mut n = 0u64;
+    while out.len() < N {
+        let (h, g) = (hash2(0x6564_6765, n), hash2(0x6564_6766, n));
+        n += 1;
+        let unit = |v: u64, shift: u32| ((v >> shift) & 0xffff) as f32 / 65536.0;
+        let gap = OUTLINE_GAP_M[1 + (h % 6) as usize];
+        let depth = 1.0 + 400.0 * unit(h, 8);
+        let opposite = depth - 60.0 * (unit(h, 24) - 0.5);
+        let p = EdgeInput {
+            depth,
+            far: 2.0 * depth - opposite + gap * 2.0 * unit(h, 40),
+            opposite,
+            gap,
+            air_depth: 20_000.0 * unit(g, 0) - 500.0,
+            height: 3_000.0 * unit(g, 16),
+            band: [0.0, 0.01, 0.03][(g >> 32) as usize % 3],
+        };
+        let (_, _, edge, air) = edge_answer(out.len(), &p);
+        if edge >= EDGE_CLEARANCE && air >= CLEARANCE {
+            out.push(p);
+        }
+    }
+    out
+}
+
+/// The twins' answer for each top-third input, as the probe writes it: level × 2 + outlined.
+pub fn edge_twins(inputs: &[EdgeInput]) -> Vec<u8> {
+    inputs
+        .iter()
+        .enumerate()
+        .map(|(i, p)| {
+            let (outline, level, _, _) = edge_answer(i, p);
+            (level * 2 + i32::from(outline)) as u8
+        })
+        .collect()
+}
+
 /// All the inputs as an R32F texture `N` wide: the light's rows (the open sky, the normal's upward part, the
 /// horizon, the light's slope, n·l, the band and the steps), then the surfaces' q, w, 1/texel, their four surfaces,
-/// the take-over value and the octaves.
-pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput]) -> Vec<u8> {
+/// the take-over value and the octaves, then the top third's depths, gap, air depth, height and band.
+pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput], edges: &[EdgeInput]) -> Vec<u8> {
     let light = |f: &dyn Fn(&Input) -> f32| inputs.iter().map(f).collect::<Vec<f32>>();
     let mut rows: Vec<Vec<f32>> = vec![
         light(&|p| p.open),
@@ -230,6 +315,16 @@ pub fn texture_bytes(inputs: &[Input], surfaces: &[SurfaceInput]) -> Vec<u8> {
     for k in 0..4 {
         rows.push(field(&|p| p.oct[k]));
     }
+    let edge = |f: &dyn Fn(&EdgeInput) -> f32| edges.iter().map(f).collect::<Vec<f32>>();
+    rows.extend([
+        edge(&|p| p.depth),
+        edge(&|p| p.far),
+        edge(&|p| p.opposite),
+        edge(&|p| p.gap),
+        edge(&|p| p.air_depth),
+        edge(&|p| p.height),
+        edge(&|p| p.band),
+    ]);
     rows.iter().flatten().flat_map(|v| v.to_ne_bytes()).collect()
 }
 
@@ -253,12 +348,14 @@ impl ProbePass {
         program.set_sampler(gl, "u_inputs", unit::PROBE);
         let u_y = program.uniform(gl, "u_y");
         let u_range = program.uniform(gl, "u_range");
-        let (list, surfaces) = (inputs(), surface_inputs());
-        let rows = (LIGHT_ROWS + SURFACE_ROWS) as u32;
-        let inputs = Texture::new(gl, Format::R32F, N as u32, rows, Some(&texture_bytes(&list, &surfaces)))?;
-        let target = Target::new(gl, W, 2 * H, &[Format::Rgba8], false)?;
+        let (list, surfaces, edges) = (inputs(), surface_inputs(), edge_inputs());
+        let rows = (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS) as u32;
+        let bytes = texture_bytes(&list, &surfaces, &edges);
+        let inputs = Texture::new(gl, Format::R32F, N as u32, rows, Some(&bytes))?;
+        let target = Target::new(gl, W, 3 * H, &[Format::Rgba8], false)?;
         let mut answers = twins(&list);
         answers.extend(surface_twins(&surfaces));
+        answers.extend(edge_twins(&edges));
         Ok(ProbePass {
             program,
             u_y,
@@ -272,7 +369,7 @@ impl ProbePass {
     /// Draws the probe and reads it back: the GPU's steps and the twins', in the same order.
     pub fn run(&self, gl: &glow::Context, vao: glow::VertexArray) -> (Vec<u8>, Vec<u8>) {
         self.target.bind(gl);
-        gl::apply(gl, &State::flat(W, 2 * H));
+        gl::apply(gl, &State::flat(W, 3 * H));
         self.program.bind(gl);
         self.inputs.bind(gl, unit::PROBE);
         gl::set_vec2(gl, self.u_y.as_ref(), [Y_SKY, Y_SUN]);
@@ -316,11 +413,40 @@ mod tests {
         assert!(list.iter().any(|p| p.n_dot_l < 0.0));
         // The same inputs every time, on every target: a fixed sequence.
         assert_eq!(inputs(), list);
-        let surfaces = surface_inputs();
+        let (surfaces, edges) = (surface_inputs(), edge_inputs());
         assert_eq!(
-            texture_bytes(&list, &surfaces).len(),
-            N * (LIGHT_ROWS + SURFACE_ROWS) * 4
+            texture_bytes(&list, &surfaces, &edges).len(),
+            N * (LIGHT_ROWS + SURFACE_ROWS + EDGE_ROWS) * 4
         );
+    }
+
+    // checks: PRE-21 PRE-30
+    #[test]
+    fn edge_inputs_cover_every_case() {
+        // Outlined and not, every haze level, some inside a level's dithered band, every category's gap.
+        let list = edge_inputs();
+        assert_eq!(list.len(), N);
+        let answers = edge_twins(&list);
+        assert!(answers.iter().any(|a| a % 2 == 1) && answers.iter().any(|a| a % 2 == 0));
+        for level in 0..4u8 {
+            assert!(answers.iter().any(|a| a / 2 == level), "no level {level}");
+        }
+        assert!(list.iter().any(|p| p.band > 0.0));
+        for gap in &OUTLINE_GAP_M[1..7] {
+            assert!(list.iter().any(|p| p.gap == *gap), "no gap {gap}");
+        }
+        assert_eq!(edge_inputs(), list);
+        // An input on its gap's edge is refused.
+        let edge = EdgeInput {
+            depth: 10.0,
+            far: 16.0,
+            opposite: 10.0,
+            gap: 6.0,
+            air_depth: 0.0,
+            height: 0.0,
+            band: 0.0,
+        };
+        assert!(edge_answer(0, &edge).2 < EDGE_CLEARANCE);
     }
 
     // checks: PRE-20 PRE-22

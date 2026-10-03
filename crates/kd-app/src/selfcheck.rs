@@ -223,7 +223,7 @@ mod tests {
         let layout = kd_render::looks::Layout::new(&cat).unwrap();
         let text: String = (0..crate::HOURS.len())
             .map(|h| {
-                let row = kd_render::frame::Lighting::new(&cat, &layout, &crate::sky_at(h))
+                let row = kd_render::frame::Lighting::new(&cat, &layout, &crate::sky_at(h), kd_render::frame::VIEW)
                     .palette
                     .row;
                 let hex: Vec<String> = row

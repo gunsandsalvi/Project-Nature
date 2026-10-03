@@ -24,7 +24,7 @@ use std::fmt;
 
 use kd_data::Catalogue;
 use kd_view::{AreaMeshes, CameraPose};
-use passes::post::PostPass;
+use passes::post::{PostFrame, PostPass};
 use passes::scene::{ArtView, ScenePass};
 use passes::ui::UiPass;
 use passes::upscale::UpscalePass;
@@ -142,12 +142,13 @@ impl Renderer {
         })
     }
 
-    /// The frame's light and palette, uploading the palette's textures when its row or tables changed (A11.3).
-    fn light_frame(&mut self, f: &Frame) {
+    /// The frame's light and palette, the haze seen along `view`, uploading the palette's textures when its row or
+    /// tables changed (A11.3, A11.4).
+    fn light_frame(&mut self, f: &Frame, view: [f32; 3]) {
         let upload = match &mut self.lighting {
-            Some(l) => l.follow(&self.cat, &self.layout, &f.sky),
+            Some(l) => l.follow(&self.cat, &self.layout, &f.sky, view),
             None => {
-                self.lighting = Some(Lighting::new(&self.cat, &self.layout, &f.sky));
+                self.lighting = Some(Lighting::new(&self.cat, &self.layout, &f.sky, view));
                 true
             }
         };
@@ -217,12 +218,27 @@ impl Renderer {
         let Some(art) = self.view else {
             return FrameStats::default();
         };
-        self.light_frame(f);
+        // The ground's view, or the light card's own: north, the card's pitch below the horizon.
+        let view = if f.card.is_some() { None } else { self.view_of(&f.cam) };
+        let (sp, cp) = (
+            passes::scene::card::PITCH_DEG.to_radians().sin(),
+            passes::scene::card::PITCH_DEG.to_radians().cos(),
+        );
+        let basis = match &view {
+            Some(v) => v.basis_f32(),
+            None => camera::Basis {
+                right: [1.0, 0.0, 0.0],
+                up: [0.0, sp, cp],
+                fwd: [0.0, cp, -sp],
+            },
+        };
+        self.light_frame(f, basis.fwd);
         let mut stats = FrameStats {
             art: art.art,
             triangles: 0,
         };
         let mut off = art.off;
+        let mut depth_m = passes::scene::card::DEPTH_M;
         if let Some(l) = &self.lighting {
             self.store.follow_light(l.light.dir);
         }
@@ -230,10 +246,10 @@ impl Renderer {
             log::error!(target: "kd::render", "area textures: {e}");
         }
         if let Some(lighting) = &self.lighting {
-            match &f.card {
-                Some(card) => self.scene.draw(&self.gl, &art, &self.layout, lighting, card, self.vao),
-                None => {
-                    if let (Some(view), Some(t)) = (self.view_of(&f.cam), &self.scene.target) {
+            match (&f.card, view) {
+                (Some(card), _) => self.scene.draw(&self.gl, &art, &self.layout, lighting, card, self.vao),
+                (None, Some(view)) => {
+                    if let Some(t) = &self.scene.target {
                         t.bind(&self.gl);
                         gl::clear(&self.gl, [0.0; 4], 1.0);
                         stats.triangles = self
@@ -241,13 +257,28 @@ impl Renderer {
                             .draw(&self.gl, &view, &self.store, lighting, self.vao)
                             .triangles;
                         off = view.off;
+                        depth_m = (view.depth[1] - view.depth[0]) as f32;
                         self.last_view = Some(view);
                     }
                 }
+                (None, None) => {}
             }
         }
+        let sun = self.lighting.as_ref().map_or([0.0; 3], |l| l.light.dir);
+        let dot3 = |a: [f32; 3], b: [f32; 3]| a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+        let frame = PostFrame {
+            depth_m,
+            sun_screen: [dot3(sun, basis.right), dot3(sun, basis.up)],
+        };
         if let (Some(scene), Some(post)) = (&self.scene.target, &self.post.target) {
-            self.post.draw(&self.gl, &scene.colours[0], &self.palette_tex, self.vao);
+            self.post.draw(
+                &self.gl,
+                &scene.colours[0],
+                &self.palette_tex,
+                &self.tables_tex,
+                frame,
+                self.vao,
+            );
             self.upscale.draw(&self.gl, &art, off, &post.colours[0], self.vao);
         }
         self.ui.draw(&self.gl, &art, ui, &self.palette_tex);

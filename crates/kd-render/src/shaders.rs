@@ -6,9 +6,11 @@ use std::fmt::Write;
 
 use crate::camera::VIEWPORT;
 use crate::ground::{MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LOOKS};
-use crate::looks::{PALETTE_SIZE, TABLE_ROWS};
+use crate::looks::{PALETTE_SIZE, TABLE_ROWS, table};
 use crate::passes::scene::card;
-use crate::pixel::{Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, SEED_EDGE_X, SEED_EDGE_Y, SEED_SPLIT, SUN_TAN, flag};
+use crate::pixel::{
+    Cat, EDGE_OCTAVES, EDGE_WOBBLE_M, OUTLINE_GAP_M, SEED_EDGE_X, SEED_EDGE_Y, SEED_SPLIT, SUN_TAN, flag,
+};
 use crate::probe;
 
 const LIB: &str = include_str!("../shaders/lib.glsl");
@@ -35,6 +37,9 @@ pub fn defines() -> String {
         ("FLAG_GLOWING", i32::from(flag::GLOWING)),
         ("PALETTE_SIZE", PALETTE_SIZE as i32),
         ("TABLE_ROWS", TABLE_ROWS as i32),
+        ("TABLE_OUTLINE", table::OUTLINE as i32),
+        ("TABLE_EDGE", table::EDGE as i32),
+        ("TABLE_HAZE", table::HAZE[0] as i32),
         ("CARD_MAX_LOOKS", card::MAX_LOOKS as i32),
         ("CARD_SWATCH", card::SWATCH),
         ("CARD_NAME_H", card::NAME_H),
@@ -42,6 +47,7 @@ pub fn defines() -> String {
         ("PROBE_W", probe::W as i32),
         ("PROBE_H", probe::H as i32),
         ("PROBE_LIGHT_ROWS", probe::LIGHT_ROWS as i32),
+        ("PROBE_EDGE_ROW", (probe::LIGHT_ROWS + probe::SURFACE_ROWS) as i32),
         ("VIEWPORT", VIEWPORT),
         ("PATCH_QUADS", PATCH_QUADS),
         ("MAX_SURFACES", MAX_SURFACES as i32),
@@ -56,6 +62,19 @@ pub fn defines() -> String {
     let _ = writeln!(s, "#define SKIRT_M {SKIRT_M:?}");
     let _ = writeln!(s, "#define EDGE_WOBBLE_M {EDGE_WOBBLE_M:?}");
     let _ = writeln!(s, "#define SUN_TAN {SUN_TAN:?}");
+    let _ = writeln!(s, "#define CARD_DEPTH_M {:?}", card::DEPTH_M);
+    let (b, sc, e, l) = (
+        probe::PROBE_BETA,
+        probe::PROBE_SCALE,
+        probe::PROBE_EYE,
+        probe::PROBE_LEVELS,
+    );
+    let _ = writeln!(s, "#define PROBE_BETA vec2({:?}, {:?})", b[0], b[1]);
+    let _ = writeln!(s, "#define PROBE_SCALE vec2({:?}, {:?})", sc[0], sc[1]);
+    let _ = writeln!(s, "#define PROBE_EYE vec2({:?}, {:?})", e[0], e[1]);
+    let _ = writeln!(s, "#define PROBE_LEVELS vec3({:?}, {:?}, {:?})", l[0], l[1], l[2]);
+    let gaps: Vec<String> = OUTLINE_GAP_M.iter().map(|g| format!("{g:?}")).collect();
+    let _ = writeln!(s, "#define OUTLINE_GAP_M float[8]({})", gaps.join(", "));
     let o = EDGE_OCTAVES;
     let _ = writeln!(
         s,
@@ -136,6 +155,9 @@ mod tests {
             "sunlit",
             "sun_factor",
             "sky_factor",
+            "outline_toward",
+            "haze",
+            "haze_level",
             "lightness",
             "ladder_pos",
             "light_step",

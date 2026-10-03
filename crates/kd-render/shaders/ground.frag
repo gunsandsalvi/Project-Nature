@@ -3,7 +3,8 @@
 // the surface's look by its split noise, both faded below four art pixels (A11.1 rule 2); the sky factor from the
 // sky field, the share of the sky the horizon leaves open, and the sun factor from the sun field, the share of the
 // sun's disc above the horizon toward it, both blended between the four points too (A11.4); the light's step
-// dithered only in the band; the category ground, or rock for a rock surface (A11.2).
+// dithered only in the band; the category ground, or rock for a rock surface (A11.2); and the haze's level from
+// the air along the pixel's ray to the eye's plane, dithered in the same narrow bands (A11.4).
 uniform highp sampler2D u_grads;     // RG32F, 257 x 257: each point's slope east and south
 uniform highp sampler2D u_sun;       // R32F, 257 x 257: each point's horizon toward the light, as a slope
 uniform highp sampler2D u_sky;       // R8, 257 x 257: the share of the sky each point's horizon leaves open
@@ -19,8 +20,13 @@ uniform ivec2 u_looks[MAX_SURFACES * SURFACE_LOOKS];  // each surface's looks: f
 uniform ivec2 u_surface_info[MAX_SURFACES];           // each surface's number of looks, and 1 for rock
 uniform vec2 u_split_at[MAX_SURFACES];                // where each next look takes over
 uniform vec4 u_split_oct[MAX_SURFACES];               // the split noise's octaves: (l0, 1/l0, l1, 1/l1)
+uniform vec2 u_haze_beta;            // the aerosol's and the air's extinction a metre at the sea's level
+uniform vec2 u_haze_scale;           // and their scale heights, metres
+uniform vec2 u_eye;                  // the eye's plane before the target, metres, and the sine of the pitch
+uniform vec3 u_haze_levels;          // where haze levels 1 to 3 begin
 in vec2 v_local;
 in float v_depth;
+in vec2 v_air;
 out vec4 o_colour;
 
 int surface_at(ivec2 square) {
@@ -52,5 +58,8 @@ void main() {
     ivec2 ladder = u_looks[surface * SURFACE_LOOKS + look];
     float s = ladder_pos(lightness(sigma, tau, u_y.x, u_y.y), u_range, ladder.y);
     int step = light_step(s, fwidth(s), ladder.y, art_pixel() + u_dither);
-    o_colour = pack_out(ladder.x + step, info.y == 1 ? CAT_ROCK : CAT_GROUND, tau > 0.0 ? FLAG_SUNLIT : 0, v_depth);
+    float hz = haze(v_air.x, v_air.y, u_haze_beta, u_haze_scale, u_eye);
+    int flags = (tau > 0.0 ? FLAG_SUNLIT : 0) | (haze_level(hz, u_haze_levels, fwidth(hz), art_pixel() + u_dither)
+        << FLAG_HAZE_SHIFT);
+    o_colour = pack_out(ladder.x + step, info.y == 1 ? CAT_ROCK : CAT_GROUND, flags, v_depth);
 }

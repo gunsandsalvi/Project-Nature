@@ -291,7 +291,7 @@ impl SurfaceTable {
 }
 
 /// The ground's uniforms, in `GroundPass::u`'s order.
-const UNIFORMS: [&str; 21] = [
+const UNIFORMS: [&str; 26] = [
     "u_spacing",
     "u_morph",
     "u_patches",
@@ -313,6 +313,11 @@ const UNIFORMS: [&str; 21] = [
     "u_split_at[0]",
     "u_split_oct[0]",
     "u_skirt",
+    "u_area_air",
+    "u_haze_beta",
+    "u_haze_scale",
+    "u_eye",
+    "u_haze_levels",
 ];
 
 /// The ground's program and its uniforms (A11.13 rule 3).
@@ -320,6 +325,8 @@ pub struct GroundPass {
     program: Program,
     u: [Option<glow::UniformLocation>; UNIFORMS.len()],
     table: SurfaceTable,
+    /// Where the haze's levels 1 to 3 begin (A11.4).
+    haze_levels: [f32; 3],
 }
 
 /// Triangles drawn by the last frame, for the bench (A11.11).
@@ -363,6 +370,7 @@ impl GroundPass {
             u: UNIFORMS.map(|name| program.uniform(gl, name)),
             program,
             table: SurfaceTable::new(cat, layout).map_err(RenderError::Gl)?,
+            haze_levels: cat.air.haze_levels,
         })
     }
 
@@ -410,6 +418,11 @@ impl GroundPass {
             u_split_at,
             u_split_oct,
             u_skirt,
+            u_area_air,
+            u_haze_beta,
+            u_haze_scale,
+            u_eye,
+            u_haze_levels,
         ] = &self.u;
         let (s, morph) = spacing(view.texel as f32);
         gl::set_f32(gl, u_spacing.as_ref(), s as f32);
@@ -429,6 +442,11 @@ impl GroundPass {
         gl::set_ivec2_array(gl, u_surface_info.as_ref(), &self.table.info);
         gl::set_vec2_array(gl, u_split_at.as_ref(), &self.table.split_at);
         gl::set_vec4_array(gl, u_split_oct.as_ref(), &self.table.split_oct);
+        let (beta, scale) = lighting.haze_air;
+        gl::set_vec2(gl, u_haze_beta.as_ref(), beta);
+        gl::set_vec2(gl, u_haze_scale.as_ref(), scale);
+        gl::set_vec2(gl, u_eye.as_ref(), view.eye());
+        gl::set_vec3(gl, u_haze_levels.as_ref(), self.haze_levels);
         for area in &store.areas {
             let Some([heights, grads, surfaces, sun, sky]) = &area.gpu else {
                 continue;
@@ -446,6 +464,7 @@ impl GroundPass {
             gl::set_vec2(gl, u_area_px.as_ref(), p.px);
             gl::set_vec2(gl, u_depth.as_ref(), p.depth);
             gl::set_vec2(gl, u_pattern_off.as_ref(), p.pattern_off);
+            gl::set_vec2(gl, u_area_air.as_ref(), p.air);
             // The patches, then the skirts round the area's edge: four sides of 256 / s segments.
             gl::set_ivec4(gl, u_patches.as_ref(), patches);
             gl::set_i32(gl, u_skirt.as_ref(), 0);

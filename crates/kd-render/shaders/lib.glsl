@@ -60,6 +60,44 @@ int palette_index(vec4 colour0) {
     return int(colour0.r * 255.0 + 0.5);
 }
 
+// Colour 0's category and flags (its G channel), and its view depth, 0 near to 1 far.
+int cat_flags(vec4 colour0) {
+    return int(colour0.g * 255.0 + 0.5);
+}
+float depth_of(vec4 colour0) {
+    return (floor(colour0.b * 255.0 + 0.5) * 256.0 + floor(colour0.a * 255.0 + 0.5)) / 65535.0;
+}
+
+// Whether a pixel at `depth` stands in front of its neighbour at `far`: the neighbour lies beyond where the plane
+// through the pixel and its opposite neighbour puts it by more than `gap` (A11.2), as pixel::outline_toward.
+bool outline_toward(float depth, float far, float opposite, float gap) {
+    return far - (2.0 * depth - opposite) > gap;
+}
+
+// The haze at a point `depth` metres beyond the view's target plane and `height` metres above the sea: the air's
+// optical depth along its ray to the eye's plane, in closed form (A11.4), as pixel::haze.
+float haze(float depth, float height, vec2 beta, vec2 scale, vec2 eye) {
+    float rise = max(eye.y, 1e-3);
+    float l = max(eye.x + depth, 0.0);
+    float tau = 0.0;
+    for (int k = 0; k < 2; k++) {
+        tau += beta[k] * scale[k] / rise * exp(-height / scale[k]) * (1.0 - exp(-l * rise / scale[k]));
+    }
+    return 1.0 - exp(-tau);
+}
+
+// The haze's level, 0 to 3: how many of `levels` it is above, dithered within `band` (A11.4), as pixel::haze_level.
+int haze_level(float hz, vec3 levels, float band, ivec2 p) {
+    float b = bayer(p);
+    int n = 0;
+    for (int k = 0; k < 3; k++) {
+        float d = hz - levels[k];
+        bool up = (band > 0.0 && abs(d) < band) ? (d + band) / (2.0 * band) > b : d >= 0.0;
+        n += up ? 1 : 0;
+    }
+    return n;
+}
+
 // A lattice point's 32-bit hash, wrapping alike in GLSL and Rust, as pixel::hash3.
 uint hash3(uint x, uint y, uint seed) {
     uint h = (x * 0x8da6b343u) ^ (y * 0xd8163841u) ^ (seed * 0xcb1ab31fu);
