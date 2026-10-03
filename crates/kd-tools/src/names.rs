@@ -15,16 +15,22 @@ pub fn catalogue_names(root: &Path) -> Result<Vec<String>, String> {
     crate::catalog::names(root)
 }
 
-/// Every string literal in a simulation crate's code, outside its tests, that is a catalogue name.
+/// Every string literal in a simulation crate's code, outside its tests and the code its tools feature alone builds
+/// (the catalogue's compiler, which spells the schema's words, such as the kind `rock`), that is a catalogue name.
 pub fn check(names: &[String], rows: &BTreeMap<String, Row>, crates: &[Crate]) -> Vec<String> {
     let mut problems = Vec::new();
     for c in crates {
-        if !rows.get(&c.name).is_some_and(|r| r.sim) {
+        let Some(row) = rows.get(&c.name).filter(|r| r.sim) else {
             continue;
-        }
+        };
         let tests = layers::test_files(&c.files);
+        let tools = row
+            .tools_feature
+            .as_ref()
+            .map(|f| layers::tools_files(&c.files, f))
+            .unwrap_or_default();
         for (path, text) in &c.files {
-            if tests.contains(path) {
+            if tests.contains(path) || tools.contains(path) {
                 continue;
             }
             let scanned = scan::scan(text);
@@ -119,6 +125,40 @@ mod tests {
         assert_eq!(
             check(&names, &rows, &[bad, ui]),
             vec!["kd-life: src/herd.rs:2: the catalogue name \"flint_nodule\" in code (A2.3 rule 5)"]
+        );
+    }
+
+    // checks: PRN-07
+    #[test]
+    fn tools_code_may_spell_the_schema() {
+        // The code a crate's tools feature alone builds may spell a schema word that is also an entry's id; the
+        // rest of the crate may not, nor a module the feature does not gate.
+        let rows = layers::parse_rows(
+            "[kd-data]\nsim = true\ndeps = []\noutside = []\nunsafe = \"none\"\ntools_feature = \"compile\"\n",
+        )
+        .expect("rows");
+        let names = vec!["rock".to_string()];
+        let file = |p: &str, t: &str| (p.to_string(), t.to_string());
+        let data = Crate {
+            name: "kd-data".into(),
+            files: vec![
+                file(
+                    "src/lib.rs",
+                    "#[cfg(feature = \"compile\")]\npub mod compile;\n#[cfg(feature = \"compile\")]\npub mod kinds;\npub mod world;",
+                ),
+                file("src/compile.rs", "mod land;\nconst K: &str = \"rock\";"),
+                file("src/compile/land.rs", "const F: &str = \"rock\";"),
+                file("src/kinds.rs", "const N: &str = \"rock\";"),
+                file("src/world.rs", "pub const W: u8 = 1;"),
+            ],
+            ..Crate::default()
+        };
+        assert_eq!(check(&names, &rows, std::slice::from_ref(&data)), Vec::<String>::new());
+        let mut bad = data;
+        bad.files[4].1 = "const W: &str = \"rock\";".into();
+        assert_eq!(
+            check(&names, &rows, &[bad]),
+            vec!["kd-data: src/world.rs:1: the catalogue name \"rock\" in code (A2.3 rule 5)"]
         );
     }
 }

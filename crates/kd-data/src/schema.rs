@@ -3,6 +3,9 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::tuning::Tuning;
+use crate::world::{Biome, Deposit, Land, Rock, Soil};
+
 /// `data/VERSION.toml`: the rules version (major, minor) and the generator version (`PLT-09`).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Versions {
@@ -144,6 +147,12 @@ pub struct Catalogue {
     pub looks: Vec<Look>,
     pub air: Air,
     pub surfaces: Vec<Surface>,
+    pub rocks: Vec<Rock>,
+    pub soils: Vec<Soil>,
+    pub biomes: Vec<Biome>,
+    pub deposits: Vec<Deposit>,
+    pub lands: Vec<Land>,
+    pub tunings: Vec<Tuning>,
 }
 
 impl Catalogue {
@@ -155,5 +164,41 @@ impl Catalogue {
     /// A surface by id.
     pub fn surface(&self, id: &str) -> Option<&Surface> {
         self.surfaces.iter().find(|s| s.id == id)
+    }
+
+    /// A rock by id, and by number.
+    pub fn rock(&self, id: &str) -> Option<&Rock> {
+        self.rocks.iter().find(|r| r.id == id)
+    }
+    pub fn rock_number(&self, number: u16) -> Option<&Rock> {
+        self.rocks.iter().find(|r| r.number == number)
+    }
+
+    /// A soil kind by id.
+    pub fn soil(&self, id: &str) -> Option<&Soil> {
+        self.soils.iter().find(|s| s.id == id)
+    }
+
+    /// A biome by id.
+    pub fn biome(&self, id: &str) -> Option<&Biome> {
+        self.biomes.iter().find(|b| b.id == id)
+    }
+
+    /// A deposit by id.
+    pub fn deposit(&self, id: &str) -> Option<&Deposit> {
+        self.deposits.iter().find(|d| d.id == id)
+    }
+
+    /// A land preset by id.
+    pub fn land(&self, id: &str) -> Option<&Land> {
+        self.lands.iter().find(|l| l.id == id)
+    }
+
+    /// A system's tuned numbers by id, or why there are none.
+    pub fn tuning(&self, id: &str) -> Result<&Tuning, String> {
+        self.tunings
+            .iter()
+            .find(|t| t.id == id)
+            .ok_or_else(|| format!("the catalogue has no tuning {id} (data/tuning/{id}.md)"))
     }
 }

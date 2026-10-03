@@ -391,7 +391,27 @@ pub(crate) mod tests {
                 "data/models/surfaces.md",
                 include_str!("../../../data/models/surfaces.md"),
             ),
+            src("data/world/rocks.md", include_str!("../../../data/world/rocks.md")),
+            src("data/world/soils.md", include_str!("../../../data/world/soils.md")),
+            src("data/world/biomes.md", include_str!("../../../data/world/biomes.md")),
+            src(
+                "data/world/deposits.md",
+                include_str!("../../../data/world/deposits.md"),
+            ),
+            src(
+                "data/lands/first-region.md",
+                include_str!("../../../data/lands/first-region.md"),
+            ),
+            src("data/tuning/render.md", include_str!("../../../data/tuning/render.md")),
+            src("data/tuning/world.md", include_str!("../../../data/tuning/world.md")),
         ];
-        compile(&sources, false).expect("the catalogue compiles").catalogue
+        let out = compile(&sources, false).expect("the catalogue compiles");
+        // A file left out above leaves the index stale.
+        assert!(
+            out.stale.is_empty(),
+            "a data file is missing here: {:?}",
+            out.stale.iter().map(|s| &s.0).collect::<Vec<_>>()
+        );
+        out.catalogue
     }
 }

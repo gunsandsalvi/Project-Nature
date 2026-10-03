@@ -3,7 +3,8 @@
 //! path order is split at its `##` headings, each entry's one `toml` block parsed into its kind's schema with no
 //! unknown or missing field, its id resolved to its number in `data/ids.lock`, and the entries put in number order
 //! and encoded as the blob. Rules 1, 2, 4 and 6 of A3.6's validation hold for the kinds so far; rule 4's references
-//! are the looks each surface names.
+//! are the looks surfaces, rocks and biomes name, the rocks deposits name, and the rocks, soils and biomes a land
+//! preset names. The land's kinds are compiled in `land`, the tuned numbers in `tune`.
 //!
 //! Implements MAT-17, see A3.6: every entry names its checks, and an entry that breaks a rule fails with its file
 //! and line.
@@ -17,6 +18,11 @@ use serde::de::DeserializeOwned;
 use crate::blob;
 use crate::kinds::{FileRole, Kind, role};
 use crate::schema::{Air, Catalogue, Colour, Look, Surface, Versions};
+use crate::tuning::Tuning;
+use crate::world::{Biome, Deposit, Land, Rock, Soil};
+
+mod land;
+mod tune;
 
 pub const VERSION_FILE: &str = "data/VERSION.toml";
 pub const LOCK_FILE: &str = "data/ids.lock";
@@ -134,21 +140,16 @@ struct SurfaceSrc {
     stage: String,
     checks: Vec<String>,
     looks: Vec<String>,
-    #[serde(default)]
     split_m: Vec<f32>,
-    #[serde(default)]
     split_at: Vec<f32>,
-    #[serde(default)]
     rock: bool,
     relief_m: [f32; 2],
     relief_tilt: f32,
-    #[serde(default)]
     stones_per_m2: f32,
+    /// Written with stones, and only then: TOML has no word for none.
     #[serde(default)]
     stone_look: Option<String>,
-    #[serde(default)]
     tufts_per_m2: f32,
-    #[serde(default)]
     tuft_looks: Vec<String>,
 }
 
@@ -229,6 +230,12 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
     let mut looks: Vec<(u16, Look)> = Vec::new();
     let mut airs: Vec<(u16, Air)> = Vec::new();
     let mut surfaces: Vec<(u16, Surface)> = Vec::new();
+    let mut rocks: Vec<(u16, Rock)> = Vec::new();
+    let mut soils: Vec<(u16, Soil)> = Vec::new();
+    let mut biomes: Vec<(u16, Biome)> = Vec::new();
+    let mut deposits: Vec<(u16, Deposit)> = Vec::new();
+    let mut lands: Vec<(u16, Land)> = Vec::new();
+    let mut tunings: Vec<(u16, Tuning)> = Vec::new();
     let mut tables: BTreeMap<String, Vec<(usize, String)>> = BTreeMap::new();
     let mut index: BTreeMap<Kind, Vec<(u16, String, String, String)>> = BTreeMap::new();
     let mut count = 0;
@@ -335,6 +342,19 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
                         Compiled::Surface(entry),
                     )
                 }),
+                Kind::Rock => land::rock(&e, &looks, &mut problems),
+                Kind::Soil => land::soil(&e, &mut problems),
+                Kind::Biome => land::biome(&e, &looks, &mut problems),
+                Kind::Deposit => land::deposit(&e, &rocks, &mut problems),
+                Kind::Land => {
+                    let known = land::Known {
+                        rocks: &rocks,
+                        soils: &soils,
+                        biomes: &biomes,
+                    };
+                    land::land(&e, &known, &mut problems)
+                }
+                Kind::Tuning => tune::tuning(&e, &mut problems),
             };
             let Some((head, table, entry)) = compiled else { continue };
             // Rules 2 and 6: the id, the name, the stage and the checks.
@@ -381,6 +401,12 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
                 Compiled::Look(l) => looks.push((number, Look { number, ..l })),
                 Compiled::Air(a) => airs.push((number, a)),
                 Compiled::Surface(s) => surfaces.push((number, Surface { number, ..s })),
+                Compiled::Rock(r) => rocks.push((number, Rock { number, ..r })),
+                Compiled::Soil(s) => soils.push((number, Soil { number, ..s })),
+                Compiled::Biome(b) => biomes.push((number, Biome { number, ..b })),
+                Compiled::Deposit(d) => deposits.push((number, Deposit { number, ..d })),
+                Compiled::Land(l) => lands.push((number, Land { number, ..l })),
+                Compiled::Tuning(t) => tunings.push((number, Tuning { number, ..t })),
             }
         }
     }
@@ -390,6 +416,12 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
     colours.sort_by_key(|c| c.0);
     looks.sort_by_key(|l| l.0);
     surfaces.sort_by_key(|s| s.0);
+    rocks.sort_by_key(|r| r.0);
+    soils.sort_by_key(|s| s.0);
+    biomes.sort_by_key(|b| b.0);
+    deposits.sort_by_key(|d| d.0);
+    lands.sort_by_key(|l| l.0);
+    tunings.sort_by_key(|t| t.0);
     if airs.len() != 1 {
         problems.push(at(
             Kind::Light.place(),
@@ -397,11 +429,13 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
             format!("{} entries of air; there is exactly one (A11.4)", airs.len()),
         ));
     }
-    if colours.len() + looks.len() > 256 {
+    // Each look takes its steps' entries in the palette, after the fixed colours (A11.3).
+    let entries = colours.len() + looks.iter().map(|l| usize::from(l.1.steps)).sum::<usize>();
+    if entries > 256 {
         problems.push(at(
             Kind::Look.place(),
             1,
-            "more than 255 colours besides void (A11.3)".into(),
+            format!("the fixed colours and the looks' steps need {entries} palette entries, more than 256 (A11.3)"),
         ));
     }
     if !problems.is_empty() {
@@ -414,6 +448,12 @@ pub fn compile(sources: &[Source], assign: bool) -> Result<Output, Vec<Problem>>
         looks: looks.into_iter().map(|l| l.1).collect(),
         air: airs.remove(0).1,
         surfaces: surfaces.into_iter().map(|s| s.1).collect(),
+        rocks: rocks.into_iter().map(|r| r.1).collect(),
+        soils: soils.into_iter().map(|s| s.1).collect(),
+        biomes: biomes.into_iter().map(|b| b.1).collect(),
+        deposits: deposits.into_iter().map(|d| d.1).collect(),
+        lands: lands.into_iter().map(|l| l.1).collect(),
+        tunings: tunings.into_iter().map(|t| t.1).collect(),
     };
     let mut stale = Vec::new();
     for (s, _) in &files {
@@ -440,6 +480,12 @@ enum Compiled {
     Look(Look),
     Air(Air),
     Surface(Surface),
+    Rock(Rock),
+    Soil(Soil),
+    Biome(Biome),
+    Deposit(Deposit),
+    Land(Land),
+    Tuning(Tuning),
 }
 
 /// The fields every entry has (A3.6).
@@ -901,6 +947,12 @@ fn index_text(index: &BTreeMap<Kind, Vec<(u16, String, String, String)>>) -> Str
             Kind::Look => "Looks",
             Kind::Light => "The air",
             Kind::Surface => "Surfaces",
+            Kind::Rock => "Rocks",
+            Kind::Soil => "Soils",
+            Kind::Biome => "Biomes",
+            Kind::Deposit => "Deposits",
+            Kind::Land => "Land presets",
+            Kind::Tuning => "Tuned numbers",
         };
         s.push_str(&format!(
             "\n## {title} (`{}`)\n\n| Number | Id | Name | Stage |\n|---|---|---|---|\n",
@@ -1008,7 +1060,7 @@ mod tests {
     }
 
     fn surfaces() -> String {
-        "# Surfaces\n\nThe ground's surfaces.\n\n## Rock\n\nBare rock.\n\n```toml\nid = \"rock\"\nname = \"Rock\"\nstage = \"MIL-01\"\nchecks = [\"PRE-20\"]\nlooks = [\"limestone\"]\nrock = true\nrelief_m = [0.2, 2.0]\nrelief_tilt = 0.5\n```\n".to_string()
+        "# Surfaces\n\nThe ground's surfaces.\n\n## Rock\n\nBare rock.\n\n```toml\nid = \"rock\"\nname = \"Rock\"\nstage = \"MIL-01\"\nchecks = [\"PRE-20\"]\nlooks = [\"limestone\"]\nsplit_m = []\nsplit_at = []\nrock = true\nrelief_m = [0.2, 2.0]\nrelief_tilt = 0.5\nstones_per_m2 = 0\ntufts_per_m2 = 0\ntuft_looks = []\n```\n".to_string()
     }
 
     fn sources(colours: String, looks: String, air: String) -> Vec<Source> {
@@ -1190,20 +1242,23 @@ mod tests {
         fails(&surface("[\"limestone\"]", "[]"), "0 looks; a surface has 1 to 3");
         fails(
             &surface(
-                "[\"limestone\"]",
+                "[\"limestone\"]\nsplit_m = []\nsplit_at = []",
                 "[\"limestone\", \"limestone\"]\nsplit_m = [8.0]\nsplit_at = [0.0]",
             ),
             "names a look twice",
         );
         fails(
-            &surface("rock = true", "rock = true\nsplit_m = [24.0, 6.0]"),
+            &surface("split_m = []", "split_m = [24.0, 6.0]"),
             "come with more than one look",
         );
         fails(
-            &surface("rock = true", "rock = true\nsplit_at = [0.2]"),
+            &surface("split_at = []", "split_at = [0.2]"),
             "one take-over value fewer than its looks",
         );
         fails(&surface("rock = true", "rock = \"yes\""), "invalid type");
+        // Rule 1: every field is written, even one that is empty or false.
+        fails(&surface("rock = true\n", ""), "missing field `rock`");
+        fails(&surface("tuft_looks = []\n", ""), "missing field `tuft_looks`");
         fails(
             &surface("relief_m = [0.2, 2.0]", "relief_m = [2.0, 0.2]"),
             "from a smallest to a largest",
@@ -1218,21 +1273,18 @@ mod tests {
         );
         // Cover (WLD-12): stones need the look they are drawn in, tufts one look or one a look.
         fails(
-            &surface("relief_tilt = 0.5", "relief_tilt = 0.5\nstones_per_m2 = 1.0"),
+            &surface("stones_per_m2 = 0", "stones_per_m2 = 1.0"),
             "stones come with the look they are drawn in",
         );
         fails(
             &surface(
-                "relief_tilt = 0.5",
-                "relief_tilt = 0.5\ntufts_per_m2 = 1.0\ntuft_looks = [\"limestone\", \"limestone\"]",
+                "tufts_per_m2 = 0\ntuft_looks = []",
+                "tufts_per_m2 = 1.0\ntuft_looks = [\"limestone\", \"limestone\"]",
             ),
             "tufts come with one look, or one for each",
         );
         fails(
-            &surface(
-                "relief_tilt = 0.5",
-                "relief_tilt = 0.5\nstones_per_m2 = 9.0\nstone_look = \"limestone\"",
-            ),
+            &surface("stones_per_m2 = 0", "stones_per_m2 = 9.0\nstone_look = \"limestone\""),
             "0 to 8 a square metre",
         );
         // A stray file no kind claims fails.
@@ -1255,6 +1307,26 @@ mod tests {
             Err(p) => assert!(p.iter().any(|x| x.message.contains("2 entries of air")), "{p:?}"),
             Ok(_) => panic!("compiled with two airs"),
         }
+        // The palette holds the fixed colours and every step of every look: the sample's two fixed colours and its
+        // look of six steps, with 35 more of seven, need 253 entries, which fit; a 36th makes 260.
+        let many = |n: usize| {
+            let mut s = clean();
+            let looks = s.iter_mut().find(|x| x.path == Kind::Look.place()).expect("looks");
+            for k in 0..n {
+                looks.text.push_str(&format!(
+                    "\n## Look {k}\n\nA test.\n\n```toml\nid = \"look_{k}\"\nname = \"Look {k}\"\nstage = \"MIL-01\"\nchecks = [\"PRE-20\"]\ncolour = \"#808080\"\nsteps = 7\n```\n"
+                ));
+            }
+            s
+        };
+        assert!(compile(&many(35), true).is_ok());
+        match compile(&many(36), true) {
+            Err(p) => assert!(
+                p.iter().any(|x| x.message.contains("need 260 palette entries")),
+                "{p:?}"
+            ),
+            Ok(_) => panic!("compiled with an overfull palette"),
+        }
     }
 
     /// The repository's own catalogue, as the build script reads it.
@@ -1271,6 +1343,16 @@ mod tests {
             src(Kind::Look.place(), include_str!("../../../data/palette/looks.md")),
             src(Kind::Light.place(), include_str!("../../../data/palette/light.md")),
             src(Kind::Surface.place(), include_str!("../../../data/models/surfaces.md")),
+            src(Kind::Rock.place(), include_str!("../../../data/world/rocks.md")),
+            src(Kind::Soil.place(), include_str!("../../../data/world/soils.md")),
+            src(Kind::Biome.place(), include_str!("../../../data/world/biomes.md")),
+            src(Kind::Deposit.place(), include_str!("../../../data/world/deposits.md")),
+            src(
+                "data/lands/first-region.md",
+                include_str!("../../../data/lands/first-region.md"),
+            ),
+            src("data/tuning/render.md", include_str!("../../../data/tuning/render.md")),
+            src("data/tuning/world.md", include_str!("../../../data/tuning/world.md")),
         ]
     }
 
@@ -1297,6 +1379,7 @@ mod tests {
     // checks: MAT-13 MAT-17
     #[test]
     fn real_catalogue_is_clean() {
+        // A file left out of `real` leaves the index stale, so the tests read every file the build script reads.
         let out = compile(&real(), false).expect("the catalogue compiles");
         assert!(
             out.stale.is_empty(),
@@ -1305,7 +1388,25 @@ mod tests {
         );
         assert_eq!(out.lock, include_str!("../../../data/ids.lock"));
         let looks: Vec<&str> = out.catalogue.looks.iter().map(|l| l.id.as_str()).collect();
-        assert_eq!(looks, ["grass_lush", "grass_dry", "dirt", "limestone", "scree"]);
+        assert_eq!(
+            looks,
+            [
+                "grass_lush",
+                "grass_dry",
+                "dirt",
+                "limestone",
+                "scree",
+                "chalk",
+                "sandstone",
+                "granite",
+                "gravel",
+                "silt",
+                "woodland",
+                "marsh",
+                "sand",
+                "water"
+            ]
+        );
         // The four surfaces of T01b.3: grass split between its lush and dry looks, the others one look each.
         let surfaces: Vec<&str> = out.catalogue.surfaces.iter().map(|s| s.id.as_str()).collect();
         assert_eq!(surfaces, ["grass", "dirt", "rock", "scree"]);
@@ -1319,6 +1420,295 @@ mod tests {
             out.catalogue.air.turbidity, 0.08,
             "the owner's choice of 3 October 2026"
         );
+    }
+
+    // checks: WLD-34 WLD-14 WLD-27 WLD-09
+    #[test]
+    fn first_region_as_a5_6() {
+        // The first region holds A5.6's block exactly, in base units, its names resolved to their entries.
+        let cat = compile(&real(), false).expect("the catalogue compiles").catalogue;
+        let land = cat.land("first_region").expect("the first region");
+        let rock = |id: &str| cat.rock(id).expect("a rock").number;
+        assert_eq!(land.centre_cell, [1000, 244]);
+        assert_eq!((land.island_m, land.sea_m), (60_000.0, 50_000.0));
+        assert_eq!((land.base_height_m, land.relief_m), (220.0, 120.0));
+        assert_eq!(
+            land.valley,
+            crate::world::Valley {
+                flow_m3s: 8.0,
+                width_m: 18.0,
+                floodplain_m: 800.0,
+                from: crate::world::Side::North
+            }
+        );
+        let x = &land.escarpment;
+        assert_eq!(
+            (x.side, x.height_m, x.caves, x.shelters),
+            (crate::world::Side::North, 30.0, 6, 4)
+        );
+        assert_eq!(x.rocks, [rock("chalk"), rock("sandstone"), rock("granite")]);
+        assert_eq!((land.soil, land.fertility), (cat.soil("loam").expect("loam").number, 3));
+        assert_eq!(land.biome, cat.biome("broadleaf_forest").expect("woods").number);
+        assert_eq!(land.cover, [140, 38, 64, 5, 8]);
+        let c = &land.climate;
+        assert_eq!(c.mean_c, [9.0, 19.0, 11.0, 3.0]);
+        assert_eq!(c.range_c, 9.0);
+        assert_eq!(c.rain_m, [0.17, 0.14, 0.18, 0.16]);
+        assert_eq!((c.storm_days, c.thunder_days), ([4, 3, 4, 5], [1, 3, 1, 0]));
+        assert_eq!(c.wind, crate::world::Side::West);
+        let herds: Vec<(&str, u32)> = land.herds.iter().map(|h| (h.kind.as_str(), h.count)).collect();
+        assert_eq!(herds, [("red_deer", 300), ("wild_boar", 120), ("wolf", 15)]);
+        assert_eq!((land.small, land.tilt_deg), ([6.0, 20.0, 30.0], 23.5));
+        // Its rocks, the five of T02a.3: caves form in chalk alone, and each is drawn in its own look.
+        let rocks: Vec<&str> = cat.rocks.iter().map(|r| r.id.as_str()).collect();
+        assert_eq!(rocks, ["chalk", "sandstone", "granite", "river_gravel", "silt"]);
+        assert!(
+            cat.rocks
+                .iter()
+                .all(|r| r.caves == (r.id == "chalk") && (0.5..=2.0).contains(&r.softness))
+        );
+        let look = |id: &str| {
+            cat.looks
+                .iter()
+                .find(|l| l.number == cat.rock(id).expect("a rock").look)
+                .map(|l| l.id.as_str())
+        };
+        assert_eq!(look("river_gravel"), Some("gravel"));
+        // A5.11's eight soils with their water, A5.11's keeping: peat keeps wood and hide, sand nothing.
+        let soils: Vec<(&str, f32)> = cat.soils.iter().map(|s| (s.id.as_str(), s.capacity_m)).collect();
+        assert_eq!(
+            soils,
+            [
+                ("sand", 0.05),
+                ("loam", 0.15),
+                ("clay", 0.2),
+                ("silt", 0.18),
+                ("peat", 0.3),
+                ("ash", 0.12),
+                ("stony", 0.06),
+                ("thin", 0.04)
+            ]
+        );
+        let keeps = |id: &str| cat.soil(id).expect("a soil").keeps;
+        use crate::world::keeps::{BONE, HIDE, WOOD};
+        assert_eq!((keeps("peat"), keeps("sand"), keeps("loam")), (WOOD | HIDE, 0, BONE));
+        // Flint lies in the chalk; river gravel in rivers, its share falling by 0.8 every 10 km (A5.7 step 9).
+        let flint = cat.deposit("flint_in_chalk").expect("flint");
+        assert_eq!((flint.rock, flint.rivers), (Some(rock("chalk")), false));
+        let gravel = cat.deposit("river_gravel").expect("gravel");
+        assert_eq!(
+            (gravel.rock, gravel.rivers, gravel.carried),
+            (
+                None,
+                true,
+                Some(crate::world::Carried {
+                    keep: 0.8,
+                    every_m: 10_000.0
+                })
+            )
+        );
+        // Every biome's shares sum to 255; barren grows nothing.
+        assert!(
+            cat.biomes
+                .iter()
+                .all(|b| b.cover.iter().map(|&v| u32::from(v)).sum::<u32>() == 255)
+        );
+        assert_eq!(cat.biome("barren").expect("barren").cover, [0, 0, 0, 0, 255]);
+        // The tuned numbers, by key and kind: α01d's four for the stones and tufts, and the world's.
+        let render = cat.tuning("render").expect("render");
+        assert_eq!(render.number("cover_contact"), Ok(0.6));
+        assert_eq!(render.number("blade_foot_sky"), Ok(0.45));
+        let world = cat.tuning("world").expect("world");
+        assert_eq!(
+            world.get("river_rating.bankfull_depth", crate::Measure::Length),
+            Ok(1.2)
+        );
+        assert_eq!(world.get("stream_min_rain", crate::Measure::Length), Ok(0.1));
+        assert_eq!(world.get("escarpment_gap_every", crate::Measure::Length), Ok(3000.0));
+        assert_eq!(world.number("settle_years"), Ok(10.0));
+        assert!(cat.tuning("sound").is_err());
+    }
+
+    /// The sample with a rock, a soil, a biome, a deposit, a land and a tuning table, numbered and with tables.
+    fn land_sample() -> Vec<Source> {
+        let mut s = clean();
+        let add = |s: &mut Vec<Source>, path: &str, text: &str| {
+            s.push(Source {
+                path: path.into(),
+                text: text.into(),
+            })
+        };
+        add(&mut s, Kind::Rock.place(), "# Rocks
+
+Rocks.
+
+## Chalk
+
+Soft.
+
+```toml
+id = \"chalk\"\nname = \"Chalk\"\nstage = \"MIL-01\"\nchecks = [\"WLD-09\"]\nsoftness = 1.5\nbeds = \"0.5-2 m\"\ncaves = true\nlook = \"limestone\"\n```\n");
+        add(&mut s, Kind::Soil.place(), "# Soils
+
+Soils.
+
+## Loam
+
+Good.
+
+```toml
+id = \"loam\"\nname = \"Loam\"\nstage = \"MIL-01\"\nchecks = [\"WLD-27\"]\ncapacity = \"150 mm\"\nintake = \"10 mm\"\ndig = 3\nkeeps = [\"bone\"]\n```\n");
+        add(&mut s, Kind::Biome.place(), "# Biomes
+
+Biomes.
+
+## Woods
+
+Trees.
+
+```toml
+id = \"woods\"\nname = \"Woods\"\nstage = \"MIL-01\"\nchecks = [\"WLD-31\"]\nlook = \"limestone\"\ncover = { trees = 0.55, bushes = 0.15, grass = 0.25, reeds = 0.02, bare = 0.03 }\n```\n");
+        add(&mut s, Kind::Deposit.place(), "# Deposits
+
+Stone.
+
+## Flint
+
+Flakes.
+
+```toml
+id = \"flint\"\nname = \"Flint\"\nstage = \"MIL-01\"\nchecks = [\"WLD-14\"]\nrock = \"chalk\"\nrivers = false\nrichness = [1, 5]\n```\n");
+        add(&mut s, "data/lands/islet.md", "# Lands
+
+Lands.
+
+## Islet
+
+Small.
+
+```toml
+id = \"islet\"\nname = \"Islet\"\nstage = \"MIL-01\"\nchecks = [\"WLD-34\"]\ncentre_cell = [1000, 244]\nisland_km = 4\nsea_km = 50\nbase_height = \"20 m\"\nrelief = \"5 m\"\nvalley = { flow = \"8 m3/s\", width = \"18 m\", floodplain = \"800 m\", from = \"north\" }\nescarpment = { side = \"north\", height = \"30 m\", rocks = [\"chalk\"], caves = 6, shelters = 4 }\nsoil = { kind = \"loam\", fertility = 3 }\ncover = { biome = \"woods\", trees = 0.55, bushes = 0.15, grass = 0.25, reeds = 0.02, bare = 0.03 }\nclimate = { mean = [\"9 C\", \"19 C\", \"11 C\", \"-3 C\"], range = \"9 C\", rain = [\"170 mm\", \"140 mm\", \"180 mm\", \"160 mm\"], storm_days = [4, 3, 4, 5], thunder_days = [1, 3, 1, 0], wind = \"west\" }\nherds = []\nsmall = { hare = 0, birds = 0, fish = 0 }\nsky = { tilt = \"23.5 deg\" }\n```\n");
+        add(&mut s, "data/tuning/world.md", "# World
+
+Numbers.
+
+## World
+
+Tuned.
+
+```toml
+id = \"world\"\nname = \"World\"\nstage = \"MIL-01\"\nchecks = [\"WLD-08\"]\nsettle_years = 10\nriver_rating = { width_exp = 0.5, bankfull_depth = \"1.2 m\" }\n```\n");
+        let out = compile(&s, true).expect("the land sample compiles");
+        s.retain(|x| x.path != LOCK_FILE);
+        s.push(Source {
+            path: LOCK_FILE.into(),
+            text: out.lock.clone(),
+        });
+        for (path, text) in out.stale {
+            match s.iter_mut().find(|x| x.path == path) {
+                Some(x) => x.text = text,
+                None => s.push(Source { path, text }),
+            }
+        }
+        s
+    }
+
+    // checks: MAT-17 WLD-34 PRN-17
+    #[test]
+    fn land_kinds_checked() {
+        let s = land_sample();
+        let out = compile(&s, false).expect("compiles");
+        assert!(
+            out.stale.is_empty(),
+            "{:?}",
+            out.stale.iter().map(|x| &x.0).collect::<Vec<_>>()
+        );
+        let islet = out.catalogue.land("islet").expect("the islet");
+        assert_eq!((islet.island_m, islet.climate.mean_c[3]), (4_000.0, -3.0));
+        assert_eq!(Catalogue::load(&out.blob).as_ref(), Ok(&out.catalogue));
+        // Rule 4: names resolve to entries of their kind, in the land, the deposit, the rock and the biome.
+        let land = |old: &str, new: &str| with(&s, "data/lands/islet.md", old, new);
+        fails(
+            &land("rocks = [\"chalk\"]", "rocks = [\"basalt\"]"),
+            "field `escarpment.rocks`: \"basalt\" is not a rock",
+        );
+        fails(&land("kind = \"loam\"", "kind = \"marl\""), "\"marl\" is not a soil");
+        fails(
+            &land("biome = \"woods\"", "biome = \"jungle\""),
+            "\"jungle\" is not a biome",
+        );
+        fails(
+            &with(&s, Kind::Deposit.place(), "rock = \"chalk\"", "rock = \"flint\""),
+            "\"flint\" is not a rock",
+        );
+        fails(
+            &with(&s, Kind::Rock.place(), "look = \"limestone\"", "look = \"chalk\""),
+            "\"chalk\" is not a look",
+        );
+        // Values with units, each in its field's own kind.
+        fails(
+            &land("base_height = \"20 m\"", "base_height = \"20 kg\""),
+            "field `base_height`: \"20 kg\" has no unit",
+        );
+        fails(&land("flow = \"8 m3/s\"", "flow = \"8 m\""), "field `valley.flow`");
+        fails(
+            &land("tilt = \"23.5 deg\"", "tilt = \"95 deg\""),
+            "95° is outside 0 to 90",
+        );
+        fails(
+            &land("from = \"north\"", "from = \"up\""),
+            "\"up\" is not north, east, south or west",
+        );
+        // Every field is required; shares sum to 1; storm days fit a season.
+        fails(&land("herds = []\n", ""), "missing field `herds`");
+        fails(&land("trees = 0.55", "trees = 0.65"), "sum to 1, not 1.100");
+        fails(
+            &land("storm_days = [4, 3, 4, 5]", "storm_days = [4, 3, 4, 50]"),
+            "at most a season's 15",
+        );
+        // Rocks, soils and deposits within their ranges.
+        fails(
+            &with(&s, Kind::Rock.place(), "softness = 1.5", "softness = 3"),
+            "outside A5.7's 0.5 to 2",
+        );
+        fails(
+            &with(&s, Kind::Soil.place(), "keeps = [\"bone\"]", "keeps = [\"shell\"]"),
+            "\"shell\" is not bone, wood or hide",
+        );
+        fails(&with(&s, Kind::Soil.place(), "dig = 3", "dig = 11"), "outside 1 to 10");
+        fails(
+            &with(&s, Kind::Deposit.place(), "richness = [1, 5]", "richness = [4, 2]"),
+            "from 1 to 5, rising",
+        );
+        fails(
+            &with(&s, Kind::Deposit.place(), "rock = \"chalk\"\n", ""),
+            "lies in a rock or in rivers",
+        );
+        // Tuned numbers: plain or with a unit, nested tables by dotted key, one entry a system named for its file.
+        let world = out.catalogue.tuning("world").expect("world");
+        assert_eq!(
+            world.get("river_rating.bankfull_depth", crate::Measure::Length),
+            Ok(1.2)
+        );
+        assert_eq!(world.number("river_rating.width_exp"), Ok(0.5));
+        let tune = |old: &str, new: &str| with(&s, "data/tuning/world.md", old, new);
+        fails(
+            &tune("settle_years = 10", "settle_years = \"10 parsecs\""),
+            "field `settle_years`: \"10 parsecs\" has no unit",
+        );
+        fails(
+            &tune("settle_years = 10", "settle_years = true"),
+            "a tuned number is a plain number",
+        );
+        fails(
+            &tune("settle_years = 10", "Settle = 10"),
+            "key \"Settle\" is not snake_case",
+        );
+        fails(
+            &tune("id = \"world\"", "id = \"weather\""),
+            "a system's numbers are in data/tuning/weather.md",
+        );
+        fails(&tune("name = \"World\"\n", ""), "missing field `name`");
     }
 
     // checks: MAT-17

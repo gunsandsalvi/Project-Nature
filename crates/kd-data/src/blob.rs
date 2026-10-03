@@ -11,7 +11,7 @@ use kd_core::num::hash64;
 
 pub const MAGIC: &[u8; 5] = b"KDCAT";
 /// The blob's own format: raised whenever the compiled entries' layout changes.
-pub const FORMAT: u16 = 4;
+pub const FORMAT: u16 = 5;
 /// Magic, format, three versions and the hash.
 pub const HEADER_BYTES: usize = 5 + 2 + 3 * 2 + 8;
 
@@ -113,6 +113,8 @@ impl Catalogue {
 pub(crate) mod tests {
     use super::*;
     use crate::schema::{Air, Colour, Look, Surface};
+    use crate::tuning::{Measure, TuneValue, Tuning};
+    use crate::world::{Biome, Carried, Climate, Deposit, Escarpment, Herd, Land, Rock, Side, Soil, Valley};
 
     pub(crate) fn sample() -> Catalogue {
         Catalogue {
@@ -187,6 +189,94 @@ pub(crate) mod tests {
                 stone_look: None,
                 tufts_per_m2: 0.0,
                 tuft_looks: vec![],
+            }],
+            rocks: vec![Rock {
+                id: "chalk".into(),
+                name: "Chalk".into(),
+                number: 0,
+                softness: 1.6,
+                beds_m: [0.3, 3.0],
+                caves: true,
+                look: 0,
+            }],
+            soils: vec![Soil {
+                id: "loam".into(),
+                name: "Loam".into(),
+                number: 0,
+                capacity_m: 0.15,
+                intake_m: 0.01,
+                dig: 3,
+                keeps: 3,
+            }],
+            biomes: vec![Biome {
+                id: "grassland".into(),
+                name: "Grassland".into(),
+                number: 0,
+                look: 0,
+                cover: [5, 26, 204, 5, 15],
+            }],
+            deposits: vec![Deposit {
+                id: "river_gravel".into(),
+                name: "River gravel".into(),
+                number: 0,
+                rock: None,
+                rivers: true,
+                richness: [1, 3],
+                carried: Some(Carried {
+                    keep: 0.8,
+                    every_m: 10_000.0,
+                }),
+            }],
+            lands: vec![Land {
+                id: "islet".into(),
+                name: "Islet".into(),
+                number: 0,
+                centre_cell: [1000, 244],
+                island_m: 4_000.0,
+                sea_m: 50_000.0,
+                base_height_m: 20.0,
+                relief_m: 5.0,
+                valley: Valley {
+                    flow_m3s: 8.0,
+                    width_m: 18.0,
+                    floodplain_m: 800.0,
+                    from: Side::North,
+                },
+                escarpment: Escarpment {
+                    side: Side::North,
+                    height_m: 30.0,
+                    rocks: vec![0],
+                    caves: 6,
+                    shelters: 4,
+                },
+                soil: 0,
+                fertility: 3,
+                biome: 0,
+                cover: [140, 38, 64, 5, 8],
+                climate: Climate {
+                    mean_c: [9.0, 19.0, 11.0, 3.0],
+                    range_c: 9.0,
+                    rain_m: [0.17, 0.14, 0.18, 0.16],
+                    storm_days: [4, 3, 4, 5],
+                    thunder_days: [1, 3, 1, 0],
+                    wind: Side::West,
+                },
+                herds: vec![Herd {
+                    kind: "red_deer".into(),
+                    count: 300,
+                }],
+                small: [6.0, 20.0, 30.0],
+                tilt_deg: 23.5,
+            }],
+            tunings: vec![Tuning {
+                id: "world".into(),
+                name: "World".into(),
+                number: 0,
+                values: vec![TuneValue {
+                    key: "river_rating.bankfull_depth".into(),
+                    value: 1.2,
+                    measure: Measure::Length,
+                }],
             }],
         }
     }

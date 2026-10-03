@@ -5,9 +5,7 @@
 use std::fmt::Write;
 
 use crate::camera::VIEWPORT;
-use crate::ground::cover::{
-    BLADE_FOOT_SKY, BLADE_HALF_PX, CONTACT_LEVELS, CONTACT_M, CONTACT_SIDE, ITEMS_ROW, Kind, SEED_BLADE, STONE_FOOT_SKY,
-};
+use crate::ground::cover::{BLADE_HALF_PX, CONTACT_LEVELS, CONTACT_M, CONTACT_SIDE, ITEMS_ROW, Kind, SEED_BLADE};
 use crate::ground::{COVER_LEVELS, MAX_SURFACES, PATCH_QUADS, SKIRT_M, SURFACE_LOOKS};
 use crate::looks::{PALETTE_SIZE, TABLE_ROWS, table};
 use crate::passes::scene::card;
@@ -87,8 +85,6 @@ pub fn defines() -> String {
     let _ = writeln!(s, "#define SUN_TAN {SUN_TAN:?}");
     let _ = writeln!(s, "#define CONTACT_M {CONTACT_M:?}");
     let _ = writeln!(s, "#define BLADE_HALF_PX {BLADE_HALF_PX:?}");
-    let _ = writeln!(s, "#define BLADE_FOOT_SKY {BLADE_FOOT_SKY:?}");
-    let _ = writeln!(s, "#define STONE_FOOT_SKY {STONE_FOOT_SKY:?}");
     let _ = writeln!(s, "#define CARD_DEPTH_M {:?}", card::DEPTH_M);
     let (b, sc, e, l) = (
         probe::PROBE_BETA,

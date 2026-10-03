@@ -586,7 +586,7 @@ impl GroundPass {
             program,
             table: SurfaceTable::new(cat, layout).map_err(RenderError::Gl)?,
             haze_levels: cat.air.haze_levels,
-            cover: CoverPass::new(gl)?,
+            cover: CoverPass::new(gl, &CoverTable::new(cat, layout).map_err(RenderError::Gl)?)?,
         })
     }
 

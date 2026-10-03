@@ -202,8 +202,8 @@ mod tests {
             format!("dev · catalogue {rules} 00000000")
         );
         assert_eq!(
-            rules, "1.3",
-            "the surfaces (α01b), their relief and their stones and tufts (α01d) were small updates"
+            rules, "2.0",
+            "the island's rocks, soils and deposits (α02a) are new kinds of material in the land, a big update"
         );
         // The hours' words, every one drawable in the font.
         assert_eq!(crate::hour_line(4), "Late afternoon · 16:30");
@@ -407,7 +407,8 @@ mod tests {
         let t0 = std::time::Instant::now();
         let cat = kd_data::Catalogue::load(crate::CATALOGUE).expect("the embedded catalogue loads");
         assert!(t0.elapsed().as_millis() < 10, "{:?}", t0.elapsed());
-        assert_eq!((cat.colours[0].id.as_str(), cat.looks.len()), ("void", 5));
+        assert_eq!((cat.colours[0].id.as_str(), cat.looks.len()), ("void", 14));
+        assert!(cat.land("first_region").is_some() && cat.tuning("render").is_ok());
         let outbox = Arc::new(Outbox(Mutex::new(Vec::new())));
         let app = App::new(outbox.clone(), AppConfig { device: "test".into() });
         assert!(app.catalogue().is_some() && outbox.0.lock().unwrap().is_empty());

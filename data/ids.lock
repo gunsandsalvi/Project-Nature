@@ -1,6 +1,14 @@
 # Permanent numbers of every catalogue entry, per kind (A3.6), written by `kd catalog build --assign`, never by
 # hand. A removed entry's number stays, under its kind's `retired` table, and no number is ever given twice.
 
+[biome]
+broadleaf_forest = 0
+grassland = 1
+marsh = 2
+shore = 3
+sea = 4
+barren = 5
+
 [colour]
 void = 0
 ink = 1
@@ -12,6 +20,13 @@ ui_word = 6
 ui_link = 7
 ui_select = 8
 
+[deposit]
+flint_in_chalk = 0
+river_gravel = 1
+
+[land]
+first_region = 0
+
 [light]
 air = 0
 
@@ -21,9 +36,39 @@ grass_dry = 1
 dirt = 2
 limestone = 3
 scree = 4
+chalk = 5
+sandstone = 6
+granite = 7
+gravel = 8
+silt = 9
+woodland = 10
+marsh = 11
+sand = 12
+water = 13
+
+[rock]
+chalk = 0
+sandstone = 1
+granite = 2
+river_gravel = 3
+silt = 4
+
+[soil]
+sand = 0
+loam = 1
+clay = 2
+silt = 3
+peat = 4
+ash = 5
+stony = 6
+thin = 7
 
 [surface]
 grass = 0
 dirt = 1
 rock = 2
 scree = 3
+
+[tuning]
+render = 0
+world = 1

@@ -151,11 +151,16 @@ pub fn line_of(code: &str, offset: usize) -> usize {
 /// The test parts of some scanned code: the byte ranges of inline `#[cfg(test)] mod x { … }` blocks, and the
 /// names of `#[cfg(test)] mod x;` modules kept in files of their own.
 pub fn test_parts(code: &str) -> (Vec<(usize, usize)>, Vec<String>) {
+    cfg_parts(code, "#[cfg(test)]")
+}
+
+/// The parts of some scanned code built only under the attribute `cfg`, as `test_parts` finds the tests'.
+pub fn cfg_parts(code: &str, cfg: &str) -> (Vec<(usize, usize)>, Vec<String>) {
     let (mut spans, mut files) = (Vec::new(), Vec::new());
     let mut from = 0;
-    while let Some(p) = code[from..].find("#[cfg(test)]") {
+    while let Some(p) = code[from..].find(cfg) {
         let at = from + p;
-        let mut rest = at + "#[cfg(test)]".len();
+        let mut rest = at + cfg.len();
         // Other attributes and `pub` may come between.
         loop {
             let t = code[rest..].trim_start();

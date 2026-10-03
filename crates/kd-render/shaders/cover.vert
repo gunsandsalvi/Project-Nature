@@ -2,7 +2,7 @@
 // instance's number, no vertex buffer. A stone is the eight faces of an octahedron of its size, squat, leaning and
 // turned by its shape and heading, sunk a little into the ground; a tuft its three to five blades, each a strip
 // BLADE_HALF_PX art pixels either side of its line across the screen, so never narrower than an art pixel; each
-// sees less of the sky toward its foot (STONE_FOOT_SKY, BLADE_FOOT_SKY). An item
+// sees less of the sky toward its foot (u_foot_sky). An item
 // spanning less than 1.5 + 2u art pixels, and a tuft's blades beyond its count, are moved outside the view, so
 // nothing of them draws. Placed by area_place, as the ground's vertices are (A11.2).
 uniform highp sampler2D u_items;    // RGBA32F, 2 x ITEMS_ROW wide: an item's place and size, then its heading,
@@ -17,6 +17,7 @@ uniform vec2 u_area_frac;           // the area corner's place on the screen: th
 uniform vec2 u_area_px;             // and the whole art pixels from the viewport's corner
 uniform vec2 u_depth;               // the corner's depth less the near plane's, and 1 / (far - near)
 uniform vec2 u_area_air;            // the corner's depth beyond the target's plane, and its height above the sea
+uniform vec2 u_foot_sky;            // the share of the sky a stone's middle and a blade's foot see
 flat out vec3 v_normal;             // the face's or blade's normal (east, north, up)
 flat out ivec2 v_ladder;            // its ladder: first palette index, steps
 flat out vec2 v_foot;               // its foot, metres east and south of the corner, where its light is read
@@ -65,7 +66,7 @@ void main() {
         vec3 m = cross(c1 - c0, c2 - c0);
         m = dot(m, c0 + c1 + c2) < 0.0 ? -m : m;
         vec3 q = k == 0 ? c0 : (k == 1 ? c1 : c2);
-        sky = k == 2 && (f & 4) == 0 ? 1.0 : STONE_FOOT_SKY;
+        sky = k == 2 && (f & 4) == 0 ? 1.0 : u_foot_sky.x;
         p = foot + vec3(c * q.x - s * q.y, s * q.x + c * q.y, q.z - 0.1 * rx);
         n = normalize(vec3(c * m.x - s * m.y, s * m.x + c * m.y, m.z));
     } else {
@@ -85,7 +86,7 @@ void main() {
         vec3 base = foot + vec3(out_dir * (0.12 * size), -0.02);
         bool tip = k == 2 || k == 4 || k == 5;
         p = tip ? base + vec3(out_dir * (len * sin(lean)), len * cos(lean)) : base;
-        sky = tip ? 1.0 : BLADE_FOOT_SKY;
+        sky = tip ? 1.0 : u_foot_sky.y;
         shift = vec2(k == 1 || k == 2 || k == 4 ? BLADE_HALF_PX : -BLADE_HALF_PX, 0.0);
         n = normalize(vec3(out_dir, 1.2));
     }

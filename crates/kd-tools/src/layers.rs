@@ -19,6 +19,8 @@ pub struct Row {
     pub deps: Vec<String>,
     pub outside: Vec<String>,
     pub unsafe_code: Unsafe,
+    /// A feature that builds code for tools alone, which no game build turns on (A3.9: kd-data's `compile`).
+    pub tools_feature: Option<String>,
 }
 
 /// Where a crate may write `unsafe`.
@@ -43,6 +45,8 @@ pub struct Crate {
 pub struct Dep {
     pub name: String,
     pub features: Vec<String>,
+    /// `normal`, `dev` or `build`.
+    pub kind: String,
 }
 
 /// The rows of `tools/layers.toml`.
@@ -79,6 +83,11 @@ pub fn parse_rows(text: &str) -> Result<BTreeMap<String, Row>, String> {
             .get("sim")
             .and_then(|v| v.as_bool())
             .ok_or_else(|| format!("tools/layers.toml: {name}.sim"))?;
+        let tools_feature = match t.get("tools_feature") {
+            None => None,
+            Some(toml::Value::String(f)) => Some(f.clone()),
+            Some(_) => return Err(format!("tools/layers.toml: {name}.tools_feature is a feature's name")),
+        };
         rows.insert(
             name.clone(),
             Row {
@@ -86,6 +95,7 @@ pub fn parse_rows(text: &str) -> Result<BTreeMap<String, Row>, String> {
                 deps: list("deps")?,
                 outside: list("outside")?,
                 unsafe_code,
+                tools_feature,
             },
         );
     }
@@ -112,6 +122,7 @@ pub fn parse_metadata(json: &str) -> Result<Vec<(Crate, PathBuf)>, String> {
                     .map(|d| Dep {
                         name: d["name"].as_str().unwrap_or_default().to_string(),
                         features: strings(&d["features"]),
+                        kind: d["kind"].as_str().unwrap_or("normal").to_string(),
                     })
                     .collect()
             })
@@ -187,6 +198,48 @@ pub fn test_files(files: &[(String, String)]) -> Vec<String> {
     out
 }
 
+/// The files of a crate built only with its tools feature: a `#[cfg(feature = "…")] mod x;` module's file and
+/// every file in its folder, its own modules'.
+pub fn tools_files(files: &[(String, String)], feature: &str) -> Vec<String> {
+    let cfg = format!("#[cfg(feature = \"{feature}\")]");
+    // The scan blanks the feature's name inside its quotes; it is put back where the source has it there.
+    let blank = format!("#[cfg(feature = \"{}\")]", " ".repeat(feature.chars().count()));
+    let mut out = Vec::new();
+    for (path, text) in files {
+        let code = scan::scan(text).code;
+        let mut restored = code.clone();
+        for (i, _) in code.match_indices(&blank) {
+            let chars = code[..i].chars().count();
+            if let Some((at, _)) = text.char_indices().nth(chars)
+                && text[at..].starts_with(&cfg)
+            {
+                restored.replace_range(i..i + blank.len(), &cfg);
+            }
+        }
+        let (_, modules) = scan::cfg_parts(&restored, &cfg);
+        let (dir, stem) = match path.rsplit_once('/') {
+            Some((d, f)) => (d.to_string(), f.trim_end_matches(".rs").to_string()),
+            None => (String::new(), path.trim_end_matches(".rs").to_string()),
+        };
+        let base = if ["lib", "main", "mod"].contains(&stem.as_str()) {
+            dir
+        } else {
+            format!("{dir}/{stem}")
+        };
+        for m in modules {
+            let folder = format!("{base}/{m}/");
+            out.extend(
+                files
+                    .iter()
+                    .map(|(p, _)| p)
+                    .filter(|p| **p == format!("{base}/{m}.rs") || p.starts_with(&folder))
+                    .cloned(),
+            );
+        }
+    }
+    out
+}
+
 /// Every breach of the layering rules, one line each, naming the crate, and the file and line where there is one.
 pub fn check(rows: &BTreeMap<String, Row>, crates: &[Crate]) -> Vec<String> {
     let mut problems = Vec::new();
@@ -219,6 +272,18 @@ pub fn check(rows: &BTreeMap<String, Row>, crates: &[Crate]) -> Vec<String> {
             if c.name != "kd-tools" && d.features.iter().any(|f| f == "test-switches") {
                 problems.push(format!(
                     "{}: turns on {}'s test-switches, which only kd-tools may (A3.9)",
+                    c.name, d.name
+                ));
+            }
+            // A tools feature stays out of the game: only kd-tools, build scripts and tests turn it on.
+            let tools = rows.get(&d.name).and_then(|r| r.tools_feature.as_ref());
+            if let Some(f) = tools
+                && c.name != "kd-tools"
+                && d.kind == "normal"
+                && d.features.contains(f)
+            {
+                problems.push(format!(
+                    "{}: turns on {}'s {f}, which only kd-tools, build scripts and tests may (A3.9)",
                     c.name, d.name
                 ));
             }
@@ -333,6 +398,7 @@ sim = true
 deps = ["kd-core"]
 outside = []
 unsafe = "none"
+tools_feature = "compile"
 [kd-sim]
 sim = true
 deps = ["kd-core", "kd-data"]
@@ -340,12 +406,12 @@ outside = []
 unsafe = ["src/cluster/split.rs"]
 [kd-app]
 sim = false
-deps = ["kd-core", "kd-sim"]
+deps = ["kd-core", "kd-sim", "kd-data"]
 outside = []
 unsafe = "anywhere"
 [kd-tools]
 sim = false
-deps = ["kd-core", "kd-sim"]
+deps = ["kd-core", "kd-sim", "kd-data"]
 outside = []
 unsafe = "none"
 "#;
@@ -354,6 +420,7 @@ unsafe = "none"
         Dep {
             name: name.into(),
             features: Vec::new(),
+            kind: "normal".into(),
         }
     }
 
@@ -467,6 +534,55 @@ unsafe = "none"
                 .iter()
                 .all(|p| p.starts_with("kd-app:") && p.contains("test-switches"))
         );
+    }
+
+    // checks: PRN-14 PRN-07
+    #[test]
+    fn tools_feature_stays_out_of_the_game() {
+        // kd-tools, a build script and tests may turn on kd-data's compile; the game's crates may not.
+        let rows = parse_rows(ROWS).expect("rows");
+        let mut crates = clean();
+        crates[4].deps.push(Dep {
+            features: vec!["compile".into()],
+            ..dep("kd-data")
+        });
+        crates[3].deps.push(Dep {
+            features: vec!["compile".into()],
+            kind: "build".into(),
+            ..dep("kd-data")
+        });
+        crates[2].deps.push(Dep {
+            features: vec!["compile".into()],
+            kind: "dev".into(),
+            ..dep("kd-data")
+        });
+        assert_eq!(check(&rows, &crates), Vec::<String>::new());
+        crates[2].deps.push(Dep {
+            features: vec!["compile".into()],
+            ..dep("kd-data")
+        });
+        assert_eq!(
+            check(&rows, &crates),
+            vec!["kd-sim: turns on kd-data's compile, which only kd-tools, build scripts and tests may (A3.9)"]
+        );
+        // The files it alone builds: a gated module's file and its folder's, not a module it does not gate.
+        let files: Vec<(String, String)> = [
+            (
+                "src/lib.rs",
+                "#[cfg(feature = \"compile\")]\npub mod compile;\npub mod schema;",
+            ),
+            ("src/compile.rs", "mod land;"),
+            ("src/compile/land.rs", ""),
+            ("src/schema.rs", ""),
+        ]
+        .iter()
+        .map(|(p, t)| (p.to_string(), t.to_string()))
+        .collect();
+        assert_eq!(
+            tools_files(&files, "compile"),
+            ["src/compile.rs", "src/compile/land.rs"]
+        );
+        assert!(tools_files(&files, "other").is_empty());
     }
 
     // checks: RES-05 PRN-14

@@ -43,20 +43,10 @@ pub const ITEM_RISE_M: f32 = 0.5;
 pub const ITEMS_ROW: usize = 1024;
 /// Half a tuft's blade's width across the screen, in art pixels: a blade is never narrower than one (A11.5).
 pub const BLADE_HALF_PX: f32 = 0.55;
-/// The share of the sky a blade sees at its foot, rising to all of it at its tip, and a stone at its middle,
-/// rising to all of it at its top: the ground and the tuft's other blades hide the sky from an item's foot, so a
-/// tuft shows a darker foot under lighter tips and a stone a darker side under a lighter top, in shade and sun
-/// alike (tuned at α01d; α02a moves them to `data/tuning/render.md`, A11.13 rule 6).
-pub const BLADE_FOOT_SKY: f32 = 0.45;
-pub const STONE_FOOT_SKY: f32 = 0.6;
 /// The contact shade's texels, metres; texels along its side at level 0; and its levels down to one texel.
 pub const CONTACT_M: f32 = 0.5;
 pub const CONTACT_SIDE: usize = 512;
 pub const CONTACT_LEVELS: usize = 10;
-/// The share of the sky an item hides from the ground at its foot when it covers a whole texel, and the most any
-/// texel loses (tuned at α01d; α02a moves them to `data/tuning/render.md`, A11.13 rule 6).
-pub const CONTACT_STRENGTH: f32 = 0.6;
-pub const CONTACT_MAX: f32 = 0.7;
 /// The seeds of the items, mixed with the area's number, and of a tuft's blades.
 pub const SEED_COVER: u64 = 0x636f_7665_7273;
 pub const SEED_BLADE: u32 = 16;
@@ -130,16 +120,36 @@ pub struct SurfaceCover {
     pub split_at: [f32; 2],
 }
 
-/// Each surface's cover, by surface number, from the catalogue (A11.13 rule 1).
+/// Each surface's cover, by surface number, and the tuned numbers they are drawn by, from the catalogue (A11.13
+/// rules 1 and 6).
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct CoverTable {
     pub surfaces: Vec<SurfaceCover>,
+    /// The share of the sky an item hides from the ground at its foot when it covers a whole texel, and the most
+    /// any texel loses (`cover_contact`, `cover_contact_max`).
+    pub contact: [f32; 2],
+    /// The share of the sky a stone sees at its middle, rising to all of it at its top, and a blade at its foot,
+    /// rising to all of it at its tip (`stone_foot_sky`, `blade_foot_sky`): the ground and the tuft's other blades
+    /// hide the sky from an item's foot, so a stone shows a darker side under a lighter top and a tuft a darker foot
+    /// under lighter tips, in shade and sun alike.
+    pub foot_sky: [f32; 2],
 }
 
 impl CoverTable {
     pub fn new(cat: &kd_data::Catalogue, layout: &Layout) -> Result<CoverTable, String> {
+        let tuning = cat.tuning("render")?;
+        let share = |key: &str| -> Result<f32, String> {
+            let v = tuning.number(key)?;
+            if (0.0..=1.0).contains(&v) {
+                Ok(v)
+            } else {
+                Err(format!("tuning render: {key} is {v}, not a share from 0 to 1"))
+            }
+        };
         let mut t = CoverTable {
             surfaces: vec![SurfaceCover::default(); MAX_SURFACES],
+            contact: [share("cover_contact")?, share("cover_contact_max")?],
+            foot_sky: [share("stone_foot_sky")?, share("blade_foot_sky")?],
         };
         let ladder = |look: u16| -> Result<[u16; 2], String> {
             let i = cat
@@ -257,7 +267,7 @@ impl Cover {
             }
         }
         starts.push(items.len() as u32);
-        let contact = contact_levels(&items);
+        let contact = contact_levels(&items, table.contact);
         Cover { items, starts, contact }
     }
 
@@ -279,11 +289,11 @@ impl Cover {
     }
 }
 
-/// The contact shade (A11.5): each item hides `CONTACT_STRENGTH` of the sky, times the share of a texel its foot
-/// covers, spread over the four texels round its foot so the shade centres on it, each texel's sum held to
-/// `CONTACT_MAX`; each level above averages four texels of the one below before either is rounded to 255ths, so
-/// every level keeps the shade's average.
-pub fn contact_levels(items: &[Item]) -> Vec<Vec<[u8; 1]>> {
+/// The contact shade (A11.5): each item hides `strength` of the sky, times the share of a texel its foot covers,
+/// spread over the four texels round its foot so the shade centres on it, each texel's sum held to `most`; each
+/// level above averages four texels of the one below before either is rounded to 255ths, so every level keeps the
+/// shade's average.
+pub fn contact_levels(items: &[Item], [strength, most]: [f32; 2]) -> Vec<Vec<[u8; 1]>> {
     let n = CONTACT_SIDE;
     let mut level0 = vec![0.0f32; n * n];
     for item in items {
@@ -303,10 +313,10 @@ pub fn contact_levels(items: &[Item]) -> Vec<Vec<[u8; 1]>> {
         ] {
             let x = (i[0] as i32 + dx).clamp(0, n as i32 - 1) as usize;
             let y = (i[1] as i32 + dy).clamp(0, n as i32 - 1) as usize;
-            level0[y * n + x] += CONTACT_STRENGTH * share * w;
+            level0[y * n + x] += strength * share * w;
         }
     }
-    let mut field: Vec<f32> = level0.iter().map(|v| v.min(CONTACT_MAX)).collect();
+    let mut field: Vec<f32> = level0.iter().map(|v| v.min(most)).collect();
     let mut levels = Vec::with_capacity(CONTACT_LEVELS);
     let mut side = n;
     loop {
@@ -339,7 +349,7 @@ pub fn buckets_in_view(view: &View, area: &Area) -> Option<[i32; 4]> {
 }
 
 /// The items' uniforms, in `CoverPass::u`'s order.
-const UNIFORMS: [&str; 19] = [
+const UNIFORMS: [&str; 20] = [
     "u_first",
     "u_kind",
     "u_right",
@@ -359,16 +369,18 @@ const UNIFORMS: [&str; 19] = [
     "u_haze_scale",
     "u_eye",
     "u_haze_levels",
+    "u_foot_sky",
 ];
 
-/// The stones' and tufts' program and its uniforms (A11.13 rule 3).
+/// The stones' and tufts' program and its uniforms (A11.13 rule 3), and the share of the sky their feet see.
 pub struct CoverPass {
     program: Program,
     u: [Option<glow::UniformLocation>; UNIFORMS.len()],
+    foot_sky: [f32; 2],
 }
 
 impl CoverPass {
-    pub fn new(gl: &glow::Context) -> Result<CoverPass, RenderError> {
+    pub fn new(gl: &glow::Context, table: &CoverTable) -> Result<CoverPass, RenderError> {
         let program = Program::new(
             gl,
             "cover",
@@ -381,6 +393,7 @@ impl CoverPass {
         Ok(CoverPass {
             u: UNIFORMS.map(|name| program.uniform(gl, name)),
             program,
+            foot_sky: table.foot_sky,
         })
     }
 
@@ -429,6 +442,7 @@ impl CoverPass {
             u_haze_scale,
             u_eye,
             u_haze_levels,
+            u_foot_sky,
         ] = &self.u;
         let b = view.basis_f32();
         gl::set_vec2(gl, u_right.as_ref(), [b.right[0], b.right[1]]);
@@ -446,6 +460,7 @@ impl CoverPass {
         gl::set_vec2(gl, u_haze_scale.as_ref(), scale);
         gl::set_vec2(gl, u_eye.as_ref(), view.eye());
         gl::set_vec3(gl, u_haze_levels.as_ref(), haze_levels);
+        gl::set_vec2(gl, u_foot_sky.as_ref(), self.foot_sky);
         let mut drawn = 0;
         for area in &store.areas {
             let Some(t) = &area.gpu else {
@@ -595,6 +610,29 @@ mod tests {
         assert_eq!(f(6) as u16, cover.items[i].ladder[0] + 256 * cover.items[i].ladder[1]);
     }
 
+    // checks: PRN-17 PRE-46
+    #[test]
+    fn tuned_numbers_from_the_catalogue() {
+        // The four numbers come from `data/tuning/render.md` (A11.13 rule 6); a share outside 0 to 1, or a catalogue
+        // with no such table, fails with the entry and the key.
+        let mut cat = crate::tests::catalogue();
+        let layout = Layout::new(&cat).unwrap();
+        let t = CoverTable::new(&cat, &layout).unwrap();
+        assert_eq!((t.contact, t.foot_sky), ([0.6, 0.7], [0.6, 0.45]));
+        let render = cat.tunings.iter_mut().find(|t| t.id == "render").unwrap();
+        render
+            .values
+            .iter_mut()
+            .find(|v| v.key == "blade_foot_sky")
+            .unwrap()
+            .value = 1.5;
+        let e = CoverTable::new(&cat, &layout).unwrap_err();
+        assert!(e.contains("tuning render: blade_foot_sky is 1.5"), "{e}");
+        cat.tunings.clear();
+        let e = CoverTable::new(&cat, &layout).unwrap_err();
+        assert!(e.contains("no tuning render"), "{e}");
+    }
+
     // checks: PRE-46 PRE-22 PRE-20
     #[test]
     fn contact_shade_under_the_items() {
@@ -609,10 +647,12 @@ mod tests {
             ladder: [1, 4],
             shape: 0,
         };
-        let levels = contact_levels(&[stone(100.3, 40.7, 0.5)]);
+        let (_, _, table, _) = sample();
+        let [strength, most] = table.contact;
+        let levels = contact_levels(&[stone(100.3, 40.7, 0.5)], table.contact);
         assert_eq!(levels.len(), CONTACT_LEVELS);
         assert_eq!(levels[CONTACT_LEVELS - 1].len(), 1);
-        let hidden = CONTACT_STRENGTH * std::f32::consts::PI * 0.25 * 0.25 / (CONTACT_M * CONTACT_M);
+        let hidden = strength * std::f32::consts::PI * 0.25 * 0.25 / (CONTACT_M * CONTACT_M);
         let sum: f32 = levels[0].iter().map(|v| f32::from(v[0])).sum();
         assert!((sum - hidden * 255.0).abs() <= 2.0, "{sum}");
         let at = |q: [f32; 2]| {
@@ -625,14 +665,15 @@ mod tests {
         );
         assert_eq!(at([101.4, 40.7]), 0.0);
         // Many items on one texel are held at the most a texel loses; a tuft's foot shades less than a stone's.
-        let heap = contact_levels(&[stone(10.25, 10.25, 0.6); 5]);
+        let heap = contact_levels(&[stone(10.25, 10.25, 0.6); 5], table.contact);
         let middle = 20 * CONTACT_SIDE + 20;
-        assert_eq!(heap[0][middle][0], (CONTACT_MAX * 255.0).round() as u8);
+        assert_eq!(heap[0][middle][0], (most * 255.0).round() as u8);
         let tuft = Item {
             kind: Kind::Tuft,
             ..stone(10.25, 10.25, 0.3)
         };
-        assert!(contact_levels(&[tuft])[0][middle][0] < contact_levels(&[stone(10.25, 10.25, 0.3)])[0][middle][0]);
+        let one = |item: Item| contact_levels(&[item], table.contact)[0][middle][0];
+        assert!(one(tuft) < one(stone(10.25, 10.25, 0.3)));
         // Over the sample's scree, each level keeps the shade's average within rounding, so as the art pixel grows
         // the shade fades to its average rather than vanishing (A11.1 rule 2).
         let (heights, surfaces, table, _) = sample();

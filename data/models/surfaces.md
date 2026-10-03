@@ -26,10 +26,11 @@ Tufts stand in it, one a square metre, lush or dry with the grass round them, an
 id = "grass"
 name = "Grass"
 stage = "MIL-01"
-checks = ["PRE-20"]
+checks = ["PRE-20", "PRE-22", "PRE-46"]
 looks = ["grass_lush", "grass_dry"]
 split_m = [24.0, 6.0]
 split_at = [0.25]
+rock = false
 relief_m = [0.4, 1.6]
 relief_tilt = 0.2
 stones_per_m2 = 0.01
@@ -58,8 +59,11 @@ A few stones lie on it, and the odd dry tuft.
 id = "dirt"
 name = "Dirt"
 stage = "MIL-01"
-checks = ["PRE-20"]
+checks = ["PRE-20", "PRE-22", "PRE-46"]
 looks = ["dirt"]
+split_m = []
+split_at = []
+rock = false
 relief_m = [0.3, 1.0]
 relief_tilt = 0.15
 stones_per_m2 = 0.15
@@ -87,11 +91,16 @@ Its relief is facets of 0.2 to 2 m, the roughest.
 id = "rock"
 name = "Rock"
 stage = "MIL-01"
-checks = ["PRE-20", "PRE-23"]
+checks = ["PRE-20", "PRE-22", "PRE-23"]
 looks = ["limestone"]
+split_m = []
+split_at = []
 rock = true
 relief_m = [0.2, 2.0]
 relief_tilt = 0.3
+stones_per_m2 = 0
+tufts_per_m2 = 0
+tuft_looks = []
 ```
 
 ## Scree
@@ -114,8 +123,11 @@ Its loose stones lie one or two a square metre, with the odd dry tuft between th
 id = "scree"
 name = "Scree"
 stage = "MIL-01"
-checks = ["PRE-20"]
+checks = ["PRE-20", "PRE-22", "PRE-46"]
 looks = ["scree"]
+split_m = []
+split_at = []
+rock = false
 relief_m = [0.2, 0.8]
 relief_tilt = 0.25
 stones_per_m2 = 1.5
