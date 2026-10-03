@@ -112,6 +112,8 @@ pub struct Renderer {
     tables_tex: Texture,
     /// The app's monotonic clock in nanoseconds, timing the frame's share of field work (A11.11).
     clock: Option<Box<dyn Fn() -> u64>>,
+    /// The longest a frame's field work has taken, in nanoseconds by that clock, for the bench (A15.10).
+    longest_field_ns: u64,
 }
 
 impl Renderer {
@@ -149,7 +151,14 @@ impl Renderer {
             palette_tex,
             tables_tex,
             clock: None,
+            longest_field_ns: 0,
         })
+    }
+
+    /// The longest a frame's sun field work has taken, in nanoseconds, for the bench (A15.10): a field made at once
+    /// for a new area or a jump of the light, or a frame's share of one worked over frames.
+    pub fn longest_field_ns(&self) -> u64 {
+        self.longest_field_ns
     }
 
     /// Gives the renderer the app's monotonic clock, in nanoseconds, so a frame can stop its field work when its
@@ -262,7 +271,11 @@ impl Renderer {
             let clock = self.clock.as_deref();
             let until = f.field_ns.zip(clock).map(|(ns, now)| now() + ns);
             let mut more = || until.zip(clock).is_none_or(|(end, now)| now() < end);
+            let t0 = clock.map(|now| now());
             self.store.follow_light(l.light.dir, &mut more);
+            if let (Some(t0), Some(now)) = (t0, clock) {
+                self.longest_field_ns = self.longest_field_ns.max(now().saturating_sub(t0));
+            }
         }
         if let Err(e) = self.store.upload(&self.gl) {
             log::error!(target: "kd::render", "area textures: {e}");

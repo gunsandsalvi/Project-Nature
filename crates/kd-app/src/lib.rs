@@ -175,6 +175,8 @@ pub struct App {
     /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles (the bench,
     /// A15.10).
     upload_ns: u64,
+    /// How long handing the demo area to the renderer took, its sky field with it, in nanoseconds (A15.10).
+    insert_ns: u64,
     triangles: u64,
 }
 
@@ -266,6 +268,7 @@ impl App {
             demo_ns: 0,
             control: camera::Control::new(CameraPose::default()),
             upload_ns: 0,
+            insert_ns: 0,
             triangles: 0,
         };
         let t0 = app.platform.now_ns();
@@ -373,7 +376,9 @@ impl App {
                     self.check_failed(line);
                 }
                 if let Some(m) = &self.demo_meshes {
+                    let t0 = self.platform.now_ns();
                     r.upload_area(m.clone());
+                    self.insert_ns = self.platform.now_ns().saturating_sub(t0);
                 }
                 Some(r)
             }
@@ -632,6 +637,13 @@ impl App {
     /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles.
     pub fn ground_stats(&self) -> (u64, u64) {
         (self.upload_ns, self.triangles)
+    }
+
+    /// The light fields' times, in nanoseconds (A15.10): handing the demo area to the renderer, its sky field with
+    /// it, and the longest a frame's sun field work has taken.
+    pub fn field_stats(&self) -> (u64, u64) {
+        let field = self.renderer.as_ref().map_or(0, Renderer::longest_field_ns);
+        (self.insert_ns, field)
     }
 
     /// Where the camera looks.

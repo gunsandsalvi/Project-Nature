@@ -315,6 +315,65 @@ mod tests {
         println!("TIMINGS demo_make_ms {make_ms:.2} area_meshes_ms {meshes_ms:.2} store_insert_ms {store_ms:.2}");
     }
 
+    // checks: PRE-30
+    /// The light fields' times for the bench file (A15.10, A11.11): the demo area's sun field at 16:30 made at once,
+    /// the same worked over frames (its start, its longest piece, its pieces), and its sky field:
+    /// `cargo test --profile fast -p kd-app --lib field_timings -- --ignored --nocapture`.
+    #[test]
+    #[ignore]
+    fn field_timings() {
+        let ms = |t: std::time::Instant| t.elapsed().as_nanos() as f64 / 1e6;
+        let median = |mut t: Vec<f64>| {
+            t.sort_by(f64::total_cmp);
+            t[t.len() / 2]
+        };
+        let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
+        let numbers = crate::ground::surface_numbers(&cat).unwrap();
+        let m = crate::ground::area_meshes(&kd_world::area::demo::make(kd_world::area::demo::SEED), &numbers);
+        let dir = kd_render::light::light(&cat.air, &crate::sky_at(4)).dir;
+        let at_once = median(
+            (0..21)
+                .map(|_| {
+                    let t0 = std::time::Instant::now();
+                    std::hint::black_box(kd_render::field::sun_field(&m.heights, dir));
+                    ms(t0)
+                })
+                .collect(),
+        );
+        let (mut starts, mut longest, mut pieces) = (Vec::new(), Vec::new(), 0);
+        for _ in 0..21 {
+            let t0 = std::time::Instant::now();
+            let mut job = kd_render::field::SunJob::new(dir).unwrap();
+            starts.push(ms(t0));
+            let (mut most, mut n) = (0.0f64, 0);
+            loop {
+                let t0 = std::time::Instant::now();
+                let done = job.step(&m.heights, &mut || false);
+                most = most.max(ms(t0));
+                n += 1;
+                if done.is_some() {
+                    break;
+                }
+            }
+            longest.push(most);
+            pieces = n;
+        }
+        let sky = median(
+            (0..5)
+                .map(|_| {
+                    let t0 = std::time::Instant::now();
+                    std::hint::black_box(kd_render::field::sky_field(&m.heights));
+                    ms(t0)
+                })
+                .collect(),
+        );
+        println!(
+            "TIMINGS sun_field_ms {at_once:.2} sun_job_start_ms {:.2} sun_job_longest_piece_ms {:.3} sun_job_pieces {pieces} sky_field_ms {sky:.1}",
+            median(starts),
+            median(longest)
+        );
+    }
+
     // checks: MAT-13 PLT-09
     #[test]
     fn catalogue_loads_at_start() {
