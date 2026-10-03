@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # The checks before work joins main (PRC-10, A15.12), in A15.12's nine numbered steps; a step whose tool has not
 # been built yet says which alpha brings it. Stops at the first failure.
-# Usage: tools/check.sh [--deliver]
-#   --deliver  also builds the web page and an APK, and checks the committed release APK (step 9)
+# Usage: tools/check.sh [--deliver | --gate <description>]
+#   --deliver             also builds the web page and an APK, and checks the committed release APK (step 9)
+#   --gate <description>  only the merge gate (A15.13 step 6) on a saved pull request description, or the pull
+#                         request as the API gives it: the approved head, its checks, and the right reviewer
 # It writes results/checks/<commit>.json and ends with "Checks: PASS <commit>".
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -12,7 +14,11 @@ DELIVER=0
 case "${1:-}" in
   "") ;;
   --deliver) DELIVER=1 ;;
-  *) echo "usage: tools/check.sh [--deliver]" >&2; exit 2 ;;
+  --gate)
+    [ -f "${2:-}" ] || { echo "usage: tools/check.sh --gate <description file>" >&2; exit 2; }
+    git fetch -q origin +refs/heads/main:refs/remotes/origin/main 2>/dev/null || true
+    exec python3 tools/filecheck.py gate "$2" ;;
+  *) echo "usage: tools/check.sh [--deliver | --gate <description>]" >&2; exit 2 ;;
 esac
 COMMIT="$(git rev-parse --short=12 HEAD)"
 T0=$(date +%s)
