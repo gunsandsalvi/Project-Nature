@@ -55,8 +55,9 @@ Its risks are a less polished Android path and an upgrade every few months, pinn
   For example, a leaf's sway has to be written again for its shadow in Bevy, while Godot applies it everywhere at once.
 - **You chose Godot:** stable, much help online, easy to build in, its source open to change, and the most liked.
 - **What follows:**
-  - The simulation of people runs as a native plug-in (GDExtension), not in Godot's script.
-    It will be in Rust if a quick test shows the plug-in running on your phone, otherwise in C++, Godot's official way.
+  - The simulation of people runs as a native plug-in (GDExtension) in **C++**, Godot's official plug-in language, not in Godot's script.
+    Rust plug-ins are labelled experimental on Android, with nobody working on them ([godot-rust issue 470](https://github.com/godot-rust/gdext/issues/470)), so none of the old Rust code carries over (your OK, 3 October 2026).
+  - Godot's own source is changed only as a last resort: each change means rebuilding Godot for Android and redoing it at every update (your OK, 3 October 2026).
   - There is no browser preview, since Godot's web build is about 40 MB against the private page's 15 MB.
     You try every build on the phone, and the cloud tests run Godot itself on a software Vulkan driver.
   - The outline pass uses the normal buffer of the Forward+ renderer.
