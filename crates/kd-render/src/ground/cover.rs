@@ -46,7 +46,7 @@ pub const BLADE_HALF_PX: f32 = 0.55;
 /// The share of the sky a blade sees at its foot, rising to all of it at its tip, and a stone at its middle,
 /// rising to all of it at its top: the ground and the tuft's other blades hide the sky from an item's foot, so a
 /// tuft shows a darker foot under lighter tips and a stone a darker side under a lighter top, in shade and sun
-/// alike (tuned at α01d).
+/// alike (tuned at α01d; α02a moves them to `data/tuning/render.md`, A11.13 rule 6).
 pub const BLADE_FOOT_SKY: f32 = 0.45;
 pub const STONE_FOOT_SKY: f32 = 0.6;
 /// The contact shade's texels, metres; texels along its side at level 0; and its levels down to one texel.
@@ -54,7 +54,7 @@ pub const CONTACT_M: f32 = 0.5;
 pub const CONTACT_SIDE: usize = 512;
 pub const CONTACT_LEVELS: usize = 10;
 /// The share of the sky an item hides from the ground at its foot when it covers a whole texel, and the most any
-/// texel loses (tuned at α01d).
+/// texel loses (tuned at α01d; α02a moves them to `data/tuning/render.md`, A11.13 rule 6).
 pub const CONTACT_STRENGTH: f32 = 0.6;
 pub const CONTACT_MAX: f32 = 0.7;
 /// The seeds of the items, mixed with the area's number, and of a tuft's blades.
