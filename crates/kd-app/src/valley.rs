@@ -99,4 +99,29 @@ mod tests {
         assert_eq!((d.x, d.y), START_AT);
         assert_eq!(c.target.z, (height_at(&g, START_AT.0, START_AT.1) * 256.0) as i32);
     }
+
+    /// The bench file's figures for the demo area (T01b.9): the time to make its ground and to build its chunks at
+    /// every spacing, and their triangles. Run with
+    /// `cargo test -p kd-app --profile fast demo_mesh_bench -- --ignored --nocapture`.
+    // checks: PRE-02
+    #[test]
+    #[ignore]
+    fn demo_mesh_bench() {
+        let cat = Catalogue::load(crate::CATALOGUE).unwrap();
+        let t0 = std::time::Instant::now();
+        let g = ground(&cat);
+        let area_ms = t0.elapsed().as_secs_f64() * 1e3;
+        let (mut build_ms, mut levels) = (0.0, Vec::new());
+        for step in kd_render::ground::STEPS {
+            let t = std::time::Instant::now();
+            let chunks = kd_render::ground::mesh::build_chunks(&g, step);
+            build_ms += t.elapsed().as_secs_f64() * 1e3;
+            let tris: usize = chunks.iter().map(|c| c.idx.len() / 3).sum();
+            levels.push(format!("\"{step}m\": {tris}"));
+        }
+        println!(
+            "{{\"area_ms\": {area_ms:.1}, \"build_ms\": {build_ms:.1}, \"triangles\": {{{}}}}}",
+            levels.join(", ")
+        );
+    }
 }

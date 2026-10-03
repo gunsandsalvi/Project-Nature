@@ -96,7 +96,7 @@ What the alphas ask of you, all in their notes, none of it blocking the next alp
 | α00 | Skeleton on the phone | 1 | 1 | done 2 October 2026 |
 | α00b | The checks in full | 1 | 1 | done 2 October 2026 |
 | α01a | Pixel art | 1 | 2 | done 2 October 2026 |
-| α01b | The valley | 1 | 5 | Not started |
+| α01b | The valley | 1 | 5 | done 3 October 2026, about 2 hours |
 | α02a | The island | 1 | 4.5 | Not started |
 | α02b | The ground up close | 1 | 5 | Not started |
 | α02c | Cliffs and caves | 1 | 5 | Not started |
@@ -930,6 +930,8 @@ Smallest change that works: `terrain.frag` keeps `terrainFS`'s ground light, `su
 Smallest change that works: drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, which leaves the picture still, so turns and zooms pivot on the ground in the middle of the screen; the art grid and the shadow map's texels are counted from the world's corner in `f64`; the floating origin is the area corner nearest the ground in the middle of the view's block of 512 art pixels, and within a block every frame draws with the same projection while the art target's viewport moves by whole pixels, the shadow pass likewise within blocks of 256 texels, its depth range on 16 m steps from the world's corner, read with `texelFetch`; the ground's patterns add the origin's place within 8,192 m of the world (`uWorldOff`); and the view snaps to even art pixels, the upscale's shift spanning two, so the art target is `ceil(W/s) + 3` by `ceil(H/s) + 3` (273 × 604 on the phone in portrait) and `camera::tests::snap_moves_whole_pixels` checks that one art pixel moves the picture by one and two move the snapped view by two.
 `pan stays crisp` pans once inside an area and once across an area's midline, holding the target's height as a drag does, so `window.kd.camera()` also gives the height and the target's place within its art pixel (`z`, `fx`, `fy`) and takes `z`; `window.kd.crawl` takes an optional `zoom`, as B66 measured at zoom 0.16, not the camp stop's 0.30; and the golden `cube` is drawn again on the larger art target.
 A11.2 says so.
+
+**From the owner (review, A15.13):** on 3 October 2026 the owner asked that the independent review, besides the code, look at the alpha's pictures as a pixel artist and a designer, to see whether the graphics are as they should be; `tools/review-checklist.md` (item 12) and A15.13 step 3 say so, from this alpha on.
 
 ### α02a The island (about 4.5 hours)
 

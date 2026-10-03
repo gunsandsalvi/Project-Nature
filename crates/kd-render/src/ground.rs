@@ -14,7 +14,7 @@ use mesh::{VERTEX_BYTES, build_chunks, spacing_for};
 /// Rows of the surfaces texture: the most surfaces the catalogue may hold.
 pub const SURFACE_ROWS: u32 = 64;
 /// The vertex spacings built for each area, metres (A11.5).
-const STEPS: [u32; 4] = [1, 2, 4, 8];
+pub const STEPS: [u32; 4] = [1, 2, 4, 8];
 
 /// The surfaces texture, two RGBA8 texels a row (A11.5): the ladder, the share of stones and their size in
 /// centimetres, the share of tufts; then the flags.
