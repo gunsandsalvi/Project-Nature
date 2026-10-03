@@ -1,5 +1,5 @@
 //! The valley (α01b): the demo area made into the picture's ground, each square's surface chosen from its material
-//! and slope (T01b.4: soil to grass under 30°, dirt from 30° to 45°, rock layers to rock above 45°, scree at the
+//! and slope (A5.3, A11.5: soil to grass under 30°, dirt from 30° to 45°, rock layers to rock above 45°, scree at the
 //! cliff's foot), and where the camera starts.
 //! Implements `PRE-02` and `PRE-20` in part.
 
@@ -100,7 +100,7 @@ mod tests {
         assert_eq!(c.target.z, (height_at(&g, START_AT.0, START_AT.1) * 256.0) as i32);
     }
 
-    /// The bench file's figures for the demo area (T01b.9): the time to make its ground and to build its chunks at
+    /// The bench file's figures for the demo area (A11.11): the time to make its ground and to build its chunks at
     /// every spacing, and their triangles. Run with
     /// `cargo test -p kd-app --profile fast demo_mesh_bench -- --ignored --nocapture`.
     // checks: PRE-02

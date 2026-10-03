@@ -1,4 +1,4 @@
-// Golden scenes (A11.12, T01a.8): opens dist/web with ?test=1, shows each golden scene through window.kd.golden(name),
+// Golden scenes (A11.12): opens dist/web with ?test=1, shows each golden scene through window.kd.golden(name),
 // takes the canvas right after a frame with kd.shot(), and compares its pixels exactly with
 // tests/golden/<name>-chromium-<build>.png for this Chromium build. A missing reference is written once, for the
 // builder to look at and commit; any difference fails, with the count of differing pixels.

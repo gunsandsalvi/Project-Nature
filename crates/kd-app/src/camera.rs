@@ -1,4 +1,4 @@
-//! The camera's pose and how gestures move it (T01b.6, T01b.7, A12.2): a drag moves the ground under the finger
+//! The camera's pose and how gestures move it (A11.2, A12.2): a drag moves the ground under the finger
 //! and a release glides on, easing to rest (τ 0.3 s); a twist turns the ground with the fingers and eases to rest;
 //! a pinch or a double-tap drag zooms. The zoom keeps to 0.00–0.40 in α01b, and the target to the demo area.
 //! Drags and glides keep the target's height, so a pan moves the picture by whole pixels and nothing bobs over

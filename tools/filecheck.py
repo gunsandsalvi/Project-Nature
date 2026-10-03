@@ -4,7 +4,8 @@
 Modes:  note                 dist/NOTE.md has its sections and the APK link (PRC-11)
         gate <description>   the merge gate of A15.13 step 6 (PRC-09)
         file                 the file check on the three documents and the commit check (PRC-10, PRC-07; A15.12 step 7)
-        ids --merge          the coverage check (PRC-12; A15.12 step 8)
+        ids --merge          the coverage check, the plan's coverage map current too (PRC-12; A15.12 step 8)
+        map [--write]        prints the plan's coverage map, or writes it into IMPLEMENTATION.md (PRC-12)
         selftest             the file and coverage checks on the planted fixtures of tools/tests/filecheck/ (PRC-12)
 Python 3.11 standard library only.
 """
@@ -340,6 +341,7 @@ NOT_SCANNED = ("tools/tests/filecheck",)  # the self-test's planted fixtures
 SKIPPED_DIRS = {"target", "build", "node_modules", "pkg", ".gradle", "__pycache__"}
 CHECKS_SETTING = re.compile(r"^\s*checks\s*=\s*\[([^\]]*)\]")  # a catalogue entry's or a scene's checks
 RULES_HEADING = "## Rules every alpha keeps"
+DOCUMENTS = ("PROJECT.md", "ARCHITECTURE.md", "IMPLEMENTATION.md")
 
 
 def item_kinds(project_text, items):
@@ -370,16 +372,6 @@ def plan_section(plan_text, heading):
     """A `## ` section of the plan, up to the next one."""
     m = re.search(r"^" + re.escape(heading) + r"\n(.*?)(?=^## |\Z)", plan_text, re.M | re.S)
     return m.group(1) if m else ""
-
-
-def done_alphas(plan_text):
-    """The alphas the status table marks done (`| α00 | ... | done 2 October 2026 |`)."""
-    done = set()
-    for line in plan_section(plan_text, "## Status").split("\n"):
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cells) >= 5 and cells[0].startswith("α") and cells[-1].lower().startswith("done"):
-            done.add(cells[0][1:])
-    return done
 
 
 def task_blocks(plan_text):
@@ -425,9 +417,9 @@ def ids_check(files):
     items, _ = parse_project(project)
     retired = retired_ids(project)
     kinds = item_kinds(project, items)
-    problems, named_by_tests, n_named, n_tests = [], set(), 0, 0
+    problems, named_by_tests, implemented, n_named, n_tests = [], set(), set(), 0, 0
     # 1. Every ID named in code, tests, catalogues and scenes exists and is not retired.
-    for path in sorted(p for p in files if p not in ("PROJECT.md", "ARCHITECTURE.md", "IMPLEMENTATION.md")):
+    for path in sorted(p for p in files if p not in DOCUMENTS):
         text = files[path]
         for n, kind, ids in id_lines(path, text):
             if kind == "checks" and not ids:
@@ -440,6 +432,8 @@ def ids_check(files):
                     problems.append(f"{path}:{n}: `{x}` is not defined in PROJECT.md")
                 elif kind == "checks":
                     named_by_tests.add(x)
+                else:
+                    implemented.add(x)
         # 2. Every #[test] in crates/ names what it checks on a // checks: line among the four lines above it.
         if path.startswith("crates/") and path.endswith(".rs"):
             lines = text.split("\n")
@@ -454,27 +448,91 @@ def ids_check(files):
     for t, n, block in tasks:
         if not any(x in items for x in ID_RE.findall(block)):
             problems.append(f"IMPLEMENTATION.md line {n}: task {t} names no PROJECT.md ID")
-    # 4. Every live feature and rule is served by some alpha or kept by every alpha.
+    # 4. Every live feature and rule is served by an alpha still in the plan, kept by every alpha, or implemented in
+    #    code (an `Implements` line names it): the plan keeps no record of done alphas, so what they built is known
+    #    from the code.
     kept = set(ID_RE.findall(plan_section(plan, RULES_HEADING)))
-    served, serves_of = set(), {}
-    for code, _, body in alpha_sections(plan):
-        ids = ID_RE.findall(field_text(body, "Serves"))
-        serves_of[code] = ids
-        served.update(ids)
+    served = set(serving_alphas(plan))
     live = [i for i in items.values() if i.status != "Proposed" and kinds[i.id] in ("Feature", "Rule")]
     for it in live:
-        if it.id not in served and it.id not in kept:
-            problems.append(f"`{it.id}` ({kinds[it.id].lower()}) is not mapped: in no alpha's Serves line "
-                            f"nor in {RULES_HEADING}")
-    # 5. Every ID a done alpha serves, the kept rules aside, is named by a checks line, scene or catalogue entry.
-    done = sorted(done_alphas(plan))
-    for code in done:
-        for x in serves_of.get(code, []):
-            if x not in kept and x not in named_by_tests:
-                problems.append(f"α{code} is done and serves `{x}`, but no test, scene or catalogue entry names it")
+        if it.id not in served and it.id not in kept and it.id not in implemented:
+            problems.append(f"`{it.id}` ({kinds[it.id].lower()}) is not mapped: in no alpha's Serves line, "
+                            f"nor in {RULES_HEADING}, nor implemented in code")
+    # 5. Every ID that code implements, the kept rules aside, is named by a checks line, scene or catalogue entry.
+    for x in sorted(implemented - kept - named_by_tests):
+        problems.append(f"`{x}` is implemented in code, but no test, scene or catalogue entry names it")
     summary = (f"{n_named} IDs named in code and tests, {n_tests} Rust tests, {len(tasks)} tasks, "
-               f"{len(live)} features and rules mapped, done: {', '.join('α' + c for c in done) or 'none'}")
+               f"{len(live)} features and rules mapped, {len(implemented)} IDs implemented in code")
     return problems, summary
+
+
+def serving_alphas(plan_text):
+    """{ID: [alpha codes]} from every alpha's Serves line, in plan order."""
+    out = {}
+    for code, _, body in alpha_sections(plan_text):
+        for x in ID_RE.findall(field_text(body, "Serves")):
+            alphas = out.setdefault(x, [])
+            if code not in alphas:
+                alphas.append(code)
+    return out
+
+
+def implemented_ids(files):
+    """The IDs some code names on an `Implements` doc line."""
+    out = set()
+    for path in (p for p in files if p not in DOCUMENTS):
+        for _, kind, ids in id_lines(path, files[path]):
+            if kind == "implements":
+                out.update(ids)
+    return out
+
+
+# The plan's coverage map (PRC-12): generated, and checked to be current by `ids --merge`.
+COVERAGE_HEADING = "## Coverage map"
+COVERAGE_INTRO = (
+    "Generated by `python3 tools/filecheck.py map --write`: every item of `PROJECT.md` and the alphas still to build "
+    "whose **Serves** line names it (`PRC-12`); `built` marks an item the code implements (an `Implements` line) that "
+    "no alpha left serves, and `every alpha` a rule every alpha keeps.\n"
+    "Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and the vision's statements (`VIS`) "
+    "that have no Done when or Check of their own.")
+
+
+def coverage_map(files):
+    """The coverage map's section, from its heading to the end of the plan."""
+    project, plan = files["PROJECT.md"], files["IMPLEMENTATION.md"]
+    items, _ = parse_project(project)
+    kinds = item_kinds(project, items)
+    kept = set(ID_RE.findall(plan_section(plan, RULES_HEADING)))
+    serves, implemented = serving_alphas(plan), implemented_ids(files)
+    lines = [COVERAGE_HEADING, "", COVERAGE_INTRO, ""]
+    for it in items.values():
+        if it.id in serves:
+            where = ", ".join("α" + c for c in serves[it.id])
+        elif it.id in kept:
+            where = "every alpha"
+        elif kinds[it.id] == "Context":
+            where = "context"
+        elif it.id in implemented:
+            where = "built"
+        else:
+            where = "not mapped"
+        lines.append(f"- `{it.id}` {it.name}: {where}")
+    return "\n".join(lines) + "\n"
+
+
+def with_coverage_map(files):
+    """The plan with its coverage map regenerated, or None when it has no map."""
+    plan = files["IMPLEMENTATION.md"]
+    at = plan.find("\n" + COVERAGE_HEADING + "\n")
+    return None if at < 0 else plan[:at + 1] + coverage_map(files)
+
+
+def map_problems(files):
+    """The plan's coverage map is the generated one."""
+    new = with_coverage_map(files)
+    if new is not None and new != files["IMPLEMENTATION.md"]:
+        return ["IMPLEMENTATION.md: the coverage map is not current (python3 tools/filecheck.py map --write)"]
+    return []
 
 
 def repo_files():
@@ -608,8 +666,23 @@ def main(argv):
         ok = f"File check: OK ({n} items, {m} citations, {len(commits)} commits changing PROJECT.md)"
         return report("File check", problems, os.path.join(ROOT, KNOWN_FILE), ok)
     if argv[:2] == ["ids", "--merge"]:
-        problems, summary = ids_check(repo_files())
+        files = repo_files()
+        problems, summary = ids_check(files)
+        problems += map_problems(files)
         return report("Coverage", problems, os.path.join(ROOT, KNOWN_FILE), f"Coverage: OK ({summary})")
+    if argv[:1] == ["map"]:
+        files = repo_files()
+        new = with_coverage_map(files)
+        if new is None:
+            print(f"Map: IMPLEMENTATION.md has no {COVERAGE_HEADING!r} section")
+            return 1
+        if argv[1:2] == ["--write"]:
+            with open(os.path.join(ROOT, "IMPLEMENTATION.md"), "w", encoding="utf-8") as f:
+                f.write(new)
+            print("Map: written")
+        else:
+            print(coverage_map(files), end="")
+        return 0
     if argv[:1] == ["selftest"]:
         return selftest()
     if len(argv) >= 2 and argv[0] == "gate":

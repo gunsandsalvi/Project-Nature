@@ -115,5 +115,26 @@ class CommitCheckTest(unittest.TestCase):
         self.assertEqual(check(commits=[("a" * 40, msg, PROJECT, self.NEW)]), [])
 
 
+class CoverageMapTest(unittest.TestCase):
+    CODE = "/// Implements `ABC-02`, see A1.1.\npub fn two() {}\n"
+
+    def files(self, plan):
+        return {"PROJECT.md": PROJECT, "IMPLEMENTATION.md": plan, "crates/kd-x/src/lib.rs": self.CODE}
+
+    # checks: PRC-12
+    def test_map_names_alphas_left_and_what_code_built(self):
+        text = filecheck.coverage_map(self.files(PLAN))
+        self.assertIn("- `ABC-01` First: α00b", text)
+        self.assertIn("- `ABC-02` Second: built", text)
+
+    # checks: PRC-12
+    def test_stale_map_is_reported_and_rewritten(self):
+        plan = PLAN + "\n## Coverage map\n\n- `ABC-01` First: α00\n"
+        self.assertEqual(len(filecheck.map_problems(self.files(plan))), 1)
+        fresh = filecheck.with_coverage_map(self.files(plan))
+        self.assertEqual(filecheck.map_problems(self.files(fresh)), [])
+        self.assertEqual(filecheck.map_problems(self.files(PLAN)), [])  # a plan without a map has none to check
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -5,27 +5,28 @@ It follows `PROJECT.md` (what the game must be) and `ARCHITECTURE.md` (how it is
 The game is built as **playable alphas**: each takes an AI agent a few hours (3 to 5.5 in this plan, never more than 6) and ends with something you can open on your phone and try in two to five minutes (`PRN-09`, `SCP-03`).
 The alphas are grouped into the seven stages of `SCP-16` (`MIL-01` to `MIL-07`); a stage is done when all its alphas are done and its stage report is accepted (`RES-06`).
 
-**Status (2 October 2026): settled.** Each stage had its own adversarial review, Stages 1–4 and 5–7 a second-level review each, and the whole plan two full reviews; there are no more plan reviews. From α00 on, each alpha gets its own independent review before it merges (`PRC-09`); since 3 October 2026, at the owner's instruction, the builder reviews each lettered alpha itself and a subagent verifies each numbered alpha once, at its last letter.
+This plan holds only the work still to do: an alpha leaves it when it is done, and what it built is in the code and the architecture.
+Its parts are named in references: P0 is everything before Stage 1 (how to use it, the conventions, the definition of done, the status table), and P1 to P7 are the seven stages, each from its heading to the next.
 
 ## How to use this plan
 
 For the AI agent building an alpha:
 
-1. **Pick** the first alpha in the status table below that is not done, unless the owner names another.
-   Never start an alpha whose "Needs" are not done.
+1. **Pick** the first alpha in the status table below, unless the owner names another.
+   Never start an alpha whose "Needs" are still in the table.
    A stage's close is done when it is merged, so "Needs: α07e (Stage 1 done)" lets the next stage start while the owner's review is pending; the stage itself is done when its report is accepted (`RES-06`, `RES-22`).
 2. **Read**, in this order: the alpha's section; every architecture section it cites; every `PROJECT.md` item it serves; the previous alpha's note (`dist/NOTE.md`) for anything the owner reported.
-3. **Set up** the session: run `tools/setup.sh` (A15.2) if the tools are missing; fetch `main` by name (`git fetch origin +refs/heads/main:refs/remotes/origin/main`, since a shallow cloud clone otherwise never sees it) and work on the session's own branch, fast-forwarded to `origin/main` before the first task (α00 creates `main` the first time).
+3. **Set up** the session: run `tools/setup.sh` (A15.2) if the tools are missing; fetch `main` by name (`git fetch origin +refs/heads/main:refs/remotes/origin/main`, since a shallow cloud clone otherwise never sees it) and work on the session's own branch, fast-forwarded to `origin/main` before the first task.
 4. **Build the tasks in order.**
    Each task ends with its code, its tests passing, and a commit naming the task and the IDs it delivers (see Conventions).
    If a task cannot be built as the architecture says, stop that task, write a **Conflict:** note at the end of the alpha's section with the reason and the smallest change that works, and carry on with that change; the architecture is updated in the same branch.
    If the alpha will clearly take more than 6 hours, split it at a task boundary into two alphas (`α12a`, `α12b`), each still playable, and record the split in the status table.
-5. **Deliver** (A15.4, `PRC-11`): build the web build and the APK (every alpha; committed with its checksum, at most 50 MB); publish the web build and the note at the alpha's links; write `dist/NOTE.md` (what is new, what to try, what is rough, the IDs delivered, both links) and `dist/LINKS.md`; and mark the alpha done in the status table, with the date and the measured hours.
+5. **Deliver** (A15.4, `PRC-11`): build the web build and the APK (every alpha; committed with its checksum, at most 50 MB); publish the web build and the note at the alpha's links; write `dist/NOTE.md` (what is new, what to try, what is rough, the IDs delivered, both links) and `dist/LINKS.md`; and take the alpha's section and status row out of this plan, after moving any decision, conflict note or measured result in it that the code does not already hold into the architecture section it concerns, and bring the coverage map at the end up to date (`python3 tools/filecheck.py map --write`).
 6. **Run the checks last** (`tools/check.sh --deliver`, A15.12, `PRC-10`) until they pass, and commit only their result, `results/checks/<commit>.json`.
    Nothing else is committed after it: the gate merges only a head whose checks passed on it, or on its parent when the head adds only `results/` (A15.12, A15.13).
 7. **Get the review** (`PRC-09`, A15.13) of that head: open a pull request from the session's branch into `main`, its description opening with the alpha's name.
    An alpha that a later letter of its number follows (α02a before α02b) is reviewed by its builder, in a pass of its own: the checklist (`tools/review-checklist.md`), each new test made to fail once, and the pictures looked at, its approval written `builder`.
-   The alpha that ends its number (α02c, or one never split) gets one separate AI agent, given only the whole number's diff, its alphas' sections and the cited items, which checks that every task is done, every test named exists and passes, nothing outside the scope changed without a note, and the rules of `PROJECT.md` hold; its approval of the head's commit goes in the pull request's description.
+   The alpha that ends its number (α02c, or one never split) gets one separate AI agent, given only the whole number's diff, its alphas' sections as they stood when the number began (on `main` before its first alpha merged) and the cited items, which checks that every task is done, every test named exists and passes, nothing outside the scope changed without a note, and the rules of `PROJECT.md` hold; its approval of the head's commit goes in the pull request's description.
    If the review asks for fixes, make them, then deliver (step 5) and run the checks (step 6) again, until it approves.
 8. **Merge and tell the owner:** `tools/check.sh --gate` confirms the approved head passed its checks, the pull request is merged into `main` (A15.12, A15.13), and the owner gets two or three lines with the note link.
 
@@ -45,7 +46,7 @@ The next stage starts while your reply is pending; the stage closes when your re
 - **IDs in code and tests** (`PRC-12`, A15.1): code names what it implements in a doc comment (`/// Implements MAT-04, see A6.3`); each test names what it checks on the line above it (`// checks: MAT-04 RES-23`); each scene file names its IDs in its header.
 - **Scenes:** `scenes/<alpha>-<name>.toml` (A15.7), run by `kd-tools scene` (the benchmark worlds `bench-*`, the review scenes `review-*` and `sharp-stone` with its control keep their own names); a scene states its `base_seed` (unique across the plan), its runs (about 20, `RES-13`, run `i` on seed `base_seed + i`), its game-time limit, its budget in session-hours and its pass rule before it is first run (`RES-09`).
 - **Demo worlds:** from α08, an alpha marks one run of a scene as its demo (`demo = { name, run, at }`, written in its Tests line as demo `aNN · Name` (run, time)); it is compiled into the catalogue blob, and the phone builds it itself with Make test world (A15.4); stage closes, world-making alphas and a few others open a named world instead and say which.
-- **Version codes:** each alpha's APK has `versionCode = stage × 1000 + alpha × 10 + split` (split `a` 1 to `e` 5; α00 1000, α12b 2122) and `versionName` its alpha (A15.3).
+- **Version codes:** each alpha's APK has `versionCode = stage × 1000 + alpha × 10 + split` (split `a` 1 to `e` 5; α05 1050, α12b 2122) and `versionName` its alpha (A15.3).
 - **Catalogue entries:** one `##` heading per entry in `data/<catalogue>/<file>.md` with a fenced `toml` block (A3.6); ids are unique within their kind (`data/ids.lock`), so a later alpha grows an entry by its id and never adds it again; every entry added by an alpha is listed in its **Data** line.
 - **Numbers:** every tunable number lives in a catalogue or a `tuning.toml`, never inline in code, so pace tuning (`RES-16`) never edits logic.
 - **Hours:** estimated agent hours for building, testing and delivering; the owner's time is the 2–5 minutes of the phone check.
@@ -60,7 +61,7 @@ The next stage starts while your reply is pending; the stage closes when your re
 5. The review approves: the builder's for a lettered alpha that does not end its number, an independent subagent's for the alpha that does (`PRC-09`).
 6. The web build is published and its link works; the APK is built, signed and committed; `dist/NOTE.md` is written.
 7. What the alpha adds to a world is findable and kept safely: every new kind of record kept has its `World::record_kinds()` name and `FINDABLE` line (`PRE-13`); every new event kind is in the event-kind table (A14.8); every changed save chunk brings its migration and a fixture world (A14.9); and a change to area contents or to the kinds of materials, plants or animals raises `major`, with `generator` too when generation or area-making changes (A3.6, `PLT-09`).
-8. The status table is updated.
+8. The alpha's section and status row have left the plan, their notes moved into the architecture (step 5).
 
 ## Rules every alpha keeps
 
@@ -72,15 +73,10 @@ Every alpha keeps them, the independent review checks them (A15.13), and the cov
 - **Testing rules:** `RES-01`, `RES-09`, `RES-13`, `RES-18`, `RES-19`.
 - **Who the people are:** `BIO-01`.
 
-## Before α00
+## What the alphas ask of you
 
-One thing is asked before the first alpha, as `PLT-06` and A15.5 say; everything else is asked by the alpha that needs it, in its note.
-- **The signing passphrase** (before α00; at the latest before α07a, the first alpha that keeps worlds): make a passphrase of at least 7 random words in your password manager, add it as `KINDLING_SIGNING_PASSPHRASE` in the cloud environment's secrets (A15.5), and when α00b's note gives the fingerprint, register the package and that fingerprint in your free hobbyist developer account (`RSK-18`).
-  α00 signs with a throwaway key, and from α00b the release key signs once the secret exists, after one reinstall: harmless up to α07a, but after it a reinstall wipes the worlds on the phone, and export only comes in α53a (`PLT-08`).
-
-What the alphas ask of you, all in their notes, none of it blocking the next alpha:
-- **α00:** open the web link and reply "works" or "blocked" (A15.4); once, make `main` the default branch on GitHub (Settings, General, Default branch).
-- **α00b:** only if the passphrase is set, one reinstall and the fingerprint registered (above).
+Each ask comes in the note of the alpha that needs it; none blocks the next alpha.
+- **Once, if not yet done:** register the package `dev.kindling.app` and the release certificate's fingerprint (`android/keys/release-cert.sha256`) in your free hobbyist developer account (`RSK-18`, A15.5); and make `main` the default branch on GitHub (Settings, General, Default branch), since the repository still opens on a build branch.
 - **α17 (or α17c):** pick the murmur's voice by ear on a listening page ("voice: …", `SND-03`).
 - **α35a:** open the APK once with Wi-Fi on so the phone fetches its writer model, then send the writer check's `KDT1:` code.
 - **α43a:** one night on the charger in overnight mode, in flight mode, then send the summary's first line and its night line (`TIM-12`, `PLT-03`).
@@ -93,10 +89,6 @@ What the alphas ask of you, all in their notes, none of it blocking the next alp
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α00 | Skeleton on the phone | 1 | 1 | done 2 October 2026 |
-| α00b | The checks in full | 1 | 1 | done 2 October 2026 |
-| α01a | Pixel art | 1 | 2 | done 2 October 2026 |
-| α01b | The valley | 1 | 10 | done 3 October 2026 |
 | α01c | The light | 1 | 6 | Not started |
 | α01d | Steady detail | 1 | 6 | Not started |
 | α02a | The island | 1 | 4.5 | Not started |
@@ -209,739 +201,16 @@ What the alphas ask of you, all in their notes, none of it blocking the next alp
 | α53a | Export and worlds across updates | 7 | 4 | Not started |
 | α53b | Release candidate and Stage 7 review | 7 | 5.5 | Not started |
 
-115 alphas, about 563 hours of agent work in all.
+111 alphas still to build, about 546 hours of agent work in all.
 
 ## Stage 1: First camp (MIL-01)
 
 This stage builds the island of the first region and one band at the foot of its cliff, who gather, eat, drink, sleep, talk, court, pair, bear children, grow old and die through a 60-day year, with reasons on every card, saved every 30 seconds, tested in scenes and timed on the phone (`SCP-16` item 1).
-`SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows; the catalogue compiler comes first, in α01a, because the palette is data (A11.3).
-Seven of the brief's alphas hold well over 5 hours of tasks each and are split into lettered alphas of 3–5.5 hours: α00 into α00 and α00b (the full merge checks and the release key); α01 into α01a and α01b, and since the owner's request of 3 October 2026 α01c and α01d (the renderer rebuilt); α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, about 136 hours.
+`SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows.
+Alphas over about 5 hours of tasks are split into lettered alphas: α01's rebuilt renderer into α01c and α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so what remains of the stage is 23 alphas, about 118.5 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
 The renderer is designed in A11 (A11.1), and α01c and α01d rebuild it from that reasoning; each task names the A11 sections it builds.
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
-
-### α00 Skeleton on the phone (about 5 hours)
-
-**Goal:** the repository becomes the Rust workspace of A2 with all 19 crates, game time and keyed chance in `kd-core`, and one lit cube turning in an APK on the phone and in a private web page, built, signed, checked and delivered by scripts that every later alpha reuses.
-
-**Serves:** `TIM-16` (part: keyed chance, the same draws on every target), `TIM-14` (part: dates), `TIM-18` (part: `game_length`), `RES-05` (part: draws and maths repeat across targets), `PRC-09` (part: the merge gate), `PRC-10` (part: the first `tools/check.sh`), `PRC-11` (part: an APK, a note and a self-check), `SCP-03` (part), `SCP-15` (part), `PLT-01` (part: an arm64 build running on the phone), `PLT-02` (part: rotation never restarts the app), `PLT-03` (part: no network permission), `PLT-06` (part: a signed APK installed from the browser).
-
-**Architecture:** `A1.3`, `A1.4`, `A2.1`, `A2.2`, `A2.3`, `A2.4`, `A2.5`, `A2.6`, `A2.7`, `A2.8`, `A2.9`, `A3.1`, `A3.2`, `A3.3`, `A3.8`, `A4.1`, `A4.2`, `A15.1`, `A15.2`, `A15.3`, `A15.4`, `A15.5`, `A15.12`, `A15.13`, `A17.3`, `A17.5`.
-
-**Needs:** nothing; it signs with a throwaway key, so it runs whether or not the owner has yet set the passphrase of P0's Before α00.
-
-**Crates and files touched:** all new: the root files, `crates/kd-*/` (19 crates), `android/`, `web/`, `tools/`, `dist/`, `bench/cloud/a00.json`, `results/`; `ARCHITECTURE.md` (A15.3's version code); `IMPLEMENTATION.md` (status table).
-
-**Tasks:**
-
-1. `T00.1` **Branches, workspace, layout and the 19 crates (`PRN-14`, `PRC-09`, A2.1–A2.3).**
-   **Branches:** run `git fetch origin +refs/heads/main:refs/remotes/origin/main`, naming the branch in full, since a cloud session's shallow clone may track only its own branch; if `main` does not exist (`git ls-remote --exit-code --heads origin main` exits 2; true before α00: the planning branch is the repository's default and only branch), create `main` at the head of the default branch with the GitHub tool `create_branch` (`branch: main`), or `git push origin HEAD:refs/heads/main` from a clean checkout of it, then fetch it again the same way.
-   Bring the session's branch to `main` with `git merge --ff-only origin/main`; every later session fetches `main` the same way and does the same before its first task, since a session's branch starts from the repository's default branch, and pull requests always target `main` (A15.13).
-   The α00 note asks the owner to make `main` the default branch on GitHub (Settings, General, Default branch), so new sessions start from it.
-   **Toolchain first:** `rustup toolchain install 1.97.0 --profile minimal --component clippy,rustfmt --target aarch64-linux-android,wasm32-unknown-unknown,aarch64-unknown-linux-gnu` (T00.2's `tools/setup.sh` repeats it).
-   Create these files exactly:
-   ```toml
-   # rust-toolchain.toml
-   [toolchain]
-   channel = "1.97.0"
-   components = ["clippy", "rustfmt"]
-   targets = ["aarch64-linux-android", "wasm32-unknown-unknown", "aarch64-unknown-linux-gnu"]
-   profile = "minimal"
-   ```
-   ```toml
-   # .cargo/config.toml (A2.8): 16 KB pages on the phone, qemu for arm64 tests, SIMD on the web; no target-cpu or fast-math (A3.2)
-   [target.aarch64-linux-android]
-   rustflags = ["-C", "link-arg=-Wl,-z,max-page-size=16384"]
-   [target.aarch64-unknown-linux-gnu]
-   linker = "aarch64-linux-gnu-gcc"
-   runner = "qemu-aarch64-static -L /usr/aarch64-linux-gnu"
-   [target.wasm32-unknown-unknown]
-   rustflags = ["-C", "target-feature=+simd128"]
-   ```
-   Root `Cargo.toml`:
-   ```toml
-   [workspace]
-   resolver = "3"
-   members = ["crates/*"]
-   exclude = ["tests/banned"]
-
-   [workspace.package]
-   version = "0.0.0"
-   edition = "2024"
-   rust-version = "1.97"
-   publish = false
-
-   [workspace.dependencies]
-   # Outside crates (A2.2), each allowed only where tools/layers.toml says; a new one needs a reason here and the reviewer's OK.
-   libm = "0.2"                                            # pure-Rust maths, the same bits on every target (A3.2)
-   log = "0.4"
-   serde = { version = "1", features = ["derive"] }
-   bytemuck = { version = "1", features = ["derive"] }     # store columns and saved types (A3.4)
-   xxhash-rust = { version = "0.8", features = ["xxh3"] }  # num::hash64 (A3.2)
-   rayon = "1"                                             # kd-core feature `threads` (A2.2)
-   postcard = { version = "1", features = ["alloc"] }      # the catalogue blob (A3.6)
-   toml = "0.8"                                            # kd-data `compile`; kd-tools reads tools/layers.toml
-   zstd = "0.13"
-   ruzstd = "0.8"
-   glow = "0.16"
-   jni = { version = "0.21", default-features = false }
-   libc = "0.2"
-   serde_json = "1"                                        # kd-android; kd-tools reads `cargo metadata`
-   wasm-bindgen = "0.2"
-   js-sys = "0.3"
-   web-sys = "0.3"
-   console_error_panic_hook = "0.1"
-   png = "0.17"
-   kd-core = { path = "crates/kd-core" }
-   # ... one line per workspace crate, as above, for all 19
-
-   [profile.dev]            # cargo test: optimised, with debug assertions and overflow checks on (A3.2)
-   opt-level = 2
-   debug = "line-tables-only"
-
-   [profile.release]        # the delivered APK only (A15.1)
-   opt-level = 3
-   lto = "thin"
-   codegen-units = 1
-   panic = "unwind"         # JNI entries catch panics (A3.8)
-   debug = "line-tables-only"  # symbols stay in android/app/build, stripped from the APK
-
-   [profile.release-web]    # the delivered wasm: wasm32-unknown-unknown cannot unwind (A2.6)
-   inherits = "release"
-   panic = "abort"
-
-   [profile.fast]           # kd, scenes, benchmarks (A15.1)
-   inherits = "release"
-   lto = false
-   codegen-units = 16
-   incremental = true
-   debug = false
-   ```
-   These lines resolve today (checked on 2 October 2026: glow 0.16.0, toml 0.8.23, ruzstd 0.8.3, zstd 0.13.3, jni 0.21.1, png 0.17.16, wasm-bindgen 0.2.129); if one ever does not, use the newest version `cargo search <crate>` lists and keep the line pinned.
-   **Decision:** `kd-tools` also takes `serde_json` (it reads `cargo metadata`) and `toml` (it reads `tools/layers.toml`), each with its reason in `Cargo.toml`; α00b updates A2.2's list in `ARCHITECTURE.md` for the reviewer's OK.
-   Create `crates/<crate>/Cargo.toml` and `src/lib.rs` (`src/main.rs` for `kd-tools`, binary name `kd`, which prints its usage until α00b gives it commands) for each of the 19 crates of A2.2, with `edition.workspace = true` and the dependencies of A2.2's "Depends on" column declared now, so layering can be checked from α00b: `kd-core` (libm, log, xxhash-rust); `kd-data` (kd-core); `kd-world`, `kd-things`, `kd-life` (kd-core, kd-data); `kd-people` (those three plus kd-core, kd-data); `kd-culture` (kd-people and below); `kd-player` (kd-culture and below); `kd-view` (kd-core); `kd-sim` (every crate above plus kd-view); `kd-save` (kd-sim, kd-core); `kd-render` (kd-core, kd-view, kd-data, glow, log); `kd-ui`, `kd-audio`, `kd-text` (kd-core, kd-view, kd-data); `kd-app` (kd-core, kd-data, kd-view, kd-world, kd-sim, kd-save, kd-render, kd-ui, kd-audio, kd-text, glow, log); `kd-android` (kd-app, kd-core, kd-view, glow, log, serde_json, and under `[target.'cfg(target_os = "android")'.dependencies]` jni and libc; `[lib] name = "kindling"`, `crate-type = ["cdylib"]`); `kd-web` (kd-app, kd-core, kd-view, glow, log, and under `[target.'cfg(target_arch = "wasm32")'.dependencies]` wasm-bindgen, js-sys, console_error_panic_hook and web-sys with features `Window`, `Document`, `HtmlCanvasElement`, `WebGl2RenderingContext`, `Performance`; `crate-type = ["cdylib", "rlib"]`); `kd-tools` (kd-core, kd-data, kd-world, kd-things, kd-sim, kd-save, kd-text, kd-audio, png, serde_json, toml; A2.2's features `threads`, `files` and `compile` join with their alphas).
-   Each `lib.rs` opens with one doc line naming what the crate owns, its sections and the IDs it implements (`//! kd-core: game time, keyed chance and maths (A3, A4.1, A4.2); implements TIM-16, TIM-14, TIM-18 in part.`), then `#![deny(unsafe_code)]` in every crate except `kd-render`, `kd-app`, `kd-android` and `kd-web`; `kd-android` declares its modules under `#[cfg(target_os = "android")]` and `kd-web` under `#[cfg(target_arch = "wasm32")]`, so `cargo clippy --workspace` on x86 builds both as empty libraries.
-   Create `tools/layers.toml`, which `kd check layers` reads from α00b: one table per crate with `sim` (true for `kd-core` to `kd-save` and `kd-view`), `deps` (the workspace crates it may name: any crate below it in A2.3's arrows; the four front-end crates `kd-core`, `kd-view`, `kd-data` only; `kd-app` the list above; the shells `kd-core`, `kd-view`, `kd-app`), `outside` (A2.2's outside crates allowed there) and, for `kd-sim` only, `unsafe_files = ["src/cluster/split.rs"]` (A4.8, from α03c).
-   Create `clippy.toml` (bans for the simulation crates and `kd-view`, A2.3 rules 3–4, A3.2, A3.5):
-   ```toml
-   # Simulation bans (A2.3, A3.2, A3.5). Front-end crates and kd-tools carry their own clippy.toml without them.
-   # tests/banned/ (α00b) uses each entry once; tools/check-banned.sh fails unless clippy flags every one.
-   # f32::minimum and f32::maximum are unstable on Rust 1.97.0 (float_minimum_maximum), so stable code cannot call them and they are not listed.
-   disallowed-types = [
-     { path = "std::collections::HashMap", reason = "A3.5: use LookupMap, SortedMap or BTreeMap" },
-     { path = "std::collections::HashSet", reason = "A3.5: use SortedSet or BTreeSet" },
-     { path = "std::cell::Cell", reason = "A2.3 rule 3" }, { path = "std::cell::RefCell", reason = "A2.3 rule 3" },
-     { path = "std::cell::OnceCell", reason = "A2.3 rule 3" }, { path = "std::sync::Mutex", reason = "A2.3 rule 3" },
-     { path = "std::sync::RwLock", reason = "A2.3 rule 3" }, { path = "std::sync::atomic::AtomicBool", reason = "A2.3 rule 3" },
-     { path = "std::sync::atomic::AtomicU32", reason = "A2.3 rule 3" }, { path = "std::sync::atomic::AtomicU64", reason = "A2.3 rule 3" },
-     { path = "std::sync::atomic::AtomicUsize", reason = "A2.3 rule 3" },
-     { path = "std::time::Instant", reason = "A2.3 rule 4: the world reads no clock" },
-     { path = "std::time::SystemTime", reason = "A2.3 rule 4" },
-     { path = "std::fs::File", reason = "A2.3 rule 4: files only through Storage" },
-   ]
-   disallowed-methods = [
-     # A3.2: maths only through kd_core::m; min and max only through kd_core::num
-     "f32::sin", "f32::cos", "f32::tan", "f32::asin", "f32::acos", "f32::atan", "f32::atan2", "f32::sin_cos",
-     "f32::sinh", "f32::cosh", "f32::tanh", "f32::exp", "f32::exp2", "f32::exp_m1", "f32::ln", "f32::ln_1p",
-     "f32::log", "f32::log2", "f32::log10", "f32::powf", "f32::powi", "f32::hypot", "f32::cbrt", "f32::mul_add",
-     "f32::min", "f32::max",
-     # A2.3 rule 4
-     "std::thread::spawn", "std::env::var", "std::fs::read", "std::fs::write",
-   ]
-   ```
-   Each of `kd-render`, `kd-ui`, `kd-audio`, `kd-text`, `kd-app`, `kd-android`, `kd-web` and `kd-tools` gets its own `clippy.toml` holding only the comment `# Front end or tools (A2.3): the simulation bans of the root clippy.toml do not apply here.`, which clippy finds before the root one.
-   Create `rustfmt.toml` (`max_width = 120`) and `.gitignore` (`/target/`, `/tests/banned/target/`, `__pycache__/`, `/web/pkg/`, `/dist/web/`, `/dist/note/`, `/dist/probe/`, `/android/.gradle/`, `/android/build/`, `/android/app/build/`, `/android/.kotlin/`, `*.tmp`).
-   Run `cargo generate-lockfile` then `cargo build --workspace --locked`; expected: `Finished` with no warning.
-   Commit `T00.1: workspace, 19 crates and layers (PRN-14, A2.1–A2.3)`.
-
-2. `T00.2` **Toolchain scripts (`SCP-15`, A2.8, A15.2).**
-   Recover two files, from `pretests/` if the folder is still in the working tree, else from the commit before its deletion: in a shallow clone (`git rev-parse --is-shallow-repository` prints `true`) first `git fetch --unshallow origin`, then `C=$(git log --diff-filter=D --format=%H -1 -- pretests/BUILDING-BLOCKS.md)` and `git show "$C^:pretests/<path>" > <destination>` (A2.9); name the source in the commit message.
-   - `b78-b79-phone/tools/setup-toolchain.sh` → `tools/setup-toolchain.sh`, with three edits: `CACHE=${KD_CACHE:-$HOME/.cache/kindling}` replaces the line that demanded `CACHE`; the size log goes to `$CACHE/downloads-local.csv` and the `mkdir` no longer makes `results/`, so nothing lands in the repository; the header comment names A2.8.
-   - `b78-b79-phone/tools/env.sh` → `tools/env.sh`, with: `export KD_CACHE=${KD_CACHE:-$HOME/.cache/kindling}` and `CACHE=$KD_CACHE`; `PATH` gains `$KD_CACHE/cargo/bin` in front; `export PLAYWRIGHT_PATH=${PLAYWRIGHT_PATH:-/opt/node-tools/node_modules/playwright}` and `CHROMIUM_PATH=${CHROMIUM_PATH:-/opt/pw-browsers/chromium-1194/chrome-linux/chrome}` (B66's paths); the two pre-test key lines are removed; and, when the NDK is there, the NDK's compiler for the phone target, so crates with C code (zstd from α07a) build and lint for it outside Gradle too: `TC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin`, `export CC_aarch64_linux_android=$TC/aarch64-linux-android31-clang AR_aarch64_linux_android=$TC/llvm-ar CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$TC/aarch64-linux-android31-clang`.
-   Create `tools/setup.sh`, the one command a fresh session runs (P0's step 3):
-   ```bash
-   #!/usr/bin/env bash
-   # Kindling: everything a fresh cloud session needs to build and test (A2.8, A15.2). Safe to re-run.
-   set -euo pipefail
-   ROOT=$(cd "$(dirname "$0")/.." && pwd); cd "$ROOT"
-   export KD_CACHE=${KD_CACHE:-$HOME/.cache/kindling}
-   mkdir -p "$KD_CACHE/cargo"; export PATH="$KD_CACHE/cargo/bin:$PATH"
-   as_root() { if [ "$(id -u)" = 0 ]; then "$@"; else sudo -n "$@"; fi; }
-   # 1. Rust 1.97.0 with its components and targets (rust-toolchain.toml)
-   rustup toolchain install 1.97.0 --profile minimal --component clippy,rustfmt \
-     --target aarch64-linux-android,wasm32-unknown-unknown,aarch64-unknown-linux-gnu
-   # 2. cargo-ndk 4.1.2 and the wasm-bindgen CLI at Cargo.lock's version
-   [ "$(cargo ndk --version 2>/dev/null || true)" = "cargo-ndk 4.1.2" ] || \
-     cargo install --locked cargo-ndk --version 4.1.2 --root "$KD_CACHE/cargo"
-   WB=$(sed -n '/^name = "wasm-bindgen"$/{n;s/^version = "\(.*\)"$/\1/p;q;}' "$ROOT/Cargo.lock")
-   [ -n "$WB" ] || { echo "Setup: Cargo.lock names no wasm-bindgen"; exit 1; }
-   [ "$(wasm-bindgen --version 2>/dev/null || true)" = "wasm-bindgen $WB" ] || \
-     cargo install --locked wasm-bindgen-cli --version "$WB" --root "$KD_CACHE/cargo"
-   # 3. qemu and the arm64 linker
-   { command -v qemu-aarch64-static && command -v aarch64-linux-gnu-gcc; } >/dev/null || \
-     { as_root apt-get update -qq && as_root apt-get install -y -qq qemu-user-static gcc-aarch64-linux-gnu; }
-   # 4. Android SDK and NDK r30 (B78's script)
-   "$ROOT/tools/setup-toolchain.sh"
-   # 5. Report
-   . "$ROOT/tools/env.sh"
-   echo "rust      $(rustc --version)"
-   echo "targets   $(rustup target list --installed | tr '\n' ' ')"
-   echo "tools     $(cargo ndk --version), $(wasm-bindgen --version)"
-   echo "android   ndk $(basename "$ANDROID_NDK_HOME"), platforms $(ls "$ANDROID_HOME/platforms" | tr '\n' ' ')build-tools $(ls "$ANDROID_HOME/build-tools" | tr '\n' ' ')"
-   echo "jvm       $(java -version 2>&1 | grep -m1 version), $(gradle --version 2>/dev/null | grep -m1 '^Gradle')"
-   echo "web       node $(node --version), chromium $([ -x "$CHROMIUM_PATH" ] && echo ok || echo MISSING), python $(python3 -c 'import cryptography; print("ok")' 2>/dev/null || echo 'cryptography MISSING')"
-   [ -x "$CHROMIUM_PATH" ] || { echo "Setup: Chromium missing at $CHROMIUM_PATH"; exit 1; }
-   echo "Setup: OK"
-   ```
-   Run it; expected after about 5 minutes on an empty machine, seconds when warm (A16.7: at most 6 minutes):
-   ```
-   rust      rustc 1.97.0 (2d8144b78 2026-07-07)
-   targets   aarch64-linux-android aarch64-unknown-linux-gnu wasm32-unknown-unknown x86_64-unknown-linux-gnu
-   tools     cargo-ndk 4.1.2, wasm-bindgen 0.2.<n>
-   android   ndk android-ndk-r30, platforms android-36 build-tools 36.1.0
-   jvm       openjdk version "21.0.<n>" ..., Gradle 8.14.3
-   web       node v22.<n>, chromium ok, python ok
-   Setup: OK
-   ```
-   If a step fails, tell the owner the command and its exit code (A15.2).
-   Commit `T00.2: toolchain scripts (SCP-15, A2.8; from pretests/b78-b79-phone/tools)`.
-
-3. `T00.3` **`kd-core`: numbers and game time (`TIM-14`, `TIM-18`, A3.2, A4.1, A4.2).**
-   `crates/kd-core/src/num.rs`: `pub fn min(a: f32, b: f32) -> f32` (`if a < b { a } else { b }`) and `max` (with `>`); `pub fn clean(x: f32) -> f32` (returns `x + 0.0`, turning −0.0 into +0.0, `debug_assert!(x.is_finite())`), used by every store write and every float fed to a hash; `pub fn hash64(b: &[u8]) -> u64` (XXH3-64 through `xxhash_rust::xxh3::xxh3_64`); `hash2` joins in T00.4 with `mix64`.
-   `crates/kd-core/src/m.rs`: one `#[inline]` wrapper per function of A3.2 over `libm`: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `exp`, `exp2`, `ln` (`libm::logf`), `log2`, `log10`, `powf`, `hypot`, `cbrt`, `tanh`, all `f32`.
-   `crates/kd-core/src/time.rs` (A4.1): `pub struct GameTime(pub u64)` (Copy, Ord, Debug, Default); constants `WINDOW = 300`, `QUARTER = 900`, `HOUR = 3_600`, `DAY = 86_400`, `SEASON = 1_296_000`, `YEAR = 5_184_000` (game seconds); `GameTime::window(self) -> u32` (`t / WINDOW`), `next_barrier(self) -> GameTime` (the next multiple of `WINDOW` after `t`), `date(self, history_start: GameTime) -> Date`; `pub struct Date { pub year: i32, pub season: Season, pub day: u8, pub second: u32 }` with `year = (t − history_start).div_euclid(YEAR) + 1` (in `i64`; zero or less while settling), `season = (t mod YEAR) / SEASON`, `day = (t mod SEASON) / DAY + 1`, `second = t mod DAY` (A4.1; `history_start` is a whole number of years, so both readings agree); `pub enum Season { Spring, Summer, Autumn, Winter }`; `impl Display for Date` giving `Year 112, autumn, day 6` (`TIM-14`).
-   A4.2's one rule: `pub fn game_length(life_s: u64, given_game_s: Option<u64>) -> Result<u64, LengthError>`: up to 14 days (1,209,600 s) the life length, and a given game length must equal it; from 85 days (7,344,000 s) `(life_s × 60 + 182) / 365`, and a given one must equal it; in between the given one is required and must lie between 7 days and the life length; errors `MissingGameLength`, `GameLengthMismatch`, `GameLengthOutOfRange`.
-   Also `pub struct Dur { pub game_s: u64 }` and `pub struct Freq { pub per_game_s: f32 }`, which the catalogue compiler fills from α01a.
-   Simulation crates keep unit tests in separate `tests.rs` files (`#[cfg(test)] mod tests;`), so `kd check layers` (α00b) can scan the other sources.
-   Commit `T00.3: numbers, maths and game time (TIM-14, TIM-18, A3.2, A4.1, A4.2)`.
-
-4. `T00.4` **`kd-core`: keyed chance (`TIM-16`, `RES-05`, A3.3).**
-   Recover `b01-b02-numbers-random/kbench/src/rng.rs` (as in T00.2) and port its guarded wyhash bit for bit into `crates/kd-core/src/chance/hash.rs`: `GOLDEN`, `P0`, `P1` (B02's `WY_P0`, `WY_P1`), `mix64`, `wymum`, `wymum_safe`, `pub fn stream_seed(world: u64, system: u32, purpose: u32) -> u64` (B02's `Stream::new` reduced to its `wy_seed`, exactly as A3.3 prints it) and `pub fn draw(seed: u64, subject: u64, moment: u64) -> u64` (B02's `WySafe::draw`); `num::hash2(a: u64, b: u64) -> u64` is `mix64(a ^ mix64(b ^ GOLDEN))` (A3.2).
-   Keep B02's original `Stream::new` and `WySafe::draw`, unchanged, in `crates/kd-core/src/chance/b02_reference.rs` under `#[cfg(test)]`, for the port test.
-   `crates/kd-core/src/chance/stream.rs`: `pub fn moment(t: GameTime, slot: u16) -> u64` (`(t << 16) | slot`); `pub struct Stream { seed: u64 }` with `Stream::new(world: u64, p: Purpose)` and `Stream::retry(world, p)` (purpose with bit 31 flipped, A3.3); methods taking `(subject: u64, moment: u64)`: `draw`, `unit` (`(draw >> 40) as f32 * (1.0 / 16_777_216.0)`), `chance(p)` (`unit < p`), `below(n: u32)` (`((draw >> 32) * n) >> 32`), `range(lo, hi)`, `pick_weighted(&[f32]) -> usize` (cumulative in index order; all zero gives 0) and `normal()` (the four 16-bit quarters of one draw as fractions of 65,536, summed, minus 2, times 1.732).
-   `crates/kd-core/src/chance/registry.rs`: `pub mod systems` with A3.3's numbers (`WORLD_GEN = 1`, `WEATHER = 2`, `WATER_LAND = 3`, `PLANTS = 4`, `ANIMALS = 5`, `ILLNESS = 6`, `FIRE = 7`, `THINGS = 8`, `BODIES = 9`, `MINDS = 10`, `CULTURE = 11`, `POWERS = 12`, `SETUP = 13`); `pub struct Purpose { pub system: u32, pub number: u32, pub name: &'static str, pub about: &'static str, pub subject: SubjectKind, pub fortune: Fortune }`; `pub enum SubjectKind { Person, Animal, Being, Thing, Plant, Herd, Group, Place, Pair, Any }`; `pub enum Fortune { Good, Bad, None }`; the macro `purposes! { system SETUP; 1 TEST_DRAW "setup.test_draw" "a draw for tests" subject Any fortune None; ... }` making one `pub const` per line and `pub const ALL: &[Purpose]`, plus `pub const RETIRED: &[u32]` per system; `pub fn check_registry(lists: &[&[Purpose]], retired: &[(u32, &[u32])]) -> Result<(), String>` (no repeated system and number, no repeated name, no retired number reused), which `kd-sim` calls over every crate's list from α03c.
-   Fortune's roll (`GOD-04`) is not built here (α35b).
-   `crates/kd-core/src/selfcheck.rs`: `pub const DRAWS_HASH: u64`, `pub const M_HASHES: [(&str, u64); 16]`, and `pub fn core_check() -> Vec<&'static str>` listing what fails among: the 10,000 stored draws (key `i`: world `mix64(i)`, system `i % 13 + 1`, purpose `i % 97 + 1`, subject `mix64(i + 7)`, moment `(i × 7,919) << 16 | i % 5`; the draws' little-endian bytes hashed with `hash64` equal `DRAWS_HASH`) and each `m` function at 1,000 fixed inputs (`x_i = lo + (hi − lo) × i / 999` in `f32`, ranges: angles −50 to 50, `asin` and `acos` −1 to 1, `exp` and `exp2` −20 to 20, `tanh` −10 to 10, `ln`, `log2`, `log10` and `cbrt` at `x_i = 0.001 + 999.999 × (i / 999)²` (positive, spread toward small values with basic arithmetic only), `atan2`, `hypot` and `powf` over pairs `(x_i, x_{999−i})` with `powf`'s base 0.01 to 10 and exponent −3 to 3; the outputs' bits hashed equal `M_HASHES`).
-   Record the constants by running the tests once on x86: each failing assertion prints the value to paste (`assert_eq!(got, M_HASHES, "update M_HASHES to {got:#x?}")`); the arm64 and wasm runs must then match unchanged.
-   Commit `T00.4: keyed chance from B02 (TIM-16, RES-05, A3.3; from pretests/b01-b02-numbers-random)`.
-
-5. `T00.5` **The cube: `kd-view`, `kd-render`, `kd-app` (`PRC-11`, A2.2, A2.4, A3.8).**
-   `kd-view`: `pub struct InputEvent { pub kind: InputKind, pub pointer: i32, pub x: f32, pub y: f32, pub t_ns: u64 }` (screen pixels; `InputKind` is `Down`, `Move`, `Up`, `Cancel`), the raw touch of A12.2.
-   `kd-render`: `crates/kd-render/shaders/cube.vert` and `cube.frag`, GLSL ES 3.00 (`#version 300 es`), the vertex shader passing `uNrm * aNrm` and `uMVP * aPos`, the fragment shader `color = vec4(uBase * (0.25 + 0.75 * max(dot(normalize(vNrm), uLight), 0.0)), 1.0)`, loaded with `include_str!`; `crates/kd-render/src/mat.rs` (`Mat4`, column-major `[f32; 16]`, with `perspective`, `translate`, `rot_x`, `rot_y`, `mul`, `normal3`); `crates/kd-render/src/cube.rs` (24 vertices, a quad per face with its face normal, 36 `u16` indices counter-clockwise from outside).
-   `pub struct Renderer` with `new(gl: glow::Context) -> Result<Renderer, RenderError>` (compiles and links, the error carrying the info log), `gl_info(&self) -> String` (`GL_RENDERER | GL_VERSION`), `resize(&mut self, w: u32, h: u32)`, `draw(&mut self, f: &Frame)` and `gl_error(&self) -> u32`; `pub struct Frame { pub yaw: f32, pub pitch: f32 }` grows into A11.1's `Frame` in α01a.
-   `draw` clears to the palette's `void` (`#0d0b14`), culls back faces (the window has no depth buffer, A2.5), and draws the cube at `perspective(40°, w/h, 0.1, 10) × translate(0, 0, −3) × rot_x(pitch) × rot_y(yaw)`, light `normalize(0.4, 0.8, 0.45)`, colour `#c8ad56` (the mockup's `g6`).
-   `kd-app` (A2.2, grown by later alphas): `pub trait Platform: Send + Sync { fn now_ns(&self) -> u64; fn post(&self, r: Request); }` (`storage` arrives in α07a, `cores` in α02b); `pub enum Request { SelfCheck { json: String } }`; `pub enum AppMsg { Input(InputEvent), Pause, Resume, Back }`; `pub struct AppConfig { pub device: String }`; `pub fn build_line() -> &'static str` (`option_env!("KD_BUILD").unwrap_or("dev")`).
-   `crates/kd-app/src/json.rs`: JSON written by hand, so neither shell needs a JSON crate for it (A2.2 allows `serde_json` only in `kd-android`): `json_str(&str) -> String` (quotes, with `"`, `\` and characters below U+0020 escaped as RFC 8259 says) and `pub fn requests_json(r: &[Request]) -> String`, giving `[{"SelfCheck":{"json":"..."}}]`; both shells drain their outbox through it.
-   `App::new(p, cfg)` runs `kd_core::selfcheck::core_check()`; `gl_ready(gl)` builds the renderer (a failure is remembered as `shader: <log>`); `resize(w, h)`; `handle(m)`: a one-finger horizontal drag turns the cube by `−dx × 4.2 / max(240, width)` radians (the mockup's `yawPerPx`), a release while moving keeps the turn going, slowing by ×0.88 a frame until under 0.0004 (the mockup's `step`), `Pause` stops the clock the spin uses, `Back` does nothing yet; `frame(now_ns) -> u16` spins at 0.6 radians a second of unpaused time plus the drag, pitch 0.5, draws, reads `gl_error` after the second frame, and once per run, if anything failed, posts `Request::SelfCheck { json }` with `{"v": build_line(), "dev": device, "gl": gl_info, "fail": [...]}` (built with `json_str`); it returns 0 (no card for Back to close).
-   **Decision:** in α00 the self-check runs at every start, not only the first of a new version, since nothing can be stored before α07a; the shells turn its JSON into the `KDS1:` code (gzip, base64), which keeps a compression crate out of Rust (A15.4).
-   `pub fn yaw(&self) -> f32` serves the web test hook.
-   Commit `T00.5: the lit cube and the app object (PRC-11, A2.2)`.
-
-6. `T00.6` **Android shell, the throwaway key and the APK (`PLT-01`, `PLT-02`, `PLT-03`, `PLT-06`, A2.5, A15.3, A15.5).**
-   Recover the B78 template `b78-b79-phone/shells/s1-kotlin-rust/` (A2.9) into `android/`: `settings.gradle.kts` (`rootProject.name = "kindling"`, repositories unchanged: `google()`, Google's mirror of Maven Central, `mavenCentral()`, `gradlePluginPortal()`), `build.gradle.kts` (AGP 8.13.2, Kotlin 2.3.21, unchanged), `gradle.properties` (the template's, with `android.useAndroidX=true` and `org.gradle.jvmargs=-Xmx3g`); the template's `rust/` folder is not recovered, the workspace replacing it; there is no Gradle wrapper: the session's `gradle` (8.14.3) runs it.
-   `android/version.properties`: `versionCode=1000` and `versionName=a00`.
-   **Decision:** `versionCode = stage × 1000 + alpha × 10 + split` (split `a` 1, `b` 2, `c` 3, `d` 4, `e` 5, none 0: α00 1000, α00b 1002, α06b 1062, α08 2080), because A15.3's `stage × 1000 + alpha` leaves no number between α06 and α06b; A15.3 is updated in `ARCHITECTURE.md` in this branch.
-   `android/permissions.txt`: the exact `uses-permission` set the APK may hold, one name a line, empty now; it gains ML Kit's and AndroidX's at `MIL-05` (A2.5), and never `android.permission.INTERNET` (`PLT-03`).
-   `android/app/build.gradle.kts`: `namespace` and `applicationId` `dev.kindling.app` (A2.5, A15.3); `compileSdk = 36`, `minSdk = 31`, `targetSdk = 36`; `ndkPath` from `ANDROID_NDK_HOME` (the template's `error("source tools/env.sh first")` kept), `ndkVersion = "30.0.16248370"`; `versionCode` and `versionName` read from `rootProject.file("version.properties")`; `ndk { abiFilters += "arm64-v8a" }`; no `signingConfig` (the release APK is built unsigned and signed by `tools/build-apk.sh`); release `isMinifyEnabled = true` with `proguard-android-optimize.txt` and `proguard-rules.pro`; `packaging { jniLibs { useLegacyPackaging = false } }`; Java and Kotlin targets 17; `sourceSets["main"].jniLibs.srcDir(jniOut)` with `jniOut = build/rustJniLibs`; an `Exec` task `cargoNdk`, `workingDir = rootProject.file("..")`, running `cargo ndk -t arm64-v8a -P 31 -o <jniOut> build --release -p kd-android --locked`, which `preBuild` depends on.
-   `android/app/proguard-rules.pro`: `-keep class dev.kindling.app.Native { *; }` and `-keepclasseswithmembernames,includedescriptorclasses class * { native <methods>; }`.
-   `android/app/src/main/AndroidManifest.xml`:
-   ```xml
-   <?xml version="1.0" encoding="utf-8"?>
-   <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-       <application android:label="Kindling" android:icon="@drawable/ic_launcher"
-           android:allowBackup="false" android:hardwareAccelerated="true"
-           android:enableOnBackInvokedCallback="true"
-           android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
-           <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask"
-               android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|layoutDirection|locale">
-               <intent-filter>
-                   <action android:name="android.intent.action.MAIN" />
-                   <category android:name="android.intent.category.LAUNCHER" />
-               </intent-filter>
-           </activity>
-       </application>
-   </manifest>
-   ```
-   `android/app/src/main/res/drawable/ic_launcher.xml`: a 24 × 24 vector, a `#0d0b14` square with a pixel flame of six rectangles in `#de621c`, `#fdac3f` and `#ffe298` (the mockup's `f1`, `f2`, `f3`).
-   Kotlin in `android/app/src/main/java/dev/kindling/app/` (A2.5, platform classes only, no AndroidX yet):
-   - `Native.kt`: `object Native { init { System.loadLibrary("kindling") } }` with `@JvmStatic external fun` `create(filesDir: String, cacheDir: String, device: String): Long`, `destroy(h: Long)`, `onResume(h: Long)`, `onPause(h: Long)`, `back(h: Long)`, `glCreated(h: Long)`, `glResized(h: Long, width: Int, height: Int)`, `glDraw(h: Long, frameNanos: Long): Int`, `touch(h: Long, action: Int, index: Int, ids: IntArray, xs: FloatArray, ys: FloatArray, timeNanos: Long)`, `takeRequests(h: Long): String?`; A2.5's other functions arrive with their alphas.
-   - `GameView.kt`: a `GLSurfaceView` with `setEGLContextClientVersion(3)`, `setEGLConfigChooser(8, 8, 8, 8, 0, 0)`, `preserveEGLContextOnPause = true`, continuous rendering, and a holder callback asking `setFrameRate(120f, FRAME_RATE_COMPATIBILITY_DEFAULT, CHANGE_FRAME_RATE_ALWAYS)` on `surfaceCreated` (B79's `FrameTest.kt`); its renderer calls `glCreated`, `glResized` and `glDraw` (keeping the result in a `@Volatile var backCount`), then `takeRequests`, handing any JSON to the UI thread; `onTouchEvent` copies pointer ids and positions and queues `touch` with `queueEvent`; `resumeGame()` queues `onResume` then calls `onResume()`, `pauseGame()` queues `onPause` then calls `onPause()`; `onDetachedFromWindow()` calls `super` (which ends the GL thread) and then `Native.destroy`.
-   - `MainActivity.kt`: `FLAG_KEEP_SCREEN_ON`, `window.setDecorFitsSystemWindows(false)`, system bars hidden with transient swipe (again on resume and on focus); `Native.create(filesDir.path, cacheDir.path, "${Build.MANUFACTURER} ${Build.MODEL} SDK ${Build.VERSION.SDK_INT}")` before `setContentView(GameView(...))`; Back through `onBackInvokedDispatcher` on SDK 33 and later and `onBackPressed` below it: if `backCount > 0` queue `Native.back`, else `moveTaskToBack(true)`; requests are a JSON array read with the platform's `org.json` (`[{"SelfCheck":{"json":"..."}}]`), and `SelfCheck` shows an `AlertDialog` titled "Kindling self-check" with the code `KDS1:` + base64 (`Base64.NO_WRAP`) of the gzipped JSON (`GZIPOutputStream`), a Copy button (clipboard) and Close.
-   `crates/kd-android/src/` (under `cfg(target_os = "android")`): `jni.rs` with one `#[unsafe(no_mangle)] pub extern "system" fn Java_dev_kindling_app_Native_<name>` per Kotlin function (edition 2024 spells it `#[unsafe(no_mangle)]`), the handle being `Box::into_raw(Box::new(App))` as `jlong`, every body inside `std::panic::catch_unwind`, logging a panic and returning 0, null or nothing (A3.8); `gl.rs` builds `glow::Context::from_loader_function_cstr` from `dlsym` on `libGLESv3.so`, falling back to `eglGetProcAddress` from `libEGL.so` (A2.5); `logcat.rs`, a `log` logger writing through `__android_log_write` (tag `kindling`, in an `unsafe extern "C"` block linked with `#[link(name = "log")]`) and a panic hook that logs; `platform.rs`, `AndroidPlatform` with `now_ns` from `CLOCK_MONOTONIC` and an outbox `Mutex<Vec<Request>>` drained by `takeRequests` through `kd_app::requests_json`, or null when empty; `touch` maps `ACTION_DOWN` and `ACTION_POINTER_DOWN` to `Down` for the pointer at `index`, `ACTION_MOVE` to `Move` for each pointer, `ACTION_UP` and `ACTION_POINTER_UP` to `Up` at `index`, `ACTION_CANCEL` to `Cancel` for all.
-   **Signing (A15.5, brief correction):** a throwaway key signs until the owner adds the passphrase secret; α00b adds the release key derived from it.
-   Make it once: `keytool -genkeypair -keystore android/keys/throwaway.p12 -storetype PKCS12 -storepass kindling-throwaway -alias throwaway -keyalg EC -groupname secp256r1 -sigalg SHA256withECDSA -validity 36500 -dname "CN=Kindling throwaway key"`, committed with `android/keys/README.md` (public and throwaway, alias `throwaway`, password `kindling-throwaway`; APKs signed with it install over each other; the first APK signed with the release key needs one uninstall, after which worlds come back only by export and import, `PLT-08`).
-   **Decision:** this follows the brief's correction (a throwaway key until the secret exists) where A15.5 says no debug-signed APK is ever delivered; the owner learns of the one reinstall in the first note.
-   Recover `phone-r2/tools/verify-apk.sh` (A2.9) into `tools/verify-apk.sh` and cut it to this app, each group of checks under a `# checks:` line naming its IDs: `# checks: PLT-06` the signer (v2 and v3), compared with the last committed `dist/kindling.apk` (`git show HEAD:dist/kindling.apk` into a temporary file; `info no earlier APK` when there is none, as at α00), a change reported as `info key changed: one reinstall needed (PLT-06)`, and the badging `package: name='dev.kindling.app' versionCode='<versionCode>' versionName='<versionName>'` from `android/version.properties`, minSdk 31, targetSdk 36; `# checks: PLT-01` the ABIs (arm64-v8a only), `check_lib libkindling.so` exporting `Java_dev_kindling_app_Native_<name>` for every `external fun` in `Native.kt`, 16 KB `LOAD` alignment, stored uncompressed, needing only public libraries, no other native library, `dev/kindling/app/Native` and each of its methods kept by R8, `extractNativeLibs` false; `# checks: PLT-02` the activity's `configChanges` holding `orientation` and `screenSize`, and no `screenOrientation`; `# checks: PLT-03` permissions exactly `android/permissions.txt`, never `INTERNET`, no `CctBackendFactory`; and the size at most 50 MB.
-   `tools/build-apk.sh` (α00b adds the release-key branch between `check` and the throwaway key):
-   ```bash
-   #!/usr/bin/env bash
-   # Builds, signs and checks the APK (A15.3, A15.5). Usage: tools/build-apk.sh release|check
-   set -euo pipefail
-   ROOT=$(cd "$(dirname "$0")/.." && pwd); cd "$ROOT"; MODE=${1:-release}
-   [ -f "${KD_CACHE:-$HOME/.cache/kindling}/android-ndk.ready" ] || tools/setup.sh
-   . tools/env.sh; . android/version.properties
-   export KD_BUILD="$versionName $(git rev-parse --short HEAD)"
-   env -u KINDLING_SIGNING_PASSPHRASE gradle -p android --no-daemon --console=plain -q assembleRelease
-   TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
-   "$BT/zipalign" -f -P 16 4 android/app/build/outputs/apk/release/app-release-unsigned.apk "$TMP/aligned.apk"
-   SIGN=("$BT/apksigner" sign --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true --min-sdk-version 31 --out "$TMP/kindling.apk")
-   if [ "$MODE" = check ]; then
-     keytool -genkeypair -keystore "$TMP/k.p12" -storetype PKCS12 -storepass session -alias s -keyalg EC -groupname secp256r1 -validity 2 -dname "CN=check" >/dev/null 2>&1
-     "${SIGN[@]}" --ks "$TMP/k.p12" --ks-pass pass:session --ks-key-alias s "$TMP/aligned.apk"; KEY=session
-   else
-     "${SIGN[@]}" --ks android/keys/throwaway.p12 --ks-pass pass:kindling-throwaway --ks-key-alias throwaway "$TMP/aligned.apk"; KEY=throwaway
-   fi
-   tools/verify-apk.sh "$TMP/kindling.apk"
-   if [ "$MODE" = release ]; then
-     mkdir -p dist; cp "$TMP/kindling.apk" dist/kindling.apk; (cd dist && sha256sum kindling.apk > kindling.apk.sha256)
-     echo "APK: dist/kindling.apk ($(( $(stat -c %s dist/kindling.apk) / 1024 )) KB, versionCode $versionCode, key $KEY)"
-   else echo "APK check: OK (versionCode $versionCode, key $KEY)"; fi
-   ```
-   Run `tools/build-apk.sh release`; expected: the `ok` lines of `verify-apk.sh`, then `APK: dist/kindling.apk (about 500 KB, versionCode 1000, key throwaway)`; the first build downloads Gradle's plugins (about 325 MB, B78) and takes a few minutes.
-   Commit `T00.6: Android shell, throwaway key and the APK (PLT-01, PLT-02, PLT-03, PLT-06, A2.5, A15.5; from pretests/b78-b79-phone and pretests/phone-r2)`.
-
-7. `T00.7` **Web shell, the smoke test and the probe page (`PRC-11`, A2.6, A15.4, A17.3).**
-   `crates/kd-web/src/lib.rs` (under `cfg(target_arch = "wasm32")`): `#[wasm_bindgen] pub struct WebApp` holding the `App`, with `#[wasm_bindgen(constructor)] new(canvas: HtmlCanvasElement, files: js_sys::Map, dpr: f32) -> Result<WebApp, JsValue>` (gets a `webgl2` context with `alpha: false, antialias: false, depth: false, stencil: false, powerPreference: "high-performance"`, set on a `js_sys::Object` with `Reflect::set`, wraps it with `glow::Context::from_webgl2_context`, calls `gl_ready`; `files` is unused until α07a), `frame(&mut self, now_ms: f64)`, `pointer(&mut self, kind: u8, id: i32, x: f32, y: f32, t_ms: f64)`, `resize(&mut self, css_w: u32, css_h: u32, dpr: f32)` (sets the canvas's backing size to CSS size × `dpr`), `pause`, `resume`, `take_requests(&mut self) -> Option<String>` (`kd_app::requests_json`) and `yaw(&self) -> f32`; free functions `core_check() -> bool` and `build_line() -> String`; a `#[wasm_bindgen(start)]` function installing `console_error_panic_hook`; `WebPlatform::now_ns` from `performance.now()` (A2.4: no `Instant` on `wasm32`), holding no JS object (it asks `web_sys::window()` each time) and its outbox in a `Mutex`, so it is `Send + Sync` without unsafe code.
-   `web/index.html` (meets the Artifact page contract: a short title, colour tokens on `:root` repeated for dark mode, an explicit body background, no horizontal scroll at phone width):
-   ```html
-   <!doctype html>
-   <html lang="en"><head><meta charset="utf-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-   <title>Kindling alpha</title>
-   <style>
-   :root { --bg: #0d0b14; --fg: #f2dcaa; --dim: #8f8790; color-scheme: dark; }
-   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0d0b14; --fg: #f2dcaa; --dim: #8f8790; } }
-   :root[data-theme="dark"] { --bg: #0d0b14; --fg: #f2dcaa; --dim: #8f8790; }
-   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--fg); }
-   canvas { position: fixed; inset: 0; width: 100vw; height: 100dvh; display: block; touch-action: none; }
-   #status { position: fixed; left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom));
-     font: 13px/1.4 system-ui, sans-serif; color: var(--dim); overflow-wrap: anywhere; }
-   #status button { font: inherit; color: var(--fg); background: none; border: 1px solid var(--dim); border-radius: 4px; }
-   </style></head>
-   <body><canvas id="cv"></canvas><div id="status">Loading…</div>
-   <script type="module" src="glue.js"></script></body></html>
-   ```
-   `web/glue.js` (an ES module, about 90 lines): `import init, { WebApp, core_check, build_line } from './pkg/kd_web.js'`; a failed `init()` writes `WebAssembly blocked: <error>` to `#status` and stops (A17.3: never a blank page); a failed `new WebApp(...)` writes `WebAssembly works · WebGL2 blocked: <error>`; otherwise `#status` reads `WebAssembly works · WebGL2 works · core OK` (or `core MISMATCH`) `· <build_line()> · running`; a `ResizeObserver` on the canvas calls `resize(cssW, cssH, devicePixelRatio)`; `pointerdown`, `pointermove`, `pointerup` and `pointercancel` on the canvas (kinds 0–3, with pointer capture on down) call `pointer` with device-pixel positions; `visibilitychange` calls `pause` or `resume`; each `requestAnimationFrame` calls `frame(t)` then `take_requests()`, and a `SelfCheck` request shows its `KDS1:` code (gzip by `CompressionStream`, then base64) with a Copy button in `#status`; with `?test=1` it sets `window.kd = { ready: () => true, yaw: () => app.yaw() }` (A12.4's test hook, grown later).
-   `tools/build-web.sh`:
-   ```bash
-   #!/usr/bin/env bash
-   # Builds the web alpha into dist/web (A2.6, A15.3).
-   set -euo pipefail
-   ROOT=$(cd "$(dirname "$0")/.." && pwd); cd "$ROOT"; . tools/env.sh; . android/version.properties
-   export KD_BUILD="$versionName $(git rev-parse --short HEAD)"
-   env -u KINDLING_SIGNING_PASSPHRASE cargo build -p kd-web --target wasm32-unknown-unknown --profile release-web --locked
-   rm -rf dist/web && mkdir -p dist/web/pkg
-   wasm-bindgen --target web --no-typescript --out-dir dist/web/pkg target/wasm32-unknown-unknown/release-web/kd_web.wasm
-   cp web/index.html web/glue.js dist/web/
-   SIZE=$(stat -c %s dist/web/pkg/kd_web_bg.wasm)
-   [ "$SIZE" -le $((12 * 1024 * 1024)) ] || { echo "Web: wasm is $SIZE bytes, over 12 MB (A15.3)"; exit 1; }
-   echo "Web: dist/web (kd_web_bg.wasm $((SIZE / 1024)) KB)"
-   ```
-   `tools/screens/lib.mjs`, shared by every screen script from now on: `launch()` (B66's: Playwright from `PLAYWRIGHT_PATH`, Chromium from `CHROMIUM_PATH`, `--use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist`, a 412 × 860 touch viewport at device scale 1, page errors and console errors collected), `serve(dir)` (a `node:http` static server on a free port, with `text/html`, `text/javascript`, `application/wasm` and `image/png` types; modules and wasm do not load from `file://`) and `pixels(page, png)` (decodes a PNG screenshot inside the page, an `Image` from a data URL drawn on a 2D canvas and read with `getImageData`, and returns width, height and the RGBA bytes, since the session's Node has no PNG library; comparisons and counts run on these bytes).
-   Recover `b66-drawing/tools/smoke.mjs` (A2.9) into `tools/screens/smoke.mjs` on top of `lib.mjs` and cut it to the alpha page: it opens `/?test=1` and checks, each under a `// checks:` line: `page loads` (`#status` contains `running` within 60 s), `no page errors`, `core OK` (in `#status`; `RES-05`, the wasm leg of the cross-target check), `cube drawn` (in a screenshot, at least 2% of the pixels in the middle third differ from `#0d0b14`), `drag turns the cube` (a 200-pixel touch drag changes `kd.yaw()` by more than 1 radian); it saves `results/screens/a00/cube.png` and prints `Smoke: PASS` or exits 1.
-   The probe page (A15.4, A17.3), published once, in `web/probe/`: `probe.wasm`, the 63-byte module written with `python3 -c "import sys; sys.stdout.buffer.write(bytes.fromhex('0061736d01000000010b0260027f7f017f6000017f0303020001070e020361646400000473696d6400010a13020700200020016a0b09004103fd11fd1b000b'))" > web/probe/probe.wasm` (the session has no `xxd`; it exports `add(i32, i32) -> i32` and `simd() -> i32`, which uses `i32x4.splat` and `i32x4.extract_lane`, since the alpha's wasm uses SIMD; checked on 2 October 2026 in Node 22: valid, `add(2, 3) = 5`, `simd() = 3`); `probe-mod.js` (`export const ok = () => 'module ok';`); `index.html` (the same page contract, title `Kindling phone check`), which runs five checks and shows each as `ok` or `blocked: <error>`: the same bytes inline as base64 (`AGFzbQEAAAABCwJgAn9/AX9gAAF/AwMCAAEHDgIDYWRkAAAEc2ltZAABChMCBwAgACABagsJAEED/RH9GwAL`), instantiated, `add(2, 3) = 5` and `simd() = 3`; `fetch('probe.wasm')` instantiated the same way; `import('./probe-mod.js')`; a WebGL2 context drawing a red triangle on a 64 × 64 canvas whose middle pixel `readPixels` returns as red; IndexedDB opening a database `kindling-probe` (reported, never blocking: without it the game runs in memory, A14.11).
-   Its first line, in large type, reads `WebAssembly works` when the first four pass, else `Blocked: <first failing check>`; a last line gives `KDP1 wasm=ok fetch=ok module=ok webgl2=ok idb=ok` to copy.
-   Run `tools/build-web.sh` and `node tools/screens/smoke.mjs`; expected `Web: dist/web (kd_web_bg.wasm <n> KB)`, the five `ok` lines and `Smoke: PASS`; open `web/probe/index.html` through `serve` in Playwright once and see `WebAssembly works`.
-   Commit `T00.7: web shell, smoke test and probe page (PRC-11, A2.6, A15.4; from pretests/b66-drawing)`.
-
-8. `T00.8` **The first checks script, the gate and the note tools (`PRC-09`, `PRC-10`, `PRC-11`, A15.4, A15.12, A15.13).**
-   `tools/check.sh`, stopping at the first failure; α00b fills steps 1 (banned fixture), 2, 7 and 8, and each later alpha replaces a placeholder line when its step arrives:
-   ```bash
-   #!/usr/bin/env bash
-   # The checks before work joins main (PRC-10, A15.12). Usage: tools/check.sh [--deliver] | --gate <description file>
-   set -euo pipefail
-   ROOT=$(cd "$(dirname "$0")/.." && pwd); cd "$ROOT"; . tools/env.sh
-   [ "${1:-}" = "--gate" ] && exec python3 tools/filecheck.py gate "${2:?description file}"
-   DELIVER=0; [ "${1:-}" = "--deliver" ] && DELIVER=1
-   COMMIT=$(git rev-parse --short=12 HEAD); T0=$(date +%s)
-   git fetch -q origin +refs/heads/main:refs/remotes/origin/main 2>/dev/null || true
-   BASE=$(git merge-base HEAD origin/main 2>/dev/null || git rev-list --max-parents=0 HEAD | tail -1)
-   changed() { [ -n "$(git diff --name-only "$BASE" -- "$@")" ]; }   # no pipe into grep -q: pipefail would make it flaky
-   step() { echo "== $*"; }
-   step "1 format";          cargo fmt --all --check
-   step "1 lints";           cargo clippy --workspace --all-targets --locked -- -D warnings
-   step "1 phone lints";     cargo clippy -p kd-android --target aarch64-linux-android --locked -- -D warnings
-   step "1 web lints";       cargo clippy -p kd-web --target wasm32-unknown-unknown --locked -- -D warnings
-   step "1 banned fixture";  echo "   from α00b"
-   step "2 layers";          echo "   from α00b"
-   step "3 tests";           cargo test --workspace --locked
-   step "3 arm64 tests";     cargo test -p kd-core --target aarch64-unknown-linux-gnu --locked
-   step "3 tool tests";      python3 -m unittest discover -s tools/tests -q
-   step "4 catalogue";       echo "   from α01a"
-   step "5 scenes";          echo "   from α07c"
-   step "6 repeat";          echo "   α00: kd-core's stored draws and maths on x86 and arm64 (step 3) and wasm (step 9); kd det from α03c"
-   step "7 file check";      echo "   from α00b"
-   step "8 coverage";        echo "   from α00b"
-   step "9 builds"
-   if [ $DELIVER = 1 ] || changed web crates; then tools/build-web.sh && node tools/screens/smoke.mjs; fi
-   if [ $DELIVER = 1 ] || changed android crates; then tools/build-apk.sh check; fi
-   mkdir -p results/checks
-   printf '{"commit":"%s","result":"PASS","minutes":%d,"deliver":%d}\n' "$COMMIT" $(( ($(date +%s) - T0) / 60 )) "$DELIVER" > "results/checks/$COMMIT.json"
-   echo "Checks: PASS $COMMIT"
-   ```
-   `tools/filecheck.py` (Python 3.11 standard library only; **Decision:** A15.12's `kd check file` and `kd check ids` are written as this script's modes, as the plan's definition of done names it, since text checks over Markdown and sources are simplest in Python, which the session image has), with two modes now and the rest in α00b:
-   - `note`: `dist/NOTE.md` has the headings `What is new`, `What to try`, `What is rough`, `IDs delivered` and `Links`, and a link ending `dist/kindling.apk`.
-   - `gate <description file>` (A15.13 step 6): the description holds `Review: APPROVE <commit> <session>` whose commit is `HEAD` (12-character prefix), `results/checks/<commit>.json` says `PASS` for `HEAD`, or for `HEAD^` when `HEAD` changes only `results/`, and the reviewer's session differs from every `Claude-Session:` trailer in `origin/main..HEAD`; it prints `Gate: PASS <commit>`.
-   `tools/tests/test_filecheck_gate.py` (`# checks: PRC-09 PRC-11`): a planted description without the approval, with a stale commit, and with the builder's own session each fail; a good one passes; a note without its APK link fails.
-   `tools/review-checklist.md`, the reviewer's list (A15.13 step 3): each claimed ID's What, Done when and Check lines; every test and scene the alpha names exists and passes, and fails when its new code is reverted; no test weakened and no pass rule loosened (`RES-09`); catalogue entries naming their checks; the rules of P0's `## Rules every alpha keeps`, above all `PRN-01`, `PRN-06`, `PRN-07`, `PRN-12` and `PRN-14`; determinism (A3.1), layering, budget flags; nothing outside the alpha's scope without a note; no implementation detail in `PROJECT.md` (`PRC-04`).
-   `tools/decode-bench.py <code>`: strips `KDS1:`, base64-decodes, gunzips and prints the JSON indented (`KDB1:` joins in α07d); `tools/tests/test_decode.py` round-trips a sample.
-   `tools/note-page.py`: turns `dist/NOTE.md` (headings, paragraphs, lists, links, inline code) into `dist/note/index.html` under the same page contract as `web/index.html`, with the APK link as a large button at the top and the web link under it; `tools/tests/test_note_page.py` checks a sample.
-   Commit `T00.8: first checks script, gate, review checklist and note tools (PRC-09, PRC-10, PRC-11)`.
-
-9. `T00.9` **Deliver α00 (`PRC-11`, `PLT-06`, A15.4).**
-   Delivery comes first and the full checks last: the gate passes only when the approved commit is the branch's head and its checks passed on it, or on its parent when the head adds only `results/` (A15.12, A15.13 steps 4 and 6), so nothing but the checks' result is committed after `tools/check.sh --deliver`.
-   Write `bench/cloud/a00.json`: `{"alpha": "a00", "apk_kb": <n>, "wasm_kb": <n>, "check_minutes": <n>, "build_seconds": {"apk": <n>, "web": <n>}}` (A15.10's file; `check_minutes` from the last `tools/check.sh` run during the tasks; frame and simulation figures join from α01a and α03a).
-   Run `tools/build-web.sh` and `tools/build-apk.sh release`, commit `dist/kindling.apk` and `dist/kindling.apk.sha256`, and push the branch; the owner's link is `https://github.com/gunsandsalvi/Project-Nature/raw/<branch>/dist/kindling.apk` (A15.4; the repository is public, so no sign-in is needed).
-   Publish with the Artifact tool, which asks for its design skill to be loaded first; the pages keep the look of `web/`:
-   - the probe: `file_path` `web/probe/index.html`, `files` `{"probe.wasm": "web/probe/probe.wasm", "probe-mod.js": "web/probe/probe-mod.js"}`, icon `check`;
-   - the web build: `file_path` `dist/web/index.html`, `files` `{"glue.js": "dist/web/glue.js", "pkg/kd_web.js": "dist/web/pkg/kd_web.js", "pkg/kd_web_bg.wasm": "dist/web/pkg/kd_web_bg.wasm"}`, icon `game`; if the host refuses the wasm file, say so in the note and leave the APK as the route (A17.3), the definition of done's web link then being the APK's;
-   - the note, last, once `dist/NOTE.md` below holds the probe, web and APK links: `file_path` `dist/note/index.html` from `tools/note-page.py`, icon `note`.
-   Write the three URLs and the APK link into `dist/LINKS.md` (`probe:`, `web:`, `note:`, `apk:`); every later alpha republishes the web build and the note to the same URLs, reading each first as the tool requires.
-   `dist/NOTE.md`: What is new (the cube on the phone and in the browser; the scripts), What to try (the On the phone steps below), What is rough (no world yet; a throwaway key until the passphrase secret exists, after which one reinstall is needed; and, once, a request to make `main` the default branch on GitHub), IDs delivered, Links; `python3 tools/filecheck.py note` passes.
-   **Bootstrap:** α00 joins `main` with this alpha's checks; the layering, banned, file, commit and coverage checks of the definition of done arrive in α00b, before any other work joins.
-   Mark α00's existing row in the status table done (`| α00 | Skeleton on the phone | 1 | <measured hours> | done <date> |`, P0 step 5) and commit it with the note and links.
-   Last, run `tools/check.sh --deliver` on that commit; expected, after about 15 minutes cold: every `==` step passes, `Smoke: PASS`, `APK check: OK (versionCode 1000, key session)`, then `Checks: PASS <commit>`; commit only `results/checks/<commit>.json` and push.
-   Open a pull request into `main`, then follow P0's steps 7 and 8: the independent review (A15.13), which approves that last commit, `tools/check.sh --gate`, the merge commit, and two or three lines to the owner with the note link and the probe link.
-
-**Data:** none; the catalogue starts in α01a.
-
-**Tests:**
-- `kd-core` (`cargo test -p kd-core`, then the same on `aarch64-unknown-linux-gnu` under qemu): `chance::tests::splitmix_reference` (`mix64(GOLDEN) == 0xe220_a839_7b1d_cdaf`, B02); `port_matches_b02_reference` (10,000 keys, port against `b02_reference`); `stored_draws_match` (`core_check()` reports no draw failure); `guarded_against_zero_product` (at the moment equal to the stream's seed, subjects 1 and 2 differ, B02's `wy_zero_product_case`); `retry_key_independent` (first draw and retry differ over 10,000 keys); `units_uniform_along_moments` and `units_uniform_along_subjects` (one million units in 64 bins, chi-square below 103.4, the 0.999 point at 63 degrees of freedom, A3.3); `below_stays_below` (n of 1, 7 and 2^32 − 1); `normal_mean_spread_bounds` (one million values: mean within 0.005 of 0, spread within 0.01 of 1, none beyond ±3.4641); `registry_rejects_repeats` (a repeated number, a repeated name and a reused retired number each fail); `time::tests::date_round_trips` (every season's first and last second over three years, Year 1, spring, day 1 at `history_start`, years 0 and below while settling); `barrier_arithmetic` (`next_barrier` at 0, 299, 300 and 2^40 − 1); `game_length_rows` (14 days real; 15 days without a game length fails; 84 days given 10 days gives 10; 85 days gives 1,207,233 s; 365 days gives 5,184,000 s; a mismatch and an out-of-range length fail); `fourteen_years_is_fourteen_game_years` (A4.2: born Year 1, adult Year 15); `m::tests::m_bits_stored` (`core_check()` reports no maths failure); `num::tests::hash64_known_answer` (`hash64(b"") == 0x2d06_8005_38d3_94c2`, XXH3's test vector, checked on x86 and under qemu on 2 October 2026); `min_max_never_split_zero` (`min(−0.0, 0.0)` and `min(0.0, −0.0)` each give the second argument's bits, as `if a < b { a } else { b }` must on every target).
-- `kd-render`: `mat::tests::perspective_known` (entry [11] is −1, entry [0] matches 1/(aspect × tan 20°) within 1e-6); `cube::tests::cube_counts_and_normals` (24 vertices, 36 indices, unit face normals pointing out).
-- `kd-app`: `selfcheck::tests::report_shape` (a failing report's JSON holds `v`, `dev`, `gl` and `fail`); `json::tests::escapes_and_requests` (quotes, backslashes and control characters escaped; one `SelfCheck` gives `[{"SelfCheck":{"json":"..."}}]`).
-- Tools: `python3 -m unittest discover -s tools/tests` (`test_filecheck_gate.py`, `test_decode.py`, `test_note_page.py`).
-- Web: `node tools/screens/smoke.mjs` (`Smoke: PASS`, the screenshot `results/screens/a00/cube.png`), which is also the wasm leg of the cross-target check, since `core OK` comes from `core_check()` run in the browser.
-- APK: `tools/verify-apk.sh` passes on both the `check` and the `release` build, its `# checks:` lines naming `PLT-01`, `PLT-02`, `PLT-03` and `PLT-06`.
-- Every Rust test carries its `// checks:` line (`TIM-16`, `TIM-14`, `TIM-18`, `RES-05`, `PRC-11`).
-
-**On the phone:**
-1. Open the probe link from the message: the top line should read `WebAssembly works`; reply "works", or "blocked" with the last line (`KDP1 ...`).
-2. Open the note link and tap the APK button; allow installs from the browser if asked, install, and open "Kindling" (an orange flame icon).
-3. You see a golden cube turning slowly on a dark violet background, filling the screen with no bars.
-4. Drag a finger sideways: the cube turns with it and keeps spinning a moment after you let go.
-5. Turn the phone to landscape and back: the cube keeps turning without a restart, still filling the screen.
-6. Press Back: the app goes to the background; reopen it from recent apps: the cube is still turning.
-7. From the note, open the web link: the same cube, with a line at the bottom starting `WebAssembly works · WebGL2 works · core OK`.
-8. If a box titled "Kindling self-check" appears in either, tap Copy and paste the code in your reply.
-
-**Not in this alpha:** `kd check layers`, the banned fixture, the file, commit and coverage checks and the release key (α00b); the art-resolution target, the palette and pixel outlines (α01a); terrain and camera gestures (α01b); `Pool`, `Serial` and the world (α03a), `Workers` and the full repeat check (α07c); fortune's roll (α35b); the catalogue and `kd check names` (α01a); the self-check's world parts and its once-per-version rule (α07c); the Tests screen (α07d); `num::sum_f32` (the first sum of over 64 terms); A2.5's other JNI functions, `Device.kt`, `Writer.kt` and `Files.kt` (with sound, the writer and export); the audio worklet (α16b).
-
-**Risks:**
-- Maven Central refusing Gradle's burst of downloads (B78's 429s): Google's mirror comes first and Gradle retries 8 times; rerun the build once before investigating.
-- A crate version in `[workspace.dependencies]` not resolving from the session's index: take the newest `cargo search` lists and pin it.
-- Edition 2024 rules (`#[unsafe(no_mangle)]`, `unsafe extern` blocks) breaking recovered code: written as the edition asks from the start.
-- `glow` failing to find GL functions on the phone's ANGLE driver: `eglGetProcAddress` is the fallback; the self-check code names the missing function.
-- WebAssembly or the wasm file blocked in the artifact page: the probe says which check failed; the APK remains the route and the note says so (A17.3); one `wasm2js` try is A17.3's later fallback.
-- The owner's phone refusing an install signed with the throwaway key under Android's developer verification: install by the one-off advanced unlock or `adb`, then register the release key as soon as the passphrase secret exists (A17.5).
-- No `main` branch, or a session unable to create one: the GitHub tool's `create_branch` needs no push rights to other branches; failing both, the builder still asks nothing and finishes the alpha from its own branch (the links, the APK and the review need no `main`), leaves the pull request unmerged, and the note's What is rough asks the owner to create `main` from the default branch in GitHub's web page; α00b's session then merges α00 first.
-- `tools/check.sh` over 20 minutes cold: the Gradle and wasm builds dominate; they run only when their files change, or with `--deliver`.
-
-**Conflict (T00.6):** `tools/verify-apk.sh` was to check a v2 and a v3 signature, but `apksigner` leaves the v2 block out when `--min-sdk-version` is 28 or more and v3 is on, since every Android that installs the APK (minSdk 31) reads v3.
-Smallest change that works: the check requires v3 and reports a missing v2 as an `info` line; signing is unchanged.
-
-### α00b The checks in full (about 3 hours)
-
-**Goal:** before any other work joins, `tools/check.sh` runs the layering, banned-item, file, commit and coverage checks of `PRC-10` and `PRC-12`, and builds sign with the release key once the owner sets the passphrase secret; on the phone, α00's cube now updates in place, as every later alpha will.
-
-**Serves:** `PRN-14` (part: the layering check), `PRC-07` (part: the commit check), `PRC-10` (part: the file and layering checks), `PRC-12` (part: the coverage check and its self-test), `PLT-06` (part: updates install in place; the release key derived from the passphrase).
-
-**Architecture:** `A2.2`, `A2.3`, `A2.7`, `A3.2`, `A15.1`, `A15.5`, `A15.12`, `A15.13`, `A17.5`.
-
-**Needs:** α00.
-
-**Crates and files touched:** `kd-tools` (`main.rs`, `layers.rs`), `tests/banned/`, `tools/check-banned.sh`, `tools/filecheck.py`, `tools/filecheck-known.txt`, `tools/tests/filecheck/`, `tools/signing-key.py`, `tools/build-apk.sh`, `tools/check.sh`, `android/keys/`, `android/version.properties`, `ARCHITECTURE.md` (A2.2's two extra outside crates for `kd-tools`; citation fixes), `IMPLEMENTATION.md` (citation fixes, status table), `dist/`.
-
-**Tasks:**
-
-1. `T00b.1` **`kd check layers` (`PRN-14`, A2.3, A2.7).**
-   `crates/kd-tools/src/main.rs`, binary `kd`, arguments parsed by hand: `kd check layers` runs `cargo metadata --format-version 1 --no-deps --locked` and, for each workspace package, compares its normal and build dependencies (any target) with `tools/layers.toml`, printing each breach as `kd-core -> kd-sim: not allowed (tools/layers.toml)` or `kd-world -> png: outside crate not allowed`; it also fails any normal or build dependency that turns on a feature named `test-switches` from a crate other than `kd-tools` (A3.9: play builds hold no switches), while a dev-dependency may, so a crate's own tests can switch a mechanism off (α10a's and α17b's switch tests); for crates with `sim = true` it scans every `.rs` file outside `tests/` and `tests.rs`, comments left out, for the type `f64` (A3.2) and the keyword `unsafe` (allowed only in `unsafe_files`); it prints `Layers: OK (19 crates)` or exits 1.
-   `tools/check.sh` step 2 becomes `cargo run -q --profile fast -p kd-tools --locked -- check layers`.
-   Commit `T00b.1: kd check layers (PRN-14, A2.3)`.
-
-2. `T00b.2` **The banned fixture (`PRN-14`, A2.3 rule 6, A3.2, A15.1).**
-   `tests/banned/` (outside the workspace, its own `[workspace]` table, no dependencies, `Cargo.lock` committed): `src/lib.rs` uses each entry of `clippy.toml` exactly once, one `pub fn` per entry, written so the path appears once, for example `pub fn t1() -> usize { std::collections::HashMap::<u8, u8>::new().len() }`, `pub fn t14() -> bool { std::fs::File::open("x").is_ok() }`, `pub fn m25(x: f32) -> f32 { x.min(1.0) }` and `pub fn m29() { let _ = std::thread::spawn(|| {}); }`; clippy finds the root `clippy.toml` by walking up from the fixture.
-   `tools/check-banned.sh` runs `cargo clippy --manifest-path tests/banned/Cargo.toml -- -D clippy::disallowed_methods -D clippy::disallowed_types` (its exit status ignored), counts the lines starting `error: use of a disallowed`, compares with the number of entries in `clippy.toml`, and prints `Banned: OK (44 of 44)` or exits 1 (A2.3 rule 6; a trial on 2 October 2026 flagged all 44 entries once each, so a mistyped path shows as a missing count).
-   `tools/check.sh` step "1 banned fixture" becomes `tools/check-banned.sh`.
-   Commit `T00b.2: the banned fixture (PRN-14, A2.3, A3.2)`.
-
-3. `T00b.3` **The file check and the commit check (`PRC-10`, `PRC-07`, A15.12 step 7).**
-   `tools/filecheck.py file`:
-   - in `PROJECT.md`, every item marker parses as `` - `XXX-NN` **Name** *(Status)* `` or the numbered form, with an ID of three capitals and two or three digits; each ID is defined once; each status is one of `Decided`, `Proposed`, `To test`, `Dropped`; every backticked ID resolves (the section `## How this file works` holds examples and is skipped); no item that is not Dropped cites a Dropped one in its own lines (up to the next item);
-   - in `ARCHITECTURE.md`, every cited ID exists and every cited section (`A5`, `A5.3`) is a heading there;
-   - in `IMPLEMENTATION.md`, every backticked ID exists and is not Dropped, every cited section exists, each alpha section (`### α..`) has the template's eleven field labels in order, and the task IDs opening its numbered task lines are unique and match their alpha (`T06b.3` in `α06b`, `T00b.2` in `α00b`);
-   - the commit check (`PRC-07`): every commit in `origin/main..HEAD` that changes `PROJECT.md` has a `Changed:` line naming every ID whose item lines it changed.
-   Run `python3 tools/filecheck.py file` on the real documents.
-   The joined plan passed these rules before α00 (2 October 2026); an error left in `ARCHITECTURE.md` or `IMPLEMENTATION.md` is fixed in place (the architecture is updated in the alpha's branch, P0 step 4); an error in `PROJECT.md` cannot be fixed without the owner (`PRC-07`): list it in `tools/filecheck-known.txt` (one line: the finding, the date, `awaiting owner OK`), which the script skips while listed, and raise it in the note.
-   Expected: `File check: OK (<n> items, <m> citations)` (413 items on 2 October 2026).
-   `tools/check.sh` step 7 becomes `python3 tools/filecheck.py file`.
-   Update A2.2's outside-crate list in `ARCHITECTURE.md` for `kd-tools` (`serde_json`, `toml`), T00.1's decision.
-   Commit `T00b.3: the file and commit checks (PRC-07, PRC-10, A15.12)`.
-
-4. `T00b.4` **The coverage check and its self-test (`PRC-12`, A15.12 step 8).**
-   `tools/filecheck.py ids --merge`:
-   - every ID in a `/// Implements` line, a `checks:` comment line (`// checks:` in Rust and JavaScript, `# checks:` in shell and Python under `tools/`), a catalogue entry's `checks` (from α01a) or a scene's `checks` (from α07c) exists and is not Dropped;
-   - every `#[test]` function in `crates/` has a `// checks:` line among the four lines above it (other attributes may sit between);
-   - every task in `IMPLEMENTATION.md` names at least one `PROJECT.md` ID in its block (its numbered line and the lines up to the next task or field label);
-   - every item whose kind is Feature or Rule (the rules of `PROJECT.md`'s Kinds of item: area defaults and the listed exceptions) and that is neither Dropped nor Proposed appears in some alpha's **Serves** line or in the plan's `## Rules every alpha keeps` section;
-   - every ID in the **Serves** line of an alpha marked done in the status table is named by at least one `checks:` line, scene or catalogue `checks`, except the rules of `## Rules every alpha keeps`, which the review checks (A15.13 step 3).
-   `selftest`: runs each mode on planted fixtures in `tools/tests/filecheck/` (a duplicate ID, an unresolved reference, an invalid status, a live item citing a dropped one, a test naming a dropped ID, a `#[test]` without `// checks:`, a task naming no ID, a plan leaving one live feature unmapped, a done alpha whose served feature no test names, a `PROJECT.md` commit without its `Changed:` line), each of which must fail with its own message, and the clean fixture must pass; this is `PRC-12`'s Done when except the blueprint without a trial, which joins with blueprints in α09.
-   Expected on the real documents: `Coverage: OK` (α00's served IDs named by its Rust tests and `tools/verify-apk.sh`'s `# checks:` lines).
-   `tools/check.sh` step 8 becomes `python3 tools/filecheck.py ids --merge`, and step "3 tool tests" gains `&& python3 tools/filecheck.py selftest`.
-   Commit `T00b.4: the coverage check and its self-test (PRC-12, A15.12)`.
-
-5. `T00b.5` **The release key (`PLT-06`, A15.5, A17.5).**
-   `tools/signing-key.py` (Python `cryptography`, in the session image): `pk8 <out>` derives the release key from `KINDLING_SIGNING_PASSPHRASE` (scrypt, n = 2^17, r = 8, p = 1, `maxmem` 256 MiB, salt `kindling-release-v1`, 48 bytes, reduced to a P-256 scalar `d = int(bytes) mod (q − 1) + 1`, `q` the curve's order) and writes it as PKCS#8 DER; on first use it also makes `android/keys/release-cert.der` (self-signed, `CN=Kindling`, serial 1, valid 2026-10-01 to 2126-10-01, SHA-256) and `release-cert.sha256`, which the session commits, prints the fingerprint for the owner's developer account (`RSK-18`), and on later uses fails with "passphrase does not match android/keys/release-cert.der" unless the derived public key equals the certificate's; `fingerprint` prints it; `selftest` (`# checks: PLT-06`) derives from the fixed phrase `kindling test phrase only` and compares the public key's SHA-256 with a constant recorded on first run.
-   Only this script reads the secret (A15.5).
-   `tools/build-apk.sh` gains, between `check` and the throwaway key: `elif [ -n "${KINDLING_SIGNING_PASSPHRASE:-}" ]; then python3 tools/signing-key.py pk8 "$TMP/release.pk8"; "${SIGN[@]}" --key "$TMP/release.pk8" --cert android/keys/release-cert.der "$TMP/aligned.apk"; KEY=release`.
-   `tools/check.sh` step "3 tool tests" gains `&& python3 tools/signing-key.py selftest`.
-   If the secret is set when this alpha runs, the note gives the fingerprint and the one reinstall, and the session confirms the developer console accepts an EC certificate (A15.5; fallback: a base64 RSA keystore in the secret).
-   Commit `T00b.5: the release key from the passphrase (PLT-06, A15.5)`.
-
-6. `T00b.6` **Deliver (`PRC-11`, `PLT-06`).**
-   `android/version.properties`: `versionCode=1002`, `versionName=a00b`; `tools/check.sh --deliver` now runs every step α00 left as a placeholder up to step 8; then P0's steps 5 to 8 in α00's order (T00.9): the APK, the web build, the note, the links and the status row committed first, `tools/check.sh --deliver` last with only its result committed after it, and the review approving that head (A15.13 step 6).
-
-**Data:** none.
-
-**Tests:**
-- `kd-tools` (`PRN-14`): `layers::tests::forbidden_edge_fails` (a metadata sample where `kd-core` depends on `kd-sim` is refused with that message); `layers::tests::f64_in_sim_source_fails`; `layers::tests::test_switches_only_from_kd_tools`.
-- Tools: `tools/check-banned.sh` (`Banned: OK (44 of 44)`); `python3 tools/filecheck.py selftest`; `python3 tools/signing-key.py selftest`; `python3 tools/filecheck.py file` and `ids --merge` on the real documents.
-- APK: `tools/verify-apk.sh` on the `release` build reports the same signer as α00's committed APK (or `info key changed` once the passphrase exists).
-
-**On the phone:**
-1. Open the note link and tap the APK button: Android offers to update Kindling rather than install it anew (the same key and a higher version, `PLT-06`); update and open it.
-2. The same golden cube turns as before; nothing else has changed for you.
-3. Only if the note says the release key now signs (the passphrase secret is set): the update is refused; uninstall Kindling once, install again, and register the package and the fingerprint the note gives in your hobbyist developer account (`RSK-18`); with no world kept yet, nothing is lost.
-
-**Not in this alpha:** the catalogue checks and `kd check names` (α01a); scenes and the repeat check in `tools/check.sh` (α07c); the stage coverage check `ids --stage` (α07e); the blueprint-trial rule of `PRC-12` (α09).
-
-**Risks:**
-- Citation errors in the joined plan or the architecture taking hours to fix: the joined plan passed the same rules before α00 started; what remains is fixed here, and anything in `PROJECT.md` waits for the owner in `tools/filecheck-known.txt`.
-- The developer console refusing an EC certificate: A15.5's fallback, a base64 RSA keystore kept in the secret, with `signing-key.py` reading it instead.
-- Clippy changing its message wording: `check-banned.sh` matches `error: use of a disallowed`, the wording of Rust 1.97.0's clippy; a toolchain change re-runs the fixture (A15.1).
-
-**Conflict (T00b.5):** the session cannot sign in to the owner's developer account, so it cannot confirm there that the console accepts an EC certificate (A15.5).
-Android's registration guide (developer.android.com, developer verification, Android Developer Console, read 2 October 2026) asks only for the package name and the signing certificate's SHA-256 fingerprint and names no key type, and every Android from minSdk 31 verifies ECDSA P-256 signatures.
-Smallest change that works: the note gives the fingerprint and asks the owner to register it; if the console refuses it, A15.5's fallback (a base64 RSA keystore in the secret, read by `signing-key.py`) is built in the next alpha.
-
-**From α00's review (T00b.5, T00b.6):** A15.3 now says the APK is signed with scheme v3 alone (α00's Conflict note); `tools/screens/smoke.mjs` saves its screenshot under the uncommitted `target/screens/smoke/`, or with `--save` into `results/screens/<versionName>/`, so a check run no longer changes `results/screens/a00/cube.png`.
-
-**From α00b's review:** once `android/keys/release-cert.der` exists, `tools/build-apk.sh release` fails without the passphrase secret instead of falling back to the throwaway key (A15.5: a release build fails without the key); `tools/filecheck.py file` also fails a numbered line in an alpha's Tasks that opens with no task ID, and a list entry in `PROJECT.md` that opens with an ID-like token but has lost its backticks or bold name; `kd check layers` fails any feature of a crate other than `kd-tools`, not only `default`, that turns on `test-switches`.
-
-### α01a Pixel art (about 5 hours)
-
-**Goal:** the turning cube becomes pixel art: drawn at art resolution into palette indices with stepped light, a one-pixel outline and a sunlit rim, then upscaled so one art pixel is 4 screen pixels in both orientations; its colours, ladders and light tables come from data through the new catalogue compiler, and a pixel font shows the version line after a touch.
-
-**Serves:** `MAT-13` (part: the catalogue pipeline), `MAT-17` (part: the schema checks), `PRN-17` (part: tuned numbers live in data), `PLT-09` (part: the rules version in the blob), `PRE-01` (part), `PRE-20` (part: ladders, the narrow dither band), `PRE-21` (part: outlines and the sun rim), `PRE-22` (part: 4 × 4 screen pixels per art pixel in portrait and landscape), `PRE-30` (part: the palette's dawn, day, dusk and night versions), `PRE-32` (part: the line fades), `PLT-02` (part).
-
-**Architecture:** `A3.6`, `A11.1`, `A11.2`, `A11.3`, `A12.1`.
-
-**Needs:** α00b.
-
-**Crates and files touched:** `kd-core` (`kinds`), `kd-data` (`schema`, `blob`, `compile`), `kd-tools` (`kd catalog`, `kd check names`), `kd-render` (`palette`, `target`, `pass`, `shaders/`), `kd-ui` (`font`, `draw`), `kd-view`, `kd-app` (`build.rs`, the line), `data/` (new), `assets/font/`, `assets/LICENSES.md`, `tools/check.sh`, `tools/screens/`, `tools/note-page.py`.
-
-**Tasks:**
-
-1. `T01a.1` **The catalogue compiler (`MAT-13`, `MAT-17`, `PLT-09`, A3.6).**
-   `crates/kd-data/src/schema.rs`: `pub struct Common { pub id: String, pub name: String, pub stage: String, pub checks: Vec<String> }` flattened into every kind's struct, each with `#[serde(deny_unknown_fields)]`.
-   `crates/kd-data/src/kinds.rs`: the registry `KINDS: &[(&str, KindName)]` mapping a file or folder under `data/` to its kind (α01a: `palette/colours.md` → `ColourFamily`, `palette/ladders.md` → `Ladder`, `palette/light.md` → `LightTable`); a Markdown file under `data/` that no kind claims fails, so nothing hides (`data/INDEX.md` and `data/TUNING-LOG.md` excepted).
-   `crates/kd-data/src/compile/` (feature `compile`): `pub fn compile(root: &Path, assign: bool) -> Result<Compiled, Vec<CatalogueError>>` following A3.6's five steps: read every claimed file in sorted path order and split at `## ` headings outside code fences; each entry holds exactly one fenced `toml` block and its `name` equals the heading; parse with `toml::from_str` into its kind; resolve each `id` in `data/ids.lock` (lines `<kind> <id> <number>`, `retired` appended for a retired entry; with `assign`, a new id takes the next number of its kind); build per-kind tables in id-number order; encode with `postcard` behind the header `KDCAT`, format version `1`, rules version and generator from `data/VERSION.toml`, and `num::hash64` of the body.
-   `crates/kd-data/src/blob.rs` (every target): `Catalogue::load(&[u8]) -> Result<Catalogue, LoadError>` checking magic, format and hash (A3.6: under 10 ms on the phone).
-   `crates/kd-core/src/kinds.rs`: the numeric ids `ColourId(u8)`, `LadderId(u8)` and the pattern later kinds follow (`ItemKind(u16)` in α04a).
-   `data/VERSION.toml`: `major = 1`, `minor = 0`, `generator = 1`.
-   `kd catalog build [--assign] [--out <file>]`, `kd catalog check` and `kd catalog tables` in `kd-tools` (feature `compile` of `kd-data`): `check` runs A3.6's validation rules 1, 2, 3, 4 and 6 as they apply to these kinds (one block an entry, no unknown or missing field, ids unique within their kind (`data/ids.lock` numbers each kind apart, so a soil and a deposit, an item and its layout, or an event kind and its pattern may share an id) and `snake_case` and locked and not retired, `name` equals its heading, `stage` a `MIL-0n`, every reference resolving, `checks` never empty and each a live ID of `PROJECT.md`, every generated table current); `tables` rewrites the table between each entry's `<!-- table -->` and `<!-- end table -->` markers from its block and writes `data/INDEX.md` (one short table per kind).
-   `kd check names` (A2.3 rule 5): no string literal in a simulation crate's non-test source equals an entry's `id` or `name`.
-   Commit `T01a.1: catalogue compiler and kd catalog (MAT-13, MAT-17, PLT-09, A3.6)`.
-
-2. `T01a.2` **The blob in the app (`PLT-09`, A3.6).**
-   `crates/kd-app/build.rs` compiles `../../data` with `kd-data`'s `compile` (a build-dependency) into `$OUT_DIR/catalogue.bin`, printing `cargo:rerun-if-changed=../../data`; `kd_app::CATALOGUE: &[u8]` includes it; `App::new` loads it and the self-check (T00.5) adds `catalogue` to its failures if loading fails, and its JSON gains `"cat": "<rules major.minor> <hash prefix>"`.
-   `tools/check.sh` step 4 becomes `cargo run -q --profile fast -p kd-tools --locked -- catalog check` (A15.12), and step 2 gains `check names`.
-   Commit `T01a.2: catalogue blob embedded in the app (A3.6)`.
-
-3. `T01a.3` **The palette as data (`PRE-01`, `PRE-20`, `PRE-30`, A11.3).**
-   **Decision:** A11.3's `data/palette.md` becomes the folder `data/palette/`, because A3.6 allows one kind of entry per file.
-   `data/palette/colours.md`: one entry per colour family of the mockup's `PAL.entries`, in its order (void; violet darks; limestone; autumn grass; earth; water; birch gold; pine; rust and bracken; fire; skin; ochre cloth; red-ochre cloak; red deer coat; mist and smoke; wood smoke; snow and ice; map and globe extras), each `colours = [["s0", "#3e3955"], ...]` with the mockup's 84 names and values exactly, `checks = ["PRE-01", "PRE-20"]`, `stage = "MIL-01"`; a colour's palette index is its position over the whole file, so index k equals the mockup's `PAL.I` value; new families are appended at the end in later alphas, so indices never move.
-   `data/palette/ladders.md`: the mockup's 51 `RAMPS`, one entry each in its order, ids in `snake_case` (`grassDamp` → `grass_damp`, `limeLit` → `lime_lit`, `forestGold` → `forest_gold`, likewise the rest), `steps = ["dusk", "g1", "g2", "g3", "g4", "g5", "g6"]` naming colours; a ladder's index is its position (the mockup's `RID`).
-   `data/palette/light.md`: one entry per index table of the mockup's `PAL` (`warm_1`, `warm_2`, `warm_3` with `k` 0.65, 1.35 and 2.2; `haze_1`, `haze_2`, `haze_3` toward `[104, 98, 132]` by 0.22, 0.42 and 0.62; `outline`, `rim_sun`, `rim_fire`, `darker`, `lighter`, `snow_cover` with their OKLab multipliers and offsets exactly as the mockup writes them), each with `only_families`, `exclude_families` and `exclude_colours` spelling out the mockup's regular expressions (`warmAllowed` excludes the fire, snow, water, mist and pine families, `g0`, `g1`, `shade`, `dusk`, `night` and `ink`; `notMap` excludes `void` and the map family; and so on); and one entry per palette version (`dusk` unchanged, `dawn`, `day`, `night` with the mockup's `VARIANTS` transforms, fire colours never changed, and night keeping `o3`, `b4` and `k3`), `checks = ["PRE-21", "PRE-30"]`.
-   Run `kd catalog build --assign`, `kd catalog tables` and `kd catalog check`; commit `data/ids.lock` and `data/INDEX.md`.
-   Commit `T01a.3: palette, ladders and light tables as data (PRE-01, PRE-20, PRE-30, A11.3)`.
-
-4. `T01a.4` **Palette code (`PRE-20`, A11.3).**
-   `crates/kd-render/src/palette.rs`, ported from the mockup's `PAL` in `f64` as its JavaScript computes: `to_lab`, `from_lab` (`toLab`, `fromLab`), `nearest(rgb, allow)` (`nearest`, OKLab distance with chroma weighted 1.3, ties to the lower index), `table(fn, allow)` (`table`), the version rows (`variant`, `VARIANTS`); `PaletteTextures::build(&Catalogue)` gives the palette texture (256 × 4, rows dusk, dawn, day, night, RGBA8), the ladder texture (8 × 512: R the colour index, G the ladder's length, as `textures()`; A11.3 allows up to 512 ladders, and the mockup's 64 rows would overflow at α03b, so the ported `RAMP_ROWS` is 512), and the table texture (256 × 16, rows in the mockup's `LUT_ROWS` order: warm 1–3, haze 1–3, outline, rim sun, rim fire, darker, lighter, snow).
-   `tools/screens/palette-ref.mjs` extracts the `PAL` module from `mockups/visual-style.html` (the text from `const PAL = (() => {` to its closing `})();`, with the helpers `clamp` and `lerp` it uses), evaluates it in Node and writes `crates/kd-render/tests/fixtures/palette-ref.json` (the 12 tables and the four versions as index and RGB arrays), committed.
-   Commit `T01a.4: palette code ported from the mockup (PRE-20, A11.3)`.
-
-5. `T01a.5` **Targets and passes (`PRE-22`, A11.2).**
-   `crates/kd-render/src/target.rs`, ported from the mockup's `GLX` (`X.target`, `X.resizeTarget`, `X.bind`, `X.texture`, `X.quad`): the art target, `ceil(W/s) + 2` by `ceil(H/s) + 2` art pixels with `s = 4` screen pixels on the phone and 4 device pixels on the web (272 × 603 on 1080 × 2404 in portrait), colour 0 `RGBA8` and a `DEPTH24_STENCIL8` renderbuffer (colour 1 for picking joins in α03c); the post target, the same size, `RGBA8`; both nearest-filtered and clamped, resized on rotation with `s` unchanged (`PRE-22`).
-   `crates/kd-render/src/pass.rs`: pass 2 (scene into the art target, cleared to `void`), pass 3 (post), pass 5 (upscale to the window); passes 1, 4 and 6 come in α01b and T01a.7.
-   Shaders in `crates/kd-render/shaders/`, written in GLSL ES 3.00 by `convert()`'s rules (`attribute` → `in`, `varying` → `out` or `in`, `texture2D` → `texture`, `gl_FragColor` → an `out vec4`): `quad.vert` (`quadVS`); `post.frag` (`postFS`: outlines by category with its depth thresholds, ink for figures, the sun rim through the `rim_sun` table toward `uSunScr`, the fire rim through `rim_fire` toward `uFireScr` kept for α14a, then the palette row `uPalRow`); `upscale.frag` (`upscaleFS`: `floor(uOff + fragCoord / uScale)`, whole-number scale); `common.glsl`, the mockup's `noise` and `common` blocks (`hash12`, `hash13`, `vnoise`, `fbm3`, `bayer2`, `bayer`, `setBand`, `setBandV`, `qlevel`, `rampLen`, `rampAt`, `rampPick`, `lut`, `shadowAt`, `sunLight`, `sky`, `fireLight`, `viewDepth`, `hazeAmt`, `detail`, `cutTest`, `finish`, `packOut`, `stampTuft`, `stampStone`), prepended to scene shaders with the generated `#define R_<LADDER>` and `#define L_<TABLE>` lines (`SH.rampDefs`).
-   Categories, the mockup's `packOut` values, as `kd_render::Cat`: ground 1, rock 2, water 3, plant 4, figure 5, thing 6, effect 7.
-   `Renderer::new(gl, cat: &Catalogue, assets: &Assets)`, `resize(w_px, h_px, scale)` and `draw(&Frame, &Snapshot, &UiDrawList) -> FrameStats` take A11.1's signatures; `Frame` holds `real_s`, `palette_row: f32` and `set: DrawSettings { outlines: bool }` now (the camera joins in α01b, display time and speed in α03a); `kd_view::Snapshot` holds `cube: Option<CubeView { yaw, pitch }>` until the world fills it in α03a.
-   Commit `T01a.5: art target, post and upscale passes (PRE-22, A11.2)`.
-
-6. `T01a.6` **The cube as pixel art (`PRE-20`, `PRE-21`).**
-   `shaders/cube.vert` and `cube.frag` replace α00's: the fragment's light is `sunLight(n, 1.0) + sky(n)` with `uSunDir` `normalize(0.4, 0.8, 0.45)` in view space, picked from the `birch` ladder by `rampPick` with `setBand` and `bayer`, through `finish` (no fire, no haze), written by `packOut(idx, 2.0, sunlit)` (category rock, so the post pass outlines it and rims its lit side); the cube now draws into the art target with depth.
-   The cube stays afterwards as the renderer's golden test scene `cube` (A11.12).
-   Commit `T01a.6: the cube drawn as pixel art (PRE-20, PRE-21)`.
-
-7. `T01a.7` **Pixel font and the UI pass (`PRE-32`, A12.1).**
-   **Decision:** α01a draws the 7-pixel font in-house as text art, A12.1's fallback, because a session cannot rely on fetching Pixel Operator; importing that font later into the same format stays possible, and the owner chooses the default font from the `MIL-02` contact sheet (A12.1).
-   `assets/font/glyphs-7.txt`: a header `cap 7 descent 2`, then one block per glyph, `glyph A advance 6` followed by 9 rows of `.` and `#` (7 above the baseline, 2 below), for printable ASCII 32–126 plus `·`, `–`, `—`, `’`, `…`, `°` and `×`; proportional widths of 1–5 pixels plus one of spacing; `assets/LICENSES.md` says it is the project's own work.
-   `crates/kd-ui/src/font.rs`: `Font::parse(&str)`, `measure(&str) -> u32`, `layout(&str, max_w) -> Vec<Line>` (wrapping at spaces); `crates/kd-ui/src/draw.rs`: `UiDrawList { rects: Vec<UiRect { x, y, w, h, colour: ColourId }>, runs: Vec<GlyphRun { x, y, text, colour }> }` in UI pixels, where a UI pixel is an art pixel (A12.1).
-   Pass 6 in `kd-render` (`ui.vert`, `ui.frag`): rectangles and glyphs from a glyph atlas (`R8`, built from the font at start) at 4 screen pixels a UI pixel on the upscale's grid, colours from the palette's current row.
-   `kd-ui`'s `Ui` v0: any touch shows, for 3 seconds, a strip at the top under the insets (`night` panel, `s6` text, an 11-pixel line): `Kindling <build_line()> · <real frame rate> Hz · <GL thread ms> ms · <palette row>`; a tap on the strip steps the palette row dusk → dawn → day → night (`PRE-30`); `kd-app` measures each frame's GL thread time with `Platform::now_ns` into a ring of 1,024 frames (A11.11).
-   Commit `T01a.7: pixel font and the UI pass (PRE-32, A12.1)`.
-
-8. `T01a.8` **Golden scene and screenshots (`PRE-01`, `PRE-22`, A11.12).**
-   `window.kd` (A12.4) gains `shot()` (the canvas as a PNG data URL after the next frame) and `golden(name)`, which freezes time and the drag and shows a fixed scene: `cube` at yaw 0.6 and pitch 0.5 on dusk's row.
-   `tools/screens/golden.mjs` opens `/?test=1`, renders each golden scene, and compares its pixels (through `tools/screens/lib.mjs`) exactly with `tests/golden/<name>-chromium-1194.png` (the first run writes it, after the builder looks at it and commits it); a difference fails, with the differing pixel count.
-   The smoke test gains `pixel grid` (in a screenshot, every 4 × 4 block of screen pixels inside the canvas is one colour) and `palette only` (every pixel's colour is in the current palette row).
-   Commit `T01a.8: golden cube and screenshot checks (PRE-01, PRE-22, A11.12)`.
-
-9. `T01a.9` **Deliver (`PRC-11`).**
-   `android/version.properties`: `versionCode=1011`, `versionName=a01a`; `bench/cloud/a01a.json` adds `frame_ms_web` (meaningless as speed under SwiftShader, kept to spot leaps) and the blob's size; the note shows the golden cube, which `tools/note-page.py` learns to place now (`![caption](file.png)` becomes an image held in the page as a `data:` URI, so the note stays one file; `test_note_page.py` adds an image case); then P0's steps 5 to 8.
-
-**Data:** `data/VERSION.toml`; `data/ids.lock`; `data/INDEX.md`; `data/palette/colours.md` (18 families, the mockup's 84 colours); `data/palette/ladders.md` (51 ladders); `data/palette/light.md` (`warm_1`, `warm_2`, `warm_3`, `haze_1`, `haze_2`, `haze_3`, `outline`, `rim_sun`, `rim_fire`, `darker`, `lighter`, `snow_cover`, `version_dusk`, `version_dawn`, `version_day`, `version_night`).
-
-**Tests:**
-- `kd-data`: `compile::tests::planted_errors`, one fixture tree each under `crates/kd-data/tests/fixtures/` for a missing block, two blocks, an unknown field, a missing field, a `name` unlike its heading, a repeated id, a non-`snake_case` id, an id missing from the lock, a reused retired number, an unresolved reference, empty `checks`, a `checks` ID that is dropped, a stale table and an unclaimed file, each failing with its own message (A3.6: one planted error per rule); `blob::tests::load_rejects_damage` (a flipped byte, a wrong magic and a wrong format each fail); `blob::tests::round_trip` (compile then load gives equal tables).
-- `kd-render`: `palette::tests::matches_mockup` (every table and version equals `palette-ref.json`, index for index, A11.3); `palette::tests::ladders_are_palette_indices`; `palette::tests::warming_never_flame` (no warm table maps a colour into the fire family); `target::tests::art_size` (1080 × 2404 at 4 gives 272 × 603; 2404 × 1080 gives 603 × 272).
-- `kd-ui`: `font::tests::every_glyph_present` (95 printable ASCII glyphs and the 7 others, each 9 rows, cap 7); `font::tests::measure_known` (`measure("Kindling")` equals the sum of its advances); `draw::tests::strip_under_insets` (the strip never overlaps the top inset).
-- `kd-tools`: `names::tests::finds_a_named_id` (a fixture crate holding `"grass_damp"` fails `kd check names`).
-- Screens: `node tools/screens/golden.mjs` (the cube golden, exact); the smoke test's `pixel grid` and `palette only` checks.
-
-**On the phone:**
-1. Install the new APK from the note's link over α00 (no uninstall needed) and open it.
-2. The cube now looks like pixel art: chunky square pixels, its faces in a few shades of gold with a narrow speckled band where two shades meet, a dark outline around it, and a bright one-pixel rim on the edges facing the light.
-3. Touch anywhere: a strip at the top shows `Kindling a01a ...` with the frame rate (about 120 Hz) and the milliseconds a frame takes; it fades after 3 seconds.
-4. Tap the strip four times: the colours shift to dawn, day and night, then back to dusk.
-5. Turn the phone: the pixels keep exactly their size; nothing restarts.
-6. Open the web link: the same, in the browser.
-
-**Not in this alpha:** the shadow pass and the crawl slot (α01b); colour 1 and picking (α03c); the palette's spring and summer greens, flowers, stone greys and skin and hair families (α02d, α03b and α05, as each first needs them); `kd catalog`'s content checks for items (α04a); the 9-pixel font (Stage 2's contact sheet); units and durations in the compiler (α02a); panels, cards and scrolling (α04d).
-
-**Risks:**
-- The palette tables differing from the mockup by one index on a few colours (rounding in `f64` against JavaScript): the reference test names each; port the JavaScript expression order exactly, since JavaScript computes in doubles too.
-- `fwidth` precision on the phone making the dither band wider than on the web: `setBand` clamps it to 0.03–0.3 as the mockup does; compare the phone with the golden by eye in the note.
-- The in-house font reading poorly at 7 pixels: the owner's eye decides at `MIL-02` with the 9-pixel font beside it (A12.1).
-- A build script compiling `data/` slows every build: it reruns only when `data/` changes.
-
-**Conflict (T01a.3):** the light tables' OKLab multipliers and offsets must reach `kd-render`'s port in doubles, exactly as the mockup writes them (A11.3), but `kd-data` is a simulation crate, where `kd check layers` refuses the type `f64` (A3.2).
-Smallest change that works: `data/palette/light.md` writes them as decimal strings (`mul = ["0.42", "0.55", "0.55"]`), which the compiler checks are plain decimal numbers and carries unchanged in the blob, and `kd-render` parses them as `f64`; `toward` stays integers.
-
-**Conflict (T01a.7):** T01a.7 puts `UiDrawList` in `kd-ui`, but `kd-render` draws it and may not depend on `kd-ui` (A2.3: the front-end crates depend on `kd-view` and `kd-data` only).
-Smallest change that works: `UiDrawList`, `UiRect` and `GlyphRun` live in `kd-view`, which A2.2 gives the UI draw lists, with `show` (1 to 0) for the strip's fade; `kd-ui` builds them and owns the font, whose `Font::atlas()` gives the renderer a `kd_view::FontAtlas` (the glyph bitmap, cells and advances) through `Assets`; `kd-view` also holds `Insets`, which the shells now send (`Native.insets` on the phone, the page's safe-area insets on the web).
-
-**Conflict (T01a.6):** T01a.6 lights the cube with `sunLight(n, 1.0) + sky(n)`, which depends only on the normal, so each flat face gets one value: one shade, with no narrow speckled band inside a face (On the phone step 2, `PRE-20`); and at that scale the sunlit edge does not rim (`PRE-21`).
-Smallest change that works: `cube.frag` lights with `0.04 + 0.42 * (sunLight(n, 1.0) + sky(n)) + 0.25 * dot(vWorld, uSunDir)`, the plan's sun and sky scaled down so the sunlit edge rims, plus a gentle fall-off across each face toward the sun, so steps meet inside the faces; the golden cube (T01a.8) holds the result.
-
-**Conflict (review, A15.13):** on 2 October 2026 the owner moved all building into one session, with no other sessions, so the independent review can no longer run in a separate session as A15.13 says, and `tools/filecheck.py gate` refuses a reviewer without a session of its own.
-Smallest change that works: the builder's session starts the reviewer as a fresh subagent, given only the diff, this section and the items it cites, which keeps `PRC-09`'s fresh, separate agent without the builder's reasoning; the subagent names itself `subagent:<label>` in its `Review:` line, and the gate accepts that form while still refusing a builder's session; A15.13 and `tools/review-checklist.md` say so.
-
-### α01b The valley (about 5 hours)
-
-**Goal:** a 256 m piece of land with a cliff, made from B11's shaped noise, fills the screen as pixel-art ground, lit by a low sun with crisp shadows, and the owner pans, pinches and twists the camera from a few metres up to the whole piece, with pixels that never crawl while panning.
-
-**Serves:** `PRE-02` (part), `PRE-03` (part: the person, close camp and camp stops), `PRE-20` (part), `PRE-21` (part), `PRE-22` (part: snapping and stable panning; the crawl slot), `PRE-30` (part: sun shadows), `PRE-33` (part: drag, twist, pinch and double-tap drag), `PRE-34` (part), `PLT-02` (part), `WLD-12` (part: metre detail from B11), `WLD-01` (part: positions wrap on the torus), `TIM-16` (part: terrain bit-identical across targets).
-
-**Architecture:** `A3.7`, `A5.3`, `A11.2`, `A11.4`, `A11.5`, `A11.10`, `A11.11`, `A11.12`, `A12.2`.
-
-**Needs:** α01a.
-
-**Crates and files touched:** `kd-core` (`geo`), `kd-world` (`area/relief.rs`, `area/demo.rs`), `kd-render` (`ground`, `camera`, `shadow`, `crawl`, `shaders/`), `kd-ui` (`gestures`), `kd-app` (camera state), `kd-view` (`CameraPose`), `data/models/surfaces.md`, `web/glue.js`, `tools/screens/`.
-
-**Tasks:**
-
-1. `T01b.1` **Positions (`WLD-01`, A3.7).**
-   `crates/kd-core/src/geo.rs` v0: `Pos { x: i32, y: i32, z: i32 }` in ticks of 1/256 m; `Vec2 { x: f32, y: f32 }` in metres; `W = 2_000 × 1_024 × 256`, `H = 1_000 × 1_024 × 256`; `wrap`, `delta`, `dist`, `offset`, `lat_deg`, `lon_deg` exactly as A3.7 prints them; `AreaId(u32)` with `AreaId::of(Pos)` (`ax = x >> 16`, `ay = y >> 16`, `ay × 8,000 + ax`) and `origin()`.
-   The full set of indices, neighbours and their heavy tests comes in α02a, when cells arrive.
-   Commit `T01b.1: positions on the wrapping world (A3.7)`.
-
-2. `T01b.2` **B11's relief, ported (`WLD-12`, `TIM-16`, A2.9, A5.3).**
-   Recover `b04-b11-storage-terrain/phone/src/terrain.rs` and port into `crates/kd-world/src/area/relief.rs` the metre-detail half: `grad`, `fade`, `noise`, `fbm`, `layer_at`, `Site` (`new`, `line_at`, `surface`, `cliff_step`, `edge_dist`, `solid`, `may_be_3d`), `material`, `HeightPieces` with `hash`, `block`, `tops` and `build_height_pieces`, single-threaded (A2.3: no `std::thread` in simulation crates; B11 gave the same bits on 1 and 4 threads), with `f32::min` and `max` replaced by `num::min` and `num::max` (equal for the finite, non-zero values here) and `key` and `mix` from B11's `data.rs` kept beside it as `relief::key`; the plates half waits for `MIL-04`.
-   The porting check (A5.3): `relief::tests::b11_detail_hash` builds `Site::new(99, [310.0, 342.0, 365.0, 330.0])` and requires `build_height_pieces(&site).hash() == 0x5e3b_0c48_2d78_9a49`, using a test copy of B11's `data::hash`.
-   `crates/kd-world/src/area/demo.rs`: `pub fn demo_area(seed: u64) -> DemoArea`, a 257 × 257 grid of heights in decimetres and a material per square metre for the 256 m window of that site at x 384–640, y 384–640, which the escarpment crosses; it stands in for areas until α02b and then stays as the porting check's scene.
-   Commit `T01b.2: B11 relief ported, its hash reproduced (WLD-12, TIM-16, A5.3; from pretests/b04-b11-storage-terrain)`.
-
-3. `T01b.3` **Height-field chunks (`PRE-02`, A11.5).**
-   `crates/kd-render/src/ground/mesh.rs`, ported from the mockup's `GeoTerrain.buildGrid` and `addSkirts` and its `MeshBuilder`: chunks of 64 m, one vertex spacing a frame by art-pixel size (1 m below 0.6 m art pixels, 2 m below 1.3, 4 m below 2.6, else 8 m), a 20-byte vertex (`pos: [f32; 3]` in metres from the floating origin, `nrm: [i8; 3]`, then one byte each for surface material, water distance, wear, cover and flags, A11.5, in place of the mockup's `aA` and `aB`), normals from heights blurred three times as `buildGrid` does, 4 m skirts, `u16` indices with chunks under 65,536 vertices.
-   **Decision:** the floating origin is the area corner nearest the camera target (A11.2), and GPU positions are `f32` metres from it.
-   Commit `T01b.3: height-field chunks (PRE-02, A11.5)`.
-
-4. `T01b.4` **The ground shader and surfaces (`PRE-20`, `PRE-21`, A11.5).**
-   `data/models/surfaces.md`, a new kind `Surface` (`checks = ["PRE-20"]`): `grass`, `dirt`, `rock`, `scree`, each with `ladder` (a ladder id), `stone_density`, `stone_size` (metres), `tuft_density` and `flags` (`gravel`, `mud`, `sand`, `ash`, `grikes`), values from the mockup's choices in `terrainFS`.
-   `shaders/terrain.vert` and `terrain.frag`, ported from `terrainVS` and `terrainFS` without the mockup's scene-specific inputs (river distance, camp wear, path distance, plateau, canopy): the material's row from a surfaces texture picks the ladder; light is `sunLight(n, shadowAt(...)) + sky(n)`; `stampStone` and `stampTuft` draw by the row's densities below their art-pixel limits; `finish`, then `packOut(idx, 1.0, sunlit)` (ground), or 2.0 (rock) where the slope's normal is under 0.72 upward, so the cliff is outlined.
-   `demo_area`'s material maps to surfaces: soil to `grass` on slopes under 30°, `dirt` from 30° to 45°, B11's rock layers to `rock` above 45° and `scree` within 6 m of a cliff foot.
-   Commit `T01b.4: ground shader and surfaces (PRE-20, PRE-21, A11.5)`.
-
-5. `T01b.5` **The sun and its shadows (`PRE-30`, A11.2, A11.4).**
-   Pass 1 (A11.2): the scene shaders under `#define SHADOW` draw into a 2,048² `DEPTH_COMPONENT24` texture sampled directly (the mockup's `packShadow` was only for WebGL1), while the sun is up and art pixels are under 3.2 m; `lightFor`, ported, fits the sun's orthographic frustum round the camera's footprint and snaps it to its own texels, so shadows never swim.
-   Until α03a brings the clock, the sun stands at the mockup's `TOD.dusk` (`SUN.gx`, `SUN.gy`, elevation 21°, strength 1.0, sky 0.5) on dusk's palette row, through `sunDir`; α03a replaces it with `sky::sun_moon`.
-   Commit `T01b.5: sun and shadow pass (PRE-30, A11.2)`.
-
-6. `T01b.6` **The camera (`PRE-03`, `PRE-22`, A11.2, A11.5).**
-   `crates/kd-render/src/camera.rs`, ported from the mockup's `Renderer.zoomToTexel`, `curve`, `PITCH`, `viewFor` and `computeCamera`: `CameraPose { target: Pos, yaw: f32, zoom: f32 }` (A11.1, in `kd-view`); `texel(zoom)` log-linear between A11.5's stops (person 0.00 at 0.03 m, close camp 0.14 at 0.13 m, camp 0.30 at 1.1 m, valley 0.50 at 37 m, region 0.68 at 370 m, world map 0.84 at 7.6 km, globe 1.00 at the fit `texelMax` gives), the same scale in both orientations; the pitch by the mockup's `PITCH` knots, 27° at 0.03 m to 90° from 20 m; orthographic; the view snapped to whole art pixels with the remainder as the upscale's `uOff` and `dith = (sx − W/2) mod 4` (`PRE-20`, `PRE-22`); the depth range from the lowest to the highest ground in view ± 30 m.
-   Zoom is clamped to 0.00–0.40 in this alpha (the demo area is 256 m; the valley stop needs α02a's coarse ground).
-   Commit `T01b.6: the camera (PRE-03, PRE-22, A11.2)`.
-
-7. `T01b.7` **Gestures (`PRE-33`, `PRE-34`, A12.2).**
-   `crates/kd-ui/src/gestures.rs`: a recogniser over `InputEvent`s giving `CameraCmd`s, with A12.2's thresholds: drag after 6 UI pixels moves the target under the finger, a release eases on (τ 0.3 s); a second finger within 150 ms starts two-finger gestures; twist over 6° turns, easing to rest; pinch over 6% changes `zoom −= ln(ratio) × 0.16` and may join a twist; a second touch within 300 ms and 12 pixels of a tap, then moving, zooms by 0.8 a screen height (down zooms in); a tap (lifted within 300 ms and 6 pixels) on the strip steps the palette row as before; any touch shows the strip (α01a).
-   `kd-app` keeps the `CameraPose`, applies the commands each frame and eases turns to rest (`PRE-22`).
-   `web/glue.js` forwards two-finger pointer events unchanged (`touch-action: none` already set).
-   Commit `T01b.7: drag, twist, pinch and double-tap zoom (PRE-33, A12.2)`.
-
-8. `T01b.8` **The crawl slot and the screen tests (`PRE-22`, A11.10, A11.12).**
-   Pass 4 (A11.10): `trait CrawlSlot` with `quantise`, `samples` and `resolve`, and `CrawlFix::Base` passing the post target through; the other four fixes are recovered for the review at the stage close (α07e, A11.10), not here.
-   `window.kd` gains `camera(pose)`, `ready()` (true once the frame after the last upload has drawn) and `frame(n)`; the golden scenes gain `valley-camp` (zoom 0.30) and `valley-close` (zoom 0.14) at fixed yaw.
-   Recover B66's gesture checks from `b66-drawing/tools/smoke.mjs` into `tools/screens/smoke.mjs`: a drag moves the target, a pinch changes the zoom, a twist changes the yaw, a double-tap drag zooms, a tap is no drag; and `pan stays crisp`: after a pan of exactly one art pixel, the screenshot equals the previous one shifted by exactly 4 screen pixels (A11.2's test).
-   The crawl counter (A11.10), run every alpha from now: `window.kd.crawl({ motion, rate, frames, fix })` ports B66's `window.__b66.crawl`, `capture` and `crawlPair` from `b66-drawing/drawing-test.html` (it freezes animation, captures each frame's indices and depth, and returns B66's counts), and `b66-drawing/tools/crawl.mjs` is recovered into `tools/screens/crawl.mjs` on top of `lib.mjs`, measuring `Base` turning and zooming at the camp stop into `bench/cloud/<alpha>.json` (`crawl_turn`, `crawl_zoom`); α07e measures the other four fixes with it.
-   Commit `T01b.8: crawl slot, crawl counter, golden valley scenes and gesture smoke (PRE-22, PRE-33, A11.10, A11.12; from pretests/b66-drawing)`.
-
-9. `T01b.9` **Deliver (`PRC-11`).**
-   `versionCode=1012`, `versionName=a01b`; `bench/cloud/a01b.json` adds the mesh build time of the demo area and its triangle count; then P0's steps 5 to 8.
-
-**Data:** `data/models/surfaces.md` (`grass`, `dirt`, `rock`, `scree`).
-
-**Tests:**
-- `kd-core`: `geo::tests::wrap_round_trips` (`offset` then `delta` returns the offset across both seams); `geo::tests::delta_symmetric`.
-- `kd-world`: `area::relief::tests::b11_detail_hash` (`0x5e3b0c482d789a49`, also run on arm64 under qemu); `area::demo::tests::window_holds_the_cliff` (heights span more than 25 m across the window).
-- `kd-render`: `ground::mesh::tests::chunk_edges_match` (neighbouring chunks share edge vertices bit for bit); `ground::mesh::tests::vertex_is_20_bytes`; `camera::tests::stops_hit_their_texels` (each A11.5 stop's zoom gives its art-pixel size within 0.1%); `camera::tests::snap_moves_whole_pixels` (a pan of one art pixel changes `off` by nothing and the snapped origin by one); `camera::tests::same_scale_both_orientations`; `shadow::tests::light_frustum_snaps`.
-- `kd-ui`: `gestures::tests::scripted_traces` (`PRE-33`'s Done when: scripted traces of each gesture are never read as another).
-- Screens: golden `cube`, `valley-camp`, `valley-close`; smoke's gesture and `pan stays crisp` checks; `node tools/screens/crawl.mjs` gives `Base`'s counts.
-
-**On the phone:**
-1. Install and open: a piece of hilly ground fills the screen, grass and earth in stepped colours, a pale rock cliff crossing it with scree at its foot, the light low and warm from one side, shadows behind the bumps and the cliff.
-2. Drag: the land moves under your finger, crisp, without shimmer; let go while moving and it glides to a stop.
-3. Twist two fingers: the land turns, then settles; pinch out to come close until single stones show on the ground, pinch in to see the whole piece.
-4. Double-tap and drag down with one thumb: it zooms in; drag up: it zooms out.
-5. Turn the phone: same view, same pixel size.
-
-**Not in this alpha:** the island and its cells (α02a); real areas from cells (α02b); cliffs as faces with overhangs and caves (α02c), so steep slopes here are drawn as ground; plants and loose stones (α02d); the sun moving with the clock (α03a); the crawl fixes other than `Base` (offered at the stage-close review, A11.10); picking (α03c).
-
-**Risks:**
-- B11's hash not reproduced after the port: compare intermediate stages (`tops` hash, then heights, then pieces) against B11 run from git history in a scratch folder outside the repository; a different `f32` operation order is the usual cause.
-- Shadow acne or peter-panning on the steep cliff: the mockup's bias (`uShadowBias`, scaled by the light's texel and by 1 + 2.5 × (1 − n·l)) is ported as is; tune only the two constants in `data/tuning/render.md` if needed, logged (`RES-16`).
-- Gesture thresholds feeling wrong on the phone: B66's check passed with these numbers; the owner says so in the reply, and the numbers move to `data/tuning/render.md`.
-
-**Conflict (T01b.3):** T01b.3 stores vertex positions in metres from the floating origin, but the origin moves as the camera does, and every chunk would then be uploaded again each time it moved.
-Smallest change that works: positions are metres from their area's corner, and the vertex shader adds the corner's offset from the floating origin (`uAreaOff`), which A11.2's `f32` precision allows within a few kilometres.
-
-**Conflict (T01b.4):** T01b.4 lights the ground with `sunLight(n, shadowAt(...)) + sky(n)`, but sunlit flat ground then reads 1.5 and every slope facing the sun reaches the ladder's top step, so the ground loses its steps; the mockup's `terrainFS`, which T01b.4 ports, does not light it that way.
-Smallest change that works: `terrain.frag` keeps `terrainFS`'s ground light, `sun = mix(sh × sunI, sunLight(n, sh), 0.55)` and `lit = 0.36 sky(n) + 0.58 sun`, which softens how much small tilts change the low sun's light; the golden valley scenes hold the result.
-
-**Conflict (T01b.6, T01b.8, A11.2):** A11.2's test, a one-art-pixel pan moving the picture exactly 4 screen pixels, failed by a few hundred screen pixels a pan, for five reasons: the camera's target followed the ground's height, so a pan bobbed the view and moved the haze; the art grid and the shadow map's texels were counted from the floating origin, which jumps when the target crosses an area's midline; the ground's patterns hashed positions from that origin too; a projection moved by a pan rounds differently, so pixels on edges flip; and `setBand` sets the dither band with `fwidth`, which the GPU takes over 2 × 2 pixel groups, so a shift by an odd number of pixels changes the band where a pixel's partner changes.
-Smallest change that works: drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, which leaves the picture still, so turns and zooms pivot on the ground in the middle of the screen; the art grid and the shadow map's texels are counted from the world's corner in `f64`; the floating origin is the area corner nearest the ground in the middle of the view's block of 512 art pixels, and within a block every frame draws with the same projection while the art target's viewport moves by whole pixels, the shadow pass likewise within blocks of 256 texels, its depth range on 16 m steps from the world's corner, read with `texelFetch`; the ground's patterns add the origin's place within 8,192 m of the world (`uWorldOff`); and the view snaps to even art pixels, the upscale's shift spanning two, so the art target is `ceil(W/s) + 3` by `ceil(H/s) + 3` (273 × 604 on the phone in portrait) and `camera::tests::snap_moves_whole_pixels` checks that one art pixel moves the picture by one and two move the snapped view by two.
-`pan stays crisp` pans once inside an area and once across an origin move (as the second review fixed below), holding the target's height as a drag does, so `window.kd.camera()` also gives the height and the target's place within its art pixel (`z`, `fx`, `fy`) and takes `z`; `window.kd.crawl` takes an optional `zoom`, as B66 measured at zoom 0.16, not the camp stop's 0.30; and the golden `cube` is drawn again on the larger art target.
-A11.2 says so.
-
-**Conflict (T01b.4, A11.5; found by the review):** T01b.4 and A11.5 carry the surface in each vertex, but the GPU blends it across a triangle, and the rounded blend drew surfaces the rule never placed (dirt and rock between grass and scree) along the triangles' diagonals as a sawtooth; and the stamps, given positions fixed to the world, projected them as if they were metres from the floating origin, so stones and tufts vanished wherever the origin was not the area's north-west corner, the start view's scree among them.
-Smallest change that works: each area uploads its surface map (a byte a square metre, as its grid holds it), and the ground shader takes per pixel the surface whose squares weigh most among the four nearest squares' middles (bilinear weights), its edges wandering by up to 0.35 m with noise fixed to the world, so edges run smooth rather than as a staircase and only surfaces the rule placed show; the vertex keeps its byte, which the shader no longer reads; the stamps take `uWorldOff` off before projecting; and a fourth golden, `valley-near` (the start at the closest zoom, where the origin is not the area's corner), holds the stamps, failing by 4,496 pixels with the old projection.
-A11.5 says so.
-
-**Conflict (T01b.6, T01b.8, A11.2; found by the second review):** the ground's patterns added the floating origin's place within 8,192 m of the world, but the demo area's corner lies on a corner of those blocks, so wherever the origin was an area corner west or north of it, every patch, tuft, stone and surface edge was drawn as if 8,192 m away, and a pan, turn or zoom that moved the origin across that line redrew a third of the screen or more at once; and `pan stays crisp`'s second pan, meant to cross an origin move, never moved it, since the origin moves only at an edge of the view's block.
-Smallest change that works: `uWorldOff` is the drawn area's corner within its block of 8,192 m less `uAreaOff`, so the patterns read positions from that block's corner whatever the origin (`patterns_stay_put_wherever_the_origin_lies` checks origins on every side of the area); `window.kd.camera()` also gives the origin (`ox`, `oy`), and `pan stays crisp`'s second pan, at the camp stop's zoom, finds the edge of the view's block where the origin moves from west of the area's corner to east of it, and checks that it moved; with the old offset that pan fails by 102,992 pixels.
-A11.2 says so.
-
-**From the owner (review, A15.13):** on 3 October 2026 the owner asked that the independent review, besides the code, look at the alpha's pictures as a pixel artist and a designer, to see whether the graphics are as they should be; `tools/review-checklist.md` (item 12) and A15.13 step 3 say so, from this alpha on.
 
 ### α01c The light (about 6 hours)
 
@@ -951,7 +220,7 @@ A11.2 says so.
 
 **Architecture:** `A11.1`, `A11.2`, `A11.3`, `A11.4`, `A11.5`, `A11.12`.
 
-**Needs:** α01b.
+**Needs:** none.
 
 **Crates and files touched:** `kd-render` (new `light`, `looks` and `field` modules; `camera`, `ground`, `pass`, `palette` and every shader rewritten), `kd-data` (kinds `Look`, `Air` and fixed colours in place of the ported ladders and light tables; `Surface` names looks), `kd-view` (`SkyView`), `kd-ui` (the strip's tap steps the hour; the UI's colours), `kd-app` (the hour and its sky), `kd-tools` (`kd catalog` for the new kinds), `data/palette/`, `data/models/surfaces.md`, `tools/screens/`.
 
@@ -974,7 +243,7 @@ A11.2 says so.
 
 4. `T01c.4` **The ground, rebuilt (`PRE-02`, `PRE-20`, `PRE-22`, A11.5).**
    Each area's heights as an `R32F` texture; one 16 × 16 grid patch drawn at the spacing `s = 2^k` m for the art pixel, its odd vertices morphing onto the next spacing over the upper half of each range; normals per pixel from the height texture.
-   `shaders/ground.vert` and `ground.frag`, written for A11's rules: the surface from the area's map (α01b's vote of the four nearest squares, until α01d's coverage), the grass split into its lush and dry looks by a world-fixed noise whose octaves fade below four art pixels; the sky factor from the sky field and the normal, the sun factor from the sun field's penumbra and `n·l`; the light's lightness to its step, dithered only in the band at a threshold; the pixel's haze level from its air path (A11.4).
+   `shaders/ground.vert` and `ground.frag`, written for A11's rules: the surface from the area's map (the present vote of the four nearest squares, until α01d's coverage), the grass split into its lush and dry looks by a world-fixed noise whose octaves fade below four art pixels; the sky factor from the sky field and the normal, the sun factor from the sun field's penumbra and `n·l`; the light's lightness to its step, dithered only in the band at a threshold; the pixel's haze level from its air path (A11.4).
    The shadow-map pass and the stamped stones and tufts are removed (no things cast shadows yet; α01d brings stones and tufts back as instances).
    Commit `T01c.4: the ground rebuilt on fields, morphing mesh and light steps (PRE-02, PRE-20, PRE-22, A11.5)`.
 
@@ -1027,7 +296,7 @@ A11.2 says so.
 **Tasks:**
 
 1. `T01d.1` **Surfaces as coverage (`PRE-20`, A11.5).**
-   Each area's surfaces as mipmapped `RGBA8` coverage, four surfaces a texture; the shader reads it at the art pixel's footprint and takes the largest share, the edge wobbling by world-fixed noise whose octaves fade below four art pixels; α01b's vote of four squares is removed.
+   Each area's surfaces as mipmapped `RGBA8` coverage, four surfaces a texture; the shader reads it at the art pixel's footprint and takes the largest share, the edge wobbling by world-fixed noise whose octaves fade below four art pixels; the vote of the four nearest squares is removed.
    Commit `T01d.1: surfaces as mipmapped coverage (PRE-20, A11.5)`.
 
 2. `T01d.2` **Micro-relief (`PRE-20`, A11.5).**
@@ -1043,10 +312,10 @@ A11.2 says so.
    Commit `T01d.4: pinch and twist follow the fingers (PRE-33, A12.2)`.
 
 5. `T01d.5` **What earlier alphas took from the pre-tests, rebuilt (`WLD-12`, `TIM-16`, `PRE-22`, A2.9, A3.3, A5.3, A11.10).**
-   `crates/kd-world/src/area/relief.rs` and the demo area, ported from B11 in α01b, are written afresh from A5.3: periodic gradient noise (keyed lattice gradients through `relief::key`, a quintic fade) and its octave sum; rock beds by height; the demo area a 256 m window of a made-up site that a 30 m escarpment crosses along a wandering line, its heights the corners' blend plus the detail octaves plus the step, its material by slope, bed and the cliff's foot; B11's 3D pieces and caves go, as α02b builds A5.3's own.
+   `crates/kd-world/src/area/relief.rs` and the demo area, ported from B11, are written afresh from A5.3: periodic gradient noise (keyed lattice gradients through `relief::key`, a quintic fade) and its octave sum; rock beds by height; the demo area a 256 m window of a made-up site that a 30 m escarpment crosses along a wandering line, its heights the corners' blend plus the detail octaves plus the step, its material by slope, bed and the cliff's foot; B11's 3D pieces and caves go, as α02b builds A5.3's own.
    Each part is tested on its own terms (each octave periodic on its lattice and within ±1; the step's height and width; the materials' shares), and the demo area's own hash is recorded as a golden on x86 and arm64 (`tools/check.sh`'s repeat step); `b11_detail_hash` and its copy of B11's byte hash go.
    The crawl counter (`crates/kd-render/src/crawl.rs`'s count, `tools/screens/crawl.mjs`) is written afresh from A11.10's definition of crawl; `kd-core`'s `chance/b02_reference.rs`, a copy of B02's code kept for a port test, goes with that test, A3.3's stored draws being the hash's known answers.
-   The build tools α00 started from pre-test scripts (`tools/setup-toolchain.sh`, `tools/env.sh`, `tools/verify-apk.sh`, `tools/screens/lib.mjs` and `smoke.mjs`, the Android shell's Gradle files) are read line by line against A2.5, A2.8 and A15, each line with no reason there rewritten or removed, and their notes naming a pre-test as source go.
+   The build tools started from pre-test scripts (`tools/setup-toolchain.sh`, `tools/env.sh`, `tools/verify-apk.sh`, `tools/screens/lib.mjs` and `smoke.mjs`, the Android shell's Gradle files) are read line by line against A2.5, A2.8 and A15, each line with no reason there rewritten or removed, and their notes naming a pre-test as source go.
    Commit `T01d.5: relief, demo area and crawl counter rebuilt from the architecture (WLD-12, PRE-22, A2.9)`.
 
 6. `T01d.6` **Steadiness counts (`PRE-22`, A11.12).**
@@ -1054,8 +323,8 @@ A11.2 says so.
    Commit `T01d.6: steadiness counts (PRE-22, A11.12)`.
 
 7. `T01d.7` **Deliver, and α01's verification (`PRC-11`, `PRC-09`).**
-   First, a search of the code, data and tools finds no mention of the mockup and no part said to be ported from a pre-test (A11.1, A2.9).
-   `versionCode=1014`, `versionName=a01d`; then P0's steps 5 to 8, with one independent subagent verifying the whole of α01 (α01a to α01d), as α01d ends α01.
+   First, a search of the code, data and tools finds no mention of the mockup, no part said to be ported from a pre-test, and no comment citing a task of an alpha that has left the plan (A11.1, A2.9).
+   `versionCode=1014`, `versionName=a01d`; then P0's steps 5 to 8, with one independent subagent verifying the whole of α01 (α01a to α01d; α01a's and α01b's sections as the plan held them at commit `7ea3e4c`), as α01d ends α01.
 
 **Data:** `data/models/surfaces.md` (relief and cover densities per surface).
 
@@ -1090,7 +359,7 @@ A11.2 says so.
 **Tasks:**
 
 1. `T02a.1` **The grids and place uids (`WLD-01`, A3.4, A3.7).**
-   `kd-core::geo` completes A3.7's index table: `CellIx(u32)` (`cy × 2,000 + cx`, `cx = x >> 18`), `AreaId` (from α01b), the bucket in its area (`u8`, `(x >> 12) & 15`), the metre in its area (`u16`), `WeatherIx(u16)` (`wy × 200 + wx`, `wx = cx / 10`), `RegionIx(u8)` (`ry × 20 + rx`, `rx = cx / 100`); conversions both ways (`AreaId::cell`, `CellIx::areas() -> [AreaId; 16]`, `AreaId::origin`, `CellIx::centre`); `neighbours8` in B10's order, counter-clockwise from east, wrapped; `CellIx::on_seam()` for row 0 (A3.7: paths treat it as blocked).
+   `kd-core::geo` completes A3.7's index table: `CellIx(u32)` (`cy × 2,000 + cx`, `cx = x >> 18`), `AreaId` (already in `kd-core::geo`), the bucket in its area (`u8`, `(x >> 12) & 15`), the metre in its area (`u16`), `WeatherIx(u16)` (`wy × 200 + wx`, `wx = cx / 10`), `RegionIx(u8)` (`ry × 20 + rx`, `rx = cx / 100`); conversions both ways (`AreaId::cell`, `CellIx::areas() -> [AreaId; 16]`, `AreaId::origin`, `CellIx::centre`); `neighbours8` in B10's order, counter-clockwise from east, wrapped; `CellIx::on_seam()` for row 0 (A3.7: paths treat it as blocked).
    `kd-core::ids`: `Uid(u64)` with A3.4's four spaces and `Uid::place(kind: PlaceKind, index: u64)` (tag `10`, kind in 6 bits, index in 56); `PlaceKind` `Cell`, `Area`, `Weather`, `Region`, `River`, `Cave`, `Feature`, `Spot`, `Patch`.
    Commit `T02a.1: grids and place uids (WLD-01, A3.4, A3.7)`.
 
@@ -1136,7 +405,7 @@ A11.2 says so.
 
 7. `T02a.7` **Coarse ground, the map look and the sea (`PRE-03`, `PRE-26`, `PRE-29`, A5.5, A11.5, A11.6).**
    `kd-world::cells::coarse_ground(cx: &CellCtx, c: CellIx) -> Ground`: 33 × 33 heights every 32 m (bicubic over the cell and its neighbours, plus the escarpment step), a material per point and water surfaces (A5.5); `kd-life::plants::density(st, group, date) -> f32` returns the cell's cover share of a group until α02d adds species.
-   `kd-render/src/ground/coarse.rs`: coarse ground batched in 4 km tiles of height-field chunks (α01b's mesher at 32 m spacing), drawn by α01c's ground shader with the same light, fields and rules (A11.5): cover as looks, forest as single crowns on a 5 m grid where a point's hash is under the tree share, while they span a few pixels, then flat cover; the map look dissolving in between 1.2 and 4.5 m art pixels as the camera tilts toward straight down (`PRE-29`); the region stop's tiles of world cells are α19b's (A11.5: `MIL-04`).
+   `kd-render/src/ground/coarse.rs`: coarse ground batched in 4 km tiles of 32 m heights, drawn by α01c's ground patch and shader with the same light, fields and rules (A11.5): cover as looks, forest as single crowns on a 5 m grid where a point's hash is under the tree share, while they span a few pixels, then flat cover; the map look dissolving in between 1.2 and 4.5 m art pixels as the camera tilts toward straight down (`PRE-29`); the region stop's tiles of world cells are α19b's (A11.5: `MIL-04`).
    Rivers at the valley stop: lines from the river table, at least one art pixel wide (`PRE-26`, A11.5); streams the same once their drainage passes 100 km² (tuned in `data/tuning/render.md`).
    The sea: a flat water grid at level 0 over sea cells in the water's look, darker by depth and reflecting the sky by Fresnel's term (A11.6's sea, without waves and ice, which come at α20c).
    The camera's zoom range opens to 0.00–0.50 (person to valley; α19b opens it to the globe); until α02b, closer than the valley stop shows coarse ground, which is A11.5's own fallback (`PRE-03`).
@@ -1206,8 +475,8 @@ A11.2 says so.
 
 4. `T02b.4` **View builders (`PRE-03`, `PLT-04`, A11.5).**
    `crates/kd-app/src/views/`: on native targets two builder threads (`std::thread`, which `kd-app` may start, A2.3), below the audio thread's priority, each pinning itself at its start through the new `Platform::cores(&self) -> Cores { builders: Vec<u32>, sim: Vec<u32> }` and `Platform::pin(&self, cpu: u32)` (A2.2's `cores`; `pin` pins the calling thread): `kd-android` answers cpu 0 and 1 (the small cores, B79) and pins with `sched_setaffinity`, `kd` and the web answer none (α07c fills `sim`); on the web, slices of at most 2 ms of the GL thread a frame, which the frame budget subtracts (A2.6).
-   They make the areas whose squares come within 300 m of the view centre from the camp stop inward (`PRE-03`, A5.5), nearest the view centre first, bucket by bucket; build their meshes per 64 m chunk with α01b's mesher at the frame's spacing (0.5 m on cliffs at the two closest stops comes with α02c); hand them to the renderer by `upload_area`, at most 0.2 ms of uploads a frame (A11.1); keep areas up to 1.5 km from the view centre and drop the rest (A11.5); never touch world state (A2.3 rule 3).
-   Until an area's chunks are ready, its land is coarse ground; then the detail dissolves in through a dithered fade over 0.5 s, chunk by chunk (A11.5's fallback, each point by its seeded importance, A11.1's rule 3); no frame waits for a builder.
+   They make the areas whose squares come within 300 m of the view centre from the camp stop inward (`PRE-03`, A5.5), nearest the view centre first, bucket by bucket; build each area's height texture, surface coverage and sky field (A11.5; cliff meshes, 0.5 m at the two closest stops, come with α02c); hand them to the renderer by `upload_area`, at most 0.2 ms of uploads a frame (A11.1); keep areas up to 1.5 km from the view centre and drop the rest (A11.5); never touch world state (A2.3 rule 3).
+   Until an area's textures are ready, its land is coarse ground; then the detail dissolves in through a dithered fade over 0.5 s, bucket by bucket (A11.5's fallback, each point by its seeded importance, A11.1's rule 3); no frame waits for a builder.
    A pinch inward starts the area under the view centre as the zoom passes 0.40, so detail is ready as the camp stop arrives (A11.5).
    Commit `T02b.4: view builders and the coarse-to-detail fade (PRE-03, PLT-04, A11.5)`.
 
@@ -1437,7 +706,7 @@ A11.2 says so.
    Commit `T03a.6: speed by zoom, pause, dial and lock (TIM-01, TIM-04, TIM-15, A4.11)`.
 
 7. `T03a.7` **The time bar (`PRE-33`, `PRE-34`, `TIM-04`, A12.1, A12.2).**
-   `kd-ui::time_bar`: any touch shows it for 3 seconds (A12.2), in the bottom third in portrait and in the side column in landscape (A12.1, `PRE-34`), never under the insets: the date by `TIM-14` with the hour (`Year 1, spring, day 3, 14:20`); the real speed in words (`real time`, `an hour a minute`, `a day in 3 minutes`, `a season a minute`, `3 years a minute`, `as fast as it can`, and between stops `about <n> <unit> a minute`, from `data/text/time.md`); pause and play; a dial (a slider from real time to top speed on a log scale, which holds its speed wherever you look); a lock (keeps the current speed while the camera moves); the version line from α01a under it, smaller.
+   `kd-ui::time_bar`: any touch shows it for 3 seconds (A12.2), in the bottom third in portrait and in the side column in landscape (A12.1, `PRE-34`), never under the insets: the date by `TIM-14` with the hour (`Year 1, spring, day 3, 14:20`); the real speed in words (`real time`, `an hour a minute`, `a day in 3 minutes`, `a season a minute`, `3 years a minute`, `as fast as it can`, and between stops `about <n> <unit> a minute`, from `data/text/time.md`); pause and play; a dial (a slider from real time to top speed on a log scale, which holds its speed wherever you look); a lock (keeps the current speed while the camera moves); the version line under it, smaller.
    Touch targets at least 24 UI pixels (A12.1); a touch that starts on the bar belongs to it, never to the camera (A12.2).
    Commit `T03a.7: the time bar (PRE-33, TIM-04, A12.2)`.
 
@@ -1551,7 +820,7 @@ A11.2 says so.
 **Not in this alpha:** walking and activities (α03c); paths (α03d); needs, food and choosing (α04a, α04b); names and kin (α06a); clothing (none in the starting kit, `BIO-02`; garments at α25a); carrying and held things (α04a); faces showing feelings (α28); body signs such as scars and limps (α09b).
 
 **Risks:**
-- `RGBA32F` textures in vertex shaders failing on the phone's ANGLE driver: they are core in OpenGL ES 3.0 and WebGL2 for sampling with nearest filtering; the self-check (T00.5) reports a link failure; fallback, a uniform array of bone matrices per figure and one call each, under A11.11's 250 calls.
+- `RGBA32F` textures in vertex shaders failing on the phone's ANGLE driver: they are core in OpenGL ES 3.0 and WebGL2 for sampling with nearest filtering; the self-check (A15.4) reports a link failure; fallback, a uniform array of bone matrices per figure and one call each, under A11.11's 250 calls.
 - Two founders looking alike by chance: the founders' looks are drawn from wide ranges (`BIO-22`), and the test counts identical shown looks.
 - The stand-in day being mistaken for behaviour: it is named in the note as a stand-in, gone in α03c.
 
@@ -2371,7 +1640,7 @@ A11.2 says so.
    `crates/kd-save/src/storage.rs`: the `Storage` trait exactly as A14.12, paths relative to its root.
    `files.rs` (feature `files`, `kd-save`'s one use of `std::fs`, A14.12's Decision): `FileStorage` (A14.12, writing in A14.4's order, under which B04's 1,000 kills mid-write never loaded a damaged file): `write_atomic` writes `<path>.tmp`, `sync_all`, renames, then `sync_all` on the folder; `append_flush` appends and `sync_data`s; `free_bytes` returns `u64::MAX` until α19c's storage warnings read the platform's figure; `FileStorage::with_slow_writes(root, ms)`, compiled only under `kd-save`'s feature `test-switches` (enabled by `kd-tools` alone, A3.9), pauses each write halfway and prints `WRITING <path>` to stderr, for the kill test; `kd` reads `KD_TEST_SLOW_WRITE_MS` and passes it, since no simulation crate reads the environment (A2.3 rule 4).
    `mem.rs`: `MemStorage` (a `BTreeMap<String, Vec<u8>>` behind a `Mutex`) with `take_writes()` returning the writes and removals since the last call, in order (A14.12).
-   `crates/kd-web/src/idb.rs`: `IdbStorage`, a `MemStorage` filled at start from the `files` map that `glue.js` reads out of IndexedDB (database `kindling`, object store `files`, key = path) before building `WebApp` (α00's unused argument); each frame `glue.js` takes `take_writes()` and applies them in one IndexedDB transaction, in order, so a save whose manifest is written last lands whole (A14.11); without IndexedDB (a private window, an artifact viewer that blocks it) the world runs in memory and the version line reads `not saved here`.
+   `crates/kd-web/src/idb.rs`: `IdbStorage`, a `MemStorage` filled at start from the `files` map that `glue.js` reads out of IndexedDB (database `kindling`, object store `files`, key = path) before building `WebApp` (its argument, unused until now); each frame `glue.js` takes `take_writes()` and applies them in one IndexedDB transaction, in order, so a save whose manifest is written last lands whole (A14.11); without IndexedDB (a private window, an artifact viewer that blocks it) the world runs in memory and the version line reads `not saved here`.
    `kd-app`: `Platform::storage(&self) -> Arc<dyn Storage>` (A2.2's signature, so the I/O thread holds its own handle): `FileStorage` at `filesDir` on Android (A2.5), at `--dir` in `kd`, `IdbStorage` on the web.
    Commit `T07a.3: Storage on files, in memory and in IndexedDB (PLT-07, A14.11, A14.12)`.
 
@@ -2581,7 +1850,7 @@ A11.2 says so.
    Commit `T07c.5: the repeat check across workers and targets, and kd diverge (RES-05, TIM-16, A15.9)`.
 
 6. `T07c.6` **Switches and the first switch-off run (`RES-10`, `RES-18`, A3.3, A3.9, A8.22).**
-   `kd_core::switches`: `SwitchId { system: u32, number: u32, name: &'static str }` and `SwitchSet`, the sorted list of switches that are off, saved in the world header (α03a's `switches`) and `meta.bin`; its only constructor with entries, `SwitchSet::with_off(&[SwitchId])`, exists under `kd-core`'s feature `test-switches`, which only `kd-tools` turns on in a build, and other crates' tests through a dev-dependency (α00b's `kd check layers` fails any other), and every build honours a saved set (A3.9).
+   `kd_core::switches`: `SwitchId { system: u32, number: u32, name: &'static str }` and `SwitchSet`, the sorted list of switches that are off, saved in the world header (α03a's `switches`) and `meta.bin`; its only constructor with entries, `SwitchSet::with_off(&[SwitchId])`, exists under `kd-core`'s feature `test-switches`, which only `kd-tools` turns on in a build, and other crates' tests through a dev-dependency (`kd check layers` fails any other), and every build honours a saved set (A3.9).
    Each system declares its switches beside its purposes (A3.3, A8.22) with a `switches!` line; the first is `minds.talk` in `kd-people/src/purposes.rs`, read at α06b's talk: while it is off, no talk group passes a topic; A8.22's `teaching`, `copying`, `experimenting`, `dreams` and `trait.<name>` are declared with their mechanisms in Stage 2, `talk` being the one `MIL-01` mechanism a scene can show depends on.
    A scene's `switches = ["minds.talk"]` (T07c.2) or `kd scene run <file> --switch minds.talk=off` sets it; `results/scenes/<id>.json` and every result line say `switches: minds.talk off`, and such a run never counts as passing in play (`RES-18`); a world with switches opens on the phone and the web as a test world, `Test world: minds.talk off` under the version line (A3.9, `PLT-05`).
    Scene `a07c-spring-news-no-talk` (`RES-10`, `CUL-24`): `a06b-spring-news`'s setting, seeds and limit with `switches = ["minds.talk"]`, `quick = true`; pass: `count(adults_holding_the_spring_at_day_5 <= 2) >= 18` (the finder and at most one who found it alone), so the news's spread is shown to depend on talk.
@@ -2590,8 +1859,8 @@ A11.2 says so.
    Commit `T07c.6: switches and the first switch-off run (RES-10, A3.9)`.
 
 7. `T07c.7` **The self-check's world parts (`PRC-11`, `RES-05`, A15.4).**
-   `crates/kd-app/src/selfcheck.rs` (α00's) runs only on the first launch of a new `versionCode` (`settings.toml`'s `last_self_check`, α07b) and spends at most 5 s on: the catalogue blob's hash; the scene `selfcheck-ten` (10 people of the first band, one game day from seed 1, in the blob) run on the phone's workers against the state hash baked in at build; a save and reopen in `cacheDir` (`MemStorage` on the web) giving the same state hash; every shader compiled (α00's part); AAudio joins in α16b and the writer's status with the writer.
-   `tools/build-apk.sh` and `tools/build-web.sh` first run `kd scene hash selfcheck-ten` and pass it to cargo as `KD_SELFCHECK_HASH` (read with `option_env!`); a failure shows α00's `KDS1:` dialog naming the failing part.
+   `crates/kd-app/src/selfcheck.rs` runs only on the first launch of a new `versionCode` (`settings.toml`'s `last_self_check`, α07b) and spends at most 5 s on: the catalogue blob's hash; the scene `selfcheck-ten` (10 people of the first band, one game day from seed 1, in the blob) run on the phone's workers against the state hash baked in at build; a save and reopen in `cacheDir` (`MemStorage` on the web) giving the same state hash; every shader compiled (its present part); AAudio joins in α16b and the writer's status with the writer.
+   `tools/build-apk.sh` and `tools/build-web.sh` first run `kd scene hash selfcheck-ten` and pass it to cargo as `KD_SELFCHECK_HASH` (read with `option_env!`); a failure shows the `KDS1:` dialog naming the failing part.
    Commit `T07c.7: the self-check runs a scene, a save and a reopen (PRC-11, A15.4)`.
 
 8. `T07c.8` **Deliver (`PRC-11`).**
@@ -2661,7 +1930,7 @@ A11.2 says so.
 5. `T07d.5` **The Tests screen and the phone benchmark (`PLT-04`, `RES-05`, `TIM-07`, `PRE-40`, A11.11, A12.4, A15.10).**
    `crates/kd-ui/src/views/tests.rs` (A12.4), opened by a long press on Settings' version line (α07b): `Benchmark`, `Frame times` (the last 1,024 frames' CPU time and GPU time per pass, A11.11), `Diagnostics` (panics, exit reasons and catch-up mismatches, α07b) and `Review` (α07e).
    `crates/kd-app/src/bench.rs`, the phone benchmark (A15.10), about 20 minutes, first asking for the phone to be unplugged and left alone: a 3-minute warm-up at full load; for each bench world in the blob (the cloud's seven and `bench-7000`): its open time, 90 s at the world view at top speed (game years a real minute, µs per person per game day by system, worker load), a save, and its state hashes after 1, 5 and 10 game days; drawing (A11.11): each stop in reach (person, close camp, camp and valley) for 10 s while turning, `bench-village-300` at close camp, `bench-forest` at the camp stop turning, a pan along the cliff at the camp stop (also timing how long newly seen ground stays coarse before its area arrives, A11.5), each with its worst frame, late frames (over 1.5 refresh periods) and GPU time per pass; a 5-minute steady phase at the valley stop at top speed for battery (current × voltage) and heat (battery temperature, thermal status, headroom, B79); and the diagnostics; a phase stops early at thermal status "severe" and says so (A16.6).
-   Result code (A15.10): compact JSON, gzipped, base64, prefixed `KDB1:`, at most 15.5 KB, shown with Copy in α00's code dialog (`Request::BenchResult { json }`, gzipped by Kotlin, and by `CompressionStream` on the web, as `KDS1:` is); a larger result keeps its summary within the limit, the "Share results file" button coming with `Files.kt` in α53a.
+   Result code (A15.10): compact JSON, gzipped, base64, prefixed `KDB1:`, at most 15.5 KB, shown with Copy in the code dialog (A15.4) (`Request::BenchResult { json }`, gzipped by Kotlin, and by `CompressionStream` on the web, as `KDS1:` is); a larger result keeps its summary within the limit, the "Share results file" button coming with `Files.kt` in α53a.
    `tools/decode-bench.py` gains `KDB1:`: it writes `bench/phone/<version>.json`, compares its state hashes with `bench/cloud/<version>.json`'s for the same worlds and spans, and prints `Hashes: EQUAL` or the first difference (A15.9 item 6: a difference blocks the stage until found).
    The web build runs the same code path at `?bench=1` with 2-second phases, for the smoke test only (speeds under SwiftShader mean nothing).
    Commit `T07d.5: the Tests screen and the phone benchmark with its KDB1 code (PLT-04, RES-05, A15.10)`.
@@ -2720,7 +1989,7 @@ A11.2 says so.
 3. `T07e.3` **Risks, principles and the stage's checks (`PRN-16`, `RES-19`, `PRC-12`, A15.12, A15.13, A17).**
    `reports/risks.toml`: one entry for each A17 risk and each live `RSK` item of `PROJECT.md` (`id`, `signs`, `status`, `evidence`, `fallback`, `decider`), reviewed in every stage report (A17).
    `reports/principles.toml`: one entry for each live `PRN` item with its Check line and this stage's evidence (the tests, scenes and checks that show it), `PRN-16`.
-   `tools/filecheck.py ids --stage MIL-01` (A15.12): everything `ids --merge` checks; every `MIL-01` feature of `SCP-16` mapped to a done alpha whose tests, scenes or catalogue `checks` name it; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); and every merge into `main` since the stage began carrying a `Review: APPROVE` line and a `Checks: PASS` line from different sessions (A15.13 step 7); it prints `Stage: OK MIL-01` or each gap.
+   `tools/filecheck.py ids --stage MIL-01` (A15.12): everything `ids --merge` checks; every `MIL-01` feature of `SCP-16` implemented in code (an `Implements` line) and named by tests, scenes or catalogue `checks`; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); and every merge into `main` since the stage began carrying a `Review: APPROVE` line and a `Checks: PASS` line, each number's last alpha approved by a reviewer other than the builder (A15.13 step 7); it prints `Stage: OK MIL-01` or each gap.
    Commit `T07e.3: risks, principles and the stage coverage check (PRN-16, RES-19, PRC-12)`.
 
 4. `T07e.4` **The stage report (`RES-06`, `SCP-15`, `PLT-04`, `RSK-25`, A15.14).**
@@ -2756,13 +2025,12 @@ A11.2 says so.
 
 ### Stage 1 notes
 
-- Splits: α00 → α00 (skeleton on the phone) and α00b (the full merge checks and the release key); α01 → α01a, α01b; α02, α03, α04 → a to d; α06 → α06a and α06c around the brief's α06b; α07 → α07a (saving), α07b (history, worlds, settings), α07c (scenes, repeat check, switches), α07d (benchmark), α07e (stage review); 25 alphas, 3–5.5 hours each, about 125 hours (α00's honest size adds 3, the switches half an hour; the region stop's cut saves half an hour).
+- Splits: α01's rebuilt renderer → α01c and α01d; α02, α03, α04 → a to d; α06 → α06a and α06c around the brief's α06b; α07 → α07a (saving), α07b (history, worlds, settings), α07c (scenes, repeat check, switches), α07d (benchmark), α07e (stage review).
 - Cut as over-reach: the region stop's world-cell tiles (A11.5 and P4's T19b.2 build them at `MIL-04`): Stage 1 zooms from one person to the valley stop, and the speed table's region row waits for α19b with its stop; `kd bench chance` (B02 measured it; the benchmark starts in α07d).
-- Names: the package is `dev.kindling.app` (A2.5, A15.3); `versionCode = stage × 1000 + alpha × 10 + split`, split `a` 1 to `e` 5 (α00 1000, α00b 1002, α08 2080, α09b 2092, α12b 2122), A15.3 updated in α00.
 - The `MIL-01` stage budget is 3 game years a real minute at 1,000 people (`PLT-04`, A16.3, the owner's decision); A4.15's old sentence ("8, 6, 5, 3, 2, 1.5 and 1") has since been corrected in the frozen architecture to A16.3's 3, 2, 2, 1.7, 1.7, 1.5 and 1.
 - The frozen A8.7, A8.10, A8.18 and A12.4 already hold the settled numbers for fertility, ageing, birth bleeding, chat, pairing, the needs' daily rates and the minimal mind view, so P1 follows them with no decision; the one remaining decision is kin weights in `MIL-01` (A8.23 lists them at `MIL-02`; sharing needs them, α06b).
 - Built a stage early: A14's journal, segments and crash catch-up come in α07b (A14 puts them at `MIL-02`), since no Stage 2 alpha builds them, P2's α11b reads α07b's event-kind table and P3's α16 extends the catch-up with acts.
-- Architecture updates made in Stage 1 branches: `serde_json` and `toml` for `kd-tools` (A2.2, α00b); the version code (A15.3, α00); `smallvec` (A2.2, α03b); `Platform::cores` and `pin` for the view builders (A2.2, α02b); `device` gains three fields (A2.5, α07d); the journal's file name (A14.2, α07b); the switch `talk` (A8.22, α07c); `data/palette.md` as the folder `data/palette/` (A11.3, α01a); A15.12's `kd check file` and `kd check ids` as `tools/filecheck.py file` and `ids` (A15.12 steps 7 and 8, A15.13 step 7, α00 and α00b); catalogue ids unique within their kind, as `data/ids.lock` numbers them (A3.6, α01a).
+- Architecture updates made in Stage 1 branches: `smallvec` (A2.2, α03b); `Platform::cores` and `pin` for the view builders (A2.2, α02b); `device` gains three fields (A2.5, α07d); the journal's file name (A14.2, α07b); the switch `talk` (A8.22, α07c).
 - Catalogue ids later parts must not re-add: α03b's looks `skin_1`–`skin_6` and `hair_black` to `hair_white`, and α06c's `bone`; the test lands `scenes/lands/barren-dry.toml`, `barren-river.toml` (α04b) and `cold-test.toml` (α05); the biome `barren` (α02a).
 ## Stage 2: Sharp stone (MIL-02)
 
@@ -3277,7 +2545,7 @@ Scenes run on the first region (`WLD-34`, A5.6), 20 runs each with run `i` on se
 **Tasks:**
 1. `T11b.1` **Event kinds and `PlayerView` (`PRE-39`, `TIM-03`, A14.8, A12.5).** α07b's event-kind table (`data/history/event_kinds.md`) gives α11a's `learned`, `people_first`, `world_first` and `hunch_tried` their pattern ids, and gains `craft_lost` and `craft_regained` (kept forever, first-able; α12 logs them), each with its flags (logged, kept forever, first-able) and pattern id.
    `crates/kd-player/src/view.rs` declares `PlayerView`, the read-only trait the book and the director read the world through (`&self` methods only: a person's name, band, people, kin and followed mark; a place's name; a thing's kind and word; a blueprint's step; holder counts), which `kd-sim` implements over `&World` (A2.2, A2.3 rule 3).
-   `kd-player` now depends on `kd-view` for `TextRecord`, `SignEvent`, `SpeedAsk` and `CameraHint`, the paths A10.9 already lets the book and director name: its `Cargo.toml` and its `deps` in `tools/layers.toml` gain `kd-view`, and A2.2's table and A2.3's arrows are updated in this branch, so α00b's `kd check layers` passes; no crate below `kd-player` gains it.
+   `kd-player` now depends on `kd-view` for `TextRecord`, `SignEvent`, `SpeedAsk` and `CameraHint`, the paths A10.9 already lets the book and director name: its `Cargo.toml` and its `deps` in `tools/layers.toml` gain `kd-view`, and A2.2's table and A2.3's arrows are updated in this branch, so `kd check layers` passes; no crate below `kd-player` gains it.
    `kd-app`, which holds the `Director` on its sim thread, and `kd-tools`, which runs it headless for scenes, gain `kd-player` in their `Cargo.toml` and `tools/layers.toml` the same way (A2.2's lists for both updated in this branch); `kd-ui` and the shells still reach the player only through `kd-view`'s types.
 2. `T11b.2` **Recognisers (`PRE-39`, `MAT-21`, A12.5).** `crates/kd-player/src/book/recognise.rs`, called by `kd-sim` at each quarter-hour barrier with the merged logged events and `&dyn PlayerView`, as a list of recogniser functions so later stages add theirs: a named discovery from `people_first` (major when its blueprint has a `step` or it is a world first, else short); lost with a craft's last holder in a people, and a later first success there marked "found again"; other firsts for kinds marked first-able never yet recorded by the world or the people; and an age at a step of the arc first reached anywhere, named by a fixed pattern from its event and word ("The age of *kesh*, bite stone"), at least 20 game years after the last; the first age, at the first flake, so falls in `MIL-02`, where A12.5 lists ages at `MIL-06` (`PRE-39` begins an age at the arc's first step), written into the architecture in this branch.
    Trackers (firsts recorded per people and world, the current age) are saved with the book, an entry (at most 256 bytes: date, kind, size, darkness tags, up to 8 people, a place, up to 8 events, its age, its names and facts) goes into the `book` chunk of its game century (A14.8), and each entry becomes a `Notable` for the director.
@@ -3363,7 +2631,7 @@ Scenes run on the first region (`WLD-34`, A5.6), 20 runs each with run `i` on se
    Each band has its own cave or overhang among the preset's 6 caves and 4 shelters, at least 5 km from the next, so each starts in its own cluster (A4.8's `L` = 4 km), with water within 2 km (`WLD-24`); each adult knows its home range within 10 km as about 40 places (α04a) and where the other bands camp (`BIO-20`); kin across bands are known as kin, with a few acquaintances.
    α06a's `crates/kd-culture/src/groups.rs` holds one band record per band (A9.4), each named from its home's place name (A9.3, "the Hazel band"); all belong to the one people.
    Band routes (`CUL-01`, A9.5): the 03:00 band batch marks, for each result its members made by more than one route in the last game year, the route most used, which `GroupView::band_route` gives, and an option making a result by its band's route scores 10% higher (A8.15, tuned); `pointed_stick`'s two routes are the first.
-5. `T12.5` **Parallel clusters (`TIM-16`, `RES-05`, A4.8, A3.4).** α03c's `crates/kd-sim/src/cluster.rs` (positions at the barrier, union-find over 2,048 m squares joining beings within `L = 4.0 km`, ranks as uid lanes, reservations and spills) now runs its clusters in parallel: `cluster/split.rs` (new) builds the owner table at the barrier and lends each cluster its stores, the simulation's only `unsafe` code (the module opens with `#![allow(unsafe_code)]` over α00's crate-wide `deny`, and `tools/layers.toml` already names it in `unsafe_files`), checked on every access in debug and test builds (A4.16's cluster audit); pending events move to their new cluster's heap with keys unchanged; outputs merge in rank order (A4.8 step 1); `Pool::run` uses α07c's `Workers` on the phone and in `kd` and `Serial` on the web and in tests, clusters started largest first by last window's event count (A4.15).
+5. `T12.5` **Parallel clusters (`TIM-16`, `RES-05`, A4.8, A3.4).** α03c's `crates/kd-sim/src/cluster.rs` (positions at the barrier, union-find over 2,048 m squares joining beings within `L = 4.0 km`, ranks as uid lanes, reservations and spills) now runs its clusters in parallel: `cluster/split.rs` (new) builds the owner table at the barrier and lends each cluster its stores, the simulation's only `unsafe` code (the module opens with `#![allow(unsafe_code)]` over the crate-wide `deny`, and `tools/layers.toml` already names it in `unsafe_files`), checked on every access in debug and test builds (A4.16's cluster audit); pending events move to their new cluster's heap with keys unchanged; outputs merge in rank order (A4.8 step 1); `Pool::run` uses α07c's `Workers` on the phone and in `kd` and `Serial` on the web and in tests, clusters started largest first by last window's event count (A4.15).
 6. `T12.6` **Craft and band cards (`PRE-35`, `PRE-13`, A12.4).** `crates/kd-ui/src/views/craft_card.rs`, from `Query::Craft { kind, people }` (a thing card's "made by" line or a band card's crafts): the result's name and the people's word, its holders with their skill, the line of teaching back to its first maker from the `learned` events (who taught or was watched by whom, by which route), and when it was lost and found again.
    `crates/kd-ui/src/views/band_card.rs`, from a person card or a tap on a camp at camp or valley zoom: name and meaning, home, adults and children, crafts with how many hold each and the band's route, members, and kin in other bands.
    `World::record_kinds()` gains `cul.routes`, and α06a's `cul.groups` and α11a's `cul.holders` and `cul.words` move to these cards in `FINDABLE`.
@@ -3552,14 +2820,14 @@ Scenes run on the first region (`WLD-34`, A5.6), 20 runs each with run `i` on se
 **Crates and files touched:** `kd-ui` (`src/font.rs`, `views/tests.rs` Review, `views/contact.rs`), `kd-app` (the review runner and clips), `kd-tools` (`kd report`, `kd bench`), `assets/font/`, `tools/filecheck.py` (`ids --stage`), `tools/screenshots.mjs`, `scenes/review-camp-2.toml`, `scenes/review-model-sheet-2.toml`, `bench/budgets.toml`, `scenes/lands/bench.toml`, `data/tuning/ui.md`, `reports/risks.toml`, `reports/principles.toml`, `reports/stage-2.html`, `reports/stage-2-review.md`.
 
 **Tasks:**
-1. `T12d.1` **The 9-pixel font (`PRE-31`, `PRE-34`, A12.1).** `assets/font/` gains A12.1's second font, a 9-pixel cap with every line 4 pixels taller, drawn in-house as text art like α01a's 7-pixel one (A12.1's fallback), with every glyph the 7-pixel font has; `kd-ui/src/font.rs` loads the one `data/tuning/ui.md`'s `font = "7" | "9"` names (`7` until the owner picks), and every view is laid out with both and must pass α04d's layout checks in both (nothing off screen or under insets, no target under 24, no overflowing text, portrait controls in the bottom third).
+1. `T12d.1` **The 9-pixel font (`PRE-31`, `PRE-34`, A12.1).** `assets/font/` gains A12.1's second font, a 9-pixel cap with every line 4 pixels taller, drawn in-house as text art like the 7-pixel one (A12.1's fallback), with every glyph the 7-pixel font has; `kd-ui/src/font.rs` loads the one `data/tuning/ui.md`'s `font = "7" | "9"` names (`7` until the owner picks), and every view is laid out with both and must pass α04d's layout checks in both (nothing off screen or under insets, no target under 24, no overflowing text, portrait controls in the bottom third).
 2. `T12d.2` **The `MIL-02` contact sheet (`PRE-31`, A11.12, A15.11).** Review scenes, compiled into the blob: `review-camp-2` (the start's bands from seed 7002 at Year 3, summer, day 8, a knapper at work and a herd near the meadow) and `review-model-sheet-2` (A11.12's model sheet as `MIL-02` has it: every item kind and made layout in two materials, the 19 base-action movements with `lie_hurt`, `teach` and `watch`, and the three animal patterns with their movements).
    α07e's Tests screen Review renders onto one scrolling page (`views/contact.rs`): each stop in reach (person, close camp, camp and valley) at noon and at dusk in portrait, one landscape view, the model sheet, three clips of 30 frames at 10 a second (knapping at the boulder, the flake showing on the contact frame; a child taught beside the knapper; a deer herd bolting from wolves), and two text panels in both fonts side by side: a 150-word book entry and a long person card (A12.1).
    `tools/screenshots.mjs` makes the same sheet in the cloud for the report (A15.11).
 3. `T12d.3` **The stage budget and the benchmark (`PLT-04`, `TIM-07`, `MND-15`, A16.3, A15.10).** `bench/budgets.toml` gains `MIL-02`'s stage budget, at least 2 game years a real minute at 1,000 people (A16.3's model expects about 2.3), and A8.21's rows this stage added: glances 96, matching 60, tries 49, danger pairs 25, how-to talk, memories, beliefs and worth 19, and the first region's animals near people about 75 µs a person a game day.
    α07d's bench lands (`scenes/lands/bench.toml`) now hold the start's bands and the preset's herds and small game on each island, so the bench worlds run what play runs; `bench/cloud/a12d.json` is the stage's cloud benchmark, its costliest systems named.
 4. `T12d.4` **Risks, principles and the stage's checks (`PRN-16`, `RES-19`, `PRC-12`, `RES-16`, A15.12, A15.13, A17).** `reports/risks.toml` and `reports/principles.toml` take `MIL-02`'s evidence (the tests, scenes and checks that show each), every live `RSK` item and A17 risk reviewed.
-   `python3 tools/filecheck.py ids --stage MIL-02` (α07e's): everything `ids --merge` checks; every `MIL-02` feature of `SCP-16` mapped to a done alpha whose tests, scenes or catalogue `checks` name it; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α07e carrying its `Review: APPROVE` and `Checks: PASS` lines from different sessions (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-02` or each gap.
+   `python3 tools/filecheck.py ids --stage MIL-02` (α07e's): everything `ids --merge` checks; every `MIL-02` feature of `SCP-16` implemented in code (an `Implements` line) and named by tests, scenes or catalogue `checks`; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α07e carrying its `Review: APPROVE` and `Checks: PASS` lines, each number's last alpha approved by a reviewer other than the builder (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-02` or each gap.
 5. `T12d.5` **The stage report (`RES-06`, `RES-21`, `RES-25`, `SCP-15`, `RSK-25`, `TIM-02`, A15.14).** `kd report --stage MIL-02` writes `reports/stage-2.html`, one self-contained page with inline SVG charts (A15.14), holding each part of `RES-06`: what was added and what to try now; every scene's result with its runs and range (`RES-13`), each result beside its whole-world confirmation from the island's pace worlds (`RES-21`); the sharp-stone test and its control (`RES-02`, `RES-03`); the flakes window over 20 pace worlds on new seeds (`RES-07`); entries and live moments per game year (`RES-25`); births, deaths and people per game year; the phone's measurements against `PLT-04`'s targets and the stage budget of 2 game years a minute at 1,000 people, met or missed, the costliest systems named if missed; moments seen, the oddities flagged and any surprises (`RES-12`); each principle's Check (`PRN-16`); every kind of record the world keeps with the card or view showing it, from `FINDABLE` (`PRE-13`); the risks, with content made against what later stages need (`RSK-25`); where every test ran and the computing used (`SCP-15`), and the repository's size against A17.10's 3 GB line (about 33 MB an alpha with the APKs); and the short list for the owner's judgement (`RES-22`): the default font, the knapping and teaching clips, the first book entry's wording, the moments' pace (bars and the halving, tuned with the owner, A10.10), and whether discoveries and animals read as believable.
    An independent reviewer checks it (A15.13's process, `PRC-09`); it is published as a private page with the Artifact tool and linked in the note, with a copy at `reports/stage-2.html`, its links opening worlds and entries (`kindling://open`, α11b).
 6. `T12d.6` **Deliver and close the stage (`RES-06`, `RES-22`, `PRC-10`, A15.12).** Run the stage's list (A15.12): `tools/check.sh --deliver`, `kd kill-test --kills 100`, `kd scene run --stage MIL-02` with the long runs' latest results, `kd det` in every form, 20 pace worlds on new seeds to Year 60 (`RES-07`'s stage close), `python3 tools/filecheck.py ids --stage MIL-02`; `versionCode=2124`, `versionName=a12d`; the note asks the owner for four things: the `KDB1:` code from a benchmark run, 7 or 9 for the font, ten minutes of play, and a few lines answering the report's list.
@@ -3591,7 +2859,7 @@ Scenes run on the first region (`WLD-34`, A5.6), 20 runs each with run `i` on se
 ### Stage 2 notes
 
 - Splits: α10 → α10a, α10b; α11 → α11a, α11b; a new α09b holds the brief's "wounds and plain care" from α12; the brief's α12b becomes α12b (herds and wolves) and α12c (danger, scavenging and small game), since the first region's animals, kills, stalks and throws came to over 6 hours; a new α12d closes the stage (`RES-06`), as α07e closes Stage 1.
-  Eleven alphas, 4–5.5 hours each, about 54 hours (the brief's six were 24; this part's first draft, 41.5): α08 5, α09 5.5, α09b 4.5, α10a 5, α10b 5, α11a 5, α11b 5.5, α12 5.5, α12b 5, α12c 4, α12d 4.
+  Eleven alphas, 4–5.5 hours each, about 54 hours: α08 5, α09 5.5, α09b 4.5, α10a 5, α10b 5, α11a 5, α11b 5.5, α12 5.5, α12b 5, α12c 4, α12d 4.
   `versionCode`s: α08 2080, α09 2090, α09b 2092, α10a 2101, α10b 2102, α11a 2111, α11b 2112, α12 2120, α12b 2122, α12c 2123, α12d 2124.
 - Moved from where Stage 1 expected them: the long runs (sharp stone, switch-off runs, the island's pace worlds) come in α12, not α11a, since the island's whole worlds need α12's 3–4 bands; the permanent `sharp-stone` scene is written in α12 with all of `RES-03`'s rules, its setting and the control (`sharp-stone-control`) in α11a; `kd scene gen` comes in α09 as α07c expects; frostbite (A8.5) comes in α09b, since P3's α13 does not build it; second names (A9.3) need told deeds, so they wait for α30a's stories, not α12.
 - Settled in Stage 2 for every later part: demo worlds are scenes marked `demo`, compiled into the blob and built on the phone by the Tests screen's Make test world (α08, `kd-app/src/demo.rs`, `KDW1:` codes); every new kind of record gets a `World::record_kinds()` name and a `FINDABLE` line (`kd-ui/src/findable.rs`); a chunk schema change brings a migration and a fixture; a change to area contents or to the kinds of materials, plants or animals raises `major` and `generator` (α08 to 2 and 4, α10b to 3 and 5, α12b to 4 and 6).
@@ -3604,7 +2872,7 @@ Scenes run on the first region (`WLD-34`, A5.6), 20 runs each with run `i` on se
   - A8.15: `K` adds 0.2 for a friend (`MND-26`, α10b), and care adds the caring leaning's base pull, `[care] base` (α09b).
   - A8.18: telling a place sets its who-knows-what bit; telling how gives the listener a hunch and sets no blueprint bit, so teaching still follows (α10b).
   - A12.5: the first age begins at the first flake, in `MIL-02` (α11b).
-  - A11.8: faces, listed at `MIL-02`, are α28's (the coordinator's assignment); nothing in Stage 2 draws or needs them.
+  - A11.8: faces, listed at `MIL-02`, are α28's; nothing in Stage 2 draws or needs them.
   - A15.4 and A15.7: the scene keys `demo` (α08), `stop_after` (α11a), and the `[setting]` keys `place.at` and `in_water` (α08), `extra_knowledge`, `kinds_known`, `clear` (α09), `wound` and `broken` (α09b), `traits`, `traits_spread`, `died_before`, `place.made_by` (α10a), `forget_links`, `planted`, `holds`, `belly`, `knows` (α10b), `no_flaking_stone` (α11a), several `bands` and `hunch` (α12), `herds` (α12b), `doing` and `herds.near` (α12c), each choosing only the start (`RES-18`).
   - A4.15's stale "8, 6, 5, 3, 2, 1.5 and 1" (already flagged by P1): `MIL-02`'s budget is 2 game years a minute at 1,000 people, in `bench/budgets.toml` from α12d.
 - Catalogue ids later parts must not re-add:
@@ -4080,12 +3348,12 @@ Scenes run on the first region (`WLD-34`) or a scene land, 20 runs each with run
 
 **Architecture:** `A13.1`, `A13.2`, `A13.3`, `A13.4`, `A13.5`, `A13.6`, `A13.8`, `A13.13`, `A13.14`, `A2.2`, `A2.5`, `A2.6`, `A2.9`, `A3.9`, `A4.13`, `A11.8`, `A15.4`.
 
-**Needs:** α16, with α00's empty `kd-audio` crate (already in `tools/layers.toml`), α09's `data/actions.md` and the movements' marks, α03c's `loop_phase`, α14a's fires, α07c's self-check and α07b's Settings.
+**Needs:** α16, with the empty `kd-audio` crate (already in `tools/layers.toml`), α09's `data/actions.md` and the movements' marks, α03c's `loop_phase`, α14a's fires, α07c's self-check and α07b's Settings.
 
 **Crates and files touched:** `kd-audio` (`src/lib.rs`, `src/mixer/`, `src/dsp/`, `src/gen/` (`impact.rs`, `friction.rs`, `steps.rs`, `fire.rs`), `src/plan/`, `src/speaker.rs`), `kd-android` (`src/aaudio.rs` new; `audioRoute`), `android/` (`Device.kt`: the audio route; `MainActivity.kt`: audio focus), `kd-web` (`take_audio`), `web/audio-worklet.js` new, `web/glue.js`, `kd-view` (`SoundView`, `ActorSound`, `FireSound`, `SoundEvent`, `ThingRef`), `kd-sim` (the snapshot's sound part), `kd-app` (`App::audio`, the planner on the GL thread, `src/selfcheck.rs`, `src/settings.rs`), `kd-ui` (`src/views/settings.rs`), `kd-data` (kinds `BaseSound`, `SoundBlueprint`), `kd-tools` (`kd sound render`, `kd sound bench`, `kd sound check`), `Cargo.toml` (`rtrb`), `tools/layers.toml`, `data/sounds/base.md` new, `data/sounds/blueprints.md` new, `data/tuning/sound.md` new, `scenes/`.
 
 **Tasks:**
-1. `T16b.1` **The mixer (`SND-01`, A13.2, A2.9).** α00's empty `kd-audio` crate gains `src/mixer/`, `src/dsp/` and `src/gen/impact.rs`, built from A13.2 and A13.5 (B74 measured this design on the phone; its code is not copied, A2.9).
+1. `T16b.1` **The mixer (`SND-01`, A13.2, A2.9).** The empty `kd-audio` crate gains `src/mixer/`, `src/dsp/` and `src/gen/impact.rs`, built from A13.2 and A13.5 (B74 measured this design on the phone; its code is not copied, A2.9).
    `rtrb`, which A2.2 already allows in `kd-audio`, is pinned in `[workspace.dependencies]` and added to `kd-audio`'s `outside` list in `tools/layers.toml`.
    The mixer (A13.2): 32 slots of at most 4 KB each (a generator, a gain ramp, a one-pole distance low-pass, a pan, a reverb send), rendering in passes of up to 128 frames, a sound starting at its exact frame; buses world, voices and music, each with its volume, then the speaker stage or the headphone limiter, then the soft clip `x / sqrt(1 + x²)`.
    Commands through `rtrb`: a 1,024-entry ring of `Start`, `Update`, `Release`, `Bus` and `AddSample` (at most 128 bytes each; `Song` joins with α34a) and an answer ring of ended slots, frames played, work times and dropouts; samples are `Arc<[i16]>` in a 2,048-entry table made at start, a freed one returned on the answer ring, so the audio thread never frees memory; a full ring drops the lowest-ranked new starts and counts them.
@@ -4359,7 +3627,7 @@ Scenes run on the first region (`WLD-34`) or a scene land, 20 runs each with run
 2. `T17c.2` **The stage budget and the benchmark (`PLT-04`, `TIM-07`, `MND-15`, A16.3, A15.10).** `bench/budgets.toml` gains `MIL-03`'s stage budget, at least 2 game years a real minute at 1,000 people (A16.3's model expects about 2.3), A8.21's rows this stage added (fire, cooking and everyday illness, about 15 µs a person a game day), the weather hour (at most 4 ms a game hour, A5.9), burning cells (5 µs a cell-hour), the illness job (1 ms a game day at 2,000 people) and the mixing budget (A13.13).
    α07d's bench lands (`scenes/lands/bench.toml`) now run the weather, the fire band and illness on each island, so the bench worlds run what play runs; `bench/cloud/a17c.json` is the stage's cloud benchmark, its costliest systems named.
 3. `T17c.3` **Risks, principles and the stage's checks (`PRN-16`, `RES-19`, `PRC-12`, `RES-16`, A15.12, A15.13, A17).** `reports/risks.toml` and `reports/principles.toml` take `MIL-03`'s evidence (the tests, scenes and checks that show each), every live `RSK` item and A17 risk reviewed.
-   `python3 tools/filecheck.py ids --stage MIL-03` (α07e's): everything `ids --merge` checks; every `MIL-03` feature of `SCP-16` mapped to a done alpha whose tests, scenes or catalogue `checks` name it; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α12d carrying its `Review: APPROVE` and `Checks: PASS` lines from different sessions (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-03` or each gap.
+   `python3 tools/filecheck.py ids --stage MIL-03` (α07e's): everything `ids --merge` checks; every `MIL-03` feature of `SCP-16` implemented in code (an `Implements` line) and named by tests, scenes or catalogue `checks`; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α12d carrying its `Review: APPROVE` and `Checks: PASS` lines, each number's last alpha approved by a reviewer other than the builder (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-03` or each gap.
 4. `T17c.4` **The stage report (`RES-06`, `RES-21`, `RES-25`, `RES-17`, `SCP-15`, `RSK-25`, `TIM-02`, A15.14).** `kd report --stage MIL-03` writes `reports/stage-3.html`, one self-contained page with inline SVG charts (A15.14), holding each part of `RES-06`: what was added and what to try now; every scene's result with its runs and range (`RES-13`), each beside its whole-world confirmation from the island's pace worlds (`RES-21`); the sharp-stone test and its control (`RES-02`, `RES-03`); `MOM-01`'s scene with its latest result and its appearances in the pace worlds (`RES-17`); the flakes and fire windows over 20 pace worlds on new seeds (`RES-07`, `TIM-19`); entries and live moments per game year (`RES-25`); births, deaths by cause (illness, lightning and fire among them) and people per game year; the phone's measurements against `PLT-04`'s targets and the stage budget of 2 game years a minute at 1,000 people, met or missed, the costliest systems named if missed; the sound phase's dropouts and mixing time (`SND-01`); moments seen, the oddities flagged and any surprises (`RES-12`); each principle's Check (`PRN-16`); every kind of record the world keeps with the card or view showing it, from `FINDABLE` (`PRE-13`); the risks, with content made against what later stages need (`RSK-25`), the recordings that fell back to code-made sounds among them; where every test ran and the computing used (`SCP-15`), and the repository's size against A17.10's 3 GB line (about 33 MB an alpha with the APKs); and the short list for the owner's judgement (`RES-22`): the voice, the phone bass (A13.4), the murmur's muffling (A13.9), the look of fire, weather and illness, the reel on speaker and headphones, the scores of the new moments and signs (A10.10), and whether fire-making and illness read as believable.
    An independent reviewer checks it (A15.13's process, `PRC-09`); it is published as a private page with the Artifact tool and linked in the note, with a copy at `reports/stage-3.html`, its links opening worlds and entries (`kindling://open`, α11b).
 5. `T17c.5` **Deliver and close the stage (`RES-06`, `RES-22`, `PRC-10`, A15.12).** Run the stage's list (A15.12): `tools/check.sh --deliver`, `kd kill-test --kills 100`, `kd scene run --stage MIL-03` with the long runs' latest results, `kd det` in every form, 20 pace worlds on new seeds to Year 60 (`RES-07`'s stage close), `python3 tools/filecheck.py ids --stage MIL-03`; `versionCode=3173`, `versionName=a17c`; the note asks the owner for five things: the `KDB1:` code from a benchmark run, the voice pick ("voice: <name>"), ten minutes of play with sound, the reel heard once on the speaker and once on headphones, and a few lines answering the report's list.
@@ -4391,8 +3659,8 @@ Scenes run on the first region (`WLD-34`) or a scene land, 20 runs each with run
 
 ### Stage 3 notes
 
-- **Splits:** the brief's α14 → α14a (fire in camp) and α14b (fire in the land); the brief's α17 (first sounds) → α16b (the engine and the camp's work), a new **α16c** (the land, weather and animals heard, with land in between and caves, moved from the draft's α17) and α17 (the murmur); α16 keeps the powers and α17b the everyday illnesses; a new **α17c** closes the stage (`RES-06`), as α07e and α12d do.
-  Ten alphas, about 51.5 hours: α13 5.5, α14a 5.5, α14b 5, α15 4.5, α16 5.5, α16b 5.5, α16c 5, α17 5.5, α17b 5, α17c 4.5 (the first draft's eight were 38.5, with no deliveries counted, no close and the sound engine at half its size).
+- **Splits:** the brief's α14 → α14a (fire in camp) and α14b (fire in the land); the brief's α17 (first sounds) → α16b (the engine and the camp's work), a new **α16c** (the land, weather and animals heard, with land in between and caves) and α17 (the murmur); α16 keeps the powers and α17b the everyday illnesses; a new **α17c** closes the stage (`RES-06`), as α07e and α12d do.
+  Ten alphas, about 51.5 hours: α13 5.5, α14a 5.5, α14b 5, α15 4.5, α16 5.5, α16b 5.5, α16c 5, α17 5.5, α17b 5, α17c 4.5.
   `versionCode`s: α13 3130, α14a 3141, α14b 3142, α15 3150, α16 3160, α16b 3162, α16c 3163, α17 3170, α17b 3172, α17c 3173.
 - **Moved or cut:** the moon was α03a's already, so α13 does not rebuild it; eclipses and the moon in rules stay at `MIL-04` (A3.7, A11.4) with α20a; tar, setting and treated stone move from α14a to α15; frostbite stays α09b's (CROSS); leaching and fermenting stay Stage 4's (A6.12); a band losing its fire is a moment from its logged event, not a book entry (`PRE-39` lists no such entry); the fire store keeps A6.11's 48 bytes (no `keeper` field: a kept fire is one within 50 m of its band's camp); the hunch sign is α11b's, used as it is, and the badly-wounded sign is α11b's, grown; neither is re-added.
 - **Architecture updates the Stage 3 branches make:**
@@ -4435,7 +3703,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 
 **Architecture:** `A5.7`, `A5.2`, `A3.7`, `A3.3`, `A3.2`, `A2.2`, `A14.1`, `A14.3`, `A14.9`, `A11.5`, `A12.4`, `A2.7`.
 
-**Needs:** α17c (Stage 3 done), with α02a's world-cell columns (`FixedCells`), preset builder (`lands::build`), rock kinds, drainage (`gen/drain.rs`) and `kd map preview`, α01b's relief (`area/relief.rs`, `relief::key`), α03a's sky draws and header, α07a's chunks, `kd world` and fixtures, and α07d's Tests screen.
+**Needs:** α17c (Stage 3 done), with α02a's world-cell columns (`FixedCells`), preset builder (`lands::build`), rock kinds, drainage (`gen/drain.rs`) and `kd map preview`, α01d's relief (`area/relief.rs`, `relief::key`), α03a's sky draws and header, α07a's chunks, `kd world` and fixtures, and α07d's Tests screen.
 
 **Crates and files touched:** `kd-world` (`src/gen/mod.rs`, `src/gen/plates.rs`, `src/gen/rock.rs`, `src/gen/uplift.rs`, `src/gen/features.rs`, `src/gen/erode.rs`, `src/gen/quality.rs`, all new; α02a's `src/gen/drain.rs`, `src/cells.rs` and `src/purposes.rs`), `kd-sim` (α03a's `src/world.rs`: the header's world numbers), `kd-save` (`world.fixed` per region, the header, migrations), `kd-tools` (`src/world.rs`: `kd world new` generating, `kd world check`; `src/map.rs`: `kd map preview` on a world folder), `kd-view` (`src/map.rs`: `MapTexture`), `kd-render` (`src/map.rs` new), `kd-ui` (`src/views/world_maker.rs` new, α07d's `src/views/tests.rs`, `src/findable.rs`), `kd-app` (`src/gen_job.rs` new), `data/world/rocks.md`, `data/palette/looks.md`, `data/tuning/world.md`, `data/VERSION.toml`, `tests/golden/generator.toml`, `tests/fixtures/worlds/`.
 
@@ -4461,7 +3729,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
    `Feature { kind: Thrust | Strike | Normal | Sticky | Runny, cells, yearly_chance, quiet_years: (u16, u16), last: u32 }` with starting rates in `[features]` set near Earth's yearly rates for the same area (`WLD-15`, `WLD-30`): thrust 1/400, strike 1/250, normal 1/600 a game year a segment, quiet 50–300 years; runny 1/60, sticky 1/200, quiet 20–500 years (tuned in α20b); each cell on a feature takes its id in `feature`.
 7. `T18a.7` **Erosion, polar ice and relief, steps 4 and 6's heights (`WLD-09`, `WLD-01`, A5.7, A5.2).** Run T18a.1's `erode`: 3 rounds of priority-flood fill, receivers, drainage and implicit stream power with k = 0.004 × softness (shale, chalk, ash 2; sandstone, limestone 1.2; slate, quartzite 0.8; granite, basalt 0.5) × a rough rain (× 1.5 within 200 km of sea, × 0.6 beyond 800 km, × 0.5 at 20–35° latitude), then 2 hillslope passes, and a last fill that marks lake cells instead of raising them (α18b turns them into lakes).
    Every cell within 100 km of the seam row becomes ice (water flag `glacier`, heights kept), so the cap is about 200 km wide across the seam and nothing will cross its middle (`WLD-01`).
-   `rough` (A5.2: 4 m steps of height spread inside a cell, read by α01b's relief) = clamp(2 + 30 × slope + 20 × ridge, 0, 255).
+   `rough` (A5.2: 4 m steps of height spread inside a cell, read by the areas' relief, A5.3) = clamp(2 + 30 × slope + 20 × ridge, 0, 255).
 8. `T18a.8` **Saving and tools (`WLD-08`, `WLD-12`, `PRE-13`, A14.1, A14.3, A2.7).** `world.fixed` becomes one chunk per region (A3.7's 20 × 10 regions of 100 × 100 cells, 320 KB raw each, the region in the chunk's `part`, A14.3's 8 MiB cap kept), the side tables in a last part; an island world writes only the regions holding its cells; the kind's schema rises, with a migration from α07a's single chunk, and α03a's header gains the world numbers (an island world's from its preset: its tilt, its land share, no plates); read back, a world equals `FixedCells` byte for byte.
    α07a's `kd world new` gains generation: without `--land` it makes the seed's world, `kd world new --seed S --out <dir> [--res 1km|2km] [--upto plates|rock|uplift|erosion]`, with no people (A2.7, A15.8); α02a's `kd map preview` takes a world folder, `kd map preview <dir> --layer height|rock|geo|plates|features --png <file>`, a pixel a cell with a legend strip, rerunning step 1 from the seed for `plates`, which is never saved; `kd world check --worlds N --base-seed B` prints each world's numbers for the tests below.
    `World::record_kinds()` gains `world.numbers` and `world.features`, with their `FINDABLE` lines (the world maker's summary line and cell card; the place card once people live on generated land, α19a).
@@ -4697,7 +3965,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 
 **Architecture:** `A11.5`, `A11.2`, `A11.4`, `A11.6`, `A11.8`, `A11.11`, `A12.2`, `A12.3`, `A12.4`, `A4.11`, `A4.13`, `A5.5`, `A13.7`, `A13.11`, `A8.13`.
 
-**Needs:** α19a, with α01b's camera and `texel`, α03a's speeds by zoom and light, α03b's camp points, α12b's herd marks, α02b's rivers, α13's cell tiles, α16c's zoom gains, and α11b's `a11b-watched-from-the-valley`.
+**Needs:** α19a, with α01c's camera and `texel`, α03a's speeds by zoom and light, α03b's camp points, α12b's herd marks, α02b's rivers, α13's cell tiles, α16c's zoom gains, and α11b's `a11b-watched-from-the-valley`.
 
 **Crates and files touched:** `kd-render` (α18a's `src/map.rs`, `src/globe.rs` new, `src/cells.rs` new, `src/rivers.rs` new, `src/overlay.rs` new, α03b's `src/marks.rs`, shaders `planet.fs` and the ground shader's map-look branch), `kd-app` (the whole-world cell mirror, region tiles on the view builders), `kd-view` (`CellTiles`, `OverlayAsk`, `OverlayReply`), `kd-sim` (cell tiles in the snapshot, overlay queries), `kd-ui` (`src/views/overlays.rs` new, the views panel), `kd-audio` (α16c's zoom gains at the outer stops), `data/tuning/render.md`, `bench/budgets.toml`, `tools/screenshots.mjs`, `scenes/`.
 
@@ -4707,7 +3975,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 3. `T19b.3` **The world map and the globe (`PRE-03`, `WLD-02`, `WLD-07`, A11.5, A11.4, A3.7).** α18a's `MapTexture` is kept current from the mirror (cover class and snow by season), with A3.7's block levels 11–13 so a texel covers at least an art pixel; `kd-render/src/globe.rs` builds A11.5's lat–long mesh of 256 × 128 quads, each vertex at `mix(flat, sphere, g)` with the 326 km radius, `g` rising from 0 at the world-map stop to 1 at the globe, so the map wraps onto the sphere with no cut (`PRE-03`, `WLD-02`).
    Its shader (A11.5) draws cover, relief against the season's noon sun, the polar ice drawn over the seam so no seam shows, the rim, and each latitude lit by its day's average light (A11.4); east–west squeezing toward the poles exists in the picture only (`WLD-02`); stars round the globe come from `numbers.stars`, about 2,000 keyed points, with a few slow comets among them, as A11.4 and A11.5 draw them (`WLD-06`, `WLD-07`).
 4. `T19b.4` **Rivers and marks at every distance (`PRE-26`, `PRE-28`, A11.5, A11.6, A11.8).** Rivers are lines from the river table at the region, map and globe stops, at least one art pixel wide where they drain about 1,000 km² or more (`PRE-26`), the valley stop keeping α02b's ribbons; beings follow A11.5's table (`PRE-28`): tiny figures, enlarged to at least 6 art pixels, up to 1.6 m art pixels, then 5 × 5 marks for groups (people within 50 m of each other) beside α12b's herd marks, then α03b's camp points of 1–3 pixels that glow when they hold a fire, all the way to the globe; every switch a dissolve by seeded importance (A11.1's rule 3).
-5. `T19b.5` **The zoom chain, its speeds, its light and its sound (`TIM-01`, `PRE-03`, `SND-07`, A11.2, A4.11, A11.4, A13.7, A13.11).** α01b's `texel(zoom)` runs log-linear between all of A11.5's seven stops (person 0.03 m to globe about 2.9 km an art pixel) with the pitch knots (27° at 0.03 m to 90° from 20 m, A11.2); the zoom asks A4.11 for `TIM-01`'s speeds, now at every stop: region 3 game years a real minute, world map and globe top speed, eased in between, the shown speed always the real one.
+5. `T19b.5` **The zoom chain, its speeds, its light and its sound (`TIM-01`, `PRE-03`, `SND-07`, A11.2, A4.11, A11.4, A13.7, A13.11).** α01c's `texel(zoom)` runs log-linear between all of A11.5's seven stops (person 0.03 m to globe about 2.9 km an art pixel) with the pitch knots (27° at 0.03 m to 90° from 20 m, A11.2); the zoom asks A4.11 for `TIM-01`'s speeds, now at every stop: region 3 game years a real minute, world map and globe top speed, eased in between, the shown speed always the real one.
    From the region stop out, light is averaged over the day and the season's mix held steady when a season passes in under 10 real seconds (A11.4); a pinch inward over unvisited land starts the area under the view centre as the zoom nears the camp stop (A11.5), its coarse ground shown until the detail fades in.
    α16c's zoom table (A13.7) now reaches its outer columns: beds at −18 dB at the region stop and off beyond, ambience at −18, −30 and off at the region, world-map and globe stops, singles only for thunder at the region stop, so the globe is near silent (`SND-07`), the check of A13.11 that α16c left for this alpha.
 6. `T19b.6` **Overlays: their frame, and what people know (`PRE-07`, `MND-28`, `MND-06`, A12.3, A8.13).** `kd-view` gains `OverlayAsk::{Knowledge { person: Option<Uid>, band: Option<Uid> }, Craft { blueprint: BlueprintKind, people: Option<Uid> }}` and `Query::Overlay(OverlayAsk)` (A12.3), answered from `&World` within 1 ms as a byte a cell for the cells changed since the last reply (zstd) plus a list of point marks; `kd-render/src/overlay.rs` blends the layer over the map look at the valley stop and outward, as a palette ramp at 50% with 2-texel edges between classes (tuned); later alphas add their kinds to this enum (weather α20a, land α21 and α22a, peoples α36a).
@@ -5873,7 +5141,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 3. `T27c.3` **The stage budget and the benchmark (`PLT-04`, `TIM-07`, `MND-15`, `WLD-11`, A16.3, A15.10).** `bench/budgets.toml` gains `MIL-04`'s stage budget, at least 1.7 game years a real minute at 1,000 people (`PLT-04`; A16.3's model expects about 1.95), the world alone at 10 or more on two cores (`TIM-07`), the world's own layers within 200 ms a game day (A5.9's lines), A8.21's rows this stage filled (hunting fights, plans and the year remembered, care with treatments), New world within 180 s and settling within about 60 s on the phone (`WLD-11`), each zoom stop at its asked speed or showing the real one with no frame over 50 ms while zooming (`TIM-01`'s Done when, from α19b's zoom lines), and A16.5's `MIL-04` save and open lines; `bench/cloud/a27c.json` is the stage's cloud benchmark on α27b's generated bench worlds, its costliest systems named.
    The phone benchmark (α07d's, A15.10) now runs the generated bench worlds, the world with nobody in it, New world and settling, and the seven zoom stops on generated land (α19b's lines).
 4. `T27c.4` **Risks, principles and the stage's checks (`PRN-16`, `RES-19`, `PRC-12`, `RES-16`, A15.12, A15.13, A17).** `reports/risks.toml` and `reports/principles.toml` take `MIL-04`'s evidence (the tests, scenes and checks that show each), every live `RSK` item and A17 risk reviewed.
-   `python3 tools/filecheck.py ids --stage MIL-04` (α07e's): everything `ids --merge` checks; every `MIL-04` feature of `SCP-16` mapped to a done alpha whose tests, scenes or catalogue `checks` name it; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α17c carrying its `Review: APPROVE` and `Checks: PASS` lines from different sessions (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-04` or each gap.
+   `python3 tools/filecheck.py ids --stage MIL-04` (α07e's): everything `ids --merge` checks; every `MIL-04` feature of `SCP-16` implemented in code (an `Implements` line) and named by tests, scenes or catalogue `checks`; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α17c carrying its `Review: APPROVE` and `Checks: PASS` lines, each number's last alpha approved by a reviewer other than the builder (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-04` or each gap.
 5. `T27c.5` **The stage report (`RES-06`, `RES-21`, `RES-25`, `RES-17`, `SCP-15`, `RSK-25`, `TIM-02`, A15.14).** `kd report --stage MIL-04` writes `reports/stage-4.html`, one self-contained page with inline SVG charts (A15.14), holding each part of `RES-06`: what was added and what to try now; every scene's result with its runs and range (`RES-13`), each beside its whole-world confirmation from the generated pace worlds (`RES-21`); the sharp-stone test and its control (`RES-02`, `RES-03`); `MOM-01`'s, `MOM-02`'s and `MOM-09`'s scenes with their latest results and their appearances in the pace worlds (`RES-17`); the flakes, fire, clothing and huts windows over 20 pace worlds on new seeds (`RES-07`, `TIM-19`), with the routes to fire and huts (`MAT-07`); entries and live moments per game year (`RES-25`); births, deaths by cause (animals and illness among them), life spans and band sizes against `tests/ranges.toml` (`RES-14`); the world-alone set's 100-year results (`WLD-15`, `WLD-18`, `WLD-22`, `WLD-28`, `WLD-31`, `WLD-32`); the phone's measurements against `PLT-04`'s targets and the stage budget of 1.7, met or missed, the costliest systems named if missed; the moments seen, the oddities flagged and any surprises (`RES-12`); each principle's Check (`PRN-16`); every kind of record the world keeps with the card or view showing it, from `FINDABLE` (`PRE-13`); the risks, with content made against what later stages need (`RSK-25`); where every test ran and the computing used (`SCP-15`), and the repository's size against A17.10's 3 GB line (about 33 MB an alpha with the APKs); and the short list for the owner's judgement (`RES-22`): the look of generated land and α18c's 20-world sheet (`WLD-08`), the globe and the zoom, the reel on speaker and headphones, the scores of the new moments and the stalk sign for every predator (A10.10), and whether hunting, illness, huts, plans and leaders read as believable.
    An independent reviewer checks it (A15.13's process, `PRC-09`); it is published as a private page with the Artifact tool and linked in the note, with a copy at `reports/stage-4.html`, its links opening worlds and entries (`kindling://open`, α11b).
 6. `T27c.6` **Deliver and close the stage (`RES-06`, `RES-22`, `PRC-10`, A15.12).** Run the stage's list (A15.12): `tools/check.sh --deliver`, `kd kill-test --kills 100` on a generated world, `kd scene run --stage MIL-04` with the long runs' latest results, `kd det` in every form, `kd world check --starts 100`, the world-alone set (`tools/longruns.sh --world-alone`), 20 pace worlds on new seeds to Year 60 (`RES-07`'s stage close), `python3 tools/filecheck.py ids --stage MIL-04`; `versionCode=4273`, `versionName=a27c`; the note asks the owner for four things: the `KDB1:` code from a benchmark run, ten minutes of play on a New world with sound on, the reel heard once on the speaker and once on headphones, and a few lines answering the report's list.
@@ -5904,7 +5172,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
 
 ### Stage 4 notes
 
-- **Splits:** the brief's ten alphas are now 24, about 119 hours (the first draft's 19 were about 89.5, with no deliveries counted and no close).
+- **Splits:** the brief's ten alphas are now 24, about 119 hours.
   - α18, α19 and α20 in three each, with **α19c** (a whole world kept) and **α20c** (rivers, floods and seas) new; α22, α24, α25 and α26 in two; α21 whole.
   - α23 in three: hunting (α23), **α23b** (snares and fishing, new) and **α23c** (bark trays, hot stones and acorns, new), which hold what Stage 3 and CROSS left to this stage: boiling with hot stones (`MAT-18`), leaching (`RCK-13`), fermenting (`RCK-07`) and A7.10's catching rows.
   - α27 in three: the best three worlds (α27a), where history begins (α27b) and **α27c** (new), which closes the stage (`RES-06`) as α07e, α12d and α17c close theirs.
@@ -5914,8 +5182,6 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
   - Scene seeds 19100–26800 are taken; Stage 5 starts at 28100.
 - **Moved or cut:**
   - Bark trays and boiling with hot stones moved from α24a to α23c; snares from α23 to α23b; the stage close from α27b to α27c; in the first half, whole-world saving from α19a to α19c, and water and the flood power from α20a and α20b to α20c.
-  - Task IDs moved: α23's T23.1 no longer makes snares (now T23b.2); α24a's old T24a.3 is now α23c's T23c.1–T23c.3, so its old T24a.4–T24a.7 are T24a.3–T24a.6; α27b's old T27b.7 (the close) is now α27c, and its old T27b.8 is T27b.7; α27a gains T27a.7; the first half's moves are in `notes/R-P4a.md`.
-    No part cites a moved second-half task ID; `digests/P4.md` still lists the old ones and needs making again.
   - Kept on purpose: the first people's style in α25b, though A9.17 puts style at `MIL-05`, because Stage 5 builds on it; α19a's stand-in start (`start_stub`), now only behind scenes' `generated` key, so earlier scenes keep their worlds (`RES-09`).
 - **Architecture updates the Stage 4 branches make**, each written into `ARCHITECTURE.md` in its branch:
   - A12.4: the World maker on the Tests screen (α18a).
@@ -5923,7 +5189,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
   - A5.4: the `Blood` mark, 24 bytes, fading in 2 game days or at once under heavy rain (α23).
   - A6.2: `throw = { reach_m, harm }` on things made to be thrown (α23).
   - A6.8: a standing plant within reach is matched as a `ThingView` of the item it would give (α23; α23c's bark uses it).
-  - A6.16: purposes `things.throw_hit` (system 8) and `bodies.blow` (system 9) (α23); the first half's names `gen.*`, `weather.*` and `land.*` (`notes/R-P4a.md`).
+  - A6.16: purposes `things.throw_hit` (system 8) and `bodies.blow` (system 9) (α23); the first half's names `gen.*`, `weather.*` and `land.*` (α18a to α22b).
   - A6.3: `StateSet` widens from 16 to 32 bits, as the state list reaches 18 (α25a).
   - A8.2: the person store gains `nursed: u16` (α24a), and `worn` grows from 4 slots to 6 (α25a).
   - A8.4: medicine eases pain for about 6 hours, as `BIO-12` says, not 4 (α24a).
@@ -5942,7 +5208,7 @@ History begins on generated worlds in α27b: the pace test moves to generated wo
   - Minds: memories `ground_rumbled`, `met_predator`, `big_kill`, `attacked_by_animal`, `nursed_someone`, `was_nursed`, `found_old_thing`; thoughts `drank_ferment`, `plan_done`, `plan_failed`, `left_hunt_early`; the topic `plan`; α26a's nine plan templates (`store_food_for_hard_season`, `gather_fuel_for_cold`, `make_warm_clothes`, `build_shelter`, `make_tool_for_task`, `fetch_material`, `wait_for_game`, `seek_place`, `seek_person`) and α26b's `join_group_plan`.
   - Group plans, all ten of A9.7 in `data/culture/plans.md`: `move_camp`, `hunt_together`, `gather_together`, `build_together` and `defend` active; `hold_rite`, `go_to_gathering`, `raid`, `drive_out` and `settle_feud` written with `active = false`, for α32a, α40, α39b, α32a and α39a to switch on.
   - History: event kinds `drought`, `quake`, `eruption`, `flood`, `attacked_by_animal`, `big_game_kill`, `burial`, `camp_founded`, `camp_left`, `found_old_thing`, `leader_chosen`, `challenge`, `camp_moved`, `group_plan`; moments `disaster_drought`, `disaster_quake`, `disaster_eruption` and `disaster_flood`, with patterns `drought`, `quake`, `eruption` and `flood` in α14b's `data/text/disasters.md`.
-  - Record kinds: the first half's 13 (`notes/R-P4a.md`, M5), and `area.blood`, `things.traps`, `people.nursed`, `area.graves`, `area.pits`, `area.heaps`, `people.worn`, `area.structures`, `things.work`, `cul.style`, `people.plans`, `people.seasons`, `cul.leaders`, `cul.group_plans`, `world.start`.
+  - Record kinds: the first half's 13 (α18a to α22b's), and `area.blood`, `things.traps`, `people.nursed`, `area.graves`, `area.pits`, `area.heaps`, `people.worn`, `area.structures`, `things.work`, `cul.style`, `people.plans`, `people.seasons`, `cul.leaders`, `cul.group_plans`, `world.start`.
   - Looks: movements `fight`, `stalk`, `carry_back`; the 5 garments in `data/models/garments.md`; the 12 patterns in `data/models/patterns.md` (`notches`, `bands`, `dots`, `zigzags`, `fringes`, `rings`, `crosses`, `chevrons`, `spirals`, `ladders`, `waves`, `rays`); the style steps in `data/culture/style.md`.
   - New files: `data/animals/wild.md`, `data/models/plants.md`, `data/text/life.md`, `data/illnesses/animals.md`, `data/blueprints/healing.md`, `data/blueprints/hides.md`, `data/models/garments.md`, `data/models/patterns.md`, `data/culture/style.md`, `data/culture/plans.md`, `data/minds/plans.md`, `data/text/minds.md`, `data/text/culture.md`.
   - Lands and review scenes: the cut lands `cut-temperate-river`, `ridge-west-wind`, `two-streams`, `dry-grass-river`, `fault-valley`, `volcano-slope`, `long-river`, `tundra-edge`, `salmon-river`, `old-cave-camp` and `two-valleys`; `review-camp-4`, `review-storm-4`, `review-model-sheet-4`.
@@ -5967,7 +5233,7 @@ The stage is 17 alphas of about 79 hours, against the brief's 8 and 32.
 **Rules for the whole stage**, as Stages 2 to 4 settled them:
 - **Demos:** each alpha's first phone step makes its demo world on the phone: a scene marked `demo = { name, run, at }`, compiled into the blob and built in Settings (long-press the version line, Make test world; α08's `kd-app/src/demo.rs`), then opened from Worlds; α35a needs its APK, and α35c starts with the benchmark, as α27c does.
 - **Delivery:** every alpha ends with goldens, its `versionCode` by A15.3's formula (α28 5280, α28b 5282, α29 5290, α30a 5301, α30b 5302, α31 5310, α31b 5312, α32a 5321, α32b 5322, α32c 5323, α33 5330, α33b 5332, α34a 5341, α34b 5342, α35a 5351, α35b 5352, α35c 5353), `bench/cloud/<alpha>.json` rows, then P0's steps 5 to 8.
-  Each new kind of record joins `World::record_kinds()` with its `FINDABLE` line (`kd-ui/src/findable.rs`, `PRE-13`), each new logged event α07b's `data/history/event_kinds.md` with its flags and pattern, each new moment α11b's `data/director/moments.md`, each new catalogue file its kind in α01a's registry (`kd-data/src/kinds.rs`), and each chunk schema change its migration and fixture (A14.9).
+  Each new kind of record joins `World::record_kinds()` with its `FINDABLE` line (`kd-ui/src/findable.rs`, `PRE-13`), each new logged event α07b's `data/history/event_kinds.md` with its flags and pattern, each new moment α11b's `data/director/moments.md`, each new catalogue file its kind in the catalogue's registry (`kd-data/src/kinds.rs`), and each chunk schema change its migration and fixture (A14.9).
 - **Scenes:** every scene has its `base_seed` (this stage's are 28100–34400, each alpha's own, a control or switch run sharing its scene's), 20 runs (`RES-13`), a game-time limit, a budget in session-hours, its IDs and a pass rule, fixed before its first run (`RES-09`); scenes longer than 10 game years are `quick = false` and run in the long runs (`RES-17`).
   Mid-run events are only your acts (α16's `[[acts]]`); the start keys this stage adds (`fright`, `feel`, `ambition`, `experience`, `links`, `relations`, `past_events`, `beings`, `cases`, `peoples`, the `home` value `shelter`, and the land preset's `hills`) are additions to A15.7 and A5.6, each choosing only the start (`RES-18`), written into the architecture in the branch that adds it.
 - **Earlier scenes keep passing:** each alpha keeps every earlier scene passing at its threshold (P0's definition of done, item 3), the island's `sharp-stone` test and its control (`RES-02`, `RES-03`) among them; feelings, ambitions, beliefs and rites act on the island too, so a failure is fixed in this stage's tuned numbers on the tuning seeds (`RES-16`), never in a pass rule.
@@ -6912,15 +6178,15 @@ The avenge ambition waits for feuds in α39a (`CUL-31`), and the snake's half of
 
 **Architecture:** `A12.7`, `A12.6`, `A2.2`, `A2.5`, `A2.9`, `A14.8`, `A15.4`, `A15.6`, `A17.4`, `A8.15`.
 
-**Needs:** α34b, with α11b's pattern text (`kd-text/src/pattern.rs`, `build.rs`: `TextRecord`, `Fact`, `DarkTags`; `data/text/`), α11b's book of ages (`kd-ui/src/views/book.rs`), α24b's grave card and its life story (`kd-ui/src/views/remains.rs`), α32c's myths (`TextKind::Myth`, `data/text/myths.md`), α04d's details view and `mind_report` (`kd-ui/src/views/mind.rs`, `kd-people`), α00's Android shell (`android/`, `Native.kt`, `android/permissions.txt`, `tools/verify-apk.sh`, the code dialog), α07b's Settings (`kd-app/src/settings.rs`, `settings.toml`), α07c's self-check (`kd-app/src/selfcheck.rs`), α07d's Tests screen (`kd-ui/src/views/tests.rs`) and `tools/decode-bench.py`, and α26a's `data/text/minds.md`.
+**Needs:** α34b, with α11b's pattern text (`kd-text/src/pattern.rs`, `build.rs`: `TextRecord`, `Fact`, `DarkTags`; `data/text/`), α11b's book of ages (`kd-ui/src/views/book.rs`), α24b's grave card and its life story (`kd-ui/src/views/remains.rs`), α32c's myths (`TextKind::Myth`, `data/text/myths.md`), α04d's details view and `mind_report` (`kd-ui/src/views/mind.rs`, `kd-people`), the Android shell (`android/`, `Native.kt`, `android/permissions.txt`, `tools/verify-apk.sh`, the code dialog), α07b's Settings (`kd-app/src/settings.rs`, `settings.toml`), α07c's self-check (`kd-app/src/selfcheck.rs`), α07d's Tests screen (`kd-ui/src/views/tests.rs`) and `tools/decode-bench.py`, and α26a's `data/text/minds.md`.
 
 **Crates and files touched:** `kd-text` (`src/request.rs` new, `src/check.rs` new, α11b's `src/build.rs`), `kd-app` (`src/writer.rs` new: the text queue, statuses and retries; `src/writer_check.rs` new; `Request::Write`; α07c's `src/selfcheck.rs`; α07b's `src/settings.rs`), `kd-android` (`writerStatus`, `writerResult`), `android/` (`app/src/main/java/dev/kindling/app/Writer.kt` new, `Native.kt`, `app/build.gradle.kts`, `app/proguard-rules.pro`, `app/src/main/AndroidManifest.xml`, `permissions.txt`), `kd-save` (`src/texts.rs` new: `texts.log`), `kd-ui` (α11b's `src/views/book.rs`, α24b's `src/views/remains.rs`, α04d's `src/views/mind.rs`, α12's `src/views/band_card.rs`: the Pattern | Writer toggle; α07b's `src/views/settings.rs`; α07d's `src/views/tests.rs`: Writer check), `kd-data` (kinds `NeutralWords`, `SoftWords`, `TrapRecord`, `WriterView`), `tools/decode-bench.py`, `data/writer/` new, `data/tuning/writer.md` new, `data/text/minds.md`, `data/text/settings.md`, `tests/fixtures/worlds/`.
 
 **Tasks:**
 1. `T35a.1` **The writer on the phone (`PLT-03`, `RSK-08`, `PRC-11`, A2.5, A2.9, A12.7, A17.4).** `android/app/src/main/java/dev/kindling/app/Writer.kt` (new, A2.5, A12.7; B73 measured this path on the owner's phone, its code is not copied, A2.9), one model client (`ModelPreference.FULL`): `checkStatus()` at start and at each resume, `download()` when the model is downloadable, and `generateContent` with temperature 0.3, top-k 20, one candidate, at most 256 new tokens and the request's seed, one request at a time on a worker thread, never the main thread.
    The status goes to `Native.writerStatus(h, status)` (available, downloadable, downloading or unavailable, A2.5) at start and on change; each answer to `Native.writerResult(h, id, code, text)` through `GameView.queueEvent`: `BUSY` is retried after 10 s, `BACKGROUND_USE_BLOCKED` waits for the next resume, `PER_APP_BATTERY_USE_QUOTA_EXCEEDED` stops writing until the app restarts, and any other error leaves that request's patterns (A12.7, A17.4).
-   `android/app/build.gradle.kts` gains `implementation("com.google.mlkit:genai-prompt:1.0.0-beta4")`, the version B73 built in debug and R8 release; `android.useAndroidX=true` is α00's already; `proguard-rules.pro` gains `-keep class com.google.mlkit.** { *; }`, since R8 would otherwise strip the classes ML Kit loads by name (B73).
-   The manifest removes ML Kit's usage upload (the `TransportBackendDiscovery` service's `CctBackendFactory` meta-data, with `tools:node="remove"`) and `<uses-permission android:name="android.permission.INTERNET" tools:node="remove"/>` (A2.5); `android/permissions.txt` gains exactly `android.permission.ACCESS_NETWORK_STATE`, `com.google.android.apps.aicore.service.BIND_SERVICE` and `dev.kindling.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, which α00's `tools/verify-apk.sh` holds the merged manifest to, with no `INTERNET` and no `CctBackendFactory` (`PLT-03`).
+   `android/app/build.gradle.kts` gains `implementation("com.google.mlkit:genai-prompt:1.0.0-beta4")`, the version B73 built in debug and R8 release; `android.useAndroidX=true` is set already; `proguard-rules.pro` gains `-keep class com.google.mlkit.** { *; }`, since R8 would otherwise strip the classes ML Kit loads by name (B73).
+   The manifest removes ML Kit's usage upload (the `TransportBackendDiscovery` service's `CctBackendFactory` meta-data, with `tools:node="remove"`) and `<uses-permission android:name="android.permission.INTERNET" tools:node="remove"/>` (A2.5); `android/permissions.txt` gains exactly `android.permission.ACCESS_NETWORK_STATE`, `com.google.android.apps.aicore.service.BIND_SERVICE` and `dev.kindling.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, which `tools/verify-apk.sh` holds the merged manifest to, with no `INTERNET` and no `CctBackendFactory` (`PLT-03`).
    `Native.kt` gains `writerStatus` and `writerResult` (A2.5's table) and `kd-android` their JNI entries; A2.2's `Request::Write { id, prompt, max_tokens }` gains `seed: u32`, the seed A12.7 asks for (written into A2.2 in this branch), and Kotlin reads it from `takeRequests`.
    Settings (α07b's `views/settings.rs`) shows "Writer: ready", "downloading", "unavailable" or, on the web, "none on the web: texts are patterns"; α07c's self-check gains the writer's status, as α07c left for this alpha (A15.4).
 2. `T35a.2` **Requests and the prompt (`PRE-17`, `PRE-19`, `PRN-06`, A12.6, A12.7).** `crates/kd-text/src/request.rs` (new) takes α11b's `TextRecord` (`src/build.rs`) and sends only the numbered pattern sentences of its facts that are not dark (A12.6's `DarkTags`), names, meanings and a myth's images already in them: at most 6 sentences and about 80 tokens of patterns a request (counted at 1.4 tokens a word), so a 150-word text goes in three, and the longest reply check 1 allows fits 256 new tokens; the seed is the record's hash, and a new one for a rewrite (the hash with the rewrite's count).
@@ -6945,7 +6211,7 @@ The avenge ambition waits for feuds in α39a (`CUL-31`), and the snake's half of
 7. `T35a.7` **The trap set (`PRE-17`, `PRE-41`, `PRC-10`, A12.7, A15.6).** `data/writer/traps.md` (new, kind `TrapRecord`): about 50 trap records written for A12.7's kinds (opposite roles, a teacher and a learner, a dark event beside a happy one, a myth with a belief's image, give turned to trade, teach turned to learn, pronouns, two of 12 facts), each with its pattern sentences, its expected names and role order, 3–5 planted bad rewordings per sentence and its faithful ones.
    In the cloud, `kd-text`'s tests require the checks to reject every role swap, converse verb and dropped event, and at least 94% of the other planted ones (the rate B73's checker reached), while passing every faithful one.
    On the phone, Tests → Writer check (`kd-app/src/writer_check.rs`, new, on α07d's Tests screen) sends every trap through Gemini Nano ahead of the queue and passes only if no swapped role, softened fact or missing event would reach the screen: each trap's shown text, after the checks, keeps its expected names in role order, every dark event as its plain sentence, and no hedge or softener.
-   It ends with a `KDT1:` code (compact JSON gzipped and base64, as `KDB1:`, in α00's code dialog: each trap's result, its failing sentences and the model's state), which α07d's `tools/decode-bench.py` gains; it runs whenever `data/writer/` changes and at each stage close (A12.7, `PRC-10`).
+   It ends with a `KDT1:` code (compact JSON gzipped and base64, as `KDB1:`, in the code dialog (A15.4): each trap's result, its failing sentences and the model's state), which α07d's `tools/decode-bench.py` gains; it runs whenever `data/writer/` changes and at each stage close (A12.7, `PRC-10`).
 8. `T35a.8` **Delivery (`PLT-03`, `PRC-11`, A14.9, A15.4).** `texts.log` is a new file beside the world's chunks, never world state, so `World::record_kinds()` gains nothing; fixture `a35a.kindling` holds a `texts.log` with one written text and one marked pattern text, and α34b's fixture opens with none (A14.9).
    Goldens `writer-toggle` (a book entry with its toggle, pattern side, in the cloud, which has no writer) and `settings-writer` (the status line on the web); the APK, with ML Kit, stays under 50 MB (`verify-apk.sh`); `versionCode=5351`, `versionName=a35a`; `bench/cloud/a35a.json` adds the request builder and the check (the time to check a 150-word text) and the 1.7 line; then P0's steps 5 to 8, the note asking for the `KDT1:` code.
 
@@ -6985,12 +6251,12 @@ The avenge ambition waits for feuds in α39a (`CUL-31`), and the snake's half of
 
 **Architecture:** `A10.4`, `A10.3`, `A3.3`, `A10.1`, `A10.5`, `A10.6`, `A8.14`, `A8.19`, `A8.15`, `A12.4`, `A12.5`, `A14.3`, `A14.9`.
 
-**Needs:** α35a, with α00's chance streams and purpose registry (`kd-core/src/chance/stream.rs`, `registry.rs`: `Fortune { Good, Bad, None }`, `Stream::retry`), α03c's registry test in `kd-sim`, α16's ring, record, act pages and twins test (`kd-player/src/powers/`, `record/mod.rs`, `record/links.rs`, `kd-ui/src/views/powers.rs`, `act_page.rs`, `crates/kd-sim/tests/never_known.rs`, `data/text/powers.md`, `data/tuning/powers.md`, `[[acts]]`), α09's `learn` and `How` (`kd-people/src/learn/learn.rs`), α10b's `belief::on_outcome` with α28's `ready_fear` step, α31's `unseen::maybe_form`, α10a's dreams and wake job, α11a's named discoveries, α11b's book and `PlayerView` (`kd-player/src/view.rs`), α04d's details view and `mind_report` with α35a's summary, and α15's `ember_by_drilling` and `ember_by_ploughing`.
+**Needs:** α35a, with the chance streams and purpose registry (`kd-core/src/chance/stream.rs`, `registry.rs`: `Fortune { Good, Bad, None }`, `Stream::retry`), α03c's registry test in `kd-sim`, α16's ring, record, act pages and twins test (`kd-player/src/powers/`, `record/mod.rs`, `record/links.rs`, `kd-ui/src/views/powers.rs`, `act_page.rs`, `crates/kd-sim/tests/never_known.rs`, `data/text/powers.md`, `data/tuning/powers.md`, `[[acts]]`), α09's `learn` and `How` (`kd-people/src/learn/learn.rs`), α10b's `belief::on_outcome` with α28's `ready_fear` step, α31's `unseen::maybe_form`, α10a's dreams and wake job, α11a's named discoveries, α11b's book and `PlayerView` (`kd-player/src/view.rs`), α04d's details view and `mind_report` with α35a's summary, and α15's `ember_by_drilling` and `ember_by_ploughing`.
 
-**Crates and files touched:** `kd-core` (α00's `src/chance/`: `fortune.rs` new; `persist::kinds`: `world.fortune`), every crate with a `Good` or `Bad` purpose (`kd-things`, `kd-life`, `kd-people`: their draws moved to the roll), `kd-sim` (the job context's roll, the grant, the registry test, `tests/fortune.rs` new, α16's `tests/never_known.rs`), `kd-player` (`src/powers/fortune.rs` and `src/powers/revelation.rs`, new; α16's `src/powers/possible.rs`, `src/record/mod.rs`, `src/record/links.rs`; α11b's `src/view.rs`), `kd-people` (α09's `src/learn/learn.rs`: `How`; α10b's `src/mind/belief.rs`: the `knew_how` step; α04d's `mind_report`), `kd-save` (chunk `world.fortune`), `kd-view` (`PowersView`, `ActPageView`), `kd-ui` (α16's `src/views/powers.rs` and `src/views/act_page.rs`; α04d's `src/views/mind.rs`; `src/findable.rs`), `kd-text`, `data/tuning/powers.md`, `data/text/powers.md`, `data/text/cards.md`, `data/minds/thoughts.md`, `data/minds/memories.md`, `tests/fixtures/worlds/`, `scenes/`.
+**Crates and files touched:** `kd-core` (`src/chance/`: `fortune.rs` new; `persist::kinds`: `world.fortune`), every crate with a `Good` or `Bad` purpose (`kd-things`, `kd-life`, `kd-people`: their draws moved to the roll), `kd-sim` (the job context's roll, the grant, the registry test, `tests/fortune.rs` new, α16's `tests/never_known.rs`), `kd-player` (`src/powers/fortune.rs` and `src/powers/revelation.rs`, new; α16's `src/powers/possible.rs`, `src/record/mod.rs`, `src/record/links.rs`; α11b's `src/view.rs`), `kd-people` (α09's `src/learn/learn.rs`: `How`; α10b's `src/mind/belief.rs`: the `knew_how` step; α04d's `mind_report`), `kd-save` (chunk `world.fortune`), `kd-view` (`PowersView`, `ActPageView`), `kd-ui` (α16's `src/views/powers.rs` and `src/views/act_page.rs`; α04d's `src/views/mind.rs`; `src/findable.rs`), `kd-text`, `data/tuning/powers.md`, `data/text/powers.md`, `data/text/cards.md`, `data/minds/thoughts.md`, `data/minds/memories.md`, `tests/fixtures/worlds/`, `scenes/`.
 
 **Tasks:**
-1. `T35b.1` **Fortune's roll (`GOD-04`, `TIM-16`, A3.3, A10.4).** α00's `crates/kd-core/src/chance/` gains `fortune.rs` (new), the part α00 left for this alpha: `FortuneBook` (at most 3 entries: subject, blessed or cursed, until), `TurnedLog` (subject, purpose, second, the first and the kept outcome) and `Roller`, the context's roll A3.3 names (the world seed, `&FortuneBook`, its cluster's `&mut TurnedLog` and the second), with `roll(purpose, subject, p) -> bool`, `roll_pair(purpose, a, b, p)` for a pair purpose, and `roll_outcome(purpose, subject, w, best_first) -> usize` (A10.4).
+1. `T35b.1` **Fortune's roll (`GOD-04`, `TIM-16`, A3.3, A10.4).** `crates/kd-core/src/chance/` gains `fortune.rs` (new), the part left for this alpha: `FortuneBook` (at most 3 entries: subject, blessed or cursed, until), `TurnedLog` (subject, purpose, second, the first and the kept outcome) and `Roller`, the context's roll A3.3 names (the world seed, `&FortuneBook`, its cluster's `&mut TurnedLog` and the second), with `roll(purpose, subject, p) -> bool`, `roll_pair(purpose, a, b, p)` for a pair purpose, and `roll_outcome(purpose, subject, w, best_first) -> usize` (A10.4).
    Blessed, when the first draw goes against the subject, the retry (`Stream::retry`, bit 31 flipped) decides: 10% becomes 19%; cursed, when the first goes their way, if the retry draw's lowest bit is 1 its top 24 bits decide: 10% becomes 5.5%; `roll_outcome` keeps the better of two draws for the blessed and, half the time, the worse for the cursed, by `best_first`, the rule's own order of outcomes for that person; a pair purpose whose two people both have fortune uses neither (`GOD-04`).
    With no entry for the subject the roll is the plain draw, the same key giving the same outcome, and 0 and 1 never move; each changed outcome goes into the `TurnedLog`, and the rule that rolled gets only the outcome (A3.3).
 2. `T35b.2` **Every `Good` and `Bad` draw through the roll (`GOD-04`, `TIM-16`, A10.4, A3.3, A14.3).** Every registered purpose's polarity is audited against A10.4's list: `Good` for the success of their own attempts (a blueprint try, an accidental discovery, a hunt's hit or kill, a find, a throw), `Bad` for harm to them (an accident, a wound's severity, infection, catching or dying of an illness, dying of a wound, birth complications), `None` for everything in a mind, every culture batch and every draw about places, weather, plants and herds; the audited list goes in the alpha's note.
@@ -7063,7 +6329,7 @@ The avenge ambition waits for feuds in α39a (`CUL-31`), and the snake's half of
 3. `T35c.3` **The stage budget and the benchmark (`PLT-04`, `TIM-07`, `TIM-01`, `WLD-11`, `MND-15`, A16.3, A15.10).** `bench/budgets.toml` gains `MIL-05`'s stage budget, at least 1.7 game years a real minute at 1,000 people (`PLT-04`; A16.3's model expects about 1.95), the world alone at 10 or more on two cores (`TIM-07`), New world within 180 s and settling within about 60 s on the phone (`WLD-11`, at every stage from `MIL-04`), each zoom stop at its asked speed or showing the real one with no frame over 50 ms while zooming (`TIM-01`'s Done when, from α19b's zoom lines), the A8.21 rows this stage filled (feelings and breakdowns in the hourly settle and wake job, ambitions, the new social acts and topics, beliefs about the unseen) and A9.17's culture batches (shared beliefs at most 20 µs a band a day, customs, rites, stories and music), and `kd sound bench`'s dearest mix (α34a's song in a storm, A13.13); `bench/cloud/a35c.json` is the stage's cloud benchmark on α27b's generated bench worlds, its costliest systems named.
    The phone benchmark (α07d's, A15.10) plays α34a's song in a storm live in its sound phase and reports each mind part's share in the camp of 30 and the village of 300 (`MND-15`).
 4. `T35c.4` **Risks, principles and the stage's checks (`PRN-16`, `RES-19`, `PRC-12`, `RES-16`, A15.12, A15.13, A17).** `reports/risks.toml` and `reports/principles.toml` take `MIL-05`'s evidence (the tests, scenes and checks that show each), every live `RSK` item and A17 risk reviewed, `RSK-08`'s fallbacks and `RSK-19`'s signs among them.
-   `python3 tools/filecheck.py ids --stage MIL-05` (α07e's): everything `ids --merge` checks; every `MIL-05` feature of `SCP-16` mapped to a done alpha whose tests, scenes or catalogue `checks` name it; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α27c carrying its `Review: APPROVE` and `Checks: PASS` lines from different sessions (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-05` or each gap.
+   `python3 tools/filecheck.py ids --stage MIL-05` (α07e's): everything `ids --merge` checks; every `MIL-05` feature of `SCP-16` implemented in code (an `Implements` line) and named by tests, scenes or catalogue `checks`; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α27c carrying its `Review: APPROVE` and `Checks: PASS` lines, each number's last alpha approved by a reviewer other than the builder (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-05` or each gap.
 5. `T35c.5` **The stage report (`RES-06`, `RES-21`, `RES-25`, `RES-17`, `CUL-33`, `CUL-26`, `RSK-19`, `SCP-15`, `RSK-25`, `TIM-02`, A15.14).** `kd report --stage MIL-05` writes `reports/stage-5.html`, one self-contained page with inline SVG charts (A15.14), holding each part of `RES-06`: what was added and what to try now; every scene's result with its runs and range (`RES-13`), each beside its whole-world confirmation from the generated pace worlds (`RES-21`); the sharp-stone test and its control (`RES-02`, `RES-03`); `MOM-03`'s, `MOM-04`'s and `MOM-07`'s scenes with their latest results and their appearances in the pace worlds, beside the earlier moments' (`RES-17`); over 20 pace worlds on new seeds to Year 60 (`RES-07`), `CUL-33`'s first three windows (the first shared spirit or belief in the dead within 5 game years, the first rite a band keeps in 5–20, the first myth in 10–40) and the earlier stages' windows (`TIM-19`); `CUL-26`'s count of worlds with a people holding a sacred place, a shaman and a myth by Year 60 (its Done when: at least 10 of 20) and any step before its conditions; `RSK-19`'s signs; entries and live moments per game year (`RES-25`); births, deaths by cause (fights and despair among them), life spans and band sizes against `tests/ranges.toml` (`RES-14`); the trap set's cloud results and the phone's `KDT1:`, with the writer's speed on the phone (first word, words a second); the phone's measurements against `PLT-04`'s targets and the stage budget of 1.7, met or missed, the costliest systems named if missed; the moments seen, the oddities flagged and any surprises (`RES-12`); each principle's Check (`PRN-16`); every kind of record the world keeps with the card or view showing it, from `FINDABLE` (`PRE-13`); the risks, with content made against what later stages need (`RSK-25`); where every test ran and the computing used (`SCP-15`), and the repository's size against A17.10's 3 GB line (about 33 MB an alpha with the APKs; if past it, unless an earlier report already asked, the owner's choice between adding their own GitHub token, so the APKs go to releases, and deleting old `runs` branches); and the short list for the owner's judgement (`RES-22`): faces and feelings at close camp, the paintings, ornament and dances on the sheet, the reel's songs and voices, pattern or writer text in each view, the score of α32b's `role_holder_died` moment (A10.10), and whether feelings, quarrels, beliefs, rites and religion read as believable.
    An independent reviewer checks it (A15.13's process, `PRC-09`); it is published as a private page with the Artifact tool and linked in the note, with a copy at `reports/stage-5.html`, its links opening worlds and entries (`kindling://open`, α11b).
 6. `T35c.6` **Deliver and close the stage (`RES-06`, `RES-22`, `PRE-37`, `PRE-17`, `PRC-10`, A12.7, A15.12).** Run the stage's list (A15.12): `tools/check.sh --deliver`, `kd kill-test --kills 100` on a generated world, `kd scene run --stage MIL-05` with the long runs' latest results, `kd det` in every form, `kd world check --starts 100`, 20 pace worlds on new seeds to Year 60 (`RES-07`'s stage close), `python3 tools/filecheck.py ids --stage MIL-05`; `versionCode=5353`, `versionName=a35c`; the note asks the owner for six things: the `KDB1:` code from a benchmark run, the `KDT1:` code from the writer check (A12.7: at each stage close), ten minutes of play on the stage's demo worlds with sound on (step 4 below, since a New world takes years to reach a rite or a painting), the reel heard once on the speaker and once on headphones with the singing verdict, pattern or writer for each of the four text views, and a few lines answering the report's list.
@@ -7095,7 +6361,7 @@ The avenge ambition waits for feuds in α39a (`CUL-31`), and the snake's half of
 - Singing failing the review: A13.14's hummed fallback is one setting, and songs keep their notes and rhythms.
 ### Stage 5 notes
 
-- **Splits:** the brief's eight alphas are now 17, about 79 hours (the first draft's 12 were about 50, with no deliveries counted and no close). No alpha was merged or removed, and every old number keeps its core.
+- **Splits:** the brief's eight alphas are now 17, about 79 hours.
   - α28 in two: feelings and faces (α28) and **α28b** (breakdowns, inspiration and nudges, new).
   - α31 in two: the unseen in minds (α31) and **α31b** (what bands share: spirits, taboos, lore and the belief overlay, new).
   - α32 in three: customs and rites (α32a), sacred places, shamans and ancestors (α32b) and **α32c** (stories, myths and religion, new; they were α32b's).
@@ -7105,9 +6371,7 @@ The avenge ambition waits for feuds in α39a (`CUL-31`), and the snake's half of
   - `versionCode`s: α28 5280, α28b 5282, α29 5290, α30a 5301, α30b 5302, α31 5310, α31b 5312, α32a 5321, α32b 5322, α32c 5323, α33 5330, α33b 5332, α34a 5341, α34b 5342, α35a 5351, α35b 5352, α35c 5353.
   - Versions: α33 raises `major` and `generator` to 14 (α18c's `ochre` deposit gets its items); Stage 5 ends at 14 and 14, every other alpha a small update.
   - Scene seeds 28100–34400 are taken (α35a and α35c have none); Stage 6 starts at 36100.
-  - The status table gains α28b, α31b, α32c, α33b and α35c; `digests/P5.md` still describes the first draft and needs making again.
 - **Moved or cut:**
-  - Every Stage 5 task ID is new: the draft's T-numbers are void (no other part cites one but P1's and P2's notes, which name T28.7 and T31.1–T31.5 loosely).
   - Moved: breakdowns, inspiration and nudges (α28 → α28b); shared spirits, taboos, lore, the belief overlay and the spirit cap (α31 → α31b); stories, myths, legends and religion's names (α32b → α32c); beads, body paint, carvings and tallies (α33 → α33b); faces (assumed built in Stage 2) to α28; the details view's written summary to α35a, the view in full staying in α35b.
   - Cut, as rebuilding earlier work or reaching past the stage: `kd scene gen --shapes` (the shape scenes are written from one setting), the motif sheet of `kd catalog check --sheet` (folded into the model sheet), the `elder` belief source, the ambition book entry, the thought `kept_a_taboo`, `suddenly_knew` (now A8.14's `knew_how`), a route picked by the player (A10.3 grants it), `data/text/player.md`, `talk.md` and `social.md` (α16's `powers.md`, α04d's `cards.md` and α26a's `minds.md` instead), `motif_draw` and `culture.style_first`, a second ochre deposit, and the re-added `hold_rite` and `drive_out` rows.
   - Kept on purpose: α27c's `review-storm-4` stays the storm scene at α35c; α35a has no demo of its own and opens α32c's.
@@ -7156,7 +6420,7 @@ The stage is 13 alphas of about 60 hours, against the brief's 8 and 32.
 - **Demos:** each alpha's first phone step makes its demo world on the phone: a scene marked `demo = { name, run, at }`, compiled into the blob and built in Settings (long-press the version line, Make test world; α08's `kd-app/src/demo.rs`), then opened from Worlds.
   A demo is reached within about two minutes of the phone (α08's rule until α43a's overnight safeguards: at most about 10 game years of a scene of up to 100 people at A16.3's speeds), so a later moment is reached by starting the scene near it with the start keys (`start`, `apart_since`, `peoples`, `past_events`, `cases`); α43a needs its APK, and α43c starts with the benchmark, as α35c does.
 - **Delivery:** every alpha ends with goldens, its `versionCode` by A15.3's formula (α36a 6361, α36b 6362, α36c 6363, α37 6370, α38 6380, α39a 6391, α39b 6392, α40 6400, α41 6410, α42 6420, α43a 6431, α43b 6432, α43c 6433), `bench/cloud/<alpha>.json` rows, then P0's steps 5 to 8.
-  Each new kind of record joins `World::record_kinds()` with its `FINDABLE` line (`kd-ui/src/findable.rs`, `PRE-13`), each new logged event α07b's `data/history/event_kinds.md` with its flags, dark tags and pattern, each new moment or sign α11b's `data/director/moments.md` or `signs.md`, each new catalogue file its kind in α01a's registry (`kd-data/src/kinds.rs`), and each chunk schema change its migration and fixture (A14.9).
+  Each new kind of record joins `World::record_kinds()` with its `FINDABLE` line (`kd-ui/src/findable.rs`, `PRE-13`), each new logged event α07b's `data/history/event_kinds.md` with its flags, dark tags and pattern, each new moment or sign α11b's `data/director/moments.md` or `signs.md`, each new catalogue file its kind in the catalogue's registry (`kd-data/src/kinds.rs`), and each chunk schema change its migration and fixture (A14.9).
 - **Scenes:** every scene has its `base_seed` (this stage's are 36100–40200, each alpha's own, a control sharing its scene's), 20 runs (`RES-13`), a game-time limit, a budget in session-hours, its IDs and a pass rule, fixed before its first run (`RES-09`); scenes over 10 game years, or with budgets of 0.3 session-hours or more, are `quick = false` and run in the long runs (`RES-17`).
   Mid-run events are only your acts (α16's `[[acts]]`); the start keys this stage adds are additions to A15.7, each choosing only the start (`RES-18`) and written into the architecture in the branch that adds it: `kin_of` (α36a), `apart_since` and `peoples` as a list with `from` and `apart_years` and `of` on bands (α36b), the peoples' `opinion` and drift (α36c), `captives` (α39b), `rites` (α40) and `kept` animals (α42).
 - **Earlier scenes keep passing:** each alpha keeps every earlier scene passing at its threshold (P0's definition of done, item 3), the island's `sharp-stone` test and its control (`RES-02`, `RES-03`) among them; splits, peoples, marriages, trade and feuds act on the island's 3–4 bands too, so a failure is fixed in this stage's tuned numbers on the tuning seeds (`RES-16`), never in a pass rule.
@@ -7704,7 +6968,7 @@ The stage is 13 alphas of about 60 hours, against the brief's 8 and 32.
 **Tasks:**
 1. `T40.1` **The pull of other bands (`CUL-29`, `CUL-22`, A9.15, A9.7).** α26b's `camp_score` gains a pull term for a band's decider: each member's wish to meet people of another band is the sum, capped at 30, of 20 × kin weight for kin there, 10 for each friend (opinion 60 or more) and 30 for a partner or the one they court; each candidate camp gains, for each other band whose last meeting in this season was within 5 km of it (α36a's `meetings` ring, or the members' map facts of that band's camp in this season last year), the summed wishes toward it ÷ 10 (`[gatherings] pull`, tuned), halved in a lean season (food in range below 1.5 times the band's need for the season); so in plenty bands head for where they last met (`CUL-29`).
    α26b's `go_to_gathering` row in `data/culture/plans.md` goes active (A9.7: set by a leader, chief or council; fewest half the band), offered when a festival's sign is 10 days off (T40.3) or the pull picks a camp within 5 km of another band's expected camp.
-2. `T40.2` **Yearly signs and the calendar (`CUL-29`, `MND-28`, `MND-22`, `WLD-07`, A9.15, A8.13).** `data/culture/signs.md` (new, kind `Sign` in α01a's registry), 10 entries, each with how it is noticed by a glance at its cause (A8.9) and its English pattern: `first_frost` (the first night below 0 °C after summer at camp), `first_snow`, `herds_passing` (a migrating herd's leg within 5 km of camp, A7.7), `fish_running` (a fish run starting in a river within 5 km, A7.10), `nuts_falling` (a nut tree species reaching its fruit-fall state within 2 km, A7.3), `birds_arriving` (a migrating bird's count rising in the cell), `river_rising` (the river at camp 30% above its mean), `longest_day` and `shortest_day`, and `full_moon` (once a season, `WLD-07`), these three read from α03a's `kd_core::sky::sun_moon` (A3.7).
+2. `T40.2` **Yearly signs and the calendar (`CUL-29`, `MND-28`, `MND-22`, `WLD-07`, A9.15, A8.13).** `data/culture/signs.md` (new, kind `Sign` in the catalogue's registry), 10 entries, each with how it is noticed by a glance at its cause (A8.9) and its English pattern: `first_frost` (the first night below 0 °C after summer at camp), `first_snow`, `herds_passing` (a migrating herd's leg within 5 km of camp, A7.7), `fish_running` (a fish run starting in a river within 5 km, A7.10), `nuts_falling` (a nut tree species reaching its fruit-fall state within 2 km, A7.3), `birds_arriving` (a migrating bird's count rising in the cell), `river_rising` (the river at camp 30% above its mean), `longest_day` and `shortest_day`, and `full_moon` (once a season, `WLD-07`), these three read from α03a's `kd_core::sky::sun_moon` (A3.7).
    A person who notices a sign keeps it as a mental-map fact of its camp place (α04a's facts: the sign, its day of the year, the year seen); seen again the next year within 3 days of the same day of the year, they know it (A9.15, `MND-28`) and tell it as α06b's `place` topic.
    `crates/kd-culture/src/calendar.rs` (new): when a knower first talks of it, it is named for their people (A9.3: "when the nuts fall" in their words) and joins the people's calendar (`People.calendar`, at most 12 a people, A9.15), its expected day the mean of its knowers' sightings, logged `sign_learned` (kept forever, first-able).
    A plan can be timed by a known sign (`MND-22`: α26a's `due` set to its expected day), and α32a's `Occasion` gains `Calendar(sign)`, so a rite tied to a sign is held on its day (`CUL-34`).
@@ -8054,7 +7318,7 @@ The stage is 13 alphas of about 60 hours, against the brief's 8 and 32.
    - A9.16's different peoples (`CUL-07`): at most 2 of 20 worlds share all 12 custom answers in their oldest people, and at least 3 different sets of shared spirits appear; `CUL-18`'s names; `CUL-26`'s steps never before their conditions; captors' choices taking all three answers somewhere (A9.9); every artwork, song and dance naming its maker and a saved event, myth or subject (A9.12, A9.13); `MOM-06`'s and `MOM-11`'s appearances (`RES-17`).
    A missed window is tuned on the 20 tuning seeds and logged (`RES-16`); one still missed goes to the owner in the report with its options: a redesign, another window, or accepting it.
 5. `T43c.5` **Risks, principles and the stage's checks (`PRN-16`, `RES-19`, `PRC-12`, `RES-16`, A15.12, A15.13, A17).** `reports/risks.toml` and `reports/principles.toml` take `MIL-06`'s evidence (the tests, scenes and checks that show each), every live `RSK` item and A17 risk reviewed, `RSK-27`'s violent bands and `RSK-02`'s speed among them.
-   `python3 tools/filecheck.py ids --stage MIL-06` (α07e's): everything `ids --merge` checks; every `MIL-06` feature of `SCP-16` mapped to a done alpha whose tests, scenes or catalogue `checks` name it; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`: infanticide, cannibalism and sacrifice); every merge into `main` since α35c carrying its `Review: APPROVE` and `Checks: PASS` lines from different sessions (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-06` or each gap.
+   `python3 tools/filecheck.py ids --stage MIL-06` (α07e's): everything `ids --merge` checks; every `MIL-06` feature of `SCP-16` implemented in code (an `Implements` line) and named by tests, scenes or catalogue `checks`; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`: infanticide, cannibalism and sacrifice); every merge into `main` since α35c carrying its `Review: APPROVE` and `Checks: PASS` lines, each number's last alpha approved by a reviewer other than the builder (A15.13 step 7); and `kd check file` finding no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-06` or each gap.
 6. `T43c.6` **The stage report (`RES-06`, `RES-21`, `RES-25`, `RES-17`, `CUL-33`, `SCP-15`, `RSK-25`, `TIM-02`, A15.14).** `kd report --stage MIL-06` writes `reports/stage-6.html`, one self-contained page with inline SVG charts (A15.14), holding each part of `RES-06`: what was added and what to try now; every scene's result with its runs and range (`RES-13`), each beside its whole-world confirmation (`RES-21`); the sharp-stone test and its control (`RES-02`, `RES-03`); `MOM-06`'s and `MOM-11`'s scenes with their latest results and their appearances in the pace worlds, beside the earlier moments' (`RES-17`); the Year-150 test's windows and checks of T43c.4 (`RES-07`); entries and live moments per game year (`RES-25`); births, deaths by cause (feuds, raids and the dark options among them, with how often each dark option came inside its conditions), life spans and band sizes against `tests/ranges.toml` (`RES-14`); the trap set's cloud results and the phone's `KDT1:`; the phone's measurements against `PLT-04`'s targets and the stage budget of 1.5, the old world and the owner's night (game years, hours, pauses, the battery's highest temperature), met or missed, the costliest systems named if missed; the moments seen, the oddities flagged and any surprises (`RES-12`); each principle's Check (`PRN-16`); every kind of record the world keeps with the card or view showing it, from `FINDABLE` (`PRE-13`); the risks, with content made against what later stages need (`RSK-25`); where every test ran and the computing used (`SCP-15`), and the repository's size against A17.10's 3 GB line (about 33 MB an alpha with the APKs, crossing it near α38, so likely in this report; if past it, unless an earlier report already asked, the owner's choice between adding their own GitHub token, so the APKs go to releases, and deleting old `runs` branches); and the short list for the owner's judgement (`RES-22`): two peoples' things at person zoom (`PRE-43`), the festival in a storm and the dogs on the reel, the content levels in the clips, the scores of the new moments and the hostile-sighting sign (A10.10), the overnight summary's first line, and whether splits, marriages, trade, feuds, raids and festivals read as believable.
    An independent reviewer checks it (A15.13's process, `PRC-09`); it is published as a private page with the Artifact tool and linked in the note, with a copy at `reports/stage-6.html`, its links opening worlds and entries (`kindling://open`, α11b).
 7. `T43c.7` **Deliver and close the stage (`RES-06`, `RES-22`, `PRE-17`, `PRC-10`, A12.7, A15.12).** Run the stage's list (A15.12): `kd kill-test --kills 100` on a generated world, `kd scene run --stage MIL-06` with the long runs' latest results, `kd det` in every form, `kd world check --starts 100`, the Year-150 pace test of T43c.4, `python3 tools/filecheck.py ids --stage MIL-06`, and `tools/check.sh --deliver` last, as P0's step 6 runs it; `versionCode=6433`, `versionName=a43c`; then P0's steps 5 to 8; the note asks the owner for six things: the `KDB1:` code from a benchmark run, the `KDT1:` code from the writer check (A12.7: at each stage close), the night line from a night of overnight mode if not sent at α43a, ten minutes of play on the stage's demo worlds with sound on (step 4 below), the reel heard once on the speaker and once on headphones, and a few lines answering the report's list.
@@ -8088,20 +7352,17 @@ The stage is 13 alphas of about 60 hours, against the brief's 8 and 32.
 
 ### Stage 6 notes
 
-- **Splits:** the brief's eight alphas are now 13, about 60 hours (the first draft's 11 were about 48.5, with no deliveries counted and no close). No alpha was merged or removed, and every old number keeps its core.
-  - α36 in three: bands split and join (α36a), peoples and their names (α36b) and **α36c** (relations, strangers and styles, new; the draft had them in α36b).
-  - α39 in two, as drafted: feuds and dark history (α39a) and raids, captives and alliances (α39b).
-  - α43 in three: overnight mode (α43a), speed (α43b) and **α43c** (the Stage 6 review, new; the draft's phone benchmark, Year-150 test and report were α43b's), which closes the stage (`RES-06`) as α07e, α12d, α17c, α27c and α35c close theirs. Where the coordinator's rules say "the stage close (α43b)", read α43c.
+- **Splits:** the brief's eight alphas are now 13, about 60 hours.
+  - α36 in three: bands split and join (α36a), peoples and their names (α36b) and **α36c** (relations, strangers and styles).
+  - α39 in two: feuds and dark history (α39a) and raids, captives and alliances (α39b).
+  - α43 in three: overnight mode (α43a), speed (α43b) and **α43c** (the Stage 6 review), which closes the stage (`RES-06`) as α07e, α12d, α17c, α27c and α35c close theirs.
   - α37, α38, α40, α41 and α42 stay whole.
   - Hours: α36a 5, α36b 5, α36c 4.5, α37 4.5, α38 4, α39a 4.5, α39b 5, α40 5, α41 5, α42 4, α43a 4, α43b 4.5, α43c 5.
   - `versionCode`s: α36a 6361, α36b 6362, α36c 6363, α37 6370, α38 6380, α39a 6391, α39b 6392, α40 6400, α41 6410, α42 6420, α43a 6431, α43b 6432, α43c 6433.
   - Versions: α41 raises `major` and `generator` to 15 (α18c's `clay` deposit gets its item); α42 raises `major` to 16 (the dog), `generator` staying 15; Stage 6 ends at 16 and 15, every other alpha a small update with its migration and fixture.
   - Scene seeds 36100–40200 are taken (α43a, α43b and α43c have none); Stage 7 starts at 44100.
-  - The status table gains α36c and α43c; `digests/P6.md` still describes the first draft and needs making again.
 - **Moved or cut:**
-  - Task IDs: α36a's land and gatherings swap (T36a.6 land, T36a.7 gatherings); the draft's T36b.5–T36b.7 (opinions and relations, question 10, style drift) are T36c.1–T36c.4, and its T36b.8–T36b.10 are T36b.5–T36b.7, with relations and style on the people card in T36c.5; the draft's T43b.6–T43b.8 (phone benchmark, Year-150 test, report) are T43c.3, T43c.4 and T43c.6; the rest keep their numbers. P5's notes cite T36b.7 for style drift: it is T36c.4.
   - Cut, as rebuilding earlier work, reaching past the stage or going against a decided item: the plan `found_band` (α26b's `move_camp`, which A9.7 offers at a split, moves the leavers); the 30% offer share (A9.4 and `CUL-30`: about half); a second `StyleTable` and per-people `versions` (α25b's); a new people drawing a fresh style (`CUL-12`: it starts with its parent's); drift toward the people met most (A9.12: toward linked peoples); the "50-year" `CUL-12` proposal (A9.12 and `CUL-12` both say 75 years); `kd-player/src/recognise/` (recognisers live in α11b's `src/book/`); `killed_by` (every killing by a person is α30b's `killed_in_fight` or has its own kind); widening `painting_on_rock` (α33's `painting` already takes a made thing's flat side); rebuilding the content levels (A12.8's table stood built but for the Gentle book line); the director's signs re-added in α43a (all five post since α11b, α12c, α13, α17b and α39a); overnight autosaves every 30 seconds (`PLT-07`, A14.6: every 10 minutes); a fifth worker overnight (A17.1's fallback, only if the owner's night covers only decades); the invented targets of 85% parallel use and "4 workers at 3.4 times one"; the group plan `feast` (`CUL-22`'s group plans are a fixed list, so the feast is the act `hold_feast`); the blueprint id `clay_figure` (now `shape_a_figure`, named apart from its item).
-  - Added beyond the draft, each from an earlier part's pointer or a decided item: question 9's council as punisher (α40, as α32a left it); a second name for a raid won (α39b, A9.3's last deed, as α30a left it); graves and old camps listed by people (α36b, as α24b left it); A7.9's `approach`, which α12b's animal mind lacked (α42); every alpha's delivery, demo and pace reading.
   - Kept on purpose: α27c's `review-storm-4` stays the storm scene at α43c; α43a has no demo of its own and opens α42's on the charger; α43c's ten minutes of play use α36b's and α39b's demos and a short overnight run, since a New world takes decades to split (`SCP-16`'s *now possible* for `MIL-06`).
 - **Architecture updates the Stage 6 branches make**, each written into `ARCHITECTURE.md` in its branch:
   - A15.7 scene keys, each choosing only the start (`RES-18`): `kin_of` (α36a); `[[setting.peoples]]` with `id`, `from` and `apart_years`, a band's `of`, and a band's `apart_since` (α36b); the peoples' `opinion` and their set-up drift (α36c); `captives` (α39b); `rites` (α40); `kept` (α42).
@@ -8142,7 +7403,7 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
 - **Demos:** each alpha's first phone step makes its demo world on the phone: a scene run marked `demo = { name, run, at }`, compiled into the blob and built in Settings (long-press the version line, Make test world; α08's `kd-app/src/demo.rs`), then opened from Worlds; a later moment is reached by starting the scene near it with start keys, never by a long run on the phone.
   α51, α53a and α53b have no demo of their own and open earlier ones, as α43a and α43c did.
 - **Delivery:** every alpha ends with goldens, its `versionCode` by A15.3's formula (α44 7440, α45 7450, α46a 7461, α46b 7462, α47a 7471, α47b 7472, α48 7480, α49 7490, α50 7500, α51 7510, α52 7520, α53a 7531, α53b 7532), `bench/cloud/<alpha>.json` rows read against this stage's budget of 1 game year a real minute at 1,000 people, then P0's steps 5 to 8 (deliver, the checks last, the review, merge).
-  Each new kind of record joins `World::record_kinds()` with its `FINDABLE` line (`kd-ui/src/findable.rs`, `PRE-13`) under a `life.*`, `area.*`, `things.*`, `people.*` or `cul.*` name (never `culture.*`); each new logged event joins α07b's `data/history/event_kinds.md` with its flags, dark tags and pattern; each new moment α11b's `data/director/moments.md`; each new catalogue file its kind in α01a's registry (`kd-data/src/kinds.rs`); and each chunk schema change brings its migration and fixture (A14.9).
+  Each new kind of record joins `World::record_kinds()` with its `FINDABLE` line (`kd-ui/src/findable.rs`, `PRE-13`) under a `life.*`, `area.*`, `things.*`, `people.*` or `cul.*` name (never `culture.*`); each new logged event joins α07b's `data/history/event_kinds.md` with its flags, dark tags and pattern; each new moment α11b's `data/director/moments.md`; each new catalogue file its kind in the catalogue's registry (`kd-data/src/kinds.rs`); and each chunk schema change brings its migration and fixture (A14.9).
 - **Scenes:** every scene has its `base_seed` (this stage's are 44100–52600, each alpha's own), 20 runs (`RES-13`), a game-time limit, a budget in session-hours, its IDs and a pass rule fixed before its first run (`RES-09`); scenes over 10 game years, or with budgets of 0.3 session-hours or more, are `quick = false` and run in the long runs (`RES-17`).
   Start keys this stage adds are additions to A15.7, each choosing only the start (`RES-18`), written into the architecture in the branch that adds it: `generation` and `pen_m` on α42's `kept` (α44), `plots` and `seed_kept` on a band (α45), `houses` and `settled_years` on a band (α46a), `fires.pots` (α47a), `roles` on a band (α48).
 - **Earlier scenes keep passing:** each alpha keeps every earlier scene passing at its threshold (P0's definition of done, item 3), the island's `sharp-stone` test and its control (`RES-02`, `RES-03`) among them; a failure is fixed in tuned numbers on the tuning seeds (`RES-16`), never in a pass rule.
@@ -8187,7 +7448,7 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
    α11b's recognisers (`kd-player/src/book/`): the world's first `kept_herd` is the arc's herding step (`TIM-19`), a major entry, a live moment and the possible start of an age (`PRE-39`); each people's first is a short entry; α43a's overnight sheet offers "the next step: herding" through the recogniser, with no change to `kd-app/src/overnight.rs`.
    α22a's `data/text/life.md` gains `kept_herd` ("In Year 131, spring, the Reed band of the Tavu kept the first herd: eleven goats grazing by their cave") and `animal_slaughtered`, 5 phrasings and a short form each.
    α12's `tools/longruns.sh` reads each pace world's first `kept_herd` against the early side of `TIM-19`'s window 120–250, one before Year 60 counting against it (`RES-07`).
-4. `T44.4` **The four herding blueprints, milk and wool (`MAT-23`, `MAT-14`, `BIO-10`, A6.7, A6.12, A6.2).** `data/blueprints/herding.md` (new; its kind registered in α01a's `kd-data/src/kinds.rs`), sector herding, `MAT-23`'s 4, each with A6.7's fields, `stage = "MIL-07"`, `checks`, `meant`, `fits` and trials:
+4. `T44.4` **The four herding blueprints, milk and wool (`MAT-23`, `MAT-14`, `BIO-10`, A6.7, A6.12, A6.2).** `data/blueprints/herding.md` (new; its kind registered in `kd-data/src/kinds.rs`), sector herding, `MAT-23`'s 4, each with A6.7's fields, `stage = "MIL-07"`, `checks`, `meant`, `fits` and trials:
    1. `pen_by_stacking` (stack; worked: poles or thorny brush, class wood, form pole or rod, 1–3 m, 10 kg a metre of fence; ground: open, slope 15° or less; difficulty 2; `work` 1 person-hour per 3 m; result: structure `pen`, a ring 4–16 m across from the amount used, 1.2 m high, enclosed; named; `hinted_by = ["kept_animal_strayed"]`, the sign logged when a kept animal is out of sight of every family member for a day).
    2. `tether_by_binding` (bind; body: a kept animal with tameness 2 or more within reach; binding: α23b's `cord` or any strand with fibre 3 or more, 2–10 m; rests on: a post, stake or tree within 1 m; difficulty 1; 2 minutes; result `body = "tether"` (A6.7's closed list): it stays within the cord's length of the anchor until untied by a plain use, or until the cord, wearing a step every 10 days, breaks).
    3. `milk_by_pressing` (press; body: a kept female with tameness 3 or more of a species with `milk_l_day`, while nursing; container: waterproof 3 or more, 0.5 l or more; difficulty 2 (`MAT-23`); 10 minutes a litre; result: item `milk`, the amount she holds; failures `nothing` 0.95 and `hurt` 0.05 (a kick, bruise 5 to an arm); `hinted_by = ["young_suckling"]`, seeing a young animal suckle a tame female).
@@ -8282,7 +7543,7 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
    Fertility (A5.11, `WLD-27`): each harvest carried away lowers it by `[fields] harvest_drop` (0.2 at a normal yield, scaled by the yield); fallow, it drifts back toward the cell's base, a third of the gap a game year; `fertilise` adds 1 for 2 kg a m² of ash and 0.5 for 2 kg a m² of dung or rotted waste, at most 5, by the input's class and form, never its name.
    The mark fades 5 game years after its last tending (A5.4) and its fertility rejoins the cell's; kept or wild grazers on its patches eat the crop as cover (A7.4), so a `pen_by_stacking` fence around a plot keeps them out.
    Plots belong to the sower's family (`CUL-21`, A9.8); `World::record_kinds()` gains `area.plots`, with its `FINDABLE` line (the plot card).
-4. `T45.4` **Farming's six blueprints, and grain into food (`MAT-23`, `MAT-07`, `RES-24`, A6.7, A6.8, A6.12).** `data/blueprints/farming.md` (new; its kind registered in α01a's `kd-data/src/kinds.rs`), sector farming, `MAT-23`'s 6, each with A6.7's fields, `stage = "MIL-07"`, `checks`, `meant`, `fits` and trials:
+4. `T45.4` **Farming's six blueprints, and grain into food (`MAT-23`, `MAT-07`, `RES-24`, A6.7, A6.8, A6.12).** `data/blueprints/farming.md` (new; its kind registered in `kd-data/src/kinds.rs`), sector farming, `MAT-23`'s 6, each with A6.7's fields, `stage = "MIL-07"`, `checks`, `meant`, `fits` and trials:
    1. `sow_seed` (plant; worked: small plant pieces under 1 cm with food 2 or more, 5 g or more a m²; ground: soft soil (dug, cleared or a heap) in the growing season; difficulty 2; 10 minutes per 10 m², a `work` blueprint above 100 m² at 1 person-hour per 60 m²; result `ground = "plot"`, its crop the seed thing's species and its m² the seed's grams ÷ `seed_g_m2`; failures `nothing` 0.7, `spoiled` 0.3; named; `hinted_by = ["sprouted_where_thrown"]`).
       True values decide (A6.8): seed of a species whose `[sprout]` lacks `seed` makes a plot that never sprouts, and the failed try teaches.
    2. `plant_roots` (plant; worked: a root or tuber piece 2–10 cm, class plant, food 2 or more; ground: soft soil in the growing season; difficulty 2; 15 minutes per 10 m²; result a plot of that root crop; `hinted_by = ["root_sprouted"]`).
@@ -8578,7 +7839,7 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
    - `data/items/metal.md` (new; α08's kind `Item`): `native_copper` (raw, class metal, lump 1–5 cm, colour `#b87333`: hardness 3, toughness 5, flexibility 1, weight 5, plasticity 3, waterproof 5, pigment 1, the rest 0) and `copper`, the firing's material result (native copper's values; a bead from a lump, one lump of prills from powder);
    - made: `ore_powder` (powder, material and pigment from its ore), `copper_sheet` (sheet 2–8 cm, `main = "toughness"`), `copper_awl` (point 5–10 cm, edge 3, `main = "edge"`), `copper_bead` (lump 0.5–1 cm, state pierced, `main = "pigment"`).
    `data/states.md` gains `flecked` (class earth, fired: shining metal specks on a painted part; shifts no value; shown on the same model, A6.3), within α25a's 32-bit `StateSet`.
-2. `T47b.2` **Green paint from ore (`CUL-09`, `MAT-23`, A6.7).** `data/blueprints/metal.md` (new; its kind registered in α01a's `kd-data/src/kinds.rs`) gains `ore_by_grinding` (grind; worked: a stone lump with pigment 2 or more and weight 4 or more, 1–10 cm; tool: a stone with hardness 4 or more, 8 cm or more; rests on: a flat stone; difficulty 1; 10 minutes per 100 g; result `ore_powder`; `hinted_by = ["green_streak"]`, the streak green ore leaves when struck or rubbed on stone; `fits` green and blue ore), a route α33's `pigment_by_grinding` (earth or charcoal lumps) does not cover.
+2. `T47b.2` **Green paint from ore (`CUL-09`, `MAT-23`, A6.7).** `data/blueprints/metal.md` (new; its kind registered in `kd-data/src/kinds.rs`) gains `ore_by_grinding` (grind; worked: a stone lump with pigment 2 or more and weight 4 or more, 1–10 cm; tool: a stone with hardness 4 or more, 8 cm or more; rests on: a flat stone; difficulty 1; 10 minutes per 100 g; result `ore_powder`; `hinted_by = ["green_streak"]`, the streak green ore leaves when struck or rubbed on stone; `fits` green and blue ore), a route α33's `pigment_by_grinding` (earth or charcoal lumps) does not cover.
    α33's `paint_by_mixing` takes any powder with pigment 3 or more, so ore powder makes green or blue paint with no change, and α33's `painting` puts it on a pot's shoulder; a painted part keeps its paint's material, so it carries the ore's firing timer (A6.12).
    Pigments are chosen for decoration by the people's style (α25b's `Style`, `CUL-12`), so peoples whose favourite colour is green paint with ore when they have it (`CUL-09`).
 3. `T47b.3` **Copper from a blown kiln (`MOM-12`, `MAT-19`, `MAT-21`, `MND-10`, `MND-11`, A6.12, A6.10, A8.17).** A thing holding ore (a lump, powder, or the painted part of a pot) among charcoal in a fire at heat 5 for an hour runs the copper firing (A6.12); below 5 it never does (`RCK-08`).
@@ -8995,7 +8256,7 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
 
 **Architecture:** `A14.10`, `A14.9`, `A14.11`, `A14.13`, `A14.6`, `A3.6`, `A3.8`, `A2.2`, `A2.5`, `A12.4`, `A15.3`, `A15.11`.
 
-**Needs:** α52, with α07a's saves, migrations, fixtures and `KDX1` container (`kd-save/src/container.rs`, `kd world export`, `kd world import`), α07b's Worlds list and book, α07d's benchmark and its results file, α19c's dirty chunks and storage warnings, α00's Android shell (`android/`, `MainActivity.kt`) and α00's web shell (`kd-web`, `web/glue.js`).
+**Needs:** α52, with α07a's saves, migrations, fixtures and `KDX1` container (`kd-save/src/container.rs`, `kd world export`, `kd world import`), α07b's Worlds list and book, α07d's benchmark and its results file, α19c's dirty chunks and storage warnings, the Android shell (`android/`, `MainActivity.kt`) and the web shell (`kd-web`, `web/glue.js`).
 
 **Crates and files touched:** `kd-save` (α07a's `src/container.rs`: streamed export and checked import; the safety copy), `kd-app` (the export and import flow; the update line in the book), `kd-android` and `android/` (`Files.kt` new: `ACTION_CREATE_DOCUMENT`, `ACTION_OPEN_DOCUMENT` and the share sheet; `MainActivity.kt`), `kd-app` (α07d's `src/bench.rs`: the results file), `kd-web` (download, file input), `kd-ui` (α07b's Worlds view: export, import, sizes, deleting), `kd-text` (`data/text/settings.md`), `tools/filecheck.py` (the note's update line), `tests/fixtures/worlds/`.
 
@@ -9039,7 +8300,7 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
 
 **Architecture:** `A11.11`, `A11.12`, `A12.1`, `A12.4`, `A12.7`, `A13.13`, `A13.14`, `A13.15`, `A15.5`, `A15.8`, `A15.10`, `A15.11`, `A15.12`, `A15.13`, `A15.14`, `A16.3`, `A16.6`, `A9.16`, `A10.10`, `A17`.
 
-**Needs:** α53a, with α07e's Review and contact sheet (`kd-ui/src/views/tests.rs`, `views/contact.rs`, the review runner), α43c's `review-camp-6` and `review-model-sheet-6`, α27c's `review-storm-4`, α51's model sheet, α17's reel (`kd sound render --reel`), α07d's phone benchmark and `tools/decode-bench.py`, α35a's writer check (`kd-app/src/writer_check.rs`), α52's full pace test, report and bench rows, α43a's overnight figure, α07b's settings and credits, α04d's help cards (`data/text/help.md`) and α00b's release key.
+**Needs:** α53a, with α07e's Review and contact sheet (`kd-ui/src/views/tests.rs`, `views/contact.rs`, the review runner), α43c's `review-camp-6` and `review-model-sheet-6`, α27c's `review-storm-4`, α51's model sheet, α17's reel (`kd sound render --reel`), α07d's phone benchmark and `tools/decode-bench.py`, α35a's writer check (`kd-app/src/writer_check.rs`), α52's full pace test, report and bench rows, α43a's overnight figure, α07b's settings and credits, α04d's help cards (`data/text/help.md`) and the release key (A15.5).
 
 **Crates and files touched:** `kd-ui` (α07e's `views/tests.rs` Review and `views/contact.rs`; settings, credits and help cards), `kd-app` (α07e's review runner and clips; α07d's `src/bench.rs`; α35a's `src/writer_check.rs`), `kd-audio` (α17's reel), `kd-tools` (`kd report`, `kd bench`), `tools/filecheck.py` (`ids --stage`), `tools/screenshots.mjs`, `scenes/review-camp-7.toml`, `scenes/review-model-sheet-7.toml`, `bench/budgets.toml`, `data/text/help.md`, `assets/LICENSES.md`, `data/tuning/director.md`, `data/tuning/sound.md`, `data/TUNING-LOG.md`, `reports/risks.toml`, `reports/principles.toml`, `reports/stage-7.html`, `reports/stage-7-review.md`.
 
@@ -9052,7 +8313,7 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
    The phone benchmark (α07d's, A15.10) reports each mind part's share in the camp of 30 and in α46b's village of 300 (`MND-15`) and a new world's making time (`WLD-11`).
 4. `T53b.4` **The stage's checks (`RES-07`, `RES-17`, `RES-19`, `PRC-12`, `RES-16`, `PRN-16`, A15.12, A15.13, A17).** The full pace test is α52's, rerun if minds, blueprints or catalogues changed since it ran and a week has passed (`RES-07`); `MOM-08`'s and `MOM-12`'s scenes with their latest results and their appearances in the pace worlds (`RES-17`); `kd scene run --stage MIL-07` with the long runs' latest results, `kd kill-test --kills 100` on a generated world, `kd det` in every form and `kd world check --starts 100`.
    `reports/risks.toml` and `reports/principles.toml` take `MIL-07`'s evidence, every live `RSK` item and A17 risk reviewed, `RSK-25`'s content and `RSK-26`'s pace among them.
-   `python3 tools/filecheck.py ids --stage MIL-07` (α07e's): everything `ids --merge` checks; every `MIL-07` feature of `SCP-16` mapped to a done alpha whose tests, scenes or catalogue `checks` name it; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α43c carrying its `Review: APPROVE` and `Checks: PASS` lines from different sessions (A15.13); and no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-07` or each gap.
+   `python3 tools/filecheck.py ids --stage MIL-07` (α07e's): everything `ids --merge` checks; every `MIL-07` feature of `SCP-16` implemented in code (an `Implements` line) and named by tests, scenes or catalogue `checks`; each promise that something arises in play with its scene, or marked "possible, not promised" with the owner's OK (`RES-19`); every merge into `main` since α43c carrying its `Review: APPROVE` and `Checks: PASS` lines, each number's last alpha approved by a reviewer other than the builder (A15.13 step 7); and no closing pace-test seed in `data/TUNING-LOG.md` (`RES-16`); it prints `Stage: OK MIL-07` or each gap.
 5. `T53b.5` **Release polish (`PRE-40`, `SCP-02`, `PRE-34`, `PLT-02`, `RSK-29`, `PLT-06`, `RES-12`, A12.1, A12.4, A15.5, A15.11).** α07b's credits list every recording with its source and licence from `assets/LICENSES.md`, with the voice and the font; α04d's `data/text/help.md` gains one short card for each control this stage added (the plot, village and kiln cards, export and import), shown the first time it is used, and there is no tutorial (`SCP-02`).
    Every view in A12.4's table passes A12.1's layout checks in portrait and landscape, and turning the phone keeps the world, the camera and the art pixel's size (`PRE-34`, `PLT-02`); the screenshot set (A15.11) holds each view both ways.
    What the owner replied about α44 to α53a, and the oddities and budget flags left from α52, are fixed, each with a test that would catch it again (`RES-12`).
@@ -9079,7 +8340,7 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
 4. First save the Year-500 pace world from the report's link to the phone (if the note gives its `KDW1:` code instead, as α52's T52.9 allows past 50 MB, make it with Make test world on the charger the night before, A15.4); then switch on flight mode and play for about ten minutes with sound on: tap New world and watch it made and settled with no network (`PLT-03`); since a new world takes centuries to reach copper, Make test world `a45 · First fields` and watch a harvest; Make test world `a46a · River village` and tap the village; Make test world `a47b · Green pots` and watch the kiln opened and the first copper noticed; then import the saved Year-500 world (Worlds, Import), or open the one made from its code, and read its book of ages from the first sharp flake to the first copper, age by age (`SCP-16`'s *now possible* for `MIL-07`: the whole arc, from caves to first copper, in a few hundred years, at a watchable speed).
 5. Open the report from the note and answer its short list in a few lines.
 
-**Not in this alpha:** layers beyond the launch arc, such as bronze or writing (`VIS-03`, `RSK-05`); fixes the stage review asks for, which come as further alphas the coordinator adds after the review.
+**Not in this alpha:** layers beyond the launch arc, such as bronze or writing (`VIS-03`, `RSK-05`); fixes the stage review asks for, which come as further alphas added to this plan after the review.
 
 **Risks:**
 - The owner's reply taking days: the stage closes when the review is recorded (`RES-22`).
@@ -9090,20 +8351,17 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
 
 ### Stage 7 notes
 
-- **Splits:** the brief's ten alphas are now 13, about 64 hours (the first draft's 12 were about 54.5, with no deliveries counted and no close).
-  - α46 in two, as drafted: houses and settling (α46a) and crowded villages (α46b).
-  - α47 in two, as drafted: charcoal and the blown kiln (α47a) and green pots and copper (α47b).
-  - α53 in two: export and worlds across updates (α53a) and **α53b** (release candidate and Stage 7 review, new), which closes the stage (`RES-06`) as α07e, α12d, α17c, α27c, α35c and α43c close theirs; the draft's α53 held both, about 8 hours of tasks. Where the coordinator's rules say "α53, the release candidate, is the close", read α53b.
+- **Splits:** the brief's ten alphas are now 13, about 64 hours.
+  - α46 in two: houses and settling (α46a) and crowded villages (α46b).
+  - α47 in two: charcoal and the blown kiln (α47a) and green pots and copper (α47b).
+  - α53 in two: export and worlds across updates (α53a) and **α53b** (release candidate and Stage 7 review), which closes the stage (`RES-06`) as α07e, α12d, α17c, α27c, α35c and α43c close theirs.
   - α44, α45, α48, α49, α50, α51 and α52 stay whole; no alpha was merged or removed, and every old number keeps its core.
   - Hours: α44 5.5, α45 5.5, α46a 5, α46b 4.5, α47a 4.5, α47b 5, α48 4.5, α49 5.5, α50 5.5, α51 4, α52 5, α53a 4, α53b 5.5.
   - `versionCode`s: α44 7440, α45 7450, α46a 7461, α46b 7462, α47a 7471, α47b 7472, α48 7480, α49 7490, α50 7500, α51 7510, α52 7520, α53a 7531, α53b 7532.
   - Versions: α44 raises `major` to 17 (four domestic kinds, born only among people, so `generator` stays 15); α47b raises both to 18 and 16 (α18c's copper deposits get their items); α50 raises both to 19 and 17 (plants, animals and raw items); Stage 7 ends at 19 and 17, every other alpha a small update with its migration and fixture.
   - Scene seeds 44100–52600 are taken (α51, α53a and α53b have none; α49's generated scenes take 49200 plus 10 × their place).
-  - The status table gains α46a, α46b, α47a, α47b, α53a and α53b; `digests/P7.md` describes the first draft and needs making again.
 - **Moved or cut:**
-  - Task IDs: α44's T44.2–T44.8 were regrouped (kept animals; kept herds and the step; blueprints, milk and wool; people; weaning and herder's fever; looks and sounds; delivery); α46a gains T46a.5 (the villages step) and T46a.7 (delivery), its draft T46a.5 being T46a.6; α48's draft T48.5 (planned conflicts with A9.7, A9.8 and A9.11, which already match `CUL-22`, `CUL-32` and `CUL-26`) is cut, so T48.6–T48.7 are T48.5–T48.6; α49's draft batches A–E are three batches (T49.3–T49.5), its T49.8–T49.10 being T49.6–T49.8; α50 gains T50.6 (the adder's fright) and folds the fallback set into T50.8; α51's T51.5 (patterns and motifs) is cut and the rest renumbered; the draft α53's T53.1–T53.8 are T53a.1–T53a.5 and T53b.1–T53b.7. No other part cites a Stage 7 task ID.
-  - Cut, as rebuilding earlier work or going past a decided count: α44's own generation and born-tame rules, a second `keep_animals`, `domestic_born` (α42's `domestic_kind_bred`), `dung` (α22a's), the thoughts `drank_milk` and `kept_animal_lost` (α42's `lost_my_animal`), `data/text/herding.md` (α22a's `data/text/life.md`) and `data/tuning/life.md` (α12b's `data/tuning/animals.md`, α17b's `data/tuning/illness.md`, `data/tuning/world.md`); α45's `grain` and `grain_ears` (α21's `wild_grain` and the state `threshed`) and a second heap (α24b's `Heap`); α46a's `thatch_roof` and `daub_wall` (α25b's hut covers and the plain use apply), so building ends at `MAT-23`'s 12, not 14, a new `salmon-river` land (α23b's) and the move-camp choice in `roles.rs` (α26b's `camps.rs`); α46b's 20% offer (A9.4: about half) and `scenes/bench/village-300.toml` (α07d's `scenes/bench-village-300.toml`); α47a's `bellows_by_binding` in hides, full at 16 (now fire) and the thought `fired_strong_pots` (α28b's `fine_thing_made`); α47b's `data/palette.md` (α01a's `data/palette/`) and thoughts `saw_shining_metal` and `wears_copper` (α28's `in_awe`, α33b's `[ornament]`); α48's `councils.rs` and `council_decided` (α40's `council.rs` and `council_held`), `data/culture/roles.md`, `data/text/roles.md` (α26b's `data/text/culture.md`), the thought `became_chief` (α29's `ambition_reached`) and the daily specialist count (A9.8: yearly); α49's 36 candidates Stage 4's notes list, plus `digging_stick_by_scraping`, `fire_by_ploughing`, `fire_by_bow_drilling`, `fire_by_sawing`, `torch_by_binding`, `hearth_ring_by_stacking`, `roast_on_embers`, `boil_in_pot`, `parch_by_heating`, `strips_by_cutting`, `smoke_by_heating` and `crush_by_pounding` (present under earlier ids), the pottery candidates (full at 7 with α41's six and `blown_firing`), `notched_tally` (α33b's), the building candidates (full after α46a), the hides candidates (full) and every motif task; `data/culture/motifs.md` in α49–α51 (motifs are drawn from models by α33's `kd-render/src/art.rs`); α50's species and raw items already present; α51's "about 100 motifs" and dance-move proposal (α34b's 8 stand); `kd check file --note` and `kd check ids --stage` (they are `tools/filecheck.py file` and `ids --stage`).
-  - Added beyond the draft, each from an earlier part's pointer or a decided item: every alpha's delivery, demo, `base_seed`s, records, event kinds and pace reading; trips to gatherings from a settled band (α46a, `CUL-29`, as α36a and α40 left them); α47b's version raise; the death sentence's trap record (α48, `PRE-17`); `MAT-23`'s exact sector counts in α49; the wild sheep first and the adder's fright scene in α50 (`MND-21`, as P5's notes left it); `TIM-07`'s rows at about 2,000 and 7,000 people, the Year-500 old world and a speed pass in α52 (`T52.8`); the benchmark's "Share results file" button with `Files.kt` in α53a, as α07d left it; the close, α53b.
+  - Cut, as rebuilding earlier work or going past a decided count: α44's own generation and born-tame rules, a second `keep_animals`, `domestic_born` (α42's `domestic_kind_bred`), `dung` (α22a's), the thoughts `drank_milk` and `kept_animal_lost` (α42's `lost_my_animal`), `data/text/herding.md` (α22a's `data/text/life.md`) and `data/tuning/life.md` (α12b's `data/tuning/animals.md`, α17b's `data/tuning/illness.md`, `data/tuning/world.md`); α45's `grain` and `grain_ears` (α21's `wild_grain` and the state `threshed`) and a second heap (α24b's `Heap`); α46a's `thatch_roof` and `daub_wall` (α25b's hut covers and the plain use apply), so building ends at `MAT-23`'s 12, not 14, a new `salmon-river` land (α23b's) and the move-camp choice in `roles.rs` (α26b's `camps.rs`); α46b's 20% offer (A9.4: about half) and `scenes/bench/village-300.toml` (α07d's `scenes/bench-village-300.toml`); α47a's `bellows_by_binding` in hides, full at 16 (now fire) and the thought `fired_strong_pots` (α28b's `fine_thing_made`); α47b's `data/palette.md` (the folder `data/palette/`) and thoughts `saw_shining_metal` and `wears_copper` (α28's `in_awe`, α33b's `[ornament]`); α48's `councils.rs` and `council_decided` (α40's `council.rs` and `council_held`), `data/culture/roles.md`, `data/text/roles.md` (α26b's `data/text/culture.md`), the thought `became_chief` (α29's `ambition_reached`) and the daily specialist count (A9.8: yearly); α49's 36 candidates Stage 4's notes list, plus `digging_stick_by_scraping`, `fire_by_ploughing`, `fire_by_bow_drilling`, `fire_by_sawing`, `torch_by_binding`, `hearth_ring_by_stacking`, `roast_on_embers`, `boil_in_pot`, `parch_by_heating`, `strips_by_cutting`, `smoke_by_heating` and `crush_by_pounding` (present under earlier ids), the pottery candidates (full at 7 with α41's six and `blown_firing`), `notched_tally` (α33b's), the building candidates (full after α46a), the hides candidates (full) and every motif task; `data/culture/motifs.md` in α49–α51 (motifs are drawn from models by α33's `kd-render/src/art.rs`); α50's species and raw items already present; α51's "about 100 motifs" and dance-move proposal (α34b's 8 stand); `kd check file --note` and `kd check ids --stage` (they are `tools/filecheck.py file` and `ids --stage`).
   - Kept on purpose: α27c's `review-storm-4` stays the storm scene; α51 and α53a have no demo of their own; α53b's ten minutes use α45's, α46a's and α47b's demos and a Year-500 pace world from α52's full test, since a new world takes centuries to reach copper (`SCP-16`'s *now possible* for `MIL-07`); the count of thoughts (about 121) and of kinds of event past `MND-29`'s and `PRE-37`'s "about 100" goes to the owner as a proposal (α51, `PRC-07`), nothing cut silently.
 - **The launch catalogue's sectors** (`MAT-23`, filled exactly): before Stage 7 stone 5, wood 6, fire 6, cooking 6, hunting 8, gathering 4, hides 16, building 8, healing 6, pottery 6, art 8, music 3; α44 herding 4; α45 farming 6 and cooking 2; α46a building 4; α47a fire 2 (`charcoal_by_clamping`, `bellows_by_binding`) and pottery 1 (`blown_firing`); α47b metal 5; α49 stone 9, wood 7, fire 2, cooking 6, hunting 2, gathering 3 and healing 1; every sector then stands at its number, 136 in all.
 - **Architecture updates the Stage 7 branches make**, each written into `ARCHITECTURE.md` in its branch:
@@ -9124,11 +8382,11 @@ The stage is 13 alphas of about 64 hours, against the brief's 10 and 40.
   - Lands and review scenes: `goat-hills` (α44), `grain-meadow` (α45), `green-hill` (α47a); α23b's `salmon-river` widened (α46a); `review-camp-7` and `review-model-sheet-7` (α53b).
 - **For the final assembly:**
   - The coverage map counts α53b as the stage close for `RES-06`, `RES-22`, `PRE-31`, `SND-12` and `PRC-12` at `MIL-07`.
-  - α53b's "further alphas the coordinator adds after the review" are unnumbered on purpose: the plan ends at α53b.
+  - The further alphas α53b's review may ask for are unnumbered on purpose: the plan ends at α53b.
   - `PLT-04`'s budget for `MIL-07` is won in α52 (T52.8) and recorded in α53b (T53b.3); a miss at this last stage goes to the owner, since no later stage can win it back.
 ## Coverage map
 
-Generated: every live item of `PROJECT.md` and the alphas whose **Serves** line names it (`PRC-12`).
+Generated by `python3 tools/filecheck.py map --write`: every item of `PROJECT.md` and the alphas still to build whose **Serves** line names it (`PRC-12`); `built` marks an item the code implements (an `Implements` line) that no alpha left serves, and `every alpha` a rule every alpha keeps.
 Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and the vision's statements (`VIS`) that have no Done when or Check of their own.
 
 - `VIS-01` In one sentence: context
@@ -9163,7 +8421,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRN-07` Generic blueprints: α09
 - `PRN-05` Plausible numbers: α04a
 - `PRN-12` Speed up time, never bend the rules: every alpha
-- `PRN-17` History at a watchable pace: α01a, α52
+- `PRN-17` History at a watchable pace: α52
 - `PRN-03` You are nature: every alpha
 - `PRN-04` If the game knows it, you can see it: α04d
 - `PRN-10` Nothing is faked: α16b, α16c, α17
@@ -9172,11 +8430,11 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRN-15` History is saved, not re-run: α07a, α07b
 - `PRN-11` Time slows, the screen stays smooth: α03a, α03c, α07d, α43b
 - `PRN-09` Build in playable steps: every alpha
-- `PRN-14` Modular by design: α00b, α53b
+- `PRN-14` Modular by design: α53b
 - `SCP-01` Starting point: α12
 - `SCP-02` Just you: α53b
-- `SCP-03` Playable alphas: α00
-- `SCP-15` Tests run in the AI's cloud sessions: α00, α07e, α12d, α17c, α27c, α35c, α43c, α52, α53b
+- `SCP-03` Playable alphas: every alpha
+- `SCP-15` Tests run in the AI's cloud sessions: α07e, α12d, α17c, α27c, α35c, α43c, α52, α53b
 - `SCP-16` Milestones: every alpha
 - `MIL-01` First camp: α04a, α07d, α07e
 - `MIL-02` Sharp stone: α12d
@@ -9213,8 +8471,8 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `GOD-07` No trace in the story: α16, α20b, α31, α35b
 - `GOD-09` What came of your acts: α16, α20b, α20c, α22b, α35b
 - `TIM-17` Activities with an end: α03c, α03d, α04b, α09, α09b, α10a, α12, α12c, α22b, α23, α26a, α26b, α47a
-- `TIM-18` The game year: α00, α03a, α04b, α05, α13, α17b, α20a, α20c
-- `TIM-14` Dates: α00, α03a, α11b, α27b
+- `TIM-18` The game year: α03a, α04b, α05, α13, α17b, α20a, α20c
+- `TIM-14` Dates: α03a, α11b, α27b
 - `TIM-01` Time follows zoom: α03a, α19b, α27c, α35c, α43c, α53b
 - `TIM-10` Natural speed up close: α03a, α03c
 - `TIM-04` Manual control: α03a
@@ -9225,16 +8483,16 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `TIM-11` Skip to the next moment: α11b
 - `TIM-05` Pauses when closed: α03a, α07a
 - `TIM-12` Overnight mode: α43a, α43c, α46a
-- `TIM-16` Chance is local: α00, α01b, α02a, α02b, α02c, α02d, α03c, α07a, α07b, α07c, α12, α35b
+- `TIM-16` Chance is local: α02a, α02b, α02c, α02d, α03c, α07a, α07b, α07c, α12, α35b
 - `TIM-08` Saved worlds: α07b, α27a, α53a
 - `TIM-19` Pace of discovery: α12, α15, α17c, α25a, α25b, α27b, α27c, α35b, α35c, α41, α42, α43c, α44, α45, α46a, α47b, α52, α53b
 - `TIM-09` If everyone dies: α06c, α11b
-- `WLD-01` Torus with latitude: α01b, α02a, α03d, α18a, α18c, α19a, α20a, α22a
+- `WLD-01` Torus with latitude: α02a, α03d, α18a, α18c, α19a, α20a, α22a
 - `WLD-02` Globe view: α19b
 - `WLD-03` Size: α18a
 - `WLD-30` What scales with the world: α04a, α05, α13, α14b, α18a, α20a, α21, α22a
 - `WLD-04` How many people it can feed: α52
-- `WLD-12` Map layers: α01b, α02a, α02b, α02c, α02d, α03d, α04a, α05, α13, α14b, α18a, α18b, α19a, α19c, α21, α23, α23c, α45
+- `WLD-12` Map layers: α01d, α02a, α02b, α02c, α02d, α03d, α04a, α05, α13, α14b, α18a, α18b, α19a, α19c, α21, α23, α23c, α45
 - `WLD-13` Looking changes nothing: α02b, α02c, α02d, α03b, α03c, α14b, α19a, α19b, α19c, α21
 - `WLD-34` The first region: α02a, α12b, α13, α19a
 - `WLD-08` Realistic, not from scratch: α03a, α05, α07a, α18a, α18b, α18c, α27b, α27c
@@ -9274,10 +8532,10 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `MAT-21` Named discoveries: α11a, α11b, α14a, α15, α16b, α25a, α33, α33b, α35b, α36b, α41, α47b, α49
 - `MAT-23` The launch blueprints: α09, α14b, α15, α23, α23b, α23c, α24a, α24b, α25a, α25b, α33, α33b, α34a, α41, α44, α45, α46a, α47a, α47b, α49, α51
 - `MAT-05` Plausible values: α08
-- `MAT-13` The catalogues: α01a, α08, α17b, α51
+- `MAT-13` The catalogues: α08, α17b, α51
 - `MAT-14` Adding without rewriting: α09, α44, α49, α51
 - `MAT-16` The catalogue grows by milestone: α04a, α08, α21, α33, α49, α50
-- `MAT-17` How the catalogue checks work: α01a, α04a, α08, α09, α17b, α49, α50, α51
+- `MAT-17` How the catalogue checks work: α04a, α08, α09, α17b, α49, α50, α51
 - `RCK-01` Flint flakes, granite doesn't: α08, α09, α11a
 - `RCK-02` Fire by friction: α15
 - `RCK-22` Air feeds fire: α14a, α15, α47a
@@ -9380,11 +8638,11 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `CUL-11` Myths and stories: α32c, α36a, α39b
 - `CUL-12` Style and ornament: α25b, α33, α33b, α34a, α34b, α36c, α41, α43c
 - `CUL-29` Gatherings and festivals: α36a, α40, α46a, α48
-- `PRE-01` Detailed pixel art: α01a
-- `PRE-02` Pixel-rendered 3D: α01b, α02b, α19b
-- `PRE-20` Colour in steps: α01a, α01b, α02d
-- `PRE-21` Outlines and lit edges: α01a, α01b, α02c
-- `PRE-22` Stable pixels: α01a, α01b, α07e
+- `PRE-01` Detailed pixel art: α01c
+- `PRE-02` Pixel-rendered 3D: α01c, α01d, α02b, α19b
+- `PRE-20` Colour in steps: α01c, α01d, α02d
+- `PRE-21` Outlines and lit edges: α01c, α02c
+- `PRE-22` Stable pixels: α01c, α01d, α07e
 - `PRE-23` Rock faces: α02c
 - `PRE-24` Real shapes: α02c, α16c, α25b, α46a
 - `PRE-25` Cut-away view: α24b
@@ -9392,16 +8650,16 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRE-27` People and animals: α03b, α06c, α09b, α12b, α17b, α24a, α25a, α28, α46b
 - `PRE-28` Readable from far away: α02d, α03b, α12b, α14a, α19b
 - `PRE-29` From above: α02a, α18a, α19b
-- `PRE-30` Light, time and season: α01a, α01b, α03a, α05, α13, α14a, α47a
-- `PRE-03` Seamless zoom: α01b, α02a, α02b, α03b, α19b
+- `PRE-30` Light, time and season: α01c, α03a, α05, α13, α14a, α47a
+- `PRE-03` Seamless zoom: α01c, α02a, α02b, α03b, α19b
 - `PRE-31` Visual review: α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `PRE-42` Built from their materials: α08, α23c, α25a, α25b, α45, α46a, α47b, α49
 - `PRE-43` Variety: α02d, α21, α25b, α33b, α36c
 - `PRE-44` Animations: α03b, α03c, α06b, α06c, α09, α09b, α12, α12b, α14a, α19a, α22a, α23, α28, α28b, α30a, α30b, α32a, α34b, α51
-- `PRE-46` The model kit: α02d, α03b, α08, α21, α22a, α23b, α25a, α25b, α33, α33b, α41, α44, α49, α50, α51
-- `PRE-32` World first: α01a, α04d
-- `PRE-34` Both orientations: α01b, α03a, α04d, α12d, α53a, α53b
-- `PRE-33` Gestures: α01b, α03a, α03c, α16
+- `PRE-46` The model kit: α01d, α02d, α03b, α08, α21, α22a, α23b, α25a, α25b, α33, α33b, α41, α44, α49, α50, α51
+- `PRE-32` World first: α04d
+- `PRE-34` Both orientations: α03a, α04d, α12d, α53a, α53b
+- `PRE-33` Gestures: α01d, α03a, α03c, α16
 - `PRE-35` Cards: α04d, α06a, α06b, α06c, α08, α09b, α10a, α12, α12b, α14a, α17b, α19a, α21, α22a, α24a, α24b, α26a, α26b, α28, α28b, α29, α31, α31b, α32a, α32b, α32c, α34b, α36a, α36b, α36c, α38, α40, α46a, α48
 - `PRE-45` What they talk about: α30a, α30b
 - `PRE-40` Screens: α04d, α07b, α07d, α07e, α11b, α16b, α16c, α17, α27a, α27b, α43b, α51, α53a, α53b
@@ -9429,14 +8687,14 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `SND-07` Sound follows time: α16b, α16c, α19b
 - `SND-08` Space and distance: α16b, α16c, α17
 - `SND-12` Sound review: α17, α17c, α27c, α34a, α35c, α43c, α53b
-- `PLT-01` One phone: α00, α07c, α07d
-- `PLT-02` Portrait and landscape: α00, α01a, α01b, α04d, α53b
-- `PLT-03` Works offline: α00, α17, α35a, α43a, α53b
-- `PLT-06` Installing new versions: α00, α00b, α53b
+- `PLT-01` One phone: α07c, α07d
+- `PLT-02` Portrait and landscape: α04d, α53b
+- `PLT-03` Works offline: α17, α35a, α43a, α53b
+- `PLT-06` Installing new versions: α53b
 - `PLT-04` Measured limits: α02b, α07d, α07e, α12d, α17c, α19b, α19c, α20a, α27b, α27c, α35c, α43a, α43b, α43c, α46b, α52, α53a, α53b
 - `PLT-07` Always saved: α07a, α07b, α16, α19c, α43a
 - `PLT-08` Manual export: α53a
-- `PLT-09` Worlds across updates: α01a, α07a, α08, α10b, α12b, α14a, α18a, α18b, α18c, α19a, α20c, α21, α22a, α27a, α33, α41, α42, α44, α47b, α50, α53a
+- `PLT-09` Worlds across updates: α07a, α08, α10b, α12b, α14a, α18a, α18b, α18c, α19a, α20c, α21, α22a, α27a, α33, α41, α42, α44, α47b, α50, α53a
 - `PLT-10` Storage: α07a, α07b, α19c, α52, α53a
 - `PLT-05` Tests in the cloud: α07d, α08, α12, α19c, α52
 - `RES-01` Tests lead: every alpha
@@ -9444,7 +8702,7 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `RES-18` Same rules as play: α07c, α19a
 - `RES-09` Pass rules come first: α07c
 - `RES-13` About 20 runs where chance matters: α07c, α17b, α24a, α52
-- `RES-05` Repeatable runs: α00, α07a, α07c, α07d, α43b, α53a, α53b
+- `RES-05` Repeatable runs: α07a, α07c, α07d, α43b, α53a, α53b
 - `RES-10` Switch-off runs: α07c, α10a, α11a, α12, α17b, α31, α31b
 - `RES-16` Tuning the pace: α12d, α17c, α18b, α27c, α35c, α43c, α52, α53b
 - `RES-24` Blueprint trials: α09, α23, α23b, α23c, α24a, α41, α49
@@ -9464,12 +8722,12 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRC-03` Technology: every alpha
 - `PRC-04` Three documents: every alpha
 - `PRC-06` A guide for AI agents: every alpha
-- `PRC-07` Changes to this file: α00b
+- `PRC-07` Changes to this file: every alpha
 - `PRC-08` Next: the architecture and the plan: every alpha
-- `PRC-09` Branches, checks and review: α00, α07e, α12d, α17c, α27c, α35c, α43c, α53b
-- `PRC-10` The checks: α00, α00b, α07c
-- `PRC-11` Each alpha reaches your phone: α00, α07c, α16b, α35a, α53b
-- `PRC-12` Nothing gets lost: α00b, α07c, α07e, α12d, α17c, α27c, α35c, α43c, α53b
+- `PRC-09` Branches, checks and review: α07e, α12d, α17c, α27c, α35c, α43c, α53b
+- `PRC-10` The checks: α07c
+- `PRC-11` Each alpha reaches your phone: α07c, α16b, α35a, α53b
+- `PRC-12` Nothing gets lost: α07c, α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `RSK-01` Discoveries stall: α52
 - `RSK-26` The pace is off: α52
 - `RSK-19` Belief fails to emerge: α31, α31b, α32c, α35c

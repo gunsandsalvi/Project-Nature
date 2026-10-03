@@ -3306,7 +3306,7 @@ pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Noth
   A tap reads 13 × 13 art pixels through a pixel-pack buffer and a fence, without stalling; the nearest id wins, figure before herd before thing before plant; with none, the centre's depth gives a ground position.
   Why: exact picking of whatever is drawn; fallback: rays against figure boxes and the height field.
 - **Outlines** (`PRE-21`): a pixel is on a silhouette where a neighbour lies farther than the plane through the pixel and its opposite neighbour predicts, by more than its category's gap (figures 0.25 m, things 0.3 m, plants 1 m, rock 1.5 m, ground 6 m); it takes its look two steps darker (figures: ink).
-  Why: a plain depth jump also flags steep slopes seen edge-on, which drew α01b's black streaks down the cliff; predicting the slope flags only real occlusion.
+  Why: a plain depth jump also flags steep slopes seen edge-on, which drew the first renderer's black streaks down the cliff; predicting the slope flags only real occlusion.
 - **Lit edges:** a silhouette pixel that is sunlit and whose far neighbour lies toward the sun on screen takes its look's top step; toward a fire, the warm table instead.
 - **Post** then applies the haze table of the pixel's level, the glow tables (A11.4), the selection's one-pixel edge, and the palette row.
 - **Upscale** samples `floor(off + fragCoord/s)`, so panning moves in whole screen pixels while the art grid stays locked to the world.
@@ -3412,7 +3412,7 @@ Every change of form is a dissolve by seeded importance over 12% of the art pixe
 **The height field** (A11.1's rule 3): each area's heights are a 257 × 257 `R32F` texture, 1 m apart.
 - **Mesh:** one shared grid patch of 16 × 16 quads is drawn over each 16-quad square of the loaded ground at spacing `s = 2^k` m, the smallest with `s ≥ 1.25 × texel` and `s ≥ 1`, so triangles stay one to two art pixels across; every vertex reads its height from the texture.
   Over the upper half of each spacing's range, the odd vertices slide onto the line between their even neighbours, which is the next spacing's mesh, so at a switch the two meshes coincide and nothing jumps (continuous level of detail, as Strugar's CDLOD; one spacing serves the whole view, since every art pixel spans the same ground).
-  Why: α01b switched fixed 1, 2, 4 and 8 m meshes, and each switch reshaped the cliff and reshaded every slope.
+  Why: the first renderer switched fixed 1, 2, 4 and 8 m meshes, and each switch reshaped the cliff and reshaded every slope.
 - **Normals per pixel:** the fragment shader takes the normal from the height texture (central differences of bilinear heights), plus the look's micro-relief (below), so light never follows the mesh's spacing.
 - 4 m skirts hang from the loaded ground's outer edge.
 
@@ -3428,7 +3428,7 @@ Every change of form is a dissolve by seeded importance over 12% of the art pixe
 Each surface in `data/models/surfaces.md` names one to three looks: grass its lush and dry looks, split by a world-fixed noise of 24 m and 6 m octaves, so patches stay put and keep their edges; dirt, rock and scree their own.
 - **Micro-relief** (the "texture" of a look): band-limited noise added to the normal: grass clumps of 0.4–1.6 m, rock facets of 0.2–2 m, dirt clods of 0.3–1 m; each octave's strength times `smoothstep(2, 4, wavelength / texel)`.
 - **Stones and tufts** (`PRE-46`'s ground cover): each area's seeded list, by its surfaces' densities, of instanced meshes: stones as eight-faced rocks 0.05–0.6 m across, lit by the stone look; tufts as 3–5 blades at least an art pixel wide (the vertex shader widens them), lit by the grass's look; each has a seeded importance `u` and shows while it spans at least `1.5 + 2u` art pixels, so as the camera rises they thin out one by one; their footprint darkens the sky factor beneath them (contact shade).
-  Why: α01b stamped them as 2D shapes sized by the art pixel and rounded each frame, so they reshuffled as the camera zoomed.
+  Why: the first renderer stamped them as 2D shapes sized by the art pixel and rounded each frame, so they reshuffled as the camera zoomed.
 
 **Cliffs, overhangs and caves** (`PRE-23`, `PRE-24`):
 - A bucket with 3D pieces, or a height step over 1.5 m, drops its height-field quads and is meshed by **surface nets** on the picture's pieces: z crossings exact from their decimetre air gaps (A5.3), x and y crossings at midpoints, then one relaxation pass; corners every 1 m, 0.5 m at the two closest stops.
@@ -3625,9 +3625,10 @@ Serves: `PRE-05`, `PRE-06`, `PRE-07`, `PRE-08`, `PRE-09`, `PRE-10`, `PRE-13`, `P
 ### A12.1 The pixel UI
 
 - `kd-ui` is immediate-mode: each frame it turns the open views and their data into a `UiDrawList` (rectangles, one-pixel lines, glyph runs, icons, world-anchored marks), drawn in one or two calls after the upscale.
+  The list's types live in `kd-view`, since `kd-render` draws them and may not depend on `kd-ui` (A2.3); `kd-ui` owns the font and hands the renderer its atlas (`kd_view::FontAtlas`) through `Assets`.
 - A **UI pixel is an art pixel**, 4 screen pixels on the same grid, so the UI is the world's pixel art (`PRE-01`); every size below is in UI pixels.
   Colours are fixed palette entries (A11.3: panels `ui_panel`, lines `ui_line`, text `ui_text` and `ui_text_dim`, their words `ui_word`, links `ui_link`, selection `ui_select`); panels are opaque, and the world behind a modal sheet is dimmed by a 2 × 2 checker of `ink`.
-- **Font:** **Decision:** a proportional pixel font with a 7-pixel cap height and 2-pixel descenders, about 48 characters a line in portrait, from a CC0 or OFL proportional font checked at import (Pixel Operator is the candidate), credited in `assets/LICENSES.md` and on the credits screen; why: the cap is about 1.8 mm, like 16 sp body text; fallback: glyphs drawn in-house as text art (`assets/font/glyphs.txt`).
+- **Font:** **Decision:** a proportional pixel font with a 7-pixel cap height and 2-pixel descenders, about 48 characters a line in portrait, from a CC0 or OFL proportional font checked at import (Pixel Operator is the candidate), credited in `assets/LICENSES.md` and on the credits screen; why: the cap is about 1.8 mm, like 16 sp body text; fallback: glyphs drawn in-house as text art (`assets/font/glyphs.txt`), which the game uses now, since a session cannot rely on fetching the font; importing it later into the same format stays possible.
 - **Line spacing:** lists and labels on an 11-pixel line, card lines on 13, and long texts (entries, life stories, myths, the details of a mind) on 15, about one and a half times the type's size, with 6 pixels between paragraphs.
   A second font, a 9-pixel cap with every line 4 pixels taller, is kept ready; the owner picks the default from the `MIL-02` contact sheet, which shows a 150-word entry and a long card.
   Pixel fonts have no italics, so words in their language are set in ochre, with the meaning in quotes (`PRE-35`).
@@ -4391,9 +4392,9 @@ A shallow clone is enough, so binaries in old history never slow a start (A17.10
 
 - Cloud and tests: `cargo build --profile fast -p kd-tools` gives `kd` (A2.7).
 - Web: `tools/build-web.sh` builds `kd-web` for wasm32 and runs `wasm-bindgen --target web` into `dist/web/` with `index.html`, the glue and the audio worklet; wasm at most 12 MB (the artifact host takes 15 MB a binary file); `dist/web/` is never committed, as the published page holds it.
-- Phone: `tools/build-apk.sh release|check` runs Gradle (A2.5: its `Exec` task builds `libkindling.so` into `build/rustJniLibs`), signs with scheme v3, which `apksigner` uses alone at minSdk 31 since every Android that installs the APK reads it (α00's Conflict note) (`release` with the release key, A15.5, or the throwaway key until its secret exists; `check` with a key made in the session and discarded), runs `tools/verify-apk.sh` (A2.5's checks, including exactly its permissions, never `INTERNET`, `PLT-03`), and puts the APK and its SHA-256 in `dist/`.
+- Phone: `tools/build-apk.sh release|check` runs Gradle (A2.5: its `Exec` task builds `libkindling.so` into `build/rustJniLibs`), signs with scheme v3, which `apksigner` uses alone at minSdk 31 since every Android that installs the APK reads it (`release` with the release key, A15.5, or the throwaway key until its secret exists; `check` with a key made in the session and discarded), runs `tools/verify-apk.sh` (A2.5's checks, including exactly its permissions, never `INTERNET`, `PLT-03`), and puts the APK and its SHA-256 in `dist/`.
 
-Package `dev.kindling.app` (A2.5, permanent once registered); `versionCode` = stage × 1000 + alpha × 10 + split (split `a` 1 to `e` 5, none 0: α00 1000, α06b 1062, α13 3130), so each alpha installs over the last; **Decision (α00):** the split digit leaves room for lettered alphas such as α06b, which stage × 1000 + alpha did not.
+Package `dev.kindling.app` (A2.5, permanent once registered); `versionCode` = stage × 1000 + alpha × 10 + split (split `a` 1 to `e` 5, none 0: α00 1000, α06b 1062, α13 3130), so each alpha installs over the last; **Decision:** the split digit leaves room for lettered alphas such as α06b, which stage × 1000 + alpha did not.
 **Decision:** the APK is at most 50 MB (the reviews' cap; GitHub refuses files over 100 MB), expected about 30–36 MB: `libkindling.so` about 10–15 MB stored uncompressed, ML Kit and AndroidX about 5 MB, recordings about 4 MB, the murmur's two syllable banks about 10 MB (A13.9, A13.13: no voice model or ONNX Runtime), catalogue, font and textures about 2 MB.
 Size and build times are measured every alpha; growth over 5 MB is flagged in the note (A16.7).
 
@@ -4417,7 +4418,7 @@ One key signs every delivered build from the first alpha (`PLT-06`, `RSK-29`); n
 - The certificate is made once and committed at `android/keys/release-cert.der` with its SHA-256 fingerprint; each build checks the derived key against it before `apksigner sign --key <pk8> --cert release-cert.der`, so a mistyped passphrase fails the build.
 
 Owner's steps, once, before the first alpha (`PLT-06`): make a passphrase of at least 7 random words in a password manager (the second copy, `RSK-29`), add it in the cloud environment's settings, start a new session, and register the package and the printed fingerprint in the free hobbyist developer account (`RSK-18`).
-The first alpha's session asks for this at its start and confirms the developer console accepts an EC certificate (fallback: the base64 RSA keystore).
+A session cannot sign in to the developer console, so the note that first gives the fingerprint asks the owner to register it: the registration asks only for the package name and the certificate's SHA-256 fingerprint, and every Android from minSdk 31 verifies ECDSA P-256 signatures (fallback, if the console refuses it: the base64 RSA keystore, read by `signing-key.py`).
 If the key must ever change, it is rotated with APK Signature Scheme v3 (`apksigner rotate`, then `--lineage`; Android 9 and later), so the game updates in place with no reinstall; the new certificate is registered too.
 
 ### A15.6 Test layers
@@ -4524,9 +4525,10 @@ On the phone, each stage, the Tests screen's Review button renders the same set 
 5. `kd scene run --quick`: every scene up to 10 game years, signature moments included (`RES-23`, `RES-17`).
 6. The repeat check and the cross-target scene (A15.9, items 4 and 5).
 7. `kd check file`: `PRC-10`'s file check on `PROJECT.md` (generated lists current too), every ID and section the architecture and plan cite existing, and the commit check (`PRC-07`).
-8. `kd check ids --merge`: every ID in code and tests live, every new test naming IDs, every changed pass rule with its reason (`PRC-12`, `RES-09`).
+8. `kd check ids --merge`: every ID in code and tests live, every new test naming IDs, every changed pass rule with its reason (`PRC-12`, `RES-09`); every live feature and rule served by an alpha still in the plan, kept by every alpha, or implemented in code (an `Implements` line names it); every ID that code implements named by a test, a scene or a catalogue entry, the plan keeping no record of done alphas; and the plan's coverage map current (`map --write` regenerates it).
 9. Builds: `kd` always; the release APK and wasm at a delivery, or when `android/`, `web/`, `kd-android` or `kd-web` change.
 
+**Decision:** `kd check file` and `kd check ids` are the modes `file` and `ids` of `tools/filecheck.py`, Python's standard library alone, since text checks over Markdown and sources are simplest there and every session has it.
 It writes `results/checks/<commit>.json` and prints `Checks: PASS <commit>`; a later commit touching only `results/` keeps that pass.
 Over 20 minutes, the scenes of items the change doesn't touch move to the background first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining (`PRC-10`).
 When a background run ends, its results are read before anything else: a check that passed before and now fails is fixed, or the change behind it undone, before other work joins, and a pace target not yet met goes to tuning (`RES-16`), blocking only the stage close.
@@ -4538,7 +4540,7 @@ Before a stage closes, `PRC-10`'s list runs, with `kd check ids --stage` (all of
 The gate is `tools/check.sh` plus the review recorded in the pull request's description; no branch protection or commit status is needed (the reviews' decision).
 Since the owner's instruction of 3 October 2026 (`PRC-09`), the builder reviews each lettered alpha that a later letter of its number follows (α02a and α02b of α02a to α02c), and a fresh subagent verifies the whole number once, at the alpha that ends it (α02c, or an alpha never split); the plan's status table says which alpha ends a number.
 1. The builder's pull request description opens with the alpha's name and holds only facts: IDs delivered, tests added, pass rules changed with reasons, architecture sections touched, its `Checks: PASS` line; none of its reasoning (`PRC-09`).
-2. The reviewer re-runs format, clippy, tests and quick scenes, and reverts each new test to see it fail. For an alpha that does not end its number, the reviewer is the builder, in a pass of its own after the delivery; at the number's end, a fresh subagent of the builder's session (or a reviewer in a separate session) given only the number's whole diff, its alphas' sections and the items they cite.
+2. The reviewer re-runs format, clippy, tests and quick scenes, and reverts each new test to see it fail. For an alpha that does not end its number, the reviewer is the builder, in a pass of its own after the delivery; at the number's end, a fresh subagent of the builder's session (or a reviewer in a separate session) given only the number's whole diff, its alphas' sections (as the plan held them when the number began, since each alpha leaves the plan at its delivery) and the items they cite.
 3. It checks with `tools/review-checklist.md`: each claimed ID's What, Done when and Check lines; no test weakened or pass rule loosened (`RES-09`); catalogue entries naming their checks (`MAT-17`); the principles, above all `PRN-01`, `PRN-06`, `PRN-07`, `PRN-12` and `PRN-14`; determinism, layering, budget flags; no implementation in `PROJECT.md` (`PRC-04`); and, as the owner asked on 3 October 2026, it looks at the alpha's pictures (goldens, smoke shots, the note's pictures) as a pixel artist and a designer would, judging whether the graphics are as they should be.
 4. It adds `Review: APPROVE <commit> <reviewer>` to the description, the reviewer `builder`, `subagent:<label>` or a session, or `Review: CHANGES` with its findings; a later push voids an approval.
 5. If a subagent and the builder still disagree after one round of fixes, a second fresh reviewer decides; anything changing what `PROJECT.md` means goes to the owner (`PRC-09`).

@@ -2,8 +2,8 @@
 
 Since the owner's instruction of 3 October 2026, the builder reviews each lettered alpha that a later letter of its
 number follows, in a pass of its own after the delivery; the alpha that ends its number gets one fresh subagent (or a
-reviewer in its own session), which works from the whole number's diff, its alphas' sections of `IMPLEMENTATION.md`
-and the items they cite, never the builder's reasoning. Either reviewer re-runs format, clippy, the tests and the
+reviewer in its own session), which works from the whole number's diff, its alphas' sections of `IMPLEMENTATION.md` (as they stood when the number
+began, since each leaves the plan at its delivery) and the items they cite, never the builder's reasoning. Either reviewer re-runs format, clippy, the tests and the
 quick scenes, and reverts each new test's code to see the test fail.
 
 1. **Items.** For each ID the alpha claims, read its What, Done when and Check lines in `PROJECT.md`: the diff does
