@@ -154,13 +154,19 @@ pub struct App {
     control: camera::Control,
 }
 
-/// The golden scenes of A11.12, drawn with time frozen.
+/// The golden scenes of A11.12, drawn with time frozen and no strip.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Golden {
     /// The whole light card, the block turned 30°.
     LightCard,
     /// The block alone, filling the screen, turned 30°.
     Block,
+    /// The demo area at the camp stop, north up, its middle in the middle.
+    ValleyCamp,
+    /// The cliff's foot at the close camp stop, looking west-north-west at the face.
+    ValleyClose,
+    /// The scree and the grass below the face, near the person stop.
+    ValleyNear,
 }
 
 impl Golden {
@@ -168,8 +174,37 @@ impl Golden {
         match name {
             "light-card" => Some(Golden::LightCard),
             "block" => Some(Golden::Block),
+            "valley-camp" => Some(Golden::ValleyCamp),
+            "valley-close" => Some(Golden::ValleyClose),
+            "valley-near" => Some(Golden::ValleyNear),
             _ => None,
         }
+    }
+
+    /// Whether the scene is the light card's rather than the ground's.
+    pub fn card(self) -> bool {
+        matches!(self, Golden::LightCard | Golden::Block)
+    }
+
+    /// A ground scene's pose on the demo area: the point in metres east and south of its corner, on its ground,
+    /// the heading and the zoom.
+    pub fn pose(self, g: &Ground) -> Option<CameraPose> {
+        let (e, s, yaw, zoom) = match self {
+            Golden::ValleyCamp => (128, 128, 0.0, 0.30),
+            Golden::ValleyClose => (178, 128, 1.2, 0.14),
+            Golden::ValleyNear => (180, 136, 1.2, 0.05),
+            _ => return None,
+        };
+        let o = g.id.origin();
+        Some(CameraPose {
+            target: kd_core::geo::Pos {
+                x: o.x + e * 256,
+                y: o.y + s * 256,
+                z: (g.height_m(e as usize, s as usize) * 256.0).round() as i32,
+            },
+            yaw,
+            zoom,
+        })
     }
 }
 
@@ -349,7 +384,10 @@ impl App {
         let start = *self.start_ns.get_or_insert(now_ns);
         let list = self.ui_list(now_ns);
         // The light card shows only as its golden scenes now the ground has come (α01b).
-        let card = self.golden.map(|_| self.card_frame(now_ns.saturating_sub(start)));
+        let card = self
+            .golden
+            .filter(|g| g.card())
+            .map(|_| self.card_frame(now_ns.saturating_sub(start)));
         if self.golden.is_none() {
             self.control.tick(now_ns);
         }
@@ -420,9 +458,28 @@ impl App {
         }
     }
 
-    /// Test hook (A11.12): shows a golden scene with time frozen, or the live card again.
+    /// Test hook (A11.12): shows a golden scene with time frozen and no strip, a ground scene from its pose, or
+    /// the live ground again.
     pub fn set_golden(&mut self, golden: Option<Golden>) {
         self.golden = golden;
+        if let (Some(pose), Some(_)) = (golden.zip(self.demo.as_ref()).and_then(|(g, d)| g.pose(d)), golden) {
+            self.control.set(pose);
+        }
+    }
+
+    /// Test hook (A12.4): the ground under a window point in screen pixels, as a position.
+    pub fn ground_at(&self, p: [f32; 2]) -> Option<kd_core::geo::Pos> {
+        Some(camera::ground_point(
+            &self.control.pose,
+            self.size?,
+            self.demo.as_ref(),
+            p,
+        ))
+    }
+
+    /// Test hook (A12.4): where a position shows in the window, in screen pixels.
+    pub fn screen_of(&self, p: kd_core::geo::Pos) -> Option<[f64; 2]> {
+        Some(camera::window_point(&self.control.pose, self.size?, p))
     }
 
     /// Test hook (A11.12): the palette row in use, as `rrggbb` words, or nothing before the first frame.

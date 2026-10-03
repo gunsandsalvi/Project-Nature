@@ -99,6 +99,12 @@ async function main() {
       hour: (n) => app.set_hour(n),
       palette: () => app.palette(),
       golden: (name) => app.golden(name),
+      camera: () => JSON.parse(app.camera()),
+      aim: (target, yaw, zoom) => app.aim(target[0], target[1], target[2], yaw, zoom),
+      // A synthetic touch, in device pixels from the canvas's top-left: kind 0 down, 1 move, 2 up, 3 cancel.
+      touch: (kind, id, x, y, tMs) => app.pointer(kind, id, x, y, tMs),
+      groundAt: (x, y) => Array.from(app.ground_at(x, y)),
+      screenOf: (p) => Array.from(app.screen_of(p[0], p[1], p[2])),
       // The next frame as a PNG data URL, or with `art` one pixel an art pixel (the grid starts at the top-left).
       shot: ({ art = false } = {}) => {
         app.frame(performance.now());

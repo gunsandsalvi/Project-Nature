@@ -190,46 +190,143 @@ fn moved(t: Pos, d: [f64; 2]) -> Pos {
     }
 }
 
-/// The pose that puts ground points `g` (metres from `base`'s target) at window points `f`, by art pixel, heading and
-/// target, the art pixel held within the zoom in reach (A12.2): the fingers' two points fix all four.
-fn solve_two(base: &CameraPose, g: [V3; 2], f: [[f64; 2]; 2]) -> CameraPose {
+/// Where the separation `d` between two ground points shows on the screen for heading `yaw` and art pixel `t`, in
+/// art pixels, up positive.
+fn shown(d: V3, yaw: f64, t: f64) -> [f64; 2] {
+    let p = pitch_deg(t).to_radians();
+    let (sy, cy) = yaw.sin_cos();
+    let along = d[0] * cy + d[1] * sy;
+    let ahead = -d[0] * sy + d[1] * cy;
+    [along / t, (ahead * p.sin() + d[2] * p.cos()) / t]
+}
+
+/// The smallest turn from angle `a` to angle `b`, in radians.
+fn turn_between(a: f64, b: f64) -> f64 {
+    (b - a + std::f64::consts::PI).rem_euclid(std::f64::consts::TAU) - std::f64::consts::PI
+}
+
+/// The pose that puts ground points `g` (metres from `base`'s target) at window points `f`, by the parts of the
+/// gesture taken up (A12.2): with both, the art pixel (through the pitch's curve), the heading and the target, so
+/// both points land exactly; with the pinch alone the art pixel that keeps the points as far apart as the fingers,
+/// with the twist alone the heading that keeps them at the fingers' angle; the target always puts their midpoint
+/// at the fingers' midpoint. A part not taken up keeps its value exactly; the art pixel stays within the zoom in
+/// reach.
+fn solve_two(base: &CameraPose, g: [V3; 2], f: [[f64; 2]; 2], scale: bool, turn: bool) -> CameraPose {
     let d = [g[1][0] - g[0][0], g[1][1] - g[0][1], g[1][2] - g[0][2]];
     let e = [f[1][0] - f[0][0], f[1][1] - f[0][1]];
     let dh = (d[0] * d[0] + d[1] * d[1]).sqrt();
-    if dh < 1e-6 || (e[0] * e[0] + e[1] * e[1]).sqrt() < 1e-6 {
+    let el = (e[0] * e[0] + e[1] * e[1]).sqrt();
+    if dh < 1e-6 || el < 1e-6 {
         return *base;
     }
-    // The art pixel at which the two points lie as far apart as the fingers: one root, found by halving.
-    let split = |t: f64| {
-        let p = pitch_deg(t).to_radians();
-        (e[0] * t, (e[1] * t - d[2] * p.cos()) / p.sin())
-    };
-    let gap = |t: f64| {
-        let (a, b) = split(t);
-        a * a + b * b - dh * dh
-    };
-    let (mut lo, mut hi) = (f64::from(texel(ZOOM_IN_REACH[0])), f64::from(texel(ZOOM_IN_REACH[1])));
-    let t = if gap(lo) >= 0.0 {
-        lo
-    } else if gap(hi) <= 0.0 {
-        hi
-    } else {
+    let (t0, yaw0) = (f64::from(texel(base.zoom)), f64::from(base.yaw));
+    let (lo_t, hi_t) = (f64::from(texel(ZOOM_IN_REACH[0])), f64::from(texel(ZOOM_IN_REACH[1])));
+    // A root of `f` between the art pixels' ends, by halving in the log, or the end it lies beyond.
+    let root_t = |f: &dyn Fn(f64) -> f64| {
+        let (mut lo, mut hi) = (lo_t, hi_t);
+        if f(lo) >= 0.0 {
+            return lo;
+        }
+        if f(hi) <= 0.0 {
+            return hi;
+        }
         for _ in 0..60 {
             let m = (lo * hi).sqrt();
-            if gap(m) < 0.0 { lo = m } else { hi = m }
+            if f(m) < 0.0 { lo = m } else { hi = m }
         }
         (lo * hi).sqrt()
     };
-    let (a, b) = split(t);
-    let yaw = d[1].atan2(d[0]) - b.atan2(a);
+    let (t, yaw) = match (scale, turn) {
+        (true, true) => {
+            // The art pixel at which the points lie as far apart as the fingers, whatever the heading; then the
+            // heading that turns them onto the fingers' line.
+            let split = |t: f64| {
+                let p = pitch_deg(t).to_radians();
+                (e[0] * t, (e[1] * t - d[2] * p.cos()) / p.sin())
+            };
+            let t = root_t(&|t: f64| {
+                let (a, b) = split(t);
+                a * a + b * b - dh * dh
+            });
+            let (a, b) = split(t);
+            (t, d[1].atan2(d[0]) - b.atan2(a))
+        }
+        (true, false) => {
+            let t = root_t(&|t: f64| {
+                let s = shown(d, yaw0, t);
+                el - (s[0] * s[0] + s[1] * s[1]).sqrt()
+            });
+            (t, yaw0)
+        }
+        (false, true) => {
+            // The heading, near where the fingers' turn points, at which the separation shows at their angle:
+            // turning the view left turns the land right on the screen.
+            let want = e[1].atan2(e[0]);
+            let base_angle = {
+                let s = shown(d, yaw0, t0);
+                s[1].atan2(s[0])
+            };
+            let guess = yaw0 - turn_between(base_angle, want);
+            let miss = |y: f64| {
+                let s = shown(d, y, t0);
+                turn_between(want, s[1].atan2(s[0]))
+            };
+            let (mut a, mut b) = (guess - 0.5, guess + 0.5);
+            let yaw = if miss(a) > 0.0 && miss(b) < 0.0 {
+                for _ in 0..60 {
+                    let m = (a + b) / 2.0;
+                    if miss(m) > 0.0 { a = m } else { b = m }
+                }
+                (a + b) / 2.0
+            } else {
+                guess
+            };
+            (t0, yaw)
+        }
+        (false, false) => (t0, yaw0),
+    };
     let o = Optics::of(t, yaw);
     let tz = f64::from(base.target.z) / 256.0;
-    let at = place(&o, g[0], f[0], tz);
+    let mid_g = [
+        (g[0][0] + g[1][0]) / 2.0,
+        (g[0][1] + g[1][1]) / 2.0,
+        (g[0][2] + g[1][2]) / 2.0,
+    ];
+    let mid_f = [(f[0][0] + f[1][0]) / 2.0, (f[0][1] + f[1][1]) / 2.0];
+    let at = place(&o, mid_g, mid_f, tz);
     CameraPose {
         target: moved(base.target, at),
-        yaw: yaw.rem_euclid(std::f64::consts::TAU) as f32,
-        zoom: zoom_of(t as f32),
+        yaw: if turn {
+            yaw.rem_euclid(std::f64::consts::TAU) as f32
+        } else {
+            base.yaw
+        },
+        zoom: if scale { zoom_of(t as f32) } else { base.zoom },
     }
+}
+
+/// The ground under a window point (screen pixels from the window's top-left) for a pose, as a position: where
+/// the view's ray meets the ground, or else the level of the target.
+pub fn ground_point(pose: &CameraPose, window: [u32; 2], g: Option<&Ground>, p: [f32; 2]) -> Pos {
+    let q = ground_under(pose, from_middle(p, window), g);
+    Pos {
+        z: (q[2] * 256.0).round() as i32,
+        ..moved(pose.target, [q[0], q[1]])
+    }
+}
+
+/// Where a position shows in the window for a pose, in screen pixels from the window's top-left.
+pub fn window_point(pose: &CameraPose, window: [u32; 2], p: Pos) -> [f64; 2] {
+    let o = Optics::pose(pose);
+    let q = [
+        f64::from(wrap(p.x - pose.target.x, W)) / 256.0,
+        -f64::from(wrap(p.y - pose.target.y, H)) / 256.0,
+        f64::from(p.z - pose.target.z) / 256.0,
+    ];
+    let a = (q[0] * o.right[0] + q[1] * o.right[1]) / o.texel;
+    let b = (q[0] * o.up[0] + q[1] * o.up[1] + q[2] * o.up[2]) / o.texel;
+    let s = f64::from(ART_SCALE);
+    [f64::from(window[0]) / 2.0 + a * s, f64::from(window[1]) / 2.0 - b * s]
 }
 
 impl Control {
@@ -294,7 +391,7 @@ impl Control {
                 };
                 let s = Similarity::between(from, to, scale, turn);
                 let want = from.map(|p| from_middle(s.apply(p), window));
-                self.pose = solve_two(&pose, ground, want);
+                self.pose = solve_two(&pose, ground, want, scale, turn);
             }
             Gesture::Zoom { delta } => {
                 let pose = match self.base {
@@ -500,6 +597,61 @@ mod tests {
             pose.zoom
         );
         assert_ne!(c.pose.yaw, pose.yaw);
+    }
+
+    // checks: PRE-33
+    #[test]
+    fn parts_not_taken_up_hold() {
+        // A pinch alone keeps the heading exactly, a twist alone the zoom; each keeps the middle of the fingers'
+        // two ground points under the fingers' midpoint.
+        let (g, start) = demo_start();
+        let from = [[300.0, 1000.0], [800.0, 1500.0]];
+        let base = Control::new(start).on_ground(Some(&g));
+        let ground = from.map(|p| ground_under(&base, from_middle(p, WINDOW), Some(&g)));
+        let m = [0, 1, 2].map(|k| (ground[0][k] + ground[1][k]) / 2.0);
+        let mut c = Control::new(start);
+        let spread = [[250.0, 950.0], [850.0, 1550.0]];
+        c.gesture(
+            Gesture::Two {
+                epoch: 1,
+                from,
+                to: spread,
+                scale: true,
+                turn: false,
+            },
+            WINDOW,
+            Some(&g),
+            0,
+        );
+        assert_eq!(c.pose.yaw, start.yaw);
+        assert!(c.pose.zoom < start.zoom);
+        let at = shows_at(&c.pose, base.target, m);
+        assert!((at[0] - 550.0).abs() < 0.12 && (at[1] - 1250.0).abs() < 0.12, "{at:?}");
+        let mut c = Control::new(start);
+        let turned = [[350.0, 900.0], [750.0, 1600.0]];
+        c.gesture(
+            Gesture::Two {
+                epoch: 1,
+                from,
+                to: turned,
+                scale: false,
+                turn: true,
+            },
+            WINDOW,
+            Some(&g),
+            0,
+        );
+        assert_eq!(c.pose.zoom, start.zoom);
+        let screen_turn = Similarity::between(from, turned, false, true).angle;
+        let dyaw = turn_between(f64::from(start.yaw), f64::from(c.pose.yaw));
+        assert!(dyaw * f64::from(screen_turn) > 0.0, "{dyaw} {screen_turn}");
+        let at = shows_at(&c.pose, base.target, m);
+        assert!((at[0] - 550.0).abs() < 0.12 && (at[1] - 1250.0).abs() < 0.12, "{at:?}");
+        // The fingers' line keeps its angle on the screen through the twist.
+        let shown = ground.map(|p| shows_at(&c.pose, base.target, p));
+        let angle = (shown[1][1] - shown[0][1]).atan2(shown[1][0] - shown[0][0]);
+        let want = f64::from((turned[1][1] - turned[0][1]).atan2(turned[1][0] - turned[0][0]));
+        assert!((angle - want).abs() < 1e-3, "{angle} {want}");
     }
 
     // checks: PRE-22 PRE-03

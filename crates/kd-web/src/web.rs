@@ -177,12 +177,54 @@ impl WebApp {
         self.app.palette_hex().unwrap_or_default()
     }
 
-    /// Test hook (A11.12): a golden scene with time frozen (`light-card` or `block`), or the live card for any
-    /// other name; whether the name was a golden's.
+    /// Test hook (A11.12): a golden scene with time frozen and no strip (`light-card`, `block`, `valley-camp`,
+    /// `valley-close` or `valley-near`), or the live ground for any other name; whether the name was a golden's.
     pub fn golden(&mut self, name: &str) -> bool {
         let g = kd_app::Golden::named(name);
         self.app.set_golden(g);
         g.is_some()
+    }
+
+    /// Test hook (A12.4): where the camera looks and what the last frame's view was, as JSON: the target in
+    /// ticks, the heading and the zoom; the art pixel in metres, the upscale's shift, and the art target's corner
+    /// and the block in the world's grid of art pixels.
+    pub fn camera(&self) -> String {
+        let c = self.app.camera();
+        let view = self.app.view().map_or("null".to_string(), |v| {
+            format!(
+                "{{\"texel\":{},\"off\":[{},{}],\"corner\":[{},{}],\"block\":[{},{}],\"origin\":[{},{}]}}",
+                v.texel, v.off[0], v.off[1], v.corner[0], v.corner[1], v.block[0], v.block[1], v.origin.x, v.origin.y
+            )
+        });
+        format!(
+            "{{\"target\":[{},{},{}],\"yaw\":{},\"zoom\":{},\"view\":{view}}}",
+            c.target.x, c.target.y, c.target.z, c.yaw, c.zoom
+        )
+    }
+
+    /// Test hook (A12.4): the ground under a point of the canvas in device pixels, as a position in ticks.
+    pub fn ground_at(&self, x: f32, y: f32) -> Vec<i32> {
+        self.app
+            .ground_at([x, y])
+            .map(|p| vec![p.x, p.y, p.z])
+            .unwrap_or_default()
+    }
+
+    /// Test hook (A12.4): where a position in ticks shows on the canvas, in device pixels.
+    pub fn screen_of(&self, x: i32, y: i32, z: i32) -> Vec<f64> {
+        self.app
+            .screen_of(kd_core::geo::Pos { x, y, z })
+            .map(|p| p.to_vec())
+            .unwrap_or_default()
+    }
+
+    /// Test hook (A12.4): points the camera at a target in ticks, with a heading in radians and a zoom.
+    pub fn aim(&mut self, x: i32, y: i32, z: i32, yaw: f32, zoom: f32) {
+        self.app.set_camera(kd_view::CameraPose {
+            target: kd_core::geo::Pos { x, y, z },
+            yaw,
+            zoom,
+        });
     }
 
     /// Test hook (A3.8): a panic, for the smoke test to see its message in the status line.

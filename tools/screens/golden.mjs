@@ -1,4 +1,5 @@
-// The golden scenes (A11.12, A15.11): the light card at 06:30, 12:00, 16:30, 18:30 and 23:00 and the block alone at
+// The golden scenes (A11.12, A15.11): the light card at 06:30, 12:00, 16:30, 18:30 and 23:00, the block alone at
+// 16:30, and the demo area's ground at the camp stop, at the cliff's foot close up and near the person stop at
 // 16:30, drawn with time frozen at the phone's own size (270 x 601 art pixels at 4 device pixels each), one pixel
 // an art pixel, and compared exactly with tests/golden/<name>-<hhmm>.png, stored for the session's Chromium. A
 // missing golden is written and reported, so a new one is looked at before it is committed.
@@ -15,6 +16,9 @@ const HOUR = { '0630': 0, '1200': 2, '1630': 4, '1830': 6, '2300': 7 };
 const CASES = [
   ['light-card', ['0630', '1200', '1630', '1830', '2300']],
   ['block', ['1630']],
+  ['valley-camp', ['1630']],
+  ['valley-close', ['1630']],
+  ['valley-near', ['1630']],
 ];
 
 let failed = 0;
