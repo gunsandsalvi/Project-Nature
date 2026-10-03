@@ -13,6 +13,10 @@ use crate::RenderError;
 pub mod unit {
     /// The art target, read by the upscale pass.
     pub const ART: u32 = 0;
+    /// The palette row, 256 × 1 RGBA8 (A11.3).
+    pub const PALETTE: u32 = 1;
+    /// The tables, 256 × 16 R8 (A11.3).
+    pub const TABLES: u32 = 2;
 }
 
 /// The texture formats the renderer uses (A11.13 rule 3).
@@ -124,6 +128,37 @@ impl Texture {
             gl.active_texture(glow::TEXTURE0 + unit);
             gl.bind_texture(glow::TEXTURE_2D, Some(self.handle));
         }
+    }
+
+    /// Replaces every texel with `data`, exactly w × h × bytes.
+    pub fn update(&self, gl: &glow::Context, data: &[u8]) -> Result<(), RenderError> {
+        if data.len() != self.w as usize * self.h as usize * self.format.bytes() {
+            return Err(RenderError::Gl(format!(
+                "texture update of {} bytes for {} x {} {:?}",
+                data.len(),
+                self.w,
+                self.h,
+                self.format
+            )));
+        }
+        // SAFETY: plain GL calls on the current context; `data` was checked to hold exactly the texels named.
+        unsafe {
+            gl.bind_texture(glow::TEXTURE_2D, Some(self.handle));
+            gl.pixel_store_i32(glow::UNPACK_ALIGNMENT, 1);
+            gl.tex_sub_image_2d(
+                glow::TEXTURE_2D,
+                0,
+                0,
+                0,
+                self.w as i32,
+                self.h as i32,
+                self.format.format(),
+                self.format.channel_type(),
+                glow::PixelUnpackData::Slice(Some(data)),
+            );
+            gl.bind_texture(glow::TEXTURE_2D, None);
+        }
+        Ok(())
     }
 
     pub fn delete(self, gl: &glow::Context) {

@@ -9,7 +9,7 @@ The air of a fine summer day.
 
 - **Rayleigh scattering** by the air itself takes 0.041, 0.097 and 0.243 of red, green and blue light straight down through the whole atmosphere: the blue of the sky and the red of the low sun.
 - **Turbidity** 0.08 is the haze aerosol's depth at 1 µm, falling as wavelength to the power −1.3 (Ångström's law): 0.04 is a clear day after rain, 0.12 a hazy one. The owner chose 0.08 on 3 October 2026 from an example picture, since the clear 0.04 made shade too dark and too blue.
-- **Ozone**'s Chappuis band takes 0.020, 0.027 and 0.002: little, but enough to keep twilight blue.
+- **Ozone**'s Chappuis band takes 0.031, 0.027 and 0.002, each averaged over its channel's band: little, but enough to keep twilight blue. The red channel's band reaches the Chappuis peak near 600 nm, so it loses more than its 680 nm alone would give (0.020, which left twilight purple; tuned at α01a, `data/TUNING-LOG.md`).
 - **The sky's light** on level ground is half of what Rayleigh scattering takes from the beam, which scatters evenly, and 0.7 of what the aerosol takes, which scatters mostly forward, times the sun's height's sine; and as the sun sets the sky still lights the ground, at 0.04 of that scattering, fading over the last 3° above the horizon: at sunset the sky gives about 400 lux, half a percent of noon's light.
 - **Twilight** lasts until the sun is 12° below the horizon, its light falling by e every 1.2° (about 400 lux at sunset, 3 at −6°), and turning blue as it crosses more of the ozone layer, 10 more air masses for each degree below the horizon.
 - **Night:** the full moon gives about 0.25 lux against the sun's 100,000, so it is 400,000 times weaker, its light white tinged blue (0.85, 0.9, 1.0); starlight and the night sky's glow add a hundred-millionth of noon's light.
@@ -24,7 +24,7 @@ The air of a fine summer day.
 | Channels | 680, 550 and 440 nm |
 | Rayleigh depths | 0.041, 0.097, 0.243 |
 | Aerosol | turbidity 0.08, exponent 1.3 |
-| Ozone depths | 0.02, 0.027, 0.002 |
+| Ozone depths | 0.031, 0.027, 0.002 |
 | Sky light | Rayleigh's share 0.5, the aerosol's 0.7; at sunset 0.04, fading over 3° |
 | Twilight, night | to -12°, e every 1.2°, ozone 10 air masses a degree; moon 1/400000, tint 0.85, 0.9, 1; starlight 0.00000001 |
 | Exposure, rods | scale 2, power 0.85; colour fades from 0.0001 to 0.0000001 of noon |
@@ -40,7 +40,7 @@ wavelengths_nm = [680.0, 550.0, 440.0]
 rayleigh = [0.041, 0.097, 0.243]
 turbidity = 0.08
 aerosol_exponent = 1.3
-ozone = [0.020, 0.027, 0.002]
+ozone = [0.031, 0.027, 0.002]
 sky_rayleigh_share = 0.5
 sky_aerosol_share = 0.7
 horizon_sky = 0.04

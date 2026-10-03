@@ -3357,7 +3357,7 @@ First needed: `MIL-01`.
 - **Sun and moon** come from `kd_core::sky::sun_moon(game_time, lat, lon, &sky) -> SkyState` (sun and moon directions, the moon's phase; `sky` the world's tilt and moon cycles, A3.7), the one sun-and-moon function, which A5's weather and A9's calendars share (`WLD-07`); until the clock arrives (`MIL-01`'s time alpha), the app sets the hour.
 - **The air model** (`kd-render`'s `light` module), from the sun's height `h`, per colour channel at 680, 550 and 440 nm:
   - the air mass `m(h)` by Kasten and Young's formula (1 overhead, 37.9 at the horizon);
-  - zenith optical depths: Rayleigh scattering 0.041, 0.097 and 0.243; the haze aerosol `β λ^−1.3` with `β` the air's turbidity (0.04 clear, 0.12 hazy; from weather when it comes, `WLD-16`), 0.066, 0.087 and 0.116 when clear; ozone's Chappuis band 0.020, 0.027 and 0.002;
+  - zenith optical depths: Rayleigh scattering 0.041, 0.097 and 0.243; the haze aerosol `β λ^−1.3` with `β` the air's turbidity (0.04 clear, 0.12 hazy; from weather when it comes, `WLD-16`), 0.066, 0.087 and 0.116 when clear; ozone's Chappuis band 0.031, 0.027 and 0.002, each averaged over its channel's band (tuned at α01a: red at 680 nm alone, 0.020, left twilight purple);
   - the **sun's light** facing it: `exp(−m τ)` of the sun's white: near white at noon, golden at 15°, red near the horizon;
   - the **sky's light** on level ground: `sin h` × (half of what Rayleigh scattering takes from the beam, and 0.7 of what the aerosol takes), blue by day and paler and brighter round a low sun;
   - **twilight**, from the horizon to −12°: no sun; the sky's light falls by `e` every 1.2° and turns toward blue (ozone);

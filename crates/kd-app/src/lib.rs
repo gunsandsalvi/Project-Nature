@@ -165,7 +165,12 @@ impl App {
         if !selfcheck::gl_version_ok(&info) {
             self.check_failed(format!("GL version: {info}"));
         }
-        self.renderer = match Renderer::new(gl) {
+        let Some(cat) = self.catalogue.as_ref() else {
+            // The catalogue failed its checks, which the self-check already reports: nothing to draw with.
+            self.finish_check();
+            return;
+        };
+        self.renderer = match Renderer::new(gl, cat) {
             Ok(mut r) => {
                 if let Some([w, h]) = self.size
                     && let Err(e) = r.resize(w, h, ART_SCALE)

@@ -6,15 +6,22 @@
 //! Implements PRE-22 and PLT-01, see A11.2 and A11.13: an art pixel exactly 4 × 4 screen pixels, drawn with OpenGL
 //! ES 3.0 on the phone.
 
+pub mod frame;
 pub mod gl;
 pub mod light;
+pub mod looks;
 pub mod passes;
 pub mod shaders;
 
 use std::fmt;
 
+use kd_data::Catalogue;
 use passes::scene::{ArtView, ScenePass};
 use passes::upscale::UpscalePass;
+
+use frame::Lighting;
+use gl::{Format, Texture};
+use looks::{Layout, PALETTE_SIZE, Palette, TABLE_ROWS};
 
 /// Screen pixels an art pixel on the phone, device pixels on the web (A11.2, `PRE-22`).
 pub const ART_SCALE: u32 = 4;
@@ -68,16 +75,25 @@ pub struct Renderer {
     scene: ScenePass,
     upscale: UpscalePass,
     view: Option<ArtView>,
+    cat: Catalogue,
+    layout: Layout,
+    /// The light and palette of the last frame (A11.13 rule 4), none before the first.
+    lighting: Option<Lighting>,
+    palette_tex: Texture,
+    tables_tex: Texture,
 }
 
 impl Renderer {
-    /// Builds every program and the shared vertex array; a shader that fails names itself and the driver's log,
-    /// which the self-check reports (A15.4).
-    pub fn new(gl: glow::Context) -> Result<Renderer, RenderError> {
+    /// Builds every program, the shared vertex array and the palette's textures from the catalogue; a shader that
+    /// fails names itself and the driver's log, which the self-check reports (A15.4).
+    pub fn new(gl: glow::Context, cat: &Catalogue) -> Result<Renderer, RenderError> {
         let info = gl::info(&gl);
+        let layout = Layout::new(cat).map_err(RenderError::Gl)?;
         let vao = gl::empty_vertex_array(&gl)?;
         let scene = ScenePass::new(&gl)?;
         let upscale = UpscalePass::new(&gl)?;
+        let palette_tex = Texture::new(&gl, Format::Rgba8, PALETTE_SIZE as u32, 1, None)?;
+        let tables_tex = Texture::new(&gl, Format::R8, PALETTE_SIZE as u32, TABLE_ROWS as u32, None)?;
         Ok(Renderer {
             gl,
             info,
@@ -85,7 +101,38 @@ impl Renderer {
             scene,
             upscale,
             view: None,
+            cat: cat.clone(),
+            layout,
+            lighting: None,
+            palette_tex,
+            tables_tex,
         })
+    }
+
+    /// The frame's light and palette, uploading the palette's textures when its row or tables changed (A11.3).
+    fn light_frame(&mut self, f: &Frame) {
+        let upload = match &mut self.lighting {
+            Some(l) => l.follow(&self.cat, &self.layout, &f.sky),
+            None => {
+                self.lighting = Some(Lighting::new(&self.cat, &self.layout, &f.sky));
+                true
+            }
+        };
+        if let (true, Some(l)) = (upload, &self.lighting) {
+            for (tex, bytes) in [
+                (&self.palette_tex, l.palette.texture_bytes()),
+                (&self.tables_tex, l.palette.table_bytes()),
+            ] {
+                if let Err(e) = tex.update(&self.gl, &bytes) {
+                    log::error!(target: "kd::render", "palette upload: {e}");
+                }
+            }
+        }
+    }
+
+    /// The palette in use, for the test hooks (A11.13's `probe`).
+    pub fn palette(&self) -> Option<&Palette> {
+        self.lighting.as_ref().map(|l| &l.palette)
     }
 
     /// `GL_RENDERER | GL_VERSION`.
@@ -109,6 +156,7 @@ impl Renderer {
         let Some(view) = self.view else {
             return FrameStats::default();
         };
+        self.light_frame(f);
         let bar_x = (f.count % u64::from(view.visible[0].max(1))) as i32;
         let core = match f.core_bits {
             None => 0,
