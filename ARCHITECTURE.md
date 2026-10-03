@@ -14,6 +14,7 @@ A **Decision:** line marks a choice this document makes where the plan leaves ro
 - The technology in A1.3 is approved under the owner's grant of full autonomy on 1 October 2026, and stays open to the owner's overrule (`PRC-03`).
 - Owner decisions folded in: Revelation (`GOD-13`); the stage speed budgets of `PLT-04`; simple burial (`SCP-21`, `MAT-08`); saves every 10 real minutes in overnight mode (`PLT-07`).
 - From now on it changes only through the implementation: an alpha that finds a part unworkable writes a **Conflict:** note in its section of `IMPLEMENTATION.md` and changes this file in the same branch, naming the section.
+- On 3 October 2026 the owner asked for the renderer to be designed anew, lit like Minecraft's Vibrant Visuals (A11, `PRE-30`), and for the codebase to be deleted and rebuilt from scratch; A11.13 says how the renderer's code is organised.
 
 ## Contents
 
@@ -364,7 +365,7 @@ impl App {                                           // Send, not Sync: owned by
 ### A2.5 The Android shell
 
 **Files** (package `dev.kindling.app`; about 700 lines of Kotlin):
-- Gradle files as in the B78 template (A2.9): `compileSdk 36`, `minSdk 31`, `targetSdk 36`, `ndkVersion "30.0.16248370"`, `abiFilters arm64-v8a`, `packaging.jniLibs.useLegacyPackaging = false`, R8 in release, `android.useAndroidX=true` (ML Kit needs it), and an `Exec` task before `preBuild` running `cargo ndk -t arm64-v8a -P 31 -o build/rustJniLibs build --release -p kd-android`.
+- Gradle files (B78 built this set from the cloud): `compileSdk 36`, `minSdk 31`, `targetSdk 36`, `ndkVersion "30.0.16248370"`, `abiFilters arm64-v8a`, `packaging.jniLibs.useLegacyPackaging = false`, R8 in release, `android.useAndroidX=true` (ML Kit needs it), and an `Exec` task before `preBuild` running `cargo ndk -t arm64-v8a -P 31 -o build/rustJniLibs build --release -p kd-android`.
 - `MainActivity.kt`: lifecycle, immersive full screen, insets, Back, keep-screen-on, brightness.
 - `GameView.kt`: a `GLSurfaceView` (ES 3.0, RGBA 8888, no depth, stencil or multisampling on the window, since 3D passes draw into A11's art-resolution targets; `preserveEGLContextOnPause`; continuous rendering unless `Request::RenderMode` asks for on-demand, A11.11) that queues touches and requests 120 Hz with `setFrameRate(120f, FRAME_RATE_COMPATIBILITY_DEFAULT, CHANGE_FRAME_RATE_ALWAYS)` (B79).
 - `Native.kt`: the functions below.
@@ -405,7 +406,7 @@ Rust never calls Java: its requests wait in an outbox Kotlin polls each frame (`
 
 **Lifecycle:** rotation never restarts the activity, only `glResized` follows; `onPause` is queued before `GameView.onPause()`, which returns only after the GL thread has run it; a process killed mid-save keeps its previous save, and the next `create` opens it and runs forward to the end of the journal (`PLT-07`, A14); nothing runs in the background (`TIM-05`).
 **Signing** (A15.5): one key, derived from the passphrase secret with scrypt; a later change rotates it with APK Signature Scheme v3, with no reinstall.
-**Checks:** `tools/verify-apk.sh` (from the second test app) confirms a v3 signature, 16 KB alignment of zip entries and native segments, arm64 only, uncompressed native libraries, kept JNI names and the exact permission set above.
+**Checks:** `tools/verify-apk.sh` confirms a v3 signature, 16 KB alignment of zip entries and native segments, arm64 only, uncompressed native libraries, kept JNI names and the exact permission set above.
 
 ### A2.6 The web shell
 
@@ -599,7 +600,7 @@ Why: the fastest generator that passed every test, with plain wyhash's flaw remo
 - A draw about two beings keys on the actor; where the other must count, the subject is `num::hash2(actor, other)`, registered as a pair purpose.
 - The front end never uses world streams: stable looks (`PRE-43`) come from `num::hash2(uid, salt)`, sound variation (`SND-06`) from a local generator in `kd-audio`.
 
-**Tested by:** B02's known answers and 10,000 stored draws, equal on all targets; one million units in 64 bins (chi-square, p > 0.001) along moments and along neighbouring subjects; the registry test; fortune over one million rolls within 0.003 of 0.19 and 0.055 at p = 0.1.
+**Tested by:** known answers of the functions above and 10,000 stored draws, equal on all targets; one million units in 64 bins (chi-square, p > 0.001) along moments and along neighbouring subjects; the registry test; fortune over one million rolls within 0.003 of 0.19 and 0.055 at p = 0.1.
 **First needed:** `MIL-01`; purposes grow with each system.
 
 ### A3.4 Identity and entity stores
@@ -686,7 +687,7 @@ data/INDEX.md              generated index of all entries
 data/items/<class>.md      items (A6.2)
 data/blueprints/<sector>.md  blueprints (A6.7)
 data/plants/  animals/  illnesses/  culture/  sounds/  models/
-data/palette/              colours, ladders, light tables and palette versions (A11.3)
+data/palette/              fixed colours, looks and the air (A11.3, A11.4)
 data/tuning/<system>.md    tuned numbers (PRN-17)
 data/TUNING-LOG.md         each tuned value, what it was tuned against, the tuning seeds (RES-16)
 data/writer/               voice instructions (PRE-19)
@@ -1458,7 +1459,7 @@ An area is 256 m square with detail to the metre (`WLD-12`): heights at 257 × 2
 An area is `f(seed, generator version, catalogue, its cell's and the 4 × 4 nearest cells' fixed layers and state, date)`, plus its record if kept (A5.4); unchanged, it is exactly that and runs no rules (`WLD-13`).
 It is made in parts, each a pure function:
 
-1. **Skeleton:** what crosses it: rivers (each river cell's fixed entry and exit points) and streams (a crossing on the edge toward the `flow` neighbour, keyed on the pair of cells, so both sides agree), joined by a keyed meander about 10 widths long; lake and sea shores; the escarpment (B11's noisy edge line) with gaps, at least one a cell at its lowest point (A5.12); caves from the cave record; springs; exposures (banks, scree, cliff foot).
+1. **Skeleton:** what crosses it: rivers (each river cell's fixed entry and exit points) and streams (a crossing on the edge toward the `flow` neighbour, keyed on the pair of cells, so both sides agree), joined by a keyed meander about 10 widths long; lake and sea shores; the escarpment (its edge a line wandering by 4 octaves of the relief noise, below) with gaps, at least one a cell at its lowest point (A5.12); caves from the cave record; springs; exposures (banks, scree, cliff foot).
 2. **Ground:** bicubic blend of the cells' heights + detail (7 octaves of periodic gradient noise, 256 m down to 4 m, each half the last's height) scaled by `rough` + the escarpment step + river beds + the record's pits, heaps and plots, rounded to decimetres; material from the rock layer at that height, soil by slope, sand, gravel and silt by water, scree under cliffs.
 3. **3D pieces**, in buckets the skeleton marks: solid rock except soft layers cut back up to 6 m under a hard cap (overhangs and shelters, as B11 made them) and caves of 2–6 ellipsoid chambers joined by passages, sized by the cave record; the chambers' volume and surface give A13.8 its cave echo.
    **Decision:** sized chambers, not B11's crossing-noise caves, so each band finds a cave big enough (`WLD-24`; fallback: B11's caves where two noise surfaces cross, kept when big enough); a piece stores each column's air gaps (pairs of `u16` decimetres), under 1 KB, not B11's 4 KB cube blocks (fallback: cube blocks).
@@ -1468,6 +1469,7 @@ It is made in parts, each a pure function:
    Stone patches likewise, from deposits showing in banks, scree and cliffs, river gravel and bare rock; deeper deposits are found only by digging (`MAT-06`), from the rock layer and deposit at that depth.
 5. **Water and snow now:** from the stretch's or stream's flow or the lake's level, and the cell's snow.
 
+**The relief noise** (`kd_world::area::relief`, for the ground's detail and the escarpment's line): gradient noise on a square lattice, each lattice point's gradient one of 8 directions chosen by `relief::key(seed, i, j)`, the low bits of `num::hash2(seed, (i << 32) | j)` (A3.2), blended by the quintic fade 6t⁵ − 15t⁴ + 10t³ so heights and slopes are smooth; `relief::fbm` sums octaves, each half the last's period and height, scaled to ±1; lattice indices wrap at the world's size, so the noise runs on unbroken round the torus (A3.7); plain `f32` arithmetic only (A3.2), so every target makes the same ground.
 **Seams:** neighbouring areas share edge points, which are the same world points, so heights agree exactly; rivers, streams and cliffs follow lines fixed per cell, so they run on unbroken (`PRE-26`).
 **Identity:** seed contents have no store entries; each spot or patch is a place uid (area index 25 bits, spot 16 bits; A3.4), the subject of draws about it.
 Taken, cut, dug or planted, it becomes a thing or plant with a new uid, its size and quality drawn with the spot's uid, the same whoever takes it (`MAT-20`).
@@ -1493,7 +1495,7 @@ pub fn sight_blocked(l: &WorldLayers, from: Pos, to: Pos) -> bool;      // beyon
 A6.5's `topple_check(area)` runs in the owning cluster at the second of a timed gust over about 15 m/s or of a quake's shaking (A5.1, A5.8).
 
 **Costs** (held middle core): skeleton ≤ 0.2 ms, 1–4 KB; bucket contents ≤ 10 µs, about 0.5 KB, the day's part ≤ 0.5 µs a read; a point read ≤ 1 µs, ≤ 5 µs in a cave or under an overhang; making areas in all about 0.1 ms a person a game day (A16.3).
-**Tested by:** an unchanged area made, dropped and remade on any day is identical; it holds its cell's species in about their shares (`WLD-31`); held parts equal fresh ones after random state changes; edge heights match exactly, and rivers and streams run unbroken through 1,000 areas; no area over 5,000 single plants; B11's detail hash `5e3b0c482d789a49` from the ported code first (A2.9).
+**Tested by:** an unchanged area made, dropped and remade on any day is identical; it holds its cell's species in about their shares (`WLD-31`); held parts equal fresh ones after random state changes; edge heights match exactly, and rivers and streams run unbroken through 1,000 areas; no area over 5,000 single plants; the relief noise periodic on its lattice, each octave within ±1, and a fixed patch's heights hashing the same on all three targets.
 **First needed:** `MIL-01`.
 
 ### A5.4 Kept areas
@@ -3253,7 +3255,7 @@ The director has no later "full" form: its kinds of moment grow with each stage 
 
 ## A11. Drawing
 
-What it covers: the renderer (`kd-render`): passes and targets, palette, light and seasons, the ground at each zoom stop, water, the model kit, figures and herds, what the simulation hands over, the crawling-pixel slot, budgets and tests.
+What it covers: the renderer (`kd-render`): passes and targets, palette, light and seasons, the ground at each zoom stop, water, the model kit, figures and herds, what the simulation hands over, the crawling-pixel slot, budgets, tests, and how its code is organised.
 Serves: `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-25`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-29`, `PRE-30`, `PRE-31`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `WLD-02`, `WLD-07`, `WLD-13`, `TIM-10`, `VIS-14`, `PLT-02`, `PLT-04`.
 
 ### A11.1 The renderer at a glance
@@ -3613,9 +3615,44 @@ First needed: `MIL-01`.
 
 - **CPU tests**, no GPU: snapping and pitch, the light model, palette steps and tables, the light fields against brute-force marches, the mesh's morph, meshers, layouts, poses and variants, `loop_phase`, icons, decals, pick tables.
 - **Golden scenes** in headless Chromium (Playwright with SwiftShader, as B66): at `?test=1`, `window.kd` (A12.4) loads fixed scenes (a palette card per row, the valley at several hours, a cliff with a cave, a turning figure, a ford, the model sheet), compared exactly with stored PNGs for that Chromium version.
-- **Steadiness counts** (A11.1's rules), every alpha, with B66's crawl counter (A11.10): a pan changes no pixel but by whole-pixel moves; a slow turn and a slow zoom at the camp and close camp stops change at most the share of art pixels the alpha's note records, and never more than the previous alpha's by over a tenth without a note; each zoom step of 1% keeps every art pixel's look and step except along boundaries the resampled grid crosses.
+- **Steadiness counts** (A11.1's rules), every alpha, with the crawl counter (A11.10) and `tools/screens/zoomstrip.mjs`, which counts the art pixels each 1% zoom step changes: a pan changes no pixel but by whole-pixel moves; a slow turn and a slow zoom at the camp and close camp stops change at most the share of art pixels the alpha's note records, and never more than the previous alpha's by over a tenth without a note; each zoom step of 1% keeps every art pixel's look and step except along boundaries the resampled grid crosses.
 - **Screenshot set** (A15.11): each stop at dawn, noon, dusk and night, portrait and landscape, from the review worlds, every alpha, flagging shots over 5% changed; the owner's contact sheet (`PRE-31`) takes its shots from this set, plus the model sheet and three clips of people at work (30 frames at 10 a second).
 
+First needed: `MIL-01`.
+
+### A11.13 The renderer's code
+
+How `kd-render` is organised, so that each part is written once, from this chapter's reasoning, and tested without a GPU wherever it can be.
+The codebase was deleted on 3 October 2026 at the owner's instruction and is rebuilt to this design from an empty crate.
+
+**Rules for the code:**
+1. **Decide on the CPU, interpolate on the GPU.** Everything chosen per frame (camera, light, palette row, step thresholds, tables, haze colour) or per area (heights, fields, coverage, the cover's instances) is a pure Rust function of its inputs, with no GL, unit-tested; shaders only sample, interpolate and compare per pixel.
+2. **Every per-pixel formula has a twin.** The few that shaders compute (the sky and sun factors, the light's lightness and its step, the band's dither, the haze level, the coverage vote, the outline's plane test) are written in GLSL and again in Rust in `pixel`, under the same names and with the same constants; tests use the twins, and the **probe scene** renders fixed inputs into a small target whose read-back indices must equal the twins' exactly (headless Chromium every alpha; the phone in its self-check).
+3. **One thin GL layer.** Only the `gl` module calls `glow`: typed programs (uniform locations looked up once at link; texture units from one table), 2D textures in the formats used (`RGBA8`, `R8`, `R32F`, `RG32F`; float textures nearest-sampled, since WebGL2 cannot filter them, so shaders interpolate themselves), targets with their attachments, meshes with declared layouts, and the pipeline state each pass sets in full rather than inherits.
+4. **No hidden state between frames** but what this chapter names: the camera's block and origin, the light's last row, each area's field versions; every cache is keyed by all its inputs, so a hit equals a recompute.
+5. **GPU resources are disposable.** The CPU side keeps every loaded area's heights, fields, coverage and cover lists, so after a lost context `gl_ready` rebuilds the GPU side from them alone.
+6. **Numbers live once.** Shader constants (categories, texture units, palette size, table rows) are generated as `#define` lines from the Rust constants; tuned numbers come from the catalogue (`data/palette/`, `data/tuning/render.md`), never from either code.
+
+| Module | Owns | GL |
+|---|---|---|
+| `camera` | `texel(zoom)`, the pitch, the view: orientation, snapping, blocks, floating origin, projection and depth range (A11.2) | no |
+| `light` | the air model: sun and sky light, twilight, night, exposure, grade, tone, the haze colour (A11.4) | no |
+| `looks` | the palette row from the looks under the light, the step thresholds, the tables (A11.3) | no |
+| `field` | an area's sun and sky fields (A11.5) | no |
+| `pixel` | the Rust twins of the shaders' per-pixel formulas (rule 2) | no |
+| `ground` | the CPU store of loaded areas (heights, fields, coverage, cover lists), their textures, the morphing patch, the ground's draw (A11.5) | yes |
+| `passes` | the scene, post, crawl slot, upscale and UI passes, each a struct holding its program and targets (A11.2, A11.10, A12.1) | yes |
+| `frame` | one frame's plan from its inputs (camera, light, row, field jobs, the frame's uniform block), then the passes in A11.2's order | both |
+| `gl` | the GL layer (rule 3) | yes |
+| `probe` | test hooks: the palette row, captures for the crawl counter (A11.10), the probe scene | yes |
+| `shaders/` | `lib.glsl` (shared: categories, packing, Bayer, steps, haze levels) and one file per program | GPU |
+
+**A frame:** `frame::plan` runs on the CPU first: the camera from the pose (A11.2); the light at the displayed time, kept while the sun moves under 0.01°; the palette row and tables when one of the row's colours would move by a whole 1/255 (A11.3); field jobs for the areas whose sun field is older than 0.1° of sun; the frame's values in one `std140` uniform block.
+Then uploads (at most 0.2 ms a frame, A11.1), then the passes: scene (ground, then things), post, crawl slot, upscale, UI.
+
+**What it reads:** the frame (A11.1), the snapshot (A11.9), areas from `kd-app`'s builders (A11.5), and from the catalogue the fixed colours (kind `Colour`, `data/palette/colours.md`), the looks (`Look`, `data/palette/looks.md`), the air's numbers (`Air`, `data/palette/light.md`) and the surfaces (`Surface`, `data/models/surfaces.md`).
+
+**Tested by:** CPU tests of `camera`, `light`, `looks`, `field`, `pixel` and the patch's morph; the probe scene; the golden scenes and steadiness counts (A11.12).
 First needed: `MIL-01`.
 
 ## A12. Screens, views and text
