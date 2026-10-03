@@ -59,9 +59,9 @@ This section is *Decided* as a whole, and changes only with your OK (`PRC-07`).
 | *Decided* | Agreed with you. |
 | *Proposed* | Suggested, for you to confirm, change or drop (`PRC-07`); listed in the Not yet decided section. |
 | *To test* | Settled by measurement, not opinion; the result is written into the item, which becomes *Decided* at a stage review with your OK. |
-| *Dropped* | No longer planned; kept for the record with a "Dropped because:" line. |
 
 Every item, moments, milestones and risks included, carries exactly one of these in its marker.
+An item no longer planned is removed, and its ID retired (IDs and links, rule 3).
 
 ### Kinds of item
 
@@ -111,8 +111,8 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 2. IDs are never renumbered or reused.
    A new item takes the next free number in its area, wherever it sits in the text.
    A new ID becomes permanent only when it reaches the main version; until then, a branch whose number is taken renumbers its own new items.
-3. Items are never deleted.
-   A cut item becomes *Dropped*, with a "Dropped because:" line, and no live item points to it.
+3. A cut item is removed, and its ID is retired: never reused, and cited nowhere.
+   Retired IDs: `BIO-07`, `CUL-04`, `CUL-13`, `CUL-14`, `CUL-15`, `CUL-25`, `MAT-15`, `MND-17`, `MND-25`, `MOM-05`, `MOM-10`, `PRC-05`, `PRE-04`, `PRE-11`, `PRE-12`, `PRE-36`, `PRE-38`, `PRN-08`, `RCK-05`, `RCK-09`, `RCK-17`, `RCK-18`, `RCK-19`, `RCK-20`, `RES-04`, `RES-08`, `RES-11`, `RES-15`, `RES-20`, `RSK-10`, `RSK-12`, `RSK-13`, `RSK-16`, `RSK-17`, `RSK-20`, `RSK-22`, `SCP-13`, `SCP-14`, `SND-04`, `SND-05`, `SND-09`, `SND-10`, `TIM-06`, `TIM-13`, `VIS-13`, `WLD-05`, `WLD-19`, `WLD-20`, `WLD-21`, `WLD-23`, `WLD-25`, `WLD-29`.
 4. The implementation plan maps every feature and rule to a stage, and every task names the IDs it delivers, as the coverage check enforces (`PRC-12`).
 5. Code and tests name the IDs they implement, so any feature can be followed from this file to the plan to the code, and back.
 6. A new area gets a new three-letter code in the table below, and its own section or subsection.
@@ -160,9 +160,6 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 - `VIS-02` **The fantasy** *(Decided)*: You are a hidden god who acts only through nature: the weather, the luck and the dreams.
   - **What:** You can bring a storm, send lightning, hold back the rain, bless a hunter, or give someone a dream made of their own memories, but you can't speak, appear or work miracles.
   - **Why:** A god who can't command anyone leaves every achievement theirs, and the gods they come to believe in are their own explanations, sometimes of you.
-
-- `VIS-13` **Seven differences** *(Dropped)*
-  - **Dropped because:** it only repeated decisions made elsewhere (`VIS-06`).
 
 ### 1.2 What it feels like
 
@@ -239,8 +236,6 @@ Each item's detailed acceptance criteria are written in the implementation plan,
       1. The song gets the credit for the good hunt (`MND-05`); singing costs little, and hunts go well often enough that the belief survives and spreads (`CUL-01`).
       2. Held by most of the band, it becomes a rite (`CUL-34`), kept long after anyone remembers why (`CUL-06`).
     - **Check:** a band that hunts every few days and sometimes sings; within 20 years, singing before hunts becomes a rite and is kept for at least 10 of them; from `MIL-05`.
-  - `MOM-05` **Two tongues** *(Dropped)*
-    - **Dropped because:** each world now has one language that doesn't change over time (`CUL-17`), so peoples never drift apart in speech.
   - `MOM-06` **The camp wolf** *(Decided)*: The boldest wolves scavenge at the edge of camp.
     - **How it works:**
       1. Scraps draw the boldest wolves close, and wolves fed and not harmed lose their fear of people (`WLD-32`, `MND-16`); you can send one a dream of the scraps (`GOD-12`).
@@ -264,8 +259,6 @@ Each item's detailed acceptance criteria are written in the implementation plan,
       2. Generations later, a woman of another band digs a storage pit there and finds a needle; it gives her a weak hunch (`MND-11`), and her experience decides how soon she copies it (`MND-06`).
       3. The book of ages marks a rediscovery (`PRE-39`), and the craft spreads again (`CUL-01`).
     - **Check:** a band without needles stores food in a cave whose floor hides an old camp's eyed needles; within 10 years someone digs one up and makes a needle; from `MIL-04`.
-  - `MOM-10` **Two endings** *(Dropped)*
-    - **Dropped because:** rewinding and branching were cut in the realism pass: a world keeps only its present state and its chronicle (`PRN-15`).
   - `MOM-11` **Rivals, then in-laws** *(Decided)*: Two bands fight over a valley, then marry into each other.
     - **How it works:**
       1. Two bands of peoples long apart rely on one valley's game and nuts (`MND-28`); when they meet there, fear, anger and hunger can make a raid the better choice (`MND-09`, `CUL-31`).
@@ -413,9 +406,6 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   - **Why:** Replaying the past would need every old version of the rules kept forever, and saving what matters avoids that cost.
   - **Check:** every view of the past reads what was saved, and nothing re-runs the past.
 
-- `PRN-08` **Same seed, same history** *(Dropped)*
-  - **Dropped because:** history is now saved rather than re-run (`PRN-15`).
-
 - `PRN-11` **Time slows, the screen stays smooth** *(Decided)*
   - **What:** The screen never stutters.
     When the phone can't keep up, the world doesn't cut detail: time simply runs more slowly.
@@ -440,12 +430,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 ## 3. Scope and non-goals
 
-### 3.1 What the game includes
-
-- `SCP-13` **The whole game at a glance** *(Dropped)*
-  - **Dropped because:** it repeated the contents and the counts their own items hold (`MAT-10`, `MAT-23`, `WLD-31`, `WLD-32`, `BIO-05`).
-
-### 3.2 Where history starts
+### 3.1 Where history starts
 
 - `SCP-01` **Starting point** *(Decided)*: Modern minds with almost no culture.
   - **What:** Every world begins with 3–4 family bands, 45–120 people in all, in one start region, sharing one language (`BIO-03`, `CUL-17`).
@@ -453,10 +438,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
     This is the only starting point, chosen for play rather than taken from history: real early humans had more culture than this.
   - **Why:** Their minds are already modern, so the great early discoveries happen in play.
 
-- `SCP-14` **Other starting points later** *(Dropped)*
-  - **Dropped because:** every world starts the same way (`SCP-01`), which keeps the game smaller and its tests comparable.
-
-### 3.3 Who it's for
+### 3.2 Who it's for
 
 - `SCP-02` **Just you** *(Decided)*
   - **What:** Kindling is built for one person, on one phone:
@@ -466,7 +448,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
     - free to use your phone's own hardware (`PLT-01`).
   - **Check:** the builds hold no account, purchase, advertising or analytics code, and target only your phone (`PLT-01`).
 
-### 3.4 How it gets built
+### 3.3 How it gets built
 
 - `SCP-03` **Playable alphas** *(Decided)*: The game is built as a series of playable alphas, each a few hours of AI work, each ending with something you can install, open and play on your phone (`PRN-09`, `PRC-11`).
   Every alpha comes with its automated tests (`RES-01`).
@@ -496,7 +478,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   7. `MIL-07` **Herds, fields and villages** *(Decided)*: herding, farming, villages and copper; specialists, chiefs and priests; the full launch catalogue; every pace target met (`TIM-19`).
      *Now possible:* the whole arc, from caves to first copper, in a few hundred years, at a watchable speed.
 
-### 3.5 Non-goals
+### 3.4 Non-goals
 
 - `SCP-04` **No tech tree** *(Decided)*: Blueprints exist, but they are hidden and generic, found only in play, by accident, by experimenting, in dreams or by copying (`MND-11`), and never chosen from a menu or unlocked with points (`PRN-07`).
   People never choose from a list; the only list of blueprints is the one your Revelation picks from (`GOD-13`).
@@ -791,15 +773,9 @@ Time works one way for everything: activities that start and end on one world cl
 
 ### 5.5 Worlds and chance
 
-- `TIM-06` **Rewind and branch** *(Dropped)*
-  - **Dropped because:** saved history was cut in the realism pass: a world keeps only its present state and its chronicle (`PRN-15`).
-
 - `TIM-16` **Chance is local** *(Decided)*: Each chance event belongs to one being and one moment, so on the same version, the same saved state always gives the same result.
   - **How it works:** every chance draw depends only on its world, system, being, moment and purpose.
   - **Check:** the repeat check (`PRC-10`) and the phone and cloud match (`RES-05`).
-
-- `TIM-13` **Comparing timelines** *(Dropped)*
-  - **Dropped because:** branching was cut with saved history in the realism pass (`PRN-15`).
 
 - `TIM-08` **Saved worlds** *(Decided)*: Several worlds are kept on the phone, and you can switch between them.
   - **How it works:** each world keeps its seed and the version of its making rules and values (`WLD-08`) and what `PLT-10` lists; switching saves the current world and opens the other.
@@ -1052,29 +1028,6 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **How it works:** big events that touch people enter the book of ages (`PRE-05`).
   - **Check:** in each climate, each kind of event comes about as often per game year as on Earth per year (`WLD-30`), and every event traces back to its system.
 
-### 6.8 Cut from the world
-
-- `WLD-05` **Climate on a small world** *(Dropped)*
-  - **Dropped because:** merged into `WLD-16`.
-
-- `WLD-19` **Species from Earth families** *(Dropped)*
-  - **Dropped because:** merged into `WLD-31` and `WLD-32`.
-
-- `WLD-20` **Heredity in plants and animals** *(Dropped)*
-  - **Dropped because:** plants and animals don't evolve; taming takes its place (`WLD-33`).
-
-- `WLD-21` **Microbes** *(Dropped)*
-  - **Dropped because:** rot and fermenting are timers (`MAT-19`), and illness has its own rules (`BIO-05`).
-
-- `WLD-23` **Every habitat lived in** *(Dropped)*
-  - **Dropped because:** merged into `WLD-31`.
-
-- `WLD-25` **People change the climate** *(Dropped)*
-  - **Dropped because:** cut from the launch design (`SCP-21`).
-
-- `WLD-29` **Systems feed each other** *(Dropped)*
-  - **Dropped because:** it only summed up what `WLD-16`, `WLD-17`, `WLD-18` and `WLD-28` say.
-
 ## 7. Things and blueprints
 
 Everything people make on purpose is made by a blueprint; things also change by themselves, through fire, timers and the living world.
@@ -1281,9 +1234,6 @@ Discovery, practice and teaching are in Minds (`MND-06`, `MND-11`, `MND-13`).
 - `MAT-14` **Adding without rewriting** *(Decided)*: Adding an item, blueprint, plant, animal or illness never needs the others changed (`PRN-14`): a new item fits every blueprint whose ranges it meets.
   - **Check:** a made-up item added for testing works in every blueprint it fits, with no other entry changed.
 
-- `MAT-15` **Every addition proves itself** *(Dropped)*
-  - **Dropped because:** merged into `MAT-17` and `PRC-10`.
-
 - `MAT-16` **The catalogue grows by milestone** *(Decided)*: Each milestone adds only the entries its steps need (`SCP-16`), never rewriting earlier ones, and later layers grow the same way (`VIS-03`).
 
 - `MAT-17` **How the catalogue checks work** *(Decided)*: Automated checks keep the catalogues complete and believable; each new or changed entry comes with its own checks, and no change joins the main version unless all pass (`PRC-10`).
@@ -1317,9 +1267,6 @@ Checks that need chance use trials of 200 tries a level (`RES-24`), at level 10 
 
 - `RCK-03` **Cooking helps** *(Decided)*: Cooked meat, roots and grain nourish more than raw, and cooking lowers some poisons.
   - **Check:** every cooked meat, root and grain has food a step above raw, and no more poison.
-
-- `RCK-09` **Rot** *(Dropped)*
-  - **Dropped because:** rotting is a timer (`MAT-19`), whose times and frozen rule its Done when checks.
 
 - `RCK-14` **Keeping food** *(Decided)*: Dried or smoked meat and fish keep about 15 days in summer and through the winter in the cold, and dry grain and nuts a year in a dry store.
   - **Check:** dried and smoked meat keeps at least 5 times as long as fresh, and stored dry grain and nuts a year (`MAT-19`).
@@ -1366,21 +1313,6 @@ Checks that need chance use trials of 200 tries a level (`RES-24`), at level 10 
 
 - `RCK-24` **Young animals grow tame** *(Decided)*: Young animals raised and fed by people grow tame; adults rarely do.
   - **Check:** in a scene, wolf pups fed daily from their first days reach tameness 5 within a season (`WLD-33`), while grown wolves fed for a season stay at 2 or below in at least 15 of 20 runs.
-
-- `RCK-05` **Lime** *(Dropped)*
-  - **Dropped because:** no step of the arc needs lime.
-
-- `RCK-17` **Bronze** *(Dropped)*
-  - **Dropped because:** beyond the launch arc (`VIS-03`).
-
-- `RCK-18` **Iron** *(Dropped)*
-  - **Dropped because:** beyond the launch arc (`VIS-03`).
-
-- `RCK-19` **Mortar** *(Dropped)*
-  - **Dropped because:** beyond the launch arc (`VIS-03`).
-
-- `RCK-20` **Glass** *(Dropped)*
-  - **Dropped because:** beyond the launch arc (`VIS-03`).
 
 ## 8. People: bodies and lives
 
@@ -1529,7 +1461,7 @@ Shares in Done when lines are judged as `RES-13` sets out.
   - **How it works:**
     - **Limits:** a person dies only when the body passes one: condition, water or blood running out (`BIO-09`, `BIO-13`), freezing or heatstroke (`BIO-11`), a head or torso at 0 (`BIO-13`), a deadly illness or poison (`BIO-05`, `BIO-12`), too long under water (`BIO-21`), or an old body giving out (`BIO-16`).
     - **The record:** each death keeps its cause and how it came about, such as "bleeding, from a boar's tusk, while hunting" (`PRE-05`).
-  - **Check:** every death in test runs and overnight worlds names its cause and how it came about.
+  - **Check:** every death in test runs and whole-world runs names its cause and how it came about.
 
 ### 8.4 A life
 
@@ -1609,9 +1541,6 @@ Shares in Done when lines are judged as `RES-13` sets out.
       Children inherit their parents' inborn values, never what hunger or illness made of them.
   - **Done when:** in whole worlds run to Year 500, the average and spread of every inherited body number and personality trait stay within about 5% of the start, and children resemble their parents.
 
-- `BIO-07` **Evolution dial** *(Dropped)*
-  - **Dropped because:** nothing evolves (`BIO-06`), and play has no rule-bending settings (`PRN-12`).
-
 - `BIO-22` **Looks** *(Decided)*: Skin, hair, eyes and faces are inherited, so children look like a mix of their parents, and no people looks like a copy of a real one (`SCP-20`).
   - **How it works:**
     - **Two copies:** each person carries two values for each feature (skin tone, hair colour, hair form, eye colour and face shape), one from each parent, shows a blend of them, and passes one, by chance, to each child.
@@ -1641,9 +1570,6 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 - `MND-02` **Knowledge only from inside the world** *(Decided)*: A mind knows only its starting knowledge (`BIO-20`) and what it has since seen, done, been told or dreamt (`PRN-01`), and its choices use only that, never the catalogues.
   - **Check:** every scene's check of `RES-21` passes, and kept reasons name only what the person knows (`MND-09`).
-
-- `MND-17` **Why ordinary minds are enough** *(Dropped)*
-  - **Dropped because:** its point is made by `MND-11` and `CUL-01`.
 
 ### 9.2 Needs and personality
 
@@ -1880,9 +1806,6 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Budget:** a whole person, body, mind and talk, with their share of the animals near people (each about a twentieth of a person or less), uses about a thousandth of a second per game day (`PLT-01`), or less, so 1,000 people take about one core-second per game day, spread over the middle cores.
   - **Check:** the phone benchmark reports each mind part's share of the time in a camp of 30 and a village of 300, and a villager costs at most about twice a camper.
 
-- `MND-25` **Minds hold records, not sentences** *(Dropped)*
-  - **Dropped because:** merged into `MND-01`.
-
 ### 9.10 Animals
 
 - `MND-16` **Animal minds** *(Decided)*: Simpler minds: needs, fear, herd ways, learned fear of people, and taming (`WLD-33`); near people each big animal has its own, and the rest are counts (`WLD-32`).
@@ -1945,9 +1868,6 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Done when:** a band's tallies and marks stay where it left them (`PRE-09`), and another people that finds them gains no belief or place from them.
 
 ### 10.3 Language
-
-- `CUL-04` **Language emerges** *(Dropped)*
-  - **Dropped because:** each world now has one language from the start, which never changes (`CUL-17`).
 
 - `CUL-17` **A language from the start** *(Decided)*: Each world has one language, made with the world, spoken by all its peoples, and never changing.
   - **How it works:** its sounds are drawn from the murmur's syllable bank (`SND-03`), with rules for joining them into words and a few hundred everyday words; it copies no real language (`SCP-20`).
@@ -2100,9 +2020,6 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 ### 10.6 Expression
 
-- `CUL-25` **Expression is real** *(Dropped)*
-  - **Dropped because:** works are things (`MAT-10`) and songs and myths memories (`MND-18`), each keeping its maker and subject (`CUL-09`, `PRE-15`).
-
 - `CUL-09` **Visual art** *(Decided)*: Paintings and carvings composed from motifs drawn from the model kit (`PRE-46`) in each people's style, most often showing real events.
   - **How it works:**
     - **What is shown:** one of the maker's strongest memories, often a hunt, a death or a flood, or a myth (`CUL-11`): 1–8 motifs for its real animals, people and things, in a row, a ring or a scatter as the style says (`CUL-12`), numbers shown roughly (three deer for a herd).
@@ -2131,20 +2048,11 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     - **Kept** by telling and lost with the last who remember (`CUL-02`).
   - **Done when:** in 20 runs of a band that learns fire by drilling, most adults tell a myth of how fire came 20 years later in at least 5, every detail from a record or belief.
 
-- `CUL-15` **Remembered lives** *(Dropped)*
-  - **Dropped because:** forebears are kin as believed (`MND-24`) and ancestors (`CUL-19`), and legends are in `CUL-11`.
-
 - `CUL-12` **Style and ornament** *(Decided)*: Each people has its own look in things, art and music, drifting over time, so a thing shows who made it and roughly when.
   - **How it works:** a style is six choices: proportions (squat to tall), lean, favourite pattern, two favourite colours, how motifs are drawn (outline or filled, thin or bold) and how much ornament, plus the musical style (`CUL-10`).
     A new people starts with its parent's; about every 25 years one choice shifts a step, toward a people its bands are linked with, if any (`CUL-23`).
     Every made thing carries its maker's people's style (`PRE-43`), and everyone wears their people's ornament (beads, body paint, decorated clothes), the most respected most.
   - **Done when:** in the pace-test worlds run to Year 150 (`RES-07`), any two peoples apart for 75 years or more differ in at least 2 of the 6 choices.
-
-- `CUL-14` **Their maps** *(Dropped)*
-  - **Dropped because:** places pass by talk (`CUL-24`), and a drawn map is new art for no new effect.
-
-- `CUL-13` **Their calendar** *(Dropped)*
-  - **Dropped because:** merged into `CUL-29`.
 
 - `CUL-29` **Gatherings and festivals** *(Decided)*: Bands meet where food is plentiful, and meetings kept at the same place and season become festivals.
   - **How it works:**
@@ -2159,7 +2067,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 ### 11.1 Visual style
 
-The look you approved on the visual-style mockup, written to stand without any image.
+The look, written to stand without any image.
 
 - `PRE-01` **Detailed pixel art** *(Decided)*: Everything on screen is crisp pixel art, drawn in art pixels (`PRE-22`): limited colours from one palette (`PRE-20`), hard edges, no blur, no smooth gradients.
   - **Done when:** each art pixel of the world is one solid palette colour.
@@ -2201,8 +2109,9 @@ The look you approved on the visual-style mockup, written to stand without any i
 - `PRE-29` **From above** *(Decided)*: As the camera rises it tilts toward straight down, and the land blends into a clean map look: each world cell in a flat colour for its plant cover (`WLD-12`), rivers as lines, shaded hills, and at the top the globe (`WLD-02`); overlays sit on it (`PRE-07`).
   - **Done when:** rising from valley to globe, the view changes without a jump, and coasts and rivers stay visible.
 
-- `PRE-30` **Light, time and season** *(Decided)*: One master palette with versions for dawn, day, dusk and night in each season; the sun casts real shadows by hour, season (`TIM-18`) and latitude (`WLD-01`), the sky tints everything, and distance adds haze.
-  A fire is a warm, flickering light as bright as its heat (`MAT-18`), warming nearby faces and sending up smoke and embers.
+- `PRE-30` **Light, time and season** *(Decided)*: Light follows the sun, the sky and the air, as in Minecraft's Vibrant Visuals: the sun's and the sky's colours come from the sun's height through the air, and the master palette's versions for dawn, day, dusk and night in each season are that light on every material.
+  The sun casts real shadows by hour, season (`TIM-18`) and latitude (`WLD-01`), sharp near what casts them and softer as they lengthen; shade takes the sky's colour and hollows are darker; distance adds haze, warmer toward the sun; water reflects the sky and what stands above it, and glints.
+  A fire is a warm, flickering light as bright as its heat (`MAT-18`), warming nearby faces, glowing, and sending up smoke and embers.
   - **Done when:** one place at dawn, noon, dusk and night, in summer and winter, shows each palette and its shadows.
 
 - `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the globe down to one person chipping flint, through these stops, each with its speed in `TIM-01`:
@@ -2210,12 +2119,9 @@ The look you approved on the visual-style mockup, written to stand without any i
   - **close camp:** about 20–50 m, a person about 10–25 art pixels tall, every figure in full;
   - **camp:** a few hundred metres, people as tiny figures (`PRE-28`);
   - **valley,** about 10 km; **region,** about 100 km; the **world map**; the **globe** (`PRE-29`).
-  - **How it works,** by distance from where the camera looks, as in the mockup: within about 300 m, from camp zoom inward, full areas (`WLD-12`), made for the picture without changing anything (`WLD-13`); out to about 10 km, each area's coarse ground, made from the seed in a moment, shaped every few tens of metres, under its cover (its cell's, or a kept area's own) drawn as forest canopy, scrub, grass or bare ground; beyond, and from region zoom out, the world cells (`PRE-29`).
+  - **How it works,** by distance from where the camera looks: within about 300 m, from camp zoom inward, full areas (`WLD-12`), made for the picture without changing anything (`WLD-13`); out to about 10 km, each area's coarse ground, made from the seed in a moment, shaped every few tens of metres, under its cover (its cell's, or a kept area's own) drawn as forest canopy, scrub, grass or bare ground; beyond, and from region zoom out, the world cells (`PRE-29`).
     People, herds, camps and buildings show at every distance (`PRE-28`), and a full area being made shows its coarse ground until its detail fades in, within about a second.
   - **Done when:** a pinch from globe to person over unvisited land never stalls, and full detail is in within about a second.
-
-- `PRE-04` **Sharp at every zoom** *(Dropped)*
-  - **Dropped because:** it only summed up `PRE-22`, `PRE-28` and `PRE-29`.
 
 - `PRE-31` **Visual review** *(Decided)*: At every milestone stage the look is reviewed on a contact sheet made on the phone, on one page, from fixed saved worlds: each zoom stop at noon and dusk in portrait, one landscape view, the model sheet (`PRE-46`), and three short clips of people at work.
   - **Check:** the contact sheet meets every Done when of 11.1 and 11.2, judged by the review and then by you (`PRC-10`).
@@ -2328,12 +2234,6 @@ The look you approved on the visual-style mockup, written to stand without any i
 - `PRE-10` **Family trees and legends** *(Decided)*: Family trees across generations from the birth records (`BIO-15`) and marriages (`CUL-27`), with the people's own legends (`CUL-11`) beside them, each linked to the true events it tells of.
   - **Done when:** a person's tree shows four generations from the birth records, and their legends link to real events.
 
-- `PRE-11` **Their sky and calendar (view)** *(Dropped)*
-  - **Dropped because:** they show on each people's card (`PRE-35`).
-
-- `PRE-12` **Their maps and names (view)** *(Dropped)*
-  - **Dropped because:** names show on every card (`PRE-35`), and what people know of the land is an overlay (`PRE-07`).
-
 - `PRE-14` **Details of a mind** *(Decided)*: For anyone, everything in their mind, shown plainly under a short summary (`PRE-41`): needs (`MND-07`); mood with each thought behind it (`MND-29`); feelings (`MND-19`); personality (`MND-20`); breakdowns (`MND-30`); memories and dreams, most important first (`MND-18`, `MND-12`); the mental map (`MND-28`) and knowledge of things (`MND-04`); blueprints with skill and experience (`MND-06`); hunches (`MND-11`); who knows what (`MND-23`); beliefs with how sure they are and the events behind them, or "reason forgotten" (`MND-27`, `MND-05`); plans (`MND-22`); ambitions (`MND-32`); relationships (`MND-24`); and the top reasons for what they do now, with the options it beat (`MND-09`).
   Your own acts on them are marked as yours (`GOD-09`).
   - **Done when:** for a test person, every kind of record above shows, and the summary changes once their mood does.
@@ -2345,9 +2245,6 @@ The look you approved on the visual-style mockup, written to stand without any i
 - `PRE-16` **Bestiary** *(Decided)*: Species cards, listed on a page of the book of ages and reached by tapping any plant or animal, show each kind's look in each season, where and when it lives, its yields and danger, and for animals their numbers and herds (`WLD-31`, `WLD-32`); tame and domestic kinds have their own (`WLD-33`).
   What each people calls it and believes about it shows once that people knows it (`CUL-18`).
   - **Done when:** every launch species has a card.
-
-- `PRE-36` **Language family tree** *(Dropped)*
-  - **Dropped because:** the language never changes (`CUL-17`).
 
 - `PRE-13` **Few screens, everything findable** *(Decided)*: Anything the world keeps track of can be found from the views in this section, mostly on a card (`PRN-04`).
   A new screen is added only when no card, overlay or page of the book of ages can show something well.
@@ -2377,9 +2274,6 @@ The look you approved on the visual-style mockup, written to stand without any i
   Dark events are those in `CUL-08`'s list, and the writer never receives them: each is its own plain sentence by fixed pattern, in date order among the writer's text, such as "Year 54, spring, day 3: men of the Ketu killed Tor by the river."
   - **Check:** each text's check (`PRE-41`) confirms that every dark event in its records appears as its plain sentence.
     A fixed set of about 50 trap records (two people in opposite roles, a teacher and a learner, a dark event beside a happy one) is written whenever the writer's instructions change and at every stage, and no swapped role, softened fact or missing event may reach the screen.
-
-- `PRE-38` **English, with their names** *(Dropped)*
-  - **Dropped because:** merged into `PRE-37` and `PRE-35`.
 
 - `PRE-19` **One storytelling voice** *(Decided)*: Every text uses the documentary voice.
   Myths are told in it as what a people tells, such as "The Tavu tell that Ama took the fire that sleeps inside the wood."
@@ -2422,12 +2316,6 @@ Everything you hear comes from something happening in the world (`PRN-10`), in l
     Voices sing by holding and pitching the murmur's syllables to the notes, with no words (`SND-03`); if that fails your review at the minds stage (`MIL-05`), songs are hummed and played, with clapping.
   - **Done when:** at the minds stage, songs of two peoples are told apart by ear, and singing and drums pass your review.
 
-- `SND-04` **Score** *(Dropped)*
-  - **Dropped because:** a score is sound added for show (`PRN-10`).
-
-- `SND-05` **Order of the layers** *(Dropped)*
-  - **Dropped because:** the milestones say which sounds come when (`SCP-16`).
-
 ### 12.2 How sound is made
 
 - `SND-06` **Sound blueprints** *(Decided)*: Every sound comes from a small base set, picked by what is happening and to what, and changed by the things involved: harder is brighter, heavier and bigger is deeper and longer, wetter (`MAT-19`) is duller, and random variation makes no two the same.
@@ -2444,16 +2332,8 @@ Everything you hear comes from something happening in the world (`PRN-10`), in l
 - `SND-08` **Space and distance** *(Decided)*: Each sound comes from its direction, quieter and duller with distance, muffled by land in between and echoing in caves (`PRE-24`), so a scream or thunder off-screen can draw your eye.
   - **Done when:** on headphones, a scream off-screen to the left comes from the left, and a voice in a cave echoes.
 
-- `SND-09` **Silence** *(Dropped)*
-  - **Dropped because:** quiet follows from `SND-01`, `SND-07` and `SND-11`.
-
 - `SND-12` **Sound review** *(Decided)*: At every stage that adds sound, a tool records on the phone, from fixed saved worlds, one reel of about 3 minutes touring the zooms: the close camp at dusk and at night, a valley in a storm, the globe.
   - **Check:** heard once on the speaker and once on headphones, the reel passes your review: sounds match the screen, voices sound like talk but never like real words, and nothing is harsh.
-
-### 12.3 Touch
-
-- `SND-10` **Vibration for big moments** *(Dropped)*
-  - **Dropped because:** vibration is not part of the launch; it can come with a later layer.
 
 ## 13. Platform and performance
 
@@ -2538,7 +2418,7 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 
 ### 14.1 How testing works
 
-- `RES-01` **Tests lead** *(Decided)*: Every alpha brings automated tests for what it adds, quick ones run before any work joins and long ones overnight (`PRC-10`).
+- `RES-01` **Tests lead** *(Decided)*: Every alpha brings automated tests for what it adds, quick ones run before any work joins and long ones in the background of the session that builds (`PRC-10`).
   A feature counts as built only when its tests pass, and every test names the IDs it checks.
   - **Check:** the coverage check finds a test for every feature and rule built so far (`PRC-12`).
 
@@ -2575,21 +2455,9 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 - `RES-16` **Tuning the pace** *(Decided)*
   - **What:** The pace is tuned only by changing chances and amounts (`PRN-17`, `MND-11`), the same in every world.
     Late steps are tuned in scenes set where the step becomes possible; whole worlds only confirm.
-    Tuning uses 20 fixed seeds, shared with the nightly runs; each closing pace test, every time it runs, draws new seeds never tuned against.
+    Tuning uses 20 fixed seeds, shared with the long runs; each closing pace test, every time it runs, draws new seeds never tuned against.
     Every tuned value, discovery factors included (`MND-11`), is logged with what it was tuned against; if tuning can't fix the pace, the stage report gives you the options: a redesign, another window, or accepting it.
   - **Done when:** the tuning log lists every tuned value, and no closing test's seeds appear in it.
-
-- `RES-04` **Reality checklist first** *(Dropped)*
-  - **Dropped because:** merged into `MAT-17`.
-
-- `RES-08` **What every experiment has** *(Dropped)*
-  - **Dropped because:** merged into `RES-09`.
-
-- `RES-11` **Independent review** *(Dropped)*
-  - **Dropped because:** merged into `PRC-09`.
-
-- `RES-20` **Your own experiments** *(Dropped)*
-  - **Dropped because:** merged into `PLT-05`.
 
 ### 14.2 The tests
 
@@ -2615,17 +2483,17 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   - **Check:** the sharp-stone test (`RES-02`) passes at every stage from `MIL-02` (`PRC-10`).
 
 - `RES-07` **The pace tests** *(Decided)*: Whole worlds from the play generator (`WLD-10`) check each pace target (`TIM-19`) and culture target (`CUL-33`) in their records.
-  - **Sizes,** each judging the targets whose windows close within its years: nightly after any change to minds, blueprints or catalogues, 20 worlds to Year 60, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-06`, 20 worlds to Year 150; and the full test, 10 worlds to Year 500, before `MIL-07` closes and at most weekly during it.
+  - **Sizes,** each judging the targets whose windows close within its years: after any change to minds, blueprints or catalogues, 20 worlds to Year 60, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-06`, 20 worlds to Year 150; and the full test, 10 worlds to Year 500, before `MIL-07` closes and at most once a week of building during it.
   - **Stages:** each target counts from the stage that builds it: flakes `MIL-02`; fire `MIL-03`; clothing, huts and `RES-25` `MIL-04`; shared spirits, rites and myths `MIL-05`; pottery, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going `MIL-06`; herding, villages, farming, copper and chiefs `MIL-07` (`SCP-16`, `TIM-19`, `CUL-33`).
-  - **Computing:** one cloud session a night, the nightly size taking about 2 session-hours and the Year-150 run about 6; the full test about 20–45, over one or two nights on up to five sessions side by side, which you agree to once (`SCP-15`); each stage report sets the real cost against these (`RES-06`).
-  - **Other whole-world checks** read these worlds, at the first size that reaches their years (`BIO-04`, `BIO-06`, `BIO-22`, `MAT-08`, `PRE-39` and the culture items); checks of the world with nobody in it, such as `WLD-15` and `WLD-18`, run in the night's session at the stage that builds them, and again only when their rules change.
+  - **Computing:** in the session that builds, in the background while it works, never in another session (`SCP-15`): the size after a change takes about 2 session-hours and the Year-150 run about 6, and the full test about 20–45, spread over the last alphas of `MIL-07`, whose stage closes once it has run; each stage report sets the real cost against these (`RES-06`).
+  - **Other whole-world checks** read these worlds, at the first size that reaches their years (`BIO-04`, `BIO-06`, `BIO-22`, `MAT-08`, `PRE-39` and the culture items); checks of the world with nobody in it, such as `WLD-15` and `WLD-18`, run in the background at the stage that builds them, and again only when their rules change.
   - **Check,** for each target: at least half the worlds reach it inside its window, and at most a quarter before it opens (with 10 worlds, at least 5 and at most 2); where windows overlap, the steps don't come in the same order in every world.
 
 - `RES-25` **Something to watch** *(To test)*: From Year 5 on, whole worlds average at least one new entry in the book of ages per year, and no 5 years pass without an event important enough for a live moment (`PRE-08`), in at least 16 of 20 worlds.
   - **Check:** the pace tests read it (`RES-07`), and stage reports chart entries and live moments per year (`RES-06`).
 
 - `RES-17` **Signature moments keep happening** *(Decided)*: Each signature moment (`MOM`) has its own scene, run from the stage and within the window its Check line gives, passing if it happens in at least 2 of 20 runs unless its own rule says otherwise.
-  It reruns whenever what it depends on changes, before work joins if it lasts up to 10 years (`PRC-10`), otherwise overnight (`RES-07`).
+  It reruns whenever what it depends on changes, before work joins if it lasts up to 10 years (`PRC-10`), otherwise in the background before its stage closes (`RES-07`).
   - **Check:** each stage report gives every moment's latest result and its appearances in whole worlds (`RES-06`).
 
 - `RES-19` **Every promise has a test** *(Decided)*: Everything this file says will arise in play, such as a religion or a lost craft, gets a scene or whole-world check by the stage that builds it, or is marked "possible, not promised" with your OK (`PRC-07`).
@@ -2654,9 +2522,6 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   - **How it works:** an independent AI reviewer checks it (`PRC-09`), and it is published as a short page that opens on the phone, its links opening the worlds and entries it names, with a copy in the repository.
   - **Done when:** every closed stage has its report, with each part above, opening on the phone with working links.
 
-- `RES-15` **A page on the phone** *(Dropped)*
-  - **Dropped because:** merged into `RES-06`.
-
 ## 15. Project and process
 
 How the project is run.
@@ -2684,9 +2549,6 @@ How the project is run.
   Nothing becomes *Decided*, and no decided item changes, without your OK.
   - **Check:** the commit check confirms that every commit changing this file names the changed IDs and why, and your OK for anything made Decided.
 
-- `PRC-05` **Reviewed with you** *(Dropped)*
-  - **Dropped because:** merged into `PRC-07`.
-
 - `PRC-08` **Next: the architecture and the plan** *(Decided)*: The pre-tests are done, and what they found moves into the architecture.
   A few questions stay open, each carried by its item: the fix for crawling pixels, chosen at the first visual review (`PRE-22`); the voice, chosen by ear (`SND-03`); the drums (`SND-02`); and signing for your hobbyist account (`PLT-06`).
   The architecture comes next, starting with the technology proposal (`PRC-03`), then the implementation plan, starting with the first stage (`MIL-01`).
@@ -2694,20 +2556,22 @@ How the project is run.
 
 ### 15.3 How work flows
 
-- `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches, and work joins the main version only after every automatic check passes (`PRC-10`) and an independent AI review approves it.
-  - **How it works:** a fresh, separate agent reviews the change, its tests and results, and the items it claims, without the builder's reasoning, against those items' What, Done when and Check lines, and checks that no test was weakened to pass (`RES-09`).
+- `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches, and work joins the main version only after every automatic check passes (`PRC-10`) and a review approves it.
+  An alpha that is split into lettered steps is reviewed by its builder, step by step; an independent AI review verifies the whole alpha once, at its last step.
+  - **How it works:** at each step the builder reviews its own change against the items it claims, re-running the checks and making each new test fail once.
+    At the alpha's last step, a fresh, separate agent reviews the whole alpha, its tests and results, and the items it claims, without the builder's reasoning, against those items' What, Done when and Check lines, and checks that no test was weakened to pass (`RES-09`).
     If builder and reviewer still disagree after one round of fixes, a second fresh reviewer decides; anything that changes what this file means goes to you.
-  - **Check:** the main version accepts only branches whose checks passed and whose review approved them, each review naming a reviewer other than the builder.
+  - **Check:** the main version accepts only branches whose checks passed and whose review approved them, each alpha's last step naming a reviewer other than the builder.
 
 - `PRC-10` **The checks** *(Decided)*
-  - **Before any work joins the main version,** within about 20 minutes on one cloud machine, anything longer running overnight:
+  - **Before any work joins the main version,** within about 20 minutes on one cloud machine, anything longer running in the background of the same session:
     - the quick tests (`RES-01`), the blueprint trials (`RES-24`) and the scenes of up to 10 years, the signature moments' included (`RES-23`, `RES-17`);
     - the catalogue checks, reality rules included (`MAT-17`, `RCK`);
     - the repeat check: one scene and one benchmark world each run twice, once on one core and once on four with a stop and resume between, and must end identical (`RES-05`);
-    - the file check: every ID defined once, every reference resolving, every status valid, and no live item citing a dropped one;
+    - the file check: every ID defined once, every reference resolving, every status valid, and no retired ID used or cited;
     - the commit check (`PRC-07`) and the coverage check (`PRC-12`).
-  - **If they outgrow 20 minutes,** scenes of items the change doesn't touch move to the night first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining.
-  - **After the night:** the next session reads the night's results before anything else.
+  - **If they outgrow 20 minutes,** scenes of items the change doesn't touch move to the background first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining.
+  - **When a background run ends:** its results are read before anything else.
     A check that passed before and now fails is fixed, or the change behind it undone, before other work joins.
     A pace target not yet met goes to tuning (`RES-16`) and blocks only the stage close.
   - **Before a stage closes:** the pace tests (`RES-07`), the phone measurements (`PLT-04`), the phone and cloud match (`RES-05`), the moment scenes that are due (`RES-17`), the writer's trap records (`PRE-17`), the visual and sound reviews (`PRE-31`, `SND-12`), the report (`RES-06`) and your review (`RES-22`).
@@ -2720,11 +2584,11 @@ How the project is run.
   - **Check:** every alpha's note links its build and names the IDs it delivers, and no check that passed before was failing on its build.
 
 - `PRC-12` **Nothing gets lost** *(Decided)*: An automatic coverage check, reading only IDs, runs before any work joins and at each stage close (`PRC-10`), and confirms that:
-  - every feature and rule that isn't *Dropped* or *Proposed* is mapped to a stage in the implementation plan, and the current stage's items have tasks;
-  - every task names the IDs it delivers, and every ID named in code and tests exists and isn't dropped;
+  - every feature and rule that isn't *Proposed* is built already or mapped to a stage in the implementation plan, and the current stage's items have tasks;
+  - every task names the IDs it delivers, and every ID named in code and tests exists and isn't retired;
   - every feature and rule built so far has a test (`RES-01`), every blueprint a trial (`RES-24`), every chain a scene (`RES-23`), and every promise a test or a "possible, not promised" mark (`RES-19`);
   - work linked to an item changed in this file is flagged for re-checking.
-  - **Done when:** a plan with one unmapped feature, a test naming a dropped ID and a blueprint without a trial fails the check on all three.
+  - **Done when:** a plan with one unmapped feature, a test naming a retired ID and a blueprint without a trial fails the check on all three.
 
 ## 16. Risks
 
@@ -2766,9 +2630,6 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Signs:** entries alike or vague; texts changing after a phone update.
   - **Response:** pattern sentences, which the writer only rewords, state dark events plainly and show if it is missing (`PRE-37`, `PRE-17`).
 
-- `RSK-17` **The writer AI softens dark history** *(Dropped)*
-  - **Dropped because:** merged into `RSK-08`.
-
 - `RSK-11` **Pixel look hard to keep clean** *(Decided)*: Likelihood medium, impact medium.
   - **Signs:** visual reviews failing on crawling pixels or unreadable figures (`PRE-31`).
   - **Response:** the fix chosen at the first visual review (`PRE-22`).
@@ -2787,15 +2648,9 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Signs:** memory, kept areas or saves past their targets (`PLT-04`, `PLT-10`).
   - **Response:** kept areas hold only fading changes (`WLD-12`); history thins (`PLT-10`); worlds pause at the memory limit (`MND-15`).
 
-- `RSK-20` **Saved worlds grow too large** *(Dropped)*
-  - **Dropped because:** merged into `RSK-15`.
-
 - `RSK-04` **Runs stop repeating** *(Decided)*: Likelihood high, impact high.
   - **Signs:** repeat or phone-and-cloud checks failing (`PRC-10`, `RES-05`); a crash replaying differently.
   - **Response:** the simulation only on the processor cores, by the architecture's rules (`PLT-01`, `PRC-08`).
-
-- `RSK-12` **Updates change worlds in odd ways** *(Dropped)*
-  - **Dropped because:** merged into `RSK-21`.
 
 - `RSK-21` **Updates harm worlds** *(Decided)*: Likelihood medium, impact high.
   - **Signs:** a world failing to open, or jumping in state, after an update.
@@ -2804,9 +2659,6 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 - `RSK-29` **The signing key is lost** *(Decided)*: Likelihood low, impact high.
   - **Signs:** a build that won't install over the last one; removing the app deletes its worlds.
   - **Response:** one key, two copies (`PLT-06`); worlds exported before any reinstall (`PLT-08`).
-
-- `RSK-22` **The built-in writer changes** *(Dropped)*
-  - **Dropped because:** merged into `RSK-08`.
 
 - `RSK-18` **New install rules** *(Decided)*: Likelihood medium, impact low.
   - **Signs:** from 2027, installs blocked or warned against (`PLT-06`).
@@ -2833,21 +2685,12 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Response:** the guide, coverage check, firm pass rules, review and modules (`PRC-06`, `PRC-12`, `RES-09`, `PRC-09`, `PRN-14`).
 
 - `RSK-14` **Tests too big for the cloud** *(Decided)*: Likelihood medium, impact medium.
-  - **Signs:** overnight runs unfinished or lost; a pace test over its stated budget (`RES-07`).
+  - **Signs:** long runs unfinished or lost; a pace test over its stated budget (`RES-07`).
   - **Response:** scenes wherever they can answer (`RES-21`, `RES-16`); runs that resume (`PLT-05`).
 
 - `RSK-23` **Your time** *(Decided)*: Likelihood medium, impact medium.
   - **Signs:** stages waiting on your reviews; alphas piling up untried.
   - **Response:** only stage reviews wait for you (`PRC-11`), with a short list and report (`RES-22`, `RES-06`).
-
-- `RSK-10` **History too slow to watch** *(Dropped)*
-  - **Dropped because:** covered by `RSK-02` and `RSK-26`.
-
-- `RSK-13` **Simplified minds behave differently** *(Dropped)*
-  - **Dropped because:** every person has a full mind (`MND-14`).
-
-- `RSK-16` **Invented sources** *(Dropped)*
-  - **Dropped because:** covered by `RSK-06` (`MAT-05`).
 
 ## 17. Not yet decided
 
@@ -2869,7 +2712,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at the moment.
+- None at present.
 <!-- end generated -->
 
 ## 18. Glossary
@@ -2914,7 +2757,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Need:** hunger, thirst, warmth and rest for the body (`BIO-09`), and safety, belonging, status, curiosity and love for the mind (`MND-07`).
 - **Overnight mode:** the world at top speed, screen dimmed, while the phone charges (`TIM-12`).
 - **Pace target:** the window of years in which typical worlds reach a step, such as fire in Years 5–30 (`TIM-19`).
-- **Pace test:** whole worlds run overnight against the pace and culture targets (`RES-07`).
+- **Pace test:** whole worlds run in the background against the pace and culture targets (`RES-07`).
 - **Pattern sentence:** a set sentence filled from a world's records, which every text starts from (`PRE-37`).
 - **People (a people):** a named group with its own territory, customs, beliefs and style (`CUL-23`).
 - **Plain use:** a base action done without a blueprint, such as digging a grave, which makes nothing new but heaps, holes and cleared ground (`MAT-06`).

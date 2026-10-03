@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
-"""The release key, derived from the passphrase secret (A15.5, PLT-06). The only reader of KINDLING_SIGNING_PASSPHRASE.
+"""The release key, derived from the passphrase secret (A15.5, PLT-06).
 
-Usage:  pk8 <out>     derive the key and write it as PKCS#8 DER to <out> (a temporary file the caller deletes);
-                      the first time, also make android/keys/release-cert.der and release-cert.sha256 and print the
-                      fingerprint for the owner's developer account (RSK-18); later, fail unless the derived key
-                      matches that certificate, so a mistyped passphrase fails the build
-        fingerprint   print the committed certificate's SHA-256 fingerprint
-        selftest      derive from a fixed test phrase and compare with the recorded public key hash
-Never prints the passphrase or the key.
+The key is never stored: scrypt turns KINDLING_SIGNING_PASSPHRASE into 48 bytes, reduced to a P-256 key as FIPS
+186-4's "extra random bits" method does (d = c mod (n - 1) + 1), and every use first checks that its public key is
+the one in android/keys/release-cert.der, so a mistyped passphrase stops the build before anything is signed.
+Only this script reads the secret, and it never prints it.
+
+    python3 tools/signing-key.py pk8 <file>             the release key as PKCS#8, for apksigner (deleted after use)
+    python3 tools/signing-key.py check                  the passphrase matches the certificate
+    python3 tools/signing-key.py fingerprint            the certificate's SHA-256, as registered (RSK-18)
+    python3 tools/signing-key.py throwaway <pk8> <der>  a key and certificate made for one check build, then dropped
+    python3 tools/signing-key.py selftest               the derivation and the check, on a test phrase
 """
 import datetime
 import hashlib
 import os
 import sys
+import tempfile
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
@@ -21,99 +25,98 @@ from cryptography.x509.oid import NameOID
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CERT = os.path.join(ROOT, "android", "keys", "release-cert.der")
-CERT_SHA = os.path.join(ROOT, "android", "keys", "release-cert.sha256")
-SECRET = "KINDLING_SIGNING_PASSPHRASE"
+FINGERPRINT = os.path.join(ROOT, "android", "keys", "release-cert.sha256")
 SALT = b"kindling-release-v1"
-# P-256's group order q (FIPS 186-4, D.1.2.3).
-Q = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
+P256_ORDER = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
 TEST_PHRASE = "kindling test phrase only"
-# SHA-256 of the test phrase's public key (SubjectPublicKeyInfo DER), recorded on the first run, 2 October 2026.
-TEST_PUBLIC_SHA256 = "66465c03d17177d18603c338bd48beb67f6cb9b596583f9ccc8516cec28cd455"
 
 
 def derive(passphrase):
-    """The P-256 private key from a passphrase: scrypt (n = 2^17, r = 8, p = 1) to 48 bytes, d = int mod (q − 1) + 1.
-    Implements PLT-06, see A15.5."""
-    raw = hashlib.scrypt(passphrase.encode("utf-8"), salt=SALT, n=2**17, r=8, p=1, maxmem=256 * 1024 * 1024, dklen=48)
-    d = int.from_bytes(raw, "big") % (Q - 1) + 1
+    """The P-256 key for a passphrase: scrypt with n = 2^17, r = 8, p = 1 (128 MiB, about a second)."""
+    c = hashlib.scrypt(passphrase.encode("utf-8"), salt=SALT, n=2**17, r=8, p=1, maxmem=256 * 1024 * 1024, dklen=48)
+    d = int.from_bytes(c, "big") % (P256_ORDER - 1) + 1
     return ec.derive_private_key(d, ec.SECP256R1())
 
 
-def public_der(public_key):
-    return public_key.public_bytes(serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo)
+def public_der(key):
+    return key.public_key().public_bytes(serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo)
 
 
-def make_cert(key):
-    """The self-signed release certificate: CN=Kindling, serial 1, valid 2026-10-01 to 2126-10-01, SHA-256."""
-    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "Kindling")])
-    utc = datetime.timezone.utc
-    return (
-        x509.CertificateBuilder()
-        .subject_name(name)
-        .issuer_name(name)
-        .public_key(key.public_key())
-        .serial_number(1)
-        .not_valid_before(datetime.datetime(2026, 10, 1, tzinfo=utc))
-        .not_valid_after(datetime.datetime(2126, 10, 1, tzinfo=utc))
-        .sign(key, hashes.SHA256())
-    )
+def matches(key, cert_der):
+    cert = x509.load_der_x509_certificate(cert_der)
+    return cert.public_key().public_bytes(
+        serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo) == public_der(key)
 
 
-def fingerprint(der):
-    """The certificate's SHA-256 as the developer console shows it: upper-case hex pairs joined by colons."""
-    h = hashlib.sha256(der).hexdigest().upper()
-    return ":".join(h[i:i + 2] for i in range(0, len(h), 2))
+def certificate(key, name):
+    """A self-signed certificate valid for a century, for a test or a throwaway key."""
+    subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, name)])
+    start = datetime.datetime(2026, 10, 1, tzinfo=datetime.timezone.utc)
+    return (x509.CertificateBuilder().subject_name(subject).issuer_name(subject).public_key(key.public_key())
+            .serial_number(1).not_valid_before(start).not_valid_after(start.replace(year=2126))
+            .sign(key, hashes.SHA256())).public_bytes(serialization.Encoding.DER)
 
 
-def pk8(out):
-    passphrase = os.environ.get(SECRET, "")
-    if not passphrase:
-        print(f"signing-key: {SECRET} is not set")
-        return 1
-    key = derive(passphrase)
-    del passphrase
-    if os.path.exists(CERT):
-        with open(CERT, "rb") as f:
-            cert = x509.load_der_x509_certificate(f.read())
-        if public_der(cert.public_key()) != public_der(key.public_key()):
-            print("signing-key: passphrase does not match android/keys/release-cert.der")
-            return 1
-    else:
-        der = make_cert(key).public_bytes(serialization.Encoding.DER)
-        with open(CERT, "wb") as f:
-            f.write(der)
-        with open(CERT_SHA, "w") as f:
-            f.write(f"{hashlib.sha256(der).hexdigest()}  release-cert.der\n")
-        print("signing-key: made android/keys/release-cert.der; commit it with release-cert.sha256")
-        print(f"signing-key: fingerprint (SHA-256) {fingerprint(der)}")
-    fd = os.open(out, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+def write_private(key, path):
+    data = key.private_bytes(serialization.Encoding.DER, serialization.PrivateFormat.PKCS8,
+                             serialization.NoEncryption())
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "wb") as f:
-        f.write(key.private_bytes(serialization.Encoding.DER, serialization.PrivateFormat.PKCS8,
-                                  serialization.NoEncryption()))
-    return 0
+        f.write(data)
+
+
+def release_key():
+    phrase = os.environ.get("KINDLING_SIGNING_PASSPHRASE", "")
+    if not phrase:
+        sys.exit("Signing key: KINDLING_SIGNING_PASSPHRASE is not set; a release build needs it (A15.5)")
+    key = derive(phrase)
+    with open(CERT, "rb") as f:
+        if not matches(key, f.read()):
+            sys.exit("Signing key: the passphrase does not match android/keys/release-cert.der; nothing was signed")
+    return key
+
+
+def cert_fingerprint():
+    with open(CERT, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
+
+
+def selftest():
+    a, b = derive(TEST_PHRASE), derive(TEST_PHRASE)
+    assert public_der(a) == public_der(b), "the derivation is not repeatable"
+    cert = certificate(a, "Kindling test")
+    assert matches(b, cert), "a key does not match its own certificate"
+    assert not matches(derive(TEST_PHRASE + "!"), cert), "another passphrase matched the certificate"
+    with tempfile.TemporaryDirectory() as tmp:
+        path = os.path.join(tmp, "k.pk8")
+        write_private(a, path)
+        assert os.stat(path).st_mode & 0o077 == 0, "the key file is readable by others"
+        loaded = serialization.load_der_private_key(open(path, "rb").read(), password=None)
+        assert public_der(loaded) == public_der(a), "the PKCS#8 file does not hold the key"
+    with open(FINGERPRINT) as f:
+        assert f.read().split()[0] == cert_fingerprint(), "release-cert.sha256 is not the certificate's SHA-256"
+    print("Signing key selftest: OK")
 
 
 def main(argv):
-    if argv[:1] == ["pk8"] and len(argv) == 2:
-        return pk8(argv[1])
-    if argv == ["fingerprint"]:
-        if not os.path.exists(CERT):
-            print("signing-key: no android/keys/release-cert.der yet")
-            return 1
-        with open(CERT, "rb") as f:
-            print(f"SHA-256 {fingerprint(f.read())}")
-        return 0
-    if argv == ["selftest"]:
-        # checks: PLT-06
-        got = hashlib.sha256(public_der(derive(TEST_PHRASE).public_key())).hexdigest()
-        if got != TEST_PUBLIC_SHA256:
-            print(f"Signing key selftest: FAIL (public key hash {got}, recorded {TEST_PUBLIC_SHA256})")
-            return 1
-        print("Signing key selftest: OK")
-        return 0
-    print(__doc__)
-    return 2
+    cmd = argv[1] if len(argv) > 1 else ""
+    if cmd == "pk8" and len(argv) == 3:
+        write_private(release_key(), argv[2])
+    elif cmd == "check":
+        release_key()
+        print(f"Signing key: matches android/keys/release-cert.der (SHA-256 {cert_fingerprint()})")
+    elif cmd == "fingerprint":
+        print(cert_fingerprint())
+    elif cmd == "throwaway" and len(argv) == 4:
+        key = ec.generate_private_key(ec.SECP256R1())
+        write_private(key, argv[2])
+        with open(argv[3], "wb") as f:
+            f.write(certificate(key, "Kindling check build"))
+    elif cmd == "selftest":
+        selftest()
+    else:
+        sys.exit(__doc__)
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    main(sys.argv)

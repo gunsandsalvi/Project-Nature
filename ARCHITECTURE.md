@@ -14,6 +14,7 @@ A **Decision:** line marks a choice this document makes where the plan leaves ro
 - The technology in A1.3 is approved under the owner's grant of full autonomy on 1 October 2026, and stays open to the owner's overrule (`PRC-03`).
 - Owner decisions folded in: Revelation (`GOD-13`); the stage speed budgets of `PLT-04`; simple burial (`SCP-21`, `MAT-08`); saves every 10 real minutes in overnight mode (`PLT-07`).
 - From now on it changes only through the implementation: an alpha that finds a part unworkable writes a **Conflict:** note in its section of `IMPLEMENTATION.md` and changes this file in the same branch, naming the section.
+- On 3 October 2026 the owner asked for the renderer to be designed anew, lit like Minecraft's Vibrant Visuals (A11, `PRE-30`), and for the codebase to be deleted and rebuilt from scratch; A11.13 says how the renderer's code is organised.
 
 ## Contents
 
@@ -106,8 +107,8 @@ This table is the technology proposal of `PRC-03`; the evidence behind each row 
 | Numbers | `f32`; transcendental maths through the pure-Rust `libm`; no fused multiply-add; fixed-order sums; no `usize` or −0.0 in saved data (A3.2; B01) | `f64` locally, under the same rules |
 | Chance | keyed draws from a guarded wyhash of (world, system, purpose, subject, moment); a fortune retry flips one key bit (A3.3; B02) | keyed splitmix64 (also passed) |
 | App | Kotlin shell, Rust core `libkindling.so` over JNI, arm64 only, minSdk 31, targetSdk 36 (A2.5; B78) | a pure Rust shell with hand-written JNI per service |
-| Toolchain | NDK r30, Gradle 8.14.3, AGP 8.13.2, Kotlin 2.3.21 and the rest of A2.8; Google's mirror of Maven Central first (B78) | refetch with `tools/setup-toolchain.sh` |
-| Drawing | OpenGL ES 3.0 and WebGL2 through `glow`; the mockup's GLSL ES 3.00 shaders ported; one art pixel is 4 screen pixels (B66) | fewer passes or art pixels; no Vulkan |
+| Toolchain | NDK r30, Gradle 8.14.3, AGP 8.13.2, Kotlin 2.3.21 and the rest of A2.8; Google's mirror of Maven Central first (B78) | refetch with `tools/setup.sh` |
+| Drawing | OpenGL ES 3.0 and WebGL2 through `glow`; GLSL ES 3.00 shaders written for the renderer's own design (A11.1); one art pixel is 4 screen pixels (B66) | fewer passes or art pixels; no Vulkan |
 | Crawling pixels | a slot in the renderer for the fix chosen at the first visual review (`PRE-22`, `PRE-31`; B66) | Fade, tuned with the owner |
 | Memory layout | struct of arrays per kind, generational handles, permanent uids (A3.4; B04) | none needed |
 | Saves | chunks in a new pack per save, committed by a manifest (A14.4), zstd level 1 per chunk, temporary file, flush, rename, hash checked on load; every 30 real seconds, through a `Storage` trait with a file and an IndexedDB version (A14; B04) | uncompressed chunks |
@@ -120,7 +121,7 @@ This table is the technology proposal of `PRC-03`; the evidence behind each row 
 | Sound making | impacts as material-shaped noise; instruments from their shapes; drums parked (A13; B74) | ringing notes plus noise |
 | Speech | murmur only (`SND-03`): syllables rendered once in the cloud with a neural voice, strung together on the phone and the web (A13; B76) | none needed |
 | Phone budget | plan on the held speed (43% of a burst), about 8 GiB, about 3 W (B79) | slow time sooner (`PRN-11`) |
-| Cloud runs | one process per world, four per session, a checkpoint every simulated month on the session's disk; small compressed ones pushed to the `runs` branch (A15; B80) | more nights or fewer worlds (`RES-13`) |
+| Cloud runs | one process per world, four per session, a checkpoint every simulated month on the session's disk; small compressed ones pushed to the `runs` branch (A15; B80) | longer runs or fewer worlds (`RES-13`) |
 | Catalogues | Markdown, one entry per heading, a TOML block as the single source, generated tables, one binary blob (A3.6; B09) | plain TOML files |
 | Delivery | an APK every alpha, at most 50 MB, in `dist/`; one key derived from the passphrase secret with scrypt, rotated if ever needed by APK Signature Scheme v3 (A15; B78) | none needed |
 | Web build | `wasm32` with `wasm-bindgen`, WebGL2, AudioWorklet, IndexedDB, one thread; a private page once the probe shows WebAssembly runs there (A2.6; B66) | the APK alone |
@@ -128,7 +129,7 @@ This table is the technology proposal of `PRC-03`; the evidence behind each row 
 ### A1.4 The pre-test record
 
 The pre-tests ran on 1 October 2026, in the cloud and on the owner's phone; this record keeps their results for good, since `pretests/` is deleted once this architecture exists (`PRC-08`).
-The code and raw results stay in git history in the commit before the deletion, found by `git log --diff-filter=D -1 -- pretests/BUILDING-BLOCKS.md` (in a shallow clone, after `git fetch --unshallow origin`); A2.9 lists what to recover.
+The code and raw results stay in git history in the commit before the deletion, found by `git log --diff-filter=D -1 -- pretests/BUILDING-BLOCKS.md` (in a shallow clone, after `git fetch --unshallow origin`); A2.9 says how they serve: as evidence, never as code to copy.
 
 **The phone (B79 and both test apps)**
 - Pixel 11 Pro XL, Tensor G6, Android 17 (SDK 37), 4 KB pages, 15,655 MiB of memory, 512 GB storage, 5,340 mAh battery.
@@ -137,7 +138,7 @@ The code and raw results stay in git history in the commit before the deletion, 
 - Energy per update, net of 0.84 W idle: middle about 0.7 nJ, small 1.0, fastest 1.3, so the middle cores do the most work per joule.
 - Thermal headroom (`getThermalHeadroom(10)`, at most once a second) read on 100% of samples: 0.63 idle, 0.78–0.86 under the held load; thresholds light 0.80, moderate 0.93, severe 1.00, critical 1.05; so headroom is the signal for slowing time before heat (`PRN-11`).
 - Display 1080 × 2404 at 120 Hz (modes 60 and 120) via `Surface.setFrameRate`; full screen in portrait is about 270 × 601 art pixels.
-- At 120 Hz a plain OpenGL ES scene missed 0.21% of frames (99% under 10.6 ms) on "ANGLE (Imagination Technologies, Vulkan … PowerVR)", so native GLES runs on ANGLE here as the browser does; the mockup in a web view missed 1.4%, drawing in about 2 ms (99% under 4.4 ms).
+- At 120 Hz a plain OpenGL ES scene missed 0.21% of frames (99% under 10.6 ms) on "ANGLE (Imagination Technologies, Vulkan … PowerVR)", so native GLES runs on ANGLE here as the browser does; B66's test scene in a web view missed 1.4%, drawing in about 2 ms (99% under 4.4 ms).
 - Memory: the app used the full 10 GiB allowed with no warning, but at most 8.4 GiB stayed resident and free memory fell from 7.5 to 0.4 GB: plan on about 8 GiB.
 - Java ran at 18–21% of Rust's speed (25–32% on a desktop JVM): fine for the shell only.
 
@@ -180,7 +181,7 @@ The code and raw results stay in git history in the commit before the deletion, 
 - The continents came out flat with straight edges: the generator needs tuning.
 
 **Drawing (B66)**
-- The mockup at 270 × 489 art pixels in a phone web view: 97–100% of 120 Hz at every zoom, at most 3.1% late frames (the full turn), 0.4–3.8 ms of processor time a frame (rule: at least 90%, at most 5% late).
+- B66's test scene at 270 × 489 art pixels in a phone web view: 97–100% of 120 Hz at every zoom, at most 3.1% late frames (the full turn), 0.4–3.8 ms of processor time a frame (rule: at least 90%, at most 5% late).
 - Crawl at camp zoom: 5.8% of art pixels per frame in a slow turn, 9.9% in a slow zoom; Fade cut both by over 99%, Steps only the turn.
 - A native renderer reusing the shaders: about 4 agent-days.
 - Gestures passed an automated check and felt fine; Android owns a strip at the bottom edge, so swipes start a finger's width above it.
@@ -226,7 +227,7 @@ Game terms are in `PROJECT.md`'s glossary; technical terms are defined where fir
 
 ## A2. Code layout and targets
 
-What it covers: where files live, what each crate does and may depend on, how the three targets differ, the Android, web and headless entry points, the toolchain, and what to recover from the pre-tests.
+What it covers: where files live, what each crate does and may depend on, how the three targets differ, the Android, web and headless entry points, the toolchain, and how the pre-tests serve as evidence.
 Serves: `PRN-14`, `PRC-04`, `PRC-08`, `PRC-09`, `PRC-11`, `PLT-01`, `PLT-02`, `PLT-03`, `PLT-05`, `PLT-06`, `PLT-08`, `SCP-15`.
 
 ### A2.1 Repository layout
@@ -247,7 +248,6 @@ android/              Gradle project, Kotlin shell (A2.5); keys/release-cert.der
 web/                  index.html, glue.js, audio-worklet.js (A2.6)
 tools/                scripts (A2.8, A15)
 reports/              copies of stage reports (RES-06)
-mockups/              visual-style.html, the approved look
 dist/                 kindling.apk of every alpha (at most 50 MB), its note and links (A15)
 ```
 
@@ -280,7 +280,7 @@ dist/                 kindling.apk of every alpha (at most 50 MB), its note and 
 | `kd-web` | the WebAssembly entry: exports, WebGL2, `IdbStorage`, audio blocks | `kd-app` | A2.6 | `MIL-01` |
 | `kd-tools` | the `kd` command line | `kd-sim`, `kd-save` (`files`), `kd-core` (`threads`), `kd-data` (`compile`), `kd-things`, `kd-world`, `kd-text`, `kd-audio` | A2.7, A15 | `MIL-01` |
 
-**Outside crates**, pinned in `[workspace.dependencies]`, each allowed only where listed: `libm`, `serde`, `log` (all); `bytemuck` (store columns and saved types); `xxhash-rust` (`kd-core`, for `num::hash64`); `rayon` (`kd-core` with `threads`); `postcard` (`kd-data`); `toml` (`kd-data` with `compile`; `kd-tools`, which reads `tools/layers.toml`); `zstd` (`kd-save`, native); `ruzstd` (`kd-save`, `wasm32`); `glow` (`kd-render`, `kd-app`); `rtrb` (`kd-audio`, its command rings, A13.2); `jni` 0.21 and `libc` (`kd-android`); `serde_json` (`kd-android`; `kd-tools`, which reads `cargo metadata`); `wasm-bindgen`, `js-sys`, `web-sys`, `console_error_panic_hook` (`kd-web`); `png` (`kd-tools`).
+**Outside crates**, pinned in `[workspace.dependencies]`, each allowed only where listed: `libm`, `serde`, `log` (all); `bytemuck` (store columns and saved types); `xxhash-rust` (`kd-core`, for `num::hash64`); `rayon` (`kd-core` with `threads`); `postcard` (`kd-data`); `toml` (`kd-data` with `compile`; `kd-tools`, which reads `tools/layers.toml`); `zstd` (`kd-save`, native); `ruzstd` (`kd-save`, `wasm32`); `glow` (`kd-render`, `kd-app`, and the two shells, which make its context from EGL or the canvas, A2.5, A2.6); `rtrb` (`kd-audio`, its command rings, A13.2); `jni` 0.21 and `libc` (`kd-android`); `serde_json` (`kd-android`; `kd-tools`, which reads `cargo metadata`); `wasm-bindgen`, `js-sys`, `web-sys`, `console_error_panic_hook` (`kd-web`); `png` (`kd-tools`).
 A new one needs a one-line reason in `Cargo.toml` and the reviewer's OK (`PRC-09`); none may need the operating system's randomness (`getrandom`).
 
 **Interfaces**, sketched (the owning sections refine them):
@@ -308,7 +308,8 @@ pub trait Platform: Send + Sync {
 }
 pub enum Request { Write { id: u32, prompt: String, max_tokens: u16 },
     KeepScreenOn(bool), Brightness(Option<f32>), RenderMode(RenderMode), Export { path: String },
-    Import, Share { path: String }, Copy(String) }
+    Import, Share { path: String }, Copy(String),
+    ShowCode { title: String, prefix: String, json: String } }  // the code dialog: the shell gzips json, base64s it after prefix, shows it with Copy (A15.4)
 pub enum AppMsg { Input(InputEvent), Insets(Insets), Pause, Resume, Back, TrimMemory(u8),
     Device(DeviceState), AudioRoute { speaker: bool }, Reply(Reply), Link(String) }  // Reply: writer and file results; Link: kindling://open
 impl App {                                           // Send, not Sync: owned by the GL thread
@@ -365,12 +366,12 @@ impl App {                                           // Send, not Sync: owned by
 ### A2.5 The Android shell
 
 **Files** (package `dev.kindling.app`; about 700 lines of Kotlin):
-- Gradle files as in the B78 template (A2.9): `compileSdk 36`, `minSdk 31`, `targetSdk 36`, `ndkVersion "30.0.16248370"`, `abiFilters arm64-v8a`, `packaging.jniLibs.useLegacyPackaging = false`, R8 in release, `android.useAndroidX=true` (ML Kit needs it), and an `Exec` task before `preBuild` running `cargo ndk -t arm64-v8a -P 31 -o build/rustJniLibs build --release -p kd-android`.
+- Gradle files (B78 built this set from the cloud): `compileSdk 36`, `minSdk 31`, `targetSdk 36`, `ndkVersion "30.0.16248370"`, `abiFilters arm64-v8a`, `packaging.jniLibs.useLegacyPackaging = false`, R8 in release, `android.useAndroidX=true` (ML Kit needs it), and an `Exec` task before `preBuild` running `cargo ndk -t arm64-v8a -P 31 -o build/rustJniLibs build --release -p kd-android`.
 - `MainActivity.kt`: lifecycle, immersive full screen, insets, Back, keep-screen-on, brightness.
 - `GameView.kt`: a `GLSurfaceView` (ES 3.0, RGBA 8888, no depth, stencil or multisampling on the window, since 3D passes draw into A11's art-resolution targets; `preserveEGLContextOnPause`; continuous rendering unless `Request::RenderMode` asks for on-demand, A11.11) that queues touches and requests 120 Hz with `setFrameRate(120f, FRAME_RATE_COMPATIBILITY_DEFAULT, CHANGE_FRAME_RATE_ALWAYS)` (B79).
 - `Native.kt`: the functions below.
-- `Writer.kt`, started from B73's `WriterTest.kt`: calls Gemini Nano with A12.7's settings (temperature 0.3, top-k 20, at most 256 new tokens), one request at a time; errors passed on as codes.
-- `Device.kt`, started from B79's `Probe.kt`: battery and charging, thermal status by listener, headroom once a second, the audio route.
+- `Writer.kt`: calls Gemini Nano with A12.7's settings (B73 measured this path) (temperature 0.3, top-k 20, at most 256 new tokens), one request at a time; errors passed on as codes.
+- `Device.kt`: battery and charging (B79 measured each reading), thermal status by listener, headroom once a second, the audio route.
 - `Files.kt`: export, import and share through the system pickers and a `FileProvider`, copying via `cacheDir`.
 - Manifest: one activity with `configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|layoutDirection|locale"`, no fixed orientation (`PLT-02`), an intent filter for `kindling://open` links from stage reports (A12.4, A15.14), `allowBackup="false"` (`PLT-08`), and ML Kit's usage upload removed as in the second test app.
 
@@ -406,19 +407,19 @@ Rust never calls Java: its requests wait in an outbox Kotlin polls each frame (`
 
 **Lifecycle:** rotation never restarts the activity, only `glResized` follows; `onPause` is queued before `GameView.onPause()`, which returns only after the GL thread has run it; a process killed mid-save keeps its previous save, and the next `create` opens it and runs forward to the end of the journal (`PLT-07`, A14); nothing runs in the background (`TIM-05`).
 **Signing** (A15.5): one key, derived from the passphrase secret with scrypt; a later change rotates it with APK Signature Scheme v3, with no reinstall.
-**Checks:** `tools/verify-apk.sh` (from the second test app) confirms a v3 signature, 16 KB alignment of zip entries and native segments, arm64 only, uncompressed native libraries, kept JNI names and the exact permission set above.
+**Checks:** `tools/verify-apk.sh` confirms a v3 signature, 16 KB alignment of zip entries and native segments, arm64 only, uncompressed native libraries, kept JNI names and the exact permission set above.
 
 ### A2.6 The web shell
 
 **Files:** `web/index.html` (a full-window canvas, no scrolling, a dark background, a one-line status); `web/glue.js` (about 250 lines: loads the wasm, reads saves from IndexedDB, forwards pointer events, runs the frame loop, writes saves, feeds audio, pauses when the page is hidden); `web/audio-worklet.js` (about 60 lines: plays queued 128-frame stereo blocks, counts underruns); generated `web/pkg/` (`wasm-bindgen --target web`).
-The build goes to `dist/web/` and is published as a private page once the first alpha's probe shows WebAssembly runs in the artifact page; otherwise the APK is the only route, and it ships with every alpha either way (`PRC-11`, A15.4).
+The build goes to `dist/web/` and is published as a private page, where WebAssembly and WebGL2 ran from the first build; if that ever stops, the APK is the only route, and it ships with every alpha either way (`PRC-11`, A15.4, A17.3).
 
 ```rust
 #[wasm_bindgen] impl WebApp {   // holds the App; one thread, so every call is direct
-    pub fn new(canvas: HtmlCanvasElement, files: js_sys::Map, dpr: f32) -> Result<WebApp, JsValue>;
+    pub fn new(canvas: HtmlCanvasElement, files: js_sys::Map) -> Result<WebApp, JsValue>;
     pub fn frame(&mut self, now_ms: f64);   // input, simulation within budget, snapshot, draw, audio
     pub fn pointer(&mut self, kind: u8, id: i32, x: f32, y: f32, t_ms: f64);
-    pub fn resize(&mut self, css_w: u32, css_h: u32, dpr: f32);
+    pub fn resize(&mut self, w_px: u32, h_px: u32);              // the canvas in device pixels
     pub fn pause(&mut self); pub fn resume(&mut self);
     pub fn take_writes(&mut self) -> js_sys::Array;               // (path, bytes or null) pairs: one transaction
     pub fn take_audio(&mut self) -> Option<js_sys::Float32Array>; // blocks for the worklet
@@ -429,7 +430,7 @@ The build goes to `dist/web/` and is published as a private page once the first 
 ```
 
 - **Loop:** each `requestAnimationFrame` calls `frame`, which gives the simulation A4.12's budget, about 3–6 ms at 120 Hz on the phone (B66); the speed shown is the real one (`TIM-01`).
-- **WebGL2:** `alpha: false, antialias: false, depth: false, stencil: false, powerPreference: "high-performance"`; backing size = CSS size × `devicePixelRatio`; an art pixel is 4 device pixels; a lost context pauses drawing until `gl_ready` runs again; the GLSL ES 3.00 shaders are shared with the phone unchanged.
+- **WebGL2:** `alpha: false, antialias: false, depth: false, stencil: false, powerPreference: "high-performance"`; backing size = the canvas's size in device pixels (`devicePixelContentBoxSize` when it agrees with CSS size × `devicePixelRatio`, else that product rounded), so an art pixel is exactly 4 device pixels; a lost context pauses drawing until `gl_ready` runs again; the GLSL ES 3.00 shaders are shared with the phone unchanged.
 - **Audio:** an `AudioContext` at 48 kHz starts on the first touch (browsers block sound before one); about 80 ms of blocks stay queued; an underrun plays silence.
 - **Storage:** `IdbStorage` (A14.11, A14.12) keeps the world's files in memory, filled at start from IndexedDB (database `kindling`, store `files`, key = path) with the last world and the settings; the glue commits each frame's writes as one transaction, in order (`take_writes`), and a save lands whole because its manifest goes last; `free_bytes` is the browser's last estimate.
   Without IndexedDB the game runs in memory and says so.
@@ -478,36 +479,15 @@ A large test world is never shipped: it is remade from its seed and command line
 
 - Gradle repositories, in order: `google()`, `https://maven-central.storage-download.googleapis.com/maven2/`, `mavenCentral()`, `gradlePluginPortal()`; `gradle.properties` sets 8 retries with a 1 s initial back-off.
 - `.cargo/config.toml`: `-C link-arg=-Wl,-z,max-page-size=16384` for `aarch64-linux-android`; `linker = "aarch64-linux-gnu-gcc"` and `runner = "qemu-aarch64-static -L /usr/aarch64-linux-gnu"` for arm64 Linux tests; no `target-cpu` or fast-math flags (A3.2).
-- **A fresh session** starts on an empty machine (B80): the cloud environment's setup script, set once by the owner, runs `tools/setup-toolchain.sh`, which installs only what is missing into `$KD_CACHE` (default `~/.cache/kindling`, never the repository; sizes in A15.2).
+- **A fresh session** starts on an empty machine (B80): the cloud environment's setup script, set once by the owner, runs `tools/setup.sh`, which installs only what is missing into `$KD_CACHE` (default `~/.cache/kindling`, never the repository; sizes in A15.2).
   Without it, `tools/build-apk.sh` runs the script before its first build; `tools/env.sh` then sets `ANDROID_HOME`, `ANDROID_NDK_HOME` and `GRADLE_USER_HOME`.
 - **Limits:** no session can make GitHub releases or set commit statuses, so the merge gate is `tools/check.sh` plus the independent review recorded in the pull request description, and long runs keep their checkpoints on the session's disk, pushing small compressed ones (under 50 MB each, oldest pruned) to the `runs` branch (A15).
 
-### A2.9 Pre-test files to recover
+### A2.9 Pre-tests as evidence
 
-Recover with `git show <commit>^:pretests/<path> > <destination>`, `<commit>` being the deletion (A1.4); name the source in the commit message.
-A cloud session may clone only recent history: when `git rev-parse --is-shallow-repository` prints `true`, run `git fetch --unshallow origin` first (the repository is small).
-Recovered code is a starting point, renamed, tested and linked to IDs like new code.
-
-| From `pretests/` | To (what it gives) |
-|---|---|
-| `b01-b02-numbers-random/kbench/src/rng.rs` (`mix64`, `wymum_safe`, `WySafe`, `Stream::new`, tests) | `crates/kd-core/src/chance/hash.rs` (A3.3) |
-| `b01-b02-numbers-random/kbench/src/kernels.rs` (`tree_in_place`, `block_sum`) | `crates/kd-core/src/num/sum.rs` (the fixed-tree sum) |
-| `b80-cloud-runner/src/ckpt.rs` (atomic save, newest valid load) | `crates/kd-save/src/files.rs`, `open.rs` |
-| `b80-cloud-runner/src/par.rs`, `heartbeat.sh` | reference for A4's read-then-write phases; `tools/heartbeat.sh` |
-| `b04-b11-storage-terrain/phone/src/save.rs`, `hist.rs` | `crates/kd-save/src/pack.rs`, `log.rs` (zstd chunks with hash; yearly log segments) |
-| `b04-b11-storage-terrain/phone/src/terrain.rs` | `crates/kd-world/src/gen/`, `area/relief.rs` (its hashes as a porting check) |
-| `b10-map/src/sq.rs`, `path.rs` | `crates/kd-core/src/geo/grid.rs`, `crates/kd-world/src/path/smooth.rs` |
-| `b74-b76-sound-speech/src/mix.rs`, `impact.rs`, `instrument.rs`, `dsp.rs` | `crates/kd-audio/src/` (mixer, shaped noise, flute, `drum_modes_v2`) |
-| `b74-b76-sound-speech/src/android.rs`; `phone_step.py` | `crates/kd-android/src/aaudio.rs`; port to `crates/kd-audio/src/speaker.rs` |
-| `b73-writer/checker.py`; `data/*.json` | port to `crates/kd-text/src/check.rs`; `crates/kd-text/tests/fixtures/` |
-| `b73-writer/prompts/v2/documentary.txt`; `phone/WriterTest.kt` | `data/writer/documentary.txt`; `android/.../Writer.kt` |
-| `b78-b79-phone/shells/s1-kotlin-rust/` | `android/`, `.cargo/config.toml` (the template that built and ran) |
-| `b78-b79-phone/tools/setup-toolchain.sh`, `env.sh`; `phone-r2/tools/verify-apk.sh` | `tools/` |
-| `phone-r2/app/app/src/main/AndroidManifest.xml` | merged into `android/app/src/main/AndroidManifest.xml` (ML Kit upload removal) |
-| `b78-b79-phone/app/.../Probe.kt`, `FrameTest.kt`, `Logic.kt`; `tools/decode-result.py` | `Device.kt`, `GameView.kt` (120 Hz request); the phone benchmark (A16); `tools/decode-bench.py` (`PLT-04`) |
-| `b66-drawing/tools/crawl.mjs`, `smoke.mjs` | `tools/screens/` (crawl count, gesture smoke test) |
-
-Not recovered: benchmark kernels, the other generators, SQLite and FlatBuffers code, the sourcing checker, speech scripts, the Gemma code and both test keys.
+The pre-tests measured how each building block is best built; what they found is recorded in A1.4, and each design in this architecture cites the measurement it rests on (B01 to B80).
+Their code stays in git history (`git show <commit>^:pretests/<path>`, `<commit>` being the deletion, A1.4) and may be read to understand a measured result, but is never copied: every part is built from this architecture's reasoning, with its own tests (the owner's instruction of 3 October 2026).
+A measured result a part must match (a speed, a latency, a pass rate, a sound within 25% of a recording) is stated in the part's own section, never as a pre-test's code or hash to reproduce.
 
 ## A3. Foundations
 
@@ -529,7 +509,7 @@ Serves: `TIM-16`, `WLD-13`, `WLD-01`, `WLD-03`, `WLD-07`, `WLD-12`, `RES-05`, `R
 8. Caches hold only results of pure functions of their full key, so hit and miss agree; caches are never saved.
 9. The whole state is saved in a fixed little-endian layout of fixed-width types (A3.2) with a hash; loading restores slots, generations and iteration order exactly (A14).
 
-**Tested by** `kd det` (A15.9), each pair giving one state hash (the hash of the uncompressed save): at every merge (`PRC-10`) the repeat check, 1 worker against 4 with a stop and resume, and one fixed short scene on x86-64, arm64 (qemu) and wasm32 (headless Chromium); nightly every short scene and the benchmark worlds across thread counts, saves and reloads, the director on and off (`TIM-03`), camera paths and the three targets.
+**Tested by** `kd det` (A15.9), each pair giving one state hash (the hash of the uncompressed save): at every merge (`PRC-10`) the repeat check, 1 worker against 4 with a stop and resume, and one fixed short scene on x86-64, arm64 (qemu) and wasm32 (headless Chromium); in the background every short scene and the benchmark worlds across thread counts, saves and reloads, the director on and off (`TIM-03`), camera paths and the three targets.
 
 **First needed:** `MIL-01`.
 
@@ -545,6 +525,7 @@ Serves: `TIM-16`, `WLD-13`, `WLD-01`, `WLD-03`, `WLD-07`, `WLD-12`, `RES-05`, `R
 - **Only through `kd_core::m`** (wrappers on `libm`): `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `exp`, `exp2`, `ln`, `log2`, `log10`, `powf`, `hypot`, `cbrt`, `tanh`.
   Why: the standard library calls each platform's maths library, whose last bits differ (B01); hot loops may use polynomial approximations in plain arithmetic instead.
 - **Banned in simulation crates** (clippy `disallowed-methods`): the standard versions of those functions, `f32::min`, `max`, `minimum` and `maximum`, `mul_add` (fused only on some targets), `powi` (precision unspecified), and `f64` outside `kd-tools` and test statistics.
+  `minimum` and `maximum` are unstable on Rust 1.97.0, so stable code cannot call them at all; they join `clippy.toml` when they become stable, since its fixture must trip every entry (A2.3).
   Rust never fuses `a*b+c` on its own (B01 found none), and no fast-math option may be used or imitated.
 - **Sums:** `num::sum_f32` uses B01's fixed tree: blocks of 4,096 values, each halved repeatedly (element `i` plus element `i + h`), then the block results the same way, padded with zeros to a power of two; `num::dot_f32` keeps 8 fixed lanes; sums of up to 64 terms may run in index order; parallel sums combine per-chunk partials with the same tree.
 - **Draw to float:** `(draw >> 40) as f32 * (1.0 / 16_777_216.0)`, exact, in [0, 1).
@@ -572,7 +553,7 @@ Every chance event is a pure function of its key, with no generator position, so
 | subject | 64 | the uid of what the draw is about: a being, thing, plant, herd, group or place (A3.4) |
 | moment | 64 | `(game_second << 16) + slot`; the slot (0–65,535) separates several draws by one subject for one purpose in one second |
 
-B02's guarded wyhash, ported bit for bit (A2.9):
+A guarded wyhash (B02 measured its speed and quality):
 
 ```rust
 const GOLDEN: u64 = 0x9e37_79b9_7f4a_7c15;
@@ -621,7 +602,7 @@ Why: the fastest generator that passed every test, with plain wyhash's flaw remo
 - A draw about two beings keys on the actor; where the other must count, the subject is `num::hash2(actor, other)`, registered as a pair purpose.
 - The front end never uses world streams: stable looks (`PRE-43`) come from `num::hash2(uid, salt)`, sound variation (`SND-06`) from a local generator in `kd-audio`.
 
-**Tested by:** B02's known answers and 10,000 stored draws, equal on all targets; one million units in 64 bins (chi-square, p > 0.001) along moments and along neighbouring subjects; the registry test; fortune over one million rolls within 0.003 of 0.19 and 0.055 at p = 0.1.
+**Tested by:** known answers of the functions above and 10,000 stored draws, equal on all targets; one million units in 64 bins (chi-square, p > 0.001) along moments and along neighbouring subjects; the registry test; fortune over one million rolls within 0.003 of 0.19 and 0.055 at p = 0.1.
 **First needed:** `MIL-01`; purposes grow with each system.
 
 ### A3.4 Identity and entity stores
@@ -708,7 +689,7 @@ data/INDEX.md              generated index of all entries
 data/items/<class>.md      items (A6.2)
 data/blueprints/<sector>.md  blueprints (A6.7)
 data/plants/  animals/  illnesses/  culture/  sounds/  models/
-data/palette/              colours, ladders, light tables and palette versions (A11.3)
+data/palette/              fixed colours, looks and the air (A11.3, A11.4)
 data/tuning/<system>.md    tuned numbers (PRN-17)
 data/TUNING-LOG.md         each tuned value, what it was tuned against, the tuning seeds (RES-16)
 data/writer/               voice instructions (PRE-19)
@@ -1378,10 +1359,10 @@ Before `MIL-04`, the 1,000-person world stands on A5.6's bench lands: the first 
 
 ### A4.16 How this part is tested
 
-Short forms gate every merge, long forms run nightly (A15.9), all headless in the cloud (`PLT-05`).
+Short forms gate every merge, long forms run in the background (A15.9), all headless in the cloud (`PLT-05`).
 1. **Determinism** (`kd det`, A3.1): 1 worker against 4; serial clusters (web) against parallel; save, load and carry on at 3 random paused seconds per quick scene, mid-window included, once with every cache dropped; director on and off; two camera paths; x86-64, arm64 and wasm32 (`RES-05`).
 2. **Split anywhere:** one call, random steps from 1 s to a game day, `stop` firing at random event counts, and pauses with saves at random seconds all give equal hashes at fixed times (`TIM-17`, `WLD-13`); a scene run twice gives one hash.
-3. **Cluster audit:** a debug build fails on any store access outside the owner table, over all quick scenes and one long world a night.
+3. **Cluster audit:** a debug build fails on any store access outside the owner table, over all quick scenes and one long world in each long run.
 4. **Clusters:** union-find against brute force across both seams; the caps asserted; the proof's inequality on random paths; reservations of 1, so every window spills, against normal sizes.
 5. **Acts:** an act at a random paused second, then a kill and catch-up, ends equal to the run never killed (A14.13), also with the power chosen mid-step on the web and in a window where a cluster spills; and an act confirmed, a save at that same paused second, a kill and reopening end on the state hash of the run never killed, the act applied once.
 6. **Keys:** shuffled pushes pop in one order (A4.3), and no two live events share a key over all quick scenes.
@@ -1412,7 +1393,7 @@ Plants and animals themselves (`WLD-18`, `WLD-31`, `WLD-32`, `WLD-33`) are A7's;
 | Things and creatures | in areas, or on the cells' ground | | their stores | A6 to A8 |
 
 Paces are A5.9's, scheduled by A4.9.
-Modules of `kd-world`, each named in its subsection: `cells`, `plants`, `area` (relief from B11), `lands`, `gen`, `timed`, `weather`, `ground`, `fire`, `water`, `soil`, `path`, and `purposes`, the draws of systems 1, 2, 3 and 7 (A3.3).
+Modules of `kd-world`, each named in its subsection: `cells`, `plants`, `area` (relief, A5.3), `lands`, `gen`, `timed`, `weather`, `ground`, `fire`, `water`, `soil`, `path`, and `purposes`, the draws of systems 1, 2, 3 and 7 (A3.3).
 
 Rules for the whole section:
 - Every result is a pure function of the seed, the generator version, the catalogue, the fixed layers, the changing state and keyed draws (A3.1, A3.3); generation and area draws use place uids at moment 0.
@@ -1480,16 +1461,17 @@ An area is 256 m square with detail to the metre (`WLD-12`): heights at 257 × 2
 An area is `f(seed, generator version, catalogue, its cell's and the 4 × 4 nearest cells' fixed layers and state, date)`, plus its record if kept (A5.4); unchanged, it is exactly that and runs no rules (`WLD-13`).
 It is made in parts, each a pure function:
 
-1. **Skeleton:** what crosses it: rivers (each river cell's fixed entry and exit points) and streams (a crossing on the edge toward the `flow` neighbour, keyed on the pair of cells, so both sides agree), joined by a keyed meander about 10 widths long; lake and sea shores; the escarpment (B11's noisy edge line) with gaps, at least one a cell at its lowest point (A5.12); caves from the cave record; springs; exposures (banks, scree, cliff foot).
-2. **Ground:** bicubic blend of the cells' heights + B11's 7-octave detail scaled by `rough` + the escarpment step + river beds + the record's pits, heaps and plots, rounded to decimetres; material from the rock layer at that height, soil by slope, sand, gravel and silt by water, scree under cliffs.
-3. **3D pieces**, in buckets the skeleton marks: solid rock except soft layers cut back up to 6 m under a hard cap (B11's overhangs and shelters) and caves of 2–6 ellipsoid chambers joined by passages, sized by the cave record; the chambers' volume and surface give A13.8 its cave echo.
-   **Decision:** sized chambers, not B11's crossing-noise caves, so each band finds a cave big enough (`WLD-24`; fallback: B11's, kept when big enough); a piece stores each column's air gaps (pairs of `u16` decimetres), under 1 KB, not B11's 4 KB cube blocks (fallback: cube blocks).
+1. **Skeleton:** what crosses it: rivers (each river cell's fixed entry and exit points) and streams (a crossing on the edge toward the `flow` neighbour, keyed on the pair of cells, so both sides agree), joined by a keyed meander about 10 widths long; lake and sea shores; the escarpment (its edge a line wandering by 4 octaves of the relief noise, below) with gaps, at least one a cell at its lowest point (A5.12); caves from the cave record; springs; exposures (banks, scree, cliff foot).
+2. **Ground:** bicubic blend of the cells' heights + detail (7 octaves of periodic gradient noise, 256 m down to 4 m, each half the last's height) scaled by `rough` + the escarpment step + river beds + the record's pits, heaps and plots, rounded to decimetres; material from the rock layer at that height, soil by slope, sand, gravel and silt by water, scree under cliffs.
+3. **3D pieces**, in buckets the skeleton marks: solid rock except soft layers cut back up to 6 m under a hard cap (overhangs and shelters, as B11 made them) and caves of 2–6 ellipsoid chambers joined by passages, sized by the cave record; the chambers' volume and surface give A13.8 its cave echo.
+   **Decision:** sized chambers, not B11's crossing-noise caves, so each band finds a cave big enough (`WLD-24`; fallback: B11's caves where two noise surfaces cross, kept when big enough); a piece stores each column's air gaps (pairs of `u16` decimetres), under 1 KB, not B11's 4 KB cube blocks (fallback: cube blocks).
 4. **Contents** per bucket (`WLD-31`, `WLD-14`): 64 spots on a jittered 2 m grid; a spot holds a tree or bush when its keyed value is under its group's density (`plants::density`, blended between cell centres), species by keyed weight from the cell's species mix (A5.2), size from `tree_age`.
    So a small change of cover adds or removes only the marginal plants, and a known wood stays put; densities are capped at about 5,000 single plants an area.
    Ground cover: 16 patches a bucket, up to 2 kinds each, with density, and from the date and `warmth` their season state and yields: fruit and seed when ripe; roots, reeds, bark, fibre and a stand's dead wood standing, regrowing at their rates (A7).
    Stone patches likewise, from deposits showing in banks, scree and cliffs, river gravel and bare rock; deeper deposits are found only by digging (`MAT-06`), from the rock layer and deposit at that depth.
 5. **Water and snow now:** from the stretch's or stream's flow or the lake's level, and the cell's snow.
 
+**The relief noise** (`kd_world::area::relief`, for the ground's detail and the escarpment's line): gradient noise on a square lattice, each lattice point's gradient one of 8 directions chosen by `relief::key(seed, i, j)`, the low bits of `num::hash2(seed, (i << 32) | j)` (A3.2), blended by the quintic fade 6t⁵ − 15t⁴ + 10t³ so heights and slopes are smooth; `relief::fbm` sums octaves, each half the last's period and height, scaled to ±1; lattice indices wrap at the world's size, so the noise runs on unbroken round the torus (A3.7); plain `f32` arithmetic only (A3.2), so every target makes the same ground.
 **Seams:** neighbouring areas share edge points, which are the same world points, so heights agree exactly; rivers, streams and cliffs follow lines fixed per cell, so they run on unbroken (`PRE-26`).
 **Identity:** seed contents have no store entries; each spot or patch is a place uid (area index 25 bits, spot 16 bits; A3.4), the subject of draws about it.
 Taken, cut, dug or planted, it becomes a thing or plant with a new uid, its size and quality drawn with the spot's uid, the same whoever takes it (`MAT-20`).
@@ -1515,7 +1497,7 @@ pub fn sight_blocked(l: &WorldLayers, from: Pos, to: Pos) -> bool;      // beyon
 A6.5's `topple_check(area)` runs in the owning cluster at the second of a timed gust over about 15 m/s or of a quake's shaking (A5.1, A5.8).
 
 **Costs** (held middle core): skeleton ≤ 0.2 ms, 1–4 KB; bucket contents ≤ 10 µs, about 0.5 KB, the day's part ≤ 0.5 µs a read; a point read ≤ 1 µs, ≤ 5 µs in a cave or under an overhang; making areas in all about 0.1 ms a person a game day (A16.3).
-**Tested by:** an unchanged area made, dropped and remade on any day is identical; it holds its cell's species in about their shares (`WLD-31`); held parts equal fresh ones after random state changes; edge heights match exactly, and rivers and streams run unbroken through 1,000 areas; no area over 5,000 single plants; B11's detail hash `5e3b0c482d789a49` from the ported code first (A2.9).
+**Tested by:** an unchanged area made, dropped and remade on any day is identical; it holds its cell's species in about their shares (`WLD-31`); held parts equal fresh ones after random state changes; edge heights match exactly, and rivers and streams run unbroken through 1,000 areas; no area over 5,000 single plants; the relief noise periodic on its lattice, each octave within ±1, and a fixed patch's heights hashing the same on all three targets.
 **First needed:** `MIL-01`.
 
 ### A5.4 Kept areas
@@ -1621,16 +1603,16 @@ small = { hare = 6, birds = 20, fish = 30 }   # per km² of habitat
 ### A5.7 World generation
 
 `gen::generate(seed, version, cat, res) -> GenWorld` runs `WLD-09`'s stages in order, each a pure function of the seed and the stages before (`WLD-08`, `SCP-12`), at 1 km (2,000 × 1,000) or, for first-pass candidates, 2 km (1,000 × 500).
-B11's `terrain.rs` is the start (A2.9) and must first reproduce its plate hash `895e636495687a48` at 1024 × 512.
+The generator is built from this section's design, not from B11's code (A2.9); B11 showed the approach works, its plates and erosion running at 1024 × 512 on the phone in the times below.
 A candidate runs on one worker; row-parallel steps use fixed partitions and priority floods run alone, so the thread count never changes results (B11: same bits on 1 and 4 threads).
 
 | # | Step | Method | 1 km: cloud core; held phone core |
 |---|---|---|---|
 | 0 | World numbers | keyed: tilt 15–30°, land 25–50%, 6–12 plates, the sky (`Sky`, A3.7: moon start, node cycle), stars (`WLD-06`, `WLD-07`) | — |
-| 1 | Plates | Voronoi on the torus, edges warped at 256 and 64 km; each plate a velocity (B11's, no trigonometry) and a crust; continents built of 3–6 older blocks | 2.3; 3.5 s with step 3 (B11) |
+| 1 | Plates | Voronoi on the torus, edges warped at two scales; each plate a keyed velocity and a crust; continents built of 3–6 older blocks (below) | 2.3; 3.5 s with step 3 (B11) |
 | 2 | Rock layers | by geology class, below | 0.1; 0.15 s |
-| 3 | Uplift | B11's rule: continents +300 m, ocean −3,200 m, meeting plates up to +4,200 m, volcano lines by trenches, rifts −900 m, ridge and detail noise; peaks held to 3,000–4,500 m, most land under 1,000 m (`WLD-30`); sea level at the land share; faults and volcanoes on plate edges | in step 1 |
-| 4 | Erosion | 3 rounds of priority-flood fill, steepest descent, drainage and implicit stream power (Braun and Willett 2013; k = 0.004 × rock softness 0.5–2 × rain from a rough climate by latitude, sea distance and height, `WLD-09`), 2 hillslope passes, a last fill that marks lakes instead of raising them | 1.0; 1.5 s (B11) |
+| 3 | Uplift | the plate rule below: continents +300 m, ocean −3,200 m, meeting plates up to +4,200 m, volcano lines by trenches, rifts −900 m, ridge and detail noise; peaks held to 3,000–4,500 m, most land under 1,000 m (`WLD-30`); sea level at the land share; faults and volcanoes on plate edges | in step 1 |
+| 4 | Erosion | 3 rounds of priority-flood fill, steepest descent, drainage and implicit stream power (Braun and Willett 2013; k = 0.004 × rock softness 0.5–2 × rain from a rough climate by latitude, sea distance and height, `WLD-09`), 2 hillslope passes, a last fill that marks lakes instead of raising them (below) | 1.0; 1.5 s (B11) |
 | 5 | Waters and landforms | rivers where drainage ≥ 50 km², with fixed entry and exit points per cell, in stretches ≤ 10 km; streams below, with their drainage; lakes to their outlets; floodplains, fans, deltas and glacial valleys by simple rules; caves in limestone and chalk, tubes in lava, shelters under hard caps; lower rock exposed where cut | ~0.5; 0.8 s |
 | 6 | Seas and ice | polar ice within about 100 km of the seam (`WLD-01`); depth, shelves, shores; currents warm poleward on each ocean's western side, cold on its eastern, upwelling off eastern coasts (`WLD-26`) | ~0.2; 0.3 s |
 | 7 | Climate | per weather cell and season: warmth from sunlight (latitude, tilt, day), inland swing, 6 °C per 1,000 m, currents; wind belts moving with the season; rain from a moisture march along the wind (gained over sea, dropped where air rises) times belt factors; climate record, storm calibration, runoff table (A5.8, A5.10) | ~0.3; 0.5 s |
@@ -1643,7 +1625,14 @@ A candidate runs on one worker; row-parallel steps use fixed partitions and prio
 About 5 s on a cloud core and 8 s on a held middle core at 1 km, a quarter of that at 2 km; beyond B11's steps 1, 3 and 4 all are estimates (B11 ran plates and erosion at 1024 × 512 on the phone in 0.45 s, same bits as the cloud).
 **Rock by geology class**, top first (12 kinds, with lava and ash, river gravel, silt): old worn land, sandstone or quartzite on granite or slate; basins where seas lay, chalk or limestone, shale, sandstone; folded ranges, slate, quartzite and folded limestone, granite in the cores; volcanic lines, lava and ash, glassy lava by sticky-lava volcanoes, basalt, granite; rifts and sea floor, basalt and sandstone.
 
-**B11's flat continents with straight edges** are fixed by older blocks inside continents (worn ranges +300–800 m on their joins, basins −100–300 m), two-scale edge warping, coasts from shelf noise and broad inland relief (±400 m), checked by `WLD-08`'s numbers and your look at 20 globes at `MIL-04`; fallback: B11's erosion over warped noise, which passed every number.
+**Plates, uplift and erosion** (steps 1, 3 and 4; B11 tried this method and met the numbers under "Tested by"):
+- **Plates:** a cell's position is first warped by fbm offsets at two scales (period 256 km, ±64 km; period 64 km, ±16 km); its plate is the nearest keyed site by wrapped distance (A3.7), the second nearest is the plate across its edge, and its edge distance e is half the difference of the two distances.
+- **Motion:** each plate gets a keyed direction (through `kd_core::m`, A3.2) times 1–5 cm a year; a cell's convergence c is the two plates' relative velocity along the line from its plate's site to the other's, in units of 5 cm a year (−2 to 2), positive when they close.
+- **Uplift:** with b = 1 ÷ (1 + (e ÷ 48 km)²), a cell's base (+300 m continental, −3,200 m oceanic) is blended toward the other plate's by 0.5 ÷ (1 + 2e ÷ 48 km), half-way at the edge; closing plates add c × 4,200 m × b (× 0.7 unless both are continental), parting ones c × 900 m × b, a rift's trough; then detail fbm (period 256 km, ±900 m), ridged fbm (period 64 km) × b × 1,500 m, the older blocks and the broad relief below; sea level is set at the land share's quantile.
+- **Erosion,** 3 rounds: a priority-flood fill from the sea (queued by height, then cell index; each cell raised to at least 1 cm per cell step above the one it was reached from, so every land cell drains, and the settling order kept); each cell's receiver, its steepest neighbour of 8 by drop over distance; drainage area summed from the highest cell down; then, in settling order, z ← (z + f z_r) ÷ (1 + f) with f = k √(area in km²) ÷ (the step's length in km), Braun and Willett's implicit stream-power step, stable at any k.
+  Then 2 hillslope passes on land (z ← 0.6 z + 0.1 × the 4 neighbours' sum) and a last fill that marks lake cells instead of raising them.
+
+**Flat continents with straight edges**, B11's fault, are fixed by older blocks inside continents (worn ranges +300–800 m on their joins, basins −100–300 m), two-scale edge warping, coasts from shelf noise and broad inland relief (±400 m), checked by `WLD-08`'s numbers and your look at 20 globes at `MIL-04`; fallback: erosion over domain-warped noise without plates, which passed every number in B11.
 
 **Candidates and the best three** (`WLD-10`, `WLD-11`):
 - Candidate `i` has seed `mix64(session ^ i)`, one per worker in index order.
@@ -1802,7 +1791,7 @@ Beyond each subsection's tests:
 - **Looking changes nothing** (`WLD-13`): a saved world run with and without the picture, along two camera paths over live and dormant kept areas, on 1 and 4 workers and on x86, arm64 and wasm32 gives one state hash (A3.1, `kd det`).
 - **No act in the world:** a check over every saved world type finds no act id.
 - **Golden hashes** (A14.9): 20 areas and, from `MIL-04`, a whole world from fixed seeds; any change to generation, the area rules or the values that place and size land, plants and stones needs a new `generator` version and `major` in `data/VERSION.toml` (A3.6), a big update, while tuning yields, timings or chances does not (`WLD-08`, `PLT-09`).
-- **Scenes** run on land presets in seconds; whole worlds confirm them overnight (`RES-21`).
+- **Scenes** run on land presets in seconds; whole worlds confirm them in the background (`RES-21`).
 - **Budgets** (A16, `PLT-04`): weather hour, daily cell work, bucket contents, pictures, generation, settling and held memory, in the cloud benchmark every alpha and on the phone every stage; `kd map preview` draws any layer as a picture (A2.7).
 
 ## A6. Things and blueprints
@@ -3042,7 +3031,7 @@ Tested by: the Done-when scenes of `CUL-29`, as stated.
 
 Each `CUL-33` window is read from the book of ages as the first event of its kind anywhere, in game years: `spirit_shared` within 5; `rite_custom` 5–20; `myth_formed` 10–40; `band_split` 10–50; `festival_formed` 10–60; `feud_answered` 20–100; `people_formed` 80–150; `raid` 60–200; `chief_made` 150–350, after the first villages.
 - **Keeps going** is read from the state at checkpoints; the levers `CUL-33` names are tuned the same for every world (`PRN-17`), on tuning seeds only (`RES-16`).
-- **Tested by** decision 24's pace tests (`RES-07`): nightly 20 worlds to Year 60; 20 worlds to Year 150 at the close of `MIL-06`; 10 worlds to Year 500 before `MIL-07` closes (at least 5 in each window, at most 2 before it); the others pass as `TIM-19` does, and failures rerun as `RES-13` says.
+- **Tested by** decision 24's pace tests (`RES-07`): after a change, 20 worlds to Year 60; 20 worlds to Year 150 at the close of `MIL-06`; 10 worlds to Year 500 before `MIL-07` closes (at least 5 in each window, at most 2 before it); the others pass as `TIM-19` does, and failures rerun as `RES-13` says.
   Late windows are tuned in scenes set where they become possible (a village region for chiefs); whole worlds confirm.
 - **Different peoples** (`CUL-07`): at Year 150, at most 2 of 20 worlds share all 12 custom answers in their oldest people, and at least 3 different sets of shared spirits appear.
 - **Switches** (`RES-10`): `templates=off` (no template makes a belief, for `RSK-19`) and `gatherings=off`.
@@ -3268,15 +3257,22 @@ The director has no later "full" form: its kinds of moment grow with each stage 
 
 ## A11. Drawing
 
-What it covers: the renderer (`kd-render`): passes and targets, palette, light and seasons, the ground at each zoom stop, water, the model kit, figures and herds, what the simulation hands over, the crawling-pixel slot, budgets and tests.
+What it covers: the renderer (`kd-render`): passes and targets, palette, light and seasons, the ground at each zoom stop, water, the model kit, figures and herds, what the simulation hands over, the crawling-pixel slot, budgets, tests, and how its code is organised.
 Serves: `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-25`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-29`, `PRE-30`, `PRE-31`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `WLD-02`, `WLD-07`, `WLD-13`, `TIM-10`, `VIS-14`, `PLT-02`, `PLT-04`.
 
 ### A11.1 The renderer at a glance
 
 - `kd-render` runs on the GL thread only and draws through `glow`: OpenGL ES 3.0 on the phone, WebGL2 in browsers, one code path.
-- It ports the approved mockup (`mockups/visual-style.html`): its GLSL ES 1.00, as its `convert()` turns it into GLSL ES 3.00, becomes files in `shaders/`, and its JavaScript builders become Rust modules split the same way, plus new `pick`, `icons`, `decals`, `crawl` and `stats`; each subsection names what it ports.
-  Why: the mockup is the settled look, drawn at 97–100% of 120 Hz on this phone (B66); fallback: fewer passes or a larger art pixel (A1.3).
-- It reads only the newest snapshot (A11.9), meshes from `kd-app`'s view builders (A11.5), the compiled catalogue and the UI draw list (A12.1); it never sees the world (`WLD-13`).
+- **Designed, not ported** (the owner's instruction of 3 October 2026): every part is built from the reasoning in this chapter.
+  The light follows the owner's request of the same day, to look like Minecraft's Vibrant Visuals: direct sun with real shadows, a sky-coloured fill in shade, darker hollows, air that hazes the distance and warms toward the sun, and, as their things arrive, reflections and glints on water and glow round fires (A11.4, A11.6).
+- **Four rules hold in every part,** and each part below says how it keeps them; A11.12 tests them:
+  1. **Decided in the world, drawn on the grid.** Every choice of colour (material, light step, dither, shadow, haze) is a function of world quantities: position, normal, material, light and real distance.
+     Only the pixel grid and the width of a dither band depend on the screen, so a pan moves the picture by whole pixels and a turn or zoom only resamples it.
+  2. **No detail finer than two art pixels.** A pattern, wobble or shape smaller than about two art pixels fades to its average, octave by octave, before it can alias; detail of any size shows fully once it spans four.
+  3. **No visible switch.** Mesh detail morphs continuously; light never reads the mesh (normals, shadows and sky light come from 1 m fields of each area); small things drop out one by one by a seeded importance, never all at once.
+  4. **Light from a model.** The sun's and the sky's colours come from the sun's height through the air (A11.4), and each material's ladder is its colour under that light, so the palette's rows, the shade's tint and the haze's colour all follow from one model.
+  Why: without them the first renderer switched mesh spacings, shadow texels and stone sizes at fixed art-pixel sizes, hazed a fixed fraction of the screen, outlined steep slopes and wobbled edges finer than a pixel, so the picture changed as the owner zoomed; each rule removes one of those causes.
+- It reads only the newest snapshot (A11.9), meshes and fields from `kd-app`'s view builders (A11.5), the compiled catalogue and the UI draw list (A12.1); it never sees the world (`WLD-13`).
 
 ```rust
 impl Renderer {                                                   // A2.2 takes these signatures
@@ -3287,8 +3283,9 @@ impl Renderer {                                                   // A2.2 takes 
     pub fn pick(&mut self, at_px: [f32; 2]);                       // take_pick answers 1–2 frames later
     pub fn take_pick(&mut self) -> Option<Pick>;
 }
-pub struct Frame { pub t_d: f64, pub real_s: f64, pub speed: f32, pub cam: CameraPose, pub set: DrawSettings }
-// t_d: A4.11's display time; real_s: unpaused real seconds; speed: game seconds a real second
+pub struct Frame { pub t_d: f64, pub real_s: f64, pub speed: f32, pub cam: CameraPose, pub sky: SkyView, pub set: DrawSettings }
+// t_d: A4.11's display time; real_s: unpaused real seconds; speed: game seconds a real second;
+// sky: the sun's and moon's directions, the moon's phase and the air's haze, from kd_core::sky (A11.4)
 pub struct CameraPose { pub target: Pos, pub yaw: f32, pub zoom: f32 }  // zoom 0 person … 1 globe
 pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Nothing }
 ```
@@ -3297,88 +3294,112 @@ pub enum Pick { Being(Uid), Herd(Uid), Thing(Uid), Plant(Uid), Ground(Pos), Noth
 
 | # | Pass (`Renderer.render`'s order) | Target |
 |---|---|---|
-| 1 | Shadow, while sun or moon is up and art pixels are under 3.2 m | 2048² 24-bit depth texture, 16 MB |
+| 0 | Light fields, on the CPU when the sun moves or areas arrive (A11.5) | per-area textures |
+| 1 | Object shadows, while the sun or moon is up and things or plants stand in view | 2048² 24-bit depth texture, 16 MB |
 | 2 | Scene | art target: colours 0 and 1 RGBA8, depth 24 and stencil 8 |
-| 3 | Post: outlines, lit edges, selection, palette colours | art-size RGBA8 |
+| 3 | Post: outlines, lit edges, haze and glow, selection, the palette row | art-size RGBA8 |
 | 4 | Crawl fix (A11.10) | art-size RGBA8 |
 | 5 | Upscale: nearest, whole-number scale, sub-pixel shift | window |
 | 6 | UI (A12.1) | window, same 4-pixel grid |
 
-- **Shadow:** the scene shaders under `#define SHADOW` draw into a depth-only texture, sampled directly; the mockup packed depth into RGBA8 (`packShadow`) only for WebGL1; fallback: that packing.
-- **Art target:** `ceil(W/s) + 3` by `ceil(H/s) + 3`, with `s` 4 screen pixels on the phone and 4 device pixels on the web (`PRE-22`): 273 × 604 in portrait on 1080 × 2404, 0.66 MB a surface; the border carries the upscale's shift, which spans two art pixels as the view snaps to even ones (α01b's Conflict note).
-- **Colour 0** (`packOut`): R the palette index (0 void); G the category (bits 0–2), sunlit (3), firelit (4) and, new, which of 8 fire lights is strongest (5–7); B and A the view depth in 16 bits.
-- **Outlines by category** keep `postFS`'s depth thresholds for rock, plants, figures (in ink) and things; ground, water and effects have none (`PRE-21`).
+- **Object shadows** (from the first things, plants and figures): their meshes under `#define SHADOW` into a depth texture whose texels are a power of two in metres, counted from the world's corner, chosen at most as large as half an art pixel and changed only when the art pixel doubles or halves, so a zoom within an octave keeps every shadow texel where it was (A11.1's rules 1 and 3); the ground casts and takes its own shadows from its fields (A11.5), not this map.
+- **Art target:** `ceil(W/s) + 3` by `ceil(H/s) + 3`, with `s` 4 screen pixels on the phone and 4 device pixels on the web (`PRE-22`): 273 × 604 in portrait on 1080 × 2404, 0.66 MB a surface; the border carries the upscale's shift, which spans two art pixels as the view snaps to even ones.
+- **Colour 0:** R the palette index of the lit surface before outlines, haze and glow (0 void); G the category (bits 0–2), sunlit (3), the haze level 0–3 (4–5), firelit (6) and glowing (7); B and A the view depth in 16 bits.
+  The scene decides the haze level, since only it knows each pixel's air (A11.4); post applies it after the outline, so an outline hazes like what it outlines.
 - **Colour 1:** a 24-bit index into the frame's pick table and an 8-bit kind (ground 0).
   A tap reads 13 × 13 art pixels through a pixel-pack buffer and a fence, without stalling; the nearest id wins, figure before herd before thing before plant; with none, the centre's depth gives a ground position.
   Why: exact picking of whatever is drawn; fallback: rays against figure boxes and the height field.
-- **Post** ports `postFS`, adding the fire rim toward the pixel's own fire and a one-pixel `f3` edge round the selected id.
-- **Upscale** (`upscaleFS`) samples `floor(off + fragCoord/s)`, so panning moves in whole screen pixels while the art grid stays locked to the world.
+- **Outlines** (`PRE-21`): a pixel is on a silhouette where a neighbour lies farther than the plane through the pixel and its opposite neighbour predicts, by more than its category's gap (figures 0.25 m, things 0.3 m, plants 1 m, rock 1.5 m, ground 6 m); it takes its look two steps darker (figures: ink).
+  Why: a plain depth jump also flags steep slopes seen edge-on, which drew the first renderer's black streaks down the cliff; predicting the slope flags only real occlusion.
+- **Lit edges:** a silhouette pixel that is sunlit and whose far neighbour lies toward the sun on screen takes its look's top step; toward a fire, the warm table instead.
+- **Post** then applies the haze table of the pixel's level, the glow tables (A11.4), the selection's one-pixel edge, and the palette row.
+- **Upscale** samples `floor(off + fragCoord/s)`, so panning moves in whole screen pixels while the art grid stays locked to the world.
 
-**Camera** (`zoomToTexel`, `viewFor`, `computeCamera`):
-- Orthographic; the pitch depends only on metres per art pixel (`texel`), by the mockup's `PITCH` knots, from 27° at 0.03 m to 90° from 20 m.
-- `texel(zoom)` is log-linear between the stops of A11.5; the globe fits 0.84 of the shorter side (`texelMax`), so both orientations share one scale.
-- The view snaps to even art pixels, counted from the world's corner; the remainder is the upscale shift, and `dith = (sx − W/2) mod 4` keeps dither fixed to surfaces (`PRE-20`); snapping by two keeps the GPU's 2 × 2 pixel groups, over which `fwidth` sets the dither band, on the same ground.
+**Camera:**
+- Orthographic: every art pixel spans the same ground, which whole-pixel panning needs.
+- `texel(zoom)` is log-linear between A11.5's stops, each stop's art pixel being its view's width (`PRE-03`) over the 273 art pixels of a portrait screen; the globe fits 0.84 of the shorter side (`texelMax`), so both orientations share one scale.
+- **Pitch:** a monotone cubic in the log of the art pixel's size through four knots chosen for what each stop must show: 30° at 0.03 m (the person stop: faces and the fronts of figures), 38° at 0.13 m (close camp: work, groups and the ground between them), 52° at 1.1 m (camp: a vertical face keeps cos 52°, about two thirds, of its height, so cliffs still read while the layout shows), 90° from 37 m (the valley's map look, `PRE-29`).
+  Monotone, so a zoom never tilts back; one cubic, so the tilt has no plateaus at the knots.
+- The view snaps to even art pixels, counted from the world's corner; the remainder is the upscale shift, and `dith = (sx − W/2) mod 4` keeps the dither pattern fixed to surfaces while panning (`PRE-20`); snapping by two keeps the GPU's 2 × 2 pixel groups, over which `fwidth` sets the dither band, on the same ground.
 - **Decision:** a floating origin at the area corner nearest the ground in the middle of the view's block (below), with GPU positions in `f32` metres from it, each area's vertices from its own corner plus the corner's offset (`uAreaOff`); why: `f32` world metres resolve only 0.125–0.25 m at 2,000 km; fallback: none needed.
 - **Blocks:** within a block of 512 art pixels every frame draws with the same projection, over the art target plus a block, and the art target's viewport moves by whole pixels instead, so a pan moves the picture by whole pixels exactly; a projection moved by the pan would round differently and flip pixels on edges. The viewport stays within OpenGL ES 3.0's least size on the phone (its screen's 2,404 pixels).
 - Drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, so turns and zooms pivot on the ground in the middle of the screen while the picture stays still.
-- The depth range spans the block's footprint from the lowest to the highest ground in view, ± 30 m; the shadow camera fits the view's footprint and snaps to its own texels, counted from the world's corner (`lightFor`), keeping its projection within blocks of 256 texels and its depth range on 16 m steps, so shadows never swim; the ground's patterns read positions from the corner of the block of 8,192 m of the world that holds the drawn area (`uWorldOff`, the area's corner within its block less `uAreaOff`), so they never depend on where the origin lies, and a block's edge is their only seam.
+- The depth range spans the block's footprint from the lowest to the highest ground in view, ± 30 m; the ground's patterns read positions from the corner of the block of 8,192 m of the world that holds the drawn area (`uWorldOff`, the area's corner within its block less `uAreaOff`), so they never depend on where the origin lies, and a block's edge is their only seam.
 
-Tested by: a one-art-pixel pan moves the picture exactly 4 screen pixels, both where the origin stays put and where the pan moves it; a tap on each kind of thing in a fixed scene picks it.
+Tested by: a one-art-pixel pan moves the picture exactly 4 screen pixels, both where the origin stays put and where the pan moves it; a slope seen edge-on draws no outline, a ridge in front of lower ground does; the pitch rises monotonically through its knots; a tap on each kind of thing in a fixed scene picks it.
 First needed: `MIL-01`.
 
-### A11.3 Palette, ladders and lookup tables
+### A11.3 Palette, looks and tables
 
-- **Master palette** (`data/palette/colours.md`; ladders in `ladders.md` and tables and versions in `light.md` beside it, one kind of entry per file, A3.6): at most 255 colours plus `void`: the mockup's 84, plus spring and summer greens, flowers and berries, stone greys, skin and hair families for varied looks (`BIO-22`), clear water, sand and ice.
-- **Ladders** (`PRE-20`): 4–7 indices, dark to light, per material; hand-picked for common materials from the mockup's 51 `RAMPS`; for the rest, `kd catalog build` aims at seven lightnesses from 0.42 to 1.3 times the catalogue colour's (`MAT-10`) in OKLab and matches each with `nearest()` outside the fire, map and mist families; plants get ladders per season state and growth stage, animals per coat part.
-- **Tables** (`table()`, index to index): warm 1–3, haze 1–3, outline, sun rim, fire rim, darker, lighter, snow.
-- **Versions** (`PRE-30`): dusk, dawn, day and night (`variant()`) for each season, the mockup's being autumn's.
-  The row in use is computed on the CPU by OKLab interpolation of its two neighbouring versions, in steps of an eighth, and uploaded (1 KB) when it changes, so each frame uses one row and no palette is ever dithered (`PRE-01`, `PRE-20`).
-- **Textures:** palette 256 × 1, ladders 8 × up to 512, tables 256 × 16; under 40 KB.
-- **Steps:** a fragment's light gives a value 0–1, which `rampPick()` quantises with a 4 × 4 Bayer threshold only in a band about two pixels wide at each step's edge (`setBand`, `qlevel`); `finish()` then applies warm and haze steps.
+- **The palette is computed, not picked.** Index 0 is `void`; then the **fixed colours** (`data/palette/colours.md`): ink, and the UI's colours, chosen for contrast (body text at least 7:1 on its panel); then the **looks** (`data/palette/looks.md`), look `j`'s step `k` at index `base_j + k`.
+  A look is a material's colour under white light (`MAT-10`, its sRGB value taken to linear albedo), its number of steps (4–7, `PRE-20`) and, where it has them, a sheen for wet or smooth surfaces and a glow for flames.
+  At most 255 entries besides `void`; when looks outgrow that, steps whose colours stay within 0.02 of each other in OKLab under every light of a day (A11.4) are merged, and `kd catalog check` fails a catalogue that still does not fit.
+- **Light steps.** Under the current light (A11.4: the sky's light on level ground `E_sky` and the sun's light facing it `E_sun`, both RGB), a surface receives `σ E_sky + τ E_sun`: `σ`, its **sky factor**, is how much of the sky it sees (its field's sky visibility times `(1 + n_y)/2`); `τ`, its **sun factor**, is its sunlit share times `n·l`.
+  A look's steps lie on one path through that light: from deep shade (`σ` 0.3, `τ` 0) to open shade (`σ` 1, `τ` 0) to full sun (`σ` 1, `τ` 1), at equal steps of lightness (the cube root of luminance, as OKLab's L for greys) between its ends.
+  A step's colour is the look's albedo times its light, exposed, tone-mapped (A11.4) and put in sRGB.
+  So shade steps take the sky's colour and lit steps the sun's: the cool shade and warm light a pixel artist paints by hand come from the light itself, and change with the hour; and the steps of every ladder look evenly spaced at every hour.
+- **The light picks the step** (`PRE-20`): the shader computes the pixel's light luminance `Y = σ Y_sky + τ Y_sun` and compares its lightness with the thresholds midway between the steps, which are the same for every look and set as uniforms; within a band about two art pixels wide round a threshold (from `fwidth` of the lightness), a 4 × 4 Bayer pattern fixed to the world grid mixes the two steps, and nowhere else.
+- **Tables** (index to index), computed on the CPU whenever the palette row changes (about 0.3 ms):
+  - outline: the look two steps down (ink for figures); lit edge: the look's top step;
+  - haze 1–3: the nearest palette colour to the colour mixed toward the frame's haze colour (A11.4) by 0.15, 0.33 and 0.55;
+  - warm 1–3: the look relit with a fire's light added (A11.4), so warming is exact, never a guess from the colour; never a flame colour;
+  - glow 1–2: toward a glow's colour, for the rings round fires and glints (A11.4).
+- **The row in use** is computed on the CPU from the light whenever one of its colours would move by a whole 1/255 (a few times a minute while the sun moves at real time; held while light is averaged at speed, A11.4) and uploaded (1 KB); a frame uses one row, and no palette is ever dithered between rows (`PRE-01`).
+- **Textures:** palette 256 × 1, tables 256 × 16, under 20 KB; the step thresholds are uniforms.
 
-Tested by: every ladder entry a palette index; tables never leave the palette and warming never yields flame colours; the OKLab code gives the mockup's indices on 1,000 colours.
+Tested by: every step of every look a palette index inside its look; the steps' lightness evenly spaced within 0.01 at dawn, noon, dusk and night; shade steps bluer than lit steps whenever the sun is up; tables never leave the palette and warming never gives a flame colour; the outline step two below and the lit edge the top of the pixel's own look.
 First needed: `MIL-01`.
 
-### A11.4 Light, time of day, seasons, sky and weather
+### A11.4 Light: sun, sky, air and time
 
-- **Sun and moon** come from `kd_core::sky::sun_moon(game_time, lat, lon, &sky) -> SkyState` (sun and moon directions, the moon's phase; `sky` the world's tilt and moon cycles, A3.7), the one sun-and-moon function, which A5's weather and A9's calendars share (`WLD-07`).
-- **Light by the sun's height**, interpolating the mockup's `TOD` presets:
-
-| Sun height | Light from | Strength | Sky | Fire | Haze | Palette row |
-|---|---|---|---|---|---|---|
-| below −6° | moon | 0.32 × phase (0.2 new, 1 full) | 0.34 | 1.0 | 0.5 | night |
-| −6° to 6° | blend | blend | 0.42 | 0.9 | 1.1 | blend |
-| 6° to 25°, morning | sun | 0.85 | 0.5 | 0.6 | 1.2 | dawn |
-| 6° to 25°, evening | sun | 1.0 | 0.5 | 0.95 | 1.0 | dusk |
-| above 25° | sun | 1.0 | 0.68 | 0.3 | 0.6 | day |
-
-  Values blend over 4° at each border, the palette stepping through its in-between rows (A11.3).
-- **Day and night at speed** (`VIS-14`): from the region stop outward, and whenever a game day passes in under about 10 real seconds, light is averaged over the day, so nothing flashes: the palette row between day and night by the night's share for the place and season, shadows held at the season's noon sun, cloud and fog averaged over the same day.
-  Closer in and slower, day and night are drawn as they are, at `T_d`; a switch between the two eases over 1 real second.
+- **Sun and moon** come from `kd_core::sky::sun_moon(game_time, lat, lon, &sky) -> SkyState` (sun and moon directions, the moon's phase; `sky` the world's tilt and moon cycles, A3.7), the one sun-and-moon function, which A5's weather and A9's calendars share (`WLD-07`); until the clock arrives (`MIL-01`'s time alpha), the app sets the hour.
+- **The air model** (`kd-render`'s `light` module), from the sun's height `h`, per colour channel at 680, 550 and 440 nm:
+  - the air mass `m(h)` by Kasten and Young's formula (1 overhead, 37.9 at the horizon);
+  - zenith optical depths: Rayleigh scattering 0.041, 0.097 and 0.243; the haze aerosol `β λ^−1.3` with `β` the air's turbidity (0.04 clear, 0.12 hazy; from weather when it comes, `WLD-16`), 0.066, 0.087 and 0.116 when clear; ozone's Chappuis band 0.020, 0.027 and 0.002;
+  - the **sun's light** facing it: `exp(−m τ)` of the sun's white: near white at noon, golden at 15°, red near the horizon;
+  - the **sky's light** on level ground: `sin h` × (half of what Rayleigh scattering takes from the beam, and 0.7 of what the aerosol takes), blue by day and paler and brighter round a low sun;
+  - **twilight**, from the horizon to −12°: no sun; the sky's light falls by `e` every 1.2° and turns toward blue (ozone);
+  - **night:** the moon as a second sun of its own colour (white tinged blue) and phase, weakened 400,000 times against the sun, and starlight; until the moon comes (`MIL-04`) a half moon.
+  Why: one model gives every hour, season and latitude its own colours, as `PRE-30`'s palette versions and shadows by hour, season and latitude need; presets per time of day could not blend or follow latitude.
+- **Exposure** follows the light partly, as eyes do: the scene's light is scaled by the inverse of the global light on level ground raised to 0.85, so night stays darker than day but readable; under a ten-thousandth of noon's light (deep twilight), colours lose saturation toward blue-grey (rod vision), fully by a ten-millionth (a moonless night).
+- **Tone:** per channel, a filmic curve (Narkowicz's fit of ACES) after exposure, then sRGB, which keeps sunlit colours saturated and rolls bright ones off without clipping.
+- **Grade: vivid** (the owner's choice, 3 October 2026): after the curve, each colour's chroma in OKLab is raised by a tuned factor (1.2 to start, in `data/palette/light.md`) at unchanged lightness, so sunlit colour is rich and shade clearly blue, as in Vibrant Visuals pictures, while a look's steps stay evenly spaced (A11.3); a colour pushed outside sRGB keeps its hue and lightness and loses chroma until it fits.
+- **Palette versions** (`PRE-30`): the model at dawn, day, dusk and night in each season and latitude is the "master palette with versions"; the row in use is the model at the displayed time (A11.3).
+- **Day and night at speed** (`VIS-14`): from the region stop outward, and whenever a game day passes in under about 10 real seconds, light is averaged over the day, so nothing flashes: the model's sun and sky light averaged over the place's day, shadows held at the season's noon sun, cloud and fog averaged over the same day.
+  Closer in and slower, light follows `T_d`; a switch between the two eases over 1 real second.
   Seasons blend over a season's first two game days, and hold a steady mix of all four when one passes in under 10 real seconds.
-- **Fires** (`MAT-18`): up to 8 fire lights a frame, the strongest by heat and nearness to the view centre, of strength by heat (embers 0.25, small 0.6, campfire 0.95, kiln or furnace 0.6 through its openings) times the fire column above, flickering by the mockup's three sines in steps of a twelfth; flames, smoke and puffs are `fxFS` modes 0, 3 and 1, embers one-pixel points; green wood smokes thicker.
+- **Shadows** (`PRE-30`): the ground's from its sun field (A11.5), things' and figures' from pass 1.
+  A shadow's edge softens with its caster's distance as the sun's disc (0.53°) makes it: the field keeps each point's caster distance `d`, and the sunlit share ramps over `d × 0.0093` m, which the step bands draw as dither where that spans pixels and as a hard edge where it does not.
+- **Sky light** reaches a point by the share of the sky its horizon leaves open (A11.5's sky field), so hollows, gullies and a cliff's foot are darker and cooler than open ground.
+- **Air** (`PRE-30`: distance adds haze): the view is given an eye at the distance where a 40° perspective view would span the same width (1.37 times the view's width); each pixel's ray runs from its point to that eye's plane, and its optical depth integrates the air's density, falling with height (aerosol over 1.2 km, Rayleigh over 8 km), in closed form.
+  Its haze, `1 − exp(−depth)`, is quantised into levels 0–3 at 0.1, 0.25 and 0.45 with the same narrow dither bands, and post maps each level through its table.
+  The haze's colour is the light the air scatters toward the eye: the sky's light, plus the sun's by the angle between the view and the sun (Rayleigh's phase, and Henyey and Greenstein's with `g` 0.7 for the aerosol), so looking toward a low sun warms the distance and looking away cools it; it is one colour a frame, since every ray of an orthographic view is parallel.
+  So at the camp stop air is all but clear, at the valley stop it gives depth, and at the region stop it veils the land, as from a mountain or a plane.
+- **Light shafts** (with mist and smoke, `MIL-03`): where mist or smoke thickens the air, the scene marches each pixel's ray through the sun field in 8 steps and adds the lit air's share as haze toward the sun's colour, so shafts fall through gaps in cliffs and trees; in clear air they stay invisible, as in life (`PRN-10`).
+- **Glow** (fires `MIL-03`, glints on water `MIL-04`): an emissive pixel sets the glow flag; post steps the colours within 1 and 3 art pixels of glowing pixels through glow tables 2 and 1, in hard rings, never blurred (`PRE-01`).
+- **Fires** (`MAT-18`): up to 8 fire lights a frame, the strongest by heat and nearness to the view centre, of strength by heat (embers 0.25, small 0.6, campfire 0.95, kiln or furnace 0.6 through its openings) times the fire column above, flickering by three seeded sines in steps of a twelfth; each adds its warm light to the sun factor's lightness and takes the warm tables (A11.3); flames, smoke and puffs are emissive and translucent sprites, embers one-pixel points; green wood smokes thicker.
 - **Inside** caves and overhangs, sky light falls as `exp(−d / 3 m)` with distance from open air (`PRE-24`).
-- **Weather** at the camera: cloud lowers the sun by up to 0.7 and ends shadows above 0.8 cover; fog raises haze up to 2 and adds mist wisps (`fxFS` mode 2); rain and snow are falling one-pixel points, up to 1,500 a frame, placed by a hash of the weather cell and time step, below 2 m art pixels.
-- **Lightning** is a jagged bolt line for two frames; the picture flashes (one frame of the `lighter` table) only at speeds up to a game hour a real second and at most once a real second, so the screen never strobes.
-- **Decision:** the sky is not drawn, since the camera looks down at every stop; the sun and moon act through light and shadow, an eclipse dims the light, and stars and comets (`WLD-07`) show round the globe; why: a sky band needs a second camera model; fallback: a sky strip at the person stop.
+- **Weather** at the camera: cloud dims the sun's light and widens the penumbra, and ends shadows above 0.8 cover; fog thickens the air (above), adding light shafts; rain and snow are falling one-pixel points, up to 1,500 a frame, placed by a hash of the weather cell and time step, below 2 m art pixels.
+- **Lightning** is a jagged bolt line for two frames; the picture flashes (one frame of the glow table) only at speeds up to a game hour a real second and at most once a real second, so the screen never strobes.
+- **Decision:** no sky is drawn as a backdrop, since the camera looks down at every stop; the sun and moon act through light, shadow, air and reflections (A11.6), an eclipse dims the light, and stars and comets (`WLD-07`) show round the globe; why: a sky band needs a second camera model; fallback: a sky strip at the person stop.
 
-Tested by: no light value jumps over 0.05 across borders; at the valley's speed, and paused at the region stop, mean brightness varies under 2% over 10 real seconds, while at the camp's speed it follows the hour; one place at dawn, noon, dusk and night, in summer and winter, shows each palette and its shadows (`PRE-30`).
-First needed: day, night and seasons `MIL-01`; fire and weather `MIL-03`; moon, eclipses and comets `MIL-04`.
+Tested by: the sun's colour at 60°, 15° and 3° and the sky's at noon match the model's formula; no light value jumps over 0.05 across the twilight's borders; mean brightness at dusk below day's and at night below dusk's; at the valley's speed, and paused at the region stop, mean brightness varies under 2% over 10 real seconds, while at the camp's speed it follows the hour; haze grows with the air's path and is warmer toward the sun; one place at dawn, noon, dusk and night, in summer and winter, shows each palette and its shadows (`PRE-30`).
+First needed: day and night `MIL-01`; seasons, fire and weather `MIL-03`; moon, eclipses and comets `MIL-04`.
 
 ### A11.5 The ground at every zoom stop
 
 | Stop (`PRE-03`) | Zoom | Art pixel | Across, portrait | Ground from | Beings (`PRE-28`) |
 |---|---|---|---|---|---|
-| person | 0.00 | 0.03 m | 8 m | view areas, 1 m grid, 0.5 m on cliffs | full figures, double resolution |
-| close camp | 0.14 | 0.13 m | 35 m (20–50) | view areas, 1 m | full figures |
-| camp | 0.30 | 1.1 m | 300 m | view areas, 2 m | tiny figures |
+| person | 0.00 | 0.03 m | 8 m | view areas | full figures, double resolution |
+| close camp | 0.14 | 0.13 m | 35 m (20–50) | view areas | full figures |
+| camp | 0.30 | 1.1 m | 300 m | view areas | tiny figures |
 | valley | 0.50 | 37 m | 10 km | coarse ground, map look | group and herd marks, camp points |
 | region | 0.68 | 370 m | 100 km | world cells | camp points |
 | world map | 0.84 | 7.6 km | whole width | map texture | camp points |
 | globe | 1.00 | about 2.9 km | the sphere | map texture on a sphere | camp points |
 
-Tiny figures are full figures enlarged to at least 6 art pixels tall (as `drawActors`) up to 1.6 m art pixels; then groups and herds become 5 × 5 marks, and camps 1–3 pixel points that glow with a fire, down to the globe (`Planet.overlay`).
-Every switch is a dither dissolve with ±6% hysteresis (`Trees.stepFade`), at thresholds tuned from these.
+Tiny figures are full figures enlarged to at least 6 art pixels tall up to 1.6 m art pixels; then groups and herds become 5 × 5 marks, and camps 1–3 pixel points that glow with a fire, down to the globe.
+Every change of form is a dissolve by seeded importance over 12% of the art pixel's size, each item changing on its own (A11.1's rule 3).
 
 **View areas** (camp stop inward, within about 300 m of where the camera looks, A5.5's bounds; `WLD-12`):
 - `kd-app`'s **view builders** make each area with A5's picture function `area::make_for_picture(cx: &AreaCtx, a: AreaId, order: &[Bucket], out: &mut AreaPicture) -> Progress`, its `AreaCtx` carrying the seed, the cell and its neighbours, the date and any kept record as a `RecordView` (A5.3, A5.5), bucket by bucket nearest the view centre first.
@@ -3387,63 +3408,82 @@ Every switch is a dither dissolve with ±6% hysteresis (`Trees.stepFade`), at th
 - **Decision:** `make_for_picture` applies a kept area's record (marks, patch sets, layers) exactly as the simulation's point reads do, reading the snapshot's live record or a dormant area's `KeptView` through the same `RecordView` (A5.5); the builders lay on only things, figures and fires, plus marks newer than the record version the picture was made from, by their own shapes (a pit or grave lowers the ground, a heap raises it, a path, plot or burn sets surface flags, a stump replaces its plant, soot darkens the rock above a fire), until the picture is remade; why: one rule applies a record, so a pit is lowered once, never twice or not at all; fallback: none needed.
 - A dormant kept area is drawn from its block, which the builders read through kd-save's read-only `Blocks` and bring to `T_d` with `kd-sim`'s `kept_view` on copies (A5.4), so old camps, graves and heaps show their marks and looking wakes nothing (`WLD-13`).
 - **Decision:** two builder threads, one per small core, below the audio thread's priority, never touching world state; why: an area by a cliff takes up to 0.55 s on a small core; fallback: 2 ms slices on the GL thread, as always on the web, where A2.6's simulation budget subtracts them.
-- Costs on a small core (A5.5 × 1.33): an area's picture ≤ 55 ms, or ≤ 0.55 s by a cliff or cave; its meshes, by 16 m bucket nearest the view centre first, ≤ 0.07 ms a bucket as height field, ≤ 3 ms of 3D pieces at 1 m, ≤ 12 ms at 0.5 m (estimates, measured at `MIL-01` by a pan along the cliff at camp zoom).
+- Costs on a small core (A5.5 × 1.33): an area's picture ≤ 55 ms, or ≤ 0.55 s by a cliff or cave; its meshes and fields, by 16 m bucket nearest the view centre first, ≤ 0.07 ms a bucket as height field, ≤ 3 ms of 3D pieces at 1 m, ≤ 12 ms at 0.5 m, and its sky field ≤ 20 ms (estimates, measured at `MIL-01` by a pan along the cliff at camp zoom).
   So the view centre's detail lands within about 0.1 s, or 0.6 s by a cliff, and a camp view (about 12 areas, a quarter by the cliff) within about 1.5 s.
   A pinch inward starts the area under the view centre as the zoom nears the camp stop, so a pinch to one person has its detail within about a second (`PRE-03`).
 - **Fallback from `MIL-01`:** until an area's picture and meshes are ready, or whenever the builders fall behind, its land is coarse ground (below), never void, and the detail dissolves in when ready (`PRE-03`); no frame waits for a builder.
 - View areas and their meshes stay within A11.11's memory lines, dropped beyond 1.5 km, never saved (A14.1).
 
-**Height-field chunks** (`buildGrid`): 64 m square, one vertex spacing a frame since the view is orthographic: 1 m below 0.6 m art pixels, 2 m below 1.3, 4 m below 2.6, else 8 m.
-Vertices (20 bytes) carry A5's surface material and a byte each of water distance, wear, cover and flags, in place of the mockup's `aA` and `aB`; normals come from heights blurred three times; 4 m skirts hide edges (`addSkirts`).
-The ground shader reads the surface per pixel from the area's surface map (a byte a square metre), the surface weighing most among the four nearest squares, with edges wandering a little by noise fixed to the world, since a surface blended across a triangle draws surfaces the rule never placed (α01b's review).
-The **ground shader** ports `terrainFS`, with a row of `data/models/surfaces.md` per surface material (ladder by season, stone density and size, flags for grikes, ash, gravel, mud, sand) in place of the mockup's fixed choices; ground cover is drawn by the picture's 4 m patches (kind, density, season state) as tuft and flower stamps below 0.095 m art pixels (`stampTuft`, `stampStone`, `PRE-46`); upward faces take the snow ladder by each vertex's snow (`WLD-16`).
+**The height field** (A11.1's rule 3): each area's heights are a 257 × 257 `R32F` texture, 1 m apart.
+- **Mesh:** one shared grid patch of 16 × 16 quads is drawn over each 16-quad square of the loaded ground at spacing `s = 2^k` m, the smallest with `s ≥ 1.25 × texel` and `s ≥ 1`, so triangles stay one to two art pixels across; every vertex reads its height from the texture.
+  Over the upper half of each spacing's range, the odd vertices slide onto the line between their even neighbours, which is the next spacing's mesh, so at a switch the two meshes coincide and nothing jumps (continuous level of detail, as Strugar's CDLOD; one spacing serves the whole view, since every art pixel spans the same ground).
+  Why: the first renderer switched fixed 1, 2, 4 and 8 m meshes, and each switch reshaped the cliff and reshaded every slope.
+- **Normals per pixel:** the fragment shader takes the normal from the height texture (central differences of bilinear heights), plus the look's micro-relief (below), so light never follows the mesh's spacing.
+- 4 m skirts hang from the loaded ground's outer edge.
+
+**Light fields** (pass 0; `kd-render`'s `field` module, on the CPU, deterministic and unit-tested), covering the view areas' ground, with neighbours' heights read across area edges and coarse ground's beyond:
+- **Sun field:** for the current sun, each 1 m point's shadow height `H` (the height above which it sees the sun's centre) and its caster's distance `d`.
+  Heights are resampled onto a grid turned to the sun's azimuth, and along each of its rows a running maximum of `h(s′) − s′ tan e` from the sun's side gives `H` (and the arg-max gives `d`), O(n) a row, about a millisecond for an area of 257²; the result is resampled back.
+  The ground shader's sunlit share is `clamp((z − H + d × 0.0047) / (d × 0.0093), 0, 1)`: the visible part of the sun's disc (A11.4).
+  Recomputed when the sun moves by 0.1° or areas arrive, never within a frame; why: a fixed 1 m field compared per pixel draws shadow edges as smooth world-fixed curves at every zoom, which a shadow map, re-fitted to each view, did not (A11.1's rules 1 and 3).
+- **Sky field:** for each point the share of the sky dome its horizon leaves open, `V`, the mean of `cos² (horizon height)` over 16 directions, each direction's horizons found along lines by the upper convex hull of the profile behind, O(n log n); once per area, in its view builder.
+- Textures: the sun field `RG32F` (`H`, `d`), the sky field `R8`, both 1 m.
+
+**Surfaces** (`PRE-20`, A11.1's rule 2): each area's surfaces as coverage: per surface, its share of each square metre, four surfaces to an `RGBA8` texture, mipmapped; the shader reads them at the art pixel's footprint (mip level `log2(texel / 1 m)`) and takes the surface with the largest share, its edge wobbling by world-fixed noise whose octaves fade below four art pixels, so edges run smooth at every zoom and never shimmer.
+Each surface in `data/models/surfaces.md` names one to three looks: grass its lush and dry looks, split by a world-fixed noise of 24 m and 6 m octaves, so patches stay put and keep their edges; dirt, rock and scree their own.
+- **Micro-relief** (the "texture" of a look): band-limited noise added to the normal: grass clumps of 0.4–1.6 m, rock facets of 0.2–2 m, dirt clods of 0.3–1 m; each octave's strength times `smoothstep(2, 4, wavelength / texel)`.
+- **Stones and tufts** (`PRE-46`'s ground cover): each area's seeded list, by its surfaces' densities, of instanced meshes: stones as eight-faced rocks 0.05–0.6 m across, lit by the stone look; tufts as 3–5 blades at least an art pixel wide (the vertex shader widens them), lit by the grass's look; each has a seeded importance `u` and shows while it spans at least `1.5 + 2u` art pixels, so as the camera rises they thin out one by one; their footprint darkens the sky factor beneath them (contact shade).
+  Why: the first renderer stamped them as 2D shapes sized by the art pixel and rounded each frame, so they reshuffled as the camera zoomed.
 
 **Cliffs, overhangs and caves** (`PRE-23`, `PRE-24`):
 - A bucket with 3D pieces, or a height step over 1.5 m, drops its height-field quads and is meshed by **surface nets** on the picture's pieces: z crossings exact from their decimetre air gaps (A5.3), x and y crossings at midpoints, then one relaxation pass; corners every 1 m, 0.5 m at the two closest stops.
-  Why: one method gives rims, ledges, overhangs and caves without a 1 m staircase; fallback: the mockup's cliff-following grid and face (`faceRows`, `buildFace`, `buildCave`), fed with A5's escarpment line.
-- Faces over 50° use the **face shader** (`faceFS`): beds, partings, lips, joints and fissures from a strata row per area, made like `strataTextures()` and the mockup's `STRATA`, the cell's rock layers (A5.2) split into beds 0.3–3 m thick by a hash of cell and layer, each rock with its own ladder (`WLD-09`); water stains; soot from A5.4's soot marks; lichen; grass over grassy rims; the sunlit lip.
-  The mockup's `aF` (foot, rim, kind, cave depth) is computed while meshing, the cave depth by a flood fill through air up to 40 m.
-- Loose rocks are instanced `blockMesh` and `rockMesh`; roofs in front of the view centre fade out at the two closest stops, as trees do (`Trees.stepCut`), so you see into huts (`PRE-24`).
+  Why: one method gives rims, ledges, overhangs and caves without a 1 m staircase; fallback: a cliff-following grid and face fed with A5's escarpment line.
+- Faces over 50° take the **face looks**: beds, partings, lips, joints and fissures from a strata row per area, the cell's rock layers (A5.2) split into beds 0.3–3 m thick by a hash of cell and layer, each rock with its own look (`WLD-09`); water stains; soot from A5.4's soot marks; lichen; grass over grassy rims; the sunlit lip.
+  Each face vertex carries its foot, rim, kind and cave depth, computed while meshing, the cave depth by a flood fill through air up to 40 m.
+- Loose rocks are instanced meshes; roofs in front of the view centre dissolve at the two closest stops, as trees do, so you see into huts (`PRE-24`).
 
 **Coarse ground** (out to about 10 km, A5.5's bounds; the valley stop, and from `MIL-01` the placeholder nearer in): A5's `cells::coarse_ground(cx: &CellCtx, c: CellIx) -> Ground` gives a cell's ground as 33 × 33 heights every 32 m, equal to its areas' heights at those points, and `plants::density(st: &CellState, group: PlantGroup, date: GameTime) -> f32` its cover by plant group.
-It is batched in 4 km tiles and drawn by the ground shader's map-look branch (`mapIndex`, `uFar`): forest as single crowns on a 5 m grid, kept where a hash of the point is under the trees' density, while they span a few pixels, then flat cover; the map look dissolves in between 1.2 and 4.5 m art pixels as the camera tilts to straight down (`PRE-29`).
+It is batched in 4 km tiles and drawn by the ground's shader with the same light, fields and rules: cover as looks (forest as single crowns on a 5 m grid, kept where a hash of the point is under the trees' density, while they span a few pixels, then flat cover); the map look takes over between 1.2 and 4.5 m art pixels as the camera tilts toward straight down (`PRE-29`).
 **World cells** (region stop): tiles of 32 × 32 cells, coloured by cover, rock, wetness and water; before `MIL-04`, the void cells beyond the first region's sea are drawn as haze here and on the map and globe (A5.6).
 
 **World map and globe** (`WLD-02`): a 2,000 × 1,000 RGBA8 **map texture** (16-bit height, cover class, water flags, forest density) with A3.7's block levels 11–13, keeping cover by dominant class and water flags by any, chosen so a texel covers at least an art pixel.
-One lat–long mesh (256 × 128 quads) puts each vertex at `mix(flat, sphere, g)`; map and sphere share the equator's 2,048 km (radius 326 km), so the map wraps onto the globe as `g` goes from 0 to 1, with no cut (`PRE-03`); its shader ports `planetFS` (cover, relief against the season's noon sun, polar ice over the seam, rim, stars, comets), each latitude lit by its day's average light (A11.4) in place of a moving night side.
+One lat–long mesh (256 × 128 quads) puts each vertex at `mix(flat, sphere, g)`; map and sphere share the equator's 2,048 km (radius 326 km), so the map wraps onto the globe as `g` goes from 0 to 1, with no cut (`PRE-03`); its shader draws cover, relief against the season's noon sun, polar ice over the seam, a rim, stars and comets, each latitude lit by its day's average light (A11.4) in place of a moving night side.
 Rivers draining about 1,000 km² or more (tuned) are lines at least one art pixel wide at the region, map and globe stops, from A5's river table (`PRE-26`, `PRE-29`).
 
-**Cut-away** (`PRE-25`; `buildSection`, `sectFS`): along a line you draw (A12.2), a vertical section runs from 20 m below the lowest ground to the surface; scene shaders discard the camera's side (`cutTest`), and figures there are left out whole.
-It shows beds, soil (`WLD-27`), the water table (`WLD-17`) and burial layers from a section query (A12.3), with buried things near the plane as side-view icons at their depths (`MAT-08`), in place of the mockup's drawn ones.
+**Cut-away** (`PRE-25`): along a line you draw (A12.2), a vertical section runs from 20 m below the lowest ground to the surface; scene shaders discard the camera's side, and figures there are left out whole.
+It shows beds, soil (`WLD-27`), the water table (`WLD-17`) and burial layers from a section query (A12.3), with buried things near the plane as side-view icons at their depths (`MAT-08`).
 
-Tested by: builders against fixed areas (counts, hashes, matching chunk edges); surface nets watertight on 100 random pieces; an unchanged area's picture hashes equal to the simulation's area on that date, and coarse ground equals its areas' heights at its points (A5.5); the builders never write world state (layer check); A11.11's pinch from globe to person never stalls and has full detail within a second (`PRE-03`).
+Tested by: builders against fixed areas (counts, hashes, matching chunk edges); the mesh's morph keeps every vertex's height continuous across a spacing switch; the sun field matches a brute-force march within 0.05 m on fixed areas, and the sky field a 64-direction march within 0.02; surface nets watertight on 100 random pieces; an unchanged area's picture hashes equal to the simulation's area on that date, and coarse ground equals its areas' heights at its points (A5.5); the builders never write world state (layer check); A11.12's zoom and turn counts; A11.11's pinch from globe to person never stalls and has full detail within a second (`PRE-03`).
 First needed: view areas, cliffs, caves and coarse ground `MIL-01`; cells, map, globe and cut-away `MIL-04`.
 
 ### A11.6 Water
 
-- **Rivers** (`PRE-26`, `WLD-17`): ribbons four vertices across along A5's river lines (`buildWater`): in view areas a point every 1–2 m with half-widths, depth and flow, beyond them the cells' river table.
-  `waterVS`/`waterFS`: a deep middle, light shallows, flow lines drifting with the current, a lighter bank edge, riffles under 0.3 m deep (fords), sun glints; a river is widened to at least 0.95 art pixel each side and lifted 1.2 m while widened (`uMinHW`, `uLift`), so every river is at least one art pixel wide from the valley stop inward, and farther out those draining about 1,000 km² or more (tuned, `PRE-26`), the rest left out there.
-- **Lakes, floods and sea:** a water grid per chunk (4 m) at the water level with depth per vertex; ice takes the ice ladder; floods raise the level from the cells.
-- **Reeds:** strips never narrower than an art pixel, nodding in 8 steps a second (`Reeds`).
+- **Rivers** (`PRE-26`, `WLD-17`): ribbons four vertices across along A5's river lines: in view areas a point every 1–2 m with half-widths, depth and flow, beyond them the cells' river table.
+  A river is widened to at least 0.95 art pixel each side and lifted 1.2 m while widened, so every river is at least one art pixel wide from the valley stop inward, and farther out those draining about 1,000 km² or more (tuned, `PRE-26`), the rest left out there.
+- **The water's colour** (A11.4's light): what lies below, the bed's look darkened by depth (each metre keeps 0.80, 0.90 and 0.93 of the light) with a little of the water's own colour scattered back, mixed by Fresnel's term (Schlick's, 0.02 looking straight down) with what the surface reflects: the model's sky light in the mirrored direction, and things above the water (banks, cliffs, trees, figures) found by marching the mirrored ray through the scene's depth, 16 steps at art resolution.
+  The surface's normal comes from ripples carried by the flow, band-limited by A11.1's rule 2, with riffles where it runs under 0.3 m deep (fords) and lines that follow the current; the sun's glint shows where the half-vector meets the ripples' normal, as one or two glowing pixels (A11.4's glow).
+  The result takes the nearest step of the water's look, so water stays palette pixel art.
+- **Lakes, floods and sea:** a water grid per chunk (4 m) at the water level with depth per vertex; ice takes the ice look; floods raise the level from the cells.
+- **Reeds:** blades never narrower than an art pixel, nodding in 8 steps a second.
 
-Tested by: minimum width at every stop, for every river from the valley stop inward and for those draining about 1,000 km² or more beyond; flow lines run downhill.
+Tested by: minimum width at every stop, for every river from the valley stop inward and for those draining about 1,000 km² or more beyond; flow lines run downhill; a cliff beside still water shows in it, upside down; the glint lies on the sun's side.
 First needed: rivers and reeds `MIL-01`; lakes, sea, floods and ice `MIL-04`.
 
 ### A11.7 The model kit
 
 Everything is drawn from one fixed kit, so the content stays countable (`PRE-46`, `PRE-42`, `PRE-43`, `RSK-25`); models are catalogue entries in `data/models/` (A3.6).
 
-- **Voxel models** port `Vox.Model` (`set`, `box`, `ell`, `line`, `paint`) and its mesher `builder()`, which emits exposed faces only and keeps faces between bones; voxels are 0.073 m (the mockup's `VS`), and 0.0365 m for things under 0.5 m and for people at the person stop (`refine`).
-- **Low-poly generators** port `rockMesh`, `blockMesh`, `shrubMesh` and the trees' `ellipsoid`, `tube` and `tier`.
-- **Vertex**, 8 bytes: position, face or normal, a **material slot** 0–3 with a tone offset, a bone; an instance supplies four ladders, so one mesh serves every material (the mockup baked a ladder per voxel); a person's own mesh bakes its ladders.
+- **Voxel models** are built from boxes, ellipsoids and lines painted with material slots, and meshed into exposed faces only, keeping faces between bones; voxels are 0.073 m, about 2.4 art pixels at the person stop, and 0.0365 m for things under 0.5 m and for people at the person stop (refined).
+- **Low-poly generators** make seeded rocks and blocks, shrubs, and trees from ellipsoids, tubes and tiers.
+- **Vertex**, 8 bytes: position, face or normal, a **material slot** 0–3 with a tone offset, a bone; an instance supplies four looks (A11.3), so one mesh serves every material; a person's own mesh bakes its looks.
 
-| Kit part | What | Ported from | Count |
+| Kit part | What | Made from | Count |
 |---|---|---|---|
-| Shared shapes | one per form of `MAT-02`, sized and coloured by the thing | `rockMesh`, `Model.ell`, `line`, `Props.log`, `bones`, `flakes` | 12 |
-| Layouts | one per named result (`MAT-21`) | `Props.hideFrame`, `rack`, `woodpile`, `windbreak`, `hearth` | about 100 |
-| Plant forms | the 8 of `PRE-46` | `Trees.pine`, `birch`, `shrubMesh`, `Reeds`, `stampTuft` | 8 |
-| Body patterns | the 6 of `PRE-46` | `Vox.deer`, `wolf`; four new | 6 |
-| People | one figure, about 8 garment kinds, hair, beads, paint | `Vox.human`, `refine`, `attach` | 1 |
+| Shared shapes | one per form of `MAT-02`, sized and coloured by the thing | seeded rocks and blocks, ellipsoids, lines, logs, bones, flakes | 12 |
+| Layouts | one per named result (`MAT-21`) | the layout format's primitives (below) | about 100 |
+| Plant forms | the 8 of `PRE-46` | trunks, tiers and crowns; blades for grass and reeds | 8 |
+| Body patterns | the 6 of `PRE-46` | voxel bodies on at most 12 bones | 6 |
+| People | one figure, about 8 garment kinds, hair, beads, paint | a voxel body on 11 bones, refined at the person stop | 1 |
 
 **Layout format:** at most 4 drawn parts, each `{ role, slot, primitive, params, count, decorated }`, the role being an input role of the result's blueprint (`MAT-04`).
 - Primitives: `line`, `ring`, `sheet_between` (a skin between two lines, with sag), `cone`, `dome`, `box`, `heap`, `hang`; params in voxels, scaled by the size band; `count` a function of the amount band.
@@ -3458,9 +3498,9 @@ Everything is drawn from one fixed kit, so the content stays countable (`PRE-46`
 5. Each thing's own differences (proportions ±8%, lean ±4°, a tone step on 1 voxel in 8) come from `num::hash2(uid, salt)` (A3.3), so it looks the same every time; trees, bushes and rocks vary likewise, without style.
 
 - **Mesh cache:** key = model, each part's form and count band, size band, wear, quality band, style, variant 0–3; materials stay out of the key, and scale, lean, turn and tone vary per instance in the vertex shader, so 4 variants a key suffice; 128 MB, least recently used dropped.
-- **Batching:** things still for 10 game minutes are baked into their chunk's mesh by a view builder (`Figures.bake`), keeping each thing's pick index per vertex; others are instanced by cache key; heaps of chips, ash and bones are one-pixel points, one per about 20 items, at most 64 (`flakePts`).
+- **Batching:** things still for 10 game minutes are baked into their chunk's mesh by a view builder, keeping each thing's pick index per vertex; others are instanced by cache key; heaps of chips, ash and bones are one-pixel points, one per about 20 items, at most 64.
 - **Plants** (`WLD-31`): a species is numbers on its form (height, crown, trunk, ladders by season state and growth stage).
-  Trees are instanced by form, variant and level (the mockup's `aI0` and `aI1`, plus four ladders): two levels swap at 0.22 m art pixels, a third of 20–30 triangles serves trees under about 12 art pixels tall, and all dissolve into the map canopy at 1.25 m (`Trees.stepFade`); a tree in front of the view's subject fades out whole, its shadow staying (`stepCut`); herbs and flowers are tiny instanced models below 0.2 m.
+  Trees are instanced by form, variant and level (per instance: form, variant, level, turn, scale and four looks): two levels swap at 0.22 m art pixels, a third of 20–30 triangles serves trees under about 12 art pixels tall, and all dissolve into the map canopy at 1.25 m, each by its seeded importance (A11.1's rule 3); a tree in front of the view's subject fades out whole, its shadow staying; herbs and flowers are tiny instanced models below 0.2 m.
   **Decision:** an outer limit of 16,000 trees and bushes drawn as models, by bucket nearest the view centre, the rest as coarse ground's crowns; why: a dense forest at the camp stop holds up to about 18,000 in view; fallback: a lower limit, tuned at `MIL-01` by the dense-forest run (A11.11).
 - **Animals** (`WLD-32`, `BIO-19`): a species is its pattern's proportions, coat ladders (back, belly, pale patch) and antlers, horns or tusks as parametric lines (as `deer`); domestic kinds have their own look (`WLD-33`).
 - **People** (`PRE-27`): `human` builds each from height, build, age and sex, and `refine` doubles the resolution at the person stop (a face and hair); garments are worn in the materials used; hair, beads and paint follow the people's style; carved and clay figures reuse the person or animal shown, small, in their material (`PRE-46`).
@@ -3474,8 +3514,8 @@ First needed: shapes, the first region's plants, people `MIL-01`; first layouts 
 
 ### A11.8 Figures, herds and movements
 
-- **Bones:** people have the mockup's 11 (hips, torso, head, upper and lower arms and legs), and every pattern at most 12; `boneMats()` turns a pose (a rotation per bone and a lift) into matrices; held things hang on the lower arm or back (`attach`).
-- **Poses:** key poses are blended and stepped 10 times a second (`actorPose`, `blendPose`, `POSE_RATE`, `PRE-27`), plus one step on the frame a mark falls, showing that mark's key pose; a finished activity's last mark pose holds one step past its end.
+- **Bones:** people have 11 (hips, torso, head, upper and lower arms and legs), and every pattern at most 12; a pose (a rotation per bone and a lift) becomes bone matrices by walking the bones from the hips outward; held things hang on the lower arm or back.
+- **Poses:** key poses are blended and stepped 10 times a second (`PRE-27`), plus one step on the frame a mark falls, showing that mark's key pose; a finished activity's last mark pose holds one step past its end.
 - **The clock** is one `kd-view` function, `loop_phase(uid, act, shared, t_d, real_s, speed) -> f32`, which A13 also uses as its `AnimClock`.
   While the display speed is at most 4 times real, the phase follows display time: repeated work plays one loop per strike or step, each landing as it ends (`TIM-17`), shifted so its contact or stroke mark falls on that landing; other activities fit a whole number of loops into their planned length.
   So the strike pose, the flake and its tap share one frame (`TIM-10`, `SND-07`).
@@ -3503,7 +3543,7 @@ First needed: shapes, the first region's plants, people `MIL-01`; first layouts 
 - **Herds kept as counts** (A4.13, A7.7): each `HerdView` is drawn as its animals, each at the leg's place at `T_d` plus A7.8's `kd_core::motion::herd_offset(herd, ordinal, spread, t)`, keyed on the herd's uid and the animal's ordinal, wandering slowly by seed.
   They take no figure slots: each species and age class is one instanced mesh with 8 shared pose rows in the figure texture (graze, walk and rest at staggered phases), so a herd of any size costs one call per class in view; a tap gives `Pick::Herd`, and at the valley stop a herd is one 5 × 5 mark.
 
-Tested by: `boneMats` within 1e-6 of the mockup's; at real speed, in a run of strikes, each frame where a flake first shows also shows the contact pose; 1,000 figures at close camp draw in 2 calls a pass; each rule changes the movements it applies to; two figures out of step, two dancers in step; a herd coming within 1 km of a person shows no jump as its animals become individuals; on the model sheet at close camp, standing work, ground work, carrying, walking, resting, fighting and dancing are told apart (`PRE-44`).
+Tested by: bone matrices within 1e-6 of their composition written out by hand for three poses; at real speed, in a run of strikes, each frame where a flake first shows also shows the contact pose; 1,000 figures at close camp draw in 2 calls a pass; each rule changes the movements it applies to; two figures out of step, two dancers in step; a herd coming within 1 km of a person shows no jump as its animals become individuals; on the model sheet at close camp, standing work, ground work, carrying, walking, resting, fighting and dancing are told apart (`PRE-44`).
 First needed: walk, carry, eat, drink, sleep, talk, play, care, nursing, lying dead, gather `MIL-01`; other base actions, body signs, faces, and the first region's animals and herds `MIL-02` (`SCP-16`); heat and blowing `MIL-03`; hunting, swim, climb, and animals everywhere `MIL-04`; dances, gestures, rage, despair `MIL-05`.
 
 ### A11.9 What the simulation hands the renderer
@@ -3544,8 +3584,9 @@ trait CrawlSlot {
 ```
 
 - B66's candidates, at its camp view, where Base crawled on 5.8% of art pixels a frame turning and 9.9% zooming: Fade (1.5° and 4% steps, an 80 ms dithered crossfade) cut both by over 99%, but the owner disliked its look; Steps (turn and zoom steps that move the view's edge by one art pixel) cut the turn's by 69%; Majority (twice the resolution, each art pixel its samples' majority) and Sticky (keeping last frame's index while half agree) barely helped, at 4 times the cost.
-- A2.9 recovers their code from `drawing-test.html` (`fixSteps`, `FADE_YAW`, `FADE_ZOOM`, `FADE_DUR`, `compose`, `resolveFS`) to `crates/kd-render/src/crawl/reference/`, and its counter (`window.__b66.crawl`, `capture`, `crawlPair`) to `tools/screens/`.
-- `window.kd` gains `crawl({ motion, rate, frames, fix })`, which freezes animation, captures each frame's indices and depth and returns B66's counts, run every alpha.
+- The four are built from these descriptions when the review needs them (A2.9: B66's code is evidence, not a source).
+- **Crawl** is an art pixel whose palette index changes between two frames while the surface it shows, re-projected through the depth buffer, moved less than one art pixel; every other change is the picture really moving.
+- `window.kd.crawl({ motion, rate, frames, fix })` freezes animation, captures each frame's indices and depth, and returns the crawl and all changed pixels; `tools/screens/crawl.mjs` runs it every alpha over 60 frames of a slow turn (0.11° a frame) and a slow zoom (0.3% a frame), with a slow pan as the control, which must count almost none.
 - The slot holds `Base` until the review, where the Tests screen offers all five; the choice becomes a tuned value in `data/tuning/render.md` (`PRN-17`).
 
 First needed: `Base` at `MIL-01`; the fix at `MIL-01`'s stage review.
@@ -3554,8 +3595,9 @@ First needed: `Base` at `MIL-01`; the fix at `MIL-01`'s stage review.
 
 | Budget | Target | Split |
 |---|---|---|
-| GPU (A16.2) | ≤ 4 ms | shadow 0.8, scene 2.2, post 0.3, crawl 0.2, upscale 0.2, UI 0.3 |
-| GL thread CPU | ≤ 2 ms | snapshot and poses 0.4, culling and draws 1.0, UI 0.4, uploads 0.2 |
+| GPU (A16.2) | ≤ 4 ms | object shadows 0.6, scene 2.4 (ground 1.0 with its fields, the rest 1.4), post 0.3, crawl 0.2, upscale 0.2, UI 0.3 |
+| GL thread CPU | ≤ 2 ms | snapshot and poses 0.4, culling and draws 0.9, UI 0.4, uploads 0.2, palette row and tables 0.1 (when the light moves) |
+| Light fields (CPU, pass 0) | sun field ≤ 2 ms an area when the sun moves 0.1°, off the GL thread where builders exist | sky field ≤ 20 ms an area, once, in its builder |
 | Triangles | scene ≤ 1.0 million, shadow ≤ 0.5 million | figures ≤ 400,000 faces; trees ≤ 500,000, at most 16,000 as models (A11.7); at the camp stop only trees within 300 m of the view centre cast shadows |
 | Draw calls | scene ≤ 250, shadow ≤ 150 | ground 100, water 10, things 60, trees 32, figures 2, herds 12 |
 | Late frames | ≤ 1%, none over 50 ms (`PLT-04`) | late = over 1.5 refresh periods |
@@ -3567,16 +3609,52 @@ First needed: `Base` at `MIL-01`; the fix at `MIL-01`'s stage review.
 - **The camp stop** (1.1 m art pixels, about 300 × 810 m of ground) was never measured, as B66 stopped at 0.5 m: its numbers above are budgets until the forest run at `MIL-01`, and if it misses them, the tree limit and then the shadow radius are lowered (`data/tuning/render.md`).
 - **Drawing less** (A16.6): a full frame only when the camera moves, input arrives or the picture changes; otherwise the last image is re-presented by the upscale alone (0.1 ms).
   Paused and untouched for 2 s, `kd-app` posts `Request::RenderMode(OnDemand)` (A2.2), which `GameView.setRenderMode` follows (A2.5); a touch or resume posts `Continuous`; overnight mode (`TIM-12`) draws a frame every 2 s, dimmed.
-- Over budget the frame stays whole and time slows (`PRN-11`); inside drawing the only fallback is a 1,024 shadow map after 2 s over the GPU budget, reported.
+- Over budget the frame stays whole and time slows (`PRN-11`); inside drawing the only fallback is a 1,024 object shadow map after 2 s over the GPU budget, reported.
 
 First needed: `MIL-01`.
 
 ### A11.12 Tests and screenshots
 
-- **CPU tests**, no GPU: snapping, palette and tables, meshers, layouts, poses and variants, `loop_phase`, icons, decals, pick tables.
-- **Golden scenes** in headless Chromium (Playwright with SwiftShader, as B66): at `?test=1`, `window.kd` (A12.4) loads fixed scenes (a palette card per row, a cliff with a cave, a turning figure, a ford, the model sheet), compared exactly with stored PNGs for that Chromium version.
+- **CPU tests**, no GPU: snapping and pitch, the light model, palette steps and tables, the light fields against brute-force marches, the mesh's morph, meshers, layouts, poses and variants, `loop_phase`, icons, decals, pick tables.
+- **Golden scenes** in headless Chromium (Playwright with SwiftShader, as B66): at `?test=1`, `window.kd` (A12.4) loads fixed scenes (a palette card per row, the valley at several hours, a cliff with a cave, a turning figure, a ford, the model sheet), compared exactly with stored PNGs for that Chromium version.
+- **Steadiness counts** (A11.1's rules), every alpha, with the crawl counter (A11.10) and `tools/screens/zoomstrip.mjs`, which counts the art pixels each 1% zoom step changes: a pan changes no pixel but by whole-pixel moves; a slow turn and a slow zoom at the camp and close camp stops change at most the share of art pixels the alpha's note records, and never more than the previous alpha's by over a tenth without a note; each zoom step of 1% keeps every art pixel's look and step except along boundaries the resampled grid crosses.
 - **Screenshot set** (A15.11): each stop at dawn, noon, dusk and night, portrait and landscape, from the review worlds, every alpha, flagging shots over 5% changed; the owner's contact sheet (`PRE-31`) takes its shots from this set, plus the model sheet and three clips of people at work (30 frames at 10 a second).
 
+First needed: `MIL-01`.
+
+### A11.13 The renderer's code
+
+How `kd-render` is organised, so that each part is written once, from this chapter's reasoning, and tested without a GPU wherever it can be.
+The codebase was deleted on 3 October 2026 at the owner's instruction and is rebuilt to this design from an empty crate.
+
+**Rules for the code:**
+1. **Decide on the CPU, interpolate on the GPU.** Everything chosen per frame (camera, light, palette row, step thresholds, tables, haze colour) or per area (heights, fields, coverage, the cover's instances) is a pure Rust function of its inputs, with no GL, unit-tested; shaders only sample, interpolate and compare per pixel.
+2. **Every per-pixel formula has a twin.** The few that shaders compute (the sky and sun factors, the light's lightness and its step, the band's dither, the haze level, the coverage vote, the outline's plane test) are written in GLSL and again in Rust in `pixel`, under the same names and with the same constants; tests use the twins, and the **probe scene** renders fixed inputs into a small target whose read-back indices must equal the twins' exactly (headless Chromium every alpha; the phone in its self-check).
+3. **One thin GL layer.** Only the `gl` module calls `glow`: typed programs (uniform locations looked up once at link; texture units from one table), 2D textures in the formats used (`RGBA8`, `R8`, `R32F`, `RG32F`; float textures nearest-sampled, since WebGL2 cannot filter them, so shaders interpolate themselves), targets with their attachments, meshes with declared layouts, and the pipeline state each pass sets in full rather than inherits.
+4. **No hidden state between frames** but what this chapter names: the camera's block and origin, the light's last row, each area's field versions; every cache is keyed by all its inputs, so a hit equals a recompute.
+5. **GPU resources are disposable.** The CPU side keeps every loaded area's heights, fields, coverage and cover lists, so after a lost context `gl_ready` rebuilds the GPU side from them alone.
+6. **Numbers live once.** Shader constants (categories, texture units, palette size, table rows) are generated as `#define` lines from the Rust constants; tuned numbers come from the catalogue (`data/palette/`, `data/tuning/render.md`), never from either code.
+
+| Module | Owns | GL |
+|---|---|---|
+| `camera` | `texel(zoom)`, the pitch, the view: orientation, snapping, blocks, floating origin, projection and depth range (A11.2) | no |
+| `light` | the air model: sun and sky light, twilight, night, exposure, grade, tone, the haze colour (A11.4) | no |
+| `looks` | the palette row from the looks under the light, the step thresholds, the tables (A11.3) | no |
+| `field` | an area's sun and sky fields (A11.5) | no |
+| `pixel` | the Rust twins of the shaders' per-pixel formulas (rule 2) | no |
+| `ground` | the CPU store of loaded areas (heights, fields, coverage, cover lists), their textures, the morphing patch, the ground's draw (A11.5) | yes |
+| `passes` | the object shadows (from the first things), scene, post, crawl slot, upscale and UI passes, each a struct holding its program and targets (A11.2, A11.10, A12.1) | yes |
+| `frame` | one frame's plan from its inputs (camera, light, row, field jobs, the frame's uniform block), then the passes in A11.2's order | both |
+| `gl` | the GL layer (rule 3) | yes |
+| `probe` | test hooks: the palette row, captures for the crawl counter (A11.10), the probe scene | yes |
+| `shaders/` | `lib.glsl` (shared: categories, packing, Bayer, steps, haze levels) and one file per program | GPU |
+
+**A frame:** `frame::plan` runs on the CPU first: the camera from the pose (A11.2); the light at the displayed time, kept while the sun moves under 0.01°; the palette row and tables when one of the row's colours would move by a whole 1/255 (A11.3); field jobs for the areas whose sun field is older than 0.1° of sun; the frame's values in one `std140` uniform block.
+Then uploads (at most 0.2 ms a frame, A11.1), then the passes: object shadows (once things stand in view), scene (ground, then things), post, crawl slot, upscale, UI.
+
+**What it reads:** the frame (A11.1), the snapshot (A11.9), areas from `kd-app`'s builders (A11.5), and from the catalogue the fixed colours (kind `Colour`, `data/palette/colours.md`), the looks (`Look`, `data/palette/looks.md`), the air's numbers (`Air`, `data/palette/light.md`) and the surfaces (`Surface`, `data/models/surfaces.md`).
+
+**Tested by:** CPU tests of `camera`, `light`, `looks`, `field`, `pixel` and the patch's morph; the probe scene; the golden scenes and steadiness counts (A11.12).
 First needed: `MIL-01`.
 
 ## A12. Screens, views and text
@@ -3587,9 +3665,10 @@ Serves: `PRE-05`, `PRE-06`, `PRE-07`, `PRE-08`, `PRE-09`, `PRE-10`, `PRE-13`, `P
 ### A12.1 The pixel UI
 
 - `kd-ui` is immediate-mode: each frame it turns the open views and their data into a `UiDrawList` (rectangles, one-pixel lines, glyph runs, icons, world-anchored marks), drawn in one or two calls after the upscale.
+  The list's types live in `kd-view`, since `kd-render` draws them and may not depend on `kd-ui` (A2.3); `kd-ui` owns the font and hands the renderer its atlas (`kd_view::FontAtlas`) through `Assets`.
 - A **UI pixel is an art pixel**, 4 screen pixels on the same grid, so the UI is the world's pixel art (`PRE-01`); every size below is in UI pixels.
-  Colours are palette entries (panels `night`, lines `shade`, text `s6` and `s3`, their words `o3`, links `f2`, selection `f3`); panels are opaque, and the world behind a modal sheet is dimmed by a 2 × 2 checker of `ink`.
-- **Font:** **Decision:** a proportional pixel font with a 7-pixel cap height and 2-pixel descenders, about 48 characters a line in portrait, from a CC0 or OFL proportional font checked at import (Pixel Operator is the candidate), credited in `assets/LICENSES.md` and on the credits screen; why: the cap is about 1.8 mm, like 16 sp body text; fallback: glyphs drawn in-house as text art (`assets/font/glyphs.txt`).
+  Colours are fixed palette entries (A11.3: panels `ui_panel`, lines `ui_line`, text `ui_text` and `ui_text_dim`, their words `ui_word`, links `ui_link`, selection `ui_select`); panels are opaque, and the world behind a modal sheet is dimmed by a 2 × 2 checker of `ink`.
+- **Font:** **Decision:** a proportional pixel font with a 7-pixel cap height and 2-pixel descenders, about 48 characters a line in portrait, from a CC0 or OFL proportional font checked at import (Pixel Operator is the candidate), credited in `assets/LICENSES.md` and on the credits screen; why: the cap is about 1.8 mm, like 16 sp body text; fallback: glyphs drawn in-house as text art (`assets/font/glyphs.txt`), which the game uses now, since a session cannot rely on fetching the font; importing it later into the same format stays possible.
 - **Line spacing:** lists and labels on an 11-pixel line, card lines on 13, and long texts (entries, life stories, myths, the details of a mind) on 15, about one and a half times the type's size, with 6 pixels between paragraphs.
   A second font, a 9-pixel cap with every line 4 pixels taller, is kept ready; the owner picks the default from the `MIL-02` contact sheet, which shows a 150-word entry and a long card.
   Pixel fonts have no italics, so words in their language are set in ochre, with the meaning in quotes (`PRE-35`).
@@ -3610,7 +3689,7 @@ Raw touches (`InputEvent`: down, move, up or cancel, with pointer, position and 
 |---|---|---|
 | Drag | one finger moves over 6 UI pixels | moves the camera; a fling eases to rest (τ 0.3 s) |
 | Twist | two fingers turn over 6° | turns, easing to rest (`PRE-22`) |
-| Pinch | finger distance changes over 6% | zoom −= ln(ratio) × 0.16, as the mockup; can join a twist |
+| Pinch | finger distance changes over 6% | the land scales by the fingers' distance ratio about their midpoint, so it stays under both fingers; can join a twist |
 | Double tap, drag | a second touch within 300 ms and 12 pixels of a tap, then moving | zoom by 0.8 a screen height; down zooms in |
 | Tap | lifted within 300 ms and 6 pixels | a panel's control, or on the world a pick (A11.2) opening the card |
 | Long press | 450 ms still | the powers ring there (`GOD-10`) |
@@ -3738,14 +3817,14 @@ From `MIL-05`, on Android only, the phone's built-in model rewords the pattern s
 - **Flow:** `kd-text` sends only the numbered pattern sentences of the facts that are not dark, under the voice's prompt (`PRE-17`); names, meanings and a myth's images are already in them (A12.6).
   A request holds at most 6 sentences and about 80 tokens of patterns (counted at 1.4 tokens a word), so a 150-word text goes in three, and the longest reply check 1 allows fits B73's cap of 256 new tokens.
   `kd-app` posts `Request::Write` (A2.2); Kotlin's `Writer.kt` calls Gemini Nano through ML Kit's Prompt API (temperature 0.3, top-k 20, at most 256 new tokens, a seed from the record and a new one for a rewrite, one request at a time); `writerResult` brings the reply.
-- **Prompt:** `data/writer/documentary.txt`, B73's best-rated voice (`PRE-19`) turned to rewording: the same numbers, one sentence each, the one who acts first, nothing added.
-- **Checks,** per sentence, rule-based (`kd_text::check`, ported from B73's `checker.py`):
+- **Prompt:** `data/writer/documentary.txt`, written for rewording in the documentary voice (`PRE-19`), which the owner rated best in B73: the same numbers, one sentence each, the one who acts first, nothing added.
+- **Checks,** per sentence, rule-based (`kd_text::check`, built from these rules; B73's checker measured them):
   1. shape: as many numbered sentences, in order, each under twice its pattern's length plus 8 words;
   2. names: its pattern's names and words in their language, letter for letter, or a pronoun for the previous sentence's doer when it matches their sex and nobody else of that sex is named in either sentence (a request's first sentence keeps its names);
   3. roles: the doer's name before that of the one acted on, with no passive turn ("was … by") between;
   4. numbers: the same, as digits or words;
   5. words: each content word comes from its pattern sentence (or is a form of one), the kind's synonym set (A12.6) or the voice's closed list of neutral words (`data/writer/neutral.md`, no verbs), and each content word of the pattern is kept or swapped within that set;
-  6. no hedges or softeners ("perhaps", "passed away", an agentless "were taken"), and every forcing word kept.
+  6. no hedges or softeners (the voice's closed list in `data/writer/softeners.md`, such as "perhaps" and "passed away", and an agentless "were taken"), and every forcing word kept.
 
   A failing sentence is replaced by its pattern sentence; the rest stand.
 - **Dark events never reach the writer** (`PRE-17`, `RSK-08`): their facts are not sent, and each one's pattern sentence is put back in date order, which the check confirms.
@@ -3789,7 +3868,7 @@ Serves: `SND-01`, `SND-02`, `SND-03`, `SND-06`, `SND-07`, `SND-08`, `SND-11`, `S
 ### A13.2 The audio engine
 
 **Output**
-- Android: AAudio from `kd-android` (B74's `android.rs`): exclusive, low latency, 48 kHz float stereo, 96-frame bursts (2 ms), a 960-frame buffer, usage "game"; B74: 24 ms to the speaker, no dropouts up to 128 sounds.
+- Android: AAudio from `kd-android`: exclusive, low latency, 48 kHz float stereo, 96-frame bursts (2 ms), a 960-frame buffer, usage "game"; B74: 24 ms to the speaker, no dropouts up to 128 sounds.
   Fallback: shared mode if exclusive is refused, at a cap of 24 (A13.3).
 - Web: an AudioWorklet at 48 kHz, fed 128-frame blocks mixed each frame with about 80 ms queued (A2.6); under 30 ms, mixing comes before simulating.
 - Headless: the same mixer writes WAV files; another device rate (44.1 kHz on some headsets) runs the mixer at that rate.
@@ -3862,7 +3941,7 @@ Fallback: if a phone check (A13.13) is over budget, the cap falls to 24, then 16
 
 ### A13.4 The speaker stage and headphones
 
-`speaker.rs` ports B74's `phone_step.py` and runs on the whole mix when the phone's own speaker plays:
+`speaker.rs` runs on the whole mix when the phone's own speaker plays (B74 measured this stage):
 1. A high-pass at 150 Hz (two second-order sections), since the speaker can't play lower.
 2. Phone bass: overtones 2–5 of the band below 200 Hz (the band over its own envelope, through Chebyshev polynomials), kept to 250–1,500 Hz, mixed in at 0.7.
 3. A gain of +6 dB, then a limiter looking 2 ms ahead and letting go over 80 ms, ceiling −1 dBFS, at most 12 dB of limiting.
@@ -3911,8 +3990,8 @@ As B74 advised, metal keeps a few ringing notes under its noise, and each base s
 | Wetter is duller (`MAT-19`) | contact stiffness × 0.3, η × 2, crunch × 0.3 | low-pass × 0.5, −3 dB |
 
 - η (energy lost per cycle) and crunch come from the class; crunch is × (1 − 0.18 × flaking), so flint barely crunches and granite does, and η × (1 + 0.5 × flexibility).
-- Form sets B74's shape: lumps, flakes, blades and points are slabs; rods, poles and strands rods; sheets and containers plates.
-- Calibration: flint, granite, dry wood and bone made this way match B74's strongest ring, ring time and contact within 25% (flint slab: 4.2 kHz, 0.53 s, 249 µs).
+- Form sets the shape: lumps, flakes, blades and points are slabs; rods, poles and strands rods; sheets and containers plates.
+- Calibration, each struck by a 350 g quartzite hammerstone: a 16 cm flint slab, a 30 cm granite stone on the ground, a 50 cm dry stick held in one hand and a 24 cm hollow long bone, made this way, come within 25% of B74's strongest ring, ring time and contact: flint 4.2 kHz, 0.53 s, 249 µs; granite 3.1 kHz, 0.07 s, 196 µs; dry wood 473 Hz, 0.36 s, 634 µs; bone 1.3 kHz, 0.12 s, 247 µs.
 
 **Random variation** (`SND-06`), seeded by source and mark: strike speed × 0.6–1.4 and each ring's share 0.25–1 (as B74); pitch × 0.97–1.03; level ±2 dB; a fresh noise seed; steps and grains ±10 ms.
 
@@ -4046,10 +4125,14 @@ No voice model or ONNX Runtime ships in the app.
 ### A13.10 Music
 
 **Instruments from their shapes** (`SND-02`, `CUL-10`), each a made thing whose shape A6 keeps:
-- **Flute:** B74's model: a note is the register × the speed of sound (from the air's temperature) ÷ (2 × the bore's acoustic length to the first open hole), corrected for holes and open ends; at most 8 harmonics plus a breath band shaped by the bore, clearer for bone than wood; B74's notes fell within 3.3 cents of the shape's pitch, and the test allows 10.
+- **Flute:** a note is the register × the speed of sound (from the air's temperature) ÷ (2 × the bore's acoustic length to the first open hole), corrected for holes and open ends; at most 8 harmonics plus a breath band shaped by the bore, clearer for bone than wood; B74's flutes built this way played within 3.3 cents of their shape's pitch, and the test allows 10.
 - A song's note goes to the nearest of the flute's own notes (each hole pattern, two registers); makers place holes for their people's scale, more exactly with skill (A6), so a clumsy flute plays out of tune.
-- **Drum:** parked by B74; remade at `MIL-05`, before any drum is heard: first, shaped noise at the strongest `drum_modes_v2` notes plus a 1–4 kHz slap band for the hide's many high notes; a bigger drum is lower, a thicker hide duller.
-  It passes when, through the speaker stage, both B74 drums come within 3 dB of the flutes with at most 12 dB of limiting, then by the owner's ear; fallback: ringing notes plus noise, as the flutes.
+- **Drum:** parked by B74; remade at `MIL-05`, before any drum is heard.
+  Its notes are the round hide's: f = j ÷ (2π r) × √(T ÷ σ′), j a zero of the Bessel function J_m, T the hide's tension, σ its mass per area and σ′ = σ + 2 ρ_air r ÷ j, the air it moves on both faces, which lowers the low notes most.
+  A note with m lines of stillness across the hide pushes the air both ways and radiates as a multipole: its share of full radiation is x^(2m+2) ÷ (1 + x^(2m+2)) with x = k r ÷ (m + 2), k the air's wavenumber; it decays at π f η plus that share × ρ_air c ÷ (2σ), and its pressure goes with the share's square root.
+  Fitted to a 64 cm kettledrum (5,360 N/m, 0.262 kg/m², η 0.002) whose (1,1) to (5,1) notes, at 172, 258, 340, 420 and 501 Hz, ring 0.8, 1.7, 2.7, 1.7 and 2.6 s to −60 dB (Christian and others, 1984), this law gives each within 1.5 times its measured time (B74), the ring time being 6.91 ÷ the decay.
+  First try: shaped noise at its strongest notes plus a 1–4 kHz slap band for the hide's many high notes; a bigger drum is lower, a thicker hide duller.
+  It passes when, through the speaker stage, a small tight drum (radius 15 cm, 3,500 N/m, 0.6 kg/m²) and a large slack one (30 cm, 1,200 N/m, 0.9 kg/m²) both come within 3 dB of the flutes with at most 12 dB of limiting, then by the owner's ear; fallback: ringing notes plus noise, as the flutes.
 - **Rattles:** a base sound (A13.5), voiced by their parts' sizes and materials.
 
 **Songs**
@@ -4100,13 +4183,13 @@ A later layer that adds it would bring all four together.
 2. Shares: a storm over a festival with screams never breaks a share or a layer's units, seats every loud sound and steals only by rule.
 3. The law, for every sound blueprint: brighter with hardness, lower and longer with size, duller when wet; B74's four materials within 25%; flute notes within 10 cents.
 4. Variation: no two of 100 renders of one strike or step correlate above 0.98, so 20 flint strikes in a row all differ (`SND-06`).
-5. Speaker stage: deep test sounds gain at least 4 dB through B74's speaker stand-in; with headphones it is bypassed exactly.
+5. Speaker stage: deep test sounds gain at least 4 dB through a stand-in for the phone's speaker (two second-order high-passes at 300 and 400 Hz and a low-pass at 14 kHz, as B74 modelled the speaker), measured K-weighted as the mean of the loudest fifth of 400 ms windows; with headphones it is bypassed exactly.
 6. Murmur: in 100 worlds, every phrase strings from the bank with only kept sounds and no blocked word; at most 4 single voices; anger faster and louder than grief.
 7. Ambience (`SND-11`): a test valley differs by at least 6 dB in some octave band between dawn and night and between rain and calm, and the bird slot is silent where the cell has no small birds.
 8. Scenes (A15.7): `kd sound render <scene> --camera <path>` writes a WAV and a log of every slot and bed with its source; every sound traces to a snapshot entry (`PRN-10`), and A13.11's checks pass.
 9. Cost: `kd sound bench` mixes the dearest mix (55 units) in the cloud each alpha (A16.1's factor); the phone benchmark (A15.10) plays the stage's scene live, counting dropouts.
 
-An alpha that changes a sound links an optional page of before-and-after clips, loudness-matched as in B74 (`RSK-28`).
+An alpha that changes a sound links an optional page of before-and-after clips, loudness-matched by test 5's K-weighted measure, without the stand-in (`RSK-28`).
 
 **The owner's review** (`SND-12`, `RES-22`), at each stage that adds sound:
 - The Tests screen's Review button (A15.11) plays a reel of about 3 minutes from the fixed review worlds: the close camp at dusk and at night, its hum from camp zoom, a valley in a storm and the globe.
@@ -4231,7 +4314,7 @@ The catch-up repeats at most one autosave interval, so it takes at most about 30
 
 ### A14.8 The history log, the book of ages and texts
 
-History log (B04's custom log, zstd):
+History log (a custom log, zstd; B04 measured it):
 - The simulation hands events to an `EventSink`; clusters buffer them, merged in (time, uid, sequence) order at each barrier and pause (A4.8), the same at any thread count.
 - Event core, 32 bytes (`time: u64`, `kind: u16`, `flags: u16`, `place: u32`, `actor: u64`, `target: u64`), with an optional payload such as a choice's 24-byte reasons (`PRN-13`, A8.15), logged only with each activity's end in the journal and with events kept forever, in a side column; a catalogue table (A3) says which kinds are logged and which kept forever.
 - Your acts and their results never enter this log, which minds and the recognisers read: `act_result` and `fortune_turned` go only to `acts.log` and the `player` chunk, never through `EventSink`, linked to what followed by time and place (`GOD-06`, `GOD-07`, `GOD-09`).
@@ -4334,14 +4417,14 @@ No cloud session can create GitHub releases or set commit statuses (the reviews'
 
 - One Cargo workspace (A2), `Cargo.lock` committed, every build `--locked`, Rust pinned (A2.8); a toolchain change must pass the cross-target test (A15.9).
 - **Decision:** profile `release` (opt-level 3, thin LTO, `codegen-units = 1`, `panic = "unwind"` so JNI catches panics, symbols kept outside the APK) only for the delivered APK and wasm; profile `fast` (opt-level 3, `codegen-units = 16`, incremental, no LTO) for `kd`, tests and scenes.
-  Why: the merge checks must fit about 20 minutes (`PRC-10`), and Rust never reorders or contracts float maths, so both give one state hash, as a nightly test confirms.
+  Why: the merge checks must fit about 20 minutes (`PRC-10`), and Rust never reorders or contracts float maths, so both give one state hash, as a long test confirms.
 - Determinism: the `clippy.toml` bans of A2.3 and A3.2 in each simulation crate, with `f32::min`, `max`, `minimum` and `maximum` among them; no `target-cpu` or fast-math anywhere; the crate `tests/banned/`, using each banned item once, must fail clippy.
 - Layering by `kd check layers` (A2.3); test switches (`RES-10`) only under the feature `test-switches`, which no app build enables (`PRN-12`, A3.9).
 - IDs (`PRC-12`): code names what it implements (`` /// Implements `MAT-04`, see A6.2 ``); a test names what it checks on the line above it (`// checks: MAT-04 RES-23`); a scene in its file.
 
 ### A15.2 A fresh cloud session
 
-A session starts on an empty machine (B80), so the environment's setup script runs `tools/setup-toolchain.sh` (A2.8), which installs what is missing into `$KD_CACHE`, qemu and the arm64 linker included.
+A session starts on an empty machine (B80), so the environment's setup script runs `tools/setup.sh` (A2.8), which installs what is missing into `$KD_CACHE`, qemu and the arm64 linker included.
 That is about 1.4 GB downloaded and 4.5 GB on disk (NDK 2.3 GB, SDK 0.7 GB, Gradle cache 1.3 GB), in about 5 minutes (B78).
 A shallow clone is enough, so binaries in old history never slow a start (A17.10); if setup fails, the session tells the owner the command and exit code.
 
@@ -4349,9 +4432,9 @@ A shallow clone is enough, so binaries in old history never slow a start (A17.10
 
 - Cloud and tests: `cargo build --profile fast -p kd-tools` gives `kd` (A2.7).
 - Web: `tools/build-web.sh` builds `kd-web` for wasm32 and runs `wasm-bindgen --target web` into `dist/web/` with `index.html`, the glue and the audio worklet; wasm at most 12 MB (the artifact host takes 15 MB a binary file); `dist/web/` is never committed, as the published page holds it.
-- Phone: `tools/build-apk.sh release|check` runs Gradle (A2.5: its `Exec` task builds `libkindling.so` into `build/rustJniLibs`), signs with scheme v3, which `apksigner` uses alone at minSdk 31 since every Android that installs the APK reads it (α00's Conflict note) (`release` with the release key, A15.5, or the throwaway key until its secret exists; `check` with a key made in the session and discarded), runs `tools/verify-apk.sh` (A2.5's checks, including exactly its permissions, never `INTERNET`, `PLT-03`), and puts the APK and its SHA-256 in `dist/`.
+- Phone: `tools/build-apk.sh release|check` runs Gradle (A2.5: its `Exec` task builds `libkindling.so` into `build/rustJniLibs`), signs with scheme v3, which `apksigner` uses alone at minSdk 31 since every Android that installs the APK reads it (`release` with the release key, A15.5; `check` with a key made in the session and discarded), runs `tools/verify-apk.sh` (A2.5's checks, including exactly its permissions, never `INTERNET`, `PLT-03`), and puts the APK and its SHA-256 in `dist/`.
 
-Package `dev.kindling.app` (A2.5, permanent once registered); `versionCode` = stage × 1000 + alpha × 10 + split (split `a` 1 to `e` 5, none 0: α00 1000, α06b 1062, α13 3130), so each alpha installs over the last; **Decision (α00):** the split digit leaves room for lettered alphas such as α06b, which stage × 1000 + alpha did not.
+Package `dev.kindling.app` (A2.5, permanent once registered); `versionCode` = stage × 1000 + alpha × 10 + split (split `a` 1 to `e` 5, none 0: α00 1000, α06b 1062, α13 3130), so each alpha installs over the last; **Decision:** the split digit leaves room for lettered alphas such as α06b, which stage × 1000 + alpha did not.
 **Decision:** the APK is at most 50 MB (the reviews' cap; GitHub refuses files over 100 MB), expected about 30–36 MB: `libkindling.so` about 10–15 MB stored uncompressed, ML Kit and AndroidX about 5 MB, recordings about 4 MB, the murmur's two syllable banks about 10 MB (A13.9, A13.13: no voice model or ONNX Runtime), catalogue, font and textures about 2 MB.
 Size and build times are measured every alpha; growth over 5 MB is flagged in the note (A16.7).
 
@@ -4359,8 +4442,8 @@ Size and build times are measured every alpha; growth over 5 MB is flagged in th
 
 - APK, every alpha (`PRC-11`, `SCP-03`): `tools/build-apk.sh release`, committed as `dist/kindling.apk` on the work branch and linked as `https://github.com/gunsandsalvi/Project-Nature/raw/<branch>/dist/kindling.apk`; the repository is public, so no sign-in is needed, and nothing secret is committed.
 - Installing (`PLT-06`): download in the browser and tap, allowing the browser once; the same key and a higher `versionCode` update in place, and worlds carry on (`PLT-09`).
-- Self-check (`PRC-11`): on the first launch of a new `versionCode`, kd-app spends at most 5 s on the catalogue blob's hash, a 10-person scene run one game day against a state hash baked in at build, a save and reopen in `cacheDir`, every shader compiled, AAudio opened and closed, and the writer's status; a failure shows a `KDS1:` code (gzip, base64, ≤ 2 KB) with Copy, decoded by `tools/decode-bench.py`.
-- Web: the first alpha publishes a probe page (a 1 KB WebAssembly module, a WebGL2 triangle) that shows the owner "WebAssembly works" or "blocked"; if it works, `dist/web/` is published as a private page at every alpha, at one URL kept in `dist/LINKS.md`; if not, A17.3.
+- Self-check (`PRC-11`): on the first launch of a new `versionCode`, kd-app spends at most 5 s on the catalogue blob's hash, a 10-person scene run one game day against a state hash baked in at build, a save and reopen in `cacheDir`, every shader compiled, AAudio opened and closed, and the writer's status; a failure shows a `KDS1:` code (gzip, base64, ≤ 2 KB) in the code dialog (`Request::ShowCode`: the shell gzips the report into the code and shows it with Copy, so it works before any UI exists and no compression crate enters Rust), decoded by `tools/decode-bench.py`.
+- Web: `dist/web/` is published as a private page at every alpha, at one URL kept in `dist/LINKS.md` (WebAssembly and WebGL2 ran in the private page from the first build); if that ever stops, A17.3.
 - Note (`PRC-11`): `dist/NOTE.md` (what is new, what to try, what is rough, the IDs delivered, the links), published as a private page with the APK link at its top and reused in the pull request and the owner's message; `kd check file --note` checks it.
 - Test worlds (`PLT-05`): a world whose slim export (A14.10) is under 50 MB goes on the `runs` branch, linked in the note; a larger one is made on the phone by a seeded command instead of being shipped.
   The note then carries a `KDW1:` code (seed, versions, compiled setting, switches, end time, state hashes expected on the way); the Tests screen's "Make test world" runs it at top speed under overnight mode's safeguards (`TIM-12`), checks each hash, and shows a test world with its switches (`RES-10`); a Year-500 world takes about a night.
@@ -4369,13 +4452,13 @@ Size and build times are measured every alpha; growth over 5 MB is flagged in th
 
 One key signs every delivered build from the first alpha (`PLT-06`, `RSK-29`); no debug-signed APK is ever delivered, and a release build fails without the key.
 **Decision:** the release key is derived from a passphrase kept as the environment secret `KINDLING_SIGNING_PASSPHRASE`; why: a passphrase is easy to keep and back up on a phone, while a keystore file would have to pass through the chat or the public repository; fallback: a base64 keystore in the secret.
-- `tools/signing-key.py` (Python `cryptography`, in the session image): scrypt of the passphrase (n = 2^17, r = 8, p = 1: 128 MiB, about a second; salt `kindling-release-v1`) to 48 bytes, reduced to a P-256 key, written as PKCS#8 to a temporary file deleted after signing.
+- `tools/signing-key.py` (Python `cryptography`, in the session image): scrypt of the passphrase (n = 2^17, r = 8, p = 1: 128 MiB, about a second; salt `kindling-release-v1`) to 48 bytes, reduced to a P-256 key as FIPS 186-4's extra-random-bits method does (`d = c mod (n − 1) + 1`, `c` the 48 bytes read as a big-endian number, `n` the curve's order), written as PKCS#8 to a temporary file deleted after signing.
   Why scrypt, not HKDF: the certificate is public, so with no work factor a weak passphrase could be guessed offline.
 - Only that script reads the secret: cargo, Gradle and npm run under `env -u KINDLING_SIGNING_PASSPHRASE`.
 - The certificate is made once and committed at `android/keys/release-cert.der` with its SHA-256 fingerprint; each build checks the derived key against it before `apksigner sign --key <pk8> --cert release-cert.der`, so a mistyped passphrase fails the build.
 
 Owner's steps, once, before the first alpha (`PLT-06`): make a passphrase of at least 7 random words in a password manager (the second copy, `RSK-29`), add it in the cloud environment's settings, start a new session, and register the package and the printed fingerprint in the free hobbyist developer account (`RSK-18`).
-The first alpha's session asks for this at its start and confirms the developer console accepts an EC certificate (fallback: the base64 RSA keystore).
+A session cannot sign in to the developer console, so the note that first gives the fingerprint asks the owner to register it: the registration asks only for the package name and the certificate's SHA-256 fingerprint, and every Android from minSdk 31 verifies ECDSA P-256 signatures (fallback, if the console refuses it: the base64 RSA keystore, read by `signing-key.py`).
 If the key must ever change, it is rotated with APK Signature Scheme v3 (`apksigner rotate`, then `--lineage`; Android 9 and later), so the game updates in place with no reinstall; the new certificate is registered too.
 
 ### A15.6 Test layers
@@ -4383,9 +4466,9 @@ If the key must ever change, it is rotated with APK Signature Scheme v3 (`apksig
 | Layer | When |
 |---|---|
 | Unit tests; catalogue checks with reality rules (`MAT-17`); blueprint trials (`RES-24`); scenes up to 10 game years: behaviour, chains, signature moments (`RES-23`, `RES-17`) | every merge |
-| Longer scenes: sharp stone (`RES-02`), long moments, switch-off runs (`RES-10`) | nightly, and before a stage closes |
-| Whole worlds: pace (`RES-07`), believable outcomes (`RES-14`), oddities (`RES-12`) | nightly after minds, blueprints or catalogues change, and before a stage closes |
-| Determinism (A15.9) | short at every merge, long nightly |
+| Longer scenes: sharp stone (`RES-02`), long moments, switch-off runs (`RES-10`) | in the background when what they depend on changes, and before a stage closes |
+| Whole worlds: pace (`RES-07`), believable outcomes (`RES-14`), oddities (`RES-12`) | in the background after minds, blueprints or catalogues change, and before a stage closes |
+| Determinism (A15.9) | short at every merge, long in the background |
 | Benchmarks (A15.10) | cloud every alpha, phone every stage (`PLT-04`) |
 | Screenshots (A15.11) | every alpha |
 | The writer's trap records (`PRE-17`) | on the phone, when its instructions change and every stage (A12.7) |
@@ -4429,25 +4512,25 @@ First needed: `MIL-01` (everyday behaviour, `RSK-27`).
 `kd world new --seed S --out <dir>` makes a world with the play generator, taking the top score (`WLD-10`); before whole worlds exist, the first region's island with its bands stands in (A5.6, `WLD-34`, `RES-21`).
 `kd world run <dir> --until "Year 500"` runs one world per process, four per session, planned at 3.4 effective cores; checkpoints are ordinary saves on disk at the cloud cadence (A14.6), and a run resumes from its newest valid one, bit-identical (B80: 10 of 10 after two kills each).
 At each, the runner reopens the save in another process (`RES-12`), applies `tests/oddities.toml` and `tests/ranges.toml` (`RES-14`), checks free disk (A16.7), and updates `progress.json` (year, CPU time, each pace step's year, oddities).
-Runs start detached (`setsid nohup`); the session wakes itself every 30 minutes (`send_later`) to restart any world whose heartbeat stopped, as files survive a machine restart (B80).
+Runs start detached (`setsid nohup`) in the building session's background; the builder looks at them at each task's end and restarts any world whose heartbeat stopped from its newest checkpoint, as files survive a machine restart (B80).
 **Decision:** a run's progress leaves the machine only as small checkpoints on a `runs` branch, never merged into `main`; why: no session can upload releases (the reviews' decision).
-- Runs planned over 4 hours commit each world's slim export (A14.10) every 3 real hours as `runs/<run>/<world>.kindling` if under 50 MB, replacing the last; each night commits `status.json` and the run's `results/` there too.
+- Runs planned over 4 hours commit each world's slim export (A14.10) every 3 real hours as `runs/<run>/<world>.kindling` if under 50 MB, replacing the last; each run commits `status.json` and its `results/` there too as it ends.
 - A world cut off with its session resumes in a later one from its newest pushed checkpoint, or from its seed once past 50 MB, ending identical either way (`PLT-05`, `TIM-16`); runs are sized to finish inside their sessions.
-- Nights (`PLT-05`, `SCP-15`): a Routine, set up once with the owner's OK, starts a fresh session each night on the latest alpha for the nightly set, whose results wait on the `runs` branch.
+- Background runs (`PLT-05`, `SCP-15`): the building session itself starts the long set as background jobs when a change calls for it (the table above), never another session (the owner's rule of 3 October 2026); each run checkpoints to the `runs` branch, so a restarted session resumes it, and its results are read before the work they cover joins, or at the latest before the stage closes (`PRC-10`).
 
-Computing (`RES-07`; A4.15's 1.15 ms a person in all, A8.21's 1.05 with animals and 0.1 for making areas; cloud = phone-held ÷ 1.5): nightly, 20 worlds to Year 60 (about 130 people) ≈ 8 CPU-hours, one session, about 2 hours; at `MIL-06`'s close, 20 worlds to Year 150 (about 180 people) ≈ 23 CPU-hours, about 3 hours on two sessions; the full test, 10 worlds to Year 500 (about 600–1,700 people on average, the largest reaching about 7,000, `BIO-04`) ≈ 50–120 CPU-hours: 2 worlds of 2 workers in each of 5 sessions, about 5–8 hours (`RSK-14`), inside `RES-07`'s 20–45 session-hours.
+Computing (`RES-07`; A4.15's 1.15 ms a person in all, A8.21's 1.05 with animals and 0.1 for making areas; cloud = phone-held ÷ 1.5): after a change, 20 worlds to Year 60 (about 130 people) ≈ 8 CPU-hours, about 2 hours on the session's four workers; at `MIL-06`'s close, 20 worlds to Year 150 (about 180 people) ≈ 23 CPU-hours, about 6 hours; the full test, 10 worlds to Year 500 (about 600–1,700 people on average, the largest reaching about 7,000, `BIO-04`) ≈ 50–120 CPU-hours, about 13–30 hours on four workers, spread over the last alphas of `MIL-07` (`RSK-14`), inside `RES-07`'s 20–45 session-hours.
 A run that cannot finish in its sessions goes to the owner first (`SCP-15`), and each stage report sets the real cost against these (`RES-06`).
 `kd check file` fails if a pace-test seed appears in `data/TUNING-LOG.md` (`RES-16`).
 First needed: `MIL-02`; whole worlds from `MIL-04`.
 
 ### A15.9 Determinism tests
 
-Short forms at every merge, long forms nightly (`TIM-16`, `RES-05`):
+Short forms at every merge, long forms in the background (`TIM-16`, `RES-05`):
 1. Save, load and continue equals the uninterrupted run, at 3 random paused seconds per quick scene.
 2. 1, 2 and 4 threads give the same state hash (A4).
 3. Speed, zoom and camera change nothing: frame lengths varied, view areas made elsewhere, the story director on and off (`TIM-17`, `WLD-13`, `MND-14`, `TIM-03`).
 4. The repeat check (`PRC-10`): one scene and one bench world each run on 1 worker and on 4 with a stop and resume between, ending identical.
-5. Across targets: at every merge one fixed short scene gives one state hash on x86-64, on arm64 under qemu and as wasm in headless Chromium (B01: the cloud reproduced the phone's bits); nightly every quick scene, and both profiles.
+5. Across targets: at every merge one fixed short scene gives one state hash on x86-64, on arm64 under qemu and as wasm in headless Chromium (B01: the cloud reproduced the phone's bits); in the background every quick scene, and both profiles.
 6. Phone and cloud: the phone benchmark's state hashes after fixed spans equal the cloud's (`RES-05`); a difference blocks the stage until found, and settling for matching ranges needs the owner's OK (A17.6).
 7. Kills, damage and catch-up (A14.13).
 
@@ -4470,6 +4553,7 @@ Phone, every stage (`PLT-04`, `TIM-07`): the Tests screen (a long press on the v
 
 `tools/screenshots.mjs` serves `dist/web/` to Playwright's Chromium (WebGL through SwiftShader, B66: pixels count, not speed); `?test=1` exposes `window.kd` to load a world and set camera, time of day and orientation, and its `crawl` hook counts crawling pixels (A12.4, A11.10).
 Every alpha it saves each zoom stop at dawn, noon, dusk and night, portrait and landscape, from the fixed review worlds; it fails on page errors or blank frames and flags shots changed in over 5% of pixels since the last alpha.
+The screen scripts serve the page inside the artifact host's own page skeleton, so a test sees the page as the owner does, and test at screen scales 1 and 2: Chromium's emulated fractional scales, such as the phone's 2.625, misreport a canvas's size in device pixels (measured at α00), so a fractional scale is checked on the phone itself.
 On the phone, each stage, the Tests screen's Review button renders the same set and short clips of people at work, and plays A13.14's sound reel, beside the checklists of `PRE-31` and `SND-12`.
 
 ### A15.12 Checks before work joins the main version
@@ -4482,25 +4566,28 @@ On the phone, each stage, the Tests screen's Review button renders the same set 
 5. `kd scene run --quick`: every scene up to 10 game years, signature moments included (`RES-23`, `RES-17`).
 6. The repeat check and the cross-target scene (A15.9, items 4 and 5).
 7. `kd check file`: `PRC-10`'s file check on `PROJECT.md` (generated lists current too), every ID and section the architecture and plan cite existing, and the commit check (`PRC-07`).
-8. `kd check ids --merge`: every ID in code and tests live, every new test naming IDs, every changed pass rule with its reason (`PRC-12`, `RES-09`).
+8. `kd check ids --merge`: every ID in code and tests live, every new test naming IDs, every changed pass rule with its reason (`PRC-12`, `RES-09`); every live feature and rule served by an alpha still in the plan, kept by every alpha, or implemented in code (an `Implements` line names it); every ID that code implements named by a test, a scene or a catalogue entry, the plan keeping no record of done alphas; and the plan's coverage map current (`map --write` regenerates it).
 9. Builds: `kd` always; the release APK and wasm at a delivery, or when `android/`, `web/`, `kd-android` or `kd-web` change.
+   At a delivery the APK is rebuilt with a key made for the check, and the committed release APK is checked against its SHA-256 and A2.5's checks, since a release build made after that commit would name a newer commit in its build line and change the file (measured at α00).
 
+**Decision:** `kd check file` and `kd check ids` are the modes `file` and `ids` of `tools/filecheck.py`, Python's standard library alone, since text checks over Markdown and sources are simplest there and every session has it.
 It writes `results/checks/<commit>.json` and prints `Checks: PASS <commit>`; a later commit touching only `results/` keeps that pass.
-Over 20 minutes, the scenes of items the change doesn't touch move to the night first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining (`PRC-10`).
-After the night, the next session reads the night's results before anything else: a check that passed before and now fails is fixed, or the change behind it undone, before other work joins, and a pace target not yet met goes to tuning (`RES-16`), blocking only the stage close.
+Over 20 minutes, the scenes of items the change doesn't touch move to the background first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining (`PRC-10`).
+When a background run ends, its results are read before anything else: a check that passed before and now fails is fixed, or the change behind it undone, before other work joins, and a pace target not yet met goes to tuning (`RES-16`), blocking only the stage close.
 Merges are merge commits, never squashed, so each commit keeps its `Changed:` line and session trailer.
 Before a stage closes, `PRC-10`'s list runs, with `kd check ids --stage` (all of `PRC-12`, with `RES-19`'s promises), and the owner's review (`RES-22`) is recorded in `reports/stage-<n>-review.md`.
 
 ### A15.13 The independent review
 
 The gate is `tools/check.sh` plus the review recorded in the pull request's description; no branch protection or commit status is needed (the reviews' decision).
-1. The builder's pull request description holds only facts: IDs delivered, tests added, pass rules changed with reasons, architecture sections touched, its `Checks: PASS` line; none of its reasoning (`PRC-09`).
-2. A reviewer in a separate session (`create_session`), or a fresh subagent of the builder's session given only the diff, the alpha's section and the items it cites (since 2 October 2026, when the owner moved all building into one session), re-runs format, clippy, tests and quick scenes, and reverts each new test to see it fail.
+Since the owner's instruction of 3 October 2026 (`PRC-09`), the builder reviews each lettered alpha that a later letter of its number follows (α02a and α02b of α02a to α02c), and a fresh subagent verifies the whole number once, at the alpha that ends it (α02c, or an alpha never split); the plan's status table says which alpha ends a number.
+1. The builder's pull request description opens with the alpha's name and holds only facts: IDs delivered, tests added, pass rules changed with reasons, architecture sections touched, its `Checks: PASS` line; none of its reasoning (`PRC-09`).
+2. The reviewer re-runs format, clippy, tests and quick scenes, and reverts each new test to see it fail. For an alpha that does not end its number, the reviewer is the builder, in a pass of its own after the delivery; at the number's end, a fresh subagent of the builder's session (or a reviewer in a separate session) given only the number's whole diff, its alphas' sections (as the plan held them when the number began, since each alpha leaves the plan at its delivery) and the items they cite.
 3. It checks with `tools/review-checklist.md`: each claimed ID's What, Done when and Check lines; no test weakened or pass rule loosened (`RES-09`); catalogue entries naming their checks (`MAT-17`); the principles, above all `PRN-01`, `PRN-06`, `PRN-07`, `PRN-12` and `PRN-14`; determinism, layering, budget flags; no implementation in `PROJECT.md` (`PRC-04`); and, as the owner asked on 3 October 2026, it looks at the alpha's pictures (goldens, smoke shots, the note's pictures) as a pixel artist and a designer would, judging whether the graphics are as they should be.
-4. It adds `Review: APPROVE <commit> <its session>` (a subagent, having no session of its own, names itself `subagent:<label>`), or `Review: CHANGES` with its findings, to the description; a later push voids an approval.
-5. If they still disagree after one round of fixes, a second fresh reviewer decides; anything changing what `PROJECT.md` means goes to the owner (`PRC-09`).
-6. The builder runs `tools/check.sh --gate <saved description>`: the head is the approved commit, its checks passed, and the reviewer is a subagent or a session that differs from every `Claude-Session` trailer on the branch; it then merges (`merge_pull_request`, a merge commit) with both lines in the message.
-7. `kd check ids --stage` confirms every merge into `main` since the last stage carries both lines, the reviewer a subagent or a session other than the builder's; any other is reviewed before the stage closes.
+4. It adds `Review: APPROVE <commit> <reviewer>` to the description, the reviewer `builder`, `subagent:<label>` or a session, or `Review: CHANGES` with its findings; a later push voids an approval.
+5. If a subagent and the builder still disagree after one round of fixes, a second fresh reviewer decides; anything changing what `PROJECT.md` means goes to the owner (`PRC-09`).
+6. The builder runs `tools/check.sh --gate <saved description or pull request>`: the head is the approved commit, its checks passed, and the reviewer is the builder for an alpha that does not end its number, or else a subagent or a session that differs from every `Claude-Session` trailer on the branch; it then merges (`merge_pull_request`, a merge commit) with both lines in the message.
+7. `kd check ids --stage` confirms every merge into `main` since the last stage carries both lines, and each number's last alpha a reviewer other than the builder; any other is reviewed before the stage closes.
 
 ### A15.14 Stage reports
 
@@ -4533,7 +4620,7 @@ Serves `VIS-14`, `PLT-01`, `PLT-04`, `PLT-10`, `TIM-07`, `TIM-12`, `MND-15`, `PR
 | Audio mixing | ≤ 25% of a small core (B74: 11% at 32 sounds) |
 | Touch to screen | ≤ 2 frames |
 
-Basis: the mockup's look drew in 0.4–3.8 ms of CPU per frame at 97–100% of 120 Hz in a web view (B66).
+Basis: B66's test scene drew in 0.4–3.8 ms of CPU per frame at 97–100% of 120 Hz in a web view.
 
 ### A16.3 Simulation cost
 
@@ -4711,7 +4798,7 @@ Serves `RSK-02`, `RSK-04`, `RSK-08`, `RSK-09`, `RSK-14`, `RSK-15`, `RSK-18`, `RS
 ### A17.8 Cloud sessions restarting mid-work (`RSK-14`)
 
 - Signs: a heartbeat with a new boot id or none; a session on an empty machine; stopped runs; usage limits reached; a full disk.
-- Fallback: commit and push at least hourly; small checkpoints on the `runs` branch (A15.8); runs sized to their sessions; pace tests over more nights or fewer worlds, as reported (`RES-13`); GitHub's free runners for a public repository (20 parallel 4-core jobs of up to 6 hours) only with the owner's OK (`SCP-15`).
+- Fallback: commit and push at least hourly; small checkpoints on the `runs` branch (A15.8); runs sized to their sessions; pace tests over more session-hours or fewer worlds, as reported (`RES-13`); GitHub's free runners for a public repository (20 parallel 4-core jobs of up to 6 hours) only with the owner's OK (`SCP-15`).
 - Decides: agents; the owner for any more computing.
 
 ### A17.9 Saves and updates (`RSK-15`, `RSK-21`)
@@ -4724,7 +4811,7 @@ Serves `RSK-02`, `RSK-04`, `RSK-08`, `RSK-09`, `RSK-14`, `RSK-15`, `RSK-18`, `RS
 ### A17.10 Smaller risks
 
 - Repository growth: each alpha's APK adds about 33 MB to `main`'s history (about 2.3 GB over some 70 alphas, A15.3), and the `runs` branch its checkpoints; shallow clones keep sessions fast and each stage report gives the size; past 3 GB the owner chooses between their own GitHub token, so binaries go to releases (the reviews' decision), and deleting old `runs` branches.
-- Toolchain downloads failing: `tools/setup-toolchain.sh` retries with backoff and uses the Maven mirror; versions change only on purpose.
+- Toolchain downloads failing: `tools/setup.sh` retries with backoff and uses the Maven mirror; versions change only on purpose.
 - The phone replaced (`RSK-24`): worlds move by export, and the new model is planned with the owner.
 
 ## A18. Traceability

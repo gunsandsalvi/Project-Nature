@@ -1,3 +1,4 @@
+# Rust pinned for every target (A2.8, A15.1): a toolchain change must pass the cross-target test (A15.9).
 [toolchain]
 channel = "1.97.0"
 components = ["clippy", "rustfmt"]

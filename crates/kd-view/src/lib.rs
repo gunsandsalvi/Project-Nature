@@ -1,23 +1,10 @@
-//! kd-view: snapshot, command and view-request types, input events and UI draw lists (A4.13, A11–A13, A12.1, A12.2);
-//! implements PRC-11, PRE-32 and PLT-02 in part.
+//! kd-view: the types the world hands the front end: snapshots, commands, view requests, input, UI draw lists,
+//! sound events and text records (A4, A11 to A13).
+//! α00 holds raw input, the system insets and an empty snapshot; the world fills the snapshot from α03a.
+
 #![deny(unsafe_code)]
 
-pub mod ui;
-
-pub use kd_core::geo::Pos;
-pub use ui::{FontAtlas, GlyphRun, UiDrawList, UiRect};
-
-/// What a touch or pointer did (A12.2).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum InputKind {
-    Down,
-    Move,
-    Up,
-    Cancel,
-}
-
-/// One raw touch, in screen pixels, with its time in nanoseconds (A12.2).
-/// Implements `PRC-11` in part, see A2.4.
+/// One raw touch or pointer event, in screen pixels from the screen's top-left corner (A12.2).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct InputEvent {
     pub kind: InputKind,
@@ -27,47 +14,24 @@ pub struct InputEvent {
     pub t_ns: u64,
 }
 
-/// The screen's edges that the system covers (a camera cutout, the status bar), in screen pixels (A12.1: nothing
-/// goes under the insets).
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+/// What a raw touch did (A12.2).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum InputKind {
+    Down,
+    Move,
+    Up,
+    Cancel,
+}
+
+/// The screen's edges that controls must stay clear of: system bars and the gesture strip, in screen pixels (A2.5).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Insets {
-    pub top: f32,
-    pub bottom: f32,
-    pub left: f32,
-    pub right: f32,
+    pub left: u32,
+    pub top: u32,
+    pub right: u32,
+    pub bottom: u32,
 }
 
-/// The golden cube's pose (A11.12), until the world fills the snapshot in α03a.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct CubeView {
-    pub yaw: f32,
-    pub pitch: f32,
-}
-
-/// What the renderer reads each frame (A11.9): until the world fills it in α03a, the cube of the golden scene `cube`
-/// when it shows; otherwise the ground.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct Snapshot {
-    pub cube: Option<CubeView>,
-}
-
-/// The camera (A11.1, A11.2): the ground position it looks at, its turn in radians and its zoom, 0 at the person
-/// stop to 1 at the globe (A11.5).
-/// Implements `PRE-03` in part, see A11.2.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct CameraPose {
-    pub target: Pos,
-    pub yaw: f32,
-    pub zoom: f32,
-}
-
-/// An area's ground for the picture (A11.5): heights at `side` × `side` points a metre apart, in metres above sea
-/// level, rows from the north-west corner at `origin`; and a surface per square metre, its row of the surfaces
-/// table (`data/models/surfaces.md`).
-#[derive(Clone, Debug, Default, PartialEq)]
-pub struct GroundGrid {
-    pub origin: Pos,
-    pub side: usize,
-    pub heights_m: Vec<f32>,
-    pub surface: Vec<u8>,
-}
+/// What the world hands the renderer each frame (A4.13, A11.9); empty until the world exists (α03a).
+#[derive(Clone, Debug, Default)]
+pub struct Snapshot {}

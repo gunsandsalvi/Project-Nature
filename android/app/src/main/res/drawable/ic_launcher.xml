@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Kindling's icon: a pixel flame on the void (the mockup's void, f1, f2, f3). -->
+<!-- Kindling's icon: a small campfire in 16 x 16 pixels. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp" android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="#0d0b14" android:pathData="M0,0h24v24h-24z" />
-    <path android:fillColor="#de621c" android:pathData="M7,10h10v9h-10z" />
-    <path android:fillColor="#de621c" android:pathData="M9,6h5v4h-5z" />
-    <path android:fillColor="#fdac3f" android:pathData="M9,13h6v6h-6z" />
-    <path android:fillColor="#fdac3f" android:pathData="M10,9h3v4h-3z" />
-    <path android:fillColor="#ffe298" android:pathData="M11,15h2v4h-2z" />
-    <path android:fillColor="#ffe298" android:pathData="M11,4h2v2h-2z" />
+    android:width="48dp" android:height="48dp" android:viewportWidth="16" android:viewportHeight="16">
+    <path android:fillColor="#FF16131D" android:pathData="M0,0h16v1h-16zM0,1h16v1h-16zM0,2h16v1h-16zM0,3h16v1h-16zM0,4h16v1h-16zM0,5h16v1h-16zM0,6h16v1h-16zM0,7h16v1h-16zM0,8h16v1h-16zM0,9h16v1h-16zM0,10h16v1h-16zM0,11h16v1h-16zM0,12h16v1h-16zM0,13h16v1h-16zM0,14h16v1h-16zM0,15h16v1h-16z" />
+    <path android:fillColor="#FFE2622A" android:pathData="M8,2h1v1h-1zM7,3h2v1h-2zM7,4h3v1h-3zM6,5h4v1h-4zM5,6h6v1h-6zM5,7h6v1h-6zM4,8h8v1h-8zM4,9h8v1h-8zM4,10h8v1h-8zM5,11h6v1h-6zM6,12h4v1h-4z" />
+    <path android:fillColor="#FFF6A33C" android:pathData="M7,6h2v1h-2zM6,7h4v1h-4zM6,8h4v1h-4zM5,9h6v1h-6zM5,10h6v1h-6zM6,11h4v1h-4zM7,12h2v1h-2z" />
+    <path android:fillColor="#FFFFE08A" android:pathData="M7,8h2v1h-2zM7,9h2v1h-2zM6,10h4v1h-4zM7,11h2v1h-2z" />
+    <path android:fillColor="#FF7A4A2A" android:pathData="M3,13h10v1h-10z" />
+    <path android:fillColor="#FF4E2E1B" android:pathData="M2,14h5v1h-5zM9,14h5v1h-5z" />
 </vector>

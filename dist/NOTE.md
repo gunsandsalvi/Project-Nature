@@ -1,41 +1,33 @@
-# Kindling α01b: The valley
+# Kindling α00: Skeleton on the phone
 
 ## What is new
-- A 256 m piece of hilly land fills the screen as pixel art: grass in stepped greens, drier in patches, a rock cliff crossing it with scree at its foot, the light low and warm from the west at dusk, and real shadows behind the bumps and the cliff.
-- The land is made the way the world will be made: the shaped noise from the terrain pre-test, ported and checked to give exactly the same ground on the phone's kind of processor and on the build computer.
-- You move the camera with your fingers: drag and the land moves under your finger (let go while moving and it glides to a stop), twist two fingers to turn, pinch to come close or see the whole piece, and double-tap then drag with one thumb to zoom.
-- Pixels stay put while you pan: the picture moves by whole pixels, checked pixel for pixel in the browser, both where the drawing's reference point stays put and where a pan moves it to another corner of the land, and over 520 pans in a row across the whole piece.
 
-![The valley at the camp zoom, as the test sees it in the browser: dusk, the cliff and its scree, the shadows falling east](../tests/golden/valley-camp-chromium-1194.png)
-
-After the first review: stones and grass tufts now show everywhere (they had vanished from three quarters of the land, the scree at the start among them), and grass, earth, rock and scree meet along smooth, natural edges instead of a brown sawtooth.
-
-After the second review: at the camp zoom and beyond, a pan, turn or zoom that moved the drawing's reference point to the other side of the land's corner redrew the grass patches, stones and edges all at once, a third of the screen or more; now they stay fixed to the land wherever that point lies.
+- Kindling was rebuilt from nothing, as you asked. This first step is only the frame everything else will stand on.
+- The app opens full screen on the phone and shows a test card. It is signed with your one release key, so every later version installs over it.
+- The same card runs in the browser at the web link.
+- The card is drawn at art resolution: one art pixel is 4 × 4 screen pixels, the size the game's pixel art will use.
 
 ## What to try
-1. Tap the APK button: Android updates Kindling over α01a (no uninstall). Open it.
-2. A piece of hilly ground fills the screen: grass in stepped greens, a rock cliff crossing it with scree at its foot, the light low and warm from one side, shadows behind the bumps and the cliff.
-3. Drag: the land moves under your finger, crisp, without shimmer. Let go while moving and it glides to a stop.
-4. Twist two fingers: the land turns, then settles. Pinch out to come close until single stones show on the ground; pinch in to see the whole piece.
-5. Double-tap and drag down with one thumb: it zooms in; drag up: it zooms out.
-6. Turn the phone: the same view, the same pixel size.
-7. Touch the top strip as before: it shows the version and frame rate, and a tap on it steps the colours through dawn, day and night.
-8. Open the web link: the same in the browser; a mouse drags, but only a touch screen twists and pinches.
+
+1. Uninstall the old Kindling first, since the version numbers start again. Then tap **Download and install** at the top of this page, allow the browser once if it asks, and open Kindling.
+2. You should see a dark screen with a small, fine checker near the top-left corner, eight grey steps from black to white under it, and a thin orange bar sliding from left to right, over and over.
+3. Look closely at the checker: it should look even, with no stripes or bands, and every tiny square the same size. Your screen's scale (2.625) can only be checked on the phone itself.
+4. Turn the phone: the card is laid out again at once, with the same pixel size, and nothing restarts.
+5. Back puts the app in the background; open it again and the bar carries on.
+6. Open the web link on the phone: the same card in the browser.
 
 ## What is rough
-- The cliff's steep face shows dark vertical streaks: outlines on a face that the ground's mesh can only approximate. Cliffs become proper faces, with overhangs and caves, in α02c.
-- Turning and zooming still make some pixels flicker: in the browser's count, about 5% of the ground's pixels change each frame while turning slowly at the camp zoom, and 8% while zooming (16% and 22% before the second review's fix, most of it the jump it fixed); panning makes almost none, a single pixel now and then. You choose one of the fixes at the end of Stage 1 (α07e).
-- The scree at the cliff's foot takes the cliff's colours, so from far off it is hard to tell from the rock; the mockup draws it darker.
-- The ground's shading is still the mockup's, ported as it was, and the review's pixel-art look found its limits: up close the scree's stones read as "=" marks rather than stones, the haze turns far grass brown and then grey, the dither bands widen to 5–7 pixels at the closest zoom, and at the start the cliff's streaks merge into one black slab. The lighting and shading are being redone next, with real sky and sun colour (your request of 3 October).
-- In the browser a frame takes 0.36 ms of drawing, up from α01a's 0.16 ms, for the ground and its shadows: still far inside the budget.
-- The sun stands still at dusk until the clock arrives in α03a; the strip's colour steps change the colours, not the sun.
-- The land ends at the edge of the piece, and zooming out stops before the valley view, which needs the island (α02a).
-- The gesture thresholds are the drawing pre-test's; if anything feels too eager or too slow, say which.
+
+- There is no world yet, only the test card. Numbers, time and chance come next (α00b); colour from light and the ground come in α01.
+- If a box with a code in it appears (titled "Kindling self-check" or "Kindling stopped drawing"), something went wrong: tap Copy and paste the code into your reply.
+- Once, if not done yet: register the package `dev.kindling.app` and the release key's fingerprint in your free developer account. The fingerprint is `d7a2cbdd0a69175e49bc6fed82ec6ff0dc69543e83499b49d8beb5854da34863`.
 
 ## IDs delivered
-In part: `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-30`, `PRE-33`, `PRE-34`, `PLT-02`, `WLD-12`, `WLD-01`, `TIM-16`.
+
+`PRC-11` (part: an APK and a web page each alpha, this note, the self-check's first part), `SCP-15` (part), `PLT-01` (part: an arm64 build on the phone), `PLT-02` (part: turning never restarts the app), `PLT-03` (part: no network permission), `PLT-06` (part: signed with the one release key), `PRE-22` (part: an art pixel is 4 × 4 screen pixels), `PRC-09` (part: work joins `main` by pull request), `PRC-10` (part: the first check script).
 
 ## Links
-- APK: [kindling.apk](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) (677 KB, version a01b, code 1012, release key)
-- Web: [Kindling alpha](https://claude.ai/artifact/NmypTQyKQUAFZs18TNJELH)
-- Phone check: [Kindling phone check](https://claude.ai/artifact/RZuafpPi6Hdmu9o9nu5dHi)
+
+- APK: https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk
+- Web: https://claude.ai/artifact/NmypTQyKQUAFZs18TNJELH
+- Note: https://claude.ai/artifact/GBackmSHJPak61yAd6we4d

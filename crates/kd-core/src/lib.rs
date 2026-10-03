@@ -1,13 +1,4 @@
-//! kd-core: game time, keyed chance, maths and positions (A3, A3.7, A4.1, A4.2); implements TIM-16, TIM-14, TIM-18
-//! and WLD-01 in part.
+//! kd-core: game time, uids, handles, stores, keyed chance, maths, coordinates, the sky, collections, errors and switches; the `Pool` trait (A3, A4).
+//! Empty until α00b builds it (IMPLEMENTATION.md).
+
 #![deny(unsafe_code)]
-
-pub mod chance;
-pub mod geo;
-pub mod kinds;
-pub mod m;
-pub mod num;
-pub mod selfcheck;
-pub mod time;
-
-pub use time::GameTime;

@@ -1,147 +1,150 @@
 #!/usr/bin/env python3
-"""Turns dist/NOTE.md into dist/note/index.html, the alpha's note page (A15.4, PRC-11).
+"""Turns an alpha's note into its page (PRC-11, A15.4): dist/NOTE.md becomes dist/note/index.html, a private page
+with the install button at its top and the web page's link under it, published at the note's one URL.
 
-Handles headings, paragraphs, lists, links, bold, inline code and images; the APK link becomes a large button at the
-top, the web link sits under it. An image line `![caption](file.png)` (the path relative to the note) becomes a
-figure held in the page as a `data:` URI, so the note stays one file. Usage: tools/note-page.py [NOTE.md] [out.html]
+    python3 tools/note-page.py [dist/NOTE.md] [dist/note/index.html]
+
+The note is plain Markdown: headings, paragraphs, lists, links, `code` and **bold**. The page follows the
+artifact host's page rules: a short title, colour tokens for light and dark themes, a 16 px gutter, no sideways
+scrolling at phone width, and no document skeleton of its own (the host wraps it).
 """
-import base64
 import html
 import os
 import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LINK = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
-IMAGE = re.compile(r"^!\[([^\]]*)\]\(([^)\s]+)\)\s*$")
-TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp"}
 
-STYLE = """:root { --bg: #0d0b14; --fg: #f2dcaa; --dim: #8f8790; --line: #28232f; --fire: #de621c; --fire2: #fdac3f; color-scheme: dark; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0d0b14; --fg: #f2dcaa; --dim: #8f8790; } }
-:root[data-theme="dark"] { --bg: #0d0b14; --fg: #f2dcaa; --dim: #8f8790; }
-html, body { margin: 0; background: var(--bg); color: var(--fg); overflow-x: hidden; }
-body { padding: 24px 16px 48px; font: 16px/1.55 system-ui, sans-serif; max-width: 640px; margin: 0 auto; box-sizing: border-box; }
-h1 { font-size: 26px; line-height: 1.2; margin: 0 0 16px; }
-h2 { font-size: 18px; margin: 28px 0 8px; padding-top: 12px; border-top: 1px solid var(--line); }
-h3 { font-size: 16px; margin: 20px 0 6px; }
-p, li { overflow-wrap: anywhere; }
-ul, ol { padding-left: 22px; }
-a { color: var(--fire2); }
-figure { margin: 16px 0; }
-figure img { display: block; width: 100%; max-width: 412px; height: auto; margin: 0 auto; image-rendering: pixelated; }
-figcaption { color: var(--dim); font-size: 14px; text-align: center; margin-top: 6px; }
-code { font: 14px ui-monospace, monospace; background: var(--line); padding: 1px 4px; border-radius: 3px; }
-.apk { display: block; text-align: center; padding: 16px; margin: 0 0 12px; border-radius: 8px; background: var(--fire);
-  color: #0d0b14; font-weight: 700; font-size: 20px; text-decoration: none; }
-.web { display: block; text-align: center; padding: 10px; margin: 0 0 20px; border: 1px solid var(--dim); border-radius: 8px;
-  color: var(--fg); text-decoration: none; }"""
+STYLE = """<style>
+  :root {
+    --bg: #faf6ef; --fg: #24202b; --dim: #6b6474; --line: #e2dbcf; --code: #f0e9dc;
+    --accent: #b8471a; --on-accent: #fffaf3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15131b; --fg: #ebe5da; --dim: #a39ca9; --line: #2f2b38; --code: #221f2b;
+      --accent: #f08a3c; --on-accent: #1b1208; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15131b; --fg: #ebe5da; --dim: #a39ca9; --line: #2f2b38; --code: #221f2b;
+    --accent: #f08a3c; --on-accent: #1b1208; color-scheme: dark;
+  }
+  body { background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 40rem; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; }
+  .install, .web { display: block; text-align: center; border-radius: 12px; text-decoration: none; }
+  .install { background: var(--accent); color: var(--on-accent); font-weight: 650; font-size: 1.15rem; padding: 16px; }
+  .web { margin-top: 10px; padding: 12px; border: 1px solid var(--line); color: var(--fg); }
+  h1 { font-size: 1.55rem; line-height: 1.25; margin: 28px 0 6px; text-wrap: balance; }
+  h2 { font-size: 1.1rem; margin: 26px 0 6px; padding-top: 14px; border-top: 1px solid var(--line); text-wrap: balance; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { max-width: 65ch; }
+  ul, ol { padding-left: 1.3em; }
+  li + li { margin-top: 4px; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  code { font: 0.88em ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--code);
+         padding: 0.1em 0.35em; border-radius: 4px; overflow-wrap: anywhere; }
+  .meta { color: var(--dim); font-size: 0.9rem; }
+</style>"""
+
+INLINE = re.compile(r"`([^`]+)`|\*\*(.+?)\*\*|\[([^\]]+)\]\((https?://[^)\s]+)\)|(https?://[^\s<)]+)")
+URL = re.compile(r"https?://[^\s<)\]]+")
 
 
 def inline(text):
-    """Escapes text, then turns links, inline code and bold into HTML."""
-    parts = re.split(r"(`[^`]+`)", text)
-    out = []
-    for part in parts:
-        if part.startswith("`") and part.endswith("`") and len(part) > 1:
-            out.append(f"<code>{html.escape(part[1:-1])}</code>")
-            continue
-        s = html.escape(part, quote=False)
-        s = LINK.sub(lambda m: f'<a href="{html.escape(m.group(2))}">{m.group(1)}</a>', s)
-        s = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", s)
-        out.append(s)
+    out, pos = [], 0
+    for m in INLINE.finditer(text):
+        out.append(html.escape(text[pos:m.start()]))
+        code, bold, label, url, bare = m.groups()
+        if code is not None:
+            out.append(f"<code>{html.escape(code)}</code>")
+        elif bold is not None:
+            out.append(f"<strong>{inline(bold)}</strong>")
+        elif label is not None:
+            out.append(f'<a href="{html.escape(url, quote=True)}">{html.escape(label)}</a>')
+        else:
+            out.append(f'<a href="{html.escape(bare, quote=True)}">{html.escape(bare)}</a>')
+        pos = m.end()
+    out.append(html.escape(text[pos:]))
     return "".join(out)
 
 
-def figure(caption, path, base):
-    """An image as a figure whose picture is a data: URI read from `path`, relative to `base`."""
-    full = os.path.join(base, path)
-    kind = TYPES.get(os.path.splitext(path)[1].lower(), "application/octet-stream")
-    with open(full, "rb") as f:
-        data = base64.b64encode(f.read()).decode("ascii")
-    cap = html.escape(caption)
-    return f'<figure><img src="data:{kind};base64,{data}" alt="{cap}"><figcaption>{inline(caption)}</figcaption></figure>'
-
-
-def body(md, base=ROOT):
-    """Markdown blocks to HTML; image paths are relative to `base`."""
-    out, para, items, kind = [], [], [], None
+def blocks(md):
+    out, para, kind = [], [], None
 
     def flush():
-        nonlocal para, items, kind
         if para:
             out.append(f"<p>{inline(' '.join(para))}</p>")
-        if items:
-            out.append(f"<{kind}>" + "".join(f"<li>{inline(i)}</li>" for i in items) + f"</{kind}>")
-        para, items, kind = [], [], None
+            para.clear()
 
-    for line in md.split("\n"):
-        h = re.match(r"^(#{1,3})\s+(.*)$", line)
-        li = re.match(r"^\s*[-*]\s+(.*)$", line)
-        ol = re.match(r"^\s*\d+\.\s+(.*)$", line)
-        img = IMAGE.match(line)
-        if img:
+    def close():
+        nonlocal kind
+        if kind:
+            out.append(f"</{kind}>")
+            kind = None
+
+    for line in md.splitlines():
+        s = line.strip()
+        if not s:
             flush()
-            out.append(figure(img.group(1), img.group(2), base))
-        elif h:
+            close()
+            continue
+        h = re.match(r"(#{1,3}) (.+)", s)
+        if h:
             flush()
+            close()
             n = len(h.group(1))
             out.append(f"<h{n}>{inline(h.group(2))}</h{n}>")
-        elif li or ol:
-            if para:
-                flush()
-            k = "ul" if li else "ol"
-            if kind and kind != k:
-                flush()
-            kind = k
-            items.append((li or ol).group(1))
-        elif not line.strip():
+            continue
+        item = re.match(r"(?:[-*]|(\d+)\.) (.+)", s)
+        if item:
             flush()
-        elif items and line.startswith("  "):
-            items[-1] += " " + line.strip()
-        else:
-            if items:
-                flush()
-            para.append(line.strip())
+            want = "ol" if item.group(1) else "ul"
+            if kind != want:
+                close()
+                out.append(f"<{want}>")
+                kind = want
+            out.append(f"<li>{inline(item.group(2))}</li>")
+            continue
+        if kind and line[:1] in (" ", "\t"):
+            out[-1] = out[-1][: -len("</li>")] + " " + inline(s) + "</li>"
+            continue
+        close()
+        para.append(s)
     flush()
+    close()
     return "\n".join(out)
 
 
-def page(md, base=ROOT):
-    """The whole note page; image paths are relative to `base`."""
-    links = LINK.findall(md)
-    apk = next((u for _, u in links if u.endswith("dist/kindling.apk")), None)
-    web = None
-    for line in md.split("\n"):
-        if re.match(r"^\s*[-*]?\s*\**web\b", line, re.I):
-            m = LINK.search(line)
-            if m:
-                web = m.group(2)
-                break
-    title = next((m.group(1) for m in re.finditer(r"^#\s+(.+)$", md, re.M)), "Kindling alpha")
-    top = ""
-    if apk:
-        top += f'<a class="apk" href="{html.escape(apk)}">Download the APK</a>\n'
+def page(md):
+    """The note's page; the APK link (a URL ending in kindling.apk) is required."""
+    urls = URL.findall(md)
+    apk = next((u for u in urls if u.endswith("/kindling.apk")), None)
+    if apk is None:
+        raise ValueError("the note has no link to dist/kindling.apk")
+    web = next((u for line in md.splitlines() if "web" in line.lower()
+                for u in URL.findall(line) if "claude.ai/" in u), None)
+    title = next((line[2:].strip() for line in md.splitlines() if line.startswith("# ")), "Kindling")
+    parts = [f"<title>Kindling alpha note</title>", STYLE, "<main>",
+             f'<a class="install" href="{html.escape(apk, quote=True)}">Download and install</a>']
     if web:
-        top += f'<a class="web" href="{html.escape(web)}">Open in the browser</a>\n'
-    return (
-        '<!doctype html>\n<html lang="en"><head><meta charset="utf-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-        f"<title>Kindling note</title>\n<style>\n{STYLE}\n</style></head>\n<body>\n"
-        f"<!-- {html.escape(title)} -->\n{top}{body(md, base)}\n</body></html>\n"
-    )
+        parts.append(f'<a class="web" href="{html.escape(web, quote=True)}">Or open it in the browser</a>')
+    parts += [blocks(md), f'<p class="meta">{html.escape(title)}</p>', "</main>"]
+    return "\n".join(parts) + "\n"
 
 
 def main(argv):
-    src = argv[0] if argv else os.path.join(ROOT, "dist", "NOTE.md")
-    dst = argv[1] if len(argv) > 1 else os.path.join(ROOT, "dist", "note", "index.html")
+    src = argv[1] if len(argv) > 1 else os.path.join(ROOT, "dist", "NOTE.md")
+    dst = argv[2] if len(argv) > 2 else os.path.join(ROOT, "dist", "note", "index.html")
+    try:
+        text = page(open(src, encoding="utf-8").read())
+    except ValueError as e:
+        sys.exit(f"Note page: {e}")
     os.makedirs(os.path.dirname(dst), exist_ok=True)
-    with open(src, encoding="utf-8") as f:
-        text = page(f.read(), os.path.dirname(os.path.abspath(src)))
     with open(dst, "w", encoding="utf-8") as f:
         f.write(text)
     print(f"Note page: {os.path.relpath(dst, ROOT)}")
-    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    main(sys.argv)

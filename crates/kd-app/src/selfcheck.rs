@@ -1,40 +1,114 @@
-//! The self-check report (A15.4, `PRC-11`): what failed, as JSON the shells turn into a `KDS1:` code.
+//! The self-check (A15.4, `PRC-11`): what a new build checks on the phone at start, and the report it sends back
+//! as a `KDS1:` code when something fails. α00 checks that every shader compiled and that the GL version is
+//! OpenGL ES 3 or WebGL2; the core's bits (α00b), the catalogue (α01a) and the rest join with their alphas.
 
 use crate::json::json_str;
 
-/// `{"v": build, "dev": device, "gl": gl_info, "cat": "<rules major.minor> <hash prefix>", "fail": [...]}`.
-pub fn report_json(build: &str, device: &str, gl: &str, cat: &str, fail: &[String]) -> String {
-    let fails: Vec<String> = fail.iter().map(|f| json_str(f)).collect();
-    format!(
-        "{{\"v\":{},\"dev\":{},\"gl\":{},\"cat\":{},\"fail\":[{}]}}",
-        json_str(build),
-        json_str(device),
-        json_str(gl),
-        json_str(cat),
-        fails.join(",")
-    )
+/// The code's prefix: version 1 of the self-check's report.
+pub const PREFIX: &str = "KDS1:";
+
+/// What failed, and where: the build, the device and the GL driver.
+///
+/// Implements PRC-11, see A15.4: the first time a build opens, a check of a few seconds, and a short code when
+/// something fails.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Report {
+    pub build: String,
+    pub device: String,
+    pub gl: String,
+    pub fail: Vec<String>,
+}
+
+impl Report {
+    /// Compact JSON: `{"v":…,"dev":…,"gl":…,"fail":[…]}`, which `tools/decode-bench.py` reads back.
+    pub fn to_json(&self) -> String {
+        let fails: Vec<String> = self.fail.iter().map(|f| json_str(f)).collect();
+        format!(
+            "{{\"v\":{},\"dev\":{},\"gl\":{},\"fail\":[{}]}}",
+            json_str(&self.build),
+            json_str(&self.device),
+            json_str(&self.gl),
+            fails.join(",")
+        )
+    }
+}
+
+/// Whether the driver is OpenGL ES 3 or WebGL2, which every shader is written for (A11.1).
+pub fn gl_version_ok(info: &str) -> bool {
+    info.contains("OpenGL ES 3") || info.contains("WebGL 2")
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::json::requests_json;
+    use crate::{App, AppConfig, Platform, Request};
+    use std::sync::{Arc, Mutex};
+
+    struct Outbox(Mutex<Vec<Request>>);
+    impl Platform for Outbox {
+        fn now_ns(&self) -> u64 {
+            0
+        }
+        fn post(&self, r: Request) {
+            self.0.lock().unwrap().push(r);
+        }
+    }
 
     // checks: PRC-11
     #[test]
-    fn report_shape() {
-        let j = report_json(
-            "a00 abc",
-            "Pixel \"11\"",
-            "ANGLE | OpenGL ES 3.2",
-            "1.0 639ab0fc",
-            &["m::sin".into(), "gl: 0x502".into()],
-        );
+    fn report_as_requests() {
+        // A failing report becomes compact JSON, and the request carrying it reaches the shells exactly so.
+        let r = Report {
+            build: "a00 · 1000 · abc1234".into(),
+            device: "Google Pixel 11 Pro XL SDK 37".into(),
+            gl: "Mali | OpenGL ES 3.2".into(),
+            fail: vec!["shader \"upscale\" did not compile:\n0:1 error".into()],
+        };
+        let json = r.to_json();
         assert_eq!(
-            j,
-            r#"{"v":"a00 abc","dev":"Pixel \"11\"","gl":"ANGLE | OpenGL ES 3.2","cat":"1.0 639ab0fc","fail":["m::sin","gl: 0x502"]}"#
+            json,
+            "{\"v\":\"a00 · 1000 · abc1234\",\"dev\":\"Google Pixel 11 Pro XL SDK 37\",\"gl\":\"Mali | OpenGL ES 3.2\",\
+             \"fail\":[\"shader \\\"upscale\\\" did not compile:\\n0:1 error\"]}"
         );
-        for key in ["\"v\"", "\"dev\"", "\"gl\"", "\"cat\"", "\"fail\""] {
-            assert!(j.contains(key));
-        }
+        let req = Request::ShowCode {
+            title: "Kindling self-check".into(),
+            prefix: PREFIX.into(),
+            json,
+        };
+        let text = requests_json(&[req]);
+        assert!(text.starts_with(
+            "[{\"ShowCode\":{\"title\":\"Kindling self-check\",\"prefix\":\"KDS1:\",\"json\":\"{\\\"v\\\""
+        ));
+        assert!(text.ends_with("0:1 error\\\"]}\"}}]"));
+        assert_eq!(requests_json(&[]), "[]");
+    }
+
+    // checks: PRC-11
+    #[test]
+    fn one_code_a_run() {
+        // Failures are gathered and sent once, never again in the same run; a run with none sends nothing.
+        let outbox = Arc::new(Outbox(Mutex::new(Vec::new())));
+        let mut app = App::new(outbox.clone(), AppConfig { device: "test".into() });
+        app.finish_check();
+        assert!(outbox.0.lock().unwrap().is_empty());
+        app.check_failed("shader x did not compile".into());
+        app.check_failed("GL version: OpenGL ES 2.0".into());
+        app.finish_check();
+        app.check_failed("later".into());
+        app.finish_check();
+        let posted = outbox.0.lock().unwrap();
+        assert_eq!(posted.len(), 1);
+        let Request::ShowCode { prefix, json, .. } = &posted[0];
+        assert_eq!(prefix, PREFIX);
+        assert!(json.contains("\"fail\":[\"shader x did not compile\",\"GL version: OpenGL ES 2.0\"]"));
+    }
+
+    // checks: PRC-11
+    #[test]
+    fn gl_versions() {
+        assert!(gl_version_ok("Adreno (TM) 830 | OpenGL ES 3.2 V@0800.0"));
+        assert!(gl_version_ok("WebKit WebGL | WebGL 2.0 (OpenGL ES 3.0 Chromium)"));
+        assert!(!gl_version_ok("Mali | OpenGL ES 2.0"));
     }
 }

@@ -1,7 +1,10 @@
-// Pass 5, upscale (A11.2): nearest, whole-number scale, the sub-pixel shift in uOff. The mockup's upscaleFS.
-out vec4 fragColor;
-uniform sampler2D uImg; uniform vec2 uImgSize; uniform vec2 uOff; uniform float uScale;
+// Pass 5 (A11.2): the art target enlarged to the window, nearest, by a whole-number scale, with the sub-pixel
+// shift, so a pan moves the picture by whole screen pixels while the art grid stays where it is.
+uniform sampler2D u_art;
+uniform vec2 u_off;     // art pixels from the art target's corner to the window's bottom-left corner
+uniform float u_scale;  // screen pixels per art pixel
+out vec4 o_colour;
+
 void main() {
-  vec2 a = floor(uOff + gl_FragCoord.xy / uScale);
-  fragColor = texture(uImg, (a + 0.5) / uImgSize);
+    o_colour = texelFetch(u_art, ivec2(floor(u_off + gl_FragCoord.xy / u_scale)), 0);
 }

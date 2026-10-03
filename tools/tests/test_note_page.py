@@ -1,54 +1,62 @@
-"""tools/note-page.py turns a sample note into its page."""
+"""tools/note-page.py makes the note's page (PRC-11, A15.4)."""
 import importlib.util
 import os
 import unittest
 
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-spec = importlib.util.spec_from_file_location("note_page", os.path.join(HERE, "note-page.py"))
+HERE = os.path.dirname(os.path.abspath(__file__))
+spec = importlib.util.spec_from_file_location("note_page", os.path.join(HERE, "..", "note-page.py"))
 note_page = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(note_page)
 
-SAMPLE = """# Kindling α00: Skeleton on the phone
+APK = "https://github.com/gunsandsalvi/Project-Nature/raw/branch/dist/kindling.apk"
+SAMPLE = f"""# Kindling a00: Skeleton on the phone
 
 ## What is new
-- A golden cube turns on the phone & in the browser.
-- Scripts: `tools/check.sh`.
+- A test card at art resolution, with `4 × 4` pixels.
+- Signed with **the release key**.
+
+## What to try
+1. Uninstall the old Kindling first.
+2. Install from [the APK]({APK}) and open it:
+   a checker shows.
+
+## What is rough
+Nothing <yet> & no world.
+
+## IDs delivered
+`PRC-11`, `PLT-06`
 
 ## Links
-- APK: [kindling.apk](https://github.com/o/r/raw/a00/dist/kindling.apk)
-- Web: [the alpha page](https://claude.ai/artifact/abc)
+- APK: {APK}
+- Web: https://claude.ai/artifact/abc
 """
 
 
-class NotePageTest(unittest.TestCase):
+class NotePage(unittest.TestCase):
     # checks: PRC-11
-    def test_sample(self):
+    def test_install_button_first(self):
         out = note_page.page(SAMPLE)
-        self.assertIn("<title>Kindling note</title>", out)
-        apk = out.index('class="apk" href="https://github.com/o/r/raw/a00/dist/kindling.apk"')
-        web = out.index('class="web" href="https://claude.ai/artifact/abc"')
-        self.assertLess(apk, web)
-        self.assertLess(web, out.index("<h2>What is new</h2>"))
-        self.assertIn("<li>A golden cube turns on the phone &amp; in the browser.</li>", out)
-        self.assertIn("<code>tools/check.sh</code>", out)
-        self.assertIn('<a href="https://claude.ai/artifact/abc">the alpha page</a>', out)
-        for token in ["--bg:", "prefers-color-scheme: dark", "overflow-x: hidden", "background: var(--bg)"]:
-            self.assertIn(token, out)
+        self.assertTrue(out.startswith("<title>"))
+        install = out.index('class="install"')
+        self.assertLess(install, out.index("<h1>"))
+        self.assertIn(f'href="{APK}">Download and install</a>', out)
+        self.assertIn('class="web" href="https://claude.ai/artifact/abc"', out)
 
     # checks: PRC-11
-    def test_image(self):
-        import base64
-        import tempfile
-        png = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==")
-        with tempfile.TemporaryDirectory() as d:
-            with open(os.path.join(d, "cube.png"), "wb") as f:
-                f.write(png)
-            out = note_page.page("# Note\n\nText.\n\n![The golden cube](cube.png)\n", d)
-        data = base64.b64encode(png).decode("ascii")
-        self.assertIn(f'<img src="data:image/png;base64,{data}" alt="The golden cube">', out)
-        self.assertIn("<figcaption>The golden cube</figcaption>", out)
-        self.assertIn("<p>Text.</p>", out)
-        self.assertNotIn("cube.png", out, "the page holds the picture itself, so it stays one file")
+    def test_markdown(self):
+        out = note_page.page(SAMPLE)
+        self.assertIn("<h2>What is new</h2>", out)
+        self.assertIn("<code>4 × 4</code>", out)
+        self.assertIn("<strong>the release key</strong>", out)
+        self.assertIn("<ol>", out)
+        self.assertIn("open it: a checker shows.</li>", out)
+        self.assertIn("Nothing &lt;yet&gt; &amp; no world.", out)
+        self.assertNotIn("<html", out)
+
+    # checks: PRC-11
+    def test_apk_link_required(self):
+        with self.assertRaises(ValueError):
+            note_page.page("# A note\n\nNo link.\n")
 
 
 if __name__ == "__main__":

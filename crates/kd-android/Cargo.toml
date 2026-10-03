@@ -10,13 +10,12 @@ name = "kindling"
 crate-type = ["cdylib"]
 
 [dependencies]
-kd-app.workspace = true
 kd-core.workspace = true
 kd-view.workspace = true
-glow.workspace = true
-log.workspace = true
-serde_json.workspace = true
+kd-app.workspace = true
 
 [target.'cfg(target_os = "android")'.dependencies]
+glow.workspace = true
 jni.workspace = true
 libc.workspace = true
+log.workspace = true

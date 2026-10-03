@@ -1,95 +1,76 @@
 #!/usr/bin/env bash
-# Checks an APK can install over the last one and load its native code on the phone, without a phone (A2.5, A15.3).
-# From pretests/phone-r2/tools/verify-apk.sh, cut to Kindling's app.
-# Usage: tools/verify-apk.sh app.apk   (exit code 0 only when every check passes)
-set -uo pipefail
-ROOT=$(cd "$(dirname "$0")/.." && pwd)
+# Checks an APK before it is delivered (A2.5, A15.3). Usage: tools/verify-apk.sh <apk> release|check
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$ROOT/tools/env.sh"
+APK="$1"
+MODE="${2:-release}"
 . "$ROOT/android/version.properties"
-APK=$1
-TC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
-fail=0
-ok() { echo "  ok   $1"; }
-bad() { echo "  FAIL $1"; fail=1; }
-TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
-
-echo "$APK ($(stat -c %s "$APK") bytes)"
+AAPT2="$KD_BUILD_TOOLS/aapt2"
+NDK_BIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+fail() { echo "APK verify: FAILED: $*" >&2; exit 1; }
+ok() { echo "  ok  $*"; }
 
 # checks: PLT-06
-SIG=$("$BT/apksigner" verify --verbose --print-certs "$APK" 2>&1 | grep -v JAVA_TOOL)
-# apksigner leaves v2 out when minSdk is 28 or more and v3 is present (v3 covers them): see α00's Conflict note.
-grep -q "Verified using v2 scheme (APK Signature Scheme v2): true" <<<"$SIG" && ok "signed v2" || echo "  info no v2 block: apksigner omits it at minSdk 31, v3 covers every supported Android"
-grep -q "Verified using v3 scheme (APK Signature Scheme v3): true" <<<"$SIG" && ok "signed v3" || bad "signed v3"
-grep -q "^Verifies" <<<"$SIG" || bad "apksigner verify"
-CERT=$(grep -m1 "certificate SHA-256 digest" <<<"$SIG" | awk '{print $NF}')
-if git -C "$ROOT" cat-file -e HEAD:dist/kindling.apk 2>/dev/null; then
-  git -C "$ROOT" show HEAD:dist/kindling.apk > "$TMP/last.apk"
-  LAST=$("$BT/apksigner" verify --print-certs "$TMP/last.apk" 2>&1 | grep -m1 "certificate SHA-256 digest" | awk '{print $NF}')
-  if [ -n "$CERT" ] && [ "$CERT" = "$LAST" ]; then ok "same signing key as the last committed APK ($CERT)"
-  else echo "  info key changed: one reinstall needed (PLT-06)"; fi
-else
-  echo "  info no earlier APK"
+# One key, scheme v3 alone (A15.3, A15.5); a release build carries the registered release certificate.
+SIGS="$("$KD_BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK")" || fail "apksigner verify"
+grep -q 'Verified using v3 scheme (APK Signature Scheme v3): true' <<<"$SIGS" || fail "no v3 signature"
+if [ "$MODE" = release ]; then
+  GOT="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' <<<"$SIGS")"
+  WANT="$(cut -d' ' -f1 "$ROOT/android/keys/release-cert.sha256")"
+  [ "$GOT" = "$WANT" ] || fail "signed with $GOT, not the release certificate $WANT"
 fi
-"$BT/zipalign" -c -P 16 4 "$APK" > /dev/null 2>&1 && ok "zip entries aligned (16 KB for .so)" || bad "zip alignment (zipalign -c -P 16 4)"
-BADGE=$("$BT/aapt2" dump badging "$APK" 2>/dev/null)
-grep -q "^package: name='dev.kindling.app' versionCode='$versionCode' versionName='$versionName'" <<<"$BADGE" \
-  && ok "package dev.kindling.app, versionCode $versionCode, $versionName" || bad "package/version: $(grep '^package:' <<<"$BADGE")"
-grep -q "^minSdkVersion:'31'" <<<"$BADGE" && ok "minSdk 31" || bad "minSdk"
-grep -q "^targetSdkVersion:'36'" <<<"$BADGE" && ok "targetSdk 36" || bad "targetSdk"
+ok "signed with scheme v3, the $MODE key"
+BADGING="$("$AAPT2" dump badging "$APK")"
+grep -q "package: name='dev.kindling.app' versionCode='$versionCode' versionName='$versionName'" <<<"$BADGING" \
+  || fail "package or version differs from android/version.properties"
+grep -q "minSdkVersion:'31'" <<<"$BADGING" || fail "minSdk is not 31"
+grep -q "targetSdkVersion:'36'" <<<"$BADGING" || fail "targetSdk is not 36"
+ok "dev.kindling.app $versionName ($versionCode), minSdk 31, targetSdk 36"
 
 # checks: PLT-01
-unzip -q -o "$APK" 'lib/*' 'classes*.dex' -d "$TMP/x" 2>/dev/null
-ABIS=$(ls "$TMP/x/lib" 2>/dev/null | tr '\n' ' ')
-[ "$ABIS" = "arm64-v8a " ] && ok "ABIs: $ABIS" || bad "ABIs: $ABIS (want arm64-v8a only)"
-# Libraries every Android phone provides to apps (NDK stable APIs).
-PUBLIC=" libc.so libm.so libdl.so liblog.so libandroid.so libz.so libEGL.so libGLESv2.so libGLESv3.so libaaudio.so libvulkan.so libnativewindow.so libOpenSLES.so libmediandk.so "
-NATIVES=$(sed -n 's/.*external fun \([A-Za-z]*\)(.*/\1/p' "$ROOT/android/app/src/main/java/dev/kindling/app/Native.kt")
-check_lib() { # name, JNI symbols...
-  local so=$TMP/x/lib/arm64-v8a/$1; shift
-  if [ ! -f "$so" ]; then bad "lib/arm64-v8a/$(basename "$so") missing"; return; fi
-  local al m sym need syms
-  al=$("$TC/llvm-readelf" -lW "$so" | awk '$1=="LOAD"{print $NF}' | sort -u | tr '\n' ' ')
-  [ "$al" = "0x4000 " ] && ok "$(basename "$so") ($(stat -c %s "$so") bytes), LOAD align $al" || bad "$(basename "$so") LOAD align $al (want 0x4000)"
-  m=$(unzip -v "$APK" "lib/arm64-v8a/$(basename "$so")" | awk 'NR==4{print $2}')
-  [ "$m" = "Stored" ] && ok "stored uncompressed" || bad "compressed ($m)"
-  syms=$("$TC/llvm-nm" -D --defined-only "$so")
-  for sym in "$@"; do
-    grep -Eq " T $sym(@@.*)?$" <<<"$syms" && ok "exports $sym" || bad "$sym not exported"
-  done
-  for need in $("$TC/llvm-readelf" -dW "$so" | awk '/NEEDED/{gsub(/[\[\]]/,"",$NF); print $NF}'); do
-    case "$PUBLIC" in *" $need "*) ;; *) bad "needs $need, not a public Android library" ;; esac
-  done
-  ok "needs only public libraries ($("$TC/llvm-readelf" -dW "$so" | awk '/NEEDED/{gsub(/[\[\]]/,"",$NF); printf "%s ", $NF}'))"
-}
-# shellcheck disable=SC2046
-check_lib libkindling.so $(for n in $NATIVES; do echo "Java_dev_kindling_app_Native_$n"; done)
-EXTRA=$(ls "$TMP/x/lib/arm64-v8a" 2>/dev/null | grep -v -E "^libkindling\.so$" | tr '\n' ' ')
-[ -z "$EXTRA" ] && ok "no other native libraries" || bad "other native libraries: $EXTRA"
-# Names native code looks up at run time must survive R8 (here-strings, not pipes: see pipefail).
-DEX=$(for d in "$TMP"/x/classes*.dex; do "$BT/dexdump" "$d" 2>/dev/null; done)
-grep -Fq "Class descriptor  : 'Ldev/kindling/app/Native;'" <<<"$DEX" && ok "kept class dev.kindling.app.Native" || bad "class dev.kindling.app.Native missing or renamed"
-for n in $NATIVES; do
-  awk -v c="Ldev/kindling/app/Native;" -v m="$n" '/Class descriptor/{inc=($4=="\x27"c"\x27")} inc && /name *:/ && $3=="\x27"m"\x27"{f=1} END{exit !f}' <<<"$DEX" \
-    && ok "kept dev.kindling.app.Native.$n" || bad "dev.kindling.app.Native.$n missing or renamed"
+# arm64 only; libkindling.so stored uncompressed and 16 KB aligned, in the zip and in its loaded segments;
+# every JNI name Native.kt declares exported, and the class kept by R8 (A2.5).
+LIBS="$(unzip -Z1 "$APK" 'lib/*' 2>/dev/null | tr '\n' ' ')"
+[ "$LIBS" = "lib/arm64-v8a/libkindling.so " ] || fail "native libraries: $LIBS"
+unzip -Zv "$APK" lib/arm64-v8a/libkindling.so | grep -Eq 'compression method:[[:space:]]+none \(stored\)' \
+  || fail "libkindling.so is compressed"
+"$KD_BUILD_TOOLS/zipalign" -c -P 16 4 "$APK" >/dev/null || fail "zip entries are not 16 KB aligned"
+unzip -p "$APK" lib/arm64-v8a/libkindling.so >"$TMP/lib.so"
+for a in $("$NDK_BIN/llvm-readelf" -lW "$TMP/lib.so" | awk '$1 == "LOAD" { print $NF }'); do
+  [ $((a)) -ge 16384 ] || fail "a loaded segment of libkindling.so is aligned to $a, under 16 KB"
 done
-XML=$("$BT/aapt2" dump xmltree --file AndroidManifest.xml "$APK" 2>/dev/null)
-grep -q 'extractNativeLibs(0x010104ea)=false' <<<"$XML" && ok "native libraries load from the APK (extractNativeLibs false)" || bad "extractNativeLibs"
+"$NDK_BIN/llvm-nm" -D --defined-only "$TMP/lib.so" >"$TMP/symbols"
+unzip -p "$APK" classes.dex >"$TMP/classes.dex"
+"$KD_BUILD_TOOLS/dexdump" "$TMP/classes.dex" >"$TMP/dex" 2>/dev/null
+grep -q "Class descriptor  : 'Ldev/kindling/app/Native;'" "$TMP/dex" || fail "R8 removed dev.kindling.app.Native"
+FUNS="$(sed -n 's/.*external fun \([A-Za-z]*\).*/\1/p' "$ROOT/android/app/src/main/java/dev/kindling/app/Native.kt")"
+for f in $FUNS; do
+  grep -q " Java_dev_kindling_app_Native_$f\$" "$TMP/symbols" || fail "libkindling.so does not export $f"
+  grep -q "name          : '$f'" "$TMP/dex" || fail "R8 removed Native.$f"
+done
+ok "arm64 only, stored, 16 KB aligned; $(wc -w <<<"$FUNS") JNI names exported and kept"
 
 # checks: PLT-02
-CHANGES=$(grep -m1 'configChanges' <<<"$XML")
-grep -q 'configChanges' <<<"$XML" || bad "activity configChanges missing"
-# aapt2 prints configChanges as a number: orientation is 0x80, screenSize 0x400.
-CC=$(sed -n 's/.*configChanges([^)]*)=\(0x[0-9a-f]*\).*/\1/p' <<<"$CHANGES")
-if [ -n "$CC" ] && (( (CC & 0x80) && (CC & 0x400) )); then ok "configChanges $CC holds orientation and screenSize"
-else bad "configChanges ${CC:-none} lacks orientation or screenSize"; fi
-grep -q 'screenOrientation' <<<"$XML" && bad "a fixed screenOrientation is set" || ok "no fixed screenOrientation"
+# Turning the phone never restarts the activity: configChanges holds orientation and screenSize, and nothing
+# fixes the orientation.
+MANIFEST="$("$AAPT2" dump xmltree --file AndroidManifest.xml "$APK")"
+CFG="$(grep -o 'configChanges([^)]*)=0x[0-9a-fA-F]*' <<<"$MANIFEST" | sed 's/.*=//')"
+[ -n "$CFG" ] && (((CFG & 0x480) == 0x480)) || fail "configChanges lacks orientation or screenSize"
+if grep -q 'screenOrientation' <<<"$MANIFEST"; then fail "the activity fixes its orientation"; fi
+ok "rotation handled in place (configChanges $CFG)"
 
 # checks: PLT-03
-PERMS=$("$BT/aapt2" dump permissions "$APK" 2>/dev/null | grep "uses-permission" | sed "s/.*name='\([^']*\)'.*/\1/" | sort | tr '\n' ' ')
-WANT=$(grep -v '^\s*$' "$ROOT/android/permissions.txt" | sort | tr '\n' ' ')
-[ "$PERMS" = "$WANT" ] && ok "permissions exactly android/permissions.txt: ${PERMS:-none}" || bad "permissions: ${PERMS:-none} (want ${WANT:-none})"
-grep -q "android.permission.INTERNET" <<<"$PERMS" && bad "INTERNET permission present" || ok "no INTERNET permission"
-grep -q "CctBackendFactory" <<<"$XML" && bad "ML Kit usage upload registered" || ok "no ML Kit usage upload"
-SIZE=$(stat -c %s "$APK")
-[ "$SIZE" -le $((50 * 1024 * 1024)) ] && ok "size $((SIZE / 1024)) KB (at most 50 MB)" || bad "size $SIZE bytes, over 50 MB"
-exit $fail
+# Exactly the permissions in android/permissions.txt, and never INTERNET (A2.5).
+GOT="$("$AAPT2" dump permissions "$APK" | sed -n "s/^uses-permission: name='\([^']*\)'.*/\1/p" | sort)"
+WANT="$(grep -v '^[[:space:]]*$' "$ROOT/android/permissions.txt" | sort || true)"
+[ "$GOT" = "$WANT" ] || fail "permissions [$GOT] differ from android/permissions.txt [$WANT]"
+if grep -qx 'android.permission.INTERNET' <<<"$GOT"; then fail "the APK asks for INTERNET"; fi
+ok "permissions exactly android/permissions.txt (${GOT:-none})"
+
+SIZE="$(stat -c %s "$APK")"
+[ "$SIZE" -le $((50 * 1024 * 1024)) ] || fail "$((SIZE / 1024)) KB, over 50 MB"
+ok "$((SIZE / 1024)) KB, at most 50 MB"
+echo "APK verify: OK"

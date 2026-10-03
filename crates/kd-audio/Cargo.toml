@@ -7,5 +7,5 @@ publish.workspace = true
 
 [dependencies]
 kd-core.workspace = true
-kd-view.workspace = true
 kd-data.workspace = true
+kd-view.workspace = true

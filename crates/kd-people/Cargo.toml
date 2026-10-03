@@ -6,8 +6,8 @@ rust-version.workspace = true
 publish.workspace = true
 
 [dependencies]
+kd-core.workspace = true
+kd-data.workspace = true
 kd-world.workspace = true
 kd-things.workspace = true
 kd-life.workspace = true
-kd-core.workspace = true
-kd-data.workspace = true

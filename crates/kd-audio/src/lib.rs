@@ -1,2 +1,4 @@
-//! kd-audio: mixer, sound blueprints, ambience and the murmur (A13); empty until α16b.
+//! kd-audio: the mixer, sound blueprints, ambience, the murmur, music and the speaker stage (A13).
+//! Empty until α16b builds it (IMPLEMENTATION.md).
+
 #![deny(unsafe_code)]

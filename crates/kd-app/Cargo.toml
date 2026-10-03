@@ -18,6 +18,3 @@ kd-audio.workspace = true
 kd-text.workspace = true
 glow.workspace = true
 log.workspace = true
-
-[build-dependencies]
-kd-data = { workspace = true, features = ["compile"] }

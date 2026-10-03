@@ -1,8 +1,9 @@
-//! JSON written by hand, so neither shell needs a JSON crate for it (A2.2).
+//! JSON written by hand, for the requests the shells take (A2.5's `takeRequests`, A2.6's `take_requests`) and the
+//! self-check's report: only `kd-android` may use `serde_json` (A2.2), and the web shell needs the same text.
 
 use crate::Request;
 
-/// A JSON string literal, with `"`, `\` and characters below U+0020 escaped as RFC 8259 says.
+/// `s` as a JSON string, quoted, with quotes, backslashes and control characters escaped (RFC 8259).
 pub fn json_str(s: &str) -> String {
     let mut out = String::with_capacity(s.len() + 2);
     out.push('"');
@@ -21,31 +22,18 @@ pub fn json_str(s: &str) -> String {
     out
 }
 
-/// The shell's outbox as a JSON array, such as `[{"SelfCheck":{"json":"..."}}]` (A2.5, A2.6).
-pub fn requests_json(r: &[Request]) -> String {
-    let items: Vec<String> = r
+/// The requests as a JSON array, each an object named by its kind: `[{"ShowCode":{"title":…,"prefix":…,"json":…}}]`.
+pub fn requests_json(requests: &[Request]) -> String {
+    let items: Vec<String> = requests
         .iter()
-        .map(|q| match q {
-            Request::SelfCheck { json } => format!("{{\"SelfCheck\":{{\"json\":{}}}}}", json_str(json)),
+        .map(|r| match r {
+            Request::ShowCode { title, prefix, json } => format!(
+                "{{\"ShowCode\":{{\"title\":{},\"prefix\":{},\"json\":{}}}}}",
+                json_str(title),
+                json_str(prefix),
+                json_str(json)
+            ),
         })
         .collect();
     format!("[{}]", items.join(","))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // checks: PRC-11
-    #[test]
-    fn escapes_and_requests() {
-        assert_eq!(json_str("a\"b\\c"), r#""a\"b\\c""#);
-        assert_eq!(json_str("x\ny\u{1}"), r#""x\ny\u0001""#);
-        assert_eq!(json_str("é ok"), "\"é ok\"");
-        let r = [Request::SelfCheck {
-            json: "{\"v\":\"dev\"}".into(),
-        }];
-        assert_eq!(requests_json(&r), r#"[{"SelfCheck":{"json":"{\"v\":\"dev\"}"}}]"#);
-        assert_eq!(requests_json(&[]), "[]");
-    }
 }

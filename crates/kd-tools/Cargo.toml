@@ -11,13 +11,10 @@ path = "src/main.rs"
 
 [dependencies]
 kd-core.workspace = true
-kd-data = { workspace = true, features = ["compile"] }
+kd-data.workspace = true
 kd-world.workspace = true
 kd-things.workspace = true
 kd-sim.workspace = true
 kd-save.workspace = true
 kd-text.workspace = true
 kd-audio.workspace = true
-png.workspace = true
-serde_json.workspace = true
-toml.workspace = true

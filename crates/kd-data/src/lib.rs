@@ -1,11 +1,4 @@
-//! kd-data: catalogue schemas, the blob loader and, behind feature `compile`, the catalogue compiler (A3.6);
-//! implements MAT-13, MAT-17 and PLT-09 in part.
+//! kd-data: catalogue schemas and the blob loader; the compiler behind feature `compile` (A3.6).
+//! Empty until α01a builds it (IMPLEMENTATION.md).
+
 #![deny(unsafe_code)]
-
-pub mod blob;
-#[cfg(feature = "compile")]
-pub mod compile;
-pub mod kinds;
-pub mod schema;
-
-pub use blob::{Catalogue, LoadError};

@@ -1,2 +1,4 @@
-//! kd-sim: the World, scheduler, activities, clusters, barriers and snapshots (A4); empty until α03a.
+//! kd-sim: the `World`, its scheduler, activities, clusters, barriers and snapshots (A4).
+//! Empty until α03a builds it (IMPLEMENTATION.md).
+
 #![deny(unsafe_code)]

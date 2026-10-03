@@ -1,120 +1,106 @@
-// Kindling's web shell (A2.6): loads the wasm, forwards pointer events, runs the frame loop, pauses when hidden,
-// and shows the self-check's KDS1: code (A15.4). Never a blank page: every failure is written in #status (A17.3).
-import init, { WebApp, core_check, build_line } from './pkg/kd_web.js';
+// Kindling's web shell (A2.6): loads the WebAssembly, sizes the canvas in exact device pixels, forwards pointer
+// events, runs the frame loop, pauses while the page is hidden, and carries out the app's requests: the code
+// dialog gzips a report with CompressionStream and shows it with Copy (A15.4). Every failure is written in the
+// status line, so the page is never blank (A17.3).
+import init, { WebApp, build_line } from './pkg/kd_web.js';
 
-const status = document.getElementById('status');
 const canvas = document.getElementById('cv');
+const status = document.getElementById('status');
 const say = (text) => { status.textContent = text; };
+const testing = new URLSearchParams(location.search).has('test');
 
-async function kds1(json) {
-  // gzip by CompressionStream, then base64, as the phone does (A15.4)
+async function codeOf(prefix, json) {
   const gz = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
   const bytes = new Uint8Array(await new Response(gz).arrayBuffer());
   let bin = '';
   for (const b of bytes) bin += String.fromCharCode(b);
-  return 'KDS1:' + btoa(bin);
+  return prefix + btoa(bin);
 }
 
-async function showSelfCheck(json) {
-  const code = await kds1(json);
-  status.textContent = 'Kindling self-check: something failed. Copy the code and send it: ';
-  const btn = document.createElement('button');
-  btn.textContent = 'Copy';
-  btn.onclick = () => navigator.clipboard.writeText(code).then(() => { btn.textContent = 'Copied'; }, () => {});
-  const pre = document.createElement('div');
-  pre.textContent = code;
-  status.append(btn, pre);
+async function showCode(title, prefix, json) {
+  const box = document.getElementById('code');
+  const text = document.getElementById('code-text');
+  document.getElementById('code-title').textContent = title;
+  text.value = await codeOf(prefix, json);
+  box.hidden = false;
+  document.getElementById('code-copy').onclick = () => {
+    navigator.clipboard.writeText(text.value).catch(() => { text.focus(); text.select(); });
+  };
+  document.getElementById('code-close').onclick = () => { box.hidden = true; };
+}
+
+function carryOut(json) {
+  for (const r of JSON.parse(json)) {
+    if (r.ShowCode) showCode(r.ShowCode.title, r.ShowCode.prefix, r.ShowCode.json);
+  }
 }
 
 async function main() {
   try {
     await init();
   } catch (e) {
-    say('WebAssembly blocked: ' + e);
+    say(`WebAssembly could not start here: ${e}`);
     return;
   }
   let app;
   try {
-    app = new WebApp(canvas, new Map(), window.devicePixelRatio || 1);
+    app = new WebApp(canvas, new Map());
   } catch (e) {
-    say('WebAssembly works · WebGL2 blocked: ' + e);
+    say(`WebGL2 could not start here: ${e}`);
     return;
   }
-  say(`WebAssembly works · WebGL2 works · core ${core_check() ? 'OK' : 'MISMATCH'} · ${build_line()} · running`);
-
-  // The safe-area insets (a notch, rounded corners), read through a probe element styled with env().
-  const probe = document.createElement('div');
-  probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:' +
-    'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
-  document.body.append(probe);
-  const insets = () => {
-    const cs = getComputedStyle(probe), dpr = window.devicePixelRatio || 1;
-    const px = (k) => (parseFloat(cs[k]) || 0) * dpr;
-    app.insets(px('paddingTop'), px('paddingRight'), px('paddingBottom'), px('paddingLeft'));
+  const drain = () => {
+    const r = app.take_requests();
+    if (r) carryOut(r);
   };
-  new ResizeObserver(() => {
-    app.resize(canvas.clientWidth, canvas.clientHeight, window.devicePixelRatio || 1);
-    insets();
-  }).observe(canvas);
-
+  // The canvas's exact size in device pixels, so an art pixel is exactly 4 of them (A2.6): the browser's own
+  // count when it agrees with the CSS size times the screen's scale (emulated screens report CSS pixels there),
+  // else that product, rounded.
+  const fit = (entry) => {
+    const d = entry.devicePixelContentBoxSize?.[0];
+    const cw = entry.contentRect.width * devicePixelRatio;
+    const ch = entry.contentRect.height * devicePixelRatio;
+    const exact = d && Math.abs(d.inlineSize - cw) <= 1 && Math.abs(d.blockSize - ch) <= 1;
+    app.resize(exact ? d.inlineSize : Math.round(cw), exact ? d.blockSize : Math.round(ch));
+    if (testing) {
+      app.frame(performance.now());
+      drain();
+    }
+  };
+  const observer = new ResizeObserver((entries) => fit(entries[0]));
+  try {
+    observer.observe(canvas, { box: 'device-pixel-content-box' });
+  } catch {
+    observer.observe(canvas);
+  }
   const kinds = { pointerdown: 0, pointermove: 1, pointerup: 2, pointercancel: 3 };
   for (const [type, kind] of Object.entries(kinds)) {
     canvas.addEventListener(type, (e) => {
-      if (kind === 0) { try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* not everywhere */ } }
-      const dpr = window.devicePixelRatio || 1;
-      app.pointer(kind, e.pointerId, e.clientX * dpr, e.clientY * dpr, e.timeStamp);
-      e.preventDefault();
+      if (type === 'pointerdown') canvas.setPointerCapture(e.pointerId);
+      app.pointer(kind, e.pointerId, e.offsetX * devicePixelRatio, e.offsetY * devicePixelRatio, e.timeStamp);
     });
   }
-  document.addEventListener('visibilitychange', () => { if (document.hidden) app.pause(); else app.resume(); });
-
-  let afterFrame = [];
+  document.addEventListener('visibilitychange', () => (document.hidden ? app.pause() : app.resume()));
+  say(`Kindling ${build_line()}`);
+  if (testing) {
+    // A12.4's test hooks: frames are drawn only when a test asks, so every screenshot is exact.
+    window.kd = {
+      ready: () => app.ready(),
+      frame: (n = 1) => {
+        for (let i = 0; i < n; i++) app.frame(performance.now());
+        drain();
+        return app.frames();
+      },
+      artSize: () => Array.from(app.art_size()),
+    };
+    return;
+  }
   const loop = (t) => {
     app.frame(t);
-    const waiting = afterFrame;
-    afterFrame = [];
-    for (const f of waiting) f();
-    const req = app.take_requests();
-    if (req) {
-      for (const r of JSON.parse(req)) {
-        if (r.SelfCheck) showSelfCheck(r.SelfCheck.json);
-      }
-    }
+    drain();
     requestAnimationFrame(loop);
   };
   requestAnimationFrame(loop);
-
-  if (new URLSearchParams(location.search).get('test') === '1') {
-    // A12.4's test hook, grown later: shot() is the canvas as a PNG data URL right after the next frame is drawn;
-    // golden(name) freezes time and the camera on a fixed scene (A11.12); palette() is the current row's colours;
-    // camera(pose) reads or sets the camera (x, y and z metres, z left out for the ground's height; fx and fy are
-    // the target's place within its art pixel, ox and oy the floating origin's metres from the ground's corner);
-    // ready() is true once the ground has drawn; frame(n) waits n frames; crawl(o) runs B66's crawl count (A11.10).
-    const shot = () => new Promise((res) => { afterFrame.push(() => res(canvas.toDataURL('image/png'))); });
-    window.kd = {
-      ready: () => app.ready(),
-      // resolves once `n` more frames have drawn
-      frame: (n = 1) => new Promise((res) => {
-        let left = n;
-        const tick = () => { if (--left <= 0) res(); else afterFrame.push(tick); };
-        afterFrame.push(tick);
-      }),
-      crawl: (o) => {
-        const r = app.crawl(o.motion, o.rate, o.frames, o.fix || 'base', o.zoom);
-        return r ? JSON.parse(r) : null;
-      },
-      yaw: () => app.yaw(),
-      shot,
-      golden: (name) => app.golden(name),
-      palette: () => Array.from(app.palette_rgb()),
-      glMs: () => app.gl_ms(),
-      camera: (p) => {
-        if (p) app.set_camera(p.x, p.y, p.z, p.yaw, p.zoom);
-        const [x, y, z, yaw, zoom, texel, fx, fy, ox, oy] = Array.from(app.camera());
-        return { x, y, z, yaw, zoom, texel, fx, fy, ox, oy };
-      },
-    };
-  }
 }
 
 main();

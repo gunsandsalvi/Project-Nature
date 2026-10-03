@@ -9,14 +9,14 @@ publish.workspace = true
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-kd-app.workspace = true
 kd-core.workspace = true
 kd-view.workspace = true
-glow.workspace = true
-log.workspace = true
+kd-app.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+glow.workspace = true
+log.workspace = true
 wasm-bindgen.workspace = true
 js-sys.workspace = true
+web-sys = { workspace = true, features = ["Window", "Document", "HtmlCanvasElement", "WebGl2RenderingContext", "Performance", "Navigator"] }
 console_error_panic_hook.workspace = true
-web-sys = { workspace = true, features = ["Window", "Document", "HtmlCanvasElement", "WebGl2RenderingContext", "Performance"] }

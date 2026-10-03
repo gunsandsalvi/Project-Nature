@@ -1,5 +1,7 @@
-//! kd-web: the WebAssembly entry: exports and WebGL2 (A2.6); implements PRC-11 in part.
-//! Its modules exist only on wasm32, so `cargo clippy --workspace` on x86 builds it as an empty library.
+//! kd-web: the WebAssembly entry (A2.6): the app behind exports `web/glue.js` calls, on WebGL2 through `glow`.
+//! One thread, so every call is direct. α00 draws the test card, takes pointer events and the page's visibility,
+//! and offers `web/glue.js` the test hooks of A12.4; saves and audio join with their alphas. Its code compiles for
+//! `wasm32` alone, so a workspace build elsewhere makes an empty library.
 
 #[cfg(target_arch = "wasm32")]
 mod web;

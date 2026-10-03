@@ -1,3 +1,5 @@
-# Keep the JNI surface (A2.5): tools/verify-apk.sh checks each native method survives R8.
+# The JNI names libkindling.so exports must survive R8 (A2.5).
 -keep class dev.kindling.app.Native { *; }
--keepclasseswithmembernames,includedescriptorclasses class * { native <methods>; }
+-keepclasseswithmembernames,includedescriptorclasses class * {
+    native <methods>;
+}

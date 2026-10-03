@@ -1,63 +1,146 @@
-// Shared by every screen script (A15.11): headless Chromium with WebGL on the CPU, a static server, and pixel reads.
-// From pretests/b66-drawing/tools (B66's launch settings).
-import { createRequire } from 'module';
-import http from 'node:http';
-import fs from 'node:fs';
+// Shared by the screen scripts (A15.11): serves dist/web/ to the session's Chromium through Playwright (WebGL
+// through SwiftShader: pixels count, not speed), and decodes screenshots, since the session's Node has no PNG
+// library.
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { inflateSync } from 'node:zlib';
 
 const require = createRequire(import.meta.url);
+const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 
-/** Chromium with SwiftShader WebGL, a 412 × 860 touch viewport at scale 1; page and console errors collected. */
-export async function launch() {
-  const { chromium } = require(process.env.PLAYWRIGHT_PATH || '/opt/node-tools/node_modules/playwright');
-  const exe = process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
-  const browser = await chromium.launch({
-    executablePath: exe,
-    args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
-  });
-  const ctx = await browser.newContext({ viewport: { width: 412, height: 860 }, deviceScaleFactor: 1, hasTouch: true, isMobile: true });
-  const page = await ctx.newPage();
-  const errors = [];
-  page.on('pageerror', (e) => errors.push(e.message));
-  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 300)); });
-  return { browser, ctx, page, errors };
-}
+export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.wasm': 'application/wasm', '.png': 'image/png' };
+const TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript',
+  '.mjs': 'text/javascript',
+  '.wasm': 'application/wasm',
+  '.png': 'image/png',
+  '.json': 'application/json',
+};
 
-/** A static server for `dir` on a free port (modules and wasm do not load from file://). Returns { url, close }. */
+// The skeleton the artifact host wraps a published page in, so a local test sees the page as the owner does.
+const skeleton = (body) =>
+  '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+  '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"></head>' +
+  `<body>${body}</body></html>`;
+
+/** A static server for `dir` on a free port: modules and wasm do not load from file:// URLs. */
 export async function serve(dir) {
   const root = path.resolve(dir);
-  const server = http.createServer((req, res) => {
-    const u = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-    let f = path.join(root, u);
-    if (!f.startsWith(root)) { res.writeHead(403); res.end(); return; }
-    if (u === '/favicon.ico') { res.writeHead(204); res.end(); return; } // browsers ask for it unprompted
-    if (fs.existsSync(f) && fs.statSync(f).isDirectory()) f = path.join(f, 'index.html');
-    if (!fs.existsSync(f)) { res.writeHead(404); res.end('not found'); return; }
-    res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' });
-    fs.createReadStream(f).pipe(res);
+  const server = createServer(async (req, res) => {
+    let p = decodeURIComponent(new URL(req.url, 'http://local').pathname);
+    if (p === '/favicon.ico') {
+      res.writeHead(204).end(); // the artifact host gives the page its icon
+      return;
+    }
+    if (p.endsWith('/')) p += 'index.html';
+    const file = path.join(root, path.normalize(p));
+    if (!file.startsWith(root)) {
+      res.writeHead(403).end();
+      return;
+    }
+    try {
+      let data = await readFile(file);
+      if (path.basename(file) === 'index.html') data = Buffer.from(skeleton(data.toString('utf-8')));
+      res.writeHead(200, { 'content-type': TYPES[path.extname(file)] || 'application/octet-stream' }).end(data);
+    } catch {
+      res.writeHead(404).end();
+    }
   });
-  await new Promise((r) => server.listen(0, '127.0.0.1', r));
-  const { port } = server.address();
-  return { url: `http://127.0.0.1:${port}`, close: () => new Promise((r) => server.close(r)) };
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  return { url: `http://127.0.0.1:${server.address().port}/`, close: () => server.close() };
 }
 
-/** Decodes a PNG screenshot inside the page (the session's Node has no PNG library): { width, height, data }. */
-export async function pixels(page, png) {
-  const b64 = await page.evaluate(async (src) => {
-    const img = new Image();
-    img.src = src;
-    await img.decode();
-    const c = document.createElement('canvas');
-    c.width = img.width; c.height = img.height;
-    const g = c.getContext('2d');
-    g.drawImage(img, 0, 0);
-    const d = g.getImageData(0, 0, c.width, c.height).data;
-    let s = '';
-    for (let i = 0; i < d.length; i += 0x8000) s += String.fromCharCode(...d.subarray(i, i + 0x8000));
-    return JSON.stringify([c.width, c.height, btoa(s)]);
-  }, 'data:image/png;base64,' + png.toString('base64'));
-  const [width, height, data] = JSON.parse(b64);
-  return { width, height, data: Buffer.from(data, 'base64') };
+/** The session's Chromium, drawing WebGL2 through SwiftShader. */
+export function launch() {
+  return chromium.launch({
+    executablePath: process.env.CHROMIUM_PATH || undefined,
+    args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
+  });
+}
+
+/** A page at `url` in a touch viewport, collecting page errors and console errors. */
+export async function open(browser, url, { width, height, scale = 1 }) {
+  const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: scale, hasTouch: true });
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  page.on('console', (m) => {
+    if (m.type() === 'error') errors.push(m.text());
+  });
+  await page.goto(url);
+  return { page, errors, close: () => context.close() };
+}
+
+/** An 8-bit, non-interlaced RGB or RGBA PNG as RGBA pixels, with `at(x, y)` giving [r, g, b]. */
+export function decodePng(buf) {
+  if (buf.readUInt32BE(0) !== 0x89504e47) throw new Error('not a PNG');
+  let pos = 8;
+  let w = 0, h = 0, depth = 0, type = 0, interlace = 0;
+  const idat = [];
+  while (pos < buf.length) {
+    const len = buf.readUInt32BE(pos);
+    const kind = buf.toString('ascii', pos + 4, pos + 8);
+    const data = buf.subarray(pos + 8, pos + 8 + len);
+    if (kind === 'IHDR') {
+      w = data.readUInt32BE(0);
+      h = data.readUInt32BE(4);
+      depth = data[8];
+      type = data[9];
+      interlace = data[12];
+    } else if (kind === 'IDAT') {
+      idat.push(data);
+    } else if (kind === 'IEND') {
+      break;
+    }
+    pos += 12 + len;
+  }
+  if (depth !== 8 || interlace !== 0 || (type !== 2 && type !== 6)) {
+    throw new Error(`unsupported PNG: depth ${depth}, colour type ${type}, interlace ${interlace}`);
+  }
+  const bpp = type === 6 ? 4 : 3;
+  const stride = w * bpp;
+  const raw = inflateSync(Buffer.concat(idat));
+  const out = Buffer.alloc(w * h * 4);
+  let prev = Buffer.alloc(stride);
+  let cur = Buffer.alloc(stride);
+  for (let y = 0; y < h; y++) {
+    const filter = raw[y * (stride + 1)];
+    const line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
+    for (let i = 0; i < stride; i++) {
+      const a = i >= bpp ? cur[i - bpp] : 0;
+      const b = prev[i];
+      const c = i >= bpp ? prev[i - bpp] : 0;
+      let v = line[i];
+      if (filter === 1) v += a;
+      else if (filter === 2) v += b;
+      else if (filter === 3) v += (a + b) >> 1;
+      else if (filter === 4) {
+        const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+        v += pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+      }
+      cur[i] = v & 255;
+    }
+    for (let x = 0; x < w; x++) {
+      const o = (y * w + x) * 4;
+      out[o] = cur[x * bpp];
+      out[o + 1] = cur[x * bpp + 1];
+      out[o + 2] = cur[x * bpp + 2];
+      out[o + 3] = bpp === 4 ? cur[x * bpp + 3] : 255;
+    }
+    [prev, cur] = [cur, prev];
+  }
+  return {
+    width: w,
+    height: h,
+    data: out,
+    at(x, y) {
+      const o = (y * w + x) * 4;
+      return [out[o], out[o + 1], out[o + 2]];
+    },
+  };
 }

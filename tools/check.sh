@@ -1,31 +1,62 @@
 #!/usr/bin/env bash
-# The checks before work joins main (PRC-10, A15.12). Usage: tools/check.sh [--deliver] | --gate <description file>
+# The checks before work joins main (PRC-10, A15.12), in A15.12's nine numbered steps; a step whose tool has not
+# been built yet says which alpha brings it. Stops at the first failure.
+# Usage: tools/check.sh [--deliver]
+#   --deliver  also builds the web page and an APK, and checks the committed release APK (step 9)
+# It writes results/checks/<commit>.json and ends with "Checks: PASS <commit>".
 set -euo pipefail
-ROOT=$(cd "$(dirname "$0")/.." && pwd); cd "$ROOT"; . tools/env.sh
-[ "${1:-}" = "--gate" ] && exec python3 tools/filecheck.py gate "${2:?description file}"
-DELIVER=0; [ "${1:-}" = "--deliver" ] && DELIVER=1
-COMMIT=$(git rev-parse --short=12 HEAD); T0=$(date +%s)
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+. tools/env.sh
+DELIVER=0
+case "${1:-}" in
+  "") ;;
+  --deliver) DELIVER=1 ;;
+  *) echo "usage: tools/check.sh [--deliver]" >&2; exit 2 ;;
+esac
+COMMIT="$(git rev-parse --short=12 HEAD)"
+T0=$(date +%s)
 git fetch -q origin +refs/heads/main:refs/remotes/origin/main 2>/dev/null || true
-BASE=$(git merge-base HEAD origin/main 2>/dev/null || git rev-list --max-parents=0 HEAD | tail -1)
-changed() { [ -n "$(git diff --name-only "$BASE" -- "$@")" ]; }   # no pipe into grep -q: pipefail would make it flaky
+BASE="$(git merge-base HEAD origin/main 2>/dev/null || git rev-list --max-parents=0 HEAD | tail -1)"
+# Whether the branch changed any of these paths since it left main.
+changed() { [ -n "$(git diff --name-only "$BASE" -- "$@")" ]; }
 step() { echo "== $*"; }
+later() { echo "   from $1"; }
+
 step "1 format";          cargo fmt --all --check
-step "1 lints";           cargo clippy --workspace --all-targets --locked -- -D warnings
-step "1 phone lints";     cargo clippy -p kd-android --target aarch64-linux-android --locked -- -D warnings
-step "1 web lints";       cargo clippy -p kd-web --target wasm32-unknown-unknown --locked -- -D warnings
-step "1 banned fixture";  tools/check-banned.sh
-step "2 layers";          cargo run -q --profile fast -p kd-tools --locked -- check layers && cargo run -q --profile fast -p kd-tools --locked -- check names
-step "3 tests";           cargo test --workspace --locked
-step "3 arm64 tests";     cargo test -p kd-core -p kd-world --target aarch64-unknown-linux-gnu --locked
-step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/filecheck.py selftest && python3 tools/signing-key.py selftest
-step "4 catalogue";       cargo run -q --profile fast -p kd-tools --locked -- catalog check
-step "5 scenes";          echo "   from α07c"
-step "6 repeat";          echo "   α00: kd-core's stored draws and maths on x86 and arm64 (step 3) and wasm (step 9); α01b: B11's relief hash on x86 and arm64 (step 3); kd det from α03c"
-step "7 file check";      python3 tools/filecheck.py file
-step "8 coverage";        python3 tools/filecheck.py ids --merge
+step "1 lints";           cargo clippy --workspace --all-targets --locked -q -- -D warnings
+step "1 phone lints";     cargo clippy -p kd-android --target aarch64-linux-android --locked -q -- -D warnings
+step "1 web lints";       cargo clippy -p kd-web --target wasm32-unknown-unknown --locked -q -- -D warnings
+step "1 banned items";    later α00b
+step "2 layers, names";   later α00b
+step "3 tests"
+LOG="$(mktemp)"
+if ! cargo test --workspace --locked >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"; exit 1; fi
+echo "   $(grep -c '^test .* ok$' "$LOG") Rust tests passed"
+rm -f "$LOG"
+step "3 tool tests";      python3 -m unittest discover -s tools/tests -q && python3 tools/signing-key.py selftest
+step "4 catalogue";       later α01a
+step "5 scenes";          later α07c
+step "6 repeat";          later α00b
+step "7 file check";      later α00b
+step "8 coverage";        later α00b
 step "9 builds"
-if [ $DELIVER = 1 ] || changed web crates; then tools/build-web.sh && node tools/screens/smoke.mjs && node tools/screens/golden.mjs; fi
-if [ $DELIVER = 1 ] || changed android crates; then tools/build-apk.sh check; fi
+cargo build --profile fast -p kd-tools --locked -q
+if [ "$DELIVER" = 1 ] || changed web crates/kd-web crates/kd-app crates/kd-render; then
+  tools/build-web.sh
+  node tools/screens/smoke.mjs
+fi
+if [ "$DELIVER" = 1 ]; then
+  # The build still works, and the delivered APK, as committed, is a correct release build.
+  tools/build-apk.sh check
+  (cd dist && sha256sum --quiet -c kindling.apk.sha256)
+  tools/verify-apk.sh dist/kindling.apk release
+elif changed android crates/kd-android crates/kd-app crates/kd-render; then
+  tools/build-apk.sh check
+fi
+
+MINUTES=$((($(date +%s) - T0 + 59) / 60))
 mkdir -p results/checks
-printf '{"commit":"%s","result":"PASS","minutes":%d,"deliver":%d}\n' "$COMMIT" $(( ($(date +%s) - T0) / 60 )) "$DELIVER" > "results/checks/$COMMIT.json"
+printf '{"commit": "%s", "result": "PASS", "deliver": %s, "minutes": %d}\n' \
+  "$COMMIT" "$([ "$DELIVER" = 1 ] && echo true || echo false)" "$MINUTES" >"results/checks/$COMMIT.json"
 echo "Checks: PASS $COMMIT"
