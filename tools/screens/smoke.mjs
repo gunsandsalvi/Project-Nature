@@ -1,11 +1,12 @@
-// The web build's smoke test (A15.4, A15.11): the page loads without errors, an art pixel is exactly 4 × 4
-// device pixels in portrait, in landscape and on a screen of scale 2, the core's maths and draws and the demo
-// area's ground give the cloud's bits in the browser (A15.9 item 5, the self-check), the probe scene's steps,
-// surfaces and looks and the palette rows equal the Rust twins' and the cloud's (A11.13 rule 2), the hour lights
-// the ground, a one-art-pixel pan moves the picture by exactly 4 device pixels inside a block and across a move of
-// the floating origin (A11.2), each gesture does what it should and nothing else, two fingers keep the land under
-// them through a pinch and a twist (A12.2), and a panic leaves its message in the status line (A3.8). (Chromium's emulated fractional scales, like
-// the phone's 2.625, misreport the canvas's device size, so they are left to the phone itself.)
+// The web build's smoke test (A15.4, A15.11): the page loads without errors, an art pixel and a UI pixel are each
+// exactly 4 × 4 device pixels in portrait, in landscape and on a screen of scale 2, the core's maths and draws and
+// the demo area's ground give the cloud's bits in the browser (A15.9 item 5, the self-check), the probe scene's
+// steps, surfaces and looks and the palette rows equal the Rust twins' and the cloud's (A11.13 rule 2), a still
+// camera's frames are the same, the hour lights the ground, a one-art-pixel pan moves the picture by exactly 4
+// device pixels inside a block and across a move of the floating origin (A11.2), each gesture does what it should
+// and nothing else, two fingers keep the land under them through a pinch and a twist (A12.2), and a panic leaves
+// its message in the status line (A3.8). (Chromium's emulated fractional scales, like the phone's 2.625, misreport
+// the canvas's device size, so they are left to the phone itself.)
 // Usage: node tools/screens/smoke.mjs [--save <dir>]   (after tools/build-web.sh)
 // Screenshots go to target/screens/smoke/, which is never committed, or to --save's folder.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -28,15 +29,15 @@ const storedRows = readFileSync(path.join(ROOT, 'tests', 'golden', 'palette.txt'
   .map((line) => line.split(' ').slice(1).join(' '));
 
 // checks: PRE-22 PLT-02 PRE-01
-// Every art pixel is exactly 4 × 4 device pixels of one colour: each 4 × 4 block of the art's grid is one colour,
-// down to the last whole row above the strip. The camera shifts the art's grid by whole device pixels as it pans
-// (A11.2), so the grid's phase is found, not assumed; the picture must also hold more than a few colours, so a
-// blank page cannot pass.
-function blocksOk(img, bottom) {
+// Every art pixel is exactly 4 × 4 device pixels of one colour: each 4 × 4 block of the grid is one colour, in the
+// whole rows from `top` to `bottom`. The camera shifts the art's grid by whole device pixels as it pans (A11.2), so
+// its phase is found, not assumed; the UI's grid is `fixed` to the screen's top-left corner (A12.1). The rows must
+// also hold at least `least` colours, so a blank page cannot pass.
+function blocksOk(img, top, bottom, { fixed = false, least = 10 } = {}) {
   const same = (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
   let first = '';
-  for (let phase = 0; phase < 16; phase++) {
-    const [x0, y0] = [phase % 4, Math.floor(phase / 4)];
+  for (let phase = 0; phase < (fixed ? 1 : 16); phase++) {
+    const [x0, y0] = [phase % 4, top + Math.floor(phase / 4)];
     const colours = new Set();
     let blocks = 0;
     let broken = '';
@@ -51,8 +52,8 @@ function blocksOk(img, bottom) {
       }
     }
     if (!broken) {
-      if (colours.size < 10) return [false, `only ${colours.size} colours`];
-      return [true, `${blocks} art pixels from device pixel ${x0}, ${y0}, ${colours.size} colours`];
+      if (colours.size < least) return [false, `only ${colours.size} colours`];
+      return [true, `${blocks} blocks from device pixel ${x0}, ${y0}, ${colours.size} colours`];
     }
     first ||= broken;
   }
@@ -66,11 +67,12 @@ async function screen(page) {
 }
 
 // checks: PRE-22
-// The picture after a pan equals the one before moved `dx` device pixels to the left: every pixel of the overlap.
-function shifted(before, after, dx) {
+// The picture after a pan equals the one before moved `dx` device pixels to the left: every pixel of the overlap,
+// in its first `rows` rows.
+function shifted(before, after, dx, rows = after.height) {
   let differ = 0;
   let first = '';
-  for (let y = 0; y < after.height; y++) {
+  for (let y = 0; y < rows; y++) {
     for (let x = 0; x + dx < after.width; x++) {
       const [p, q] = [after.at(x, y), before.at(x + dx, y)];
       if (p[0] !== q[0] || p[1] !== q[1] || p[2] !== q[2]) {
@@ -139,19 +141,36 @@ try {
       const hours = rows.map((r, h) => (r === storedRows[h] ? -1 : h)).filter((h) => h >= 0);
       check(`palette row equals the cloud's, ${label}`, rows.length === 8 && hours.length === 0,
         hours.length ? `hours ${hours.join(', ')} differ` : '8 hours');
-      await page.evaluate(() => window.kd.frame(1));
+      // A tap on the land shows the strip for its 3 seconds (PRE-32), so the screenshot holds it whole.
+      await page.evaluate(() => {
+        const t = performance.now();
+        window.kd.touch(0, 9, 8, 8, t);
+        window.kd.touch(2, 9, 8, 8, t + 10);
+        window.kd.frame(1);
+      });
       const shot = await page.screenshot();
       writeFileSync(path.join(outDir, `${label.replace(' ', '-')}.png`), shot);
-      // Above the strip, which keeps the UI's own grid from the screen's top-left corner (A12.1): 24 UI pixels and
-      // a row to spare.
-      const bottom = await page.evaluate(() => {
+      // The art above the strip, with a row to spare; and the strip, the screen's last 24 whole UI pixels, which
+      // keeps the UI's own grid from the screen's top-left corner (A12.1).
+      const band = await page.evaluate(() => {
         const status = document.getElementById('status');
         const h = Math.round(innerHeight * devicePixelRatio);
         const top = status.textContent ? Math.floor(status.getBoundingClientRect().top * devicePixelRatio) : h;
-        return Math.min(top, h - (h % 4) - 4 * 28);
+        const foot = h - (h % 4);
+        return { bottom: Math.min(top, foot - 4 * 28), strip: [foot - 4 * 24, Math.min(top, foot)] };
       });
-      const [ok, why] = blocksOk(decodePng(shot), bottom);
+      const img = decodePng(shot);
+      const [ok, why] = blocksOk(img, 0, band.bottom);
       check(`art pixel 4x4, ${label}`, ok, why);
+      const [stripOk, stripWhy] = blocksOk(img, band.strip[0], band.strip[1], { fixed: true, least: 3 });
+      check(`strip pixel 4x4 from the top-left, ${label}`, stripOk, stripWhy);
+      // checks: PRE-22
+      // With the camera still, the picture holds still: frames half a second apart are the same above the strip.
+      // (This takes the place of α01a's turning block: the ground, unlike the light card, moves only when asked.)
+      const still = await screen(page);
+      await page.waitForTimeout(500);
+      const stirred = shifted(still, await screen(page), 0, band.bottom);
+      check(`a still camera holds still, ${label}`, stirred === '', stirred);
       // checks: PRE-30 PRE-20
       // The ground is lit by the hour: noon's picture differs from late afternoon's.
       const before = await page.evaluate(() => window.kd.shot({ art: true }));
