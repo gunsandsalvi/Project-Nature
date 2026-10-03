@@ -120,7 +120,7 @@ This table is the technology proposal of `PRC-03`; the evidence behind each row 
 | Sound making | impacts as material-shaped noise; instruments from their shapes; drums parked (A13; B74) | ringing notes plus noise |
 | Speech | murmur only (`SND-03`): syllables rendered once in the cloud with a neural voice, strung together on the phone and the web (A13; B76) | none needed |
 | Phone budget | plan on the held speed (43% of a burst), about 8 GiB, about 3 W (B79) | slow time sooner (`PRN-11`) |
-| Cloud runs | one process per world, four per session, a checkpoint every simulated month on the session's disk; small compressed ones pushed to the `runs` branch (A15; B80) | more nights or fewer worlds (`RES-13`) |
+| Cloud runs | one process per world, four per session, a checkpoint every simulated month on the session's disk; small compressed ones pushed to the `runs` branch (A15; B80) | longer runs or fewer worlds (`RES-13`) |
 | Catalogues | Markdown, one entry per heading, a TOML block as the single source, generated tables, one binary blob (A3.6; B09) | plain TOML files |
 | Delivery | an APK every alpha, at most 50 MB, in `dist/`; one key derived from the passphrase secret with scrypt, rotated if ever needed by APK Signature Scheme v3 (A15; B78) | none needed |
 | Web build | `wasm32` with `wasm-bindgen`, WebGL2, AudioWorklet, IndexedDB, one thread; a private page once the probe shows WebAssembly runs there (A2.6; B66) | the APK alone |
@@ -528,7 +528,7 @@ Serves: `TIM-16`, `WLD-13`, `WLD-01`, `WLD-03`, `WLD-07`, `WLD-12`, `RES-05`, `R
 8. Caches hold only results of pure functions of their full key, so hit and miss agree; caches are never saved.
 9. The whole state is saved in a fixed little-endian layout of fixed-width types (A3.2) with a hash; loading restores slots, generations and iteration order exactly (A14).
 
-**Tested by** `kd det` (A15.9), each pair giving one state hash (the hash of the uncompressed save): at every merge (`PRC-10`) the repeat check, 1 worker against 4 with a stop and resume, and one fixed short scene on x86-64, arm64 (qemu) and wasm32 (headless Chromium); nightly every short scene and the benchmark worlds across thread counts, saves and reloads, the director on and off (`TIM-03`), camera paths and the three targets.
+**Tested by** `kd det` (A15.9), each pair giving one state hash (the hash of the uncompressed save): at every merge (`PRC-10`) the repeat check, 1 worker against 4 with a stop and resume, and one fixed short scene on x86-64, arm64 (qemu) and wasm32 (headless Chromium); in the background every short scene and the benchmark worlds across thread counts, saves and reloads, the director on and off (`TIM-03`), camera paths and the three targets.
 
 **First needed:** `MIL-01`.
 
@@ -1377,10 +1377,10 @@ Before `MIL-04`, the 1,000-person world stands on A5.6's bench lands: the first 
 
 ### A4.16 How this part is tested
 
-Short forms gate every merge, long forms run nightly (A15.9), all headless in the cloud (`PLT-05`).
+Short forms gate every merge, long forms run in the background (A15.9), all headless in the cloud (`PLT-05`).
 1. **Determinism** (`kd det`, A3.1): 1 worker against 4; serial clusters (web) against parallel; save, load and carry on at 3 random paused seconds per quick scene, mid-window included, once with every cache dropped; director on and off; two camera paths; x86-64, arm64 and wasm32 (`RES-05`).
 2. **Split anywhere:** one call, random steps from 1 s to a game day, `stop` firing at random event counts, and pauses with saves at random seconds all give equal hashes at fixed times (`TIM-17`, `WLD-13`); a scene run twice gives one hash.
-3. **Cluster audit:** a debug build fails on any store access outside the owner table, over all quick scenes and one long world a night.
+3. **Cluster audit:** a debug build fails on any store access outside the owner table, over all quick scenes and one long world in each long run.
 4. **Clusters:** union-find against brute force across both seams; the caps asserted; the proof's inequality on random paths; reservations of 1, so every window spills, against normal sizes.
 5. **Acts:** an act at a random paused second, then a kill and catch-up, ends equal to the run never killed (A14.13), also with the power chosen mid-step on the web and in a window where a cluster spills; and an act confirmed, a save at that same paused second, a kill and reopening end on the state hash of the run never killed, the act applied once.
 6. **Keys:** shuffled pushes pop in one order (A4.3), and no two live events share a key over all quick scenes.
@@ -1801,7 +1801,7 @@ Beyond each subsection's tests:
 - **Looking changes nothing** (`WLD-13`): a saved world run with and without the picture, along two camera paths over live and dormant kept areas, on 1 and 4 workers and on x86, arm64 and wasm32 gives one state hash (A3.1, `kd det`).
 - **No act in the world:** a check over every saved world type finds no act id.
 - **Golden hashes** (A14.9): 20 areas and, from `MIL-04`, a whole world from fixed seeds; any change to generation, the area rules or the values that place and size land, plants and stones needs a new `generator` version and `major` in `data/VERSION.toml` (A3.6), a big update, while tuning yields, timings or chances does not (`WLD-08`, `PLT-09`).
-- **Scenes** run on land presets in seconds; whole worlds confirm them overnight (`RES-21`).
+- **Scenes** run on land presets in seconds; whole worlds confirm them in the background (`RES-21`).
 - **Budgets** (A16, `PLT-04`): weather hour, daily cell work, bucket contents, pictures, generation, settling and held memory, in the cloud benchmark every alpha and on the phone every stage; `kd map preview` draws any layer as a picture (A2.7).
 
 ## A6. Things and blueprints
@@ -3041,7 +3041,7 @@ Tested by: the Done-when scenes of `CUL-29`, as stated.
 
 Each `CUL-33` window is read from the book of ages as the first event of its kind anywhere, in game years: `spirit_shared` within 5; `rite_custom` 5–20; `myth_formed` 10–40; `band_split` 10–50; `festival_formed` 10–60; `feud_answered` 20–100; `people_formed` 80–150; `raid` 60–200; `chief_made` 150–350, after the first villages.
 - **Keeps going** is read from the state at checkpoints; the levers `CUL-33` names are tuned the same for every world (`PRN-17`), on tuning seeds only (`RES-16`).
-- **Tested by** decision 24's pace tests (`RES-07`): nightly 20 worlds to Year 60; 20 worlds to Year 150 at the close of `MIL-06`; 10 worlds to Year 500 before `MIL-07` closes (at least 5 in each window, at most 2 before it); the others pass as `TIM-19` does, and failures rerun as `RES-13` says.
+- **Tested by** decision 24's pace tests (`RES-07`): after a change, 20 worlds to Year 60; 20 worlds to Year 150 at the close of `MIL-06`; 10 worlds to Year 500 before `MIL-07` closes (at least 5 in each window, at most 2 before it); the others pass as `TIM-19` does, and failures rerun as `RES-13` says.
   Late windows are tuned in scenes set where they become possible (a village region for chiefs); whole worlds confirm.
 - **Different peoples** (`CUL-07`): at Year 150, at most 2 of 20 worlds share all 12 custom answers in their oldest people, and at least 3 different sets of shared spirits appear.
 - **Switches** (`RES-10`): `templates=off` (no template makes a belief, for `RSK-19`) and `gatherings=off`.
@@ -3639,7 +3639,7 @@ Serves: `PRE-05`, `PRE-06`, `PRE-07`, `PRE-08`, `PRE-09`, `PRE-10`, `PRE-13`, `P
 
 - `kd-ui` is immediate-mode: each frame it turns the open views and their data into a `UiDrawList` (rectangles, one-pixel lines, glyph runs, icons, world-anchored marks), drawn in one or two calls after the upscale.
 - A **UI pixel is an art pixel**, 4 screen pixels on the same grid, so the UI is the world's pixel art (`PRE-01`); every size below is in UI pixels.
-  Colours are palette entries (panels `night`, lines `shade`, text `s6` and `s3`, their words `o3`, links `f2`, selection `f3`); panels are opaque, and the world behind a modal sheet is dimmed by a 2 × 2 checker of `ink`.
+  Colours are fixed palette entries (A11.3: panels `ui_panel`, lines `ui_line`, text `ui_text` and `ui_text_dim`, their words `ui_word`, links `ui_link`, selection `ui_select`); panels are opaque, and the world behind a modal sheet is dimmed by a 2 × 2 checker of `ink`.
 - **Font:** **Decision:** a proportional pixel font with a 7-pixel cap height and 2-pixel descenders, about 48 characters a line in portrait, from a CC0 or OFL proportional font checked at import (Pixel Operator is the candidate), credited in `assets/LICENSES.md` and on the credits screen; why: the cap is about 1.8 mm, like 16 sp body text; fallback: glyphs drawn in-house as text art (`assets/font/glyphs.txt`).
 - **Line spacing:** lists and labels on an 11-pixel line, card lines on 13, and long texts (entries, life stories, myths, the details of a mind) on 15, about one and a half times the type's size, with 6 pixels between paragraphs.
   A second font, a 9-pixel cap with every line 4 pixels taller, is kept ready; the owner picks the default from the `MIL-02` contact sheet, which shows a 150-word entry and a long card.
@@ -4385,7 +4385,7 @@ No cloud session can create GitHub releases or set commit statuses (the reviews'
 
 - One Cargo workspace (A2), `Cargo.lock` committed, every build `--locked`, Rust pinned (A2.8); a toolchain change must pass the cross-target test (A15.9).
 - **Decision:** profile `release` (opt-level 3, thin LTO, `codegen-units = 1`, `panic = "unwind"` so JNI catches panics, symbols kept outside the APK) only for the delivered APK and wasm; profile `fast` (opt-level 3, `codegen-units = 16`, incremental, no LTO) for `kd`, tests and scenes.
-  Why: the merge checks must fit about 20 minutes (`PRC-10`), and Rust never reorders or contracts float maths, so both give one state hash, as a nightly test confirms.
+  Why: the merge checks must fit about 20 minutes (`PRC-10`), and Rust never reorders or contracts float maths, so both give one state hash, as a long test confirms.
 - Determinism: the `clippy.toml` bans of A2.3 and A3.2 in each simulation crate, with `f32::min`, `max`, `minimum` and `maximum` among them; no `target-cpu` or fast-math anywhere; the crate `tests/banned/`, using each banned item once, must fail clippy.
 - Layering by `kd check layers` (A2.3); test switches (`RES-10`) only under the feature `test-switches`, which no app build enables (`PRN-12`, A3.9).
 - IDs (`PRC-12`): code names what it implements (`` /// Implements `MAT-04`, see A6.2 ``); a test names what it checks on the line above it (`// checks: MAT-04 RES-23`); a scene in its file.
@@ -4434,9 +4434,9 @@ If the key must ever change, it is rotated with APK Signature Scheme v3 (`apksig
 | Layer | When |
 |---|---|
 | Unit tests; catalogue checks with reality rules (`MAT-17`); blueprint trials (`RES-24`); scenes up to 10 game years: behaviour, chains, signature moments (`RES-23`, `RES-17`) | every merge |
-| Longer scenes: sharp stone (`RES-02`), long moments, switch-off runs (`RES-10`) | nightly, and before a stage closes |
-| Whole worlds: pace (`RES-07`), believable outcomes (`RES-14`), oddities (`RES-12`) | nightly after minds, blueprints or catalogues change, and before a stage closes |
-| Determinism (A15.9) | short at every merge, long nightly |
+| Longer scenes: sharp stone (`RES-02`), long moments, switch-off runs (`RES-10`) | in the background when what they depend on changes, and before a stage closes |
+| Whole worlds: pace (`RES-07`), believable outcomes (`RES-14`), oddities (`RES-12`) | in the background after minds, blueprints or catalogues change, and before a stage closes |
+| Determinism (A15.9) | short at every merge, long in the background |
 | Benchmarks (A15.10) | cloud every alpha, phone every stage (`PLT-04`) |
 | Screenshots (A15.11) | every alpha |
 | The writer's trap records (`PRE-17`) | on the phone, when its instructions change and every stage (A12.7) |
@@ -4480,25 +4480,25 @@ First needed: `MIL-01` (everyday behaviour, `RSK-27`).
 `kd world new --seed S --out <dir>` makes a world with the play generator, taking the top score (`WLD-10`); before whole worlds exist, the first region's island with its bands stands in (A5.6, `WLD-34`, `RES-21`).
 `kd world run <dir> --until "Year 500"` runs one world per process, four per session, planned at 3.4 effective cores; checkpoints are ordinary saves on disk at the cloud cadence (A14.6), and a run resumes from its newest valid one, bit-identical (B80: 10 of 10 after two kills each).
 At each, the runner reopens the save in another process (`RES-12`), applies `tests/oddities.toml` and `tests/ranges.toml` (`RES-14`), checks free disk (A16.7), and updates `progress.json` (year, CPU time, each pace step's year, oddities).
-Runs start detached (`setsid nohup`); the session wakes itself every 30 minutes (`send_later`) to restart any world whose heartbeat stopped, as files survive a machine restart (B80).
+Runs start detached (`setsid nohup`) in the building session's background; the builder looks at them at each task's end and restarts any world whose heartbeat stopped from its newest checkpoint, as files survive a machine restart (B80).
 **Decision:** a run's progress leaves the machine only as small checkpoints on a `runs` branch, never merged into `main`; why: no session can upload releases (the reviews' decision).
-- Runs planned over 4 hours commit each world's slim export (A14.10) every 3 real hours as `runs/<run>/<world>.kindling` if under 50 MB, replacing the last; each night commits `status.json` and the run's `results/` there too.
+- Runs planned over 4 hours commit each world's slim export (A14.10) every 3 real hours as `runs/<run>/<world>.kindling` if under 50 MB, replacing the last; each run commits `status.json` and its `results/` there too as it ends.
 - A world cut off with its session resumes in a later one from its newest pushed checkpoint, or from its seed once past 50 MB, ending identical either way (`PLT-05`, `TIM-16`); runs are sized to finish inside their sessions.
-- Nights (`PLT-05`, `SCP-15`): a Routine, set up once with the owner's OK, starts a fresh session each night on the latest alpha for the nightly set, whose results wait on the `runs` branch.
+- Background runs (`PLT-05`, `SCP-15`): the building session itself starts the long set as background jobs when a change calls for it (the table above), never another session (the owner's rule of 3 October 2026); each run checkpoints to the `runs` branch, so a restarted session resumes it, and its results are read before the work they cover joins, or at the latest before the stage closes (`PRC-10`).
 
-Computing (`RES-07`; A4.15's 1.15 ms a person in all, A8.21's 1.05 with animals and 0.1 for making areas; cloud = phone-held ÷ 1.5): nightly, 20 worlds to Year 60 (about 130 people) ≈ 8 CPU-hours, one session, about 2 hours; at `MIL-06`'s close, 20 worlds to Year 150 (about 180 people) ≈ 23 CPU-hours, about 3 hours on two sessions; the full test, 10 worlds to Year 500 (about 600–1,700 people on average, the largest reaching about 7,000, `BIO-04`) ≈ 50–120 CPU-hours: 2 worlds of 2 workers in each of 5 sessions, about 5–8 hours (`RSK-14`), inside `RES-07`'s 20–45 session-hours.
+Computing (`RES-07`; A4.15's 1.15 ms a person in all, A8.21's 1.05 with animals and 0.1 for making areas; cloud = phone-held ÷ 1.5): after a change, 20 worlds to Year 60 (about 130 people) ≈ 8 CPU-hours, about 2 hours on the session's four workers; at `MIL-06`'s close, 20 worlds to Year 150 (about 180 people) ≈ 23 CPU-hours, about 6 hours; the full test, 10 worlds to Year 500 (about 600–1,700 people on average, the largest reaching about 7,000, `BIO-04`) ≈ 50–120 CPU-hours, about 13–30 hours on four workers, spread over the last alphas of `MIL-07` (`RSK-14`), inside `RES-07`'s 20–45 session-hours.
 A run that cannot finish in its sessions goes to the owner first (`SCP-15`), and each stage report sets the real cost against these (`RES-06`).
 `kd check file` fails if a pace-test seed appears in `data/TUNING-LOG.md` (`RES-16`).
 First needed: `MIL-02`; whole worlds from `MIL-04`.
 
 ### A15.9 Determinism tests
 
-Short forms at every merge, long forms nightly (`TIM-16`, `RES-05`):
+Short forms at every merge, long forms in the background (`TIM-16`, `RES-05`):
 1. Save, load and continue equals the uninterrupted run, at 3 random paused seconds per quick scene.
 2. 1, 2 and 4 threads give the same state hash (A4).
 3. Speed, zoom and camera change nothing: frame lengths varied, view areas made elsewhere, the story director on and off (`TIM-17`, `WLD-13`, `MND-14`, `TIM-03`).
 4. The repeat check (`PRC-10`): one scene and one bench world each run on 1 worker and on 4 with a stop and resume between, ending identical.
-5. Across targets: at every merge one fixed short scene gives one state hash on x86-64, on arm64 under qemu and as wasm in headless Chromium (B01: the cloud reproduced the phone's bits); nightly every quick scene, and both profiles.
+5. Across targets: at every merge one fixed short scene gives one state hash on x86-64, on arm64 under qemu and as wasm in headless Chromium (B01: the cloud reproduced the phone's bits); in the background every quick scene, and both profiles.
 6. Phone and cloud: the phone benchmark's state hashes after fixed spans equal the cloud's (`RES-05`); a difference blocks the stage until found, and settling for matching ranges needs the owner's OK (A17.6).
 7. Kills, damage and catch-up (A14.13).
 
@@ -4537,8 +4537,8 @@ On the phone, each stage, the Tests screen's Review button renders the same set 
 9. Builds: `kd` always; the release APK and wasm at a delivery, or when `android/`, `web/`, `kd-android` or `kd-web` change.
 
 It writes `results/checks/<commit>.json` and prints `Checks: PASS <commit>`; a later commit touching only `results/` keeps that pass.
-Over 20 minutes, the scenes of items the change doesn't touch move to the night first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining (`PRC-10`).
-After the night, the next session reads the night's results before anything else: a check that passed before and now fails is fixed, or the change behind it undone, before other work joins, and a pace target not yet met goes to tuning (`RES-16`), blocking only the stage close.
+Over 20 minutes, the scenes of items the change doesn't touch move to the background first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining (`PRC-10`).
+When a background run ends, its results are read before anything else: a check that passed before and now fails is fixed, or the change behind it undone, before other work joins, and a pace target not yet met goes to tuning (`RES-16`), blocking only the stage close.
 Merges are merge commits, never squashed, so each commit keeps its `Changed:` line and session trailer.
 Before a stage closes, `PRC-10`'s list runs, with `kd check ids --stage` (all of `PRC-12`, with `RES-19`'s promises), and the owner's review (`RES-22`) is recorded in `reports/stage-<n>-review.md`.
 
@@ -4763,7 +4763,7 @@ Serves `RSK-02`, `RSK-04`, `RSK-08`, `RSK-09`, `RSK-14`, `RSK-15`, `RSK-18`, `RS
 ### A17.8 Cloud sessions restarting mid-work (`RSK-14`)
 
 - Signs: a heartbeat with a new boot id or none; a session on an empty machine; stopped runs; usage limits reached; a full disk.
-- Fallback: commit and push at least hourly; small checkpoints on the `runs` branch (A15.8); runs sized to their sessions; pace tests over more nights or fewer worlds, as reported (`RES-13`); GitHub's free runners for a public repository (20 parallel 4-core jobs of up to 6 hours) only with the owner's OK (`SCP-15`).
+- Fallback: commit and push at least hourly; small checkpoints on the `runs` branch (A15.8); runs sized to their sessions; pace tests over more session-hours or fewer worlds, as reported (`RES-13`); GitHub's free runners for a public repository (20 parallel 4-core jobs of up to 6 hours) only with the owner's OK (`SCP-15`).
 - Decides: agents; the owner for any more computing.
 
 ### A17.9 Saves and updates (`RSK-15`, `RSK-21`)

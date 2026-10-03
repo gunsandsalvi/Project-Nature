@@ -1461,7 +1461,7 @@ Shares in Done when lines are judged as `RES-13` sets out.
   - **How it works:**
     - **Limits:** a person dies only when the body passes one: condition, water or blood running out (`BIO-09`, `BIO-13`), freezing or heatstroke (`BIO-11`), a head or torso at 0 (`BIO-13`), a deadly illness or poison (`BIO-05`, `BIO-12`), too long under water (`BIO-21`), or an old body giving out (`BIO-16`).
     - **The record:** each death keeps its cause and how it came about, such as "bleeding, from a boar's tusk, while hunting" (`PRE-05`).
-  - **Check:** every death in test runs and overnight worlds names its cause and how it came about.
+  - **Check:** every death in test runs and whole-world runs names its cause and how it came about.
 
 ### 8.4 A life
 
@@ -2421,7 +2421,7 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 
 ### 14.1 How testing works
 
-- `RES-01` **Tests lead** *(Decided)*: Every alpha brings automated tests for what it adds, quick ones run before any work joins and long ones overnight (`PRC-10`).
+- `RES-01` **Tests lead** *(Decided)*: Every alpha brings automated tests for what it adds, quick ones run before any work joins and long ones in the background of the session that builds (`PRC-10`).
   A feature counts as built only when its tests pass, and every test names the IDs it checks.
   - **Check:** the coverage check finds a test for every feature and rule built so far (`PRC-12`).
 
@@ -2458,7 +2458,7 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 - `RES-16` **Tuning the pace** *(Decided)*
   - **What:** The pace is tuned only by changing chances and amounts (`PRN-17`, `MND-11`), the same in every world.
     Late steps are tuned in scenes set where the step becomes possible; whole worlds only confirm.
-    Tuning uses 20 fixed seeds, shared with the nightly runs; each closing pace test, every time it runs, draws new seeds never tuned against.
+    Tuning uses 20 fixed seeds, shared with the long runs; each closing pace test, every time it runs, draws new seeds never tuned against.
     Every tuned value, discovery factors included (`MND-11`), is logged with what it was tuned against; if tuning can't fix the pace, the stage report gives you the options: a redesign, another window, or accepting it.
   - **Done when:** the tuning log lists every tuned value, and no closing test's seeds appear in it.
 
@@ -2486,17 +2486,17 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   - **Check:** the sharp-stone test (`RES-02`) passes at every stage from `MIL-02` (`PRC-10`).
 
 - `RES-07` **The pace tests** *(Decided)*: Whole worlds from the play generator (`WLD-10`) check each pace target (`TIM-19`) and culture target (`CUL-33`) in their records.
-  - **Sizes,** each judging the targets whose windows close within its years: nightly after any change to minds, blueprints or catalogues, 20 worlds to Year 60, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-06`, 20 worlds to Year 150; and the full test, 10 worlds to Year 500, before `MIL-07` closes and at most weekly during it.
+  - **Sizes,** each judging the targets whose windows close within its years: after any change to minds, blueprints or catalogues, 20 worlds to Year 60, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-06`, 20 worlds to Year 150; and the full test, 10 worlds to Year 500, before `MIL-07` closes and at most once a week of building during it.
   - **Stages:** each target counts from the stage that builds it: flakes `MIL-02`; fire `MIL-03`; clothing, huts and `RES-25` `MIL-04`; shared spirits, rites and myths `MIL-05`; pottery, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going `MIL-06`; herding, villages, farming, copper and chiefs `MIL-07` (`SCP-16`, `TIM-19`, `CUL-33`).
-  - **Computing:** one cloud session a night, the nightly size taking about 2 session-hours and the Year-150 run about 6; the full test about 20–45, over one or two nights on up to five sessions side by side, which you agree to once (`SCP-15`); each stage report sets the real cost against these (`RES-06`).
-  - **Other whole-world checks** read these worlds, at the first size that reaches their years (`BIO-04`, `BIO-06`, `BIO-22`, `MAT-08`, `PRE-39` and the culture items); checks of the world with nobody in it, such as `WLD-15` and `WLD-18`, run in the night's session at the stage that builds them, and again only when their rules change.
+  - **Computing:** in the session that builds, in the background while it works, never in another session (`SCP-15`): the size after a change takes about 2 session-hours and the Year-150 run about 6, and the full test about 20–45, spread over the last alphas of `MIL-07`, whose stage closes once it has run; each stage report sets the real cost against these (`RES-06`).
+  - **Other whole-world checks** read these worlds, at the first size that reaches their years (`BIO-04`, `BIO-06`, `BIO-22`, `MAT-08`, `PRE-39` and the culture items); checks of the world with nobody in it, such as `WLD-15` and `WLD-18`, run in the background at the stage that builds them, and again only when their rules change.
   - **Check,** for each target: at least half the worlds reach it inside its window, and at most a quarter before it opens (with 10 worlds, at least 5 and at most 2); where windows overlap, the steps don't come in the same order in every world.
 
 - `RES-25` **Something to watch** *(To test)*: From Year 5 on, whole worlds average at least one new entry in the book of ages per year, and no 5 years pass without an event important enough for a live moment (`PRE-08`), in at least 16 of 20 worlds.
   - **Check:** the pace tests read it (`RES-07`), and stage reports chart entries and live moments per year (`RES-06`).
 
 - `RES-17` **Signature moments keep happening** *(Decided)*: Each signature moment (`MOM`) has its own scene, run from the stage and within the window its Check line gives, passing if it happens in at least 2 of 20 runs unless its own rule says otherwise.
-  It reruns whenever what it depends on changes, before work joins if it lasts up to 10 years (`PRC-10`), otherwise overnight (`RES-07`).
+  It reruns whenever what it depends on changes, before work joins if it lasts up to 10 years (`PRC-10`), otherwise in the background before its stage closes (`RES-07`).
   - **Check:** each stage report gives every moment's latest result and its appearances in whole worlds (`RES-06`).
 
 - `RES-19` **Every promise has a test** *(Decided)*: Everything this file says will arise in play, such as a religion or a lost craft, gets a scene or whole-world check by the stage that builds it, or is marked "possible, not promised" with your OK (`PRC-07`).
@@ -2567,14 +2567,14 @@ How the project is run.
   - **Check:** the main version accepts only branches whose checks passed and whose review approved them, each alpha's last step naming a reviewer other than the builder.
 
 - `PRC-10` **The checks** *(Decided)*
-  - **Before any work joins the main version,** within about 20 minutes on one cloud machine, anything longer running overnight:
+  - **Before any work joins the main version,** within about 20 minutes on one cloud machine, anything longer running in the background of the same session:
     - the quick tests (`RES-01`), the blueprint trials (`RES-24`) and the scenes of up to 10 years, the signature moments' included (`RES-23`, `RES-17`);
     - the catalogue checks, reality rules included (`MAT-17`, `RCK`);
     - the repeat check: one scene and one benchmark world each run twice, once on one core and once on four with a stop and resume between, and must end identical (`RES-05`);
     - the file check: every ID defined once, every reference resolving, every status valid, and no retired ID used or cited;
     - the commit check (`PRC-07`) and the coverage check (`PRC-12`).
-  - **If they outgrow 20 minutes,** scenes of items the change doesn't touch move to the night first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining.
-  - **After the night:** the next session reads the night's results before anything else.
+  - **If they outgrow 20 minutes,** scenes of items the change doesn't touch move to the background first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining.
+  - **When a background run ends:** its results are read before anything else.
     A check that passed before and now fails is fixed, or the change behind it undone, before other work joins.
     A pace target not yet met goes to tuning (`RES-16`) and blocks only the stage close.
   - **Before a stage closes:** the pace tests (`RES-07`), the phone measurements (`PLT-04`), the phone and cloud match (`RES-05`), the moment scenes that are due (`RES-17`), the writer's trap records (`PRE-17`), the visual and sound reviews (`PRE-31`, `SND-12`), the report (`RES-06`) and your review (`RES-22`).
@@ -2688,7 +2688,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Response:** the guide, coverage check, firm pass rules, review and modules (`PRC-06`, `PRC-12`, `RES-09`, `PRC-09`, `PRN-14`).
 
 - `RSK-14` **Tests too big for the cloud** *(Decided)*: Likelihood medium, impact medium.
-  - **Signs:** overnight runs unfinished or lost; a pace test over its stated budget (`RES-07`).
+  - **Signs:** long runs unfinished or lost; a pace test over its stated budget (`RES-07`).
   - **Response:** scenes wherever they can answer (`RES-21`, `RES-16`); runs that resume (`PLT-05`).
 
 - `RSK-23` **Your time** *(Decided)*: Likelihood medium, impact medium.
@@ -2760,7 +2760,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Need:** hunger, thirst, warmth and rest for the body (`BIO-09`), and safety, belonging, status, curiosity and love for the mind (`MND-07`).
 - **Overnight mode:** the world at top speed, screen dimmed, while the phone charges (`TIM-12`).
 - **Pace target:** the window of years in which typical worlds reach a step, such as fire in Years 5–30 (`TIM-19`).
-- **Pace test:** whole worlds run overnight against the pace and culture targets (`RES-07`).
+- **Pace test:** whole worlds run in the background against the pace and culture targets (`RES-07`).
 - **Pattern sentence:** a set sentence filled from a world's records, which every text starts from (`PRE-37`).
 - **People (a people):** a named group with its own territory, customs, beliefs and style (`CUL-23`).
 - **Plain use:** a base action done without a blueprint, such as digging a grave, which makes nothing new but heaps, holes and cleared ground (`MAT-06`).
