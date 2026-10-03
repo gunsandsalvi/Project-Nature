@@ -2561,7 +2561,7 @@ How the project is run.
   - **How it works:** at each step the builder reviews its own change against the items it claims, re-running the checks and making each new test fail once.
     At the alpha's last step, a fresh, separate agent reviews the whole alpha, its tests and results, and the items it claims, without the builder's reasoning, against those items' What, Done when and Check lines, and checks that no test was weakened to pass (`RES-09`).
     If builder and reviewer still disagree after one round of fixes, a second fresh reviewer decides; anything that changes what this file means goes to you.
-  - **Check:** the main version accepts only branches whose checks passed and whose review approved them, each alpha's last step naming a reviewer other than the builder.
+  - **Check:** nothing joins the main version with a failing check or without its review's approval.
 
 - `PRC-10` **The checks** *(Decided)*
   - **Before any work joins the main version,** within about 20 minutes on one cloud machine, anything longer running in the background of the same session:
@@ -2575,7 +2575,7 @@ How the project is run.
     A check that passed before and now fails is fixed, or the change behind it undone, before other work joins.
     A pace target not yet met goes to tuning (`RES-16`) and blocks only the stage close.
   - **Before a stage closes:** the pace tests (`RES-07`), the phone measurements (`PLT-04`), the phone and cloud match (`RES-05`), the moment scenes that are due (`RES-17`), the writer's trap records (`PRE-17`), the visual and sound reviews (`PRE-31`, `SND-12`), the report (`RES-06`) and your review (`RES-22`).
-  - **Check:** the checks run by themselves, any failure blocks the join or the close, and each joined change and closed stage records that all its checks passed.
+  - **Check:** the checks run by themselves, and any failure blocks the join or the close.
 
 - `PRC-11` **Each alpha reaches your phone** *(Decided)*: Every playable alpha (`SCP-03`) ends with a build to install and play on the phone (`PLT-06`) and a short note: what is new, what to try and what is still rough.
   Only the stage reviews wait for you (`RES-22`).

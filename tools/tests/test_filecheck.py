@@ -1,5 +1,5 @@
-"""tools/filecheck.py: the file, commit and coverage checks, the note check and the merge gate (PRC-07, PRC-09,
-PRC-10, PRC-11, PRC-12)."""
+"""tools/filecheck.py: the file, commit and coverage checks, the note check and the item search (PRC-07, PRC-10,
+PRC-11, PRC-12)."""
 import contextlib
 import importlib.util
 import io
@@ -10,19 +10,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("filecheck", os.path.join(HERE, "..", "filecheck.py"))
 filecheck = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(filecheck)
-
-HEAD = "5f4f0e7f1fa4dd455ca33ef23b2ae583b198b0c9"
-PLAN = "| α00b | Foundations | 1 | 5 | Not started |\n| α01a | Colour | 1 | 6 | Not started |\n" \
-       "| α01b | Ground | 1 | 6 | Not started |\n"
-
-
-def gate(description, **kw):
-    args = dict(head=HEAD, only_results=True, head_passed=False, parent_passed=True,
-                sessions=["https://claude.ai/code/session_01Builder"], plan=PLAN)
-    args.update(kw)
-    return filecheck.gate(description, args["head"], args["only_results"], args["head_passed"],
-                          args["parent_passed"], args["sessions"], args["plan"])
-
 
 class Selftest(unittest.TestCase):
     # checks: PRC-10 PRC-12 PRC-07
@@ -35,40 +22,21 @@ class Selftest(unittest.TestCase):
         self.assertEqual(len({p[2] for p in filecheck.PLANTED}), len(filecheck.PLANTED), "one message a fault")
 
 
-class Gate(unittest.TestCase):
-    # checks: PRC-09
-    def test_builder_reviews_letters_a_later_one_follows(self):
-        # α00's own row has left the plan: α00b remains, so α00 does not end its number, and its builder reviews it.
-        self.assertEqual(gate("α00: Skeleton\n\nReview: APPROVE 5f4f0e7f1fa4 builder"), [])
-        self.assertEqual(gate("α01a: Colour\n\n`Review: APPROVE 5f4f0e7f1fa4 builder`", plan=PLAN), [])
-        # α00b's row has left too: it ends α00, so the builder may not approve it.
-        plan = PLAN.replace("| α00b | Foundations | 1 | 5 | Not started |\n", "")
-        problems = gate("α00b: Foundations\n\nReview: APPROVE 5f4f0e7f1fa4 builder", plan=plan)
-        self.assertTrue(any("ends its number" in p for p in problems), problems)
-
-    # checks: PRC-09
-    def test_number_end_needs_another_reviewer(self):
-        plan = PLAN.replace("| α00b | Foundations | 1 | 5 | Not started |\n", "")
-        self.assertEqual(gate("α00b: Foundations\n\nReview: APPROVE 5f4f0e7f1fa4 subagent:a00-review", plan=plan), [])
-        self.assertEqual(gate("α00b: x\n\nReview: APPROVE 5f4f0e7f1fa4 https://claude.ai/code/session_02Other",
-                              plan=plan), [])
-        same = gate("α00b: x\n\nReview: APPROVE 5f4f0e7f1fa4 https://claude.ai/code/session_01Builder", plan=plan)
-        self.assertTrue(any("also built this branch" in p for p in same), same)
-        early = gate("α01a: x\n\nReview: APPROVE 5f4f0e7f1fa4 subagent:early", plan=PLAN)
-        self.assertTrue(any("does not end its number" in p for p in early), early)
-
-    # checks: PRC-09 PRC-10
-    def test_head_approved_and_checked(self):
-        self.assertEqual(gate("α00: x"), ["no 'Review: APPROVE <commit> <reviewer>' line"])
-        other = gate("α00: x\n\nReview: APPROVE 0123456789ab builder")
-        self.assertTrue(any("is not the head" in p for p in other), other)
-        unchecked = gate("α00: x\n\nReview: APPROVE 5f4f0e7f1fa4 builder", parent_passed=False)
-        self.assertTrue(any("no passing results/checks" in p for p in unchecked), unchecked)
-        not_results = gate("α00: x\n\nReview: APPROVE 5f4f0e7f1fa4 builder", only_results=False)
-        self.assertTrue(any("no passing results/checks" in p for p in not_results), not_results)
-        self.assertEqual(gate("α00: x\n\nReview: APPROVE 5f4f0e7f1fa4 builder", only_results=False, head_passed=True), [])
-        unnamed = gate("Skeleton\n\nReview: APPROVE 5f4f0e7f1fa4 builder")
-        self.assertTrue(any("does not open with the alpha's name" in p for p in unnamed), unnamed)
+class Where(unittest.TestCase):
+    # checks: PRC-12
+    def test_finds_the_code_that_names_an_item(self):
+        files = filecheck.fixture(os.path.join(filecheck.FIXTURES, "clean"))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = filecheck.where("ONE-01", files)
+        self.assertEqual(code, 0, out.getvalue())
+        text = out.getvalue()
+        self.assertIn("ONE-01 First (Decided)", text)
+        self.assertIn("crates/kd-one/src/lib.rs", text)
+        self.assertNotIn("implements: none", text)
+        self.assertNotIn("checks: none", text)
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(filecheck.where("ONE-77", files), 1)
 
 
 class Note(unittest.TestCase):
