@@ -96,6 +96,37 @@ async function main() {
       artSize: () => Array.from(app.art_size()),
       core: () => app.core_hashes(),
       probe: () => JSON.parse(app.probe()),
+      hour: (n) => app.set_hour(n),
+      palette: () => app.palette(),
+      golden: (name) => app.golden(name),
+      // The next frame as a PNG data URL, or with `art` one pixel an art pixel (the grid starts at the top-left).
+      shot: ({ art = false } = {}) => {
+        app.frame(performance.now());
+        drain();
+        const w = canvas.width;
+        const h = canvas.height;
+        const full = document.createElement('canvas');
+        full.width = w;
+        full.height = h;
+        const fctx = full.getContext('2d');
+        fctx.drawImage(canvas, 0, 0);
+        if (!art) return full.toDataURL('image/png');
+        const [aw, ah] = [Math.floor(w / 4), Math.floor(h / 4)];
+        const src = fctx.getImageData(0, 0, w, h).data;
+        const out = document.createElement('canvas');
+        out.width = aw;
+        out.height = ah;
+        const octx = out.getContext('2d');
+        const img = octx.createImageData(aw, ah);
+        for (let y = 0; y < ah; y++) {
+          for (let x = 0; x < aw; x++) {
+            const from = ((y * 4) * w + x * 4) * 4;
+            img.data.set(src.subarray(from, from + 4), (y * aw + x) * 4);
+          }
+        }
+        octx.putImageData(img, 0, 0);
+        return out.toDataURL('image/png');
+      },
       crash: () => app.crash(),
     };
     return;

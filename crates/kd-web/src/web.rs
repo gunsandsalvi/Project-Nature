@@ -167,6 +167,24 @@ impl WebApp {
         }
     }
 
+    /// Test hook (A11.12): lights the frame at one of the app's hours, 0 dawn to 7 night.
+    pub fn set_hour(&mut self, hour: u32) {
+        self.app.set_hour(hour as usize);
+    }
+
+    /// Test hook (A11.12): the palette row in use, as `rrggbb` words, or an empty string before the first frame.
+    pub fn palette(&self) -> String {
+        self.app.palette_hex().unwrap_or_default()
+    }
+
+    /// Test hook (A11.12): a golden scene with time frozen (`light-card` or `block`), or the live card for any
+    /// other name; whether the name was a golden's.
+    pub fn golden(&mut self, name: &str) -> bool {
+        let g = kd_app::Golden::named(name);
+        self.app.set_golden(g);
+        g.is_some()
+    }
+
     /// Test hook (A3.8): a panic, for the smoke test to see its message in the status line.
     pub fn crash(&self) {
         panic!("a test panic, asked for by the smoke test");

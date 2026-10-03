@@ -182,6 +182,36 @@ mod tests {
         }
     }
 
+    // checks: PRE-30 RES-05
+    #[test]
+    fn palette_rows_stored() {
+        // The palette row at each of the app's hours, as this code makes it in the cloud; the smoke test checks the
+        // browser makes the same bytes (tests/golden/palette.txt, rewritten with KD_WRITE_GOLDEN=1).
+        let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
+        let layout = kd_render::looks::Layout::new(&cat).unwrap();
+        let text: String = (0..crate::HOURS.len())
+            .map(|h| {
+                let row = kd_render::frame::Lighting::new(&cat, &layout, &crate::sky_at(h))
+                    .palette
+                    .row;
+                let hex: Vec<String> = row
+                    .iter()
+                    .map(|c| format!("{:02x}{:02x}{:02x}", c[0], c[1], c[2]))
+                    .collect();
+                format!("{h} {}\n", hex.join(" "))
+            })
+            .collect();
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../tests/golden/palette.txt");
+        if std::env::var_os("KD_WRITE_GOLDEN").is_some() {
+            std::fs::write(path, &text).unwrap();
+        }
+        assert_eq!(
+            std::fs::read_to_string(path).unwrap_or_default(),
+            text,
+            "tests/golden/palette.txt is not this code's palette: KD_WRITE_GOLDEN=1 cargo test -p kd-app palette_rows"
+        );
+    }
+
     // checks: MAT-13 PLT-09
     #[test]
     fn catalogue_loads_at_start() {

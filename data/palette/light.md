@@ -11,7 +11,7 @@ The air of a fine summer day.
 - **Turbidity** 0.08 is the haze aerosol's depth at 1 µm, falling as wavelength to the power −1.3 (Ångström's law): 0.04 is a clear day after rain, 0.12 a hazy one. The owner chose 0.08 on 3 October 2026 from an example picture, since the clear 0.04 made shade too dark and too blue.
 - **Ozone**'s Chappuis band takes 0.031, 0.027 and 0.002, each averaged over its channel's band: little, but enough to keep twilight blue. The red channel's band reaches the Chappuis peak near 600 nm, so it loses more than its 680 nm alone would give (0.020, which left twilight purple; tuned at α01a, `data/TUNING-LOG.md`).
 - **The sky's light** on level ground is half of what Rayleigh scattering takes from the beam, which scatters evenly, and 0.7 of what the aerosol takes, which scatters mostly forward, times the sun's height's sine; and as the sun sets the sky still lights the ground, at 0.04 of that scattering, fading over the last 3° above the horizon: at sunset the sky gives about 400 lux, half a percent of noon's light.
-- **Twilight** lasts until the sun is 12° below the horizon, its light falling by e every 1.2° (about 400 lux at sunset, 3 at −6°), and turning blue as it crosses more of the ozone layer, 10 more air masses for each degree below the horizon.
+- **Twilight** lasts until the sun is 12° below the horizon, its light falling by e every 1.2° (about 400 lux at sunset, 3 at −6°), and turning blue as it crosses more of the ozone layer, 3 more air masses for each degree below the horizon, 36 by twilight's end: sunlight grazing the ozone layer crosses at most about 40, and twilight's light is about twice as blue as green, as measured (tuned at α01a, `data/TUNING-LOG.md`).
 - **Night:** the full moon gives about 0.25 lux against the sun's 100,000, so it is 400,000 times weaker, its light white tinged blue (0.85, 0.9, 1.0); starlight and the night sky's glow add a hundred-millionth of noon's light.
 - **Exposure** scales the light by 2.0 over the global light to the power 0.85, as eyes adapt only in part: night stays darker than day but readable; the 2.0 is the exposure of the example picture the owner approved on 3 October 2026.
 - **Rod vision:** below a ten-thousandth of noon's light colour fades toward blue-grey, fully by a ten-millionth.
@@ -26,7 +26,7 @@ The air of a fine summer day.
 | Aerosol | turbidity 0.08, exponent 1.3 |
 | Ozone depths | 0.031, 0.027, 0.002 |
 | Sky light | Rayleigh's share 0.5, the aerosol's 0.7; at sunset 0.04, fading over 3° |
-| Twilight, night | to -12°, e every 1.2°, ozone 10 air masses a degree; moon 1/400000, tint 0.85, 0.9, 1; starlight 0.00000001 |
+| Twilight, night | to -12°, e every 1.2°, ozone 3 air masses a degree; moon 1/400000, tint 0.85, 0.9, 1; starlight 0.00000001 |
 | Exposure, rods | scale 2, power 0.85; colour fades from 0.0001 to 0.0000001 of noon |
 | Grade, haze | chroma × 1.2; levels 0.1, 0.25, 0.45; mixes 0.15, 0.33, 0.55; g 0.7; heights 1200 and 8000 m |
 <!-- end table -->
@@ -47,7 +47,7 @@ horizon_sky = 0.04
 horizon_fade_deg = 3.0
 twilight_end_deg = -12.0
 twilight_fall_deg = 1.2
-twilight_ozone_per_deg = 10.0
+twilight_ozone_per_deg = 3.0
 moon_weakness = 400000.0
 moon_tint = [0.85, 0.9, 1.0]
 starlight = 1e-8

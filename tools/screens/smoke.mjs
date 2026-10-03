@@ -1,7 +1,7 @@
 // The web build's smoke test (A15.4, A15.11): the page loads without errors, an art pixel is exactly 4 × 4
 // device pixels in portrait, in landscape and on a screen of scale 2, the core's maths and draws give the cloud's
-// bits in the browser (A15.9 item 5), the probe scene's steps equal the Rust twins' (A11.13 rule 2), and a panic
-// leaves its message in the status line (A3.8). (Chromium's emulated fractional scales, like the phone's 2.625,
+// bits in the browser (A15.9 item 5), the probe scene's steps and the palette rows equal the Rust twins' and the
+// cloud's (A11.13 rule 2), the light card's block turns, and a panic leaves its message in the status line (A3.8). (Chromium's emulated fractional scales, like the phone's 2.625,
 // misreport the canvas's device size, so they are left to the phone itself.)
 // Usage: node tools/screens/smoke.mjs [--save <dir>]   (after tools/build-web.sh)
 // Screenshots go to target/screens/smoke/, which is never committed, or to --save's folder.
@@ -19,8 +19,10 @@ const check = (name, ok, detail = '') => {
   console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${name}${detail ? ` (${detail})` : ''}`);
 };
 
-// The cloud's hashes of the core's probes.
+// The cloud's hashes of the core's probes, and its palette row at each of the app's hours.
 const storedCore = readFileSync(path.join(ROOT, 'crates', 'kd-core', 'tests', 'fixtures', 'hashes.txt'), 'utf8');
+const storedRows = readFileSync(path.join(ROOT, 'tests', 'golden', 'palette.txt'), 'utf8').trim().split('\n')
+  .map((line) => line.split(' ').slice(1).join(' '));
 
 // checks: PRE-22 PLT-02 PRE-01
 // Every art pixel is exactly 4 × 4 device pixels of one colour: each 4 × 4 block of the grid is one colour, down to
@@ -76,6 +78,20 @@ try {
       const wrong = probe ? probe.gpu.filter((g, i) => g !== probe.twins[i]).length : -1;
       check(`probe equals the twins, ${label}`, probe && probe.gpu.length === 256 && wrong === 0,
         probe ? `${wrong} of ${probe.gpu.length} differ` : 'no probe');
+      // checks: PRE-30 RES-05
+      const rows = await page.evaluate((n) => {
+        const out = [];
+        for (let h = 0; h < n; h++) {
+          window.kd.hour(h);
+          window.kd.frame(1);
+          out.push(window.kd.palette());
+        }
+        window.kd.hour(4);
+        return out;
+      }, storedRows.length);
+      const hours = rows.map((r, h) => (r === storedRows[h] ? -1 : h)).filter((h) => h >= 0);
+      check(`palette row equals the cloud's, ${label}`, rows.length === 8 && hours.length === 0,
+        hours.length ? `hours ${hours.join(', ')} differ` : '8 hours');
       await page.evaluate(() => window.kd.frame(1));
       const shot = await page.screenshot();
       writeFileSync(path.join(outDir, `${label.replace(' ', '-')}.png`), shot);
@@ -87,6 +103,12 @@ try {
       });
       const [ok, why] = blocksOk(decodePng(shot), bottom);
       check(`art pixel 4x4, ${label}`, ok, why);
+      // checks: PRE-30 PRC-11
+      // Frames keep coming: the block turns with real time, so two frames half a second apart differ.
+      const before = await page.evaluate(() => window.kd.shot({ art: true }));
+      await page.waitForTimeout(500);
+      const after = await page.evaluate(() => window.kd.shot({ art: true }));
+      check(`the block turns, ${label}`, before !== after, before === after ? 'two frames 0.5 s apart are the same' : '');
     }
     check(`no page errors, ${label}`, errors.length === 0, errors.slice(0, 3).join('; '));
     await close();

@@ -137,6 +137,29 @@ pub struct App {
     colours: Colours,
     /// The strip's version line, made once the catalogue is loaded.
     version: String,
+    /// When the first frame was drawn, which the block's turn counts from.
+    start_ns: Option<u64>,
+    /// Test hook (A11.12): a golden scene with time frozen, which hides the strip.
+    golden: Option<Golden>,
+}
+
+/// The golden scenes of A11.12, drawn with time frozen.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Golden {
+    /// The whole light card, the block turned 30°.
+    LightCard,
+    /// The block alone, filling the screen, turned 30°.
+    Block,
+}
+
+impl Golden {
+    pub fn named(name: &str) -> Option<Golden> {
+        match name {
+            "light-card" => Some(Golden::LightCard),
+            "block" => Some(Golden::Block),
+            _ => None,
+        }
+    }
 }
 
 impl App {
@@ -166,6 +189,8 @@ impl App {
             font: kd_ui::font::font(),
             colours: Colours::default(),
             version: build_line().to_string(),
+            start_ns: None,
+            golden: None,
         };
         let t0 = app.platform.now_ns();
         match Catalogue::load(CATALOGUE) {
@@ -263,11 +288,14 @@ impl App {
         if !self.ui.strip.touched() {
             self.ui.strip.touch(now_ns);
         }
+        let start = *self.start_ns.get_or_insert(now_ns);
         let list = self.ui_list(now_ns);
+        let card = self.card_frame(now_ns.saturating_sub(start));
         if let Some(r) = self.renderer.as_mut() {
             let f = Frame {
                 count: self.frames,
                 sky: sky_at(self.hour),
+                card,
             };
             match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f, &list))) {
                 Ok(_) => self.panics_in_row = 0,
@@ -307,9 +335,51 @@ impl App {
         self.insets.bottom.div_ceil(ART_SCALE) as i32
     }
 
-    /// The frame's UI (A12.1): the light card's look names over their swatches, and the strip while it shows.
+    /// What the light card shows `age_ns` after the first frame: the block turning once in 24 seconds, or a golden
+    /// scene's still (A11.12).
+    fn card_frame(&self, age_ns: u64) -> card::CardFrame {
+        let block_look = self
+            .catalogue
+            .as_ref()
+            .and_then(|c| c.looks.iter().position(|l| l.id == "limestone"))
+            .unwrap_or(0);
+        let turn = match self.golden {
+            Some(_) => 30f32.to_radians(),
+            None => {
+                let turns = (age_ns % (card::TURN_S as u64 * 1_000_000_000)) as f32 / (card::TURN_S * 1e9);
+                turns * std::f32::consts::TAU
+            }
+        };
+        card::CardFrame {
+            block_look,
+            turn,
+            block_only: self.golden == Some(Golden::Block),
+        }
+    }
+
+    /// Test hook (A11.12): shows a golden scene with time frozen, or the live card again.
+    pub fn set_golden(&mut self, golden: Option<Golden>) {
+        self.golden = golden;
+    }
+
+    /// Test hook (A11.12): the palette row in use, as `rrggbb` words, or nothing before the first frame.
+    pub fn palette_hex(&self) -> Option<String> {
+        let row = &self.renderer.as_ref()?.palette()?.row;
+        Some(
+            row.iter()
+                .map(|c| format!("{:02x}{:02x}{:02x}", c[0], c[1], c[2]))
+                .collect::<Vec<_>>()
+                .join(" "),
+        )
+    }
+
+    /// The frame's UI (A12.1): the light card's look names over their swatches, and the strip while it shows; a
+    /// golden scene has neither, so it never changes with the version or the clock.
     pub fn ui_list(&self, now_ns: u64) -> UiDrawList {
         let mut list = UiDrawList::default();
+        if self.golden == Some(Golden::Block) {
+            return list;
+        }
         if let Some(cat) = &self.catalogue {
             for (row, look) in cat.looks.iter().take(card::MAX_LOOKS).enumerate() {
                 // The cell's cap height starts two rows down, on the row's name line.
@@ -321,6 +391,9 @@ impl App {
                     glyphs: kd_ui::font::run(&self.font, &look.name),
                 });
             }
+        }
+        if self.golden.is_some() {
+            return list;
         }
         self.ui.strip.draw(
             &mut list,

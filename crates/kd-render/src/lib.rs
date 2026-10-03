@@ -63,6 +63,8 @@ pub struct Frame {
     pub count: u64,
     /// The sky the frame is lit by (A11.4).
     pub sky: kd_view::SkyView,
+    /// What the light card shows (A11.12), α01a's scene.
+    pub card: passes::scene::card::CardFrame,
 }
 
 /// What a frame drew.
@@ -171,7 +173,10 @@ impl Renderer {
             return FrameStats::default();
         };
         self.light_frame(f);
-        self.scene.draw(&self.gl, &view, &self.layout, self.vao);
+        if let Some(lighting) = &self.lighting {
+            self.scene
+                .draw(&self.gl, &view, &self.layout, lighting, &f.card, self.vao);
+        }
         if let (Some(scene), Some(post)) = (&self.scene.target, &self.post.target) {
             self.post.draw(&self.gl, &scene.colours[0], &self.palette_tex, self.vao);
             self.upscale.draw(&self.gl, &view, &post.colours[0], self.vao);

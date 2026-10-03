@@ -381,6 +381,11 @@ pub fn set_f32(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: f32) 
     unsafe { gl.uniform_1_f32(loc, v) }
 }
 
+pub fn set_vec3(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [f32; 3]) {
+    // SAFETY: as above.
+    unsafe { gl.uniform_3_f32(loc, v[0], v[1], v[2]) }
+}
+
 pub fn set_vec2(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [f32; 2]) {
     // SAFETY: as above.
     unsafe { gl.uniform_2_f32(loc, v[0], v[1]) }
