@@ -1,10 +1,12 @@
 //! The Rust twins of the shaders' per-pixel formulas (A11.13 rule 2), under the same names as in `lib.glsl` and
 //! with the same constants: the light's lightness from the sky and sun factors, its step on a ladder, the band's
-//! 4 × 4 Bayer dither fixed to the world grid, and colour 0's packing. Tests use the twins, and the probe scene
-//! (`probe`) checks that the GPU gives the same steps exactly.
+//! 4 × 4 Bayer dither fixed to the world grid, colour 0's packing, and from α01b the world-fixed noise faded below
+//! four art pixels, the surface the four nearest squares vote for, and the split between a surface's looks. Tests
+//! use the twins, and the probe scene (`probe`) checks that the GPU gives the same answers exactly.
 //!
-//! Implements PRE-20 and PRE-01, see A11.3 and A11.13: the light picks the step, a narrow band round each threshold
-//! is dithered and nowhere else, and every pixel is a palette index.
+//! Implements PRE-20, PRE-22 and PRE-01, see A11.1, A11.3, A11.5 and A11.13: the light picks the step, a narrow band
+//! round each threshold is dithered and nowhere else, no pattern is finer than two art pixels, and every pixel is a
+//! palette index.
 
 use kd_core::m;
 
@@ -108,6 +110,137 @@ pub fn pack(index: u8, cat: Cat, flags: u8, depth: f32) -> [u8; 4] {
     [index, cat as u8 | (flags & !7), (d >> 8) as u8, (d & 255) as u8]
 }
 
+/// A lattice point's 32-bit hash, in unsigned arithmetic that wraps alike in Rust and GLSL ES 3.00.
+pub fn hash3(x: u32, y: u32, seed: u32) -> u32 {
+    let mut h = x.wrapping_mul(0x8da6_b343) ^ y.wrapping_mul(0xd816_3841) ^ seed.wrapping_mul(0xcb1a_b31f);
+    h ^= h >> 15;
+    h = h.wrapping_mul(0x2c1b_3c6d);
+    h ^= h >> 12;
+    h = h.wrapping_mul(0x297a_2d39);
+    h ^ (h >> 15)
+}
+
+const S: f32 = std::f32::consts::FRAC_1_SQRT_2;
+
+/// The noise's 8 gradient directions, 45° apart.
+pub const GRADIENTS: [[f32; 2]; 8] = [
+    [1.0, 0.0],
+    [S, -S],
+    [0.0, -1.0],
+    [-S, -S],
+    [-1.0, 0.0],
+    [-S, S],
+    [0.0, 1.0],
+    [S, S],
+];
+
+/// The quintic fade 6t⁵ − 15t⁴ + 10t³.
+pub fn fade5(t: f32) -> f32 {
+    t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
+}
+
+/// Gradient noise at `p` in lattice units (`p` at least 0), within ±1: the renderer's patterns, fixed to the world.
+pub fn noise2(p: [f32; 2], seed: u32) -> f32 {
+    let c = [p[0].floor(), p[1].floor()];
+    let f = [p[0] - c[0], p[1] - c[1]];
+    let (x, y) = (c[0] as i32 as u32, c[1] as i32 as u32);
+    let corner = |dx: u32, dy: u32| {
+        let g = GRADIENTS[(hash3(x.wrapping_add(dx), y.wrapping_add(dy), seed) & 7) as usize];
+        g[0] * (f[0] - dx as f32) + g[1] * (f[1] - dy as f32)
+    };
+    let (n00, n10, n01, n11) = (corner(0, 0), corner(1, 0), corner(0, 1), corner(1, 1));
+    let (u, v) = (fade5(f[0]), fade5(f[1]));
+    let a = n00 + (n10 - n00) * u;
+    let b = n01 + (n11 - n01) * u;
+    ((a + (b - a) * v) * std::f32::consts::SQRT_2).clamp(-1.0, 1.0)
+}
+
+/// GLSL's `smoothstep`.
+pub fn smoothstep(e0: f32, e1: f32, x: f32) -> f32 {
+    let t = ((x - e0) / (e1 - e0)).clamp(0.0, 1.0);
+    t * t * (3.0 - 2.0 * t)
+}
+
+/// How much of an octave of `wavelength` metres shows at art pixels of 1 / `inv_texel` metres: all of it from four
+/// pixels a wavelength, none below two (A11.1 rule 2).
+pub fn octave_fade(wavelength: f32, inv_texel: f32) -> f32 {
+    smoothstep(2.0, 4.0, wavelength * inv_texel)
+}
+
+/// Up to two octaves of noise at `p` metres, given as (λ₀, 1/λ₀, λ₁, 1/λ₁) with λ₁ 0 for one octave, the second half
+/// the first's height, each faded by its size in art pixels and scaled by the unfaded total, so a faded octave goes
+/// to its average, 0.
+pub fn faded_noise(p: [f32; 2], oct: [f32; 4], inv_texel: f32, seed: u32) -> f32 {
+    let (mut sum, mut total, mut amp) = (0.0, 0.0, 1.0);
+    for k in 0..2 {
+        let (lambda, inv) = (oct[2 * k], oct[2 * k + 1]);
+        if lambda <= 0.0 {
+            break;
+        }
+        let n = noise2([p[0] * inv, p[1] * inv], seed ^ ((k as u32) << 16));
+        sum += amp * octave_fade(lambda, inv_texel) * n;
+        total += amp;
+        amp *= 0.5;
+    }
+    if total > 0.0 { sum / total } else { 0.0 }
+}
+
+/// How far, in metres, the edges between surfaces wander, and the octaves of the noise they wander by, as
+/// (λ, 1/λ) pairs (A11.5, until α01d's coverage).
+pub const EDGE_WOBBLE_M: f32 = 0.45;
+pub const EDGE_OCTAVES: [f32; 4] = [4.0, 0.25, 1.0, 1.0];
+/// Seeds of the wobble's two directions and of the looks' split.
+pub const SEED_EDGE_X: u32 = 11;
+pub const SEED_EDGE_Y: u32 = 12;
+pub const SEED_SPLIT: u32 = 13;
+
+/// The wobble at world-fixed position `w` metres: the shift, east and south, at which the surfaces are looked up.
+pub fn edge_wobble(w: [f32; 2], inv_texel: f32) -> [f32; 2] {
+    [
+        EDGE_WOBBLE_M * faded_noise(w, EDGE_OCTAVES, inv_texel, SEED_EDGE_X),
+        EDGE_WOBBLE_M * faded_noise(w, EDGE_OCTAVES, inv_texel, SEED_EDGE_Y),
+    ]
+}
+
+/// The four squares nearest position `q` (metres east and south of the area's corner, squares 1 m with centres at
+/// halves): the lowest one's column and row, at most `max_base`, and where `q` lies between their centres, 0 to 1.
+pub fn vote_base(q: [f32; 2], max_base: i32) -> ([i32; 2], [f32; 2]) {
+    let base = q.map(|v| ((v - 0.5).floor() as i32).clamp(0, max_base));
+    let f = [
+        (q[0] - 0.5 - base[0] as f32).clamp(0.0, 1.0),
+        (q[1] - 0.5 - base[1] as f32).clamp(0.0, 1.0),
+    ];
+    (base, f)
+}
+
+/// The surface four squares vote for at `f` between their centres, each by its bilinear weight, a surface's
+/// squares adding up; `ids` in the order (0, 0), (1, 0), (0, 1), (1, 1); a tie goes to the lower number (A11.5).
+pub fn vote4(f: [f32; 2], ids: [i32; 4]) -> i32 {
+    let w = [
+        (1.0 - f[0]) * (1.0 - f[1]),
+        f[0] * (1.0 - f[1]),
+        (1.0 - f[0]) * f[1],
+        f[0] * f[1],
+    ];
+    let (mut best, mut best_w) = (ids[0], -1.0f32);
+    for k in 0..4 {
+        let mut t = 0.0;
+        for m in 0..4 {
+            t += if ids[m] == ids[k] { w[m] } else { 0.0 };
+        }
+        if t > best_w || (t == best_w && ids[k] < best) {
+            best_w = t;
+            best = ids[k];
+        }
+    }
+    best
+}
+
+/// Which of a surface's `looks` the split noise `v` picks: the next look wherever `v` is above its take-over value.
+pub fn split_look(v: f32, at: [f32; 2], looks: i32) -> i32 {
+    i32::from(looks > 1 && v > at[0]) + i32::from(looks > 2 && v > at[1])
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -178,6 +311,82 @@ mod tests {
             light_step(2.0 - 0.001, band, 6, 0, 0),
             light_step(2.0 + 0.001, band, 6, 0, 0)
         );
+    }
+
+    // checks: PRE-20
+    #[test]
+    fn surface_vote_by_weight() {
+        // Each square counts by how near its centre the pixel lies, and a surface's squares add up: one square of
+        // rock beside three of grass wins only close to its own centre.
+        let (grass, rock) = (0, 2);
+        assert_eq!(vote4([0.1, 0.1], [rock, grass, grass, grass]), rock);
+        assert_eq!(vote4([0.4, 0.4], [rock, grass, grass, grass]), grass);
+        // Two squares each: the nearer pair wins, and at the exact middle the tie goes to the lower number.
+        assert_eq!(vote4([0.3, 0.5], [rock, grass, rock, grass]), rock);
+        assert_eq!(vote4([0.7, 0.5], [rock, grass, rock, grass]), grass);
+        assert_eq!(vote4([0.5, 0.5], [rock, grass, rock, grass]), grass);
+        // Three surfaces: a split pair outweighs a single square of the third.
+        assert_eq!(vote4([0.5, 0.45], [1, 1, 3, 2]), 1);
+        // The lookup finds the four squares round a place and where it lies between their centres, clamped at the
+        // area's edge, where the edge's squares alone vote.
+        let (base, f) = vote_base([3.7, 10.2], 254);
+        assert_eq!(base, [3, 9]);
+        assert!((f[0] - 0.2).abs() < 1e-5 && (f[1] - 0.7).abs() < 1e-5, "{f:?}");
+        assert_eq!(vote_base([0.1, 255.9], 254), ([0, 254], [0.0, 1.0]));
+        // The wobble moves the place by at most its size, and is fixed to the world: the same place, the same move.
+        for k in 0..1_000 {
+            let w = [k as f32 * 7.31, k as f32 * 3.17];
+            let m = edge_wobble(w, 1.0 / 0.05);
+            assert!(m.iter().all(|v| v.abs() <= EDGE_WOBBLE_M));
+            assert_eq!(m, edge_wobble(w, 1.0 / 0.05));
+        }
+        // A split picks the next look above each take-over value, never more looks than the surface has.
+        assert_eq!(split_look(0.3, [0.25, 2.0], 2), 1);
+        assert_eq!(split_look(0.2, [0.25, 2.0], 2), 0);
+        assert_eq!(split_look(0.9, [-0.5, 0.5], 3), 2);
+        assert_eq!(split_look(0.9, [-0.5, 0.5], 1), 0);
+    }
+
+    // checks: PRE-22 PRE-20
+    #[test]
+    fn noise_fades_below_four_pixels() {
+        // An octave shows fully from four art pixels a wavelength and not at all below two, rising between.
+        assert_eq!(octave_fade(4.0, 1.0), 1.0);
+        assert_eq!(octave_fade(8.0, 1.0), 1.0);
+        assert_eq!(octave_fade(2.0, 1.0), 0.0);
+        assert_eq!(octave_fade(1.0, 1.0), 0.0);
+        assert_eq!(octave_fade(3.0, 1.0), 0.5);
+        let mut last = 0.0;
+        for i in 0..=100 {
+            let f = octave_fade(1.5 + i as f32 * 0.03, 1.0);
+            assert!(f >= last);
+            last = f;
+        }
+        // The grass's split at the person stop has both octaves; at 2 m art pixels the 6 m octave is fading and
+        // the 24 m one whole; at 13 m pixels nothing is left, so the pattern settles to its average, 0.
+        let oct = [24.0, 1.0 / 24.0, 6.0, 1.0 / 6.0];
+        let spread = |texel: f32| {
+            (0..2_000)
+                .map(|k| faded_noise([k as f32 * 1.37, k as f32 * 0.71], oct, 1.0 / texel, SEED_SPLIT).abs())
+                .fold(0.0, f32::max)
+        };
+        assert!(spread(0.03) > 0.4, "{}", spread(0.03));
+        assert!(spread(2.0) < spread(0.03) && spread(2.0) > 0.1);
+        assert_eq!(spread(13.0), 0.0);
+        // A faded octave adds nothing but its share of the scale: the noise at 2 m pixels is the 24 m octave's
+        // alone, two thirds of its full height.
+        let w = [101.5, 77.25];
+        let one = noise2([w[0] / 24.0, w[1] / 24.0], SEED_SPLIT);
+        let faded = faded_noise(w, [24.0, 1.0 / 24.0, 6.0, 1.0 / 6.0], 1.0 / 3.0, SEED_SPLIT);
+        assert!((faded - one * 2.0 / 3.0).abs() < 1e-6, "{faded} {one}");
+        // The noise is within ±1, zero on its lattice, and smooth: a hundredth of a lattice step moves it little.
+        assert_eq!(noise2([5.0, 9.0], 1), 0.0);
+        for k in 0..10_000 {
+            let p = [k as f32 * 0.137, k as f32 * 0.071];
+            let v = noise2(p, 3);
+            assert!((-1.0..=1.0).contains(&v));
+            assert!((noise2([p[0] + 0.01, p[1]], 3) - v).abs() < 0.1);
+        }
     }
 
     // checks: PRE-01

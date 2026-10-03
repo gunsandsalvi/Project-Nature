@@ -61,6 +61,12 @@ pub fn probe_line(gpu: &[u8], twins: &[u8]) -> Option<String> {
     ))
 }
 
+/// The report's line for a demo area whose ground hashes differently from the cloud's, or nothing when it is the
+/// same (A15.9 item 5): the world's ground must be the same on every target.
+pub fn demo_line(made: u64, stored: u64) -> Option<String> {
+    (made != stored).then(|| format!("demo area: ground {made:016x}, the cloud's {stored:016x}"))
+}
+
 /// Whether the driver is OpenGL ES 3 or WebGL2, which every shader is written for (A11.1).
 pub fn gl_version_ok(info: &str) -> bool {
     info.contains("OpenGL ES 3") || info.contains("WebGL 2")
@@ -148,6 +154,27 @@ mod tests {
         );
     }
 
+    // checks: WLD-12 RES-05 PRC-11
+    #[test]
+    fn demo_area_checked() {
+        // A new app makes the demo area with the cloud's hash, so it reports nothing, hands the renderer one
+        // surface a square, and looks at the area's middle on its ground.
+        let outbox = Arc::new(Outbox(Mutex::new(Vec::new())));
+        let app = App::new(outbox.clone(), AppConfig { device: "test".into() });
+        let g = app.demo().expect("the demo area");
+        assert_eq!(g.hash(), kd_world::area::demo::HASH);
+        let cam = app.camera();
+        assert_eq!(kd_core::geo::AreaId::of(cam.target), g.id);
+        assert!((f64::from(cam.target.z) / 256.0 - f64::from(g.height_m(128, 128))).abs() < 0.01);
+        assert!(outbox.0.lock().unwrap().is_empty());
+        // A different ground names both hashes.
+        assert_eq!(demo_line(5, 5), None);
+        assert_eq!(
+            demo_line(0xab, 0xcd).as_deref(),
+            Some("demo area: ground 00000000000000ab, the cloud's 00000000000000cd")
+        );
+    }
+
     // checks: PRE-20 PRC-11
     #[test]
     fn probe_named() {
@@ -168,8 +195,13 @@ mod tests {
         // The strip's version line: the alpha and version code, the catalogue's rules version and its hash.
         let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
         let line = crate::version_line("a01a · 1011 · 1a2b3c4", &cat, 0xa11e_44f9_8124_a890);
-        assert_eq!(line, "a01a · 1011 · catalogue 1.0 a11e44f9");
-        assert_eq!(crate::version_line("dev", &cat, 0), "dev · catalogue 1.0 00000000");
+        let rules = format!("{}.{}", cat.versions.major, cat.versions.minor);
+        assert_eq!(line, format!("a01a · 1011 · catalogue {rules} a11e44f9"));
+        assert_eq!(
+            crate::version_line("dev", &cat, 0),
+            format!("dev · catalogue {rules} 00000000")
+        );
+        assert_eq!(rules, "1.1", "surfaces were a small update (α01b)");
         // The hours' words, every one drawable in the font.
         assert_eq!(crate::hour_line(4), "Late afternoon · 16:30");
         assert_eq!(crate::hour_line(5), "Dusk · 17:45");
@@ -245,6 +277,42 @@ mod tests {
             ));
         });
         println!("TIMINGS blob_load_us {blob:.1} palette_row_us {row_us:.1} tables_us {tables_us:.1}");
+    }
+
+    // checks: WLD-12 PRE-02
+    /// The ground's times for the bench file (A15.10): making the demo area, handing it over as meshes, and taking
+    /// it into the renderer's CPU store (its gradients):
+    /// `cargo test --profile fast -p kd-app --lib ground_timings -- --ignored --nocapture`.
+    #[test]
+    #[ignore]
+    fn ground_timings() {
+        let median = |f: &mut dyn FnMut()| {
+            let mut t: Vec<u128> = (0..21)
+                .map(|_| {
+                    let t0 = std::time::Instant::now();
+                    f();
+                    t0.elapsed().as_nanos()
+                })
+                .collect();
+            t.sort_unstable();
+            t[10] as f64 / 1e6
+        };
+        let cat = kd_data::Catalogue::load(crate::CATALOGUE).unwrap();
+        let numbers = crate::ground::surface_numbers(&cat).unwrap();
+        let g = kd_world::area::demo::make(kd_world::area::demo::SEED);
+        let make_ms = median(&mut || {
+            std::hint::black_box(kd_world::area::demo::make(kd_world::area::demo::SEED));
+        });
+        let meshes_ms = median(&mut || {
+            std::hint::black_box(crate::ground::area_meshes(&g, &numbers));
+        });
+        let m = crate::ground::area_meshes(&g, &numbers);
+        let store_ms = median(&mut || {
+            let mut s = kd_render::ground::Store::default();
+            s.insert(m.clone()).unwrap();
+            std::hint::black_box(s.areas.len());
+        });
+        println!("TIMINGS demo_make_ms {make_ms:.2} area_meshes_ms {meshes_ms:.2} store_insert_ms {store_ms:.2}");
     }
 
     // checks: MAT-13 PLT-09

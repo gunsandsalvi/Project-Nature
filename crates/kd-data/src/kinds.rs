@@ -1,16 +1,18 @@
 //! Which kind of entry each file under `data/` holds (A3.6): a file holds one kind, chosen by its place. A Markdown
 //! file under `data/` that no kind claims fails the compiler, so nothing is silently left out.
 
-/// The kinds of entry the catalogue has so far; `Light` holds the one `Air` entry.
+/// The kinds of entry the catalogue has so far; `Light` holds the one `Air` entry. A kind that names another's
+/// entries comes after it, so the names resolve (A3.6 rule 4).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Kind {
     Colour,
     Look,
     Light,
+    Surface,
 }
 
 impl Kind {
-    pub const ALL: [Kind; 3] = [Kind::Colour, Kind::Look, Kind::Light];
+    pub const ALL: [Kind; 4] = [Kind::Colour, Kind::Look, Kind::Light, Kind::Surface];
 
     /// The kind's name in `data/ids.lock` and in messages.
     pub fn name(self) -> &'static str {
@@ -18,6 +20,7 @@ impl Kind {
             Kind::Colour => "colour",
             Kind::Look => "look",
             Kind::Light => "light",
+            Kind::Surface => "surface",
         }
     }
 
@@ -27,6 +30,7 @@ impl Kind {
             Kind::Colour => "data/palette/colours.md",
             Kind::Look => "data/palette/looks.md",
             Kind::Light => "data/palette/light.md",
+            Kind::Surface => "data/models/surfaces.md",
         }
     }
 }
@@ -68,6 +72,7 @@ mod tests {
         assert_eq!(role("data/palette/looks.md"), FileRole::Entries(Kind::Look));
         assert_eq!(role("data/palette/colours.md"), FileRole::Entries(Kind::Colour));
         assert_eq!(role("data/palette/light.md"), FileRole::Entries(Kind::Light));
+        assert_eq!(role("data/models/surfaces.md"), FileRole::Entries(Kind::Surface));
         assert_eq!(role("data/INDEX.md"), FileRole::Other);
         assert_eq!(role("data/VERSION.toml"), FileRole::Other);
         assert_eq!(role("data/palette/stray.md"), FileRole::Unclaimed);

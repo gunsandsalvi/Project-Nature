@@ -23,6 +23,10 @@ pub mod unit {
     pub const PROBE: u32 = 4;
     /// The pixel font's atlas, read by the UI pass.
     pub const FONT: u32 = 5;
+    /// An area's heights, their gradients and its surfaces, read by the ground (A11.5).
+    pub const HEIGHTS: u32 = 6;
+    pub const GRADS: u32 = 7;
+    pub const SURFACES: u32 = 8;
 }
 
 /// The texture formats the renderer uses (A11.13 rule 3).
@@ -376,6 +380,25 @@ pub fn set_ivec2_array(gl: &glow::Context, loc: Option<&glow::UniformLocation>, 
     unsafe { gl.uniform_2_i32_slice(loc, &flat) }
 }
 
+pub fn set_ivec4(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: [i32; 4]) {
+    // SAFETY: as above.
+    unsafe { gl.uniform_4_i32(loc, v[0], v[1], v[2], v[3]) }
+}
+
+/// An array of `vec2`, from its first element's location.
+pub fn set_vec2_array(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: &[[f32; 2]]) {
+    let flat: Vec<f32> = v.iter().flatten().copied().collect();
+    // SAFETY: as above; the array holds whole vec2s.
+    unsafe { gl.uniform_2_f32_slice(loc, &flat) }
+}
+
+/// An array of `vec4`, from its first element's location.
+pub fn set_vec4_array(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: &[[f32; 4]]) {
+    let flat: Vec<f32> = v.iter().flatten().copied().collect();
+    // SAFETY: as above; the array holds whole vec4s.
+    unsafe { gl.uniform_4_f32_slice(loc, &flat) }
+}
+
 pub fn set_f32(gl: &glow::Context, loc: Option<&glow::UniformLocation>, v: f32) {
     // SAFETY: as above.
     unsafe { gl.uniform_1_f32(loc, v) }
@@ -651,6 +674,33 @@ impl Mesh {
 pub fn empty_vertex_array(gl: &glow::Context) -> Result<glow::VertexArray, RenderError> {
     // SAFETY: plain GL call on the current context.
     unsafe { gl.create_vertex_array().map_err(RenderError::Gl) }
+}
+
+/// Draws `instances` copies of `vertices` triangle corners made from `gl_VertexID` and `gl_InstanceID` alone, with
+/// the program and state the pass set.
+pub fn draw_instanced(gl: &glow::Context, vao: glow::VertexArray, vertices: i32, instances: i32) {
+    if vertices <= 0 || instances <= 0 {
+        return;
+    }
+    // SAFETY: plain GL calls on the current context; the vertex array holds no buffers to overrun.
+    unsafe {
+        gl.bind_vertex_array(Some(vao));
+        gl.draw_arrays_instanced(glow::TRIANGLES, 0, vertices, instances);
+        gl.bind_vertex_array(None);
+    }
+}
+
+/// Clears the bound target's colours to `colour` and its depth to `depth`, over all of it.
+pub fn clear(gl: &glow::Context, colour: [f32; 4], depth: f32) {
+    // SAFETY: plain GL calls on the current context; the masks are opened so the clear reaches everything.
+    unsafe {
+        gl.disable(glow::SCISSOR_TEST);
+        gl.color_mask(true, true, true, true);
+        gl.depth_mask(true);
+        gl.clear_color(colour[0], colour[1], colour[2], colour[3]);
+        gl.clear_depth_f32(depth);
+        gl.clear(glow::COLOR_BUFFER_BIT | glow::DEPTH_BUFFER_BIT);
+    }
 }
 
 /// Draws one triangle covering the bound target, from `gl_VertexID` alone.

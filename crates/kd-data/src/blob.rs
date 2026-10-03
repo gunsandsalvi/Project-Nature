@@ -11,7 +11,7 @@ use kd_core::num::hash64;
 
 pub const MAGIC: &[u8; 5] = b"KDCAT";
 /// The blob's own format: raised whenever the compiled entries' layout changes.
-pub const FORMAT: u16 = 1;
+pub const FORMAT: u16 = 2;
 /// Magic, format, three versions and the hash.
 pub const HEADER_BYTES: usize = 5 + 2 + 3 * 2 + 8;
 
@@ -112,7 +112,7 @@ impl Catalogue {
 #[cfg(test)]
 pub(crate) mod tests {
     use super::*;
-    use crate::schema::{Air, Colour, Look};
+    use crate::schema::{Air, Colour, Look, Surface};
 
     pub(crate) fn sample() -> Catalogue {
         Catalogue {
@@ -173,6 +173,15 @@ pub(crate) mod tests {
                 aerosol_height_m: 1200.0,
                 rayleigh_height_m: 8000.0,
             },
+            surfaces: vec![Surface {
+                id: "rock".into(),
+                name: "Rock".into(),
+                number: 0,
+                looks: vec![0],
+                split_m: vec![],
+                split_at: vec![],
+                rock: true,
+            }],
         }
     }
 

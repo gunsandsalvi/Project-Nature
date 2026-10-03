@@ -6,6 +6,8 @@
 //! Implements PRC-11 and RES-05, see A15.4 and A15.9: the self-check on a build's first start, the core's bits
 //! among its checks.
 
+pub mod camera;
+pub mod ground;
 pub mod json;
 pub mod selfcheck;
 
@@ -17,7 +19,8 @@ use kd_render::passes::scene::card;
 use kd_render::{ART_SCALE, Frame, Renderer};
 use kd_ui::strip::Colours;
 use kd_ui::{Ui, UiAction};
-use kd_view::{FontAtlas, InputEvent, Insets, UiDrawList};
+use kd_view::{AreaMeshes, CameraPose, FontAtlas, InputEvent, Insets, UiDrawList};
+use kd_world::area::{Ground, demo};
 
 pub use json::requests_json;
 
@@ -141,15 +144,33 @@ pub struct App {
     start_ns: Option<u64>,
     /// Test hook (A11.12): a golden scene with time frozen, which hides the strip.
     golden: Option<Golden>,
+    /// The demo area (α01b): its ground, as the world made it and as the renderer takes it, kept so a new GL
+    /// context gets it again (A11.13 rule 5).
+    demo: Option<Ground>,
+    demo_meshes: Option<AreaMeshes>,
+    /// How long making the demo area took, in nanoseconds (the bench, A15.10).
+    demo_ns: u64,
+    /// Where the camera looks, the gesture moving it and its easing (A11.2, A12.2).
+    control: camera::Control,
+    /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles (the bench,
+    /// A15.10).
+    upload_ns: u64,
+    triangles: u64,
 }
 
-/// The golden scenes of A11.12, drawn with time frozen.
+/// The golden scenes of A11.12, drawn with time frozen and no strip.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Golden {
     /// The whole light card, the block turned 30°.
     LightCard,
     /// The block alone, filling the screen, turned 30°.
     Block,
+    /// The demo area at the camp stop, north up, its middle in the middle.
+    ValleyCamp,
+    /// The cliff's foot at the close camp stop, looking west-north-west at the face.
+    ValleyClose,
+    /// The scree and the grass below the face, near the person stop.
+    ValleyNear,
 }
 
 impl Golden {
@@ -157,8 +178,37 @@ impl Golden {
         match name {
             "light-card" => Some(Golden::LightCard),
             "block" => Some(Golden::Block),
+            "valley-camp" => Some(Golden::ValleyCamp),
+            "valley-close" => Some(Golden::ValleyClose),
+            "valley-near" => Some(Golden::ValleyNear),
             _ => None,
         }
+    }
+
+    /// Whether the scene is the light card's rather than the ground's.
+    pub fn card(self) -> bool {
+        matches!(self, Golden::LightCard | Golden::Block)
+    }
+
+    /// A ground scene's pose on the demo area: the point in metres east and south of its corner, on its ground,
+    /// the heading and the zoom.
+    pub fn pose(self, g: &Ground) -> Option<CameraPose> {
+        let (e, s, yaw, zoom) = match self {
+            Golden::ValleyCamp => (128, 128, 0.0, 0.30),
+            Golden::ValleyClose => (178, 128, 1.2, 0.14),
+            Golden::ValleyNear => (180, 136, 1.2, 0.05),
+            _ => return None,
+        };
+        let o = g.id.origin();
+        Some(CameraPose {
+            target: kd_core::geo::Pos {
+                x: o.x + e * 256,
+                y: o.y + s * 256,
+                z: (g.height_m(e as usize, s as usize) * 256.0).round() as i32,
+            },
+            yaw,
+            zoom,
+        })
     }
 }
 
@@ -191,6 +241,12 @@ impl App {
             version: build_line().to_string(),
             start_ns: None,
             golden: None,
+            demo: None,
+            demo_meshes: None,
+            demo_ns: 0,
+            control: camera::Control::new(CameraPose::default()),
+            upload_ns: 0,
+            triangles: 0,
         };
         let t0 = app.platform.now_ns();
         match Catalogue::load(CATALOGUE) {
@@ -208,15 +264,55 @@ impl App {
             app.core_bits = false;
             app.check_failed(line);
         }
+        app.make_demo();
         app
+    }
+
+    /// Makes the demo area (α01b), checks its ground against the cloud's hash (A15.9 item 5), turns its materials
+    /// into the catalogue's surfaces, and points the camera at its middle at the camp stop.
+    fn make_demo(&mut self) {
+        let t0 = self.platform.now_ns();
+        let g = demo::make(demo::SEED);
+        self.demo_ns = self.platform.now_ns().saturating_sub(t0);
+        log::info!(target: "kd::app", "demo area made in {} ms", self.demo_ns / 1_000_000);
+        if let Some(line) = selfcheck::demo_line(g.hash(), demo::HASH) {
+            self.check_failed(line);
+        }
+        if let Some(cat) = &self.catalogue {
+            match ground::surface_numbers(cat) {
+                Ok(n) => self.demo_meshes = Some(ground::area_meshes(&g, &n)),
+                Err(e) => self.check_failed(format!("demo area: {e}")),
+            }
+        }
+        let o = g.id.origin();
+        let middle = kd_world::area::SQUARES / 2;
+        self.control = camera::Control::new(CameraPose {
+            target: kd_core::geo::Pos {
+                x: o.x + middle as i32 * 256,
+                y: o.y + middle as i32 * 256,
+                z: (g.height_m(middle, middle) * 256.0).round() as i32,
+            },
+            yaw: 0.0,
+            zoom: 0.30,
+        });
+        self.demo = Some(g);
     }
 
     pub fn handle(&mut self, m: AppMsg) {
         match m {
             AppMsg::Input(e) => {
-                // Any touch shows the strip; a tap on it steps the hour (A12.2), until the clock runs time (α03a).
-                if let Some(UiAction::StepHour) = self.ui.input(&e, ART_SCALE, self.screen_ui(), self.inset_ui()) {
-                    self.set_hour(self.hour + 1);
+                // Any touch shows the strip and stops the camera's easing; a tap on the strip steps the hour, until
+                // the clock runs time (α03a); the land's gestures move the camera (A12.2).
+                if e.kind == kd_view::InputKind::Down {
+                    self.control.hold();
+                }
+                match self.ui.input(&e, ART_SCALE, self.screen_ui(), self.inset_ui()) {
+                    Some(UiAction::StepHour) => self.set_hour(self.hour + 1),
+                    Some(UiAction::Camera(g)) => {
+                        let window = self.size.unwrap_or([1, 1]);
+                        self.control.gesture(g, window, self.demo.as_ref(), e.t_ns);
+                    }
+                    None => {}
                 }
             }
             AppMsg::Insets(i) => self.insets = i,
@@ -254,6 +350,9 @@ impl App {
                 if let Some(line) = selfcheck::probe_line(&gpu, &twins) {
                     self.check_failed(line);
                 }
+                if let Some(m) = &self.demo_meshes {
+                    r.upload_area(m.clone());
+                }
                 Some(r)
             }
             Err(e) => {
@@ -290,15 +389,30 @@ impl App {
         }
         let start = *self.start_ns.get_or_insert(now_ns);
         let list = self.ui_list(now_ns);
-        let card = self.card_frame(now_ns.saturating_sub(start));
+        // The light card shows only as its golden scenes now the ground has come (α01b).
+        let card = self
+            .golden
+            .filter(|g| g.card())
+            .map(|_| self.card_frame(now_ns.saturating_sub(start)));
+        if self.golden.is_none() {
+            self.control.tick(now_ns);
+        }
         if let Some(r) = self.renderer.as_mut() {
             let f = Frame {
                 count: self.frames,
                 sky: sky_at(self.hour),
+                cam: self.control.pose,
                 card,
             };
+            let t0 = self.platform.now_ns();
+            if r.upload_areas() > 0 {
+                self.upload_ns = self.upload_ns.max(self.platform.now_ns().saturating_sub(t0));
+            }
             match panic::catch_unwind(AssertUnwindSafe(|| r.draw(&f, &list))) {
-                Ok(_) => self.panics_in_row = 0,
+                Ok(stats) => {
+                    self.panics_in_row = 0;
+                    self.triangles = stats.triangles;
+                }
                 Err(e) => {
                     self.panics_in_row += 1;
                     let msg = e
@@ -357,9 +471,28 @@ impl App {
         }
     }
 
-    /// Test hook (A11.12): shows a golden scene with time frozen, or the live card again.
+    /// Test hook (A11.12): shows a golden scene with time frozen and no strip, a ground scene from its pose, or
+    /// the live ground again.
     pub fn set_golden(&mut self, golden: Option<Golden>) {
         self.golden = golden;
+        if let (Some(pose), Some(_)) = (golden.zip(self.demo.as_ref()).and_then(|(g, d)| g.pose(d)), golden) {
+            self.control.set(pose);
+        }
+    }
+
+    /// Test hook (A12.4): the ground under a window point in screen pixels, as a position.
+    pub fn ground_at(&self, p: [f32; 2]) -> Option<kd_core::geo::Pos> {
+        Some(camera::ground_point(
+            &self.control.pose,
+            self.size?,
+            self.demo.as_ref(),
+            p,
+        ))
+    }
+
+    /// Test hook (A12.4): where a position shows in the window, in screen pixels.
+    pub fn screen_of(&self, p: kd_core::geo::Pos) -> Option<[f64; 2]> {
+        Some(camera::window_point(&self.control.pose, self.size?, p))
     }
 
     /// Test hook (A11.12): the palette row in use, as `rrggbb` words, or nothing before the first frame.
@@ -373,14 +506,14 @@ impl App {
         )
     }
 
-    /// The frame's UI (A12.1): the light card's look names over their swatches, and the strip while it shows; a
-    /// golden scene has neither, so it never changes with the version or the clock.
+    /// The frame's UI (A12.1): the strip while it shows, or in the light card's golden scene its look names over
+    /// their swatches; a golden scene has no strip, so it never changes with the version or the clock.
     pub fn ui_list(&self, now_ns: u64) -> UiDrawList {
         let mut list = UiDrawList::default();
         if self.golden == Some(Golden::Block) {
             return list;
         }
-        if let Some(cat) = &self.catalogue {
+        if let (Some(cat), Some(Golden::LightCard)) = (&self.catalogue, self.golden) {
             for (row, look) in cat.looks.iter().take(card::MAX_LOOKS).enumerate() {
                 // The cell's cap height starts two rows down, on the row's name line.
                 let y = card::MARGIN + row as i32 * card::ROW - 2;
@@ -465,6 +598,41 @@ impl App {
     /// How long the catalogue took to load, in nanoseconds.
     pub fn catalogue_ns(&self) -> u64 {
         self.catalogue_ns
+    }
+
+    /// How long making the demo area took, in nanoseconds.
+    pub fn demo_ns(&self) -> u64 {
+        self.demo_ns
+    }
+
+    /// The longest a frame's area uploads took, in nanoseconds, and the last frame's ground triangles.
+    pub fn ground_stats(&self) -> (u64, u64) {
+        (self.upload_ns, self.triangles)
+    }
+
+    /// Where the camera looks.
+    pub fn camera(&self) -> CameraPose {
+        self.control.pose
+    }
+
+    /// Points the camera (a test hook), the zoom held within the stops in reach.
+    pub fn set_camera(&mut self, pose: CameraPose) {
+        let [lo, hi] = kd_render::camera::ZOOM_IN_REACH;
+        self.control.set(CameraPose {
+            zoom: pose.zoom.clamp(lo, hi),
+            ..pose
+        });
+    }
+
+    /// The last frame's view of the ground, for the test hooks: the art pixel's size, the upscale's shift and the
+    /// art target's corner in the world's grid.
+    pub fn view(&self) -> Option<kd_render::camera::View> {
+        self.renderer.as_ref()?.last_view().copied()
+    }
+
+    /// The demo area's ground, as the world made it.
+    pub fn demo(&self) -> Option<&Ground> {
+        self.demo.as_ref()
     }
 
     fn check_failed(&mut self, what: String) {

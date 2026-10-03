@@ -52,9 +52,9 @@ step "5 scenes";          later α07c
 step "6 cross-target"
 LOG="$(mktemp)"
 # One test thread: qemu 8.2 crashes now and then running several (3 runs in 20, measured at α00b).
-if ! cargo test -p kd-core --locked --target aarch64-unknown-linux-gnu -- --test-threads=1 >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"; exit 1; fi
+if ! cargo test -p kd-core -p kd-world --locked --target aarch64-unknown-linux-gnu -- --test-threads=1 >"$LOG" 2>&1; then cat "$LOG"; rm -f "$LOG"; exit 1; fi
 rm -f "$LOG"
-echo "   the core's stored bits equal on arm64 under qemu; in the browser with the smoke test (step 9)"
+echo "   the core's stored bits and the demo area's ground equal on arm64 under qemu; in the browser with the smoke test (step 9)"
 step "6 repeat";          later α07c
 step "7 file check";      python3 tools/filecheck.py file
 step "8 coverage";        python3 tools/filecheck.py ids --merge

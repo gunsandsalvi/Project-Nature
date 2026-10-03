@@ -89,7 +89,6 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 
 | Alpha | Title | Stage | Hours | Status |
 |---|---|---|---|---|
-| α01b | The ground | 1 | 6 | Not started |
 | α01c | Shadows and air | 1 | 5.5 | Not started |
 | α01d | Steady detail | 1 | 5 | Not started |
 | α02a | The island | 1 | 4.5 | Not started |
@@ -202,87 +201,17 @@ Each ask comes in the note of the alpha that needs it; none blocks the next alph
 | α53a | Export and worlds across updates | 7 | 4 | Not started |
 | α53b | Release candidate and Stage 7 review | 7 | 5.5 | Not started |
 
-112 alphas still to build, about 551 hours of agent work in all.
+111 alphas still to build, about 545 hours of agent work in all.
 
 ## Stage 1: First camp (MIL-01)
 
 This stage builds the island of the first region and one band at the foot of its cliff, who gather, eat, drink, sleep, talk, court, pair, bear children, grow old and die through a 60-day year, with reasons on every card, saved every 30 seconds, tested in scenes and timed on the phone (`SCP-16` item 1).
 `SCP-16` puts the first items, wild foods and water in `MIL-01`, so α04a builds the first items and things v0, which α08 grows.
-Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 24 still to build take about 123.5 hours.
+Alphas over about 5 hours of tasks are split into lettered alphas: α00 into α00 and α00b; α01 into α01a to α01d; α02, α03 and α04 into four each (a to d); α06 into α06a and α06c around the brief's α06b; α07 into α07a to α07e; so the stage is 27 alphas, of which the 23 still to build take about 117.5 hours.
 Zoom reaches from one person to the valley stop, the camp's whole home range; the region, world-map and globe stops are α19b's (A11.5: world cells, map and globe `MIL-04`).
 The renderer is designed in A11 (A11.1), and α01a to α01d build it from that reasoning, in the form of code A11.13 sets; each task names the A11 sections it builds.
 On 3 October 2026 the owner had the codebase deleted and these first steps planned again from scratch, so α00 started from the three documents and the release certificate alone (A15.5).
 Every alpha ships an APK and the web build at its private page; until α07a saves worlds, each start makes the world afresh from its seed.
-
-### α01b The ground (about 6 hours)
-
-**Goal:** a 256 m piece of land with a 30 m cliff fills the screen as pixel-art ground, its grass, dirt, rock and scree lit by the light model at the strip's hour; its mesh blends between levels of detail instead of switching; and the owner drags, pinches and twists from a few metres up to the whole piece, the land staying under the fingers and every pan moving the picture by whole pixels.
-
-**Serves:** `PRE-02` (part: a real 3D ground drawn at low resolution), `PRE-03` (part: the person, close camp and camp stops; the pitch), `PRE-20` (part: surfaces in their looks' steps), `PRE-22` (part: snapping, whole-pixel pans, turns easing to rest), `PRE-33` (part: drag, pinch, twist and double-tap drag, following the fingers), `PRE-34` (part: both orientations), `WLD-01` (part: positions on the wrap-around world), `WLD-12` (part: an area's ground to the metre).
-
-**Architecture:** `A3.7`, `A5.3`, `A11.2`, `A11.5`, `A11.13`, `A12.2`.
-
-**Needs:** α01a.
-
-**Crates and files touched:** `kd-core` (`geo`), `kd-data` (kind `Surface`), `kd-world` (`area/relief.rs`, `area/demo.rs`), `kd-view` (`CameraPose`, `AreaMeshes`), `kd-render` (`camera`, `ground`, `pixel`, `shaders/ground.vert`, `shaders/ground.frag`), `kd-ui` (`gestures`), `kd-app` (the camera's pose and easing; the demo area), `data/models/surfaces.md`, `tools/screens/smoke.mjs`, `tests/golden/`.
-
-**Tasks:**
-
-1. `T01b.1` **Positions (`WLD-01`, A3.7).**
-   `kd_core::geo`: `Pos` in ticks of 1/256 m, `W` and `H`, `wrap`, `delta` the short way across either seam, `dist`, `offset`, `lat_deg`, `lon_deg`, `Vec2`; `AreaId` and `CellIx` with their conversions both ways (`AreaId::cell`, `AreaId::origin`, `CellIx::areas`); α02a completes A3.7's index table.
-   Commit `T01b.1: positions on the wrap-around world (WLD-01, A3.7)`.
-
-2. `T01b.2` **The relief noise and the demo area (`WLD-12`, A5.3).**
-   `kd-world::area::relief` (A5.3): `key`, the gradient noise with its quintic fade, and `fbm`, each octave half the last's period and height, scaled to ±1, lattice indices wrapping at the world's size.
-   `kd-world::area::demo`: the stand-in area until α02b makes areas from cells: a 256 m window whose ground is the blend of four corner heights (310, 342, 365 and 330 m), plus the relief's 7 octaves from a 256 m period at ±11 m (hilly ground, `rough` about 5; at ±6 m the example picture looked flat, owner's OK of 3 October 2026), plus a 30 m escarpment along a line wandering ±150 m by 4 octaves of the relief noise, rising over 4 m; rock beds by height (1.5–6 m thick, a quarter of them soft, keyed by height band); each square metre's material: soil on slopes under 30°, the bed showing at that height where steeper than 45°, bare dirt between, scree within 6 m of the cliff's foot; heights in decimetres above the area's lowest point (A5.3).
-   Commit `T01b.2: the relief noise and the demo area (WLD-12, A5.3)`.
-
-3. `T01b.3` **Surfaces (`PRE-20`, A11.5).**
-   Kind `Surface` (`data/models/surfaces.md`): each surface names one to three looks and how they split (grass: `grass_lush` and `grass_dry` by a world-fixed noise of 24 m and 6 m octaves, A11.5); `grass`, `dirt`, `rock` (the `limestone` look) and `scree`; the demo's materials map to them.
-   Commit `T01b.3: surfaces naming their looks (PRE-20, A11.5)`.
-
-4. `T01b.4` **The ground on the GPU (`PRE-02`, `PRE-20`, `PRE-22`, A11.5, A11.13).**
-   `kd_render::ground`: the CPU store of the loaded area (heights, surface map) and its textures: heights as a 257 × 257 `R32F` texture and the surfaces as an `R8` map, a byte a square metre; one shared 16 × 16 grid patch drawn over each 16-quad square at the spacing `s = 2^k` m, the smallest with `s ≥ 1.25 × texel` and `s ≥ 1`, its odd vertices sliding onto the next spacing's mesh over the upper half of each spacing's range, so nothing jumps (A11.5); every vertex reads its height from the texture, interpolating itself; 4 m skirts at the area's edge; `kd-app` hands the demo area over as `AreaMeshes` through `upload_area` (A11.1).
-   `shaders/ground.vert` and `ground.frag` from A11's rules: the normal per pixel from the heights' central differences; the surface from the four nearest squares' vote by weight (until α01d's coverage), its edges wandering by world-fixed noise whose octaves fade below four art pixels (A11.1 rule 2); grass split into its two looks by the same rule; the sky factor `(1 + n_y)/2` and the sun factor `n·l` until α01c's fields; the light's lightness to its step, dithered only in the band; the category ground, or rock where the surface is a rock's (A11.2); the twins in `pixel` gain the surface vote and the faded noise, and the probe scene covers them.
-   Commit `T01b.4: the ground on the GPU, morphing and lit (PRE-02, PRE-20, A11.5)`.
-
-5. `T01b.5` **The camera (`PRE-03`, `PRE-22`, A11.2).**
-   `kd_render::camera`, all on the CPU (A11.13): `texel(zoom)` log-linear between A11.5's stops, the person, close camp and camp stops in reach (zoom 0.00–0.34); the pitch as a monotone cubic in the log of the art pixel through 30° at 0.03 m, 38° at 0.13 m, 52° at 1.1 m and 90° from 37 m; an orthographic view; the view snapped to even art pixels counted from the world's corner in `f64`, the remainder the upscale's shift and the dither's phase; blocks of 512 art pixels within which the projection stays put and the viewport moves by whole pixels; the floating origin at the area corner nearest the ground in the middle of the view's block, every area's vertices from its own corner plus that corner's offset; the depth range over the block's footprint, ±30 m (A11.2).
-   Commit `T01b.5: the camera, snapped and blocked (PRE-03, PRE-22, A11.2)`.
-
-6. `T01b.6` **Gestures that follow the fingers (`PRE-33`, `PRE-34`, `PRE-22`, A12.2).**
-   `kd-ui::gestures`, A12.2's recognisers for raw touches: a drag moves the ground under the finger and a fling eases to rest (τ 0.3 s); a pinch scales the land by the fingers' distance ratio about their midpoint and a twist turns it about the same point, so the land stays under both fingers; a double-tap drag zooms by 0.8 a screen height; a tap; the thresholds of A12.2's table; a touch starting on the strip belongs to the strip.
-   `kd-app` holds the pose and its easing; drags and glides keep the target's height, and the first turn or zoom after them slides the target along the view's centre line onto the ground, so turns and zooms pivot on the ground in the middle of the screen while the picture stays still (A11.2).
-   Commit `T01b.6: gestures that follow the fingers (PRE-33, A12.2)`.
-
-7. `T01b.7` **The screens (`PRE-22`, `PRE-02`, A11.12).**
-   `window.kd` gains `camera()` and `aim(target, yaw, zoom)`; the smoke test gains `pan stays crisp` (a one-art-pixel pan moves the picture by exactly 4 screen pixels, both inside a block and across a move of the floating origin), the gestures driven by synthetic touches (each does what it should and nothing else), and the land kept under two synthetic fingers through a pinch and a twist within half an art pixel.
-   Goldens `valley-camp`, `valley-close` and `valley-near` at 16:30.
-   Commit `T01b.7: pan, gesture and valley screens (PRE-22, A11.12)`.
-
-8. `T01b.8` **Deliver (`PRC-11`).**
-   `versionCode=1012`, `versionName=a01b`; `bench/cloud/a01b.json` adds the area's making and upload times and the triangles at each stop; then P0's steps 5 to 8, the review the builder's own.
-
-**Data:** `data/models/surfaces.md` (`grass`, `dirt`, `rock`, `scree`).
-
-**Tests:**
-- `kd-core` (`WLD-01`): `geo::tests::{delta_symmetric_across_seams, offset_then_delta_round_trips, triangle_rule, area_cell_round_trips}`.
-- `kd-world` (`WLD-12`): `area::relief::tests::{octaves_periodic_and_bounded, same_bits_on_every_target}`; `area::demo::tests::{escarpment_in_the_window, materials_by_slope_bed_and_foot, golden_demo_hash}` (x86-64 and arm64 under qemu).
-- `kd-render` (`PRE-02`, `PRE-22`, `PRE-03`): `ground::tests::{morph_is_continuous, spacing_follows_the_pixel}`; `camera::tests::{snap_moves_whole_pixels, origin_stays_put_within_a_block, pitch_rises_through_its_knots}`; `pixel::tests::{surface_vote_by_weight, noise_fades_below_four_pixels}`.
-- `kd-ui` (`PRE-33`): `gestures::tests::{drag_is_not_a_tap, pinch_keeps_the_land_under_the_fingers, twist_keeps_the_land_under_the_fingers, double_tap_drag_zooms}`.
-- Screens: smoke `pan stays crisp`, the gestures, `land under the fingers`, `probe equals the twins`; goldens `valley-camp`, `valley-close`, `valley-near`.
-
-**On the phone:**
-1. Install the update and open it: a valley floor of grass, a pale cliff crossing it and scree at its foot, in late-afternoon light.
-2. Drag: the land moves under your finger and glides to rest; pinch in to a few metres and out to the whole piece; twist with two fingers: the land stays under your fingers.
-3. Pinch slowly from close to far: the ground's shape blends smoothly, with no sudden jumps.
-4. Tap the strip: the light steps through the eight hours over the land (shadows come in α01c).
-
-**Not in this alpha:** shadows, darker hollows, outlines, lit edges and haze (α01c); smooth surface edges by coverage, fine relief, stones and tufts (α01d); the island and its zoom stops beyond the camp (α02a).
-
-**Risks:**
-- `R32F` heights in the vertex shader on the phone's GPU: they are core in OpenGL ES 3.0 and WebGL2 with nearest sampling, which A11.13 rule 3 uses; the self-check reports a link failure.
-- Gestures feeling wrong on the phone: the thresholds are A12.2's, the owner says so in the reply, and the numbers move to `data/tuning/render.md` (`PRN-17`).
 
 ### α01c Shadows and air (about 5.5 hours)
 
@@ -8536,12 +8465,12 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `TIM-08` Saved worlds: α07b, α27a, α53a
 - `TIM-19` Pace of discovery: α12, α15, α17c, α25a, α25b, α27b, α27c, α35b, α35c, α41, α42, α43c, α44, α45, α46a, α47b, α52, α53b
 - `TIM-09` If everyone dies: α06c, α11b
-- `WLD-01` Torus with latitude: α01b, α02a, α03d, α18a, α18c, α19a, α20a, α22a
+- `WLD-01` Torus with latitude: α02a, α03d, α18a, α18c, α19a, α20a, α22a
 - `WLD-02` Globe view: α19b
 - `WLD-03` Size: α18a
 - `WLD-30` What scales with the world: α04a, α05, α13, α14b, α18a, α20a, α21, α22a
 - `WLD-04` How many people it can feed: α52
-- `WLD-12` Map layers: α01b, α02a, α02b, α02c, α02d, α03d, α04a, α05, α13, α14b, α18a, α18b, α19a, α19c, α21, α23, α23c, α45
+- `WLD-12` Map layers: α02a, α02b, α02c, α02d, α03d, α04a, α05, α13, α14b, α18a, α18b, α19a, α19c, α21, α23, α23c, α45
 - `WLD-13` Looking changes nothing: α02b, α02c, α02d, α03b, α03c, α14b, α19a, α19b, α19c, α21
 - `WLD-34` The first region: α02a, α12b, α13, α19a
 - `WLD-08` Realistic, not from scratch: α03a, α05, α07a, α18a, α18b, α18c, α27b, α27c
@@ -8688,10 +8617,10 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `CUL-12` Style and ornament: α25b, α33, α33b, α34a, α34b, α36c, α41, α43c
 - `CUL-29` Gatherings and festivals: α36a, α40, α46a, α48
 - `PRE-01` Detailed pixel art: built
-- `PRE-02` Pixel-rendered 3D: α01b, α01c, α01d, α02b, α19b
-- `PRE-20` Colour in steps: α01b, α01d, α02d
+- `PRE-02` Pixel-rendered 3D: α01c, α01d, α02b, α19b
+- `PRE-20` Colour in steps: α01d, α02d
 - `PRE-21` Outlines and lit edges: α01c, α02c
-- `PRE-22` Stable pixels: α01b, α01c, α01d, α07e
+- `PRE-22` Stable pixels: α01c, α01d, α07e
 - `PRE-23` Rock faces: α02c
 - `PRE-24` Real shapes: α02c, α16c, α25b, α46a
 - `PRE-25` Cut-away view: α24b
@@ -8700,15 +8629,15 @@ Context items need nothing built: the milestones (`MIL`), the risks (`RSK`), and
 - `PRE-28` Readable from far away: α02d, α03b, α12b, α14a, α19b
 - `PRE-29` From above: α02a, α18a, α19b
 - `PRE-30` Light, time and season: α01c, α02c, α03a, α05, α13, α14a, α47a
-- `PRE-03` Seamless zoom: α01b, α02a, α02b, α03b, α19b
+- `PRE-03` Seamless zoom: α02a, α02b, α03b, α19b
 - `PRE-31` Visual review: α07e, α12d, α17c, α27c, α35c, α43c, α53b
 - `PRE-42` Built from their materials: α08, α23c, α25a, α25b, α45, α46a, α47b, α49
 - `PRE-43` Variety: α02d, α21, α25b, α33b, α36c
 - `PRE-44` Animations: α03b, α03c, α06b, α06c, α09, α09b, α12, α12b, α14a, α19a, α22a, α23, α28, α28b, α30a, α30b, α32a, α34b, α51
 - `PRE-46` The model kit: α01d, α02d, α03b, α08, α21, α22a, α23b, α25a, α25b, α33, α33b, α41, α44, α49, α50, α51
 - `PRE-32` World first: α04d
-- `PRE-34` Both orientations: α01b, α03a, α04d, α12d, α53a, α53b
-- `PRE-33` Gestures: α01b, α03a, α03c, α16
+- `PRE-34` Both orientations: α03a, α04d, α12d, α53a, α53b
+- `PRE-33` Gestures: α03a, α03c, α16
 - `PRE-35` Cards: α04d, α06a, α06b, α06c, α08, α09b, α10a, α12, α12b, α14a, α17b, α19a, α21, α22a, α24a, α24b, α26a, α26b, α28, α28b, α29, α31, α31b, α32a, α32b, α32c, α34b, α36a, α36b, α36c, α38, α40, α46a, α48
 - `PRE-45` What they talk about: α30a, α30b
 - `PRE-40` Screens: α04d, α07b, α07d, α07e, α11b, α16b, α16c, α17, α27a, α27b, α43b, α51, α53a, α53b

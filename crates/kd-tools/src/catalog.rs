@@ -117,6 +117,7 @@ pub fn names(root: &Path) -> Result<Vec<String>, String> {
         .map(|c| (&c.id, &c.name))
         .chain(cat.looks.iter().map(|l| (&l.id, &l.name)))
         .chain([(&cat.air.id, &cat.air.name)])
+        .chain(cat.surfaces.iter().map(|s| (&s.id, &s.name)))
     {
         out.push(id.clone());
         out.push(name.clone());

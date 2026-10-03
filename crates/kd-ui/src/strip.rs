@@ -135,7 +135,11 @@ mod tests {
         // Held too long, dragged, or above the strip: no step.
         assert_eq!(tap(&mut ui, 400.0, on_strip, 1000, 1400, 0.0), None);
         assert_eq!(tap(&mut ui, 400.0, on_strip, 2000, 2100, 40.0), None);
-        assert_eq!(tap(&mut ui, 400.0, 1000.0, 3000, 3050, 0.0), None);
+        // A tap above the strip is the land's, not the strip's.
+        assert!(matches!(
+            tap(&mut ui, 400.0, 1000.0, 3000, 3050, 0.0),
+            Some(UiAction::Camera(crate::gestures::Gesture::Tap { .. }))
+        ));
         // A cancelled touch is no tap.
         ui.input(&touch(InputKind::Down, 400.0, on_strip, 4000), 4, screen, inset);
         ui.input(&touch(InputKind::Cancel, 400.0, on_strip, 4010), 4, screen, inset);

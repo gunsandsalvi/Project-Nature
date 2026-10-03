@@ -106,6 +106,25 @@ pub struct Air {
     pub rayleigh_height_m: f32,
 }
 
+/// A ground surface (A11.5, `PRE-20`, `data/models/surfaces.md`): the looks it is drawn in, how a world-fixed noise
+/// splits them, and whether it draws as rock.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Surface {
+    pub id: String,
+    pub name: String,
+    /// Its permanent number in `data/ids.lock`; areas name their surfaces by it.
+    pub number: u16,
+    /// One to three looks, by number.
+    pub looks: Vec<u16>,
+    /// With more than one look, the octaves of the noise that splits them: their periods in metres, largest first,
+    /// each half the last's height; empty with one look.
+    pub split_m: Vec<f32>,
+    /// Where each next look takes over, as values of that noise (scaled to ±1), rising.
+    pub split_at: Vec<f32>,
+    /// Drawn in the rock category, whose outlines are finer than the ground's (A11.2).
+    pub rock: bool,
+}
+
 /// The whole compiled catalogue, as the blob holds it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Catalogue {
@@ -113,11 +132,17 @@ pub struct Catalogue {
     pub colours: Vec<Colour>,
     pub looks: Vec<Look>,
     pub air: Air,
+    pub surfaces: Vec<Surface>,
 }
 
 impl Catalogue {
     /// A fixed colour by id.
     pub fn colour(&self, id: &str) -> Option<&Colour> {
         self.colours.iter().find(|c| c.id == id)
+    }
+
+    /// A surface by id.
+    pub fn surface(&self, id: &str) -> Option<&Surface> {
+        self.surfaces.iter().find(|s| s.id == id)
     }
 }

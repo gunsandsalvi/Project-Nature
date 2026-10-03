@@ -30,12 +30,14 @@ impl UpscalePass {
         })
     }
 
-    pub fn draw(&self, gl: &glow::Context, view: &ArtView, art: &Texture, vao: glow::VertexArray) {
+    /// Enlarges the art target to the window, shifted by `off`: the art view's own for the card, the camera's for
+    /// the ground (A11.2).
+    pub fn draw(&self, gl: &glow::Context, view: &ArtView, off: [f32; 2], art: &Texture, vao: glow::VertexArray) {
         gl::bind_window(gl);
         gl::apply(gl, &State::flat(view.window[0], view.window[1]));
         self.program.bind(gl);
         art.bind(gl, unit::ART);
-        gl::set_vec2(gl, self.u_off.as_ref(), view.off);
+        gl::set_vec2(gl, self.u_off.as_ref(), off);
         gl::set_f32(gl, self.u_scale.as_ref(), view.scale as f32);
         gl::draw_full_target(gl, vao);
     }

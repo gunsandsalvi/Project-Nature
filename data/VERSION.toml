@@ -1,5 +1,5 @@
 # The catalogue's versions (A3.6, PLT-09): `major` rises with a big update (generation, or new kinds of plant,
 # animal or material in the land), `minor` with a small one, `generator` with a change to how worlds are made.
 major = 1
-minor = 0
+minor = 1
 generator = 1

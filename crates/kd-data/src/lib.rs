@@ -13,4 +13,4 @@ pub mod kinds;
 pub mod schema;
 
 pub use blob::BlobError;
-pub use schema::{Air, Catalogue, Colour, Look, Versions};
+pub use schema::{Air, Catalogue, Colour, Look, Surface, Versions};
