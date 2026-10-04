@@ -79,15 +79,15 @@ Several share one build.
 Then the **vertical slice:** one band at a cliff camp through a day, at the final look, in the real architecture, on your phone (research 00).
 It proves the whole pipeline once and sets the quality bar for production.
 
-## For your decision
+## Decided with you
 
-The research found three places where `PROJECT.md` disagrees with the evidence.
-None is changed without your OK.
+The research found three places where `PROJECT.md` disagreed with the evidence.
+On 4 October 2026 you agreed to change all three:
 
-- **`RCK-12` Glue from bark:** add a second route.
+- **`RCK-12` Glue from bark:** a second route.
   Birch bark burning in the open beside a smooth stone leaves tar on the stone (research 11).
-- **`RCK-06` Leather:** add a second route, brain tanning (research 11).
-- **The glossary's "band: mostly kin":** censuses of 32 foraging peoples find most band members are not close kin (research 12).
+- **`RCK-06` Leather:** a second route, brain tanning (research 11).
+- **The glossary's "band":** now "a few families, linked by kin and marriage", since censuses of 32 foraging peoples find most band members are not close kin (research 12).
 
 ## What comes next
 

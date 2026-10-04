@@ -77,7 +77,7 @@ What do real foragers' bands, leaders, gifts, killings and gatherings give us, s
   - "most individuals in residential groups are genetically unrelated".
 
   This supports bands splitting past about 40 (`CUL-30`).
-  It also means our glossary's "band: mostly kin" should read "a few families, linked by kin and marriage" (below).
+  It also meant our glossary's "band: mostly kin" should read "a few families, linked by kin and marriage", as it now does (below).
 - **Where couples live:** Marlowe (2004) "challenges an earlier finding that hunter-gatherers are predominantly virilocal".
   Foragers are "more multilocal than nonforagers", which he links to bride service, small groups, little wealth and little warfare ([HRAF](https://hraf.yale.edu/documents/371)).
   This supports `CUL-06`'s answers "with his kin, hers, either".
@@ -182,11 +182,11 @@ What do real foragers' bands, leaders, gifts, killings and gatherings give us, s
 9. **A culture prototype before production:** two or three bands with simple minds, run headless for a hundred years.
    It checks that customs, a spirit, a rite and a band split arise inside `CUL-33`'s windows, and from their own causes.
 
-## For your decision
+## Decided with you
 
-- **Glossary, "Band":** it says "a small group, mostly kin".
+- **Glossary, "Band":** it said "a small group, mostly kin".
   Hill's census of 32 foraging peoples found "most individuals in residential groups are genetically unrelated".
-  The suggested wording is "a small group of a few families, linked by kin and marriage, who live and move together".
+  On 4 October 2026 you agreed the wording "a small group of a few families, linked by kin and marriage, who live and move together".
   It changes no rule, since `CUL-30` already speaks of families.
 
 ## Sources

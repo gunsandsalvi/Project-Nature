@@ -252,15 +252,13 @@ The game squeezes three million years into five hundred, but keeps the real orde
 
    Ancestors and Dawn of Man show the two failures to avoid; the prototype shows whether tuning alone can meet `TIM-19`.
 
-## For your decision
+## Decided with you
 
-Two decided rules disagree with the experiments; they will go to "Proposals awaiting confirmation" (`PRC-07`):
+Two decided rules disagreed with the experiments; on 4 October 2026 you agreed to give each a second route (`PRC-07`):
 
-- **`RCK-12` Glue from bark:** add a second route.
-  Birch bark burning in the open beside a smooth stone leaves tar on the stone (Schmidt 2019).
+- **`RCK-12` Glue from bark:** birch bark burning in the open beside a smooth stone leaves tar on the stone (Schmidt 2019).
   It is a likely accident, and fits `MAT-07`'s several routes.
-- **`RCK-06` Leather:** add a second route.
-  A hide worked with animal brain, stretched as it dries, then smoked, becomes soft leather, with no bark needed.
+- **`RCK-06` Leather:** a hide worked with animal brain, stretched as it dries, then smoked, becomes soft leather, with no bark needed.
 
 ## Sources
 
