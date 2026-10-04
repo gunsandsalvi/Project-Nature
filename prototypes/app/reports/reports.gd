@@ -63,18 +63,41 @@ func _p4(r: Dictionary) -> void:
 	_text(r.question, INK, 15)
 	var stone: Dictionary = r.sharp_stone
 	var fire: Dictionary = r.fire
+	# TIM-19's windows as the run had them, in years from the start; as dates, Year 1 begins at
+	# the start
+	var windows: Dictionary = r.windows
+	var flake_window := Vector2(windows.flake[0], windows.flake[1])
+	var fire_window := Vector2(windows.fire[0], windows.fire[1])
 	var said := (
-		"%s. Flakes came within 5 years in %d of 20 runs, and a world's first fire inside its "
-		+ "window in %d of 20, %s."
+		"%s. Flakes came within %d years, their window, in %d of 20 runs (within 5, the "
+		+ "sharp-stone test's bar, in %d), and a world's first fire inside its window in %d of 20, %s."
 	)
 	_text(
-		said % ["Yes" if r.pass else "Not yet", stone.within_5, fire.inside, _before(fire.early)],
+		(
+			said
+			% [
+				"Yes" if r.pass else "Not yet",
+				flake_window.y,
+				stone.window.inside,
+				stone.within_5,
+				fire.inside,
+				_before(fire.early)
+			]
+		),
 		INK,
 		15
 	)
-	_text("First sharp flakes, each run a row (the line: 5 years)", DIM, 13)
+	_text(
+		(
+			"First sharp flakes, years from the start, each run a row (shaded: their window; "
+			+ "the line: 5 years)"
+		),
+		DIM,
+		13
+	)
 	var flakes := _runs(r.runs, "flake", "flake_route", "")
 	var c := Chart.new("runs", flakes, 8.0, 1.0)
+	c.window = flake_window
 	c.limit = 5.0
 	_page.add_child(c)
 	_key(r.runs, "flake_route")
@@ -88,14 +111,18 @@ func _p4(r: Dictionary) -> void:
 	)
 	_text(
 		(
-			"First fire anywhere in a world of 3 or 4 bands, each world a row "
-			+ "(shaded: its window, years 5 to 30; square: by ploughing)"
+			"First fire anywhere in a world of 3 or 4 bands, years from the start, each world a row "
+			+ (
+				"(shaded: its window, Years %d to %d, from %d years in; square: by ploughing)"
+				% [fire_window.x + 1, fire_window.y, fire_window.x]
+			)
 		),
 		DIM,
 		13
 	)
-	c = Chart.new("runs", _runs(r.worlds, "fire", "fire_route", "fire_way"), 60.0, 10.0)
-	c.window = Vector2(5.0, 30.0)
+	var fire_end := fire_window.y * 2.0
+	c = Chart.new("runs", _runs(r.worlds, "fire", "fire_route", "fire_way"), fire_end, 5.0)
+	c.window = fire_window
 	_page.add_child(c)
 	_key(r.worlds, "fire_route")
 	var fresh: Dictionary = r.sharp_stone_fresh
@@ -109,7 +136,7 @@ func _p4(r: Dictionary) -> void:
 		14
 	)
 	var tuned: Dictionary = (r.sensitivity as Array)[0]["1.0"]
-	for step: Array in [["flake", "Flakes", 5.0, 1.0], ["fire", "Fire", 60.0, 10.0]]:
+	for step: Array in [["flake", "Flakes", 5.0, 1.0], ["fire", "Fire", fire_end, 5.0]]:
 		_text(
 			(
 				"%s: the median year with each value doubled and halved, over 40 runs (orange: as tuned)"
@@ -128,13 +155,26 @@ func _p4(r: Dictionary) -> void:
 	var edge: Array = r.knife_edge
 	_text(
 		(
-			"No value holds the pace on a knife's edge."
+			(
+				"No value holds the pace on a knife's edge: changed by a quarter either way, "
+				+ "each keeps both steps' rules."
+			)
 			if edge.is_empty()
-			else "On a knife's edge: %s." % ", ".join(edge)
+			else (
+				"On a knife's edge, breaking a rule when changed by a quarter: %s."
+				% ", ".join(edge)
+			)
 		),
 		INK,
 		14
 	)
+	var levers: Array = r.get("levers", [])
+	if not levers.is_empty():
+		_text(
+			"Strong levers, breaking a rule only when halved or doubled: %s." % ", ".join(levers),
+			INK,
+			14
+		)
 	var t: Dictionary = r.tuning
 	_text(
 		(

@@ -1,7 +1,10 @@
 # P4 Discovery pace
 
 The fourth prototype (IMPLEMENTATION α0.3a, research 00 and 11) asks the riskiest design question (`RSK-01`): can
-tuning alone make sharp flakes come within 5 years and fire within its window, with the world's own rules?
+tuning alone make sharp flakes and fire come within their windows, with the world's own rules? The windows are
+`TIM-19`'s, halved on 4 October 2026 for faster discoveries, as you asked: flakes within 3 years, fire in Years 3
+to 15. They are dates (`TIM-14`), so Year 3 begins two years in. The sharp-stone test (`RES-03`) keeps its own bar of
+5 years.
 
 Items it is about: `TIM-19` (the pace of discovery), `RES-02` and `RES-03` (the sharp-stone test and its pass rule),
 `RES-16` (tuning the pace), `RES-06` (its report, on the app's Reports page), `MND-06` (skill), `MND-11` (the four
@@ -22,8 +25,11 @@ friction with dry wood).
   dreamer knows (`MND-12`). Watching about five uses teaches a blueprint, and the kind teach kin first (`MND-13`).
 - **Every value that sets the pace** is in `tuning.toml`, with what it was tuned against (`RES-16`).
 - **The runs** (`pace.py`): the sharp-stone test on the 20 tuning seeds and its control without stone that flakes,
-  fire's window, the same on 20 seeds never tuned against, and each tuned value halved and doubled over 40 runs. It
-  writes `prototypes/app/reports/p4.json`, which the app's Reports page draws.
+  fire's window, counted at its first in a world of 3 or 4 bands as `TIM-19` counts a step, the same on 20 seeds
+  never tuned against, and each tuned value changed alone over 40 runs and 40 worlds. A value holds the pace on a
+  knife's edge if changing it by a quarter either way breaks a step's rule; it is a strong lever if only halving or
+  doubling it does. It writes `prototypes/app/reports/p4.json`, which the app's Reports page draws, and keeps the
+  runs it has done in `.runs/` (not committed), so a run cut short resumes where it stopped.
 
     python3 prototypes/discovery/pace.py           # the runs and the report, a few minutes
     python3 prototypes/discovery/pace.py --tune    # tunes the discovery factors first, and writes them back

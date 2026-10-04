@@ -276,7 +276,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 - `VIS-03` **The arc of a world** *(Decided)*
   - **What:** Every world starts in caves (`SCP-01`).
-    Sharp flakes come in the first few years and fire within a few decades; pottery, dogs, herds, villages and fields follow over the next centuries, and first copper a few hundred years in (`TIM-19`).
+    Sharp flakes come in the first year or two and fire within about 15 years; pottery, dogs, herds, villages and fields follow over the next two centuries, and first copper about two centuries in (`TIM-19`).
     After that, history goes on within the launch catalogue, which later layers, such as bronze or writing, can extend (`PRN-14`).
   - **No scripted eras:** each step happens only when the world's rules bring it about (`PRN-17`), so the order differs between worlds, and stalls, lost crafts and peoples dying out are all valid histories.
   - **The phone's limit:** nothing caps births (`BIO-04`); past about 2,000 people time slows rather than detail being cut, and a world nearing the phone's memory limit pauses with a notice (`MND-15`).
@@ -785,15 +785,15 @@ Time works one way for everything: activities that start and end on one world cl
 
 - `TIM-19` **Pace of discovery** *(To test)*: In typical worlds, each step of the arc first happens within its window of years.
   - **The windows,** as dates (`TIM-14`):
-    - sharp stone flakes: Years 1–5;
-    - making fire: 5–30;
-    - clothing and huts, each: 10–40;
-    - pottery: 60–150;
-    - tame dogs: 80–150;
-    - herding: 120–250;
-    - villages: 100–300;
-    - farming: 200–350;
-    - copper: 300–500.
+    - sharp stone flakes: Years 1–3;
+    - making fire: 3–15;
+    - clothing and huts, each: 5–20;
+    - pottery: 30–75;
+    - tame dogs: 40–75;
+    - herding: 60–125;
+    - villages: 50–150;
+    - farming: 100–175;
+    - copper: 150–250.
   - **When a step counts:** at its first entry in the book of ages anywhere in the world, with crafts counted by the results `MAT-23` marks for each step (smelted copper, not hammered native copper), tame dogs and herding as `WLD-33` defines them, villages as `CUL-28` defines them, and farming at the first crop sown and harvested on purpose (`RCK-23`).
   - **How it is met:** by tuning alone, never by scripting or dates (`PRN-17`, `RES-16`).
   - **Check:** the pace tests (`RES-07`), run with no acts of yours.
@@ -2473,6 +2473,8 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 
 - `RES-03` **Sharp-stone pass rule** *(Decided)*
   - **Discovery:** flakes are discovered within 5 years in at least 16 of 20 runs.
+    - **Proposed change:** flakes are discovered within 3 years in at least 16 of 20 runs.
+      Why: `TIM-19`'s window for flakes was halved to Years 1–3 for faster discoveries, at your word on 4 October 2026, so the test's bar would keep pace with it; P4's tuned pace meets both.
   - **Spread:** in those runs, at least 3 in 4 of the band's adults can make flakes within 2 years of the first.
   - **Routes:** at least two routes of discovery appear across the runs (`MND-11`).
   - **Control:** without stone that flakes, no run ever makes a flake (`RCK-01`).
@@ -2708,7 +2710,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at present.
+- **Sharp-stone pass rule** (`RES-03`): flakes within 3 years in at least 16 of 20 runs, where it says 5, to keep pace with the halved window for flakes.
 <!-- end generated -->
 
 ## 18. Glossary
@@ -2751,7 +2753,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Murmur:** speech in the game, a babble of the language's sounds, never real words (`SND-03`).
 - **Named result:** what a blueprint gives: a new thing, a new state of a thing, or a change to ground or a body (`MAT-04`).
 - **Need:** hunger, thirst, warmth and rest for the body (`BIO-09`), and safety, belonging, status, curiosity and love for the mind (`MND-07`).
-- **Pace target:** the window of years in which typical worlds reach a step, such as fire in Years 5–30 (`TIM-19`).
+- **Pace target:** the window of years in which typical worlds reach a step, such as fire in Years 3–15 (`TIM-19`).
 - **Pace test:** whole worlds run in the background against the pace and culture targets (`RES-07`).
 - **Pattern sentence:** a set sentence filled from a world's records, which every text starts from (`PRE-37`).
 - **People (a people):** a named group with its own territory, customs, beliefs and style (`CUL-23`).

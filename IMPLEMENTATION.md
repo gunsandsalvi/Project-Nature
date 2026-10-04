@@ -16,7 +16,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check.
 - P1 The look (α0.2a) is done: outline C, its flicker fixed, and the "ease" crawl fix, which you left to me (A4.1).
 - P2 A full scene (α0.2b) is done: a busy camp at night with three fires holds 60 frames a second at close and camp zoom (A18.1).
-- P3 The kit (α0.2c) is delivered for your verdict: the kit's shapes, the figure's five movements and the huts, at noon and at night with three fires, now with shadows from every fire and volumetric smoke, as you asked.
+- P3 The kit (α0.2c) is delivered, and your comments and the independent review's findings are fixed, in the α0.3a build for your look: warmer firelight and flickering flames, grey daytime smoke, gentler turns, figures in their own clothes with a pose at every step, brush windbreaks and coursed lean-tos, and P2's people and camp zoom. The art book's dusk sun stays, as you asked for no change but faster discoveries.
+- P4 Discovery pace (α0.3a) passes: with every discovery window halved, as you asked for faster discoveries, tuning alone brings flakes within 3 years and fire in Years 3 to 15, and no value holds the pace on a knife's edge (A12, `TIM-19`).
 
 ## How to use this plan
 
@@ -125,8 +126,8 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α0.2c | P3 The kit | M0 | 6 | Delivered; your verdict next |
-| α0.3a | P4 Discovery pace | M0 | 6 | Not started |
+| α0.2c | P3 The kit | M0 | 6 | Fixed after your comments and the review; your look in the α0.3a build |
+| α0.3a | P4 Discovery pace | M0 | 6 | Passes; review and delivery next |
 | α0.4a | P5 The same bits | M0 | 4 | Not started |
 | α0.4b | P6 A thousand minds | M0 | 6 | Not started |
 | α0.5a | P7 World generation | M0 | 6 | Not started |
@@ -220,6 +221,8 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - Passes if a tuning meets both, and no single factor holds the pace on a knife's edge.
 
 **On the phone:** the prototype app's Reports page shows the runs' discovery years and how the pace moves with each factor; the note links the full report.
+
+**Conflict:** you asked for faster discoveries on 4 October 2026, so `TIM-19`'s windows are halved and P4 tunes to them: flakes within 3 years, fire in years 3 to 15; the sharp-stone test keeps its 5 years until you OK its proposed change (`RES-03`). The windows are dates (`TIM-14`), so fire's Years 3 to 15 begin two years in; P4 first read them a year late. Fire is counted at its first in a world of 3 or 4 bands, as `TIM-19` counts a step, not in one band's run. A knife's edge is read as a change of a quarter either way breaking a step's rule; a value that breaks one only when halved or doubled is reported as a strong lever, since so large a change is meant to move the pace.
 
 ### α0.4a P5 The same bits
 

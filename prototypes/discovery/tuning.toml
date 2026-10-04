@@ -13,21 +13,21 @@ hunch = 0.5         # 1 in 2
 action = "strike"
 sector = "stone"
 difficulty = 2
-factor = 0.219
+factor = 0.292
 hint = 0.1   # MAT-04's failures: a strike of flaking stone that gives no flake throws a sharp chip, its hint
 
 [blueprints.drill]
 action = "drill"
 sector = "fire"
 difficulty = 4
-factor = 0.0492
+factor = 0.0733
 hint = 0.2   # a failed try with dry wood smokes
 
 [blueprints.plough]
 action = "grind"
 sector = "fire"
 difficulty = 5
-factor = 0.0492
+factor = 0.0733
 hint = 0.2
 
 [minds]

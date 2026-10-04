@@ -12,3 +12,6 @@
 /dist/note/
 __pycache__/
 *.tmp
+
+# P4's cache of runs done, so a restart of pace.py loses nothing
+/prototypes/discovery/.runs/

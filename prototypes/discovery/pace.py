@@ -10,6 +10,7 @@ Pre-production code (research 00): thrown away once its answer is in the archite
 """
 
 import copy
+import hashlib
 import json
 import math
 import re
@@ -30,12 +31,22 @@ FRESH = list(range(1001, 1021))  # 20 seeds never tuned against, for the closing
 SWEEP = list(range(1, 41))
 FLAKE_YEARS = 7  # RES-02: each run until 2 years after its first flake, or 5 years if none comes; the control 7
 YEARS = 60  # a world runs until its first fire, or this long
-# what tuning aims at: flakes about a year in, as you asked on 4 October 2026; fire about 12 years in, the middle of
-# its window as its years multiply, so that halving or doubling a value keeps both inside
+# TIM-19's windows, halved for faster discoveries as you asked on 4 October 2026. They are dates (TIM-14), and Year 1
+# begins at the start, so in years from the start: flakes in Years 1 to 3, from 0 up to 3; fire in Years 3 to 15,
+# from 2 up to 15
+FLAKE_WINDOW = (0.0, 3.0)
+FIRE_WINDOW = (2.0, 15.0)
+# what tuning aims at: flakes about a year in, as you asked; fire about 9 years in. A world's first fire comes
+# anywhere from under a year to past 15 (the first of 3 or 4 bands, each slow to find it), its spread skewed early, so
+# its median sits above the window's middle as its years multiply (5.5): there the shares before and after the window
+# are about equal, and a quarter's change in any value keeps both within the rule
 FLAKE_AIM = 1.0
-FIRE_AIM = 12.0
-FIRE_WINDOW = (5.0, 30.0)
-# the values a halving or doubling is tried on (MND-11's list of what tunes the pace)
+FIRE_AIM = 9.0
+# the runs done so far, by what each was asked: a run of the program reuses them, so a restart loses nothing
+# (the folder is ignored by git)
+CACHE = d.HERE / ".runs" / "cache.json"
+_cache = None
+# the values a change is tried on (MND-11's list of what tunes the pace)
 KNOBS = {
     "accident": [("routes", "accident")],
     "experiment": [("routes", "experiment")],
@@ -74,9 +85,26 @@ def one(job):
     }
 
 
+def mapped(fn, jobs, pool):
+    """Each job's result, from the pool or here, and from the cache of runs done before when it is on (main)."""
+    if _cache is None:
+        return pool.map(fn, jobs) if pool is not None else [fn(j) for j in jobs]
+    keys = [hashlib.sha1(json.dumps([fn.__name__, job], sort_keys=True).encode()).hexdigest() for job in jobs]
+    todo = [(k, j) for k, j in zip(keys, jobs, strict=True) if k not in _cache]
+    if todo:
+        done = pool.map(fn, [j for _, j in todo]) if pool is not None else [fn(j) for _, j in todo]
+        for (k, _), result in zip(todo, done, strict=True):
+            _cache[k] = result
+        CACHE.parent.mkdir(exist_ok=True)
+        # written whole beside it, then renamed over it, so a run cut short mid-write leaves the last cache intact
+        part = CACHE.with_suffix(".part")
+        part.write_text(json.dumps(_cache))
+        part.replace(CACHE)
+    return [_cache[k] for k in keys]
+
+
 def runs(tuning, seeds, flint=None, years=FLAKE_YEARS, pool=None):
-    jobs = [(s, tuning, flint, years) for s in seeds]
-    return pool.map(one, jobs) if pool is not None else [one(j) for j in jobs]
+    return mapped(one, [(s, tuning, flint, years) for s in seeds], pool)
 
 
 def world(job):
@@ -102,8 +130,7 @@ def world(job):
 
 
 def worlds(tuning, seeds, years=YEARS, pool=None):
-    jobs = [(s, tuning, years) for s in seeds]
-    return pool.map(world, jobs) if pool is not None else [world(j) for j in jobs]
+    return mapped(world, [(s, tuning, years) for s in seeds], pool)
 
 
 def sharp_stone(results, control):
@@ -128,20 +155,24 @@ def sharp_stone(results, control):
     }
 
 
-def fire_window(results):
-    """TIM-19's window as RES-07 checks a target: at least half the worlds reach it inside its window, at most a
+def window(years, span):
+    """TIM-19's window as RES-07 checks a target: at least half the runs reach it inside its window, at most a
     quarter before it opens."""
-    years = [r["fire"] for r in results]
-    inside = sum(1 for y in years if y is not None and FIRE_WINDOW[0] <= y <= FIRE_WINDOW[1])
-    early = sum(1 for y in years if y is not None and y < FIRE_WINDOW[0])
-    ways = sorted({r["fire_way"] for r in results if r["fire_way"]})
+    inside = sum(1 for y in years if y is not None and span[0] <= y < span[1])
+    early = sum(1 for y in years if y is not None and y < span[0])
     return {
         "inside": inside,
         "early": early,
         "never": sum(1 for y in years if y is None),
-        "ways": ways,
         "pass": inside * 2 >= len(years) and early * 4 <= len(years),
     }
+
+
+def fire_window(results):
+    """Fire's window over a set of worlds, and the ways it was first made."""
+    out = window([r["fire"] for r in results], FIRE_WINDOW)
+    out["ways"] = sorted({r["fire_way"] for r in results if r["fire_way"]})
+    return out
 
 
 def median_year(results, key, cap):
@@ -203,49 +234,61 @@ def write_factors(tuning):
 
 def summary(flakes, fires):
     """A sweep's runs in short: the median years, and whether each step still meets its rule, scaled to the runs'
-    number: flakes within 5 years in 4 runs of 5 (RES-03), fire inside its window in half the worlds and early in at
-    most a quarter (TIM-19)."""
+    number: flakes within 5 years in 4 runs of 5 (RES-03) and inside their window in half (TIM-19), fire inside its
+    window in half the worlds and early in at most a quarter (TIM-19)."""
     within = sum(1 for r in flakes if r["flake"] is not None and r["flake"] <= 5.0)
+    flake = window([r["flake"] for r in flakes], FLAKE_WINDOW)
     fire = fire_window(fires)
     return {
         "flake_median": median_year(flakes, "flake", 5.0),
         "fire_median": median_year(fires, "fire", YEARS),
         "flake_within_5": within,
+        "flake_inside": flake["inside"],
         "fire_inside": fire["inside"],
         "fire_early": fire["early"],
         "fire_never": fire["never"],
-        "flake_pass": within * 5 >= len(flakes) * 4,
+        "flake_pass": within * 5 >= len(flakes) * 4 and flake["pass"],
         "fire_pass": fire["pass"],
     }
 
 
+def holds(row, scales):
+    """Whether both steps keep their rules with the value changed by each of the scales."""
+    return all(row[str(x)][k] for x in scales for k in ("flake_pass", "fire_pass"))
+
+
 def sensitivity(tuning, pool):
-    """How the pace moves when each tuned value alone is halved or doubled, over 40 runs and 40 worlds. A value holds
-    the pace on a knife's edge where halving or doubling it breaks a step's rule."""
+    """How the pace moves when each tuned value alone is changed, over 40 runs and 40 worlds. A value holds the pace on
+    a knife's edge where a change of a quarter either way (times 0.8 or 1.25) breaks a step's rule, inside its window
+    in half the runs and early in at most a quarter; it is a strong lever where halving or doubling it does."""
     out = [{"knob": "as tuned", "1.0": summary(runs(tuning, SWEEP, pool=pool), worlds(tuning, SWEEP, pool=pool))}]
     for name, paths in KNOBS.items():
         row = {"knob": name}
-        for scale in (0.5, 2.0):
+        for scale in (0.8, 1.25, 0.5, 2.0):
             varied = copy.deepcopy(tuning)
             for path in paths:
                 setting(varied, path, scale=scale)
             row[str(scale)] = summary(runs(varied, SWEEP, pool=pool), worlds(varied, SWEEP, pool=pool))
-        row["edge"] = not all(row[s][k] for s in ("0.5", "2.0") for k in ("flake_pass", "fire_pass"))
+
+        row["edge"] = not holds(row, (0.8, 1.25))
+        row["lever"] = not row["edge"] and not holds(row, (0.5, 2.0))
         out.append(row)
         low, high = row["0.5"], row["2.0"]
         print(
             f"  {name}: flakes {low['flake_median']:.2f} to {high['flake_median']:.2f} years, fire "
             f"{low['fire_median']:.1f} to {high['fire_median']:.1f} ({low['fire_never']} and {high['fire_never']} "
-            f"never){' EDGE' if row['edge'] else ''}",
+            f"never){' EDGE' if row['edge'] else (' lever' if row['lever'] else '')}",
             flush=True,
         )
     return out
 
 
 def main():
+    global _cache
+    _cache = json.loads(CACHE.read_text()) if CACHE.exists() else {}
     tuning = d.load(TUNING)
-    # two workers, leaving room for the rest of the session's work
-    with Pool(2) as pool:
+    # three workers, leaving a core for the rest of the session's work
+    with Pool(3) as pool:
         if "--tune" in sys.argv:
             tuning = tune(tuning, pool)
             write_factors(tuning)
@@ -255,16 +298,20 @@ def main():
         fresh = runs(tuning, FRESH, pool=pool)
         fresh_control = runs(tuning, FRESH, flint=0.0, pool=pool)
         fresh_fires = worlds(tuning, FRESH, pool=pool)
-        print("Sensitivity, each value halved and doubled:", flush=True)
+        print("Sensitivity, each value changed by a quarter, halved and doubled:", flush=True)
         sens = sensitivity(tuning, pool)
     stone = sharp_stone(base, control)
+    stone["window"] = window([r["flake"] for r in base], FLAKE_WINDOW)
     fire = fire_window(fires)
     stone_fresh = sharp_stone(fresh, fresh_control)
     fire_fresh = fire_window(fresh_fires)
     edge = [row["knob"] for row in sens if row.get("edge")]
+    levers = [row["knob"] for row in sens if row.get("lever")]
     report = {
         "title": "P4 Discovery pace",
-        "question": "Can tuning alone make sharp flakes come within 5 years and fire within its window?",
+        "question": f"Can tuning alone make sharp flakes come within {FLAKE_WINDOW[1]:g} years and fire in Years "
+        f"{FIRE_WINDOW[0] + 1:g} to {FIRE_WINDOW[1]:g}, their windows, with the world's own rules?",
+        "windows": {"flake": list(FLAKE_WINDOW), "fire": list(FIRE_WINDOW)},
         "tuning": {bp: tuning["blueprints"][bp]["factor"] for bp in ("flake", "drill", "plough")},
         "runs": base,
         "control": control,
@@ -277,20 +324,27 @@ def main():
         "fire_fresh": fire_fresh,
         "sensitivity": sens,
         "knife_edge": edge,
-        "pass": stone["pass"] and fire["pass"] and stone_fresh["pass"] and fire_fresh["pass"] and not edge,
+        "levers": levers,
+        "pass": stone["pass"]
+        and stone["window"]["pass"]
+        and fire["pass"]
+        and stone_fresh["pass"]
+        and fire_fresh["pass"]
+        and not edge,
     }
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(report, indent=1) + "\n")
     print(
         f"Flakes: {stone['within_5']}/20 within 5 years (fresh seeds {stone_fresh['within_5']}/20), "
-        f"spread in {stone['spread_ok']}, routes {', '.join(stone['routes'])}, control flakes "
-        f"{stone['control_flakes']}"
+        f"{stone['window']['inside']}/20 in their window, Years 1-{FLAKE_WINDOW[1]:g}; spread in "
+        f"{stone['spread_ok']}, routes {', '.join(stone['routes'])}, control flakes {stone['control_flakes']}"
     )
     print(
-        f"Fire, first in a world: {fire['inside']}/20 in years 5-30, {fire['early']} before (fresh "
-        f"{fire_fresh['inside']}/20, {fire_fresh['early']}), ways {', '.join(fire['ways'])}"
+        f"Fire, first in a world: {fire['inside']}/20 in its window, Years {FIRE_WINDOW[0] + 1:g}-"
+        f"{FIRE_WINDOW[1]:g}, {fire['early']} before (fresh {fire_fresh['inside']}/20, {fire_fresh['early']}), "
+        f"ways {', '.join(fire['ways'])}"
     )
-    print(f"Knife's edge: {', '.join(edge) or 'none'}")
+    print(f"Knife's edge: {', '.join(edge) or 'none'}; strong levers: {', '.join(levers) or 'none'}")
     print(f"P4: {'PASS' if report['pass'] else 'FAIL'}, report {REPORT.relative_to(ROOT)}")
 
 

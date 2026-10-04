@@ -488,7 +488,16 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - Every reality rule has a real experiment behind it, cited in its catalogue check (`RCK-01` and the rest of section 7.6).
 - Quality from skill and inputs (`MAT-20`); skill grows by the power law, a few years to competence and five to ten to mastery (`MND-06`); teaching beats watching (`MND-13`).
 - Discovery belongs to people: accidents, personal hunches and copying found things (`MND-11`); crafts die with their last holder and return only by rediscovery, neighbours or copying (`CUL-02`, `CUL-16`).
-- *To prove (P4):* whether tuning alone gives sharp flakes within 5 years and fire within its window (`RES-02`, `RES-03`, `TIM-19`, `RSK-01`).
+- *Proved in P4,* in a model of one band in Python, as pre-production code: tuning alone, with the world's own rules, brings sharp flakes and fire within `TIM-19`'s windows, halved at your word on 4 October 2026 for faster discoveries (`RES-02`, `RES-03`, `TIM-19`, `RSK-01`).
+  - **Flakes:** within 3 years, their window, in 19 of 20 runs, the median a year in; within 5, the sharp-stone test's bar, in 20 of 20, and in 20 of 20 on seeds never tuned against; never without stone that flakes.
+    They came by accident, by experiment and by a dream's hunch, and 3 in 4 adults could make them within 2 years in every run.
+  - **Fire,** counted at its first anywhere in a world of 3 or 4 bands, as `TIM-19` counts a step: in Years 3 to 15 in 18 of 20 worlds and before them in 1, the median about 8½ years in; on new seeds 17 and 2.
+    The windows are dates (`TIM-14`), so Year 3 begins two years in.
+    Every world's first fire began with a hunch from a dream (`MND-12`).
+  - **What sets the pace:** one discovery factor a blueprint, 0.292 for flakes and 0.0733 for each way of making fire, tuned on 20 fixed seeds and checked on 20 new ones (`RES-16`).
+  - **No value holds it on a knife's edge:** each tuned value changed alone by a quarter either way, and halved and doubled, over 40 runs and 40 worlds, keeps both steps' rules.
+    Fire's margin is thin: read a year stricter than its dates, a quarter more noticing would bring 11 of 40 worlds' first fire too early, one past the rule's quarter.
+  - **What production takes:** each blueprint's discovery factor in its catalogue entry (A3.6); a step counted at its first anywhere in the world (`RES-07`); and tuning runs that keep what they have done, so one cut short resumes (`RSK-14`).
 
 ## A13. Culture (research 12), outline
 
