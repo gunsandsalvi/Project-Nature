@@ -23,6 +23,9 @@ uniform float smoke_row;
 // the hour's step of the smoke's ramp, and how thick the smoke is
 uniform float tone = 4.0;
 uniform float strength = 1.0;
+// 1 by day, 0 at night: by day the smoke is torn into drifting puffs with gaps between them, lit by the sun on
+// its thin edges, where a smooth sheet read as pale glass
+uniform float day = 0.0;
 
 float thickness(vec3 x) {
 	float d = 0.0;
@@ -37,7 +40,8 @@ float thickness(vec3 x) {
 		}
 	}
 	float curl = vnoise3(x * 1.4 + vec3(0.0, -TIME * 0.8, TIME * 0.15));
-	return clamp(d * (0.5 + 0.9 * curl) - 0.1, 0.0, 1.5);
+	float n = mix(curl, smoothstep(0.35, 0.65, curl), day);
+	return clamp(d * (0.5 + 0.9 * n) - 0.1 - 0.3 * day, 0.0, 1.5);
 }
 
 // The fires' glow at a point of the smoke, without facing: the fire term's reach and power.
@@ -87,7 +91,9 @@ void fragment() {
 	}
 	float f = lit / max(acc, 1e-4);
 	float s = clamp(floor(tone + f * 4.0 + 0.5), 0.0, 6.0);
-	vec3 c = grade(pal(smoke_row, s), f > 0.36 ? 4.0 : (f > 0.15 ? 2.0 : 0.0));
+	// firelit from below; by day its thin parts take the sun's tint, so it reads grey rather than blue
+	float cls = f > 0.36 ? 4.0 : (f > 0.15 ? 2.0 : (day > 0.5 && acc < 0.7 ? 1.0 : 0.0));
+	vec3 c = grade(pal(smoke_row, s), cls);
 	vec3 smoke = hazed(c, t0);
 	// Godot blends in linear light; the blend is solved for the painter's mix over the picture's stored colours
 	vec3 back = texture(screen, SCREEN_UV).rgb;

@@ -1,11 +1,19 @@
-## P2 A full scene (IMPLEMENTATION α0.2b): P1's close camp, busy and at night. Thirty stand-in
-## block figures walk and work in steps, two tents stand by the shelter, and three fires light
-## them by our firelight term or by Godot's own lights, switchable. Round it, a forest of
-## instanced trees seen at camp zoom. Measure runs it for about 90 seconds and reads the phone's
-## own forecast of its heat. It draws with P1's answers: outline C and the "ease" crawl fix.
+## P2 A full scene (IMPLEMENTATION α0.2b): P1's close camp, busy and at night. Thirty of P3's
+## block figures walk, carry, knap and scrape, posed about 10 times a second, two tents stand by
+## the shelter, and three fires light them by our firelight term or by Godot's own lights,
+## switchable. Round it, patches of forest of instanced trees on a meadow, seen at camp zoom, where
+## the people show as tiny figures. Measure runs it for about 90 seconds and reads the phone's own
+## forecast of its heat. It draws with P1's answers: outline C and the "ease" crawl fix.
 ## Pre-production code (research 00): the app's README names the items it is about.
 extends "res://look/look.gd"
 
+const KitShapes := preload("res://kit/kit_shapes.gd")
+const CATALOGUE := "res://kit/catalogue.json"
+## The kit's movements the camp's people use: walkers walk or carry, workers knap or scrape.
+const WALKS := ["walk", "carry"]
+const WORKS := ["knap", "scrape"]
+## How much bigger the people are drawn at camp zoom, as tiny figures (PRE-28).
+const FAR_SCALE := 4.0
 const FIGURES := 30
 const WALKERS := 18
 ## The figures move in steps, about 10 a second, as pixel art does (PRE-44).
@@ -17,7 +25,11 @@ const FOREST_SIDE := 1200.0
 const PLAIN_SIDE := 1800.0
 
 var view := "close"
-var _figures: MultiMesh
+## One MultiMesh for each step of each movement, holding the people in that pose this step.
+var _poses: Array[MultiMesh] = []
+## Where each movement's steps start among _poses, and how many it has.
+var _first := {}
+var _steps := {}
 var _people := []
 var _step_clock := 0.0
 var _heights := {}
@@ -39,8 +51,7 @@ func _ready() -> void:
 	var hearth: Dictionary = painter.fires[0]
 	var at := Vector3(hearth.pos[0], hearth.pos[1], hearth.pos[2])
 	_hearth_y = at.y
-	# the painter's hearth, with its own flames, and a fire before each tent
-	_add_fire(at, 16.0, 1.0, scene, false)
+	# the painter's hearth, with its own flames (look.gd), and a fire before each tent
 	_add_fire(_on_ground(at + Vector3(-8.0, 0.0, 7.0)), 10.0, 0.8, scene)
 	_add_fire(_on_ground(at + Vector3(9.0, 0.0, 8.0)), 10.0, 0.8, scene)
 	_build_camp(scene)
@@ -61,6 +72,10 @@ func _ready() -> void:
 	_set_fire_light(fire_light)
 	_set_view(view)
 	_mark("crawl", CRAWLS[crawl])
+
+
+func _hearth_reach() -> float:
+	return 16.0
 
 
 func _control_rows() -> Array:
@@ -155,22 +170,18 @@ func _build_camp(scene: Node3D) -> void:
 	var rows: Dictionary = painter.rows
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 2
-	_figures = MultiMesh.new()
-	_figures.transform_format = MultiMesh.TRANSFORM_3D
-	_figures.mesh = _figure_mesh(rows)
-	_figures.instance_count = FIGURES
-	var node := MultiMeshInstance3D.new()
-	node.multimesh = _figures
-	_add_shape(node, _solid, scene)
+	_build_poses(scene, rows)
 	var hearth: Vector3 = _fires[0][0]
 	for i in FIGURES:
 		var at := _place(rng, hearth, 16.0)
+		var walks := i < WALKERS
 		_people.append(
 			{
 				"at": at,
 				"to": _place(rng, hearth, 16.0),
-				"walks": i < WALKERS,
-				"phase": rng.randf() * TAU
+				"walks": walks,
+				"move": (WALKS if walks else WORKS)[i % 2],
+				"phase": float(rng.randi() % 24)
 			}
 		)
 	_step_figures(STEP_TIME)
@@ -194,7 +205,31 @@ func _place(rng: RandomNumberGenerator, around: Vector3, radius: float) -> Vecto
 	return around + Vector3(2.5, 0.0, 0.0)
 
 
-## Walkers stride between spots in steps of STEP_TIME; workers stay, bending at their work.
+## The kit's figure in each step of the movements the camp uses, in each movement's clothes (P3),
+## each step one MultiMesh, with room for everyone, of which only the people in that pose are drawn.
+func _build_poses(scene: Node3D, rows: Dictionary) -> void:
+	var catalogue: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CATALOGUE))
+	for move: Dictionary in catalogue.movements:
+		if not move.name in WALKS + WORKS:
+			continue
+		var steps := KitShapes.steps(move)
+		_first[move.name] = _poses.size()
+		_steps[move.name] = steps.size()
+		for pose: Dictionary in steps:
+			var mm := MultiMesh.new()
+			mm.transform_format = MultiMesh.TRANSFORM_3D
+			mm.mesh = KitShapes.figure(rows, catalogue.figure, pose, move.materials)
+			mm.instance_count = FIGURES
+			mm.visible_instance_count = 0
+			var node := MultiMeshInstance3D.new()
+			node.multimesh = mm
+			_add_shape(node, _solid, scene)
+			_poses.append(mm)
+
+
+## Walkers stride between spots in steps of STEP_TIME; workers stay at their work, facing the
+## hearth; everyone shows the next step of their movement (PRE-44), and at camp zoom is drawn as a
+## tiny figure (PRE-28).
 func _step_figures(delta: float) -> void:
 	_step_clock += delta
 	if _step_clock < STEP_TIME:
@@ -202,11 +237,13 @@ func _step_figures(delta: float) -> void:
 	_step_clock = fmod(_step_clock, STEP_TIME)
 	var rng := RandomNumberGenerator.new()
 	var hearth: Vector3 = _fires[0][0]
+	var size := FAR_SCALE if view == "camp" else 1.0
+	var counts := PackedInt32Array()
+	counts.resize(_poses.size())
 	for i in _people.size():
 		var p: Dictionary = _people[i]
 		var at: Vector3 = p.at
 		var facing := 0.0
-		var bend := 0.0
 		p.phase = float(p.phase) + 1.0
 		if p.walks:
 			var to: Vector3 = p.to
@@ -220,22 +257,28 @@ func _step_figures(delta: float) -> void:
 			facing = atan2(way.x, way.z)
 		else:
 			facing = atan2(hearth.x - at.x, hearth.z - at.z)
-			bend = 0.25 if int(p.phase) % 6 < 3 else 0.0
-		var xf := Transform3D(Basis(Vector3.UP, facing) * Basis(Vector3.RIGHT, bend), at)
-		_figures.set_instance_transform(i, xf)
+		var k: int = _first[p.move] + int(p.phase) % int(_steps[p.move])
+		p.size = size
+		var xf := Transform3D(Basis(Vector3.UP, facing).scaled(Vector3.ONE * size), at)
+		_poses[k].set_instance_transform(counts[k], xf)
+		counts[k] += 1
+	for k in _poses.size():
+		_poses[k].visible_instance_count = counts[k]
 
 
 # --- the forest at camp zoom -------------------------------------------------------------------
 
 
-## Thick woods round the camp, beyond the painter's scene, on a plain of woodland floor: one
-## instanced tree, so the trees cost what the game's will (PRE-28).
+## Woods round the camp, beyond the painter's scene, as the art book's camp zoom has them: patches
+## of forest, their crowns close enough to touch, and single trees across a meadow. The meadow
+## lies at the height of the painter's ground where it ends, and takes its cover, so its edge does
+## not show as a square. One instanced tree, so the trees cost what the game's will (PRE-28).
 func _build_forest(scene: Node3D) -> void:
 	var rows: Dictionary = painter.rows
 	var ext: Array = painter.extent
-	var plain_y := _hearth_y - 3.0
+	var plain_y := _edge_height(ext)
 	_plain = MeshInstance3D.new()
-	_plain.mesh = Shape.plain(PLAIN_SIDE, 3)
+	_plain.mesh = Shape.plain(PLAIN_SIDE, 0)
 	_plain.position = Vector3((ext[0] + ext[2]) * 0.5, plain_y, (ext[1] + ext[3]) * 0.5)
 	var first := scene.get_child_count()
 	_add_shape(_plain, _ground, scene)
@@ -247,12 +290,18 @@ func _build_forest(scene: Node3D) -> void:
 	trees.instance_count = TREES
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
+	var patches := FastNoiseLite.new()
+	patches.seed = 5
+	patches.frequency = 0.006
 	var centre := _plain.position
 	var placed := 0
 	while placed < TREES:
 		var x := centre.x + rng.randf_range(-0.5, 0.5) * FOREST_SIDE
 		var z := centre.z + rng.randf_range(-0.5, 0.5) * FOREST_SIDE
 		if x > ext[0] - 4.0 and x < ext[2] + 4.0 and z > ext[1] - 4.0 and z < ext[3] + 4.0:
+			continue
+		# most trees stand in the forest's patches, a few alone on the meadow
+		if patches.get_noise_2d(x, z) < 0.05 and rng.randf() > 0.04:
 			continue
 		var s := rng.randf_range(0.8, 1.3)
 		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3(s, s, s))
@@ -266,27 +315,40 @@ func _build_forest(scene: Node3D) -> void:
 		_forest_nodes.append(scene.get_child(i))
 
 
+## The height of the painter's ground along its edges, on average, for the meadow round it.
+func _edge_height(ext: Array) -> float:
+	var sum := 0.0
+	var n := 0
+	for key: Vector2i in _heights:
+		var x := key.x * 2.0
+		var z := key.y * 2.0
+		if x < ext[0] + 4.0 or x > ext[2] - 6.0 or z < ext[1] + 4.0 or z > ext[3] - 6.0:
+			sum += float(_heights[key])
+			n += 1
+	return sum / n if n > 0 else _hearth_y - 3.0
+
+
 # --- shapes ------------------------------------------------------------------------------------
 
 
-## A block figure, about 1.65 m: legs and arms of skin, a hide tunic, a head with hair (PRE-27).
-func _figure_mesh(rows: Dictionary) -> ArrayMesh:
-	var m := Shape.new()
-	m.box(Vector3(0.0, 0.4, 0.0), Vector3(0.34, 0.8, 0.2), rows.skin2, Shape.CREATURE)
-	m.box(Vector3(0.0, 1.05, 0.0), Vector3(0.44, 0.55, 0.26), rows.hide, Shape.CREATURE)
-	m.box(Vector3(0.0, 1.47, 0.0), Vector3(0.24, 0.26, 0.24), rows.skin2, Shape.CREATURE)
-	m.box(Vector3(0.0, 1.6, -0.02), Vector3(0.26, 0.06, 0.26), rows.hair, Shape.CREATURE)
-	return m.commit()
-
-
-## A broadleaf stand-in as camp zoom needs it, a metre an art pixel: a crown of 8 faces on a
-## trunk of two crossed faces, 12 triangles where a close tree takes 44, since the forest's
+## A broadleaf stand-in as camp zoom needs it, a metre an art pixel: a crown of 8 faces, low on a
+## short trunk of two crossed faces, 12 triangles where a close tree takes 44, since the forest's
 ## geometry, drawn for the picture, the outlines and the shadows, is what cost the frame (PRE-28).
+## Its crown is wide, so a patch's crowns meet in a canopy, and drawn without an outline, which at a
+## metre a pixel made each tree a dark twig.
 func _tree_mesh(rows: Dictionary) -> ArrayMesh:
 	var m := Shape.new()
 	for side: Vector3 in [Vector3(0.25, 0.0, 0.0), Vector3(0.0, 0.0, 0.25)]:
-		var up := Vector3(0.0, 3.4, 0.0)
+		var up := Vector3(0.0, 2.4, 0.0)
 		var n := side.cross(Vector3.UP).normalized()
 		m.quad(-side, side, side + up, -side + up, n, rows.bark, 0.0)
-	m.ball(Vector3(0.0, 4.6, 0.0), 2.4, rows.leaf, Shape.FOLIAGE, false)
+	m.ball(
+		Vector3(0.0, 4.4, 0.0),
+		3.0,
+		rows.leaf,
+		Shape.FOLIAGE + Shape.NO_OUTLINE,
+		false,
+		0,
+		Vector3(1.0, 0.8, 1.0)
+	)
 	return m.commit()

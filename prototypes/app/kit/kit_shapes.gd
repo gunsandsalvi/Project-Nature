@@ -97,31 +97,63 @@ static func _rack(m: Shape, e: Dictionary, row: float, rows: Dictionary, which: 
 		m.box(at, Vector3(0.6, 0.8, 0.03), hang, 0.0, Shape.PAT.hide)
 
 
-## A windbreak: a skin on five poles leaning back from the fire's side, +z.
+## A windbreak as the art book builds one (the painter's things.js): a row of poles leaning back
+## from the fire's side, +z, a bar across them, and brush packed against them, its top ragged, with
+## twigs sticking up from it.
 static func _windbreak(m: Shape, e: Dictionary, row: float, rows: Dictionary) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
 	var w: float = e.width * 0.5
 	var h: float = e.height
-	for k in 5:
-		var x := -w + w * 0.5 * k
-		m.pole(Vector3(x, 0.0, 0.0), Vector3(x, h, -0.6), 0.04, rows.wood, 0.0, Shape.PAT.bark)
-	var n := Vector3(0.0, 0.6, h).normalized()
-	var low := 0.05
-	m.quad(
-		Vector3(-w, low, 0.03),
-		Vector3(w, low, 0.03),
-		Vector3(w, h, -0.57),
-		Vector3(-w, h, -0.57),
-		n,
-		row,
+	var lean := h * 0.45
+	var poles := roundi(w * 2.0 / 0.4)
+	for k in poles:
+		var x := -w + (k + 0.5) * w * 2.0 / poles
+		var top := Vector3(x + rng.randf_range(-0.1, 0.1), h * rng.randf_range(0.9, 1.08), -lean)
+		m.pole(Vector3(x, -0.05, 0.0), top, 0.035, rows.wood, 0.0, Shape.PAT.bark, 4)
+	m.pole(
+		Vector3(-w, h * 0.8, -lean * 0.8),
+		Vector3(w, h * 0.8, -lean * 0.8),
+		0.03,
+		rows.wood,
 		0.0,
-		Shape.PAT.hide
+		0,
+		4
 	)
+	var segs := roundi(w * 2.0 / 0.25)
+	var tops := PackedFloat32Array()
+	for k in segs + 1:
+		tops.append(rng.randf_range(0.8, 0.97))
+	var n := Vector3(0.0, lean, h).normalized()
+	for k in segs:
+		var x0 := -w + k * w * 2.0 / segs
+		var x1 := x0 + w * 2.0 / segs
+		m.quad(
+			Vector3(x0, 0.02, -0.03),
+			Vector3(x1, 0.02, -0.03),
+			Vector3(x1, h * tops[k + 1], -lean * tops[k + 1] - 0.03),
+			Vector3(x0, h * tops[k], -lean * tops[k] - 0.03),
+			n,
+			row,
+			0.0,
+			Shape.PAT.thatch
+		)
+	for k in poles * 2:
+		var x := rng.randf_range(-w, w)
+		var t := rng.randf_range(0.84, 0.95)
+		var foot := Vector3(x, h * t - 0.06, -lean * t - 0.05)
+		for twig in 2:
+			var tip := foot + Vector3(rng.randf_range(-0.12, 0.12), rng.randf_range(0.15, 0.3), 0.0)
+			m.pole(foot, tip, 0.012, rows.bark if twig == 0 else row, 0.0, 0, 3)
 
 
-## A lean-to: a ridge pole on two posts, open on the +z side, and a roof of the material sloping
-## from the ridge down to the ground behind; a fire set under its open side fills it with smoke
-## that flows out under the ridge (PRE-30).
+## A lean-to: a ridge pole on two posts, open on the +z side, a thick roof of the material laid
+## in three overlapping courses of sheets from the ridge down to the ground behind, each course's
+## lower edge ragged, and its two ends closed with brush; a fire set under its open side fills it
+## with smoke that flows out under the ridge (PRE-30).
 static func _lean_to(m: Shape, e: Dictionary, row: float, rows: Dictionary, pat: int) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
 	var w: float = e.width * 0.5
 	var h: float = e.height
 	var d: float = e.depth
@@ -129,25 +161,68 @@ static func _lean_to(m: Shape, e: Dictionary, row: float, rows: Dictionary, pat:
 		m.pole(
 			Vector3(x, 0.0, 0.0), Vector3(x, h + 0.12, 0.0), 0.05, rows.wood, 0.0, Shape.PAT.bark
 		)
-	m.pole(Vector3(-w, h, 0.0), Vector3(w, h, 0.0), 0.05, rows.wood, 0.0, Shape.PAT.bark)
-	# the roof as a slab, its underside a hand's breadth below its top, so a fire's light passes
-	# beneath it (look.gdshaderinc's fire_shadow)
-	var n := Vector3(0.0, d, -h).normalized()
-	for side: float in [1.0, -1.0]:
-		var o := n * (0.0 if side > 0.0 else -0.06)
-		m.quad(
-			Vector3(-w, h, 0.0) + o,
-			Vector3(w, h, 0.0) + o,
-			Vector3(w, 0.0, -d) + o,
-			Vector3(-w, 0.0, -d) + o,
-			n * side,
-			row,
+	m.pole(
+		Vector3(-w - 0.1, h, 0.0), Vector3(w + 0.1, h, 0.0), 0.05, rows.wood, 0.0, Shape.PAT.bark
+	)
+	var n := Vector3(0.0, d, h).normalized()
+	var down := Vector3(0.0, -h, -d)
+	var ridge := Vector3(0.0, h, 0.0)
+	# the underside, a hand's breadth below the courses, so a fire's light passes beneath the roof
+	# (look.gdshaderinc's fire_shadow)
+	var under := -n * 0.06
+	m.quad(
+		Vector3(-w, h, 0.0) + under,
+		Vector3(-w, 0.0, -d) + under,
+		Vector3(w, 0.0, -d) + under,
+		Vector3(w, h, 0.0) + under,
+		-n,
+		row,
+		0.0,
+		pat
+	)
+	var courses := 3
+	for c in courses:
+		var lift := n * (0.04 * (courses - c))
+		var x := -w
+		while x < w - 0.01:
+			var x1 := minf(x + rng.randf_range(0.35, 0.55), w)
+			var s0 := maxf(float(c) / courses - 0.06, 0.0)
+			var s1 := minf(float(c + 1) / courses + rng.randf_range(0.0, 0.06), 1.0)
+			var a := ridge + down * s0 + lift
+			var b := ridge + down * s1 + lift
+			m.quad(
+				Vector3(x, a.y, a.z),
+				Vector3(x, b.y, b.z),
+				Vector3(x1, b.y, b.z),
+				Vector3(x1, a.y, a.z),
+				n,
+				row,
+				0.0,
+				pat
+			)
+			# the sheet's lower edge, its thickness facing down the slope
+			var edge := down.normalized()
+			m.quad(
+				Vector3(x, b.y, b.z),
+				Vector3(x, b.y, b.z) - lift - n * 0.02,
+				Vector3(x1, b.y, b.z) - lift - n * 0.02,
+				Vector3(x1, b.y, b.z),
+				edge,
+				row,
+				0.0,
+				pat
+			)
+			x = x1
+	for side: float in [-1.0, 1.0]:
+		m.tri(
+			Vector3(side * w, 0.0, 0.0),
+			Vector3(side * w, h, 0.0),
+			Vector3(side * w, 0.0, -d),
+			Vector3(side, 0.0, 0.0),
+			rows.drygrass,
 			0.0,
-			pat
+			Shape.PAT.thatch
 		)
-	for x: float in [-w * 0.6, 0.0, w * 0.6]:
-		var top := Vector3(x, h + 0.05, 0.0)
-		m.pole(top, Vector3(x, 0.05, -d - 0.05), 0.035, rows.wood, 0.0, Shape.PAT.bark)
 
 
 ## A tent of hides on poles: a cone of ten faces, the one toward +z holding the doorway in its own
@@ -287,9 +362,11 @@ static func _deer(m: Shape, row: float, rows: Dictionary) -> void:
 ## The block figure in a pose (PRE-27, PRE-44): angles in degrees at the hips, knees, shoulders and
 ## elbows, the body's bend and the head's nod, the pelvis dropped to sit or kneel, and what the
 ## hands hold; facing +z, with a face of eyes and a mouth on its head (the look's face pattern).
-static func figure(rows: Dictionary, d: Dictionary, pose: Dictionary) -> ArrayMesh:
+## Its skin, tunic, legs and hair are the figure's own, or those given (mats).
+static func figure(rows: Dictionary, d: Dictionary, pose: Dictionary, mats := []) -> ArrayMesh:
 	var m := Shape.new()
-	var mats: Array = d.materials
+	if mats.is_empty():
+		mats = d.materials
 	var skin: float = rows[mats[0]]
 	var top: float = rows[mats[1]]
 	var legs: float = rows[mats[2]]
@@ -351,8 +428,8 @@ static func _item(
 	match item:
 		"bundle":
 			m.xf = waist
-			var at := Vector3(0.18, torso + 0.12, -0.04)
-			m.box(at, Vector3(0.42, 0.28, 0.3), rows.hide, f, Shape.PAT.hide)
+			var at := Vector3(0.2, torso + 0.2, -0.06)
+			m.box(at, Vector3(0.62, 0.42, 0.42), rows.hide, f, Shape.PAT.hide)
 		"stone":
 			m.xf = hands[0]
 			m.ball(Vector3.ZERO, 0.07, rows.flint, f, false)
@@ -366,8 +443,42 @@ static func _item(
 	m.xf = Transform3D.IDENTITY
 
 
-## A tuft of grass: five thin blades leaning out from a point, foliage to the light, a step lighter
-## than the meadow and drawn without an outline, which would make a pixel-sized tuft all edge.
+## A movement's poses step by step, about 10 a second (PRE-44): each key pose, then the poses
+## between it and the next, so a pose held for several steps moves on at every step instead.
+static func steps(move: Dictionary) -> Array:
+	var keys: Array = move.poses
+	var hold: int = move.hold
+	var out := []
+	for i in keys.size():
+		var a: Dictionary = keys[i]
+		var b: Dictionary = keys[(i + 1) % keys.size()]
+		for k in hold:
+			var t := float(k) / hold
+			var pose := a.duplicate()
+			for key: String in a.keys() + b.keys():
+				if key == "item":
+					continue
+				pose[key] = lerpf(float(a.get(key, 0.0)), float(b.get(key, 0.0)), t)
+			out.append(pose)
+	return out
+
+
+## A flower of the meadow: a small head of three petals held above the grass on a stem, in its
+## colour's row, lit as foliage and drawn without an outline.
+static func flower(rows: Dictionary, row: float) -> ArrayMesh:
+	var m := Shape.new()
+	var f := Shape.FOLIAGE + Shape.NO_OUTLINE
+	m.pole(Vector3.ZERO, Vector3(0.0, 0.16, 0.0), 0.01, rows.grass, f, 0, 3)
+	m.bias = 1
+	for k in 3:
+		var a := TAU * k / 3.0
+		m.box(Vector3(cos(a) * 0.03, 0.18, sin(a) * 0.03), Vector3(0.05, 0.04, 0.05), row, f)
+	return m.commit()
+
+
+## A tuft of grass: five thin blades leaning out from a point, lit as the ground at its foot and a
+## step lighter, as the art book's tufts are, and drawn without an outline, which would make a
+## pixel-sized tuft all edge.
 static func tuft(rows: Dictionary) -> ArrayMesh:
 	var m := Shape.new()
 	m.bias = 1
@@ -376,14 +487,7 @@ static func tuft(rows: Dictionary) -> ArrayMesh:
 		var out := Vector3(cos(a), 0.0, sin(a))
 		var side := Vector3(-out.z, 0.0, out.x) * 0.025
 		var tip := out * 0.09 + Vector3(0.0, 0.16 + 0.05 * (k % 2), 0.0)
-		m.tri(
-			-side,
-			side,
-			tip,
-			(out + Vector3.UP).normalized(),
-			rows.grass,
-			Shape.FOLIAGE + Shape.NO_OUTLINE
-		)
+		m.tri(-side, side, tip, Vector3.UP, rows.grass, Shape.FOLIAGE + Shape.NO_OUTLINE)
 	return m.commit()
 
 

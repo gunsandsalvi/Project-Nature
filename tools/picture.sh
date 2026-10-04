@@ -9,7 +9,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$ROOT/tools/env.sh"
 PROJECT="$1"
 OUT="$2"
-case "${3:-}" in
+ORIENT="${3:-}"
+case "$ORIENT" in
   portrait) SIZE=1344x2992 ;;
   landscape) SIZE=2992x1344 ;;
   *) echo "usage: tools/picture.sh <project> <png> portrait|landscape [app arguments]" >&2; exit 2 ;;
@@ -27,4 +28,4 @@ from PIL import Image
 im = Image.open(sys.argv[1]).convert("RGB")
 im.resize((im.width // 2, im.height // 2), Image.LANCZOS).save(sys.argv[2], optimize=True)
 EOF
-echo "Picture: $OUT ($3)"
+echo "Picture: $OUT ($ORIENT)"

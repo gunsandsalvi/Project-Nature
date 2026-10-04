@@ -1,4 +1,5 @@
-## P2's screen: the figures' steps, the fire light's switch, the forest view and the chat line.
+## P2's screen: the figures' steps and poses, the fire light's switch, the forest view and the chat
+## line.
 extends GdUnitTestSuite
 
 const SCENE := preload("res://scene/scene.gd")
@@ -31,6 +32,27 @@ func test_the_figures_move_only_in_steps_of_a_tenth_of_a_second() -> void:
 	assert_array(_places(screen)).is_equal(before)
 	screen.call("_step_figures", 0.07)
 	assert_array(_places(screen)).is_not_equal(before)
+
+
+# checks: PRE-27, PRE-44, PRE-28
+func test_everyone_is_one_of_the_kits_figures_in_a_pose_and_tiny_from_afar() -> void:
+	var screen := _screen()
+	await await_idle_frame()
+	screen.set_process(false)
+	var poses: Array = screen.get("_poses")
+	var drawn := 0
+	for mm: MultiMesh in poses:
+		drawn += mm.visible_instance_count
+	assert_int(drawn).is_equal(SCENE.FIGURES)
+	# walkers and workers move through the kit's movements, so the drawn poses differ step to step
+	var before := poses.map(func(mm: MultiMesh) -> int: return mm.visible_instance_count)
+	screen.call("_step_figures", 0.11)
+	var after := poses.map(func(mm: MultiMesh) -> int: return mm.visible_instance_count)
+	assert_array(after).is_not_equal(before)
+	screen.call("_set_view", "camp")
+	screen.call("_step_figures", 0.11)
+	for person: Dictionary in screen.get("_people"):
+		assert_float(person.size).is_equal(SCENE.FAR_SCALE)
 
 
 # checks: MAT-18

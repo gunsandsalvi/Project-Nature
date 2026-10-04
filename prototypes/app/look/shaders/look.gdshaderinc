@@ -59,6 +59,8 @@ global uniform vec2 look_haze_range;
 // up to four fires: each column the fire's place and reach, and their powers (0 for none)
 global uniform mat4 look_fires;
 global uniform vec4 look_fire_powers;
+// how much of a fire's light shows on sunlit ground: none at noon, all at night (look.gd's _set_hour)
+global uniform float look_fire_in_sun;
 global uniform float look_sky_cover;
 #ifndef SKYMAP
 global uniform sampler2D look_sky_map : filter_nearest;
@@ -361,7 +363,8 @@ vec3 grade(vec3 c, float cls) {
 	vec3 g = tint(c, sunlit > 0.5 ? look_sun_tint : look_shade_tint);
 	float lc = dot(c, vec3(0.299, 0.587, 0.114));
 	if (fb > 0.5) {
-		g = mix(g, mix(tint(c, look_fire_tint), look_fire_tint * lc * 1.55, 0.3), fb > 1.5 ? 0.75 : 0.5);
+		// firelit colour leans to a warm ramp of the pixel's own brightness, so lit grass reads amber, not olive
+		g = mix(g, mix(tint(c, look_fire_tint), look_fire_tint * lc * 1.55, 0.6), fb > 1.5 ? 0.85 : 0.6);
 	}
 	float l = dot(g, vec3(0.299, 0.587, 0.114));
 	g = mix(g, vec3(l), look_desat * (fb > 0.5 ? 0.0 : 1.0));
@@ -399,15 +402,18 @@ vec3 shade_pixel(float ndl, float shadow, float depth, float m_row, float m_bias
 		float n = foliage ? ndl * 0.55 + 0.45 : ndl;
 		float sh = n > 0.0 ? shadow : 0.0;
 		float sun = pow(max(n, 0.0), look_sun_pow) * sh;
-		f = light_step(m_sky, sun, m_fire);
+		float sunlit = (sh > 0.5 && n > 0.06) ? 1.0 : 0.0;
+		// in full daylight a fire's light is lost: by day it shows only in shade, so sunlit ground round a
+		// fire takes no pale disc (look_fire_in_sun: 0 at noon, 1 at night, when the "sun" is the moon)
+		float fl = sunlit > 0.5 ? m_fire * look_fire_in_sun : m_fire;
+		f = light_step(m_sky, sun, fl);
 		if (bit(m_flags, FLAG_CREATURE)) {
 			f += 0.9;
 		}
 		if (foliage) {
 			f -= 0.3;
 		}
-		float sunlit = (sh > 0.5 && n > 0.06) ? 1.0 : 0.0;
-		float fb = m_fire > 0.36 ? 2.0 : (m_fire > 0.15 ? 1.0 : 0.0);
+		float fb = fl > 0.36 ? 2.0 : (fl > 0.15 ? 1.0 : 0.0);
 		cls = sunlit + fb * 2.0;
 	}
 	float st = cls > 6.5 ? clamp(m_bias, 0.0, 6.0) : clamp(floor(f + 0.5) + m_bias, 0.0, 6.0);

@@ -25,6 +25,13 @@ void vertex() {
 	vec3 up = INV_VIEW_MATRIX[1].xyz;
 	vec2 corner = CUSTOM0.xy;
 	vec2 size = CUSTOM0.zw;
+	float tile = round(CUSTOM1.x * 255.0);
+	// from camp zoom out, the ground's small plants (tufts, flowers, reeds, twigs: every tile but leaves and flames)
+	// would be specks of a pixel or less, a noisy carpet: they are left out, as the painter's far stops leave them
+	bool leaf_or_flame = tile < 5.5 || (tile > 13.5 && tile < 16.5) || (tile > 18.5 && tile < 20.5) || tile > 24.5;
+	if (look_mpp > 0.5 && !leaf_or_flame) {
+		size = vec2(0.0);
+	}
 	if (CUSTOM2.x > 0.5) {
 		right = normalize(vec3(right.x, 0.0, right.z));
 		up = vec3(0.0, 1.0, 0.0);
@@ -33,7 +40,6 @@ void vertex() {
 	float s = sin(CUSTOM2.y);
 	vec2 k = vec2(c * corner.x - s * corner.y, s * corner.x + c * corner.y);
 	VERTEX += right * k.x * size.x + up * k.y * size.y;
-	float tile = round(CUSTOM1.x * 255.0);
 	tile_uv = (vec2(mod(tile, look_atlas_grid), floor(tile / look_atlas_grid)) + corner + 0.5) / look_atlas_grid;
 	attrs = vec4(round(CUSTOM1.y * 255.0), round(CUSTOM1.z * 255.0) - 128.0, 0.0, round(CUSTOM1.w * 255.0));
 	world = VERTEX;

@@ -116,6 +116,10 @@ look_fire_powers={
 "type": "vec4",
 "value": Vector4(0, 0, 0, 0)
 }
+look_fire_in_sun={
+"type": "float",
+"value": 1.0
+}
 look_sky_cover={
 "type": "float",
 "value": 0.0

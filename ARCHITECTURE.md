@@ -220,8 +220,9 @@ Following Box2D and Factorio (research 03):
 2. **A camera locked to the pixel grid** (`PRE-22`).
    - It is orthographic and pitched for the close stops, and snaps to whole art pixels in its own axes.
    - The leftover fraction shifts the scaled image by part of a pixel, so pans are smooth and pixels never crawl.
-   - *Chosen after P1:* "ease": the view locks to whole art pixels as it pans, and a turn or zoom eases to rest on the nearest whole step, 15° or 1.25 times, when the fingers lift.
+   - *Chosen after P1:* "ease": the view locks to whole art pixels as it pans, and a turn or zoom eases to rest on the nearest whole step, 5° or 1.25 times, when the fingers lift.
      It keeps `PRE-22` as decided, and is the most thorough of the four fixes P1 tried; you left the choice to me on 4 October 2026.
+     After P3 you found the turns snapped: the steps were 15°, so a turn could swing 7.5° on its own after you let go. They are now 5°, at most 2.5°, eased more gently (α0.2c's fixes).
 3. **Outlines and lit edges** (`PRE-21`), the art book's own way (C), chosen after P1; you left the choice to me on 4 October 2026.
    - A second low-resolution camera draws each pixel's facing and depth into a half-float picture, from the materials compiled for that pass (A4.2), since the Mobile renderer gives no normal buffer.
    - The shared light function compares each pixel with its four neighbours there: a nearer pixel over a farther one darkens to the thing's own darker shade, and an outward fold lightens. So every shape, crowns and figures too, gets its outline and its lit edge.
@@ -242,14 +243,17 @@ Following Box2D and Factorio (research 03):
      Openness to the sky comes from a height map drawn once from above.
      In the cloud, 87% of the close camp's pixels at noon and 76% at dusk come within 3 levels of 255 of the art book's; most of the rest are shadows and edges a pixel apart.
 5. **Fire** (`MAT-18`): a warm, flickering light as bright as its heat.
+   - *Built in α0.2c's fixes:* flames are the art book's own flame pictures from the atlas, three or five standing over a fire, red at their edges and white-hot at their core, in four frames that change 10 times a second with a few sparks above; each change also sets the fire's light to between 82% and 100% of its power, a flicker.
+     Firelit colour leans to a warm ramp of the pixel's own brightness, as the painter's does, so lit grass reads amber, not olive; and a fire's light is lost in full sun: by day it shows only in shade, so sunlit ground round a fire takes no pale disc.
    - *Built in P2:* our firelight term, summing up to four fires as the painter does, lights the instanced figures and the tents near each fire; small creatures take a fire's light round their sides too (0.65 of it), so a figure by a fire reads as lit from wherever the camera stands.
      The shaders work in world coordinates, so a moved or instanced shape gets its fire, sky and patterns where it stands, not where it was built.
    - **Camp zoom** puts the camera 1 km back, past the nearest ground in view, and stretches the sun's shadows, the haze and the outline depths to the view's 1.2 km of ground; beyond the sky's height map, the sky is open.
+     *After the review (α0.2c's fixes):* the forest stands in patches on a meadow, as the art book's camp zoom has it, the meadow at the height and in the cover of the camp's ground where it ends, so no square shows round the camp; the crowns are wider and drawn without outlines, which made each tree a dark twig; the ground's small plants, specks of a pixel or less there, are left out; and people are drawn four times their size, as tiny figures (`PRE-28`). The fires' height maps and smoke are off there.
    Godot stops lighting MultiMesh copies once its per-object light limit is used up, so fires reach figures and huts through a firelight term in our shaders, fed by a short list of nearby fires, if needed (research 17).
    - *Proved in P2:* a camp lit by three fires at night holds 60 frames a second (A18.1).
    - **Shadows from every fire,** as you asked after P2 (*built in α0.2c*): people and things cast a shadow from each fire as well as the sun, and stand in each other's.
      Two maps of the heights round the fires, 48 m across at 512 pixels, are drawn every frame as people move, inside the picture's viewport so they are ready before it: the tops of what stands there, seen from above, and its undersides, the faces turned down, seen from below.
-     For each fire, a point walks the line to the flames every 0.2 m, up to 32 steps: where the line runs through something, between its underside and its top, or passes from above a thing to below it between two steps, the point is in that fire's shadow.
+     For each fire, a point walks the line to the flames every 0.2 m, or in 32 even steps where the line is longer than 6.6 m: where the line runs through something, between its underside and its top, or passes from above a thing to below it between two steps, the point is in that fire's shadow.
      So a fire under a roof or an overhang lights the ground round it, while a tent, a person or a windbreak stops its light; foliage, and anything more than 2.4 m above the fires, stays out.
      A flame low by the ground casts the shadow of what stands lower than it, a person's legs, as a real fire does.
 6. **Water** (`PRE-26`), the clear water you chose:
@@ -263,8 +267,10 @@ Following Box2D and Factorio (research 03):
 8. **Smoke and mist.**
    - *Built in α0.2c, as you asked:* smoke is a lit volume, not the painter's flat puffs. Its path is worked out at load from the scene: up from the fire, along the underside of a roof or overhang to its edge, then up and away on the wind, widening as it goes.
      Round the path, a box is drawn whose every pixel walks its ray through it in 24 steps, stopping at whatever stands there, so what stands in the smoke shows through it; noise climbing with time stirs it.
-     The fire below lights it; its colour is a step of the smoke's ramp, paler by day, and its thickness five steps of opacity, so its edges are clean like everything else.
-   - Mist stays as the painter draws it: only the nearest puff at each pixel, mixed over the picture's stored colours. Godot would blend every puff in linear light, which thickens and brightens it, so each blend is solved against the screen's copy (P1); the smoke's volume is mixed the same way.
+     The fire below lights it; its colour is a step of the smoke's ramp, a mid grey by day and dark at night, and its thickness five steps of opacity, so its edges are clean like everything else.
+     By day it is torn into drifting puffs with gaps between them, its thin parts taking the sun's tint, since a smooth sheet read as pale glass (α0.2c's fixes).
+     Godot blends in linear light, which would thicken and brighten it, so its blend is solved against the screen's copy, to mix over the picture's stored colours as the painter mixes (P1).
+   - Mist is not drawn yet: the painter's flat puffs in P1's close camp are hidden, and the smoke's volume took their place by its fires. Mist on water and in hollows comes with the world's weather (`WLD-07`).
 
 ### A4.2 Materials
 
@@ -295,6 +301,7 @@ Each extra pass a material takes part in, such as the outline data picture, the 
 - Shadow maps at mobile sizes; pipelines precompiled at load, which Godot backs with ubershaders, so there is no shader stutter.
 - The screen runs at 60 Hz, set through the Android plug-in, since Godot's frame cap alone leaves it at 120.
 - The first phone builds exercise every rendering feature: shadows, MultiMesh, transparency and every shader trick, since a driver bug found late is the most expensive kind.
+- **The cloud's software Vulkan driver** crashes drawing P2's smoke from some angles near 15°, inside the driver's own threads (α0.2c's fixes); whether your phone's driver does is to be seen in the next build, and the cloud's pictures of P2 are taken at 16°.
 - **Godot's rules met in P1:**
   - front faces wind clockwise, the opposite of three.js, so the painter's triangles are reversed on import;
   - a pass never declares the picture it draws into, since Vulkan refuses a texture that is both its target and its input;
@@ -342,7 +349,8 @@ Grass, reeds, flowers and flames are sized in metres, so they keep their true si
 - Each form's shared shape is built at load by our C++ in `view/` as an `ArrayMesh`, from the kit's parameters in the catalogues.
 - Plants come from 8 parametric forms, animals from 6 body patterns, and people from one block figure (`PRE-27`).
 - A new thing is a catalogue entry, and its model follows from its parts.
-- *Built in P3,* in GDScript as pre-production code: eleven shared shapes, two plants and a deer, each in two materials, from a catalogue of parameters, built at load in a few milliseconds.
+- *Built in P3,* in GDScript as pre-production code: eleven shared shapes, two plants and a deer, each in two materials, from a catalogue of parameters, built at load in about 23 ms.
+  After your P3 comments and the review, the windbreak is the art book's: poles, a bar and brush packed against them with a ragged top and twigs, where a flat hide read as tiled boards; and the lean-to's roof lies in three overlapping courses of sheets with ragged edges, its ends closed with brush, where a thin slab read as a rack.
   Each vertex carries its material's row of the palette, its step up or down, its surface pattern and its flags, and its place in its own part, for patterns such as a face.
 
 ### A6.2 Copies
@@ -356,7 +364,8 @@ Grass, reeds, flowers and flames are sized in metres, so they keep their true si
 
 - Each movement is 2 to 6 key poses of the block figure, stepped about 10 times a second; our C++ poses the rigid parts, with no skeletons.
 - Rules bend the poses (stoop, limp, slump, hunch), each figure's seed offsets its timing, and feet meet the ground by a two-bone sum.
-- *Built in P3:* walk and carry in 4 poses, knap, scrape and rest in 2, each pose the angles at the hips, knees, shoulders and elbows, the body's bend, the head's nod and the pelvis's drop to sit or kneel, with what the hands hold; each pose a shape of its own, built at load, swapped in place at its step. The head bears a face of two eyes and a mouth.
+- *Built in P3:* walk and carry in 4 key poses, knap, scrape and rest in 2, each pose the angles at the hips, knees, shoulders and elbows, the body's bend, the head's nod and the pelvis's drop to sit or kneel, with what the hands hold; each pose a shape of its own, built at load, swapped in place at its step. The head bears a face of two eyes and a mouth.
+  Between each two key poses come the poses halfway, or a third and two thirds, so every step shows a new pose, 10 a second (`PRE-44`), where a held pose changed only 2.5 to 5 times a second; each movement wears its own clothes, a pale fur or a red-dyed tunic, so the figures no longer read as one brown (α0.2c's fixes). P2's camp uses the same figure and movements.
 
 ### A6.4 Sheets
 
@@ -544,10 +553,12 @@ Starting estimates, each replaced by what the prototypes measure on your phone a
 - **Frame:** 16.7 ms at 60 frames a second, the graphics chip under about 8 ms in the busiest scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
   - P1's close camp on your phone (4 October, 1080 × 2404): 99–100% of frames on time at 60, the graphics chip about 10 ms a frame on average whichever the outline way or the mirror.
     Ways that cost a third more in the cloud cost under a tenth more there, which suggests the chip lowers its clock when it has time to spare, so the 10 ms is partly idle.
-  - P2 on your phone (4 October): the close camp at night with thirty figures and three fires costs 6.1 ms a frame at 120 frames a second, all on time, so it fits the 8 ms aim; at 60 it reads 9.9 ms, the slowed clock again.
+  - **These phone numbers count the picture's own pass only.** Measure left out the outline data, the mirror and the fires' height maps, which the cloud's timing puts at 17–31% more; Measure now sums every pass (α0.2c's fixes), so the next phone run gives the whole frame.
+  - P2 on your phone (4 October): the close camp at night with thirty figures and three fires costs 6.1 ms a frame at 120 frames a second for the picture alone, all on time, so near the 8 ms aim but not shown within it; at 60 it reads 9.9 ms, the slowed clock again.
     The forest at camp zoom, 12,000 trees of 44 triangles drawn three times (picture, outlines, shadow), took 17.8 ms with 65% of frames on time: trees for camp zoom take 12 triangles.
-  - P2's last build (4 October): the close camp at night 5.5 ms a frame at 120 frames a second, 99% on time; at 60, the close camp and the forest at camp zoom had every frame on time (8.3 and 10.8 ms with the slowed clock); the heat forecast went from 0.61 to 0.66 over 90 seconds, no slowing. **P2 passes:** a busy camp at night with three fires holds 60 frames a second, at close and camp zoom.
-    The phone's forecast of its heat went from 0.56 to 0.59 of the way to slowing itself over 90 seconds, read through Godot's Android runtime with no plug-in.
+  - P2's last build (4 October): the close camp at night 5.5 ms a frame at 120 frames a second, 99% on time; at 60, the close camp and the forest at camp zoom had every frame on time (8.3 and 10.8 ms with the slowed clock). **P2 passes on frame rate:** a busy camp at night with three fires holds 60 frames a second, at close and camp zoom.
+    **Its heat question is still open:** the plan's run is about 10 minutes, but Measure was cut to about 90 seconds at your word, and over them the phone's forecast of its heat was still rising, from 0.56 to 0.59 and in the next build from 0.61 to 0.66 of the way to slowing itself, read through Godot's Android runtime with no plug-in.
+  - P3 on your phone (4 October, α0.2c): the model sheet at night with three fires, their shadows and smoke, 4.3 ms a frame (5.3 at most) at 120 frames a second, all on time; at 60, 6.4 ms at night and 6.6 at noon, every frame on time; the heat forecast 0.63 to 0.64. The picture's pass alone, as above.
 - **Simulation:** up to the four middle cores at held speed (`PLT-01`), at the speeds of `TIM-07`.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.
 - **The APK:** 25 MB from Godot itself (measured at α0.1a), 33 MB with P1's scene of the close camp (α0.2a), within the 50 MB limit for files committed to the repository.

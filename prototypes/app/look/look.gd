@@ -12,7 +12,8 @@ const BACK := 100.0
 const SCENE := "res://look/close_camp.scn"
 const OUTLINES := ["none", "A", "B", "C", "D"]
 const CRAWLS := ["free", "steps", "ease", "rest"]
-const TURN_STEP := 15.0
+## The "ease" fix's steps: a turn settles on the nearest 5°, a zoom on the nearest 1.25 times.
+const TURN_STEP := 5.0
 const ZOOM_STEP := 1.25
 const LAYER_MAIN := 1
 const LAYER_GBUF := 2
@@ -31,6 +32,14 @@ const FIRE_LIGHT_UP := 0.5
 ## a higher one.
 const MIN_SUN := 5.0
 const OCC_SIZE := 512
+## Flames change and flicker about 10 times a second, as pixel art moves (PRE-44): four frames each.
+const FLAME_TIME := 0.1
+const FLAME_FRAMES := 4
+## The atlas's flame pictures, small, middle and large (about 0.35, 0.55 and 0.8 m), two shapes of
+## each, and its dot for sparks (the painter's atlas.js), and the size of its pictures in texels.
+const FLAME_TILES := [[14, 15, 16], [25, 26, 27]]
+const DOT_TILE := 24
+const TILE := 64
 
 var painter: Dictionary
 var target := Vector3.ZERO
@@ -44,6 +53,9 @@ var crawl := 2
 var shot := ""
 ## For the cloud's check that a moving picture's outlines keep up: the camera slides into place.
 var drift := false
+## Whether smoke is drawn: "smoke=off" on the command line leaves it out, for the cloud's picture
+## check of what the smoke adds (tools/tests/test_pictures.py).
+var smoke_on := true
 ## Who lights the fires: "ours", the firelight term, or "Godot's" omni lights.
 var fire_light := "ours"
 ## How far a pinch may zoom, in metres an art pixel shows.
@@ -67,6 +79,13 @@ var _fires := []
 var _omni: Array[OmniLight3D] = []
 ## Measure's runner: P1's own, or a screen's runs (_measure_runs).
 var _runs: RefCounted
+## Each fire's flames: its nodes (the flames and their data copies) and its frames.
+var _flames := []
+## Each fire's flicker, a share of its power changed with its flames' frame.
+var _flicker := PackedFloat32Array([1.0, 1.0, 1.0, 1.0])
+var _flame_clock := 0.0
+var _flame_step := 0
+var _rng := RandomNumberGenerator.new()
 ## The smokes' materials, for the hour's step of their ramp, and their boxes.
 var _smokes: Array[ShaderMaterial] = []
 var _smoke_boxes: Array[MeshInstance3D] = []
@@ -81,6 +100,7 @@ var _env: Environment
 var _post: MeshInstance3D
 var _hull: ShaderMaterial
 var _solid: ShaderMaterial
+var _cards: ShaderMaterial
 ## Each base material's variants for the data passes, by layer.
 var _variants := {}
 var _ground: ShaderMaterial
@@ -120,6 +140,10 @@ func _ready() -> void:
 			drift = true
 		elif arg.begins_with("yaw="):
 			yaw = float(arg.substr(4))
+		elif arg.begins_with("crawl="):
+			crawl = maxi(CRAWLS.find(arg.substr(6)), 0)
+		elif arg == "smoke=off":
+			smoke_on = false
 		elif arg == "measure":
 			_measure.call_deferred()
 	_build_views(scene)
@@ -130,6 +154,8 @@ func _ready() -> void:
 	var hearth: Array = painter.fires[0].pos if painter.fires.size() > 0 else c.target
 	_set_occ(Vector3(hearth[0], hearth[1], hearth[2]))
 	if painter.fires.size() > 0:
+		# the painter's hearth, with its own flames, lit and flickering as the screens' own fires are
+		_add_fire(Vector3(hearth[0], hearth[1], hearth[2]), _hearth_reach(), 1.0, scene, false)
 		_add_smoke(Vector3(hearth[0], hearth[1], hearth[2]), 1.0, scene)
 	_set_smoke_tone()
 	_set_hour(hour)
@@ -137,6 +163,11 @@ func _ready() -> void:
 	_set_reflect(reflect)
 	resized.connect(_layout)
 	_layout()
+
+
+## How far the painter's hearth throws its light, metres.
+func _hearth_reach() -> float:
+	return 12.0
 
 
 ## The scene to draw: the painter's close camp, its palette, light, look and camera in its meta.
@@ -271,15 +302,15 @@ func _build_materials(scene: Node3D) -> void:
 	_ground.shader = load("res://look/shaders/ground.gdshader")
 	_solid = ShaderMaterial.new()
 	_solid.shader = load("res://look/shaders/solid.gdshader")
-	var cards := ShaderMaterial.new()
-	cards.shader = load("res://look/shaders/cards.gdshader")
+	_cards = ShaderMaterial.new()
+	_cards.shader = load("res://look/shaders/cards.gdshader")
 	var water := ShaderMaterial.new()
 	water.shader = load("res://look/shaders/water.gdshader")
 	water.set_shader_parameter("water_row", float(rows.water))
 	water.set_shader_parameter("foam_row", float(rows.white))
 	water.render_priority = 1
 	_hull = _variant(_solid, "HULL")
-	for base: ShaderMaterial in [_ground, _solid, cards]:
+	for base: ShaderMaterial in [_ground, _solid, _cards]:
 		_variants[base] = {
 			LAYER_GBUF: _variant(base, "PREPASS"),
 			LAYER_SKY: _variant(base, "SKYMAP"),
@@ -299,7 +330,7 @@ func _build_materials(scene: Node3D) -> void:
 		elif kind == "solid":
 			mat = _solid
 		elif kind == "cards":
-			mat = cards
+			mat = _cards
 		elif kind == "water":
 			node.material_override = water
 			node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -423,6 +454,7 @@ func _add_smoke(fire: Vector3, size: float, parent: Node3D) -> void:
 	box.material_override = m
 	box.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	box.layers = LAYER_MAIN
+	box.visible = smoke_on
 	parent.add_child(box)
 	_smokes.append(m)
 	_smoke_boxes.append(box)
@@ -439,13 +471,15 @@ func _set_fire_detail(on: bool) -> void:
 	_occ_box.w = 1.0 if on else 0.0
 	RenderingServer.global_shader_parameter_set("look_occ_box", _occ_box)
 	for box in _smoke_boxes:
-		box.visible = on
+		box.visible = on and smoke_on
 
 
-## The step of the smoke's ramp at this hour: pale by day, dark at night, as the painter's are.
+## The step of the smoke's ramp at this hour, a mid grey by day and dark at night, and how much of
+## the day's broken-up look it takes.
 func _set_smoke_tone() -> void:
 	for m in _smokes:
-		m.set_shader_parameter("tone", {"noon": 5.0, "dusk": 3.5}.get(hour, 2.5))
+		m.set_shader_parameter("tone", {"noon": 4.0, "dusk": 3.5}.get(hour, 2.5))
+		m.set_shader_parameter("day", {"noon": 1.0, "dusk": 0.5}.get(hour, 0.0))
 
 
 ## A fire of the scene's own (PRE-30, MAT-18): its place, reach in metres and power, its flames
@@ -453,16 +487,14 @@ func _set_smoke_tone() -> void:
 func _add_fire(at: Vector3, reach: float, power: float, parent: Node3D, flames := true) -> void:
 	_fires.append([at, reach, power])
 	if flames:
-		var m := Shape.new()
-		m.bias = 5
-		m.cone(0.35, 0.9, 6, painter.rows.fire, Shape.EMISSIVE)
+		var frames: Array[ArrayMesh] = []
+		for k in FLAME_FRAMES:
+			frames.append(_flame_frame(power, _fires.size() * 31 + k))
 		var flame := MeshInstance3D.new()
-		flame.mesh = m.commit()
-		flame.material_override = _solid
+		flame.mesh = frames[0]
 		flame.position = at
 		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		flame.layers = LAYER_MAIN
-		parent.add_child(flame)
+		_flames.append({"nodes": _add_shape(flame, _cards, parent), "frames": frames})
 	var light := OmniLight3D.new()
 	light.position = at + Vector3(0.0, 0.8, 0.0)
 	light.omni_range = reach
@@ -471,6 +503,45 @@ func _add_fire(at: Vector3, reach: float, power: float, parent: Node3D, flames :
 	light.visible = fire_light == "Godot's"
 	parent.add_child(light)
 	_omni.append(light)
+
+
+## A frame of a fire's flames, as the art book's hearths have them (the painter's things.js): the
+## atlas's flame pictures standing over the fire, red at their edges and white-hot at their core,
+## each frame with its own shapes, places and sides, and a few sparks above; a big fire (power 1)
+## has five flames, a smaller one three.
+func _flame_frame(power: float, seed: int) -> ArrayMesh:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	var rows: Dictionary = painter.rows
+	var side := TILE * float(painter.get("atlasMpp", painter.camera.mpp))
+	var flags := int(Shape.EMISSIVE + Shape.NO_OUTLINE) + 16
+	var list := []
+	for size: int in [1, 2, 1, 0, 2] if power >= 1.0 else [1, 0, 1]:
+		var tiles: Array = FLAME_TILES[rng.randi() % 2]
+		var foot := Vector3(rng.randf_range(-0.12, 0.12), 0.05, rng.randf_range(-0.12, 0.12))
+		var w := side * (1.0 if rng.randf() < 0.5 else -1.0)
+		list.append([foot, w, side, tiles[size], rows.fire, 3, flags])
+	var spark := float(painter.camera.mpp) * 1.2
+	for k in 3 if power >= 1.0 else 2:
+		var at := Vector3(
+			rng.randf_range(-0.3, 0.3), rng.randf_range(0.6, 1.6), rng.randf_range(-0.3, 0.3)
+		)
+		list.append([at, spark, spark, DOT_TILE, rows.ember, 3 + rng.randi() % 3, flags])
+	return Shape.cards(list)
+
+
+## The flames' next frame and the fires' flicker, about 10 times a second.
+func _step_flames() -> void:
+	_flame_step += 1
+	for f: Dictionary in _flames:
+		var frames: Array = f.frames
+		var mesh: ArrayMesh = frames[_flame_step % frames.size()]
+		for node: MeshInstance3D in f.nodes:
+			node.mesh = mesh
+	for i in _flicker.size():
+		_flicker[i] = _rng.randf_range(0.82, 1.0)
+	if not _fires.is_empty():
+		_light_fires()
 
 
 ## Our firelight term in the shared light function, fed by the fires' list (A4.1), or Godot's own
@@ -490,7 +561,7 @@ func fire_powers() -> Vector4:
 	if fire_light != "ours":
 		return powers
 	for i in _fires.size():
-		powers[i] = float(_fires[i][2]) * _burning()
+		powers[i] = float(_fires[i][2]) * _burning() * _flicker[i]
 	return powers
 
 
@@ -501,7 +572,7 @@ func _light_fires() -> void:
 		var at: Vector3 = f[0]
 		lit = _with_column(lit, i, Vector4(at.x, at.y + FIRE_LIGHT_UP, at.z, f[1]))
 		if i < _omni.size():
-			_omni[i].light_energy = 2.0 * float(f[2]) * _burning()
+			_omni[i].light_energy = 2.0 * float(f[2]) * _burning() * _flicker[i]
 	var set_global := RenderingServer.global_shader_parameter_set
 	set_global.call("look_fires", lit)
 	set_global.call("look_fire_powers", fire_powers())
@@ -566,8 +637,8 @@ func _globals_once(scene: Node3D) -> void:
 	set_global.call("look_soot", Vector4(s[0], s[1], s[2], s[3]))
 
 
-## The hour's light from the painter (PRE-30): the sun's way and tints, and the hearth, which burns
-## higher after noon (the painter's hearth at level 4 at dusk, level 3 damped at noon).
+## The hour's light from the painter (PRE-30): the sun's way and tints, and the fires, which burn
+## higher after noon (_burning).
 func _set_hour(name: String) -> void:
 	hour = name
 	var md: Dictionary = painter.moods[name]
@@ -591,16 +662,9 @@ func _set_hour(name: String) -> void:
 		set_global.call(name_of, Vector3(col.r, col.g, col.b))
 	set_global.call("look_haze_k", float(md.hazeK))
 	set_global.call("look_desat", float(md.desat))
+	# a fire's light shows on sunlit ground only once the sun is low or gone
+	set_global.call("look_fire_in_sun", {"noon": 0.0, "dusk": 0.5}.get(name, 1.0))
 	_env.background_color = Color(md.haze)
-	var fires: Array = painter.fires
-	if fires.size() > 0:
-		var f: Dictionary = fires[0]
-		var power: float = 1.0 if name != "noon" else float(f.power)
-		var radius: float = 12.0 if name != "noon" else float(f.radius)
-		var lit := Projection()
-		lit.x = Vector4(f.pos[0], f.pos[1] + FIRE_LIGHT_UP, f.pos[2], radius)
-		set_global.call("look_fires", lit)
-		set_global.call("look_fire_powers", Vector4(power, 0.0, 0.0, 0.0))
 	_set_smoke_tone()
 	if not _fires.is_empty():
 		_light_fires()
@@ -758,6 +822,10 @@ func _process(delta: float) -> void:
 		_runs.step(delta)
 		if _runs is P1Measure:
 			return
+	_flame_clock += delta
+	if _flame_clock >= FLAME_TIME:
+		_flame_clock = fmod(_flame_clock, FLAME_TIME)
+		_step_flames()
 	_frames += 1
 	_clock += delta
 	_gpu += graphics_time()
@@ -818,8 +886,8 @@ func _busy() -> bool:
 	return _runs != null and _runs.get("index") >= 0
 
 
-## The crawl fixes (PRE-22): with "ease", a turn or zoom eases to rest on the nearest whole step
-## once the fingers lift; with "rest", the camera snaps to the pixel grid only when at rest.
+## The crawl fixes (PRE-22): with "ease", a turn or zoom eases gently to rest on the nearest whole
+## step once the fingers lift; with "rest", the camera snaps to the pixel grid only when at rest.
 func _ease(delta: float) -> void:
 	_moving = maxf(_moving - delta, 0.0)
 	if crawl != 2 or not _touches.is_empty():
@@ -827,7 +895,7 @@ func _ease(delta: float) -> void:
 	var to_yaw := roundf(yaw / TURN_STEP) * TURN_STEP
 	var to_mpp := _rest_mpp * pow(ZOOM_STEP, roundf(log(mpp / _rest_mpp) / log(ZOOM_STEP)))
 	if absf(yaw - to_yaw) > 0.01 or absf(mpp - to_mpp) > 1e-5:
-		var t := 1.0 - exp(-delta * 10.0)
+		var t := 1.0 - exp(-delta * 6.0)
 		yaw = lerpf(yaw, to_yaw, t) if absf(yaw - to_yaw) > 0.05 else to_yaw
 		mpp = lerpf(mpp, to_mpp, t) if absf(mpp - to_mpp) > 1e-4 else to_mpp
 		_apply_camera()

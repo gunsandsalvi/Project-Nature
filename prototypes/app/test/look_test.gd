@@ -110,12 +110,16 @@ func test_the_crawl_fixes_turn_in_whole_steps_and_ease_to_rest_on_them() -> void
 	await await_idle_frame()
 	var start: float = screen.yaw
 	screen.crawl = 1
-	screen.call("_turn", 10.0)
+	screen.call("_turn", 3.0)
 	assert_float(screen.yaw).is_equal_approx(start, 1e-4)
-	screen.call("_turn", 10.0)
+	screen.call("_turn", 3.0)
 	assert_float(screen.yaw).is_equal_approx(start + LOOK.TURN_STEP, 1e-4)
+	# "ease" settles gently on the nearest 5° step, so a turn ends at most 2.5° from where it was
+	# left, not 7.5° as with 15° steps
 	screen.crawl = 2
 	screen.yaw = 52.0
+	screen.call("_ease", 1.0 / 60.0)
+	assert_float(screen.yaw).is_between(51.7, 51.9)
 	for i in 120:
 		screen.call("_ease", 1.0 / 60.0)
-	assert_float(screen.yaw).is_equal_approx(45.0, 1e-3)
+	assert_float(screen.yaw).is_equal_approx(50.0, 1e-3)

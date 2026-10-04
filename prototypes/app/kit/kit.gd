@@ -71,9 +71,10 @@ func _ready() -> void:
 	_add_fire(figures + Vector3(0.0, 0.0, 1.8), 10.0, 0.8, scene)
 	for i in _fires.size():
 		_add_smoke(_fires[i][0], 0.7 if i == 0 else 0.55, scene)
-	# "close" on the command line: the figures up close, two zoom steps in, for the cloud's pictures
+	# "close" on the command line: the figures up close, two zoom steps in, for the cloud's pictures,
+	# low in the frame so the camp behind them fills it
 	if "close" in OS.get_cmdline_user_args():
-		target = figures
+		target = figures + Vector3(0.0, 0.0, -12.0)
 		mpp = _rest_mpp / pow(ZOOM_STEP, 2.0)
 		_apply_camera()
 	_set_hour(hour)
@@ -92,6 +93,8 @@ func _load_scene() -> Node3D:
 		child.free()
 	scene.add_child(ground)
 	var p: Dictionary = (scene.get_meta("painter") as Dictionary).duplicate(true)
+	# the atlas was drawn for the painter's own camera: its cards keep that size (look.gd's flames)
+	p.atlasMpp = p.camera.mpp
 	p.camera = {"target": [0.0, 0.0, -10.0], "yaw": 15.0, "elev": 30.0, "mpp": 0.06}
 	p.extent = [-SKY_SIDE * 0.5, -SKY_SIDE * 0.5, SKY_SIDE * 0.5, SKY_SIDE * 0.5]
 	p.fires = []
@@ -166,23 +169,48 @@ func _build_sheet(scene: Node3D) -> void:
 	_add_tufts(scene, rows)
 
 
-## Tufts of grass round everything on the sheet, as the art book's sheets have them, and a few
-## across the meadow: one instanced shape.
+## The meadow's life, as the art book's meadows have it: tufts of grass round everything on the
+## sheet, and across the meadow tufts in loose patches and flowers in drifts of white, yellow and
+## purple, each kind one instanced shape.
 func _add_tufts(scene: Node3D, rows: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 11
-	var spots: Array[Vector3] = []
+	var tufts: Array[Vector3] = []
 	for places: Array in placed.values():
 		for at: Vector3 in places:
 			for k in 6:
-				var a := rng.randf() * TAU
-				var r := rng.randf_range(0.6, 1.8)
-				spots.append(at + Vector3(cos(a) * r, 0.0, sin(a) * r))
-	for k in 160:
-		spots.append(Vector3(rng.randf_range(-14.0, 14.0), 0.0, rng.randf_range(-26.0, 10.0)))
+				tufts.append(at + _near(rng, 0.6, 1.8))
+	for k in 120:
+		var centre := Vector3(rng.randf_range(-22.0, 22.0), 0.0, rng.randf_range(-40.0, 22.0))
+		for j in rng.randi_range(2, 6):
+			tufts.append(centre + _near(rng, 0.2, 1.5))
+	_scatter(scene, KitShapes.tuft(rows), tufts, rng)
+	var flowers := {"flowerw": [], "flowery": [], "flowerp": []}
+	for k in 50:
+		var centre := Vector3(rng.randf_range(-22.0, 22.0), 0.0, rng.randf_range(-40.0, 22.0))
+		var kind: String = flowers.keys()[rng.randi() % 3]
+		for j in rng.randi_range(2, 5):
+			(flowers[kind] as Array).append(centre + _near(rng, 0.1, 1.2))
+	for kind: String in flowers:
+		var spots: Array[Vector3] = []
+		spots.assign(flowers[kind])
+		_scatter(scene, KitShapes.flower(rows, rows[kind]), spots, rng)
+
+
+## A point on the ground between two distances from the origin, in any direction.
+static func _near(rng: RandomNumberGenerator, lo: float, hi: float) -> Vector3:
+	var a := rng.randf() * TAU
+	var r := rng.randf_range(lo, hi)
+	return Vector3(cos(a) * r, 0.0, sin(a) * r)
+
+
+## One small shape at many spots, each turned and sized a little differently, as one MultiMesh.
+func _scatter(
+	scene: Node3D, mesh: ArrayMesh, spots: Array[Vector3], rng: RandomNumberGenerator
+) -> void:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
-	mm.mesh = KitShapes.tuft(rows)
+	mm.mesh = mesh
 	mm.instance_count = spots.size()
 	for i in spots.size():
 		var size := rng.randf_range(0.8, 1.3)
@@ -201,16 +229,17 @@ func _copy_data(e: Dictionary, which: int, rows: Dictionary) -> Color:
 	return Color(row / 255.0, pat / 255.0, float(e.get("wear", 0.0)), 0.25 + 0.5 * which)
 
 
-## The figure in a movement: its poses' meshes, held for the movement's steps each.
+## The figure in a movement, in its own clothes: a mesh for each step of the movement, its key
+## poses and the poses between them, one a step (PRE-44).
 func _figure_thing(rows: Dictionary, move: Dictionary) -> Dictionary:
 	var meshes := []
-	for pose: Dictionary in move.poses:
-		meshes.append(KitShapes.figure(rows, catalogue.figure, pose))
+	for pose: Dictionary in KitShapes.steps(move):
+		meshes.append(KitShapes.figure(rows, catalogue.figure, pose, move.get("materials", [])))
 	return {
 		"name": move.name,
 		"meshes": meshes,
 		"turn": deg_to_rad(yaw + FIGURE_TURN),
-		"hold": move.hold,
+		"hold": 1,
 		"solid": false,
 	}
 

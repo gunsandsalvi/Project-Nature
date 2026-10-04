@@ -143,14 +143,47 @@ func test_the_figures_step_about_ten_times_a_second() -> void:
 	assert_int(screen.get("_steps")).is_equal(steps)
 	screen.call("_process", 0.06)
 	assert_int(screen.get("_steps")).is_equal(steps + 1)
-	# the walk holds each pose for two steps; its outline data and the fires' heights move with it
+	# the walk shows a new pose at every step, its four key poses and one between each two;
+	# its outline data and the fires' heights move with it
 	var walk: Dictionary = (screen.get("_figures") as Array)[0]
 	var poses: Array = walk.poses
+	assert_int(poses.size()).is_equal(8)
 	screen.set("_steps", 1)
-	for pose in [1, 1, 2, 2, 3, 3, 0]:
+	for pose in [2, 3, 4, 5, 6, 7, 0]:
 		screen.call("_step")
 		for node: MeshInstance3D in walk.nodes:
 			assert_object(node.mesh).is_same(poses[pose])
+
+
+# checks: PRE-44
+func test_a_movement_steps_through_poses_between_its_keys() -> void:
+	var walk: Dictionary = _catalogue().movements[0]
+	var steps := KIT_SHAPES.steps(walk)
+	assert_int(steps.size()).is_equal((walk.poses as Array).size() * int(walk.hold))
+	var a: Dictionary = walk.poses[0]
+	var b: Dictionary = walk.poses[1]
+	assert_float(steps[0].lhip).is_equal(float(a.lhip))
+	assert_float(steps[1].lhip).is_equal_approx((float(a.lhip) + float(b.lhip)) * 0.5, 1e-4)
+	assert_float(steps[2].lhip).is_equal(float(b.lhip))
+
+
+# checks: PRE-30, MAT-18
+func test_flames_change_and_flicker_about_ten_times_a_second() -> void:
+	var screen := _screen()
+	await await_idle_frame()
+	screen.set_process(false)
+	var flames: Dictionary = (screen.get("_flames") as Array)[0]
+	var before: Mesh = (flames.nodes[0] as MeshInstance3D).mesh
+	var base := 1.0 * float(screen.call("_burning"))
+	screen.call("_process", 0.05)
+	assert_object((flames.nodes[0] as MeshInstance3D).mesh).is_same(before)
+	screen.call("_process", 0.06)
+	for node: MeshInstance3D in flames.nodes:
+		assert_object(node.mesh).is_not_same(before)
+	for i in 20:
+		screen.call("_step_flames")
+		var power: float = (screen.call("fire_powers") as Vector4).x
+		assert_float(power).is_between(base * 0.82, base)
 
 
 # checks: PRE-30

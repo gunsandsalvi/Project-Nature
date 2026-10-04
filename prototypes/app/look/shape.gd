@@ -181,6 +181,49 @@ func commit() -> ArrayMesh:
 	return mesh
 
 
+## Cards in cards.gdshader's format: small pictures of the atlas standing upright at their places,
+## each [centre of its foot, width, height, tile, material row, step bias, flags]; a negative width
+## shows the picture mirrored.
+static func cards(list: Array) -> ArrayMesh:
+	var points := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var corner_size := PackedFloat32Array()
+	var attrs := PackedByteArray()
+	var stand := PackedFloat32Array()
+	var index := PackedInt32Array()
+	for c: Array in list:
+		var foot: Vector3 = c[0]
+		var h: float = c[2]
+		var first := points.size()
+		for k: Vector2 in [
+			Vector2(-0.5, -0.5), Vector2(0.5, -0.5), Vector2(0.5, 0.5), Vector2(-0.5, 0.5)
+		]:
+			points.append(foot + Vector3(0.0, h * 0.5, 0.0))
+			normals.append(Vector3.UP)
+			corner_size.append_array(PackedFloat32Array([k.x, k.y, c[1], h]))
+			attrs.append_array(PackedByteArray([c[3], c[4], 128 + int(c[5]), c[6]]))
+			stand.append_array(PackedFloat32Array([1.0, 0.0]))
+		index.append_array(
+			PackedInt32Array([first, first + 1, first + 2, first, first + 2, first + 3])
+		)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = points
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_CUSTOM0] = corner_size
+	arrays[Mesh.ARRAY_CUSTOM1] = attrs
+	arrays[Mesh.ARRAY_CUSTOM2] = stand
+	arrays[Mesh.ARRAY_INDEX] = index
+	var format := (
+		Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
+		| Mesh.ARRAY_CUSTOM_RGBA8_UNORM << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT
+		| Mesh.ARRAY_CUSTOM_RG_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT
+	)
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, format)
+	return mesh
+
+
 ## A flat square of ground, side metres across, all of one of the ground's four covers.
 static func plain(side: float, cover: int) -> ArrayMesh:
 	var h := side * 0.5

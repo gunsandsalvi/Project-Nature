@@ -8,7 +8,7 @@
     {"name": "pot", "kind": "lathe", "profile": [[0.1, 0.0], [0.2, 0.08], [0.24, 0.22], [0.2, 0.36], [0.16, 0.42], [0.18, 0.46]], "materials": ["clay", "ochre"]},
     {"name": "basket", "kind": "lathe", "profile": [[0.16, 0.0], [0.24, 0.08], [0.3, 0.34]], "pattern": "thatch", "materials": ["reed", "drygrass"]},
     {"name": "rack", "kind": "rack", "width": 2.0, "height": 1.6, "materials": ["wood", "bark"], "hang": ["hide", "leather"]},
-    {"name": "windbreak", "kind": "windbreak", "width": 2.4, "height": 1.4, "materials": ["hide", "fur"]},
+    {"name": "windbreak", "kind": "windbreak", "width": 2.4, "height": 1.4, "materials": ["drygrass", "reed"], "pattern": "thatch"},
     {"name": "lean-to", "kind": "leanto", "width": 2.4, "height": 1.6, "depth": 1.7, "materials": ["bark", "hide"], "patterns": ["bark", "hide"]},
     {"name": "tent", "kind": "tent", "radius": 1.5, "height": 2.7, "materials": ["hide", "leather"]},
     {"name": "hut", "kind": "hut", "radius": 1.6, "height": 1.7, "materials": ["birch", "reed"], "patterns": ["bark", "thatch"], "wear": 0.3}
@@ -26,27 +26,27 @@
     "materials": ["skin2", "hide", "leather", "hair"]
   },
   "movements": [
-    {"name": "walk", "hold": 2, "poses": [
-      {"lhip": 25, "rhip": -20, "lknee": 5, "rknee": 25, "lsh": -20, "rsh": 22, "lel": 15, "rel": 15},
-      {"lhip": 8, "rhip": -5, "lknee": 30, "rknee": 5, "lsh": -6, "rsh": 6, "lel": 10, "rel": 10},
-      {"lhip": -20, "rhip": 25, "lknee": 25, "rknee": 5, "lsh": 22, "rsh": -20, "lel": 15, "rel": 15},
-      {"lhip": -5, "rhip": 8, "lknee": 5, "rknee": 30, "lsh": 6, "rsh": -6, "lel": 10, "rel": 10}
+    {"name": "walk", "hold": 2, "materials": ["skin2", "fur", "leather", "hair"], "poses": [
+      {"lhip": 34, "rhip": -28, "lknee": 6, "rknee": 34, "lsh": -28, "rsh": 30, "lel": 18, "rel": 18},
+      {"lhip": 10, "rhip": -6, "lknee": 42, "rknee": 6, "lsh": -8, "rsh": 8, "lel": 10, "rel": 10},
+      {"lhip": -28, "rhip": 34, "lknee": 34, "rknee": 6, "lsh": 30, "rsh": -28, "lel": 18, "rel": 18},
+      {"lhip": -6, "rhip": 10, "lknee": 6, "rknee": 42, "lsh": 8, "rsh": -8, "lel": 10, "rel": 10}
     ]},
-    {"name": "carry", "hold": 2, "poses": [
-      {"lhip": 22, "rhip": -18, "lknee": 5, "rknee": 25, "lsh": -18, "rsh": 160, "rel": 40, "lel": 15, "item": "bundle"},
-      {"lhip": 7, "rhip": -4, "lknee": 28, "rknee": 5, "lsh": -5, "rsh": 160, "rel": 40, "lel": 10, "item": "bundle"},
-      {"lhip": -18, "rhip": 22, "lknee": 25, "rknee": 5, "lsh": 18, "rsh": 160, "rel": 40, "lel": 15, "item": "bundle"},
-      {"lhip": -4, "rhip": 7, "lknee": 5, "rknee": 28, "lsh": 5, "rsh": 160, "rel": 40, "lel": 10, "item": "bundle"}
+    {"name": "carry", "hold": 2, "materials": ["skin1", "dyedred", "leather", "hairred"], "poses": [
+      {"lhip": 30, "rhip": -24, "lknee": 6, "rknee": 30, "lsh": -24, "rsh": 160, "rel": 40, "lel": 15, "bend": 6, "item": "bundle"},
+      {"lhip": 9, "rhip": -5, "lknee": 38, "rknee": 6, "lsh": -6, "rsh": 160, "rel": 40, "lel": 10, "bend": 6, "item": "bundle"},
+      {"lhip": -24, "rhip": 30, "lknee": 30, "rknee": 6, "lsh": 24, "rsh": 160, "rel": 40, "lel": 15, "bend": 6, "item": "bundle"},
+      {"lhip": -5, "rhip": 9, "lknee": 6, "rknee": 38, "lsh": 6, "rsh": 160, "rel": 40, "lel": 10, "bend": 6, "item": "bundle"}
     ]},
-    {"name": "knap", "hold": 3, "poses": [
+    {"name": "knap", "hold": 3, "materials": ["skin3", "fur", "leather", "hair"], "poses": [
       {"drop": 0.74, "lhip": 85, "rhip": 85, "bend": 25, "lsh": 55, "lel": 45, "rsh": 120, "rel": 20, "item": "stone"},
       {"drop": 0.74, "lhip": 85, "rhip": 85, "bend": 30, "lsh": 55, "lel": 45, "rsh": 45, "rel": 10, "item": "stone"}
     ]},
-    {"name": "scrape", "hold": 2, "poses": [
+    {"name": "scrape", "hold": 2, "materials": ["skin2", "dyedred", "leather", "hairgrey"], "poses": [
       {"drop": 0.37, "lknee": 90, "rknee": 90, "bend": 50, "lsh": 75, "rsh": 75, "lel": 5, "rel": 5, "item": "hide"},
       {"drop": 0.37, "lknee": 90, "rknee": 90, "bend": 45, "lsh": 75, "rsh": 75, "lel": 45, "rel": 45, "item": "hide"}
     ]},
-    {"name": "rest", "hold": 4, "poses": [
+    {"name": "rest", "hold": 4, "materials": ["skin1", "fur", "leather", "hairgrey"], "poses": [
       {"drop": 0.74, "lhip": 80, "rhip": 80, "lknee": 20, "rknee": 20, "bend": -8, "lsh": -10, "rsh": -10, "lel": 30, "rel": 30},
       {"drop": 0.74, "lhip": 80, "rhip": 80, "lknee": 20, "rknee": 20, "bend": -4, "lsh": -10, "rsh": -10, "lel": 30, "rel": 30, "head": 8}
     ]}
