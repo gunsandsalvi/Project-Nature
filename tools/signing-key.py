@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The release key, derived from the passphrase secret (A15.5, PLT-06).
+"""The release key, derived from the passphrase secret (A2.3, PLT-06).
 
 The key is never stored: scrypt turns KINDLING_SIGNING_PASSPHRASE into 48 bytes, reduced to a P-256 key as FIPS
 186-4's "extra random bits" method does (d = c mod (n - 1) + 1), and every use first checks that its public key is
@@ -12,6 +12,7 @@ Only this script reads the secret, and it never prints it.
     python3 tools/signing-key.py throwaway <pk8> <der>  a key and certificate made for one check build, then dropped
     python3 tools/signing-key.py selftest               the derivation and the check, on a test phrase
 """
+
 import datetime
 import hashlib
 import os
@@ -45,21 +46,30 @@ def public_der(key):
 def matches(key, cert_der):
     cert = x509.load_der_x509_certificate(cert_der)
     return cert.public_key().public_bytes(
-        serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo) == public_der(key)
+        serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo
+    ) == public_der(key)
 
 
 def certificate(key, name):
     """A self-signed certificate valid for a century, for a test or a throwaway key."""
     subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, name)])
     start = datetime.datetime(2026, 10, 1, tzinfo=datetime.timezone.utc)
-    return (x509.CertificateBuilder().subject_name(subject).issuer_name(subject).public_key(key.public_key())
-            .serial_number(1).not_valid_before(start).not_valid_after(start.replace(year=2126))
-            .sign(key, hashes.SHA256())).public_bytes(serialization.Encoding.DER)
+    return (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(subject)
+        .public_key(key.public_key())
+        .serial_number(1)
+        .not_valid_before(start)
+        .not_valid_after(start.replace(year=2126))
+        .sign(key, hashes.SHA256())
+    ).public_bytes(serialization.Encoding.DER)
 
 
 def write_private(key, path):
-    data = key.private_bytes(serialization.Encoding.DER, serialization.PrivateFormat.PKCS8,
-                             serialization.NoEncryption())
+    data = key.private_bytes(
+        serialization.Encoding.DER, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()
+    )
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "wb") as f:
         f.write(data)
@@ -68,7 +78,7 @@ def write_private(key, path):
 def release_key():
     phrase = os.environ.get("KINDLING_SIGNING_PASSPHRASE", "")
     if not phrase:
-        sys.exit("Signing key: KINDLING_SIGNING_PASSPHRASE is not set; a release build needs it (A15.5)")
+        sys.exit("Signing key: KINDLING_SIGNING_PASSPHRASE is not set; a release build needs it (A2.3)")
     key = derive(phrase)
     with open(CERT, "rb") as f:
         if not matches(key, f.read()):

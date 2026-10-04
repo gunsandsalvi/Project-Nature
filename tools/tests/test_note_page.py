@@ -1,4 +1,5 @@
-"""tools/note-page.py makes the note's page (PRC-11, A15.4)."""
+"""tools/note-page.py makes the note's page (PRC-11, A2.3)."""
+
 import importlib.util
 import os
 import unittest
@@ -28,7 +29,6 @@ Nothing <yet> & no world.
 
 ## Links
 - APK: {APK}
-- Web: https://claude.ai/artifact/abc
 """
 
 
@@ -40,7 +40,6 @@ class NotePage(unittest.TestCase):
         install = out.index('class="install"')
         self.assertLess(install, out.index("<h1>"))
         self.assertIn(f'href="{APK}">Download and install</a>', out)
-        self.assertIn('class="web" href="https://claude.ai/artifact/abc"', out)
 
     # checks: PRC-11
     def test_markdown(self):

@@ -1,5 +1,6 @@
 """tools/filecheck.py: the file, commit and coverage checks, the note check and the item search (PRC-07, PRC-10,
 PRC-11, PRC-12)."""
+
 import contextlib
 import importlib.util
 import io
@@ -10,6 +11,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("filecheck", os.path.join(HERE, "..", "filecheck.py"))
 filecheck = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(filecheck)
+
 
 class Selftest(unittest.TestCase):
     # checks: PRC-10 PRC-12 PRC-07
@@ -32,7 +34,7 @@ class Where(unittest.TestCase):
         self.assertEqual(code, 0, out.getvalue())
         text = out.getvalue()
         self.assertIn("ONE-01 First (Decided)", text)
-        self.assertIn("crates/kd-one/src/lib.rs", text)
+        self.assertIn("sim/src/one.cpp", text)
         self.assertNotIn("implements: none", text)
         self.assertNotIn("checks: none", text)
         with contextlib.redirect_stdout(io.StringIO()):
@@ -42,16 +44,22 @@ class Where(unittest.TestCase):
 class Note(unittest.TestCase):
     # checks: PRC-11
     def test_headings_and_apk_link(self):
-        note = "# α00\n\n## What is new\n\n## What to try\n\n## What is rough\n\n## IDs delivered\n\n## Links\n\n" \
-               "- APK: https://github.com/o/r/raw/branch/dist/kindling.apk\n"
+        note = (
+            "# α00\n\n## What is new\n\n## What to try\n\n## What is rough\n\n## IDs delivered\n\n## Links\n\n"
+            "- APK: https://github.com/o/r/raw/branch/dist/kindling.apk\n"
+        )
         self.assertEqual(filecheck.check_note(note), [])
         self.assertEqual(filecheck.check_note(note.replace("## Links", "## Where")), ["no heading 'Links'"])
-        self.assertEqual(filecheck.check_note(note.replace("kindling.apk", "other.apk")),
-                         ["no link to dist/kindling.apk"])
+        self.assertEqual(
+            filecheck.check_note(note.replace("kindling.apk", "other.apk")), ["no link to dist/kindling.apk"]
+        )
 
 
 class Commit(unittest.TestCase):
-    OLD = "# K\n\n## 1. One\n\n- `ONE-01` **First** *(Decided)*: Its words.\n\n- `ONE-02` **Second** *(Proposed)*: More.\n"
+    OLD = (
+        "# K\n\n## 1. One\n\n- `ONE-01` **First** *(Decided)*: Its words.\n\n"
+        "- `ONE-02` **Second** *(Proposed)*: More.\n"
+    )
 
     def check(self, message, new):
         return filecheck.check_commit("0" * 40, message, self.OLD, new)
@@ -88,16 +96,18 @@ class Proposals(unittest.TestCase):
     # checks: PRC-07
     def test_a_proposal_needs_a_reason_not_the_owner(self):
         proposed = self.OLD.replace("Its words.\n", "Its words.\n  - **Proposed change:** New words.\n    Why: x.\n")
-        self.assertEqual(filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (proposed: new words)\n",
-                                                self.OLD, proposed), [])
+        self.assertEqual(
+            filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (proposed: new words)\n", self.OLD, proposed), []
+        )
         # Words changed beside the proposal still need the owner.
         both = proposed.replace("Its words.", "Its other words.")
         problems = filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (proposed)\n", self.OLD, both)
         self.assertTrue(any("no `owner OK`" in p for p in problems), problems)
         # The owner's OK replaces the text: the proposal goes, the new words stay, with the OK named.
         decided = self.OLD.replace("Its words.", "New words.")
-        self.assertEqual(filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (new words; owner OK)\n",
-                                                proposed, decided), [])
+        self.assertEqual(
+            filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (new words; owner OK)\n", proposed, decided), []
+        )
 
     # checks: PRC-07 PRC-10
     def test_a_decided_item_with_a_proposal_is_listed(self):
@@ -114,8 +124,11 @@ class Lists(unittest.TestCase):
         project = "# K\n\n## Contents\n\n## How this file works\n\n## 1. Vision\n\n## 8. People: bodies and lives\n"
         items, _ = filecheck.items_of(project)
         want = filecheck.generated_lists(project, items)["contents"]
-        self.assertEqual(want, "- [How this file works](#how-this-file-works)\n- [1.\n  Vision](#1-vision)\n"
-                               "- [8.\n  People: bodies and lives](#8-people-bodies-and-lives)\n")
+        self.assertEqual(
+            want,
+            "- [How this file works](#how-this-file-works)\n- [1.\n  Vision](#1-vision)\n"
+            "- [8.\n  People: bodies and lives](#8-people-bodies-and-lives)\n",
+        )
 
 
 if __name__ == "__main__":

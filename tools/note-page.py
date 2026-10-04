@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Turns an alpha's note into its page (PRC-11, A15.4): dist/NOTE.md becomes dist/note/index.html, a private page
-with the install button at its top and the web page's link under it, published at the note's one URL.
+"""Turns an alpha's note into its page (PRC-11, A2.3): dist/NOTE.md becomes dist/note/index.html, a private page
+with the install button at its top, published at the note's one URL.
 
     python3 tools/note-page.py [dist/NOTE.md] [dist/note/index.html]
 
@@ -8,6 +8,7 @@ The note is plain Markdown: headings, paragraphs, lists, links, `code` and **bol
 artifact host's page rules: a short title, colour tokens for light and dark themes, a 16 px gutter, no sideways
 scrolling at phone width, and no document skeleton of its own (the host wraps it).
 """
+
 import html
 import os
 import re
@@ -30,13 +31,14 @@ STYLE = """<style>
     --bg: #15131b; --fg: #ebe5da; --dim: #a39ca9; --line: #2f2b38; --code: #221f2b;
     --accent: #f08a3c; --on-accent: #1b1208; color-scheme: dark;
   }
-  body { background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { background: var(--bg); color: var(--fg);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   main { max-width: 40rem; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; }
-  .install, .web { display: block; text-align: center; border-radius: 12px; text-decoration: none; }
+  .install { display: block; text-align: center; border-radius: 12px; text-decoration: none; }
   .install { background: var(--accent); color: var(--on-accent); font-weight: 650; font-size: 1.15rem; padding: 16px; }
-  .web { margin-top: 10px; padding: 12px; border: 1px solid var(--line); color: var(--fg); }
   h1 { font-size: 1.55rem; line-height: 1.25; margin: 28px 0 6px; text-wrap: balance; }
-  h2 { font-size: 1.1rem; margin: 26px 0 6px; padding-top: 14px; border-top: 1px solid var(--line); text-wrap: balance; }
+  h2 { font-size: 1.1rem; margin: 26px 0 6px; padding-top: 14px; border-top: 1px solid var(--line);
+       text-wrap: balance; }
   h3 { font-size: 1rem; margin: 18px 0 4px; }
   p, li { max-width: 65ch; }
   ul, ol { padding-left: 1.3em; }
@@ -54,7 +56,7 @@ URL = re.compile(r"https?://[^\s<)\]]+")
 def inline(text):
     out, pos = [], 0
     for m in INLINE.finditer(text):
-        out.append(html.escape(text[pos:m.start()]))
+        out.append(html.escape(text[pos : m.start()]))
         code, bold, label, url, bare = m.groups()
         if code is not None:
             out.append(f"<code>{html.escape(code)}</code>")
@@ -122,13 +124,13 @@ def page(md):
     apk = next((u for u in urls if u.endswith("/kindling.apk")), None)
     if apk is None:
         raise ValueError("the note has no link to dist/kindling.apk")
-    web = next((u for line in md.splitlines() if "web" in line.lower()
-                for u in URL.findall(line) if "claude.ai/" in u), None)
     title = next((line[2:].strip() for line in md.splitlines() if line.startswith("# ")), "Kindling")
-    parts = [f"<title>Kindling alpha note</title>", STYLE, "<main>",
-             f'<a class="install" href="{html.escape(apk, quote=True)}">Download and install</a>']
-    if web:
-        parts.append(f'<a class="web" href="{html.escape(web, quote=True)}">Or open it in the browser</a>')
+    parts = [
+        "<title>Kindling alpha note</title>",
+        STYLE,
+        "<main>",
+        f'<a class="install" href="{html.escape(apk, quote=True)}">Download and install</a>',
+    ]
     parts += [blocks(md), f'<p class="meta">{html.escape(title)}</p>', "</main>"]
     return "\n".join(parts) + "\n"
 

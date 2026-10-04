@@ -1,0 +1,8 @@
+# Python's format and lint rules (PRC-10, A17), which tools/check.sh runs over tools/ and the prototypes.
+line-length = 120
+target-version = "py311"
+# The bake-off is kept as it was, for P1 (research 01).
+extend-exclude = ["prototypes/bakeoff"]
+
+[lint]
+select = ["E", "F", "W", "B"]

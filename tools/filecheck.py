@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Text checks over the repository (A11).
+"""Text checks over the repository (A17).
 
     python3 tools/filecheck.py file                the file check (PRC-10) and the commit check (PRC-07)
     python3 tools/filecheck.py ids --merge         the coverage check (PRC-12)
@@ -17,6 +17,7 @@ in order) and steps (`### α1.2b ...`, six fields each, under their own mileston
 task IDs of their own); and every commit since main that changes PROJECT.md. Findings awaiting the owner sit in
 tools/filecheck-known.txt. Python's standard library only.
 """
+
 import difflib
 import os
 import re
@@ -34,8 +35,10 @@ STATUSES = ("Decided", "Proposed", "To test")
 MARKER = re.compile(rf"^\s*(?:- |\d+\. )`({ID})` \*\*(.+?)\*\* \*\(([^)]*)\)\*(?::.*)?$")
 # Lines that set out to be markers: a list entry opening with a backticked token and a bold name, or with something
 # shaped like an ID however it is wrapped, so a marker that lost its backticks or bold is still caught.
-MARKER_LIKE = (re.compile(r"^\s*(?:-|\d+\.)\s+`([^`]+)`\s+\*\*"),
-               re.compile(r"^\s*(?:[-*+]|\d+\.)\s+(?:\*\*)?`?([A-Z]{2,4}-?\d{1,4})\b"))
+MARKER_LIKE = (
+    re.compile(r"^\s*(?:-|\d+\.)\s+`([^`]+)`\s+\*\*"),
+    re.compile(r"^\s*(?:[-*+]|\d+\.)\s+(?:\*\*)?`?([A-Z]{2,4}-?\d{1,4})\b"),
+)
 BACKTICKED = re.compile(r"`([^`\n]+)`")
 RETIRED_LINE = re.compile(r"^\s*(?:- )?Retired IDs:(.*)$", re.M)
 EXAMPLES = "## How this file works"  # its IDs are examples, not references
@@ -54,6 +57,7 @@ RULES_HEADING = "## Rules every alpha keeps"
 
 
 # PROJECT.md (PRC-10's file check).
+
 
 class Item:
     """One PROJECT.md item: ID, name, status, and its lines (0-based, from its marker to the line before the next
@@ -80,7 +84,7 @@ def retired(project):
 
 def items_of(project):
     """PROJECT.md's items by ID in file order, and the problems with their markers.
-    Implements PRC-10, see A11."""
+    Implements PRC-10, see A17."""
     gone = retired(project)
     items, problems, current = {}, [], None
     for i, line in enumerate(without_examples(project)):
@@ -95,14 +99,19 @@ def items_of(project):
         m = MARKER.match(line)
         if not m:
             token = like.group(1)
-            what = "is not an ID (three capitals, a dash, 2 or 3 digits)" if not re.fullmatch(ID, token) else \
-                "has a marker that does not read as `ID` **Name** *(Status)*"
+            what = (
+                "is not an ID (three capitals, a dash, 2 or 3 digits)"
+                if not re.fullmatch(ID, token)
+                else "has a marker that does not read as `ID` **Name** *(Status)*"
+            )
             problems.append(f"PROJECT.md line {i + 1}: `{token}` {what}")
             current = None
             continue
         id_, name, status = m.groups()
         if status not in STATUSES:
-            problems.append(f"PROJECT.md line {i + 1}: `{id_}` has the status *{status}*, not one of {', '.join(STATUSES)}")
+            problems.append(
+                f"PROJECT.md line {i + 1}: `{id_}` has the status *{status}*, not one of {', '.join(STATUSES)}"
+            )
         if id_ in gone:
             problems.append(f"PROJECT.md line {i + 1}: `{id_}` is retired and may not be used again")
             current = None
@@ -146,8 +155,9 @@ def generated_lists(project, items):
         "contents": "\n".join(lines) + "\n",
         "open items": [i.id for i in items.values() if i.status == "To test"],
         # A proposal is a Proposed item, or a decided one with a **Proposed change:** beneath it (PRC-07).
-        "proposals": [i.id for i in items.values()
-                      if i.status == "Proposed" or proposal_lines(without_examples(project), i)],
+        "proposals": [
+            i.id for i in items.values() if i.status == "Proposed" or proposal_lines(without_examples(project), i)
+        ],
     }
 
 
@@ -157,8 +167,10 @@ def check_project(project):
     gone = retired(project)
     areas = {i[:3] for i in items}
     # A marker's own ID defines its item rather than citing it, even when the marker is malformed.
-    lines = [BACKTICKED.sub(" ", line, count=1) if any(p.match(line) for p in MARKER_LIKE) else line
-             for line in without_examples(project)]
+    lines = [
+        BACKTICKED.sub(" ", line, count=1) if any(p.match(line) for p in MARKER_LIKE) else line
+        for line in without_examples(project)
+    ]
     cited = citations("\n".join(lines), areas)
     for n, x in cited:
         if x in gone and x not in items:
@@ -184,6 +196,7 @@ def check_project(project):
 
 
 # ARCHITECTURE.md and IMPLEMENTATION.md.
+
 
 def check_citations(name, text, items, gone, sections):
     """Every ID a document cites is a live item, and every section it cites is a heading of ARCHITECTURE.md."""
@@ -215,7 +228,7 @@ def milestone_sections(plan):
             j = i + 1
             while j < len(lines) and not re.match(r"^#{1,3} ", lines[j]):
                 j += 1
-            out.append((int(m.group(1)), i + 1, lines[i + 1:j]))
+            out.append((int(m.group(1)), i + 1, lines[i + 1 : j]))
     return out
 
 
@@ -233,7 +246,7 @@ def alpha_sections(plan):
             j = i + 1
             while j < len(lines) and not re.match(r"^#{1,3} ", lines[j]):
                 j += 1
-            out.append((a.group(1), int(a.group(2)), under, i + 1, lines[i + 1:j]))
+            out.append((a.group(1), int(a.group(2)), under, i + 1, lines[i + 1 : j]))
     return out
 
 
@@ -276,8 +289,10 @@ def check_plan(plan):
         else:
             for x in ID_RE.findall(field(body, "Serves")):
                 if x not in named[under]:
-                    problems.append(f"IMPLEMENTATION.md line {line}: α{alpha} serves `{x}`, which M{under}'s Serves "
-                                    "line doesn't name")
+                    problems.append(
+                        f"IMPLEMENTATION.md line {line}: α{alpha} serves `{x}`, which M{under}'s Serves "
+                        "line doesn't name"
+                    )
         in_tasks = False
         for k, text in enumerate(body, line + 1):
             f = FIELD.match(text)
@@ -298,6 +313,7 @@ def check_plan(plan):
 
 
 # The commit check (PRC-07).
+
 
 def changed_ids(old, new):
     """The IDs whose item lines differ between two versions of PROJECT.md."""
@@ -380,7 +396,7 @@ def check_commit(sha, message, old, new):
     """A commit changing PROJECT.md names every ID whose lines it changed on its `Changed:` lines, each with its
     reason in brackets, and the owner's OK for every item it makes Decided or changes while Decided (PRC-07); a
     **Proposed change:** beneath a decided item needs only its reason.
-    Implements PRC-07, see A11."""
+    Implements PRC-07, see A17."""
     entries = changed_entries(message)
     if not entries:
         return [f"commit {sha[:12]} changes PROJECT.md with no `Changed:` line (PRC-07)"]
@@ -396,13 +412,16 @@ def check_commit(sha, message, old, new):
             approved |= set(ID_RE.findall(m.group("ids")))
     missing = sorted(changed_ids(old, new) - named)
     if missing:
-        problems.append(f"commit {sha[:12]} changes {', '.join(missing)} in PROJECT.md without naming them on "
-                        "`Changed:`")
+        problems.append(
+            f"commit {sha[:12]} changes {', '.join(missing)} in PROJECT.md without naming them on `Changed:`"
+        )
     # An ID left unnamed, or named without a reason, has failed already.
     unapproved = sorted((needs_owner(old, new) & named) - approved - unreasoned)
     if unapproved:
-        problems.append(f"commit {sha[:12]} makes or changes {', '.join(unapproved)} as Decided with no `owner OK` "
-                        "in its reason (PRC-07)")
+        problems.append(
+            f"commit {sha[:12]} makes or changes {', '.join(unapproved)} as Decided with no `owner OK` "
+            "in its reason (PRC-07)"
+        )
     return problems
 
 
@@ -422,13 +441,29 @@ def file_check(project, arch, plan, commits):
     return problems, len(items), count
 
 
-# The coverage check (PRC-12, A11).
+# The coverage check (PRC-12, A17).
 
-SLASH = (".rs", ".js", ".mjs", ".kt", ".glsl", ".vert", ".frag")
-HASH = (".sh", ".py")
-SCANNED = ("crates", "tools", "web", "android", "tests", "data", "scenes")
-SKIPPED = {"target", "build", "node_modules", "pkg", ".gradle", "__pycache__"}
+# Where the code that names items lives, and how each language names them (the plan's Conventions): C++, shaders and
+# the Android plug-in with `///` and `// checks:`; GDScript with `##` and `# checks:`; Python and shell with
+# `# checks:`; catalogues and scenes in data/ with `checks = [...]`. Prototypes implement nothing for good, so they
+# are not read; third-party code and builds are skipped.
+SLASH = (".cpp", ".cc", ".h", ".hpp", ".gdshader", ".gdshaderinc", ".glsl", ".kt", ".java")
+GDSCRIPT = (".gd",)
+HASH = (".py", ".sh")
+SCANNED = ("game", "view", "sim", "data", "android", "tools")
+SKIPPED = {"build", ".godot", "addons", "thirdparty", "godot-cpp", ".gradle", "__pycache__"}
 CHECKS_SETTING = re.compile(r"^\s*checks\s*=\s*\[([^\]]*)\]")
+# How each kind of test begins, the line among the four above it that must name what it checks, and its name in
+# messages: a doctest TEST_CASE, a gdUnit4 test (in a GdUnitTestSuite), a Python unittest.
+TESTS = {
+    "cpp": (
+        re.compile(r"^\s*(?:TEST_CASE|TEST_CASE_FIXTURE|TEST_CASE_TEMPLATE|SCENARIO)\s*\("),
+        "// checks:",
+        "a doctest TEST_CASE",
+    ),
+    "gd": (re.compile(r"^func test_"), "# checks:", "a gdUnit4 test"),
+    "py": (re.compile(r"^\s*def test_"), "# checks:", "a Python test"),
+}
 
 
 def kinds_of(project, items):
@@ -450,19 +485,49 @@ def kinds_of(project, items):
 
 def id_lines(path, text):
     """(line from 1, kind, IDs) for each line naming IDs: `// checks:` and `# checks:` lines, `Implements` doc
-    lines, and a catalogue entry's or scene's `checks = [..]`."""
+    lines (`///` in C++ and shaders, `##` in GDScript), and a catalogue entry's or scene's `checks = [..]`."""
     out = []
-    slash, hashed = path.endswith(SLASH), path.endswith(HASH)
-    setting = path.startswith(("data/", "scenes/"))
+    slash, gd, hashed = path.endswith(SLASH), path.endswith(GDSCRIPT), path.endswith(HASH)
+    setting = path.startswith("data/") and path.endswith(".toml")
     for n, line in enumerate(text.split("\n"), 1):
         s = line.strip()
-        if (slash and s.startswith("// checks:")) or (hashed and s.startswith("# checks:")):
+        if (slash and s.startswith("// checks:")) or ((gd or hashed) and s.startswith("# checks:")):
             out.append((n, "checks", ID_RE.findall(s)))
         elif slash and s.startswith(("///", "//!")) and "mplements" in s:
+            out.append((n, "implements", ID_RE.findall(s)))
+        elif gd and s.startswith("##") and "mplements" in s:
             out.append((n, "implements", ID_RE.findall(s)))
         elif setting and CHECKS_SETTING.match(line):
             out.append((n, "checks", ID_RE.findall(CHECKS_SETTING.match(line).group(1))))
     return out
+
+
+def test_kind(path, text):
+    """Which kind of test a file holds ("cpp", "gd" or "py"), or None."""
+    if path.endswith((".cpp", ".cc", ".h", ".hpp")):
+        return "cpp"
+    if path.endswith(GDSCRIPT) and re.search(r"^extends\s+GdUnitTestSuite\b", text, re.M):
+        return "gd"
+    if path.endswith(".py") and os.path.basename(path).startswith("test_"):
+        return "py"
+    return None
+
+
+def unnamed_tests(path, text):
+    """(count of tests, problems) for a file: each test needs a checks line naming an ID among the four lines above
+    it."""
+    kind = test_kind(path, text)
+    if kind is None:
+        return 0, []
+    start, marker, what = TESTS[kind]
+    lines, count, problems = text.split("\n"), 0, []
+    for i, line in enumerate(lines):
+        if start.match(line):
+            count += 1
+            above = [x.strip() for x in lines[max(0, i - 4) : i]]
+            if not any(x.startswith(marker) and ID_RE.search(x) for x in above):
+                problems.append(f"{path}:{i + 1}: {what} with no `{marker}` line in the four lines above")
+    return count, problems
 
 
 def section_of(plan, heading):
@@ -500,11 +565,11 @@ def serves(plan):
 
 def coverage(files):
     """The coverage check over a repository given as {path: text}: (problems, a summary).
-    Implements PRC-12, see A11."""
+    Implements PRC-12, see A17."""
     project, plan = files["PROJECT.md"], files["IMPLEMENTATION.md"]
     items, _ = items_of(project)
     gone, kinds = retired(project), kinds_of(project, items)
-    problems, tested, implemented, named, tests = [], set(), set(), 0, 0
+    problems, tested, implemented, named, tests = [], set(), set(), 0, {"cpp": 0, "gd": 0, "py": 0}
     for path in sorted(p for p in files if p not in DOCUMENTS):
         text = files[path]
         # Every ID named in code, tests, catalogues and scenes is a live item.
@@ -519,15 +584,11 @@ def coverage(files):
                     problems.append(f"{path}:{n}: `{x}` is not defined in PROJECT.md")
                 else:
                     (tested if kind == "checks" else implemented).add(x)
-        # Every Rust test names what it checks on a `// checks:` line among the four lines above it.
-        if path.startswith("crates/") and path.endswith(".rs"):
-            lines = text.split("\n")
-            for i, line in enumerate(lines):
-                if line.strip().startswith("#[test]"):
-                    tests += 1
-                    above = [x.strip() for x in lines[max(0, i - 4):i]]
-                    if not any(x.startswith("// checks:") and ID_RE.search(x) for x in above):
-                        problems.append(f"{path}:{i + 1}: a #[test] with no `// checks:` line in the four lines above")
+        # Every test names what it checks on a checks line among the four lines above it.
+        count, unnamed = unnamed_tests(path, text)
+        if count:
+            tests[test_kind(path, text)] += count
+        problems += unnamed
     # Every task names an item.
     tasks = tasks_of(plan)
     for t, n, text in tasks:
@@ -540,13 +601,18 @@ def coverage(files):
     live = [i for i in items.values() if i.status != "Proposed" and kinds[i.id] in ("Feature", "Rule")]
     for it in live:
         if it.id not in served and it.id not in kept and it.id not in implemented:
-            problems.append(f"`{it.id}` ({kinds[it.id].lower()}) is not mapped: no milestone's or step's Serves line "
-                            f"names it, nor {RULES_HEADING}, nor an Implements line")
+            problems.append(
+                f"`{it.id}` ({kinds[it.id].lower()}) is not mapped: no milestone's or step's Serves line "
+                f"names it, nor {RULES_HEADING}, nor an Implements line"
+            )
     # Every ID code implements, the kept rules aside, is named by a test, a scene or a catalogue entry.
     for x in sorted(implemented - kept - tested):
         problems.append(f"`{x}` is implemented in code, but no test, scene or catalogue entry names it")
-    summary = (f"{named} IDs named in code and tests, {tests} Rust tests, {len(tasks)} tasks, "
-               f"{len(live)} features and rules mapped, {len(implemented)} IDs implemented in code")
+    summary = (
+        f"{named} IDs named in code and tests; {tests['cpp']} C++, {tests['gd']} gdUnit4 and {tests['py']} Python "
+        f"tests; {len(tasks)} tasks, "
+        f"{len(live)} features and rules mapped, {len(implemented)} IDs implemented in code"
+    )
     return problems, summary
 
 
@@ -559,13 +625,13 @@ def repo_files(root=ROOT):
             dirnames[:] = sorted(d for d in dirnames if d not in SKIPPED and f"{rel}/{d}" != "tools/tests/filecheck")
             for name in sorted(filenames):
                 path = f"{rel}/{name}"
-                setting = path.startswith(("data/", "scenes/")) and name.endswith((".md", ".toml"))
-                if name.endswith(SLASH + HASH) or setting:
+                if name.endswith(SLASH + GDSCRIPT + HASH) or (top == "data" and name.endswith(".toml")):
                     files[path] = read(os.path.join(root, path))
     return files
 
 
 # The note (PRC-11).
+
 
 def check_note(text):
     """Problems with an alpha's note: its five headings, and a link to the APK."""
@@ -577,6 +643,7 @@ def check_note(text):
 
 
 # The self-test: one planted fault per message, each failing with it alone, and the clean fixture passing.
+
 
 def fixture(case_dir):
     out = {}
@@ -598,62 +665,139 @@ PLANTED = [
     ("not an ID", {"PROJECT.md": (EXTRA, EXTRA + "\n- `CTX1` **Extra** *(Decided)*: x.")}, "is not an ID"),
     ("marker", {"PROJECT.md": (EXTRA, EXTRA + "\n- `CTX-05` Extra *(Decided)*: x.")}, "does not read as"),
     ("status", {"PROJECT.md": (EXTRA, EXTRA + "\n- `CTX-05` **Extra** *(Maybe)*: x.")}, "has the status *Maybe*"),
-    ("retired reused", {"PROJECT.md": (EXTRA, EXTRA + "\n- `CTX-09` **Extra** *(Decided)*: x.")},
-     "may not be used again"),
+    (
+        "retired reused",
+        {"PROJECT.md": (EXTRA, EXTRA + "\n- `CTX-09` **Extra** *(Decided)*: x.")},
+        "may not be used again",
+    ),
     ("twice", {"PROJECT.md": (EXTRA, EXTRA + "\n- `CTX-01` **Again** *(Decided)*: x.")}, "is defined twice"),
     ("undefined in PROJECT.md", {"PROJECT.md": ("follows `ONE-01`.", "follows `ONE-07`.")}, "`ONE-07` is not defined"),
     ("retired cited", {"ARCHITECTURE.md": ("Serves `ONE-01`.", "Serves `ONE-09`.")}, "cites the retired `ONE-09`"),
-    ("section", {"IMPLEMENTATION.md": ("**Architecture:** `A1.1`.", "**Architecture:** `A1.4`.")},
-     "section A1.4 is not a heading"),
-    ("step fields", {"IMPLEMENTATION.md": ("**Tests:** `kd-one`.\n", "")}, "not the six in order"),
+    (
+        "section",
+        {"IMPLEMENTATION.md": ("**Architecture:** `A1.1`.", "**Architecture:** `A1.4`.")},
+        "section A1.4 is not a heading",
+    ),
+    ("step fields", {"IMPLEMENTATION.md": ("**Tests:** the fixture's tests.\n", "")}, "not the six in order"),
     ("milestone fields", {"IMPLEMENTATION.md": ("**You will see:** more.\n", "")}, "not the four in order"),
     ("milestone order", {"IMPLEMENTATION.md": ("## M2 Two", "## M3 Two")}, "M3 follows M1"),
-    ("step under another milestone", {"IMPLEMENTATION.md": [("### α1.1a First", "### α2.1a First"),
-                                                           ("1. `T1.1a.1`", "1. `T2.1a.1`"),
-                                                           ("2. `T1.1a.2`", "2. `T2.1a.2`")]},
-     "α2.1a sits under M1, not M2"),
-    ("step serves beyond its milestone", {"IMPLEMENTATION.md": ("**Serves:** `ONE-01`, `ONE-02`.", "**Serves:** `ONE-01`.")},
-     "α1.1a serves `ONE-02`, which M1's Serves line doesn't name"),
+    (
+        "step under another milestone",
+        {
+            "IMPLEMENTATION.md": [
+                ("### α1.1a First", "### α2.1a First"),
+                ("1. `T1.1a.1`", "1. `T2.1a.1`"),
+                ("2. `T1.1a.2`", "2. `T2.1a.2`"),
+            ]
+        },
+        "α2.1a sits under M1, not M2",
+    ),
+    (
+        "step serves beyond its milestone",
+        {"IMPLEMENTATION.md": ("**Serves:** `ONE-01`, `ONE-02`.", "**Serves:** `ONE-01`.")},
+        "α1.1a serves `ONE-02`, which M1's Serves line doesn't name",
+    ),
     ("task step", {"IMPLEMENTATION.md": ("1. `T1.1a.1`", "1. `T1.1b.1`")}, "is not one of α1.1a's"),
     ("task twice", {"IMPLEMENTATION.md": ("2. `T1.1a.2`", "2. `T1.1a.1`")}, "repeats line"),
     ("task without ID", {"IMPLEMENTATION.md": ("2. `T1.1a.2` **Second", "2. **Second")}, "has no task ID"),
     ("contents", {"PROJECT.md": ("- [1.\n  One](#1-one)", "- [1. One](#1-one)")}, "'contents' is not current"),
-    ("open items", {"PROJECT.md": ("- **Third** (`ONE-03`): measured later.", "- None at present.")},
-     "'open items' is not current"),
+    (
+        "open items",
+        {"PROJECT.md": ("- **Third** (`ONE-03`): measured later.", "- None at present.")},
+        "'open items' is not current",
+    ),
     ("proposals", {"PROJECT.md": ("**Second** *(Decided)*", "**Second** *(Proposed)*")}, "'proposals' is not current"),
-    ("no Changed line", {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n"},
-     "with no `Changed:` line"),
-    ("Changed misses one", {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-01 (x)\n"},
-     "changes ONE-02 in PROJECT.md without naming"),
-    ("Changed without reason", {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-02\n"},
-     "gives no reason in brackets"),
-    ("Decided without OK", {"PROJECT.md": ("Its words.", "Its new words."),
-                            "commit": "Edit\n\nChanged: ONE-02 (new words)\n"}, "with no `owner OK`"),
-    ("proposal unlisted", {"PROJECT.md": ("Its words.", "Its words.\n  - **Proposed change:** New words.\n    Why: x.")},
-     "it should list ONE-02"),
-    ("code names undefined", {"crates/kd-one/src/lib.rs": ("// checks: ONE-01", "// checks: ONE-08")},
-     "`ONE-08` is not defined in PROJECT.md"),
-    ("code names retired", {"crates/kd-one/src/lib.rs": ("// checks: ONE-01", "// checks: ONE-01 ONE-09")},
-     "names the retired `ONE-09`"),
-    ("empty checks", {"tools/tests/test_one.py": ("# checks: ONE-01", "# checks:")}, "a checks line names no ID"),
-    ("test without checks", {"crates/kd-one/src/lib.rs": ("    // checks: ONE-01\n", "")},
-     "no `// checks:` line"),
+    (
+        "no Changed line",
+        {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n"},
+        "with no `Changed:` line",
+    ),
+    (
+        "Changed misses one",
+        {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-01 (x)\n"},
+        "changes ONE-02 in PROJECT.md without naming",
+    ),
+    (
+        "Changed without reason",
+        {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-02\n"},
+        "gives no reason in brackets",
+    ),
+    (
+        "Decided without OK",
+        {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-02 (new words)\n"},
+        "with no `owner OK`",
+    ),
+    (
+        "proposal unlisted",
+        {"PROJECT.md": ("Its words.", "Its words.\n  - **Proposed change:** New words.\n    Why: x.")},
+        "it should list ONE-02",
+    ),
+    (
+        "C++ names undefined",
+        {"sim/tests/one_test.cpp": ("// checks: ONE-01", "// checks: ONE-08")},
+        "one_test.cpp:3: `ONE-08` is not defined in PROJECT.md",
+    ),
+    (
+        "GDScript names undefined",
+        {"game/one.gd": ("## Implements ONE-02", "## Implements ONE-08")},
+        "one.gd:1: `ONE-08` is not defined in PROJECT.md",
+    ),
+    (
+        "data names undefined",
+        {"data/one.toml": ('checks = ["ONE-01"]', 'checks = ["ONE-08"]')},
+        "one.toml:2: `ONE-08` is not defined in PROJECT.md",
+    ),
+    (
+        "code names retired",
+        {"sim/tests/one_test.cpp": ("// checks: ONE-01", "// checks: ONE-01 ONE-09")},
+        "names the retired `ONE-09`",
+    ),
+    ("empty checks", {"data/one.toml": ('checks = ["ONE-01"]', "checks = []")}, "a checks line names no ID"),
+    (
+        "C++ test without checks",
+        {"sim/tests/one_test.cpp": ("// checks: ONE-01\n", "")},
+        "a doctest TEST_CASE with no `// checks:` line",
+    ),
+    (
+        "gdUnit4 test without checks",
+        {"game/test/one_test.gd": ("# checks: ONE-02\n", "")},
+        "a gdUnit4 test with no `# checks:` line",
+    ),
+    (
+        "Python test without checks",
+        {"tools/tests/test_one.py": ("# checks: ONE-01 ONE-02\n", "")},
+        "a Python test with no `# checks:` line",
+    ),
     ("task without item", {"IMPLEMENTATION.md": ("(`ONE-02`, A1.1)", "(A1.1)")}, "task T1.1a.2 names no item"),
-    ("not mapped", {"IMPLEMENTATION.md": ("**Serves:** `ONE-03`.", "**Serves:** none.")},
-     "`ONE-03` (feature) is not mapped"),
-    ("implemented untested", {"crates/kd-one/src/lib.rs": ("/// Implements ONE-01", "/// Implements ONE-01 ONE-03")},
-     "`ONE-03` is implemented in code, but no test"),
+    (
+        "not mapped",
+        {"IMPLEMENTATION.md": ("**Serves:** `ONE-03`.", "**Serves:** none.")},
+        "`ONE-03` (feature) is not mapped",
+    ),
+    (
+        "implemented untested",
+        {"sim/src/one.cpp": ("/// Implements ONE-01", "/// Implements ONE-01 ONE-03")},
+        "`ONE-03` is implemented in code, but no test",
+    ),
 ]
 
 
 # (name, a change that must pass: {path: (old, new) or a list of them, "commit": its message}).
 PROPOSAL = "Its words.\n  - **Proposed change:** New words.\n    Why: x."
 ACCEPTED = [
-    ("a proposal needs a reason, not the owner's OK",
-     {"PROJECT.md": [("Its words.", PROPOSAL),
-                     ("<!-- generated: proposals -->\n- None at present.",
-                      "<!-- generated: proposals -->\n- **Second** (`ONE-02`): new words.")],
-      "commit": "Propose\n\nChanged: ONE-02 (a proposed change: new words)\n"}),
+    (
+        "a proposal needs a reason, not the owner's OK",
+        {
+            "PROJECT.md": [
+                ("Its words.", PROPOSAL),
+                (
+                    "<!-- generated: proposals -->\n- None at present.",
+                    "<!-- generated: proposals -->\n- **Second** (`ONE-02`): new words.",
+                ),
+            ],
+            "commit": "Propose\n\nChanged: ONE-02 (a proposed change: new words)\n",
+        },
+    ),
 ]
 
 
@@ -672,7 +816,7 @@ def run_case(clean, faults):
 
 def selftest():
     """Prints a line a case and the verdict; returns the exit code.
-    Implements PRC-12, see A11."""
+    Implements PRC-12, see A17."""
     clean = fixture(os.path.join(FIXTURES, "clean"))
     bad = run_case(clean, {})
     print(("ok   " if not bad else "FAIL ") + "the clean fixture passes" + "".join(f"\n       {p}" for p in bad))
@@ -681,17 +825,24 @@ def selftest():
         problems = run_case(clean, faults)
         good = len(problems) == 1 and expect in problems[0]
         failures += not good
-        print(("ok   " if good else "FAIL ") + f"{name}: " + ("; ".join(problems) or f"passed, but must fail: {expect}"))
+        print(
+            ("ok   " if good else "FAIL ") + f"{name}: " + ("; ".join(problems) or f"passed, but must fail: {expect}")
+        )
     for name, change in ACCEPTED:
         problems = run_case(clean, change)
         failures += bool(problems)
         print(("ok   " if not problems else "FAIL ") + f"{name}: " + ("; ".join(problems) or "passes"))
-    print(f"Selftest: OK ({len(PLANTED)} planted faults each fail alone; the clean fixture and {len(ACCEPTED)} "
-          "accepted change pass)" if not failures else f"Selftest: FAIL ({failures})")
+    print(
+        f"Selftest: OK ({len(PLANTED)} planted faults each fail alone; the clean fixture and {len(ACCEPTED)} "
+        "accepted change pass)"
+        if not failures
+        else f"Selftest: FAIL ({failures})"
+    )
     return 0 if not failures else 1
 
 
 # Running.
+
 
 def read(path):
     with open(path, encoding="utf-8") as f:
@@ -770,8 +921,11 @@ def main(argv):
         commits = commits_changing("PROJECT.md")
         docs = [read(os.path.join(ROOT, d)) for d in DOCUMENTS]
         problems, n, m = file_check(*docs, commits)
-        return report("File check", problems,
-                      f"File check: OK ({n} items, {m} citations, {len(commits)} commits changing PROJECT.md)")
+        return report(
+            "File check",
+            problems,
+            f"File check: OK ({n} items, {m} citations, {len(commits)} commits changing PROJECT.md)",
+        )
     if argv == ["ids", "--merge"]:
         problems, summary = coverage(repo_files())
         return report("Coverage", problems, f"Coverage: OK ({summary})")

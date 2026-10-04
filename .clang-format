@@ -1,0 +1,9 @@
+# C++'s format (PRC-10, A2.2), which tools/check.sh checks with clang-format 18.
+BasedOnStyle: Google
+IndentWidth: 4
+AccessModifierOffset: -4
+ColumnLimit: 120
+DerivePointerAlignment: false
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: Inline
+IncludeBlocks: Preserve

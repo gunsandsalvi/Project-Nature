@@ -35,7 +35,7 @@
 2. `T1.1a.2` **Second (`ONE-02`, A1.1).**
    Build it.
 
-**Tests:** `kd-one`.
+**Tests:** the fixture's tests.
 
 **On the phone:** nothing yet.
 

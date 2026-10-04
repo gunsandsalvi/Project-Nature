@@ -1,7 +1,7 @@
 # Fixture
 
-The clean fixture of tools/filecheck.py's self-test: a project file, an architecture, a plan, a crate and a tool
-test that pass every check; each planted fault changes one line of them.
+The clean fixture of tools/filecheck.py's self-test: a project file, an architecture, a plan, and code, tests and
+a scene in C++, GDScript, Python and TOML that pass every check; each planted fault changes one line of them.
 
 ## Contents
 
