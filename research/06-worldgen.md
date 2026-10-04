@@ -1,47 +1,155 @@
-# Research 05: making and drawing the world
+# Research 06: making the world
 
-**Question:** how do other generators make believable continents, mountains, rivers, climates and biomes quickly (`WLD-08`, `WLD-09`, `WLD-11`), and how is ground that big drawn from one person up to the globe (`PRE-03`, `PRE-29`)?
+**Question:** how do other generators make believable continents, mountains, rivers, climates, soils, biomes and deposits?
+How do they do it quickly enough for your phone, and the same from the same seed every time?
+The items: `WLD-01`, `WLD-03`, `WLD-06`, `WLD-08` to `WLD-11`, `WLD-14`, `WLD-16`, `WLD-17`, `WLD-24`, `WLD-26`, `WLD-27`.
+
+## What `PROJECT.md` asks
+
+- A world of about 2,000 by 1,000 km, wrapping both ways with a latitude (`WLD-01`, `WLD-03`).
+  It is held as about 2 million cells of about 1 km, with weather cells of about 10 km (`WLD-12`, `WLD-16`).
+- **Made in the real order of causes:** plates, rock, erosion, climate, water, soils, biomes and deposits (`WLD-09`).
+  The plant cover, water and herds then settle for 10 years (`WLD-08`).
+- **About 20 candidate worlds,** the best three offered, within about 3 minutes on the phone (`WLD-10`, `WLD-11`).
+- **The same world from the same seed and rules,** and checks such as rivers reaching the sea and few coasts straight for over 20 km (`WLD-08`).
 
 ## How others do it
 
-- **Red Blob Games' mapgen4** builds its map on a triangle mesh (Delaunay and Voronoi).
-  It simulates evaporation, wind and rainfall to place biomes and rivers, and runs on several threads to stay fast.
-  Its first lesson is to make the elevation "match the desired look instead of tweaking the look to match the elevation" ([Red Blob Games](https://www.redblobgames.com/maps/mapgen4/), [sphere maps](https://simblob.blogspot.com/2018/10/map-generation-on-sphere.html)).
-- **World Orogen**, an open planet generator, runs 16 stages in a few seconds ([GitHub](https://github.com/raguilar011095/planet_heightmap_generation), GPL, so we learn from it but copy nothing):
-  1. points spread on a sphere and joined into triangles;
-  2. tectonic plates, with their colliding, parting and sliding edges raising ranges, ridges, trenches and island arcs;
-  3. four kinds of erosion: glaciers carving fjords, rivers carving valleys (filling basins in order of height, "priority flood"), slopes slumping, and soil creeping;
-  4. winds that bend with the planet's turn, ocean currents, rain that falls where moist air meets hills, and temperature from latitude and height;
-  5. about 30 Köppen climate types, coloured as biomes.
-- **Azgaar's Fantasy Map Generator** splits its code four ways: settings feed generators, generators produce the world's data, and renderers draw it ([GitHub](https://github.com/Azgaar/Fantasy-Map-Generator)).
-- **Undiscovered Worlds** makes a global map first, then makes regional detail as you zoom in ([forum](https://forum.thegamecreators.com/thread/223804)).
-  Its new version admits "the same seed does not always produce the same planet", a warning about determinism ([GitHub](https://github.com/JonathanCRH/Undiscovered_Worlds)).
-- **Terrain3D**, Godot's leading terrain plug-in, is C++ and draws ground with geometry clipmaps, as The Witcher 3 did.
-  It has regions up to 65.5 km a side, 10 levels of detail, and instanced plants with their own levels of detail.
-  It builds for mobile ([Godot store](https://store.godotengine.org/asset/tokisangames/terrain3d/), [GameFromScratch](https://gamefromscratch.com/terrain3d-a-new-terrain-engine-for-godot/)).
-- **Large worlds in Godot:** double-precision builds cost speed and memory, and are aimed at desktops.
-  On weaker devices Godot recommends moving the world's origin with the camera instead ([Godot docs](https://docs.godotengine.org/en/stable/tutorials/physics/large_world_coordinates.html)).
+### Whole generators
+
+- **Red Blob Games' mapgen4:**
+  - builds on a mesh of triangles;
+  - simulates evaporation, wind and rain to place biomes and rivers;
+  - runs on several threads.
+
+  Its first lesson: make the elevation "match the desired look instead of tweaking the look to match the elevation" ([Red Blob Games](https://www.redblobgames.com/maps/mapgen4/), [sphere maps](https://simblob.blogspot.com/2018/10/map-generation-on-sphere.html)).
+- **World Orogen** runs 16 stages in a few seconds ([GitHub](https://github.com/raguilar011095/planet_heightmap_generation), GPL, so we learn from it but copy nothing):
+  - points on a sphere;
+  - tectonic plates whose edges raise ranges, ridges, trenches and island arcs;
+  - four kinds of erosion (glaciers, rivers with "priority flood", slumping slopes, creeping soil);
+  - winds and currents bent by the planet's turn;
+  - rain where moist air meets hills;
+  - about 30 Köppen climates.
+- **Dwarf Fortress:**
+  - makes fractal maps of elevation, temperature (by latitude and height), rainfall (with rain shadows) and drainage, then volcanism and "savagery";
+  - **rejects worlds** that fail its criteria, such as too few mountain tiles, and starts again;
+  - logs each rejection's reason ([Dwarf Fortress wiki: world generation](https://dwarffortresswiki.org/index.php/DF2014:World_gen), [world rejection](https://dwarffortresswiki.org/index.php/40d:World_rejection)).
+
+  This is the model for generating several candidates and keeping the best (`WLD-10`).
+- **Undiscovered Worlds** makes a global map first, then regional detail as you zoom in.
+  Its author admits "the same seed does not always produce the same planet", a warning about determinism ([forum](https://forum.thegamecreators.com/thread/223804), [GitHub](https://github.com/JonathanCRH/Undiscovered_Worlds)).
+- **Azgaar's Fantasy Map Generator** separates settings, generators that make data, and renderers that draw it ([GitHub](https://github.com/Azgaar/Fantasy-Map-Generator)).
+- **"Around The World"** is a game whose devlog generates a planet's plates, climate and biomes ([Frozen Fractal: climate](https://frozenfractal.com/blog/2023/12/29/around-the-world-9-climates/), [biomes](https://frozenfractal.com/blog/2025/9/26/around-the-world-26-biomes/)).
+  - Its author tested the climate model on Earth's real relief (Earth2014).
+    The model made too much cold desert across Asia, but coasts came out "a pleasing diversity of roughly accurate climate zones".
+  - Köppen's climate classes did not map cleanly onto real vegetation, so he switched to **BIOME1**.
+
+### Plates and mountains
+
+- **Procedural Tectonic Planets** (Cortial, Peytavie, Galin and Guérin, Eurographics 2019) avoids "computationally demanding physically-based simulations".
+  It approximates subduction and collision to deform the crust, producing continents, ocean ridges, ranges and island arcs, then amplifies the result with detail ([Eurographics](https://diglib.eg.org/handle/10.1111/cgf13614)).
+
+### Erosion
+
+- **The stream power law** of geology: rivers cut in proportion to their flow and slope, against the land's uplift.
+  - Cordonnier and others (2016) generate large realistic terrains "at a low computational cost" by combining uplift with stream power erosion over a graph of streams ([Eurographics](https://diglib.eg.org/handle/10.1111/cgf12820), [paper](https://www.cs.purdue.edu/homes/bbenes/papers/Cordonier16CGF.pdf)).
+  - Tzathas and others (2024) solve it analytically, with landslides and slopes added: "a slider that controls the aging of the input terrain", fast and physically consistent ([Eurographics](https://diglib.eg.org/handle/10.1111/cgf15033)).
+- **FastScape** (Braun and Willett, 2013), used by geologists: an "O(n), implicit and parallel method" for the stream power law, stable with large time steps ([Landlab](https://landlab.readthedocs.io/en/latest/reference/components/stream_power.html), [GFZ](https://gfz.de/en/section/earth-surface-process-modelling/projects/current-projects/fastscape-landscape-evolution-model-development)).
+
+### Water
+
+- **Priority-Flood** (Barnes, Lehman and Mulla, 2014) fills hollows, as water would fill them, by flooding the map inwards from its edges with a priority queue.
+  Its pseudocode is 20 lines, and it gives flow directions and watersheds too ([arXiv](https://ar5iv.arxiv.org/html/1511.04463), [reference code](https://github.com/r-barnes/Barnes2013-Depressions)).
+  Rivers then follow the accumulated flow, and filled hollows become lakes.
+
+### Climate, soils, biomes and deposits
+
+- **Rain over mountains:** the Smith and Barstad (2004) linear model gives rain shadows from wind, terrain and moisture.
+  It is "an extremely quick method for estimating precipitation patterns over complex terrain" ([AMS](https://ams.confex.com/ams/pdfpapers/76934.pdf), [HESS](https://hess.copernicus.org/articles/14/2329/2010/)).
+- **Other open climate models for generated worlds:**
+  - WorldSynth: winds shaped by geography, rain by wind and terrain ([Mindwerks](https://mindwerks.net/projects/worldsynth/));
+  - Gleba: yearly rain and temperature statistics from topography ([itch.io](https://calandiel.itch.io/gleba));
+  - genworldvoronoi: global winds ([GitHub](https://github.com/Flokey82/genworldvoronoi)).
+- **Soils:** Hans Jenny's five factors (1941): climate, organisms, relief, parent rock and time ("CLORPT").
+  Deeper soils gather at the foot of slopes, and soils form fastest where it is warm and wet ([Soils 4 Teachers](https://www.soils4teachers.org/formation), [TRU geology](https://environmental-geol.pressbooks.tru.ca/chapter/soil-formation/)).
+- **Biomes from plants:** BIOME1 (Prentice and others, 1992) decides which plant types can grow from five numbers ([macroBiome](https://rdrr.io/cran/macroBiome/man/cliBIOMEPoints.html), [Palaeo-Electronica](https://palaeo-electronica.org/2001_1/climate/biome.htm)):
+  - the coldest and warmest months' temperatures;
+  - the warmth summed over the year above 0 °C and above 5 °C;
+  - how well the soil's water meets the air's demand.
+
+  Plant types then dominate in a set order.
+- **Deposits by geology** (`WLD-14`):
+  - **flint** forms as nodules in chalk and limestone, and is found along their streams and beaches.
+    Prehistoric mines followed the chalk, as at Grimes Graves ([Wikipedia: flint](https://en.wikipedia.org/wiki/Flint));
+  - **copper's great deposits** lie above subduction zones, in belts along volcanic mountain ranges such as the Andes ([Wikipedia: porphyry copper](https://en.wikipedia.org/wiki/Porphyry_copper_deposit), [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC5353633));
+  - **clay** settles in flood plains, and **obsidian** forms where lava cooled fast.
+
+## Speed on your phone
+
+- The heavy steps are cheap in their best-known forms:
+  - FastScape is linear in the number of cells;
+  - Priority-Flood needs one pass with a priority queue;
+  - the rain model is "extremely quick".
+
+  For 2 million cells, each pass is a few million operations, under a second on one core.
+- So `WLD-09`'s two passes fit the 3-minute target if the tens of erosion steps and the climate are measured, not assumed:
+  - **first:** about 20 candidates at a coarse size, scored and rejected as Dwarf Fortress does;
+  - **then:** the best few at full size.
+- **Same seed, same world** needs the rules of research 03.
+  Undiscovered Worlds shows how easily this breaks.
+  So the generator runs on the processor, in fixed order: no graphics-chip compute, whose rounding differs.
 
 ## What we take
 
-1. **The generator runs in the C++ simulation, in World Orogen's order of causes,** which is also the order `WLD-09` asks for:
-   - plates;
-   - elevation;
-   - erosion;
-   - climate (wind, rain shadow, temperature by latitude and height on our torus, `WLD-01`);
-   - rivers by flow accumulation;
-   - soils and biomes;
-   - deposits by geology (`WLD-14`).
+1. **The generator is part of the C++ simulation, in the order of causes:**
+   1. plates, as Procedural Tectonic Planets approximates them;
+   2. uplift and erosion by the stream power law, FastScape-style, with slopes and glaciers;
+   3. Priority-Flood for basins, lakes and flow;
+   4. climate: temperature by latitude, height and season on our torus, winds, and rain shadows by a linear orographic model;
+   5. soils by Jenny's factors;
+   6. plant types by BIOME1's five numbers;
+   7. deposits by geology: flint in chalk and limestone, copper in arcs over subduction, clay in flood plains, obsidian at volcanoes.
+2. **Tuned for the look, as Red Blob advises:** the map and close-ups are judged against the art bible, not only against plausibility.
+   The climate is checked on Earth's real relief, as Around The World did.
+3. **Many candidates, scored and rejected with logged reasons,** Dwarf Fortress-style, the best three offered (`WLD-10`).
+4. **Deterministic:** processor only, fixed chunks, the rules of research 03.
+   The same seed makes the same world on the phone and in the cloud, checked by hashes.
+5. **A prototype first:** generation time on your phone for one candidate at coarse and full size, and the settling run.
+   Most of `WLD-11`'s risk is there.
 
-   It works on a mesh of world cells about 1 km across, as mapgen4 does on its triangles, on several threads in a fixed order, so the same seed gives the same world on every machine.
-2. **Tuned for the look, as Red Blob advises.**
-   The generator's numbers are tuned until the map and the close-up views look like the art guide (research 04), not only until they are plausible.
-3. **Detail on demand, from the seed.**
-   As in Undiscovered Worlds, close-up ground is made from its world cell and the seed when it is needed, the same every time, so looking changes nothing (`WLD-13`).
-4. **Our own ground drawing at first, with Terrain3D as the model to study.**
-   Our ground comes from the generator, not from hand-painted height maps, and needs our pixel-art shaders.
-   So we start with chunks in a few rings of detail round the camera, as clipmaps do, and adopt Terrain3D if ours falls short.
-5. **The world's origin moves with the camera.**
-   The simulation keeps its own exact coordinates (research 02), and Godot draws everything relative to a nearby origin, which suits the phone better than a double-precision build.
-6. **Far views are their own drawings:** the map look of flat-coloured cells and river lines (`PRE-29`), and the globe as a sphere painted from the world map (`WLD-02`).
-   Plants, rocks and grass fade out by distance, with simple stand-ins in between.
+## Sources
+
+- Generators:
+  - [Red Blob Games: mapgen4](https://www.redblobgames.com/maps/mapgen4/)
+  - [Red Blob: sphere maps](https://simblob.blogspot.com/2018/10/map-generation-on-sphere.html)
+  - [World Orogen](https://github.com/raguilar011095/planet_heightmap_generation)
+  - [Dwarf Fortress wiki: world generation](https://dwarffortresswiki.org/index.php/DF2014:World_gen)
+  - [Dwarf Fortress wiki: world rejection](https://dwarffortresswiki.org/index.php/40d:World_rejection)
+  - [Undiscovered Worlds forum](https://forum.thegamecreators.com/thread/223804)
+  - [Undiscovered Worlds GitHub](https://github.com/JonathanCRH/Undiscovered_Worlds)
+  - [Azgaar](https://github.com/Azgaar/Fantasy-Map-Generator)
+  - [Frozen Fractal: climate](https://frozenfractal.com/blog/2023/12/29/around-the-world-9-climates/)
+  - [Frozen Fractal: biomes](https://frozenfractal.com/blog/2025/9/26/around-the-world-26-biomes/)
+- Papers:
+  - [Procedural Tectonic Planets](https://diglib.eg.org/handle/10.1111/cgf13614)
+  - [Cordonnier et al. 2016](https://diglib.eg.org/handle/10.1111/cgf12820) ([paper](https://www.cs.purdue.edu/homes/bbenes/papers/Cordonier16CGF.pdf))
+  - [Tzathas et al. 2024](https://diglib.eg.org/handle/10.1111/cgf15033)
+  - [FastScape in Landlab](https://landlab.readthedocs.io/en/latest/reference/components/stream_power.html)
+  - [GFZ: FastScape](https://gfz.de/en/section/earth-surface-process-modelling/projects/current-projects/fastscape-landscape-evolution-model-development)
+  - [Priority-Flood](https://ar5iv.arxiv.org/html/1511.04463) ([code](https://github.com/r-barnes/Barnes2013-Depressions))
+  - [Smith and Barstad, orographic rain](https://ams.confex.com/ams/pdfpapers/76934.pdf)
+  - [HESS: linear model in Norway](https://hess.copernicus.org/articles/14/2329/2010/)
+- Climate tools:
+  - [WorldSynth](https://mindwerks.net/projects/worldsynth/)
+  - [Gleba](https://calandiel.itch.io/gleba)
+  - [genworldvoronoi](https://github.com/Flokey82/genworldvoronoi)
+- Soils:
+  - [Soils 4 Teachers](https://www.soils4teachers.org/formation)
+  - [TRU geology](https://environmental-geol.pressbooks.tru.ca/chapter/soil-formation/)
+- Biomes:
+  - [macroBiome: BIOME1](https://rdrr.io/cran/macroBiome/man/cliBIOMEPoints.html)
+  - [Palaeo-Electronica](https://palaeo-electronica.org/2001_1/climate/biome.htm)
+- Deposits:
+  - [Wikipedia: flint](https://en.wikipedia.org/wiki/Flint)
+  - [Wikipedia: porphyry copper](https://en.wikipedia.org/wiki/Porphyry_copper_deposit)
+  - [PMC: porphyry copper](https://pmc.ncbi.nlm.nih.gov/articles/PMC5353633)
