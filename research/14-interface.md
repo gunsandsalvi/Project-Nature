@@ -53,7 +53,6 @@ Can Godot lay it out, read the gestures and draw crisp pixel text on your phone 
 | Pinch and twist | `InputEventMagnifyGesture` exists, but on Android it needs the `input_devices/pointing/android/enable_pan_and_scale_gestures` setting ([class docs](https://docs.godotengine.org/en/stable/classes/class_inputeventmagnifygesture.html)) | We read raw touches ourselves instead |
 | Sections that fold | `FoldableContainer`, new in 4.5, for accordion sections ([Godot 4.5](https://godotengine.org/releases/4.5/)) | Yes, for long cards |
 | Screen readers | Godot 4.5 added "screen reader support to Control nodes" through AccessKit ([Godot 4.5](https://godotengine.org/releases/4.5/)) | A free extra for cards and the book |
-| Screen kept on overnight | `screen_set_keep_on`: "Prevents the device screen from automatically turning off" ([DisplayServer](https://docs.godotengine.org/en/stable/classes/class_displayserver.html)) | Yes, for `TIM-12` |
 
 **Verdict:** nothing here needs changes to Godot.
 The care points are:

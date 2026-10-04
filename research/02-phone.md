@@ -1,6 +1,6 @@
 # Research 02: the phone
 
-**Question:** what can your Pixel 11 Pro XL really give a game, and what about it can go wrong (`PLT-01`, `PLT-04`, `VIS-14`, `TIM-07`, `TIM-12`)?
+**Question:** what can your Pixel 11 Pro XL really give a game, and what about it can go wrong (`PLT-01`, `PLT-04`, `VIS-14`, `TIM-07`)?
 
 ## The hardware
 
@@ -61,8 +61,7 @@
   - We aim at a steady 60, through a few lines of plug-in code.
 - **Heat:** Android's thermal headroom forecast (ADPF) warns before throttling, so the game can slow time on its own before the phone does (`PRN-11`) ([Android Developers](https://developer.android.com/games/engines/unreal/unreal-adpf)).
 - **Background:** Godot stops when the app leaves the screen, and Android may close it there, so the world is saved on pausing (`TIM-05`, `PLT-07`).
-- **Overnight (`TIM-12`):** the app stays in front with the screen black and Godot's drawing switched off, which uses little power and cannot burn in an OLED screen.
-  The phone's writer also only works while the app is in front ([ML Kit](https://developers.google.com/ml-kit/genai)).
+- **The writer:** the phone's language model only works while the app is in front ([ML Kit](https://developers.google.com/ml-kit/genai)), which suits a world that runs only while the app is open.
 
 ## Budgets to measure first
 
@@ -78,7 +77,6 @@ These are starting estimates, to be replaced by the prototypes' measurements on 
 2. **Every first phone build exercises the full set of rendering features,** and its self-check shows the driver.
 3. **Budgets are set from measurements on your phone** at held speed, not from benchmarks of other phones.
 4. **Kindling slows time before the phone overheats** (ADPF), and runs the screen at 60 Hz.
-5. **Overnight mode keeps the app in front on a black screen.**
 
 ## Sources
 

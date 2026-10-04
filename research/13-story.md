@@ -110,7 +110,7 @@ Can the phone's own language model do the rewording inside a Godot app (`TIM-02`
 | Slowing time and live moments | Our own clock and Godot UI (research 14) |
 | Pattern sentences | Our own grammar in the C++ library; text shown with Godot's labels |
 | The writer | Feasible: a Kotlin plugin calling ML Kit's Prompt API, which is in beta and listed for Pixel phones |
-| Writing overnight | Allowed only because overnight mode keeps the app in front (`TIM-12`); the daily battery quota may stop it, and pattern text then stands |
+| Writing while you play | Allowed while the app is in front; the daily battery quota may stop it, and pattern text then stands |
 | Same text when reopened | The API's seed gives stable output, and history texts are stored once checked (`PRE-41`) |
 
 ## What we take
@@ -127,7 +127,7 @@ Can the phone's own language model do the rewording inside a Godot app (`TIM-02`
 5. **The check stays strict and model-free,** because hallucination is a known property of these models (`PRE-41`).
    Dark events never reach the writer (`PRE-17`).
 6. **The writer respects the API's limits:**
-   - it writes only while the app is in front, overnight mode included;
+   - it writes only while the app is in front;
    - it queues requests and backs off on BUSY;
    - it stops for the day on the battery quota.
 7. **Two prototypes before production:**

@@ -112,7 +112,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
    A new item takes the next free number in its area, wherever it sits in the text.
    A new ID becomes permanent only when it reaches the main version; until then, a branch whose number is taken renumbers its own new items.
 3. A cut item is removed, and its ID is retired: never reused, and cited nowhere.
-   Retired IDs: `BIO-07`, `CUL-04`, `CUL-13`, `CUL-14`, `CUL-15`, `CUL-25`, `MAT-15`, `MND-17`, `MND-25`, `MOM-05`, `MOM-10`, `PRC-05`, `PRE-04`, `PRE-11`, `PRE-12`, `PRE-36`, `PRE-38`, `PRN-08`, `RCK-05`, `RCK-09`, `RCK-17`, `RCK-18`, `RCK-19`, `RCK-20`, `RES-04`, `RES-08`, `RES-11`, `RES-15`, `RES-20`, `RSK-10`, `RSK-12`, `RSK-13`, `RSK-16`, `RSK-17`, `RSK-20`, `RSK-22`, `SCP-13`, `SCP-14`, `SND-04`, `SND-05`, `SND-09`, `SND-10`, `TIM-06`, `TIM-13`, `VIS-13`, `WLD-05`, `WLD-19`, `WLD-20`, `WLD-21`, `WLD-23`, `WLD-25`, `WLD-29`.
+   Retired IDs: `BIO-07`, `CUL-04`, `CUL-13`, `CUL-14`, `CUL-15`, `CUL-25`, `MAT-15`, `MND-17`, `MND-25`, `MOM-05`, `MOM-10`, `PRC-05`, `PRE-04`, `PRE-11`, `PRE-12`, `PRE-36`, `PRE-38`, `PRN-08`, `RCK-05`, `RCK-09`, `RCK-17`, `RCK-18`, `RCK-19`, `RCK-20`, `RES-04`, `RES-08`, `RES-11`, `RES-15`, `RES-20`, `RSK-10`, `RSK-12`, `RSK-13`, `RSK-16`, `RSK-17`, `RSK-20`, `RSK-22`, `SCP-13`, `SCP-14`, `SND-04`, `SND-05`, `SND-09`, `SND-10`, `TIM-06`, `TIM-12`, `TIM-13`, `VIS-13`, `WLD-05`, `WLD-19`, `WLD-20`, `WLD-21`, `WLD-23`, `WLD-25`, `WLD-29`.
 4. The implementation plan maps every feature and rule to a stage, and every task names the IDs it delivers, as the coverage check enforces (`PRC-12`).
 5. Code and tests name the IDs they implement, so any feature can be followed from this file to the plan to the code, and back.
 6. A new area gets a new three-letter code in the table below, and its own section or subsection.
@@ -201,8 +201,8 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   > The book of ages records a named discovery: *hesoru*, "fire from wood", first made by Ama in Year 19.
   > By spring, four others can do it.
   >
-  > You leave the world running overnight on the charger, and in the morning its summary is waiting.
-  > You had set it to stop at the first village (`TIM-12`): 282 years have passed.
+  > Over the next few evenings you watch from the globe as the centuries race past, tapping in whenever a live moment calls (`TIM-01`, `PRE-08`).
+  > By Year 301, 282 years have passed.
   > By the river, a band of the Tavu now lives all year in a village of reed-roofed houses, keeps goats and dogs, and sows wild grain on its old rubbish heaps.
   > In the book of ages, Ama's story has become a myth: *Ama took the fire that sleeps inside the wood*.
 
@@ -478,7 +478,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
     - the starting kit (`BIO-02`): one band starts with a fire from lightning in every world, since fire comes with `MIL-11`, before there are people;
     - texts (`PRE-37`): cards from pattern sentences from `MIL-11`, the details view from `MIL-13`, and the book of ages, the writer and your choice between pattern and writer text at `MIL-16`;
     - sound (`SND-01`, `SND-02`, `SND-03`): the 32-sound test, the voice, and the review of singing and songs at `MIL-16`;
-    - the phone's limits (`PLT-04`): stage budgets for the 1,000-person world at the close of `MIL-12` to `MIL-17` of at least 2.5, 2, 1.7, 1.5, 1.5 and 1 game years a real minute; the world with nobody in it from `MIL-11`; overnight from `MIL-16`; old worlds at Year 150 from `MIL-15` and at Year 500 from `MIL-17`;
+    - the phone's limits (`PLT-04`): stage budgets for the 1,000-person world at the close of `MIL-12` to `MIL-17` of at least 2.5, 2, 1.7, 1.5, 1.5 and 1 game years a real minute; the world with nobody in it from `MIL-11`; old worlds at Year 150 from `MIL-15` and at Year 500 from `MIL-17`;
     - the sharp-stone test (`RES-02`, `RES-03`) at every stage from `MIL-14`;
     - the pace tests (`RES-07`): flakes, fire, clothing, huts and `RES-25` count from `MIL-14`; shared spirits, rites, myths, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going from `MIL-15`; pottery, herding, villages, farming, copper and chiefs from `MIL-17`; the Year-150 size at the close of `MIL-15`, and the full test during `MIL-17`;
     - the risks: belief scenes from `MIL-13` (`RSK-19`), and everyday scenes from `MIL-12` (`RSK-27`);
@@ -494,8 +494,8 @@ Each item's detailed acceptance criteria are written in the implementation plan,
      *Now possible:* following herds and hunters across a whole world, season by season.
   5. `MIL-05` **Minds and beliefs** *(Decided)*: the rest of the minds: feelings and breakdowns, beliefs about the unseen, ambitions, and the other social acts and topics (gifts, gossip, comfort, quarrels, fights and stealing); belief templates, customs, rites (`CUL-34`) and religion; art and music; the writer AI's polish; fortune and Revelation (`GOD-13`).
      *Now possible:* rites, taboos, songs and paintings appear, and the book of ages reads like a history.
-  6. `MIL-06` **Many peoples** *(Decided)*: bands splitting into named peoples with territories; marriage customs (`CUL-27`), trade, feuds and raids; gatherings and festivals; pottery and tame dogs; overnight mode.
-     *Now possible:* watching peoples spread, split, fight and marry, centuries at a time overnight.
+  6. `MIL-06` **Many peoples** *(Decided)*: bands splitting into named peoples with territories; marriage customs (`CUL-27`), trade, feuds and raids; gatherings and festivals; pottery and tame dogs.
+     *Now possible:* watching peoples spread, split, fight and marry, centuries at a time.
   7. `MIL-07` **Herds, fields and villages** *(Decided)*: herding, farming, villages and copper; specialists, chiefs and priests; the full launch catalogue; every pace target met (`TIM-19`).
      *Now possible:* the whole arc, from caves to first copper, in a few hundred years, at a watchable speed.
 
@@ -515,7 +515,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
     *Now possible:* watching someone find that struck flint gives a sharp edge, and the skill spread or be lost.
   - `MIL-15` **Culture and society** *(Proposed)*: beliefs from events and about the unseen, ancestors, taboos, rites and religion (`CUL-05`, `MND-31`, `CUL-19`, `CUL-20`, `CUL-34`, `CUL-26`); kin and marriage, customs, leaders and specialists (`CUL-27`, `CUL-06`, `CUL-22`, `CUL-32`); sharing, trade, feuds and raids (`CUL-21`, `CUL-31`); bands splitting into peoples with territories (`CUL-30`, `CUL-23`); art, music, myths, style and festivals (`CUL-09`, `CUL-10`, `CUL-11`, `CUL-12`, `CUL-29`); tame dogs (`WLD-33`).
     *Now possible:* peoples spreading, splitting, fighting and marrying, with rites, myths, songs and paintings of their own.
-  - `MIL-16` **The game** *(Proposed)*: your powers as nature (`GOD-02`, `GOD-03`, `GOD-04`, `GOD-12`, `GOD-13`, `GOD-10`); time following your zoom, the story director, live moments and skip (`TIM-01`, `TIM-02`, `PRE-08`, `TIM-11`); overnight mode (`TIM-12`); the book of ages from pattern sentences, worded by the phone's writer (`PRE-05`, `PRE-37`, `PRE-41`); every screen, card and overlay (`PRE-40`, `PRE-35`, `PRE-07`); sound and the murmur (`SND-01`, `SND-11`, `SND-03`).
+  - `MIL-16` **The game** *(Proposed)*: your powers as nature (`GOD-02`, `GOD-03`, `GOD-04`, `GOD-12`, `GOD-13`, `GOD-10`); time following your zoom, the story director, live moments and skip (`TIM-01`, `TIM-02`, `PRE-08`, `TIM-11`); the book of ages from pattern sentences, worded by the phone's writer (`PRE-05`, `PRE-37`, `PRE-41`); every screen, card and overlay (`PRE-40`, `PRE-35`, `PRE-07`); sound and the murmur (`SND-01`, `SND-11`, `SND-03`).
     *Now possible:* playing as nature: sending lightning or a dream and following what comes of it in the book of ages, with the sounds of the camp.
   - `MIL-17` **The whole arc** *(Proposed)*: pottery, herding, farming, villages and copper (`RCK-04`, `WLD-33`, `CUL-28`, `RCK-08`); the full launch catalogue (`MAT-23`); every pace target met (`TIM-19`, `CUL-33`).
     *Now possible:* the whole arc, from caves to first copper, in a few hundred years, at a watchable speed.
@@ -758,11 +758,10 @@ Time works one way for everything: activities that start and end on one world cl
 - `TIM-15` **Who sets the speed** *(Decided)*: Your controls beat the story director, and the director beats zoom.
   - **How it works:** the first of these that is active sets the speed, and none can make time run faster than the phone can (`PRN-11`):
     1. **pause,** yours or while you choose a power (`GOD-10`): no time passes;
-    2. **overnight mode** (`TIM-12`): top speed;
-    3. **skip** (`TIM-11`): top speed until the next important moment, then the director's speed for it;
-    4. **the dial or the lock** (`TIM-04`): the speed you set;
-    5. **the story director** (`TIM-02`): a slower speed around an important moment;
-    6. **zoom** (`TIM-01`): at all other times.
+    2. **skip** (`TIM-11`): top speed until the next important moment, then the director's speed for it;
+    3. **the dial or the lock** (`TIM-04`): the speed you set;
+    4. **the story director** (`TIM-02`): a slower speed around an important moment;
+    5. **zoom** (`TIM-01`): at all other times.
   - **Done when:** a test sets each pair of controls at once and finds the stated order.
 
 - `TIM-07` **Speed target** *(To test)*: How fast history can run at the world view on your phone, in game years per real minute, by the number of people.
@@ -772,8 +771,7 @@ Time works one way for everything: activities that start and end on one world cl
     - **1,000 people:** at least 1, aiming for 2–3;
     - **about 2,000 people:** at least half;
     - **beyond,** time slows (`MND-15`), down to at least a sixth at about 7,000, the most a world holds by Year 500 (`BIO-04`);
-    - **an old world:** a world 500 years old runs at least four fifths as fast as a new one with as many people;
-    - **overnight,** about 8 hours, with up to about 1,000 people: a few hundred game years or more (`TIM-12`).
+    - **an old world:** a world 500 years old runs at least four fifths as fast as a new one with as many people.
   - **What counts:** every activity of people and of animals near people, every result inside an activity, every notice and every topic passed in talk, on the cores `PLT-01` allows.
   - **Check:** the benchmark worlds of `PLT-04`, on your phone at held speed (`PLT-01`).
 
@@ -789,7 +787,7 @@ Time works one way for everything: activities that start and end on one world cl
     - **Slowing down:** when a score passes the bar for live moments (`PRE-08`), time slows so that what is about to happen would take about half a minute of real time (tuned): near real speed for a stalk or two hostile groups meeting, camp speed for a birth or a morning at a fire stick, and between camp and valley speed for a flood rising over a day.
       A higher score makes a slowdown likelier, not slower.
     - **One budget** for slowdowns and live moments: at most one every about 3 real minutes, and never more than a fifth of the time slowed; a slowdown you don't tap ends after about 10 seconds (tuned).
-    - **The list:** moments the budget, the dial or the lock keeps from slowing time wait in the list (`PRE-08`); overnight's go to its summary (`TIM-12`), and skip's stop is outside the budget (`TIM-11`).
+    - **The list:** moments the budget, the dial or the lock keeps from slowing time wait in the list (`PRE-08`), and skip's stop is outside the budget (`TIM-11`).
     - **Only slower:** the director never asks for a faster speed than zoom does.
   - **Done when:** watched from the globe for an hour, test worlds list every named discovery and death of someone you follow, slow for those the budget allows, and keep four fifths of top speed.
 
@@ -805,13 +803,6 @@ Time works one way for everything: activities that start and end on one world cl
 - `TIM-05` **Pauses when closed** *(Decided)*: When the app is closed or in the background, the world stops and is saved at that moment (`PLT-07`).
   Reopening carries on from that moment, every activity where it was.
   - **Done when:** closing and reopening the app at any moment gives the same history as never closing it (`TIM-16`).
-
-- `TIM-12` **Overnight mode** *(Decided)*
-  - **What:** Leave the app open on the charger and switch on overnight mode: the world runs at top speed with the screen dimmed (`TIM-07`), and a summary waits for you.
-  - **How far:** before it starts you choose: until you stop it, 10, 50 or 100 years, or until a step of the arc you pick, such as the first village (`TIM-19`), or the next new age (`PRE-39`); there it pauses.
-  - **How it works:** it draws only a dim picture updated now and then; the night's moments go to the book of ages, not the list (`TIM-02`), the summary takes the most important by the director's scores, and texts are worded as it runs (`PRE-41`).
-  - **Safeguards:** charger only, slowing to keep the battery cool and pausing when unplugged or above about 40 °C (`PLT-04`).
-  - **Done when:** on the phone, it pauses when unplugged or above about 40 °C, and the summary lists the night's top moments, dark events as plain facts.
 
 ### 5.5 Worlds and chance
 
@@ -2219,7 +2210,7 @@ The look, written to stand without any image.
   - tap to select what is under the finger and open its card (`PRE-35`);
   - long-press for your powers at that spot (`GOD-10`), including drawing an area, so a drag always moves the camera;
   - swipe up on, or tap, the small handle above the bottom edge for the views (the edge itself is the phone's);
-  - every touch also shows the date, the real speed and the time controls (`TIM-04`, `TIM-11`, `TIM-12`), fading after a few seconds.
+  - every touch also shows the date, the real speed and the time controls (`TIM-04`, `TIM-11`), fading after a few seconds.
   - **Done when:** in a scripted test no gesture is read as another, and zoom, select, views and time each work with one thumb.
 
 - `PRE-35` **Cards** *(Decided)*: Selecting anything opens a card with what matters about it, in English with the people's own names and words beside, linked to deeper views.
@@ -2309,12 +2300,12 @@ The look, written to stand without any image.
   - **Your choice:** at the minds stage you compare pattern and writer text in each view, and keep whichever reads better.
   - **Done when:** in a test world of 100 years every kind of event shows 5 phrasings, each name's first use gives its meaning, and no text passes about 150 words.
 
-- `PRE-41` **How text is written** *(Decided)*: History texts (entries, life stories of the dead, myths and overnight summaries) are checked, stored beside their records and never silently rewritten; you can ask for a rewrite.
+- `PRE-41` **How text is written** *(Decided)*: History texts (entries, life stories of the dead and myths) are checked, stored beside their records and never silently rewritten; you can ask for a rewrite.
   Texts about the present, such as a living person's summary (`PRE-14`), are written afresh when opened if their records have changed, and are not kept.
   - **The check,** with no language model: the writer rewords each pattern sentence on its own, in order.
     Each new sentence must keep its pattern's names, numbers, dates and places, in the same order, and add none; keep the words its pattern marks as needed, such as the act and words like *first* or *made*, or a synonym listed for them; and use no word, in any form, beyond its pattern's, those synonyms and a short fixed list of joining words.
     A sentence that fails is shown as its pattern sentence.
-  - **When:** texts are worded only while the app is open, overnight mode included (`TIM-12`): the page you open first, then the newest; a page shows its pattern text at once, and each checked sentence replaces its pattern as it arrives.
+  - **When:** texts are worded only while the app is open: the page you open first, then the newest; a page shows its pattern text at once, and each checked sentence replaces its pattern as it arrives.
   - **Done when:** a history text opened twice reads the same, and every failing sentence of `PRE-17`'s trap set shows as its pattern.
 
 - `PRE-17` **Descriptions stick to the data** *(Decided)*: The writer AI gets only a text's pattern sentences (`PRE-37`) and the one voice (`PRE-19`), and chooses words and rhythm, never content (`PRN-06`).
@@ -2399,7 +2390,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
   - **Done when:** turning the phone on every screen keeps the world, the camera and the art pixel's size (`PRE-22`), with no reload.
 
 - `PLT-03` **Works offline** *(Decided)*: Everything the game needs, the writer AI included (`PRE-37`), is on the phone; nothing in play makes a network call.
-  - **Done when:** in flight mode, making a world, an hour's play, book-of-ages text and a night of overnight mode all work.
+  - **Done when:** in flight mode, making a world, an hour's play and book-of-ages text all work.
 
 - `PLT-06` **Installing new versions** *(Decided)*: Each alpha is a file you download and install on the phone, once you allow installs from your browser (`PRC-11`).
   - **How it works:** every build is signed with one key for your hobbyist developer account, as Android requires from 2027, set up once before the first alpha and kept outside the cloud sessions with a copy you hold (`RSK-18`, `RSK-29`).
@@ -2418,7 +2409,6 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
     - **Storage:** within the target of `PLT-10`.
     - **Sound:** the 32-sound mix within its limit (`SND-01`).
     - **Battery and heat:** an hour's play uses about 25–30% of the battery, and the phone never gets uncomfortably hot.
-    - **Overnight:** from `MIL-06`, a night on the charger, with the writer wording (`PRE-41`), reaches `TIM-07`'s overnight target, the battery never above about 40 °C (`TIM-12`).
     - **Opening and land:** your world opens in about 3 seconds, a new world in `WLD-11`'s times, and a new area within about a tenth of a second.
   - **How it works:**
     - **Benchmark worlds:** a camp of about 30 and a village of about 300 at close camp zoom, a camp in thick forest at camp zoom with the camera turning, and worlds of about 100, 500, 1,000, 2,000, 3,000 and 7,000 people with about 10 km² each, on land set by hand like the first region until `MIL-04` (`WLD-34`), then generated; from `MIL-04` also the world with nobody in it.
@@ -2432,7 +2422,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
 
 - `PLT-07` **Always saved** *(Decided)*: Worlds save continuously, so closing the app or a flat battery never loses anything (`TIM-05`).
   - **How it works:** each event joins the world's history as it happens.
-    The present state is saved every 30 real seconds and whenever the app leaves the screen, and in overnight mode every 10 real minutes and whenever it stops (`TIM-12`); a damaged save is never loaded.
+    The present state is saved every 30 real seconds and whenever the app leaves the screen; a damaged save is never loaded.
     After a crash, the world opens at its last save within about 3 seconds and catches up, under a short note, repeating exactly (`TIM-16`).
   - **Done when:** killing the app 100 times at random never loses an event or leaves a world that won't open.
 
@@ -2722,8 +2712,8 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Response:** signing for your hobbyist account (`PLT-06`); the advanced unlock or a USB cable as fallbacks.
 
 - `RSK-24` **The phone ages or is replaced** *(Decided)*: Likelihood low, impact medium.
-  - **Signs:** the battery over about 40 °C overnight, or its health falling.
-  - **Response:** overnight mode's heat limit (`TIM-12`, `PLT-04`); worlds move by export (`PLT-08`).
+  - **Signs:** the battery over about 40 °C in long sessions, or its health falling.
+  - **Response:** time slows rather than the phone overheating (`PRN-11`, `PLT-04`); worlds move by export (`PLT-08`).
 
 ### 16.4 The project
 
@@ -2829,7 +2819,6 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Murmur:** speech in the game, a babble of the language's sounds, never real words (`SND-03`).
 - **Named result:** what a blueprint gives: a new thing, a new state of a thing, or a change to ground or a body (`MAT-04`).
 - **Need:** hunger, thirst, warmth and rest for the body (`BIO-09`), and safety, belonging, status, curiosity and love for the mind (`MND-07`).
-- **Overnight mode:** the world at top speed, screen dimmed, while the phone charges (`TIM-12`).
 - **Pace target:** the window of years in which typical worlds reach a step, such as fire in Years 5–30 (`TIM-19`).
 - **Pace test:** whole worlds run in the background against the pace and culture targets (`RES-07`).
 - **Pattern sentence:** a set sentence filled from a world's records, which every text starts from (`PRE-37`).

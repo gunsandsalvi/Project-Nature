@@ -170,16 +170,13 @@ What we would reach that way:
   - Your phone's chip family has a history of driver trouble (research 02).
   - So the first phone builds must exercise every rendering feature we plan, not only the simple ones.
 
-### 11. When the app is closed, and overnight
+### 11. When the app is closed
 
 - **Godot's main loop stops when the app goes to the background,** and Android may kill it there at any time.
   So the world must be saved on pausing ([Godot forum](https://forum.godotengine.org/t/overview-on-android-application-lifecycle/57756)).
   This matches `TIM-05` and `PLT-07`.
-- **Overnight mode (`TIM-12`) therefore keeps the app in front:**
-  - the screen is held on and shown black, which on OLED uses little power and cannot burn in;
-  - Godot's rendering is switched off (`RenderingServer.render_loop_enabled`);
-  - the simulation runs ([Android Developers: keep the screen on](https://developer.android.com/develop/background-work/background-tasks/awake/screen-on), [FakeBlankScreen](https://f-droid.org/packages/net.tlfoxhuman.fakeblankscreen/)).
-- **A background service is not an option:**
+- **The world runs only while the app is open,** which is what `TIM-05` asks.
+  Running it in the background is not an option anyway:
   - Godot does not run in the background;
   - since Android 15, long-running services of the fitting kinds are limited to 6 hours a day ([Android Developers](https://developer.android.com/about/versions/15/changes/foreground-service-types)).
 
@@ -220,7 +217,6 @@ What we would reach that way:
 | A world 2,000 km across (`WLD-03`) | Yes, with a moving origin | single precision in Godot, exact in the simulation | medium | in the zoom prototype |
 | Saving, export and import (`PLT-07`, `PLT-08`) | Yes | files in the app's storage; 4.7's file picker | low | no |
 | The phone's writer (`PRE-37`, `PRE-41`) | Yes, through a small Android plug-in | ML Kit Prompt API, or llama.cpp | medium: beta, quotas, front only, output varies by model | yes |
-| Overnight mode (`TIM-12`) | Yes, with the app in front on a black screen | rendering off, screen held on, heat watched | medium: heat on the charger | later |
 | Sound and the murmur (`SND`) | Yes | 3D audio players and buses | low to medium: Android latency | later |
 | Both orientations, gestures (`PRE-34`, `PRE-33`) | Yes | containers, safe area, our gesture reader | low | no |
 | Offline (`PLT-03`) | Yes | no network permission; the system manages the writer's model | low | no |
@@ -240,7 +236,7 @@ What we would reach that way:
    - level of detail from a person to the globe;
    - pathfinding, since Godot's navigation is costly with many agents (research 10);
    - the gesture reader;
-   - a small Android plug-in for the writer, temperature, refresh rate and screen brightness.
+   - a small Android plug-in for the writer, temperature and refresh rate.
 5. **Prototypes before production** (the guide, research 00):
    - the look on the Mobile renderer on your phone;
    - the frame time of a full scene;
@@ -282,10 +278,7 @@ What we would reach that way:
   - [ML Kit GenAI APIs](https://developers.google.com/ml-kit/genai)
   - [Prompt API announcement](https://android-developers.googleblog.com/2025/10/ml-kit-genai-prompt-api-alpha-release.html)
   - [NobodyWho](https://docs.nobodywho.ooo)
-- Android:
-  - [keep the screen on](https://developer.android.com/develop/background-work/background-tasks/awake/screen-on)
-  - [Android 15 service types](https://developer.android.com/about/versions/15/changes/foreground-service-types)
-  - [FakeBlankScreen](https://f-droid.org/packages/net.tlfoxhuman.fakeblankscreen/)
+- Android: [Android 15 service types](https://developer.android.com/about/versions/15/changes/foreground-service-types)
 - Precedents:
   - [Of Life and Land](https://www.gamingonlinux.com/2024/04/of-life-and-land-is-a-promising-settlement-building-game-with-rich-simulation-out-on-steam/page=1/)
   - [Terrain3D](https://store.godotengine.org/asset/tokisangames/terrain3d/)
