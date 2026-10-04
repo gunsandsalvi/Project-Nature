@@ -1,5 +1,7 @@
 # Godot's caches; each .import file stays, since it holds that file's import settings
 .godot/
+# gdUnit4, copied into each Godot project from the cache by tools/check.sh (tools/setup.sh pins it)
+addons/gdUnit4/
 # C++ builds (sim/, view/) and the Android plug-in's
 /build/
 /sim/build/

@@ -120,7 +120,7 @@ dist/        the signed APK of the latest alpha and its note
 `tools/setup.sh` installs whatever is missing, pinned and checked by checksum, and says nothing when all is present:
 - Godot and its export templates;
 - the Android SDK, NDK and JDK;
-- CMake and Ninja, clang-format and clang-tidy, and the GDScript formatter and linter;
+- CMake and Ninja, clang-format and clang-tidy, and the formatters and linters of GDScript (gdtoolkit) and Python (ruff);
 - gdUnit4;
 - Mesa's software Vulkan driver (lavapipe) and Xvfb, so Godot can draw pictures without a graphics chip (research 16).
 
