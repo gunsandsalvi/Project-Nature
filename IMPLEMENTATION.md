@@ -47,6 +47,7 @@ For the AI agent building a step:
    - The builder reviews each lettered step itself: each new test made to fail once, the numbers checked against how they were measured, and the pictures looked at.
    - At the last step of each numbered alpha, one independent subagent verifies the whole alpha.
      It is given only the alpha's diff, its sections as they stood when it began, and the items it claims.
+     It also judges, as a pixel artist and a game art director, how the game actually looks: from pictures it draws itself of every screen the alpha touched, at each hour, on their own merits and independently of the art book, as you asked on 4 October 2026.
    - The pull request says which review approved it.
 9. **Join and tell:**
    - merge into main;
