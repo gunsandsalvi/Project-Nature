@@ -30,7 +30,7 @@ var _plain: MeshInstance3D
 
 func _ready() -> void:
 	outline = 3
-	crawl = 3
+	crawl = 2
 	hour = "night"
 	zoom_range = Vector2(0.045, 1.2)
 	super._ready()
@@ -109,6 +109,7 @@ func _set_view(which: String) -> void:
 	_rest_mpp = mpp
 	for node in _forest_nodes:
 		node.visible = which == "camp"
+	_set_fire_detail(which == "close")
 	# at camp zoom the ground in view runs about 1.2 km deep: the camera stands back past its near
 	# edge, and the shadows, haze and outline depths reach across it
 	if which == "close":

@@ -51,7 +51,7 @@ var _steps := 0
 
 func _ready() -> void:
 	outline = 3
-	crawl = 3
+	crawl = 2
 	hour = "noon"
 	zoom_range = Vector2(0.02, 0.12)
 	catalogue = JSON.parse_string(FileAccess.get_file_as_string(CATALOGUE))

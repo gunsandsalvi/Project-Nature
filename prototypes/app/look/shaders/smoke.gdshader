@@ -88,8 +88,7 @@ void fragment() {
 	float f = lit / max(acc, 1e-4);
 	float s = clamp(floor(tone + f * 4.0 + 0.5), 0.0, 6.0);
 	vec3 c = grade(pal(smoke_row, s), f > 0.36 ? 4.0 : (f > 0.15 ? 2.0 : 0.0));
-	float hz = floor(clamp((t0 - look_haze_range.x) / max(look_haze_range.y - look_haze_range.x, 0.001), 0.0, 1.0) * 4.0) / 4.0;
-	vec3 smoke = mix(c, look_haze_col, hz * look_haze_k);
+	vec3 smoke = hazed(c, t0);
 	// Godot blends in linear light; the blend is solved for the painter's mix over the picture's stored colours
 	vec3 back = texture(screen, SCREEN_UV).rgb;
 	vec3 want = to_linear(mix(to_srgb(back), smoke, a));

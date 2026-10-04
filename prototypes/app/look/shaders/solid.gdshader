@@ -41,7 +41,7 @@ void vertex() {
 
 void fragment() {
 	flags = attrs.w;
-	if (IN_SHADOW_PASS && bit(flags, 16.0)) {
+	if (IN_SHADOW_PASS && bit(flags, FLAG_NOSHADOW)) {
 		discard;
 	}
 #ifdef MIRROR

@@ -81,11 +81,7 @@ func step(delta: float) -> void:
 	s._apply_camera()
 	var run: Array = RUNS[index]
 	if t >= 1.0:
-		var gpu := RenderingServer.viewport_get_measured_render_time_gpu(s._art.get_viewport_rid())
-		for vp: SubViewport in [s._gbuf, s._mirror]:
-			if vp.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
-				gpu += RenderingServer.viewport_get_measured_render_time_gpu(vp.get_viewport_rid())
-		_samples.append(gpu)
+		_samples.append(s.graphics_time())
 		if delta > 1.15 / float(run[2]):
 			_late += 1
 	if t < RUN_TIME:

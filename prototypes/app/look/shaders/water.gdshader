@@ -66,7 +66,7 @@ void light() {
 	float ndl = dot(NORMAL, LIGHT);
 	float sh = ndl > 0.0 ? ATTENUATION : 0.0;
 	float sun = pow(max(ndl, 0.0), look_sun_pow) * sh;
-	float wst = 3.0 + ((look_sky_k * sky + look_sun_k * sun) * 6.0 + look_shift - 3.0) * look_contrast + fire * 4.5;
+	float wst = light_step(sky, sun, fire);
 	float wcls = (sh > 0.5 && ndl > 0.06) ? 1.0 : 0.0;
 	bool sunlit = wcls > 0.5;
 	float dep = thick * look_elev_sin;
@@ -95,7 +95,6 @@ void light() {
 	if (thick * look_elev_sin < look_mpp * 0.45) {
 		c = mix(c, foam, 0.8);
 	}
-	float hz = floor(clamp((vdepth - look_haze_range.x) / max(look_haze_range.y - look_haze_range.x, 0.001), 0.0, 1.0) * 4.0) / 4.0;
-	DIFFUSE_LIGHT = to_linear(mix(c, look_haze_col, hz * look_haze_k));
+	DIFFUSE_LIGHT = to_linear(hazed(c, vdepth));
 	SPECULAR_LIGHT = vec3(0.0);
 }

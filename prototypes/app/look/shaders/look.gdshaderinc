@@ -9,7 +9,8 @@
 // camera's normals and depths for outline method (c); SKYMAP, the heights seen from straight above; MIRROR, the
 // scene reflected in the water, lit where it really stands; HULL, outline method (d), the shape drawn again a
 // little larger from behind in its own darker shade; OCCMAP, the heights of what stands round the fires, for the
-// fires' shadows, leaving out what stands higher than a fire's flames reach and foliage: seen from above, its tops,
+// fires' shadows, leaving out what stands higher than a fire's flames reach, foliage, and what glows or casts no
+// shadow, such as a hearth's own embers, which would shade its fire's nearest neighbours: seen from above, its tops,
 // and from below, its undersides, the faces turned down, so light passes under a roof but not through a tent.
 // DATA_OUT writes a data pass's picture; the rest of a fragment() is left out of a data pass (DATA_PASS).
 #if defined(PREPASS)
@@ -20,7 +21,7 @@
 #define DATA_OUT(n) ALBEDO = vec3(clamp((world.y - look_sky_height.x) / look_sky_height.y, 0.0, 1.0));
 #elif defined(OCCMAP)
 #define DATA_PASS
-#define DATA_OUT(n) if (world.y > look_occ_cap || bit(flags, FLAG_FOLIAGE) || (INV_VIEW_MATRIX[2].y < 0.0 && wnormal.y > -0.05)) { discard; } ALBEDO = vec3(clamp((world.y - look_sky_height.x) / look_sky_height.y, 0.0, 1.0));
+#define DATA_OUT(n) if (world.y > look_occ_cap || bit(flags, FLAG_FOLIAGE) || bit(flags, FLAG_EMISSIVE) || bit(flags, FLAG_NOSHADOW) || (INV_VIEW_MATRIX[2].y < 0.0 && wnormal.y > -0.05)) { discard; } ALBEDO = vec3(clamp((world.y - look_sky_height.x) / look_sky_height.y, 0.0, 1.0));
 #else
 #define DATA_OUT(n)
 #endif
@@ -98,6 +99,7 @@ varying float vdepth;
 const float FLAG_EMISSIVE = 1.0;
 const float FLAG_FOLIAGE = 2.0;
 const float FLAG_NOOUTLINE = 4.0;
+const float FLAG_NOSHADOW = 16.0;
 const float FLAG_CREATURE = 32.0;
 // parts that take their copy's own material, pattern and wear from a MultiMesh's per-copy data (A6.2)
 const float FLAG_COPY = 64.0;
@@ -374,6 +376,18 @@ vec3 pal(float m, float s) {
 // The step and colour of a pixel from its light, as the painter's resolve and final passes do (PRE-20, PRE-30):
 // sun after shadow and sky make a continuous step, rounded with no pattern where steps meet (the sharp look);
 // the pattern's bias moves it; an outline darkens and a lit edge brightens by whole steps (PRE-21); haze in steps.
+// The step of a material's ramp the light gives (the painter's light()): from the sky's and the sun's light, by the
+// hour's shift and contrast, raised by firelight.
+float light_step(float sky_light, float sun, float fire_light) {
+	return 3.0 + ((look_sky_k * sky_light + look_sun_k * sun) * 6.0 + look_shift - 3.0) * look_contrast + fire_light * 4.5;
+}
+
+// The haze by distance from the camera, in four steps (PRE-30).
+vec3 hazed(vec3 c, float depth) {
+	float hz = floor(clamp((depth - look_haze_range.x) / max(look_haze_range.y - look_haze_range.x, 0.001), 0.0, 1.0) * 4.0) / 4.0;
+	return mix(c, look_haze_col, hz * look_haze_k);
+}
+
 vec3 shade_pixel(float ndl, float shadow, float depth, float m_row, float m_bias, float m_flags, float m_sky, float m_fire, float m_edge) {
 	bool foliage = bit(m_flags, FLAG_FOLIAGE);
 	float f;
@@ -385,8 +399,7 @@ vec3 shade_pixel(float ndl, float shadow, float depth, float m_row, float m_bias
 		float n = foliage ? ndl * 0.55 + 0.45 : ndl;
 		float sh = n > 0.0 ? shadow : 0.0;
 		float sun = pow(max(n, 0.0), look_sun_pow) * sh;
-		float lum = look_sky_k * m_sky + look_sun_k * sun;
-		f = 3.0 + (lum * 6.0 + look_shift - 3.0) * look_contrast + m_fire * 4.5;
+		f = light_step(m_sky, sun, m_fire);
 		if (bit(m_flags, FLAG_CREATURE)) {
 			f += 0.9;
 		}
@@ -403,9 +416,7 @@ vec3 shade_pixel(float ndl, float shadow, float depth, float m_row, float m_bias
 	} else if (m_edge > 1.5 && mod(cls, 2.0) > 0.5) {
 		st = min(st + look_edges.z, 6.0);
 	}
-	vec3 c = grade(pal(m_row, st), cls);
-	float hz = floor(clamp((depth - look_haze_range.x) / max(look_haze_range.y - look_haze_range.x, 0.001), 0.0, 1.0) * 4.0) / 4.0;
-	return mix(c, look_haze_col, hz * look_haze_k);
+	return hazed(grade(pal(m_row, st), cls), depth);
 }
 
 // Outline method (c): a second camera draws every pixel's normal and depth at the same low resolution

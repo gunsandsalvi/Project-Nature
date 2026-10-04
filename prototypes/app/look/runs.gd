@@ -63,9 +63,7 @@ func step(delta: float) -> void:
 		_read_clock = 0.0
 		_heat.append(thermal())
 	if _clock >= 1.0:
-		_samples.append(
-			RenderingServer.viewport_get_measured_render_time_gpu(_screen._art.get_viewport_rid())
-		)
+		_samples.append(_screen.graphics_time())
 		if delta > 1.15 / float(run[1]):
 			_late += 1
 	if _clock < float(run[2]):

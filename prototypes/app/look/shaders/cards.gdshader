@@ -48,7 +48,7 @@ void vertex() {
 void fragment() {
 	vec4 t = texture(look_atlas, tile_uv);
 	flags = attrs.w;
-	if (t.a < 0.5 || (IN_SHADOW_PASS && bit(flags, 16.0))) {
+	if (t.a < 0.5 || (IN_SHADOW_PASS && bit(flags, FLAG_NOSHADOW))) {
 		discard;
 	}
 #ifdef MIRROR

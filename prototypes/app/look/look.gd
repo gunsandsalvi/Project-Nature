@@ -25,8 +25,11 @@ const Runs := preload("res://look/runs.gd")
 const P1Measure := preload("res://look/p1_measure.gd")
 ## The heights round the fires, for their shadows: the square's side in metres, and its pixels.
 const OCC_SIDE := 48.0
-## The sun's least height, degrees (_high_enough).
-const MIN_SUN := 14.0
+## Where a fire's light comes from: this far above the fire's place, in its flames.
+const FIRE_LIGHT_UP := 0.5
+## The sun's least height, degrees (_high_enough): the art book's own dusk, 5° up, until you choose
+## a higher one.
+const MIN_SUN := 5.0
 const OCC_SIZE := 512
 
 var painter: Dictionary
@@ -37,7 +40,7 @@ var mpp := 0.09
 var hour := "noon"
 var outline := 3
 var reflect := false
-var crawl := 3
+var crawl := 2
 var shot := ""
 ## For the cloud's check that a moving picture's outlines keep up: the camera slides into place.
 var drift := false
@@ -64,8 +67,11 @@ var _fires := []
 var _omni: Array[OmniLight3D] = []
 ## Measure's runner: P1's own, or a screen's runs (_measure_runs).
 var _runs: RefCounted
-## The smokes' materials, for the hour's step of their ramp.
+## The smokes' materials, for the hour's step of their ramp, and their boxes.
 var _smokes: Array[ShaderMaterial] = []
+var _smoke_boxes: Array[MeshInstance3D] = []
+## Where the heights round the fires lie: the square's corner, its side, and 1 while they are drawn.
+var _occ_box := Vector4(0.0, 0.0, 1.0, 0.0)
 var _view: TextureRect
 var _cam: Camera3D
 var _gbuf_cam: Camera3D
@@ -376,7 +382,8 @@ func _set_occ(centre: Vector3) -> void:
 	)
 	var set_global := RenderingServer.global_shader_parameter_set
 	var corner := Vector2(centre.x - OCC_SIDE * 0.5, centre.z - OCC_SIDE * 0.5)
-	set_global.call("look_occ_box", Vector4(corner.x, corner.y, OCC_SIDE, 1.0))
+	_occ_box = Vector4(corner.x, corner.y, OCC_SIDE, 1.0)
+	set_global.call("look_occ_box", _occ_box)
 	set_global.call("look_occ_cap", centre.y + 2.4)
 	set_global.call("look_occ_map", _occ.get_texture())
 	set_global.call("look_occ_floor", _occ_floor.get_texture())
@@ -418,6 +425,21 @@ func _add_smoke(fire: Vector3, size: float, parent: Node3D) -> void:
 	box.layers = LAYER_MAIN
 	parent.add_child(box)
 	_smokes.append(m)
+	_smoke_boxes.append(box)
+
+
+## The fires' shadows and smoke on or off: off where they would be a few pixels at most, as at camp
+## zoom, so the two maps of the heights round the fires and the smoke's march cost nothing (the
+## shaders read the map's w of 0 as off).
+func _set_fire_detail(on: bool) -> void:
+	for vp: SubViewport in [_occ, _occ_floor]:
+		vp.render_target_update_mode = (
+			SubViewport.UPDATE_ALWAYS if on else SubViewport.UPDATE_DISABLED
+		)
+	_occ_box.w = 1.0 if on else 0.0
+	RenderingServer.global_shader_parameter_set("look_occ_box", _occ_box)
+	for box in _smoke_boxes:
+		box.visible = on
 
 
 ## The step of the smoke's ramp at this hour: pale by day, dark at night, as the painter's are.
@@ -477,7 +499,7 @@ func _light_fires() -> void:
 	for i in _fires.size():
 		var f: Array = _fires[i]
 		var at: Vector3 = f[0]
-		lit = _with_column(lit, i, Vector4(at.x, at.y + 0.5, at.z, f[1]))
+		lit = _with_column(lit, i, Vector4(at.x, at.y + FIRE_LIGHT_UP, at.z, f[1]))
 		if i < _omni.size():
 			_omni[i].light_energy = 2.0 * float(f[2]) * _burning()
 	var set_global := RenderingServer.global_shader_parameter_set
@@ -576,7 +598,7 @@ func _set_hour(name: String) -> void:
 		var power: float = 1.0 if name != "noon" else float(f.power)
 		var radius: float = 12.0 if name != "noon" else float(f.radius)
 		var lit := Projection()
-		lit.x = Vector4(f.pos[0], f.pos[1], f.pos[2], radius)
+		lit.x = Vector4(f.pos[0], f.pos[1] + FIRE_LIGHT_UP, f.pos[2], radius)
 		set_global.call("look_fires", lit)
 		set_global.call("look_fire_powers", Vector4(power, 0.0, 0.0, 0.0))
 	_set_smoke_tone()
@@ -726,6 +748,11 @@ func _on_button(key: String) -> void:
 			_measure()
 
 
+func _exit_tree() -> void:
+	# a screen closed during Measure leaves no frame rate set behind it
+	Engine.max_fps = 0
+
+
 func _process(delta: float) -> void:
 	if _busy():
 		_runs.step(delta)
@@ -733,11 +760,7 @@ func _process(delta: float) -> void:
 			return
 	_frames += 1
 	_clock += delta
-	_gpu += RenderingServer.viewport_get_measured_render_time_gpu(_art.get_viewport_rid())
-	if _gbuf.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
-		_gpu += RenderingServer.viewport_get_measured_render_time_gpu(_gbuf.get_viewport_rid())
-	if _mirror.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
-		_gpu += RenderingServer.viewport_get_measured_render_time_gpu(_mirror.get_viewport_rid())
+	_gpu += graphics_time()
 	if _clock >= 1.0:
 		if not _hold:
 			_readout.text = (
@@ -778,6 +801,16 @@ func _measure_runs() -> Array:
 ## The name Measure's line starts with.
 func _measure_name() -> String:
 	return "P1"
+
+
+## The graphics chip's time for the last frame, ms (PLT-04): every pass that drew it, the picture
+## and its data views, each of which Godot times on its own; the sky's map, drawn once, aside.
+func graphics_time() -> float:
+	var total := 0.0
+	for vp: SubViewport in [_art, _gbuf, _mirror, _occ, _occ_floor]:
+		if vp.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
+			total += RenderingServer.viewport_get_measured_render_time_gpu(vp.get_viewport_rid())
+	return total
 
 
 ## Whether a Measure is running.
