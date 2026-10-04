@@ -53,6 +53,11 @@ var shot := ""
 var drift := false
 ## How far a pinch may zoom, in metres an art pixel shows.
 var zoom_range := Vector2(0.045, 0.18)
+## How far back the camera stands, metres: far enough that the nearest ground in view is in
+## front of it.
+var back := BACK
+## The readout keeps Measure's message, its progress and then its line, until the next touch.
+var _hold := false
 
 var _art: SubViewport
 var _gbuf: SubViewport
@@ -67,6 +72,8 @@ var _env: Environment
 var _post: MeshInstance3D
 var _hull: ShaderMaterial
 var _solid: ShaderMaterial
+## Each base material's variants for the data passes, by layer.
+var _variants := {}
 var _ground: ShaderMaterial
 var _readout: Label
 var _buttons := {}
@@ -111,11 +118,12 @@ func _ready() -> void:
 		elif arg.begins_with("yaw="):
 			yaw = float(arg.substr(4))
 		elif arg == "measure":
-			_start_measure.call_deferred()
+			_measure.call_deferred()
 	_build_views(scene)
 	_build_materials(scene)
 	_build_controls()
 	_globals_once(scene)
+	_set_back(BACK, 220.0)
 	_set_hour(hour)
 	_set_outline(outline)
 	_set_reflect(reflect)
@@ -143,7 +151,6 @@ func _build_views(scene: Node3D) -> void:
 	_sun = DirectionalLight3D.new()
 	_sun.shadow_enabled = true
 	_sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
-	_sun.directional_shadow_max_distance = BACK + 220.0
 	_sun.shadow_bias = 0.08
 	_sun.shadow_normal_bias = 1.6
 	_art.add_child(_sun)
@@ -220,7 +227,6 @@ func _camera(mask: int) -> Camera3D:
 	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
 	cam.keep_aspect = Camera3D.KEEP_HEIGHT
 	cam.near = 1.0
-	cam.far = BACK * 3.0
 	cam.cull_mask = mask
 	return cam
 
@@ -241,9 +247,8 @@ func _build_materials(scene: Node3D) -> void:
 	water.set_shader_parameter("foam_row", float(rows.white))
 	water.render_priority = 1
 	_hull = _variant(_solid, "HULL")
-	var variants := {}
 	for base: ShaderMaterial in [_ground, _solid, cards]:
-		variants[base] = {
+		_variants[base] = {
 			LAYER_GBUF: _variant(base, "PREPASS"),
 			LAYER_SKY: _variant(base, "SKYMAP"),
 			LAYER_MIRROR: _variant(base, "MIRROR"),
@@ -254,7 +259,7 @@ func _build_materials(scene: Node3D) -> void:
 		if kind == "ground":
 			var l: Array = node.get_meta("layers")
 			var p: Array = node.get_meta("layerPat")
-			for m: ShaderMaterial in [_ground, variants[_ground][LAYER_MIRROR]]:
+			for m: ShaderMaterial in [_ground, _variants[_ground][LAYER_MIRROR]]:
 				m.set_shader_parameter("layers", Vector4(l[0], l[1], l[2], l[3]))
 				m.set_shader_parameter("layer_pat", Vector4(p[0], p[1], p[2], p[3]))
 			mat = _ground
@@ -285,10 +290,40 @@ func _build_materials(scene: Node3D) -> void:
 		for layer: int in [LAYER_GBUF, LAYER_SKY, LAYER_MIRROR]:
 			var copy := MeshInstance3D.new()
 			copy.mesh = node.mesh
-			copy.material_override = variants[mat][layer]
+			copy.material_override = _variants[mat][layer]
 			copy.layers = layer
 			copy.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			scene.add_child(copy)
+
+
+## Adds a shape drawn with one of the look's materials, with its copies for the data passes (the
+## outline data, the sky's heights and the mirror), each in its own layer with its own variant, as
+## every shape of the scene has: without them outline C reads the shape as all edge. A copy shares
+## its node's mesh or multimesh, so instanced copies move together.
+func _add_shape(node: GeometryInstance3D, base: ShaderMaterial, parent: Node3D) -> void:
+	node.material_override = base
+	node.layers = LAYER_MAIN
+	parent.add_child(node)
+	for layer: int in [LAYER_GBUF, LAYER_SKY, LAYER_MIRROR]:
+		var copy: GeometryInstance3D = node.duplicate()
+		copy.material_override = _variants[base][layer]
+		copy.layers = layer
+		copy.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		parent.add_child(copy)
+
+
+## The camera's distance, and what follows it: how far it sees, how far the sun's shadows reach,
+## where the haze lies and the depths the outline data holds, all measured from the camera.
+## reach: how deep the ground in view runs beyond the target, metres.
+func _set_back(distance: float, reach: float) -> void:
+	back = distance
+	for cam: Camera3D in [_cam, _gbuf_cam, _mirror_cam]:
+		cam.far = maxf(distance * 3.0, distance + reach + 300.0)
+	_sun.directional_shadow_max_distance = distance + reach
+	var set_global := RenderingServer.global_shader_parameter_set
+	set_global.call("look_haze_range", Vector2(distance + 20.0, distance + 20.0 + reach * 0.636))
+	set_global.call("look_gbuf_depth", Vector2(distance - reach + 20.0, (reach - 20.0) * 2.0))
+	_apply_camera()
 
 
 ## A material in one of its variants: the same shader compiled with a #define after its type.
@@ -313,11 +348,9 @@ func _globals_once(scene: Node3D) -> void:
 		"look_edges", Vector4(look.outline, look.outlineNature, look.lit, painter.edgeK)
 	)
 	set_global.call("look_sky_cover", float(painter.skyCover))
-	set_global.call("look_haze_range", Vector2(BACK + 20.0, BACK + 160.0))
 	var tint: Array = painter.waterTint
 	set_global.call("look_water_tint", Vector3(tint[0], tint[1], tint[2]))
 	set_global.call("look_mirror_y", float(painter.waterLevel))
-	set_global.call("look_gbuf_depth", Vector2(BACK - 200.0, 400.0))
 	set_global.call("look_gbuf", _gbuf.get_texture())
 	set_global.call("look_mirror", _mirror.get_texture())
 	set_global.call("look_elev_sin", sin(deg_to_rad(elev)))
@@ -411,7 +444,7 @@ func _apply_camera() -> void:
 	if _art == null or _art.size.y <= 2:
 		return
 	var basis := Basis.from_euler(Vector3(deg_to_rad(-elev), deg_to_rad(yaw), 0.0), EULER_ORDER_YXZ)
-	var pos := target + basis.z * BACK
+	var pos := target + basis.z * back
 	var cx := pos.dot(basis.x)
 	var cy := pos.dot(basis.y)
 	var cz := pos.dot(basis.z)
@@ -502,8 +535,7 @@ func _on_button(key: String) -> void:
 			crawl = (crawl + 1) % CRAWLS.size()
 			_mark("crawl", CRAWLS[crawl])
 		"measure":
-			if _run < 0:
-				_start_measure()
+			_measure()
 
 
 func _process(delta: float) -> void:
@@ -518,10 +550,11 @@ func _process(delta: float) -> void:
 	if _mirror.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
 		_gpu += RenderingServer.viewport_get_measured_render_time_gpu(_mirror.get_viewport_rid())
 	if _clock >= 1.0:
-		_readout.text = (
-			"%d fps · graphics %.1f ms · art %d × %d · %.3f m a pixel"
-			% [_frames / _clock, _gpu / _frames, _art.size.x - 2, _art.size.y - 2, mpp]
-		)
+		if not _hold:
+			_readout.text = (
+				"%d fps · graphics %.1f ms · art %d × %d · %.3f m a pixel"
+				% [_frames / _clock, _gpu / _frames, _art.size.x - 2, _art.size.y - 2, mpp]
+			)
 		_frames = 0
 		_gpu = 0.0
 		_clock = 0.0
@@ -535,6 +568,18 @@ func _process(delta: float) -> void:
 		_apply_camera()
 	if shot != "" and Engine.get_process_frames() == 30:
 		_save_shot()
+
+
+## The Measure button, and "measure" on the command line for the cloud: the same path.
+func _measure() -> void:
+	if _run < 0:
+		_hold = true
+		_start_measure()
+
+
+## Whether a Measure is running.
+func _busy() -> bool:
+	return _run >= 0
 
 
 ## Measure (PLT-04): the graphics time of every pass and the share of frames on time at the
@@ -673,6 +718,7 @@ func _gui_input(e: InputEvent) -> void:
 	if e is InputEventScreenTouch:
 		var t := e as InputEventScreenTouch
 		if t.pressed:
+			_hold = _hold and _busy()
 			_touches[t.index] = t.position
 		else:
 			_touches.erase(t.index)

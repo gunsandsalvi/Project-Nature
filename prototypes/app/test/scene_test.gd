@@ -69,3 +69,22 @@ func test_the_line_for_the_chat() -> void:
 		assert_str(SCENE.code("P2", PackedStringArray(["camp 1.0/2.0 99%"]), [Vector2(-1, -1)]))
 		. is_equal("P2 | camp 1.0/2.0 99% | heat ?")
 	)
+
+
+# checks: PLT-04
+func test_measure_turns_the_view_and_ends_with_the_line() -> void:
+	var screen := _screen()
+	await await_idle_frame()
+	screen.set_process(false)
+	screen.call("_on_button", "measure")
+	var yaw: float = screen.yaw
+	for i in 60:
+		screen.call("_process", 1.0 / 60.0)
+	assert_float(absf(angle_difference(deg_to_rad(screen.yaw), deg_to_rad(yaw)))).is_greater(
+		deg_to_rad(8.0)
+	)
+	for i in 400:
+		screen.call("_process", 0.25)
+	assert_int(screen.get("_p2_run")).is_equal(-1)
+	assert_str((screen.get("_readout") as Label).text).contains("P2 ")
+	assert_int(screen.crawl).is_equal(2)

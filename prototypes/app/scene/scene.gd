@@ -37,8 +37,11 @@ var _hearth_y := 0.0
 var _fires := []
 var _omni: Array[OmniLight3D] = []
 var _forest: MultiMeshInstance3D
+## The forest and its plain, with their copies for the data passes: shown at camp zoom only.
+var _forest_nodes: Array[Node3D] = []
 var _plain: MeshInstance3D
 var _p2_run := -1
+var _p2_crawl := 0
 var _p2_clock := 0.0
 var _p2_samples := PackedFloat32Array()
 var _p2_late := 0
@@ -96,11 +99,18 @@ func _on_button(key: String) -> void:
 			_set_view("camp" if view == "close" else "close")
 		"fire":
 			_set_fire_light("Godot's" if fire_light == "ours" else "ours")
-		"measure":
-			if _p2_run < 0 and _run < 0:
-				_start_p2()
 		_:
 			super._on_button(key)
+
+
+func _measure() -> void:
+	if not _busy():
+		_hold = true
+		_start_p2()
+
+
+func _busy() -> bool:
+	return super._busy() or _p2_run >= 0
 
 
 ## The hour's light (PRE-30), with the three fires: burning low by day, high at dusk and night.
@@ -164,8 +174,14 @@ func _set_view(which: String) -> void:
 	var c: Dictionary = painter.camera
 	mpp = c.mpp if which == "close" else CAMP_MPP
 	_rest_mpp = mpp
-	_forest.visible = which == "camp"
-	_plain.visible = which == "camp"
+	for node in _forest_nodes:
+		node.visible = which == "camp"
+	# at camp zoom the ground in view runs about 1.2 km deep: the camera stands back past its near
+	# edge, and the shadows, haze and outline depths reach across it
+	if which == "close":
+		_set_back(BACK, 220.0)
+	else:
+		_set_back(1000.0, 900.0)
 	_apply_camera()
 	_mark("view", which)
 
@@ -213,9 +229,7 @@ func _build_camp(scene: Node3D) -> void:
 	_figures.instance_count = FIGURES
 	var node := MultiMeshInstance3D.new()
 	node.multimesh = _figures
-	node.material_override = _solid
-	node.layers = LAYER_MAIN
-	scene.add_child(node)
+	_add_shape(node, _solid, scene)
 	var hearth: Vector3 = _fires[0][0]
 	for i in FIGURES:
 		var at := _place(rng, hearth, 16.0)
@@ -231,10 +245,8 @@ func _build_camp(scene: Node3D) -> void:
 	for f in _fires.slice(1):
 		var tent := MeshInstance3D.new()
 		tent.mesh = _cone(1.8, 3.1, 10, rows.hide, 0.0)
-		tent.material_override = _solid
 		tent.position = _on_ground((f[0] as Vector3) + Vector3(0.0, 0.0, -3.0))
-		tent.layers = LAYER_MAIN
-		scene.add_child(tent)
+		_add_shape(tent, _solid, scene)
 		var flame := MeshInstance3D.new()
 		flame.mesh = _cone(0.35, 0.9, 6, rows.fire, FLAG_EMISSIVE, 5)
 		flame.material_override = _solid
@@ -305,10 +317,11 @@ func _build_forest(scene: Node3D) -> void:
 	var plain_y := _hearth_y - 3.0
 	_plain = MeshInstance3D.new()
 	_plain.mesh = _plain_mesh(PLAIN_SIDE)
-	_plain.material_override = _ground
 	_plain.position = Vector3((ext[0] + ext[2]) * 0.5, plain_y, (ext[1] + ext[3]) * 0.5)
-	_plain.layers = LAYER_MAIN
-	scene.add_child(_plain)
+	var first := scene.get_child_count()
+	_add_shape(_plain, _ground, scene)
+	for i in range(first, scene.get_child_count()):
+		_forest_nodes.append(scene.get_child(i))
 	var trees := MultiMesh.new()
 	trees.transform_format = MultiMesh.TRANSFORM_3D
 	trees.mesh = _tree_mesh(rows)
@@ -328,9 +341,10 @@ func _build_forest(scene: Node3D) -> void:
 		placed += 1
 	_forest = MultiMeshInstance3D.new()
 	_forest.multimesh = trees
-	_forest.material_override = _solid
-	_forest.layers = LAYER_MAIN
-	scene.add_child(_forest)
+	var before := scene.get_child_count()
+	_add_shape(_forest, _solid, scene)
+	for i in range(before, scene.get_child_count()):
+		_forest_nodes.append(scene.get_child(i))
 
 
 # --- shapes ------------------------------------------------------------------------------------
@@ -490,6 +504,9 @@ class Solid:
 
 
 func _start_p2() -> void:
+	# free turns while Measure turns the view: "ease" would pull it back to a whole step each frame
+	_p2_crawl = crawl
+	crawl = 0
 	_p2_results = PackedStringArray()
 	_heat = []
 	_read_clock = READ_EVERY
@@ -533,6 +550,8 @@ func _p2_step(delta: float) -> void:
 		return
 	_p2_run = -1
 	Engine.max_fps = 0
+	crawl = _p2_crawl
+	_rest_yaw = yaw
 	var main: GDScript = load("res://main.gd")
 	var line := code(
 		(

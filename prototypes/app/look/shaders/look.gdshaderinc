@@ -242,6 +242,10 @@ float sky_open(vec3 p, vec3 n) {
 		vec2 o = i == 0 ? vec2(0.0) : (i == 1 ? vec2(0.5, 0.0) : (i == 2 ? vec2(-0.5, 0.0) : (i == 3 ? vec2(0.0, 0.5) : vec2(0.0, -0.5))));
 		vec3 q = p + n * max(0.2, texel * 2.0) + vec3(o.x, 0.0, o.y) * max(1.0, texel);
 		vec2 uv = (q.xz - look_sky_box.xy) / look_sky_box.z;
+		if (any(lessThan(uv, vec2(0.0))) || any(greaterThan(uv, vec2(1.0)))) {
+			open += 1.0;  // beyond the map nothing is known to stand over it
+			continue;
+		}
 		vec4 s = texture(look_sky_map, uv);
 		float top = s.a > 0.5 ? look_sky_height.x + s.r * look_sky_height.y : -1e6;
 		open += top > q.y + max(0.35, texel * 3.0) ? 0.0 : 1.0;

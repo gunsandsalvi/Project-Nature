@@ -227,6 +227,7 @@ Following Box2D and Factorio (research 03):
    - The shared light function compares each pixel with its four neighbours there: a nearer pixel over a farther one darkens to the thing's own darker shade, and an outward fold lightens. So every shape, crowns and figures too, gets its outline and its lit edge.
    - **That picture is drawn first in each frame:** its viewport sits inside the picture's, since Godot draws a viewport's own viewports before it and others in the order they came. Drawn after, the picture read the last frame's outlines, which jumped whenever the camera moved: the flicker you saw in P1. A picture taken while the camera slides into place now matches one taken still, where before 2,998 of its pixels differed. The mirror's picture is drawn first the same way.
    - On your phone D held still where C flickered, but D draws no lit edges and outlines solid shapes only.
+   - **Every shape drawn has its copy in that picture,** made by the one function that adds shapes: P2's second build added figures, tents and trees without one, and C read each of them as all edge, darkening it whole.
    - **Easy to switch, as you asked:** the outline way is one setting, and each way is its own pass behind it, so another can replace C later without touching the materials.
      P1's code for the other three stays in git: A, normals rebuilt from Godot's depth texture by a quad over the picture; B, depth alone; D, each shape drawn again, enlarged, behind itself.
    - *Measured in P1:* in the cloud's software drawing, against no outlines, A and B cost about the same, D about a tenth more and C about a third more.
@@ -243,6 +244,7 @@ Following Box2D and Factorio (research 03):
 5. **Fire** (`MAT-18`): a warm, flickering light as bright as its heat.
    - *Built in P2:* our firelight term, summing up to four fires as the painter does, lights the instanced figures and the tents near each fire; small creatures take a fire's light round their sides too (0.65 of it), so a figure by a fire reads as lit from wherever the camera stands.
      The shaders work in world coordinates, so a moved or instanced shape gets its fire, sky and patterns where it stands, not where it was built.
+   - **Camp zoom** puts the camera 1 km back, past the nearest ground in view, and stretches the sun's shadows, the haze and the outline depths to the view's 1.2 km of ground; beyond the sky's height map, the sky is open.
    Godot stops lighting MultiMesh copies once its per-object light limit is used up, so fires reach figures and huts through a firelight term in our shaders, fed by a short list of nearby fires, if needed (research 17).
    - *To prove (P2, P3):* a camp lit by three fires at night.
 6. **Water** (`PRE-26`), the clear water you chose:
