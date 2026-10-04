@@ -5,6 +5,8 @@ import contextlib
 import importlib.util
 import io
 import os
+import shutil
+import tempfile
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -39,6 +41,31 @@ class Where(unittest.TestCase):
         self.assertNotIn("checks: none", text)
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(filecheck.where("ONE-77", files), 1)
+
+
+class Scan(unittest.TestCase):
+    # checks: PRC-12
+    def test_reads_every_layer_and_skips_prototypes_addons_and_builds(self):
+        with tempfile.TemporaryDirectory() as root:
+            shutil.copytree(os.path.join(filecheck.FIXTURES, "clean"), root, dirs_exist_ok=True)
+            for skipped in ("prototypes/app/one.gd", "game/addons/gdUnit4/one.gd", "sim/build/one.cpp"):
+                os.makedirs(os.path.dirname(os.path.join(root, skipped)), exist_ok=True)
+                with open(os.path.join(root, skipped), "w") as f:
+                    f.write("## Implements ONE-08\n")
+            files = filecheck.repo_files(root)
+        for read in (
+            "sim/src/one.cpp",
+            "sim/tests/one_test.cpp",
+            "game/one.gd",
+            "game/test/one_test.gd",
+            "data/one.toml",
+            "tools/tests/test_one.py",
+            "PROJECT.md",
+            "IMPLEMENTATION.md",
+        ):
+            self.assertIn(read, files)
+        for skipped in ("prototypes/app/one.gd", "game/addons/gdUnit4/one.gd", "sim/build/one.cpp"):
+            self.assertNotIn(skipped, files)
 
 
 class Note(unittest.TestCase):

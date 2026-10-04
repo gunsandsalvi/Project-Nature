@@ -94,6 +94,8 @@ prototypes/  pre-production's throwaway prototypes, each deleted once its answer
 dist/        the signed APK of the latest alpha and its note
 ```
 
+Each folder arrives with its first file: `game/` with the vertical slice, `sim/` and `data/` with the first C++ prototype.
+
 ### A2.2 Builds
 
 - **C++:** CMake and Ninja, C++20.

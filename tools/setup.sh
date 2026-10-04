@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Everything a fresh cloud session needs to build, test and deliver Kindling (A2.4).
 # Safe to run again: each part installs only what is missing, into $KD_CACHE (never the repository), and the script
-# says nothing when all is present. Every download is pinned to a version and checked by its checksum or commit.
+# says nothing when all is present. Every download is pinned to a version and checked by its checksum or commit;
+# the system's packages come from its Ubuntu release, the C++ format and lint tools by their version, 18.
 # It prints one line for each part it installs; on a failure, the command, its exit code and its output.
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -39,8 +40,8 @@ command -v qemu-aarch64-static >/dev/null || need+=(qemu-user-static)
 command -v aarch64-linux-gnu-g++ >/dev/null || need+=(g++-aarch64-linux-gnu)
 command -v cmake >/dev/null || need+=(cmake)
 command -v ninja >/dev/null || need+=(ninja-build)
-command -v clang-format >/dev/null || need+=(clang-format)
-command -v clang-tidy >/dev/null || need+=(clang-tidy)
+command -v clang-format-18 >/dev/null || need+=(clang-format-18)
+command -v clang-tidy-18 >/dev/null || need+=(clang-tidy-18)
 [ -x "$JAVA_HOME/bin/java" ] || need+=(openjdk-21-jdk-headless)
 if [ "${#need[@]}" -gt 0 ]; then
   echo "Setup: installing ${need[*]}"

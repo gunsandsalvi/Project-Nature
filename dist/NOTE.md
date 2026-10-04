@@ -29,11 +29,12 @@ The self-check as the cloud draws it, in portrait and in landscape:
 - The driver's version is decoded the way Vulkan packs versions; some makers pack theirs differently, so the line also carries the raw number, which I can decode.
 - The text uses Godot's own font for now; the pixel font comes with the interface prototype (P12, α0.7a).
 - The menu's entries are not buttons yet: each becomes one when its prototype arrives.
+- The self-check only reports for now; its few seconds of checks (the same results, a save and reopen) come with P5, α0.4a.
 - The app hides the status bar; swipe down from the top edge to see it.
 
 ## IDs delivered
 
-`PLT-01` (part: built for your phone alone, arm64 only, with the self-check), `PLT-03` (part: no network permission), `PLT-06` (part: installs over the old app, as `dev.kindling.app` with the release key), `PRC-10` (the checks rebuilt for Godot and C++), `PRC-11` (part: one command builds, signs and checks the APK), `PRC-12` (the coverage check for C++, GDScript and data).
+`PLT-01` (part: built for your phone alone, arm64 only, with the self-check), `PLT-03` (part: no network permission), `PLT-06` (part: installs over the old app, as `dev.kindling.app` with the release key), `PRC-10` (part: the checks rebuilt for Godot and C++), `PRC-11` (part: one command builds, signs and checks the APK), `PRC-12` (part: the coverage check for C++, GDScript and data).
 
 ## Links
 

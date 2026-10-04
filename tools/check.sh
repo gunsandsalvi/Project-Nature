@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # The checks before work joins main (PRC-10, A17), in order, stopping at the first failure:
-#   1 formats     GDScript (gdformat), C++ (clang-format) and Python (ruff)
+#   1 formats     GDScript (gdformat), C++ (clang-format 18) and Python (ruff)
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
-#   3 C++         each CMake project built, its doctest tests run, its code linted (clang-tidy)
+#   3 C++         each CMake project built, its doctest tests run, its code linted (clang-tidy 18)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
 #   5 tools       the tool tests, and the self-tests of the file check and the signing key
 #   6 file check  the three documents, and every commit since main that changes PROJECT.md (PRC-07)
@@ -42,7 +42,7 @@ mapfile -t SH < <(pick sh)
 
 step "1 formats"
 [ "${#GD[@]}" -eq 0 ] || quiet gdformat --check "${GD[@]}"
-[ "${#CPP[@]}" -eq 0 ] || quiet clang-format --dry-run --Werror "${CPP[@]}"
+[ "${#CPP[@]}" -eq 0 ] || quiet clang-format-18 --dry-run --Werror "${CPP[@]}"
 [ "${#PY[@]}" -eq 0 ] || quiet ruff format --check "${PY[@]}"
 echo "   ${#GD[@]} GDScript, ${#CPP[@]} C++ and ${#PY[@]} Python files"
 
@@ -64,7 +64,7 @@ for d in "${CMAKE[@]}"; do
   quiet cmake --build "$B"
   quiet ctest --test-dir "$B" --output-on-failure
   mapfile -t SRC < <(printf '%s\n' "${CPP[@]}" | grep -E "^$d/.*\.(cpp|cc)\$" || true)
-  [ "${#SRC[@]}" -eq 0 ] || quiet clang-tidy -p "$B" --quiet --header-filter="^$ROOT/$d/" "${SRC[@]}"
+  [ "${#SRC[@]}" -eq 0 ] || quiet clang-tidy-18 -p "$B" --quiet --header-filter="^$ROOT/$d/" "${SRC[@]}"
   echo "   $d: built, $(ctest --test-dir "$B" -N | sed -n 's/^Total Tests: //p') tests passed, ${#SRC[@]} files linted"
 done
 echo "   the same results on x86-64 and arm64, and on one thread and four (A3.4): from α0.4a"
@@ -102,11 +102,20 @@ for d in "${PROJECTS[@]}"; do
     [ -n "$RAN" ] || { tail -40 "$TMP/plain"; echo "gdUnit4 in $d: no summary"; exit 1; }
   fi
   # Godot writes a .uid file beside each new script and shader: they belong in the commit, so the check stops
-  # when Godot has added or changed anything.
+  # when Godot has added or changed anything, when a committed script's .uid is not committed with it, and, for a
+  # delivery, when anything in the project is not committed at all.
   after="$(git status --porcelain --untracked-files=all -- "$d")"
   if [ "$before" != "$after" ]; then
     echo "Godot wrote files in $d; commit them with the step:"
     diff <(echo "$before") <(echo "$after") | sed -n 's/^> /   /p'
+    exit 1
+  fi
+  for f in $(git ls-files -- "$d" | grep -E '\.(gd|gdshader|gdshaderinc)$' || true); do
+    git ls-files --error-unmatch "$f.uid" >/dev/null 2>&1 || { echo "$f.uid is not committed with $f"; exit 1; }
+  done
+  if [ "$DELIVER" = 1 ] && [ -n "$after" ]; then
+    echo "Not committed in $d, which a delivery needs:"
+    sed 's/^/   /' <<<"$after"
     exit 1
   fi
   echo "   $d: imported, $COMPILED scripts compiled, $RAN gdUnit4 tests passed"

@@ -21,7 +21,8 @@ ok() { echo "   ok  $*"; }
 # Signed by the scheme v2 or v3; a release carries the registered release certificate, so it installs over the
 # last alpha; and it is the step's: package dev.kindling.app, the step's version code and name.
 SIGS="$("$KD_BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK" 2>&1)" || fail "apksigner: $SIGS"
-grep -qE 'Verified using v[23] scheme \(APK Signature Scheme v[23]\): true' <<<"$SIGS" || fail "no v2 or v3 signature"
+grep -q 'Verified using v2 scheme (APK Signature Scheme v2): true' <<<"$SIGS" || fail "no v2 signature"
+grep -q 'Verified using v3 scheme (APK Signature Scheme v3): true' <<<"$SIGS" || fail "no v3 signature"
 if [ "$MODE" = release ]; then
   GOT="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' <<<"$SIGS")"
   WANT="$(cut -d' ' -f1 "$ROOT/android/keys/release-cert.sha256")"
@@ -52,20 +53,22 @@ done
 ok "arm64 only ($(wc -l <<<"$LIBS") libraries), aligned for 16 KB pages"
 
 # checks: PLT-02
-# Turning the phone turns the screen: the activity follows the sensor, as your rotation lock allows, and handles
-# the turn itself (configChanges holds orientation and screenSize).
+# Turning the phone turns the screen: the activity follows the sensor as your rotation lock allows (fullUser, 13),
+# and handles the turn itself (configChanges holds orientation and screenSize).
 MANIFEST="$("$AAPT2" dump xmltree --file AndroidManifest.xml "$APK" 2>/dev/null)"
 ORIENT="$(grep -o 'screenOrientation([^)]*)=[-0-9]*' <<<"$MANIFEST" | sed 's/.*=//' | head -1)"
-case "$ORIENT" in 10 | 13) ;; *) fail "the screen does not follow the phone (screenOrientation ${ORIENT:-unset})" ;; esac
+[ "$ORIENT" = 13 ] || fail "the screen does not follow the phone as the rotation lock allows (screenOrientation ${ORIENT:-unset})"
 CFG="$(grep -o 'configChanges([^)]*)=0x[0-9a-fA-F]*' <<<"$MANIFEST" | sed 's/.*=//' | head -1)"
 [ -n "$CFG" ] && (((CFG & 0x480) == 0x480)) || fail "configChanges lacks orientation or screenSize"
 ok "follows the phone's turning (screenOrientation $ORIENT, configChanges $CFG)"
 
 # checks: PLT-03
-# Offline: it asks for no network.
+# Offline: it asks for no permission at all, so never for the network; a step that needs one names it here.
+ALLOWED=""
 PERMS="$("$AAPT2" dump permissions "$APK" 2>/dev/null | sed -n "s/^uses-permission: name='\([^']*\)'.*/\1/p" | sort)"
 if grep -qx 'android.permission.INTERNET' <<<"$PERMS"; then fail "it asks for the network (INTERNET)"; fi
-ok "no network permission (permissions: $(tr '\n' ' ' <<<"${PERMS:-none}" | sed 's/ $//'))"
+for p in $PERMS; do grep -qwx "$p" <<<"$ALLOWED" || fail "it asks for $p, which no step needs"; done
+ok "no permissions"
 
 SIZE="$(stat -c %s "$APK")"
 [ "$SIZE" -le $((50 * 1024 * 1024)) ] || fail "$((SIZE / 1024)) KB, over the 50 MB a committed file may have"
