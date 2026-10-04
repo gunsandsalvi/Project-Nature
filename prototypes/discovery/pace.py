@@ -30,9 +30,9 @@ FRESH = list(range(1001, 1021))  # 20 seeds never tuned against, for the closing
 SWEEP = list(range(1, 41))
 FLAKE_YEARS = 7  # RES-02: each run until 2 years after its first flake, or 5 years if none comes; the control 7
 YEARS = 60  # a world runs until its first fire, or this long
-# what tuning aims at: flakes about a year and a half in; fire about 12 years in, the middle of its window as its
-# years multiply, so that halving or doubling a value keeps both inside
-FLAKE_AIM = 1.5
+# what tuning aims at: flakes about a year in, as you asked on 4 October 2026; fire about 12 years in, the middle of
+# its window as its years multiply, so that halving or doubling a value keeps both inside
+FLAKE_AIM = 1.0
 FIRE_AIM = 12.0
 FIRE_WINDOW = (5.0, 30.0)
 # the values a halving or doubling is tried on (MND-11's list of what tunes the pace)
