@@ -1,8 +1,0 @@
-# Uses each item the root clippy.toml bans once, outside the workspace (Cargo.toml excludes it), so
-# tools/check-banned.sh can fail unless clippy flags every one: a mistyped path in clippy.toml can't silently ban
-# nothing (A2.3 rule 6, A15.1). Never built into anything.
-[package]
-name = "kd-banned"
-version = "0.0.0"
-edition = "2024"
-publish = false

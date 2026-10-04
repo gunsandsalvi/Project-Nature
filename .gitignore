@@ -1,11 +1,12 @@
-/target/
-/tests/banned/target/
-__pycache__/
-/web/pkg/
-/dist/web/
+# Godot's caches; each .import file stays, since it holds that file's import settings
+.godot/
+# C++ builds (sim/, view/) and the Android plug-in's
+/build/
+/sim/build/
+/view/build/
+/android/plugin/build/
+/android/plugin/.gradle/
+# the note's page, made from dist/NOTE.md at delivery
 /dist/note/
-/android/.gradle/
-/android/build/
-/android/app/build/
-/android/.kotlin/
+__pycache__/
 *.tmp
