@@ -47,6 +47,7 @@ Godot's pictures below come from the cloud, drawn in software by the same render
 
 ## What is rough
 
+- **Your phone's numbers** (4 October): every way, with and without the mirror, held 60 frames a second, with 99–100% of frames on time, at 9.5 to 10.4 ms of graphics time a frame on average; the 8 ms aim is tested again in P2.
 - **The cloud's times mean little:** it draws in software, at about 300 ms a frame where your phone should take a few, so they only compare the ways: against no outlines, A and B cost about the same, D about a tenth more and C about a third more, and the mirror adds about a quarter. Your phone's line is the answer: P1 passes if one way draws the look in under about 8 ms of graphics time while panning.
 - **How close it is:** 87% of the pixels at noon and 76% at dusk are within 3 levels of 255 of the art book's, too little to see. Most of the rest are shadows, outlines and edges a pixel apart, and one thing more:
   - at dusk, the long shadows across the meadow's lower left are cast by trees beyond the art book's frame, added round the scene so that you can pan; the art book has no trees there.

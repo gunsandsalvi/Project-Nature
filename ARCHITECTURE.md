@@ -227,7 +227,8 @@ Following Box2D and Factorio (research 03):
    Grass, leaves and water are drawn after the pass and carry none.
    - *To prove (P1):* the four ways of research 04 (rebuilt normals; depth only; a second low-resolution camera drawing normals; enlarged back faces), each for its cost and its look.
    - *Built in P1:* A and B as a quad over the picture that reads Godot's depth texture; C as a second camera drawing each pixel's facing and depth into a half-float picture that the light function reads, as the painter does; D as each shape drawn again, enlarged, behind itself.
-     In the cloud's software drawing, against no outlines, A and B cost about the same, D about a tenth more and C about a third more; the phone's numbers decide.
+     In the cloud's software drawing, against no outlines, A and B cost about the same, D about a tenth more and C about a third more.
+     On your phone (4 October, at 1080 × 2404 and 60 frames a second) every way kept 99–100% of frames on time, at 9.5 to 10.1 ms of graphics time a frame on average, C the dearest by half a millisecond: the way is chosen by its look.
 4. **Light in clean steps** (`PRE-20`, `PRE-30`).
    - One shared light function, written once, used by every lit material.
    - Each material's ramp of 4 to 7 shades; the light picks the step, and steps meet in clean edges with no pattern mixing them: the sharp look you chose.
@@ -246,7 +247,7 @@ Following Box2D and Factorio (research 03):
    - the reflection of what stands above it by a second, low-resolution pass of the scene through a mirrored camera, every one of our shaders discarding what lies below the water in that pass, since Godot 4.7 has no clipped camera projection (research 01).
    - *To prove (P1):* the mirrored pass's cost; if it is too dear, reflections fall back to the sky's colour alone.
    - *Built in P1:* forward drawing leaves the water no record of the land round it, so its shore line is drawn where the water is thinnest, from the depth texture: within about an art pixel of the bank.
-     In the cloud the mirrored pass adds about a quarter to the frame.
+     In the cloud the mirrored pass adds about a quarter to the frame; on your phone at most 0.3 ms, so the reflections stay.
 7. **At speed** (`PRE-30`, `PRE-29`): once a day passes in under about 10 seconds, the light holds steady from high up and only its tint follows the hour; the map look is always lit so.
 8. **Smoke and mist,** as the painter draws them: only the nearest puff at each pixel, mixed over the picture's stored colours.
    Godot would blend every puff in linear light, which thickens the column and brightens it over dark ground; so a first pass draws each pixel's nearest puff depth, and a second draws that puff alone, its blend solved against the screen's copy (P1).
@@ -523,6 +524,8 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 
 Starting estimates, each replaced by what the prototypes measure on your phone at held speed (research 02):
 - **Frame:** 16.7 ms at 60 frames a second, the graphics chip under about 8 ms in the busiest scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
+  - P1's close camp on your phone (4 October, 1080 × 2404): 99–100% of frames on time at 60, the graphics chip about 10 ms a frame on average whichever the outline way or the mirror.
+    Ways that cost a third more in the cloud cost under a tenth more there, which suggests the chip lowers its clock when it has time to spare, so the 10 ms is partly idle; P2 measures at 120 frames a second, where a frame must cost under 8.3 ms, and the heat over 10 minutes.
 - **Simulation:** up to the four middle cores at held speed (`PLT-01`), at the speeds of `TIM-07`.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.
 - **The APK:** 25 MB from Godot itself (measured at α0.1a), 33 MB with P1's scene of the close camp (α0.2a), within the 50 MB limit for files committed to the repository.
