@@ -51,14 +51,14 @@ var _steps := 0
 
 func _ready() -> void:
 	outline = 3
-	crawl = 2
+	crawl = 3
 	hour = "noon"
 	zoom_range = Vector2(0.02, 0.12)
 	catalogue = JSON.parse_string(FileAccess.get_file_as_string(CATALOGUE))
 	super._ready()
 	var scene: Node3D = _art.get_child(0)
 	# the sheet is small: the sun's shadows, the haze and the outline depths need reach only across it
-	_set_back(BACK, 60.0)
+	_set_back(BACK, 70.0)
 	_build_sheet(scene)
 	# the hearth fire in the first hearth, behind the figures; one under the first lean-to's roof; and
 	# one before the figures, so each casts two shadows
@@ -66,9 +66,9 @@ func _ready() -> void:
 	for move: Dictionary in catalogue.movements:
 		figures += (placed[move.name][0] as Vector3) / float(catalogue.movements.size())
 	var under := Basis(Vector3.UP, PI * 0.5) * Vector3(0.0, 0.0, -0.45)
-	_add_fire(placed.hearth[0], 9.0, 1.0, scene)
-	_add_fire(placed["lean-to"][0] + under, 7.0, 0.8, scene)
-	_add_fire(figures + Vector3(0.0, 0.0, 1.8), 7.0, 0.8, scene)
+	_add_fire(placed.hearth[0], 13.0, 1.0, scene)
+	_add_fire(placed["lean-to"][0] + under, 10.0, 0.8, scene)
+	_add_fire(figures + Vector3(0.0, 0.0, 1.8), 10.0, 0.8, scene)
 	for i in _fires.size():
 		_add_smoke(_fires[i][0], 0.7 if i == 0 else 0.55, scene)
 	# "close" on the command line: the figures up close, two zoom steps in, for the cloud's pictures
@@ -163,6 +163,35 @@ func _build_sheet(scene: Node3D) -> void:
 					thing.copy = _copy_data(e, which, rows)
 				things.append(thing)
 		_place_row(scene, things, float(line[0]))
+	_add_tufts(scene, rows)
+
+
+## Tufts of grass round everything on the sheet, as the art book's sheets have them, and a few
+## across the meadow: one instanced shape.
+func _add_tufts(scene: Node3D, rows: Dictionary) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var spots: Array[Vector3] = []
+	for places: Array in placed.values():
+		for at: Vector3 in places:
+			for k in 6:
+				var a := rng.randf() * TAU
+				var r := rng.randf_range(0.6, 1.8)
+				spots.append(at + Vector3(cos(a) * r, 0.0, sin(a) * r))
+	for k in 160:
+		spots.append(Vector3(rng.randf_range(-14.0, 14.0), 0.0, rng.randf_range(-26.0, 10.0)))
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = KitShapes.tuft(rows)
+	mm.instance_count = spots.size()
+	for i in spots.size():
+		var size := rng.randf_range(0.8, 1.3)
+		var basis := Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * size)
+		mm.set_instance_transform(i, Transform3D(basis, spots[i]))
+	var node := MultiMeshInstance3D.new()
+	node.multimesh = mm
+	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_add_shape(node, _solid, scene)
 
 
 ## A copy's own material row and pattern, over 255, its wear and its seed, above 0.

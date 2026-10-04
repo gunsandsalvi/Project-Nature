@@ -7,6 +7,7 @@ extends RefCounted
 ## The look's flags (look.gdshaderinc).
 const EMISSIVE := 1.0
 const FOLIAGE := 2.0
+const NO_OUTLINE := 4.0
 const CREATURE := 32.0
 ## Parts that take their copy's own material, pattern and wear (solid.gdshader, A6.2).
 const COPY := 64.0

@@ -306,7 +306,7 @@ float fire_shadow(vec3 p, vec3 f) {
 			continue;
 		}
 		float top = occ_top(uv);
-		float h = mix(p.y + 0.15, f.y + 0.3, t / len);
+		float h = mix(p.y + 0.15, f.y + 1.5, t / len);
 		if (h < top) {
 			vec4 b = textureLod(look_occ_floor, vec2(1.0 - uv.x, uv.y), 0.0);
 			float bottom = b.a > 0.5 ? look_sky_height.x + b.r * look_sky_height.y : -1e9;
@@ -339,7 +339,7 @@ vec2 sky_and_fire(vec3 p, vec3 n, float fl) {
 		// wherever the camera stands
 		float wrap = bit(fl, FLAG_CREATURE) ? 0.65 : 0.35;
 		float lit = wrap + (1.0 - wrap) * max(dot(n, l / max(d, 0.001)), 0.0);
-		f += look_fire_powers[i] * att * att * lit * fire_shadow(p, look_fires[i].xyz);
+		f += look_fire_powers[i] * pow(att, 1.4) * lit * fire_shadow(p, look_fires[i].xyz);
 	}
 	return vec2(s, f);
 }
@@ -359,10 +359,10 @@ vec3 grade(vec3 c, float cls) {
 	vec3 g = tint(c, sunlit > 0.5 ? look_sun_tint : look_shade_tint);
 	float lc = dot(c, vec3(0.299, 0.587, 0.114));
 	if (fb > 0.5) {
-		g = mix(g, mix(tint(c, look_fire_tint), look_fire_tint * lc * 1.55, 0.6), fb > 1.5 ? 0.82 : 0.62);
+		g = mix(g, mix(tint(c, look_fire_tint), look_fire_tint * lc * 1.55, 0.3), fb > 1.5 ? 0.75 : 0.5);
 	}
 	float l = dot(g, vec3(0.299, 0.587, 0.114));
-	g = mix(g, vec3(l), look_desat * (fb > 0.5 ? 0.25 : 1.0));
+	g = mix(g, vec3(l), look_desat * (fb > 0.5 ? 0.0 : 1.0));
 	return clamp(g, 0.0, 1.0);
 }
 

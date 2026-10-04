@@ -9,7 +9,7 @@ extends RefCounted
 static func find(fire: Vector3, size: float, scene: Node3D) -> Array[Vector4]:
 	var tris := rock_above(scene, fire, 9.0)
 	var path: Array[Vector4] = []
-	var p := fire + Vector3(0.0, 0.4, 0.0)
+	var p := fire + Vector3(0.0, 0.15, 0.0)
 	var r := 0.45 * size
 	var wind := Vector3(0.55, 0.0, 0.3).normalized()
 	for step in 32:

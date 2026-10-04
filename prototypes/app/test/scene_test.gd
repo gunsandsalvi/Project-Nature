@@ -77,6 +77,7 @@ func test_measure_turns_the_view_and_ends_with_the_line() -> void:
 	var screen := _screen()
 	await await_idle_frame()
 	screen.set_process(false)
+	var crawl: int = screen.crawl
 	screen.call("_on_button", "measure")
 	var yaw: float = screen.yaw
 	for i in 60:
@@ -88,4 +89,4 @@ func test_measure_turns_the_view_and_ends_with_the_line() -> void:
 		screen.call("_process", 0.25)
 	assert_int((screen.get("_runs") as RefCounted).get("index")).is_equal(-1)
 	assert_str((screen.get("_readout") as Label).text).contains("P2 ")
-	assert_int(screen.crawl).is_equal(2)
+	assert_int(screen.crawl).is_equal(crawl)

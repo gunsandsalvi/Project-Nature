@@ -8,7 +8,7 @@ extends Control
 signal closed
 
 const ART := 4
-const BACK := 300.0
+const BACK := 100.0
 const SCENE := "res://look/close_camp.scn"
 const OUTLINES := ["none", "A", "B", "C", "D"]
 const CRAWLS := ["free", "steps", "ease", "rest"]
@@ -25,6 +25,8 @@ const Runs := preload("res://look/runs.gd")
 const P1Measure := preload("res://look/p1_measure.gd")
 ## The heights round the fires, for their shadows: the square's side in metres, and its pixels.
 const OCC_SIDE := 48.0
+## The sun's least height, degrees (_high_enough).
+const MIN_SUN := 14.0
 const OCC_SIZE := 512
 
 var painter: Dictionary
@@ -35,7 +37,7 @@ var mpp := 0.09
 var hour := "noon"
 var outline := 3
 var reflect := false
-var crawl := 2
+var crawl := 3
 var shot := ""
 ## For the cloud's check that a moving picture's outlines keep up: the camera slides into place.
 var drift := false
@@ -336,10 +338,13 @@ func _add_shape(
 
 ## The camera's distance, and what follows it: how far it sees, how far the sun's shadows reach,
 ## where the haze lies and the depths the outline data holds, all measured from the camera.
-## reach: how deep the ground in view runs beyond the target, metres.
+## reach: how deep the ground in view runs beyond the target, metres; the ground nearer the camera
+## than the target runs no deeper, so the view starts there, and the sun's shadow map, which spans
+## the view from its start, spends none of its pixels on the empty air before it.
 func _set_back(distance: float, reach: float) -> void:
 	back = distance
 	for cam: Camera3D in [_cam, _gbuf_cam, _mirror_cam]:
+		cam.near = maxf(1.0, distance - reach)
 		cam.far = maxf(distance * 3.0, distance + reach + 300.0)
 	_sun.directional_shadow_max_distance = distance + reach
 	var set_global := RenderingServer.global_shader_parameter_set
@@ -463,7 +468,7 @@ func fire_powers() -> Vector4:
 	if fire_light != "ours":
 		return powers
 	for i in _fires.size():
-		powers[i] = float(_fires[i][2]) * (1.0 if hour != "noon" else 0.35)
+		powers[i] = float(_fires[i][2]) * _burning()
 	return powers
 
 
@@ -474,10 +479,23 @@ func _light_fires() -> void:
 		var at: Vector3 = f[0]
 		lit = _with_column(lit, i, Vector4(at.x, at.y + 0.5, at.z, f[1]))
 		if i < _omni.size():
-			_omni[i].light_energy = 2.0 * float(f[2]) * (1.0 if hour != "noon" else 0.35)
+			_omni[i].light_energy = 2.0 * float(f[2]) * _burning()
 	var set_global := RenderingServer.global_shader_parameter_set
 	set_global.call("look_fires", lit)
 	set_global.call("look_fire_powers", fire_powers())
+
+
+## How high the fires burn against the daylight: low at noon, higher at dusk, full at night.
+func _burning() -> float:
+	return {"noon": 0.35, "dusk": 0.6}.get(hour, 1.0)
+
+
+## The way to the sun, at least MIN_SUN degrees up: the art book's dusk sun, 5° up, threw a tree's
+## shadow ten times its height, in stripes across the land; this one throws it about four times.
+static func _high_enough(to_sun: Vector3) -> Vector3:
+	var flat := Vector2(to_sun.x, to_sun.z).normalized()
+	var up := maxf(asin(clampf(to_sun.normalized().y, -1.0, 1.0)), deg_to_rad(MIN_SUN))
+	return Vector3(flat.x * cos(up), sin(up), flat.y * cos(up))
 
 
 static func _with_column(p: Projection, i: int, v: Vector4) -> Projection:
@@ -532,7 +550,7 @@ func _set_hour(name: String) -> void:
 	hour = name
 	var md: Dictionary = painter.moods[name]
 	var set_global := RenderingServer.global_shader_parameter_set
-	var to_sun := Vector3(md.sunDir[0], md.sunDir[1], md.sunDir[2])
+	var to_sun := _high_enough(Vector3(md.sunDir[0], md.sunDir[1], md.sunDir[2]))
 	_sun.transform = Transform3D(Basis.looking_at(-to_sun, Vector3.UP), Vector3.ZERO)
 	set_global.call("look_sun_dir", to_sun)
 	set_global.call("look_sun_k", float(md.sunK))

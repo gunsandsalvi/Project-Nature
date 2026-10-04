@@ -37,7 +37,7 @@ float thickness(vec3 x) {
 		}
 	}
 	float curl = vnoise3(x * 1.4 + vec3(0.0, -TIME * 0.8, TIME * 0.15));
-	return clamp(d * (0.35 + 0.95 * curl) - 0.18, 0.0, 1.5);
+	return clamp(d * (0.5 + 0.9 * curl) - 0.1, 0.0, 1.5);
 }
 
 // The fires' glow at a point of the smoke, without facing: the fire term's reach and power.
@@ -76,12 +76,12 @@ void fragment() {
 	float lit = 0.0;
 	for (int k = 0; k < STEPS; k++) {
 		vec3 x = ro + rd * (t0 + (float(k) + 0.5) * dt);
-		float a = 1.0 - exp(-thickness(x) * dt * 0.9 * strength);
+		float a = 1.0 - exp(-thickness(x) * dt * 1.5 * strength);
 		lit += (1.0 - acc) * a * glow(x);
 		acc += (1.0 - acc) * a;
 	}
 	// a few steps of thickness, so the smoke has clean edges like everything else
-	float a = floor(acc * 5.0) / 5.0 * 0.75;
+	float a = floor(acc * 5.0 + 0.4) / 5.0 * 0.85;
 	if (a <= 0.0) {
 		discard;
 	}

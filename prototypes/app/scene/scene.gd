@@ -30,7 +30,7 @@ var _plain: MeshInstance3D
 
 func _ready() -> void:
 	outline = 3
-	crawl = 2
+	crawl = 3
 	hour = "night"
 	zoom_range = Vector2(0.045, 1.2)
 	super._ready()
@@ -40,9 +40,9 @@ func _ready() -> void:
 	var at := Vector3(hearth.pos[0], hearth.pos[1], hearth.pos[2])
 	_hearth_y = at.y
 	# the painter's hearth, with its own flames, and a fire before each tent
-	_add_fire(at, 12.0, 1.0, scene, false)
-	_add_fire(_on_ground(at + Vector3(-8.0, 0.0, 7.0)), 7.0, 0.8, scene)
-	_add_fire(_on_ground(at + Vector3(9.0, 0.0, 8.0)), 7.0, 0.8, scene)
+	_add_fire(at, 16.0, 1.0, scene, false)
+	_add_fire(_on_ground(at + Vector3(-8.0, 0.0, 7.0)), 10.0, 0.8, scene)
+	_add_fire(_on_ground(at + Vector3(9.0, 0.0, 8.0)), 10.0, 0.8, scene)
 	_build_camp(scene)
 	_build_forest(scene)
 	var centre := Vector3.ZERO

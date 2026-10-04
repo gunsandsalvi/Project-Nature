@@ -39,9 +39,7 @@ static func build(e: Dictionary, which: int, rows: Dictionary) -> ArrayMesh:
 		"leanto":
 			_lean_to(m, e, row, rows, pat)
 		"tent":
-			m.cone(e.radius, e.height, 10, row, 0.0, Shape.PAT.hide)
-			var door := Vector3(0.0, 0.5, e.radius * 0.72)
-			m.box(door, Vector3(0.55, 1.0, 0.08), rows.charcoal, 0.0)
+			_tent(m, e, row, rows)
 		"hut":
 			_hut(m, e, row, rows, pat)
 		"broadleaf":
@@ -152,34 +150,115 @@ static func _lean_to(m: Shape, e: Dictionary, row: float, rows: Dictionary, pat:
 		m.pole(top, Vector3(x, 0.05, -d - 0.05), 0.035, rows.wood, 0.0, Shape.PAT.bark)
 
 
-## A round hut of the material, its doorway on the +z side. Its cover takes a copy's own material,
-## pattern and wear where it is drawn as copies (solid.gdshader, A6.2), so one shape makes a hut
-## of birch bark and one of reed, each worn in its own places (PRE-42, PRE-43).
+## A tent of hides on poles: a cone of ten faces, the one toward +z holding the doorway in its own
+## surface, so nothing stands out of it, and the poles crossing above its top, as the art book's
+## tents have them.
+static func _tent(m: Shape, e: Dictionary, row: float, rows: Dictionary) -> void:
+	var r: float = e.radius
+	var h: float = e.height
+	var sides := 10
+	var top := Vector3(0.0, h, 0.0)
+	for i in sides:
+		var a0 := TAU * i / sides
+		var a1 := TAU * (i + 1) / sides
+		var p0 := Vector3(cos(a0) * r, 0.0, sin(a0) * r)
+		var p1 := Vector3(cos(a1) * r, 0.0, sin(a1) * r)
+		var n := ((p0 + p1).normalized() * h + Vector3(0.0, r, 0.0)).normalized()
+		if i != 2:
+			m.tri(p0, p1, top, n, row, 0.0, Shape.PAT.hide)
+			continue
+		# the face toward +z (72° to 108°): the doorway, a third of its width and a metre high, and
+		# the hide round it
+		var at := func(s: float, y: float) -> Vector3:
+			return p0.lerp(p1, s) * (1.0 - y / h) + Vector3.UP * y
+		var door := 1.0
+		m.quad(
+			at.call(0.0, 0.0),
+			at.call(1.0 / 3.0, 0.0),
+			at.call(1.0 / 3.0, door),
+			at.call(0.0, door),
+			n,
+			row,
+			0.0,
+			Shape.PAT.hide
+		)
+		m.quad(
+			at.call(2.0 / 3.0, 0.0),
+			at.call(1.0, 0.0),
+			at.call(1.0, door),
+			at.call(2.0 / 3.0, door),
+			n,
+			row,
+			0.0,
+			Shape.PAT.hide
+		)
+		m.quad(
+			at.call(1.0 / 3.0, 0.0),
+			at.call(2.0 / 3.0, 0.0),
+			at.call(2.0 / 3.0, door),
+			at.call(1.0 / 3.0, door),
+			n,
+			rows.charcoal,
+			0.0
+		)
+		m.tri(at.call(0.0, door), at.call(1.0, door), top, n, row, 0.0, Shape.PAT.hide)
+	for k in 5:
+		var a := TAU * (k + 0.3) / 5.0
+		var foot := Vector3(cos(a) * r * 0.97, 0.0, sin(a) * r * 0.97)
+		m.pole(
+			foot, top + (top - foot).normalized() * 0.45, 0.03, rows.wood, 0.0, Shape.PAT.bark, 4
+		)
+
+
+## A round hut of the material, its doorway on the +z side in the dome's own surface, so nothing
+## stands out of it; pole ends at its top and pegs round its foot, as the art book's domes have.
+## Its cover takes a copy's own material, pattern and wear where it is drawn as copies
+## (solid.gdshader, A6.2), so one shape makes a hut of birch bark and one of reed, each worn in its
+## own places (PRE-42, PRE-43).
 static func _hut(m: Shape, e: Dictionary, row: float, rows: Dictionary, pat: int) -> void:
 	var r: float = e.radius
 	var h: float = e.height
 	var sides := 12
 	var rings := 5
 	for i in sides:
-		var a0 := TAU * i / sides
-		var a1 := TAU * (i + 1) / sides
+		# turned half a face, so one face looks straight down +z
+		var a0 := TAU * (i - 0.5) / sides
+		var a1 := TAU * (i + 0.5) / sides
 		for k in rings:
 			var b0 := PI * 0.5 * k / rings
 			var b1 := PI * 0.5 * (k + 1) / rings
 			var mid := (a0 + a1) * 0.5
 			var up := (b0 + b1) * 0.5
-			var n := Vector3(cos(mid) * cos(up), sin(up), sin(mid) * cos(up))
+			var n := Vector3(cos(mid) * cos(up), sin(up), sin(mid) * cos(up)).normalized()
+			var doorway := i == 3 and k < 2
 			m.quad(
 				_dome(r, h, a0, b0),
 				_dome(r, h, a1, b0),
 				_dome(r, h, a1, b1),
 				_dome(r, h, a0, b1),
-				n.normalized(),
-				row,
-				Shape.COPY,
-				pat
+				n,
+				rows.charcoal if doorway else row,
+				0.0 if doorway else Shape.COPY,
+				0 if doorway else pat
 			)
-	m.box(Vector3(0.0, 0.45, r * 0.93), Vector3(0.5, 0.9, 0.12), rows.charcoal, 0.0)
+	for k in 3:
+		var a := TAU * k / 3.0
+		var out := Vector3(cos(a) * 0.25, 0.0, sin(a) * 0.25)
+		m.pole(
+			Vector3(0.0, h - 0.1, 0.0) - out,
+			Vector3(0.0, h + 0.3, 0.0) + out,
+			0.03,
+			rows.wood,
+			0.0,
+			0,
+			4
+		)
+	for k in 10:
+		var a := TAU * (k + 0.5) / 10.0
+		if absf(angle_difference(a, PI * 0.5)) < 0.4:
+			continue
+		var at := Vector3(cos(a) * (r + 0.05), 0.12, sin(a) * (r + 0.05))
+		m.box(at, Vector3(0.07, 0.24, 0.07), rows.wood, 0.0)
 
 
 ## A point of a dome of radius r and height h, at an angle round and an angle up.
@@ -235,6 +314,8 @@ static func figure(rows: Dictionary, d: Dictionary, pose: Dictionary) -> ArrayMe
 	var waist := Transform3D(_turn(_angle(pose, "bend")), pelvis)
 	m.xf = waist
 	m.box(Vector3(0.0, torso * 0.5, 0.0), Vector3(0.4, torso, 0.24), top, f, Shape.PAT.hide)
+	# a belt at the waist, a small detail the art book's figures carry
+	m.box(Vector3(0.0, 0.05, 0.0), Vector3(0.42, 0.06, 0.26), rows.leather, f)
 	var hands: Array[Transform3D] = []
 	for side: float in [-1.0, 1.0]:
 		var k := "l" if side < 0.0 else "r"
@@ -283,6 +364,27 @@ static func _item(
 			m.xf = hands[1]
 			m.box(Vector3.ZERO, Vector3(0.08, 0.05, 0.12), rows.flint, f)
 	m.xf = Transform3D.IDENTITY
+
+
+## A tuft of grass: five thin blades leaning out from a point, foliage to the light, a step lighter
+## than the meadow and drawn without an outline, which would make a pixel-sized tuft all edge.
+static func tuft(rows: Dictionary) -> ArrayMesh:
+	var m := Shape.new()
+	m.bias = 1
+	for k in 5:
+		var a := TAU * k / 5.0 + 0.4
+		var out := Vector3(cos(a), 0.0, sin(a))
+		var side := Vector3(-out.z, 0.0, out.x) * 0.025
+		var tip := out * 0.09 + Vector3(0.0, 0.16 + 0.05 * (k % 2), 0.0)
+		m.tri(
+			-side,
+			side,
+			tip,
+			(out + Vector3.UP).normalized(),
+			rows.grass,
+			Shape.FOLIAGE + Shape.NO_OUTLINE
+		)
+	return m.commit()
 
 
 ## A turn about the figure's side-to-side axis: positive tips a part standing up forward, and
