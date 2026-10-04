@@ -3,7 +3,7 @@
 The order in which Kindling is built.
 It follows `PROJECT.md` (what the game must be) and `ARCHITECTURE.md` (how it is built), and cites both: items by ID (`TIM-16`), parts of the architecture by section (A3.4).
 It follows the guide of research 00, the way real teams work: pre-production first, a prototype for each risk and then a vertical slice, then production bottom up, as you asked: the foundations first, then the graphics engine, the world, living nature, people, minds, crafts, culture, and the game itself last.
-Every step ends with a build on your phone or a report from the cloud, and every milestone with a report you review (`RES-06`, `RES-22`).
+Every step ends with a build on your phone, and every milestone with a report you review (`RES-06`, `RES-22`).
 
 Only the next milestone is planned in detail: pre-production.
 The later ones are outlines (their goal, the items they deliver, what you will see), each detailed when it comes next, from what the earlier ones taught.
@@ -12,12 +12,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 ## Status (4 October 2026)
 
 - Rewritten from the research redone on 4 October and the art book you accepted, after the first version of 3 October (git keeps it at `f881525`).
-- **Waiting for your OK,** with the proposals it needs in `PROJECT.md` (listed in its section 17.2):
-  - pre-production as a milestone of its own (`MIL-18`), before the ten bottom-up milestones (`SCP-16`, `MIL-08` to `MIL-17`), the old seven retired, and the items that named them pointed at the new ones;
-  - the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`);
-  - the documents and what comes next (`PRC-04`, `PRC-08`).
-- Nothing is built until then.
-  On your OK, the first step removes the old code (git keeps it) and sets up the workshop for Godot and C++.
+- **Approved by you on 4 October 2026,** with its proposals, now decided in `PROJECT.md`: pre-production as a milestone of its own (`MIL-18`), then the ten bottom-up milestones (`SCP-16`, `MIL-08` to `MIL-17`), the old seven retired; the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`); the documents and what comes next (`PRC-04`, `PRC-08`).
+- Building has started with the workshop (α0.1a).
 
 ## How to use this plan
 
@@ -59,7 +55,7 @@ For the AI agent building a step:
     - the owner approves both with the milestone review (`RES-22`).
 
 For you, the owner:
-- Each step's **On the phone** says what to open and what you should see, or which report to read when the step ran in the cloud.
+- Each step's **On the phone** says what to open and what you should see; a step that ran in the cloud shows its charts in the app's Reports page.
   Each build installs over the last (`PLT-06`).
 - Reply with anything that looks wrong: it goes into the next step.
 - At each milestone's end you get a short report to accept or send back, with the next milestone's plan for your OK.
@@ -109,7 +105,6 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 ## What the plan asks of you
 
-- **Now:** your OK for this plan and its proposals.
 - **During pre-production,** a few minutes per phone prototype:
   - install it from the note's link, try what the note says, and copy the short code it shows into the chat;
   - at P1 and P3, say how close the look is to the art book, and choose the fix for crawling pixels (`PRE-22`);
@@ -126,7 +121,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α0.1a | The workshop | M0 | 6 | Waiting for your OK |
+| α0.1a | The workshop | M0 | 6 | In progress |
 | α0.2a | P1 The look | M0 | 6 | Not started |
 | α0.2b | P2 A full scene | M0 | 5 | Not started |
 | α0.2c | P3 The kit | M0 | 6 | Not started |
@@ -158,7 +153,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 
 **You will see:**
 - On your phone, one prototype app growing step by step: the art book's camp drawn by Godot, a busy camp at night, the model kit, a thousand minds at speed, a world made and one pinch from the globe to a person, a card and a book page, the writer's sentences, and the camp's sounds.
-- From the cloud, reports: whether discovery can be tuned to its pace, whether nature and culture hold, and whether the director keeps its budget.
+- From the cloud, reports shown in the app: whether discovery can be tuned to its pace, whether nature and culture hold, and whether the director keeps its budget.
 - Then the vertical slice: a band living a day at their cliff camp at the art book's look, the first piece of the real game.
 
 **Risks:**
@@ -291,7 +286,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 
 **Goal:** answer the riskiest design question (`RSK-01`): can tuning alone make sharp flakes come within 5 years and fire within its window, with the world's own rules?
 
-**Serves:** `TIM-19`, `RES-02`, `RES-03`, `MND-06`, `MND-11`, `MND-13`, `RCK-01`, `RCK-02`.
+**Serves:** `TIM-19`, `RES-02`, `RES-03`, `RES-06`, `MND-06`, `MND-11`, `MND-13`, `RCK-01`, `RCK-02`.
 
 **Architecture:** A12, A11.
 
@@ -305,12 +300,14 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
    Watching and teaching spread a skill; it dies with its last holder.
 4. `T0.3a.4` **Tune and test (`RES-02`, `RES-03`, `TIM-19`).**
    The sharp-stone test over 20 runs; the discovery factors tuned until it passes and fire lands in its window; how sensitive the pace is to each factor.
+5. `T0.3a.5` **The Reports page (`RES-06`).**
+   The prototype app gains a Reports page that shows the charts a cloud prototype makes, starting with this one's; the later cloud prototypes add theirs.
 
 **Tests:**
 - The sharp-stone pass rule (`RES-03`) over 20 runs, and fire's window (`TIM-19`).
 - Passes if a tuning meets both, and no single factor holds the pace on a knife's edge.
 
-**On the phone:** nothing to install; the note links the report: the runs' discovery years, and how the pace moves with each factor.
+**On the phone:** the prototype app's Reports page shows the runs' discovery years and how the pace moves with each factor; the note links the full report.
 
 ### α0.4a P5 The same bits
 
@@ -424,7 +421,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 **Tests:**
 - Passes if every species stays within half and twice its total, and hunters to prey within `WLD-18`'s range, in the 20 worlds.
 
-**On the phone:** nothing to install; the note links the charts.
+**On the phone:** the Reports page shows each species' total over the hundred years; the note links the full report.
 
 ### α0.6b P10 Culture from causes
 
@@ -446,7 +443,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 **Tests:**
 - Passes if each appears inside its window in at least half the runs, and every one traces back to its own cause.
 
-**On the phone:** nothing to install; the note links the report, with one run's story told from its events.
+**On the phone:** the Reports page shows when each first appeared, and one run's story told from its events.
 
 ### α0.6c P11 The director
 
@@ -466,7 +463,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 **Tests:**
 - Passes if the budget holds, no named discovery is missed, and the worlds end identical with it on and off.
 
-**On the phone:** nothing to install; the note links the report.
+**On the phone:** the Reports page shows the director's budget and the moments it caught.
 
 ### α0.7a P12 The interface
 
@@ -559,7 +556,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 **Tests:**
 - A search of the architecture finds no *to prove* line left without its answer or a reason.
 
-**On the phone:** nothing to install; read the report, and reply OK or say what to change.
+**On the phone:** the Reports page shows what each prototype answered; read the full report, and reply OK or say what to change.
 
 ### The vertical slice (outline, detailed in α0.8a)
 
@@ -631,7 +628,7 @@ One band at a cliff camp through a day, at the art book's look, on your phone, b
 - the ground drawn at every distance, up to the globe;
 - the climate and the weather running over it.
 
-**Serves:** `WLD-01`, `WLD-02`, `WLD-03`, `WLD-06`, `WLD-07`, `WLD-08`, `WLD-09`, `WLD-10`, `WLD-11`, `WLD-12`, `WLD-13`, `WLD-14`, `WLD-15`, `WLD-16`, `WLD-17`, `WLD-22`, `WLD-24`, `WLD-26`, `WLD-27`, `WLD-30`, `WLD-34`, `PRE-03`, `PRE-25`, `PRE-29`.
+**Serves:** `WLD-01`, `WLD-02`, `WLD-03`, `WLD-06`, `WLD-07`, `WLD-08`, `WLD-09`, `WLD-10`, `WLD-11`, `WLD-12`, `WLD-13`, `WLD-14`, `WLD-15`, `WLD-16`, `WLD-17`, `WLD-22`, `WLD-24`, `WLD-26`, `WLD-27`, `WLD-30`, `PRE-03`, `PRE-25`, `PRE-29`.
 
 **You will see:**
 - Make a world, and choose among the best three.

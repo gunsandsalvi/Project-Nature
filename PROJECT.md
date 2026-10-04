@@ -112,7 +112,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
    A new item takes the next free number in its area, wherever it sits in the text.
    A new ID becomes permanent only when it reaches the main version; until then, a branch whose number is taken renumbers its own new items.
 3. A cut item is removed, and its ID is retired: never reused, and cited nowhere.
-   Retired IDs: `BIO-07`, `CUL-04`, `CUL-13`, `CUL-14`, `CUL-15`, `CUL-25`, `MAT-15`, `MND-17`, `MND-25`, `MOM-05`, `MOM-10`, `PRC-05`, `PRE-04`, `PRE-11`, `PRE-12`, `PRE-36`, `PRE-38`, `PRN-08`, `RCK-05`, `RCK-09`, `RCK-17`, `RCK-18`, `RCK-19`, `RCK-20`, `RES-04`, `RES-08`, `RES-11`, `RES-15`, `RES-20`, `RSK-10`, `RSK-12`, `RSK-13`, `RSK-16`, `RSK-17`, `RSK-20`, `RSK-22`, `SCP-13`, `SCP-14`, `SND-04`, `SND-05`, `SND-09`, `SND-10`, `TIM-06`, `TIM-12`, `TIM-13`, `VIS-13`, `WLD-05`, `WLD-19`, `WLD-20`, `WLD-21`, `WLD-23`, `WLD-25`, `WLD-29`.
+   Retired IDs: `BIO-07`, `CUL-04`, `CUL-13`, `CUL-14`, `CUL-15`, `CUL-25`, `MAT-15`, `MIL-01`, `MIL-02`, `MIL-03`, `MIL-04`, `MIL-05`, `MIL-06`, `MIL-07`, `MND-17`, `MND-25`, `MOM-05`, `MOM-10`, `PRC-05`, `PRE-04`, `PRE-11`, `PRE-12`, `PRE-36`, `PRE-38`, `PRN-08`, `RCK-05`, `RCK-09`, `RCK-17`, `RCK-18`, `RCK-19`, `RCK-20`, `RES-04`, `RES-08`, `RES-11`, `RES-15`, `RES-20`, `RSK-10`, `RSK-12`, `RSK-13`, `RSK-16`, `RSK-17`, `RSK-20`, `RSK-22`, `SCP-13`, `SCP-14`, `SND-04`, `SND-05`, `SND-09`, `SND-10`, `TIM-06`, `TIM-12`, `TIM-13`, `VIS-13`, `WLD-05`, `WLD-19`, `WLD-20`, `WLD-21`, `WLD-23`, `WLD-25`, `WLD-29`, `WLD-34`.
 4. The implementation plan maps every feature and rule to a stage, and every task names the IDs it delivers, as the coverage check enforces (`PRC-12`).
 5. Code and tests name the IDs they implement, so any feature can be followed from this file to the plan to the code, and back.
 6. A new area gets a new three-letter code in the table below, and its own section or subsection.
@@ -217,60 +217,60 @@ Each item's detailed acceptance criteria are written in the implementation plan,
       1. Someone twirling a stick against dry wood while experimenting or at play (`MND-11`) matches the blueprint for fire by drilling (`RCK-02`) and fails in its usual way, with smoke but no ember; the surprise gives a hunch (`MND-10`, `MND-11`).
       2. When the band's found fire dies (`BIO-02`), cold pushes the most curious to try the hunch again and again with the driest wood they can find, until an ember glows: a named discovery (`MAT-21`), passed on by teaching (`MND-13`).
       3. A dream you send can set the smoking stick beside the warmth of a fire, raising the odds but promising nothing (`GOD-03`).
-    - **Check:** a band of about 20 with dry wood and tinder, one of them holding a hunch from a smoking stick, loses its fire as winter starts; it makes fire by drilling within 1 year; from `MIL-03`.
+    - **Check:** a band of about 20 with dry wood and tinder, one of them holding a hunch from a smoking stick, loses its fire as winter starts; it makes fire by drilling within 1 year; from `MIL-14`.
   - `MOM-02` **The lost craft** *(Decided)*: A fever kills the last person in a band who can make fine blades.
     For years, sometimes a generation, its tools are cruder, until the craft is found again, learned from neighbours, or copied from an old blade.
     - **How it works:**
       1. A fever (`BIO-05`) kills the last person who knew the blade blueprint (`BIO-14`), a craft that takes long experience in stone (`MND-06`); the knowledge dies with them (`CUL-02`), and the survivors' plain flakes are cruder and wear out sooner (`MAT-20`).
       2. It comes back only by experimenting, from neighbours (`CUL-16`), or by copying an old blade, which gives only a weak hunch (`MND-11`); the book of ages marks the loss and the return (`PRE-39`).
-    - **Check:** two bands a day's walk apart, the blade blueprint known to one adult in one of them, where a fever starts; within 40 years the craft is lost, then made again; from `MIL-04`.
+    - **Check:** two bands a day's walk apart, the blade blueprint known to one adult in one of them, where a fever starts; within 40 years the craft is lost, then made again; from `MIL-14`.
   - `MOM-03` **Your lightning becomes a god** *(Decided)*: A lightning strike you sent kills a hunter on a hilltop.
     - **How it works:**
       1. A death from the sky (`GOD-02`) can be put down to an unseen being in the storm (`MND-05`, `CUL-05`), and fear ties itself to the hill (`MND-08`).
       2. They avoid the hill (`CUL-20`); an angry spirit pulls its believers to leave gifts at its place (`CUL-05`), and when the storms stop after one, the gift is credited (`MND-05`) and leaving gifts there becomes a rite (`CUL-34`).
       3. Retold, the story becomes a myth (`CUL-11`), and in time part of their religion (`CUL-26`); nothing marks the strike as yours (`GOD-06`).
-    - **Check:** a band whose hunters cross a bare hilltop, where the test's lightning kills one; within 30 years the band avoids the hill, leaves gifts there as a rite and tells a myth of the one in the storm; from `MIL-05`.
+    - **Check:** a band whose hunters cross a bare hilltop, where the test's lightning kills one; within 30 years the band avoids the hill, leaves gifts there as a rite and tells a myth of the one in the storm; from `MIL-16`.
   - `MOM-04` **The song that does nothing** *(Decided)*: A band sings before a hunt that goes well.
     The song becomes a hunting rite and is kept for centuries, though it changes nothing.
     - **How it works:**
       1. The song gets the credit for the good hunt (`MND-05`); singing costs little, and hunts go well often enough that the belief survives and spreads (`CUL-01`).
       2. Held by most of the band, it becomes a rite (`CUL-34`), kept long after anyone remembers why (`CUL-06`).
-    - **Check:** a band that hunts every few days and sometimes sings; within 20 years, singing before hunts becomes a rite and is kept for at least 10 of them; from `MIL-05`.
+    - **Check:** a band that hunts every few days and sometimes sings; within 20 years, singing before hunts becomes a rite and is kept for at least 10 of them; from `MIL-15`.
   - `MOM-06` **The camp wolf** *(Decided)*: The boldest wolves scavenge at the edge of camp.
     - **How it works:**
       1. Scraps draw the boldest wolves close, and wolves fed and not harmed lose their fear of people (`WLD-32`, `MND-16`); you can send one a dream of the scraps (`GOD-12`).
       2. A she-wolf grown bold dens near camp; when she is killed or driven off, children carry her pups home (`MAT-06`) and feed and play with them (`MND-09`), and young raised by people grow tame (`RCK-24`).
       3. The litter, kept together, breeds near camp; after several generations the line becomes dogs (`WLD-33`), recorded in the book of ages (`PRE-05`).
-    - **Check:** a band with a rubbish heap at camp and a wolf pack denning within 2 km; the band keeps dogs within 40 years; from `MIL-06`.
+    - **Check:** a band with a rubbish heap at camp and a wolf pack denning within 2 km; the band keeps dogs within 40 years; from `MIL-15`.
   - `MOM-07` **A painting that remembers** *(Decided)*: A painting of a great hunt outlasts everyone who saw it.
     - **How it works:**
       1. Someone who remembers a great hunt vividly (`MND-18`) paints it in red ochre and fat on a sheltered wall, in their people's style, with the animals and hunters that were really there (`CUL-09`); paint in shelter lasts for centuries (`RCK-16`).
       2. The hunt is in the saved history (`PRN-15`), and a painting of it keeps it from being thinned (`PLT-10`), so tapping the painting shows what it depicts and what really happened (`PRE-15`).
-    - **Check:** a band with ochre, fat and a sheltered wall, just after a great hunt; within 80 years a painting of it outlives its last witness, and tapping it shows the saved hunt; from `MIL-05`.
+    - **Check:** a band with ochre, fat and a sheltered wall, just after a great hunt; within 80 years a painting of it outlives its last witness, and tapping it shows the saved hunt; from `MIL-16`.
   - `MOM-08` **Seeds on the rubbish heap** *(Decided)*: Seeds thrown on the rubbish heap sprout near camp.
     - **How it works:**
       1. In the growing season, some seeds thrown on the camp's heap sprout in its rich, damp ground (`MAT-08`, `RCK-23`).
       2. People notice food plants growing on the heap, where they always throw that plant's husks and seeds (`MND-10`); the surprise links the plants to what is done at that place (`MND-05`), and gives a hunch that seed thrown on rich ground grows (`MND-11`).
       3. When food runs short, someone tries putting seeds in the ground on purpose; tended plots grow better (`RCK-23`), and sowing spreads by copying and teaching (`CUL-01`).
-    - **Check:** a band that camps by wild grain each summer, with a rubbish heap; within 50 years someone sows seed on purpose and harvests it; from `MIL-07`.
+    - **Check:** a band that camps by wild grain each summer, with a rubbish heap; within 50 years someone sows seed on purpose and harvests it; from `MIL-17`.
   - `MOM-09` **The dig** *(Decided)*: Digging a pit on an old campsite, someone turns up a tool nobody living knows how to make, and copies it.
     - **How it works:**
       1. A band that made eyed bone needles dies out, and its camp and tools are slowly buried where they were left (`MAT-08`).
       2. Generations later, a woman of another band digs a storage pit there and finds a needle; it gives her a weak hunch (`MND-11`), and her experience decides how soon she copies it (`MND-06`).
       3. The book of ages marks a rediscovery (`PRE-39`), and the craft spreads again (`CUL-01`).
-    - **Check:** a band without needles stores food in a cave whose floor hides an old camp's eyed needles; within 10 years someone digs one up and makes a needle; from `MIL-04`.
+    - **Check:** a band without needles stores food in a cave whose floor hides an old camp's eyed needles; within 10 years someone digs one up and makes a needle; from `MIL-14`.
   - `MOM-11` **Rivals, then in-laws** *(Decided)*: Two bands fight over a valley, then marry into each other.
     - **How it works:**
       1. Two bands of peoples long apart rely on one valley's game and nuts (`MND-28`); when they meet there, fear, anger and hunger can make a raid the better choice (`MND-09`, `CUL-31`).
       2. Losses, and too few partners at home, make marrying across the better choice for some (`CUL-27`); kin rarely raid each other, so fights grow rarer (`CUL-31`).
       3. Each side retells the fight through its own memories and beliefs, so their stories differ (`MND-18`, `CUL-11`).
-    - **Check:** two bands of peoples long apart share one valley in lean years; within 40 years a raid, then at least two marriages across, then fewer raids than before; from `MIL-06`.
+    - **Check:** two bands of peoples long apart share one valley in lean years; within 40 years a raid, then at least two marriages across, then fewer raids than before; from `MIL-15`.
   - `MOM-12` **Metal from green stone** *(Decided)*: Pots painted green come out of a blown kiln flecked with shiny metal, and someone notices.
     - **How it works:**
       1. Potters who know the blown firing (`MAT-23`) blow into their charcoal kilns through pipes, so the kiln reaches heat 5 and fires tougher pots in half the time (`MAT-18`, `MAT-19`).
       2. Pots painted with ground green ore (`CUL-09`) come out flecked with metal (`MAT-19`, `RCK-08`).
       3. The shine is a surprise (`MND-10`) that may lead someone to try again (`MND-11`); the first copper is a named discovery (`MAT-21`) and begins a new age in the book of ages (`PRE-05`).
-    - **Check:** potters who know the blown firing and paint pots green, with green ore in reach; within 30 years someone notices copper from a blown kiln (`MAT-21`); from `MIL-07`.
+    - **Check:** potters who know the blown firing and paint pots green, with green ore in reach; within 30 years someone notices copper from a blown kiln (`MAT-21`); from `MIL-17`.
 
 ### 1.5 The arc of a world
 
@@ -416,14 +416,11 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 ### 2.5 How it's built
 
-- `PRN-09` **Build in playable steps** *(Decided)*
-  - **What:** The game is built as a series of playable alphas, each ending with something you can open and play on your phone (`SCP-03`).
+- `PRN-09` **Build in steps you can try** *(Decided)*
+  - **What:** The game is built as a series of alphas, each ending with something you can install, open and try on your phone (`SCP-03`): a test screen or a scene to look at in the first milestones, then a world to explore and watch, and the game to play from `MIL-16`.
     Each alpha builds only what it needs, on foundations that later ones extend without starting over.
-  - **Example:** Copper waits for the last milestone (`MIL-07`), but things and blueprints are designed from the start so it can be added without rework.
-  - **Check:** every alpha ends with a build you can install and play (`PRC-11`), and every task in the implementation plan names the items it delivers.
-  - **Proposed change:** renamed **Build in steps you can try**, its What becoming: the game is built as a series of alphas, each ending with something you can install, open and try on your phone (`SCP-03`): a test screen or a scene to look at in the first milestones, then a world to explore and watch, and the game to play from `MIL-16`.
-    Each alpha builds only what it needs, on foundations that later ones extend without starting over; the example's copper waits for the last milestone (`MIL-17`), and the Check reads "a build you can install and try".
-    Why: building bottom up (`SCP-16`) means the first milestones have no game to play yet, only foundations to see working.
+  - **Example:** Copper waits for the last milestone (`MIL-17`), but things and blueprints are designed from the start so it can be added without rework.
+  - **Check:** every alpha ends with a build you can install and try (`PRC-11`), and every task in the implementation plan names the items it delivers.
 
 - `PRN-14` **Modular by design** *(Decided)*
   - **What:** Every system grows by adding self-contained pieces (items, blueprints, plants, animals, illnesses, behaviours, views, tests), and never rewrites what already works without a stated reason.
@@ -453,11 +450,9 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 ### 3.3 How it gets built
 
-- `SCP-03` **Playable alphas** *(Decided)*: The game is built as a series of playable alphas, each a few hours of AI work, each ending with something you can install, open and play on your phone (`PRN-09`, `PRC-11`).
+- `SCP-03` **Alphas you can try** *(Decided)*: The game is built as a series of alphas, each a few hours of AI work, each ending with something you can install, open and try on your phone (`PRN-09`, `PRC-11`).
   Every alpha comes with its automated tests (`RES-01`).
   - **Check:** the check of `PRC-11` passes.
-  - **Proposed change:** renamed **Alphas you can try**, its text becoming: the game is built as a series of alphas, each a few hours of AI work, each ending with something you can install, open and try on your phone (`PRN-09`, `PRC-11`).
-    Why: as for `PRN-09`, the first milestones have no game to play yet.
 
 - `SCP-15` **Tests run in the AI's cloud sessions** *(Decided)*
   - **What:** Automated tests run in the same cloud sessions where the AI builds the game.
@@ -465,62 +460,31 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   - **Why:** There's nothing extra to set up or maintain; any need for more computing is raised with you first.
   - **Check:** every milestone report states where its tests ran and how much computing they used (`RES-06`).
 
-- `SCP-16` **Milestones** *(Decided)*: The game is built in seven milestones, in order, each a stage of several playable alphas (`SCP-03`) ending with a report you review (`RES-06`).
-  This file keeps each milestone's contents and order; the implementation plan maps every item to a milestone, with its alphas and tasks.
-  - **Proposed change:** The game is built in two phases, in order: pre-production (`MIL-18`), a prototype for each risk and then a vertical slice; then production, bottom up, in ten milestones, the foundations first and the game itself last.
-    Each milestone is a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
-    This file keeps each milestone's contents and order, `MIL-18` and `MIL-08` to `MIL-17` below, and `MIL-01` to `MIL-07` are retired; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
-    Why: on 3 October 2026 you asked for the build to go bottom up, from the data structures, the graphics engine and world generation up to the game itself, each layer proven before the next is built on it, and the way real teams work, which begins by proving the risks with prototypes and a vertical slice (research 00); the old milestones were slices of the whole game, each needing every layer at once.
-    With your OK, the items that name the old milestones name the new ones instead:
-    - the moments: `MOM-01`, `MOM-02` and `MOM-09` from `MIL-14`; `MOM-04`, `MOM-06` and `MOM-11` from `MIL-15`; `MOM-03` and `MOM-07` from `MIL-16`; `MOM-08` and `MOM-12` from `MIL-17`;
-    - the example of `PRN-09`: copper waits for the last milestone, `MIL-17`;
-    - the first region (`WLD-34`) is retired: whole worlds are made in `MIL-10`, before there are any people, so no land set by hand stands in for them, and scenes and benchmark worlds stand on generated land (`RES-21`, `PLT-04`);
-    - the review of test worlds (`WLD-08`) and the generation times (`WLD-11`) from `MIL-10`;
-    - the starting kit (`BIO-02`): one band starts with a fire from lightning in every world, since fire comes with `MIL-11`, before there are people;
-    - texts (`PRE-37`): cards from pattern sentences from `MIL-11`, the details view from `MIL-13`, and the book of ages, the writer and your choice between pattern and writer text at `MIL-16`;
-    - sound (`SND-01`, `SND-02`, `SND-03`): the 32-sound test, the voice, and the review of singing and songs at `MIL-16`;
-    - the phone's limits (`PLT-04`): stage budgets for the 1,000-person world at the close of `MIL-12` to `MIL-17` of at least 2.5, 2, 1.7, 1.5, 1.5 and 1 game years a real minute; the world with nobody in it from `MIL-11`; old worlds at Year 150 from `MIL-15` and at Year 500 from `MIL-17`;
-    - the sharp-stone test (`RES-02`, `RES-03`) at every stage from `MIL-14`;
-    - the pace tests (`RES-07`): flakes, fire, clothing, huts and `RES-25` count from `MIL-14`; shared spirits, rites, myths, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going from `MIL-15`; pottery, herding, villages, farming, copper and chiefs from `MIL-17`; the Year-150 size at the close of `MIL-15`, and the full test during `MIL-17`;
-    - the risks: belief scenes from `MIL-13` (`RSK-19`), and everyday scenes from `MIL-12` (`RSK-27`);
-    - the glossary's Stage: pre-production or one of the ten production milestones, `MIL-18` and `MIL-08` to `MIL-17`.
+- `SCP-16` **Milestones** *(Decided)*: The game is built in two phases, in order: pre-production (`MIL-18`), a prototype for each risk and then a vertical slice; then production, bottom up, in ten milestones, the foundations first and the game itself last.
+  Each milestone is a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
+  This file keeps each milestone's contents and order, below; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
 
-  1. `MIL-01` **First camp** *(Decided)*: the first region (`WLD-34`) with one band at a cliff camp and its home range; the first items, wild foods and water; the body's needs and senses; choosing by needs, with reasons on each person's card and in the details view of their mind, which grows with each stage (`MND-09`, `PRE-35`, `PRE-14`); the mental map (`MND-28`); gathering, eating, drinking and sleeping; talk alongside work about food, water, danger and places, sharing food, help and courtship, moving opinions (`MND-33`, `CUL-24`, `MND-24`); pairing, never between close kin (`MND-26`), births, growing up, inheritance, ageing and death (`BIO-04`, `BIO-06`, `BIO-15`, `BIO-16`); day and night, and the 60-day year's seasons in the plants (`TIM-18`, `WLD-31`); names from the language (`CUL-17`); zoom from the camp to one person; time controls; saving; the first test scenes and the phone benchmark.
-     *Now possible:* watching a band live through its days and seasons, its births and deaths, at the foot of a cliff.
-  2. `MIL-02` **Sharp stone** *(Decided)*: the first region's animals, with predators, carcasses to scavenge and small game (`WLD-32`, `MND-16`, `MAT-11`); items and their characteristics, base actions, blueprints, discovery, experience and teaching; sharp flakes discovered; the parts of minds discovery and teaching need: noticing, memories, surprises and hunches, their own dreams (`MND-12`), beliefs about causes (`MND-05`), personality, mood, kin and friends, who knows what, and telling how things are made; the start's 3–4 bands (`SCP-01`); wounds and plain care (`BIO-13`, `BIO-23`); the first book-of-ages entries, from pattern sentences (`PRE-37`); the story director, with its signs, live moments and skip, its kinds of moment growing with each stage (`TIM-02`, `PRE-08`, `TIM-11`).
-     *Now possible:* watching someone find that struck flint gives a sharp edge, and the skill spread or be lost.
-  3. `MIL-03` **Fire and the first power** *(Decided)*: fire and heat, fire-making and cooking; weather over the first region, with lightning; the everyday illnesses, caught from each other, water, food and wounds, and who dies of them (`BIO-05`); your first powers, lightning and dreams (`GOD-02`, `GOD-03`); the first sounds and the murmur.
-     *Now possible:* a band that can only keep fire learns to make it, and you can send lightning or a dream and see what comes of it.
-  4. `MIL-04` **A living world** *(Decided)*: the whole world generated; the map layers and zoom out to the globe; plants and animals everywhere, and hunting; illnesses from animals, and the healing blueprints; clothing and huts; plans with their times (`MND-22`), leaders and group plans, such as hunting together (`CUL-22`); your other weather powers and animal dreams.
-     *Now possible:* following herds and hunters across a whole world, season by season.
-  5. `MIL-05` **Minds and beliefs** *(Decided)*: the rest of the minds: feelings and breakdowns, beliefs about the unseen, ambitions, and the other social acts and topics (gifts, gossip, comfort, quarrels, fights and stealing); belief templates, customs, rites (`CUL-34`) and religion; art and music; the writer AI's polish; fortune and Revelation (`GOD-13`).
-     *Now possible:* rites, taboos, songs and paintings appear, and the book of ages reads like a history.
-  6. `MIL-06` **Many peoples** *(Decided)*: bands splitting into named peoples with territories; marriage customs (`CUL-27`), trade, feuds and raids; gatherings and festivals; pottery and tame dogs.
-     *Now possible:* watching peoples spread, split, fight and marry, centuries at a time.
-  7. `MIL-07` **Herds, fields and villages** *(Decided)*: herding, farming, villages and copper; specialists, chiefs and priests; the full launch catalogue; every pace target met (`TIM-19`).
-     *Now possible:* the whole arc, from caves to first copper, in a few hundred years, at a watchable speed.
-
-  - `MIL-18` **Pre-production** *(Proposed)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); then the vertical slice: one band at a cliff camp through a day, at the art book's look, built in the real architecture on your phone (`PRE-01`, `VIS-14`).
+  - `MIL-18` **Pre-production** *(Decided)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); then the vertical slice: one band at a cliff camp through a day, at the art book's look, built in the real architecture on your phone (`PRE-01`, `VIS-14`).
     *Now possible:* seeing on your phone that the game can be made as this file describes, and judging the slice, which sets the quality bar for production.
-  - `MIL-08` **Foundations** *(Proposed)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
+  - `MIL-08` **Foundations** *(Decided)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
-  - `MIL-09` **The graphics engine** *(Proposed)*: crisp 3D pixel art at the art book's look (`PRE-01`, `PRE-02`): the stable pixel grid (`PRE-22`), outlines and lit edges (`PRE-21`), colour in steps with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit and its textures made by code (`PRE-46`, `PRE-42`, `PRE-43`), grown from the vertical slice.
+  - `MIL-09` **The graphics engine** *(Decided)*: crisp 3D pixel art at the art book's look (`PRE-01`, `PRE-02`): the stable pixel grid (`PRE-22`), outlines and lit edges (`PRE-21`), colour in steps with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit and its textures made by code (`PRE-46`, `PRE-42`, `PRE-43`), grown from the vertical slice.
     *Now possible:* the art book's scenes drawn by the game, in portrait and landscape, that you judge against the art book before anything is built on them.
-  - `MIL-10` **The world** *(Proposed)*: whole worlds generated from a seed in the order of real causes (`WLD-08`, `WLD-09`), the best three offered (`WLD-10`); the map layers, and detail made on demand (`WLD-12`, `WLD-13`); the sky, climate and weather, fresh water, seas and soils (`WLD-07`, `WLD-16`, `WLD-17`, `WLD-26`, `WLD-27`); quakes and eruptions (`WLD-15`); one zoom from a cliff face to the globe (`PRE-03`, `WLD-02`), and the cut-away view (`PRE-25`).
+  - `MIL-10` **The world** *(Decided)*: whole worlds generated from a seed in the order of real causes (`WLD-08`, `WLD-09`), the best three offered (`WLD-10`); the map layers, and detail made on demand (`WLD-12`, `WLD-13`); the sky, climate and weather, fresh water, seas and soils (`WLD-07`, `WLD-16`, `WLD-17`, `WLD-26`, `WLD-27`); quakes and eruptions (`WLD-15`); one zoom from a cliff face to the globe (`PRE-03`, `WLD-02`), and the cut-away view (`PRE-25`).
     *Now possible:* making a world, choosing it, and flying over it through its weather and seasons.
-  - `MIL-11` **Things and living nature** *(Proposed)*: materials and things, with their shapes, characteristics, wear, simple physics, timers and traces (`MAT-01`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-08`); fire (`MAT-18`); plants and animals everywhere, as catalogue entries placed by rules, with their seasons and their ecology (`WLD-31`, `WLD-32`, `WLD-18`); wildfire (`WLD-28`); a card for anything you tap (`PRE-35`).
+  - `MIL-11` **Things and living nature** *(Decided)*: materials and things, with their shapes, characteristics, wear, simple physics, timers and traces (`MAT-01`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-08`); fire (`MAT-18`); plants and animals everywhere, as catalogue entries placed by rules, with their seasons and their ecology (`WLD-31`, `WLD-32`, `WLD-18`); wildfire (`WLD-28`); a card for anything you tap (`PRE-35`).
     *Now possible:* a living world with nobody in it: herds migrating, wolves hunting, plants through the seasons, and a lightning fire running through dry grass.
-  - `MIL-12` **People: bodies and lives** *(Proposed)*: the start's bands (`SCP-01`, `BIO-03`), with their bodies, needs and senses (`BIO-09`, `BIO-18`); everyday activities and base actions (`BIO-21`, `MAT-06`); choosing by needs, with the reasons on each person's card (`MND-07`, `MND-09`, `PRE-35`), and the mental map (`MND-28`); health, wounds, illness and plain care (`BIO-13`, `BIO-05`, `BIO-23`); pairing, births, growing up, inheritance, ageing and death (`BIO-04`, `BIO-15`, `BIO-06`, `BIO-16`); names from the language (`CUL-17`, `CUL-18`); the animals near people, with bodies and simple minds (`BIO-19`, `MND-16`).
+  - `MIL-12` **People: bodies and lives** *(Decided)*: the start's bands (`SCP-01`, `BIO-03`), with their bodies, needs and senses (`BIO-09`, `BIO-18`); everyday activities and base actions (`BIO-21`, `MAT-06`); choosing by needs, with the reasons on each person's card (`MND-07`, `MND-09`, `PRE-35`), and the mental map (`MND-28`); health, wounds, illness and plain care (`BIO-13`, `BIO-05`, `BIO-23`); pairing, births, growing up, inheritance, ageing and death (`BIO-04`, `BIO-15`, `BIO-06`, `BIO-16`); names from the language (`CUL-17`, `CUL-18`); the animals near people, with bodies and simple minds (`BIO-19`, `MND-16`).
     *Now possible:* watching bands live through their days and seasons, their births and their deaths.
-  - `MIL-13` **Minds** *(Proposed)*: personality, mood, feelings and breakdowns (`MND-20`, `MND-29`, `MND-19`, `MND-30`); noticing, memories and dreams (`MND-03`, `MND-18`, `MND-12`); knowledge with its source, and who knows what (`MND-04`, `MND-23`); beliefs about causes (`MND-05`); plans and ambitions (`MND-22`, `MND-32`); relationships, social acts and talk (`MND-24`, `MND-33`, `CUL-24`); the details of a mind (`PRE-14`).
+  - `MIL-13` **Minds** *(Decided)*: personality, mood, feelings and breakdowns (`MND-20`, `MND-29`, `MND-19`, `MND-30`); noticing, memories and dreams (`MND-03`, `MND-18`, `MND-12`); knowledge with its source, and who knows what (`MND-04`, `MND-23`); beliefs about causes (`MND-05`); plans and ambitions (`MND-22`, `MND-32`); relationships, social acts and talk (`MND-24`, `MND-33`, `CUL-24`); the details of a mind (`PRE-14`).
     *Now possible:* reading anyone's mind, and watching friendships, quarrels and talk.
-  - `MIL-14` **Crafts and discovery** *(Proposed)*: blueprints, their routes and their chains (`MAT-04`, `MAT-07`, `MAT-22`); experience and skill, surprises and the four routes to discovery (`MND-06`, `MND-10`, `MND-11`); learning and teaching, and knowledge lost (`MND-13`, `CUL-01`, `CUL-02`); the reality rules (`RCK`); sharp flakes, fire-making, cooking, cord, hafting, clothing and huts; the sharp-stone test (`RES-02`).
+  - `MIL-14` **Crafts and discovery** *(Decided)*: blueprints, their routes and their chains (`MAT-04`, `MAT-07`, `MAT-22`); experience and skill, surprises and the four routes to discovery (`MND-06`, `MND-10`, `MND-11`); learning and teaching, and knowledge lost (`MND-13`, `CUL-01`, `CUL-02`); the reality rules (`RCK`); sharp flakes, fire-making, cooking, cord, hafting, clothing and huts; the sharp-stone test (`RES-02`).
     *Now possible:* watching someone find that struck flint gives a sharp edge, and the skill spread or be lost.
-  - `MIL-15` **Culture and society** *(Proposed)*: beliefs from events and about the unseen, ancestors, taboos, rites and religion (`CUL-05`, `MND-31`, `CUL-19`, `CUL-20`, `CUL-34`, `CUL-26`); kin and marriage, customs, leaders and specialists (`CUL-27`, `CUL-06`, `CUL-22`, `CUL-32`); sharing, trade, feuds and raids (`CUL-21`, `CUL-31`); bands splitting into peoples with territories (`CUL-30`, `CUL-23`); art, music, myths, style and festivals (`CUL-09`, `CUL-10`, `CUL-11`, `CUL-12`, `CUL-29`); tame dogs (`WLD-33`).
+  - `MIL-15` **Culture and society** *(Decided)*: beliefs from events and about the unseen, ancestors, taboos, rites and religion (`CUL-05`, `MND-31`, `CUL-19`, `CUL-20`, `CUL-34`, `CUL-26`); kin and marriage, customs, leaders and specialists (`CUL-27`, `CUL-06`, `CUL-22`, `CUL-32`); sharing, trade, feuds and raids (`CUL-21`, `CUL-31`); bands splitting into peoples with territories (`CUL-30`, `CUL-23`); art, music, myths, style and festivals (`CUL-09`, `CUL-10`, `CUL-11`, `CUL-12`, `CUL-29`); tame dogs (`WLD-33`).
     *Now possible:* peoples spreading, splitting, fighting and marrying, with rites, myths, songs and paintings of their own.
-  - `MIL-16` **The game** *(Proposed)*: your powers as nature (`GOD-02`, `GOD-03`, `GOD-04`, `GOD-12`, `GOD-13`, `GOD-10`); time following your zoom, the story director, live moments and skip (`TIM-01`, `TIM-02`, `PRE-08`, `TIM-11`); the book of ages from pattern sentences, worded by the phone's writer (`PRE-05`, `PRE-37`, `PRE-41`); every screen, card and overlay (`PRE-40`, `PRE-35`, `PRE-07`); sound and the murmur (`SND-01`, `SND-11`, `SND-03`).
+  - `MIL-16` **The game** *(Decided)*: your powers as nature (`GOD-02`, `GOD-03`, `GOD-04`, `GOD-12`, `GOD-13`, `GOD-10`); time following your zoom, the story director, live moments and skip (`TIM-01`, `TIM-02`, `PRE-08`, `TIM-11`); the book of ages from pattern sentences, worded by the phone's writer (`PRE-05`, `PRE-37`, `PRE-41`); every screen, card and overlay (`PRE-40`, `PRE-35`, `PRE-07`); sound and the murmur (`SND-01`, `SND-11`, `SND-03`).
     *Now possible:* playing as nature: sending lightning or a dream and following what comes of it in the book of ages, with the sounds of the camp.
-  - `MIL-17` **The whole arc** *(Proposed)*: pottery, herding, farming, villages and copper (`RCK-04`, `WLD-33`, `CUL-28`, `RCK-08`); the full launch catalogue (`MAT-23`); every pace target met (`TIM-19`, `CUL-33`).
+  - `MIL-17` **The whole arc** *(Decided)*: pottery, herding, farming, villages and copper (`RCK-04`, `WLD-33`, `CUL-28`, `RCK-08`); the full launch catalogue (`MAT-23`); every pace target met (`TIM-19`, `CUL-33`).
     *Now possible:* the whole arc, from caves to first copper, in a few hundred years, at a watchable speed.
 
 ### 3.4 Non-goals
@@ -897,18 +861,12 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     Counted herds are drawn as that many animals, placed from the seed.
   - **Check:** the same saved world gives exactly the same results whatever the camera and the speed (`TIM-16`).
 
-- `WLD-34` **The first region** *(Decided)*: Until whole worlds are generated (`MIL-04`), play and test scenes run on a first region: an island about 60 by 60 km in a sea about 50 km wide on every side, which nobody can cross (there are no boats, and swimming tires and drowns, `BIO-21`).
-  Its world-cell values, herds and small game included, and its seasonal climate are set by hand from a few numbers, meeting `WLD-24`.
-  - **How it works:** it settles as a world does (`WLD-08`), areas are made from it by the same rules as later (`WLD-12`), and from `MIL-03` its weather runs by `WLD-16`, storms forming over its sea; at `MIL-04` the generator fills the same values.
-    Until then, the benchmark worlds of `PLT-04` stand on land set by hand the same way, about 10 km² for each person.
-  - **Done when:** a region set by hand and the same values from a generated world make identical areas, and in 20 runs to Year 60 its bands still find food within their home ranges (`WLD-24`).
-
 ### 6.3 Making a world
 
 - `WLD-08` **Realistic, not from scratch** *(Decided)*: Each world is made directly in a believable present-day state by fast rules that imitate what deep time would make (`SCP-12`): the stages of `WLD-09`, in order from the seed, make the world and weather cells, never areas (`WLD-12`).
   - **Repeatable:** a seed makes the same world and areas only under the same rules for making them and the same values that place and size land, plants and stones; changing these is a big update (`PLT-09`), while tuning yields, timings or chances is not.
   - **Settling:** once you pick a world, its plant cover, water and herds run for 10 years by the play rules, with no people; animals near the start region begin as wary as hunted ones (`WLD-32`); then history begins (`TIM-14`).
-  - **Done when:** in 20 test worlds, 95% of rivers draining 50 km² or more reach sea or lake; median slope 0.5–5°, under 1% over 30°; no coast straight for over about 20 km; lakes 1–3% of land; you review them (`MIL-04`).
+  - **Done when:** in 20 test worlds, 95% of rivers draining 50 km² or more reach sea or lake; median slope 0.5–5°, under 1% over 30°; no coast straight for over about 20 km; lakes 1–3% of land; you review them (`MIL-10`).
 
 - `WLD-09` **What generation makes** *(Decided)*: Generation follows the real order of causes, each stage built on those before:
   1. **Plates,** about 6 to 12, ocean or continental, making the world's share of land (`WLD-06`), with ranges, volcano lines, rifts and faults along their edges as on Earth.
@@ -949,7 +907,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Done when:** in 100 test worlds, every start region still qualifies after settling.
 
 - `WLD-11` **Generation time** *(To test)*: From "New world" to three globes takes at most about 3 minutes at the phone's held speed, and settling the chosen world, with its bands made (`BIO-03`), at most about 1 minute more.
-  - **Done when:** both times are met on the phone at every stage from `MIL-04` (`PLT-04`).
+  - **Done when:** both times are met on the phone at every stage from `MIL-10` (`PLT-04`).
 
 ### 6.4 Sky, climate and weather
 
@@ -1362,7 +1320,7 @@ Shares in Done when lines are judged as `RES-13` sets out.
 
 - `BIO-02` **Starting kit** *(Decided)*: The first people have almost no culture, but they share one language (`CUL-17`) and know a few blueprints and their home range (`BIO-20`).
   - **Fire:** they can feed a fire, bank it under ash and carry its embers, but cannot make one (`MAT-18`).
-    Exactly one band starts with a fire taken from lightning, from `MIL-03` on (before that, none); the others must find one (`WLD-28`).
+    Exactly one band starts with a fire taken from lightning; the others must find one (`WLD-28`).
     Food that falls by the fire can cook (`MAT-19`), but nobody cooks on purpose until someone learns how (`MND-11`).
   - **Tools, clothing and shelter:** no shaped tools, only stones for bashing and sticks for digging; no clothing; caves and overhangs, with beds of grass or leaves.
   - **Food:** gathering, scavenging, and small game taken with thrown stones and sticks (`MAT-11`).
@@ -2291,13 +2249,13 @@ The look, written to stand without any image.
 
 ### 11.5 Text written for you
 
-- `PRE-37` **Patterns first, the writer polishes** *(Decided)*: Every text is first built from pattern sentences, from the first stage's cards and details view (`MIL-01`), and the book of ages from `MIL-02`; from the minds stage (`MIL-05`) the phone's built-in writer AI rewords them into flowing prose (`PRE-41`).
+- `PRE-37` **Patterns first, the writer polishes** *(Decided)*: Every text is first built from pattern sentences: cards from `MIL-11`, the details view of a mind from `MIL-13`, and the book of ages from `MIL-16`, when the phone's built-in writer AI begins to reword them into flowing prose (`PRE-41`).
   Texts are in English, each name in its people's language with its meaning at first use (`CUL-18`).
   - **Patterns:** a closed catalogue (`MAT-13`) of about 100 kinds of event (the entries of `PRE-39`, the memories of a life story, the story shapes and topics of `CUL-11` and `CUL-24`, and a mind's summary), each with at least 5 phrasings, picked by the event's seed and using all the records hold: names, places, seasons, causes and who was there.
     Labels, card lines (`PRE-45`) and dark events (`PRE-17`) always stay as patterns.
   - **Size:** a text covers at most about 12 events, chosen most important first and told in date order, in at most about 150 words; a long life is told in parts.
   - **Without the writer:** when it is missing, the pattern text is shown and stored, marked as such.
-  - **Your choice:** at the minds stage you compare pattern and writer text in each view, and keep whichever reads better.
+  - **Your choice:** at the game stage (`MIL-16`) you compare pattern and writer text in each view, and keep whichever reads better.
   - **Done when:** in a test world of 100 years every kind of event shows 5 phrasings, each name's first use gives its meaning, and no text passes about 150 words.
 
 - `PRE-41` **How text is written** *(Decided)*: History texts (entries, life stories of the dead and myths) are checked, stored beside their records and never silently rewritten; you can ask for a rewrite.
@@ -2336,7 +2294,7 @@ Everything you hear comes from something happening in the world (`PRN-10`), in l
 - `SND-01` **A lively camp** *(Decided)*: A camp sounds alive: murmuring voices, children playing and crying, the tap of stone on stone, scraping and chopping, the fire, dogs, a wolf far off.
   - **How it works:** each sound comes from something under way near the camera: an activity (`SND-06`), talk (`SND-03`), a fire by its heat (`MAT-18`), an animal's call (`MND-16`), or the place (`SND-11`).
     The 32 sounds the phone plays at once are shared: up to 6 for place and weather, 4 for single voices, 8 for music, 2 kept free for a sudden scream, thunder or rockfall, and at least 12 for work, fire, footsteps and animals; when a share is full, its quietest sound joins its blend (`SND-07`).
-  - **Done when:** at the fire stage (`MIL-03`), 32 sounds at once, with distance, muffling and echo, play on the phone without a break, or the cap and shares are lowered.
+  - **Done when:** at the game stage (`MIL-16`), 32 sounds at once, with distance, muffling and echo, play on the phone without a break, or the cap and shares are lowered.
 
 - `SND-11` **Ambience** *(Decided)*: Each place has its own background sound from its land, plants and water (`WLD-31`, `WLD-17`), the weather (`WLD-16`), the hour and the season: wind in grass or pines, a river, the sea, rain on leaves, thunder, birdsong at a spring dawn, the hush of snow.
   Birdsong comes from the small birds the place holds (`WLD-32`); the world has no insects or frogs, so nights have no chorus.
@@ -2346,14 +2304,14 @@ Everything you hear comes from something happening in the world (`PRN-10`), in l
   - **How it works:** talk is strung from a bank of spoken syllables in the language's sounds (`CUL-17`), for two base voices, a woman's and a man's, rendered once in the cloud by the natural-sounding voice you chose by ear and shipped with the game, so no voice model runs on the phone.
     It is shifted in pitch and tone for the speaker's age and build (`BIO-08`) and in loudness, speed and tune for their feelings (`MND-19`).
     Laughing, crying, calling, screaming and babies' cries come from a few recordings for each kind of voice (child, woman, man, elder), shifted the same way.
-    The voice is chosen by ear at the fire stage (`MIL-03`), and may be chosen again at the minds stage (`MIL-05`).
+    The voice is chosen by ear at the game stage (`MIL-16`).
   - **Done when:** by ear alone you tell a child, a woman, a man and an elder apart, and anger from grief.
 
 - `SND-02` **Their music** *(Decided)*: Each people's songs, rhythms and instruments (`CUL-10`), heard when you are near.
   - **How it works:** each song plays from its record: its notes and rhythm, in its people's scale.
     Instruments sound by their sound blueprints (`SND-06`): a longer flute is lower, bone brighter than wood, a bigger drum lower and a thicker hide duller; drums, poor in the first trials, are remade before you hear them.
-    Voices sing by holding and pitching the murmur's syllables to the notes, with no words (`SND-03`); if that fails your review at the minds stage (`MIL-05`), songs are hummed and played, with clapping.
-  - **Done when:** at the minds stage, songs of two peoples are told apart by ear, and singing and drums pass your review.
+    Voices sing by holding and pitching the murmur's syllables to the notes, with no words (`SND-03`); if that fails your review at the game stage (`MIL-16`), songs are hummed and played, with clapping.
+  - **Done when:** at the game stage, songs of two peoples are told apart by ear, and singing and drums pass your review.
 
 ### 12.2 How sound is made
 
@@ -2401,7 +2359,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
 - `PLT-04` **Measured limits** *(To test)*
   - **What:** Reported at every stage (`RES-06`) against these targets:
     - **Speed:** the targets of `TIM-07`.
-    - **Stage budgets:** at the close of `MIL-01` to `MIL-07`, the 1,000-person world, with what the game has so far, runs at least 3, 2, 2, 1.7, 1.7, 1.5 and 1 game years a real minute.
+    - **Stage budgets:** at the close of `MIL-12` to `MIL-17`, the 1,000-person world, with what the game has so far, runs at least 2.5, 2, 1.7, 1.5, 1.5 and 1 game years a real minute.
       A stage that misses names its biggest cost and wins it back by the next stage close, or brings it to you.
     - **Shares:** the world's own layers at most about 0.2 s per game day, so the world alone reaches 10 game years a minute on two cores; animals near people within each person's budget (`MND-15`); making areas at most a tenth of the simulation's time.
     - **Smooth:** with the world running, at least 97% of frames on time while zooming, panning and turning, at every zoom, and none more than 50 ms late (`PRN-11`).
@@ -2411,9 +2369,9 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
     - **Battery and heat:** an hour's play uses about 25–30% of the battery, and the phone never gets uncomfortably hot.
     - **Opening and land:** your world opens in about 3 seconds, a new world in `WLD-11`'s times, and a new area within about a tenth of a second.
   - **How it works:**
-    - **Benchmark worlds:** a camp of about 30 and a village of about 300 at close camp zoom, a camp in thick forest at camp zoom with the camera turning, and worlds of about 100, 500, 1,000, 2,000, 3,000 and 7,000 people with about 10 km² each, on land set by hand like the first region until `MIL-04` (`WLD-34`), then generated; from `MIL-04` also the world with nobody in it.
+    - **Benchmark worlds:** a camp of about 30 and a village of about 300 at close camp zoom, a camp in thick forest at camp zoom with the camera turning, and worlds of about 100, 500, 1,000, 2,000, 3,000 and 7,000 people with about 10 km² each, on generated land; from `MIL-11` also the world with nobody in it.
       Each runs to a set game date, its end state in the result code (`RES-05`).
-    - **Old worlds:** from `MIL-06`, the pace-test worlds at Year 150, and from `MIL-07` the full test's at Year 500, each against a new world with as many people (`TIM-07`), their kept areas read against the memory line.
+    - **Old worlds:** from `MIL-15`, the pace-test worlds at Year 150, and from `MIL-17` the full test's at Year 500, each against a new world with as many people (`TIM-07`), their kept areas read against the memory line.
     - **Held speed:** speeds are read after at least 3 minutes at full load, unplugged (`PLT-01`), battery and heat from the phone's counters.
     - **When:** in the cloud at every alpha (`PLT-05`), and on the phone at every stage: one tap, about 20 minutes, and a short result code to send back.
   - **Done when:** at every stage, the phone benchmark's result shows each target above, met or missed.
@@ -2461,9 +2419,9 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   - **Check:** the coverage check finds a test for every feature and rule built so far (`PRC-12`).
 
 - `RES-21` **Scenes, then whole worlds** *(Decided)*
-  - **What:** Most tests run in sandbox scenes, small settings built for one check, on land cut from a generated world, about 10 km across for one band and as wide as its setting needs for more, or from the first region before `MIL-04` (`WLD-34`).
+  - **What:** Most tests run in sandbox scenes, small settings built for one check, on land cut from a generated world, about 10 km across for one band and as wide as its setting needs for more.
     Each holds decoys and things nobody designed for, and checks that nobody used an unknown blueprint or an unseen fact (`PRN-01`).
-    Whole worlds (`RES-07`) confirm that what scenes show also happens in play, with the first region standing in for them before `MIL-04`.
+    Whole worlds (`RES-07`) confirm that what scenes show also happens in play.
   - **Done when:** each stage report names, for every result, its scenes and its whole-world confirmation (`RES-06`).
 
 - `RES-18` **Same rules as play** *(Decided)*: Scenes use the same rules, minds and catalogues as play, and nothing in a scene is scripted.
@@ -2511,19 +2469,19 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 - `RES-02` **The sharp-stone test** *(Decided)*: A band with the starting kit (`BIO-02`), which has never made a sharp flake, lives by a river with stone anvils, nuts to crack, carcasses to butcher, hides and wood to work, and flint among decoy stones such as granite.
   - **How it works:** it runs 20 times, each until 2 years after the first flake, or 5 years if none comes; a control scene, the same with no stone that flakes, runs 7 years.
     The first flake's year and route come from the book of ages (`MAT-21`), and who can make flakes from each adult's skills (`MND-06`).
-  - **Done when:** the scene and its control run in the cloud at every stage from `MIL-02`, judged by `RES-03`.
+  - **Done when:** the scene and its control run in the cloud at every stage from `MIL-14`, judged by `RES-03`.
 
 - `RES-03` **Sharp-stone pass rule** *(Decided)*
   - **Discovery:** flakes are discovered within 5 years in at least 16 of 20 runs.
   - **Spread:** in those runs, at least 3 in 4 of the band's adults can make flakes within 2 years of the first.
   - **Routes:** at least two routes of discovery appear across the runs (`MND-11`).
   - **Control:** without stone that flakes, no run ever makes a flake (`RCK-01`).
-  - **Check:** the sharp-stone test (`RES-02`) passes at every stage from `MIL-02` (`PRC-10`).
+  - **Check:** the sharp-stone test (`RES-02`) passes at every stage from `MIL-14` (`PRC-10`).
 
 - `RES-07` **The pace tests** *(Decided)*: Whole worlds from the play generator (`WLD-10`) check each pace target (`TIM-19`) and culture target (`CUL-33`) in their records.
-  - **Sizes,** each judging the targets whose windows close within its years: after any change to minds, blueprints or catalogues, 20 worlds to Year 60, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-06`, 20 worlds to Year 150; and the full test, 10 worlds to Year 500, before `MIL-07` closes and at most once a week of building during it.
-  - **Stages:** each target counts from the stage that builds it: flakes `MIL-02`; fire `MIL-03`; clothing, huts and `RES-25` `MIL-04`; shared spirits, rites and myths `MIL-05`; pottery, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going `MIL-06`; herding, villages, farming, copper and chiefs `MIL-07` (`SCP-16`, `TIM-19`, `CUL-33`).
-  - **Computing:** in the session that builds, in the background while it works, never in another session (`SCP-15`): the size after a change takes about 2 session-hours and the Year-150 run about 6, and the full test about 20–45, spread over the last alphas of `MIL-07`, whose stage closes once it has run; each stage report sets the real cost against these (`RES-06`).
+  - **Sizes,** each judging the targets whose windows close within its years: after any change to minds, blueprints or catalogues, 20 worlds to Year 60, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-15`, 20 worlds to Year 150; and the full test, 10 worlds to Year 500, before `MIL-17` closes and at most once a week of building during it.
+  - **Stages:** each target counts from the stage that builds it: flakes, fire, clothing, huts and `RES-25` `MIL-14`; shared spirits, rites, myths, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going `MIL-15`; pottery, herding, villages, farming, copper and chiefs `MIL-17` (`SCP-16`, `TIM-19`, `CUL-33`).
+  - **Computing:** in the session that builds, in the background while it works, never in another session (`SCP-15`): the size after a change takes about 2 session-hours and the Year-150 run about 6, and the full test about 20–45, spread over the last alphas of `MIL-17`, whose stage closes once it has run; each stage report sets the real cost against these (`RES-06`).
   - **Other whole-world checks** read these worlds, at the first size that reaches their years (`BIO-04`, `BIO-06`, `BIO-22`, `MAT-08`, `PRE-39` and the culture items); checks of the world with nobody in it, such as `WLD-15` and `WLD-18`, run in the background at the stage that builds them, and again only when their rules change.
   - **Check,** for each target: at least half the worlds reach it inside its window, and at most a quarter before it opens (with 10 worlds, at least 5 and at most 2); where windows overlap, the steps don't come in the same order in every world.
 
@@ -2576,11 +2534,9 @@ How the project is run.
 
 ### 15.2 Documents
 
-- `PRC-04` **Three documents** *(Decided)*: This file says what to build, the architecture how, and the implementation plan in what order, mapping every item to a stage, its alphas and their tasks; code and tests link here by ID.
+- `PRC-04` **Three documents** *(Decided)*: This file says what to build; the architecture says how and why, citing the research notes behind each choice (`research/`); and the implementation plan says in what order, mapping every item to a milestone and planning the next milestone's alphas and tasks.
+  Code and tests name the items they implement and check, so the code is the index of where each is done (`PRC-12`), and no document keeps that list.
   - **Check:** each stage review checks that the three documents exist and this file holds no implementation details.
-  - **Proposed change:** This file says what to build; the architecture says how and why, citing the research notes behind each choice (`research/`); and the implementation plan says in what order, mapping every item to a milestone and planning the next milestone's alphas and tasks.
-    Code and tests name the items they implement and check, so the code is the index of where each is done (`PRC-12`), and no document keeps that list.
-    Why: real teams plan only the next milestone in detail (research 00), and on 3 October 2026 you asked for the code, not the architecture, to show where each item is done.
 
 - `PRC-06` **A guide for AI agents** *(Decided)*: A short file in the repository (`CLAUDE.md`) that every AI agent reads first.
   It tells them to read this file, follow the principles, link all work to IDs, and never mark anything Decided without you; changes to it need your OK.
@@ -2590,14 +2546,9 @@ How the project is run.
   Nothing becomes *Decided*, and no decided item changes, without your OK.
   - **Check:** the commit check confirms that every commit changing this file names the changed IDs and why, and your OK for anything made Decided.
 
-- `PRC-08` **Next: the architecture and the plan** *(Decided)*: The pre-tests are done, and what they found moves into the architecture.
-  A few questions stay open, each carried by its item: the fix for crawling pixels, chosen at the first visual review (`PRE-22`); the voice, chosen by ear (`SND-03`); the drums (`SND-02`); and signing for your hobbyist account (`PLT-06`).
-  The architecture comes next, starting with the technology proposal (`PRC-03`), then the implementation plan, starting with the first stage (`MIL-01`).
-  The pre-test folder is deleted once the architecture is written and each open question has moved into it or into its item.
-  - **Proposed change:** renamed **Next: pre-production, then production**, its text becoming: the research is done (`research/`), the art book fixes the look (`art/book/`), the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written from them.
-    Pre-production (`MIL-18`) comes next: it removes the old code, which git keeps, proves each risk with a prototype, and builds the vertical slice; production starts with the foundations (`MIL-08`) once you accept the slice.
-    A few questions stay open, each carried by its item: the fix for crawling pixels, chosen with the look prototype (`PRE-22`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
-    Why: you stopped the old plan on 3 October 2026, and the work restarted from research, the way real teams work (research 00).
+- `PRC-08` **Next: pre-production, then production** *(Decided)*: The research is done (`research/`), the art book fixes the look (`art/book/`), the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written from them.
+  Pre-production (`MIL-18`) comes next: it removes the old code, which git keeps, proves each risk with a prototype, and builds the vertical slice; production starts with the foundations (`MIL-08`) once you accept the slice.
+  A few questions stay open, each carried by its item: the fix for crawling pixels, chosen with the look prototype (`PRE-22`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
 
 ### 15.3 How work flows
 
@@ -2622,13 +2573,11 @@ How the project is run.
   - **Before a stage closes:** the pace tests (`RES-07`), the phone measurements (`PLT-04`), the phone and cloud match (`RES-05`), the moment scenes that are due (`RES-17`), the writer's trap records (`PRE-17`), the visual and sound reviews (`PRE-31`, `SND-12`), the report (`RES-06`) and your review (`RES-22`).
   - **Check:** the checks run by themselves, and any failure blocks the join or the close.
 
-- `PRC-11` **Each alpha reaches your phone** *(Decided)*: Every playable alpha (`SCP-03`) ends with a build to install and play on the phone (`PLT-06`) and a short note: what is new, what to try and what is still rough.
+- `PRC-11` **Each alpha reaches your phone** *(Decided)*: Every alpha (`SCP-03`) ends with a build to install and try on the phone (`PLT-06`) and a short note: what is new, what to try and what is still rough.
   Only the stage reviews wait for you (`RES-22`).
   - **How it works:** the note is a page with the download link, and the build opens your worlds unless the note says it is a big update (`PLT-09`).
     The first time an alpha opens, it runs a self-check of a few seconds and, if anything fails, shows a short code to send back.
   - **Check:** every alpha's note links its build and names the IDs it delivers, and no check that passed before was failing on its build.
-  - **Proposed change:** Every alpha (`SCP-03`) ends with a build to install and try on the phone (`PLT-06`) and a short note: what is new, what to try and what is still rough.
-    Why: as for `PRN-09`, the first milestones have no game to play yet.
 
 - `PRC-12` **Nothing gets lost** *(Decided)*: An automatic coverage check, reading only IDs, runs before any work joins and at each stage close (`PRC-10`), and confirms that:
   - every feature and rule that isn't *Proposed* is built already or mapped to a stage in the implementation plan, and the current stage's items have tasks;
@@ -2653,7 +2602,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 
 - `RSK-19` **Belief fails to emerge** *(Decided)*: Likelihood medium, impact high.
   - **Signs:** culture targets missed (`CUL-33`); no religion (`CUL-26`).
-  - **Response:** one capped belief rule (`MND-05`) and templates (`CUL-05`); belief scenes from `MIL-05` (`RES-19`).
+  - **Response:** one capped belief rule (`MND-05`) and templates (`CUL-05`); belief scenes from `MIL-13` (`RES-19`).
 
 - `RSK-06` **Blueprints give absurd results** *(Decided)*: Likelihood medium, impact medium.
   - **Signs:** catalogue checks or trials failing (`MAT-17`, `RES-24`); oddities (`RES-12`).
@@ -2665,7 +2614,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 
 - `RSK-27` **People act oddly** *(Decided)*: Likelihood high, impact medium.
   - **Signs:** dithering, starving beside food or all doing one thing (`RES-12`).
-  - **Response:** everyday scenes from `MIL-01` (`RES-23`); reasons kept for what each is doing and every saved event (`MND-09`).
+  - **Response:** everyday scenes from `MIL-12` (`RES-23`); reasons kept for what each is doing and every saved event (`MND-09`).
 
 ### 16.2 The experience
 
@@ -2759,29 +2708,13 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- **Build in playable steps** (`PRN-09`): becomes Build in steps you can try, since the first milestones have no game to play yet.
-- **Playable alphas** (`SCP-03`): becomes Alphas you can try, for the same reason.
-- **Milestones** (`SCP-16`): pre-production, then ten bottom-up milestones, replace the seven, and the items that named the old ones name the new.
-- **Pre-production** (`MIL-18`): milestone 0: a prototype for each risk, then the vertical slice.
-- **Foundations** (`MIL-08`): milestone 1 of the ten.
-- **The graphics engine** (`MIL-09`): milestone 2, ending with your verdict on the look.
-- **The world** (`MIL-10`): milestone 3.
-- **Things and living nature** (`MIL-11`): milestone 4.
-- **People: bodies and lives** (`MIL-12`): milestone 5.
-- **Minds** (`MIL-13`): milestone 6.
-- **Crafts and discovery** (`MIL-14`): milestone 7.
-- **Culture and society** (`MIL-15`): milestone 8.
-- **The game** (`MIL-16`): milestone 9.
-- **The whole arc** (`MIL-17`): milestone 10.
-- **Three documents** (`PRC-04`): the plan details only the next milestone, and the code is the index of where each item is done.
-- **Next: pre-production, then production** (`PRC-08`): the prototypes and the vertical slice come next, and the foundations once you accept the slice.
-- **Each alpha reaches your phone** (`PRC-11`): each alpha ends with a build to install and try.
+- None at present.
 <!-- end generated -->
 
 ## 18. Glossary
 
 - **Activity:** anything a person or animal does, from start to end, with results at the end (`TIM-17`).
-- **Alpha:** one playable step of the build, a few hours of AI work (`SCP-03`).
+- **Alpha:** one step of the build you can try on your phone, a few hours of AI work (`SCP-03`).
 - **Area:** a patch about 256 m across, detailed to about a metre, made only where needed and as the seed gives it while unchanged (`WLD-12`, `WLD-13`).
 - **Art pixel:** one pixel of the low-resolution picture, enlarged on screen (`PRE-22`).
 - **Band:** a small group of a few families, linked by kin and marriage, who live and move together (`CUL-30`).
@@ -2827,7 +2760,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Revelation:** your one power beyond natural means: a person, or everyone, comes to know a blueprint you pick, at the lowest skill (`GOD-13`).
 - **Quality:** how well a thing is made, 0–5, from its maker's skill and inputs (`MAT-20`).
 - **Reality rule:** a rule the blueprint catalogue must obey, such as "flint flakes and granite doesn't" (`RCK`).
-- **Region:** land about 100 km across, a zoom stop, as in the start region and the first region (`PRE-03`, `WLD-24`, `WLD-34`).
+- **Region:** land about 100 km across, a zoom stop, as in the start region (`PRE-03`, `WLD-24`).
 - **Rite:** a shared act, such as a song, a dance or a meal, kept at set times or places (`CUL-34`).
 - **Scene:** a small setting built for one test, with nothing scripted (`RES-21`).
 - **Season:** 15 days of spring, summer, autumn or winter (`TIM-18`).
@@ -2835,7 +2768,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Seed:** the number a world is made from, which always gives the same unchanged land (`WLD-13`).
 - **Signature moment:** a story the game must be able to produce unscripted (`MOM`).
 - **Skill:** how good someone is at one blueprint they know (`MND-06`).
-- **Stage:** one of the seven milestones, `MIL-01` to `MIL-07`, each a group of alphas ending in your review (`RES-22`).
+- **Stage:** pre-production or one of the ten production milestones, `MIL-18` and `MIL-08` to `MIL-17`, each a group of alphas ending in your review (`RES-22`).
 - **State:** a condition of a thing, such as dried or rotten, that shifts some values without making a new item (`MAT-19`).
 - **Story director:** what sets the speed of time by what is happening, never causing events (`TIM-02`, `TIM-03`).
 - **Style:** a people's own way of shaping and decorating things (`CUL-12`).
