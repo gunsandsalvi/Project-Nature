@@ -221,14 +221,14 @@ Following Box2D and Factorio (research 03):
    - It is orthographic and pitched for the close stops, and snaps to whole art pixels in its own axes.
    - The leftover fraction shifts the scaled image by part of a pixel, so pans are smooth and pixels never crawl.
    - Turns ease to rest; the fix that best lessens crawling in a free turn or zoom is chosen in P1, with you.
-3. **Outlines and lit edges** (`PRE-21`).
-   A full-screen pass compares each pixel's depth and normal with its four neighbours: a nearer pixel over a farther one darkens to the thing's own darker shade, and an outward fold lightens.
-   The Mobile renderer gives no normal buffer, so normals are rebuilt from depth.
-   Grass, leaves and water are drawn after the pass and carry none.
-   - *To prove (P1):* the four ways of research 04 (rebuilt normals; depth only; a second low-resolution camera drawing normals; enlarged back faces), each for its cost and its look.
-   - *Built in P1:* A and B as a quad over the picture that reads Godot's depth texture; C as a second camera drawing each pixel's facing and depth into a half-float picture that the light function reads, as the painter does; D as each shape drawn again, enlarged, behind itself.
-     In the cloud's software drawing, against no outlines, A and B cost about the same, D about a tenth more and C about a third more.
-     On your phone (4 October, at 1080 × 2404 and 60 frames a second) every way kept 99–100% of frames on time, at 9.5 to 10.1 ms of graphics time a frame on average, C the dearest by half a millisecond: the way is chosen by its look.
+3. **Outlines and lit edges** (`PRE-21`), the art book's own way, C, which you chose on 4 October 2026 after P1.
+   - A second low-resolution camera draws each pixel's facing and depth into a half-float picture, from the materials compiled for that pass (A4.2), since the Mobile renderer gives no normal buffer.
+   - The shared light function compares each pixel with its four neighbours there: a nearer pixel over a farther one darkens to the thing's own darker shade, and an outward fold lightens.
+   - Grass, leaves and water carry none.
+   - **Easy to switch, as you asked:** the outline way is one setting, and each way is its own pass behind it, so another can replace C later without touching the materials.
+     P1 built the other three of research 04, and its code stays in git: A, normals rebuilt from Godot's depth texture by a quad over the picture; B, depth alone; D, each shape drawn again, enlarged, behind itself.
+   - *Measured in P1:* in the cloud's software drawing, against no outlines, A and B cost about the same, D about a tenth more and C about a third more.
+     On your phone (4 October, at 1080 × 2404 and 60 frames a second) every way kept 99–100% of frames on time, at 9.5 to 10.1 ms of graphics time a frame on average, C the dearest by half a millisecond.
 4. **Light in clean steps** (`PRE-20`, `PRE-30`).
    - One shared light function, written once, used by every lit material.
    - Each material's ramp of 4 to 7 shades; the light picks the step, and steps meet in clean edges with no pattern mixing them: the sharp look you chose.
@@ -525,7 +525,7 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 Starting estimates, each replaced by what the prototypes measure on your phone at held speed (research 02):
 - **Frame:** 16.7 ms at 60 frames a second, the graphics chip under about 8 ms in the busiest scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
   - P1's close camp on your phone (4 October, 1080 × 2404): 99–100% of frames on time at 60, the graphics chip about 10 ms a frame on average whichever the outline way or the mirror.
-    Ways that cost a third more in the cloud cost under a tenth more there, which suggests the chip lowers its clock when it has time to spare, so the 10 ms is partly idle; P2 measures at 120 frames a second, where a frame must cost under 8.3 ms, and the heat over 10 minutes.
+    Ways that cost a third more in the cloud cost under a tenth more there, which suggests the chip lowers its clock when it has time to spare, so the 10 ms is partly idle; P1's second build measures at 120 frames a second, where a frame must cost under 8.3 ms, and P2 the heat over 10 minutes.
 - **Simulation:** up to the four middle cores at held speed (`PLT-01`), at the speeds of `TIM-07`.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.
 - **The APK:** 25 MB from Godot itself (measured at α0.1a), 33 MB with P1's scene of the close camp (α0.2a), within the 50 MB limit for files committed to the repository.

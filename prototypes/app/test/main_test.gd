@@ -2,11 +2,12 @@
 extends GdUnitTestSuite
 
 const MAIN := preload("res://main.tscn")
+const MAIN_CODE := preload("res://main.gd")
 ## Facts of the lengths the phone gives, so the layout is tried with long names.
 const LONG := {
 	"version": "α0.1a",
 	"phone": "Pixel 11 Pro XL",
-	"android": "16",
+	"android": "API 37 (build 16238327)",
 	"screen": "1344 × 2992 px, 489 dpi, 120 Hz",
 	"graphics": "Imagination Technologies PowerVR D-Series DXT-48-1536 MC1",
 	"driver": "1.632.4123 (2717474843)",
@@ -46,11 +47,19 @@ func test_one_column_in_portrait_two_in_landscape() -> void:
 
 # checks: PLT-01
 func test_the_code_for_the_chat_holds_every_fact() -> void:
-	var line: String = load("res://main.gd").code(LONG)
+	var line: String = MAIN_CODE.code(LONG)
 	assert_str(line).is_equal(
 		(
-			"α0.1a | Phone Pixel 11 Pro XL | Android 16 | Screen 1344 × 2992 px, 489 dpi, 120 Hz"
+			"α0.1a | Phone Pixel 11 Pro XL | Android API 37 (build 16238327)"
+			+ " | Screen 1344 × 2992 px, 489 dpi, 120 Hz"
 			+ " | Graphics Imagination Technologies PowerVR D-Series DXT-48-1536 MC1"
 			+ " | Driver 1.632.4123 (2717474843) | Vulkan 1.4.303"
 		)
 	)
+
+
+# checks: PLT-01
+func test_android_shows_its_api_level_and_build() -> void:
+	assert_str(MAIN_CODE.android_version("37.16238327")).is_equal("API 37 (build 16238327)")
+	assert_str(MAIN_CODE.android_version("MIUI 14.0.5")).is_equal("MIUI 14.0.5")
+	assert_str(MAIN_CODE.android_version("")).is_equal("")

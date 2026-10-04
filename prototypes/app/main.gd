@@ -49,20 +49,14 @@ var _safe: MarginContainer
 ## What the phone says about itself. In the cloud's headless runs most of it is empty.
 static func facts() -> Dictionary:
 	var screen := DisplayServer.screen_get_size()
-	var rate := DisplayServer.screen_get_refresh_rate()
 	return {
 		"version": str(ProjectSettings.get_setting("application/config/version", "")),
 		"phone": OS.get_model_name(),
-		"android": OS.get_version(),
+		"android": android_version(OS.get_version()),
 		"screen":
 		(
 			"%d × %d px, %d dpi, %s Hz"
-			% [
-				screen.x,
-				screen.y,
-				DisplayServer.screen_get_dpi(),
-				str(roundi(rate)) if rate > 0 else "?"
-			]
+			% [screen.x, screen.y, DisplayServer.screen_get_dpi(), refresh_rate()]
 		),
 		"graphics":
 		(
@@ -78,6 +72,23 @@ static func facts() -> Dictionary:
 		"driver": driver_version(),
 		"vulkan": RenderingServer.get_video_adapter_api_version(),
 	}
+
+
+## The screen's refresh rate in whole hertz, or "?" where the system doesn't give it, as the
+## cloud's virtual screen doesn't.
+static func refresh_rate() -> String:
+	var rate := DisplayServer.screen_get_refresh_rate()
+	return str(roundi(rate)) if rate > 0 else "?"
+
+
+## Android's version as Godot gives it, "<API level>.<build>", such as "37.16238327", shown as
+## "API 37 (build 16238327)": the API level is not the release's number (37 is Android 17). A
+## custom ROM's own version, which Godot gives instead, is shown as it is.
+static func android_version(raw: String) -> String:
+	var parts := raw.split(".", false, 1)
+	if parts.size() == 2 and parts[0].is_valid_int():
+		return "API %s (build %s)" % [parts[0], parts[1]]
+	return raw
 
 
 ## The graphics driver's version. Godot gives it only inside the id of its pipeline cache,

@@ -18,5 +18,10 @@ beside the art book), `PLT-04` and `VIS-14` (measured on the phone).
   B, depth only; C, a second camera drawing normals and depths; D, enlarged back faces); the mirrored water; and the
   crawl fix for free turns and zooms (free; whole steps of 15° and 1.25 times; easing to rest on those steps;
   snapping to the grid only at rest).
+- **Gestures:** one finger pans, two turn and pinch. They arrive as the screen's own GUI input, since a control
+  covering the screen takes every touch on it, and the mouse events Android makes from the first finger are ignored.
+- **Measure** runs each outline method with and without the mirror at 60 frames a second, then none, C, and C with
+  the mirror at 120, where the chip can't hide a frame's cost by slowing its clock, and copies one line for the chat
+  with the picture's size in art pixels and the screen's rate.
 
 Like every prototype it is thrown away once its answer is written into the architecture.

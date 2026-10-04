@@ -18,19 +18,24 @@ const LAYER_MAIN := 1
 const LAYER_GBUF := 2
 const LAYER_SKY := 4
 const LAYER_MIRROR := 8
-## What Measure runs (PLT-04): each outline method without and with the mirrored water, each for
-## RUN_TIME seconds: a second to settle, then two each of panning, turning and zooming by script.
+## What Measure runs (PLT-04): each outline method without and with the mirrored water at 60
+## frames a second, then none, C, and C with the mirror at 120, where a frame has only 8.3 ms, so
+## the chip can't hide its cost by slowing its clock; each for RUN_TIME seconds: a second to
+## settle, then two each of panning, turning and zooming by script. [outline, mirror, frame rate]
 const RUNS := [
-	[0, false],
-	[1, false],
-	[2, false],
-	[3, false],
-	[4, false],
-	[0, true],
-	[1, true],
-	[2, true],
-	[3, true],
-	[4, true]
+	[0, false, 60],
+	[1, false, 60],
+	[2, false, 60],
+	[3, false, 60],
+	[4, false, 60],
+	[0, true, 60],
+	[1, true, 60],
+	[2, true, 60],
+	[3, true, 60],
+	[4, true, 60],
+	[0, false, 120],
+	[3, false, 120],
+	[3, true, 120]
 ]
 const RUN_TIME := 7.0
 
@@ -504,13 +509,13 @@ func _process(delta: float) -> void:
 		_save_shot()
 
 
-## Measure (PLT-04): the graphics time of every pass and the share of frames on time at 60 a
-## second, for each run of RUNS from the painter's view, then the results as a code for the chat.
+## Measure (PLT-04): the graphics time of every pass and the share of frames on time at the
+## run's frame rate, for each run of RUNS from the painter's view, then the results as a code for
+## the chat.
 func _start_measure() -> void:
 	_before = [target, yaw, mpp, outline, reflect, crawl]
 	crawl = 0
 	_results = PackedStringArray()
-	Engine.max_fps = 60
 	_begin_run(0)
 
 
@@ -519,12 +524,13 @@ func _begin_run(i: int) -> void:
 	var run: Array = RUNS[i]
 	_set_outline(run[0])
 	_set_reflect(run[1])
+	Engine.max_fps = run[2]
 	_run_clock = 0.0
 	_samples = PackedFloat32Array()
 	_late = 0
 	_readout.text = (
-		"Measuring %d of %d: outline %s, mirror %s"
-		% [i + 1, RUNS.size(), OUTLINES[run[0]], "on" if run[1] else "off"]
+		"Measuring %d of %d: outline %s, mirror %s, %d frames a second"
+		% [i + 1, RUNS.size(), OUTLINES[run[0]], "on" if run[1] else "off", run[2]]
 	)
 
 
@@ -550,7 +556,7 @@ func _measure_step(delta: float) -> void:
 			if vp.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
 				gpu += RenderingServer.viewport_get_measured_render_time_gpu(vp.get_viewport_rid())
 		_samples.append(gpu)
-		if delta > 1.15 / 60.0:
+		if delta > 1.15 / float(RUNS[_run][2]):
 			_late += 1
 	if t < RUN_TIME:
 		return
@@ -563,10 +569,11 @@ func _measure_step(delta: float) -> void:
 	var run: Array = RUNS[_run]
 	_results.append(
 		(
-			"%s%s %.1f/%.1f %d%%"
+			"%s%s%s %.1f/%.1f %d%%"
 			% [
 				OUTLINES[run[0]],
 				"+m" if run[1] else "",
+				"@%d" % run[2] if run[2] != 60 else "",
 				total / n,
 				sorted[mini(int(n * 0.95), n - 1)] if sorted.size() > 0 else 0.0,
 				roundi(100.0 * (n - _late) / n)
@@ -585,12 +592,16 @@ func _measure_step(delta: float) -> void:
 	_set_outline(_before[3])
 	_set_reflect(_before[4])
 	_apply_camera()
-	var phone: String = load("res://main.gd").facts().phone
+	var main: GDScript = load("res://main.gd")
+	# the picture's size in art pixels and the screen's rate, which the results depend on
 	var line := (
-		"P1 %s %s | %s"
+		"P1 %s %s %d×%d %s Hz | %s"
 		% [
 			ProjectSettings.get_setting("application/config/version", ""),
-			phone,
+			main.facts().phone,
+			_art.size.x - 2,
+			_art.size.y - 2,
+			main.refresh_rate(),
 			" | ".join(_results)
 		]
 	)
@@ -626,7 +637,11 @@ func _save_shot() -> void:
 	get_tree().quit()
 
 
-func _unhandled_input(e: InputEvent) -> void:
+## Gestures: one finger pans, two turn and pinch. They arrive here, as the screen's own input: a
+## control covering the screen takes every touch on it, so none reaches _unhandled_input.
+func _gui_input(e: InputEvent) -> void:
+	if e is InputEventMouse and e.device == InputEvent.DEVICE_ID_EMULATION:
+		return  # the phone's mouse events made from the first finger, already read as touches
 	if e is InputEventScreenTouch:
 		var t := e as InputEventScreenTouch
 		if t.pressed:
@@ -649,7 +664,7 @@ func _unhandled_input(e: InputEvent) -> void:
 			var d0 := old - other
 			var d1 := d.position - other
 			if d0.length() > 4.0 and d1.length() > 4.0:
-				_turn(rad_to_deg(d1.angle() - d0.angle()))
+				_turn(rad_to_deg(angle_difference(d0.angle(), d1.angle())))
 				_zoom(d0.length() / d1.length())
 		_touches[d.index] = d.position
 	elif e is InputEventMouseMotion:
