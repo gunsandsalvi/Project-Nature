@@ -4,7 +4,8 @@
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
 #   3 C++         each CMake project built, its doctest tests run, its code linted (clang-tidy 18)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
-#   5 tools       the tool tests, and the self-tests of the file check and the signing key
+#   5 tools       the tool tests and the cloud prototypes' own, and the self-tests of the file check and the
+#                 signing key
 #   6 file check  the three documents, and every commit since main that changes PROJECT.md (PRC-07)
 #   7 coverage    every item mapped and every test naming what it checks (PRC-12)
 #   8 delivery    with --deliver: the note, the build signed with a key made for it and checked, and the committed APK
@@ -124,6 +125,12 @@ done
 step "5 tools"
 python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
 echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed"
+# the cloud prototypes' own tests, in Python (IMPLEMENTATION α0.3a)
+for d in prototypes/*/tests; do
+  [ -d "$d" ] && [ "$d" != prototypes/bakeoff/tests ] || continue
+  python3 -m unittest discover -s "$d" >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
+  echo "   $(dirname "$d"): $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tests passed"
+done
 quiet python3 tools/signing-key.py selftest
 SELF="$(python3 tools/filecheck.py selftest)" || { echo "$SELF"; exit 1; }
 echo "   ${SELF##*$'\n'}"

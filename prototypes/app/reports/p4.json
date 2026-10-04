@@ -1,0 +1,970 @@
+{
+ "title": "P4 Discovery pace",
+ "question": "Can tuning alone make sharp flakes come within 5 years and fire within its window?",
+ "tuning": {
+  "flake": 0.196,
+  "drill": 0.0758,
+  "plough": 0.0758
+ },
+ "runs": [
+  {
+   "seed": 1,
+   "flake": 0.6,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 2,
+   "flake": 0.58,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 18.5,
+   "fire_way": "plough",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 18.52
+  },
+  {
+   "seed": 3,
+   "flake": 1.2,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 4,
+   "flake": 1.88,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 7.9,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 7.92
+  },
+  {
+   "seed": 5,
+   "flake": 0.55,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 14.7,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 14.72
+  },
+  {
+   "seed": 6,
+   "flake": 2.37,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 25.08,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 25.1
+  },
+  {
+   "seed": 7,
+   "flake": 0.78,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 16.48,
+   "fire_way": "plough",
+   "fire_route": "experiment",
+   "lost": [],
+   "years": 16.5
+  },
+  {
+   "seed": 8,
+   "flake": 2.88,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 13.82,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 13.83
+  },
+  {
+   "seed": 9,
+   "flake": 0.87,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 7.75,
+   "fire_way": "drill",
+   "fire_route": "experiment",
+   "lost": [],
+   "years": 7.77
+  },
+  {
+   "seed": 10,
+   "flake": 2.72,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 7.52,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 7.53
+  },
+  {
+   "seed": 11,
+   "flake": 2.92,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 12,
+   "flake": 1.53,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 13,
+   "flake": 3.62,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 21.02,
+   "fire_way": "drill",
+   "fire_route": "experiment",
+   "lost": [],
+   "years": 21.03
+  },
+  {
+   "seed": 14,
+   "flake": 2.63,
+   "flake_route": "dream",
+   "spread": 1.0,
+   "fire": 9.33,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 9.35
+  },
+  {
+   "seed": 15,
+   "flake": 1.2,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 20.65,
+   "fire_way": "plough",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 20.67
+  },
+  {
+   "seed": 16,
+   "flake": 0.23,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 4.1,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 4.12
+  },
+  {
+   "seed": 17,
+   "flake": 3.03,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 4.57,
+   "fire_way": "plough",
+   "fire_route": "experiment",
+   "lost": [],
+   "years": 5.03
+  },
+  {
+   "seed": 18,
+   "flake": 2.95,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 18.52,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 18.53
+  },
+  {
+   "seed": 19,
+   "flake": 2.82,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 1.33,
+   "fire_way": "plough",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 4.82
+  },
+  {
+   "seed": 20,
+   "flake": 1.25,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 30.28,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 30.3
+  }
+ ],
+ "control": [
+  {
+   "seed": 1,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 2,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 3,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 4,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 5,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 6,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 7,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 8,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 9,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 10,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": 5.58,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 11,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 12,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 13,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 14,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 15,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 16,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 17,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 18,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": 1.23,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [
+    [
+     1.75,
+     "drill"
+    ]
+   ],
+   "years": 7.0
+  },
+  {
+   "seed": 19,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  },
+  {
+   "seed": 20,
+   "flake": null,
+   "flake_route": null,
+   "spread": null,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 7.0
+  }
+ ],
+ "fresh": [
+  {
+   "seed": 1001,
+   "flake": 0.53,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 1002,
+   "flake": 0.47,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 7.4,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 7.42
+  },
+  {
+   "seed": 1003,
+   "flake": 0.63,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 13.38,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 13.4
+  },
+  {
+   "seed": 1004,
+   "flake": 1.25,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 1005,
+   "flake": 1.43,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 9.33,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 9.35
+  },
+  {
+   "seed": 1006,
+   "flake": 7.97,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 1007,
+   "flake": 0.42,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 1008,
+   "flake": 1.72,
+   "flake_route": "dream",
+   "spread": 1.0,
+   "fire": 23.1,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 23.12
+  },
+  {
+   "seed": 1009,
+   "flake": 1.48,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 25.65,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 25.67
+  },
+  {
+   "seed": 1010,
+   "flake": 0.78,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 27.58,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 27.6
+  },
+  {
+   "seed": 1011,
+   "flake": 1.65,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 21.48,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 21.5
+  },
+  {
+   "seed": 1012,
+   "flake": 4.53,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 31.43,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 31.45
+  },
+  {
+   "seed": 1013,
+   "flake": 2.18,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 26.47,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 26.48
+  },
+  {
+   "seed": 1014,
+   "flake": 0.75,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 35.03,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 35.05
+  },
+  {
+   "seed": 1015,
+   "flake": 2.07,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 1016,
+   "flake": 1.17,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 18.25,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 18.27
+  },
+  {
+   "seed": 1017,
+   "flake": 1.7,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": null,
+   "fire_way": null,
+   "fire_route": null,
+   "lost": [],
+   "years": 40.0
+  },
+  {
+   "seed": 1018,
+   "flake": 0.55,
+   "flake_route": "dream",
+   "spread": 1.0,
+   "fire": 16.48,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 16.5
+  },
+  {
+   "seed": 1019,
+   "flake": 4.15,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 8.75,
+   "fire_way": "drill",
+   "fire_route": "dream",
+   "lost": [],
+   "years": 8.77
+  },
+  {
+   "seed": 1020,
+   "flake": 3.92,
+   "flake_route": "accident",
+   "spread": 1.0,
+   "fire": 1.52,
+   "fire_way": "drill",
+   "fire_route": "experiment",
+   "lost": [],
+   "years": 5.92
+  }
+ ],
+ "sharp_stone": {
+  "within_5": 20,
+  "spread_ok": 20,
+  "routes": [
+   "accident",
+   "dream"
+  ],
+  "control_flakes": 0,
+  "checks": {
+   "discovery": true,
+   "spread": true,
+   "routes": true,
+   "control": true
+  },
+  "pass": true
+ },
+ "fire": {
+  "inside": 12,
+  "early": 3,
+  "never": 4,
+  "ways": [
+   "drill",
+   "plough"
+  ],
+  "pass": true
+ },
+ "sharp_stone_fresh": {
+  "within_5": 19,
+  "spread_ok": 19,
+  "routes": [
+   "accident",
+   "dream"
+  ],
+  "control_flakes": 0,
+  "checks": {
+   "discovery": true,
+   "spread": true,
+   "routes": true,
+   "control": true
+  },
+  "pass": true
+ },
+ "fire_fresh": {
+  "inside": 11,
+  "early": 1,
+  "never": 6,
+  "ways": [
+   "drill"
+  ],
+  "pass": true
+ },
+ "sensitivity": [
+  {
+   "knob": "as tuned",
+   "1.0": {
+    "flake_median": 1.225,
+    "fire_median": 16.375,
+    "flake_within_5": 40,
+    "fire_inside": 26,
+    "fire_early": 6,
+    "fire_never": 3,
+    "flake_pass": true,
+    "fire_pass": true
+   }
+  },
+  {
+   "knob": "accident",
+   "0.5": {
+    "flake_median": 1.9649999999999999,
+    "fire_median": 18.020000000000003,
+    "flake_within_5": 39,
+    "fire_inside": 26,
+    "fire_early": 5,
+    "fire_never": 6,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "2.0": {
+    "flake_median": 0.885,
+    "fire_median": 16.5,
+    "flake_within_5": 40,
+    "fire_inside": 21,
+    "fire_early": 7,
+    "fire_never": 5,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "edge": false
+  },
+  {
+   "knob": "experiment",
+   "0.5": {
+    "flake_median": 1.225,
+    "fire_median": 17.545,
+    "flake_within_5": 40,
+    "fire_inside": 26,
+    "fire_early": 5,
+    "fire_never": 3,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "2.0": {
+    "flake_median": 1.225,
+    "fire_median": 16.375,
+    "flake_within_5": 40,
+    "fire_inside": 26,
+    "fire_early": 6,
+    "fire_never": 3,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "edge": false
+  },
+  {
+   "knob": "hunch",
+   "0.5": {
+    "flake_median": 1.5299999999999998,
+    "fire_median": 28.36,
+    "flake_within_5": 37,
+    "fire_inside": 18,
+    "fire_early": 3,
+    "fire_never": 9,
+    "flake_pass": true,
+    "fire_pass": false
+   },
+   "2.0": {
+    "flake_median": 0.87,
+    "fire_median": 13.035,
+    "flake_within_5": 40,
+    "fire_inside": 29,
+    "fire_early": 6,
+    "fire_never": 1,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "edge": true
+  },
+  {
+   "knob": "flake factor",
+   "0.5": {
+    "flake_median": 2.0599999999999996,
+    "fire_median": 18.575,
+    "flake_within_5": 32,
+    "fire_inside": 27,
+    "fire_early": 3,
+    "fire_never": 5,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "2.0": {
+    "flake_median": 0.745,
+    "fire_median": 17.35,
+    "flake_within_5": 40,
+    "fire_inside": 27,
+    "fire_early": 3,
+    "fire_never": 4,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "edge": false
+  },
+  {
+   "knob": "drill factor",
+   "0.5": {
+    "flake_median": 1.225,
+    "fire_median": 28.235,
+    "flake_within_5": 40,
+    "fire_inside": 18,
+    "fire_early": 3,
+    "fire_never": 9,
+    "flake_pass": true,
+    "fire_pass": false
+   },
+   "2.0": {
+    "flake_median": 1.225,
+    "fire_median": 13.535,
+    "flake_within_5": 40,
+    "fire_inside": 25,
+    "fire_early": 9,
+    "fire_never": 1,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "edge": true
+  },
+  {
+   "knob": "plough factor",
+   "0.5": {
+    "flake_median": 1.225,
+    "fire_median": 17.545,
+    "flake_within_5": 40,
+    "fire_inside": 24,
+    "fire_early": 5,
+    "fire_never": 5,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "2.0": {
+    "flake_median": 1.225,
+    "fire_median": 16.2,
+    "flake_within_5": 40,
+    "fire_inside": 26,
+    "fire_early": 6,
+    "fire_never": 2,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "edge": false
+  },
+  {
+   "knob": "noticing",
+   "0.5": {
+    "flake_median": 2.145,
+    "fire_median": 32.065,
+    "flake_within_5": 35,
+    "fire_inside": 19,
+    "fire_early": 1,
+    "fire_never": 9,
+    "flake_pass": true,
+    "fire_pass": false
+   },
+   "2.0": {
+    "flake_median": 0.565,
+    "fire_median": 12.825,
+    "flake_within_5": 40,
+    "fire_inside": 27,
+    "fire_early": 7,
+    "fire_never": 1,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "edge": true
+  },
+  {
+   "knob": "experimenting",
+   "0.5": {
+    "flake_median": 1.3250000000000002,
+    "fire_median": 44.375,
+    "flake_within_5": 37,
+    "fire_inside": 11,
+    "fire_early": 2,
+    "fire_never": 17,
+    "flake_pass": true,
+    "fire_pass": false
+   },
+   "2.0": {
+    "flake_median": 0.66,
+    "fire_median": 10.14,
+    "flake_within_5": 38,
+    "fire_inside": 27,
+    "fire_early": 8,
+    "fire_never": 1,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "edge": true
+  },
+  {
+   "knob": "dream hints",
+   "0.5": {
+    "flake_median": 0.765,
+    "fire_median": 17.025,
+    "flake_within_5": 40,
+    "fire_inside": 25,
+    "fire_early": 4,
+    "fire_never": 4,
+    "flake_pass": true,
+    "fire_pass": true
+   },
+   "2.0": {
+    "flake_median": 0.9850000000000001,
+    "fire_median": 28.615000000000002,
+    "flake_within_5": 38,
+    "fire_inside": 17,
+    "fire_early": 3,
+    "fire_never": 8,
+    "flake_pass": true,
+    "fire_pass": false
+   },
+   "edge": true
+  }
+ ],
+ "knife_edge": [
+  "hunch",
+  "drill factor",
+  "noticing",
+  "experimenting",
+  "dream hints"
+ ],
+ "pass": false
+}

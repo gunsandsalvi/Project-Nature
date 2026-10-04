@@ -1,6 +1,7 @@
 ## Implements PRC-11, see A2.3: draws a Godot project's main scene in the cloud and saves the
 ## picture, for the note. Run under Xvfb as `godot --path <project> --rendering-method mobile
-## --resolution <W>x<H> -s <this file> -- <png> [frames]`.
+## --resolution <W>x<H> -s <this file> -- <png> [frames] [app arguments]`; the app reads the
+## arguments after the frames, such as a screen to open.
 extends SceneTree
 
 
