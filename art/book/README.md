@@ -28,6 +28,8 @@ To paint again (needs Node and the browser this machine already has):
 - `zoom:noon:camp` paints a zoom stop: `person`, `closecamp`, `camp`, `valley`, `region`, `map` or `globe`; add
   `:land` for a landscape picture. `worldtest:noon:seed7` paints a flat map of a whole generated world, one pixel
   a cell, for tuning the generator (`paint/www/worldgen.js`); add `:region` for the start region instead.
+- `zoom:noon:closecamp:export` writes the close camp as data instead of a picture, 50 m wider than the picture, for
+  the Godot prototypes (`prototypes/app/look/make-scene.sh`); the picture's own scene stays as it is.
 - Add a look and a water style as more words, for example `river:morning:look-clean:water-mirror`. Looks:
   `look-today` (fine grain, mixed pixels where light changes), `look-clean` (A), `look-sharp` (B, the book's
   look) and `look-painted` (C). Water: `water-today`, `water-clear` (W1, the book's water), `water-bands` (W2),

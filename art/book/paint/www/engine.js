@@ -1,6 +1,6 @@
 // The painter: draws a 3D scene at the game's art-pixel size with the art rules, and hands back PNGs.
 import * as THREE from 'three';
-import { paletteTexture, MOODS, mat } from './palette.js';
+import { paletteTexture, MOODS, mat, NAMES, RAMPS } from './palette.js';
 import * as S from './glsl.js';
 import { makeAtlas, GRID } from './atlas.js';
 import { LOOK, WATERS } from './look.js';
@@ -171,7 +171,83 @@ export class Painter {
     return { scene: sc, mesh: m };
   }
 
+  /**
+   * The scene as data for the game's prototypes (IMPLEMENTATION α0.2a): every mesh's attributes in one binary
+   * file, and a description of them with the camera, the hours' light, the look, the palette and the card atlas.
+   * Floats are 32-bit little-endian; each array starts on a 4-byte boundary.
+   */
+  exportData() {
+    const chunks = [];
+    let offset = 0;
+    const put = (typed) => {
+      const bytes = new Uint8Array(typed.buffer, typed.byteOffset, typed.byteLength);
+      const at = offset;
+      chunks.push(bytes.slice());
+      offset += bytes.byteLength;
+      const pad = (4 - (offset % 4)) % 4;
+      if (pad) { chunks.push(new Uint8Array(pad)); offset += pad; }
+      return at;
+    };
+    const geo = (g) => {
+      const attrs = {};
+      for (const [name, a] of Object.entries(g.attributes)) {
+        const arr = a.array instanceof Float32Array ? a.array : new Float32Array(a.array);
+        attrs[name] = { offset: put(arr), count: a.count, size: a.itemSize };
+      }
+      const ix = g.index ? g.index.array : null;
+      const index = ix ? { offset: put(ix instanceof Uint32Array ? ix : new Uint32Array(ix)), count: ix.length } : null;
+      return { attrs, index };
+    };
+    const meshes = [];
+    for (const m of this.scene.children) {
+      const u = m.material.uniforms;
+      if (u.tAtlas) meshes.push({ kind: 'cards', ...geo(m.geometry) });
+      else meshes.push({ kind: 'solid', layers: u.uLayers.value.toArray(), layerPat: u.uLayerPat.value.toArray(), ...geo(m.geometry) });
+    }
+    for (const m of this.waterScene.children) meshes.push({ kind: 'water', sea: m.material.uniforms.uKind.value, ...geo(m.geometry) });
+    for (const m of this.airScene.children) {
+      const u = m.material.uniforms;
+      meshes.push({ kind: 'puffs', row: u.uRow.value, shift: u.uStepShift.value, ...geo(m.geometry) });
+    }
+    const atlas = { offset: put(this.atlas.image.data), size: this.atlas.image.width };
+    // each hour's sun, worked out as the constructor does, for the noon and dusk of the art book's zoom stops
+    const yr = THREE.MathUtils.degToRad(this.yaw);
+    const sunOf = (md) => {
+      const f = new THREE.Vector3(-Math.sin(yr), 0, -Math.cos(yr)), l = new THREE.Vector3(-Math.cos(yr), 0, Math.sin(yr));
+      const az = THREE.MathUtils.degToRad(md.az), el = THREE.MathUtils.degToRad(md.el);
+      const s = f.multiplyScalar(Math.cos(az)).addScaledVector(l, Math.sin(az)).multiplyScalar(Math.cos(el));
+      s.y = Math.sin(el);
+      return s.normalize().toArray();
+    };
+    const hex = (c) => '#' + c.getHexString();
+    const moods = {};
+    for (const name of ['noon', 'dusk']) {
+      const md = MOODS[name];
+      moods[name] = { ...md, sun: hex(md.sun), shade: hex(md.shade), sky: hex(md.sky), haze: hex(md.haze), fire: hex(md.fire), sunDir: sunOf(md) };
+    }
+    const meta = {
+      camera: { w: this.w, h: this.h, mpp: this.mpp, yaw: this.yaw, elev: this.elev, target: this.target.toArray(), depth: this.camDepth },
+      moods, haze: this.haze, exposure: this.exposure, ao: this.ao, edgeK: this.edgeK, skyCover: this.skyCover ?? 0.55,
+      mist: { ...this.mist, col: hex(this.mist.col) }, fires: this.fires, waterLevel: this.waterLevel ?? null,
+      soot: this.sootU.value.slice(0, this.sootN.value).map((v) => v.toArray()),
+      bounds: { r: this.boundsR, shadowSize: this.shadowSize }, look: { ...LOOK }, waterStyle: this.waterStyle ?? (WATERS[LOOK.water] || 0),
+      waterTint: [0.72, 0.86, 0.98], rows: Object.fromEntries(['water', 'white', 'glint', 'sea', 'lagoon', 'smoke', 'fire'].map((n) => [n, mat(n)])),
+      palette: NAMES.map((n) => RAMPS[n]), names: NAMES, grid: GRID, atlas, meshes,
+    };
+    const bin = new Uint8Array(offset);
+    let at = 0;
+    for (const c of chunks) { bin.set(c, at); at += c.byteLength; }
+    let b64 = '';
+    for (let i = 0; i < bin.length; i += 0x8000) b64 += String.fromCharCode.apply(null, bin.subarray(i, i + 0x8000));
+    return { 'scene.json': btoa(unescape(encodeURIComponent(JSON.stringify(meta)))), 'scene.bin': btoa(b64) };
+  }
+
   render(scale = 4) {
+    if (globalThis.PAINT_EXPORT) {
+      globalThis.PAINT_EXPORT.files = this.exportData();
+      const c = document.createElement('canvas'); c.width = this.w; c.height = this.h;
+      return scale === 0 ? c : pngs(new Uint8Array(this.w * this.h * 4), this.w, this.h, 1);
+    }
     const { w, h, renderer: R } = this;
     const md = this.mood;
     const qcam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);

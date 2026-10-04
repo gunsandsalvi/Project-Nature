@@ -6,9 +6,10 @@ const name = q.get('scene'), light = q.get('light') || 'noon';
 const opts = (q.get('opts') || '').split(',').filter(Boolean);
 try {
   lookFromOpts(opts);
+  if (opts.includes('export')) globalThis.PAINT_EXPORT = {};
   const mod = await import(`./scenes/${name}.js`);
   const images = await mod.default({ light, opts });
-  window.result = { images };
+  window.result = globalThis.PAINT_EXPORT ? { files: globalThis.PAINT_EXPORT.files } : { images };
 } catch (e) {
   window.result = { error: (e && e.stack) || String(e) };
 }

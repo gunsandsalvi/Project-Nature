@@ -248,6 +248,7 @@ export default async function ({ light, opts }) {
   const land = opts.includes('land');
   const w = land ? 748 : 336, h = land ? 336 : 748;
   const fn = { person: nearStop, closecamp: nearStop, camp: campStop, valley: valleyStop, region: regionStop, map: mapStop, globe: globeStop }[stop];
-  const cv = await fn({ light, w, h, stop, land });
+  const extra = opts.includes('export') ? 50 : 0;
+  const cv = await fn({ light, w, h, stop, land, extra });
   return canvasPngs(cv, 4);
 }

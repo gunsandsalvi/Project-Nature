@@ -5,9 +5,9 @@
 extends Control
 
 ## The prototypes on the phone, and the page of the cloud's reports, in the plan's order:
-## the title, and the step that brings it.
+## the title, the step that brings it, and its screen's script once it has come.
 const PROTOTYPES: Array[Array] = [
-	["P1 The look", "α0.2a"],
+	["P1 The look", "α0.2a", "res://look/look.gd"],
 	["P2 A full scene", "α0.2b"],
 	["P3 The kit", "α0.2c"],
 	["Reports from the cloud", "α0.3a"],
@@ -109,6 +109,24 @@ func _ready() -> void:
 	show_facts(facts())
 	resized.connect(_layout)
 	_layout()
+	# "look" on the command line opens P1 at once, for the cloud's pictures
+	if "look" in OS.get_cmdline_user_args():
+		open_screen("res://look/look.gd")
+
+
+## Opens a prototype's screen over the menu; its closed signal brings the menu back.
+func open_screen(script_path: String) -> void:
+	var screen := Control.new()
+	screen.set_script(load(script_path))
+	screen.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_safe.visible = false
+	add_child(screen)
+	screen.connect("closed", _close_screen.bind(screen))
+
+
+func _close_screen(screen: Control) -> void:
+	screen.queue_free()
+	_safe.visible = true
 
 
 ## Fills the self-check's rows.
@@ -210,6 +228,14 @@ func _build_self_check(box: VBoxContainer) -> void:
 func _build_menu(box: VBoxContainer) -> void:
 	box.add_child(_label("Prototypes", INK, 20))
 	for entry in PROTOTYPES:
+		if entry.size() > 2:
+			var open := Button.new()
+			open.text = "%s  ·  %s" % [entry[0], entry[1]]
+			open.custom_minimum_size.y = TARGET
+			open.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			open.pressed.connect(open_screen.bind(entry[2]))
+			box.add_child(open)
+			continue
 		var row := HBoxContainer.new()
 		row.custom_minimum_size.y = TARGET
 		var title := _label(entry[0], DIM, 16)

@@ -25,3 +25,150 @@ renderer/rendering_method.mobile="mobile"
 rendering_device/driver.android="vulkan"
 textures/canvas_textures/default_texture_filter=0
 textures/vram_compression/import_etc2_astc=true
+lights_and_shadows/directional_shadow/size=4096
+lights_and_shadows/directional_shadow/size.mobile=4096
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=0
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality.mobile=0
+
+[shader_globals]
+
+look_palette={
+"type": "sampler2D",
+"value": ""
+}
+look_atlas={
+"type": "sampler2D",
+"value": ""
+}
+look_sky_map={
+"type": "sampler2D",
+"value": ""
+}
+look_gbuf={
+"type": "sampler2D",
+"value": ""
+}
+look_mirror={
+"type": "sampler2D",
+"value": ""
+}
+look_sun_dir={
+"type": "vec3",
+"value": Vector3(0, 1, 0)
+}
+look_sun_tint={
+"type": "vec3",
+"value": Vector3(1, 1, 1)
+}
+look_shade_tint={
+"type": "vec3",
+"value": Vector3(1, 1, 1)
+}
+look_fire_tint={
+"type": "vec3",
+"value": Vector3(1, 1, 1)
+}
+look_haze_col={
+"type": "vec3",
+"value": Vector3(1, 1, 1)
+}
+look_sky_col={
+"type": "vec3",
+"value": Vector3(1, 1, 1)
+}
+look_water_tint={
+"type": "vec3",
+"value": Vector3(1, 1, 1)
+}
+look_cam_right={
+"type": "vec3",
+"value": Vector3(1, 0, 0)
+}
+look_sun_k={
+"type": "float",
+"value": 0.0
+}
+look_sky_k={
+"type": "float",
+"value": 0.0
+}
+look_sun_pow={
+"type": "float",
+"value": 1.0
+}
+look_shift={
+"type": "float",
+"value": 0.0
+}
+look_contrast={
+"type": "float",
+"value": 1.0
+}
+look_haze_k={
+"type": "float",
+"value": 0.0
+}
+look_desat={
+"type": "float",
+"value": 0.0
+}
+look_fire_power={
+"type": "float",
+"value": 0.0
+}
+look_sky_cover={
+"type": "float",
+"value": 0.0
+}
+look_mpp={
+"type": "float",
+"value": 0.09
+}
+look_mirror_y={
+"type": "float",
+"value": 0.0
+}
+look_atlas_grid={
+"type": "float",
+"value": 8.0
+}
+look_elev_sin={
+"type": "float",
+"value": 0.5
+}
+look_reflect={
+"type": "float",
+"value": 0.0
+}
+look_haze_range={
+"type": "vec2",
+"value": Vector2(0, 1)
+}
+look_sky_height={
+"type": "vec2",
+"value": Vector2(0, 1)
+}
+look_gbuf_depth={
+"type": "vec2",
+"value": Vector2(0, 1)
+}
+look_fire={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 1)
+}
+look_sky_box={
+"type": "vec4",
+"value": Vector4(0, 0, 1, 0)
+}
+look_edges={
+"type": "vec4",
+"value": Vector4(2, 2, 1, 1)
+}
+look_soot={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+look_outline={
+"type": "int",
+"value": 0
+}

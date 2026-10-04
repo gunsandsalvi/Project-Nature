@@ -33,6 +33,11 @@ async function main() {
     await page.waitForFunction(() => window.result !== undefined, null, { timeout: 900000, polling: 250 });
     const res = await page.evaluate(() => window.result);
     if (res.error) console.log(`FAILED ${job}: ${res.error}`);
+    for (const [name, b64] of Object.entries(res.files || {})) {
+      const f = path.join(out, name);
+      fs.writeFileSync(f, Buffer.from(b64, 'base64'));
+      console.log(`wrote ${f} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
+    }
     for (const [name, url] of Object.entries(res.images || {})) {
       const f = path.join(out, `${scene}-${light}${rest.length ? '-' + rest.join('-') : ''}${name ? '-' + name : ''}.png`);
       fs.writeFileSync(f, Buffer.from(url.split(',')[1], 'base64'));

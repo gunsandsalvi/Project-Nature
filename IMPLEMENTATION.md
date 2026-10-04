@@ -121,7 +121,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α0.2a | P1 The look | M0 | 6 | Not started |
+| α0.2a | P1 The look | M0 | 6 | In progress |
 | α0.2b | P2 A full scene | M0 | 5 | Not started |
 | α0.2c | P3 The kit | M0 | 6 | Not started |
 | α0.3a | P4 Discovery pace | M0 | 6 | Not started |

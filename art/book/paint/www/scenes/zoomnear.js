@@ -144,11 +144,12 @@ function addCliff(P, Lnd, u0, u1, r) {
 }
 
 /** Trees over an area: woods where the land's cover says so, a few in the meadows; far ones as round crowns. */
-function addTrees(P, Lnd, area, { near = null, nearR = 0, cell = 7, seed = 5 }) {
+function addTrees(P, Lnd, area, { near = null, nearR = 0, cell = 7, seed = 5, hole = null }) {
   const r = new Rand(seed), far = new Solid();
   let nFar = 0;
   for (let u = area[0]; u < area[1]; u += cell) for (let v = area[2]; v < area[3]; v += cell) {
     const x = u + r.range(0, cell), z = v + r.range(0, cell), c = Lnd.cover(x, z);
+    if (hole && x >= hole[0] && x < hole[1] && z >= hole[2] && z < hole[3]) continue;
     const keep = c.forest > 0.5 ? r.chance(0.8) : r.chance(0.02);
     if (!keep) continue;
     if (Math.abs(z - Lnd.cliffV(x)) < 5 || (Math.abs(x) < 26 && z > Lnd.cliffV(x) - 3 && z < 36)) continue;   // the cliff face and the camp
@@ -262,7 +263,7 @@ function deerTiny(ctx, x, y) {
 }
 
 /** The close camp and one person: every figure and thing in full, the woods near by in full, far ones as crowns. */
-export async function nearStop({ light, w, h, stop }) {
+export async function nearStop({ light, w, h, stop, extra = 0 }) {
   const Lnd = zoomLand(), person1 = stop === 'person';
   const mpp = person1 ? 0.024 : 0.09;
   K.mpp = mpp;
@@ -273,9 +274,13 @@ export async function nearStop({ light, w, h, stop }) {
   P.haze = [P.camDepth + 20, P.camDepth + 160];
   const span = w * mpp, deep = (h * mpp) / Math.sin(Math.PI / 6);
   P.addSolid(groundView(P, { height: (u, v) => Lnd.height(u, v, true), weights: weights(Lnd), step: person1 ? 0.12 : 0.4, stepD: person1 ? 0.14 : 0.45,
-    ymin: Lnd.H0 - 6, ymax: Lnd.H0 + 12 }), LAYERS);
-  const shelter = addCliff(P, Lnd, target[0] - span, target[0] + span);
-  addTrees(P, Lnd, [target[0] - span - 30, target[0] + span + 30, target[2] - deep - 60, target[2] + deep * 0.5], { near: [target[0], target[2] - 10], nearR: 60, cell: 7 });
+    ymin: Lnd.H0 - 6, ymax: Lnd.H0 + 12, extra }), LAYERS);
+  const shelter = addCliff(P, Lnd, target[0] - span - extra, target[0] + span + extra);
+  const woods = [target[0] - span - 30, target[0] + span + 30, target[2] - deep - 60, target[2] + deep * 0.5];
+  addTrees(P, Lnd, woods, { near: [target[0], target[2] - 10], nearR: 60, cell: 7 });
+  if (extra) {
+    addTrees(P, Lnd, [woods[0] - extra, woods[1] + extra, woods[2] - extra, woods[3] + extra], { near: [target[0], target[2] - 10], nearR: 60, cell: 7, seed: 6, hole: woods });
+  }
   const hp = addCamp(P, Lnd, light, shelter, true);
   addWaters(P, Lnd, 0);
   // the band in full
@@ -302,6 +307,16 @@ export async function nearStop({ light, w, h, stop }) {
   const streamAt = (u) => Lnd.stream.reduce((m, p) => (Math.abs(p[0] - u) < Math.abs(m[0] - u) ? p : m))[1];
   scatter(low, { r, area, count: person1 ? 50 : 320, tiles: [TILE.SEDGE, TILE.REED, TILE.SEDGE], mat: 'reed', place,
     accept: (u, v) => { const d = Math.abs(v - streamAt(u)); return d > 1.7 && d < 2.6 + 1.6 * noise2(u * 0.4, v * 0.4) && noise2(u * 0.25 + 3, 7) > 0.4; } });
+  if (extra) {
+    // the same again in the margin, by its own chance, so the picture's own tufts stay where they were
+    const r2 = new Rand(5), ring = [area[0] - extra, area[1] + extra, area[2], area[3] + extra];
+    const out = (u, v) => !(u >= area[0] && u < area[1] && v >= area[2] && v < area[3]);
+    const k = ((ring[1] - ring[0]) * (ring[3] - ring[2])) / ((area[1] - area[0]) * (area[3] - area[2])) - 1;
+    scatter(low, { r: r2, area: ring, count: Math.round(1400 * k), tiles: TILE.TUFT, mat: 'meadow', place, bias: 1, accept: (u, v) => out(u, v) && open(u, v) && Math.abs(v - 10) > 2.4 });
+    scatter(low, { r: r2, area: ring, count: Math.round(300 * k), tiles: TILE.FLOWER, mat: (u, v) => (noise2(u * 0.2, v * 0.2) > 0.5 ? 'flowerp' : 'flowery'), place, accept: (u, v) => out(u, v) && open(u, v) });
+    scatter(low, { r: r2, area: ring, count: Math.round(320 * k), tiles: [TILE.SEDGE, TILE.REED, TILE.SEDGE], mat: 'reed', place,
+      accept: (u, v) => { const d = Math.abs(v - streamAt(u)); return out(u, v) && d > 1.7 && d < 2.6 + 1.6 * noise2(u * 0.4, v * 0.4) && noise2(u * 0.25 + 3, 7) > 0.4; } });
+  }
   P.addCards(low);
   const puffs = new Puffs();
   smoke(puffs, { at: [hp[0], Lnd.H0 + 0.9, hp[1]], height: 10, drift: [0.55, 0.3], seed: 3, size: 0.3, tone: light === 'dusk' ? 3 : 5, alpha: light === 'dusk' ? 0.4 : 0.26 });
