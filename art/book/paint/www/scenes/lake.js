@@ -31,9 +31,11 @@ export default async function ({ light, opts }) {
     return y;
   };
   const L = land(height);
+  // a trodden path from the camp past the clay pit to the meadow
+  const pathX = (z) => 2.2 + 1.2 * Math.sin(z * 0.25) - Math.max(0, z - 14) * 0.25;
   P.addSolid(ground({
     x0: -34, x1: 34, z0: -50, z1: 40, step: 0.5, height, weights: (x, z, y) => {
-      const camp = Math.hypot((x - 1) / 9, (z - 6) / 5) < 1 ? 1 : 0;
+      const camp = Math.hypot((x - 1) / 9, (z - 6) / 5) < 1 || (z > 8 && Math.abs(x - pathX(z)) < 0.5 + 0.15 * Math.sin(z * 1.7)) ? 1 : 0;
       const mud = y < lake + 0.35 ? 1 : 0;
       return [1 - Math.max(camp, mud), camp * (1 - mud), mud, 0];
     },
@@ -42,8 +44,8 @@ export default async function ({ light, opts }) {
 
   // reed beds along the shore and round the island; willows
   const low = new Cards();
-  const reedOk = (x, z) => { const y = L.at(x, z); return y < lake + 0.25 && y > lake - 0.9 && noise2(x * 0.25, z * 0.25) > 0.3; };
-  scatter(low, { r, area: [-34, 34, -40, 6], count: 2600, tiles: [TILE.REED, TILE.REED, TILE.SEDGE], mat: 'reed', place: (x, z) => [Math.max(L.at(x, z), lake), [0, 1, 0]], accept: reedOk, size: 1.1 });
+  const reedOk = (x, z) => { const y = L.at(x, z); return y < lake + 0.25 && y > lake - 0.7 && noise2(x * 0.25, z * 0.25) > 0.42; };
+  scatter(low, { r, area: [-34, 34, -40, 6], count: 1100, tiles: [TILE.REED, TILE.SEDGE, TILE.SEDGE], mat: 'reed', place: (x, z) => [Math.max(L.at(x, z), lake), [0, 1, 0]], accept: reedOk });
   scatter(low, { r, area: [-34, 34, -6, 40], count: 1300, tiles: TILE.TUFT, mat: 'meadow', place: L.place, bias: 1, accept: (x, z) => L.at(x, z) > lake + 0.3 && Math.hypot((x - 1) / 9, (z - 6) / 5) > 1.05 });
   scatter(low, { r, area: [-34, 34, -6, 40], count: 380, tiles: TILE.FLOWER, mat: (x, z) => (noise2(x * 0.2, z * 0.2) > 0.5 ? 'flowery' : 'flowerw'), place: L.place, accept: (x, z) => L.at(x, z) > lake + 0.3 });
   P.addCards(low);
@@ -111,6 +113,24 @@ export default async function ({ light, opts }) {
   folk({ kind: 'child', skin: 'skin1', hairStyle: 'short', top: 'none', legs: 'bare', feet: null, pose: 'point', seed: 16 }, 7.5, 17.5, -0.6);
   put(P, animal({ species: 'dog', pose: 'run', seed: 17 }), 9.5, 16.0, { ground: L.at, yaw: 2.4 });
   put(P, animal({ species: 'hare', pose: 'run', seed: 18 }), 11.4, 14.4, { ground: L.at, yaw: 2.4 });
+  // the near meadow: a fallen log where two sit and talk, a hide stretched to dry and one being scraped, firewood
+  put(P, log({ len: 2.6, r: 0.2 }), -3.2, 19.2, { ground: L.at, yaw: 0.25 });
+  folk({ kind: 'man', skin: 'skin2', hairStyle: 'short', beard: true, top: 'tunic', topMat: 'leather', pose: 'sitTalk', seed: 19 }, -4.0, 19.0, 1.2, { y: L.at(-4.0, 19.0) + 0.38 });
+  folk({ kind: 'elder', skin: 'skin3', hair: 'hairgrey', hairStyle: 'bun', top: 'dress', topMat: 'hide', pose: 'sit', seed: 20 }, -2.3, 19.4, -1.9, { y: L.at(-2.3, 19.4) + 0.38 });
+  put(P, rack({ seed: 21, len: 2.0, hang: 'hide' }), 7.2, 21.0, { ground: L.at, yaw: -0.3 });
+  const hide = new Solid();
+  hide.box(M4.mul(M4.T(5.6, L.at(5.6, 22.4) + 0.03, 22.4), M4.R(0, 0.5, 0)), 1.3, 0.04, 0.9, { mat: 'hide', pat: PAT.HIDE, obj: newObj() });
+  P.addSolid(hide);
+  folk({ kind: 'woman', skin: 'skin2', hairStyle: 'braid', top: 'dress', topMat: 'leather', pose: 'scrape', seed: 22 }, 5.3, 23.3, 3.4);
+  const wood = new Solid(), woodObj = newObj();
+  for (let i = 0; i < 9; i++) {
+    const k = i < 4 ? i : (i < 7 ? i - 4 + 0.5 : i - 7 + 1), lay = i < 4 ? 0 : (i < 7 ? 1 : 2);
+    const x = -8 + k * 0.17, z = 16.5, y = L.at(-7.7, 16.5) + 0.08 + lay * 0.14;
+    wood.beam([x, y, z - 0.6], [x + r.range(-0.03, 0.03), y, z + 0.6], 0.075, 0.07, 6, { mat: 'bark', pat: PAT.BARK, obj: woodObj }, { capA: true, capMat: { mat: 'wood', obj: woodObj, bias: 1 } });
+  }
+  P.addSolid(wood);
+  put(P, person({ kind: 'youth', skin: 'skin3', hairStyle: 'short', top: 'tunic', topMat: 'hide', pose: 'carry', held: 'bundle', seed: 23 }), -6.4, 18.0, { ground: L.at, yaw: -2.4 });
+
   const puffs = new Puffs();
   smoke(puffs, { at: [4.5, 1.0, 0.6], height: 9, drift: [1.0, -0.4], seed: 9, size: 0.34, tone: 4, alpha: 0.5 });
   for (const [x, z] of [[-5, 3.5], [1.5, 9.5]]) smoke(puffs, { at: [x, L.at(x, z) + 2.4, z], height: 5, drift: [1.0, -0.4], seed: x + 20, size: 0.18, tone: 5, alpha: 0.32 });

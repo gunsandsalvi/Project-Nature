@@ -30,11 +30,11 @@ export default async function ({ light, opts }) {
   const height = (x, z) => {
     const f = field(x, z), w = width(f.t) / 2;
     const base = 0.5 * (fbm(x * 0.05 + 4, z * 0.05 + 1, 3) - 0.5) + 0.012 * Math.abs(x) * 2;
-    if (f.d < w) return water - 0.35 - 0.6 * (1 - f.d / w);
+    if (f.d < w) return water - 0.06 - 0.95 * (1 - f.d / w) ** 1.4;   // shelving shallows, deepest mid-stream
     const b = bar(f);
     const barLow = water + 0.12 + (f.d - w) * 0.04;
     const bank = Math.min(1, (f.d - w) / 1.6);
-    const y = water + (base - water) * bank ** 0.6;
+    const y = water + (base - water) * bank ** 0.85;
     return b > 0 && f.d < w + 6 ? Math.min(y, barLow + (y - barLow) * Math.max(0, (f.d - w - 3.6) / 2.2)) * 1 : y;
   };
   const L = land(height);
@@ -47,7 +47,7 @@ export default async function ({ light, opts }) {
     },
   }), [['meadow', PAT.GROUND], ['sand', PAT.SAND], ['mud', PAT.DIRT], ['grass', PAT.GROUND]]);
   P.addWater(riverSheet({ centre, width: (t) => width(t) + 1.2, level: () => water, n: 260 }));
-  P.setMist(water, 1.1, 0.7, 0.07, new THREE.Color('#e6e8f0'));
+  P.setMist(water, 1.1, 0.45, 0.07, new THREE.Color('#e6e8f0'));
 
   // cobbles on the gravel bar, boulders in and by the river
   const stones = new Solid();

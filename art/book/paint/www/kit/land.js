@@ -125,7 +125,7 @@ export function boulder({ seed = 1, size = [1, 0.7, 0.9], detail = 1, mat = 'roc
  * overhang: { bed, from, to, out, recess } in metres along the path makes a rock shelter.
  */
 export function blockCliff({ seed = 1, path, base = 0, beds = [1.6, 1.1, 1.8, 1.2, 1.5, 1.3], mat = 'rock', moss = 'moss',
-  grass = 'grass', overhang = null, jut = 0.3, setback = 0.28, len = [1.2, 5.2], depth = 5.5, bedMats = null, obj }) {
+  grass = 'grass', overhang = null, jut = 0.3, setback = 0.28, len = [0.9, 3.6], depth = 5.5, bedMats = null, obj }) {
   const r = new Rand(seed);
   obj = obj ?? newObj();
   const s = new Solid();
@@ -148,18 +148,19 @@ export function blockCliff({ seed = 1, path, base = 0, beds = [1.6, 1.1, 1.8, 1.
     const row = [];
     while (d < total + 1) {
       const L = len[0] + (len[1] - len[0]) * r.next() ** 1.6, mid = d + L / 2, A = at(mid);
-      let out = r.range(-jut, jut) - bi * setback;
+      // the face bulges and bays over several beds at once, as weathered rock does, so the beds never line up
+      let out = r.range(-jut, jut) - bi * setback + 1.1 * (noise2(mid * 0.11 + seed, bi * 0.3) - 0.5);
       if (overhang) {
         const e = ease(mid, overhang.from, overhang.to, 0.9);
         if (bi === overhang.bed) out += overhang.out * e;
         if (bi < overhang.bed) out -= overhang.recess * e * (0.8 + 0.2 * bi / Math.max(1, overhang.bed - 1));
       }
-      const h = th * r.range(0.86, 1.2), dep = depth + Math.max(0, out), dy = r.range(-0.14, 0.1);
+      const h = th * r.range(0.82, 1.25), dep = depth + Math.max(0, out), dy = r.range(-0.18, 0.12);
       const cx = A.p[0] + A.n[0] * (out - dep / 2), cz = A.p[1] + A.n[1] * (out - dep / 2);
       const yaw = Math.atan2(A.dir[1], A.dir[0]);
-      const m = M4.mul(M4.T(cx, y + h / 2 - 0.04 + dy, cz), M4.R(r.range(-0.04, 0.04), -yaw + r.range(-0.1, 0.1), r.range(-0.07, 0.07)));
+      const m = M4.mul(M4.T(cx, y + h / 2 - 0.04 + dy, cz), M4.R(r.range(-0.06, 0.06), -yaw + r.range(-0.12, 0.12), r.range(-0.1, 0.1)));
       const isTop = bi === beds.length - 1;
-      s.add(stoneBlock({ seed: seed * 1000 + i++, size: [L * 1.12, h + 0.08, dep], chip: r.range(0.14, 0.38), mat: bedMats ? bedMats[bi] : mat,
+      s.add(stoneBlock({ seed: seed * 1000 + i++, size: [L * 1.12, h + 0.08, dep], chip: r.range(0.2, 0.48), mat: bedMats ? bedMats[bi] : mat,
         top: isTop ? grass : moss, topPat: isTop ? PAT.GROUND : PAT.MOSS, topMin: isTop ? 0.75 : 0.85, obj, bias: r.chance(0.3) ? (r.chance(0.5) ? -0.5 : 0.5) : 0 }), m);
       row.push({ s: mid, out, top: y + h + dy - 0.04, L });
       d += L * r.range(0.84, 0.96);

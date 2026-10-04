@@ -8,8 +8,8 @@ import { K } from '../kit/k.js';
 import { ground, boulder, blockCliff, stoneBlock } from '../kit/land.js';
 import { bush, scatter, conifer } from '../kit/plants.js';
 import { person } from '../kit/people.js';
-import { bird } from '../kit/animals.js';
-import { hearth, smoke, windbreak, rack, canoe, midden, grave } from '../kit/things.js';
+import { animal, bird } from '../kit/animals.js';
+import { hearth, smoke, windbreak, rack, canoe, midden, grave, log } from '../kit/things.js';
 import { land, put, waterPlane } from '../kit/scene.js';
 
 export default async function ({ light, opts }) {
@@ -38,9 +38,11 @@ export default async function ({ light, opts }) {
   };
   const L = land(height);
   const inHead = (x, z) => (z < cliffZ(x) - 3.4 && x < headEnd ? 0.5 : 2);
+  // a sandy path up through the dunes from the beach camp
+  const pathX = (z) => 1.5 - (z - 14) * 0.35 + 1.1 * Math.sin(z * 0.3);
   P.addSolid(ground({
     x0: -36, x1: 30, z0: -54, z1: 44, step: 0.5, height, weights: (x, z, y) => {
-      const sand = z > nearShore(x) && y < 0.6 ? 1 : 0;
+      const sand = (z > nearShore(x) && y < 0.6) || (z > 15 && Math.abs(x - pathX(z)) < 0.6 + 0.2 * Math.sin(z * 1.3)) ? 1 : 0;
       const wet = y < sea + 0.3 ? 1 : 0;
       return [1 - sand - wet * (1 - sand), sand * (1 - wet), wet, 0];
     },
@@ -105,6 +107,12 @@ export default async function ({ light, opts }) {
   // a few walk the beach toward the headland path, carrying shells and ochre for the grave
   const walkers = [['woman', 'skin2', 'walkA', 'basket'], ['man', 'skin3', 'walkB', 'staff'], ['child', 'skin2', 'walkA', null], ['woman', 'skin1', 'walkB', 'pot']];
   walkers.forEach(([kind, skin, pose, held], i) => put(P, person({ kind, skin, hairStyle: i % 2 ? 'long' : 'braid', top: kind === 'child' ? 'tunic' : 'dress', topMat: i % 2 ? 'leather' : 'hide', necklace: 'shell', pose, held, seed: 40 + i }), 3.5 - i * 1.5, 21.5 + i * 0.7, { ground: L.at, yaw: -1.9 }));
+  // up the dune path: two bring driftwood for the fire, a dog runs ahead; driftwood on the beach
+  put(P, person({ kind: 'man', skin: 'skin2', hairStyle: 'long', top: 'tunic', topMat: 'hide', pose: 'shoulder', held: 'bundle', seed: 50 }), pathX(26.5), 26.5, { ground: L.at, yaw: -2.9 });
+  put(P, person({ kind: 'youth', skin: 'skin3', hairStyle: 'braid', top: 'tunic', topMat: 'leather', pose: 'carry', held: { kind: 'bundle', mat: 'wood' }, seed: 51 }), pathX(28) + 0.7, 28, { ground: L.at, yaw: -2.8 });
+  put(P, animal({ species: 'dog', pose: 'run', seed: 52 }), pathX(23.5) + 0.4, 23.5, { ground: L.at, yaw: -2.6 });
+  for (const [x, z, len, a] of [[-6.5, 9.2, 2.6, 0.4], [9.5, 11.5, 1.8, -0.7], [-1.5, 8.0, 1.4, 1.2]]) put(P, log({ len, r: 0.13 }), x, z, { ground: L.at, yaw: a, sink: 0.06 });
+
   const puffs = new Puffs();
   smoke(puffs, { at: [1.5, 0.9, 14.6], height: 9, drift: [-0.9, -0.5], seed: 7, size: 0.28, tone: 4, alpha: 0.4 });
   P.addPuffs(puffs);

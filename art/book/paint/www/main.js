@@ -1,8 +1,11 @@
 // Loads one scene by name, paints it in the hour asked for, and leaves the PNGs in window.result.
+import { lookFromOpts } from './look.js';
+
 const q = new URLSearchParams(location.search);
 const name = q.get('scene'), light = q.get('light') || 'noon';
 const opts = (q.get('opts') || '').split(',').filter(Boolean);
 try {
+  lookFromOpts(opts);
   const mod = await import(`./scenes/${name}.js`);
   const images = await mod.default({ light, opts });
   window.result = { images };

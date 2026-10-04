@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { Painter, canvasPngs } from '../engine.js';
 import { Solid, Cards, Puffs, PAT, FLAG, Rand, M4 } from '../geo.js';
 import { TILE } from '../atlas.js';
-import { K } from '../kit/k.js';
+import { K, card } from '../kit/k.js';
 import { ground, boulder, stoneBlock } from '../kit/land.js';
 import { broadleaf, conifer, bush, flatTree, scatter } from '../kit/plants.js';
 import { person } from '../kit/people.js';
@@ -97,7 +97,7 @@ export default async function ({ light, opts }) {
   if (kind === 'plants') {
     const low = (tiles, mat, n, bias = 0, size = 1) => {
       const c = new Cards(), r = new Rand(n);
-      for (let i = 0; i < n; i++) c.add({ c: [r.range(-0.7, 0.7), 0, r.range(-0.7, 0.7)], w: 32 * K.mpp * size, h: 32 * K.mpp * size, tile: r.pick(tiles), mat, bias, flag: FLAG.NOOUTLINE | FLAG.NOSHADOW, upright: 1 });
+      for (let i = 0; i < n; i++) c.add({ c: [r.range(-0.7, 0.7), 0, r.range(-0.7, 0.7)], w: card() * size, h: card() * size, tile: r.pick(tiles), mat, bias, flag: FLAG.NOOUTLINE | FLAG.NOSHADOW, upright: 1 });
       return { cards: c };
     };
     K.mpp = 0.05;
@@ -125,13 +125,13 @@ export default async function ({ light, opts }) {
     K.mpp = 0.045;
     const items = [
       { name: 'hide tent', piece: tent({ seed: 1, r: 1.6, h: 2.8 }) },
-      { name: 'hide dome', sub: 'mammoth bone', piece: dome({ seed: 2, r: 1.8, h: 1.7, bones: true }) },
-      { name: 'thatch dome', piece: dome({ seed: 3, r: 1.8, h: 1.7, mat: 'thatch', pat: PAT.THATCH }) },
+      { name: 'hide dome', sub: 'mammoth bone', piece: dome({ seed: 2, r: 1.9, h: 2.2, bones: true }) },
+      { name: 'thatch dome', piece: dome({ seed: 3, r: 1.9, h: 2.2, mat: 'thatch', pat: PAT.THATCH }) },
       { name: 'windbreak', piece: windbreak({ seed: 4, len: 2.8 }) },
       { name: 'meat rack', piece: rack({ seed: 5, len: 2.0 }) },
       { name: 'fish rack', piece: rack({ seed: 6, len: 2.0, hang: 'fish' }) },
       { name: 'pit house', piece: pitHouse({ seed: 7, r: 2.0, h: 2.6 }) },
-      { name: 'longhouse', sub: 'reed roof', piece: longhouse({ seed: 8, len: 5, w: 3.2, wallH: 1.1, roofH: 1.9 }), scale: 0.8 },
+      { name: 'longhouse', sub: 'reed roof', piece: longhouse({ seed: 8, len: 5.5, w: 4, wallH: 1.9, roofH: 2.6 }), scale: 0.8 },
       { name: 'mud brick', piece: mudHouse({ seed: 9, w: 3.6, d: 3, h: 1.9 }) },
       { name: 'hearth', sub: 'cold', piece: hearth({ seed: 10, level: 0 }) },
       { name: 'hearth', sub: 'embers', piece: hearth({ seed: 11, level: 1 }) },
@@ -153,6 +153,53 @@ export default async function ({ light, opts }) {
     ], top: 8 }), 3);
   }
   if (kind === 'light') return lightSheet();
+  if (kind === 'scale') return scaleSheet();
+}
+
+/** Everything at true size in one line against a ruler of one-metre bands, to check proportions (PRE-46). */
+async function scaleSheet() {
+  K.mpp = 0.04;
+  const w = 748, h = 262;
+  const P = new Painter({ w, h, mpp: K.mpp, yaw: 0, elev: 30, target: [0, 2.0, 0.4], mood: 'noon', bounds: { c: [0, 0, 0], r: 22 }, shadowSize: 4096 });
+  P.addSolid(ground({ x0: -24, x1: 24, z0: -24, z1: 24, step: 1, height: () => 0, weights: () => [1, 0, 0, 0] }), [['meadow', PAT.GROUND]]);
+  P.haze = [P.camDepth + 1e4, P.camDepth + 2e4];
+  const items = [];
+  const at = (piece, x, z, name, sub, o = {}) => { put(P, piece, x, z, { y: 0, yaw: o.yaw ?? 0, scale: o.scale || 1 }); items.push([name, sub, x, z, o.row ?? 0]); };
+  const pole = (x) => {
+    const s = new Solid();
+    for (let i = 0; i < 6; i++) s.box(M4.T(0, 0.25 + i * 0.5, 0), 0.07, 0.5, 0.07, { mat: i % 2 ? 'bone' : 'dyedred' });
+    return { solid: s };
+  };
+  const ped = (spec) => person({ seed: 4, top: 'tunic', topMat: 'hide', ...spec });
+  at(pole(), -13.9, 0, '3 m', null);
+  at(ped({ kind: 'man', skin: 'skin2', beard: true }), -12.8, 0, 'man', '1.68');
+  at(ped({ kind: 'woman', skin: 'skin1', hairStyle: 'braid', top: 'dress' }), -11.8, 0, 'woman', '1.58', { row: 1 });
+  at(ped({ kind: 'youth', skin: 'skin3', hairStyle: 'topknot' }), -10.8, 0, 'youth', '1.45');
+  at(ped({ kind: 'child', skin: 'skin2', top: 'none', legs: 'bare', feet: null }), -9.9, 0, 'child', '1.08', { row: 1 });
+  at(animal({ species: 'dog', pose: 'stand', seed: 5 }), -8.6, 0, 'dog', '0.6', { yaw: Math.PI / 2 });
+  at(animal({ species: 'wolf', pose: 'stand', seed: 5 }), -7.0, 0, 'wolf', '0.8', { yaw: Math.PI / 2 });
+  at(animal({ species: 'hind', pose: 'stand', seed: 5 }), -5.1, 0, 'hind', '1.2', { yaw: Math.PI / 2 });
+  at(animal({ species: 'stag', pose: 'stand', seed: 5 }), -2.8, 0, 'stag', '1.4', { yaw: Math.PI / 2 });
+  const H = hearth({ seed: 13, level: 4 }); H.fire = null;
+  at(H, -0.7, 0, 'blaze', '0.8');
+  const reeds = new Cards(), rr = new Rand(3);
+  for (let i = 0; i < 12; i++) reeds.add({ c: [rr.range(-0.4, 0.4), 0, rr.range(-0.3, 0.3)], w: card(), h: card(), tile: rr.pick([TILE.REED, TILE.SEDGE]), mat: 'reed', flag: FLAG.NOOUTLINE | FLAG.NOSHADOW, upright: 1 });
+  at({ cards: reeds }, 0.9, 0, 'reeds', '1.8');
+  at(tent({ seed: 1, r: 1.6, h: 2.8 }), 3.3, 0, 'tent', '2.8');
+  at(dome({ seed: 2, r: 1.9, h: 2.2, bones: true }), 7.5, 0, 'dome', '2.2');
+  at(longhouse({ seed: 8, len: 4.6, w: 4.2, wallH: 1.9, roofH: 2.7 }), 12.1, -1.4, 'longhouse', '4.6');
+  // the ruler on the ground: bands one metre long
+  const ruler = new Solid();
+  for (let x = -15; x < 15; x++) ruler.box(M4.T(x + 0.5, 0.02, 2.6), 1, 0.04, 0.16, { mat: (x + 15) % 2 ? 'bone' : 'charcoal', flag: FLAG.NOOUTLINE });
+  P.addSolid(ruler);
+  const cv = await P.render(0);
+  const ctx = cv.getContext('2d');
+  for (const [name, sub, x, z, row] of items) {
+    const [sx] = P.toScreen([x, 0, z]), sy = P.toScreen([x, 0, 3.2])[1] + row * 20;
+    drawText(ctx, name, Math.round(sx - measure(name) / 2), sy, { color: '#2a2230', shadow: 'rgba(255,248,230,0.55)' });
+    if (sub) drawText(ctx, sub + ' m', Math.round(sx - measure(sub + ' m') / 2), sy + 10, { color: '#4a3f52', shadow: 'rgba(255,248,230,0.45)' });
+  }
+  return canvasPngs(cv, 3);
 }
 
 /** One small place in every hour, and the colour ramps the light picks from (PRE-20, PRE-30). */

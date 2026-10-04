@@ -59,7 +59,7 @@ export default async function ({ light, opts }) {
 
   // the camp beyond the stream: domes of hide ringed with bones, a rack of meat, a fire
   const camp = [[-3, -24], [3.5, -27.5], [8.5, -22.5], [2, -19.5]];
-  camp.forEach(([x, z], i) => put(P, dome({ seed: 400 + i, r: 2.2 + (i % 2) * 0.4, h: 1.9, mat: i % 2 ? 'fur' : 'hide', pat: i % 2 ? PAT.FUR : PAT.HIDE, bones: true }), x, z, { ground: L.at, yaw: r.range(-0.4, 0.4) + 0.3 }));
+  camp.forEach(([x, z], i) => put(P, dome({ seed: 400 + i, r: 2.2 + (i % 2) * 0.4, h: 2.3, mat: i % 2 ? 'fur' : 'hide', pat: i % 2 ? PAT.FUR : PAT.HIDE, bones: true }), x, z, { ground: L.at, yaw: r.range(-0.4, 0.4) + 0.3 }));
   put(P, rack({ seed: 5, len: 2.6, hang: 'meat' }), 7, -18.5, { ground: L.at, yaw: 0.4 });
   const H = hearth({ seed: 6, level: 3 });
   H.fire[3] *= 0.4; H.fire[4] *= 0.5;

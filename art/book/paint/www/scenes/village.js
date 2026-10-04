@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { Painter } from '../engine.js';
 import { Solid, Cards, Puffs, PAT, FLAG, Rand, fbm, noise2, M4, newObj } from '../geo.js';
 import { TILE } from '../atlas.js';
-import { K } from '../kit/k.js';
+import { K, card } from '../kit/k.js';
 import { ground, boulder } from '../kit/land.js';
 import { broadleaf, conifer, bush, scatter } from '../kit/plants.js';
 import { person } from '../kit/people.js';
@@ -53,7 +53,7 @@ export async function build({ light, opts = [], view = {} }) {
 
   // houses round the yard, facing it
   const houses = [[-8.5, -6.0, 1.35, 6.5], [0.5, -9.5, -0.08, 7], [8.8, -5.5, -1.2, 6], [-4.4, -0.6, 0.12, 6], [6.0, 1.2, 1.5, 5.5]];
-  houses.forEach(([x, z, yaw, len], i) => put(P, longhouse({ seed: 10 + i, len, w: 3.8, wallH: 1.25, roofH: 2.3, mat: i % 2 ? 'thatch' : 'reed' }), x, z, { ground: L.at, yaw, sink: 0.05 }));
+  houses.forEach(([x, z, yaw, len], i) => put(P, longhouse({ seed: 10 + i, len, w: 4.2, wallH: 1.9, roofH: 2.7, mat: i % 2 ? 'thatch' : 'reed' }), x, z, { ground: L.at, yaw, sink: 0.05 }));
   const puffs = new Puffs();
   houses.forEach(([x, z], i) => smoke(puffs, { at: [x, L.at(x, z) + 4.3, z], height: 7, drift: [1.0, -0.5], seed: 30 + i, size: 0.2, tone: 5, alpha: 0.35 }));
   // the yard: a fire, pots, a rack, logs
@@ -79,7 +79,7 @@ export async function build({ light, opts = [], view = {} }) {
     for (let i = 0; i < w * d * 9; i++) {
       const lx = r.range(-w / 2 + 0.2, w / 2 - 0.2), lz = Math.round(r.range(-d / 2 + 0.2, d / 2 - 0.2) / 0.45) * 0.45;
       const x = px + lx * c - lz * s, z = pz + lx * s + lz * c;
-      crop.add({ c: [x, L.at(x, z) - 0.03, z], w: 32 * K.mpp * 0.9, h: 32 * K.mpp * (ripe ? 1.05 : 0.7), tile: ripe ? TILE.GRAIN : r.pick(TILE.TUFT), mat: ripe ? 'thatch' : 'leafsp', bias: ripe ? 0 : 1, flag: FLAG.NOOUTLINE | FLAG.NOSHADOW, n: [0, 1, 0], upright: 1 });
+      crop.add({ c: [x, L.at(x, z) - 0.03, z], w: card() * 0.9, h: card() * (ripe ? 1.05 : 0.7), tile: ripe ? TILE.GRAIN : r.pick(TILE.TUFT), mat: ripe ? 'thatch' : 'leafsp', bias: ripe ? 0 : 1, flag: FLAG.NOOUTLINE | FLAG.NOSHADOW, n: [0, 1, 0], upright: 1 });
     }
   });
   P.addCards(crop);

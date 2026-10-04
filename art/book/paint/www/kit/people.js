@@ -1,8 +1,10 @@
 // People (PRE-27): small figures of tiny blocks with a separate head, torso, arms and legs, about five heads
 // tall (children about four), posed by joint angles, dressed by climate and age, holding what they carry.
 import * as THREE from 'three';
-import { Solid, PAT, FLAG, Rand, newObj, M4 } from '../geo.js';
+import { Solid, Cards, PAT, FLAG, Rand, newObj, M4 } from '../geo.js';
+import { TILE } from '../atlas.js';
 import { boulder } from './land.js';
+import { card } from './k.js';
 
 const { T, R } = M4;
 const mul = (...m) => m.reduce((a, b) => a.clone().multiply(b));
@@ -140,13 +142,14 @@ export function person({ kind = 'man', skin = 'skin1', hair = 'hair', hairStyle 
     box(mul(an, T(0, -footH / 2, footL * 0.28)), legW * 0.86, footH, footL, feet || skin, legsId[k]);
   });
 
-  // what the hands hold
+  // what the hands hold; a torch's flame is a card and a light, placed with the figure
   const hands = { R: armsOut[1], L: armsOut[0] };
+  const flames = [];
   for (const [which, item] of [['R', held], ['L', heldL]]) {
     if (!item) continue;
     const m = hands[which];
     const it = typeof item === 'string' ? { kind: item } : item;
-    holdItem(out, m, it, heldId, s, r);
+    holdItem(out, m, it, heldId, s, r, flames);
   }
 
   // stand the figure on the ground, sit it on its seat (y = 0 is the seat), or lay it down
@@ -155,11 +158,19 @@ export function person({ kind = 'man', skin = 'skin1', hair = 'hair', hairStyle 
   let minY = Infinity;
   for (let i = 1; i < body.P.length; i += 3) minY = Math.min(minY, body.P[i]);
   const res = new Solid();
+  const place = mul(T(0, P.seat ? -(hipY - drop - hipsH * 0.5) : -minY, 0), P.lie ? R(-Math.PI / 2, 0, 0) : new THREE.Matrix4());
   res.add(body, T(0, P.seat ? -(hipY - drop - hipsH * 0.5) : -minY, 0));
-  return { solid: res, obj: id, height: B.h };
+  const cards = new Cards();
+  let fire = null;
+  for (const f of flames) {
+    const p = new THREE.Vector3(...f).applyMatrix4(place).toArray();
+    cards.add({ c: p, w: card(), h: card(), tile: TILE.FLAMEB[1], mat: 'fire', bias: 3, obj: heldId, flag: FLAG.EMISSIVE | FLAG.NOOUTLINE | FLAG.NOSHADOW, upright: 1 });
+    fire = [p[0], p[1] + 0.25, p[2], 0.65, 6];
+  }
+  return { solid: res, cards, fire, obj: id, height: B.h };
 }
 
-function holdItem(out, hand, it, obj, s, r) {
+function holdItem(out, hand, it, obj, s, r, flames = []) {
   const at = (m, ...rest) => out.box(m, ...rest);
   const k = it.kind;
   if (k === 'spear') {
@@ -179,7 +190,9 @@ function holdItem(out, hand, it, obj, s, r) {
   } else if (k === 'stone') {
     out.add(boulder({ seed: 3, size: [0.11, 0.09, 0.1], detail: 0, mat: 'flint', moss: 0, obj }), M4.mul(hand, M4.T(0, -0.02, 0.04)));
   } else if (k === 'torch') {
-    out.beam(M4.mul(hand, M4.T(0, -0.25, 0)).elements.slice(12, 15), M4.mul(hand, M4.T(0, 0.35, 0.05)).elements.slice(12, 15), 0.025, 0.03, 4, { mat: 'wood', obj });
+    const tip = M4.mul(hand, M4.T(0, 0.35, 0.05)).elements.slice(12, 15);
+    out.beam(M4.mul(hand, M4.T(0, -0.25, 0)).elements.slice(12, 15), tip, 0.025, 0.035, 4, { mat: 'wood', obj }, { capMat: { mat: 'ember', obj, flag: FLAG.EMISSIVE, bias: 5 } });
+    flames.push(tip);
   } else if (k === 'pot') {
     at(M4.mul(hand, M4.T(0, 0.0, 0.14)), 0.26 * s, 0.26 * s, 0.26 * s, { mat: 'clay', obj });
   } else if (k === 'fish') {

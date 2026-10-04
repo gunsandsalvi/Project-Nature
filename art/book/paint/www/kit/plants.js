@@ -2,10 +2,12 @@
 // fungus. Trunks are solids; leaves are clumps on cards, lit as a round crown (soft, painted light).
 import * as THREE from 'three';
 import { Solid, Cards, PAT, FLAG, Rand, newObj } from '../geo.js';
-import { TILE } from '../atlas.js';
-import { K } from './k.js';
+import { TILE, MPP_REF } from '../atlas.js';
+import { K, card } from './k.js';
+import { LOOK } from '../look.js';
 
-const card = () => 32 * K.mpp; // a card shows its tile at one texel per art pixel
+const CLUMP = 32 * MPP_REF; // the spacing leaf clumps are counted by, in metres
+const SPARSE = new Set([...TILE.TUFT, ...TILE.FLOWER, ...TILE.DRYTUFT, TILE.HERB, TILE.FERN]);
 
 /** Points spread over a ball, more on the outside. */
 function ballPoints(r, n, rx, ry, rz, shell = 0.55) {
@@ -21,7 +23,7 @@ function ballPoints(r, n, rx, ry, rz, shell = 0.55) {
 /** Leaf clumps round a set of crown balls; each clump is lit as part of its ball (soft round light). */
 export function crown(cards, r, balls, { mat = 'leaf', obj, density = 1, tiles = TILE.LEAF, size = 1, bias = 0, flag = FLAG.FOLIAGE }) {
   for (const b of balls) {
-    const n = Math.round(density * 26 * b.r * b.r / (card() * card()) * 0.9) + 6;
+    const n = Math.round(density * 26 * b.r * b.r / (CLUMP * CLUMP) * 0.9) + 6;
     for (const p of ballPoints(r, n, b.r, b.r * (b.sy || 0.85), b.r)) {
       const c = [b.c[0] + p[0], b.c[1] + p[1], b.c[2] + p[2]];
       const len = Math.hypot(...p) || 1;
@@ -128,6 +130,8 @@ export function bush({ seed = 1, size = 1.2, mat = 'leaf', berries = null, flowe
 
 /** Low plants scattered on the ground: tufts, flowers, herbs, ferns, reeds, grain. place(x, z) gives [y, normal]. */
 export function scatter(cards, { r, area, count, tiles, mat, place, size = 1, bias = 0, flag = FLAG.NOOUTLINE | FLAG.NOSHADOW, accept, obj = 0 }) {
+  // the look thins grass and flowers (not reeds or crops) for a calmer field
+  if ([].concat(tiles).every((t) => SPARSE.has(t))) count = Math.round(count * LOOK.tufts);
   let made = 0, tries = 0;
   while (made < count && tries < count * 20) {
     tries++;

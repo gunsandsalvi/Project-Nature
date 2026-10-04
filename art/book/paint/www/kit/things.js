@@ -3,11 +3,10 @@
 import * as THREE from 'three';
 import { Solid, Cards, Puffs, PAT, FLAG, Rand, newObj, M4, noise2 } from '../geo.js';
 import { TILE } from '../atlas.js';
-import { K } from './k.js';
+import { K, card } from './k.js';
 import { boulder } from './land.js';
 
 const { T, R } = M4;
-const card = () => 32 * K.mpp;
 const v = (m) => m.elements.slice(12, 15);
 
 /** A ring polygon on the ground (for ash, floors, pits). */
@@ -34,15 +33,15 @@ export function hearth({ seed = 1, level = 2, ring = true, logs = 4 }) {
     s.beam([Math.cos(a) * L, 0.06, Math.sin(a) * L], [Math.cos(a) * 0.06, 0.16, Math.sin(a) * 0.06], 0.05, 0.045, 5, { mat: 'wood', pat: PAT.BARK, obj },
       { capMat: { mat: level > 0 ? 'ember' : 'charcoal', obj, flag: level > 0 ? FLAG.EMISSIVE : 0, bias: level > 0 ? 4 : 0 } });
   }
-  const flames = [0, 2, 3, 5, 7][level];
-  for (let i = 0; i < flames; i++) {
-    const hgt = card() * r.range(0.55, 0.85) * (0.6 + level * 0.18);
-    cards.add({ c: [r.range(-0.12, 0.12), 0.05, r.range(-0.12, 0.12)], w: hgt * 0.9, h: hgt, tile: r.pick(TILE.FLAME), mat: 'fire', bias: 3,
+  // flames of true size: embers lick about 0.35 m, a cooking fire 0.55 m, a blaze 0.8 m
+  const sizes = [[], [0, 0], [1, 0, 1], [1, 2, 1, 0, 2], [2, 2, 1, 2, 1, 2, 0]][level];
+  for (const k of sizes) {
+    cards.add({ c: [r.range(-0.12, 0.12), 0.05, r.range(-0.12, 0.12)], w: card(), h: card(), tile: r.chance(0.5) ? TILE.FLAME[k] : TILE.FLAMEB[k], mat: 'fire', bias: 3,
       obj, flag: FLAG.EMISSIVE | FLAG.NOOUTLINE | FLAG.NOSHADOW, upright: 1 });
   }
   for (let i = 0; i < level * 3; i++) {
     const sz = K.mpp * 1.2;
-    cards.add({ c: [r.range(-0.3, 0.3), 0.6 + r.range(0, 1.2) * level * 0.4, r.range(-0.3, 0.3)], w: sz, h: sz, tile: TILE.FLAME[0], mat: 'ember', bias: 3,
+    cards.add({ c: [r.range(-0.3, 0.3), 0.6 + r.range(0, 1.2) * level * 0.4, r.range(-0.3, 0.3)], w: sz, h: sz, tile: TILE.DOT, mat: 'ember', bias: 3 + r.int(0, 2),
       obj: 0, flag: FLAG.EMISSIVE | FLAG.NOOUTLINE | FLAG.NOSHADOW });
   }
   return { solid: s, cards, fire: level > 0 ? [0, 0.45, 0, [0, 0.35, 0.55, 0.75, 1.0][level], [0, 4.5, 7, 9, 12][level]] : null };
@@ -93,7 +92,7 @@ export function tent({ seed = 1, r = 1.8, h = 3.1, mat = 'hide', door = true, po
 }
 
 /** A dome hut: bent poles under hides, turf or thatch, a low door toward +z; bones: mammoth bones round the foot. */
-export function dome({ seed = 1, r = 2, h = 1.8, mat = 'hide', pat = PAT.HIDE, bones = false, door = true }) {
+export function dome({ seed = 1, r = 2, h = 2.3, mat = 'hide', pat = PAT.HIDE, bones = false, door = true }) {
   const rr = new Rand(seed), obj = newObj(), s = new Solid();
   const rings = 5, segs = 12;
   const pt = (i, j) => {
@@ -131,9 +130,17 @@ export function windbreak({ seed = 1, len = 4, h = 1.6, hides = false }) {
   s.beam([-len / 2, h * 0.8, -h * 0.36], [len / 2, h * 0.8, -h * 0.36], 0.03, 0.03, 4, { mat: 'wood', obj });
   if (hides) {
     s.quad([-len / 2, 0.1, -0.04], [len / 2, 0.1, -0.04], [len / 2, h * 0.85, -h * 0.4], [-len / 2, h * 0.85, -h * 0.4], { mat: 'hide', pat: PAT.HIDE, obj });
-  } else for (let i = 0; i < n * 3; i++) {
-    const x = r.range(-len / 2, len / 2), t = r.range(0.15, 0.95);
-    cards.add({ c: [x, h * t, -h * 0.45 * t - 0.05], w: card() * 0.6, h: card() * 0.6, tile: r.pick([TILE.TWIG, ...TILE.LEAFSMALL]), mat: r.chance(0.7) ? 'drygrass' : 'leaf', bias: -1, obj, flag: FLAG.FOLIAGE, n: [0, 0.6, 0.8] });
+  } else {
+    // brush packed against the frame: a leaning wall of cut branches and grass, ragged along the top, twigs above
+    const segs = Math.round(len / 0.25), tops = Array.from({ length: segs + 1 }, () => r.range(0.8, 0.97));
+    for (let i = 0; i < segs; i++) {
+      const x0 = -len / 2 + i * (len / segs), x1 = x0 + len / segs, t0 = tops[i], t1 = tops[i + 1];
+      s.quad([x0, 0.02, -0.03], [x1, 0.02, -0.03], [x1, h * t1, -h * 0.45 * t1 - 0.03], [x0, h * t0, -h * 0.45 * t0 - 0.03], { mat: 'drygrass', pat: PAT.THATCH, obj });
+    }
+    for (let i = 0; i < n * 2; i++) {
+      const x = r.range(-len / 2, len / 2), t = r.range(0.84, 0.95);
+      cards.add({ c: [x, h * t - 0.06, -h * 0.45 * t - 0.05], w: card(), h: card(), tile: r.pick([TILE.TWIG, TILE.DRYTUFT[0], TILE.DRYTUFT[1]]), mat: r.chance(0.6) ? 'drygrass' : 'bark', obj, flag: FLAG.NOSHADOW, n: [0, 0.6, 0.8], upright: 1 });
+    }
   }
   return { solid: s, cards, obj };
 }
@@ -195,8 +202,11 @@ export function pitHouse({ seed = 1, r = 2.6, h = 3.2, mat = 'thatch', wall = 'd
   return { solid: s, obj };
 }
 
-/** A long post house: wattle walls, posts, a pitched roof of reed or thatch. Long axis along x, door on +z. */
-export function longhouse({ seed = 1, len = 9, w = 5, wallH = 1.5, roofH = 3, mat = 'reed', wall = 'wattle' }) {
+/**
+ * A long post house: wattle walls, posts, a pitched roof of reed or thatch. Long axis along x, door on +z. The walls
+ * stand about a head above a grown man and the eaves stay above the door, so people walk in upright.
+ */
+export function longhouse({ seed = 1, len = 9, w = 5, wallH = 1.9, roofH = 2.9, mat = 'reed', wall = 'wattle' }) {
   const rr = new Rand(seed), obj = newObj(), s = new Solid();
   const hx = len / 2, hz = w / 2;
   const wallMat = wall === 'wattle' ? 'wood' : 'clay', wallPat = wall === 'wattle' ? PAT.WATTLE : PAT.DIRT;
@@ -209,19 +219,20 @@ export function longhouse({ seed = 1, len = 9, w = 5, wallH = 1.5, roofH = 3, ma
       [[0, 0, 0], [L, 0, 0], [L, wallH, 0], [0, wallH, 0]]);
   }
   // gables
-  const ov = 0.6, ex = 0.5;
+  const ov = 0.6, ex = 0.5, drop = 0.3;
   for (const sx of [-1, 1]) s.tri([sx * hx, wallH, -hz], [sx * hx, wallH + roofH, 0], [sx * hx, wallH, hz], { mat: wallMat, pat: wallPat, obj });
   // roof
   const ridge = wallH + roofH;
   const A = [-hx - ex, ridge, 0], B = [hx + ex, ridge, 0];
-  const Cf = [hx + ex, wallH - ov * 0.6, hz + ov], Df = [-hx - ex, wallH - ov * 0.6, hz + ov];
-  const Cb = [hx + ex, wallH - ov * 0.6, -hz - ov], Db = [-hx - ex, wallH - ov * 0.6, -hz - ov];
-  const slope = Math.hypot(hz + ov, roofH + ov * 0.6);
+  const Cf = [hx + ex, wallH - ov * drop, hz + ov], Df = [-hx - ex, wallH - ov * drop, hz + ov];
+  const Cb = [hx + ex, wallH - ov * drop, -hz - ov], Db = [-hx - ex, wallH - ov * drop, -hz - ov];
+  const slope = Math.hypot(hz + ov, roofH + ov * drop);
   s.quad(Df, Cf, B, A, { mat, pat: PAT.THATCH, obj }, [[0, 0, 0], [len + 2 * ex, 0, 0], [len + 2 * ex, slope, 0], [0, slope, 0]]);
   s.quad(Cb, Db, A, B, { mat, pat: PAT.THATCH, obj }, [[0, 0, 0], [len + 2 * ex, 0, 0], [len + 2 * ex, slope, 0], [0, slope, 0]]);
   s.beam([A[0], ridge + 0.05, 0], [B[0], ridge + 0.05, 0], 0.09, 0.09, 5, { mat: 'thatch', obj, bias: -1 });
   // door and posts
-  s.box(T(rr.range(-1, 1), 0.75, hz + 0.02), 0.85, 1.5, 0.06, { mat: 'charcoal', obj });
+  const doorH = Math.min(1.7, wallH - ov * drop - 0.08);
+  s.box(T(rr.range(-1, 1), doorH / 2, hz + 0.02), 0.85, doorH, 0.06, { mat: 'charcoal', obj });
   for (const x of [-hx, -hx / 2, 0, hx / 2, hx]) for (const z of [-hz, hz]) s.beam([x, -0.05, z], [x, wallH + 0.15, z], 0.08, 0.07, 5, { mat: 'wood', pat: PAT.BARK, obj });
   return { solid: s, obj };
 }
@@ -291,7 +302,7 @@ export function furnace({ seed = 1, h = 0.9, r = 0.32, lit = true }) {
   }
   s.add(boulder({ seed: seed + 3, size: [0.9, 0.35, 0.7], detail: 1, mat: 'charcoal', moss: 0, sink: 0.3 }), T(1.1, 0, -0.6));
   s.add(boulder({ seed: seed + 5, size: [0.7, 0.3, 0.6], detail: 1, mat: 'verdi', moss: 0, sink: 0.3 }), T(-1.0, 0, -0.7));
-  if (lit) for (let i = 0; i < 3; i++) cards.add({ c: [rr.range(-0.08, 0.08), h - 0.05, rr.range(-0.08, 0.08)], w: card() * 0.5, h: card() * 0.6, tile: rr.pick(TILE.FLAME), mat: 'fire', bias: 3, obj, flag: FLAG.EMISSIVE | FLAG.NOOUTLINE | FLAG.NOSHADOW, upright: 1 });
+  if (lit) for (let i = 0; i < 3; i++) cards.add({ c: [rr.range(-0.08, 0.08), h - 0.05, rr.range(-0.08, 0.08)], w: card(), h: card(), tile: rr.pick([TILE.FLAME[0], TILE.FLAMEB[0]]), mat: 'fire', bias: 3, obj, flag: FLAG.EMISSIVE | FLAG.NOOUTLINE | FLAG.NOSHADOW, upright: 1 });
   return { solid: s, cards, obj, fire: lit ? [0, h + 0.2, 0, 0.6, 6] : null };
 }
 

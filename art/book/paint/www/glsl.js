@@ -15,46 +15,54 @@ float fbm2(vec2 p){ float a = .5, s = 0.; for (int i = 0; i < 4; i++) { s += a *
 float fbm3(vec3 p){ float a = .5, s = 0.; for (int i = 0; i < 3; i++) { s += a * vnoise3(p); p = p * 2.03 + 7.1; a *= .5; } return s / .875; }
 `;
 
-// Patterns fixed to the surface: brushy clusters and lines inside shapes, as steps up or down (PRE-20).
+// Patterns fixed to the surface: brushy clusters and lines inside shapes, as steps up or down (PRE-20). uGrain keeps
+// the small dabs and grain (today's look); uBrush lays a few broad soft patches instead (a painted, cleaner look);
+// with both off only the lines and the large shapes stay (a clean look).
 const PATTERNS = /* glsl */ `
 float patGround(vec3 p){
   // calm fields: a few large darker clumps, and now and then a small lighter or darker dab
   float b = 0.;
   float c = fbm2(p.xz * .11 + 3.);
   if (c < .31) b -= 1.;
-  float d = vnoise(p.xz * 1.2 + 11.);
-  if (d > .9 && c > .45) b += 1.;
-  float e = vnoise(p.xz * 1.7 + 37.);
-  if (e < .06 && c < .5) b -= 1.;
+  if (uGrain > .5) {
+    float d = vnoise(p.xz * 1.2 + 11.);
+    if (d > .9 && c > .45) b += 1.;
+    float e = vnoise(p.xz * 1.7 + 37.);
+    if (e < .06 && c < .5) b -= 1.;
+  } else if (uBrush > .5) {
+    float s = vnoise(vec2(p.x * .3 + p.z * .1, p.z * .8 - p.x * .15) + 21.);
+    if (s > .8 && c > .42) b += 1.;
+  }
   return b;
 }
 float patRock(vec3 p, vec3 n){
   float b = 0.;
   float side = 1. - smoothstep(.55, .8, abs(n.y));
   float y = p.y + (vnoise(p.xz * .8) - .5) * .22;
-  float bed = floor(y / .42);
-  float f = fract(y / .42);
-  if (f < .1 && side > .5 && vnoise(vec2(dot(p.xz, vec2(.7, .7)) * 1.3, bed)) > .3) b -= 1.;
+  float sp = uGrain > .5 ? .42 : .78;   // the clean looks keep fewer, broken bedding lines
+  float bed = floor(y / sp);
+  float f = fract(y / sp);
+  if (f < .1 * .42 / sp && side > .5 && vnoise(vec2(dot(p.xz, vec2(.7, .7)) * 1.3, bed)) > (uGrain > .5 ? .3 : .45)) b -= 1.;
   float cr = vnoise(vec2(dot(p.xz, vec2(.71, -.71)) * 3.1, bed * 7.3));
   if (cr > .93 && side > .5) b -= 1.;
-  float cl = fbm3(p * 1.6);
-  if (cl > .66) b += 1.; else if (cl < .3) b -= 1.;
+  if (uGrain > .5) { float cl = fbm3(p * 1.6); if (cl > .66) b += 1.; else if (cl < .3) b -= 1.; }
+  else if (uBrush > .5) { float cl = vnoise(vec2(dot(p.xz, vec2(.45, .45)), p.y * 2.6) + 3.); if (cl > .78 && side > .5) b += 1.; }
   return b;
 }
 float patBark(vec3 l){
   float b = 0.;
-  float a = l.x * 9. + vnoise(vec2(l.y * 2., l.x * 3.)) * 1.2;
-  if (fract(a) < .32) b -= 1.;
-  if (vnoise(vec2(l.x * 7., l.y * 1.4)) > .8) b += 1.;
+  float a = l.x * (uGrain > .5 ? 9. : 5.) + vnoise(vec2(l.y * 2., l.x * 3.)) * 1.2;
+  if (fract(a) < (uGrain > .5 ? .32 : .24)) b -= 1.;
+  if (uGrain > .5 && vnoise(vec2(l.x * 7., l.y * 1.4)) > .8) b += 1.;
   return b;
 }
-float patWood(vec3 l){ return vnoise(vec2(l.x * 14., l.y * 1.3)) > .78 ? -1. : 0.; }
+float patWood(vec3 l){ return uGrain > .5 && vnoise(vec2(l.x * 14., l.y * 1.3)) > .78 ? -1. : 0.; }
 float patHide(vec3 l){
   float b = 0.;
   if (fract(l.x / .85 + .5) < .06) b -= 1.;
   if (fract(l.y / .62) < .05) b -= 1.;
-  float c = fbm2(l.xy * 1.4 + 5.);
-  if (c > .66) b += 1.; else if (c < .3) b -= 1.;
+  if (uGrain > .5) { float c = fbm2(l.xy * 1.4 + 5.); if (c > .66) b += 1.; else if (c < .3) b -= 1.; }
+  else if (uBrush > .5) { float c = vnoise(l.xy * .7 + 5.); if (c > .74) b += 1.; }
   return b;
 }
 float patThatch(vec3 l){
@@ -62,8 +70,8 @@ float patThatch(vec3 l){
   float b = 0.;
   float row = l.y / .3 + (vnoise(vec2(l.x * .9, 3.)) - .5) * .35;
   if (fract(row) < .13) b -= 1.;
-  float h = hash12(vec2(floor(l.x / .05), floor(row)));
-  if (h > .8) b += 1.; else if (h < .1) b -= 1.;
+  if (uGrain > .5) { float h = hash12(vec2(floor(l.x / .05), floor(row))); if (h > .8) b += 1.; else if (h < .1) b -= 1.; }
+  else if (uBrush > .5) { float h = hash12(vec2(floor(l.x / .16), floor(row))); if (h > .82) b += 1.; }
   return b;
 }
 float patFace(vec3 l){
@@ -72,32 +80,36 @@ float patFace(vec3 l){
   return 0.;
 }
 float patFur(vec3 l){
-  float c = vnoise3(l * 9.);
-  return c > .72 ? 1. : (c < .24 ? -1. : 0.);
+  if (uGrain > .5) { float c = vnoise3(l * 9.); return c > .72 ? 1. : (c < .24 ? -1. : 0.); }
+  if (uBrush > .5) { float c = vnoise3(l * 2.4 + 4.); return c > .76 ? 1. : 0.; }
+  return 0.;
 }
 float patSnow(vec3 p){
   float c = fbm2(p.xz * .16 + 9.);
-  return 1. + (c > .7 ? 1. : 0.) - (vnoise(p.xz * 2.1) > .9 ? 1. : 0.);
+  return 1. + (c > .7 ? 1. : 0.) - (uGrain > .5 && vnoise(p.xz * 2.1) > .9 ? 1. : 0.);
 }
 float patSand(vec3 p){
   float r = (p.x * .8 + p.z * .35) / .5 + vnoise(p.xz * .6) * 1.5;
   float b = fract(r) < .16 ? -1. : 0.;
-  if (vnoise(p.xz * 2.5) > .85) b += 1.;
+  if (uGrain > .5 && vnoise(p.xz * 2.5) > .85) b += 1.;
   return b;
 }
 float patDirt(vec3 p){
   float b = 0.;
-  float c = vnoise(p.xz * 3.2);
-  if (c > .86) b += 1.; else if (c < .1) b -= 1.;
+  if (uGrain > .5) { float c = vnoise(p.xz * 3.2); if (c > .86) b += 1.; else if (c < .1) b -= 1.; }
   if (fbm2(p.xz * .5) < .32) b -= 1.;
   return b;
 }
-float patMoss(vec3 p){ float c = vnoise3(p * 3.); return c > .7 ? 1. : (c < .25 ? -1. : 0.); }
+float patMoss(vec3 p){
+  if (uGrain > .5) { float c = vnoise3(p * 3.); return c > .7 ? 1. : (c < .25 ? -1. : 0.); }
+  if (uBrush > .5) { float c = vnoise3(p * 1.1); return c > .74 ? 1. : 0.; }
+  return 0.;
+}
 float patCloth(vec3 l){ return (fract(l.y / .1) < .2) ? -1. : 0.; }
 float patPlank(vec3 l){
   float b = 0.;
   if (fract(l.x / .22) < .14) b -= 1.;
-  if (vnoise(vec2(l.x * 9., l.y * .8)) > .8) b += 1.;
+  if (uGrain > .5 && vnoise(vec2(l.x * 9., l.y * .8)) > .8) b += 1.;
   return b;
 }
 float patWattle(vec3 l){
@@ -131,6 +143,7 @@ float pattern(int k, vec3 p, vec3 l, vec3 n){
 export const SOLID_VERT = /* glsl */ `
 attribute float aMat; attribute float aBias; attribute float aObj; attribute float aPat; attribute float aFlag;
 attribute vec3 aLoc; attribute vec4 aW;
+uniform float uMirror; uniform float uMirrorY;
 varying vec3 vWorld; varying vec3 vNormal; varying vec3 vLoc; varying vec4 vW; varying float vDepth;
 flat varying float vMat; flat varying float vObj; flat varying float vPat; flat varying float vFlag;
 varying float vBias;
@@ -139,6 +152,7 @@ void main(){
   vWorld = wp.xyz;
   vNormal = normalize(mat3(modelMatrix) * normal);
   vMat = aMat; vBias = aBias; vObj = aObj; vPat = aPat; vFlag = aFlag; vLoc = aLoc; vW = aW;
+  if (uMirror > .5) wp.y = 2. * uMirrorY - wp.y;   // the reflection: drawn mirrored, lit where it really is
   vec4 mv = viewMatrix * wp;
   vDepth = -mv.z;
   gl_Position = projectionMatrix * mv;
@@ -152,6 +166,7 @@ layout(location = 2) out vec4 o2;
 uniform int uPass;
 uniform vec4 uLayers; uniform vec4 uLayerPat;
 uniform vec4 uSoot[4]; uniform int uSootN;
+uniform float uGrain; uniform float uBrush; uniform float uMirror; uniform float uMirrorY;
 varying vec3 vWorld; varying vec3 vNormal; varying vec3 vLoc; varying vec4 vW; varying float vDepth;
 flat varying float vMat; flat varying float vObj; flat varying float vPat; flat varying float vFlag;
 varying float vBias;
@@ -159,10 +174,12 @@ ${NOISE}
 ${PATTERNS}
 void main(){
   if (uPass == 1) { o0 = vec4(vDepth, 0., 0., 1.); return; }
-  vec3 n = normalize(vNormal); if (!gl_FrontFacing) n = -n;
+  if (uMirror > .5 && vWorld.y < uMirrorY - .02) discard;   // nothing under the water is reflected
+  bool front = uMirror > .5 ? !gl_FrontFacing : gl_FrontFacing;
+  vec3 n = normalize(vNormal); if (!front) n = -n;
   float m = vMat; float pat = vPat; float b = vBias;
   if (pat > 99.5) {
-    float j = .5 * (vnoise(vWorld.xz * .9) - .5) + .35 * (vnoise(vWorld.xz * 3.1 + 5.) - .5);
+    float j = .5 * (vnoise(vWorld.xz * .9) - .5) + (uGrain > .5 ? .35 * (vnoise(vWorld.xz * 3.1 + 5.) - .5) : 0.);
     vec4 w = vW + vec4(j, -j, j * .7, -j * .7);
     int k = 0; float best = w.x;
     if (w.y > best) { best = w.y; k = 1; }
@@ -188,7 +205,7 @@ export const CARD_VERT = /* glsl */ `
 attribute vec3 aCenter; attribute vec2 aCorner; attribute vec2 aSize; attribute float aTile;
 attribute float aMat; attribute float aBias; attribute float aObj; attribute float aFlag; attribute vec3 aNrm;
 attribute float aUpright; attribute float aSpin;
-uniform vec3 uRight; uniform vec3 uUp; uniform float uTiles;
+uniform vec3 uRight; uniform vec3 uUp; uniform float uTiles; uniform float uMirror; uniform float uMirrorY;
 varying vec2 vUV; varying vec3 vWorld; varying vec3 vN; varying float vDepth; varying vec3 vR; varying vec3 vU;
 flat varying float vMat; flat varying float vObj; flat varying float vFlag; flat varying float vBias;
 void main(){
@@ -201,6 +218,7 @@ void main(){
   vUV = (vec2(tx, ty) + aCorner + .5) / uTiles;
   vWorld = wp; vN = aNrm; vR = right; vU = up;
   vMat = aMat; vObj = aObj; vFlag = aFlag; vBias = aBias;
+  if (uMirror > .5) wp.y = 2. * uMirrorY - wp.y;
   vec4 mv = viewMatrix * vec4(wp, 1.);
   vDepth = -mv.z;
   gl_Position = projectionMatrix * mv;
@@ -211,12 +229,13 @@ precision highp float;
 layout(location = 0) out vec4 o0;
 layout(location = 1) out vec4 o1;
 layout(location = 2) out vec4 o2;
-uniform int uPass; uniform sampler2D tAtlas;
+uniform int uPass; uniform sampler2D tAtlas; uniform float uMirror; uniform float uMirrorY;
 varying vec2 vUV; varying vec3 vWorld; varying vec3 vN; varying float vDepth; varying vec3 vR; varying vec3 vU;
 flat varying float vMat; flat varying float vObj; flat varying float vFlag; flat varying float vBias;
 void main(){
   vec4 t = texture(tAtlas, vUV);
   if (t.a < .5) discard;
+  if (uMirror > .5 && vWorld.y < uMirrorY - .02) discard;
   if (uPass == 1) { if (mod(floor(vFlag / 16.), 2.) > .5) discard; o0 = vec4(vDepth, 0., 0., 1.); return; }
   vec2 bump = (t.rg - .5) * 2.;
   vec3 n = normalize(vN + (vR * bump.x + vU * bump.y) * .9);
@@ -264,7 +283,7 @@ uniform vec3 uSun; uniform float uSunK; uniform float uSkyK; uniform float uShif
 uniform float uSunPow; uniform int uFires; uniform vec4 uFire[12]; uniform vec4 uFireC[12];
 uniform vec2 uRes; uniform float uAORad; uniform float uAODist; uniform float uAOK;
 uniform vec2 uHaze; uniform float uWaterOn; uniform float uWaterRow; uniform float uFoamRow; uniform float uGlintRow;
-uniform float uSeaOn;
+uniform float uSeaOn; uniform float uShadowSoft; uniform float uContrast; uniform int uWaterStyle;
 ${NOISE}
 float shadowAt(vec3 wp, vec3 n){
   vec4 lv = uLightView * vec4(wp + n * .05, 1.);
@@ -278,7 +297,7 @@ float shadowAt(vec3 wp, vec3 n){
   }
   if (bn < .5) return 1.;
   float dist = d - bsum / bn;
-  float rad = clamp(dist * .03 / uShadowTexel, .6, 7.);
+  float rad = clamp(dist * .03 * uShadowSoft / uShadowTexel, .6, 7.);
   float lit = 0.;
   for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) {
     float s = texture(tShadow, uv + vec2(i, j) * .5 * rad / uShadowSize).r;
@@ -335,7 +354,7 @@ void light(vec3 P, vec3 N, vec2 fc, float flags, out float f, out float cls){
     fire += uFireC[i].a * att * att * (.35 + .65 * max(dot(N, L / max(d, .001)), 0.));
   }
   float lum = (uSkyK * sky * ao + uSunK * sun) * uExposure;
-  f = lum * 6. + uShift + fire * 4.5;
+  f = 3. + (lum * 6. + uShift - 3.) * uContrast + fire * 4.5;
   if (ao < .55) f -= .7;
   if (mod(floor(flags / 32.), 2.) > .5) f += .9;   // people and animals stand out from the land
   if (foliage) f -= .3;
@@ -359,7 +378,14 @@ void main(){
   }
   if (uWaterOn > .5) {
     vec4 w0 = texelFetch(tW0, p, 0);
-    if (w0.x > 0. && (g0.x < .5 || w0.x < g1.w - .01)) {
+    if (w0.x > 0. && (g0.x < .5 || w0.x < g1.w - .01) && uWaterStyle > 0) {
+      // the water styles of the final pass: r0 keeps the bed, r1 the light on the surface and the depth seen through
+      float th = g0.x < .5 ? 99. : g1.w - w0.x;
+      float wst, wcls;
+      light(w0.yzw, vec3(0., 1., 0.), fc, 0., wst, wcls);
+      r1 = vec4(wst, wcls, th, 1.);
+      r0.w = floor(clamp((w0.x - uHaze.x) / max(uHaze.y - uHaze.x, .001), 0., 1.) * 4.) / 4.;
+    } else if (w0.x > 0. && (g0.x < .5 || w0.x < g1.w - .01)) {
       vec4 w1 = texelFetch(tW1, p, 0);
       vec3 P = w0.yzw; vec3 N = vec3(0., 1., 0.);
       float th = g0.x < .5 ? 99. : g1.w - w0.x;
@@ -401,34 +427,157 @@ vec3 grade(vec3 c, float cls){
   return clamp(g, 0., 1.);
 }`;
 
-// Outlines, lit edges, the hour's colour, mist and haze.
+// Outlines, lit edges, the hour's colour, water, mist and haze.
 export const FINAL_FRAG = /* glsl */ `
 precision highp float;
 layout(location = 0) out vec4 col;
 uniform sampler2D tR0; uniform sampler2D tR1; uniform sampler2D tG0; uniform sampler2D tG1; uniform sampler2D tG2;
-uniform sampler2D tPal; uniform sampler2D tW0;
+uniform sampler2D tPal; uniform sampler2D tW0; uniform sampler2D tW1; uniform sampler2D tRefl;
 uniform mat4 uView; uniform vec3 uSun; uniform float uMpp;
 uniform vec3 uSunTint; uniform vec3 uShadeTint; uniform vec3 uFireTint; uniform vec3 uHazeCol; uniform float uHazeK;
 uniform float uDesat; uniform vec3 uBack; uniform vec4 uMist; uniform vec3 uMistCol; uniform vec2 uRes;
 uniform vec3 uWaterTint; uniform float uSkyRow; uniform vec3 uSkyCol; uniform int uInk;
+uniform float uDither; uniform float uOutline; uniform float uOutlineN; uniform float uLit; uniform float uMirror; uniform float uWobble;
+uniform int uWaterStyle; uniform float uWaterY; uniform vec3 uCamRight; uniform float uReflOn;
+uniform float uWaterRow; uniform float uSeaRow; uniform float uLagoonRow; uniform float uFoamRow;
 ${NOISE}
 vec3 pal(float m, float s){ return texelFetch(tPal, ivec2(int(clamp(s, 0., 6.) + .5), int(m + .5)), 0).rgb; }
 ${GRADE}
 bool bit(float f, float b){ return mod(floor(f / b), 2.) > .5; }
+float luma(vec3 c){ return dot(c, vec3(.299, .587, .114)); }
+// How far, in pixels up to 3, the nearest land or thing at the waterline is: the shore lines are drawn from it.
+float shoreDist(ivec2 p){
+  float best = 9.;
+  for (int dy = -3; dy <= 3; dy++) for (int dx = -3; dx <= 3; dx++) {
+    int m = abs(dx) + abs(dy);
+    if (m == 0 || m > 3) continue;
+    ivec2 q = p + ivec2(dx, dy);
+    if (q.x < 0 || q.y < 0 || q.x >= int(uRes.x) || q.y >= int(uRes.y)) continue;
+    if (texelFetch(tR1, q, 0).w > .5 || texelFetch(tR0, q, 0).x < -.5) continue;
+    if (bit(texelFetch(tG0, q, 0).w, 16.)) continue;   // reeds and grass stems leave no line
+    if (abs(texelFetch(tG2, q, 0).y - uWaterY) > .3) continue;
+    best = min(best, float(m));
+  }
+  return best;
+}
+// Thin lines on the water: along the flow on a river, across the view on still water; one pixel thick, every gap
+// rows, dashes about len metres long, more of them where the wind ruffles the water.
+float dash(vec3 P, vec2 fl, float gap, float len, float amount){
+  float across = dot(P.xz, vec2(-fl.y, fl.x)), along = dot(P.xz, fl);
+  float rowW = uMpp * (1. + abs(dot(fl, normalize(uCamRight.xz))));
+  float i = floor(across / rowW);
+  if (mod(i, gap) > .5) return 0.;
+  float sp = along / len + hash12(vec2(i, 7.1)) * 7.;
+  float h = hash12(vec2(i, floor(sp)));
+  float wind = vnoise(P.xz * .22 + 5.);
+  return (h < amount * (.35 + wind) && fract(sp) < .6) ? 1. : 0.;
+}
+// The bright network sunlight draws on a shallow bed.
+float caustic(vec2 x){
+  vec2 i = floor(x), f = fract(x); float d1 = 9., d2 = 9.;
+  for (int y = -1; y <= 1; y++) for (int k = -1; k <= 1; k++) {
+    vec2 g = vec2(float(k), float(y)); vec2 o = vec2(hash12(i + g), hash12(i + g + 17.3));
+    float d = length(g + o - f);
+    if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) d2 = d;
+  }
+  return d2 - d1;
+}
+// Water in the chosen style over the bed's colour cu (when there is a bed). u: the light on the surface (a step and
+// its class), the depth seen through along the view, and the water flag.
+vec3 waterCol(ivec2 p, vec3 cu, bool hasBed, vec4 u){
+  vec4 w0 = texelFetch(tW0, p, 0), w1 = texelFetch(tW1, p, 0);
+  vec3 P = w0.yzw;
+  float dep = hasBed ? u.z * .5 : 9.;              // depth under the surface: the view meets the water at 30 degrees
+  float wcls = u.y; bool sunlit = mod(wcls, 2.) > .5;
+  float shade = clamp(floor((u.x - 4.2) * .5 + .5), -2., 1.);   // the surface's own light: tree shade, firelight
+  bool still = w1.z < .5;
+  vec2 fl = still ? normalize(uCamRight.xz) : (length(w1.xy) > .01 ? normalize(w1.xy) : vec2(1., 0.));
+  float row = w1.w > .5 ? uSeaRow : uWaterRow;
+  // the reflection, nudged a pixel left or right row by row
+  int wob = int(floor((vnoise(vec2(float(p.y) * .7, P.x * .4 + P.z * .4)) - .5) * 2.6 + .5));
+  vec4 R = uReflOn > .5 ? texelFetch(tRefl, clamp(p + ivec2(wob, 0), ivec2(0), ivec2(uRes) - 1), 0) : vec4(0.);
+  // the sky in the water: paler far off (top of the picture), deeper and bluer near
+  vec3 skyR = mix(uSkyCol * 1.03, uSkyCol * vec3(.74, .8, .93), clamp(1. - gl_FragCoord.y / uRes.y, 0., 1.));
+  vec3 refl = R.a > .5 ? R.rgb : skyR;
+  float sd = shoreDist(p);
+  vec3 foam = grade(pal(uFoamRow, clamp(floor(u.x + .5) + 1., 1., 5.)), wcls);   // as bright as the light allows
+  vec3 c;
+  if (uWaterStyle == 1) {
+    // clear shallows: the bed shows where it is shallow, banks and sky are mirrored, a crisp line at the shore
+    float bs = (dep < .12 ? 5. : (dep < .4 ? 4. : (dep < .9 ? 3. : 2.))) + shade;
+    vec3 body = grade(pal(row, bs), wcls);
+    float a = !hasBed ? 1. : (dep < .12 ? .3 : (dep < .4 ? .55 : (dep < .9 ? .8 : 1.)));
+    c = mix(cu * uWaterTint, body, a);
+    c = mix(c, refl, dep < .12 ? .2 : (dep < .4 ? .3 : .38));
+    bool d1 = dash(P, fl, 3., 1., .13) > .5;
+    if (d1) c = mix(c, sunlit ? skyR * 1.12 : body * 1.12, .45);
+    if (d1 && sunlit && hash12(vec2(p)) > .97) c = vec3(1.);
+    if (sd < 1.5) c = mix(c, foam, .8);
+  } else if (uWaterStyle == 2) {
+    // painted bands: three tones by depth with wavering edges, reflections as darker or lighter shapes, long
+    // highlight strokes, and a double line at the shore
+    float dj = dep + (vnoise(P.xz * .6) - .5) * .3;
+    float bs = (dj < .18 ? 5. : (dj < .6 ? 4. : 3.)) + shade;
+    if (R.a > .5) bs += luma(R.rgb) < .38 ? -1. : (luma(R.rgb) > .62 ? 1. : 0.);
+    vec3 body = grade(pal(row, bs), wcls);
+    c = hasBed && dj < .18 ? mix(cu * uWaterTint, body, .6) : body;
+    if (dash(P, fl, 2., 1.1, .15) > .5) c = grade(pal(row, min(bs + 2., 6.)), wcls);
+    if (sd < 1.5) c = foam;
+    else if (sd > 2.5 && sd < 3.5 && vnoise(P.xz * 2.2) > .4) c = mix(c, foam, .7);
+  } else if (uWaterStyle == 3) {
+    // a mirror: still water shows the banks, trees and sky; ripples break it in thin lines
+    float bs = (dep < .25 ? 4. : 3.) + shade;
+    vec3 body = grade(pal(row, bs), wcls);
+    c = hasBed && dep < .1 ? mix(cu * uWaterTint, body, .5) : body;
+    c = mix(c, refl * .94, hasBed && dep < .1 ? .45 : .74);
+    if (dash(P, fl, 2., .5, .3) > .5) c = mix(body, skyR, .55);
+    if (sd < 1.5) c = mix(foam, c, .25);
+  } else {
+    // a turquoise lagoon: bright shallows over a sunlit bed with its network of light, deep teal further out,
+    // white foam in two lines, sparkles
+    float bs = (dep < .1 ? 6. : (dep < .35 ? 5. : (dep < .8 ? 4. : (dep < 1.6 ? 3. : 2.)))) + shade;
+    vec3 body = grade(pal(uLagoonRow, bs), wcls);
+    vec3 bed = cu;
+    if (hasBed && sunlit && dep < .9 && caustic(P.xz * 1.6) < .09) bed = bed * 1.3 + .08;
+    float a = !hasBed ? 1. : (dep < .1 ? .35 : (dep < .35 ? .55 : (dep < .8 ? .75 : .95)));
+    c = mix(bed, body, a);
+    c = mix(c, refl, .18);
+    if (sunlit) {
+      bool sp = false;
+      for (int k = 0; k < 5; k++) {
+        ivec2 q = p + (k == 0 ? ivec2(0) : (k == 1 ? ivec2(1, 0) : (k == 2 ? ivec2(-1, 0) : (k == 3 ? ivec2(0, 1) : ivec2(0, -1)))));
+        if (hash12(vec2(q)) > .9975) sp = true;
+      }
+      if (sp) c = vec3(1.);
+    }
+    if (sd < 1.5) c = vec3(.97, .99, 1.) * (sunlit ? 1. : .86);
+    else if (sd > 2.5 && sd < 3.5 && vnoise(P.xz * 2.6) > .45) c = mix(c, vec3(.95), .75);
+  }
+  return c;
+}
 void main(){
   ivec2 p = ivec2(gl_FragCoord.xy);
   vec4 r = texelFetch(tR0, p, 0);
-  if (r.x < -.5) { col = vec4(uInk == 1 ? vec3(.937, .886, .769) : uBack, uInk == 2 ? 0. : 1.); return; }
-  vec4 g0 = texelFetch(tG0, p, 0); vec4 g1 = texelFetch(tG1, p, 0);
   vec4 u = texelFetch(tR1, p, 0);
-  bool water = u.w > 0.;
+  bool wNew = uWaterStyle > 0 && u.w > .5;          // the water styles: r is the bed, u the surface
+  if (r.x < -.5 && !wNew) { col = vec4(uInk == 1 ? vec3(.937, .886, .769) : uBack, uInk == 2 ? 0. : 1.); return; }
+  vec4 g0 = texelFetch(tG0, p, 0); vec4 g1 = texelFetch(tG1, p, 0);
+  bool water = uWaterStyle == 0 && u.w > 0.;      // today's water: r is the surface, u the bed
+  bool hasBed = r.x > -.5;
   float cls = r.z, flags = g0.w;
   float st;
   if (water) st = r.y;
+  else if (!hasBed) st = 0.;
   else if (cls > 6.5) st = clamp(g0.y, 0., 6.);
   else {
-    float f = r.y, s0 = floor(f + .5), fr = f - floor(f);
-    if (abs(fr - .5) < .15) {
+    float f = r.y;
+    if (uWobble > 0.) {
+      // a painted look: where two steps meet, the edge wavers like a brush stroke instead of a ruled line
+      vec3 wp = texelFetch(tG2, p, 0).xyz;
+      f += (vnoise(vec2(wp.x * 1.7 + wp.y * .9, wp.z * 1.7 - wp.y * .6)) - .5) * uWobble;
+    }
+    float s0 = floor(f + .5), fr = f - floor(f);
+    if (uDither > .5 && !wNew && abs(fr - .5) < .15) {
       bool meet = false;
       for (int k = 0; k < 4; k++) {
         ivec2 o = k == 0 ? ivec2(1, 0) : (k == 1 ? ivec2(-1, 0) : (k == 2 ? ivec2(0, 1) : ivec2(0, -1)));
@@ -440,10 +589,11 @@ void main(){
     }
     st = clamp(s0 + g0.y, 0., 6.);
   }
-  float d = g1.w; vec3 n = g1.xyz; vec3 nv = (uView * vec4(n, 0.)).xyz;
+  float d = g1.w; vec3 n = g1.xyz;
+  vec3 nv = (uView * vec4(uMirror > .5 ? vec3(n.x, -n.y, n.z) : n, 0.)).xyz;   // a reflection faces the other way up
   vec2 sv = normalize((uView * vec4(uSun, 0.)).xy + vec2(1e-4));
   int edge = 0;
-  bool canEdge = !water && g0.x > .5 && !bit(flags, 4.) && cls < 6.5;
+  bool canEdge = !water && !wNew && g0.x > .5 && !bit(flags, 4.) && cls < 6.5;
   if (canEdge) {
     bool foliage = bit(flags, 2.);
     for (int k = 0; k < 4; k++) {
@@ -454,11 +604,11 @@ void main(){
       float thr = foliage && abs(q0.z - g0.z) < .5 ? 1.6 : .32;
       bool behind = q0.x < .5 || q1.w > pred + thr || (abs(q0.z - g0.z) > .5 && q1.w > d + .06);
       if (behind && !bit(q0.w, 4.) ) {
-        bool rim = dot(vec2(o), sv) > .35 && mod(cls, 2.) > .5 && dot(n, uSun) > .25;
+        bool rim = uMirror < .5 && dot(vec2(o), sv) > .35 && mod(cls, 2.) > .5 && dot(n, uSun) > .25;
         if (rim && edge == 0) edge = 2; else if (!rim) edge = 1;
       }
     }
-    if (edge == 0 && !foliage && mod(cls, 2.) > .5) {
+    if (edge == 0 && !foliage && mod(cls, 2.) > .5 && uMirror < .5) {
       for (int k = 0; k < 4; k++) {
         ivec2 o = k == 0 ? ivec2(1, 0) : (k == 1 ? ivec2(-1, 0) : (k == 2 ? ivec2(0, 1) : ivec2(0, -1)));
         ivec2 q = clamp(p + o, ivec2(0), ivec2(uRes) - 1);
@@ -468,8 +618,8 @@ void main(){
         if (dot(n, q1.xyz) < .8 && dot(n, uSun) > dot(q1.xyz, uSun) + .2 && q1.w > pred - .03) edge = 2;
       }
     }
-    if (edge == 1) st = max(st - (foliage || g0.z < .5 ? 1. : 2.), 0.);
-    if (edge == 2) { st = min(st + 1., 6.); cls = mod(cls, 2.) > .5 ? cls : cls + 1.; }
+    if (edge == 1) st = max(st - (foliage || g0.z < .5 ? uOutlineN : uOutline), 0.);
+    if (edge == 2) { st = min(st + uLit, 6.); cls = mod(cls, 2.) > .5 ? cls : cls + 1.; }
   }
   if (uInk == 1) {
     // the field journal's ink sketch: outlines in ink, tone by hatching (crossed for the darkest, then lines,
@@ -479,7 +629,7 @@ void main(){
     vec3 o = paper;
     if (edge == 1) o = ink;
     else if (edge == 2) o = paper;
-    else if (water) o = (p.y % 3 == 0 && (p.x / 3) % 2 == 0) ? mid : paper;
+    else if (water || wNew) o = (p.y % 3 == 0 && (p.x / 3) % 2 == 0) ? mid : paper;
     else if (cls > 6.5) o = (p.x + p.y) % 2 == 0 ? mid : paper;
     else if (L < .2) o = (p.x + p.y) % 2 == 0 ? ink : mid;
     else if (L < .32) o = (p.x + p.y) % 2 == 0 ? mid : paper;
@@ -488,14 +638,15 @@ void main(){
     col = vec4(o, 1.);
     return;
   }
-  vec3 c = grade(pal(r.x, st), cls);
+  vec3 c = hasBed ? grade(pal(r.x, st), cls) : vec3(0.);
   if (water) {
     vec3 cu = grade(pal(u.x, clamp(floor(u.y + .5) + g0.y, 0., 6.)), u.z) * uWaterTint;
     if (r.z < 6.5 && r.x < uSkyRow) c = mix(c, uSkyCol, mod(r.z, 2.) > .5 ? .3 : .22);   // water mirrors the sky
     c = mix(cu, c, u.w);
   }
+  if (wNew) c = waterCol(p, c, hasBed, u);
   if (uMist.z > 0.) {
-    vec3 wp = water ? texelFetch(tW0, p, 0).yzw : texelFetch(tG2, p, 0).xyz;
+    vec3 wp = (water || wNew) ? texelFetch(tW0, p, 0).yzw : texelFetch(tG2, p, 0).xyz;
     float h = (wp.y - uMist.x) / uMist.y;
     float m = (1. - clamp(h, 0., 1.)) * uMist.z * (.3 + .95 * fbm2(vec2(wp.x * uMist.w * .45, wp.z * uMist.w * 1.6) + vec2(0., wp.y * .3)));
     m = floor(clamp(m, 0., 1.) * 2.5) / 2.5;

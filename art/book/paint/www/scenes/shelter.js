@@ -4,10 +4,11 @@ import * as THREE from 'three';
 import { Painter } from '../engine.js';
 import { Solid, Cards, Puffs, PAT, FLAG, Rand, fbm, noise2, M4, newObj } from '../geo.js';
 import { TILE } from '../atlas.js';
-import { K } from '../kit/k.js';
+import { K, card } from '../kit/k.js';
 import { ground, boulder, blockCliff, stoneBlock } from '../kit/land.js';
 import { broadleaf, conifer, bush, scatter } from '../kit/plants.js';
 import { person } from '../kit/people.js';
+import { animal } from '../kit/animals.js';
 import { hearth, smoke, tent, windbreak, rack, log } from '../kit/things.js';
 import { land, put, riverSheet, decal } from '../kit/scene.js';
 
@@ -120,7 +121,7 @@ export async function build({ light, opts = [], view = {} }) {
     const n = Math.round(b.L * (bi === beds.length - 1 ? 1.6 : 0.9));
     for (let k = 0; k < n; k++) {
       const A = C.at(b.s + r.range(-b.L / 2, b.L / 2)), hang = r.chance(0.45);
-      low.add({ c: [A.p[0], b.top + (hang ? 0.02 : -0.02), A.p[1] + b.out - (hang ? -0.04 : r.range(0.1, 0.5))], w: 32 * K.mpp * r.range(0.7, 1), h: 32 * K.mpp * r.range(0.5, 0.85),
+      low.add({ c: [A.p[0], b.top + (hang ? 0.02 : -0.02), A.p[1] + b.out - (hang ? -0.04 : r.range(0.1, 0.5))], w: card() * r.range(0.7, 1), h: card() * r.range(0.5, 0.85),
         tile: r.pick(TILE.TUFT), mat: bi === beds.length - 1 || r.chance(0.5) ? 'meadow' : 'moss', bias: hang ? 0 : 1, flag: FLAG.NOOUTLINE | FLAG.NOSHADOW, n: [0, 0.8, 0.6], upright: 1, spin: hang ? Math.PI : 0 });
     }
   }));
@@ -142,7 +143,7 @@ export async function build({ light, opts = [], view = {} }) {
   P.addSolid(furs);
 
   const folk = (spec, x, dz, yaw, extra = {}) => put(P, person(spec), x, cz(x) + dz, { ground: L.at, yaw, ...extra });
-  folk({ kind: 'elder', skin: 'skin2', hair: 'hairgrey', hairStyle: 'long', top: 'wrap', topMat: 'fur', pose: 'sitTalk', seed: 1 }, 1.0, 2.6, Math.PI, { y: L.at(1, cz(1) + 2.6) + 0.34 });
+  folk({ kind: 'elder', skin: 'skin2', hair: 'hairgrey', hairStyle: 'long', top: 'wrap', topMat: 'leather', pose: 'sitTalk', seed: 1 }, 1.0, 2.6, Math.PI, { y: L.at(1, cz(1) + 2.6) + 0.34 });
   folk({ kind: 'woman', skin: 'skin2', hairStyle: 'braid', top: 'dress', topMat: 'hide', necklace: 'shell', pose: 'sitFloor', seed: 2 }, -0.6, 0.4, 1.2);
   folk({ kind: 'child', skin: 'skin2', hairStyle: 'short', top: 'none', legs: 'bare', feet: null, pose: 'sitFloor', seed: 3 }, -0.4, 1.6, 1.6);
   folk({ kind: 'man', skin: 'skin2', hairStyle: 'short', beard: true, top: 'tunic', topMat: 'leather', pose: 'knap', held: 'stone', seed: 4 }, 2.8, 0.3, -1.9);
@@ -152,9 +153,19 @@ export async function build({ light, opts = [], view = {} }) {
   folk({ kind: 'man', skin: 'skin2', hairStyle: 'long', top: 'tunic', topMat: 'hide', pose: 'walkA', held: { kind: 'spear', tilt: 0.25 }, seed: 7 }, 9.6, 7.6, -2.5);
   folk({ kind: 'man', skin: 'skin3', hairStyle: 'short', top: 'wrap', topMat: 'fur', pose: 'carry', held: 'meat', seed: 8 }, 11.3, 8.9, -2.3);
   folk({ kind: 'youth', skin: 'skin2', hairStyle: 'braid', top: 'tunic', topMat: 'leather', pose: 'walkB', held: { kind: 'spear', tilt: 0.3 }, seed: 9 }, 13.0, 10.2, -2.2);
-  // children by the stream
-  folk({ kind: 'child', skin: 'skin1', hairStyle: 'long', top: 'none', legs: 'bare', feet: null, pose: 'stoop', seed: 10 }, -3.5, 13.6, 0.3);
-  folk({ kind: 'child', skin: 'skin3', hairStyle: 'short', top: 'none', legs: 'bare', feet: null, pose: 'point', seed: 11 }, -2.2, 12.7, -0.8);
+  // a dog asleep by the hearth
+  put(P, animal({ species: 'dog', pose: 'lie', seed: 20 }), 2.6, cz(2.6) + 2.9, { ground: L.at, yaw: 2.2 });
+  if (!night) {
+    // children by the stream
+    folk({ kind: 'child', skin: 'skin1', hairStyle: 'long', top: 'none', legs: 'bare', feet: null, pose: 'stoop', seed: 10 }, -3.5, 13.6, 0.3);
+    folk({ kind: 'child', skin: 'skin3', hairStyle: 'short', top: 'none', legs: 'bare', feet: null, pose: 'point', seed: 11 }, -2.2, 12.7, -0.8);
+  } else {
+    // two walk up from the stream by torchlight, a third still at the fish trap
+    const up = (x, z) => ({ y: L.at(x, z) });
+    put(P, person({ kind: 'man', skin: 'skin3', hairStyle: 'long', top: 'wrap', topMat: 'leather', pose: 'walkA', held: 'torch', seed: 16 }), 6.2, 17.4, { ...up(6.2, 17.4), yaw: -2.75 });
+    put(P, person({ kind: 'woman', skin: 'skin2', hairStyle: 'braid', top: 'dress', topMat: 'hide', pose: 'carry', held: { kind: 'basket', mat: 'reed' }, seed: 17 }), 7.4, 18.5, { ...up(7.4, 18.5), yaw: -2.8 });
+    put(P, person({ kind: 'youth', skin: 'skin2', hairStyle: 'short', top: 'none', legs: 'leggings', pose: 'hold', held: 'torch', seed: 18 }), 3.5, streamZ(3.5) + 2.1, { ...up(3.5, streamZ(3.5) + 2.1), yaw: 0.3 });
+  }
 
   if (night) {
     // the evening: a drummer, sleepers on the furs, a mother with her baby

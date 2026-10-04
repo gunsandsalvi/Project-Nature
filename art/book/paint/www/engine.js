@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { paletteTexture, MOODS, mat } from './palette.js';
 import * as S from './glsl.js';
 import { makeAtlas, GRID } from './atlas.js';
+import { LOOK, WATERS } from './look.js';
 
 THREE.ColorManagement.enabled = false;
 
@@ -31,7 +32,9 @@ export class Painter {
     this.pass = { value: 0 };
     this.right = { value: new THREE.Vector3() };
     this.up = { value: new THREE.Vector3() };
-    this.atlas = makeAtlas();
+    this.mirror = { value: 0 };
+    this.mirrorY = { value: 0 };
+    this.atlas = makeAtlas(mpp);
     this.pal = paletteTexture();
     this.fires = [];
     this.mist = { base: 0, thick: 1, amount: 0, scale: 0.08, col: this.mood.haze.clone() };
@@ -82,6 +85,7 @@ export class Painter {
         uLayers: { value: new THREE.Vector4(row(0), row(1), row(2), row(3)) },
         uLayerPat: { value: new THREE.Vector4(pat(0), pat(1), pat(2), pat(3)) },
         uSoot: this.sootU, uSootN: this.sootN,
+        uGrain: { value: LOOK.grain }, uBrush: { value: LOOK.brush }, uMirror: this.mirror, uMirrorY: this.mirrorY,
       },
     });
   }
@@ -95,14 +99,18 @@ export class Painter {
   addCards(cards) {
     const m = new THREE.Mesh(cards.geometry(), new THREE.ShaderMaterial({
       glslVersion: THREE.GLSL3, vertexShader: S.CARD_VERT, fragmentShader: S.CARD_FRAG, side: THREE.DoubleSide,
-      uniforms: { uPass: this.pass, tAtlas: { value: this.atlas }, uRight: this.right, uUp: this.up, uTiles: { value: GRID } },
+      uniforms: { uPass: this.pass, tAtlas: { value: this.atlas }, uRight: this.right, uUp: this.up, uTiles: { value: GRID }, uMirror: this.mirror, uMirrorY: this.mirrorY },
     }));
     m.frustumCulled = false;
     this.scene.add(m);
     return m;
   }
-  /** Water: a geometry with an aFlow attribute (flow direction in x, z and speed); sea: 1 for the sea's colours. */
+  /**
+   * Water: a geometry with an aFlow attribute (flow direction in x, z, and 1 for running water or 0 for still);
+   * sea: 1 for the sea's colours. Its height (the first point's) is the mirror for reflections.
+   */
   addWater(geometry, sea = 0) {
+    if (this.waterLevel === undefined) this.waterLevel = geometry.getAttribute('position').getY(0);
     const m = new THREE.Mesh(geometry, new THREE.ShaderMaterial({
       glslVersion: THREE.GLSL3, vertexShader: S.WATER_VERT, fragmentShader: S.WATER_FRAG, side: THREE.DoubleSide,
       uniforms: { uKind: { value: sea } },
@@ -168,6 +176,16 @@ export class Painter {
     R.setRenderTarget(gbuf); R.clear(); R.render(this.scene, this.camera);
     const wbuf = rt(w, h, { count: 2 });
     R.setRenderTarget(wbuf); R.clear(); R.render(this.waterScene, this.camera);
+    // ... and, for water, the same scene mirrored in its surface
+    const style = WATERS[LOOK.water] || 0;
+    const mirrorOn = this.waterScene.children.length > 0 && style > 0 && this.waterLevel !== undefined;
+    let gbufM = null;
+    if (mirrorOn) {
+      gbufM = rt(w, h, { count: 3 });
+      this.mirror.value = 1; this.mirrorY.value = this.waterLevel;
+      R.setRenderTarget(gbufM); R.clear(); R.render(this.scene, this.camera);
+      this.mirror.value = 0;
+    }
 
     // 3. light into steps
     const lv = this.shadowCam.matrixWorldInverse.clone(), lp = this.shadowCam.projectionMatrix.clone();
@@ -177,35 +195,51 @@ export class Painter {
       firePos.push(F ? new THREE.Vector4(...F.pos, F.radius) : new THREE.Vector4());
       fireCol.push(F ? new THREE.Vector4(1, 1, 1, F.power) : new THREE.Vector4());
     }
-    const res = rt(w, h, { count: 2, depthBuffer: false });
-    const r1 = this.quad(S.RESOLVE_FRAG, {
-      tG0: { value: gbuf.textures[0] }, tG1: { value: gbuf.textures[1] }, tG2: { value: gbuf.textures[2] },
-      tShadow: { value: shadow.texture }, tW0: { value: wbuf.textures[0] }, tW1: { value: wbuf.textures[1] },
-      tSky: { value: skyMap.texture }, uSkyView: { value: this.skyCam.matrixWorldInverse.clone() }, uSkyProj: { value: this.skyCam.projectionMatrix.clone() },
-      uSkyCover: { value: this.skyCover ?? 0.55 },
-      uLightView: { value: lv }, uLightProj: { value: lp }, uShadowSize: { value: new THREE.Vector2(this.shadowSize, this.shadowSize) },
-      uShadowTexel: { value: this.shadowTexel }, uSun: { value: this.sun }, uSunK: { value: md.sunK }, uSkyK: { value: md.skyK },
-      uShift: { value: md.shift }, uExposure: { value: this.exposure }, uSunPow: { value: md.sunPow ?? 1 }, uFires: { value: this.fires.length },
-      uFire: { value: firePos }, uFireC: { value: fireCol }, uRes: { value: new THREE.Vector2(w, h) },
-      uAORad: { value: this.ao.rad / this.mpp }, uAODist: { value: this.ao.dist }, uAOK: { value: this.ao.k },
-      uHaze: { value: new THREE.Vector2(...this.haze) }, uWaterOn: { value: this.waterScene.children.length ? 1 : 0 },
-      uWaterRow: { value: mat('water') }, uFoamRow: { value: mat('white') }, uGlintRow: { value: mat('glint') }, uSeaOn: { value: 0 },
-    });
-    R.setRenderTarget(res); R.clear(); R.render(r1.scene, qcam);
+    const resolve = (gb, waterOn) => {
+      const res = rt(w, h, { count: 2, depthBuffer: false });
+      const q = this.quad(S.RESOLVE_FRAG, {
+        tG0: { value: gb.textures[0] }, tG1: { value: gb.textures[1] }, tG2: { value: gb.textures[2] },
+        tShadow: { value: shadow.texture }, tW0: { value: wbuf.textures[0] }, tW1: { value: wbuf.textures[1] },
+        tSky: { value: skyMap.texture }, uSkyView: { value: this.skyCam.matrixWorldInverse.clone() }, uSkyProj: { value: this.skyCam.projectionMatrix.clone() },
+        uSkyCover: { value: this.skyCover ?? 0.55 },
+        uLightView: { value: lv }, uLightProj: { value: lp }, uShadowSize: { value: new THREE.Vector2(this.shadowSize, this.shadowSize) },
+        uShadowTexel: { value: this.shadowTexel }, uSun: { value: this.sun }, uSunK: { value: md.sunK }, uSkyK: { value: md.skyK },
+        uShift: { value: md.shift }, uExposure: { value: this.exposure }, uSunPow: { value: md.sunPow ?? 1 }, uFires: { value: this.fires.length },
+        uFire: { value: firePos }, uFireC: { value: fireCol }, uRes: { value: new THREE.Vector2(w, h) },
+        uAORad: { value: this.ao.rad / this.mpp }, uAODist: { value: this.ao.dist }, uAOK: { value: this.ao.k },
+        uHaze: { value: new THREE.Vector2(...this.haze) }, uWaterOn: { value: waterOn && this.waterScene.children.length ? 1 : 0 },
+        uWaterRow: { value: mat('water') }, uFoamRow: { value: mat('white') }, uGlintRow: { value: mat('glint') }, uSeaOn: { value: 0 },
+        uShadowSoft: { value: LOOK.shadowSoft }, uContrast: { value: LOOK.contrast }, uWaterStyle: { value: style },
+      });
+      R.setRenderTarget(res); R.clear(); R.render(q.scene, qcam);
+      return res;
+    };
+    const res = resolve(gbuf, true);
+    const resM = mirrorOn ? resolve(gbufM, false) : null;
 
-    // 4. outlines, lit edges, the hour's colour, mist and haze
-    const fin = rt(w, h, { type: THREE.UnsignedByteType, depthBuffer: false });
-    const r2 = this.quad(S.FINAL_FRAG, {
-      tR0: { value: res.textures[0] }, tR1: { value: res.textures[1] }, tG0: { value: gbuf.textures[0] }, tG1: { value: gbuf.textures[1] },
-      tG2: { value: gbuf.textures[2] }, tPal: { value: this.pal }, tW0: { value: wbuf.textures[0] },
-      uView: { value: this.camera.matrixWorldInverse }, uSun: { value: this.sun }, uMpp: { value: this.mpp },
-      uSunTint: { value: md.sun }, uShadeTint: { value: md.shade }, uFireTint: { value: md.fire }, uHazeCol: { value: md.haze },
-      uHazeK: { value: md.hazeK }, uDesat: { value: md.desat }, uBack: { value: md.haze },
-      uMist: { value: new THREE.Vector4(this.mist.base, this.mist.thick, this.mist.amount, this.mist.scale) }, uMistCol: { value: this.mist.col },
-      uRes: { value: new THREE.Vector2(w, h) }, uWaterTint: { value: new THREE.Color(0.72, 0.86, 0.98) }, uSkyRow: { value: mat('sea') + 0.5 }, uSkyCol: { value: md.sky || md.haze },
-      uInk: { value: this.ink ? 1 : (this.clear ? 2 : 0) },
-    });
-    R.setRenderTarget(fin); R.clear(); R.render(r2.scene, qcam);
+    // 4. outlines, lit edges, the hour's colour, water, mist and haze
+    const finish = (gb, rs, { mirror = false, refl = null } = {}) => {
+      const fin = rt(w, h, { type: THREE.UnsignedByteType, depthBuffer: false });
+      const q = this.quad(S.FINAL_FRAG, {
+        tR0: { value: rs.textures[0] }, tR1: { value: rs.textures[1] }, tG0: { value: gb.textures[0] }, tG1: { value: gb.textures[1] },
+        tG2: { value: gb.textures[2] }, tPal: { value: this.pal }, tW0: { value: wbuf.textures[0] }, tW1: { value: wbuf.textures[1] },
+        tRefl: { value: refl }, uReflOn: { value: refl ? 1 : 0 },
+        uView: { value: this.camera.matrixWorldInverse }, uSun: { value: this.sun }, uMpp: { value: this.mpp },
+        uSunTint: { value: md.sun }, uShadeTint: { value: md.shade }, uFireTint: { value: md.fire }, uHazeCol: { value: md.haze },
+        uHazeK: { value: mirror ? 0 : md.hazeK }, uDesat: { value: md.desat }, uBack: { value: md.haze },
+        uMist: { value: new THREE.Vector4(this.mist.base, this.mist.thick, mirror ? 0 : this.mist.amount, this.mist.scale) }, uMistCol: { value: this.mist.col },
+        uRes: { value: new THREE.Vector2(w, h) }, uWaterTint: { value: new THREE.Color(0.72, 0.86, 0.98) }, uSkyRow: { value: mat('sea') + 0.5 }, uSkyCol: { value: md.sky || md.haze },
+        uInk: { value: mirror ? 2 : (this.ink ? 1 : (this.clear ? 2 : 0)) },
+        uDither: { value: LOOK.dither }, uWobble: { value: LOOK.wobble || 0 }, uOutline: { value: LOOK.outline }, uOutlineN: { value: LOOK.outlineNature }, uLit: { value: LOOK.lit },
+        uMirror: { value: mirror ? 1 : 0 }, uWaterStyle: { value: mirror ? 0 : style }, uWaterY: { value: this.waterLevel ?? 0 },
+        uCamRight: { value: this.right.value.clone() },
+        uWaterRow: { value: mat('water') }, uSeaRow: { value: mat('sea') }, uLagoonRow: { value: mat('lagoon') }, uFoamRow: { value: mat('white') },
+      });
+      R.setRenderTarget(fin); R.clear(); R.render(q.scene, qcam);
+      return fin;
+    };
+    const finM = mirrorOn ? finish(gbufM, resM, { mirror: true }) : null;
+    const fin = finish(gbuf, res, { refl: finM ? finM.texture : null });
 
     // 5. smoke and mist over the picture
     let out = fin;

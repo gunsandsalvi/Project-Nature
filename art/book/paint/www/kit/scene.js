@@ -85,11 +85,11 @@ export function lineField(centre, n = 240) {
   };
 }
 
-/** A flat sheet of water (a lake or the sea) over a rectangle, flowing along flow. */
-export function waterPlane({ x0, x1, z0, z1, y, flow = [1, 0] }) {
+/** A flat sheet of water (a lake or the sea) over a rectangle, still unless it runs along flow. */
+export function waterPlane({ x0, x1, z0, z1, y, flow = [1, 0], still = true }) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute([x0, y, z0, x1, y, z0, x1, y, z1, x0, y, z1], 3));
-  g.setAttribute('aFlow', new THREE.Float32BufferAttribute([0, 1, 2, 3].flatMap(() => [flow[0], flow[1], 1]), 3));
+  g.setAttribute('aFlow', new THREE.Float32BufferAttribute([0, 1, 2, 3].flatMap(() => [flow[0], flow[1], still ? 0 : 1]), 3));
   g.setIndex([0, 2, 1, 0, 3, 2]);
   return g;
 }

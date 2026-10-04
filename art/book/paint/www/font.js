@@ -118,18 +118,23 @@ export function measure(text, { hand = false } = {}) {
 export function drawText(ctx, text, x, y, { color = '#efe6d6', scale = 1, hand = false, seed = 1, shadow = null } = {}) {
   let cx = x, s = seed, prev = null;
   const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
-  const put = (px, py, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(px), Math.round(py), scale, scale); };
+  // handwriting leans one pixel for every 3.5 rows of the drawn size, so it stays a smooth slope when enlarged
+  const lean = (oy) => (hand ? Math.floor((6 * scale - oy) / 3.5) : 0);
+  // one font pixel at row r (from the cap top): a block of scale by scale, each of its rows leant on its own
+  const put = (px, r, py, c) => {
+    ctx.fillStyle = c;
+    for (let k = 0; k < scale; k++) ctx.fillRect(Math.round(px + lean(r * scale + k)), Math.round(py + k), scale, 1);
+  };
   for (const ch of text) {
     const g = glyph(ch), w = g[0].length;
     const dy = hand ? (rnd() < 0.1 ? -1 : 0) * scale : 0;
     for (let r = 0; r < g.length; r++) for (let c = 0; c < w; c++) {
       if (g[r][c] !== '#') continue;
-      const slant = hand ? Math.floor((6 - r) / 3.5) * scale : 0;
-      if (shadow) put(cx + c * scale + slant + scale, y + r * scale + dy + scale, shadow);
-      put(cx + c * scale + slant, y + r * scale + dy, color);
+      if (shadow) put(cx + c * scale + scale, r, y + r * scale + dy + scale, shadow);
+      put(cx + c * scale, r, y + r * scale + dy, color);
     }
     // handwriting joins a letter that ends at the foot to the next small letter
-    if (hand && prev && ENDS_LOW.has(prev) && STARTS_X.has(ch)) put(cx - scale, y + 6 * scale + dy, color);
+    if (hand && prev && ENDS_LOW.has(prev) && STARTS_X.has(ch)) put(cx - scale, 6, y + 6 * scale + dy, color);
     cx += (w + 1) * scale;
     prev = ch;
   }

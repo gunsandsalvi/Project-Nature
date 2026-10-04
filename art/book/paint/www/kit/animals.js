@@ -19,8 +19,8 @@ export const SPECIES = {
   goat:     { coat: 'goat', belly: 'goat', body: [0.72, 0.36, 0.28], legH: 0.42, neck: [0.32, 55], head: [0.3, 0.15, 0.13], ears: 0.1, tail: 0.08, horns: 'back', beard: true },
   sheep:    { coat: 'white', belly: 'white', legs: 'charcoal', body: [0.75, 0.42, 0.36], legH: 0.38, neck: [0.24, 45], head: [0.26, 0.15, 0.13], headMat: 'charcoal', ears: 0.08, tail: 0.1 },
   boar:     { coat: 'boar', belly: 'boar', body: [1.0, 0.55, 0.42], legH: 0.36, neck: [0.2, 5], head: [0.48, 0.3, 0.26], ears: 0.1, tail: 0.15, tusks: true, bristle: true },
-  wolf:     { coat: 'wolf', belly: 'white', body: [0.85, 0.36, 0.26], legH: 0.5, neck: [0.28, 40], head: [0.32, 0.17, 0.16], ears: 0.1, tail: 0.45, snout: true, bushy: true, pointy: true },
-  dog:      { coat: 'dun', belly: 'fur', body: [0.62, 0.3, 0.22], legH: 0.4, neck: [0.22, 45], head: [0.26, 0.15, 0.14], ears: 0.08, tail: 0.3, snout: true, pointy: true, curl: true },
+  wolf:     { coat: 'wolf', belly: 'white', body: [0.85, 0.34, 0.25], legH: 0.44, neck: [0.28, 40], head: [0.32, 0.17, 0.16], ears: 0.1, tail: 0.45, snout: true, bushy: true, pointy: true },
+  dog:      { coat: 'dun', belly: 'fur', body: [0.56, 0.26, 0.2], legH: 0.32, neck: [0.2, 45], head: [0.24, 0.14, 0.13], ears: 0.08, tail: 0.28, snout: true, pointy: true, curl: true },
   hare:     { coat: 'dun', belly: 'white', body: [0.38, 0.2, 0.16], legH: 0.14, neck: [0.06, 60], head: [0.14, 0.11, 0.1], ears: 0.14, tail: 0.05, long: true },
 };
 
@@ -138,7 +138,7 @@ export function bird({ kind = 'crow', fly = false, wing = 0.5, seed = 1, scale =
   const C = {
     crow: { body: 'feather', size: 0.4, neck: 0.05, legs: 0.08, beak: 'charcoal', span: 0.9 },
     duck: { body: 'reed', head: 'verdi', size: 0.45, neck: 0.06, legs: 0.03, beak: 'ochre', span: 0.8 },
-    heron: { body: 'cloth', head: 'white', size: 0.6, neck: 0.4, legs: 0.6, beak: 'ochre', span: 1.6 },
+    heron: { body: 'cloth', head: 'white', size: 0.55, neck: 0.32, legs: 0.45, beak: 'ochre', span: 1.6 },
     gull: { body: 'white', size: 0.45, neck: 0.05, legs: 0.08, beak: 'ochre', wingTip: 'charcoal', span: 1.2 },
     vulture: { body: 'furdark', head: 'skin1', size: 0.85, neck: 0.18, legs: 0.15, beak: 'bone', span: 2.4 },
     goose: { body: 'cloth', head: 'charcoal', size: 0.65, neck: 0.25, legs: 0.08, beak: 'charcoal', span: 1.5 },
@@ -155,10 +155,14 @@ export function bird({ kind = 'crow', fly = false, wing = 0.5, seed = 1, scale =
   if (!fly) for (const sx of [-1, 1]) b(T(sx * 0.04 * scale, legY / 2, 0), 0.025, legY, 0.025, 'charcoal', 0.1);
   for (const sx of [-1, 1]) {
     if (fly) {
-      const span = C.span * scale * 0.5, up = 0.25 + (wing - 0.5) * 0.9;
-      const m = mul(T(sx * z * 0.16, legY + z * 0.26, 0), R(0, 0, sx * up), T(sx * span * 0.5, 0, 0));
-      b(m, span, 0.03, z * 0.42, C.body, 0.2, 1);
-      if (C.wingTip) b(mul(m, T(sx * span * 0.42, 0.006, 0)), span * 0.2, 0.035, z * 0.4, C.wingTip, 0.1);
+      // a wing in two parts: the arm lifted in a shallow V, the hand swept back to a point (bent down for gulls)
+      const span = C.span * scale * 0.5, up = 0.28 + (wing - 0.5) * 0.9, bend = C.wingTip ? -0.6 : 0.5, c0 = z * 0.5;
+      const a = { mat: C.body, obj, flag: FLAG.CREATURE };
+      const S = [sx * z * 0.12, legY + z * 0.28, 0.02];
+      const W = [S[0] + sx * span * 0.5 * Math.cos(up), S[1] + span * 0.5 * Math.sin(up), -c0 * 0.1];
+      const Tp = [W[0] + sx * span * 0.5 * Math.cos(up * bend), W[1] + span * 0.5 * Math.sin(up * bend), -c0 * 0.6];
+      s.quad([S[0], S[1], S[2] + c0 * 0.5], [W[0], W[1], W[2] + c0 * 0.36], [W[0], W[1], W[2] - c0 * 0.42], [S[0], S[1], S[2] - c0 * 0.5], a);
+      s.tri([W[0], W[1], W[2] + c0 * 0.36], Tp, [W[0], W[1], W[2] - c0 * 0.42], C.wingTip ? { ...a, mat: C.wingTip } : a);
     } else b(T(sx * z * 0.18, legY + z * 0.22, -z * 0.04), 0.035, z * 0.26, z * 0.62, C.body, 0.2);
   }
   return { solid: s, obj };
