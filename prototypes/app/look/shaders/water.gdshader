@@ -4,7 +4,7 @@
 // gives the water no record of the land around it, so the shore is where the water is thinnest: within about an
 // art pixel of the bank. Pre-production code (research 00).
 shader_type spatial;
-render_mode cull_disabled, specular_disabled, ambient_light_disabled, depth_draw_never, blend_mix;
+render_mode world_vertex_coords, cull_disabled, specular_disabled, ambient_light_disabled, depth_draw_never, blend_mix;
 
 #include "res://look/shaders/look.gdshaderinc"
 

@@ -47,8 +47,10 @@ var mpp := 0.09
 var hour := "noon"
 var outline := 3
 var reflect := false
-var crawl := 0
+var crawl := 2
 var shot := ""
+## For the cloud's check that a moving picture's outlines keep up: the camera slides into place.
+var drift := false
 ## How far a pinch may zoom, in metres an art pixel shows.
 var zoom_range := Vector2(0.045, 0.18)
 
@@ -104,6 +106,8 @@ func _ready() -> void:
 			reflect = arg.substr(7) == "on"
 		elif arg.begins_with("shot="):
 			shot = arg.substr(5)
+		elif arg == "drift":
+			drift = true
 		elif arg.begins_with("yaw="):
 			yaw = float(arg.substr(4))
 		elif arg == "measure":
@@ -147,12 +151,14 @@ func _build_views(scene: Node3D) -> void:
 	_gbuf.world_3d = _art.world_3d
 	_gbuf_cam = _camera(LAYER_GBUF)
 	_gbuf.add_child(_gbuf_cam)
-	add_child(_gbuf)
+	# inside the picture's viewport, so Godot draws it first in each frame: drawn after, the picture
+	# would read the last frame's outlines and reflections, which jump as the camera moves
+	_art.add_child(_gbuf)
 	_mirror = _viewport(false, true)
 	_mirror.world_3d = _art.world_3d
 	_mirror_cam = _camera(LAYER_MIRROR)
 	_mirror.add_child(_mirror_cam)
-	add_child(_mirror)
+	_art.add_child(_mirror)
 	_sky = _viewport(true, true)
 	_sky.world_3d = _art.world_3d
 	_sky.size = Vector2i(1024, 1024)
@@ -520,6 +526,13 @@ func _process(delta: float) -> void:
 		_gpu = 0.0
 		_clock = 0.0
 	_ease(delta)
+	if drift and Engine.get_process_frames() <= 30:
+		# two art pixels a frame along the view's right, arriving where the painter's camera stands
+		var c: Dictionary = painter.camera
+		var right := Vector3(cos(deg_to_rad(yaw)), 0.0, -sin(deg_to_rad(yaw)))
+		var home := Vector3(c.target[0], c.target[1], c.target[2])
+		target = home + right * mpp * 2.0 * (30 - Engine.get_process_frames())
+		_apply_camera()
 	if shot != "" and Engine.get_process_frames() == 30:
 		_save_shot()
 

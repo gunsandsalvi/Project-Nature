@@ -220,14 +220,15 @@ Following Box2D and Factorio (research 03):
 2. **A camera locked to the pixel grid** (`PRE-22`).
    - It is orthographic and pitched for the close stops, and snaps to whole art pixels in its own axes.
    - The leftover fraction shifts the scaled image by part of a pixel, so pans are smooth and pixels never crawl.
-   - *Chosen in P1:* "rest", which you found best with outline D: the camera moves freely and locks to whole art pixels when it comes to rest.
-     While it moves it isn't locked, so a pan can shimmer, which `PRE-22` as decided rules out: the change waits for your OK.
-     P1's other fixes, turning in whole steps and easing to rest on them, stay in git.
-3. **Outlines and lit edges** (`PRE-21`), by enlarged back faces (D), which you chose on 4 October 2026 after trying the four ways on the phone: C, the art book's own way, flickered as the camera moved, and D held still.
-   - Each solid shape is drawn again from behind, a little larger, in its own darker shade, so a dark line runs round it wherever it stands in front of something.
-   - D draws no lit edges, and P1 gave it to solid shapes only, so the leaf cards of crowns carry none: P3 adds both, in ways that hold still too.
-   - **Easy to switch, as you asked:** the outline way is one setting, and each way is its own pass behind it, so another can replace D later without touching the materials.
-     P1's code for the other three stays in git: A, normals rebuilt from Godot's depth texture by a quad over the picture; B, depth alone; C, a second camera drawing each pixel's facing and depth into a half-float picture that the light function reads, as the painter does.
+   - *Chosen after P1:* "ease": the view locks to whole art pixels as it pans, and a turn or zoom eases to rest on the nearest whole step, 15° or 1.25 times, when the fingers lift.
+     It keeps `PRE-22` as decided, and is the most thorough of the four fixes P1 tried; you left the choice to me on 4 October 2026.
+3. **Outlines and lit edges** (`PRE-21`), the art book's own way (C), chosen after P1; you left the choice to me on 4 October 2026.
+   - A second low-resolution camera draws each pixel's facing and depth into a half-float picture, from the materials compiled for that pass (A4.2), since the Mobile renderer gives no normal buffer.
+   - The shared light function compares each pixel with its four neighbours there: a nearer pixel over a farther one darkens to the thing's own darker shade, and an outward fold lightens. So every shape, crowns and figures too, gets its outline and its lit edge.
+   - **That picture is drawn first in each frame:** its viewport sits inside the picture's, since Godot draws a viewport's own viewports before it and others in the order they came. Drawn after, the picture read the last frame's outlines, which jumped whenever the camera moved: the flicker you saw in P1. A picture taken while the camera slides into place now matches one taken still, where before 2,998 of its pixels differed. The mirror's picture is drawn first the same way.
+   - On your phone D held still where C flickered, but D draws no lit edges and outlines solid shapes only.
+   - **Easy to switch, as you asked:** the outline way is one setting, and each way is its own pass behind it, so another can replace C later without touching the materials.
+     P1's code for the other three stays in git: A, normals rebuilt from Godot's depth texture by a quad over the picture; B, depth alone; D, each shape drawn again, enlarged, behind itself.
    - *Measured in P1:* in the cloud's software drawing, against no outlines, A and B cost about the same, D about a tenth more and C about a third more.
      On your phone (4 October, at 1080 × 2404 and 60 frames a second) every way kept 99–100% of frames on time, at 9.5 to 10.1 ms of graphics time a frame on average, C the dearest by half a millisecond.
 4. **Light in clean steps** (`PRE-20`, `PRE-30`).
@@ -240,6 +241,8 @@ Following Box2D and Factorio (research 03):
      Openness to the sky comes from a height map drawn once from above.
      In the cloud, 87% of the close camp's pixels at noon and 76% at dusk come within 3 levels of 255 of the art book's; most of the rest are shadows and edges a pixel apart.
 5. **Fire** (`MAT-18`): a warm, flickering light as bright as its heat.
+   - *Built in P2:* our firelight term, summing up to four fires as the painter does, lights the instanced figures and the tents near each fire; small creatures take a fire's light round their sides too (0.65 of it), so a figure by a fire reads as lit from wherever the camera stands.
+     The shaders work in world coordinates, so a moved or instanced shape gets its fire, sky and patterns where it stands, not where it was built.
    Godot stops lighting MultiMesh copies once its per-object light limit is used up, so fires reach figures and huts through a firelight term in our shaders, fed by a short list of nearby fires, if needed (research 17).
    - *To prove (P2, P3):* a camp lit by three fires at night.
 6. **Water** (`PRE-26`), the clear water you chose:
@@ -526,7 +529,10 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 Starting estimates, each replaced by what the prototypes measure on your phone at held speed (research 02):
 - **Frame:** 16.7 ms at 60 frames a second, the graphics chip under about 8 ms in the busiest scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
   - P1's close camp on your phone (4 October, 1080 × 2404): 99–100% of frames on time at 60, the graphics chip about 10 ms a frame on average whichever the outline way or the mirror.
-    Ways that cost a third more in the cloud cost under a tenth more there, which suggests the chip lowers its clock when it has time to spare, so the 10 ms is partly idle; P1's second build measures at 120 frames a second, where a frame must cost under 8.3 ms, and P2 the heat over 10 minutes.
+    Ways that cost a third more in the cloud cost under a tenth more there, which suggests the chip lowers its clock when it has time to spare, so the 10 ms is partly idle.
+  - P2 on your phone (4 October): the close camp at night with thirty figures and three fires costs 6.1 ms a frame at 120 frames a second, all on time, so it fits the 8 ms aim; at 60 it reads 9.9 ms, the slowed clock again.
+    The forest at camp zoom, 12,000 trees of 44 triangles drawn three times (picture, outlines, shadow), took 17.8 ms with 65% of frames on time: trees for camp zoom take 12 triangles, measured again in P2's second build.
+    The phone's forecast of its heat went from 0.56 to 0.59 of the way to slowing itself over 90 seconds, read through Godot's Android runtime with no plug-in.
 - **Simulation:** up to the four middle cores at held speed (`PLT-01`), at the speeds of `TIM-07`.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.
 - **The APK:** 25 MB from Godot itself (measured at α0.1a), 33 MB with P1's scene of the close camp (α0.2a), within the 50 MB limit for files committed to the repository.

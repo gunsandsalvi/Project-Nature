@@ -3,11 +3,11 @@
 // cover's pattern (look.gdshaderinc). Pre-production code (research 00).
 shader_type spatial;
 #if defined(PREPASS) || defined(SKYMAP)
-render_mode unshaded, cull_disabled, shadows_disabled;
+render_mode world_vertex_coords, unshaded, cull_disabled, shadows_disabled;
 #elif defined(HULL)
-render_mode cull_front, specular_disabled, ambient_light_disabled;
+render_mode world_vertex_coords, cull_front, specular_disabled, ambient_light_disabled;
 #else
-render_mode cull_disabled, specular_disabled, ambient_light_disabled;
+render_mode world_vertex_coords, cull_disabled, specular_disabled, ambient_light_disabled;
 #endif
 
 #include "res://look/shaders/look.gdshaderinc"
@@ -24,7 +24,7 @@ void vertex() {
 	VERTEX.y = 2.0 * look_mirror_y - VERTEX.y;
 #endif
 #ifdef HULL
-	VERTEX += NORMAL * look_mpp * 1.2;
+	VERTEX += normalize(NORMAL) * look_mpp * 1.2;
 #endif
 }
 

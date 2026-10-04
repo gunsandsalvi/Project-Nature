@@ -14,7 +14,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - Rewritten from the research redone on 4 October and the art book you accepted, after the first version of 3 October (git keeps it at `f881525`).
 - **Approved by you on 4 October 2026,** with its proposals, now decided in `PROJECT.md`: pre-production as a milestone of its own (`MIL-18`), then the ten bottom-up milestones (`SCP-16`, `MIL-08` to `MIL-17`), the old seven retired; the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`); the documents and what comes next (`PRC-04`, `PRC-08`).
 - The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check.
-- P1 The look (α0.2a) is done: outline D and the "rest" crawl fix, as you chose on the phone (A4.1); next is P2 A full scene (α0.2b).
+- P1 The look (α0.2a) is done: outline C, its flicker fixed, and the "ease" crawl fix, which you left to me (A4.1).
+- P2 A full scene (α0.2b): the close camp at night fits the frame; its second build fixes the fire light and lightens the forest's trees.
 
 ## How to use this plan
 
@@ -191,9 +192,9 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 
 **Goal:** answer: do the kit's shapes, built by code at load, read well as the art book's sheets do, with the figure's movements and a hut in two materials, at noon and at night?
 
-**Serves:** `PRE-21`, `PRE-27`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`.
+**Serves:** `PRE-27`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`.
 
-**Architecture:** A4.1, A6.1, A6.2, A6.3, A6.4.
+**Architecture:** A6.1, A6.2, A6.3, A6.4.
 
 **Tasks:**
 
@@ -205,8 +206,6 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
    The same layout in birch bark and in reed, by per-copy colour and wear.
 4. `T0.2c.4` **The model sheet (`PRE-46`).**
    Every shape in two materials, at noon and at night with three fires, by Movie Maker mode, beside the art book's sheets.
-5. `T0.2c.5` **Outlines and lit edges that hold still (`PRE-21`).**
-   Outline D round every kind of shape, the leaf cards of crowns too, and the bright edges where the sun or a fire catches a shape, in ways that don't flicker as the camera moves.
 
 **Tests:**
 - The model sheet beside the art book's people and kit sheets.

@@ -262,7 +262,10 @@ vec2 sky_and_fire(vec3 p, vec3 n, float fl) {
 		float d = length(l);
 		float reach = look_fires[i].w * (0.78 + 0.44 * vnoise(p.xz * 1.3 + float(i) * 7.0));
 		float att = clamp(1.0 - d / reach, 0.0, 1.0);
-		f += look_fire_powers[i] * att * att * (0.35 + 0.65 * max(dot(n, l / max(d, 0.001)), 0.0));
+		// small creatures take a fire's light round their sides too, so a figure by a fire reads as lit from
+		// wherever the camera stands
+		float wrap = bit(fl, FLAG_CREATURE) ? 0.65 : 0.35;
+		f += look_fire_powers[i] * att * att * (wrap + (1.0 - wrap) * max(dot(n, l / max(d, 0.001)), 0.0));
 	}
 	return vec2(s, f);
 }

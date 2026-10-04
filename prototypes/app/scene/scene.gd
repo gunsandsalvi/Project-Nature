@@ -2,7 +2,7 @@
 ## block figures walk and work in steps, two tents stand by the shelter, and three fires light
 ## them by our firelight term or by Godot's own lights, switchable. Round it, a forest of
 ## instanced trees seen at camp zoom. Measure runs it for about 90 seconds and reads the phone's
-## own forecast of its heat. It draws as P1 chose: outline D and the "rest" crawl fix.
+## own forecast of its heat. It draws with P1's answers: outline C and the "ease" crawl fix.
 ## Pre-production code (research 00): the app's README names the items it is about.
 extends "res://look/look.gd"
 
@@ -48,8 +48,8 @@ var _read_clock := 0.0
 
 
 func _ready() -> void:
-	outline = 4
-	crawl = 3
+	outline = 3
+	crawl = 2
 	hour = "night"
 	zoom_range = Vector2(0.045, 1.2)
 	super._ready()
@@ -59,7 +59,7 @@ func _ready() -> void:
 	var at := Vector3(hearth.pos[0], hearth.pos[1], hearth.pos[2])
 	_hearth_y = at.y
 	_fires = [
-		[at, 9.0, 1.0],
+		[at, 12.0, 1.0],
 		[_on_ground(at + Vector3(-8.0, 0.0, 7.0)), 7.0, 0.8],
 		[_on_ground(at + Vector3(9.0, 0.0, 8.0)), 7.0, 0.8],
 	]
@@ -236,7 +236,7 @@ func _build_camp(scene: Node3D) -> void:
 		tent.layers = LAYER_MAIN
 		scene.add_child(tent)
 		var flame := MeshInstance3D.new()
-		flame.mesh = _cone(0.35, 0.9, 6, rows.fire, FLAG_EMISSIVE)
+		flame.mesh = _cone(0.35, 0.9, 6, rows.fire, FLAG_EMISSIVE, 5)
 		flame.material_override = _solid
 		flame.position = f[0]
 		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -346,16 +346,24 @@ func _figure_mesh(rows: Dictionary) -> ArrayMesh:
 	return m.commit()
 
 
-## A broadleaf stand-in: a bark trunk under a round crown of leaves (PRE-28).
+## A broadleaf stand-in as camp zoom needs it, a metre an art pixel: a crown of 8 faces on a
+## trunk of two crossed faces, 12 triangles where a close tree takes 44, since the forest's
+## geometry, drawn for the picture, the outlines and the shadows, is what cost the frame (PRE-28).
 func _tree_mesh(rows: Dictionary) -> ArrayMesh:
 	var m := Solid.new()
-	m.box(Vector3(0.0, 1.6, 0.0), Vector3(0.45, 3.2, 0.45), rows.bark, 0.0)
-	m.ball(Vector3(0.0, 4.6, 0.0), 2.4, rows.leaf, FLAG_FOLIAGE)
+	for side: Vector3 in [Vector3(0.25, 0.0, 0.0), Vector3(0.0, 0.0, 0.25)]:
+		var up := Vector3(0.0, 3.4, 0.0)
+		var n := side.cross(Vector3.UP).normalized()
+		m.quad(-side, side, side + up, -side + up, n, rows.bark, 0.0)
+	m.ball(Vector3(0.0, 4.6, 0.0), 2.4, rows.leaf, FLAG_FOLIAGE, false)
 	return m.commit()
 
 
-func _cone(radius: float, height: float, sides: int, row: float, flags: float) -> ArrayMesh:
+func _cone(
+	radius: float, height: float, sides: int, row: float, flags: float, bias := 0
+) -> ArrayMesh:
 	var m := Solid.new()
+	m.bias = bias
 	var top := Vector3(0.0, height, 0.0)
 	for i in sides:
 		var a0 := TAU * i / sides
@@ -402,6 +410,8 @@ class Solid:
 	var points := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var attrs := PackedByteArray()
+	## Steps up or down from the light's own, for the vertices to come: a flame burns bright.
+	var bias := 0
 	var locs := PackedFloat32Array()
 
 	func tri(a: Vector3, b: Vector3, c: Vector3, n: Vector3, row: float, flags: float) -> void:
@@ -413,7 +423,7 @@ class Solid:
 		for p in [a, b, c]:
 			points.append(p)
 			normals.append(n)
-			attrs.append_array(PackedByteArray([int(row), 128, 0, int(flags)]))
+			attrs.append_array(PackedByteArray([int(row), 128 + bias, 0, int(flags)]))
 			locs.append_array(PackedFloat32Array([p.x, p.y, p.z, 0.0]))
 
 	func quad(
@@ -435,8 +445,8 @@ class Solid:
 				var c := centre + n * h[axis]
 				quad(c - u - v, c + u - v, c + u + v, c - u + v, n, row, flags)
 
-	## A round crown: an octahedron's faces split once, pushed out to the sphere.
-	func ball(centre: Vector3, radius: float, row: float, flags: float) -> void:
+	## A round crown: an octahedron's faces, split once and pushed out to the sphere when fine.
+	func ball(centre: Vector3, radius: float, row: float, flags: float, fine := true) -> void:
 		var o := [
 			Vector3.UP, Vector3.DOWN, Vector3.LEFT, Vector3.RIGHT, Vector3.FORWARD, Vector3.BACK
 		]
@@ -450,7 +460,10 @@ class Solid:
 			var ab := (a + b).normalized()
 			var bc := (b + c).normalized()
 			var ca := (c + a).normalized()
-			for t in [[a, ab, ca], [ab, b, bc], [ca, bc, c], [ab, bc, ca]]:
+			var parts := [[a, b, c]]
+			if fine:
+				parts = [[a, ab, ca], [ab, b, bc], [ca, bc, c], [ab, bc, ca]]
+			for t in parts:
 				var p0: Vector3 = t[0]
 				var p1: Vector3 = t[1]
 				var p2: Vector3 = t[2]

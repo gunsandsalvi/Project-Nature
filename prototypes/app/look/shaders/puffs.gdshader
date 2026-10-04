@@ -6,9 +6,9 @@
 // (research 00).
 shader_type spatial;
 #ifdef PUFF_DEPTH
-render_mode cull_disabled, unshaded, blend_mix, depth_draw_always, shadows_disabled;
+render_mode world_vertex_coords, cull_disabled, unshaded, blend_mix, depth_draw_always, shadows_disabled;
 #else
-render_mode cull_disabled, unshaded, blend_mix, depth_draw_never, shadows_disabled;
+render_mode world_vertex_coords, cull_disabled, unshaded, blend_mix, depth_draw_never, shadows_disabled;
 #endif
 
 #include "res://look/shaders/look.gdshaderinc"

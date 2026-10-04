@@ -4,11 +4,11 @@
 // Pre-production code (research 00).
 shader_type spatial;
 #if defined(PREPASS) || defined(SKYMAP)
-render_mode unshaded, cull_disabled, shadows_disabled;
+render_mode world_vertex_coords, unshaded, cull_disabled, shadows_disabled;
 #elif defined(HULL)
-render_mode cull_front, specular_disabled, ambient_light_disabled;
+render_mode world_vertex_coords, cull_front, specular_disabled, ambient_light_disabled;
 #else
-render_mode cull_disabled, specular_disabled, ambient_light_disabled;
+render_mode world_vertex_coords, cull_disabled, specular_disabled, ambient_light_disabled;
 #endif
 
 #include "res://look/shaders/look.gdshaderinc"
