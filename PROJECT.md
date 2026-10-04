@@ -467,9 +467,10 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 - `SCP-16` **Milestones** *(Decided)*: The game is built in seven milestones, in order, each a stage of several playable alphas (`SCP-03`) ending with a report you review (`RES-06`).
   This file keeps each milestone's contents and order; the implementation plan maps every item to a milestone, with its alphas and tasks.
-  - **Proposed change:** The game is built bottom up, in ten milestones, in order: the foundations first and the game itself last, each a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
-    This file keeps each milestone's contents and order, `MIL-08` to `MIL-17` below, and `MIL-01` to `MIL-07` are retired; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
-    Why: on 3 October 2026 you asked for the build to go bottom up, from the data structures, the graphics engine and world generation up to the game itself, each layer proven before the next is built on it; the old milestones were slices of the whole game, each needing every layer at once.
+  - **Proposed change:** The game is built in two phases, in order: pre-production (`MIL-18`), a prototype for each risk and then a vertical slice; then production, bottom up, in ten milestones, the foundations first and the game itself last.
+    Each milestone is a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
+    This file keeps each milestone's contents and order, `MIL-18` and `MIL-08` to `MIL-17` below, and `MIL-01` to `MIL-07` are retired; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
+    Why: on 3 October 2026 you asked for the build to go bottom up, from the data structures, the graphics engine and world generation up to the game itself, each layer proven before the next is built on it, and the way real teams work, which begins by proving the risks with prototypes and a vertical slice (research 00); the old milestones were slices of the whole game, each needing every layer at once.
     With your OK, the items that name the old milestones name the new ones instead:
     - the moments: `MOM-01`, `MOM-02` and `MOM-09` from `MIL-14`; `MOM-04`, `MOM-06` and `MOM-11` from `MIL-15`; `MOM-03` and `MOM-07` from `MIL-16`; `MOM-08` and `MOM-12` from `MIL-17`;
     - the example of `PRN-09`: copper waits for the last milestone, `MIL-17`;
@@ -482,7 +483,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
     - the sharp-stone test (`RES-02`, `RES-03`) at every stage from `MIL-14`;
     - the pace tests (`RES-07`): flakes, fire, clothing, huts and `RES-25` count from `MIL-14`; shared spirits, rites, myths, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going from `MIL-15`; pottery, herding, villages, farming, copper and chiefs from `MIL-17`; the Year-150 size at the close of `MIL-15`, and the full test during `MIL-17`;
     - the risks: belief scenes from `MIL-13` (`RSK-19`), and everyday scenes from `MIL-12` (`RSK-27`);
-    - the glossary's Stage: one of the ten milestones, `MIL-08` to `MIL-17`.
+    - the glossary's Stage: pre-production or one of the ten production milestones, `MIL-18` and `MIL-08` to `MIL-17`.
 
   1. `MIL-01` **First camp** *(Decided)*: the first region (`WLD-34`) with one band at a cliff camp and its home range; the first items, wild foods and water; the body's needs and senses; choosing by needs, with reasons on each person's card and in the details view of their mind, which grows with each stage (`MND-09`, `PRE-35`, `PRE-14`); the mental map (`MND-28`); gathering, eating, drinking and sleeping; talk alongside work about food, water, danger and places, sharing food, help and courtship, moving opinions (`MND-33`, `CUL-24`, `MND-24`); pairing, never between close kin (`MND-26`), births, growing up, inheritance, ageing and death (`BIO-04`, `BIO-06`, `BIO-15`, `BIO-16`); day and night, and the 60-day year's seasons in the plants (`TIM-18`, `WLD-31`); names from the language (`CUL-17`); zoom from the camp to one person; time controls; saving; the first test scenes and the phone benchmark.
      *Now possible:* watching a band live through its days and seasons, its births and deaths, at the foot of a cliff.
@@ -499,10 +500,12 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   7. `MIL-07` **Herds, fields and villages** *(Decided)*: herding, farming, villages and copper; specialists, chiefs and priests; the full launch catalogue; every pace target met (`TIM-19`).
      *Now possible:* the whole arc, from caves to first copper, in a few hundred years, at a watchable speed.
 
+  - `MIL-18` **Pre-production** *(Proposed)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); then the vertical slice: one band at a cliff camp through a day, at the art book's look, built in the real architecture on your phone (`PRE-01`, `VIS-14`).
+    *Now possible:* seeing on your phone that the game can be made as this file describes, and judging the slice, which sets the quality bar for production.
   - `MIL-08` **Foundations** *(Proposed)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
-  - `MIL-09` **The graphics engine** *(Proposed)*: crisp 3D pixel art at your reference look (`PRE-01`, `PRE-02`): the stable pixel grid (`PRE-22`), outlines and lit edges (`PRE-21`), colour in steps with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit and its textures made by code (`PRE-46`, `PRE-42`, `PRE-43`), on a test land made by hand.
-    *Now possible:* a small camp scene, in portrait and landscape, that you judge against your reference pictures before anything is built on it.
+  - `MIL-09` **The graphics engine** *(Proposed)*: crisp 3D pixel art at the art book's look (`PRE-01`, `PRE-02`): the stable pixel grid (`PRE-22`), outlines and lit edges (`PRE-21`), colour in steps with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit and its textures made by code (`PRE-46`, `PRE-42`, `PRE-43`), grown from the vertical slice.
+    *Now possible:* the art book's scenes drawn by the game, in portrait and landscape, that you judge against the art book before anything is built on them.
   - `MIL-10` **The world** *(Proposed)*: whole worlds generated from a seed in the order of real causes (`WLD-08`, `WLD-09`), the best three offered (`WLD-10`); the map layers, and detail made on demand (`WLD-12`, `WLD-13`); the sky, climate and weather, fresh water, seas and soils (`WLD-07`, `WLD-16`, `WLD-17`, `WLD-26`, `WLD-27`); quakes and eruptions (`WLD-15`); one zoom from a cliff face to the globe (`PRE-03`, `WLD-02`), and the cut-away view (`PRE-25`).
     *Now possible:* making a world, choosing it, and flying over it through its weather and seasons.
   - `MIL-11` **Things and living nature** *(Proposed)*: materials and things, with their shapes, characteristics, wear, simple physics, timers and traces (`MAT-01`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-08`); fire (`MAT-18`); plants and animals everywhere, as catalogue entries placed by rules, with their seasons and their ecology (`WLD-31`, `WLD-32`, `WLD-18`); wildfire (`WLD-28`); a card for anything you tap (`PRE-35`).
@@ -2591,10 +2594,10 @@ How the project is run.
   A few questions stay open, each carried by its item: the fix for crawling pixels, chosen at the first visual review (`PRE-22`); the voice, chosen by ear (`SND-03`); the drums (`SND-02`); and signing for your hobbyist account (`PLT-06`).
   The architecture comes next, starting with the technology proposal (`PRC-03`), then the implementation plan, starting with the first stage (`MIL-01`).
   The pre-test folder is deleted once the architecture is written and each open question has moved into it or into its item.
-  - **Proposed change:** renamed **Next: pre-production ends, then the foundations**, its text becoming: the research is done (`research/`), the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are rewritten from them.
-    Pre-production ends when the renderer is chosen from your phone's numbers; then the foundations milestone (`MIL-08`) starts by removing the old code, which git keeps.
-    A few questions stay open, each carried by its item: the fix for crawling pixels, chosen at the graphics engine's review (`PRE-22`, `MIL-09`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
-    Why: you stopped the old plan on 3 October 2026, and the work restarted from research.
+  - **Proposed change:** renamed **Next: pre-production, then production**, its text becoming: the research is done (`research/`), the art book fixes the look (`art/book/`), the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written from them.
+    Pre-production (`MIL-18`) comes next: it removes the old code, which git keeps, proves each risk with a prototype, and builds the vertical slice; production starts with the foundations (`MIL-08`) once you accept the slice.
+    A few questions stay open, each carried by its item: the fix for crawling pixels, chosen with the look prototype (`PRE-22`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
+    Why: you stopped the old plan on 3 October 2026, and the work restarted from research, the way real teams work (research 00).
 
 ### 15.3 How work flows
 
@@ -2758,7 +2761,8 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 <!-- generated: proposals -->
 - **Build in playable steps** (`PRN-09`): becomes Build in steps you can try, since the first milestones have no game to play yet.
 - **Playable alphas** (`SCP-03`): becomes Alphas you can try, for the same reason.
-- **Milestones** (`SCP-16`): ten bottom-up milestones replace the seven, and the items that named the old ones name the new.
+- **Milestones** (`SCP-16`): pre-production, then ten bottom-up milestones, replace the seven, and the items that named the old ones name the new.
+- **Pre-production** (`MIL-18`): milestone 0: a prototype for each risk, then the vertical slice.
 - **Foundations** (`MIL-08`): milestone 1 of the ten.
 - **The graphics engine** (`MIL-09`): milestone 2, ending with your verdict on the look.
 - **The world** (`MIL-10`): milestone 3.
@@ -2770,7 +2774,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **The game** (`MIL-16`): milestone 9.
 - **The whole arc** (`MIL-17`): milestone 10.
 - **Three documents** (`PRC-04`): the plan details only the next milestone, and the code is the index of where each item is done.
-- **Next: the architecture and the plan** (`PRC-08`): next, pre-production ends and the foundations milestone starts.
+- **Next: pre-production, then production** (`PRC-08`): the prototypes and the vertical slice come next, and the foundations once you accept the slice.
 - **Each alpha reaches your phone** (`PRC-11`): each alpha ends with a build to install and try.
 <!-- end generated -->
 

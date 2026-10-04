@@ -99,7 +99,7 @@ At Kindling's close camp zoom, 16 texture pixels a metre puts one texture pixel 
 
 The art bible is written as a document of its own in pre-production, with pictures, and judged by you.
 Its rules, in the shape the public bibles share:
-1. **Tie-breaker:** your reference look wins over realism.
+1. **Tie-breaker:** your reference look, as the art book you accepted draws it, wins over realism.
    Readability wins over detail: a person, an animal or a fire must read at every zoom (`PRE-28`).
 2. **Light:**
    - a warm sun;
@@ -114,8 +114,8 @@ Its rules, in the shape the public bibles share:
 5. **Ramps:** each material has a ramp of 4 to 7 shades with hue shift and mid-ramp saturation, from one master palette (`PRE-20`).
    Leaves and grass are kept complementary as No Man's Sky does, and sampled, where possible, from photographs of the real biomes.
 6. **Nature soft, made things crisp:**
-   - ground, grass, leaves and water in soft patches of colour;
-   - rock, wood, hide, reed and bone with pixel-drawn textures at 16 pixels a metre.
+   - ground, grass, leaves and water in flat patches of colour, meeting in clean edges;
+   - rock, wood, hide, reed and bone with the lines and broad shapes of how they are made, at 16 pixels a metre, never fine grain, as you chose in the art book (`PRE-20`).
 7. **Edges:** outlines a darker shade of the same colour, never black; outward edges catch a lighter shade.
 8. **The Stone Age, from archaeology:** hide tents and windbreaks, dome huts, hearth rings and working floors, as excavated camps show (`PRE-42`).
 9. **Variety that shows:** silhouette, size and colour vary within a kind; invisible differences don't count (`PRE-43`).

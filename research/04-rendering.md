@@ -87,7 +87,7 @@ From research 01: on your phone we use the Mobile renderer, on Vulkan.
    - low resolution;
    - a pixel-locked orthographic camera with a sub-pixel image shift;
    - one-pixel outlines and lit edges;
-   - three bands of light with a Bayer pattern;
+   - three bands of light, meeting in clean edges since you chose the sharp look in the art book (`PRE-20`);
    - hard sun shadows and cloud shadows;
    - grass and leaf cards lit from their roots or crowns;
    - stylised water without true reflections.
@@ -97,7 +97,7 @@ From research 01: on your phone we use the Mobile renderer, on Vulkan.
    - shadow maps at mobile sizes;
    - pipelines precompiled at load.
 3. **A look prototype on your phone before anything is built on it.**
-   It measures the four outline methods and the full-scene frame time, and you judge the look against your reference pictures.
+   It measures the four outline methods and the full-scene frame time, and you judge the look against the art book.
 4. **Distance by visibility ranges and dithered fades,** grass in chunks thinning to painted patches.
 
 ## Sources

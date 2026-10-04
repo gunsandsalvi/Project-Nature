@@ -57,25 +57,25 @@ What Godot does not do for us, we build on top of it.
 
 ## The prototypes before production
 
-Each answers one question, riskiest first, and is then thrown away (research 00).
+Each answers one question and is then thrown away (research 00); P1 to P14 is the order the plan builds them in, riskiest first.
 Several share one build.
 
 | Prototype | Question | Where | Notes |
 |---|---|---|---|
-| The look | Do the four outline methods, our light and firelight on MultiMesh reach your reference look on the Mobile renderer? | phone | 04, 05, 17 |
-| A full scene | Does a busy camp hold 60 frames a second, and for how long before the phone heats? | phone | 01, 02 |
-| The kit | Do the shared shapes, the block figure's movements and a hut in two materials read well, at noon and at night? | phone | 17 |
-| The zoom | Does one pinch from the globe to a person stay smooth at every stop? | phone | 07 |
-| The same bits | Do the phone and the cloud, one thread and four, end a world identically? | both | 03, 16 |
-| A thousand minds | Do a thousand simple minds with needs, choice, talk and paths keep a year a minute at held speed? | phone | 10 |
-| World generation | How long do a candidate and its settling run take on your phone? | phone | 06 |
-| Ecology | Do the animal and plant totals stay believable for 100 years with nobody in them? | cloud | 08 |
-| Discovery pace | Can tuning alone make flakes come within 5 years and fire within its window? | cloud | 11 |
-| Culture from causes | Do customs, a spirit, a rite and a band split arise in their windows, each from its own cause? | cloud | 12 |
-| The writer | How many reworded sentences pass the check, how fast, and when do the quotas bite? | phone | 13 |
-| The director | Does its budget hold on recorded worlds while catching every named discovery? | cloud | 13 |
-| The interface | Do thumb reach, gestures and crisp text work in both orientations? | phone | 14 |
-| Sound | Do 32 voices with filters, reverb and the murmur play without breaks? | phone | 15 |
+| P1 The look | Do the four outline methods, our light and firelight on MultiMesh reach the art book's look on the Mobile renderer? | phone | 04, 05, 17 |
+| P2 A full scene | Does a busy camp hold 60 frames a second, and for how long before the phone heats? | phone | 01, 02 |
+| P3 The kit | Do the shared shapes, the block figure's movements and a hut in two materials read well, at noon and at night? | phone | 17 |
+| P4 Discovery pace | Can tuning alone make flakes come within 5 years and fire within its window? | cloud | 11 |
+| P5 The same bits | Do the phone and the cloud, one thread and four, end a world identically? | both | 03, 16 |
+| P6 A thousand minds | Do a thousand simple minds with needs, choice, talk and paths keep a year a minute at held speed? | phone | 10 |
+| P7 World generation | How long do a candidate and its settling run take on your phone? | phone | 06 |
+| P8 The zoom | Does one pinch from the globe to a person stay smooth at every stop? | phone | 07 |
+| P9 Ecology | Do the animal and plant totals stay believable for 100 years with nobody in them? | cloud | 08 |
+| P10 Culture from causes | Do customs, a spirit, a rite and a band split arise in their windows, each from its own cause? | cloud | 12 |
+| P11 The director | Does its budget hold on recorded worlds while catching every named discovery? | cloud | 13 |
+| P12 The interface | Do thumb reach, gestures and crisp text work in both orientations? | phone | 14 |
+| P13 The writer | How many reworded sentences pass the check, how fast, and when do the quotas bite? | phone | 13 |
+| P14 Sound | Do 32 voices with filters, reverb and the murmur play without breaks? | phone | 15 |
 
 Then the **vertical slice:** one band at a cliff camp through a day, at the final look, in the real architecture, on your phone (research 00).
 It proves the whole pipeline once and sets the quality bar for production.
@@ -92,8 +92,6 @@ On 4 October 2026 you agreed to change all three:
 
 ## What comes next
 
-The architecture and the plan are rewritten to follow the guide of research 00:
-1. a pre-production milestone of the prototypes above and the vertical slice;
+The architecture and the plan now follow the guide of research 00 (4 October 2026), waiting for your OK:
+1. a pre-production milestone of the prototypes above, numbered as the plan builds them, riskiest first, and the vertical slice;
 2. then production bottom up.
-
-Until then, `ARCHITECTURE.md` still cites the old note numbers.
