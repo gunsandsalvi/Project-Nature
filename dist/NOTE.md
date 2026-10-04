@@ -2,34 +2,28 @@
 
 ## What is new
 
-- The second prototype, **P2 A full scene**, asks: does a busy camp hold 60 frames a second on your phone, at night with three fires, and how fast does the phone heat?
-- It is P1's close camp, alive, drawn with your choices from P1: outline D and the "rest" crawl fix.
-  - Thirty stand-in block figures walk and work round the camp, moving in steps like pixel art.
-  - Two tents and two more fires stand by the shelter.
-- **Hour** goes through noon, dusk and night; it opens at night.
-- **Fire light** switches between our own fire light, which steps like the art book's, and Godot's built-in lights, a plain warm glow, to check every figure stays lit.
-- **View** switches to camp zoom: 12,000 trees round the camp, a metre an art pixel, the figures tiny.
-- **Measure** takes about 90 seconds, not 10 minutes: the camp at 120 frames a second, then the camp and the forest at 60, while the view turns. It reads the phone's own forecast of how hot it's heading, and copies one line for the chat.
+**This is α0.2b's second build,** after your first try:
+- **Our fire light works on everything near a fire:** the figures and tents by the fires are lit now. The shaders worked out each moved shape's place wrongly, so only the ground got fire light.
+- **Outline C, without its flicker:** its outline data was drawn a frame late, so outlines jumped whenever the camera moved. Now it's drawn first. C is the art book's own way: outlines on every shape, tree crowns too, and bright edges where the sun or a fire catches a shape.
+- **Crawl fix "ease":** panning locks to whole pixels, and a turn or zoom settles on a whole step when you lift your fingers.
+- **Lighter trees at camp zoom:** 12 triangles each instead of 44, after the forest view took 17.8 ms a frame on your phone.
 
-The camp at night and the forest at camp zoom, drawn in the cloud at your screen's size:
+What P2 is: P1's close camp, alive, at night. Thirty stand-in figures walk and work round three fires and two tents. **Fire light** switches between our fire light and Godot's built-in lights. **View** zooms out to 12,000 trees. **Measure** takes about 90 seconds and copies one line for the chat.
 
-![The close camp at night: three fires light the camp, the tents and the figures](pictures/p2-night.png)
-
-![Camp zoom at noon: the forest round the camp](pictures/p2-forest.png)
+![The camp at night: the fires light the figures, the tents and the ground near them](pictures/p2-night.png)
 
 ## What to try
 
-1. Tap **Download and install** at the top of this page. It installs over α0.2a.
-2. Open Kindling and tap **P2 A full scene**.
-3. Tap **Measure** and don't touch the screen for about 90 seconds. When it shows "Copied for the chat", paste the line into your reply.
-4. Tap **Fire light** and **View**, and tell me if the fires light the people and tents near them, and anything that looks wrong.
+1. Tap **Download and install** at the top of this page. It installs over the first build.
+2. Open Kindling, tap **P2 A full scene**, then **Measure**, and don't touch the screen for about 90 seconds. Paste the line it copies into your reply.
+3. Pan and turn round the fires: the figures near them should glow warm, and the outlines should hold still as the view moves.
 
 ## What is rough
 
-- **Stand-ins:** the figures are plain blocks without faces, and the trees are simple balls on trunks; the real shapes come with P3, the kit (α0.2c).
+- **Your first build's numbers** (4 October): the camp at night cost 6.1 ms a frame at 120 frames a second, every frame on time, so it fits the 8 ms aim. The forest took 17.8 ms with 65% of frames on time, hence the lighter trees. The phone's heat forecast went from 0.56 to 0.59 of the way to slowing itself, so no heat trouble.
+- **Stand-ins:** the figures are plain blocks without faces, and the trees simple shapes; the real shapes come with P3, the kit (α0.2c).
 - **The forest's edge:** the art book's scene sits in the middle on its own ground, so a faint square shows round it at camp zoom.
 - **Godot's lights** don't step like the art book's colours; they are there only to compare.
-- **The heat:** the line's "heat" part shows the phone's forecast at the start and end of Measure (1 is where it starts slowing itself). If it shows "?", the phone gave no forecast and I'll read it another way.
 
 ## IDs delivered
 
