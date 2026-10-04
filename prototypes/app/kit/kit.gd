@@ -71,10 +71,10 @@ func _ready() -> void:
 	_add_fire(figures + Vector3(0.0, 0.0, 1.8), 7.0, 0.8, scene)
 	for i in _fires.size():
 		_add_smoke(_fires[i][0], 0.7 if i == 0 else 0.55, scene)
-	# "close" on the command line: the figures up close, four zoom steps in, for the cloud's pictures
+	# "close" on the command line: the figures up close, two zoom steps in, for the cloud's pictures
 	if "close" in OS.get_cmdline_user_args():
 		target = figures
-		mpp = _rest_mpp / pow(ZOOM_STEP, 4.0)
+		mpp = _rest_mpp / pow(ZOOM_STEP, 2.0)
 		_apply_camera()
 	_set_hour(hour)
 
