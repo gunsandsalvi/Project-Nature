@@ -533,7 +533,8 @@ Starting estimates, each replaced by what the prototypes measure on your phone a
   - P1's close camp on your phone (4 October, 1080 × 2404): 99–100% of frames on time at 60, the graphics chip about 10 ms a frame on average whichever the outline way or the mirror.
     Ways that cost a third more in the cloud cost under a tenth more there, which suggests the chip lowers its clock when it has time to spare, so the 10 ms is partly idle.
   - P2 on your phone (4 October): the close camp at night with thirty figures and three fires costs 6.1 ms a frame at 120 frames a second, all on time, so it fits the 8 ms aim; at 60 it reads 9.9 ms, the slowed clock again.
-    The forest at camp zoom, 12,000 trees of 44 triangles drawn three times (picture, outlines, shadow), took 17.8 ms with 65% of frames on time: trees for camp zoom take 12 triangles, measured again in P2's second build.
+    The forest at camp zoom, 12,000 trees of 44 triangles drawn three times (picture, outlines, shadow), took 17.8 ms with 65% of frames on time: trees for camp zoom take 12 triangles.
+  - P2's last build (4 October): the close camp at night 5.5 ms a frame at 120 frames a second, 99% on time; at 60, the close camp and the forest at camp zoom had every frame on time (8.3 and 10.8 ms with the slowed clock); the heat forecast went from 0.61 to 0.66 over 90 seconds, no slowing. **P2 passes:** a busy camp at night with three fires holds 60 frames a second, at close and camp zoom.
     The phone's forecast of its heat went from 0.56 to 0.59 of the way to slowing itself over 90 seconds, read through Godot's Android runtime with no plug-in.
 - **Simulation:** up to the four middle cores at held speed (`PLT-01`), at the speeds of `TIM-07`.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.

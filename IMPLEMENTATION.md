@@ -15,7 +15,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - **Approved by you on 4 October 2026,** with its proposals, now decided in `PROJECT.md`: pre-production as a milestone of its own (`MIL-18`), then the ten bottom-up milestones (`SCP-16`, `MIL-08` to `MIL-17`), the old seven retired; the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`); the documents and what comes next (`PRC-04`, `PRC-08`).
 - The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check.
 - P1 The look (α0.2a) is done: outline C, its flicker fixed, and the "ease" crawl fix, which you left to me (A4.1).
-- P2 A full scene (α0.2b): the close camp at night fits the frame; its second build fixes the fire light and lightens the forest's trees.
+- P2 A full scene (α0.2b) is done: a busy camp at night with three fires holds 60 frames a second at close and camp zoom (A18.1).
+- P3 The kit (α0.2c) is next, with fire shadows and volumetric smoke, as you asked.
 
 ## How to use this plan
 
@@ -123,8 +124,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α0.2b | P2 A full scene | M0 | 5 | In progress |
-| α0.2c | P3 The kit | M0 | 6 | Not started |
+| α0.2c | P3 The kit | M0 | 6 | In progress |
 | α0.3a | P4 Discovery pace | M0 | 6 | Not started |
 | α0.4a | P5 The same bits | M0 | 4 | Not started |
 | α0.4b | P6 A thousand minds | M0 | 6 | Not started |
@@ -161,40 +161,13 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - The PowerVR driver: every rendering feature is exercised in the first phone builds (A4.3).
 - Prototypes growing into products: each is time-boxed and thrown away; only the slice is built to last.
 
-### α0.2b P2 A full scene
-
-**Goal:** answer: does a busy camp hold 60 frames a second on your phone, at night with three fires, and how long before the phone heats?
-
-**Serves:** `PRE-27`, `PRE-28`, `PRE-30`, `PRE-44`, `MAT-18`, `PLT-01`, `PLT-04`.
-
-**Architecture:** A4.1, A4.3, A6.2, A3.9, A18.1.
-
-**Tasks:**
-
-1. `T0.2b.1` **A camp of 30 at close camp zoom (`PRE-27`, `PRE-44`).**
-   Thirty stand-in block figures walking and working, trees and grass cards round them, the shelter and two tents.
-2. `T0.2b.2` **Night with three fires (`MAT-18`, `PRE-30`).**
-   Godot's own lights on the MultiMesh copies, then our firelight term, switchable, to see which copies stay lit.
-3. `T0.2b.3` **A forest at camp zoom (`PRE-28`).**
-   The camp in thick woods, the camera turning, figures as tiny outlined figures.
-4. `T0.2b.4` **Measure and the heat (`PLT-01`, `PLT-04`).**
-   About 90 seconds, not 10 minutes, as you asked: frame times and the share of frames on time at 120 and at 60 frames a second, reading the phone's own forecast of its heat 30 seconds ahead, ending with a code.
-
-**Tests:**
-- The measurements: the share of frames on time at 120 and 60 frames a second, the graphics time, and the forecast headroom.
-- Passes if at least 97% of frames are on time at 60 and the forecast stays below throttling, with the firelight method chosen.
-
-**On the phone:**
-- Open "A full scene", tap Measure, leave the phone for about 90 seconds, then copy the code into the chat.
-- Look at the camp at night: do the fires light the people and huts near them?
-
 ### α0.2c P3 The kit
 
 **Goal:** answer: do the kit's shapes, built by code at load, read well as the art book's sheets do, with the figure's movements and a hut in two materials, at noon and at night?
 
-**Serves:** `PRE-27`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`.
+**Serves:** `PRE-27`, `PRE-30`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`.
 
-**Architecture:** A6.1, A6.2, A6.3, A6.4.
+**Architecture:** A4.1, A6.1, A6.2, A6.3, A6.4.
 
 **Tasks:**
 
@@ -206,6 +179,10 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
    The same layout in birch bark and in reed, by per-copy colour and wear.
 4. `T0.2c.4` **The model sheet (`PRE-46`).**
    Every shape in two materials, at noon and at night with three fires, by Movie Maker mode, beside the art book's sheets.
+5. `T0.2c.5` **Shadows from every light (`PRE-30`, `PRE-44`), as you asked.**
+   People and things cast shadows from each fire as well as the sun, and stand in them.
+6. `T0.2c.6` **Volumetric smoke (`PRE-30`), as you asked.**
+   Smoke rising from a fire as a lit volume, not flat puffs: it gathers under an overhang and flows out past its edge, glows from the fire below, and what stands in it shows through.
 
 **Tests:**
 - The model sheet beside the art book's people and kit sheets.
