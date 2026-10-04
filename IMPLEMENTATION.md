@@ -14,8 +14,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - Rewritten from the research redone on 4 October and the art book you accepted, after the first version of 3 October (git keeps it at `f881525`).
 - **Approved by you on 4 October 2026,** with its proposals, now decided in `PROJECT.md`: pre-production as a milestone of its own (`MIL-18`), then the ten bottom-up milestones (`SCP-16`, `MIL-08` to `MIL-17`), the old seven retired; the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`); the documents and what comes next (`PRC-04`, `PRC-08`).
 - The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check.
-- P1 The look (α0.2a): its first Measure line is in, and you chose outline C.
-  Its second build makes the gestures work, so the crawl fixes can be tried, and measures at 120 frames a second.
+- P1 The look (α0.2a) is done: outline D and the "rest" crawl fix, as you chose on the phone (A4.1); next is P2 A full scene (α0.2b).
 
 ## How to use this plan
 
@@ -123,8 +122,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α0.2a | P1 The look | M0 | 6 | Waiting on your phone |
-| α0.2b | P2 A full scene | M0 | 5 | Not started |
+| α0.2b | P2 A full scene | M0 | 5 | In progress |
 | α0.2c | P3 The kit | M0 | 6 | Not started |
 | α0.3a | P4 Discovery pace | M0 | 6 | Not started |
 | α0.4a | P5 The same bits | M0 | 4 | Not started |
@@ -162,39 +160,6 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - The PowerVR driver: every rendering feature is exercised in the first phone builds (A4.3).
 - Prototypes growing into products: each is time-boxed and thrown away; only the slice is built to last.
 
-### α0.2a P1 The look
-
-**Goal:** answer: can Godot's Mobile renderer on your phone draw the art book's close camp at its look within the frame's budget, and which outline method and crawl fix should the game use?
-
-**Serves:** `PRE-01`, `PRE-02`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-26`, `PRE-30`, `PRE-31`, `PLT-04`, `VIS-14`.
-
-**Architecture:** A4.1, A4.2, A4.3, A5.1, A5.2.
-
-**Tasks:**
-
-1. `T0.2a.1` **The art book's close camp in Godot (`PRE-02`, `PRE-20`, `PRE-30`).**
-   From the bake-off scene: the cliff, the shelter, the stream and the meadow of the art book's close camp, drawn at a quarter size with the pixel-locked camera, light in clean steps, hard sun shadows, purple-blue shade and haze, at noon and at dusk.
-2. `T0.2a.2` **The four outline methods, switchable (`PRE-21`).**
-   Rebuilt normals from depth; depth only; a second low-resolution camera drawing normals; enlarged back faces.
-3. `T0.2a.3` **The clear water, and the mirrored pass switchable (`PRE-26`).**
-   The bed in the shallows, depth in steps, the bright shore line and the sky's colour; then the mirrored low-resolution pass with every shader discarding below the water.
-4. `T0.2a.4` **Crawl fixes for free turns and zooms, switchable (`PRE-22`).**
-   Turning in whole steps, easing to rest on the grid, and snapping only at rest, as research 04 lists.
-5. `T0.2a.5` **Measure on the phone (`PLT-04`).**
-   A Measure button pans, turns and zooms the camera by script for each method, and shows a short code of the frame and graphics times.
-6. `T0.2a.6` **Side by side with the art book (`PRE-31`).**
-   The note sets the phone's pictures of each method beside the art book's close camp at noon and dusk.
-
-**Tests:**
-- The pictures of each method in the cloud, by Movie Maker mode, beside the art book's.
-- The measurements: graphics time while panning, for each outline method, with and without the mirrored water.
-- Passes if one method draws the look with the graphics chip under about 8 ms while panning, and you judge it close to the art book.
-
-**On the phone:**
-- Open "The look", tap Measure and wait about a minute, then copy the code into the chat.
-- Pan, turn and zoom yourself, switching the outline methods, the mirrored water and the crawl fixes.
-- Say which looks closest to the art book, and which crawl fix you prefer.
-
 ### α0.2b P2 A full scene
 
 **Goal:** answer: does a busy camp hold 60 frames a second on your phone, at night with three fires, and how long before the phone heats?
@@ -226,9 +191,9 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 
 **Goal:** answer: do the kit's shapes, built by code at load, read well as the art book's sheets do, with the figure's movements and a hut in two materials, at noon and at night?
 
-**Serves:** `PRE-27`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`.
+**Serves:** `PRE-21`, `PRE-27`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`.
 
-**Architecture:** A6.1, A6.2, A6.3, A6.4.
+**Architecture:** A4.1, A6.1, A6.2, A6.3, A6.4.
 
 **Tasks:**
 
@@ -240,6 +205,8 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
    The same layout in birch bark and in reed, by per-copy colour and wear.
 4. `T0.2c.4` **The model sheet (`PRE-46`).**
    Every shape in two materials, at noon and at night with three fires, by Movie Maker mode, beside the art book's sheets.
+5. `T0.2c.5` **Outlines and lit edges that hold still (`PRE-21`).**
+   Outline D round every kind of shape, the leaf cards of crowns too, and the bright edges where the sun or a fire catches a shape, in ways that don't flicker as the camera moves.
 
 **Tests:**
 - The model sheet beside the art book's people and kit sheets.

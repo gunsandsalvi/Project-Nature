@@ -220,13 +220,14 @@ Following Box2D and Factorio (research 03):
 2. **A camera locked to the pixel grid** (`PRE-22`).
    - It is orthographic and pitched for the close stops, and snaps to whole art pixels in its own axes.
    - The leftover fraction shifts the scaled image by part of a pixel, so pans are smooth and pixels never crawl.
-   - Turns ease to rest; the fix that best lessens crawling in a free turn or zoom is chosen in P1, with you.
-3. **Outlines and lit edges** (`PRE-21`), the art book's own way, C, which you chose on 4 October 2026 after P1.
-   - A second low-resolution camera draws each pixel's facing and depth into a half-float picture, from the materials compiled for that pass (A4.2), since the Mobile renderer gives no normal buffer.
-   - The shared light function compares each pixel with its four neighbours there: a nearer pixel over a farther one darkens to the thing's own darker shade, and an outward fold lightens.
-   - Grass, leaves and water carry none.
-   - **Easy to switch, as you asked:** the outline way is one setting, and each way is its own pass behind it, so another can replace C later without touching the materials.
-     P1 built the other three of research 04, and its code stays in git: A, normals rebuilt from Godot's depth texture by a quad over the picture; B, depth alone; D, each shape drawn again, enlarged, behind itself.
+   - *Chosen in P1:* "rest", which you found best with outline D: the camera moves freely and locks to whole art pixels when it comes to rest.
+     While it moves it isn't locked, so a pan can shimmer, which `PRE-22` as decided rules out: the change waits for your OK.
+     P1's other fixes, turning in whole steps and easing to rest on them, stay in git.
+3. **Outlines and lit edges** (`PRE-21`), by enlarged back faces (D), which you chose on 4 October 2026 after trying the four ways on the phone: C, the art book's own way, flickered as the camera moved, and D held still.
+   - Each solid shape is drawn again from behind, a little larger, in its own darker shade, so a dark line runs round it wherever it stands in front of something.
+   - D draws no lit edges, and P1 gave it to solid shapes only, so the leaf cards of crowns carry none: P3 adds both, in ways that hold still too.
+   - **Easy to switch, as you asked:** the outline way is one setting, and each way is its own pass behind it, so another can replace D later without touching the materials.
+     P1's code for the other three stays in git: A, normals rebuilt from Godot's depth texture by a quad over the picture; B, depth alone; C, a second camera drawing each pixel's facing and depth into a half-float picture that the light function reads, as the painter does.
    - *Measured in P1:* in the cloud's software drawing, against no outlines, A and B cost about the same, D about a tenth more and C about a third more.
      On your phone (4 October, at 1080 × 2404 and 60 frames a second) every way kept 99–100% of frames on time, at 9.5 to 10.1 ms of graphics time a frame on average, C the dearest by half a millisecond.
 4. **Light in clean steps** (`PRE-20`, `PRE-30`).

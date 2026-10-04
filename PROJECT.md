@@ -2079,6 +2079,10 @@ The look, written to stand without any image.
 - `PRE-22` **Stable pixels** *(Decided)*: Pixels never crawl or shimmer while the camera is still or panning: it snaps to whole art pixels, turns ease to rest, and an art pixel is always about 4 by 4 screen pixels, in portrait and landscape.
   Some crawling in a free turn or zoom can't be avoided without blur; the fix that best lessens it is chosen at the first visual review (`PRE-31`).
   - **Done when:** with the camera still or panning, frames change only where something moved, or by whole pixels.
+  - **Proposed change:** Pixels never crawl or shimmer while the camera is still: it moves freely and comes to rest on whole art pixels, and an art pixel is always about 4 by 4 screen pixels, in portrait and landscape.
+    Some crawling while it pans, turns or zooms can't be avoided without blur.
+    Done when: with the camera still, frames change only where something moved.
+    Why: in P1 on your phone the fix that looked best was "rest", locking to whole pixels only when the camera stops.
 
 - `PRE-23` **Rock faces** *(Decided)*: Cliffs show the rock layers where they stand (`WLD-09`), which go on underground (`PRE-25`): layers of different thicknesses, cracks and fissures, lichen and water stains where the face is wet (`WLD-16`), soot above lived-in caves (`MAT-18`), grass hanging over the top and scree at the foot.
   - **Done when:** cliffs of three kinds of rock show their own layers, and a cave lived in for 10 years shows soot.
@@ -2708,7 +2712,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at present.
+- **Stable pixels** (`PRE-22`): the camera locks to whole art pixels when it comes to rest, not while it moves, the fix you preferred in P1.
 <!-- end generated -->
 
 ## 18. Glossary
