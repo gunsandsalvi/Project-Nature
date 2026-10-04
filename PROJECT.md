@@ -2115,11 +2115,8 @@ The look, written to stand without any image.
   - **Done when:** `PLT-04`'s benchmark worlds stay smooth at every zoom stop as the camera turns.
 
 - `PRE-20` **Colour in steps** *(Decided)*: Every material has a ladder of about 4–7 shades from one master palette, made from its colour (`MAT-10`) or by hand for common ones, and the light (`PRE-30`) picks the step.
-  A fine pixel pattern, fixed to the surface, mixes two steps only in a narrow band where they meet.
-  - **Done when:** no surface is speckled outside those bands, and the pattern holds still as the camera pans.
-  - **Proposed change:** the second sentence becomes: Two steps meet in a clean edge, with no pattern mixing them, and surfaces carry no fine grain, only the lines and broad shapes of what they are made of, such as rock layers, seams and courses of thatch.
-    The Done when becomes: no surface is speckled, and the edges between steps hold still as the camera pans.
-    Why: you chose the sharp look in the art book, because grain and mixed pixels made shapes hard to read.
+  Two steps meet in a clean edge, with no pattern mixing them, and surfaces carry no fine grain, only the lines and broad shapes of what they are made of, such as rock layers, seams and courses of thatch.
+  - **Done when:** no surface is speckled, and the edges between steps hold still as the camera pans.
 
 - `PRE-21` **Outlines and lit edges** *(Decided)*: A one-pixel dark outline wherever one thing stands in front of another, and a one-pixel bright edge where the sun or a fire catches a shape (`PRE-30`), such as a cliff's sunlit rim or a person's fire-facing side.
   - **Done when:** at every zoom stop, each figure, tree and rock in front of something is outlined.
@@ -2138,9 +2135,8 @@ The look, written to stand without any image.
   - **Done when:** a slice through a camp left 200 years before shows its hearth, bones and tools at their depths.
 
 - `PRE-26` **Water** *(Decided)*: Rivers meander and change width, with gravel bars, reeds, lines that follow the current, ripples at fords, glints of sun and drifting mist, all from the river's course and flow (`WLD-17`) and the weather (`WLD-16`).
+  Shallow water shows its bed, deeper water darkens away from the shore, and a thin bright line marks where water meets land or anything standing in it.
   - **Done when:** every river is at least one art pixel wide from valley zoom inward, and farther out those draining about 1,000 km² or more (tuned).
-  - **Proposed change:** a second sentence: Shallow water shows its bed, deeper water darkens away from the shore, and a thin bright line marks where water meets land or anything standing in it.
-    Why: you chose the clear-shallows water in the art book; its reflections are already in `PRE-30`.
 
 - `PRE-27` **People and animals** *(Decided)*: Small 3D figures of tiny blocks, with a separate head, torso, arms and legs, posed about 10 times a second (`PRE-44`), so they look like crisp pixel art from any angle.
   - **How it works:** a figure is built from its body's parts (`BIO-13`) and looks (`BIO-08`, `BIO-22`), wearing and carrying what the person has (`PRE-42`), with their strongest feeling on its face (`MND-19`); animals use their body pattern (`PRE-46`).
@@ -2151,16 +2147,14 @@ The look, written to stand without any image.
   - **Done when:** a camp of 30 people stays readable at every zoom stop, with no jump as its forms change.
 
 - `PRE-29` **From above** *(Decided)*: As the camera rises it tilts toward straight down, and the land blends into a clean map look: each world cell in a flat colour for its plant cover (`WLD-12`), rivers as lines, shaded hills, and at the top the globe (`WLD-02`); overlays sit on it (`PRE-07`).
+  The map look is always lit from high up, so its hills read the same at every hour, and the hour shows only in its tint.
   - **Done when:** rising from valley to globe, the view changes without a jump, and coasts and rivers stay visible.
-  - **Proposed change:** a second sentence: The map look is always lit from high up, so its hills read the same at every hour, and the hour shows only in its tint.
-    Why: in the art book's zoom pictures, a low dusk sun cast shadows across the map that hid coasts and rivers.
 
 - `PRE-30` **Light, time and season** *(Decided)*: Light follows the sun, the sky and the air, as in Minecraft's Vibrant Visuals: the sun's and the sky's colours come from the sun's height through the air, and the master palette's versions for dawn, day, dusk and night in each season are that light on every material.
   The sun casts real shadows by hour, season (`TIM-18`) and latitude (`WLD-01`), sharp near what casts them and softer as they lengthen; shade takes the sky's colour and hollows are darker; distance adds haze, warmer toward the sun; water reflects the sky and what stands above it, and glints.
+  When a day passes in less than about 10 seconds (tuned), the light holds steady from high up and only its tint follows the hour, so the screen never flickers between day and night.
   A fire is a warm, flickering light as bright as its heat (`MAT-18`), warming nearby faces, glowing, and sending up smoke and embers.
   - **Done when:** one place at dawn, noon, dusk and night, in summer and winter, shows each palette and its shadows.
-  - **Proposed change:** a new sentence after the one on shadows: When a day passes in less than about 10 seconds (tuned), the light holds steady from high up and only its tint follows the hour, so the screen never flickers between day and night.
-    Why: at the speeds `TIM-01` asks for, about a day and a half passes each second at valley zoom, and many days a second farther out.
 
 - `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the globe down to one person chipping flint, through these stops, each with its speed in `TIM-01`:
   - **person:** about 8 m across, a person about 58 art pixels tall;
@@ -2783,10 +2777,6 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **The whole arc** (`MIL-17`): milestone 10.
 - **Glue from bark** (`RCK-12`): tar also condenses on a smooth stone beside birch bark burning in the open, a likely accident.
 - **Leather** (`RCK-06`): brain tanning, then smoking, as a second route to leather.
-- **Colour in steps** (`PRE-20`): steps meet in a clean edge, with no mixing pattern and no fine grain on surfaces.
-- **Water** (`PRE-26`): shallow water shows its bed, deep water darkens, and a bright line marks the shore.
-- **From above** (`PRE-29`): the map look is always lit from high up; the hour shows only in its tint.
-- **Light at speed** (`PRE-30`): once a day passes in under about 10 seconds, the light holds steady and only its tint follows the hour.
 - **Three documents** (`PRC-04`): the plan details only the next milestone, and the code is the index of where each item is done.
 - **Next: the architecture and the plan** (`PRC-08`): next, pre-production ends and the foundations milestone starts.
 - **Each alpha reaches your phone** (`PRC-11`): each alpha ends with a build to install and try.
