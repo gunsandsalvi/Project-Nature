@@ -6,7 +6,7 @@ import { mat } from './palette.js';
 export const FLAG = { EMISSIVE: 1, FOLIAGE: 2, NOOUTLINE: 4, SOFT: 8, NOSHADOW: 16, CREATURE: 32 };
 export const PAT = {
   NONE: 0, GROUND: 1, ROCK: 2, BARK: 3, WOOD: 4, HIDE: 5, THATCH: 6, FACE: 7, FUR: 8, SNOW: 9, SAND: 10,
-  DIRT: 11, CLOTH: 13, MOSS: 14, PLANK: 15, WATTLE: 16, TERRAIN: 100,
+  DIRT: 11, CLOTH: 13, MOSS: 14, PLANK: 15, WATTLE: 16, TERRAIN: 100, CELLS: 101,
 };
 
 let nextObj = 1;

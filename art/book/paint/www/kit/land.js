@@ -24,7 +24,7 @@ export function bevelBox(s, m, sx, sy, sz, a, chip = 0.25, taper = 1) {
  * A chiselled block of stone: a box with its edges and corners knocked off at random, all flat facets, like
  * cut and weathered rock. Faces that look up take moss or grass. size: [x, y, z]; chip: how much is knocked off.
  */
-export function stoneBlock({ seed = 1, size = [2, 1, 1.5], chip = 0.22, mat = 'rock', top = 'moss', topPat = PAT.MOSS, topMin = 0.8, obj, flag = 0, bias = 0 }) {
+export function stoneBlock({ seed = 1, size = [2, 1, 1.5], chip = 0.22, mat = 'rock', top = 'moss', topPat = PAT.MOSS, topMin = 0.8, obj, flag = 0, bias = 0, topBias = bias }) {
   const r = new Rand(seed);
   const [sx, sy, sz] = size.map((v) => v / 2);
   const pts = [];
@@ -48,7 +48,7 @@ export function stoneBlock({ seed = 1, size = [2, 1, 1.5], chip = 0.22, mat = 'r
     const e1 = new THREE.Vector3(...t[1]).sub(new THREE.Vector3(...t[0])), e2 = new THREE.Vector3(...t[2]).sub(new THREE.Vector3(...t[0]));
     const ny = e1.cross(e2).normalize().y;
     const up = top && ny > topMin;
-    s.tri(t[0], t[1], t[2], up ? { mat: top, pat: topPat, obj, flag, bias } : { mat, pat: PAT.ROCK, obj, flag, bias });
+    s.tri(t[0], t[1], t[2], up ? { mat: top, pat: topPat, obj, flag, bias: topBias } : { mat, pat: PAT.ROCK, obj, flag, bias });
   }
   return s;
 }
@@ -122,10 +122,11 @@ export function boulder({ seed = 1, size = [1, 0.7, 0.9], detail = 1, mat = 'roc
  * A cliff of chiselled blocks (PRE-23): beds of different thickness along a line, each a row of stone blocks that
  * jut or sit back, overlap a little and lean at random, so the face is rough and natural; ledges take moss and the
  * top takes grass. path: points [x, z] along the foot, open side on the left (a path toward +x faces +z).
- * overhang: { bed, from, to, out, recess } in metres along the path makes a rock shelter.
+ * overhang: { bed, from, to, out, recess } in metres along the path makes a rock shelter. topAt(x, z): where the top
+ * bed's blocks end, level, so the turf on top runs on as one with the ground behind.
  */
 export function blockCliff({ seed = 1, path, base = 0, beds = [1.6, 1.1, 1.8, 1.2, 1.5, 1.3], mat = 'rock', moss = 'moss',
-  grass = 'grass', overhang = null, jut = 0.3, setback = 0.28, len = [0.9, 3.6], depth = 5.5, bedMats = null, obj }) {
+  grass = 'grass', overhang = null, jut = 0.3, setback = 0.28, len = [0.9, 3.6], depth = 5.5, bedMats = null, topAt = null, obj }) {
   const r = new Rand(seed);
   obj = obj ?? newObj();
   const s = new Solid();
@@ -155,13 +156,17 @@ export function blockCliff({ seed = 1, path, base = 0, beds = [1.6, 1.1, 1.8, 1.
         if (bi === overhang.bed) out += overhang.out * e;
         if (bi < overhang.bed) out -= overhang.recess * e * (0.8 + 0.2 * bi / Math.max(1, overhang.bed - 1));
       }
-      const h = th * r.range(0.82, 1.25), dep = depth + Math.max(0, out), dy = r.range(-0.18, 0.12);
+      const isTop = bi === beds.length - 1, flat = topAt && isTop;
+      let h = th * r.range(0.82, 1.25), dy = r.range(-0.18, 0.12);
+      const dep = depth + Math.max(0, out);
+      if (flat) { h = Math.max(0.3, topAt(...A.p) - y + 0.04); dy = 0; }
       const cx = A.p[0] + A.n[0] * (out - dep / 2), cz = A.p[1] + A.n[1] * (out - dep / 2);
       const yaw = Math.atan2(A.dir[1], A.dir[0]);
-      const m = M4.mul(M4.T(cx, y + h / 2 - 0.04 + dy, cz), M4.R(r.range(-0.06, 0.06), -yaw + r.range(-0.12, 0.12), r.range(-0.1, 0.1)));
-      const isTop = bi === beds.length - 1;
+      const rx = r.range(-0.06, 0.06), ry = r.range(-0.12, 0.12), rz = r.range(-0.1, 0.1);
+      const m = M4.mul(M4.T(cx, y + h / 2 - 0.04 + dy, cz), M4.R(flat ? 0 : rx, -yaw + ry, flat ? 0 : rz));
       s.add(stoneBlock({ seed: seed * 1000 + i++, size: [L * 1.12, h + 0.08, dep], chip: r.range(0.2, 0.48), mat: bedMats ? bedMats[bi] : mat,
-        top: isTop ? grass : moss, topPat: isTop ? PAT.GROUND : PAT.MOSS, topMin: isTop ? 0.75 : 0.85, obj, bias: r.chance(0.3) ? (r.chance(0.5) ? -0.5 : 0.5) : 0 }), m);
+        top: isTop ? grass : moss, topPat: isTop ? PAT.GROUND : PAT.MOSS, topMin: isTop ? 0.75 : 0.85, obj, bias: r.chance(0.3) ? (r.chance(0.5) ? -0.5 : 0.5) : 0,
+        topBias: flat ? 0 : undefined }), m);
       row.push({ s: mid, out, top: y + h + dy - 0.04, L });
       d += L * r.range(0.84, 0.96);
     }

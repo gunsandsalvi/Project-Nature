@@ -167,6 +167,7 @@ uniform int uPass;
 uniform vec4 uLayers; uniform vec4 uLayerPat;
 uniform vec4 uSoot[4]; uniform int uSootN;
 uniform float uGrain; uniform float uBrush; uniform float uMirror; uniform float uMirrorY;
+uniform sampler2D tCells; uniform vec2 uCellOrigin; uniform float uCellSize; uniform vec2 uCellDims; uniform float uJitter;
 varying vec3 vWorld; varying vec3 vNormal; varying vec3 vLoc; varying vec4 vW; varying float vDepth;
 flat varying float vMat; flat varying float vObj; flat varying float vPat; flat varying float vFlag;
 varying float vBias;
@@ -178,8 +179,14 @@ void main(){
   bool front = uMirror > .5 ? !gl_FrontFacing : gl_FrontFacing;
   vec3 n = normalize(vNormal); if (!front) n = -n;
   float m = vMat; float pat = vPat; float b = vBias;
-  if (pat > 99.5) {
-    float j = .5 * (vnoise(vWorld.xz * .9) - .5) + (uGrain > .5 ? .35 * (vnoise(vWorld.xz * 3.1 + 5.) - .5) : 0.);
+  if (pat > 100.5) {
+    // the map look (PRE-29): each world cell one flat colour, its material and step from a small picture of the cells
+    vec2 c = mod(floor((vWorld.xz - uCellOrigin) / uCellSize), uCellDims);   // the world wraps both ways
+    vec4 t = texelFetch(tCells, ivec2(c), 0);
+    m = floor(t.r * 255. + .5); b += floor(t.g * 255. + .5) - 128.; pat = 0.;
+  } else if (pat > 99.5) {
+    vec2 q = vWorld.xz / uJitter;
+    float j = .5 * (vnoise(q * .9) - .5) + (uGrain > .5 ? .35 * (vnoise(q * 3.1 + 5.) - .5) : 0.);
     vec4 w = vW + vec4(j, -j, j * .7, -j * .7);
     int k = 0; float best = w.x;
     if (w.y > best) { best = w.y; k = 1; }
@@ -283,17 +290,19 @@ uniform vec3 uSun; uniform float uSunK; uniform float uSkyK; uniform float uShif
 uniform float uSunPow; uniform int uFires; uniform vec4 uFire[12]; uniform vec4 uFireC[12];
 uniform vec2 uRes; uniform float uAORad; uniform float uAODist; uniform float uAOK;
 uniform vec2 uHaze; uniform float uWaterOn; uniform float uWaterRow; uniform float uFoamRow; uniform float uGlintRow;
-uniform float uSeaOn; uniform float uShadowSoft; uniform float uContrast; uniform int uWaterStyle;
+uniform float uSkyTexel; uniform float uSeaOn; uniform float uShadowSoft; uniform float uContrast; uniform int uWaterStyle;
 ${NOISE}
 float shadowAt(vec3 wp, vec3 n){
-  vec4 lv = uLightView * vec4(wp + n * .05, 1.);
+  // offsets and tolerances grow with the shadow map's pixel, so far ground never shadows itself
+  float tb = max(.08, uShadowTexel * 2.5);
+  vec4 lv = uLightView * vec4(wp + n * max(.05, uShadowTexel * 1.5), 1.);
   float d = -lv.z;
   vec4 lc = uLightProj * lv; vec2 uv = lc.xy * .5 + .5;
   if (uv.x < 0. || uv.y < 0. || uv.x > 1. || uv.y > 1.) return 1.;
   float bsum = 0., bn = 0.;
   for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) {
     float s = texture(tShadow, uv + vec2(i, j) * 3. / uShadowSize).r;
-    if (s > 0. && s < d - .08) { bsum += s; bn += 1.; }
+    if (s > 0. && s < d - tb) { bsum += s; bn += 1.; }
   }
   if (bn < .5) return 1.;
   float dist = d - bsum / bn;
@@ -301,7 +310,7 @@ float shadowAt(vec3 wp, vec3 n){
   float lit = 0.;
   for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) {
     float s = texture(tShadow, uv + vec2(i, j) * .5 * rad / uShadowSize).r;
-    lit += (s > 0. && s < d - .08) ? 0. : 1.;
+    lit += (s > 0. && s < d - tb) ? 0. : 1.;
   }
   return lit / 25.;
 }
@@ -310,11 +319,11 @@ float skyOpen(vec3 P, vec3 N){
   float open = 0.;
   for (int i = 0; i < 5; i++) {
     vec2 o = i == 0 ? vec2(0.) : (i == 1 ? vec2(.5, 0.) : (i == 2 ? vec2(-.5, 0.) : (i == 3 ? vec2(0., .5) : vec2(0., -.5))));
-    vec3 Q = P + N * .2 + vec3(o.x, 0., o.y);
+    vec3 Q = P + N * max(.2, uSkyTexel * 2.) + vec3(o.x, 0., o.y) * max(1., uSkyTexel);
     vec4 sv = uSkyView * vec4(Q, 1.);
     vec4 sc = uSkyProj * sv; vec2 uv = sc.xy * .5 + .5;
     float s = texture(tSky, uv).r;
-    open += (s > 0. && s < -sv.z - .35) ? 0. : 1.;
+    open += (s > 0. && s < -sv.z - max(.35, uSkyTexel * 3.)) ? 0. : 1.;
   }
   return open / 5.;
 }
@@ -438,6 +447,7 @@ uniform vec3 uSunTint; uniform vec3 uShadeTint; uniform vec3 uFireTint; uniform 
 uniform float uDesat; uniform vec3 uBack; uniform vec4 uMist; uniform vec3 uMistCol; uniform vec2 uRes;
 uniform vec3 uWaterTint; uniform float uSkyRow; uniform vec3 uSkyCol; uniform int uInk;
 uniform float uDither; uniform float uOutline; uniform float uOutlineN; uniform float uLit; uniform float uMirror; uniform float uWobble;
+uniform float uEdgeK; uniform float uWaterSin; uniform vec3 uMapDepth;
 uniform int uWaterStyle; uniform float uWaterY; uniform vec3 uCamRight; uniform float uReflOn;
 uniform float uWaterRow; uniform float uSeaRow; uniform float uLagoonRow; uniform float uFoamRow;
 ${NOISE}
@@ -487,7 +497,7 @@ float caustic(vec2 x){
 vec3 waterCol(ivec2 p, vec3 cu, bool hasBed, vec4 u){
   vec4 w0 = texelFetch(tW0, p, 0), w1 = texelFetch(tW1, p, 0);
   vec3 P = w0.yzw;
-  float dep = hasBed ? u.z * .5 : 9.;              // depth under the surface: the view meets the water at 30 degrees
+  float dep = hasBed ? u.z * uWaterSin : 9e3;      // depth under the surface: the view's slope through the water
   float wcls = u.y; bool sunlit = mod(wcls, 2.) > .5;
   float shade = clamp(floor((u.x - 4.2) * .5 + .5), -2., 1.);   // the surface's own light: tree shade, firelight
   bool still = w1.z < .5;
@@ -532,6 +542,10 @@ vec3 waterCol(ivec2 p, vec3 cu, bool hasBed, vec4 u){
     c = mix(c, refl * .94, hasBed && dep < .1 ? .45 : .74);
     if (dash(P, fl, 2., .5, .3) > .5) c = mix(body, skyR, .55);
     if (sd < 1.5) c = mix(foam, c, .25);
+  } else if (uWaterStyle == 5) {
+    // the map look (PRE-29): water in flat bands by depth, a lighter shelf along the coast, no reflections
+    float bs = (dep < uMapDepth.x ? 5. : (dep < uMapDepth.y ? 4. : (dep < uMapDepth.z ? 3. : 2.))) + min(shade, 0.);
+    c = grade(pal(row, bs), wcls);
   } else {
     // a turquoise lagoon: bright shallows over a sunlit bed with its network of light, deep teal further out,
     // white foam in two lines, sparkles
@@ -601,8 +615,8 @@ void main(){
       ivec2 q = clamp(p + o, ivec2(0), ivec2(uRes) - 1);
       vec4 q0 = texelFetch(tG0, q, 0); vec4 q1 = texelFetch(tG1, q, 0);
       float pred = d + (nv.x * float(o.x) + nv.y * float(o.y)) * uMpp / max(nv.z, .25);
-      float thr = foliage && abs(q0.z - g0.z) < .5 ? 1.6 : .32;
-      bool behind = q0.x < .5 || q1.w > pred + thr || (abs(q0.z - g0.z) > .5 && q1.w > d + .06);
+      float thr = (foliage && abs(q0.z - g0.z) < .5 ? 1.6 : .32) * uEdgeK;
+      bool behind = q0.x < .5 || q1.w > pred + thr || (abs(q0.z - g0.z) > .5 && q1.w > d + .06 * uEdgeK);
       if (behind && !bit(q0.w, 4.) ) {
         bool rim = uMirror < .5 && dot(vec2(o), sv) > .35 && mod(cls, 2.) > .5 && dot(n, uSun) > .25;
         if (rim && edge == 0) edge = 2; else if (!rim) edge = 1;

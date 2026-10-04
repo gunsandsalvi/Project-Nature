@@ -67,23 +67,62 @@ export function bubble(ctx, cx, by, icon, [sx, sy, sw, sh]) {
   ctx.drawImage(icon, sx, sy, sw, sh, x + 3, y + 3, sw, sh);
 }
 
-/** A round button with a glyph: pause, play, fast, slow. */
-export function button(ctx, cx, cy, r, kind, { active = false } = {}) {
+// glyphs, 9 pixels square unless drawn: the time controls' and the powers' (GOD-02 to GOD-13)
+const GLYPHS = {
+  lock: ['..###..', '.#...#.', '.#...#.', '#######', '###.###', '###.###', '#######'],
+  skip: ['#....#', '##...#', '###..#', '####.#', '###..#', '##...#', '#....#'],
+  lightning: ['.....###.', '....###..', '...###...', '..######.', '....###..', '...###...', '..###....', '..##.....', '.#.......'],
+  rain: ['...###...', '.#######.', '#########', '.#######.', '.........', '.#..#..#.', '#..#..#..', '.........', '..#..#..#'],
+  storm: ['..####...', '.######..', '########.', '.........', '#######..', '......##.', '.######..', '.........', '..####...'],
+  drought: ['....#....', '.#.....#.', '...###...', '..#####..', '#.#####.#', '..#####..', '...###...', '.#.....#.', '....#....'],
+  cold: ['....#....', '.#..#..#.', '..#.#.#..', '...###...', '#########', '...###...', '..#.#.#..', '.#..#..#.', '....#....'],
+  flood: ['.........', '..##..##.', '.#..##..#', '.........', '..##..##.', '.#..##..#', '.........', '..##..##.', '.#..##..#'],
+  quake: ['....#....', '...#.....', '....#....', '.....#...', '....#....', '...#.....', '###.#.###', '#########', '#########'],
+  dream: ['..###....', '.##......', '##.......', '##.....#.', '##....###', '##.....#.', '.##......', '..###....', '.........'],
+  fortune: ['....#....', '...###...', '...###...', '.#######.', '#########', '.#######.', '...###...', '...###...', '....#....'],
+  reveal: ['.........', '..#####..', '.#.....#.', '#..###..#', '#..###..#', '.#.....#.', '..#####..', '.........', '.........'],
+  // the views: peoples, a craft, a belief, the land, a person, your hand
+  peoples: ['..#...#..', '.###.###.', '..#...#..', '.###.###.', '#.#.#.#.#', '..#...#..', '.#.#.#.#.', '.#.#.#.#.', '.........'],
+  craft: ['....#....', '...###...', '..#####..', '..#####..', '.#######.', '.#######.', '.#######.', '..#####..', '...###...'],
+  belief: ['..#####..', '.#.....#.', '#..###..#', '#.#...#.#', '#.#.#.#.#', '#.#..##.#', '#..#....#', '.#..####.', '..#......'],
+  tree: ['...###...', '..#####..', '.#######.', '.#######.', '..#####..', '...###...', '....#....', '....#....', '...###...'],
+  person: ['...###...', '...###...', '....#....', '.#######.', '....#....', '....#....', '...#.#...', '..#...#..', '..#...#..'],
+  hand: ['..#.#.#..', '..#.#.#..', '#.#.#.#..', '#.#####..', '#######..', '.######..', '..#####..', '..####...', '.........'],
+};
+/** A glyph from the table, centred on (cx, cy). */
+export function glyph(ctx, cx, cy, kind, col) {
+  const g = GLYPHS[kind], gw = g[0].length, gh = g.length;
+  g.forEach((row, j) => [...row].forEach((ch, i) => { if (ch === '#') rect(ctx, cx - Math.floor(gw / 2) + i, cy - Math.floor(gh / 2) + j, 1, 1, col); }));
+}
+
+/**
+ * A round button with a glyph: pause, play, dial (the speed set, from real at the left to top speed at the right,
+ * as k from 0 to 1), lock, skip, book, globe, or any power's glyph. dim: not possible here.
+ */
+export function button(ctx, cx, cy, r, kind, { active = false, dim = false, k = 0 } = {}) {
   for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) {
     const d = x * x + y * y;
     if (d > r * r + r) continue;
     const ring = d > (r - 1) * (r - 1) + (r - 1);
     rect(ctx, cx + x, cy + y, 1, 1, ring ? (y < 0 ? C.edge : C.rim) : (active ? 'rgba(70,52,30,0.92)' : C.panel));
   }
-  const col = active ? C.accent : C.text;
+  const col = active ? C.accent : dim ? '#6f6577' : C.text;
   if (kind === 'pause') { rect(ctx, cx - 3, cy - 4, 2, 9, col); rect(ctx, cx + 2, cy - 4, 2, 9, col); }
-  if (kind === 'play' || kind === 'fast') {
-    const tri = (ox) => { for (let i = 0; i < 5; i++) rect(ctx, cx + ox + i, cy - 4 + i, 1, 9 - i * 2, col); };
-    if (kind === 'play') tri(-2); else { tri(-5); tri(1); }
+  if (kind === 'play') for (let i = 0; i < 5; i++) rect(ctx, cx - 2 + i, cy - 4 + i, 1, 9 - i * 2, col);
+  if (kind === 'dial') {
+    // a gauge: ticks from real (lower left) round to top speed (lower right), and the needle at k
+    for (let a = 0; a <= 6; a++) {
+      const t = (225 - a * 45) * Math.PI / 180;
+      rect(ctx, cx + Math.round(Math.cos(t) * (r - 3)), cy - Math.round(Math.sin(t) * (r - 3)), 1, 1, C.dim);
+    }
+    const t = (225 - k * 270) * Math.PI / 180, nc = dim ? col : C.accent;
+    for (let s = 0; s <= r - 3; s += 0.5) rect(ctx, cx + Math.round(Math.cos(t) * s), cy - Math.round(Math.sin(t) * s), 1, 1, nc);
+    rect(ctx, cx - 1, cy - 1, 3, 3, nc);
   }
-  if (kind === 'slow') { for (let i = 0; i < 5; i++) rect(ctx, cx + 2 - i, cy - 4 + i, 1, 9 - i * 2, col); rect(ctx, cx - 4, cy - 4, 2, 9, col); }
   if (kind === 'book') { rect(ctx, cx - 5, cy - 4, 5, 8, col); rect(ctx, cx + 1, cy - 4, 5, 8, col); rect(ctx, cx, cy - 4, 1, 9, C.rim); }
   if (kind === 'globe') { for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) { const d = x * x + y * y; if (d <= 25 && (d > 16 || x === 0 || y === 0)) rect(ctx, cx + x, cy + y, 1, 1, col); } }
+  if (GLYPHS[kind]) glyph(ctx, cx, cy, kind, col);
+  if (dim) for (let i = -r + 3; i <= r - 3; i++) rect(ctx, cx + i, cy + i, 1, 1, 'rgba(12,10,16,0.55)');
 }
 
 /** The handle above the bottom edge that opens the views. */

@@ -5,6 +5,9 @@ and the interface. It lives on a design canvas; this folder keeps the pictures a
 to one pixel) and the code that paints them.
 
 - `plates/scenes`, `plates/sheets`, `plates/ui`: the pictures. Enlarge them by whole numbers with hard edges.
+- `plates/zoom`: one place at each zoom stop of `PRE-03`, from one person to the globe, at noon and dusk, and the
+  close camp held sideways. The place is the start of the world made from seed 7: a band's camp under a cliff by a
+  river.
 - `plates/options`: the same crops painted in each look and each water style, for the owner to choose from.
 - `paint/`: the painter. Each scene is a small 3D model drawn at the game's pixel size with the art rules:
   colour in steps (`PRE-20`), own-colour outlines and lit edges (`PRE-21`), real shadows and reflections,
@@ -17,8 +20,11 @@ To paint again (needs Node and the browser this machine already has):
 - `NODE_PATH=$(npm root -g) node paint.js OUT river:morning` paints one scene into the folder OUT, at true size and
   enlarged four times. Scenes: `river`, `shelter` (add `:wide` for the cover), `winter`, `coast`, `lake`,
   `village`, `copper`; `sheets` with `:people`, `:animals`, `:plants`, `:things`, `:light` or `:scale`; `ui` with
-  `:rest`, `:touch`, `:card`, `:book`, `:land` or `:sheet`. The second word is the hour: `morning`, `noon`,
-  `golden`, `dusk`, `night` or `winter`.
+  `:rest`, `:touch`, `:card`, `:book`, `:land`, `:powers`, `:views`, `:map`, `:worlds` or `:sheet`. The second
+  word is the hour: `morning`, `noon`, `golden`, `dusk`, `night` or `winter`.
+- `zoom:noon:camp` paints a zoom stop: `person`, `closecamp`, `camp`, `valley`, `region`, `map` or `globe`; add
+  `:land` for a landscape picture. `worldtest:noon:seed7` paints a flat map of a whole generated world, for
+  tuning the generator (`paint/www/worldgen.js`).
 - Add a look and a water style as more words, for example `river:morning:look-clean:water-mirror`. Looks:
   `look-today` (fine grain, mixed pixels where light changes), `look-clean` (A), `look-sharp` (B, the book's
   look) and `look-painted` (C). Water: `water-today`, `water-clear` (W1, the book's water), `water-bands` (W2),
