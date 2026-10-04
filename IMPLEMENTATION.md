@@ -176,15 +176,15 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
    Godot's own lights on the MultiMesh copies, then our firelight term, switchable, to see which copies stay lit.
 3. `T0.2b.3` **A forest at camp zoom (`PRE-28`).**
    The camp in thick woods, the camera turning, figures as tiny outlined figures.
-4. `T0.2b.4` **The heat run (`PLT-01`, `PLT-04`).**
-   A 10-minute run reading the phone's thermal headroom forecast, frame times and the share of frames on time, ending with a code.
+4. `T0.2b.4` **Measure and the heat (`PLT-01`, `PLT-04`).**
+   About 90 seconds, not 10 minutes, as you asked: frame times and the share of frames on time at 120 and at 60 frames a second, reading the phone's own forecast of its heat 30 seconds ahead, ending with a code.
 
 **Tests:**
-- The measurements: the share of frames on time at 60 Hz, the graphics time, and the headroom curve over 10 minutes.
-- Passes if at least 97% of frames are on time and the phone stays below throttling for the 10 minutes, with the firelight method chosen.
+- The measurements: the share of frames on time at 120 and 60 frames a second, the graphics time, and the forecast headroom.
+- Passes if at least 97% of frames are on time at 60 and the forecast stays below throttling, with the firelight method chosen.
 
 **On the phone:**
-- Open "A full scene", tap the heat run, put the phone down for about 10 minutes, then copy the code into the chat.
+- Open "A full scene", tap Measure, leave the phone for about 90 seconds, then copy the code into the chat.
 - Look at the camp at night: do the fires light the people and huts near them?
 
 ### α0.2c P3 The kit

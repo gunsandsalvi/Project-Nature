@@ -30,7 +30,8 @@
 #ifdef DATA_PASS
 #define LOOK_LIGHT
 #else
-#define LOOK_LIGHT DIFFUSE_LIGHT = to_linear(shade_pixel(dot(NORMAL, LIGHT), SHADOW_OF(ATTENUATION), DEPTH_OF(vdepth), row, bias, flags, sky, fire, edge)); SPECULAR_LIGHT = vec3(0.0);
+// the sun gives the stepped colour; Godot's own lights (P2's comparison with our firelight term) add a plain warm glow
+#define LOOK_LIGHT if (LIGHT_IS_DIRECTIONAL) { DIFFUSE_LIGHT = to_linear(shade_pixel(dot(NORMAL, LIGHT), SHADOW_OF(ATTENUATION), DEPTH_OF(vdepth), row, bias, flags, sky, fire, edge)); } else { DIFFUSE_LIGHT += to_linear(look_fire_tint) * ATTENUATION * max(dot(NORMAL, LIGHT), 0.0) * 0.8; } SPECULAR_LIGHT = vec3(0.0);
 // The sky's and fire's light of a pixel, from fragment().
 #define SKY_AND_FIRE(p, n) vec2 sf_ = sky_and_fire(p, n, flags); sky = sf_.x; fire = sf_.y; vdepth = -VERTEX.z;
 #endif
@@ -49,8 +50,9 @@ global uniform vec3 look_haze_col;
 global uniform float look_haze_k;
 global uniform float look_desat;
 global uniform vec2 look_haze_range;
-global uniform vec4 look_fire;
-global uniform float look_fire_power;
+// up to four fires: each column the fire's place and reach, and their powers (0 for none)
+global uniform mat4 look_fires;
+global uniform vec4 look_fire_powers;
 global uniform float look_sky_cover;
 #ifndef SKYMAP
 global uniform sampler2D look_sky_map : filter_nearest;
@@ -252,12 +254,15 @@ vec2 sky_and_fire(vec3 p, vec3 n, float fl) {
 	bool foliage = bit(fl, FLAG_FOLIAGE);
 	float s = (0.7 + 0.3 * n.y) * mix(1.0 - look_sky_cover, 1.0, foliage ? 1.0 : sky_open(p, n));
 	float f = 0.0;
-	if (look_fire_power > 0.0) {
-		vec3 l = look_fire.xyz - p;
+	for (int i = 0; i < 4; i++) {
+		if (look_fire_powers[i] <= 0.0) {
+			continue;
+		}
+		vec3 l = look_fires[i].xyz - p;
 		float d = length(l);
-		float reach = look_fire.w * (0.78 + 0.44 * vnoise(p.xz * 1.3));
+		float reach = look_fires[i].w * (0.78 + 0.44 * vnoise(p.xz * 1.3 + float(i) * 7.0));
 		float att = clamp(1.0 - d / reach, 0.0, 1.0);
-		f = look_fire_power * att * att * (0.35 + 0.65 * max(dot(n, l / max(d, 0.001)), 0.0));
+		f += look_fire_powers[i] * att * att * (0.35 + 0.65 * max(dot(n, l / max(d, 0.001)), 0.0));
 	}
 	return vec2(s, f);
 }

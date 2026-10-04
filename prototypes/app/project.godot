@@ -112,9 +112,9 @@ look_desat={
 "type": "float",
 "value": 0.0
 }
-look_fire_power={
-"type": "float",
-"value": 0.0
+look_fire_powers={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
 }
 look_sky_cover={
 "type": "float",
@@ -152,9 +152,9 @@ look_gbuf_depth={
 "type": "vec2",
 "value": Vector2(0, 1)
 }
-look_fire={
-"type": "vec4",
-"value": Vector4(0, 0, 0, 1)
+look_fires={
+"type": "mat4",
+"value": Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 }
 look_sky_box={
 "type": "vec4",

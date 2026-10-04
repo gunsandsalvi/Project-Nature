@@ -49,6 +49,8 @@ var outline := 3
 var reflect := false
 var crawl := 0
 var shot := ""
+## How far a pinch may zoom, in metres an art pixel shows.
+var zoom_range := Vector2(0.045, 0.18)
 
 var _art: SubViewport
 var _gbuf: SubViewport
@@ -349,8 +351,10 @@ func _set_hour(name: String) -> void:
 		var f: Dictionary = fires[0]
 		var power: float = 1.0 if name == "dusk" else float(f.power)
 		var radius: float = 12.0 if name == "dusk" else float(f.radius)
-		set_global.call("look_fire", Vector4(f.pos[0], f.pos[1], f.pos[2], radius))
-		set_global.call("look_fire_power", power)
+		var lit := Projection()
+		lit.x = Vector4(f.pos[0], f.pos[1], f.pos[2], radius)
+		set_global.call("look_fires", lit)
+		set_global.call("look_fire_powers", Vector4(power, 0.0, 0.0, 0.0))
 	_mark("hour", name)
 
 
@@ -433,8 +437,7 @@ func _build_controls() -> void:
 	_readout.add_theme_constant_override("outline_size", 4)
 	_readout.add_theme_font_size_override("font_size", 13)
 	bar.add_child(_readout)
-	var rows := [["back", "hour", "outline"], ["mirror", "crawl", "measure"]]
-	for keys: Array in rows:
+	for keys: Array in _control_rows():
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 4)
 		bar.add_child(row)
@@ -451,19 +454,31 @@ func _build_controls() -> void:
 	_mark("crawl", CRAWLS[crawl])
 
 
+## The buttons, row by row.
+func _control_rows() -> Array:
+	return [["back", "hour", "outline"], ["mirror", "crawl", "measure"]]
+
+
+## A button's text, with %s where its state goes.
+func _label(key: String) -> String:
+	return (
+		{
+			"back": "Back",
+			"hour": "Hour: %s",
+			"outline": "Outline: %s",
+			"mirror": "Mirror: %s",
+			"crawl": "Crawl fix: %s",
+			"measure": "Measure",
+		}
+		. get(key, key)
+	)
+
+
 func _mark(key: String, value: String) -> void:
 	if not _buttons.has(key):
 		return
 	var b: Button = _buttons[key]
-	var names := {
-		"back": "Back",
-		"hour": "Hour: %s",
-		"outline": "Outline: %s",
-		"mirror": "Mirror: %s",
-		"crawl": "Crawl fix: %s",
-		"measure": "Measure",
-	}
-	var text: String = names[key]
+	var text := _label(key)
 	b.text = text % value if "%s" in text else text
 
 
@@ -711,6 +726,6 @@ func _zoom(factor: float) -> void:
 			return
 		factor = ZOOM_STEP if _pinch > 1.0 else 1.0 / ZOOM_STEP
 		_pinch = 1.0
-	mpp = clampf(mpp * factor, 0.045, 0.18)
+	mpp = clampf(mpp * factor, zoom_range.x, zoom_range.y)
 	_moving = 0.3
 	_apply_camera()

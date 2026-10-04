@@ -221,7 +221,7 @@ export class Painter {
     };
     const hex = (c) => '#' + c.getHexString();
     const moods = {};
-    for (const name of ['noon', 'dusk']) {
+    for (const name of ['noon', 'dusk', 'night']) {
       const md = MOODS[name];
       moods[name] = { ...md, sun: hex(md.sun), shade: hex(md.shade), sky: hex(md.sky), haze: hex(md.haze), fire: hex(md.fire), sunDir: sunOf(md) };
     }
@@ -231,7 +231,7 @@ export class Painter {
       mist: { ...this.mist, col: hex(this.mist.col) }, fires: this.fires, waterLevel: this.waterLevel ?? null,
       soot: this.sootU.value.slice(0, this.sootN.value).map((v) => v.toArray()),
       bounds: { r: this.boundsR, shadowSize: this.shadowSize }, look: { ...LOOK }, waterStyle: this.waterStyle ?? (WATERS[LOOK.water] || 0),
-      waterTint: [0.72, 0.86, 0.98], rows: Object.fromEntries(['water', 'white', 'glint', 'sea', 'lagoon', 'smoke', 'fire'].map((n) => [n, mat(n)])),
+      waterTint: [0.72, 0.86, 0.98], rows: Object.fromEntries(NAMES.map((n) => [n, mat(n)])),
       palette: NAMES.map((n) => RAMPS[n]), names: NAMES, grid: GRID, atlas, meshes,
     };
     const bin = new Uint8Array(offset);
