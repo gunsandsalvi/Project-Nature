@@ -19,7 +19,7 @@ A mix of the soft painted nature of t3ssel8r and David Holland with the pixel-te
   |---|---|
   | A tie-breaker when two rules conflict | "Gameplay trumps Realism when the two topics disagree" (0 A.D.) |
   | The light direction, with its frame of reference spelled out | "the artist's (not the unit's!) upper right" (Wesnoth) |
-  | The shadow colour as an actual value | "#322125 at 60 percent opacity" |
+  | The shadow colour as an actual value | #322125 at 60% opacity (the Pixel Cup) |
   | A smallest detail worth making, tied to a real object | "Anything smaller than a human hand should not be modeled" (0 A.D.) |
   | A named list of common mistakes | "things that are important enough to be worth repeating" |
 
@@ -29,7 +29,7 @@ A mix of the soft painted nature of t3ssel8r and David Holland with the pixel-te
   - canvas sizes and animation frame counts (Wesnoth, "4 frames minimum, 6 optimal").
 - **The Liberated Pixel Cup's shadows** are dark purple (#2a1722) at about half opacity, or black only in caves ([OpenGameArt](https://opengameart.org/node/125066)).
 - **Style chosen for a purpose:** Team Fortress 2's illustrated style serves readability.
-  Characters have silhouettes "easily identified even with no lighting cues", and shading uses "variation in luminance and hue" so players can read the scene in any light ([Valve, NPAR 2007](https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/mitchell-team-fortress.pdf)).
+  "Even when viewed only in silhouette with no internal shading at all, the characters are readily identifiable to players", and shading uses "variation in luminance and hue" so players can read the scene in any light ([Valve, NPAR 2007](https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/mitchell-team-fortress.pdf)).
 
 ## Colour
 
@@ -41,15 +41,15 @@ A mix of the soft painted nature of t3ssel8r and David Holland with the pixel-te
 - **Shadows lean cool, lights lean warm:** toward blue and purple in shade, toward yellow in light ([Wayline](https://www.wayline.io/learn/color-palettes/2), [Pixnote](https://pixnote.net/en/learn/shading)).
 - **A palette from a real place:** A Short Hike sampled its palette from photographs of the Canadian Shield in autumn ([Wikipedia](https://en.wikipedia.org/wiki/A_Short_Hike)).
 - **Colour rules for generated worlds:** No Man's Sky's art director built "a really complex kind of color theory system so they all obey rules, like leaves having complimentary colors compared to the grass" ([Engadget](https://www.engadget.com/2016-04-22-no-mans-sky-art-video.html)).
-  A planet's colours "bleed into the creatures" through tags ([Kill Screen](https://killscreen.com/how-no-mans-sky-paints-18-quintillion-worlds-algorithmic-brush)).
+  A planet's colour "bleeds into the creatures" through tags ([Kill Screen](https://killscreen.com/how-no-mans-sky-paints-18-quintillion-worlds-algorithmic-brush)).
 
 ## Art for generated content
 
-- **Constraints, not randomness:** "complete randomness is useless".
-  No Man's Sky funnels random choices "into a box of maths" that sets heights, gaits and bone counts by rules ([Kill Screen](https://killscreen.com/how-no-mans-sky-paints-18-quintillion-worlds-algorithmic-brush), [GDC 2015](https://www.nomanssky.com/2015/02/no-mans-sky-at-gdc/)).
+- **Constraints, not randomness:** complete randomness, says No Man's Sky's art director, "is useless".
+  The game funnels random choices "into a box of maths" that sets heights, gaits and bone counts by rules ([Kill Screen](https://killscreen.com/how-no-mans-sky-paints-18-quintillion-worlds-algorithmic-brush), [GDC 2015](https://www.nomanssky.com/2015/02/no-mans-sky-at-gdc/)).
 - **Review at scale:** its art director had "hundreds of tiny drones" land on planets and record a short animated picture of each, for review on one board.
   This is the model for our contact sheet and model sheet (`PRE-31`).
-- **Variety must be seen, not just exist:** Kate Compton's "10,000 bowls of oatmeal".
+- **Variety must be seen, not just exist:** Kate Compton's "10,000 bowls of plain oatmeal".
   Every bowl may be mathematically unique, yet the player sees only oatmeal.
   Generated things must differ in ways the eye notices: silhouette, colour, size ([Emily Short](https://emshort.blog/2016/09/21/bowls-of-oatmeal-and-text-generation/), [FlowingData](https://flowingdata.com/2016/08/04/building-a-generator-for-stuff), [Wikipedia: procedural generation](https://en.wikipedia.org/wiki/Procedural_generation)).
   This bears on `PRE-43`.

@@ -21,7 +21,7 @@ The goals:
   - **EnTT** is the best-known C++ one: header-only, sparse sets, MIT-licensed, used in Minecraft ([EnTT](https://github.com/skypjack/entt)).
   - **Flecs** is the other major one, written in C, with its own threading ([SaaSHub](https://www.saashub.com/entt-alternatives)).
 - **Data-oriented design:** "the transformation of data is the only purpose of any program".
-  Arrange data for the cache, not for human convenience ([Mike Acton, CppCon 2014](https://isocpp.org/blog/2015/01/cppcon-2014-data-oriented-design-and-c-mike-acton)).
+  Arrange data for the cache, not for human convenience ([Mike Acton, CppCon 2014](https://cppcon.org/?p=356)).
 
 ### Time
 
@@ -36,18 +36,18 @@ The goals:
 
 ### The same result everywhere
 
-- **"Determinism means … exact down to the bit-level"**, so that a checksum of the whole state matches ([Gaffer on Games](https://gafferongames.com/post/floating_point_determinism/)).
+- **Lockstep games need "absolutely identical results on every client, down to the least-significant bit of the mantissa"**, so that a checksum of the whole state matches ([Gaffer on Games](https://gafferongames.com/post/floating_point_determinism/)).
 - **Box2D (2024) shows floating point is enough on modern processors,** without fixed-point maths ([Box2D: determinism](https://box2d.org/posts/2024/08/determinism/)).
   It avoids three traps:
-  - **fast-math,** which "jumbles your arithmetic", gives no real speed-up, and should never be used;
+  - **fast-math,** which will "jumble your arithmetic in pursuit of higher performance", gave no real speed-up in its tests, and should never be used;
   - **fused multiply-add,** which compilers use differently: turned off with `-ffp-contract=off`;
-  - **the C library's sine, cosine and especially atan2,** which give different answers on different platforms: replaced with its own versions.
+  - **the C library's trigonometry:** in its tests sine and cosine matched, but atan2 differed between platforms, so it uses its own versions.
     The square root is the same everywhere.
 
   It tests on x64 and ARM with three compilers: a scene runs until everything sleeps, and the step count and a hash of all positions must match.
   For threads, each worker writes its own bit array, merged by the main thread in a fixed order, with "no noticeable performance impact".
-- **Correctly rounded maths:** the CORE-MATH project's functions (sine, exponent, logarithm and more) return the correctly rounded answer.
-  So they give "reproducible results (whatever the hardware, compiler or operating system)" at competitive speed ([CORE-MATH](https://members.loria.fr/PZimmermann/talks/core-math-raim2022.pdf), [LLVM libc](https://llvm.googlesource.com/llvm-project/+/refs/tags/llvmorg-16.0.0/libc/docs/math.rst)).
+- **Correctly rounded maths:** the CORE-MATH project's functions (sine, exponent, logarithm and more) return the correctly rounded answer, at speeds close to the usual libraries' ([CORE-MATH](https://core-math.gitlabpages.inria.fr/), [talk](https://members.loria.fr/PZimmermann/talks/core-math-raim2022.pdf)).
+  That answer is unique, so it is the same on every machine: LLVM's maths library notes that consistency across platforms "will be satisfied automatically if the implementation is correctly rounded" ([LLVM libc](https://llvm.googlesource.com/llvm-project/+/refs/tags/llvmorg-16.0.0/libc/docs/math.rst)).
 - **Factorio:**
   - Its early builds took a checksum of the whole map every tick and checked it against replays ([Friday Facts 47](https://factorio.com/blog/post/fff-47)).
   - In 2024 a desync turned out to depend on the number of processor cores.
@@ -139,7 +139,7 @@ So the simulation runs on its own threads and hands over a finished snapshot onc
   - [Stack Overflow blog: Dwarf Fortress](https://stackoverflow.blog/2021/07/28/700000-lines-of-code-20-years-and-one-developer-how-dwarf-fortress-is-built/)
   - [EnTT](https://github.com/skypjack/entt)
   - [habr: ECS layouts](https://habr.com/en/articles/651921/)
-  - [Mike Acton: data-oriented design](https://isocpp.org/blog/2015/01/cppcon-2014-data-oriented-design-and-c-mike-acton)
+  - [Mike Acton: data-oriented design (CppCon 2014)](https://cppcon.org/?p=356)
 - Time:
   - [RimWorld wiki: time](https://rimworldwiki.com/wiki/Time)
   - [RimWorld wiki: ticks](https://rimworldwiki.com/wiki/Template:Ticks/doc)
@@ -148,7 +148,8 @@ So the simulation runs on its own threads and hands over a finished snapshot onc
 - Determinism:
   - [Box2D](https://box2d.org/posts/2024/08/determinism/)
   - [Gaffer on Games: floating point determinism](https://gafferongames.com/post/floating_point_determinism/)
-  - [CORE-MATH](https://members.loria.fr/PZimmermann/talks/core-math-raim2022.pdf)
+  - [CORE-MATH](https://core-math.gitlabpages.inria.fr/)
+  - [CORE-MATH talk](https://members.loria.fr/PZimmermann/talks/core-math-raim2022.pdf)
   - [LLVM libc maths](https://llvm.googlesource.com/llvm-project/+/refs/tags/llvmorg-16.0.0/libc/docs/math.rst)
   - [Factorio FFF 47](https://factorio.com/blog/post/fff-47)
   - [Factorio FFF 415](https://direct.factorio.com/blog/post/fff-415)

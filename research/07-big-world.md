@@ -22,8 +22,8 @@ Can Godot do it on your phone?
 
 ## How others do it
 
-- **Strategic zoom** began with Supreme Commander (2007): "seamlessly scale from the relatively closely-cropped camera view … all the way up to a full map view", units turning into map symbols.
-  Players "can't live without it afterwards" ([Matchstick Eyes](https://www.matchstickeyes.com/tag/rts-zoom/)).
+- **Strategic zoom** began with Supreme Commander (2007): players zoom seamlessly from the close camera of most strategy games up to a full map of the battlefield, units turning into map symbols ([Shacknews](https://www.shacknews.com/article/50813/supreme-commander-on-xbox-360)).
+  Players "couldn't imagine it beforehand, can't live without it afterwards" ([Matchstick Eyes](https://www.matchstickeyes.com/tag/rts-zoom/)).
 - **Google Maps** (2018) morphs its flat map into a 3D globe as you zoom out, in the browser ([TechRadar](https://www.techradar.com/news/google-maps-on-desktop-now-shows-the-earth-as-a-3d-globe), [Geogarage](https://blog.geogarage.com/2018_07_29_archive.html)).
   It is the model for our map look turning into the globe.
 - **Ground in rings of detail:**
@@ -33,14 +33,14 @@ Can Godot do it on your phone?
     Detail follows the true 3D distance, with smooth transitions and no stitching ([GitHub](https://github.com/fstrugar/CDLOD)).
   - Terrain3D brings clipmaps to Godot in C++, with 10 levels of detail (research 01).
 - **Planets in Godot:**
-  - "Procedural Planet: Chunked LOD" flies "from orbit down to the surface" on a full-size planet, in plain GDScript with two shaders ([Godot Asset Library](https://godotengine.org/asset-library/asset/4942), [store](https://store.godotengine.org/asset/cuberact/procedural-planet-chunked-lod/)).
+  - "Procedural Planet - Chunked LOD" flies "from orbit all the way down to the surface" on a full-size planet, in plain GDScript with two shaders ([Godot Asset Library](https://godotengine.org/asset-library/asset/4942), [store](https://store.godotengine.org/asset/cuberact/procedural-planet-chunked-lod/)).
     It has a quadtree, chunk pooling, horizon culling and **origin shifting**.
   - A 2025 study built two Godot planet generators with quadtree level of detail, using Godot's double-precision build ([arXiv](https://arxiv.org/html/2510.24764v1)).
-- **A moving origin:** Kerbal Space Program's "Krakensbane" moves "the center of the universe with the ship" whenever the ship passes a distance threshold.
+- **A moving origin:** Kerbal Space Program's "Krakensbane" moves the origin of the world to the ship whenever the ship passes a distance threshold.
   This killed the precision errors that shook ships apart far from the origin ([KSP wiki](https://wiki.kerbalspaceprogram.com/wiki/API:Krakensbane), [KSP forum](https://forum.kerbalspaceprogram.com/topic/91108-how-does-ksp-work)).
   Godot's own advice for weaker devices is the same, rather than double precision (research 01).
 - **Distant trees:** octahedral impostors draw a whole tree as one flat card that shows the right view from any angle.
-  A Godot plug-in renders "a forest of 1400 trees using only impostor planes" ([GitHub](https://github.com/SIsilicon/Godot-Octahedral-Impostors)).
+  A Godot plug-in shows a forest of 1,400 trees drawn with impostor planes alone ([GitHub](https://github.com/SIsilicon/Godot-Octahedral-Impostors)).
   Godot's visibility ranges swap models by distance, and dithered fades are cheaper than transparent ones ([Godot docs](https://docs.godotengine.org/en/stable/tutorials/3d/visibility_ranges.html)).
 - **The map look:**
   - Cartography's hillshading lights each cell by slope, aspect and a sun direction.
@@ -91,7 +91,9 @@ Can Godot do it on your phone?
 
 ## Sources
 
-- Strategic zoom: [Matchstick Eyes](https://www.matchstickeyes.com/tag/rts-zoom/)
+- Strategic zoom:
+  - [Shacknews: Supreme Commander](https://www.shacknews.com/article/50813/supreme-commander-on-xbox-360)
+  - [Matchstick Eyes](https://www.matchstickeyes.com/tag/rts-zoom/)
 - Globe:
   - [TechRadar: Google Maps globe](https://www.techradar.com/news/google-maps-on-desktop-now-shows-the-earth-as-a-3d-globe)
   - [Geogarage](https://blog.geogarage.com/2018_07_29_archive.html)

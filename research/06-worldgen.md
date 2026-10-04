@@ -54,7 +54,7 @@ The items: `WLD-01`, `WLD-03`, `WLD-06`, `WLD-08` to `WLD-11`, `WLD-14`, `WLD-16
 - **The stream power law** of geology: rivers cut in proportion to their flow and slope, against the land's uplift.
   - Cordonnier and others (2016) generate large realistic terrains "at a low computational cost" by combining uplift with stream power erosion over a graph of streams ([Eurographics](https://diglib.eg.org/handle/10.1111/cgf12820), [paper](https://www.cs.purdue.edu/homes/bbenes/papers/Cordonier16CGF.pdf)).
   - Tzathas and others (2024) solve it analytically, with landslides and slopes added: "a slider that controls the aging of the input terrain", fast and physically consistent ([Eurographics](https://diglib.eg.org/handle/10.1111/cgf15033)).
-- **FastScape** (Braun and Willett, 2013), used by geologists: an "O(n), implicit and parallel method" for the stream power law, stable with large time steps ([Landlab](https://landlab.readthedocs.io/en/latest/reference/components/stream_power.html), [GFZ](https://gfz.de/en/section/earth-surface-process-modelling/projects/current-projects/fastscape-landscape-evolution-model-development)).
+- **FastScape** (Braun and Willett, 2013), used by geologists: an "O(n), implicit and parallel method" for the stream power law, stable with large time steps ([Landlab](https://landlab.readthedocs.io/en/latest/generated/api/landlab.components.stream_power.fastscape_stream_power.html), [GFZ](https://gfz.de/en/section/earth-surface-process-modelling/projects/current-projects/fastscape-landscape-evolution-model-development)).
 
 ### Water
 
@@ -65,7 +65,7 @@ The items: `WLD-01`, `WLD-03`, `WLD-06`, `WLD-08` to `WLD-11`, `WLD-14`, `WLD-16
 ### Climate, soils, biomes and deposits
 
 - **Rain over mountains:** the Smith and Barstad (2004) linear model gives rain shadows from wind, terrain and moisture.
-  It is "an extremely quick method for estimating precipitation patterns over complex terrain" ([AMS](https://ams.confex.com/ams/pdfpapers/76934.pdf), [HESS](https://hess.copernicus.org/articles/14/2329/2010/)).
+  It needs only a few Fourier transforms of the terrain, so it is fast ([AMS](https://ams.confex.com/ams/pdfpapers/76934.pdf), [HESS](https://hess.copernicus.org/articles/14/2329/2010/)).
 - **Other open climate models for generated worlds:**
   - WorldSynth: winds shaped by geography, rain by wind and terrain ([Mindwerks](https://mindwerks.net/projects/worldsynth/));
   - Gleba: yearly rain and temperature statistics from topography ([itch.io](https://calandiel.itch.io/gleba));
@@ -89,7 +89,7 @@ The items: `WLD-01`, `WLD-03`, `WLD-06`, `WLD-08` to `WLD-11`, `WLD-14`, `WLD-16
 - The heavy steps are cheap in their best-known forms:
   - FastScape is linear in the number of cells;
   - Priority-Flood needs one pass with a priority queue;
-  - the rain model is "extremely quick".
+  - the rain model needs a few Fourier transforms.
 
   For 2 million cells, each pass is a few million operations, under a second on one core.
 - So `WLD-09`'s two passes fit the 3-minute target if the tens of erosion steps and the climate are measured, not assumed:
@@ -134,7 +134,7 @@ The items: `WLD-01`, `WLD-03`, `WLD-06`, `WLD-08` to `WLD-11`, `WLD-14`, `WLD-16
   - [Procedural Tectonic Planets](https://diglib.eg.org/handle/10.1111/cgf13614)
   - [Cordonnier et al. 2016](https://diglib.eg.org/handle/10.1111/cgf12820) ([paper](https://www.cs.purdue.edu/homes/bbenes/papers/Cordonier16CGF.pdf))
   - [Tzathas et al. 2024](https://diglib.eg.org/handle/10.1111/cgf15033)
-  - [FastScape in Landlab](https://landlab.readthedocs.io/en/latest/reference/components/stream_power.html)
+  - [FastScape in Landlab](https://landlab.readthedocs.io/en/latest/generated/api/landlab.components.stream_power.fastscape_stream_power.html)
   - [GFZ: FastScape](https://gfz.de/en/section/earth-surface-process-modelling/projects/current-projects/fastscape-landscape-evolution-model-development)
   - [Priority-Flood](https://ar5iv.arxiv.org/html/1511.04463) ([code](https://github.com/r-barnes/Barnes2013-Depressions))
   - [Smith and Barstad, orographic rain](https://ams.confex.com/ams/pdfpapers/76934.pdf)

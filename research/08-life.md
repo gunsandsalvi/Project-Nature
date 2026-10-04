@@ -30,12 +30,11 @@ The items: `WLD-31`, `WLD-32`, `WLD-18`, `WLD-28`, `MND-16`, `BIO-19`, `WLD-30`,
   So the energy a species' population uses is about the same whatever its size ([Damuth 1981](https://pdodds.w3.uvm.edu/files/papers/others/1981/damuth1981a.pdf), [UCSB](https://chancellor.ucsb.edu/memos/2024-04-19-sad-news-dr-john-damuth)).
   - This gives each species' natural density from its weight, and `WLD-30` takes a sixth of it, with no number guessed by hand.
 - **Games:**
-  - **Eco** (Strange Loop Games) runs "thousands of simulated plants and animals" in a food chain, all day.
+  - **Eco** (Strange Loop Games): every player's action "has the potential to affect the thousands of simulated plants and animals who occupy the game world" ([Cliqist](https://cliqist.com/2017/04/26/strange-loop-games-challenges-climate-deniers-eco/)).
     Over-harvesting can wipe a species out for good ([Wikipedia](https://en.wikipedia.org/wiki/Eco_(2018_video_game))).
   - **Equilinox** gives every species a life cycle, needs and preferred surroundings, and plants change the soil ([TV Tropes](https://www.tvtropes.org/pmwiki/pmwiki.php/VideoGame/Equilinox)).
   - **Red Dead Redemption 2:** about 200 species, each with its own behaviour.
-    Herds cross the plains, "scavengers quickly sniff out carrion", "wolves attack in packs surrounding their prey".
-    The animals' encounters with each other are unscripted ([Game Informer](https://www.gameinformer.com/preview/2018/09/24/a-glimpse-into-red-dead-redemption-iis-amazing-wilderness), [World Economic Forum](https://www.weforum.org/stories/nature-and-biodiversity/red-dead-redemption-2-virtual-ecology-is-making-game-worlds-eerily-like-our-own/)).
+    Herds cross the plains, "scavengers quickly sniff out carrion", "wolves attack in packs surrounding their prey" ([Gematsu](https://gematsu.com/2018/09/red-dead-redemption-2-details-wildlife-hunting-fishing-and-horses), [Game Informer](https://www.gameinformer.com/preview/2018/09/24/a-glimpse-into-red-dead-redemption-iis-amazing-wilderness)).
   - **Of Life and Land**, a Godot game, has animals that hunger, thirst, sleep and form social groups (research 01).
 
 ### Animals' days and their journeys
@@ -47,7 +46,7 @@ The items: `WLD-31`, `WLD-32`, `WLD-18`, `WLD-28`, `MND-16`, `BIO-19`, `WLD-30`,
   - some zones are visited only once or twice a week ([guide](https://gameplay.tips/guides/4433-the-hunter-call-of-the-wild.html), [Steam discussion](https://steamcommunity.com/app/518790/discussions/0/1519260397774535970)).
 
   It is a cheap, readable model of a herd's day.
-- **Migration as surfing the green wave:** across 61 populations of four hoofed species, migrants follow spring's green-up when it advances as a clear wave, "not too broad, not too rapid, and clearly progressive" ([University of Oslo, Current Biology 2020](https://www.mn.uio.no/cees/english/research/news/publications/10.1016-j.cub.2020.06.032.html)).
+- **Migration as surfing the green wave:** across 61 populations of four hoofed species, migrants follow spring's green-up when it advances as a clear wave, "not too broad, not too rapid and clearly progressive in space and time" ([USGS: Aikens and others, Current Biology 2020](https://pubs.usgs.gov/publication/70228944), [Current Biology dispatch](https://par.nsf.gov/servlets/purl/10248484)).
   Simulations of geese show the rule does not explain every migration ([PMC](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6522631/)).
   Agent-based models of Sahel herders track grazing over rainfall ([CoMSES](https://miracle.comses.net/codebases/?tags=Sahel)).
 - **Herds and flocks** move by Craig Reynolds' three steering rules: keep apart, match heading, stay together ([alife.org](https://alife.org/encyclopedia/software-platforms/boids/), [GameDev.net](https://gamedev.net/blogs/entry/1599579-flocking-a-simple-overview)).
@@ -96,13 +95,15 @@ The items: `WLD-31`, `WLD-32`, `WLD-18`, `WLD-28`, `MND-16`, `BIO-19`, `WLD-30`,
   - [UCSB: Damuth](https://chancellor.ucsb.edu/memos/2024-04-19-sad-news-dr-john-damuth)
 - Games:
   - [Wikipedia: Eco](https://en.wikipedia.org/wiki/Eco_(2018_video_game))
+  - [Cliqist: Eco](https://cliqist.com/2017/04/26/strange-loop-games-challenges-climate-deniers-eco/)
   - [TV Tropes: Equilinox](https://www.tvtropes.org/pmwiki/pmwiki.php/VideoGame/Equilinox)
   - [Game Informer: RDR2 wilderness](https://www.gameinformer.com/preview/2018/09/24/a-glimpse-into-red-dead-redemption-iis-amazing-wilderness)
-  - [World Economic Forum: RDR2 ecology](https://www.weforum.org/stories/nature-and-biodiversity/red-dead-redemption-2-virtual-ecology-is-making-game-worlds-eerily-like-our-own/)
+  - [Gematsu: RDR2 wildlife](https://gematsu.com/2018/09/red-dead-redemption-2-details-wildlife-hunting-fishing-and-horses)
   - [theHunter need zones guide](https://gameplay.tips/guides/4433-the-hunter-call-of-the-wild.html)
   - [Steam discussion](https://steamcommunity.com/app/518790/discussions/0/1519260397774535970)
 - Movement:
-  - [University of Oslo: green waves](https://www.mn.uio.no/cees/english/research/news/publications/10.1016-j.cub.2020.06.032.html)
+  - [USGS: wave-like green-up and ungulate movement (Aikens and others, 2020)](https://pubs.usgs.gov/publication/70228944)
+  - [Current Biology dispatch on green waves](https://par.nsf.gov/servlets/purl/10248484)
   - [PMC: waterfowl](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6522631/)
   - [CoMSES: Sahel herds](https://miracle.comses.net/codebases/?tags=Sahel)
   - [alife.org: boids](https://alife.org/encyclopedia/software-platforms/boids/)

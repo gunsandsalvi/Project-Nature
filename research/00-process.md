@@ -11,13 +11,13 @@ Studios split a game into **concept, pre-production, production, and the finishi
 
 - **Pre-production and production are different kinds of work.**
   - Mark Cerny, who shaped how Sony's studios work, calls them "as different as night and day".
-    Pre-production is where a team tries to "capture lightning", and it cannot be put on a timeline.
+    Pre-production is where a team tries to "capture lightning", and it cannot be put on a timeline ([VGC](https://www.videogameschronicle.com/features/who-is-mark-cerny/)).
     Production builds what pre-production proved.
-  - His "Method" exists "to manage risk so that all risk is in the pre-production phase".
-  - Pre-production ends with a **publishable first playable**: a level "that showed exactly the game you were trying to make, and once you had the level, then you make 30 of them" ([Wikipedia: Mark Cerny](https://en.wikipedia.org/wiki/Mark_Cerny), [Cerny's slides](https://www.slideshare.net/holtt/cerny-method)).
-- **Clinton Keith's version** ([Mountain Goat Software](https://mountaingoatsoftware.com/books/agile-game-development-with-scrum), [O'Reilly](https://www.oreilly.com/library/view/agile-game-development/9780136204831/ch10.xhtml)):
-  - pre-production explores "what is fun and how they are going to build assets to support it", making levels and assets of production quality;
-  - production builds the full game from what was discovered, "focusing on efficiency";
+  - In his words, "pre-production is about concentrating all that work that gets tossed out into the very first few months of the game" ([Game Developer](https://www.gamedeveloper.com/marketing/conversations-from-gdc-europe-mark-cerny-jonty-barnes-jason-kingsley)).
+  - Pre-production ends with a "publishable first playable": a polished piece of the game that decides whether the project lives or dies ([Wikipedia: Mark Cerny](https://en.wikipedia.org/wiki/Mark_Cerny), [VGC](https://www.videogameschronicle.com/features/who-is-mark-cerny/)).
+- **Clinton Keith's version**, from his book's chapter on the project life cycle, as quoted in [course notes](https://cs.ccsu.edu/~stan/classes/CS415/notes/06-AgileProjects.html):
+  - pre-production teams "explore what is fun and how they are going to build assets to support it during production", making levels and assets of production quality;
+  - production builds the full game from what was discovered, and "focuses on efficiency and incremental improvements";
   - both run in short iterations.
 - **The finishing stages** ([Wayline](https://www.wayline.io/blog/setting-game-development-milestones-concept-launch), [Bugnet](https://bugnet.io/blog/milestones-for-indie-game-projects)):
   - a first playable;
@@ -34,13 +34,13 @@ Studios split a game into **concept, pre-production, production, and the finishi
 - **Prototype the riskiest system first.**
   A technical spike is a short, time-boxed test of the greatest uncertainty, hard-coded and deleted afterwards ([Youngju](https://www.youngju.dev/blog/2026-06-30-fde-throwaway-prototypes.en), [Bugnet](https://bugnet.io/blog/what-is-a-game-prototype)).
   A working prototype proves a game can be fun, not that it can be built and finished ([Alexitsios](https://alexitsios.substack.com/p/why-a-working-prototype-doesnt-mean)).
-  This is older than games: Boehm's spiral model of software puts "a series of prototypes aimed at risk reduction" first, before requirements, design and code ([Wikipedia: spiral model](https://en.wikipedia.org/wiki/Spiral_model)).
+  This is older than games: Boehm's spiral model of software puts "a series of prototypes aimed at risk reduction" first, before requirements, design and code ([Osterweil 2011](https://web.cs.umass.edu/publication/docs/2011/UM-CS-2011-023.pdf)).
 - **The vertical slice is a production prototype:**
   - one of each thing, at shipping quality, so the whole creation cycle runs once;
   - it finds the pipeline's problems;
   - then make a second of each thing: "the time it takes you to make the second thing is the time you can divide your development timeline by" ([Rami Ismail](https://ltpf.ramiismail.com/prototypes-and-vertical-slice/)).
 - **Its cost is real:** months of work, and much of the game's effort hidden in a small piece of content ([Unity discussions](https://discussions.unity.com/t/mvp-vs-vertical-slice/632748)).
-  Clinton Keith prefers "game increments" that each add real value.
+  Clinton Keith would rather call it a "game increment", each adding real value.
   He likens it to portrait painters who finished the head first, the main risk, before the rest ([Game Developer](https://www.gamedeveloper.com/design/why-we-should-stop-saying-vertical-slices-)).
 
 ### The documents
@@ -64,7 +64,7 @@ Studios split a game into **concept, pre-production, production, and the finishi
 
 ### What goes wrong
 
-A study of 155 published postmortems found the same mistakes "over and over again" ([Washburn et al., ICSE 2016](https://thomas-zimmermann.com/publications/files/washburn-icse-2016.pdf)).
+A study of 155 published postmortems found the same few kinds of mistake in game after game ([Washburn et al., ICSE 2016](https://thomas-zimmermann.com/publications/files/washburn-icse-2016.pdf)).
 
 | What went wrong | Share of postmortems |
 |---|---|
@@ -86,7 +86,7 @@ What went right most often:
 - **Factorio:** begun by one programmer in 2012, crowdfunded in 2013, in early access from 2016, released in 2020.
   The team wrote a public development note every Friday ([Factorio](https://factorio.com/presskit), [Wikipedia: Factorio](https://www.wikipedia.org/wiki/Factorio)).
 - **Dwarf Fortress:** grown since 2002 by "arcs", each a set of features around one theme, against a design written out in full on paper.
-  "When they finish the paper, that's version 1.0" ([Dwarf Fortress wiki](https://dwarffortresswiki.org/index.php/Arc), [Game Developer](https://www.gamedeveloper.com/pc/feature-the-making-of-i-dwarf-fortress-i-)).
+  "When we finish the paper, that's 1.0", says Tarn Adams ([Dwarf Fortress wiki](https://dwarffortresswiki.org/index.php/Arc), [Game Developer](https://www.gamedeveloper.com/business/dwarf-fortress-in-2013)).
 - **Valve's Team Fortress 2:** its art style was chosen for a purpose, readability, so players can "read" the scene in any light.
   This was "stylization with a purpose", written down before production ([Valve, NPAR 2007](https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/mitchell-team-fortress.pdf), [GDC 2008](https://cdn.steamstatic.com/apps/valve/2008/GDC2008_StylizationWithAPurpose_TF2.pdf)).
 
@@ -144,9 +144,9 @@ What went right most often:
 
 - Phases:
   - [Wikipedia: Mark Cerny](https://en.wikipedia.org/wiki/Mark_Cerny)
-  - [Cerny's Method slides](https://www.slideshare.net/holtt/cerny-method)
-  - [Clinton Keith: Agile Game Development](https://mountaingoatsoftware.com/books/agile-game-development-with-scrum)
-  - [O'Reilly chapter](https://www.oreilly.com/library/view/agile-game-development/9780136204831/ch10.xhtml)
+  - [VGC: who is Mark Cerny](https://www.videogameschronicle.com/features/who-is-mark-cerny/)
+  - [Game Developer: Mark Cerny at GDC Europe](https://www.gamedeveloper.com/marketing/conversations-from-gdc-europe-mark-cerny-jonty-barnes-jason-kingsley)
+  - [Course notes quoting Clinton Keith's Agile Game Development](https://cs.ccsu.edu/~stan/classes/CS415/notes/06-AgileProjects.html)
   - [Game-Ace](https://game-ace.com/blog/game-development-stages/)
   - [RocketBrush](https://rocketbrush.com/blog/game-development-process-guide)
   - [Wayline](https://www.wayline.io/blog/setting-game-development-milestones-concept-launch)
@@ -158,7 +158,7 @@ What went right most often:
   - [Youngju: throwaway prototypes](https://www.youngju.dev/blog/2026-06-30-fde-throwaway-prototypes.en)
   - [Bugnet: what is a prototype](https://bugnet.io/blog/what-is-a-game-prototype)
   - [Alexitsios](https://alexitsios.substack.com/p/why-a-working-prototype-doesnt-mean)
-  - [Wikipedia: spiral model](https://en.wikipedia.org/wiki/Spiral_model)
+  - [Osterweil: a process programmer looks at the spiral model (2011)](https://web.cs.umass.edu/publication/docs/2011/UM-CS-2011-023.pdf)
 - Documents:
   - [WPI design document slides](https://web.cs.wpi.edu/~imgd1001/a08/slides/imgd1001_05_GameDesignDocs.pdf)
   - [Game Design Skills: technical design document](https://gamedesignskills.com/game-design/technical-design-document/)
@@ -171,6 +171,6 @@ What went right most often:
   - [Factorio press kit](https://factorio.com/presskit)
   - [Wikipedia: Factorio](https://www.wikipedia.org/wiki/Factorio)
   - [Dwarf Fortress wiki: arcs](https://dwarffortresswiki.org/index.php/Arc)
-  - [Game Developer: the making of Dwarf Fortress](https://www.gamedeveloper.com/pc/feature-the-making-of-i-dwarf-fortress-i-)
+  - [Game Developer: Dwarf Fortress in 2013](https://www.gamedeveloper.com/business/dwarf-fortress-in-2013)
   - [Valve: illustrative rendering in TF2](https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/mitchell-team-fortress.pdf)
   - [Valve: stylization with a purpose](https://cdn.steamstatic.com/apps/valve/2008/GDC2008_StylizationWithAPurpose_TF2.pdf)

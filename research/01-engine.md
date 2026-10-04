@@ -86,7 +86,7 @@ He had to change Godot's source four times:
 | `LIGHT_VERTEX`, lighting at a chosen point | each grass card shaded as the ground at its foot | yes, merged ([PR 91136](https://github.com/godotengine/godot/pull/91136)); the bake-off uses it | yes |
 | Custom camera projections | mirror-image water reflections | no: 4.7's RenderingServer has no custom projection ([Godot docs](https://docs.godotengine.org/en/4.7/classes/class_renderingserver.html)) | only for true reflections |
 
-He later left Godot for his own framework (Odin with raylib) "for more control over the rendering pipeline".
+He later left Godot for his own framework (Odin with raylib), wanting "more control over the rendering pipeline and engine setup in general".
 His target was a 2016 laptop graphics card (GTX 1060), at 640 × 360.
 - **For us:** the look is reachable in Godot without changing its source, if the water fakes its reflections from the sky's colours rather than mirroring the scene.
   Real mirror reflections need an engine change, or a second camera with its own clipping, at the cost of drawing the scene twice.
@@ -95,7 +95,7 @@ His target was a 2016 laptop graphics card (GTX 1060), at 640 × 360.
 
 - **MultiMesh** draws thousands of copies in one call.
   But it is culled as one box, so copies spread far apart are always drawn: they must be grouped by area ([Godot docs: MultiMesh](https://docs.godotengine.org/en/stable/classes/class_multimesh.html)).
-- **Below the scene tree,** Godot's servers can be driven directly by ID, "for tens of thousands of instances that need processing every frame" ([Godot docs: servers](https://docs.godotengine.org/en/4.7/tutorials/performance/using_servers.html)).
+- **Below the scene tree,** Godot's servers can be driven directly by ID, for the case where "dealing with tens of thousands of instances for something that needs to be processed every frame can be a bottleneck" ([Godot docs: servers](https://docs.godotengine.org/en/4.7/tutorials/performance/using_servers.html)).
 - **Proof from others:**
   - THRUM, a Godot 4 colony and civilisation game, aims at 10,000 persistent individuals with personalities, drawn by MultiMesh, on a deterministic fixed-step tick engine with speeds up to 100,000× ([Godot forum](https://forum.godotengine.org/t/thrum-colony-civilisation-simulation/138371));
   - a developer whose released Godot RTS handles a few thousand units says: no node per unit, use the servers directly, and write the logic in multi-threaded C++ ([r/godot](https://redlib.hbubli.cc/r/godot/comments/1jafwl4/rts_em_godot));

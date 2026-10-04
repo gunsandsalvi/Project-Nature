@@ -33,7 +33,7 @@ How do they do it while staying explainable and fast enough for your phone (`MND
 
   FAtiMA built this into autonomous game characters, first for a serious game about bullying ([arXiv: emotion engines for NPCs](https://arxiv.org/pdf/2307.10031), [FAtiMA](https://www.doi.org/10.1007/978-3-319-12973-0_3), [AAAI](https://cdn.aaai.org/AAAI/2007/AAAI07-021.pdf)).
 - **RimWorld's mood:**
-  - thoughts ("hungry −6", "ate a fine meal") add up from a base;
+  - thoughts ("Hungry" −6, "Ate fine meal" +5) add up from a base;
   - mental breaks risk starting below 35%, 20% and 5%, the lines moved by traits such as Steadfast or Nervous;
   - thoughts stack with limits ([RimWorld wiki: mood](https://rimworldwiki.com/wiki/Mood), [mental break](https://rimworldwiki.com/wiki/Break), [thoughts](https://rimworldwiki.com/wiki/Thoughts)).
 - **Dwarf Fortress** ([DF wiki: thoughts](https://dwarffortresswiki.org/Thoughts_and_preferences), [memory](https://dwarffortresswiki.org/Memory_(thought))):

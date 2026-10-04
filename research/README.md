@@ -8,7 +8,8 @@ Each note gives:
 - what Kindling takes;
 - its sources.
 
-From note 11 on, every quotation was checked against its page; notes 00 to 10 get the same check while the architecture is rewritten.
+Every quotation was checked against its page: notes 11 to 17 when written, notes 00 to 10 on 4 October 2026.
+Where a site refused the checking tool, the quote was checked against a search engine's copy of the page; quotes that could not be found were reworded or removed.
 
 ## The notes
 

@@ -7,7 +7,7 @@ What do real hunter-gatherers' lives give us as numbers, so that Kindling's peop
 
 - **Needs that run down:** in The Sims, decisions are driven by eight "motives":
   - hunger, hygiene, fun, energy, bladder, social, comfort and room;
-  - each meter runs from −100 to +100 and "constantly ticking down, each decaying at slightly different rates".
+  - each meter runs from −100 to +100 and runs down all the time, each at its own rate.
   - **Objects advertise what they offer:** "a bed will say sleep on me to get 10 energy", and Sims match the adverts to their needs.
 
   Will Wright modelled this on SimAnt's pheromone trails, putting intelligence in the environment ([GMTK transcript](https://gameindustrylibrary.com/documents/gmtk-the-genius-ai-behind-the-sims), [Amara](https://amara.org/videos/cVoJS4OdmVql/en/4330642)).
@@ -16,7 +16,7 @@ What do real hunter-gatherers' lives give us as numbers, so that Kindling's peop
   - cut fat bleeds more;
   - cut muscle or tendon can disable a limb, and a hurt leg makes a creature fall;
   - broken bone is the worst pain, usually knocking out.
-- **Illness as a race:** in RimWorld, an illness's severity and the body's immunity both climb each day, and "the first to 100% wins" ([RimWorld wiki: disease](https://rimworldwiki.com/wiki/Disease)).
+- **Illness as a race:** in RimWorld, an illness's severity and the body's immunity both climb each day, and some diseases are "a race between the increasing severity of the disease and the increasing immunity to it" ([RimWorld wiki: disease](https://rimworldwiki.com/wiki/Disease)).
   For example, a wound infection gains +0.84 severity a day against +0.644 immunity, and good treatment takes 0.53 a day off.
   Wounds can each be infected separately.
 - **Inheritance:** Crusader Kings III ([GameWatcher](https://www.gamewatcher.com/crusader-kings-3-marriage-and-genetics-guide), [Glitchout](https://glitchout.blog/2020/09/28/crusader-kings-3-eugenics-at-play/)):
@@ -35,12 +35,12 @@ What do real hunter-gatherers' lives give us as numbers, so that Kindling's peop
   - adult deaths peak at about seven decades;
   - illness causes more than half of all deaths, mostly respiratory, stomach and fever.
     Accidents and violence are next, and in old age degenerative disease.
-- **Births** (Ache, Agta, Hadza, Hiwi and !Kung) ([Cambridge: Hadza demography](https://core-cms.cambridgecore.org/core/books/demography-and-evolutionary-ecology-of-hadza-huntergatherers/fertility/42E2C841770F8C8191A2AFAF997AEF92), [arXiv](https://arxiv.org/pdf/2601.13442)):
+- **Births** (Ache, Agta, Hadza, Hiwi and !Kung) ([Cambridge: Hadza demography](https://www.cambridge.org/core/books/demography-and-evolutionary-ecology-of-hadza-huntergatherers/fertility/42E2C841770F8C8191A2AFAF997AEF92), [arXiv](https://arxiv.org/pdf/2601.13442)):
   - first births around 20, last around 38;
   - about 3.1 years between births (2.8 to 3.3);
   - about 6 children per woman on average, from 4.7 (!Kung) to 8.1 (Ache).
   - The gaps come mainly from breastfeeding, which delays ovulation.
-    The !Kung's four-year gap is "entirely due to the contraceptive effect of lactation".
+    The !Kung's four-year gap is put down to breastfeeding alone.
 - **Energy:** Pontzer and others (2012) measured the Hadza with doubly labelled water ([PMC](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3405064/)).
   They are more active than Westerners, yet burn about the same energy a day for their size.
   Over 95% of their food is wild: tubers, berries, game, baobab fruit and honey.
@@ -80,6 +80,6 @@ What do real hunter-gatherers' lives give us as numbers, so that Kindling's peop
 - People:
   - [Gurven and Kaplan 2007](https://gurven.anth.ucsb.edu/sites/secure.lsit.ucsb.edu.anth.d7_gurven/files/sitefiles/papers/GurvenKaplan2007pdr.pdf)
   - [HRAF summary](https://hraf.yale.edu/ehc/documents/1294)
-  - [Cambridge: Hadza fertility](https://core-cms.cambridgecore.org/core/books/demography-and-evolutionary-ecology-of-hadza-huntergatherers/fertility/42E2C841770F8C8191A2AFAF997AEF92)
+  - [Cambridge: Hadza fertility](https://www.cambridge.org/core/books/demography-and-evolutionary-ecology-of-hadza-huntergatherers/fertility/42E2C841770F8C8191A2AFAF997AEF92)
   - [arXiv: menopause simulation study](https://arxiv.org/pdf/2601.13442)
   - [Pontzer et al. 2012](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3405064/)
