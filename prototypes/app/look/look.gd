@@ -259,8 +259,11 @@ func _build_materials(scene: Node3D) -> void:
 			puffs.shader = load("res://look/shaders/puffs.gdshader")
 			puffs.set_shader_parameter("puff_row", float(node.get_meta("row")))
 			puffs.set_shader_parameter("puff_shift", float(node.get_meta("shift")))
-			puffs.render_priority = 2
-			node.material_override = puffs
+			puffs.render_priority = 3
+			var nearest := _variant(puffs, "PUFF_DEPTH")
+			nearest.render_priority = 2
+			nearest.next_pass = puffs
+			node.material_override = nearest
 			node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			node.layers = LAYER_MAIN
 			continue
