@@ -246,7 +246,12 @@ Following Box2D and Factorio (research 03):
      The shaders work in world coordinates, so a moved or instanced shape gets its fire, sky and patterns where it stands, not where it was built.
    - **Camp zoom** puts the camera 1 km back, past the nearest ground in view, and stretches the sun's shadows, the haze and the outline depths to the view's 1.2 km of ground; beyond the sky's height map, the sky is open.
    Godot stops lighting MultiMesh copies once its per-object light limit is used up, so fires reach figures and huts through a firelight term in our shaders, fed by a short list of nearby fires, if needed (research 17).
-   - *To prove (P2, P3):* a camp lit by three fires at night.
+   - *Proved in P2:* a camp lit by three fires at night holds 60 frames a second (A18.1).
+   - **Shadows from every fire,** as you asked after P2 (*built in α0.2c*): people and things cast a shadow from each fire as well as the sun, and stand in each other's.
+     Two maps of the heights round the fires, 48 m across at 512 pixels, are drawn every frame as people move, inside the picture's viewport so they are ready before it: the tops of what stands there, seen from above, and its undersides, the faces turned down, seen from below.
+     For each fire, a point walks the line to the flames every 0.2 m, up to 32 steps: where the line runs through something, between its underside and its top, or passes from above a thing to below it between two steps, the point is in that fire's shadow.
+     So a fire under a roof or an overhang lights the ground round it, while a tent, a person or a windbreak stops its light; foliage, and anything more than 2.4 m above the fires, stays out.
+     A flame low by the ground casts the shadow of what stands lower than it, a person's legs, as a real fire does.
 6. **Water** (`PRE-26`), the clear water you chose:
    - shallow water shows its bed, deeper water darkens away from the shore in steps, and a thin bright line marks where water meets land or anything standing in it;
    - the sky's colour on the surface, with glints;
@@ -255,8 +260,11 @@ Following Box2D and Factorio (research 03):
    - *Built in P1:* forward drawing leaves the water no record of the land round it, so its shore line is drawn where the water is thinnest, from the depth texture: within about an art pixel of the bank.
      In the cloud the mirrored pass adds about a quarter to the frame; on your phone at most 0.3 ms, so the reflections stay.
 7. **At speed** (`PRE-30`, `PRE-29`): once a day passes in under about 10 seconds, the light holds steady from high up and only its tint follows the hour; the map look is always lit so.
-8. **Smoke and mist,** as the painter draws them: only the nearest puff at each pixel, mixed over the picture's stored colours.
-   Godot would blend every puff in linear light, which thickens the column and brightens it over dark ground; so a first pass draws each pixel's nearest puff depth, and a second draws that puff alone, its blend solved against the screen's copy (P1).
+8. **Smoke and mist.**
+   - *Built in α0.2c, as you asked:* smoke is a lit volume, not the painter's flat puffs. Its path is worked out at load from the scene: up from the fire, along the underside of a roof or overhang to its edge, then up and away on the wind, widening as it goes.
+     Round the path, a box is drawn whose every pixel walks its ray through it in 24 steps, stopping at whatever stands there, so what stands in the smoke shows through it; noise climbing with time stirs it.
+     The fire below lights it; its colour is a step of the smoke's ramp, paler by day, and its thickness five steps of opacity, so its edges are clean like everything else.
+   - Mist stays as the painter draws it: only the nearest puff at each pixel, mixed over the picture's stored colours. Godot would blend every puff in linear light, which thickens and brightens it, so each blend is solved against the screen's copy (P1); the smoke's volume is mixed the same way.
 
 ### A4.2 Materials
 
@@ -334,22 +342,26 @@ Grass, reeds, flowers and flames are sized in metres, so they keep their true si
 - Each form's shared shape is built at load by our C++ in `view/` as an `ArrayMesh`, from the kit's parameters in the catalogues.
 - Plants come from 8 parametric forms, animals from 6 body patterns, and people from one block figure (`PRE-27`).
 - A new thing is a catalogue entry, and its model follows from its parts.
+- *Built in P3,* in GDScript as pre-production code: eleven shared shapes, two plants and a deer, each in two materials, from a catalogue of parameters, built at load in a few milliseconds.
+  Each vertex carries its material's row of the palette, its step up or down, its surface pattern and its flags, and its place in its own part, for patterns such as a face.
 
 ### A6.2 Copies
 
 - Models are layouts of shared shapes, drawn as MultiMesh copies grouped by area, since a MultiMesh is culled as one.
 - Each copy carries its material's colour, its wear and its maker's style in per-instance data, so huts of birch and of reed look different with no new art (`PRE-42`, `PRE-43`).
+  *Built in P3:* the hut is one shape drawn as two MultiMesh copies; each copy's data holds its material's row, its pattern (bark or thatch), how worn it is and a seed, and the shared shader gives the parts of the shape flagged to take them that material, and darkens a share of patches a step in places set by the seed.
 - Icons are rendered once per kind from the model, through a SubViewport set to update once.
 
 ### A6.3 Animation (`PRE-44`)
 
 - Each movement is 2 to 6 key poses of the block figure, stepped about 10 times a second; our C++ poses the rigid parts, with no skeletons.
 - Rules bend the poses (stoop, limp, slump, hunch), each figure's seed offsets its timing, and feet meet the ground by a two-bone sum.
+- *Built in P3:* walk and carry in 4 poses, knap, scrape and rest in 2, each pose the angles at the hips, knees, shoulders and elbows, the body's bend, the head's nod and the pelvis's drop to sit or kneel, with what the hands hold; each pose a shape of its own, built at load, swapped in place at its step. The head bears a face of two eyes and a mouth.
 
 ### A6.4 Sheets
 
-The model sheet of every kit shape in two materials, and the animation sheet, are rendered by Movie Maker mode in the cloud whenever the kit changes, for your eye.
-*To prove (P3):* about 10 shapes, 2 plants, 1 animal, the figure with 5 movements and a hut in two materials, at noon and at night.
+The model sheet of every kit shape in two materials, and the animation sheet, are rendered in the cloud whenever the kit changes, for your eye.
+*Built in P3:* the sheet is a screen of the prototype app, at noon, dusk and night with three fires; the cloud draws its pictures by the app's own picture option, which saves the low-resolution picture itself, since Movie Maker mode records only at the project's base size.
 
 ## A7. The world (research 06)
 

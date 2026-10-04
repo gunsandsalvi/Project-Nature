@@ -8,6 +8,8 @@ extends RefCounted
 const EMISSIVE := 1.0
 const FOLIAGE := 2.0
 const CREATURE := 32.0
+## Parts that take their copy's own material, pattern and wear (solid.gdshader, A6.2).
+const COPY := 64.0
 ## The look's surface patterns (look.gdshaderinc's pattern()).
 const PAT := {"none": 0, "ground": 1, "rock": 2, "bark": 3, "hide": 5, "thatch": 6, "face": 7}
 

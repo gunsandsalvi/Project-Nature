@@ -160,6 +160,10 @@ look_occ_map={
 "type": "sampler2D",
 "value": ""
 }
+look_occ_floor={
+"type": "sampler2D",
+"value": ""
+}
 look_occ_box={
 "type": "vec4",
 "value": Vector4(0, 0, 1, 0)

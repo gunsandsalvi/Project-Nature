@@ -8,9 +8,10 @@
 // The variants a material is compiled in, by a #define put after its shader_type (look.gd): PREPASS, the second
 // camera's normals and depths for outline method (c); SKYMAP, the heights seen from straight above; MIRROR, the
 // scene reflected in the water, lit where it really stands; HULL, outline method (d), the shape drawn again a
-// little larger from behind in its own darker shade; OCCMAP, the heights of what stands round the fires seen from
-// above, for the fires' shadows, leaving out what stands higher than a fire's flames reach and foliage. DATA_OUT
-// writes a data pass's picture; the rest of a fragment() is left out of a data pass (DATA_PASS).
+// little larger from behind in its own darker shade; OCCMAP, the heights of what stands round the fires, for the
+// fires' shadows, leaving out what stands higher than a fire's flames reach and foliage: seen from above, its tops,
+// and from below, its undersides, the faces turned down, so light passes under a roof but not through a tent.
+// DATA_OUT writes a data pass's picture; the rest of a fragment() is left out of a data pass (DATA_PASS).
 #if defined(PREPASS)
 #define DATA_PASS
 #define DATA_OUT(n) ALBEDO = vec3(oct_encode(n), clamp((-VERTEX.z - look_gbuf_depth.x) / look_gbuf_depth.y, 0.0, 1.0));
@@ -19,7 +20,7 @@
 #define DATA_OUT(n) ALBEDO = vec3(clamp((world.y - look_sky_height.x) / look_sky_height.y, 0.0, 1.0));
 #elif defined(OCCMAP)
 #define DATA_PASS
-#define DATA_OUT(n) if (world.y > look_occ_cap || bit(flags, FLAG_FOLIAGE)) { discard; } ALBEDO = vec3(clamp((world.y - look_sky_height.x) / look_sky_height.y, 0.0, 1.0));
+#define DATA_OUT(n) if (world.y > look_occ_cap || bit(flags, FLAG_FOLIAGE) || (INV_VIEW_MATRIX[2].y < 0.0 && wnormal.y > -0.05)) { discard; } ALBEDO = vec3(clamp((world.y - look_sky_height.x) / look_sky_height.y, 0.0, 1.0));
 #else
 #define DATA_OUT(n)
 #endif
@@ -62,10 +63,11 @@ global uniform float look_sky_cover;
 global uniform sampler2D look_sky_map : filter_nearest;
 #endif
 global uniform vec4 look_sky_box;
-// the heights round the fires, from above (OCCMAP): its square's corner and side, on when w is 1; and the height,
-// above which nothing is drawn into it
+// the heights round the fires (OCCMAP), the tops from above and the undersides from below, the second mirrored
+// left to right: its square's corner and side, on when w is 1; and the height above which nothing is drawn into it
 #ifndef OCCMAP
 global uniform sampler2D look_occ_map : filter_nearest;
+global uniform sampler2D look_occ_floor : filter_nearest;
 #endif
 global uniform vec4 look_occ_box;
 global uniform float look_occ_cap;
@@ -97,6 +99,8 @@ const float FLAG_EMISSIVE = 1.0;
 const float FLAG_FOLIAGE = 2.0;
 const float FLAG_NOOUTLINE = 4.0;
 const float FLAG_CREATURE = 32.0;
+// parts that take their copy's own material, pattern and wear from a MultiMesh's per-copy data (A6.2)
+const float FLAG_COPY = 64.0;
 
 bool bit(float f, float b) {
 	return mod(floor(f / b), 2.0) > 0.5;
@@ -264,10 +268,17 @@ float sky_open(vec3 p, vec3 n) {
 	return open / 5.0;
 }
 
-// The sky's and the fire's share of a point's light, before the sun (the painter's light(), less its sun).
+// The top of what stands round the fires at a place of their heights' map, or none.
+float occ_top(vec2 uv) {
+	vec4 s = textureLod(look_occ_map, uv, 0.0);
+	return s.a > 0.5 ? look_sky_height.x + s.r * look_sky_height.y : -1e9;
+}
+
 // Whether a fire reaches a point, or what stands round it shades the point (PRE-30): the line from the point to
 // the fire's flames, walked across the heights round the fires (OCCMAP) every 0.2 m, from past the point's own
-// shape; anything standing above the line casts its shadow. 1 lit, 0 in shadow.
+// shape. The line is in shadow where it runs through something, between its underside and its top, or where it
+// passes from above a thing to below its underside between two steps, as through a roof from a point on top of
+// it; under a roof it passes. 1 lit, 0 in shadow.
 float fire_shadow(vec3 p, vec3 f) {
 	if (look_occ_box.w < 0.5) {
 		return 1.0;
@@ -280,6 +291,10 @@ float fire_shadow(vec3 p, vec3 f) {
 	}
 	vec2 dir = d / len;
 	float steps = clamp(floor((len - start) / 0.2), 1.0, 32.0);
+	// the top the line was last above: the point's own, when it stands on top of something
+	vec2 uv0 = (p.xz - look_occ_box.xy) / look_occ_box.z;
+	float own = occ_top(uv0);
+	float last = p.y > own - 0.15 ? own : -1e9;
 	for (int k = 0; k < 32; k++) {
 		if (float(k) >= steps) {
 			break;
@@ -287,17 +302,24 @@ float fire_shadow(vec3 p, vec3 f) {
 		float t = start + (len - start) * (float(k) + 0.5) / steps;
 		vec2 uv = (p.xz + dir * t - look_occ_box.xy) / look_occ_box.z;
 		if (any(lessThan(uv, vec2(0.0))) || any(greaterThan(uv, vec2(1.0)))) {
+			last = -1e9;
 			continue;
 		}
-		vec4 s = textureLod(look_occ_map, uv, 0.0);
-		float top = look_sky_height.x + s.r * look_sky_height.y;
-		if (s.a > 0.5 && top > mix(p.y + 0.15, f.y + 0.3, t / len)) {
-			return 0.0;
+		float top = occ_top(uv);
+		float h = mix(p.y + 0.15, f.y + 0.3, t / len);
+		if (h < top) {
+			vec4 b = textureLod(look_occ_floor, vec2(1.0 - uv.x, uv.y), 0.0);
+			float bottom = b.a > 0.5 ? look_sky_height.x + b.r * look_sky_height.y : -1e9;
+			if (h > bottom || last > bottom - 0.3) {
+				return 0.0;
+			}
 		}
+		last = h >= top ? top : -1e9;
 	}
 	return 1.0;
 }
 
+// The sky's and the fire's share of a point's light, before the sun (the painter's light(), less its sun).
 vec2 sky_and_fire(vec3 p, vec3 n, float fl) {
 	bool foliage = bit(fl, FLAG_FOLIAGE);
 	float s = (0.7 + 0.3 * n.y) * mix(1.0 - look_sky_cover, 1.0, foliage ? 1.0 : sky_open(p, n));

@@ -22,29 +22,10 @@ const LAYER_OCC := 16
 const Shape := preload("res://look/shape.gd")
 const SmokePath := preload("res://look/smoke_path.gd")
 const Runs := preload("res://look/runs.gd")
+const P1Measure := preload("res://look/p1_measure.gd")
 ## The heights round the fires, for their shadows: the square's side in metres, and its pixels.
 const OCC_SIDE := 48.0
 const OCC_SIZE := 512
-## What Measure runs (PLT-04): each outline method without and with the mirrored water at 60
-## frames a second, then none, C, and C with the mirror at 120, where a frame has only 8.3 ms, so
-## the chip can't hide its cost by slowing its clock; each for RUN_TIME seconds: a second to
-## settle, then two each of panning, turning and zooming by script. [outline, mirror, frame rate]
-const RUNS := [
-	[0, false, 60],
-	[1, false, 60],
-	[2, false, 60],
-	[3, false, 60],
-	[4, false, 60],
-	[0, true, 60],
-	[1, true, 60],
-	[2, true, 60],
-	[3, true, 60],
-	[4, true, 60],
-	[0, false, 120],
-	[3, false, 120],
-	[3, true, 120]
-]
-const RUN_TIME := 7.0
 
 var painter: Dictionary
 var target := Vector3.ZERO
@@ -74,11 +55,13 @@ var _mirror: SubViewport
 var _sky: SubViewport
 var _occ: SubViewport
 var _occ_cam: Camera3D
+var _occ_floor: SubViewport
+var _occ_floor_cam: Camera3D
 ## The fires lit by our firelight term or by Godot's own lights: each [place, reach, power].
 var _fires := []
 var _omni: Array[OmniLight3D] = []
-## Measure's runner, for a screen that has runs (_measure_runs).
-var _runs: Runs
+## Measure's runner: P1's own, or a screen's runs (_measure_runs).
+var _runs: RefCounted
 ## The smokes' materials, for the hour's step of their ramp.
 var _smokes: Array[ShaderMaterial] = []
 var _view: TextureRect
@@ -104,16 +87,10 @@ var _moving := 0.0
 var _frames := 0
 var _gpu := 0.0
 var _clock := 0.0
-var _run := -1
-var _run_clock := 0.0
-var _samples := PackedFloat32Array()
-var _late := 0
-var _results := PackedStringArray()
-var _before := []
 
 
 func _ready() -> void:
-	var scene: Node3D = (load(SCENE) as PackedScene).instantiate()
+	var scene := _load_scene()
 	painter = scene.get_meta("painter")
 	var c: Dictionary = painter.camera
 	target = Vector3(c.target[0], c.target[1], c.target[2])
@@ -154,6 +131,11 @@ func _ready() -> void:
 	_layout()
 
 
+## The scene to draw: the painter's close camp, its palette, light, look and camera in its meta.
+func _load_scene() -> Node3D:
+	return (load(SCENE) as PackedScene).instantiate()
+
+
 ## The low-resolution views: the picture, the second camera's normals and depths (outline method C),
 ## the mirrored scene (the water's reflections) and the heights from above (the sky's light).
 func _build_views(scene: Node3D) -> void:
@@ -189,16 +171,10 @@ func _build_views(scene: Node3D) -> void:
 	_mirror_cam = _camera(LAYER_MIRROR)
 	_mirror.add_child(_mirror_cam)
 	_art.add_child(_mirror)
-	_occ = _viewport(true, true)
-	_occ.world_3d = _art.world_3d
-	_occ.size = Vector2i(OCC_SIZE, OCC_SIZE)
-	_occ_cam = Camera3D.new()
-	_occ_cam.projection = Camera3D.PROJECTION_ORTHOGONAL
-	_occ_cam.cull_mask = LAYER_OCC
-	_occ_cam.near = 1.0
-	_occ_cam.far = 2000.0
-	_occ.add_child(_occ_cam)
-	_art.add_child(_occ)
+	_occ = _occ_view()
+	_occ_cam = _occ.get_child(0)
+	_occ_floor = _occ_view()
+	_occ_floor_cam = _occ_floor.get_child(0)
 	_sky = _viewport(true, true)
 	_sky.world_3d = _art.world_3d
 	_sky.size = Vector2i(1024, 1024)
@@ -240,6 +216,21 @@ func _build_views(scene: Node3D) -> void:
 	_post.layers = LAYER_MAIN
 	_cam.add_child(_post)
 	_post.position = Vector3(0, 0, -2)
+
+
+## A view of the heights round the fires, from above or below (_set_occ), drawn before the picture.
+func _occ_view() -> SubViewport:
+	var vp := _viewport(true, true)
+	vp.world_3d = _art.world_3d
+	vp.size = Vector2i(OCC_SIZE, OCC_SIZE)
+	var cam := Camera3D.new()
+	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	cam.cull_mask = LAYER_OCC
+	cam.near = 1.0
+	cam.far = 2000.0
+	vp.add_child(cam)
+	_art.add_child(vp)
+	return vp
 
 
 func _viewport(data: bool, clear: bool) -> SubViewport:
@@ -324,17 +315,23 @@ func _build_materials(scene: Node3D) -> void:
 ## Adds a shape drawn with one of the look's materials, with its copies for the data passes (the
 ## outline data, the sky's heights and the mirror), each in its own layer with its own variant, as
 ## every shape of the scene has: without them outline C reads the shape as all edge. A copy shares
-## its node's mesh or multimesh, so instanced copies move together.
-func _add_shape(node: GeometryInstance3D, base: ShaderMaterial, parent: Node3D) -> void:
+## its node's mesh or multimesh, so instanced copies move together. Returns the node and its
+## copies.
+func _add_shape(
+	node: GeometryInstance3D, base: ShaderMaterial, parent: Node3D
+) -> Array[GeometryInstance3D]:
 	node.material_override = base
 	node.layers = LAYER_MAIN
 	parent.add_child(node)
+	var nodes: Array[GeometryInstance3D] = [node]
 	for layer: int in _data_layers(base):
 		var copy: GeometryInstance3D = node.duplicate()
 		copy.material_override = _variants[base][layer]
 		copy.layers = layer
 		copy.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		parent.add_child(copy)
+		nodes.append(copy)
+	return nodes
 
 
 ## The camera's distance, and what follows it: how far it sees, how far the sun's shadows reach,
@@ -360,18 +357,24 @@ func _data_layers(base: ShaderMaterial) -> Array[int]:
 
 
 ## The heights round the fires (PRE-30), for their shadows: a square OCC_SIDE metres across round
-## centre, seen from above as the sky's map is, redrawn each frame as people move. Nothing higher
-## than 2.4 m above centre goes in, so an overhang shades no fire.
+## centre, redrawn each frame as people move, seen from above as the sky's map is, for the tops of
+## what stands there, and from below, for the undersides of roofs (mirrored left to right). Nothing
+## higher than 2.4 m above centre goes in, so an overhang shades no fire.
 func _set_occ(centre: Vector3) -> void:
 	_occ_cam.size = OCC_SIDE
 	_occ_cam.transform = Transform3D(
 		Basis.looking_at(Vector3.DOWN, Vector3.FORWARD), centre + Vector3(0.0, 600.0, 0.0)
+	)
+	_occ_floor_cam.size = OCC_SIDE
+	_occ_floor_cam.transform = Transform3D(
+		Basis.looking_at(Vector3.UP, Vector3.FORWARD), centre - Vector3(0.0, 600.0, 0.0)
 	)
 	var set_global := RenderingServer.global_shader_parameter_set
 	var corner := Vector2(centre.x - OCC_SIDE * 0.5, centre.z - OCC_SIDE * 0.5)
 	set_global.call("look_occ_box", Vector4(corner.x, corner.y, OCC_SIDE, 1.0))
 	set_global.call("look_occ_cap", centre.y + 2.4)
 	set_global.call("look_occ_map", _occ.get_texture())
+	set_global.call("look_occ_floor", _occ_floor.get_texture())
 
 
 ## Smoke from a fire (PRE-30): a volume round a path worked out from the scene, drawn by
@@ -524,7 +527,7 @@ func _globals_once(scene: Node3D) -> void:
 
 
 ## The hour's light from the painter (PRE-30): the sun's way and tints, and the hearth, which burns
-## higher at dusk (the painter's hearth at level 4 at dusk, level 3 damped at noon).
+## higher after noon (the painter's hearth at level 4 at dusk, level 3 damped at noon).
 func _set_hour(name: String) -> void:
 	hour = name
 	var md: Dictionary = painter.moods[name]
@@ -552,8 +555,8 @@ func _set_hour(name: String) -> void:
 	var fires: Array = painter.fires
 	if fires.size() > 0:
 		var f: Dictionary = fires[0]
-		var power: float = 1.0 if name == "dusk" else float(f.power)
-		var radius: float = 12.0 if name == "dusk" else float(f.radius)
+		var power: float = 1.0 if name != "noon" else float(f.power)
+		var radius: float = 12.0 if name != "noon" else float(f.radius)
 		var lit := Projection()
 		lit.x = Vector4(f.pos[0], f.pos[1], f.pos[2], radius)
 		set_global.call("look_fires", lit)
@@ -693,7 +696,7 @@ func _on_button(key: String) -> void:
 		"back":
 			closed.emit()
 		"hour":
-			_set_hour("dusk" if hour == "noon" else "noon")
+			_set_hour({"noon": "dusk", "dusk": "night", "night": "noon"}[hour])
 		"outline":
 			_set_outline((outline + 1) % OUTLINES.size())
 		"mirror":
@@ -706,11 +709,10 @@ func _on_button(key: String) -> void:
 
 
 func _process(delta: float) -> void:
-	if _run >= 0:
-		_measure_step(delta)
-		return
-	if _runs != null and _runs.index >= 0:
+	if _busy():
 		_runs.step(delta)
+		if _runs is P1Measure:
+			return
 	_frames += 1
 	_clock += delta
 	_gpu += RenderingServer.viewport_get_measured_render_time_gpu(_art.get_viewport_rid())
@@ -745,11 +747,8 @@ func _measure() -> void:
 		return
 	_hold = true
 	var runs := _measure_runs()
-	if runs.is_empty():
-		_start_measure()
-	else:
-		_runs = Runs.new(self, _measure_name(), runs)
-		_runs.start()
+	_runs = P1Measure.new(self) if runs.is_empty() else Runs.new(self, _measure_name(), runs)
+	_runs.start()
 
 
 ## Measure's runs for a screen that has them, each [label, frames a second, seconds, setup]; none
@@ -765,112 +764,7 @@ func _measure_name() -> String:
 
 ## Whether a Measure is running.
 func _busy() -> bool:
-	return _run >= 0 or (_runs != null and _runs.index >= 0)
-
-
-## Measure (PLT-04): the graphics time of every pass and the share of frames on time at the
-## run's frame rate, for each run of RUNS from the painter's view, then the results as a code for
-## the chat.
-func _start_measure() -> void:
-	_before = [target, yaw, mpp, outline, reflect, crawl]
-	crawl = 0
-	_results = PackedStringArray()
-	_begin_run(0)
-
-
-func _begin_run(i: int) -> void:
-	_run = i
-	var run: Array = RUNS[i]
-	_set_outline(run[0])
-	_set_reflect(run[1])
-	Engine.max_fps = run[2]
-	_run_clock = 0.0
-	_samples = PackedFloat32Array()
-	_late = 0
-	_readout.text = (
-		"Measuring %d of %d: outline %s, mirror %s, %d frames a second"
-		% [i + 1, RUNS.size(), OUTLINES[run[0]], "on" if run[1] else "off", run[2]]
-	)
-
-
-func _measure_step(delta: float) -> void:
-	_run_clock += delta
-	var t := _run_clock
-	var c: Dictionary = painter.camera
-	var home := Vector3(c.target[0], c.target[1], c.target[2])
-	var right := Vector3(cos(deg_to_rad(c.yaw)), 0.0, -sin(deg_to_rad(c.yaw)))
-	target = home
-	yaw = c.yaw
-	mpp = c.mpp
-	if t >= 1.0 and t < 3.0:
-		target = home + right * 4.0 * sin((t - 1.0) * PI)
-	elif t >= 3.0 and t < 5.0:
-		yaw = c.yaw + 25.0 * sin((t - 3.0) * PI)
-	elif t >= 5.0:
-		mpp = c.mpp * (1.0 + 0.4 * sin((t - 5.0) * PI * 0.5))
-	_apply_camera()
-	if t >= 1.0:
-		var gpu := RenderingServer.viewport_get_measured_render_time_gpu(_art.get_viewport_rid())
-		for vp: SubViewport in [_gbuf, _mirror]:
-			if vp.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
-				gpu += RenderingServer.viewport_get_measured_render_time_gpu(vp.get_viewport_rid())
-		_samples.append(gpu)
-		if delta > 1.15 / float(RUNS[_run][2]):
-			_late += 1
-	if t < RUN_TIME:
-		return
-	var sorted := _samples.duplicate()
-	sorted.sort()
-	var total := 0.0
-	for g in sorted:
-		total += g
-	var n := maxi(sorted.size(), 1)
-	var run: Array = RUNS[_run]
-	_results.append(
-		(
-			"%s%s%s %.1f/%.1f %d%%"
-			% [
-				OUTLINES[run[0]],
-				"+m" if run[1] else "",
-				"@%d" % run[2] if run[2] != 60 else "",
-				total / n,
-				sorted[mini(int(n * 0.95), n - 1)] if sorted.size() > 0 else 0.0,
-				roundi(100.0 * (n - _late) / n)
-			]
-		)
-	)
-	if _run + 1 < RUNS.size():
-		_begin_run(_run + 1)
-		return
-	_run = -1
-	Engine.max_fps = 0
-	target = _before[0]
-	yaw = _before[1]
-	mpp = _before[2]
-	crawl = _before[5]
-	_set_outline(_before[3])
-	_set_reflect(_before[4])
-	_apply_camera()
-	var main: GDScript = load("res://main.gd")
-	# the picture's size in art pixels and the screen's rate, which the results depend on
-	var line := (
-		"P1 %s %s %d×%d %s Hz | %s"
-		% [
-			ProjectSettings.get_setting("application/config/version", ""),
-			main.facts().phone,
-			_art.size.x - 2,
-			_art.size.y - 2,
-			main.refresh_rate(),
-			" | ".join(_results)
-		]
-	)
-	DisplayServer.clipboard_set(line)
-	print(line)
-	if "measure" in OS.get_cmdline_user_args():
-		get_tree().quit()
-	_readout.text = (
-		"Copied for the chat (graphics ms, average/slowest 5%%, frames on time):\n%s" % line
-	)
+	return _runs != null and _runs.get("index") >= 0
 
 
 ## The crawl fixes (PRE-22): with "ease", a turn or zoom eases to rest on the nearest whole step

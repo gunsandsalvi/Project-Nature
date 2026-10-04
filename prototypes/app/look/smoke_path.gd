@@ -32,7 +32,8 @@ static func find(fire: Vector3, size: float, scene: Node3D) -> Array[Vector4]:
 	return path
 
 
-## The triangles of the scene's solid shapes above a point and within reach of it, sideways.
+## The triangles of the scene's solid shapes above a point and within reach of it, sideways, where
+## each stands.
 static func rock_above(scene: Node3D, at: Vector3, reach: float) -> PackedVector3Array:
 	var out := PackedVector3Array()
 	var near := AABB(at - Vector3(reach, 0.2, reach), Vector3(reach * 2.0, 40.0, reach * 2.0))
@@ -40,7 +41,8 @@ static func rock_above(scene: Node3D, at: Vector3, reach: float) -> PackedVector
 		if not node.has_meta("kind") or node.get_meta("kind") != "solid":
 			continue
 		var mesh: Mesh = (node as MeshInstance3D).mesh
-		if not mesh.get_aabb().intersects(near):
+		var xf := (node as Node3D).transform
+		if not (xf * mesh.get_aabb()).intersects(near):
 			continue
 		for s in mesh.get_surface_count():
 			var arrays := mesh.surface_get_arrays(s)
@@ -49,9 +51,9 @@ static func rock_above(scene: Node3D, at: Vector3, reach: float) -> PackedVector
 			if arrays[Mesh.ARRAY_INDEX] != null:
 				index = arrays[Mesh.ARRAY_INDEX]
 			for i in range(0, index.size() - 2, 3):
-				var a := v[index[i]]
-				var b := v[index[i + 1]]
-				var c := v[index[i + 2]]
+				var a := xf * v[index[i]]
+				var b := xf * v[index[i + 1]]
+				var c := xf * v[index[i + 2]]
 				if near.has_point(a) or near.has_point(b) or near.has_point(c):
 					out.append_array([a, b, c])
 	return out

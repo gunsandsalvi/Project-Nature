@@ -9,7 +9,7 @@ extends Control
 const PROTOTYPES: Array[Array] = [
 	["P1 The look", "α0.2a", "res://look/look.gd"],
 	["P2 A full scene", "α0.2b", "res://scene/scene.gd"],
-	["P3 The kit", "α0.2c"],
+	["P3 The kit", "α0.2c", "res://kit/kit.gd"],
 	["Reports from the cloud", "α0.3a"],
 	["P5 The same bits", "α0.4a"],
 	["P6 A thousand minds", "α0.4b"],
@@ -120,12 +120,15 @@ func _ready() -> void:
 	show_facts(facts())
 	resized.connect(_layout)
 	_layout()
-	# "look" or "scene" on the command line opens P1 or P2 at once, for the cloud's pictures
+	# "look", "scene" or "kit" on the command line opens P1, P2 or P3 at once, for the cloud's
+	# pictures
 	var args := OS.get_cmdline_user_args()
 	if "look" in args:
 		open_screen("res://look/look.gd")
 	elif "scene" in args:
 		open_screen("res://scene/scene.gd")
+	elif "kit" in args:
+		open_screen("res://kit/kit.gd")
 
 
 ## Opens a prototype's screen over the menu; its closed signal brings the menu back.

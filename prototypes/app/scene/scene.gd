@@ -77,8 +77,6 @@ func _label(key: String) -> String:
 
 func _on_button(key: String) -> void:
 	match key:
-		"hour":
-			_set_hour({"noon": "dusk", "dusk": "night", "night": "noon"}[hour])
 		"view":
 			_set_view("camp" if view == "close" else "close")
 		"fire":

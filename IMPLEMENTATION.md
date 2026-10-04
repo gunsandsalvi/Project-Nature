@@ -16,7 +16,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check.
 - P1 The look (α0.2a) is done: outline C, its flicker fixed, and the "ease" crawl fix, which you left to me (A4.1).
 - P2 A full scene (α0.2b) is done: a busy camp at night with three fires holds 60 frames a second at close and camp zoom (A18.1).
-- P3 The kit (α0.2c) is next, with fire shadows and volumetric smoke, as you asked.
+- P3 The kit (α0.2c) is delivered for your verdict: the kit's shapes, the figure's five movements and the huts, at noon and at night with three fires, now with shadows from every fire and volumetric smoke, as you asked.
 
 ## How to use this plan
 
@@ -124,7 +124,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α0.2c | P3 The kit | M0 | 6 | In progress |
+| α0.2c | P3 The kit | M0 | 6 | Delivered; your verdict next |
 | α0.3a | P4 Discovery pace | M0 | 6 | Not started |
 | α0.4a | P5 The same bits | M0 | 4 | Not started |
 | α0.4b | P6 A thousand minds | M0 | 6 | Not started |
@@ -190,6 +190,8 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - Passes if you judge the shapes readable and close to the art book, within the frame's budget.
 
 **On the phone:** open "The kit", turn the sheet, switch noon and night, and say what reads well and what doesn't.
+
+**Conflict:** the sheet's pictures come from the app's own picture option, not Movie Maker mode, which records only at the project's base size (A6.4); and they are not set beside the art book's sheets, since you asked me to stop comparing pictures with it. The kit has eleven shared shapes: a lean-to joined the ten, so a fire burns under a roof and its smoke and light can be seen to meet one.
 
 ### α0.3a P4 Discovery pace
 

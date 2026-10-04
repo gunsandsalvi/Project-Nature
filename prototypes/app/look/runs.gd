@@ -1,7 +1,7 @@
 ## Measure for a screen with runs (PLT-04): each run sets the view, holds a frame rate for its
 ## seconds while the camera turns, and keeps the graphics time and the share of frames on time; the
-## phone's forecast of its heat is read every READ_EVERY seconds. At the end, one line for the chat.
-## Used by P2 and P3. Pre-production code (research 00).
+## phone's forecast of its heat is read every READ_EVERY seconds. At the end, one line for the chat,
+## as P1's Measure ends too. Used by P2 and P3. Pre-production code (research 00).
 extends RefCounted
 
 ## Where the phone's heat is read: the forecast this many seconds ahead, every READ_EVERY seconds.
@@ -78,28 +78,32 @@ func step(delta: float) -> void:
 	Engine.max_fps = 0
 	_screen.crawl = _crawl
 	_screen._rest_yaw = _screen.yaw
+	finish(_screen, _name, _results, _heat)
+
+
+## The end of a Measure: its line for the chat, copied, printed and shown until the next touch; the
+## cloud's "measure" run quits there.
+static func finish(screen: Control, name: String, runs: PackedStringArray, heat: Array) -> void:
 	var main: GDScript = load("res://main.gd")
-	var art: Vector2i = _screen._art.size
-	var line := code(
-		(
-			"%s %s %s %d×%d %s Hz"
-			% [
-				_name,
-				ProjectSettings.get_setting("application/config/version", ""),
-				main.facts().phone,
-				art.x - 2,
-				art.y - 2,
-				main.refresh_rate()
-			]
-		),
-		_results,
-		_heat
+	var art: Vector2i = screen._art.size
+	# the picture's size in art pixels and the screen's rate, which the results depend on
+	var head := (
+		"%s %s %s %d×%d %s Hz"
+		% [
+			name,
+			ProjectSettings.get_setting("application/config/version", ""),
+			main.facts().phone,
+			art.x - 2,
+			art.y - 2,
+			main.refresh_rate()
+		]
 	)
+	var line := code(head, runs, heat)
 	DisplayServer.clipboard_set(line)
 	print(line)
 	if "measure" in OS.get_cmdline_user_args():
-		_screen.get_tree().quit()
-	_screen._readout.text = (
+		screen.get_tree().quit()
+	screen._readout.text = (
 		"Copied for the chat (graphics ms, average/slowest 5%%, frames on time):\n%s" % line
 	)
 
@@ -118,8 +122,10 @@ static func summary(label: String, samples: PackedFloat32Array, late: int) -> St
 
 ## The line for the chat: the runs, then the heat as the forecast headroom at the first and last
 ## readings (1 is where the phone starts to slow itself) and the worst thermal status (0 none,
-## 1 light, 2 moderate, 3 severe), or "?" where the phone gives none.
+## 1 light, 2 moderate, 3 severe), or "?" where the phone gives none; nothing where it wasn't read.
 static func code(head: String, runs: PackedStringArray, heat: Array) -> String:
+	if heat.is_empty():
+		return "%s | %s" % [head, " | ".join(runs)]
 	var known := heat.filter(func(h: Vector2) -> bool: return h.x >= 0.0)
 	var text := "heat ?"
 	if not known.is_empty():
