@@ -13,7 +13,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 
 - Rewritten from the research redone on 4 October and the art book you accepted, after the first version of 3 October (git keeps it at `f881525`).
 - **Approved by you on 4 October 2026,** with its proposals, now decided in `PROJECT.md`: pre-production as a milestone of its own (`MIL-18`), then the ten bottom-up milestones (`SCP-16`, `MIL-08` to `MIL-17`), the old seven retired; the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`); the documents and what comes next (`PRC-04`, `PRC-08`).
-- Building has started with the workshop (α0.1a).
+- The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check; next is P1 The look (α0.2a).
 
 ## How to use this plan
 
@@ -121,7 +121,6 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α0.1a | The workshop | M0 | 6 | In progress |
 | α0.2a | P1 The look | M0 | 6 | Not started |
 | α0.2b | P2 A full scene | M0 | 5 | Not started |
 | α0.2c | P3 The kit | M0 | 6 | Not started |
@@ -147,7 +146,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 - then the vertical slice: one band at a cliff camp through a day, at the art book's look, built in the real architecture, on your phone.
 
 The prototypes that share a build share one app on your phone, with a menu of what each measures.
-Already done in pre-production: the design (`PROJECT.md`), the research (`research/`), the art bible and the art book (research 05, `art/book/`), the bake-off that chose Godot (research 01), and the architecture (`ARCHITECTURE.md`).
+Already done in pre-production: the design (`PROJECT.md`), the research (`research/`), the art bible and the art book (research 05, `art/book/`), the bake-off that chose Godot (research 01), the architecture (`ARCHITECTURE.md`), and the workshop (α0.1a): the tools and the prototype app.
 
 **Serves:** `PLT-01`, `PLT-02`, `PLT-03`, `PLT-04`, `PLT-06`, `PLT-07`, `PRC-10`, `PRC-11`, `PRC-12`, `VIS-14`, `PRE-01`, `PRE-02`, `PRE-03`, `PRE-17`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-29`, `PRE-30`, `PRE-31`, `PRE-32`, `PRE-33`, `PRE-34`, `PRE-35`, `PRE-37`, `PRE-39`, `PRE-41`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `MAT-18`, `RES-02`, `RES-03`, `RES-05`, `RES-06`, `RES-21`, `RES-22`, `TIM-01`, `TIM-02`, `TIM-03`, `TIM-07`, `TIM-16`, `TIM-17`, `TIM-19`, `MND-06`, `MND-09`, `MND-11`, `MND-13`, `MND-14`, `MND-15`, `RCK-01`, `RCK-02`, `BIO-09`, `BIO-21`, `WLD-02`, `WLD-08`, `WLD-09`, `WLD-10`, `WLD-11`, `WLD-12`, `WLD-13`, `WLD-18`, `WLD-30`, `WLD-31`, `WLD-32`, `CUL-05`, `CUL-06`, `CUL-30`, `CUL-33`, `CUL-34`, `SND-01`, `SND-03`, `SND-08`, `SND-11`, `SND-12`.
 
@@ -160,41 +159,6 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - A prototype answering no: that is the point of asking first; its fallback is in A18.2, and anything that changes `PROJECT.md` comes to you.
 - The PowerVR driver: every rendering feature is exercised in the first phone builds (A4.3).
 - Prototypes growing into products: each is time-boxed and thrown away; only the slice is built to last.
-
-### α0.1a The workshop
-
-**Goal:** the tools for the new stack: the old code gone, the cloud set up for Godot and C++, the checks rebuilt, and a Godot app built, signed and delivered to your phone by one command.
-
-**Serves:** `PLT-01`, `PLT-03`, `PLT-06`, `PRC-10`, `PRC-11`, `PRC-12`.
-
-**Architecture:** A2.1, A2.2, A2.3, A2.4, A17.
-
-**Tasks:**
-
-1. `T0.1a.1` **Clear the old code (`PLT-06`, A2.1).**
-   Remove the Rust workspace, the web build, the old Android shell, and the old catalogues, benchmarks, test screens and tools; git keeps them.
-   Keep the release certificate (`android/keys/`), `tools/signing-key.py`, the note's page maker, the file check, the art book, the research and the bake-off prototype, and lay out the folders of A2.1.
-2. `T0.1a.2` **The setup script (`PRC-10`, A2.4).**
-   `tools/setup.sh` installs, pinned and checked by checksum: Godot 4.7 and its export templates, the Android SDK, NDK and JDK, CMake and Ninja, clang-format and clang-tidy, the GDScript formatter and linter, gdUnit4, Xvfb and the software Vulkan driver.
-3. `T0.1a.3` **The checks for the new layout (`PRC-10`, `PRC-12`, A17).**
-   `tools/check.sh` runs the formats and lints for GDScript, C++ and Python, the file, commit, coverage and note checks, and, with `--deliver`, the build and the APK check.
-   The coverage check reads C++ and shaders (`///`, and `// checks:` above each doctest `TEST_CASE`), GDScript (`##`, and `# checks:` above each gdUnit4 `func test_`) and data files, in `game/`, `view/`, `sim/`, `data/`, `android/` and `tools/`.
-4. `T0.1a.4` **The prototype app (`PLT-01`, A2.3).**
-   One Godot project in `prototypes/app/`: a menu for the phone prototypes to come, and the self-check screen with the version, the phone's model, the screen's size and the graphics driver's version, in portrait and landscape.
-5. `T0.1a.5` **Build, sign and deliver (`PLT-06`, `PRC-11`, A2.3).**
-   `tools/build.sh` exports the APK headless, sets its version code and name from the step, signs it through `tools/signing-key.py`, and checks it: package `dev.kindling.app`, arm64 only, the release certificate, and no network permission (`PLT-03`).
-6. `T0.1a.6` **Deliver α0.1a, and α0.1's independent review (`PRC-11`, `PRC-09`).**
-   The APK, the note and the checks.
-
-**Tests:**
-- The APK check: package, version code, signature, arm64 only, no network permission (`PLT-06`, `PLT-03`).
-- The tool tests in `tools/tests/`: the file, coverage and note checks, and a planted fault of each new kind failing alone (`PRC-12`).
-- gdUnit4: the self-check screen lays out in portrait and landscape (`PLT-01`).
-
-**On the phone:**
-- Install from the note's link: it installs over the old Kindling, whose test views are gone.
-- It opens on the self-check screen with its version (α0.1a), your phone's model, the screen's size and the graphics driver.
-- Turn the phone and it follows; it works in flight mode.
 
 ### α0.2a P1 The look
 

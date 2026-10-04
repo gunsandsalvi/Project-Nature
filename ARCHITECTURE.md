@@ -101,6 +101,9 @@ dist/        the signed APK of the latest alpha and its note
   - `view/` links godot-cpp, pinned to Godot 4.7, and carries `sim/` into the app.
 - **Compiler rules for `sim/`** (A3.4): warnings as errors, no fast-math, no fused multiply-add (`-ffp-contract=off`).
 - **Godot:** 4.7, its version and export templates pinned, exported from the command line (`--headless --export-release`), as in the bake-off.
+  - The export is unsigned; `zipalign` and `apksigner` finish it, so only `tools/signing-key.py` reads the secret.
+  - Android export needs ETC2 and ASTC texture imports on, and the preset leaves out `addons/` and `test/`, so the test framework never reaches the phone.
+  - Godot's template sets Android API 24 to 36 and asks for no permissions.
 - **Targets:** Android arm64 for the phone, and Linux x86-64 for tests and pictures in the cloud.
   There is no web build: Godot's is about 40 MB, beyond the private page's 15 MB (research 01).
 
@@ -114,6 +117,7 @@ dist/        the signed APK of the latest alpha and its note
 - **Version code:** (milestone + 1) × 10000 + alpha × 100 + step (a = 1), so pre-production's α0.2b is 10202 and α1.2b is 20202.
   The first is above the old app's 1014, so it installs over it.
 - **Self-check:** the first start of each version runs a few seconds of checks (the same bits, a save and reopen) and shows the graphics driver's version, with a short code to send if anything fails (research 02).
+  Godot gives the driver's version only inside the id of its pipeline cache, so the self-check reads it there, shown as Vulkan packs versions beside the raw number, since some makers pack theirs differently.
 
 ### A2.4 A fresh cloud session
 
@@ -480,8 +484,11 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - **C++ tests** with doctest, and property tests with RapidCheck for rules that must always hold, such as no result heavier than its inputs (`MAT-09`).
 - **Scenes and whole worlds** run by the C++ library alone, many at once in the cloud, their pass rules stated before their first run and counted over about 20 runs where chance matters (`RES-21`, `RES-09`, `RES-13`).
 - **The same results everywhere** (A3.4): state hashes compared between x86-64 and arm64, and between one thread and four (`RES-05`).
-- **The Godot side** with gdUnit4, headless: gestures by simulated touch, cards and views opened from records.
+- **The Godot side** with gdUnit4: layouts, cards and views opened from records, headless; gestures by simulated touch under Xvfb, since Godot's headless mode drops input events.
+  Every script is compiled before the tests, so an error in one no test loads still stops the check.
 - **Pictures and reels** by Movie Maker mode at a fixed frame rate: golden pictures in the cloud; the contact sheet and the sound reel on the phone for your reviews (`PRE-31`, `SND-12`).
+  - Movie Maker records at the project's base size, so a single picture at the phone's 1344 × 2992 pixels is read from the screen by our script (`tools/picture.sh`).
+  - A rendering driver named on the command line brings Forward+ unless the Mobile renderer is named beside it.
 - **Phone measurements:** the in-app benchmark writes our own trace events into Perfetto traces, beside the chip's speed and heat; Android GPU Inspector for a slow frame on the PowerVR chip (`PLT-04`).
 - **One command before anything joins:** `tools/check.sh`, rebuilt for C++ and Godot, runs the formats, lints, builds, tests, the same-results check, and the file, commit and coverage checks (`PRC-10`, `PRC-12`).
   The vertical slice passes through every kind of check before production starts.
@@ -494,7 +501,7 @@ Starting estimates, each replaced by what the prototypes measure on your phone a
 - **Frame:** 16.7 ms at 60 frames a second, the graphics chip under about 8 ms in the busiest scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
 - **Simulation:** up to the four middle cores at held speed (`PLT-01`), at the speeds of `TIM-07`.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.
-- **The APK:** about 30 MB from Godot itself, within the 50 MB limit for files committed to the repository.
+- **The APK:** 25 MB from Godot itself (measured at α0.1a), within the 50 MB limit for files committed to the repository.
 
 ### A18.2 Risks
 

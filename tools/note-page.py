@@ -4,17 +4,21 @@ with the install button at its top, published at the note's one URL.
 
     python3 tools/note-page.py [dist/NOTE.md] [dist/note/index.html]
 
-The note is plain Markdown: headings, paragraphs, lists, links, `code` and **bold**. The page follows the
+The note is plain Markdown: headings, paragraphs, lists, links, `code`, **bold**, and pictures on lines of their
+own (`![caption](pictures/portrait.png)`, a path from the note's folder), which the page carries inside it. The
+page follows the
 artifact host's page rules: a short title, colour tokens for light and dark themes, a 16 px gutter, no sideways
 scrolling at phone width, and no document skeleton of its own (the host wraps it).
 """
 
+import base64
 import html
 import os
 import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DIST = os.path.join(ROOT, "dist")
 
 STYLE = """<style>
   :root {
@@ -47,10 +51,15 @@ STYLE = """<style>
   code { font: 0.88em ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--code);
          padding: 0.1em 0.35em; border-radius: 4px; overflow-wrap: anywhere; }
   .meta { color: var(--dim); font-size: 0.9rem; }
+  figure { margin: 16px 0; }
+  figure img { display: block; max-width: 100%; max-height: 80vh; height: auto; border-radius: 8px;
+               border: 1px solid var(--line); }
+  figcaption { color: var(--dim); font-size: 0.9rem; margin-top: 6px; }
 </style>"""
 
 INLINE = re.compile(r"`([^`]+)`|\*\*(.+?)\*\*|\[([^\]]+)\]\((https?://[^)\s]+)\)|(https?://[^\s<)]+)")
 URL = re.compile(r"https?://[^\s<)\]]+")
+PICTURE = re.compile(r"!\[([^\]]*)\]\(([^)\s]+\.png)\)")
 
 
 def inline(text):
@@ -71,7 +80,18 @@ def inline(text):
     return "".join(out)
 
 
-def blocks(md):
+def picture(caption, path, base):
+    """A picture as a figure carrying its PNG inside it, so the page is one file."""
+    with open(os.path.join(base, path), "rb") as f:
+        data = base64.b64encode(f.read()).decode("ascii")
+    alt = html.escape(caption, quote=True)
+    return (
+        f'<figure><img src="data:image/png;base64,{data}" alt="{alt}">'
+        f"<figcaption>{html.escape(caption)}</figcaption></figure>"
+    )
+
+
+def blocks(md, base):
     out, para, kind = [], [], None
 
     def flush():
@@ -90,6 +110,12 @@ def blocks(md):
         if not s:
             flush()
             close()
+            continue
+        p = PICTURE.fullmatch(s)
+        if p:
+            flush()
+            close()
+            out.append(picture(p.group(1), p.group(2), base))
             continue
         h = re.match(r"(#{1,3}) (.+)", s)
         if h:
@@ -118,8 +144,8 @@ def blocks(md):
     return "\n".join(out)
 
 
-def page(md):
-    """The note's page; the APK link (a URL ending in kindling.apk) is required."""
+def page(md, base=DIST):
+    """The note's page, its pictures read from `base`; the APK link (a URL ending in kindling.apk) is required."""
     urls = URL.findall(md)
     apk = next((u for u in urls if u.endswith("/kindling.apk")), None)
     if apk is None:
@@ -131,7 +157,7 @@ def page(md):
         "<main>",
         f'<a class="install" href="{html.escape(apk, quote=True)}">Download and install</a>',
     ]
-    parts += [blocks(md), f'<p class="meta">{html.escape(title)}</p>', "</main>"]
+    parts += [blocks(md, base), f'<p class="meta">{html.escape(title)}</p>', "</main>"]
     return "\n".join(parts) + "\n"
 
 
@@ -139,7 +165,7 @@ def main(argv):
     src = argv[1] if len(argv) > 1 else os.path.join(ROOT, "dist", "NOTE.md")
     dst = argv[2] if len(argv) > 2 else os.path.join(ROOT, "dist", "note", "index.html")
     try:
-        text = page(open(src, encoding="utf-8").read())
+        text = page(open(src, encoding="utf-8").read(), os.path.dirname(os.path.abspath(src)))
     except ValueError as e:
         sys.exit(f"Note page: {e}")
     os.makedirs(os.path.dirname(dst), exist_ok=True)

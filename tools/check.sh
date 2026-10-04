@@ -128,9 +128,9 @@ python3 tools/filecheck.py ids --merge
 if [ "$DELIVER" = 1 ]; then
   step "8 delivery"
   python3 tools/filecheck.py note
-  # The step the note delivers, from its title, such as "# α0.1a The workshop".
-  STEP="$(sed -n '1s/^# α\([0-9]*\.[0-9]*[a-e]\).*/\1/p' dist/NOTE.md)"
-  [ -n "$STEP" ] || { echo "Delivery: dist/NOTE.md's title names no step, such as '# α0.1a The workshop'"; exit 1; }
+  # The step the note delivers, from its title, such as "# Kindling α0.1a: The workshop".
+  STEP="$(sed -n '1s/^# .*α\([0-9]\{1,2\}\.[0-9]\{1,2\}[a-e]\).*/\1/p' dist/NOTE.md)"
+  [ -n "$STEP" ] || { echo "Delivery: dist/NOTE.md's title names no step, such as 'α0.1a'"; exit 1; }
   tools/build.sh "$STEP" check
   (cd dist && sha256sum --quiet -c kindling.apk.sha256)
   tools/verify-apk.sh dist/kindling.apk release "$STEP"
