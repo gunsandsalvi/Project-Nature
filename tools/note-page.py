@@ -53,7 +53,7 @@ STYLE = """<style>
   .meta { color: var(--dim); font-size: 0.9rem; }
   figure { margin: 16px 0; }
   figure img { display: block; max-width: 100%; max-height: 80vh; height: auto; border-radius: 8px;
-               border: 1px solid var(--line); }
+               border: 1px solid var(--line); image-rendering: pixelated; }
   figcaption { color: var(--dim); font-size: 0.9rem; margin-top: 6px; }
 </style>"""
 
@@ -92,21 +92,23 @@ def picture(caption, path, base):
 
 
 def blocks(md, base):
-    out, para, kind = [], [], None
+    """The note's body: headings, paragraphs, pictures, and lists, which nest by their indent."""
+    out, para = [], []
+    lists = []  # the open lists, innermost last, as (tag, indent), each with its last item still open
 
     def flush():
         if para:
             out.append(f"<p>{inline(' '.join(para))}</p>")
             para.clear()
 
-    def close():
-        nonlocal kind
-        if kind:
-            out.append(f"</{kind}>")
-            kind = None
+    def close(deeper_than=-1):
+        """Closes the open lists indented more than `deeper_than`, each with its open item."""
+        while lists and lists[-1][1] > deeper_than:
+            out[-1] += f"</li></{lists.pop()[0]}>"
 
     for line in md.splitlines():
         s = line.strip()
+        indent = len(line) - len(line.lstrip())
         if not s:
             flush()
             close()
@@ -127,15 +129,23 @@ def blocks(md, base):
         item = re.match(r"(?:[-*]|(\d+)\.) (.+)", s)
         if item:
             flush()
-            want = "ol" if item.group(1) else "ul"
-            if kind != want:
-                close()
-                out.append(f"<{want}>")
-                kind = want
-            out.append(f"<li>{inline(item.group(2))}</li>")
+            tag = "ol" if item.group(1) else "ul"
+            close(indent)
+            if lists and lists[-1][1] == indent and lists[-1][0] != tag:
+                close(indent - 1)
+            if lists and lists[-1][1] == indent:
+                out[-1] += "</li>"
+            else:
+                # a new list, inside the open item when it is indented under one
+                first = int(item.group(1) or 1)
+                out.append(f"<{tag}>" if first == 1 else f'<{tag} start="{first}">')
+                lists.append((tag, indent))
+            out.append(f"<li>{inline(item.group(2))}")
             continue
-        if kind and line[:1] in (" ", "\t"):
-            out[-1] = out[-1][: -len("</li>")] + " " + inline(s) + "</li>"
+        if lists and indent > lists[0][1]:
+            # a wrapped line of the item it is indented under
+            close(indent - 1)
+            out[-1] += " " + inline(s)
             continue
         close()
         para.append(s)

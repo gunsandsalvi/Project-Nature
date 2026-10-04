@@ -59,6 +59,17 @@ class NotePage(unittest.TestCase):
         self.assertNotIn("<html", out)
 
     # checks: PRC-11
+    def test_lists_nest_by_their_indent(self):
+        out = note_page.page(
+            f"# A note\n\n1. One.\n2. Two:\n   - a;\n   - b, which runs\n     on.\n3. Three.\n\n- {APK}\n"
+        )
+        self.assertIn(
+            "<ol>\n<li>One.</li>\n<li>Two:\n<ul>\n<li>a;</li>\n<li>b, which runs on.</li></ul></li>\n"
+            "<li>Three.</li></ol>",
+            out,
+        )
+
+    # checks: PRC-11
     def test_pictures_travel_inside_the_page(self):
         with tempfile.TemporaryDirectory() as base:
             os.makedirs(os.path.join(base, "pictures"))
