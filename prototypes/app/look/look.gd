@@ -18,6 +18,21 @@ const LAYER_MAIN := 1
 const LAYER_GBUF := 2
 const LAYER_SKY := 4
 const LAYER_MIRROR := 8
+## What Measure runs (PLT-04): each outline method without and with the mirrored water, each for
+## RUN_TIME seconds: a second to settle, then two each of panning, turning and zooming by script.
+const RUNS := [
+	[0, false],
+	[1, false],
+	[2, false],
+	[3, false],
+	[4, false],
+	[0, true],
+	[1, true],
+	[2, true],
+	[3, true],
+	[4, true]
+]
+const RUN_TIME := 7.0
 
 var painter: Dictionary
 var target := Vector3.ZERO
@@ -55,6 +70,12 @@ var _moving := 0.0
 var _frames := 0
 var _gpu := 0.0
 var _clock := 0.0
+var _run := -1
+var _run_clock := 0.0
+var _samples := PackedFloat32Array()
+var _late := 0
+var _results := PackedStringArray()
+var _before := []
 
 
 func _ready() -> void:
@@ -76,6 +97,10 @@ func _ready() -> void:
 			reflect = arg.substr(7) == "on"
 		elif arg.begins_with("shot="):
 			shot = arg.substr(5)
+		elif arg.begins_with("yaw="):
+			yaw = float(arg.substr(4))
+		elif arg == "measure":
+			_start_measure.call_deferred()
 	_build_views(scene)
 	_build_materials(scene)
 	_build_controls()
@@ -447,9 +472,15 @@ func _on_button(key: String) -> void:
 		"crawl":
 			crawl = (crawl + 1) % CRAWLS.size()
 			_mark("crawl", CRAWLS[crawl])
+		"measure":
+			if _run < 0:
+				_start_measure()
 
 
 func _process(delta: float) -> void:
+	if _run >= 0:
+		_measure_step(delta)
+		return
 	_frames += 1
 	_clock += delta
 	_gpu += RenderingServer.viewport_get_measured_render_time_gpu(_art.get_viewport_rid())
@@ -468,6 +499,105 @@ func _process(delta: float) -> void:
 	_ease(delta)
 	if shot != "" and Engine.get_process_frames() == 30:
 		_save_shot()
+
+
+## Measure (PLT-04): the graphics time of every pass and the share of frames on time at 60 a
+## second, for each run of RUNS from the painter's view, then the results as a code for the chat.
+func _start_measure() -> void:
+	_before = [target, yaw, mpp, outline, reflect, crawl]
+	crawl = 0
+	_results = PackedStringArray()
+	Engine.max_fps = 60
+	_begin_run(0)
+
+
+func _begin_run(i: int) -> void:
+	_run = i
+	var run: Array = RUNS[i]
+	_set_outline(run[0])
+	_set_reflect(run[1])
+	_run_clock = 0.0
+	_samples = PackedFloat32Array()
+	_late = 0
+	_readout.text = (
+		"Measuring %d of %d: outline %s, mirror %s"
+		% [i + 1, RUNS.size(), OUTLINES[run[0]], "on" if run[1] else "off"]
+	)
+
+
+func _measure_step(delta: float) -> void:
+	_run_clock += delta
+	var t := _run_clock
+	var c: Dictionary = painter.camera
+	var home := Vector3(c.target[0], c.target[1], c.target[2])
+	var right := Vector3(cos(deg_to_rad(c.yaw)), 0.0, -sin(deg_to_rad(c.yaw)))
+	target = home
+	yaw = c.yaw
+	mpp = c.mpp
+	if t >= 1.0 and t < 3.0:
+		target = home + right * 4.0 * sin((t - 1.0) * PI)
+	elif t >= 3.0 and t < 5.0:
+		yaw = c.yaw + 25.0 * sin((t - 3.0) * PI)
+	elif t >= 5.0:
+		mpp = c.mpp * (1.0 + 0.4 * sin((t - 5.0) * PI * 0.5))
+	_apply_camera()
+	if t >= 1.0:
+		var gpu := RenderingServer.viewport_get_measured_render_time_gpu(_art.get_viewport_rid())
+		for vp: SubViewport in [_gbuf, _mirror]:
+			if vp.render_target_update_mode == SubViewport.UPDATE_ALWAYS:
+				gpu += RenderingServer.viewport_get_measured_render_time_gpu(vp.get_viewport_rid())
+		_samples.append(gpu)
+		if delta > 1.15 / 60.0:
+			_late += 1
+	if t < RUN_TIME:
+		return
+	var sorted := _samples.duplicate()
+	sorted.sort()
+	var total := 0.0
+	for g in sorted:
+		total += g
+	var n := maxi(sorted.size(), 1)
+	var run: Array = RUNS[_run]
+	_results.append(
+		(
+			"%s%s %.1f/%.1f %d%%"
+			% [
+				OUTLINES[run[0]],
+				"+m" if run[1] else "",
+				total / n,
+				sorted[mini(int(n * 0.95), n - 1)] if sorted.size() > 0 else 0.0,
+				roundi(100.0 * (n - _late) / n)
+			]
+		)
+	)
+	if _run + 1 < RUNS.size():
+		_begin_run(_run + 1)
+		return
+	_run = -1
+	Engine.max_fps = 0
+	target = _before[0]
+	yaw = _before[1]
+	mpp = _before[2]
+	crawl = _before[5]
+	_set_outline(_before[3])
+	_set_reflect(_before[4])
+	_apply_camera()
+	var phone: String = load("res://main.gd").facts().phone
+	var line := (
+		"P1 %s %s | %s"
+		% [
+			ProjectSettings.get_setting("application/config/version", ""),
+			phone,
+			" | ".join(_results)
+		]
+	)
+	DisplayServer.clipboard_set(line)
+	print(line)
+	if "measure" in OS.get_cmdline_user_args():
+		get_tree().quit()
+	_readout.text = (
+		"Copied for the chat (graphics ms, average/slowest 5%%, frames on time):\n%s" % line
+	)
 
 
 ## The crawl fixes (PRE-22): with "ease", a turn or zoom eases to rest on the nearest whole step

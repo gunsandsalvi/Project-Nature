@@ -55,3 +55,20 @@ func test_the_switches_turn_the_passes_on_and_off() -> void:
 	assert_int((screen.get("_mirror") as SubViewport).render_target_update_mode).is_equal(
 		SubViewport.UPDATE_ALWAYS
 	)
+
+
+# checks: PRE-22
+func test_the_crawl_fixes_turn_in_whole_steps_and_ease_to_rest_on_them() -> void:
+	var screen := _screen()
+	await await_idle_frame()
+	var start: float = screen.yaw
+	screen.crawl = 1
+	screen.call("_turn", 10.0)
+	assert_float(screen.yaw).is_equal_approx(start, 1e-4)
+	screen.call("_turn", 10.0)
+	assert_float(screen.yaw).is_equal_approx(start + LOOK.TURN_STEP, 1e-4)
+	screen.crawl = 2
+	screen.yaw = 52.0
+	for i in 120:
+		screen.call("_ease", 1.0 / 60.0)
+	assert_float(screen.yaw).is_equal_approx(45.0, 1e-3)
