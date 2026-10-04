@@ -1,0 +1,11 @@
+{
+  "name": "kindling-art-book-painter",
+  "private": true,
+  "description": "Paints the art book's pictures: small 3D scenes drawn at the game's pixel size with its art rules.",
+  "scripts": {
+    "paint": "node paint.js"
+  },
+  "dependencies": {
+    "three": "0.169.0"
+  }
+}
