@@ -8,14 +8,18 @@
 // The variants a material is compiled in, by a #define put after its shader_type (look.gd): PREPASS, the second
 // camera's normals and depths for outline method (c); SKYMAP, the heights seen from straight above; MIRROR, the
 // scene reflected in the water, lit where it really stands; HULL, outline method (d), the shape drawn again a
-// little larger from behind in its own darker shade. DATA_OUT writes a data pass's picture; the rest of a
-// fragment() is left out of a data pass (DATA_PASS).
+// little larger from behind in its own darker shade; OCCMAP, the heights of what stands round the fires seen from
+// above, for the fires' shadows, leaving out what stands higher than a fire's flames reach and foliage. DATA_OUT
+// writes a data pass's picture; the rest of a fragment() is left out of a data pass (DATA_PASS).
 #if defined(PREPASS)
 #define DATA_PASS
 #define DATA_OUT(n) ALBEDO = vec3(oct_encode(n), clamp((-VERTEX.z - look_gbuf_depth.x) / look_gbuf_depth.y, 0.0, 1.0));
 #elif defined(SKYMAP)
 #define DATA_PASS
 #define DATA_OUT(n) ALBEDO = vec3(clamp((world.y - look_sky_height.x) / look_sky_height.y, 0.0, 1.0));
+#elif defined(OCCMAP)
+#define DATA_PASS
+#define DATA_OUT(n) if (world.y > look_occ_cap || bit(flags, FLAG_FOLIAGE)) { discard; } ALBEDO = vec3(clamp((world.y - look_sky_height.x) / look_sky_height.y, 0.0, 1.0));
 #else
 #define DATA_OUT(n)
 #endif
@@ -58,6 +62,13 @@ global uniform float look_sky_cover;
 global uniform sampler2D look_sky_map : filter_nearest;
 #endif
 global uniform vec4 look_sky_box;
+// the heights round the fires, from above (OCCMAP): its square's corner and side, on when w is 1; and the height,
+// above which nothing is drawn into it
+#ifndef OCCMAP
+global uniform sampler2D look_occ_map : filter_nearest;
+#endif
+global uniform vec4 look_occ_box;
+global uniform float look_occ_cap;
 global uniform vec2 look_sky_height;
 global uniform vec4 look_edges;
 global uniform float look_mpp;
@@ -254,6 +265,39 @@ float sky_open(vec3 p, vec3 n) {
 }
 
 // The sky's and the fire's share of a point's light, before the sun (the painter's light(), less its sun).
+// Whether a fire reaches a point, or what stands round it shades the point (PRE-30): the line from the point to
+// the fire's flames, walked across the heights round the fires (OCCMAP) every 0.2 m, from past the point's own
+// shape; anything standing above the line casts its shadow. 1 lit, 0 in shadow.
+float fire_shadow(vec3 p, vec3 f) {
+	if (look_occ_box.w < 0.5) {
+		return 1.0;
+	}
+	vec2 d = f.xz - p.xz;
+	float len = length(d);
+	float start = 0.35;
+	if (len <= start + 0.1) {
+		return 1.0;
+	}
+	vec2 dir = d / len;
+	float steps = clamp(floor((len - start) / 0.2), 1.0, 32.0);
+	for (int k = 0; k < 32; k++) {
+		if (float(k) >= steps) {
+			break;
+		}
+		float t = start + (len - start) * (float(k) + 0.5) / steps;
+		vec2 uv = (p.xz + dir * t - look_occ_box.xy) / look_occ_box.z;
+		if (any(lessThan(uv, vec2(0.0))) || any(greaterThan(uv, vec2(1.0)))) {
+			continue;
+		}
+		vec4 s = textureLod(look_occ_map, uv, 0.0);
+		float top = look_sky_height.x + s.r * look_sky_height.y;
+		if (s.a > 0.5 && top > mix(p.y + 0.15, f.y + 0.3, t / len)) {
+			return 0.0;
+		}
+	}
+	return 1.0;
+}
+
 vec2 sky_and_fire(vec3 p, vec3 n, float fl) {
 	bool foliage = bit(fl, FLAG_FOLIAGE);
 	float s = (0.7 + 0.3 * n.y) * mix(1.0 - look_sky_cover, 1.0, foliage ? 1.0 : sky_open(p, n));
@@ -266,10 +310,14 @@ vec2 sky_and_fire(vec3 p, vec3 n, float fl) {
 		float d = length(l);
 		float reach = look_fires[i].w * (0.78 + 0.44 * vnoise(p.xz * 1.3 + float(i) * 7.0));
 		float att = clamp(1.0 - d / reach, 0.0, 1.0);
+		if (att <= 0.0) {
+			continue;
+		}
 		// small creatures take a fire's light round their sides too, so a figure by a fire reads as lit from
 		// wherever the camera stands
 		float wrap = bit(fl, FLAG_CREATURE) ? 0.65 : 0.35;
-		f += look_fire_powers[i] * att * att * (wrap + (1.0 - wrap) * max(dot(n, l / max(d, 0.001)), 0.0));
+		float lit = wrap + (1.0 - wrap) * max(dot(n, l / max(d, 0.001)), 0.0);
+		f += look_fire_powers[i] * att * att * lit * fire_shadow(p, look_fires[i].xyz);
 	}
 	return vec2(s, f);
 }

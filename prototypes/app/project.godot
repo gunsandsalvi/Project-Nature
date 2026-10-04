@@ -156,6 +156,18 @@ look_fires={
 "type": "mat4",
 "value": Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 }
+look_occ_map={
+"type": "sampler2D",
+"value": ""
+}
+look_occ_box={
+"type": "vec4",
+"value": Vector4(0, 0, 1, 0)
+}
+look_occ_cap={
+"type": "float",
+"value": 0.0
+}
 look_sky_box={
 "type": "vec4",
 "value": Vector4(0, 0, 1, 0)

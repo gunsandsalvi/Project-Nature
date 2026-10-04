@@ -2,6 +2,7 @@
 extends GdUnitTestSuite
 
 const SCENE := preload("res://scene/scene.gd")
+const RUNS := preload("res://look/runs.gd")
 
 
 func _screen() -> Control:
@@ -58,15 +59,15 @@ func test_the_camp_view_shows_the_forest() -> void:
 
 # checks: PLT-04
 func test_the_line_for_the_chat() -> void:
-	assert_str(SCENE.summary("close", PackedFloat32Array([1.0, 2.0, 3.0, 4.0]), 1)).is_equal(
+	assert_str(RUNS.summary("close", PackedFloat32Array([1.0, 2.0, 3.0, 4.0]), 1)).is_equal(
 		"close 2.5/4.0 75%"
 	)
 	var heat := [Vector2(0.41, 0), Vector2(-1, -1), Vector2(0.47, 1)]
-	assert_str(SCENE.code("P2 α0.2b", PackedStringArray(["close 9.1/12.0 100%"]), heat)).is_equal(
+	assert_str(RUNS.code("P2 α0.2b", PackedStringArray(["close 9.1/12.0 100%"]), heat)).is_equal(
 		"P2 α0.2b | close 9.1/12.0 100% | heat 0.41→0.47 s1"
 	)
 	(
-		assert_str(SCENE.code("P2", PackedStringArray(["camp 1.0/2.0 99%"]), [Vector2(-1, -1)]))
+		assert_str(RUNS.code("P2", PackedStringArray(["camp 1.0/2.0 99%"]), [Vector2(-1, -1)]))
 		. is_equal("P2 | camp 1.0/2.0 99% | heat ?")
 	)
 
@@ -85,6 +86,6 @@ func test_measure_turns_the_view_and_ends_with_the_line() -> void:
 	)
 	for i in 400:
 		screen.call("_process", 0.25)
-	assert_int(screen.get("_p2_run")).is_equal(-1)
+	assert_int((screen.get("_runs") as RefCounted).get("index")).is_equal(-1)
 	assert_str((screen.get("_readout") as Label).text).contains("P2 ")
 	assert_int(screen.crawl).is_equal(2)

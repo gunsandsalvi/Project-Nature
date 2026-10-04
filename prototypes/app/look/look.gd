@@ -18,6 +18,13 @@ const LAYER_MAIN := 1
 const LAYER_GBUF := 2
 const LAYER_SKY := 4
 const LAYER_MIRROR := 8
+const LAYER_OCC := 16
+const Shape := preload("res://look/shape.gd")
+const SmokePath := preload("res://look/smoke_path.gd")
+const Runs := preload("res://look/runs.gd")
+## The heights round the fires, for their shadows: the square's side in metres, and its pixels.
+const OCC_SIDE := 48.0
+const OCC_SIZE := 512
 ## What Measure runs (PLT-04): each outline method without and with the mirrored water at 60
 ## frames a second, then none, C, and C with the mirror at 120, where a frame has only 8.3 ms, so
 ## the chip can't hide its cost by slowing its clock; each for RUN_TIME seconds: a second to
@@ -51,6 +58,8 @@ var crawl := 2
 var shot := ""
 ## For the cloud's check that a moving picture's outlines keep up: the camera slides into place.
 var drift := false
+## Who lights the fires: "ours", the firelight term, or "Godot's" omni lights.
+var fire_light := "ours"
 ## How far a pinch may zoom, in metres an art pixel shows.
 var zoom_range := Vector2(0.045, 0.18)
 ## How far back the camera stands, metres: far enough that the nearest ground in view is in
@@ -63,6 +72,15 @@ var _art: SubViewport
 var _gbuf: SubViewport
 var _mirror: SubViewport
 var _sky: SubViewport
+var _occ: SubViewport
+var _occ_cam: Camera3D
+## The fires lit by our firelight term or by Godot's own lights: each [place, reach, power].
+var _fires := []
+var _omni: Array[OmniLight3D] = []
+## Measure's runner, for a screen that has runs (_measure_runs).
+var _runs: Runs
+## The smokes' materials, for the hour's step of their ramp.
+var _smokes: Array[ShaderMaterial] = []
 var _view: TextureRect
 var _cam: Camera3D
 var _gbuf_cam: Camera3D
@@ -124,6 +142,11 @@ func _ready() -> void:
 	_build_controls()
 	_globals_once(scene)
 	_set_back(BACK, 220.0)
+	var hearth: Array = painter.fires[0].pos if painter.fires.size() > 0 else c.target
+	_set_occ(Vector3(hearth[0], hearth[1], hearth[2]))
+	if painter.fires.size() > 0:
+		_add_smoke(Vector3(hearth[0], hearth[1], hearth[2]), 1.0, scene)
+	_set_smoke_tone()
 	_set_hour(hour)
 	_set_outline(outline)
 	_set_reflect(reflect)
@@ -166,6 +189,16 @@ func _build_views(scene: Node3D) -> void:
 	_mirror_cam = _camera(LAYER_MIRROR)
 	_mirror.add_child(_mirror_cam)
 	_art.add_child(_mirror)
+	_occ = _viewport(true, true)
+	_occ.world_3d = _art.world_3d
+	_occ.size = Vector2i(OCC_SIZE, OCC_SIZE)
+	_occ_cam = Camera3D.new()
+	_occ_cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	_occ_cam.cull_mask = LAYER_OCC
+	_occ_cam.near = 1.0
+	_occ_cam.far = 2000.0
+	_occ.add_child(_occ_cam)
+	_art.add_child(_occ)
 	_sky = _viewport(true, true)
 	_sky.world_3d = _art.world_3d
 	_sky.size = Vector2i(1024, 1024)
@@ -252,6 +285,7 @@ func _build_materials(scene: Node3D) -> void:
 			LAYER_GBUF: _variant(base, "PREPASS"),
 			LAYER_SKY: _variant(base, "SKYMAP"),
 			LAYER_MIRROR: _variant(base, "MIRROR"),
+			LAYER_OCC: _variant(base, "OCCMAP"),
 		}
 	for node: MeshInstance3D in scene.get_children():
 		var kind: String = node.get_meta("kind")
@@ -273,21 +307,12 @@ func _build_materials(scene: Node3D) -> void:
 			node.layers = LAYER_MAIN
 			continue
 		else:
-			var puffs := ShaderMaterial.new()
-			puffs.shader = load("res://look/shaders/puffs.gdshader")
-			puffs.set_shader_parameter("puff_row", float(node.get_meta("row")))
-			puffs.set_shader_parameter("puff_shift", float(node.get_meta("shift")))
-			puffs.render_priority = 3
-			var nearest := _variant(puffs, "PUFF_DEPTH")
-			nearest.render_priority = 2
-			nearest.next_pass = puffs
-			node.material_override = nearest
-			node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			node.layers = LAYER_MAIN
+			# the painter's flat puffs give way to the smoke's volume (_add_smoke)
+			node.visible = false
 			continue
 		node.material_override = mat
 		node.layers = LAYER_MAIN
-		for layer: int in [LAYER_GBUF, LAYER_SKY, LAYER_MIRROR]:
+		for layer: int in _data_layers(mat):
 			var copy := MeshInstance3D.new()
 			copy.mesh = node.mesh
 			copy.material_override = _variants[mat][layer]
@@ -304,7 +329,7 @@ func _add_shape(node: GeometryInstance3D, base: ShaderMaterial, parent: Node3D) 
 	node.material_override = base
 	node.layers = LAYER_MAIN
 	parent.add_child(node)
-	for layer: int in [LAYER_GBUF, LAYER_SKY, LAYER_MIRROR]:
+	for layer: int in _data_layers(base):
 		var copy: GeometryInstance3D = node.duplicate()
 		copy.material_override = _variants[base][layer]
 		copy.layers = layer
@@ -324,6 +349,145 @@ func _set_back(distance: float, reach: float) -> void:
 	set_global.call("look_haze_range", Vector2(distance + 20.0, distance + 20.0 + reach * 0.636))
 	set_global.call("look_gbuf_depth", Vector2(distance - reach + 20.0, (reach - 20.0) * 2.0))
 	_apply_camera()
+
+
+## The data passes a material's shapes take part in: all but the ground stand in the heights
+## round the fires, since the ground casts no fire's shadow.
+func _data_layers(base: ShaderMaterial) -> Array[int]:
+	if base == _ground:
+		return [LAYER_GBUF, LAYER_SKY, LAYER_MIRROR]
+	return [LAYER_GBUF, LAYER_SKY, LAYER_MIRROR, LAYER_OCC]
+
+
+## The heights round the fires (PRE-30), for their shadows: a square OCC_SIDE metres across round
+## centre, seen from above as the sky's map is, redrawn each frame as people move. Nothing higher
+## than 2.4 m above centre goes in, so an overhang shades no fire.
+func _set_occ(centre: Vector3) -> void:
+	_occ_cam.size = OCC_SIDE
+	_occ_cam.transform = Transform3D(
+		Basis.looking_at(Vector3.DOWN, Vector3.FORWARD), centre + Vector3(0.0, 600.0, 0.0)
+	)
+	var set_global := RenderingServer.global_shader_parameter_set
+	var corner := Vector2(centre.x - OCC_SIDE * 0.5, centre.z - OCC_SIDE * 0.5)
+	set_global.call("look_occ_box", Vector4(corner.x, corner.y, OCC_SIDE, 1.0))
+	set_global.call("look_occ_cap", centre.y + 2.4)
+	set_global.call("look_occ_map", _occ.get_texture())
+
+
+## Smoke from a fire (PRE-30): a volume round a path worked out from the scene, drawn by
+## smoke.gdshader. size: 1 for a hearth, less for a small fire.
+func _add_smoke(fire: Vector3, size: float, parent: Node3D) -> void:
+	var path := SmokePath.find(fire, size, _art.get_child(0))
+	var lo := Vector3(INF, INF, INF)
+	var hi := -lo
+	var nodes := PackedVector4Array()
+	for i in range(0, path.size(), maxi(1, path.size() / 16)):
+		if nodes.size() == 16:
+			break
+		var n: Vector4 = path[i]
+		var at := Vector3(n.x, n.y, n.z)
+		lo = lo.min(at - Vector3.ONE * n.w * 2.0)
+		hi = hi.max(at + Vector3.ONE * n.w * 2.0)
+		nodes.append(n)
+	var count := nodes.size()
+	nodes.resize(16)
+	var m := ShaderMaterial.new()
+	m.shader = load("res://look/shaders/smoke.gdshader")
+	m.set_shader_parameter("nodes", nodes)
+	m.set_shader_parameter("node_count", count)
+	m.set_shader_parameter("box_min", lo)
+	m.set_shader_parameter("box_max", hi)
+	m.set_shader_parameter("smoke_row", float(painter.rows.smoke))
+	m.set_shader_parameter("strength", size)
+	m.render_priority = 3
+	var box := MeshInstance3D.new()
+	var mesh := BoxMesh.new()
+	mesh.size = hi - lo
+	box.mesh = mesh
+	box.position = (lo + hi) * 0.5
+	box.material_override = m
+	box.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	box.layers = LAYER_MAIN
+	parent.add_child(box)
+	_smokes.append(m)
+
+
+## The step of the smoke's ramp at this hour: pale by day, dark at night, as the painter's are.
+func _set_smoke_tone() -> void:
+	for m in _smokes:
+		m.set_shader_parameter("tone", {"noon": 5.0, "dusk": 3.5}.get(hour, 2.5))
+
+
+## A fire of the scene's own (PRE-30, MAT-18): its place, reach in metres and power, its flames
+## unless the scene has its own, and a Godot omni light for comparison, off unless chosen.
+func _add_fire(at: Vector3, reach: float, power: float, parent: Node3D, flames := true) -> void:
+	_fires.append([at, reach, power])
+	if flames:
+		var m := Shape.new()
+		m.bias = 5
+		m.cone(0.35, 0.9, 6, painter.rows.fire, Shape.EMISSIVE)
+		var flame := MeshInstance3D.new()
+		flame.mesh = m.commit()
+		flame.material_override = _solid
+		flame.position = at
+		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		flame.layers = LAYER_MAIN
+		parent.add_child(flame)
+	var light := OmniLight3D.new()
+	light.position = at + Vector3(0.0, 0.8, 0.0)
+	light.omni_range = reach
+	light.light_color = Color(painter.moods.night.fire)
+	light.layers = LAYER_MAIN
+	light.visible = fire_light == "Godot's"
+	parent.add_child(light)
+	_omni.append(light)
+
+
+## Our firelight term in the shared light function, fed by the fires' list (A4.1), or Godot's own
+## omni lights, to see which of the figures' instanced copies stay lit (MAT-18).
+func _set_fire_light(which: String) -> void:
+	fire_light = which
+	for light in _omni:
+		light.visible = which == "Godot's"
+	_light_fires()
+	_mark("fire", which)
+
+
+## The fires' powers for our firelight term: none when Godot's lights do the work, and the fires
+## burning low by day.
+func fire_powers() -> Vector4:
+	var powers := Vector4.ZERO
+	if fire_light != "ours":
+		return powers
+	for i in _fires.size():
+		powers[i] = float(_fires[i][2]) * (1.0 if hour != "noon" else 0.35)
+	return powers
+
+
+func _light_fires() -> void:
+	var lit := Projection()
+	for i in _fires.size():
+		var f: Array = _fires[i]
+		var at: Vector3 = f[0]
+		lit = _with_column(lit, i, Vector4(at.x, at.y + 0.5, at.z, f[1]))
+		if i < _omni.size():
+			_omni[i].light_energy = 2.0 * float(f[2]) * (1.0 if hour != "noon" else 0.35)
+	var set_global := RenderingServer.global_shader_parameter_set
+	set_global.call("look_fires", lit)
+	set_global.call("look_fire_powers", fire_powers())
+
+
+static func _with_column(p: Projection, i: int, v: Vector4) -> Projection:
+	match i:
+		0:
+			p.x = v
+		1:
+			p.y = v
+		2:
+			p.z = v
+		_:
+			p.w = v
+	return p
 
 
 ## A material in one of its variants: the same shader compiled with a #define after its type.
@@ -394,6 +558,9 @@ func _set_hour(name: String) -> void:
 		lit.x = Vector4(f.pos[0], f.pos[1], f.pos[2], radius)
 		set_global.call("look_fires", lit)
 		set_global.call("look_fire_powers", Vector4(power, 0.0, 0.0, 0.0))
+	_set_smoke_tone()
+	if not _fires.is_empty():
+		_light_fires()
 	_mark("hour", name)
 
 
@@ -542,6 +709,8 @@ func _process(delta: float) -> void:
 	if _run >= 0:
 		_measure_step(delta)
 		return
+	if _runs != null and _runs.index >= 0:
+		_runs.step(delta)
 	_frames += 1
 	_clock += delta
 	_gpu += RenderingServer.viewport_get_measured_render_time_gpu(_art.get_viewport_rid())
@@ -572,14 +741,31 @@ func _process(delta: float) -> void:
 
 ## The Measure button, and "measure" on the command line for the cloud: the same path.
 func _measure() -> void:
-	if _run < 0:
-		_hold = true
+	if _busy():
+		return
+	_hold = true
+	var runs := _measure_runs()
+	if runs.is_empty():
 		_start_measure()
+	else:
+		_runs = Runs.new(self, _measure_name(), runs)
+		_runs.start()
+
+
+## Measure's runs for a screen that has them, each [label, frames a second, seconds, setup]; none
+## for P1, whose Measure is its own.
+func _measure_runs() -> Array:
+	return []
+
+
+## The name Measure's line starts with.
+func _measure_name() -> String:
+	return "P1"
 
 
 ## Whether a Measure is running.
 func _busy() -> bool:
-	return _run >= 0
+	return _run >= 0 or (_runs != null and _runs.index >= 0)
 
 
 ## Measure (PLT-04): the graphics time of every pass and the share of frames on time at the

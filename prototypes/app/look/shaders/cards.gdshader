@@ -3,7 +3,7 @@
 // given, each picture's own shading bending it (the atlas's red and green) and moving its step (its blue).
 // Pre-production code (research 00).
 shader_type spatial;
-#if defined(PREPASS) || defined(SKYMAP)
+#if defined(PREPASS) || defined(SKYMAP) || defined(OCCMAP)
 render_mode world_vertex_coords, unshaded, cull_disabled, shadows_disabled;
 #elif defined(HULL)
 render_mode world_vertex_coords, cull_front, specular_disabled, ambient_light_disabled;

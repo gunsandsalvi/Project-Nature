@@ -15,39 +15,17 @@ const CAMP_MPP := 1.0
 const FOREST_SIDE := 1200.0
 ## The plain reaches past the forest, to the edges of the camp view as it turns.
 const PLAIN_SIDE := 1800.0
-## Measure's runs (PLT-04): [view, frame rate, seconds]. At 120 a frame has only 8.3 ms, so the
-## chip can't hide its cost by slowing its clock; at 60 the camera turns over the camp, then the
-## forest.
-const P2_RUNS := [["close", 120, 20.0], ["close", 60, 35.0], ["camp", 60, 35.0]]
-## Where the phone's heat is read: the forecast this many seconds ahead, every READ_EVERY seconds.
-const FORECAST := 30
-const READ_EVERY := 10.0
-## The look's flags a shape's vertices carry (look.gdshaderinc).
-const FLAG_EMISSIVE := 1.0
-const FLAG_FOLIAGE := 2.0
-const FLAG_CREATURE := 32.0
 
-var fire_light := "ours"
 var view := "close"
 var _figures: MultiMesh
 var _people := []
 var _step_clock := 0.0
 var _heights := {}
 var _hearth_y := 0.0
-var _fires := []
-var _omni: Array[OmniLight3D] = []
 var _forest: MultiMeshInstance3D
 ## The forest and its plain, with their copies for the data passes: shown at camp zoom only.
 var _forest_nodes: Array[Node3D] = []
 var _plain: MeshInstance3D
-var _p2_run := -1
-var _p2_crawl := 0
-var _p2_clock := 0.0
-var _p2_samples := PackedFloat32Array()
-var _p2_late := 0
-var _p2_results := PackedStringArray()
-var _heat := []
-var _read_clock := 0.0
 
 
 func _ready() -> void:
@@ -61,13 +39,19 @@ func _ready() -> void:
 	var hearth: Dictionary = painter.fires[0]
 	var at := Vector3(hearth.pos[0], hearth.pos[1], hearth.pos[2])
 	_hearth_y = at.y
-	_fires = [
-		[at, 12.0, 1.0],
-		[_on_ground(at + Vector3(-8.0, 0.0, 7.0)), 7.0, 0.8],
-		[_on_ground(at + Vector3(9.0, 0.0, 8.0)), 7.0, 0.8],
-	]
+	# the painter's hearth, with its own flames, and a fire before each tent
+	_add_fire(at, 12.0, 1.0, scene, false)
+	_add_fire(_on_ground(at + Vector3(-8.0, 0.0, 7.0)), 7.0, 0.8, scene)
+	_add_fire(_on_ground(at + Vector3(9.0, 0.0, 8.0)), 7.0, 0.8, scene)
 	_build_camp(scene)
 	_build_forest(scene)
+	var centre := Vector3.ZERO
+	for f in _fires:
+		centre += (f[0] as Vector3) / float(_fires.size())
+	_set_occ(centre)
+	for f in _fires.slice(1):
+		_add_smoke(f[0], 0.55, scene)
+	_set_smoke_tone()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("view="):
 			view = arg.substr(5)
@@ -103,71 +87,22 @@ func _on_button(key: String) -> void:
 			super._on_button(key)
 
 
-func _measure() -> void:
-	if not _busy():
-		_hold = true
-		_start_p2()
+## Measure's runs (PLT-04): the close camp at 120 frames a second, where a frame has only 8.3 ms,
+## so the chip can't hide its cost by slowing its clock; then at 60 the camera turns over the camp,
+## then the forest.
+func _measure_name() -> String:
+	return "P2"
 
 
-func _busy() -> bool:
-	return super._busy() or _p2_run >= 0
+func _measure_runs() -> Array:
+	return [
+		["close@120", 120, 20.0, _set_view.bind("close")],
+		["close", 60, 35.0, _set_view.bind("close")],
+		["camp", 60, 35.0, _set_view.bind("camp")],
+	]
 
 
 ## The hour's light (PRE-30), with the three fires: burning low by day, high at dusk and night.
-func _set_hour(name: String) -> void:
-	super._set_hour(name)
-	if _fires.is_empty():
-		return
-	_light_fires()
-
-
-## Our firelight term in the shared light function, fed by the fires' list (A4.1), or Godot's own
-## omni lights, to see which of the figures' instanced copies stay lit (MAT-18).
-func _set_fire_light(which: String) -> void:
-	fire_light = which
-	for light in _omni:
-		light.visible = which == "Godot's"
-	_light_fires()
-	_mark("fire", which)
-
-
-## The fires' powers for our firelight term: none when Godot's lights do the work, and the fires
-## burning low by day.
-func fire_powers() -> Vector4:
-	var powers := Vector4.ZERO
-	if fire_light != "ours":
-		return powers
-	for i in _fires.size():
-		powers[i] = float(_fires[i][2]) * (1.0 if hour != "noon" else 0.35)
-	return powers
-
-
-func _light_fires() -> void:
-	var lit := Projection()
-	for i in _fires.size():
-		var f: Array = _fires[i]
-		var at: Vector3 = f[0]
-		lit = _with_column(lit, i, Vector4(at.x, at.y + 0.5, at.z, f[1]))
-		if i < _omni.size():
-			_omni[i].light_energy = 2.0 * float(f[2]) * (1.0 if hour != "noon" else 0.35)
-	var set_global := RenderingServer.global_shader_parameter_set
-	set_global.call("look_fires", lit)
-	set_global.call("look_fire_powers", fire_powers())
-
-
-static func _with_column(p: Projection, i: int, v: Vector4) -> Projection:
-	match i:
-		0:
-			p.x = v
-		1:
-			p.y = v
-		2:
-			p.z = v
-		_:
-			p.w = v
-	return p
-
-
 ## The close camp at the painter's zoom, or camp zoom over the forest (PRE-28).
 func _set_view(which: String) -> void:
 	view = which
@@ -188,8 +123,6 @@ func _set_view(which: String) -> void:
 
 func _process(delta: float) -> void:
 	_step_figures(delta)
-	if _p2_run >= 0:
-		_p2_step(delta)
 	super._process(delta)
 
 
@@ -244,24 +177,11 @@ func _build_camp(scene: Node3D) -> void:
 	_step_figures(STEP_TIME)
 	for f in _fires.slice(1):
 		var tent := MeshInstance3D.new()
-		tent.mesh = _cone(1.8, 3.1, 10, rows.hide, 0.0)
+		var m := Shape.new()
+		m.cone(1.8, 3.1, 10, rows.hide, 0.0)
+		tent.mesh = m.commit()
 		tent.position = _on_ground((f[0] as Vector3) + Vector3(0.0, 0.0, -3.0))
 		_add_shape(tent, _solid, scene)
-		var flame := MeshInstance3D.new()
-		flame.mesh = _cone(0.35, 0.9, 6, rows.fire, FLAG_EMISSIVE, 5)
-		flame.material_override = _solid
-		flame.position = f[0]
-		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		flame.layers = LAYER_MAIN
-		scene.add_child(flame)
-	for f in _fires:
-		var light := OmniLight3D.new()
-		light.position = (f[0] as Vector3) + Vector3(0.0, 0.8, 0.0)
-		light.omni_range = f[1]
-		light.light_color = Color(painter.moods.night.fire)
-		light.layers = LAYER_MAIN
-		scene.add_child(light)
-		_omni.append(light)
 
 
 func _place(rng: RandomNumberGenerator, around: Vector3, radius: float) -> Vector3:
@@ -316,7 +236,7 @@ func _build_forest(scene: Node3D) -> void:
 	var ext: Array = painter.extent
 	var plain_y := _hearth_y - 3.0
 	_plain = MeshInstance3D.new()
-	_plain.mesh = _plain_mesh(PLAIN_SIDE)
+	_plain.mesh = Shape.plain(PLAIN_SIDE, 3)
 	_plain.position = Vector3((ext[0] + ext[2]) * 0.5, plain_y, (ext[1] + ext[3]) * 0.5)
 	var first := scene.get_child_count()
 	_add_shape(_plain, _ground, scene)
@@ -352,11 +272,11 @@ func _build_forest(scene: Node3D) -> void:
 
 ## A block figure, about 1.65 m: legs and arms of skin, a hide tunic, a head with hair (PRE-27).
 func _figure_mesh(rows: Dictionary) -> ArrayMesh:
-	var m := Solid.new()
-	m.box(Vector3(0.0, 0.4, 0.0), Vector3(0.34, 0.8, 0.2), rows.skin2, FLAG_CREATURE)
-	m.box(Vector3(0.0, 1.05, 0.0), Vector3(0.44, 0.55, 0.26), rows.hide, FLAG_CREATURE)
-	m.box(Vector3(0.0, 1.47, 0.0), Vector3(0.24, 0.26, 0.24), rows.skin2, FLAG_CREATURE)
-	m.box(Vector3(0.0, 1.6, -0.02), Vector3(0.26, 0.06, 0.26), rows.hair, FLAG_CREATURE)
+	var m := Shape.new()
+	m.box(Vector3(0.0, 0.4, 0.0), Vector3(0.34, 0.8, 0.2), rows.skin2, Shape.CREATURE)
+	m.box(Vector3(0.0, 1.05, 0.0), Vector3(0.44, 0.55, 0.26), rows.hide, Shape.CREATURE)
+	m.box(Vector3(0.0, 1.47, 0.0), Vector3(0.24, 0.26, 0.24), rows.skin2, Shape.CREATURE)
+	m.box(Vector3(0.0, 1.6, -0.02), Vector3(0.26, 0.06, 0.26), rows.hair, Shape.CREATURE)
 	return m.commit()
 
 
@@ -364,257 +284,10 @@ func _figure_mesh(rows: Dictionary) -> ArrayMesh:
 ## trunk of two crossed faces, 12 triangles where a close tree takes 44, since the forest's
 ## geometry, drawn for the picture, the outlines and the shadows, is what cost the frame (PRE-28).
 func _tree_mesh(rows: Dictionary) -> ArrayMesh:
-	var m := Solid.new()
+	var m := Shape.new()
 	for side: Vector3 in [Vector3(0.25, 0.0, 0.0), Vector3(0.0, 0.0, 0.25)]:
 		var up := Vector3(0.0, 3.4, 0.0)
 		var n := side.cross(Vector3.UP).normalized()
 		m.quad(-side, side, side + up, -side + up, n, rows.bark, 0.0)
-	m.ball(Vector3(0.0, 4.6, 0.0), 2.4, rows.leaf, FLAG_FOLIAGE, false)
+	m.ball(Vector3(0.0, 4.6, 0.0), 2.4, rows.leaf, Shape.FOLIAGE, false)
 	return m.commit()
-
-
-func _cone(
-	radius: float, height: float, sides: int, row: float, flags: float, bias := 0
-) -> ArrayMesh:
-	var m := Solid.new()
-	m.bias = bias
-	var top := Vector3(0.0, height, 0.0)
-	for i in sides:
-		var a0 := TAU * i / sides
-		var a1 := TAU * (i + 1) / sides
-		var p0 := Vector3(cos(a0) * radius, 0.0, sin(a0) * radius)
-		var p1 := Vector3(cos(a1) * radius, 0.0, sin(a1) * radius)
-		var n := (p0 + p1).normalized() * height + Vector3(0.0, radius, 0.0)
-		m.tri(p0, p1, top, n.normalized(), row, flags)
-	return m.commit()
-
-
-## A flat square of woodland floor (the ground's fourth cover), side metres across.
-func _plain_mesh(side: float) -> ArrayMesh:
-	var h := side * 0.5
-	var points := PackedVector3Array(
-		[
-			Vector3(-h, 0, -h),
-			Vector3(h, 0, -h),
-			Vector3(h, 0, h),
-			Vector3(-h, 0, -h),
-			Vector3(h, 0, h),
-			Vector3(-h, 0, h)
-		]
-	)
-	var normals := PackedVector3Array()
-	var cover := PackedByteArray()
-	for i in 6:
-		normals.append(Vector3.UP)
-		cover.append_array(PackedByteArray([0, 0, 0, 255]))
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = points
-	arrays[Mesh.ARRAY_NORMAL] = normals
-	arrays[Mesh.ARRAY_CUSTOM0] = cover
-	var mesh := ArrayMesh.new()
-	var format := Mesh.ARRAY_CUSTOM_RGBA8_UNORM << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, format)
-	return mesh
-
-
-## A solid shape in the look's format: per vertex its material row, step bias, pattern and flags
-## (custom0) and its place in its own shape (custom1), with Godot's clockwise front faces.
-class Solid:
-	var points := PackedVector3Array()
-	var normals := PackedVector3Array()
-	var attrs := PackedByteArray()
-	## Steps up or down from the light's own, for the vertices to come: a flame burns bright.
-	var bias := 0
-	var locs := PackedFloat32Array()
-
-	func tri(a: Vector3, b: Vector3, c: Vector3, n: Vector3, row: float, flags: float) -> void:
-		# Godot's front faces wind clockwise seen from outside, so their right-hand normal points in
-		if (b - a).cross(c - a).dot(n) > 0.0:
-			var t := b
-			b = c
-			c = t
-		for p in [a, b, c]:
-			points.append(p)
-			normals.append(n)
-			attrs.append_array(PackedByteArray([int(row), 128 + bias, 0, int(flags)]))
-			locs.append_array(PackedFloat32Array([p.x, p.y, p.z, 0.0]))
-
-	func quad(
-		a: Vector3, b: Vector3, c: Vector3, d: Vector3, n: Vector3, row: float, flags: float
-	) -> void:
-		tri(a, b, c, n, row, flags)
-		tri(a, c, d, n, row, flags)
-
-	func box(centre: Vector3, size: Vector3, row: float, flags: float) -> void:
-		var h := size * 0.5
-		for axis in 3:
-			for side in [-1.0, 1.0]:
-				var n := Vector3.ZERO
-				n[axis] = side
-				var u := Vector3.ZERO
-				u[(axis + 1) % 3] = h[(axis + 1) % 3]
-				var v := Vector3.ZERO
-				v[(axis + 2) % 3] = h[(axis + 2) % 3]
-				var c := centre + n * h[axis]
-				quad(c - u - v, c + u - v, c + u + v, c - u + v, n, row, flags)
-
-	## A round crown: an octahedron's faces, split once and pushed out to the sphere when fine.
-	func ball(centre: Vector3, radius: float, row: float, flags: float, fine := true) -> void:
-		var o := [
-			Vector3.UP, Vector3.DOWN, Vector3.LEFT, Vector3.RIGHT, Vector3.FORWARD, Vector3.BACK
-		]
-		var faces := [
-			[0, 2, 4], [0, 4, 3], [0, 3, 5], [0, 5, 2], [1, 4, 2], [1, 3, 4], [1, 5, 3], [1, 2, 5]
-		]
-		for f in faces:
-			var a: Vector3 = o[f[0]]
-			var b: Vector3 = o[f[1]]
-			var c: Vector3 = o[f[2]]
-			var ab := (a + b).normalized()
-			var bc := (b + c).normalized()
-			var ca := (c + a).normalized()
-			var parts := [[a, b, c]]
-			if fine:
-				parts = [[a, ab, ca], [ab, b, bc], [ca, bc, c], [ab, bc, ca]]
-			for t in parts:
-				var p0: Vector3 = t[0]
-				var p1: Vector3 = t[1]
-				var p2: Vector3 = t[2]
-				var n := (p0 + p1 + p2).normalized()
-				tri(centre + p0 * radius, centre + p1 * radius, centre + p2 * radius, n, row, flags)
-
-	func commit() -> ArrayMesh:
-		var arrays := []
-		arrays.resize(Mesh.ARRAY_MAX)
-		arrays[Mesh.ARRAY_VERTEX] = points
-		arrays[Mesh.ARRAY_NORMAL] = normals
-		arrays[Mesh.ARRAY_CUSTOM0] = attrs
-		arrays[Mesh.ARRAY_CUSTOM1] = locs
-		var format := (
-			Mesh.ARRAY_CUSTOM_RGBA8_UNORM << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
-			| Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT
-		)
-		var mesh := ArrayMesh.new()
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, format)
-		return mesh
-
-
-# --- Measure: the frame and the heat --------------------------------------------------------------
-
-
-func _start_p2() -> void:
-	# free turns while Measure turns the view: "ease" would pull it back to a whole step each frame
-	_p2_crawl = crawl
-	crawl = 0
-	_p2_results = PackedStringArray()
-	_heat = []
-	_read_clock = READ_EVERY
-	_p2_begin(0)
-
-
-func _p2_begin(i: int) -> void:
-	_p2_run = i
-	var run: Array = P2_RUNS[i]
-	_set_view(run[0])
-	Engine.max_fps = run[1]
-	_p2_clock = 0.0
-	_p2_samples = PackedFloat32Array()
-	_p2_late = 0
-	_readout.text = (
-		"Measuring %d of %d: %s view, %d frames a second" % [i + 1, P2_RUNS.size(), run[0], run[1]]
-	)
-
-
-func _p2_step(delta: float) -> void:
-	var run: Array = P2_RUNS[_p2_run]
-	_p2_clock += delta
-	yaw = wrapf(yaw + 12.0 * delta, -180.0, 180.0)
-	_apply_camera()
-	_read_clock += delta
-	if _read_clock >= READ_EVERY:
-		_read_clock = 0.0
-		_heat.append(thermal())
-	if _p2_clock >= 1.0:
-		_p2_samples.append(
-			RenderingServer.viewport_get_measured_render_time_gpu(_art.get_viewport_rid())
-		)
-		if delta > 1.15 / float(run[1]):
-			_p2_late += 1
-	if _p2_clock < float(run[2]):
-		return
-	var label: String = run[0] + ("@%d" % run[1] if run[1] != 60 else "")
-	_p2_results.append(summary(label, _p2_samples, _p2_late))
-	if _p2_run + 1 < P2_RUNS.size():
-		_p2_begin(_p2_run + 1)
-		return
-	_p2_run = -1
-	Engine.max_fps = 0
-	crawl = _p2_crawl
-	_rest_yaw = yaw
-	var main: GDScript = load("res://main.gd")
-	var line := code(
-		(
-			"P2 %s %s %d×%d %s Hz"
-			% [
-				ProjectSettings.get_setting("application/config/version", ""),
-				main.facts().phone,
-				_art.size.x - 2,
-				_art.size.y - 2,
-				main.refresh_rate()
-			]
-		),
-		_p2_results,
-		_heat
-	)
-	DisplayServer.clipboard_set(line)
-	print(line)
-	if "measure" in OS.get_cmdline_user_args():
-		get_tree().quit()
-	_readout.text = (
-		"Copied for the chat (graphics ms, average/slowest 5%%, frames on time):\n%s" % line
-	)
-
-
-## One run's result: the graphics time's average and slowest 5%, and the share of frames on time.
-static func summary(label: String, samples: PackedFloat32Array, late: int) -> String:
-	var sorted := samples.duplicate()
-	sorted.sort()
-	var n := maxi(sorted.size(), 1)
-	var total := 0.0
-	for g in sorted:
-		total += g
-	var slow: float = sorted[mini(int(n * 0.95), n - 1)] if sorted.size() > 0 else 0.0
-	return "%s %.1f/%.1f %d%%" % [label, total / n, slow, roundi(100.0 * (n - late) / n)]
-
-
-## The line for the chat: the runs, then the heat as the forecast headroom at the first and last
-## readings (1 is where the phone starts to slow itself) and the worst thermal status (0 none,
-## 1 light, 2 moderate, 3 severe), or "?" where the phone gives none.
-static func code(head: String, runs: PackedStringArray, heat: Array) -> String:
-	var known := heat.filter(func(h: Vector2) -> bool: return h.x >= 0.0)
-	var text := "heat ?"
-	if not known.is_empty():
-		var worst := 0
-		for h: Vector2 in known:
-			worst = maxi(worst, int(h.y))
-		text = "heat %.2f→%.2f s%d" % [known[0].x, known[-1].x, worst]
-	return "%s | %s | %s" % [head, " | ".join(runs), text]
-
-
-## The phone's forecast of its heat FORECAST seconds ahead, and its thermal status, from
-## Android's PowerManager through Godot's Android runtime; (-1, -1) where there is none.
-static func thermal() -> Vector2:
-	if OS.get_name() != "Android" or not Engine.has_singleton("AndroidRuntime"):
-		return Vector2(-1.0, -1.0)
-	var runtime: Object = Engine.get_singleton("AndroidRuntime")
-	var context: Object = runtime.call("getApplicationContext")
-	if context == null:
-		return Vector2(-1.0, -1.0)
-	var power: Object = context.call("getSystemService", "power")
-	if power == null:
-		return Vector2(-1.0, -1.0)
-	var headroom: Variant = power.call("getThermalHeadroom", FORECAST)
-	var status: Variant = power.call("getCurrentThermalStatus")
-	var h: float = headroom if typeof(headroom) == TYPE_FLOAT and not is_nan(headroom) else -1.0
-	return Vector2(h, status if typeof(status) == TYPE_INT else -1)

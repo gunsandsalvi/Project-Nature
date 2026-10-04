@@ -2,7 +2,7 @@
 // its material row, step bias, pattern and flags (custom0), its place in its own shape for the pattern (custom1),
 // and its object (custom3). Soot darkens the rock over the shelter's hearth. Pre-production code (research 00).
 shader_type spatial;
-#if defined(PREPASS) || defined(SKYMAP)
+#if defined(PREPASS) || defined(SKYMAP) || defined(OCCMAP)
 render_mode world_vertex_coords, unshaded, cull_disabled, shadows_disabled;
 #elif defined(HULL)
 render_mode world_vertex_coords, cull_front, specular_disabled, ambient_light_disabled;
