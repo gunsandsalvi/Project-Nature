@@ -2,20 +2,22 @@
 
 ## What is new
 
-**This is α0.2b's second build,** after your first try:
-- **Our fire light works on everything near a fire:** the figures and tents by the fires are lit now. The shaders worked out each moved shape's place wrongly, so only the ground got fire light.
-- **Outline C, without its flicker:** its outline data was drawn a frame late, so outlines jumped whenever the camera moved. Now it's drawn first. C is the art book's own way: outlines on every shape, tree crowns too, and bright edges where the sun or a fire catches a shape.
-- **Crawl fix "ease":** panning locks to whole pixels, and a turn or zoom settles on a whole step when you lift your fingers.
-- **Lighter trees at camp zoom:** 12 triangles each instead of 44, after the forest view took 17.8 ms a frame on your phone.
+**This is α0.2b's third build,** after your second try:
+- **Light and shadows fixed:** the figures, tents and trees I added were missing from the outline data that outline C reads, so C darkened each of them whole. Every shape now has its copy there. Up close, figures by the fires glow warm, tents are lit on their fire side, and at noon everything is shaded and casts its shadow.
+- **Camp zoom fixed:** the bottom of the view was empty, tree shadows stopped partway up, and dark squares lay across the forest floor. The camera now stands far enough back, and the shadows reach across the whole view.
+- **Measure fixed:** the view now turns while it runs, and the screen keeps showing "Measuring…" and then the line, until you touch it. Before, the frame-rate line wrote over both within a second.
+- From the second build: outline C without its flicker, the "ease" crawl fix, and lighter trees at camp zoom.
 
 What P2 is: P1's close camp, alive, at night. Thirty stand-in figures walk and work round three fires and two tents. **Fire light** switches between our fire light and Godot's built-in lights. **View** zooms out to 12,000 trees. **Measure** takes about 90 seconds and copies one line for the chat.
 
 ![The camp at night: the fires light the figures, the tents and the ground near them](pictures/p2-night.png)
 
+![Camp zoom at noon: the forest round the camp, to the edges of the view](pictures/p2-forest.png)
+
 ## What to try
 
-1. Tap **Download and install** at the top of this page. It installs over the first build.
-2. Open Kindling, tap **P2 A full scene**, then **Measure**, and don't touch the screen for about 90 seconds. Paste the line it copies into your reply.
+1. Tap **Download and install** at the top of this page. It installs over the build you have.
+2. Open Kindling, tap **P2 A full scene**, then **Measure**, and don't touch the screen for about 90 seconds: the view turns, and the screen says "Measuring 1 of 3" and so on. When it shows the line, it's also copied: paste it into your reply.
 3. Pan and turn round the fires: the figures near them should glow warm, and the outlines should hold still as the view moves.
 
 ## What is rough
