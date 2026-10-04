@@ -13,7 +13,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 
 - Rewritten from the research redone on 4 October and the art book you accepted, after the first version of 3 October (git keeps it at `f881525`).
 - **Approved by you on 4 October 2026,** with its proposals, now decided in `PROJECT.md`: pre-production as a milestone of its own (`MIL-18`), then the ten bottom-up milestones (`SCP-16`, `MIL-08` to `MIL-17`), the old seven retired; the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`); the documents and what comes next (`PRC-04`, `PRC-08`).
-- The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check; next is P1 The look (α0.2a).
+- The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check.
+- P1 The look (α0.2a) is on your phone to try; its answer waits on your Measure line and your choice of outline and crawl fix.
 
 ## How to use this plan
 
@@ -121,7 +122,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α0.2a | P1 The look | M0 | 6 | In progress |
+| α0.2a | P1 The look | M0 | 6 | Waiting on your phone |
 | α0.2b | P2 A full scene | M0 | 5 | Not started |
 | α0.2c | P3 The kit | M0 | 6 | Not started |
 | α0.3a | P4 Discovery pace | M0 | 6 | Not started |

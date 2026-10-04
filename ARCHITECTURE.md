@@ -226,11 +226,17 @@ Following Box2D and Factorio (research 03):
    The Mobile renderer gives no normal buffer, so normals are rebuilt from depth.
    Grass, leaves and water are drawn after the pass and carry none.
    - *To prove (P1):* the four ways of research 04 (rebuilt normals; depth only; a second low-resolution camera drawing normals; enlarged back faces), each for its cost and its look.
+   - *Built in P1:* A and B as a quad over the picture that reads Godot's depth texture; C as a second camera drawing each pixel's facing and depth into a half-float picture that the light function reads, as the painter does; D as each shape drawn again, enlarged, behind itself.
+     In the cloud's software drawing, against no outlines, A and B cost about the same, D about a tenth more and C about a third more; the phone's numbers decide.
 4. **Light in clean steps** (`PRE-20`, `PRE-30`).
    - One shared light function, written once, used by every lit material.
    - Each material's ramp of 4 to 7 shades; the light picks the step, and steps meet in clean edges with no pattern mixing them: the sharp look you chose.
    - Hard sun shadows from a shadow map at mobile size, and cloud shadows.
    - Shade filled by the sky's cool purple-blue light, never black; hollows darker; haze by distance, warmer toward the sun; mist on water and in hollows.
+   - *Built in P1:* the Mobile renderer draws forward, so the painter's separate passes become one.
+     Each material's fragment function hands its ramp, pattern, openness to the sky and firelight to the shared light function, which picks the step after the sun's shadow and writes the graded, hazed colour, with the surface colour white and Godot's ambient light off.
+     Openness to the sky comes from a height map drawn once from above.
+     In the cloud, 87% of the close camp's pixels at noon and 76% at dusk come within 3 levels of 255 of the art book's; most of the rest are shadows and edges a pixel apart.
 5. **Fire** (`MAT-18`): a warm, flickering light as bright as its heat.
    Godot stops lighting MultiMesh copies once its per-object light limit is used up, so fires reach figures and huts through a firelight term in our shaders, fed by a short list of nearby fires, if needed (research 17).
    - *To prove (P2, P3):* a camp lit by three fires at night.
@@ -239,11 +245,16 @@ Following Box2D and Factorio (research 03):
    - the sky's colour on the surface, with glints;
    - the reflection of what stands above it by a second, low-resolution pass of the scene through a mirrored camera, every one of our shaders discarding what lies below the water in that pass, since Godot 4.7 has no clipped camera projection (research 01).
    - *To prove (P1):* the mirrored pass's cost; if it is too dear, reflections fall back to the sky's colour alone.
+   - *Built in P1:* forward drawing leaves the water no record of the land round it, so its shore line is drawn where the water is thinnest, from the depth texture: within about an art pixel of the bank.
+     In the cloud the mirrored pass adds about a quarter to the frame.
 7. **At speed** (`PRE-30`, `PRE-29`): once a day passes in under about 10 seconds, the light holds steady from high up and only its tint follows the hour; the map look is always lit so.
+8. **Smoke and mist,** as the painter draws them: only the nearest puff at each pixel, mixed over the picture's stored colours.
+   Godot would blend every puff in linear light, which thickens the column and brightens it over dark ground; so a first pass draws each pixel's nearest puff depth, and a second draws that puff alone, its blend solved against the screen's copy (P1).
 
 ### A4.2 Materials
 
-One shader per kind of surface, each including the shared light function and the water clip:
+One shader per kind of surface, each including the shared light function and the water clip.
+Each extra pass a material takes part in, such as the outline data picture, the sky's height map, the mirror or the hull, is the same shader file compiled with a `#define`, so nothing is written twice (P1).
 
 | Material | What it does |
 |---|---|
@@ -263,6 +274,11 @@ One shader per kind of surface, each including the shared light function and the
 - Shadow maps at mobile sizes; pipelines precompiled at load, which Godot backs with ubershaders, so there is no shader stutter.
 - The screen runs at 60 Hz, set through the Android plug-in, since Godot's frame cap alone leaves it at 120.
 - The first phone builds exercise every rendering feature: shadows, MultiMesh, transparency and every shader trick, since a driver bug found late is the most expensive kind.
+- **Godot's rules met in P1:**
+  - front faces wind clockwise, the opposite of three.js, so the painter's triangles are reversed on import;
+  - a pass never declares the picture it draws into, since Vulkan refuses a texture that is both its target and its input;
+  - varyings are written only in their stage's own function, and the light function has no vertex position, so depth reaches it in a varying;
+  - a shadow bias of 0.08 and a normal bias of 1.6 on the 4096 map keep dusk's low sun free of stripes.
 
 ### A4.4 Tests
 
@@ -503,7 +519,7 @@ Starting estimates, each replaced by what the prototypes measure on your phone a
 - **Frame:** 16.7 ms at 60 frames a second, the graphics chip under about 8 ms in the busiest scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
 - **Simulation:** up to the four middle cores at held speed (`PLT-01`), at the speeds of `TIM-07`.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.
-- **The APK:** 25 MB from Godot itself (measured at α0.1a), within the 50 MB limit for files committed to the repository.
+- **The APK:** 25 MB from Godot itself (measured at α0.1a), 33 MB with P1's scene of the close camp (α0.2a), within the 50 MB limit for files committed to the repository.
 
 ### A18.2 Risks
 
