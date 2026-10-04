@@ -270,6 +270,12 @@ Each extra pass a material takes part in, such as the outline data picture, the 
 
 ### A4.3 Rules for the phone (research 02)
 
+- **Your phone, by its self-check** (α0.1a, 4 October 2026):
+  - Android 17 (API level 37, build 16238327);
+  - the screen at 1080 × 2404 pixels, 390 dpi and 120 Hz, four fifths of the panel's 1344 × 2992 each way, as its Screen resolution setting allows;
+  - the graphics chip a PowerVR C-Series CXTP-48-1536 MC1, driver 1.662.3024 (6908880 as Vulkan reports it), Vulkan 1.4.317.
+
+  At 4 × 4 screen pixels an art pixel (`PRE-22`), that screen shows 270 × 601 art pixels, where the art book's plates, drawn for the full panel, show 336 × 748.
 - Vulkan only, with no compute shaders that sample images; effects are full-screen fragment passes.
 - Shadow maps at mobile sizes; pipelines precompiled at load, which Godot backs with ubershaders, so there is no shader stutter.
 - The screen runs at 60 Hz, set through the Android plug-in, since Godot's frame cap alone leaves it at 120.
