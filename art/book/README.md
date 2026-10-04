@@ -4,6 +4,9 @@ The art book shows the look the game is built to reach: one scene for each age o
 and the interface. It lives on a design canvas; this folder keeps the pictures at their true size (one art pixel
 to one pixel) and the code that paints them.
 
+The owner accepted it on 4 October 2026 as the starting point for the look: the game is built toward these pictures
+and judged against them, and they are tweaked as the real game takes shape on the phone.
+
 - `plates/scenes`, `plates/sheets`, `plates/ui`: the pictures. Enlarge them by whole numbers with hard edges.
 - `plates/zoom`: one place at each zoom stop of `PRE-03`, from one person to the globe, at noon and dusk, and the
   close camp held sideways. The place is the start of the world made from seed 7: a band's camp under a cliff by a
