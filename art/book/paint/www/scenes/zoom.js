@@ -14,33 +14,36 @@ import { zoomWorld, zoomLand, blurred, gridHeight, regionCamps, toWorld, fromWor
 import { campStop, nearStop } from './zoomnear.js';
 
 const wrapK = (v, p) => ((v % p) + p) % p;
-const moodFor = (light) => (light === 'dusk' ? 'dusk' : 'noon');
-// the map look (region and out) is lit by a steady high sun, so hills read alike at every hour and the map never
-// flashes as days race by; the hour shows only in its tint (PRE-29)
-const mapMood = (light) => (light === 'dusk' ? { ...MOODS.dusk, el: 45, sunK: 0.3 } : { ...MOODS.noon, el: 45 });
+// from the valley out a day passes in under a second, so the light holds steady from high up and only its tint
+// follows the hour (PRE-30), and the map look is always lit so (PRE-29)
+const steadyMood = (light) => (light === 'dusk' ? { ...MOODS.dusk, el: 45, sunK: 0.3 } : { ...MOODS.noon, el: 45 });
 
 /** The valley (about 10 km): coarse ground under its cover, forest as raised canopy, rivers at least a pixel wide. */
 async function valleyStop({ light, w, h }) {
   const Lnd = zoomLand(), W = Lnd.W, H0 = Lnd.H0;
-  const P = new Painter({ w, h, mpp: 30, yaw: 16, elev: 46, target: [0, H0, 0], mood: moodFor(light), depth: 90000,
+  const P = new Painter({ w, h, mpp: 30, yaw: 16, elev: 46, target: [0, H0, 0], mood: steadyMood(light), depth: 90000,
     bounds: { c: [0, H0, -2000], r: 24000 }, shadowSize: 4096 });
   P.haze = [P.camDepth + 1500, P.camDepth + 26000];
   P.jitter = 30;
   P.waterStyle = 5; P.mapDepth = [0.8, 2.5, 30];
   // the relief three times its height, so a valley 10 km across still reads; forest as a raised canopy
-  // woods stand back from the water, so every river shows (PRE-26)
+  // woods stand back from the water, so every river shows (PRE-26); their canopy is raised three times too, so a
+  // wood stands up from the meadow with an edge
   const ex = 3, woods = (u, v) => { const r = Lnd.nearRiver(u, v); return Lnd.cover(u, v).forest > 0.5 && !(r && r.d < Math.max(r.hw, 18) + 30); };
-  const canopy = (u, v) => (woods(u, v) ? 10 : 0);
+  const canopy = (u, v) => (woods(u, v) ? 28 : 0);
   const ground = groundView(P, {
-    height: (u, v) => H0 + (Lnd.height(u, v, false, 18) - H0) * ex + canopy(u, v),
+    height: (u, v) => H0 + (Lnd.height(u, v, false, 18, true) - H0) * ex + canopy(u, v),
     weights: (u, v, y, slope) => {
-      const c = Lnd.cover(u, v), w = woods(u, v) ? 1 : 0, rock = Math.max(c.rock, slope > 0.5 ? 1 : 0);
-      return [w, (1 - w) * (1 - c.dry) * 0.9, (1 - w) * c.dry, rock * 1.5];
+      // open sun-facing slopes dry to gold
+      const c = Lnd.cover(u, v), w = woods(u, v) ? 1 : 0, rock = Math.max(c.rock, slope > 0.5 ? 1 : 0), dry = Math.max(c.dry, c.sunny * 0.95);
+      return [w, (1 - w) * (1 - dry), (1 - w) * dry, rock * 1.5];
     },
     step: 30, stepD: 34, ymin: H0 - 800, ymax: H0 + 1600, smoothN: 3,
   });
   P.addSolid(ground, [['pine', PAT.NONE], ['meadow', PAT.NONE], ['drygrass', PAT.NONE], ['rock', PAT.NONE]]);
-  P.addWater(riverRibbons(Lnd.lines, Lnd.lines.map((pts) => Lnd.waterLevel(pts).map((L) => H0 + (L - H0) * ex)), 34));
+  // every river at least a pixel wide, the big ones two (PRE-26)
+  const wide = (pts) => pts.map((p) => [...p.slice(0, 4), Math.max(p[4], p[2] >= 500 ? 62 : 34)]);
+  P.addWater(riverRibbons(Lnd.lines.map(wide), Lnd.lines.map((pts) => Lnd.waterLevel(pts).map((L) => H0 + (L - H0) * ex)), 34));
   P.addWater(waterPlane({ x0: -60000, x1: 60000, z0: -60000, z1: 60000, y: 0 }), 1);
   const cv = await P.render(0), ctx = cv.getContext('2d');
   const mark = (u, v) => P.toScreen([u, H0 + (Lnd.height(u, v) - H0) * ex, v]);
@@ -58,14 +61,14 @@ async function valleyStop({ light, w, h }) {
 
 /** The region's map (about 100 km): world cells in flat colours, shaded hills, lakes, rivers as lines; no markers. */
 export async function regionMap({ light, w, h }) {
-  const W = zoomWorld(), R = W.R, ex = 3, Rs = blurred(R, 3, false);
-  const P = new Painter({ w, h, mpp: 300, yaw: W.yawW, elev: 66, target: [0, 0, 0], mood: mapMood(light), depth: 400000,
+  const W = zoomWorld(), R = W.R, ex = 5, Rs = blurred(R, 1, false);
+  const P = new Painter({ w, h, mpp: 300, yaw: W.yawW, elev: 66, target: [0, 0, 0], mood: steadyMood(light), depth: 400000,
     bounds: { c: [0, 0, 0], r: 180000 }, shadowSize: 4096 });
   P.haze = [P.camDepth + 1e6, P.camDepth + 2e6];
-  P.waterStyle = 5; P.mapDepth = [30, 600, 4000];
+  P.waterStyle = 5; P.mapDepth = [30, 600, 4000]; P.mapFoam = 6;
   const lx = (xk) => (xk - W.camp.xk) * 1000, lz = (yk) => (yk - W.camp.yk) * 1000;
   const height = (x, z) => gridHeight(Rs, W.camp.xk + x / 1000, W.camp.yk + z / 1000) * ex;
-  const ground = groundView(P, { height, step: 600, stepD: 660, ymin: -6000, ymax: 6000, pat: PAT.CELLS });
+  const ground = groundView(P, { height, step: 300, stepD: 330, ymin: -6000, ymax: 12000, pat: PAT.CELLS });
   // world cells of 1 km: two by two region cells
   const cells = cellTexture({ dims: [R.w / 2, R.h / 2], origin: [lx(R.x0), lz(R.y0)], size: 1000, at: (i, j) => {
     const k = 2 * j * R.w + 2 * i, b = R.biome[k];
@@ -132,15 +135,15 @@ function drawRivers(ctx, P, lines, light) {
 
 /** The world map: straight down over the whole world from pole to pole, cells in flat colours. */
 async function mapStop({ light, w, h }) {
-  const W = zoomWorld(), G = W.G, ex = 8, Gs = blurred(G, 2, true);
-  const P = new Painter({ w, h, mpp: 1500, yaw: 0, elev: 90, target: [0, 0, 0], mood: mapMood(light), depth: 600000,
+  const W = zoomWorld(), G = W.G, ex = 14, Gs = blurred(G, 1, true);
+  const P = new Painter({ w, h, mpp: 1500, yaw: 0, elev: 90, target: [0, 0, 0], mood: steadyMood(light), depth: 600000,
     bounds: { c: [0, 0, 0], r: 900000 }, shadowSize: 4096 });
   P.haze = [P.camDepth + 1e7, P.camDepth + 2e7];
-  P.waterStyle = 5; P.mapDepth = [60, 1200, 8000];
+  P.waterStyle = 5; P.mapDepth = [60, 1200, 8000]; P.mapFoam = 90;
   // centred on the camp east-west and on the equator north-south, so both edges of the polar ice show
   const cx = W.camp.xk, cy = 500, lx = (xk) => (xk - cx) * 1000, lz = (yk) => (yk - cy) * 1000;
   const height = (x, z) => gridHeight(Gs, cx + x / 1000, cy + z / 1000, true) * ex;
-  const ground = groundView(P, { height, step: 3000, stepD: 3000, ymin: -40000, ymax: 30000, margin: 0.04, pat: PAT.CELLS });
+  const ground = groundView(P, { height, step: 1500, stepD: 1500, ymin: -60000, ymax: 70000, margin: 0.04, pat: PAT.CELLS });
   const cells = cellTexture({ dims: [G.w, G.h], origin: [lx(0), lz(0)], size: G.cell * 1000, at: (i, j) => {
     const k = j * G.w + i, b = G.biome[k];
     if (b === BIOME.ICE) return ['ice', 1];
@@ -170,7 +173,7 @@ async function mapStop({ light, w, h }) {
 const GLOBE_R = (WORLD.W / (2 * Math.PI)) * 1000;
 const lonOf = (xk) => (xk / WORLD.W) * 360 - 180;
 const unit = (lat, lon) => { const a = (lat * Math.PI) / 180, b = (lon * Math.PI) / 180; return [Math.cos(a) * Math.cos(b), Math.sin(a), Math.cos(a) * Math.sin(b)]; };
-const spaceMood = (light) => ({ el: 30, az: 140, sun: new THREE.Color(light === 'dusk' ? '#ffcfb0' : '#fff6e2'), shade: new THREE.Color('#9aa6e8'), sunK: 0.6, skyK: 0.2, sunPow: 0.8, shift: 0,
+const spaceMood = (light) => ({ el: 30, az: 140, sun: new THREE.Color(light === 'dusk' ? '#ffcfb0' : '#fff6e2'), shade: new THREE.Color('#9aa6e8'), sunK: 0.42, skyK: 0.32, sunPow: 0.8, shift: 0,
   sky: new THREE.Color('#0b0e1f'), haze: new THREE.Color('#0b0e1f'), hazeK: 0, desat: 0, fire: new THREE.Color('#ffc070') });
 
 /** A world's globe: every small face in its cell's flat colour (PRE-29); the polar ice hides the seam. */
@@ -192,7 +195,7 @@ function globeSolid(G, detail) {
 export async function globeOf(G, size, { lat = 25, lon = 0 } = {}) {
   const view = unit(lat, lon), elev = (Math.asin(view[1]) * 180) / Math.PI, yaw = (Math.atan2(view[0], view[2]) * 180) / Math.PI;
   const east = [-Math.sin((lon * Math.PI) / 180), 0, Math.cos((lon * Math.PI) / 180)];
-  const sunDir = view.map((v, i) => v * 0.75 - east[i] * 0.55 + (i === 1 ? 0.45 : 0));
+  const sunDir = view.map((v, i) => v * 0.75 + east[i] * 0.55 + (i === 1 ? 0.45 : 0));
   const P = new Painter({ w: size, h: size, mpp: (2.12 * GLOBE_R) / size, yaw, elev, target: [0, 0, 0], mood: spaceMood('noon'), sunDir, depth: GLOBE_R * 4,
     bounds: { c: [0, 0, 0], r: GLOBE_R * 1.2 }, shadowSize: 1024 });
   P.haze = [P.camDepth * 10, P.camDepth * 20];
@@ -201,17 +204,17 @@ export async function globeOf(G, size, { lat = 25, lon = 0 } = {}) {
   return P.render(0);
 }
 
-/** The globe (WLD-02): the camps' fires show where the bands live. */
+/** The globe (WLD-02): the camps' fires show where the bands live; a thin bright rim of air round it. */
 async function globeStop({ light, w, h }) {
   const W = zoomWorld(), G = W.G, R = GLOBE_R;
   const lat0 = latitude(W.camp.yk), lon0 = lonOf(W.camp.xk);
-  // look at the camp from a little nearer the equator, so the ice at its pole shows; at dusk from a little west, so
-  // the line between day and night curves past the camp near the globe's edge
-  const view = unit(lat0 * 0.55, lon0 - (light === 'dusk' ? 50 : 0));
+  // look at the camp from a little nearer the equator, so the ice at its pole shows
+  const view = unit(lat0 * 0.55, lon0);
   const elev = (Math.asin(view[1]) * 180) / Math.PI, yaw = (Math.atan2(view[0], view[2]) * 180) / Math.PI;
-  const n = unit(lat0, lon0), east = [-Math.sin((lon0 * Math.PI) / 180), 0, Math.cos((lon0 * Math.PI) / 180)];
-  // noon: the sun nearly overhead at the camp; dusk: on its western horizon
-  const sunDir = light === 'dusk' ? east.map((v, i) => -v * 0.97 + n[i] * 0.12) : n.map((v, i) => v * 0.9 - east[i] * 0.3 + (i === 1 ? 0.25 : 0));
+  const east = [-Math.sin((lon0 * Math.PI) / 180), 0, Math.cos((lon0 * Math.PI) / 180)];
+  // at top speed the light holds steady (PRE-30), from the upper left, so the shade falls in a crescent on the
+  // lower right; dusk only tints it
+  const sunDir = view.map((v, i) => v * 0.45 + east[i] * 0.65 + (i === 1 ? 0.6 : 0));
   const P = new Painter({ w, h, mpp: (2.3 * R) / w, yaw, elev, target: [0, 0, 0], mood: spaceMood(light), sunDir, depth: R * 4, bounds: { c: [0, 0, 0], r: R * 1.2 }, shadowSize: 2048 });
   P.haze = [P.camDepth * 10, P.camDepth * 20];
   P.addSolid(globeSolid(G, 70));
@@ -222,6 +225,14 @@ async function globeStop({ light, w, h }) {
   for (let i = 0; i < 220; i++) {   // stars in the black
     const x = Math.floor(rnd() * w), y = Math.floor(rnd() * h), k = (y * w + x) * 4;
     if (img.data[k] + img.data[k + 1] + img.data[k + 2] < 60) { const v = rnd() > 0.85 ? 255 : 160; img.data.set([v, v, v * 0.95 + 10, 255], k); }
+  }
+  // the air: a two-pixel rim just outside the edge, pale blue, brightest toward the sun (upper left)
+  const [cx, cy] = P.toScreen([0, 0, 0]), rs = R / P.mpp;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const dx = x + 0.5 - cx, dy = y + 0.5 - cy, d = Math.hypot(dx, dy);
+    if (d < rs || d > rs + 2) continue;
+    const lit = (-dx - dy) / (d * Math.SQRT2) > -0.2, k = (y * w + x) * 4;
+    img.data.set(d < rs + 1 ? (lit ? [150, 196, 226, 255] : [74, 104, 150, 255]) : (lit ? [70, 106, 150, 255] : [34, 46, 82, 255]), k);
   }
   ctx.putImageData(img, 0, 0);
   for (const c of regionCamps(W)) {

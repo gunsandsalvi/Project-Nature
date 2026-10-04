@@ -75,8 +75,11 @@ float patThatch(vec3 l){
   return b;
 }
 float patFace(vec3 l){
-  // l is normalised to the head: x across, y up, z forward. Eyes on the front face.
-  if (l.z > .45 && l.y > .02 && l.y < .24 && abs(l.x) > .1 && abs(l.x) < .36) return -3.;
+  // l is normalised to the head: x across, y up, z forward. On the front a face that reads at a glance (PRE-27):
+  // two small eyes set apart, and a short mouth below
+  if (l.z < .45) return 0.;
+  if (l.y > .04 && l.y < .19 && abs(l.x) > .1 && abs(l.x) < .27) return -3.;
+  if (l.y > -.29 && l.y < -.19 && abs(l.x) < .13) return -2.;
   return 0.;
 }
 float patFur(vec3 l){
@@ -447,7 +450,7 @@ uniform vec3 uSunTint; uniform vec3 uShadeTint; uniform vec3 uFireTint; uniform 
 uniform float uDesat; uniform vec3 uBack; uniform vec4 uMist; uniform vec3 uMistCol; uniform vec2 uRes;
 uniform vec3 uWaterTint; uniform float uSkyRow; uniform vec3 uSkyCol; uniform int uInk;
 uniform float uDither; uniform float uOutline; uniform float uOutlineN; uniform float uLit; uniform float uMirror; uniform float uWobble;
-uniform float uEdgeK; uniform float uWaterSin; uniform vec3 uMapDepth;
+uniform float uEdgeK; uniform float uWaterSin; uniform vec3 uMapDepth; uniform float uMapFoam;
 uniform int uWaterStyle; uniform float uWaterY; uniform vec3 uCamRight; uniform float uReflOn;
 uniform float uWaterRow; uniform float uSeaRow; uniform float uLagoonRow; uniform float uFoamRow;
 ${NOISE}
@@ -543,8 +546,9 @@ vec3 waterCol(ivec2 p, vec3 cu, bool hasBed, vec4 u){
     if (dash(P, fl, 2., .5, .3) > .5) c = mix(body, skyR, .55);
     if (sd < 1.5) c = mix(foam, c, .25);
   } else if (uWaterStyle == 5) {
-    // the map look (PRE-29): water in flat bands by depth, a lighter shelf along the coast, no reflections
-    float bs = (dep < uMapDepth.x ? 5. : (dep < uMapDepth.y ? 4. : (dep < uMapDepth.z ? 3. : 2.))) + min(shade, 0.);
+    // the map look (PRE-29): water in flat bands by depth, a lighter shelf along the coast, no reflections, and a
+    // bright line where it meets the land (PRE-26)
+    float bs = dep < uMapFoam ? 6. : (dep < uMapDepth.x ? 5. : (dep < uMapDepth.y ? 4. : (dep < uMapDepth.z ? 3. : 2.))) + min(shade, 0.);
     c = grade(pal(row, bs), wcls);
   } else {
     // a turquoise lagoon: bright shallows over a sunlit bed with its network of light, deep teal further out,

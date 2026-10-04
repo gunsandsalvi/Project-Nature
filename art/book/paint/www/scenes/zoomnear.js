@@ -243,7 +243,7 @@ export async function campStop({ light, w, h }) {
   for (const { b, s } of figs) {
     const top = b.spec.top === 'none' ? (b.spec.paint || b.spec.skin) : b.spec.topMat || 'hide';
     const legs = b.spec.legs === 'bare' ? RAMPS[b.spec.skin][3] : RAMPS[b.spec.legMat || 'leather'][2];
-    tinyFigure(ctx, s[0], s[1], { skin: RAMPS[b.spec.skin][5], body: RAMPS[top][5], legs, child: b.spec.kind === 'child' });
+    tinyFigure(ctx, s[0], s[1], { skin: RAMPS[b.spec.skin][5], body: RAMPS[top][5], legs, edge: RAMPS[top][1], child: b.spec.kind === 'child' });
   }
   // deer grazing across the river
   for (const [u, v] of [[-60, 520], [-52, 528], [-44, 515], [-70, 534], [-38, 540]]) {

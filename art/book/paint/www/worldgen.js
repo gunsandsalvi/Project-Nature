@@ -37,13 +37,31 @@ export function fbmW(xk, yk, base, oct, s, gain = 0.5) {
   return sum / n;
 }
 
+/**
+ * Ridged noise over the world, 0..1: sharp crests where the noise crosses zero, each finer layer strongest on the
+ * crests of the one before, so a chain branches into spurs as real ranges do. base as for fbmW.
+ */
+export function ridgedW(xk, yk, base, oct, s, gain = 0.5) {
+  let px = Math.round(WORLD.W / base), py = Math.round(WORLD.H / base), f = 1 / base, a = 1, sum = 0, n = 0, wt = 1;
+  for (let k = 0; k < oct; k++) {
+    let r = Math.max(0, 1 - Math.abs(pnoise(xk * f, yk * f, px, py, s + k * 37)) * 1.6);
+    r = r * r * wt;
+    wt = Math.min(1, r * 1.8);
+    sum += r * a; n += a; a *= gain; f *= 2; px *= 2; py *= 2;
+  }
+  return sum / n;
+}
+
 const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
 // --- the ground ---------------------------------------------------------------------------------------------------
 let seaLine = null;
 const cont = (xk, yk, seed) => fbmW(xk, yk, 250, 6, seed + 11) * 0.8 + fbmW(xk, yk, 100, 4, seed + 23) * 0.35;
 
-/** The height in metres at a point of the world; level adds finer octaves: 0 world cells, 1 region, 2 valley, 3 camp. */
+/**
+ * The height in metres at a point of the world, before running water cuts its valleys (carveValleys); level adds
+ * finer layers: 0 world cells, 1 region, 2 valley, 3 camp.
+ */
 export function elevation(xk, yk, level = 0, seed = 1) {
   if (seaLine === null || seaLine.seed !== seed) {
     // the sea level that leaves about 37% of the world dry land
@@ -53,16 +71,18 @@ export function elevation(xk, yk, level = 0, seed = 1) {
     seaLine = { seed, t: v[Math.floor(v.length * 0.63)] };
   }
   const d = cont(xk, yk, seed) - seaLine.t;
+  // mountain chains: ridges bent by a slow warp, where the chains run, rising away from the coast
+  const wx = fbmW(xk, yk, 250, 3, seed + 201) * 110, wy = fbmW(xk, yk, 250, 3, seed + 203) * 110;
+  const prov = smooth(-0.12, 0.14, fbmW(xk, yk, 500, 2, seed + 53)) * smooth(0.005, 0.06, d);
   let e;
   if (d < 0) e = d > -0.03 ? d * 4000 : -120 + (d + 0.03) * 14000;          // a shelf, then the deep sea
   else {
-    const n = fbmW(xk, yk, 125, 4, seed + 41);
-    const ridge = (1 - Math.min(1, Math.abs(n) * 1.7)) ** 2.5;
-    const prov = smooth(0.0, 0.16, fbmW(xk, yk, 500, 2, seed + 53));          // where the mountain chains run
-    e = 30 + d * 2200 + ridge * prov * 2600 * smooth(0.02, 0.1, d) + fbmW(xk, yk, 40, 4, seed + 67) * 320 * smooth(0, 0.05, d);
+    const rg = ridgedW(xk + wx, yk + wy, 250, 5, seed + 41);
+    e = 30 + d * 1600 + rg ** 1.6 * prov * 4600 + fbmW(xk, yk, 40, 4, seed + 67) * 240 * smooth(0, 0.05, d);
   }
-  if (level >= 1) e += fbmW(xk, yk, 10, 4, seed + 79) * 90 * (e > 0 ? 1 : 0.3);
-  if (level >= 2) e += (fbmW(xk, yk, 2, 4, seed + 83) * 34 + fbmW(xk, yk, 0.2, 3, seed + 89) * 5) * (e > 0 ? 1 : 0.3);
+  // the region's layer: spurs on the ranges, low rolling hills elsewhere
+  if (level >= 1) e += (e > 0 ? ridgedW(xk + wx, yk + wy, 10, 3, seed + 77) * prov * 700 + fbmW(xk, yk, 10, 4, seed + 79) * 60 : fbmW(xk, yk, 10, 4, seed + 79) * 25);
+  if (level >= 2) e += (fbmW(xk, yk, 2, 4, seed + 83) * 18 + fbmW(xk, yk, 0.2, 3, seed + 89) * 4) * (e > 0 ? 1 : 0.3);
   if (level >= 3) e += fbmW(xk, yk, 0.04, 3, seed + 97) * 1.2;
   return e;
 }
@@ -84,7 +104,9 @@ export const latitude = (yk) => 90 - yk * 0.18;
 /** Mean temperature (deg C) and wetness (0..1) at a point; coast: closeness to the sea, 0..1. */
 export function climate(xk, yk, e, coast = 0, seed = 1) {
   const al = Math.abs(latitude(yk));
-  const T = 28 - 0.55 * al - 0.0065 * Math.max(0, e) + fbmW(xk, yk, 250, 2, seed + 61) * 5;
+  let T = 28 - 0.55 * al - 0.0065 * Math.max(0, e) + fbmW(xk, yk, 250, 2, seed + 61) * 5;
+  // where it is cold, a small-scale wander, so ice and tundra edges meander as snowlines do
+  T += fbmW(xk, yk, 25, 3, seed + 63) * 3 * smooth(4, -2, T);
   const M = 0.52 + 0.55 * fbmW(xk, yk, 200, 4, seed + 71) - 0.28 * Math.exp(-(((al - 25) / 9) ** 2))
     + 0.08 * Math.exp(-(((al - 50) / 12) ** 2)) + 0.16 * coast;
   return { T, M, al };
@@ -162,6 +184,71 @@ export function water(hgt, w, h, area, { wrapX = false, wrapY = false } = {}) {
   return { fill, down, acc };
 }
 
+/**
+ * Valleys cut by running water, as erosion makes them (WLD-09), on a grid of heights with its water (fill, down, acc)
+ * and cell size in km. First each hollow drains as a river would leave it: silt fills it to within maxCut metres of
+ * its rim, and a channel cuts from its floor out over the rim, falling all the way; only the maxLakes largest hollows
+ * at least lakeArea km² and lakeDepth m deep stay as lakes. Then every cell draining at least minArea km² is a
+ * stream, and the land round it may rise no faster than its side slope, steeper the higher the ground; so streams cut
+ * V-shaped valleys whose sides meet in ridges, and a big river has a flat floor about floorK·√(area) km wide (at most
+ * floorMax) on each side. Changes hgt in place.
+ */
+export function carveValleys(G, { minArea, floorK = 0.012, floorMax = 1.2, lakeArea = 4, lakeDepth = 30, maxLakes = 6, maxCut = 40, wrapX = false, wrapY = false }) {
+  const { w, h, n, cell } = G, hg = G.hgt, area = cell * cell;
+  const nb = (k, q) => {
+    let x = (k % w) + D8[q][0], y = ((k / w) | 0) + D8[q][1];
+    if (wrapX) x = wrap(x, w); else if (x < 0 || x >= w) return -1;
+    if (wrapY) y = wrap(y, h); else if (y < 0 || y >= h) return -1;
+    return y * w + x;
+  };
+  // the hollows: which stay lakes
+  const lake = new Uint8Array(n), seen = new Uint8Array(n), hollows = [];
+  for (let k0 = 0; k0 < n; k0++) {
+    if (seen[k0] || hg[k0] <= 0 || G.fill[k0] - hg[k0] < 0.5) continue;
+    const cells = [k0]; seen[k0] = 1;
+    let depth = 0;
+    for (let c = 0; c < cells.length; c++) {
+      const k = cells[c]; depth = Math.max(depth, G.fill[k] - hg[k]);
+      for (let q = 0; q < 4; q++) { const j = nb(k, q); if (j >= 0 && !seen[j] && hg[j] > 0 && G.fill[j] - hg[j] >= 0.5) { seen[j] = 1; cells.push(j); } }
+    }
+    if (cells.length * area >= lakeArea && depth >= lakeDepth) hollows.push(cells);
+  }
+  hollows.sort((a, b) => b.length - a.length).slice(0, maxLakes).forEach((cells) => { for (const k of cells) lake[k] = 1; });
+  // the rest drain: silted up to within maxCut of the rim, then from the top of each flow path down, no cell lower
+  // than the one it flows into
+  for (let k = 0; k < n; k++) if (hg[k] > 0 && !lake[k]) hg[k] = Math.max(hg[k], G.fill[k] - maxCut);
+  const order = Array.from({ length: n }, (_, i) => i).filter((k) => hg[k] > 0).sort((a, b) => G.fill[b] - G.fill[a]);
+  for (const k of order) {
+    const d = G.down[k];
+    if (d < 0 || lake[k] || lake[d] || hg[d] <= 0) continue;
+    if (hg[d] > hg[k] - 0.01) hg[d] = Math.max(1, hg[k] - 0.01);
+  }
+  const W2 = water(hg, w, h, area, { wrapX, wrapY });
+  // a lower envelope over the streams: Dijkstra from every stream cell, rising by the side slope per metre walked
+  const top = new Float32Array(n).fill(Infinity), left = new Float32Array(n), done = new Uint8Array(n), heap = new Heap();
+  const slope = (k) => 0.03 + 0.34 * smooth(150, 1500, hg[k]);
+  for (let k = 0; k < n; k++) {
+    if (hg[k] <= 0 || W2.acc[k] < minArea) continue;
+    top[k] = W2.fill[k] - 1;
+    left[k] = Math.min(floorMax, floorK * Math.sqrt(W2.acc[k]));
+    heap.push(top[k], k);
+  }
+  while (heap.size) {
+    const i = heap.pop();
+    if (done[i]) continue;
+    done[i] = 1;
+    for (let q = 0; q < 8; q++) {
+      const j = nb(i, q);
+      if (j < 0 || done[j] || hg[j] <= 0) continue;
+      const step = cell * (q < 4 ? 1 : Math.SQRT2), flat = Math.min(step, left[i]);
+      const t = top[i] + (flat * 0.002 + (step - flat) * slope(j)) * 1000;
+      if (t < top[j]) { top[j] = t; left[j] = left[i] - flat; heap.push(t, j); }
+    }
+  }
+  for (let k = 0; k < n; k++) if (hg[k] > 0 && top[k] < hg[k]) hg[k] = Math.max(top[k], 1);
+  return G;
+}
+
 /** River lines: from every land cell draining at least minArea km², a segment to the cell it flows into. */
 export function riverSegments(grid, minArea) {
   const out = [];
@@ -178,6 +265,8 @@ export function worldGrid({ w = 1000, h = 500, seed = 1 } = {}) {
   const n = w * h, cx = WORLD.W / w, cy = WORLD.H / h;
   const hg = new Float32Array(n), biome = new Uint8Array(n), coast = new Float32Array(n), T = new Float32Array(n);
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) hg[j * w + i] = elevation((i + 0.5) * cx, (j + 0.5) * cy, 0, seed);
+  // running water cuts its valleys, then drains the cut land
+  carveValleys({ w, h, n, cell: cx, hgt: hg, ...water(hg, w, h, cx * cy, { wrapX: true, wrapY: true }) }, { minArea: 240, floorK: 0.02, floorMax: 3, lakeArea: 300, lakeDepth: 60, maxLakes: 30, maxCut: 80, wrapX: true, wrapY: true });
   // closeness to the sea: a breadth-first walk from the sea, about 150 km deep
   const dist = new Int32Array(n).fill(1 << 30), q = [];
   for (let i = 0; i < n; i++) if (hg[i] <= 0) { dist[i] = 0; q.push(i); }
@@ -221,6 +310,7 @@ export function regionGrid({ xk, yk, size = 256, cell = 0.5, seed = 1 }) {
   const w = Math.round(size / cell), h = w, n = w * h, x0 = xk - size / 2, y0 = yk - size / 2;
   const hg = new Float32Array(n), biome = new Uint8Array(n);
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) hg[j * w + i] = elevation(x0 + (i + 0.5) * cell, y0 + (j + 0.5) * cell, 1, seed);
+  carveValleys({ w, h, n, cell, hgt: hg, ...water(hg, w, h, cell * cell) }, { minArea: 1.5, lakeArea: 12, lakeDepth: 40, maxLakes: 5 });
   const dist = new Int32Array(n).fill(1 << 30), q = [];
   for (let i = 0; i < n; i++) if (hg[i] <= 0) { dist[i] = 0; q.push(i); }
   for (let qi = 0; qi < q.length; qi++) {

@@ -247,7 +247,7 @@ export class Painter {
         uMist: { value: new THREE.Vector4(this.mist.base, this.mist.thick, mirror ? 0 : this.mist.amount, this.mist.scale) }, uMistCol: { value: this.mist.col },
         uRes: { value: new THREE.Vector2(w, h) }, uWaterTint: { value: new THREE.Color(0.72, 0.86, 0.98) }, uSkyRow: { value: mat('sea') + 0.5 }, uSkyCol: { value: md.sky || md.haze },
         uInk: { value: mirror ? 2 : (this.ink ? 1 : (this.clear ? 2 : 0)) },
-        uEdgeK: { value: this.edgeK }, uWaterSin: { value: this.waterSin }, uMapDepth: { value: new THREE.Vector3(...(this.mapDepth || [8, 60, 500])) },
+        uEdgeK: { value: this.edgeK }, uWaterSin: { value: this.waterSin }, uMapDepth: { value: new THREE.Vector3(...(this.mapDepth || [8, 60, 500])) }, uMapFoam: { value: this.mapFoam || 0 },
         uDither: { value: LOOK.dither }, uWobble: { value: LOOK.wobble || 0 }, uOutline: { value: LOOK.outline }, uOutlineN: { value: LOOK.outlineNature }, uLit: { value: LOOK.lit },
         uMirror: { value: mirror ? 1 : 0 }, uWaterStyle: { value: mirror ? 0 : style }, uWaterY: { value: this.waterLevel ?? 0 },
         uCamRight: { value: this.right.value.clone() },

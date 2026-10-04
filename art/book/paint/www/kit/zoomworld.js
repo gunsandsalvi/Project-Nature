@@ -47,6 +47,16 @@ export function gridHeight(Gr, xk, yk, wrapping = false) {
   return (H(i, j) * (1 - tx) + H(i + 1, j) * tx) * (1 - ty) + (H(i, j + 1) * (1 - tx) + H(i + 1, j + 1) * tx) * ty;
 }
 
+/** Height of a grid at world km, smooth (Catmull-Rom), so the land between cells has no creases. */
+export function gridHeightSmooth(Gr, xk, yk) {
+  const fx = (xk - Gr.x0) / Gr.cell - 0.5, fy = (yk - Gr.y0) / Gr.cell - 0.5;
+  const i = Math.floor(fx), j = Math.floor(fy), tx = fx - i, ty = fy - j;
+  const H = (a, b) => Gr.hgt[Math.max(0, Math.min(Gr.h - 1, b)) * Gr.w + Math.max(0, Math.min(Gr.w - 1, a))];
+  const cr = (p0, p1, p2, p3, t) => p1 + 0.5 * t * (p2 - p0 + t * (2 * p0 - 5 * p1 + 4 * p2 - p3 + t * (3 * (p1 - p2) + p3 - p0)));
+  const row = (b) => cr(H(i - 1, b), H(i, b), H(i + 1, b), H(i + 2, b), tx);
+  return cr(row(j - 1), row(j), row(j + 1), row(j + 2), ty);
+}
+
 const riverWidth = (acc) => Math.max(2.5, 1.5 * acc ** 0.45);   // metres, from the area drained (km²)
 
 let world = null;
@@ -102,11 +112,32 @@ export const fromWorld = (W, xk, yk) => {
   return [dx * W.udir[0] + dy * W.udir[1], dx * W.vdir[0] + dy * W.vdir[1]];
 };
 
-/** Rivers draining 3 km² or more near the camp, smoothed, in the camp's frame: points [u, v, area, level, width]. */
+/**
+ * A river line bent into meanders, in metres: swings about 1.6 widths each side (10-150 m), one every 14 widths or
+ * so (300-1,800 m), irregular; its ends stay put, so springs, joins and mouths meet where they did.
+ */
+function meander(pts, seed) {
+  let along = 0;
+  const out = pts.map((p, i) => {
+    if (i > 0) along += Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]);
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+    const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1, wd = riverWidth(p[2]);
+    const amp = Math.min(150, Math.max(10, wd * 1.6)), lam = Math.min(1800, Math.max(300, wd * 14));
+    const ph = (along / lam) * 2 * Math.PI + 1.7 * Math.sin(along / (lam * 2.7) + seed);
+    const off = amp * Math.sin(ph) * Math.min(1, i / 6, (pts.length - 1 - i) / 6);
+    return [p[0] - (dz / L) * off, p[1] + (dx / L) * off, ...p.slice(2)];
+  });
+  return smoothLine(out, 1);
+}
+
+/**
+ * Rivers draining 20 km² or more near the camp, smoothed and meandering, in the camp's frame: points
+ * [u, v, area, level, width].
+ */
 function frameRivers(W) {
   const Rs = blurred(W.R, 1, false);
   return riverLines(W.R, 20)
-    .map((l) => smoothLine(l.pts.map(([x, y, a]) => { const [u, v] = fromWorld(W, x, y); return [u, v, a]; }), 3))
+    .map((l, li) => meander(smoothLine(l.pts.map(([x, y, a]) => { const [u, v] = fromWorld(W, x, y); return [u, v, a]; }), 3), li * 1.3))
     .filter((pts) => pts.some((p) => Math.abs(p[0]) < 45000 && Math.abs(p[1]) < 45000))
     .map((pts) => {
       let lv = 1e9;
@@ -122,13 +153,18 @@ function frameRivers(W) {
 // --- the ground in the camp's frame --------------------------------------------------------------------------------
 let land = null;
 /**
- * The camp's land: height(u, v, fine) in metres (fine adds the camp zoom's last octave and the shelter's own shape),
+ * The camp's land: height(u, v, fine, minHw, coarse) in metres (fine adds the camp zoom's last octave and the
+ * shelter's own shape; coarse keeps only the region's carved land, for the valley; minHw widens river channels),
  * cover(u, v) as { forest, pine, open, dry, rock }, the rivers with their water levels, and the camp's stream.
  */
 export function zoomLand() {
   if (land) return land;
   const W = zoomWorld();
-  const nat = (u, v, level) => { const [x, y] = toWorld(W, u, v); return elevation(x, y, level, SEED); };
+  // the region's land, valleys cut (carveValleys), with the finer layers of the ground added on top
+  const nat = (u, v, level) => {
+    const [x, y] = toWorld(W, u, v);
+    return gridHeightSmooth(W.R, x, y) + elevation(x, y, level, SEED) - elevation(x, y, 1, SEED);
+  };
   const H0 = nat(0, 0, 2);
   // the camp's stream: from a spring under the cliff along the meadow, then down to the main river
   const vr = 280;
@@ -194,8 +230,8 @@ export function zoomLand() {
   // seen near, how far behind the cliff's foot the plateau's ground rises: inside the rock the cliff's blocks build
   const rimBack = (u) => 3 + 2.5 * shelterAt(u);
 
-  const height = (u, v, fine = false, minHw = 0) => {
-    let h = nat(u, v, fine ? 3 : 2);
+  const height = (u, v, fine = false, minHw = 0, coarse = false) => {
+    let h = nat(u, v, coarse ? 1 : fine ? 3 : 2);
     // the big river's valley: a floor about 650 m wide that rises gently from the water to the land's own slopes
     const B = bigRiver(u, v);
     if (B) {
@@ -226,16 +262,29 @@ export function zoomLand() {
   };
   const waterLevel = (pts) => pts.map((p) => (pts === stream ? streamLevel(p[0]) : p[3]));
 
-  // what grows where: woods by the region's cover, clearings, the open floodplain, the meadow round the camp
-  const coverCache = new Map();
+  // the lie of the land from the region's grid: how far a point stands above or below the land round it (metres,
+  // over about 2 km) and how steep it is (metres per metre)
+  const Rb = blurred(W.R, 4, false);
+  const relief = (x, y) => gridHeightSmooth(W.R, x, y) - gridHeightSmooth(Rb, x, y);
+  const grade = (x, y) => {
+    const d = 0.25, hx = gridHeightSmooth(W.R, x + d, y) - gridHeightSmooth(W.R, x - d, y), hy = gridHeightSmooth(W.R, x, y + d) - gridHeightSmooth(W.R, x, y - d);
+    return [hx / (2 * d * 1000), hy / (2 * d * 1000)];
+  };
+
+  // what grows where: the region's cover sets how much is woods, the land where: woods climb the valley sides and
+  // cover the hills, valley floors and hollows lie open, steep ground is bare; then the open floodplain by the big
+  // river, and the meadow round the camp
   const cover = (u, v) => {
     const [x, y] = toWorld(W, u, v), R = W.R;
     const i = Math.floor((x - R.x0) / R.cell), j = Math.floor((y - R.y0) / R.cell), k = Math.max(0, Math.min(R.n - 1, j * R.w + i));
     const b = R.biome[k];
-    // woods and grassland in a patchwork: the region's cover sets the share, noise the patches
-    let f = FOREST.has(b) ? 0.62 : b === BIOME.GRASS ? 0.42 : b === BIOME.STEPPE || b === BIOME.SCRUB ? 0.16 : 0;
+    const share = FOREST.has(b) ? 0.72 : b === BIOME.GRASS ? 0.45 : b === BIOME.STEPPE || b === BIOME.SCRUB ? 0.2 : b === BIOME.TUNDRA ? 0.1 : 0;
+    const rel = relief(x, y), [gx, gy] = grade(x, y), sl = Math.hypot(gx, gy);
+    // how much the slope faces the midday sun (south in the north, y running south), for dry, sunny grass
+    const sunny = smooth(0.03, 0.14, latitude(y) >= 0 ? -gy : gy);
     const n = fbmW(x, y, 2, 3, SEED + 101), n2 = fbmW(x, y, 0.4, 2, SEED + 103);
-    f = Math.max(0, Math.min(1, f + n * 1.5 + n2 * 0.6));
+    let f = share + 0.3 * smooth(0.04, 0.2, sl) - 0.45 * smooth(-8, -40, rel) + 0.1 * smooth(10, 60, rel) + n * 0.7 + n2 * 0.22 - 0.08;
+    f = Math.max(0, Math.min(1, f)) * (1 - smooth(0.5, 0.75, sl));
     const B = bigRiver(u, v);
     if (B) f *= B.d < B.hw + 45 ? 1.2 : smooth(B.hw + 120, B.hw + 650, B.d);   // willows on the banks, meadow on the floor
     // the camp's meadow, the open ground at the cliff top, and woods on the plateau behind it, so the cliff reads as
@@ -245,8 +294,8 @@ export function zoomLand() {
     const ledge = smooth(-30, -22, v) * (1 - smooth(-12, -6, v)) * (1 - smooth(500, 900, au));
     const top = smooth(-26, -40, v) * smooth(-900, -600, v - wig) * (1 - smooth(500, 900, au));
     f = Math.max(f, 0.8 * top) * (1 - meadow * 0.9) * (1 - ledge * 0.7);
-    const dry = b === BIOME.STEPPE || b === BIOME.SCRUB ? 1 : 0, rock = b === BIOME.ROCK ? 1 : 0;
-    return { forest: Math.max(0, Math.min(1, f)), pine: b === BIOME.BOREAL ? 0.9 : 0.25, open: 1 - f, dry, rock };
+    const dry = b === BIOME.STEPPE || b === BIOME.SCRUB ? 1 : 0, rock = Math.max(b === BIOME.ROCK ? 1 : 0, smooth(0.5, 0.75, sl));
+    return { forest: Math.max(0, Math.min(1, f)), pine: b === BIOME.BOREAL ? 0.9 : 0.25, open: 1 - f, dry, rock, sunny };
   };
   land = { W, H0, height, cover, nearRiver, bigRiver, lines, stream, waterLevel, cliffV, cliffH, streamLevel, shelterAt, rimBack };
   return land;

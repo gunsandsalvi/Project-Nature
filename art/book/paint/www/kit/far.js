@@ -163,13 +163,14 @@ export function fireGlow(ctx, x, y, { big = false } = {}) {
 
 /**
  * A person as a tiny outlined figure in their strongest colour (PRE-28): a column of legs, body and head, one pixel
- * wide, in an outline. legs: their colour (skin when bare); children are a pixel shorter.
+ * wide, outlined in the darkest shade of what they wear, as everything is outlined in its own colour (PRE-21).
+ * legs: their colour (skin when bare); children are a pixel shorter.
  */
-export function tinyFigure(ctx, x, y, { skin = '#c78e65', body = '#9c3a2a', legs = '#5a3a2a', child = false } = {}) {
+export function tinyFigure(ctx, x, y, { skin = '#c78e65', body = '#9c3a2a', legs = '#5a3a2a', edge = OUT, child = false } = {}) {
   const col = child ? [legs, body, skin] : [legs, body, body, skin];   // from the feet up; feet at (x, y)
   const h = col.length;
-  for (let k = 0; k < h; k++) { px(ctx, x - 1, y - k, OUT); px(ctx, x + 1, y - k, OUT); px(ctx, x, y - k, col[k]); }
-  px(ctx, x, y + 1, OUT); px(ctx, x, y - h, OUT);
+  for (let k = 0; k < h; k++) { px(ctx, x - 1, y - k, edge); px(ctx, x + 1, y - k, edge); px(ctx, x, y - k, col[k]); }
+  px(ctx, x, y + 1, edge); px(ctx, x, y - h, edge);
 }
 
 /** A group of people as one marker (PRE-28): a small banner with a figure, pinned to the ground at (x, y). */

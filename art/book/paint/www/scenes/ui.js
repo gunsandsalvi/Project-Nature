@@ -181,7 +181,7 @@ async function card(ctx, x, y, w, h, ic, side = false) {
   ctx.drawImage(face, px, py);
   const tx = px + 78;
   drawText(ctx, 'Aru', tx, py + 2, { color: C.ink, scale: 2, hand: true, seed: 4 });
-  text(ctx, '"river stone"', tx, py + 22, { color: C.inkMid, hand: true, seed: 9 });
+  text(ctx, '"river stone"', tx, py + 22, { color: C.inkMid });
   text(ctx, 'Woman, 31 · the Tavu', tx, py + 36, { color: C.ink });
   text(ctx, 'Potter · mother of Sefi', tx, py + 48, { color: C.ink });
   text(ctx, 'Mood: proud, a little tired', tx, py + 60, { color: C.red });
@@ -225,7 +225,10 @@ async function card(ctx, x, y, w, h, ic, side = false) {
 
 const MARK = '#4f6b8c';   // your own acts, beside the story and never in it (GOD-07)
 
-/** The book of ages: a page of the journal with an ink drawing and the age's entries in handwriting. */
+/**
+ * The book of ages: a page of the journal with an ink drawing and the age's entries, upright and plain to read; the
+ * handwriting is kept for the age's name, drawn at twice the size.
+ */
 async function book() {
   const w = 336, h = 748;
   const c = document.createElement('canvas'); c.width = w; c.height = h;
@@ -243,14 +246,14 @@ async function book() {
   }
   rect(ctx, 16, 40, w - 32, 1, C.line);
   drawText(ctx, 'The age of hesoru', 16, 50, { color: C.ink, scale: 2, hand: true, seed: 3 });
-  text(ctx, 'fire from wood · from Year 31', 16, 72, { color: C.red, hand: true, seed: 5 });
+  text(ctx, 'fire from wood · from Year 31', 16, 72, { color: C.red });
   // the drawing: the shelter, in ink
   const { P } = await shelter({ light: 'golden', opts: ['wide'], view: { w: 304, h: 150, mpp: 0.06, target: [1, 2.4, -3.5] } });
   P.ink = true;
   const sk = await P.render(0);
   rect(ctx, 14, 86, 308, 154, C.inkMid);
   ctx.drawImage(sk, 16, 88);
-  text(ctx, 'The shelter by the stream, as it was kept.', 16, 245, { color: C.inkMid, hand: true, seed: 8 });
+  text(ctx, 'The shelter by the stream, as it was kept.', 16, 245, { color: C.inkMid });
   let y = 263;
   const entries = [
     ['Year 31, autumn, day 4', 'Ume of the Tavu carried a burning branch from the lightning fire to the shelter and kept it alive through three nights of rain. The band called it hesoru.'],
@@ -260,9 +263,9 @@ async function book() {
     ['Year 51, summer, day 20', 'The Tavu painted a red deer on the shelter wall.'],
   ];
   entries.forEach(([when, what], i) => {
-    text(ctx, when, 16, y, { color: C.red, hand: true, seed: y });
+    text(ctx, when, 16, y, { color: C.red });
     y += 13;
-    y = block(ctx, what, 16, y, w - 32, { color: C.ink, hand: true, seed: y + 3 }) + 6;
+    y = block(ctx, what, 16, y, w - 32, { color: C.ink, lineH: 13 }) + 6;
     if (i === 0) {
       // your act beside the entry, marked as yours, opening what came of it (GOD-07, GOD-09)
       rect(ctx, 16, y - 1, 2, 22, MARK);
@@ -281,9 +284,9 @@ async function book() {
   y += 2;
   rect(ctx, 14, y - 2, 64, 80, C.inkMid);
   ctx.drawImage(ume, 16, y);
-  text(ctx, 'Ume, who kept the fire', 90, y + 14, { color: C.ink, hand: true, seed: 41 });
-  text(ctx, 'of the Tavu, died Year 44, aged 58', 90, y + 30, { color: C.inkMid, hand: true, seed: 42 });
-  text(ctx, 'taught the fire to Asi and Koro', 90, y + 46, { color: C.red, hand: true, seed: 43 });
+  text(ctx, 'Ume, who kept the fire', 90, y + 14, { color: C.ink });
+  text(ctx, 'of the Tavu, died Year 44, aged 58', 90, y + 30, { color: C.inkMid });
+  text(ctx, 'taught the fire to Asi and Koro', 90, y + 46, { color: C.red });
   // a red hand stamp in the margin, as on the shelter wall
   const hand = ['.#.#.', '#####', '#####', '.###.', '.###.'];
   hand.forEach((row, j) => [...row].forEach((ch, i) => { if (ch === '#') rect(ctx, w - 44 + i * 3, h - 50 + j * 3, 3, 3, 'rgba(156,58,42,0.75)'); }));
@@ -574,17 +577,15 @@ async function sheet(ic) {
   label('Journal paper', 250, 362);
   paper(ctx, 250, 376, 200, 50, 5);
   drawText(ctx, 'Aru', 260, 382, { color: C.ink, scale: 2, hand: true, seed: 4 });
-  text(ctx, '"river stone"', 300, 388, { color: C.inkMid, hand: true, seed: 9 });
+  text(ctx, '"river stone"', 300, 388, { color: C.inkMid });
   text(ctx, 'Woman, 31 · the Tavu', 260, 410, { color: C.ink });
   label('Plain pixel font', 20, 444);
   text(ctx, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 20, 458, { color: C.text });
   text(ctx, 'abcdefghijklmnopqrstuvwxyz 0123456789', 20, 470, { color: C.text });
   text(ctx, 'The Tavu keep goats and sow grain by the river.', 20, 484, { color: C.dim });
   drawText(ctx, 'Titles at 2x', 20, 496, { color: C.text, scale: 2 });
-  label('Pixel handwriting', 400, 444);
-  text(ctx, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 400, 458, { color: C.bubble, hand: true, seed: 2 });
-  text(ctx, 'abcdefghijklmnopqrstuvwxyz 0123456789', 400, 470, { color: C.bubble, hand: true, seed: 3 });
-  text(ctx, 'Year 31, autumn, day 4: the band called it hesoru.', 400, 484, { color: C.dim, hand: true, seed: 5 });
-  drawText(ctx, 'The age of hesoru', 400, 496, { color: C.bubble, scale: 2, hand: true, seed: 6 });
+  label('Pixel handwriting: big titles only', 400, 444);
+  drawText(ctx, 'The age of hesoru', 400, 460, { color: C.bubble, scale: 2, hand: true, seed: 6 });
+  drawText(ctx, 'Aru  Ume  Sefi', 400, 486, { color: C.bubble, scale: 2, hand: true, seed: 7 });
   return canvasPngs(c, 3);
 }
