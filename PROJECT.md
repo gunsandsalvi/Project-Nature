@@ -1330,6 +1330,9 @@ Checks that need chance use trials of 200 tries a level (`RES-24`), at level 10 
 
 - `RCK-12` **Glue from bark** *(Decided)*: Birch bark heated without air gives tar, a glue; in an open fire it only burns.
   - **Check:** tar comes only from birch bark covered from the air at heat 2–3 (`MAT-19`), and birch bark in an open fire leaves only ash.
+  - **Proposed change:** Birch bark heated without air gives tar, a glue; burning in the open, it leaves a little tar on a smooth stone or bone beside it, and otherwise only burns.
+    Check: tar comes only from birch bark covered from the air at heat 2–3, or condensed on a smooth stone or bone beside birch bark burning in the open (`MAT-19`, `MAT-07`); birch bark burnt in the open with nothing beside it leaves only ash.
+    Reason: Schmidt and others (PNAS 2019) made tar by burning birch bark near flat river stones, a method simple enough to be found by accident, and the glue was stronger (research 11).
 
 - `RCK-25` **Hafting** *(Decided)*: A head bound or glued to a shaft gives the head's edge with the shaft's reach.
   - **Check:** every hafted result takes its edge from its head and its toughness from the weakest of head, binding and shaft, with bindings of fibre 3 or more or glues of stickiness 4 or more.
@@ -1339,6 +1342,9 @@ Checks that need chance use trials of 200 tries a level (`RES-24`), at level 10 
 
 - `RCK-06` **Leather** *(Decided)*: Hides soaked with crushed bitter, staining bark, such as oak, become leather that stays supple and doesn't rot; in plain water they rot.
   - **Check:** tanning accepts only plant sheets or powders with poison 2–3 and pigment 2 or more, its leather doesn't rot, and a hide in plain water rots on time (`MAT-19`).
+  - **Proposed change:** Hides soaked with crushed bitter, staining bark, such as oak, or worked with an animal's brain, stretched as they dry and then smoked, become leather that stays supple and doesn't rot; in plain water they rot.
+    Check: tanning accepts only plant sheets or powders with poison 2–3 and pigment 2 or more, or brain worked into a scraped hide followed by smoking; its leather doesn't rot, and a hide in plain water rots on time (`MAT-19`).
+    Reason: animal brain "will equally well replace plant tannins", and brain tanning, widely used by foragers, needs no bark (research 11).
 
 - `RCK-26` **Warmth from the material** *(Decided)*: Clothes, bedding and shelters keep warmth by what they are made of, fur most, and far less when wet.
   - **Check:** fur has warmth 5, hide and leather 3, woven plants 1–2; shelters and beds take their covering's warmth, clothes their outer layer's, halved when wet (water 3 or more, `BIO-11`).
@@ -2776,6 +2782,8 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Culture and society** (`MIL-15`): milestone 8.
 - **The game** (`MIL-16`): milestone 9.
 - **The whole arc** (`MIL-17`): milestone 10.
+- **Glue from bark** (`RCK-12`): tar also condenses on a smooth stone beside birch bark burning in the open, a likely accident.
+- **Leather** (`RCK-06`): brain tanning, then smoking, as a second route to leather.
 - **Three documents** (`PRC-04`): the plan details only the next milestone, and the code is the index of where each item is done.
 - **Next: the architecture and the plan** (`PRC-08`): next, pre-production ends and the foundations milestone starts.
 - **Each alpha reaches your phone** (`PRC-11`): each alpha ends with a build to install and try.
