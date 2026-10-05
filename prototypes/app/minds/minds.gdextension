@@ -1,0 +1,12 @@
+; P6 A thousand minds (IMPLEMENTATION α0.4b): the minds' Godot extension, built from prototypes/minds/extension
+; for the cloud's tests (Linux) and for the phone (arm64 Android, by tools/build.sh); its libraries are never
+; committed. Pre-production code (research 00).
+[configuration]
+
+entry_symbol = "minds_init"
+compatibility_minimum = "4.5"
+
+[libraries]
+
+linux.x86_64 = "res://minds/bin/libminds.linux.x86_64.so"
+android.arm64 = "res://minds/bin/libminds.android.arm64.so"

@@ -163,7 +163,7 @@ The same library runs scenes and whole worlds headless in the cloud, under the s
 - **Speed is how much game time runs per real second, within the frame's budget** (A3.9).
   When the phone can't keep up, time slows; detail is never cut (`PRN-11`).
 - **The screen moves smoothly at any speed:** the view places each walker along its path between the start and end of its activity, so nothing in the simulation runs per frame.
-- *To prove (P6):* that the event queue holds a thousand people at a year a minute.
+- *Measured in P6 in the cloud:* a queue of five-minute windows over two days holds a thousand people at about 7 game years a real minute on one core and 12 on four; your phone's run comes with the α0.4b build (A11).
 
 ### A3.4 The same bits everywhere (`RES-05`, `TIM-16`)
 
@@ -484,7 +484,15 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - **Opinions move in talk;** social acts and norms are data rules over relationships and personality (`MND-33`, `CUL-24`).
 - **Paths in levels:** connected regions, then cached cluster paths, then A* or flow fields inside clusters, recomputed only where the land changes.
 - **The estimate:** a thousand people at a game year a real minute is about 48,000 decisions a second, some 80 µs each on four cores, before bodies, talk and paths (`TIM-07`, `MND-15`).
-  *To prove (P6):* a thousand simple minds with needs, choice, talk and paths, on your phone at held speed.
+  *Measured in P6 in the cloud,* in C++ as pre-production code: a thousand people in 40 bands, each with nine needs, 50 actions scored by response curves with their reasons kept, talk passing places, opinions and news, and trips by paths in levels, make about 32,000 decisions a game day, about 32 each, near `TIM-17`'s 10–30 activities a day.
+  - One core of the cloud's x86-64 runs them at about 7 game years a real minute, four cores at about 12: a person costs about a seventh of `MND-15`'s thousandth of a second a game day, before bodies and the rest of a full mind.
+  - Choosing takes over half the time, talk a sixth, paths a seventh, results landing a twenty-fifth, and the rest (where everyone stands, the queue, the hourly mood) a tenth.
+  - Four cores give less than twice one: each five minutes of game time hands about a hundred choices to the threads, and what must happen in order between them (results landing with what talk passes on, and the snapshot of where people stand) is about a third of the time.
+  - Paths first took four fifths of the time, with A* inside the first and last clusters of every trip and a cache for each thread; fields of distances from each entrance, made at the start (the flow fields above), and one cache shared by every thread, merged between windows, brought them to a seventh.
+    A place in another connected region is passed over before scoring.
+  - One thread and four, and arm64 under qemu, end every day the same.
+  - P6's people choose one activity at a time: the small planner for jobs of several steps comes with production's minds.
+  - *To prove (P6):* the same on your phone at held speed: the α0.4b build's "P6 A thousand minds" screen runs it for 10 minutes on four cores.
 
 ## A12. Crafts and discovery (research 11), outline
 

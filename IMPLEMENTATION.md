@@ -18,7 +18,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P2 A full scene (α0.2b) is done: a busy camp at night with three fires holds 60 frames a second at close and camp zoom (A18.1).
 - P3 The kit (α0.2c) is delivered, and your comments and the independent review's findings are fixed and delivered in α0.3a for your look: warmer firelight and flickering flames, grey daytime smoke, gentler turns, figures in their own clothes with a pose at every step, brush windbreaks and coursed lean-tos, and P2's people and camp zoom. The art book's dusk sun stays, as you asked for no change but faster discoveries.
 - P4 Discovery pace (α0.3a) passes, and is reviewed and delivered: with every discovery window halved, as you asked for faster discoveries, tuning alone brings flakes within 3 years and fire in Years 3 to 15, and no value holds the pace on a knife's edge (A12, `TIM-19`).
-- P5 The same bits (α0.4a) is built: the same results on x86-64 and on arm64 under qemu, on one thread and four; your phone's run is in its screen.
+- P5 The same bits (α0.4a) is built and delivered with P6 in the α0.4b build: the same results on x86-64 and on arm64 under qemu, on one thread and four; your phone's run is in its screen.
+- P6 A thousand minds (α0.4b) is built and delivered: in the cloud a thousand people run at about 7 game years a real minute on one core and 12 on four, the same on one thread and four and on arm64 under qemu (A11); your phone's 10-minute run is in its screen.
 
 ## How to use this plan
 
@@ -129,8 +130,8 @@ Every step keeps them, the independent review checks them, and the coverage chec
 |---|---|---|---|---|
 | α0.2c | P3 The kit | M0 | 6 | Fixed after your comments and the review; your look in the α0.3a build |
 | α0.3a | P4 Discovery pace | M0 | 6 | Passes; reviewed and delivered |
-| α0.4a | P5 The same bits | M0 | 4 | Built; your phone's run next |
-| α0.4b | P6 A thousand minds | M0 | 6 | Not started |
+| α0.4a | P5 The same bits | M0 | 4 | Delivered in the α0.4b build; your phone's run next |
+| α0.4b | P6 A thousand minds | M0 | 6 | Delivered; your phone's run next |
 | α0.5a | P7 World generation | M0 | 6 | Not started |
 | α0.5b | P8 The zoom | M0 | 6 | Not started |
 | α0.6a | P9 Ecology | M0 | 4 | Not started |
@@ -272,6 +273,8 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - Passes at 1 or more game years a minute, aiming for 2 to 3 (`TIM-07`).
 
 **On the phone:** open "A thousand minds", tap Run, put the phone down for about 10 minutes, then copy the code into the chat.
+
+**Conflict:** inside a cluster, trips follow fields of distances from each entrance, made at the start, rather than A*, and one cache of paths between clusters' parts is shared by every thread, merged between windows: with A* and a cache for each thread, paths took four fifths of the time, and four cores ran no faster than one (A11). People choose one activity at a time, with no planner on top, which P6's question doesn't need. P5 and P6 ship in one build, α0.4b, to save a delivery.
 
 ### α0.5a P7 World generation
 
