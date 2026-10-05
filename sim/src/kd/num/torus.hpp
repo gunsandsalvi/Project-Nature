@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "kd/core/check.hpp"
+#include "kd/num/whole.hpp"
 
 namespace kd::num {
 
@@ -81,11 +82,6 @@ public:
     }
 
 private:
-    static constexpr std::int64_t floor_mod(std::int64_t v, std::int64_t size) {
-        const std::int64_t r = v % size;
-        return r < 0 ? r + size : r;
-    }
-
     static constexpr std::int64_t shortest(std::int32_t from, std::int32_t to, std::int64_t size) {
         std::int64_t d = floor_mod(std::int64_t{to} - from, size);
         if (2 * d > size || (2 * d == size && from > to)) {

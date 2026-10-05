@@ -7,6 +7,7 @@
 #include <godot_cpp/godot.hpp>
 
 #include "device.hpp"
+#include "world.hpp"
 
 namespace {
 
@@ -15,6 +16,7 @@ void initialize(godot::ModuleInitializationLevel level) {
         return;
     }
     godot::ClassDB::register_class<kd::view::KdDevice>();
+    godot::ClassDB::register_class<kd::view::KdWorld>();
 }
 
 void uninitialize(godot::ModuleInitializationLevel /*level*/) {}

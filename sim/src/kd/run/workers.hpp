@@ -1,24 +1,24 @@
-// The simulation's own threads (A3.9): each made with an explicit stack (bionic's default is about 1 MiB, glibc's
-// usually 8), a name, a slightly lower priority than Godot's main thread, and the default floating-point environment.
-// Work is cut into pieces whose number depends only on the data, never on how many threads run them (A3.4).
+// The simulation's workers (A3.9): up to four simulation threads (kd/run/thread.hpp) that run pieces of work side by
+// side. Work is cut into pieces whose number depends only on the data, never on how many threads run them (A3.4).
 #pragma once
 
 #include <atomic>
 #include <condition_variable>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
 
-#include <pthread.h>
+#include "kd/run/thread.hpp"
 
 namespace kd::run {
 
 /// Implements PLT-01, see A3.9: the threads the simulation runs on, up to the phone's four middle cores.
 class Workers {
 public:
-    explicit Workers(int count, std::string name = "kd-sim");
+    explicit Workers(int count, const std::string& name = "kd-sim");
     ~Workers();
     Workers(const Workers&) = delete;
     Workers& operator=(const Workers&) = delete;
@@ -47,30 +47,20 @@ private:
     }
 
     void run(std::size_t n, Call call, void* task);
-    void loop(int index);
-    static void* start(void* self);
+    void loop();
 
-    struct Thread {
-        Workers* owner = nullptr;
-        int index = 0;
-        pthread_t handle{};
-        std::uint64_t inherited_fenv = 0;
-        std::size_t stack = 0;
-    };
-
-    std::string name_;
-    std::vector<Thread> threads_;
     std::mutex mutex_;
     std::condition_variable wake_;
     std::condition_variable done_;
     std::uint64_t generation_ = 0;
     int busy_ = 0;
-    int started_ = 0;
     bool stopping_ = false;
     Call call_ = nullptr;
     void* task_ = nullptr;
     std::size_t total_ = 0;
     std::atomic<std::size_t> next_{0};
+    // last, so the threads stop before what they use is gone
+    std::vector<std::unique_ptr<Thread>> threads_;
 };
 
 }  // namespace kd::run

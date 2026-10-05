@@ -3,6 +3,7 @@
 #include <array>
 
 #include "kd/core/check.hpp"
+#include "kd/num/whole.hpp"
 
 namespace kd::time {
 
@@ -10,16 +11,11 @@ namespace {
 
 constexpr std::array<std::string_view, 4> kSeasonNames = {"spring", "summer", "autumn", "winter"};
 
-// The whole number below n / d and what is left, for any sign of n: a moment before history still falls in a year.
-constexpr std::int64_t floor_div(std::int64_t n, std::int64_t d) {
-    const std::int64_t q = n / d;
-    return (n % d != 0 && n < 0) ? q - 1 : q;
-}
-
 }  // namespace
 
 Date date_of(Seconds moment) {
-    const std::int64_t years = floor_div(moment, kYear);
+    // rounding down, so a moment before history still falls in a year
+    const std::int64_t years = num::floor_div(moment, kYear);
     Seconds left = moment - years * kYear;
     Date d;
     d.year = years + 1;

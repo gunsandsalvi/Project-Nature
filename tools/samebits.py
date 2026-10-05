@@ -12,8 +12,9 @@
 A later -ffp-model turns fused multiply-adds back on without a warning, and an inline function compiled with them
 in one file can replace the simulation's own copy at link time, so the flags and the code are both checked
 (research 18). Two kinds of file are exempt from the scan: vendored code under sim/thirdparty/, since CORE-MATH asks
-for its fused multiply-adds explicitly and they are exact, and the test framework's own code (sim/tests/main.cpp,
-which builds doctest), which formats numbers with the platform's maths but never runs in the simulation.
+for its fused multiply-adds explicitly and they are exact, and the test framework's own code (sim/tests/main.cpp and
+view/tests/main.cpp, which build doctest), which formats numbers with the platform's maths but never runs in the
+simulation.
 """
 
 import json
@@ -24,7 +25,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OURS = ("sim/", "view/")
-EXEMPT = ("sim/thirdparty/", "sim/tests/main.cpp")
+EXEMPT = ("sim/thirdparty/", "sim/tests/main.cpp", "view/tests/main.cpp")
 OBJDUMP = "llvm-objdump-18"
 NM = "llvm-nm-18"
 

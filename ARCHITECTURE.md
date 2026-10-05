@@ -310,9 +310,11 @@ Following Box2D, Factorio and research 18:
   The fastest core and the small ones stay for Godot, sound and the system; Godot's own worker pool is kept small.
   Whether the workers are pinned to the middle cores is decided by the benchmark, which runs both ways, since Android advises against pinning (research 18).
 - **The speed loop:** the simulation works toward a goal at most about a quarter of a real second ahead of the screen, and sleeps once it gets there.
-  - Each frame the screen's game time moves by the speed asked times the frame's real time, but never past the simulation's frontier; when it reaches the frontier, time slows (`PRN-11`).
-  - The speed shown is measured from what was drawn, so it is always the real speed (`TIM-01`).
-  - Pausing lets the screen glide to the frontier within that quarter second, then stop.
+  - The world's runner (`kd::run::Runner`) is one simulation thread that works toward the goal in batches the world chooses, publishes its frontier after each, and rereads the goal between them, so a lower goal stops it within one batch; a cut between batches never changes the result.
+  - Each frame the screen's game time moves by the speed asked times the frame's real time, read from the steady clock, since Godot's delta is smoothed, but never past the simulation's frontier; when it reaches the frontier, time slows (`PRN-11`).
+  - The goal is the screen's time plus the speed times a quarter of a second, and at least one game second, rounded up to a whole second (`kd::view::Pace`, which touches no Godot, so its tests run alone).
+  - The speed shown is measured from what was drawn over the last real second, so it is always the real speed (`TIM-01`).
+  - Pausing asks the world to go no further than its frontier, and the screen glides to it at whatever rate arrives a quarter of a second after the pause, however far ahead the world had got after a drop in speed; then it stops.
   - At one game second a real second, a game minute takes a real minute (`TIM-10`).
 - **Heat:** `view/` reads the phone's heat headroom every 2 s with a 10-s forecast (Android forecasts only while asked at least every 10 s), and listens for its thermal status; as the forecast nears the first throttling level, the simulation's working share is cut quickly and given back slowly, so time slows before the phone throttles (research 02, 18).
 - **Telemetry:** the device class also reads battery and power rails, the cores' clocks, our threads' CPU time and memory, and the interval of every frame; trace sections mark each frame and batch for the phone's own System Tracing.

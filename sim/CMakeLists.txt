@@ -19,6 +19,7 @@ kindling_c_rules(kd_core_math)
 add_library(kd_sim STATIC
     src/kd/chance/chance.cpp
     src/kd/core/check.cpp
+    src/kd/demo/clockwork.cpp
     src/kd/num/angle.cpp
     src/kd/num/convert.cpp
     src/kd/num/digest.cpp
@@ -26,6 +27,8 @@ add_library(kd_sim STATIC
     src/kd/num/maths.cpp
     src/kd/proof/maths_cases.cpp
     src/kd/proof/proof.cpp
+    src/kd/run/runner.cpp
+    src/kd/run/thread.cpp
     src/kd/run/workers.cpp
     src/kd/time/calendar.cpp
     src/kd/time/duration.cpp)
@@ -47,7 +50,8 @@ if(KD_SIM_TESTS)
         tests/maths_test.cpp
         tests/num_test.cpp
         tests/numbers_test.cpp
-        tests/run_test.cpp)
+        tests/run_test.cpp
+        tests/runner_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
     target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)
     target_link_libraries(kd_sim_tests PRIVATE kd_sim)

@@ -139,6 +139,11 @@ cpp_tests() {
     done
     echo "   $b: $TESTS"
   done
+  # the extension's own tests, of what needs no Godot (the speed loop)
+  if [ -f build/view/CTestTestfile.cmake ]; then
+    quiet ctest --test-dir build/view --output-on-failure
+    echo "   view: tests passed"
+  fi
   for b in "${TIE_BUILDS[@]}"; do
     for threads in 1 4; do
       qemu-aarch64-static "build/$b/kindling" proof --threads "$threads" >"$TMP/proof-$b-$threads" \
