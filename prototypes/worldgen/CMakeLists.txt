@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(SAMEBITS "${CMAKE_CURRENT_SOURCE_DIR}/../samebits/src")
 set(MINDS "${CMAKE_CURRENT_SOURCE_DIR}/../minds/src")
 set(SOURCES src/noise.cpp src/fft.cpp src/land.cpp src/climate.cpp src/life.cpp src/choose.cpp src/settle.cpp
-    src/maps.cpp "${SAMEBITS}/maths.cpp" "${MINDS}/pool.cpp")
+    src/maps.cpp src/area.cpp "${SAMEBITS}/maths.cpp" "${MINDS}/pool.cpp")
 add_library(worldgen STATIC ${SOURCES})
 target_include_directories(worldgen PUBLIC src "${SAMEBITS}" "${MINDS}")
 target_compile_options(worldgen PUBLIC -Wall -Wextra -Werror -ffp-contract=off -fno-fast-math)

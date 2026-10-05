@@ -8,14 +8,22 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
+#include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/packed_color_array.hpp>
+#include <godot_cpp/variant/packed_float32_array.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
+#include <godot_cpp/variant/packed_vector2_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/vector2.hpp>
 
+#include <algorithm>
 #include <cstring>
 #include <memory>
 
+#include "area.hpp"
 #include "hash.hpp"
 #include "world.hpp"
 
@@ -34,6 +42,19 @@ protected:
         godot::ClassDB::bind_method(godot::D_METHOD("map_width"), &WorldGen::map_width);
         godot::ClassDB::bind_method(godot::D_METHOD("map_height"), &WorldGen::map_height);
         godot::ClassDB::bind_method(godot::D_METHOD("digest"), &WorldGen::digest);
+        godot::ClassDB::bind_method(godot::D_METHOD("map_at", "world", "scale"), &WorldGen::map_at);
+        godot::ClassDB::bind_method(godot::D_METHOD("heights", "world"), &WorldGen::heights);
+        godot::ClassDB::bind_method(godot::D_METHOD("ground", "world", "east", "north", "n", "spacing"),
+                                    &WorldGen::ground);
+        godot::ClassDB::bind_method(godot::D_METHOD("start", "world"), &WorldGen::start);
+        godot::ClassDB::bind_method(godot::D_METHOD("ground_mesh", "world", "east", "north", "n", "spacing"),
+                                    &WorldGen::ground_mesh);
+        godot::ClassDB::bind_method(godot::D_METHOD("trees", "world", "east", "north", "side", "spacing"),
+                                    &WorldGen::trees);
+        godot::ClassDB::bind_method(godot::D_METHOD("rivers", "world", "least_km2"), &WorldGen::rivers);
+        godot::ClassDB::bind_method(godot::D_METHOD("coasts", "world"), &WorldGen::coasts);
+        godot::ClassDB::bind_method(godot::D_METHOD("world_size"), &WorldGen::world_size);
+        godot::ClassDB::bind_method(godot::D_METHOD("world_cells"), &WorldGen::world_cells);
     }
 
 public:
@@ -97,6 +118,186 @@ public:
         return out;
     }
 
+    // P8 The zoom (IMPLEMENTATION α0.5b) reads a world through these: its map a pixel a cell or coarser, without the
+    // rivers it draws as lines, its cells' heights, the ground anywhere at any spacing (A7.5), and where its start
+    // region lies.
+    godot::PackedByteArray map_at(int world, int scale) const {
+        godot::PackedByteArray out;
+        const worldgen::World* w = offered(world);
+        if (w == nullptr || scale < 1) {
+            return out;
+        }
+        const std::vector<std::uint8_t> rgb = worldgen::map_rgb(*w, scale, false);
+        out.resize(static_cast<std::int64_t>(rgb.size()));
+        std::memcpy(out.ptrw(), rgb.data(), rgb.size());
+        return out;
+    }
+
+    godot::PackedFloat32Array heights(int world) const {
+        godot::PackedFloat32Array out;
+        const worldgen::World* w = offered(world);
+        if (w == nullptr) {
+            return out;
+        }
+        out.resize(static_cast<std::int64_t>(w->height.size()));
+        std::memcpy(out.ptrw(), w->height.data(), w->height.size() * sizeof(float));
+        return out;
+    }
+
+    godot::PackedFloat32Array ground(int world, double east, double north, int n, double spacing) const {
+        godot::PackedFloat32Array out;
+        const worldgen::World* w = offered(world);
+        if (w == nullptr || n < 1) {
+            return out;
+        }
+        const std::vector<float> h = worldgen::ground_heights(*w, east, north, n, spacing);
+        out.resize(static_cast<std::int64_t>(h.size()));
+        std::memcpy(out.ptrw(), h.data(), h.size() * sizeof(float));
+        return out;
+    }
+
+    // A square of ground as a mesh's arrays, for P8's chunks: n × n vertices `spacing` metres apart from (east,
+    // north), in metres from that corner, x east, y up and z south, the sea flat at its level; their normals; and
+    // their colours.
+    godot::Array ground_mesh(int world, double east, double north, int n, double spacing) const {
+        godot::Array out;
+        const worldgen::World* w = offered(world);
+        if (w == nullptr || n < 2) {
+            return out;
+        }
+        const std::vector<float> h = worldgen::ground_heights(*w, east, north, n, spacing);
+        const std::vector<std::uint8_t> rgb = worldgen::ground_colours(*w, east, north, n, spacing, h);
+        godot::PackedVector3Array vertices;
+        godot::PackedVector3Array normals;
+        godot::PackedColorArray colours;
+        const auto count = static_cast<std::int64_t>(n) * n;
+        vertices.resize(count);
+        normals.resize(count);
+        colours.resize(count);
+        const auto at = [n, &h](int i, int j) {
+            i = std::clamp(i, 0, n - 1);
+            j = std::clamp(j, 0, n - 1);
+            return std::max(
+                0.0F, h[(static_cast<std::size_t>(j) * static_cast<std::size_t>(n)) + static_cast<std::size_t>(i)]);
+        };
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < n; ++i) {
+                const std::int64_t k = (static_cast<std::int64_t>(j) * n) + i;
+                vertices.set(
+                    k, godot::Vector3(static_cast<float>(i * spacing), at(i, j), static_cast<float>(-j * spacing)));
+                const float dx = (at(i + 1, j) - at(i - 1, j)) / static_cast<float>(2.0 * spacing);
+                const float dz = (at(i, j + 1) - at(i, j - 1)) / static_cast<float>(2.0 * spacing);
+                normals.set(k, godot::Vector3(-dx, 1.0F, dz).normalized());
+                const std::size_t c = static_cast<std::size_t>(k) * 3;
+                colours.set(k,
+                            godot::Color(static_cast<float>(rgb[c]) / 255.0F, static_cast<float>(rgb[c + 1]) / 255.0F,
+                                         static_cast<float>(rgb[c + 2]) / 255.0F));
+            }
+        }
+        out.push_back(vertices);
+        out.push_back(normals);
+        out.push_back(colours);
+        return out;
+    }
+
+    // The trees in a square, each as metres east of its corner, the ground's height, and metres north (A9).
+    godot::PackedVector3Array trees(int world, double east, double north, double side, double spacing) const {
+        godot::PackedVector3Array out;
+        const worldgen::World* w = offered(world);
+        if (w == nullptr) {
+            return out;
+        }
+        const std::vector<float> xyh = worldgen::ground_trees(*w, east, north, side, spacing);
+        out.resize(static_cast<std::int64_t>(xyh.size() / 3));
+        for (std::size_t i = 0; i < xyh.size() / 3; ++i) {
+            out.set(static_cast<std::int64_t>(i), godot::Vector3(xyh[i * 3], xyh[(i * 3) + 2], xyh[(i * 3) + 1]));
+        }
+        return out;
+    }
+
+    // The rivers draining at least `least_km2`, as line segments between cell middles in metres, each pair a segment
+    // from a cell to where its water goes (A8.5).
+    godot::PackedVector2Array rivers(int world, double least_km2) const {
+        godot::PackedVector2Array out;
+        const worldgen::World* w = offered(world);
+        if (w == nullptr) {
+            return out;
+        }
+        const worldgen::Grid& g = w->grid;
+        for (const std::int32_t c : w->order) {
+            if (w->area[static_cast<std::size_t>(c)] < least_km2) {
+                continue;
+            }
+            const std::int32_t r = w->receiver[static_cast<std::size_t>(c)];
+            out.push_back(godot::Vector2(static_cast<float>((g.x_of(c) + 0.5) * g.metres),
+                                         static_cast<float>((g.y_of(c) + 0.5) * g.metres)));
+            // the receiver beside it, on this side of the torus's edges
+            int dx = g.x_of(r) - g.x_of(c);
+            int dy = g.y_of(r) - g.y_of(c);
+            dx = dx > 1 ? dx - g.width : (dx < -1 ? dx + g.width : dx);
+            dy = dy > 1 ? dy - g.height : (dy < -1 ? dy + g.height : dy);
+            out.push_back(godot::Vector2(static_cast<float>((g.x_of(c) + dx + 0.5) * g.metres),
+                                         static_cast<float>((g.y_of(c) + dy + 0.5) * g.metres)));
+        }
+        return out;
+    }
+
+    // The shore as line segments along the cell edges between land and sea, in metres (PRE-29, A8.5).
+    godot::PackedVector2Array coasts(int world) const {
+        godot::PackedVector2Array out;
+        const worldgen::World* w = offered(world);
+        if (w == nullptr) {
+            return out;
+        }
+        const worldgen::Grid& g = w->grid;
+        const auto m = static_cast<float>(g.metres);
+        for (int c = 0; c < g.cells(); ++c) {
+            if (w->sea(c)) {
+                continue;
+            }
+            const auto x = static_cast<float>(g.x_of(c));
+            const auto y = static_cast<float>(g.y_of(c));
+            if (w->sea(g.at(g.x_of(c) + 1, g.y_of(c)))) {
+                out.push_back(godot::Vector2((x + 1) * m, y * m));
+                out.push_back(godot::Vector2((x + 1) * m, (y + 1) * m));
+            }
+            if (w->sea(g.at(g.x_of(c) - 1, g.y_of(c)))) {
+                out.push_back(godot::Vector2(x * m, y * m));
+                out.push_back(godot::Vector2(x * m, (y + 1) * m));
+            }
+            if (w->sea(g.at(g.x_of(c), g.y_of(c) + 1))) {
+                out.push_back(godot::Vector2(x * m, (y + 1) * m));
+                out.push_back(godot::Vector2((x + 1) * m, (y + 1) * m));
+            }
+            if (w->sea(g.at(g.x_of(c), g.y_of(c) - 1))) {
+                out.push_back(godot::Vector2(x * m, y * m));
+                out.push_back(godot::Vector2((x + 1) * m, y * m));
+            }
+        }
+        return out;
+    }
+
+    // The middle of the start region, metres east and north of the world's corner.
+    godot::Vector2 start(int world) const {
+        const worldgen::World* w = offered(world);
+        if (w == nullptr || w->start.cell < 0) {
+            return {};
+        }
+        const worldgen::Grid& g = w->grid;
+        return {static_cast<float>((g.x_of(w->start.cell) + 0.5) * g.metres),
+                static_cast<float>((g.y_of(w->start.cell) + 0.5) * g.metres)};
+    }
+
+    // The world's metres around and from pole to pole (WLD-03), and its cells at full size.
+    godot::Vector2 world_size() const {
+        return {static_cast<float>(worldgen::kAroundMetres), static_cast<float>(worldgen::kAroundMetres / 2.0)};
+    }
+
+    godot::Vector2i world_cells() const {
+        const worldgen::Settings s;
+        return {s.full_width, s.full_width / 2};
+    }
+
     int map_width() const { return worldgen::Settings{}.full_width / kMapScale; }
     int map_height() const { return worldgen::Settings{}.full_width / 2 / kMapScale; }
 
@@ -105,6 +306,13 @@ public:
     godot::String digest() const { return offer_ ? godot::String(samebits::digest(sums_).c_str()) : godot::String(); }
 
 private:
+    const worldgen::World* offered(int world) const {
+        if (!offer_ || world < 0 || world >= static_cast<int>(offer_->three.size())) {
+            return nullptr;
+        }
+        return &offer_->three[static_cast<std::size_t>(world)];
+    }
+
     std::unique_ptr<worldgen::Offer> offer_;
     std::vector<std::uint64_t> sums_;
     int threads_ = 1;

@@ -1,13 +1,14 @@
 // P7's tests (IMPLEMENTATION α0.5a): our Fourier transform, rivers that reach the sea or a lake, the share of land and
 // the tilt in their ranges, rock and deposits where geology puts them, rain shadows behind mountains, the candidates'
-// offer and its reasons, settling, and the same worlds on one thread and four and as the cloud recorded. Pre-production
-// code (research 00).
+// offer and its reasons, settling, and the same worlds on one thread and four and as the cloud recorded; and P8's
+// (α0.5b): the ground made on demand from the cells and the seed alone. Pre-production code (research 00).
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.h>
 
 #include <algorithm>
 #include <cmath>
 
+#include "area.hpp"
 #include "chance.hpp"
 #include "draws.hpp"
 #include "expected.hpp"
@@ -269,4 +270,61 @@ TEST_CASE("the small run matches the cloud's recorded one") {
     worldgen::settle(&offer.three[0], 1, &pool);
     sums.push_back(offer.three[0].checksum());
     CHECK(samebits::digest(sums) == std::string(worldgen::kCloudDigest));
+}
+
+// checks: WLD-13, WLD-12, PRE-03
+TEST_CASE("the ground made on demand is the same every time, follows its cells, and puts each tree in one square") {
+    World w = small_world(5);
+    const worldgen::Grid& g = w.grid;
+    // a forest well above the sea
+    int land = -1;
+    for (int c = 0; c < g.cells() && land < 0; ++c) {
+        const auto b = static_cast<worldgen::Biome>(w.biome[static_cast<std::size_t>(c)]);
+        const bool forest = b == worldgen::Biome::kBroadleaf || b == worldgen::Biome::kConifer;
+        land = forest && w.height[static_cast<std::size_t>(c)] > 300.0F ? c : -1;
+    }
+    REQUIRE(land >= 0);
+    const double east = (g.x_of(land) + 0.5) * g.metres;
+    const double north = (g.y_of(land) + 0.5) * g.metres;
+    // made twice, and in pieces, it is the same
+    const std::vector<float> a = worldgen::ground_heights(w, east, north, 33, 2.0);
+    const std::vector<float> b = worldgen::ground_heights(w, east, north, 33, 2.0);
+    CHECK(a == b);
+    CHECK(worldgen::ground_heights(w, east + 8.0, north + 6.0, 1, 1.0)[0] == a[(3 * 33) + 4]);
+    // its relief stays near the cell's own height
+    const double cell = w.height[static_cast<std::size_t>(land)];
+    for (const float h : a) {
+        CHECK(std::abs(h - cell) < 0.5 * cell + 60.0);
+    }
+    // the sea stays flat at its level, with no relief to raise an island
+    for (int c = 0; c < g.cells(); ++c) {
+        if (w.height[static_cast<std::size_t>(c)] < -200.0F) {
+            CHECK(worldgen::ground_height(w, (g.x_of(c) + 0.5) * g.metres, (g.y_of(c) + 0.5) * g.metres) < 0.0);
+            break;
+        }
+    }
+    // the colours are the cover's, or water where the ground is under the sea
+    const std::vector<std::uint8_t> rgb = worldgen::ground_colours(w, east, north, 33, 2.0, a);
+    CHECK(rgb.size() == a.size() * 3);
+    // trees: two squares side by side hold together what the square spanning both holds, none twice
+    const std::vector<float> left = worldgen::ground_trees(w, east, north, 64.0, 5.0);
+    const std::vector<float> right = worldgen::ground_trees(w, east + 64.0, north, 64.0, 5.0);
+    const std::vector<float> both = worldgen::ground_trees(w, east, north, 128.0, 5.0);
+    REQUIRE(!left.empty());
+    std::size_t in_both = 0;
+    for (std::size_t i = 0; i < both.size(); i += 3) {
+        if (both[i + 1] < 64.0F) {
+            in_both += 3;
+        }
+    }
+    CHECK(left.size() + right.size() == in_both);
+    for (std::size_t i = 0; i < left.size(); i += 3) {
+        CHECK(left[i] >= 0.0F);
+        CHECK(left[i] < 64.0F);
+        CHECK(left[i + 1] >= 0.0F);
+        CHECK(left[i + 1] < 64.0F);
+        // each stands on the ground there, above the sea
+        CHECK(left[i + 2] == static_cast<float>(worldgen::ground_height(w, east + left[i], north + left[i + 1])));
+        CHECK(left[i + 2] > 0.5F);
+    }
 }

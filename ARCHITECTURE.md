@@ -412,6 +412,7 @@ The start is found by scoring (`WLD-24`).
 
 - An area is made from the seed, its world cell and neighbours, and the date, the same every time; making it for the picture changes nothing.
 - Only what people change is kept (`WLD-12`).
+- *Built in P8,* in C++ as pre-production code: the ground's height anywhere, from the cells' heights joined smoothly between their middles, with relief in eight steps from 400 m down to 3 m, rougher where the cells are steep and none at the shore; its colour from the cover, whose edges are warped by noise at 800 m and 200 m so cover meets cover along natural lines, not the cells' squares; and trees by keyed chance on a 5 m grid, as many as the cover holds, each standing in exactly one chunk.
 
 ### A7.6 Starting small
 
@@ -434,6 +435,12 @@ Our own system in `view/`, driving Godot's RenderingServer directly:
 
 Each level fades into the next by dithering, so the pixel look never blurs, and a full area shows its coarse ground until its detail fades in, within about a second.
 
+*Built in P8,* over P7's world, in GDScript and C++ as pre-production code, drawn through the RenderingServer:
+- **Rings, as clipmaps do:** the near ground every metre to 128 m, a full area across, and every 2 m to 300 m, its trees as models; the middle ground every 40 m to 5 km and every 80 m to 16 km, which covers the valley stop's tall portrait picture; trees beyond 300 m as cards to 900 m, where the camp's tilted view ends (A8.3); then the map.
+- **Chunks** of 64 m to 3.2 km, made on Godot's worker threads from the seed, nearest first, at most six at once; each ring is planned again only when the focus has moved half a chunk.
+- **Handing over:** each ring draws where all its chunks round the focus are made, and gives way to the finer ring inside it over the last sixth of that ring's radius by a 4 × 4 ordered dither, the two sharing the pixels so none is empty or drawn twice; it shrinks to nothing over the last halving of its scale, so detail recedes as you zoom out rather than switching off.
+- **What a stop keeps,** at the start region's open grassland: about 0.56 million triangles at the valley, 0.9 million at the camp and 1.2 million from the close camp in, most of them outside the picture.
+
 ### A8.2 A moving origin
 
 Godot draws in single precision around an origin that moves with the camera, as Kerbal Space Program does; the simulation's exact coordinates never depend on it.
@@ -448,10 +455,15 @@ Godot draws in single precision around an origin that moves with the camera, as 
 
 - Orthographic and pitched for the close stops, tilting toward straight down as it rises.
 - Perspective for the globe: the flat map bends onto a sphere for the last step, as Google Maps morphs to its globe, squeezing the polar lands and hiding the seam under the ice (`WLD-02`).
+- *Built in P8:* pitched 30° from the camp inward, rising to straight down at the valley; past the world map, perspective, its field of view widening from 10° to 30° as the map bends, so the flat map first looks as it did.
+  The map's mesh spans the world round the focus, east and west, with the poles at its edges; bent, each place goes to a sphere as far around as the world, turned so the focus is on top.
+  The torus's top and bottom edges both meet at the icy poles, so its seam lies under the ice.
 
 ### A8.5 The map look (`PRE-29`)
 
 World cells in flat cover colours, rivers as lines (from the region out, those draining about 1,000 km² or more), hills shaded the cartographers' way, lit from high up at every hour with only the tint following it, sea in depth bands with the shore's bright line (`PRE-26`).
+*Built in P8:* P7's map, a texel a cell, without the rivers it draws itself; the rivers and the shore as lines a pixel wide over it; the sea in four bands 250 m deep; the hills lit from the north-west.
+P7's map had its hills lit from the south-east by mistake, which can make ridges read as valleys; it is lit from the north-west now.
 
 ### A8.6 Time and light by zoom (`TIM-01`, `PRE-30`)
 

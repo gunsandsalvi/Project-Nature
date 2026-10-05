@@ -1,43 +1,40 @@
-# Kindling α0.5a: P7 World generation
+# Kindling α0.5b: P8 The zoom
 
 ## What is new
 
-- **P7 World generation.** How long does "New world" take on your phone (`WLD-11`)? P7 makes worlds the way the game will, every stage in a first, simple form, in the order of real causes (`WLD-09`):
-  - plates that drift and meet, raising ranges and lines of volcanoes along their edges, and the rock each place is made of;
-  - rivers cutting their valleys as the land rises, every river reaching the sea or a lake;
-  - climate from latitude, height and the winds, with rain shadows behind mountains; then plants, soils, caves, and flint, clay and copper where the rocks put them, and the herds;
-  - 20 rough candidates, each judged for a start region with caves, water, food and stone that flakes, and for everything the ages need, with its reasons; the best 4 made again in full, and the best 3 offered (`WLD-10`, `WLD-24`);
-  - then the first one settled for 10 years with no people (`WLD-08`).
-- **In the cloud:** three worlds in about 17 seconds on four cores, and settling about 10 more. The aim is about 3 minutes and 1 more. Your phone decides.
-- **Your P5 and P6 runs both pass.** Your phone's chip gives exactly the cloud's results, even for P6's thousand minds after 3,546 game days, bit for bit. A thousand minds held 6.0 game years a real minute, six times the minimum, and the phone stayed cool.
-- **The checks are quicker:** about 20 seconds when nothing changed, and under a minute for a typical change.
+- **P8 The zoom.** Does one pinch from the globe to a person stay smooth at every stop on your phone (`PRE-03`)? P8 draws P7's world all the way down:
+  - the globe, with the world map bent onto it (`WLD-02`), and the map in the art book's flat colours: hills lit from the north-west, the sea in depth bands, rivers and the shore as thin lines (`PRE-29`);
+  - the ground in rings round where you look, as games draw big worlds: shaped every metre in the middle, every 2 m out to 300 m, every 40 m out to 5 km and every 80 m out to 16 km; trees as models near you, and as flat cards out to 900 m;
+  - each piece made on the phone's spare cores as you pinch, from the world's seed alone, so land you have never visited looks the same every time (`WLD-13`); each ring fades into the next by a pattern of pixels, so the picture never blurs.
+- **Faster discoveries again, as you asked.** Every window is halved again, and everything tied to the years with it, so the first village comes about an hour into play: flakes within 2 years, fire in Years 2 to 8. P4 was tuned again and still passes: flakes within 2 years in 19 of 20 runs, and fire in its window in 15 of 20 worlds, never early. The Reports page shows the new runs.
+- **P7's map was lit from the wrong side.** Its hills had their light from the south-east, which can make ridges look like valleys. The light now comes from the north-west, and the sea shows its depth in bands.
 
-![The three worlds P7 offers: your phone should make these same three, from the same seed](pictures/p7-maps.png)
-
-![The art book's world map, left, beside world 1 from pole to pole](pictures/p7-vs-artbook.png)
+![One pinch, seven stops: from the globe down to a single tree, drawn in the cloud](pictures/p8-stops.png)
 
 ## What to try
 
 1. Tap **Download and install** at the top of this page. It installs over the build you have.
-2. Open **P7 World generation** and tap **Make**. The three maps appear first, then it settles the first world. Paste the line it copies into your reply.
-3. If you haven't yet, α0.3a's look: open **P3 The kit**, tap **Hour** for dusk and night, and pinch in on the figures; open **P2 A full scene**; and say what reads well and what doesn't.
+2. Open **P8 The zoom**. It makes P7's world first, about 10 seconds, then shows the globe.
+3. Tap **Measure** and leave the screen alone for about 35 seconds: it pinches from the globe to a person and back by itself. Paste the line it copies into your reply.
+4. Then pinch and drag yourself, from the globe down to the trees and back, and say how it feels: any stutter, jump or hole?
+
+The line gives, for each stop, the graphics time in milliseconds (average and slowest 5%) and the share of frames on time; then how long a full area took to appear. P8 passes if at least 97% of frames are on time at every stop and a full area appears within about a second.
 
 ## What is rough
 
-- **The maps are a first pass.** Climate belts run in straight lines, and the sea ice's edge follows latitude. The world map's look comes with P8 The zoom and in production.
-- **Some parts are stand-ins:** settling's rules for plants, water and herds, and there are no glaciers or ocean currents yet. They have about the cost of the real ones, for the timing.
-- **From before:** fire's pace rests on dreams (`RSK-01`), and the art book's 5° dusk sun throws long stripes across every screen.
+- **The ground near you is plain:** flat grass and simple trees. P8 asks only whether the zoom stays smooth; the camp's look is P1 to P3's.
+- **No rivers near you yet:** rivers show on the map and lakes everywhere, but the rivers' courses on the ground come with water in production.
+- **Noon only:** P8 has no time of day.
+- **From before:** fire's pace rests on dreams (`RSK-01`).
 
 ## Questions for you
 
-1. **Is half enough?** Every discovery window is now half as long. Faster still, or right? Halving also touches what is tied to the old years, which I left for you to decide: the pace tests' runs to Years 60, 150 and 500 (`RES-07`), culture's windows (`CUL-33`), and the people counts at Years 400 and 500 (`BIO-04`).
-2. **The sharp-stone test.** It still asks for flakes within 5 years; I propose 3, to match (`RES-03`). At the tuned values it passes either way. OK?
-3. **Dusk.** The sun at dusk stays at the art book's 5°. Keep it?
+None this time.
 
 ## IDs delivered
 
-None for good: P7 is a prototype, thrown away once it has answered.
-Its question is about `WLD-11`, `WLD-08`, `WLD-09`, `WLD-10` and `WLD-24`.
+None for good: P8 is a prototype, thrown away once it has answered.
+Its question is about `PRE-03`, `PRE-29`, `WLD-02` and `TIM-01`.
 
 ## Links
 

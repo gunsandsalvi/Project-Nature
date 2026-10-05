@@ -80,8 +80,11 @@ func step(delta: float) -> void:
 
 
 ## The end of a Measure: its line for the chat, copied, printed and shown until the next touch; the
-## cloud's "measure" run quits there.
-static func finish(screen: Control, name: String, runs: PackedStringArray, heat: Array) -> void:
+## cloud's "measure" run quits there. The picture's size is given without its border of art pixels,
+## which the outlines need on P1 to P3's screens.
+static func finish(
+	screen: Control, name: String, runs: PackedStringArray, heat: Array, border := 2
+) -> void:
 	var main: GDScript = load("res://main.gd")
 	var art: Vector2i = screen._art.size
 	# the picture's size in art pixels and the screen's rate, which the results depend on
@@ -91,8 +94,8 @@ static func finish(screen: Control, name: String, runs: PackedStringArray, heat:
 			name,
 			ProjectSettings.get_setting("application/config/version", ""),
 			main.facts().phone,
-			art.x - 2,
-			art.y - 2,
+			art.x - border,
+			art.y - border,
 			main.refresh_rate()
 		]
 	)

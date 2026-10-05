@@ -19,7 +19,7 @@ add_subdirectory("${GODOT_CPP}" godot-cpp EXCLUDE_FROM_ALL)
 set(SAMEBITS "${CMAKE_CURRENT_SOURCE_DIR}/../../samebits/src")
 set(MINDS "${CMAKE_CURRENT_SOURCE_DIR}/../../minds/src")
 add_library(worldgen_gd SHARED worldgen_gd.cpp ../src/noise.cpp ../src/fft.cpp ../src/land.cpp ../src/climate.cpp
-    ../src/life.cpp ../src/choose.cpp ../src/settle.cpp ../src/maps.cpp "${SAMEBITS}/maths.cpp" "${MINDS}/pool.cpp")
+    ../src/life.cpp ../src/choose.cpp ../src/settle.cpp ../src/maps.cpp ../src/area.cpp "${SAMEBITS}/maths.cpp" "${MINDS}/pool.cpp")
 target_include_directories(worldgen_gd PRIVATE ../src "${SAMEBITS}" "${MINDS}")
 target_compile_options(worldgen_gd PRIVATE -Wall -Wextra -Werror -ffp-contract=off -fno-fast-math)
 find_package(Threads REQUIRED)

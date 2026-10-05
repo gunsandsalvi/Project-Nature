@@ -172,6 +172,8 @@ func test_flames_change_and_flicker_about_ten_times_a_second() -> void:
 	var screen := _screen()
 	await await_idle_frame()
 	screen.set_process(false)
+	# the clock from zero, whatever the first frame's length on a busy machine left on it
+	screen.set("_flame_clock", 0.0)
 	var flames: Dictionary = (screen.get("_flames") as Array)[0]
 	var before: Mesh = (flames.nodes[0] as MeshInstance3D).mesh
 	var base := 1.0 * float(screen.call("_burning"))

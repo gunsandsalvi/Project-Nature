@@ -16,6 +16,14 @@ func _init() -> void:
 	root.add_child(scene.instantiate())
 	for i in frames:
 		await process_frame
+	# a screen still making what it draws, such as P8's world and chunks, holds the picture back by
+	# being in the group "busy", for at most about five minutes of frames
+	var waited := 0
+	while not get_nodes_in_group("busy").is_empty() and waited < 20000:
+		await process_frame
+		waited += 1
+	for i in 3:
+		await process_frame
 	await RenderingServer.frame_post_draw
 	var error := root.get_texture().get_image().save_png(args[0])
 	quit(0 if error == OK else 1)

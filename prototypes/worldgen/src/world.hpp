@@ -267,8 +267,11 @@ Offer new_world(const Settings& settings);
 // Settling (WLD-08): plant cover, water and herds run for the given years with no people; the seconds it took.
 double settle(World* w, int years, minds::Pool* pool);
 
-// The world's map as RGB bytes, a pixel for every scale × scale cells: relief, water, ice and plant cover.
-std::vector<std::uint8_t> map_rgb(const World& w, int scale);
+// The world's map as RGB bytes, a pixel for every scale × scale cells: relief, water, ice and plant cover, and the big
+// rivers unless they are drawn as lines over it (P8, A8.5).
+std::vector<std::uint8_t> map_rgb(const World& w, int scale, bool rivers = true);
+// A biome's colour on the map, from the art book's.
+std::array<std::uint8_t, 3> cover_colour(Biome b);
 
 // The seed of candidate number i.
 std::uint64_t candidate_seed(std::uint64_t seed, int i);

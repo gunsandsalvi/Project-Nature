@@ -15,6 +15,7 @@ enum class Draw : std::uint8_t {
     kHerd = 6,     // where herds live
     kWeather = 7,  // a day's rain while settling
     kFire = 8,     // lightning fires while settling
+    kDetail = 9,   // the ground's detail, made on demand (P8)
 };
 
 }  // namespace worldgen

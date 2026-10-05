@@ -21,6 +21,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P5 The same bits (α0.4a) passes on your phone: its chip gives the cloud's digest on one thread and four, as x86-64 and arm64 under qemu do, and P6's thousand minds ended their 3,546 game days on your phone exactly as in the cloud (A3.4).
 - P6 A thousand minds (α0.4b) passes on your phone: a thousand people hold 6.0 game years a real minute on four cores over 10 minutes, with no slowing from heat; the target is at least 1, hoping for 2 to 3 (`TIM-07`, A11).
 - P7 World generation (α0.5a) passes on your phone: three worlds in 9.3 seconds and settling in 6.5, against `WLD-11`'s 3 minutes and 1, the very same worlds as the cloud's (A7.6).
+- P8 The zoom (α0.5b) is built and delivered for your phone's Measure: one pinch from the globe to a person over P7's world, through rings of ground made on worker threads and a map that bends onto the globe (A8.1, A8.4, A8.5).
 
 ## How to use this plan
 
@@ -326,6 +327,8 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - Passes if at least 97% of frames are on time at every stop and a full area is in within about a second.
 
 **On the phone:** open "The zoom", tap Measure, then pinch yourself from the globe to a person and back, and copy the code into the chat.
+
+**Conflict:** the stops' scales are set for the phone's 336 art pixels across, so the world map shows the whole 2,000 km around and never an empty edge. The near and middle levels are two rings each, the outer one half as fine, as clipmaps do, and the middle ground reaches 16 km, not 10, so the valley's tall portrait picture is covered. Trees beyond the near rings are drawn as cards out to 900 m, A8.3's middle step, brought into P8 because without them the camp showed a disc of trees. Rivers show only on the map: the near and middle ground show lakes but not yet the rivers' courses, which come with water in production. Measure's pinch runs at a steady pace; your own pinch is for the feel.
 
 ### α0.6a P9 Ecology
 

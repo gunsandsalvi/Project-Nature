@@ -1,5 +1,6 @@
-// P7's world map, for the app's offer and the note: a pixel for every few cells, coloured by biome and depth, shaded
-// by the relief with light from the north-west, with the big rivers drawn. Pre-production code (research 00).
+// P7's world map, for the app's offer and the note, and P8's map and globe: a pixel for every few cells, coloured by
+// biome and the sea's depth in bands, shaded by the relief with light from the north-west, with the big rivers drawn.
+// Pre-production code (research 00).
 #include <algorithm>
 #include <cmath>
 
@@ -26,7 +27,12 @@ constexpr std::array<Rgb, kBiomes> kColours = {
 
 }  // namespace
 
-std::vector<std::uint8_t> map_rgb(const World& w, int scale) {
+std::array<std::uint8_t, 3> cover_colour(Biome b) {
+    const Rgb& c = kColours[static_cast<std::size_t>(b)];
+    return {static_cast<std::uint8_t>(c.r), static_cast<std::uint8_t>(c.g), static_cast<std::uint8_t>(c.b)};
+}
+
+std::vector<std::uint8_t> map_rgb(const World& w, int scale, bool rivers) {
     const Grid& g = w.grid;
     const int mw = g.width / scale;
     const int mh = g.height / scale;
@@ -44,21 +50,22 @@ std::vector<std::uint8_t> map_rgb(const World& w, int scale) {
                 // sea that stays frozen through the summer, as the art book's poles (WLD-26)
                 col = kColours[static_cast<std::size_t>(Biome::kIce)];
             } else if (w.sea(c)) {
-                // shelves light, the deep sea one colour, as the art book's map
-                const double deep = std::clamp(-w.height[cs] / 800.0, 0.0, 1.0);
+                // shelves light, the deep sea one colour, as the art book's map, in bands 250 m deep (A8.5)
+                const double deep = std::min(std::floor(-w.height[cs] / 250.0), 3.0) / 3.0;
                 col = {85.0 - (25.0 * deep), 134.0 - (30.0 * deep), 139.0 - (18.0 * deep)};
             } else {
-                // light from the north-west over the relief, a few cells across
+                // light from the north-west over the relief, a few cells across: bright where the ground faces it,
+                // rising to the south-east
                 const int k = std::max(1, scale);
                 const double west = w.height[static_cast<std::size_t>(g.at(x - k, y))];
                 const double east = w.height[static_cast<std::size_t>(g.at(x + k, y))];
                 const double north = w.height[static_cast<std::size_t>(g.at(x, y + k))];
                 const double south = w.height[static_cast<std::size_t>(g.at(x, y - k))];
-                const double rise = ((west - east) + (north - south)) / (2.0 * k * g.metres);
+                const double rise = ((east - west) + (south - north)) / (2.0 * k * g.metres);
                 const double shade = std::clamp(1.0 + (3.5 * rise), 0.7, 1.2);
                 col = {col.r * shade, col.g * shade, col.b * shade};
                 bool wet = w.lake[cs] > 0.0F;
-                for (int dy = 0; dy < scale && !wet; ++dy) {
+                for (int dy = 0; dy < scale && !wet && rivers; ++dy) {
                     for (int dx = 0; dx < scale && !wet; ++dx) {
                         wet = w.area[static_cast<std::size_t>(g.at((mx * scale) + dx, (my * scale) + dy))] > river;
                     }
