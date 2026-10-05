@@ -83,3 +83,19 @@ What I take from it, for your OK at α0.8a:
 - **One stream of chance can hide a path:** in a short test world one stray draw by a careless host left no trace, so comparing worlds at the end alone can miss it.
   Production's chance keyed by being and moment (`TIM-16`) has no shared stream to disturb, and its repeat check compares the logs as they go.
 - **Ages and the pace:** with the arc's pace halved twice, fire comes within 8 years of the first flakes, so 20 years between ages never gives the age of fire: an age now lasts until the next turning point, however short (`PRE-39`, your OK).
+
+## The interface
+
+### Your look at the panels (you, 5 October 2026)
+
+- You are not convinced by the whitish paper under the card and the book.
+  P12 shows them on five grounds for you to choose from: the art book's paper, Night, Hide, Slate and Glass.
+
+### What P12 taught (me, 5 October 2026)
+
+- **The plates' controls are too small for a thumb:** the time controls are about 25 dp in the art book, where 48 are needed; a control can look small and still take 48 dp of touch, but the bar spreads to about two thirds of the screen's width.
+- **Controls belong in the bottom third:** the live moment and the book's tabs come down from the top, and the views' list must fit three to four rows there; production designs every view from the bottom up.
+- **Your phone's own setting sets the pixel:** at 1080 × 2404 an art pixel is 3 screen pixels, at the full panel 4, so a layout must read the screen it gets, never the plates' 336 × 748.
+- **One source for the fonts:** the glyphs are designed once, in the art book's `font.js`, and the app's fonts are built from them.
+- **Text is small but whole:** the plain font's capitals are 7 art pixels, about 1.4 mm on your phone, near the smallest text Android suggests; your verdict decides whether reading text goes up to twice.
+- **Sideways, panels are short:** a card in landscape scrolls, and a line can show cut at its foot; production lays landscape panels out for their height.

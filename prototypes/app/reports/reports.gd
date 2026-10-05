@@ -542,9 +542,9 @@ func _p11(r: Dictionary) -> void:
 	_text(
 		(
 			(
-				"Ages: in the %d worlds whose fire came in its window, Years 2 to 8, fire began an "
-				+ "age in %d with the project file's least of 20 years between ages, %d with 3, and "
-				+ "%d with 1: fire comes too soon after the first flakes."
+				"Ages: in the %d worlds whose fire came in its window, Years 2 to 8, the 20 years "
+				+ "between ages the project file had gave fire an age in %d, 3 years in %d and 1 in "
+				+ "%d. With your OK, an age now lasts until the next turning point."
 			)
 			% [r.fire_on_time, ages["20"], ages["3"], ages["1"]]
 		),

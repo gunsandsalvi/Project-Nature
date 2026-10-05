@@ -632,7 +632,14 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
   The plain pixel font for everything read, at whole multiples of its design size, nearest filtering and no subpixel positioning; the pixel handwriting only for big titles, at twice the size, as the art book's interface plates show.
   The layout is built on a square base, so both orientations scale alike; safe areas and cutouts come from `DisplayServer`.
 - **Cards open to what matters now,** with deeper sections folding out (`PRE-35`); screen-reader labels come with Godot 4.5's support.
-- *To prove (P12):* thumb reach, gesture misreads in a scripted test, and crisp text, in both orientations.
+- *Built in P12* (`prototypes/app/interface`), its verdict on your phone to come: a stand-in world of the art book's zoom stops, painted upright and sideways, under the interface its plates show.
+  - **Drawn in art pixels:** the whole screen is drawn into one picture a whole number of screen pixels to an art pixel, then enlarged with hard edges, so every letter and line is whole: 3 on your phone at its 1080 × 2404 setting, where the art pixel is about 7% smaller than the art book's, and 4 on the full panel, as the plates have it.
+  - **The pixel fonts from one source:** `tools/pixel-font.py` writes the art book's glyphs from `font.js` as data, and the app builds the plain font as a bitmap font drawn only at whole multiples, and draws the handwriting as `font.js` does.
+  - **One gesture reader** passes its scripted test on raw touches: a tap, a slow tap and two taps; drags and a flick; a long press and drawing after it; a double tap dragged both ways; a pinch out and in with a slight turn; a twist with a slight change in spread; the handle tapped and swiped; and a drag beside the handle. None is read as another.
+  - **Every control is at least 48 dp and 8 dp from the next, and in portrait in the bottom third:** checked on your phone's screen and the full panel, both ways up, with each panel open; a control's hit area may be larger than it looks.
+  - **What the rules changed from the plates:** the time controls are spaced wider (the plates' are about 25 dp); the live moment moves from the top to just above them; the book's tabs move from its head to its foot; the views fit their rows into the bottom third; and the time controls wait while a panel is open in portrait, as the plates show.
+  - **The panels' ground:** the art book's paper, and as you asked on 5 October, four others to choose from: Night, Hide, Slate and Glass.
+  - *To prove on your phone:* reach, legibility and the feel of the gestures.
 
 ## A16. Sound (research 15), outline
 

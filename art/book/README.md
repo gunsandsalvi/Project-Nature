@@ -8,8 +8,8 @@ The owner accepted it on 4 October 2026 as the starting point for the look: the 
 and judged against them, and they are tweaked as the real game takes shape on the phone.
 
 - `plates/scenes`, `plates/sheets`, `plates/ui`: the pictures. Enlarge them by whole numbers with hard edges.
-- `plates/zoom`: one place at each zoom stop of `PRE-03`, from one person to the globe, at noon and dusk, and the
-  close camp held sideways. The place is the start of the world made from seed 7: a band's camp under a cliff by a
+- `plates/zoom`: one place at each zoom stop of `PRE-03`, from one person to the globe, at noon and dusk, the
+  close camp held sideways, and each stop held sideways at noon (`*-noon-land.png`, painted for P12's stand-in world). The place is the start of the world made from seed 7: a band's camp under a cliff by a
   river.
 - `plates/options`: the same crops painted in each look and each water style, for the owner to choose from.
 - `paint/`: the painter. Each scene is a small 3D model drawn at the game's pixel size with the art rules:

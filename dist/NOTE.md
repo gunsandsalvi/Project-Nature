@@ -1,44 +1,49 @@
-# Kindling α0.6c: P11 The director
+# Kindling α0.7a: P12 The interface
 
 ## What is new
 
-- **P11 answers yes.** The question: does the director keep its budget on recorded worlds while catching every named discovery, without changing them (`TIM-02`, `TIM-03`, `PRE-39`)?
-  - **How:** 20 test worlds, each P10's valley of three bands with P4's discovery in three bands of their own beside it, run 100 years. Both models now write down everything as it happens: who did what, when.
-  - **The recognisers** read only that log and spot what is worth telling: firsts anywhere and for each people, named discoveries, crafts lost with their last holder and found again, a band losing its last fire, the births and deaths of three people followed from the start, and feuds. Half-finished patterns are signs of what may come: a hunch tried again, a storm over a camp, one you follow hurt or ill.
-  - **The director** slows time for what passes the bar, if its one budget allows: at most once every 3 minutes, never more than a fifth of the time, 10 seconds if you don't tap. Everything else waits in the list.
-  - **The result,** watching from the globe at 5 game years a minute, 6.8 hours in all:
-    - it slowed time **9.5 times an hour**, never twice within 3 minutes, and kept at least 96% of top speed (90% if you tap every live moment);
-    - it caught **all 208 named discoveries**, slowing time for 34, and all 60 deaths of those followed, slowing for 16;
-    - **every world ended identical** with the director on and off; a careless host that let it touch a world was caught; and no code path runs from it into a world.
-- **What it taught** (in the notes for production):
-  - **Signs rarely come true here:** a hunch tried again led to its discovery 3 times in a thousand, a storm to lightning at the camp 13 in a thousand. Scored as if they always came true, signs took four slowdowns in five, and almost none came true. So they are scored by how often they come true, and here they never slowed time.
-  - **The list fills fast:** about 200 moments an hour at the globe, two thirds in a world's first 20 years, when everything is a first. Production must gather repeats and rank the list.
-  - **The first minutes matter:** a watch now opens "rested", so its first slowdown goes to a major moment, the world's first sharp flake, not a custom named seconds before it.
-  - **Ages and the pace:** with the pace halved twice, fire comes within 8 years of the first flakes, so the project file's 20 years between ages means no world ever has an age of fire, its own example. A change is proposed (below).
+- **P12, the interface, for your phone.** The question: do thumb reach, gestures and crisp pixel text work both ways up on your phone (`PRE-32` to `PRE-35`, `PLT-02`)?
+  - **A stand-in world:** the art book's seven zoom stops, from one person to the globe, painted upright and now also sideways. Pinch, or double-tap and drag with one thumb, to move between them; the speed of time follows, as in the game.
+  - **The interface the art book draws:** after any touch, the date, the speed and the time controls (pause, play, the dial, the lock, skip), fading after a few seconds; a live moment; the handle at the foot for the views; Aru's card; and the book of ages, open at the age of hesoru.
+  - **Five grounds for the card and the book, as you asked:** the art book's paper, Night, Hide, Slate and Glass. "Ground" at the foot of each panel changes it.
+  - **Crisp:** the whole screen is drawn in art pixels and enlarged by a whole number, 3 screen pixels an art pixel on your phone's setting. The fonts are the art book's own, built from where they are designed.
+- **Checked in the cloud** (`test/interface_test.gd`):
+  - **One gesture reader:** taps, slow taps, two taps, drags, a flick, a long press and drawing after it, a double tap dragged up and down, pinches with a slight turn, a twist with a slight spread, the handle tapped and swiped. None was read as another.
+  - **Every control is at least 48 dp and 8 dp from the next, and upright in the bottom third,** on your phone's screen and the full panel, both ways up, with each panel open.
+- **What the rules changed from the art book's plates** (in the notes for production): its buttons are about 25 dp, so the time controls spread wider; the live moment and the book's tabs come down within a thumb's reach; and the time controls wait while a panel is open.
 
-![Three watches, minute by minute: orange, the slowdowns; grey, moments that waited in the list](pictures/p11-watches.png)
+![The card on the five grounds: Paper, Night, Hide, Slate and Glass](pictures/p12-grounds.png)
+
+![The world after a touch, the book on Hide, and the book sideways on Night](pictures/p12-screens.png)
 
 ## What to try
 
 1. Tap **Download and install** at the top of this page. It installs over the build you have.
-2. Open **Reports from the cloud** and scroll to **P11 The director**: three watches minute by minute, the budget in every world, what was found and what slowed time, and world 1's slowdowns.
+2. Open **P12 The interface**.
+3. **Touch the world:** the date, the speed and the time controls appear, then fade. Try pause, play, the dial (pick a speed), the lock and skip.
+4. **Zoom:** pinch, or double-tap and drag up or down with one thumb. The picture and the speed change stop by stop.
+5. **Tap the camp, or the live moment,** to open Aru's card. Tap **Ground** at its foot to see each of the five.
+6. **Tap the little handle at the foot, or swipe up from it,** for the views; **Book of ages** opens the book, which scrolls when you drag it.
+7. **Turn the phone:** everything stays, laid out sideways.
+8. **Long-press** for your powers there (a stand-in). **Menu**, in the views, goes back to the app's menu.
+9. Tell me which ground you prefer, and anything hard to reach or read.
 
 ## What is rough
 
-- **Two of `TIM-02`'s five signs were not tried:** a predator stalking and hostile groups in sight need animals and peoples these worlds don't have.
-- **The scores, the bar and the rest after each slowdown** are my stand-ins, for tuning with you.
-- **Python, not the game's C++:** a prototype, thrown away once its answer is written down.
+- **A stand-in world:** pictures, not the 3D world; a tap on the camp always opens Aru's card, and a twist only turns the heading shown.
+- **Most links lead nowhere yet:** Mind, Family, Crafts, Follow, the other tabs, Worlds and Settings say "comes with production".
+- **Sideways, the card is short:** it scrolls, and a line can show cut at its foot.
 
 ## Questions for you
 
-1. `PRE-39` says an age lasts at least 20 years. With the pace you chose, fire comes within 8 years of the first flakes, so there could never be an "age of fire". Shall every step of the arc (flakes, fire, clothing, huts, pottery and the rest) always begin its own age, keeping the 20 years only for new peoples and wars? It is listed under Proposals awaiting confirmation.
-2. Still open from P10: shall `CUL-33` read "First custom a band names: within 1"?
-3. Next is P12, the interface, on your phone: shall I go on?
+1. Which ground for the card and the book: Paper, Night, Hide, Slate or Glass?
+2. Is the reading text big enough? Its capitals are about 1.4 mm on your phone; it could go up to twice the size.
+3. You said we'd think about P13, the writer, later: shall I go on to P14, sound, meanwhile?
 
 ## IDs delivered
 
-None for good: P11 is a prototype, thrown away once it has answered.
-Its question is about `TIM-02`, `TIM-03` and `PRE-39`.
+None for good: P12 is a prototype, thrown away once it has answered.
+Its question is about `PRE-32`, `PRE-33`, `PRE-34`, `PRE-35` and `PLT-02`.
 
 ## Links
 

@@ -27,6 +27,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P9 Ecology (α0.6a) passes in the cloud: in 20 worlds left alone for 100 years, every species stayed within 0.66 and 1.10 of its settled total and in every biome it lived in, with 82 to 99 big plant eaters for each hunter; round each world's start region numbers boomed and crashed from 0.21 to 2.31 with the weather (A9). Its report is on the app's Reports page.
 - P10 Culture from causes (α0.6b) passes in the cloud: in 20 worlds of three bands run 100 years, a custom came inside its window in all 20, a shared spirit in 20, a rite a band keeps in 15 and a band split in 17, each from the events behind it (A13); `CUL-33` now gives customs a window of a year, with your OK.
 - P11 The director (α0.6c) passes in the cloud: watching 20 test worlds of 100 years from the globe, it slowed time 9.5 times an hour within its budget, caught all 208 named discoveries and every death of those followed, and every world ended identical with it on and off (A14). Signs, as these worlds have them, rarely come true, and with 20 years between ages fire could never begin one, so ages now have no set length (`PRE-39`), with your OK.
+- P12 The interface (α0.7a) is built for your phone and passes its tests in the cloud: a stand-in world under the interface the art book's plates show, drawn crisp in art pixels; one gesture reader, none of whose gestures is read as another; every control 48 dp and in a thumb's reach; and the card and the book on five grounds for you to choose from (A15).
 
 ## How to use this plan
 
@@ -144,7 +145,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | α0.6a | P9 Ecology | M0 | 4 | Passes in the cloud; its report in the app (α0.6a) |
 | α0.6b | P10 Culture from causes | M0 | 5 | Passes in the cloud; its report in the app (α0.6b) |
 | α0.6c | P11 The director | M0 | 3 | Passes in the cloud; its report in the app (α0.6c) |
-| α0.7a | P12 The interface | M0 | 4 | Not started |
+| α0.7a | P12 The interface | M0 | 4 | Built and passing its tests in the cloud; for your look and feel on your phone (α0.7a) |
 | α0.7b | P13 The writer | M0 | 4 | Not started |
 | α0.7c | P14 Sound | M0 | 4 | Not started |
 | α0.8a | What the prototypes found | M0 | 4 | Not started |
@@ -431,6 +432,8 @@ The zoom starts in stages, the weather, the ground, then the sky, each noted in 
 - Passes if no gesture is misread, every control falls in thumb reach, and text stays crisp at the chosen scale.
 
 **On the phone:** open "The interface", turn the phone, tap a person, open the book page, and say if anything is hard to reach or read.
+
+**Conflict:** the stand-in world is the art book's zoom stops at noon, painted upright and, for P12, sideways; a tap at the close stops opens Aru's card wherever it lands. As you asked on 5 October, the card and the book stand on a choice of five grounds: the art book's paper, Night, Hide, Slate and Glass. The rules moved some of the plates' controls: the live moment and the book's tabs come down within a thumb's reach, the time controls spread to 48 dp each, and they wait while a panel is open in portrait. At your phone's 1080-pixel setting an art pixel takes 3 screen pixels, about 7% smaller than the art book's 4 on the full panel.
 
 ### α0.7b P13 The writer
 
