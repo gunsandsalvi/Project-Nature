@@ -4,6 +4,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -25,6 +26,29 @@ namespace kd::data {
 struct SourceFile {
     std::string path;
     std::string text;
+};
+
+/// The version of the code that makes worlds, raised by hand whenever that code changes, so a world made by an
+/// older one is known for what it is (A3.6, PLT-09); the golden worlds' test guards it once worlds are made (M3).
+inline constexpr std::int64_t kWorldMakingVersion = 1;
+
+/// A source of entries (A3.6), from its source.toml: its id, the same as its folder's; its version; what it holds;
+/// the sources it needs, loaded before it; and once loaded, its digests of what affects the rules, the world and the
+/// look. Implements MAT-14, see A3.6.
+struct Source {
+    std::string id;
+    std::int64_t version = 0;
+    std::string about;
+    std::vector<std::string> needs;
+    std::array<std::uint64_t, 3> digests{};  // rules, world, look
+
+    template <typename V, typename Self>
+    static void visit(V& v, Self& s) {
+        v.text({"id", "the source's name, the same as its folder's"}, s.id);
+        v.whole({"version", "raised with every change to the source"}, s.version, {1, INT64_MAX});
+        v.text({"about", "what the source holds, in a few words", Affects::look}, s.about);
+        v.names({"requires", "the sources it needs, loaded before it", Affects::rules, false}, s.needs);
+    }
 };
 
 /// One entry: its canonical name, "demo:walker", the file it came from, and its values.
@@ -158,6 +182,16 @@ public:
     /// Loads the files of the sources, in any order: every problem found, empty when all is well.
     std::vector<Problem> load(std::span<const SourceFile> files);
 
+    /// The sources, in the order they load: each after those it requires, and otherwise by id.
+    [[nodiscard]] std::span<const Source> sources() const { return sources_; }
+
+    /// An entry's number in its kind by its canonical name, following renames, so a save written with an old name
+    /// still finds its entry. Implements MAT-13 and MAT-14, see A3.6.
+    [[nodiscard]] std::optional<std::uint32_t> find(std::string_view folder, std::string_view name) const;
+
+    /// A kind's canonical names in their order, the list a save keeps (A3.7).
+    [[nodiscard]] std::vector<std::string> names(std::string_view folder) const;
+
     /// The kinds, in the order of their folders' names.
     [[nodiscard]] std::span<const std::unique_ptr<KindBase>> kinds() const { return kinds_; }
     [[nodiscard]] const KindBase* kind_in(std::string_view folder) const;
@@ -174,7 +208,20 @@ public:
     }
 
 private:
+    struct Rename {
+        std::string folder;
+        std::string from;
+        std::string to;
+    };
+
+    void load_sources(std::span<const SourceFile* const> files, std::vector<Problem>& problems);
+    void load_renames(const SourceFile& file, const std::string& source, std::vector<Problem>& problems);
+    [[nodiscard]] std::string_view renamed(std::string_view folder, std::string_view name) const;
+    void fingerprint_sources();
+
     std::vector<std::unique_ptr<KindBase>> kinds_;
+    std::vector<Source> sources_;
+    std::vector<Rename> renames_;
 };
 
 }  // namespace kd::data

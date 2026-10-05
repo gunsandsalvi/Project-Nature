@@ -6,7 +6,8 @@
 //                                                 names each problem by file, line and column
 //     kindling catalogue show <name> [data]      an entry's values, such as demo:walker
 //     kindling catalogue schema [data]           every kind's fields, for whoever writes entries
-//     kindling catalogue fingerprint [data]      every entry's digests: all, rules, world and look
+//     kindling catalogue fingerprint [data]      the world-making version, each source's rules, world and look
+//                                                 digests, and each entry's
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -89,6 +90,12 @@ int catalogue(const std::vector<std::string_view>& args) {
         return 0;
     }
     if (command == "fingerprint") {
+        std::printf("world-making version %lld\n", static_cast<long long>(kd::data::kWorldMakingVersion));
+        for (const kd::data::Source& s : cat.sources()) {
+            std::printf("source %s version %lld rules %s world %s look %s\n", s.id.c_str(),
+                        static_cast<long long>(s.version), kd::num::to_hex(s.digests[0]).c_str(),
+                        kd::num::to_hex(s.digests[1]).c_str(), kd::num::to_hex(s.digests[2]).c_str());
+        }
         for (const auto& k : cat.kinds()) {
             for (std::size_t i = 0; i < k->size(); ++i) {
                 const kd::data::EntryDigests d = k->digests(i);

@@ -153,6 +153,19 @@ void Loader::links(const Field& f, std::vector<Ref>& out, std::string_view /*kin
     }
 }
 
+void Loader::names(const Field& f, std::vector<std::string>& out) {
+    if (const Value* v = take(f, Value::Kind::array)) {
+        out.clear();
+        for (const Value& item : v->items) {
+            if (item.kind != Value::Kind::text) {
+                problem(item, f, "each name is in quotes");
+                continue;
+            }
+            out.push_back(item.text);
+        }
+    }
+}
+
 void Loader::finish() {
     for (const Value& v : table_.items) {
         if (std::find(named_.begin(), named_.end(), v.key) == named_.end()) {

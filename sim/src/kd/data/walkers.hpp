@@ -54,6 +54,13 @@ public:
             d.text(r.name);
         }
     }
+    void names(const Field& f, const std::vector<std::string>& v) {
+        num::Digest& d = put(f);
+        d.u64(v.size());
+        for (const std::string& n : v) {
+            d.text(n);
+        }
+    }
 
     [[nodiscard]] EntryDigests digests();
 
@@ -84,6 +91,7 @@ public:
     void links(const Field& f, const std::vector<Ref>& /*v*/, std::string_view kind) {
         line(f, "a list of names of " + std::string(kind) + " entries");
     }
+    void names(const Field& f, const std::vector<std::string>& /*v*/) { line(f, "a list of names, in quotes"); }
 
     [[nodiscard]] const std::string& text() const { return text_; }
 
@@ -110,6 +118,7 @@ public:
     }
     void link(const Field& f, const Ref& v, std::string_view /*kind*/) { line(f, v.name); }
     void links(const Field& f, const std::vector<Ref>& v, std::string_view /*kind*/);
+    void names(const Field& f, const std::vector<std::string>& v);
 
     [[nodiscard]] const std::string& text() const { return text_; }
 
@@ -139,6 +148,7 @@ public:
     void quantity(const Field& /*f*/, std::int64_t& /*v*/, Measure /*m*/, Range /*range*/) {}
     void chance(const Field& /*f*/, num::Probability& /*v*/) {}
     void duration(const Field& /*f*/, time::Duration& /*v*/) {}
+    void names(const Field& /*f*/, std::vector<std::string>& /*v*/) {}
     void link(const Field& f, Ref& v, std::string_view kind);
     void links(const Field& f, std::vector<Ref>& v, std::string_view kind) {
         for (Ref& r : v) {

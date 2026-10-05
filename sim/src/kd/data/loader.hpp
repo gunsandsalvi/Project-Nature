@@ -32,6 +32,8 @@ public:
     void duration(const Field& f, time::Duration& out);
     void link(const Field& f, Ref& out, std::string_view kind);
     void links(const Field& f, std::vector<Ref>& out, std::string_view kind);
+    /// A list of plain names, such as the sources a source requires.
+    void names(const Field& f, std::vector<std::string>& out);
 
     /// After the visit: each key no field named is a problem.
     void finish();

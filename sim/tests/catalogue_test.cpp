@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -30,9 +31,15 @@ const char* const kStrider =
 const char* const kTime =
     "person = \"1 min\"\nclose_camp = \"1 h\"\ncamp = \"8 h\"\nvalley = \"1 season\"\nregion = \"3 year\"\n";
 
+const char* const kBase = "id = \"base\"\nversion = 1\nabout = \"the game\"\n";
+const char* const kDemo = "id = \"demo\"\nversion = 3\nabout = \"the demonstration\"\nrequires = [\"base\"]\n";
+
 std::vector<data::SourceFile> good() {
-    return {
-        {"demo/marker/walker.toml", kWalker}, {"demo/marker/strider.toml", kStrider}, {"base/tuning/time.toml", kTime}};
+    return {{"demo/marker/walker.toml", kWalker},
+            {"demo/marker/strider.toml", kStrider},
+            {"base/tuning/time.toml", kTime},
+            {"base/source.toml", kBase},
+            {"demo/source.toml", kDemo}};
 }
 
 // The problems a catalogue finds when one file of the good ones is replaced or added.
@@ -104,6 +111,7 @@ TEST_CASE("a catalogue loads its entries in base units, numbered by sorted name,
     // numbered by name, not by file: "demo2:alpha" comes before "demo:strider", though its file comes after
     std::vector<data::SourceFile> more = files;
     more.push_back({"demo2/marker/alpha.toml", kStrider});
+    more.push_back({"demo2/source.toml", "id = \"demo2\"\nversion = 1\nabout = \"more\"\n"});
     data::Catalogue wider;
     REQUIRE(wider.load(more).empty());
     CHECK(wider.kind<kd::demo::Marker>().name(0) == "demo2:alpha");
@@ -173,4 +181,80 @@ TEST_CASE("one description serves the loader, the schema and the fingerprints") 
     const data::EntryDigests weeks = digests_with("rest", "rest = { life = \"13 week\", game = \"15 d\" }");
     CHECK(weeks.all != months.all);
     CHECK(weeks.by_affects[0] == months.by_affects[0]);
+}
+
+// checks: MAT-14
+TEST_CASE("sources load after the sources they need, and a source that cannot load is refused") {
+    data::Catalogue cat;
+    const auto files = good();
+    REQUIRE(cat.load(files).empty());
+    REQUIRE(cat.sources().size() == 2);
+    CHECK(cat.sources()[0].id == "base");
+    CHECK(cat.sources()[1].id == "demo");
+    CHECK(cat.sources()[1].version == 3);
+    const auto first = [](const std::vector<std::string>& found) { return found.empty() ? "" : found.front(); };
+    CHECK(
+        first(problems_with("demo/source.toml", "id = \"demo\"\nversion = 1\nabout = \"x\"\nrequires = [\"bronze\"]\n"))
+            .find("demo/source.toml:1:1: requires: the source cannot load after bronze (not found)") == 0);
+    CHECK(first(problems_with("demo/source.toml", "id = \"other\"\nversion = 1\nabout = \"x\"\n"))
+              .find("must be the source's folder's name") != std::string::npos);
+    CHECK(first(problems_with("extra/marker/odd.toml", kStrider)).find("has no source.toml") != std::string::npos);
+    CHECK(first(problems_with("base/source.toml", "id = \"base\"\nversion = 1\nabout = \"x\"\nrequires = [\"demo\"]\n"))
+              .find("(which cannot load first)") != std::string::npos);
+}
+
+// checks: MAT-14
+TEST_CASE("a made-up entry added to a source changes no other entry's digest") {
+    data::Catalogue before;
+    const auto files = good();
+    REQUIRE(before.load(files).empty());
+    std::vector<data::SourceFile> more = files;
+    more.push_back({"demo/marker/made_up.toml", kStrider});
+    data::Catalogue after;
+    REQUIRE(after.load(more).empty());
+    const data::KindBase* was = before.kind_in("marker");
+    const data::KindBase* now = after.kind_in("marker");
+    REQUIRE(now->size() == was->size() + 1);
+    for (std::size_t i = 0; i < was->size(); ++i) {
+        const std::uint32_t at = after.find("marker", was->name(i)).value_or(UINT32_MAX);
+        REQUIRE(at < now->size());
+        CHECK(now->digests(at).all == was->digests(i).all);
+    }
+    CHECK(after.kind_in("tuning/time")->digests(0).all == before.kind_in("tuning/time")->digests(0).all);
+    CHECK(after.sources()[0].digests == before.sources()[0].digests);
+    CHECK(after.sources()[1].digests[0] != before.sources()[1].digests[0]);
+}
+
+// checks: MAT-13 MAT-14
+TEST_CASE("a rename keeps an old name readable, for saves and for links") {
+    data::Catalogue old;
+    const auto files = good();
+    REQUIRE(old.load(files).empty());
+    const std::vector<std::string> saved = old.names("marker");
+    CHECK(saved == std::vector<std::string>{"demo:strider", "demo:walker"});
+    // the walker becomes the wanderer, and a link still written to the walker finds it
+    std::vector<data::SourceFile> renamed;
+    for (const data::SourceFile& f : files) {
+        if (f.path == "demo/marker/walker.toml") {
+            renamed.push_back({"demo/marker/wanderer.toml", f.text});
+        } else if (f.path == "demo/marker/strider.toml") {
+            renamed.push_back({f.path, std::string(f.text) + "walks_with = [\"demo:walker\"]\n"});
+        } else {
+            renamed.push_back(f);
+        }
+    }
+    renamed.push_back({"demo/renames.toml", "[marker]\nwalker = \"wanderer\"\n"});
+    data::Catalogue now;
+    REQUIRE(now.load(renamed).empty());
+    CHECK(now.find("marker", "demo:walker") == now.find("marker", "demo:wanderer"));
+    const std::uint32_t walker = now.find("marker", saved[1]).value_or(UINT32_MAX);
+    REQUIRE(walker < now.kind_in("marker")->size());
+    CHECK(now.kind_in("marker")->name(walker) == "demo:wanderer");
+    CHECK(now.kind<kd::demo::Marker>()[0].walks_with[0].name == "demo:wanderer");
+    // and a rename from a name still in use is refused
+    renamed.push_back({"demo/marker/walker.toml", kWalker});
+    data::Catalogue both;
+    const std::vector<data::Problem> found = both.load(renamed);
+    REQUIRE(found.size() == 1);
+    CHECK(found[0].what.find("is still an entry of its own") != std::string::npos);
 }

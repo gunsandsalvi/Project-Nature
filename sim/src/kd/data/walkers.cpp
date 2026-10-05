@@ -88,6 +88,14 @@ void Display::links(const Field& f, const std::vector<Ref>& v, std::string_view 
     line(f, "[" + list + "]");
 }
 
+void Display::names(const Field& f, const std::vector<std::string>& v) {
+    std::string list;
+    for (const std::string& n : v) {
+        list += (list.empty() ? "" : ", ") + n;
+    }
+    line(f, "[" + list + "]");
+}
+
 void Resolver::link(const Field& f, Ref& v, std::string_view kind) {
     std::string canonical;
     std::uint32_t index = 0;
