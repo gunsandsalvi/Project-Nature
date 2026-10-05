@@ -2,9 +2,9 @@
 
 The fourth prototype (IMPLEMENTATION α0.3a, research 00 and 11) asks the riskiest design question (`RSK-01`): can
 tuning alone make sharp flakes and fire come within their windows, with the world's own rules? The windows are
-`TIM-19`'s, halved on 4 October 2026 for faster discoveries, as you asked: flakes within 3 years, fire in Years 3
-to 15. They are dates (`TIM-14`), so Year 3 begins two years in. The sharp-stone test (`RES-03`) keeps its own bar of
-5 years.
+`TIM-19`'s, halved on 4 October 2026 for faster discoveries and again on 5 October, so the first village comes about
+an hour into play, as you asked: flakes within 2 years, which is also the sharp-stone test's bar (`RES-03`), and fire
+in Years 2 to 8. They are dates (`TIM-14`), so Year 2 begins a year in.
 
 Items it is about: `TIM-19` (the pace of discovery), `RES-02` and `RES-03` (the sharp-stone test and its pass rule),
 `RES-16` (tuning the pace), `RES-06` (its report, on the app's Reports page), `MND-06` (skill), `MND-11` (the four
@@ -27,7 +27,7 @@ friction with dry wood).
   (`RES-16`); a few more are constants in `discovery.py`, outside the sweep: the 0.9 chance a flake hunch finds stone
   that flakes, play bashing stones 0.3 of the time, teaching at 0.3 times kindness, copying at 0.01, the good times'
   0.8 and 0.5, and tries aimed at the cold made twice as often. The factors' third figure is noise: the fire median
-  flips between 8.55 and 9.23 years for a change of 0.05%.
+  flips between 3.5 and 4.5 years for a change of under 0.1%.
 - **The runs** (`pace.py`): the sharp-stone test on the 20 tuning seeds and its control without stone that flakes,
   fire's window, counted at its first in a world of 3 or 4 bands as `TIM-19` counts a step, the same on 20 seeds
   never tuned against, and each tuned value changed alone over 40 runs and 40 worlds. A value holds the pace on a

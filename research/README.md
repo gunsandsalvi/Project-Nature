@@ -65,7 +65,7 @@ Several share one build.
 | P1 The look | Do the four outline methods, our light and firelight on MultiMesh reach the art book's look on the Mobile renderer? | phone | 04, 05, 17 |
 | P2 A full scene | Does a busy camp hold 60 frames a second, and for how long before the phone heats? | phone | 01, 02 |
 | P3 The kit | Do the shared shapes, the block figure's movements and a hut in two materials read well, at noon and at night? | phone | 17 |
-| P4 Discovery pace | Can tuning alone make flakes come within 5 years and fire within its window? | cloud | 11 |
+| P4 Discovery pace | Can tuning alone make flakes and fire come within their windows? | cloud | 11 |
 | P5 The same bits | Do the phone and the cloud, one thread and four, end a world identically? | both | 03, 16 |
 | P6 A thousand minds | Do a thousand simple minds with needs, choice, talk and paths keep a year a minute at held speed? | phone | 10 |
 | P7 World generation | How long do a candidate and its settling run take on your phone? | phone | 06 |

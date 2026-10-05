@@ -30,19 +30,26 @@ FRESH = list(range(1001, 1021))  # 20 seeds never tuned against, for the closing
 # the halvings and doublings run on 40 seeds, the 20 above and 20 more, so a median moves by the change and not by
 # chance
 SWEEP = list(range(1, 41))
-FLAKE_YEARS = 7  # RES-02: each run until 2 years after its first flake, or 5 years if none comes; the control 7
-YEARS = 60  # a world runs until its first fire, or this long
-# TIM-19's windows, halved for faster discoveries as you asked on 4 October 2026. They are dates (TIM-14), and Year 1
-# begins at the start, so in years from the start: flakes in Years 1 to 3, from 0 up to 3; fire in Years 3 to 15,
-# from 2 up to 15
-FLAKE_WINDOW = (0.0, 3.0)
-FIRE_WINDOW = (2.0, 15.0)
-# what tuning aims at: flakes about a year in, as you asked; fire about 9 years in. A world's first fire comes
-# anywhere from under a year to past 15 (the first of 3 or 4 bands, each slow to find it), its spread skewed early, so
-# its median sits above the window's middle as its years multiply (5.5): there the shares before and after the window
-# are about equal, and a quarter's change in any value keeps both within the rule
-FLAKE_AIM = 1.0
-FIRE_AIM = 9.0
+# RES-02 and RES-03, moved with the pace at your word on 5 October 2026: each run until a year after its first flake,
+# when the share of its adults who can make flakes is taken, or 3 years if none comes; the control 4; the test's bar
+# flakes within 2 years
+FLAKE_BAR = 2.0
+SPREAD_AFTER = 1
+NO_FLAKE_YEARS = 3
+FLAKE_YEARS = 4
+YEARS = 30  # a world runs until its first fire, or this long
+# TIM-19's windows, halved on 4 October 2026 and again on 5 October, so the first village comes about an hour into
+# play, as you asked. They are dates (TIM-14), and Year 1 begins at the start, so in years from the start: flakes in
+# Years 1 to 2, from 0 up to 2; fire in Years 2 to 8, from 1 up to 8
+FLAKE_WINDOW = (0.0, 2.0)
+FIRE_WINDOW = (1.0, 8.0)
+# what tuning aims at: flakes about two thirds of a year in, so 4 runs in 5 make them within 2 years; fire about 4.5
+# years in. A world's first fire comes anywhere from a few months to past 8 years (the first of 3 or 4 bands, each slow
+# to find it), its spread skewed early, so its median sits above the window's middle as its years multiply (2.8):
+# there the shares before and after the window are about equal, and a quarter's change in any value keeps both within
+# the rule
+FLAKE_AIM = 0.7
+FIRE_AIM = 4.5
 # the runs done so far, by what each was asked: a run of the program reuses them, so a restart loses nothing
 # (the folder is ignored by git); they hold only for the model that made them, so a change to it starts afresh
 CACHE = d.HERE / ".runs" / "cache.json"
@@ -62,18 +69,18 @@ KNOBS = {
 
 
 def one(job):
-    """One band's sharp-stone run (RES-02): until 2 years after its first flake, when the share of its adults who can
-    make flakes is taken, or 5 years if none comes."""
+    """One band's sharp-stone run (RES-02): until a year after its first flake, when the share of its adults who can
+    make flakes is taken, or 3 years if none comes."""
     seed, tuning, flint, years = job
     seen = {}
 
     def stop(band):
         if "flake" in band.first:
-            if band.day == band.first["flake"][0] + 2 * d.YEAR:
+            if band.day == band.first["flake"][0] + SPREAD_AFTER * d.YEAR:
                 seen["spread"] = d.adults_who_know(band, "flake")
                 return True
             return False
-        return band.day >= 5 * d.YEAR and flint is None
+        return band.day >= NO_FLAKE_YEARS * d.YEAR and flint is None
 
     band = d.Band(seed, tuning, flint).run(years, stop)
     flake = band.first.get("flake")
@@ -150,9 +157,9 @@ def worlds(tuning, seeds, years=YEARS, pool=None):
 
 
 def sharp_stone(results, control):
-    """RES-03's pass rule: flakes within 5 years in at least 16 of 20 runs; in those, 3 in 4 adults able to make them
-    within 2 years of the first; at least two routes; and never a flake without stone that flakes."""
-    found = [r for r in results if r["flake"] is not None and r["flake"] <= 5.0]
+    """RES-03's pass rule: flakes within 2 years in at least 16 of 20 runs; in those, 3 in 4 adults able to make them
+    within a year of the first; at least two routes; and never a flake without stone that flakes."""
+    found = [r for r in results if r["flake"] is not None and r["flake"] <= FLAKE_BAR]
     spread = [r for r in found if r["spread"] is not None and r["spread"] >= 0.75]
     routes = sorted({r["flake_route"] for r in found})
     checks = {
@@ -162,7 +169,7 @@ def sharp_stone(results, control):
         "control": all(r["flake"] is None for r in control),
     }
     return {
-        "within_5": len(found),
+        "within": len(found),
         "spread_ok": len(spread),
         "routes": routes,
         "control_flakes": sum(1 for r in control if r["flake"] is not None),
@@ -222,7 +229,7 @@ def tune(tuning, pool):
             for path in paths:
                 setting(tuned, path, value=math.exp(mid))
             if name == "flake":
-                year = median_year(runs(tuned, SEEDS, pool=pool), "flake", 5.0)
+                year = median_year(runs(tuned, SEEDS, pool=pool), "flake", NO_FLAKE_YEARS)
             else:
                 year = median_year(worlds(tuned, SEEDS, pool=pool), "fire", YEARS)
             print(f"  {name} factor {math.exp(mid):.4g}: median year {year:.2f}", flush=True)
@@ -250,15 +257,15 @@ def write_factors(tuning):
 
 def summary(flakes, fires):
     """A sweep's runs in short: the median years, and whether each step still meets its rule, scaled to the runs'
-    number: flakes within 5 years in 4 runs of 5 (RES-03) and inside their window in half (TIM-19), fire inside its
+    number: flakes within 2 years in 4 runs of 5 (RES-03) and inside their window in half (TIM-19), fire inside its
     window in half the worlds and early in at most a quarter (TIM-19)."""
-    within = sum(1 for r in flakes if r["flake"] is not None and r["flake"] <= 5.0)
+    within = sum(1 for r in flakes if r["flake"] is not None and r["flake"] <= FLAKE_BAR)
     flake = window([r["flake"] for r in flakes], FLAKE_WINDOW)
     fire = fire_window(fires)
     return {
-        "flake_median": median_year(flakes, "flake", 5.0),
+        "flake_median": median_year(flakes, "flake", NO_FLAKE_YEARS),
         "fire_median": median_year(fires, "fire", YEARS),
-        "flake_within_5": within,
+        "flake_within": within,
         "flake_inside": flake["inside"],
         "fire_inside": fire["inside"],
         "fire_early": fire["early"],
@@ -328,6 +335,7 @@ def main():
         "question": f"Can tuning alone make sharp flakes come within {FLAKE_WINDOW[1]:g} years and fire in Years "
         f"{FIRE_WINDOW[0] + 1:g} to {FIRE_WINDOW[1]:g}, their windows, with the world's own rules?",
         "windows": {"flake": list(FLAKE_WINDOW), "fire": list(FIRE_WINDOW)},
+        "bars": {"flake": FLAKE_BAR, "spread_after": SPREAD_AFTER, "no_flake": NO_FLAKE_YEARS},
         "tuning": {bp: tuning["blueprints"][bp]["factor"] for bp in ("flake", "drill", "plough")},
         "runs": base,
         "control": control,
@@ -351,7 +359,7 @@ def main():
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(report, indent=1) + "\n")
     print(
-        f"Flakes: {stone['within_5']}/20 within 5 years (fresh seeds {stone_fresh['within_5']}/20), "
+        f"Flakes: {stone['within']}/20 within {FLAKE_BAR:g} years (fresh seeds {stone_fresh['within']}/20), "
         f"{stone['window']['inside']}/20 in their window, Years 1-{FLAKE_WINDOW[1]:g}; spread in "
         f"{stone['spread_ok']}, routes {', '.join(stone['routes'])}, control flakes {stone['control_flakes']}"
     )

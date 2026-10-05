@@ -56,8 +56,8 @@ func _ready() -> void:
 
 
 ## P4 Discovery pace (RES-03, TIM-19, RES-16): when flakes and fire first came in each run, how many
-## could make flakes two years on, the check on fresh seeds, and how the pace moves with each tuned
-## value.
+## could make flakes soon after, the check on fresh seeds, and how the pace moves with each tuned
+## value. The sharp-stone test's bars come from the report, as the run had them.
 func _p4(r: Dictionary) -> void:
 	_text(r.title, FLAME, 20)
 	_text(r.question, INK, 15)
@@ -68,8 +68,9 @@ func _p4(r: Dictionary) -> void:
 	var windows: Dictionary = r.windows
 	var flake_window := Vector2(windows.flake[0], windows.flake[1])
 	var fire_window := Vector2(windows.fire[0], windows.fire[1])
+	var bars: Dictionary = r.bars
 	var said := (
-		"%s. Flakes came within %d years, their window, in %d of 20 runs (within 5, the "
+		"%s. Flakes came within %d years, their window, in %d of 20 runs (within %d, the "
 		+ "sharp-stone test's bar, in %d), and a world's first fire inside its window in %d of 20, %s."
 	)
 	_text(
@@ -79,7 +80,8 @@ func _p4(r: Dictionary) -> void:
 				"Yes" if r.pass else "Not yet",
 				flake_window.y,
 				stone.window.inside,
-				stone.within_5,
+				bars.flake,
+				stone.within,
 				fire.inside,
 				_before(fire.early)
 			]
@@ -89,22 +91,29 @@ func _p4(r: Dictionary) -> void:
 	)
 	_text(
 		(
-			"First sharp flakes, years from the start, each run a row (shaded: their window; "
-			+ "the line: 5 years)"
+			(
+				"First sharp flakes, years from the start, each run a row (shaded: their window; "
+				+ "the line: %d years)"
+			)
+			% bars.flake
 		),
 		DIM,
 		13
 	)
 	var flakes := _runs(r.runs, "flake", "flake_route", "")
-	var c := Chart.new("runs", flakes, 8.0, 1.0)
+	var c := Chart.new("runs", flakes, bars.no_flake + 1.0, 1.0)
 	c.window = flake_window
-	c.limit = 5.0
+	c.limit = bars.flake
 	_page.add_child(c)
 	_key(r.runs, "flake_route")
 	_text(
 		(
-			"Two years after each first flake, 3 in 4 adults could make them in %d of %d runs."
-			% [stone.spread_ok, stone.within_5]
+			"%s after each first flake, 3 in 4 adults could make them in %d of %d runs."
+			% [
+				"A year" if int(bars.spread_after) == 1 else "%d years" % bars.spread_after,
+				stone.spread_ok,
+				stone.within
+			]
 		),
 		INK,
 		14
@@ -129,15 +138,15 @@ func _p4(r: Dictionary) -> void:
 	var fresh_fire: Dictionary = r.fire_fresh
 	_text(
 		(
-			"On 20 seeds never tuned against: flakes within 5 years in %d, fire in its window in %d, %s."
-			% [fresh.within_5, fresh_fire.inside, _before(fresh_fire.early)]
+			"On 20 seeds never tuned against: flakes within %d years in %d, fire in its window in %d, %s."
+			% [bars.flake, fresh.within, fresh_fire.inside, _before(fresh_fire.early)]
 		),
 		INK,
 		14
 	)
 	var tuned: Dictionary = (r.sensitivity as Array)[0]["1.0"]
 	for step: Array in [
-		["flake", "Flakes", 5.0, 1.0, "40 runs", flake_window],
+		["flake", "Flakes", float(bars.no_flake), 1.0, "40 runs", flake_window],
 		["fire", "Fire", fire_end, 5.0, "40 worlds", fire_window]
 	]:
 		_text(

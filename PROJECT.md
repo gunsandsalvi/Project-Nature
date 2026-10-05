@@ -276,7 +276,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 - `VIS-03` **The arc of a world** *(Decided)*
   - **What:** Every world starts in caves (`SCP-01`).
-    Sharp flakes come in the first three years and fire within about 15; pottery, dogs, herds, villages and fields follow over the next two centuries, and first copper about two centuries in (`TIM-19`).
+    Sharp flakes come in the first two years and fire within about 8; pottery, dogs, herds, villages and fields follow over the next century, and first copper about a century in (`TIM-19`).
     After that, history goes on within the launch catalogue, which later layers, such as bronze or writing, can extend (`PRN-14`).
   - **No scripted eras:** each step happens only when the world's rules bring it about (`PRN-17`), so the order differs between worlds, and stalls, lost crafts and peoples dying out are all valid histories.
   - **The phone's limit:** nothing caps births (`BIO-04`); past about 2,000 people time slows rather than detail being cut, and a world nearing the phone's memory limit pauses with a notice (`MND-15`).
@@ -485,7 +485,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   - `MIL-16` **The game** *(Decided)*: your powers as nature (`GOD-02`, `GOD-03`, `GOD-04`, `GOD-12`, `GOD-13`, `GOD-10`); time following your zoom, the story director, live moments and skip (`TIM-01`, `TIM-02`, `PRE-08`, `TIM-11`); the book of ages from pattern sentences, worded by the phone's writer (`PRE-05`, `PRE-37`, `PRE-41`); every screen, card and overlay (`PRE-40`, `PRE-35`, `PRE-07`); sound and the murmur (`SND-01`, `SND-11`, `SND-03`).
     *Now possible:* playing as nature: sending lightning or a dream and following what comes of it in the book of ages, with the sounds of the camp.
   - `MIL-17` **The whole arc** *(Decided)*: pottery, herding, farming, villages and copper (`RCK-04`, `WLD-33`, `CUL-28`, `RCK-08`); the full launch catalogue (`MAT-23`); every pace target met (`TIM-19`, `CUL-33`).
-    *Now possible:* the whole arc, from caves to first copper, in a few hundred years, at a watchable speed.
+    *Now possible:* the whole arc, from caves to first copper, in about a century, at a watchable speed.
 
 ### 3.4 Non-goals
 
@@ -737,8 +737,8 @@ Time works one way for everything: activities that start and end on one world cl
     - **about 100–300 people:** at least 5;
     - **1,000 people:** at least 1, aiming for 2–3;
     - **about 2,000 people:** at least half;
-    - **beyond,** time slows (`MND-15`), down to at least a sixth at about 7,000, the most a world holds by Year 500 (`BIO-04`);
-    - **an old world:** a world 500 years old runs at least four fifths as fast as a new one with as many people.
+    - **beyond,** time slows (`MND-15`), down to at least a sixth at about 7,000, the most a world holds by Year 250 (`BIO-04`);
+    - **an old world:** a world 250 years old runs at least four fifths as fast as a new one with as many people.
   - **What counts:** every activity of people and of animals near people, every result inside an activity, every notice and every topic passed in talk, on the cores `PLT-01` allows.
   - **Check:** the benchmark worlds of `PLT-04`, on your phone at held speed (`PLT-01`).
 
@@ -785,15 +785,15 @@ Time works one way for everything: activities that start and end on one world cl
 
 - `TIM-19` **Pace of discovery** *(To test)*: In typical worlds, each step of the arc first happens within its window of years.
   - **The windows,** as dates (`TIM-14`):
-    - sharp stone flakes: Years 1–3;
-    - making fire: 3–15;
-    - clothing and huts, each: 5–20;
-    - pottery: 30–75;
-    - tame dogs: 40–75;
-    - herding: 60–125;
-    - villages: 50–150;
-    - farming: 100–175;
-    - copper: 150–250.
+    - sharp stone flakes: Years 1–2;
+    - making fire: 2–8;
+    - clothing and huts, each: 3–10;
+    - pottery: 15–38;
+    - tame dogs: 20–38;
+    - herding: 30–63;
+    - villages: 25–75;
+    - farming: 50–88;
+    - copper: 75–125.
   - **When a step counts:** at its first entry in the book of ages anywhere in the world, with crafts counted by the results `MAT-23` marks for each step (smelted copper, not hammered native copper), tame dogs and herding as `WLD-33` defines them, villages as `CUL-28` defines them, and farming at the first crop sown and harvested on purpose (`RCK-23`).
   - **How it is met:** by tuning alone, never by scripting or dates (`PRN-17`, `RES-16`).
   - **Check:** the pace tests (`RES-07`), run with no acts of yours.
@@ -1466,9 +1466,9 @@ Shares in Done when lines are judged as `RES-13` sets out.
   - **Target ranges** on whole worlds (`RES-14`), coming out of the rules (`TIM-18`), never set:
     - about 1 baby in 5 dies in its first year, and about 2 children in 5 before 14;
     - those who reach 14 live on average to about 50–60, most die before 70, and few pass 80;
-    - a woman who lives through her childbearing years has about 5 children (tuned to the next line);
-    - numbers grow by about 0.8% a year on average, so a world holds about 1,000–3,000 people at Year 400 and about 2,500–7,000 at Year 500; growth wins when the others pull against it, and nothing caps births (`MND-15`).
-  - **Done when:** the pace tests' 20 worlds to Year 150 meet the death, life-span and birth ranges in at least 16, and at least 8 of the full test's 10 hold 1,000–3,000 people at Year 400 (`RES-07`).
+    - a woman who lives through her childbearing years has about 6 children (tuned to the next line);
+    - numbers grow by about 1.6% a year on average, so a world holds about 1,000–3,000 people at Year 200 and about 2,500–7,000 at Year 250; growth wins when the others pull against it, and nothing caps births (`MND-15`).
+  - **Done when:** the pace tests' 20 worlds to Year 75 meet the death, life-span and birth ranges in at least 16, and at least 8 of the full test's 10 hold 1,000–3,000 people at Year 200 (`RES-07`).
 
 - `BIO-15` **Pregnancy and birth** *(Decided)*: Children come from couples, through a pregnancy of about 45 days, a birth with real risks, and years of nursing.
   Who may pair with whom is cultural (`CUL-27`), and pairing and conception are never shown, so sexual violence is not part of the game.
@@ -1533,7 +1533,7 @@ Shares in Done when lines are judged as `RES-13` sets out.
     - **What passes on:** the body numbers of `BIO-08` and the twelve personality traits (`MND-20`); looks pass on by their own rule (`BIO-22`).
     - **How:** a child's value is its parents' average, pulled about halfway back toward the human average, plus chance.
       Children inherit their parents' inborn values, never what hunger or illness made of them.
-  - **Done when:** in whole worlds run to Year 500, the average and spread of every inherited body number and personality trait stay within about 5% of the start, and children resemble their parents.
+  - **Done when:** in whole worlds run to Year 250, the average and spread of every inherited body number and personality trait stay within about 5% of the start, and children resemble their parents.
 
 - `BIO-22` **Looks** *(Decided)*: Skin, hair, eyes and faces are inherited, so children look like a mix of their parents, and no people looks like a copy of a real one (`SCP-20`).
   - **How it works:**
@@ -1828,16 +1828,16 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Check:** a test finds no template tied to a date, an era or a named people, place or person; each belief template and story shape has a scene where it appears in at least 5 of 20 runs after its event, and no scene shows one without its own; customs and roles are read from the pace-test worlds (`RES-07`), which end with peoples of different spirits, customs and kinds of leader.
 
 - `CUL-33` **Pace of culture** *(To test)*: When culture first shows in typical worlds, in years from the start, beside the pace of discovery (`TIM-19`).
-  - First shared spirit or belief in the dead: within 5.
-  - First rite a band keeps (`CUL-34`): 5–20.
-  - First myth: 10–40.
-  - First band split: 10–50.
-  - First festival: 10–60.
-  - First feud, a killing answered by a killing: 20–100.
-  - First new people: 80–150.
-  - First raid: 60–200.
-  - First chief: 150–350, after the first villages.
-  - **Keeps going:** after Year 100, each people adds a new rite, myth or song at least every 25 years, and holds a gathering or festival most years.
+  - First shared spirit or belief in the dead: within 3.
+  - First rite a band keeps (`CUL-34`): 3–10.
+  - First myth: 5–20.
+  - First band split: 5–25.
+  - First festival: 5–30.
+  - First feud, a killing answered by a killing: 10–50.
+  - First new people: 40–75.
+  - First raid: 30–100.
+  - First chief: 75–175, after the first villages.
+  - **Keeps going:** after Year 50, each people adds a new rite, myth or song at least every 12 years, and holds a gathering or festival most years.
   - **Tuned by** split sizes, the custom threshold, belief strength and the pull of gatherings, alike in every world (`PRN-17`).
   - **Check:** the pace tests (`RES-07`) read these from each world's records, each from the stage `RES-07` gives it; Keeps going passes in at least half the worlds.
 
@@ -1918,7 +1918,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     5. **Myths,** by the rule of `CUL-11`.
     6. **Priests:** in a large village (`CUL-28`), the shaman becomes a priest, fed by the gifts rites and healing earn as help (`MND-26`), holding rites on the calendar (`CUL-29`) in a house set aside at the sacred place; the successor is whoever joined most of their rites, most often their child.
     - **For you only** (`CUL-07`): a people's religion is named after its greatest spirit, and a spirit most of its adults hold, with a rite, a myth and a sacred place, is named a god.
-  - **Done when:** of the 20 pace-test worlds run to Year 60 (`RES-07`), at least 10 have a people with a sacred place, a shaman and a myth, and no step ever comes before its conditions hold.
+  - **Done when:** of the 20 pace-test worlds run to Year 30 (`RES-07`), at least 10 have a people with a sacred place, a shaman and a myth, and no step ever comes before its conditions hold.
 
 ### 10.5 Society
 
@@ -2002,7 +2002,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     - **Merging and ending:** when, over 50 years, most of a smaller people's marriages are with one bigger people, it joins that people (links alone never merge peoples); a people ends when its last band dies out or joins another.
     - **Territory:** the land its bands use (camps, hunting grounds, sacred places, graves), where strangers are met as its custom says (`CUL-06`).
     - **Relations:** each adult holds an opinion of each people they know of, from −100 to +100, moved by marriages, trade, gatherings, raids and killings lived or told (`MND-24`); a people's relation to another is the average opinion of its adults who know of it.
-  - **Done when:** in 20 runs of the start's bands parted by a mountain range from Year 1, two named peoples exist by Year 100 in at least 16.
+  - **Done when:** in 20 runs of the start's bands parted by a mountain range from Year 1, two named peoples exist by Year 50 in at least 16.
 
 - `CUL-28` **Villages** *(Decided)*: A village is a place where one band has kept its camp all year round, whatever trips its members make, for 5 years in a row, in lasting houses it built (pit or post houses, `MAT-23`).
   A cave or hut camp lived in all year is a home, not a village.
@@ -2044,9 +2044,9 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 - `CUL-12` **Style and ornament** *(Decided)*: Each people has its own look in things, art and music, drifting over time, so a thing shows who made it and roughly when.
   - **How it works:** a style is six choices: proportions (squat to tall), lean, favourite pattern, two favourite colours, how motifs are drawn (outline or filled, thin or bold) and how much ornament, plus the musical style (`CUL-10`).
-    A new people starts with its parent's; about every 25 years one choice shifts a step, toward a people its bands are linked with, if any (`CUL-23`).
+    A new people starts with its parent's; about every 12 years one choice shifts a step, toward a people its bands are linked with, if any (`CUL-23`).
     Every made thing carries its maker's people's style (`PRE-43`), and everyone wears their people's ornament (beads, body paint, decorated clothes), the most respected most.
-  - **Done when:** in the pace-test worlds run to Year 150 (`RES-07`), any two peoples apart for 75 years or more differ in at least 2 of the 6 choices.
+  - **Done when:** in the pace-test worlds run to Year 75 (`RES-07`), any two peoples apart for 38 years or more differ in at least 2 of the 6 choices.
 
 - `CUL-29` **Gatherings and festivals** *(Decided)*: Bands meet where food is plentiful, and meetings kept at the same place and season become festivals.
   - **How it works:**
@@ -2363,7 +2363,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
       A stage that misses names its biggest cost and wins it back by the next stage close, or brings it to you.
     - **Shares:** the world's own layers at most about 0.2 s per game day, so the world alone reaches 10 game years a minute on two cores; animals near people within each person's budget (`MND-15`); making areas at most a tenth of the simulation's time.
     - **Smooth:** with the world running, at least 97% of frames on time while zooming, panning and turning, at every zoom, and none more than 50 ms late (`PRN-11`).
-    - **Memory:** within about 8 GiB (`PLT-01`), with kept areas at most about 1 GiB in a full pace-test world at Year 500 (`WLD-12`).
+    - **Memory:** within about 8 GiB (`PLT-01`), with kept areas at most about 1 GiB in a full pace-test world at Year 250 (`WLD-12`).
     - **Storage:** within the target of `PLT-10`.
     - **Sound:** the 32-sound mix within its limit (`SND-01`).
     - **Battery and heat:** an hour's play uses about 25–30% of the battery, and the phone never gets uncomfortably hot.
@@ -2371,7 +2371,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
   - **How it works:**
     - **Benchmark worlds:** a camp of about 30 and a village of about 300 at close camp zoom, a camp in thick forest at camp zoom with the camera turning, and worlds of about 100, 500, 1,000, 2,000, 3,000 and 7,000 people with about 10 km² each, on generated land; from `MIL-11` also the world with nobody in it.
       Each runs to a set game date, its end state in the result code (`RES-05`).
-    - **Old worlds:** from `MIL-15`, the pace-test worlds at Year 150, and from `MIL-17` the full test's at Year 500, each against a new world with as many people (`TIM-07`), their kept areas read against the memory line.
+    - **Old worlds:** from `MIL-15`, the pace-test worlds at Year 75, and from `MIL-17` the full test's at Year 250, each against a new world with as many people (`TIM-07`), their kept areas read against the memory line.
     - **Held speed:** speeds are read after at least 3 minutes at full load, unplugged (`PLT-01`), battery and heat from the phone's counters.
     - **When:** in the cloud at every alpha (`PLT-05`), and on the phone at every stage: one tap, about 20 minutes, and a short result code to send back.
   - **Done when:** at every stage, the phone benchmark's result shows each target above, met or missed.
@@ -2395,10 +2395,10 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
   - **Done when:** worlds saved by the previous alpha open and carry on after a small update, and after a big one their books of ages open.
 
 - `PLT-10` **Storage** *(Decided)*: Each world keeps its present state, kept areas and history (`PRN-15`); unchanged areas are remade from the seed (`WLD-13`).
-  History thins with age by a fixed rule: the last 50 years keep every event, and older years keep what the book of ages and views use, such as births, deaths, firsts and events art shows (`PRE-15`).
-  Target: a full pace-test world at Year 500 fits in about 4 GB, history and kept areas together (measured in `PLT-04`).
+  History thins with age by a fixed rule: the last 25 years keep every event, and older years keep what the book of ages and views use, such as births, deaths, firsts and events art shows (`PRE-15`).
+  Target: a full pace-test world at Year 250 fits in about 4 GB, history and kept areas together (measured in `PLT-04`).
   When the phone is nearly full, the game warns you and asks which worlds to delete; it never deletes anything by itself.
-  - **Done when:** every full pace-test world, saved at Year 500, fits its target, and the warning comes before the phone is full.
+  - **Done when:** every full pace-test world, saved at Year 250, fits its target, and the warning comes before the phone is full.
 
 ### 13.4 The cloud
 
@@ -2467,23 +2467,21 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   - **Done when:** the coverage check finds a trial for every blueprint and a scene for every chain and behaviour (`PRC-12`).
 
 - `RES-02` **The sharp-stone test** *(Decided)*: A band with the starting kit (`BIO-02`), which has never made a sharp flake, lives by a river with stone anvils, nuts to crack, carcasses to butcher, hides and wood to work, and flint among decoy stones such as granite.
-  - **How it works:** it runs 20 times, each until 2 years after the first flake, or 5 years if none comes; a control scene, the same with no stone that flakes, runs 7 years.
+  - **How it works:** it runs 20 times, each until a year after the first flake, or 3 years if none comes; a control scene, the same with no stone that flakes, runs 4 years.
     The first flake's year and route come from the book of ages (`MAT-21`), and who can make flakes from each adult's skills (`MND-06`).
   - **Done when:** the scene and its control run in the cloud at every stage from `MIL-14`, judged by `RES-03`.
 
 - `RES-03` **Sharp-stone pass rule** *(Decided)*
-  - **Discovery:** flakes are discovered within 5 years in at least 16 of 20 runs.
-    - **Proposed change:** flakes are discovered within 3 years in at least 16 of 20 runs.
-      Why: `TIM-19`'s window for flakes was halved to Years 1–3 for faster discoveries, at your word on 4 October 2026, so the test's bar would keep pace with it; the tuned pace meets both.
-  - **Spread:** in those runs, at least 3 in 4 of the band's adults can make flakes within 2 years of the first.
+  - **Discovery:** flakes are discovered within 2 years in at least 16 of 20 runs.
+  - **Spread:** in those runs, at least 3 in 4 of the band's adults can make flakes within a year of the first.
   - **Routes:** at least two routes of discovery appear across the runs (`MND-11`).
   - **Control:** without stone that flakes, no run ever makes a flake (`RCK-01`).
   - **Check:** the sharp-stone test (`RES-02`) passes at every stage from `MIL-14` (`PRC-10`).
 
 - `RES-07` **The pace tests** *(Decided)*: Whole worlds from the play generator (`WLD-10`) check each pace target (`TIM-19`) and culture target (`CUL-33`) in their records.
-  - **Sizes,** each judging the targets whose windows close within its years: after any change to minds, blueprints or catalogues, 20 worlds to Year 60, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-15`, 20 worlds to Year 150; and the full test, 10 worlds to Year 500, before `MIL-17` closes and at most once a week of building during it.
+  - **Sizes,** each judging the targets whose windows close within its years: after any change to minds, blueprints or catalogues, 20 worlds to Year 30, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-15`, 20 worlds to Year 75; and the full test, 10 worlds to Year 250, before `MIL-17` closes and at most once a week of building during it.
   - **Stages:** each target counts from the stage that builds it: flakes, fire, clothing, huts and `RES-25` `MIL-14`; shared spirits, rites, myths, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going `MIL-15`; pottery, herding, villages, farming, copper and chiefs `MIL-17` (`SCP-16`, `TIM-19`, `CUL-33`).
-  - **Computing:** in the session that builds, in the background while it works, never in another session (`SCP-15`): the size after a change takes about 2 session-hours and the Year-150 run about 6, and the full test about 20–45, spread over the last alphas of `MIL-17`, whose stage closes once it has run; each stage report sets the real cost against these (`RES-06`).
+  - **Computing:** in the session that builds, in the background while it works, never in another session (`SCP-15`): the size after a change takes about 1 session-hour and the Year-75 run about 3, and the full test about 10–25, spread over the last alphas of `MIL-17`, whose stage closes once it has run; each stage report sets the real cost against these (`RES-06`).
   - **Other whole-world checks** read these worlds, at the first size that reaches their years (`BIO-04`, `BIO-06`, `BIO-22`, `MAT-08`, `PRE-39` and the culture items); checks of the world with nobody in it, such as `WLD-15` and `WLD-18`, run in the background at the stage that builds them, and again only when their rules change.
   - **Check,** for each target: at least half the worlds reach it inside its window, and at most a quarter before it opens (with 10 worlds, at least 5 and at most 2); where windows overlap, the steps don't come in the same order in every world.
 
@@ -2639,7 +2637,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 ### 16.3 The phone
 
 - `RSK-02` **Too slow at 2,000 people** *(Decided)*: Likelihood medium, impact high.
-  - **Signs:** a stage missing its budget or making areas over its share (`PLT-04`); 2,000 people before Year 300 (`BIO-04`).
+  - **Signs:** a stage missing its budget or making areas over its share (`PLT-04`); 2,000 people before Year 150 (`BIO-04`).
   - **Response:** past about 2,000, time slows and the game says so (`MND-15`).
 
 - `RSK-15` **Worlds outgrow the phone** *(Decided)*: Likelihood medium, impact medium.
@@ -2710,7 +2708,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- **Sharp-stone pass rule** (`RES-03`): flakes within 3 years in at least 16 of 20 runs, where it says 5, to keep pace with the halved window for flakes.
+- None at present.
 <!-- end generated -->
 
 ## 18. Glossary
@@ -2753,7 +2751,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Murmur:** speech in the game, a babble of the language's sounds, never real words (`SND-03`).
 - **Named result:** what a blueprint gives: a new thing, a new state of a thing, or a change to ground or a body (`MAT-04`).
 - **Need:** hunger, thirst, warmth and rest for the body (`BIO-09`), and safety, belonging, status, curiosity and love for the mind (`MND-07`).
-- **Pace target:** the window of years in which typical worlds reach a step, such as fire in Years 3–15 (`TIM-19`).
+- **Pace target:** the window of years in which typical worlds reach a step, such as fire in Years 2–8 (`TIM-19`).
 - **Pace test:** whole worlds run in the background against the pace and culture targets (`RES-07`).
 - **Pattern sentence:** a set sentence filled from a world's records, which every text starts from (`PRE-37`).
 - **People (a people):** a named group with its own territory, customs, beliefs and style (`CUL-23`).

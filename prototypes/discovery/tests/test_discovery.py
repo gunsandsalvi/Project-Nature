@@ -143,25 +143,25 @@ class PassRules(unittest.TestCase):
 
     # checks: TIM-19
     def test_fires_window_is_its_dates(self):
-        # Years 3 to 15 run from 2 years in up to 15
-        w = pace.window([1.99, 2.0, 14.99, 15.0, None], pace.FIRE_WINDOW)
+        # Years 2 to 8 run from 1 year in up to 8
+        w = pace.window([0.99, 1.0, 7.99, 8.0, None], pace.FIRE_WINDOW)
         self.assertEqual((w["early"], w["inside"], w["never"]), (1, 2, 1))
-        w = pace.window([0.0, 2.99, 3.0], pace.FLAKE_WINDOW)
+        w = pace.window([0.0, 1.99, 2.0], pace.FLAKE_WINDOW)
         self.assertEqual((w["early"], w["inside"]), (0, 2))
 
     # checks: TIM-19
     def test_a_window_needs_half_inside_and_at_most_a_quarter_early(self):
         span = pace.FIRE_WINDOW
-        self.assertTrue(pace.window([1.0] * 5 + [8.0] * 10 + [20.0] * 5, span)["pass"])
-        self.assertFalse(pace.window([1.0] * 6 + [8.0] * 10 + [20.0] * 4, span)["pass"])
-        self.assertFalse(pace.window([8.0] * 9 + [20.0] * 11, span)["pass"])
+        self.assertTrue(pace.window([0.5] * 5 + [4.0] * 10 + [10.0] * 5, span)["pass"])
+        self.assertFalse(pace.window([0.5] * 6 + [4.0] * 10 + [10.0] * 4, span)["pass"])
+        self.assertFalse(pace.window([4.0] * 9 + [10.0] * 11, span)["pass"])
 
     # checks: RES-03
     def test_the_sharp_stone_rule(self):
         good = [flake_run(1.0)] * 8 + [flake_run(2.0, route="dream")] * 8 + [flake_run(None, None, None)] * 4
         control = [flake_run(None, None, None)] * 20
         self.assertTrue(pace.sharp_stone(good, control)["pass"])
-        # 15 of 20 within 5 years
+        # 15 of 20 within 2 years
         self.assertFalse(pace.sharp_stone(good[:15] + [flake_run(6.0)] * 5, control)["pass"])
         # one run whose craft did not spread to 3 in 4 adults
         self.assertFalse(pace.sharp_stone([flake_run(1.0, spread=0.5)] + good[1:], control)["pass"])
@@ -173,9 +173,9 @@ class PassRules(unittest.TestCase):
     # checks: TIM-19 RES-03
     def test_a_sweeps_summary_and_what_holds_the_pace(self):
         flakes = [flake_run(1.0)] * 40
-        steady = pace.summary(flakes, [fire_world(8.0)] * 40)
-        early = pace.summary(flakes, [fire_world(1.0)] * 11 + [fire_world(8.0)] * 29)
-        late = pace.summary([flake_run(4.0)] * 40, [fire_world(8.0)] * 40)
+        steady = pace.summary(flakes, [fire_world(4.0)] * 40)
+        early = pace.summary(flakes, [fire_world(0.5)] * 11 + [fire_world(4.0)] * 29)
+        late = pace.summary([flake_run(2.5)] * 40, [fire_world(4.0)] * 40)
         self.assertTrue(steady["flake_pass"] and steady["fire_pass"])
         self.assertFalse(early["fire_pass"])
         self.assertFalse(late["flake_pass"])

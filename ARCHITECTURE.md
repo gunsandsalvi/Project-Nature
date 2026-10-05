@@ -508,18 +508,18 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - Every reality rule has a real experiment behind it, cited in its catalogue check (`RCK-01` and the rest of section 7.6).
 - Quality from skill and inputs (`MAT-20`); skill grows by the power law, a few years to competence and five to ten to mastery (`MND-06`); teaching beats watching (`MND-13`).
 - Discovery belongs to people: accidents, personal hunches and copying found things (`MND-11`); crafts die with their last holder and return only by rediscovery, neighbours or copying (`CUL-02`, `CUL-16`).
-- *Proved in P4,* in a model of one band in Python, as pre-production code: tuning alone, with the world's own rules, brings sharp flakes and fire within `TIM-19`'s windows, halved at your word on 4 October 2026 for faster discoveries (`RES-02`, `RES-03`, `TIM-19`, `RSK-01`).
-  - **Flakes:** within 3 years, their window, in 19 of 20 runs, the median a year in; within 5, the sharp-stone test's bar, in 20 of 20, and in 20 of 20 on seeds never tuned against; never without stone that flakes.
-    They came by accident, by experiment and by a dream's hunch, and 3 in 4 adults could make them within 2 years in every run.
-  - **Fire,** counted at its first anywhere in a world of 3 or 4 bands, as `TIM-19` counts a step: in Years 3 to 15 in 18 of 20 worlds and before them in 1, the median about 8½ years in; on new seeds 17 and 2.
-    The windows are dates (`TIM-14`), so Year 3 begins two years in.
-    Every world's first fire began with a hunch from a dream (`MND-12`).
-  - **What sets the pace:** one discovery factor a blueprint, 0.292 for flakes and 0.0733 for each way of making fire, tuned on 20 fixed seeds and checked on 20 new ones (`RES-16`).
-  - **What fire's pace rests on:** P4's model knows three blueprints, and a dream's real hunch goes to the sector the dreamer knows best, so as soon as an adult has once rubbed sticks, every such dream points at fire: that is why every first fire began with a dream.
-    With dreams unable to point at fire, the tuned factor brings fire into its window in 2 of 20 worlds, 7 never finding it within 60 years, and about eight times the factor restores it (α0.3's review).
+- *Proved in P4,* in a model of one band in Python, as pre-production code: tuning alone, with the world's own rules, brings sharp flakes and fire within `TIM-19`'s windows, halved at your word on 4 October 2026 for faster discoveries and again on 5 October, so the first village comes about an hour into play (`RES-02`, `RES-03`, `TIM-19`, `RSK-01`).
+  - **Flakes:** within 2 years, their window and the sharp-stone test's bar, in 19 of 20 runs, the median about eight months in, and in 20 of 20 on seeds never tuned against; never without stone that flakes.
+    They came by accident in 17 runs, by a dream's hunch in 2 and by experiment in 1, and a year after the first every adult could make them, in every run.
+  - **Fire,** counted at its first anywhere in a world of 3 or 4 bands, as `TIM-19` counts a step: in Years 2 to 8 in 15 of 20 worlds and none before them, the median about 4½ years in; on new seeds 11 and none.
+    The windows are dates (`TIM-14`), so Year 2 begins a year in.
+    17 of the 20 worlds' first fires began with a hunch from a dream (`MND-12`), and 3 with an experiment.
+  - **What sets the pace:** one discovery factor a blueprint, 0.413 for flakes and 0.136 for each way of making fire, tuned on 20 fixed seeds and checked on 20 new ones (`RES-16`).
+  - **What fire's pace rests on:** P4's model knows three blueprints, and a dream's real hunch goes to the sector the dreamer knows best, so as soon as an adult has once rubbed sticks, every such dream points at fire: that is why most first fires began with a dream.
+    At the pace of 4 October, with dreams unable to point at fire, the tuned factor brought fire into its window in 2 of 20 worlds, 7 never finding it within 60 years, and about eight times the factor restored it (α0.3's review).
     So tuning alone still sets the pace, but production re-tunes with the whole catalogue and dreams' choice among all its blueprints (`MND-12`, `GOD-03`): these factors don't carry over, and `RSK-01` stays open until M7's scenes.
-  - **No value holds it on a knife's edge:** each tuned value changed alone by a quarter either way, and halved and doubled, over 40 runs and 40 worlds, keeps both steps' rules.
-    Fire's margin is thin: read a year stricter than its dates, a quarter more noticing would bring 11 of 40 worlds' first fire too early, one past the rule's quarter.
+  - **No value holds it on a knife's edge:** each tuned value changed alone by a quarter either way, over 40 runs and 40 worlds, keeps both steps' rules; halving the flake factor or noticing breaks the flakes' rule, and halving experimenting fire's, so those three are the strong levers.
+    Fire's thin side is now lateness: a quarter less hunch or experimenting leaves 24 of 40 worlds' first fire in its window, where the rule needs 20, while no quarter's change brings more than 4 too early, where it allows 10.
   - **What production takes:** each blueprint's discovery factor in its catalogue entry (A3.6); a step counted at its first anywhere in the world (`RES-07`); and tuning runs that keep what they have done, keyed by the model's and the catalogue's version, so one cut short resumes and none is reused by a changed model (`RSK-14`).
 
 ## A13. Culture (research 12), outline

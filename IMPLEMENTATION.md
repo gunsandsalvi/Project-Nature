@@ -17,7 +17,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P1 The look (α0.2a) is done: outline C, its flicker fixed, and the "ease" crawl fix, which you left to me (A4.1).
 - P2 A full scene (α0.2b) is done: a busy camp at night with three fires holds 60 frames a second at close and camp zoom (A18.1).
 - P3 The kit (α0.2c) is delivered, and your comments and the independent review's findings are fixed and delivered in α0.3a for your look: warmer firelight and flickering flames, grey daytime smoke, gentler turns, figures in their own clothes with a pose at every step, brush windbreaks and coursed lean-tos, and P2's people and camp zoom. The art book's dusk sun stays, as you asked for no change but faster discoveries.
-- P4 Discovery pace (α0.3a) passes, and is reviewed and delivered: with every discovery window halved, as you asked for faster discoveries, tuning alone brings flakes within 3 years and fire in Years 3 to 15, and no value holds the pace on a knife's edge (A12, `TIM-19`).
+- P4 Discovery pace (α0.3a) passes, and is reviewed and delivered: with every discovery window halved twice, as you asked for faster discoveries and the first village about an hour into play, tuning alone brings flakes within 2 years and fire in Years 2 to 8, and no value holds the pace on a knife's edge (A12, `TIM-19`). It was re-tuned on 5 October for the second halving; the next build carries its report.
 - P5 The same bits (α0.4a) passes on your phone: its chip gives the cloud's digest on one thread and four, as x86-64 and arm64 under qemu do, and P6's thousand minds ended their 3,546 game days on your phone exactly as in the cloud (A3.4).
 - P6 A thousand minds (α0.4b) passes on your phone: a thousand people hold 6.0 game years a real minute on four cores over 10 minutes, with no slowing from heat; the target is at least 1, hoping for 2 to 3 (`TIM-07`, A11).
 - P7 World generation (α0.5a) passes on your phone: three worlds in 9.3 seconds and settling in 6.5, against `WLD-11`'s 3 minutes and 1, the very same worlds as the cloud's (A7.6).
@@ -200,7 +200,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 
 ### α0.3a P4 Discovery pace
 
-**Goal:** answer the riskiest design question (`RSK-01`): can tuning alone make sharp flakes come within 5 years and fire within its window, with the world's own rules?
+**Goal:** answer the riskiest design question (`RSK-01`): can tuning alone make sharp flakes come within their window and fire within its own, with the world's own rules?
 
 **Serves:** `TIM-19`, `RES-02`, `RES-03`, `RES-06`, `MND-06`, `MND-11`, `MND-13`, `RCK-01`, `RCK-02`.
 
@@ -225,7 +225,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 
 **On the phone:** the prototype app's Reports page shows the runs' discovery years and how the pace moves with each factor; the note links the full report.
 
-**Conflict:** you asked for faster discoveries on 4 October 2026, so `TIM-19`'s windows are halved and P4 tunes to them: flakes within 3 years, fire in years 3 to 15; the sharp-stone test keeps its 5 years until you OK its proposed change (`RES-03`). The windows are dates (`TIM-14`), so fire's Years 3 to 15 begin two years in; P4 first read them a year late. Fire is counted at its first in a world of 3 or 4 bands, as `TIM-19` counts a step, not in one band's run. A knife's edge is read as a change of a quarter either way breaking a step's rule; a value that breaks one only when halved or doubled is reported as a strong lever, since so large a change is meant to move the pace.
+**Conflict:** you asked for faster discoveries on 4 October 2026, and on 5 October for the first village about an hour into play, so `TIM-19`'s windows are halved twice and everything tied to the years moved with them (`RES-02`, `RES-03`, `RES-07`); P4 tunes to them: flakes within 2 years, which is also the sharp-stone test's bar, and fire in Years 2 to 8. The windows are dates (`TIM-14`), so fire's Years 2 to 8 begin a year in; P4 first read them a year late. Fire is counted at its first in a world of 3 or 4 bands, as `TIM-19` counts a step, not in one band's run. A knife's edge is read as a change of a quarter either way breaking a step's rule; a value that breaks one only when halved or doubled is reported as a strong lever, since so large a change is meant to move the pace.
 
 ### α0.4a P5 The same bits
 
