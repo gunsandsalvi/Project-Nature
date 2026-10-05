@@ -420,7 +420,8 @@ The generator is first built and tuned on a small island, quick to make and judg
 - A candidate takes about 0.8 seconds on one core and a world at full size about 9: erosion about half, the plates and rock a quarter, the climate an eighth.
 - One thread and four make the same worlds, as arm64 under qemu does at a sixteenth of the size.
 - So `WLD-11`'s 3 minutes and 1 leave room for richer stages: more erosion at full size, glaciers, and settling's real rules.
-- *To prove (P7):* the same on your phone: the α0.5a build's "P7 World generation" screen makes the three worlds and settles the first.
+- *Measured on your phone* (5 October 2026), the Pixel 11 Pro XL on four cores: three worlds in 9.3 seconds (20 candidates in 2.5, the best 4 in 6.8) and settling in 6.5, faster than the cloud; its digest is the cloud's, so it made the very same worlds; its heat forecast rose from 0.44 to 0.54, with no slowing.
+  So generation has about twenty times the room `WLD-11` gives it.
 
 ## A8. From a person to the globe (research 07)
 

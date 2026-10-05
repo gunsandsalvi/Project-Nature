@@ -20,7 +20,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P4 Discovery pace (α0.3a) passes, and is reviewed and delivered: with every discovery window halved, as you asked for faster discoveries, tuning alone brings flakes within 3 years and fire in Years 3 to 15, and no value holds the pace on a knife's edge (A12, `TIM-19`).
 - P5 The same bits (α0.4a) passes on your phone: its chip gives the cloud's digest on one thread and four, as x86-64 and arm64 under qemu do, and P6's thousand minds ended their 3,546 game days on your phone exactly as in the cloud (A3.4).
 - P6 A thousand minds (α0.4b) passes on your phone: a thousand people hold 6.0 game years a real minute on four cores over 10 minutes, with no slowing from heat; the target is at least 1, hoping for 2 to 3 (`TIM-07`, A11).
-- P7 World generation (α0.5a) is built: in the cloud three worlds are offered in about 17 seconds on four cores and settling takes about 10 more, against `WLD-11`'s 3 minutes and 1 (A7.6); your phone's run is in its screen.
+- P7 World generation (α0.5a) passes on your phone: three worlds in 9.3 seconds and settling in 6.5, against `WLD-11`'s 3 minutes and 1, the very same worlds as the cloud's (A7.6).
 
 ## How to use this plan
 
@@ -133,7 +133,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | α0.3a | P4 Discovery pace | M0 | 6 | Passes; reviewed and delivered |
 | α0.4a | P5 The same bits | M0 | 4 | Passes on your phone; the α0.4 review next |
 | α0.4b | P6 A thousand minds | M0 | 6 | Passes on your phone; the α0.4 review next |
-| α0.5a | P7 World generation | M0 | 6 | Built; your phone's run next |
+| α0.5a | P7 World generation | M0 | 6 | Passes on your phone |
 | α0.5b | P8 The zoom | M0 | 6 | Not started |
 | α0.6a | P9 Ecology | M0 | 4 | Not started |
 | α0.6b | P10 Culture from causes | M0 | 5 | Not started |
