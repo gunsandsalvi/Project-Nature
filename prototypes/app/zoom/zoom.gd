@@ -1,18 +1,22 @@
 ## P8 The zoom (IMPLEMENTATION α0.5b), second round: one descent from space to a person over P7's
 ## world, a planet at every scale, never unrolled into a flat map (WLD-02). The ground is chunks in
-## a tree of levels, each made on a worker thread from the seed alone (WLD-13) and morphing
-## smoothly into the next as the camera moves (CDLOD, A8.1); one shader colours every level the
-## same way, so only detail changes; a pass over the picture adds the air's scattering and the
-## clouds, which the camera passes through on its way down (A8.4, A8.6). The picture is drawn at
-## a pixel for every two of the screen's and shown in pixels whose size the variant sets (A4).
+## a tree of levels (chunks.gd), each made on a worker thread from the seed alone (WLD-13) and
+## morphing smoothly into the next as the camera moves (CDLOD, A8.1); one shader colours every
+## level the same way, so only detail changes; a pass over the picture adds the air's scattering
+## and the clouds, which the camera passes through on its way down (A8.4, A8.6). The picture is
+## drawn at the size of the pixels shown, which the variant sets (A4).
 ## Variants to compare (A/B): pixels, land, water, clouds, light and the camera's path, and the
 ## time of day. Measure descends from the globe to a person and back by itself, timing every stop.
+## Once the world is made it starts in stages, the weather, the ground, then the sky, each noted in
+## a file first, so if the phone stops the app, the zoom says where next time and starts in its
+## light mode: no clouds, and the land and sea without their finest detail.
 ## Pre-production code (research 00): the app's README names its items.
 extends Control
 
 signal closed
 
 const RUNS := preload("res://look/runs.gd")
+const CHUNKS := preload("res://zoom/chunks.gd")
 const INK := Color("ebe5da")
 const FLAME := Color("f6a33c")
 const NIGHT := Color("0b0a12")
@@ -32,29 +36,23 @@ const STOPS := [
 ]
 ## The camera's field of view across the picture, degrees.
 const FOV := 25.0
-## The chunk tree (A8.1): 4 × 2 roots of 500 km, each splitting into four down to chunks 30.5 m
-## across; every chunk N points a side; a chunk splits while the camera is nearer than SPLIT of
-## its sides, and morphs into its parent over the last quarter of its parent's reach.
-const ROOT := 500000.0
-const DEEPEST := 14
-const N := 33
-const SPLIT := 2.4
-## The most chunks being made at once, and the most kept made, drawn or not.
-const MAKING := 6
-const KEEP := 900
 ## The origin moves to the focus once the focus is this far from it (A8.2).
 const REBASE := 2000.0
-## The weather's picture of the whole world: 2 km a pixel.
+## The weather's picture of the whole world: 2 km a pixel, drawn every few frames.
 const WEATHER_SIZE := Vector2i(1024, 512)
-## The variants (A/B): each name, and what its letters mean, for the buttons and the note.
+const WEATHER_EVERY := 4
+## Where the zoom notes what it is starting, so a stop on the phone can be told next time.
+const STAGE_FILE := "user://zoom_stage.txt"
+const MAIN := preload("res://main.gd")
+## The variants (A/B): each name, and what its letters mean, shown when one is chosen.
 const VARIANTS := {
-	"pixels": ["A fixed 4", "B stepped 2–6", "C blended 2–6"],
-	"land": ["A art book", "B natural", "C natural, banded"],
-	"water": ["A bands", "B deep and shallow", "C with waves"],
-	"clouds": ["A volume", "B volume, banded", "C flat"],
-	"light": ["A art book", "B the air's"],
-	"path": ["A down", "B flight"],
-	"time": ["A morning", "B noon", "C dusk", "D night", "E live"],
+	"pixels": ["A fixed 4", "B stepped 2 to 6", "C smooth 2 to 6, blended"],
+	"land": ["A the art book's map", "B vivid and lit", "C vivid, in clean steps"],
+	"water": ["A the art book's bands", "B deep and shallow, currents", "C B with waves"],
+	"clouds": ["A volumetric", "B volumetric, in clean steps", "C the art book's flat"],
+	"light": ["A a glow at the rim", "B the air's haze too"],
+	"path": ["A straight down", "B a flight"],
+	"time": ["A morning", "B noon", "C dusk", "D night", "E the live hour"],
 }
 ## Measure: seconds down from the globe to a person, the hold there, and back up.
 const DESCENT_SECONDS := 20.0
@@ -68,10 +66,21 @@ var focus := Vector2.ZERO
 var zoom := 1.0
 var choice := {"pixels": 2, "land": 1, "water": 1, "clouds": 0, "light": 1, "path": 0, "time": 0}
 
-var _origin := Vector2.ZERO
 ## Where the descent ends: by a river near the start region.
 var _home := Vector2.ZERO
 var _weather_view: SubViewport
+## The light mode, after the phone stopped the app last time; what it was starting then; the
+## start's stage (0 the world, 1 the weather, 2 the ground, 3 the sky, 4 running) and the frames
+## it has waited in it.
+var _light := false
+var _stopped_at := ""
+var _startup := 0
+var _waited := 0
+## Frames since the last note, and whether Measure waits for the start to finish.
+var _settled := 0
+var _measure_waiting := false
+var _cloud_noise: ImageTexture3D
+var _margin: MarginContainer
 ## The screen's pixels a drawn pixel takes.
 var _texel := 0.0
 var _art: SubViewport
@@ -83,26 +92,9 @@ var _buttons := {}
 var _measure_button: Button
 var _scenario: RID
 var _ground: ShaderMaterial
-var _indices := PackedInt32Array()
-## Each chunk made, by its key (depth << 40 | i << 20 | j): its mesh and instance, its corner, the
-## lowest and highest it is drawn, and the frame the tree last reached it.
-var _chunks := {}
-var _asked := {}
-var _tasks := {}
-var _done := []
-var _done_lock := Mutex.new()
-var _drawn := {}
+## The ground's chunk tree (chunks.gd), once the world is made.
+var _tree: RefCounted
 var _frame := 0
-var _missing := 0
-## This frame's camera planes, the focus in the picture, and the east-west stretch round it and
-## how far that reaches, for the camera's culling.
-var _planes: Array[Plane] = []
-var _at := Vector3.ZERO
-var _stretch := 0.0
-var _reach := 5000.0
-var _cos_focus := 1.0
-var _under := 0.0
-var _horizon := -1.0
 var _worker: Thread
 var _touches := {}
 var _tilt := 23.0
@@ -121,6 +113,8 @@ var _read_clock := 0.0
 
 func _ready() -> void:
 	add_to_group("busy")
+	_stopped_at = read_stage()
+	_light = _stopped_at not in ["", "running", "closed"]
 	var background := ColorRect.new()
 	background.color = NIGHT
 	background.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
@@ -163,21 +157,22 @@ func _ready() -> void:
 		remove_from_group("busy")
 		return
 	gen = ClassDB.instantiate("WorldGen")
+	_stage("making the world")
 	_worker = Thread.new()
 	_worker.start(_make_world)
 
 
+## The title, a line of what is happening, and the buttons, each with a short name and its letter,
+## inside the safe area (A15): what a letter means shows on the line above when it is chosen.
 func _build_controls() -> void:
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for side in ["left", "top", "right", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, GAP)
-	add_child(margin)
+	_margin = MarginContainer.new()
+	_margin.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_margin)
 	var column := VBoxContainer.new()
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_theme_constant_override("separation", 6)
-	margin.add_child(column)
+	_margin.add_child(column)
 	_text(column, "P8 The zoom · round 2", FLAME, 20)
 	_readout = _text(column, "Making a world…", INK, 13)
 	var space := Control.new()
@@ -193,7 +188,8 @@ func _build_controls() -> void:
 		var b := Button.new()
 		b.custom_minimum_size = Vector2(0, 44)
 		b.size_flags_horizontal = SIZE_EXPAND_FILL
-		b.add_theme_font_size_override("font_size", 13)
+		b.clip_text = true
+		b.add_theme_font_size_override("font_size", 14)
 		b.pressed.connect(_cycle.bind(name))
 		grid.add_child(b)
 		_buttons[name] = b
@@ -216,12 +212,26 @@ func _build_controls() -> void:
 func _label_buttons() -> void:
 	for name: String in VARIANTS:
 		var b: Button = _buttons[name]
-		b.text = "%s: %s" % [name.capitalize(), VARIANTS[name][choice[name]]]
+		b.text = "%s %s" % [name.capitalize(), (VARIANTS[name][choice[name]] as String).left(1)]
+	if _light:
+		(_buttons["clouds"] as Button).text = "Clouds off"
 
 
+## A variant's next letter, and what it means on the line above. In the light mode the clouds'
+## button turns the full zoom back on.
 func _cycle(name: String) -> void:
+	if name == "clouds" and _light:
+		_light = false
+		_readout.text = "The full zoom again: clouds %s." % VARIANTS.clouds[choice.clouds]
+		if _startup >= 4:
+			_use_shaders()
+		_label_buttons()
+		return
 	choice[name] = (choice[name] + 1) % (VARIANTS[name] as Array).size()
 	_label_buttons()
+	_readout.text = "%s %s" % [name.capitalize(), VARIANTS[name][choice[name]]]
+	if name == "clouds" and _startup >= 4:
+		_use_shaders()
 
 
 func _make_world() -> void:
@@ -229,9 +239,11 @@ func _make_world() -> void:
 	_world_made.call_deferred()
 
 
-## The world's cells as textures, the materials, the sky's pass and the focus on the start region.
+## The world's cells as textures, the ground's material, and the focus by a river near the start
+## region; then the start goes on in stages (_start).
 func _world_made() -> void:
 	_worker.wait_to_finish()
+	_stage("preparing the world's pictures")
 	_scenario = _art.find_world_3d().scenario
 	world_m = gen.world_size()
 	_tilt = gen.tilt(0)
@@ -259,12 +271,104 @@ func _world_made() -> void:
 		cells.x, cells.y, false, Image.FORMAT_RGBA8, gen.cover_texture(0)
 	)
 	cover.generate_mipmaps()
-	var water := Image.create_from_data(
-		cells.x, cells.y, false, Image.FORMAT_RGBA8, gen.water_texture(0)
-	)
+	var water_cells: PackedByteArray = gen.water_texture(0)
+	var water := Image.create_from_data(cells.x, cells.y, false, Image.FORMAT_RGBA8, water_cells)
 	var water_soft := water.duplicate() as Image
 	water_soft.generate_mipmaps()
-	# the clouds' noise and its smaller copies, its mipmaps
+	var rs := RenderingServer
+	rs.global_shader_parameter_set("zoom_height", ImageTexture.create_from_image(heights))
+	rs.global_shader_parameter_set("zoom_climate", ImageTexture.create_from_image(climate))
+	rs.global_shader_parameter_set("zoom_cover", ImageTexture.create_from_image(cover))
+	rs.global_shader_parameter_set("zoom_water", ImageTexture.create_from_image(water))
+	rs.global_shader_parameter_set("zoom_water_soft", ImageTexture.create_from_image(water_soft))
+	rs.global_shader_parameter_set("zoom_world", world_m)
+	_ground = ShaderMaterial.new()
+	_tree = CHUNKS.new(gen, world_m, _scenario, _ground)
+	_home = river_near(gen.start(0), water_cells, cells, world_m)
+	focus = _home
+	_tree.rebase(focus)
+	var args := OS.get_cmdline_user_args()
+	for arg: String in args:
+		if arg.begins_with("stop="):
+			zoom = zoom_of(arg.substr(5))
+		for name: String in VARIANTS:
+			if arg.begins_with(name + "="):
+				var letter := arg.substr(name.length() + 1)
+				for k in (VARIANTS[name] as Array).size():
+					if (VARIANTS[name][k] as String).begins_with(letter):
+						choice[name] = k
+	_label_buttons()
+	_measure_button.disabled = false
+	_readout.text = "Pinch from the globe to a person; drag to move. Tap a variant to change it."
+	if _light:
+		_readout.text = (
+			(
+				"Last time the phone stopped the zoom while %s, so it starts in its light mode: no"
+				% _stopped_at
+			)
+			+ " clouds, and the land and sea without their finest detail. Tap Clouds off to try"
+			+ " the full zoom again."
+		)
+	_measure_waiting = "measure" in args
+	_startup = 1
+	_waited = 0
+
+
+## The start in stages, each noted before it begins (_stage): the weather's picture, then the
+## ground, then the sky; and once all has run a while, that it runs.
+func _start() -> void:
+	_waited += 1
+	match _startup:
+		1:
+			if _waited == 1 and not _light:
+				_stage("drawing the weather")
+				_make_weather()
+			elif _waited >= 4:
+				_startup = 2
+				_waited = 0
+		2:
+			if _waited == 1:
+				_stage("drawing the ground" + (" in the light mode" if _light else ""))
+				_ground.shader = load(_ground_shader())
+			elif _waited >= 4 and not _tree.drawn.is_empty():
+				_startup = 3
+				_waited = 0
+		3:
+			if _waited == 1:
+				_make_sky()
+			elif _waited >= 4:
+				_startup = 4
+				_waited = 0
+				if _measure_waiting:
+					_measure_waiting = false
+					measure()
+
+
+## The weather's picture of the whole world (A8.6), made once clouds are first shown, and drawn
+## again every few frames as the weather moves.
+func _make_weather() -> void:
+	if _weather_view != null:
+		return
+	_weather_view = SubViewport.new()
+	_weather_view.size = WEATHER_SIZE
+	_weather_view.disable_3d = true
+	_weather_view.transparent_bg = false
+	_weather_view.render_target_update_mode = SubViewport.UPDATE_ONCE
+	var sheet := ColorRect.new()
+	sheet.size = Vector2(WEATHER_SIZE)
+	var weather := ShaderMaterial.new()
+	weather.shader = load("res://zoom/shaders/weather.gdshader")
+	sheet.material = weather
+	_weather_view.add_child(sheet)
+	add_child(_weather_view)
+	RenderingServer.global_shader_parameter_set("zoom_weather", _weather_view.get_texture())
+
+
+## The clouds' noise and its smaller copies, its mipmaps, as a 3D texture, made once the volumetric
+## clouds are first shown.
+func _make_cloud_noise() -> void:
+	if _cloud_noise != null:
+		return
 	var noise_size := 64
 	var noise: PackedByteArray = gen.cloud_noise(noise_size)
 	var layers: Array[Image] = []
@@ -284,34 +388,13 @@ func _world_made() -> void:
 			)
 		start += n * slab
 		n /= 2
-	var cloud := ImageTexture3D.new()
-	cloud.create(Image.FORMAT_RGBA8, noise_size, noise_size, noise_size, true, layers)
-	# the weather: the clouds' cover and how high they build, drawn for the whole world (A8.6)
-	_weather_view = SubViewport.new()
-	_weather_view.size = WEATHER_SIZE
-	_weather_view.disable_3d = true
-	_weather_view.transparent_bg = false
-	_weather_view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	var sheet := ColorRect.new()
-	sheet.size = Vector2(WEATHER_SIZE)
-	var weather := ShaderMaterial.new()
-	weather.shader = load("res://zoom/shaders/weather.gdshader")
-	sheet.material = weather
-	_weather_view.add_child(sheet)
-	add_child(_weather_view)
-	var rs := RenderingServer
-	rs.global_shader_parameter_set("zoom_height", ImageTexture.create_from_image(heights))
-	rs.global_shader_parameter_set("zoom_climate", ImageTexture.create_from_image(climate))
-	rs.global_shader_parameter_set("zoom_cover", ImageTexture.create_from_image(cover))
-	rs.global_shader_parameter_set("zoom_water", ImageTexture.create_from_image(water))
-	rs.global_shader_parameter_set("zoom_water_soft", ImageTexture.create_from_image(water_soft))
-	rs.global_shader_parameter_set("zoom_cloud_noise", cloud)
-	rs.global_shader_parameter_set("zoom_weather", _weather_view.get_texture())
-	rs.global_shader_parameter_set("zoom_world", world_m)
-	_ground = ShaderMaterial.new()
-	_ground.shader = load("res://zoom/shaders/ground.gdshader")
-	_indices = chunk_indices(N)
-	# the sky's pass: a quad over the whole picture, drawn after the ground
+	_cloud_noise = ImageTexture3D.new()
+	_cloud_noise.create(Image.FORMAT_RGBA8, noise_size, noise_size, noise_size, true, layers)
+	RenderingServer.global_shader_parameter_set("zoom_cloud_noise", _cloud_noise)
+
+
+## The sky's pass: a quad over the whole picture, drawn after the ground.
+func _make_sky() -> void:
 	_sky = MeshInstance3D.new()
 	var quad := QuadMesh.new()
 	quad.size = Vector2(1.0, 1.0)
@@ -319,35 +402,67 @@ func _world_made() -> void:
 	quad.custom_aabb = AABB(Vector3(-1.0e8, -1.0e8, -1.0e8), Vector3(2.0e8, 2.0e8, 2.0e8))
 	_sky.mesh = quad
 	var sky := ShaderMaterial.new()
-	sky.shader = load("res://zoom/shaders/sky.gdshader")
 	sky.render_priority = -100
 	_sky.material_override = sky
-	_sky.extra_cull_margin = 16384.0
 	_sky.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_cam.add_child(_sky)
 	_sky.position = Vector3(0.0, 0.0, -2.0)
-	_home = river_near(gen.start(0), gen.water_texture(0), gen.world_cells(), world_m)
-	focus = _home
-	_origin = focus
-	var args := OS.get_cmdline_user_args()
-	for arg: String in args:
-		if arg.begins_with("stop="):
-			zoom = zoom_of(arg.substr(5))
-		for name: String in VARIANTS:
-			if arg.begins_with(name + "="):
-				var letter := arg.substr(name.length() + 1)
-				for k in (VARIANTS[name] as Array).size():
-					if (VARIANTS[name][k] as String).begins_with(letter):
-						choice[name] = k
-	_label_buttons()
-	_measure_button.disabled = false
-	_readout.text = "Pinch from the globe to a person; drag to move. Tap a variant to change it."
-	if "measure" in args:
-		measure.call_deferred()
+	_use_shaders()
+
+
+## The ground's and the sky's shaders for the mode and the clouds' variant: the volumetric sky only
+## when its clouds are shown, the light ones in the light mode; the weather's picture and the
+## clouds' noise made as they are first needed; each change noted first, as the start's are.
+func _use_shaders() -> void:
+	var volume: bool = not _light and choice.clouds < 2
+	if not _light:
+		_make_weather()
+	if volume:
+		_make_cloud_noise()
+	var sky := "res://zoom/shaders/sky.gdshader"
+	if _light:
+		sky = "res://zoom/shaders/sky_air.gdshader"
+		_stage("drawing the sky in the light mode")
+	elif volume:
+		sky = "res://zoom/shaders/sky_volume.gdshader"
+		_stage("drawing the volumetric clouds")
+	else:
+		_stage("drawing the flat clouds")
+	_ground.shader = load(_ground_shader())
+	(_sky.material_override as ShaderMaterial).shader = load(sky)
+
+
+func _ground_shader() -> String:
+	if _light:
+		return "res://zoom/shaders/ground_light.gdshader"
+	return "res://zoom/shaders/ground.gdshader"
+
+
+## What the zoom last noted it was starting, or "" if it has noted nothing yet.
+static func read_stage() -> String:
+	if not FileAccess.file_exists(STAGE_FILE):
+		return ""
+	var f := FileAccess.open(STAGE_FILE, FileAccess.READ)
+	return f.get_as_text().strip_edges() if f != null else ""
+
+
+## Notes what the zoom is starting, before it starts it; closing the file hands it to the system,
+## so it is there even if the phone stops the app at once.
+func _stage(text: String) -> void:
+	var f := FileAccess.open(STAGE_FILE, FileAccess.WRITE)
+	if f != null:
+		f.store_string(text)
+		f.close()
+	_settled = 0
 
 
 func _layout() -> void:
 	_fit(_texel if _texel > 0.0 else 2.0)
+	var inset := MAIN.insets(size)
+	_margin.add_theme_constant_override("margin_left", GAP + inset.x)
+	_margin.add_theme_constant_override("margin_top", GAP + inset.y)
+	_margin.add_theme_constant_override("margin_right", GAP + inset.z)
+	_margin.add_theme_constant_override("margin_bottom", GAP + inset.w)
 
 
 ## The picture drawn with a pixel for every `texel` of the screen's, and shown over the screen.
@@ -376,17 +491,33 @@ func _process(delta: float) -> void:
 	if _scenario == RID():
 		return
 	_frame += 1
+	if _startup < 4:
+		_start()
+	else:
+		_settled += 1
+		if _settled == 90:
+			_stage("running")
 	if _measuring:
 		_step_measure(delta)
-	_collect()
+	_tree.collect()
 	var width := metres_across(zoom)
 	_weather += delta * clampf(width / 2000.0, 1.0, 400.0)
 	if choice.time == 4:
 		_day = fposmod(_day + delta / 300.0, 1.0)
+	if _weather_view != null and _frame % WEATHER_EVERY == 0:
+		_weather_view.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_place(width)
-	_select()
+	if _startup >= 2:
+		_tree.select(_cam, focus)
+		if _measuring and _area_asked >= 0.0 and _area_time < 0.0 and _tree.missing == 0:
+			_area_time = _clock - _area_asked
 	_show_pixels(width)
-	if is_in_group("busy") and _tasks.is_empty() and _asked.is_empty() and _missing == 0:
+	if (
+		is_in_group("busy")
+		and _tree.tasks.is_empty()
+		and _tree.asked.is_empty()
+		and _tree.missing == 0
+	):
 		remove_from_group("busy")
 
 
@@ -477,11 +608,9 @@ static func texel_at(pixel: float, variant: int) -> float:
 
 ## The camera, the shared values every shader reads, and the sun (A8.4).
 func _place(width: float) -> void:
-	if _local(focus).length() > REBASE:
-		_origin = focus
-		for key: int in _chunks:
-			_set_chunk_place(key)
-	var at := _local(focus)
+	if _tree.local(focus).length() > REBASE:
+		_tree.rebase(focus)
+	var at: Vector3 = _tree.local(focus)
 	var radius := world_m.x / TAU
 	var h: PackedFloat32Array = gen.ground(0, focus.x, focus.y, 1, 1.0)
 	var ground := maxf(h[0], 0.0) if h.size() > 0 and width < 200000.0 else 0.0
@@ -501,9 +630,9 @@ func _place(width: float) -> void:
 	# near the ground, east-west at its true scale round the focus; none of it from the region out
 	var strength := clampf(log(120000.0 / width) / log(120000.0 / 12000.0), 0.0, 1.0)
 	var lat := PI * (focus.y / world_m.y - 0.5)
-	_stretch = strength * (1.0 / maxf(cos(lat), 0.33) - 1.0)
-	_reach = maxf(width * 4.0, 5000.0)
-	rs.global_shader_parameter_set("zoom_true", Vector2(_stretch, _reach))
+	_tree.stretch = strength * (1.0 / maxf(cos(lat), 0.33) - 1.0)
+	_tree.reach = maxf(width * 4.0, 5000.0)
+	rs.global_shader_parameter_set("zoom_true", Vector2(_tree.stretch, _tree.reach))
 	rs.global_shader_parameter_set("zoom_sun", sun_direction())
 	var declination := deg_to_rad(_tilt) * sin(TAU * _year)
 	rs.global_shader_parameter_set("zoom_clock", Vector4(_weather, _year, _day, declination))
@@ -551,297 +680,10 @@ func _show_pixels(width: float) -> void:
 	RenderingServer.global_shader_parameter_set("zoom_pixel", pixel / texel)
 
 
-## The chunk tree (A8.1): from the roots down, a chunk the camera can see splits into its four
-## while the camera is nearer than SPLIT of its sides and all four are made; those not yet made are
-## asked for, nearest first, and their parent drawn meanwhile, so nothing is ever missing from the
-## picture. A chunk the camera cannot see is neither drawn nor split.
-func _select() -> void:
-	var cam := _cam.global_position
-	_at = _local(focus)
-	_planes = _cam.get_frustum()
-	var radius := world_m.x / TAU
-	_cos_focus = cos(PI * (focus.y / world_m.y - 0.5))
-	# the camera's angle round the planet from the focus, and how far round its horizon lies
-	var from_middle := cam - (_at - Vector3(0.0, radius, 0.0))
-	var eye := from_middle.length()
-	_under = acos(clampf(from_middle.y / eye, -1.0, 1.0))
-	_horizon = acos(radius / eye) if eye > radius else INF
-	var ground := Vector2(focus.x + cam.x - _at.x, focus.y - (cam.z - _at.z))
-	var want := []
-	var shown := {}
-	_missing = 0
-	for j in 2:
-		for i in 4:
-			_visit(0, i, j, ground, cam.y, want, shown)
-	for key: int in _drawn:
-		if not shown.has(key) and _chunks.has(key):
-			RenderingServer.instance_set_visible(_chunks[key].instance, false)
-	for key: int in shown:
-		if not _drawn.has(key):
-			RenderingServer.instance_set_visible(_chunks[key].instance, true)
-	_drawn = shown
-	want.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
-	for w: Array in want:
-		if _tasks.size() >= MAKING:
-			break
-		if not _asked.has(w[1]):
-			_ask(w[1], w[2], w[3], w[4])
-	_forget_old()
-	if _measuring and _area_asked >= 0.0 and _area_time < 0.0 and _missing == 0:
-		_area_time = _clock - _area_asked
-
-
-func _visit(
-	depth: int, i: int, j: int, ground: Vector2, height: float, want: Array, shown: Dictionary
-) -> void:
-	var side := ROOT / float(1 << depth)
-	var key := (depth << 40) | (i << 20) | j
-	if not _chunks.has(key):
-		_missing += 1
-		want.append([float(depth), key, depth, i, j])
-		return
-	var chunk: Dictionary = _chunks[key]
-	chunk.used = _frame
-	if not _seen(chunk, side):
-		return
-	var east := float(i) * side
-	var north := float(j) * side
-	# the camera's distance from the chunk's box, its heights included, as the shader measures the
-	# morph from each point: measured from the sea instead, chunks on high ground split too late, and
-	# their edges had not finished morphing into the coarser chunks beside them
-	var dx := _east_gap(ground.x, east, side)
-	var dy := maxf(maxf(north - ground.y, ground.y - (north + side)), 0.0)
-	var dz := maxf(maxf(height - chunk.high, chunk.low - height), 0.0)
-	var dist := sqrt(dx * dx + dy * dy + dz * dz)
-	if depth < DEEPEST and dist < SPLIT * side:
-		var ready := true
-		for c in 4:
-			var ci := i * 2 + c % 2
-			var cj := j * 2 + c / 2
-			var child := ((depth + 1) << 40) | (ci << 20) | cj
-			if _chunks.has(child):
-				_chunks[child].used = _frame  # kept while it waits for the others
-			else:
-				ready = false
-				_missing += 1
-				if not _asked.has(child):
-					want.append([dist, child, depth + 1, ci, cj])
-		if ready:
-			for c in 4:
-				_visit(depth + 1, i * 2 + c % 2, j * 2 + c / 2, ground, height, want, shown)
-			return
-	shown[key] = true
-
-
-## Whether any of a chunk can be in the picture. First, whether it lies behind the planet's
-## horizon as the camera sees it, its highest point too; then its box as it lies flat, widened by
-## as much as the sphere can move it (planet_place in planet.gdshaderinc), against the camera's six
-## planes; its skirts left out, since they show only where the chunk's own edge could be seen.
-## The sphere only lowers the ground, by up to d² / 2r at d metres from the focus, and moves it
-## across by the error of its east-west scale there, by the north the meridians' meeting gives,
-## d² / 2r at most, and by less of the third order: near the focus the box stays tight.
-func _seen(chunk: Dictionary, side: float) -> bool:
-	var radius := world_m.x / TAU
-	var x0: float = chunk.east - _origin.x
-	x0 -= world_m.x * floorf(x0 / world_m.x + 0.5)
-	var z1: float = _origin.y - chunk.north
-	var high: float = chunk.high
-	var lo := Vector3(x0, chunk.low, z1 - side)
-	var hi := Vector3(x0 + side, high, z1)
-	var near_x := maxf(maxf(lo.x - _at.x, _at.x - hi.x), 0.0)
-	var near_z := maxf(maxf(lo.z - _at.z, _at.z - hi.z), 0.0)
-	# the horizon: its nearest point's angle round the planet from the focus, against the camera's
-	var s_lat := sin(minf(near_z / radius, PI) * 0.5)
-	var s_lon := sin(minf(near_x / radius, PI) * 0.5)
-	var hav := minf(s_lat * s_lat + chunk.cos_least * _cos_focus * s_lon * s_lon, 1.0)
-	if 2.0 * asin(sqrt(hav)) - _under > _horizon + chunk.lift + 0.002:
-		return false
-	# the box
-	var far_x := maxf(absf(lo.x - _at.x), absf(hi.x - _at.x))
-	var far_z := maxf(absf(lo.z - _at.z), absf(hi.z - _at.z))
-	var far := sqrt(far_x * far_x + far_z * far_z)
-	var k_most := 1.0 + _stretch * exp(-(near_x * near_x + near_z * near_z) / (_reach * _reach))
-	var k_least := 1.0 + _stretch * exp(-far * far / (_reach * _reach))
-	var scale_error := maxf(
-		absf(chunk.cos_most * k_most - 1.0), absf(chunk.cos_least * k_least - 1.0)
-	)
-	var bent := k_most * far
-	var curve := bent * bent / (2.0 * radius) * (1.0 + high / radius)
-	var across := (
-		scale_error * far_x
-		+ 1.1 * curve
-		+ bent * bent * bent / (6.0 * radius * radius)
-		+ high / radius * bent
-	)
-	lo -= Vector3(across, curve + 1.0, across)
-	hi += Vector3(across, 1.0, across)
-	var mid := (lo + hi) * 0.5
-	var half := (hi - lo) * 0.5
-	for p: Plane in _planes:
-		var reach := (
-			absf(p.normal.x) * half.x + absf(p.normal.y) * half.y + absf(p.normal.z) * half.z
-		)
-		if p.distance_to(mid) > reach:
-			return false
-	return true
-
-
-## The gap east or west from a place to a span of the world, the shorter way round.
-func _east_gap(x: float, east: float, side: float) -> float:
-	var mid := east + side * 0.5 - x
-	mid -= world_m.x * floorf(mid / world_m.x + 0.5)
-	return maxf(absf(mid) - side * 0.5, 0.0)
-
-
-func _ask(key: int, depth: int, i: int, j: int) -> void:
-	var side := ROOT / float(1 << depth)
-	_asked[key] = true
-	var id := WorkerThreadPool.add_task(
-		_make_chunk.bind(key, depth, float(i) * side, float(j) * side, side / float(N - 1))
-	)
-	_tasks[id] = key
-
-
-## On a worker thread: a chunk's ground.
-func _make_chunk(key: int, depth: int, east: float, north: float, spacing: float) -> void:
-	var arrays: Array = gen.chunk(0, east, north, N, spacing)
-	_done_lock.lock()
-	_done.append([key, depth, east, north, spacing, arrays])
-	_done_lock.unlock()
-
-
-## The chunks the worker threads have made, given their meshes, hidden until the tree draws them.
-func _collect() -> void:
-	for id: int in _tasks.keys():
-		if WorkerThreadPool.is_task_completed(id):
-			WorkerThreadPool.wait_for_task_completion(id)
-			_tasks.erase(id)
-	_done_lock.lock()
-	var done := _done
-	_done = []
-	_done_lock.unlock()
-	for d: Array in done:
-		var key: int = d[0]
-		_asked.erase(key)
-		var made: Array = d[5]
-		if made.size() < 5 or _chunks.has(key):
-			continue
-		var arrays := []
-		arrays.resize(Mesh.ARRAY_MAX)
-		arrays[Mesh.ARRAY_VERTEX] = made[0]
-		arrays[Mesh.ARRAY_NORMAL] = made[1]
-		arrays[Mesh.ARRAY_CUSTOM0] = made[2]
-		arrays[Mesh.ARRAY_CUSTOM1] = made[3]
-		arrays[Mesh.ARRAY_INDEX] = _indices
-		var rs := RenderingServer
-		var format := (
-			(rs.ARRAY_CUSTOM_RGBA_FLOAT << rs.ARRAY_FORMAT_CUSTOM0_SHIFT)
-			| (rs.ARRAY_CUSTOM_RGBA_FLOAT << rs.ARRAY_FORMAT_CUSTOM1_SHIFT)
-		)
-		var mesh := rs.mesh_create()
-		rs.mesh_add_surface_from_arrays(mesh, rs.PRIMITIVE_TRIANGLES, arrays, [], {}, format)
-		# placed by its shader on the sphere, so never culled by where its flat points lie: the tree
-		# culls it instead (_seen)
-		var huge := AABB(Vector3(-4.0e6, -4.0e6, -4.0e6), Vector3(8.0e6, 8.0e6, 8.0e6))
-		rs.mesh_set_custom_aabb(mesh, huge)
-		var instance := rs.instance_create2(mesh, _scenario)
-		rs.instance_geometry_set_material_override(instance, _ground.get_rid())
-		var depth: int = d[1]
-		var side := ROOT / float(1 << depth)
-		rs.instance_geometry_set_shader_parameter(instance, "spacing", d[4])
-		var reach := SPLIT * side * 2.0
-		var morph := Vector2(reach * 0.7, reach) if depth > 0 else Vector2(1e12, 2e12)
-		rs.instance_geometry_set_shader_parameter(instance, "morph", morph)
-		rs.instance_set_visible(instance, false)
-		# for the culling: its lowest and highest, the cosines of the latitudes it spans, and how
-		# far round the planet its highest point lifts the horizon
-		var heights: Vector2 = made[4]
-		var high := maxf(heights.y, 0.0)
-		var radius := world_m.x / TAU
-		var south := clampf(PI * (d[3] / world_m.y - 0.5), -0.5 * PI, 0.5 * PI)
-		var north := clampf(PI * ((d[3] + side) / world_m.y - 0.5), -0.5 * PI, 0.5 * PI)
-		_chunks[key] = {
-			"mesh": mesh,
-			"instance": instance,
-			"east": d[2],
-			"north": d[3],
-			"low": heights.x,
-			"high": high,
-			"cos_most": 1.0 if south <= 0.0 and north >= 0.0 else maxf(cos(south), cos(north)),
-			"cos_least": minf(cos(south), cos(north)),
-			"lift": acos(radius / (radius + high)),
-			"used": _frame,
-		}
-		_set_chunk_place(key)
-
-
-## A chunk's place in the picture: its corner from the moving origin, east the shorter way round,
-## north as it is, since the poles are the globe's edges.
-func _set_chunk_place(key: int) -> void:
-	var c: Dictionary = _chunks[key]
-	var dx: float = c.east - _origin.x
-	dx -= world_m.x * floorf(dx / world_m.x + 0.5)
-	var dy: float = c.north - _origin.y
-	RenderingServer.instance_set_transform(c.instance, Transform3D(Basis(), Vector3(dx, 0.0, -dy)))
-
-
-## The chunks the tree has not reached for longest, freed once more than KEEP are made; never one
-## it reached this frame, drawn, split, out of sight or waiting for its brothers, nor a root.
-func _forget_old() -> void:
-	if _chunks.size() <= KEEP:
-		return
-	var old := []
-	for key: int in _chunks:
-		if _chunks[key].used < _frame and key >> 40 > 0:
-			old.append([_chunks[key].used, key])
-	old.sort()
-	for k in mini(old.size(), _chunks.size() - KEEP):
-		var key: int = old[k][1]
-		RenderingServer.free_rid(_chunks[key].instance)
-		RenderingServer.free_rid(_chunks[key].mesh)
-		_chunks.erase(key)
-
-
-## A place in the world's metres, in the picture's from the moving origin: x east the shorter way
-## round, z south.
-func _local(m: Vector2) -> Vector3:
-	var d := m - _origin
-	d.x -= world_m.x * floorf(d.x / world_m.x + 0.5)
-	return Vector3(d.x, 0.0, -d.y)
-
-
-## The triangles of a chunk of n × n points and the skirts hanging from its four edges.
-static func chunk_indices(n: int) -> PackedInt32Array:
-	var out := PackedInt32Array()
-	for j in n - 1:
-		for i in n - 1:
-			var a := j * n + i
-			out.append_array([a, a + n, a + 1, a + 1, a + n, a + n + 1])
-	for e in 4:
-		var skirt := n * n + e * n
-		for k in n - 1:
-			var g0 := edge_point(n, e, k)
-			var g1 := edge_point(n, e, k + 1)
-			out.append_array([g0, g1, skirt + k, g1, skirt + k + 1, skirt + k])
-	return out
-
-
-## The k-th point along a chunk's edge e: 0 south, 1 north, 2 west, 3 east.
-static func edge_point(n: int, e: int, k: int) -> int:
-	match e:
-		0:
-			return k
-		1:
-			return (n - 1) * n + k
-		2:
-			return k * n
-	return k * n + n - 1
-
-
 ## Measure (PLT-04, PRE-03): from the globe to a person over the start region in DESCENT_SECONDS,
 ## a hold, and back, at 60 frames a second; each frame counted at its nearest stop.
 func measure() -> void:
-	if _scenario == RID() or _measuring:
+	if _scenario == RID() or _measuring or _startup < 4:
 		return
 	focus = _home
 	zoom = 1.0
@@ -897,7 +739,7 @@ func _finish_measure() -> void:
 	for name: String in VARIANTS:
 		letters += (VARIANTS[name][choice[name]] as String).left(1)
 	var runs := results(_samples, _late, _area_time)
-	runs.append("variants " + letters)
+	runs.append("variants " + letters + (" light mode" if _light else ""))
 	RUNS.finish(self, "P8", runs, _heat, 0)
 
 
@@ -965,13 +807,11 @@ func _pan(by: Vector2) -> void:
 
 
 func _exit_tree() -> void:
+	_stage("closed")
 	if _worker != null and _worker.is_started():
 		_worker.wait_to_finish()
-	for id: int in _tasks.keys():
-		WorkerThreadPool.wait_for_task_completion(id)
-	for key: int in _chunks:
-		RenderingServer.free_rid(_chunks[key].instance)
-		RenderingServer.free_rid(_chunks[key].mesh)
+	if _tree != null:
+		_tree.free_all()
 	Engine.max_fps = 0
 
 

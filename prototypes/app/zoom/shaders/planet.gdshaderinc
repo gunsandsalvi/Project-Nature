@@ -19,7 +19,6 @@ global uniform sampler2D zoom_climate : filter_linear_mipmap, repeat_enable;  //
 global uniform sampler2D zoom_cover : source_color, filter_linear_mipmap, repeat_enable;  // map colour, tree share
 global uniform sampler2D zoom_water : filter_nearest, repeat_enable;  // river's way, drained km², lake m, main donor
 global uniform sampler2D zoom_water_soft : filter_linear_mipmap, repeat_enable;  // the same, smoothly, for lakes
-global uniform sampler3D zoom_cloud_noise : filter_linear_mipmap, repeat_enable;  // the clouds' shape and edges
 
 float planet_radius() {
 	return zoom_world.x / TAU;

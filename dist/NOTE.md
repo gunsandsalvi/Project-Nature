@@ -1,7 +1,12 @@
-# Kindling α0.5c: P8 The zoom, second round
+# Kindling α0.5d: P8 The zoom, second round, fixed
 
 ## What is new
 
+- **The fixes you asked for.** α0.5c stopped on your phone as the world was made, and its buttons ran off the screen.
+  - **The zoom now starts in stages,** the weather, then the ground, then the sky, and notes each one before it starts it. If the phone stops it again, the next start tells you at which stage, and opens in a light mode: no clouds, and the land and sea without their finest detail. Tap **Clouds off** to try the full zoom again. I could not run it on your phone, so I could not see which part stopped it; this way the next try tells us.
+  - **The volumetric clouds have a shader of their own,** made only when you choose them, and the weather is drawn every fourth frame, so the start asks much less of the phone.
+  - **The buttons** show a short name and a letter, such as "Clouds A", and keep clear of the phone's bars; what the letter means shows at the top when you tap it.
+- **Your OK on the two proposals** is in the project file: pixels that grow from 2 to 6 with the zoom (`PRE-22`), and the land vivid and lit by the sun (`PRE-29`).
 - **P8's second round, from space down to the valley,** after your verdict and the planet you showed me. This round makes the look from the globe to the valley as good as I can, in variants for you to choose; the camp and closer come in the next round, so they still show only grass and a river.
   - **A planet at every scale.** The world stays a sphere all the way down and never unrolls; near the ground it is shown at its true size.
   - **Smooth levels.** The ground is one tree of pieces, each melting into its coarser parent as you zoom out, so nothing pops; only the pieces the camera can see are drawn.
@@ -41,13 +46,13 @@
 
 ## Questions for you
 
-1. For each of the seven buttons, which variant do you like, and what would you change?
-2. Two choices change the project file, so I have written them as proposed changes for your OK: pixels that grow from 2 to 6 (`PRE-22`, pixels B or C), and the land vivid and lit by the sun instead of the flat map look (`PRE-29`, land B or C). Shall I make them decided if you pick those?
+1. Does it start now? If it opens in the light mode, tell me the stage it names.
+2. For each of the seven buttons, which variant do you like, and what would you change?
 
 ## IDs delivered
 
 None for good: P8 is a prototype, thrown away once it has answered.
-Its question is about `PRE-03`, `PRE-29`, `WLD-02` and `TIM-01`, with `PRE-22` and `PRE-29`'s proposed changes.
+Its question is about `PRE-03`, `PRE-29`, `WLD-02`, `TIM-01` and `PRE-22`.
 
 ## Links
 

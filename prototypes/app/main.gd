@@ -174,21 +174,22 @@ func _layout() -> void:
 	_self_check_scroll.vertical_scroll_mode = (
 		ScrollContainer.SCROLL_MODE_DISABLED if portrait else ScrollContainer.SCROLL_MODE_AUTO
 	)
-	var inset := _insets()
+	var inset := insets(size)
 	_safe.add_theme_constant_override("margin_left", GAP + inset.x)
 	_safe.add_theme_constant_override("margin_top", GAP + inset.y)
 	_safe.add_theme_constant_override("margin_right", GAP + inset.z)
 	_safe.add_theme_constant_override("margin_bottom", GAP + inset.w)
 
 
-## The safe area's insets, left, top, right and bottom, in the screen's units; none where the
-## platform reports no safe area, as in the cloud.
-func _insets() -> Vector4i:
+## The safe area's insets, left, top, right and bottom, in the units of a screen-filling control
+## `view_size` across; none where the platform reports no safe area, as in the cloud. Every screen
+## keeps its controls inside them.
+static func insets(view_size: Vector2) -> Vector4i:
 	var window := DisplayServer.window_get_size()
 	var safe := DisplayServer.get_display_safe_area()
-	if safe.size.x <= 0 or safe.size.y <= 0 or window.x <= 0 or size.x <= 0:
+	if safe.size.x <= 0 or safe.size.y <= 0 or window.x <= 0 or view_size.x <= 0:
 		return Vector4i()
-	var k := size.x / float(window.x)
+	var k := view_size.x / float(window.x)
 	return Vector4i(
 		roundi(safe.position.x * k),
 		roundi(safe.position.y * k),

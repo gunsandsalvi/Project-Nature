@@ -5,6 +5,7 @@
 extends GdUnitTestSuite
 
 const ZOOM := preload("res://zoom/zoom.gd")
+const CHUNKS := preload("res://zoom/chunks.gd")
 
 
 # checks: PRE-03
@@ -59,17 +60,17 @@ func test_the_pixels_shown_and_drawn_by_each_variant() -> void:
 # checks: PRE-03
 func test_a_chunk_s_triangles_cover_it_and_its_skirts_hang_from_each_edge() -> void:
 	var n := 5
-	var indices: PackedInt32Array = ZOOM.chunk_indices(n)
+	var indices: PackedInt32Array = CHUNKS.chunk_indices(n)
 	assert_int(indices.size()).is_equal((n - 1) * (n - 1) * 6 + 4 * (n - 1) * 6)
 	var most := 0
 	for i in indices:
 		most = maxi(most, i)
 	assert_int(most).is_equal(n * n + 4 * n - 1)
 	# the edges: south row, north row, west column, east column
-	assert_int(ZOOM.edge_point(n, 0, 3)).is_equal(3)
-	assert_int(ZOOM.edge_point(n, 1, 3)).is_equal((n - 1) * n + 3)
-	assert_int(ZOOM.edge_point(n, 2, 3)).is_equal(3 * n)
-	assert_int(ZOOM.edge_point(n, 3, 3)).is_equal(3 * n + n - 1)
+	assert_int(CHUNKS.edge_point(n, 0, 3)).is_equal(3)
+	assert_int(CHUNKS.edge_point(n, 1, 3)).is_equal((n - 1) * n + 3)
+	assert_int(CHUNKS.edge_point(n, 2, 3)).is_equal(3 * n)
+	assert_int(CHUNKS.edge_point(n, 3, 3)).is_equal(3 * n + n - 1)
 
 
 # checks: PRE-03

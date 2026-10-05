@@ -220,7 +220,8 @@ Following Box2D and Factorio (research 03):
 ### A4.1 The picture
 
 1. **Low resolution.**
-   The 3D world renders into a SubViewport at a quarter of the screen's width and height, one art pixel to 4 × 4 screen pixels (`PRE-22`), on the Mobile renderer over Vulkan.
+   The 3D world renders into a SubViewport at a quarter of the screen's width and height, one art pixel to 4 × 4 screen pixels, on the Mobile renderer over Vulkan.
+   *Changed with your OK on 5 October 2026:* an art pixel is about 2 × 2 screen pixels at the person, growing with the zoom to about 6 × 6 at the globe (`PRE-22`), as P8's second round draws it (A8.1).
    It is shown scaled up with nearest sampling; the interface draws at full resolution over it.
 2. **A camera locked to the pixel grid** (`PRE-22`).
    - It is orthographic and pitched for the close stops, and snaps to whole art pixels in its own axes.
@@ -443,7 +444,7 @@ Each chunk morphs into the grid half as fine as the camera draws away (CDLOD, St
 - **The tree:** 4 × 2 roots of 500 km, fourteen levels down to chunks 30.5 m across, each 33 × 33 points with a skirt hanging from each edge so no crack shows where levels meet; a chunk splits while the camera is nearer than 2.4 of its sides and its four are made, and morphs into its parent's grid over the last third of its reach.
 - **Made as needed:** on Godot's worker threads from the seed, nearest first, at most six at once; at most 900 kept, freed by how long ago the tree last reached them, never one it reached this frame. Freeing by when a chunk was last drawn freed the ones between, so a deep zoom asked for them again without end: the eight minutes the first pictures took.
 - **Only what the camera can see:** a chunk behind the planet's horizon, or outside the camera's view once widened by as much as the sphere can move it, is neither drawn nor split. At the river where the descent ends: 25 chunks drawn at the person, 38 at the close camp, 83 at the camp, 66 at the valley, 70 at the region, 21 at the world map and 8 at the globe, where without it the person drew 989. Choosing them takes about 1 to 2 ms a frame in the cloud.
-- **Pixels:** the picture is drawn at the size of the pixels shown, so the clouds' marching costs a quarter to a ninth of drawing it at half the screen; or twice that each way for the blended variant, shown as the average of what lies under each pixel (`PRE-22`'s proposed change).
+- **Pixels:** the picture is drawn at the size of the pixels shown, so the clouds' marching costs a quarter to a ninth of drawing it at half the screen; or twice that each way for the blended variant, shown as the average of what lies under each pixel (`PRE-22`).
 
 ### A8.2 A moving origin
 
@@ -469,9 +470,10 @@ Godot draws in single precision around an origin that moves with the camera, as 
 ### A8.5 The map look (`PRE-29`)
 
 World cells in flat cover colours, rivers as lines (from the region out, those draining about 1,000 km² or more), hills shaded the cartographers' way, lit from high up at every hour with only the tint following it, sea in depth bands with the shore's bright line (`PRE-26`).
+*Changed with your OK on 5 October 2026:* the land vivid and textured with what can be seen from above, lit by the sun of the hour, with the weather's clouds and their shadows (`PRE-29`), as P8's second round draws it, below.
 *Built in P8:* P7's map, a texel a cell, without the rivers it draws itself; the rivers and the shore as lines a pixel wide over it; the sea in four bands 250 m deep; the hills lit from the north-west.
 P7's map had its hills lit from the south-east by mistake, which can make ridges read as valleys; it is lit from the north-west now.
-*Built in P8's second round,* for you to choose between (`PRE-29`'s proposed change), one shader for every level, so only detail changes with the zoom:
+*Built in P8's second round,* in variants, one shader for every level, so only detail changes with the zoom (`PRE-29`):
 - **The land:** A, the art book's map colours in clean steps of light; B, the cover vivid, forests as clumps of crowns lit on their sun side at every scale the pixels can show, sand and stone in the deserts, hills shaded from the heights and deepened from far off as maps are, warm sun and blue shade; C, B's colours in clean steps. Cover and climate are read a little off where the pixel is, by noise, so no cell's edge shows.
 - **The sea:** A, the art book's bands; B, from deep navy to turquoise shallows by depth, with currents and eddies drifting across it and the sun's glint; C, B with waves near the shore.
 - **Rivers** as curves through the cells, as wide as the land they drain and never thinner than about a pixel once they show, so they stay as the zoom closes in.
