@@ -163,7 +163,7 @@ The same library runs scenes and whole worlds headless in the cloud, under the s
 - **Speed is how much game time runs per real second, within the frame's budget** (A3.9).
   When the phone can't keep up, time slows; detail is never cut (`PRN-11`).
 - **The screen moves smoothly at any speed:** the view places each walker along its path between the start and end of its activity, so nothing in the simulation runs per frame.
-- *Measured in P6 in the cloud:* a queue of five-minute windows over two days holds a thousand people at about 7 game years a real minute on one core and 12 on four; your phone's run comes with the α0.4b build (A11).
+- *Measured in P6:* a queue of five-minute windows over two days holds a thousand people at about 7 game years a real minute on one core of the cloud and 12 on four, and 6 on your phone's four (A11).
 
 ### A3.4 The same bits everywhere (`RES-05`, `TIM-16`)
 
@@ -176,7 +176,8 @@ Following Box2D and Factorio (research 03):
   The phone runs the same check in its self-check (A2.3).
 - *Proved in P5 in the cloud,* in C++ as pre-production code: a toy world of 4,096 walkers on events, with keyed chance, our own sine, cosine, exponent, logarithm and power, and each evening's sums gathered in fixed chunks of 256, ends each of its 30 days with the same checksum on x86-64 and on arm64 under qemu, on one thread and four (its digest 1bbbe1d787b4d4fe).
   - Our functions agree with the platform's to within a few last bits; they use only IEEE adds, multiplies and divides, with no contraction into fused multiply-adds.
-  - *To prove (P5):* the same on your phone's chip: the "P5 The same bits" screen runs it on one thread and four and sets the digests beside the cloud's.
+  - *Proved on your phone* (5 October 2026): the Pixel 11 Pro XL's chip gives the cloud's digest on one thread and on four, through the app's extension built with the NDK.
+    P6's thousand minds did too: their checksum after the 3,546 game days of your phone's run on four threads is the one the cloud's replay of the same run reached that day.
 
 ### A3.5 Chance
 
@@ -492,7 +493,8 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
     A place in another connected region is passed over before scoring.
   - One thread and four, and arm64 under qemu, end every day the same.
   - P6's people choose one activity at a time: the small planner for jobs of several steps comes with production's minds.
-  - *To prove (P6):* the same on your phone at held speed: the α0.4b build's "P6 A thousand minds" screen runs it for 10 minutes on four cores.
+  - *Measured on your phone* (5 October 2026), the Pixel 11 Pro XL on four cores for 10 minutes: 6.0 game years a real minute once warm, over the last 8 minutes, and 5.5 over the first 2; 31,400 decisions a game day; choosing 62% of the time, talk 17%, paths 9%, results landing 3% and the rest 10%; its heat forecast rose from 0.39 to 0.49 of the way to slowing itself, and it never slowed.
+    So a thousand people hold `TIM-07`'s hoped-for 2 to 3 game years a minute with room: production's fuller minds may cost about 2½ times P6's before the speed falls below 2½.
 
 ## A12. Crafts and discovery (research 11), outline
 
