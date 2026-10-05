@@ -18,6 +18,8 @@ kindling_c_rules(kd_core_math)
 
 add_library(kd_sim STATIC
     src/kd/core/check.cpp
+    src/kd/num/angle.cpp
+    src/kd/num/convert.cpp
     src/kd/num/digest.cpp
     src/kd/num/fenv.cpp
     src/kd/num/maths.cpp
@@ -37,6 +39,7 @@ if(KD_SIM_TESTS)
         tests/main.cpp
         tests/maths_test.cpp
         tests/num_test.cpp
+        tests/numbers_test.cpp
         tests/run_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
     target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)

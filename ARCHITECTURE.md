@@ -217,12 +217,14 @@ Following Box2D, Factorio and research 18:
   - Since angles are turns, sine, cosine, tangent and their inverses are those in half turns (`sinpi`, `asinpi` and the like), exact at the quarter turns; then exponents, logarithms, power, hyperbolic tangent, error function, cube root and hypotenuse.
   - A correctly rounded answer is unique, so every machine agrees: MPFR checks every function in the cloud on its edges, CORE-MATH's hard cases and 200,000 inputs across its domain, and no platform maths function is used.
   - Measured in the cloud (x86-64 without fused multiply-add): 10–30 ns a call, 82 for power and 127 for the direction of a vector; the phone's own times are in its self-check.
-- **Numbers:**
-  - positions as 32-bit whole centimetres on the torus, 200,000,000 by 100,000,000, differences wrapped in 64-bit arithmetic;
+- **Numbers** (`sim/num`):
+  - positions as 32-bit whole centimetres on the torus, 200,000,000 by 100,000,000, differences wrapped in 64-bit arithmetic, squared distances exact and square roots taken on whole numbers; exactly half way round, the way taken does not cross the edge where the map wraps, so a way back is always the exact reverse;
+  - angles as turns in 2^32 steps, which wrap by themselves and add exactly, read by the trigonometric functions as half turns;
   - heights in millimetres;
   - time in 64-bit game seconds;
   - amounts as 64-bit whole base units (milligrams, millimetres, seconds, parts per million), rates applied in closed form at events;
-  - probabilities as 64-bit thresholds read exactly from the catalogue's text, a draw firing below its threshold;
+  - probabilities as 64-bit thresholds read exactly from the catalogue's text or a ratio, a draw firing below its threshold, and certainty its own case;
+  - one conversion from floating to whole numbers, rounding down, up, toward zero or to the nearest (halves away from zero), which refuses what is not finite or does not fit;
   - floats never in saved state, and never NaN.
 - **Banned in `sim/`, each with its replacement in `sim/num`:** `long double`, `float` in state, plain `char` arithmetic, platform maths, `fmin` and `fmax`, casts from floating to integer outside one checked function, parsing or printing floats, `<random>`'s distributions and shuffles, `std::reduce`, `std::hash` or unordered order deciding anything, sorts without a strict total order, thread counts, clocks, addresses or the locale in decisions, two calls with side effects in one expression, and raw memory hashed or saved.
 - **The floating-point environment:** each simulation thread sets the default one first, and checkpoints assert it (x86-64's MXCSR, arm64's FPCR), since a new thread inherits whatever its creator had.
