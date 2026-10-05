@@ -14,7 +14,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The ten milestones were approved by you on 4 October 2026, with their proposals, now decided in `PROJECT.md` (`SCP-16`, `MIL-08` to `MIL-17`); the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`).
 - The risks were tried first, as research 00 advises, and that work closed on 5 October 2026, as you asked: its answers are decisions in the architecture, and its evidence, numbers and lessons are in `LESSONS.md`.
   None of its code is carried into production, which writes its own.
-- Production begins with the foundations (M1), scoped for the whole game and for what may come after it.
+- Production begins with the foundations (M1), scoped for the whole game and for what may come after it, and planned in full below from research 18: eleven steps in five alphas, each ending with a build on your phone.
 
 ## How to use this plan
 
@@ -112,29 +112,356 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| M1 | Foundations | M1 | | Being planned in detail |
+| α1.1a | The workshop | M1 | 6 | Next |
+| α1.1b | Numbers and chance | M1 | 5 | Planned |
+| α1.2a | The clock and the calendar | M1 | 5 | Planned |
+| α1.2b | Catalogues and tuning | M1 | 6 | Planned |
+| α1.3a | Entities and events | M1 | 5 | Planned |
+| α1.3b | Activities and islands | M1 | 6 | Planned |
+| α1.3c | The crowd on your phone | M1 | 6 | Planned |
+| α1.4a | Saves and the journal | M1 | 6 | Planned |
+| α1.4b | Worlds, export and updates | M1 | 5 | Planned |
+| α1.5a | Scenes and runs | M1 | 6 | Planned |
+| α1.5b | The benchmark and M1's end | M1 | 6 | Planned |
 | The slice | The vertical slice | After M1 | | Proposed, for your OK |
 | M2 to M10 | Outlines below | M2 to M10 | | Detailed when each comes next |
 
 ## M1 Foundations
 
-**Goal:** the data structures and plumbing everything else stands on, scoped for the whole game and for what may come after it (A2, A3):
+**Goal:** the data structures and plumbing everything else stands on, scoped for the whole game and for what may come after it (A2, A3; research 18):
 - the app and its delivery, and the simulation library;
 - numbers, time and chance, with the same bits on the phone and in the cloud;
-- entities, activities, catalogues, commands and snapshots;
+- entities, events, activities, catalogues, commands and snapshots;
 - saves, scenes and the phone's benchmark.
 
-**Serves:** `TIM-05`, `TIM-08`, `TIM-14`, `TIM-16`, `TIM-17`, `TIM-18`, `PLT-01`, `PLT-03`, `PLT-04`, `PLT-05`, `PLT-06`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`, `MAT-05`, `MAT-13`, `MAT-14`, `MAT-17`, `RES-05`, `RES-06`, `RES-10`, `RES-12`, `RES-21`, `RES-22`.
+It is built in five alphas, each ending with a build on your phone; an independent review closes each alpha, and the milestone ends with its report for your review.
+The demonstration content (markers that walk, meet and greet in camps) lives in its own source, `data/demo/`, and never enters the game's own catalogue (`MAT-16`).
+
+**Serves:** `TIM-01`, `TIM-05`, `TIM-08`, `TIM-10`, `TIM-14`, `TIM-16`, `TIM-17`, `TIM-18`, `PLT-01`, `PLT-03`, `PLT-04`, `PLT-05`, `PLT-06`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`, `MAT-05`, `MAT-13`, `MAT-14`, `MAT-17`, `RES-05`, `RES-06`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-21`, `RES-22`, `PRC-10`, `WLD-13`.
 
 **You will see:**
-- The calendar running through the 60-day year at the speed you set.
-- A crowd of 10,000 markers moving smoothly while the simulation counts its events.
-- Worlds saved, closed and reopened exactly, several at once, and one exported to a file.
-- A line confirming that your phone computes the same bits as the cloud.
+- A self-check on every start: the phone computing the same bits as the cloud.
+- The calendar running through the 60-day year at the speed you set, the real speed shown.
+- A crowd of 10,000 markers walking, meeting and greeting smoothly at any speed, while the simulation counts its events on its own threads.
+- Worlds saved, closed, killed and reopened exactly, several at once, one exported to a file and imported again.
+- A benchmark of one tap and about 20 minutes, ending in a short code.
 
 **Risks:**
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
-- The cost of a crowd per frame: measured with the benchmark worlds.
+- Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
+- The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
+
+### α1.1a The workshop
+
+**Goal:** the three layers, built, checked and delivered as all of production will be: `sim/` as a C++ library with its tests and its tool, `view/` as the app's one Godot extension, and `game/` as the Godot project, all built and checked by one command in the cloud and installed on your phone, which opens on its self-check.
+
+**Serves:** `PLT-01`, `PLT-03`, `PLT-06`, `RES-05`, `PRC-10`.
+
+**Architecture:** A2.1, A2.2, A2.3, A2.4, A3.4, A3.8, A3.9, A17.
+
+**Tasks:**
+
+1. `T1.1a.1` **`sim/`, a library with its tests and its tool (`PLT-01`, `RES-05`).**
+   CMake for the static library, its doctest tests and the `kindling` tool, with A2.2's flags in one CMake file that `view/` shares.
+   Its first code: the canonical digest (XXH3 over a stream of little-endian fields, with xxHash pinned by `tools/setup.sh`), and the floating-point environment guard (set the default, read MXCSR or FPCR, assert it).
+   `kindling digest` prints the digest of a small fixed computation run on one thread and on four.
+2. `T1.1a.2` **Five builds and the same-bits check (`RES-05`, `PRC-10`).**
+   `tools/check.sh` builds `sim/` with clang (tests and tool), with GCC and its undefined-behaviour and float-cast checks, and for arm64 with GCC and with the NDK's clang as static executables run under qemu; every build's digests must be equal.
+   The scans: the last floating-point flag of every compile command is `-ffp-contract=off`; no fused multiply-add in our built code; no platform maths symbol.
+3. `T1.1a.3` **`view/`, the app's extension (`PLT-01`).**
+   godot-cpp 4.5 with a trimmed profile; `libkindling` for Linux x86-64 and Android arm64 (the C++ runtime static, newer Android functions weak and guarded, 16 KB pages), into `game/bin/`, with its `.gdextension` file.
+   Its first class, the device: the cores and their top clocks, the floating-point environment a new thread finds, the heat headroom and its forecast (Android only), and the self-check's digest.
+4. `T1.1a.4` **`game/`, the Godot project (`PLT-03`, `PLT-06`).**
+   The Mobile renderer on Vulkan, a 60-frame cap set again at run time, Back that never quits outright, Godot's worker pool kept small; the export preset for arm64 with no permissions, its data filter and data kept on uninstall only with your consent.
+   The start page is the self-check (A2.3), with the code to copy; `tools/check.sh` imports and tests the project with gdUnit4, and `tools/build.sh` builds the extension for the phone and exports, signs and checks the APK.
+5. `T1.1a.5` **Deliver (`PLT-06`).**
+   The APK as 20101, its note with a picture of the self-check, published at your note link.
+
+**Tests:**
+- doctest: the digest's bytes for known inputs; the guard catches flush-to-zero set on a thread.
+- `tools/check.sh`: the same digest on the four simulation builds, on one thread and four; each scan made to fail once by a planted fault (a fused multiply-add, a platform `sin`, a flag after `-ffp-contract=off`).
+- gdUnit4, headless: the extension loads, the self-check page builds its lines, and its digest equals the one the build wrote.
+- Passes if every check passes and the app installs over the last one and opens on its self-check.
+
+**On the phone:** install it and open Kindling: the self-check shows the version, the graphics driver, the screen's rate (60 Hz is the aim), the cores and their clocks, the heat, and "same bits as the cloud"; if any line is red, copy the code into the chat.
+
+### α1.1b Numbers and chance
+
+**Goal:** the numbers everything else computes with, the same on every build and on your phone: correctly rounded maths, positions on the torus, checked conversions and keyed chance, with the banned list enforced.
+
+**Serves:** `TIM-16`, `RES-05`, `PLT-01`, `PRC-10`.
+
+**Architecture:** A3.4, A3.5, A17.
+
+**Tasks:**
+
+1. `T1.1b.1` **Correctly rounded maths (`RES-05`).**
+   CORE-MATH's double functions vendored at commit `e072473e` into `sim/thirdparty/core-math/` with its licence, each wrapped once in `sim/num`, which refuses a non-finite input or result and anything outside the function's domain.
+   In the cloud MPFR is the oracle: every result must equal its correctly rounded answer.
+2. `T1.1b.2` **Numbers for a world (`RES-05`, `TIM-16`).**
+   Positions as whole centimetres on the torus, with wrapping, differences and squared distances in 64 bits and an exact integer square root; angles as turns; the one checked conversion from floating to whole numbers; probabilities as thresholds.
+3. `T1.1b.3` **Keyed chance (`TIM-16`).**
+   Draws keyed by (world seed, system, being, moment, purpose, index) through a chain of the SplitMix64 finaliser; systems and purposes keyed by a stable hash of their names; draws below a threshold, in a range by a 128-bit multiply, and as a fraction from 53 bits.
+4. `T1.1b.4` **The banned list, enforced (`RES-05`, `PRC-10`).**
+   A rule check over `sim/` and `view/` for A3.4's banned list, each rule with its replacement in its message; the phone compiler's build run once more with libc++'s tie order randomized under two seeds.
+5. `T1.1b.5` **Numbers on the phone (`RES-05`, `PLT-01`).**
+   The self-check runs the numbers' suite (the maths over a seeded stream of inputs, chance, the torus) on one thread and four, and compares each digest with the build's; deliver.
+
+**Tests:**
+- The maths: 200,000 random inputs a function across its domain, plus zeros, the smallest and largest numbers and known hard cases, each bit-equal to MPFR; the time per call reported.
+- The torus: a difference is the negative of its reverse and never longer than half the world; squared distances and square roots exact at the world's extremes.
+- Chance: over a million draws a test, frequencies within a chi-square bound, no correlation between neighbouring keys (beings, seconds, indexes), a whole number in a range never out of it; adding a purpose changes no other purpose's draws.
+- The rule check catches one planted use of each banned item.
+- Passes if all pass and every build gives one digest on one thread and four.
+
+**On the phone:** open Kindling: the self-check adds "Numbers: the same as the cloud", with the maths, chance and torus lines and the time each took.
+
+### α1.2a The clock and the calendar
+
+**Goal:** game time: the clock in whole game seconds, the 60-day year and its dates, durations that record their length in life and in the game, and a calendar on your phone running at any speed you set, as fast as the phone allows, with the real speed shown.
+
+**Serves:** `TIM-14`, `TIM-18`, `TIM-01`, `TIM-10`, `PLT-01`.
+
+**Architecture:** A3.3, A3.8, A3.9.
+
+**Tasks:**
+
+1. `T1.2a.1` **The clock and dates (`TIM-14`, `TIM-18`).**
+   Game time in 64-bit seconds; the year, season, day, hour, minute and second of any moment, from Year 1, spring, day 1; dates written "Year 112, autumn, day 6"; the seasons reversed in the half of the world where history did not begin.
+2. `T1.2a.2` **Durations with two lengths (`TIM-18`).**
+   A duration holds its length in life and in the game; the rule check: up to about two weeks in life, the game length equals it; a month or more, about a sixth (60 to 365.25, within 10%); between, anywhere from the shortened length to the real one.
+3. `T1.2a.3` **The runner and the speed loop (`TIM-01`, `TIM-10`, `PLT-01`).**
+   The world on its own thread (an explicit stack, a name, a lower priority, the default floating-point environment), working toward a goal and sleeping there; in `view/`, the world class with the speed asked, each frame's real time, the screen's game time never past the frontier, the goal a quarter of a real second ahead, pausing that glides to the frontier, and the speed shown measured from what was drawn.
+4. `T1.2a.4` **The calendar on the phone (`TIM-14`, `TIM-10`).**
+   A Time page: the date and hour, and the speeds of `TIM-01`'s zoom stops (real, an hour a minute, a day in three minutes, a season a minute, three years a minute, top) with pause, and the speed shown; deliver.
+
+**Tests:**
+- doctest: every boundary of a sample of years converts both ways; Year 1, spring, day 1 at second 0; dates written as `TIM-14` shows; the other half's seasons reversed.
+- The duration rule: smoked meat's 15 game days for three months passes (`RCK-14`), 2 days equal passes, three months at 30 game days fails.
+- The speed loop as a function, with a stand-in simulation advancing at set rates: the screen's time never passes the frontier, never waits, slows when the simulation can't keep up, stops within a quarter second of a pause, and the speed shown is within 1% of the drawn rate over each second; at one game second a real second, a game minute takes a real minute within a second (`TIM-10`).
+- gdUnit4: the Time page starts at "Year 1, spring, day 1" and its speeds change the speed shown.
+- Passes if all pass.
+
+**On the phone:** open Time: the calendar runs at each speed you choose; at real speed a game minute takes a real minute; at top speed years pass in seconds; the speed shown is the real one.
+
+### α1.2b Catalogues and tuning
+
+**Goal:** content as data: catalogues and tuning files in TOML, read the same on every build, checked at load with every error named by file, line and column, numbered and fingerprinted, and on your phone exactly as in the cloud.
+
+**Serves:** `MAT-05`, `MAT-13`, `MAT-14`, `MAT-17`, `TIM-18`, `PRC-10`.
+
+**Architecture:** A3.6, A2.2.
+
+**Tasks:**
+
+1. `T1.2b.1` **Reading TOML exactly (`MAT-13`).**
+   toml++ pinned, behind one file, with no exceptions; floats refused with a message saying what to write instead; the exact reader of quantities, ratios, probabilities and durations with units into whole base units.
+2. `T1.2b.2` **Schema once (`MAT-13`, `MAT-17`).**
+   One `visit()` per kind naming each field's key, type, unit, range, whether it is required, what it links to and what it affects; the loader (unknown keys refused, every error at file, line and column), the schema writer and the fingerprinter all walk it; `kindling catalogue check`, `show`, `schema` and `fingerprint`.
+3. `T1.2b.3` **Sources, names and digests (`MAT-14`, `MAT-13`).**
+   Sources in order, each with its id, version and requirements, only adding entries; namespaced names numbered by sorted name; stable name hashes for chance; name lists for saves; renames; each entry's digest and each source's rules, world and look digests, with the world-making version.
+4. `T1.2b.4` **The checks and their planted faults (`MAT-17`, `MAT-05`, `TIM-18`).**
+   The checks at load (syntax, types, units, ranges, links, duplicates, `TIM-18`) and the cloud's framework for `MAT-17`'s checks, which each kind registers as it arrives, with `MAT-05`'s orders read from `checks/`; the demonstration's marker kind and tuning in `data/demo/`.
+5. `T1.2b.5` **Data on the phone (`MAT-13`).**
+   The build copies the sources into `game/data/` with `build.toml`; `view/` reads each listed file and hands its bytes to `sim/`; the self-check compares the phone's digests with the build's; a Catalogues page lists the sources, kinds, entries and digests; deliver.
+
+**Tests:**
+- The unit reader: hundreds of thousands of strings, one digest on every build; values finer than a base unit refused.
+- The planted-fault catalogue: one fault for each check, each refused at its file, line and column, and only it.
+- `MAT-14`: a made-up entry added to a test source changes no other entry's digest.
+- A rename keeps the old name's saves readable.
+- Passes if all pass and the phone's digests equal the build's.
+
+**On the phone:** the self-check adds "Catalogues: the same as the build"; the Catalogues page lists what was loaded.
+
+### α1.3a Entities and events
+
+**Goal:** the world's state and its clockwork: entities with ids never reused, made from catalogue entries; the one event queue with its exact order and lazy cancelling; the world's periodic layers; and a digest of the whole state, run one event at a time.
+
+**Serves:** `TIM-17`, `TIM-16`, `RES-05`, `MAT-13`.
+
+**Architecture:** A3.2, A3.3, A3.4.
+
+**Tasks:**
+
+1. `T1.3a.1` **Entities (`MAT-13`, `RES-05`).**
+   EnTT 4.0.0, pinned, behind `sim/ecs`: the two registries, never-reused 64-bit ids with their family, the maps from id to entity, making an entity from its kind's recipe, ending one; one descriptor per component; pools made in name order; the digest of every component in id order; the order fuzzer.
+2. `T1.3a.2` **The event queue (`TIM-17`).**
+   Keys of (game second, owner's id, owner's sequence) with the slot they wake; the binary heap; cancelling by the owner's expected sequence; rebuilding past a quarter dead; only live events written, in key order; reserved owners for the layers and commands; a debug check that a handler schedules only keys after its own.
+3. `T1.3a.3` **The world and its layers (`TIM-17`, `TIM-16`).**
+   The world: its seed, sources, registries, queue and clock, running one event at a time to a goal; a periodic layer for daylight; a digest per system and for the whole state at each game day; `kindling run` prints them.
+4. `T1.3a.4` **Markers on the clockwork (`TIM-17`).**
+   The demonstration's markers: in camps, walking to a place chosen by keyed chance, resting, sleeping at night; every move an activity ending at its event.
+
+**Tests:**
+- The queue: events at the same second settle by owner, then sequence, whatever order they were pushed in; cancelled ones never run; a rebuild changes nothing; a queue written and read back runs on identically.
+- Entities: ids never reused through a million makes and ends; the digest independent of EnTT's order, with the fuzzer on.
+- A world of 1,000 markers over 60 game days: the same daily digests on every build.
+- Passes if all pass.
+
+**On the phone:** the self-check adds a small world's digest after 30 game days, the same as the cloud's.
+
+### α1.3b Activities and islands
+
+**Goal:** activities that can be cut short and keep what they reached, markers that meet and greet, and islands that run the world on four cores with exactly the one-core result, at any speed and window, paused anywhere.
+
+**Serves:** `TIM-17`, `RES-05`, `WLD-13`, `PLT-01`.
+
+**Architecture:** A3.3, A3.4, A3.9.
+
+**Tasks:**
+
+1. `T1.3b.1` **Activities with an end (`TIM-17`).**
+   An activity's start, end and way; ending early by the kind's rule of what it keeps (a walker stands where they got to, what builds up gives its share, a single act does nothing); a call to someone else landing at least a second later.
+2. `T1.3b.2` **Meeting and greeting (`TIM-17`).**
+   At a walk's end a marker looks for others within reach at that second, from their ways; it calls one, whose activity is cut short, and the two greet for a while; the numbers in `data/demo/`.
+3. `T1.3b.3` **Islands (`RES-05`, `PLT-01`).**
+   Windows on a grid of game time; owners joined into islands by reach, pace and window (a union-find over a grid of the world); each island's events in key order on one of up to four workers; their new events, ids and history merged by key; one worker up to camp speed; a debug log of any touch across islands.
+4. `T1.3b.4` **The proof (`RES-05`, `WLD-13`, `TIM-17`).**
+   One world gives one digest run one event at a time, and in islands with windows of 60, 300 and 900 seconds on one to four threads, stopped at random seconds, at any speed's goals, with the fuzzer on, on every build.
+
+**Tests:**
+- Activities: a walk cut halfway leaves the walker halfway along its way; a call lands a second later.
+- The `TIM-17` scene: driven a second at a time and in big windows, every meeting and greeting happens at the same game second.
+- The proof above, made to fail once by a rule that reads across islands.
+- Passes if all pass.
+
+**On the phone:** the self-check adds the islands' digest on the phone's four cores, the same as the cloud's.
+
+### α1.3c The crowd on your phone
+
+**Goal:** 10,000 markers walking, meeting and greeting on your phone at any speed, smooth, with the simulation on its own threads and the screen never waiting.
+
+**Serves:** `PLT-01`, `TIM-01`, `TIM-10`, `WLD-13`.
+
+**Architecture:** A3.8, A3.9.
+
+**Tasks:**
+
+1. `T1.3c.1` **Snapshots to the screen (`WLD-13`).**
+   The triple buffer: after each batch the simulation fills a slot with each walker's id, kind, colour, flags and way; the screen takes the newest; greetings travel in a lossless queue.
+2. `T1.3c.2` **Drawing the crowd (`PLT-01`).**
+   The crowd node: one MultiMesh per area with its own bounding box, each walker placed at the screen's game time along its way, in double precision relative to the camera; camps in their own colours, a greeting flashing; a camera seen from above that pans and zooms.
+3. `T1.3c.3` **Speed, heat and counters (`TIM-01`, `TIM-10`, `PLT-01`).**
+   The speed loop at scale; the heat governor (headroom every 2 s, the working share cut fast and given back slowly); a switch to pin the workers to the middle cores, for the benchmark; counters for events a second, islands, batch time and the speed shown against the speed asked.
+4. `T1.3c.4` **The crowd page (`PLT-01`, `TIM-01`).**
+   400 camps of 25 markers, the speeds of the Time page, the counters; pictures in the cloud; deliver.
+
+**Tests:**
+- gdUnit4, headless: the crowd's buffer holds every walker at its place for a given game time (read back from the dummy renderer); the triple buffer never tears under a producer at full speed.
+- The heat governor as a function: a rising forecast cuts the share within one reading and gives it back only after a minute below.
+- A picture of the crowd page in the cloud.
+- Passes if all pass and frames stay on time in the cloud's picture run.
+
+**On the phone:** open Crowd: 10,000 markers walk, meet and greet; try every speed and drag the view; at real speed they walk at a walker's pace; the counters show the speed asked and the speed you get.
+
+### α1.4a Saves and the journal
+
+**Goal:** a world that is always saved: a snapshot every 30 seconds and whenever the app leaves the screen, your commands written at once, and after any crash or kill the world reopens where it was and catches up exactly.
+
+**Serves:** `TIM-05`, `PLT-07`, `PLT-10`, `RES-05`.
+
+**Architecture:** A3.7, A3.2, A3.8.
+
+**Tasks:**
+
+1. `T1.4a.1` **Files that survive anything (`PLT-07`).**
+   The I/O thread and its interface (the real one, and a fake for tests that can drop unsynced writes as a power cut would); writing by new file, sync, rename and folder sync; logs framed by length, type, sequence and checksum, cut at the first bad record.
+2. `T1.4a.2` **Snapshots (`TIM-05`, `PLT-07`, `RES-05`).**
+   zstd 1.5.7, pinned; the snapshot's header, chunks and trailer; each component written through its descriptor in id order, the queue's live events, the clock, the sources and name lists; reading verifies every hash; the state's digest after reading equals the one before writing, and the world carries on exactly.
+3. `T1.4a.3` **The journal, history and catching up (`PLT-07`, `PLT-10`).**
+   Commands synced at once, with pause marks; history appended in yearly segments; the 30-second save (a copy at an event, compressed and written on other threads); the save when the app leaves the screen; recovery from the newest whole snapshot, a damaged one moved aside, commands re-applied at their moments while the world catches up under a short note, its re-made history compared with what was written.
+4. `T1.4a.4` **The kill test (`PLT-07`, `TIM-05`).**
+   A demonstration command (call a camp home), so the journal has something to keep; in the cloud the tool killed at 100 random moments and reopened each time; deliver.
+
+**Tests:**
+- Every world opens after each of the 100 kills, and ends identical to an unbroken run.
+- Damaged files (cut short, a flipped bit, zeros) refused and set aside; the previous snapshot used.
+- A save at any second, inside a window or not, reopened, gives the same history as never closing (`TIM-05`).
+- Passes if all pass.
+
+**On the phone:** on Crowd, tap a camp to call it home; swipe the app away, reopen it: the world is where it was, the camp still walking home; open the self-check for the last save's time.
+
+### α1.4b Worlds, export and updates
+
+**Goal:** several worlds kept and switched exactly, one exported to a file and imported again, old saves opened by new versions, and a warning before the phone is full.
+
+**Serves:** `TIM-08`, `PLT-08`, `PLT-09`, `PLT-10`.
+
+**Architecture:** A3.7, A3.6.
+
+**Tasks:**
+
+1. `T1.4b.1` **Several worlds (`TIM-08`).**
+   Each world's folder and `world.toml`; a Worlds page to make, open, switch, rename and delete them, deleting only after you confirm; switching saves one and opens the other exactly.
+2. `T1.4b.2` **Export and import (`PLT-08`).**
+   The `.kindling` file, with a checksum for each part; export and import through Android's file picker, streamed; an import checked as it arrives and refused with a message naming the damage.
+3. `T1.4b.3` **Updates and old saves (`PLT-09`).**
+   A version in every chunk with its upgrades, and named migrations recorded in the save; small or big decided by the world digest, the note saying which; a corpus of exported worlds from each alpha opened by every build; the previous version's last save kept until a world has run an hour.
+4. `T1.4b.4` **Space and thinning (`PLT-10`).**
+   Free space checked at each save, with the warning and the question of which worlds to delete; the history thinned at year boundaries by the fixed rule (every event for 25 years, then what each kind keeps); each world's size by part; deliver.
+
+**Tests:**
+- Three worlds switched in turn each open exactly where they were left.
+- An exported world, imported, runs on identically; a damaged file is refused.
+- The corpus opens and carries on; a big update keeps the history readable.
+- A 30-year world's history keeps every event of its last 25 years and only kept kinds before.
+- Passes if all pass.
+
+**On the phone:** open Worlds: make three, switch among them, export one and import it as a copy, and delete the copy.
+
+### α1.5a Scenes and runs
+
+**Goal:** the test machinery every later milestone uses: scenes stated before they run, runs over 20 seeds, switches only in tests, oddities flagged, long runs that resume exactly, the repeat check before anything joins, and reports you can read.
+
+**Serves:** `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-21`, `RES-05`, `RES-06`, `PLT-05`, `PRC-10`.
+
+**Architecture:** A17, A3.1, A3.7.
+
+**Tasks:**
+
+1. `T1.5a.1` **Scenes and their pass rules (`RES-21`, `RES-09`, `RES-13`).**
+   Scenes as TOML in `data/scenes/`, each stating its items, seed, runs, time limit, budget and pass rule before its first run; `kindling scene` runs many worlds at once on the cloud's cores and counts the rule; a failed rule re-runs on 20 fresh seeds and is judged on all 40.
+2. `T1.5a.2` **Switches and oddities (`RES-10`, `RES-12`).**
+   Test switches compiled only into test builds and recorded in the world and the report; oddities flagged by expected ranges and "never" rules, and a crash, creeping memory or a save that won't reopen.
+3. `T1.5a.3` **Long runs and the repeat check (`PLT-05`, `RES-05`, `PRC-10`).**
+   Runs that keep checkpoints and resume after a restart as if never stopped; `tools/check.sh` runs one scene and one benchmark world twice, on one core and on four with a stop and resume between, and they must end identical; a test world marked as one, which opens on the phone.
+4. `T1.5a.4` **Reports (`RES-06`).**
+   A run's or a scene's report as a page with its charts and its ranges ("in 18 of 20 worlds"); the app's Reports page shows the last ones; deliver.
+
+**Tests:**
+- A scene with one of each oddity planted flags every one (`RES-12`).
+- A run stopped with its session and resumed in a new one ends identical to an unbroken run (`PLT-05`).
+- A scene whose rule fails once passes or fails by the 40-run rule (`RES-13`).
+- Passes if all pass.
+
+**On the phone:** open Reports to read the cloud's last scene report, and open the test world it ran, marked as a test world.
+
+### α1.5b The benchmark and M1's end
+
+**Goal:** the phone benchmark, one tap and about 20 minutes ending in a short code, whose end states match the cloud's; and M1's report for your review.
+
+**Serves:** `PLT-04`, `PLT-01`, `RES-05`, `RES-06`, `RES-22`.
+
+**Architecture:** A18.1, A3.9, A17.
+
+**Tasks:**
+
+1. `T1.5b.1` **Telemetry (`PLT-04`).**
+   The device class reads battery and power rails, the cores' clocks, our threads' CPU time, memory and every frame's interval by our own measure (on time within a period plus half a refresh; a stall counted for every period it skipped), and marks frames and batches for the phone's System Tracing.
+2. `T1.5b.2` **The scenarios (`PLT-04`, `RES-05`).**
+   A18.1's scenarios: the calendar alone, 10,000 markers at real speed and at top speed with the camera touring, the same pinned to the middle cores, a sweep through the zoom stops' speeds, saves with an export and a reopening, and a still camera; each scenario's digest at its set date; the cloud runs the same ones headless with the same digests.
+3. `T1.5b.3` **The code (`PLT-04`).**
+   A version, a fixed layout and a checksum in Crockford base32, in groups the chat apps leave alone; the layout written once and read by both the app and the cloud's decoder; the pass lines stated before the first run (`RES-09`).
+4. `T1.5b.4` **M1's report (`RES-06`, `RES-22`).**
+   What was added and what you can try, the tests and where they ran, the phone's numbers, what went right and wrong; the next step's plan for your OK; deliver.
+
+**Tests:**
+- A code made in the cloud decodes after its letters' case is changed, its lines broken and its dashes swapped, and one wrong letter is caught.
+- The cloud's headless scenarios give the digests the phone must match.
+- Passes if all pass.
+
+**On the phone:** unplug the phone, turn on flight mode, open Bench and tap Run; leave it for about 20 minutes, then copy the code into the chat.
 
 ## The vertical slice (proposed: after the foundations)
 

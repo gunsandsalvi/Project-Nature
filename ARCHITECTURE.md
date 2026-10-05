@@ -12,6 +12,7 @@ The code is the index: code names the `PROJECT.md` items it implements, so this 
 - **Technology approved by you** (`PRC-03`): Godot 4.7, its source unchanged, with the simulation in C++ as a Godot plug-in (GDExtension) (research 01).
 - **Pre-production is closed** (5 October 2026): its prototypes' answers are written here as decisions, marked with the prototype that gave them (Pn), and the evidence, numbers and lessons are in `LESSONS.md`.
   Their code is deleted; production writes its own.
+- The foundations' sections (A2, A3, A17, A18) are written in full for M1, from research 18 (5 October 2026).
 - Parts for later milestones are outlines, each designed in full when its milestone is next, from what the earlier ones taught.
 
 ## A1. Overview
@@ -58,8 +59,8 @@ The code is the index: code names the `PROJECT.md` items it implements, so this 
 | Godot 4.7, its source unchanged | Reached the look fastest in the bake-off; stable; much help online; everything asked is within reach | 01 |
 | The Mobile renderer on Vulkan | Your phone's PowerVR driver: OpenGL ES runs through a translation layer, compute shaders that read images fail | 01, 02, 04 |
 | The simulation as a separate C++ library on its own threads | Thousands of minds need the processor's cores; C++ is Godot's official plug-in language on Android | 01, 03 |
-| EnTT entities, content as data | Data laid out for the cache; new plants, animals, things and blueprints without code (`PRN-14`) | 03 |
-| Events on one queue, keyed chance, Box2D's rules for floating point | The same bits everywhere; long processes cost nothing until they end | 03 |
+| EnTT entities with never-reused ids, content as data with no floats | Data laid out for the cache; new plants, animals, things and blueprints without code (`PRN-14`); history that names the dead forever | 03, 18 |
+| Events on one queue run in islands, keyed chance, correctly rounded maths, Box2D's rules for floating point | The same bits everywhere, at any speed and on any number of threads; long processes cost nothing until they end | 03, 18 |
 | A quarter-size picture, a pixel-locked camera, outlines from rebuilt normals, light in clean steps | How the reference pictures are made, built for the Mobile renderer | 04 |
 | The art book is the look, kept by the art bible's rules | You accepted it; the rules keep generated content on it | 05 |
 | The model kit built by code at load, drawn as MultiMesh copies; block figures with no skeletons | Countable content; colour and style per copy; cheap crowds | 17 |
@@ -80,32 +81,43 @@ The code is the index: code names the `PROJECT.md` items it implements, so this 
 ### A2.1 Repository layout
 
 ```
-game/        the Godot project: scenes, shaders, the interface in GDScript, the theme and fonts
-view/        C++ for the picture, as a Godot plug-in: the bridge to the simulation (A3.8), the model kit's
-             shapes (A6), crowds as MultiMesh copies, the ground's levels of detail (A8)
-sim/         the simulation in C++20, with no Godot, and its tests: maths, chance, time, catalogues, saves,
-             world, living things, people, minds, culture, history
-data/        catalogues, tuning files and test scenes, as TOML (A3.6)
-android/     the small Android plug-in (screen rate, heat forecast, the writer) and the release certificate
+game/        the Godot project: scenes, the interface in GDScript, the theme and fonts, and its gdUnit4 tests;
+             game/bin/ (the built extension) and game/data/ (a copy of data/) are made by the build, never committed
+view/        C++ for the picture, as one Godot extension (libkindling): the bridge to the simulation (A3.8), the
+             phone's telemetry (A3.9) and crowds as MultiMesh copies; later the model kit's shapes (A6) and the
+             ground's levels of detail (A8)
+sim/         the simulation in C++20, with no Godot: numbers, chance, time, entities, events, catalogues and saves,
+             later the world, living things, people, minds, culture and history; its doctest tests; the `kindling`
+             command-line tool for scenes, runs, benchmark worlds and catalogue checks; sim/thirdparty/ for
+             vendored code
+data/        catalogues, tuning files, scenes and benchmark worlds, as TOML (A3.6), in sources: base/ for the game,
+             demo/ for what only the foundations show
+android/     the release certificate; an Android plug-in only if the phone ever needs one (A3.9)
 tools/       setup, checks, builds, delivery, the file check, signing
 art/         the art book and its painter (A5.1), and the pixel fonts
 research/    the research notes this file cites
 dist/        the signed APK of the latest alpha and its note
 ```
 
-Each folder arrives with its first file in production's foundations (α1.1a).
-
 ### A2.2 Builds
 
-- **C++:** CMake and Ninja, C++20.
-  - `sim/` builds natively for the cloud (x86-64 Linux, for tests) and for the phone (arm64 Android, with the NDK), and never includes Godot.
-  - `view/` links godot-cpp at its newest release, 4.5, which Godot 4.7 loads (P5), and carries `sim/` into the app.
-  - The app's C++ is a Godot extension, built natively for the cloud's tests and with the NDK for the phone's arm64 Android, 16 KB aligned, so the app runs the very code the cloud runs; the libraries are built, never committed (proved in pre-production, P5).
-- **Compiler rules for `sim/`** (A3.4): warnings as errors, no fast-math, no fused multiply-add (`-ffp-contract=off`).
-- **Godot:** 4.7, its version and export templates pinned, exported from the command line (`--headless --export-release`), as in the bake-off.
+- **C++:** CMake and Ninja, C++20, through ccache.
+  - `sim/` is a static library with its tests and the `kindling` tool, and never includes Godot.
+  - `view/` is one shared library, `libkindling`, linking `sim/` and godot-cpp 4.5 built from a trimmed profile (`view/build_profile.json`), which Godot 4.7 loads (P5).
+    A class that a used method takes must be named in the profile, or the method silently vanishes (`LESSONS.md`).
+    godot-cpp 10, which targets Godot 4.7's own interface, is offered after M1 (research 18).
+- **Flags for all our C++** (A3.4): `-std=c++20 -O2 -Wall -Wextra -Werror -fno-exceptions -fno-fast-math -fno-math-errno -ffp-contract=off`, with `-ffp-contract=off` the last floating-point flag on the line; symbols hidden; `-ffunction-sections -fdata-sections` linked with `--gc-sections`.
+  Nothing throws: errors are values.
+- **Five builds** (research 18):
+  - the cloud's main build: x86-64 with clang 18, for the tests, the tool and the extension the Godot tests load;
+  - a second compiler: x86-64 with GCC 13 and its undefined-behaviour and float-cast checks;
+  - arm64 with GCC 13, and arm64 with the phone's own compiler (NDK r30, clang 21), both static executables run under qemu, for the same-bits check (A3.4);
+  - the phone's: the extension for arm64 Android, API 24, the C++ runtime linked statically, newer Android functions linked weakly and guarded, 16 KB-aligned, stripped in the APK and kept whole for crash symbols.
+- **Godot:** 4.7.2, pinned, exported from the command line (`--headless --export-release`).
   - The export is unsigned; `zipalign` and `apksigner` finish it, so only `tools/signing-key.py` reads the secret.
-  - Android export needs ETC2 and ASTC texture imports on, and the preset leaves out `addons/` and `test/`, so the test framework never reaches the phone.
-  - Godot's template sets Android API 24 to 36 and asks for no permissions.
+  - The build first copies `data/` into `game/data/` with `build.toml`, the list of its files and their digests (A3.6); the export's filter includes `data/*.toml`, since Godot skips text files otherwise.
+  - Android export needs ETC2 and ASTC texture imports on, and the preset leaves out `addons/` and `test/`, so the test framework never reaches the phone; it asks for no permissions.
+  - `quit_on_go_back` is off and `retain_data_on_uninstall` on (A3.7).
 - **Targets:** Android arm64 for the phone, and Linux x86-64 for tests and pictures in the cloud.
   There is no web build: Godot's is about 40 MB, beyond the private page's 15 MB (research 01).
 
@@ -118,97 +130,173 @@ Each folder arrives with its first file in production's foundations (α1.1a).
 - **The note** says what is new, what to try, what is rough, the items delivered and the links, and is published at your note link with pictures from the cloud.
 - **Version code:** (milestone + 1) × 10000 + alpha × 100 + step (a = 1), so α1.1a is 20101 and α1.2b is 20202.
   Each is above every earlier build's, so it installs over it.
-- **Self-check:** the first start of each version runs a few seconds of checks (the same bits, a save and reopen) and shows the graphics driver's version, with a short code to send if anything fails (research 02).
-  Godot gives the driver's version only inside the id of its pipeline cache, so the self-check reads it there, shown as Vulkan packs versions beside the raw number, since some makers pack theirs differently.
+- **Self-check:** the first start of each version runs a few seconds of checks and shows them, with a short code to send if anything fails (research 02, 18):
+  - the same bits: seeded runs of the numbers, chance and a small world, each digest against the one the cloud wrote into the build;
+  - the floating-point environment a simulation thread finds;
+  - the catalogues' digests against the build's;
+  - a save written and reopened;
+  - the graphics driver's version, read from the id of Godot's pipeline cache, the only place Godot gives it; the screen's refresh rate; the cores and their top clocks; the heat thresholds; and how the storage is mounted.
 
 ### A2.4 A fresh cloud session
 
 `tools/setup.sh` installs whatever is missing, pinned and checked by checksum, and says nothing when all is present:
 - Godot and its export templates;
 - the Android SDK, NDK and JDK;
-- CMake and Ninja, clang-format and clang-tidy, and the formatters and linters of GDScript (gdtoolkit) and Python (ruff);
-- gdUnit4;
+- CMake and Ninja, clang-format and clang-tidy, GCC 13 and its arm64 cross compiler, qemu, MPFR (the maths library's test oracle), and the formatters and linters of GDScript (gdtoolkit) and Python (ruff);
+- gdUnit4, doctest, godot-cpp 4.5, EnTT 4.0.0, toml++, xxHash and zstd;
 - Mesa's software Vulkan driver (lavapipe) and Xvfb, so Godot can draw pictures without a graphics chip (research 16).
 
-## A3. The simulation core (research 03)
+CORE-MATH's few C files are kept in `sim/thirdparty/` at a pinned commit, since its host is the one source a session might not reach.
+
+## A3. The simulation core (research 03, 18)
 
 ### A3.1 Its boundary
 
 The simulation is a library with a small surface:
-- create or open a world;
-- advance it by a budget of time;
+- make a world from a seed and its sources of data, or open a saved one;
+- set a goal in game time, and say how far it has got (its frontier);
 - take commands (your powers; test switches in test builds only, `RES-10`);
-- hand out snapshots;
-- save.
+- hand out snapshots and the events worth showing;
+- save, export and import.
 
-It never calls Godot, never reads the camera, and keeps no state about what is on screen (`WLD-13`).
+It never calls Godot, never reads the camera, the zoom or the speed, and keeps no state about what is on screen (`WLD-13`).
+It reads files only as bytes handed to it, and writes saves only under the folder it is given.
 The same library runs scenes and whole worlds headless in the cloud, under the same rules as play (`RES-18`, `PLT-05`).
 
 ### A3.2 Entities and components
 
-- People, animals, plants, things, places, groups and records are EnTT entities with generational IDs, their data in tight arrays.
-- Systems (rules) run in a fixed order.
-- A thing's kind is its catalogue entry, and its parts are the components the entry lists, as RimWorld's Defs and Comps.
+- **EnTT 4.0.0** holds people, animals, plants near people, things, places, groups and records, behind a thin layer (`sim/ecs`), so no rule creates or destroys entities itself and a later change of library stays local (research 18).
+  - Two registries keep memory tight: beings (people, animals, places, groups) with 32-bit handles, and things with 64-bit handles, room for more than a million at once.
+  - Plants and far animals stay as counts on world cells, outside EnTT (`WLD-32`).
+- **Every entity has an id that is never reused:** 64 bits from one world counter, its top four bits naming its family.
+  Components, events, history, memories and saves hold only these ids; EnTT's own handles live within one step and are never stored.
+  The dead leave their entity but keep their record in the history (`PRN-15`).
+- **A thing's kind is its catalogue entry,** and its parts are the components the entry lists, as RimWorld's Defs and Comps; each entry becomes a ready recipe at load.
   There is no class hierarchy of kinds, which Dwarf Fortress regretted.
+- **One descriptor per component:** its stable name, its version and its fields (name, type, unit, range, whether it names another entity or entry, what it affects, a plain description).
+  The same descriptor loads its values from the catalogues, saves and loads it, hashes it for the checksum and shows it in the details view (`PRN-14`).
+  A new component is one header, one descriptor, its rules and one line in the component list.
+- **Order:** EnTT's own order is not canonical (it shifts with unrelated changes and across a save), so nothing that decides may follow it.
+  - Decisions follow the event queue (A3.3) or lists sorted by id, and every sort breaks ties by id.
+  - Raw order is allowed only where the result cannot depend on it: per-entity updates, whole-number totals, minimum and maximum with ties broken by id.
+  - Every pool is made at start, in name order, so a new world and a reopened one have the same pools in the same order.
+  - EnTT's signals keep indexes up to date and never carry game rules.
+  - An order fuzzer in the checks scrambles every pool before each batch, and the results must not move.
 
-### A3.3 Time
+### A3.3 Time and events
 
-- **The clock counts whole game seconds,** and the 60-day year, its seasons and dates come from it (`TIM-18`, `TIM-14`).
-- **Work happens at events on one queue,** ordered by (time, entity, sequence):
-  - each activity ends at an event, and the person decides again only then, or when something interrupts it (`TIM-17`);
-  - timers, such as a hide drying, are events (`MAT-19`);
-  - each layer of the world runs at its own pace as events: weather hourly, water daily, plant cover every five days (`WLD-12`).
-- So a long process costs nothing until it ends, and the cost of a game day follows what happens in it, not the speed.
-- **Speed is how much game time runs per real second, within the frame's budget** (A3.9).
-  When the phone can't keep up, time slows; detail is never cut (`PRN-11`).
-- **The screen moves smoothly at any speed:** the view places each walker along its path between the start and end of its activity, so nothing in the simulation runs per frame.
-- *Measured in pre-production* (P6): five-minute windows of events hold a thousand people at 6.0 game years a real minute on your phone's four cores (A11).
+- **The clock counts whole game seconds** in 64 bits, and the 60-day year, its seasons and dates come from it (`TIM-18`, `TIM-14`).
+- **Work happens at events on one queue,** each with a unique key: (game second, owner's id, owner's sequence number).
+  - The key decides the order, never the structure: equal times are settled by owner, then by sequence, the same everywhere (`TIM-17`).
+  - The world's layers and your acts own reserved ids, so they come first within their second.
+  - A handler may only schedule keys after its own, so an effect on someone else lands at least one game second later: a call travels, a reaction takes time.
+  - Each activity ends at an event, and the doer decides again only then, or when interrupted (`TIM-17`); timers are events (`MAT-19`); each layer of the world is one event that reschedules itself, weather hourly, water daily, plant cover every five days, each running its cells as a batch (`WLD-12`).
+- **The queue** is a binary heap of the keys (research 18: 120–230 ns an event, 1–4% of a core at the speed targets); a two-tier one of minute buckets and a heap replaces it only if a profile shows the queue above about 5%, and the checksum test proves the switch changes nothing.
+- **Cancelling is lazy:** the owner keeps the sequence it expects for each slot (its activity's end, each timer); interrupting clears it; a popped event whose sequence no longer matches is skipped.
+  The heap is rebuilt without its dead entries when they pass a quarter of the live ones, which no outcome can see.
+  A save holds only the live events, sorted.
+- **Activities** have a start, an end and a way (where the doer is at any moment, from its start, end and pace), so they can be seen, met or attacked on the way (`TIM-17`).
+  An interruption ends one early by the kind's own rule of what it keeps: a walker stands where they got to, what builds up gives its share, work stays in the thing, a single act does nothing.
+- **Events happen one at a time in key order, and that one-thread run is the reference.** Every faster way must give the same bits (research 18):
+  1. Game time is cut into windows on a fixed grid, also cut at the world's layer events and wherever the simulation stops; since cuts cannot change results, cutting is free.
+  2. At each window's start, owners that could touch each other or the same thing within the window join one island: those within twice the longest reach plus twice the fastest pace times the window, or sharing a store, a household, a thing or a shared activity.
+  3. Each island takes its events for the window from the queue and runs them in key order on one worker; events it makes inside the window stay in it, later ones go out to the queue.
+  4. Islands run side by side on up to four workers, then merge their events and history by key.
+  - Since no island can read what another writes within the window, the result equals the one-thread run for any window, thread count, speed or pause; a test proves it, and a debug build logs any touch across islands.
+  - New ids for things made inside an island are handed out in key order at the merge, so they never depend on other islands.
+  - Up to about camp speed, one worker runs events in order, with the same results.
+- **So a long process costs nothing until it ends,** and the cost of a game day follows what happens in it, not the speed.
+- *Measured in pre-production* (P6): a thousand people at 6.0 game years a real minute on your phone's four cores, with decisions in 5-minute windows read from a snapshot; production replaces those windows with islands, which give the same history at any speed (research 18).
 
 ### A3.4 The same bits everywhere (`RES-05`, `TIM-16`)
 
-Following Box2D and Factorio (research 03):
-- **Arithmetic:** IEEE single and double precision, with no fast-math and no contraction (A2.2).
-  No platform maths function is used except the square root: sine, exponent, logarithm and power come from our own library.
-- **Order:** every loop over entities runs in a defined order, and no iteration over an unordered map decides anything.
-  Parallel work is split into fixed chunks, gathered, then applied in entity order.
-- **Proof:** a seeded world runs on x86-64 and on arm64 (under qemu in the cloud, and on your phone), on one core and on four, and checksums of the whole state must match at checkpoints.
+Following Box2D, Factorio and research 18:
+- **Arithmetic:** IEEE double precision for working values, with no fast-math and no contraction into fused multiply-adds (A2.2).
+  The basic operations, the square root and the exact helpers (`floor`, `fmod`, `ldexp` and the like) are the same everywhere.
+- **Maths functions:** CORE-MATH's correctly rounded double functions (sine, cosine, tangent and their inverses, exponents, logarithms, power, hyperbolic tangent, error function, cube root, hypotenuse), vendored at a pinned commit and wrapped once.
+  A correctly rounded answer is unique, so every machine agrees; MPFR checks them in the cloud, and no platform maths function is used.
+- **Numbers:**
+  - positions as 32-bit whole centimetres on the torus, 200,000,000 by 100,000,000, differences wrapped in 64-bit arithmetic;
+  - heights in millimetres;
+  - time in 64-bit game seconds;
+  - amounts as 64-bit whole base units (milligrams, millimetres, seconds, parts per million), rates applied in closed form at events;
+  - probabilities as 64-bit thresholds read exactly from the catalogue's text, a draw firing below its threshold;
+  - floats never in saved state, and never NaN.
+- **Banned in `sim/`, each with its replacement in `sim/num`:** `long double`, `float` in state, plain `char` arithmetic, platform maths, `fmin` and `fmax`, casts from floating to integer outside one checked function, parsing or printing floats, `<random>`'s distributions and shuffles, `std::reduce`, `std::hash` or unordered order deciding anything, sorts without a strict total order, thread counts, clocks, addresses or the locale in decisions, two calls with side effects in one expression, and raw memory hashed or saved.
+- **The floating-point environment:** each simulation thread sets the default one first, and checkpoints assert it (x86-64's MXCSR, arm64's FPCR), since a new thread inherits whatever its creator had.
+- **Order:** every loop that decides anything runs in a defined order (A3.2); parallel work is cut into chunks whose size and borders depend only on the data, gathered, then applied in key or id order.
+- **Checksums:** XXH3 over a canonical stream, each system in a fixed order, entities by id, fields little-endian; a digest per system and for the whole state at every checkpoint, so a difference narrows to a system and a day.
+- **Proof** (A17): seeded worlds run on the five builds of A2.2, on one to four threads, with islands of several window lengths, stopped, saved, reopened and resumed, and every digest must match; libc++'s randomized tie order and the order fuzzer must not move them.
   The phone runs the same check in its self-check (A2.3).
-- *Proved in pre-production on your phone* (P5): a seeded world ends each day with the same checksum on x86-64, on arm64 under qemu and on your phone, on one thread and four; our functions use only IEEE adds, multiplies and divides.
+- *Proved in pre-production on your phone* (P5): a seeded world ended each day with the same checksum on x86-64, on arm64 under qemu and on your phone, on one thread and four.
 
 ### A3.5 Chance
 
-- Every draw is keyed by (world seed, system, being, tick, purpose, index) through a counter-based generator, Philox or a Squirrel-style hash (research 03).
-- So any thread can draw any number in any order and get the same one, and adding a new kind of draw never shifts the others (`TIM-16`).
-- *Chosen in pre-production* (P5): SplitMix64's finaliser over the keys.
+- Every draw is keyed by (world seed, system, being, moment, purpose, index) through a chain of the SplitMix64 finaliser, a counter-based generator in Squirrel Eiserloh's way (research 03), chosen in pre-production (P5).
+- Systems and purposes are named, and keyed by a stable 64-bit hash of their names, so adding a new kind of draw never shifts the others (`TIM-16`).
+- Draws are whole numbers: below a threshold for a chance, a 128-bit multiply for a whole number in a range, the top 53 bits for a fraction in [0, 1).
+- Any thread can draw any number in any order and get the same one; the generator's statistics are tested over structured keys.
 
 ### A3.6 Catalogues and tuning (`MAT-13`, `MAT-14`, `MAT-17`)
 
-- Content lives in TOML files in `data/`: one entry per thing, material, plant, animal, blueprint, illness, custom pattern or model-kit form.
-- The simulation loads and checks them at start: fields and ranges, links between entries, the blueprint fit checks (`MAT-17`) and plausible values (`MAT-05`).
-- Entry names are stable, so saves survive reordering, and adding an entry never needs code (`PRN-14`).
-- Every tunable number lives in a catalogue or a tuning file, never in code.
+- **Content lives in TOML 1.0 files in sources:** `data/base/` for the game, one entry a file, its kind from its folder and its name from its file name; tuning files hold every tunable number; `checks/` holds what only the checks read, such as each item's expected fits (`MAT-17`) and the orders of plausible values (`MAT-05`).
+- **No floats:** whole numbers are TOML integers, and quantities and ratios are strings with units ("3.5 kg", "1 h 30 min", "15%", "1 in 100") read exactly into whole base units, so the phone's parse cannot differ from the cloud's (research 18).
+  "m" is only a metre, never a minute.
+- **Durations record both lengths,** `{ life = "3 month", game = "15 d" }`: the simulation reads the game length, and the `TIM-18` check holds it to the rule, "about" read as within 10%.
+- **Schema once:** each kind has one `visit()` naming its fields with their types, units, ranges, links and what they affect (`rules`, `world` or `look`).
+  The loader, the schema writer and the fingerprinter all walk it, so nothing describes a kind twice.
+  The loader refuses unknown keys and floats, and names every error by file, line and column.
+- **toml++,** pinned, behind one file and with no exceptions, reads the text (research 18).
+- **No templates:** every entry is complete and reads alone, since a parent's values would be the child's inputs (`MAT-13`); a tool copies an entry as a starting point instead.
+- **Names:** lower case, namespaced by source (`base:flint_nodule`, `base:` implied); numbered at load by sorted name, those numbers used only for arrays; chance and tie-breaks keyed by a stable hash of the name; saves holding each kind's names; renames listed in a file (`PRN-14`).
+- **Fingerprints:** a digest per entry from its canonical values, and per source three: rules (all that affects outcomes), world (only what makes the land, with the sets of plant, animal and material kinds) and look; plus a world-making version raised by hand when code that makes worlds changes, guarded by a test of golden worlds.
+  Each world keeps its sources, their versions and digests (`TIM-08`); a world digest that changed means a big update (`PLT-09`).
+- **Checks:** the loader checks syntax, types, units, ranges, required fields, links and `TIM-18` at every start, on the phone too; the heavy `MAT-17` checks run in the cloud on every change, written in `sim/` so the phone could run them on combinations the cloud never saw.
+- **Onto the phone:** the build copies the sources into `game/data/` with `build.toml`; `view/` reads each listed file through Godot's `FileAccess` and hands the bytes to `sim/`, and the self-check compares the phone's digests with the build's.
+- **Sources for later:** the loader takes an ordered list of sources, each with its id, version and requirements, so later layers such as bronze, or content from elsewhere, come as more sources; for now a source may only add entries.
 
-### A3.7 Saves (`TIM-08`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`)
+### A3.7 Saves (`TIM-05`, `TIM-08`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`)
 
-- A world is saved as versioned chunks: layers, regions, people, history.
-- Each save records the migrations it has been through; old saves are upgraded by a chain of migrations, never deleted, and a folder of old saves must open in every build.
-- A save is written to a temporary file, flushed, checked, then renamed over the old one, keeping one backup.
-- A small, fast save runs whenever the app leaves the screen, since Android may close it there (`TIM-05`).
-- History is appended as it happens, never rewritten (`PRN-15`).
-- Export and import is one file you can keep.
+- **Each world is a folder** under `user://worlds/<id>/`: `world.toml` (name, seed, sources and digests, dates, size, flags such as a test world's switches), the snapshots, the command journal, the history in yearly segments, later the book of ages and the kept areas.
+- **The rule:** your commands are the only input that cannot be re-made, so they are written and synced at once; everything after the last snapshot is re-made exactly by re-simulating (`TIM-16`).
+- **One I/O thread** owns every file and every sync, through a small interface tests can fake, and never stalls the simulation or the screen.
+- **Snapshots:** a header, then chunks, each with a tag, a version, its lengths and a hash, compressed by zstd at level 1, hashed before compression; unknown optional chunks are skipped, unknown critical ones refused.
+  Rows are written field by field, little-endian, through the component descriptors (A3.2).
+- **Logs** (commands, history): records framed by length, type, sequence number and checksum; reading stops at the first bad record and cuts the file there.
+- **Writing:** a new file, synced, renamed over the old, then the folder synced; old files are deleted only when the new state is safe.
+- **When:** a snapshot every 30 real seconds while running, and when the app leaves the screen, when you switch worlds, export or quit; the simulation pauses only to copy its state at an event boundary, and compression and writing happen on other threads (`PLT-07`).
+- **When the app leaves the screen** (Godot's `NOTIFICATION_APPLICATION_PAUSED`, on its main thread between frames): the simulation stops at the next event, a pause mark is synced to the journal, and the snapshot follows, well within the 10 seconds before Android freezes the app (`TIM-05`).
+  Back never quits outright: it closes panels, and at the top the app saves and goes to the background.
+- **After a crash:** the newest snapshot whose hashes hold is opened, a damaged one moved aside and never loaded; the journal's commands are re-applied at their moments while the world catches up under a short note; the re-made history must match what was written, or the mismatch is reported as a bug (`PLT-07`).
+- **Old saves:** every chunk and record carries its version, with an upgrade for each step; whole-world migrations are named and recorded in the save, applied once; saves keep names, never catalogue numbers.
+  A corpus of small exported worlds from each alpha is opened by every build, carried on after small updates and its history read after big ones (`PLT-09`).
+  A new version keeps the previous version's last snapshot, and the files it needs, until the world has run an hour.
+- **Export and import:** one `.kindling` file holding the world's files with a checksum for each, written and read through Android's file picker; an import is checked as it arrives and a damaged one refused with a message naming the damage (`PLT-08`).
+- **Space:** free space is checked at every save; the game warns before the phone is full and asks which worlds to delete, and never deletes anything itself (`PLT-10`).
+- **History** is appended as it happens, in yearly segments, never rewritten but by the fixed thinning rule at year boundaries (`PRN-15`, `PLT-10`).
 
 ### A3.8 Talking to Godot
 
-- **Commands in:** a queue of plain records (a power at a place, a speed change), applied at the next event boundary, in order.
-- **Snapshots out:** after each batch of game time, the simulation fills a double-buffered set of arrays: positions and paths, headings, poses, kinds, colours, and events worth showing.
-  `view/` copies them straight into MultiMesh buffers through Godot's RenderingServer.
+- **Three classes for GDScript,** from `view/`: the world (make, open, save, close, export, import; commands; the goal and the frontier; counters and events), the crowd (a node that draws walkers), and the device (cores, heat, telemetry).
+  A few calls a frame, never one per walker: a call into the extension costs about 0.1–0.2 µs (research 18).
+- **Commands in:** plain records, stamped with the game second they act at and written to the journal before they act; while you choose a power the game is paused, so a power acts on exactly the world shown.
+- **Snapshots out:** after each batch, the simulation fills one slot of a triple buffer, so neither side ever waits and the screen always takes the newest: for each walker its id, kind, colour and flags, and its activity's way (start and end positions and seconds).
+  `view/` places each walker along its way at the screen's game time and copies the result into MultiMesh buffers, one per area of the world, each with its own bounding box.
+- **Events worth showing** travel in a lossless queue, drained once a frame.
 - No Godot object is touched from a simulation thread, and `view/` converts but never decides.
 
-### A3.9 Threads and budgets
+### A3.9 Threads, speed and budgets
 
-- The simulation runs on its own worker threads, up to your phone's four middle cores; the fastest core and the small ones stay for Godot, sound and the system (`PLT-01`).
-- Each frame Godot asks for as much game time as fits the frame's budget, and never waits for the simulation.
-- **Heat:** the Android plug-in reads the phone's thermal headroom forecast, and time slows before the phone throttles (research 02).
+- **The simulation runs on its own worker threads,** up to four, made with an explicit 8 MiB stack (bionic's default is 1), named, and at a slightly lower priority than Godot's main thread (`PLT-01`).
+  The fastest core and the small ones stay for Godot, sound and the system; Godot's own worker pool is kept small.
+  Whether the workers are pinned to the middle cores is decided by the benchmark, which runs both ways, since Android advises against pinning (research 18).
+- **The speed loop:** the simulation works toward a goal at most about a quarter of a real second ahead of the screen, and sleeps once it gets there.
+  - Each frame the screen's game time moves by the speed asked times the frame's real time, but never past the simulation's frontier; when it reaches the frontier, time slows (`PRN-11`).
+  - The speed shown is measured from what was drawn, so it is always the real speed (`TIM-01`).
+  - Pausing lets the screen glide to the frontier within that quarter second, then stop.
+  - At one game second a real second, a game minute takes a real minute (`TIM-10`).
+- **Heat:** `view/` reads the phone's heat headroom every 2 s with a 10-s forecast (Android forecasts only while asked at least every 10 s), and listens for its thermal status; as the forecast nears the first throttling level, the simulation's working share is cut quickly and given back slowly, so time slows before the phone throttles (research 02, 18).
+- **Telemetry:** the device class also reads battery and power rails, the cores' clocks, our threads' CPU time and memory, and the interval of every frame; trace sections mark each frame and batch for the phone's own System Tracing.
 - **Watch the known killers from the first benchmark:** pathfinding at scale, temperature fields and lines of sight (research 03).
 
 ## A4. Drawing (research 04, 02)
@@ -526,21 +614,25 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - The murmur in the people's language, shifted for age, build and feeling (`SND-03`); the speaker's missing bass restored by harmonics, off with headphones.
 - *Built in pre-production* (P14): in the cloud, 32 sounds at most with the mix at 2.7% of the audio thread's time; a 3D sound world needs a camera to sound; your ears and Measure are still to come.
 
-## A17. Testing and checks (research 16)
+## A17. Testing and checks (research 16, 18)
 
 - **C++ tests** with doctest, and property tests with RapidCheck for rules that must always hold, such as no result heavier than its inputs (`MAT-09`).
-- **Scenes and whole worlds** run by the C++ library alone, many at once in the cloud, their pass rules stated before their first run and counted over about 20 runs where chance matters (`RES-21`, `RES-09`, `RES-13`).
-- **The same results everywhere** (A3.4): state hashes compared between x86-64 and arm64, and between one thread and four (`RES-05`).
+- **Scenes and whole worlds** run by the C++ library alone, through the `kindling` tool, many at once in the cloud: each scene is a TOML file in `data/scenes/` stating, before its first run, the items it checks, its seed, its runs, its time limit, its budget and its pass rule, counted over about 20 runs where chance matters (`RES-21`, `RES-09`, `RES-13`).
+  A run keeps checkpoints and resumes from the last as if it had never stopped (`PLT-05`); a run with a test switch says so in its report and its world (`RES-10`).
+- **The same results everywhere** (A3.4): seeded worlds on the five builds, on one to four threads, with islands of several window lengths, stopped, saved, reopened and resumed; libc++ with its tie order randomized, and the order fuzzer scrambling EnTT's pools; every digest must match (`RES-05`).
+  The check also reads the compile commands for the last floating-point flag, scans our built code for fused instructions and for the platform's maths functions, and holds the maths library to MPFR's correctly rounded answers.
+- **Saves:** the headless tool killed at random a hundred times mid-run, each reopening carrying on exactly (`PLT-07`); damaged files (cut, a flipped bit, zeros) refused; the corpus of old worlds opened by every build (`PLT-09`).
+- **Catalogues:** a test catalogue with one planted fault for each check, each refused at its file, line and column (`MAT-17`).
 - **The Godot side** with gdUnit4: layouts, cards and views opened from records, headless; gestures by simulated touch under Xvfb, since Godot's headless mode drops input events.
   Every script is compiled before the tests, so an error in one no test loads still stops the check.
 - **Pictures and reels** by Movie Maker mode at a fixed frame rate: golden pictures in the cloud; the contact sheet and the sound reel on the phone for your reviews (`PRE-31`, `SND-12`).
   - Movie Maker records at the project's base size, so a single picture at the phone's 1344 × 2992 pixels is read from the screen by our script (`tools/picture.sh`).
   - A rendering driver named on the command line brings Forward+ unless the Mobile renderer is named beside it.
-- **Phone measurements:** the in-app benchmark writes our own trace events into Perfetto traces, beside the chip's speed and heat; Android GPU Inspector for a slow frame on the PowerVR chip (`PLT-04`).
+- **Phone measurements:** the in-app benchmark (A18.1), its frames by our own measure, its result in a short code; trace sections that the phone's own System Tracing records beside the chip's speed and heat, with no computer; Android GPU Inspector for a slow frame on the PowerVR chip, if ever needed (`PLT-04`).
 - **One command before anything joins:** `tools/check.sh`, rebuilt for C++ and Godot, runs the formats, lints, builds, tests, the same-results check, and the file, commit and coverage checks (`PRC-10`, `PRC-12`).
   - It costs about what changed, since every delivery waits on it: C++ compiles through ccache, so godot-cpp and unchanged files compile once across runs and build folders; each C++ file is linted, on every core, only when its code, the headers it reads, its compile command or the rules changed since it passed, and each project's tests, the Godot project's import and tests and the picture test run only when something they read changed (`tools/cppcache.py`); the C++ tests run beside the Godot and tool tests; and each step prints its time.
     Measured on 5 October 2026: about 20 seconds with nothing changed, about 45 with one line of one library changed, and about 5 minutes the first time, which fills the caches.
-  Production's foundations bring every kind of check to the game's own code.
+  Production's foundations bring every kind of check to the game's own code (M1).
 
 ## A18. Budgets and risks
 
@@ -557,10 +649,21 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
 - **Sound:** 32 sounds at about 3% of the audio thread's time in the cloud, 9% at worst (P14); the phone's figure to come.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.
 - **The APK:** 25 MB from Godot itself, 38 MB with every prototype; within the 50 MB limit for files committed to the repository.
+- **The foundations,** from research 18 in the cloud, each measured again on your phone by M1's benchmark:
+  - the event queue: 1–4% of one core at `TIM-07`'s speeds;
+  - drawing 10,000 walkers: about 0.26 ms of the main thread a frame (filling and uploading their buffer);
+  - loading a launch-size catalogue: 25–33 ms;
+  - a save: a pause of tens of milliseconds to copy the state at an event, the rest on other threads;
+  - opening a world: within `PLT-04`'s 3 seconds.
+- **Storage** (`PLT-10`): a world of 7,000 people at Year 250 estimated at 3.5–4.1 GB, against 4 GB: its history fits at about 17–30 events a person a game day.
+
+**M1's benchmark,** one tap and about 20 minutes, with the phone unplugged, in flight mode, after it has cooled:
+- the calendar alone at top speed; 10,000 markers at real speed and at top speed, with the camera touring, held speed read after 3 minutes; the same pinned to the middle cores; a sweep through the zoom stops' speeds; saves every 30 seconds with an export and a reopening; a still camera for the screen's own power;
+- for each, its end state's digest against the cloud's, the share of frames on time, the slowest frame, the speed held, heat, battery and power, and memory, in one code.
 
 ### A18.2 Risks
 
-| Risk | What pre-production found | If it fails |
+| Risk | What we know | If it fails |
 |---|---|---|
 | The PowerVR driver mishandles a feature we use | P1 to P3 drew outlines, mirrors, fire shadows and smoke without fault | avoid that feature; the self-check reports the driver |
 | The look costs too much on the Mobile renderer | P1, P2: 60 frames a second with room | a cheaper outline method; fewer cards |
@@ -577,3 +680,8 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
 | The writer falls short (`RSK-08`) | Not built (P13) | pattern text stands alone (`PRE-37`) |
 | Sound breaks up (`RSK-28`) | P14: 9% of the audio thread at worst in the cloud; your phone to come | fewer voices |
 | Godot upgrades break things | each milestone | pinned versions, upgraded between milestones |
+| Islands give a different answer, or too little parallel work | Designed from the literature, not yet built (research 18) | one worker in key order, the same results; speculation inside big islands |
+| EnTT misbehaves on the phone | Built only in the cloud | flecs behind the same thin layer |
+| The screen stays at 120 Hz | Read from Godot's source: set the frame cap again at run time | Android's frame-rate call through JavaClassWrapper; a small plug-in |
+| History outgrows 4 GB (`PLT-10`) | Estimated at 3.5–4.1 GB for 7,000 people at Year 250 | a tighter encoding; what counts as an event, with you |
+| Opening many small catalogue files is slow on the phone | Not measured | one file a kind, read by the same loader |

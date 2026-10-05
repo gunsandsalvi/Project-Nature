@@ -33,6 +33,7 @@ Where a site refused the checking tool, the quote was checked against a search e
 | [15 Sound](15-sound.md) | Layered ambience from what is there, base sounds made by code, Godot's 3D audio for distance and caves, the murmur after Animalese. |
 | [16 Testing](16-testing.md) | doctest and property tests in C++, gdUnit4 for Godot, Movie Maker mode for repeatable pictures and reels, Perfetto and AGI on the phone. |
 | [17 Models, textures, animation](17-assets.md) | The model kit as code and data, MultiMesh copies with per-copy colour and style, key poses bent by rules, icons rendered from models. |
+| [18 The foundations](18-foundations.md) | The same bits by rule and proof, correctly rounded maths, never-reused ids, one event queue run in islands, catalogues with no floats, saves that sync only commands, a triple buffer to Godot, and a benchmark by our own measure. |
 
 ## Can Godot do it? The summary
 

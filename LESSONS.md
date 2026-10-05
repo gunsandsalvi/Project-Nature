@@ -283,6 +283,8 @@ The decisions it led to are in the architecture (`ARCHITECTURE.md`); this note k
   - A label that wraps measures itself at zero width until laid out: panels sized by containers, not by hand.
 - **godot-cpp:** a class's methods that take a native structure appear only if the build profile names the structure; `OS` is needed by godot-cpp's own printing; a local class cannot hold a member template.
 - **The phone:** the screen runs at 120 Hz unless capped; its chip lowers its clock with time to spare, so its milliseconds are partly idle; thermal headroom through Godot's Android runtime, no plug-in needed.
+  - Found afterwards (research 18): Android forecasts heat only while an app has asked within the last 10 s, so the prototypes, asking every 10 s, mostly read the current heat, not a forecast; ask every 2 s.
+  - Also from research 18: Godot 4.7.2 sets the project's frame cap before the screen's swapchain exists, so the screen kept voting 120 Hz; the cap must be set again at run time.
 - **The cloud:** the software Vulkan driver can crash on some shaders at some angles; `sleep` chains are blocked, so waits are loops with a time limit; heavy jobs run one at a time.
 - **C++:** no fast-math, no contraction; our own transcendental functions; clang-tidy's analyzer misreads doctest's own strings as leaked in some tests.
 - **Python:** a model's whole state hashed for its repeat check; one stream of chance can hide a stray draw.
