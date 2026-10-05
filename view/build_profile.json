@@ -1,0 +1,4 @@
+{
+	"_comment": "The Godot classes view/ uses (A2.2). A class that a used method takes must be listed, or godot-cpp silently drops the method; godot-cpp adds the parents and a few of its own. OS is needed by godot-cpp's own printing.",
+	"enabled_classes": ["RefCounted", "OS"]
+}

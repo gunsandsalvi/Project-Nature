@@ -27,6 +27,22 @@ sed -i "s/^version\/code=.*/version\/code=$CODE/" "$PROJECT/export_presets.cfg"
 grep -qx "config/version=\"$NAME\"" "$PROJECT/project.godot" || { echo "Build: no config/version in $PROJECT/project.godot"; exit 1; }
 grep -qx "version/code=$CODE" "$PROJECT/export_presets.cfg" || { echo "Build: no version/code in $PROJECT/export_presets.cfg"; exit 1; }
 
+# The extension for this machine, which Godot's import and export load, and for the phone; the simulation's own
+# build, whose tool writes what the phone's self-check compares with (A2.2, A2.3). Each through ccache, in the
+# folders tools/check.sh builds them in, so neither compiles anything twice.
+cmake_build() {  # folder, source, configure options...
+  local folder="$1" src="$2"
+  shift 2
+  { cmake -S "$src" -B "build/$folder" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache "$@" && cmake --build "build/$folder"; } \
+    >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; echo "Build: $folder failed"; exit 1; }
+}
+cmake_build sim sim -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+cmake_build view view -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+cmake_build view-android view "-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static -DANDROID_WEAK_API_DEFS=ON
+python3 tools/gamedata.py build/sim/kindling >"$TMP/log" 2>&1 || { cat "$TMP/log"; exit 1; }
+
 # The export preset leaves out addons/ and test/, so gdUnit4, which the checks copy in, never reaches the phone.
 # Godot 4.7 can abort as it exits after importing new files, their import done (its Android plug-in finds no adb daemon
 # here); a second import, with nothing left to do, exits cleanly

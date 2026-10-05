@@ -158,4 +158,12 @@ if [ ! -s "$KD_DOCTEST/doctest.h" ]; then
 fi
 fetch https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h "$KD_DOCTEST/doctest.h" \
   44faa038e9c3f9728efbda143748d01124ea0a27f4bf78f35a15d8fab2e039fb
+
+# 11. xxHash 0.8.4's one header, for the simulation's checksums (A3.4), checked against its SHA-256
+if [ ! -s "$KD_XXHASH/xxhash.h" ]; then
+  echo "Setup: installing xxHash 0.8.4"
+  mkdir -p "$KD_XXHASH"
+fi
+fetch https://raw.githubusercontent.com/Cyan4973/xxHash/v0.8.4/xxhash.h "$KD_XXHASH/xxhash.h" \
+  3dc8d161e867a62d3417f7885b55fdaded8b7b497e2f165d05c94f4fe24f2ca4
 exit 0

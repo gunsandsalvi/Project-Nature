@@ -2,9 +2,11 @@
 # The checks before work joins main (PRC-10, A17), in order, stopping at the first failure:
 #   1 formats     GDScript (gdformat), C++ (clang-format 18) and Python (ruff)
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
-#   3 C++         each CMake project built, through ccache; then, beside steps 4 and 5, its doctest tests run (with
-#                 the same results on x86-64 and on arm64 under qemu, on one thread and four) and its code linted
-#                 (clang-tidy 18), each only when what it depends on changed since it passed (tools/cppcache.py)
+#   3 C++         the five builds (A2.2), through ccache; then, beside steps 4 and 5, the simulation's doctest tests
+#                 on its four builds, the same-bits check (every proof suite one digest on x86-64 with clang and GCC
+#                 and on arm64 with GCC and the phone's own compiler, on one thread and four), the scans of the
+#                 flags and the built code (tools/samebits.py), and the code linted (clang-tidy 18); tests and lint
+#                 only when what they depend on changed since they passed (tools/cppcache.py)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
 #   5 tools       the tool tests, and the self-tests of the file check and the signing key, after step 4
 #   6 file check  the three documents, and every commit since main that changes PROJECT.md (PRC-07)
@@ -79,52 +81,85 @@ for f in "${SH[@]}"; do quiet bash -n "$f"; done
 echo "   GDScript, Python and ${#SH[@]} shell scripts"
 
 step "3 C++"
-CMAKE=()
-for d in sim view; do
-  [ -f "$d/CMakeLists.txt" ] && CMAKE+=("$d")
-done
-[ "${#CMAKE[@]}" -gt 0 ] || echo "   no C++ projects yet"
-for d in "${CMAKE[@]}"; do
-  B="build/${d//\//-}"
-  quiet cmake -S "$d" -B "$B" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  quiet cmake --build "$B"
-done
-echo "   ${#CMAKE[@]} projects built"
+# The five builds of our C++ (A2.2): the simulation with clang (its tests and tool), with GCC and its
+# undefined-behaviour checks, and for arm64 with GCC and with the phone's own compiler (NDK r30) as static
+# programs run under qemu, which the same-bits check compares; and the extension with clang, which the Godot tests
+# load. Each through ccache.
+SANITIZE="-fsanitize=undefined -fsanitize=float-cast-overflow -fno-sanitize-recover=all"
+SIM_BUILDS=(sim sim-gcc sim-a64-gcc sim-a64-ndk)
+build_one() {  # name, source folder, configure options...
+  local name="$1" src="$2"
+  shift 2
+  quiet cmake -S "$src" -B "build/$name" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache "$@"
+  quiet cmake --build "build/$name"
+}
+if [ -f sim/CMakeLists.txt ]; then
+  build_one sim sim -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+  build_one sim-gcc sim -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ "-DCMAKE_C_FLAGS=$SANITIZE" \
+    "-DCMAKE_CXX_FLAGS=$SANITIZE" "-DCMAKE_EXE_LINKER_FLAGS=$SANITIZE"
+  build_one sim-a64-gcc sim "-DCMAKE_TOOLCHAIN_FILE=$ROOT/sim/cmake/a64-gcc.cmake"
+  build_one sim-a64-ndk sim "-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+    -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static -DCMAKE_EXE_LINKER_FLAGS=-static \
+    -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64-static
+fi
+[ ! -f view/CMakeLists.txt ] || build_one view view -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+echo "   the simulation's four builds and the extension built"
 
-# Each C++ project's doctest tests, then its code linted (clang-tidy 18).
+# The simulation's doctest tests on its four builds, the same-bits check across them, the scans of what the
+# compilers did, and the code linted (clang-tidy 18).
 cpp_tests() {
   echo "== 3 C++ tests"
-  for d in "${CMAKE[@]}"; do
-    B="build/${d//\//-}"
+  [ -f sim/CMakeLists.txt ] || { echo "   no simulation yet"; return; }
+  for b in "${SIM_BUILDS[@]}"; do
+    B="build/$b"
     # the tests run again only when something they are built from changed since they passed (tools/cppcache.py)
     STAMP="$(python3 tools/cppcache.py tests "$B")"
     if [ "$STAMP" != unknown ] && [ "$(cat "$B/tests.passed" 2>/dev/null)" = "$STAMP" ]; then
       TESTS="tests unchanged since they passed"
     else
-      quiet ctest --test-dir "$B" --output-on-failure -j "$(nproc)"
+      quiet ctest --test-dir "$B" --output-on-failure
       [ "$STAMP" = unknown ] || echo "$STAMP" >"$B/tests.passed"
-      TESTS="$(ctest --test-dir "$B" -N | sed -n 's/^Total Tests: //p') tests passed"
+      TESTS="tests passed"
     fi
-    # and the lint, on every core, only the files whose code, headers, compile command or rules changed
+    # every proof suite on one thread and four, on every build; all must give one digest (A3.4)
+    RUN=()
+    [[ "$b" != sim-a64-* ]] || RUN=(qemu-aarch64-static)
+    for threads in 1 4; do
+      "${RUN[@]}" "$B/kindling" proof --threads "$threads" >"$TMP/proof-$b-$threads" || { cat "$TMP/proof-$b-$threads"; exit 1; }
+    done
+    echo "   $b: $TESTS"
+  done
+  python3 tools/samebits.py same "$TMP"/proof-* | sed 's/^/   /'
+  [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
+  python3 tools/samebits.py flags "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
+  [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
+  python3 tools/samebits.py scan "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
+  [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
+  # the lint, on every core, only the files whose code, headers, compile command or rules changed
+  for d in sim view; do
+    [ -f "$d/CMakeLists.txt" ] || continue
     mapfile -t SRC < <(printf '%s\n' "${CPP[@]}" | grep -E "^$d/.*\.(cpp|cc)\$" || true)
     LINT="no files to lint"
     if [ "${#SRC[@]}" -gt 0 ]; then
-      LINT="$(python3 tools/cppcache.py lint "$B" "^$ROOT/$d/" "${SRC[@]}")" || { echo "$LINT"; exit 1; }
+      LINT="$(python3 tools/cppcache.py lint "build/$d" "^$ROOT/$d/" "${SRC[@]}")" || { echo "$LINT"; exit 1; }
     fi
-    echo "   $d: $TESTS; lint: $LINT"
+    echo "   $d lint: $LINT"
   done
 }
 
 godot_step() {
   echo "== 4 Godot"
+  # what the phone's self-check compares with, from the simulation's own build (A2.3)
+  [ ! -x build/sim/kindling ] || quiet python3 tools/gamedata.py build/sim/kindling
   PROJECTS=()
   [ ! -f game/project.godot ] || PROJECTS+=(game)
   [ "${#PROJECTS[@]}" -gt 0 ] || echo "   no Godot projects yet"
   for d in "${PROJECTS[@]}"; do
     # what the import, the scripts and the tests read: the project's files, the extensions built for this machine,
     # and the tools' versions
-    mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$d/"; compgen -G "$d/*/bin/*.so" || true)
+    mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$d/"; compgen -G "$d/bin/*.so" || true; \
+      compgen -G "$d/data/*.toml" || true)
     FP="$(fingerprint "${READS[@]}" tools/godot-scripts.gd "$KD_GODOT_VERSION" "$KD_GDUNIT")"
     before="$(git status --porcelain --untracked-files=all -- "$d")"
     if passed "godot-${d//\//-}" "$FP"; then

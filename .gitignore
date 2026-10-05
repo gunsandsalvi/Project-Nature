@@ -15,3 +15,6 @@ __pycache__/
 
 # tools/reel.sh's passing window size
 override.cfg
+# the game's built extension and its copy of data/, made by tools/check.sh and tools/build.sh (A2.1)
+/game/bin/
+/game/data/

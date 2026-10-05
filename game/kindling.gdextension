@@ -1,0 +1,12 @@
+; The app's one extension, libkindling, built from view/ by tools/check.sh (Linux) and tools/build.sh (the phone)
+; into game/bin/ (A2.2). Godot 4.7 loads extensions built with godot-cpp 4.5.
+[configuration]
+
+entry_symbol = "kindling_init"
+compatibility_minimum = "4.5"
+reloadable = false
+
+[libraries]
+
+linux.x86_64 = "res://bin/libkindling.linux.x86_64.so"
+android.arm64 = "res://bin/libkindling.android.arm64.so"
