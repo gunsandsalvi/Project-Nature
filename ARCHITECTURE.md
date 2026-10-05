@@ -146,7 +146,7 @@ dist/        the signed APK of the latest alpha and its note
 - gdUnit4, doctest, godot-cpp 4.5, EnTT 4.0.0, toml++, xxHash and zstd;
 - Mesa's software Vulkan driver (lavapipe) and Xvfb, so Godot can draw pictures without a graphics chip (research 16).
 
-CORE-MATH's few C files are kept in `sim/thirdparty/` at a pinned commit, since its host is the one source a session might not reach.
+CORE-MATH's few C files are kept in `sim/thirdparty/` at a pinned commit, with a sample of its hard cases, since its host is the one source a session might not reach; `tools/core-math.py` copies them from a checkout of that commit.
 
 ## A3. The simulation core (research 03, 18)
 
@@ -213,8 +213,10 @@ The same library runs scenes and whole worlds headless in the cloud, under the s
 Following Box2D, Factorio and research 18:
 - **Arithmetic:** IEEE double precision for working values, with no fast-math and no contraction into fused multiply-adds (A2.2).
   The basic operations, the square root and the exact helpers (`floor`, `fmod`, `ldexp` and the like) are the same everywhere.
-- **Maths functions:** CORE-MATH's correctly rounded double functions (sine, cosine, tangent and their inverses, exponents, logarithms, power, hyperbolic tangent, error function, cube root, hypotenuse), vendored at a pinned commit and wrapped once.
-  A correctly rounded answer is unique, so every machine agrees; MPFR checks them in the cloud, and no platform maths function is used.
+- **Maths functions:** CORE-MATH's correctly rounded double functions, vendored at a pinned commit and wrapped once in `sim/num`, which refuses any input outside a function's domain and any answer that is not a finite number.
+  - Since angles are turns, sine, cosine, tangent and their inverses are those in half turns (`sinpi`, `asinpi` and the like), exact at the quarter turns; then exponents, logarithms, power, hyperbolic tangent, error function, cube root and hypotenuse.
+  - A correctly rounded answer is unique, so every machine agrees: MPFR checks every function in the cloud on its edges, CORE-MATH's hard cases and 200,000 inputs across its domain, and no platform maths function is used.
+  - Measured in the cloud (x86-64 without fused multiply-add): 10–30 ns a call, 82 for power and 127 for the direction of a vector; the phone's own times are in its self-check.
 - **Numbers:**
   - positions as 32-bit whole centimetres on the torus, 200,000,000 by 100,000,000, differences wrapped in 64-bit arithmetic;
   - heights in millimetres;

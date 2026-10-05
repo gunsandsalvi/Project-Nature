@@ -10,15 +10,22 @@ set(KD_DOCTEST "$ENV{KD_DOCTEST}" CACHE PATH "doctest's folder (tools/setup.sh)"
 include(cmake/kindling.cmake)
 find_package(Threads REQUIRED)
 
+# CORE-MATH's correctly rounded maths (A3.4), vendored at a pinned commit by tools/core-math.py: C, with our
+# floating-point flags and without our warnings.
+file(GLOB KD_CORE_MATH CONFIGURE_DEPENDS thirdparty/core-math/src/binary64/*/*.c)
+add_library(kd_core_math STATIC ${KD_CORE_MATH})
+kindling_c_rules(kd_core_math)
+
 add_library(kd_sim STATIC
     src/kd/core/check.cpp
     src/kd/num/digest.cpp
     src/kd/num/fenv.cpp
+    src/kd/num/maths.cpp
     src/kd/proof/proof.cpp
     src/kd/run/workers.cpp)
 target_include_directories(kd_sim PUBLIC src)
 target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}")
-target_link_libraries(kd_sim PUBLIC Threads::Threads)
+target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math)
 kindling_rules(kd_sim)
 
 if(KD_SIM_TESTS)
@@ -28,6 +35,7 @@ if(KD_SIM_TESTS)
 
     add_executable(kd_sim_tests
         tests/main.cpp
+        tests/maths_test.cpp
         tests/num_test.cpp
         tests/run_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
@@ -37,4 +45,16 @@ if(KD_SIM_TESTS)
 
     enable_testing()
     add_test(NAME sim COMMAND kd_sim_tests)
+
+    # The maths oracle, where MPFR is: the cloud's own builds, never the cross builds for arm64.
+    find_path(KD_MPFR_INCLUDE mpfr.h)
+    find_library(KD_MPFR mpfr)
+    find_library(KD_GMP gmp)
+    if(KD_MPFR_INCLUDE AND KD_MPFR AND KD_GMP AND NOT CMAKE_CROSSCOMPILING)
+        add_executable(kd_oracle tests/oracle.cpp)
+        target_include_directories(kd_oracle SYSTEM PRIVATE "${KD_MPFR_INCLUDE}" thirdparty/core-math)
+        target_link_libraries(kd_oracle PRIVATE kd_sim "${KD_MPFR}" "${KD_GMP}")
+        kindling_rules(kd_oracle)
+        add_test(NAME oracle COMMAND kd_oracle)
+    endif()
 endif()

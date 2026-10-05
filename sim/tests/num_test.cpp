@@ -8,6 +8,7 @@
 #include "helpers.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/num/fenv.hpp"
+#include "kd/num/mix.hpp"
 
 #define XXH_STATIC_LINKING_ONLY
 #define XXH_INLINE_ALL
@@ -77,4 +78,17 @@ TEST_CASE("the guard sees flushing to zero, and resetting restores the default")
     CHECK(default_at_start);
     CHECK_FALSE(default_with_flush);
     CHECK(default_after_reset);
+}
+
+// The first outputs of SplitMix64 from seed 0, as its author's reference code gives them.
+// checks: TIM-16
+TEST_CASE("mix64 is SplitMix64's finaliser") {
+    static_assert(kd::num::mix64(0) == 0);
+    const std::uint64_t expected[] = {0xE220A8397B1DCDAFULL, 0x6E789E6AA1B965F4ULL, 0x06C45D188009454FULL,
+                                      0xF88BB8A8724C81ECULL};
+    std::uint64_t state = 0;
+    for (std::uint64_t e : expected) {
+        state += 0x9E3779B97F4A7C15ULL;
+        CHECK(kd::num::mix64(state) == e);
+    }
 }
