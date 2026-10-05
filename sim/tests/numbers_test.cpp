@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <functional>
 #include <limits>
 #include <vector>
 
@@ -8,6 +9,7 @@
 #include "kd/num/convert.hpp"
 #include "kd/num/mix.hpp"
 #include "kd/num/probability.hpp"
+#include "kd/num/sort.hpp"
 #include "kd/num/torus.hpp"
 
 namespace num = kd::num;
@@ -158,4 +160,15 @@ TEST_CASE("probabilities are exact thresholds for 64-bit draws") {
     CHECK_FALSE(Probability::ratio(1, 2).fires(std::uint64_t{1} << 63U));
     CHECK(kd::test::stops([] { Probability::ratio(2, 1); }));
     CHECK(kd::test::stops([] { Probability::ratio(0, 0); }));
+}
+
+// checks: RES-05
+TEST_CASE("the strict sort orders by an order with no ties, and refuses ties") {
+    std::vector<int> v{5, 3, 9, 1};
+    kd::num::sort_strict(v.begin(), v.end(), std::less<>());
+    CHECK(v == std::vector<int>{1, 3, 5, 9});
+    CHECK(kd::test::stops([] {
+        std::vector<int> tied{2, 1, 2};
+        kd::num::sort_strict(tied.begin(), tied.end(), std::less<>());
+    }));
 }

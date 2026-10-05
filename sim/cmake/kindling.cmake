@@ -3,7 +3,8 @@
 # can replace the simulation's own copy at link time (research 18).
 #
 # -ffp-contract=off must be the last floating-point flag on each compile line: a later -ffp-model turns contraction
-# into fused multiply-adds back on without a warning. tools/samebits.py checks it on the compile commands.
+# into fused multiply-adds back on without a warning. Plain char is unsigned on every build, as on arm64, so no
+# arithmetic on it can differ between chips. tools/samebits.py checks both on the compile commands.
 
 function(kindling_rules target)
     target_compile_features(${target} PUBLIC cxx_std_20)
@@ -14,7 +15,7 @@ function(kindling_rules target)
         POSITION_INDEPENDENT_CODE ON)
     target_compile_options(${target} PRIVATE
         -Wall -Wextra -Werror -Wdouble-promotion -Wfloat-conversion
-        -fno-exceptions
+        -fno-exceptions -funsigned-char
         -ffunction-sections -fdata-sections
         $<$<CXX_COMPILER_ID:GNU>:-fexcess-precision=standard>
         -fno-fast-math -fno-math-errno
@@ -27,7 +28,7 @@ function(kindling_c_rules target)
         C_VISIBILITY_PRESET hidden
         POSITION_INDEPENDENT_CODE ON)
     target_compile_options(${target} PRIVATE
-        -ffunction-sections -fdata-sections
+        -funsigned-char -ffunction-sections -fdata-sections
         $<$<C_COMPILER_ID:GNU>:-fexcess-precision=standard>
         -fno-fast-math -fno-math-errno
         -ffp-contract=off)

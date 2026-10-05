@@ -32,8 +32,8 @@ fetch() {   # url, file, checksum (SHA-512 or SHA-256): downloads once, then che
 }
 
 # 1. System packages: Xvfb and the software Vulkan driver, so Godot draws pictures without a graphics chip; qemu and
-#    the arm64 compiler for the same-bits check (A3.4); the C++ build with its compiler cache, format and lint tools;
-#    MPFR, the maths functions' test oracle (A3.4); Java for export.
+#    the arm64 compiler for the same-bits check (A3.4); the C++ build with its compiler cache, format and lint tools,
+#    and clang-query for the banned list; MPFR, the maths functions' test oracle (A3.4); Java for export.
 need=()
 command -v Xvfb >/dev/null || need+=(xvfb)
 [ -f /usr/share/vulkan/icd.d/lvp_icd.json ] || need+=(mesa-vulkan-drivers)
@@ -44,6 +44,7 @@ command -v ninja >/dev/null || need+=(ninja-build)
 command -v ccache >/dev/null || need+=(ccache)
 command -v clang-format-18 >/dev/null || need+=(clang-format-18)
 command -v clang-tidy-18 >/dev/null || need+=(clang-tidy-18)
+command -v clang-query-18 >/dev/null || need+=(clang-tools-18)
 [ -f /usr/include/mpfr.h ] || need+=(libmpfr-dev)
 [ -x "$JAVA_HOME/bin/java" ] || need+=(openjdk-21-jdk-headless)
 if [ "${#need[@]}" -gt 0 ]; then

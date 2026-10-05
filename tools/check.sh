@@ -2,11 +2,13 @@
 # The checks before work joins main (PRC-10, A17), in order, stopping at the first failure:
 #   1 formats     GDScript (gdformat), C++ (clang-format 18) and Python (ruff)
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
-#   3 C++         the five builds (A2.2), through ccache; then, beside steps 4 and 5, the simulation's doctest tests
-#                 on its four builds, the same-bits check (every proof suite one digest on x86-64 with clang and GCC
-#                 and on arm64 with GCC and the phone's own compiler, on one thread and four), the scans of the
-#                 flags and the built code (tools/samebits.py), and the code linted (clang-tidy 18); tests and lint
-#                 only when what they depend on changed since they passed (tools/cppcache.py)
+#   3 C++         the five builds (A2.2), through ccache, and the phone compiler's twice more with libc++'s order of
+#                 ties randomized under two seeds; then, beside steps 4 and 5, the simulation's doctest tests on its
+#                 four builds, the same-bits check (every proof suite one digest on x86-64 with clang and GCC, on
+#                 arm64 with GCC and the phone's own compiler, and on the randomized builds, on one thread and four),
+#                 the scans of the flags and the built code (tools/samebits.py), the banned list (tools/rules.py) and
+#                 the code linted (clang-tidy 18); tests, rules and lint only when what they depend on changed since
+#                 they passed (tools/cppcache.py)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
 #   5 tools       the tool tests, and the self-tests of the file check and the signing key, after step 4
 #   6 file check  the three documents, and every commit since main that changes PROJECT.md (PRC-07)
@@ -87,24 +89,31 @@ step "3 C++"
 # load. Each through ccache.
 SANITIZE="-fsanitize=undefined -fsanitize=float-cast-overflow -fno-sanitize-recover=all"
 SIM_BUILDS=(sim sim-gcc sim-a64-gcc sim-a64-ndk)
-build_one() {  # name, source folder, configure options...
+TIE_BUILDS=(sim-a64-tie1 sim-a64-tie2)
+build_one() {  # name, source folder, configure options...; TARGET, if set, builds only that target
   local name="$1" src="$2"
   shift 2
   quiet cmake -S "$src" -B "build/$name" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache "$@"
-  quiet cmake --build "build/$name"
+  quiet cmake --build "build/$name" ${TARGET:+--target "$TARGET"}
 }
 if [ -f sim/CMakeLists.txt ]; then
   build_one sim sim -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
   build_one sim-gcc sim -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ "-DCMAKE_C_FLAGS=$SANITIZE" \
     "-DCMAKE_CXX_FLAGS=$SANITIZE" "-DCMAKE_EXE_LINKER_FLAGS=$SANITIZE"
   build_one sim-a64-gcc sim "-DCMAKE_TOOLCHAIN_FILE=$ROOT/sim/cmake/a64-gcc.cmake"
-  build_one sim-a64-ndk sim "-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
-    -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static -DCMAKE_EXE_LINKER_FLAGS=-static \
-    -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64-static
+  NDK=("-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" -DANDROID_ABI=arm64-v8a
+    -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static -DCMAKE_EXE_LINKER_FLAGS=-static
+    -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64-static)
+  build_one sim-a64-ndk sim "${NDK[@]}"
+  # libc++ shuffles before each sort that may leave ties in any order, so a result that depends on ties moves
+  for seed in 1 2; do
+    TARGET=kindling build_one "sim-a64-tie$seed" sim "${NDK[@]}" "-DCMAKE_CXX_FLAGS=-D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY \
+-D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY_SEED=$seed"
+  done
 fi
 [ ! -f view/CMakeLists.txt ] || build_one view view -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-echo "   the simulation's four builds and the extension built"
+echo "   the simulation's four builds, its two with ties randomized, and the extension built"
 
 # The simulation's doctest tests on its four builds, the same-bits check across them, the scans of what the
 # compilers did, and the code linted (clang-tidy 18).
@@ -130,13 +139,20 @@ cpp_tests() {
     done
     echo "   $b: $TESTS"
   done
+  for b in "${TIE_BUILDS[@]}"; do
+    for threads in 1 4; do
+      qemu-aarch64-static "build/$b/kindling" proof --threads "$threads" >"$TMP/proof-$b-$threads" \
+        || { cat "$TMP/proof-$b-$threads"; exit 1; }
+    done
+  done
   python3 tools/samebits.py same "$TMP"/proof-* | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
   python3 tools/samebits.py flags "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
   python3 tools/samebits.py scan "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
-  # the lint, on every core, only the files whose code, headers, compile command or rules changed
+  # the lint, on every core, only the files whose code, headers, compile command or rules changed; then the banned
+  # list over the simulation's and the extension's own code (A3.4)
   for d in sim view; do
     [ -f "$d/CMakeLists.txt" ] || continue
     mapfile -t SRC < <(printf '%s\n' "${CPP[@]}" | grep -E "^$d/.*\.(cpp|cc)\$" || true)
@@ -145,6 +161,11 @@ cpp_tests() {
       LINT="$(python3 tools/cppcache.py lint "build/$d" "^$ROOT/$d/" "${SRC[@]}")" || { echo "$LINT"; exit 1; }
     fi
     echo "   $d lint: $LINT"
+    mapfile -t SRC < <(printf '%s\n' "${CPP[@]}" | grep -E "^$d/src/.*\.(cpp|cc)\$" || true)
+    if [ "${#SRC[@]}" -gt 0 ]; then
+      RULES="$(python3 tools/rules.py check "build/$d" "${SRC[@]}")" || { echo "$RULES"; exit 1; }
+      echo "   $d ${RULES#Rules: }"
+    fi
   done
 }
 

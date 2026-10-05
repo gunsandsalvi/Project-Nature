@@ -83,11 +83,25 @@ class Planted(unittest.TestCase):
             {
                 "directory": self.build,
                 "file": os.path.join(self.root, "sim", "c.cpp"),
-                "arguments": ["clang++", "-fno-fast-math", "-ffp-contract=off", "-c", "c.cpp"],
+                "arguments": ["clang++", "-funsigned-char", "-fno-fast-math", "-ffp-contract=off", "-c", "c.cpp"],
             }
         )
         self.write_commands()
         self.assertEqual(self.problems("flags"), [])
+
+    # checks: RES-05
+    def test_plain_char_must_be_made_unsigned(self):
+        for flags in ([], ["-funsigned-char", "-fsigned-char"]):
+            self.commands = [
+                {
+                    "directory": self.build,
+                    "file": os.path.join(self.root, "sim", "d.cpp"),
+                    "arguments": ["clang++", *flags, "-ffp-contract=off", "-c", "d.cpp"],
+                }
+            ]
+            self.write_commands()
+            found = self.problems("flags")
+            self.assertTrue(any("-funsigned-char" in p for p in found), (flags, found))
 
     @unittest.skipUnless(os.path.exists(NDK_CLANG), "needs the NDK")
     # checks: RES-05

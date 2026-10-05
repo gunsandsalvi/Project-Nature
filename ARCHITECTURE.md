@@ -106,7 +106,7 @@ dist/        the signed APK of the latest alpha and its note
   - `view/` is one shared library, `libkindling`, linking `sim/` and godot-cpp 4.5 built from a trimmed profile (`view/build_profile.json`), which Godot 4.7 loads (P5).
     A class that a used method takes must be named in the profile, or the method silently vanishes (`LESSONS.md`).
     godot-cpp 10, which targets Godot 4.7's own interface, is offered after M1 (research 18).
-- **Flags for all our C++** (A3.4): `-std=c++20 -O2 -Wall -Wextra -Werror -fno-exceptions -fno-fast-math -fno-math-errno -ffp-contract=off`, with `-ffp-contract=off` the last floating-point flag on the line; symbols hidden; `-ffunction-sections -fdata-sections` linked with `--gc-sections`.
+- **Flags for all our C++** (A3.4): `-std=c++20 -O2 -Wall -Wextra -Werror -fno-exceptions -funsigned-char -fno-fast-math -fno-math-errno -ffp-contract=off`, with `-ffp-contract=off` the last floating-point flag on the line; symbols hidden; `-ffunction-sections -fdata-sections` linked with `--gc-sections`.
   Nothing throws: errors are values.
 - **Five builds** (research 18):
   - the cloud's main build: x86-64 with clang 18, for the tests, the tool and the extension the Godot tests load;
@@ -226,7 +226,21 @@ Following Box2D, Factorio and research 18:
   - probabilities as 64-bit thresholds read exactly from the catalogue's text or a ratio, a draw firing below its threshold, and certainty its own case;
   - one conversion from floating to whole numbers, rounding down, up, toward zero or to the nearest (halves away from zero), which refuses what is not finite or does not fit;
   - floats never in saved state, and never NaN.
-- **Banned in `sim/`, each with its replacement in `sim/num`:** `long double`, `float` in state, plain `char` arithmetic, platform maths, `fmin` and `fmax`, casts from floating to integer outside one checked function, parsing or printing floats, `<random>`'s distributions and shuffles, `std::reduce`, `std::hash` or unordered order deciding anything, sorts without a strict total order, thread counts, clocks, addresses or the locale in decisions, two calls with side effects in one expression, and raw memory hashed or saved.
+- **Banned in `sim/`, each with its replacement,** checked on the code's syntax tree (clang-query) by `tools/rules.py`, which names the replacement in each message:
+  - `long double` (double), also in `view/`;
+  - `float` (double for working values, whole numbers in state);
+  - platform maths and `fmin` and `fmax` (`kd::num`'s maths, `std::min` and `std::max`), also in `view/`;
+  - casts from floating to whole numbers, but in `kd::num::to_int`;
+  - parsing or printing floats (unit strings read into whole numbers, A3.6);
+  - `<random>` (`kd::chance`);
+  - `std::reduce`, the scans and the execution policies (pieces of a fixed size added in their order);
+  - `std::hash` and the unordered containers (`std::map`, sorted vectors, `kd::chance::name` for a stable hash);
+  - sorts and heaps that leave ties to the library (`kd::num::sort_strict`, which refuses ties, or `std::stable_sort`);
+  - thread counts, clocks, the locale, character classes and addresses;
+  - two calls with effects in one expression (a statement each);
+  - raw memory hashed, compared or copied (fields one by one, `std::bit_cast` for a value's bits).
+
+  Plain `char` is unsigned on every build (`-funsigned-char`, as on arm64, and as Linux has made it since 6.2), so its arithmetic cannot differ between chips; the same-bits check holds every compile command to it.
 - **The floating-point environment:** each simulation thread sets the default one first, and checkpoints assert it (x86-64's MXCSR, arm64's FPCR), since a new thread inherits whatever its creator had.
 - **Order:** every loop that decides anything runs in a defined order (A3.2); parallel work is cut into chunks whose size and borders depend only on the data, gathered, then applied in key or id order.
 - **Checksums:** XXH3 over a canonical stream, each system in a fixed order, entities by id, fields little-endian; a digest per system and for the whole state at every checkpoint, so a difference narrows to a system and a day.
@@ -625,7 +639,8 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - **Scenes and whole worlds** run by the C++ library alone, through the `kindling` tool, many at once in the cloud: each scene is a TOML file in `data/scenes/` stating, before its first run, the items it checks, its seed, its runs, its time limit, its budget and its pass rule, counted over about 20 runs where chance matters (`RES-21`, `RES-09`, `RES-13`).
   A run keeps checkpoints and resumes from the last as if it had never stopped (`PLT-05`); a run with a test switch says so in its report and its world (`RES-10`).
 - **The same results everywhere** (A3.4): seeded worlds on the five builds, on one to four threads, with islands of several window lengths, stopped, saved, reopened and resumed; libc++ with its tie order randomized, and the order fuzzer scrambling EnTT's pools; every digest must match (`RES-05`).
-  The check also reads the compile commands for the last floating-point flag, scans our built code for fused instructions and for the platform's maths functions, and holds the maths library to MPFR's correctly rounded answers.
+  The check also reads the compile commands for the last floating-point flag and unsigned `char`, scans our built code for fused instructions and for the platform's maths functions, holds the maths library to MPFR's correctly rounded answers, and checks the banned list on the code's syntax tree, each rule proved by a planted use.
+  The phone's compiler builds the proof suites twice more with libc++'s order of ties randomized under two seeds, and their digests must match too.
 - **Saves:** the headless tool killed at random a hundred times mid-run, each reopening carrying on exactly (`PLT-07`); damaged files (cut, a flipped bit, zeros) refused; the corpus of old worlds opened by every build (`PLT-09`).
 - **Catalogues:** a test catalogue with one planted fault for each check, each refused at its file, line and column (`MAT-17`).
 - **The Godot side** with gdUnit4: layouts, cards and views opened from records, headless; gestures by simulated touch under Xvfb, since Godot's headless mode drops input events.

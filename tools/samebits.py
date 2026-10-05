@@ -2,7 +2,8 @@
 """The same-bits scans (RES-05, A3.4, A17): what the compilers actually did, read from their outputs.
 
     python3 tools/samebits.py flags <build folder>...    each of our compile commands ends its floating-point
-                                                          flags with -ffp-contract=off, and uses no banned one
+                                                          flags with -ffp-contract=off, uses no banned one, and
+                                                          makes plain char unsigned
     python3 tools/samebits.py scan <build folder>...     our object files hold no fused multiply-add and call no
                                                           platform maths function
     python3 tools/samebits.py same <file>...             every file of "<suite> <digest> ..." lines gives each
@@ -82,6 +83,9 @@ def check_flags(builds):
             if not fp or fp[-1] != "-ffp-contract=off":
                 last = fp[-1] if fp else "nothing"
                 problems.append(f"{build}: {path}'s last floating-point flag is {last}, not -ffp-contract=off")
+            signs = [a for a in arguments(entry) if a in ("-funsigned-char", "-fsigned-char", "-fno-unsigned-char")]
+            if not signs or signs[-1] != "-funsigned-char":
+                problems.append(f"{build}: {path} is compiled without -funsigned-char, so plain char's sign differs")
     return problems, seen
 
 
@@ -148,7 +152,7 @@ def main(argv):
     command, args = argv[0], argv[1:]
     if command == "flags":
         problems, n = check_flags(args)
-        ok = f"Same bits: the flags of {n} compile commands end with -ffp-contract=off"
+        ok = f"Same bits: the flags of {n} compile commands end with -ffp-contract=off, char unsigned"
     elif command == "scan":
         problems, n = scan(args)
         ok = f"Same bits: {n} object files with no fused multiply-add and no platform maths"
