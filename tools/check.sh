@@ -4,7 +4,7 @@
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
 #   3 C++         each CMake project built, through ccache; then, beside steps 4 and 5, its doctest tests run (with
 #                 the same results on x86-64 and on arm64 under qemu, on one thread and four) and its code linted
-#                 (clang-tidy 18) unless no C++ changed since it last passed
+#                 (clang-tidy 18), each only when what it depends on changed since it passed (tools/cppcache.py)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
 #   5 tools       the tool tests and the cloud prototypes' own, and the self-tests of the file check and the
 #                 signing key, after step 4
@@ -42,6 +42,19 @@ quiet() {
   local out
   out="$(mktemp -p "$TMP")"
   "$@" >"$out" 2>&1 || { cat "$out"; return 1; }
+}
+# A fingerprint of the named files' names and contents, and of any words among them that are not files, in any order,
+# for the steps skipped while nothing they read changed since they passed (A17); the passes are kept in build/passed/.
+fingerprint() {
+  local f
+  for f in "$@"; do
+    if [ -f "$f" ]; then sha256sum "$f"; else echo "word $f"; fi
+  done | sort | sha256sum | cut -c1-64
+}
+passed() { [ "$(cat "build/passed/$1" 2>/dev/null)" = "$2" ]; }
+pass() {
+  mkdir -p build/passed
+  echo "$2" >"build/passed/$1"
 }
 
 # Our code: every file git holds or would hold, outside third-party code. The bake-off is kept as it was, for P1
@@ -87,20 +100,22 @@ cpp_tests() {
   echo "== 3 C++ tests"
   for d in "${CMAKE[@]}"; do
     B="build/${d//\//-}"
-    quiet ctest --test-dir "$B" --output-on-failure -j "$(nproc)"
-    mapfile -t SRC < <(printf '%s\n' "${CPP[@]}" | grep -E "^$d/.*\.(cpp|cc)\$" || true)
-    # clang-tidy only when a C++ file, a lint rule, the compile commands or the linter changed since this folder last
-    # passed: the stamp is a hash of them all
-    STAMP="$( { clang-tidy-18 --version; cat "$B/compile_commands.json"; printf '%s\n' "${CPP[@]}" | xargs cat
-      find . -name .clang-tidy -not -path './build/*' | sort | xargs cat; } | sha256sum | cut -c1-64)"
-    LINT="${#SRC[@]} files linted"
-    if [ "${#SRC[@]}" -gt 0 ] && [ "$(cat "$B/tidy.stamp" 2>/dev/null)" != "$STAMP" ]; then
-      quiet clang-tidy-18 -p "$B" --quiet --header-filter="^$ROOT/$d/" "${SRC[@]}"
-      echo "$STAMP" >"$B/tidy.stamp"
-    elif [ "${#SRC[@]}" -gt 0 ]; then
-      LINT="${#SRC[@]} files unchanged since their lint passed"
+    # the tests run again only when something they are built from changed since they passed (tools/cppcache.py)
+    STAMP="$(python3 tools/cppcache.py tests "$B")"
+    if [ "$STAMP" != unknown ] && [ "$(cat "$B/tests.passed" 2>/dev/null)" = "$STAMP" ]; then
+      TESTS="tests unchanged since they passed"
+    else
+      quiet ctest --test-dir "$B" --output-on-failure -j "$(nproc)"
+      [ "$STAMP" = unknown ] || echo "$STAMP" >"$B/tests.passed"
+      TESTS="$(ctest --test-dir "$B" -N | sed -n 's/^Total Tests: //p') tests passed"
     fi
-    echo "   $d: $(ctest --test-dir "$B" -N | sed -n 's/^Total Tests: //p') tests passed, $LINT"
+    # and the lint, on every core, only the files whose code, headers, compile command or rules changed
+    mapfile -t SRC < <(printf '%s\n' "${CPP[@]}" | grep -E "^$d/.*\.(cpp|cc)\$" || true)
+    LINT="no files to lint"
+    if [ "${#SRC[@]}" -gt 0 ]; then
+      LINT="$(python3 tools/cppcache.py lint "$B" "^$ROOT/$d/" "${SRC[@]}")" || { echo "$LINT"; exit 1; }
+    fi
+    echo "   $d: $TESTS; lint: $LINT"
   done
 }
 
@@ -110,35 +125,45 @@ godot_step() {
   for f in game/project.godot prototypes/*/project.godot; do [ -f "$f" ] && PROJECTS+=("$(dirname "$f")"); done
   [ "${#PROJECTS[@]}" -gt 0 ] || echo "   no Godot projects yet"
   for d in "${PROJECTS[@]}"; do
+    # what the import, the scripts and the tests read: the project's files, the extensions built for this machine,
+    # and the tools' versions
+    mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$d/"; compgen -G "$d/*/bin/*.so" || true)
+    FP="$(fingerprint "${READS[@]}" tools/godot-scripts.gd "$KD_GODOT_VERSION" "$KD_GDUNIT")"
     before="$(git status --porcelain --untracked-files=all -- "$d")"
-    rm -rf "$d/addons/gdUnit4"
-    mkdir -p "$d/addons"
-    cp -r "$KD_GDUNIT/addons/gdUnit4" "$d/addons/gdUnit4"
-    # Godot 4.7 can abort as it exits after importing new files, their import done (its Android plug-in finds no adb
-    # daemon here); a second import, with nothing left to do, exits cleanly
-    timeout 600 "$GODOT" --headless --path "$d" --import >"$TMP/import" 2>&1 \
-      || timeout 600 "$GODOT" --headless --path "$d" --import >>"$TMP/import" 2>&1 || { cat "$TMP/import"; exit 1; }
-    if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' "$TMP/import"; then exit 1; fi
-    timeout 300 "$GODOT" --headless --path "$d" -s "$ROOT/tools/godot-scripts.gd" >"$TMP/scripts" 2>&1 \
-      || { grep -vE '^\s*$' "$TMP/scripts" | tail -40; exit 1; }
-    COMPILED="$(sed -n 's/^Scripts: \([0-9]*\) compiled.*/\1/p' "$TMP/scripts")"
-    RAN=0
-    if [ -d "$d/test" ]; then
-      # Only exit code 0 passes: 100 is a failure, 101 a node a test left behind, 105 a script error. The reports go
-      # to Godot's user folder, outside the repository; the remote-debug address keeps Godot's debugger from waiting
-      # for input after a script error.
-      rc=0
-      timeout 600 "$GODOT" --headless --path "$d" -s -d --remote-debug tcp://127.0.0.1:0 \
-        res://addons/gdUnit4/bin/GdUnitCmdTool.gd --ignoreHeadlessMode -a res://test -rd user://gdunit-reports -c \
-        >"$TMP/tests" 2>&1 || rc=$?
-      sed 's/\x1b\[[0-9;]*m//g' "$TMP/tests" >"$TMP/plain"
-      if [ "$rc" -ne 0 ]; then
-        grep -vE '^\s*$' "$TMP/plain" | tail -60
-        echo "gdUnit4 in $d: exit $rc"
-        exit 1
+    if passed "godot-${d//\//-}" "$FP"; then
+      SUMMARY="unchanged since its import, scripts and gdUnit4 tests passed"
+    else
+      rm -rf "$d/addons/gdUnit4"
+      mkdir -p "$d/addons"
+      cp -r "$KD_GDUNIT/addons/gdUnit4" "$d/addons/gdUnit4"
+      # Godot 4.7 can abort as it exits after importing new files, their import done (its Android plug-in finds no adb
+      # daemon here); a second import, with nothing left to do, exits cleanly
+      timeout 600 "$GODOT" --headless --path "$d" --import >"$TMP/import" 2>&1 \
+        || timeout 600 "$GODOT" --headless --path "$d" --import >>"$TMP/import" 2>&1 || { cat "$TMP/import"; exit 1; }
+      if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' "$TMP/import"; then exit 1; fi
+      timeout 300 "$GODOT" --headless --path "$d" -s "$ROOT/tools/godot-scripts.gd" >"$TMP/scripts" 2>&1 \
+        || { grep -vE '^\s*$' "$TMP/scripts" | tail -40; exit 1; }
+      COMPILED="$(sed -n 's/^Scripts: \([0-9]*\) compiled.*/\1/p' "$TMP/scripts")"
+      RAN=0
+      if [ -d "$d/test" ]; then
+        # Only exit code 0 passes: 100 is a failure, 101 a node a test left behind, 105 a script error. The reports go
+        # to Godot's user folder, outside the repository; the remote-debug address keeps Godot's debugger from waiting
+        # for input after a script error.
+        rc=0
+        timeout 600 "$GODOT" --headless --path "$d" -s -d --remote-debug tcp://127.0.0.1:0 \
+          res://addons/gdUnit4/bin/GdUnitCmdTool.gd --ignoreHeadlessMode -a res://test -rd user://gdunit-reports -c \
+          >"$TMP/tests" 2>&1 || rc=$?
+        sed 's/\x1b\[[0-9;]*m//g' "$TMP/tests" >"$TMP/plain"
+        if [ "$rc" -ne 0 ]; then
+          grep -vE '^\s*$' "$TMP/plain" | tail -60
+          echo "gdUnit4 in $d: exit $rc"
+          exit 1
+        fi
+        RAN="$(sed -n 's/^Overall Summary: \([0-9]*\) test cases.*/\1/p' "$TMP/plain")"
+        [ -n "$RAN" ] || { tail -40 "$TMP/plain"; echo "gdUnit4 in $d: no summary"; exit 1; }
       fi
-      RAN="$(sed -n 's/^Overall Summary: \([0-9]*\) test cases.*/\1/p' "$TMP/plain")"
-      [ -n "$RAN" ] || { tail -40 "$TMP/plain"; echo "gdUnit4 in $d: no summary"; exit 1; }
+      SUMMARY="imported, $COMPILED scripts compiled, $RAN gdUnit4 tests passed"
+      PASSED_GODOT="$FP"
     fi
     # Godot writes a .uid file beside each new script and shader: they belong in the commit, so the check stops
     # when Godot has added or changed anything, when a committed script's .uid is not committed with it, and, for a
@@ -157,18 +182,37 @@ godot_step() {
       sed 's/^/   /' <<<"$after"
       exit 1
     fi
-    echo "   $d: imported, $COMPILED scripts compiled, $RAN gdUnit4 tests passed"
+    [ -z "${PASSED_GODOT:-}" ] || pass "godot-${d//\//-}" "$PASSED_GODOT"
+    PASSED_GODOT=""
+    echo "   $d: $SUMMARY"
   done
 }
 
 tools_step() {
   echo "== 5 tools"
-  python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
-  echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed"
-  # the cloud prototypes' own tests, in Python (IMPLEMENTATION α0.3a)
+  # the picture test draws the app with Godot: skipped while the app and the drawing tools are unchanged since it
+  # passed
+  mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^prototypes/app/")
+  FP="$(fingerprint "${READS[@]}" tools/picture.sh tools/godot-picture.gd tools/env.sh tools/tests/test_pictures.py \
+    "$KD_GODOT_VERSION")"
+  PICTURES=0
+  ! passed pictures "$FP" || PICTURES=1
+  KD_PICTURES_PASSED="$PICTURES" python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 \
+    || { cat "$TMP/unit"; exit 1; }
+  [ "$PICTURES" = 1 ] || pass pictures "$FP"
+  echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed$([ "$PICTURES" = 0 ] || echo \
+    ", the pictures' unchanged since they passed")"
+  # the cloud prototypes' own tests, in Python (IMPLEMENTATION α0.3a), skipped while the prototype is unchanged
   for d in prototypes/*/tests; do
     [ -d "$d" ] && [ "$d" != prototypes/bakeoff/tests ] && compgen -G "$d/test_*.py" >/dev/null || continue
+    mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$(dirname "$d")/")
+    FP="$(fingerprint "${READS[@]}" "$(python3 --version)")"
+    if passed "python-$(basename "$(dirname "$d")")" "$FP"; then
+      echo "   $(dirname "$d"): tests unchanged since they passed"
+      continue
+    fi
     python3 -m unittest discover -s "$d" >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
+    pass "python-$(basename "$(dirname "$d")")" "$FP"
     echo "   $(dirname "$d"): $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tests passed"
   done
   quiet python3 tools/signing-key.py selftest

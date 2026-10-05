@@ -570,7 +570,8 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
   - A rendering driver named on the command line brings Forward+ unless the Mobile renderer is named beside it.
 - **Phone measurements:** the in-app benchmark writes our own trace events into Perfetto traces, beside the chip's speed and heat; Android GPU Inspector for a slow frame on the PowerVR chip (`PLT-04`).
 - **One command before anything joins:** `tools/check.sh`, rebuilt for C++ and Godot, runs the formats, lints, builds, tests, the same-results check, and the file, commit and coverage checks (`PRC-10`, `PRC-12`).
-  - It is kept fast, since every delivery waits on it: C++ compiles through ccache, so godot-cpp and unchanged files compile once across runs and build folders; clang-tidy runs only when C++ changed since it last passed; the C++ tests run beside the Godot and tool tests; and each step prints its time (about 2 minutes once the cache is warm).
+  - It costs about what changed, since every delivery waits on it: C++ compiles through ccache, so godot-cpp and unchanged files compile once across runs and build folders; each C++ file is linted, on every core, only when its code, the headers it reads, its compile command or the rules changed since it passed, and each project's tests, the Godot project's import and tests, the picture test and each Python prototype's tests run only when something they read changed (`tools/cppcache.py`); the C++ tests run beside the Godot and tool tests; and each step prints its time.
+    Measured on 5 October 2026: about 20 seconds with nothing changed, about 45 with one line of one prototype changed, and about 5 minutes the first time, which fills the caches.
   The vertical slice passes through every kind of check before production starts.
 
 ## A18. Budgets and risks

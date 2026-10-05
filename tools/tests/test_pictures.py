@@ -44,6 +44,7 @@ def share(image, test):
 
 
 @unittest.skipUnless(os.path.exists(GODOT) and shutil.which("xvfb-run"), "needs Godot and a virtual screen")
+@unittest.skipIf(os.environ.get("KD_PICTURES_PASSED") == "1", "the app is unchanged since these pictures passed")
 class FireAtNight(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
