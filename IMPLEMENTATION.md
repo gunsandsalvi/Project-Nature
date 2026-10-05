@@ -112,8 +112,8 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.1a | The workshop | M1 | 6 | Next |
-| α1.1b | Numbers and chance | M1 | 5 | Planned |
+| α1.1a | The workshop | M1 | 6 | Delivered; your phone's details to come |
+| α1.1b | Numbers and chance | M1 | 5 | Next |
 | α1.2a | The clock and the calendar | M1 | 5 | Planned |
 | α1.2b | Catalogues and tuning | M1 | 6 | Planned |
 | α1.3a | Entities and events | M1 | 5 | Planned |
