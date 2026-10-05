@@ -216,8 +216,10 @@ class World:
 
     # --- events and firsts ----------------------------------------------------------------------------------------
 
-    def event(self, band, text, causes=()):
-        self.events.append((self.day, band.id, text, tuple(causes)))
+    def event(self, band, text, causes=(), kind="", who=-1, what="", hour=12.0):
+        """An event kept for the story, with its kind, who and what for the director's recognisers (P11), and the
+        hour it came at."""
+        self.events.append((self.day, band.id, text, tuple(causes), kind, who, what, hour))
         return len(self.events) - 1
 
     def first(self, kind, band, name, causes):
@@ -333,7 +335,14 @@ class World:
             if len(evs) > half and k not in band.spirits:
                 band.spirits[k] = self.day
                 name = self.spirit_name(k)
-                ev = self.event(band, f"most adults of the {band.name} band now hold {name}", [min(evs)])
+                ev = self.event(
+                    band,
+                    f"most adults of the {band.name} band now hold {name}",
+                    [min(evs)],
+                    "spirit",
+                    what="the dead" if k[0] == "dead" else k[1],
+                    hour=20.0,
+                )
                 self.first("spirit", band, name, [min(evs), ev])
         if self.day % SEASON != 0:
             return
@@ -343,7 +352,14 @@ class World:
             name = f"the dead {custom}, with the band at the grave"
             if name not in band.rites:
                 band.rites[name] = self.day
-                ev = self.event(band, f"the {band.name} band now keeps a rite: {name}", band.dead_since[1][-1:])
+                ev = self.event(
+                    band,
+                    f"the {band.name} band now keeps a rite: {name}",
+                    band.dead_since[1][-1:],
+                    "rite",
+                    what=name,
+                    hour=20.0,
+                )
                 self.first("rite", band, name, band.dead_since[1] + [ev])
         # an act most adults have credited for good hunts a year long becomes a rite the band keeps
         band.credited = {a: band.credited.get(a, 0) + 1 for a, evs in acts.items() if len(evs) > half}
@@ -352,7 +368,14 @@ class World:
             if seasons >= 4 and name not in band.rites:
                 band.rites[name] = self.day
                 band.rite_acts.add(act)
-                ev = self.event(band, f"the {band.name} band now keeps a rite: {name}", [min(acts[act])])
+                ev = self.event(
+                    band,
+                    f"the {band.name} band now keeps a rite: {name}",
+                    [min(acts[act])],
+                    "rite",
+                    what=name,
+                    hour=20.0,
+                )
                 self.first("rite", band, name, [min(acts[act]), ev])
 
     @staticmethod
@@ -382,7 +405,8 @@ class World:
         custom = top if answers.count(top) * t["share"][1] >= t["share"][0] * len(answers) else MIXED.get(question)
         if custom is not None and band.customs.get(question) != custom:
             band.customs[question] = custom
-            ev2 = self.event(band, f"the {band.name} band names its custom: {self.custom_name(question, custom)}")
+            name = self.custom_name(question, custom)
+            ev2 = self.event(band, f"the {band.name} band names its custom: {name}", (), "custom", what=name, hour=20.0)
             self.first("custom", band, self.custom_name(question, custom), [c[2] for c in recent] + [ev2])
             if question == "dead":
                 band.dead_since = (self.day, [c[2] for c in recent] + [ev2])
@@ -422,8 +446,12 @@ class World:
 
     def run(self, years):
         while self.day < years * YEAR:
-            self.step()
-            self.day += 1
+            self.advance()
+
+    def advance(self):
+        """One day."""
+        self.step()
+        self.day += 1
 
     def step(self):
         rng = self.rng
@@ -447,12 +475,15 @@ class World:
             # the weather: storms, and lightning near the camp, from the sky
             if rng.random() < t["weather"]["storm"][season]:
                 today.add(("weather", "storm"))
+                self.event(
+                    band, f"a storm gathered over the camp at {band.place}", (), "storm", what=band.place, hour=11.0
+                )
                 if rng.random() < t["weather"]["lightning"]:
                     struck = rng.choice(members) if members and rng.random() < t["weather"]["lightning_kills"] else None
                     text = f"lightning struck the camp at {band.place}"
                     if struck is not None:
                         text += f" and killed {struck.name}"
-                    ev = self.event(band, text)
+                    ev = self.event(band, text, (), "lightning", -1 if struck is None else struck.id, band.place, 13.0)
                     happened.add("lightning")
                     self.outcome(band, "lightning", adults, today, ev, unseen=("sky", "storm"))
                     if struck is not None:
@@ -476,7 +507,9 @@ class World:
                 if rng.random() < t["hunt"]["good"]:
                     hunter = rng.choice(hunters)
                     did = f", after they {' and '.join(sorted(done))}" if done else ""
-                    ev = self.event(band, f"{hunter.name}'s hunters brought down an aurochs{did}")
+                    ev = self.event(
+                        band, f"{hunter.name}'s hunters brought down an aurochs{did}", (), "kill", hunter.id, hour=14.0
+                    )
                     happened.add("good hunt")
                     # it befalls the hunters, who link it to what they did before it; the band hears of it in talk
                     self.outcome(band, "good hunt", hunters, recent, ev)
@@ -490,18 +523,20 @@ class World:
                     self.case(band, "kill", answer, ev)
                 for h in hunters:
                     if rng.random() < t["hunt"]["killed"]:
-                        ev = self.event(band, f"an aurochs killed {h.name} in the hunt")
+                        ev = self.event(
+                            band, f"an aurochs killed {h.name} in the hunt", (), "killed", h.id, "aurochs", 14.0
+                        )
                         self.outcome(band, "hurt", hunters, recent, ev, unseen=("animal", "aurochs"))
                         self.die(band, h, ev, sudden=("animal", "aurochs"))
                     elif rng.random() < t["hunt"]["hurt"]:
-                        ev = self.event(band, f"{h.name} was gored in the hunt")
+                        ev = self.event(band, f"{h.name} was gored in the hunt", (), "wounded", h.id, hour=14.0)
                         happened.add("hurt")
                         hurt = [h] + ([self.people[h.partner]] if h.partner is not None else [])
                         self.outcome(band, "hurt", hurt, recent, ev)
             # fevers
             for p in members:
                 if p.alive and rng.random() < t["ill"]["chance"]:
-                    ev = self.event(band, f"{p.name} fell ill with a fever")
+                    ev = self.event(band, f"{p.name} fell ill with a fever", (), "ill", p.id, hour=9.0)
                     happened.add("fever")
                     self.outcome(band, "fever", [p], today | (band.log[-1] if band.log else set()), ev)
             # births and deaths
@@ -510,7 +545,12 @@ class World:
                     continue
                 if rng.random() < death_rate(p.age) / YEAR:
                     ev = self.event(
-                        band, f"{p.name} died, a baby" if p.age < 1.0 else f"{p.name} died, aged {int(p.age)}"
+                        band,
+                        f"{p.name} died, a baby" if p.age < 1.0 else f"{p.name} died, aged {int(p.age)}",
+                        (),
+                        "death",
+                        p.id,
+                        hour=20.0,
                     )
                     self.die(band, p, ev)
                 elif (
@@ -529,7 +569,10 @@ class World:
                     if rng.random() < t["dead"]["dream"]:
                         key = ("dead", self.people[dead].name)
                         if key not in p.beliefs:
-                            p.beliefs[key] = [0.0, self.event(band, f"{p.name} dreamt of {key[1]}", [death])]
+                            dreamt = self.event(
+                                band, f"{p.name} dreamt of {key[1]}", [death], "dream", p.id, key[1], 3.0
+                            )
+                            p.beliefs[key] = [0.0, dreamt]
                         b = p.beliefs[key]
                         b[0] = min(50.0, b[0] + t["dead"]["dream_gain"])
             # fights between heads of families (CUL-30)
@@ -559,7 +602,7 @@ class World:
         child = self._person(0.0, self.rng.random() < 0.5, band)
         child.mother = mother.id
         child.father = mother.partner
-        ev = self.event(band, f"{mother.name} bore {child.name}")
+        ev = self.event(band, f"{mother.name} bore {child.name}", (), "birth", child.id, mother.id, 4.0)
         parents = [mother] + ([self.people[mother.partner]] if mother.partner is not None else [])
         self.outcome(band, "birth", parents, today | (band.log[-1] if band.log else set()), ev)
 
@@ -589,7 +632,8 @@ class World:
                 own = rng.choices(("left", "under stones", "buried"), (0.4, 0.35, 0.25))[0]
             answer = self.choose(band, "dead", own)
             self.breach(band, chooser, "dead", answer)
-            self.case(band, "dead", answer, self.event(band, f"{chooser.name}'s kin: {p.name} {answer}", [ev]))
+            told = f"{chooser.name}'s kin: {p.name} {answer}"
+            self.case(band, "dead", answer, self.event(band, told, [ev], "burial", chooser.id, answer, 21.0))
         if band.leader == p.id:
             self._choose_leader(band)
 
@@ -620,7 +664,9 @@ class World:
                 answer = own
             stays, moves = (m, match) if answer == "his kin" else (match, m)
             target = self.bands[stays.band]
-            ev = self.event(target, f"{m.name} and {match.name} married and live with {answer}")
+            ev = self.event(
+                target, f"{m.name} and {match.name} married and live with {answer}", (), "married", m.id, match.id, 10.0
+            )
             self.case(target, "home", answer, ev)
             self.move(moves, target)
 
@@ -639,7 +685,7 @@ class World:
             return
         a, b = self.rng.sample(heads, 2)
         if self.opinion(a, b) < t["fight_below"] and self.opinion(b, a) < t["fight_below"]:
-            ev = self.event(band, f"{a.name} and {b.name}, heads of families, fought")
+            ev = self.event(band, f"{a.name} and {b.name}, heads of families, fought", (), "fight", a.id, b.id, 18.0)
             self.nudge(a, b, -20.0)
             self.nudge(b, a, -20.0)
             band.fought = ev
@@ -654,7 +700,9 @@ class World:
         live = [self.people[i] for i in band.members if self.people[i].alive]
         band.members = [p.id for p in live]
         if len(live) > t["size"]:
-            ev = self.event(band, f"the {band.name} band had grown to {len(live)}")
+            ev = self.event(
+                band, f"the {band.name} band had grown to {len(live)}", (), "grew", what=len(live), hour=6.0
+            )
             self.split(band, live, ev)
         elif band.fought is not None and len(live) > t["after_fight"]:
             self.split(band, live, band.fought)
@@ -662,7 +710,8 @@ class World:
             others = [b for b in self.bands if b.alive and b is not band]
             if others:
                 into = max(others, key=lambda b: sum(1 for p in live for i in b.members if self.kin(p, self.people[i])))
-                self.event(band, f"the {band.name} band, down to {len(live)}, joined the {into.name} band")
+                told = f"the {band.name} band, down to {len(live)}, joined the {into.name} band"
+                self.event(band, told, (), "joined", what=into.id, hour=6.0)
                 for p in live:
                     self.move(p, into)
                 band.alive = False
@@ -698,6 +747,10 @@ class World:
             f"{len(leaving)} of the {band.name} band, those who thought least of {leader.name}, left to found "
             f"the {new.name} band at {home}",
             [cause],
+            "split",
+            leader.id,
+            new.id,
+            6.0,
         )
         self.first("split", band, f"the {new.name} band, from the {band.name}", [cause, ev])
 
@@ -711,11 +764,11 @@ class World:
         lines = []
         seen = set()
         for e in f["causes"]:
-            day, b, text, causes = self.events[e]
+            day, b, text, causes = self.events[e][:4]
             for c in causes:
                 if c not in seen and c not in f["causes"]:
                     seen.add(c)
-                    d2, b2, t2, _ = self.events[c]
+                    d2, b2, t2, _ = self.events[c][:4]
                     lines.append(f"{when(d2)}: {t2}.")
             if e not in seen:
                 seen.add(e)

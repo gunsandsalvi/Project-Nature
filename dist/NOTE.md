@@ -1,43 +1,44 @@
-# Kindling α0.6b: P10 Culture from causes
+# Kindling α0.6c: P11 The director
 
 ## What is new
 
-- **P10 answers yes.** The question: do customs, a spirit, a rite and a band split arise inside their windows (`CUL-33`), each from its own cause?
-  - **How:** three bands of 22 to 30 people in families, run 100 years in each of 20 worlds. They hunt, eat, meet storms, fall ill, are born and die, marry at the summer gathering, and talk each evening.
-  - **Beliefs from coincidences, with the project file's own numbers (`MND-05`):** after something strong happens, people link it to the most unusual thing just before it; later events strengthen or weaken the link, and talk passes it on. Lightning or a sudden death can leave a belief in an unseen being; grief and dreams make the dead live on.
-  - **The result:** each came inside its window in at least half the worlds, and every one traces back to the events behind it:
-    - **a custom** in all 20, in the first year, from the first big kills: who the meat is shared with;
-    - **a shared spirit** in all 20, by Year 3: most often a being in the storm after lightning struck a camp, otherwise a dead person living on;
-    - **a rite a band keeps** in 15 of 20, in Years 3 to 10, most often the band's way with its dead, sometimes an act it credits for good hunts, such as singing before a hunt; 5 came a little early;
-    - **a band split** in 17 of 20, in Years 5 to 25, when a band grew past 40 and the families thinking least of the leader left.
-  - **World 1's story,** on the Reports page, tells each first from its events, such as: three deaths, each laid under stones; the band names its custom; a year later, burial under stones is a rite at the grave.
-- **What failed first, and taught something** (in the notes for production):
-  - A belief told again and again grew stronger at every telling, so every told belief lived forever. Now hearing it lends what the teller's conviction lends, and no more.
-  - The project file's numbers let a pointless act before a common success keep itself once believed. Only those an outcome befalls link it (a good hunt its hunters), so the band comes to credit it slowly, through talk.
-  - Hunters died ten times too often, flooding the bands with sudden deaths.
+- **P11 answers yes.** The question: does the director keep its budget on recorded worlds while catching every named discovery, without changing them (`TIM-02`, `TIM-03`, `PRE-39`)?
+  - **How:** 20 test worlds, each P10's valley of three bands with P4's discovery in three bands of their own beside it, run 100 years. Both models now write down everything as it happens: who did what, when.
+  - **The recognisers** read only that log and spot what is worth telling: firsts anywhere and for each people, named discoveries, crafts lost with their last holder and found again, a band losing its last fire, the births and deaths of three people followed from the start, and feuds. Half-finished patterns are signs of what may come: a hunch tried again, a storm over a camp, one you follow hurt or ill.
+  - **The director** slows time for what passes the bar, if its one budget allows: at most once every 3 minutes, never more than a fifth of the time, 10 seconds if you don't tap. Everything else waits in the list.
+  - **The result,** watching from the globe at 5 game years a minute, 6.8 hours in all:
+    - it slowed time **9.5 times an hour**, never twice within 3 minutes, and kept at least 96% of top speed (90% if you tap every live moment);
+    - it caught **all 208 named discoveries**, slowing time for 34, and all 60 deaths of those followed, slowing for 16;
+    - **every world ended identical** with the director on and off; a careless host that let it touch a world was caught; and no code path runs from it into a world.
+- **What it taught** (in the notes for production):
+  - **Signs rarely come true here:** a hunch tried again led to its discovery 3 times in a thousand, a storm to lightning at the camp 13 in a thousand. Scored as if they always came true, signs took four slowdowns in five, and almost none came true. So they are scored by how often they come true, and here they never slowed time.
+  - **The list fills fast:** about 200 moments an hour at the globe, two thirds in a world's first 20 years, when everything is a first. Production must gather repeats and rank the list.
+  - **The first minutes matter:** a watch now opens "rested", so its first slowdown goes to a major moment, the world's first sharp flake, not a custom named seconds before it.
+  - **Ages and the pace:** with the pace halved twice, fire comes within 8 years of the first flakes, so the project file's 20 years between ages means no world ever has an age of fire, its own example. A change is proposed (below).
 
-![When each first came in the 20 worlds; shaded, its window](pictures/p10-firsts.png)
+![Three watches, minute by minute: orange, the slowdowns; grey, moments that waited in the list](pictures/p11-watches.png)
 
 ## What to try
 
 1. Tap **Download and install** at the top of this page. It installs over the build you have.
-2. Open **Reports from the cloud** and scroll to **P10 Culture from causes**: when each first came in each world, and world 1's story.
+2. Open **Reports from the cloud** and scroll to **P11 The director**: three watches minute by minute, the budget in every world, what was found and what slowed time, and world 1's slowdowns.
 
 ## What is rough
 
-- **Only four of `CUL-33`'s firsts were tried:** customs, spirits, rites and splits. Myths, festivals, feuds, new peoples, raids and chiefs need the later prototypes and production.
-- **Three of the twelve customs:** how the dead are treated, who shares a big kill, where couples live; the bands meet the others too rarely in 100 years to answer them.
-- **Simple minds:** no needs beyond being born, eating and dying, and no gatherings beyond each summer's marriages.
+- **Two of `TIM-02`'s five signs were not tried:** a predator stalking and hostile groups in sight need animals and peoples these worlds don't have.
+- **The scores, the bar and the rest after each slowdown** are my stand-ins, for tuning with you.
+- **Python, not the game's C++:** a prototype, thrown away once its answer is written down.
 
 ## Questions for you
 
-1. `CUL-33` gives customs no window. P10 found every world's first custom in its first year: shall it read "First custom a band names: within 1"? It is listed under Proposals awaiting confirmation.
-2. Shall I go on to P11, the director, which also runs in the cloud?
+1. `PRE-39` says an age lasts at least 20 years. With the pace you chose, fire comes within 8 years of the first flakes, so there could never be an "age of fire". Shall every step of the arc (flakes, fire, clothing, huts, pottery and the rest) always begin its own age, keeping the 20 years only for new peoples and wars? It is listed under Proposals awaiting confirmation.
+2. Still open from P10: shall `CUL-33` read "First custom a band names: within 1"?
+3. Next is P12, the interface, on your phone: shall I go on?
 
 ## IDs delivered
 
-None for good: P10 is a prototype, thrown away once it has answered.
-Its question is about `CUL-33`, `CUL-05`, `CUL-06`, `CUL-30` and `CUL-34`.
+None for good: P11 is a prototype, thrown away once it has answered.
+Its question is about `TIM-02`, `TIM-03` and `PRE-39`.
 
 ## Links
 

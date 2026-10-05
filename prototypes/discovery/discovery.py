@@ -112,8 +112,13 @@ class Band:
         self.people = []
         self.first = {}  # blueprint: (day, route)
         self.lost = []  # (day, blueprint) whenever the last holder dies
+        self.regained = []  # (day, blueprint, route) whenever one lost is learned again
         self.known_by = {bp: 0 for bp in tuning["blueprints"]}
         self.yearly = []  # for each year: how many know each blueprint, and how many live
+        # what happened, as it happened (P11): (day, hour, kind, who, what, how); an activity's start and its end
+        self.events = []
+        self.hour = 6.0
+        self.span = 0.0
         rng = self.rng
         # BIO-03 and BIO-04: about 25, children, adults and a few old
         ages = [rng.uniform(0, 14) for _ in range(11)] + [rng.uniform(14, 45) for _ in range(11)]
@@ -133,6 +138,10 @@ class Band:
         self.people.append(p)
         return p
 
+    def record(self, kind, who=-1, what="", how="", start=False):
+        """An event in the log, at the start of what is happening or, by default, at its end."""
+        self.events.append((self.day, self.hour if start else self.hour + self.span, kind, who, what, how))
+
     # --- what people find and learn -------------------------------------------------------------------------------
 
     def notice(self, p, busy):
@@ -148,9 +157,12 @@ class Band:
         p.practice[bp] = START
         p.how[bp] = (route, self.day)
         p.hunches.pop(bp, None)
+        if self.known_by[bp] == 0 and bp in self.first:
+            self.regained.append((self.day, bp, route))
         self.known_by[bp] += 1
         if bp not in self.first:
             self.first[bp] = (self.day, route)
+        self.record("learn", p.id, bp, route)
 
     def hunch(self, p, bp, source, weak=False):
         """A hunch (MND-11): held among at most a few, the oldest dropped for a new one."""
@@ -161,6 +173,7 @@ class Band:
             held.pop(next(iter(held)))
         key = bp if bp is not None else ("nothing", self.day, self.rng.random())
         held[key] = [source, 0, self.day, weak]
+        self.record("hunch", p.id, bp or "nothing", source)
 
     def roll(self, p, bp, factor, busy, source, hints=True):
         """One activity that fits a blueprint p doesn't know (MND-11): the chance a maker at p's level would have,
@@ -195,14 +208,18 @@ class Band:
     def run(self, years, stop=None):
         """Runs day by day for years, or until stop(band) says so."""
         while self.day < years * YEAR:
-            self.step()
-            self.day += 1
-            if self.day % YEAR == 0:
-                live = [p for p in self.people if p.alive]
-                self.yearly.append({bp: n for bp, n in self.known_by.items()} | {"people": len(live)})
+            self.advance()
             if stop is not None and stop(self):
                 break
         return self
+
+    def advance(self):
+        """One day, and the year's tally at its end."""
+        self.step()
+        self.day += 1
+        if self.day % YEAR == 0:
+            live = [p for p in self.people if p.alive]
+            self.yearly.append({bp: n for bp, n in self.known_by.items()} | {"people": len(live)})
 
     def step(self):
         rng = self.rng
@@ -211,16 +228,20 @@ class Band:
         season = (self.day % YEAR) // SEASON
         live = [p for p in self.people if p.alive]
         adults = [p for p in live if p.age >= ADULT]
+        self.hour, self.span = 6.0, 0.0
         # the fire: lost to rain or neglect, or taken from a wildfire in the dry seasons (WLD-28, BIO-02)
         if self.fire and rng.random() < self.scene["fire_lost"]:
             self.fire = False
+            self.record("fire out")
         if not self.fire and season in (1, 2) and rng.random() < self.scene["lightning"]:
             self.fire = True
+            self.record("fire taken", how="wildfire")
         if not self.fire:
             for p in adults:
                 if any(p.knows(bp) for bp in FIRE):
                     self.make_fire(p, live)
                     if self.fire:
+                        self.record("fire made", p.id)
                         break
         cold = season == 3 or (season in (0, 2) and rng.random() < 0.3)
         freezing = cold and not self.fire
@@ -237,6 +258,7 @@ class Band:
                 tries[p.id] = (rng.randrange(SLOTS), True)
         flakes_around = self.known_by["flake"] > 0
         for slot in range(SLOTS):
+            self.hour, self.span = 7.0 + 2.0 * slot, 1.75
             uses = []  # (person, blueprint) for each use of a craft others can watch
             doing = {}
             for p in rng.sample(live, len(live)):
@@ -305,6 +327,8 @@ class Band:
             key = next(reversed(p.hunches))
             h = p.hunches[key]
             h[2] = self.day
+            what = key if isinstance(key, str) else "nothing"
+            self.record("try", p.id, what, str(h[1] + 1), start=True)
             found = False
             if key == "flake":
                 found = self.scene["flint"] > 0.0 and rng.random() < 0.9
@@ -316,8 +340,10 @@ class Band:
                     found = self.roll(p, key, routes["experiment" if h[3] else "hunch"], False, h[0], False)
             if not found and key in p.hunches:
                 h[1] += 1
+                self.record("failed", p.id, what, str(h[1]))
                 if h[1] >= m["hunch_tries"]:
                     del p.hunches[key]
+                    self.record("dropped", p.id, what)
             return
         if aimed:
             things = [self.pick(BURNABLE), self.pick(BURNABLE)]
@@ -405,6 +431,7 @@ class Band:
         rng = self.rng
         m = self.t["minds"]
         blueprints = self.t["blueprints"]
+        self.hour, self.span = 22.0, 0.0
         for p in live:
             if p.age < 5 or rng.random() >= (m["dream_hint_need"] if freezing else m["dream_hint"]):
                 continue
@@ -424,6 +451,7 @@ class Band:
         """A day of life (BIO-04): everyone a day older, deaths by age, births to women of 16 to 40 whose youngest
         is past two and a half; a blueprint dies with its last holder (CUL-02)."""
         rng = self.rng
+        self.hour, self.span = 23.0, 0.0
         for p in live:
             p.age += 1.0 / YEAR
             if rng.random() < death_rate(p.age) / YEAR:
@@ -432,11 +460,13 @@ class Band:
             if p.female and 16.0 <= p.age <= 40.0 and self.day - p.youngest > 2.5 * YEAR:
                 if rng.random() < BIRTH / YEAR:
                     p.youngest = self.day
-                    self._born(0.0, p.id)
+                    child = self._born(0.0, p.id)
+                    self.record("birth", child.id, p.id)
 
     def die(self, p):
         """A death: what only they knew dies with them (CUL-02)."""
         p.alive = False
+        self.record("death", p.id, how=f"aged {int(p.age)}")
         for bp in p.practice:
             self.known_by[bp] -= 1
             if self.known_by[bp] == 0:

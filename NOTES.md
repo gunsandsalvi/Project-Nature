@@ -66,3 +66,20 @@ What I take from it, for your OK at α0.8a:
 - **"A rite a band keeps" needs a test of keeping;** P10 used a year of being credited, or done as the band's way.
 - **Customs come within months** from the commonest cases, big kills, and the way with the dead within a year or two at forager death rates; `CUL-33` gives customs no window (a year is proposed).
 - **Realistic rates matter:** hunting deaths at ten times the real rate flooded the bands with sudden deaths, spirits of the aurochs and burial cases.
+
+## The director
+
+### What P11 taught (me, 5 October 2026)
+
+- **Signs must earn their slowdowns:** in these worlds a hunch tried again ended in its discovery 3 times in a thousand, a storm over a camp in lightning there 13 times in a thousand, and one you follow hurt or ill in their death never.
+  Scored at what their end would be worth, they took four slowdowns in five and almost none came true.
+  Production scores each sign by how often it comes true, measured in the pace tests, so time slows before an outcome only for strong signs, such as a predator stalking or hostile groups meeting.
+- **Accidents give no warning:** most first flakes come by accident, so they are caught as they happen, never before.
+- **The list fills fast:** about 200 moments an hour at the globe, two thirds in a world's first 20 years, when every custom, rite, spirit and cause of death is a first, and later mostly a band losing its last fire and births to those you follow.
+  Production gathers repeats into one line (the same band's lost fires), ranks the list by score, and may score a kind lower each time it recurs.
+- **A watch opens rested:** without it, a minor first took the first slowdown seconds before the world's first sharp flake; with the bar at its rest height at the start, world-first discoveries slowed for rose from 20 to 31 of 60.
+- **A first needs its kind spelled out:** a custom by its answer, a spirit by its being (not each of the dead), a death by its cause, a thing by what it is; otherwise every death is a first.
+- **The log is the director's only window:** each event with its day and hour, kind, who and what, an activity logged at its start and its result at its end, so a sign can come before what it foretells; and what the director needs to know, such as who can make what, it keeps from what it has seen.
+- **One stream of chance can hide a path:** in a short test world one stray draw by a careless host left no trace, so comparing worlds at the end alone can miss it.
+  Production's chance keyed by being and moment (`TIM-16`) has no shared stream to disturb, and its repeat check compares the logs as they go.
+- **Ages and the pace:** with the arc's pace halved twice, fire comes within 8 years of the first flakes, so 20 years between ages never gives the age of fire (`PRE-39`, proposed change).

@@ -600,7 +600,27 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - **Pattern sentences:** a small grammar, at least 5 phrasings for each kind of event, picked by the event's seed and filled from its records (`PRE-37`).
 - **The writer:** Gemini Nano through ML Kit's Prompt API, with a fixed seed, sentence by sentence, behind the Android plug-in; it writes only while the app is in front, queues and backs off, and stops for the day at its battery quota.
   Every rewording passes a strict check without any model, and dark events never reach it (`PRE-41`, `PRE-17`); pattern text always works alone.
-- *To prove (P11, P13):* the director's budget on recorded worlds, and the writer's pass rate, speed and quotas on your phone.
+- *Proved in P11 in the cloud,* in Python as pre-production code (`prototypes/director`), over 20 test worlds: each a valley of P10's three bands with P4's discovery in three bands of their own beside them, run 100 years, both models now logging each event as it happens, with its day and hour, kind, who and what.
+  - **The answer:** yes. Watched from the globe at 5 game years a real minute, 6.8 hours in all and never tapping, the director slowed time 9.5 times an hour, never twice within 3 minutes, slowing at most 3% of any watch and keeping at least 96% of top speed; tapping every live moment, 9.1 times an hour, keeping at least 90%.
+    It caught all 208 named discoveries (60 world firsts, 113 a people's first of what others made, 35 rediscoveries), slowing time for 34 and listing the rest, and all 60 deaths of those followed, slowing for 16.
+    Every world ended identical with it on and off, its log and all it holds; a host that let it reach a world's chance was caught; and a code check found no path from it into a world.
+  - **The recognisers:** Felt's patterns over the log, each kind of event with what makes its kind for a first (a custom by its answer, a spirit by its being, a death by its cause, a thing by what it is), and state kept from what was seen, such as who can make what, so a craft lost with its last holder, found again, or a band's last fire are found from learning and deaths.
+    In every world they matched the worlds' own records: each people's firsts, its lost and regained crafts, the valley's first custom, spirit, rite and split, and the followed who died.
+    Winnow's half-matched patterns are the signs: a hunch tried again, a storm over a camp, one you follow hurt or ill.
+  - **The director's rules:** a moment or sign past the bar slows time if the budget allows, so what it shows takes about half a minute; after each slowdown the bar stands higher, by 50 at 3 minutes and falling to nothing by 10, so a higher score slows time sooner, never slower; and a watch opens rested, so its first live moments are major ones, the world's first sharp flake and not a custom named seconds before it.
+  - **Lessons for production:**
+    - Signs as `TIM-02` lists them are weak forecasts here: a hunch tried again ended in its discovery 0.3% of the time, a storm over a camp in lightning there 1.3%, one you follow hurt or ill in their death never.
+      Scored at what their end is worth times how often it came, they never slowed time; at their end's worth alone they took 64 of 79 slowdowns, 2 of which came true, and the named discoveries slowed for fell from 34 to 6.
+      So each sign is scored by how often it comes true, measured, and slowing before an outcome waits for strong signs, such as a predator stalking or hostile groups meeting.
+    - Most first flakes come by accident, which no sign foretells: they can only be caught as they happen.
+    - The list fills fast: about 200 moments an hour at the globe, two thirds in a world's first 20 years, when every custom, rite, spirit and cause of death is a first, then mostly bands losing their last fire and births to those followed.
+      It must gather repeats and rank by score.
+    - The fifth of the time slowed never binds while each slowdown lasts under 36 seconds: the 3-minute gap is the working rule.
+    - One shared stream of chance can swallow a stray draw: one extra draw left no trace in a short test world, so a comparison at the end alone can miss a path.
+      Chance keyed by being and moment (`TIM-16`, A3.4) has no such stream, and the repeat check compares the logs as they go.
+    - With the arc's pace halved twice, fire comes within 8 years of the first flakes, so `PRE-39`'s 20 years between ages gave no world an age of fire, its own example: a change is proposed.
+  - **Its cost:** 20 worlds of 100 years, each run on and off, in about 7 minutes on three cores, nearly all of it the worlds.
+- *To prove (P13):* the writer's pass rate, speed and quotas on your phone.
 
 ## A15. The interface (research 14)
 

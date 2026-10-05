@@ -2224,6 +2224,8 @@ The look, written to stand without any image.
   - **Ages** begin only at these turning points: a step of the arc first reached anywhere (`TIM-19`), a new people (`CUL-23`), the first village (`CUL-28`), and a war (`CUL-31`).
     Each is named by a fixed pattern from its defining event and that event's name in their language, such as "The age of *hesoru*, fire from wood", and lasts at least 20 years (tuned) before another begins.
   - **Done when:** in the pace tests every age starts at a listed turning point, and a code check finds no path from recognisers back into the world (`WLD-13`).
+  - **Proposed change:** "and lasts at least 20 years (tuned) before another begins" becomes "and lasts at least 20 years (tuned) before another begins, except that a step of the arc always begins one".
+    P11 found that with the arc's pace halved twice (`TIM-19`), fire comes within 8 years of the first flakes, so no world had an age of fire, this item's own example; a shorter least for all turning points would let wars and new peoples turn the ages over too often.
 
 - `PRE-09` **Graves and old camps** *(Decided)*: The dead and the places people left stay in the world (`MAT-08`); the book of ages lists them by people and date.
   A grave shows who lies there, how they died (`BIO-14`), who buried them and what was laid with them, and opens their card and life story (`PRE-37`); an old camp shows its hearths, rubbish heaps, lost tools and bones, and who lived there and when.
@@ -2711,6 +2713,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 
 <!-- generated: proposals -->
 - **Pace of culture** (`CUL-33`): a window for the first custom, within a year, as P10 found.
+- **Recognising what emerges** (`PRE-39`): every step of the arc begins an age, since P11 found fire never could.
 <!-- end generated -->
 
 ## 18. Glossary

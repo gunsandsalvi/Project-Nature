@@ -1,6 +1,6 @@
 ## The Reports page (IMPLEMENTATION α0.3a, RES-06): the prototypes that run in the cloud, each with
 ## its question, its answer and its charts, drawn from the numbers the cloud wrote (reports/*.json):
-## P4's, then P9's and P10's. Pre-production code (research 00) for RES-06;
+## P4's, then P9's, P10's and P11's. Pre-production code (research 00) for RES-06;
 ## each prototype's README names the items its report is about.
 extends Control
 
@@ -8,7 +8,13 @@ signal closed
 
 const Chart := preload("res://reports/chart.gd")
 const Lines := preload("res://reports/lines.gd")
-const REPORTS := ["res://reports/p4.json", "res://reports/p9.json", "res://reports/p10.json"]
+const Timeline := preload("res://reports/timeline.gd")
+const REPORTS := [
+	"res://reports/p4.json",
+	"res://reports/p9.json",
+	"res://reports/p10.json",
+	"res://reports/p11.json"
+]
 const INK := Color("ebe5da")
 const DIM := Color("a39ca9")
 const FLAME := Color("f6a33c")
@@ -53,8 +59,10 @@ func _ready() -> void:
 			_p4(report)
 		elif String(report.title).begins_with("P9"):
 			_p9(report)
-		else:
+		elif String(report.title).begins_with("P10"):
 			_p10(report)
+		else:
+			_p11(report)
 	var back := Button.new()
 	back.text = "Back"
 	back.custom_minimum_size.y = 48
@@ -385,6 +393,175 @@ func _p10(r: Dictionary) -> void:
 		_text("%s: %s (the %s band)" % [_first_up(kinds[kind].says), s.name, s.band], FLAME, 13)
 		for line: String in s.lines:
 			_text(line, DIM, 12)
+
+
+## P11 The director (TIM-02, TIM-03, PRE-39): each world's watch from the globe against the one
+## budget, three watches over their real minutes, what the recognisers found and what slowed time,
+## the signs and how often they came true, the worlds with the director on and off, and the ages.
+func _p11(r: Dictionary) -> void:
+	_text(r.title, FLAME, 20)
+	_text(r.question, INK, 15)
+	var runs: Array = r.runs
+	var main: Dictionary = r.ways["never taps"]
+	var budget: Dictionary = r.budget
+	var most := roundi(3600.0 / float(budget.gap))
+	var said := (
+		"%s. Watched from the globe at %d game years a real minute, %.1f hours over %d worlds of %d "
+		+ "years, it slowed time %.1f times an hour, where the budget allows %d, never twice within "
+		+ "%d minutes, and kept at least %d%% of top speed. It caught %d of %d named discoveries, "
+		+ "slowing time for %d, and the worlds ended identical with it on and off in %d of %d."
+	)
+	_text(
+		(
+			said
+			% [
+				"Yes" if r.pass else "Not yet",
+				r.top,
+				main.hours,
+				runs.size(),
+				r.years,
+				main.per_hour,
+				most,
+				roundi(float(budget.gap) / 60.0),
+				floori(main.least_kept * 100.0),
+				main.discoveries_caught,
+				main.discoveries,
+				main.discoveries_slowed,
+				r.identical,
+				runs.size()
+			]
+		),
+		INK,
+		15
+	)
+	_text(
+		(
+			"Three watches, minute by minute: each slowdown an orange block, each moment that "
+			+ "waited in the list a grey tick."
+		),
+		DIM,
+		13
+	)
+	for t: Dictionary in r.timelines:
+		var title := (
+			"World %d: %d slowdowns, %d in the list" % [t.seed, t.slowed.size(), t.listed.size()]
+		)
+		var line := Timeline.new(t, title)
+		line.length = float(budget.untapped) / 60.0
+		_page.add_child(line)
+	_text(
+		"Slowdowns an hour in each world's watch, never tapping (shaded: up to %d)" % most, DIM, 13
+	)
+	var rows := []
+	for run: Dictionary in runs:
+		rows.append([run.per_hour, "first", "o"])
+	rows.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	var c := Chart.new("runs", rows, 25.0, 5.0)
+	c.window = Vector2(0.0, most)
+	_page.add_child(c)
+	_text("Share of each watch slowed, in percent (shaded: at most a fifth)", DIM, 13)
+	rows = []
+	for run: Dictionary in runs:
+		rows.append([run.worst_share * 100.0, "first", "o"])
+	rows.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	c = Chart.new("runs", rows, 25.0, 5.0)
+	c.window = Vector2(0.0, 100.0 * float(budget.share))
+	_page.add_child(c)
+	_text(
+		(
+			(
+				"About %d moments an hour waited in the list, %d%% of them in a watch's first 4 "
+				+ "minutes, a world's first 20 years, when every custom, rite and spirit is a first."
+			)
+			% [roundi(main.listed_per_hour), roundi(main.listed_early * 100.0)]
+		),
+		INK,
+		14
+	)
+	_text("What the recognisers found in all the watches: found, slowed for, listed.", INK, 14)
+	var kinds: Dictionary = main.kinds
+	for kind: String in kinds:
+		var k: Array = kinds[kind]
+		var line := "%s: %d, %d, %d" % [_first_up(kind), k[0], k[1], k[2]]
+		if k[1] + k[2] == 0:
+			line += " (below the bar)"
+		_text(line, DIM, 12)
+	_text("Signs, patterns half matched: how often each came true in time to be seen.", INK, 14)
+	var signs: Dictionary = main.signs
+	for name: String in signs:
+		var s: Array = signs[name]
+		_text("%s: %d of %d" % [_first_up(name), s[1], s[0]], DIM, 12)
+	var full: Dictionary = r.ways["signs at full score"]
+	_text(
+		(
+			(
+				"Scored at what their end is worth times how often it came, signs never slowed time. "
+				+ "Scored at their end alone, they took %d of %d slowdowns, %d of which came true, and "
+				+ "the named discoveries slowed for fell from %d to %d."
+			)
+			% [
+				full.sign_slowdowns,
+				full.slowdowns,
+				_came(full.signs),
+				main.discoveries_slowed,
+				full.discoveries_slowed
+			]
+		),
+		INK,
+		14
+	)
+	var taps: Dictionary = r.ways["taps every one"]
+	_text(
+		(
+			(
+				"Tapping every live moment, each slowdown lasting its half minute: %.1f an hour, at "
+				+ "most %d%% of any watch slowed, at least %d%% of top speed kept."
+			)
+			% [taps.per_hour, ceili(taps.worst_share * 100.0), floori(taps.least_kept * 100.0)]
+		),
+		INK,
+		14
+	)
+	_text(
+		(
+			(
+				"Hands off: every world ended the same with the director on and off, its log and all "
+				+ "it holds%s; a host that let the director reach a world's chance %s; and the code "
+				+ "check found %s."
+			)
+			% [
+				"" if r.identical == runs.size() else " (not all)",
+				"was caught" if r.meddling_caught else "was NOT caught",
+				"no path from the director into a world" if r.hands_off else "a path"
+			]
+		),
+		INK,
+		14
+	)
+	var ages: Dictionary = r.fire_ages_on_time
+	_text(
+		(
+			(
+				"Ages: in the %d worlds whose fire came in its window, Years 2 to 8, fire began an "
+				+ "age in %d with the project file's least of 20 years between ages, %d with 3, and "
+				+ "%d with 1: fire comes too soon after the first flakes."
+			)
+			% [r.fire_on_time, ages["20"], ages["3"], ages["1"]]
+		),
+		INK,
+		14
+	)
+	_text("World 1's watch, each slowdown:", INK, 14)
+	for line: String in r.story:
+		_text(line, DIM, 12)
+
+
+## How many slowdowns for signs came true, over every kind of sign.
+func _came(signs: Dictionary) -> int:
+	var n := 0
+	for name: String in signs:
+		n += int(signs[name][3])
+	return n
 
 
 ## Each run as a chart row, earliest first: its year, how it came, and a square for ploughing.

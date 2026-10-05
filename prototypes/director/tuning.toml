@@ -1,0 +1,39 @@
+# P11's tuning (IMPLEMENTATION α0.6c): the director's one budget as TIM-02 gives it, and the scores, bar and speeds it
+# leaves to be "tuned with you", set here by sense as stand-ins. Pre-production data (research 00).
+
+[budget]
+gap = 180.0        # at most one slowdown or live moment every about 3 real minutes (TIM-02)
+share = 0.2        # and never more than a fifth of the time slowed,
+window = 3600.0    # in any hour
+untapped = 10.0    # a slowdown you don't tap ends after about 10 seconds
+moment = 30.0      # a slowdown makes what is about to happen take about half a minute of real time
+rest = 50.0        # after a slowdown the bar stands this much higher (Left 4 Dead's rest after a peak),
+rest_end = 600.0   # falling back to the zoom's by 10 minutes after it began; a watch opens rested
+
+[speed]
+top = 5.0          # game years a real minute at the globe: TIM-07's least for about 100 to 300 people
+
+[bar]
+globe = 50.0       # the bar a score must pass for a live moment at the globe, the lowest of the zooms (PRE-08)
+
+# Each kind of moment: its score out of 100 (TIM-02: higher the more people it touches, and for those you follow), and
+# the game hours what it shows takes, which a slowdown spreads over about half a minute.
+[moments]
+"world first discovery" = [100.0, 6.0]   # a named discovery no people made before (MAT-21): a morning at a fire stick
+"named discovery" = [60.0, 6.0]          # a people's first of something others make: a short entry (MAT-21)
+"rediscovery" = [60.0, 6.0]              # a craft found again after it was lost (PRE-39)
+"craft lost" = [60.0, 2.0]               # lost with its last holder (CUL-02)
+"last fire" = [50.0, 12.0]               # a band's fire gone out with no one who can make one (TIM-02, VIS-11)
+"death of one you follow" = [80.0, 2.0]  # (PRE-06)
+"birth to one you follow" = [50.0, 6.0]  # a camp's morning for a birth (TIM-02)
+"world first" = [60.0, 3.0]              # the first anywhere of a custom, a rite, a spirit, a split, a death's cause
+"people's first" = [40.0, 3.0]           # a people's own first of a kind others had before
+"feud" = [50.0, 2.0]                     # two who have fought fighting again (CUL-31)
+"lightning at a camp" = [30.0, 2.0]      # a disaster that touches people (WLD-22), deadly or not
+
+# Each sign's pattern: how often its end came within what its slowdown shows, measured over P11's 20 worlds, so a
+# sign's score is what its end would be worth times this (the director's "expected" scoring).
+[signs]
+"a hunch tried again" = 0.0032        # the try that succeeds: 183 of 57,374
+"a storm over a camp" = 0.0133        # lightning within 2 hours: 1,906 of 143,783
+"one you follow hurt or ill" = 0.0    # a death within 2 hours: none of 134

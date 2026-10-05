@@ -24,8 +24,9 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P8 The zoom (α0.5b) was built and delivered for your phone's Measure: one pinch from the globe to a person over P7's world, through rings of ground made on worker threads and a map that bends onto the globe (A8.1, A8.4, A8.5).
   Its second round (α0.5c), after your verdict on 5 October, is for your look, from space down to the valley: a planet at every scale, never unrolled; one tree of ground morphing smoothly; clouds from the climate that the descent passes among; the sea by its depth; the land textured with what can be seen from space; pixels finer up close; each in variants for you to choose.
   The camp and closer are done for pre-production, as you said on 5 October: trees, small plants and the camp from the kit on the new ground. What they lack is in the notes for production (`NOTES.md`), with your observations. Measure on your phone comes with α0.6a's build.
-- P10 Culture from causes (α0.6b) passes in the cloud: in 20 worlds of three bands run 100 years, a custom came inside its window in all 20, a shared spirit in 20, a rite a band keeps in 15 and a band split in 17, each from the events behind it (A13); a window for customs, which `CUL-33` lacks, is proposed.
 - P9 Ecology (α0.6a) passes in the cloud: in 20 worlds left alone for 100 years, every species stayed within 0.66 and 1.10 of its settled total and in every biome it lived in, with 82 to 99 big plant eaters for each hunter; round each world's start region numbers boomed and crashed from 0.21 to 2.31 with the weather (A9). Its report is on the app's Reports page.
+- P10 Culture from causes (α0.6b) passes in the cloud: in 20 worlds of three bands run 100 years, a custom came inside its window in all 20, a shared spirit in 20, a rite a band keeps in 15 and a band split in 17, each from the events behind it (A13); a window for customs, which `CUL-33` lacks, is proposed.
+- P11 The director (α0.6c) passes in the cloud: watching 20 test worlds of 100 years from the globe, it slowed time 9.5 times an hour within its budget, caught all 208 named discoveries and every death of those followed, and every world ended identical with it on and off (A14). Signs, as these worlds have them, rarely come true, and with 20 years between ages fire could never begin one: a change to `PRE-39` is proposed.
 
 ## How to use this plan
 
@@ -142,7 +143,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | α0.5b | P8 The zoom | M0 | 6 | Done for your look; Measure on your phone in α0.6a's build |
 | α0.6a | P9 Ecology | M0 | 4 | Passes in the cloud; its report in the app (α0.6a) |
 | α0.6b | P10 Culture from causes | M0 | 5 | Passes in the cloud; its report in the app (α0.6b) |
-| α0.6c | P11 The director | M0 | 3 | Not started |
+| α0.6c | P11 The director | M0 | 3 | Passes in the cloud; its report in the app (α0.6c) |
 | α0.7a | P12 The interface | M0 | 4 | Not started |
 | α0.7b | P13 The writer | M0 | 4 | Not started |
 | α0.7c | P14 Sound | M0 | 4 | Not started |
@@ -405,6 +406,8 @@ The zoom starts in stages, the weather, the ground, then the sky, each noted in 
 - Passes if the budget holds, no named discovery is missed, and the worlds end identical with it on and off.
 
 **On the phone:** the Reports page shows the director's budget and the moments it caught.
+
+**Conflict:** neither recorded world alone has both discoveries and culture, so each test world joins P10's valley and P4's three bands side by side, untouched by each other. Its top speed, 5 game years a real minute, is `TIM-07`'s least for 100 to 300 people, though the test worlds hold 450 to 1,250 people by Year 100. Of `TIM-02`'s signs, a predator stalking and two hostile groups in sight wait for animals and peoples these worlds don't have. The scores, the bar and the rest after each slowdown are set by sense, for tuning with you.
 
 ### α0.7a P12 The interface
 
