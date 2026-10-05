@@ -237,9 +237,10 @@ Following Box2D, Factorio and research 18:
 ### A3.5 Chance
 
 - Every draw is keyed by (world seed, system, being, moment, purpose, index) through a chain of the SplitMix64 finaliser, a counter-based generator in Squirrel Eiserloh's way (research 03), chosen in pre-production (P5).
-- Systems and purposes are named, and keyed by a stable 64-bit hash of their names, so adding a new kind of draw never shifts the others (`TIM-16`).
-- Draws are whole numbers: below a threshold for a chance, a 128-bit multiply for a whole number in a range, the top 53 bits for a fraction in [0, 1).
-- Any thread can draw any number in any order and get the same one; the generator's statistics are tested over structured keys.
+  Each part of the key is spread over 64 bits as SplitMix64 spreads its counter, (part + 1) × its golden constant, joined to the chain and mixed; the first five parts are mixed once for a being's draws at a moment (`chance::Draws`), and each draw adds its index.
+- Systems and purposes are named, and keyed by a stable 64-bit hash of their names, XXH3 through the canonical digest, so adding a new kind of draw never shifts the others (`TIM-16`).
+- Draws are whole numbers: below a threshold for a chance, a 128-bit multiply for a whole number in a range (as even as 64 bits allow, off by at most the range over 2^64), the top 53 bits for a fraction in [0, 1).
+- Any thread can draw any number in any order and get the same one; the generator's statistics are tested over structured keys (indexes, beings, moments and seeds counting up: frequencies, every bit, and neighbours' correlation and differing bits), and a few draws are pinned for ever, since changing them would change every world.
 
 ### A3.6 Catalogues and tuning (`MAT-13`, `MAT-14`, `MAT-17`)
 

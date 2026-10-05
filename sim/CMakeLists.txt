@@ -17,6 +17,7 @@ add_library(kd_core_math STATIC ${KD_CORE_MATH})
 kindling_c_rules(kd_core_math)
 
 add_library(kd_sim STATIC
+    src/kd/chance/chance.cpp
     src/kd/core/check.cpp
     src/kd/num/angle.cpp
     src/kd/num/convert.cpp
@@ -36,6 +37,7 @@ if(KD_SIM_TESTS)
     kindling_rules(kindling)
 
     add_executable(kd_sim_tests
+        tests/chance_test.cpp
         tests/main.cpp
         tests/maths_test.cpp
         tests/num_test.cpp

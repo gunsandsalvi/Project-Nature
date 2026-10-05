@@ -19,19 +19,19 @@
 #include <string_view>
 #include <vector>
 
+#include "kd/chance/chance.hpp"
 #include "kd/num/maths.hpp"
-#include "kd/num/mix.hpp"
 #include "kd/run/workers.hpp"
 
 namespace {
 
 using Args = std::array<double, 2>;
 
-// A stream of whole numbers, the same on every run: SplitMix64 keyed by the function.
+// A stream of whole numbers, the same on every run: the simulation's own keyed chance, one purpose a function.
 struct Stream {
-    std::uint64_t key;
+    kd::chance::Draws draws;
     std::uint64_t n = 0;
-    std::uint64_t next() { return kd::num::mix64(key + 0x9E3779B97F4A7C15ULL * ++n); }
+    std::uint64_t next() { return draws.bits(n++); }
 };
 
 constexpr double kMax = std::numeric_limits<double>::max();
@@ -200,8 +200,7 @@ int main(int argc, char** argv) {
     std::printf("  %-8s %9s %9s %10s\n", "function", "inputs", "wrong", "ns a call");
     std::size_t total = 0;
     std::size_t wrong = 0;
-    for (std::size_t index = 0; index < kFunctions.size(); ++index) {
-        const Function& f = kFunctions[index];
+    for (const Function& f : kFunctions) {
         std::vector<Args> cases;
         for (double x : kEdges) {
             if (f.one != nullptr) {
@@ -219,7 +218,7 @@ int main(int argc, char** argv) {
             }
         }
         const std::size_t first_random = cases.size();
-        Stream stream{kd::num::mix64(index + 1)};
+        Stream stream{kd::chance::Draws(1, kd::chance::name("oracle"), 0, 0, kd::chance::name(f.name))};
         for (std::size_t i = 0; i < random; ++i) {
             cases.push_back(f.draw(stream));
         }
