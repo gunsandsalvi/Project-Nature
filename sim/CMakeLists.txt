@@ -24,10 +24,11 @@ add_library(kd_sim STATIC
     src/kd/num/digest.cpp
     src/kd/num/fenv.cpp
     src/kd/num/maths.cpp
+    src/kd/proof/maths_cases.cpp
     src/kd/proof/proof.cpp
     src/kd/run/workers.cpp)
 target_include_directories(kd_sim PUBLIC src)
-target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}")
+target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" thirdparty/core-math)
 target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math)
 kindling_rules(kd_sim)
 
@@ -57,7 +58,7 @@ if(KD_SIM_TESTS)
     find_library(KD_GMP gmp)
     if(KD_MPFR_INCLUDE AND KD_MPFR AND KD_GMP AND NOT CMAKE_CROSSCOMPILING)
         add_executable(kd_oracle tests/oracle.cpp)
-        target_include_directories(kd_oracle SYSTEM PRIVATE "${KD_MPFR_INCLUDE}" thirdparty/core-math)
+        target_include_directories(kd_oracle SYSTEM PRIVATE "${KD_MPFR_INCLUDE}")
         target_link_libraries(kd_oracle PRIVATE kd_sim "${KD_MPFR}" "${KD_GMP}")
         kindling_rules(kd_oracle)
         add_test(NAME oracle COMMAND kd_oracle)

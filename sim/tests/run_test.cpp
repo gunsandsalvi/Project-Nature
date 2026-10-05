@@ -47,15 +47,18 @@ TEST_CASE("workers set the default floating-point environment, whatever their cr
 }
 
 // checks: RES-05
-TEST_CASE("the smoke suite gives one digest on one to four threads") {
-    std::vector<std::string> digests;
-    for (int threads = 1; threads <= 4; ++threads) {
-        kd::run::Workers workers(threads);
-        digests.push_back(kd::proof::run("smoke", workers));
-    }
-    for (const auto& d : digests) {
-        CHECK(d.size() == 16);
-        CHECK(d == digests.front());
+TEST_CASE("every proof suite gives one digest on one to four threads") {
+    for (const kd::proof::Suite& suite : kd::proof::suites()) {
+        CAPTURE(suite.name);
+        std::vector<std::string> digests;
+        for (int threads = 1; threads <= 4; ++threads) {
+            kd::run::Workers workers(threads);
+            digests.push_back(kd::proof::run(suite.name, workers));
+        }
+        for (const auto& d : digests) {
+            CHECK(d.size() == 16);
+            CHECK(d == digests.front());
+        }
     }
 }
 

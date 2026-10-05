@@ -4,17 +4,19 @@
     python3 tools/core-math.py <a CORE-MATH checkout at the pinned commit>
 
 It copies each function's C file and the headers it includes, keeping upstream's folders, with the licence, and writes
-hard-cases.inc: an even sample of the inputs CORE-MATH lists as the hardest to round for each function (its .wc file),
-which the oracle test and the numbers' proof suite run. The functions are kept here because their host is the one
-source a cloud session might not reach (A2.4); to update them, change COMMIT, run this on a checkout of the new commit,
-and let the oracle test check every function again.
+hard-cases.inc: an even sample of the inputs CORE-MATH lists as the hardest to round for each function (its .wc file)
+whose answers are finite numbers, the simulation's domain, which the oracle test and the maths' proof suite run.
+The functions are kept here because their host is the one source a cloud session might not reach (A2.4); to update
+them, change COMMIT, run this on a checkout of the new commit, and let the oracle test check every function again.
 """
 
+import math
 import os
 import re
 import shutil
 import subprocess
 import sys
+from fractions import Fraction
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "sim", "thirdparty", "core-math")
@@ -70,6 +72,40 @@ def cases(path, arity):
     return out
 
 
+# The largest x whose e^x is finite, and the largest finite number plus half its last place, where answers become
+# infinite.
+EXP_MAX = float.fromhex("0x1.62e42fefa39efp+9")
+OVERFLOW = Fraction(float.fromhex("0x1.fffffffffffffp+1023")) + Fraction(2) ** 970
+
+
+def finite_answer(name, x, y):
+    """Whether a function's answer at (x, y) is a finite number, which kd::num asks of every input: exactly, or for
+    pow, which only MPFR could settle at the edge, with half a power of two to spare below infinity."""
+    if name in ("exp", "expm1"):
+        return x <= EXP_MAX
+    if name == "exp2":
+        return x < 1024
+    if name in ("log", "log2"):
+        return x > 0
+    if name == "log1p":
+        return x > -1
+    if name in ("asinpi", "acospi"):
+        return -1 <= x <= 1
+    if name == "tanpi":
+        return x % 1 != 0.5
+    if name == "atan2pi":
+        return x != 0 or y != 0
+    if name == "hypot":
+        return Fraction(x) ** 2 + Fraction(y) ** 2 < OVERFLOW**2
+    if name == "pow":
+        if x == 0:
+            return y >= 0
+        if x < 0 and y != math.floor(y):
+            return False
+        return y * math.log2(abs(x)) < 1023.5
+    return True
+
+
 def sample(items, n):
     """n items spread evenly through the list, always the same ones."""
     if len(items) <= n:
@@ -104,8 +140,8 @@ def main(argv):
     shutil.rmtree(os.path.join(OUT, "src"), ignore_errors=True)
     shutil.copy(os.path.join(source, "LICENSE"), os.path.join(OUT, "LICENSE"))
     lines = [
-        f"// Hard cases for CORE-MATH's functions: {SAMPLE} inputs a function, spread evenly through the finite ones",
-        f"// its .wc file lists as the hardest to round, at commit {COMMIT[:8]}. Written by tools/core-math.py.",
+        f"// Hard cases for CORE-MATH's functions: {SAMPLE} inputs a function, spread evenly through those its .wc",
+        f"// file lists as the hardest to round with finite answers, at commit {COMMIT[:8]}, by tools/core-math.py.",
         "// Each line is KD_HARD(function, x, y), y being 0 for a function of one argument.",
     ]
     for name, arity in FUNCTIONS.items():
@@ -114,7 +150,9 @@ def main(argv):
         os.makedirs(target)
         for f in [f"{name}.c", *headers(folder, f"{name}.c", [])]:
             shutil.copy(os.path.join(folder, f), os.path.join(target, f))
-        for values in sample(cases(os.path.join(folder, f"{name}.wc"), arity), SAMPLE):
+        found = cases(os.path.join(folder, f"{name}.wc"), arity)
+        usable = [c for c in found if finite_answer(name, c[0], c[1] if arity == 2 else 0.0)]
+        for values in sample(usable, SAMPLE):
             x, y = (values + (0.0,))[:2]
             lines.append(f"KD_HARD({name}, {literal(x)}, {literal(y)})")
     with open(os.path.join(OUT, "hard-cases.inc"), "w") as f:

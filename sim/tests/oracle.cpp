@@ -16,114 +16,47 @@
 #include <cstdlib>
 #include <limits>
 #include <mutex>
+#include <string>
 #include <string_view>
 #include <vector>
 
 #include "kd/chance/chance.hpp"
-#include "kd/num/maths.hpp"
+#include "kd/proof/maths_cases.hpp"
 #include "kd/run/workers.hpp"
 
 namespace {
 
-using Args = std::array<double, 2>;
+using kd::proof::Args;
+using kd::proof::MathsFunction;
 
-// A stream of whole numbers, the same on every run: the simulation's own keyed chance, one purpose a function.
-struct Stream {
-    kd::chance::Draws draws;
-    std::uint64_t n = 0;
-    std::uint64_t next() { return draws.bits(n++); }
-};
-
-constexpr double kMax = std::numeric_limits<double>::max();
-
-// A number in [0, 1) from 53 bits.
-double unit(std::uint64_t u) {
-    return static_cast<double>(u >> 11U) * 0x1p-53;
-}
-
-// A number from lo to hi, spread evenly by value.
-double by_value(Stream& s, double lo, double hi) {
-    return lo + (hi - lo) * unit(s.next());
-}
-
-// A number from 0 to hi, spread evenly over its bits, so each power of two, the subnormals' included, is as likely.
-double by_bits(Stream& s, double hi) {
-    return std::bit_cast<double>(s.next() % (std::bit_cast<std::uint64_t>(hi) + 1));
-}
-
-// The same with either sign.
-double signed_bits(Stream& s, double hi) {
-    const double x = by_bits(s, hi);
-    return (s.next() & 1U) != 0 ? -x : x;
-}
-
-// Half the inputs by bits and half by value, from -hi to hi (or from 0 when the domain starts there).
-double either(Stream& s, double bits_hi, double lo, double hi) {
-    return (s.next() & 1U) != 0 ? signed_bits(s, bits_hi) : by_value(s, lo, hi);
-}
-
-// pow's inputs: a positive x by its bits, and a y that brings the answer anywhere from the smallest number to the
-// largest; or a negative x to a whole y.
-Args pow_inputs(Stream& s) {
-    if (s.next() % 5 == 0) {
-        return {-by_value(s, 0.25, 4.0), static_cast<double>(static_cast<std::int64_t>(s.next() % 121) - 60)};
-    }
-    const double x = by_bits(s, kMax);
-    const double target = by_value(s, -1074.0, 1023.0);
-    const double l = x > 0.0 ? kd::num::log2(x) : 0.0;
-    return {x, l != 0.0 ? target / l : by_value(s, -100.0, 100.0)};
-}
-
-struct Function {
-    const char* name;
-    double (*ours)(Args);
+// MPFR's function for each of ours, by name.
+struct Reference {
+    std::string_view name;
     int (*one)(mpfr_ptr, mpfr_srcptr, mpfr_rnd_t);
     int (*two)(mpfr_ptr, mpfr_srcptr, mpfr_srcptr, mpfr_rnd_t);
-    Args (*draw)(Stream&);
 };
 
-const std::array kFunctions = {
-    Function{"sqrt", [](Args a) { return kd::num::sqrt(a[0]); }, &mpfr_sqrt, nullptr,
-             [](Stream& s) { return Args{(s.next() & 1U) != 0 ? by_bits(s, kMax) : by_value(s, 0.0, 1e6), 0.0}; }},
-    Function{"cbrt", [](Args a) { return kd::num::cbrt(a[0]); }, &mpfr_cbrt, nullptr,
-             [](Stream& s) { return Args{either(s, kMax, -1e6, 1e6), 0.0}; }},
-    Function{"exp", [](Args a) { return kd::num::exp(a[0]); }, &mpfr_exp, nullptr,
-             [](Stream& s) { return Args{either(s, 709.7, -746.0, 709.78), 0.0}; }},
-    Function{"exp2", [](Args a) { return kd::num::exp2(a[0]); }, &mpfr_exp2, nullptr,
-             [](Stream& s) { return Args{either(s, 1023.9, -1076.0, 1023.99), 0.0}; }},
-    Function{"expm1", [](Args a) { return kd::num::expm1(a[0]); }, &mpfr_expm1, nullptr,
-             [](Stream& s) { return Args{either(s, 709.7, -746.0, 709.78), 0.0}; }},
-    Function{"log", [](Args a) { return kd::num::log(a[0]); }, &mpfr_log, nullptr,
-             [](Stream& s) { return Args{(s.next() & 1U) != 0 ? by_bits(s, kMax) : by_value(s, 0.0, 100.0), 0.0}; }},
-    Function{"log2", [](Args a) { return kd::num::log2(a[0]); }, &mpfr_log2, nullptr,
-             [](Stream& s) { return Args{(s.next() & 1U) != 0 ? by_bits(s, kMax) : by_value(s, 0.0, 100.0), 0.0}; }},
-    Function{"log1p", [](Args a) { return kd::num::log1p(a[0]); }, &mpfr_log1p, nullptr,
-             [](Stream& s) {
-                 const double x = (s.next() & 1U) != 0 ? by_bits(s, kMax) : by_value(s, -1.0, 100.0);
-                 return Args{(s.next() & 1U) != 0 && x < 1.0 ? -x : x, 0.0};
-             }},
-    Function{"pow", [](Args a) { return kd::num::pow(a[0], a[1]); }, nullptr, &mpfr_pow, &pow_inputs},
-    Function{"tanh", [](Args a) { return kd::num::tanh(a[0]); }, &mpfr_tanh, nullptr,
-             [](Stream& s) { return Args{either(s, kMax, -20.0, 20.0), 0.0}; }},
-    Function{"erf", [](Args a) { return kd::num::erf(a[0]); }, &mpfr_erf, nullptr,
-             [](Stream& s) { return Args{either(s, kMax, -6.0, 6.0), 0.0}; }},
-    Function{"hypot", [](Args a) { return kd::num::hypot(a[0], a[1]); }, nullptr, &mpfr_hypot,
-             [](Stream& s) { return Args{either(s, kMax, -1e6, 1e6), either(s, kMax, -1e6, 1e6)}; }},
-    Function{"sinpi", [](Args a) { return kd::num::sinpi(a[0]); }, &mpfr_sinpi, nullptr,
-             [](Stream& s) { return Args{either(s, kMax, -4.0, 4.0), 0.0}; }},
-    Function{"cospi", [](Args a) { return kd::num::cospi(a[0]); }, &mpfr_cospi, nullptr,
-             [](Stream& s) { return Args{either(s, kMax, -4.0, 4.0), 0.0}; }},
-    Function{"tanpi", [](Args a) { return kd::num::tanpi(a[0]); }, &mpfr_tanpi, nullptr,
-             [](Stream& s) { return Args{either(s, kMax, -4.0, 4.0), 0.0}; }},
-    Function{"asinpi", [](Args a) { return kd::num::asinpi(a[0]); }, &mpfr_asinpi, nullptr,
-             [](Stream& s) { return Args{either(s, 1.0, -1.0, 1.0), 0.0}; }},
-    Function{"acospi", [](Args a) { return kd::num::acospi(a[0]); }, &mpfr_acospi, nullptr,
-             [](Stream& s) { return Args{either(s, 1.0, -1.0, 1.0), 0.0}; }},
-    Function{"atanpi", [](Args a) { return kd::num::atanpi(a[0]); }, &mpfr_atanpi, nullptr,
-             [](Stream& s) { return Args{either(s, kMax, -100.0, 100.0), 0.0}; }},
-    Function{"atan2pi", [](Args a) { return kd::num::atan2pi(a[0], a[1]); }, nullptr, &mpfr_atan2pi,
-             [](Stream& s) { return Args{either(s, kMax, -1e3, 1e3), either(s, kMax, -1e3, 1e3)}; }},
+const std::array kReferences = {
+    Reference{"sqrt", &mpfr_sqrt, nullptr},       Reference{"cbrt", &mpfr_cbrt, nullptr},
+    Reference{"exp", &mpfr_exp, nullptr},         Reference{"exp2", &mpfr_exp2, nullptr},
+    Reference{"expm1", &mpfr_expm1, nullptr},     Reference{"log", &mpfr_log, nullptr},
+    Reference{"log2", &mpfr_log2, nullptr},       Reference{"log1p", &mpfr_log1p, nullptr},
+    Reference{"pow", nullptr, &mpfr_pow},         Reference{"tanh", &mpfr_tanh, nullptr},
+    Reference{"erf", &mpfr_erf, nullptr},         Reference{"hypot", nullptr, &mpfr_hypot},
+    Reference{"sinpi", &mpfr_sinpi, nullptr},     Reference{"cospi", &mpfr_cospi, nullptr},
+    Reference{"tanpi", &mpfr_tanpi, nullptr},     Reference{"asinpi", &mpfr_asinpi, nullptr},
+    Reference{"acospi", &mpfr_acospi, nullptr},   Reference{"atanpi", &mpfr_atanpi, nullptr},
+    Reference{"atan2pi", nullptr, &mpfr_atan2pi},
 };
+
+const Reference* reference_of(std::string_view name) {
+    for (const Reference& r : kReferences) {
+        if (r.name == name) {
+            return &r;
+        }
+    }
+    return nullptr;
+}
 
 // The edges every function is tried at, alone or in pairs: zeros, the smallest and largest numbers of each kind,
 // and the small whole numbers and halves where functions change their behaviour.
@@ -147,23 +80,11 @@ constexpr std::array kEdges = {0.0,
                                -745.1332191019411,
                                1023.0,
                                -1074.0,
-                               kMax,
-                               -kMax};
-
-struct Hard {
-    std::string_view name;
-    double x;
-    double y;
-};
-
-#define KD_HARD(fn, x, y) Hard{#fn, x, y},
-const Hard kHard[] = {
-#include "hard-cases.inc"
-};
-#undef KD_HARD
+                               std::numeric_limits<double>::max(),
+                               -std::numeric_limits<double>::max()};
 
 // MPFR's correctly rounded answer, with the exponent range and the subnormals of a double.
-double reference(const Function& f, Args a) {
+double reference(const Reference& f, Args a) {
     mpfr_set_emin(-1073);
     mpfr_set_emax(1024);
     mpfr_t x;
@@ -181,8 +102,8 @@ double reference(const Function& f, Args a) {
 
 // Whether the simulation may ask for this at all: an input whose answer is a finite number, and a vector that is not
 // zero for atan2pi; kd/num refuses everything else, and its tests check that.
-bool asked(const Function& f, Args a, double answer) {
-    return std::isfinite(answer) && !(f.two == &mpfr_atan2pi && a[0] == 0.0 && a[1] == 0.0);
+bool asked(const MathsFunction& f, Args a, double answer) {
+    return std::isfinite(answer) && !(f.name == "atan2pi" && a[0] == 0.0 && a[1] == 0.0);
 }
 
 struct Result {
@@ -200,10 +121,15 @@ int main(int argc, char** argv) {
     std::printf("  %-8s %9s %9s %10s\n", "function", "inputs", "wrong", "ns a call");
     std::size_t total = 0;
     std::size_t wrong = 0;
-    for (const Function& f : kFunctions) {
+    for (const MathsFunction& f : kd::proof::maths_functions()) {
+        const Reference* ref = reference_of(f.name);
+        if (ref == nullptr) {
+            std::printf("  %-8s has no MPFR function here\n", std::string(f.name).c_str());
+            return 1;
+        }
         std::vector<Args> cases;
         for (double x : kEdges) {
-            if (f.one != nullptr) {
+            if (f.arity == 1) {
                 cases.push_back({x, 0.0});
                 continue;
             }
@@ -211,16 +137,17 @@ int main(int argc, char** argv) {
                 cases.push_back({x, y});
             }
         }
-        for (const Hard& h : kHard) {
+        for (const kd::proof::HardCase& h : kd::proof::hard_cases()) {
             if (h.name == f.name) {
-                cases.push_back({h.x, h.y});
-                cases.push_back({-h.x, h.y});
+                cases.push_back(h.args);
+                cases.push_back({-h.args[0], h.args[1]});
             }
         }
+        // the stream the phone's maths suite runs, and as far beyond it as asked
         const std::size_t first_random = cases.size();
-        Stream stream{kd::chance::Draws(1, kd::chance::name("oracle"), 0, 0, kd::chance::name(f.name))};
+        const kd::chance::Draws draws = kd::proof::maths_draws(f);
         for (std::size_t i = 0; i < random; ++i) {
-            cases.push_back(f.draw(stream));
+            cases.push_back(f.draw(draws, i));
         }
 
         // Checked in fixed pieces on the workers, each piece's results kept apart and added in order.
@@ -230,13 +157,13 @@ int main(int argc, char** argv) {
         workers.for_each(pieces.size(), [&](std::size_t p) {
             Result& r = pieces[p];
             for (std::size_t i = p * kPiece; i < std::min(cases.size(), (p + 1) * kPiece); ++i) {
-                const double expected = reference(f, cases[i]);
+                const double expected = reference(*ref, cases[i]);
                 if (!asked(f, cases[i], expected)) {
                     continue;
                 }
                 usable[i] = 1;
                 ++r.tried;
-                const double got = f.ours(cases[i]);
+                const double got = f.call(cases[i]);
                 if (std::bit_cast<std::uint64_t>(got) != std::bit_cast<std::uint64_t>(expected)) {
                     ++r.wrong;
                     if (r.examples.size() < 3) {
@@ -262,14 +189,14 @@ int main(int argc, char** argv) {
         volatile double sink = 0.0;
         const auto start = std::chrono::steady_clock::now();
         for (const Args& a : timed) {
-            sink = f.ours(a);
+            sink = f.call(a);
         }
         static_cast<void>(sink);
         const double ns = std::chrono::duration<double, std::nano>(std::chrono::steady_clock::now() - start).count();
-        std::printf("  %-8s %9zu %9zu %10.1f\n", f.name, all.tried, all.wrong,
+        std::printf("  %-8s %9zu %9zu %10.1f\n", std::string(f.name).c_str(), all.tried, all.wrong,
                     timed.empty() ? 0.0 : ns / static_cast<double>(timed.size()));
         for (const auto& e : all.examples) {
-            std::printf("    %s(%a, %a): MPFR %a, ours %a\n", f.name, e[0], e[1], e[2], e[3]);
+            std::printf("    %s(%a, %a): MPFR %a, ours %a\n", std::string(f.name).c_str(), e[0], e[1], e[2], e[3]);
         }
         total += all.tried;
         wrong += all.wrong;

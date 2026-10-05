@@ -173,19 +173,28 @@ func _add_threads(device: KdDevice) -> void:
 	_add("Simulation threads", value, "ok" if good else "fail")
 
 
+## Each proof suite on one thread and four, against the digest the cloud wrote into the build, with
+## the time each run took.
 func _add_same_bits(device: KdDevice) -> void:
 	var expected := ConfigFile.new()
 	var have_build := expected.load(BUILD_DATA) == OK
 	for suite: String in device.proof_suites():
+		var started := Time.get_ticks_usec()
 		var one := device.proof(suite, 1)
+		var one_ms := (Time.get_ticks_usec() - started) / 1000.0
+		started = Time.get_ticks_usec()
 		var four := device.proof(suite, 4)
+		var four_ms := (Time.get_ticks_usec() - started) / 1000.0
 		var cloud: String = expected.get_value("proof", suite, "") if have_build else ""
-		var state := "ok" if one == four and one == cloud else "fail"
+		var times := "%.0f ms on 1 thread, %.0f on 4" % [one_ms, four_ms]
+		if one == four and one == cloud:
+			_add("Same bits: %s" % suite, "the same as the cloud (%s); %s" % [one, times], "ok")
+			continue
 		var value := (
-			"%s on 1 thread, %s on 4; the cloud's %s"
-			% [one, four, cloud if cloud != "" else "missing"]
+			"%s on 1 thread, %s on 4, the cloud's %s; %s"
+			% [one, four, cloud if cloud != "" else "missing", times]
 		)
-		_add("Same bits: %s" % suite, value, state)
+		_add("Same bits: %s" % suite, value, "fail")
 
 
 func _short_mount(line: String) -> String:

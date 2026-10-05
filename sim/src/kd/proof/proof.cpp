@@ -5,7 +5,13 @@
 #include <cstdint>
 #include <vector>
 
+#include "kd/chance/chance.hpp"
+#include "kd/num/angle.hpp"
+#include "kd/num/convert.hpp"
 #include "kd/num/digest.hpp"
+#include "kd/num/probability.hpp"
+#include "kd/num/torus.hpp"
+#include "kd/proof/maths_cases.hpp"
 
 namespace kd::proof {
 
@@ -56,8 +62,113 @@ std::string smoke(run::Workers& workers) {
     return digest.hex();
 }
 
+/// The maths suite: every maths function on 20,000 inputs of its stream, cut into fixed pieces on the workers, and
+/// on CORE-MATH's hard cases; each answer's bits digested in order. Implements RES-05, see A3.4.
+std::string maths(run::Workers& workers) {
+    constexpr std::uint64_t kInputs = 20'000;
+    constexpr std::uint64_t kPiece = 1'000;
+    num::Digest digest;
+    for (const MathsFunction& f : maths_functions()) {
+        const chance::Draws draws = maths_draws(f);
+        std::vector<double> answers(kInputs);
+        workers.for_each(kInputs / kPiece, [&](std::size_t p) {
+            for (std::uint64_t i = p * kPiece; i < (p + 1) * kPiece; ++i) {
+                answers[i] = f.call(f.draw(draws, i));
+            }
+        });
+        digest.text(f.name);
+        for (double a : answers) {
+            digest.f64(a);
+        }
+    }
+    for (const HardCase& h : hard_cases()) {
+        digest.f64(maths_function(h.name).call(h.args));
+    }
+    return digest.hex();
+}
+
+/// The chance suite: 2,000 beings, each drawing 100 times in every way at its own moment, the beings cut into fixed
+/// pieces on the workers and each piece's digest gathered in order. Implements TIM-16, see A3.5.
+std::string chance_draws(run::Workers& workers) {
+    constexpr std::uint64_t kBeings = 2'000;
+    constexpr std::uint64_t kPiece = 50;
+    constexpr std::uint64_t kDraws = 100;
+    const chance::Name system = chance::name("proof");
+    const chance::Name purpose = chance::name("chance");
+    const num::Probability third = num::Probability::ratio(1, 3);
+    std::vector<std::uint64_t> pieces(kBeings / kPiece);
+    workers.for_each(pieces.size(), [&](std::size_t p) {
+        num::Digest digest;
+        for (std::uint64_t being = p * kPiece; being < (p + 1) * kPiece; ++being) {
+            const auto moment = static_cast<std::int64_t>(being * 3'600) - 7'200;
+            const chance::Draws draws(20261005, system, being, moment, purpose);
+            for (std::uint64_t i = 0; i < kDraws; ++i) {
+                digest.u64(draws.bits(i));
+                digest.u64(draws.below(i, 1'000));
+                digest.i64(draws.between(i, -500, 500));
+                digest.f64(draws.fraction(i));
+                digest.u8(draws.fires(i, third) ? 1 : 0);
+            }
+        }
+        pieces[p] = digest.value();
+    });
+    num::Digest digest;
+    for (std::uint64_t piece : pieces) {
+        digest.u64(piece);
+    }
+    return digest.hex();
+}
+
+/// The torus suite: 200,000 pairs of places spread over the world of WLD-03, with the way between them, its
+/// distance, the place it leads to, its direction and that direction's sine and cosine. Implements RES-05 and WLD-01,
+/// see A3.4.
+std::string torus(run::Workers& workers) {
+    constexpr std::uint64_t kPairs = 200'000;
+    constexpr std::uint64_t kPiece = 2'000;
+    const num::Torus world(200'000'000, 100'000'000);
+    const chance::Draws draws(20261005, chance::name("proof"), 0, 0, chance::name("torus"));
+    std::vector<std::uint64_t> pieces(kPairs / kPiece);
+    workers.for_each(pieces.size(), [&](std::size_t p) {
+        num::Digest digest;
+        for (std::uint64_t i = p * kPiece; i < (p + 1) * kPiece; ++i) {
+            const auto w = static_cast<std::uint64_t>(world.width());
+            const auto h = static_cast<std::uint64_t>(world.height());
+            const num::Point a{static_cast<std::int32_t>(draws.below(4 * i, w)),
+                               static_cast<std::int32_t>(draws.below(4 * i + 1, h))};
+            const num::Point b{static_cast<std::int32_t>(draws.below(4 * i + 2, w)),
+                               static_cast<std::int32_t>(draws.below(4 * i + 3, h))};
+            const num::Offset way = world.offset(a, b);
+            const std::int64_t distance = world.distance(a, b);
+            const num::Point there = world.moved(a, way);
+            digest.i64(way.dx);
+            digest.i64(way.dy);
+            digest.i64(world.squared_distance(a, b));
+            digest.i64(distance);
+            digest.u32(static_cast<std::uint32_t>(there.x));
+            digest.u32(static_cast<std::uint32_t>(there.y));
+            if (way.dx != 0 || way.dy != 0) {
+                const num::Angle heading = num::direction(way);
+                const double east = num::cos(heading);
+                digest.u32(heading.steps);
+                digest.f64(east);
+                digest.f64(num::sin(heading));
+                digest.i64(num::to_int(east * static_cast<double>(distance), num::Round::nearest));
+            }
+        }
+        pieces[p] = digest.value();
+    });
+    num::Digest digest;
+    for (std::uint64_t piece : pieces) {
+        digest.u64(piece);
+    }
+    return digest.hex();
+}
+
 constexpr std::array kSuites = {
     Suite{"smoke", "arithmetic, square roots and a sum in fixed pieces", &smoke},
+    Suite{"maths", "every maths function on its stream of inputs and its hard cases", &maths},
+    Suite{"chance", "a million keyed draws of every kind", &chance_draws},
+    Suite{"torus", "ways, distances and directions between places on the world", &torus},
 };
 
 }  // namespace

@@ -42,6 +42,38 @@ class HardCases(unittest.TestCase):
         self.assertEqual(core_math.cases(f.name, 1), [])
 
     # checks: RES-05
+    def test_only_inputs_with_finite_answers_are_kept(self):
+        top = float.fromhex("0x1.fffffffffffffp+1023")
+        kept = [
+            ("exp", core_math.EXP_MAX, 0.0),
+            ("tanpi", 0.25, 0.0),
+            ("hypot", top, 0.0),
+            ("pow", -2.0, 3.0),
+            ("pow", 2.0, 1023.0),
+            ("pow", 0.0, 0.0),
+            ("log1p", -0.5, 0.0),
+            ("acospi", -1.0, 0.0),
+        ]
+        refused = [
+            ("exp", float.fromhex("0x1.62e42fefa39f0p+9"), 0.0),
+            ("exp2", 1024.0, 0.0),
+            ("tanpi", 0.5, 0.0),
+            ("tanpi", -1.5, 0.0),
+            ("hypot", top, top),
+            ("pow", 0.0, -1.0),
+            ("pow", -2.0, 0.5),
+            ("pow", 2.0, 1024.0),
+            ("log", 0.0, 0.0),
+            ("log1p", -1.0, 0.0),
+            ("asinpi", 1.0000000000000002, 0.0),
+            ("atan2pi", 0.0, 0.0),
+        ]
+        for case in kept:
+            self.assertTrue(core_math.finite_answer(*case), case)
+        for case in refused:
+            self.assertFalse(core_math.finite_answer(*case), case)
+
+    # checks: RES-05
     def test_the_sample_is_spread_evenly_and_fixed(self):
         self.assertEqual(core_math.sample(list(range(10)), 3), [0, 3, 6])
         self.assertEqual(core_math.sample([1, 2], 5), [1, 2])

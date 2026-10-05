@@ -1,43 +1,38 @@
-# Kindling α1.1a: The workshop
+# Kindling α1.1b: Numbers and chance
 
 ## What is new
 
-- **Production has begun.** Pre-production is closed: its lessons are kept in `LESSONS.md`, and its code is gone. This is the first build of the real game, written fresh, starting from the foundations (M1). The plan for all of M1 is eleven steps in five alphas, each ending with a build like this one.
-- **For now the app is one page: its self-check.** It runs every time the app opens, and each line turns green when it holds, amber when it is worth a look, and red when it fails:
-  - the app's and Godot's versions, and the compiler the simulation was built with;
-  - your graphics chip and its driver;
-  - the screen: its size and refresh rate. The aim is 60 Hz, which saves battery; the old builds left your screen at 120. The line is amber if it is not 60;
-  - the cores and their top speeds, and which four are the middle ones the simulation may use;
-  - the heat: how far the phone is from slowing itself down, now and 10 seconds ahead;
-  - the simulation's own threads: each starts in the standard number mode and with room to work;
-  - how the phone's storage is set up, which matters for saving worlds later;
-  - **the same bits:** a first test calculation, run on one thread and on four, against the answer the cloud worked out and put in the app.
-- **Behind it, in the cloud:** every change is now built five ways: with the cloud's two compilers, with an arm64 compiler, and with your phone's own compiler running in an emulator. All of them must give exactly the same answer, on one thread and on four. The checks also read the compiled code for the two traps that research found change answers between phones and computers.
+- **The numbers everything else will compute with,** the same to the last bit in the cloud and on your phone:
+  - **Maths that rounds correctly:** 18 maths functions (powers, logarithms, the sine and its kin, and more) from CORE-MATH, a research library that gives each answer as the one exactly right number, so no two machines can disagree. In the cloud each was held to MPFR, the reference library for this, on 3.8 million answers: every bit agreed.
+  - **Places on the world:** whole centimetres on the 2,000 by 1,000 km world that wraps both ways, with the way between two places and its length exact to the centimetre.
+  - **Angles as turns,** so a quarter turn is exactly a quarter turn, and its sine exactly 1.
+  - **Chance by key:** every random number comes from what it is for (the world, who, when and why), so it is the same whatever order things happen in and on however many threads, and a new kind of chance never changes another.
+- **The banned list, enforced:** the cloud now reads the code itself and refuses the thirteen things that make phones and computers disagree, each refusal naming what to use instead (for example the phone's own sine, or a sort that leaves ties to chance).
+- **Two more trial builds:** your phone's compiler builds the proofs twice more with its sorting shuffled at random, and the answers must not move. All twelve runs in the cloud now agree.
+- **On your phone,** the self-check has three new lines: maths, chance and torus (the world's geometry), each saying whether your phone's answer is exactly the cloud's and how long it took on one thread and on four.
 
-![The self-check as the cloud draws it](pictures/a11a-check.png)
+![The self-check as the cloud draws it](pictures/a11b-check.png)
 
 ## What to try
 
-1. Tap **Download and install** at the top of this page. It installs over the prototype app.
+1. Tap **Download and install** at the top of this page. It installs over α1.1a.
 2. Open **Kindling**. It opens on its **Check** page.
-3. Read the top line: **All checks pass** in green, or how many fail in red.
-4. Look at the **Screen** line: 60 Hz is the aim.
-5. Tap **Copy the details** and paste them into the chat, even if everything is green: I need your phone's own lines (its driver, cores, heat, storage and screen rate).
+3. Look at the four **Same bits** lines: smoke, maths, chance and torus. Each should be green and say "the same as the cloud".
+4. Tap **Copy the details** and paste them into the chat. I still need your phone's own lines (its driver, cores, heat, storage and screen rate), and now the times of the new lines too.
 
 ## What is rough
 
-- There is only one page. The next steps add the calendar, the catalogues, a crowd of 10,000 walkers, saves and a benchmark.
-- The look is plain, with Godot's default font. The game's own look comes with the graphics engine (M2).
-- The heat forecast needs a few readings before it can look ahead, so at first it may show the same number as now, or "nan".
-- If the Screen line is amber (still 120 Hz), the next build tries Android's own way of asking for 60.
+- There is still only one page. Next comes the clock and the calendar (α1.2a).
+- The times are from the first run after the app opens, before the phone settles; the benchmark at the end of the foundations measures properly.
+- Your phone's details from α1.1a have not arrived yet, so whether the screen now runs at 60 Hz is still unconfirmed.
 
 ## IDs delivered
 
-- `PLT-01`: the simulation on its own threads, each in the standard number mode with an 8 MiB stack, and the phone's cores read to find the middle four.
-- `PLT-03`: the app asks for no permissions and needs no network.
-- `PLT-06`: the build installs over the last one, signed with your key.
-- `RES-05`: the same bits, checked on five builds in the cloud and on your phone.
-- `PRC-10`: the checks before anything joins: five builds, the same-bits comparison, and the scans of the compiled code.
+- `RES-05`: correctly rounded maths, exact places and angles, the one checked conversion from fractions to whole numbers, and the banned list, with the same bits on every build in the cloud and on your phone.
+- `TIM-16`: chance keyed by what it is for, so adding a new kind of draw never changes another.
+- `WLD-01`: the world's wrapping, in exact whole centimetres.
+- `PLT-01`: the proofs on the simulation's own threads, one and four.
+- `PRC-10`: the banned list and the two shuffled builds join the checks.
 
 ## Links
 
