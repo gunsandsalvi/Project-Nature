@@ -130,6 +130,60 @@ private:
     std::string text_;
 };
 
+/// A chance in whole parts per million, to the nearest, from its exact threshold: how a chance is shown.
+std::uint64_t parts_per_million(const num::Probability& p);
+
+/// One field's value as the simulation holds it, for the screen to show or use (A3.8): whole numbers, quantities and
+/// durations' game lengths in base units, chances in parts per million, texts and choices as written, and links and
+/// lists of names as canonical names.
+struct FieldValue {
+    enum class Kind : std::uint8_t { whole, text, truth, list };
+    std::string key;
+    Kind kind = Kind::whole;
+    std::int64_t whole = 0;
+    std::string text;
+    bool truth = false;
+    std::vector<std::string> list;
+};
+
+/// Implements MAT-13, see A3.6: an entry's values, field by field in the kind's order.
+class Valuer {
+public:
+    void whole(const Field& f, const std::int64_t& v, Range /*range*/) { number(f, v); }
+    void truth(const Field& f, const bool& v) {
+        FieldValue& out = add(f, FieldValue::Kind::truth);
+        out.truth = v;
+    }
+    void text(const Field& f, const std::string& v) { add(f, FieldValue::Kind::text).text = v; }
+    void choice(const Field& f, const std::string& v, std::initializer_list<std::string_view> /*options*/) {
+        add(f, FieldValue::Kind::text).text = v;
+    }
+    void quantity(const Field& f, const std::int64_t& v, Measure /*m*/, Range /*range*/) { number(f, v); }
+    void chance(const Field& f, const num::Probability& v) {
+        number(f, v.certain() ? 1'000'000 : static_cast<std::int64_t>(parts_per_million(v)));
+    }
+    void duration(const Field& f, const time::Duration& v) { number(f, v.game); }
+    void link(const Field& f, const Ref& v, std::string_view /*kind*/) { add(f, FieldValue::Kind::text).text = v.name; }
+    void links(const Field& f, const std::vector<Ref>& v, std::string_view /*kind*/) {
+        FieldValue& out = add(f, FieldValue::Kind::list);
+        for (const Ref& r : v) {
+            out.list.push_back(r.name);
+        }
+    }
+    void names(const Field& f, const std::vector<std::string>& v) { add(f, FieldValue::Kind::list).list = v; }
+
+    [[nodiscard]] std::vector<FieldValue> values() && { return std::move(values_); }
+
+private:
+    FieldValue& add(const Field& f, FieldValue::Kind kind) {
+        values_.push_back({std::string(f.key), kind, 0, {}, false, {}});
+        return values_.back();
+    }
+    void number(const Field& f, std::int64_t v) { add(f, FieldValue::Kind::whole).whole = v; }
+
+    std::vector<FieldValue> values_;
+};
+
 /// One field of an entry, picked by its key for MAT-05's orders: whether the kind has it, whether it can be ordered,
 /// and a value that orders as the field does (a whole number, a quantity, a chance or a duration's game length).
 struct Picked {

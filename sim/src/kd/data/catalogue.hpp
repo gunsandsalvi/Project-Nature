@@ -94,6 +94,8 @@ public:
     [[nodiscard]] virtual Problem at(std::size_t i, std::string_view key, std::string what) const = 0;
     /// One field of the entry, for MAT-05's orders.
     [[nodiscard]] virtual Picked pick(std::size_t i, std::string_view key) const = 0;
+    /// The entry's values, field by field, for the screen (A3.8).
+    [[nodiscard]] virtual std::vector<FieldValue> values(std::size_t i) const = 0;
     [[nodiscard]] virtual std::string display(std::size_t i) const = 0;
     [[nodiscard]] virtual std::string schema() const = 0;
     [[nodiscard]] virtual const void* type() const = 0;
@@ -168,6 +170,12 @@ public:
         Picker p(key);
         T::visit(p, entries_[i].value);
         return p.picked();
+    }
+
+    [[nodiscard]] std::vector<FieldValue> values(std::size_t i) const override {
+        Valuer v;
+        T::visit(v, entries_[i].value);
+        return std::move(v).values();
     }
 
     [[nodiscard]] std::string display(std::size_t i) const override {

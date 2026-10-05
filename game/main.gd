@@ -6,6 +6,7 @@ extends Control
 const PAGES := {
 	"Check": preload("res://pages/check.gd"),
 	"Time": preload("res://pages/time.gd"),
+	"Catalogues": preload("res://pages/catalogues.gd"),
 }
 const BACKGROUND := Color("#1f1a24")
 const TEXT := Color("#efe6d8")

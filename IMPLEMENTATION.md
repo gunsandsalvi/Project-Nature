@@ -17,6 +17,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - Production begins with the foundations (M1), scoped for the whole game and for what may come after it, and planned in full below from research 18: eleven steps in five alphas, each ending with a build on your phone.
 - The first alpha, α1.1 (the workshop, then numbers and chance), is delivered as 20101 and 20102 and closed by the builder's review; your phone's lines from its self-check are still to come.
 - α1.2a, the clock and the calendar, is delivered as 20201; your phone's top speed on its Time page is still to come.
+- α1.2b, catalogues and tuning, is delivered as 20202, and α1.2 is closed by the builder's review; its note stays in the repository rather than being republished, as you asked on 5 October 2026.
 
 ## How to use this plan
 
@@ -116,8 +117,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.2b | Catalogues and tuning | M1 | 6 | Next |
-| α1.3a | Entities and events | M1 | 5 | Planned |
+| α1.3a | Entities and events | M1 | 5 | Next |
 | α1.3b | Activities and islands | M1 | 6 | Planned |
 | α1.3c | The crowd on your phone | M1 | 6 | Planned |
 | α1.4a | Saves and the journal | M1 | 6 | Planned |
@@ -151,36 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.2b Catalogues and tuning
-
-**Goal:** content as data: catalogues and tuning files in TOML, read the same on every build, checked at load with every error named by file, line and column, numbered and fingerprinted, and on your phone exactly as in the cloud.
-
-**Serves:** `MAT-05`, `MAT-13`, `MAT-14`, `MAT-17`, `TIM-18`, `PRC-10`.
-
-**Architecture:** A3.6, A2.2.
-
-**Tasks:**
-
-1. `T1.2b.1` **Reading TOML exactly (`MAT-13`).**
-   toml++ pinned, behind one file, with no exceptions; floats refused with a message saying what to write instead; the exact reader of quantities, ratios, probabilities and durations with units into whole base units.
-2. `T1.2b.2` **Schema once (`MAT-13`, `MAT-17`).**
-   One `visit()` per kind naming each field's key, type, unit, range, whether it is required, what it links to and what it affects; the loader (unknown keys refused, every error at file, line and column), the schema writer and the fingerprinter all walk it; `kindling catalogue check`, `show`, `schema` and `fingerprint`.
-3. `T1.2b.3` **Sources, names and digests (`MAT-14`, `MAT-13`).**
-   Sources in order, each with its id, version and requirements, only adding entries; namespaced names numbered by sorted name; stable name hashes for chance; name lists for saves; renames; each entry's digest and each source's rules, world and look digests, with the world-making version.
-4. `T1.2b.4` **The checks and their planted faults (`MAT-17`, `MAT-05`, `TIM-18`).**
-   The checks at load (syntax, types, units, ranges, links, duplicates, `TIM-18`) and the cloud's framework for `MAT-17`'s checks, which each kind registers as it arrives, with `MAT-05`'s orders read from `checks/`; the demonstration's marker kind and tuning in `data/demo/`.
-5. `T1.2b.5` **Data on the phone (`MAT-13`).**
-   The build copies the sources into `game/data/` with `build.toml`; `view/` reads each listed file and hands its bytes to `sim/`; the self-check compares the phone's digests with the build's; a Catalogues page lists the sources, kinds, entries and digests; deliver.
-
-**Tests:**
-- The unit reader: hundreds of thousands of strings, one digest on every build; values finer than a base unit refused.
-- The planted-fault catalogue: one fault for each check, each refused at its file, line and column, and only it.
-- `MAT-14`: a made-up entry added to a test source changes no other entry's digest.
-- A rename keeps the old name's saves readable.
-- Passes if all pass and the phone's digests equal the build's.
-
-**On the phone:** the self-check adds "Catalogues: the same as the build"; the Catalogues page lists what was loaded.
 
 ### α1.3a Entities and events
 

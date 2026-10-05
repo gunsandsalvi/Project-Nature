@@ -1,44 +1,45 @@
-# Kindling α1.2a: The clock and the calendar
+# Kindling α1.2b: Catalogues and tuning
 
 ## What is new
 
-- **Game time.** The world now has a clock: whole game seconds from Year 1, spring, day 1, in the 60-day year of four 15-day seasons. Any moment reads as a date, "Year 112, autumn, day 6", and a place in the other half of the world adds its own season: "Year 140, winter (their summer), day 3".
-- **Durations with two lengths.** Every length of time the catalogues will hold keeps its length in life and in the game, and a check holds the two to the game year's rule: up to about two weeks they are equal; from a month on, the game length is about a sixth; between, anything from about a sixth up to the real length. Smoked meat's three months as 15 game days passes; three months as 30 game days is refused, with the reason.
-- **The world on its own thread.** It works toward a goal a quarter of a real second ahead of what you see, and sleeps when it gets there.
-- **The speed loop.** The screen's time follows the speed you choose but never runs ahead of the world: when the world can't keep up, time slows rather than the screen stuttering, and the speed shown is the one actually drawn. Pausing stops within a quarter of a second, on exactly the world's state.
-- **A new page, Time:** the date and hour, the six speeds of the zoom stops from real speed to top, pause and play, and the speed it really runs at. Until the real world exists, a stand-in does a fixed amount of work for each game hour, so top speed shows what your phone can do.
+- **Content as data.** Everything the game will know (kinds of stone, plants, animals, blueprints) will live in small text files in the TOML format, one entry a file, each in a source: `base` for the game, `demo` for what only the foundations show. This step builds the machinery; the first entries are the demonstration's two kinds of marker, its crowd, and the speeds of time.
+- **Read exactly, the same on every machine.** No decimal numbers are stored: "1.4 m/s", "30%" or "1 in 10" are read into whole millimetres a second and exact chances, so the phone's reading can never differ from the cloud's. Every mistake in a file is named at its file, line and column, from a misspelt unit to a link to an entry that does not exist, a length of time that breaks the game year's rule, or a name listed twice.
+- **Checks on the whole catalogue.** Beyond each file, checks run over everything at once. The first one holds values to the real order of things (`MAT-05`): a list in `checks/` says a strider is faster than a walker, so a strider written slower is refused at its place in the list. Each check was proved by a planted fault that it caught.
+- **Sources and fingerprints.** Each source has a version, the sources it needs, and three fingerprints: of what changes the rules, the land and the look. A new entry changes no other entry's fingerprint, and a renamed entry is still found by its old name, so old saves keep working.
+- **On your phone.** The build copies the files into the app with a list of their fingerprints; the phone reads them through the simulation itself and checks it gets the same answers as the cloud.
+- **A new page, Catalogues:** every source, kind and entry the phone loaded, with each value in the units the simulation holds it.
+- **The Time page's speeds** now come from the tuning file rather than being written into the page.
 
-![The Time page as the cloud draws it](pictures/a12a-time.png)
+![The Catalogues page as the cloud draws it](pictures/a12b-catalogues.png)
+
+![The self-check, with its new Catalogues line](pictures/a12b-check.png)
 
 ## What to try
 
-1. Tap **Download and install** at the top of this page. It installs over α1.1b.
-2. Open **Kindling**, then tap **Time** at the top.
-3. At **Real**, watch the clock: a game minute should take a real minute.
-4. Try each speed. "Running at" should match it: 1 game hour a real minute, then 8 game hours (a day in three minutes), 1 game season, and 3 game years a real minute.
-5. Tap **Top** and read how many game years a real minute your phone manages. Please send me that number.
-6. Tap **Pause**: the clock should stop at once, and **Play** carries on.
-7. The **Check** page is still there; copy its details into the chat when you can.
+1. Install the APK from the link below. It installs over α1.2a.
+2. Open **Kindling**. The **Check** page should end with a green line: **Catalogues: the same as the build**.
+3. Tap **Catalogues** at the top and scroll through the two sources and their entries.
+4. On **Time**, the buttons now read "Real", "1 hour a minute", "8 hours a minute", "1 season a minute", "3 years a minute" and "Top", taken from the tuning file. Please send me how many game years a real minute **Top** reaches, if you haven't yet.
+5. Copy the Check page's details into the chat when you can.
 
 ## What is rough
 
-- There is no world yet: the stand-in only counts hours. The world's entities and events come in α1.3.
-- At **Top** one core works flat out, so leaving it there warms the phone. The guard that slows time before the phone heats comes with the phone's measurements later in M1.
-- The buttons and the look are plain; the game's own look comes with the graphics engine (M2).
-- The speeds are written into the page for now; they move to the tuning files in the next step (α1.2b).
+- The catalogue holds only the demonstration's markers and two tuning files; the game's own entries arrive with the milestones that need them.
+- The Catalogues page is plain text, and shows chances with their exact inner numbers, which look long.
+- This note was not republished as a page, as you asked: it lives in the repository (link below).
 
 ## IDs delivered
 
-- `TIM-14`: dates as year, season and day, and the other half's season beside them.
-- `TIM-18`: the 60-day year, and durations with two lengths held to its rule.
-- `TIM-01`: the speeds of the zoom stops, with the speed shown always the real one.
-- `TIM-10`: at real speed a game minute takes a real minute.
-- `PLT-01`: the world on its own thread, with its own stack, a lower priority and the standard number mode.
+- `MAT-13`: the catalogues in TOML, read exactly into whole base units, one description of each kind for loading, checking, fingerprinting and showing; on the phone through the simulation itself.
+- `MAT-14`: sources with versions and requirements; adding an entry changes no other's fingerprint; renames keep old names readable; each entry's chance keyed by its name.
+- `MAT-17`: the checks on the whole catalogue, each proved by a planted fault, run before anything joins.
+- `MAT-05`: values held to the real order of things, from lists in `checks/`.
+- `TIM-18`: every duration held to the game year's rule as it loads.
+- `TIM-01`: the zoom stops' speeds read from the tuning file.
 
 ## Links
 
 - APK: https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk
-- Note: https://claude.ai/artifact/GBackmSHJPak61yAd6we4d
+- This note: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/NOTE.md
 - The plan for M1: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/IMPLEMENTATION.md
 - The research behind it: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/research/18-foundations.md
-- What pre-production taught: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/LESSONS.md

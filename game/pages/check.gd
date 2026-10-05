@@ -1,7 +1,7 @@
 ## The self-check (A2.3): what the phone is and what it computes, each line green when it holds,
 ## amber when it is worth a look, red when it fails, and every line copied with one tap for the
 ## chat. Implements PLT-01 and RES-05: the phone computes the same bits as the cloud, on one thread
-## and four.
+## and four; and MAT-13: it reads the same catalogues.
 extends VBoxContainer
 
 const BUILD_DATA := "res://data/build.toml"
@@ -59,6 +59,7 @@ func build() -> void:
 	_add_threads(device)
 	_add("Storage", _short_mount(device.storage()), "info")
 	_add_same_bits(device)
+	_add_catalogue()
 
 
 ## Every line as plain text, for the chat.
@@ -195,6 +196,45 @@ func _add_same_bits(device: KdDevice) -> void:
 			% [one, four, cloud if cloud != "" else "missing", times]
 		)
 		_add("Same bits: %s" % suite, value, "fail")
+
+
+## The catalogue the phone reads against the one the cloud checked (A2.3, A3.6): the same files,
+## byte for byte, and the same digests from the simulation's own reading of them.
+func _add_catalogue() -> void:
+	var build_file := GameData.build()
+	var listed := GameData.files(build_file)
+	if listed.is_empty():
+		_add("Catalogues", "the build lists no catalogue files", "fail")
+		return
+	var differ := PackedStringArray()
+	for file: Dictionary in listed:
+		if FileAccess.get_sha256("res://data/" + str(file["path"])) != file["sha256"]:
+			differ.append(file["path"])
+	var loaded := KdWorld.new().load_catalogue(GameData.paths(build_file))
+	var problems: PackedStringArray = loaded["problems"]
+	var mine := GameData.source_lines(loaded)
+	var theirs := PackedStringArray(build_file.get_value("catalogue", "sources", []))
+	var counts := (
+		"%d sources, %d kinds, %d entries; %d files read in %.1f ms"
+		% [
+			mine.size(),
+			(loaded["kinds"] as Array).size(),
+			GameData.entry_count(loaded),
+			loaded["files"],
+			int(loaded["microseconds"]) / 1000.0,
+		]
+	)
+	if differ.is_empty() and problems.is_empty() and mine == theirs:
+		_add("Catalogues", "the same as the build: " + counts, "ok")
+		return
+	var why := PackedStringArray()
+	if not differ.is_empty():
+		why.append("files unlike the build's: " + ", ".join(differ))
+	if not problems.is_empty():
+		why.append("problems: " + "; ".join(problems))
+	if mine != theirs:
+		why.append("digests %s here, %s in the build" % [" | ".join(mine), " | ".join(theirs)])
+	_add("Catalogues", "; ".join(why), "fail")
 
 
 func _short_mount(line: String) -> String:

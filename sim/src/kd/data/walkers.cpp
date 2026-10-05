@@ -71,16 +71,17 @@ void Display::quantity(const Field& f, const std::int64_t& v, Measure m, Range /
     line(f, std::to_string(v) + (unit.empty() ? "" : " " + std::string(unit)));
 }
 
+std::uint64_t parts_per_million(const num::Probability& p) {
+    using Wide = unsigned __int128;
+    return static_cast<std::uint64_t>((static_cast<Wide>(p.threshold()) * 1'000'000 + (Wide{1} << 63U)) >> 64U);
+}
+
 void Display::chance(const Field& f, const num::Probability& v) {
     if (v.certain()) {
         line(f, "certain");
         return;
     }
-    // in whole parts per million, to the nearest, from the exact threshold
-    using Wide = unsigned __int128;
-    const auto ppm =
-        static_cast<std::uint64_t>((static_cast<Wide>(v.threshold()) * 1'000'000 + (Wide{1} << 63U)) >> 64U);
-    line(f, std::to_string(ppm) + " ppm (threshold " + std::to_string(v.threshold()) + " of 2^64)");
+    line(f, std::to_string(parts_per_million(v)) + " ppm (threshold " + std::to_string(v.threshold()) + " of 2^64)");
 }
 
 void Display::links(const Field& f, const std::vector<Ref>& v, std::string_view /*kind*/) {

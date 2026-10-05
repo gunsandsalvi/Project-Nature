@@ -236,3 +236,26 @@ TEST_CASE("an entry's chance is keyed by its name, which no other entry's arriva
     CHECK(now->key(2) == was->key(1));
     CHECK(now->key(0) != now->key(1));
 }
+
+// checks: MAT-13
+TEST_CASE("an entry's values reach the screen in base units, field by field") {
+    data::Catalogue cat;
+    const auto files = good();
+    REQUIRE(cat.load(files).empty());
+    const data::KindBase* markers = cat.kind_in("marker");
+    const std::vector<data::FieldValue> walker = markers->values(1);
+    REQUIRE(walker.size() == 7);
+    CHECK(walker[0].key == "speed");
+    CHECK(walker[0].whole == 1'400);
+    CHECK(walker[2].key == "greets");
+    CHECK(walker[2].whole == 300'000);
+    CHECK(walker[3].whole == 7'200);
+    CHECK(walker[4].kind == data::FieldValue::Kind::text);
+    CHECK(walker[4].text == "#e8c25a");
+    CHECK(walker[6].kind == data::FieldValue::Kind::list);
+    CHECK(walker[6].list == std::vector<std::string>{"demo:strider"});
+    const std::vector<data::FieldValue> speeds = cat.kind_in("tuning/time")->values(0);
+    REQUIRE(speeds.size() == 5);
+    CHECK(speeds[3].key == "valley");
+    CHECK(speeds[3].whole == 1'296'000);
+}

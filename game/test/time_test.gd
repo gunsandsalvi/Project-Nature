@@ -40,3 +40,15 @@ func test_speeds_read_as_you_would_say_them() -> void:
 	assert_str(TimePage.speed_words(259200.0, false)).is_equal("3 game years a real minute")
 	assert_str(TimePage.speed_words(5.0e6, false)).is_equal("58 game years a real minute")
 	assert_str(TimePage.speed_words(0.0, true)).is_equal("paused")
+
+
+# checks: TIM-01
+func test_its_speeds_come_from_the_tuning_file() -> void:
+	var page: VBoxContainer = auto_free(TimePage.new())
+	add_child(page)
+	await await_idle_frame()
+	assert_array(page.speeds).is_equal([1.0, 60.0, 480.0, 21600.0, 259200.0, TimePage.TOP])
+	assert_str(TimePage.button_words(1.0)).is_equal("Real")
+	assert_str(TimePage.button_words(60.0)).is_equal("1 hour a minute")
+	assert_str(TimePage.button_words(259200.0)).is_equal("3 years a minute")
+	assert_str(TimePage.button_words(TimePage.TOP)).is_equal("Top")
