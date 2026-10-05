@@ -463,9 +463,13 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 - `SCP-16` **Milestones** *(Decided)*: The game is built in two phases, in order: pre-production (`MIL-18`), a prototype for each risk and then a vertical slice; then production, bottom up, in ten milestones, the foundations first and the game itself last.
   Each milestone is a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
   This file keeps each milestone's contents and order, below; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
+  - **Proposed change:** "a prototype for each risk and then a vertical slice; then production, bottom up, in ten milestones, the foundations first and the game itself last" becomes "a prototype for each risk, closed on 5 October 2026; then production, bottom up, in ten milestones, the foundations first, the vertical slice built on them, and the game itself last".
+    You closed pre-production on 5 October 2026 before its slice, and chose the foundations as production's first step; the slice needs them, and still sets the bar for what follows.
 
   - `MIL-18` **Pre-production** *(Decided)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); then the vertical slice: one band at a cliff camp through a day, at the art book's look, built in the real architecture on your phone (`PRE-01`, `VIS-14`).
     *Now possible:* seeing on your phone that the game can be made as this file describes, and judging the slice, which sets the quality bar for production.
+    - **Proposed change:** "then the vertical slice: one band at a cliff camp through a day, at the art book's look, built in the real architecture on your phone (`PRE-01`, `VIS-14`)" becomes "closed on 5 October 2026, as you asked, with the lessons kept in `LESSONS.md`: the writer, left unbuilt, is proved when `MIL-16` builds the book of ages (`PRE-37`), and the vertical slice moves to production, after the foundations (`MIL-08`)"; and "and judging the slice, which sets the quality bar for production" is dropped.
+      Thirteen prototypes answered their questions, and you closed pre-production on 5 October 2026 and chose the foundations to come first.
   - `MIL-08` **Foundations** *(Decided)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
   - `MIL-09` **The graphics engine** *(Decided)*: crisp 3D pixel art at the art book's look (`PRE-01`, `PRE-02`): the stable pixel grid (`PRE-22`), outlines and lit edges (`PRE-21`), colour in steps with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit and its textures made by code (`PRE-46`, `PRE-42`, `PRE-43`), grown from the vertical slice.
@@ -2550,6 +2554,9 @@ How the project is run.
 - `PRC-08` **Next: pre-production, then production** *(Decided)*: The research is done (`research/`), the art book fixes the look (`art/book/`), the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written from them.
   Pre-production (`MIL-18`) comes next: it removes the old code, which git keeps, proves each risk with a prototype, and builds the vertical slice; production starts with the foundations (`MIL-08`) once you accept the slice.
   A few questions stay open, each carried by its item: the fix for crawling pixels, chosen with the look prototype (`PRE-22`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
+  - **Proposed change:** the name becomes "Next: production", and "Pre-production (`MIL-18`) comes next: it removes the old code, which git keeps, proves each risk with a prototype, and builds the vertical slice; production starts with the foundations (`MIL-08`) once you accept the slice." becomes "Pre-production (`MIL-18`) removed the old code, which git keeps, proved each risk with a prototype, and closed on 5 October 2026, its lessons kept in `LESSONS.md`; production starts with the foundations (`MIL-08`), made for the whole game, and the vertical slice is built on them."
+    In the open questions, "the fix for crawling pixels, chosen with the look prototype (`PRE-22`)" becomes "the ground of the cards and the book (`PRE-35`)", since the crawl fix was chosen.
+    You closed pre-production on 5 October 2026 and chose the foundations as production's first step.
 
 ### 15.3 How work flows
 
@@ -2709,7 +2716,9 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at present.
+- **Milestones** (`SCP-16`): pre-production closed, and the vertical slice built on the foundations.
+- **Pre-production** (`MIL-18`): closed on 5 October 2026, the writer proved with the book of ages, and the slice moved after the foundations.
+- **Next: production** (`PRC-08`): production starts with the foundations, and the slice stands on them.
 <!-- end generated -->
 
 ## 18. Glossary

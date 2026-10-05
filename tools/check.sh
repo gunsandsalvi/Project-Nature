@@ -6,8 +6,7 @@
 #                 the same results on x86-64 and on arm64 under qemu, on one thread and four) and its code linted
 #                 (clang-tidy 18), each only when what it depends on changed since it passed (tools/cppcache.py)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
-#   5 tools       the tool tests and the cloud prototypes' own, and the self-tests of the file check and the
-#                 signing key, after step 4
+#   5 tools       the tool tests, and the self-tests of the file check and the signing key, after step 4
 #   6 file check  the three documents, and every commit since main that changes PROJECT.md (PRC-07)
 #   7 coverage    every item mapped and every test naming what it checks (PRC-12)
 #   8 delivery    with --deliver: the note, the build signed with a key made for it and checked, and the committed APK
@@ -57,11 +56,10 @@ pass() {
   echo "$2" >"build/passed/$1"
 }
 
-# Our code: every file git holds or would hold, outside third-party code. The bake-off is kept as it was, for P1
-# (research 01).
+# Our code: every file git holds or would hold, outside third-party code.
 ALL=()
 while IFS= read -r f; do [ -f "$f" ] && ALL+=("$f"); done < <(git ls-files -co --exclude-standard \
-  | grep -vE '^prototypes/bakeoff/|(^|/)(addons|thirdparty|godot-cpp)/' | sort -u)
+  | grep -vE '(^|/)(addons|thirdparty|godot-cpp)/' | sort -u)
 pick() { printf '%s\n' "${ALL[@]}" | grep -E "\.($1)\$" || true; }
 mapfile -t GD < <(pick gd)
 mapfile -t CPP < <(pick 'cpp|cc|h|hpp')
@@ -82,8 +80,8 @@ echo "   GDScript, Python and ${#SH[@]} shell scripts"
 
 step "3 C++"
 CMAKE=()
-for d in sim view prototypes/*; do
-  [ -f "$d/CMakeLists.txt" ] && [ "$d" != prototypes/bakeoff ] && CMAKE+=("$d")
+for d in sim view; do
+  [ -f "$d/CMakeLists.txt" ] && CMAKE+=("$d")
 done
 [ "${#CMAKE[@]}" -gt 0 ] || echo "   no C++ projects yet"
 for d in "${CMAKE[@]}"; do
@@ -94,8 +92,7 @@ for d in "${CMAKE[@]}"; do
 done
 echo "   ${#CMAKE[@]} projects built"
 
-# Each C++ project's doctest tests, then its code linted (clang-tidy 18). P5's and P6's tests run the code built for
-# arm64 under qemu against this machine's, on one thread and four (A3.4).
+# Each C++ project's doctest tests, then its code linted (clang-tidy 18).
 cpp_tests() {
   echo "== 3 C++ tests"
   for d in "${CMAKE[@]}"; do
@@ -122,7 +119,7 @@ cpp_tests() {
 godot_step() {
   echo "== 4 Godot"
   PROJECTS=()
-  for f in game/project.godot prototypes/*/project.godot; do [ -f "$f" ] && PROJECTS+=("$(dirname "$f")"); done
+  [ ! -f game/project.godot ] || PROJECTS+=(game)
   [ "${#PROJECTS[@]}" -gt 0 ] || echo "   no Godot projects yet"
   for d in "${PROJECTS[@]}"; do
     # what the import, the scripts and the tests read: the project's files, the extensions built for this machine,
@@ -190,38 +187,15 @@ godot_step() {
 
 tools_step() {
   echo "== 5 tools"
-  # the picture test draws the app with Godot: skipped while the app and the drawing tools are unchanged since it
-  # passed
-  mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^prototypes/app/")
-  FP="$(fingerprint "${READS[@]}" tools/picture.sh tools/godot-picture.gd tools/env.sh tools/tests/test_pictures.py \
-    "$KD_GODOT_VERSION")"
-  PICTURES=0
-  ! passed pictures "$FP" || PICTURES=1
-  KD_PICTURES_PASSED="$PICTURES" python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 \
-    || { cat "$TMP/unit"; exit 1; }
-  [ "$PICTURES" = 1 ] || pass pictures "$FP"
-  echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed$([ "$PICTURES" = 0 ] || echo \
-    ", the pictures' unchanged since they passed")"
-  # the cloud prototypes' own tests, in Python (IMPLEMENTATION α0.3a), skipped while the prototype is unchanged
-  for d in prototypes/*/tests; do
-    [ -d "$d" ] && [ "$d" != prototypes/bakeoff/tests ] && compgen -G "$d/test_*.py" >/dev/null || continue
-    mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$(dirname "$d")/")
-    FP="$(fingerprint "${READS[@]}" "$(python3 --version)")"
-    if passed "python-$(basename "$(dirname "$d")")" "$FP"; then
-      echo "   $(dirname "$d"): tests unchanged since they passed"
-      continue
-    fi
-    python3 -m unittest discover -s "$d" >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
-    pass "python-$(basename "$(dirname "$d")")" "$FP"
-    echo "   $(dirname "$d"): $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tests passed"
-  done
+  python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
+  echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed"
   quiet python3 tools/signing-key.py selftest
   SELF="$(python3 tools/filecheck.py selftest)" || { echo "$SELF"; exit 1; }
   echo "   ${SELF##*$'\n'}"
 }
 
 # The C++ tests run beside the Godot and tool steps, which need only what 3 built; the tool step follows Godot's, since
-# its picture test runs Godot on the same project, whose import cache two runs at once would race on. Each side writes
+# a tool test may run Godot on the same project, whose import cache two runs at once would race on. Each side writes
 # its own log, shown in order once both are done.
 side() {
   local t

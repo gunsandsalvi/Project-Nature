@@ -8,7 +8,7 @@ export GODOT="$KD_CACHE/godot/Godot_v4.7.2-stable_linux.x86_64"
 export KD_GODOT_VERSION="4.7.2.stable.official.ed1daf0bf"
 export KD_TEMPLATES="$HOME/.local/share/godot/export_templates/4.7.2.stable"
 export KD_GDUNIT="$KD_CACHE/gdunit4-v6.2.1"
-# godot-cpp at its 4.5 release, which Godot 4.7 loads, for the C++ prototypes' Godot extensions; doctest's one header,
+# godot-cpp at its 4.5 release, which Godot 4.7 loads, for the game's Godot extension (view/); doctest's one header,
 # for C++ tests (A2.2)
 export KD_GODOT_CPP="$KD_CACHE/godot-cpp-4.5"
 export KD_DOCTEST="$KD_CACHE/doctest-2.4.11"

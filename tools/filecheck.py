@@ -445,8 +445,8 @@ def file_check(project, arch, plan, commits):
 
 # Where the code that names items lives, and how each language names them (the plan's Conventions): C++, shaders and
 # the Android plug-in with `///` and `// checks:`; GDScript with `##` and `# checks:`; Python and shell with
-# `# checks:`; catalogues and scenes in data/ with `checks = [...]`. Prototypes implement nothing for good, so they
-# are not read; third-party code and builds are skipped.
+# `# checks:`; catalogues and scenes in data/ with `checks = [...]`. Only the game's layers and the tools are read;
+# third-party code and builds are skipped.
 SLASH = (".cpp", ".cc", ".h", ".hpp", ".gdshader", ".gdshaderinc", ".glsl", ".kt", ".java")
 GDSCRIPT = (".gd",)
 HASH = (".py", ".sh")

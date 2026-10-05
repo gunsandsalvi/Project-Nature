@@ -2,7 +2,7 @@
 
 Read `PROJECT.md` before doing anything else. It is the source of truth for what Kindling is and must do. `ARCHITECTURE.md` says how it is built, and `IMPLEMENTATION.md` says in what order. Code and tests link back to `PROJECT.md` by ID (`PRC-04`, `PRC-12`).
 
-**Now (3 October 2026):** the owner has stopped the old plan. The architecture and the plan are being redone from scratch, bottom up, the way a real development team works: research first, then the design and the plan, for the owner's OK. No game code is built until the owner approves the new plan; the old code stays in git history.
+**Now (5 October 2026):** pre-production is closed, as the owner asked. Its answers are decisions in `ARCHITECTURE.md`, and its evidence, numbers and lessons are in `LESSONS.md`; its code is deleted, and git keeps it. Production has begun with M1, the foundations (`IMPLEMENTATION.md`), and writes all its code fresh: never copy or port prototype code from git history.
 
 ## Rules
 

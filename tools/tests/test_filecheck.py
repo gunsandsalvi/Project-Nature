@@ -45,10 +45,10 @@ class Where(unittest.TestCase):
 
 class Scan(unittest.TestCase):
     # checks: PRC-12
-    def test_reads_every_layer_and_skips_prototypes_addons_and_builds(self):
+    def test_reads_every_layer_and_skips_other_folders_addons_and_builds(self):
         with tempfile.TemporaryDirectory() as root:
             shutil.copytree(os.path.join(filecheck.FIXTURES, "clean"), root, dirs_exist_ok=True)
-            for skipped in ("prototypes/app/one.gd", "game/addons/gdUnit4/one.gd", "sim/build/one.cpp"):
+            for skipped in ("elsewhere/one.gd", "game/addons/gdUnit4/one.gd", "sim/build/one.cpp"):
                 os.makedirs(os.path.dirname(os.path.join(root, skipped)), exist_ok=True)
                 with open(os.path.join(root, skipped), "w") as f:
                     f.write("## Implements ONE-08\n")
@@ -64,7 +64,7 @@ class Scan(unittest.TestCase):
             "IMPLEMENTATION.md",
         ):
             self.assertIn(read, files)
-        for skipped in ("prototypes/app/one.gd", "game/addons/gdUnit4/one.gd", "sim/build/one.cpp"):
+        for skipped in ("elsewhere/one.gd", "game/addons/gdUnit4/one.gd", "sim/build/one.cpp"):
             self.assertNotIn(skipped, files)
 
 

@@ -141,7 +141,7 @@ if [ "$(git -C "$KD_GDUNIT" rev-parse HEAD 2>/dev/null)" != "$GDUNIT_COMMIT" ]; 
   [ "$(git -C "$KD_GDUNIT" rev-parse HEAD)" = "$GDUNIT_COMMIT" ] || fail "gdUnit4 v6.2.1 is not at commit $GDUNIT_COMMIT" 1
 fi
 
-# 9. godot-cpp at its 4.5 release, for the C++ prototypes' Godot extensions (A2.2): Godot 4.7 loads extensions built
+# 9. godot-cpp at its 4.5 release, for the game's Godot extension (view/, A2.2): Godot 4.7 loads extensions built
 #    for 4.5, the newest release godot-cpp has tagged
 GODOT_CPP_COMMIT=e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77
 if [ "$(git -C "$KD_GODOT_CPP" rev-parse HEAD 2>/dev/null)" != "$GODOT_CPP_COMMIT" ]; then
