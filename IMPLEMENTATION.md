@@ -16,6 +16,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
   None of its code is carried into production, which writes its own.
 - Production begins with the foundations (M1), scoped for the whole game and for what may come after it, and planned in full below from research 18: eleven steps in five alphas, each ending with a build on your phone.
 - The first alpha, α1.1 (the workshop, then numbers and chance), is delivered as 20101 and 20102 and closed by the builder's review; your phone's lines from its self-check are still to come.
+- α1.2a, the clock and the calendar, is delivered as 20201; your phone's top speed on its Time page is still to come.
 
 ## How to use this plan
 
@@ -115,8 +116,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.2a | The clock and the calendar | M1 | 5 | Next |
-| α1.2b | Catalogues and tuning | M1 | 6 | Planned |
+| α1.2b | Catalogues and tuning | M1 | 6 | Next |
 | α1.3a | Entities and events | M1 | 5 | Planned |
 | α1.3b | Activities and islands | M1 | 6 | Planned |
 | α1.3c | The crowd on your phone | M1 | 6 | Planned |
@@ -151,34 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.2a The clock and the calendar
-
-**Goal:** game time: the clock in whole game seconds, the 60-day year and its dates, durations that record their length in life and in the game, and a calendar on your phone running at any speed you set, as fast as the phone allows, with the real speed shown.
-
-**Serves:** `TIM-14`, `TIM-18`, `TIM-01`, `TIM-10`, `PLT-01`.
-
-**Architecture:** A3.3, A3.8, A3.9.
-
-**Tasks:**
-
-1. `T1.2a.1` **The clock and dates (`TIM-14`, `TIM-18`).**
-   Game time in 64-bit seconds; the year, season, day, hour, minute and second of any moment, from Year 1, spring, day 1; dates written "Year 112, autumn, day 6"; the seasons reversed in the half of the world where history did not begin.
-2. `T1.2a.2` **Durations with two lengths (`TIM-18`).**
-   A duration holds its length in life and in the game; the rule check: up to about two weeks in life, the game length equals it; a month or more, about a sixth (60 to 365.25, within 10%); between, anywhere from the shortened length to the real one.
-3. `T1.2a.3` **The runner and the speed loop (`TIM-01`, `TIM-10`, `PLT-01`).**
-   The world on its own thread (an explicit stack, a name, a lower priority, the default floating-point environment), working toward a goal and sleeping there; in `view/`, the world class with the speed asked, each frame's real time, the screen's game time never past the frontier, the goal a quarter of a real second ahead, pausing that glides to the frontier, and the speed shown measured from what was drawn.
-4. `T1.2a.4` **The calendar on the phone (`TIM-14`, `TIM-10`).**
-   A Time page: the date and hour, and the speeds of `TIM-01`'s zoom stops (real, an hour a minute, a day in three minutes, a season a minute, three years a minute, top) with pause, and the speed shown; deliver.
-
-**Tests:**
-- doctest: every boundary of a sample of years converts both ways; Year 1, spring, day 1 at second 0; dates written as `TIM-14` shows; the other half's seasons reversed.
-- The duration rule: smoked meat's 15 game days for three months passes (`RCK-14`), 2 days equal passes, three months at 30 game days fails.
-- The speed loop as a function, with a stand-in simulation advancing at set rates: the screen's time never passes the frontier, never waits, slows when the simulation can't keep up, stops within a quarter second of a pause, and the speed shown is within 1% of the drawn rate over each second; at one game second a real second, a game minute takes a real minute within a second (`TIM-10`).
-- gdUnit4: the Time page starts at "Year 1, spring, day 1" and its speeds change the speed shown.
-- Passes if all pass.
-
-**On the phone:** open Time: the calendar runs at each speed you choose; at real speed a game minute takes a real minute; at top speed years pass in seconds; the speed shown is the real one.
 
 ### α1.2b Catalogues and tuning
 

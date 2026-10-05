@@ -1,38 +1,39 @@
-# Kindling α1.1b: Numbers and chance
+# Kindling α1.2a: The clock and the calendar
 
 ## What is new
 
-- **The numbers everything else will compute with,** the same to the last bit in the cloud and on your phone:
-  - **Maths that rounds correctly:** 18 maths functions (powers, logarithms, the sine and its kin, and more) from CORE-MATH, a research library that gives each answer as the one exactly right number, so no two machines can disagree. In the cloud each was held to MPFR, the reference library for this, on 3.8 million answers: every bit agreed.
-  - **Places on the world:** whole centimetres on the 2,000 by 1,000 km world that wraps both ways, with the way between two places and its length exact to the centimetre.
-  - **Angles as turns,** so a quarter turn is exactly a quarter turn, and its sine exactly 1.
-  - **Chance by key:** every random number comes from what it is for (the world, who, when and why), so it is the same whatever order things happen in and on however many threads, and a new kind of chance never changes another.
-- **The banned list, enforced:** the cloud now reads the code itself and refuses the thirteen things that make phones and computers disagree, each refusal naming what to use instead (for example the phone's own sine, or a sort that leaves ties to chance).
-- **Two more trial builds:** your phone's compiler builds the proofs twice more with its sorting shuffled at random, and the answers must not move. All twelve runs in the cloud now agree.
-- **On your phone,** the self-check has three new lines: maths, chance and torus (the world's geometry), each saying whether your phone's answer is exactly the cloud's and how long it took on one thread and on four.
+- **Game time.** The world now has a clock: whole game seconds from Year 1, spring, day 1, in the 60-day year of four 15-day seasons. Any moment reads as a date, "Year 112, autumn, day 6", and a place in the other half of the world adds its own season: "Year 140, winter (their summer), day 3".
+- **Durations with two lengths.** Every length of time the catalogues will hold keeps its length in life and in the game, and a check holds the two to the game year's rule: up to about two weeks they are equal; from a month on, the game length is about a sixth; between, anything from about a sixth up to the real length. Smoked meat's three months as 15 game days passes; three months as 30 game days is refused, with the reason.
+- **The world on its own thread.** It works toward a goal a quarter of a real second ahead of what you see, and sleeps when it gets there.
+- **The speed loop.** The screen's time follows the speed you choose but never runs ahead of the world: when the world can't keep up, time slows rather than the screen stuttering, and the speed shown is the one actually drawn. Pausing stops within a quarter of a second, on exactly the world's state.
+- **A new page, Time:** the date and hour, the six speeds of the zoom stops from real speed to top, pause and play, and the speed it really runs at. Until the real world exists, a stand-in does a fixed amount of work for each game hour, so top speed shows what your phone can do.
 
-![The self-check as the cloud draws it](pictures/a11b-check.png)
+![The Time page as the cloud draws it](pictures/a12a-time.png)
 
 ## What to try
 
-1. Tap **Download and install** at the top of this page. It installs over α1.1a.
-2. Open **Kindling**. It opens on its **Check** page.
-3. Look at the four **Same bits** lines: smoke, maths, chance and torus. Each should be green and say "the same as the cloud".
-4. Tap **Copy the details** and paste them into the chat. I still need your phone's own lines (its driver, cores, heat, storage and screen rate), and now the times of the new lines too.
+1. Tap **Download and install** at the top of this page. It installs over α1.1b.
+2. Open **Kindling**, then tap **Time** at the top.
+3. At **Real**, watch the clock: a game minute should take a real minute.
+4. Try each speed. "Running at" should match it: 1 game hour a real minute, then 8 game hours (a day in three minutes), 1 game season, and 3 game years a real minute.
+5. Tap **Top** and read how many game years a real minute your phone manages. Please send me that number.
+6. Tap **Pause**: the clock should stop at once, and **Play** carries on.
+7. The **Check** page is still there; copy its details into the chat when you can.
 
 ## What is rough
 
-- There is still only one page. Next comes the clock and the calendar (α1.2a).
-- The times are from the first run after the app opens, before the phone settles; the benchmark at the end of the foundations measures properly.
-- Your phone's details from α1.1a have not arrived yet, so whether the screen now runs at 60 Hz is still unconfirmed.
+- There is no world yet: the stand-in only counts hours. The world's entities and events come in α1.3.
+- At **Top** one core works flat out, so leaving it there warms the phone. The guard that slows time before the phone heats comes with the phone's measurements later in M1.
+- The buttons and the look are plain; the game's own look comes with the graphics engine (M2).
+- The speeds are written into the page for now; they move to the tuning files in the next step (α1.2b).
 
 ## IDs delivered
 
-- `RES-05`: correctly rounded maths, exact places and angles, the one checked conversion from fractions to whole numbers, and the banned list, with the same bits on every build in the cloud and on your phone.
-- `TIM-16`: chance keyed by what it is for, so adding a new kind of draw never changes another.
-- `WLD-01`: the world's wrapping, in exact whole centimetres.
-- `PLT-01`: the proofs on the simulation's own threads, one and four.
-- `PRC-10`: the banned list and the two shuffled builds join the checks.
+- `TIM-14`: dates as year, season and day, and the other half's season beside them.
+- `TIM-18`: the 60-day year, and durations with two lengths held to its rule.
+- `TIM-01`: the speeds of the zoom stops, with the speed shown always the real one.
+- `TIM-10`: at real speed a game minute takes a real minute.
+- `PLT-01`: the world on its own thread, with its own stack, a lower priority and the standard number mode.
 
 ## Links
 

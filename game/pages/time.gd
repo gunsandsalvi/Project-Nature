@@ -97,7 +97,7 @@ static func speed_words(rate: float, paused: bool) -> String:
 	if rate < 0.001:
 		return "paused" if paused else "waiting for the world"
 	if absf(rate - 1.0) < 0.02:
-		return "real speed: a game second a second"
+		return "real speed, a game second a second"
 	var per_minute := rate * 60.0
 	for unit: Array in UNITS:
 		if per_minute >= unit[1] * 0.95:

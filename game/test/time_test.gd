@@ -33,7 +33,7 @@ func test_its_speeds_change_the_speed_shown() -> void:
 
 # checks: TIM-01
 func test_speeds_read_as_you_would_say_them() -> void:
-	assert_str(TimePage.speed_words(1.0, false)).is_equal("real speed: a game second a second")
+	assert_str(TimePage.speed_words(1.0, false)).is_equal("real speed, a game second a second")
 	assert_str(TimePage.speed_words(60.0, false)).is_equal("1 game hour a real minute")
 	assert_str(TimePage.speed_words(480.0, false)).is_equal("8 game hours a real minute")
 	assert_str(TimePage.speed_words(21600.0, false)).is_equal("1 game season a real minute")
