@@ -413,6 +413,7 @@ The start is found by scoring (`WLD-24`).
 - An area is made from the seed, its world cell and neighbours, and the date, the same every time; making it for the picture changes nothing.
 - Only what people change is kept (`WLD-12`).
 - *Built in P8,* in C++ as pre-production code: the ground's height anywhere, from the cells' heights joined smoothly between their middles, with relief in eight steps from 400 m down to 3 m, rougher where the cells are steep and none at the shore; its colour from the cover, whose edges are warped by noise at 800 m and 200 m so cover meets cover along natural lines, not the cells' squares; and trees by keyed chance on a 5 m grid, as many as the cover holds, each standing in exactly one chunk.
+- *P8's second round* adds a chunk of ground at any spacing, from the cells' heights averaged into ever coarser copies and relief only as fine as the spacing shows, so ground seen from far off is never noisier than its pixels; with its normals, the grid half as fine it morphs into (A8.1) and its lowest and highest points, for the camera's culling. The cells' climate, cover and water go to the picture as textures, and the clouds' noise with its smaller copies.
 
 ### A7.6 Starting small
 
@@ -428,18 +429,21 @@ The generator is first built and tuned on a small island, quick to make and judg
 
 ### A8.1 Levels of detail (`PRE-03`)
 
-Our own system in `view/`, driving Godot's RenderingServer directly:
-- **Near,** within about 300 m from camp zoom inward: areas as detailed chunks in rings round where the camera looks, as clipmaps do;
-- **Middle,** out to about 10 km: each area's coarse ground, shaped every few tens of metres, under its cover;
-- **Far:** the world cells as one map mesh, then the globe.
-
-Each level fades into the next by dithering, so the pixel look never blurs, and a full area shows its coarse ground until its detail fades in, within about a second.
+Our own system in `view/`, driving Godot's RenderingServer directly: one tree of square chunks over the whole world, each splitting into four as the camera nears, so the ground is detailed within about 300 m from camp zoom inward, shaped every few tens of metres out to about 10 km, and the world cells' own from the region out.
+Each chunk morphs into the grid half as fine as the camera draws away (CDLOD, Strugar 2010), so no level pops and the pixel look never blurs, and a full area shows its coarse ground until its detail is in, within about a second.
+*Changed in P8's second round,* after your verdict on 5 October 2026: the rings, the map mesh and their dithered hand-overs, built first, gave way to the tree, since the hand-overs and the map's bend were what you saw jump.
 
 *Built in P8,* over P7's world, in GDScript and C++ as pre-production code, drawn through the RenderingServer:
 - **Rings, as clipmaps do:** the near ground every metre to 128 m, a full area across, and every 2 m to 300 m, its trees as models; the middle ground every 40 m to 5 km and every 80 m to 16 km, which covers the valley stop's tall portrait picture; trees beyond 300 m as cards to 900 m, where the camp's tilted view ends (A8.3); then the map.
 - **Chunks** of 64 m to 3.2 km, made on Godot's worker threads from the seed, nearest first, at most six at once; each ring is planned again only when the focus has moved half a chunk.
 - **Handing over:** each ring draws where all its chunks round the focus are made, and gives way to the finer ring inside it over the last sixth of that ring's radius by a 4 × 4 ordered dither, the two sharing the pixels so none is empty or drawn twice; it shrinks to nothing over the last halving of its scale, so detail recedes as you zoom out rather than switching off.
 - **What a stop keeps,** at the start region's open grassland: about 0.56 million triangles at the valley, 0.9 million at the camp and 1.2 million from the close camp in, most of them outside the picture.
+
+*Built in P8's second round,* in GDScript and C++ as pre-production code:
+- **The tree:** 4 × 2 roots of 500 km, fourteen levels down to chunks 30.5 m across, each 33 × 33 points with a skirt hanging from each edge so no crack shows where levels meet; a chunk splits while the camera is nearer than 2.4 of its sides and its four are made, and morphs into its parent's grid over the last third of its reach.
+- **Made as needed:** on Godot's worker threads from the seed, nearest first, at most six at once; at most 900 kept, freed by how long ago the tree last reached them, never one it reached this frame. Freeing by when a chunk was last drawn freed the ones between, so a deep zoom asked for them again without end: the eight minutes the first pictures took.
+- **Only what the camera can see:** a chunk behind the planet's horizon, or outside the camera's view once widened by as much as the sphere can move it, is neither drawn nor split. At the river where the descent ends: 25 chunks drawn at the person, 38 at the close camp, 83 at the camp, 66 at the valley, 70 at the region, 21 at the world map and 8 at the globe, where without it the person drew 989. Choosing them takes about 1 to 2 ms a frame in the cloud.
+- **Pixels:** the picture is drawn at the size of the pixels shown, so the clouds' marching costs a quarter to a ninth of drawing it at half the screen; or twice that each way for the blended variant, shown as the average of what lies under each pixel (`PRE-22`'s proposed change).
 
 ### A8.2 A moving origin
 
@@ -455,20 +459,32 @@ Godot draws in single precision around an origin that moves with the camera, as 
 
 - Orthographic and pitched for the close stops, tilting toward straight down as it rises.
 - Perspective for the globe: the flat map bends onto a sphere for the last step, as Google Maps morphs to its globe, squeezing the polar lands and hiding the seam under the ice (`WLD-02`).
+- *Changed in P8's second round,* as you asked on 5 October 2026: the world is a sphere at every scale and never unrolls; near the focus the ground is stretched east to west back to its true size as the zoom closes in, so the close stops are as before.
 - *Built in P8:* pitched 30° from the camp inward, rising to straight down at the valley; past the world map, perspective, its field of view widening from 10° to 30° as the map bends, so the flat map first looks as it did.
   The map's mesh spans the world round the focus, east and west, with the poles at its edges; bent, each place goes to a sphere as far around as the world, turned so the focus is on top.
   The torus's top and bottom edges both meet at the icy poles, so its seam lies under the ice.
+- *Built in P8's second round:* perspective at every stop, pitched 30° at the camp and below, straight down from the valley out (variant A) or only from the world map out (B, a flight that shows the horizon). Each chunk's vertex shader sets it on the sphere by haversine forms that keep the ground near the focus exact; the camera's culling bounds how far that can move it.
+  The polar ice is drawn round each pole whatever the cells hold there, its edge and floes read round the pole, so nothing squeezed into it shows.
 
 ### A8.5 The map look (`PRE-29`)
 
 World cells in flat cover colours, rivers as lines (from the region out, those draining about 1,000 km² or more), hills shaded the cartographers' way, lit from high up at every hour with only the tint following it, sea in depth bands with the shore's bright line (`PRE-26`).
 *Built in P8:* P7's map, a texel a cell, without the rivers it draws itself; the rivers and the shore as lines a pixel wide over it; the sea in four bands 250 m deep; the hills lit from the north-west.
 P7's map had its hills lit from the south-east by mistake, which can make ridges read as valleys; it is lit from the north-west now.
+*Built in P8's second round,* for you to choose between (`PRE-29`'s proposed change), one shader for every level, so only detail changes with the zoom:
+- **The land:** A, the art book's map colours in clean steps of light; B, the cover vivid, forests as clumps of crowns lit on their sun side at every scale the pixels can show, sand and stone in the deserts, hills shaded from the heights and deepened from far off as maps are, warm sun and blue shade; C, B's colours in clean steps. Cover and climate are read a little off where the pixel is, by noise, so no cell's edge shows.
+- **The sea:** A, the art book's bands; B, from deep navy to turquoise shallows by depth, with currents and eddies drifting across it and the sun's glint; C, B with waves near the shore.
+- **Rivers** as curves through the cells, as wide as the land they drain and never thinner than about a pixel once they show, so they stay as the zoom closes in.
 
 ### A8.6 Time and light by zoom (`TIM-01`, `PRE-30`)
 
 One gesture sets where you look and how fast time runs, from real speed at the person to top speed at the globe.
 From the valley out a day passes in under a second, so the light holds steady.
+*Built in P8's second round:*
+- **Weather:** a picture of the whole world's clouds, 2 km a pixel, drawn on the graphics card: the climate's wetness and the belts of rising and sinking air, which follow the sun through the seasons; noise warped by noise into swirls and streams (Quílez), heaped into rounded masses, twisted round the storm tracks' lows and, in summer, a tropical storm, all carried by the trade winds and the westerlies; small fair-weather clouds over warm land (`WLD-16`).
+- **Clouds:** A, marched through their 3D shapes and lit through themselves (Schneider 2015, with Wrenninge's octaves for light scattered many times), their heaps lit on the sun's side and their shadows on the ground, so the descent passes among them; B, the same in the art book's clean steps; C, the art book's flat clouds. Their noise is shifted from place to place by the weather's own fields, so its pattern never shows repeating, and a pixel shows only the shapes larger than it.
+- **Air:** scattering as Earth's does (Nishita 1993, Hillaire 2020): A, only the rim's glow against space; B, its haze over the ground too.
+- **The sun** stands where the date, the hour and the world's tilt put it: morning (35° up in the east, so the land's relief and the clouds' heaps show), noon, dusk, night, or the live hour.
 
 ### A8.7 Budget
 

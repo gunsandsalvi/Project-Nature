@@ -509,6 +509,30 @@ std::vector<std::uint8_t> cloud_noise(std::uint64_t seed, int size) {
             }
         }
     }
+    // the smaller copies, each point the average of the eight under it
+    std::size_t from = 0;
+    for (std::size_t n = s; n > 1; n /= 2) {
+        const std::size_t m = n / 2;
+        const std::size_t to = out.size();
+        out.resize(to + (m * m * m * 4));
+        for (std::size_t z = 0; z < m; ++z) {
+            for (std::size_t y = 0; y < m; ++y) {
+                for (std::size_t x = 0; x < m; ++x) {
+                    for (std::size_t c = 0; c < 4; ++c) {
+                        unsigned sum = 0;
+                        for (std::size_t e = 0; e < 8; ++e) {
+                            const std::size_t under_z = (2 * z) + (e >> 2U);
+                            const std::size_t under_y = (2 * y) + ((e >> 1U) & 1U);
+                            const std::size_t under_x = (2 * x) + (e & 1U);
+                            sum += out[from + (((((under_z * n) + under_y) * n) + under_x) * 4) + c];
+                        }
+                        out[to + (((((z * m) + y) * m) + x) * 4) + c] = static_cast<std::uint8_t>((sum + 4) / 8);
+                    }
+                }
+            }
+        }
+        from = to;
+    }
     return out;
 }
 

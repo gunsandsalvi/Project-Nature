@@ -2079,6 +2079,10 @@ The look, written to stand without any image.
 - `PRE-22` **Stable pixels** *(Decided)*: Pixels never crawl or shimmer while the camera is still or panning: it snaps to whole art pixels, turns ease to rest, and an art pixel is always about 4 by 4 screen pixels, in portrait and landscape.
   Some crawling in a free turn or zoom can't be avoided without blur; the fix that best lessens it is chosen at the first visual review (`PRE-31`).
   - **Done when:** with the camera still or panning, frames change only where something moved, or by whole pixels.
+  - **Proposed change:** Pixels never crawl or shimmer while the camera is still or panning: it snaps to whole art pixels and turns ease to rest; an art pixel is about 2 by 2 screen pixels at the person, growing with the zoom to about 6 by 6 at the globe, so small things blend into the pixels as you zoom out, in portrait and landscape.
+    Some crawling in a free turn or zoom can't be avoided without blur; the fix that best lessens it is chosen at the first visual review.
+    Done when: with the camera still or panning, frames change only where something moved, or by whole pixels.
+    Why: on 5 October you asked for smaller pixels up close and a size that changes with the zoom; P8's second round shows it as variants B and C beside A's fixed 4, for you to choose.
 
 - `PRE-23` **Rock faces** *(Decided)*: Cliffs show the rock layers where they stand (`WLD-09`), which go on underground (`PRE-25`): layers of different thicknesses, cracks and fissures, lichen and water stains where the face is wet (`WLD-16`), soot above lived-in caves (`MAT-18`), grass hanging over the top and scree at the foot.
   - **Done when:** cliffs of three kinds of rock show their own layers, and a cave lived in for 10 years shows soot.
@@ -2104,6 +2108,10 @@ The look, written to stand without any image.
 - `PRE-29` **From above** *(Decided)*: As the camera rises it tilts toward straight down, and the land blends into a clean map look: each world cell in a flat colour for its plant cover (`WLD-12`), rivers as lines, shaded hills, and at the top the globe (`WLD-02`); overlays sit on it (`PRE-07`).
   The map look is always lit from high up, so its hills read the same at every hour, and the hour shows only in its tint.
   - **Done when:** rising from valley to globe, the view changes without a jump, and coasts and rivers stay visible.
+  - **Proposed change:** As the camera rises it tilts toward straight down, and the land shows what can be seen from above at every height, vivid and textured to the pixel: forests as clumps of crowns, grassland, deserts, rock and snow in their own colours, hills shaded, rivers as lines, the sea from deep blue to turquoise shallows with its currents, the clouds of the weather and their shadows, and at the top the globe; overlays sit on it.
+    It is lit by the sun where the hour and season put it.
+    Done when: rising from valley to globe, the view changes without a jump, and coasts and rivers stay visible.
+    Why: on 5 October you asked for the earth textured with what can be seen from space, volumetric clouds and light that follows the real climate, and showed a vivid pixel planet as the aim; P8's second round shows this as variants B and C beside the flat map look of A, for you to choose.
 
 - `PRE-30` **Light, time and season** *(Decided)*: Light follows the sun, the sky and the air, as in Minecraft's Vibrant Visuals: the sun's and the sky's colours come from the sun's height through the air, and the master palette's versions for dawn, day, dusk and night in each season are that light on every material.
   The sun casts real shadows by hour, season (`TIM-18`) and latitude (`WLD-01`), sharp near what casts them and softer as they lengthen; shade takes the sky's colour and hollows are darker; distance adds haze, warmer toward the sun; water reflects the sky and what stands above it, and glints.
@@ -2708,7 +2716,8 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at present.
+- **Stable pixels** (`PRE-22`): art pixels about 2 screen pixels across at the person, growing to about 6 at the globe, as you asked; P8's variants B and C.
+- **From above** (`PRE-29`): the land vivid and textured with what can be seen from above, lit by the sun of the hour, with the weather's clouds, instead of the flat map look; P8's variants B and C.
 <!-- end generated -->
 
 ## 18. Glossary

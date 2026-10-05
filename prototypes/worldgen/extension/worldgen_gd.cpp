@@ -325,7 +325,8 @@ public:
     // A chunk of ground for P8's descent as a mesh's arrays: n × n points `spacing` metres apart from (east, north), in
     // metres from that corner (x east, y up, z south), then a skirt hanging below each edge so no gap shows where
     // chunks of two levels meet; their normals; and, four numbers a point each, what it morphs into: the height of the
-    // grid half as fine where it slides to, its true height and that grid's, and that grid's normal (A8.1, CDLOD).
+    // grid half as fine where it slides to, its true height and that grid's, and that grid's normal (A8.1, CDLOD);
+    // last, the lowest and highest the chunk is drawn, morphing or not, for the camera to leave out what it cannot see.
     godot::Array chunk(int world, double east, double north, int n, double spacing) const {
         godot::Array out;
         const worldgen::World* w = offered(world);
@@ -359,8 +360,13 @@ public:
             morph_normal.set((at * 4) + 2, g.to_normal[(k * 3) + 2]);
             morph_normal.set((at * 4) + 3, 0.0F);
         };
+        float low = g.surface[0];
+        float high = g.surface[0];
         for (int j = 0; j < n; ++j) {
             for (int i = 0; i < n; ++i) {
+                const auto k = static_cast<std::size_t>((static_cast<std::int64_t>(j) * n) + i);
+                low = std::min({low, g.surface[k], g.to_surface[k]});
+                high = std::max({high, g.surface[k], g.to_surface[k]});
                 put((static_cast<std::int64_t>(j) * n) + i, i, j, 0.0F);
             }
         }
@@ -375,6 +381,7 @@ public:
         out.push_back(normals);
         out.push_back(morph);
         out.push_back(morph_normal);
+        out.push_back(godot::Vector2(low, high));
         return out;
     }
 

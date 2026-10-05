@@ -21,7 +21,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P5 The same bits (α0.4a) passes on your phone: its chip gives the cloud's digest on one thread and four, as x86-64 and arm64 under qemu do, and P6's thousand minds ended their 3,546 game days on your phone exactly as in the cloud (A3.4).
 - P6 A thousand minds (α0.4b) passes on your phone: a thousand people hold 6.0 game years a real minute on four cores over 10 minutes, with no slowing from heat; the target is at least 1, hoping for 2 to 3 (`TIM-07`, A11).
 - P7 World generation (α0.5a) passes on your phone: three worlds in 9.3 seconds and settling in 6.5, against `WLD-11`'s 3 minutes and 1, the very same worlds as the cloud's (A7.6).
-- P8 The zoom (α0.5b) is built and delivered for your phone's Measure: one pinch from the globe to a person over P7's world, through rings of ground made on worker threads and a map that bends onto the globe (A8.1, A8.4, A8.5).
+- P8 The zoom (α0.5b) was built and delivered for your phone's Measure: one pinch from the globe to a person over P7's world, through rings of ground made on worker threads and a map that bends onto the globe (A8.1, A8.4, A8.5).
+  Its second round (α0.5c), after your verdict on 5 October, is for your look, from space down to the valley: a planet at every scale, never unrolled; one tree of ground morphing smoothly; clouds from the climate that the descent passes among; the sea by its depth; the land textured with what can be seen from space; pixels finer up close; each in variants for you to choose. The camp and closer come in its next round.
 
 ## How to use this plan
 
@@ -135,7 +136,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | α0.4a | P5 The same bits | M0 | 4 | Passes on your phone; the α0.4 review next |
 | α0.4b | P6 A thousand minds | M0 | 6 | Passes on your phone; the α0.4 review next |
 | α0.5a | P7 World generation | M0 | 6 | Passes on your phone |
-| α0.5b | P8 The zoom | M0 | 6 | Not started |
+| α0.5b | P8 The zoom | M0 | 6 | Second round, space to the valley, for your look (α0.5c) |
 | α0.6a | P9 Ecology | M0 | 4 | Not started |
 | α0.6b | P10 Culture from causes | M0 | 5 | Not started |
 | α0.6c | P11 The director | M0 | 3 | Not started |
@@ -321,6 +322,10 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
    Flat cover colours, shaded hills lit from high up, rivers as lines, the shore's bright line; the map bent onto the globe, the seam under the ice.
 3. `T0.5b.3` **The pinch (`TIM-01`).**
    One gesture from the globe to a person over land never visited, measured at every stop, with the time to make a full area.
+4. `T0.5b.4` **Second round, from space to the valley (`PRE-03`, `PRE-29`, `WLD-02`).**
+   After your verdict on 5 October: a planet at every scale; one tree of ground morphing smoothly; clouds from the climate the descent passes among, and light that follows the sun; the sea by its depth; the land textured with what can be seen from space; pixels finer up close; each in variants for you to choose.
+5. `T0.5b.5` **Second round, the camp and closer (`PRE-03`).**
+   Trees, grass and the camp's things on the new ground, at the art book's look.
 
 **Tests:**
 - The measurements: the share of frames on time through the pinch, and the area's time.
@@ -329,6 +334,7 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 **On the phone:** open "The zoom", tap Measure, then pinch yourself from the globe to a person and back, and copy the code into the chat.
 
 **Conflict:** the stops' scales are set for the phone's 336 art pixels across, so the world map shows the whole 2,000 km around and never an empty edge. The near and middle levels are two rings each, the outer one half as fine, as clipmaps do, and the middle ground reaches 16 km, not 10, so the valley's tall portrait picture is covered. Trees beyond the near rings are drawn as cards out to 900 m, A8.3's middle step, brought into P8 because without them the camp showed a disc of trees. Rivers show only on the map: the near and middle ground show lakes but not yet the rivers' courses, which come with water in production. Measure's pinch runs at a steady pace; your own pinch is for the feel.
+The second round replaces the rings, the map mesh and their dithered hand-overs with one tree of chunks that morph into each other (CDLOD), and the map's bend with a sphere at every scale, as you asked (A8.1, A8.4); rivers now show at every scale. The descent ends beside the nearest river draining at least 300 km² to the start region, so the close stops show water. The variants that change `PRE-22`'s pixel size and `PRE-29`'s map look are proposed changes until you choose; the land's and the sea's smooth light in variant B would need `PRE-01` changed too.
 
 ### α0.6a P9 Ecology
 

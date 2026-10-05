@@ -2,13 +2,15 @@
 // air in front of the ground or, past the planet's edge, of space and its stars. The air scatters sunlight as Earth's
 // does, by Rayleigh's and Mie's laws (single scattering, after Nishita 1993 and Hillaire 2020): blue overhead, a glow
 // along the planet's rim, haze over distant ground, the sun reddening as it sinks. The clouds, from the climate's
-// cover (planet.gdshaderinc): A raymarched through their 3D shapes and lit by the sun through themselves (Schneider
-// 2015), so the camera passes through them as it descends; B three thin decks, cheaper; C the art book's flat clouds.
+// weather (weather.gdshader, planet.gdshaderinc): A raymarched through their 3D shapes and lit by the sun through
+// themselves (Schneider 2015), so the camera passes through them as it descends; B the same, hard-edged and lit in the
+// art book's bands; C the art book's flat clouds, one deck.
 // Light: A the art book's, the air only a thin glow at the rim; B the air's full scattering.
 shader_type spatial;
 render_mode unshaded, depth_draw_never, depth_test_disabled, cull_disabled, shadows_disabled, fog_disabled;
 
 #include "res://zoom/shaders/planet.gdshaderinc"
+#include "res://zoom/shaders/clouds.gdshaderinc"
 
 uniform sampler2D screen : hint_screen_texture, filter_nearest;
 uniform sampler2D depth : hint_depth_texture, filter_nearest;
@@ -20,7 +22,8 @@ const float BETA_M = 21e-6 * 3.0;
 const float H_R = 2000.0;
 const float H_M = 500.0;
 const float AIR_TOP = 16000.0;
-const float SUN_POWER = 20.0;
+// The sun's light: the ground's lights a white surface facing it to 1, so the air's, which divides by no π, is π.
+const float SUN_POWER = PI;
 
 void vertex() {
 	POSITION = vec4(VERTEX.xy * 2.0, 0.0, 1.0);
@@ -53,8 +56,7 @@ vec3 world_of(vec3 p) {
 	float lon = atan(east, gz);
 	vec2 d = vec2(lon * zoom_world.x / TAU, (lat - lat0) * zoom_world.y / PI);
 	// undo the stretch that shows the ground near the focus at its true scale
-	float stretch = 1.0 / max(cos(lat0), 0.33) - 1.0;
-	d.x /= 1.0 + zoom_true.x * stretch * exp(-dot(d, d) / (zoom_true.y * zoom_true.y));
+	d.x /= 1.0 + zoom_true.x * exp(-dot(d, d) / (zoom_true.y * zoom_true.y));
 	return vec3(d, len - planet_radius());
 }
 
@@ -117,8 +119,12 @@ float henyey_greenstein(float mu, float g) {
 	return (1.0 - g * g) / (4.0 * PI * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
 }
 
-// The volumetric clouds along a ray up to t_end: their light and what they let through.
-vec4 clouds_volume(vec3 o, vec3 dir, float t_end, vec3 c, float r, vec2 frag) {
+// The clouds along a ray up to t_end (A8.6): their light, and what they let through. Marched through the shell between
+// their bases and the highest tops, each step's sunlight from four steps toward the sun; light scattered many times
+// approximated by octaves of ever weaker extinction and ever rounder scattering (Wrenninge 2013); the sky's light from
+// above, brighter toward the tops. `px` is the pixel's angle, radians, so steps far off read the clouds' broad shapes
+// only.
+vec4 clouds_volume(vec3 o, vec3 dir, float t_end, vec3 c, float r, vec2 frag, float px) {
 	vec2 outer = sphere_hits(o, dir, c, r + CLOUD_TOP);
 	if (outer.y <= 0.0) {
 		return vec4(0.0, 0.0, 0.0, 1.0);
@@ -137,114 +143,140 @@ vec4 clouds_volume(vec3 o, vec3 dir, float t_end, vec3 c, float r, vec2 frag) {
 	}
 	vec3 sun = normalize(zoom_sun);
 	float mu = dot(dir, sun);
-	float phase = mix(henyey_greenstein(mu, 0.55), henyey_greenstein(mu, -0.2), 0.35) * 4.0 * PI;
 	// the sun's way in the ground's frame where the ray meets the clouds, so steps toward it stay in the world's metres
 	mat3 frame = planet_frame(o + dir * t0);
 	vec3 sun_local = vec3(dot(sun, frame[0]), dot(sun, frame[1]), dot(sun, frame[2]));
-	vec3 sunlight = sunlight_at(o + dir * t0, sun, c, r);
-	float day = smoothstep(-0.15, 0.2, sun_local.y);
-	int steps = 28;
-	float ds = (t1 - t0) / float(steps);
+	vec3 sunlight = sunlight_at(o + dir * t0, sun, c, r) * smoothstep(-0.12, 0.1, sun_local.y);
+	vec3 sky = mix(vec3(0.01, 0.012, 0.025), vec3(0.42, 0.53, 0.72), smoothstep(-0.15, 0.25, sun_local.y));
+	// first long steps, without light, to find where the ray meets cloud; from a step before it, short steps, lit,
+	// so the clouds' tops are found to a short step and no pixel's brightness depends on where its steps fell
+	const int FIND = 24;
+	const int LIGHT_STEPS = 36;
+	float ds = (t1 - t0) / float(FIND);
 	float jitter = bayer4(frag);
-	float through = 1.0;
-	vec3 light = vec3(0.0);
-	float cover = 0.0;
-	for (int i = 0; i < steps; i++) {
-		vec3 p = o + dir * (t0 + (float(i) + jitter) * ds);
-		vec3 at = world_of(p);
+	float t = t0;
+	bool found = false;
+	for (int i = 0; i < FIND; i++) {
+		float tf = t0 + (float(i) + 0.5) * ds;
+		vec3 at = world_of(o + dir * tf);
 		vec2 w = zoom_focus + at.xy;
-		if (i % 4 == 0) {
-			cover = cloud_cover(w);
-		}
-		float dense = cloud_density(w, at.z, cover);
-		if (dense <= 0.0) {
-			continue;
-		}
-		float sigma = dense * 0.006;
-		// the sun's light through the cloud above this point, three steps toward it
-		float od = 0.0;
-		float reach = 150.0;
-		for (int k = 0; k < 3; k++) {
-			vec2 qw = w + vec2(sun_local.x, sun_local.z) * reach;
-			od += cloud_density(qw, at.z + sun_local.y * reach, cover) * 0.006 * reach;
-			reach *= 2.6;
-		}
-		float h01 = (at.z - CLOUD_BASE) / (CLOUD_TOP - CLOUD_BASE);
-		vec3 sun_in = sunlight * exp(-od) * (1.0 - exp(-od * 2.0 - 0.15)) * 2.2 * phase;
-		vec3 sky_in = vec3(0.55, 0.65, 0.8) * (0.35 + 0.45 * h01) * day;
-		float a = 1.0 - exp(-sigma * ds);
-		light += through * a * (sun_in * 1.4 + sky_in);
-		through *= 1.0 - a;
-		if (through < 0.02) {
+		vec4 weather = cloud_weather(w);
+		if (weather.x > 0.02 && cloud_density(w, at.z, weather, tf * px) > 0.0) {
+			t = max(tf - ds, t0);
+			found = true;
 			break;
 		}
 	}
-	return vec4(light, through);
-}
-
-// Three thin decks of cloud (variant B), each a sheet whose shading comes from the slope of its own thickness.
-vec4 clouds_decks(vec3 o, vec3 dir, float t_end, vec3 c, float r) {
-	vec3 sun = normalize(zoom_sun);
-	float heights[3] = float[3](5500.0, 3500.0, 2000.0);
-	float alt = length(o - c) - r;
-	vec3 light = vec3(0.0);
+	if (!found) {
+		return vec4(0.0, 0.0, 0.0, 1.0);
+	}
+	float fine_ds = ds / 3.0;
 	float through = 1.0;
-	for (int k = 0; k < 3; k++) {
-		// near decks first: from above, the highest; from below, the lowest
-		float hk = alt > heights[0] ? heights[k] : heights[2 - k];
-		vec2 hit = sphere_hits(o, dir, c, r + hk);
-		float t = alt > hk ? hit.x : hit.y;
-		if (t <= 0.0 || t >= t_end) {
-			continue;
+	vec3 light = vec3(0.0);
+	t += jitter * 0.25 * fine_ds;
+	// the heaps' tops, kilometres across, lit on their sun side and shaded on the other, from the slope of the clouds'
+	// tops round where the ray meets them: the light's steps toward the sun reach too short a way to find it
+	vec3 top_at = world_of(o + dir * (t + ds));
+	vec2 top_w = zoom_focus + top_at.xy;
+	float span = max(2500.0, 3.0 * (t + ds) * px);
+	float te = cloud_top(cloud_weather(top_w + vec2(span, 0.0)).y) - cloud_top(cloud_weather(top_w - vec2(span, 0.0)).y);
+	float tn = cloud_top(cloud_weather(top_w + vec2(0.0, span)).y) - cloud_top(cloud_weather(top_w - vec2(0.0, span)).y);
+	vec3 top_normal = normalize(vec3(-te, 2.0 * span * 0.2, -tn));
+	float top_lit = mix(0.4, 1.2, clamp(dot(top_normal, sun_local) * 1.3, 0.0, 1.0));
+	for (int i = 0; i < LIGHT_STEPS; i++) {
+		if (t > t1) {
+			break;
 		}
-		vec3 p = o + dir * t;
-		vec2 w = zoom_focus + world_of(p).xy;
-		float cover = cloud_cover(w);
-		float z = 0.21 * float(k + 1);
-		float thick = textureLod(zoom_cloud_noise, vec3(w / 14000.0, z), 0.0).r * 0.75
-				+ textureLod(zoom_cloud_noise, vec3(w / 4200.0, z), 0.0).g * 0.25;
-		float a = smoothstep(1.0 - cover, 1.0 - cover + 0.25, thick) * 0.9;
-		if (a <= 0.0) {
-			continue;
+		vec3 at = world_of(o + dir * t);
+		vec2 w = zoom_focus + at.xy;
+		vec4 weather = cloud_weather(w);
+		float fp = t * px;
+		float dense = weather.x > 0.02 ? cloud_density(w, at.z, weather, fp) : 0.0;
+		float step_len = dense > 0.0 ? fine_ds : ds;
+		if (dense > 0.0) {
+			float od = 0.0;
+			float reach = 120.0;
+			float gone = 0.0;
+			for (int k = 0; k < 4; k++) {
+				float mid = gone + 0.5 * reach;
+				vec2 qw = w + sun_local.xz * mid;
+				od += cloud_density(qw, at.z + sun_local.y * mid, weather, max(fp, reach)) * reach;
+				gone += reach;
+				reach *= 2.5;
+			}
+			od *= CLOUD_SIGMA;
+			vec3 sun_in = vec3(0.0);
+			float a_k = 1.0;
+			float b_k = 1.0;
+			float g_k = 1.0;
+			for (int n = 0; n < 3; n++) {
+				float phase = mix(henyey_greenstein(mu, 0.6 * g_k), henyey_greenstein(mu, -0.25 * g_k), 0.3);
+				sun_in += vec3(a_k * exp(-od * b_k) * phase);
+				a_k *= 0.55;
+				b_k *= 0.4;
+				g_k *= 0.5;
+			}
+			// the octaves' weights sum to 1.85: a top in full sun, scattering evenly, is as bright as white ground
+			// (the octaves leave out much of the light thick cloud sends back toward the sun: a third more)
+			sun_in *= sunlight * 4.0 * PI / 1.85 * 1.45 * top_lit;
+			float h01 = clamp((at.z - CLOUD_BASE) / (cloud_top(weather.y) - CLOUD_BASE), 0.0, 1.0);
+			vec3 sky_in = sky * mix(0.25, 0.5, h01);
+			float a = 1.0 - exp(-dense * CLOUD_SIGMA * step_len);
+			light += through * a * (sun_in + sky_in);
+			through *= 1.0 - a;
+			if (through < 0.02) {
+				break;
+			}
 		}
-		vec2 ahead = w + normalize(vec2(sun.x, -sun.z) + 1e-4) * 600.0;
-		float thick_ahead = textureLod(zoom_cloud_noise, vec3(ahead / 14000.0, z), 0.0).r * 0.75
-				+ textureLod(zoom_cloud_noise, vec3(ahead / 4200.0, z), 0.0).g * 0.25;
-		float lit = clamp(0.75 + (thick - thick_ahead) * 4.0, 0.35, 1.15);
-		vec3 sun_in = sunlight_at(p, sun, c, r) * lit * smoothstep(-0.1, 0.15, dot(normalize(p - c), sun));
-		light += through * a * (sun_in * 0.95 + vec3(0.18, 0.22, 0.3));
-		through *= 1.0 - a;
+		t += step_len;
 	}
 	return vec4(light, through);
 }
 
+// The same clouds in the art book's way (variant B): hard-edged where they are half opaque, lit in four bands of its
+// palette meeting in clean edges.
+vec4 clouds_banded(vec4 cloud) {
+	float alpha = 1.0 - cloud.a;
+	if (alpha < 0.45) {
+		return vec4(0.0, 0.0, 0.0, 1.0);
+	}
+	vec3 own = cloud.rgb / max(alpha, 1e-3);
+	float lum = dot(own, vec3(0.3, 0.59, 0.11));
+	float tint_most = max(max(own.r, own.g), max(own.b, 1e-3));
+	vec3 tint = own / tint_most;
+	float band = clamp(floor(lum * 3.2 + 0.45), 0.0, 3.0);
+	vec3 palette[4] = vec3[4](vec3(0.40, 0.46, 0.60), vec3(0.62, 0.69, 0.80), vec3(0.84, 0.88, 0.93), vec3(0.99, 0.99, 0.97));
+	return vec4(palette[int(band)] * mix(vec3(1.0), tint, 0.6) * min(tint_most * 1.1, 1.0), 0.0);
+}
+
 // The art book's flat clouds (variant C): one deck, hard-edged, in three tones, its sun side white.
-vec4 clouds_flat(vec3 o, vec3 dir, float t_end, vec3 c, float r) {
+vec4 clouds_flat(vec3 o, vec3 dir, float t_end, vec3 c, float r, float px) {
 	vec3 sun = normalize(zoom_sun);
-	float hk = 3000.0;
 	float alt = length(o - c) - r;
-	vec2 hit = sphere_hits(o, dir, c, r + hk);
-	float t = alt > hk ? hit.x : hit.y;
+	vec2 hit = sphere_hits(o, dir, c, r + CLOUD_DECK);
+	float t = alt > CLOUD_DECK ? hit.x : hit.y;
 	if (t <= 0.0 || t >= t_end) {
 		return vec4(0.0, 0.0, 0.0, 1.0);
 	}
 	vec3 p = o + dir * t;
 	vec2 w = zoom_focus + world_of(p).xy;
-	float cover = cloud_cover(w);
-	if (cloud_puff(w, cover) < 0.5) {
+	float fp = t * px;
+	if (cloud_puff(w, cloud_weather(w), fp) < 0.5) {
 		return vec4(0.0, 0.0, 0.0, 1.0);
 	}
-	vec2 toward = normalize(vec2(sun.x, -sun.z) + 1e-4);
-	float edge_sun = cloud_puff(w + toward * 900.0, cover);
-	float edge_shade = cloud_puff(w - toward * 900.0, cover);
-	vec3 tone = vec3(0.93, 0.95, 0.94);
-	if (edge_sun < 0.5) {
+	mat3 frame = planet_frame(p);
+	vec2 toward = normalize(vec2(dot(sun, frame[0]), dot(sun, frame[2])) + 1e-4);
+	float edge = max(fp * 2.0, 600.0);
+	vec2 sun_side = w + toward * edge;
+	vec2 shade_side = w - toward * edge;
+	vec3 tone = vec3(0.90, 0.93, 0.95);
+	if (cloud_puff(sun_side, cloud_weather(sun_side), fp) < 0.5) {
 		tone = vec3(1.0, 1.0, 0.98);
-	} else if (edge_shade < 0.5) {
-		tone = vec3(0.62, 0.68, 0.8);
+	} else if (cloud_puff(shade_side, cloud_weather(shade_side), fp) < 0.5) {
+		tone = vec3(0.62, 0.68, 0.80);
 	}
 	float day = smoothstep(-0.1, 0.15, dot(normalize(p - c), sun));
-	return vec4(tone * sunlight_at(p, sun, c, r) * mix(0.08, 1.0, day), 0.0);
+	return vec4(tone * sunlight_at(p, sun, c, r) * mix(0.06, 1.0, day), 0.0);
 }
 
 // Stars in the dark beyond the planet.
@@ -267,13 +299,16 @@ void fragment() {
 	float r = planet_radius();
 	vec3 scene = open ? stars(dir) : texture(screen, SCREEN_UV).rgb;
 	int cloud_style = int(zoom_style.z + 0.5);
+	// the pixel's angle, radians
+	float px = length(fwidth(dir));
 	vec4 cloud;
-	if (cloud_style == 0) {
-		cloud = clouds_volume(o, dir, t_end, c, r, FRAGCOORD.xy);
-	} else if (cloud_style == 1) {
-		cloud = clouds_decks(o, dir, t_end, c, r);
+	if (cloud_style == 2) {
+		cloud = clouds_flat(o, dir, t_end, c, r, px);
 	} else {
-		cloud = clouds_flat(o, dir, t_end, c, r);
+		cloud = clouds_volume(o, dir, t_end, c, r, FRAGCOORD.xy, px);
+		if (cloud_style == 1) {
+			cloud = clouds_banded(cloud);
+		}
 	}
 	vec3 through;
 	vec3 glow;

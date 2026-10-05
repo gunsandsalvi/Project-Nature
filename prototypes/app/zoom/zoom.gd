@@ -13,7 +13,6 @@ extends Control
 signal closed
 
 const RUNS := preload("res://look/runs.gd")
-const BASE := 2  # the screen's pixels a drawn pixel
 const INK := Color("ebe5da")
 const FLAME := Color("f6a33c")
 const NIGHT := Color("0b0a12")
@@ -45,15 +44,17 @@ const MAKING := 6
 const KEEP := 900
 ## The origin moves to the focus once the focus is this far from it (A8.2).
 const REBASE := 2000.0
+## The weather's picture of the whole world: 2 km a pixel.
+const WEATHER_SIZE := Vector2i(1024, 512)
 ## The variants (A/B): each name, and what its letters mean, for the buttons and the note.
 const VARIANTS := {
 	"pixels": ["A fixed 4", "B stepped 2–6", "C blended 2–6"],
 	"land": ["A art book", "B natural", "C natural, banded"],
 	"water": ["A bands", "B deep and shallow", "C with waves"],
-	"clouds": ["A volume", "B decks", "C flat"],
+	"clouds": ["A volume", "B volume, banded", "C flat"],
 	"light": ["A art book", "B the air's"],
 	"path": ["A down", "B flight"],
-	"time": ["noon", "dusk", "night", "live"],
+	"time": ["A morning", "B noon", "C dusk", "D night", "E live"],
 }
 ## Measure: seconds down from the globe to a person, the hold there, and back up.
 const DESCENT_SECONDS := 20.0
@@ -68,6 +69,11 @@ var zoom := 1.0
 var choice := {"pixels": 2, "land": 1, "water": 1, "clouds": 0, "light": 1, "path": 0, "time": 0}
 
 var _origin := Vector2.ZERO
+## Where the descent ends: by a river near the start region.
+var _home := Vector2.ZERO
+var _weather_view: SubViewport
+## The screen's pixels a drawn pixel takes.
+var _texel := 0.0
 var _art: SubViewport
 var _view: TextureRect
 var _cam: Camera3D
@@ -78,7 +84,8 @@ var _measure_button: Button
 var _scenario: RID
 var _ground: ShaderMaterial
 var _indices := PackedInt32Array()
-## Each chunk made, by its key "depth:i:j": its mesh and instance, and the frame it was last drawn.
+## Each chunk made, by its key (depth << 40 | i << 20 | j): its mesh and instance, its corner, the
+## lowest and highest it is drawn, and the frame the tree last reached it.
 var _chunks := {}
 var _asked := {}
 var _tasks := {}
@@ -87,6 +94,15 @@ var _done_lock := Mutex.new()
 var _drawn := {}
 var _frame := 0
 var _missing := 0
+## This frame's camera planes, the focus in the picture, and the east-west stretch round it and
+## how far that reaches, for the camera's culling.
+var _planes: Array[Plane] = []
+var _at := Vector3.ZERO
+var _stretch := 0.0
+var _reach := 5000.0
+var _cos_focus := 1.0
+var _under := 0.0
+var _horizon := -1.0
 var _worker: Thread
 var _touches := {}
 var _tilt := 23.0
@@ -136,8 +152,7 @@ func _ready() -> void:
 	_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var show := ShaderMaterial.new()
 	show.shader = load("res://zoom/shaders/pixels.gdshader")
-	show.set_shader_parameter("drawn_near", _art.get_texture())
-	show.set_shader_parameter("drawn_soft", _art.get_texture())
+	show.set_shader_parameter("drawn", _art.get_texture())
 	_view.material = show
 	add_child(_view)
 	_build_controls()
@@ -249,22 +264,41 @@ func _world_made() -> void:
 	)
 	var water_soft := water.duplicate() as Image
 	water_soft.generate_mipmaps()
+	# the clouds' noise and its smaller copies, its mipmaps
 	var noise_size := 64
 	var noise: PackedByteArray = gen.cloud_noise(noise_size)
 	var layers: Array[Image] = []
-	var slab := noise_size * noise_size * 4
-	for z in noise_size:
-		layers.append(
-			Image.create_from_data(
-				noise_size,
-				noise_size,
-				false,
-				Image.FORMAT_RGBA8,
-				noise.slice(z * slab, (z + 1) * slab)
+	var start := 0
+	var n := noise_size
+	while n >= 1:
+		var slab := n * n * 4
+		for z in n:
+			layers.append(
+				Image.create_from_data(
+					n,
+					n,
+					false,
+					Image.FORMAT_RGBA8,
+					noise.slice(start + z * slab, start + (z + 1) * slab)
+				)
 			)
-		)
+		start += n * slab
+		n /= 2
 	var cloud := ImageTexture3D.new()
-	cloud.create(Image.FORMAT_RGBA8, noise_size, noise_size, noise_size, false, layers)
+	cloud.create(Image.FORMAT_RGBA8, noise_size, noise_size, noise_size, true, layers)
+	# the weather: the clouds' cover and how high they build, drawn for the whole world (A8.6)
+	_weather_view = SubViewport.new()
+	_weather_view.size = WEATHER_SIZE
+	_weather_view.disable_3d = true
+	_weather_view.transparent_bg = false
+	_weather_view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	var sheet := ColorRect.new()
+	sheet.size = Vector2(WEATHER_SIZE)
+	var weather := ShaderMaterial.new()
+	weather.shader = load("res://zoom/shaders/weather.gdshader")
+	sheet.material = weather
+	_weather_view.add_child(sheet)
+	add_child(_weather_view)
 	var rs := RenderingServer
 	rs.global_shader_parameter_set("zoom_height", ImageTexture.create_from_image(heights))
 	rs.global_shader_parameter_set("zoom_climate", ImageTexture.create_from_image(climate))
@@ -272,6 +306,7 @@ func _world_made() -> void:
 	rs.global_shader_parameter_set("zoom_water", ImageTexture.create_from_image(water))
 	rs.global_shader_parameter_set("zoom_water_soft", ImageTexture.create_from_image(water_soft))
 	rs.global_shader_parameter_set("zoom_cloud_noise", cloud)
+	rs.global_shader_parameter_set("zoom_weather", _weather_view.get_texture())
 	rs.global_shader_parameter_set("zoom_world", world_m)
 	_ground = ShaderMaterial.new()
 	_ground.shader = load("res://zoom/shaders/ground.gdshader")
@@ -280,6 +315,8 @@ func _world_made() -> void:
 	_sky = MeshInstance3D.new()
 	var quad := QuadMesh.new()
 	quad.size = Vector2(1.0, 1.0)
+	# it covers the picture whatever the camera's near plane, so it must never be culled by it
+	quad.custom_aabb = AABB(Vector3(-1.0e8, -1.0e8, -1.0e8), Vector3(2.0e8, 2.0e8, 2.0e8))
 	_sky.mesh = quad
 	var sky := ShaderMaterial.new()
 	sky.shader = load("res://zoom/shaders/sky.gdshader")
@@ -289,7 +326,8 @@ func _world_made() -> void:
 	_sky.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_cam.add_child(_sky)
 	_sky.position = Vector3(0.0, 0.0, -2.0)
-	focus = gen.start(0)
+	_home = river_near(gen.start(0), gen.water_texture(0), gen.world_cells(), world_m)
+	focus = _home
 	_origin = focus
 	var args := OS.get_cmdline_user_args()
 	for arg: String in args:
@@ -309,15 +347,23 @@ func _world_made() -> void:
 
 
 func _layout() -> void:
+	_fit(_texel if _texel > 0.0 else 2.0)
+
+
+## The picture drawn with a pixel for every `texel` of the screen's, and shown over the screen.
+func _fit(texel: float) -> void:
 	var k := _screen_scale()
 	var screen := Vector2(DisplayServer.window_get_size())
 	if screen.x <= 0.0:
 		screen = size * k
-	_art.size = Vector2i(ceili(screen.x / BASE), ceili(screen.y / BASE))
-	_view.size = Vector2(_art.size) * BASE / k
-	(_view.material as ShaderMaterial).set_shader_parameter(
-		"screen_size", Vector2(_art.size) * BASE
-	)
+	_texel = texel
+	var drawn := Vector2i(ceili(screen.x / texel), ceili(screen.y / texel))
+	if _art.size != drawn:
+		_art.size = drawn
+	_view.size = Vector2(drawn) * texel / k
+	var m := _view.material as ShaderMaterial
+	m.set_shader_parameter("drawn_size", Vector2(drawn))
+	m.set_shader_parameter("texel", texel)
 
 
 ## Screen pixels to one of the interface's units.
@@ -335,13 +381,42 @@ func _process(delta: float) -> void:
 	_collect()
 	var width := metres_across(zoom)
 	_weather += delta * clampf(width / 2000.0, 1.0, 400.0)
-	if choice.time == 3:
+	if choice.time == 4:
 		_day = fposmod(_day + delta / 300.0, 1.0)
 	_place(width)
 	_select()
 	_show_pixels(width)
 	if is_in_group("busy") and _tasks.is_empty() and _asked.is_empty() and _missing == 0:
 		remove_from_group("busy")
+
+
+## Where the descent ends (PRE-03): the nearest place to `start` beside a river that drains at least
+## 300 km², within 25 km, so the close stops show water as the art book's camp does; the start
+## itself if there is none. `water` is the world's water cells (WorldGen.water_texture).
+static func river_near(
+	start: Vector2, water: PackedByteArray, cells: Vector2i, world: Vector2
+) -> Vector2:
+	var cell := world.x / float(cells.x)
+	var cx := int(start.x / cell)
+	var cy := int(start.y / cell)
+	var least := int(16.0 * log(300.0) / log(2.0))
+	var best := start
+	var gap := INF
+	for dy in range(-25, 26):
+		for dx in range(-25, 26):
+			var x := posmod(cx + dx, cells.x)
+			var y := cy + dy
+			if y < 0 or y >= cells.y:
+				continue
+			var k := (y * cells.x + x) * 4
+			if water[k] > 7 or water[k + 1] < least:
+				continue
+			var d := float(dx * dx + dy * dy)
+			if d < gap:
+				gap = d
+				best = Vector2((float(cx + dx) + 0.5) * cell, (float(y) + 0.5) * cell)
+	best.x = fposmod(best.x, world.x)
+	return best
 
 
 ## The metres the picture shows across at the focus, at a zoom.
@@ -390,11 +465,21 @@ static func pixel_at(width: float, variant: int) -> float:
 	return float(roundi(p)) if variant == 1 else p
 
 
+## The screen's pixels a drawn pixel takes, by the pixels' variant (A4): A and B draw one for each
+## pixel shown, crisp; C draws two each way for each, never finer than two of the screen's, and
+## shows their average, so small things blend into the pixels as they grow. In steps of a
+## twentieth, so the drawn picture is not made anew at every frame of a pinch.
+static func texel_at(pixel: float, variant: int) -> float:
+	if variant < 2:
+		return pixel
+	return snappedf(maxf(pixel * 0.5, 2.0), 0.05)
+
+
 ## The camera, the shared values every shader reads, and the sun (A8.4).
 func _place(width: float) -> void:
 	if _local(focus).length() > REBASE:
 		_origin = focus
-		for key: String in _chunks:
+		for key: int in _chunks:
 			_set_chunk_place(key)
 	var at := _local(focus)
 	var radius := world_m.x / TAU
@@ -415,28 +500,34 @@ func _place(width: float) -> void:
 	)
 	# near the ground, east-west at its true scale round the focus; none of it from the region out
 	var strength := clampf(log(120000.0 / width) / log(120000.0 / 12000.0), 0.0, 1.0)
-	rs.global_shader_parameter_set("zoom_true", Vector2(strength, maxf(width * 4.0, 5000.0)))
+	var lat := PI * (focus.y / world_m.y - 0.5)
+	_stretch = strength * (1.0 / maxf(cos(lat), 0.33) - 1.0)
+	_reach = maxf(width * 4.0, 5000.0)
+	rs.global_shader_parameter_set("zoom_true", Vector2(_stretch, _reach))
 	rs.global_shader_parameter_set("zoom_sun", sun_direction())
-	rs.global_shader_parameter_set("zoom_clock", Vector4(_weather, _year, _day, 1.0))
+	var declination := deg_to_rad(_tilt) * sin(TAU * _year)
+	rs.global_shader_parameter_set("zoom_clock", Vector4(_weather, _year, _day, declination))
 	rs.global_shader_parameter_set(
 		"zoom_style", Vector4(choice.land, choice.water, choice.clouds, choice.light)
 	)
 
 
 ## Toward the sun in the picture, from the date, the time of day and the world's tilt: the sun's
-## height over the focus by the hour angle and its declination (TIM-18).
+## height over the focus by the hour angle and its declination (TIM-18). Morning puts the sun 35°
+## up in the east, so the land's relief and the clouds' heaps show; dusk 5° up in the west, the art
+## book's; night behind the planet; live, the day's own hour, moving.
 func sun_direction() -> Vector3:
 	var lat := PI * (focus.y / world_m.y - 0.5)
 	var decl := deg_to_rad(_tilt) * sin(TAU * _year)
 	var hour := TAU * (_day - 0.5)
 	match choice.time:
 		0:
-			hour = 0.0
+			hour = -_hour_at_height(lat, decl, 35.0)
 		1:
-			# dusk: the sun 5° over the horizon in the west, the art book's
-			var c := (sin(deg_to_rad(5.0)) - sin(lat) * sin(decl)) / (cos(lat) * cos(decl))
-			hour = acos(clampf(c, -1.0, 1.0))
+			hour = 0.0
 		2:
+			hour = _hour_at_height(lat, decl, 5.0)
+		3:
 			hour = PI
 	var east := -cos(decl) * sin(hour)
 	var north := cos(lat) * sin(decl) - sin(lat) * cos(decl) * cos(hour)
@@ -444,35 +535,50 @@ func sun_direction() -> Vector3:
 	return Vector3(east, up, -north).normalized()
 
 
-## The pixel shown, and how: point or blended (A4).
+## The hour angle, radians after noon, at which the sun stands `degrees` over the horizon.
+static func _hour_at_height(lat: float, decl: float, degrees: float) -> float:
+	var c := (sin(deg_to_rad(degrees)) - sin(lat) * sin(decl)) / (cos(lat) * cos(decl))
+	return acos(clampf(c, -1.0, 1.0))
+
+
+## The pixel shown, and the picture drawn for it (A4).
 func _show_pixels(width: float) -> void:
 	var pixel := pixel_at(width, choice.pixels)
-	var m := _view.material as ShaderMaterial
-	m.set_shader_parameter("pixel", pixel)
-	m.set_shader_parameter("blend", choice.pixels == 2)
-	RenderingServer.global_shader_parameter_set("zoom_pixel", pixel / BASE)
+	var texel := texel_at(pixel, choice.pixels)
+	if texel != _texel:
+		_fit(texel)
+	(_view.material as ShaderMaterial).set_shader_parameter("pixel", pixel)
+	RenderingServer.global_shader_parameter_set("zoom_pixel", pixel / texel)
 
 
-## The chunk tree (A8.1): from the roots down, a chunk splits into its four while the camera is
-## nearer than SPLIT of its sides and all four are made; those not yet made are asked for, nearest
-## first, and their parent drawn meanwhile, so nothing is ever missing from the picture.
+## The chunk tree (A8.1): from the roots down, a chunk the camera can see splits into its four
+## while the camera is nearer than SPLIT of its sides and all four are made; those not yet made are
+## asked for, nearest first, and their parent drawn meanwhile, so nothing is ever missing from the
+## picture. A chunk the camera cannot see is neither drawn nor split.
 func _select() -> void:
 	var cam := _cam.global_position
-	var at := _local(focus)
-	var ground := Vector2(focus.x + cam.x - at.x, focus.y - (cam.z - at.z))
+	_at = _local(focus)
+	_planes = _cam.get_frustum()
+	var radius := world_m.x / TAU
+	_cos_focus = cos(PI * (focus.y / world_m.y - 0.5))
+	# the camera's angle round the planet from the focus, and how far round its horizon lies
+	var from_middle := cam - (_at - Vector3(0.0, radius, 0.0))
+	var eye := from_middle.length()
+	_under = acos(clampf(from_middle.y / eye, -1.0, 1.0))
+	_horizon = acos(radius / eye) if eye > radius else INF
+	var ground := Vector2(focus.x + cam.x - _at.x, focus.y - (cam.z - _at.z))
 	var want := []
 	var shown := {}
 	_missing = 0
 	for j in 2:
 		for i in 4:
 			_visit(0, i, j, ground, cam.y, want, shown)
-	for key: String in _drawn:
+	for key: int in _drawn:
 		if not shown.has(key) and _chunks.has(key):
 			RenderingServer.instance_set_visible(_chunks[key].instance, false)
-	for key: String in shown:
+	for key: int in shown:
 		if not _drawn.has(key):
 			RenderingServer.instance_set_visible(_chunks[key].instance, true)
-		_chunks[key].used = _frame
 	_drawn = shown
 	want.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 	for w: Array in want:
@@ -489,23 +595,33 @@ func _visit(
 	depth: int, i: int, j: int, ground: Vector2, height: float, want: Array, shown: Dictionary
 ) -> void:
 	var side := ROOT / float(1 << depth)
-	var key := "%d:%d:%d" % [depth, i, j]
+	var key := (depth << 40) | (i << 20) | j
 	if not _chunks.has(key):
 		_missing += 1
 		want.append([float(depth), key, depth, i, j])
 		return
+	var chunk: Dictionary = _chunks[key]
+	chunk.used = _frame
+	if not _seen(chunk, side):
+		return
 	var east := float(i) * side
 	var north := float(j) * side
+	# the camera's distance from the chunk's box, its heights included, as the shader measures the
+	# morph from each point: measured from the sea instead, chunks on high ground split too late, and
+	# their edges had not finished morphing into the coarser chunks beside them
 	var dx := _east_gap(ground.x, east, side)
 	var dy := maxf(maxf(north - ground.y, ground.y - (north + side)), 0.0)
-	var dist := sqrt(dx * dx + dy * dy + height * height)
+	var dz := maxf(maxf(height - chunk.high, chunk.low - height), 0.0)
+	var dist := sqrt(dx * dx + dy * dy + dz * dz)
 	if depth < DEEPEST and dist < SPLIT * side:
 		var ready := true
 		for c in 4:
 			var ci := i * 2 + c % 2
 			var cj := j * 2 + c / 2
-			var child := "%d:%d:%d" % [depth + 1, ci, cj]
-			if not _chunks.has(child):
+			var child := ((depth + 1) << 40) | (ci << 20) | cj
+			if _chunks.has(child):
+				_chunks[child].used = _frame  # kept while it waits for the others
+			else:
 				ready = false
 				_missing += 1
 				if not _asked.has(child):
@@ -517,6 +633,59 @@ func _visit(
 	shown[key] = true
 
 
+## Whether any of a chunk can be in the picture. First, whether it lies behind the planet's
+## horizon as the camera sees it, its highest point too; then its box as it lies flat, widened by
+## as much as the sphere can move it (planet_place in planet.gdshaderinc), against the camera's six
+## planes; its skirts left out, since they show only where the chunk's own edge could be seen.
+## The sphere only lowers the ground, by up to d² / 2r at d metres from the focus, and moves it
+## across by the error of its east-west scale there, by the north the meridians' meeting gives,
+## d² / 2r at most, and by less of the third order: near the focus the box stays tight.
+func _seen(chunk: Dictionary, side: float) -> bool:
+	var radius := world_m.x / TAU
+	var x0: float = chunk.east - _origin.x
+	x0 -= world_m.x * floorf(x0 / world_m.x + 0.5)
+	var z1: float = _origin.y - chunk.north
+	var high: float = chunk.high
+	var lo := Vector3(x0, chunk.low, z1 - side)
+	var hi := Vector3(x0 + side, high, z1)
+	var near_x := maxf(maxf(lo.x - _at.x, _at.x - hi.x), 0.0)
+	var near_z := maxf(maxf(lo.z - _at.z, _at.z - hi.z), 0.0)
+	# the horizon: its nearest point's angle round the planet from the focus, against the camera's
+	var s_lat := sin(minf(near_z / radius, PI) * 0.5)
+	var s_lon := sin(minf(near_x / radius, PI) * 0.5)
+	var hav := minf(s_lat * s_lat + chunk.cos_least * _cos_focus * s_lon * s_lon, 1.0)
+	if 2.0 * asin(sqrt(hav)) - _under > _horizon + chunk.lift + 0.002:
+		return false
+	# the box
+	var far_x := maxf(absf(lo.x - _at.x), absf(hi.x - _at.x))
+	var far_z := maxf(absf(lo.z - _at.z), absf(hi.z - _at.z))
+	var far := sqrt(far_x * far_x + far_z * far_z)
+	var k_most := 1.0 + _stretch * exp(-(near_x * near_x + near_z * near_z) / (_reach * _reach))
+	var k_least := 1.0 + _stretch * exp(-far * far / (_reach * _reach))
+	var scale_error := maxf(
+		absf(chunk.cos_most * k_most - 1.0), absf(chunk.cos_least * k_least - 1.0)
+	)
+	var bent := k_most * far
+	var curve := bent * bent / (2.0 * radius) * (1.0 + high / radius)
+	var across := (
+		scale_error * far_x
+		+ 1.1 * curve
+		+ bent * bent * bent / (6.0 * radius * radius)
+		+ high / radius * bent
+	)
+	lo -= Vector3(across, curve + 1.0, across)
+	hi += Vector3(across, 1.0, across)
+	var mid := (lo + hi) * 0.5
+	var half := (hi - lo) * 0.5
+	for p: Plane in _planes:
+		var reach := (
+			absf(p.normal.x) * half.x + absf(p.normal.y) * half.y + absf(p.normal.z) * half.z
+		)
+		if p.distance_to(mid) > reach:
+			return false
+	return true
+
+
 ## The gap east or west from a place to a span of the world, the shorter way round.
 func _east_gap(x: float, east: float, side: float) -> float:
 	var mid := east + side * 0.5 - x
@@ -524,7 +693,7 @@ func _east_gap(x: float, east: float, side: float) -> float:
 	return maxf(absf(mid) - side * 0.5, 0.0)
 
 
-func _ask(key: String, depth: int, i: int, j: int) -> void:
+func _ask(key: int, depth: int, i: int, j: int) -> void:
 	var side := ROOT / float(1 << depth)
 	_asked[key] = true
 	var id := WorkerThreadPool.add_task(
@@ -534,7 +703,7 @@ func _ask(key: String, depth: int, i: int, j: int) -> void:
 
 
 ## On a worker thread: a chunk's ground.
-func _make_chunk(key: String, depth: int, east: float, north: float, spacing: float) -> void:
+func _make_chunk(key: int, depth: int, east: float, north: float, spacing: float) -> void:
 	var arrays: Array = gen.chunk(0, east, north, N, spacing)
 	_done_lock.lock()
 	_done.append([key, depth, east, north, spacing, arrays])
@@ -552,10 +721,10 @@ func _collect() -> void:
 	_done = []
 	_done_lock.unlock()
 	for d: Array in done:
-		var key: String = d[0]
+		var key: int = d[0]
 		_asked.erase(key)
 		var made: Array = d[5]
-		if made.size() < 4 or _chunks.has(key):
+		if made.size() < 5 or _chunks.has(key):
 			continue
 		var arrays := []
 		arrays.resize(Mesh.ARRAY_MAX)
@@ -571,7 +740,8 @@ func _collect() -> void:
 		)
 		var mesh := rs.mesh_create()
 		rs.mesh_add_surface_from_arrays(mesh, rs.PRIMITIVE_TRIANGLES, arrays, [], {}, format)
-		# placed by its shader on the sphere, so never culled by where its flat points lie
+		# placed by its shader on the sphere, so never culled by where its flat points lie: the tree
+		# culls it instead (_seen)
 		var huge := AABB(Vector3(-4.0e6, -4.0e6, -4.0e6), Vector3(8.0e6, 8.0e6, 8.0e6))
 		rs.mesh_set_custom_aabb(mesh, huge)
 		var instance := rs.instance_create2(mesh, _scenario)
@@ -583,15 +753,31 @@ func _collect() -> void:
 		var morph := Vector2(reach * 0.7, reach) if depth > 0 else Vector2(1e12, 2e12)
 		rs.instance_geometry_set_shader_parameter(instance, "morph", morph)
 		rs.instance_set_visible(instance, false)
+		# for the culling: its lowest and highest, the cosines of the latitudes it spans, and how
+		# far round the planet its highest point lifts the horizon
+		var heights: Vector2 = made[4]
+		var high := maxf(heights.y, 0.0)
+		var radius := world_m.x / TAU
+		var south := clampf(PI * (d[3] / world_m.y - 0.5), -0.5 * PI, 0.5 * PI)
+		var north := clampf(PI * ((d[3] + side) / world_m.y - 0.5), -0.5 * PI, 0.5 * PI)
 		_chunks[key] = {
-			"mesh": mesh, "instance": instance, "east": d[2], "north": d[3], "used": _frame
+			"mesh": mesh,
+			"instance": instance,
+			"east": d[2],
+			"north": d[3],
+			"low": heights.x,
+			"high": high,
+			"cos_most": 1.0 if south <= 0.0 and north >= 0.0 else maxf(cos(south), cos(north)),
+			"cos_least": minf(cos(south), cos(north)),
+			"lift": acos(radius / (radius + high)),
+			"used": _frame,
 		}
 		_set_chunk_place(key)
 
 
 ## A chunk's place in the picture: its corner from the moving origin, east the shorter way round,
 ## north as it is, since the poles are the globe's edges.
-func _set_chunk_place(key: String) -> void:
+func _set_chunk_place(key: int) -> void:
 	var c: Dictionary = _chunks[key]
 	var dx: float = c.east - _origin.x
 	dx -= world_m.x * floorf(dx / world_m.x + 0.5)
@@ -599,17 +785,18 @@ func _set_chunk_place(key: String) -> void:
 	RenderingServer.instance_set_transform(c.instance, Transform3D(Basis(), Vector3(dx, 0.0, -dy)))
 
 
-## The chunks not drawn for longest, freed once more than KEEP are made.
+## The chunks the tree has not reached for longest, freed once more than KEEP are made; never one
+## it reached this frame, drawn, split, out of sight or waiting for its brothers, nor a root.
 func _forget_old() -> void:
 	if _chunks.size() <= KEEP:
 		return
 	var old := []
-	for key: String in _chunks:
-		if not _drawn.has(key) and not key.begins_with("0:"):
+	for key: int in _chunks:
+		if _chunks[key].used < _frame and key >> 40 > 0:
 			old.append([_chunks[key].used, key])
 	old.sort()
 	for k in mini(old.size(), _chunks.size() - KEEP):
-		var key: String = old[k][1]
+		var key: int = old[k][1]
 		RenderingServer.free_rid(_chunks[key].instance)
 		RenderingServer.free_rid(_chunks[key].mesh)
 		_chunks.erase(key)
@@ -656,7 +843,7 @@ static func edge_point(n: int, e: int, k: int) -> int:
 func measure() -> void:
 	if _scenario == RID() or _measuring:
 		return
-	focus = gen.start(0)
+	focus = _home
 	zoom = 1.0
 	_measuring = true
 	_clock = 0.0
@@ -782,7 +969,7 @@ func _exit_tree() -> void:
 		_worker.wait_to_finish()
 	for id: int in _tasks.keys():
 		WorkerThreadPool.wait_for_task_completion(id)
-	for key: String in _chunks:
+	for key: int in _chunks:
 		RenderingServer.free_rid(_chunks[key].instance)
 		RenderingServer.free_rid(_chunks[key].mesh)
 	Engine.max_fps = 0

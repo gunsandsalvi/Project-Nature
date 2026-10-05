@@ -68,7 +68,8 @@ std::vector<std::uint8_t> water_texture(const World& w);
 
 // Noise for P8's clouds (A8.6), size × size × size points that wrap every way, four bytes a point: the clouds' shape,
 // Perlin noise eroded by Worley's cells (Schneider 2015), then Worley noise at 2, 4 and 8 times its frequency, for
-// their edges. Made from the seed alone.
+// their edges; then its smaller copies for its mipmaps, each half the last each way, the average of the eight points
+// under each, down to one point. Made from the seed alone; size a power of two.
 std::vector<std::uint8_t> cloud_noise(std::uint64_t seed, int size);
 
 // The trees standing in a square `side` metres across from (east, north), three numbers each: metres east and north

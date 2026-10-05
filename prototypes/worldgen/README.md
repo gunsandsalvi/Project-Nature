@@ -37,10 +37,11 @@ directly in a present-day state, then settled for 10 years), `WLD-09` (the stage
   the maps (`src/maps.cpp`, in the art book's colours) and a digest of the offered worlds.
 
 - **Detail on demand,** for P8 The zoom (`src/area.cpp`, A7.5, `WLD-13`): the ground anywhere at any spacing, from
-  the cells and the seed alone, the same every time: its height with relief from 400 m down to 3 m, its colour from
-  the cover, whose edges are warped by noise, and its trees by keyed chance on a 5 m grid. The app's "P8 The zoom"
-  screen reads it through `extension/`, with the map without its rivers, the rivers and the shore as lines, and the
-  world's size.
+  the cells and the seed alone, the same every time: its height from the cells' heights averaged into ever coarser
+  copies, with relief only as fine as the spacing shows, from 400 m down to 3 m; a chunk of it with its normals, the
+  grid half as fine it morphs into, and its lowest and highest points, for the camera's culling; the cells' climate,
+  cover and water as textures for the picture; and the clouds' noise with its smaller copies. The app's "P8 The zoom"
+  screen reads it through `extension/`, with the world's size and tilt.
 
 It uses P5's maths, keyed chance, hashes and arm64 check (`prototypes/samebits`) and P6's thread pool
 (`prototypes/minds/src/pool`), written once.
