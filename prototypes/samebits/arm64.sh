@@ -10,8 +10,24 @@ trap 'rm -rf "$TMP"' EXIT
 NATIVE="$1"
 ARGS="$2"
 shift 2
-aarch64-linux-gnu-g++ -std=c++20 -O2 -Wall -Wextra -Werror -ffp-contract=off -fno-fast-math -static -pthread "$@" \
-  -o "$TMP/arm64"
+# each source compiled on its own, in parallel and through ccache, so an unchanged one is never compiled twice
+CXX=(aarch64-linux-gnu-g++)
+! command -v ccache >/dev/null || CXX=(ccache aarch64-linux-gnu-g++)
+FLAGS=(-std=c++20 -O2 -Wall -Wextra -Werror -ffp-contract=off -fno-fast-math -pthread)
+INCLUDES=()
+SOURCES=()
+for a in "$@"; do
+  case "$a" in -I*) INCLUDES+=("$a") ;; *) SOURCES+=("$a") ;; esac
+done
+OBJECTS=()
+PIDS=()
+for i in "${!SOURCES[@]}"; do
+  OBJECTS+=("$TMP/$i.o")
+  "${CXX[@]}" "${FLAGS[@]}" "${INCLUDES[@]}" -c "${SOURCES[$i]}" -o "$TMP/$i.o" &
+  PIDS+=($!)
+done
+for p in "${PIDS[@]}"; do wait "$p"; done
+aarch64-linux-gnu-g++ -static -pthread "${OBJECTS[@]}" -o "$TMP/arm64"
 # shellcheck disable=SC2086 # the arguments are words
 "$NATIVE" 1 $ARGS | tail -1 >"$TMP/here"
 for threads in 1 4; do

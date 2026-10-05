@@ -12,6 +12,13 @@ export KD_GDUNIT="$KD_CACHE/gdunit4-v6.2.1"
 # for C++ tests (A2.2)
 export KD_GODOT_CPP="$KD_CACHE/godot-cpp-4.5"
 export KD_DOCTEST="$KD_CACHE/doctest-2.4.11"
+# ccache keeps compiled C++ between runs and across build folders, so godot-cpp and unchanged files compile once: paths
+# under the repository are hashed relative to each build folder, and the folder itself is left out (A2.4)
+export KD_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export CCACHE_DIR="$KD_CACHE/ccache"
+export CCACHE_BASEDIR="$KD_ROOT"
+export CCACHE_NOHASHDIR=true
+export CCACHE_MAXSIZE=5G
 
 # Android: the SDK, NDK r30 and Java (A2.2).
 export ANDROID_HOME="$KD_CACHE/android-sdk"

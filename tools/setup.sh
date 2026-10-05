@@ -32,7 +32,8 @@ fetch() {   # url, file, checksum (SHA-512 or SHA-256): downloads once, then che
 }
 
 # 1. System packages: Xvfb and the software Vulkan driver, so Godot draws pictures without a graphics chip; qemu and
-#    the arm64 compiler for the same-bits check (A3.4); the C++ build with its format and lint tools; Java for export.
+#    the arm64 compiler for the same-bits check (A3.4); the C++ build with its compiler cache, format and lint tools;
+#    Java for export.
 need=()
 command -v Xvfb >/dev/null || need+=(xvfb)
 [ -f /usr/share/vulkan/icd.d/lvp_icd.json ] || need+=(mesa-vulkan-drivers)
@@ -40,6 +41,7 @@ command -v qemu-aarch64-static >/dev/null || need+=(qemu-user-static)
 command -v aarch64-linux-gnu-g++ >/dev/null || need+=(g++-aarch64-linux-gnu)
 command -v cmake >/dev/null || need+=(cmake)
 command -v ninja >/dev/null || need+=(ninja-build)
+command -v ccache >/dev/null || need+=(ccache)
 command -v clang-format-18 >/dev/null || need+=(clang-format-18)
 command -v clang-tidy-18 >/dev/null || need+=(clang-tidy-18)
 [ -x "$JAVA_HOME/bin/java" ] || need+=(openjdk-21-jdk-headless)

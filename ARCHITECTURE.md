@@ -568,6 +568,7 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
   - A rendering driver named on the command line brings Forward+ unless the Mobile renderer is named beside it.
 - **Phone measurements:** the in-app benchmark writes our own trace events into Perfetto traces, beside the chip's speed and heat; Android GPU Inspector for a slow frame on the PowerVR chip (`PLT-04`).
 - **One command before anything joins:** `tools/check.sh`, rebuilt for C++ and Godot, runs the formats, lints, builds, tests, the same-results check, and the file, commit and coverage checks (`PRC-10`, `PRC-12`).
+  - It is kept fast, since every delivery waits on it: C++ compiles through ccache, so godot-cpp and unchanged files compile once across runs and build folders; clang-tidy runs only when C++ changed since it last passed; the C++ tests run beside the Godot and tool tests; and each step prints its time (about 2 minutes once the cache is warm).
   The vertical slice passes through every kind of check before production starts.
 
 ## A18. Budgets and risks

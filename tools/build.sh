@@ -35,9 +35,10 @@ for EXT in prototypes/*/extension; do
   D="$(dirname "$EXT")"
   B="build/${D//\//-}"
   { cmake -S "$D" -B "$B" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    && cmake --build "$B"; } >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; echo "Build: $D failed"; exit 1; }
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache && cmake --build "$B"; } >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; echo "Build: $D failed"; exit 1; }
   B="build/android-$(basename "$D")"
   cmake -S "$EXT" -B "$B" -G Ninja -DCMAKE_BUILD_TYPE=Release -DGODOT_CPP="$KD_GODOT_CPP" \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
     -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" -DANDROID_ABI=arm64-v8a \
     -DANDROID_PLATFORM=android-24 >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; echo "Build: $EXT's configure failed"; exit 1; }
   cmake --build "$B" >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; echo "Build: $EXT failed"; exit 1; }
