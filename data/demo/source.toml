@@ -1,0 +1,5 @@
+# The demonstration's own source (MAT-16): what only the foundations show, never part of the game's catalogue.
+id = "demo"
+version = 1
+requires = ["base"]
+about = "The foundations' demonstration: markers that walk, meet and greet"

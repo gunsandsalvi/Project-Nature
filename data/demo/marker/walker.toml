@@ -1,0 +1,8 @@
+# A marker that walks between camps at a person's pace and stops to greet most it meets.
+speed = "1.4 m/s"
+reach = "2 m"
+greets = "30%"
+rest = { life = "2 h", game = "2 h" }
+colour = "#e8c25a"
+gait = "walk"
+walks_with = ["demo:walker", "demo:strider"]

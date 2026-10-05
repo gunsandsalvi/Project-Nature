@@ -1,0 +1,7 @@
+# A marker that strides from camp to camp and seldom stops to greet.
+speed = "2 m/s"
+reach = "3 m"
+greets = "1 in 10"
+rest = { life = "45 min", game = "45 min" }
+colour = "#8fd18a"
+gait = "stride"

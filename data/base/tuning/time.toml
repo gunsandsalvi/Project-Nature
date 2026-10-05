@@ -1,0 +1,7 @@
+# The speeds of time at the zoom stops (TIM-01), as game time a real minute. Top speed, at the world map and the
+# globe, is as fast as the phone can, so it has no number here.
+person = "1 min"
+close_camp = "1 h"
+camp = "8 h"
+valley = "1 season"
+region = "3 year"

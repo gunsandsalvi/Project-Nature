@@ -150,6 +150,11 @@ cpp_tests() {
         || { cat "$TMP/proof-$b-$threads"; exit 1; }
     done
   done
+  # the catalogues, loaded and checked by the simulation's own tool, every problem named by file, line and column
+  if [ -d data ] && [ -x build/sim/kindling ]; then
+    build/sim/kindling catalogue check data >"$TMP/catalogue" || { cat "$TMP/catalogue"; exit 1; }
+    sed 's/^/   /' "$TMP/catalogue"
+  fi
   python3 tools/samebits.py same "$TMP"/proof-* | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
   python3 tools/samebits.py flags "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'

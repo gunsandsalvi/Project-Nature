@@ -269,6 +269,10 @@ Following Box2D, Factorio and research 18:
 - **Schema once:** each kind has one `visit()` naming its fields with their types, units, ranges, links and what they affect (`rules`, `world` or `look`).
   The loader, the schema writer and the fingerprinter all walk it, so nothing describes a kind twice.
   The loader refuses unknown keys and floats, and names every error by file, line and column.
+  - The walkers (`kd/data`): the loader, the link resolver (a link names an entry, and once all are loaded holds its canonical name and number), the fingerprinter, the schema writer (`kindling catalogue schema`) and the display (`kindling catalogue show`).
+  - Field types: whole numbers, truth values, texts, a choice among named options, quantities in a measure, chances, durations with both lengths, and one link or a list of links to a kind.
+  - A kind's files are `<source>/<folder>/<name>.toml`; a tuning file is a kind of one entry, `<source>/tuning/<name>.toml`, such as the speeds of the zoom stops.
+  - Every kind is one line in `kd/data/kinds.cpp`, and the catalogue loads files handed to it as text, in path order whatever order they come in.
 - **toml++,** pinned, behind one file and with no exceptions, reads the text (research 18).
 - **No templates:** every entry is complete and reads alone, since a parent's values would be the child's inputs (`MAT-13`); a tool copies an entry as a starting point instead.
 - **Names:** lower case, namespaced by source (`base:flint_nodule`, `base:` implied); numbered at load by sorted name, those numbers used only for arrays; chance and tie-breaks keyed by a stable hash of the name; saves holding each kind's names; renames listed in a file (`PRN-14`).
