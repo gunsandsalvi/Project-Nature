@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include "kd/chance/chance.hpp"
 #include "kd/core/check.hpp"
 #include "kd/data/loader.hpp"
 #include "kd/data/schema.hpp"
@@ -51,12 +52,14 @@ struct Source {
     }
 };
 
-/// One entry: its canonical name, "demo:walker", the file it came from, and its values.
+/// One entry: its canonical name, "demo:walker", the file it came from, its values, and the stable hash of its name
+/// that keys its chance and breaks its ties, which no other entry's arrival can move, as its number can (A3.6).
 template <typename T>
 struct Entry {
     std::string name;
     std::string file;
     T value;
+    chance::Name key;
 };
 
 /// What every kind does, whatever its fields.
@@ -79,6 +82,9 @@ public:
     [[nodiscard]] virtual std::size_t size() const = 0;
     [[nodiscard]] virtual const std::string& name(std::size_t i) const = 0;
     [[nodiscard]] virtual const std::string& file(std::size_t i) const = 0;
+    /// The stable hash of the entry's name, for chance and tie-breaks; its number is only for arrays.
+    /// Implements TIM-16 and MAT-14, see A3.6.
+    [[nodiscard]] virtual chance::Name key(std::size_t i) const = 0;
     /// The number of the entry with this canonical name.
     [[nodiscard]] virtual std::optional<std::uint32_t> find(std::string_view canonical) const = 0;
     virtual void resolve(const Lookup& lookup, std::vector<Problem>& problems) = 0;
@@ -101,7 +107,8 @@ public:
     using KindBase::KindBase;
 
     void add(std::string name, const std::string& file, const Value& table, std::vector<Problem>& problems) override {
-        Entry<T> e{std::move(name), file, T{}};
+        const chance::Name key = chance::name(name);
+        Entry<T> e{std::move(name), file, T{}, key};
         Loader loader(table, file, problems);
         T::visit(loader, e.value);
         loader.finish();
@@ -116,6 +123,7 @@ public:
     [[nodiscard]] std::size_t size() const override { return entries_.size(); }
     [[nodiscard]] const std::string& name(std::size_t i) const override { return entries_[i].name; }
     [[nodiscard]] const std::string& file(std::size_t i) const override { return entries_[i].file; }
+    [[nodiscard]] chance::Name key(std::size_t i) const override { return entries_[i].key; }
 
     [[nodiscard]] std::optional<std::uint32_t> find(std::string_view canonical) const override {
         const auto at =

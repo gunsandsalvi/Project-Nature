@@ -23,6 +23,7 @@ namespace kd::data {
 struct EntryDigests {
     std::uint64_t all = 0;
     std::array<std::uint64_t, 3> by_affects{};  // rules, world, look
+    std::array<std::uint32_t, 3> fields{};      // how many of its fields count in each
 };
 
 /// Implements MAT-14, see A3.6: an entry's digests from its canonical values, field by field in the kind's order,
@@ -69,6 +70,7 @@ private:
 
     num::Digest all_;
     std::array<num::Digest, 3> by_affects_;
+    std::array<std::uint32_t, 3> fields_{};
 };
 
 /// Implements MAT-13 and MAT-17, see A3.6: a kind's fields as whoever writes entries needs them, one line each.

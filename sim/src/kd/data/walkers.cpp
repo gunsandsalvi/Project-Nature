@@ -21,7 +21,9 @@ std::string unit_names(Measure m) {
 }  // namespace
 
 num::Digest& Fingerprinter::put(const Field& f) {
-    num::Digest& d = by_affects_[static_cast<std::size_t>(f.affects)];
+    const auto c = static_cast<std::size_t>(f.affects);
+    ++fields_[c];
+    num::Digest& d = by_affects_[c];
     d.text(f.key);
     return d;
 }
@@ -31,6 +33,7 @@ EntryDigests Fingerprinter::digests() {
     num::Digest combined;
     for (std::size_t i = 0; i < by_affects_.size(); ++i) {
         e.by_affects[i] = by_affects_[i].value();
+        e.fields[i] = fields_[i];
         combined.u64(e.by_affects[i]);
     }
     combined.u64(all_.value());

@@ -160,6 +160,11 @@ void Catalogue::fingerprint_sources() {
                 }
                 const EntryDigests e = k->digests(i);
                 for (std::size_t c = 0; c < digests.size(); ++c) {
+                    // every entry counts in the rules, since any entry can change what happens; only entries with
+                    // fields that make the land or the look count in those, so a new pot is no new world (PLT-09)
+                    if (c != static_cast<std::size_t>(Affects::rules) && e.fields[c] == 0) {
+                        continue;
+                    }
                     digests[c].text(k->folder());
                     digests[c].text(k->name(i));
                     digests[c].u64(e.by_affects[c]);

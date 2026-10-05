@@ -192,6 +192,13 @@ TEST_CASE("sources load after the sources they need, and a source that cannot lo
     CHECK(cat.sources()[0].id == "base");
     CHECK(cat.sources()[1].id == "demo");
     CHECK(cat.sources()[1].version == 3);
+    // an id that sorts first still waits for the source it requires
+    std::vector<data::SourceFile> more = files;
+    more.push_back({"aardvark/source.toml", "id = \"aardvark\"\nversion = 1\nabout = \"x\"\nrequires = [\"demo\"]\n"});
+    data::Catalogue later;
+    REQUIRE(later.load(more).empty());
+    REQUIRE(later.sources().size() == 3);
+    CHECK(later.sources()[2].id == "aardvark");
     const auto first = [](const std::vector<std::string>& found) { return found.empty() ? "" : found.front(); };
     CHECK(
         first(problems_with("demo/source.toml", "id = \"demo\"\nversion = 1\nabout = \"x\"\nrequires = [\"bronze\"]\n"))
@@ -223,6 +230,9 @@ TEST_CASE("a made-up entry added to a source changes no other entry's digest") {
     CHECK(after.kind_in("tuning/time")->digests(0).all == before.kind_in("tuning/time")->digests(0).all);
     CHECK(after.sources()[0].digests == before.sources()[0].digests);
     CHECK(after.sources()[1].digests[0] != before.sources()[1].digests[0]);
+    // markers make no land, so the world is the same; they have a look, which changed
+    CHECK(after.sources()[1].digests[1] == before.sources()[1].digests[1]);
+    CHECK(after.sources()[1].digests[2] != before.sources()[1].digests[2]);
 }
 
 // checks: MAT-13 MAT-14
@@ -257,4 +267,23 @@ TEST_CASE("a rename keeps an old name readable, for saves and for links") {
     const std::vector<data::Problem> found = both.load(renamed);
     REQUIRE(found.size() == 1);
     CHECK(found[0].what.find("is still an entry of its own") != std::string::npos);
+}
+
+// checks: MAT-14 TIM-16
+TEST_CASE("an entry's chance is keyed by its name, which no other entry's arrival moves") {
+    data::Catalogue before;
+    const auto files = good();
+    REQUIRE(before.load(files).empty());
+    const data::KindBase* was = before.kind_in("marker");
+    REQUIRE(was->name(1) == "demo:walker");
+    CHECK(was->key(1) == kd::chance::name("demo:walker"));
+    std::vector<data::SourceFile> more = files;
+    more.push_back({"demo/marker/aardvark.toml", kStrider});
+    data::Catalogue after;
+    REQUIRE(after.load(more).empty());
+    const data::KindBase* now = after.kind_in("marker");
+    // the walker's number moved from 1 to 2, and its key stayed
+    REQUIRE(now->name(2) == "demo:walker");
+    CHECK(now->key(2) == was->key(1));
+    CHECK(now->key(0) != now->key(1));
 }
