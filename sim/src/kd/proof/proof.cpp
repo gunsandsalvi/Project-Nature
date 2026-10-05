@@ -7,11 +7,13 @@
 
 #include "kd/chance/chance.hpp"
 #include "kd/data/units.hpp"
+#include "kd/demo/crowd_world.hpp"
 #include "kd/num/angle.hpp"
 #include "kd/num/convert.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/num/probability.hpp"
 #include "kd/num/torus.hpp"
+#include "kd/proof/fixture.hpp"
 #include "kd/proof/maths_cases.hpp"
 
 namespace kd::proof {
@@ -246,12 +248,29 @@ std::string units(run::Workers& workers) {
     return digest.hex();
 }
 
+/// The world suite: a crowd of 1,000 markers in 40 camps, from the fixed fixture catalogue, run one event at a time for
+/// 30 game days, each day's digest of the whole state taken at midnight. Implements RES-05 and TIM-17, see A3.3.
+std::string world(run::Workers& /*workers*/) {
+    data::Catalogue catalogue;
+    const std::vector<data::SourceFile> files = fixture_files();
+    KD_CHECK(catalogue.load(files).empty(), "proof: the fixture catalogue has problems");
+    demo::CrowdWorld crowd(20'260'105, catalogue, 40);
+    num::Digest digest;
+    for (time::Seconds day = 1; day <= 30; ++day) {
+        crowd.world().run_to(day * time::kDay);
+        digest.u64(crowd.world().digests().whole);
+    }
+    digest.u64(crowd.world().events_run());
+    return digest.hex();
+}
+
 constexpr std::array kSuites = {
     Suite{"smoke", "arithmetic, square roots and a sum in fixed pieces", &smoke},
     Suite{"maths", "every maths function on its stream of inputs and its hard cases", &maths},
     Suite{"chance", "a million keyed draws of every kind", &chance_draws},
     Suite{"torus", "ways, distances and directions between places on the world", &torus},
     Suite{"units", "quantities and chances written as text, read exactly", &units},
+    Suite{"world", "a crowd of 1,000 markers walking, resting and sleeping for 30 game days", &world},
 };
 
 }  // namespace

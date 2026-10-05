@@ -177,4 +177,13 @@ if [ ! -s "$KD_TOMLPP/toml.hpp" ]; then
 fi
 fetch https://raw.githubusercontent.com/marzer/tomlplusplus/1e8829b793b66ad17011732a146b8077d379b011/toml.hpp \
   "$KD_TOMLPP/toml.hpp" 2089217190195e12e9a4a454bc94cfb95b58a07ff927f1505d068188c2f864df
+
+# 13. EnTT v4.0.0's single header, which holds the world's entities behind sim/ecs (A3.2, research 18), checked
+#     against its SHA-256
+if [ ! -s "$KD_ENTT/entt.hpp" ]; then
+  echo "Setup: installing EnTT 4.0.0"
+  mkdir -p "$KD_ENTT"
+fi
+fetch https://raw.githubusercontent.com/skypjack/entt/v4.0.0/single_include/entt/entt.hpp "$KD_ENTT/entt.hpp" \
+  eedcb83fedffe640334ef69a0647625a186cf1daeb333b21b0a1445f01e89b6c
 exit 0

@@ -7,6 +7,7 @@ option(KD_SIM_TESTS "Build the tests and the kindling tool" ON)
 set(KD_XXHASH "$ENV{KD_XXHASH}" CACHE PATH "xxHash's folder (tools/setup.sh)")
 set(KD_DOCTEST "$ENV{KD_DOCTEST}" CACHE PATH "doctest's folder (tools/setup.sh)")
 set(KD_TOMLPP "$ENV{KD_TOMLPP}" CACHE PATH "toml++'s folder (tools/setup.sh)")
+set(KD_ENTT "$ENV{KD_ENTT}" CACHE PATH "EnTT's folder (tools/setup.sh)")
 
 include(cmake/kindling.cmake)
 find_package(Threads REQUIRED)
@@ -28,21 +29,27 @@ add_library(kd_sim STATIC
     src/kd/data/toml.cpp
     src/kd/data/units.cpp
     src/kd/data/walkers.cpp
+    src/kd/event/queue.cpp
     src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp
+    src/kd/demo/crowd_world.cpp
     src/kd/num/angle.cpp
     src/kd/num/convert.cpp
     src/kd/num/digest.cpp
     src/kd/num/fenv.cpp
     src/kd/num/maths.cpp
+    src/kd/proof/fixture.cpp
     src/kd/proof/maths_cases.cpp
     src/kd/proof/proof.cpp
     src/kd/run/runner.cpp
     src/kd/run/thread.cpp
     src/kd/run/workers.cpp
     src/kd/time/calendar.cpp
-    src/kd/time/duration.cpp)
+    src/kd/time/duration.cpp
+    src/kd/world/parts.cpp
+    src/kd/world/world.cpp)
 target_include_directories(kd_sim PUBLIC src)
+target_include_directories(kd_sim SYSTEM PUBLIC "${KD_ENTT}")
 target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" "${KD_TOMLPP}" thirdparty/core-math)
 target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math)
 kindling_rules(kd_sim)
@@ -64,7 +71,8 @@ if(KD_SIM_TESTS)
         tests/num_test.cpp
         tests/numbers_test.cpp
         tests/run_test.cpp
-        tests/runner_test.cpp)
+        tests/runner_test.cpp
+        tests/world_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
     target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)
     target_link_libraries(kd_sim_tests PRIVATE kd_sim)

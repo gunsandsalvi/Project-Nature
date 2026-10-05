@@ -170,6 +170,8 @@ The same library runs scenes and whole worlds headless in the cloud, under the s
   - Plants and far animals stay as counts on world cells, outside EnTT (`WLD-32`).
 - **Every entity has an id that is never reused:** 64 bits from one world counter, its top four bits naming its family.
   Components, events, history, memories and saves hold only these ids; EnTT's own handles live within one step and are never stored.
+  - Each registry maps id to handle in one list per family, each kept in id order by appending, so a lookup is a binary search and a walk in id order needs no sort; an ended entity leaves a gap, swept out once a family's gaps pass a quarter of its live entries.
+  - The world's own owners of events, its layers and your commands, have ids below every entity's (family none).
   The dead leave their entity but keep their record in the history (`PRN-15`).
 - **A thing's kind is its catalogue entry,** and its parts are the components the entry lists, as RimWorld's Defs and Comps; each entry becomes a ready recipe at load.
   There is no class hierarchy of kinds, which Dwarf Fortress regretted.
@@ -197,6 +199,8 @@ The same library runs scenes and whole worlds headless in the cloud, under the s
   A save holds only the live events, sorted.
 - **Activities** have a start, an end and a way (where the doer is at any moment, from its start, end and pace), so they can be seen, met or attacked on the way (`TIM-17`).
   An interruption ends one early by the kind's own rule of what it keeps: a walker stands where they got to, what builds up gives its share, work stays in the thing, a single act does nothing.
+- **The world runs every event before its goal,** and its frontier is then the goal: every event before the frontier is done, none at or after it, so a digest taken at a frontier, such as each midnight, is the same however the run was cut into batches.
+  The world's rules live in systems, each handling the events of one family of entity or of one of the world's own owners.
 - **Events happen one at a time in key order, and that one-thread run is the reference.** Every faster way must give the same bits (research 18):
   1. Game time is cut into windows on a fixed grid, also cut at the world's layer events and wherever the simulation stops; since cuts cannot change results, cutting is free.
   2. At each window's start, owners that could touch each other or the same thing within the window join one island: those within twice the longest reach plus twice the fastest pace times the window, or sharing a store, a household, a thing or a shared activity.
@@ -684,6 +688,7 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
 - **The APK:** 25 MB from Godot itself, 38 MB with every prototype; within the 50 MB limit for files committed to the repository.
 - **The foundations,** from research 18 in the cloud, each measured again on your phone by M1's benchmark:
   - the event queue: 1–4% of one core at `TIM-07`'s speeds;
+    measured in α1.3a, the crowd of 10,000 markers ran 60 game days, 14.4 million events, in 8.1 s on one cloud core: about 0.56 µs an event with its handler and a digest of the whole state each game day;
   - drawing 10,000 walkers: about 0.26 ms of the main thread a frame (filling and uploading their buffer);
   - loading a launch-size catalogue: 25–33 ms;
   - a save: a pause of tens of milliseconds to copy the state at an event, the rest on other threads;

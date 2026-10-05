@@ -36,7 +36,9 @@ inline constexpr const char* kBase = "id = \"base\"\nversion = 1\nabout = \"the 
 inline constexpr const char* kDemo =
     "id = \"demo\"\nversion = 3\nabout = \"the demonstration\"\nrequires = [\"base\"]\n";
 
-inline constexpr const char* kCrowd = "camps = 400\nper_camp = 25\ngreeting = { life = \"1 min\", game = \"1 min\" }\n";
+inline constexpr const char* kCrowd =
+    "camps = 400\nper_camp = 25\narea = \"20 km\"\nwander = \"1 km\"\ndawn = \"6 h\"\ndusk = \"20 h\"\n"
+    "greeting = { life = \"1 min\", game = \"1 min\" }\n";
 
 inline constexpr const char* kOrders =
     "[[order]]\n"
