@@ -4,9 +4,9 @@ with the install button at its top, published at the note's one URL.
 
     python3 tools/note-page.py [dist/NOTE.md] [dist/note/index.html]
 
-The note is plain Markdown: headings, paragraphs, lists, links, `code`, **bold**, and pictures on lines of their
-own (`![caption](pictures/portrait.png)`, a path from the note's folder), which the page carries inside it. The
-page follows the
+The note is plain Markdown: headings, paragraphs, lists, links, `code`, **bold**, and pictures and videos on lines of
+their own (`![caption](pictures/portrait.png)`, `![caption](reels/reel.mp4)`, a path from the note's folder), which
+the page carries inside it, a video with its controls to play it there. The page follows the
 artifact host's page rules: a short title, colour tokens for light and dark themes, a 16 px gutter, no sideways
 scrolling at phone width, and no document skeleton of its own (the host wraps it).
 """
@@ -54,12 +54,14 @@ STYLE = """<style>
   figure { margin: 16px 0; }
   figure img { display: block; max-width: 100%; max-height: 80vh; height: auto; border-radius: 8px;
                border: 1px solid var(--line); image-rendering: pixelated; }
+  figure video { display: block; max-width: 100%; max-height: 80vh; border-radius: 8px;
+                 border: 1px solid var(--line); background: #000; }
   figcaption { color: var(--dim); font-size: 0.9rem; margin-top: 6px; }
 </style>"""
 
 INLINE = re.compile(r"`([^`]+)`|\*\*(.+?)\*\*|\[([^\]]+)\]\((https?://[^)\s]+)\)|(https?://[^\s<)]+)")
 URL = re.compile(r"https?://[^\s<)\]]+")
-PICTURE = re.compile(r"!\[([^\]]*)\]\(([^)\s]+\.png)\)")
+PICTURE = re.compile(r"!\[([^\]]*)\]\(([^)\s]+\.(?:png|mp4))\)")
 
 
 def inline(text):
@@ -81,14 +83,17 @@ def inline(text):
 
 
 def picture(caption, path, base):
-    """A picture as a figure carrying its PNG inside it, so the page is one file."""
+    """A picture, or a video with its controls, as a figure carrying its file inside it, so the page is one file."""
     with open(os.path.join(base, path), "rb") as f:
         data = base64.b64encode(f.read()).decode("ascii")
     alt = html.escape(caption, quote=True)
-    return (
-        f'<figure><img src="data:image/png;base64,{data}" alt="{alt}">'
-        f"<figcaption>{html.escape(caption)}</figcaption></figure>"
-    )
+    if path.endswith(".mp4"):
+        shown = (
+            f'<video controls playsinline preload="metadata" src="data:video/mp4;base64,{data}" title="{alt}"></video>'
+        )
+    else:
+        shown = f'<img src="data:image/png;base64,{data}" alt="{alt}">'
+    return f"<figure>{shown}<figcaption>{html.escape(caption)}</figcaption></figure>"
 
 
 def blocks(md, base):

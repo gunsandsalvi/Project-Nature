@@ -81,6 +81,17 @@ class NotePage(unittest.TestCase):
         )
         self.assertIn("<figcaption>The self-check</figcaption>", out)
 
+    # checks: PRC-11, SND-12
+    def test_a_reel_travels_inside_the_page_with_its_controls(self):
+        with tempfile.TemporaryDirectory() as base:
+            os.makedirs(os.path.join(base, "reels"))
+            with open(os.path.join(base, "reels", "one.mp4"), "wb") as f:
+                f.write(b"not really a video")
+            out = note_page.page(SAMPLE + "\n![The reel](reels/one.mp4)\n", base)
+        data = base64.b64encode(b"not really a video").decode()
+        self.assertIn(f'<video controls playsinline preload="metadata" src="data:video/mp4;base64,{data}"', out)
+        self.assertIn("<figcaption>The reel</figcaption>", out)
+
     # checks: PRC-11
     def test_apk_link_required(self):
         with self.assertRaises(ValueError):

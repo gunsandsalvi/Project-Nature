@@ -17,7 +17,7 @@ const PROTOTYPES: Array[Array] = [
 	["P8 The zoom", "α0.5b", "res://zoom/zoom.gd"],
 	["P12 The interface", "α0.7a", "res://interface/interface.gd"],
 	["P13 The writer", "α0.7b"],
-	["P14 Sound", "α0.7c"],
+	["P14 Sound", "α0.7c", "res://sound/sound.gd"],
 ]
 ## The self-check's rows: the fact's key, and its label.
 const ROWS: Array[Array] = [
@@ -120,11 +120,20 @@ func _ready() -> void:
 	show_facts(facts())
 	resized.connect(_layout)
 	_layout()
-	# "look", "scene", "kit", "reports", "samebits", "minds", "worldgen", "zoom" or "interface" on the
-	# command line opens that screen at once, for the cloud's pictures and runs
+	# "look", "scene", "kit", "reports", "samebits", "minds", "worldgen", "zoom", "interface" or
+	# "sound" on the command line opens that screen at once, for the cloud's pictures and runs
 	var args := OS.get_cmdline_user_args()
 	for screen: String in [
-		"look", "scene", "kit", "reports", "samebits", "minds", "worldgen", "zoom", "interface"
+		"look",
+		"scene",
+		"kit",
+		"reports",
+		"samebits",
+		"minds",
+		"worldgen",
+		"zoom",
+		"interface",
+		"sound"
 	]:
 		if screen in args:
 			open_screen(
@@ -138,6 +147,7 @@ func _ready() -> void:
 					"worldgen": "res://worldgen/worldgen.gd",
 					"zoom": "res://zoom/zoom.gd",
 					"interface": "res://interface/interface.gd",
+					"sound": "res://sound/sound.gd",
 				}[screen]
 			)
 			break

@@ -649,6 +649,14 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - A voice manager keeps `SND-01`'s 32 voices, blending the quietest into its kind's hum when a share is full (`SND-07`).
 - The murmur in the people's language, shifted for age, build and feeling (`SND-03`); the speaker's missing bass restored by harmonics, off with headphones.
 - *To prove (P14):* a camp with 32 voices, distance filters, a cave reverb and the murmur, without breaks.
+- *Built in P14* (`prototypes/sound`, `prototypes/app/sound`), its verdict on your phone to come: the art book's close camp as a map you walk on, everything in it sounding from its place.
+  - **Base sounds made by code at load:** strike, scrape, chop, step, drum, the stream, rain and thunder from shaped noise and ringing modes, about 0.3 s for 78 of them in the cloud, so a second or so on the phone, spread over frames; birds, a dog and a wolf as stand-ins for their recordings. Each `SND-06` rule is checked by test, and 20 flint strikes in a row all differ; every play also varies its pitch and loudness a little.
+  - **Live synthesis on the audio thread:** the fire and the wind are audio streams of our own (`AudioStreamPlaybackResampled`), following their heat and speed, at about 0.04% of a core each in the cloud.
+  - **The murmur from a bank:** 60 syllables for each base voice, rendered in the cloud by an open speech engine (Piper, voices in the public domain and CC0, stand-ins for the one you will choose), each voice pulse marked by zero-frequency filtering; 1.8 MB for both voices. The phone strings them into phrases and moves each pulse's grain to a new pitch, its formants shifted by squeezing it (TD-PSOLA), on worker threads: about 1.5 ms for a 1.5 s phrase in the cloud.
+  - **Space with Godot's own tools:** each sound a 3D player, inverse-distance with its own low-pass; an area with reverb over the rock shelter; the cliff's muffling a stand-in for the simulation's line test. Godot's 3D players reckon their volume for each camera, so a world with only a listener is silent: the sound world carries a camera that draws nothing.
+  - **The voice manager** holds `SND-01`'s shares, a hum taking a place in its share when it starts; asked for more than the cap, the camp plays 32 at most, 31.5 on average.
+  - **A limiter last on the master bus**, so 32 sounds never clip, and after it **a probe** that measures the audio thread's own time for each block it mixes: with 32 sounds in the cloud, 2.7% of each block's time on average and 9% at worst.
+  - *To prove on your phone:* the audio thread's share with 32 sounds and no breaks, and the sound itself, by ear.
 
 ## A17. Testing and checks (research 16)
 

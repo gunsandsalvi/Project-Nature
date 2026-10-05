@@ -1,0 +1,3 @@
+{
+	"enabled_classes": ["RefCounted", "Resource", "OS", "AudioFrame", "AudioStream", "AudioStreamPlayback", "AudioStreamPlaybackResampled", "AudioEffect", "AudioEffectInstance"]
+}

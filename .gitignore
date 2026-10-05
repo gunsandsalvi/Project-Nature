@@ -17,3 +17,5 @@ __pycache__/
 
 # P4's cache of runs done, so a restart of pace.py loses nothing
 /prototypes/discovery/.runs/
+# tools/reel.sh's passing window size
+override.cfg

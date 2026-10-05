@@ -1,0 +1,4 @@
+# P14's tests (IMPLEMENTATION α0.7c): the analyzer reads doctest's own strings as leaked when a test calls into the
+# library, a false alarm inside doctest's header; every other rule holds.
+InheritParentConfig: true
+Checks: -clang-analyzer-cplusplus.NewDeleteLeaks

@@ -28,6 +28,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P10 Culture from causes (α0.6b) passes in the cloud: in 20 worlds of three bands run 100 years, a custom came inside its window in all 20, a shared spirit in 20, a rite a band keeps in 15 and a band split in 17, each from the events behind it (A13); `CUL-33` now gives customs a window of a year, with your OK.
 - P11 The director (α0.6c) passes in the cloud: watching 20 test worlds of 100 years from the globe, it slowed time 9.5 times an hour within its budget, caught all 208 named discoveries and every death of those followed, and every world ended identical with it on and off (A14). Signs, as these worlds have them, rarely come true, and with 20 years between ages fire could never begin one, so ages now have no set length (`PRE-39`), with your OK.
 - P12 The interface (α0.7a) is built for your phone and passes its tests in the cloud: a stand-in world under the interface the art book's plates show, drawn crisp in art pixels; one gesture reader, none of whose gestures is read as another; every control 48 dp and in a thumb's reach; and the card and the book on five grounds for you to choose from (A15).
+- P14 Sound (α0.7c) is built for your phone and passes its tests in the cloud: the art book's close camp as a map you walk on, every sound from its place through Godot's 3D players, with the shelter's echo and the cliff's muffling; base sounds made by code, the fire and wind made live, and talk strung from a bank of syllables rendered in the cloud, shifted for age and feeling; 32 sounds at most in `SND-01`'s shares, the rest in hums; and a reel for your ears (A16). P13 The writer waits, as you said on 5 October.
 
 ## How to use this plan
 
@@ -147,7 +148,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | α0.6c | P11 The director | M0 | 3 | Passes in the cloud; its report in the app (α0.6c) |
 | α0.7a | P12 The interface | M0 | 4 | Built and passing its tests in the cloud; for your look and feel on your phone (α0.7a) |
 | α0.7b | P13 The writer | M0 | 4 | Not started |
-| α0.7c | P14 Sound | M0 | 4 | Not started |
+| α0.7c | P14 Sound | M0 | 4 | Built and passing its tests in the cloud; for your ears and Measure on your phone (α0.7c) |
 | α0.8a | What the prototypes found | M0 | 4 | Not started |
 | The slice | The vertical slice | M0 | detailed in α0.8a | Not started |
 | M1 to M10 | Outlines below | M1 to M10 | | Detailed when each comes next |

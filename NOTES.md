@@ -99,3 +99,18 @@ What I take from it, for your OK at α0.8a:
 - **One source for the fonts:** the glyphs are designed once, in the art book's `font.js`, and the app's fonts are built from them.
 - **Text is small but whole:** the plain font's capitals are 7 art pixels, about 1.4 mm on your phone, near the smallest text Android suggests; your verdict decides whether reading text goes up to twice.
 - **Sideways, panels are short:** a card in landscape scrolls, and a line can show cut at its foot; production lays landscape panels out for their height.
+
+## Sound
+
+### What P14 taught (me, 5 October 2026)
+
+- **A natural voice renders the bank well in the cloud:** an open speech engine (Piper) says every syllable of the stand-in languages, 60 for each voice, in about 15 seconds; the bank is 1.8 MB for two voices. The voice you choose by ear at the game stage must have a licence that allows shipping: these two are in the public domain and CC0.
+- **The engine's own timing is no guide to where a vowel begins:** it puts it up to a tenth of a second late; where the syllable first grows to half its loudest is.
+- **Voice pulses are marked well by zero-frequency filtering** on a clean voice; production keeps the marks with the bank, made once in the cloud.
+- **Shifting the bank's syllables on the phone is cheap:** about 1.5 ms for a phrase of 1.5 s in the cloud, made on a worker thread; how far a woman's voice can be raised into a child's before it sounds wrong is for your ears.
+- **Godot's 3D players are silent without a camera:** they reckon their volume for each camera in the world, and an audio listener alone is not enough. A sound world needs a camera, even one that draws nothing.
+- **A godot-cpp build profile must name `AudioFrame`:** otherwise the audio callbacks that take it are dropped from the build without a word, and an audio stream or effect of our own cannot be written.
+- **Short sounds rarely fill the cap:** a camp's knaps, scrapes and steps last a tenth of a second to half of one, so the stand-in camp's 32 makers, all at once, filled at most 23 of the 32 places; the cap is reached with music, thunder and the hums. Measure asks for more than the cap on purpose.
+- **A limiter belongs at the end of the master bus:** 32 sounds at once add up past full scale.
+- **The reel can be made in the cloud** by Godot's Movie Maker, picture and sound, at a fixed frame rate; it records at the project's window size, which a passing `override.cfg` sets.
+
