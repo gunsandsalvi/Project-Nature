@@ -120,6 +120,10 @@ look_fire_in_sun={
 "type": "float",
 "value": 1.0
 }
+look_fire_flicker={
+"type": "vec4",
+"value": Vector4(1, 1, 1, 1)
+}
 look_sky_cover={
 "type": "float",
 "value": 0.0

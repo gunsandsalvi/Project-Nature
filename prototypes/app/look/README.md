@@ -16,7 +16,7 @@ beside the art book), `PLT-04` and `VIS-14` (measured on the phone).
   map of heights drawn once from above.
 - **The switches** on the screen: the hour (noon, dusk, night); the outline method (none; A, normals rebuilt from depth;
   B, depth only; C, a second camera drawing normals and depths; D, enlarged back faces); the mirrored water; and the
-  crawl fix for free turns and zooms (free; whole steps of 15° and 1.25 times; easing to rest on those steps;
+  crawl fix for free turns and zooms (free; whole steps of 5° and 1.25 times; easing to rest on those steps;
   snapping to the grid only at rest).
 - **Gestures:** one finger pans, two turn and pinch. They arrive as the screen's own GUI input, since a control
   covering the screen takes every touch on it, and the mouse events Android makes from the first finger are ignored.

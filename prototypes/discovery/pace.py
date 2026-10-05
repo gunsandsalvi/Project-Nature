@@ -11,6 +11,7 @@ Pre-production code (research 00): thrown away once its answer is in the archite
 
 import copy
 import hashlib
+import inspect
 import json
 import math
 import re
@@ -43,7 +44,7 @@ FIRE_WINDOW = (2.0, 15.0)
 FLAKE_AIM = 1.0
 FIRE_AIM = 9.0
 # the runs done so far, by what each was asked: a run of the program reuses them, so a restart loses nothing
-# (the folder is ignored by git)
+# (the folder is ignored by git); they hold only for the model that made them, so a change to it starts afresh
 CACHE = d.HERE / ".runs" / "cache.json"
 _cache = None
 # the values a change is tried on (MND-11's list of what tunes the pace)
@@ -85,6 +86,21 @@ def one(job):
     }
 
 
+def model():
+    """The model's version: a hash of the band's code and of the runs' own, which the cache's runs hold for."""
+    code = (d.HERE / "discovery.py").read_text() + inspect.getsource(one) + inspect.getsource(world)
+    return hashlib.sha1(code.encode()).hexdigest()
+
+
+def load_cache():
+    """The runs done before by this same model, or none."""
+    if CACHE.exists():
+        data = json.loads(CACHE.read_text())
+        if data.get("model") == model():
+            return data["runs"]
+    return {}
+
+
 def mapped(fn, jobs, pool):
     """Each job's result, from the pool or here, and from the cache of runs done before when it is on (main)."""
     if _cache is None:
@@ -98,7 +114,7 @@ def mapped(fn, jobs, pool):
         CACHE.parent.mkdir(exist_ok=True)
         # written whole beside it, then renamed over it, so a run cut short mid-write leaves the last cache intact
         part = CACHE.with_suffix(".part")
-        part.write_text(json.dumps(_cache))
+        part.write_text(json.dumps({"model": model(), "runs": _cache}))
         part.replace(CACHE)
     return [_cache[k] for k in keys]
 
@@ -285,7 +301,7 @@ def sensitivity(tuning, pool):
 
 def main():
     global _cache
-    _cache = json.loads(CACHE.read_text()) if CACHE.exists() else {}
+    _cache = load_cache()
     tuning = d.load(TUNING)
     # three workers, leaving a core for the rest of the session's work
     with Pool(3) as pool:

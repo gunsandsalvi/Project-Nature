@@ -276,7 +276,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 - `VIS-03` **The arc of a world** *(Decided)*
   - **What:** Every world starts in caves (`SCP-01`).
-    Sharp flakes come in the first year or two and fire within about 15 years; pottery, dogs, herds, villages and fields follow over the next two centuries, and first copper about two centuries in (`TIM-19`).
+    Sharp flakes come in the first three years and fire within about 15; pottery, dogs, herds, villages and fields follow over the next two centuries, and first copper about two centuries in (`TIM-19`).
     After that, history goes on within the launch catalogue, which later layers, such as bronze or writing, can extend (`PRN-14`).
   - **No scripted eras:** each step happens only when the world's rules bring it about (`PRN-17`), so the order differs between worlds, and stalls, lost crafts and peoples dying out are all valid histories.
   - **The phone's limit:** nothing caps births (`BIO-04`); past about 2,000 people time slows rather than detail being cut, and a world nearing the phone's memory limit pauses with a notice (`MND-15`).
@@ -2474,7 +2474,7 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 - `RES-03` **Sharp-stone pass rule** *(Decided)*
   - **Discovery:** flakes are discovered within 5 years in at least 16 of 20 runs.
     - **Proposed change:** flakes are discovered within 3 years in at least 16 of 20 runs.
-      Why: `TIM-19`'s window for flakes was halved to Years 1–3 for faster discoveries, at your word on 4 October 2026, so the test's bar would keep pace with it; P4's tuned pace meets both.
+      Why: `TIM-19`'s window for flakes was halved to Years 1–3 for faster discoveries, at your word on 4 October 2026, so the test's bar would keep pace with it; the tuned pace meets both.
   - **Spread:** in those runs, at least 3 in 4 of the band's adults can make flakes within 2 years of the first.
   - **Routes:** at least two routes of discovery appear across the runs (`MND-11`).
   - **Control:** without stone that flakes, no run ever makes a flake (`RCK-01`).

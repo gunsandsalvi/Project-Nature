@@ -58,9 +58,12 @@ class FireAtNight(unittest.TestCase):
 
     # checks: PRE-30 MAT-18
     def test_firelight_warms_the_ground_round_the_fires(self):
-        # the night is blue-green; firelit ground leans warm, red above blue, over a wide pool
-        warm = share(self.clear, lambda r, g, b: (r > b + 25) & (g > 70))
+        # the night is blue-green; firelit ground is amber, red above green above blue, over a wide pool, and not
+        # olive, where green matches red (α0.3's review)
+        warm = share(self.clear, lambda r, g, b: (r > g + 12) & (g > b + 12) & (g > 70))
+        olive = share(self.clear, lambda r, g, b: (abs(r - g) < 12) & (g > b + 25) & (g > 70))
         self.assertGreater(warm, 0.06)
+        self.assertLess(olive, 0.02)
 
     # checks: PRE-30
     def test_smoke_greys_what_stands_behind_it(self):

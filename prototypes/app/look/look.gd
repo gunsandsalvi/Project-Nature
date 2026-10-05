@@ -85,6 +85,7 @@ var _flames := []
 var _flicker := PackedFloat32Array([1.0, 1.0, 1.0, 1.0])
 var _flame_clock := 0.0
 var _flame_step := 0
+## The flicker's own sequence, seeded, so a screen flickers the same way each time it opens.
 var _rng := RandomNumberGenerator.new()
 ## The smokes' materials, for the hour's step of their ramp, and their boxes.
 var _smokes: Array[ShaderMaterial] = []
@@ -118,6 +119,7 @@ var _clock := 0.0
 
 
 func _ready() -> void:
+	_rng.seed = 7
 	var scene := _load_scene()
 	painter = scene.get_meta("painter")
 	var c: Dictionary = painter.camera
@@ -561,7 +563,7 @@ func fire_powers() -> Vector4:
 	if fire_light != "ours":
 		return powers
 	for i in _fires.size():
-		powers[i] = float(_fires[i][2]) * _burning() * _flicker[i]
+		powers[i] = float(_fires[i][2]) * _burning()
 	return powers
 
 
@@ -576,6 +578,9 @@ func _light_fires() -> void:
 	var set_global := RenderingServer.global_shader_parameter_set
 	set_global.call("look_fires", lit)
 	set_global.call("look_fire_powers", fire_powers())
+	set_global.call(
+		"look_fire_flicker", Vector4(_flicker[0], _flicker[1], _flicker[2], _flicker[3])
+	)
 
 
 ## How high the fires burn against the daylight: low at noon, higher at dusk, full at night.
@@ -583,8 +588,8 @@ func _burning() -> float:
 	return {"noon": 0.35, "dusk": 0.6}.get(hour, 1.0)
 
 
-## The way to the sun, at least MIN_SUN degrees up: the art book's dusk sun, 5° up, threw a tree's
-## shadow ten times its height, in stripes across the land; this one throws it about four times.
+## The way to the sun, at least MIN_SUN degrees up. At the art book's own 5°, which you kept, it
+## changes nothing; it is where a higher dusk sun would be set.
 static func _high_enough(to_sun: Vector3) -> Vector3:
 	var flat := Vector2(to_sun.x, to_sun.z).normalized()
 	var up := maxf(asin(clampf(to_sun.normalized().y, -1.0, 1.0)), deg_to_rad(MIN_SUN))

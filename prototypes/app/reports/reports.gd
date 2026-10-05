@@ -1,7 +1,7 @@
 ## The Reports page (IMPLEMENTATION α0.3a, RES-06): the prototypes that run in the cloud, each with
 ## its question, its answer and its charts, drawn from the numbers the cloud wrote (reports/*.json),
-## P4's first; the later cloud prototypes add theirs. Pre-production code (research 00): the app's
-## README names the items it is about.
+## P4's first; the later cloud prototypes add theirs. Pre-production code (research 00) for RES-06;
+## each prototype's README names the items its report is about.
 extends Control
 
 signal closed
@@ -136,11 +136,18 @@ func _p4(r: Dictionary) -> void:
 		14
 	)
 	var tuned: Dictionary = (r.sensitivity as Array)[0]["1.0"]
-	for step: Array in [["flake", "Flakes", 5.0, 1.0], ["fire", "Fire", fire_end, 5.0]]:
+	for step: Array in [
+		["flake", "Flakes", 5.0, 1.0, "40 runs", flake_window],
+		["fire", "Fire", fire_end, 5.0, "40 worlds", fire_window]
+	]:
 		_text(
 			(
-				"%s: the median year with each value doubled and halved, over 40 runs (orange: as tuned)"
-				% step[1]
+				(
+					"%s: the median year with each value doubled and halved, over %s (orange: as "
+					+ "tuned; shaded: the window). The knife's edge is judged on counts at a "
+					+ "quarter's change, below."
+				)
+				% [step[1], step[4]]
 			),
 			DIM,
 			13
@@ -151,6 +158,7 @@ func _p4(r: Dictionary) -> void:
 				rows.append([k.knob, k["2.0"][step[0] + "_median"], k["0.5"][step[0] + "_median"]])
 		c = Chart.new("ranges", rows, step[2], step[3])
 		c.middle = tuned[step[0] + "_median"]
+		c.window = step[5]
 		_page.add_child(c)
 	var edge: Array = r.knife_edge
 	_text(

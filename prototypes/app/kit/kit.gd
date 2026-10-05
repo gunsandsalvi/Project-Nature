@@ -74,7 +74,7 @@ func _ready() -> void:
 	# "close" on the command line: the figures up close, two zoom steps in, for the cloud's pictures,
 	# low in the frame so the camp behind them fills it
 	if "close" in OS.get_cmdline_user_args():
-		target = figures + Vector3(0.0, 0.0, -12.0)
+		target = figures + Basis(Vector3.UP, deg_to_rad(yaw)) * Vector3(0.0, 0.0, -12.0)
 		mpp = _rest_mpp / pow(ZOOM_STEP, 2.0)
 		_apply_camera()
 	_set_hour(hour)

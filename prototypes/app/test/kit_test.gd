@@ -180,10 +180,15 @@ func test_flames_change_and_flicker_about_ten_times_a_second() -> void:
 	screen.call("_process", 0.06)
 	for node: MeshInstance3D in flames.nodes:
 		assert_object(node.mesh).is_not_same(before)
+	var seen := {}
 	for i in 20:
 		screen.call("_step_flames")
-		var power: float = (screen.call("fire_powers") as Vector4).x
-		assert_float(power).is_between(base * 0.82, base)
+		var flicker: float = (screen.get("_flicker") as PackedFloat32Array)[0]
+		assert_float(flicker).is_between(0.82, 1.0)
+		seen[snappedf(flicker, 0.001)] = true
+		# the pool's rim takes a steady power: only near the flames does the flicker show
+		assert_float((screen.call("fire_powers") as Vector4).x).is_equal_approx(base, 1e-6)
+	assert_int(seen.size()).is_greater(10)
 
 
 # checks: PRE-30

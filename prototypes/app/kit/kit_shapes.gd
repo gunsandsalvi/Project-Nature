@@ -164,8 +164,9 @@ static func _lean_to(m: Shape, e: Dictionary, row: float, rows: Dictionary, pat:
 	m.pole(
 		Vector3(-w - 0.1, h, 0.0), Vector3(w + 0.1, h, 0.0), 0.05, rows.wood, 0.0, Shape.PAT.bark
 	)
-	var n := Vector3(0.0, d, h).normalized()
+	# the roof's outer face looks up and back, square to its slope down from the ridge
 	var down := Vector3(0.0, -h, -d)
+	var n := Vector3(0.0, d, -h).normalized()
 	var ridge := Vector3(0.0, h, 0.0)
 	# the underside, a hand's breadth below the courses, so a fire's light passes beneath the roof
 	# (look.gdshaderinc's fire_shadow)
@@ -427,9 +428,10 @@ static func _item(
 	var f := Shape.CREATURE
 	match item:
 		"bundle":
+			# on the back, behind the head, so the head and face stay clear of it
 			m.xf = waist
-			var at := Vector3(0.2, torso + 0.2, -0.06)
-			m.box(at, Vector3(0.62, 0.42, 0.42), rows.hide, f, Shape.PAT.hide)
+			var at := Vector3(0.0, torso + 0.22, -0.37)
+			m.box(at, Vector3(0.56, 0.44, 0.4), rows.hide, f, Shape.PAT.hide)
 		"stone":
 			m.xf = hands[0]
 			m.ball(Vector3.ZERO, 0.07, rows.flint, f, false)

@@ -28,6 +28,9 @@ uniform float strength = 1.0;
 uniform float day = 0.0;
 
 float thickness(vec3 x) {
+	// thinning to nothing within half a metre of the box's faces, so its straight edges never show
+	vec3 in_box = min(x - box_min, box_max - x);
+	float fade = smoothstep(0.0, 0.5, min(in_box.x, min(in_box.y, in_box.z)));
 	float d = 0.0;
 	for (int i = 0; i < NODES; i++) {
 		if (i >= node_count) {
@@ -41,10 +44,11 @@ float thickness(vec3 x) {
 	}
 	float curl = vnoise3(x * 1.4 + vec3(0.0, -TIME * 0.8, TIME * 0.15));
 	float n = mix(curl, smoothstep(0.35, 0.65, curl), day);
-	return clamp(d * (0.5 + 0.9 * n) - 0.1 - 0.3 * day, 0.0, 1.5);
+	return clamp(d * (0.5 + 0.9 * n) - 0.1 - 0.3 * day, 0.0, 1.5) * fade;
 }
 
-// The fires' glow at a point of the smoke, without facing: the fire term's reach and power.
+// The fires' glow at a point of the smoke, without facing: the fire term's reach and power; by day the sun
+// drowns it, as it does a fire's light on sunlit ground.
 float glow(vec3 x) {
 	float f = 0.0;
 	for (int i = 0; i < 4; i++) {
@@ -54,7 +58,7 @@ float glow(vec3 x) {
 		float att = clamp(1.0 - length(look_fires[i].xyz - x) / (look_fires[i].w * 0.8), 0.0, 1.0);
 		f += look_fire_powers[i] * att * att;
 	}
-	return f;
+	return f * mix(1.0, look_fire_in_sun, day);
 }
 
 void fragment() {
@@ -84,15 +88,17 @@ void fragment() {
 		lit += (1.0 - acc) * a * glow(x);
 		acc += (1.0 - acc) * a;
 	}
-	// a few steps of thickness, so the smoke has clean edges like everything else
-	float a = floor(acc * 5.0 + 0.4) / 5.0 * 0.85;
+	// a few steps of thickness, so the smoke has clean edges like everything else; by day it is nearly opaque
+	// where thick, so it reads as smoke rather than tinted glass
+	float a = floor(acc * 5.0 + 0.4) / 5.0 * mix(0.85, 0.95, day);
 	if (a <= 0.0) {
 		discard;
 	}
 	float f = lit / max(acc, 1e-4);
-	float s = clamp(floor(tone + f * 4.0 + 0.5), 0.0, 6.0);
-	// firelit from below; by day its thin parts take the sun's tint, so it reads grey rather than blue
-	float cls = f > 0.36 ? 4.0 : (f > 0.15 ? 2.0 : (day > 0.5 && acc < 0.7 ? 1.0 : 0.0));
+	// by day a step lighter, a warm light grey in the sun's tint, never the shade's blue
+	float s = clamp(floor(tone + day + f * 4.0 + 0.5), 0.0, 6.0);
+	// firelit from below
+	float cls = f > 0.36 ? 4.0 : (f > 0.15 ? 2.0 : (day > 0.5 ? 1.0 : 0.0));
 	vec3 c = grade(pal(smoke_row, s), cls);
 	vec3 smoke = hazed(c, t0);
 	// Godot blends in linear light; the blend is solved for the painter's mix over the picture's stored colours

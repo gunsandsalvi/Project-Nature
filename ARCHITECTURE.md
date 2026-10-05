@@ -243,19 +243,20 @@ Following Box2D and Factorio (research 03):
      Openness to the sky comes from a height map drawn once from above.
      In the cloud, 87% of the close camp's pixels at noon and 76% at dusk come within 3 levels of 255 of the art book's; most of the rest are shadows and edges a pixel apart.
 5. **Fire** (`MAT-18`): a warm, flickering light as bright as its heat.
-   - *Built in α0.2c's fixes:* flames are the art book's own flame pictures from the atlas, three or five standing over a fire, red at their edges and white-hot at their core, in four frames that change 10 times a second with a few sparks above; each change also sets the fire's light to between 82% and 100% of its power, a flicker.
+   - *Built in α0.2c's fixes:* flames are the art book's own flame pictures from the atlas, three or five standing over a fire, red at their edges and white-hot at their core, in four frames that change 10 times a second with a few sparks above: P3's fires and P2's tent fires have them, while the painted hearth of P1 and P2 keeps the art book's own flame.
+     Each change also sets a fire's flicker, 82% to 100% of its light, felt within about 1 to 2.5 m of its flames only, so the pool's rim holds still (after α0.3's review).
      Firelit colour leans to a warm ramp of the pixel's own brightness, as the painter's does, so lit grass reads amber, not olive; and a fire's light is lost in full sun: by day it shows only in shade, so sunlit ground round a fire takes no pale disc.
    - *Built in P2:* our firelight term, summing up to four fires as the painter does, lights the instanced figures and the tents near each fire; small creatures take a fire's light round their sides too (0.65 of it), so a figure by a fire reads as lit from wherever the camera stands.
      The shaders work in world coordinates, so a moved or instanced shape gets its fire, sky and patterns where it stands, not where it was built.
    - **Camp zoom** puts the camera 1 km back, past the nearest ground in view, and stretches the sun's shadows, the haze and the outline depths to the view's 1.2 km of ground; beyond the sky's height map, the sky is open.
-     *After the review (α0.2c's fixes):* the forest stands in patches on a meadow, as the art book's camp zoom has it, the meadow at the height and in the cover of the camp's ground where it ends, so no square shows round the camp; the crowns are wider and drawn without outlines, which made each tree a dark twig; the ground's small plants, specks of a pixel or less there, are left out; and people are drawn four times their size, as tiny figures (`PRE-28`). The fires' height maps and smoke are off there.
+     *After the review (α0.2c's fixes):* the forest stands in patches on a meadow, as the art book's camp zoom has it, the meadow at the height and in the cover of the camp's ground where it ends, so no square shows round the camp, except at dusk, when the cliff's long shadow stops where the painter's scene ends; the crowns are wider and drawn without outlines, which made each tree a dark twig; the ground's small plants, specks of a pixel or less there, are left out; and people are drawn four times their size, as tiny figures (`PRE-28`). The fires' height maps and smoke are off there.
    Godot stops lighting MultiMesh copies once its per-object light limit is used up, so fires reach figures and huts through a firelight term in our shaders, fed by a short list of nearby fires, if needed (research 17).
    - *Proved in P2:* a camp lit by three fires at night holds 60 frames a second (A18.1).
    - **Shadows from every fire,** as you asked after P2 (*built in α0.2c*): people and things cast a shadow from each fire as well as the sun, and stand in each other's.
      Two maps of the heights round the fires, 48 m across at 512 pixels, are drawn every frame as people move, inside the picture's viewport so they are ready before it: the tops of what stands there, seen from above, and its undersides, the faces turned down, seen from below.
-     For each fire, a point walks the line to the flames every 0.2 m, or in 32 even steps where the line is longer than 6.6 m: where the line runs through something, between its underside and its top, or passes from above a thing to below it between two steps, the point is in that fire's shadow.
+     For each fire, a point walks the line to 1.5 m above the fire's light, 2 m above the fire, in even steps of at least 0.2 m, at most 32: where the line runs through something, between its underside and its top, or passes from above a thing to below it between two steps, the point is in that fire's shadow.
      So a fire under a roof or an overhang lights the ground round it, while a tent, a person or a windbreak stops its light; foliage, and anything more than 2.4 m above the fires, stays out.
-     A flame low by the ground casts the shadow of what stands lower than it, a person's legs, as a real fire does.
+     The line ends above people's heads, so a whole figure casts its shadow from a fire, as you asked.
 6. **Water** (`PRE-26`), the clear water you chose:
    - shallow water shows its bed, deeper water darkens away from the shore in steps, and a thin bright line marks where water meets land or anything standing in it;
    - the sky's colour on the surface, with glints;
@@ -350,7 +351,7 @@ Grass, reeds, flowers and flames are sized in metres, so they keep their true si
 - Plants come from 8 parametric forms, animals from 6 body patterns, and people from one block figure (`PRE-27`).
 - A new thing is a catalogue entry, and its model follows from its parts.
 - *Built in P3,* in GDScript as pre-production code: eleven shared shapes, two plants and a deer, each in two materials, from a catalogue of parameters, built at load in about 23 ms.
-  After your P3 comments and the review, the windbreak is the art book's: poles, a bar and brush packed against them with a ragged top and twigs, where a flat hide read as tiled boards; and the lean-to's roof lies in three overlapping courses of sheets with ragged edges, its ends closed with brush, where a thin slab read as a rack.
+  After your P3 comments and the review, the windbreak is the art book's: poles, a bar and brush packed against them with a ragged top and twigs, where a flat hide read as tiled boards; and the lean-to's roof lies in three overlapping courses of sheets with ragged edges, its ends closed with brush, where a thin slab read as a rack; α0.3's review found the roof's facing turned 86°, which left the courses flat on it, now set square to its slope. The carrier's bundle rides on the back, clear of the head and face.
   Each vertex carries its material's row of the palette, its step up or down, its surface pattern and its flags, and its place in its own part, for patterns such as a face.
 
 ### A6.2 Copies
@@ -495,9 +496,12 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
     The windows are dates (`TIM-14`), so Year 3 begins two years in.
     Every world's first fire began with a hunch from a dream (`MND-12`).
   - **What sets the pace:** one discovery factor a blueprint, 0.292 for flakes and 0.0733 for each way of making fire, tuned on 20 fixed seeds and checked on 20 new ones (`RES-16`).
+  - **What fire's pace rests on:** P4's model knows three blueprints, and a dream's real hunch goes to the sector the dreamer knows best, so as soon as an adult has once rubbed sticks, every such dream points at fire: that is why every first fire began with a dream.
+    With dreams unable to point at fire, the tuned factor brings fire into its window in 2 of 20 worlds, 7 never finding it within 60 years, and about eight times the factor restores it (α0.3's review).
+    So tuning alone still sets the pace, but production re-tunes with the whole catalogue and dreams' choice among all its blueprints (`MND-12`, `GOD-03`): these factors don't carry over, and `RSK-01` stays open until M7's scenes.
   - **No value holds it on a knife's edge:** each tuned value changed alone by a quarter either way, and halved and doubled, over 40 runs and 40 worlds, keeps both steps' rules.
     Fire's margin is thin: read a year stricter than its dates, a quarter more noticing would bring 11 of 40 worlds' first fire too early, one past the rule's quarter.
-  - **What production takes:** each blueprint's discovery factor in its catalogue entry (A3.6); a step counted at its first anywhere in the world (`RES-07`); and tuning runs that keep what they have done, so one cut short resumes (`RSK-14`).
+  - **What production takes:** each blueprint's discovery factor in its catalogue entry (A3.6); a step counted at its first anywhere in the world (`RES-07`); and tuning runs that keep what they have done, keyed by the model's and the catalogue's version, so one cut short resumes and none is reused by a changed model (`RSK-14`).
 
 ## A13. Culture (research 12), outline
 
@@ -562,7 +566,7 @@ Starting estimates, each replaced by what the prototypes measure on your phone a
 - **Frame:** 16.7 ms at 60 frames a second, the graphics chip under about 8 ms in the busiest scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
   - P1's close camp on your phone (4 October, 1080 × 2404): 99–100% of frames on time at 60, the graphics chip about 10 ms a frame on average whichever the outline way or the mirror.
     Ways that cost a third more in the cloud cost under a tenth more there, which suggests the chip lowers its clock when it has time to spare, so the 10 ms is partly idle.
-  - **These phone numbers count the picture's own pass only.** Measure left out the outline data, the mirror and the fires' height maps, which the cloud's timing puts at 17–31% more; Measure now sums every pass (α0.2c's fixes), so the next phone run gives the whole frame.
+  - **P2's and P3's phone numbers below count the picture's own pass only.** Their Measure left out the outline data, the mirror and the fires' height maps, which the cloud's timing puts at 17–31% more; Measure now sums every pass (α0.2c's fixes), as P1's did, so the next phone run gives the whole frame.
   - P2 on your phone (4 October): the close camp at night with thirty figures and three fires costs 6.1 ms a frame at 120 frames a second for the picture alone, all on time, so near the 8 ms aim but not shown within it; at 60 it reads 9.9 ms, the slowed clock again.
     The forest at camp zoom, 12,000 trees of 44 triangles drawn three times (picture, outlines, shadow), took 17.8 ms with 65% of frames on time: trees for camp zoom take 12 triangles.
   - P2's last build (4 October): the close camp at night 5.5 ms a frame at 120 frames a second, 99% on time; at 60, the close camp and the forest at camp zoom had every frame on time (8.3 and 10.8 ms with the slowed clock). **P2 passes on frame rate:** a busy camp at night with three fires holds 60 frames a second, at close and camp zoom.

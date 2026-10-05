@@ -23,7 +23,11 @@ friction with dry wood).
   blueprint's discovery factor, and teaches it if noticed (`MND-10`); a failed try may show its hint, a sharp chip or
   smoke, which gives a hunch. Dreams join memories into hunches, a third of them for a real blueprint whose action the
   dreamer knows (`MND-12`). Watching about five uses teaches a blueprint, and the kind teach kin first (`MND-13`).
-- **Every value that sets the pace** is in `tuning.toml`, with what it was tuned against (`RES-16`).
+- **The values that set the pace** and that the sweep tries are in `tuning.toml`, with what each was tuned against
+  (`RES-16`); a few more are constants in `discovery.py`, outside the sweep: the 0.9 chance a flake hunch finds stone
+  that flakes, play bashing stones 0.3 of the time, teaching at 0.3 times kindness, copying at 0.01, the good times'
+  0.8 and 0.5, and tries aimed at the cold made twice as often. The factors' third figure is noise: the fire median
+  flips between 8.55 and 9.23 years for a change of 0.05%.
 - **The runs** (`pace.py`): the sharp-stone test on the 20 tuning seeds and its control without stone that flakes,
   fire's window, counted at its first in a world of 3 or 4 bands as `TIM-19` counts a step, the same on 20 seeds
   never tuned against, and each tuned value changed alone over 40 runs and 40 worlds. A value holds the pace on a
@@ -31,7 +35,8 @@ friction with dry wood).
   doubling it does. It writes `prototypes/app/reports/p4.json`, which the app's Reports page draws, and keeps the
   runs it has done in `.runs/` (not committed), so a run cut short resumes where it stopped.
 
-    python3 prototypes/discovery/pace.py           # the runs and the report, a few minutes
+    python3 prototypes/discovery/pace.py           # the runs and the report: about 20 minutes fresh on three cores,
+                                                   # a second from the cache
     python3 prototypes/discovery/pace.py --tune    # tunes the discovery factors first, and writes them back
 
 Its tests (`tests/`) run with the project's checks.

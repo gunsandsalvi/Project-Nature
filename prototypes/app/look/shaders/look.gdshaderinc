@@ -61,6 +61,8 @@ global uniform mat4 look_fires;
 global uniform vec4 look_fire_powers;
 // how much of a fire's light shows on sunlit ground: none at noon, all at night (look.gd's _set_hour)
 global uniform float look_fire_in_sun;
+// each fire's flicker, a share of its power, felt only near its flames, so the pool's rim holds still
+global uniform vec4 look_fire_flicker;
 global uniform float look_sky_cover;
 #ifndef SKYMAP
 global uniform sampler2D look_sky_map : filter_nearest;
@@ -343,7 +345,8 @@ vec2 sky_and_fire(vec3 p, vec3 n, float fl) {
 		// wherever the camera stands
 		float wrap = bit(fl, FLAG_CREATURE) ? 0.65 : 0.35;
 		float lit = wrap + (1.0 - wrap) * max(dot(n, l / max(d, 0.001)), 0.0);
-		f += look_fire_powers[i] * pow(att, 1.4) * lit * fire_shadow(p, look_fires[i].xyz);
+		float flicker = mix(look_fire_flicker[i], 1.0, smoothstep(1.0, 2.5, d));
+		f += look_fire_powers[i] * flicker * pow(att, 1.4) * lit * fire_shadow(p, look_fires[i].xyz);
 	}
 	return vec2(s, f);
 }
@@ -363,8 +366,9 @@ vec3 grade(vec3 c, float cls) {
 	vec3 g = tint(c, sunlit > 0.5 ? look_sun_tint : look_shade_tint);
 	float lc = dot(c, vec3(0.299, 0.587, 0.114));
 	if (fb > 0.5) {
-		// firelit colour leans to a warm ramp of the pixel's own brightness, so lit grass reads amber, not olive
-		g = mix(g, mix(tint(c, look_fire_tint), look_fire_tint * lc * 1.55, 0.6), fb > 1.5 ? 0.85 : 0.6);
+		// firelit colour leans to a warm ramp of the pixel's own brightness, so lit grass reads amber, not olive:
+		// the fire's tint of green is olive, so the ramp, its brightness in the fire's colour, carries the hue
+		g = mix(g, mix(tint(c, look_fire_tint), look_fire_tint * lc * 1.55, 0.9), fb > 1.5 ? 0.95 : 0.8);
 	}
 	float l = dot(g, vec3(0.299, 0.587, 0.114));
 	g = mix(g, vec3(l), look_desat * (fb > 0.5 ? 0.0 : 1.0));
@@ -400,7 +404,9 @@ vec3 shade_pixel(float ndl, float shadow, float depth, float m_row, float m_bias
 		cls = 7.0;
 	} else {
 		float n = foliage ? ndl * 0.55 + 0.45 : ndl;
-		float sh = n > 0.0 ? shadow : 0.0;
+		// the sun's shadow is either there or not, as the painter's is: a low sun stretches the shadow map's
+		// texels along the ground, and their filtered edges read as soft blobs of a step or two
+		float sh = n > 0.0 ? step(0.5, shadow) : 0.0;
 		float sun = pow(max(n, 0.0), look_sun_pow) * sh;
 		float sunlit = (sh > 0.5 && n > 0.06) ? 1.0 : 0.0;
 		// in full daylight a fire's light is lost: by day it shows only in shade, so sunlit ground round a
