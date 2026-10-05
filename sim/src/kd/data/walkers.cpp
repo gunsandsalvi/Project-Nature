@@ -99,6 +99,23 @@ void Display::names(const Field& f, const std::vector<std::string>& v) {
     line(f, "[" + list + "]");
 }
 
+void Resolver::links(const Field& f, std::vector<Ref>& v, std::string_view kind) {
+    for (std::size_t i = 0; i < v.size(); ++i) {
+        const std::size_t before = problems_.size();
+        link(f, v[i], kind);
+        if (problems_.size() != before) {
+            continue;
+        }
+        for (std::size_t j = 0; j < i; ++j) {
+            if (v[j].name == v[i].name) {
+                problems_.push_back(
+                    {file_, v[i].line, v[i].column, std::string(f.key) + ": \"" + v[i].name + "\" is listed twice"});
+                break;
+            }
+        }
+    }
+}
+
 void Resolver::link(const Field& f, Ref& v, std::string_view kind) {
     std::string canonical;
     std::uint32_t index = 0;

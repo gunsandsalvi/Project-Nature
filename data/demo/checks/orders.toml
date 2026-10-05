@@ -1,0 +1,14 @@
+# The real order of things among the demonstration's markers (MAT-05), which the catalogue check holds every entry
+# to: each list runs from the least to the most.
+
+[[order]]
+kind = "marker"
+field = "speed"
+least_to_most = ["demo:walker", "demo:strider"]
+why = "a stride covers more ground than a walk"
+
+[[order]]
+kind = "marker"
+field = "greets"
+least_to_most = ["demo:strider", "demo:walker"]
+why = "a strider hurries on, and a walker stops to greet"

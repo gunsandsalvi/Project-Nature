@@ -16,6 +16,13 @@
 
 namespace kd::data {
 
+/// Where a field was written in its file, kept with the entry so a check on the whole catalogue can name the place.
+struct Mark {
+    std::string key;
+    int line = 0;
+    int column = 0;
+};
+
 /// Implements MAT-13 and MAT-17, see A3.6: one entry's values, read and checked.
 class Loader {
 public:
@@ -38,6 +45,9 @@ public:
     /// After the visit: each key no field named is a problem.
     void finish();
 
+    /// Where each field read was written, in the order of the kind's fields.
+    [[nodiscard]] std::vector<Mark> marks() const { return marks_; }
+
 private:
     const Value* take(const Field& f, Value::Kind kind);
     void problem(const Value& at, std::string what);
@@ -48,6 +58,7 @@ private:
     const std::string& file_;
     std::vector<Problem>& problems_;
     std::vector<std::string_view> named_;
+    std::vector<Mark> marks_;
 };
 
 }  // namespace kd::data

@@ -130,6 +130,55 @@ private:
     std::string text_;
 };
 
+/// One field of an entry, picked by its key for MAT-05's orders: whether the kind has it, whether it can be ordered,
+/// and a value that orders as the field does (a whole number, a quantity, a chance or a duration's game length).
+struct Picked {
+    bool found = false;
+    bool orderable = false;
+    std::array<std::uint64_t, 2> order{};
+};
+
+/// Implements MAT-05, see A3.6: picks one field of an entry by its key.
+class Picker {
+public:
+    explicit Picker(std::string_view key) : key_(key) {}
+
+    void whole(const Field& f, const std::int64_t& v, Range /*range*/) { number(f, v); }
+    void truth(const Field& f, const bool& /*v*/) { other(f); }
+    void text(const Field& f, const std::string& /*v*/) { other(f); }
+    void choice(const Field& f, const std::string& /*v*/, std::initializer_list<std::string_view> /*options*/) {
+        other(f);
+    }
+    void quantity(const Field& f, const std::int64_t& v, Measure /*m*/, Range /*range*/) { number(f, v); }
+    void chance(const Field& f, const num::Probability& v) {
+        if (f.key == key_) {
+            picked_ = {true, true, {v.certain() ? 1U : 0U, v.threshold()}};
+        }
+    }
+    void duration(const Field& f, const time::Duration& v) { number(f, v.game); }
+    void link(const Field& f, const Ref& /*v*/, std::string_view /*kind*/) { other(f); }
+    void links(const Field& f, const std::vector<Ref>& /*v*/, std::string_view /*kind*/) { other(f); }
+    void names(const Field& f, const std::vector<std::string>& /*v*/) { other(f); }
+
+    [[nodiscard]] Picked picked() const { return picked_; }
+
+private:
+    // a signed number moved onto the unsigned ones in its own order
+    void number(const Field& f, std::int64_t v) {
+        if (f.key == key_) {
+            picked_ = {true, true, {static_cast<std::uint64_t>(v) + (std::uint64_t{1} << 63U), 0}};
+        }
+    }
+    void other(const Field& f) {
+        if (f.key == key_) {
+            picked_ = {true, false, {}};
+        }
+    }
+
+    std::string_view key_;
+    Picked picked_;
+};
+
 /// Finds an entry by name for the resolver: the kind's folder, the name as written and the source it was written
 /// in, giving the entry's canonical name and number, or an empty name if there is none.
 using Lookup = std::function<bool(std::string_view kind, std::string_view written, std::string_view source,
@@ -152,11 +201,8 @@ public:
     void duration(const Field& /*f*/, time::Duration& /*v*/) {}
     void names(const Field& /*f*/, std::vector<std::string>& /*v*/) {}
     void link(const Field& f, Ref& v, std::string_view kind);
-    void links(const Field& f, std::vector<Ref>& v, std::string_view kind) {
-        for (Ref& r : v) {
-            link(f, r, kind);
-        }
-    }
+    /// Each link resolved, and one naming an entry already listed refused, however it was written.
+    void links(const Field& f, std::vector<Ref>& v, std::string_view kind);
 
 private:
     const Lookup& lookup_;

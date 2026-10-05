@@ -60,6 +60,7 @@ struct Entry {
     std::string file;
     T value;
     chance::Name key;
+    std::vector<Mark> marks;
 };
 
 /// What every kind does, whatever its fields.
@@ -89,6 +90,10 @@ public:
     [[nodiscard]] virtual std::optional<std::uint32_t> find(std::string_view canonical) const = 0;
     virtual void resolve(const Lookup& lookup, std::vector<Problem>& problems) = 0;
     [[nodiscard]] virtual EntryDigests digests(std::size_t i) const = 0;
+    /// A problem at one of the entry's fields, where it was written, or at the entry's start if it is not written.
+    [[nodiscard]] virtual Problem at(std::size_t i, std::string_view key, std::string what) const = 0;
+    /// One field of the entry, for MAT-05's orders.
+    [[nodiscard]] virtual Picked pick(std::size_t i, std::string_view key) const = 0;
     [[nodiscard]] virtual std::string display(std::size_t i) const = 0;
     [[nodiscard]] virtual std::string schema() const = 0;
     [[nodiscard]] virtual const void* type() const = 0;
@@ -108,10 +113,11 @@ public:
 
     void add(std::string name, const std::string& file, const Value& table, std::vector<Problem>& problems) override {
         const chance::Name key = chance::name(name);
-        Entry<T> e{std::move(name), file, T{}, key};
+        Entry<T> e{std::move(name), file, T{}, key, {}};
         Loader loader(table, file, problems);
         T::visit(loader, e.value);
         loader.finish();
+        e.marks = loader.marks();
         entries_.push_back(std::move(e));
     }
 
@@ -146,6 +152,22 @@ public:
         Fingerprinter f;
         T::visit(f, entries_[i].value);
         return f.digests();
+    }
+
+    [[nodiscard]] Problem at(std::size_t i, std::string_view key, std::string what) const override {
+        const Entry<T>& e = entries_[i];
+        for (const Mark& m : e.marks) {
+            if (m.key == key) {
+                return {e.file, m.line, m.column, std::string(key) + ": " + std::move(what)};
+            }
+        }
+        return {e.file, 1, 1, std::move(what)};
+    }
+
+    [[nodiscard]] Picked pick(std::size_t i, std::string_view key) const override {
+        Picker p(key);
+        T::visit(p, entries_[i].value);
+        return p.picked();
     }
 
     [[nodiscard]] std::string display(std::size_t i) const override {
@@ -200,6 +222,9 @@ public:
     /// A kind's canonical names in their order, the list a save keeps (A3.7).
     [[nodiscard]] std::vector<std::string> names(std::string_view folder) const;
 
+    /// The files under each loaded source's checks/, which only the checks read (MAT-17, MAT-05), in path order.
+    [[nodiscard]] std::span<const SourceFile> check_files() const { return check_files_; }
+
     /// The kinds, in the order of their folders' names.
     [[nodiscard]] std::span<const std::unique_ptr<KindBase>> kinds() const { return kinds_; }
     [[nodiscard]] const KindBase* kind_in(std::string_view folder) const;
@@ -230,6 +255,7 @@ private:
     std::vector<std::unique_ptr<KindBase>> kinds_;
     std::vector<Source> sources_;
     std::vector<Rename> renames_;
+    std::vector<SourceFile> check_files_;
 };
 
 }  // namespace kd::data

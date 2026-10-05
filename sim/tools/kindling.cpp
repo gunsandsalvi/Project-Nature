@@ -2,8 +2,9 @@
 //
 //     kindling proof [--threads N] [suite...]    each suite's digest and time, one line each: "<suite> <digest> <ms>"
 //     kindling suites                             the proof suites and what each computes
-//     kindling catalogue check [data]            loads every source under the data folder (default: data) and
-//                                                 names each problem by file, line and column
+//     kindling catalogue check [data]            loads every source under the data folder (default: data), runs
+//                                                 the catalogue's checks (MAT-17) and names each problem by file,
+//                                                 line and column
 //     kindling catalogue show <name> [data]      an entry's values, such as demo:walker
 //     kindling catalogue schema [data]           every kind's fields, for whoever writes entries
 //     kindling catalogue fingerprint [data]      the world-making version, each source's rules, world and look
@@ -20,6 +21,7 @@
 #include <vector>
 
 #include "kd/data/catalogue.hpp"
+#include "kd/data/checks.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/proof/proof.hpp"
 #include "kd/run/workers.hpp"
@@ -66,7 +68,12 @@ int catalogue(const std::vector<std::string_view>& args) {
     }
     const std::vector<kd::data::SourceFile> files = read_sources(folder);
     kd::data::Catalogue cat;
-    const std::vector<kd::data::Problem> problems = cat.load(files);
+    std::vector<kd::data::Problem> problems = cat.load(files);
+    // the checks on the whole catalogue (MAT-17) run once it loads, since their faults would echo the loader's
+    const bool loaded = problems.empty();
+    if (command == "check" && loaded) {
+        problems = kd::data::run_checks(cat);
+    }
     for (const kd::data::Problem& p : problems) {
         std::printf("%s\n", kd::data::problem_text(p).c_str());
     }
@@ -75,8 +82,11 @@ int catalogue(const std::vector<std::string_view>& args) {
         for (const auto& k : cat.kinds()) {
             entries += k->size();
         }
-        std::printf("Catalogue: %zu files, %zu kinds, %zu entries, %zu problems\n", files.size(), cat.kinds().size(),
-                    entries, problems.size());
+        std::printf("Catalogue: %zu files, %zu kinds, %zu entries, %s, %zu problem%s\n", files.size(),
+                    cat.kinds().size(), entries,
+                    loaded ? (std::to_string(kd::data::checks().size()) + " checks run").c_str()
+                           : "the checks wait until it loads",
+                    problems.size(), problems.size() == 1 ? "" : "s");
         return problems.empty() ? 0 : 1;
     }
     if (!problems.empty()) {

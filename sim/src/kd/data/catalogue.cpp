@@ -36,7 +36,11 @@ const KindBase* Catalogue::kind_in(std::string_view folder) const {
 void Catalogue::load_sources(std::span<const SourceFile* const> files, std::vector<Problem>& problems) {
     std::vector<Source> found;
     std::vector<std::string> files_of;
-    for (const SourceFile* f : files) {
+    for (std::size_t n = 0; n < files.size(); ++n) {
+        const SourceFile* f = files[n];
+        if (n > 0 && files[n - 1]->path == f->path) {
+            continue;  // refused with the other files handed over twice
+        }
         const std::size_t slash = f->path.find('/');
         if (slash == std::string::npos || f->path.substr(slash + 1) != "source.toml") {
             continue;
@@ -191,12 +195,18 @@ std::vector<Problem> Catalogue::load(std::span<const SourceFile> files) {
     std::stable_sort(sorted.begin(), sorted.end(), [](const auto* a, const auto* b) { return a->path < b->path; });
     load_sources(sorted, problems);
     renames_.clear();
+    check_files_.clear();
     std::string folders;
     for (const auto& k : kinds_) {
         folders += (folders.empty() ? "" : ", ") + k->folder() + (k->single() ? ".toml" : "/");
     }
-    for (const SourceFile* f : sorted) {
+    for (std::size_t n = 0; n < sorted.size(); ++n) {
+        const SourceFile* f = sorted[n];
         const std::string& path = f->path;
+        if (n > 0 && sorted[n - 1]->path == path) {
+            problem(path, "the file is handed over twice, so its entries would be loaded twice");
+            continue;
+        }
         const std::size_t slash = path.find('/');
         if (!path.ends_with(".toml") || slash == std::string::npos) {
             problem(path, "a catalogue file is a .toml file in a source's folder, such as base/marker/walker.toml");
@@ -204,11 +214,15 @@ std::vector<Problem> Catalogue::load(std::span<const SourceFile> files) {
         }
         const std::string source = path.substr(0, slash);
         const std::string rest = path.substr(slash + 1, path.size() - slash - 1 - 5);
-        if (rest == "source" || rest.starts_with("checks/")) {
+        if (rest == "source") {
             continue;
         }
         if (std::none_of(sources_.begin(), sources_.end(), [&](const Source& s) { return s.id == source; })) {
             problem(path, "the source \"" + source + "\" has no source.toml that loads, so its files are not read");
+            continue;
+        }
+        if (rest.starts_with("checks/")) {
+            check_files_.push_back(*f);
             continue;
         }
         if (rest == "renames") {

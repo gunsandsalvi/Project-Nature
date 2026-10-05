@@ -1,0 +1,4 @@
+# The foundations' crowd (MAT-16): 400 camps of 25 markers, 10,000 in all, as the Crowd page and the benchmark run it.
+camps = 400
+per_camp = 25
+greeting = { life = "1 min", game = "1 min" }

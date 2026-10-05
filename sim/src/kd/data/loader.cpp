@@ -38,6 +38,7 @@ const Value* Loader::take(const Field& f, Value::Kind kind) {
         problem(*v, f, "must be " + std::string(kind_name(kind)) + ", not " + std::string(kind_name(v->kind)));
         return nullptr;
     }
+    marks_.push_back({std::string(f.key), v->line, v->column});
     return v;
 }
 
@@ -159,6 +160,10 @@ void Loader::names(const Field& f, std::vector<std::string>& out) {
         for (const Value& item : v->items) {
             if (item.kind != Value::Kind::text) {
                 problem(item, f, "each name is in quotes");
+                continue;
+            }
+            if (std::find(out.begin(), out.end(), item.text) != out.end()) {
+                problem(item, f, "\"" + item.text + "\" is listed twice");
                 continue;
             }
             out.push_back(item.text);

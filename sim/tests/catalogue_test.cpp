@@ -2,84 +2,18 @@
 #include <string>
 #include <vector>
 
+#include "catalogue_files.hpp"
 #include "doctest.h"
 #include "kd/data/catalogue.hpp"
 #include "kd/demo/marker.hpp"
 #include "kd/time/speeds.hpp"
 
 namespace data = kd::data;
-
-namespace {
-
-const char* const kWalker =
-    "speed = \"1.4 m/s\"\n"
-    "reach = \"2 m\"\n"
-    "greets = \"30%\"\n"
-    "rest = { life = \"2 h\", game = \"2 h\" }\n"
-    "colour = \"#e8c25a\"\n"
-    "gait = \"walk\"\n"
-    "walks_with = [\"demo:strider\"]\n";
-
-const char* const kStrider =
-    "speed = \"2 m/s\"\n"
-    "reach = \"3 m\"\n"
-    "greets = \"1 in 10\"\n"
-    "rest = { life = \"45 min\", game = \"45 min\" }\n"
-    "colour = \"#8fd18a\"\n"
-    "gait = \"stride\"\n";
-
-const char* const kTime =
-    "person = \"1 min\"\nclose_camp = \"1 h\"\ncamp = \"8 h\"\nvalley = \"1 season\"\nregion = \"3 year\"\n";
-
-const char* const kBase = "id = \"base\"\nversion = 1\nabout = \"the game\"\n";
-const char* const kDemo = "id = \"demo\"\nversion = 3\nabout = \"the demonstration\"\nrequires = [\"base\"]\n";
-
-std::vector<data::SourceFile> good() {
-    return {{"demo/marker/walker.toml", kWalker},
-            {"demo/marker/strider.toml", kStrider},
-            {"base/tuning/time.toml", kTime},
-            {"base/source.toml", kBase},
-            {"demo/source.toml", kDemo}};
-}
-
-// The problems a catalogue finds when one file of the good ones is replaced or added.
-std::vector<std::string> problems_with(const std::string& path, const std::string& text) {
-    std::vector<data::SourceFile> files;
-    for (data::SourceFile& f : good()) {
-        if (f.path != path) {
-            files.push_back(f);
-        }
-    }
-    files.push_back({path, text});
-    data::Catalogue cat;
-    std::vector<std::string> out;
-    for (const data::Problem& p : cat.load(files)) {
-        out.push_back(data::problem_text(p));
-    }
-    return out;
-}
-
-// The walker with one line replaced, or added when the key is new.
-std::string walker_with(const std::string& key, const std::string& line) {
-    std::string text;
-    bool replaced = false;
-    for (std::size_t at = 0, end = 0; at < std::string(kWalker).size(); at = end + 1) {
-        const std::string all(kWalker);
-        end = all.find('\n', at);
-        const std::string this_line = all.substr(at, end - at);
-        if (this_line.rfind(key + " =", 0) == 0) {
-            if (!line.empty()) {
-                text += line + "\n";
-            }
-            replaced = true;
-        } else {
-            text += this_line + "\n";
-        }
-    }
-    return replaced ? text : text + line + "\n";
-}
-
-}  // namespace
+using kd::test::good;
+using kd::test::kStrider;
+using kd::test::kWalker;
+using kd::test::problems_with;
+using kd::test::walker_with;
 
 // The demonstration's markers come from their own source, demo, never the game's (MAT-16).
 // checks: MAT-13 MAT-16
@@ -146,6 +80,21 @@ TEST_CASE("each fault in an entry is refused at its file, line and column, and o
     CHECK(problems_with("demo/marker/Big-One.toml", kStrider).front().find("a name is in lower case") !=
           std::string::npos);
     CHECK(problems_with(w, "speed = = 3\n").front().rfind(w + ":1:9: the TOML is broken here", 0) == 0);
+    // duplicates: a link or a name listed twice, a key written twice, a file handed over twice
+    CHECK(one(walker_with("walks_with", "walks_with = [\"demo:strider\", \"demo:strider\"]"))
+              .find(":7:31: walks_with: \"demo:strider\" is listed twice") != std::string::npos);
+    CHECK(one(walker_with("height", "speed = \"1.2 m/s\""))
+              .find(":8:9: the TOML is broken here: Error while parsing key-value pair: cannot redefine") !=
+          std::string::npos);
+    const std::string d = "demo/source.toml";
+    CHECK(problems_with(d, "id = \"demo\"\nversion = 1\nabout = \"x\"\nrequires = [\"base\", \"base\"]\n").front() ==
+          d + ":4:21: requires: \"base\" is listed twice");
+    std::vector<data::SourceFile> twice = good();
+    twice.push_back(twice.front());
+    data::Catalogue cat;
+    const std::vector<data::Problem> found = cat.load(twice);
+    REQUIRE(found.size() == 1);
+    CHECK(data::problem_text(found[0]).find(w + ":1:1: the file is handed over twice") == 0);
 }
 
 // checks: MAT-13 MAT-14

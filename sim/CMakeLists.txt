@@ -21,11 +21,14 @@ add_library(kd_sim STATIC
     src/kd/chance/chance.cpp
     src/kd/core/check.cpp
     src/kd/data/catalogue.cpp
+    src/kd/data/checks.cpp
     src/kd/data/kinds.cpp
     src/kd/data/loader.cpp
+    src/kd/data/orders.cpp
     src/kd/data/toml.cpp
     src/kd/data/units.cpp
     src/kd/data/walkers.cpp
+    src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp
     src/kd/num/angle.cpp
     src/kd/num/convert.cpp
@@ -53,6 +56,7 @@ if(KD_SIM_TESTS)
         tests/calendar_test.cpp
         tests/catalogue_test.cpp
         tests/chance_test.cpp
+        tests/checks_test.cpp
         tests/data_test.cpp
         tests/duration_test.cpp
         tests/main.cpp
