@@ -19,12 +19,6 @@ double ground_height(const World& w, double east, double north);
 // A square of n × n heights, `spacing` metres apart, its first at (east, north), row by row from the south.
 std::vector<float> ground_heights(const World& w, double east, double north, int n, double spacing);
 
-// The ground's colour at each of those places as RGB, given their heights from ground_heights: its cell's cover, in
-// the art book's colours, varied in patches a few tens of metres across; sea and lakes in their water colour. Cover
-// meets cover along natural lines, the cells' edges warped by noise.
-std::vector<std::uint8_t> ground_colours(const World& w, double east, double north, int n, double spacing,
-                                         const std::vector<float>& heights);
-
 // The world's cell heights averaged over 2, 4, 8 and more cells each way, for ground seen from far off (P8): level 0
 // is the cells' own, each level after half as many each way, down to a few cells around.
 struct HeightMips {
@@ -71,11 +65,5 @@ std::vector<std::uint8_t> water_texture(const World& w);
 // their edges; then its smaller copies for its mipmaps, each half the last each way, the average of the eight points
 // under each, down to one point. Made from the seed alone; size a power of two.
 std::vector<std::uint8_t> cloud_noise(std::uint64_t seed, int size);
-
-// The trees standing in a square `side` metres across from (east, north), three numbers each: metres east and north
-// of its corner, and the ground's height there. As many as the cover holds, each drawn by keyed chance from its place
-// on a grid of `spacing` metres, so a place always grows the same trees and squares side by side share none (A9).
-// The grid's spacing divides the world's.
-std::vector<float> ground_trees(const World& w, double east, double north, double side, double spacing);
 
 }  // namespace worldgen

@@ -22,7 +22,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P6 A thousand minds (α0.4b) passes on your phone: a thousand people hold 6.0 game years a real minute on four cores over 10 minutes, with no slowing from heat; the target is at least 1, hoping for 2 to 3 (`TIM-07`, A11).
 - P7 World generation (α0.5a) passes on your phone: three worlds in 9.3 seconds and settling in 6.5, against `WLD-11`'s 3 minutes and 1, the very same worlds as the cloud's (A7.6).
 - P8 The zoom (α0.5b) was built and delivered for your phone's Measure: one pinch from the globe to a person over P7's world, through rings of ground made on worker threads and a map that bends onto the globe (A8.1, A8.4, A8.5).
-  Its second round (α0.5c), after your verdict on 5 October, is for your look, from space down to the valley: a planet at every scale, never unrolled; one tree of ground morphing smoothly; clouds from the climate that the descent passes among; the sea by its depth; the land textured with what can be seen from space; pixels finer up close; each in variants for you to choose. The camp and closer come in its next round.
+  Its second round (α0.5c), after your verdict on 5 October, is for your look, from space down to the valley: a planet at every scale, never unrolled; one tree of ground morphing smoothly; clouds from the climate that the descent passes among; the sea by its depth; the land textured with what can be seen from space; pixels finer up close; each in variants for you to choose.
+  The camp and closer are done for pre-production, as you said on 5 October: trees, small plants and the camp from the kit on the new ground. What they lack is in the notes for production (`NOTES.md`), with your observations. Measure on your phone comes with α0.6a's build.
 
 ## How to use this plan
 
@@ -136,7 +137,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | α0.4a | P5 The same bits | M0 | 4 | Passes on your phone; the α0.4 review next |
 | α0.4b | P6 A thousand minds | M0 | 6 | Passes on your phone; the α0.4 review next |
 | α0.5a | P7 World generation | M0 | 6 | Passes on your phone |
-| α0.5b | P8 The zoom | M0 | 6 | Second round, space to the valley, for your look (α0.5c) |
+| α0.5b | P8 The zoom | M0 | 6 | Done for your look; Measure on your phone in α0.6a's build |
 | α0.6a | P9 Ecology | M0 | 4 | Not started |
 | α0.6b | P10 Culture from causes | M0 | 5 | Not started |
 | α0.6c | P11 The director | M0 | 3 | Not started |
@@ -480,6 +481,7 @@ The zoom starts in stages, the weather, the ground, then the sky, each noted in 
 
 1. `T0.8a.1` **Answers into the architecture (`PLT-04`).**
    Every *to prove* line becomes the decision with its numbers; A18.1's budgets become the measured ones; each failed answer's fallback is taken, or brought to you.
+   Every note in `NOTES.md` goes into the architecture or the slice's plan, or comes to you if it would change `PROJECT.md`.
 2. `T0.8a.2` **The prototypes thrown away (`RES-06`).**
    `prototypes/` is emptied; what the slice needs is rebuilt there properly.
 3. `T0.8a.3` **The slice planned (`RES-22`).**

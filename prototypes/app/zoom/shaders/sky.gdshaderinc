@@ -4,6 +4,9 @@
 
 uniform sampler2D screen : hint_screen_texture, filter_nearest;
 uniform sampler2D depth : hint_depth_texture, filter_nearest;
+// the camp's hearth: its height above the sea, how much its glow shows from far off, 0 to 1, and the palette's row of
+// fire (zoom.gd); its place is zoom_camp's
+global uniform vec3 zoom_glow;
 
 // The air, scaled to this small planet: thinner than Earth's by its scale heights, denser to match, so the sky over
 // the ground is Earth's blue and the rim seen from space is as thin against the globe as Earth's.
@@ -282,6 +285,30 @@ vec3 stars(vec3 dir) {
 	return vec3(step(0.9965, h) * (0.4 + 0.6 * hash12(q.yz + 3.1)));
 }
 
+// The camp's fire seen from far off (PRE-28): a point that glows, a cross of the shown pixels round the hearth, white-hot
+// at its middle, larger at night; hidden by the land in front of it. `scene_t` is how far the picture's own ground or
+// sky lies along the pixel's ray; `to_clip` takes a point of the picture to the camera's clip space.
+vec3 camp_glow(vec3 colour, vec3 o, float scene_t, vec2 frag, vec2 size, mat4 to_clip) {
+	if (zoom_glow.y <= 0.0) {
+		return colour;
+	}
+	vec3 hearth = planet_place(zoom_camp.xy, zoom_glow.x + 1.0);
+	vec4 clip = to_clip * vec4(hearth, 1.0);
+	if (clip.w <= 0.0) {
+		return colour;
+	}
+	vec2 at = (clip.xy / clip.w * 0.5 + 0.5) * size;
+	vec2 cell = floor((frag - at) / max(zoom_pixel, 1.0) + 0.5);
+	float dist = abs(cell.x) + abs(cell.y);
+	float night = smoothstep(0.1, -0.15, dot(normalize(hearth - planet_middle()), normalize(zoom_sun)));
+	if (dist > 1.0 + night || length(hearth - o) > scene_t + 60.0) {
+		return colour;
+	}
+	vec3 glow = to_linear(pal(zoom_glow.z, dist < 0.5 ? 6.0 : 4.0));
+	float k = zoom_glow.y * (dist > 1.5 ? 0.55 : 1.0);
+	return mix(colour, glow, k);
+}
+
 void fragment() {
 	float raw = texture(depth, SCREEN_UV).r;
 	vec4 view = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, max(raw, 1e-7), 1.0);
@@ -317,5 +344,5 @@ void fragment() {
 	} else {
 		colour = (scene * cloud.a + cloud.rgb) * through + (1.0 - exp(-glow));
 	}
-	ALBEDO = colour;
+	ALBEDO = camp_glow(colour, o, t_end, FRAGCOORD.xy, VIEWPORT_SIZE, PROJECTION_MATRIX * VIEW_MATRIX);
 }

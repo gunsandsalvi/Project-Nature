@@ -1,7 +1,8 @@
 // Everything solid in P1's close camp but the ground: the cliff, trees, people, tents and things. Each vertex carries
 // its material row, step bias, pattern and flags (custom0), its place in its own shape for the pattern (custom1),
 // and its object (custom3). A MultiMesh's copies of one shape may each carry their own material, pattern and wear
-// (A6.2, P3's huts). Soot darkens the rock over the shelter's hearth. Pre-production code (research 00).
+// (A6.2, P3's huts). Soot darkens the rock over the shelter's hearth. Compiled with ZOOM (P8's camp, zoom.gd), each
+// point is set on P8's planet where it stands, as the ground there is. Pre-production code (research 00).
 shader_type spatial;
 #if defined(PREPASS) || defined(SKYMAP) || defined(OCCMAP)
 render_mode world_vertex_coords, unshaded, cull_disabled, shadows_disabled;
@@ -12,6 +13,9 @@ render_mode world_vertex_coords, cull_disabled, specular_disabled, ambient_light
 #endif
 
 #include "res://look/shaders/look.gdshaderinc"
+#ifdef ZOOM
+#include "res://zoom/shaders/planet.gdshaderinc"
+#endif
 
 global uniform vec4 look_soot;
 varying flat vec4 attrs;
@@ -36,6 +40,9 @@ void vertex() {
 #endif
 #ifdef HULL
 	VERTEX += normalize(NORMAL) * look_mpp * 1.2;
+#endif
+#ifdef ZOOM
+	VERTEX = planet_place(vec2(VERTEX.x - zoom_focus_at.x, zoom_focus_at.z - VERTEX.z), VERTEX.y);
 #endif
 }
 

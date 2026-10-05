@@ -2,6 +2,7 @@
 #include "area.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 #include "chance.hpp"
@@ -41,34 +42,47 @@ double lattice(const World& w, double east, double north, double side, std::uint
     return a + ((b - a) * ty);
 }
 
+// A grid's heights joined smoothly between its cells' middles: through each middle, with no sudden turn of the slope
+// anywhere (Catmull and Rom's cubic each way), so ground lit by a low sun shows no line where joins of straight slopes
+// would turn. The sea's depths count as no more than kJoinedDepth, so a deep sea beyond the shore raises no hill on the
+// land: the ground under the sea is drawn at its level whatever its depth, which the picture reads from the cells
+// themselves. `at(x, y)` gives cell x, y, wrapping as the grid does; `size` is a cell's side, metres.
+constexpr double kJoinedDepth = -30.0;
+
+template <typename At>
+double smooth_cells(const At& at, double size, double east, double north) {
+    const double gx = (east / size) - 0.5;
+    const double gy = (north / size) - 0.5;
+    const double x0f = std::floor(gx);
+    const double y0f = std::floor(gy);
+    const auto weights = [](double t) {
+        const double t2 = t * t;
+        const double t3 = t2 * t;
+        return std::array<double, 4>{0.5 * ((-t3) + (2.0 * t2) - t), 0.5 * ((3.0 * t3) - (5.0 * t2) + 2.0),
+                                     0.5 * ((-3.0 * t3) + (4.0 * t2) + t), 0.5 * (t3 - t2)};
+    };
+    const std::array<double, 4> wx = weights(gx - x0f);
+    const std::array<double, 4> wy = weights(gy - y0f);
+    const auto x0 = static_cast<std::int64_t>(x0f);
+    const auto y0 = static_cast<std::int64_t>(y0f);
+    double sum = 0.0;
+    for (std::int64_t j = 0; j < 4; ++j) {
+        double row = 0.0;
+        for (std::int64_t i = 0; i < 4; ++i) {
+            row += wx[static_cast<std::size_t>(i)] * std::max(at(x0 + i - 1, y0 + j - 1), kJoinedDepth);
+        }
+        sum += wy[static_cast<std::size_t>(j)] * row;
+    }
+    return sum;
+}
+
 // The cells' heights, joined smoothly between their middles.
 double cell_height(const World& w, double east, double north) {
     const Grid& g = w.grid;
-    const double gx = (east / g.metres) - 0.5;
-    const double gy = (north / g.metres) - 0.5;
-    const double x0f = std::floor(gx);
-    const double y0f = std::floor(gy);
-    const double tx = gx - x0f;
-    const double ty = gy - y0f;
-    const int x0 = static_cast<int>(x0f);
-    const int y0 = static_cast<int>(y0f);
-    const auto h = [&](int x, int y) { return static_cast<double>(w.height[static_cast<std::size_t>(g.at(x, y))]); };
-    const double a = h(x0, y0) + ((h(x0 + 1, y0) - h(x0, y0)) * tx);
-    const double b = h(x0, y0 + 1) + ((h(x0 + 1, y0 + 1) - h(x0, y0 + 1)) * tx);
-    return a + ((b - a) * ty);
-}
-
-int cell_at(const World& w, double east, double north) {
-    const Grid& g = w.grid;
-    return g.at(static_cast<int>(std::floor(east / g.metres)), static_cast<int>(std::floor(north / g.metres)));
-}
-
-// The cell whose cover and water a place shows: its own, the edges between cells warped by noise at two scales, so
-// cover meets cover along natural lines rather than the cells' square edges.
-int cover_cell(const World& w, double east, double north) {
-    const double dx = (350.0 * lattice(w, east, north, 800.0, 40)) + (80.0 * lattice(w, east, north, 200.0, 41));
-    const double dy = (350.0 * lattice(w, east, north, 800.0, 42)) + (80.0 * lattice(w, east, north, 200.0, 43));
-    return cell_at(w, east + dx, north + dy);
+    const auto at = [&](std::int64_t x, std::int64_t y) {
+        return static_cast<double>(w.height[static_cast<std::size_t>(g.at(static_cast<int>(x), static_cast<int>(y)))]);
+    };
+    return smooth_cells(at, g.metres, east, north);
 }
 
 // The height of mip level k, joined smoothly between its cells' middles.
@@ -77,22 +91,12 @@ double mip_height(const HeightMips& m, int k, double east, double north) {
     const int wk = m.width[static_cast<std::size_t>(k)];
     const int hk = m.height[static_cast<std::size_t>(k)];
     const std::vector<float>& level = m.level[static_cast<std::size_t>(k)];
-    const double gx = (east / size) - 0.5;
-    const double gy = (north / size) - 0.5;
-    const double x0f = std::floor(gx);
-    const double y0f = std::floor(gy);
-    const double tx = gx - x0f;
-    const double ty = gy - y0f;
-    const auto h = [&](double xf, double yf) {
-        const auto x = static_cast<std::int64_t>(xf);
-        const auto y = static_cast<std::int64_t>(yf);
+    const auto at = [&](std::int64_t x, std::int64_t y) {
         const std::int64_t wx = ((x % wk) + wk) % wk;
         const std::int64_t wy = ((y % hk) + hk) % hk;
         return static_cast<double>(level[static_cast<std::size_t>((wy * wk) + wx)]);
     };
-    const double a = h(x0f, y0f) + ((h(x0f + 1.0, y0f) - h(x0f, y0f)) * tx);
-    const double b = h(x0f, y0f + 1.0) + ((h(x0f + 1.0, y0f + 1.0) - h(x0f, y0f + 1.0)) * tx);
-    return a + ((b - a) * ty);
+    return smooth_cells(at, size, east, north);
 }
 
 // How much of the relief on a lattice `side` metres across a grid `spacing` metres apart can hold: all of it from
@@ -206,91 +210,6 @@ std::vector<float> ground_heights(const World& w, double east, double north, int
         for (int i = 0; i < n; ++i) {
             out[(static_cast<std::size_t>(j) * static_cast<std::size_t>(n)) + static_cast<std::size_t>(i)] =
                 static_cast<float>(ground_height(w, east + (i * spacing), north + (j * spacing)));
-        }
-    }
-    return out;
-}
-
-std::vector<std::uint8_t> ground_colours(const World& w, double east, double north, int n, double spacing,
-                                         const std::vector<float>& heights) {
-    std::vector<std::uint8_t> out(static_cast<std::size_t>(n) * static_cast<std::size_t>(n) * 3);
-    for (int j = 0; j < n; ++j) {
-        for (int i = 0; i < n; ++i) {
-            const double x = east + (i * spacing);
-            const double y = north + (j * spacing);
-            const int c = cover_cell(w, x, y);
-            const std::size_t k =
-                (static_cast<std::size_t>(j) * static_cast<std::size_t>(n)) + static_cast<std::size_t>(i);
-            std::array<std::uint8_t, 3> rgb{};
-            if (heights[k] <= 0.0F || w.lake[static_cast<std::size_t>(c)] > 0.0F) {
-                rgb = {85, 134, 139};  // the art book's shallow water
-            } else {
-                rgb = cover_colour(static_cast<Biome>(w.biome[static_cast<std::size_t>(c)]));
-                // patches a few tens of metres across, a little lighter or darker
-                const double patch = 1.0 + (0.08 * lattice(w, x, y, 25.0, 20));
-                for (std::uint8_t& v : rgb) {
-                    v = static_cast<std::uint8_t>(std::clamp(v * patch, 0.0, 255.0));
-                }
-            }
-            out[k * 3] = rgb[0];
-            out[(k * 3) + 1] = rgb[1];
-            out[(k * 3) + 2] = rgb[2];
-        }
-    }
-    return out;
-}
-
-std::vector<float> ground_trees(const World& w, double east, double north, double side, double spacing) {
-    std::vector<float> out;
-    const auto nx = static_cast<std::int64_t>(std::llround(kAroundMetres / spacing));
-    const auto first_i = static_cast<std::int64_t>(std::floor(east / spacing));
-    const auto first_j = static_cast<std::int64_t>(std::floor(north / spacing));
-    const auto last_i = static_cast<std::int64_t>(std::floor((east + side) / spacing));
-    const auto last_j = static_cast<std::int64_t>(std::floor((north + side) / spacing));
-    for (std::int64_t j = first_j; j <= last_j; ++j) {
-        for (std::int64_t i = first_i; i <= last_i; ++i) {
-            const std::int64_t key = (j * nx) + i;
-            const auto k = static_cast<std::uint64_t>(key);
-            const double x = (static_cast<double>(i) + samebits::chance(w.seed, k, 30, Draw::kDetail, 0)) * spacing;
-            const double y = (static_cast<double>(j) + samebits::chance(w.seed, k, 30, Draw::kDetail, 1)) * spacing;
-            // a tree whose grid square straddles the edge stands in whichever square holds it
-            if (x < east || x >= east + side || y < north || y >= north + side) {
-                continue;
-            }
-            const int c = cover_cell(w, x, y);
-            const auto b = static_cast<Biome>(w.biome[static_cast<std::size_t>(c)]);
-            // the share of the ground under trees, from the biome's grown cover (WLD-31), in patches
-            double share = 0.0;
-            switch (b) {
-                case Biome::kBroadleaf:
-                case Biome::kConifer:
-                case Biome::kTropical:
-                    share = 0.8;
-                    break;
-                case Biome::kSavanna:
-                case Biome::kMarsh:
-                    share = 0.2;
-                    break;
-                case Biome::kGrassland:
-                case Biome::kScrub:
-                case Biome::kShore:
-                    share = 0.05;
-                    break;
-                default:
-                    share = 0.0;
-                    break;
-            }
-            share *= 0.6 + (0.6 * lattice(w, x, y, 50.0, 31));
-            if (samebits::chance(w.seed, k, 30, Draw::kDetail, 2) >= share ||
-                w.lake[static_cast<std::size_t>(c)] > 0.0F) {
-                continue;
-            }
-            const double h = ground_height(w, x, y);
-            if (h > 0.5) {
-                out.push_back(static_cast<float>(x - east));
-                out.push_back(static_cast<float>(y - north));
-                out.push_back(static_cast<float>(h));
-            }
         }
     }
     return out;

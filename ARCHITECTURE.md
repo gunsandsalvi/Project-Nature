@@ -456,6 +456,16 @@ Godot draws in single precision around an origin that moves with the camera, as 
 - Trees as models, then impostor cards, then the cover's colour.
 - People, herds and camps as models, then tiny figures outlined in a darker shade of their own colour, then markers: a banner for a camp, one mark for a herd.
 
+*Built in P8's second round, the camp and closer,* in GDScript and shaders as pre-production code:
+- **One rule for each thing, on the graphics chip:** where each tree stands, by keyed chance on a grid of slots (`WLD-13`), and what the ground shows close up: meadow, dry grass, the woods' floor, mud along the banks, the camp's trodden floor, sand, rock, snow or water.
+  Each is written once and read by everything that needs it: the trees up close, the forests' crowns painted on the ground further out, the small plants, and a probe that reads the rules back once to find the camp's place by the river.
+  So trees, plants, ground and camp always agree.
+- **Trees** from the camp stop inward, as cards traced pixel by pixel into crowns and trunks, a chunk's trees in one draw; each fades into the crowns painted on the ground as its chunk morphs away, and casts the sun's shadow, which reaches 2.5 km.
+- **Small plants** only on the finest chunks: the kit's tuft, which the shader sets where the ground grows grass, flowers or reeds.
+- **The camp** from the kit (A6): tents, a hut, a lean-to, racks, logs, pots and the hearth, its flames drawn pixel by pixel and lighting what stands round them; the band at work and walking its path to the river; from the camp stop out, a glow at the hearth.
+- **Heights** joined by smooth curves between the cells' middles, since straight blends showed a seam up close.
+- What it still lacks for production is in `NOTES.md`.
+
 ### A8.4 The camera (`PRE-03`, `PRE-29`)
 
 - Orthographic and pitched for the close stops, tilting toward straight down as it rises.

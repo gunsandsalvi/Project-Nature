@@ -8,4 +8,5 @@ render_mode unshaded, depth_draw_never, depth_test_disabled, cull_disabled, shad
 #include "res://zoom/shaders/planet.gdshaderinc"
 #include "res://zoom/shaders/clouds.gdshaderinc"
 #include "res://zoom/shaders/cloud_noise.gdshaderinc"
+#include "res://look/shaders/look_core.gdshaderinc"
 #include "res://zoom/shaders/sky.gdshaderinc"

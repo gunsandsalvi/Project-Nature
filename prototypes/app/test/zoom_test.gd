@@ -1,11 +1,13 @@
 ## P8's screen, second round: the zoom's scale at each stop, the camera's tilt by path, the pixels
-## shown and drawn by variant, the chunks' triangles and skirts, where the descent ends, and
-## Measure's results for the chat. A full-size world takes as long to make as P7's, so what the
-## screen draws is checked by the cloud's pictures instead.
+## shown and drawn by variant, the chunks' triangles and skirts, where the descent ends, where
+## the camp stands and how large its people are drawn, and Measure's results for the chat. A
+## full-size world takes as long to make as P7's, so what the screen draws is checked by the
+## cloud's pictures instead.
 extends GdUnitTestSuite
 
 const ZOOM := preload("res://zoom/zoom.gd")
 const CHUNKS := preload("res://zoom/chunks.gd")
+const CAMP := preload("res://zoom/camp.gd")
 
 
 # checks: PRE-03
@@ -114,3 +116,33 @@ func test_the_generator_gives_the_zoom_the_world_s_size_and_the_clouds_noise() -
 	var noise: PackedByteArray = gen.cloud_noise(4)
 	assert_int(noise.size()).is_equal((64 + 8 + 1) * 4)
 	assert_bool(noise == gen.cloud_noise(4)).is_true()
+
+
+# checks: PRE-03
+func test_the_camp_stands_on_the_nearest_open_land_above_its_river() -> void:
+	# the probe's picture (probe.gdshader): red the height above the nearest river's banks plus 20,
+	# green how much forest stands there, blue the land (0 in water)
+	var n := 8
+	var probe := Image.create_empty(n, n, false, Image.FORMAT_RGBA8)
+	# open land everywhere, but only 10 m above the banks, too low for a camp
+	probe.fill(Color(30.0 / 255.0, 0.0, 10.0 / 255.0))
+	for j in n:
+		probe.set_pixel(0, j, Color(0.0, 0.0, 10.0 / 255.0))
+	probe.set_pixel(4, 4, Color(60.0 / 255.0, 0.8, 10.0 / 255.0))
+	probe.set_pixel(3, 3, Color(60.0 / 255.0, 0.0, 10.0 / 255.0))
+	probe.set_pixel(7, 7, Color(60.0 / 255.0, 0.0, 10.0 / 255.0))
+	var found: Array = CAMP.place_of(probe, 6.0)
+	assert_int(found.size()).is_equal(2)
+	# texel (3, 3) is the nearest open place 24 to 50 m above the banks: (4, 4), as near, is forest,
+	# and (7, 7) is further
+	assert_vector(found[0]).is_equal(Vector2(-3.0, 3.0))
+	assert_vector(found[1]).is_equal(Vector2(-21.0, 3.0))
+	probe.fill(Color(30.0 / 255.0, 0.0, 10.0 / 255.0))
+	assert_array(CAMP.place_of(probe, 6.0)).is_empty()
+
+
+# checks: PRE-28
+func test_the_band_is_true_size_up_close_and_grows_as_the_zoom_leaves_it() -> void:
+	assert_float(CAMP.people_size(0.02)).is_equal(1.0)
+	assert_float(CAMP.people_size(0.5)).is_equal_approx(2.0, 1e-6)
+	assert_float(CAMP.people_size(10.0)).is_equal(5.0)

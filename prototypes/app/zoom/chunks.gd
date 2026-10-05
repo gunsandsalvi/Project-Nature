@@ -2,7 +2,10 @@
 ## down to chunks 30.5 m across, every chunk N points a side, made on Godot's worker threads from
 ## the seed alone (WLD-13) and drawn through the RenderingServer with one material, which places
 ## each on the sphere. A chunk splits while the camera is nearer than SPLIT of its sides, and
-## morphs into its parent over the last third of its parent's reach.
+## morphs into its parent over the last third of its parent's reach. Chunks of 488 m and finer
+## carry their trees (trees.gdshader): one card for each slot of the forests' grid, drawn with the
+## chunk, on its ground; the coarsest of them fade their trees out as they morph, and coarser
+## chunks leave the forests to the ground's own crowns, so a forest never jumps (A8.3).
 ## Pre-production code (research 00): the app's README names its items.
 extends RefCounted
 
@@ -13,6 +16,14 @@ const SPLIT := 2.4
 ## The most chunks being made at once, and the most kept made, drawn or not.
 const MAKING := 6
 const KEEP := 900
+## The depth from which chunks carry trees, and their slots each way there, halving with each
+## depth below: one every 7.63 m, the forests' grid (forest.gdshaderinc).
+const TREES_FROM := 10
+const TREE_SLOTS := 64
+const TREES := preload("res://zoom/shaders/trees.gdshader")
+## The finest chunks carry small plants (plants.gdshader), their slots each way: one every 1.91 m.
+const PLANT_SLOTS := 16
+const PLANTS := preload("res://zoom/shaders/plants.gdshader")
 
 var gen: RefCounted
 var world_m := Vector2(2.0e6, 1.0e6)
@@ -30,12 +41,24 @@ var asked := {}
 var tasks := {}
 var drawn := {}
 var missing := 0
+## How many of the chunks drawn carry trees.
+var trees_shown := 0
 ## The east-west stretch round the focus, less one, and how far it reaches (zoom_true), which the
 ## culling bounds.
 var stretch := 0.0
 var reach := 5000.0
+## Whether chunks carry trees (not in the zoom's light mode), and the palette's rows for them:
+## leaves, autumn's leaves, needles and bark.
+var with_trees := true
+var tree_rows := Vector4(16.0, 18.0, 19.0, 20.0)
+## The small plants' shape, the kit's tuft (kit_shapes.gd), set by the zoom; none until then.
+var plant_mesh: Mesh
 
 var _indices := PackedInt32Array()
+## The trees' meshes, one for each number of slots: four corners a slot, set out by the shader.
+var _tree_meshes := {}
+## Every copy of the small plants in place, set out by their shader.
+var _plant_buffer := PackedFloat32Array()
 var _done := []
 var _done_lock := Mutex.new()
 ## This frame's camera planes, the focus in the picture, the focus's latitude's cosine, the
@@ -62,14 +85,23 @@ func rebase(to: Vector2) -> void:
 		_set_place(key)
 
 
-## Waits for the chunks being made and frees every one, once the zoom closes.
+## Waits for the chunks being made and frees every one, once the zoom closes, or to make them all
+## again, as when trees are first allowed.
 func free_all() -> void:
 	for id: int in tasks.keys():
 		WorkerThreadPool.wait_for_task_completion(id)
+	tasks.clear()
+	asked.clear()
+	drawn.clear()
+	_done_lock.lock()
+	_done.clear()
+	_done_lock.unlock()
 	for key: int in chunks:
-		RenderingServer.free_rid(chunks[key].instance)
-		RenderingServer.free_rid(chunks[key].mesh)
+		_free_chunk(chunks[key])
 	chunks.clear()
+	for slots: int in _tree_meshes:
+		RenderingServer.free_rid(_tree_meshes[slots])
+	_tree_meshes.clear()
 
 
 ## The chunk tree (A8.1): from the roots down, a chunk the camera can see splits into its four
@@ -97,11 +129,15 @@ func select(camera: Camera3D, focus: Vector2) -> void:
 			_visit(0, i, j, ground, cam.y, want, shown)
 	for key: int in drawn:
 		if not shown.has(key) and chunks.has(key):
-			RenderingServer.instance_set_visible(chunks[key].instance, false)
+			_show(chunks[key], false)
 	for key: int in shown:
 		if not drawn.has(key):
-			RenderingServer.instance_set_visible(chunks[key].instance, true)
+			_show(chunks[key], true)
 	drawn = shown
+	trees_shown = 0
+	for key: int in drawn:
+		if chunks[key].has("trees"):
+			trees_shown += 1
 	want.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
 	for w: Array in want:
 		if tasks.size() >= MAKING:
@@ -222,12 +258,27 @@ func _ask(key: int, depth: int, i: int, j: int) -> void:
 	tasks[id] = key
 
 
-## On a worker thread: a chunk's ground.
+## On a worker thread: a chunk's ground, and for a chunk with trees the heights they stand on.
 func _make_chunk(key: int, depth: int, east: float, north: float, spacing: float) -> void:
 	var arrays: Array = gen.chunk(0, east, north, N, spacing)
+	var heights: Image = null
+	if with_trees and depth >= TREES_FROM and arrays.size() >= 5:
+		heights = ground_image(arrays[0], arrays[2], N)
 	_done_lock.lock()
-	_done.append([key, depth, east, north, spacing, arrays])
+	_done.append([key, depth, east, north, spacing, arrays, heights])
 	_done_lock.unlock()
+
+
+## A chunk's points as a picture for its trees (trees.gdshader), rows from the south: each point's
+## drawn height, the height of the grid half as fine it morphs into, and its true height.
+static func ground_image(points: PackedVector3Array, morph: PackedFloat32Array, n: int) -> Image:
+	var data := PackedFloat32Array()
+	data.resize(n * n * 4)
+	for k in n * n:
+		data[k * 4] = points[k].y
+		data[k * 4 + 1] = morph[k * 4]
+		data[k * 4 + 2] = morph[k * 4 + 1]
+	return Image.create_from_data(n, n, false, Image.FORMAT_RGBAF, data.to_byte_array())
 
 
 ## The chunks the worker threads have made, given their meshes, hidden until the tree draws them.
@@ -272,6 +323,11 @@ func collect() -> void:
 		var reach := SPLIT * side * 2.0
 		var morph := Vector2(reach * 0.7, reach) if depth > 0 else Vector2(1e12, 2e12)
 		rs.instance_geometry_set_shader_parameter(instance, "morph", morph)
+		rs.instance_geometry_set_cast_shadows_setting(instance, rs.SHADOW_CASTING_SETTING_OFF)
+		var heights_image: Image = d[6]
+		var with_chunk_trees := heights_image != null
+		var drawn_trees := 0 if not with_chunk_trees else (1 if depth == TREES_FROM else 2)
+		rs.instance_geometry_set_shader_parameter(instance, "trees_drawn", drawn_trees)
 		rs.instance_set_visible(instance, false)
 		# for the culling: its lowest and highest, the cosines of the latitudes it spans, and how
 		# far round the planet its highest point lifts the horizon
@@ -292,6 +348,10 @@ func collect() -> void:
 			"lift": acos(radius / (radius + high)),
 			"used": frame,
 		}
+		if with_chunk_trees:
+			_add_trees(chunks[key], depth, d[2], d[3], d[4], heights_image, morph)
+			if depth == DEEPEST and plant_mesh != null:
+				_add_plants(chunks[key], d[2], d[3], d[4], morph)
 		_set_place(key)
 
 
@@ -302,7 +362,11 @@ func _set_place(key: int) -> void:
 	var dx: float = c.east - origin.x
 	dx -= world_m.x * floorf(dx / world_m.x + 0.5)
 	var dy: float = c.north - origin.y
-	RenderingServer.instance_set_transform(c.instance, Transform3D(Basis(), Vector3(dx, 0.0, -dy)))
+	var place := Transform3D(Basis(), Vector3(dx, 0.0, -dy))
+	RenderingServer.instance_set_transform(c.instance, place)
+	for part in ["trees", "plants"]:
+		if c.has(part):
+			RenderingServer.instance_set_transform(c[part], place)
 
 
 ## The chunks the tree has not reached for longest, freed once more than KEEP are made; never one
@@ -317,9 +381,135 @@ func _forget_old() -> void:
 	old.sort()
 	for k in mini(old.size(), chunks.size() - KEEP):
 		var key: int = old[k][1]
-		RenderingServer.free_rid(chunks[key].instance)
-		RenderingServer.free_rid(chunks[key].mesh)
+		_free_chunk(chunks[key])
 		chunks.erase(key)
+
+
+func _free_chunk(chunk: Dictionary) -> void:
+	RenderingServer.free_rid(chunk.instance)
+	RenderingServer.free_rid(chunk.mesh)
+	for part in ["trees", "plants", "plant_copies"]:
+		if chunk.has(part):
+			RenderingServer.free_rid(chunk[part])
+
+
+## A chunk and what stands on it shown or hidden together.
+func _show(chunk: Dictionary, on: bool) -> void:
+	RenderingServer.instance_set_visible(chunk.instance, on)
+	for part in ["trees", "plants"]:
+		if chunk.has(part):
+			RenderingServer.instance_set_visible(chunk[part], on)
+
+
+## A chunk's trees (A8.3): a card for each of its slots, drawn by trees.gdshader with the chunk's
+## own heights, hidden until the tree draws the chunk. Its box in the picture reaches as far as the
+## sphere can move its ground, and as high as a tree, so the sun's shadow pass culls it well.
+func _add_trees(
+	chunk: Dictionary,
+	depth: int,
+	east: float,
+	north: float,
+	spacing: float,
+	heights_image: Image,
+	morph: Vector2
+) -> void:
+	var slots := TREE_SLOTS >> (depth - TREES_FROM)
+	var side := ROOT / float(1 << depth)
+	var material := ShaderMaterial.new()
+	material.shader = TREES
+	material.set_shader_parameter("heights", ImageTexture.create_from_image(heights_image))
+	var per_slot := ROOT / float(1 << TREES_FROM) / float(TREE_SLOTS)
+	material.set_shader_parameter(
+		"first_slot", Vector2i(roundi(east / per_slot), roundi(north / per_slot))
+	)
+	material.set_shader_parameter("slots", slots)
+	material.set_shader_parameter("spacing", spacing)
+	material.set_shader_parameter("morph", morph)
+	material.set_shader_parameter("fade", 1.0 if depth == TREES_FROM else 0.0)
+	material.set_shader_parameter("rows", tree_rows)
+	var rs := RenderingServer
+	var instance := rs.instance_create2(_tree_mesh(slots), scenario)
+	rs.instance_geometry_set_material_override(instance, material.get_rid())
+	var radius := world_m.x / TAU
+	var far := origin.distance_to(Vector2(east + side * 0.5, north + side * 0.5)) + side + 5000.0
+	var drop := far * far / (2.0 * radius)
+	var margin := 30.0 + 0.15 * far
+	var box := AABB(
+		Vector3(-margin, chunk.low - drop - 10.0, -side - margin),
+		Vector3(side + 2.0 * margin, chunk.high - chunk.low + drop + 40.0, side + 2.0 * margin)
+	)
+	rs.instance_set_custom_aabb(instance, box)
+	rs.instance_set_visible(instance, false)
+	chunk.trees = instance
+	chunk.tree_material = material
+	chunk.box = box
+
+
+## A finest chunk's small plants (plants.gdshader): a copy of the kit's tuft for each of its slots,
+## all in place, which the shader sets out where the ground grows them, on the chunk's own heights;
+## they cast no shadow.
+func _add_plants(
+	chunk: Dictionary, east: float, north: float, spacing: float, morph: Vector2
+) -> void:
+	var count := PLANT_SLOTS * PLANT_SLOTS
+	if _plant_buffer.size() != count * 12:
+		_plant_buffer.resize(count * 12)
+		for k in count:
+			_plant_buffer[k * 12] = 1.0
+			_plant_buffer[k * 12 + 5] = 1.0
+			_plant_buffer[k * 12 + 10] = 1.0
+	var rs := RenderingServer
+	var copies := rs.multimesh_create()
+	rs.multimesh_allocate_data(copies, count, rs.MULTIMESH_TRANSFORM_3D)
+	rs.multimesh_set_mesh(copies, plant_mesh.get_rid())
+	rs.multimesh_set_buffer(copies, _plant_buffer)
+	var material := ShaderMaterial.new()
+	material.shader = PLANTS
+	material.set_shader_parameter("heights", chunk.tree_material.get_shader_parameter("heights"))
+	var per_slot := ROOT / float(1 << DEEPEST) / float(PLANT_SLOTS)
+	material.set_shader_parameter(
+		"first_slot", Vector2i(roundi(east / per_slot), roundi(north / per_slot))
+	)
+	material.set_shader_parameter("slots", PLANT_SLOTS)
+	material.set_shader_parameter("spacing", spacing)
+	material.set_shader_parameter("morph", morph)
+	var instance := rs.instance_create2(copies, scenario)
+	rs.instance_geometry_set_material_override(instance, material.get_rid())
+	rs.instance_geometry_set_cast_shadows_setting(instance, rs.SHADOW_CASTING_SETTING_OFF)
+	rs.instance_set_custom_aabb(instance, chunk.box)
+	rs.instance_set_visible(instance, false)
+	chunk.plants = instance
+	chunk.plant_copies = copies
+	chunk.plant_material = material
+
+
+## The trees' mesh for chunks of `slots` slots each way: four corners a slot, two triangles, all at
+## the chunk's corner until the shader sets them out.
+func _tree_mesh(slots: int) -> RID:
+	if _tree_meshes.has(slots):
+		return _tree_meshes[slots]
+	var count := slots * slots
+	var points := PackedVector3Array()
+	points.resize(count * 4)
+	var index := PackedInt32Array()
+	index.resize(count * 6)
+	for k in count:
+		var v := k * 4
+		var at := k * 6
+		index[at] = v
+		index[at + 1] = v + 1
+		index[at + 2] = v + 2
+		index[at + 3] = v + 2
+		index[at + 4] = v + 1
+		index[at + 5] = v + 3
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = points
+	arrays[Mesh.ARRAY_INDEX] = index
+	var mesh := RenderingServer.mesh_create()
+	RenderingServer.mesh_add_surface_from_arrays(mesh, RenderingServer.PRIMITIVE_TRIANGLES, arrays)
+	_tree_meshes[slots] = mesh
+	return mesh
 
 
 ## A place in the world's metres, in the picture's from the moving origin: x east the shorter way

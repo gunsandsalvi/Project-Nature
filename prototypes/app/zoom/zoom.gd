@@ -17,6 +17,9 @@ signal closed
 
 const RUNS := preload("res://look/runs.gd")
 const CHUNKS := preload("res://zoom/chunks.gd")
+const CAMP := preload("res://zoom/camp.gd")
+const MOOD := preload("res://zoom/mood.gd")
+const KIT := preload("res://kit/kit_shapes.gd")
 const INK := Color("ebe5da")
 const FLAME := Color("f6a33c")
 const NIGHT := Color("0b0a12")
@@ -44,6 +47,14 @@ const WEATHER_EVERY := 4
 ## Where the zoom notes what it is starting, so a stop on the phone can be told next time.
 const STAGE_FILE := "user://zoom_stage.txt"
 const MAIN := preload("res://main.gd")
+## P1's close camp, whose palette, atlas and look light what stands on the ground
+## (look.gdshaderinc).
+const LOOK_SCENE := "res://look/close_camp.scn"
+## How far from the camera the sun's shadows reach: as far as trees are drawn as shapes (chunks.gd).
+const SHADOW_REACH := 2500.0
+## The probe that finds the camp's place: its texels each way, and the metres between them.
+const PROBE_SIZE := 64
+const PROBE_SPACING := 6.0
 ## The variants (A/B): each name, and what its letters mean, shown when one is chosen.
 const VARIANTS := {
 	"pixels": ["A fixed 4", "B stepped 2 to 6", "C smooth 2 to 6, blended"],
@@ -80,6 +91,20 @@ var _waited := 0
 var _settled := 0
 var _measure_waiting := false
 var _cloud_noise: ImageTexture3D
+## The sun, which casts the shadows of trees and things near the camera, and whether its shadows and
+## the trees have been noted as started.
+var _sun: DirectionalLight3D
+var _shadows_noted := false
+var _trees_noted := false
+## The painter's settings from P1's close camp: its moods, rows and look.
+var _painter := {}
+## The camp (camp.gd), once its place is found by the probe, read where the focus stood then.
+var _camp: RefCounted
+var _probe: SubViewport
+var _probe_frames := 0
+var _probe_focus := Vector2.ZERO
+## The world's cells each way.
+var _cells := Vector2i(2048, 1024)
 var _margin: MarginContainer
 ## The screen's pixels a drawn pixel takes.
 var _texel := 0.0
@@ -139,6 +164,14 @@ func _ready() -> void:
 	_cam.keep_aspect = Camera3D.KEEP_WIDTH
 	_cam.fov = FOV
 	_art.add_child(_cam)
+	# the sun: the ground and what stands on it finish their own light from it (ground.gdshaderinc,
+	# look.gdshaderinc), so it is always there; its shadows only near the camera, by day
+	_sun = DirectionalLight3D.new()
+	_sun.shadow_enabled = false
+	_sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	_sun.directional_shadow_blend_splits = false
+	_sun.directional_shadow_max_distance = SHADOW_REACH
+	_art.add_child(_sun)
 	_view = TextureRect.new()
 	_view.texture = _art.get_texture()
 	_view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE  # the picture is drawn larger than it shows
@@ -223,6 +256,10 @@ func _cycle(name: String) -> void:
 	if name == "clouds" and _light:
 		_light = false
 		_readout.text = "The full zoom again: clouds %s." % VARIANTS.clouds[choice.clouds]
+		if _tree != null:
+			# the ground is made again, its chunks now with their trees
+			_tree.free_all()
+			_tree.with_trees = true
 		if _startup >= 4:
 			_use_shaders()
 		_label_buttons()
@@ -249,6 +286,7 @@ func _world_made() -> void:
 	_tilt = gen.tilt(0)
 	gen.prepare_ground(0)
 	var cells: Vector2i = gen.world_cells()
+	_cells = cells
 	var heights := Image.create_from_data(
 		cells.x,
 		cells.y,
@@ -282,8 +320,18 @@ func _world_made() -> void:
 	rs.global_shader_parameter_set("zoom_water", ImageTexture.create_from_image(water))
 	rs.global_shader_parameter_set("zoom_water_soft", ImageTexture.create_from_image(water_soft))
 	rs.global_shader_parameter_set("zoom_world", world_m)
+	_painter = MOOD.look_globals(LOOK_SCENE)
 	_ground = ShaderMaterial.new()
 	_tree = CHUNKS.new(gen, world_m, _scenario, _ground)
+	_tree.with_trees = not _light
+	var rows: Dictionary = _painter.rows
+	_tree.tree_rows = Vector4(rows.leaf, rows.autumn, rows.pine, rows.bark)
+	_tree.plant_mesh = KIT.tuft(rows)
+	var set_global := RenderingServer.global_shader_parameter_set
+	set_global.call("zoom_rows_a", Vector4(rows.meadow, rows.drygrass, rows.grass, rows.mud))
+	set_global.call("zoom_rows_b", Vector4(rows.dirt, rows.sand, rows.rock, rows.snow))
+	set_global.call("zoom_rows_c", Vector4(rows.water, rows.leaf, rows.reed, rows.fire))
+	set_global.call("zoom_rows_d", Vector4(rows.flowerp, rows.flowery, rows.flowerw, rows.autumn))
 	_home = river_near(gen.start(0), water_cells, cells, world_m)
 	focus = _home
 	_tree.rebase(focus)
@@ -306,8 +354,8 @@ func _world_made() -> void:
 				"Last time the phone stopped the zoom while %s, so it starts in its light mode: no"
 				% _stopped_at
 			)
-			+ " clouds, and the land and sea without their finest detail. Tap Clouds off to try"
-			+ " the full zoom again."
+			+ " clouds, trees or shadows, and the land and sea without their finest detail. Tap"
+			+ " Clouds off to try the full zoom again."
 		)
 	_measure_waiting = "measure" in args
 	_startup = 1
@@ -330,7 +378,7 @@ func _start() -> void:
 			if _waited == 1:
 				_stage("drawing the ground" + (" in the light mode" if _light else ""))
 				_ground.shader = load(_ground_shader())
-			elif _waited >= 4 and not _tree.drawn.is_empty():
+			elif _waited >= 4 and not _tree.drawn.is_empty() and (_light or _find_camp()):
 				_startup = 3
 				_waited = 0
 		3:
@@ -342,6 +390,55 @@ func _start() -> void:
 				if _measure_waiting:
 					_measure_waiting = false
 					measure()
+
+
+## The camp's place (A8.3): the probe reads the picture's own rules for rivers, forests and coasts
+## round the focus once (probe.gdshader), and the camp is built at the nearest open place above the
+## river's banks; true once that is done, or no place was found.
+func _find_camp() -> bool:
+	if _probe == null:
+		_stage("finding the camp's place")
+		_probe = SubViewport.new()
+		_probe.size = Vector2i(PROBE_SIZE, PROBE_SIZE)
+		_probe.disable_3d = true
+		_probe.transparent_bg = false
+		_probe.render_target_update_mode = SubViewport.UPDATE_ONCE
+		var sheet := ColorRect.new()
+		sheet.size = Vector2(PROBE_SIZE, PROBE_SIZE)
+		var probe := ShaderMaterial.new()
+		probe.shader = load("res://zoom/shaders/probe.gdshader")
+		probe.set_shader_parameter("spacing", PROBE_SPACING)
+		probe.set_shader_parameter("texels", Vector2(PROBE_SIZE, PROBE_SIZE))
+		sheet.material = probe
+		_probe.add_child(sheet)
+		add_child(_probe)
+		_probe_focus = focus
+		_probe_frames = 0
+		return false
+	_probe_frames += 1
+	if _probe_frames < 3:
+		return false
+	var found := CAMP.place_of(_probe.get_texture().get_image(), PROBE_SPACING)
+	_probe.queue_free()
+	if found.is_empty():
+		return true
+	_stage("building the camp")
+	_camp = CAMP.new()
+	var at: Vector2 = _probe_focus + (found[0] as Vector2)
+	var bank: Vector2 = _probe_focus + (found[1] as Vector2)
+	_camp.build(_painter.rows, at, bank, func(w: Vector2) -> float: return _ground_at(w))
+	_art.add_child(_camp.root)
+	# the descent now ends at the camp's hearth
+	_home = at
+	if focus == _probe_focus:
+		focus = _home
+	return true
+
+
+## The ground's height at a place in the world's metres, the sea's level over the sea.
+func _ground_at(w: Vector2) -> float:
+	var h: PackedFloat32Array = gen.ground(0, fposmod(w.x, world_m.x), w.y, 1, 1.0)
+	return maxf(h[0], 0.0) if h.size() > 0 else 0.0
 
 
 ## The weather's picture of the whole world (A8.6), made once clouds are first shown, and drawn
@@ -501,6 +598,9 @@ func _process(delta: float) -> void:
 		_step_measure(delta)
 	_tree.collect()
 	var width := metres_across(zoom)
+	if _camp != null:
+		var shown := width * pixel_at(width, choice.pixels) / maxf(size.x * _screen_scale(), 1.0)
+		_camp.step(delta, CAMP.people_size(shown))
 	_weather += delta * clampf(width / 2000.0, 1.0, 400.0)
 	if choice.time == 4:
 		_day = fposmod(_day + delta / 300.0, 1.0)
@@ -509,6 +609,10 @@ func _process(delta: float) -> void:
 	_place(width)
 	if _startup >= 2:
 		_tree.select(_cam, focus)
+		if _tree.trees_shown > 0 and not _trees_noted:
+			# noted before the frame that first draws them
+			_trees_noted = true
+			_stage("drawing the trees")
 		if _measuring and _area_asked >= 0.0 and _area_time < 0.0 and _tree.missing == 0:
 			_area_time = _clock - _area_asked
 	_show_pixels(width)
@@ -624,16 +728,40 @@ func _place(width: float) -> void:
 	var rs := RenderingServer
 	rs.global_shader_parameter_set("zoom_focus", focus)
 	rs.global_shader_parameter_set("zoom_focus_at", at)
+	rs.global_shader_parameter_set("zoom_eye", _cam.position)
 	rs.global_shader_parameter_set(
 		"zoom_fine", Vector2(fposmod(focus.x, 4096.0), fposmod(focus.y, 4096.0))
 	)
+	# the focus's own world cell, and where in it, so places near the focus are found exactly
+	var cell_m := world_m.x / float(_cells.x)
+	var cell := Vector2i(floori(focus.x / cell_m), floori(focus.y / cell_m))
+	rs.global_shader_parameter_set("zoom_cell", cell)
+	rs.global_shader_parameter_set("zoom_in_cell", focus - Vector2(cell) * cell_m)
+	# the camp's trodden floor and its path down to the river, for the ground and the trees
+	if _camp != null:
+		_camp.place(_tree.local(_camp.centre))
+		var to_camp := _shortest(_camp.centre - focus)
+		var to_bank := _shortest(_camp.bank - focus)
+		rs.global_shader_parameter_set(
+			"zoom_camp", Vector4(to_camp.x, to_camp.y, CAMP.FLOOR, CAMP.PATH)
+		)
+		rs.global_shader_parameter_set("zoom_path", Vector4(to_bank.x, to_bank.y, 0.0, 0.0))
 	# near the ground, east-west at its true scale round the focus; none of it from the region out
 	var strength := clampf(log(120000.0 / width) / log(120000.0 / 12000.0), 0.0, 1.0)
 	var lat := PI * (focus.y / world_m.y - 0.5)
 	_tree.stretch = strength * (1.0 / maxf(cos(lat), 0.33) - 1.0)
 	_tree.reach = maxf(width * 4.0, 5000.0)
 	rs.global_shader_parameter_set("zoom_true", Vector2(_tree.stretch, _tree.reach))
-	rs.global_shader_parameter_set("zoom_sun", sun_direction())
+	var to_sun := sun_direction()
+	rs.global_shader_parameter_set("zoom_sun", to_sun)
+	_place_sun(to_sun, distance, width)
+	if _camp != null:
+		MOOD.light_fire(_camp, to_sun, _frame)
+		# from the camp's stop out the camp shows as its fire's glow (PRE-28)
+		rs.global_shader_parameter_set(
+			"zoom_glow",
+			Vector3(_camp.flames().y, smoothstep(700.0, 2500.0, width), float(_painter.rows.fire))
+		)
 	var declination := deg_to_rad(_tilt) * sin(TAU * _year)
 	rs.global_shader_parameter_set("zoom_clock", Vector4(_weather, _year, _day, declination))
 	rs.global_shader_parameter_set(
@@ -668,6 +796,31 @@ func sun_direction() -> Vector3:
 static func _hour_at_height(lat: float, decl: float, degrees: float) -> float:
 	var c := (sin(deg_to_rad(degrees)) - sin(lat) * sin(decl)) / (cos(lat) * cos(decl))
 	return acos(clampf(c, -1.0, 1.0))
+
+
+## A way in the world's metres the shorter way round the world, east to west.
+func _shortest(v: Vector2) -> Vector2:
+	return Vector2(v.x - world_m.x * floorf(v.x / world_m.x + 0.5), v.y)
+
+
+## The sun's light and shadows (PRE-30): its light from the sun's way, the look's colours for its
+## height (mood.gd); its shadows by day near the camera, as far as trees are drawn as shapes,
+## split in four, the nearest round the focus, so a person's shadow is as sharp as a tree's. The
+## shadows are noted before they first start.
+func _place_sun(to_sun: Vector3, distance: float, width: float) -> void:
+	var up := Vector3.UP if absf(to_sun.y) < 0.99 else Vector3.FORWARD
+	_sun.transform = Transform3D(Basis.looking_at(-to_sun, up), Vector3.ZERO)
+	MOOD.set_mood(_painter, to_sun, rad_to_deg(asin(clampf(to_sun.y, -1.0, 1.0))))
+	var on := not _light and width < 6000.0 and to_sun.y > 0.03
+	if on and not _shadows_noted:
+		_shadows_noted = true
+		_stage("drawing the sun's shadows")
+	_sun.shadow_enabled = on
+	if on:
+		var near := clampf(distance / SHADOW_REACH, 0.004, 0.25)
+		_sun.directional_shadow_split_1 = near * 0.6
+		_sun.directional_shadow_split_2 = near * 1.8
+		_sun.directional_shadow_split_3 = clampf(near * 4.5, near * 2.0, 0.85)
 
 
 ## The pixel shown, and the picture drawn for it (A4).

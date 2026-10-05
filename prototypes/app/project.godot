@@ -213,6 +213,46 @@ zoom_fine={
 "type": "vec2",
 "value": Vector2(0, 0)
 }
+zoom_cell={
+"type": "ivec2",
+"value": Vector2i(0, 0)
+}
+zoom_in_cell={
+"type": "vec2",
+"value": Vector2(0, 0)
+}
+zoom_eye={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+zoom_camp={
+"type": "vec4",
+"value": Vector4(10000000, 10000000, 0, 0)
+}
+zoom_path={
+"type": "vec4",
+"value": Vector4(10000000, 10000000, 0, 0)
+}
+zoom_glow={
+"type": "vec3",
+"value": Vector3(0, 0, 59)
+}
+zoom_rows_a={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+zoom_rows_b={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+zoom_rows_c={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+zoom_rows_d={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
 zoom_true={
 "type": "vec2",
 "value": Vector2(0, 1)

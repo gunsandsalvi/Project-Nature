@@ -8,8 +8,13 @@ global uniform vec2 zoom_world;     // the world's metres around and from pole t
 global uniform vec2 zoom_focus;     // the focus, in the world's metres
 global uniform vec3 zoom_focus_at;  // where the focus lies in the picture, at sea level
 global uniform vec2 zoom_fine;      // the focus's metres modulo 4,096 each way, for fine noise exact near it
+global uniform ivec2 zoom_cell;     // the world cell the focus stands in, and its metres from that cell's corner, so
+global uniform vec2 zoom_in_cell;   // places near the focus can be found among the cells and the trees' slots exactly
 global uniform vec2 zoom_true;      // how much the ground at the focus is stretched east to west, less one, and how far
 global uniform vec3 zoom_sun;       // toward the sun, in the picture
+global uniform vec3 zoom_eye;       // the camera in the picture, which the sun's shadow pass does not otherwise know
+global uniform vec4 zoom_camp;      // the camp's hearth, metres east and north of the focus, its floor's radius and its
+global uniform vec4 zoom_path;      // path's half-width; where that path meets the river, metres from the focus
 global uniform vec4 zoom_clock;     // seconds of weather, the year's fraction since spring, the day's fraction, and the
                                     // sun's declination this season, radians
 global uniform vec4 zoom_style;     // the land's, the water's, the clouds' and the light's variant: 0 A, 1 B, 2 C
@@ -74,12 +79,7 @@ float bayer4(vec2 frag) {
 	return (float(4 * fine + coarse) + 0.5) / 16.0;
 }
 
-// Dave Hoskins's hash without sine, 0 to 1.
-float hash12(vec2 p) {
-	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-	p3 += dot(p3, p3.yzx + 33.33);
-	return fract((p3.x + p3.y) * p3.z);
-}
+#include "res://look/shaders/hash.gdshaderinc"
 
 // Smooth value noise, 0 to 1, on a lattice that wraps every `period` cells.
 float value_noise(vec2 p, float period) {
@@ -95,11 +95,14 @@ float value_noise(vec2 p, float period) {
 	return mix(mix(a, b, u.x), mix(c, e, u.x), u.y);
 }
 
-// Noise on a lattice `cell` metres across at `d` metres from the focus: exact near the focus for cells up to 4 km,
-// from the world's own metres above, where single precision is ample.
+// Noise on a lattice about `cell` metres across at `d` metres from the focus. Below 1 km it is read from the focus's
+// metres modulo 4,096, exact near the focus, its cell a whole fraction of 4,096 m, so when the focus crosses a multiple
+// of 4,096 m the lattice moves by whole periods and the pattern holds; from 1 km up, from the world's own metres, where
+// single precision is ample.
 float ground_noise(vec2 d, float cell) {
-	if (cell <= 4096.0) {
-		return value_noise((zoom_fine + d) / cell, 4096.0 / cell);
+	if (cell < 1024.0) {
+		float period = max(round(4096.0 / cell), 1.0);
+		return value_noise((zoom_fine + d) * (period / 4096.0), period);
 	}
 	return value_noise((zoom_focus + d) / cell, 1.0e7);
 }
@@ -120,6 +123,22 @@ float ground_detail(vec2 d, float big, float fp, int octaves) {
 		cell *= 0.5;
 	}
 	return sum;
+}
+
+// Where to read the world's cells (cover, climate) for a place `d` metres from the focus: a little off where it is, by
+// noise, so the cells' edges wander as the land's do rather than follow the cells. The ground and its trees read the
+// same place, so a forest stands where its cell's colour is.
+vec2 cell_uv(vec2 d) {
+	vec2 wander = vec2(ground_noise(d + 900.0, 4000.0), ground_noise(d + 7100.0, 4000.0)) * 2600.0 - 1300.0
+			+ vec2(ground_noise(d + 300.0, 1100.0), ground_noise(d + 4100.0, 1100.0)) * 700.0 - 350.0;
+	return (zoom_focus + d + wander) / zoom_world;
+}
+
+// Where to read the cells' heights and lakes for a place `d` metres from the focus: a little off, so coasts and lakes'
+// shores are not the cells' straight edges.
+vec2 shore_uv(vec2 d) {
+	vec2 worn = d + vec2(ground_noise(d, 600.0), ground_noise(d + 5300.0, 600.0)) * 260.0 - 130.0;
+	return (zoom_focus + worn) / zoom_world;
 }
 
 // The ladder of lattices the ground's textures use, from 125 km down, each half the last: octave k's cells. Down to 61 m

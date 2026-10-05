@@ -1,16 +1,36 @@
 // P8's ground (A8.1, A8.5), the body its two shaders share: ground.gdshader, the full one; ground_light.gdshader, for
 // the zoom's light mode (LIGHT), without the clouds' shadows, the forests' clumps or the sea's currents, and so without
-// the weather's picture or any 3D texture. Include planet.gdshaderinc first, and for the full one the clouds' includes.
+// the weather's picture or any 3D texture. Include planet.gdshaderinc, rivers.gdshaderinc, forest.gdshaderinc and
+// near.gdshaderinc first, and for the full one the clouds' includes and look_core.gdshaderinc. With SUN_SHADOW the colour is finished in
+// light(), where the sun's shadow map says whether a tree or a thing shades the pixel, and close up the ground takes
+// the art book's own look, lit in the look's steps as what stands on it is; without it the pixel is its colour in the
+// sun.
 
 
 instance uniform float spacing = 1.0;  // metres between the chunk's points
 instance uniform vec2 morph = vec2(1.0e12, 2.0e12);  // metres from the camera where it starts to morph, and is done
+// whether the chunk's trees are drawn as shapes (trees.gdshader): 0 not, so the ground draws the forests' crowns; 1 they
+// are, fading out as it morphs while the ground's crowns fade in; 2 they are
+instance uniform int trees_drawn = 0;
 
 varying vec2 v_d;  // metres east and north of the focus
 varying float v_up;  // metres above the sea, as drawn
 varying vec3 v_normal;  // in the picture
 varying vec3 v_up_dir;  // the ground's up here, in the picture
 varying float v_slope;  // 0 flat to 1 sheer
+varying float v_morph;  // how far the chunk has morphed into the grid half as fine here, 0 to 1
+#ifdef SUN_SHADOW
+// From fragment() to light(): the pixel's colour in the sun, and in a shadow cast on it; how much it takes the art
+// book's look close up, and that look's palette row, step and sky light; and how much sun the clouds let through.
+varying vec3 v_sunlit;
+varying vec3 v_shaded;
+varying float v_near;
+varying float v_row;
+varying float v_bias;
+varying float v_sky;
+varying float v_cloud;
+varying float v_fire;
+#endif
 
 #ifndef LIGHT
 // How much of the sun reaches a place on the ground `ground` metres above the sea through the clouds of the variant
@@ -43,17 +63,12 @@ float cloud_shadow(vec2 w, float ground, mat3 frame, float fp) {
 }
 #endif
 
-const vec2 STEP[8] = vec2[8](
-	vec2(1.0, 0.0), vec2(1.0, 1.0), vec2(0.0, 1.0), vec2(-1.0, 1.0), vec2(-1.0, 0.0), vec2(-1.0, -1.0),
-	vec2(0.0, -1.0), vec2(1.0, -1.0)
-);
-
 void vertex() {
 	vec3 corner = MODEL_MATRIX[3].xyz;
 	vec2 local = vec2(VERTEX.x - corner.x, corner.z - VERTEX.z);
 	vec2 d0 = vec2(VERTEX.x - zoom_focus_at.x, zoom_focus_at.z - VERTEX.z);
 	vec3 p0 = planet_place(d0, VERTEX.y);
-	float m = clamp((length(p0 - CAMERA_POSITION_WORLD) - morph.x) / (morph.y - morph.x), 0.0, 1.0);
+	float m = clamp((length(p0 - zoom_eye) - morph.x) / (morph.y - morph.x), 0.0, 1.0);
 	// each odd point slides onto the even point before it, so the chunk becomes the grid half as fine
 	vec2 g = floor(local / spacing + 0.5);
 	vec2 d = d0 - mod(g, 2.0) * spacing * m;
@@ -66,113 +81,9 @@ void vertex() {
 	v_slope = 1.0 - n.y;
 	v_d = d;
 	v_up = up;
+	v_morph = m;
 	VERTEX = p;
 	NORMAL = v_normal;
-}
-
-float dot2(vec2 v) {
-	return dot(v, v);
-}
-
-// The distance from p to the segment a-b.
-float segment_distance(vec2 p, vec2 a, vec2 b) {
-	vec2 pa = p - a;
-	vec2 ba = b - a;
-	float h = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-6), 0.0, 1.0);
-	return length(pa - ba * h);
-}
-
-// The distance from p to the quadratic Bézier curve a, b, c (Íñigo Quílez).
-float bezier_distance(vec2 pos, vec2 A, vec2 B, vec2 C) {
-	vec2 a = B - A;
-	vec2 b = A - 2.0 * B + C;
-	if (dot(b, b) < 1e-3) {
-		return segment_distance(pos, A, C);
-	}
-	vec2 c = a * 2.0;
-	vec2 d = A - pos;
-	float kk = 1.0 / dot(b, b);
-	float kx = kk * dot(a, b);
-	float ky = kk * (2.0 * dot(a, a) + dot(d, b)) / 3.0;
-	float kz = kk * dot(d, a);
-	float p = ky - kx * kx;
-	float p3 = p * p * p;
-	float q = kx * (2.0 * kx * kx - 3.0 * ky) + kz;
-	float h = q * q + 4.0 * p3;
-	if (h >= 0.0) {
-		h = sqrt(h);
-		vec2 x = (vec2(h, -h) - q) / 2.0;
-		vec2 uv = sign(x) * pow(abs(x), vec2(1.0 / 3.0));
-		float t = clamp(uv.x + uv.y - kx, 0.0, 1.0);
-		return sqrt(dot2(d + (c + b * t) * t));
-	}
-	float z = sqrt(-p);
-	float v = acos(clamp(q / (p * z * 2.0), -1.0, 1.0)) / 3.0;
-	float mm = cos(v);
-	float nn = sin(v) * 1.732050808;
-	vec3 t = clamp(vec3(mm + mm, -nn - mm, nn - mm) * z - kx, 0.0, 1.0);
-	return sqrt(min(dot2(d + (c + b * t.x) * t.x), dot2(d + (c + b * t.y) * t.y)));
-}
-
-// A cell's water texel, the cell given as whole cells east and north of the world's corner.
-vec4 water_at(ivec2 c, ivec2 size) {
-	return texelFetch(zoom_water, ivec2(((c.x % size.x) + size.x) % size.x, ((c.y % size.y) + size.y) % size.y), 0);
-}
-
-// How much of this pixel a river covers, 0 to 1, and how much land it drains, km². Each river cell near the pixel
-// adds its piece of the course: a quadratic curve from the middle of the step from its main donor, round its own middle,
-// to the middle of the step to where its water goes; a tributary also runs on to its receiver's curve. A river shows
-// once it drains enough land for the pixel's size, at least about a pixel wide, then at its true width.
-vec2 river_at(vec2 w, float fp) {
-	ivec2 size = textureSize(zoom_water, 0);
-	float cm = zoom_world.x / float(size.x);
-	vec2 cw = w / cm;
-	vec2 base = floor(cw);
-	// metres from the corner of the pixel's cell, meandering
-	vec2 p = (cw - base) * cm;
-	p += vec2(ground_noise(w - zoom_focus, 700.0), ground_noise(w - zoom_focus + 3100.0, 700.0)) * 300.0 - 150.0;
-	p += vec2(ground_noise(w - zoom_focus, 230.0), ground_noise(w - zoom_focus + 1700.0, 230.0)) * 110.0 - 55.0;
-	float least_area = 8.0 * fp;
-	float cover = 0.0;
-	float drained = 0.0;
-	for (int dy = -1; dy <= 1; dy++) {
-		for (int dx = -1; dx <= 1; dx++) {
-			ivec2 c = ivec2(base) + ivec2(dx, dy);
-			vec4 here = water_at(c, size);
-			int way = int(here.r * 255.0 + 0.5);
-			if (way > 7) {
-				continue;
-			}
-			float area = exp2(here.g * 255.0 / 16.0);
-			float show = smoothstep(least_area, 2.0 * least_area, area);
-			if (show <= 0.0) {
-				continue;
-			}
-			vec2 x = (vec2(float(dx), float(dy)) + 0.5) * cm;
-			vec2 to = x + STEP[way] * cm;
-			int from_way = int(here.a * 255.0 + 0.5);
-			vec2 from = from_way <= 7 ? x + 0.5 * STEP[from_way] * cm : x;
-			vec4 next = water_at(c + ivec2(STEP[way]), size);
-			// a river running into the sea runs on to the sea cell's middle, past the coast
-			bool mouth = next.r * 255.0 > 7.5;
-			float dist = bezier_distance(p, from, x, mouth ? to : 0.5 * (x + to));
-			// a tributary runs on from the middle of its step to its receiver's curve
-			int next_from = int(next.a * 255.0 + 0.5);
-			if (!mouth && next_from <= 7 && length(STEP[next_from] + STEP[way]) > 0.1) {
-				int next_way = int(next.r * 255.0 + 0.5);
-				vec2 next_to = next_way <= 7 ? to + STEP[next_way] * cm : to;
-				vec2 join = 0.25 * (to + 0.5 * STEP[next_from] * cm) + 0.5 * to + 0.25 * (0.5 * (to + next_to));
-				dist = min(dist, segment_distance(p, 0.5 * (x + to), join));
-			}
-			float half_width = max(0.5 * (4.0 + 1.2 * sqrt(area)), 0.55 * fp);
-			float covered = show * clamp((half_width - dist) / fp + 0.5, 0.0, 1.0);
-			if (covered > cover) {
-				cover = covered;
-				drained = area;
-			}
-		}
-	}
-	return vec2(cover, drained);
 }
 
 // The sea's currents and eddies, at the scales a pixel `fp` metres across can show: noise warped by noise, drifting
@@ -206,9 +117,15 @@ vec2 currents(vec2 d, float fp) {
 	return vec2(f, pow(ridge, 8.0));
 }
 
-// The colour of water `depth` metres deep at a place (variant B and C): deep navy, the open sea's blue, the shelves'
-// turquoise and the shallows' clear green over sand; the currents darker and lighter across it.
+// The water's own colour `depth` metres deep at a place: the art book's map (variant A), the shelves light, the deep
+// sea one colour, in bands; or (B, C) deep navy, the open sea's blue, the shelves' turquoise and the shallows' clear
+// green over sand, the currents darker and lighter across it.
 vec3 water_body(float depth, vec2 d, float fp) {
+	if (int(zoom_style.y + 0.5) == 0) {
+		vec3 shelf_band = vec3(0.333, 0.525, 0.545);
+		vec3 deep_band = vec3(0.235, 0.408, 0.475);
+		return mix(shelf_band, deep_band, depth < 40.0 ? 0.0 : (depth < 250.0 ? 0.45 : 1.0));
+	}
 	vec3 deep = vec3(0.012, 0.04, 0.17);
 	vec3 open_sea = vec3(0.02, 0.10, 0.33);
 	vec3 shelf = vec3(0.04, 0.30, 0.52);
@@ -230,20 +147,9 @@ vec3 water_body(float depth, vec2 d, float fp) {
 	return col;
 }
 
-// The colour of water `depth` metres deep, seen along `view` (toward the eye) with the surface's normal `n`, under the
-// sun (`sun_c`, `direct`) and the sky (`sky_c`, `ambient`).
-vec3 water_colour(float depth, vec3 view, vec3 up_dir, float fp, vec2 d, vec3 sun_c, vec3 sky_c, float direct, float ambient) {
-	int style = int(zoom_style.y + 0.5);
-	vec3 sun = normalize(zoom_sun);
-	if (style == 0) {
-		// the art book's map: the shelves light, the deep sea one colour, in bands
-		vec3 shelf = vec3(0.333, 0.525, 0.545);
-		vec3 deep = vec3(0.235, 0.408, 0.475);
-		float band = depth < 40.0 ? 0.0 : (depth < 250.0 ? 0.45 : 1.0);
-		return mix(shelf, deep, band) * (sun_c * direct + sky_c * ambient);
-	}
-	vec3 body = water_body(depth, d, fp);
-	// waves: rough from far off, so the sun's glint spreads; fine and moving close up
+// The water's surface seen along `view` (toward the eye): how much of the sky it reflects, x, and the sun's glint, y.
+// Its waves are rough from far off, so the glint spreads, and fine and moving close up.
+vec2 water_surface(vec3 view, vec3 up_dir, float fp, vec2 d) {
 	float t = zoom_clock.x;
 	vec2 wave = vec2(0.0);
 	float rough = clamp(fp / 40.0, 0.08, 1.0);
@@ -254,16 +160,38 @@ vec3 water_colour(float depth, vec3 view, vec3 up_dir, float fp, vec2 d, vec3 su
 	vec3 east = normalize(cross(up_dir, vec3(0.0, 0.0, 1.0)) + vec3(1e-4, 0.0, 0.0));
 	vec3 wn = normalize(up_dir + (east * wave.x + cross(east, up_dir) * wave.y) * 0.35);
 	float fresnel = 0.02 + 0.98 * pow(1.0 - max(dot(view, wn), 0.0), 5.0);
-	vec3 half_way = normalize(view + sun);
+	vec3 half_way = normalize(view + normalize(zoom_sun));
 	float shine = pow(max(dot(wn, half_way), 0.0), mix(700.0, 60.0, rough)) * mix(2.5, 0.12, rough);
-	vec3 colour = body * (sun_c * (0.35 + 0.65 * direct) + sky_c * ambient) + sky_c * fresnel * 0.5
-			+ sun_c * shine * step(0.0, dot(up_dir, sun));
+	return vec2(fresnel, shine);
+}
+
+// Water `depth` metres deep, of its own colour `body`, its surface as water_surface gives it, under the sun (`sun_c`,
+// `direct`) and the sky (`sky_c`, `ambient`); the sun's glint where the sun reaches it (`sun_seen`, 0 or 1).
+vec3 water_lit(vec3 body, vec2 surface, float depth, float fp, vec2 d, vec3 sun_c, vec3 sky_c, float direct, float ambient,
+		float sun_seen) {
+	int style = int(zoom_style.y + 0.5);
+	if (style == 0) {
+		return body * (sun_c * direct + sky_c * ambient);
+	}
+	vec3 colour = body * (sun_c * (0.35 + 0.65 * direct) + sky_c * ambient) + sky_c * surface.x * 0.5
+			+ sun_c * surface.y * sun_seen;
 	if (style == 2 && fp < 6.0 && depth < 4.0) {
 		// waves breaking near the shore, moving in
-		float surf = sin(depth * 2.6 - t * 1.7 + 6.0 * ground_noise(d, 9.0));
+		float surf = sin(depth * 2.6 - zoom_clock.x * 1.7 + 6.0 * ground_noise(d, 9.0));
 		colour = mix(colour, vec3(0.92, 0.95, 0.95), smoothstep(0.82, 0.95, surf) * (1.0 - depth / 4.0));
 	}
 	return colour;
+}
+
+// The land of colour `base` under the sun's light `direct` and the sky's `ambient`: in four steps of light meeting in
+// clean edges (variants A and C, the sharp look chosen in P1, A4.1), the shade blue; or smoothly (B).
+vec3 land_lit(vec3 base, float direct, float ambient, vec3 sun_c, vec3 sky_c, int land_style) {
+	if (land_style == 0 || land_style == 2) {
+		float level = clamp(direct * 1.1 + ambient * 0.3, 0.0, 1.3);
+		float step_level = floor(level * 4.0 + 0.5) / 4.0;
+		return base * mix(sky_c * 1.3 + 0.12, sun_c * 1.15, clamp(step_level, 0.0, 1.0)) * (0.5 + 0.5 * step_level);
+	}
+	return base * (sun_c * direct * 1.25 + sky_c * ambient * 0.55);
 }
 
 // A colour made more vivid: its saturation times `k`.
@@ -296,15 +224,15 @@ void fragment() {
 #else
 	float shade = cloud_shadow(w, max(v_up, 0.0), frame, fp);
 #endif
+	float sun_seen = step(0.0, sun_up);
+	float water_direct = max(sun_up, 0.0) * shade;
 
 	// the cells' height, smooth, coastlines a little worn so they are not the cells' straight edges
-	vec2 worn = d + vec2(ground_noise(d, 600.0), ground_noise(d + 5300.0, 600.0)) * 260.0 - 130.0;
-	float h = textureLod(zoom_height, (zoom_focus + worn) / zoom_world, log2(max(fp / 977.0, 1.0))).r;
+	vec2 shore = shore_uv(d);
+	float h = textureLod(zoom_height, shore, log2(max(fp / 977.0, 1.0))).r;
 	// the cells' cover and climate read a little off where the pixel is, by noise, so their edges wander as the land's
 	// do rather than follow the cells
-	vec2 wander = vec2(ground_noise(d + 900.0, 4000.0), ground_noise(d + 7100.0, 4000.0)) * 2600.0 - 1300.0
-			+ vec2(ground_noise(d + 300.0, 1100.0), ground_noise(d + 4100.0, 1100.0)) * 700.0 - 350.0;
-	vec2 uv_cell = (w + wander) / zoom_world;
+	vec2 uv_cell = cell_uv(d);
 	vec4 clim = texture(zoom_climate, uv_cell);
 	float lat = PI * (uv.y - 0.5);
 	float warmth = season_warmth(lat);
@@ -335,20 +263,22 @@ void fragment() {
 	vec2 slope = h >= 0.0 ? relief(w, fp) * exaggerate : vec2(0.0);
 	vec4 cover = texture(zoom_cover, uv_cell);
 	float trees = cover.a;
-	float dry = smoothstep(0.35, 0.08, clim.a) * (1.0 - trees);
+	float dry = dryness(clim.a, trees);
 #ifdef LIGHT
 	vec4 clump = vec4(0.0, 0.0, 0.5, 0.5);
 #else
 	vec4 clump = clumps(d, fp, 1.5);
 #endif
+	// the forests' stands, where the trees' own rule puts them (forest.gdshaderinc); their crowns drawn by the ground
+	// where the trees are not drawn as shapes, fading in on the coarsest chunks that draw them as their trees fade out;
+	// under the trees' shapes, the forest's floor
+	float forest = h >= 0.0 ? forest_stand(d, trees, fp) : 0.0;
+	float canopy = trees_drawn == 0 ? 1.0 : (trees_drawn == 1 ? v_morph : 0.0);
 	float bumpy = 0.0;
-	// the forest's edge: clumps standing where they are high enough for the share under trees, so its edge is ragged
-	// with single clumps, not a blur
-	float forest = smoothstep(0.0, 0.12, clump.z - (1.0 - trees) * 0.9 + 0.05) * step(0.08, trees);
 	if (h >= 0.0 && land_style != 0) {
 		// open land's clumps only from a few metres up: closer, grass is drawn by its own tufts, not domes
 		float open_land = mix(0.22, 0.12, dry) * smoothstep(0.25, 2.5, fp);
-		bumpy = mix(open_land, 1.0, forest) * (1.0 - ice);
+		bumpy = mix(open_land, 1.0, forest * canopy) * (1.0 - ice);
 		slope += clump.xy * bumpy;
 	}
 	// the mesh's own slope deepened too, as the zoom leaves the ground, so hills show from above as on a map
@@ -356,14 +286,28 @@ void fragment() {
 	vec3 n_flat = n_mesh - up_dir * dot(n_mesh, up_dir);
 	vec3 n = normalize(up_dir * dot(n_mesh, up_dir) + n_flat * deepen - frame[0] * slope.x - frame[2] * slope.y);
 	float direct = max(dot(n, sun), 0.0) * shade;
-	float ambient = (0.55 + 0.45 * dot(n, up_dir)) * mix(1.0, mix(0.55, 1.0, clump.z), bumpy);
+	float ambient = (0.55 + 0.45 * dot(n, up_dir)) * mix(1.0, mix(0.55, 1.0, clump.z), bumpy)
+			* mix(1.0, 0.7, forest * (1.0 - canopy));
 
-	vec3 colour;
+	vec3 colour_sun;
+	vec3 colour_shadow;
+#ifdef SUN_SHADOW
+	v_near = 0.0;
+	v_row = 0.0;
+	v_bias = 0.0;
+	v_sky = 1.0;
+	v_cloud = shade;
+	v_fire = 0.0;
+#endif
 	if (h < 0.0) {
-		colour = water_colour(-h, view, up_dir, fp, d, sun_c, sky_c, max(sun_up, 0.0) * shade, 0.55);
+		vec3 body = water_body(-h, d, fp);
+		vec2 surface = water_surface(view, up_dir, fp, d);
+		colour_sun = water_lit(body, surface, -h, fp, d, sun_c, sky_c, water_direct, 0.55, sun_seen);
+		colour_shadow = water_lit(body, surface, -h, fp, d, sun_c, sky_c, 0.0, 0.55, 0.0);
 		if (ice > 0.0) {
 			vec3 floe = vec3(0.88, 0.93, 0.98) * ice_tone;
-			colour = mix(colour, floe * (sun_c * (0.45 + 0.7 * max(sun_up, 0.0) * shade) + sky_c * 0.8), ice);
+			colour_sun = mix(colour_sun, floe * (sun_c * (0.45 + 0.7 * water_direct) + sky_c * 0.8), ice);
+			colour_shadow = mix(colour_shadow, floe * (sun_c * 0.45 + sky_c * 0.8), ice);
 		}
 	} else {
 		vec3 base = cover.rgb;
@@ -371,10 +315,26 @@ void fragment() {
 			// the cover's colour, vivid; where trees stand, a forest's green, the open land's own between them
 			vec3 open_land = vivid(mix(cover.rgb, vec3(0.62, 0.66, 0.30), trees * 0.6), 1.5);
 			vec3 woods = vivid(cover.rgb * vec3(0.82, 1.0, 0.86), 1.7) * mix(0.8, 1.0, trees);
-			base = mix(open_land, woods, forest);
 			// each clump its own shade, the crowns' tops lighter and yellower, stands lighter and darker
-			base *= mix(1.0, mix(0.8, 1.15, clump.w), forest);
-			base = mix(base, base * vec3(1.2, 1.24, 0.76), clump.z * forest * 0.5);
+			woods *= mix(0.8, 1.15, clump.w);
+			woods = mix(woods, woods * vec3(1.2, 1.24, 0.76), clump.z * 0.5);
+			vec3 floor_colour = open_land * vec3(0.66, 0.72, 0.62);
+#ifdef SUN_SHADOW
+			// as the zoom comes down to the camp, these colours give way to the art book's own, the middle steps of the
+			// meadow's or the dry grass's ramp, the leaves' and the woods' floor's, so its look close up arrives with
+			// no change of colour
+			float art = smoothstep(16.0, 4.0, fp);
+			if (art > 0.0) {
+				float dry_row = smoothstep(0.3, 0.55, dry);
+				vec3 meadow_art = mix(mix(pal(zoom_rows_a.x, 4.0), pal(zoom_rows_a.x, 5.0), 0.45),
+						mix(pal(zoom_rows_a.y, 4.0), pal(zoom_rows_a.y, 5.0), 0.45), dry_row);
+				open_land = mix(open_land, to_linear(meadow_art), art);
+				vec3 leaf_art = mix(pal(zoom_rows_c.y, 3.0), pal(zoom_rows_c.y, 4.0), 0.6);
+				woods = mix(woods, to_linear(leaf_art) * mix(0.8, 1.15, clump.w), art);
+				floor_colour = mix(floor_colour, to_linear(pal(zoom_rows_a.z, 3.0)), art);
+			}
+#endif
+			base = mix(open_land, mix(floor_colour, woods, canopy), forest);
 			base *= 1.0 + 0.4 * ground_detail(d, 3000.0, 2.0 * fp, 9);
 			// the deserts' sand and stone
 			base = mix(base, base * vec3(0.78, 0.62, 0.5), dry * smoothstep(0.55, 0.75, clump.z + 0.3 * ground_detail(d, 6000.0, fp, 5)));
@@ -385,35 +345,76 @@ void fragment() {
 		float steep = max(v_slope, length(slope) * 0.5 * (1.0 - bumpy));
 		float rock = smoothstep(0.25, 0.45, steep + 0.08 * ground_detail(d, 400.0, fp, 4));
 		base = mix(base, vec3(0.50, 0.44, 0.42), rock);
-		float beach = smoothstep(4.0, 1.0, h) * (1.0 - rock);
+		float beach = beach_of(h, rock);
 		base = mix(base, vec3(0.90, 0.80, 0.56), beach * 0.85);
 		// snow where this season is cold enough at this height, and ice
-		float temp = season_temp - 0.0065 * max(v_up - max(h, 0.0), 0.0);
-		float snow = smoothstep(0.5, -2.0, temp + 2.5 * ground_detail(d, 2000.0, fp, 6));
+		float snow = snow_of(season_temp, max(v_up - max(h, 0.0), 0.0), d, fp);
 		base = mix(base, vec3(0.93, 0.95, 0.98), max(snow, ice));
-		vec3 lit;
-		if (land_style == 0 || land_style == 2) {
-			// banded light: four steps meeting in clean edges, the sharp look chosen in P1 (A4.1); the shade blue
-			float level = clamp(direct * 1.1 + ambient * 0.3, 0.0, 1.3);
-			float step_level = floor(level * 4.0 + 0.5) / 4.0;
-			lit = base * mix(sky_c * 1.3 + 0.12, sun_c * 1.15, clamp(step_level, 0.0, 1.0)) * (0.5 + 0.5 * step_level);
-		} else {
-			lit = base * (sun_c * direct * 1.25 + sky_c * ambient * 0.55);
-		}
-		colour = lit;
+		colour_sun = land_lit(base, direct, ambient, sun_c, sky_c, land_style);
+		colour_shadow = land_lit(base, 0.0, ambient, sun_c, sky_c, land_style);
 		// lakes, their shores worn as the coasts' are
-		float lake = textureLod(zoom_water_soft, (zoom_focus + worn) / zoom_world, 0.0).b * 255.0;
+		float lake = textureLod(zoom_water_soft, shore, 0.0).b * 255.0;
 		if (lake > 1.0) {
-			colour = water_colour(lake, view, up_dir, fp, d, sun_c, sky_c, max(sun_up, 0.0) * shade, 0.55);
+			vec3 body = water_body(lake, d, fp);
+			vec2 surface = water_surface(view, up_dir, fp, d);
+			colour_sun = water_lit(body, surface, lake, fp, d, sun_c, sky_c, water_direct, 0.55, sun_seen);
+			colour_shadow = water_lit(body, surface, lake, fp, d, sun_c, sky_c, 0.0, 0.55, 0.0);
 		}
 		// rivers over land and lakes alike
-		vec2 river = river_at(w, fp);
+		vec3 river = river_near(d, fp);
 		if (river.x > 0.0) {
 			// as deep as the land it drains is wide, so larger rivers show bluer
 			float depth = 4.0 + 2.5 * log2(max(river.y, 1.0));
-			vec3 flowing = water_colour(depth, view, up_dir, fp, d, sun_c, sky_c, max(sun_up, 0.0) * shade, 0.55);
-			colour = mix(colour, flowing, river.x);
+			vec3 body = water_body(depth, d, fp);
+			vec2 surface = water_surface(view, up_dir, fp, d);
+			vec3 flowing_sun = water_lit(body, surface, depth, fp, d, sun_c, sky_c, water_direct, 0.55, sun_seen);
+			vec3 flowing_shadow = water_lit(body, surface, depth, fp, d, sun_c, sky_c, 0.0, 0.55, 0.0);
+			colour_sun = mix(colour_sun, flowing_sun, river.x);
+			colour_shadow = mix(colour_shadow, flowing_shadow, river.x);
 		}
+#ifdef SUN_SHADOW
+		// close up, the art book's ground (A4.2): each pixel one layer of the look's palette (near.gdshaderinc), in
+		// patches a step darker, meeting in clean edges, lit in the look's steps as what stands on it is
+		v_near = smoothstep(4.0, 1.6, fp);
+		if (v_near > 0.0) {
+			vec4 layer = near_layer(d, fp, dry, forest * (1.0 - canopy), river, lake, beach, rock, max(snow, ice));
+			v_row = layer.x;
+			v_bias = layer.y;
+			float open = layer.z;
+			vec3 shading_n = layer.w == LAYER_WATER ? up_dir : n;
+			v_sky = sky_light(vec3(0.0, dot(shading_n, up_dir), 0.0), open);
+			// the camp's fire on the ground round it (look_core.gdshaderinc)
+			vec3 at = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
+			for (int i = 0; i < 4; i++) {
+				if (look_fire_powers[i] > 0.0) {
+					v_fire += fire_reach(i, at, shading_n, 0.35, ground_noise(d + float(i) * 70.0, 1.2));
+				}
+			}
+			NORMAL = (VIEW_MATRIX * vec4(shading_n, 0.0)).xyz;
+		}
+#endif
 	}
-	ALBEDO = colour;
+#ifdef SUN_SHADOW
+	v_sunlit = colour_sun;
+	v_shaded = colour_shadow;
+	ALBEDO = vec3(1.0);
+#else
+	ALBEDO = colour_sun;
+#endif
 }
+
+#ifdef SUN_SHADOW
+// The sun's shadow map: a tree or a thing between the pixel and the sun takes the sun's own light away; close up the
+// look's light gives the art book's step, the clouds' shadows as hard as a tree's.
+void light() {
+	if (LIGHT_IS_DIRECTIONAL) {
+		vec3 far = mix(v_shaded, v_sunlit, ATTENUATION);
+		vec3 near = far;
+		if (v_near > 0.0) {
+			float sun = ATTENUATION * step(0.65, v_cloud);
+			near = to_linear(shade_pixel(dot(NORMAL, LIGHT), sun, 0.0, v_row, v_bias, 0.0, v_sky, v_fire, 0.0));
+		}
+		DIFFUSE_LIGHT = mix(far, near, v_near);
+	}
+}
+#endif

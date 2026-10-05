@@ -48,10 +48,6 @@ protected:
         godot::ClassDB::bind_method(godot::D_METHOD("ground", "world", "east", "north", "n", "spacing"),
                                     &WorldGen::ground);
         godot::ClassDB::bind_method(godot::D_METHOD("start", "world"), &WorldGen::start);
-        godot::ClassDB::bind_method(godot::D_METHOD("ground_mesh", "world", "east", "north", "n", "spacing"),
-                                    &WorldGen::ground_mesh);
-        godot::ClassDB::bind_method(godot::D_METHOD("trees", "world", "east", "north", "side", "spacing"),
-                                    &WorldGen::trees);
         godot::ClassDB::bind_method(godot::D_METHOD("rivers", "world", "least_km2"), &WorldGen::rivers);
         godot::ClassDB::bind_method(godot::D_METHOD("coasts", "world"), &WorldGen::coasts);
         godot::ClassDB::bind_method(godot::D_METHOD("world_size"), &WorldGen::world_size);
@@ -162,65 +158,6 @@ public:
         const std::vector<float> h = worldgen::ground_heights(*w, east, north, n, spacing);
         out.resize(static_cast<std::int64_t>(h.size()));
         std::memcpy(out.ptrw(), h.data(), h.size() * sizeof(float));
-        return out;
-    }
-
-    // A square of ground as a mesh's arrays, for P8's chunks: n × n vertices `spacing` metres apart from (east,
-    // north), in metres from that corner, x east, y up and z south, the sea flat at its level; their normals; and
-    // their colours.
-    godot::Array ground_mesh(int world, double east, double north, int n, double spacing) const {
-        godot::Array out;
-        const worldgen::World* w = offered(world);
-        if (w == nullptr || n < 2) {
-            return out;
-        }
-        const std::vector<float> h = worldgen::ground_heights(*w, east, north, n, spacing);
-        const std::vector<std::uint8_t> rgb = worldgen::ground_colours(*w, east, north, n, spacing, h);
-        godot::PackedVector3Array vertices;
-        godot::PackedVector3Array normals;
-        godot::PackedColorArray colours;
-        const auto count = static_cast<std::int64_t>(n) * n;
-        vertices.resize(count);
-        normals.resize(count);
-        colours.resize(count);
-        const auto at = [n, &h](int i, int j) {
-            i = std::clamp(i, 0, n - 1);
-            j = std::clamp(j, 0, n - 1);
-            return std::max(
-                0.0F, h[(static_cast<std::size_t>(j) * static_cast<std::size_t>(n)) + static_cast<std::size_t>(i)]);
-        };
-        for (int j = 0; j < n; ++j) {
-            for (int i = 0; i < n; ++i) {
-                const std::int64_t k = (static_cast<std::int64_t>(j) * n) + i;
-                vertices.set(
-                    k, godot::Vector3(static_cast<float>(i * spacing), at(i, j), static_cast<float>(-j * spacing)));
-                const float dx = (at(i + 1, j) - at(i - 1, j)) / static_cast<float>(2.0 * spacing);
-                const float dz = (at(i, j + 1) - at(i, j - 1)) / static_cast<float>(2.0 * spacing);
-                normals.set(k, godot::Vector3(-dx, 1.0F, dz).normalized());
-                const std::size_t c = static_cast<std::size_t>(k) * 3;
-                colours.set(k,
-                            godot::Color(static_cast<float>(rgb[c]) / 255.0F, static_cast<float>(rgb[c + 1]) / 255.0F,
-                                         static_cast<float>(rgb[c + 2]) / 255.0F));
-            }
-        }
-        out.push_back(vertices);
-        out.push_back(normals);
-        out.push_back(colours);
-        return out;
-    }
-
-    // The trees in a square, each as metres east of its corner, the ground's height, and metres north (A9).
-    godot::PackedVector3Array trees(int world, double east, double north, double side, double spacing) const {
-        godot::PackedVector3Array out;
-        const worldgen::World* w = offered(world);
-        if (w == nullptr) {
-            return out;
-        }
-        const std::vector<float> xyh = worldgen::ground_trees(*w, east, north, side, spacing);
-        out.resize(static_cast<std::int64_t>(xyh.size() / 3));
-        for (std::size_t i = 0; i < xyh.size() / 3; ++i) {
-            out.set(static_cast<std::int64_t>(i), godot::Vector3(xyh[i * 3], xyh[(i * 3) + 2], xyh[(i * 3) + 1]));
-        }
         return out;
     }
 

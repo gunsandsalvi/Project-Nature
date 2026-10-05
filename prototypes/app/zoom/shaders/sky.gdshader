@@ -12,4 +12,5 @@ render_mode unshaded, depth_draw_never, depth_test_disabled, cull_disabled, shad
 #define FLAT
 #include "res://zoom/shaders/planet.gdshaderinc"
 #include "res://zoom/shaders/clouds.gdshaderinc"
+#include "res://look/shaders/look_core.gdshaderinc"
 #include "res://zoom/shaders/sky.gdshaderinc"
