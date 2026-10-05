@@ -32,6 +32,11 @@ constexpr int kYear = 60;  // game days (TIM-18)
 
 }  // namespace
 
+std::array<float, 3> grown_cover(Biome b) {
+    const Cover& c = kGrown[static_cast<std::size_t>(b)];
+    return {c.trees, c.bushes, c.grass};
+}
+
 double settle(World* w, int years, minds::Pool* pool) {
     const auto t0 = std::chrono::steady_clock::now();
     const Grid& g = w->grid;

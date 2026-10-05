@@ -272,6 +272,8 @@ double settle(World* w, int years, minds::Pool* pool);
 std::vector<std::uint8_t> map_rgb(const World& w, int scale, bool rivers = true);
 // A biome's colour on the map, from the art book's.
 std::array<std::uint8_t, 3> cover_colour(Biome b);
+// A land biome's cover once grown (WLD-31): the shares under trees, bushes, and grass and herbs.
+std::array<float, 3> grown_cover(Biome b);
 
 // The seed of candidate number i.
 std::uint64_t candidate_seed(std::uint64_t seed, int i);

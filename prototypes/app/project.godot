@@ -196,3 +196,64 @@ look_outline={
 "type": "int",
 "value": 0
 }
+
+zoom_world={
+"type": "vec2",
+"value": Vector2(2000000, 1000000)
+}
+zoom_focus={
+"type": "vec2",
+"value": Vector2(0, 0)
+}
+zoom_focus_at={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
+zoom_fine={
+"type": "vec2",
+"value": Vector2(0, 0)
+}
+zoom_true={
+"type": "vec2",
+"value": Vector2(0, 1)
+}
+zoom_sun={
+"type": "vec3",
+"value": Vector3(0, 1, 0)
+}
+zoom_clock={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+zoom_style={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+zoom_height={
+"type": "sampler2D",
+"value": ""
+}
+zoom_climate={
+"type": "sampler2D",
+"value": ""
+}
+zoom_cover={
+"type": "sampler2D",
+"value": ""
+}
+zoom_water={
+"type": "sampler2D",
+"value": ""
+}
+zoom_water_soft={
+"type": "sampler2D",
+"value": ""
+}
+zoom_cloud_noise={
+"type": "sampler3D",
+"value": ""
+}
+zoom_pixel={
+"type": "float",
+"value": 1.0
+}

@@ -1,111 +1,98 @@
-## P8 The zoom (IMPLEMENTATION α0.5b): one pinch from the globe to a person over P7's world, at the
-## art book's pixel size, a quarter of the screen, drawn through Godot's RenderingServer: the world
-## map from the world's cells, its rivers and shore as lines, bent onto the globe past the world map
-## (PRE-29, WLD-02); the middle ground to about 16 km in coarse chunks; the near ground within about
-## 300 m, a vertex every metre or two, with its trees (A8.1, A8.3). Each chunk is made on a worker
-## thread from the seed alone (A7.5, WLD-13). Each ring draws round the finer ones, where their
-## chunks are all made, giving way to them by dithering, and shrinks as the zoom leaves it; all
-## round an origin that moves with the focus (A8.2). Measure pinches from the globe to a person over
-## the start region, made afresh, and back, and times the frames at every stop and the making of a
-## full area. Pre-production code (research 00): the app's README names its items.
+## P8 The zoom (IMPLEMENTATION α0.5b), second round: one descent from space to a person over P7's
+## world, a planet at every scale, never unrolled into a flat map (WLD-02). The ground is chunks in
+## a tree of levels, each made on a worker thread from the seed alone (WLD-13) and morphing
+## smoothly into the next as the camera moves (CDLOD, A8.1); one shader colours every level the
+## same way, so only detail changes; a pass over the picture adds the air's scattering and the
+## clouds, which the camera passes through on its way down (A8.4, A8.6). The picture is drawn at
+## a pixel for every two of the screen's and shown in pixels whose size the variant sets (A4).
+## Variants to compare (A/B): pixels, land, water, clouds, light and the camera's path, and the
+## time of day. Measure descends from the globe to a person and back by itself, timing every stop.
+## Pre-production code (research 00): the app's README names its items.
 extends Control
 
 signal closed
 
 const RUNS := preload("res://look/runs.gd")
-const ART := 4
+const BASE := 2  # the screen's pixels a drawn pixel
 const INK := Color("ebe5da")
 const FLAME := Color("f6a33c")
-const NIGHT := Color("16131d")
-const GAP := 12
+const NIGHT := Color("0b0a12")
+const GAP := 10
 const THREADS := 4
-## The zoom's stops (PRE-03), each with the metres an art pixel shows there, on the phone's 336 art
-## pixels across: a person about 53 art pixels tall in 10 m, the close camp about 45 m, the camp
-## about 370 m, the valley 12 km, the region 120 km, the world map the world's 2,000 km around; then
-## the globe, the map bent onto it.
+## The zoom's stops (PRE-03), each with the metres the picture shows across at the focus: a person
+## about 10 m, the close camp 45 m, the camp 370 m, the valley 12 km, the region 120 km; the world
+## map, a continent on the curving globe; the globe whole.
 const STOPS := [
-	["person", 0.03],
-	["close camp", 0.13],
-	["camp", 1.1],
-	["valley", 37.0],
-	["region", 370.0],
-	["world map", 5500.0],
-	["globe", 0.0],
+	["person", 10.0],
+	["close camp", 45.0],
+	["camp", 370.0],
+	["valley", 12000.0],
+	["region", 120000.0],
+	["world map", 420000.0],
+	["globe", 950000.0],
 ]
-## The share of the zoom's range up to the world map; the rest bends the map onto the globe.
-const FLAT := 0.85
-## The levels of detail (A8.1), finest first, as rings round the focus, as clipmaps do: a chunk's
-## side in metres, its vertices a side, how far round the focus the ring reaches, the most metres an
-## art pixel shows while it is drawn, its ring shrinking to nothing over the last halving of the
-## scale before that, and how its chunks' trees are drawn, if they hold any. The near rings are the
-## full areas within about 300 m (PRE-03), the first of them a full area across, their trees as
-## models; the middle ones, the areas' coarse ground beyond.
-const LEVELS := [
-	{"name": "near", "side": 64.0, "n": 65, "reach": 128.0, "most": 1.0, "trees": "models"},
-	{"name": "near out", "side": 128.0, "n": 65, "reach": 300.0, "most": 2.0, "trees": "models"},
-	{"name": "middle", "side": 1600.0, "n": 41, "reach": 5000.0, "most": 70.0, "trees": ""},
-	{"name": "middle out", "side": 3200.0, "n": 41, "reach": 16000.0, "most": 140.0, "trees": ""},
-]
-## The trees beyond the near rings as cards, two faces for a crown and two for a trunk, on the
-## middle ground out to where the camp's tilted view ends, so the forest goes on past the full
-## areas; beyond them, the cover's colour (A8.3). A ring of chunks with no ground of their own.
-const CARDS := {
-	"name": "cards", "side": 256.0, "n": 0, "reach": 900.0, "most": 2.0, "trees": "cards"
-}
-## How far a card sinks into the coarse ground it stands on, which may lie below the ground's true
-## height between its vertices.
-const CARD_SINK := 1.5
-## The map and its lines, each with its shader.
-const MAP_SHADERS := {"map": "map", "rivers": "lines", "coasts": "lines"}
-## A tree may stand every TREE_GRID metres in a near chunk, as its cover allows (A9).
-const TREE_GRID := 5.0
+## The camera's field of view across the picture, degrees.
+const FOV := 25.0
+## The chunk tree (A8.1): 4 × 2 roots of 500 km, each splitting into four down to chunks 30.5 m
+## across; every chunk N points a side; a chunk splits while the camera is nearer than SPLIT of
+## its sides, and morphs into its parent over the last quarter of its parent's reach.
+const ROOT := 500000.0
+const DEEPEST := 14
+const N := 33
+const SPLIT := 2.4
+## The most chunks being made at once, and the most kept made, drawn or not.
+const MAKING := 6
+const KEEP := 900
 ## The origin moves to the focus once the focus is this far from it (A8.2).
 const REBASE := 2000.0
-## The most chunks being made at once, on the worker threads.
-const MAKING := 6
-## The camera's tilt down from level, from the camp inward, rising to straight down at the valley.
-const PITCH := 30.0
-## The camera's field of view across the picture, in degrees, as the map bends onto the globe: from
-## nearly parallel, so the flat map looks as it did, to a globe's (A8.4).
-const GLOBE_FOV := Vector2(10.0, 30.0)
-## Measure: seconds from the globe to a person, the hold there, and back.
-const PINCH_SECONDS := 15.0
+## The variants (A/B): each name, and what its letters mean, for the buttons and the note.
+const VARIANTS := {
+	"pixels": ["A fixed 4", "B stepped 2–6", "C blended 2–6"],
+	"land": ["A art book", "B natural", "C natural, banded"],
+	"water": ["A bands", "B deep and shallow", "C with waves"],
+	"clouds": ["A volume", "B decks", "C flat"],
+	"light": ["A art book", "B the air's"],
+	"path": ["A down", "B flight"],
+	"time": ["noon", "dusk", "night", "live"],
+}
+## Measure: seconds down from the globe to a person, the hold there, and back up.
+const DESCENT_SECONDS := 20.0
 const HOLD_SECONDS := 3.0
-## A full area, about 256 m across (WLD-12): Measure times it from the first near ring's first chunk
-## asked until every chunk within this many metres of the focus is made.
-const AREA_HALF := 128.0
 
 var gen: RefCounted
-## The focus in metres east and north of the world's corner; the world's own size in metres.
+var world_m := Vector2(2.0e6, 1.0e6)
+## The focus, metres east and north of the world's corner, and the zoom: 0 at the person, 1 at the
+## globe, in even steps of the logarithm of the metres shown.
 var focus := Vector2.ZERO
-var world_m := Vector2.ZERO
-## 0 at the person, FLAT at the world map, 1 at the globe.
 var zoom := 1.0
+var choice := {"pixels": 2, "land": 1, "water": 1, "clouds": 0, "light": 1, "path": 0, "time": 0}
 
 var _origin := Vector2.ZERO
 var _art: SubViewport
 var _view: TextureRect
 var _cam: Camera3D
+var _sky: MeshInstance3D
 var _readout: Label
+var _buttons := {}
 var _measure_button: Button
 var _scenario: RID
-var _materials := {}
-var _rids: Array[RID] = []
-var _tree_mesh := RID()
-var _card_mesh := RID()
-## Each chunk made, by its key: its level, corner in metres, mesh and instance, and its trees'
-## multimesh and instance.
+var _ground: ShaderMaterial
+var _indices := PackedInt32Array()
+## Each chunk made, by its key "depth:i:j": its mesh and instance, and the frame it was last drawn.
 var _chunks := {}
-## Each ring's plan round the focus: where the focus was when it was made, the chunks the ring
-## keeps, and those not yet made, nearest first, each with its square.
-var _plans := {}
 var _asked := {}
 var _tasks := {}
 var _done := []
 var _done_lock := Mutex.new()
-var _indices := {}
+var _drawn := {}
+var _frame := 0
+var _missing := 0
 var _worker: Thread
 var _touches := {}
+var _tilt := 23.0
+var _year := 0.15
+var _day := 0.5
+var _weather := 0.0
 var _measuring := false
 var _clock := 0.0
 var _late := {}
@@ -117,12 +104,11 @@ var _read_clock := 0.0
 
 
 func _ready() -> void:
-	# the cloud's pictures wait while the screen is still making what it draws
 	add_to_group("busy")
 	var background := ColorRect.new()
 	background.color = NIGHT
 	background.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	background.mouse_filter = Control.MOUSE_FILTER_IGNORE  # the screen's own gestures take every touch
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	_art = SubViewport.new()
 	_art.msaa_3d = Viewport.MSAA_DISABLED
@@ -134,51 +120,27 @@ func _ready() -> void:
 	add_child(_art)
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	env.background_color = NIGHT
+	env.background_color = Color.BLACK
+	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	var world_env := WorldEnvironment.new()
 	world_env.environment = env
 	_art.add_child(world_env)
 	_cam = Camera3D.new()
 	_cam.keep_aspect = Camera3D.KEEP_WIDTH
+	_cam.fov = FOV
 	_art.add_child(_cam)
 	_view = TextureRect.new()
 	_view.texture = _art.get_texture()
-	_view.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE  # the picture is drawn larger than it shows
 	_view.stretch_mode = TextureRect.STRETCH_SCALE
 	_view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var show := ShaderMaterial.new()
+	show.shader = load("res://zoom/shaders/pixels.gdshader")
+	show.set_shader_parameter("drawn_near", _art.get_texture())
+	show.set_shader_parameter("drawn_soft", _art.get_texture())
+	_view.material = show
 	add_child(_view)
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for side in ["left", "top", "right", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, GAP)
-	add_child(margin)
-	var column := VBoxContainer.new()
-	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_theme_constant_override("separation", GAP)
-	margin.add_child(column)
-	_text(column, "P8 The zoom", FLAME, 22)
-	_readout = _text(column, "Making a world…", INK, 14)
-	var space := Control.new()
-	space.size_flags_vertical = SIZE_EXPAND_FILL
-	space.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(space)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", GAP)
-	column.add_child(row)
-	_measure_button = Button.new()
-	_measure_button.text = "Measure"
-	_measure_button.custom_minimum_size.y = 48
-	_measure_button.size_flags_horizontal = SIZE_EXPAND_FILL
-	_measure_button.disabled = true
-	_measure_button.pressed.connect(measure)
-	row.add_child(_measure_button)
-	var back := Button.new()
-	back.text = "Back"
-	back.custom_minimum_size.y = 48
-	back.size_flags_horizontal = SIZE_EXPAND_FILL
-	back.pressed.connect(func() -> void: closed.emit())
-	row.add_child(back)
+	_build_controls()
 	resized.connect(_layout)
 	_layout()
 	if not ClassDB.class_exists("WorldGen"):
@@ -190,19 +152,76 @@ func _ready() -> void:
 	_worker.start(_make_world)
 
 
+func _build_controls() -> void:
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for side in ["left", "top", "right", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, GAP)
+	add_child(margin)
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_theme_constant_override("separation", 6)
+	margin.add_child(column)
+	_text(column, "P8 The zoom · round 2", FLAME, 20)
+	_readout = _text(column, "Making a world…", INK, 13)
+	var space := Control.new()
+	space.size_flags_vertical = SIZE_EXPAND_FILL
+	space.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(space)
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	column.add_child(grid)
+	for name: String in VARIANTS:
+		var b := Button.new()
+		b.custom_minimum_size = Vector2(0, 44)
+		b.size_flags_horizontal = SIZE_EXPAND_FILL
+		b.add_theme_font_size_override("font_size", 13)
+		b.pressed.connect(_cycle.bind(name))
+		grid.add_child(b)
+		_buttons[name] = b
+	_measure_button = Button.new()
+	_measure_button.text = "Measure"
+	_measure_button.custom_minimum_size = Vector2(0, 44)
+	_measure_button.size_flags_horizontal = SIZE_EXPAND_FILL
+	_measure_button.disabled = true
+	_measure_button.pressed.connect(measure)
+	grid.add_child(_measure_button)
+	var back := Button.new()
+	back.text = "Back"
+	back.custom_minimum_size = Vector2(0, 44)
+	back.size_flags_horizontal = SIZE_EXPAND_FILL
+	back.pressed.connect(func() -> void: closed.emit())
+	grid.add_child(back)
+	_label_buttons()
+
+
+func _label_buttons() -> void:
+	for name: String in VARIANTS:
+		var b: Button = _buttons[name]
+		b.text = "%s: %s" % [name.capitalize(), VARIANTS[name][choice[name]]]
+
+
+func _cycle(name: String) -> void:
+	choice[name] = (choice[name] + 1) % (VARIANTS[name] as Array).size()
+	_label_buttons()
+
+
 func _make_world() -> void:
 	gen.make(THREADS)
 	_world_made.call_deferred()
 
 
-## The world's map and its lines, the materials, and the focus on the start region.
+## The world's cells as textures, the materials, the sky's pass and the focus on the start region.
 func _world_made() -> void:
 	_worker.wait_to_finish()
 	_scenario = _art.find_world_3d().scenario
 	world_m = gen.world_size()
+	_tilt = gen.tilt(0)
+	gen.prepare_ground(0)
 	var cells: Vector2i = gen.world_cells()
-	var map := Image.create_from_data(cells.x, cells.y, false, Image.FORMAT_RGB8, gen.map_at(0, 1))
-	map.flip_y()  # rows from the south, as the heights'
 	var heights := Image.create_from_data(
 		cells.x,
 		cells.y,
@@ -210,39 +229,83 @@ func _world_made() -> void:
 		Image.FORMAT_RF,
 		(gen.heights(0) as PackedFloat32Array).to_byte_array()
 	)
-	heights.convert(Image.FORMAT_RH)  # half floats, which every phone's graphics can filter
-	var height_tex := ImageTexture.create_from_image(heights)
-	for level: Dictionary in LEVELS + [CARDS]:
-		_materials[level.name] = _material("ground")
-	for name: String in MAP_SHADERS:
-		_materials[name] = _material(MAP_SHADERS[name])
-		_materials[name].set_shader_parameter("height_tex", height_tex)
-	_materials.map.set_shader_parameter("map_tex", ImageTexture.create_from_image(map))
-	_materials.rivers.set_shader_parameter("tint", Vector3(0.38, 0.52, 0.83))
-	_materials.coasts.set_shader_parameter("tint", Vector3(0.92, 0.94, 0.89))
-	_add_whole(_map_mesh(256, 128), _materials.map)
-	_add_whole(_lines(gen.rivers(0, 1000.0)), _materials.rivers)
-	_add_whole(_lines(gen.coasts(0)), _materials.coasts)
-	_tree_mesh = _make_tree()
-	_card_mesh = _make_card()
-	_forget_chunks()
+	heights.convert(Image.FORMAT_RH)
+	heights.generate_mipmaps()
+	var climate := Image.create_from_data(
+		cells.x,
+		cells.y,
+		false,
+		Image.FORMAT_RGBAF,
+		(gen.climate_texture(0) as PackedFloat32Array).to_byte_array()
+	)
+	climate.convert(Image.FORMAT_RGBAH)
+	climate.generate_mipmaps()
+	var cover := Image.create_from_data(
+		cells.x, cells.y, false, Image.FORMAT_RGBA8, gen.cover_texture(0)
+	)
+	cover.generate_mipmaps()
+	var water := Image.create_from_data(
+		cells.x, cells.y, false, Image.FORMAT_RGBA8, gen.water_texture(0)
+	)
+	var water_soft := water.duplicate() as Image
+	water_soft.generate_mipmaps()
+	var noise_size := 64
+	var noise: PackedByteArray = gen.cloud_noise(noise_size)
+	var layers: Array[Image] = []
+	var slab := noise_size * noise_size * 4
+	for z in noise_size:
+		layers.append(
+			Image.create_from_data(
+				noise_size,
+				noise_size,
+				false,
+				Image.FORMAT_RGBA8,
+				noise.slice(z * slab, (z + 1) * slab)
+			)
+		)
+	var cloud := ImageTexture3D.new()
+	cloud.create(Image.FORMAT_RGBA8, noise_size, noise_size, noise_size, false, layers)
+	var rs := RenderingServer
+	rs.global_shader_parameter_set("zoom_height", ImageTexture.create_from_image(heights))
+	rs.global_shader_parameter_set("zoom_climate", ImageTexture.create_from_image(climate))
+	rs.global_shader_parameter_set("zoom_cover", ImageTexture.create_from_image(cover))
+	rs.global_shader_parameter_set("zoom_water", ImageTexture.create_from_image(water))
+	rs.global_shader_parameter_set("zoom_water_soft", ImageTexture.create_from_image(water_soft))
+	rs.global_shader_parameter_set("zoom_cloud_noise", cloud)
+	rs.global_shader_parameter_set("zoom_world", world_m)
+	_ground = ShaderMaterial.new()
+	_ground.shader = load("res://zoom/shaders/ground.gdshader")
+	_indices = chunk_indices(N)
+	# the sky's pass: a quad over the whole picture, drawn after the ground
+	_sky = MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(1.0, 1.0)
+	_sky.mesh = quad
+	var sky := ShaderMaterial.new()
+	sky.shader = load("res://zoom/shaders/sky.gdshader")
+	sky.render_priority = -100
+	_sky.material_override = sky
+	_sky.extra_cull_margin = 16384.0
+	_sky.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_cam.add_child(_sky)
+	_sky.position = Vector3(0.0, 0.0, -2.0)
 	focus = gen.start(0)
 	_origin = focus
 	var args := OS.get_cmdline_user_args()
-	for stop: Array in STOPS:
-		if "stop=" + stop[0] in args:
-			zoom = zoom_of(stop[0])
+	for arg: String in args:
+		if arg.begins_with("stop="):
+			zoom = zoom_of(arg.substr(5))
+		for name: String in VARIANTS:
+			if arg.begins_with(name + "="):
+				var letter := arg.substr(name.length() + 1)
+				for k in (VARIANTS[name] as Array).size():
+					if (VARIANTS[name][k] as String).begins_with(letter):
+						choice[name] = k
+	_label_buttons()
 	_measure_button.disabled = false
-	_readout.text = "Pinch from the globe to a person; drag to move. Measure pinches by itself."
+	_readout.text = "Pinch from the globe to a person; drag to move. Tap a variant to change it."
 	if "measure" in args:
 		measure.call_deferred()
-
-
-func _material(shader: String) -> ShaderMaterial:
-	var m := ShaderMaterial.new()
-	m.shader = load("res://zoom/shaders/%s.gdshader" % shader)
-	m.set_shader_parameter("world_m", world_m)
-	return m
 
 
 func _layout() -> void:
@@ -250,8 +313,11 @@ func _layout() -> void:
 	var screen := Vector2(DisplayServer.window_get_size())
 	if screen.x <= 0.0:
 		screen = size * k
-	_art.size = Vector2i(ceili(screen.x / ART), ceili(screen.y / ART))
-	_view.size = Vector2(_art.size) * ART / k
+	_art.size = Vector2i(ceili(screen.x / BASE), ceili(screen.y / BASE))
+	_view.size = Vector2(_art.size) * BASE / k
+	(_view.material as ShaderMaterial).set_shader_parameter(
+		"screen_size", Vector2(_art.size) * BASE
+	)
 
 
 ## Screen pixels to one of the interface's units.
@@ -263,247 +329,219 @@ func _screen_scale() -> float:
 func _process(delta: float) -> void:
 	if _scenario == RID():
 		return
+	_frame += 1
 	if _measuring:
 		_step_measure(delta)
 	_collect()
-	var mpp := metres_a_pixel(zoom)
-	for level: Dictionary in LEVELS + [CARDS]:
-		_update_level(level, mpp)
-	_place(mpp)
-	if is_in_group("busy") and _tasks.is_empty() and _asked.is_empty():
+	var width := metres_across(zoom)
+	_weather += delta * clampf(width / 2000.0, 1.0, 400.0)
+	if choice.time == 3:
+		_day = fposmod(_day + delta / 300.0, 1.0)
+	_place(width)
+	_select()
+	_show_pixels(width)
+	if is_in_group("busy") and _tasks.is_empty() and _asked.is_empty() and _missing == 0:
 		remove_from_group("busy")
 
 
-## The metres an art pixel shows at a zoom: from the person's to the world map's in even steps of
-## its logarithm, held at the world map's while the map bends onto the globe.
-static func metres_a_pixel(z: float) -> float:
-	var t := clampf(z / FLAT, 0.0, 1.0)
-	return exp(lerpf(log(STOPS[0][1]), log(STOPS[5][1]), t))
+## The metres the picture shows across at the focus, at a zoom.
+static func metres_across(z: float) -> float:
+	return exp(lerpf(log(STOPS[0][1]), log(STOPS[6][1]), clampf(z, 0.0, 1.0)))
 
 
 ## The zoom at a stop.
 static func zoom_of(stop: String) -> float:
-	if stop == STOPS[6][0]:
-		return 1.0
-	for s: Array in STOPS.slice(0, 6):
+	for s: Array in STOPS:
 		if s[0] == stop:
-			return FLAT * log(s[1] / STOPS[0][1]) / log(STOPS[5][1] / STOPS[0][1])
+			return log(s[1] / STOPS[0][1]) / log(STOPS[6][1] / STOPS[0][1])
 	return 1.0
-
-
-## How far the map is bent onto the globe at a zoom: 0 to the world map, 1 at the globe.
-static func bend_at(z: float) -> float:
-	return smoothstep(FLAT, 1.0, z)
-
-
-## The camera's tilt down from level (A8.4): PITCH from the camp inward, straight down from the
-## valley out, in between in even steps of the scale's logarithm.
-static func pitch_at(mpp: float) -> float:
-	var camp: float = STOPS[2][1]
-	var valley: float = STOPS[3][1]
-	return lerpf(PITCH, 90.0, clampf(log(mpp / camp) / log(valley / camp), 0.0, 1.0))
-
-
-## How much of a ring is drawn at a scale: all of it to half its most metres an art pixel, shrinking
-## to none at its most, in even steps of the scale's logarithm.
-static func ring_at(level: Dictionary, mpp: float) -> float:
-	return clampf(log(float(level.most) / mpp) / log(2.0), 0.0, 1.0)
 
 
 ## The stop nearest a zoom, for Measure's counts.
 static func stop_at(z: float) -> String:
-	if z > (FLAT + 1.0) / 2.0:
-		return STOPS[6][0]
-	var mpp := metres_a_pixel(z)
+	var width := metres_across(z)
 	var best: String = STOPS[0][0]
 	var gap := INF
-	for stop: Array in STOPS.slice(0, 6):
-		var d := absf(log(mpp / float(stop[1])))
+	for stop: Array in STOPS:
+		var d := absf(log(width / float(stop[1])))
 		if d < gap:
 			gap = d
 			best = stop[0]
 	return best
 
 
-## The camera and the shaders' shared places for this frame: the focus where the moving origin puts
-## it, the camera orthographic, pitched for the close stops and straight down from the valley out,
-## then perspective as the map bends onto the globe (A8.4); and where each ring draws.
-func _place(mpp: float) -> void:
+## The camera's tilt down from level, degrees, by the path's variant: A looks down from the
+## valley out, tilting to the art book's 30° at the camp; B, a flight, stays tilted higher up,
+## showing the horizon and the clouds from the side, and looks straight down only at the globe.
+static func pitch_at(width: float, path: int) -> float:
+	var camp: float = STOPS[2][1]
+	var top: float = STOPS[3][1] if path == 0 else STOPS[5][1]
+	var t := clampf(log(width / camp) / log(top / camp), 0.0, 1.0)
+	return lerpf(30.0, 90.0, t * t * (3.0 - 2.0 * t))
+
+
+## The pixel shown, in the screen's pixels, by the pixels' variant: A the art book's 4 always; B
+## from 2 at the person to 6 at the globe in whole steps; C the same, smoothly.
+static func pixel_at(width: float, variant: int) -> float:
+	if variant == 0:
+		return 4.0
+	var t := clampf(log(width / STOPS[0][1]) / log(STOPS[6][1] / STOPS[0][1]), 0.0, 1.0)
+	var p := lerpf(2.0, 6.0, t)
+	return float(roundi(p)) if variant == 1 else p
+
+
+## The camera, the shared values every shader reads, and the sun (A8.4).
+func _place(width: float) -> void:
 	if _local(focus).length() > REBASE:
 		_origin = focus
 		for key: String in _chunks:
-			_set_chunk_place(_chunks[key])
-	var bend := bend_at(zoom)
-	var ground := 0.0
-	if mpp <= float(LEVELS[-1].most):
-		var h: PackedFloat32Array = gen.ground(0, focus.x, focus.y, 1, 1.0)
-		ground = maxf(h[0], 0.0) if h.size() > 0 else 0.0
+			_set_chunk_place(key)
 	var at := _local(focus)
-	var look := at + Vector3(0.0, ground, 0.0)
 	var radius := world_m.x / TAU
-	var width := lerpf(float(_art.size.x) * mpp, 2.6 * radius, bend)
-	var basis := Basis.from_euler(Vector3(deg_to_rad(-pitch_at(mpp)), 0.0, 0.0))
-	if bend <= 0.0:
-		var back := maxf(5000.0, width * 3.0)
-		_cam.projection = Camera3D.PROJECTION_ORTHOGONAL
-		_cam.size = width
-		_cam.near = 1.0
-		_cam.far = back * 2.0 + width * 2.0
-		_cam.transform = Transform3D(basis, look + basis.z * back)
-	else:
-		var fov := lerpf(GLOBE_FOV.x, GLOBE_FOV.y, bend)
-		var distance := width * 0.5 / tan(deg_to_rad(fov) * 0.5)
-		_cam.projection = Camera3D.PROJECTION_PERSPECTIVE
-		_cam.fov = fov
-		_cam.near = distance * 0.5
-		_cam.far = distance + 2.5 * radius
-		_cam.transform = Transform3D(basis, look + basis.z * distance)
-	for m: ShaderMaterial in _materials.values():
-		m.set_shader_parameter("focus_m", focus)
-		m.set_shader_parameter("focus_at", at)
-		m.set_shader_parameter("bend", bend)
-	# each ring draws beyond the finer rings' reach and within its own, which shrinks as the zoom
-	# leaves it; the map beyond them all; the cards beyond the trees drawn as models
-	var inner := 0.0
-	var models := 0.0
-	for level: Dictionary in LEVELS:
-		var shown := _covered(level) * ring_at(level, mpp)
-		_materials[level.name].set_shader_parameter("inner", inner)
-		_materials[level.name].set_shader_parameter("outer", shown)
-		inner = maxf(inner, shown)
-		if level.trees == "models":
-			models = maxf(models, shown)
-	for name: String in MAP_SHADERS:
-		_materials[name].set_shader_parameter("inner", inner)
-	_materials[CARDS.name].set_shader_parameter("inner", models)
-	_materials[CARDS.name].set_shader_parameter("outer", _covered(CARDS) * ring_at(CARDS, mpp))
-	if _measuring and _area_asked >= 0.0 and _area_time < 0.0:
-		if _covered(LEVELS[0]) >= AREA_HALF:
-			_area_time = _clock - _area_asked
-
-
-## How far round the focus a ring's chunks are all made, up to its reach; none while it is not
-## planned.
-func _covered(level: Dictionary) -> float:
-	var plan: Dictionary = _plans[level.name]
-	if plan.at == Vector2.INF:
-		return 0.0
-	var least: float = level.reach
-	var f: Vector2 = plan.at + _wrapped(focus - plan.at)
-	for m: Array in plan.missing:
-		least = minf(least, _nearest(m[4], f) - 1.0)
-	return maxf(least, 0.0)
-
-
-## The distance from a point to a square's nearest point.
-static func _nearest(square: Rect2, p: Vector2) -> float:
-	var q := Vector2(
-		clampf(p.x, square.position.x, square.end.x), clampf(p.y, square.position.y, square.end.y)
+	var h: PackedFloat32Array = gen.ground(0, focus.x, focus.y, 1, 1.0)
+	var ground := maxf(h[0], 0.0) if h.size() > 0 and width < 200000.0 else 0.0
+	var look := at + Vector3(0.0, ground, 0.0)
+	var pitch := pitch_at(width, choice.path)
+	var basis := Basis.from_euler(Vector3(deg_to_rad(-pitch), 0.0, 0.0))
+	var distance := width * 0.5 / tan(deg_to_rad(FOV) * 0.5)
+	_cam.transform = Transform3D(basis, look + basis.z * distance)
+	_cam.near = maxf(distance * 0.01, 0.05)
+	_cam.far = distance + radius * 4.0
+	var rs := RenderingServer
+	rs.global_shader_parameter_set("zoom_focus", focus)
+	rs.global_shader_parameter_set("zoom_focus_at", at)
+	rs.global_shader_parameter_set(
+		"zoom_fine", Vector2(fposmod(focus.x, 4096.0), fposmod(focus.y, 4096.0))
 	)
-	return q.distance_to(p)
+	# near the ground, east-west at its true scale round the focus; none of it from the region out
+	var strength := clampf(log(120000.0 / width) / log(120000.0 / 12000.0), 0.0, 1.0)
+	rs.global_shader_parameter_set("zoom_true", Vector2(strength, maxf(width * 4.0, 5000.0)))
+	rs.global_shader_parameter_set("zoom_sun", sun_direction())
+	rs.global_shader_parameter_set("zoom_clock", Vector4(_weather, _year, _day, 1.0))
+	rs.global_shader_parameter_set(
+		"zoom_style", Vector4(choice.land, choice.water, choice.clouds, choice.light)
+	)
 
 
-func _key(level: Dictionary, i: int, j: int) -> String:
-	var side: float = level.side
-	var nx := roundi(world_m.x / side)
-	var ny := roundi(world_m.y / side)
-	return "%s:%d:%d" % [level.name, posmod(i, nx), posmod(j, ny)]
+## Toward the sun in the picture, from the date, the time of day and the world's tilt: the sun's
+## height over the focus by the hour angle and its declination (TIM-18).
+func sun_direction() -> Vector3:
+	var lat := PI * (focus.y / world_m.y - 0.5)
+	var decl := deg_to_rad(_tilt) * sin(TAU * _year)
+	var hour := TAU * (_day - 0.5)
+	match choice.time:
+		0:
+			hour = 0.0
+		1:
+			# dusk: the sun 5° over the horizon in the west, the art book's
+			var c := (sin(deg_to_rad(5.0)) - sin(lat) * sin(decl)) / (cos(lat) * cos(decl))
+			hour = acos(clampf(c, -1.0, 1.0))
+		2:
+			hour = PI
+	var east := -cos(decl) * sin(hour)
+	var north := cos(lat) * sin(decl) - sin(lat) * cos(decl) * cos(hour)
+	var up := sin(lat) * sin(decl) + cos(lat) * cos(decl) * cos(hour)
+	return Vector3(east, up, -north).normalized()
 
 
-## A ring's chunks round the focus (A8.1): those it needs, nearest first, asked of the worker
-## threads, and those beyond its reach, or all of them once it is far from drawn, freed. It is
-## planned again only when the focus has moved half a chunk.
-func _update_level(level: Dictionary, mpp: float) -> void:
-	var plan: Dictionary = _plans[level.name]
-	if mpp > float(level.most) * 2.0:
-		if plan.at != Vector2.INF:
-			_free_level(level.name)
-			_plans[level.name] = _no_plan()
+## The pixel shown, and how: point or blended (A4).
+func _show_pixels(width: float) -> void:
+	var pixel := pixel_at(width, choice.pixels)
+	var m := _view.material as ShaderMaterial
+	m.set_shader_parameter("pixel", pixel)
+	m.set_shader_parameter("blend", choice.pixels == 2)
+	RenderingServer.global_shader_parameter_set("zoom_pixel", pixel / BASE)
+
+
+## The chunk tree (A8.1): from the roots down, a chunk splits into its four while the camera is
+## nearer than SPLIT of its sides and all four are made; those not yet made are asked for, nearest
+## first, and their parent drawn meanwhile, so nothing is ever missing from the picture.
+func _select() -> void:
+	var cam := _cam.global_position
+	var at := _local(focus)
+	var ground := Vector2(focus.x + cam.x - at.x, focus.y - (cam.z - at.z))
+	var want := []
+	var shown := {}
+	_missing = 0
+	for j in 2:
+		for i in 4:
+			_visit(0, i, j, ground, cam.y, want, shown)
+	for key: String in _drawn:
+		if not shown.has(key) and _chunks.has(key):
+			RenderingServer.instance_set_visible(_chunks[key].instance, false)
+	for key: String in shown:
+		if not _drawn.has(key):
+			RenderingServer.instance_set_visible(_chunks[key].instance, true)
+		_chunks[key].used = _frame
+	_drawn = shown
+	want.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
+	for w: Array in want:
+		if _tasks.size() >= MAKING:
+			break
+		if not _asked.has(w[1]):
+			_ask(w[1], w[2], w[3], w[4])
+	_forget_old()
+	if _measuring and _area_asked >= 0.0 and _area_time < 0.0 and _missing == 0:
+		_area_time = _clock - _area_asked
+
+
+func _visit(
+	depth: int, i: int, j: int, ground: Vector2, height: float, want: Array, shown: Dictionary
+) -> void:
+	var side := ROOT / float(1 << depth)
+	var key := "%d:%d:%d" % [depth, i, j]
+	if not _chunks.has(key):
+		_missing += 1
+		want.append([float(depth), key, depth, i, j])
 		return
-	if mpp > float(level.most):
-		return  # kept a while, so a pinch back and forth over its edge makes nothing again
-	if _wrapped(focus - plan.at).length() > float(level.side) * 0.5:
-		plan = _plan(level)
-		_plans[level.name] = plan
-		if level.name == LEVELS[0].name and _measuring and _area_asked < 0.0:
-			_area_asked = _clock
-	var still := []
-	for m: Array in plan.missing:
-		if _chunks.has(m[1]):
-			continue
-		still.append(m)
-		if _tasks.size() < MAKING and not _asked.has(m[1]):
-			_ask(level, m[1], m[2], m[3])
-	plan.missing = still
+	var east := float(i) * side
+	var north := float(j) * side
+	var dx := _east_gap(ground.x, east, side)
+	var dy := maxf(maxf(north - ground.y, ground.y - (north + side)), 0.0)
+	var dist := sqrt(dx * dx + dy * dy + height * height)
+	if depth < DEEPEST and dist < SPLIT * side:
+		var ready := true
+		for c in 4:
+			var ci := i * 2 + c % 2
+			var cj := j * 2 + c / 2
+			var child := "%d:%d:%d" % [depth + 1, ci, cj]
+			if not _chunks.has(child):
+				ready = false
+				_missing += 1
+				if not _asked.has(child):
+					want.append([dist, child, depth + 1, ci, cj])
+		if ready:
+			for c in 4:
+				_visit(depth + 1, i * 2 + c % 2, j * 2 + c / 2, ground, height, want, shown)
+			return
+	shown[key] = true
 
 
-## The chunks a ring keeps until the focus moves half a chunk: those within its reach of anywhere
-## the focus may then be, and the ones not yet made, nearest first; those it no longer keeps freed.
-func _plan(level: Dictionary) -> Dictionary:
-	var side: float = level.side
-	var reach: float = level.reach
-	var r := ceili(reach / side) + 1
-	var ci := floori(focus.x / side)
-	var cj := floori(focus.y / side)
-	var keep := {}
-	var missing := []
-	for j in range(cj - r, cj + r + 1):
-		for i in range(ci - r, ci + r + 1):
-			var square := Rect2(i * side, j * side, side, side)
-			var near := _nearest(square, focus)
-			if near > reach + side * 0.5:
-				continue
-			var key := _key(level, i, j)
-			keep[key] = true
-			if not _chunks.has(key):
-				missing.append([near, key, i, j, square])
-	missing.sort_custom(func(a: Array, b: Array) -> bool: return a[0] < b[0])
-	for key: String in _chunks.keys():
-		if key.begins_with(level.name + ":") and not keep.has(key):
-			_free_chunk(_chunks[key])
-			_chunks.erase(key)
-	return {"at": focus, "keep": keep, "missing": missing}
+## The gap east or west from a place to a span of the world, the shorter way round.
+func _east_gap(x: float, east: float, side: float) -> float:
+	var mid := east + side * 0.5 - x
+	mid -= world_m.x * floorf(mid / world_m.x + 0.5)
+	return maxf(absf(mid) - side * 0.5, 0.0)
 
 
-static func _no_plan() -> Dictionary:
-	return {"at": Vector2.INF, "keep": {}, "missing": []}
-
-
-func _ask(level: Dictionary, key: String, i: int, j: int) -> void:
-	var side: float = level.side
-	var n: int = level.n
-	var east := posmod(i, roundi(world_m.x / side)) * side
-	var north := posmod(j, roundi(world_m.y / side)) * side
+func _ask(key: String, depth: int, i: int, j: int) -> void:
+	var side := ROOT / float(1 << depth)
 	_asked[key] = true
-	var spacing := side / float(maxi(n - 1, 1))
 	var id := WorkerThreadPool.add_task(
-		_make_chunk.bind(key, level.name, east, north, n, spacing, side, level.trees)
+		_make_chunk.bind(key, depth, float(i) * side, float(j) * side, side / float(N - 1))
 	)
 	_tasks[id] = key
 
 
-## On a worker thread: a chunk's ground, if its ring has any, and its trees, if it draws them.
-func _make_chunk(
-	key: String,
-	level: String,
-	east: float,
-	north: float,
-	n: int,
-	spacing: float,
-	side: float,
-	trees_as: String
-) -> void:
-	var arrays: Array = gen.ground_mesh(0, east, north, n, spacing) if n > 0 else []
-	var trees := PackedVector3Array()
-	if trees_as != "":
-		trees = gen.trees(0, east, north, side, TREE_GRID)
+## On a worker thread: a chunk's ground.
+func _make_chunk(key: String, depth: int, east: float, north: float, spacing: float) -> void:
+	var arrays: Array = gen.chunk(0, east, north, N, spacing)
 	_done_lock.lock()
-	_done.append([key, level, east, north, n, spacing, arrays, trees])
+	_done.append([key, depth, east, north, spacing, arrays])
 	_done_lock.unlock()
 
 
-## The chunks the worker threads have made, given their meshes and placed, unless their level no
-## longer keeps them.
+## The chunks the worker threads have made, given their meshes, hidden until the tree draws them.
 func _collect() -> void:
 	for id: int in _tasks.keys():
 		if WorkerThreadPool.is_task_completed(id):
@@ -516,251 +554,108 @@ func _collect() -> void:
 	for d: Array in done:
 		var key: String = d[0]
 		_asked.erase(key)
-		var plan: Dictionary = _plans[d[1]]
-		var ground: Array = d[6]
-		if not plan.keep.has(key) or _chunks.has(key) or (d[4] > 0 and ground.size() < 3):
+		var made: Array = d[5]
+		if made.size() < 4 or _chunks.has(key):
 			continue
-		var chunk := {"level": d[1], "east": d[2], "north": d[3]}
-		var material := (_materials[d[1]] as ShaderMaterial).get_rid()
-		if d[4] > 0:
-			var arrays := []
-			arrays.resize(Mesh.ARRAY_MAX)
-			arrays[Mesh.ARRAY_VERTEX] = ground[0]
-			arrays[Mesh.ARRAY_NORMAL] = ground[1]
-			arrays[Mesh.ARRAY_COLOR] = ground[2]
-			arrays[Mesh.ARRAY_INDEX] = _grid_indices(d[4])
-			chunk.mesh = RenderingServer.mesh_create()
-			RenderingServer.mesh_add_surface_from_arrays(
-				chunk.mesh, RenderingServer.PRIMITIVE_TRIANGLES, arrays
-			)
-			chunk.instance = RenderingServer.instance_create2(chunk.mesh, _scenario)
-			RenderingServer.instance_geometry_set_material_override(chunk.instance, material)
-		var trees: PackedVector3Array = d[7]
-		if trees.size() > 0:
-			var cards: bool = d[1] == CARDS.name
-			chunk.trees = RenderingServer.multimesh_create()
-			RenderingServer.multimesh_allocate_data(
-				chunk.trees, trees.size(), RenderingServer.MULTIMESH_TRANSFORM_3D
-			)
-			RenderingServer.multimesh_set_mesh(chunk.trees, _card_mesh if cards else _tree_mesh)
-			RenderingServer.multimesh_set_buffer(
-				chunk.trees, _tree_buffer(trees, CARD_SINK if cards else 0.0)
-			)
-			chunk.tree_instance = RenderingServer.instance_create2(chunk.trees, _scenario)
-			RenderingServer.instance_geometry_set_material_override(chunk.tree_instance, material)
-		_chunks[key] = chunk
-		_set_chunk_place(chunk)
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = made[0]
+		arrays[Mesh.ARRAY_NORMAL] = made[1]
+		arrays[Mesh.ARRAY_CUSTOM0] = made[2]
+		arrays[Mesh.ARRAY_CUSTOM1] = made[3]
+		arrays[Mesh.ARRAY_INDEX] = _indices
+		var rs := RenderingServer
+		var format := (
+			(rs.ARRAY_CUSTOM_RGBA_FLOAT << rs.ARRAY_FORMAT_CUSTOM0_SHIFT)
+			| (rs.ARRAY_CUSTOM_RGBA_FLOAT << rs.ARRAY_FORMAT_CUSTOM1_SHIFT)
+		)
+		var mesh := rs.mesh_create()
+		rs.mesh_add_surface_from_arrays(mesh, rs.PRIMITIVE_TRIANGLES, arrays, [], {}, format)
+		# placed by its shader on the sphere, so never culled by where its flat points lie
+		var huge := AABB(Vector3(-4.0e6, -4.0e6, -4.0e6), Vector3(8.0e6, 8.0e6, 8.0e6))
+		rs.mesh_set_custom_aabb(mesh, huge)
+		var instance := rs.instance_create2(mesh, _scenario)
+		rs.instance_geometry_set_material_override(instance, _ground.get_rid())
+		var depth: int = d[1]
+		var side := ROOT / float(1 << depth)
+		rs.instance_geometry_set_shader_parameter(instance, "spacing", d[4])
+		var reach := SPLIT * side * 2.0
+		var morph := Vector2(reach * 0.7, reach) if depth > 0 else Vector2(1e12, 2e12)
+		rs.instance_geometry_set_shader_parameter(instance, "morph", morph)
+		rs.instance_set_visible(instance, false)
+		_chunks[key] = {
+			"mesh": mesh, "instance": instance, "east": d[2], "north": d[3], "used": _frame
+		}
+		_set_chunk_place(key)
 
 
-func _set_chunk_place(chunk: Dictionary) -> void:
-	var place := Transform3D(Basis(), _local(Vector2(chunk.east, chunk.north)))
-	for k: String in ["instance", "tree_instance"]:
-		if chunk.has(k):
-			RenderingServer.instance_set_transform(chunk[k], place)
+## A chunk's place in the picture: its corner from the moving origin, east the shorter way round,
+## north as it is, since the poles are the globe's edges.
+func _set_chunk_place(key: String) -> void:
+	var c: Dictionary = _chunks[key]
+	var dx: float = c.east - _origin.x
+	dx -= world_m.x * floorf(dx / world_m.x + 0.5)
+	var dy: float = c.north - _origin.y
+	RenderingServer.instance_set_transform(c.instance, Transform3D(Basis(), Vector3(dx, 0.0, -dy)))
 
 
-func _free_chunk(chunk: Dictionary) -> void:
-	for k: String in ["tree_instance", "trees", "instance", "mesh"]:
-		if chunk.has(k):
-			RenderingServer.free_rid(chunk[k])
+## The chunks not drawn for longest, freed once more than KEEP are made.
+func _forget_old() -> void:
+	if _chunks.size() <= KEEP:
+		return
+	var old := []
+	for key: String in _chunks:
+		if not _drawn.has(key) and not key.begins_with("0:"):
+			old.append([_chunks[key].used, key])
+	old.sort()
+	for k in mini(old.size(), _chunks.size() - KEEP):
+		var key: String = old[k][1]
+		RenderingServer.free_rid(_chunks[key].instance)
+		RenderingServer.free_rid(_chunks[key].mesh)
+		_chunks.erase(key)
 
 
-func _free_level(name: String) -> void:
-	for key: String in _chunks.keys():
-		if key.begins_with(name + ":"):
-			_free_chunk(_chunks[key])
-			_chunks.erase(key)
-
-
-## Every chunk freed and every plan cleared, so the land round the focus is made afresh.
-func _forget_chunks() -> void:
-	for level: Dictionary in LEVELS + [CARDS]:
-		_free_level(level.name)
-		_plans[level.name] = _no_plan()
-
-
-## A place in the world's metres, in the picture's from the moving origin: x east, z south.
+## A place in the world's metres, in the picture's from the moving origin: x east the shorter way
+## round, z south.
 func _local(m: Vector2) -> Vector3:
-	var d := _wrapped(m - _origin)
+	var d := m - _origin
+	d.x -= world_m.x * floorf(d.x / world_m.x + 0.5)
 	return Vector3(d.x, 0.0, -d.y)
 
 
-## A step between two places in the world's metres, the shorter way round each of its seams.
-func _wrapped(d: Vector2) -> Vector2:
-	if not d.is_finite():
-		return d
-	return d - world_m * (d / world_m + Vector2(0.5, 0.5)).floor()
-
-
-## The triangles of an n × n grid of vertices, shared by every chunk of that size.
-func _grid_indices(n: int) -> PackedInt32Array:
-	if _indices.has(n):
-		return _indices[n]
+## The triangles of a chunk of n × n points and the skirts hanging from its four edges.
+static func chunk_indices(n: int) -> PackedInt32Array:
 	var out := PackedInt32Array()
-	out.resize((n - 1) * (n - 1) * 6)
-	var k := 0
 	for j in n - 1:
 		for i in n - 1:
 			var a := j * n + i
-			for v: int in [a, a + n, a + 1, a + 1, a + n, a + n + 1]:
-				out[k] = v
-				k += 1
-	_indices[n] = out
+			out.append_array([a, a + n, a + 1, a + 1, a + n, a + n + 1])
+	for e in 4:
+		var skirt := n * n + e * n
+		for k in n - 1:
+			var g0 := edge_point(n, e, k)
+			var g1 := edge_point(n, e, k + 1)
+			out.append_array([g0, g1, skirt + k, g1, skirt + k + 1, skirt + k])
 	return out
 
 
-## The trees' transforms for a multimesh, 12 floats each: each tree, given as metres east of its
-## chunk's corner, the ground's height and metres north, standing there, sunk by `sink` metres, and
-## sized by its place.
-static func _tree_buffer(trees: PackedVector3Array, sink: float) -> PackedFloat32Array:
-	var out := PackedFloat32Array()
-	out.resize(trees.size() * 12)
-	for t in trees.size():
-		var p: Vector3 = trees[t]
-		var s := 0.8 + 0.4 * fposmod(p.x * 0.37 + p.z * 0.61, 1.0)
-		var row := t * 12
-		for v: float in [s, 0.0, 0.0, p.x, 0.0, s, 0.0, p.y - sink, 0.0, 0.0, s, -p.z]:
-			out[row] = v
-			row += 1
-	return out
+## The k-th point along a chunk's edge e: 0 south, 1 north, 2 west, 3 east.
+static func edge_point(n: int, e: int, k: int) -> int:
+	match e:
+		0:
+			return k
+		1:
+			return (n - 1) * n + k
+		2:
+			return k * n
+	return k * n + n - 1
 
 
-## A tree as the camp zoom needs it, the cost of P2's: a crown of 8 faces on a trunk of two crossed
-## faces, 12 triangles, in its cover's colours.
-func _make_tree() -> RID:
-	var leaf := Color8(65, 93, 77)
-	var bark := Color8(92, 74, 58)
-	var v := PackedVector3Array()
-	var c := PackedColorArray()
-	var nrm := PackedVector3Array()
-	for side: Vector3 in [Vector3(0.25, 0.0, 0.0), Vector3(0.0, 0.0, 0.25)]:
-		var up := Vector3(0.0, 2.4, 0.0)
-		var face := side.cross(Vector3.UP).normalized()
-		for p: Vector3 in [-side, side, side + up, -side, side + up, -side + up]:
-			v.append(p)
-			c.append(bark)
-			nrm.append(face)
-	var top := Vector3(0.0, 7.4, 0.0)
-	var low := Vector3(0.0, 2.6, 0.0)
-	var ring: Array[Vector3] = []
-	for k in 4:
-		var a := TAU * k / 4.0
-		ring.append(Vector3(cos(a) * 3.0, 4.4, sin(a) * 3.0))
-	for k in 4:
-		var p0: Vector3 = ring[k]
-		var p1: Vector3 = ring[(k + 1) % 4]
-		for tri: Array in [[top, p1, p0], [low, p0, p1]]:
-			var face: Vector3 = ((tri[1] - tri[0]) as Vector3).cross(tri[2] - tri[0]).normalized()
-			for p: Vector3 in tri:
-				v.append(p)
-				c.append(leaf)
-				nrm.append(face)
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = v
-	arrays[Mesh.ARRAY_NORMAL] = nrm
-	arrays[Mesh.ARRAY_COLOR] = c
-	var mesh := RenderingServer.mesh_create()
-	RenderingServer.mesh_add_surface_from_arrays(mesh, RenderingServer.PRIMITIVE_TRIANGLES, arrays)
-	_rids.append(mesh)
-	return mesh
-
-
-## A tree as a card, for the middle distance: the model's crown as the tilted camera sees it, a
-## diamond of two faces, on a trunk of two, all facing the camera, which always looks north.
-func _make_card() -> RID:
-	var leaf := Color8(65, 93, 77)
-	var bark := Color8(92, 74, 58)
-	var v := PackedVector3Array(
-		[
-			Vector3(-0.25, 0.0, 0.0),
-			Vector3(0.25, 2.6, 0.0),
-			Vector3(0.25, 0.0, 0.0),
-			Vector3(-0.25, 0.0, 0.0),
-			Vector3(-0.25, 2.6, 0.0),
-			Vector3(0.25, 2.6, 0.0),
-			Vector3(-3.0, 4.4, 0.0),
-			Vector3(0.0, 7.4, 0.0),
-			Vector3(3.0, 4.4, 0.0),
-			Vector3(-3.0, 4.4, 0.0),
-			Vector3(3.0, 4.4, 0.0),
-			Vector3(0.0, 2.6, 0.0),
-		]
-	)
-	var c := PackedColorArray()
-	var nrm := PackedVector3Array()
-	for k in v.size():
-		c.append(bark if k < 6 else leaf)
-		nrm.append(Vector3(0.0, 0.5, 1.0).normalized())
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = v
-	arrays[Mesh.ARRAY_NORMAL] = nrm
-	arrays[Mesh.ARRAY_COLOR] = c
-	var mesh := RenderingServer.mesh_create()
-	RenderingServer.mesh_add_surface_from_arrays(mesh, RenderingServer.PRIMITIVE_TRIANGLES, arrays)
-	_rids.append(mesh)
-	return mesh
-
-
-## The map's mesh: a grid spanning the world, east and west from -0.5 to 0.5 of it round the focus,
-## south to north from 0 to 1, which its shader places, flat or bent onto the globe.
-func _map_mesh(nx: int, ny: int) -> RID:
-	var v := PackedVector3Array()
-	for j in ny + 1:
-		for i in nx + 1:
-			v.append(Vector3(float(i) / nx - 0.5, 0.0, float(j) / ny))
-	var idx := PackedInt32Array()
-	for j in ny:
-		for i in nx:
-			var a := j * (nx + 1) + i
-			idx.append_array([a, a + 1, a + nx + 1, a + 1, a + nx + 2, a + nx + 1])
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = v
-	arrays[Mesh.ARRAY_INDEX] = idx
-	var mesh := RenderingServer.mesh_create()
-	RenderingServer.mesh_add_surface_from_arrays(mesh, RenderingServer.PRIMITIVE_TRIANGLES, arrays)
-	return mesh
-
-
-## Line segments from pairs of places in the world's metres, which the lines' shader places, each
-## end with its segment's middle, so both ends cross the world's seam together.
-func _lines(pairs: PackedVector2Array) -> RID:
-	var v := PackedVector3Array()
-	var middles := PackedVector2Array()
-	v.resize(pairs.size())
-	middles.resize(pairs.size())
-	for k in pairs.size():
-		v[k] = Vector3(pairs[k].x, 0.0, pairs[k].y)
-		middles[k] = (pairs[k - k % 2] + pairs[k - k % 2 + 1]) * 0.5
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = v
-	arrays[Mesh.ARRAY_TEX_UV] = middles
-	var mesh := RenderingServer.mesh_create()
-	if v.size() > 0:
-		RenderingServer.mesh_add_surface_from_arrays(mesh, RenderingServer.PRIMITIVE_LINES, arrays)
-	return mesh
-
-
-## A mesh drawn over the whole world, its shader placing it, so never culled.
-func _add_whole(mesh: RID, material: ShaderMaterial) -> void:
-	var huge := AABB(Vector3(-4.0e6, -4.0e6, -4.0e6), Vector3(8.0e6, 8.0e6, 8.0e6))
-	RenderingServer.mesh_set_custom_aabb(mesh, huge)
-	var instance := RenderingServer.instance_create2(mesh, _scenario)
-	RenderingServer.instance_geometry_set_material_override(instance, material.get_rid())
-	_rids.append(instance)
-	_rids.append(mesh)
-
-
-## Measure (PLT-04, PRE-03): from the globe to a person over the start region, its land made
-## afresh, in PINCH_SECONDS, a hold, and back, at 60 frames a second; each frame counted at its
-## nearest stop.
+## Measure (PLT-04, PRE-03): from the globe to a person over the start region in DESCENT_SECONDS,
+## a hold, and back, at 60 frames a second; each frame counted at its nearest stop.
 func measure() -> void:
 	if _scenario == RID() or _measuring:
 		return
-	_forget_chunks()
 	focus = gen.start(0)
 	zoom = 1.0
 	_measuring = true
@@ -773,7 +668,7 @@ func measure() -> void:
 	_read_clock = 0.0
 	Engine.max_fps = 60
 	_measure_button.disabled = true
-	_readout.text = "Measuring: from the globe to a person and back, about 35 seconds…"
+	_readout.text = "Measuring: from the globe to a person and back, about 45 seconds…"
 
 
 func _step_measure(delta: float) -> void:
@@ -782,16 +677,18 @@ func _step_measure(delta: float) -> void:
 	if _read_clock >= RUNS.READ_EVERY:
 		_read_clock = 0.0
 		_heat.append(RUNS.thermal())
-	var half := PINCH_SECONDS
-	if _clock < half:
-		zoom = 1.0 - _clock / half
-	elif _clock < half + HOLD_SECONDS:
+	var down := DESCENT_SECONDS
+	if _clock < down:
+		zoom = 1.0 - _clock / down
+	elif _clock < down + HOLD_SECONDS:
 		zoom = 0.0
-	elif _clock < 2.0 * half + HOLD_SECONDS:
-		zoom = (_clock - half - HOLD_SECONDS) / half
+	elif _clock < 2.0 * down + HOLD_SECONDS:
+		zoom = (_clock - down - HOLD_SECONDS) / down
 	else:
 		_finish_measure()
 		return
+	if _area_asked < 0.0 and metres_across(zoom) <= STOPS[2][1]:
+		_area_asked = _clock
 	if _clock > 1.0:
 		var stop := stop_at(zoom)
 		if not _samples.has(stop):
@@ -809,11 +706,16 @@ func _finish_measure() -> void:
 	Engine.max_fps = 0
 	_measure_button.disabled = false
 	_heat.append(RUNS.thermal())
-	RUNS.finish(self, "P8", results(_samples, _late, _area_time), _heat, 0)
+	var letters := ""
+	for name: String in VARIANTS:
+		letters += (VARIANTS[name][choice[name]] as String).left(1)
+	var runs := results(_samples, _late, _area_time)
+	runs.append("variants " + letters)
+	RUNS.finish(self, "P8", runs, _heat, 0)
 
 
 ## Measure's results for the chat: each stop's graphics time and frames on time, in the stops'
-## order, and the full area's time.
+## order, and the seconds the ground's detail took to be in once the camp was reached.
 static func results(samples: Dictionary, late: Dictionary, area: float) -> PackedStringArray:
 	var out := PackedStringArray()
 	for stop: Array in STOPS:
@@ -861,19 +763,18 @@ func _gui_input(e: InputEvent) -> void:
 			_pinch(1.1)
 
 
-## A pinch by a factor of the metres an art pixel shows, as an even step of the zoom.
+## A pinch by a factor of the metres shown, as an even step of the zoom.
 func _pinch(factor: float) -> void:
-	var per := FLAT / log(STOPS[5][1] / STOPS[0][1])
-	zoom = clampf(zoom + log(factor) * per, 0.0, 1.0)
+	zoom = clampf(zoom + log(factor) / log(STOPS[6][1] / STOPS[0][1]), 0.0, 1.0)
 
 
-## A drag moves the ground under the finger: across the picture as it is, up the picture by the
-## ground's length the tilted camera shows there. The focus stays between the poles.
+## A drag moves the ground under the finger; the focus stays between the poles.
 func _pan(by: Vector2) -> void:
-	var mpp := metres_a_pixel(zoom)
-	var metres := mpp * _screen_scale() / ART
+	var width := metres_across(zoom)
+	var metres := width / maxf(size.x, 1.0)
+	var pitch := deg_to_rad(pitch_at(width, choice.path))
 	focus.x = fposmod(focus.x - by.x * metres, world_m.x)
-	focus.y = clampf(focus.y + by.y * metres / sin(deg_to_rad(pitch_at(mpp))), 0.0, world_m.y)
+	focus.y = clampf(focus.y + by.y * metres / sin(pitch), 0.0, world_m.y)
 
 
 func _exit_tree() -> void:
@@ -882,9 +783,8 @@ func _exit_tree() -> void:
 	for id: int in _tasks.keys():
 		WorkerThreadPool.wait_for_task_completion(id)
 	for key: String in _chunks:
-		_free_chunk(_chunks[key])
-	for rid: RID in _rids:
-		RenderingServer.free_rid(rid)
+		RenderingServer.free_rid(_chunks[key].instance)
+		RenderingServer.free_rid(_chunks[key].mesh)
 	Engine.max_fps = 0
 
 

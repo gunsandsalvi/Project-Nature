@@ -16,6 +16,7 @@ enum class Draw : std::uint8_t {
     kWeather = 7,  // a day's rain while settling
     kFire = 8,     // lightning fires while settling
     kDetail = 9,   // the ground's detail, made on demand (P8)
+    kCloud = 10,   // the clouds' noise (P8)
 };
 
 }  // namespace worldgen

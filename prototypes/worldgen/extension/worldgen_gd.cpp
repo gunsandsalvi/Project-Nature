@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <map>
 #include <memory>
 
 #include "area.hpp"
@@ -55,6 +56,14 @@ protected:
         godot::ClassDB::bind_method(godot::D_METHOD("coasts", "world"), &WorldGen::coasts);
         godot::ClassDB::bind_method(godot::D_METHOD("world_size"), &WorldGen::world_size);
         godot::ClassDB::bind_method(godot::D_METHOD("world_cells"), &WorldGen::world_cells);
+        godot::ClassDB::bind_method(godot::D_METHOD("tilt", "world"), &WorldGen::tilt);
+        godot::ClassDB::bind_method(godot::D_METHOD("prepare_ground", "world"), &WorldGen::prepare_ground);
+        godot::ClassDB::bind_method(godot::D_METHOD("chunk", "world", "east", "north", "n", "spacing"),
+                                    &WorldGen::chunk);
+        godot::ClassDB::bind_method(godot::D_METHOD("climate_texture", "world"), &WorldGen::climate_texture);
+        godot::ClassDB::bind_method(godot::D_METHOD("cover_texture", "world"), &WorldGen::cover_texture);
+        godot::ClassDB::bind_method(godot::D_METHOD("water_texture", "world"), &WorldGen::water_texture);
+        godot::ClassDB::bind_method(godot::D_METHOD("cloud_noise", "size"), &WorldGen::cloud_noise);
     }
 
 public:
@@ -298,6 +307,102 @@ public:
         return {s.full_width, s.full_width / 2};
     }
 
+    // The world's tilt, degrees, which sets its seasons (WLD-06).
+    double tilt(int world) const {
+        const worldgen::World* w = offered(world);
+        return w == nullptr ? 0.0 : w->tilt;
+    }
+
+    // P8's descent (IMPLEMENTATION α0.5b, A8.1): the world's heights averaged for ground seen from far off, made once
+    // before any chunk is asked for, so chunks made on worker threads at once only read them.
+    void prepare_ground(int world) {
+        const worldgen::World* w = offered(world);
+        if (w != nullptr) {
+            mips_[world] = worldgen::height_mips(*w);
+        }
+    }
+
+    // A chunk of ground for P8's descent as a mesh's arrays: n × n points `spacing` metres apart from (east, north), in
+    // metres from that corner (x east, y up, z south), then a skirt hanging below each edge so no gap shows where
+    // chunks of two levels meet; their normals; and, four numbers a point each, what it morphs into: the height of the
+    // grid half as fine where it slides to, its true height and that grid's, and that grid's normal (A8.1, CDLOD).
+    godot::Array chunk(int world, double east, double north, int n, double spacing) const {
+        godot::Array out;
+        const worldgen::World* w = offered(world);
+        const auto found = mips_.find(world);
+        if (w == nullptr || found == mips_.end() || n < 3 || n % 2 == 0) {
+            return out;
+        }
+        const worldgen::GroundChunk g = worldgen::ground_chunk(*w, found->second, east, north, n, spacing);
+        const auto points = static_cast<std::int64_t>(n) * n;
+        const std::int64_t count = points + (4LL * n);
+        godot::PackedVector3Array vertices;
+        godot::PackedVector3Array normals;
+        godot::PackedFloat32Array morph;
+        godot::PackedFloat32Array morph_normal;
+        vertices.resize(count);
+        normals.resize(count);
+        morph.resize(count * 4);
+        morph_normal.resize(count * 4);
+        const auto skirt = static_cast<float>((2.0 * spacing) + 1.0);
+        const auto put = [&](std::int64_t at, int i, int j, float drop) {
+            const auto k = static_cast<std::size_t>((static_cast<std::int64_t>(j) * n) + i);
+            vertices.set(at, godot::Vector3(static_cast<float>(i * spacing), g.surface[k] - drop,
+                                            static_cast<float>(-j * spacing)));
+            normals.set(at, godot::Vector3(g.normal[k * 3], g.normal[(k * 3) + 1], g.normal[(k * 3) + 2]));
+            morph.set(at * 4, g.to_surface[k] - drop);
+            morph.set((at * 4) + 1, g.truth[k]);
+            morph.set((at * 4) + 2, g.to_truth[k]);
+            morph.set((at * 4) + 3, drop);
+            morph_normal.set(at * 4, g.to_normal[k * 3]);
+            morph_normal.set((at * 4) + 1, g.to_normal[(k * 3) + 1]);
+            morph_normal.set((at * 4) + 2, g.to_normal[(k * 3) + 2]);
+            morph_normal.set((at * 4) + 3, 0.0F);
+        };
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < n; ++i) {
+                put((static_cast<std::int64_t>(j) * n) + i, i, j, 0.0F);
+            }
+        }
+        // the skirts: the south edge, the north, the west and the east, each from its first point
+        for (int k = 0; k < n; ++k) {
+            put(points + k, k, 0, skirt);
+            put(points + n + k, k, n - 1, skirt);
+            put(points + (2LL * n) + k, 0, k, skirt);
+            put(points + (3LL * n) + k, n - 1, k, skirt);
+        }
+        out.push_back(vertices);
+        out.push_back(normals);
+        out.push_back(morph);
+        out.push_back(morph_normal);
+        return out;
+    }
+
+    // The world's cells as textures for P8's picture (A8.5): see worldgen::climate_texture and the rest.
+    godot::PackedFloat32Array climate_texture(int world) const {
+        godot::PackedFloat32Array out;
+        const worldgen::World* w = offered(world);
+        if (w != nullptr) {
+            const std::vector<float> v = worldgen::climate_texture(*w);
+            out.resize(static_cast<std::int64_t>(v.size()));
+            std::memcpy(out.ptrw(), v.data(), v.size() * sizeof(float));
+        }
+        return out;
+    }
+
+    godot::PackedByteArray cover_texture(int world) const {
+        const worldgen::World* w = offered(world);
+        return w == nullptr ? godot::PackedByteArray() : bytes(worldgen::cover_texture(*w));
+    }
+
+    godot::PackedByteArray water_texture(int world) const {
+        const worldgen::World* w = offered(world);
+        return w == nullptr ? godot::PackedByteArray() : bytes(worldgen::water_texture(*w));
+    }
+
+    // Noise for P8's clouds (A8.6), the same for every world.
+    godot::PackedByteArray cloud_noise(int size) const { return bytes(worldgen::cloud_noise(1, size)); }
+
     int map_width() const { return worldgen::Settings{}.full_width / kMapScale; }
     int map_height() const { return worldgen::Settings{}.full_width / 2 / kMapScale; }
 
@@ -306,6 +411,13 @@ public:
     godot::String digest() const { return offer_ ? godot::String(samebits::digest(sums_).c_str()) : godot::String(); }
 
 private:
+    static godot::PackedByteArray bytes(const std::vector<std::uint8_t>& v) {
+        godot::PackedByteArray out;
+        out.resize(static_cast<std::int64_t>(v.size()));
+        std::memcpy(out.ptrw(), v.data(), v.size());
+        return out;
+    }
+
     const worldgen::World* offered(int world) const {
         if (!offer_ || world < 0 || world >= static_cast<int>(offer_->three.size())) {
             return nullptr;
@@ -315,6 +427,7 @@ private:
 
     std::unique_ptr<worldgen::Offer> offer_;
     std::vector<std::uint64_t> sums_;
+    std::map<int, worldgen::HeightMips> mips_;
     int threads_ = 1;
 };
 
