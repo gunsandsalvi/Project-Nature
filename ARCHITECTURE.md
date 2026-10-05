@@ -261,7 +261,7 @@ Following Box2D, Factorio and research 18:
 - **Content lives in TOML 1.0 files in sources:** `data/base/` for the game, one entry a file, its kind from its folder and its name from its file name; tuning files hold every tunable number; `checks/` holds what only the checks read, such as each item's expected fits (`MAT-17`) and the orders of plausible values (`MAT-05`).
 - **No floats:** whole numbers are TOML integers, and quantities and ratios are strings with units ("3.5 kg", "1 h 30 min", "15%", "1 in 100") read exactly into whole base units, so the phone's parse cannot differ from the cloud's (research 18).
   "m" is only a metre, never a minute.
-- **Durations record both lengths,** `{ life = "3 month", game = "15 d" }`: the simulation reads the game length, and the `TIM-18` check holds it to the rule, "about" read as within 10%.
+- **Durations record both lengths,** `{ life = "3 month", game = "15 d" }`: the simulation reads the game length, and the `TIM-18` check holds it to the rule, "about" read as within 10% (`kd::time::check_rule`): up to 15.4 days in life the two are equal; from 27.4 days (a month, 365.25 / 12 days, less a tenth) the game length is within a tenth of 60 / 365.25 of the life length; between, anything from a tenth under that to the life length; a refusal names both lengths and the range allowed.
 - **Schema once:** each kind has one `visit()` naming its fields with their types, units, ranges, links and what they affect (`rules`, `world` or `look`).
   The loader, the schema writer and the fingerprinter all walk it, so nothing describes a kind twice.
   The loader refuses unknown keys and floats, and names every error by file, line and column.
