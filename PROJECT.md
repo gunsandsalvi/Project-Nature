@@ -1840,6 +1840,8 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Keeps going:** after Year 50, each people adds a new rite, myth or song at least every 12 years, and holds a gathering or festival most years.
   - **Tuned by** split sizes, the custom threshold, belief strength and the pull of gatherings, alike in every world (`PRN-17`).
   - **Check:** the pace tests (`RES-07`) read these from each world's records, each from the stage `RES-07` gives it; Keeps going passes in at least half the worlds.
+  - **Proposed change:** add "First custom a band names (`CUL-06`): within 1", first in the list.
+    P10 found every world's first custom in its first year, Years 0.1 to 0.6 in 20 runs, from a band's first three big kills, and the list gives customs no window.
 
 ### 10.2 Passing things on
 
@@ -2708,7 +2710,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at present.
+- **Pace of culture** (`CUL-33`): a window for the first custom, within a year, as P10 found.
 <!-- end generated -->
 
 ## 18. Glossary

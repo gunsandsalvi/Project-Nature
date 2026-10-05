@@ -15,6 +15,7 @@ const ROUTES := {
 	"hunch": Color("8fb7ff"),
 	"dream": Color("c69cff"),
 	"copying": Color("9fd48a"),
+	"first": Color("f6a33c"),
 	"none": Color("6b6474"),
 }
 const PAD := Vector2(34, 18)

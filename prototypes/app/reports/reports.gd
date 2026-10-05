@@ -1,6 +1,6 @@
 ## The Reports page (IMPLEMENTATION α0.3a, RES-06): the prototypes that run in the cloud, each with
 ## its question, its answer and its charts, drawn from the numbers the cloud wrote (reports/*.json):
-## P4's, then P9's. Pre-production code (research 00) for RES-06;
+## P4's, then P9's and P10's. Pre-production code (research 00) for RES-06;
 ## each prototype's README names the items its report is about.
 extends Control
 
@@ -8,7 +8,7 @@ signal closed
 
 const Chart := preload("res://reports/chart.gd")
 const Lines := preload("res://reports/lines.gd")
-const REPORTS := ["res://reports/p4.json", "res://reports/p9.json"]
+const REPORTS := ["res://reports/p4.json", "res://reports/p9.json", "res://reports/p10.json"]
 const INK := Color("ebe5da")
 const DIM := Color("a39ca9")
 const FLAME := Color("f6a33c")
@@ -51,8 +51,10 @@ func _ready() -> void:
 		var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if String(report.title).begins_with("P4"):
 			_p4(report)
-		else:
+		elif String(report.title).begins_with("P9"):
 			_p9(report)
+		else:
+			_p10(report)
 	var back := Button.new()
 	back.text = "Back"
 	back.custom_minimum_size.y = 48
@@ -333,6 +335,58 @@ func _p9(r: Dictionary) -> void:
 		_page.add_child(chart)
 
 
+## P10 Culture from causes (CUL-33, CUL-05, CUL-06, CUL-30, CUL-34): when each of a custom, a shared
+## spirit, a rite and a band split first came in each of 20 worlds, against its window, and one
+## world's story of each, told from the events behind it.
+func _p10(r: Dictionary) -> void:
+	_text(r.title, FLAME, 20)
+	_text(r.question, INK, 15)
+	var kinds: Dictionary = r.kinds
+	var runs: Array = r.runs
+	var counts := PackedStringArray()
+	for kind: String in kinds:
+		counts.append("%s in %d" % [kinds[kind].says, kinds[kind].inside])
+	_text(
+		(
+			(
+				"%s. Each came inside its window in at least half the %d worlds, and every one from the "
+				+ "events behind it: %s."
+			)
+			% ["Yes" if r.pass else "Not yet", runs.size(), ", ".join(counts)]
+		),
+		INK,
+		15
+	)
+	for kind: String in kinds:
+		var k: Dictionary = kinds[kind]
+		var window := Vector2(k.window[0], k.window[1])
+		_text(
+			(
+				"%s: its window Years %d to %d (shaded); the median Year %.1f, %d early, %d late."
+				% [_first_up(k.says), window.x, window.y, k.median, k.early, k.late]
+			),
+			DIM,
+			13
+		)
+		var rows := []
+		for run: Dictionary in runs:
+			rows.append([run.firsts.get(kind), "first", "o"])
+		rows.sort_custom(
+			func(a: Array, b: Array) -> bool:
+				return (a[0] if a[0] != null else INF) < (b[0] if b[0] != null else INF)
+		)
+		var c := Chart.new("runs", rows, maxf(window.y * 1.5, 6.0), 1.0 if window.y <= 3.0 else 5.0)
+		c.window = window
+		_page.add_child(c)
+	_text("World 1's story, from its events:", INK, 14)
+	var story: Dictionary = r.story
+	for kind: String in story:
+		var s: Dictionary = story[kind]
+		_text("%s: %s (the %s band)" % [_first_up(kinds[kind].says), s.name, s.band], FLAME, 13)
+		for line: String in s.lines:
+			_text(line, DIM, 12)
+
+
 ## Each run as a chart row, earliest first: its year, how it came, and a square for ploughing.
 func _runs(runs: Array, key: String, route: String, way: String) -> Array:
 	var rows := []
@@ -368,6 +422,11 @@ func _key(runs: Array, route: String) -> void:
 			parts.append("[color=#%s]●[/color] %s" % [colour.to_html(false), SAYS[name]])
 	label.text = "   ".join(parts)
 	_page.add_child(label)
+
+
+## A phrase with its first letter made a capital, the rest as written.
+func _first_up(text: String) -> String:
+	return text.substr(0, 1).to_upper() + text.substr(1)
 
 
 func _text(text: String, colour: Color, font_size: int) -> Label:

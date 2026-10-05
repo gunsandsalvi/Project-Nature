@@ -24,6 +24,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P8 The zoom (α0.5b) was built and delivered for your phone's Measure: one pinch from the globe to a person over P7's world, through rings of ground made on worker threads and a map that bends onto the globe (A8.1, A8.4, A8.5).
   Its second round (α0.5c), after your verdict on 5 October, is for your look, from space down to the valley: a planet at every scale, never unrolled; one tree of ground morphing smoothly; clouds from the climate that the descent passes among; the sea by its depth; the land textured with what can be seen from space; pixels finer up close; each in variants for you to choose.
   The camp and closer are done for pre-production, as you said on 5 October: trees, small plants and the camp from the kit on the new ground. What they lack is in the notes for production (`NOTES.md`), with your observations. Measure on your phone comes with α0.6a's build.
+- P10 Culture from causes (α0.6b) passes in the cloud: in 20 worlds of three bands run 100 years, a custom came inside its window in all 20, a shared spirit in 20, a rite a band keeps in 15 and a band split in 17, each from the events behind it (A13); a window for customs, which `CUL-33` lacks, is proposed.
 - P9 Ecology (α0.6a) passes in the cloud: in 20 worlds left alone for 100 years, every species stayed within 0.66 and 1.10 of its settled total and in every biome it lived in, with 82 to 99 big plant eaters for each hunter; round each world's start region numbers boomed and crashed from 0.21 to 2.31 with the weather (A9). Its report is on the app's Reports page.
 
 ## How to use this plan
@@ -140,7 +141,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | α0.5a | P7 World generation | M0 | 6 | Passes on your phone |
 | α0.5b | P8 The zoom | M0 | 6 | Done for your look; Measure on your phone in α0.6a's build |
 | α0.6a | P9 Ecology | M0 | 4 | Passes in the cloud; its report in the app (α0.6a) |
-| α0.6b | P10 Culture from causes | M0 | 5 | Not started |
+| α0.6b | P10 Culture from causes | M0 | 5 | Passes in the cloud; its report in the app (α0.6b) |
 | α0.6c | P11 The director | M0 | 3 | Not started |
 | α0.7a | P12 The interface | M0 | 4 | Not started |
 | α0.7b | P13 The writer | M0 | 4 | Not started |
@@ -382,6 +383,8 @@ The zoom starts in stages, the weather, the ground, then the sky, each noted in 
 - Passes if each appears inside its window in at least half the runs, and every one traces back to its own cause.
 
 **On the phone:** the Reports page shows when each first appeared, and one run's story told from its events.
+
+**Conflict:** `CUL-33` gives customs no window, so P10 measured them against a year, and proposes it. What the project file leaves open was set by sense and by the runs: bands start at 22 to 30, hunters do something unusual before a hunt one time in a hundred, and a hunter dies in a hunt about once in 250 years. A rite a band keeps is one most adults have credited, or done as the band's way, a year long; the project file gives no test of keeping.
 
 ### α0.6c P11 The director
 

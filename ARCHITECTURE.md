@@ -578,7 +578,19 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - Societies with real numbers: bands of about 28 adults, a few families linked by kin and marriage; leaders kept in check; gifts as insurance; villages only where stores allow (`CUL-30`, `RES-07`).
 - Violence in its real order: personal killings and revenge first, raids growing with stores (`CUL-31`).
 - Stories and gossip drift as transmission chains do; styles drift by copying with small changes (`CUL-11`, `CUL-12`).
-- *To prove (P10):* customs, a spirit, a rite and a band split arising inside their windows from their own causes (`CUL-33`).
+- *Proved in P10 in the cloud,* in Python as pre-production code (`prototypes/culture`): three bands of 22 to 30 people in families, with P4's ages, births and deaths, run 100 years in each of 20 worlds, with `MND-05`'s, `CUL-06`'s and `CUL-30`'s numbers as the project file states them.
+  - **The answer:** yes. Each came inside its window in at least half the runs, and every one from the events behind it:
+    - a custom in all 20, Years 0.1 to 0.6, from a band's first three big kills; `CUL-33` gives customs no window, so one of a year is proposed;
+    - a shared spirit in all 20, by Year 2.3, most often a being in the storm after lightning struck a camp, else the dead living on after grief and dreams;
+    - a rite a band keeps in 15, inside Years 3 to 10; 5 came earlier, from a burial custom named in the first two years;
+    - a band split in 17, inside Years 5 to 25, when a band grew past 40 by births and marriages; one came earlier and two later.
+  - **What a band shares:** a belief most of its adults hold is its spirit; an act most credit for good hunts a year long, or its way with the dead kept a year, is a rite it keeps.
+  - **Lessons for production:**
+    - `MND-05`'s numbers let an act repeated before a common outcome sustain itself once believed: a hit adds 15 and a miss takes 5, so an act before hunts that succeed three times in ten keeps itself. So only those an outcome befalls link it (a good hunt its hunters), and the band comes to credit it only through talk.
+    - Talk lends a listener the teller's conviction by trust and no more, however often told; adding it up at each telling made every told belief permanent.
+    - A rite a band keeps needs a test of keeping: credited, or done as the band's way, a year long.
+    - Hunting deaths at the real rate, about 0.4% a year for a hunter: at ten times that, sudden deaths flooded the bands with spirits of the aurochs and burial cases.
+  - **Its cost:** 20 runs of 100 years in about a minute and a half on four cores.
 
 ## A14. Story, the book of ages and the writer (research 13), outline
 

@@ -1,42 +1,43 @@
-# Kindling α0.6a: P9 Ecology, and P8's camp
+# Kindling α0.6b: P10 Culture from causes
 
 ## What is new
 
-- **P9 Ecology answers yes.** The question: do the numbers of plants and animals stay believable for 100 years with nobody in the world?
-  - **How:** 20 of P7's worlds, each run 30 years into its present-day state, settled 10 years, then 100 more with nobody in it, in steps of five game days. 14 plant eaters live in every biome, from hares to wild cattle, at a sixth of Earth's numbers for their size. 4 hunters, wolves, lynx, lions and leopards, have room in proportion to the weight of their prey.
-  - **Driven by the weather:** each region has its own wet or dry year and hard or mild winter, with patterns shared over several hundred km and, some years, by the whole world. Animals lose condition when they cannot reach enough food under the snow or in a drought, die first of hunger in a hard winter, and breed as their condition lets them. Hunters take the weak most easily.
-  - **The result:** in all 20 worlds every species stayed between 0.66 and 1.10 of its settled number for the 100 years, and in every biome it lived in; grass, bushes and trees held too; and there were 82 to 99 big plant eaters for each hunter, where the project file asks 50 to 200 (`WLD-18`). The world's totals hold because its regions' bad years fall at different times: round each world's start region, numbers crashed in droughts and hard winters to as little as a fifth, boomed to over twice in good years, and took 10 to 20 years to mend.
-  - **The first runs failed, and taught something:** at first nothing moved, every species within 2% of its total, because a game winter cost the animals almost nothing; then wild sheep in 3 of 20 worlds crashed in a drought and stayed down, because my dry country's plants grew as if they were a wet meadow short of rain. Now a game winter costs what a real one does, dry country's plants live on less water, and young animals leave crowded land for emptier land next door.
-  - The charts are on the app's Reports page, below P4's.
-- **P8's camp and closer,** in the zoom: trees that cast the sun's shadows, the camp built from the kit by the river, its fire drawn pixel by pixel and lighting what stands round it, the band at work, and small plants up close. As you said, this is as far as pre-production takes it.
-- **Notes for production:** your observations of 5 October (the ground drawn as what covers it, every asset crisp) and mine against the art book are in `NOTES.md`, so production takes them up.
+- **P10 answers yes.** The question: do customs, a spirit, a rite and a band split arise inside their windows (`CUL-33`), each from its own cause?
+  - **How:** three bands of 22 to 30 people in families, run 100 years in each of 20 worlds. They hunt, eat, meet storms, fall ill, are born and die, marry at the summer gathering, and talk each evening.
+  - **Beliefs from coincidences, with the project file's own numbers (`MND-05`):** after something strong happens, people link it to the most unusual thing just before it; later events strengthen or weaken the link, and talk passes it on. Lightning or a sudden death can leave a belief in an unseen being; grief and dreams make the dead live on.
+  - **The result:** each came inside its window in at least half the worlds, and every one traces back to the events behind it:
+    - **a custom** in all 20, in the first year, from the first big kills: who the meat is shared with;
+    - **a shared spirit** in all 20, by Year 3: most often a being in the storm after lightning struck a camp, otherwise a dead person living on;
+    - **a rite a band keeps** in 15 of 20, in Years 3 to 10, most often the band's way with its dead, sometimes an act it credits for good hunts, such as singing before a hunt; 5 came a little early;
+    - **a band split** in 17 of 20, in Years 5 to 25, when a band grew past 40 and the families thinking least of the leader left.
+  - **World 1's story,** on the Reports page, tells each first from its events, such as: three deaths, each laid under stones; the band names its custom; a year later, burial under stones is a rite at the grave.
+- **What failed first, and taught something** (in the notes for production):
+  - A belief told again and again grew stronger at every telling, so every told belief lived forever. Now hearing it lends what the teller's conviction lends, and no more.
+  - The project file's numbers let a pointless act before a common success keep itself once believed. Only those an outcome befalls link it (a good hunt its hunters), so the band comes to credit it slowly, through talk.
+  - Hunters died ten times too often, flooding the bands with sudden deaths.
 
-![Top: the three start regions that swung most, each species a line. Below: each species' total in each of the 20 worlds over 100 years, as a share of its settled total; shaded, half to twice](pictures/p9-species.png)
-
-![P8's camp, close camp and person stops](pictures/p8-camp.png)
+![When each first came in the 20 worlds; shaded, its window](pictures/p10-firsts.png)
 
 ## What to try
 
 1. Tap **Download and install** at the top of this page. It installs over the build you have.
-2. Open **Reports from the cloud** and scroll past P4 to **P9 Ecology**: a chart for each species and each kind of plant, one line a world.
-3. If you like, open **P8 The zoom**, pinch down to the camp, then tap **Measure** and leave the screen alone for about 45 seconds. Paste the line it copies into your reply.
+2. Open **Reports from the cloud** and scroll to **P10 Culture from causes**: when each first came in each world, and world 1's story.
 
 ## What is rough
 
-- **P9 is a model on the world's cells,** about 4 km across, with counts that can hold a fraction of an animal; production runs it on 1 km cells with herds, as `WLD-32` says.
-- **Hunters are always well fed:** at these numbers prey is never scarce enough to starve them, so their numbers follow their prey's rather than swinging on their own.
-- **Mild country barely moves:** in forests with mild winters numbers stay within a few per cent. Hunters that can starve, and cycles like the hare's and the lynx's, are left for production, in the notes for production.
-- **Fish, birds and bears are not in P9:** they need rivers, seas and seasons of their own.
-- **P8's camp** lacks what the notes for production list: outlines, smoke, grass at the close camp, the ground drawn as its cover.
+- **Only four of `CUL-33`'s firsts were tried:** customs, spirits, rites and splits. Myths, festivals, feuds, new peoples, raids and chiefs need the later prototypes and production.
+- **Three of the twelve customs:** how the dead are treated, who shares a big kill, where couples live; the bands meet the others too rarely in 100 years to answer them.
+- **Simple minds:** no needs beyond being born, eating and dying, and no gatherings beyond each summer's marriages.
 
 ## Questions for you
 
-1. Is P9's answer enough to move on to P10, culture from causes?
+1. `CUL-33` gives customs no window. P10 found every world's first custom in its first year: shall it read "First custom a band names: within 1"? It is listed under Proposals awaiting confirmation.
+2. Shall I go on to P11, the director, which also runs in the cloud?
 
 ## IDs delivered
 
-None for good: P9 is a prototype, thrown away once it has answered.
-Its question is about `WLD-18`, `WLD-30`, `WLD-31` and `WLD-32`.
+None for good: P10 is a prototype, thrown away once it has answered.
+Its question is about `CUL-33`, `CUL-05`, `CUL-06`, `CUL-30` and `CUL-34`.
 
 ## Links
 

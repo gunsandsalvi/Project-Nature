@@ -54,3 +54,15 @@ What I take from it, for your OK at α0.8a:
 - **Young animals leave crowded land for emptier land next door,** from every cell, or land emptied by a hard year stays empty.
 - **A world made from a rough start drifts for decades,** so production makes it directly near its balance (`WLD-08`).
 - **Not yet tried:** fish, birds and bears, which need rivers, seas and seasons of their own; and the 1 km cells with herds that `WLD-32` describes, since P9 ran on cells of about 4 km.
+
+## Culture
+
+### What P10 taught (me, 5 October 2026)
+
+- **Superstitions keep themselves with `MND-05`'s numbers:** a hit adds 15 and a miss takes 5, so an act done before hunts that succeed three times in ten sustains itself once believed.
+  P10 held it in bounds by letting only those an outcome befalls link it, so a band credits an act only through talk.
+  Production should measure how often a credited act becomes a rite, beside `CUL-34`'s done-when for the hunting song.
+- **Talk lends conviction, it doesn't pile it up:** a belief told again and again must not grow past what the teller lends, or every told belief lives forever.
+- **"A rite a band keeps" needs a test of keeping;** P10 used a year of being credited, or done as the band's way.
+- **Customs come within months** from the commonest cases, big kills, and the way with the dead within a year or two at forager death rates; `CUL-33` gives customs no window (a year is proposed).
+- **Realistic rates matter:** hunting deaths at ten times the real rate flooded the bands with sudden deaths, spirits of the aurochs and burial cases.

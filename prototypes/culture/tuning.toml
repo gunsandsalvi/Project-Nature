@@ -1,0 +1,58 @@
+# P10's tuning (IMPLEMENTATION α0.6b, CUL-33's "Tuned by"): every value that sets the pace of culture, the same in
+# every run, each with what it was tuned against or where it comes from. Pre-production data (research 00).
+
+[people]
+births = 0.36        # a year, for a woman of 16 to 40 with a partner; bands grow about 1.5% a year (CUL-30's splits)
+band_least = 22      # each band starts with 22 to 30 people, in families (CUL-30)
+band_most = 30
+
+[weather]
+storm = [0.12, 0.08, 0.12, 0.10]   # a storm day's chance, spring to winter
+lightning = 0.04                   # a storm's chance of striking near the camp
+lightning_kills = 0.15             # a strike's chance of killing someone
+
+[hunt]
+days = 0.35          # a day's chance of a hunt
+good = 0.30          # a hunt's chance of a big kill; what is done before it changes nothing
+hurt = 0.02          # each hunter's chance of being hurt
+killed = 0.0002      # and of being killed: about 0.4% a year for a hunter, as foragers' hunting deaths run
+
+[ill]
+chance = 0.0012      # a person's chance a day of a fever
+
+[acts]
+spontaneous = 0.01   # a hunter's chance before a hunt of doing something unusual: singing, painting, a gift
+
+[links]
+# MND-05's numbers, as the project file gives them
+start = 3.0          # a new link starts at three times the thought's size
+most = 50.0
+hit = 15.0           # the outcome within a day or two of the cause
+miss = 5.0           # its absence
+miss_frequent = 10.0 # its absence, for an outcome on more than one day in ten
+forget = 5.0
+unseen = 0.333       # a blow from the sky or a sudden death: about one chance in three of an unseen being
+held = 15.0          # a link a person acts on, and that counts as held when a band's rites are judged
+
+[dead]
+dream = 0.02         # a night's chance for those who loved the dead of dreaming of them, for two years (CUL-19)
+dream_gain = 10.0
+
+[talk]
+chance = 0.5         # an adult's chance of telling a belief each evening (CUL-24)
+take = 0.5           # the share of the teller's conviction a listener takes, times trust, and no more however often told
+
+[custom]
+cases = 3            # CUL-06: a band's answer once it has had 3 cases
+share = [2, 3]       # the way at least two thirds of them went
+copy = 0.5           # the chance a choice follows the way most of the band's cases went, before a custom
+follow = 0.9         # and the custom, once there is one (MND-09's norms)
+breach = 10.0        # opinion each who sees a custom broken loses of the breaker (MND-24)
+dead_from = 0.0      # the age from which a death is a case of how the dead are treated: every death, as CUL-06 stands
+
+[split]
+size = 40            # a band that moves splits past about 40 people (CUL-30)
+after_fight = 20     # or past about 20 after a fight between heads of families
+fight_below = -20.0  # heads of families this far below in each other's opinion may fight
+fight = 0.002        # a day's chance for such a pair
+join_below = 10      # a band below about 10 joins kin
