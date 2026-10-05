@@ -34,7 +34,7 @@ FLINT_BANDS = ("Bear", "Stag", "Raven")
 # the ways of watching: from the globe, never tapping (TIM-02's done-when); tapping every live moment; and signs scored
 # as their end, not as how often it came
 WAYS = {"never taps": (False, "expected"), "taps every one": (True, "expected"), "signs at full score": (False, "end")}
-LEAST = (20, 10, 5, 3, 1)  # PRE-39's least years for an age, as it stands and shorter
+LEAST = (20, 10, 5, 3, 1)  # least years between ages: PRE-39's 20, as it stood, and shorter
 PERSON_WHAT = ("birth", "married", "fight")
 BAND_WHAT = ("split", "joined")
 

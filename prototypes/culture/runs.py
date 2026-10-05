@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 REPORT = ROOT / "prototypes" / "app" / "reports" / "p10.json"
 SEEDS = list(range(1, 21))
 YEARS = 100
-# CUL-33's windows, in years from the start; it gives none for customs, so a year is proposed (as P10 found them)
+# CUL-33's windows, in years from the start; customs' a year, which P10 found and CUL-33 now gives
 WINDOWS = {"custom": [0.0, 1.0], "spirit": [0.0, 3.0], "rite": [3.0, 10.0], "split": [5.0, 25.0]}
 SAYS = {"custom": "a custom", "spirit": "a shared spirit", "rite": "a rite a band keeps", "split": "a band split"}
 

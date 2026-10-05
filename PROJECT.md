@@ -1828,6 +1828,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Check:** a test finds no template tied to a date, an era or a named people, place or person; each belief template and story shape has a scene where it appears in at least 5 of 20 runs after its event, and no scene shows one without its own; customs and roles are read from the pace-test worlds (`RES-07`), which end with peoples of different spirits, customs and kinds of leader.
 
 - `CUL-33` **Pace of culture** *(To test)*: When culture first shows in typical worlds, in years from the start, beside the pace of discovery (`TIM-19`).
+  - First custom a band names (`CUL-06`): within 1.
   - First shared spirit or belief in the dead: within 3.
   - First rite a band keeps (`CUL-34`): 3–10.
   - First myth: 5–20.
@@ -1840,8 +1841,6 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Keeps going:** after Year 50, each people adds a new rite, myth or song at least every 12 years, and holds a gathering or festival most years.
   - **Tuned by** split sizes, the custom threshold, belief strength and the pull of gatherings, alike in every world (`PRN-17`).
   - **Check:** the pace tests (`RES-07`) read these from each world's records, each from the stage `RES-07` gives it; Keeps going passes in at least half the worlds.
-  - **Proposed change:** add "First custom a band names (`CUL-06`): within 1", first in the list.
-    P10 found every world's first custom in its first year, Years 0.1 to 0.6 in 20 runs, from a band's first three big kills, and the list gives customs no window.
 
 ### 10.2 Passing things on
 
@@ -2222,10 +2221,8 @@ The look, written to stand without any image.
   It also names religions, gods and wars (`CUL-26`, `CUL-31`).
   - **Firsts** count worldwide and for each people: any event of a kind the history has never recorded; a rediscovery after a loss is marked as one.
   - **Ages** begin only at these turning points: a step of the arc first reached anywhere (`TIM-19`), a new people (`CUL-23`), the first village (`CUL-28`), and a war (`CUL-31`).
-    Each is named by a fixed pattern from its defining event and that event's name in their language, such as "The age of *hesoru*, fire from wood", and lasts at least 20 years (tuned) before another begins.
+    Each is named by a fixed pattern from its defining event and that event's name in their language, such as "The age of *hesoru*, fire from wood", and lasts until the next turning point, however short or long.
   - **Done when:** in the pace tests every age starts at a listed turning point, and a code check finds no path from recognisers back into the world (`WLD-13`).
-  - **Proposed change:** "and lasts at least 20 years (tuned) before another begins" becomes "and lasts at least 20 years (tuned) before another begins, except that a step of the arc always begins one".
-    P11 found that with the arc's pace halved twice (`TIM-19`), fire comes within 8 years of the first flakes, so no world had an age of fire, this item's own example; a shorter least for all turning points would let wars and new peoples turn the ages over too often.
 
 - `PRE-09` **Graves and old camps** *(Decided)*: The dead and the places people left stay in the world (`MAT-08`); the book of ages lists them by people and date.
   A grave shows who lies there, how they died (`BIO-14`), who buried them and what was laid with them, and opens their card and life story (`PRE-37`); an old camp shows its hearths, rubbish heaps, lost tools and bones, and who lived there and when.
@@ -2712,8 +2709,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- **Pace of culture** (`CUL-33`): a window for the first custom, within a year, as P10 found.
-- **Recognising what emerges** (`PRE-39`): every step of the arc begins an age, since P11 found fire never could.
+- None at present.
 <!-- end generated -->
 
 ## 18. Glossary

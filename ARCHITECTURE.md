@@ -580,7 +580,7 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - Stories and gossip drift as transmission chains do; styles drift by copying with small changes (`CUL-11`, `CUL-12`).
 - *Proved in P10 in the cloud,* in Python as pre-production code (`prototypes/culture`): three bands of 22 to 30 people in families, with P4's ages, births and deaths, run 100 years in each of 20 worlds, with `MND-05`'s, `CUL-06`'s and `CUL-30`'s numbers as the project file states them.
   - **The answer:** yes. Each came inside its window in at least half the runs, and every one from the events behind it:
-    - a custom in all 20, Years 0.1 to 0.6, from a band's first three big kills; `CUL-33` gives customs no window, so one of a year is proposed;
+    - a custom in all 20, Years 0.1 to 0.6, from a band's first three big kills, inside the window of a year that `CUL-33` now gives customs (your OK, 5 October 2026);
     - a shared spirit in all 20, by Year 2.3, most often a being in the storm after lightning struck a camp, else the dead living on after grief and dreams;
     - a rite a band keeps in 15, inside Years 3 to 10; 5 came earlier, from a burial custom named in the first two years;
     - a band split in 17, inside Years 5 to 25, when a band grew past 40 by births and marriages; one came earlier and two later.
@@ -618,7 +618,7 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
     - The fifth of the time slowed never binds while each slowdown lasts under 36 seconds: the 3-minute gap is the working rule.
     - One shared stream of chance can swallow a stray draw: one extra draw left no trace in a short test world, so a comparison at the end alone can miss a path.
       Chance keyed by being and moment (`TIM-16`, A3.4) has no such stream, and the repeat check compares the logs as they go.
-    - With the arc's pace halved twice, fire comes within 8 years of the first flakes, so `PRE-39`'s 20 years between ages gave no world an age of fire, its own example: a change is proposed.
+    - With the arc's pace halved twice, fire comes within 8 years of the first flakes, so `PRE-39`'s 20 years between ages gave no world an age of fire, its own example: an age now lasts until the next turning point, however short (your OK, 5 October 2026).
   - **Its cost:** 20 worlds of 100 years, each run on and off, in about 7 minutes on three cores, nearly all of it the worlds.
 - *To prove (P13):* the writer's pass rate, speed and quotas on your phone.
 

@@ -64,7 +64,7 @@ What I take from it, for your OK at α0.8a:
   Production should measure how often a credited act becomes a rite, beside `CUL-34`'s done-when for the hunting song.
 - **Talk lends conviction, it doesn't pile it up:** a belief told again and again must not grow past what the teller lends, or every told belief lives forever.
 - **"A rite a band keeps" needs a test of keeping;** P10 used a year of being credited, or done as the band's way.
-- **Customs come within months** from the commonest cases, big kills, and the way with the dead within a year or two at forager death rates; `CUL-33` gives customs no window (a year is proposed).
+- **Customs come within months** from the commonest cases, big kills, and the way with the dead within a year or two at forager death rates; `CUL-33` now gives them a year, with your OK.
 - **Realistic rates matter:** hunting deaths at ten times the real rate flooded the bands with sudden deaths, spirits of the aurochs and burial cases.
 
 ## The director
@@ -82,4 +82,4 @@ What I take from it, for your OK at α0.8a:
 - **The log is the director's only window:** each event with its day and hour, kind, who and what, an activity logged at its start and its result at its end, so a sign can come before what it foretells; and what the director needs to know, such as who can make what, it keeps from what it has seen.
 - **One stream of chance can hide a path:** in a short test world one stray draw by a careless host left no trace, so comparing worlds at the end alone can miss it.
   Production's chance keyed by being and moment (`TIM-16`) has no shared stream to disturb, and its repeat check compares the logs as they go.
-- **Ages and the pace:** with the arc's pace halved twice, fire comes within 8 years of the first flakes, so 20 years between ages never gives the age of fire (`PRE-39`, proposed change).
+- **Ages and the pace:** with the arc's pace halved twice, fire comes within 8 years of the first flakes, so 20 years between ages never gives the age of fire: an age now lasts until the next turning point, however short (`PRE-39`, your OK).
