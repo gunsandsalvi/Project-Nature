@@ -1,60 +1,45 @@
-# Kindling α0.5d: P8 The zoom, second round, fixed
+# Kindling α0.6a: P9 Ecology, and P8's camp
 
 ## What is new
 
-- **The fixes you asked for.** α0.5c stopped on your phone as the world was made, and its buttons ran off the screen.
-  - **The zoom now starts in stages,** the weather, then the ground, then the sky, and notes each one before it starts it. If the phone stops it again, the next start tells you at which stage, and opens in a light mode: no clouds, and the land and sea without their finest detail. Tap **Clouds off** to try the full zoom again. I could not run it on your phone, so I could not see which part stopped it; this way the next try tells us.
-  - **The volumetric clouds have a shader of their own,** made only when you choose them, and the weather is drawn every fourth frame, so the start asks much less of the phone.
-  - **The buttons** show a short name and a letter, such as "Clouds A", and keep clear of the phone's bars; what the letter means shows at the top when you tap it.
-- **Your OK on the two proposals** is in the project file: pixels that grow from 2 to 6 with the zoom (`PRE-22`), and the land vivid and lit by the sun (`PRE-29`).
-- **P8's second round, from space down to the valley,** after your verdict and the planet you showed me. This round makes the look from the globe to the valley as good as I can, in variants for you to choose; the camp and closer come in the next round, so they still show only grass and a river.
-  - **A planet at every scale.** The world stays a sphere all the way down and never unrolls; near the ground it is shown at its true size.
-  - **Smooth levels.** The ground is one tree of pieces, each melting into its coarser parent as you zoom out, so nothing pops; only the pieces the camera can see are drawn.
-  - **Clouds from the climate.** A weather picture of the whole world, made on the phone: rain belts that follow the sun through the seasons, storms that swirl, winds that carry the clouds east in the middle latitudes and west in the tropics. Small fair-weather clouds over warm land, which the descent passes among, cast their shadows on the ground.
-  - **The sea by its depth:** deep navy far out, open blue, turquoise shallows along the coasts, with currents drifting across it.
-  - **The land textured with what can be seen from space:** forests as clumps of crowns lit on the sun's side at every zoom, grassland, deserts, rock, snow and polar ice; hills shaded; warm sunlight and blue shade.
-  - **Smaller pixels up close:** about 2 screen pixels at the person, growing to 6 at the globe, small things blending into them as you zoom out.
-  - **The descent ends by a river** near the start region, so the close stops show water, and rivers no longer vanish as you close in.
-- **Why the cloud's pictures took 8 minutes:** the ground's memory freed pieces it was about to use, so a deep zoom kept asking for them again; fixed. Only pieces in view are drawn now: 25 at the person, where there were 989.
+- **P9 Ecology answers yes.** The question: do the numbers of plants and animals stay believable for 100 years with nobody in the world?
+  - **How:** 20 of P7's worlds, each run 30 years into its present-day state, settled 10 years, then 100 more with nobody in it, in steps of five game days. 14 plant eaters live in every biome, from hares to wild cattle, at a sixth of Earth's numbers for their size. 4 hunters, wolves, lynx, lions and leopards, have room in proportion to the weight of their prey.
+  - **Driven by the weather:** each region has its own wet or dry year and hard or mild winter, with patterns shared over several hundred km and, some years, by the whole world. Animals lose condition when they cannot reach enough food under the snow or in a drought, die first of hunger in a hard winter, and breed as their condition lets them. Hunters take the weak most easily.
+  - **The result:** in all 20 worlds every species stayed between 0.66 and 1.10 of its settled number for the 100 years, and in every biome it lived in; grass, bushes and trees held too; and there were 82 to 99 big plant eaters for each hunter, where the project file asks 50 to 200 (`WLD-18`). The world's totals hold because its regions' bad years fall at different times: round each world's start region, numbers crashed in droughts and hard winters to as little as a fifth, boomed to over twice in good years, and took 10 to 20 years to mend.
+  - **The first runs failed, and taught something:** at first nothing moved, every species within 2% of its total, because a game winter cost the animals almost nothing; then wild sheep in 3 of 20 worlds crashed in a drought and stayed down, because my dry country's plants grew as if they were a wet meadow short of rain. Now a game winter costs what a real one does, dry country's plants live on less water, and young animals leave crowded land for emptier land next door.
+  - The charts are on the app's Reports page, below P4's.
+- **P8's camp and closer,** in the zoom: trees that cast the sun's shadows, the camp built from the kit by the river, its fire drawn pixel by pixel and lighting what stands round it, the band at work, and small plants up close. As you said, this is as far as pre-production takes it.
+- **Notes for production:** your observations of 5 October (the ground drawn as what covers it, every asset crisp) and mine against the art book are in `NOTES.md`, so production takes them up.
 
-![From space to the river: globe, world map, region, valley, camp, close camp, person](pictures/p8-stops.png)
+![Top: the three start regions that swung most, each species a line. Below: each species' total in each of the 20 worlds over 100 years, as a share of its settled total; shaded, half to twice](pictures/p9-species.png)
 
-![The descent among the fair-weather clouds and their shadows, from the valley down to the camp](pictures/p8-descent.png)
-
-![The variants at the world map: land A, B, C; clouds A, B, C; light A; dusk](pictures/p8-variants.png)
+![P8's camp, close camp and person stops](pictures/p8-camp.png)
 
 ## What to try
 
 1. Tap **Download and install** at the top of this page. It installs over the build you have.
-2. Open **P8 The zoom**. It makes P7's world first, about 10 seconds, then shows the globe in the morning light.
-3. Pinch from the globe down to the valley and back, and drag to look around. The buttons switch each variant; try them at the globe, the world map, the region and the valley, and tell me which you like for each:
-   - **Pixels:** A the art book's fixed 4; B from 2 up close to 6 at the globe, in whole steps; C the same, smoothly, small things blended.
-   - **Land:** A the art book's map colours; B vivid and textured, lit by the sun; C vivid, in clean steps of light.
-   - **Water:** A the art book's bands; B deep and shallow, with currents; C B with waves at the shore.
-   - **Clouds:** A volumetric; B volumetric, in the art book's clean steps; C the art book's flat clouds.
-   - **Light:** A the air only as a glow at the rim; B the air's haze over the land too.
-   - **Path:** A straight down from the valley; B a flight that tilts toward the horizon.
-   - **Time:** A morning; B noon; C dusk; D night; E the live hour, moving.
-4. Then tap **Measure** and leave the screen alone for about 45 seconds: it pinches from the globe to a person and back by itself. Paste the line it copies into your reply.
+2. Open **Reports from the cloud** and scroll past P4 to **P9 Ecology**: a chart for each species and each kind of plant, one line a world.
+3. If you like, open **P8 The zoom**, pinch down to the camp, then tap **Measure** and leave the screen alone for about 45 seconds. Paste the line it copies into your reply.
 
 ## What is rough
 
-- **The camp, close camp and person** show only grass and the river: their trees, tufts and the camp come in the next round.
-- **The polar ice** is a plain cap, and the lands just below it are squeezed, as a world on a sphere must be.
-- **The phone's cost is untested:** the clouds are the dearest part. If Measure shows late frames, pixels B costs less than C, and I will make the clouds cheaper.
-- **Still weaker than I want** at these stops: the clouds' edges from far off are smooth rather than lumpy; the valley's grassland is plain; a river can run dead straight for a short way where it joins another.
+- **P9 is a model on the world's cells,** about 4 km across, with counts that can hold a fraction of an animal; production runs it on 1 km cells with herds, as `WLD-32` says.
+- **Hunters are always well fed:** at these numbers prey is never scarce enough to starve them, so their numbers follow their prey's rather than swinging on their own.
+- **Mild country barely moves:** in forests with mild winters numbers stay within a few per cent. Hunters that can starve, and cycles like the hare's and the lynx's, are left for production, in the notes for production.
+- **Fish, birds and bears are not in P9:** they need rivers, seas and seasons of their own.
+- **P8's camp** lacks what the notes for production list: outlines, smoke, grass at the close camp, the ground drawn as its cover.
 
 ## Questions for you
 
-1. Does it start now? If it opens in the light mode, tell me the stage it names.
-2. For each of the seven buttons, which variant do you like, and what would you change?
+1. Is P9's answer enough to move on to P10, culture from causes?
 
 ## IDs delivered
 
-None for good: P8 is a prototype, thrown away once it has answered.
-Its question is about `PRE-03`, `PRE-29`, `WLD-02`, `TIM-01` and `PRE-22`.
+None for good: P9 is a prototype, thrown away once it has answered.
+Its question is about `WLD-18`, `WLD-30`, `WLD-31` and `WLD-32`.
 
 ## Links
 
 - APK: https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk
 - Note: https://claude.ai/artifact/GBackmSHJPak61yAd6we4d
+- Notes for production: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/NOTES.md

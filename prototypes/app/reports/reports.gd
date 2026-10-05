@@ -1,13 +1,14 @@
 ## The Reports page (IMPLEMENTATION α0.3a, RES-06): the prototypes that run in the cloud, each with
-## its question, its answer and its charts, drawn from the numbers the cloud wrote (reports/*.json),
-## P4's first; the later cloud prototypes add theirs. Pre-production code (research 00) for RES-06;
+## its question, its answer and its charts, drawn from the numbers the cloud wrote (reports/*.json):
+## P4's, then P9's. Pre-production code (research 00) for RES-06;
 ## each prototype's README names the items its report is about.
 extends Control
 
 signal closed
 
 const Chart := preload("res://reports/chart.gd")
-const REPORTS := ["res://reports/p4.json"]
+const Lines := preload("res://reports/lines.gd")
+const REPORTS := ["res://reports/p4.json", "res://reports/p9.json"]
 const INK := Color("ebe5da")
 const DIM := Color("a39ca9")
 const FLAME := Color("f6a33c")
@@ -47,7 +48,11 @@ func _ready() -> void:
 	scroll.add_child(_page)
 	_text("Reports from the cloud", INK, 22)
 	for path: String in REPORTS:
-		_p4(JSON.parse_string(FileAccess.get_file_as_string(path)))
+		var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if String(report.title).begins_with("P4"):
+			_p4(report)
+		else:
+			_p9(report)
 	var back := Button.new()
 	back.text = "Back"
 	back.custom_minimum_size.y = 48
@@ -201,6 +206,131 @@ func _p4(r: Dictionary) -> void:
 		DIM,
 		13
 	)
+
+
+## P9 Ecology (WLD-18, WLD-30, WLD-31, WLD-32): each species' total in each world over a hundred
+## years with nobody in it, as a share of its settled total, against the band from half to twice;
+## the plants' the same; and the big plant eaters for each hunter.
+func _p9(r: Dictionary) -> void:
+	_text(r.title, FLAME, 20)
+	_text(r.question, INK, 15)
+	var runs: Array = r.runs
+	var passed := 0
+	var fewest := INF
+	var most := 0.0
+	for run: Dictionary in runs:
+		passed += 1 if run.pass else 0
+		fewest = minf(fewest, run.prey_per_hunter.mean)
+		most = maxf(most, run.prey_per_hunter.mean)
+	var said := (
+		"%s. In %d of %d worlds every species stayed within half and twice its settled total for "
+		+ "%d years and in every biome it lived in, and the cover held; there were %d to %d big "
+		+ "plant eaters for each hunter, where %d to %d are asked."
+	)
+	_text(
+		(
+			said
+			% [
+				"Yes" if r.pass else "Not yet",
+				passed,
+				runs.size(),
+				r.years,
+				roundi(fewest),
+				roundi(most),
+				r.ratio[0],
+				r.ratio[1]
+			]
+		),
+		INK,
+		15
+	)
+	_text(
+		(
+			(
+				"Each world is %d by %d cells of about %d km, made by P7, run %d years into its "
+				+ "present-day state and settled %d, then %d more. Each line is a world's total as a "
+				+ "share of its settled one; shaded, half to twice."
+			)
+			% [r.cells[0], r.cells[1], roundi(r.km), r.made, r.settle, r.years]
+		),
+		DIM,
+		13
+	)
+	# round each world's start region, where a hard year shows that the world's totals hide
+	var low_here := INF
+	var high_here := 0.0
+	for run: Dictionary in runs:
+		low_here = minf(low_here, run.local.low)
+		high_here = maxf(high_here, run.local.high)
+	_text(
+		(
+			(
+				"Round each world's start region, about 64 km across, numbers swung further, from "
+				+ "%.2f to %.2f of their settled level: below, the three start regions that swung "
+				+ "most, each species a line."
+			)
+			% [low_here, high_here]
+		),
+		INK,
+		14
+	)
+	var species: Array = r.species
+	var swung := runs.duplicate()
+	swung.sort_custom(
+		func(a: Dictionary, b: Dictionary) -> bool:
+			return a.local.high / maxf(a.local.low, 0.01) > b.local.high / maxf(b.local.low, 0.01)
+	)
+	for run: Dictionary in swung.slice(0, 3):
+		var lines := []
+		var names := PackedStringArray()
+		for row: Dictionary in run.local.species:
+			lines.append(row.years)
+			names.append(species[int(row.kind)].name)
+		var chart := Lines.new(lines, "World %d round its start" % run.seed)
+		chart.years = r.years
+		_page.add_child(chart)
+		_text(", ".join(names), DIM, 12)
+	_text("Each species over the whole world:", INK, 14)
+	for k in species.size():
+		var kind: Dictionary = species[k]
+		var lines := []
+		var low := INF
+		var high := 0.0
+		for run: Dictionary in runs:
+			var row: Dictionary = run.species[k]
+			if (row.years as Array).is_empty():
+				continue
+			lines.append(row.years)
+			low = minf(low, row.low)
+			high = maxf(high, row.high)
+		if lines.is_empty():
+			continue
+		var title := (
+			"%s, %s kg%s: %d worlds, %.2f to %.2f"
+			% [kind.name, kind.kg, ", a hunter" if kind.hunter else "", lines.size(), low, high]
+		)
+		var chart := Lines.new(lines, title)
+		chart.years = r.years
+		_page.add_child(chart)
+	var plants: Array = r.plants
+	for p in plants.size():
+		var lines := []
+		var low := INF
+		var high := 0.0
+		for run: Dictionary in runs:
+			var row: Dictionary = run.plants[p]
+			lines.append(row.years)
+			low = minf(low, row.low)
+			high = maxf(high, row.high)
+		var said_of := {
+			"grass": "grass and herbs standing at midsummer",
+			"browse": "browse: bushes' and young trees' leaves",
+			"mast": "mast: fruit, nuts and roots, a crop that fails and floods by the year",
+			"trees": "trees' crowns"
+		}
+		var chart := Lines.new(lines, "%s: %.2f to %.2f" % [said_of[plants[p]], low, high])
+		chart.years = r.years
+		_page.add_child(chart)
 
 
 ## Each run as a chart row, earliest first: its year, how it came, and a square for ploughing.

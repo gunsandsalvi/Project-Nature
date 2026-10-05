@@ -43,6 +43,32 @@ directly in a present-day state, then settled for 10 years), `WLD-09` (the stage
   cover and water as textures for the picture; and the clouds' noise with its smaller copies. The app's "P8 The zoom"
   screen reads it through `extension/`, with the world's size and tilt.
 
+- **Ecology,** for P9 (`src/ecology.cpp`, IMPLEMENTATION α0.6a, A9): do the totals of plants and animals stay
+  believable for 100 years with nobody in the world? Items it is about: `WLD-18` (numbers boom and crash with the
+  weather and with each other, never by script), `WLD-30` (a sixth of Earth's numbers), `WLD-31` (plants) and `WLD-32`
+  (animals).
+  - **On the world's cells,** in steps of five game days: each land cell's cover (trees and bushes, which fire thins
+    and which grow back over years), the grass, browse and mast standing on it, its soil's water and its snow; and
+    each species' count there, with its condition.
+  - **Weather by the year:** each region of about 64 km has its own wet or dry year, hard or mild winter and good or
+    poor mast, plus a pattern its neighbours share for several hundred km and one the whole world shares.
+  - **18 species** (`kinds()`, as catalogue entries would hold them): 14 plant eaters of every biome, from hares to
+    wild cattle, at a sixth of the density Damuth's law gives their weight (`WLD-30`), and 4 hunters, whose room
+    follows their prey's weight by Carbone and Gittleman's rule.
+  - **Plant eaters** eat what they can reach under the snow, of food enough for all who eat it there, green food
+    feeding best; their condition follows how full they are, and they die first of hunger in a hard winter.
+  - **Hunters** take prey by Holling's second type, the weak and those floundering in snow most easily, and no more
+    than they eat.
+  - **Each breeds once a year** in its spring, as well as its condition lets it, fewer as its cell fills; each late
+    summer young animals leave for less crowded cells next door that suit them, more from crowded cells.
+  - **Plants grow** by the season's warmth and the soil's water, partly against the place's own, as dry country's
+    plants live on less: a normal year feeds dry country's animals and a drought costs them.
+  - **The run** (`src/ecology_cli.cpp`): worlds from seeds 1 to 20 at the candidates' size, each run 30 years into its
+    present-day state, settled 10, then 100 more; each species' total, the plants', and the big plant eaters for each
+    hunter, year by year, into the report the app's Reports page shows (`app/reports/p9.json`).
+
+        build/worldgen/ecology_cli 4 20 coarse prototypes/app/reports/p9.json   # four threads, 20 worlds
+
 It uses P5's maths, keyed chance, hashes and arm64 check (`prototypes/samebits`) and P6's thread pool
 (`prototypes/minds/src/pool`), written once.
 

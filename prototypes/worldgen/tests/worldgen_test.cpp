@@ -1,7 +1,8 @@
 // P7's tests (IMPLEMENTATION α0.5a): our Fourier transform, rivers that reach the sea or a lake, the share of land and
 // the tilt in their ranges, rock and deposits where geology puts them, rain shadows behind mountains, the candidates'
-// offer and its reasons, settling, and the same worlds on one thread and four and as the cloud recorded; and P8's
-// (α0.5b): the ground made on demand from the cells and the seed alone. Pre-production code (research 00).
+// offer and its reasons, settling, and the same worlds on one thread and four and as the cloud recorded; P8's
+// (α0.5b): the ground made on demand from the cells and the seed alone; and P9's (α0.6a): nature's numbers by the
+// laws they follow, the same on any thread count. Pre-production code (research 00).
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest.h>
 
@@ -11,6 +12,7 @@
 #include "area.hpp"
 #include "chance.hpp"
 #include "draws.hpp"
+#include "ecology.hpp"
 #include "expected.hpp"
 #include "fft.hpp"
 #include "hash.hpp"
@@ -318,4 +320,40 @@ TEST_CASE("the ground made on demand is the same every time, follows its cells, 
             break;
         }
     }
+}
+
+// checks: WLD-30
+TEST_CASE("plant eaters live at Damuth's density for their size, and hunters by their prey's weight") {
+    // about 3 a km² for a 100 kg plant eater on Earth, falling with weight to the power -0.75 (Damuth 1981)
+    CHECK(worldgen::damuth_density(100.0) == doctest::Approx(3.02).epsilon(0.01));
+    CHECK(worldgen::damuth_density(1000.0) / worldgen::damuth_density(100.0) == doctest::Approx(0.1778).epsilon(0.001));
+    // about 1.85 wolves of 40 kg for each 10,000 kg of their prey (Carbone and Gittleman 2002)
+    CHECK(worldgen::hunters_per_prey(40.0) == doctest::Approx(1.85).epsilon(0.01));
+}
+
+// checks: WLD-18, RES-05
+TEST_CASE("nature runs the same on one thread and four, and keeps every species within half and twice its total") {
+    const World w = small_world(3);
+    minds::Pool one(1);
+    minds::Pool four(4);
+    const worldgen::EcologyRun a = worldgen::run_ecology(w, 10, 20, &one);
+    const worldgen::EcologyRun b = worldgen::run_ecology(w, 10, 20, &four);
+    CHECK(a.checksum == b.checksum);
+    REQUIRE(a.totals.size() == 21);
+    int present = 0;
+    int hunters = 0;
+    for (std::size_t k = 0; k < static_cast<std::size_t>(worldgen::kKinds); ++k) {
+        const double settled = a.totals[0][k];
+        if (settled < 1.0) {
+            continue;
+        }
+        ++present;
+        hunters += worldgen::kinds()[k].hunter ? 1 : 0;
+        for (const auto& year : a.totals) {
+            CHECK(year[k] / settled >= 0.5);
+            CHECK(year[k] / settled <= 2.0);
+        }
+    }
+    CHECK(present >= 8);
+    CHECK(hunters >= 2);
 }

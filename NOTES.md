@@ -41,3 +41,16 @@ What I take from it, for your OK at α0.8a:
 - **The band** crowds the hearth; the art book spreads people over the camp at their work.
 - **Not yet in the zoom:** outlines and lit edges (`PRE-21`), and smoke over the hearth.
   Dusk and night at the close stops are not yet compared with the art book.
+
+## Living things
+
+### What P9's ecology taught (me, 5 October 2026)
+
+- **Numbers that hold, but move too little in mild country:** in 20 worlds left alone for 100 years every species stayed within 0.66 and 1.10 of its settled total, while round the start regions numbers crashed in droughts and hard winters to a fifth and boomed to twice.
+  In forests with mild winters they barely moved.
+  Production adds what moves them there within `WLD-18`'s rules: hunters that can starve when their prey thins, and cycles like the hare's and the lynx's.
+- **A game winter must cost an animal what a real one does,** though it lasts 20 game days, or the weather moves nothing.
+- **Dry country's plants live on less water:** measured against a meadow's needs, they starved the animals there in every normal year.
+- **Young animals leave crowded land for emptier land next door,** from every cell, or land emptied by a hard year stays empty.
+- **A world made from a rough start drifts for decades,** so production makes it directly near its balance (`WLD-08`).
+- **Not yet tried:** fish, birds and bears, which need rivers, seas and seasons of their own; and the 1 km cells with herds that `WLD-32` describes, since P9 ran on cells of about 4 km.
