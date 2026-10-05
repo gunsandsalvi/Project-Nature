@@ -26,7 +26,8 @@ add_library(kd_sim STATIC
     src/kd/num/maths.cpp
     src/kd/proof/maths_cases.cpp
     src/kd/proof/proof.cpp
-    src/kd/run/workers.cpp)
+    src/kd/run/workers.cpp
+    src/kd/time/calendar.cpp)
 target_include_directories(kd_sim PUBLIC src)
 target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" thirdparty/core-math)
 target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math)
@@ -38,6 +39,7 @@ if(KD_SIM_TESTS)
     kindling_rules(kindling)
 
     add_executable(kd_sim_tests
+        tests/calendar_test.cpp
         tests/chance_test.cpp
         tests/main.cpp
         tests/maths_test.cpp
