@@ -5,6 +5,7 @@ extends Control
 
 const PAGES := {
 	"Check": preload("res://pages/check.gd"),
+	"Time": preload("res://pages/time.gd"),
 }
 const BACKGROUND := Color("#1f1a24")
 const TEXT := Color("#efe6d8")
@@ -17,6 +18,10 @@ var _page_name := ""
 func _ready() -> void:
 	_build()
 	open_page("Check")
+	# a page named after the arguments' "--", as the cloud's pictures ask (tools/picture.sh)
+	for arg in OS.get_cmdline_user_args():
+		if PAGES.has(arg):
+			open_page(arg)
 	_set_frame_cap()
 
 
