@@ -6,6 +6,7 @@ project(kindling_sim LANGUAGES C CXX)
 option(KD_SIM_TESTS "Build the tests and the kindling tool" ON)
 set(KD_XXHASH "$ENV{KD_XXHASH}" CACHE PATH "xxHash's folder (tools/setup.sh)")
 set(KD_DOCTEST "$ENV{KD_DOCTEST}" CACHE PATH "doctest's folder (tools/setup.sh)")
+set(KD_TOMLPP "$ENV{KD_TOMLPP}" CACHE PATH "toml++'s folder (tools/setup.sh)")
 
 include(cmake/kindling.cmake)
 find_package(Threads REQUIRED)
@@ -19,6 +20,8 @@ kindling_c_rules(kd_core_math)
 add_library(kd_sim STATIC
     src/kd/chance/chance.cpp
     src/kd/core/check.cpp
+    src/kd/data/toml.cpp
+    src/kd/data/units.cpp
     src/kd/demo/clockwork.cpp
     src/kd/num/angle.cpp
     src/kd/num/convert.cpp
@@ -33,7 +36,7 @@ add_library(kd_sim STATIC
     src/kd/time/calendar.cpp
     src/kd/time/duration.cpp)
 target_include_directories(kd_sim PUBLIC src)
-target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" thirdparty/core-math)
+target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" "${KD_TOMLPP}" thirdparty/core-math)
 target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math)
 kindling_rules(kd_sim)
 
@@ -45,6 +48,7 @@ if(KD_SIM_TESTS)
     add_executable(kd_sim_tests
         tests/calendar_test.cpp
         tests/chance_test.cpp
+        tests/data_test.cpp
         tests/duration_test.cpp
         tests/main.cpp
         tests/maths_test.cpp

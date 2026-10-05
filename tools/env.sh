@@ -12,8 +12,9 @@ export KD_GDUNIT="$KD_CACHE/gdunit4-v6.2.1"
 # for C++ tests (A2.2)
 export KD_GODOT_CPP="$KD_CACHE/godot-cpp-4.5"
 export KD_DOCTEST="$KD_CACHE/doctest-2.4.11"
-# The simulation's own pinned libraries (A2.4): xxHash for checksums
+# The simulation's own pinned libraries (A2.4): xxHash for checksums, toml++ for the catalogues
 export KD_XXHASH="$KD_CACHE/xxhash-0.8.4"
+export KD_TOMLPP="$KD_CACHE/tomlplusplus-1e8829b"
 # ccache keeps compiled C++ between runs and across build folders, so godot-cpp and unchanged files compile once: paths
 # under the repository are hashed relative to each build folder, and the folder itself is left out (A2.4)
 export KD_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

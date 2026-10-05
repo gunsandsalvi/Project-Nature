@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "kd/chance/chance.hpp"
+#include "kd/data/units.hpp"
 #include "kd/num/angle.hpp"
 #include "kd/num/convert.hpp"
 #include "kd/num/digest.hpp"
@@ -164,11 +165,93 @@ std::string torus(run::Workers& workers) {
     return digest.hex();
 }
 
+// A quantity or a chance written as an author might, right or wrong: whole and decimal numbers in every unit of a
+// measure, some in two parts, some with a comma or an unknown unit. Each draw is its own statement, so their order
+// is fixed (A3.4).
+std::string written(const chance::Draws& draws, std::uint64_t i, int& measure) {
+    std::uint64_t k = i * 32;
+    const auto draw = [&](std::uint64_t n) { return draws.below(k++, n); };
+    measure = static_cast<int>(draw(10));
+    const auto number = [&] {
+        std::string text = std::to_string(draw(100'000));
+        const auto places = static_cast<std::size_t>(draw(4));
+        if (places > 0) {
+            std::string decimals = std::to_string(draw(10'000));
+            decimals.insert(0, 4 - decimals.size(), '0');
+            const bool comma = draw(30) == 0;
+            text += (comma ? "," : ".") + decimals.substr(0, places);
+        }
+        return text;
+    };
+    if (measure == 9) {
+        const std::uint64_t form = draw(3);
+        if (form == 0) {
+            return std::to_string(draw(120)) + "%";
+        }
+        if (form == 1) {
+            const std::uint64_t one = draw(5);
+            return std::to_string(one) + " in " + std::to_string(draw(1'000));
+        }
+        return "0." + std::to_string(draw(1'000'000));
+    }
+    const auto units = data::units_of(static_cast<data::Measure>(measure));
+    std::string text = draw(10) == 0 ? "-" : "";
+    const std::uint64_t parts = draw(4) == 0 ? 2 : 1;
+    for (std::uint64_t part = 0; part < parts; ++part) {
+        if (part > 0) {
+            text += " ";
+        }
+        text += number();
+        if (draw(2) == 0) {
+            text += " ";
+        }
+        text += units[draw(units.size())].name;
+        if (draw(40) == 0) {
+            text += "x";
+        }
+    }
+    return text;
+}
+
+/// The units suite: 200,000 quantities and chances written as text, read exactly, each value or refusal digested
+/// in order: the phone's reading of the catalogues can never differ from the cloud's. Implements MAT-13, see A3.6.
+std::string units(run::Workers& workers) {
+    constexpr std::uint64_t kStrings = 200'000;
+    constexpr std::uint64_t kPiece = 2'000;
+    const chance::Draws draws(20261005, chance::name("proof"), 0, 0, chance::name("units"));
+    std::vector<std::uint64_t> pieces(kStrings / kPiece);
+    workers.for_each(pieces.size(), [&](std::size_t p) {
+        num::Digest digest;
+        for (std::uint64_t i = p * kPiece; i < (p + 1) * kPiece; ++i) {
+            int measure = 0;
+            const std::string text = written(draws, i, measure);
+            digest.text(text);
+            if (measure == 9) {
+                const data::Chance c = data::read_probability(text);
+                digest.u64(c.value.threshold());
+                digest.u8(c.value.certain() ? 1 : 0);
+                digest.text(c.error);
+            } else {
+                const data::Amount a = data::read_quantity(text, static_cast<data::Measure>(measure));
+                digest.i64(a.value);
+                digest.text(a.error);
+            }
+        }
+        pieces[p] = digest.value();
+    });
+    num::Digest digest;
+    for (std::uint64_t piece : pieces) {
+        digest.u64(piece);
+    }
+    return digest.hex();
+}
+
 constexpr std::array kSuites = {
     Suite{"smoke", "arithmetic, square roots and a sum in fixed pieces", &smoke},
     Suite{"maths", "every maths function on its stream of inputs and its hard cases", &maths},
     Suite{"chance", "a million keyed draws of every kind", &chance_draws},
     Suite{"torus", "ways, distances and directions between places on the world", &torus},
+    Suite{"units", "quantities and chances written as text, read exactly", &units},
 };
 
 }  // namespace

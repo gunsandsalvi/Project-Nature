@@ -168,4 +168,13 @@ if [ ! -s "$KD_XXHASH/xxhash.h" ]; then
 fi
 fetch https://raw.githubusercontent.com/Cyan4973/xxHash/v0.8.4/xxhash.h "$KD_XXHASH/xxhash.h" \
   3dc8d161e867a62d3417f7885b55fdaded8b7b497e2f165d05c94f4fe24f2ca4
+
+# 12. toml++'s one header at the commit research 18 tested (3.4.0 and later fixes), for reading the catalogues (A3.6),
+#     checked against its SHA-256
+if [ ! -s "$KD_TOMLPP/toml.hpp" ]; then
+  echo "Setup: installing toml++ 1e8829b"
+  mkdir -p "$KD_TOMLPP"
+fi
+fetch https://raw.githubusercontent.com/marzer/tomlplusplus/1e8829b793b66ad17011732a146b8077d379b011/toml.hpp \
+  "$KD_TOMLPP/toml.hpp" 2089217190195e12e9a4a454bc94cfb95b58a07ff927f1505d068188c2f864df
 exit 0
