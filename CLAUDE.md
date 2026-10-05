@@ -15,7 +15,7 @@ Read `PROJECT.md` before doing anything else. It is the source of truth for what
 7. **Keep `PROJECT.md` free of implementation details** (`PRC-04`). They belong in the architecture and the implementation plan.
 8. **Build modularly** (`PRN-14`).
 9. **Language models describe, never decide** (`PRN-06`).
-10. **Before work joins the main version**, `tools/check.sh` must pass (`PRC-10`) and its review must approve it (`PRC-09`): the builder reviews each lettered alpha itself, and one independent subagent verifies each numbered alpha once, at its last lettered step. The pull request says so; nothing else is recorded.
+10. **Before work joins the main version**, `tools/check.sh` must pass (`PRC-10`) and its review must approve it (`PRC-09`): the builder reviews each lettered step and each numbered alpha itself, and one independent subagent verifies each milestone once, at its end. The pull request says so; nothing else is recorded.
 11. **Write plainly.** The owner reads everything on a phone, so give every command a short plain description of what it does.
 
 Changes to this guide need the owner's OK.

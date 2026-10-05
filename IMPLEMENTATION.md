@@ -15,6 +15,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The risks were tried first, as research 00 advises, and that work closed on 5 October 2026, as you asked: its answers are decisions in the architecture, and its evidence, numbers and lessons are in `LESSONS.md`.
   None of its code is carried into production, which writes its own.
 - Production begins with the foundations (M1), scoped for the whole game and for what may come after it, and planned in full below from research 18: eleven steps in five alphas, each ending with a build on your phone.
+- The first alpha, α1.1 (the workshop, then numbers and chance), is delivered as 20101 and 20102 and closed by the builder's review; your phone's lines from its self-check are still to come.
 
 ## How to use this plan
 
@@ -38,17 +39,19 @@ For the AI agent building a step:
    - the signed APK in `dist/`, when the step has one;
    - the note: what is new, what to try, what is rough, the items touched and the links, published at the note's link.
 6. **Check:** `tools/check.sh --deliver` passes (`PRC-10`).
-7. **Review** (`PRC-09`):
+7. **Review** (`PRC-09`), as you set on 5 October 2026:
    - The builder reviews each lettered step itself: each new test made to fail once, the numbers checked against how they were measured, and the pictures looked at.
-   - At the last step of each numbered alpha, one independent subagent verifies the whole alpha.
-     It is given only the alpha's diff, its sections as they stood when it began, and the items it claims.
-     It also judges, as a pixel artist and a game art director, how the game actually looks: from pictures it draws itself of every screen the alpha touched, at each hour, on their own merits and independently of the art book, as you asked on 4 October 2026.
+   - At the last step of each numbered alpha, the builder reviews the whole alpha the same way, against its sections and the items it claims.
+   - The independent review comes only at a milestone's end (9).
    - The pull request says which review approved it.
 8. **Join and tell:**
    - merge into main;
    - take the step's section and status row out of this plan, moving anything the code doesn't hold, such as a decision or a measured number, into the architecture;
    - tell the owner in two or three lines, with the note's link.
 9. **At a milestone's end:**
+   - one independent subagent verifies the whole milestone.
+     It is given only the milestone's diff, its sections as they stood when it began, and the items it claims.
+     It also judges, as a pixel artist and a game art director, how the game actually looks: from pictures it draws itself of every screen the milestone touched, at each hour, on their own merits and independently of the art book, as you asked on 4 October 2026;
    - the milestone report (`RES-06`), with the phone's numbers (`PLT-04`), the contact sheet (`PRE-31`) once there is a game to show, and what went right and wrong;
    - the next milestone detailed here, and its architecture sections written in full;
    - the owner approves both with the milestone review (`RES-22`).
@@ -93,7 +96,7 @@ For you, the owner:
 ## Rules every alpha keeps
 
 These items hold for the whole build rather than being delivered by one step.
-Every step keeps them, the independent review checks them, and the coverage check counts them as served:
+Every step keeps them, the reviews check them, and the coverage check counts them as served:
 - **Principles:** `PRN-16`, `PRN-01`, `PRN-02`, `PRN-07`, `PRN-05`, `PRN-12`, `PRN-17`, `PRN-03`, `PRN-04`, `PRN-10`, `PRN-13`, `PRN-06`, `PRN-15`, `PRN-11`, `PRN-09`, `PRN-14`.
 - **Scope and non-goals:** `SCP-02`, `SCP-03`, `SCP-15`, `SCP-04`, `SCP-05`, `SCP-06`, `SCP-07`, `SCP-08`, `SCP-09`, `SCP-10`, `SCP-11`, `SCP-12`, `SCP-17`, `SCP-18`, `SCP-19`, `SCP-20`, `SCP-21`.
 - **Process:** `PRC-02`, `PRC-03`, `PRC-04`, `PRC-06`, `PRC-07`, `PRC-09`, `PRC-10`, `PRC-11`, `PRC-12`.
@@ -112,9 +115,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.1a | The workshop | M1 | 6 | Delivered; your phone's details to come |
-| α1.1b | Numbers and chance | M1 | 5 | Delivered; α1.1's review next |
-| α1.2a | The clock and the calendar | M1 | 5 | Planned |
+| α1.2a | The clock and the calendar | M1 | 5 | Next |
 | α1.2b | Catalogues and tuning | M1 | 6 | Planned |
 | α1.3a | Entities and events | M1 | 5 | Planned |
 | α1.3b | Activities and islands | M1 | 6 | Planned |
@@ -134,7 +135,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 - entities, events, activities, catalogues, commands and snapshots;
 - saves, scenes and the phone's benchmark.
 
-It is built in five alphas, each ending with a build on your phone; an independent review closes each alpha, and the milestone ends with its report for your review.
+It is built in five alphas, each ending with a build on your phone and closed by the builder's own review; the milestone ends with the independent review and its report for your review.
 The demonstration content (markers that walk, meet and greet in camps) lives in its own source, `data/demo/`, and never enters the game's own catalogue (`MAT-16`).
 
 **Serves:** `TIM-01`, `TIM-05`, `TIM-08`, `TIM-10`, `TIM-14`, `TIM-16`, `TIM-17`, `TIM-18`, `PLT-01`, `PLT-03`, `PLT-04`, `PLT-05`, `PLT-06`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`, `MAT-05`, `MAT-13`, `MAT-14`, `MAT-17`, `RES-05`, `RES-06`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-21`, `RES-22`, `PRC-10`, `WLD-13`.
@@ -150,71 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.1a The workshop
-
-**Goal:** the three layers, built, checked and delivered as all of production will be: `sim/` as a C++ library with its tests and its tool, `view/` as the app's one Godot extension, and `game/` as the Godot project, all built and checked by one command in the cloud and installed on your phone, which opens on its self-check.
-
-**Serves:** `PLT-01`, `PLT-03`, `PLT-06`, `RES-05`, `PRC-10`.
-
-**Architecture:** A2.1, A2.2, A2.3, A2.4, A3.4, A3.8, A3.9, A17.
-
-**Tasks:**
-
-1. `T1.1a.1` **`sim/`, a library with its tests and its tool (`PLT-01`, `RES-05`).**
-   CMake for the static library, its doctest tests and the `kindling` tool, with A2.2's flags in one CMake file that `view/` shares.
-   Its first code: the canonical digest (XXH3 over a stream of little-endian fields, with xxHash pinned by `tools/setup.sh`), and the floating-point environment guard (set the default, read MXCSR or FPCR, assert it).
-   `kindling digest` prints the digest of a small fixed computation run on one thread and on four.
-2. `T1.1a.2` **Five builds and the same-bits check (`RES-05`, `PRC-10`).**
-   `tools/check.sh` builds `sim/` with clang (tests and tool), with GCC and its undefined-behaviour and float-cast checks, and for arm64 with GCC and with the NDK's clang as static executables run under qemu; every build's digests must be equal.
-   The scans: the last floating-point flag of every compile command is `-ffp-contract=off`; no fused multiply-add in our built code; no platform maths symbol.
-3. `T1.1a.3` **`view/`, the app's extension (`PLT-01`).**
-   godot-cpp 4.5 with a trimmed profile; `libkindling` for Linux x86-64 and Android arm64 (the C++ runtime static, newer Android functions weak and guarded, 16 KB pages), into `game/bin/`, with its `.gdextension` file.
-   Its first class, the device: the cores and their top clocks, the floating-point environment a new thread finds, the heat headroom and its forecast (Android only), and the self-check's digest.
-4. `T1.1a.4` **`game/`, the Godot project (`PLT-03`, `PLT-06`).**
-   The Mobile renderer on Vulkan, a 60-frame cap set again at run time, Back that never quits outright, Godot's worker pool kept small; the export preset for arm64 with no permissions, its data filter and data kept on uninstall only with your consent.
-   The start page is the self-check (A2.3), with the code to copy; `tools/check.sh` imports and tests the project with gdUnit4, and `tools/build.sh` builds the extension for the phone and exports, signs and checks the APK.
-5. `T1.1a.5` **Deliver (`PLT-06`).**
-   The APK as 20101, its note with a picture of the self-check, published at your note link.
-
-**Tests:**
-- doctest: the digest's bytes for known inputs; the guard catches flush-to-zero set on a thread.
-- `tools/check.sh`: the same digest on the four simulation builds, on one thread and four; each scan made to fail once by a planted fault (a fused multiply-add, a platform `sin`, a flag after `-ffp-contract=off`).
-- gdUnit4, headless: the extension loads, the self-check page builds its lines, and its digest equals the one the build wrote.
-- Passes if every check passes and the app installs over the last one and opens on its self-check.
-
-**On the phone:** install it and open Kindling: the self-check shows the version, the graphics driver, the screen's rate (60 Hz is the aim), the cores and their clocks, the heat, and "same bits as the cloud"; if any line is red, copy the code into the chat.
-
-### α1.1b Numbers and chance
-
-**Goal:** the numbers everything else computes with, the same on every build and on your phone: correctly rounded maths, positions on the torus, checked conversions and keyed chance, with the banned list enforced.
-
-**Serves:** `TIM-16`, `RES-05`, `PLT-01`, `PRC-10`.
-
-**Architecture:** A3.4, A3.5, A17.
-
-**Tasks:**
-
-1. `T1.1b.1` **Correctly rounded maths (`RES-05`).**
-   CORE-MATH's double functions vendored at commit `e072473e` into `sim/thirdparty/core-math/` with its licence, each wrapped once in `sim/num`, which refuses a non-finite input or result and anything outside the function's domain.
-   In the cloud MPFR is the oracle: every result must equal its correctly rounded answer.
-2. `T1.1b.2` **Numbers for a world (`RES-05`, `TIM-16`).**
-   Positions as whole centimetres on the torus, with wrapping, differences and squared distances in 64 bits and an exact integer square root; angles as turns; the one checked conversion from floating to whole numbers; probabilities as thresholds.
-3. `T1.1b.3` **Keyed chance (`TIM-16`).**
-   Draws keyed by (world seed, system, being, moment, purpose, index) through a chain of the SplitMix64 finaliser; systems and purposes keyed by a stable hash of their names; draws below a threshold, in a range by a 128-bit multiply, and as a fraction from 53 bits.
-4. `T1.1b.4` **The banned list, enforced (`RES-05`, `PRC-10`).**
-   A rule check over `sim/` and `view/` for A3.4's banned list, each rule with its replacement in its message; the phone compiler's build run once more with libc++'s tie order randomized under two seeds.
-5. `T1.1b.5` **Numbers on the phone (`RES-05`, `PLT-01`).**
-   The self-check runs the numbers' suite (the maths over a seeded stream of inputs, chance, the torus) on one thread and four, and compares each digest with the build's; deliver.
-
-**Tests:**
-- The maths: 200,000 random inputs a function across its domain, plus zeros, the smallest and largest numbers and known hard cases, each bit-equal to MPFR; the time per call reported.
-- The torus: a difference is the negative of its reverse and never longer than half the world; squared distances and square roots exact at the world's extremes.
-- Chance: over a million draws a test, frequencies within a chi-square bound, no correlation between neighbouring keys (beings, seconds, indexes), a whole number in a range never out of it; adding a purpose changes no other purpose's draws.
-- The rule check catches one planted use of each banned item.
-- Passes if all pass and every build gives one digest on one thread and four.
-
-**On the phone:** open Kindling: the self-check adds "Numbers: the same as the cloud", with the maths, chance and torus lines and the time each took.
 
 ### α1.2a The clock and the calendar
 

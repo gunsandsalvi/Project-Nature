@@ -2435,7 +2435,7 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 
 - `RES-09` **Pass rules come first** *(Decided)*: Every test states, before it first runs, what it checks (by ID), its scene or worlds, its runs, its budget in session-hours, and its pass rule in exact numbers.
   A pass rule is never loosened in the change that makes it pass.
-  Loosening one you approved needs your OK; loosening any other needs a stated reason and the independent reviewer's OK (`PRC-09`); the pace windows change only with you (`TIM-19`).
+  Loosening one you approved needs your OK; loosening any other needs a stated reason, which the milestone's independent review checks (`PRC-09`); the pace windows change only with you (`TIM-19`).
   - **Check:** the review sees every change to a pass rule, with its reason.
 
 - `RES-13` **About 20 runs where chance matters** *(Decided)*: Where chance decides the outcome, a check runs 20 times from different seeds, and its pass rule counts runs, such as "in at least 16 of 20".
@@ -2561,9 +2561,9 @@ How the project is run.
 ### 15.3 How work flows
 
 - `PRC-09` **Branches, checks and review** *(Decided)*: AI agents work on separate branches, and work joins the main version only after every automatic check passes (`PRC-10`) and a review approves it.
-  An alpha that is split into lettered steps is reviewed by its builder, step by step; an independent AI review verifies the whole alpha once, at its last step.
-  - **How it works:** at each step the builder reviews its own change against the items it claims, re-running the checks and making each new test fail once.
-    At the alpha's last step, a fresh, separate agent reviews the whole alpha, its tests and results, and the items it claims, without the builder's reasoning, against those items' What, Done when and Check lines, and checks that no test was weakened to pass (`RES-09`).
+  The builder reviews its own work, each lettered step and each numbered alpha as a whole; an independent AI review verifies each milestone once, at its end.
+  - **How it works:** at each step the builder reviews its own change against the items it claims, re-running the checks and making each new test fail once, and at an alpha's last step it reviews the whole alpha the same way.
+    At a milestone's end, a fresh, separate agent reviews the whole milestone, its tests and results, and the items it claims, without the builder's reasoning, against those items' What, Done when and Check lines, and checks that no test was weakened to pass (`RES-09`).
     If builder and reviewer still disagree after one round of fixes, a second fresh reviewer decides; anything that changes what this file means goes to you.
   - **Check:** nothing joins the main version with a failing check or without its review's approval.
 
