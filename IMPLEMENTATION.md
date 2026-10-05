@@ -18,6 +18,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The first alpha, α1.1 (the workshop, then numbers and chance), is delivered as 20101 and 20102 and closed by the builder's review; your phone's lines from its self-check are still to come.
 - α1.2a, the clock and the calendar, is delivered as 20201; your phone's top speed on its Time page is still to come.
 - α1.2b, catalogues and tuning, is delivered as 20202, and α1.2 is closed by the builder's review; its note stays in the repository rather than being republished, as you asked on 5 October 2026.
+- α1.3a, entities and events, is delivered as 20301: the world's clockwork, with a crowd of markers walking, resting and sleeping, and the phone's self-check running a small world.
 
 ## How to use this plan
 
@@ -117,8 +118,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.3a | Entities and events | M1 | 5 | Next |
-| α1.3b | Activities and islands | M1 | 6 | Planned |
+| α1.3b | Activities and islands | M1 | 6 | Next |
 | α1.3c | The crowd on your phone | M1 | 6 | Planned |
 | α1.4a | Saves and the journal | M1 | 6 | Planned |
 | α1.4b | Worlds, export and updates | M1 | 5 | Planned |
@@ -151,33 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.3a Entities and events
-
-**Goal:** the world's state and its clockwork: entities with ids never reused, made from catalogue entries; the one event queue with its exact order and lazy cancelling; the world's periodic layers; and a digest of the whole state, run one event at a time.
-
-**Serves:** `TIM-17`, `TIM-16`, `RES-05`, `MAT-13`.
-
-**Architecture:** A3.2, A3.3, A3.4.
-
-**Tasks:**
-
-1. `T1.3a.1` **Entities (`MAT-13`, `RES-05`).**
-   EnTT 4.0.0, pinned, behind `sim/ecs`: the two registries, never-reused 64-bit ids with their family, the maps from id to entity, making an entity from its kind's recipe, ending one; one descriptor per component; pools made in name order; the digest of every component in id order; the order fuzzer.
-2. `T1.3a.2` **The event queue (`TIM-17`).**
-   Keys of (game second, owner's id, owner's sequence) with the slot they wake; the binary heap; cancelling by the owner's expected sequence; rebuilding past a quarter dead; only live events written, in key order; reserved owners for the layers and commands; a debug check that a handler schedules only keys after its own.
-3. `T1.3a.3` **The world and its layers (`TIM-17`, `TIM-16`).**
-   The world: its seed, sources, registries, queue and clock, running one event at a time to a goal; a periodic layer for daylight; a digest per system and for the whole state at each game day; `kindling run` prints them.
-4. `T1.3a.4` **Markers on the clockwork (`TIM-17`).**
-   The demonstration's markers: in camps, walking to a place chosen by keyed chance, resting, sleeping at night; every move an activity ending at its event.
-
-**Tests:**
-- The queue: events at the same second settle by owner, then sequence, whatever order they were pushed in; cancelled ones never run; a rebuild changes nothing; a queue written and read back runs on identically.
-- Entities: ids never reused through a million makes and ends; the digest independent of EnTT's order, with the fuzzer on.
-- A world of 1,000 markers over 60 game days: the same daily digests on every build.
-- Passes if all pass.
-
-**On the phone:** the self-check adds a small world's digest after 30 game days, the same as the cloud's.
 
 ### α1.3b Activities and islands
 

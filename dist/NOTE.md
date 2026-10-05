@@ -1,41 +1,34 @@
-# Kindling α1.2b: Catalogues and tuning
+# Kindling α1.3a: Entities and events
 
 ## What is new
 
-- **Content as data.** Everything the game will know (kinds of stone, plants, animals, blueprints) will live in small text files in the TOML format, one entry a file, each in a source: `base` for the game, `demo` for what only the foundations show. This step builds the machinery; the first entries are the demonstration's two kinds of marker, its crowd, and the speeds of time.
-- **Read exactly, the same on every machine.** No decimal numbers are stored: "1.4 m/s", "30%" or "1 in 10" are read into whole millimetres a second and exact chances, so the phone's reading can never differ from the cloud's. Every mistake in a file is named at its file, line and column, from a misspelt unit to a link to an entry that does not exist, a length of time that breaks the game year's rule, or a name listed twice.
-- **Checks on the whole catalogue.** Beyond each file, checks run over everything at once. The first one holds values to the real order of things (`MAT-05`): a list in `checks/` says a strider is faster than a walker, so a strider written slower is refused at its place in the list. Each check was proved by a planted fault that it caught.
-- **Sources and fingerprints.** Each source has a version, the sources it needs, and three fingerprints: of what changes the rules, the land and the look. A new entry changes no other entry's fingerprint, and a renamed entry is still found by its old name, so old saves keep working.
-- **On your phone.** The build copies the files into the app with a list of their fingerprints; the phone reads them through the simulation itself and checks it gets the same answers as the cloud.
-- **A new page, Catalogues:** every source, kind and entry the phone loaded, with each value in the units the simulation holds it.
-- **The Time page's speeds** now come from the tuning file rather than being written into the page.
+- **The world's clockwork.** Everything in the world will be an entity with an id that is never used twice, and all work happens at events on one queue, in an order fixed by each event's moment, its owner and its owner's count. So the world runs exactly the same on your phone and in the cloud, however its run is cut up.
+- **A first crowd.** Until people exist, the demonstration's markers stand in: 25 to a camp, camps scattered by keyed chance over a square 20 km across. Each marker walks to a place up to a kilometre from its camp, rests, walks again, and sleeps from dusk to dawn. Every walk is an activity with a start, an end and a way, ending at its own event.
+- **Daylight.** A first layer of the world: one event at each dawn and dusk.
+- **Digests of everything.** At every game midnight the world can digest its clock, its queue, every component of every entity in id order, and its systems. A check scrambles the entities' internal order before every batch, and the digests must not move; they did not.
+- **Fast enough.** The full crowd of 10,000 markers ran 60 game days, 14.4 million events, in 8 seconds on one cloud core.
+- **On your phone,** the self-check now runs a small world of 1,000 markers for 30 game days, and its digest must equal the cloud's.
 
-![The Catalogues page as the cloud draws it](pictures/a12b-catalogues.png)
-
-![The self-check, with its new Catalogues line](pictures/a12b-check.png)
+![The self-check, with its new world line](pictures/a13a-check.png)
 
 ## What to try
 
-1. Install the APK from the link below. It installs over α1.2a.
-2. Open **Kindling**. The **Check** page should end with a green line: **Catalogues: the same as the build**.
-3. Tap **Catalogues** at the top and scroll through the two sources and their entries.
-4. On **Time**, the buttons now read "Real", "1 hour a minute", "8 hours a minute", "1 season a minute", "3 years a minute" and "Top", taken from the tuning file. Please send me how many game years a real minute **Top** reaches, if you haven't yet.
-5. Copy the Check page's details into the chat when you can.
+1. Install the APK from the link below. It installs over α1.2b.
+2. Open **Kindling**. The **Check** page should show a green line **Same bits: world: the same as the cloud**, with how long the small world took on one thread and on four.
+3. Copy the Check page's details into the chat, so I can see the phone's times.
 
 ## What is rough
 
-- The catalogue holds only the demonstration's markers and two tuning files; the game's own entries arrive with the milestones that need them.
-- The Catalogues page is plain text, and shows chances with their exact inner numbers, which look long.
-- This note was not republished as a page, as you asked: it lives in the repository (link below).
+- You can't see the crowd yet: it walks only inside the simulation. Drawing it on your phone is α1.3c.
+- The world runs on one core. Running it on four cores with exactly the same result comes in α1.3b, along with markers that meet and greet.
+- The world on the phone is still small and short; the full crowd comes with its page.
 
 ## IDs delivered
 
-- `MAT-13`: the catalogues in TOML, read exactly into whole base units, one description of each kind for loading, checking, fingerprinting and showing; on the phone through the simulation itself.
-- `MAT-14`: sources with versions and requirements; adding an entry changes no other's fingerprint; renames keep old names readable; each entry's chance keyed by its name.
-- `MAT-17`: the checks on the whole catalogue, each proved by a planted fault, run before anything joins.
-- `MAT-05`: values held to the real order of things, from lists in `checks/`.
-- `TIM-18`: every duration held to the game year's rule as it loads.
-- `TIM-01`: the zoom stops' speeds read from the tuning file.
+- `TIM-17`: work at events in one fixed order, activities with a start, an end and a way, each ending at its event, and an effect on another owner landing at least a second later.
+- `TIM-16`: the world run one event at a time is the reference, and its digests do not depend on how the run is cut.
+- `RES-05`: the same bits everywhere: the world's digest equal on all five builds, on one thread and four, and on your phone; nothing depends on the entities' internal order.
+- `MAT-13`: each marker made from its catalogue entry.
 
 ## Links
 
