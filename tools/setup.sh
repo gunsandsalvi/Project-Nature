@@ -138,4 +138,22 @@ if [ "$(git -C "$KD_GDUNIT" rev-parse HEAD 2>/dev/null)" != "$GDUNIT_COMMIT" ]; 
   quiet git clone -q -c advice.detachedHead=false --depth 1 --branch v6.2.1 https://github.com/MikeSchulze/gdUnit4 "$KD_GDUNIT"
   [ "$(git -C "$KD_GDUNIT" rev-parse HEAD)" = "$GDUNIT_COMMIT" ] || fail "gdUnit4 v6.2.1 is not at commit $GDUNIT_COMMIT" 1
 fi
+
+# 9. godot-cpp at its 4.5 release, for the C++ prototypes' Godot extensions (A2.2): Godot 4.7 loads extensions built
+#    for 4.5, the newest release godot-cpp has tagged
+GODOT_CPP_COMMIT=e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77
+if [ "$(git -C "$KD_GODOT_CPP" rev-parse HEAD 2>/dev/null)" != "$GODOT_CPP_COMMIT" ]; then
+  echo "Setup: installing godot-cpp 4.5"
+  rm -rf "$KD_GODOT_CPP"
+  quiet git clone -q -c advice.detachedHead=false --depth 1 --branch godot-4.5-stable https://github.com/godotengine/godot-cpp "$KD_GODOT_CPP"
+  [ "$(git -C "$KD_GODOT_CPP" rev-parse HEAD)" = "$GODOT_CPP_COMMIT" ] || fail "godot-cpp 4.5 is not at commit $GODOT_CPP_COMMIT" 1
+fi
+
+# 10. doctest 2.4.11's one header, for C++ tests, checked against its SHA-256
+if [ ! -s "$KD_DOCTEST/doctest.h" ]; then
+  echo "Setup: installing doctest 2.4.11"
+  mkdir -p "$KD_DOCTEST"
+fi
+fetch https://raw.githubusercontent.com/doctest/doctest/v2.4.11/doctest/doctest.h "$KD_DOCTEST/doctest.h" \
+  44faa038e9c3f9728efbda143748d01124ea0a27f4bf78f35a15d8fab2e039fb
 exit 0

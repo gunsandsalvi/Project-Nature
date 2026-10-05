@@ -100,7 +100,8 @@ Each folder arrives with its first file: `game/` with the vertical slice, `sim/`
 
 - **C++:** CMake and Ninja, C++20.
   - `sim/` builds natively for the cloud (x86-64 Linux, for tests) and for the phone (arm64 Android, with the NDK), and never includes Godot.
-  - `view/` links godot-cpp, pinned to Godot 4.7, and carries `sim/` into the app.
+  - `view/` links godot-cpp at its newest release, 4.5, which Godot 4.7 loads (P5), and carries `sim/` into the app.
+  - *Built in P5:* each C++ prototype is also a Godot extension, built natively for the cloud's tests by `tools/check.sh` and for arm64 Android with the NDK by `tools/build.sh`, 16 KB aligned, so the app runs the very code the cloud runs; the libraries are built, never committed.
 - **Compiler rules for `sim/`** (A3.4): warnings as errors, no fast-math, no fused multiply-add (`-ffp-contract=off`).
 - **Godot:** 4.7, its version and export templates pinned, exported from the command line (`--headless --export-release`), as in the bake-off.
   - The export is unsigned; `zipalign` and `apksigner` finish it, so only `tools/signing-key.py` reads the secret.
@@ -173,12 +174,15 @@ Following Box2D and Factorio (research 03):
   Parallel work is split into fixed chunks, gathered, then applied in entity order.
 - **Proof:** a seeded world runs on x86-64 and on arm64 (under qemu in the cloud, and on your phone), on one core and on four, and checksums of the whole state must match at checkpoints.
   The phone runs the same check in its self-check (A2.3).
-- *To prove (P5):* identical results on your phone's chip and in the cloud.
+- *Proved in P5 in the cloud,* in C++ as pre-production code: a toy world of 4,096 walkers on events, with keyed chance, our own sine, cosine, exponent, logarithm and power, and each evening's sums gathered in fixed chunks of 256, ends each of its 30 days with the same checksum on x86-64 and on arm64 under qemu, on one thread and four (its digest 1bbbe1d787b4d4fe).
+  - Our functions agree with the platform's to within a few last bits; they use only IEEE adds, multiplies and divides, with no contraction into fused multiply-adds.
+  - *To prove (P5):* the same on your phone's chip: the "P5 The same bits" screen runs it on one thread and four and sets the digests beside the cloud's.
 
 ### A3.5 Chance
 
 - Every draw is keyed by (world seed, system, being, tick, purpose, index) through a counter-based generator, Philox or a Squirrel-style hash (research 03).
 - So any thread can draw any number in any order and get the same one, and adding a new kind of draw never shifts the others (`TIM-16`).
+- *Built in P5:* SplitMix64's finaliser over the seed, the being, the tick, the purpose and an index.
 
 ### A3.6 Catalogues and tuning (`MAT-13`, `MAT-14`, `MAT-17`)
 

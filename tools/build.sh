@@ -27,6 +27,17 @@ sed -i "s/^version\/code=.*/version\/code=$CODE/" "$PROJECT/export_presets.cfg"
 grep -qx "config/version=\"$NAME\"" "$PROJECT/project.godot" || { echo "Build: no config/version in $PROJECT/project.godot"; exit 1; }
 grep -qx "version/code=$CODE" "$PROJECT/export_presets.cfg" || { echo "Build: no version/code in $PROJECT/export_presets.cfg"; exit 1; }
 
+# The app's Godot extensions, each C++ prototype's extension/ built for the phone's arm64 Android with the NDK; each
+# build puts its library where the app looks for it, so none is committed (A2.2).
+for EXT in prototypes/*/extension; do
+  [ -f "$EXT/CMakeLists.txt" ] || continue
+  B="build/android-$(basename "$(dirname "$EXT")")"
+  cmake -S "$EXT" -B "$B" -G Ninja -DCMAKE_BUILD_TYPE=Release -DGODOT_CPP="$KD_GODOT_CPP" \
+    -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" -DANDROID_ABI=arm64-v8a \
+    -DANDROID_PLATFORM=android-24 >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; echo "Build: $EXT's configure failed"; exit 1; }
+  cmake --build "$B" >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; echo "Build: $EXT failed"; exit 1; }
+done
+
 # The export preset leaves out addons/ and test/, so gdUnit4, which the checks copy in, never reaches the phone.
 timeout 600 "$GODOT" --headless --path "$PROJECT" --import >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; exit 1; }
 timeout 900 "$GODOT" --headless --path "$PROJECT" --export-release Android "$TMP/unsigned.apk" >"$TMP/log" 2>&1 \

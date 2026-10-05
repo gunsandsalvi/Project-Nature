@@ -9,15 +9,16 @@ Only the next milestone is planned in detail: pre-production.
 The later ones are outlines (their goal, the items they deliver, what you will see), each detailed when it comes next, from what the earlier ones taught.
 The plan holds only work still to do: a step leaves it when it is done, and the code, which names the items it implements, is the record (`CLAUDE.md`, rule 3).
 
-## Status (4 October 2026)
+## Status (5 October 2026)
 
 - Rewritten from the research redone on 4 October and the art book you accepted, after the first version of 3 October (git keeps it at `f881525`).
 - **Approved by you on 4 October 2026,** with its proposals, now decided in `PROJECT.md`: pre-production as a milestone of its own (`MIL-18`), then the ten bottom-up milestones (`SCP-16`, `MIL-08` to `MIL-17`), the old seven retired; the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`); the documents and what comes next (`PRC-04`, `PRC-08`).
 - The workshop (α0.1a) is delivered: the setup, checks and build scripts, and the prototype app with its self-check.
 - P1 The look (α0.2a) is done: outline C, its flicker fixed, and the "ease" crawl fix, which you left to me (A4.1).
 - P2 A full scene (α0.2b) is done: a busy camp at night with three fires holds 60 frames a second at close and camp zoom (A18.1).
-- P3 The kit (α0.2c) is delivered, and your comments and the independent review's findings are fixed, in the α0.3a build for your look: warmer firelight and flickering flames, grey daytime smoke, gentler turns, figures in their own clothes with a pose at every step, brush windbreaks and coursed lean-tos, and P2's people and camp zoom. The art book's dusk sun stays, as you asked for no change but faster discoveries.
-- P4 Discovery pace (α0.3a) passes: with every discovery window halved, as you asked for faster discoveries, tuning alone brings flakes within 3 years and fire in Years 3 to 15, and no value holds the pace on a knife's edge (A12, `TIM-19`).
+- P3 The kit (α0.2c) is delivered, and your comments and the independent review's findings are fixed and delivered in α0.3a for your look: warmer firelight and flickering flames, grey daytime smoke, gentler turns, figures in their own clothes with a pose at every step, brush windbreaks and coursed lean-tos, and P2's people and camp zoom. The art book's dusk sun stays, as you asked for no change but faster discoveries.
+- P4 Discovery pace (α0.3a) passes, and is reviewed and delivered: with every discovery window halved, as you asked for faster discoveries, tuning alone brings flakes within 3 years and fire in Years 3 to 15, and no value holds the pace on a knife's edge (A12, `TIM-19`).
+- P5 The same bits (α0.4a) is built: the same results on x86-64 and on arm64 under qemu, on one thread and four; your phone's run is in its screen.
 
 ## How to use this plan
 
@@ -127,8 +128,8 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
 | α0.2c | P3 The kit | M0 | 6 | Fixed after your comments and the review; your look in the α0.3a build |
-| α0.3a | P4 Discovery pace | M0 | 6 | Passes; review and delivery next |
-| α0.4a | P5 The same bits | M0 | 4 | Not started |
+| α0.3a | P4 Discovery pace | M0 | 6 | Passes; reviewed and delivered |
+| α0.4a | P5 The same bits | M0 | 4 | Built; your phone's run next |
 | α0.4b | P6 A thousand minds | M0 | 6 | Not started |
 | α0.5a | P7 World generation | M0 | 6 | Not started |
 | α0.5b | P8 The zoom | M0 | 6 | Not started |
@@ -244,6 +245,8 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - Passes if every hash matches.
 
 **On the phone:** open "Same bits", tap Run, and copy the code into the chat: it holds the phone's hashes.
+
+**Conflict:** godot-cpp has tagged no release for Godot 4.7, so its 4.5 release, which Godot 4.7 loads, is pinned (A2.2). P5's keyed chance takes any prototype's list of draws, and its hashes and its arm64 check are files of their own, so the prototypes after it share them rather than copying them.
 
 ### α0.4b P6 A thousand minds
 

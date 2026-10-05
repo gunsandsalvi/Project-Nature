@@ -2,7 +2,8 @@
 # The checks before work joins main (PRC-10, A17), in order, stopping at the first failure:
 #   1 formats     GDScript (gdformat), C++ (clang-format 18) and Python (ruff)
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
-#   3 C++         each CMake project built, its doctest tests run, its code linted (clang-tidy 18)
+#   3 C++         each CMake project built, its doctest tests run (with the same results on x86-64 and on arm64
+#                 under qemu, on one thread and four), its code linted (clang-tidy 18)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
 #   5 tools       the tool tests and the cloud prototypes' own, and the self-tests of the file check and the
 #                 signing key
@@ -68,7 +69,7 @@ for d in "${CMAKE[@]}"; do
   [ "${#SRC[@]}" -eq 0 ] || quiet clang-tidy-18 -p "$B" --quiet --header-filter="^$ROOT/$d/" "${SRC[@]}"
   echo "   $d: built, $(ctest --test-dir "$B" -N | sed -n 's/^Total Tests: //p') tests passed, ${#SRC[@]} files linted"
 done
-echo "   the same results on x86-64 and arm64, and on one thread and four (A3.4): from α0.4a"
+# P5's ctest runs the toy world built for arm64 under qemu against this machine's, on one thread and four (A3.4)
 
 step "4 Godot"
 PROJECTS=()
@@ -127,7 +128,7 @@ python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/uni
 echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed"
 # the cloud prototypes' own tests, in Python (IMPLEMENTATION α0.3a)
 for d in prototypes/*/tests; do
-  [ -d "$d" ] && [ "$d" != prototypes/bakeoff/tests ] || continue
+  [ -d "$d" ] && [ "$d" != prototypes/bakeoff/tests ] && compgen -G "$d/test_*.py" >/dev/null || continue
   python3 -m unittest discover -s "$d" >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
   echo "   $(dirname "$d"): $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tests passed"
 done

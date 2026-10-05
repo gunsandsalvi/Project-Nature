@@ -11,7 +11,7 @@ const PROTOTYPES: Array[Array] = [
 	["P2 A full scene", "α0.2b", "res://scene/scene.gd"],
 	["P3 The kit", "α0.2c", "res://kit/kit.gd"],
 	["Reports from the cloud", "α0.3a", "res://reports/reports.gd"],
-	["P5 The same bits", "α0.4a"],
+	["P5 The same bits", "α0.4a", "res://samebits/samebits.gd"],
 	["P6 A thousand minds", "α0.4b"],
 	["P7 World generation", "α0.5a"],
 	["P8 The zoom", "α0.5b"],
@@ -120,10 +120,10 @@ func _ready() -> void:
 	show_facts(facts())
 	resized.connect(_layout)
 	_layout()
-	# "look", "scene", "kit" or "reports" on the command line opens that screen at once, for the
-	# cloud's pictures
+	# "look", "scene", "kit", "reports" or "samebits" on the command line opens that screen at once,
+	# for the cloud's pictures and runs
 	var args := OS.get_cmdline_user_args()
-	for screen: String in ["look", "scene", "kit", "reports"]:
+	for screen: String in ["look", "scene", "kit", "reports", "samebits"]:
 		if screen in args:
 			open_screen(
 				{
@@ -131,6 +131,7 @@ func _ready() -> void:
 					"scene": "res://scene/scene.gd",
 					"kit": "res://kit/kit.gd",
 					"reports": "res://reports/reports.gd",
+					"samebits": "res://samebits/samebits.gd",
 				}[screen]
 			)
 			break
