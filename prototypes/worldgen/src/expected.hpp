@@ -4,6 +4,6 @@
 
 namespace worldgen {
 
-constexpr const char* kCloudDigest = "8bf8149140878f63";
+constexpr const char* kCloudDigest = "d0881daf276e88e8";
 
 }  // namespace worldgen

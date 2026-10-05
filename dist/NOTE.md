@@ -1,67 +1,43 @@
-# Kindling α0.4b: P5 The same bits and P6 A thousand minds, with the faster discoveries for your look
+# Kindling α0.5a: P7 World generation
 
 ## What is new
 
-- **P5 The same bits.** A world must end the same on your phone and in the cloud, on one core or four, so a world replays exactly and the cloud's tests speak for your phone (`RES-05`, `TIM-16`). P5 tries it in C++, the game's own language, with a toy world:
-  - 4,096 walkers, each acting at its own moments; every chance they take is fixed by who takes it, when and why, never by what came before;
-  - our own sine, cosine, exponent, logarithm and power, so no chip's maths library can differ in a last digit;
-  - in the cloud, its 30 days end with the same fingerprint on the cloud's chip and on your phone's kind of chip (imitated by an emulator), on one thread and on four.
-- **The app now carries C++.** P5's screen runs the very code the cloud ran, on your phone's own chip, and sets its fingerprints beside the cloud's.
-- **P6 A thousand minds.** Can your phone keep a game year a real minute with a thousand people (`TIM-07`)? P6 tries it with simple minds in C++:
-  - 1,000 people in 40 bands, each with nine needs (hunger, thirst, rest, warmth and the rest) running down at their own rates;
-  - 50 things to do, each scored by what it does for the needs, the person's nature, the hour, the effort and the distance; the top three reasons are kept, as the person card will show them (`PRN-13`);
-  - talk that passes on places, opinions of others and news, and paths found in levels across rough land, rock, thickets and a river with fords;
-  - in the cloud: about 7 game years a real minute on one core and 12 on four, against a target of at least 1 and a hope of 2 to 3; one thread and four, and your phone's kind of chip, end every day the same.
-  - Your phone decides: its cores are slower than the cloud's, and they slow further as they warm, so P6 runs for 10 minutes and counts only the last 8.
-- **Everything from α0.3a is still here for your look:** every discovery window halved, P4 Discovery pace, and your P3 comments fixed (below).
+- **P7 World generation.** How long does "New world" take on your phone (`WLD-11`)? P7 makes worlds the way the game will, every stage in a first, simple form, in the order of real causes (`WLD-09`):
+  - plates that drift and meet, raising ranges and lines of volcanoes along their edges, and the rock each place is made of;
+  - rivers cutting their valleys as the land rises, every river reaching the sea or a lake;
+  - climate from latitude, height and the winds, with rain shadows behind mountains; then plants, soils, caves, and flint, clay and copper where the rocks put them, and the herds;
+  - 20 rough candidates, each judged for a start region with caves, water, food and stone that flakes, and for everything the ages need, with its reasons; the best 4 made again in full, and the best 3 offered (`WLD-10`, `WLD-24`);
+  - then the first one settled for 10 years with no people (`WLD-08`).
+- **In the cloud:** three worlds in about 17 seconds on four cores, and settling about 10 more. The aim is about 3 minutes and 1 more. Your phone decides.
+- **Your P5 and P6 runs both pass.** Your phone's chip gives exactly the cloud's results, even for P6's thousand minds after 3,546 game days, bit for bit. A thousand minds held 6.0 game years a real minute, six times the minimum, and the phone stayed cool.
+- **The checks are quicker:** about 20 seconds when nothing changed, and under a minute for a typical change.
 
-![The kit at noon](pictures/p3-noon.png)
+![The three worlds P7 offers: your phone should make these same three, from the same seed](pictures/p7-maps.png)
 
-![The kit at night: three fires, the ground round them lit amber](pictures/p3-night.png)
-
-![Up close at night: the figures by the fire](pictures/p3-close.png)
-
-![P2 at night: the kit's figures round the fires](pictures/p2-night.png)
-
-![Reports from the cloud: P4's runs, each a row](pictures/reports.png)
+![The art book's world map, left, beside world 1 from pole to pole](pictures/p7-vs-artbook.png)
 
 ## What to try
 
 1. Tap **Download and install** at the top of this page. It installs over the build you have.
-2. Open **P5 The same bits** and tap **Run**. It takes a few seconds; it copies one line. Paste it into your reply.
-3. Open **P6 A thousand minds**, tap **Run** and put the phone down for about 10 minutes; the screen stays on. It copies one line at the end. Paste it into your reply.
-4. If you haven't yet, α0.3a's tries:
-   - open **P3 The kit**, tap **Hour** for dusk and night, turn the sheet with two fingers and pinch in on the figures;
-   - open **P2 A full scene** and look at the people by the fires and the smoke;
-   - open **Reports from the cloud** and scroll through P4's runs;
-   - in P3, tap **Measure**, don't touch the screen for about 40 seconds, and paste the line it copies.
-5. Say what reads well and what doesn't.
-
-## What α0.3a changed
-
-- **Faster discoveries, as you asked:** every discovery window is halved. Sharp flakes come within Years 1–3 and fire in Years 3–15; clothing and huts 5–20, pottery 30–75, tame dogs 40–75, herding 60–125, villages 50–150, farming 100–175, copper 150–250.
-- **P4 Discovery pace says yes:** with only the world's own rules and no dates set anywhere, sharp flakes came within 3 years in 19 of 20 runs, and a world's first fire in Years 3–15 in 18 of 20; no setting holds the pace on a knife's edge.
-- **Your P3 comments, fixed:** wider amber firelight and flickering flames, grey daytime smoke, gentler turns, figures in their own clothes with a pose at every step, a carrier's bundle on the back, packed windbreaks and coursed lean-tos, and P2's people from the kit.
+2. Open **P7 World generation** and tap **Make**. The three maps appear first, then it settles the first world. Paste the line it copies into your reply.
+3. If you haven't yet, α0.3a's look: open **P3 The kit**, tap **Hour** for dusk and night, and pinch in on the figures; open **P2 A full scene**; and say what reads well and what doesn't.
 
 ## What is rough
 
-- **P5 checks a toy world, not the game's.** The game's world gets the same checks from its first step (A3.4).
-- **Your phone is the real test of P5:** the cloud's emulator imitates your phone's kind of chip, not its exact one.
-- **P6's minds are simple:** no bodies, no feelings, no plans of several steps; a full mind costs more. Four cores run them less than twice as fast as one, since a third of the work must happen in order.
-- **Fire's pace rests on dreams.** In P4 every world's first fire began with a dream's hunch; the game will be tuned again with all its blueprints, and the risk stays open until then (`RSK-01`).
-- **Dusk:** the art book's 5° sun throws long stripes across every screen.
+- **The maps are a first pass.** Climate belts run in straight lines, and the sea ice's edge follows latitude. The world map's look comes with P8 The zoom and in production.
+- **Some parts are stand-ins:** settling's rules for plants, water and herds, and there are no glaciers or ocean currents yet. They have about the cost of the real ones, for the timing.
+- **From before:** fire's pace rests on dreams (`RSK-01`), and the art book's 5° dusk sun throws long stripes across every screen.
 
 ## Questions for you
 
-1. **Is half enough?** Every discovery window is now half as long. Faster still, or right? Halving also touches what is tied to the old years, which I left as they were for you to decide: the pace tests' runs to Years 60, 150 and 500 (`RES-07`), culture's windows (`CUL-33`), and the people counts at Years 400 and 500 (`BIO-04`).
+1. **Is half enough?** Every discovery window is now half as long. Faster still, or right? Halving also touches what is tied to the old years, which I left for you to decide: the pace tests' runs to Years 60, 150 and 500 (`RES-07`), culture's windows (`CUL-33`), and the people counts at Years 400 and 500 (`BIO-04`).
 2. **The sharp-stone test.** It still asks for flakes within 5 years; I propose 3, to match (`RES-03`). At the tuned values it passes either way. OK?
 3. **Dusk.** The sun at dusk stays at the art book's 5°. Keep it?
-4. **Heat.** P2's Measure runs about 90 seconds at your word, but the plan's heat run is 10 minutes. P6's run in this build lasts 10 minutes and records the phone's heat: is that enough?
 
 ## IDs delivered
 
-None for good: P5 and P6 are prototypes, thrown away once they have answered.
-P5's question is about `RES-05` and `TIM-16`; P6's about `TIM-07`, `MND-15`, `MND-09`, `MND-14` and `TIM-17`.
+None for good: P7 is a prototype, thrown away once it has answered.
+Its question is about `WLD-11`, `WLD-08`, `WLD-09`, `WLD-10` and `WLD-24`.
 
 ## Links
 

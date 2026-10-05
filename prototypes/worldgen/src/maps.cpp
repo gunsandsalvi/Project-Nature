@@ -40,7 +40,10 @@ std::vector<std::uint8_t> map_rgb(const World& w, int scale) {
             const auto cs = static_cast<std::size_t>(c);
             const auto b = static_cast<Biome>(w.biome[cs]);
             Rgb col = kColours[static_cast<std::size_t>(b)];
-            if (w.sea(c)) {
+            if (w.sea(c) && w.warm[cs] < 1.0F) {
+                // sea that stays frozen through the summer, as the art book's poles (WLD-26)
+                col = kColours[static_cast<std::size_t>(Biome::kIce)];
+            } else if (w.sea(c)) {
                 // shelves light, the deep sea one colour, as the art book's map
                 const double deep = std::clamp(-w.height[cs] / 800.0, 0.0, 1.0);
                 col = {85.0 - (25.0 * deep), 134.0 - (30.0 * deep), 139.0 - (18.0 * deep)};

@@ -20,6 +20,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - P4 Discovery pace (α0.3a) passes, and is reviewed and delivered: with every discovery window halved, as you asked for faster discoveries, tuning alone brings flakes within 3 years and fire in Years 3 to 15, and no value holds the pace on a knife's edge (A12, `TIM-19`).
 - P5 The same bits (α0.4a) passes on your phone: its chip gives the cloud's digest on one thread and four, as x86-64 and arm64 under qemu do, and P6's thousand minds ended their 3,546 game days on your phone exactly as in the cloud (A3.4).
 - P6 A thousand minds (α0.4b) passes on your phone: a thousand people hold 6.0 game years a real minute on four cores over 10 minutes, with no slowing from heat; the target is at least 1, hoping for 2 to 3 (`TIM-07`, A11).
+- P7 World generation (α0.5a) is built: in the cloud three worlds are offered in about 17 seconds on four cores and settling takes about 10 more, against `WLD-11`'s 3 minutes and 1 (A7.6); your phone's run is in its screen.
 
 ## How to use this plan
 
@@ -132,7 +133,7 @@ Every step keeps them, the independent review checks them, and the coverage chec
 | α0.3a | P4 Discovery pace | M0 | 6 | Passes; reviewed and delivered |
 | α0.4a | P5 The same bits | M0 | 4 | Passes on your phone; the α0.4 review next |
 | α0.4b | P6 A thousand minds | M0 | 6 | Passes on your phone; the α0.4 review next |
-| α0.5a | P7 World generation | M0 | 6 | Not started |
+| α0.5a | P7 World generation | M0 | 6 | Built; your phone's run next |
 | α0.5b | P8 The zoom | M0 | 6 | Not started |
 | α0.6a | P9 Ecology | M0 | 4 | Not started |
 | α0.6b | P10 Culture from causes | M0 | 5 | Not started |
@@ -300,6 +301,8 @@ Already done in pre-production: the design (`PROJECT.md`), the research (`resear
 - Passes if candidates and the best three fit about 3 minutes, and settling about 1 more (`WLD-11`).
 
 **On the phone:** open "World generation", tap Make, wait for the three maps, then copy the code into the chat.
+
+**Conflict:** the best few are made again at full size from their candidate's worn land, the full grid's finer relief laid on it and worn 10 steps more, rather than from nothing, so the world offered is the candidate judged. The linear model of rain over mountains runs once for each of four winds, the trades and the westerlies of each half, blended where the belts meet. Glaciers, currents beyond a broad variation of warmth, and the plants' and herds' real rules wait for production, so settling's rules are stand-ins of about the work production's will do, for its time. The maps are set beside the art book's in the note rather than on the phone.
 
 ### α0.5b P8 The zoom
 

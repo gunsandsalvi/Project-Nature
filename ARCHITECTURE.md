@@ -416,7 +416,11 @@ The start is found by scoring (`WLD-24`).
 ### A7.6 Starting small
 
 The generator is first built and tuned on a small island, quick to make and judge by eye, then grown to full size.
-*To prove (P7):* one candidate at coarse and at full size, and the settling run, timed on your phone (`WLD-11`).
+*Measured in P7 in the cloud,* in C++ as pre-production code, with every stage of A7.2 in a first, simple form: on four cores of the cloud's x86-64, 20 candidates at 512 × 256 cells take about 5 seconds and the best 4 made again at 2,048 × 1,024 about 12, so three worlds are offered in about 17 seconds; settling the first for 10 years takes about 10 more. On one core: about a minute, and 16 seconds.
+- A candidate takes about 0.8 seconds on one core and a world at full size about 9: erosion about half, the plates and rock a quarter, the climate an eighth.
+- One thread and four make the same worlds, as arm64 under qemu does at a sixteenth of the size.
+- So `WLD-11`'s 3 minutes and 1 leave room for richer stages: more erosion at full size, glaciers, and settling's real rules.
+- *To prove (P7):* the same on your phone: the α0.5a build's "P7 World generation" screen makes the three worlds and settles the first.
 
 ## A8. From a person to the globe (research 07)
 

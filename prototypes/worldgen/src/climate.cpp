@@ -107,6 +107,7 @@ void make_climate(World* w, minds::Pool* pool) {
     // temperature: by latitude and height, varied a little from place to place as currents and winds vary it, the
     // seasons by tilt and by how far inland (WLD-06, WLD-16)
     const Noise currents(w->seed, 10, 2, 3, 0.5);
+    const Noise local(w->seed, 11, 16, 3, 0.5);
     w->temperature.assign(n, 0.0F);
     w->cold.assign(n, 0.0F);
     w->warm.assign(n, 0.0F);
@@ -123,8 +124,9 @@ void make_climate(World* w, minds::Pool* pool) {
             const double inland = (e * from_east[c]) + ((1.0 - e) * from_west[c]);
             const double inner = 1.0 - samebits::exponent(-inland / 500.0);
             const double swing = (0.3 * swing_land) + (0.7 * swing_land * inner);
-            const double t =
-                t0 - (6.0 * h / 1000.0) + (6.0 * currents.at(g.u_of(static_cast<int>(c)), g.v_of(static_cast<int>(c))));
+            const double t = t0 - (6.0 * h / 1000.0) +
+                             (6.0 * currents.at(g.u_of(static_cast<int>(c)), g.v_of(static_cast<int>(c)))) +
+                             (1.5 * local.at(g.u_of(static_cast<int>(c)), g.v_of(static_cast<int>(c))));
             w->temperature[c] = static_cast<float>(t);
             w->cold[c] = static_cast<float>(t - swing);
             w->warm[c] = static_cast<float>(t + swing);
@@ -187,6 +189,7 @@ void make_climate(World* w, minds::Pool* pool) {
     // plus the mountains' (positive on the windward sides, negative in their shadows), the mountains' scaled by how
     // much water warm air holds
     const Noise tracks(w->seed, 9, 2, 4, 0.5);
+    const Noise showers(w->seed, 12, 16, 3, 0.5);
     w->rain.assign(n, 0.0F);
     pool->run(g.height, [&](int y, int /*thread*/) {
         const double lat = g.latitude(y);
@@ -204,7 +207,8 @@ void make_climate(World* w, minds::Pool* pool) {
             const double trades = e * std::clamp((std::abs(lat) - 8.0) / 6.0, 0.0, 1.0);
             base += 900.0 * trades * samebits::exponent(-from_east[c] / 500.0);
             const double oro = vapour * mountains[c] * kSecondsAYear * kStormShare;
-            const double varied = 1.0 + (0.6 * tracks.at(g.u_of(static_cast<int>(c)), g.v_of(static_cast<int>(c))));
+            const double varied = 1.0 + (0.6 * tracks.at(g.u_of(static_cast<int>(c)), g.v_of(static_cast<int>(c)))) +
+                                  (0.35 * showers.at(g.u_of(static_cast<int>(c)), g.v_of(static_cast<int>(c))));
             w->rain[c] = static_cast<float>(std::max(30.0, wet * ((base * varied) + oro)));
         }
     });

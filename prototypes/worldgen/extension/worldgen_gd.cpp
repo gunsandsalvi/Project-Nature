@@ -44,8 +44,11 @@ public:
         settings.threads = threads;
         threads_ = threads;
         offer_ = std::make_unique<worldgen::Offer>(worldgen::new_world(settings));
-        settled_ = false;
         const worldgen::Offer& o = *offer_;
+        sums_.clear();
+        for (const worldgen::World& w : o.three) {
+            sums_.push_back(w.checksum());
+        }
         godot::Dictionary out;
         out["made"] = o.made;
         out["qualified"] = o.qualified;
@@ -76,8 +79,9 @@ public:
             return 0.0;
         }
         minds::Pool pool(threads_);
-        settled_ = true;
-        return worldgen::settle(&offer_->three[0], worldgen::Settings{}.settle_years, &pool);
+        const double seconds = worldgen::settle(&offer_->three[0], worldgen::Settings{}.settle_years, &pool);
+        sums_.push_back(offer_->three[0].checksum());
+        return seconds;
     }
 
     // An offered world's map as RGB bytes, north at the top.
@@ -96,25 +100,14 @@ public:
     int map_width() const { return worldgen::Settings{}.full_width / kMapScale; }
     int map_height() const { return worldgen::Settings{}.full_width / 2 / kMapScale; }
 
-    // The offered worlds' checksums, and the first's after settling, in one hash (RES-05).
-    godot::String digest() const {
-        if (!offer_) {
-            return {};
-        }
-        std::vector<std::uint64_t> sums;
-        for (const worldgen::World& w : offer_->three) {
-            sums.push_back(w.checksum());
-        }
-        if (settled_) {
-            sums.push_back(offer_->three[0].checksum());
-        }
-        return {samebits::digest(sums).c_str()};
-    }
+    // The offered worlds' checksums as made, and the first's after settling, in one hash, as the command line
+    // prints it (RES-05).
+    godot::String digest() const { return offer_ ? godot::String(samebits::digest(sums_).c_str()) : godot::String(); }
 
 private:
     std::unique_ptr<worldgen::Offer> offer_;
+    std::vector<std::uint64_t> sums_;
     int threads_ = 1;
-    bool settled_ = false;
 };
 
 void initialize(godot::ModuleInitializationLevel level) {
