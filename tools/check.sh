@@ -114,7 +114,10 @@ godot_step() {
     rm -rf "$d/addons/gdUnit4"
     mkdir -p "$d/addons"
     cp -r "$KD_GDUNIT/addons/gdUnit4" "$d/addons/gdUnit4"
-    timeout 600 "$GODOT" --headless --path "$d" --import >"$TMP/import" 2>&1 || { cat "$TMP/import"; exit 1; }
+    # Godot 4.7 can abort as it exits after importing new files, their import done (its Android plug-in finds no adb
+    # daemon here); a second import, with nothing left to do, exits cleanly
+    timeout 600 "$GODOT" --headless --path "$d" --import >"$TMP/import" 2>&1 \
+      || timeout 600 "$GODOT" --headless --path "$d" --import >>"$TMP/import" 2>&1 || { cat "$TMP/import"; exit 1; }
     if grep -E 'SCRIPT ERROR|Parse Error|Failed to load script' "$TMP/import"; then exit 1; fi
     timeout 300 "$GODOT" --headless --path "$d" -s "$ROOT/tools/godot-scripts.gd" >"$TMP/scripts" 2>&1 \
       || { grep -vE '^\s*$' "$TMP/scripts" | tail -40; exit 1; }

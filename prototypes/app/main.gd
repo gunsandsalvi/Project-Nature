@@ -13,7 +13,7 @@ const PROTOTYPES: Array[Array] = [
 	["Reports from the cloud", "α0.3a", "res://reports/reports.gd"],
 	["P5 The same bits", "α0.4a", "res://samebits/samebits.gd"],
 	["P6 A thousand minds", "α0.4b", "res://minds/minds.gd"],
-	["P7 World generation", "α0.5a"],
+	["P7 World generation", "α0.5a", "res://worldgen/worldgen.gd"],
 	["P8 The zoom", "α0.5b"],
 	["P12 The interface", "α0.7a"],
 	["P13 The writer", "α0.7b"],
@@ -120,10 +120,10 @@ func _ready() -> void:
 	show_facts(facts())
 	resized.connect(_layout)
 	_layout()
-	# "look", "scene", "kit", "reports", "samebits" or "minds" on the command line opens that screen
-	# at once, for the cloud's pictures and runs
+	# "look", "scene", "kit", "reports", "samebits", "minds" or "worldgen" on the command line opens
+	# that screen at once, for the cloud's pictures and runs
 	var args := OS.get_cmdline_user_args()
-	for screen: String in ["look", "scene", "kit", "reports", "samebits", "minds"]:
+	for screen: String in ["look", "scene", "kit", "reports", "samebits", "minds", "worldgen"]:
 		if screen in args:
 			open_screen(
 				{
@@ -133,6 +133,7 @@ func _ready() -> void:
 					"reports": "res://reports/reports.gd",
 					"samebits": "res://samebits/samebits.gd",
 					"minds": "res://minds/minds.gd",
+					"worldgen": "res://worldgen/worldgen.gd",
 				}[screen]
 			)
 			break

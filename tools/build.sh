@@ -45,7 +45,10 @@ for EXT in prototypes/*/extension; do
 done
 
 # The export preset leaves out addons/ and test/, so gdUnit4, which the checks copy in, never reaches the phone.
-timeout 600 "$GODOT" --headless --path "$PROJECT" --import >"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; exit 1; }
+# Godot 4.7 can abort as it exits after importing new files, their import done (its Android plug-in finds no adb daemon
+# here); a second import, with nothing left to do, exits cleanly
+timeout 600 "$GODOT" --headless --path "$PROJECT" --import >"$TMP/log" 2>&1 \
+  || timeout 600 "$GODOT" --headless --path "$PROJECT" --import >>"$TMP/log" 2>&1 || { tail -40 "$TMP/log"; exit 1; }
 timeout 900 "$GODOT" --headless --path "$PROJECT" --export-release Android "$TMP/unsigned.apk" >"$TMP/log" 2>&1 \
   || { tail -40 "$TMP/log"; echo "Build: Godot's export failed"; exit 1; }
 [ -s "$TMP/unsigned.apk" ] || { tail -40 "$TMP/log"; echo "Build: Godot made no APK"; exit 1; }
