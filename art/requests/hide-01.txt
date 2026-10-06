@@ -1,0 +1,25 @@
+Purpose: Batch 1, materials 5 (art/BRIEF.md): band 0's sources of three hide textures, pale, dark and smoked, for the camp's tents, the hide on its frame and later for clothes (PRE-42: a hut of birch poles and hides looks pale and brown). The liked picture paints its tents as sewn panels of lighter and darker hide and a pale hide stretched on a frame, but sunlit, tilted and with seams; GPT's earlier hide swatches came back with a repeating cross pattern even when asked not to (study 5), so this asks for natural leather only, from the liked picture's own hides. Three materials share one picture to keep the batch within its 30 pictures. The input is the liked picture's two tents and the hide frame, cut from its full original and enlarged twice with hard edges. Each swatch will be re-gridded by code, made into a seamless tile, checked for truth and shown to the owner on its sheet.
+Orientation: landscape, 1536 x 1024
+Input picture: /tmp/kindling-art/work/in-hide.png
+Transparent: no
+Prompt:
+From the input picture, make three flat leather textures for a 3D game, side by side, each keeping the input's own colours and painted pixel-art texture, seen straight on, with the sunlight, shadows, seams and poles taken out.
+
+The three textures, left to right:
+(1) Left: pale hide, deer hide scraped, softened and dried pale, like the hide stretched on the frame in the input: cream, light beige and pale tan, with soft irregular mottling, a few faint darker veins and small healed scars, and a velvety suede grain.
+(2) Middle: dark hide, the same kind of soft leather in deep warm browns, like the darkest panels of the input's tents, with soft mottling and a few faint creases.
+(3) Right: smoked hide, soft leather smoked over a smouldering fire to a golden tan and amber-brown, unevenly darker in soft clouds where the smoke reached it more, like the lighter panels of the input's tents.
+
+Scale and grid: each texture shows 1 metre by 2 metres of leather, as 64 by 128 texture pixels of about 1.6 centimetres each. Every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling. Every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering. Marks are soft clusters of 2 to 6 blocks in two to four neighbouring shades; the leather stays quiet, with low contrast.
+
+Layout: on one perfectly flat, uniform mid-grey background (#808080), three equal upright rectangles side by side, each about 480 picture pixels wide and 992 tall, separated by straight grey gaps about 32 pixels wide, with a grey margin of about 16 pixels round them. The rectangles do not touch and have no frames.
+
+Camera: straight on to a flat piece of leather, orthographic, with no perspective, no folds and no tilt; each texture fills its rectangle from edge to edge.
+
+Light: the low late-afternoon sun of the input is removed. Each texture is lit evenly and softly from straight in front, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows, no highlights, no darker or lighter corners or edges, no vignette and no gradient across the rectangle.
+
+Seamless: each texture tiles on its own in both directions: what leaves its right edge comes back at its left edge, and what leaves its bottom edge comes back at its top, with no seam.
+
+Stone Age truth: hides prepared by hunter-gatherers of about 12,000 years ago, scraped, softened and smoked by hand: natural leather only.
+
+Avoid: any pattern: crosses, diamonds, stripes, spots in rows, painted or stamped designs, beads, fringes, quillwork or embroidery; seams, stitches, lacing, holes, edges or the outline of a hide; hair or fur; poles, stones or people; text, labels, numbers or watermarks; frames, borders or grid lines; perspective; a repeating stamped pattern, or marks lined up in rows, diagonals or a regular lattice; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours.

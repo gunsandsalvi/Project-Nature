@@ -1,0 +1,25 @@
+Purpose: Batch 1, material 3 (art/BRIEF.md), a retry of bank_gravel-01: band 1 of the bank gravel, at 32 texture pixels a metre. bank_gravel-01 drew the coarser gravel as soft-edged squares of mixed sizes at loose positions, with faint see-through squares beside them, on no common grid, so re-gridding it onto texture pixels loses 40% of its colour detail, far over the brief's line of 10%. This asks for the same redraw with every pebble built of whole blocks on one regular grid, as in the input. A band is drawn for its size, never averaged (A5.3; answers 31 and 36). The input is the bank gravel's band 0 as prepared by code (from hearth-02's right swatch, re-gridded at 64 texture pixels a metre, its light taken out, made into a seamless 4-metre tile by code): 256 x 256 texture pixels, enlarged four times with hard edges. The result will be re-gridded, fitted to 128 x 128 texture pixels, its colours matched to band 0 by code, checked and shown to the owner on the gravel's sheet.
+Orientation: square, 1024 x 1024
+Input picture: /tmp/kindling-art/work/in-bank_gravel-b0.png
+Transparent: no
+Prompt:
+Redraw the input picture as pixel art for viewing from twice as far away, on a strict grid.
+
+The input is a game texture (an albedo map) of a dry gravel bank by a river, seen straight down: one 4 by 4 metre tile of small rounded pebbles, cream, pale grey, buff and pale ochre, lying in pale tan sand, drawn as 256 by 256 texture pixels of about 1.6 centimetres each, shown enlarged with hard edges. When the game's camera pulls back to about 16 metres across the screen, these texture pixels would shrink to one screen pixel each, and averaging them turns the gravel into speckle. So the game needs a second version of the same tile, drawn on a grid twice as coarse.
+
+Draw exactly that second version:
+- the same 4 by 4 metres of the same gravel bank, as 128 by 128 texture pixels of about 3 centimetres each; every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, all on one regular grid that covers the whole 1024 by 1024 picture, as if a 128 by 128 picture were enlarged eight times with nearest-neighbour scaling;
+- every block is one flat, solid colour: no anti-aliasing, no soft edges, no faint or see-through blocks, no shadows drawn as paler squares, no blur, no gradients, no noise, no dithering;
+- the same layout as the input: the larger pebbles stay where they are, simplified to the coarser grid;
+- redesigned for the coarser grid, not shrunk: each larger pebble a small shape of 2 to 4 whole blocks, with a lighter block on its top and a darker block at its lower edge; the smallest pebbles merged into a few single blocks of a pebble colour; the sand between them quiet, in soft patches of two or three close tan shades;
+- the input's own colours: the same creams, pale greys, buffs, pale ochres and tans, no new hues, about 6 to 8 shades in all.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; the gravel fills the square from edge to edge.
+
+Light: none of its own. The gravel is lit evenly and softly from straight above, like a bright overcast day, as in the input: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: the picture tiles in both directions, as the input does. What leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge.
+
+Stone Age truth: a natural gravel bank of about 12,000 years ago: pebbles and sand only.
+
+Avoid: stones larger than a hen's egg, boulders, plants, reeds, roots, sticks, shells, bones, water, footprints or anything made by people; perspective, tilt or a horizon; text, labels, numbers, letters or watermarks; frames, borders, margins or grid lines; a repeating stamped pattern, a checkerboard, or marks lined up in rows, diagonals or a regular lattice; blocks of mixed sizes, blocks off the grid, or blocks smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours; an overall tone darker or lighter than the input.

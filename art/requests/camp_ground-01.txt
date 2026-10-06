@@ -1,0 +1,24 @@
+Purpose: Batch 1, materials 2 (art/BRIEF.md): the camp's working ground, as band 0's sources of two ground textures, bare earth and the trodden floor, for the camp under the cliff at the closest zoom (alpha 2.3). The liked picture paints this ground but has no grid, is tilted and sunlit, and holds stones, people and the hearth; a swatch redrawn from it on a block grid is the route the owner accepted for surfaces (answer 15, D), and re-grids with little loss (study 7: 2 to 8%). Two materials share one picture to keep the batch within its 30 pictures. The input is the liked picture's camp floor round the hearth and the path, cut from its full original and enlarged twice with hard edges. Each swatch will be re-gridded by code, made into a seamless 4-metre tile, checked for truth, light, seams and repeats, and shown to the owner on its sheet.
+Orientation: landscape, 1536 x 1024
+Input picture: /tmp/kindling-art/work/in-camp-ground.png
+Transparent: no
+Prompt:
+From the input picture, make two flat ground textures for a 3D game, side by side, each keeping the input's own colours and painted pixel-art texture, but seen straight from above and with the sunlight and shadows taken out.
+
+The two textures, left and right:
+(1) Left: bare earth, the camp's ground where the grass has worn away but the soil is not yet packed hard: loose, crumbly warm brown soil with small darker clods and crumbs, a few paler grains of sand and grit, and faint fibres of dead roots; slightly darker and rougher than the trodden floor, like the worn edges of the path in the input.
+(2) Right: the trodden floor, the hard-packed earth round the hearth and along the path in the input, worn smooth by feet: warm tan and beige earth, paler and smoother than the bare earth, with soft lighter and darker worn patches 10 to 30 centimetres across and fine grit and sand.
+
+Scale and grid: each texture shows 1.5 metres by 2 metres of ground, as 96 by 128 texture pixels of about 1.6 centimetres each. Every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling. Every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering. Marks are small clusters of 2 to 4 blocks in two to four neighbouring shades, as the input paints them; grains of grit are single blocks, rare.
+
+Layout: on one perfectly flat, uniform mid-grey background (#808080), two equal upright rectangles side by side, each about 736 picture pixels wide and 992 tall, separated by a straight grey gap about 32 pixels wide, with a grey margin of about 16 pixels round them. The rectangles do not touch and have no frames.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; each texture fills its rectangle from edge to edge.
+
+Light: the low late-afternoon sun of the input is removed. Each texture is lit evenly and softly from straight above, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other; only the soil's own small hollows are a little darker. Keep the colours of the earth itself: the input's warm, golden, muted browns, tans and beiges.
+
+Seamless: each texture tiles on its own in both directions: what leaves its right edge comes back at its left edge, and what leaves its bottom edge comes back at its top, with no seam.
+
+Stone Age truth: the ground of a hunter-gatherer camp of about 12,000 years ago: earth, sand and grit only.
+
+Avoid: grass, plants and roots standing up; stones larger than a pea, pebbles, flint flakes, bones, sticks, charcoal, ash; footprints, tracks, paths, ruts or puddles; anything made by people: paving, planks, straw or mats; text, labels, numbers or watermarks; frames, borders or grid lines; perspective or a horizon; a repeating stamped pattern; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours.
