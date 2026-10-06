@@ -2,7 +2,7 @@
 
 Read `PROJECT.md` before doing anything else. It is the source of truth for what Kindling is and must do. `ARCHITECTURE.md` says how it is built, and `IMPLEMENTATION.md` says in what order. Code and tests link back to `PROJECT.md` by ID (`PRC-04`, `PRC-12`).
 
-**Now (5 October 2026):** pre-production is closed, as the owner asked. Its answers are decisions in `ARCHITECTURE.md`, and its evidence, numbers and lessons are in `LESSONS.md`; its code is deleted, and git keeps it. Production has begun with M1, the foundations (`IMPLEMENTATION.md`), and writes all its code fresh: never copy or port prototype code from git history.
+**Now (6 October 2026):** pre-production is closed, as the owner asked. Its answers are decisions in `ARCHITECTURE.md`, and its evidence, numbers and lessons are in `LESSONS.md`; its code is deleted, and git keeps it. Production writes all its code fresh: never copy or port prototype code from git history. M1, the foundations, is built, and the owner accepted it on 6 October 2026. M2, the graphics engine, is next: its research is done (`research/19-graphics.md`, the look the owner chose), and its plan (`IMPLEMENTATION.md`) and design (`ARCHITECTURE.md` A4 to A6) wait for the owner's OK before it is built.
 
 ## Rules
 

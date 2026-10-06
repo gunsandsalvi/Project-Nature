@@ -464,10 +464,8 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   Each milestone is a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
   This file keeps each milestone's contents and order, below; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
 
-  - `MIL-18` **Pre-production** *(Decided)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); closed on 5 October 2026, as you asked, with the lessons kept in `LESSONS.md`; its vertical slice was dropped on 6 October 2026, as you asked.
+  - `MIL-18` **Pre-production** *(Decided)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); closed on 5 October 2026, as you asked, with the lessons kept in `LESSONS.md`; the writer, left unbuilt, is proved when `MIL-16` builds the book of ages (`PRE-37`); its vertical slice was dropped on 6 October 2026, as you asked.
     *Now possible:* seeing on your phone that the game can be made as this file describes.
-    - **Proposed change:** add "the writer, left unbuilt, is proved when `MIL-16` builds the book of ages (`PRE-37`)".
-      Thirteen prototypes answered their questions, and the writer's was left when you closed pre-production.
   - `MIL-08` **Foundations** *(Decided)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
   - `MIL-09` **The graphics engine** *(Decided)*: a sharp 3D world at the screen's full resolution wearing pixel-art textures (`PRE-01`, `PRE-02`) that goes well beyond the art book's pictures, which were preliminary, toward the pictures you liked: steady texture pixels (`PRE-22`), edges by light and shade (`PRE-21`), colour by design with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit made by code (`PRE-46`, `PRE-42`, `PRE-43`), its textures made by code, by the world, or prepared by code from pictures you approved, each traced to its picture, prompt and your approval.
@@ -2128,10 +2126,8 @@ The look, written to stand without any image.
     People, herds, camps and buildings show at every distance (`PRE-28`), and a full area being made shows its coarse ground until its detail fades in, within about a second.
   - **Done when:** a pinch from globe to person over unvisited land never stalls, and full detail is in within about a second.
 
-- `PRE-31` **Visual review** *(Decided)*: At every milestone stage the look is reviewed on a contact sheet made on the phone, on one page, from fixed saved worlds: each zoom stop at noon and dusk in portrait, one landscape view, the model sheet (`PRE-46`), and three short clips of people at work.
+- `PRE-31` **Visual review** *(Decided)*: At every milestone stage the look is reviewed on a contact sheet made on the phone, on one page, from fixed saved worlds: each zoom stop at noon and dusk in portrait, one landscape view, the model sheet (`PRE-46`), three short clips of people at work, clips of the camera panning, turning and zooming (`PRE-22`), and the busy scenes of `PRE-28`.
   - **Check:** the contact sheet meets every Done when of 11.1 and 11.2, judged by the review and then by you (`PRC-10`).
-  - **Proposed change:** "and three short clips of people at work" becomes "three short clips of people at work, clips of the camera panning, turning and zooming (`PRE-22`), and the busy scenes of `PRE-28`".
-    Why: since your OK on research 19, `PRE-22` and `PRE-28` are judged on these clips and scenes, which the sheet did not yet hold.
 
 ### 11.2 Things and movement
 
@@ -2141,11 +2137,9 @@ The look, written to stand without any image.
   - **Done when:** every new thing a named result makes has its model, and two routes in different materials look clearly different, huts at close camp zoom.
 
 - `PRE-43` **Variety** *(Decided)*: No two things look quite alike: each varies a little in proportions, lean, wear and colour by its own seed, within its model's limits, and looks the same each time.
-  Its maker people's style (`CUL-12`) sets its proportions, lean and colours within each ladder, and puts their pattern, one of about 12 (notches, bands, dots, zigzags, fringes, painted rings), on the parts its model marks as decorated, as much as the style says.
+  Its maker people's style (`CUL-12`) sets its proportions, lean and colours within each material's shades (`PRE-20`), and puts their pattern, one of about 12 (notches, bands, dots, zigzags, fringes, painted rings), on the parts its model marks as decorated, as much as the style says.
   Trees, bushes, rocks and ground cover vary the same way, without style (`WLD-31`).
   - **Done when:** at person zoom, things of two peoples, or of one people 100 years apart, are clearly told apart.
-  - **Proposed change:** "colours within each ladder" becomes "colours within each material's shades (`PRE-20`)".
-    Why: since your OK on research 19, `PRE-20` gives each material its own shades instead of a ladder of steps.
 
 - `PRE-44` **Animations** *(Decided)*: Every activity has its own movement, posed about 10 times a second, so you can tell who is knapping or dancing.
   - **The list:** the base actions (`MAT-06`), heat with a variant for blowing on a fire, the everyday activities (`BIO-21`), and wading, swimming, climbing, rage, despair, nursing or carrying a baby, lying hurt and lying dead: about 45 movements, each a loop of 2–6 key poses, as long as the activity (`TIM-17`).
@@ -2562,8 +2556,7 @@ How the project is run.
 
 - `PRC-08` **Next: production** *(Decided)*: The research is done (`research/`), the art book's pictures (`art/book/`) set a first, preliminary direction for the look, which the graphics engine must go well beyond, the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written from them.
   Pre-production (`MIL-18`) removed the old code, which git keeps, proved each risk with a prototype, and closed on 5 October 2026, its lessons kept in `LESSONS.md`; production began with the foundations (`MIL-08`), which you accepted on 6 October 2026, and the graphics engine (`MIL-09`) comes next, starting with its research.
-  A few questions stay open, each carried by its item: the fix for crawling pixels, chosen with the look prototype (`PRE-22`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
-  - **Proposed change:** in the open questions, "the fix for crawling pixels, chosen with the look prototype (`PRE-22`)" becomes "the ground of the cards and the book (`PRE-35`)", since the crawl fix was chosen.
+  A few questions stay open, each carried by its item: the ground of the cards and the book (`PRE-35`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
 
 ### 15.3 How work flows
 
@@ -2642,10 +2635,8 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Response:** pattern sentences, which the writer only rewords, state dark events plainly and show if it is missing (`PRE-37`, `PRE-17`).
 
 - `RSK-11` **Pixel look hard to keep clean** *(Decided)*: Likelihood medium, impact medium.
-  - **Signs:** visual reviews failing on crawling pixels or unreadable figures (`PRE-31`).
-  - **Response:** the fix chosen at the first visual review (`PRE-22`).
-  - **Proposed change:** the signs become "visual reviews failing on shimmering texture pixels, speckled ground or people hard to find (`PRE-31`)", and the response "textures drawn for each zoom band, never shrunk (`PRE-22`), small things designed for each band (`PRE-46`), and people found by real light (`PRE-28`)".
-    Why: since your OK on research 19, `PRE-22` no longer chooses a fix at the first review, and these are the three problems you named.
+  - **Signs:** visual reviews failing on shimmering texture pixels, speckled ground or people hard to find (`PRE-31`).
+  - **Response:** textures drawn for each zoom band, never shrunk (`PRE-22`), small things designed for each band (`PRE-46`), and people found by real light (`PRE-28`).
 
 - `RSK-28` **Sound falls flat** *(Decided)*: Likelihood medium, impact medium.
   - **Signs:** a camp sounding thin or fake in your reviews (`SND-12`).
@@ -2681,7 +2672,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Signs:** the battery over about 40 °C in long sessions, or its health falling.
   - **Response:** time slows rather than the phone overheating (`PRN-11`, `PLT-04`); worlds move by export (`PLT-08`).
 
-- `RSK-30` **The look costs too much** *(Proposed)*: Drawn plainly, the look you chose needs more of the phone's graphics chip than it has; likelihood high, impact high.
+- `RSK-30` **The look costs too much** *(Decided)*: Drawn plainly, the look you chose needs more of the phone's graphics chip than it has; likelihood high, impact high.
   - **Signs:** the busiest close scene over its time line on your phone, or the phone too warm in a long session (`PLT-04`).
   - **Response:** first the savings you cannot tell from the full picture (`PRE-01`); then, as you agreed, changes to the game engine's own code where those are not enough (`PRC-03`); then one planned step under heat that also passes the blind test; the world's density is never cut.
   - **Why:** research 19 finds that the liked camp, drawn plainly, would need two to five times the graphics chip's share of a frame, and that the savings that do not show bring it close to that share but not surely under it.
@@ -2730,12 +2721,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- **Pre-production** (`MIL-18`): the writer, left unbuilt, proved with the book of ages.
-- **Visual review** (`PRE-31`): the sheet adds clips of the camera moving and the busy scenes, which the reworded look items are judged on.
-- **Variety** (`PRE-43`): colours within each material's shades, as the ladders are gone.
-- **Next: production** (`PRC-08`): the crawl fix chosen, so the ground of the cards and the book is the open question in its place.
-- **Pixel look hard to keep clean** (`RSK-11`): new signs and response, as the crawl fix it named is gone.
-- **The look costs too much** (`RSK-30`): a new risk, with its response in order.
+- None at present.
 <!-- end generated -->
 
 ## 18. Glossary

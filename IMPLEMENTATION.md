@@ -164,7 +164,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - This is the quality gate: you judge the scenes on their own, as the bar for everything built on them (`MIL-09`).
 
 **Risks:**
-- The look costs too much at full resolution (`RSK-30`, proposed): about 13–45 ms of the graphics chip drawn plainly, against a line of 8 (estimates); retired first by calibration (α2.2), then by A4.1's levers, our own build of Godot only if needed.
+- The look costs too much at full resolution (`RSK-30`): about 13–45 ms of the graphics chip drawn plainly, against a line of 8 (estimates); retired first by calibration (α2.2), then by A4.1's levers, our own build of Godot only if needed.
 - The phone heats in long play: retired by the 20-minute heat run (α2.4b).
 - The PowerVR driver mishandles a feature the look needs: each probed in the first build (α2.1a).
 - Texture pixels shimmer or a band's level pops; designed levels are much content work; people stay hard to find in busy shade; the rock surface under each world's layers is still to find (your answer 34).

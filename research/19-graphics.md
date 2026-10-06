@@ -276,7 +276,7 @@ On 6 October 2026 you answered decisions 1, 2, 3 and 5; decisions 4, 6 and 7 wai
 
 **1. The wording in `PROJECT.md`: "OK, all 13".**
 The 13 changes below are written into their items.
-Four more follow from them and wait for your OK, listed under "Proposals awaiting confirmation": `PRE-31`'s review sheet adds clips of the camera moving and the busy scenes; `PRE-43`'s colours sit within each material's shades, as the ladders are gone; `RSK-11` gets new signs and a response, as the crawl fix it named is gone; and a new risk, `RSK-30`, says what happens if the look costs too much.
+Four more followed from them, and you OK'd them too: `PRE-31`'s review sheet adds clips of the camera moving and the busy scenes; `PRE-43`'s colours sit within each material's shades, as the ladders are gone; `RSK-11` gets new signs and a response, as the crawl fix it named is gone; and a new risk, `RSK-30`, says what happens if the look costs too much.
 - `PRE-01` becomes *Pixel-art surfaces*: the sharp 3D world at full resolution with pixel-art textures; a saving stays only if you can't tell it apart in a blind test.
 - `PRE-02` is drawn at full resolution, not low.
 - `PRE-03`'s near stops are measured in screen pixels: a person about 200 tall up close.
