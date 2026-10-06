@@ -15,7 +15,7 @@ func test_the_page_lists_every_source_kind_and_entry() -> void:
 	assert_array(page.loaded["problems"] as Array).is_empty()
 	var text := "\n".join(page.shown)
 	for wanted: String in [
-		"base, version 1",
+		"base, version 2",
 		"demo, version 1",
 		"marker (2 entries)",
 		"tuning/crowd (1 entry)",

@@ -7,6 +7,7 @@
 #include "kd/chance/chance.hpp"
 #include "kd/num/sort.hpp"
 #include "kd/num/whole.hpp"
+#include "kd/world/upgrades.hpp"
 
 namespace kd::world {
 
@@ -169,7 +170,9 @@ void Commands::handle(Context& c, const event::Event& /*e*/) {
     KD_CHECK(taker_ != nullptr, "world::Commands: no system takes commands");
     std::size_t done = 0;
     while (done < pending_.size() && pending_[done].at == c.now()) {
-        taker_->command(c, pending_[done]);
+        const Command& cmd = pending_[done];
+        c.record(kActed, cmd.number, cmd.a);
+        taker_->command(c, cmd);
         ++done;
     }
     pending_.erase(pending_.begin(), pending_.begin() + static_cast<std::ptrdiff_t>(done));
@@ -614,6 +617,13 @@ time::Seconds World::advance(time::Seconds frontier, time::Seconds goal) {
     return until;
 }
 
+bool World::keeps(const Record& r) const {
+    const ecs::Id owner{r.key.owner};
+    const System* s = owner.family() == ecs::Family::none ? by_owner_[owner.value]
+                                                          : by_family_[static_cast<std::size_t>(owner.family())];
+    return s != nullptr && s->keeps(r.what);
+}
+
 Command World::command(time::Seconds at, std::uint32_t what, std::uint64_t a, std::uint64_t b) {
     const Command c{commands_.made_ + 1, at, what, a, b};
     replay(c);
@@ -650,13 +660,20 @@ std::vector<System*> systems_of(const std::array<System*, 16>& by_family, const 
     return out;
 }
 
-const save::Chunk* chunk_of(std::span<const save::Chunk> chunks, std::uint32_t tag) {
-    for (const save::Chunk& c : chunks) {
-        if (c.tag == tag) {
-            return &c;
-        }
-    }
-    return nullptr;
+// Each part of a world's snapshot, and the version this one writes: a part an older version saved is brought up to
+// date by the steps of upgrades() before it is read (A3.7, PLT-09).
+constexpr std::array<std::pair<std::uint32_t, std::uint32_t>, 6> kParts{{{save::tag("WRLD"), 1},
+                                                                         {save::tag("NAME"), 1},
+                                                                         {save::tag("BEIN"), 1},
+                                                                         {save::tag("THNG"), 1},
+                                                                         {save::tag("QUEU"), 1},
+                                                                         {save::tag("SYST"), 1}}};
+
+save::Chunk part(const char (&letters)[5], save::Bytes data) {
+    const std::uint32_t t = save::tag(letters);
+    const auto it = std::find_if(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == t; });
+    KD_CHECK(it != kParts.end(), "world::World: every part of a snapshot has its version");
+    return {t, it->second, true, std::move(data)};
 }
 
 }  // namespace
@@ -680,7 +697,7 @@ std::vector<save::Chunk> World::save() const {
         w.u64(history_hash_);
         w.u64(events_);
         w.u64(batches_);
-        out.push_back({save::tag("WRLD"), 1, true, w.take()});
+        out.push_back(part("WRLD", w.take()));
     }
     {
         // the catalogue's names, kind by kind in number order, so the components keep entries by name (A3.6)
@@ -693,22 +710,22 @@ std::vector<save::Chunk> World::save() const {
                 w.text(k->name(i));
             }
         }
-        out.push_back({save::tag("NAME"), 1, true, w.take()});
+        out.push_back(part("NAME", w.take()));
     }
     {
         ByteWriter w;
         beings_.write(w);
-        out.push_back({save::tag("BEIN"), 1, true, w.take()});
+        out.push_back(part("BEIN", w.take()));
     }
     {
         ByteWriter w;
         things_.write(w);
-        out.push_back({save::tag("THNG"), 1, true, w.take()});
+        out.push_back(part("THNG", w.take()));
     }
     {
         ByteWriter w;
         queue_.write(w, [this](const event::Event& e) { return live(e); });
-        out.push_back({save::tag("QUEU"), 1, true, w.take()});
+        out.push_back(part("QUEU", w.take()));
     }
     {
         ByteWriter w;
@@ -720,7 +737,7 @@ std::vector<save::Chunk> World::save() const {
             sys->save(own);
             w.blob(own.bytes());
         }
-        out.push_back({save::tag("SYST"), 1, true, w.take()});
+        out.push_back(part("SYST", w.take()));
     }
     return out;
 }
@@ -728,30 +745,31 @@ std::vector<save::Chunk> World::save() const {
 bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     KD_CHECK(beings_.size() == 0 && things_.size() == 0 && frontier_ == 0 && events_ == 0,
              "world::World: a snapshot is loaded into a world with nothing in it");
-    const std::array<std::uint32_t, 6> known{save::tag("WRLD"), save::tag("NAME"), save::tag("BEIN"),
-                                             save::tag("THNG"), save::tag("QUEU"), save::tag("SYST")};
+    // each part brought up to the version this one writes; a part it does not know is skipped, unless it must be known
     for (const save::Chunk& c : chunks) {
-        const bool knows = std::find(known.begin(), known.end(), c.tag) != known.end();
-        if (!knows && c.critical) {
+        if (c.critical && std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;
         }
-        if (knows && c.version != 1) {
-            why = "a part of it is of a version this one cannot read";
-            return false;
-        }
     }
-    for (const std::uint32_t t : known) {
-        if (chunk_of(chunks, t) == nullptr) {
+    std::vector<save::Chunk> parts;
+    for (const auto& [t, version] : kParts) {
+        const save::Chunk* c = save::find_chunk(chunks, t);
+        if (c == nullptr) {
             why = "a part of it is missing";
             return false;
         }
+        parts.push_back(*c);
+        if (!save::upgrade(parts.back(), version, upgrades(), why)) {
+            return false;
+        }
     }
+    const auto chunk_of = [&](std::uint32_t t) -> const save::Chunk& { return *save::find_chunk(parts, t); };
 
     // the snapshot's names: from its numbers for each kind's entries to this catalogue's
     std::vector<std::pair<std::string, std::vector<std::string>>> names;
     {
-        ByteReader r(chunk_of(chunks, save::tag("NAME"))->data);
+        ByteReader r(chunk_of(save::tag("NAME")).data);
         std::uint64_t kinds = 0;
         if (!r.u64(kinds)) {
             why = "its names are damaged";
@@ -786,7 +804,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
     };
 
     {
-        ByteReader r(chunk_of(chunks, save::tag("WRLD"))->data);
+        ByteReader r(chunk_of(save::tag("WRLD")).data);
         std::uint64_t next = 0;
         bool ok = r.u64(seed_) && r.i64(frontier_) && r.u64(next);
         for (std::size_t o = 0; ok && o < owners_.size(); ++o) {
@@ -803,21 +821,21 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         ids_ = ecs::IdMaker(next);
     }
     {
-        ByteReader r(chunk_of(chunks, save::tag("BEIN"))->data);
+        ByteReader r(chunk_of(save::tag("BEIN")).data);
         if (!beings_.read(r, entries) || !r.finished()) {
             why = "its beings are damaged, or of kinds the catalogue no longer has";
             return false;
         }
     }
     {
-        ByteReader r(chunk_of(chunks, save::tag("THNG"))->data);
+        ByteReader r(chunk_of(save::tag("THNG")).data);
         if (!things_.read(r, entries) || !r.finished()) {
             why = "its things are damaged, or of kinds the catalogue no longer has";
             return false;
         }
     }
     {
-        ByteReader r(chunk_of(chunks, save::tag("QUEU"))->data);
+        ByteReader r(chunk_of(save::tag("QUEU")).data);
         std::optional<event::Queue> q = event::Queue::read(r);
         if (!q || !r.finished()) {
             why = "its events are damaged";
@@ -826,7 +844,7 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         queue_ = std::move(*q);
     }
     {
-        ByteReader r(chunk_of(chunks, save::tag("SYST"))->data);
+        ByteReader r(chunk_of(save::tag("SYST")).data);
         const std::vector<System*> systems = systems_of(by_family_, by_owner_);
         std::uint64_t n = 0;
         if (!r.u64(n) || n != systems.size()) {

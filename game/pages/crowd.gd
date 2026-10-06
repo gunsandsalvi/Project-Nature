@@ -1,9 +1,10 @@
 ## The crowd (PLT-01, TIM-01, WLD-13, PLT-07): the demonstration's 400 camps of 25 markers walking,
 ## meeting and greeting on the simulation's own thread, drawn from its newest snapshot at the
 ## screen's game time, with the Time page's speeds and the counters. Drag to move, pinch or scroll
-## to zoom, tap a camp to call it home. Its world is kept on the phone: saved every 30 seconds and
-## whenever the app leaves the screen, it opens again where it was. Implements PLT-01, TIM-01,
-## WLD-13 and PLT-07.
+## to zoom, tap a camp to call it home. It opens the world chosen on the Worlds page, kept on the
+## phone: saved every 30 seconds and whenever the app leaves the screen, it opens again where it
+## was, and warns when the phone is nearly full. Implements PLT-01, TIM-01, WLD-13, PLT-07, TIM-08
+## and PLT-10.
 extends VBoxContainer
 
 ## The crowd's world, the same on every phone.
@@ -29,8 +30,10 @@ const QUIET := Color("#a89f95")
 const DAY_GROUND := Color("#4f5b3c")
 const NIGHT_GROUND := Color("#1e2433")
 
-## The folder the crowd's world is kept in; a test sets its own before the page opens.
-var folder := "user://worlds/crowd"
+## The folder the worlds are kept in, and the one this world is kept in, the current world's
+## unless a test sets its own before the page opens.
+var root := Worlds.ROOT
+var folder := ""
 ## What opening the world found (KdWorld.open_crowd).
 var opened := {}
 var world: KdWorld
@@ -63,6 +66,7 @@ var _heat_wait := 0.0
 var _greetings := 0
 var _last_greeting := -1
 var _problems := PackedStringArray()
+var _name := ""
 
 
 func _ready() -> void:
@@ -89,7 +93,14 @@ func _ready() -> void:
 		return
 	var heat := world.entry("tuning/heat", "base:heat")
 	_heat_every = float(heat.get("reading", 2))
-	opened = world.open_crowd(ProjectSettings.globalize_path(folder), SEED, 0)
+	var worlds := Worlds.at(root)
+	if folder == "":
+		folder = root.path_join(Worlds.current_id(worlds))
+	var version: String = ProjectSettings.get_setting("application/config/version", "")
+	opened = world.open_crowd(ProjectSettings.globalize_path(folder), SEED, 0, version)
+	for listed: Dictionary in worlds.list():
+		if listed["id"] == folder.get_file():
+			_name = Worlds.name_of(listed)
 	if opened.has("problem"):
 		_counters.text = "The crowd's world did not open: %s" % opened["problem"]
 		set_process(false)
@@ -164,6 +175,13 @@ func _show() -> void:
 	_clock.text = "%s, %s" % [world.date_text(), world.time_text()]
 	var c := world.counters()
 	var lines := PackedStringArray()
+	if _name != "":
+		lines.append(_name)
+	if opened.get("update", "none") == "small":
+		lines.append("Saved by an earlier version, this world carries on under this one")
+	var warning := Worlds.space_warning(c.get("free_mb", -1), c.get("warn_below_mb", 0))
+	if warning != "":
+		lines.append(warning)
 	if world.catching_up():
 		lines.append(
 			"Catching up to where the world was, %s" % KdWorld.moment_text(opened["was_at"])

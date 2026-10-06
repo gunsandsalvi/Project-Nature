@@ -326,6 +326,23 @@ Following Box2D, Factorio and research 18:
   - **Opening** (`demo::keep_crowd`): the newest snapshot whose every hash holds, newer damaged ones moved aside; the journal's later commands act again at their own seconds; the world catches up to its last pause mark, command or record of history, and each record it makes again is compared with the one written.
   - *Measured in the cloud:* the 10,000 markers' state copied in 3.4 ms (1.6 MB), compressed in 3.3 ms to 242 KB, and read back and opened in 5.3 ms.
     The kill test kills the tool at 100 random moments over a world of 2,500 markers with three commands, and the world it ends with is the unbroken run's, with no record made differently.
+- *Built in α1.4b:*
+  - **Worlds** (`KdWorlds` in `view/`): each world a folder under `user://worlds/`, its id the folder's name, and `world.toml` holding its name, seed and camps as TOML, written whole; a file `current` names the world the Crowd page opens, `crowd` until you choose one, where α1.4a kept its world.
+    The Worlds page lists each world with its name, moment, when and by which version it was saved, and its size by part, and makes, opens, renames, exports, imports and deletes them, deleting only on a second tap.
+  - **The .kindling file** (`save::ArchiveWriter` and `save::ArchiveReader`): a header, then `world.toml`, the newest snapshot, the journal and each year of the history, each part with its path, length and hash, and an end holding a hash of every byte before it.
+    It is written and read a megabyte at a time, a few each frame, through Android's file picker, whose `content://` files Godot's `FileAccess` opens; an import is checked part by part as it arrives and refused at the first damage, with words naming it; a path that is no part of a world is refused before anything is written, and a refused import leaves nothing behind.
+  - **Versions** (`save::Versions`, a chunk of each snapshot that the world skips): the app's version that saved it; the rules for making worlds as one digest, of the world-making version and each source's world digest; each source's version and rules digest; the migrations the world has had; each version it has run under and from which second; and the real seconds it has run under the last.
+    A world opened by another version meets an update: a changed making digest is a big one, and the world is not run and nothing is written, its history still read; anything else is small, and the world carries on from its snapshot under the new rules, its history after the snapshot made again rather than compared, and the previous version's last snapshot and `world.toml` kept in `previous/` until the world has run an hour under the new one.
+    α1.4a's snapshots, saved before versions were kept, are a small update.
+  - **Upgrades:** each part of a world's snapshot carries its version, and an older one is brought up a step at a time (`world::upgrades()`); a component reads its older shapes through its own `upgrade()`; a migration (`world::migrations()`) is made once to each world saved before it, as it opens, its name kept in the save, and a new world counts them all as had.
+    None is needed yet, and a test proves each path; a history record's shape is numbered by its frame's type.
+  - **The corpus** (`sim/tests/corpus/`): a small world saved by each alpha's own tool and data, exported as a .kindling file and listed in `corpus.toml` with the update this build is for it; every build opens each, catches it up and carries it on a day with no record made differently, or after a big update reads its history.
+    α1.4a's was made by building α1.4a's tool from its commit.
+  - **Thinning:** each history record is framed as kept for ever or not, as its system's `keeps()` says when it is written (your commands are kept, greetings are not); each year's file is numbered from 1, and α1.4a's, numbered on from the year before, still read.
+    Before the first record of a year is written, each year more than 25 years past is rewritten whole as a thinned year, a mark and its kept records, so a file for a year shows that the years 26 before it are thinned; a world made again from its seed passes thinned years by and leaves them as they are.
+    Opening reads the history only from the snapshot's year on, so a long history costs nothing to open.
+  - **Space:** the free space is checked at each save, and below the saves' tuning's `warn_below`, 1 GB, the Crowd page and the self-check warn and point to the Worlds page, where each world's size shows; nothing is deleted but by you.
+  - *Measured in the cloud:* a world of 10,000 markers ten game days in, 5.4 MB, exported in 23 ms and imported, every part checked, in 9 ms; its history grows by about 31 MB a game year, 68 bytes a record as written, and zlib makes a year about a third of that.
 
 ### A3.8 Talking to Godot
 
@@ -718,6 +735,7 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
     measured in α1.4a, 3.4 ms for the 10,000 markers in the cloud, with 3.3 ms of compression on the I/O thread;
   - opening a world: within `PLT-04`'s 3 seconds.
 - **Storage** (`PLT-10`): a world of 7,000 people at Year 250 estimated at 3.5–4.1 GB, against 4 GB: its history fits at about 17–30 events a person a game day.
+  - Measured in α1.4b, a record of the history takes 68 bytes as written, too many for that estimate: a year will be compressed as it closes (zlib takes the crowd's to a third) and its records made smaller, when people's lives begin to fill it (M5).
 
 **M1's benchmark,** one tap and about 20 minutes, with the phone unplugged, in flight mode, after it has cooled:
 - the calendar alone at top speed; 10,000 markers at real speed and at top speed, with the camera touring, held speed read after 3 minutes; the same pinned to the middle cores; a sweep through the zoom stops' speeds; saves every 30 seconds with an export and a reopening; a still camera for the screen's own power;

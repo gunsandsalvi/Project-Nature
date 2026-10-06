@@ -1,20 +1,64 @@
 #include "kd/demo/kept.hpp"
 
 #include <algorithm>
+#include <cstdio>
+
+#include "kd/data/toml.hpp"
 
 namespace kd::demo {
 
-std::string crowd_about(std::uint64_t seed, std::int64_t camps) {
-    return "# A world of the demonstration's crowd (MAT-16), made again from these if its snapshots are lost.\n"
-           "kind = \"crowd\"\n"
-           "seed = " +
-           std::to_string(seed) + "\ncamps = " + std::to_string(camps) + "\n";
+std::string about_text(const About& a) {
+    // the name as a TOML basic string, its quotes, backslashes and control characters escaped
+    std::string name;
+    for (const char c : a.name) {
+        const auto u = static_cast<unsigned char>(c);
+        if (c == '"' || c == '\\') {
+            name += '\\';
+            name += c;
+        } else if (u < 0x20 || u == 0x7f) {
+            char escaped[8];
+            std::snprintf(escaped, sizeof escaped, "\\u%04x", u);
+            name += escaped;
+        } else {
+            name += c;
+        }
+    }
+    return "# A world of the demonstration's crowd (MAT-16): its name, and what makes it again if its snapshots are "
+           "lost.\n"
+           "name = \"" +
+           name + "\"\nkind = \"crowd\"\nseed = " + std::to_string(a.seed) + "\ncamps = " + std::to_string(a.camps) +
+           "\n";
 }
 
-Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed, std::int64_t camps) {
+std::optional<About> read_about(const std::string& text) {
+    const data::Parsed p = data::parse_toml(text, "world.toml");
+    const data::Value* kind = p.root.find("kind");
+    const data::Value* seed = p.root.find("seed");
+    const data::Value* camps = p.root.find("camps");
+    const data::Value* name = p.root.find("name");
+    if (!p.problems.empty() || (kind != nullptr && (kind->kind != data::Value::Kind::text || kind->text != "crowd")) ||
+        seed == nullptr || seed->kind != data::Value::Kind::whole || seed->whole < 0 || camps == nullptr ||
+        camps->kind != data::Value::Kind::whole || camps->whole < 0 ||
+        (name != nullptr && name->kind != data::Value::Kind::text)) {
+        return std::nullopt;
+    }
+    About a;
+    a.name = name != nullptr ? name->text : "";
+    a.seed = static_cast<std::uint64_t>(seed->whole);
+    a.camps = camps->whole;
+    return a;
+}
+
+Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed, std::int64_t camps,
+                std::span<const world::Migration> migrations) {
     Kept out;
     save::Found found = keeper.open();
     out.damaged = found.damaged;
+    out.update = keeper.begin(found, catalogue);
+    if (out.update == save::Update::big) {
+        out.problem = "this version makes worlds differently, so it cannot carry on; its history is kept";
+        return out;
+    }
     if (found.snapshot) {
         std::string why;
         out.crowd = CrowdWorld::open(catalogue, *found.snapshot, why);
@@ -23,22 +67,31 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
             return out;
         }
         out.snapshot = found.snapshot_name;
+        // the migrations it has not had, made once now, before your later commands act again
+        world::World& opened = out.crowd->world();
+        std::vector<std::string>& had = keeper.versions().migrations;
+        out.migrated = world::migrate(opened, had, migrations);
     } else {
         // no whole snapshot: made new, from the seed and size the folder's world.toml keeps, if it is there
-        if (found.about) {
-            seed = static_cast<std::uint64_t>(
-                save::about_number(*found.about, "seed").value_or(static_cast<std::int64_t>(seed)));
-            camps = save::about_number(*found.about, "camps").value_or(camps);
+        const std::optional<About> about = found.about ? read_about(*found.about) : std::nullopt;
+        if (about) {
+            seed = about->seed;
+            camps = about->camps;
         }
         out.crowd = std::make_unique<CrowdWorld>(seed, catalogue,
                                                  camps > 0 ? std::optional<std::int64_t>(camps) : std::nullopt);
         out.made = true;
-        if (!found.about) {
-            keeper.about(crowd_about(seed, camps));
+        if (!about) {
+            keeper.about(about_text({"", seed, camps}));
+        }
+        // made as this version makes worlds, it needs none of the migrations
+        for (const world::Migration& m : migrations) {
+            keeper.versions().migrations.emplace_back(m.name);
         }
     }
     world::World& w = out.crowd->world();
-    keeper.expect(w.history_count());
+    keeper.keep_kinds([&w](const world::Record& r) { return w.keeps(r); });
+    keeper.expect(w.frontier());
 
     // your later commands act again, each at its own second
     out.journaled = found.commands.size();

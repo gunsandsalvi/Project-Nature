@@ -5,7 +5,10 @@
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
 
+#include <sys/statvfs.h>
+
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <optional>
 #include <system_error>
@@ -39,7 +42,7 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("entry", "folder", "name"), &KdWorld::entry);
     ClassDB::bind_method(D_METHOD("start_clockwork", "work_per_hour"), &KdWorld::start_clockwork);
     ClassDB::bind_method(D_METHOD("start_crowd", "seed", "camps"), &KdWorld::start_crowd);
-    ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps"), &KdWorld::open_crowd);
+    ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps", "build"), &KdWorld::open_crowd);
     ClassDB::bind_method(D_METHOD("save"), &KdWorld::save);
     ClassDB::bind_method(D_METHOD("save_now"), &KdWorld::save_now);
     ClassDB::bind_method(D_METHOD("call_home", "camp"), &KdWorld::call_home);
@@ -191,7 +194,8 @@ void KdWorld::start_crowd(int64_t seed, int64_t camps) {
     runner_ = std::make_unique<run::Runner>(*stepper_, 0, "kd-crowd");
 }
 
-godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed, int64_t camps) {
+godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed, int64_t camps,
+                                      const godot::String& build) {
     KD_CHECK(!runner_, "view::KdWorld: the world has already started");
     KD_CHECK(catalogue_ != nullptr, "view::KdWorld: the crowd needs the catalogue loaded first");
     KD_CHECK(seed >= 0 && camps >= 0, "view::KdWorld: a crowd's seed and camps are never negative");
@@ -203,14 +207,22 @@ godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed,
         out["problem"] = godot::String("the world's folder cannot be made: ") + folder;
         return out;
     }
+    folder_ = path;
     files_ = std::make_unique<save::DiskFiles>(path);
-    keeper_ = std::make_unique<save::Keeper>(*files_);
+    keeper_ = std::make_unique<save::Keeper>(*files_, build.utf8().get_data());
     demo::Kept kept = demo::keep_crowd(*keeper_, *catalogue_, static_cast<std::uint64_t>(seed), camps);
     godot::PackedStringArray damaged;
     for (const std::string& d : kept.damaged) {
         damaged.append(text_of(d));
     }
     out["damaged"] = damaged;
+    const std::array<const char*, 3> updates{"none", "small", "big"};
+    out["update"] = updates.at(static_cast<std::size_t>(kept.update));
+    godot::PackedStringArray migrated;
+    for (const std::string& m : kept.migrated) {
+        migrated.append(text_of(m));
+    }
+    out["migrated"] = migrated;
     if (!kept.crowd || !kept.problem.empty()) {
         out["problem"] = text_of(kept.problem);
         return out;
@@ -229,7 +241,9 @@ godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed,
     }
     if (const std::optional<std::uint32_t> i = catalogue_->find("tuning/saves", "base:saves")) {
         save_every_ = static_cast<double>(catalogue_->kind<run::SaveTuning>()[*i].every);
+        warn_below_mb_ = catalogue_->kind<run::SaveTuning>()[*i].warn_below;
     }
+    check_space();
     out["made"] = kept.made;
     out["snapshot"] = text_of(kept.snapshot);
     out["replayed"] = static_cast<int64_t>(kept.replayed);
@@ -238,11 +252,19 @@ godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed,
     return out;
 }
 
+void KdWorld::check_space() {
+    struct statvfs s {};
+    free_mb_ = statvfs(folder_.c_str(), &s) == 0
+                   ? static_cast<int64_t>(s.f_bavail) * static_cast<int64_t>(s.f_frsize) / (int64_t{1} << 20U)
+                   : -1;
+}
+
 void KdWorld::save() {
     if (!runner_ || !keeper_) {
         return;
     }
     since_save_ = 0.0;
+    check_space();
     runner_->call([this] { keeper_->snapshot(crowd_->world()); });
 }
 
@@ -381,6 +403,15 @@ void KdWorld::frame() {
         catch_up_to_ = -1;
     }
     since_save_ += real;
+    if (keeper_ && !pace_.paused()) {
+        // the real time the world runs under this version, which keeps the previous version's save an hour (PLT-09)
+        played_ += real;
+        if (played_ >= 1.0) {
+            const auto whole = static_cast<std::int64_t>(played_);
+            keeper_->played(whole);
+            played_ -= static_cast<double>(whole);
+        }
+    }
     if (keeper_ && since_save_ >= save_every_) {
         save();
     }
@@ -453,6 +484,9 @@ godot::Dictionary KdWorld::counters() const {
         out["saved_at"] = keeper_->last_snapshot();
         out["save_bytes"] = static_cast<int64_t>(keeper_->last_snapshot_bytes());
         out["mismatches"] = static_cast<int64_t>(keeper_->mismatches());
+        out["played"] = keeper_->played();
+        out["free_mb"] = free_mb_;
+        out["warn_below_mb"] = warn_below_mb_;
     }
     return out;
 }

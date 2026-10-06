@@ -14,29 +14,33 @@
 //                                                 time, with each game day's digests at midnight: the whole state's
 //                                                 and each part's (TIM-16, A3.3)
 //     kindling keep <world> [--camps N] [--seed N] [--until SECONDS] [--every SECONDS] [--call SECOND:CAMP]...
-//                  [--data FOLDER]
+//                  [--data FOLDER] [--build NAME]
 //                                                 the crowd's world kept in a folder (A3.7): opened from its newest
 //                                                 snapshot and journal, or made new; run to a game second with a
 //                                                 snapshot every so many game seconds, calling camps home at their
-//                                                 seconds unless the journal has; for the kill test (PLT-07)
+//                                                 seconds unless the journal has; for the kill test (PLT-07) and the
+//                                                 corpus (PLT-09), the build naming the version that saves it
+//     kindling export <world> <file>             a world's folder as one .kindling file (PLT-08)
+//     kindling import <file> <world>             a .kindling file into a new world's folder, refused with words
+//                                                 naming any damage
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "kd/data/catalogue.hpp"
 #include "kd/data/checks.hpp"
+#include "kd/data/folder.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/kept.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/proof/proof.hpp"
 #include "kd/run/workers.hpp"
+#include "kd/save/archive.hpp"
 #include "kd/save/files.hpp"
 #include "kd/save/keeper.hpp"
 #include "kd/world/world.hpp"
@@ -52,24 +56,13 @@ int usage() {
         "       kindling catalogue show <name> [data]\n"
         "       kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [--islands WINDOW --threads N] [data]\n"
         "       kindling keep <world> [--camps N] [--seed N] [--until SECONDS] [--every SECONDS] "
-        "[--call SECOND:CAMP]... [--data FOLDER]\n");
+        "[--call SECOND:CAMP]... [--data FOLDER] [--build NAME]\n"
+        "       kindling export <world> <file>\n"
+        "       kindling import <file> <world>\n");
     return 2;
 }
 
 // Every .toml file under the data folder, with its path from there, as the catalogue takes them.
-std::vector<kd::data::SourceFile> read_sources(const std::string& folder) {
-    std::vector<kd::data::SourceFile> files;
-    for (const auto& item : std::filesystem::recursive_directory_iterator(folder)) {
-        if (item.is_regular_file() && item.path().extension() == ".toml") {
-            std::ifstream in(item.path(), std::ios::binary);
-            std::stringstream text;
-            text << in.rdbuf();
-            files.push_back({std::filesystem::relative(item.path(), folder).generic_string(), text.str()});
-        }
-    }
-    return files;
-}
-
 int catalogue(const std::vector<std::string_view>& args) {
     if (args.empty()) {
         return usage();
@@ -85,7 +78,7 @@ int catalogue(const std::vector<std::string_view>& args) {
         std::fprintf(stderr, "kindling: no data folder at %s\n", folder.c_str());
         return 1;
     }
-    const std::vector<kd::data::SourceFile> files = read_sources(folder);
+    const std::vector<kd::data::SourceFile> files = kd::data::read_folder(folder);
     kd::data::Catalogue cat;
     std::vector<kd::data::Problem> problems = cat.load(files);
     // the checks on the whole catalogue (MAT-17) run once it loads, since their faults would echo the loader's
@@ -182,7 +175,7 @@ int run_world(const std::vector<std::string_view>& args) {
     if (days < 1 || camps == 0 || camps < -1 || window < 0 || threads < 1 || threads > 16) {
         return usage();
     }
-    const std::vector<kd::data::SourceFile> files = read_sources(folder);
+    const std::vector<kd::data::SourceFile> files = kd::data::read_folder(folder);
     kd::data::Catalogue cat;
     const std::vector<kd::data::Problem> problems = cat.load(files);
     for (const kd::data::Problem& p : problems) {
@@ -235,6 +228,7 @@ int keep(const std::vector<std::string_view>& args) {
     long long until = kd::time::kDay;
     long long every = kd::time::kHour;
     std::string data = "data";
+    std::string build = "kindling";
     std::vector<std::pair<kd::time::Seconds, std::size_t>> calls;
     for (std::size_t i = 1; i < args.size(); i += 2) {
         const bool more = i + 1 < args.size();
@@ -249,6 +243,8 @@ int keep(const std::vector<std::string_view>& args) {
             every = std::atoll(value.c_str());
         } else if (args[i] == "--data" && more) {
             data = value;
+        } else if (args[i] == "--build" && more) {
+            build = value;
         } else if (args[i] == "--call" && more && value.find(':') != std::string::npos) {
             calls.emplace_back(std::atoll(value.c_str()),
                                static_cast<std::size_t>(std::atoll(value.c_str() + value.find(':') + 1)));
@@ -260,7 +256,7 @@ int keep(const std::vector<std::string_view>& args) {
         return usage();
     }
     std::sort(calls.begin(), calls.end());
-    const std::vector<kd::data::SourceFile> files = read_sources(data);
+    const std::vector<kd::data::SourceFile> files = kd::data::read_folder(data);
     kd::data::Catalogue cat;
     if (!cat.load(files).empty()) {
         std::fprintf(stderr, "kindling: the catalogue under %s does not load\n", data.c_str());
@@ -268,7 +264,7 @@ int keep(const std::vector<std::string_view>& args) {
     }
     std::filesystem::create_directories(folder);
     kd::save::DiskFiles disk(folder);
-    kd::save::Keeper keeper(disk);
+    kd::save::Keeper keeper(disk, build);
     kd::demo::Kept kept = kd::demo::keep_crowd(keeper, cat, seed, camps);
     for (const std::string& d : kept.damaged) {
         std::printf("damaged: %s\n", d.c_str());
@@ -324,6 +320,62 @@ int keep(const std::vector<std::string_view>& args) {
     return keeper.mismatches() == 0 ? 0 : 1;
 }
 
+int export_world(const std::vector<std::string_view>& args) {
+    if (args.size() != 2) {
+        return usage();
+    }
+    kd::save::DiskFiles disk{std::string(args[0])};
+    kd::save::ArchiveWriter writer(disk);
+    std::FILE* out = std::fopen(std::string(args[1]).c_str(), "wb");
+    if (out == nullptr) {
+        std::fprintf(stderr, "kindling: cannot write %s\n", std::string(args[1]).c_str());
+        return 1;
+    }
+    for (;;) {
+        const kd::save::Bytes piece = writer.next(std::size_t{1} << 20U);
+        if (piece.empty()) {
+            break;
+        }
+        std::fwrite(piece.data(), 1, piece.size(), out);
+    }
+    return std::fclose(out) == 0 ? 0 : 1;
+}
+
+int import_world(const std::vector<std::string_view>& args) {
+    if (args.size() != 2) {
+        return usage();
+    }
+    const std::string folder(args[1]);
+    std::error_code error;
+    if (std::filesystem::exists(folder) && !std::filesystem::is_empty(folder, error)) {
+        std::fprintf(stderr, "kindling: %s already holds something\n", folder.c_str());
+        return 1;
+    }
+    std::FILE* in = std::fopen(std::string(args[0]).c_str(), "rb");
+    if (in == nullptr) {
+        std::fprintf(stderr, "kindling: cannot read %s\n", std::string(args[0]).c_str());
+        return 1;
+    }
+    std::filesystem::create_directories(folder);
+    kd::save::DiskFiles disk(folder);
+    kd::save::ArchiveReader reader(disk);
+    kd::save::Bytes piece(std::size_t{1} << 20U);
+    for (;;) {
+        const std::size_t n = std::fread(piece.data(), 1, piece.size(), in);
+        if (n == 0 || !reader.feed(std::span(piece).first(n))) {
+            break;
+        }
+    }
+    std::fclose(in);
+    if (!reader.finish()) {
+        std::printf("refused: %s\n", reader.why().c_str());
+        std::filesystem::remove_all(folder, error);
+        return 1;
+    }
+    std::printf("imported into %s\n", folder.c_str());
+    return 0;
+}
+
 int proof(const std::vector<std::string_view>& args) {
     int threads = 1;
     std::vector<std::string_view> names;
@@ -376,6 +428,12 @@ int main(int argc, char** argv) {
     }
     if (command == "keep") {
         return keep(args);
+    }
+    if (command == "export") {
+        return export_world(args);
+    }
+    if (command == "import") {
+        return import_world(args);
     }
     if (command == "suites") {
         for (const auto& s : kd::proof::suites()) {

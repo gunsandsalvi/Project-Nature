@@ -267,28 +267,41 @@ func _show() -> void:
 		_list.add_child(row)
 
 
-## The crowd's world as last saved (PLT-07): at what moment of its time, how long ago, and how
-## large its snapshot is.
+## The world the Crowd page opens, as last saved (PLT-07): its name, how long ago, at what moment
+## of its time, and how large it is; and the free space, amber when the phone is nearly full
+## (PLT-10).
 func _add_saves() -> void:
-	var folder := "user://worlds/crowd/snapshots"
-	var newest := ""
-	for file in DirAccess.get_files_at(folder):
-		if file.ends_with(".kds") and file > newest:
-			newest = file
-	if newest == "":
+	var worlds := Worlds.at()
+	var id := Worlds.current_id(worlds)
+	var listed: Dictionary = {}
+	for w: Dictionary in worlds.list():
+		if w["id"] == id:
+			listed = w
+	if listed.is_empty() or int(listed["moment"]) < 0:
 		_add("Saves", "no world saved yet: open Crowd", "info")
-		return
-	var path := folder.path_join(newest)
-	var ago := maxi(0, int(Time.get_unix_time_from_system()) - FileAccess.get_modified_time(path))
-	var kib := FileAccess.get_file_as_bytes(path).size() / 1024
-	var at := KdWorld.moment_text(int(newest.get_basename()))
-	_add("Saves", "the crowd's world, %s ago, at %s, %d KiB" % [_ago(ago), at, kib], "ok")
-
-
-## A span of real time as you would say it: "12 s", "3 min", "2 h".
-static func _ago(seconds: int) -> String:
-	if seconds < 120:
-		return "%d s" % seconds
-	if seconds < 7200:
-		return "%d min" % (seconds / 60)
-	return "%d h" % (seconds / 3600)
+	else:
+		var ago := maxi(0, int(Time.get_unix_time_from_system()) - int(listed["saved"]))
+		_add(
+			"Saves",
+			(
+				"%s, %s ago, at %s, %s"
+				% [
+					Worlds.name_of(listed),
+					Worlds.ago_words(ago),
+					listed["moment_text"],
+					Worlds.size_words(listed["size"]),
+				]
+			),
+			"ok"
+		)
+	var free := worlds.free_space()
+	var free_mb := free / 1048576 if free >= 0 else -1
+	var tuning := KdWorld.new()
+	GameData.load_into(tuning)
+	var warn_below := int(tuning.entry("tuning/saves", "base:saves").get("warn_below", 1024))
+	var warning := Worlds.space_warning(free_mb, warn_below)
+	_add(
+		"Free space",
+		warning if warning != "" else Worlds.size_words(free),
+		"warn" if warning != "" else "info"
+	)

@@ -1,0 +1,16 @@
+# The corpus (A3.7, PLT-09): a small world saved by each alpha, exported as a .kindling file, which every build opens
+# and carries on. Each was made by that alpha's own kindling tool with its own data folder, so it is saved exactly as
+# that alpha saves; α1.4a's was exported by α1.4b's tool, since α1.4a had no export. When a change makes a big update
+# for one of them, it is marked "big" here, and that build's note says so.
+
+[[world]]
+file = "a14a.kindling"
+saved = "α1.4a"
+made = "kindling keep at 7120627 --camps 1 --seed 7 --until 5356800 --every 864000 --call 5270400:0"
+update = "small"
+
+[[world]]
+file = "a14b.kindling"
+saved = "α1.4b"
+made = "kindling keep --camps 1 --seed 8 --until 5356800 --every 864000 --call 5270400:0 --build α1.4b"
+update = "small"

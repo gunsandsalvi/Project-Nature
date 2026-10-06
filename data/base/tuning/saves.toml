@@ -1,3 +1,7 @@
 # How often a running world is saved (A3.7): a snapshot this often in real time, and whenever the app leaves the
 # screen. Your commands are written at once; everything after the newest snapshot is made again exactly.
 every = "30 s"
+
+# The free space, in megabytes, below which each save warns that the phone is nearly full and asks which worlds to
+# delete; the game never deletes anything itself (PLT-10). A world's save takes well under a megabyte for now.
+warn_below = 1024

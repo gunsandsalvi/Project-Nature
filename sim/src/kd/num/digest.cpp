@@ -92,6 +92,15 @@ void Digest::bytes(std::span<const std::byte> data) {
     put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
 }
 
+void Digest::stream(std::span<const std::byte> data) {
+    put(reinterpret_cast<const unsigned char*>(data.data()), data.size());
+}
+
+void Digest::reset() {
+    used_ = 0;
+    KD_CHECK(XXH3_64bits_reset(state_of(state_)) == XXH_OK, "the digest could not start");
+}
+
 void Digest::text(std::string_view s) {
     bytes(std::as_bytes(std::span<const char>(s.data(), s.size())));
 }

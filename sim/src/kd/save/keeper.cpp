@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <utility>
 
 #include "kd/core/bytes.hpp"
 #include "kd/num/whole.hpp"
@@ -12,10 +13,13 @@ namespace kd::save {
 
 namespace {
 
-// The types of the journal's records, and of the history's.
+// The types of the journal's records, and of the history's: a record that goes once its year is thinned, the mark
+// that begins a thinned year, and a record that stays for ever.
 constexpr std::uint32_t kCommand = 1;
 constexpr std::uint32_t kPause = 2;
 constexpr std::uint32_t kHappened = 1;
+constexpr std::uint32_t kThinned = 2;
+constexpr std::uint32_t kKept = 3;
 
 const std::string kJournal = "journal.log";
 const std::string kAbout = "world.toml";
@@ -31,6 +35,22 @@ bool ends_with(const std::string& s, const std::string& end) {
     return s.size() >= end.size() && s.compare(s.size() - end.size(), end.size(), end) == 0;
 }
 
+// The whole number a name begins with, up to its ending, such as a snapshot's frontier or a history file's year.
+std::optional<std::int64_t> number_before(const std::string& name, const std::string& end) {
+    if (!ends_with(name, end) || name.size() == end.size()) {
+        return std::nullopt;
+    }
+    std::int64_t v = 0;
+    for (std::size_t i = 0; i + end.size() < name.size(); ++i) {
+        const char c = name[i];
+        if (c < '0' || c > '9' || v > (INT64_MAX - 9) / 10) {
+            return std::nullopt;
+        }
+        v = v * 10 + (c - '0');
+    }
+    return v;
+}
+
 Bytes command_body(const world::Command& c) {
     ByteWriter w;
     w.u64(c.number);
@@ -41,7 +61,14 @@ Bytes command_body(const world::Command& c) {
     return w.take();
 }
 
-Bytes record_body(const world::Record& r) {
+bool read_record(ByteReader& r, world::Record& rec) {
+    return r.i64(rec.key.second) && r.u64(rec.key.owner) && r.u64(rec.key.sequence) && r.u32(rec.n) &&
+           r.u32(rec.what) && r.u64(rec.a) && r.u64(rec.b) && r.finished();
+}
+
+}  // namespace
+
+Bytes record_frame(const world::Record& r, std::uint64_t sequence, bool kept) {
     ByteWriter w;
     w.i64(r.key.second);
     w.u64(r.key.owner);
@@ -50,46 +77,53 @@ Bytes record_body(const world::Record& r) {
     w.u32(r.what);
     w.u64(r.a);
     w.u64(r.b);
-    return w.take();
+    return frame(kept ? kKept : kHappened, sequence, w.bytes());
 }
 
-bool same(const world::Record& x, const world::Record& y) {
-    return x.key == y.key && x.n == y.n && x.what == y.what && x.a == y.a && x.b == y.b;
+std::int64_t year_of(time::Seconds second) {
+    return num::floor_div(second, Keeper::kYear) + 1;
 }
 
-}  // namespace
-
-std::string history_file(time::Seconds second) {
+std::string year_file(std::int64_t year) {
     char name[64];
-    std::snprintf(name, sizeof name, "history/%06lld.log",
-                  static_cast<long long>(num::floor_div(second, Keeper::kYear)) + 1);
+    std::snprintf(name, sizeof name, "history/%06lld.log", static_cast<long long>(year));
     return name;
 }
 
-std::optional<std::int64_t> about_number(const std::string& about, const std::string& key) {
-    std::size_t at = 0;
-    while (at < about.size()) {
-        const std::size_t end = std::min(about.find('\n', at), about.size());
-        const std::string line = about.substr(at, end - at);
-        at = end + 1;
-        const std::string head = key + " = ";
-        if (line.compare(0, head.size(), head) != 0 || line.size() == head.size()) {
-            continue;
-        }
-        std::int64_t v = 0;
-        for (std::size_t i = head.size(); i < line.size(); ++i) {
-            const char c = line[i];
-            if (c < '0' || c > '9' || v > (INT64_MAX - 9) / 10) {
-                return std::nullopt;
-            }
-            v = v * 10 + (c - '0');
-        }
-        return v;
-    }
-    return std::nullopt;
+std::optional<std::int64_t> file_year(const std::string& name) {
+    return number_before(name, ".log");
 }
 
-Keeper::Keeper(Files& files) : io_(files) {}
+std::string history_file(time::Seconds second) {
+    return year_file(year_of(second));
+}
+
+Year read_year(std::span<const std::byte> bytes) {
+    Year out;
+    const LogRead log = read_log(bytes, 0);
+    std::uint64_t offset = 0;
+    for (const Entry& e : log.entries) {
+        if (e.type == kThinned && e.sequence == 1 && e.body.empty()) {
+            out.thinned = true;
+        } else {
+            Year::Held h;
+            h.offset = offset;
+            h.sequence = e.sequence;
+            h.kept = e.type == kKept;
+            ByteReader r(e.body);
+            if ((e.type != kHappened && e.type != kKept) || !read_record(r, h.record)) {
+                break;
+            }
+            out.records.push_back(h);
+        }
+        offset += kFrame + e.body.size();
+    }
+    out.good = offset;
+    out.cut = log.cut || offset != log.good;
+    return out;
+}
+
+Keeper::Keeper(Files& files, std::string build) : build_(std::move(build)), io_(files) {}
 
 Keeper::~Keeper() {
     io_.flush();
@@ -121,6 +155,9 @@ Found Keeper::open() {
             if (bytes) {
                 std::optional<std::vector<Chunk>> chunks = read_snapshot(*bytes, why);
                 if (chunks) {
+                    if (const Chunk* v = find_chunk(*chunks, kVersionsTag)) {
+                        found.versions = read_versions(*v);
+                    }
                     found.snapshot = std::move(chunks);
                     found.snapshot_name = name;
                     break;
@@ -158,42 +195,96 @@ Found Keeper::open() {
             journal_next_ = log.entries.size() + 1;
         }
 
-        // the history, file by file, each record numbered on from the last; a damaged file is cut, and the later ones
-        // go, since they could no longer follow on
-        std::vector<std::string> files = f.list("history");
-        std::erase_if(files, [](const std::string& n) { return !ends_with(n, ".log"); });
+        // the history: its newest file says which years are thinned already, since a year is thinned before anything
+        // of the year 26 after it is written; the files from the snapshot's year on are read, each cut at its first
+        // bad record, and the later ones go, since they could no longer follow on
+        std::vector<std::pair<std::int64_t, std::string>> years;
+        for (const std::string& name : f.list("history")) {
+            if (const std::optional<std::int64_t> y = file_year(name)) {
+                years.emplace_back(*y, "history/" + name);
+            }
+        }
+        std::stable_sort(years.begin(), years.end(), [](const auto& x, const auto& y) { return x.first < y.first; });
+        if (!years.empty()) {
+            year_ = years.back().first;
+            thinned_ = std::max<std::int64_t>(0, year_ - kWholeYears - 1);
+        }
+        opened_at_ = number_before(found.snapshot_name, ".kds").value_or(0);
+        const std::int64_t snapshot_year = year_of(opened_at_);
         bool broken = false;
-        for (const std::string& name : files) {
-            const std::string path = "history/" + name;
+        for (const auto& [year, path] : years) {
+            if (year < snapshot_year || year <= thinned_) {
+                continue;
+            }
             if (broken) {
                 f.remove(path);
                 continue;
             }
-            const std::optional<Bytes> bytes = f.read(path);
-            const LogRead log = read_log(bytes.value_or(Bytes{}), stored_.size() + 1);
-            std::uint64_t offset = 0;
-            for (const Entry& e : log.entries) {
-                ByteReader r(e.body);
-                world::Record rec;
-                if (e.type != kHappened || !r.i64(rec.key.second) || !r.u64(rec.key.owner) ||
-                    !r.u64(rec.key.sequence) || !r.u32(rec.n) || !r.u32(rec.what) || !r.u64(rec.a) || !r.u64(rec.b) ||
-                    !r.finished()) {
-                    break;
-                }
-                stored_.push_back(rec);
-                where_.emplace_back(path, offset);
-                offset += kFrame + e.body.size();
-            }
-            if (log.cut || offset != log.good) {
-                f.cut(path, offset);
+            const Year y = read_year(f.read(path).value_or(Bytes{}));
+            if (y.cut) {
+                f.cut(path, y.good);
                 found.damaged.push_back(path + ": cut at its first bad record");
-                broken = true;
+            }
+            if (y.thinned) {
+                // thinned, though the newest file does not show it, as when a power cut took the first record of the
+                // year that thinned it: settled, and left as it is
+                thinned_ = std::max(thinned_, year);
+                continue;
+            }
+            for (const Year::Held& h : y.records) {
+                stored_.push_back(h.record);
+                where_.push_back({path, h.offset, h.sequence});
+            }
+            sequences_[path] = y.records.empty() ? 1 : y.records.back().sequence + 1;
+            broken = y.cut;
+        }
+        previous_ = !f.list("previous").empty();
+    });
+    found.history = stored_;
+    return found;
+}
+
+Update Keeper::begin(const Found& found, const data::Catalogue& catalogue) {
+    if (!found.snapshot) {
+        // a world made new begins under this version
+        versions_ = Versions{};
+        versions_.build = build_;
+        versions_.eras.push_back({build_, 0});
+        return Update::none;
+    }
+    if (found.versions && found.versions->build == build_) {
+        versions_ = *found.versions;
+        played_.store(versions_.played, std::memory_order_relaxed);
+        return Update::none;
+    }
+    // saved by another version; one from before versions were kept, α1.4a's, was made by today's rules for making
+    // worlds, the first
+    if (found.versions && found.versions->making != making_digest(catalogue)) {
+        return Update::big;
+    }
+    versions_ = found.versions.value_or(Versions{});
+    versions_.build = build_;
+    versions_.eras.push_back({build_, opened_at_});
+    versions_.played = 0;
+    updated_ = true;
+    previous_ = true;
+    // every year more than 25 years past thinned, as a version that thinned nothing, α1.4a, left them whole; a year
+    // thinned already stays as it is
+    for (std::int64_t y = 1; y <= thinned_; ++y) {
+        thin(y);
+    }
+    // the previous version's last snapshot kept aside, with world.toml, until the world has run an hour under this one
+    io_.now([&](Files& f) {
+        for (const std::string& name : f.list("previous")) {
+            f.remove("previous/" + name);
+        }
+        for (const std::string& path : {"snapshots/" + found.snapshot_name, kAbout}) {
+            if (const std::optional<Bytes> bytes = f.read(path)) {
+                f.write_whole("previous/" + path.substr(path.rfind('/') + 1), *bytes);
             }
         }
     });
-    log_next_ = stored_.size() + 1;
-    found.history = stored_;
-    return found;
+    return Update::small;
 }
 
 void Keeper::about(const std::string& text) {
@@ -222,55 +313,69 @@ void Keeper::pause_mark(time::Seconds frontier) {
     });
 }
 
-void Keeper::expect(std::uint64_t count) {
-    // the records the folder holds beyond the snapshot's, which the world will make again in order
-    base_ = std::min<std::uint64_t>(count, stored_.size());
-    expected_.assign(stored_.begin() + static_cast<std::ptrdiff_t>(base_), stored_.end());
-    expect_at_ = 0;
+void Keeper::expect(time::Seconds frontier) {
+    // the records the folder holds from the frontier on, which the world will make again in order
+    next_ =
+        static_cast<std::size_t>(std::partition_point(stored_.begin(), stored_.end(),
+                                                      [&](const world::Record& r) { return r.key.second < frontier; }) -
+                                 stored_.begin());
+    if (updated_ && next_ < stored_.size()) {
+        // after an update they are made again under the new rules, not compared
+        cut_history(next_);
+    }
 }
 
 void Keeper::history(std::span<const world::Record> records) {
     for (const world::Record& r : records) {
-        if (expect_at_ < expected_.size()) {
-            if (same(r, expected_[expect_at_])) {
-                ++expect_at_;
+        const std::int64_t year = year_of(r.key.second);
+        if (year <= thinned_) {
+            // a thinned year made again, by a world made again from its seed: its history is settled, and stays
+            continue;
+        }
+        if (year > year_) {
+            // a new year: the years now more than 25 years past are thinned first, so a file of this year shows they
+            // are
+            for (std::int64_t y = thinned_ + 1; y < year - kWholeYears; ++y) {
+                thin(y);
+            }
+            thinned_ = std::max(thinned_, year - kWholeYears - 1);
+            year_ = year;
+        }
+        if (next_ < stored_.size()) {
+            if (r == stored_[next_]) {
+                ++next_;
                 continue;
             }
             // made differently than it was written: counted, and the history from it on replaced
             ++mismatches_;
-            cut_history(base_ + expect_at_);
-            expected_.clear();
-            expect_at_ = 0;
+            cut_history(next_);
         }
         append(r);
     }
 }
 
-void Keeper::cut_history(std::uint64_t index) {
-    if (index >= where_.size()) {
-        return;
-    }
-    const auto [path, offset] = where_[index];
+void Keeper::cut_history(std::size_t index) {
+    const Place at = where_[index];
     std::vector<std::string> later;
-    for (std::size_t i = index; i < where_.size(); ++i) {
-        if (where_[i].first != path && (later.empty() || later.back() != where_[i].first)) {
-            later.push_back(where_[i].first);
-        }
+    for (auto it = sequences_.upper_bound(at.path); it != sequences_.end(); ++it) {
+        later.push_back(it->first);
     }
     io_.now([&](Files& f) {
-        f.cut(path, offset);
+        f.cut(at.path, at.offset);
         for (const std::string& p : later) {
             f.remove(p);
         }
     });
-    where_.resize(index);
+    sequences_.erase(sequences_.upper_bound(at.path), sequences_.end());
+    sequences_[at.path] = at.sequence;
     stored_.resize(index);
-    log_next_ = index + 1;
+    where_.resize(index);
 }
 
 void Keeper::append(const world::Record& r) {
     const std::string path = history_file(r.key.second);
-    Bytes record = frame(kHappened, log_next_++, record_body(r));
+    auto [it, made] = sequences_.try_emplace(path, 1);
+    Bytes record = record_frame(r, it->second++, keeps_ && keeps_(r));
     io_.post([this, path, record = std::move(record)](Files& f) {
         f.append(path, record);
         if (unsynced_.empty() || unsynced_.back() != path) {
@@ -279,11 +384,41 @@ void Keeper::append(const world::Record& r) {
     });
 }
 
+void Keeper::thin(std::int64_t year) {
+    sequences_.erase(year_file(year));
+    io_.post([path = year_file(year)](Files& f) {
+        const std::optional<Bytes> bytes = f.read(path);
+        if (!bytes) {
+            return;
+        }
+        const Year y = read_year(*bytes);
+        if (y.thinned) {
+            return;
+        }
+        Bytes out = frame(kThinned, 1, {});
+        std::uint64_t sequence = 2;
+        for (const Year::Held& h : y.records) {
+            if (h.kept) {
+                const Bytes record = record_frame(h.record, sequence++, true);
+                out.insert(out.end(), record.begin(), record.end());
+            }
+        }
+        f.write_whole(path, out);
+    });
+}
+
 void Keeper::snapshot(const world::World& w) {
-    // the state copied here, between events; compressed and written on the I/O thread
+    // the state copied here, between events, with what it is saved under; compressed and written on the I/O thread
     std::vector<Chunk> chunks = w.save();
+    Versions v = versions_;
+    v.making = making_digest(w.catalogue());
+    v.rules = rules_digest(w.catalogue());
+    v.played = played_.load(std::memory_order_relaxed);
+    chunks.push_back(versions_chunk(v));
+    const bool drop = previous_ && v.played >= kPreviousKept;
+    previous_ = previous_ && !drop;
     const time::Seconds frontier = w.frontier();
-    io_.post([this, chunks = std::move(chunks), frontier](Files& f) {
+    io_.post([this, chunks = std::move(chunks), frontier, drop](Files& f) {
         // the history before the snapshot is safe first, so it can never be lost behind it
         for (const std::string& path : unsynced_) {
             f.sync(path);
@@ -299,6 +434,12 @@ void Keeper::snapshot(const world::World& w) {
         std::erase_if(names, [](const std::string& n) { return !ends_with(n, ".kds"); });
         for (std::size_t i = 0; i + 2 < names.size(); ++i) {
             f.remove("snapshots/" + names[i]);
+        }
+        // and once the world has run an hour under this version, the previous one's last snapshot goes
+        if (drop) {
+            for (const std::string& name : f.list("previous")) {
+                f.remove("previous/" + name);
+            }
         }
         snapshots_.fetch_add(1, std::memory_order_relaxed);
         last_snapshot_.store(frontier, std::memory_order_relaxed);

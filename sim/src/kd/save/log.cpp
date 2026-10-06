@@ -56,14 +56,14 @@ LogRead read_log(std::span<const std::byte> bytes, std::uint64_t first) {
             break;
         }
         const std::span<const std::byte> body = bytes.subspan(at + kFrame, length);
-        if (sequence != next || sum != checksum(length, type, sequence, body)) {
+        if ((next != 0 && sequence != next) || sum != checksum(length, type, sequence, body)) {
             out.cut = true;
             break;
         }
         out.entries.push_back({type, sequence, Bytes(body.begin(), body.end())});
         at += kFrame + length;
         out.good = at;
-        ++next;
+        next = sequence + 1;
     }
     return out;
 }

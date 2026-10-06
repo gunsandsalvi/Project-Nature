@@ -16,6 +16,7 @@ func after_test() -> void:
 ## phone's screen.
 func _page(name: String) -> VBoxContainer:
 	var page: VBoxContainer = auto_free(CrowdPage.new())
+	page.root = TEST_WORLDS
 	page.folder = "%s/%s" % [TEST_WORLDS, name]
 	page.size = Vector2(540, 1100)
 	return page

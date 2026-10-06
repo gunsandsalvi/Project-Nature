@@ -11,6 +11,7 @@
 
 #include "kd/demo/crowd_world.hpp"
 #include "kd/save/keeper.hpp"
+#include "kd/world/upgrades.hpp"
 
 namespace kd::demo {
 
@@ -32,14 +33,29 @@ struct Kept {
     /// How far it had got before it closed: its snapshot's frontier, or its last pause mark, command or history, if
     /// later; it catches up to there.
     time::Seconds was_at = 0;
+    /// Whether another version saved it, and how big an update this one is for it (PLT-09); after a big one it is not
+    /// opened, and its history can still be read.
+    save::Update update = save::Update::none;
+    /// The migrations made to it as it opened.
+    std::vector<std::string> migrated;
 };
 
-/// world.toml for a new crowd's world.
-[[nodiscard]] std::string crowd_about(std::uint64_t seed, std::int64_t camps);
+/// A crowd's world.toml (A3.7): its name, which the Worlds page shows and you may change, and the seed and number of
+/// camps (0 for the tuning's) that make it again if no snapshot is whole.
+struct About {
+    std::string name;
+    std::uint64_t seed = 1;
+    std::int64_t camps = 0;
+};
 
-/// Implements TIM-05 and PLT-07, see A3.7: a crowd's world from its folder, or a new one from this seed and number of
-/// camps (0 for the tuning's), unless the folder's world.toml says otherwise.
+/// world.toml's text for a crowd's world, and what a world.toml says; nothing if it is not a crowd's.
+[[nodiscard]] std::string about_text(const About& a);
+[[nodiscard]] std::optional<About> read_about(const std::string& text);
+
+/// Implements TIM-05, PLT-07 and PLT-09, see A3.7: a crowd's world from its folder, brought up to date by the
+/// migrations it has not had, or a new one from this seed and number of camps (0 for the tuning's), unless the
+/// folder's world.toml says otherwise.
 [[nodiscard]] Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed,
-                              std::int64_t camps);
+                              std::int64_t camps, std::span<const world::Migration> migrations = world::migrations());
 
 }  // namespace kd::demo

@@ -54,11 +54,14 @@ public:
     /// Starts the demonstration's crowd from the loaded catalogue (MAT-16): from a seed, with camps camps, or the
     /// tuning's number when 0; kept nowhere, for the tests.
     void start_crowd(int64_t seed, int64_t camps);
-    /// Opens the crowd's world kept in a folder, an absolute path, or makes it there from a seed and camps (A3.7):
-    /// whether it was made, the snapshot it opened, the commands acted again, the damaged files set aside, the game
-    /// second it had got to and catches up to, and a problem if it could not open. Implements TIM-05 and PLT-07.
-    godot::Dictionary open_crowd(const godot::String& folder, int64_t seed, int64_t camps);
-    /// Saves the world as it runs, between two batches, its snapshot written on another thread (A3.7).
+    /// Opens the crowd's world kept in a folder, an absolute path, or makes it there from a seed and camps (A3.7), as
+    /// this version of the app, such as "α1.4b": whether it was made, the snapshot it opened, the commands acted again,
+    /// the damaged files set aside, the game second it had got to and catches up to, whether another version saved it
+    /// and how big an update this one is for it ("none", "small" or "big"), the migrations made to it, and a problem
+    /// if it could not open. Implements TIM-05, PLT-07 and PLT-09.
+    godot::Dictionary open_crowd(const godot::String& folder, int64_t seed, int64_t camps, const godot::String& build);
+    /// Saves the world as it runs, between two batches, its snapshot written on another thread, and checks the free
+    /// space where it is kept (A3.7, PLT-10).
     void save();
     /// Saves the world at once, as the app leaves the screen: it stops after the batch it is in, a pause mark is
     /// synced to the journal, and the snapshot is written before this returns (TIM-05).
@@ -99,7 +102,9 @@ public:
 
     /// The crowd's counters (PLT-01): events a second over the last real second, events, batches and the last
     /// batch's milliseconds, greetings, what the phone can do in game seconds a real second, the heat's working share
-    /// and the speed limit it sets, the speeds asked and shown, the walkers, and how far the world is ahead.
+    /// and the speed limit it sets, the speeds asked and shown, the walkers, and how far the world is ahead; for a
+    /// kept world, its saves, the real seconds it has run under this version, and the megabytes free where it is kept
+    /// at the last save, and how few make the game warn.
     godot::Dictionary counters() const;
     /// The greetings since the last call, three numbers each: the game second, and the two walkers' ids.
     godot::PackedInt64Array drain_greetings();
@@ -131,10 +136,13 @@ protected:
 
 private:
     [[nodiscard]] HeatRules heat_rules() const;
+    /// The free space where the world is kept, in megabytes, as each save checks it (PLT-10).
+    void check_space();
 
     std::unique_ptr<data::Catalogue> catalogue_;
     std::unique_ptr<demo::Clockwork> clockwork_;
     // the folder a kept world is in, and its keeper, which outlast the world and its runner
+    std::string folder_;
     std::unique_ptr<save::DiskFiles> files_;
     std::unique_ptr<save::Keeper> keeper_;
     std::unique_ptr<demo::CrowdWorld> crowd_;
@@ -144,6 +152,11 @@ private:
     time::Seconds catch_up_to_ = -1;
     double save_every_ = 30.0;
     double since_save_ = 0.0;
+    // the megabytes free where the world is kept at the last save, and how few make the game warn (PLT-10); the
+    // real time the world has run under this version, not yet told to the keeper (PLT-09)
+    int64_t free_mb_ = -1;
+    int64_t warn_below_mb_ = 1024;
+    double played_ = 0.0;
     Pace pace_;
     HeatGovernor heat_;
     std::chrono::steady_clock::time_point last_frame_;

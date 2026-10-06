@@ -33,6 +33,7 @@ add_library(kd_sim STATIC
     src/kd/core/check.cpp
     src/kd/data/catalogue.cpp
     src/kd/data/checks.cpp
+    src/kd/data/folder.cpp
     src/kd/data/kinds.cpp
     src/kd/data/loader.cpp
     src/kd/data/orders.cpp
@@ -55,13 +56,16 @@ add_library(kd_sim STATIC
     src/kd/run/runner.cpp
     src/kd/run/thread.cpp
     src/kd/run/workers.cpp
+    src/kd/save/archive.cpp
     src/kd/save/files.cpp
     src/kd/save/keeper.cpp
     src/kd/save/log.cpp
     src/kd/save/snapshot.cpp
+    src/kd/save/versions.cpp
     src/kd/time/calendar.cpp
     src/kd/time/duration.cpp
     src/kd/world/parts.cpp
+    src/kd/world/upgrades.cpp
     src/kd/world/world.cpp)
 target_include_directories(kd_sim PUBLIC src)
 target_include_directories(kd_sim SYSTEM PUBLIC "${KD_ENTT}")
@@ -90,7 +94,9 @@ if(KD_SIM_TESTS)
         tests/save_test.cpp
         tests/world_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
-    target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)
+    # the repository, where the tests find the data folder and the corpus of old worlds (PLT-09)
+    target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS
+                                                    KD_REPO="${CMAKE_CURRENT_SOURCE_DIR}/..")
     target_link_libraries(kd_sim_tests PRIVATE kd_sim)
     kindling_rules(kd_sim_tests)
 

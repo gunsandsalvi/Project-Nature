@@ -7,6 +7,7 @@ const PAGES := {
 	"Check": preload("res://pages/check.gd"),
 	"Time": preload("res://pages/time.gd"),
 	"Crowd": preload("res://pages/crowd.gd"),
+	"Worlds": preload("res://pages/worlds.gd"),
 	"Catalogues": preload("res://pages/catalogues.gd"),
 }
 const BACKGROUND := Color("#1f1a24")

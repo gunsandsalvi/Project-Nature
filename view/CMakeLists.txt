@@ -25,7 +25,8 @@ add_library(kindling SHARED
     src/register.cpp
     src/crowd.cpp
     src/device.cpp
-    src/world.cpp)
+    src/world.cpp
+    src/worlds.cpp)
 kindling_rules(kindling)
 target_link_libraries(kindling PRIVATE kd_view_core kd_sim godot-cpp)
 target_link_options(kindling PRIVATE -Wl,--gc-sections -Wl,--exclude-libs,ALL)

@@ -41,4 +41,19 @@ inline constexpr std::uint32_t kSnapshotVersion = 1;
 /// is short, damaged or of an unknown format.
 [[nodiscard]] std::optional<std::vector<Chunk>> read_snapshot(std::span<const std::byte> bytes, std::string& why);
 
+/// A chunk among a snapshot's by its tag, or nothing.
+[[nodiscard]] const Chunk* find_chunk(std::span<const Chunk> chunks, std::uint32_t tag);
+
+/// One step of a chunk's upgrade (A3.7, PLT-09): its bytes as one version wrote them, rewritten as the next writes
+/// them; false if they are not what that version wrote.
+struct Upgrade {
+    std::uint32_t tag = 0;
+    std::uint32_t from = 0;
+    bool (*apply)(Bytes& data) = nullptr;
+};
+
+/// Implements PLT-09, see A3.7: a chunk brought up to the version this one writes, a step at a time; false, with why,
+/// if it is newer than that, or no step leads on from its version.
+bool upgrade(Chunk& c, std::uint32_t now, std::span<const Upgrade> steps, std::string& why);
+
 }  // namespace kd::save

@@ -78,6 +78,9 @@ public:
 
     /// One of your commands, at its second, for the system that takes them (A3.8).
     virtual void command(Context& /*c*/, const Command& /*cmd*/) {}
+    /// Whether a record of this kind, as the system numbers them, stays in the history for ever, rather than only for
+    /// its last 25 years (PRN-15, PLT-10).
+    [[nodiscard]] virtual bool keeps(std::uint32_t /*what*/) const { return false; }
 
     /// Its own state for a snapshot, beyond the components (A3.7); none by default.
     virtual void save(ByteWriter& /*w*/) const {}
@@ -94,9 +97,14 @@ class Commands final : public System {
 public:
     explicit Commands(World& w) : w_(w) {}
 
+    /// What it records in the history: each command as it acts, by its number and whom it was about.
+    static constexpr std::uint32_t kActed = 1;
+
     [[nodiscard]] std::string_view name() const override { return "commands"; }
     void handle(Context& c, const event::Event& e) override;
     void digest(num::Digest& d) const override;
+    /// Your acts stay in the history for ever.
+    [[nodiscard]] bool keeps(std::uint32_t /*what*/) const override { return true; }
     void save(ByteWriter& w) const override;
     bool load(ByteReader& r) override;
 
@@ -118,6 +126,8 @@ struct Record {
     std::uint32_t what = 0;
     std::uint64_t a = 0;
     std::uint64_t b = 0;
+
+    friend bool operator==(const Record&, const Record&) = default;
 };
 
 /// A way a doer set off on, for the screen (A3.8): the event it began at, the doer, and its activity then. The screen
@@ -279,6 +289,8 @@ public:
     [[nodiscard]] bool live(const event::Event& e) const;
     /// How many records the history holds, and its digest, each record in key order.
     [[nodiscard]] std::uint64_t history_count() const { return history_count_; }
+    /// Whether a record stays in the history for ever, as the system of its owner says (PRN-15).
+    [[nodiscard]] bool keeps(const Record& r) const;
     /// Keeps every record in a list too, for tests and reports; nothing when null.
     void keep_history(std::vector<Record>* list) { history_list_ = list; }
     /// Keeps every way a doer sets off on in a list, in key order, for the screen; nothing when null. Ways are no

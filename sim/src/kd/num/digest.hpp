@@ -27,6 +27,11 @@ public:
     /// Bytes as they are, preceded by their count.
     void bytes(std::span<const std::byte> data);
     void text(std::string_view s);
+    /// Bytes as they are, with no count, so a stream fed in pieces gives the same digest however it is cut, as a
+    /// file read and written in pieces must (A3.7).
+    void stream(std::span<const std::byte> data);
+    /// Starts again, as a new digest.
+    void reset();
 
     /// The digest of everything written so far; writing may go on after it.
     [[nodiscard]] std::uint64_t value();
