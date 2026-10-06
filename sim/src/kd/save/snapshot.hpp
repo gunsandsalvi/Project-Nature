@@ -1,6 +1,6 @@
 // Snapshots (A3.7): a world's whole state in one file, a header, then chunks, each with a tag, a version, whether a
 // reader must know it, its lengths and a hash, compressed by zstd at level 1 and hashed before compression, since
-// zstd's output is the same only within one version (research 18); then an end with a hash of every byte before it.
+// zstd's output is the same only within one version; then an end with a hash of every byte before it.
 // Reading verifies every hash, so a damaged snapshot is refused whole and never half-loaded.
 #pragma once
 

@@ -65,7 +65,7 @@ protected:
 [[nodiscard]] std::string folder_of(const std::string& path);
 
 /// Implements PLT-07, see A3.7: a world's folder on the disk, through the system's own calls, since Godot's files
-/// never sync (research 18).
+/// never sync.
 class DiskFiles final : public Files {
 public:
     explicit DiskFiles(std::string root);

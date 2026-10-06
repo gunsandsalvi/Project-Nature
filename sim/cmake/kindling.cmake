@@ -1,6 +1,6 @@
 # The rules for all of Kindling's own C++ (A2.2, A3.4): every target that includes the simulation's headers, in
 # sim/, view/ and their tests, is built with these, since an inline function compiled differently in one of them
-# can replace the simulation's own copy at link time (research 18).
+# can replace the simulation's own copy at link time.
 #
 # -ffp-contract=off must be the last floating-point flag on each compile line: a later -ffp-model turns contraction
 # into fused multiply-adds back on without a warning. Plain char is unsigned on every build, as on arm64, so no

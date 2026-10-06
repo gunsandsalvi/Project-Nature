@@ -158,7 +158,7 @@ std::vector<double> blur(const std::vector<double>& channel, std::int64_t width,
     KD_CHECK(std::isfinite(sigma) && sigma > 0.0, "look: a blur's sigma is above 0");
     const std::vector<double> k = kernel(sigma);
     const auto r = static_cast<std::int64_t>(k.size() / 2);
-    // down the columns first, then along the rows, each sum in the kernel's order, as research 19's blur
+    // down the columns first, then along the rows, each sum in the kernel's order, as the reference blur
     std::vector<double> down(channel.size(), 0.0);
     for (std::int64_t y = 0; y < height; ++y) {
         for (std::int64_t x = 0; x < width; ++x) {

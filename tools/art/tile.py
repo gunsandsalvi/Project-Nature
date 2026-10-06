@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Band 0's tile (art/BRIEF.md, step 5): a seamless square of texture pixels built by code from one source or more,
-with no strong repeat inside it.
+"""Band 0's tile (IMPLEMENTATION.md, the art lane): a seamless square of texture pixels built by code from one
+source or more, with no strong repeat inside it.
 
     python3 tools/art/tile.py <out.png> <source.png>... [--size 256] [--step 32] [--overlap 8] [--seed 1]
         quilt the tile from re-gridded sources; prints its seam and repeat numbers

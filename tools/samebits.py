@@ -11,8 +11,8 @@
                                                           suite the same digest
 
 A later -ffp-model turns fused multiply-adds back on without a warning, and an inline function compiled with them
-in one file can replace the simulation's own copy at link time, so the flags and the code are both checked
-(research 18). Two kinds of file are exempt from the scan: vendored code under sim/thirdparty/, since CORE-MATH asks
+in one file can replace the simulation's own copy at link time, so the flags and the code are both checked.
+Two kinds of file are exempt from the scan: vendored code under sim/thirdparty/, since CORE-MATH asks
 for its fused multiply-adds explicitly and they are exact, and the test framework's own code (sim/tests/main.cpp and
 view/tests/main.cpp, which build doctest), which formats numbers with the platform's maths but never runs in the
 simulation.
@@ -43,7 +43,7 @@ BANNED_FLAG = re.compile(
 )
 # Fused multiply-add instructions on arm64 and x86-64.
 FUSED = re.compile(r"\b(fmadd|fmsub|fnmadd|fnmsub|fmla|fmls|vfn?m(add|sub)\d{3}[sp][sd])\b")
-# The platform's maths functions, which differ between glibc and bionic and between CPUs (research 18).
+# The platform's maths functions, which differ between glibc and bionic and between CPUs.
 MATHS = {
     base + suffix
     for base in (

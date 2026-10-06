@@ -1,5 +1,5 @@
 // The one way from a floating number to a whole one (A3.4). A plain cast is undefined outside the whole number's
-// range and differs between chips there (x86-64 gives the smallest number, arm64 the nearest; research 18), so sim/
+// range and differs between chips there (x86-64 gives the smallest number, arm64 the nearest), so sim/
 // converts only here.
 #pragma once
 

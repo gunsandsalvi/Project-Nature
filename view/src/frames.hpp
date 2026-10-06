@@ -1,5 +1,5 @@
 // Frames by our own measure (A3.9, PLT-04): Godot gives no frame statistics, and its delta is smoothed and can hide a
-// stall (research 18), so the extension times every frame itself, once a frame, from the steady clock. A frame is on
+// stall, so the extension times every frame itself, once a frame, from the steady clock. A frame is on
 // time when it comes within a frame period plus half a refresh of the one before; a stall counts every period it
 // skipped; and "more than 50 ms late" is a gap of more than 66.7 ms at 60 frames a second.
 #pragma once

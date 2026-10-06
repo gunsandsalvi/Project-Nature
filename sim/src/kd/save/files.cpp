@@ -160,7 +160,7 @@ bool DiskFiles::sync_file(const std::string& path) {
 }
 
 bool DiskFiles::sync_folder(const std::string& folder) {
-    // a file's own fsync does not make its name durable; its folder's does (research 18)
+    // a file's own fsync does not make its name durable; its folder's does
     const int fd = ::open(full(folder).c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
     if (fd < 0) {
         return false;

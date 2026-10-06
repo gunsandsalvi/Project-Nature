@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs one picture request through Codex's image tool on the owner's ChatGPT plan, outside every build (A5.4).
-# Implements PRE-46, see A5.4 and art/BRIEF.md.
+# Implements PRE-46, see A5.4.
 #
 # Usage: tools/art/gpt-run.sh <request.txt> <scratch folder>
 #   The request holds Purpose:, Orientation:, Input picture: (an absolute path, or none) and Transparent: (yes or no)

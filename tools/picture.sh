@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Draws a Godot project's main scene in the cloud as your phone shows it, for the note (PRC-11, A2.3, A17).
 # Usage: tools/picture.sh <project> <png> portrait|landscape [arguments for the app, such as a screen's name]
-# Drawn at the phone's 1344 × 2992 pixels (research 02) by the Mobile renderer on the software Vulkan driver under
+# Drawn at the phone's 1344 × 2992 pixels by the Mobile renderer on the software Vulkan driver under
 # Xvfb, then halved for the note. Godot needs --rendering-method beside a rendering driver, or it falls back to
 # Forward+; its Movie Maker mode records at the project's base size, hence tools/godot-picture.gd.
 set -euo pipefail

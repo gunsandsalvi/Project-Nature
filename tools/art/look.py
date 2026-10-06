@@ -1,10 +1,10 @@
 """The colour measures, from `kindling look`: the same C++ the engine's checks use, so each measure is written once
-(art/BRIEF.md, rule 7; CLAUDE.md, rule 4). Nothing here computes a colour measure itself.
+(CLAUDE.md, rule 4). Nothing here computes a colour measure itself.
 
 The program is found through the KINDLING path (default build/sim/kindling). It reads a picture as raw 8-bit RGBA on
 standard input, row by row from the top left:
 - `kindling look stats <w> <h>` prints one line of `name value` pairs, read here by name: lightness, colourfulness,
-  contrast and texel_contrast in hundredths of OKLab's scale, hue in degrees, and accents (study 6's measure), which
+  contrast and texel_contrast in hundredths of OKLab's scale, hue in degrees, and accents, which
   is left out for pictures smaller than 29 pixels either way;
 - `kindling look adjust <w> <h> <lightness> <hue> <colourfulness> <contrast>` writes the picture back with lightness
   added, hue turned in degrees, and colourfulness and contrast scaled in percent.

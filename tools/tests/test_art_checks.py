@@ -149,7 +149,7 @@ class PlantedFaults(unittest.TestCase):
 
     # checks: PRE-20 PRE-22
     def test_an_averaged_level_loses_its_accents(self):
-        """Band 2 made as a mipmap is, by averaging band 0: research 19 measured 77% of band 0's accents."""
+        """Band 2 made as a mipmap is, by averaging band 0: about 77% of band 0's accents."""
         self.make(self.levels[:2] + [averaged(self.levels[0], 4)] + self.levels[3:])
         what = self.failed("accents")
         share = int(re.search(r"\b2 \((\d+)%\)", what).group(1))

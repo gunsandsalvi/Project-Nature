@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The sheet (art/BRIEF.md, step 8): one material for the owner's eye, art/sheets/<name>.webp, lossless and
+"""The sheet (IMPLEMENTATION.md, the art lane): one material for the owner's eye, art/sheets/<name>.webp, lossless and
 1080 pixels wide, the phone's width, so at 100% each texture pixel shown "at true size" is 2 x 2 screen pixels.
 
     python3 tools/art/sheet.py <texture folder> <out.webp> [--source <picture> --box X0 Y0 X1 Y1 --block B]
@@ -12,7 +12,7 @@ From top to bottom:
    phone shows at that band's zoom, flat and under three stand-in lights (true midday, late afternoon, shade);
 4. every level (0 to 8) enlarged until its texture pixels are plain to see;
 5. with --rock, the surface under stand-in layers: beds of different thicknesses, joints and a shelter, drawn by
-   this tool only so the owner can judge a rock surface with layers on (answer 34b), never the engine's own;
+   this tool only so the owner can judge a rock surface with layers on, never the engine's own;
 6. the notes given, such as the checks' results.
 The stand-in lights are a flat colour multiplied in linear light; the engine's Lab page later shows the real light.
 
@@ -70,7 +70,7 @@ def enlarged(level, size=SQUARE):
 
 
 def stand_in_cliff(surface, seed=1, w=256, h=176):
-    """A stand-in cliff 4 m wide (w texture pixels) laid over a rock surface, as research 19's mock-ups were: beds of
+    """A stand-in cliff 4 m wide (w texture pixels) laid over a rock surface: beds of
     different thicknesses that pinch and swell, each taking the surface at its own offset, a ledge catching the light
     along each bed's top and an undercut darkening its foot, joints that lean a little and stop at the bed, blocks
     turned slightly to the light, and a rock shelter under the lowest bed. Only for the sheet; the world lays the real

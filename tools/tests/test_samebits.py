@@ -1,5 +1,5 @@
 """The same-bits scans catch what they are for (RES-05, A3.4): each test plants one fault and the scan must name it.
-The compile tests use the phone's own compiler (NDK r30's clang), which fuses a*b+c by default (research 18)."""
+The compile tests use the phone's own compiler (NDK r30's clang), which fuses a*b+c by default."""
 
 import contextlib
 import io

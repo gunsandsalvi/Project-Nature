@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""The code reduction (art/BRIEF.md, steps 5 and 6): the level below a level, drawn from its own shades, never
-averaged, so a band keeps clean clusters instead of turning to the speckle of answer 31.
+"""The code reduction (IMPLEMENTATION.md, the art lane): the level below a level, drawn from its own shades, never
+averaged, so a band keeps clean clusters instead of turning to speckle.
 
     python3 tools/art/reduce.py <level.png> <out.png> [--shades 12]
 
@@ -9,7 +9,7 @@ averaged, so a band keeps clean clusters instead of turning to the speckle of an
 2. Each 2 x 2 block of texture pixels becomes its most common shade; a tie goes to the shade nearest the block's
    mean colour, so the level's overall colour holds.
 3. Lone texture pixels, with no neighbour of their own shade, take their neighbours' most common shade, the tile
-   wrapping, so a coarser band grows calmer instead of turning to speckle (answer 31); levels under 8 texture
+   wrapping, so a coarser band grows calmer instead of turning to speckle; levels under 8 texture
    pixels are left as they are, since every texture pixel of them counts.
 Each texture pixel of the result covers exactly 2 x 2 of the level above, and the tile still wraps.
 

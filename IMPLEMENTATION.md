@@ -2,23 +2,55 @@
 
 The order in which Kindling is built.
 It follows `PROJECT.md` (what the game must be) and `ARCHITECTURE.md` (how it is built), and cites both: items by ID (`TIM-16`), parts of the architecture by section (A3.4).
-It follows the guide of research 00, the way real teams work, and builds bottom up, as you asked: the foundations first, then the graphics engine, the world, living nature, people, minds, crafts, culture, and the game itself last.
+It builds bottom up, as you asked: the foundations first, then the graphics engine, the world, living nature, people, minds, crafts, culture, and the game itself last.
 Every step ends with a build on your phone, and every milestone with a report you review (`RES-06`, `RES-22`).
 
-Only the next milestone is planned in detail: the graphics engine (M2), from its research, for your OK.
+Only the next milestone is planned in detail: the graphics engine (M2).
 The later ones are outlines (their goal, the items they deliver, what you will see), each detailed when it comes next, from what the earlier ones taught.
 The plan holds only work still to do: a step leaves it when it is done, and the code, which names the items it implements, is the record (`CLAUDE.md`, rule 3).
 
 ## Status (6 October 2026)
 
 - The ten milestones were approved by you on 4 October 2026, with their proposals, now decided in `PROJECT.md` (`SCP-16`, `MIL-08` to `MIL-17`); the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`).
-- The risks were tried first, as research 00 advises, and that work closed on 5 October 2026, as you asked: its answers are decisions in the architecture, and its evidence, numbers and lessons are in `LESSONS.md`.
+- The risks were tried first, and that work closed on 5 October 2026, as you asked: its answers are decisions in the architecture.
   None of its code is carried into production, which writes its own.
-- The foundations (M1) are built, eleven steps in five alphas delivered as 20101 to 20502, and you accepted them on 6 October 2026: your phone's benchmark met all 18 of its pass lines, and its self-check matched the cloud in all seven suites (`dist/M1-REPORT.md`).
+- The foundations (M1) are built, eleven steps in five alphas delivered as 20101 to 20502, and you accepted them on 6 October 2026: your phone's benchmark met all 18 of its pass lines, and its self-check matched the cloud in all seven suites.
 - The vertical slice was dropped on 6 October 2026, as you asked.
-- The graphics engine (M2) is being built. Its research is done (research 19, 6 October 2026): you chose its look in 36 answers and OK'd the 13 changes to `PROJECT.md` that follow from it.
+- The graphics engine (M2) is being built: you chose its look and OK'd the 13 changes to `PROJECT.md` that follow from it.
   You OK'd its plan below, fifteen steps in six alphas, one of them only if needed, and its sections of the architecture (A4, A5, A6 and A8's near stops) on 6 October 2026: "Yes, that works. Let's start".
-- **The art lane,** your idea of 6 October 2026: a separate instance prepares the textures, targets and guide pictures from the art brief (`art/BRIEF.md`) while the builder builds the engine; it does α2.3a's tools and materials (T2.3a.2, T2.3a.3) from the start of M2, the builder reviews each of its batches before it joins, and you approve each material on its sheet (A5.4).
+- **The art lane** works beside the builder (below).
+- **Still open from pre-production:** the ground for the card and the book, and whether reading text should be larger (P12); your ears on the camp's sound (P14); the heat of a busy scene over ten minutes (P2); the writer, proved when M9 builds the book (P13); discovery's pace with the whole catalogue, at M7's scenes (`RSK-01`).
+
+## The art lane
+
+A separate instance, your idea, prepares the picture-made textures, targets and guide pictures while the builder builds the engine: α2.3a's tools and materials (T2.3a.2, T2.3a.3).
+The builder reviews and merges each batch; you say yes or no to each material on its sheet.
+
+**Rules:**
+- It works only in `art/`, `tools/art/` and `tools/tests/test_art_*.py`, on its own branch, and never pushes or merges.
+- GPT only through `tools/art/gpt-run.sh`, outside every build; never print or move a secret; never buy credits; at a usage limit, wait; while `/tmp/kindling-gpt-paused` exists, runs are held.
+- As many pictures as improve the result, each counted in the batch's report.
+- No AI model's name in any committed file, and nothing secret in a prompt.
+- GPT's size, block size, scale and seams are never relied on: re-gridding finds them.
+- Colour measures only from `kindling look` (`stats`, `adjust`, `texel`), the engine's own C++.
+- Each tool has unit tests and passes `ruff`; commits are `T2.3a.2: …` for tools and `T2.3a.3: …` for materials.
+- Truth before use: every picture enlarged before it becomes a source; never metal before copper, sawn wood, later things (chickens, hooped buckets, winches, lattice windows, glass-bead colours, rucksacks, slatted sleds, maize, a pot hung over a fire, boats with seats), spotted or long-maned horses, striped piglets outside spring, tipi-like cones, Lascaux-like paintings, real cultures' motifs, fur bikinis, grass rain capes; and nothing countable in a ground texture.
+
+**Files:**
+- `art/textures/<name>/`: levels `b0.png` to `b8.png` (lossless), `record.toml`, and `source.png` (the source on band 0's grid); a big surface's middle and far tiles in `middle/` and `far/`, and versions in `v2/` to `v4/`, each with its levels and record.
+- `art/sources/<name>/<name>-<nn>.webp`: each original used; `art/requests/<name>-<nn>.txt`: its request; `art/sheets/<name>.webp`: the sheet, 1080 pixels wide.
+- A request: purpose, size, input picture, and the prompt (the area in metres, blocks of 8 to 12 picture pixels or larger for a coarse band, the material only, straight on and orthographic, even light, seamless, a truth line).
+- A record, integers and strings only: `about`, `route`, `tile_texels`, `texels_a_metre`, `first_band`, `sources`, `original_sha256`, `c2pa`, `requests`, `made`, `regrid_loss`, `truth`, `approved`, and for each level `level`, `file`, `sha256`, `made_from`, `way`, `regrid_loss` (redrawn levels), `calibration`.
+- The sheet: every band at true size and enlarged, flat and under three stand-in lights, beside its source; a big surface's bands also as full-width strips with its versions mixed as the ground mixes them.
+
+**Its next round** (batch 1's second):
+1. Middle and far tiles, with two to four versions of each tile, for the meadow, bare earth, trodden floor, bank gravel, river bed and rock A; the meadow first, then report.
+2. Band 1 redrawn by GPT for bare earth, trodden floor and bank gravel.
+3. The code reduction keeps bolder marks and fewer of them, never single-pixel speckle.
+4. Bare earth, trodden floor, stone and ash redrawn without GPT's stepped-diamond pattern; the meadow's band 0 stays.
+5. The checks as T2.3a.1 lists them.
+
+**The batch report:** each material and its sheet, each check's result, the pictures used, every truth flag, and questions for you.
 
 ## How to use this plan
 
@@ -26,8 +58,7 @@ For the AI agent building a step:
 1. **Pick** the first step in the status table that is not done, unless the owner names another.
 2. **Read**, in this order:
    - the step's section and its milestone's lines;
-   - every architecture section and item it cites, and the research notes those sections cite;
-   - the traps in `LESSONS.md` for the tools the step uses;
+   - every architecture section and item it cites;
    - the last note (`dist/NOTE.md`), for anything the owner reported.
 3. **Set up** the session:
    - run `tools/setup.sh` if tools are missing;
@@ -55,7 +86,7 @@ For the AI agent building a step:
 9. **At a milestone's end:**
    - one independent subagent verifies the whole milestone.
      It is given only the milestone's diff, its sections as they stood when it began, and the items it claims.
-     It also judges, as a pixel artist and a game art director, how the game actually looks: from pictures it draws itself of every screen the milestone touched, at each hour, on their own merits and independently of the art book, as you asked on 4 October 2026;
+     It also judges, as a pixel artist and a game art director, how the game actually looks: from pictures it draws itself of every screen the milestone touched, at each hour, on their own merits, as you asked on 4 October 2026;
    - the milestone report (`RES-06`), with the phone's numbers (`PLT-04`), the contact sheet (`PRE-31`) once there is a game to show, and what went right and wrong;
    - the next milestone detailed here, and its architecture sections written in full;
    - the owner approves both with the milestone review (`RES-22`).
@@ -115,8 +146,8 @@ Every step keeps them, the reviews check them, and the coverage check counts the
   - make `main` the default branch on GitHub (Settings, General, Default branch).
 - **Choices by eye and ear:** the ground of the cards and the book, and whether reading text should be larger (`PRE-35`), when the first cards are built (M4); the murmur's voice (`SND-03`) and the drums (`SND-02`) at M9.
 - **In M2:**
-  - the blind tests and the choices by eye its steps ask for: the camera's tilt and lens up close, poses held or gliding, moving patterns stepping in whole texture pixels, each lever that may show, each material's sheet, the rock surface, the close camp's ground and the small plants at each band (research 19, decision 6);
-  - how builds and textures reach your phone, if textures outgrow the 50 MB a committed file may have (research 19, decision 4);
+  - the blind tests and the choices by eye its steps ask for: the camera's tilt and lens up close, poses held or gliding, moving patterns stepping in whole texture pixels, each lever that may show, each material's sheet, the rock surface, the close camp's ground and the small plants at each band;
+  - how builds and textures reach your phone, if textures outgrow the 50 MB a committed file may have;
   - before M3, whether worlds have mammoths, since a mammoth-bone shelter belongs only where they live.
 
 ## Status
@@ -142,7 +173,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 ## M2 The graphics engine
 
-**Goal:** the engine that draws the world up close in the look you chose on 6 October 2026, a sharp 3D world at the phone's full resolution wearing pixel-art textures, going well beyond the art book's preliminary pictures toward the pictures you liked (A4, A5, A6, A8; research 19):
+**Goal:** the engine that draws the world up close in the look you chose on 6 October 2026, a sharp 3D world at the phone's full resolution wearing pixel-art textures, toward the pictures you chose (A4, A5, A6, A8):
 - the full-resolution picture, with steady texture pixels and a level of every texture drawn for each zoom band;
 - smooth light true to the hour and season, with our own soft shadows and darkening;
 - every material from code, the world or approved pictures; plants as dense and airy as you liked them; water, fire and weather;
@@ -150,7 +181,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 - the camera's gestures, in portrait and landscape;
 - your phone measured part by part, so what fits is known before content grows.
 
-It is built in six alphas in research 19's order: measuring, calibration, first light, the phone's risks, the hours and seasons, then the zoom bands and your three problems.
+It is built in six alphas: measuring, calibration, first light, the phone's risks, the hours and seasons, then the zoom bands and your three problems.
 Its content stands in for later milestones': a camp under a cliff by a river, made by code where M3 will make whole worlds, with people and animals that M4 and M5 bring to life.
 Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4).
 
@@ -168,7 +199,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - The look costs too much at full resolution (`RSK-30`): about 13–45 ms of the graphics chip drawn plainly, against a line of 8 (estimates); retired first by calibration (α2.2), then by A4.1's levers, our own build of Godot only if needed.
 - The phone heats in long play: retired by the 20-minute heat run (α2.4b).
 - The PowerVR driver mishandles a feature the look needs: each probed in the first build (α2.1a).
-- Texture pixels shimmer or a band's level pops; designed levels are much content work; people stay hard to find in busy shade; the rock surface under each world's layers is still to find (your answer 34).
+- Texture pixels shimmer or a band's level pops; designed levels are much content work; people stay hard to find in busy shade; the rock surface under each world's layers is still to find.
 
 ### α2.1a The picture and the bench
 
@@ -207,7 +238,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 ### α2.1b The look's checks
 
-**Goal:** the checks that guard the feeling, written once in C++ for the cloud and the phone; the loop that runs them; a blind test on your phone; and the AI judge's exam on your 36 answers.
+**Goal:** the checks that guard the feeling, written once in C++ for the cloud and the phone; the loop that runs them; and a blind test on your phone.
 
 **Serves:** `PRE-01`, `PRE-22`, `PRE-28`, `PRE-31`, `PLT-04`.
 
@@ -219,20 +250,18 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
    Its colour measures (OKLab, ground accents, texture pixel contrast) come first, before α2.1a's own work, since the art lane's checks use them.
    A Godot-free library shared by the `kindling` tool and the phone: OKLab; the target card's statistics; ground accents; people's salience from an object picture; shimmer after following the motion, against a many-sample picture; the texture pixel's size; the distinct levels of a dark gradient; and NVIDIA's FLIP from its C++ source, vendored with its licence.
 2. `T2.1b.2` **The target card (`PRE-01`).**
-   Its fixed goals and its bands for each moment, measured from the twelve liked pictures and refitted on your 36 answers, as a tuning file; `kindling look card` shows each view's alarms green, amber or red, and reports the card's hits and false alarms on your answers (research 19 found 12 of 18 and 6 of 17).
+   Its fixed goals and its bands for each moment, measured from the pictures you chose (`art/targets/`), as a tuning file; `kindling look card` shows each view's alarms green, amber or red.
 3. `T2.1b.3` **The loop's drawing run (`PRE-31`).**
    One Godot run in the cloud draws the fixed views at 1080 × 2404 with the colour, object and material pictures, lossless frames of the scripted paths, and many-sample pictures of small patches, on the software Vulkan driver with one thread and time frozen.
    Changed views go beside their last approved versions on a lettered grid; golden pictures are exact for changes of code alone, and within FLIP's tolerance otherwise.
-4. `T2.1b.4` **The blind test (`PRE-01`).**
-   A Compare page: ten random pairs, stills or clips, asking "which is sharper?", the answers in a short code; eight or more right means it shows.
-5. `T2.1b.5` **The judge's exam, the taste log and delivery (`PRE-31`).**
-   A fresh subagent answers your 36 questions blind from their pictures, each pair twice with the order swapped, and its agreement goes into the taste log (`art/reviews/taste-log.md`) beside all your choices so far; deliver as 30102.
+4. `T2.1b.4` **The blind test, and delivery (`PRE-01`).**
+   A Compare page: ten random pairs, stills or clips, asking "which is sharper?", the answers in a short code; eight or more right means it shows; deliver as 30102.
 
 **Tests:**
-- doctest: each measure against pictures worked by hand (a known accent, a known shift, a known FLIP pair from FLIP's own tests); the card's goals pass on the liked pictures and fail on the art book's close camp, as research 19 found.
-- The shimmer check flags a recorded pan of a texture read nearest-pixel (research 19: 17–28% of pixels) and passes the smooth-pixel read (0.4–1.1%).
+- doctest: each measure against pictures worked by hand (a known accent, a known shift, a known FLIP pair from FLIP's own tests); the card's goals pass on the pictures you chose and fail on a flat, speckled picture made by code.
+- The shimmer check flags a recorded pan of a texture read nearest-pixel (17–28% of pixels) and passes the smooth-pixel read (0.4–1.1%).
 - The phone and the cloud give the same measures on the same pictures (a digest in the self-check).
-- Passes if all pass; the judge's exam is recorded whatever its result.
+- Passes if all pass.
 
 **On the phone:** open Compare and take the sample blind test, MSAA 2× against 4× on the meadow, and send the code.
 
@@ -253,7 +282,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
    C4, the fixed cost: the world hidden, the interface on and off, MSAA off and 2×; expected 0.9–1.7 ms.
    C1, the material: a field filling the screen with the full material (the sampling function, sun, sky and bounce, a soft shadow read, the openness and contact maps, haze, the fire grid, the grade), MSAA off, 2× and 4×, the 3D at 1.0, 0.75 and 0.5; expected 1.7–4.0 ms at 1.0 with 2×.
 3. `T2.2a.3` **C3, and delivery (`PLT-04`).**
-   C3, triangles: a field of solid rocks at 100, 200, 400 and 800 thousand triangles a pass, MSAA 2×, the shadow pass on and off; expected 2.5–10 ns a triangle in the main pass; deliver as 30201.
+   C3, triangles: a field of solid rocks at 100, 200, 400 and 800 thousand triangles a pass, MSAA 2×, the shadow pass on and off; expected 2.5–10 ns a triangle in the main pass; and the main thread's time for 100, 300 and 1,000 MultiMesh draws in two and three passes; deliver as 30201.
 
 **Tests:**
 - Each scene's file names its items, its pass line and its decision; the runner refuses a scene without them.
@@ -278,7 +307,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 2. `T2.2b.2` **C5, fires (`PRE-30`).**
    1, 3 and 5 fires at the closest zoom, their shadows by the walk at full and at half resolution and by a small map for each fire, all through the light grid; expected 2.5–24, 0.8–6.5 and 0.2–1.7 ms.
 3. `T2.2b.3` **C6, figures (`PRE-27`).**
-   30, 100 and 300 stand-in figures on a skeleton, posed 10 times a second, by Godot's own skeletons and by our bone palettes read in a MultiMesh shader, which this proves end to end; the main thread's time for each figure.
+   30, 100 and 300 stand-in figures on a skeleton, posed 10 times a second, by Godot's own skeletons and by our bone palettes read in a MultiMesh shader, which this proves end to end; the main thread's time for each figure; and reads in the vertex stage, 100,000 to 1 million vertices reading 1, 3 and 12 texture pixels, against the same without reads.
 4. `T2.2b.4` **Delivery, and the decisions written down (`PLT-04`).**
    Deliver as 30202; when the codes come back, each decision goes into A18.1 and the sections it changes, before the next step.
 
@@ -313,7 +342,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 ### α2.3a The texture path and the camp's materials
 
-**Goal:** textures made as research 19 chose, from request to phone with their records, and the camp's first materials on lab sheets for your OK.
+**Goal:** textures from request to phone with their records, and the camp's first materials on lab sheets for your OK.
 
 **Serves:** `PRE-20`, `PRE-22`, `PRE-23`, `PRE-42`, `PLT-04`.
 
@@ -322,21 +351,21 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.3a.1` **The `texture` kind and its checks (`PRE-20`, `PRE-42`).**
-   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as `art/BRIEF.md` sets it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`, as `art/BRIEF.md` lists them: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10% for band 0 and each redrawn band; band 0's seams at most 1.2, and a redrawn band's no larger than its own ordinary steps; band 0's painted light at most a slope of 0.02; no strong repeat (at most 0.2, or the source's own where a grain repeats); texture pixel contrast within a quarter of its approved source's; accents at every band a surface is seen at, from the tile that serves it, at least 90% of the near tile's band 0 (a one-tile material's bands 4 to 6 reported only, since there its texture pixel is larger than its marks); lightness within 0.02 and hue within 5° between bands and across tiles.
+   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as the art lane's files set it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10% for band 0 and each redrawn band; band 0's seams at most 1.2, and a redrawn band's no larger than its own ordinary steps; band 0's painted light at most a slope of 0.02; no strong repeat (at most 0.2, or the source's own where a grain repeats); texture pixel contrast within a quarter of its approved source's; accents at every band a surface is seen at, from the tile that serves it, at least 90% of the near tile's band 0 (a one-tile material's bands 4 to 6 reported only, since there its texture pixel is larger than its marks); lightness within 0.02 and hue within 5° between bands and across tiles.
 2. `T2.3a.2` **The tools, in the art lane (`PRE-22`).**
    In the cloud, from the start of M2: re-gridding (block size and phase window by window, the median colour, seams, the light check), the code reduction for a band, and colour matching to band 0 in four numbers that keeps the accents; the lab sheet (flat and lit, every band, at true size and enlarged, beside its source); and T2.3a.1's checks, with the colour measures of `kindling look` (T2.1b.1), so each measure is written once.
 3. `T2.3a.3` **The camp's materials, in the art lane (`PRE-20`, `PRE-23`).**
-   Meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and two or three rock surfaces for each world's layers laid by code, since your answer 34 found neither tried so far; each by its route with its designed levels, and each big surface (the ground covers and rock A, your pick) with its near, middle and far tiles, each from its own picture of the material at that distance, in two to four versions mixed by place (A5.3); with as many GPT pictures as improve the result (your word of 6 October 2026), each vetted for truth (A5.6) and recorded.
+   Meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and rock A, your pick, under each world's layers laid by code; each by its route with its designed levels, and each big surface (the ground covers and rock A, your pick) with its near, middle and far tiles, each from its own picture of the material at that distance, in two to four versions mixed by place (A5.3); with as many GPT pictures as improve the result, each vetted for truth (A5.6) and recorded.
 4. `T2.3a.4` **On the phone, and delivery (`PLT-04`).**
    A Lab page with every sheet; loading time and texture memory measured; deliver as 30301.
 
 **Tests:**
 - Each check catches its planted fault: a missing record, a stale level, painted light, a seam, a repeat, and an averaged level whose accents fall to 77% of band 0's.
-- Re-gridding study 5's swatches loses at most 10% each and 2–8% at the median, as research 19 measured (the committed swatches are lossy WebP, which adds up to 1.5%).
+- Re-gridding the material swatches you accepted (`textures-a`, `delight-liked`) loses at most 10% each and 2–8% at the median.
 - The set loads within the 3 seconds a world may take to open, and its memory is within A18.1's 300 MB.
 - Passes if all pass and you approve or send back each sheet.
 
-**On the phone:** open Lab and look at each material at true size and enlarged; say yes or no to each, and pick a rock surface.
+**On the phone:** open Lab and look at each material at true size and enlarged; say yes or no to each.
 
 ### α2.3b Ground, cliff, water and light
 
@@ -413,7 +442,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - The card on first light's frame, and the shimmer, size and banding checks; people's salience in the camp.
 - Passes if all pass; the look itself is your verdict.
 
-**On the phone:** first light: open Look at the camp and compare it with the picture you liked (a button shows it); try the tilts, the lenses and poses held or gliding, and say what you prefer.
+**On the phone:** first light: open Look at the camp and compare it with the picture you liked (a button shows it); try the tilts, the lenses, poses held or gliding, and poses at 10, 15 and 30 a second side by side, and say what you prefer.
 
 ### α2.4a Stress scenes
 
@@ -480,9 +509,10 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tests:**
 - The card's bands for each moment (A4.3's table) on the engine's frames; across a moonlit slope with debanding, no step wider than the dither hides.
 - A day passing in under 10 seconds keeps the light steady (its change from frame to frame below a stated amount).
+- The grade's cost: colour correction on and off, one colour table against two blended.
 - Passes if all pass; each moment's look is your verdict against its target.
 
-**On the phone:** step the camp through dawn, noon, dusk and night beside each target, and say which feel right.
+**On the phone:** step the camp through dawn, noon, dusk and night beside each target, at your usual brightness and a fixed colour mode, and say which feel right, whether the darks band, and whether people read by firelight.
 
 ### α2.5b Seasons and weather
 
@@ -518,7 +548,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.6a.1` **Every material's levels (`PRE-22`).**
-   Every material's designed levels for the bands it is seen at, the big surfaces redrawn by GPT from the level above and matched by code (your answer 36), the rest by code, within this step's budget of about 30 pictures; each checked for accents and drift; the blend between bands.
+   Every material's designed levels for the bands it is seen at, the big surfaces redrawn by GPT from the level above and matched by code, the rest by code, within this step's budget of about 30 pictures; each checked for accents and drift; the blend between bands.
 2. `T2.6a.2` **Small things by band (`PRE-46`).**
    Each plant form's designs for bands 1 and 2, with flowers and berries kept at least one texture pixel; plants below 12 screen pixels into the ground's band texture; the meadow strip three ways (shrunk, filtered, designed), for your eye.
 3. `T2.6a.3` **Figures by size (`PRE-28`).**
@@ -530,7 +560,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - Ground accents at every band at least about 20 and at least 90% of band 0's; the texture pixel 1.5–3 screen pixels at every zoom stop; shimmer through a slow pinch at most 2 in 100 pixels; a camp of 30 readable at every zoom stop, with no jump as its forms change (`PRE-28`).
 - Passes if all pass; the meadow strip and the close camp's ground are your verdict.
 
-**On the phone:** pinch from the person out to the camp and back over the meadow, the cliff and the camp; compare the meadow strip's three ways.
+**On the phone:** pinch from the person out to the camp and back over the meadow, the cliff and the camp, and say whether any band change pops or swims; compare the meadow strip's three ways, and the far ground with and without grain at true size; the close camp's ground at three accent levels, whose yes or no sets the accent line.
 
 ### α2.6b People in busy scenes, landscape and M2's end
 
@@ -543,7 +573,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.6b.1` **The busy scenes (`PRE-28`).**
-   An autumn wood, a crowded camp and a night camp, with people moving at their tasks in sun and shade; the salience check on each; a timed find on the phone, tapping every person; help drawn only for your eye comes only if the find falls short, and then with your OK (A5.5).
+   An autumn wood, a crowded camp and a night camp, with people moving at their tasks in sun and shade; the salience check on each; a timed find on the phone, tapping every person, aiming at about a second each; your yes or no on ten close-camp crops sets the readability line; help drawn only for your eye comes only if the find falls short, and then with your OK (A5.5).
 2. `T2.6b.2` **Landscape (`PLT-02`).**
    The engine in landscape with the interface beside it; turning the phone keeps the world, the camera and the texture pixel's size.
 3. `T2.6b.3` **The contact sheet (`PRE-31`).**
@@ -560,7 +590,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 ## M3 The world
 
-**Goal:** whole worlds, made from a seed in the order of real causes and tuned by eye until the map looks right at every zoom stop (A7, A8; research 06, 07):
+**Goal:** whole worlds, made from a seed in the order of real causes and tuned by eye until the map looks right at every zoom stop (A7, A8):
 - from plates to biomes, with rivers, lakes, seas, soils and deposits;
 - detail made on demand, the same every time;
 - the ground drawn at every distance, up to the globe;
@@ -575,13 +605,13 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - The ground sliced open, showing its rock, soil and water.
 
 **Risks:**
-- Making a world within about 3 minutes on the phone (`WLD-11`): a first version made three in 9.3 s (`LESSONS.md`), so the stages can grow richer.
+- Making a world within about 3 minutes on the phone (`WLD-11`): a first version made three in 9.3 s, so the stages can grow richer.
 - Believable land needs tuning by eye.
 - Memory for detailed areas.
 
 ## M4 Things and living nature
 
-**Goal:** the world's matter and life, before any people (A9, A12; research 08, 11, 17):
+**Goal:** the world's matter and life, before any people (A9, A12):
 - materials and things, with their shapes, characteristics, wear, simple physics, timers and traces;
 - fire;
 - plants and animals as catalogue entries, placed by rules, growing, grazing, hunting and dying as totals on the world's cells, the herds drawn from their counts.
@@ -595,12 +625,12 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - A card for any plant, animal or thing you tap.
 
 **Risks:**
-- Nature's numbers staying believable over a century (`WLD-18`): a first version held them (`LESSONS.md`).
+- Nature's numbers staying believable over a century (`WLD-18`): a first version held them.
 - The world alone reaching its speed (`TIM-07`).
 
 ## M5 People: bodies and lives
 
-**Goal:** people with bodies that live, act and die for real reasons (A10, A11; research 09, 10):
+**Goal:** people with bodies that live, act and die for real reasons (A10, A11):
 - needs, senses, everyday activities and the base actions on things;
 - health, wounds, illness and plain care;
 - pairing, birth, growing up, inheritance, ageing and death;
@@ -617,12 +647,12 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - Little figures of blocks, each activity with its own movement.
 
 **Risks:**
-- Thousands of people at speed on the phone (`MND-15`, `TIM-07`): a thousand simple minds kept 6 game years a real minute (`LESSONS.md`).
+- Thousands of people at speed on the phone (`MND-15`, `TIM-07`): a thousand simple minds kept 6 game years a real minute.
 - Paths for many walkers at once.
 
 ## M6 Minds
 
-**Goal:** the inner life (A11; research 10):
+**Goal:** the inner life (A11):
 - personality, mood and feelings, memories and dreams;
 - knowledge with its source, and beliefs about causes;
 - plans and ambitions;
@@ -642,7 +672,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 ## M7 Crafts and discovery
 
-**Goal:** the heart of the arc, tuned to its windows (A12; research 10, 11):
+**Goal:** the heart of the arc, tuned to its windows (A12):
 - blueprints and their several routes, and the chains they make;
 - skill from experience, and the four routes to discovery;
 - teaching and imitation, and knowledge lost and found again;
@@ -661,7 +691,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 ## M8 Culture and society
 
-**Goal:** peoples with their own words, customs, beliefs, rites, art and music, made by what happens to them (A13; research 12):
+**Goal:** peoples with their own words, customs, beliefs, rites, art and music, made by what happens to them (A13):
 - kin and marriage, leaders and specialists;
 - sharing, trade, feuds and raids;
 - bands splitting into peoples with territories;
@@ -675,11 +705,11 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - Trade, marriages, feuds and raids.
 - A wolf pup raised in a camp.
 
-**Risks:** culture forming too fast, too slowly, or the same in every world (`CUL-33`, `RSK-19`): a first version formed it from causes alone (`LESSONS.md`).
+**Risks:** culture forming too fast, too slowly, or the same in every world (`CUL-33`, `RSK-19`): a first version formed it from causes alone.
 
 ## M9 The game
 
-**Goal:** the surface you play (A14, A15, A16; research 13, 14, 15):
+**Goal:** the surface you play (A14, A15, A16):
 - your powers as nature;
 - time following your zoom, the story director and live moments;
 - the book of ages, worded by the phone's own writer;
@@ -700,7 +730,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 ## M10 The whole arc
 
-**Goal:** the full launch catalogue and the pace (research 00, 11):
+**Goal:** the full launch catalogue and the pace:
 - pottery, herding, farming, villages and copper;
 - the chances tuned until worlds go from caves to copper in a few hundred years, at a watchable speed.
 

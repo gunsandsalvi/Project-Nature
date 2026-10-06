@@ -1,6 +1,6 @@
 """The code reduction (PRE-22, PRE-20, A5.3, A5.4): each level below drawn from its own shades by majority, never
 averaged, lone texture pixels cleaned, the tile still wrapping, so a band farther out grows calmer instead of
-turning to speckle (answer 31)."""
+turning to speckle."""
 
 import os
 import sys
@@ -38,7 +38,7 @@ class Reduction(unittest.TestCase):
     # checks: PRE-22 PRE-20
     def test_colours_are_never_averaged(self):
         low = reduce.reduce(two_shades())
-        self.assertTrue(colours(low) <= {A, B}, "a mixed colour is the speckle of answer 31")
+        self.assertTrue(colours(low) <= {A, B}, "a mixed colour is speckle")
 
     # checks: PRE-20
     def test_coarser_levels_get_fewer_shades(self):

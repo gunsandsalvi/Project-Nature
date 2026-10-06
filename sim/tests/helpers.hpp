@@ -47,7 +47,7 @@ bool stops(F f) {
     return WIFSIGNALED(status) && WTERMSIG(status) == SIGABRT;
 }
 
-// Turns flushing of tiny numbers to zero on for this thread, as Godot's raycast module does on x86 (research 18).
+// Turns flushing of tiny numbers to zero on for this thread, as Godot's raycast module does on x86.
 inline void set_flush_to_zero() {
 #if defined(__x86_64__)
     std::uint32_t mxcsr = 0;

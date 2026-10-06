@@ -1,4 +1,4 @@
-"""A texture's record (art/BRIEF.md, "A record"): art/textures/<name>/record.toml, written and read.
+"""A texture's record (IMPLEMENTATION.md, the art lane): art/textures/<name>/record.toml, written and read.
 
 Integers and strings only, never a float, since the catalogue's loader refuses floats (A3.6), and only the keys the
 brief lists, in its order. Each [[band]] names its level, file and digest; every band but band 0 also names the

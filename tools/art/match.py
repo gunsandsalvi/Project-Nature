@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Colour matching (art/BRIEF.md, step 7): a level fitted to the level above in four numbers (lightness, hue,
+"""Colour matching (IMPLEMENTATION.md, the art lane): a level fitted to the level above in four numbers (lightness, hue,
 colourfulness, contrast) that keep its accents at least 90% of band 0's.
 
     python3 tools/art/match.py <level.png> <above.png> <band0.png> <out.png>
@@ -8,7 +8,7 @@ colourfulness, contrast) that keep its accents at least 90% of band 0's.
 Every measure and every change comes from `kindling look` (look.py), so nothing is computed twice. The numbers bring
 the level's mean lightness, the hue of its mean colour and its mean colourfulness to those of the level above, and
 its spread of lightness toward it, by at most 30% either way; within that, the contrast is raised if the accents
-would fall under the line (research 19, study 7: matching the spread fully lowered the accents, so calibration
+would fall under the line (matching the spread fully lowered the accents, so calibration
 keeps accents, not only the spread). A level still short is reported, never stretched into speckle.
 
 Implements PRE-20 and PRE-22, see A5.4.

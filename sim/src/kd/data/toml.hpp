@@ -1,7 +1,7 @@
 // Reading TOML (A3.6): toml++ lives behind this one file, built with no exceptions, and the rest of the simulation
 // reads only this small tree, whose every value keeps its line and column. Floats and dates are refused where they
 // are written: quantities are text with units, read exactly (kd/data/units.hpp), so the phone's reading can never
-// differ from the cloud's (research 18).
+// differ from the cloud's.
 #pragma once
 
 #include <cstdint>

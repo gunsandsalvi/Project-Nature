@@ -13,7 +13,7 @@ namespace look = kd::look;
 namespace {
 
 // A meadow-like pattern of greens with a yellow flower in about one pixel of 23, from one integer formula that the
-// reference script in research 19's numpy code also uses, so both measure the same picture.
+// reference numpy code also uses, so both measure the same picture.
 look::Picture pattern(std::int64_t width, std::int64_t height) {
     look::Picture p{width, height, {}};
     for (std::int64_t y = 0; y < height; ++y) {
@@ -77,10 +77,10 @@ TEST_CASE("every 8-bit colour comes back from OKLab as it was") {
     CHECK(wrong == 0);
 }
 
-// The reference numbers come from research 19's own numpy code (study 6's accents, study 7's colour statistics) on
+// The reference numbers come from a numpy reference (the accents and the colour statistics) on
 // the same pattern.
 // checks: PRE-20 PRE-22
-TEST_CASE("the colour measures agree with research 19's own code") {
+TEST_CASE("the colour measures agree with the numpy reference") {
     const look::Stats s = look::stats(pattern(64, 48));
     CHECK(s.lightness == doctest::Approx(60.437577792).epsilon(1e-8));
     CHECK(s.colourfulness == doctest::Approx(10.544908198).epsilon(1e-8));

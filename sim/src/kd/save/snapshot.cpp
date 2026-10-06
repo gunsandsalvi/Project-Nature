@@ -15,7 +15,7 @@ namespace {
 // The first and last bytes of every snapshot.
 constexpr std::uint64_t kMagic = 0x50414e53444b4e49;  // "INKDSNAP", little-endian
 constexpr std::uint64_t kEnd = 0x444e4550414e5344;    // "DSNAPEND"
-// zstd's fastest level, about 430 MB/s on a phone (research 18).
+// zstd's fastest level, about 430 MB/s on a phone.
 constexpr int kLevel = 1;
 // No chunk is larger, so a damaged length is refused before anything is made that large.
 constexpr std::uint64_t kLargest = std::uint64_t{1} << 32U;

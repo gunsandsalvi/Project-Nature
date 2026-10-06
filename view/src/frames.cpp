@@ -8,7 +8,7 @@ namespace kd::view {
 
 namespace {
 
-// More than 50 ms late at 60 frames a second (PLT-04, research 18).
+// More than 50 ms late at 60 frames a second (PLT-04).
 constexpr double kLateMs = 1000.0 / 60.0 + 50.0;
 
 }  // namespace

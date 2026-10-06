@@ -2,7 +2,7 @@
 that wraps round a tile, and the sRGB curve for work in linear light.
 
 Pictures are numpy arrays of shape (height, width, 3), 8-bit sRGB. Nothing here measures colour: OKLab, accents and
-texture pixel contrast come only from `kindling look` (art/BRIEF.md, rule 7).
+texture pixel contrast come only from `kindling look` (CLAUDE.md, rule 4).
 
 Implements PRE-22, see A5.4.
 """

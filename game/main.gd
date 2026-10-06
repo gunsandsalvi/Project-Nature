@@ -97,7 +97,7 @@ func _build() -> void:
 
 ## Godot 4.7.2 applies the project's frame cap before the screen's swapchain exists, so the phone
 ## kept running its screen at 120 Hz; setting the cap again once frames are drawn reaches it
-## (research 18).
+##.
 func _set_frame_cap() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame

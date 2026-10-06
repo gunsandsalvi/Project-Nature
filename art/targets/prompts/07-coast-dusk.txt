@@ -1,9 +1,0 @@
-True pixel art on a fixed grid of art pixels. Every art pixel is a perfectly square block of identical screen pixels, enlarged with nearest-neighbour scaling. No anti-aliasing, no blur, no gradients, no noise, no soft edges: every block is one flat colour. A limited palette of about 32 colours arranged in hue-shifted ramps: shades shift toward cool purple-blue, lights toward warm yellow; the darkest shade is a deep purple, never black. Each object has a one-art-pixel outline in a darker shade of its own colour (not black), and a one-art-pixel lighter edge where the light catches its rim.
-
-Camera: seen from above at about 35 degrees, with the sea's horizon at the top of the frame.
-Light: dusk: the sun sets over the sea, warm orange light on wet rocks and sand, purple shade.
-Scene: a rocky coast with a sandy cove. People gather mussels and limpets among the rocks at low water; a large heap of shells lies by a hearth with fish on spits; a skin boat is pulled up on the sand; seabirds wheel; waves break into lines of foam on the rocks; rock pools reflect the sky; kelp lies on the stones.
-
-People of the Stone Age wear tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes, a few with bead decoration), as archaeology shows; no fur bikinis and no loincloths.
-
-Style: a carefully hand-placed pixel-art game screenshot of a real 3D world, rich and detailed: clean, readable shapes, every person, animal, stone and plant reading on its own. No text, no border, no interface.

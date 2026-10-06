@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The art lane's checks (art/BRIEF.md; IMPLEMENTATION.md, T2.3a.1): every texture in art/textures/ against its
+"""The art lane's checks (IMPLEMENTATION.md, T2.3a.1): every texture in art/textures/ against its
 record and the lines the brief sets.
 
     python3 tools/art/checks.py [--root DIR] [<name>...]
@@ -23,7 +23,7 @@ The checks, each with its line:
 - contrast: band 0's texture pixel contrast within a quarter of its source's (art/textures/<name>/source.png,
   the source on band 0's grid); where no such source is kept, as for a tile cut from parts of a picture, it is
   reported as not measured, neither passed nor failed;
-- accents: every band from 1 to 6 keeps at least 90% of band 0's accents (study 6's measure);
+- accents: every band from 1 to 6 keeps at least 90% of band 0's accents;
 - drift: every band's lightness within 0.02 and hue within 5 degrees of band 0's; hue is left out where both are
   too grey for a hue to mean anything (colourfulness under 0.02).
 Lightness, hue, colourfulness, texture pixel contrast and accents come from `kindling look` (look.py), the same

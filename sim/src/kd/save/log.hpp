@@ -1,5 +1,5 @@
 // Logs (A3.7): the command journal and the history, each a run of records framed by their length, type, sequence
-// number and checksum, as LevelDB frames its log (research 18). Reading stops at the first record that is short,
+// number and checksum, as LevelDB frames its log. Reading stops at the first record that is short,
 // damaged or out of sequence, and the file is cut there, so a write the app was killed in the middle of is dropped
 // whole.
 #pragma once

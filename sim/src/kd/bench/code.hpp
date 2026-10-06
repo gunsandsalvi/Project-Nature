@@ -2,7 +2,7 @@
 // version, then each of its fields in order, each a whole number in its own number of bits, then a CRC-24 of all
 // before it, written in Crockford's base32 in groups of five letters joined by dashes. It reads back whatever its
 // letters' case, wherever its lines break and whatever dashes join it, and one wrong letter is always caught
-// (research 18). The layout is written once, here, for the app that writes codes and the cloud that reads them.
+//. The layout is written once, here, for the app that writes codes and the cloud that reads them.
 #pragma once
 
 #include <cstdint>

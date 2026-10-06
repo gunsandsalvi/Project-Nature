@@ -464,7 +464,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   Each milestone is a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
   This file keeps each milestone's contents and order, below; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
 
-  - `MIL-18` **Pre-production** *(Decided)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); closed on 5 October 2026, as you asked, with the lessons kept in `LESSONS.md`; the writer, left unbuilt, is proved when `MIL-16` builds the book of ages (`PRE-37`); its vertical slice was dropped on 6 October 2026, as you asked.
+  - `MIL-18` **Pre-production** *(Decided)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); closed on 5 October 2026, as you asked; the writer, left unbuilt, is proved when `MIL-16` builds the book of ages (`PRE-37`); its vertical slice was dropped on 6 October 2026, as you asked.
     *Now possible:* seeing on your phone that the game can be made as this file describes.
   - `MIL-08` **Foundations** *(Decided)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
@@ -2542,7 +2542,8 @@ How the project is run.
 
 ### 15.2 Documents
 
-- `PRC-04` **Three documents** *(Decided)*: This file says what to build; the architecture says how and why, citing the research notes behind each choice (`research/`); and the implementation plan says in what order, mapping every item to a milestone and planning the next milestone's alphas and tasks.
+- `PRC-04` **Three documents** *(Decided)*: This file says what to build; the architecture says how and why; and the implementation plan says in what order, mapping every item to a milestone and planning the next milestone's alphas and tasks.
+  Nothing else is kept as a reference: what is not in these three files is not important enough to keep.
   Code and tests name the items they implement and check, so the code is the index of where each is done (`PRC-12`), and no document keeps that list.
   - **Check:** each stage review checks that the three documents exist and this file holds no implementation details.
 
@@ -2554,8 +2555,8 @@ How the project is run.
   Nothing becomes *Decided*, and no decided item changes, without your OK.
   - **Check:** the commit check confirms that every commit changing this file names the changed IDs and why, and your OK for anything made Decided.
 
-- `PRC-08` **Next: production** *(Decided)*: The research is done (`research/`), the art book's pictures (`art/book/`) set a first, preliminary direction for the look, which the graphics engine must go well beyond, the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written from them.
-  Pre-production (`MIL-18`) removed the old code, which git keeps, proved each risk with a prototype, and closed on 5 October 2026, its lessons kept in `LESSONS.md`; production began with the foundations (`MIL-08`), which you accepted on 6 October 2026, and the graphics engine (`MIL-09`) comes next, starting with its research.
+- `PRC-08` **Next: production** *(Decided)*: The bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written.
+  Pre-production (`MIL-18`) removed the old code, which git keeps, proved each risk with a prototype, and closed on 5 October 2026; production began with the foundations (`MIL-08`), which you accepted on 6 October 2026, and the graphics engine (`MIL-09`) is under way.
   A few questions stay open, each carried by its item: the ground of the cards and the book (`PRE-35`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
 
 ### 15.3 How work flows
@@ -2675,7 +2676,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 - `RSK-30` **The look costs too much** *(Decided)*: Drawn plainly, the look you chose needs more of the phone's graphics chip than it has; likelihood high, impact high.
   - **Signs:** the busiest close scene over its time line on your phone, or the phone too warm in a long session (`PLT-04`).
   - **Response:** first the savings you cannot tell from the full picture (`PRE-01`); then, as you agreed, changes to the game engine's own code where those are not enough (`PRC-03`); then one planned step under heat that also passes the blind test; the world's density is never cut.
-  - **Why:** research 19 finds that the liked camp, drawn plainly, would need two to five times the graphics chip's share of a frame, and that the savings that do not show bring it close to that share but not surely under it.
+  - **Why:** the liked camp, drawn plainly, would need two to five times the graphics chip's share of a frame, and that the savings that do not show bring it close to that share but not surely under it.
 
 ### 16.4 The project
 

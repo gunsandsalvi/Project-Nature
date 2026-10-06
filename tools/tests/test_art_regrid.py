@@ -1,6 +1,6 @@
 """Re-gridding (PRE-22, PRE-01, A5.4): GPT's drifting blocks found and brought onto an exact grid of texture
 pixels, each block's median colour a texture pixel; a painted picture sampled in fixed blocks; painted light taken
-out; and study 5's swatches re-gridded with the loss research 19 measured."""
+out; and the accepted swatches re-gridded within their measured loss."""
 
 import os
 import sys
@@ -140,7 +140,7 @@ class Fitting(unittest.TestCase):
 class StudyFive(unittest.TestCase):
     # checks: PRE-22
     def test_study_5s_swatches_lose_2_to_8_percent(self):
-        """Research 19 (study 7) measured 2 to 8% on study 5's D swatches, the sheet you accepted (answer 15). The
+        """The accepted swatches lose 2 to 8%. The
         committed copy is lossy WebP, which adds about a point inside each block: the originals lose 2.9 to 7.1%
         with this tool and the committed copy 3.0 to 8.6%, so each is held to the brief's 10% and their median to
         2 to 8%."""

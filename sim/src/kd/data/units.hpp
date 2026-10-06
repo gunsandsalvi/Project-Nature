@@ -1,5 +1,5 @@
 // Quantities as text (A3.6): "3.5 kg", "1 h 30 min", "15%" and "1 in 100" are read exactly into whole base units,
-// with no floating point anywhere, so the phone's reading can never differ from the cloud's (research 18). A value
+// with no floating point anywhere, so the phone's reading can never differ from the cloud's. A value
 // finer than its base unit is refused, never rounded; "m" is only ever a metre, never a minute.
 #pragma once
 

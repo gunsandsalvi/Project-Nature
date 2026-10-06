@@ -1,6 +1,6 @@
 // The simulation's maths functions (A3.4): CORE-MATH's, which round correctly, so each answer is unique and every
 // machine gives the same bits, and the square root, which IEEE 754 already rounds correctly. Nothing else in sim/
-// may call the platform's maths, which differs between the cloud and the phone (research 18).
+// may call the platform's maths, which differs between the cloud and the phone.
 //
 // Each function refuses an input outside its domain and an answer that is not a finite number, so no NaN or infinity
 // ever enters the simulation. Angles are turns (kd/num/angle.hpp), so the trigonometric functions are those in half

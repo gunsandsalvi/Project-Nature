@@ -42,7 +42,7 @@ struct Rgb {
 };
 
 /// Implements PRE-20, see A5.4: an OKLab colour in 8-bit sRGB, each channel clipped to the screen's range in linear
-/// light, as research 19's calibration did.
+/// light.
 [[nodiscard]] Rgb srgb(const Lab& colour);
 
 /// A change of colour in the four numbers a texture's record keeps (A5.4): lightness added, in hundredths of OKLab's

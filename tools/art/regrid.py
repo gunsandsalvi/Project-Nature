@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Re-gridding (art/BRIEF.md, step 4): a picture brought onto an exact grid of texture pixels, one block becoming one
-texture pixel of the block's median colour.
+"""Re-gridding (IMPLEMENTATION.md, the art lane): a picture brought onto an exact grid of texture pixels, one
+block becoming one texture pixel of the block's median colour.
 
     python3 tools/art/regrid.py swatches <picture>
         the boxes of the swatches GPT drew on its flat grey background
@@ -17,7 +17,7 @@ texture pixel of the block's median colour.
 GPT's grids drift: in its swatches the edges between columns move with x alone and those between rows with y alone,
 so one set of column edges and one of row edges, each placed by dynamic programming on the whole picture's profile
 of colour change, follows them. The loss is the share of the picture's colour variation (summed over red, green and
-blue) that the blocks' medians do not keep, as research 19's study 7 measured it: 2 to 8% on swatches GPT drew in
+blue) that the blocks' medians do not keep: 2 to 8% on swatches GPT drew in
 blocks, at most 10% allowed.
 
 Implements PRE-22 and PRE-01, see A5.4.

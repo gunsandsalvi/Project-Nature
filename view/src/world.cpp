@@ -449,7 +449,7 @@ void KdWorld::frame() {
         // the phone could not save the world: it stops where the folder keeps it whole, and stays stopped (PLT-07)
         pace_.pause();
     }
-    // each frame's own real time, from the steady clock: Godot's delta is smoothed and can hide a stall (research 18)
+    // each frame's own real time, from the steady clock: Godot's delta is smoothed and can hide a stall
     const auto now = std::chrono::steady_clock::now();
     const double real = framed_ ? std::chrono::duration<double>(now - last_frame_).count() : 0.0;
     last_frame_ = now;
