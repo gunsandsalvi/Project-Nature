@@ -3,8 +3,9 @@
 ## test's question. After ten, the answers' short code to send, and whether the difference shows:
 ## eight or more right, which guessing reaches about 5% of the time. The tests: MSAA 4x against 2x
 ## on the meadow; leaves smoothed by alpha to coverage against plain cut-outs, on calibration scene
-## C2's plants. The pictures change only the drawing, never a world (WLD-13). Implements PRE-01 and
-## PRE-46.
+## C2's plants; and fire shadows by a walk at every pixel against a map for each fire, round C5's
+## fires at night. The pictures change only the drawing, never a world (WLD-13). Implements PRE-01,
+## PRE-46 and PRE-30.
 extends VBoxContainer
 
 const TEXT := Palette.TEXT
@@ -16,10 +17,15 @@ const OTHER := Viewport.MSAA_2X
 ## The tests' comparisons, as kd::look numbers them (blind.hpp), and those this page draws.
 const SHARPNESS := 1
 const LEAF_EDGES := 2
-const DRAWN := [SHARPNESS, LEAF_EDGES]
-## The layers the leaf test's two ways of drawing its plants are on, each seen by one picture.
+const FIRE_SHADOWS := 3
+const DRAWN := [SHARPNESS, LEAF_EDGES, FIRE_SHADOWS]
+## The layers a test's two ways of drawing are on, each seen by one picture: the leaf test's plants,
+## and the fire test's grounds, by the walk and from the maps.
 const PLAIN_LAYER := 1 << 1
 const SMOOTH_LAYER := 1 << 2
+const WALK_LAYER := 1 << 3
+const MAP_LAYER := 1 << 4
+const GROUND_LAYER := 1
 const ALL_LAYERS := 0xFFFFF
 
 ## The look's class: the rig, the ground and the blind test's pairs and code.
@@ -39,6 +45,9 @@ var _stage: Node3D
 var _views: Array[SubViewport] = []
 var _cameras: Array[Camera3D] = []
 var _plants: Array[Node3D] = []
+## The fire test's second ground, drawn from the fires' maps, and its fires; null in the others.
+var _mapped: KdLook
+var _fires: Node3D
 var _prompt: Label
 var _result: Label
 var _pictures: VBoxContainer
@@ -78,11 +87,13 @@ func _ready() -> void:
 	add_child(_after)
 	_button(_after, "Copy code", func() -> void: DisplayServer.clipboard_set(code))
 	_button(_after, "Again", func() -> void: start(comparison))
-	# the cloud's picture of a test (tools/picture.sh game ... -- Compare leaves)
-	start(LEAF_EDGES if "leaves" in OS.get_cmdline_user_args() else SHARPNESS)
+	# the cloud's picture of a test (tools/picture.sh game ... -- Compare leaves, or fires)
+	var args := OS.get_cmdline_user_args()
+	start(LEAF_EDGES if "leaves" in args else FIRE_SHADOWS if "fires" in args else SHARPNESS)
 
 
 func _exit_tree() -> void:
+	_leave_fires()
 	look.clear()
 
 
@@ -92,12 +103,16 @@ func _process(delta: float) -> void:
 		return
 	look.set_screen(Vector2(size))
 	look.frame(delta)
+	if _mapped != null:
+		_mapped.set_screen(Vector2(size))
+		_mapped.frame(delta)
 	for camera in _cameras:
 		LookScene.place_camera(camera, look)
 
 
 ## A new test of a comparison: a new seed, its pairs, no answers yet.
 func start(which: int = SHARPNESS) -> void:
+	_leave_fires()
 	comparison = which
 	test_seed = (Time.get_ticks_usec() ^ int(Time.get_unix_time_from_system())) & 0xFFFF
 	pairs = look.blind_pairs(comparison, test_seed)
@@ -105,6 +120,8 @@ func start(which: int = SHARPNESS) -> void:
 	code = ""
 	if comparison == LEAF_EDGES:
 		CalibrationDrawing.light_stand_ins(_stage.get_node("Sun"), false)
+	elif comparison == FIRE_SHADOWS:
+		_enter_fires()
 	_show()
 
 
@@ -161,6 +178,12 @@ func _show() -> void:
 		_views[better_view].msaa_3d = BETTER
 	elif comparison == LEAF_EDGES:
 		_show_plants(better_view)
+	elif comparison == FIRE_SHADOWS and _mapped != null:
+		_mapped.set_part("pattern", false)
+		_mapped.set_view(int(pair["east"]), int(pair["north"]), float(pair["heading"]), 1.0 / 128.0)
+		# the walk is the better way: its shadows are the sharper
+		_cameras[better_view].cull_mask = ALL_LAYERS & ~MAP_LAYER
+		_cameras[1 - better_view].cull_mask = ALL_LAYERS & ~WALK_LAYER
 
 
 ## The leaf test's pair: the same plants drawn plainly cut out and smoothed by alpha to coverage,
@@ -183,6 +206,38 @@ func _show_plants(better_view: int) -> void:
 
 
 ## The last pair's plants, freed at once: a test can ask a pair a frame.
+## The fire test's night: C5's three fires with what stands round them, the look's ground drawn
+## with the walk at every pixel and a second ground from the fires' maps, each on its own layer.
+func _enter_fires() -> void:
+	var sun: DirectionalLight3D = _stage.get_node("Sun")
+	sun.visible = false
+	CalibrationDrawing.light_stand_ins(sun, false)
+	CalibrationFires.night((_stage.get_node("Sky") as WorldEnvironment).environment, true)
+	look.set_shader((CalibrationFires.FIELDS["walk"] as Shader).get_rid())
+	look.set_layers(WALK_LAYER)
+	_mapped = KdLook.new()
+	var problem_mapped := LookScene.ground(_mapped, _stage, CalibrationFires.FIELDS["map"])
+	if not problem_mapped.is_empty():
+		problem = problem_mapped
+	_mapped.set_layers(MAP_LAYER)
+	_fires = CalibrationFires.fires(_stage, 3, "map", Vector2(_views[0].size))
+
+
+## The day back, after the fire test: one ground, drawn as the Look page draws it.
+func _leave_fires() -> void:
+	if _mapped == null:
+		return
+	(_stage.get_node("Sun") as DirectionalLight3D).visible = true
+	CalibrationFires.night((_stage.get_node("Sky") as WorldEnvironment).environment, false)
+	look.set_shader(LookScene.GROUND_SHADER.get_rid())
+	look.set_layers(GROUND_LAYER)
+	_mapped.clear()
+	_mapped = null
+	_fires.get_parent().remove_child(_fires)
+	_fires.free()
+	_fires = null
+
+
 func _clear_plants() -> void:
 	for plants in _plants:
 		plants.get_parent().remove_child(plants)

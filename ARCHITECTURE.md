@@ -503,6 +503,8 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
   - **fire shadows** from a small map for each near fire (about 128 texels square), made 10–20 times a second as people move, from the two height maps of tops and undersides that pre-production drew round its fires (P3), instead of a walk of up to 32 steps at every pixel, which costs about 2.5–5 ms a fire at full resolution (estimate);
     none where the sun outshines the fire, and none from the camp zoom out; a hut's or tent's walls stand in the height maps, so a fire inside lights only its doorway (`PRE-24`);
     calibration scene C5 times the map against the walk at half resolution, and your eye compares their looks;
+    *built in α2.2b,* the walk is written once (`game/look/fire.gdshaderinc`) and used three ways: at every pixel; in a picture of its own at half resolution, of a flat ground on a layer only its camera sees, read by screen position for the first three fires a pixel; and in the maps, a two-dimensional pass of eight 128-texel maps side by side, each over 8 m, remade 20 times a second; the fire table holds where a fire's light comes from, its flame's middle 0.35 m up, since a fire at ground level lights the ground at no angle at all;
+    in the cloud, three fires' shadows darken 1.6% of the picture by the walk, 1.3% at half resolution and 0.95% from the maps, whose shadows are softer, and the maps darken nothing the walk leaves lit;
   - **smoke** as soft, lit cards cut close to their shape and drawn last; a wildfire's smoke as a volume marched at half resolution in its own picture, read as a texture by cards in the main pass.
   - *Proved in pre-production* (P2, P3), at its low resolution: a camp lit by three fires at night held 60 frames a second, and every person and thing cast a shadow from each fire.
 - **Water** (`PRE-26`):
@@ -578,7 +580,7 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
 - **The cloud's software Vulkan driver** crashed drawing P2's smoke from some angles near 15° (α0.2c's fixes), so the cloud's pictures avoid that angle.
 - **Godot's rules met in P1:**
   - front faces wind clockwise, the opposite of three.js, so imported triangles are reversed;
-  - a pass never declares the picture it draws into, since Vulkan refuses a texture that is both its target and its input;
+  - a pass never declares the picture it draws into, since Vulkan refuses a texture that is both its target and its input; a global sampler counts as declared wherever its file is included, so each is declared only where it is read (met again in α2.2b);
   - varyings are written only in their stage's own function, and the light function has no vertex position, so depth reaches it in a varying;
   - a shadow bias of 0.08 and a normal bias of 1.6 on a 4,096 map kept dusk's low sun free of stripes; the 2,048 map is tuned again.
 
@@ -718,7 +720,7 @@ It replaces the art bible's rules.
 - **Savings must be invisible** (`PRE-01`): first the machine line (A4.8), then your blind test on the phone, ten random pairs asking "which is sharper?", where eight or more right means it shows (guessing gets there about 5% of the time).
   - *Your first, in α2.1b* (6 October 2026): MSAA 4× against 2× on the stand-in meadow, 3 of 10 right, so the difference does not show and 2× stays.
   On the Compare page each pair is one view drawn two ways, one above the other, the better way placed by chance from the test's seed; you tap the sharper; the short code you send holds the seed and your answers, and the cloud reads it the same way. The first test compares MSAA 4× with 2× on the meadow.
-  - *Built in α2.2b:* the page offers each test by name, and its code names it: Sharpness, the first; Leaf edges, C2's plants cut out plainly in one picture and smoothed by alpha to coverage in the other, each way on a layer only its picture's camera sees, asking which has smoother leaf edges; and Fire shadows, with C5.
+  - *Built in α2.2b:* the page offers each test by name, and its code names it: Sharpness, the first; Leaf edges, C2's plants cut out plainly in one picture and smoothed by alpha to coverage in the other, each way on a layer only its picture's camera sees, asking which has smoother leaf edges; and Fire shadows, C5's three fires at night, the ground drawn by the walk in one picture and from the maps in the other, each ground on its own layer, asking which has sharper shadows.
   Half resolution applied to textures brings the shimmer back (9–16% of pixels), so a half-resolution saving may touch only smooth things: light, shadow and haze.
 - **The heat step:** if the 20-minute heat run shows the picture alone heats the phone, one planned, logged step under heat, such as distant fires casting no shadows, chosen among the savings that pass your blind test, as you chose on 6 October 2026; if none is enough, it comes back to you.
 - **The AI judge advises, never decides:** it reports faults, never approval.
@@ -1101,6 +1103,8 @@ As measured on your phone in pre-production, each re-measured at every milestone
   - A scene may decide by the least of several variants, as C2 takes the cheapest way of drawing its leaves among those that draw plain cards' picture.
   - The code, layout 2, holds which scenes ran in 16 bits after the build; `kindling look calibrate` still reads α2.2a's layout 1, against that build's own files.
   - C2's stand-in plants, set out by a hash of their place along a bank, a path and a meadow, put about 850 copies in view on your phone's screen; Godot counts a draw for each instance seen, however many surfaces it has.
+  - C5's fires burn at night, each with two people standing, one sitting, two logs and nine hearth stones, which stand in the height maps; a viewport drawn only now and then, as the fires' maps are, counts its last drawing's time for its share of the frames, since Godot keeps a viewport's time until it draws again.
+  - The cloud's run fails on any error Godot reports but the missing sound device.
 
 **M1's benchmark,** one tap and about 20 minutes, with the phone unplugged, in flight mode, after it has cooled:
 - the calendar alone at top speed; 10,000 markers at real speed and at top speed, with the camera touring, held speed read after 3 minutes; the same pinned to the middle cores; a sweep through the zoom stops' speeds; saves every 30 seconds with an export and a reopening; a still camera for the screen's own power;

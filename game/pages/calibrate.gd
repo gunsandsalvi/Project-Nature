@@ -53,6 +53,7 @@ var _sky: Environment
 var _ground_built := false
 var _content: Node3D
 var _mirror: SubViewport
+var _follow: Camera3D
 var _viewports: Array[Viewport] = []
 var _closest := 0.0
 var _scene := -1
@@ -201,6 +202,8 @@ func _process(delta: float) -> void:
 	LookScene.place_camera(_camera, _look)
 	if _mirror != null:
 		LookScene.place_camera(_mirror.get_child(0) as Camera3D, _look)
+	if _follow != null:
+		LookScene.place_camera(_follow, _look)
 	if not running():
 		return
 	var scene: Dictionary = scenes[_scene]
@@ -259,22 +262,35 @@ func _open(scene_index: int, variant_index: int) -> void:
 	if pixels.x <= 0.0 or pixels.y <= 0.0:
 		pixels = screen
 	var draws: String = scene["draws"]
-	_sun.visible = draws != "nothing"
+	# the fires burn at night
+	_sun.visible = draws not in ["nothing", "fires"]
 	_sun.shadow_enabled = v["shadows"]
-	# the field and the plants stand on the ground with the full material
-	var lit := draws in ["field", "leaves"]
+	CalibrationFires.night(_sky, draws == "fires")
+	# the field, the plants and the fires stand on the ground with the full material
+	var lit := draws in ["field", "leaves", "fires"]
 	if lit and not _ground_built:
 		_ground_built = true
 		var problem := LookScene.ground(_look, _world, CalibrationDrawing.FIELD_SHADER)
 		if not problem.is_empty():
 			_line("%s: the field cannot be drawn: %s" % [scene["name"], problem], FAIL)
 	if lit:
-		CalibrationDrawing.light_stand_ins(_sun, not (still_light and draws == "leaves"))
+		# the fires list their own in the light grid
+		var fires := draws != "fires" and not (still_light and draws == "leaves")
+		CalibrationDrawing.light_stand_ins(_sun, fires)
 	CalibrationDrawing.grade(_sky, lit)
 	if _ground_built:
 		_look.set_part("ground", lit)
 		_look.set_part("pattern", false)
-	if draws == "leaves":
+		var field: Shader = (
+			CalibrationFires.FIELDS[v["way"]]
+			if draws == "fires"
+			else CalibrationDrawing.FIELD_SHADER
+		)
+		_look.set_shader(field.get_rid())
+	if draws == "fires":
+		_content = CalibrationFires.fires(_world, int(v["fires"]), v["way"], pixels)
+		_follow = _content.get_meta("follow") if _content.has_meta("follow") else null
+	elif draws == "leaves":
 		_content = CalibrationPlants.plants(_world, _camera, screen, v["way"])
 	elif draws == "rocks":
 		_content = CalibrationDrawing.rocks(_world, _camera, screen, v["triangles"])
@@ -319,10 +335,9 @@ func _read_fast() -> void:
 		"mirror_shadow_draws": 0,
 	}
 	# what the scene's own drawing says it drew, for the cloud's check
-	if _content != null and _content.has_meta("triangles"):
-		drew["content_copies"] = _content.get_meta("copies")
-		drew["content_draws"] = _content.get_meta("draws")
-		drew["content_triangles"] = _content.get_meta("triangles")
+	for count: String in ["copies", "draws", "triangles"]:
+		if _content != null and _content.has_meta(count):
+			drew["content_" + count] = _content.get_meta(count)
 	if _mirror != null:
 		var mirror := _mirror.get_viewport_rid()
 		drew["mirror_draws"] = _drawn(
@@ -377,6 +392,7 @@ func _end() -> void:
 	_restore()
 	_clear_content()
 	_sun.visible = false
+	CalibrationFires.night(_sky, false)
 	if _ground_built:
 		_look.set_part("ground", false)
 	_cover.visible = true
@@ -422,6 +438,8 @@ func _build_world() -> void:
 	add_child(_world)
 	_camera = Camera3D.new()
 	_camera.current = true
+	# not the half-resolution picture's ground, which only its own camera sees
+	_camera.cull_mask = 0xFFFFF & ~CalibrationFires.SCREEN_LAYER
 	_world.add_child(_camera)
 	LookScene.light(_world)
 	_sun = _world.get_node("Sun")
@@ -444,6 +462,7 @@ func _clear_content() -> void:
 			node.queue_free()
 	_content = null
 	_mirror = null
+	_follow = null
 
 
 ## A count of the last frame's draws, or its triangles, in a pass of a viewport.

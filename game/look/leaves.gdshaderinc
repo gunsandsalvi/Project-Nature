@@ -43,8 +43,8 @@ void fragment() {
 	vec3 glow;
 	vec4 haze;
 	float big_shadow;
-	kd_light_surface(ALBEDO, kd_world, normal, CAMERA_POSITION_WORLD, 1.0, colour, openness, glow, haze,
-			big_shadow);
+	kd_light_surface(ALBEDO, kd_world, normal, CAMERA_POSITION_WORLD, 1.0, vec4(1.0), colour, openness,
+			glow, haze, big_shadow);
 	kd_big_shadow = big_shadow;
 	ALBEDO = colour;
 	AO = openness;

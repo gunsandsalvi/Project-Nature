@@ -96,6 +96,48 @@ class WhatThePlantsWaysMustDraw(unittest.TestCase):
             self.assertIn("c2/cores: no picture to hold to plain cards'", calibrun.plants_wrong(scene, drew, folder))
 
 
+class WhatTheFiresWaysMustDraw(unittest.TestCase):
+    def fires(self):
+        variants = [
+            {"name": f"fires3-{w}", "fires": 3, "way": w, **variant()} for w in ("none", "walk", "walk-half", "map")
+        ]
+        return {"name": "c5", "draws": "fires", "variants": variants}
+
+    def pictures(self, folder, shadows):
+        """The fires without shadows, lit at 100, and each way with its shadowed pixels: a list of flat indices."""
+        for way in ("none", "walk", "walk-half", "map"):
+            picture = np.full((100, 100, 3), 100, dtype=np.uint8)
+            picture.reshape(-1, 3)[shadows.get(way, [])] = 20
+            Image.fromarray(picture).save(os.path.join(folder, f"c5-fires3-{way}.png"))
+
+    # checks: PLT-04 PRE-30
+    def test_each_way_draws_its_shadows_and_the_maps_none_the_walk_has_not(self):
+        scene = self.fires()
+        drew = [{"draws": 49, "content_draws": 45}] * 4
+        with tempfile.TemporaryDirectory() as folder:
+            self.pictures(folder, {"walk": list(range(100)), "walk-half": list(range(80)), "map": list(range(60))})
+            self.assertEqual(calibrun.fires_wrong(scene, drew, folder), [])
+            # maps casting nothing; then shadows the walk does not have
+            self.pictures(folder, {"walk": list(range(100)), "walk-half": list(range(80)), "map": [500, 501]})
+            wrong = calibrun.fires_wrong(scene, drew, folder)
+            self.assertEqual(wrong, ["c5/fires3-map: 0.02% of its picture in shadow, where its fires cast some"])
+            self.pictures(
+                folder, {"walk": list(range(100)), "walk-half": list(range(80)), "map": list(range(200, 400))}
+            )
+            wrong = calibrun.fires_wrong(scene, drew, folder)
+            self.assertEqual(wrong, ["c5/fires3-map: 2.00% of its picture shadowed where the walk's is lit"])
+
+    # checks: PLT-04 PRE-30
+    def test_a_way_drawing_other_things_is_named(self):
+        scene = self.fires()
+        drew = [{"draws": 49, "content_draws": 45}] * 3 + [{"draws": 50, "content_draws": 45}]
+        with tempfile.TemporaryDirectory() as folder:
+            self.pictures(folder, {"walk": list(range(100)), "walk-half": list(range(80)), "map": list(range(60))})
+            self.assertIn(
+                "c5: its ways with 3 fires draw [49, 50] things, not alike", calibrun.fires_wrong(scene, drew, folder)
+            )
+
+
 READY = (
     os.path.exists(os.environ.get("GODOT", "")) and shutil.which("xvfb-run") is not None
     and os.path.exists(os.path.join(calibrun.ROOT, "game", "bin", "libkindling.linux.x86_64.so"))
@@ -109,7 +151,7 @@ class TheScenesDrawnInTheCloud(unittest.TestCase):
     def test_every_variant_draws_what_its_scene_states_and_the_code_reads(self):
         run = calibrun.draw()
         self.assertEqual(calibrun.check(run), [])
-        self.assertEqual([s["name"] for s in run["scenes"]], ["c1", "c2", "c3", "c3-draws", "c4"])
+        self.assertEqual([s["name"] for s in run["scenes"]], ["c1", "c2", "c3", "c3-draws", "c4", "c5"])
 
 
 if __name__ == "__main__":

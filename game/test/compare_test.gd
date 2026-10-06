@@ -48,3 +48,22 @@ func test_the_leaf_edges_test_asks_its_own_question_and_its_code_counts_the_same
 	page.start(page.comparison)
 	assert_int(page.comparison).is_equal(2)
 	assert_str(page.code).is_empty()
+
+
+# checks: PRE-01, PRE-30
+func test_the_fire_test_draws_two_grounds_and_leaves_one_after() -> void:
+	var page: VBoxContainer = auto_free(ComparePage.new())
+	add_child(page)
+	await await_idle_frame()
+	page.start(page.FIRE_SHADOWS)
+	assert_int(page.comparison).is_equal(3)
+	assert_str(page.problem).is_empty()
+	# the fires' views keep round the camp, within 1.5 m
+	for pair: Dictionary in page.pairs:
+		assert_int(absi(int(pair["north"]))).is_less_equal(150)
+	for pair: Dictionary in page.pairs:
+		page.choose(pair["better_first"])
+	assert_int(page.right()).is_equal(10)
+	# another test brings the day back, with one ground
+	page.start(page.SHARPNESS)
+	assert_object(page._mapped).is_null()

@@ -16,7 +16,7 @@ func test_the_page_reads_the_build_s_calibration_scenes_in_their_order() -> void
 	var names := []
 	for scene: Dictionary in page.scenes:
 		names.append(scene["name"])
-	assert_array(names).is_equal(["c1", "c2", "c3", "c3-draws", "c4"])
+	assert_array(names).is_equal(["c1", "c2", "c3", "c3-draws", "c4", "c5"])
 
 
 # checks: PLT-04
@@ -34,7 +34,7 @@ func test_the_page_picks_its_own_step_s_scenes_and_those_their_numbers_take_from
 		page.pick(i, false)
 	# C1 takes C4's bare frame off, so picking C1 picks C4
 	page.pick(0, true)
-	assert_array(page.picked).is_equal([true, false, false, false, true])
+	assert_array(page.picked).is_equal([true, false, false, false, true, false])
 
 
 # checks: PLT-04

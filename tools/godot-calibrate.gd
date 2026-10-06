@@ -4,7 +4,7 @@
 ## what it writes. The Calibrate page runs every variant of every scene as the phone does, a
 ## hundred times faster, and this writes the scenes, what each variant drew and the run's code, and
 ## a picture of each scene's first variant as it drew it, <scene>.png beside the run's file, and of
-## every variant of the plants, <scene>-<variant>.png, whose ways must draw the same picture.
+## every variant of the plants and the fires, <scene>-<variant>.png, which the run's check compares.
 extends SceneTree
 
 const CalibratePage := preload("res://pages/calibrate.gd")
@@ -48,11 +48,11 @@ func _run(out: String) -> void:
 
 
 ## The screen as a scene's first variant drew it, as <scene>.png in the folder, and as each of the
-## plants' variants drew it, as <scene>-<variant>.png.
+## plants' and the fires' variants drew it, as <scene>-<variant>.png.
 func _picture(scene: int, variant: int, page: Control, folder: String) -> void:
 	var name: String = page.scenes[scene]["name"]
 	if variant == 0:
 		root.get_texture().get_image().save_png(folder.path_join(name + ".png"))
-	if page.scenes[scene]["draws"] == "leaves":
+	if page.scenes[scene]["draws"] in ["leaves", "fires"]:
 		var way: String = page.scenes[scene]["variants"][variant]["name"]
 		root.get_texture().get_image().save_png(folder.path_join("%s-%s.png" % [name, way]))

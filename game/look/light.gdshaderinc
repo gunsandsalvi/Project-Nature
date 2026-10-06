@@ -20,6 +20,10 @@ global uniform vec4 kd_maps_place;
 global uniform sampler2D kd_fire_grid;
 global uniform sampler2D kd_fire_table;
 global uniform vec4 kd_grid_place;
+#if defined(KD_FIRE_WALK) || defined(KD_FIRE_MAP) || defined(KD_FIRE_SCREEN)
+#include "res://look/fire.gdshaderinc"
+#endif
+
 // Toward the sun, in the world; light bounced up from the sunlit cover below; the haze's colour (rgb) and
 // its density a metre (a); and its colour toward the sun.
 global uniform vec3 kd_sun_toward;
@@ -32,10 +36,13 @@ const float KD_FIRE_HALF = 1.25;
 
 // The surface's own light, in its fragment(). albedo: its texture pixel's colour in linear light; world: its
 // point; normal: its facing, in the world; eye: the camera's place; crease: darkening painted or baked into
-// it, 1 for none. Gives Godot's ALBEDO (colour), AO (openness, which scales the sky's fill), EMISSION (glow:
-// bounce and fire) and FOG (haze), and the big casters' shadow on it for the sun in light().
-void kd_light_surface(vec3 albedo, vec3 world, vec3 normal, vec3 eye, float crease, out vec3 colour,
-		out float openness, out vec3 glow, out vec4 haze, out float big_shadow) {
+// it, 1 for none; fire_lit: how much of each of the first fires its square lists reaches it, as a picture
+// at half resolution gives it (KD_FIRE_SCREEN), and 1 for each where none does. Gives Godot's ALBEDO
+// (colour), AO (openness, which scales the sky's fill), EMISSION (glow: bounce and fire) and FOG (haze),
+// and the big casters' shadow on it for the sun in light(). Fire shadows come from the walk at every pixel
+// with KD_FIRE_WALK defined, from a map for each fire with KD_FIRE_MAP, and from fire_lit.
+void kd_light_surface(vec3 albedo, vec3 world, vec3 normal, vec3 eye, float crease, vec4 fire_lit,
+		out vec3 colour, out float openness, out vec3 glow, out vec4 haze, out float big_shadow) {
 	vec2 at = vec2(world.x, -world.z);
 	vec4 maps = texture(kd_view_maps, (at - kd_maps_place.xy) / kd_maps_place.z);
 	colour = albedo * crease * maps.g;
@@ -63,7 +70,14 @@ void kd_light_surface(vec3 albedo, vec3 world, vec3 normal, vec3 eye, float crea
 			float heat = fire.w * (0.9 + 0.1 * sin(TIME * 7.0 + float(row) * 1.7));
 			vec3 flame = mix(vec3(1.0, 0.42, 0.12), vec3(1.0, 0.72, 0.4), heat);
 			float facing = max(dot(normal, to * inversesqrt(max(near, 1e-4))), 0.0);
-			glow += colour * flame * heat * facing / (1.0 + near / (KD_FIRE_HALF * KD_FIRE_HALF));
+			// what stands between the point and the fire
+			float lit = fire_lit[i];
+#if defined(KD_FIRE_WALK)
+			lit *= kd_fire_walk(world, kd_flame(fire));
+#elif defined(KD_FIRE_MAP)
+			lit *= kd_fire_map(world, row, fire);
+#endif
+			glow += colour * flame * heat * facing * lit / (1.0 + near / (KD_FIRE_HALF * KD_FIRE_HALF));
 		}
 	}
 	// haze by distance, warmer toward the sun

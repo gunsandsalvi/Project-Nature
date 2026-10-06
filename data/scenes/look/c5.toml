@@ -1,0 +1,123 @@
+# C5, fires (A18.1, α2.2b): 1, 3 and 5 fires at the closest zoom at night, each with people, logs and a ring of hearth
+# stones round it, on the field of C1, every fire listed in the light grid. Their shadows drawn four ways: none; by a
+# walk of 32 steps at every pixel through the height maps of tops and undersides; by the same walk in a picture at
+# half resolution, read by screen position, for the first three fires a pixel; and from a small map for each fire, 128
+# texels over 8 m, remade 20 times a second and read once a pixel. The number that decides is three fires' shadows
+# from maps, less the same fires with none. Your blind test on the Compare page says whether a map's shadows can be
+# told from the walk's; if they can, the walk's costs measured here come back to you with a choice. Stated before its
+# first run (RES-09).
+about = "What fire shadows cost the graphics chip: by a walk at every pixel, at half resolution, and from a map for each fire"
+step = "α2.2b"
+checks = ["PLT-04", "PRE-30"]
+draws = "fires"
+path = "still"
+measure = "gpu"
+decides = "fires3-map"
+minus = "c5/fires3-none"
+# A18.1's allowance for the fires' maps and shadows, in microseconds of the graphics chip a frame
+line = 400
+expect_from = 200
+expect_to = 1700
+
+[[variant]]
+name = "fires1-none"
+fires = 1
+way = "none"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires1-walk"
+fires = 1
+way = "walk"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires1-walk-half"
+fires = 1
+way = "walk-half"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires1-map"
+fires = 1
+way = "map"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires3-none"
+fires = 3
+way = "none"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires3-walk"
+fires = 3
+way = "walk"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires3-walk-half"
+fires = 3
+way = "walk-half"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires3-map"
+fires = 3
+way = "map"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires5-none"
+fires = 5
+way = "none"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires5-walk"
+fires = 5
+way = "walk"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires5-walk-half"
+fires = 5
+way = "walk-half"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "fires5-map"
+fires = 5
+way = "map"
+# night: no sun, so no sun shadow pass
+shadows = false
+interface = false
+
+[[decision]]
+at_most = 400
+then = "a map for each near fire becomes the way, unless your blind test sees a difference from the walk"
+
+[[decision]]
+then = "a map for each near fire becomes the way unless your blind test sees a difference, and A18.1's lever applies: shadows from the nearest fires only, until the 0.4 ms line holds"

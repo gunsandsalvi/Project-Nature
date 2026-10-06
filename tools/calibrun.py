@@ -10,6 +10,8 @@ hundred times faster (tools/godot-calibrate.gd); this then holds what each varia
   three, the mirror adding no shadow pass of its own;
 - leaves: each way adding to the bare ground exactly the draws and triangles its plants hold, casting no shadow, and
   the ways that cut no leaf (close-cut cards and solid cores) drawing the picture plain cards draw;
+- fires: every way drawing the same ground under its fires' things, each way that draws fire shadows darkening some
+  of the picture, and the fires' maps darkening nothing the walk at every pixel leaves lit;
 and the run's code reads back through `kindling look calibrate`. A shader or script that fails fails the run. A
 picture of each scene's first variant, and of each way of the plants, is left in build/calibrate/.
 
@@ -35,6 +37,13 @@ SIZE = (216, 480)
 SAME_AS_PLAIN = ("close", "cores")
 SAME_LEVELS = 2
 SAME_SHARE_MOST = 0.001
+# Fire shadows the cloud must see: each way that draws them darkens at least SHADOWS_LEAST of the picture to under
+# SHADOWED of its brightness without them, and the maps darken at most MAP_ONLY_MOST of it that the walk at every pixel
+# leaves lit (α2.2b, three fires at the cloud's size: 1.6% by the walk, 1.3% at half resolution, 0.95% from the maps,
+# none from the maps alone). The fires' flicker moves their light by a tenth at most, far from these lines.
+SHADOWED = 0.6
+SHADOWS_LEAST = 0.003
+MAP_ONLY_MOST = 0.001
 
 
 class RunError(RuntimeError):
@@ -66,12 +75,22 @@ def draw(out=OUT):
     log = done.stdout + done.stderr
     with open(os.path.join(out, "godot.log"), "w") as f:
         f.write(log)
-    broken = "SHADER ERROR" in log or "Shader compilation failed" in log or "SCRIPT ERROR" in log
+    broken = "SHADER ERROR" in log or "Shader compilation failed" in log or "SCRIPT ERROR" in log or errors(log)
     if done.returncode != 0 or broken or "Calibration run: done" not in log or "Forward Mobile" not in log:
         tail = "\n".join(line for line in log.splitlines() if "ALSA" not in line)[-2000:]
         raise RunError(f"the calibration run failed ({done.returncode}):\n{tail}")
     with open(os.path.join(out, "run.json")) as f:
         return json.load(f)
+
+
+def errors(log):
+    """Godot's errors in a run's log, but the one the cloud always gives: no sound device (its ALSA driver)."""
+    lines = log.splitlines()
+    return [
+        line
+        for i, line in enumerate(lines)
+        if line.startswith("ERROR:") and not (i + 1 < len(lines) and "audio_driver_alsa" in lines[i + 1])
+    ]
 
 
 def expected(scene, variant):
@@ -139,6 +158,47 @@ def plants_wrong(scene, drew, out):
     return wrong
 
 
+def luma(path):
+    """A picture's brightness at each pixel, from 0 to 255, or None if it is missing."""
+    if not os.path.exists(path):
+        return None
+    return np.asarray(Image.open(path).convert("RGB"), dtype=np.float64) @ np.array([0.2126, 0.7152, 0.0722])
+
+
+def fires_wrong(scene, drew, out):
+    """A fires scene's ways against each other: a list of what is wrong, in words."""
+    wrong = []
+    # the ways differ only in how they shade and the passes they add, so with as many fires they draw alike in the
+    # main pass; what lies outside the view, Godot leaves out
+    draws = {}
+    for variant, counts in zip(scene["variants"], drew, strict=True):
+        if counts:
+            draws.setdefault(int(variant["fires"]), set()).add(int(counts["draws"]))
+    for fires, counted in sorted(draws.items()):
+        if len(counted) > 1:
+            wrong.append(f"{scene['name']}: its ways with {fires} fires draw {sorted(counted)} things, not alike")
+    name_of = {(int(v["fires"]), v["way"]): v["name"] for v in scene["variants"]}
+    for (fires, way), name in name_of.items():
+        if way == "none" or (fires, "none") not in name_of:
+            continue
+        lit = luma(os.path.join(out, f"{scene['name']}-{name_of[(fires, 'none')]}.png"))
+        drawn = luma(os.path.join(out, f"{scene['name']}-{name}.png"))
+        if lit is None or drawn is None or lit.shape != drawn.shape:
+            wrong.append(f"{scene['name']}/{name}: no picture to hold to the fires' without shadows")
+            continue
+        shadowed = drawn < SHADOWED * lit
+        if shadowed.mean() < SHADOWS_LEAST:
+            wrong.append(
+                f"{scene['name']}/{name}: {shadowed.mean():.2%} of its picture in shadow, where its fires cast some"
+            )
+        walk = luma(os.path.join(out, f"{scene['name']}-{name_of.get((fires, 'walk'), '')}.png"))
+        if way == "map" and walk is not None and walk.shape == lit.shape:
+            alone = (shadowed & ~(walk < SHADOWED * lit)).mean()
+            if alone > MAP_ONLY_MOST:
+                wrong.append(f"{scene['name']}/{name}: {alone:.2%} of its picture shadowed where the walk's is lit")
+    return wrong
+
+
 def check(run, out=OUT):
     """Each variant's drawing against its scene's statement: a list of what is wrong, in words."""
     wrong = []
@@ -155,6 +215,8 @@ def check(run, out=OUT):
                 wrong.append(f"{name}: the ground was not drawn")
         if scene["draws"] == "leaves":
             wrong += plants_wrong(scene, drew, out)
+        if scene["draws"] == "fires":
+            wrong += fires_wrong(scene, drew, out)
     read = subprocess.run([kindling(), "look", "calibrate", run["code"]], capture_output=True, text=True)
     if read.returncode != 0:
         wrong.append(f"the run's code does not read: {read.stderr.strip()}")

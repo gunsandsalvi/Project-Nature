@@ -74,6 +74,22 @@ kd_haze_sun={
 "type": "vec3",
 "value": Vector3(0, 0, 0)
 }
+kd_heights={
+"type": "sampler2D",
+"value": ""
+}
+kd_heights_place={
+"type": "vec4",
+"value": Vector4(0, 0, 32, 0)
+}
+kd_fire_maps={
+"type": "sampler2D",
+"value": ""
+}
+kd_fire_screen={
+"type": "sampler2D",
+"value": ""
+}
 
 [rendering]
 

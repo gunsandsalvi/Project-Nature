@@ -56,6 +56,12 @@ public:
     void build(const godot::RID& scenario, const godot::RID& shader);
     /// Shows or hides a part of the drawing: "ground" or "pattern". Never touches a world.
     void set_part(const godot::String& part, bool on);
+    /// Draws the ground with another shader from now on, such as calibration scene C5's for each way of drawing
+    /// fire shadows (A18.1).
+    void set_shader(const godot::RID& shader);
+    /// Puts the ground on these visual layers, so only the cameras that see them draw it: the Compare page's fire
+    /// shadows draw one ground each way, each seen by one of its pictures (A5.5).
+    void set_layers(int64_t layers);
     /// Frees everything it made in the RenderingServer.
     void clear();
 
@@ -104,6 +110,7 @@ private:
     std::vector<godot::RID> meshes_;                 // by form
     std::map<std::uint64_t, godot::RID> instances_;  // by copy
     std::map<std::uint32_t, bool> hidden_;           // forms hidden by the page's switches
+    std::uint32_t layer_mask_ = 1;                   // the visual layers the ground is drawn on
 };
 
 }  // namespace kd::view

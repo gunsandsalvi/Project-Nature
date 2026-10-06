@@ -269,6 +269,7 @@ void KdLook::place(std::uint64_t id, const Copy& copy) {
     if (it == instances_.end()) {
         const godot::RID instance = server().instance_create2(meshes_[copy.form], scenario_);
         it = instances_.emplace(id, instance).first;
+        server().instance_set_layer_mask(instance, layer_mask_);
         server().instance_geometry_set_shader_parameter(instance, "kd_layer", copy.look[0]);
         // the ground is a big caster: it shades through the height-field sun map, never Godot's (A4.4)
         server().instance_geometry_set_cast_shadows_setting(instance,
@@ -298,6 +299,19 @@ void KdLook::set_part(const godot::String& part, bool on) {
         return;
     }
     place_all();
+}
+
+void KdLook::set_shader(const godot::RID& shader) {
+    if (material_.is_valid()) {
+        server().material_set_shader(material_, shader);
+    }
+}
+
+void KdLook::set_layers(int64_t layers) {
+    layer_mask_ = static_cast<std::uint32_t>(layers);
+    for (const auto& [id, instance] : instances_) {
+        server().instance_set_layer_mask(instance, layer_mask_);
+    }
 }
 
 void KdLook::clear_drawing() {
@@ -431,6 +445,8 @@ void KdLook::_bind_methods() {
     ClassDB::bind_method(D_METHOD("load_layers", "paths"), &KdLook::load_layers);
     ClassDB::bind_method(D_METHOD("build", "scenario", "shader"), &KdLook::build);
     ClassDB::bind_method(D_METHOD("set_part", "part", "on"), &KdLook::set_part);
+    ClassDB::bind_method(D_METHOD("set_shader", "shader"), &KdLook::set_shader);
+    ClassDB::bind_method(D_METHOD("set_layers", "layers"), &KdLook::set_layers);
     ClassDB::bind_method(D_METHOD("clear"), &KdLook::clear);
     ClassDB::bind_method(D_METHOD("set_view", "east", "north", "heading", "metres_per_pixel"), &KdLook::set_view);
     ClassDB::bind_method(D_METHOD("set_many", "times"), &KdLook::set_many);

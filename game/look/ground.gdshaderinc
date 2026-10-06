@@ -45,8 +45,13 @@ void fragment() {
 	vec3 glow;
 	vec4 haze;
 	float big_shadow;
-	kd_light_surface(ALBEDO, kd_world, normal, CAMERA_POSITION_WORLD, 1.0, colour, openness, glow, haze,
-			big_shadow);
+	vec4 fire_lit = vec4(1.0);
+#ifdef KD_FIRE_SCREEN
+	// the walk at half resolution, for the first three fires; a fourth is unshadowed
+	fire_lit.rgb = texture(kd_fire_screen, SCREEN_UV).rgb;
+#endif
+	kd_light_surface(ALBEDO, kd_world, normal, CAMERA_POSITION_WORLD, 1.0, fire_lit, colour, openness, glow,
+			haze, big_shadow);
 	kd_big_shadow = big_shadow;
 	ALBEDO = colour;
 	AO = openness;

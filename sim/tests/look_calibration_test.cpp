@@ -465,7 +465,7 @@ TEST_CASE("the calibration scenes in data/scenes/look read whole, with the lines
     for (const look::CalibrationScene& s : set.scenes) {
         named.push_back(s.name);
     }
-    CHECK(named == std::vector<std::string>{"c1", "c2", "c3", "c3-draws", "c4"});
+    CHECK(named == std::vector<std::string>{"c1", "c2", "c3", "c3-draws", "c4", "c5"});
     const auto scene = [&](const std::string& name) -> const look::CalibrationScene& {
         const auto it = std::find_if(set.scenes.begin(), set.scenes.end(),
                                      [&](const look::CalibrationScene& s) { return s.name == name; });
@@ -524,6 +524,23 @@ TEST_CASE("the calibration scenes in data/scenes/look read whole, with the lines
     CHECK(c2.expect_to == 6000);
     CHECK(at_most(c2) == std::vector<std::int64_t>{1500, -1});
     CHECK(c2.decisions[1].then.find("leaf pre-pass is built") != std::string::npos);
+    // C5's fires, 1, 3 and 5, each with their shadows none, by the walk, at half resolution and from maps; three
+    // fires' maps less none against A18.1's 0.4 ms, expected 0.2 to 1.7 ms
+    const look::CalibrationScene& c5 = scene("c5");
+    std::vector<std::string> fires;
+    fires.reserve(c5.variants.size());
+    for (const look::CalibrationVariant& v : c5.variants) {
+        fires.push_back(std::to_string(v.fires) + v.way);
+    }
+    CHECK(fires == std::vector<std::string>{"1none", "1walk", "1walk-half", "1map", "3none", "3walk", "3walk-half",
+                                            "3map", "5none", "5walk", "5walk-half", "5map"});
+    CHECK(c5.decides == "fires3-map");
+    CHECK(c5.minus == "c5/fires3-none");
+    CHECK(c5.line == 400);
+    CHECK(c5.expect_from == 200);
+    CHECK(c5.expect_to == 1700);
+    CHECK(at_most(c5) == std::vector<std::int64_t>{400, -1});
+    CHECK(c5.decisions[0].then.find("unless your blind test sees a difference") != std::string::npos);
 }
 
 // checks: PLT-04, RES-09
