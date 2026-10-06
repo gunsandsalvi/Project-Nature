@@ -68,6 +68,7 @@ This brief is its contract: what it makes, in what form, and by which rules, so 
 - `art/requests/<name>-<nn>.txt`: each request.
 - `art/sources/<name>/<name>-<nn>.webp`: each original kept, as WebP of quality 85; the full original's digest and whether it carried its C2PA record go into the record.
 - `art/textures/<name>/b0.png` to `b8.png`: the levels, lossless PNG; and `record.toml`.
+- `art/textures/<name>/source.png`: the source re-gridded on band 0's grid before the tile is cut (for a tile cut from parts of a picture, that picture re-gridded), so the contrast check always has it.
 - `art/sheets/<name>.webp`: the sheet.
 - `art/log/gpt-runs.md`: every run.
 
@@ -83,6 +84,8 @@ The full prompt, as GPT will read it: what to draw, the area in metres and the b
 the background material only, the camera straight down or straight on and orthographic, even overcast light with no
 light from one side and no darker corners, seamless in both directions, a Stone Age truth line, and what to avoid.
 ```
+
+A redraw of a coarse band may ask for bigger blocks, the picture's side over the level's (16 for band 2, 32 for band 3), saying so in its Purpose.
 
 ## A record
 
@@ -114,8 +117,20 @@ file = "art/textures/meadow/b1.png"
 sha256 = "…"
 made_from = "…"                        # the digest of the level above; a level whose source changed is stale
 way = "GPT redraw of band 0, re-gridded, colours matched by code"
+regrid_loss = "4.4%"                   # a redrawn band's own re-grid loss; only on redrawn bands
 calibration = "lightness +1.3%, hue -6.2 degrees, colourfulness 103%, contrast 90%"
 ```
+
+## The checks (T2.3a.1)
+
+- **Re-grid loss:** at most 10%, for band 0 and for each redrawn band.
+- **Seams:** band 0's wrap at most 1.2 times its median step; each redrawn band's wrap no larger than its own ordinary steps between neighbouring rows and columns (in a smaller level the 1.2 line is noise: 10 to 33% of a level's ordinary boundaries already pass it).
+- **Painted light:** band 0's slope at most 0.02; a redrawn band's is measured when it is prepared and written in its `way`.
+- **Repeat:** band 0's at most 0.2, or at most its source's own where the material's grain repeats (a bark's fissures), so only tiling fails it.
+- **Texture pixel contrast:** band 0's within a quarter of `source.png`'s.
+- **Accents:** bands 1 to 3 at least 90% of band 0's, without speckle: a level drawn for its band keeps bolder marks and fewer of them (A5.3), never single texture pixels.
+  Bands 4 to 6 are reported, not judged here: their texture pixel is 25 cm to a metre, larger than most marks, and the world's own patches carry the far ground's accents, so the engine's lit frames judge them (A4.8), and the owner's eye.
+- **Drift:** every band's lightness within 0.02 and hue within 5° of band 0's.
 
 ## Truth (A5.6)
 
@@ -142,6 +157,14 @@ For the camp under the cliff by the river at the closest zoom (α2.3), in this o
 7. brush (twigs and branches) and bark sheets;
 8. the stones of a hearth ring and a tent's ring;
 9. ash and charcoal round a hearth.
+
+### Its second round, after the builder's review (6 October 2026)
+
+Within batch 1's 11 pictures left:
+1. **The code reduction draws bolder marks and fewer of them** (A5.3): the larger marks kept two texture pixels wide at the coarser level and the smaller ones dropped, so bands 1 to 3 keep 90% of band 0's accents without speckle.
+2. **Bare earth, trodden floor and bank gravel:** bands 1 and 2 redrawn by GPT again, the route answer 36 chose for big surfaces, and the improved reduction for any that still comes off the grid.
+3. **The checks above:** the loss of each redrawn band, the seams of redrawn bands, the repeat against the source's own, accents on bands 1 to 3, and `source.png` for limestone A.
+4. **Waiting for the owner:** the rock surface, the meadow's band 0 and the stepped-diamond mottle; the far bands' repeat waits for the ground on the phone (α2.3b), where each 4 m patch's own picture varies it.
 
 ## The batch report
 

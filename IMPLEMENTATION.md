@@ -128,7 +128,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Planned |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Planned |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | T2.3a.2 and T2.3a.3 in the art lane from now; the rest after α2.2 |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 joined on 6 October 2026: its tools and 18 materials, waiting for your yes or no, in a second round for the checks they fail; the rest after α2.2 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
 | α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
 | α2.3d | People, a deer and first light | M2 | 6 | Planned |
@@ -322,7 +322,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.3a.1` **The `texture` kind and its checks (`PRE-20`, `PRE-42`).**
-   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as `art/BRIEF.md` sets it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10%; seams at most 1.2; painted light at most a slope of 0.02; no strong repeat (at most 0.2); texture pixel contrast within a quarter of its approved source's; accents at every band at least 90% of band 0's; lightness within 0.02 and hue within 5° between bands.
+   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as `art/BRIEF.md` sets it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`, as `art/BRIEF.md` lists them: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10% for band 0 and each redrawn band; band 0's seams at most 1.2, and a redrawn band's no larger than its own ordinary steps; band 0's painted light at most a slope of 0.02; no strong repeat (at most 0.2, or the source's own where a grain repeats); texture pixel contrast within a quarter of its approved source's; accents at bands 1 to 3 at least 90% of band 0's, bands 4 to 6 judged in the engine's lit frames (A4.8), since their texture pixel is larger than most marks; lightness within 0.02 and hue within 5° between bands.
 2. `T2.3a.2` **The tools, in the art lane (`PRE-22`).**
    In the cloud, from the start of M2: re-gridding (block size and phase window by window, the median colour, seams, the light check), the code reduction for a band, and colour matching to band 0 in four numbers that keeps the accents; the lab sheet (flat and lit, every band, at true size and enlarged, beside its source); and T2.3a.1's checks, with the colour measures of `kindling look` (T2.1b.1), so each measure is written once.
 3. `T2.3a.3` **The camp's materials, in the art lane (`PRE-20`, `PRE-23`).**
@@ -332,7 +332,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 **Tests:**
 - Each check catches its planted fault: a missing record, a stale level, painted light, a seam, a repeat, and an averaged level whose accents fall to 77% of band 0's.
-- Re-gridding study 5's swatches loses 2–8%, as research 19 measured.
+- Re-gridding study 5's swatches loses at most 10% each and 2–8% at the median, as research 19 measured (the committed swatches are lossy WebP, which adds up to 1.5%).
 - The set loads within the 3 seconds a world may take to open, and its memory is within A18.1's 300 MB.
 - Passes if all pass and you approve or send back each sheet.
 
