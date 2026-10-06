@@ -428,7 +428,7 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
 ### A4.2 Steady texture pixels (`PRE-22`)
 
 - **One sampling function** reads every texture (`CLAUDE.md`, rule 4): the "smooth pixel" filter, crisp inside each texture pixel and blended over one screen pixel at its edge.
-  - It reads with the chip's own blending, at a coordinate moved so that the blend happens only at a texture pixel's edge, from textures stored with blending and mipmaps on, at the level it picks from the coordinates' true slope (`textureLod`): once, or twice within the short blend between levels.
+  - It reads with the chip's own blending, at a coordinate moved so that the blend happens only at a texture pixel's edge, from textures stored with blending and mipmaps on, at the level it picks from the coordinates' true slope (`textureLod`): once, or twice within the short blend between levels or between a big surface's tiles (A5.3).
     *Built in α2.1a:* the chip's own choice of level (`textureGrad`) blends two levels over a whole level's span and reads the second without moving its coordinate, so the function picks the level itself.
     The rig names the band at the focus by the same rule, to know which levels to keep, and publishes the least size (`kd_texel_least`), so the rule's number is written once.
   - *Computed in research 19* (studies 2 and 6): it flickers on 0.4–1.1% of pixels as the camera moves, against 17–28% for nearest-pixel reading, and keeps 94–98% of its crispness.
@@ -624,8 +624,14 @@ It replaces the art bible's rules.
   - *Computed* (study 2): at 12 m across the view moves from 64 to 32 a metre, at 24 m to 16, at 50 m to 8, at 100 m to 4, and at the camp zoom (about 300 m) to 2.
 - One density for the world and the figures: a standing adult is about 100 texture pixels tall up close, and a face about 14.
 - Every level is drawn as pixel art for its band, with bolder marks and fewer of them, never the level above averaged: averaging lost about a fifth of the ground's accents and was the speckle of answer 31.
+- **A big surface has a tile for each distance,** each drawn from a picture of how the material looks from there, never the nearer tile shrunk (`PRE-22`; your word of 6 October 2026, after the art lane's first sheets showed a 4 m tile repeating every 16 screen pixels at the camp zoom, as study 7 had warned):
+  - **near,** 4 m, for bands 0 and 1 (up to about 24 m across): blades, crumbs and pebbles;
+  - **middle,** 16 m, for bands 2 and 3 (the close camp, about 24–100 m across): clumps, tufts and stones in drifts;
+  - **far,** 64 m, for bands 4 to 6 (the camp zoom, about 100–800 m across): swathes of taller and shorter growth, bare and damp patches;
+  - each tile is 256 texture pixels across at its first band, with designed levels below it, so all three fit one texture array; at a switch, the nearer tile's last level and the farther tile's first blend over the same short zoom as any two levels (study 2: "bands with larger tiles need a blend at the switch"), and each place's patch picture (A4.6) varies all three, so none repeats as wallpaper;
+  - beyond about 800 m, the world's own colours take over (A4.6).
 - Grass, reeds, flowers and flames keep their true size in metres while their design follows the band; flowers, berries and eyes never fall below one texture pixel (`PRE-46`).
-- Memory is the cost, not time: about 50–150 MiB of lossless textures at 64 a metre for about 150 materials with their levels (estimates), within A18.1's 300 MB.
+- Memory is the cost, not time: about 50–150 MiB of lossless textures at 64 a metre for about 150 materials with their levels, and about 30 MiB more for the middle and far tiles of about 30 big surfaces (estimates), within A18.1's 300 MB.
 
 ### A5.4 Where textures come from (research 19, studies 5 and 7)
 
@@ -638,7 +644,7 @@ It replaces the art bible's rules.
   3. **vet** for Stone Age truth (A5.6), nothing countable in a ground, and the scale asked; recorded;
   4. **re-grid** by a deterministic cloud tool: the block size and its phase found window by window, each block's median colour becoming a texture pixel; seams blended where needed; a light check (a slope of at most 0.02); lossless.
      *Measured* (study 7): swatches asked for blocks re-grid with 2–8% loss;
-  5. **designed levels,** one for each band where the material is seen: for big surfaces GPT redraws each band from the level above, which then goes through steps 2 to 4 (your pick for the close camp's ground, answer 36); for the rest a code reduction or code from rules; each level records the digest of the level it came from, so a change above marks it stale;
+  5. **designed levels,** one for each band where the material is seen: for big surfaces a near, middle and far tile, each from its own picture of the material at that distance (A5.3), and within each tile GPT redraws the next band from the level above, which then goes through steps 2 to 4 (your pick for the close camp's ground, answer 36); for the rest a code reduction or code from rules; each level records the digest of the level it came from, so a change above marks it stale;
   6. **calibrate** in the look lab: the material lit at the target card's hours, with a few numbers fitted (lightness, hue, colourfulness, contrast) until each band matches band 0 and the card, keeping the accents, not only the spread;
   7. **approve:** a lab sheet in the note shows the texture flat and lit, at every band, at true size and enlarged, beside its source; your words and the date go into its record;
   8. **ship:** the levels are committed as lossless files and listed with their digests in `build.toml`, inside the look digest, so a texture change is a small update (`PLT-09`);

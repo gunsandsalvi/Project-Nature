@@ -26,7 +26,7 @@ This brief is its contract: what it makes, in what form, and by which rules, so 
    Never print, copy or move a secret: the Codex sign-in file, a key or a passphrase.
    Never buy credits or change a plan; at a limit (a run that fails for usage), note what waits and carry on with work that needs no GPT.
    While `/tmp/kindling-gpt-paused` exists, runs are held: the builder pauses the lane that way.
-3. **A budget for each batch:** batch 1 is at most 30 pictures, retries included; ask the builder in the report before going over.
+3. **Pictures as needed:** no fixed number a batch since the owner's word of 6 October 2026 ("I have used almost nothing of my gpt limit, you can allow more pictures if the agents evaluates it can improve the result"): ask GPT again wherever you judge a picture will improve a material, log every run, and give the count in the report; at a usage limit, wait as rule 2 says.
 4. **No AI model's name in any committed file.** The run log says "Codex 0.160.1, its image tool"; Codex's own log stays out of git.
 5. **Truth before use:** every picture is checked against the list below before it becomes a source, a guide or a target, and the verdict goes into its record.
 6. **Tools are tested code.** Each tool in `tools/art/` has unit tests in `tools/tests/test_art_<tool>.py` (`unittest`, with `# checks: <ID>` above each test), passes `ruff format` and `ruff check`, and names what it implements in its docstring ("Implements PRE-22, see A5.4.").
@@ -44,8 +44,14 @@ This brief is its contract: what it makes, in what form, and by which rules, so 
 
 - **Band 0,** the closest zoom (about 8 m across the screen): 64 texture pixels a metre, each shown as about 2 × 2 screen pixels.
 - **Each band farther out** has half the density: band 1 32 a metre, band 2 16 (the close camp), band 3 8, band 4 4, band 5 2 (the camp zoom), band 6 1.
-- **A ground or rock surface** is a seamless tile of 256 × 256 texture pixels at band 0 (4 m), with every level below it: 128, 64, 32, 16, 8, 4, 2 and 1, each texture pixel of a level covering exactly 2 × 2 of the level above.
-- **Designed, never averaged:** bands 1 to 3 are drawn for their size, by the redraw route (GPT redraws the level above, then re-gridding and colour matching) for big surfaces, or by the code reduction for small ones; the levels below band 3 come from the code reduction.
+- **A texture** is a seamless tile of 256 × 256 texture pixels at its first band, with every level below it: 128, 64, 32, 16, 8, 4, 2 and 1, each texture pixel of a level covering exactly 2 × 2 of the level above.
+- **A big surface has three tiles,** each drawn from its own picture of how the material looks from that distance, never the nearer tile shrunk (A5.3; the owner's word of 6 October 2026: "I don't think you should use the same textures for up close and zoom away"):
+  - **near,** 4 m at band 0 (64 a metre), for bands 0 and 1: blades, crumbs and pebbles;
+  - **middle,** 16 m at band 2 (16 a metre), for bands 2 and 3, the close camp: clumps, tufts and stones in drifts;
+  - **far,** 64 m at band 4 (4 a metre), for bands 4 to 6, the camp zoom: swathes of taller and shorter growth, bare and damp patches.
+  The big surfaces are the ground covers and rock: meadow, bare earth, trodden floor, bank gravel, river bed and the chosen rock.
+  Hide, bark, poles, brush, hearth stones and ash cover small things and keep one tile.
+- **Designed, never averaged:** within each tile, the band after its first is drawn for its size by the redraw route (GPT redraws the level above, then re-gridding and colour matching) for big surfaces, or by the code reduction for small ones; the levels below come from the code reduction, which draws bolder marks and fewer of them.
   Godot's averaged mipmaps are never used: averaging was the speckle of answer 31.
 - **Every level is a file:** the phone loads all of them and makes none.
 - Small things (plant cards, faces, held tools) have their own sizes for each band; they come in a later batch, when the builder asks.
@@ -60,6 +66,7 @@ This brief is its contract: what it makes, in what form, and by which rules, so 
 6. **Levels:** bands 1 to 3 designed as above, each recording the digest of the level it came from; the rest by the code reduction.
 7. **Colour matching:** each designed level fitted to the level above in four numbers (lightness, hue, colourfulness, contrast) that keep its accents: at least 90% of band 0's.
 8. **The sheet:** `art/sheets/<name>.webp`, lossless and 1080 pixels wide, the owner's phone's width: every band at true size (each texture pixel 2 × 2 pixels), the same enlarged, flat and under a stand-in light (true midday, late afternoon, shade), beside a crop of its source.
+   For a big surface, each band also as a strip the phone's full width, the ground the screen shows at that zoom, so any repeat shows as it would in the game.
    The engine's Lab page later shows the real light.
 9. **The record** below, and the commit.
 
@@ -68,6 +75,7 @@ This brief is its contract: what it makes, in what form, and by which rules, so 
 - `art/requests/<name>-<nn>.txt`: each request.
 - `art/sources/<name>/<name>-<nn>.webp`: each original kept, as WebP of quality 85; the full original's digest and whether it carried its C2PA record go into the record.
 - `art/textures/<name>/b0.png` to `b8.png`: the levels, lossless PNG; and `record.toml`.
+  A big surface's middle and far tiles are folders of their own inside it, `art/textures/<name>/middle/` and `art/textures/<name>/far/`, each with its levels from `b0.png` (its first band) and its own record.
 - `art/textures/<name>/source.png`: the source re-gridded on band 0's grid before the tile is cut (for a tile cut from parts of a picture, that picture re-gridded), so the contrast check always has it.
 - `art/sheets/<name>.webp`: the sheet.
 - `art/log/gpt-runs.md`: every run.
@@ -94,8 +102,9 @@ Integers and strings only, never a float, since the catalogue's loader refuses f
 ```toml
 about = "short wild meadow grass and bare earth: the background of the meadow cover"
 route = "picture"                      # picture, code or world
-tile_texels = 256                      # band 0's side: 4 m at 64 texture pixels a metre
-texels_a_metre = 64                    # at band 0
+tile_texels = 256                      # its first level's side: 4 m at 64 texture pixels a metre
+texels_a_metre = 64                    # at its first level
+first_band = 0                         # the band its first level is drawn for: 0 near, 2 middle, 4 far
 sources = ["art/sources/meadow/meadow-01.webp"]
 original_sha256 = ["…"]                # each full original as GPT made it, in the same order
 c2pa = ["present"]                     # whether each full original carried its C2PA record
@@ -128,9 +137,9 @@ calibration = "lightness +1.3%, hue -6.2 degrees, colourfulness 103%, contrast 9
 - **Painted light:** band 0's slope at most 0.02; a redrawn band's is measured when it is prepared and written in its `way`.
 - **Repeat:** band 0's at most 0.2, or at most its source's own where the material's grain repeats (a bark's fissures), so only tiling fails it.
 - **Texture pixel contrast:** band 0's within a quarter of `source.png`'s.
-- **Accents:** bands 1 to 3 at least 90% of band 0's, without speckle: a level drawn for its band keeps bolder marks and fewer of them (A5.3), never single texture pixels.
-  Bands 4 to 6 are reported, not judged here: their texture pixel is 25 cm to a metre, larger than most marks, and the world's own patches carry the far ground's accents, so the engine's lit frames judge them (A4.8), and the owner's eye.
-- **Drift:** every band's lightness within 0.02 and hue within 5° of band 0's.
+- **Accents:** every band a surface is seen at, from the tile that serves it (near bands 0 and 1, middle 2 and 3, far 4 to 6), at least 90% of the near tile's band 0, without speckle: a level drawn for its band keeps bolder marks and fewer of them (A5.3), never single texture pixels.
+  A material with one tile is judged on bands 1 to 3; its bands 4 to 6 are reported only, since there its texture pixel is 25 cm to a metre, larger than its marks, on things that small.
+- **Drift:** every band's lightness within 0.02 and hue within 5° of the near tile's band 0, across the tiles, so the ground keeps its colour as you zoom.
 
 ## Truth (A5.6)
 
@@ -160,11 +169,13 @@ For the camp under the cliff by the river at the closest zoom (α2.3), in this o
 
 ### Its second round, after the builder's review (6 October 2026)
 
-Within batch 1's 11 pictures left:
-1. **The code reduction draws bolder marks and fewer of them** (A5.3): the larger marks kept two texture pixels wide at the coarser level and the smaller ones dropped, so bands 1 to 3 keep 90% of band 0's accents without speckle.
-2. **Bare earth, trodden floor and bank gravel:** bands 1 and 2 redrawn by GPT again, the route answer 36 chose for big surfaces, and the improved reduction for any that still comes off the grid.
-3. **The checks above:** the loss of each redrawn band, the seams of redrawn bands, the repeat against the source's own, accents on bands 1 to 3, and `source.png` for limestone A.
-4. **Waiting for the owner:** the rock surface, the meadow's band 0 and the stepped-diamond mottle; the far bands' repeat waits for the ground on the phone (α2.3b), where each 4 m patch's own picture varies it.
+With as many pictures as improve the result (rule 3):
+1. **Middle and far tiles** for the meadow, bare earth, trodden floor, bank gravel and river bed, each from GPT's own picture of the material at that distance, so no zoom repeats a 4 m tile; the rock's once the owner picks it.
+2. **The near tile's band 1** redrawn by GPT for bare earth, trodden floor and bank gravel, the route answer 36 chose for big surfaces, and the improved reduction for any that still comes off the grid.
+3. **The code reduction draws bolder marks and fewer of them** (A5.3): the larger marks kept two texture pixels wide at the coarser level and the smaller ones dropped, so designed bands keep 90% of their first level's accents without speckle.
+4. **The checks above:** the loss of each redrawn band, the seams of redrawn bands, the repeat against the source's own, accents on the designed bands, `source.png` for limestone A, and the middle and far tiles' folders.
+5. **The sheets** with each band as a strip the phone's full width.
+6. **Waiting for the owner:** the rock surface, the meadow's band 0 and the stepped-diamond mottle.
 
 ## The batch report
 

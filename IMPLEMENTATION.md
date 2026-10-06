@@ -322,11 +322,11 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.3a.1` **The `texture` kind and its checks (`PRE-20`, `PRE-42`).**
-   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as `art/BRIEF.md` sets it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`, as `art/BRIEF.md` lists them: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10% for band 0 and each redrawn band; band 0's seams at most 1.2, and a redrawn band's no larger than its own ordinary steps; band 0's painted light at most a slope of 0.02; no strong repeat (at most 0.2, or the source's own where a grain repeats); texture pixel contrast within a quarter of its approved source's; accents at bands 1 to 3 at least 90% of band 0's, bands 4 to 6 judged in the engine's lit frames (A4.8), since their texture pixel is larger than most marks; lightness within 0.02 and hue within 5° between bands.
+   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as `art/BRIEF.md` sets it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`, as `art/BRIEF.md` lists them: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10% for band 0 and each redrawn band; band 0's seams at most 1.2, and a redrawn band's no larger than its own ordinary steps; band 0's painted light at most a slope of 0.02; no strong repeat (at most 0.2, or the source's own where a grain repeats); texture pixel contrast within a quarter of its approved source's; accents at every band a surface is seen at, from the tile that serves it, at least 90% of the near tile's band 0 (a one-tile material's bands 4 to 6 reported only, since there its texture pixel is larger than its marks); lightness within 0.02 and hue within 5° between bands and across tiles.
 2. `T2.3a.2` **The tools, in the art lane (`PRE-22`).**
    In the cloud, from the start of M2: re-gridding (block size and phase window by window, the median colour, seams, the light check), the code reduction for a band, and colour matching to band 0 in four numbers that keeps the accents; the lab sheet (flat and lit, every band, at true size and enlarged, beside its source); and T2.3a.1's checks, with the colour measures of `kindling look` (T2.1b.1), so each measure is written once.
 3. `T2.3a.3` **The camp's materials, in the art lane (`PRE-20`, `PRE-23`).**
-   Meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and two or three rock surfaces for each world's layers laid by code, since your answer 34 found neither tried so far; each by its route with its designed levels, within the art lane's first batch of at most 30 GPT pictures, each vetted for truth (A5.6) and recorded.
+   Meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and two or three rock surfaces for each world's layers laid by code, since your answer 34 found neither tried so far; each by its route with its designed levels, and each big surface (the ground covers and the chosen rock) with its near, middle and far tiles, each from its own picture of the material at that distance (A5.3); with as many GPT pictures as improve the result (your word of 6 October 2026), each vetted for truth (A5.6) and recorded.
 4. `T2.3a.4` **On the phone, and delivery (`PLT-04`).**
    A Lab page with every sheet; loading time and texture memory measured; deliver as 30301.
 
@@ -349,7 +349,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.3b.1` **The ground and the cliff (`PRE-23`, `PRE-24`).**
-   A stand-in area made by code, a camp under a cliff by a river about 256 m across, its ground on the tree of ground near the focus with its patch picture and designed levels; a cliff whose layers come from a stand-in geology (limestone over shale, weathered back into a rock shelter), with cracks, stains, soot above the shelter and scree at its foot.
+   A stand-in area made by code, a camp under a cliff by a river about 256 m across, its ground on the tree of ground near the focus with its patch picture and designed levels, each big surface's near, middle and far tiles blending at their switches as any two levels do (A5.3); a cliff whose layers come from a stand-in geology (limestone over shale, weathered back into a rock shelter), with cracks, stains, soot above the shelter and scree at its foot.
 2. `T2.3b.2` **Light, shadows and darkening (`PRE-21`, `PRE-30`).**
    The shared light function (the sun by its height, the sky's fill by openness, bounce, backlight, haze); Godot's sun map at 2,048 for small casters and our height-field sun map for big ones; the openness and contact maps; creases baked by the kit; the tone curve, a first colour table and debanding.
 3. `T2.3b.3` **Water, and delivery (`PRE-26`).**
@@ -357,6 +357,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 **Tests:**
 - Golden pictures of the area at the closest zoom at noon and dusk; shimmer on the three scripted paths at most 2 in 100 pixels; the texture pixel 1.5–3 screen pixels; no pass reads the screen or depth (a scan of the shaders).
+- On a pinch from the closest zoom to the camp zoom, no tile repeats strongly in any frame (the repeat measure on the ground's pixels at most 0.2), and the switches between tiles pass the shimmer line.
 - Shade is never black; the hollow under the overhang is darker than open ground; a long shadow's edge is softer 10 m from its caster than 1 m from it.
 - Passes if all pass, and the frame on the phone stays within its line or names the part over it.
 
