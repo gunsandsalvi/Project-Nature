@@ -1,0 +1,82 @@
+about = "brush: twigs and small branches laid as the wall of a brush shelter or windbreak, a few dry leaves caught in them"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+sources = ["art/sources/brush/brush-02.webp", "art/sources/brush/brush-01.webp"]
+original_sha256 = ["6c948339a71e12b7f96be4ec165bfdd55cd3b20ca066be57e8b5c6200b0f1255", "6261c78c08ab412fcf821e68fd8b2d3014517e959c1c3b9005e209ab931ebdae"]
+c2pa = ["present", "present"]
+requests = ["art/requests/brush-02.txt", "art/requests/brush-01.txt"]
+made = "brush-02's left swatch (GPT's redraw of brush-01 as clean block art), re-gridded at 4.0-pixel blocks (at GPT's own blocks of about 5.3 the loss was 13.4%), its painted light taken out, quilted by code into a seamless 4-metre tile"
+regrid_loss = "9.7%"
+truth = "art lane, 2026-10-06, each source looked at enlarged: gathered twigs and branches, broken by hand; no rope, sawn wood or basketry"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/brush/b0.png"
+sha256 = "a4c71a8a7269a4b0f31f9f2fa3abe7837519b3ccfd01de6ec0e5617dd4777910"
+way = "re-gridded from its source, light taken out, made seamless by code"
+
+[[band]]
+level = 1
+file = "art/textures/brush/b1.png"
+sha256 = "eb7da21007f61783b6c157323a1f8839df7abec5c141c36154f6ab655e42961f"
+made_from = "a4c71a8a7269a4b0f31f9f2fa3abe7837519b3ccfd01de6ec0e5617dd4777910"
+way = "code reduction of band 0 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +1.3%, hue +0.3 degrees, colourfulness 105%, contrast 93%"
+
+[[band]]
+level = 2
+file = "art/textures/brush/b2.png"
+sha256 = "beb7ce1d6a68865858dc5b6befa1a579b586f975c4dd2b4a9fa15c753ef93553"
+made_from = "eb7da21007f61783b6c157323a1f8839df7abec5c141c36154f6ab655e42961f"
+way = "code reduction of band 1 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +5.2%, hue -0.2 degrees, colourfulness 114%, contrast 95%"
+
+[[band]]
+level = 3
+file = "art/textures/brush/b3.png"
+sha256 = "ec3e25272b24cf5c419e15c0e2756b4732fc7859fb92bb1145dbfdf31903a361"
+made_from = "beb7ce1d6a68865858dc5b6befa1a579b586f975c4dd2b4a9fa15c753ef93553"
+way = "code reduction of band 2 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +7.4%, hue +0.8 degrees, colourfulness 137%, contrast 130%"
+
+[[band]]
+level = 4
+file = "art/textures/brush/b4.png"
+sha256 = "8451064e73d6b5aa43c7aa38e1a2ec8c2b4b33c53968e044326cefc43b850852"
+made_from = "ec3e25272b24cf5c419e15c0e2756b4732fc7859fb92bb1145dbfdf31903a361"
+way = "code reduction of band 3 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +1.8%, hue +3.0 degrees, colourfulness 110%, contrast 107%"
+
+[[band]]
+level = 5
+file = "art/textures/brush/b5.png"
+sha256 = "7b76203326cf9674aeb9c320c6078a59616ef1955a0b4074f670292c1915bfd0"
+made_from = "8451064e73d6b5aa43c7aa38e1a2ec8c2b4b33c53968e044326cefc43b850852"
+way = "code reduction of band 4 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +3.6%, hue +4.5 degrees, colourfulness 105%, contrast 100%"
+
+[[band]]
+level = 6
+file = "art/textures/brush/b6.png"
+sha256 = "43d05f91e220b03173d24451c676717fbd6b0a6e3b150115dcad232374ad3284"
+made_from = "7b76203326cf9674aeb9c320c6078a59616ef1955a0b4074f670292c1915bfd0"
+way = "code reduction of band 5 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +0.0%, hue +0.0 degrees, colourfulness 100%, contrast 100%"
+
+[[band]]
+level = 7
+file = "art/textures/brush/b7.png"
+sha256 = "cf6f09360bd50040a5b6c9b6bfbdb856c68dded8cac285d1c7c4a4c603c8a2ba"
+made_from = "43d05f91e220b03173d24451c676717fbd6b0a6e3b150115dcad232374ad3284"
+way = "code reduction of band 6 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +0.0%, hue +0.0 degrees, colourfulness 100%, contrast 100%"
+
+[[band]]
+level = 8
+file = "art/textures/brush/b8.png"
+sha256 = "406a93b134b87409d2a82aa7ddc9556126f89c54556dacd167a25cb8d20624b0"
+made_from = "cf6f09360bd50040a5b6c9b6bfbdb856c68dded8cac285d1c7c4a4c603c8a2ba"
+way = "code reduction of band 7 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +0.0%, hue +0.0 degrees, colourfulness 100%, contrast 100%"

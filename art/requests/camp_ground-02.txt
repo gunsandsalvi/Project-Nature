@@ -1,0 +1,24 @@
+Purpose: Batch 1, materials 2 (art/BRIEF.md), a retry of camp_ground-01 and of earth_stone_ash-01's bare earth: band 0's sources of the camp's working ground, bare earth and the trodden floor, on which people stand at the closest zoom, so they must be quiet (A5.2, rule 8). At true size camp_ground-01's two grounds read as a fine crosshatch, like knitting, from small marks GPT laid on a diagonal lattice; earth_stone_ash-01's earth lost the lattice but repeats one clover-shaped clod. The wording that cured the lattice in the hides and the stone (large irregular stains with ragged, meandering edges, placed at random) is used here, with the crumbs asked for as small, single or paired texture pixels of every shape. The input is the liked picture's camp floor round the hearth and the path, cut from its full original and enlarged twice with hard edges, for its colours. Each swatch will be re-gridded by code, made into a seamless 4-metre tile, checked for truth, repeats and speckle, and shown to the owner on its sheet.
+Orientation: landscape, 1536 x 1024
+Input picture: /tmp/kindling-art/work/in-camp-ground.png
+Transparent: no
+Prompt:
+From the input picture, paint two flat ground textures for a 3D game, side by side, in the input's own warm, golden, muted browns, tans and beiges and its pixel-art painting, each seen straight down, with the sunlight, shadows, people, stones and fire taken out.
+
+The two, left and right:
+(1) Left: bare earth, the camp's ground where the grass has worn away but the soil is not yet packed hard: warm mid-brown soil. Its colour wanders in large, soft, irregular stains 10 to 40 texture pixels across, one shade lighter or darker, with ragged, meandering edges, placed at random. On it lie small crumbs of darker soil and a few pale grains of grit: each crumb a single texture pixel or two side by side, of every shape, scattered unevenly, thick in some places and sparse in others.
+(2) Right: the trodden floor, the hard-packed earth round the hearth and along the path in the input, worn smooth by feet: warm tan and beige, paler and smoother than the bare earth. It is mostly one quiet colour: its colour wanders in a few large, soft, irregular worn patches 15 to 60 texture pixels across, only one shade lighter or darker, with ragged, meandering edges, placed at random; between them the floor is plain and smooth, neighbouring texture pixels mostly the same colour, with a very few single grains of grit.
+
+Scale and grid: each texture shows 1.5 metres by 2 metres of ground, as 96 by 128 texture pixels of about 1.6 centimetres each. Every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling. Every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering.
+
+Layout: on one perfectly flat, uniform mid-grey background (#808080), two equal upright rectangles side by side, each about 736 picture pixels wide and 992 tall, separated by a straight grey gap about 32 pixels wide, with a grey margin of about 16 pixels round them. The rectangles do not touch and have no frames.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; each texture fills its rectangle from edge to edge.
+
+Light: the low late-afternoon sun of the input is removed. Each texture is lit evenly and softly from straight above, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: each texture tiles on its own in both directions: what leaves its right edge comes back at its left edge, and what leaves its bottom edge comes back at its top, with no seam.
+
+Stone Age truth: the ground of a hunter-gatherer camp of about 12,000 years ago: earth, sand and grit only.
+
+Avoid: any pattern at all: crosses, plus signs, X shapes, clover shapes, diamonds, checks, a checkerboard, a crosshatch, scales, lines or marks in rows, diagonals or a regular lattice; small evenly spaced clusters; the same mark repeated; grass, plants and roots; stones larger than a pea, pebbles, flint flakes, bones, sticks, charcoal, ash; footprints, tracks, paths, ruts or puddles; anything made by people: paving, planks, straw or mats; text, labels, numbers or watermarks; frames, borders or grid lines; perspective or a horizon; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours.

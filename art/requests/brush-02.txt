@@ -1,0 +1,23 @@
+Purpose: Batch 1, materials 7 (art/BRIEF.md), a retry of brush-01: band 0's sources of brush (twigs and branches) and a bark sheet, for the shelters the owner welcomed (answer 13). brush-01's design is right and truthful, but it is painted with soft shading inside its twigs and bark scales, finer than its blocks, so re-gridding it onto texture pixels loses 20 to 24% of its colour detail, over the brief's line of 10%, and its texture pixels would not be the ones GPT drew. This asks GPT to redraw brush-01 itself, keeping its design and colours, as clean block pixel art with every block one flat colour. The input is brush-01, as GPT made it. Each swatch will be re-gridded by code, made into a seamless tile, checked for truth and shown to the owner on its sheet.
+Orientation: landscape, 1536 x 1024
+Input picture: /tmp/kindling-art/gpt/brush-01.png
+Transparent: no
+Prompt:
+Redraw the input picture as clean, strict pixel art, keeping everything else about it: the same two textures side by side on the same mid-grey background, the same layout, shapes, sizes and colours.
+
+(1) Left: the brush, the woven wall of a brush shelter: the same tangle of thin twigs and small branches crossing at all angles, grey-brown and dark brown, with the same pale broken ends, the same few dry brown leaves and the same dark gaps between them.
+(2) Right: the bark sheet: the same grey-brown bark with its fine scales, shallow cracks running from top to bottom, paler patches and dark knot marks.
+
+What changes: the painting becomes strict pixel art on one regular grid. Every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling, and every block is one flat colour: no shading or gradient inside a block, no anti-aliasing, no blur, no soft edges, no noise, no dithering. A twig is 1 to 3 blocks thick, with a lighter row of blocks on its upper side and a darker row on its lower side where it is thick enough; each bark scale is a small flat shape of blocks in one or two shades. Use about 6 to 10 shades for each texture.
+
+Scale: each texture shows 1.5 metres by 2 metres of surface, about 92 by 124 texture pixels of about 1.6 centimetres each.
+
+Camera: straight on, orthographic, flat, with no perspective and no tilt; each texture fills its rectangle from edge to edge.
+
+Light: as in the input, lit evenly and softly from straight in front, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows beyond the small gaps between twigs, no highlights, no darker or lighter corners or edges, no vignette and no gradient across the rectangle.
+
+Seamless: each texture tiles on its own in both directions: what leaves its right edge comes back at its left edge, and what leaves its bottom edge comes back at its top, with no seam.
+
+Stone Age truth: materials gathered and peeled by hand by hunter-gatherers of about 12,000 years ago: wood and bark only, never cut by a saw.
+
+Avoid: changing the design, the colours or the layout; sawn wood, planks, boards, sticks cut square, wattle woven in a regular basket pattern, rope, cords or bindings; the edges or outline of a bark sheet, overlapping sheets or shingles; green leaves, flowers, moss or lichen; metal; text, labels, numbers or watermarks; frames, borders or grid lines; perspective; a repeating stamped pattern, or marks lined up in rows, diagonals or a regular lattice; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours.

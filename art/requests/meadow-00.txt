@@ -1,0 +1,25 @@
+Purpose: The first ground texture from the approved crop (ground-from-approved.png) tiled and lost its light, but its detail was finer than the game can show: reduced to the close camp zoom's density (about 15 texture pixels a metre) its painted contrast fell by a third against the approved picture's ground, and its flower clumps turned to grey-purple speckle; and its path and flower clumps repeated every 2.5 metres. Two pipeline rules would follow if a better request fixes this: ask for each source at the game's scale (bigger patches, bolder features), and leave out of textures everything the world places itself (paths, flowers, stones). Only a real picture shows whether GPT can paint such a background and keep the approved feel. I will measure its contrast at the person and close camp densities, its seams and light, and how visible its repeat is, against the approved crop and the first texture.
+Orientation: square, 1024 x 1024 (if square is not possible: portrait)
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/work2/7/gpt/in-ground-x3.png
+Prompt:
+Paint a game texture of the meadow in the input picture. The input is a crop, enlarged three times with hard edges, of an approved painting of a Stone Age camp: a meadow of short wild grass in soft clumps, seen from above at about 40 degrees in a warm late-afternoon sun from the upper left. Use it only for the colours, the kind of grass and the painted style.
+
+Make one square colour texture (an albedo map) of the meadow alone, for a 3D game whose own engine adds the sun, the shadows and the pixel grid later, and which places paths, flowers, stones and tufts as separate objects on top of this texture.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; the meadow fills the square from edge to edge. The square shows a larger piece of ground than the input: about 4 by 4 metres. A person standing there would be about 1.7 metres tall, less than half the square's width; no person is shown.
+
+What it shows: short wild grass only, as one continuous meadow:
+- bold, soft clumps of grass about 20 to 40 centimetres across, in several muted, warm, yellowish greens, some clumps a little more golden and dry, some a little deeper green;
+- between the clumps, darker gaps and small patches of bare warm brown earth about 5 to 15 centimetres across;
+- the clumps and gaps are bold and clear, readable when the picture is seen small; fine detail smaller than about 2 centimetres is not needed;
+- no flowers, or at most a few single specks of colour smaller than 2 centimetres; no path; no stones; no distinctive feature that would catch the eye, so that copies laid side by side do not show a repeating pattern.
+
+Seamless: the texture tiles in both directions. What leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge, so that copies laid side by side join into one continuous meadow with no visible seam. Nothing is cut off or finished at the edges.
+
+Light: no sun. The meadow is lit evenly and softly from straight above, like a bright overcast day: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other. Only the gaps between clumps are slightly darker. The colours are the input's own colours of grass and earth as they look in neutral daylight: keep the input's warm, golden, muted, yellowish greens and its warm browns; leave out the input's orange sunlight and its blue-purple shade.
+
+The look under test: the input's painted texture, made of small clusters of two to four neighbouring shades of each colour, quiet and low in contrast, but at the larger scale described above. No outlines and no lit edges.
+
+Stone Age truth: a wild meadow beside a hunter-gatherer camp of about 12,000 years ago: wild grasses only; no lawn, no cultivated plants, no shoe prints.
+
+Avoid: a path or trodden strip, flowers bigger than a speck, stones, sticks, logs, people, animals, tools, water; perspective, tilt or a horizon; text, labels, numbers, letters or watermarks; frames, borders or margins; a repeating stamped pattern or obvious copies of the same clump; blur; photo realism; saturated cartoon colours.

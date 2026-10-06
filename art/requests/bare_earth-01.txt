@@ -1,0 +1,25 @@
+Purpose: Batch 1, material 2 (art/BRIEF.md): band 1 of the bare earth, the level for about 12 to 24 metres across the screen, at 32 texture pixels a metre. A band is drawn for its size, never averaged (A5.3): averaging was the speckle of answer 31, and the owner picked GPT's redraw of a ground on a coarser grid, its colours then matched by code (answer 36). The input is the bare earth's band 0 as prepared by code (from camp_ground-02's left swatch, re-gridded at 64 texture pixels a metre, its light taken out, made into a seamless 4-metre tile by code): 256 x 256 texture pixels, enlarged four times with hard edges. The result will be re-gridded, fitted to 128 x 128 texture pixels, its colours matched to band 0 by code, checked for layout, accents, seams and drift, and shown to the owner on the bare earth's sheet.
+Orientation: square, 1024 x 1024
+Input picture: /tmp/kindling-art/work/in-bare_earth-b0.png
+Transparent: no
+Prompt:
+Redraw the input picture as pixel art for viewing from twice as far away.
+
+The input is a game texture (an albedo map) of the bare earth of a camp, seen straight down: one 4 by 4 metre tile of warm mid-brown soil with large soft darker stains, small darker crumbs and a few pale grains of grit, drawn as 256 by 256 texture pixels of about 1.6 centimetres each, shown enlarged with hard edges. When the game's camera pulls back to about 16 metres across the screen, these texture pixels would shrink to one screen pixel each, and averaging them turns the earth into speckle. So the game needs a second version of the same tile, drawn on a grid twice as coarse.
+
+Draw exactly that second version:
+- the same 4 by 4 metres of the same earth, as 128 by 128 texture pixels of about 3 centimetres each; every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling, and the blocks fill the whole 1024 by 1024 picture;
+- every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering;
+- the same layout as the input: each large stain stays where it is, simplified to the coarser grid;
+- redesigned for the coarser grid, not shrunk: the stains as clear soft shapes; the crumbs fewer and each a single block or two, only where the input has many; no stray single blocks scattered evenly;
+- the input's own colours: the same warm browns, no new hues, about 5 to 7 shades in all.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; the earth fills the square from edge to edge.
+
+Light: none of its own. The earth is lit evenly and softly from straight above, like a bright overcast day, as in the input: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: the picture tiles in both directions, as the input does. What leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge.
+
+Stone Age truth: the bare soil of a hunter-gatherer camp of about 12,000 years ago: earth, sand and grit only.
+
+Avoid: grass, plants, roots, stones, pebbles, flint flakes, bones, sticks, charcoal, footprints, tracks or anything made by people; perspective, tilt or a horizon; text, labels, numbers, letters or watermarks; frames, borders, margins or grid lines; a repeating stamped pattern, crosses, diamonds or a checkerboard, or marks lined up in rows, diagonals or a regular lattice; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours; an overall tone darker or lighter than the input.

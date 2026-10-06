@@ -1,0 +1,25 @@
+Purpose: Batch 1, material 1 (art/BRIEF.md): band 1 of the meadow, the level for about 12 to 24 metres across the screen, at 32 texture pixels a metre. A band is drawn for its size, never averaged (A5.3): averaging was the speckle of answer 31, and the owner picked GPT's redraw of the meadow on a coarser grid, its colours then matched by code (answer 36). This redraw follows that pick one band at a time, from the level above. The input is the meadow's band 0 as prepared by code (the meadow the owner saw as band 0 in answer 36, GPT's redraw of the liked camp's meadow at the game's scale, re-gridded at 64 texture pixels a metre with its light taken out): one seamless 4-metre tile of 256 x 256 texture pixels, enlarged four times with hard edges. The result will be re-gridded, fitted to 128 x 128 texture pixels, its colours matched to band 0 by code, checked for layout, accents, seams and drift, and shown to the owner on the meadow's sheet.
+Orientation: square, 1024 x 1024
+Input picture: /tmp/kindling-art/work/in-meadow-b0.png
+Transparent: no
+Prompt:
+Redraw the input picture as pixel art for viewing from twice as far away.
+
+The input is a game texture (an albedo map) of a wild meadow seen straight down: one 4 by 4 metre tile of short grass in soft clumps with small patches of bare earth, drawn as 256 by 256 texture pixels of about 1.6 centimetres each, shown enlarged with hard edges. When the game's camera pulls back to about 16 metres across the screen, these texture pixels would shrink to one screen pixel each, and averaging them turns the meadow into speckle. So the game needs a second version of the same tile, drawn on a grid twice as coarse.
+
+Draw exactly that second version:
+- the same 4 by 4 metres of the same meadow, as 128 by 128 texture pixels of about 3 centimetres each; every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling, and the blocks fill the whole 1024 by 1024 picture;
+- every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering;
+- the same layout as the input: each grass clump and each patch of bare earth stays where it is, simplified to the coarser grid;
+- redesigned for the coarser grid, not shrunk: each clump one clear shape with a lighter, more golden side, a deeper green side and a darker gap round it; bare earth as small shapes of 1 to 4 blocks; every shape readable when the picture is seen small, with no stray single blocks of a colour scattered at random;
+- the input's own colours: the same warm, golden, muted, yellowish greens and the same warm browns of the earth, no new hues, about 6 to 8 shades in all.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; the meadow fills the square from edge to edge.
+
+Light: none of its own. The meadow is lit evenly and softly from straight above, like a bright overcast day, as in the input: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: the picture tiles in both directions, as the input does. What leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge.
+
+Stone Age truth: a wild meadow beside a hunter-gatherer camp of about 12,000 years ago: wild grasses and bare earth only; no lawn, no cultivated plants, no footprints.
+
+Avoid: flowers, paths, stones, sticks, people, animals, tools, water; perspective, tilt or a horizon; text, labels, numbers, letters or watermarks; frames, borders, margins or grid lines; a repeating stamped pattern, or marks lined up in rows, diagonals or a regular lattice; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours; an overall tone darker or lighter than the input.

@@ -1,0 +1,82 @@
+about = "pale hide: deer hide scraped, softened and dried pale, for tents, frames and clothes"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+sources = ["art/sources/hide/hide-02.webp"]
+original_sha256 = ["0f93a56a8d598e209f84c8ac8e686fce32f6629fad41da87faf4b54fda028c32"]
+c2pa = ["present"]
+requests = ["art/requests/hide-02.txt"]
+made = "hide-02's left swatch, re-gridded at 4.26-pixel blocks (half GPT's 8.5, where its stains and creases step), its painted light taken out, quilted by code into a seamless 4-metre tile"
+regrid_loss = "5.3%"
+truth = "art lane, 2026-10-06, each source looked at enlarged: natural leather only: no pattern, seams, stitches, beads, fringes or hair; hide-01's cross pattern was refused and redrawn"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/hide_pale/b0.png"
+sha256 = "4d5d12addb7cdbca14076b6bd5da1f55add52df0fd91da288af959d448528366"
+way = "re-gridded from its source, light taken out, made seamless by code"
+
+[[band]]
+level = 1
+file = "art/textures/hide_pale/b1.png"
+sha256 = "e2390bbc7826a98b65b3cb25508d7c19d26a2bb40c57328cecf1a7f2ae1e1d5f"
+made_from = "4d5d12addb7cdbca14076b6bd5da1f55add52df0fd91da288af959d448528366"
+way = "code reduction of band 0 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness -0.2%, hue -0.3 degrees, colourfulness 101%, contrast 120%"
+
+[[band]]
+level = 2
+file = "art/textures/hide_pale/b2.png"
+sha256 = "a8a1137111cde34171a99870cfdbc6a61632b94eae92edd6cccce72bebae78ab"
+made_from = "e2390bbc7826a98b65b3cb25508d7c19d26a2bb40c57328cecf1a7f2ae1e1d5f"
+way = "code reduction of band 1 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness -0.2%, hue -0.1 degrees, colourfulness 100%, contrast 103%"
+
+[[band]]
+level = 3
+file = "art/textures/hide_pale/b3.png"
+sha256 = "de14d0dcb88d810b835a9f44d7af02c2293be370c702d1f8bb3196ecd9c88cbc"
+made_from = "a8a1137111cde34171a99870cfdbc6a61632b94eae92edd6cccce72bebae78ab"
+way = "code reduction of band 2 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness -0.2%, hue -0.0 degrees, colourfulness 100%, contrast 105%"
+
+[[band]]
+level = 4
+file = "art/textures/hide_pale/b4.png"
+sha256 = "a5286019535fa836257aa3ae3d8f20d098ff68e930e94558babf84ae33c41343"
+made_from = "de14d0dcb88d810b835a9f44d7af02c2293be370c702d1f8bb3196ecd9c88cbc"
+way = "code reduction of band 3 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness -1.0%, hue -0.6 degrees, colourfulness 102%, contrast 127%"
+
+[[band]]
+level = 5
+file = "art/textures/hide_pale/b5.png"
+sha256 = "492fa04cd6088bf5a3ed6b80b5355079c9c91b9de0c58e1ac1e40d7d26ce5f62"
+made_from = "a5286019535fa836257aa3ae3d8f20d098ff68e930e94558babf84ae33c41343"
+way = "code reduction of band 4 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness -1.0%, hue -0.9 degrees, colourfulness 102%, contrast 130%"
+
+[[band]]
+level = 6
+file = "art/textures/hide_pale/b6.png"
+sha256 = "f1b0f5dd8dd2a3330fb1649ea8411ee6ea9e5bc89c27813db637e3918b01f8fa"
+made_from = "492fa04cd6088bf5a3ed6b80b5355079c9c91b9de0c58e1ac1e40d7d26ce5f62"
+way = "code reduction of band 5 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness -1.2%, hue -1.1 degrees, colourfulness 102%, contrast 130%"
+
+[[band]]
+level = 7
+file = "art/textures/hide_pale/b7.png"
+sha256 = "f9078811b9d188e0dff5dda67c8cf69438346e20beea4d140bce0e86778a3d87"
+made_from = "f1b0f5dd8dd2a3330fb1649ea8411ee6ea9e5bc89c27813db637e3918b01f8fa"
+way = "code reduction of band 6 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness -0.2%, hue +0.6 degrees, colourfulness 100%, contrast 100%"
+
+[[band]]
+level = 8
+file = "art/textures/hide_pale/b8.png"
+sha256 = "48b1a774df595cc3f2fc7b236f4e771cc1ca02b2af3d68418972ac9fcab2e745"
+made_from = "f9078811b9d188e0dff5dda67c8cf69438346e20beea4d140bce0e86778a3d87"
+way = "code reduction of band 7 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+calibration = "lightness +0.0%, hue +0.0 degrees, colourfulness 100%, contrast 100%"
