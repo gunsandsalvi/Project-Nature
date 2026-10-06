@@ -2,6 +2,7 @@
 # and 2×. Its bare frame with MSAA 2× is what C1 and C3's draws take off their own. Stated before its first run
 # (RES-09).
 about = "What a frame costs with the world hidden: the interface pass, the copy and Godot's stores"
+step = "α2.2a"
 checks = ["PLT-04", "PRE-01"]
 draws = "nothing"
 path = "still"

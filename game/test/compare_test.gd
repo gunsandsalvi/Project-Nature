@@ -27,3 +27,24 @@ func test_ten_answers_give_a_code_and_count_the_better_ways_chosen() -> void:
 		page.pairs.filter(func(p: Dictionary) -> bool: return p["better_first"]).size()
 	)
 	assert_int(page.right()).is_equal(on_top)
+
+
+# checks: PRE-01, PRE-46
+func test_the_leaf_edges_test_asks_its_own_question_and_its_code_counts_the_same_way() -> void:
+	var page: VBoxContainer = auto_free(ComparePage.new())
+	add_child(page)
+	await await_idle_frame()
+	page.start(page.LEAF_EDGES)
+	assert_int(page.comparison).is_equal(2)
+	assert_int(page.pairs.size()).is_equal(10)
+	# the leaves' views keep to the plants' bank and path, within 3 m east or west
+	for pair: Dictionary in page.pairs:
+		assert_int(absi(int(pair["east"]))).is_less_equal(300)
+	for pair: Dictionary in page.pairs:
+		page.choose(not pair["better_first"])
+	assert_int(page.right()).is_equal(0)
+	assert_int(page.code.length()).is_equal(13)
+	# "Again" keeps the comparison
+	page.start(page.comparison)
+	assert_int(page.comparison).is_equal(2)
+	assert_str(page.code).is_empty()

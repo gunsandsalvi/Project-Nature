@@ -3,6 +3,7 @@
 # that decides is the slope of the graphics chip's time over the triangles without the shadow pass: the main pass's
 # cost a triangle. Stated before its first run (RES-09).
 about = "What a triangle costs the graphics chip in the main pass"
+step = "α2.2a"
 checks = ["PLT-04"]
 draws = "rocks"
 path = "still"

@@ -132,9 +132,9 @@ static func mirror(parent: Node, world: World3D, camera: Camera3D, screen: Vecto
 
 ## The light's stand-ins for the field of C1 (A4.3 to A4.6), as the view will publish them
 ## (α2.3b): the view's maps, with patches of shade and contact; a light grid with four fires in
-## every square, so every pixel is lit by all four, the most it ever is; the sun's direction, the
-## bounce and the haze.
-static func light_stand_ins(sun: DirectionalLight3D) -> void:
+## every square, so every pixel is lit by all four, the most it ever is, or with none, so nothing
+## flickers between two pictures; the sun's direction, the bounce and the haze.
+static func light_stand_ins(sun: DirectionalLight3D, fires := true) -> void:
 	var maps := Image.create(1024, 1024, false, Image.FORMAT_RGBA8)
 	# open to the sky, no contact, the sun clear of anything near; then patches of shade and contact
 	maps.fill(Color(0.9, 1.0, 0.1, 0.2))
@@ -144,7 +144,7 @@ static func light_stand_ins(sun: DirectionalLight3D) -> void:
 	_set_global("kd_view_maps", ImageTexture.create_from_image(maps))
 	_set_global("kd_maps_place", Vector4(-32.0, -32.0, 64.0, 20.0))
 	var grid := Image.create(64, 64, false, Image.FORMAT_RGBA8)
-	grid.fill(Color8(1, 2, 3, 4))
+	grid.fill(Color8(1, 2, 3, 4) if fires else Color8(0, 0, 0, 0))
 	_set_global("kd_fire_grid", ImageTexture.create_from_image(grid))
 	var table := Image.create(4, 1, false, Image.FORMAT_RGBAF)
 	for i in 4:
@@ -182,15 +182,15 @@ static func _cells(camera: Camera3D, screen: Vector2, across: int, down: int) ->
 	var out: Array[Dictionary] = []
 	for j in down:
 		for i in across:
-			var at := _ground_at(camera, Vector2((i + 0.5) / across, (j + 0.5) / down) * screen)
-			var beside := _ground_at(camera, Vector2((i + 1.5) / across, (j + 0.5) / down) * screen)
-			var below := _ground_at(camera, Vector2((i + 0.5) / across, (j + 1.5) / down) * screen)
+			var at := ground_at(camera, Vector2((i + 0.5) / across, (j + 0.5) / down) * screen)
+			var beside := ground_at(camera, Vector2((i + 1.5) / across, (j + 0.5) / down) * screen)
+			var below := ground_at(camera, Vector2((i + 0.5) / across, (j + 1.5) / down) * screen)
 			out.append({"at": at, "size": at.distance_to(beside), "deep": at.distance_to(below)})
 	return out
 
 
 ## Where a screen point's ray meets the ground's plane, or the point far ahead if it does not.
-static func _ground_at(camera: Camera3D, point: Vector2) -> Vector3:
+static func ground_at(camera: Camera3D, point: Vector2) -> Vector3:
 	var from := camera.project_ray_origin(point)
 	var along := camera.project_ray_normal(point)
 	if along.y >= -1e-4:

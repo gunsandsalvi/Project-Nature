@@ -3,6 +3,7 @@
 # 4× at full resolution, and 2× with the 3D at 0.75 and 0.5; the bare frame of C4 is taken off. Stated before its
 # first run (RES-09).
 about = "What the full material costs a frame over the whole screen at full resolution"
+step = "α2.2a"
 checks = ["PLT-04", "PRE-01"]
 draws = "field"
 path = "still"

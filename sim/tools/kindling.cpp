@@ -85,7 +85,8 @@
 //                                                 line each, or each problem with their files; exit 1 on a problem
 //     kindling look calibrate <code> [data]      a calibration code from your phone in words: each scene's number
 //                                                 against its line and estimate, the decision it makes, and each
-//                                                 variant's readings (PLT-04)
+//                                                 variant's readings, or "not run" (PLT-04); a code of α2.2a's build
+//                                                 reads against that build's files, its data folder from git
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -1029,8 +1030,8 @@ int blind(std::string_view code) {
         return 1;
     }
     const std::int64_t right = kd::look::blind_right(read.test);
-    std::printf("MSAA 4x against 2x on the meadow: %lld of %lld right: %s\n", static_cast<long long>(right),
-                static_cast<long long>(kd::look::kBlindPairs),
+    std::printf("%s: %lld of %lld right: %s\n", kd::look::comparison_words(read.test.comparison).compares.c_str(),
+                static_cast<long long>(right), static_cast<long long>(kd::look::kBlindPairs),
                 right >= kd::look::kBlindShows ? "the difference shows" : "the difference does not show");
     return 0;
 }
@@ -1062,7 +1063,8 @@ int calibrate(std::string_view code, const std::string& data) {
         kd::look::calibration_verdicts(set.scenes, read.readings);
     for (std::size_t i = 0; i < set.scenes.size(); ++i) {
         std::printf("%s\n", kd::look::verdict_words(set.scenes[i], verdicts[i]).c_str());
-        for (std::size_t v = 0; v < set.scenes[i].variants.size(); ++v) {
+        // a scene not run has no readings
+        for (std::size_t v = 0; v < read.readings[i].size(); ++v) {
             std::printf("  %s\n", kd::look::reading_words(set.scenes[i].variants[v], read.readings[i][v]).c_str());
         }
     }

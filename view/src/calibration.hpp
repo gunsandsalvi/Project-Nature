@@ -24,13 +24,13 @@ public:
     /// Reads the scene files under res://data/ by their paths, such as "scenes/look/c4.toml": what is wrong with
     /// them, in words, empty when nothing is.
     godot::PackedStringArray read(const godot::PackedStringArray& paths);
-    /// The scenes read, in the order they run: each a dictionary of name, about, draws, path, measure and variants,
-    /// each variant a dictionary of name, msaa, scale (percent), interface, shadows, triangles (thousands), copies and
-    /// passes.
+    /// The scenes read, in the order they run: each a dictionary of name, about, step, draws, path, measure, minus and
+    /// variants, each variant a dictionary of name, msaa, scale (percent), interface, shadows, triangles (thousands),
+    /// copies, passes, way, fires, figures, vertices (thousands) and reads.
     [[nodiscard]] godot::Array scenes() const;
-    /// The page's readings as one code with the app's build: an array for each scene of a dictionary for each
-    /// variant, with gpu_us, cpu_us, on_time (per thousand), power_mw and heat (hundredths), each -1 or missing where
-    /// the phone gave none.
+    /// The page's readings as one code with the app's build: an array for each scene, empty if it was not run, of a
+    /// dictionary for each variant, with gpu_us, cpu_us, on_time (per thousand), power_mw and heat (hundredths), each
+    /// -1 or missing where the phone gave none.
     [[nodiscard]] godot::String code(int64_t build, const godot::Array& readings) const;
     /// Each scene's verdict in words, from the same readings.
     [[nodiscard]] godot::PackedStringArray verdicts(const godot::Array& readings) const;

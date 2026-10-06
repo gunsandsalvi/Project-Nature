@@ -68,9 +68,11 @@ godot::Array KdCalibration::scenes() const {
         godot::Dictionary scene;
         scene["name"] = text_of(s.name);
         scene["about"] = text_of(s.about);
+        scene["step"] = text_of(s.step);
         scene["draws"] = text_of(s.draws);
         scene["path"] = text_of(s.path);
         scene["measure"] = text_of(s.measure);
+        scene["minus"] = text_of(s.minus);
         godot::Array variants;
         for (const kd::look::CalibrationVariant& v : s.variants) {
             godot::Dictionary variant;
@@ -82,6 +84,11 @@ godot::Array KdCalibration::scenes() const {
             variant["triangles"] = v.triangles;
             variant["copies"] = v.copies;
             variant["passes"] = v.passes;
+            variant["way"] = text_of(v.way);
+            variant["fires"] = v.fires;
+            variant["figures"] = v.figures;
+            variant["vertices"] = v.vertices;
+            variant["reads"] = v.reads;
             variants.push_back(variant);
         }
         scene["variants"] = variants;
@@ -96,7 +103,8 @@ std::vector<std::vector<kd::look::CalibrationReading>> KdCalibration::readings_o
         const auto i = static_cast<int64_t>(s);
         const godot::Array each = i < readings.size() ? godot::Array(readings[i]) : godot::Array();
         std::vector<kd::look::CalibrationReading> scene;
-        for (std::size_t v = 0; v < scenes_[s].variants.size(); ++v) {
+        // an empty array: the scene was not run
+        for (std::size_t v = 0; !each.is_empty() && v < scenes_[s].variants.size(); ++v) {
             const auto j = static_cast<int64_t>(v);
             scene.push_back(j < each.size() ? reading_of(each[j]) : kd::look::CalibrationReading());
         }

@@ -1,8 +1,8 @@
 // The calibration scenes (A18.1, α2.2a): what only your phone can measure. Each scene is stated in a file before its
 // first run (RES-09): what it draws, its camera, its variants' switches, the number that decides, the line from A18.1's
-// budget, the estimate, and the decision each band of the number makes. The phone runs every variant and writes all
-// their readings in one code (kd/num/letters.hpp); the cloud reads the code against the same files. Written once, here,
-// for both.
+// budget, the estimate, and the decision each band of the number makes. The phone runs the scenes you pick and writes
+// all their readings in one code (kd/num/letters.hpp); the cloud reads the code against the same files. Written once,
+// here, for both.
 #pragma once
 
 #include <cstdint>
@@ -26,6 +26,11 @@ struct CalibrationVariant {
     std::int64_t triangles = 0;  // for rocks: thousands of triangles a pass
     std::int64_t copies = 0;     // for copies: draws of copies
     std::int64_t passes = 2;     // for copies: 2, the main pass and the sun's shadow, or 3 with a mirror's pass
+    std::string way;             // for leaves, fires and figures: the way they are drawn, as calibration_ways names
+    std::int64_t fires = 0;      // for fires: the fires burning in view
+    std::int64_t figures = 0;    // for figures: the figures in view
+    std::int64_t vertices = 0;   // for reads: thousands of vertices
+    std::int64_t reads = 0;      // for reads: the texture pixels each vertex reads
 };
 
 /// What a number at most at_most, or any for the last, makes the plan do.
@@ -38,18 +43,31 @@ struct CalibrationDecision {
 struct CalibrationScene {
     std::string name;  // its file's, without .toml
     std::string about;
+    std::string step;                 // the step whose run it belongs to, such as α2.2a; the page offers those first
     std::vector<std::string> checks;  // the items it serves, by ID
-    std::string draws;                // "nothing", "field" (the full material over the screen), "rocks" or "copies"
-    std::string path;                 // the camera: "still", "pan", "turn" or "pinch"
-    std::string measure;    // what decides: "gpu" or "cpu", microseconds a frame; "gpu_per_triangle", picoseconds
-    std::string decides;    // for gpu and cpu: the variant whose number decides
-    std::string minus;      // for gpu and cpu: "scene/variant", whose same number is taken off, or none
-    std::int64_t line = 0;  // A18.1's allowance, in the measure's unit
-    std::int64_t expect_from = 0;  // the estimate, in the measure's unit
+    // what it draws: "nothing", "field" (the full material over the screen), "rocks", "copies", "leaves" (plants at
+    // the liked density), "fires" (fires and what stands round them at night), "figures" (posed figures) or "reads"
+    // (vertices reading texture pixels)
+    std::string draws;
+    std::string path;  // the camera: "still", "pan", "turn" or "pinch"
+    // what decides: "gpu" or "cpu", microseconds a frame; "gpu_per_triangle", picoseconds; "cpu_per_figure",
+    // nanoseconds of the main thread a figure drawn by Godot's own skeletons
+    std::string measure;
+    std::string decides;                // for gpu and cpu: the variant whose number decides
+    std::vector<std::string> least_of;  // for gpu and cpu, instead: the variants whose least number decides
+    std::string minus;                  // for gpu and cpu: "scene/variant", whose same number is taken off, or none
+    std::int64_t line = 0;              // A18.1's allowance, in the measure's unit
+    std::int64_t expect_from = 0;       // the estimate, in the measure's unit
     std::int64_t expect_to = 0;
     std::vector<CalibrationVariant> variants;
     std::vector<CalibrationDecision> decisions;
 };
+
+/// The ways a scene's drawing may be drawn, by what it draws, none for the rest: leaves as none (the bare ground),
+/// plain cut-out cards, cards cut close to their leaves, solid cores with cut-out fringes, or close-cut cards with
+/// alpha to coverage; fires' shadows by none, a walk at every pixel, a walk at half resolution, or a map for each
+/// fire; figures by Godot's own skeletons or by our bone palettes.
+[[nodiscard]] std::vector<std::string_view> calibration_ways(std::string_view draws);
 
 /// A scene read: it, and what is wrong with its file, empty when nothing is.
 struct CalibrationRead {
@@ -72,11 +90,15 @@ struct CalibrationReading {
 };
 
 /// Implements PLT-04, see A18.1: what is wrong across a set of scenes, in words: a minus naming a scene or variant
-/// not among them, or two scenes of one name.
+/// not among them, two scenes of one name, or more scenes than a code holds.
 [[nodiscard]] std::vector<std::string> check_calibrations(const std::vector<CalibrationScene>& scenes);
+
+/// The most scenes one code holds.
+inline constexpr std::size_t kCalibrationScenesMost = 16;
 
 /// What a scene's readings decide.
 struct CalibrationVerdict {
+    bool ran = false;         // the scene was run
     bool read = false;        // its readings were there, so it has a number
     std::int64_t number = 0;  // in the measure's unit
     bool in_line = false;     // at most A18.1's line
@@ -85,25 +107,29 @@ struct CalibrationVerdict {
 };
 
 /// Implements PLT-04, see A18.1: the number each scene's readings, one for each variant, decide by, and its decision:
-/// its deciding variant's time, less its minus's; for gpu_per_triangle, the slope of the graphics chip's time over
-/// the triangles of the variants without the shadow pass, so the main pass alone, from two of them at least. A
-/// number whose readings the phone did not give is not read. The scenes pass check_calibrations.
+/// its deciding variant's time, or the least of its least_of's, less its minus's; for gpu_per_triangle, the slope of
+/// the graphics chip's time over the triangles of the variants without the shadow pass, so the main pass alone; for
+/// cpu_per_figure, the slope of the main thread's time over the figures drawn by Godot's own skeletons; each slope from
+/// two variants at least. A scene with no readings was not run; a number whose readings the phone did not give is not
+/// read. The scenes pass check_calibrations.
 [[nodiscard]] std::vector<CalibrationVerdict> calibration_verdicts(
     const std::vector<CalibrationScene>& scenes, const std::vector<std::vector<CalibrationReading>>& readings);
 
-/// Implements PLT-04, see A18.1: every variant's readings as one code: the layout's version and the app's build, then
-/// each scene in the order given, each of its variants in order, a reading the phone did not give as "not measured".
+/// Implements PLT-04, see A18.1: the readings of the scenes run as one code: the layout's version, the app's build and
+/// which scenes ran, then each scene run in the order given, each of its variants in order, a reading the phone did
+/// not give as "not measured". A scene not run has no readings.
 [[nodiscard]] std::string calibration_code(std::int64_t build, const std::vector<CalibrationScene>& scenes,
                                            const std::vector<std::vector<CalibrationReading>>& readings);
 
-/// A code read back: the build and the readings, or why it cannot be read.
+/// A code read back: the build and the readings, none for a scene not run, or why it cannot be read.
 struct CalibrationCodeRead {
     std::int64_t build = 0;
     std::vector<std::vector<CalibrationReading>> readings;
     std::string why;
 };
 
-/// Implements PLT-04, see A18.1: a calibration code read against the scenes it was written for.
+/// Implements PLT-04, see A18.1: a calibration code read against the scenes it was written for, of this layout or of
+/// α2.2a's, which held every scene of its build.
 [[nodiscard]] CalibrationCodeRead read_calibration_code(std::string_view code,
                                                         const std::vector<CalibrationScene>& scenes);
 

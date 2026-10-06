@@ -1,6 +1,7 @@
-## The Calibrate page (A18.1, α2.2a): one tap runs every calibration scene the build lists, each of
-## its variants at a 120-frame cap for the graphics chip's and the main thread's time, then at 60
-## for the frames on time, the power and the heat, and ends with one code to copy into the chat.
+## The Calibrate page (A18.1, α2.2a): one tap runs the calibration scenes picked, at first this
+## build's own step's, each of its variants at a 120-frame cap for the graphics chip's and the main
+## thread's time, then at 60 for the frames on time, the power and the heat, and ends with one code
+## to copy into the chat, which says which scenes ran.
 ## Each scene's file states, before its first run, what it draws, its switches, its line and the
 ## decision its number makes (RES-09); the page draws exactly that, straight into the window as the
 ## Look page does, and the cloud reads the code against the same files. Every switch changes only
@@ -27,12 +28,17 @@ const FAIL := Palette.FAIL
 var draws_world := true
 ## Real time runs this many times faster in the tests; 1 on the phone.
 var time_scale := 1.0
+## For the cloud's pictures of the plants: their light without the stand-in fires, whose flicker
+## would change the picture from one way to the next; false on the phone.
+var still_light := false
 ## The scenes as the build's files state them, in the order they run, and what is wrong with them;
-## the readings so far, a list for each scene of a dictionary for each variant; what each variant
-## drew, for the cloud's check; the code once done; and every line the page shows, for the tests.
+## which are picked to run; the readings so far, a list for each scene picked of a dictionary for
+## each variant, and an empty one for the rest; what each variant drew, for the cloud's check; the
+## code once done; and every line the page shows, for the tests.
 var calibration := KdCalibration.new()
 var scenes: Array = []
 var problems := PackedStringArray()
+var picked: Array[bool] = []
 var readings: Array = []
 var counted: Array = []
 var code := ""
@@ -62,6 +68,7 @@ var _watts: Array[float] = []
 var _next_power := 0.0
 var _cover: CanvasLayer
 var _status: Label
+var _picks: VBoxContainer
 var _run: Button
 var _list: VBoxContainer
 
@@ -82,6 +89,8 @@ func _ready() -> void:
 	_cover.add_child(ground)
 	add_child(_cover)
 	_status = _label(16, TEXT)
+	_picks = VBoxContainer.new()
+	add_child(_picks)
 	_run = Button.new()
 	_run.text = "Run"
 	_run.custom_minimum_size = Vector2(0, 56)
@@ -103,14 +112,24 @@ func _ready() -> void:
 		_status.text = "The calibration scenes cannot be read:\n" + "\n".join(problems)
 		_status.add_theme_color_override("font_color", FAIL)
 		return
-	_status.text = (
-		(
-			"With the phone cool, unplugged and in flight mode, tap Run: %d scenes, %d variants,"
-			+ " about %d minutes. The words go while it measures; leave the phone alone until"
-			+ " the code shows."
+	# this build's own step's scenes first; all of them where it has none
+	var step := str(ProjectSettings.get_setting("application/config/version", ""))
+	for scene: Dictionary in scenes:
+		picked.append(scene["step"] == step)
+	if not picked.has(true):
+		picked.fill(true)
+	for i in scenes.size():
+		var scene: Dictionary = scenes[i]
+		var box := CheckBox.new()
+		box.text = (
+			"%s: %s (%d variants)"
+			% [scene["name"], scene["about"], (scene["variants"] as Array).size()]
 		)
-		% [scenes.size(), _variants(), roundi(_planned() / 60.0) + 1]
-	)
+		box.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.button_pressed = picked[i]
+		box.toggled.connect(func(on: bool) -> void: pick(i, on))
+		_picks.add_child(box)
+	_show_plan()
 	# the cloud's picture of a finished run (tools/picture.sh game ... -- Calibrate quick): a run a
 	# hundred times faster, the picture held back until it ends
 	if "quick" in OS.get_cmdline_user_args():
@@ -132,19 +151,40 @@ func running() -> bool:
 	return _scene >= 0 and _scene < scenes.size()
 
 
-## Starts the run: every scene's variants in turn.
+## Picks every scene, as the cloud's run does.
+func pick_all() -> void:
+	for i in scenes.size():
+		pick(i, true)
+
+
+## Picks a scene to run or not; a scene picked picks the one its number takes a minus from, too.
+func pick(i: int, on: bool) -> void:
+	picked[i] = on
+	(_picks.get_child(i) as CheckBox).set_pressed_no_signal(on)
+	var minus: String = scenes[i]["minus"]
+	if on and not minus.is_empty():
+		var needed := minus.get_slice("/", 0)
+		for j in scenes.size():
+			if scenes[j]["name"] == needed and not picked[j]:
+				pick(j, true)
+	_show_plan()
+
+
+## Starts the run: each picked scene's variants in turn.
 func start() -> void:
-	if running() or scenes.is_empty() or not problems.is_empty():
+	if running() or scenes.is_empty() or not problems.is_empty() or not picked.has(true):
 		return
 	_run.visible = false
+	_picks.visible = false
 	_cover.visible = false
 	DisplayServer.screen_set_keep_on(true)
 	readings = []
 	counted = []
-	for scene: Dictionary in scenes:
+	for i in scenes.size():
 		var read := []
 		var drew := []
-		for v in (scene["variants"] as Array).size():
+		var count := (scenes[i]["variants"] as Array).size() if picked[i] else 0
+		for v in count:
 			read.append({})
 			drew.append({})
 		readings.append(read)
@@ -152,7 +192,7 @@ func start() -> void:
 	code = ""
 	for child in _list.get_children():
 		child.queue_free()
-	_open(0, 0)
+	_open(picked.find(true), 0)
 
 
 func _process(delta: float) -> void:
@@ -221,17 +261,22 @@ func _open(scene_index: int, variant_index: int) -> void:
 	var draws: String = scene["draws"]
 	_sun.visible = draws != "nothing"
 	_sun.shadow_enabled = v["shadows"]
-	if draws == "field" and not _ground_built:
+	# the field and the plants stand on the ground with the full material
+	var lit := draws in ["field", "leaves"]
+	if lit and not _ground_built:
 		_ground_built = true
 		var problem := LookScene.ground(_look, _world, CalibrationDrawing.FIELD_SHADER)
 		if not problem.is_empty():
 			_line("%s: the field cannot be drawn: %s" % [scene["name"], problem], FAIL)
-		CalibrationDrawing.light_stand_ins(_sun)
-	CalibrationDrawing.grade(_sky, draws == "field")
+	if lit:
+		CalibrationDrawing.light_stand_ins(_sun, not (still_light and draws == "leaves"))
+	CalibrationDrawing.grade(_sky, lit)
 	if _ground_built:
-		_look.set_part("ground", draws == "field")
+		_look.set_part("ground", lit)
 		_look.set_part("pattern", false)
-	if draws == "rocks":
+	if draws == "leaves":
+		_content = CalibrationPlants.plants(_world, _camera, screen, v["way"])
+	elif draws == "rocks":
 		_content = CalibrationDrawing.rocks(_world, _camera, screen, v["triangles"])
 	elif draws == "copies":
 		_content = CalibrationDrawing.copies(_world, _camera, screen, v["copies"])
@@ -273,6 +318,11 @@ func _read_fast() -> void:
 		"mirror_draws": 0,
 		"mirror_shadow_draws": 0,
 	}
+	# what the scene's own drawing says it drew, for the cloud's check
+	if _content != null and _content.has_meta("triangles"):
+		drew["content_copies"] = _content.get_meta("copies")
+		drew["content_draws"] = _content.get_meta("draws")
+		drew["content_triangles"] = _content.get_meta("triangles")
 	if _mirror != null:
 		var mirror := _mirror.get_viewport_rid()
 		drew["mirror_draws"] = _drawn(
@@ -313,10 +363,11 @@ func _end_steady() -> void:
 	)
 	_device.trace_end()
 	_line(calibration.reading_words(_scene, _variant, reading), QUIET)
+	var next := picked.find(true, _scene + 1)
 	if _variant + 1 < (scenes[_scene]["variants"] as Array).size():
 		_open(_scene, _variant + 1)
-	elif _scene + 1 < scenes.size():
-		_open(_scene + 1, 0)
+	elif next >= 0:
+		_open(next, 0)
 	else:
 		_end()
 
@@ -348,8 +399,10 @@ func _end() -> void:
 	copy.pressed.connect(func() -> void: DisplayServer.clipboard_set(code))
 	add_child(copy)
 	move_child(copy, 2)
-	for verdict: String in calibration.verdicts(readings):
-		_line(verdict, TEXT)
+	var verdicts := calibration.verdicts(readings)
+	for i in verdicts.size():
+		if picked[i]:
+			_line(verdicts[i], TEXT)
 
 
 ## The drawing back to the shell's: the window's own interface, no 3D switches, the 60 cap.
@@ -403,19 +456,34 @@ func _drawn(viewport: RID, pass_type: int, draws: bool) -> int:
 	return RenderingServer.viewport_get_render_info(viewport, pass_type, info)
 
 
+## The variants of the scenes picked.
 func _variants() -> int:
 	var n := 0
-	for scene: Dictionary in scenes:
-		n += (scene["variants"] as Array).size()
+	for i in scenes.size():
+		n += (scenes[i]["variants"] as Array).size() if picked[i] else 0
 	return n
 
 
-## The variants done so far, across the scenes.
+## The variants done so far, across the scenes picked.
 func _done() -> int:
 	var n := _variant
 	for i in _scene:
-		n += (scenes[i]["variants"] as Array).size()
+		n += (scenes[i]["variants"] as Array).size() if picked[i] else 0
 	return n
+
+
+## What a tap on Run will do.
+func _show_plan() -> void:
+	var count := picked.count(true)
+	_run.disabled = count == 0
+	_status.text = (
+		(
+			"With the phone cool, unplugged and in flight mode, tap Run: %d scenes, %d variants,"
+			+ " about %d minutes. The words go while it measures; leave the phone alone until"
+			+ " the code shows."
+		)
+		% [count, _variants(), roundi(_planned() / 60.0) + 1]
+	)
 
 
 func _variant_name() -> String:

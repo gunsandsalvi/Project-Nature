@@ -317,7 +317,7 @@ std::string look_measures(run::Workers& /*workers*/) {
     const look::Levels levels = look::levels(slope);
     digest.i64(levels.distinct);
     digest.i64(levels.widest);
-    for (const look::BlindPair& p : look::blind_pairs(54'321)) {
+    for (const look::BlindPair& p : look::blind_pairs(look::Comparison::msaa, 54'321)) {
         digest.u8(p.better_first ? 1 : 0);
         digest.f64(p.heading);
         digest.i64(p.east);

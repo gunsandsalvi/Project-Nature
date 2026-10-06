@@ -10,6 +10,7 @@
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/string.hpp>
@@ -64,12 +65,16 @@ public:
     /// For the cloud's many-sample pictures (A4.8): the picture is drawn this many times larger, so each texture
     /// level is still read as at the frame's own size; 1, the game's, by default. It takes effect at the next frame.
     void set_many(int64_t times);
-    /// The blind test's pairs (A5.5) from a seed of 16 bits: each a dictionary of better_first, heading (degrees),
-    /// east and north (centimetres).
-    [[nodiscard]] godot::Array blind_pairs(int64_t seed) const;
+    /// The blind test's comparisons (A5.5), in their order on the Compare page, and one's words: a dictionary of
+    /// name, compares and asks.
+    [[nodiscard]] godot::PackedInt32Array blind_comparisons() const;
+    [[nodiscard]] godot::Dictionary blind_words(int64_t comparison) const;
+    /// A comparison's pairs from a seed of 16 bits: each a dictionary of better_first, heading (degrees), east and
+    /// north (centimetres).
+    [[nodiscard]] godot::Array blind_pairs(int64_t comparison, int64_t seed) const;
     /// A taken blind test's code, and its answers that chose the better way: chose_first holds a bool for each pair.
-    [[nodiscard]] godot::String blind_code(int64_t seed, const godot::Array& chose_first) const;
-    [[nodiscard]] int64_t blind_right(int64_t seed, const godot::Array& chose_first) const;
+    [[nodiscard]] godot::String blind_code(int64_t comparison, int64_t seed, const godot::Array& chose_first) const;
+    [[nodiscard]] int64_t blind_right(int64_t comparison, int64_t seed, const godot::Array& chose_first) const;
     /// Starts a scripted camera path: "pan", "turn" or "pinch" (A8.4); "" stops it.
     void play(const godot::String& path);
     /// The scripted path under way, or "".

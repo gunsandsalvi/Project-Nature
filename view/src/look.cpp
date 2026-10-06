@@ -340,8 +340,17 @@ void KdLook::set_many(int64_t times) {
 
 namespace {
 
-kd::look::BlindTest blind_test(int64_t seed, const godot::Array& chose_first) {
-    kd::look::BlindTest test{kd::look::Comparison::msaa, static_cast<std::uint32_t>(seed & 0xFFFF), {}};
+kd::look::Comparison comparison_of(int64_t comparison) {
+    for (const kd::look::Comparison c : kd::look::kComparisons) {
+        if (static_cast<int64_t>(c) == comparison) {
+            return c;
+        }
+    }
+    return kd::look::Comparison::msaa;
+}
+
+kd::look::BlindTest blind_test(int64_t comparison, int64_t seed, const godot::Array& chose_first) {
+    kd::look::BlindTest test{comparison_of(comparison), static_cast<std::uint32_t>(seed & 0xFFFF), {}};
     for (int64_t i = 0; i < chose_first.size(); ++i) {
         test.chose_first.push_back(static_cast<bool>(chose_first[i]));
     }
@@ -350,9 +359,27 @@ kd::look::BlindTest blind_test(int64_t seed, const godot::Array& chose_first) {
 
 }  // namespace
 
-godot::Array KdLook::blind_pairs(int64_t seed) const {
+godot::PackedInt32Array KdLook::blind_comparisons() const {
+    godot::PackedInt32Array out;
+    for (const kd::look::Comparison c : kd::look::kComparisons) {
+        out.append(static_cast<int32_t>(c));
+    }
+    return out;
+}
+
+godot::Dictionary KdLook::blind_words(int64_t comparison) const {
+    const kd::look::ComparisonWords words = kd::look::comparison_words(comparison_of(comparison));
+    godot::Dictionary out;
+    out["name"] = godot::String::utf8(words.name.c_str());
+    out["compares"] = godot::String::utf8(words.compares.c_str());
+    out["asks"] = godot::String::utf8(words.asks.c_str());
+    return out;
+}
+
+godot::Array KdLook::blind_pairs(int64_t comparison, int64_t seed) const {
     godot::Array out;
-    for (const kd::look::BlindPair& p : kd::look::blind_pairs(static_cast<std::uint32_t>(seed & 0xFFFF))) {
+    for (const kd::look::BlindPair& p :
+         kd::look::blind_pairs(comparison_of(comparison), static_cast<std::uint32_t>(seed & 0xFFFF))) {
         godot::Dictionary d;
         d["better_first"] = p.better_first;
         d["heading"] = p.heading;
@@ -363,19 +390,19 @@ godot::Array KdLook::blind_pairs(int64_t seed) const {
     return out;
 }
 
-godot::String KdLook::blind_code(int64_t seed, const godot::Array& chose_first) const {
+godot::String KdLook::blind_code(int64_t comparison, int64_t seed, const godot::Array& chose_first) const {
     if (chose_first.size() != kd::look::kBlindPairs) {
         return {};
     }
-    const std::string code = kd::look::blind_code(blind_test(seed, chose_first));
+    const std::string code = kd::look::blind_code(blind_test(comparison, seed, chose_first));
     return godot::String::utf8(code.c_str());
 }
 
-int64_t KdLook::blind_right(int64_t seed, const godot::Array& chose_first) const {
+int64_t KdLook::blind_right(int64_t comparison, int64_t seed, const godot::Array& chose_first) const {
     if (chose_first.size() != kd::look::kBlindPairs) {
         return 0;
     }
-    return kd::look::blind_right(blind_test(seed, chose_first));
+    return kd::look::blind_right(blind_test(comparison, seed, chose_first));
 }
 
 void KdLook::play(const godot::String& path) {
@@ -407,9 +434,11 @@ void KdLook::_bind_methods() {
     ClassDB::bind_method(D_METHOD("clear"), &KdLook::clear);
     ClassDB::bind_method(D_METHOD("set_view", "east", "north", "heading", "metres_per_pixel"), &KdLook::set_view);
     ClassDB::bind_method(D_METHOD("set_many", "times"), &KdLook::set_many);
-    ClassDB::bind_method(D_METHOD("blind_pairs", "seed"), &KdLook::blind_pairs);
-    ClassDB::bind_method(D_METHOD("blind_code", "seed", "chose_first"), &KdLook::blind_code);
-    ClassDB::bind_method(D_METHOD("blind_right", "seed", "chose_first"), &KdLook::blind_right);
+    ClassDB::bind_method(D_METHOD("blind_comparisons"), &KdLook::blind_comparisons);
+    ClassDB::bind_method(D_METHOD("blind_words", "comparison"), &KdLook::blind_words);
+    ClassDB::bind_method(D_METHOD("blind_pairs", "comparison", "seed"), &KdLook::blind_pairs);
+    ClassDB::bind_method(D_METHOD("blind_code", "comparison", "seed", "chose_first"), &KdLook::blind_code);
+    ClassDB::bind_method(D_METHOD("blind_right", "comparison", "seed", "chose_first"), &KdLook::blind_right);
     ClassDB::bind_method(D_METHOD("play", "path"), &KdLook::play);
     ClassDB::bind_method(D_METHOD("playing"), &KdLook::playing);
 }

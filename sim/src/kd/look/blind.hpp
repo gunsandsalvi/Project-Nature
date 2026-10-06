@@ -1,5 +1,6 @@
 // The blind test (A5.5, PRE-01): ten pairs of one view drawn two ways, the better way on one of them, each asking
-// "which is sharper?"; eight or more right means the difference shows, which guessing reaches about 5% of the time.
+// which shows the better way's mark, such as "which is sharper?"; eight or more right means the difference shows, which
+// guessing reaches about 5% of the time.
 // Each pair's view, and which of its two pictures is drawn the better way, come from the test's seed by keyed
 // chance, the same on the phone and in the cloud, so the answers' code holds only the comparison, the seed and the
 // answers. Written once, for the app that asks and the cloud that reads the code.
@@ -18,8 +19,23 @@ inline constexpr std::int64_t kBlindShows = 8;
 
 /// What a blind test compares: the better way first.
 enum class Comparison : std::uint8_t {
-    msaa = 1,  // MSAA 4x against 2x, on the meadow
+    msaa = 1,          // MSAA 4x against 2x, on the meadow
+    leaves = 2,        // leaves smoothed by alpha to coverage against plain cut-outs, on calibration scene C2's plants
+    fire_shadows = 3,  // fire shadows by a walk at every pixel against by a map for each fire, on C5's camp at night
 };
+
+/// The comparisons a test may make, in their order on the Compare page.
+inline constexpr Comparison kComparisons[] = {Comparison::msaa, Comparison::leaves, Comparison::fire_shadows};
+
+/// A comparison in words: its name on the page, what it compares, and the question each pair asks.
+struct ComparisonWords {
+    std::string name;
+    std::string compares;
+    std::string asks;
+};
+
+/// Implements PRE-01, see A5.5: a comparison's words, the same on the phone and in the cloud.
+[[nodiscard]] ComparisonWords comparison_words(Comparison comparison);
 
 /// One pair: where its view looks, and whether the better way is drawn first (on top).
 struct BlindPair {
@@ -29,8 +45,9 @@ struct BlindPair {
     std::int64_t north = 0;
 };
 
-/// Implements PRE-01, see A5.5: a test's pairs, from its seed.
-[[nodiscard]] std::vector<BlindPair> blind_pairs(std::uint32_t seed);
+/// Implements PRE-01, see A5.5: a test's pairs, from its seed: views anywhere near the world's centre for MSAA, along
+/// the plants' bank and path for the leaves, which run north and south, and round the camp's fires for their shadows.
+[[nodiscard]] std::vector<BlindPair> blind_pairs(Comparison comparison, std::uint32_t seed);
 
 /// A test taken: what it compared, its seed, and for each pair whether the first picture was chosen.
 struct BlindTest {

@@ -3,7 +3,8 @@
 ## vulkan --resolution <W>x<H> -s <this file> -- <out.json>`; tools/calibrun.py runs it and checks
 ## what it writes. The Calibrate page runs every variant of every scene as the phone does, a
 ## hundred times faster, and this writes the scenes, what each variant drew and the run's code, and
-## a picture of each scene's first variant as it drew it, <scene>.png beside the run's file.
+## a picture of each scene's first variant as it drew it, <scene>.png beside the run's file, and of
+## every variant of the plants, <scene>-<variant>.png, whose ways must draw the same picture.
 extends SceneTree
 
 const CalibratePage := preload("res://pages/calibrate.gd")
@@ -30,7 +31,9 @@ func _run(out: String) -> void:
 		quit(1)
 		return
 	page.time_scale = 0.01
+	page.still_light = true
 	page.timed.connect(_picture.bind(page, out.get_base_dir()))
+	page.pick_all()
 	page.start()
 	while page.running():
 		await process_frame
@@ -44,8 +47,12 @@ func _run(out: String) -> void:
 	quit(0)
 
 
-## The screen as a scene's first variant drew it, as <scene>.png in the folder.
+## The screen as a scene's first variant drew it, as <scene>.png in the folder, and as each of the
+## plants' variants drew it, as <scene>-<variant>.png.
 func _picture(scene: int, variant: int, page: Control, folder: String) -> void:
+	var name: String = page.scenes[scene]["name"]
 	if variant == 0:
-		var name: String = page.scenes[scene]["name"]
 		root.get_texture().get_image().save_png(folder.path_join(name + ".png"))
+	if page.scenes[scene]["draws"] == "leaves":
+		var way: String = page.scenes[scene]["variants"][variant]["name"]
+		root.get_texture().get_image().save_png(folder.path_join("%s-%s.png" % [name, way]))

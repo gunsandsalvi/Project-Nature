@@ -3,6 +3,7 @@
 # 100 draws in three passes, about the 300 draws over all passes A18.1 plans for, less C4's bare frame. Stated before
 # its first run (RES-09).
 about = "What a MultiMesh draw of copies costs the main thread"
+step = "α2.2a"
 checks = ["PLT-04"]
 draws = "copies"
 path = "still"

@@ -1,0 +1,51 @@
+# C2, leaves (A18.1, α2.2b): the liked camp's airy plants as stand-ins at its density at the closest zoom (A4.6:
+# about 450 to 900 copies), grass tufts, reed beds along a bank, bushes and flower clumps, on the ground with the full
+# material, lit as C1's field is. Drawn five ways with all else equal: none (the bare ground), plain cut-out cards,
+# cards cut close to their leaves, solid cores with cut-out fringes, and close-cut cards with alpha to coverage. The
+# first three draw the same picture, which the cloud checks; alpha to coverage changes the leaves' edges, so your
+# blind test says whether it may be the default. The number that decides is the cheapest of the three, less the bare
+# ground. Stated before its first run (RES-09).
+about = "What the airy plants you liked cost the graphics chip, drawn each way"
+step = "α2.2b"
+checks = ["PLT-04", "PRE-46"]
+draws = "leaves"
+path = "still"
+measure = "gpu"
+least_of = ["plain", "close", "cores"]
+minus = "c2/none"
+# A18.1's allowance for the leaves' hidden layers, in microseconds of the graphics chip a frame
+line = 800
+expect_from = 600
+expect_to = 6000
+
+[[variant]]
+name = "none"
+way = "none"
+interface = false
+
+[[variant]]
+name = "plain"
+way = "plain"
+interface = false
+
+[[variant]]
+name = "close"
+way = "close"
+interface = false
+
+[[variant]]
+name = "cores"
+way = "cores"
+interface = false
+
+[[variant]]
+name = "coverage"
+way = "coverage"
+interface = false
+
+[[decision]]
+at_most = 1500
+then = "the cheapest way you cannot tell from plain cards becomes the default, and no leaf pre-pass is built"
+
+[[decision]]
+then = "the cheapest way you cannot tell from plain cards becomes the default, and the leaf pre-pass is built (α2.2c)"

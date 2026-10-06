@@ -554,6 +554,9 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
   - no sun shadow from small plants;
   - in stock Godot no depth pre-pass, which gains nothing for solid things on this chip.
   - Smoothing cut-out edges by alpha to coverage moves them to Godot's blended pass, as its source shows, so calibration scene C2 times it rather than assuming it free.
+  - *Built in α2.2b,* for C2: a card cut close is the polygon where 16 lines round its design touch its leaves, a texture pixel out; a solid core keeps two texture pixels inside a design's dense middle, ringed by its cut-out fringe; a design's own levels keep a leaf's pixel where two of four are leaves, so the leaves keep their cover.
+    Godot's render priority is the first thing its opaque pass sorts by, so cut-outs drawn after solid things, at a higher priority, works as A4.1 says.
+    In the cloud, close-cut cards and solid cores draw plain cards' picture (4 of 103,680 pixels differ, where a card's foot meets the ground), while alpha to coverage changes 13% of them.
 - **Buckets** are sized for each form: about 16–32 m for full forms near the camera, a whole area for far ones, still and moving copies apart.
   If draws prove the bottleneck, each frame's visible copies of a form are gathered into one buffer, as Saber's engine does.
 
@@ -715,6 +718,7 @@ It replaces the art bible's rules.
 - **Savings must be invisible** (`PRE-01`): first the machine line (A4.8), then your blind test on the phone, ten random pairs asking "which is sharper?", where eight or more right means it shows (guessing gets there about 5% of the time).
   - *Your first, in α2.1b* (6 October 2026): MSAA 4× against 2× on the stand-in meadow, 3 of 10 right, so the difference does not show and 2× stays.
   On the Compare page each pair is one view drawn two ways, one above the other, the better way placed by chance from the test's seed; you tap the sharper; the short code you send holds the seed and your answers, and the cloud reads it the same way. The first test compares MSAA 4× with 2× on the meadow.
+  - *Built in α2.2b:* the page offers each test by name, and its code names it: Sharpness, the first; Leaf edges, C2's plants cut out plainly in one picture and smoothed by alpha to coverage in the other, each way on a layer only its picture's camera sees, asking which has smoother leaf edges; and Fire shadows, with C5.
   Half resolution applied to textures brings the shimmer back (9–16% of pixels), so a half-resolution saving may touch only smooth things: light, shadow and haze.
 - **The heat step:** if the 20-minute heat run shows the picture alone heats the phone, one planned, logged step under heat, such as distant fires casting no shadows, chosen among the savings that pass your blind test, as you chose on 6 October 2026; if none is enough, it comes back to you.
 - **The AI judge advises, never decides:** it reports faults, never approval.
@@ -1093,6 +1097,10 @@ As measured on your phone in pre-production, each re-measured at every milestone
   - One code holds every reading (layout 1: the version in 8 bits, the build in 17, then a variant's graphics and main-thread time in microseconds in 16 bits each, frames on time a thousand in 11, power in milliwatts in 15 and heat in hundredths in 9, each its reading plus one and 0 for none, then a CRC-24); `kindling look calibrate <code>` reads it against the same files and gives each scene's number, its line and estimate, and its decision, in the same words as the phone.
   - A number is the deciding variant's time less its minus's, as C1 takes C4's bare frame off, or for triangles the slope of the graphics chip's time over the variants without the shadow pass.
   - In the cloud, `tools/calibrun.py` runs every variant on the software driver and holds what each drew to its file: rocks give exactly their triangles in each pass they have, copies exactly their draws; Godot draws a sun's shadow for every view that sees the sun, so the mirror's view is blind to the sun's layer and adds one pass, not two.
+- *Built in α2.2b:* a scene names the step whose run it belongs to, and the Calibrate page offers the build's own step's scenes first, with a box for each; a scene picked picks the one its minus takes from.
+  - A scene may decide by the least of several variants, as C2 takes the cheapest way of drawing its leaves among those that draw plain cards' picture.
+  - The code, layout 2, holds which scenes ran in 16 bits after the build; `kindling look calibrate` still reads α2.2a's layout 1, against that build's own files.
+  - C2's stand-in plants, set out by a hash of their place along a bank, a path and a meadow, put about 850 copies in view on your phone's screen; Godot counts a draw for each instance seen, however many surfaces it has.
 
 **M1's benchmark,** one tap and about 20 minutes, with the phone unplugged, in flight mode, after it has cooled:
 - the calendar alone at top speed; 10,000 markers at real speed and at top speed, with the camera touring, held speed read after 3 minutes; the same pinned to the middle cores; a sweep through the zoom stops' speeds; saves every 30 seconds with an export and a reopening; a still camera for the screen's own power;
