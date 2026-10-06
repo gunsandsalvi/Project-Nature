@@ -157,6 +157,7 @@ std::optional<double> measure(const Field& f, std::uint64_t v) {
 const std::vector<Field>& layout() {
     static const std::vector<Field> fields = [] {
         std::vector<Field> out;
+        out.reserve(kPhone.size() + scenarios().size() * kEach.size() + kSaves.size());
         for (const Measure& m : kPhone) {
             out.push_back({std::string(m.name), m.bits, m.kind});
         }

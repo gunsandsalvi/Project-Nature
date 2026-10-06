@@ -116,6 +116,6 @@ One independent reviewer, given only M1's changes, its plan as it stood when M1 
 
 1. **Run the benchmark** and paste its code into the chat.
 2. **Accept M1, or send it back** with what looks wrong (`RES-22`).
-3. **What comes next.** The plan proposes the vertical slice before M2: one band at a cliff camp through a day, at the art book's look, built on these foundations, as the bar for the rest. You asked me to start M2's research, the graphics engine, with the question of the best way for Claude to make models, textures, shaders and meshes. Both can be first: the slice needs the same answers. Which do you want first?
+3. **What comes next,** when you are ready: M2 waits, as you asked. The plan proposes the vertical slice before M2: one band at a cliff camp through a day, at the art book's look, built on these foundations, as the bar for the rest. Either needs the same first answer: the best way for Claude to make models, textures, shaders and meshes, which M2's research will find. Say which comes first, and when.
 4. **This report as a page on your phone** (`RES-06`): publishing it as a page stops my work until you allow it, so it stays in the repository for now. Say if you want it published.
 5. **Once, if not yet done:** register the package `dev.kindling.app` and the release certificate's fingerprint in your developer account, and make `main` the default branch on GitHub.

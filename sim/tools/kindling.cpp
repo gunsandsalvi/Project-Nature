@@ -603,13 +603,15 @@ int scene_command(const std::vector<std::string_view>& args) {
 
 // A count with its thousands set apart: 10,000.
 std::string grouped(long long n) {
-    std::string digits = std::to_string(n < 0 ? -n : n);
-    std::string out;
-    while (digits.size() > 3) {
-        out = "," + digits.substr(digits.size() - 3) + out;
-        digits.resize(digits.size() - 3);
+    const std::string digits = std::to_string(n < 0 ? -n : n);
+    std::string out = n < 0 ? "-" : "";
+    for (std::size_t i = 0; i < digits.size(); ++i) {
+        if (i > 0 && (digits.size() - i) % 3 == 0) {
+            out += ',';
+        }
+        out += digits[i];
     }
-    return (n < 0 ? "-" : "") + digits + out;
+    return out;
 }
 
 // A speed in words: "2.3 game days a real second".

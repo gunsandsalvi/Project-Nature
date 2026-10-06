@@ -141,7 +141,7 @@ TEST_CASE(
 // checks: RES-05
 TEST_CASE("a world with marks takes each digest as it passes, the same however its batches fall") {
     const kd::data::Catalogue& cat = kd::test::fixture();
-    const auto run_marked = [&](std::vector<kd::time::Seconds> goals) {
+    const auto run_marked = [&](const std::vector<kd::time::Seconds>& goals) {
         kd::demo::CrowdWorld crowd(5, cat, 2);
         struct Steps : kd::run::Steppable {
             kd::world::World& w;
