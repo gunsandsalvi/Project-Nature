@@ -20,6 +20,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - α1.2b, catalogues and tuning, is delivered as 20202, and α1.2 is closed by the builder's review; its note stays in the repository rather than being republished, as you asked on 5 October 2026.
 - α1.3a, entities and events, is delivered as 20301: the world's clockwork, with a crowd of markers walking, resting and sleeping, and the phone's self-check running a small world.
 - α1.3b, activities and islands, is delivered as 20302: markers meet and greet, and islands give exactly the one-thread world on any number of threads; for the crowd's light events one worker is faster, so it runs on one (A3.3).
+- α1.3c, the crowd on your phone, is delivered as 20303, and α1.3 is closed by the builder's review: 10,000 markers drawn from the world's newest snapshot at any speed, each exactly where the world has it, with the heat governor and the counters (A3.8, A3.9).
 
 ## How to use this plan
 
@@ -119,8 +120,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.3c | The crowd on your phone | M1 | 6 | Next |
-| α1.4a | Saves and the journal | M1 | 6 | Planned |
+| α1.4a | Saves and the journal | M1 | 6 | Next |
 | α1.4b | Worlds, export and updates | M1 | 5 | Planned |
 | α1.5a | Scenes and runs | M1 | 6 | Planned |
 | α1.5b | The benchmark and M1's end | M1 | 6 | Planned |
@@ -151,33 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.3c The crowd on your phone
-
-**Goal:** 10,000 markers walking, meeting and greeting on your phone at any speed, smooth, with the simulation on its own threads and the screen never waiting.
-
-**Serves:** `PLT-01`, `TIM-01`, `TIM-10`, `WLD-13`.
-
-**Architecture:** A3.8, A3.9.
-
-**Tasks:**
-
-1. `T1.3c.1` **Snapshots to the screen (`WLD-13`).**
-   The triple buffer: after each batch the simulation fills a slot with each walker's id, kind, colour, flags and way; the screen takes the newest; greetings travel in a lossless queue.
-2. `T1.3c.2` **Drawing the crowd (`PLT-01`).**
-   The crowd node: one MultiMesh per area with its own bounding box, each walker placed at the screen's game time along its way, in double precision relative to the camera; camps in their own colours, a greeting flashing; a camera seen from above that pans and zooms.
-3. `T1.3c.3` **Speed, heat and counters (`TIM-01`, `TIM-10`, `PLT-01`).**
-   The speed loop at scale; the heat governor (headroom every 2 s, the working share cut fast and given back slowly); a switch to pin the workers to the middle cores, for the benchmark; counters for events a second, islands, batch time and the speed shown against the speed asked.
-4. `T1.3c.4` **The crowd page (`PLT-01`, `TIM-01`).**
-   400 camps of 25 markers, the speeds of the Time page, the counters; pictures in the cloud; deliver.
-
-**Tests:**
-- gdUnit4, headless: the crowd's buffer holds every walker at its place for a given game time (read back from the dummy renderer); the triple buffer never tears under a producer at full speed.
-- The heat governor as a function: a rising forecast cuts the share within one reading and gives it back only after a minute below.
-- A picture of the crowd page in the cloud.
-- Passes if all pass and frames stay on time in the cloud's picture run.
-
-**On the phone:** open Crowd: 10,000 markers walk, meet and greet; try every speed and drag the view; at real speed they walk at a walker's pace; the counters show the speed asked and the speed you get.
 
 ### α1.4a Saves and the journal
 
