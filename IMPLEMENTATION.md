@@ -22,6 +22,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - α1.3b, activities and islands, is delivered as 20302: markers meet and greet, and islands give exactly the one-thread world on any number of threads; for the crowd's light events one worker is faster, so it runs on one (A3.3).
 - α1.3c, the crowd on your phone, is delivered as 20303, and α1.3 is closed by the builder's review: 10,000 markers drawn from the world's newest snapshot at any speed, each exactly where the world has it, with the heat governor and the counters (A3.8, A3.9).
 - α1.4a, saves and the journal, is delivered as 20401: the crowd's world kept on the phone, saved every 30 seconds and as the app leaves the screen, your commands written before they act, and after any kill or crash it opens where it was and catches up exactly (A3.7).
+- α1.4b, worlds, export and updates, is delivered as 20402, and α1.4 is closed by the builder's review: several worlds kept and switched on a Worlds page, one exported to a .kindling file and imported again, α1.4a's worlds opened and carried on after a small update with their last save kept aside for an hour, the history thinned after 25 years, and a warning before the phone is full (A3.7).
 
 ## How to use this plan
 
@@ -121,8 +122,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.4b | Worlds, export and updates | M1 | 5 | Next |
-| α1.5a | Scenes and runs | M1 | 6 | Planned |
+| α1.5a | Scenes and runs | M1 | 6 | Next |
 | α1.5b | The benchmark and M1's end | M1 | 6 | Planned |
 | The slice | The vertical slice | After M1 | | Proposed, for your OK |
 | M2 to M10 | Outlines below | M2 to M10 | | Detailed when each comes next |
@@ -151,34 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.4b Worlds, export and updates
-
-**Goal:** several worlds kept and switched exactly, one exported to a file and imported again, old saves opened by new versions, and a warning before the phone is full.
-
-**Serves:** `TIM-08`, `PLT-08`, `PLT-09`, `PLT-10`.
-
-**Architecture:** A3.7, A3.6.
-
-**Tasks:**
-
-1. `T1.4b.1` **Several worlds (`TIM-08`).**
-   Each world's folder and `world.toml`; a Worlds page to make, open, switch, rename and delete them, deleting only after you confirm; switching saves one and opens the other exactly.
-2. `T1.4b.2` **Export and import (`PLT-08`).**
-   The `.kindling` file, with a checksum for each part; export and import through Android's file picker, streamed; an import checked as it arrives and refused with a message naming the damage.
-3. `T1.4b.3` **Updates and old saves (`PLT-09`).**
-   A version in every chunk with its upgrades, and named migrations recorded in the save; small or big decided by the world digest, the note saying which; a corpus of exported worlds from each alpha opened by every build; the previous version's last save kept until a world has run an hour.
-4. `T1.4b.4` **Space and thinning (`PLT-10`).**
-   Free space checked at each save, with the warning and the question of which worlds to delete; the history thinned at year boundaries by the fixed rule (every event for 25 years, then what each kind keeps); each world's size by part; deliver.
-
-**Tests:**
-- Three worlds switched in turn each open exactly where they were left.
-- An exported world, imported, runs on identically; a damaged file is refused.
-- The corpus opens and carries on; a big update keeps the history readable.
-- A 30-year world's history keeps every event of its last 25 years and only kept kinds before.
-- Passes if all pass.
-
-**On the phone:** open Worlds: make three, switch among them, export one and import it as a copy, and delete the copy.
 
 ### α1.5a Scenes and runs
 

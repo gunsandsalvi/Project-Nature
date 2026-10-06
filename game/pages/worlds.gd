@@ -261,7 +261,7 @@ func _end_job() -> void:
 func _row(w: Dictionary, current: bool) -> Control:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 4)
-	var title := "%s%s" % [Worlds.name_of(w), "  (opens on Crowd)" if current else ""]
+	var title := "%s%s" % [Worlds.name_of(w), "  (opens on the Crowd page)" if current else ""]
 	box.add_child(_text(title, 20, TEXT))
 	var when := "not saved yet"
 	if int(w["moment"]) >= 0:
