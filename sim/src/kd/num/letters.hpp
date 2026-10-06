@@ -18,7 +18,7 @@ void put_bits(std::vector<bool>& bits, std::uint64_t value, unsigned width);
 /// Takes a whole number of width bits from bits at at, moving at past it.
 [[nodiscard]] std::uint64_t take_bits(const std::vector<bool>& bits, std::size_t& at, unsigned width);
 
-/// Implements PLT-04, see A18.1: bits as a code: a CRC-24 of them after them, padded with zeros to whole letters.
+/// Implements PLT-04, see A18.1: bits as a code: their 24-bit checksum after them, padded with zeros to whole letters.
 [[nodiscard]] std::string write_letters(std::vector<bool> bits);
 
 /// A code's letters read back.
