@@ -23,8 +23,9 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 
 ## The art lane
 
-A separate instance, your idea, prepares the picture-made textures, targets and guide pictures while the builder builds the engine: α2.3a's tools and materials (T2.3a.2, T2.3a.3).
-The builder reviews and merges each batch; you say yes or no to each material on its sheet.
+A separate instance, your idea, prepares the content while the builder builds the engine: the picture-made textures (α2.3a's tools and materials, T2.3a.2 and T2.3a.3), the targets and guide pictures, and the kit's parts in Blender (A6.1), each first drawn by GPT and then fixed by the lane.
+The builder reviews and merges each batch and wires its content into the engine at the step that uses it; you say yes or no to each material and part on its sheet.
+It restarts with your word, with its next round below as its one order.
 
 **Rules:**
 - It works only in `art/`, `tools/art/` and `tools/tests/test_art_*.py`, on its own branch, and never pushes or merges.
@@ -33,11 +34,13 @@ The builder reviews and merges each batch; you say yes or no to each material on
 - No AI model's name in any committed file, and nothing secret in a prompt.
 - GPT's size, block size, scale and seams are never relied on: re-gridding finds them.
 - Colour measures only from `kindling look` (`stats`, `adjust`, `texel`), the engine's own C++.
+- Blender (4.0, in the cloud) for every part; GPT's first pass through Codex writing Blender scripts, run headless, then the lane's own fixes.
 - Each tool has unit tests and passes `ruff`; commits are `T2.3a.2: …` for tools and `T2.3a.3: …` for materials.
 - Truth before use: every picture enlarged before it becomes a source; never metal before copper, sawn wood, later things (chickens, hooped buckets, winches, lattice windows, glass-bead colours, rucksacks, slatted sleds, maize, a pot hung over a fire, boats with seats), spotted or long-maned horses, striped piglets outside spring, tipi-like cones, Lascaux-like paintings, real cultures' motifs, fur bikinis, grass rain capes; and nothing countable in a ground texture.
 
 **Files:**
 - `art/textures/<name>/`: levels `b0.png` to `b8.png` (lossless), `record.toml`, and `source.png` (the source on band 0's grid); a big surface's middle and far tiles in `middle/` and `far/`, and versions in `v2/` to `v4/`, each with its levels and record.
+- `art/models/<family>.blend`: the kit's parts, one Blender file for each family (camp things, plants, rocks, people, each animal pattern), each part with its texture layout in metres, its named joints (empties called `joint_…`) and its material slots named by role (wood, bark, hide, stone, leaf, grass, skin, hair); beside each file a preview sheet and a stretch report.
 - `art/sources/<name>/<name>-<nn>.webp`: each original used; `art/requests/<name>-<nn>.txt`: its request; `art/sheets/<name>.webp`: the sheet, 1080 pixels wide.
 - A request: purpose, size, input picture, and the prompt (the area in metres, blocks of 8 to 12 picture pixels or larger for a coarse band, the material only, straight on and orthographic, even light, seamless, a truth line).
 - A record, integers and strings only: `about`, `route`, `tile_texels`, `texels_a_metre`, `first_band`, `sources`, `original_sha256`, `c2pa`, `requests`, `made`, `regrid_loss`, `truth`, `approved`, and for each level `level`, `file`, `sha256`, `made_from`, `way`, `regrid_loss` (redrawn levels), `calibration`.
@@ -49,6 +52,7 @@ The builder reviews and merges each batch; you say yes or no to each material on
 3. The code reduction keeps bolder marks and fewer of them, never single-pixel speckle.
 4. Bare earth, trodden floor, stone and ash redrawn without GPT's stepped-diamond pattern; the meadow's band 0 stays.
 5. The checks as T2.3a.1 lists them.
+6. **The camp's kit parts in Blender,** GPT's first pass then the lane's fixes: poles, logs, branches and a birch trunk; hide panels and bark sheets; hearth and ring stones, boulders and cliff pieces; a basket, a drying rack's bars and a hand axe; grass tufts and leaf clusters; and, last, a first person and a red deer, each on its skeleton with build, age and sex as shape keys; every part at real size in metres, unwrapped at 64 texture pixels a metre and stretched at most 1.5:1, with its joints, its preview and its stretch report.
 
 **The batch report:** each material and its sheet, each check's result, the pictures used, every truth flag, and questions for you.
 
@@ -154,12 +158,12 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's probes and readings to come |
-| α2.1b | The look's checks | M2 | 6 | T2.1b.1's colour measures built (`kindling look`), for the art lane; the rest planned |
+| α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's readings in, every probe passed |
+| α2.1b | The look's checks | M2 | 6 | **Next.** T2.1b.1's colour measures built (`kindling look`); the rest planned |
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Planned |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Planned |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 joined on 6 October 2026: its tools and 18 materials, waiting for your yes or no, in a second round for the checks they fail; the rest after α2.2 |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 joined on 6 October 2026: its tools and 18 materials; its next round below waits for the lane's restart; the rest after α2.2 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
 | α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
 | α2.3d | People, a deer and first light | M2 | 6 | Planned |
@@ -373,15 +377,17 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 **Serves:** `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-30`.
 
-**Architecture:** A4.3, A4.4, A4.5, A4.6, A8.1.
+**Architecture:** A4.3, A4.4, A4.5, A4.6, A6.1, A6.4, A8.1.
 
 **Tasks:**
 
-1. `T2.3b.1` **The ground and the cliff (`PRE-23`, `PRE-24`).**
-   A stand-in area made by code, a camp under a cliff by a river about 256 m across, its ground on the tree of ground near the focus with its patch picture and designed levels, each big surface's near, middle and far tiles blending at their switches as any two levels do, and each cell picking one of a tile's versions by its place (A5.3); a cliff whose layers come from a stand-in geology (limestone over shale, weathered back into a rock shelter), with cracks, stains, soot above the shelter and scree at its foot.
-2. `T2.3b.2` **Light, shadows and darkening (`PRE-21`, `PRE-30`).**
+1. `T2.3b.1` **The kit in the engine (`PRE-46`).**
+   Blender in the cloud's setup and the build, exporting the art lane's parts for Godot with their joints; the assembler putting parts together from recipes in the catalogues, varied by seed; the model sheet of every part and thing.
+2. `T2.3b.2` **The ground and the cliff (`PRE-23`, `PRE-24`).**
+   A stand-in area made by code, a camp under a cliff by a river about 256 m across, its ground on the tree of ground near the focus with its patch picture and designed levels, each big surface's near, middle and far tiles blending at their switches as any two levels do, and each cell picking one of a tile's versions by its place (A5.3); a cliff whose layers come from a stand-in geology (limestone over shale, weathered back into a rock shelter), with cracks, stains, soot above the shelter, and the art lane's boulders, cliff pieces and scree at its foot.
+3. `T2.3b.3` **Light, shadows and darkening (`PRE-21`, `PRE-30`).**
    The shared light function (the sun by its height, the sky's fill by openness, bounce, backlight, haze); Godot's sun map at 2,048 for small casters and our height-field sun map for big ones; the openness and contact maps; creases baked by the kit; the tone curve, a first colour table and debanding.
-3. `T2.3b.3` **Water, and delivery (`PRE-26`).**
+4. `T2.3b.4` **Water, and delivery (`PRE-26`).**
    The bed below the water's level, the surface's sky colour by angle, the mirror at half resolution with a smaller set, flow lines and foam stepping in whole texture pixels, glints of one texture pixel, the shore line from height; deliver as 30302.
 
 **Tests:**
@@ -403,13 +409,11 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 **Tasks:**
 
-1. `T2.3c.1` **The kit in Blender (`PRE-46`).**
-   Blender in the cloud's setup; the first parts (poles, hide panels, bark sheets, stones, branches, leaf clusters, tufts, tools, rocks) with their texture layouts and joints; the build exporting them for Godot; the assembler putting parts together from recipes in the catalogues, varied by seed; the model sheet of every part and thing.
-2. `T2.3c.2` **Cover and plants (`PRE-46`, `PRE-43`).**
+1. `T2.3c.1` **Cover and plants (`PRE-46`, `PRE-43`).**
    Tufts, flower clumps and pebbles set out by the chip from the patch by the density rule; plants drawn the way C2 chose, cut close to their leaves; reeds, bushes and a birch put together from Blender's parts by growth rules and varied by seed; each plant's design for band 0 (A6.1).
-3. `T2.3c.3` **Shelters and things (`PRE-42`, `PRE-24`).**
+2. `T2.3c.2` **Shelters and things (`PRE-42`, `PRE-24`).**
    Put together from the kit's parts; two shelter types in two materials each, a skin tent on a stone ring and hides closing off the rock shelter, each recording the excavation it rests on; a hearth ring, a drying rack, baskets and tools as kit layouts; light inside only from openings and fire.
-4. `T2.3c.4` **Fire, and delivery (`PRE-30`).**
+3. `T2.3c.3` **Fire, and delivery (`PRE-30`).**
    Flames as pixel art made by code at about 10 frames a second, embers as copies, the light grid, fire shadows the way C5 chose, glow in the light function, and smoke as lit cards drawn last; deliver as 30303.
 
 **Tests:**
@@ -436,7 +440,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 2. `T2.3d.2` **The poser (`PRE-44`).**
    Key poses as joint angles for standing, walking, sitting, crouching at work, knapping and carrying; the bending rules and seed offsets; palettes written at each pose step and bent on the chip, or Godot's skeletons for as many as C6 allows; poses held or gliding by a switch.
 3. `T2.3d.3` **A deer (`PRE-44`, `PRE-46`).**
-   The hoofed body pattern on its skeleton with a red deer's proportions, coat and antlers by age; walk, trot and gallop from numbers for each leg; still poses from the approved sheet; GPT's pictures within this step's budget of about 5.
+   The hoofed body pattern on its skeleton with a red deer's proportions, coat and antlers by age; walk, trot and gallop from numbers for each leg; still poses from the approved sheet.
 4. `T2.3d.4` **First light (`PRE-01`, `PRE-31`).**
    The camp at the closest zoom in late afternoon, with seven people at their tasks and a deer at the river: the loop's first full run (the card, the checks, the judge's faults), the engine's frame beside the liked picture, the camera's tilt at 35°, 40° and 50° and its lens at 5° and 10° for your eye, and poses held or gliding; deliver as 30304.
 
@@ -505,7 +509,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.5a.1` **The camp's targets (`PRE-31`).**
-   The camp's anchor picture, approved by you: first light's frame repainted, or a target you chose, its truth checked; relit by GPT to dawn, true midday, dusk, night and winter, each vetted, within this step's budget of about 10 pictures; their numbers into the card's bands.
+   The camp's anchor picture, approved by you: first light's frame repainted, or a target you chose, its truth checked; relit by GPT to dawn, true midday, dusk, night and winter, each vetted; their numbers into the card's bands.
 2. `T2.5a.2` **The hours (`PRE-30`).**
    The sun's colour by its height, the sky's fill, the moon by its phase, firelight pools at night halving within about 2 m, haze at dawn; a colour table for each moment, blended as the sun moves; the light held steady at speed.
 3. `T2.5a.3` **The checks, and delivery (`PRE-20`).**
@@ -553,7 +557,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.6a.1` **Every material's levels (`PRE-22`).**
-   Every material's designed levels for the bands it is seen at, the big surfaces redrawn by GPT from the level above and matched by code, the rest by code, within this step's budget of about 30 pictures; each checked for accents and drift; the blend between bands.
+   Every material's designed levels for the bands it is seen at, the big surfaces redrawn by GPT from the level above and matched by code, the rest by code; each checked for accents and drift; the blend between bands.
 2. `T2.6a.2` **Small things by band (`PRE-46`).**
    Each plant form's designs for bands 1 and 2, with flowers and berries kept at least one texture pixel; plants below 12 screen pixels into the ground's band texture; the meadow strip three ways (shrunk, filtered, designed), for your eye.
 3. `T2.6a.3` **Figures by size (`PRE-28`).**

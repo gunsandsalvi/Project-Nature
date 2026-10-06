@@ -662,7 +662,7 @@ It replaces the art bible's rules.
 - GPT's size, block size, scale and seams are never relied on: it returned 1254 × 1254 for 1024 × 1024 and blocks of 12 for 8.
 - Code-made textures' fingerprints are compared with the cloud's in the self-check.
   Each batch has a budget of pictures; at a limit the work waits and carries on with code-made textures, never buying credits (`PRC-01`).
-- **The art lane,** your idea: a separate instance on the builder's machine prepares the picture-made textures, the targets and the guide pictures, by the rules in `IMPLEMENTATION.md`.
+- **The art lane,** your idea: a separate instance on the builder's machine prepares the content, the picture-made textures, the targets and guide pictures, and the kit's parts in Blender (A6.1), by the rules in `IMPLEMENTATION.md`.
   - It works only in `art/` and `tools/art/`, on its own branch, and runs GPT itself through `tools/art/gpt-run.sh`, checking its own requests against the brief and keeping a log of every run (`art/log/gpt-runs.md`).
   - The builder reviews each batch (its records, its checks, its pictures enlarged, its log) before it joins, and you approve each material on its sheet.
   - The colour measures its checks use come from `kindling look`, the same C++ the engine's checks use (A4.8), so each is written once.
@@ -708,7 +708,7 @@ It replaces the art bible's rules.
 ### A6.1 The kit (`PRE-46`)
 
 - **Parts like Lego.** Every shape is a part made in Blender: poles, hide panels, bark sheets, stones, branches, leaf clusters, tufts, body parts, garment pieces, hair, tools, rocks and cliff pieces.
-  - Each part has its texture layout (A6.4) and named joints where it plugs into others, and you can open any part in Blender and change it.
+  - Each part has its texture layout (A6.4) and named joints where it plugs into others; the art lane makes them, GPT's first pass through Codex writing Blender scripts and then its own fixes, and you can open any part in Blender and change it.
   - Code puts parts together from recipes in the catalogues, varying size, count, angle, material and wear by seed, so a few hundred parts give thousands of things; a new thing is a catalogue entry.
   - Corners, creases and undersides are darkened in each part, and where parts meet when they are put together (A4.4).
 - **Plants:** about 8 forms.
