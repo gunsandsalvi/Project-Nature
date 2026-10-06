@@ -556,6 +556,7 @@ int scene_command(const std::vector<std::string_view>& args) {
         std::stable_sort(results.begin(), results.end(),
                          [](const auto& a, const auto& b) { return a.index < b.index; });
         std::vector<std::optional<std::int64_t>> m;
+        m.reserve(results.size());
         for (const kd::scene::RunResult& r : results) {
             m.push_back(r.measure(s.pass.measure));
         }

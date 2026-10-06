@@ -9,9 +9,7 @@ namespace kd::scene {
 
 namespace {
 
-using data::Field;
 using data::Measure;
-using data::Range;
 using data::Value;
 
 // An item's ID, such as WLD-13: two to four capitals, a dash and two digits.
@@ -72,11 +70,11 @@ Read read_scene(std::string_view text, const std::string& path, std::span<const 
     l.whole({"seed", "the first run's seed; each next run's is one more"}, s.seed, {0, INT64_MAX / 2});
     l.whole({"runs", "how many worlds it runs: about 20 where chance matters (RES-13)"}, s.runs, {1, 200});
     l.quantity({"until", "how long each run lasts, in game time"}, s.until, Measure::game_time,
-               {3600, 1000 * 60 * 86'400LL});
+               {3600, std::int64_t{1000} * 60 * 86'400});
     l.quantity({"limit", "how long one run may take, in real time, before it counts as hung"}, s.limit,
                Measure::life_time, {1, 86'400});
     l.quantity({"budget", "how long the whole scene may take, in real time (RES-09)"}, s.budget, Measure::life_time,
-               {1, 7 * 86'400});
+               {1, std::int64_t{7} * 86'400});
     std::vector<std::string> switches;
     l.names({"switches", "the test switches each run takes (RES-10)", data::Affects::rules, false}, switches);
     l.truth(
