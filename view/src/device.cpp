@@ -31,6 +31,8 @@
 #if defined(__ANDROID__)
 #include <android/system_health.h>
 #include <android/thermal.h>
+#include <dlfcn.h>
+#include <vulkan/vulkan.h>
 
 #include <atomic>
 #endif
@@ -187,6 +189,7 @@ void KdDevice::_bind_methods() {
     ClassDB::bind_method(D_METHOD("thermal"), &KdDevice::thermal);
     ClassDB::bind_method(D_METHOD("gpu_headroom"), &KdDevice::gpu_headroom);
     ClassDB::bind_method(D_METHOD("battery_supply"), &KdDevice::battery_supply);
+    ClassDB::bind_method(D_METHOD("shading_rates"), &KdDevice::shading_rates);
     ClassDB::bind_method(D_METHOD("storage"), &KdDevice::storage);
     ClassDB::bind_method(D_METHOD("proof_suites"), &KdDevice::proof_suites);
     ClassDB::bind_method(D_METHOD("proof", "suite", "threads"), &KdDevice::proof);
@@ -301,6 +304,92 @@ godot::Dictionary KdDevice::gpu_headroom() const {
         if (ASystemHealth_getGpuHeadroomMinIntervalMillis(&interval) == 0) {
             d["min_interval_ms"] = interval;
         }
+    }
+#endif
+    return d;
+}
+
+godot::Dictionary KdDevice::shading_rates() const {
+    godot::Dictionary d;
+    d["available"] = false;
+#if defined(__ANDROID__)
+    // a Vulkan instance of the app's own, beside Godot's, asked only what the driver offers
+    void* vulkan = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+    if (vulkan == nullptr) {
+        return d;
+    }
+    const auto get_proc = reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(vulkan, "vkGetInstanceProcAddr"));
+    const auto create = get_proc == nullptr
+                            ? nullptr
+                            : reinterpret_cast<PFN_vkCreateInstance>(get_proc(VK_NULL_HANDLE, "vkCreateInstance"));
+    VkInstance instance = VK_NULL_HANDLE;
+    VkApplicationInfo app{};
+    app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    app.pApplicationName = "kindling-probe";
+    app.apiVersion = VK_API_VERSION_1_1;
+    VkInstanceCreateInfo info{};
+    info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    info.pApplicationInfo = &app;
+    if (create == nullptr || create(&info, nullptr, &instance) != VK_SUCCESS) {
+        return d;
+    }
+    const auto destroy = reinterpret_cast<PFN_vkDestroyInstance>(get_proc(instance, "vkDestroyInstance"));
+    const auto devices_of =
+        reinterpret_cast<PFN_vkEnumeratePhysicalDevices>(get_proc(instance, "vkEnumeratePhysicalDevices"));
+    const auto extensions_of = reinterpret_cast<PFN_vkEnumerateDeviceExtensionProperties>(
+        get_proc(instance, "vkEnumerateDeviceExtensionProperties"));
+    const auto features_of =
+        reinterpret_cast<PFN_vkGetPhysicalDeviceFeatures2>(get_proc(instance, "vkGetPhysicalDeviceFeatures2"));
+    const auto rates_of = reinterpret_cast<PFN_vkGetPhysicalDeviceFragmentShadingRatesKHR>(
+        get_proc(instance, "vkGetPhysicalDeviceFragmentShadingRatesKHR"));
+    std::uint32_t count = 0;
+    std::vector<VkPhysicalDevice> devices;
+    if (devices_of != nullptr && devices_of(instance, &count, nullptr) == VK_SUCCESS && count > 0) {
+        devices.resize(count);
+        devices_of(instance, &count, devices.data());
+    }
+    if (!devices.empty() && extensions_of != nullptr && features_of != nullptr) {
+        const VkPhysicalDevice device = devices.front();
+        std::uint32_t n = 0;
+        extensions_of(device, nullptr, &n, nullptr);
+        std::vector<VkExtensionProperties> extensions(n);
+        extensions_of(device, nullptr, &n, extensions.data());
+        bool offered = false;
+        for (const VkExtensionProperties& e : extensions) {
+            offered = offered || std::strcmp(e.extensionName, VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME) == 0;
+        }
+        d["available"] = true;
+        d["extension"] = offered;
+        if (offered) {
+            VkPhysicalDeviceFragmentShadingRateFeaturesKHR rate{};
+            rate.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR;
+            VkPhysicalDeviceFeatures2 features{};
+            features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+            features.pNext = &rate;
+            features_of(device, &features);
+            d["per_draw"] = rate.pipelineFragmentShadingRate == VK_TRUE;
+            d["per_primitive"] = rate.primitiveFragmentShadingRate == VK_TRUE;
+            d["from_picture"] = rate.attachmentFragmentShadingRate == VK_TRUE;
+            if (rates_of != nullptr) {
+                std::uint32_t m = 0;
+                rates_of(device, &m, nullptr);
+                std::vector<VkPhysicalDeviceFragmentShadingRateKHR> rates(m);
+                for (VkPhysicalDeviceFragmentShadingRateKHR& r : rates) {
+                    r.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR;
+                    r.pNext = nullptr;
+                }
+                rates_of(device, &m, rates.data());
+                godot::PackedStringArray names;
+                for (const VkPhysicalDeviceFragmentShadingRateKHR& r : rates) {
+                    names.append(godot::String::num_int64(r.fragmentSize.width) + godot::String("x") +
+                                 godot::String::num_int64(r.fragmentSize.height));
+                }
+                d["rates"] = names;
+            }
+        }
+    }
+    if (destroy != nullptr) {
+        destroy(instance, nullptr);
     }
 #endif
     return d;

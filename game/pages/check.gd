@@ -18,6 +18,7 @@ var lines: Array[Dictionary] = []
 
 var _list: VBoxContainer
 var _summary: Label
+var _probes: Probes
 
 
 func _ready() -> void:
@@ -40,7 +41,23 @@ func _ready() -> void:
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_list.add_theme_constant_override("separation", 6)
 	scroll.add_child(_list)
+	# the probes run once a build, a little drawing each, and the lines show them as they end
+	_probes = Probes.new()
+	add_child(_probes)
+	_probes.finished.connect(_on_probes_done)
 	build()
+	_show()
+	# a picture of the page in the cloud waits for the probes (tools/godot-picture.gd)
+	add_to_group("busy")
+	_probes.start()
+
+
+func _on_probes_done() -> void:
+	remove_from_group("busy")
+	lines = lines.filter(
+		func(line: Dictionary) -> bool: return not line["name"].begins_with("Probe: ")
+	)
+	_add_probes()
 	_show()
 
 
@@ -56,6 +73,8 @@ func build() -> void:
 	_add_screen()
 	_add_cores(device)
 	_add_heat(device)
+	_add_graphics_readings(device)
+	_add_probes()
 	_add_threads(device)
 	_add("Storage", _short_mount(device.storage()), "info")
 	_add_same_bits(device)
@@ -163,6 +182,94 @@ func _add_heat(device: KdDevice) -> void:
 		% [heat["headroom"], heat["forecast_10s"], heat["status"]]
 	)
 	_add("Heat", value, "ok" if int(heat["status"]) == 0 else "warn")
+	var levels := PackedStringArray()
+	for level: String in ["light", "moderate", "severe"]:
+		if heat.has(level):
+			levels.append("%s %.2f" % [level, float(heat[level])])
+	_add(
+		"Heat thresholds",
+		", ".join(levels) if levels.size() > 0 else "not given (Android 15 gives them)",
+		"info"
+	)
+	if int(heat.get("listener_calls", 0)) > 0:
+		_add(
+			"Heat listener",
+			(
+				"%d calls, last %.2f now and %.2f in %d s"
+				% [
+					heat["listener_calls"],
+					heat["listener_headroom"],
+					heat["listener_forecast"],
+					heat["listener_seconds"],
+				]
+			),
+			"info"
+		)
+
+
+## What the look leans on from the graphics driver and the phone (A4.7): the shading rates the
+## driver offers, the graphics chip's headroom, and the power rails. Implements VIS-14.
+func _add_graphics_readings(device: KdDevice) -> void:
+	var rates := device.shading_rates()
+	var value := "not asked on this device"
+	if rates.get("available", false):
+		if not rates.get("extension", false):
+			value = "none offered"
+		else:
+			value = (
+				"for each draw %s, each triangle %s, from a picture %s; rates %s"
+				% [
+					_yes(rates.get("per_draw", false)),
+					_yes(rates.get("per_primitive", false)),
+					_yes(rates.get("from_picture", false)),
+					", ".join(rates.get("rates", PackedStringArray())),
+				]
+			)
+	_add("Shading rates", value, "info")
+	var gpu := device.gpu_headroom()
+	_add(
+		"Graphics headroom",
+		(
+			"%.0f of 100" % float(gpu["headroom"])
+			if gpu.get("available", false)
+			else "not offered (Android 16 gives it)"
+		),
+		"info"
+	)
+	var power := Phone.power(device)
+	var watts := "not read"
+	if power.has("watts"):
+		watts = (
+			"%.2f W now, %s"
+			% [power["watts"], "voltage measured" if power["measured_voltage"] else "at 3.85 V"]
+		)
+	_add("Power", watts, "info")
+	_add(
+		"Power rails",
+		"not read: Android gives them only to Java callbacks, which the app has not yet",
+		"info"
+	)
+
+
+func _yes(on: bool) -> String:
+	return "yes" if on else "no"
+
+
+## The probes of the graphics features the look relies on, each tried once a build (A4.7): passed,
+## failed or closing the app. GPU particles are expected to fail.
+func _add_probes() -> void:
+	if _probes == null:
+		return
+	for name: String in Probes.ABOUT:
+		var state: String = _probes.results.get(name, "")
+		var expected_failure := name == "gpu_particles"
+		var shown := "waiting" if state.is_empty() else state
+		var mark := "info"
+		if state == "passed":
+			mark = "ok"
+		elif state == "crashed" or state.begins_with("failed"):
+			mark = "info" if expected_failure else "fail"
+		_add("Probe: " + Probes.ABOUT[name], shown, mark)
 
 
 func _add_threads(device: KdDevice) -> void:
@@ -250,6 +357,8 @@ func _show() -> void:
 	var said := summary()
 	_summary.text = said.substr(0, 1).to_upper() + said.substr(1)
 	_summary.add_theme_color_override("font_color", COLOURS["fail" if failed else "ok"])
+	for row in _list.get_children():
+		row.queue_free()
 	for line in lines:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)

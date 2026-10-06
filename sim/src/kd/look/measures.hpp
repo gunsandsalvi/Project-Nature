@@ -31,6 +31,21 @@ struct Stats {
 /// window fits. Accepted grounds score 23 to 30 and the speckled one 11 to 12.
 [[nodiscard]] std::optional<double> accents(const std::vector<Lab>& pixels, std::int64_t width, std::int64_t height);
 
+/// A texture pixel's size on screen, from a picture of a pattern that repeats every so many texture pixels, such as a
+/// checker (every 2) or the Look page's test board (every 8): the distance at which it repeats along the rows
+/// (across) and down the columns (down), in screen pixels, over the texture pixels in a repeat; 0 where it does not
+/// repeat; and how strongly it repeats there, from 0 to 1.
+struct TexelSize {
+    double across = 0.0;
+    double down = 0.0;
+    double strength = 0.0;
+};
+
+/// Implements PRE-01 PRE-22, see A4.8: the texture pixel's size in a picture of a repeating pattern, from its lines'
+/// mean autocorrelation of lightness: the first peak past a lag of one pixel within a tenth of the strongest,
+/// placed between pixels by a parabola through it and its neighbours, is the pattern's repeat.
+[[nodiscard]] TexelSize texel_size(const Picture& picture, std::int64_t texels_a_repeat = 2);
+
 /// A separable Gaussian blur of one channel, its kernel 3 sigmas wide each side and at least 1, its edges mirrored
 /// about their last pixel, as research 19 measured with (numpy's "reflect").
 [[nodiscard]] std::vector<double> blur(const std::vector<double>& channel, std::int64_t width, std::int64_t height,

@@ -8,6 +8,9 @@ extends VBoxContainer
 const GROUND_SHADER := preload("res://look/ground.gdshader")
 const TEXTURES := "res://data/textures/"
 const LAYERS := ["standin-meadow", "standin-pattern"]
+## Frames drawn behind a cover as the page opens, so every material's pipelines compile out of
+## sight (A4.7): the warm-up, which grows as materials come.
+const WARM_FRAMES := 3
 const TEXT := Palette.TEXT
 const QUIET := Palette.QUIET
 const FAIL := Palette.FAIL
@@ -35,12 +38,15 @@ var _clock := 0.0
 var _frames := 0
 var _frame_ms := 0.0
 var _viewport_rid: RID
+var _cover: ColorRect
+var _warmed := 0
 
 
 func _ready() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_world()
+	_add_cover()
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -66,6 +72,10 @@ func _process(delta: float) -> void:
 	look.frame(delta)
 	_place_camera()
 	_count(delta)
+	_warmed += 1
+	if _cover != null and _warmed > WARM_FRAMES:
+		_cover.queue_free()
+		_cover = null
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -148,6 +158,24 @@ func _build_world() -> void:
 	problem = look.load_layers(paths)
 	if problem.is_empty():
 		look.build(_world.get_world_3d().scenario, GROUND_SHADER.get_rid())
+
+
+func _add_cover() -> void:
+	_cover = ColorRect.new()
+	_cover.color = Palette.GROUND
+	_cover.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var words := Label.new()
+	words.text = "Preparing the picture"
+	words.add_theme_color_override("font_color", TEXT)
+	words.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_cover.add_child(words)
+	# above everything on the page, the whole window over
+	var layer := CanvasLayer.new()
+	layer.layer = 10
+	layer.add_child(_cover)
+	add_child(layer)
+	_cover.tree_exited.connect(layer.queue_free)
 
 
 func _add_switches() -> void:

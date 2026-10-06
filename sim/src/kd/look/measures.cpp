@@ -80,7 +80,77 @@ constexpr std::int64_t kWindow = 24;  // the accents' window, in texture pixels
 constexpr std::int64_t kStep = 12;    // the step between windows
 constexpr std::int64_t kInset = 2;    // the windows' distance from the edges
 
+// The lines' mean autocorrelation of lightness, each line less its mean, at lags 0 to `lags`, as a share of lag 0's;
+// the lines are the rows, or the columns.
+std::vector<double> autocorrelation(const std::vector<double>& l, std::int64_t width, std::int64_t height, bool rows,
+                                    std::int64_t lags) {
+    const std::int64_t lines = rows ? height : width;
+    const std::int64_t length = rows ? width : height;
+    std::vector<double> sums(static_cast<std::size_t>(lags + 1), 0.0);
+    std::vector<double> line(static_cast<std::size_t>(length));
+    for (std::int64_t k = 0; k < lines; ++k) {
+        double m = 0.0;
+        for (std::int64_t i = 0; i < length; ++i) {
+            line[static_cast<std::size_t>(i)] = l[static_cast<std::size_t>(rows ? k * width + i : i * width + k)];
+            m += line[static_cast<std::size_t>(i)];
+        }
+        m /= static_cast<double>(length);
+        for (double& v : line) {
+            v -= m;
+        }
+        for (std::int64_t lag = 0; lag <= lags && lag < length; ++lag) {
+            double sum = 0.0;
+            for (std::int64_t i = 0; i + lag < length; ++i) {
+                sum += line[static_cast<std::size_t>(i)] * line[static_cast<std::size_t>(i + lag)];
+            }
+            sums[static_cast<std::size_t>(lag)] += sum / static_cast<double>(length);
+        }
+    }
+    const double variance = sums[0];
+    if (variance > 0.0) {
+        for (double& v : sums) {
+            v /= variance;
+        }
+    }
+    return sums;
+}
+
+// The repeat: of the peaks past lag 1, the first within a tenth of the strongest and above `least`, placed between
+// lags by a parabola through it and its neighbours; 0 for none.
+double first_peak(const std::vector<double>& r, double least, double& strength) {
+    double strongest = least;
+    for (std::size_t lag = 2; lag + 1 < r.size(); ++lag) {
+        if (r[lag] > r[lag - 1] && r[lag] >= r[lag + 1]) {
+            strongest = std::max(strongest, r[lag]);
+        }
+    }
+    for (std::size_t lag = 2; lag + 1 < r.size(); ++lag) {
+        if (r[lag] > r[lag - 1] && r[lag] >= r[lag + 1] && r[lag] >= 0.9 * strongest) {
+            const double bend = r[lag - 1] - 2.0 * r[lag] + r[lag + 1];
+            const double offset = bend < 0.0 ? (r[lag - 1] - r[lag + 1]) / (2.0 * bend) : 0.0;
+            strength = r[lag];
+            return static_cast<double>(lag) + offset;
+        }
+    }
+    return 0.0;
+}
+
 }  // namespace
+
+TexelSize texel_size(const Picture& picture, std::int64_t texels_a_repeat) {
+    KD_CHECK(texels_a_repeat >= 1, "look: a pattern repeats every texture pixel or more");
+    const std::vector<double> l = channel(oklab(picture), &Lab::l);
+    constexpr std::int64_t kLags = 48;  // a repeat of up to 48 screen pixels
+    constexpr double kLeast = 0.2;      // a repeat weaker than this is no pattern
+    const auto repeat = static_cast<double>(texels_a_repeat);
+    TexelSize out;
+    double across = 0.0;
+    double down = 0.0;
+    out.across = first_peak(autocorrelation(l, picture.width, picture.height, true, kLags), kLeast, across) / repeat;
+    out.down = first_peak(autocorrelation(l, picture.width, picture.height, false, kLags), kLeast, down) / repeat;
+    out.strength = std::min(across, down);
+    return out;
+}
 
 std::vector<double> blur(const std::vector<double>& channel, std::int64_t width, std::int64_t height, double sigma) {
     KD_CHECK(width > 0 && height > 0 && channel.size() == static_cast<std::size_t>(width * height),

@@ -387,11 +387,15 @@ Following Box2D, Factorio and research 18:
 - **Heat:** `view/` reads the phone's heat headroom every 2 s with a 10-s forecast (Android forecasts only while asked at least every 10 s), and listens for its thermal status; as the forecast nears the first throttling level, the simulation's working share is cut quickly and given back slowly, so time slows before the phone throttles (research 02, 18).
   - *To build in M2* (research 19, study 4): Android's headroom of 1.0 is *severe* throttling, not the first level, so the guard reads the phone's own *light* and *moderate* thresholds (API 35) and its headroom listener (API 36), and acts when the 10-s forecast reaches the light threshold less a margin (0.05 to start); a missing reading is no reading, never a cool phone.
   - Slowing time cools the phone at far zooms at top speed, where the simulation is the load; at close zooms the picture is the load, so the graphics budget must pass the 20-minute heat run itself (A18.1), with one planned, logged step under heat as its last resort (A5.5).
+  - *Built in α2.1a:* the thresholds are read once and kept, since the array Android returns is the manager's own before Android 16 and the caller's after; the guard acts at the light threshold less `margin` (5%, in `base/tuning/heat.toml`), and on a phone without thresholds at `near`.
 - **Telemetry:** the device class also reads battery and power rails, the cores' clocks, our threads' CPU time and memory, and the interval of every frame; trace sections mark each frame and batch for the phone's own System Tracing.
   - *Built in α1.5b:* the extension times every frame itself, once a frame after every node's process, from the steady clock (`kd::view::FrameMeter`): a frame is on time within its period plus half a refresh, a stall counts every period it skipped, and a gap over 66.7 ms is more than 50 ms late.
     The battery's charge, current and charging come from Android's BatteryManager through Godot's AndroidRuntime, and its current gives the phone's whole power; the power rails, which need Android 15's power monitor service, are left for a later benchmark.
     Our threads' processor time comes from `/proc` by their `kd-` names, memory from the process's status, and the cores' clocks from `cpufreq`.
     Trace sections mark each batch (`kd batch`), the world's own work each frame (`kd frame`), the crowd's drawing (`kd draw`) and each benchmark scenario.
+  - *Built in α2.1a:* the graphics chip's time for every viewport drawn, Godot's draws, triangles and video memory, the chip's headroom (Android 16), and power as the battery's current times the kernel's voltage where the app may read it, else 3.85 V; the benchmark code's layout 3 carries them.
+    Godot's release build times only a whole viewport, not each pass, so each part's cost comes from switching it off in turn, as the calibration scenes do (A18.1).
+    The power rails stay unread: Android gives them only to Java callbacks, which the app does not have yet.
     The heat headroom is asked twice in a row, now and in 10 s; Android may refuse calls faster than once a second, but on your phone both answered in every reading.
 - **Watch the known killers from the first benchmark:** pathfinding at scale, temperature fields and lines of sight (research 03).
 
@@ -560,6 +564,7 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
 - The screen runs at 60 Hz, set through the Android plug-in, since Godot's frame cap alone leaves it at 120.
 - **Probes before use:** M2's first phone build tries each feature the look needs, each noted before it runs, so a crash names it: MSAA at full resolution, `textureGrad`, texture arrays with our own levels, alpha to coverage, a shading rate for each draw, and bone reads in a MultiMesh shader.
   The self-check lists the driver's shading rates (a public report of your phone offers a rate for each draw but none by texture), Android's GPU headroom and the power rails, where they are offered.
+  - *Built in α2.1a:* each probe draws a little in a viewport of its own at the window's size for four frames, once a build, its state kept in the app's files; one still marked running at the next start closed the app, and is named and not tried again. The shading rates are asked through a Vulkan instance of the app's own. A Godot GPU particles node is probed last, since it is expected to fail.
 - **The cloud's software Vulkan driver** crashed drawing P2's smoke from some angles near 15° (α0.2c's fixes), so the cloud's pictures avoid that angle.
 - **Godot's rules met in P1:**
   - front faces wind clockwise, the opposite of three.js, so imported triangles are reversed;

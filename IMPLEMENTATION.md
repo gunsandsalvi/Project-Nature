@@ -123,7 +123,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α2.1a | The picture and the bench | M2 | 6 | In progress: T2.1a.1 to T2.1a.3 built (the Look page, the rig and its gestures, textures with our own levels); T2.1a.4 and T2.1a.5 next |
+| α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's probes and readings to come |
 | α2.1b | The look's checks | M2 | 6 | T2.1b.1's colour measures built (`kindling look`), for the art lane; the rest planned |
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Planned |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Planned |

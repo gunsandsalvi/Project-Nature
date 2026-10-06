@@ -35,6 +35,10 @@ public:
     /// The battery's voltage (voltage_v) and current (current_a) from the kernel, where the system lets the app
     /// read them. Implements PLT-04, see A3.9.
     godot::Dictionary battery_supply() const;
+    /// What the graphics driver offers for shading fewer times than once a pixel, asked through a Vulkan instance of
+    /// the app's own (A4.7): available, extension, per_draw, per_primitive, from_picture, and the rates, such as
+    /// "2x2". Implements VIS-14, see A4.7.
+    godot::Dictionary shading_rates() const;
     /// How the storage that holds the app's data is mounted, from /proc/self/mounts.
     godot::String storage() const;
     /// The proof suites' names, in order.

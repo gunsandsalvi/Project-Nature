@@ -12,13 +12,14 @@ global uniform float kd_texel_least;
 const float KD_LEVEL_BLEND = 0.15;
 
 // One level, read crisp: the coordinate moves to the middle of its texture pixel except within one
-// screen pixel of an edge, where the chip's own blending softens the step.
+// screen pixel of an edge, where it slides to the next one's middle, so the chip's own blending
+// softens only the step. p + 0.5 puts the edges at half-whole numbers, where the slide is centred.
 vec4 kd_read_level(sampler2DArray tex, vec2 uv, float layer, float level, vec2 size0, vec2 width0) {
 	float scale = exp2(-level);
 	vec2 size = max(floor(size0 * scale), vec2(1.0));
-	vec2 p = uv * size;
+	vec2 p = uv * size + 0.5;
 	vec2 width = max(width0 * scale, vec2(1e-5));
-	vec2 q = floor(p) + 0.5 + clamp((fract(p) - 0.5) / width, -0.5, 0.5);
+	vec2 q = floor(p) + clamp((fract(p) - 0.5) / width, -0.5, 0.5);
 	return textureLod(tex, vec3(q / size, layer), level);
 }
 

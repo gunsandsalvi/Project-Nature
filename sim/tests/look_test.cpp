@@ -160,3 +160,44 @@ TEST_CASE("the look refuses a picture whose bytes do not match its size, and a c
     CHECK(kd::test::stops([] { (void)look::adjust(flat(2, 2, 1, 2, 3), {0.0, 0.0, -1.0, 100.0}); }));
     CHECK_FALSE(look::whole(look::Picture{20'000, 1, std::vector<std::uint8_t>(80'000)}));
 }
+
+// A checker of single texture pixels, each texture pixel `across` by `down` screen pixels, with a blended column and
+// row at every edge, as the smooth-pixel filter draws them.
+look::Picture checker(std::int64_t width, std::int64_t height, double across, double down) {
+    look::Picture p{width, height, {}};
+    for (std::int64_t y = 0; y < height; ++y) {
+        for (std::int64_t x = 0; x < width; ++x) {
+            const auto tx = static_cast<std::int64_t>(static_cast<double>(x) / across);
+            const auto ty = static_cast<std::int64_t>(static_cast<double>(y) / down);
+            const std::uint8_t v = (tx + ty) % 2 == 0 ? 200 : 120;
+            p.rgba.insert(p.rgba.end(), {v, v, v, 255});
+        }
+    }
+    return p;
+}
+
+// checks: PRE-01 PRE-22
+TEST_CASE("the texture pixel's size is read from a checker's repeat, whatever its edges' blending") {
+    const look::TexelSize two = look::texel_size(checker(120, 90, 2.0, 2.0));
+    CHECK(two.across == doctest::Approx(2.0).epsilon(0.02));
+    CHECK(two.down == doctest::Approx(2.0).epsilon(0.02));
+    CHECK(two.strength > 0.5);
+    // a texture pixel 2.5 wide and 1.5 tall, as on the tilted ground, its edges falling between screen pixels
+    const look::TexelSize tilted = look::texel_size(checker(200, 150, 2.5, 1.5));
+    CHECK(tilted.across == doctest::Approx(2.5).epsilon(0.04));
+    CHECK(tilted.down == doctest::Approx(1.5).epsilon(0.04));
+    // a pattern repeating every 8 texture pixels, as the test board's dark lines do
+    look::Picture lined = flat(160, 120, 200, 200, 200);
+    for (std::int64_t y = 0; y < 120; ++y) {
+        for (std::int64_t x = 0; x < 160; ++x) {
+            if (x % 16 == 0 || y % 16 == 0) {
+                const auto at = static_cast<std::size_t>((y * 160 + x) * 4);
+                lined.rgba[at] = lined.rgba[at + 1] = lined.rgba[at + 2] = 30;
+            }
+        }
+    }
+    CHECK(look::texel_size(lined, 8).across == doctest::Approx(2.0).epsilon(0.02));
+    CHECK(look::texel_size(lined, 8).down == doctest::Approx(2.0).epsilon(0.02));
+    // a flat picture does not repeat
+    CHECK(look::texel_size(flat(40, 40, 9, 9, 9)).across == 0.0);
+}

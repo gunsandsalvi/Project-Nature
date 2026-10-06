@@ -42,6 +42,11 @@
 //                                                 value" pairs, in hundredths of OKLab's scale but the hue in degrees:
 //                                                 lightness, colourfulness, hue, contrast, texel_contrast and, for
 //                                                 pictures at least 29 pixels each way, accents
+//     kindling look texel <width> <height> [repeat]
+//                                                 a texture pixel's size on screen, from a picture on standard input
+//                                                 as raw RGBA of a pattern that repeats every so many texture pixels
+//                                                 (2, a checker, unless given): "across A down D strength S", in
+//                                                 screen pixels each way, and how strongly it repeats, from 0 to 1
 //     kindling look adjust <width> <height> <lightness> <hue> <colourfulness> <contrast>
 //                                                 the picture from standard input with its colours changed in OKLab
 //                                                 (A5.4), written to standard output as raw RGBA, alpha kept:
@@ -106,6 +111,7 @@ int usage() {
         "       kindling export <world> <file>\n"
         "       kindling import <file> <world>\n"
         "       kindling look stats <width> <height>\n"
+        "       kindling look texel <width> <height> [repeat]\n"
         "       kindling look adjust <width> <height> <lightness> <hue> <colourfulness> <contrast>\n");
     return 2;
 }
@@ -945,13 +951,18 @@ std::optional<double> decimal(std::string_view text) {
 
 int look(const std::vector<std::string_view>& args) {
     const bool measure = args.size() == 3 && args[0] == "stats";
+    const bool texel = (args.size() == 3 || args.size() == 4) && args[0] == "texel";
+    const std::int64_t repeat = texel && args.size() == 4 ? side(args[3]) : 2;
     const bool change = args.size() == 7 && args[0] == "adjust";
-    if (!measure && !change) {
+    if (!measure && !change && !texel) {
         return usage();
     }
     kd::look::Picture picture;
     picture.width = side(args[1]);
     picture.height = side(args[2]);
+    if (repeat == 0) {
+        return usage();
+    }
     if (picture.width == 0 || picture.height == 0 || picture.width * picture.height > 16'777'216) {
         std::fprintf(stderr, "kindling: a picture is 1 to 16384 pixels each way and at most 16,777,216 in all\n");
         return 2;
@@ -985,6 +996,11 @@ int look(const std::vector<std::string_view>& args) {
     if (change) {
         const kd::look::Picture out = kd::look::adjust(picture, to);
         return std::fwrite(out.rgba.data(), 1, out.rgba.size(), stdout) == out.rgba.size() ? 0 : 1;
+    }
+    if (texel) {
+        const kd::look::TexelSize t = kd::look::texel_size(picture, repeat);
+        std::printf("across %.3f down %.3f strength %.3f\n", t.across, t.down, t.strength);
+        return 0;
     }
     const kd::look::Stats s = kd::look::stats(picture);
     std::printf("lightness %.4f colourfulness %.4f hue %.4f contrast %.4f texel_contrast %.4f", s.lightness,
