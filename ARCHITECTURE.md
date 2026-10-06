@@ -95,7 +95,7 @@ data/        catalogues, tuning files, scenes and benchmark worlds, as TOML (A3.
 android/     the release certificate; an Android plug-in only if the phone ever needs one (A3.9)
 tools/       setup, checks, builds, delivery, the file check, signing
 art/         the pictures you chose (targets); the textures: their levels, records, sheets, sources and
-             requests (A5.4); and the kit's parts as Blender files (A6.1)
+             requests (A5.4); the kit's parts as Blender files (A6.1); and the fixed views' golden pictures (A4.8)
 dist/        the signed APK of the latest alpha and its note
 ```
 
@@ -576,21 +576,30 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
 
 ### A4.8 Tests
 
-- **Golden pictures,** drawn by Movie Maker mode on the cloud's software Vulkan driver with one thread and time frozen: exact for a change of code alone on the pinned driver, and within a perceptual tolerance (NVIDIA's FLIP) for a change of look, whose before-and-after pairs you see; the set you approved changes only with your OK.
+- **Golden pictures,** drawn by one Godot run on the cloud's software Vulkan driver with one thread and time frozen: exact for a change of code alone on the pinned driver, and within a perceptual tolerance (NVIDIA's FLIP) for a change of look, whose before-and-after pairs you see; the set you approved changes only with your OK.
+  The fixed views so far are the Look page's stand-in meadow up close, turned 30°, four times farther out, and the test board; they redraw identically run after run.
+  A changed view shows FLIP's mean and its share of pixels above 0.2, and goes beside its golden picture on a lettered grid, so a fault is "E10".
 - They guard our code only: the phone's chip may round differently, so the look is judged on the phone (`PRE-31`).
   At first start the phone draws a few golden views and reports FLIP's share of pixels above 0.2 against the cloud's; a jump is a driver problem to chase.
 - **The look's checks** (A5.5), each with its line stated before its first run (`RES-09`):
   - A statistic becomes a check only after it agrees with your verdicts: four plausible speckle measures did not.
   - still frames are identical;
   - **shimmer:** on scripted pans, turns and pinches, each frame's error against a many-sample picture of the same view is compared frame to frame after following the camera's known motion; at most 2 in 100 pixels may change by more than 0.03 (`PRE-22`), and never a tenth more than the last build without a note;
-    the error is each pixel's OKLab lightness less the many-sample picture's; the last frame's is moved through the motion as an affine map to its nearest pixel, and pixels newly in view are left out;
+    the error is each pixel's OKLab lightness less the many-sample picture's; the last frame's is moved through the motion, a projective map exact for flat ground, to its nearest pixel, and pixels newly in view are left out;
+    on the stand-in ground, the meadow read smooth-pixel shimmers on none of its pixels a frame and the test board's crisp lines on 2.0%, at the line; read nearest-pixel, 2.7% and 25%; the scripted pan, turn and pinch over the meadow, 0.0%, 0.4% and 0.0%;
   - **the texture pixel's size** at every zoom stop: 1.5 to 3 screen pixels (`PRE-01`, `PRE-22`);
   - **banding at night:** the distinct screen levels across a moonlit slope, and its widest band of one colour along a row;
   - **ground accents at every band** (the colour difference of the most striking 1% of ground texture pixels from their surroundings): at least about 20, where accepted grounds score 23–30 and the speckled one 11–12, and each band at least 90% of band 0's;
   - **people against their surroundings** in busy scenes, from the engine's object picture: the median person at about the 80th percentile of the frame or above, none below about the 70th, starting lines refitted on your verdicts (`PRE-28`);
     each point's colour blurred over 1.5 pixels against over 12, as an OKLab distance; a person's mean over their pixels, ranked among all the frame's points;
   - **savings invisible:** under a tenth of the difference you saw at half resolution (5.3% of pixels above FLIP 0.2 at 30 cm), then your blind test (A5.5).
-- **Test hooks in the engine:** an object picture and a material picture, depth and motion for following the camera, a many-sample mode for small patches, scripted camera paths and frozen time.
+- **Test hooks in the engine,** used by the drawing run through cameras of its own, so the page's controls never show:
+  - the colour picture as the game draws it;
+  - a material picture and an object picture, each surface's number as a colour under plain light, 8 levels a channel, which come back exactly;
+  - many-sample pictures of small patches, drawn 8 times larger with each texture level read as at the frame's size, then shrunk in linear light;
+  - the camera's motion, from where four of a patch's pixels were in the frame before;
+  - scripted camera paths in steps of 1/30 s, with time otherwise frozen;
+  - a nearest-pixel read, for the shimmer check only.
 - The statistics both the cloud and the phone compute are written once, in C++ (rule 4), and give the same bits on both.
   FLIP is NVIDIA's own C++, vendored at a pinned commit, seen at about 80 pixels a degree (your phone at 30 cm); it works in floats with the platform's maths, so it stays out of the digests the two must share, and its mean on a known pair matches FLIP's own tool.
 

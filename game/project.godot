@@ -30,6 +30,14 @@ kd_origin_tile={
 "type": "vec2",
 "value": Vector2(0, 0)
 }
+kd_nearest={
+"type": "float",
+"value": 0.0
+}
+kd_picture={
+"type": "int",
+"value": 0
+}
 
 [rendering]
 

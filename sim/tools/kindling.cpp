@@ -61,18 +61,20 @@
 //     kindling look levels <width> <height>      the levels a region of a dark gradient shows (A4.8), from standard
 //                                                 input as raw RGBA: "distinct D widest W", its colours and its widest
 //                                                 band in pixels
+//     kindling look numbers <width> <height>     the numbers in one of the engine's material or object pictures
+//                                                 (A4.8), from standard input as raw RGBA: "number share" pairs, each
+//                                                 number found and its share of the pixels in percent, lowest first
 //     kindling look salience <width> <height> <person>...
 //                                                 how much each person stands out (A4.8): standard input holds the
-//                                                 frame and then its object picture, both raw RGBA, each pixel's object
-//                                                 numbered red + 256 green + 65536 blue, 0 for none: "person P
+//                                                 frame and then its object picture, both raw RGBA: "person P
 //                                                 percentile Q" for each person in the frame, then "median M least L"
-//     kindling look flicker <width> <height> <threshold> <m0> <m1> <m2> <m3> <m4> <m5>
+//     kindling look flicker <width> <height> <threshold> <m0> ... <m8>
 //                                                 the shimmer between two frames (A4.8): standard input holds the first
 //                                                 frame, its many-sample picture, the second frame and its own, all raw
 //                                                 RGBA; the camera's motion takes each pixel (x, y) of the second to
-//                                                 (m0 x + m1 y + m2, m3 x + m4 y + m5) in the first: "flicker F", the
-//                                                 share of pixels whose error changed by more than the threshold, in
-//                                                 hundredths of lightness
+//                                                 ((m0 x + m1 y + m2) / w, (m3 x + m4 y + m5) / w) in the first, where
+//                                                 w = m6 x + m7 y + m8: "flicker F", the share of pixels whose error
+//                                                 changed by more than the threshold, in hundredths of lightness
 //     kindling look flip <width> <height> <pixels a degree>
 //                                                 FLIP between two pictures (A4.8): standard input holds the reference
 //                                                 and then the test, both raw RGBA: "mean M above A", the mean error
@@ -143,9 +145,9 @@ int usage() {
         "       kindling look texel <width> <height> [repeat]\n"
         "       kindling look adjust <width> <height> <lightness> <hue> <colourfulness> <contrast>\n"
         "       kindling look card <width> <height> [moment [data]]\n"
-        "       kindling look levels <width> <height>\n"
+        "       kindling look levels|numbers <width> <height>\n"
         "       kindling look salience <width> <height> <person>...\n"
-        "       kindling look flicker <width> <height> <threshold> <m0> <m1> <m2> <m3> <m4> <m5>\n"
+        "       kindling look flicker <width> <height> <threshold> <m0> ... <m8>\n"
         "       kindling look flip <width> <height> <pixels a degree>\n");
     return 2;
 }
@@ -1008,16 +1010,6 @@ std::optional<std::vector<kd::look::Picture>> pictures(std::int64_t width, std::
     return out;
 }
 
-// Each pixel's object, from an object picture whose colour numbers it red + 256 green + 65536 blue.
-std::vector<std::int32_t> objects(const kd::look::Picture& p) {
-    std::vector<std::int32_t> out;
-    out.reserve(static_cast<std::size_t>(p.width * p.height));
-    for (std::size_t i = 0; i < p.rgba.size(); i += 4) {
-        out.push_back(static_cast<std::int32_t>(p.rgba[i] + 256U * p.rgba[i + 1] + 65536U * p.rgba[i + 2]));
-    }
-    return out;
-}
-
 int look(const std::vector<std::string_view>& args) {
     if (args.size() < 3) {
         return usage();
@@ -1025,12 +1017,12 @@ int look(const std::vector<std::string_view>& args) {
     const std::string_view command = args[0];
     const std::int64_t width = side(args[1]);
     const std::int64_t height = side(args[2]);
-    const bool plain = command == "stats" || command == "levels";
+    const bool plain = command == "stats" || command == "levels" || command == "numbers";
     const bool known = plain || command == "card" || command == "texel" || command == "adjust" ||
                        command == "salience" || command == "flicker" || command == "flip";
     if (!known || (plain && args.size() != 3) || (command == "card" && args.size() > 5) ||
         (command == "texel" && args.size() > 4) || (command == "adjust" && args.size() != 7) ||
-        (command == "salience" && args.size() < 4) || (command == "flicker" && args.size() != 10) ||
+        (command == "salience" && args.size() < 4) || (command == "flicker" && args.size() != 13) ||
         (command == "flip" && args.size() != 4)) {
         return usage();
     }
@@ -1131,6 +1123,19 @@ int look(const std::vector<std::string_view>& args) {
         }
         return 0;
     }
+    if (command == "numbers") {
+        std::map<std::int32_t, std::int64_t> counts;
+        for (const std::int32_t n : kd::look::numbers(picture)) {
+            ++counts[n];
+        }
+        const char* gap = "";
+        for (const auto& [n, count] : counts) {
+            std::printf("%s%d %.4f", gap, n, 100.0 * static_cast<double>(count) / static_cast<double>(width * height));
+            gap = " ";
+        }
+        std::printf("\n");
+        return 0;
+    }
     if (command == "levels") {
         const kd::look::Levels l = kd::look::levels(picture);
         std::printf("distinct %lld widest %lld\n", static_cast<long long>(l.distinct),
@@ -1138,7 +1143,7 @@ int look(const std::vector<std::string_view>& args) {
         return 0;
     }
     if (command == "salience") {
-        const std::vector<std::int32_t> object = objects((*in)[1]);
+        const std::vector<std::int32_t> object = kd::look::numbers((*in)[1]);
         for (const std::int32_t person : people) {
             const kd::look::Salience one = kd::look::salience(picture, object, {person});
             if (!one.percentiles.empty()) {
@@ -1152,7 +1157,8 @@ int look(const std::vector<std::string_view>& args) {
     if (command == "flicker") {
         const std::vector<double> first = kd::look::error((*in)[0], (*in)[1]);
         const std::vector<double> second = kd::look::error((*in)[2], (*in)[3]);
-        const std::array<double, 6> motion{numbers[1], numbers[2], numbers[3], numbers[4], numbers[5], numbers[6]};
+        const std::array<double, 9> motion{numbers[1], numbers[2], numbers[3], numbers[4], numbers[5],
+                                           numbers[6], numbers[7], numbers[8], numbers[9]};
         const auto followed = kd::look::follow(first, width, height, motion);
         std::printf("flicker %.3f\n", kd::look::flicker(followed, second, numbers[0]));
         return 0;

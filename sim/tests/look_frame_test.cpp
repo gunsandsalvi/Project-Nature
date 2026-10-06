@@ -176,6 +176,17 @@ TEST_CASE("the card counts each spot of 2 by 2 cells on flat ground as one small
     CHECK(c.flat < 100.0);
 }
 
+// checks: PRE-31
+TEST_CASE("the engine's number pictures read back their numbers, 8 levels a channel, red the lowest") {
+    look::Picture p{5, 1, {}};
+    for (const std::array<std::uint8_t, 3>& c : std::vector<std::array<std::uint8_t, 3>>{
+             {13, 13, 13}, {48, 16, 16}, {80, 13, 13}, {16, 48, 16}, {16, 16, 240}}) {
+        p.rgba.insert(p.rgba.end(), {c[0], c[1], c[2], 255});
+    }
+    // the dark channels come back as 13 rather than 16 from the engine's 10-bit buffer, and still read as level 0
+    CHECK(look::numbers(p) == std::vector<std::int32_t>{0, 1, 2, 8, 448});
+}
+
 // checks: PRE-28
 TEST_CASE("a person in a strong colour stands out above nearly every point, and one in the ground's colour at none") {
     // the second person is beyond the first one's surround, 3 blurs of 12 pixels
@@ -213,7 +224,7 @@ TEST_CASE("following the camera reads the last frame's nearest pixel, and none f
         e[i] = static_cast<double>(i);
     }
     // a pan by one pixel: each new pixel was one to the right
-    const auto moved = look::follow(e, 4, 3, {1.0, 0.0, 1.0, 0.0, 1.0, 0.0});
+    const auto moved = look::follow(e, 4, 3, {1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0});
     for (std::int64_t y = 0; y < 3; ++y) {
         for (std::int64_t x = 0; x < 4; ++x) {
             const auto& v = moved[static_cast<std::size_t>(y * 4 + x)];
@@ -225,9 +236,13 @@ TEST_CASE("following the camera reads the last frame's nearest pixel, and none f
             }
         }
     }
+    // a projective map: halving x through w = 2 reads pixel (x / 2, y / 2) of the last frame; and w = 0 reads none
+    const auto halved = look::follow(e, 4, 3, {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 2.0});
+    CHECK(halved[static_cast<std::size_t>(2 * 4 + 2)].value_or(-1.0) == 5.0);
+    CHECK_FALSE(look::follow(e, 4, 3, {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0})[5].has_value());
     // a part of a pixel reads the nearest one
-    CHECK(look::follow(e, 4, 3, {1.0, 0.0, 0.4, 0.0, 1.0, 0.0})[5].value_or(-1.0) == 5.0);
-    CHECK(look::follow(e, 4, 3, {1.0, 0.0, 0.6, 0.0, 1.0, 0.0})[5].value_or(-1.0) == 6.0);
+    CHECK(look::follow(e, 4, 3, {1.0, 0.0, 0.4, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0})[5].value_or(-1.0) == 5.0);
+    CHECK(look::follow(e, 4, 3, {1.0, 0.0, 0.6, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0})[5].value_or(-1.0) == 6.0);
 }
 
 // checks: PRE-22
@@ -243,7 +258,7 @@ TEST_CASE("grain moving with the camera does not flicker, and grain that stays w
     // the many-sample pictures are smooth grey; the frames carry grain, which follows the pan or stays put
     const look::Picture smooth = flat(32, 8, 128, 128, 128);
     const std::vector<double> first = look::error(grain(32, 8, 0), smooth);
-    const auto followed = look::follow(first, 32, 8, {1.0, 0.0, 1.0, 0.0, 1.0, 0.0});
+    const auto followed = look::follow(first, 32, 8, {1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0});
     CHECK(look::flicker(followed, look::error(grain(32, 8, 1), smooth), 3.0) == 0.0);
     CHECK(look::flicker(followed, look::error(grain(32, 8, 0), smooth), 3.0) > 50.0);
 }

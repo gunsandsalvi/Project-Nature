@@ -58,6 +58,12 @@ public:
     /// Frees everything it made in the RenderingServer.
     void clear();
 
+    /// Puts the view at a place, for the cloud's fixed views (A4.8): the focus in centimetres east and north, the
+    /// heading in degrees clockwise from north and the zoom in metres a screen pixel; any path stops.
+    void set_view(int64_t east, int64_t north, double heading, double metres_per_pixel);
+    /// For the cloud's many-sample pictures (A4.8): the picture is drawn this many times larger, so each texture
+    /// level is still read as at the frame's own size; 1, the game's, by default. It takes effect at the next frame.
+    void set_many(int64_t times);
     /// Starts a scripted camera path: "pan", "turn" or "pinch" (A8.4); "" stops it.
     void play(const godot::String& path);
     /// The scripted path under way, or "".
@@ -78,6 +84,7 @@ private:
     Path path_;
     double clock_ = 0.0;
     double path_started_ = 0.0;
+    double many_ = 1.0;
     std::int64_t origin_east_ = 0;
     std::int64_t origin_north_ = 0;
     godot::RID scenario_;

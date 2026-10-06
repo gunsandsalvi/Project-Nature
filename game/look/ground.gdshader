@@ -4,6 +4,7 @@
 shader_type spatial;
 render_mode cull_back, specular_disabled;
 
+#include "res://look/picture.gdshaderinc"
 #include "res://look/sample.gdshaderinc"
 
 // The rig's: where its origin lies within a texture tile, in tiles, so textures stay put as it moves.
@@ -27,4 +28,9 @@ void fragment() {
 	vec2 uv = vec2(ground.x, -ground.y) / kd_tile_metres + kd_origin_tile;
 	ALBEDO = kd_sample(kd_layers, uv, kd_layer).rgb;
 	ROUGHNESS = 1.0;
+	// in a test picture: the material's number is its layer's, from 1; the ground is no object
+	if (kd_picture != 0) {
+		ALBEDO = vec3(0.0);
+		EMISSION = kd_number_colour(kd_picture == 1 ? int(kd_layer) + 1 : 0);
+	}
 }

@@ -132,7 +132,7 @@ void KdLook::frame(double seconds) {
 
 void KdLook::publish() const {
     auto& rs = server();
-    rs.global_shader_parameter_set("kd_texel_least", Rig::kTexelLeast);
+    rs.global_shader_parameter_set("kd_texel_least", Rig::kTexelLeast * many_);
     const auto tile = static_cast<std::int64_t>(kTextureTile * 100.0);
     rs.global_shader_parameter_set(
         "kd_origin_tile", godot::Vector2(static_cast<float>(modulo(origin_east_, tile)) / static_cast<float>(tile),
@@ -323,6 +323,17 @@ void KdLook::clear() {
     }
 }
 
+void KdLook::set_view(int64_t east, int64_t north, double heading, double metres_per_pixel) {
+    path_.start(Path::Kind::none, rig_);
+    rig_.set_focus(east, north);
+    rig_.set_heading(heading);
+    rig_.set_metres_per_pixel(metres_per_pixel);
+}
+
+void KdLook::set_many(int64_t times) {
+    many_ = static_cast<double>(std::max<int64_t>(1, times));
+}
+
 void KdLook::play(const godot::String& path) {
     path_.start(Path::named(path.utf8().get_data()), rig_);
     path_started_ = clock_;
@@ -350,6 +361,8 @@ void KdLook::_bind_methods() {
     ClassDB::bind_method(D_METHOD("build", "scenario", "shader"), &KdLook::build);
     ClassDB::bind_method(D_METHOD("set_part", "part", "on"), &KdLook::set_part);
     ClassDB::bind_method(D_METHOD("clear"), &KdLook::clear);
+    ClassDB::bind_method(D_METHOD("set_view", "east", "north", "heading", "metres_per_pixel"), &KdLook::set_view);
+    ClassDB::bind_method(D_METHOD("set_many", "times"), &KdLook::set_many);
     ClassDB::bind_method(D_METHOD("play", "path"), &KdLook::play);
     ClassDB::bind_method(D_METHOD("playing"), &KdLook::playing);
 }

@@ -210,6 +210,16 @@ Card card(const Picture& frame) {
     return out;
 }
 
+std::vector<std::int32_t> numbers(const Picture& picture) {
+    check_whole(picture);
+    std::vector<std::int32_t> out;
+    out.reserve(picture.rgba.size() / 4);
+    for (std::size_t i = 0; i < picture.rgba.size(); i += 4) {
+        out.push_back(picture.rgba[i] / 32 + 8 * (picture.rgba[i + 1] / 32) + 64 * (picture.rgba[i + 2] / 32));
+    }
+    return out;
+}
+
 Salience salience(const Picture& frame, const std::vector<std::int32_t>& objects,
                   const std::vector<std::int32_t>& people) {
     check_whole(frame);
@@ -270,7 +280,7 @@ std::vector<double> error(const Picture& frame, const Picture& reference) {
 }
 
 std::vector<std::optional<double>> follow(const std::vector<double>& error, std::int64_t width, std::int64_t height,
-                                          const std::array<double, 6>& motion) {
+                                          const std::array<double, 9>& motion) {
     KD_CHECK(width > 0 && height > 0 && error.size() == static_cast<std::size_t>(width * height),
              "look: an error picture holds a value for each pixel");
     std::vector<std::optional<double>> out(error.size());
@@ -278,8 +288,12 @@ std::vector<std::optional<double>> follow(const std::vector<double>& error, std:
         for (std::int64_t x = 0; x < width; ++x) {
             const auto fx = static_cast<double>(x);
             const auto fy = static_cast<double>(y);
-            const double sx = motion[0] * fx + motion[1] * fy + motion[2];
-            const double sy = motion[3] * fx + motion[4] * fy + motion[5];
+            const double w = motion[6] * fx + motion[7] * fy + motion[8];
+            if (!(w > 0.0)) {
+                continue;
+            }
+            const double sx = (motion[0] * fx + motion[1] * fy + motion[2]) / w;
+            const double sy = (motion[3] * fx + motion[4] * fy + motion[5]) / w;
             if (!(sx > -0.5 && sy > -0.5 && sx < static_cast<double>(width) - 0.5 &&
                   sy < static_cast<double>(height) - 0.5)) {
                 continue;

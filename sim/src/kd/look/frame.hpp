@@ -36,6 +36,11 @@ struct Card {
 /// not read. A frame is at least 4 pixels each way.
 [[nodiscard]] Card card(const Picture& frame);
 
+/// Implements PRE-31, see A4.8: each pixel's number in one of the engine's material or object pictures, which draw a
+/// number from 0 to 511 as 8 levels a channel, each the middle of 32 values of a byte, red the lowest
+/// (game/look/picture.gdshaderinc): its red, green and blue bytes over 32, as one number.
+[[nodiscard]] std::vector<std::int32_t> numbers(const Picture& picture);
+
 /// People's salience in a frame: each person's standing among all the frame's points.
 struct Salience {
     std::vector<double> percentiles;  // each person's, in the order asked; none for a person not in the frame
@@ -43,8 +48,8 @@ struct Salience {
     double least = 0.0;               // the lowest person's, 0 when no person shows
 };
 
-/// Implements PRE-28, see A4.8: how much each person stands out, from the frame and its object picture (an object's
-/// number for each pixel, 0 for none): each point's centre-against-surround difference (its colour blurred over 1.5
+/// Implements PRE-28, see A4.8: how much each person stands out, from the frame and its object picture's numbers
+/// (numbers(), 0 for no object): each point's centre-against-surround difference (its colour blurred over 1.5
 /// pixels against over 12, as an OKLab distance); a person's mean over their pixels, as the percentile of all the
 /// frame's points below it by more than a billionth, the blurs' rounding.
 [[nodiscard]] Salience salience(const Picture& frame, const std::vector<std::int32_t>& objects,
@@ -54,11 +59,12 @@ struct Salience {
 /// pixel: the frame's less the reference's.
 [[nodiscard]] std::vector<double> error(const Picture& frame, const Picture& reference);
 
-/// Implements PRE-22, see A4.8: the last frame's error moved to follow the camera's known motion: each pixel (x, y)
-/// of the new frame reads the old error's nearest pixel to (m0 x + m1 y + m2, m3 x + m4 y + m5); none where that
-/// falls outside the old frame.
+/// Implements PRE-22, see A4.8: the last frame's error moved to follow the camera's known motion, a projective map
+/// (exact for flat ground): each pixel (x, y) of the new frame reads the old error's nearest pixel to
+/// ((m0 x + m1 y + m2) / w, (m3 x + m4 y + m5) / w), where w = m6 x + m7 y + m8; none where that falls outside the
+/// old frame or w is not above 0.
 [[nodiscard]] std::vector<std::optional<double>> follow(const std::vector<double>& error, std::int64_t width,
-                                                        std::int64_t height, const std::array<double, 6>& motion);
+                                                        std::int64_t height, const std::array<double, 9>& motion);
 
 /// Implements PRE-22, see A4.8: the share of pixels whose error changed by more than the threshold (in hundredths)
 /// between two frames, the first already following the camera; pixels it could not follow are left out, and none

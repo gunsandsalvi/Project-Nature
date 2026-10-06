@@ -3,10 +3,14 @@
 // The level is picked from a texture pixel's area on screen, so each texture pixel is kd_texel_least to
 // twice that many screen pixels wide, with a short blend into the next level just before it takes over.
 // Each level is read with the "smooth pixel" filter: crisp inside a texture pixel, blended over one
-// screen pixel at its edge, from a texture stored with blending and mipmaps on. Implements PRE-22.
+// screen pixel at its edge, from a texture stored with blending and mipmaps on. The cloud's shimmer
+// check can read every level nearest-pixel instead, to show the shimmer the smooth pixel prevents
+// (A4.8). Implements PRE-22.
 
 // The rig's, published each frame (view/src/rig.hpp): a texture pixel's least width on screen.
 global uniform float kd_texel_least;
+// 1 reads nearest-pixel, for the cloud's shimmer check only; 0, the game's, reads smooth pixels.
+global uniform float kd_nearest;
 
 // How much of a level's span, in powers of two of a texture pixel's size, blends into the next.
 const float KD_LEVEL_BLEND = 0.15;
@@ -20,6 +24,8 @@ vec4 kd_read_level(sampler2DArray tex, vec2 uv, float layer, float level, vec2 s
 	vec2 p = uv * size + 0.5;
 	vec2 width = max(width0 * scale, vec2(1e-5));
 	vec2 q = floor(p) + clamp((fract(p) - 0.5) / width, -0.5, 0.5);
+	// nearest-pixel: always the middle of the texture pixel the point is in
+	q = kd_nearest > 0.5 ? floor(p - 0.5) + 0.5 : q;
 	return textureLod(tex, vec3(q / size, layer), level);
 }
 
