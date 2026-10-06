@@ -42,40 +42,6 @@ std::vector<double> kernel(double sigma) {
     return k;
 }
 
-double mean(const std::vector<double>& values) {
-    double sum = 0.0;
-    for (const double v : values) {
-        sum += v;
-    }
-    return sum / static_cast<double>(values.size());
-}
-
-// The standard deviation over all the values, as numpy's default (dividing by their count).
-double spread(const std::vector<double>& values) {
-    const double m = mean(values);
-    double sum = 0.0;
-    for (const double v : values) {
-        sum += (v - m) * (v - m);
-    }
-    return num::sqrt(sum / static_cast<double>(values.size()));
-}
-
-// The median, the mean of the middle two for an even count.
-double median(std::vector<double> values) {
-    std::stable_sort(values.begin(), values.end());
-    const std::size_t n = values.size();
-    return n % 2 == 1 ? values[n / 2] : (values[n / 2 - 1] + values[n / 2]) / 2.0;
-}
-
-std::vector<double> channel(const std::vector<Lab>& pixels, double Lab::*part) {
-    std::vector<double> out;
-    out.reserve(pixels.size());
-    for (const Lab& c : pixels) {
-        out.push_back(c.*part);
-    }
-    return out;
-}
-
 constexpr std::int64_t kWindow = 24;  // the accents' window, in texture pixels
 constexpr std::int64_t kStep = 12;    // the step between windows
 constexpr std::int64_t kInset = 2;    // the windows' distance from the edges
@@ -136,6 +102,40 @@ double first_peak(const std::vector<double>& r, double least, double& strength) 
 }
 
 }  // namespace
+
+double mean(const std::vector<double>& values) {
+    KD_CHECK(!values.empty(), "look: a mean needs values");
+    double sum = 0.0;
+    for (const double v : values) {
+        sum += v;
+    }
+    return sum / static_cast<double>(values.size());
+}
+
+double spread(const std::vector<double>& values) {
+    const double m = mean(values);
+    double sum = 0.0;
+    for (const double v : values) {
+        sum += (v - m) * (v - m);
+    }
+    return num::sqrt(sum / static_cast<double>(values.size()));
+}
+
+double median(std::vector<double> values) {
+    KD_CHECK(!values.empty(), "look: a median needs values");
+    std::stable_sort(values.begin(), values.end());
+    const std::size_t n = values.size();
+    return n % 2 == 1 ? values[n / 2] : (values[n / 2 - 1] + values[n / 2]) / 2.0;
+}
+
+std::vector<double> channel(const std::vector<Lab>& pixels, double Lab::*part) {
+    std::vector<double> out;
+    out.reserve(pixels.size());
+    for (const Lab& c : pixels) {
+        out.push_back(c.*part);
+    }
+    return out;
+}
 
 TexelSize texel_size(const Picture& picture, std::int64_t texels_a_repeat) {
     KD_CHECK(texels_a_repeat >= 1, "look: a pattern repeats every texture pixel or more");

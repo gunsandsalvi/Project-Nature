@@ -583,13 +583,16 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
   - A statistic becomes a check only after it agrees with your verdicts: four plausible speckle measures did not.
   - still frames are identical;
   - **shimmer:** on scripted pans, turns and pinches, each frame's error against a many-sample picture of the same view is compared frame to frame after following the camera's known motion; at most 2 in 100 pixels may change by more than 0.03 (`PRE-22`), and never a tenth more than the last build without a note;
+    the error is each pixel's OKLab lightness less the many-sample picture's; the last frame's is moved through the motion as an affine map to its nearest pixel, and pixels newly in view are left out;
   - **the texture pixel's size** at every zoom stop: 1.5 to 3 screen pixels (`PRE-01`, `PRE-22`);
-  - **banding at night:** the distinct screen levels across a moonlit slope;
+  - **banding at night:** the distinct screen levels across a moonlit slope, and its widest band of one colour along a row;
   - **ground accents at every band** (the colour difference of the most striking 1% of ground texture pixels from their surroundings): at least about 20, where accepted grounds score 23–30 and the speckled one 11–12, and each band at least 90% of band 0's;
   - **people against their surroundings** in busy scenes, from the engine's object picture: the median person at about the 80th percentile of the frame or above, none below about the 70th, starting lines refitted on your verdicts (`PRE-28`);
+    each point's colour blurred over 1.5 pixels against over 12, as an OKLab distance; a person's mean over their pixels, ranked among all the frame's points;
   - **savings invisible:** under a tenth of the difference you saw at half resolution (5.3% of pixels above FLIP 0.2 at 30 cm), then your blind test (A5.5).
 - **Test hooks in the engine:** an object picture and a material picture, depth and motion for following the camera, a many-sample mode for small patches, scripted camera paths and frozen time.
-- The statistics both the cloud and the phone compute are written once, in C++ (rule 4).
+- The statistics both the cloud and the phone compute are written once, in C++ (rule 4), and give the same bits on both.
+  FLIP is NVIDIA's own C++, vendored at a pinned commit, seen at about 80 pixels a degree (your phone at 30 cm); it works in floats with the platform's maths, so it stays out of the digests the two must share, and its mean on a known pair matches FLIP's own tool.
 
 ## A5. The look
 
@@ -673,7 +676,14 @@ It replaces the art bible's rules.
   - Six of the nine relit pictures you judged kept the feeling, and you chose a relit dusk over a repainted one; a target is never repainted again to chase, since repainting drifts darker and busier round after round.
   - From each target the builder takes each material's colour, spread and density through the engine's material masks, and the moment's numbers for the card; the light's direction comes from the engine's physics.
 - **The target card,** measured from the pictures you chose and refitted after every choice you make, warns and never decides.
-  - Its fixed goals: no flat ground (at most about 5% flat patches); detail as things (about 29–45 small things a thousand cells); golden lights; muted greens; strong colour only in specks; texture as strong as the masses; warm lights with shade near neutral.
+  - Its fixed goals: no flat ground (at most about 5% flat patches); detail as things; golden lights (35°–79°); muted greens (at most about 12% in low sun); strong colour only in specks (at most about 3.5%); texture as strong as the masses; warm lights (about +5 to +9 by day) with shade near neutral (about −2.4 to +2.1); each line measured on your chosen pictures.
+  - **How it reads a frame:** in cells of 4 × 4 pixels, each its pixels' mean colour in OKLab, about 4 × 4 screen pixels on your phone or 2 × 2 texture pixels at the closest zoom:
+    - lightness, the cells' mean; dark, the share below 0.45; golden lights, the brightest 5%'s hue; warm lights and shade, the lightest and darkest fifths' mean yellowness (OKLab's b);
+    - strong colour, the share with chroma above 0.15; greens, the share with hue 110°–170° and chroma above 0.04, and their median chroma;
+    - flat patches, the share of squares of 6 × 6 cells all within 0.02 of their mean colour; the commonest colour, the largest share in one box of OKLab 0.02 wide;
+    - small things, spots 2 to 5 cells across (lightness standing out by more than 0.03 between blurs over 1 and 2.5 cells), each the strongest within 2 cells, counted a thousand cells;
+    - texture, the spread of lightness less its blur over one cell; masses, the spread of lightness blurred over four cells.
+  - On your two liked camps it reads as the first study did: lightness 57 and 46, dark 24% and 50%, the lights at 80° and 57°, flat under 0.1%, texture 6.3 and 5.6 against masses 9.3 and 8.3; its small things read 28 a thousand cells there and 18 on the flattest chosen picture.
   - Its bands for each moment start from A4.3's table, shown green, amber or red beside each view.
   - Tested on your answers, it caught 12 of the 18 pictures you turned down, and wrongly flagged 6 of the 17 you picked.
 - **The loop,** at every step that changes the look:

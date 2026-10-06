@@ -52,11 +52,34 @@
 //                                                 (A5.4), written to standard output as raw RGBA, alpha kept:
 //                                                 lightness added in hundredths, hue turned in degrees, colourfulness
 //                                                 and contrast in percent
+//     kindling look card <width> <height>        a frame's target card (A5.5), from standard input as raw RGBA: one
+//                                                 line of "name value" pairs, in hundredths of OKLab's scale, shares in
+//                                                 percent and the lights' hue in degrees
+//     kindling look levels <width> <height>      the levels a region of a dark gradient shows (A4.8), from standard
+//                                                 input as raw RGBA: "distinct D widest W", its colours and its widest
+//                                                 band in pixels
+//     kindling look salience <width> <height> <person>...
+//                                                 how much each person stands out (A4.8): standard input holds the
+//                                                 frame and then its object picture, both raw RGBA, each pixel's object
+//                                                 numbered red + 256 green + 65536 blue, 0 for none: "person P
+//                                                 percentile Q" for each person in the frame, then "median M least L"
+//     kindling look flicker <width> <height> <threshold> <m0> <m1> <m2> <m3> <m4> <m5>
+//                                                 the shimmer between two frames (A4.8): standard input holds the first
+//                                                 frame, its many-sample picture, the second frame and its own, all raw
+//                                                 RGBA; the camera's motion takes each pixel (x, y) of the second to
+//                                                 (m0 x + m1 y + m2, m3 x + m4 y + m5) in the first: "flicker F", the
+//                                                 share of pixels whose error changed by more than the threshold, in
+//                                                 hundredths of lightness
+//     kindling look flip <width> <height> <pixels a degree>
+//                                                 FLIP between two pictures (A4.8): standard input holds the reference
+//                                                 and then the test, both raw RGBA: "mean M above A", the mean error
+//                                                 and the share of pixels above 0.2
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include <algorithm>
+#include <array>
 #include <charconv>
 #include <chrono>
 #include <cmath>
@@ -82,6 +105,7 @@
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/kept.hpp"
 #include "kd/look/colour.hpp"
+#include "kd/look/frame.hpp"
 #include "kd/look/measures.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/proof/proof.hpp"
@@ -112,7 +136,11 @@ int usage() {
         "       kindling import <file> <world>\n"
         "       kindling look stats <width> <height>\n"
         "       kindling look texel <width> <height> [repeat]\n"
-        "       kindling look adjust <width> <height> <lightness> <hue> <colourfulness> <contrast>\n");
+        "       kindling look adjust <width> <height> <lightness> <hue> <colourfulness> <contrast>\n"
+        "       kindling look card|levels <width> <height>\n"
+        "       kindling look salience <width> <height> <person>...\n"
+        "       kindling look flicker <width> <height> <threshold> <m0> <m1> <m2> <m3> <m4> <m5>\n"
+        "       kindling look flip <width> <height> <pixels a degree>\n");
     return 2;
 }
 
@@ -949,57 +977,151 @@ std::optional<double> decimal(std::string_view text) {
     return v;
 }
 
-int look(const std::vector<std::string_view>& args) {
-    const bool measure = args.size() == 3 && args[0] == "stats";
-    const bool texel = (args.size() == 3 || args.size() == 4) && args[0] == "texel";
-    const std::int64_t repeat = texel && args.size() == 4 ? side(args[3]) : 2;
-    const bool change = args.size() == 7 && args[0] == "adjust";
-    if (!measure && !change && !texel) {
-        return usage();
-    }
-    kd::look::Picture picture;
-    picture.width = side(args[1]);
-    picture.height = side(args[2]);
-    if (repeat == 0) {
-        return usage();
-    }
-    if (picture.width == 0 || picture.height == 0 || picture.width * picture.height > 16'777'216) {
-        std::fprintf(stderr, "kindling: a picture is 1 to 16384 pixels each way and at most 16,777,216 in all\n");
-        return 2;
-    }
-    kd::look::Change to;
-    if (change) {
-        const auto lightness = decimal(args[3]);
-        const auto hue = decimal(args[4]);
-        const auto colourfulness = decimal(args[5]);
-        const auto contrast = decimal(args[6]);
-        if (!lightness || !hue || !colourfulness || !contrast || *colourfulness < 0.0 || *contrast < 0.0) {
-            std::fprintf(stderr, "kindling: a change is four numbers, colourfulness and contrast at least 0\n");
-            return 2;
+// Pictures of one size from standard input as raw RGBA, one after another, all of it; none when it holds too few or
+// too many bytes, said on standard error.
+std::optional<std::vector<kd::look::Picture>> pictures(std::int64_t width, std::int64_t height, std::size_t count) {
+    std::vector<kd::look::Picture> out;
+    const auto want = static_cast<std::size_t>(width * height * 4);
+    for (std::size_t i = 0; i < count; ++i) {
+        kd::look::Picture p{width, height, std::vector<std::uint8_t>(want)};
+        const std::size_t got = std::fread(p.rgba.data(), 1, want, stdin);
+        if (got != want) {
+            std::fprintf(
+                stderr, "kindling: standard input holds %zu bytes, not the %zu of %zu %lld x %lld pictures in RGBA\n",
+                i * want + got, count * want, count, static_cast<long long>(width), static_cast<long long>(height));
+            return std::nullopt;
         }
-        to = {*lightness, *hue, *colourfulness, *contrast};
-    }
-    const auto want = static_cast<std::size_t>(picture.width * picture.height * 4);
-    picture.rgba.resize(want);
-    const std::size_t got = std::fread(picture.rgba.data(), 1, want, stdin);
-    if (got != want) {
-        std::fprintf(stderr, "kindling: standard input holds %zu bytes, not the %zu of a %lld x %lld picture in RGBA\n",
-                     got, want, static_cast<long long>(picture.width), static_cast<long long>(picture.height));
-        return 1;
+        out.push_back(std::move(p));
     }
     if (std::fgetc(stdin) != EOF) {
         std::fprintf(stderr,
-                     "kindling: standard input holds more than the %zu bytes of a %lld x %lld picture in RGBA\n", want,
-                     static_cast<long long>(picture.width), static_cast<long long>(picture.height));
+                     "kindling: standard input holds more than the %zu bytes of %zu %lld x %lld pictures in RGBA\n",
+                     count * want, count, static_cast<long long>(width), static_cast<long long>(height));
+        return std::nullopt;
+    }
+    return out;
+}
+
+// Each pixel's object, from an object picture whose colour numbers it red + 256 green + 65536 blue.
+std::vector<std::int32_t> objects(const kd::look::Picture& p) {
+    std::vector<std::int32_t> out;
+    out.reserve(static_cast<std::size_t>(p.width * p.height));
+    for (std::size_t i = 0; i < p.rgba.size(); i += 4) {
+        out.push_back(static_cast<std::int32_t>(p.rgba[i] + 256U * p.rgba[i + 1] + 65536U * p.rgba[i + 2]));
+    }
+    return out;
+}
+
+int look(const std::vector<std::string_view>& args) {
+    if (args.size() < 3) {
+        return usage();
+    }
+    const std::string_view command = args[0];
+    const std::int64_t width = side(args[1]);
+    const std::int64_t height = side(args[2]);
+    const bool plain = command == "stats" || command == "card" || command == "levels";
+    const bool known = plain || command == "texel" || command == "adjust" || command == "salience" ||
+                       command == "flicker" || command == "flip";
+    if (!known || (plain && args.size() != 3) || (command == "texel" && args.size() > 4) ||
+        (command == "adjust" && args.size() != 7) || (command == "salience" && args.size() < 4) ||
+        (command == "flicker" && args.size() != 10) || (command == "flip" && args.size() != 4)) {
+        return usage();
+    }
+    if (width == 0 || height == 0 || width * height > 16'777'216) {
+        std::fprintf(stderr, "kindling: a picture is 1 to 16384 pixels each way and at most 16,777,216 in all\n");
+        return 2;
+    }
+    // the numbers after the size: decimals, but the texture pixels a repeat and the people, whole
+    std::vector<double> numbers;
+    for (std::size_t i = 3; i < args.size(); ++i) {
+        const auto v = decimal(args[i]);
+        if (!v) {
+            std::fprintf(stderr, "kindling: %.*s is not a number\n", static_cast<int>(args[i].size()), args[i].data());
+            return 2;
+        }
+        numbers.push_back(*v);
+    }
+    const std::int64_t repeat = command == "texel" && args.size() == 4 ? side(args[3]) : 2;
+    if (repeat == 0) {
+        return usage();
+    }
+    if (command == "adjust" && (numbers[2] < 0.0 || numbers[3] < 0.0)) {
+        std::fprintf(stderr, "kindling: a change is four numbers, colourfulness and contrast at least 0\n");
+        return 2;
+    }
+    if ((command == "flicker" && numbers[0] < 0.0) || (command == "flip" && numbers[0] <= 0.0)) {
+        std::fprintf(stderr, "kindling: a threshold is 0 or more, and pixels a degree more than 0\n");
+        return 2;
+    }
+    if (command == "card" && (width < 4 || height < 4)) {
+        std::fprintf(stderr, "kindling: the card reads frames 4 pixels or more each way\n");
+        return 2;
+    }
+    std::vector<std::int32_t> people;
+    if (command == "salience") {
+        for (std::size_t i = 3; i < args.size(); ++i) {
+            std::int64_t person = 0;
+            const auto [end, error] = std::from_chars(args[i].data(), args[i].data() + args[i].size(), person);
+            if (error != std::errc{} || end != args[i].data() + args[i].size() || person < 1 || person > 16'777'215) {
+                std::fprintf(stderr, "kindling: a person is an object's number, 1 to 16,777,215\n");
+                return 2;
+            }
+            people.push_back(static_cast<std::int32_t>(person));
+        }
+    }
+    const std::size_t count = command == "flicker" ? 4 : command == "salience" || command == "flip" ? 2 : 1;
+    const auto in = pictures(width, height, count);
+    if (!in) {
         return 1;
     }
-    if (change) {
-        const kd::look::Picture out = kd::look::adjust(picture, to);
+    const kd::look::Picture& picture = in->front();
+    if (command == "adjust") {
+        const kd::look::Picture out = kd::look::adjust(picture, {numbers[0], numbers[1], numbers[2], numbers[3]});
         return std::fwrite(out.rgba.data(), 1, out.rgba.size(), stdout) == out.rgba.size() ? 0 : 1;
     }
-    if (texel) {
+    if (command == "texel") {
         const kd::look::TexelSize t = kd::look::texel_size(picture, repeat);
         std::printf("across %.3f down %.3f strength %.3f\n", t.across, t.down, t.strength);
+        return 0;
+    }
+    if (command == "card") {
+        const kd::look::Card c = kd::look::card(picture);
+        std::printf(
+            "lightness %.2f dark %.2f lights_hue %.1f lights %.2f shade %.2f strong_colour %.2f green %.2f "
+            "green_chroma %.2f flat %.2f things %.2f largest_colour %.2f texture %.2f masses %.2f\n",
+            c.lightness, c.dark, c.lights_hue, c.lights, c.shade, c.strong_colour, c.green, c.green_chroma, c.flat,
+            c.things, c.largest_colour, c.texture, c.masses);
+        return 0;
+    }
+    if (command == "levels") {
+        const kd::look::Levels l = kd::look::levels(picture);
+        std::printf("distinct %lld widest %lld\n", static_cast<long long>(l.distinct),
+                    static_cast<long long>(l.widest));
+        return 0;
+    }
+    if (command == "salience") {
+        const std::vector<std::int32_t> object = objects((*in)[1]);
+        for (const std::int32_t person : people) {
+            const kd::look::Salience one = kd::look::salience(picture, object, {person});
+            if (!one.percentiles.empty()) {
+                std::printf("person %d percentile %.2f\n", person, one.percentiles.front());
+            }
+        }
+        const kd::look::Salience all = kd::look::salience(picture, object, people);
+        std::printf("median %.2f least %.2f\n", all.median, all.least);
+        return 0;
+    }
+    if (command == "flicker") {
+        const std::vector<double> first = kd::look::error((*in)[0], (*in)[1]);
+        const std::vector<double> second = kd::look::error((*in)[2], (*in)[3]);
+        const std::array<double, 6> motion{numbers[1], numbers[2], numbers[3], numbers[4], numbers[5], numbers[6]};
+        const auto followed = kd::look::follow(first, width, height, motion);
+        std::printf("flicker %.3f\n", kd::look::flicker(followed, second, numbers[0]));
+        return 0;
+    }
+    if (command == "flip") {
+        const kd::look::Flip f = kd::look::flip((*in)[0], (*in)[1], numbers[0]);
+        std::printf("mean %.6f above %.4f\n", f.mean, f.above);
         return 0;
     }
     const kd::look::Stats s = kd::look::stats(picture);

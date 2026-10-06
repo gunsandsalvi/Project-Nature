@@ -54,4 +54,16 @@ struct TexelSize {
 /// The p-th percentile of the values, read between the two nearest by straight lines, as numpy's default does.
 [[nodiscard]] double percentile(std::vector<double> values, double p);
 
+/// The mean of the values.
+[[nodiscard]] double mean(const std::vector<double>& values);
+
+/// The standard deviation over all the values, dividing by their count, as numpy's default does.
+[[nodiscard]] double spread(const std::vector<double>& values);
+
+/// The median, the mean of the middle two for an even count.
+[[nodiscard]] double median(std::vector<double> values);
+
+/// One part of OKLab pixels, each pixel's lightness, a or b, row by row.
+[[nodiscard]] std::vector<double> channel(const std::vector<Lab>& pixels, double Lab::*part);
+
 }  // namespace kd::look

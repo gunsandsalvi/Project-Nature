@@ -28,6 +28,13 @@ target_compile_definitions(kd_zstd PRIVATE ZSTD_DISABLE_ASM=1 ZSTD_LEGACY_SUPPOR
 target_include_directories(kd_zstd SYSTEM PUBLIC "${KD_ZSTD}/lib")
 kindling_c_rules(kd_zstd)
 
+# NVIDIA's FLIP (A4.8), vendored at a pinned commit with the one call the look makes into it: float maths with the
+# platform's functions, kept out of the simulation's own code; our flags, and its header a system one, which our
+# warnings skip.
+add_library(kd_flip STATIC thirdparty/flip/kd_flip.cpp)
+target_include_directories(kd_flip SYSTEM PUBLIC thirdparty/flip)
+kindling_rules(kd_flip)
+
 add_library(kd_sim STATIC
     src/kd/bench/code.cpp
     src/kd/bench/scenarios.cpp
@@ -44,6 +51,7 @@ add_library(kd_sim STATIC
     src/kd/data/walkers.cpp
     src/kd/event/queue.cpp
     src/kd/look/colour.cpp
+    src/kd/look/frame.cpp
     src/kd/look/measures.cpp
     src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp
@@ -78,7 +86,7 @@ add_library(kd_sim STATIC
 target_include_directories(kd_sim PUBLIC src)
 target_include_directories(kd_sim SYSTEM PUBLIC "${KD_ENTT}")
 target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" "${KD_TOMLPP}" thirdparty/core-math)
-target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math kd_zstd)
+target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math kd_zstd kd_flip)
 kindling_rules(kd_sim)
 # test switches exist in the cloud's test builds only, never in the game's own (RES-10, PRN-12)
 if(KD_SIM_TESTS)
@@ -98,6 +106,7 @@ if(KD_SIM_TESTS)
         tests/checks_test.cpp
         tests/data_test.cpp
         tests/duration_test.cpp
+        tests/look_frame_test.cpp
         tests/look_test.cpp
         tests/main.cpp
         tests/maths_test.cpp

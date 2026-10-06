@@ -170,7 +170,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
 | α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's readings in, every probe passed |
-| α2.1b | The look's checks | M2 | 6 | **Next.** T2.1b.1's colour measures built (`kindling look`); the rest planned |
+| α2.1b | The look's checks | M2 | 6 | **Building.** T2.1b.1 done: the look's measures and FLIP (`kindling look`); T2.1b.2 next |
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Planned |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Planned |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
