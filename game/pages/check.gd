@@ -227,12 +227,18 @@ func _add_graphics_readings(device: KdDevice) -> void:
 			)
 	_add("Shading rates", value, "info")
 	var gpu := device.gpu_headroom()
+	var no_headroom := {
+		"unsupported": "not offered by this phone",
+		"too soon": "not read: asked too soon after the last reading",
+		"older Android": "not offered before Android 16",
+		"off Android": "not asked off Android",
+	}
 	_add(
 		"Graphics headroom",
 		(
 			"%.0f of 100" % float(gpu["headroom"])
 			if gpu.get("available", false)
-			else "not offered (Android 16 gives it)"
+			else no_headroom.get(gpu.get("why", ""), "not read: the phone could not give it")
 		),
 		"info"
 	)

@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -296,15 +297,23 @@ godot::Dictionary KdDevice::gpu_headroom() const {
 #if defined(__ANDROID__)
     if (__builtin_available(android 36, *)) {
         float headroom = -1.0F;
-        if (ASystemHealth_getGpuHeadroom(nullptr, &headroom) == 0) {
+        const int status = ASystemHealth_getGpuHeadroom(nullptr, &headroom);
+        if (status == 0) {
             d["available"] = true;
             d["headroom"] = headroom;
+        } else {
+            // the phone's answer, so the self-check can say why there is no reading
+            d["why"] = status == ENOTSUP ? "unsupported" : status == EAGAIN ? "too soon" : "failed";
         }
         std::int64_t interval = 0;
         if (ASystemHealth_getGpuHeadroomMinIntervalMillis(&interval) == 0) {
             d["min_interval_ms"] = interval;
         }
+    } else {
+        d["why"] = "older Android";
     }
+#else
+    d["why"] = "off Android";
 #endif
     return d;
 }
