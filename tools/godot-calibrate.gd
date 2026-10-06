@@ -21,6 +21,8 @@ func _init() -> void:
 func _run(out: String) -> void:
 	await process_frame
 	var page: Control = CalibratePage.new()
+	# the whole window, as the shell gives a page
+	page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(page)
 	await process_frame
 	if not page.problems.is_empty():

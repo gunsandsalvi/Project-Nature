@@ -1,49 +1,49 @@
-# Kindling α2.1b: The look's checks
+# Kindling α2.2a: Calibration, the first numbers
 
-The second step of the graphics engine (M2): the checks that guard the feeling, written once in C++ for the cloud and your phone; the loop that draws and checks the look in the cloud; and your first blind test.
+The third step of the graphics engine (M2): your phone measures what only it can, each number's decision written down before it runs. What an empty frame costs; what the full ground material costs over the whole screen at full resolution; and what a triangle and a draw cost.
 
 ## What is new
 
-- **Compare.** A new **Compare** page asks ten times "which is sharper?": one view of the meadow drawn two ways, one above the other, the better way on top or below by chance.
-  Tap the sharper picture. After ten it shows a short code to send me, and whether the difference showed: eight or more right means it does.
-  This first test compares MSAA 4× with 2×.
-- **The same measures on your phone.** The self-check runs a new **look** suite: the look's measures on pictures made by chance. Its digest must match the cloud's, as it already does on every chip the cloud builds for.
-- **In the cloud,** with nothing new to see on the phone:
-  - the target card: your chosen pictures measured into goals and bands for nine moments, from late afternoon to the cave; every picture you chose passes, all green but the painted-over night's commonest colour;
-  - the drawing run: one Godot run draws the fixed views, their material and object pictures, and the camera's pan, turn and pinch, then checks them against the card, against their golden pictures (exact, or FLIP's verdict side by side on a lettered grid) and for shimmer;
-  - NVIDIA's FLIP, vendored with its licence, giving its own published result on its test pair.
-- Check now says why the graphics headroom is missing, such as "not offered by this phone".
+- **Calibrate.** A new **Calibrate** page runs four calibration scenes one after another with one tap, in about 15 minutes, and ends with one code to send me.
+  Each scene tries a few ways of drawing the same thing: 24 in all.
+  Each way is drawn for 3 seconds to settle, timed for 10 seconds at up to 120 frames a second, then watched for 20 seconds at 60 for smoothness, power and heat.
+- **The four scenes:**
+  - **C4, the empty frame:** the world hidden, with the interface over it and without, MSAA off and 2×.
+  - **C1, the full material:** a meadow filling the screen, lit by the first version of the shared light: sun, sky and bounce, a soft sun shadow, the openness and contact maps, haze, four fires in every square of the light grid, and the colour table. MSAA off, 2× and 4×, the 3D at full, three quarters and half resolution, and once without the sun's shadow.
+  - **C3, triangles:** 500 rocks at 100, 200, 400 and 800 thousand triangles, with the sun's shadow and without.
+  - **C3, draws:** 100, 300 and 1,000 draws of small stones, in two passes and in three.
+- **The decisions, stated now:**
+  - C4 over 2.0 ms: look first at the interface pass and Godot's stores.
+  - C1 at most 2.5 ms: full resolution everywhere; 2.5 to 4.0 ms: I build the shading-rate patch for you to judge (α2.2c); over 4.0 ms: simplify the material first.
+  - C3 at most 4 ns a triangle: the triangle line rises to 0.6 million a frame; 4 to 6 ns: it stays at 0.4 million; over 6 ns: 0.3 million, with leaves kept as cards or the leaf pre-pass.
+  - 300 draws at most 3.0 ms of the main thread: keep about 300 draws; over: gather each form's copies into one buffer.
+- **In the cloud,** every scene is drawn on the software driver, each way drawing exactly the triangles and draws its file states, and the code reads back.
 
-![The Compare page, drawn in the cloud](pictures/a21b-compare.png)
+![The Calibrate page before a run](pictures/a22a-calibrate.png)
 
-The shimmer check works as planned: on a pan, the test board read nearest-pixel flickers on 25% of its pixels a frame and is flagged, while the meadow read with our smooth pixels flickers on none. The scripted pan, turn and pinch pass at 0.0%, 0.4% and 0.0%, against a line of 2%.
-
-![The four fixed views, the first golden pictures: up close, turned, farther out, and the test board](pictures/a21b-views.png)
+![The four scenes as the cloud draws them](pictures/a22a-scenes.png)
 
 ## What to try
 
-1. Install the APK over 30101. Your worlds carry on.
-2. Open **Check**: the new **look** suite should pass, matching the cloud.
-3. Open **Compare** and take the blind test: ten pairs, tapping the sharper picture each time. Send me the code it shows.
-   The two ways differ only in MSAA, which smooths the edges of shapes, and this meadow is flat, so I expect you not to see a difference: about 5 of 10 right.
+1. Install the APK over 30102. Your worlds carry on.
+2. Let the phone cool, unplug it, and turn on flight mode.
+3. Open **Calibrate** and tap **Run**. Leave the phone alone for about 15 minutes: the screen shows the sky, a meadow, rocks and rings of stones in turn, and the words disappear while it measures.
+4. When the code shows, tap **Copy the code** and send it to me. Under it, each scene's number and the decision it makes.
+
+Still welcome: your blind test's code from **Compare**, if you have not sent it yet.
 
 ## What is rough
 
-- The views are still the stand-in meadow and test board; the real ground, light and camp come in the next steps.
-- Read with our smooth pixels, the test board shimmers on 2.0% of its pixels a frame, right at the 2% line, where the meadow shows none. Its crisp black lines are the worst case; I will watch it as the real ground comes.
-- The four golden pictures are the first set, of stand-ins; any later change to them comes to you for your OK.
-- The card flags the stand-in meadow red on most of its numbers, as it should: it is flat and plain.
-- The blind test shows still pictures only; moving clips come if a saving ever needs them.
+- The light's numbers are stand-ins: the meadow is lit for its cost, not yet for its look.
+- The cloud's software driver times nothing true, so only your phone gives the numbers.
+- Found while building: Godot's stock material goes dark once the sun's shadow has been drawn, at least on the cloud's driver. Our own light stays right, so every part of the world will use it.
 
 ## IDs delivered
 
-- `PRE-01`: the target card, FLIP and the blind test.
-- `PRE-20`: the card's colour statistics.
-- `PRE-22`: the shimmer check, following the camera's motion exactly over flat ground.
-- `PRE-28`: people's salience from the object picture, ready for the first people.
-- `PRE-30`: the levels of a dark gradient, ready for the first nights.
-- `PRE-31`: the drawing run, its golden pictures and its lettered grid.
-- `PLT-04`: the same measures on your phone as in the cloud.
+- `PLT-04`: the calibration runner, its scenes, and one code that reads back in the cloud.
+- `PRE-01`: C4 and C1, the fixed cost and the full material at full resolution.
+- `PRE-30`: the first version of the shared light.
+- `RES-09`: every scene's line and decision stated in its file before its first run.
 
 ## Links
 
