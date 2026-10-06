@@ -1,0 +1,83 @@
+about = "the person's body: skin, hair and a calm face"
+route = "code"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = []
+original_sha256 = []
+c2pa = []
+requests = []
+made = "drawn by code to the person_body atlas of art/models/people.blend (art/models/paint_people.py): skin in three close shades, hair in strands on the head's hair faces, and a calm face placed by where each texture pixel lies on the head at rest"
+regrid_loss = "not re-gridded: drawn by code"
+truth = "art lane, 2026-10-06, looked at enlarged: tailored clothing of sewn hide with fur trims, as finds of the Upper Palaeolithic show (eyed needles, sewn seams); no metal, buttons, woven cloth or later dress; skin and hair plain, no paint or beads yet (each people's style adds them, PRE-43)"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/person_body/b0.png"
+sha256 = "59f4c50e366bbb2f65a8fc22c7b065b0455f00f44bf9f04f171e4cae0de92149"
+way = "drawn by code to the atlas's layout, its pieces' colours spread 4 texture pixels into the gaps round them, the rest of the canvas their mean colour"
+
+[[band]]
+level = 1
+file = "art/textures/person_body/b1.png"
+sha256 = "1c60fab19261240b0be82e498a3b28802025a4a32f3d1fe4c50937b409e5cd16"
+made_from = "59f4c50e366bbb2f65a8fc22c7b065b0455f00f44bf9f04f171e4cae0de92149"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness +0.2%, hue +0.2 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (1, 0, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 2
+file = "art/textures/person_body/b2.png"
+sha256 = "c2aecbb9a6a9835dcca6b99715b586fae7383c77e68796770314fc069d9461a6"
+made_from = "1c60fab19261240b0be82e498a3b28802025a4a32f3d1fe4c50937b409e5cd16"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness +0.2%, hue +0.0 degrees, colourfulness 101%, contrast 100%, then every texture pixel moved (1, -1, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 3
+file = "art/textures/person_body/b3.png"
+sha256 = "979d8a06946816ec48130b5bd42bf5f8b27bd21eb7b5b89dddc89964e8a12147"
+made_from = "c2aecbb9a6a9835dcca6b99715b586fae7383c77e68796770314fc069d9461a6"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness -0.0%, hue +0.5 degrees, colourfulness 99%, contrast 100%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 4
+file = "art/textures/person_body/b4.png"
+sha256 = "ffa4b4ed150c38af7d6d721103c7209da22a0e1a0d98530439f6a0abd7a6c20f"
+made_from = "979d8a06946816ec48130b5bd42bf5f8b27bd21eb7b5b89dddc89964e8a12147"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness -1.0%, hue -0.4 degrees, colourfulness 98%, contrast 100%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 5
+file = "art/textures/person_body/b5.png"
+sha256 = "d235a5efa97d934cea1571b88fe6cd729793cff0cf48a4019f6a27e6bec97645"
+made_from = "ffa4b4ed150c38af7d6d721103c7209da22a0e1a0d98530439f6a0abd7a6c20f"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness -1.4%, hue -0.2 degrees, colourfulness 96%, contrast 100%"
+
+[[band]]
+level = 6
+file = "art/textures/person_body/b6.png"
+sha256 = "103e45cf189113bf0ba2b74c26f7a615484d1147004c03cde4da18cfb7791cfb"
+made_from = "d235a5efa97d934cea1571b88fe6cd729793cff0cf48a4019f6a27e6bec97645"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness -0.1%, hue +0.8 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (0, -1, 0) in red, green and blue for rounding"
+
+[[band]]
+level = 7
+file = "art/textures/person_body/b7.png"
+sha256 = "9b0e90aaa4bb15b13b1520208fbdd66179e60d8356fa123b4beab40edb9ce4ba"
+made_from = "103e45cf189113bf0ba2b74c26f7a615484d1147004c03cde4da18cfb7791cfb"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness +0.4%, hue -0.0 degrees, colourfulness 99%, contrast 100%"
+
+[[band]]
+level = 8
+file = "art/textures/person_body/b8.png"
+sha256 = "4a65873c9c1c97c775e739b264964a4655e3c868da8cfab5b5d951912faf6359"
+made_from = "9b0e90aaa4bb15b13b1520208fbdd66179e60d8356fa123b4beab40edb9ce4ba"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness +1.4%, hue -0.7 degrees, colourfulness 101%, contrast 100%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"

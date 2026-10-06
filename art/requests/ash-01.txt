@@ -1,0 +1,26 @@
+Purpose: The art lane's next round, phase 2 (T2.3a.3): the ash and charcoal round a hearth redrawn without the stepped-diamond pattern, as the owner asked on 6 October 2026 ("bare earth, trodden floor, stone and ash redrawn without GPT's stepped-diamond pattern"). In hearth-01, hearth-02 and earth_stone_ash-01 GPT drew the ash's drifts as diamonds with 45-degree stepped edges. The input is a layout made by code in batch 1's own shades of the material: stains with rounded, wandering outlines from warped noise, and small marks scattered unevenly, 3 by 2 metres as 192 by 128 texture pixels enlarged eight times. GPT repaints it as the material, keeping the layout, so the stains' shapes are the code's and the material's look is GPT's. The result will be re-gridded, made into a seamless 4-metre tile (and its versions, for a big surface), checked for truth, repeats and speckle, and shown to the owner on its sheet.
+Orientation: landscape, 1536 x 1024
+Input picture: /tmp/kindling-art/p2/in/in-ash.png
+Transparent: no
+Prompt:
+Repaint the input picture as a finished pixel-art texture for a 3D game, keeping its layout exactly.
+
+The input is a rough layout of ash and charcoal round a hearth seen straight down: soft powdery pale grey and grey-white wood ash, 3 metres by 2 metres as 192 by 128 texture pixels of about 1.6 centimetres each, enlarged eight times with hard edges. Its drifts of paler and darker ash have rounded, wandering outlines, with faint grey-brown smudges where ash meets earth, and small lumps of black charcoal are scattered unevenly on it.
+
+Paint it as the real material, keeping everything where it is:
+- every stain stays where it is, with the same rounded, wandering, irregular outline: bulges and inlets running in every direction, as in the input; never turned into diamonds, rhombuses, chevrons or zigzags, and no edges made of 45-degree diagonal staircases;
+- the ash soft and powdery: within each drift neighbouring texture pixels mostly the same colour or one shade apart;
+- the charcoal as small lumps of 1 to 4 texture pixels, black and dark grey, of every shape, some with one lighter grey texture pixel on top, scattered unevenly as in the input, more in some places than others, never in rows;
+- the input's own colours: the same pale greys, grey-browns and blacks, no new hues, about 6 to 8 shades in all.
+
+Scale and grid: the picture shows 3 by 2 metres as 192 by 128 texture pixels; every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling, and the blocks fill the whole 1536 by 1024 picture. Every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; the ground fills the picture from edge to edge.
+
+Light: none of its own. Lit evenly and softly from straight above, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: the picture tiles in both directions, as the input does: what leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge.
+
+Stone Age truth: the ash of a wood fire at a hunter-gatherer camp of about 12,000 years ago: wood ash and charcoal only.
+
+Avoid: diamonds, rhombuses, chevrons, zigzags, crosses, X shapes, checks, a checkerboard, a crosshatch, scales, or any marks in rows, diagonals or a regular lattice; edges made of 45-degree staircases; flames, embers, glowing coals, smoke or soot; bones, flint flakes, stones or sticks; anything made by people; text, labels, numbers or watermarks; frames, borders, margins or grid lines; perspective, tilt or a horizon; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours; an overall tone darker or lighter than the input.

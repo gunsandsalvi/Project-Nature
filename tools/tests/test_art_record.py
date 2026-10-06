@@ -1,6 +1,6 @@
-"""A texture's record (PRE-42, PRE-22, PRE-20, A5.4): integers and texts only, never a float, only the brief's keys
-in its order, each source with its original's digest, C2PA and request, and every band after band 0 naming the level
-it was made from."""
+"""A texture's record (PRE-42, PRE-22, PRE-20, A5.3, A5.4): integers and texts only, never a float, only the plan's
+keys in its order, the band its first level is drawn for, each source with its original's digest, C2PA and request,
+every band after the first naming the level it was made from, and a redrawn band its own re-grid loss."""
 
 import copy
 import os
@@ -17,6 +17,7 @@ GOOD = {
     "route": "picture",
     "tile_texels": 256,
     "texels_a_metre": 64,
+    "first_band": 0,
     "sources": ["art/sources/meadow/meadow-01.webp"],
     "original_sha256": ["0" * 64],
     "c2pa": ["present"],
@@ -33,6 +34,7 @@ GOOD = {
             "sha256": "b" * 64,
             "made_from": "a" * 64,
             "way": "GPT redraw of band 0",
+            "regrid_loss": "4.4%",
             "calibration": "lightness +1.3%, hue -6.2 degrees, colourfulness 103%, contrast 90%",
         },
     ],
@@ -84,6 +86,8 @@ class Records(unittest.TestCase):
         self.assertTrue(any("route" in p for p in record.problems(changed(route="painted"))))
         self.assertTrue(any("whole number" in p for p in record.problems(changed(tile_texels=True))))
         self.assertIn("no [[band]]", record.problems(changed(band=[])))
+        self.assertIn("first_band is 1, not one of 0, 2, 4", record.problems(changed(first_band=1)))
+        self.assertIn("no first_band", record.problems({k: v for k, v in GOOD.items() if k != "first_band"}))
 
     # checks: PRE-22
     def test_every_band_after_band_0_names_the_level_it_came_from(self):

@@ -7,22 +7,22 @@
 #   lines, then Prompt:, whose text runs to the end of the file.
 #   Writes <scratch folder>/<request>.png, with the prompt and Codex's own log beside it, all outside git, and adds one
 #   line to <scratch folder>/runs.md, which names no model, for the batch's report.
-# While /tmp/kindling-gpt-paused exists, requests are held, not run. Nothing here buys credits: a run that meets the
-# plan's limit fails, and the art lane waits.
+# While /tmp/kindling-gpt-paused exists, requests are held, not run (gpt-common.sh). Nothing here buys credits: a run
+# that meets the plan's limit fails, and the art lane waits.
 set -u
 [ $# -eq 2 ] || { echo "usage: tools/art/gpt-run.sh <request.txt> <scratch folder>"; exit 2; }
 req="$1"
 out="$2"
 root=$(cd "$(dirname "$0")/../.." && pwd)
+. "$root/tools/art/gpt-common.sh"
 base=$(basename "$req" .txt)
-if [ -e /tmp/kindling-gpt-paused ]; then echo "held $base (paused)"; exit 0; fi
+if gpt_paused; then echo "held $base (paused)"; exit 0; fi
 [ -f "$req" ] || { echo "no request $req"; exit 2; }
 mkdir -p "$out"
 log="$out/runs.md"
-orient=$(sed -n 's/^Orientation:[[:space:]]*//p' "$req" | head -1 | tr 'A-Z' 'a-z')
-input=$(sed -n 's/^Input picture:[[:space:]]*//p' "$req" | head -1)
-awk 'found{print} /^Prompt:/{found=1}' "$req" >"$out/$base.prompt"
-[ -s "$out/$base.prompt" ] || { echo "no Prompt: in $req"; exit 2; }
+orient=$(gpt_field Orientation "$req" | tr 'A-Z' 'a-z')
+input=$(gpt_field "Input picture" "$req")
+gpt_prompt "$req" "$out/$base.prompt" || { echo "no Prompt: in $req"; exit 2; }
 size="Portrait, 1024 x 1536"
 [ "${orient#landscape}" != "$orient" ] && size="Landscape, 1536 x 1024"
 [ "${orient#square}" != "$orient" ] && size="Square, 1024 x 1024"
@@ -46,7 +46,5 @@ status=$?
 secs=$(($(date +%s) - start))
 result="failed"
 [ -f "$out/$base.png" ] && result="$base.png"
-tool="$(codex --version 2>/dev/null | sed 's/^codex-cli /Codex /'), its image tool"
-printf '| %s | %s | %s | %s | %s s | %s |\n' "$(date -u '+%Y-%m-%d %H:%M')" "${req#"$root"/}" "$used" "$result" \
-  "$secs" "$tool" >>"$log"
+gpt_log "$log" "${req#"$root"/}" "$used" "$result" "$secs" "$(gpt_tool), its image tool"
 echo "exit $status $result"

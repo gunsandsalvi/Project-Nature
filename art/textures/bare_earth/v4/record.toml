@@ -1,0 +1,76 @@
+about = "bare earth of the camp's working ground, where the grass has worn away: brown soil, crumbs and grit"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/bare_earth/bare_earth-01.webp"]
+original_sha256 = ["e446dbb1cf395b59494d2e84bf1231fa0f4b8ce290645e8caac773634b9a373f"]
+c2pa = ["present"]
+requests = ["art/requests/bare_earth-01.txt"]
+made = "version 4 of the near tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: soil, crumbs and grit only, in broad stains with rounded edges, no diamond pattern; nothing countable (no stones, flowers, sticks, tracks or paths), nothing made; the stepped-diamond pattern of batch 1 is gone"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/bare_earth/v4/b0.png"
+sha256 = "85b997bea839b320985a7a7ecbc09985576edd2aeb802cd1d02ee74a1ee44d8d"
+made_from = "1bc1ce4af4105d4bc43b5d912b7d6a639a9b5e58103660699629a54eea874ea4"
+way = "version 4 of the near tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 104), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/bare_earth/v4/b1.png"
+sha256 = "f402ac702ee019a0cff921f53b2543c2a9ec8022e1b17d1313876391c08e80ea"
+made_from = "0e42c6e48172ced9c8ed42dc5d926d1adbf6a740c3ee0b7c60bdda9298b8527f"
+way = "version 4 of the near tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 104), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/bare_earth/v4/b2.png"
+sha256 = "3cb5f3f33da8ead4d802b12033e79b09e6a532a06ec4845e7eba871ff0b789b0"
+made_from = "9a94f3b172efcd147c7b456de06e47eaedef5f602add1b9f040226135d44461a"
+way = "version 4 of the near tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 104), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/bare_earth/v4/b3.png"
+sha256 = "9afef064b6d7a7c270b4ca2e2f3d3ef686db2069d65c49df91768202a0e9664e"
+made_from = "6f00105ea55921c61ef19d47e66c2d99e01fee3764323bbce97c77e1d90a17f8"
+way = "version 4 of the near tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 104), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/bare_earth/v4/b4.png"
+sha256 = "ffa60f66808eee96ccfa92b009239ff6ca97709f39900e4c2445f804c89dbb13"
+made_from = "ffa60f66808eee96ccfa92b009239ff6ca97709f39900e4c2445f804c89dbb13"
+way = "the near tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/bare_earth/v4/b5.png"
+sha256 = "3fdd71874e251c853f46497bd175116459602789cd51eb351c48eb7a5da030f0"
+made_from = "3fdd71874e251c853f46497bd175116459602789cd51eb351c48eb7a5da030f0"
+way = "the near tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/bare_earth/v4/b6.png"
+sha256 = "239b0a629c9b24fdf9c5297b998cffddba9e6ebc301faef9e64f843d55b8958a"
+made_from = "239b0a629c9b24fdf9c5297b998cffddba9e6ebc301faef9e64f843d55b8958a"
+way = "the near tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/bare_earth/v4/b7.png"
+sha256 = "348feffd14a55799d08250001743d8a562e1f3857d267dc180647c6afb729181"
+made_from = "348feffd14a55799d08250001743d8a562e1f3857d267dc180647c6afb729181"
+way = "the near tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/bare_earth/v4/b8.png"
+sha256 = "a34f218d2f00d2ded21a5cdceeca5f645ffd0ffee36c1c6163c6731ad82f326a"
+made_from = "a34f218d2f00d2ded21a5cdceeca5f645ffd0ffee36c1c6163c6731ad82f326a"
+way = "the near tile's own level 8, the same in every version at this size"

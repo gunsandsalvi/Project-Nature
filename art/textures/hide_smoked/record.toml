@@ -2,6 +2,7 @@ about = "smoked hide: soft leather smoked to golden tan and amber-brown"
 route = "picture"
 tile_texels = 256
 texels_a_metre = 64
+first_band = 0
 sources = ["art/sources/hide/hide-02.webp"]
 original_sha256 = ["0f93a56a8d598e209f84c8ac8e686fce32f6629fad41da87faf4b54fda028c32"]
 c2pa = ["present"]
@@ -20,63 +21,63 @@ way = "re-gridded from its source, light taken out, made seamless by code"
 [[band]]
 level = 1
 file = "art/textures/hide_smoked/b1.png"
-sha256 = "54753986d5b47447c79c0d32b3c9866398dd493a6155ae0dabbd3374090ddaec"
+sha256 = "4b9797ba60f96b671ab89cd271734ee85ee1c64bf94722166454f7a59b2c7d0a"
 made_from = "1b5f2444b692246966afa2856d97e95a30bd71927c2b6d8e7d2d071bb9794a74"
-way = "code reduction of band 0 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
 calibration = "lightness -0.2%, hue -0.1 degrees, colourfulness 100%, contrast 103%"
 
 [[band]]
 level = 2
 file = "art/textures/hide_smoked/b2.png"
-sha256 = "00ce942223793af2d3d9052ca8f1a3e54c800e42aa43b7c1d6ec27d4591bef8c"
-made_from = "54753986d5b47447c79c0d32b3c9866398dd493a6155ae0dabbd3374090ddaec"
-way = "code reduction of band 1 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.1%, hue -0.3 degrees, colourfulness 100%, contrast 100%"
+sha256 = "2ce881bdf184a4483193a07654680bdca55c519c2fdab871a1d47f1f6b7239b7"
+made_from = "4b9797ba60f96b671ab89cd271734ee85ee1c64bf94722166454f7a59b2c7d0a"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.1%, hue -0.5 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (0, 1, 0) in red, green and blue for rounding"
 
 [[band]]
 level = 3
 file = "art/textures/hide_smoked/b3.png"
-sha256 = "dcd362df1b09b6a2ec09441ad9f4e7aaca1709aaac53cca502eff707f0197b87"
-made_from = "00ce942223793af2d3d9052ca8f1a3e54c800e42aa43b7c1d6ec27d4591bef8c"
-way = "code reduction of band 2 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +0.0%, hue -0.3 degrees, colourfulness 100%, contrast 101%"
+sha256 = "431c6003cf700a59f3e1b6e3c25700d76197028d0f8d9092be3af2e03f3216b4"
+made_from = "2ce881bdf184a4483193a07654680bdca55c519c2fdab871a1d47f1f6b7239b7"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.1%, hue -0.4 degrees, colourfulness 100%, contrast 101%, then every texture pixel moved (0, 0, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 4
 file = "art/textures/hide_smoked/b4.png"
-sha256 = "8fda035cf9b9aaa4361bac8dc55b264112c44c589d305789384a861a96d2fbb2"
-made_from = "dcd362df1b09b6a2ec09441ad9f4e7aaca1709aaac53cca502eff707f0197b87"
-way = "code reduction of band 3 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.2%, hue -0.1 degrees, colourfulness 100%, contrast 98%"
+sha256 = "b430bea01af5cfe462539d39ef808a74e8e7d8512ae937f93436a60c5f73659c"
+made_from = "431c6003cf700a59f3e1b6e3c25700d76197028d0f8d9092be3af2e03f3216b4"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.6%, hue -0.8 degrees, colourfulness 99%, contrast 101%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 5
 file = "art/textures/hide_smoked/b5.png"
-sha256 = "1af04584796b31cd4031cb189bb3b4c13b2a941a5dedd120b6219c79cdc71679"
-made_from = "8fda035cf9b9aaa4361bac8dc55b264112c44c589d305789384a861a96d2fbb2"
-way = "code reduction of band 4 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +0.4%, hue +0.4 degrees, colourfulness 100%, contrast 90%"
+sha256 = "6e8529110e3f0cd495b49d228da245701053c054ae66a4468d54cc680472a586"
+made_from = "b430bea01af5cfe462539d39ef808a74e8e7d8512ae937f93436a60c5f73659c"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.6%, hue -0.1 degrees, colourfulness 99%, contrast 99%"
 
 [[band]]
 level = 6
 file = "art/textures/hide_smoked/b6.png"
-sha256 = "0c180addf4dcf9343680cc3592a615547600a09bf22b741b55ed54edc064187b"
-made_from = "1af04584796b31cd4031cb189bb3b4c13b2a941a5dedd120b6219c79cdc71679"
-way = "code reduction of band 5 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.7%, hue -0.5 degrees, colourfulness 99%, contrast 112%"
+sha256 = "7dc78f6b20c1f56c05291b9b1b9c29ad09dd5b6a8535eb3fc0b78ec256063005"
+made_from = "6e8529110e3f0cd495b49d228da245701053c054ae66a4468d54cc680472a586"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.3%, hue +0.1 degrees, colourfulness 100%, contrast 109%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 7
 file = "art/textures/hide_smoked/b7.png"
-sha256 = "0d301cba8c7d5e2c63397e4ff9e72ea934b3395943cefe6b61e79874a3d82aa0"
-made_from = "0c180addf4dcf9343680cc3592a615547600a09bf22b741b55ed54edc064187b"
-way = "code reduction of band 6 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +1.0%, hue +1.2 degrees, colourfulness 99%, contrast 110%"
+sha256 = "66576e9d177551735cc42409fdaff816b67014ff5878f5bf46613724943baec4"
+made_from = "7dc78f6b20c1f56c05291b9b1b9c29ad09dd5b6a8535eb3fc0b78ec256063005"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.5%, hue +0.5 degrees, colourfulness 101%, contrast 130%"
 
 [[band]]
 level = 8
 file = "art/textures/hide_smoked/b8.png"
-sha256 = "9087a286964b0d11a21b5e5d8429aed3d07b6bcbda8dfde6c629add15c07a321"
-made_from = "0d301cba8c7d5e2c63397e4ff9e72ea934b3395943cefe6b61e79874a3d82aa0"
-way = "code reduction of band 7 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +6.4%, hue +5.5 degrees, colourfulness 101%, contrast 100%"
+sha256 = "4fe0b2600db18bb5f45c818830564a4b37273caaa1a23b1113aef08deb0bb59b"
+made_from = "66576e9d177551735cc42409fdaff816b67014ff5878f5bf46613724943baec4"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +2.1%, hue +1.2 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"

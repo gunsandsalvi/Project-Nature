@@ -1,11 +1,13 @@
-"""A texture's record (IMPLEMENTATION.md, the art lane): art/textures/<name>/record.toml, written and read.
+"""A texture's record (IMPLEMENTATION.md, the art lane): record.toml in each tile's folder (art/textures/<name>/, and
+for a big surface its middle/ and far/ tiles and its versions v2/ to v4/), written and read.
 
 Integers and strings only, never a float, since the catalogue's loader refuses floats (A3.6), and only the keys the
-brief lists, in its order. Each [[band]] names its level, file and digest; every band but band 0 also names the
-digest of the level it was made from, so a level whose source changed is stale; designed bands carry their four
-calibration numbers as words.
+plan lists, in its order. first_band is the band the tile's first level is drawn for: 0 for a near tile, 2 for a
+middle one and 4 for a far one (A5.3). Each [[band]] names its level, file and digest; every band but the first also
+names the digest of the level it was made from, so a level whose source changed is stale; a redrawn band carries its
+own re-grid loss, and designed bands their four calibration numbers, as words.
 
-Implements PRE-20 and PRE-42, see A5.4.
+Implements PRE-20 and PRE-42, see A5.3 and A5.4.
 """
 
 import tomllib
@@ -15,6 +17,7 @@ TOP = [
     "route",
     "tile_texels",
     "texels_a_metre",
+    "first_band",
     "sources",
     "original_sha256",
     "c2pa",
@@ -24,10 +27,11 @@ TOP = [
     "truth",
     "approved",
 ]
-BAND = ["level", "file", "sha256", "made_from", "way", "calibration"]
-INTEGERS = {"tile_texels", "texels_a_metre", "level"}
+BAND = ["level", "file", "sha256", "made_from", "way", "regrid_loss", "calibration"]
+INTEGERS = {"tile_texels", "texels_a_metre", "first_band", "level"}
 LISTS = {"sources", "original_sha256", "c2pa", "requests"}
 ROUTES = ("picture", "code", "world")
+FIRST_BANDS = (0, 2, 4)  # near, middle and far tiles (A5.3)
 
 
 def problems(rec):
@@ -54,6 +58,8 @@ def problems(rec):
         out.append("sources, original_sha256, c2pa and requests are not one entry each: " + str(lengths))
     if rec.get("route") not in ROUTES:
         out.append(f"route is {rec.get('route')!r}, not one of {', '.join(ROUTES)}")
+    if "first_band" in rec and rec["first_band"] not in FIRST_BANDS:
+        out.append(f"first_band is {rec['first_band']!r}, not one of {', '.join(map(str, FIRST_BANDS))}")
     bands = rec.get("band", [])
     if not isinstance(bands, list) or not bands:
         out.append("no [[band]]")

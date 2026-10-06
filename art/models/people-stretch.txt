@@ -1,0 +1,26 @@
+# Stretch report: people.blend
+
+17 parts; the worst triangle is stretched 1.48:1 (the line is 1.5:1, A6.4);
+0 parts fail a check.
+Stretch is the worst ratio, in any direction, of a texture pixel's side on the surface to 1/64 m, or the
+reverse: 1 means square texture pixels of 1/64 m. Each part is measured at rest, with each shape key at 1
+and in each bend pose its armature keeps.
+
+part                         size (m)              tris  worst over 1.25  where, slots, joints
+body_torso                   0.38 x 0.22 x 0.67     202   1.34      0.0%  as build_thin; skin; bones of person; wraps 53, 42, 24 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_head                    0.15 x 0.19 x 0.18     130   1.37      1.5%  as age_elder; skin, hair; bones of person; wraps 25, 31, 29, 19 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_upper_arm.L             0.18 x 0.10 x 0.30      64   1.40      0.0%  in bend_test; skin; bones of person; wraps 18, 15 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_forearm.L               0.13 x 0.07 x 0.24      64   1.45      0.0%  in bend_test; skin; bones of person; wraps 14, 13, 10 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_hand.L                  0.09 x 0.11 x 0.17      82   1.34      2.4%  as age_child; skin; bones of person; wraps 11, 12, 4, 4 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_thigh.L                 0.17 x 0.16 x 0.39      80   1.42      0.0%  in bend_test; skin; bones of person; wraps 32, 27, 22 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_shin.L                  0.10 x 0.11 x 0.40     100   1.45      0.0%  in bend_test; skin; bones of person; wraps 21, 19, 14 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_foot.L                  0.09 x 0.22 x 0.10      68   1.23      0.0%  as build_stout; skin; bones of person; wraps 16, 16, 13 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_upper_arm.R             0.18 x 0.10 x 0.30      64   1.41      0.0%  in bend_test; skin; bones of person; wraps 18, 15 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_forearm.R               0.13 x 0.07 x 0.24      64   1.45      0.0%  in bend_test; skin; bones of person; wraps 14, 13, 10 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_hand.R                  0.09 x 0.11 x 0.17      82   1.34      2.4%  as age_child; skin; bones of person; wraps 11, 12, 4, 4 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_thigh.R                 0.17 x 0.16 x 0.39      80   1.46      0.0%  in bend_test; skin; bones of person; wraps 32, 27, 22 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_shin.R                  0.10 x 0.11 x 0.40     100   1.45      0.0%  in bend_test; skin; bones of person; wraps 21, 19, 14 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+body_foot.R                  0.09 x 0.22 x 0.10      68   1.23      0.0%  as build_stout; skin; bones of person; wraps 16, 16, 13 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+garment_tunic                0.72 x 0.28 x 0.80     632   1.48      0.0%  in bend_test; fur, hide; bones of person; wraps 69, 64, 50, 25, 21, 23, 25, 21, 23 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+garment_leggings             0.37 x 0.18 x 0.78     800   1.44      0.0%  in bend_test; hide; bones of person; wraps 33, 27, 23, 19, 33, 27, 23, 19 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female
+garment_boots                0.34 x 0.26 x 0.31     296   1.29      0.0%  as sex_female; fur, hide; bones of person; wraps 28, 24, 21, 28, 24, 21 texture pixels; keys age_child, age_elder, build_stout, build_thin, sex_female

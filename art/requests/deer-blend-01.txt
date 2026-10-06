@@ -1,0 +1,75 @@
+Purpose: The art lane's next round, phase 1 (T2.3a.4, A6.1, A6.3): GPT's first pass at a red deer in Blender: the hoofed body pattern's skeleton, a body of parts skinned to it with build, age and sex as shape keys, and antlers by age as parts on the head. The art lane then checks every part, looks at it on its preview sheet and fixes what is wrong.
+Script: deer.py
+Output: deer.blend
+Input files: tools/art/kit.py tools/art/kitmath.py tools/art/partcheck.py
+Input pictures: art/targets/deer-poses.webp art/targets/animals-sheet.webp
+Input script: none
+Prompt:
+You are making a red deer (Cervus elaphus) for a game set in the Stone Age, about 12,000 years ago. The game draws a sharp 3D world whose every surface wears a pixel-art texture of 64 texture pixels a metre. Every animal of the hoofed body pattern is one skeleton with a body of parts skinned to it; code poses the bones about 10 times a second, gives each animal its proportions, and shape keys give it its build, age and sex; antlers are parts chosen by age. The attached pictures are the owner's guides: the first a red deer stag's poses, the second a sheet of animals whose first is a red deer; read the stag's proportions and silhouette from them (deep chest, slender legs, thick maned neck in a stag, a short tail and pale rump patch) but never copy their flagged things.
+
+Write deer.py, a Blender 4.0 script that builds the skeleton, the body and the antlers below with the helper module kit.py in this folder, and saves deer.blend. First read kit.py and kitmath.py in full: their docstrings say what each function does and which rules it keeps. Start deer.py with:
+
+import math, os, random, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import kit
+
+then kit.start(), the skeleton (kit.armature), the parts (kit.Part with armature=, built with sleeve(), shaped with paint()), the bend test (kit.pose), and kit.finish(sys.argv[-1]).
+
+THE SKELETON: a red deer stag standing square at rest, 1.22 m at the withers, facing -y, z up, its origin on the ground under the middle of its body; its left is +x. Make it with kit.armature("deer", bones, group="deer") with exactly these 28 bones (name, head, tail, parent), the .R bones mirroring the .L ones in x:
+- root (0, 0, 0) to (0, 0, 0.1), none
+- hips (0, 0.55, 1.10) to (0, 0.20, 1.12), root
+- spine (0, 0.20, 1.12) to (0, -0.20, 1.14), hips
+- chest (0, -0.20, 1.14) to (0, -0.45, 1.18), spine
+- neck1 (0, -0.45, 1.18) to (0, -0.60, 1.42), chest
+- neck2 (0, -0.60, 1.42) to (0, -0.70, 1.62), neck1
+- head (0, -0.70, 1.62) to (0, -1.10, 1.50), neck2
+- ear.L (0.06, -0.74, 1.68) to (0.17, -0.76, 1.74), head
+- tail (0, 0.72, 1.10) to (0, 0.82, 0.98), hips
+- scapula.L (0.13, -0.38, 1.18) to (0.15, -0.46, 0.92), chest
+- upper_front.L (0.15, -0.46, 0.92) to (0.14, -0.36, 0.70), scapula.L
+- fore.L (0.14, -0.36, 0.70) to (0.13, -0.38, 0.40), upper_front.L
+- cannon_front.L (0.13, -0.38, 0.40) to (0.13, -0.39, 0.11), fore.L
+- hoof_front.L (0.13, -0.39, 0.11) to (0.13, -0.43, 0.0), cannon_front.L
+- thigh_hind.L (0.13, 0.52, 1.00) to (0.14, 0.38, 0.70), hips
+- shin_hind.L (0.14, 0.38, 0.70) to (0.13, 0.58, 0.44), thigh_hind.L
+- cannon_hind.L (0.13, 0.58, 0.44) to (0.13, 0.55, 0.11), shin_hind.L
+- hoof_hind.L (0.13, 0.55, 0.11) to (0.13, 0.51, 0.0), cannon_hind.L
+and ear.R, scapula.R, upper_front.R, fore.R, cannon_front.R, hoof_front.R, thigh_hind.R, shin_hind.R, cannon_hind.R, hoof_hind.R with x negated.
+
+THE BODY: parts with armature=arm and atlas=coat, where coat = kit.Atlas("deer_coat", 4.0, 2.0), group "deer", each one or more sleeves (wrap=False: the coat is drawn to its layout, so each ring spans its own true circumference) with weights for every ring:
+- body_torso: from the rump (closed with a flat cap, a rounded end) forward along the back to the chest, the base of the neck its last ring; the short tail a sleeve of its own in this part (weighted to tail). Its role, as every body part's, is hair: the coat.
+- body_neck: from that neck base ring (shared) up to the throat behind the jaw (a ring shared with the head).
+- body_head: from the throat ring along the skull to the muzzle, closed with a flat cap at the nose; ears, each a flattened sleeve from inside the head's top behind the eyes, cupped, about 18 cm long and 9 cm wide, weighted to ear.L or ear.R with its base ring half head; then paint("skin", ...) the faces of the nose tip (the last 4 cm of the muzzle).
+- leg_front.L, leg_front.R: each from inside the body at the shoulder down to the fetlock (a ring shared with the hoof part).
+- leg_hind.L, leg_hind.R: each from inside the body at the hip down to the fetlock.
+- hoof_front.L, hoof_front.R, hoof_hind.L, hoof_hind.R: role hoof: from the fetlock ring (shared) down through the pastern to a cloven hoof widening slightly at its foot, its sole flat at z 0 and closed with a flat cap.
+
+How the parts join without a gap, the rule that matters most: where two parts meet at a joint (the neck's base, the throat, a fetlock), both have a ring there at the same place, of the same size, with the same weights (half each bone), the last ring of one and the first of the other, both open (caps None); then they bend together and never part. Keep each chain's rings in one table (each its place, its radii and its weights) and build both parts from it, so a shared ring is defined once; shape keys change rings through the same table. Where a leg meets the body, its first ring sits deep inside the body so no gap opens when it swings.
+
+Weights: a ring at a joint is half each of the two bones; the rings next to it, three quarters to their own bone and a quarter to the other; the rest wholly their own bone; the torso's rings from the rump through the loins hips, the barrel spine, the shoulders chest.
+
+Sizes at rest, as radii across (x) and up and down; for the torso and neck, which run forward, pass front=(0, 0, -1) to sleeve() so a ring's second radius is its height, and put their seam under the belly and throat (seam = 3 * math.pi / 2); for the legs, which run down, the seam behind (seam = math.pi / 2); 12 sides for the torso, 10 for the neck and head, 8 for the legs, 8 for the hooves:
+- torso, its centre line following the body's middle (the back at z 1.18 to 1.25, the belly at about 0.72, so the centre near z 0.98, lower under the chest): rump (y 0.78: 0.12 across, 0.17 tall, closed), haunches (0.55: 0.21, 0.25), loins (0.25: 0.22, 0.26), barrel (-0.05: 0.24, 0.28), behind the shoulders (-0.30: 0.22, 0.29), shoulders (-0.45: 0.19, 0.27), the brisket and neck base (y -0.52, z 1.14: 0.12, 0.16, its ring tilted up toward the neck).
+- neck, rising forward to the head: base (shared), middle (0.09 across, 0.13 deep, the stag's thick maned neck), throat (y -0.68, z 1.58: 0.07, 0.085, shared).
+- head, about 45 cm from the throat to the nose, pointing forward and down along the head bone: behind the jaw (shared), cheeks (0.07, 0.08), eyes (0.06, 0.07), the face (0.045, 0.06), the muzzle (0.035, 0.045), the nose (0.028, 0.035) closed.
+- each leg, thin and dry: front from inside the shoulder (0.07), elbow (0.055), forearm (0.04), knee (0.035), cannon (0.022 across, 0.028 front to back), fetlock (0.026, shared); hind from inside the haunch (0.08), stifle (0.06), gaskin (0.045), hock (0.035), cannon (0.022, 0.03), fetlock (0.026, shared).
+- each hoof: fetlock (shared), pastern (0.022), coronet (0.028), sole (0.035 across, 0.05 front to back), closed flat.
+The body is about 1,500 to 2,000 triangles in all.
+
+SHAPE KEYS, on every body part and hoof, each a sleeve's keys={...} giving the radii (and where needed the points) at 1: build_thin (girth 0.88), build_stout (barrel 1.15, haunches and shoulders 1.1), sex_female (a hind: neck 0.75 across and deep, no mane, the head finer and the barrel 0.95), age_young (a calf or yearling: the body and neck slimmer, 0.85, the muzzle shorter; how tall it stands comes from the skeleton's bone lengths, which the game sets), age_old (the neck and legs thinner, the belly lower). Keep each key's texture stretch within the line.
+
+THE ANTLERS, three parts skinned to the head bone (weights {"head": 1} on every ring), no atlas: their texture, antler, is tiled, so their sleeves wrap (wrap=True) and their tips end in short points (caps "chopped", cap_role "antler"); role antler; group "deer". Each is a pair, left and right, rising from the pedicles on top of the head at (plus and minus 0.05, -0.76, 1.70), the beams sweeping up, back and out, then curving forward at the top:
+1. antlers_spike: a yearling's single spikes, about 22 cm each, 2.5 cm across at the base.
+2. antlers_young: a young stag's: beams about 55 cm, 3.5 cm across at the base, each with a brow tine forward over the face and a fork at the top: 6 points in all.
+3. antlers_mature: a mature royal stag's: beams about 90 cm, 5 cm across at the base narrowing upward, spreading about 75 cm apart at their widest; each with a brow tine, a bez tine just above it, a trez tine half way up, and a crown of three tines at the top: 12 points in all.
+A tine is a sleeve starting a little inside the beam, at least 1.5 cm across where it narrows (a wrap cannot be finer than 3 texture pixels), its taper within 1.5 in each wrap (use breaks for a long one).
+
+THE BEND TEST: kit.pose(arm, "bend_test", turns) as if grazing: neck1 and neck2 down 30 degrees each and the head down 20; the left front leg lifted mid-stride (the fore bone 60 degrees back at the knee); the right hind hock bent 30 degrees; find each turn's sign by checking where the bones end up. The check measures stretch in this pose too.
+
+Rules every part keeps: real size in metres; material slots by role only (hair for the coat, skin, hoof, antler); texture stretch at most 1.5:1 on every triangle at rest, with each shape key at 1 and in the bend test; every vertex weighted by one to four bones; pieces of the atlas never overlap (kit.Atlas places them).
+
+When deer.py runs without an error and saves deer.blend, run the check:
+blender -b deer.blend --python partcheck.py -- --report deer-stretch.txt
+Every part must print "pass". If any fails, fix deer.py, run it again and check again until all pass.
+
+Stone Age truth: a wild red deer of the time, a stag with a royal's antlers at most (no palmate or reindeer-like antlers, no fallow-deer spots on an adult).

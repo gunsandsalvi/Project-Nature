@@ -56,6 +56,31 @@ class Fitting(unittest.TestCase):
         self.assertTrue(ok)
         self.assertGreaterEqual(accents, 0.9 * self.accents)
 
+    # checks: PRE-20 PRE-22
+    def test_a_far_tiles_first_level_may_pass_the_bound_as_far_as_the_material_goes(self):
+        """A quiet picture of the same ground, fitted to the near tile: its contrast rises past 130% until its
+        accents hold, never past the near tile's own texture pixel contrast."""
+        quiet = look.adjust(self.band0, 0.0, 0.0, 100.0, 60.0)
+        out, nums, accents, ok = match.fit_to_near(quiet, self.band0)
+        self.assertTrue(ok)
+        self.assertGreater(nums[3], match.CONTRAST_MOST)
+        self.assertGreaterEqual(accents, 0.9 * self.accents)
+        self.assertLessEqual(look.stats(out)["texel_contrast"], look.stats(self.band0)["texel_contrast"] + 1e-6)
+
+    # checks: PRE-20
+    def test_what_rounding_leaves_is_settled_by_one_unit_at_most(self):
+        """A flat pale grey, as birch bark's smallest levels are, misses its hue by 5 degrees for want of one unit of
+        green; settling moves it that unit, and leaves a level already right alone."""
+        target = look.stats(np.tile(np.array((209, 196, 186), np.uint8), (8, 8, 1)))
+        off = np.tile(np.array((209, 195, 186), np.uint8), (8, 8, 1))
+        self.assertGreater(abs(look.stats(off)["hue"] - target["hue"]), 4.0)
+        out, move = match.settle(off, target)
+        self.assertEqual(tuple(move), (0, 1, 0))
+        self.assertAlmostEqual(look.stats(out)["hue"], target["hue"], delta=0.5)
+        same, still = match.settle(self.band0, look.stats(self.band0))
+        self.assertEqual(tuple(still), (0, 0, 0))
+        np.testing.assert_array_equal(same, self.band0)
+
     # checks: PRE-20
     def test_a_level_too_flat_is_reported_never_stretched_into_speckle(self):
         flat = look.adjust(self.band0, 0.0, 0.0, 100.0, 30.0)

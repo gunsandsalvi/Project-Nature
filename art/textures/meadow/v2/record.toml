@@ -1,0 +1,76 @@
+about = "short wild meadow grass and bare earth: the background of the meadow cover"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/meadow/meadow-00.webp", "art/sources/meadow/meadow-01.webp"]
+original_sha256 = ["2ec7561d188fedf348afacce5ecaff0837f0a46454ede403a99ebcd0ff6f0ab0", "fef8d4bc37992e7122a0175228eb04d305a1e62878204406d071fb8ea1389fe6"]
+c2pa = ["present", "present"]
+requests = ["art/requests/meadow-00.txt", "art/requests/meadow-01.txt"]
+made = "version 2 of the near tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: wild grasses and bare earth only, in band 0 and in the redrawn band 1; nothing countable (no stones, flowers, sticks, tracks or paths), nothing made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/meadow/v2/b0.png"
+sha256 = "339207f426b0493cad608505e5989f620d681076842aa74178f6d105dc0a991c"
+made_from = "ac2fda697a466db9a9a650dc30a37924b9340d93d71e84725e499f45ab6b2b3f"
+way = "version 2 of the near tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/meadow/v2/b1.png"
+sha256 = "a57d29b86d429624155c96bfaca1af2dada0d579b6d541bd958f772eccd138e8"
+made_from = "311bc8c8b04d8953730c28d1c61933a9b7329f6e38b85987cee19b61e0ef982a"
+way = "version 2 of the near tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/meadow/v2/b2.png"
+sha256 = "53c535a8ddbe8db4be4f12254baf1222c95de41a56d96c0d1c3b08f2295737ec"
+made_from = "520f5cd7f9f9542a5f4c400d7cf8e6a58f85c4823d2db61f397be9c450cb5829"
+way = "version 2 of the near tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/meadow/v2/b3.png"
+sha256 = "10941d5bb5cc4d3fdb300bc68d354b06448566e35377ed3beb6a3e293410701c"
+made_from = "edc7721b8fcd58cff5b4ad8e84723b0782fdd179bb335ee5ce948ba93649ca32"
+way = "version 2 of the near tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/meadow/v2/b4.png"
+sha256 = "041295d6b07ef7b5edb8cf36fde55aa885a3958ad3bb7a7f35b794a229d6f259"
+made_from = "041295d6b07ef7b5edb8cf36fde55aa885a3958ad3bb7a7f35b794a229d6f259"
+way = "the near tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/meadow/v2/b5.png"
+sha256 = "1a7b0eb43696451dcc42e0bb00e1d9b060e053646fedf9bdd0d2203bd1a2d26a"
+made_from = "1a7b0eb43696451dcc42e0bb00e1d9b060e053646fedf9bdd0d2203bd1a2d26a"
+way = "the near tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/meadow/v2/b6.png"
+sha256 = "55d8739bf668425096bba8471f6f76334fa170afbcc26910883219f6c8bbcb9a"
+made_from = "55d8739bf668425096bba8471f6f76334fa170afbcc26910883219f6c8bbcb9a"
+way = "the near tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/meadow/v2/b7.png"
+sha256 = "74a3130b45f5d6feccf301d4be6f9ed47cb597a5dab406601bc560701108c189"
+made_from = "74a3130b45f5d6feccf301d4be6f9ed47cb597a5dab406601bc560701108c189"
+way = "the near tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/meadow/v2/b8.png"
+sha256 = "d0b1b27171a512eabebd7b92438307ca91cc93dc4aeec3c69c716b99749a7c04"
+made_from = "d0b1b27171a512eabebd7b92438307ca91cc93dc4aeec3c69c716b99749a7c04"
+way = "the near tile's own level 8, the same in every version at this size"

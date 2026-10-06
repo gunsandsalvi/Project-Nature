@@ -1,0 +1,16 @@
+{
+  "about": "The materials the camp's textured preview gives each role, as a recipe would choose them; parts drawn to an atlas wear their atlas's own.",
+  "roles": {
+    "bark": "art/textures/pole_unpeeled/wraps",
+    "wood": "art/textures/pole_peeled",
+    "hide": "art/textures/hide_pale",
+    "stone": "art/textures/stone",
+    "weave": "art/textures/basket_weave"
+  },
+  "parts": {
+    "log_": {"bark": "art/textures/birch_bark/wraps"},
+    "bark_sheet": {"bark": "art/textures/bark_sheet"},
+    "hide_whole": {"hide": "art/textures/hide_smoked"},
+    "hide_curved": {"hide": "art/textures/hide_dark"}
+  }
+}

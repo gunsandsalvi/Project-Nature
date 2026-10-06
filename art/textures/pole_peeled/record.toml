@@ -2,6 +2,7 @@ about = "a peeled pole: the bare wood of a young birch pole stripped by hand; th
 route = "picture"
 tile_texels = 256
 texels_a_metre = 64
+first_band = 0
 sources = ["art/sources/wood/wood-01.webp"]
 original_sha256 = ["ca95b9d333bf163f610ef1fdae31348deaba7377a96a1a47088edf940d8385cb"]
 c2pa = ["present"]
@@ -20,63 +21,63 @@ way = "re-gridded from its source, light taken out, made seamless by code"
 [[band]]
 level = 1
 file = "art/textures/pole_peeled/b1.png"
-sha256 = "f2ef6bdf4fb66b683e0ac61eeb81cae53f6d015478fb3ba15c8fcdacd87b85f9"
+sha256 = "e52b22ccd54600ad3147a6dc119b1af41a5c958979d29d5af99a4dc788cda5c6"
 made_from = "d1eb7b2e4436649af9dbab0bc044a9089ca96a80573d4c62187d959f271ae3a7"
-way = "code reduction of band 0 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -1.5%, hue -0.3 degrees, colourfulness 105%, contrast 121%"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -1.6%, hue -0.6 degrees, colourfulness 105%, contrast 122%"
 
 [[band]]
 level = 2
 file = "art/textures/pole_peeled/b2.png"
-sha256 = "5d3062e0f86e1d5825df7675afd0a54f2a8c74b8f082c79560bd2b7ab61801af"
-made_from = "f2ef6bdf4fb66b683e0ac61eeb81cae53f6d015478fb3ba15c8fcdacd87b85f9"
-way = "code reduction of band 1 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -1.8%, hue -1.0 degrees, colourfulness 105%, contrast 132%"
+sha256 = "ffe865085afc68e2b4ba44c2d4be380bfad83a76f5a9edf1bc95510c5d98218e"
+made_from = "e52b22ccd54600ad3147a6dc119b1af41a5c958979d29d5af99a4dc788cda5c6"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -1.8%, hue -0.5 degrees, colourfulness 106%, contrast 130%"
 
 [[band]]
 level = 3
 file = "art/textures/pole_peeled/b3.png"
-sha256 = "56ccc670beed2fb436b4c140cfc8753249b684d4e66de633571e1f1bcb94846a"
-made_from = "5d3062e0f86e1d5825df7675afd0a54f2a8c74b8f082c79560bd2b7ab61801af"
-way = "code reduction of band 2 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -2.2%, hue -0.6 degrees, colourfulness 108%, contrast 175%"
+sha256 = "a9bc24d26b17c2dca825693c85c908d69b1a2d7a09ae2f113750f99a886ec93d"
+made_from = "ffe865085afc68e2b4ba44c2d4be380bfad83a76f5a9edf1bc95510c5d98218e"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -1.9%, hue -0.1 degrees, colourfulness 106%, contrast 130%, then every texture pixel moved (0, -1, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 4
 file = "art/textures/pole_peeled/b4.png"
-sha256 = "4e2d9e6fd2b186293c393fd46f86a5cb8b34be1e80678061a9e1cadecc04dc90"
-made_from = "56ccc670beed2fb436b4c140cfc8753249b684d4e66de633571e1f1bcb94846a"
-way = "code reduction of band 3 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -1.9%, hue -0.8 degrees, colourfulness 103%, contrast 158%"
+sha256 = "c1dfe12ef9155a5f2560b493e99782cda5871e4f487052d5f80c4ceb55129462"
+made_from = "a9bc24d26b17c2dca825693c85c908d69b1a2d7a09ae2f113750f99a886ec93d"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -1.3%, hue -0.6 degrees, colourfulness 102%, contrast 130%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 5
 file = "art/textures/pole_peeled/b5.png"
-sha256 = "8c696ac66b0e0f3fb1c7c15c75891ab8a1885c206214fa2c311ba053af2b1c93"
-made_from = "4e2d9e6fd2b186293c393fd46f86a5cb8b34be1e80678061a9e1cadecc04dc90"
-way = "code reduction of band 4 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.6%, hue +0.4 degrees, colourfulness 102%, contrast 146%"
+sha256 = "ac9183a042394effbf4c808cb672d4aa654530afba2328b09d0862d2510dc0bc"
+made_from = "c1dfe12ef9155a5f2560b493e99782cda5871e4f487052d5f80c4ceb55129462"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.1%, hue +0.5 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 6
 file = "art/textures/pole_peeled/b6.png"
-sha256 = "67fc90bd618c6032af20ccbc01a3e26a6a352c8e08c681226b81cfe41f040155"
-made_from = "8c696ac66b0e0f3fb1c7c15c75891ab8a1885c206214fa2c311ba053af2b1c93"
-way = "code reduction of band 5 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +0.4%, hue -1.0 degrees, colourfulness 99%, contrast 134%"
+sha256 = "2dc41737e84fab3812004227cd8fa8e19197f880c81e31b318c0d3f49e461292"
+made_from = "ac9183a042394effbf4c808cb672d4aa654530afba2328b09d0862d2510dc0bc"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.0%, hue +0.3 degrees, colourfulness 104%, contrast 100%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 7
 file = "art/textures/pole_peeled/b7.png"
-sha256 = "20174c98fdde4927cd28fac23fd68c3d61952c9f8e6c54db847df19547b7a46a"
-made_from = "67fc90bd618c6032af20ccbc01a3e26a6a352c8e08c681226b81cfe41f040155"
-way = "code reduction of band 6 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +2.0%, hue -1.0 degrees, colourfulness 99%, contrast 124%"
+sha256 = "8d521ac3213acface99fb78e95fa570d04fc4113eb4bc414b41b6a842bade156"
+made_from = "2dc41737e84fab3812004227cd8fa8e19197f880c81e31b318c0d3f49e461292"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.0%, hue +0.3 degrees, colourfulness 104%, contrast 100%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 8
 file = "art/textures/pole_peeled/b8.png"
-sha256 = "e6a41f7360cd9502e513723d2221f24ee654c55d6f08840a95d7262bfb2c0080"
-made_from = "20174c98fdde4927cd28fac23fd68c3d61952c9f8e6c54db847df19547b7a46a"
-way = "code reduction of band 7 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +10.1%, hue -0.7 degrees, colourfulness 94%, contrast 100%"
+sha256 = "e04a00a98af2209bf7ce9604705c48b9b357f5fb6250c7baf2d359681d119f4c"
+made_from = "8d521ac3213acface99fb78e95fa570d04fc4113eb4bc414b41b6a842bade156"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.0%, hue +0.3 degrees, colourfulness 104%, contrast 100%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"

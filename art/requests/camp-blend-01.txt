@@ -1,0 +1,53 @@
+Purpose: The art lane's next round, phase 1 (T2.3a.4, A6.1): GPT's first pass at the camp's parts in Blender, the wood, covers and things of a hunter-gatherer camp, as parts like Lego that code puts together from recipes. The art lane then checks every part (stretch, joints, roles), looks at each on its preview sheet and fixes what is wrong.
+Script: camp.py
+Output: camp.blend
+Input files: tools/art/kit.py tools/art/kitmath.py tools/art/partcheck.py
+Input script: none
+Prompt:
+You are making the camp's parts for a game set in the Stone Age, about 12,000 years ago: a hunter-gatherer camp of skin tents, drying racks, baskets and stone tools. The game draws a sharp 3D world whose every surface wears a pixel-art texture of 64 texture pixels a metre. Every shape is a part made in Blender; code later puts parts together from recipes, varying size, count, angle and material, so a few hundred parts make thousands of things. Each part must be right in itself: real size, its own texture layout, its joints and its material slots.
+
+Write camp.py, a Blender 4.0 script that builds every part below with the helper module kit.py in this folder, and saves camp.blend. First read kit.py and kitmath.py in full: their docstrings say what each function does and which rules it keeps for you. Start camp.py with:
+
+import math, os, random, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import kit
+
+then kit.start(), the parts, and kit.finish(sys.argv[-1]). Use only kit.Part and its builders (sleeve, lathe, panel, card, mesh, hull, project, rest, joint, done): they lay every texture coordinate in metres, keep a pole's wrap whole, name the slots by role and make the joints. Give each part its group (a Blender collection) and an "about" sentence saying what it is and its size. Use random.Random with a fixed seed wherever you vary a shape, so the file comes out the same each time.
+
+Rules every part keeps:
+- Real size in metres, z up, its front toward -y. Its origin at its main joint: the first joint you make, at (0, 0, 0). A joint is where another part plugs in; its "towards" points out of the part, the way a part plugged there continues (a pole's base points down, (0, 0, -1); its top up).
+- Material slots by role only: wood (cut or peeled wood), bark (the outside of unpeeled wood), hide, weave (basketry), stone. A pole's outside is "bark" and its cut wood "wood" (a recipe gives a peeled pole a peeled-wood material in its bark slot).
+- No sawn wood anywhere: Stone Age wood is chopped with stone axes or broken. Every pole, bar and log end is caps "chopped" (a short faceted point) or "broken" (a jagged snap), never a flat disc. A chopped end reaches 1.2 radii past its ring: a pole standing on its chopped foot starts its path that far above the origin, so the point touches z = 0.
+- Texture stretch at most 1.5:1 on every triangle (the check measures it). Keep each sleeve's taper within about 1.5 from its widest ring to its narrowest; split a longer taper into two sleeves end to end.
+- Low polygon counts: 6 to 8 sides for poles and bars, 12 to 14 for a log, rings about every 0.5 m along a pole and closer where it bends.
+
+The parts:
+
+Group "wood":
+1. pole_straight_150, pole_straight_200, pole_straight_250, pole_straight_300: straight poles of young birch or pine, 1.5, 2.0, 2.5 and 3.0 m long, standing along +z on a chopped foot at the origin; about 9.5 cm across at the foot narrowing to about 6.5 cm at the top; the top end broken. Joints: base (origin, towards -z), tie at 0.85 of the length (where tent poles are bound together, towards +x), top (towards +z).
+2. pole_bent_200, pole_bent_300: the same sizes as the straight ones of 2.0 and 3.0 m, but slightly crooked as a sapling grows: the top 5 to 8 cm off the straight line, in a gentle uneven curve. Joints as the straight poles'.
+3. log_seat_160: a dead trunk dragged in as a seat, 1.6 m long, about 26 cm across at one end and 21 cm at the other, a little uneven along its length, lying along x with its underside resting on z = 0 along its whole length (the path's height follows its radius), both ends broken; its origin under its middle. Joints: base (origin, towards -z), end_a and end_b (at its two ends, along -x and +x).
+4. log_fire_50 and log_fire_80: firewood, dead branches 0.5 m and 0.8 m long, about 7 and 9 cm across, slightly crooked, lying along x on z = 0, both ends broken. Joints: base (origin, under the middle, towards -z), end_a, end_b.
+
+Group "covers" (all panels are thin single surfaces, drawn from both sides by the game; their texture is their flat cut shape in metres, so lay them out with panel() and give a drape as a bend that keeps lengths):
+5. hide_whole: the whole skin of a red deer as it comes off the animal, flat, hair side toward -y, about 1.5 m long and 1.1 m wide at its widest: the outline of a body with four leg flaps at its corners, a neck at the top and a short tail at the bottom, its edges irregular and slightly ragged. It lies in the x-z plane with its neck at the top; origin at the top of the neck. Joints: neck (origin, towards +z), leg_fl, leg_fr, leg_hl, leg_hr (the tips of the four flaps, pointing outward), tail.
+6. hide_panel_rect: a hide trimmed for sewing into a cover, about 1.4 m wide and 0.9 m tall, its edges cut nearly straight but not ruler-straight (a few centimetres of waviness), its corners slightly rounded; flat; origin at the middle of its top edge. Joints: top (origin, towards +z), corner_tl, corner_tr, corner_bl, corner_br.
+7. hide_panel_fan: a panel cut for a conical tent's cover, a tall trapezoid with slightly curved bottom edge: 0.3 m wide at the top, 1.3 m at the bottom, 2.3 m tall; flat; origin at the middle of its top edge. Joints: top (origin, towards +z), corner_bl, corner_br.
+8. hide_draped_bar: a hide of about 1.2 by 1.6 m hung over a horizontal bar of 3 cm radius running along x at the origin: it folds over the bar, one side hanging 0.9 m and the other 0.7 m, each side falling with a slight outward sag and a gentle wave, never folding through itself. Origin at the top of the fold. Joint: bar (origin, towards +z).
+9. hide_draped_door: a hide of about 1.0 by 1.5 m hanging as a door curtain from its top edge, which runs along x at the origin; it falls in two or three soft vertical folds (a wave of a few centimetres in y that grows toward the bottom). Origin at the middle of its top edge. Joints: top (origin, towards +z), corner_tl, corner_tr.
+10. hide_curved_dome: a panel of about 1.2 by 1.0 m bent over a dome hut's frame: lying on a sphere of 1.6 m radius, curved both ways. Origin at the middle of its top edge. Joints: top (origin), corner_bl, corner_br.
+11. bark_sheet_curled: a sheet of birch bark freshly peeled from a trunk, about 0.6 m tall and 0.45 m wide when flat, still curled round the trunk's shape: bent about a vertical axis on a radius of about 0.18 m at one edge opening to about 0.3 m at the other. Origin at the middle of its top edge. Joints: top (origin, towards +z), bottom.
+12. bark_sheet_flat: a sheet of bark about 0.7 m tall and 0.5 m wide, nearly flat, laid in courses on a hut: bent about a vertical axis on a radius of about 0.8 m. Origin at the middle of its top edge. Joints: top (origin), bottom.
+Give the hides and bark sheets the roles hide and bark.
+
+Group "things":
+13. basket: a round basket woven of plant fibre, 0.34 m across at its rim and 0.24 m at its base, 0.30 m tall, its sides flaring slightly, a rolled rim about 2 cm thick, walls about 1.5 cm thick; open at the top. Build it with lathe(): one profile from the outer base up the outside, over the rim and down the inside to the inner floor, every radius above 0, closed with caps=(True, True) (the underside facing down, the inner floor facing up). 16 to 20 sides. Role weave. Joints: base (origin at the middle of its underside, towards -z), rim (the middle of its mouth, towards +z).
+14. rack_bar_150 and rack_bar_200: straight bars of a drying rack, peeled saplings 1.5 m and 2.0 m long and about 5 cm across, lying along +x from the origin, both ends chopped. Joints: end_a (origin, towards -x), end_b (the far end, towards +x), and hang_1 to hang_4 spread along the bar (where things hang from it, towards -z).
+15. rack_upright_forked: an upright of a drying rack: a forked stick 1.6 m tall, about 6 cm across at its chopped foot narrowing to 4.5 cm at the fork at 1.35 m, where two short prongs (about 25 cm long, 3.5 cm across narrowing to 2.5 cm, broken at their tips) spread about 20 degrees either side of upright in the x-z plane. Build the stem and each prong as its own sleeve; the prongs start a little inside the stem so no gap shows. Joints: base (origin, towards -z), fork (in the crotch, where a bar rests, towards +z).
+16. hand_axe: a hand axe knapped from flint, a teardrop-shaped tool held in the hand, 14 cm long, 8.5 cm wide and 3.5 cm thick, pointed at its tip and rounded at its thicker butt. Model it standing tip up along +z in the x-z plane, faces toward -y and +y: each face a low ridge of 8 to 12 flat flake scars (facets) of different sizes, the two faces meeting at a sharp, slightly wavy edge all the way round. Build its points and triangles with mesh() (counter-clockwise seen from outside) and lay the texture with project("stone"); set its smooth angle low (p.smooth = 20) so the facets stay crisp. Role stone. Joints: grip (origin, at the middle of the butt, towards -z), tip (towards +z).
+
+When camp.py runs without an error and saves camp.blend, run the check:
+blender -b camp.blend --python partcheck.py -- --report camp-stretch.txt
+Every part must print "pass". If any fails, fix camp.py, run it again and check again until all pass. Then lay nothing else out: kit.finish places the parts for viewing.
+
+Stone Age truth: no sawn or planed wood, no metal anywhere, no nails, pegs of metal or rope of modern fibre; poles are young trees with bark or peeled; hides are whole or cut with stone blades; the basket is plant fibre; the axe is knapped flint.

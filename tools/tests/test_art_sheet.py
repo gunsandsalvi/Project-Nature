@@ -53,6 +53,69 @@ class Parts(unittest.TestCase):
         self.assertGreater(len(np.unique(rows.round())), 5, "beds, ledges and undercuts shade a flat surface")
 
 
+class Strips(unittest.TestCase):
+    # checks: PRE-22
+    def test_a_strip_is_the_phones_width_with_the_versions_mixed_by_place(self):
+        red, blue = np.zeros((16, 16, 3), np.uint8), np.zeros((16, 16, 3), np.uint8)
+        red[...] = (200, 40, 40)
+        blue[...] = (40, 40, 200)
+        s = sheet.strip([[red], [blue]], 0, size=(160, 48))
+        self.assertEqual(s.shape, (96, 320, 3))  # 2 x 2 screen pixels a texture pixel
+        cells = s[::32, ::32].reshape(-1, 3)
+        self.assertEqual({tuple(c) for c in cells}, {(200, 40, 40), (40, 40, 200)}, "both versions show")
+        again = sheet.strip([[red], [blue]], 0, size=(160, 48))
+        np.testing.assert_array_equal(s, again)  # a place always takes the same version
+        self.assertEqual(sheet.pick(3, 5, 4), sheet.pick(3, 5, 4))
+        self.assertGreater(len({sheet.pick(x, y, 4) for x in range(6) for y in range(6)}), 2)
+
+    # checks: PRE-46
+    def test_wrap_strips_are_each_repeated_round(self):
+        level = np.random.default_rng(5).integers(0, 256, (256, 256, 3)).astype(np.uint8)
+        widths = ((16, 0), (8, 16))
+        s = sheet.wrap_strips(level, widths, rows=10, turns=3)
+        self.assertEqual(s.shape, (10, 16 * 3 + 3 + 8 * 3 + 3, 3))
+        np.testing.assert_array_equal(s[:, :16], s[:, 16:32])
+
+
+class Words(unittest.TestCase):
+    # checks: PRE-42
+    def test_the_block_size_is_read_from_a_records_words(self):
+        self.assertEqual(sheet.block_of("re-gridded at its own 8.00-pixel blocks, its light taken out"), 8.0)
+        self.assertEqual(sheet.block_of("re-gridded at 64 a metre (blocks of 4.9 picture pixels)"), 4.9)
+        self.assertEqual(sheet.block_of("at 7.2-pixel blocks (at GPT's own blocks of about 10.8 the loss...)"), 7.2)
+        self.assertIsNone(sheet.block_of("drawn by code"))
+
+    # checks: PRE-42
+    def test_the_checks_are_summed_up_with_each_failure_in_full(self):
+        results = [
+            ("", "seams", True, "1.05"),
+            ("", "contrast", None, "not measured"),
+            ("v2", "contrast", None, "not measured"),
+            ("v2", "accents", False, "under 90%: band 1 85%"),
+        ]
+        lines = sheet.summary(results)
+        self.assertEqual(lines[0], "1 check passes on its 2 tiles; 1 fails:")
+        self.assertIn("FAILS: v2, accents: under 90%: band 1 85%", lines)
+        self.assertIn("contrast (near, v2): not measured", lines)
+
+    # checks: PRE-46
+    def test_a_drawn_atlas_is_shown_where_its_pieces_lie(self):
+        mask = np.zeros((256, 256), bool)
+        mask[150:200, 40:90] = True  # the pieces, far from the corner, where the canvas is all gaps
+        y, x = sheet.busiest(mask)
+        self.assertTrue(y <= 150 and y + 128 >= 200 and x <= 40 and x + 128 >= 90)
+
+    # checks: PRE-22
+    def test_a_source_and_its_level_are_shown_at_the_same_scale(self):
+        picture = np.zeros((600, 900, 3), np.uint8)
+        level = np.random.default_rng(3).integers(0, 256, (256, 256, 3)).astype(np.uint8)
+        crop, shown, k = sheet.beside(picture, level, 7.6, box=(0, 0, 900, 200))
+        self.assertEqual(k, 8)
+        self.assertEqual(crop.shape, shown.shape)
+        self.assertEqual(crop.shape[0], 200)
+        np.testing.assert_array_equal(shown[:8, :8], np.broadcast_to(level[0, 0], (8, 8, 3)))
+
+
 class Sheet(unittest.TestCase):
     # checks: PRE-20 PRE-01
     def test_a_sheet_is_lossless_and_as_wide_as_the_phone(self):

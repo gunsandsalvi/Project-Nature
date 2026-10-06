@@ -1,0 +1,76 @@
+about = "the river bed seen through clear water: rounded pebbles and sand with an algae film (the engine adds the water)"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/waterside/waterside-01.webp"]
+original_sha256 = ["2125e182338faec3a51198d51022442f49984059c7ddc0e7d43636c60e365947"]
+c2pa = ["present"]
+requests = ["art/requests/waterside-01.txt"]
+made = "version 3 of the near tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: pebbles and sand only, the largest about 16 cm, near a fist; no water, plants or anything made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/river_bed/v3/b0.png"
+sha256 = "253e71bc82d2f2c3a111a3669c1c91c40917398d5af438cb584710e7851539ee"
+made_from = "a9b4d058af24aa39d2aa0953ab32c5ee6d3d6e05372479d92c3dac5d1d4ce579"
+way = "version 3 of the near tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/river_bed/v3/b1.png"
+sha256 = "fe48387ccc1d8c079354113e6edbd8e549551ea2514e042e1a87bb75cd9ad7a4"
+made_from = "d51e7c445eb308c031bb7a0b05215310d612452eb4a77c303540c87a8a01aaf2"
+way = "version 3 of the near tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/river_bed/v3/b2.png"
+sha256 = "748fd6719edcb0e8ff5061cbb920ca928486e05e7d9a65a32e4e350cec26c647"
+made_from = "2262b88a493d4bcb803a232ed285d33aa9604c41e093d5807bf2ab3cb255a6da"
+way = "version 3 of the near tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/river_bed/v3/b3.png"
+sha256 = "16ecfc8e85bf3ac57ffe5b38a7df6d4d3b226da4f2a7a3c740cae39c7ca0a5f8"
+made_from = "78af0db8d69881cd4291acd89ef9f8cd65b4f1417b6369c2b1c354f3157feb1c"
+way = "version 3 of the near tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/river_bed/v3/b4.png"
+sha256 = "fe1f4983506891b7ab5d6f03e25db417f8d2bb059d656fbc55f8f3b4f8b29025"
+made_from = "fe1f4983506891b7ab5d6f03e25db417f8d2bb059d656fbc55f8f3b4f8b29025"
+way = "the near tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/river_bed/v3/b5.png"
+sha256 = "925e2a08352418216856d2110242b21c3efe8db4f7eb059a02abb08a1f09e7eb"
+made_from = "925e2a08352418216856d2110242b21c3efe8db4f7eb059a02abb08a1f09e7eb"
+way = "the near tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/river_bed/v3/b6.png"
+sha256 = "165aa6e15fab2ec8282d02caf5ee7e97e9c71daa3d4e60c117db18cd0c490007"
+made_from = "165aa6e15fab2ec8282d02caf5ee7e97e9c71daa3d4e60c117db18cd0c490007"
+way = "the near tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/river_bed/v3/b7.png"
+sha256 = "2804f5dc172a9ff9ee7de2090e0488360921a0c8e6720575d2d9f6a922f7e313"
+made_from = "2804f5dc172a9ff9ee7de2090e0488360921a0c8e6720575d2d9f6a922f7e313"
+way = "the near tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/river_bed/v3/b8.png"
+sha256 = "1b14a248a05e5a3c5237fda3878ca21bc4a1869412806b2c3ced7608418fc808"
+made_from = "1b14a248a05e5a3c5237fda3878ca21bc4a1869412806b2c3ced7608418fc808"
+way = "the near tile's own level 8, the same in every version at this size"

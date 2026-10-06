@@ -1,0 +1,76 @@
+about = "limestone rock surface, candidate A: the liked cliff's own weathered mottle, made by code"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/targets/liked-camp-from-above.webp", "art/sources/limestone/limestone-01.webp"]
+original_sha256 = ["2bd76c984d382da684b41f37937d326c3e63ee60d90b3b8185fc2fa6ae71976f", "bad925a382bdea230ca364b5f83a563af2aee03dfdcf6a46b1d96a5b5b983c85"]
+c2pa = ["present", "present"]
+requests = ["art/requests/liked-camp-from-above.txt", "art/requests/limestone-01.txt"]
+made = "version 3 of the near tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: natural rock only: no joints, layers, plants, lichen, soot or cut stone"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/limestone_a/v3/b0.png"
+sha256 = "5c90475305273f706dd1ec65c9b16eaee533f1cbe5d3259d549a7d82dd54a384"
+made_from = "969893adff7bee2db7083ce3b1c18d6484ef59ced0ec1b368eefd6e2980d07b4"
+way = "version 3 of the near tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/limestone_a/v3/b1.png"
+sha256 = "0f7cc57a41cb0dbe725beee8dd2a19a78fc7c8035708bc581c5fb2d34f498291"
+made_from = "0a7c81358aed731878308bdf979de1f3e7c747cc134bd45c79bec0bb6f7ae6ac"
+way = "version 3 of the near tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/limestone_a/v3/b2.png"
+sha256 = "30b13577ef501271aa501008ec119e33c3ee1e4cada00c1fe4b7cad5e7a28bf8"
+made_from = "fda772ff412f92c15f87f455310fd44153da50458e004efc16eab6d8182342f2"
+way = "version 3 of the near tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/limestone_a/v3/b3.png"
+sha256 = "1af52cfcc2c513569bded447b40bd08ab59e275baf8a5f095fd3c895740d0c8c"
+made_from = "e002d0ba187f25f873808d8c91ea05cf01de2313c40df9ec12a4130b5cb165c7"
+way = "version 3 of the near tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/limestone_a/v3/b4.png"
+sha256 = "7cf1aa4bc50b8391c49ebdef3b5c8fc3f0c01055efdf8a3f5d420ab9116a7ead"
+made_from = "7cf1aa4bc50b8391c49ebdef3b5c8fc3f0c01055efdf8a3f5d420ab9116a7ead"
+way = "the near tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/limestone_a/v3/b5.png"
+sha256 = "1435382e61f42b6f7a136d805071755f3fd18cf1e403d15c6154c678eae23375"
+made_from = "1435382e61f42b6f7a136d805071755f3fd18cf1e403d15c6154c678eae23375"
+way = "the near tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/limestone_a/v3/b6.png"
+sha256 = "f254ad74872ba0b9318ee112ae35e1d28f4374ee8208d8df54d6cc76eb66544b"
+made_from = "f254ad74872ba0b9318ee112ae35e1d28f4374ee8208d8df54d6cc76eb66544b"
+way = "the near tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/limestone_a/v3/b7.png"
+sha256 = "226fe51e7005e046b6a71209ec1863c3a5fa9c6bf0b9cc19aee1835f1d9496bf"
+made_from = "226fe51e7005e046b6a71209ec1863c3a5fa9c6bf0b9cc19aee1835f1d9496bf"
+way = "the near tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/limestone_a/v3/b8.png"
+sha256 = "6ced1a707866b8df8ed34e42b50f6681998e889b796a4442646e078e2ff4f219"
+made_from = "6ced1a707866b8df8ed34e42b50f6681998e889b796a4442646e078e2ff4f219"
+way = "the near tile's own level 8, the same in every version at this size"

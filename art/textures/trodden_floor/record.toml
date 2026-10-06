@@ -2,81 +2,83 @@ about = "the trodden floor of the camp round the hearth and along its paths: pal
 route = "picture"
 tile_texels = 256
 texels_a_metre = 64
-sources = ["art/sources/camp_ground/camp_ground-02.webp"]
-original_sha256 = ["069ae72c77a70a1cb056ce40c7ce8666b33c1433728f8d057c6afdf680844aad"]
+first_band = 0
+sources = ["art/sources/trodden_floor/trodden_floor-01.webp"]
+original_sha256 = ["c55f1bcae5a68ee2a00304d1ae2c9648fd51851bda6566f3666d1896b908b6b7"]
 c2pa = ["present"]
-requests = ["art/requests/camp_ground-02.txt"]
-made = "camp_ground-02's right swatch, re-gridded at its own 10.01-pixel blocks, its painted light taken out, quilted by code into a seamless 4-metre tile"
-regrid_loss = "6.7%"
-truth = "art lane, 2026-10-06, each source looked at enlarged: packed earth and a little grit only; nothing countable (no stones, flowers, sticks, tracks or paths), nothing made"
+requests = ["art/requests/trodden_floor-01.txt"]
+made = "trodden_floor-01: GPT's repaint, without the stepped-diamond pattern of camp_ground-02 the owner turned down, of a layout made by code in batch 1's own shades (stains with rounded, wandering outlines from warped noise); re-gridded at its own 8.00-pixel blocks, its painted light taken out, quilted by code into a seamless 4-metre tile, then its four colour numbers brought to batch 1's band 0 (lightness +3.6%, hue -1.0 degrees, colourfulness 94%, contrast 65%), so the redraw changes the pattern and not the material's colour"
+regrid_loss = "1.3%"
+truth = "art lane, 2026-10-06, each source looked at enlarged: packed earth only, in broad soft patches with rounded edges, no diamond pattern; nothing countable (no stones, flowers, sticks, tracks or paths), nothing made; the stepped-diamond pattern of batch 1 is gone"
 approved = "waiting"
 
 [[band]]
 level = 0
 file = "art/textures/trodden_floor/b0.png"
-sha256 = "af13ec4d2e74ed79797e994b6e48cc97eb33727d08b1a9dd6f1ed90dfeb245af"
-way = "re-gridded from its source, light taken out, made seamless by code"
+sha256 = "9171a54c93315aa9b7c5846e116517ff7812aa924b392be150bae022d31637af"
+way = "trodden_floor-01, GPT's repaint of a layout made by code in batch 1's shades, re-gridded at its own 8.00-pixel blocks, its painted light taken out, quilted by code into a seamless 4-metre tile, its colours brought to batch 1's band 0 by code"
+calibration = "lightness +3.6%, hue -1.0 degrees, colourfulness 94%, contrast 65%"
 
 [[band]]
 level = 1
 file = "art/textures/trodden_floor/b1.png"
-sha256 = "839cc11ceb54fe0d753bc062d0256650d16aeab011df0c7bc2ebc12e8008510e"
-made_from = "af13ec4d2e74ed79797e994b6e48cc97eb33727d08b1a9dd6f1ed90dfeb245af"
-way = "code reduction of band 0 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.2%, hue +0.1 degrees, colourfulness 100%, contrast 150%"
+sha256 = "1ee149171bdb9c6f1e73fa3f59a653d542120a0cb66b213917e839ed2d48a4f0"
+made_from = "9171a54c93315aa9b7c5846e116517ff7812aa924b392be150bae022d31637af"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.1%, hue -0.1 degrees, colourfulness 100%, contrast 108%"
 
 [[band]]
 level = 2
 file = "art/textures/trodden_floor/b2.png"
-sha256 = "3d9d5bcf39e8e9e7406637e30cce34c781abdb9c7b045c506cff3503f6dd8ed5"
-made_from = "839cc11ceb54fe0d753bc062d0256650d16aeab011df0c7bc2ebc12e8008510e"
-way = "code reduction of band 1 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.1%, hue -0.2 degrees, colourfulness 100%, contrast 107%"
+sha256 = "8ddd9a11c48f3db5ce9087b7dda1b90f789d7c70166cee226ff24c2e47a1d309"
+made_from = "1ee149171bdb9c6f1e73fa3f59a653d542120a0cb66b213917e839ed2d48a4f0"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.1%, hue -0.1 degrees, colourfulness 100%, contrast 100%"
 
 [[band]]
 level = 3
 file = "art/textures/trodden_floor/b3.png"
-sha256 = "9815fa817ed43be3eb8c0f9cbe82ef72dc18a6b56fe7855554e64cd1d9412d76"
-made_from = "3d9d5bcf39e8e9e7406637e30cce34c781abdb9c7b045c506cff3503f6dd8ed5"
-way = "code reduction of band 2 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.8%, hue -0.3 degrees, colourfulness 99%, contrast 124%"
+sha256 = "d7c706612ed4b0e6310a8162294215f62430ec7e4984211d1db874d335a1705d"
+made_from = "8ddd9a11c48f3db5ce9087b7dda1b90f789d7c70166cee226ff24c2e47a1d309"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.2%, hue +0.1 degrees, colourfulness 100%, contrast 111%"
 
 [[band]]
 level = 4
 file = "art/textures/trodden_floor/b4.png"
-sha256 = "4ecba58cad73c61b094c2bce34613cf8ad07132ec18a5ac6e3e29d961cb23c69"
-made_from = "9815fa817ed43be3eb8c0f9cbe82ef72dc18a6b56fe7855554e64cd1d9412d76"
-way = "code reduction of band 3 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.7%, hue -0.3 degrees, colourfulness 99%, contrast 132%"
+sha256 = "1a075bba8f5982dc3136c202be0b62c6aeff1de231974c7d337326b3c057b83e"
+made_from = "d7c706612ed4b0e6310a8162294215f62430ec7e4984211d1db874d335a1705d"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.3%, hue -0.4 degrees, colourfulness 100%, contrast 130%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 5
 file = "art/textures/trodden_floor/b5.png"
-sha256 = "8f80d11568537c05e451b881d1f527f0ba561da5cfc145f1b81ec7fed866982f"
-made_from = "4ecba58cad73c61b094c2bce34613cf8ad07132ec18a5ac6e3e29d961cb23c69"
-way = "code reduction of band 4 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -1.0%, hue -0.2 degrees, colourfulness 100%, contrast 200%"
+sha256 = "9fee20cd15ef483660b47b1486933de7f9cd700549fdd94e788366618e869cfa"
+made_from = "1a075bba8f5982dc3136c202be0b62c6aeff1de231974c7d337326b3c057b83e"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.5%, hue +1.1 degrees, colourfulness 101%, contrast 100%, then every texture pixel moved (1, -1, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 6
 file = "art/textures/trodden_floor/b6.png"
-sha256 = "84c1f307b137b0b393079b7c7237332b63cd5846a99b8b5cc45680eb7a68c72e"
-made_from = "8f80d11568537c05e451b881d1f527f0ba561da5cfc145f1b81ec7fed866982f"
-way = "code reduction of band 5 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.2%, hue +0.2 degrees, colourfulness 101%, contrast 283%"
+sha256 = "2fd07c300046cac58ee268fa3e7a47f8dd4383ababa15b557702fe8efeed5f27"
+made_from = "9fee20cd15ef483660b47b1486933de7f9cd700549fdd94e788366618e869cfa"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.1%, hue +0.7 degrees, colourfulness 98%, contrast 100%, then every texture pixel moved (1, -1, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 7
 file = "art/textures/trodden_floor/b7.png"
-sha256 = "10840023c68a35100a212441746ef1619317b790f72ec17a639062d5fe5a497e"
-made_from = "84c1f307b137b0b393079b7c7237332b63cd5846a99b8b5cc45680eb7a68c72e"
-way = "code reduction of band 6 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.6%, hue -0.2 degrees, colourfulness 100%, contrast 107%"
+sha256 = "e78079f7b064fae04561f1ad00b25e7799c7e04600701b75fbe365cf91a06e47"
+made_from = "2fd07c300046cac58ee268fa3e7a47f8dd4383ababa15b557702fe8efeed5f27"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.1%, hue +0.7 degrees, colourfulness 98%, contrast 100%, then every texture pixel moved (1, -1, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 8
 file = "art/textures/trodden_floor/b8.png"
-sha256 = "a199b6ceb31c793b7a8f5d243ad2901867966fd733c67bff5c4b0a452fa4d484"
-made_from = "10840023c68a35100a212441746ef1619317b790f72ec17a639062d5fe5a497e"
-way = "code reduction of band 7 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -2.3%, hue -0.6 degrees, colourfulness 100%, contrast 100%"
+sha256 = "b225d5574afb2f0a06fd32a9b70014c3ef3483f974abc1c085cfec98d12b8cfc"
+made_from = "e78079f7b064fae04561f1ad00b25e7799c7e04600701b75fbe365cf91a06e47"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.1%, hue +0.7 degrees, colourfulness 98%, contrast 100%, then every texture pixel moved (1, -1, -1) in red, green and blue for rounding"
