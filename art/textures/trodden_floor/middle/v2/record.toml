@@ -1,0 +1,76 @@
+about = "the trodden floor of the camp, seen from 25 to 100 metres"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/trodden_floor/trodden_floor-03.webp"]
+original_sha256 = ["d4cf17cdf4986309998a6d2225be5199b8462a64863ebc40e7bc3a1db08edda3"]
+c2pa = ["present"]
+requests = ["art/requests/trodden_floor-03.txt"]
+made = "version 2 of the middle tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: packed earth only, in broad soft patches with rounded edges, no diamond pattern; nothing countable (no stones, flowers, sticks, tracks or paths), nothing made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/trodden_floor/middle/v2/b0.png"
+sha256 = "31d2800fa4bb53ba7d5be11da5d27d8042dee06b3c526b4c240d75dc36fd0bd6"
+made_from = "dfea952f8697c4fb27c4c67c3fb7ed82b2bda4c31500006a1ba4c8cd0c892114"
+way = "version 2 of the middle tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/trodden_floor/middle/v2/b1.png"
+sha256 = "4098769de5618753172253905089eca15e7b4a056f74c8e572e72bd330bf78e1"
+made_from = "e82a5cd02fe2e5770358d112cee7f84deb2f906eb37f0d2912670834645b87d1"
+way = "version 2 of the middle tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/trodden_floor/middle/v2/b2.png"
+sha256 = "9bdcee3deb4ad57dbec68699f09fc2e1075d6f33516916777e95cb76504f1114"
+made_from = "df297e82ed07bc68d08f5e80bc96ce639f8c41bc254d0958c6734e035a366c98"
+way = "version 2 of the middle tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/trodden_floor/middle/v2/b3.png"
+sha256 = "d072d54557b65ffa6902477e63692f7d82fde44042a83df946c16bcfae86b940"
+made_from = "1e668c5dfa34bb0c68796b275d94b1a7b7925b1f2d99a801a5bd47579d9be755"
+way = "version 2 of the middle tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/trodden_floor/middle/v2/b4.png"
+sha256 = "ba78de9192ee549582bbea331f79e8079979d9cd016ed77d3a334cba14c338f3"
+made_from = "ba78de9192ee549582bbea331f79e8079979d9cd016ed77d3a334cba14c338f3"
+way = "the middle tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/trodden_floor/middle/v2/b5.png"
+sha256 = "9fee20cd15ef483660b47b1486933de7f9cd700549fdd94e788366618e869cfa"
+made_from = "9fee20cd15ef483660b47b1486933de7f9cd700549fdd94e788366618e869cfa"
+way = "the middle tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/trodden_floor/middle/v2/b6.png"
+sha256 = "2fd07c300046cac58ee268fa3e7a47f8dd4383ababa15b557702fe8efeed5f27"
+made_from = "2fd07c300046cac58ee268fa3e7a47f8dd4383ababa15b557702fe8efeed5f27"
+way = "the middle tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/trodden_floor/middle/v2/b7.png"
+sha256 = "e78079f7b064fae04561f1ad00b25e7799c7e04600701b75fbe365cf91a06e47"
+made_from = "e78079f7b064fae04561f1ad00b25e7799c7e04600701b75fbe365cf91a06e47"
+way = "the middle tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/trodden_floor/middle/v2/b8.png"
+sha256 = "b225d5574afb2f0a06fd32a9b70014c3ef3483f974abc1c085cfec98d12b8cfc"
+made_from = "b225d5574afb2f0a06fd32a9b70014c3ef3483f974abc1c085cfec98d12b8cfc"
+way = "the middle tile's own level 8, the same in every version at this size"

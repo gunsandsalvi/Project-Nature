@@ -1,0 +1,85 @@
+about = "short wild meadow grass and bare earth, seen from 25 to 100 metres"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/meadow/meadow-04.webp", "art/sources/meadow/meadow-06.webp"]
+original_sha256 = ["71792e2f5cbb04269f62f17d9539f2f7f00fb2fa3c13ca8e55a3f3ed1af8229d", "00d853ea070d1e872a1c1d0aba7e28683afac6c7d7fb456dee674784ebdded69"]
+c2pa = ["present", "present"]
+requests = ["art/requests/meadow-04.txt", "art/requests/meadow-06.txt"]
+made = "the middle tile, 16 m, for bands 2 to 3 (A5.3): meadow-04, GPT's own picture of the material at that distance, re-gridded at 11.18-pixel blocks, its painted light taken out, quilted by code into a seamless tile and its colours fitted to the near tile's band 0 by code (lightness -1.2%, hue -3.5 degrees, colourfulness 96%, contrast 104%)"
+regrid_loss = "2.5%"
+truth = "art lane, 2026-10-06, each source looked at enlarged: wild grasses and bare earth only, in clumps, drifts and swathes; nothing countable (no stones, flowers, sticks, tracks or paths), nothing made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/meadow/middle/b0.png"
+sha256 = "4ab5e18eebeea8fac75b905766300fd76a7f134e08710056ad44b8b506fd1467"
+way = "meadow-04, GPT's picture of the material at this distance, re-gridded at its own 11.18-pixel blocks (138 x 89), its painted light taken out, quilted by code into a seamless tile (seed 5), its colours fitted to the near tile's band 0 by code"
+calibration = "lightness -1.2%, hue -3.5 degrees, colourfulness 96%, contrast 104%"
+
+[[band]]
+level = 1
+file = "art/textures/meadow/middle/b1.png"
+sha256 = "e41b77d48ce78243f094b0fe8b5af5dead9adb30a84ab876f52de86e14ced2fb"
+made_from = "4ab5e18eebeea8fac75b905766300fd76a7f134e08710056ad44b8b506fd1467"
+way = "GPT redraw of the level above (meadow-06), re-gridded at its own 12.25-pixel blocks (102 x 102, loss 9.8%), fitted to 128 by whole rows and columns, colours fitted to the level above by code; its wrap 0.89 of its ordinary steps"
+regrid_loss = "9.8%"
+calibration = "lightness -1.0%, hue -4.8 degrees, colourfulness 102%, contrast 101%"
+
+[[band]]
+level = 2
+file = "art/textures/meadow/middle/b2.png"
+sha256 = "fc02606cf5b4852ff5b4a6ac70c7b1d0b56476c31f80493246379686de64d287"
+made_from = "e41b77d48ce78243f094b0fe8b5af5dead9adb30a84ab876f52de86e14ced2fb"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, 49 of its strongest marks drawn again, each 2 texture pixels or more), colours matched to band 0's by code"
+calibration = "lightness +0.0%, hue -0.4 degrees, colourfulness 100%, contrast 110%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 3
+file = "art/textures/meadow/middle/b3.png"
+sha256 = "43a238b2f7bbb323c3424ad4cb9d344234882f8808a9650667b4d9ed2e8648db"
+made_from = "fc02606cf5b4852ff5b4a6ac70c7b1d0b56476c31f80493246379686de64d287"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.0%, hue -1.0 degrees, colourfulness 98%, contrast 100%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 4
+file = "art/textures/meadow/middle/b4.png"
+sha256 = "2401ef002668e4c64d8ae1d3c8ff03ba5f8dc88606bee3a557aafb58962fb3ee"
+made_from = "43a238b2f7bbb323c3424ad4cb9d344234882f8808a9650667b4d9ed2e8648db"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.1%, hue -2.5 degrees, colourfulness 98%, contrast 115%, then every texture pixel moved (0, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 5
+file = "art/textures/meadow/middle/b5.png"
+sha256 = "21cf4903db1221f2a214c81acfd1e862d21163067bcd455f6352eb745fd978b4"
+made_from = "2401ef002668e4c64d8ae1d3c8ff03ba5f8dc88606bee3a557aafb58962fb3ee"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -4.3%, hue +2.7 degrees, colourfulness 93%, contrast 130%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 6
+file = "art/textures/meadow/middle/b6.png"
+sha256 = "55d8739bf668425096bba8471f6f76334fa170afbcc26910883219f6c8bbcb9a"
+made_from = "21cf4903db1221f2a214c81acfd1e862d21163067bcd455f6352eb745fd978b4"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.3%, hue -0.7 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (0, -1, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 7
+file = "art/textures/meadow/middle/b7.png"
+sha256 = "74a3130b45f5d6feccf301d4be6f9ed47cb597a5dab406601bc560701108c189"
+made_from = "55d8739bf668425096bba8471f6f76334fa170afbcc26910883219f6c8bbcb9a"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.1%, hue +0.6 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (0, -1, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 8
+file = "art/textures/meadow/middle/b8.png"
+sha256 = "d0b1b27171a512eabebd7b92438307ca91cc93dc4aeec3c69c716b99749a7c04"
+made_from = "74a3130b45f5d6feccf301d4be6f9ed47cb597a5dab406601bc560701108c189"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.1%, hue +0.6 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (0, -1, -1) in red, green and blue for rounding"

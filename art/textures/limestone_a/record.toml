@@ -2,10 +2,11 @@ about = "limestone rock surface, candidate A: the liked cliff's own weathered mo
 route = "picture"
 tile_texels = 256
 texels_a_metre = 64
+first_band = 0
 sources = ["art/targets/liked-camp-from-above.webp", "art/sources/limestone/limestone-01.webp"]
 original_sha256 = ["2bd76c984d382da684b41f37937d326c3e63ee60d90b3b8185fc2fa6ae71976f", "bad925a382bdea230ca364b5f83a563af2aee03dfdcf6a46b1d96a5b5b983c85"]
 c2pa = ["present", "present"]
-requests = ["art/targets/prompts/liked-camp-from-above.txt", "art/requests/limestone-01.txt"]
+requests = ["art/requests/liked-camp-from-above.txt", "art/requests/limestone-01.txt"]
 made = "by code from the liked camp's cliff: re-gridded at 64 texture pixels a metre (blocks of 1.72 picture pixels), its lit faces kept by a mask (no plants, joints, shade or overhang), their own light taken out, quilted into a seamless 4-metre tile, then its colours fitted by kindling look to candidate B, GPT's de-lit drawing of the same cliff (lightness +3.8%, hue -15.0 degrees, colourfulness 55%, contrast 153%)"
 regrid_loss = "4.1%"
 truth = "art lane, 2026-10-06, each source looked at enlarged: natural rock only: no joints, layers, plants, lichen, soot or cut stone"
@@ -20,63 +21,63 @@ way = "re-gridded from its source, light taken out, made seamless by code"
 [[band]]
 level = 1
 file = "art/textures/limestone_a/b1.png"
-sha256 = "43c637253c03933ecd705151128c215a345de70751b56c12580deb26ad7b3f06"
+sha256 = "0a7c81358aed731878308bdf979de1f3e7c747cc134bd45c79bec0bb6f7ae6ac"
 made_from = "969893adff7bee2db7083ce3b1c18d6484ef59ced0ec1b368eefd6e2980d07b4"
-way = "code reduction of band 0 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.7%, hue -0.8 degrees, colourfulness 98%, contrast 110%"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.7%, hue -0.8 degrees, colourfulness 99%, contrast 111%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 2
 file = "art/textures/limestone_a/b2.png"
-sha256 = "3d0c2fad4e264a267cb4896b054d7a19b9df3a7d95c1878b5e5ce5764a60b3e5"
-made_from = "43c637253c03933ecd705151128c215a345de70751b56c12580deb26ad7b3f06"
-way = "code reduction of band 1 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.8%, hue -1.3 degrees, colourfulness 99%, contrast 112%"
+sha256 = "fda772ff412f92c15f87f455310fd44153da50458e004efc16eab6d8182342f2"
+made_from = "0a7c81358aed731878308bdf979de1f3e7c747cc134bd45c79bec0bb6f7ae6ac"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.8%, hue -0.7 degrees, colourfulness 103%, contrast 111%"
 
 [[band]]
 level = 3
 file = "art/textures/limestone_a/b3.png"
-sha256 = "668b37f5c6138df39ba59fb74baefe5d9c41b49f02830879cbfc1eea115e8bf3"
-made_from = "3d0c2fad4e264a267cb4896b054d7a19b9df3a7d95c1878b5e5ce5764a60b3e5"
-way = "code reduction of band 2 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -1.4%, hue -1.7 degrees, colourfulness 99%, contrast 119%"
+sha256 = "e002d0ba187f25f873808d8c91ea05cf01de2313c40df9ec12a4130b5cb165c7"
+made_from = "fda772ff412f92c15f87f455310fd44153da50458e004efc16eab6d8182342f2"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -1.5%, hue -1.9 degrees, colourfulness 98%, contrast 130%, then every texture pixel moved (1, 0, 0) in red, green and blue for rounding"
 
 [[band]]
 level = 4
 file = "art/textures/limestone_a/b4.png"
-sha256 = "83f81d11a23d8c80b3900d3f513924239291d9dbad68f031b4f92414925d6702"
-made_from = "668b37f5c6138df39ba59fb74baefe5d9c41b49f02830879cbfc1eea115e8bf3"
-way = "code reduction of band 3 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +0.3%, hue +0.7 degrees, colourfulness 101%, contrast 96%"
+sha256 = "7cf1aa4bc50b8391c49ebdef3b5c8fc3f0c01055efdf8a3f5d420ab9116a7ead"
+made_from = "e002d0ba187f25f873808d8c91ea05cf01de2313c40df9ec12a4130b5cb165c7"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.4%, hue +0.3 degrees, colourfulness 97%, contrast 126%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 5
 file = "art/textures/limestone_a/b5.png"
-sha256 = "a8c7b1398be3be69ed8bf6070f4b05b81ce74c6ded08e051afcec672dd953a6a"
-made_from = "83f81d11a23d8c80b3900d3f513924239291d9dbad68f031b4f92414925d6702"
-way = "code reduction of band 4 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +2.2%, hue +1.9 degrees, colourfulness 103%, contrast 78%"
+sha256 = "1435382e61f42b6f7a136d805071755f3fd18cf1e403d15c6154c678eae23375"
+made_from = "7cf1aa4bc50b8391c49ebdef3b5c8fc3f0c01055efdf8a3f5d420ab9116a7ead"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.9%, hue +0.3 degrees, colourfulness 107%, contrast 130%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 6
 file = "art/textures/limestone_a/b6.png"
-sha256 = "3e302040b27ad54031a81097d14f5bd90369f33aeb49983e17c148d60ae175d2"
-made_from = "a8c7b1398be3be69ed8bf6070f4b05b81ce74c6ded08e051afcec672dd953a6a"
-way = "code reduction of band 5 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +4.1%, hue +4.6 degrees, colourfulness 106%, contrast 85%"
+sha256 = "f254ad74872ba0b9318ee112ae35e1d28f4374ee8208d8df54d6cc76eb66544b"
+made_from = "1435382e61f42b6f7a136d805071755f3fd18cf1e403d15c6154c678eae23375"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.5%, hue -0.1 degrees, colourfulness 97%, contrast 99%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 7
 file = "art/textures/limestone_a/b7.png"
-sha256 = "767d269932fd1a5e66ffe3bd9ed49ba6a6b256ace3c3071e3bbc677437860616"
-made_from = "3e302040b27ad54031a81097d14f5bd90369f33aeb49983e17c148d60ae175d2"
-way = "code reduction of band 6 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.5%, hue -1.8 degrees, colourfulness 97%, contrast 175%"
+sha256 = "226fe51e7005e046b6a71209ec1863c3a5fa9c6bf0b9cc19aee1835f1d9496bf"
+made_from = "f254ad74872ba0b9318ee112ae35e1d28f4374ee8208d8df54d6cc76eb66544b"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.3%, hue +0.6 degrees, colourfulness 88%, contrast 130%, then every texture pixel moved (0, -1, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 8
 file = "art/textures/limestone_a/b8.png"
-sha256 = "98fbecbd84f7a45881bff2bc23eca0f8e7a62ed41948181fa9b0fc95b510ca41"
-made_from = "767d269932fd1a5e66ffe3bd9ed49ba6a6b256ace3c3071e3bbc677437860616"
-way = "code reduction of band 7 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -4.9%, hue -2.0 degrees, colourfulness 91%, contrast 100%"
+sha256 = "6ced1a707866b8df8ed34e42b50f6681998e889b796a4442646e078e2ff4f219"
+made_from = "226fe51e7005e046b6a71209ec1863c3a5fa9c6bf0b9cc19aee1835f1d9496bf"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -2.1%, hue -0.9 degrees, colourfulness 99%, contrast 100%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"

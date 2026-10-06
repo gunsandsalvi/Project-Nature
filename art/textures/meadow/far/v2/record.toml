@@ -1,0 +1,76 @@
+about = "short wild meadow grass and bare earth, seen from 100 to 800 metres"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/meadow/meadow-05.webp", "art/sources/meadow/meadow-07.webp"]
+original_sha256 = ["f4fc79ea6b5ffd70d5708ec085dacb00e558c678309fd8832832131b846ce7e8", "14db67e2381ed8c36e5d41b1c0eb564b3fd6d5a9ff73993dd5f13bce68a9cdfb"]
+c2pa = ["present", "present"]
+requests = ["art/requests/meadow-05.txt", "art/requests/meadow-07.txt"]
+made = "version 2 of the far tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: wild grasses and bare earth only, in clumps, drifts and swathes; nothing countable (no stones, flowers, sticks, tracks or paths), nothing made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/meadow/far/v2/b0.png"
+sha256 = "0430035ff6fb07992212e8d3c9792b41e0cebad0867e90d5268b4081084a1259"
+made_from = "ee5e72b8f7afea0fc0b1a769f20fe3eaad1fbcb023b6777280c7c604b11f01ca"
+way = "version 2 of the far tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/meadow/far/v2/b1.png"
+sha256 = "137a169b66c418e3bdef9b5fad5d1472f5afeba78f3536fe573ec4b667a85a08"
+made_from = "33c8f5fd3ce9584e2b68b1dc7b25d213dce418820392e2e02d3851e12c52ddb6"
+way = "version 2 of the far tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/meadow/far/v2/b2.png"
+sha256 = "b43cb22023a42774f5f6642ec8e01d27ada44b622556486c60f934bba8050a10"
+made_from = "11971ee2d7853269fe582bcee791bbcbcc253e718c70c6f3d0891ba18c8ede83"
+way = "version 2 of the far tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/meadow/far/v2/b3.png"
+sha256 = "b7f1b6407a08d7f09be4f2e0fa9ce25be8d0d0748e70a4618cb17e3782ca0d92"
+made_from = "b0e270a5ccfa1acdcf2f257a3234a26ecc11efbb3df4ffed515b97febc5b17e9"
+way = "version 2 of the far tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/meadow/far/v2/b4.png"
+sha256 = "7869fef63f167055b315c650025cc05591b434a4c979329c4433117bddec5fc9"
+made_from = "7869fef63f167055b315c650025cc05591b434a4c979329c4433117bddec5fc9"
+way = "the far tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/meadow/far/v2/b5.png"
+sha256 = "1a7b0eb43696451dcc42e0bb00e1d9b060e053646fedf9bdd0d2203bd1a2d26a"
+made_from = "1a7b0eb43696451dcc42e0bb00e1d9b060e053646fedf9bdd0d2203bd1a2d26a"
+way = "the far tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/meadow/far/v2/b6.png"
+sha256 = "55d8739bf668425096bba8471f6f76334fa170afbcc26910883219f6c8bbcb9a"
+made_from = "55d8739bf668425096bba8471f6f76334fa170afbcc26910883219f6c8bbcb9a"
+way = "the far tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/meadow/far/v2/b7.png"
+sha256 = "74a3130b45f5d6feccf301d4be6f9ed47cb597a5dab406601bc560701108c189"
+made_from = "74a3130b45f5d6feccf301d4be6f9ed47cb597a5dab406601bc560701108c189"
+way = "the far tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/meadow/far/v2/b8.png"
+sha256 = "d0b1b27171a512eabebd7b92438307ca91cc93dc4aeec3c69c716b99749a7c04"
+made_from = "d0b1b27171a512eabebd7b92438307ca91cc93dc4aeec3c69c716b99749a7c04"
+way = "the far tile's own level 8, the same in every version at this size"

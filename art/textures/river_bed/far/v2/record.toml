@@ -1,0 +1,76 @@
+about = "the river bed seen through clear water, seen from 100 to 800 metres"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/river_bed/river_bed-11.webp"]
+original_sha256 = ["6c1b6b40d5f1b9844d86cb4e390f09980f6128b107851d2f08d1fa8cb7bd02a7"]
+c2pa = ["present"]
+requests = ["art/requests/river_bed-11.txt"]
+made = "version 2 of the far tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: sand, gravel and algae only, drifts with sparse pebble marks of 2 or 3 texture pixels, no stone you could count; no water, fish, plants or anything made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/river_bed/far/v2/b0.png"
+sha256 = "09078d10299fca14cff22b93fcb9c66a01318e759d12847c7e8d6b0095c6a590"
+made_from = "c693d79d7cac50d90f6baf035d92269a0f215cfc48d897817c350d6e326d8a1b"
+way = "version 2 of the far tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/river_bed/far/v2/b1.png"
+sha256 = "aaef9f53c29458a7da42a65d739baca7e70f8ca23aabd0f56646b87eafd3034d"
+made_from = "12ebcb5bb6e405c45c2da31b95f473fffcb64caf22b02c4ee34f69303450ab32"
+way = "version 2 of the far tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/river_bed/far/v2/b2.png"
+sha256 = "d47391967c8154e2967c9e15ac00651673b54281d8414fc9dc57f0736778744e"
+made_from = "6d2582f50591fee4a660c088d355585e34d919eff4a88506d47ae20c956d5088"
+way = "version 2 of the far tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/river_bed/far/v2/b3.png"
+sha256 = "1593842f32336950e18ea1217920bdd4f39a5adf1924a93f082dd9a95c4861e2"
+made_from = "d09ae68eb8f91ec52125a77849ec62a7070a51df5986772718da0a6d56bb4eb6"
+way = "version 2 of the far tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/river_bed/far/v2/b4.png"
+sha256 = "16d04de78710b63d3cc08c794f320010220f9dc59513afa2574d2362a7e0e80d"
+made_from = "16d04de78710b63d3cc08c794f320010220f9dc59513afa2574d2362a7e0e80d"
+way = "the far tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/river_bed/far/v2/b5.png"
+sha256 = "db703df8720d7cf076b8c788f6165cf88cf3446c859fb476cfb023ff2da663a4"
+made_from = "db703df8720d7cf076b8c788f6165cf88cf3446c859fb476cfb023ff2da663a4"
+way = "the far tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/river_bed/far/v2/b6.png"
+sha256 = "2bfbafefa93eacbc1beed9e422300248bf6a5ad811bd1d9f91c8049955f3dbcd"
+made_from = "2bfbafefa93eacbc1beed9e422300248bf6a5ad811bd1d9f91c8049955f3dbcd"
+way = "the far tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/river_bed/far/v2/b7.png"
+sha256 = "5533e0e1732d6501566627bd8b9eecbe1cf1d56a2cd82f7c4735401aeaab5b59"
+made_from = "5533e0e1732d6501566627bd8b9eecbe1cf1d56a2cd82f7c4735401aeaab5b59"
+way = "the far tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/river_bed/far/v2/b8.png"
+sha256 = "1b14a248a05e5a3c5237fda3878ca21bc4a1869412806b2c3ced7608418fc808"
+made_from = "1b14a248a05e5a3c5237fda3878ca21bc4a1869412806b2c3ced7608418fc808"
+way = "the far tile's own level 8, the same in every version at this size"

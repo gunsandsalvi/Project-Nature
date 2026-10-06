@@ -1,0 +1,76 @@
+about = "the dry gravel bank at the water's edge: pebbles of 1 to 5 cm in pale sand"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/hearth/hearth-02.webp"]
+original_sha256 = ["d7f829d251d72fa9412bdf6fdab5b475d1c031bf80a403f163048ed0c3f875ba"]
+c2pa = ["present"]
+requests = ["art/requests/hearth-02.txt"]
+made = "version 4 of the near tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: pebbles no bigger than a hen's egg and sand only; waterside-01's checkered sand was refused and redrawn; no shells, bones or plants; nothing made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/bank_gravel/v4/b0.png"
+sha256 = "73dc8fa743573916b8665776185ea543f296de2a5d94a687d3f4c641e94ffdec"
+made_from = "bd0a131c65697e755450125d4df7a2e3a387619acba9e77cbcddf3d9c0e87790"
+way = "version 4 of the near tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 104), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/bank_gravel/v4/b1.png"
+sha256 = "76e0948f212336f9768f09c8751b7c7240ca4ce65d37180fa53d781dedabd1f0"
+made_from = "a9ae6de599df159407751a24973e252698853f4af34d447609499961b2b46dd8"
+way = "version 4 of the near tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 104), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/bank_gravel/v4/b2.png"
+sha256 = "98af2e796358ab3653c48ea6646c66165492f1b221d1704d013598218e8c9b5a"
+made_from = "7bb5cbbc49ab3ce2d6da4c6835bd8d8951c3ee106bc0c02f06d2f9f7f6600237"
+way = "version 4 of the near tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 104), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/bank_gravel/v4/b3.png"
+sha256 = "a5a02994af275d31fe3aa6bc0c57b6aa88f07c9a35cb3a12a9b554bcaf749c19"
+made_from = "b70efffe128b3126a7155838c134b6c2900973bee1322c888fe4219b4c1b8b11"
+way = "version 4 of the near tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 104), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/bank_gravel/v4/b4.png"
+sha256 = "212ea59bd9c3023012b7cbee0de2c274cd44cb8e6540df3686dcc26393d52e99"
+made_from = "212ea59bd9c3023012b7cbee0de2c274cd44cb8e6540df3686dcc26393d52e99"
+way = "the near tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/bank_gravel/v4/b5.png"
+sha256 = "4ad295196928f1ef0c6d3636a231aec45acc70c16a03810f26c3f72dfb4ff4cf"
+made_from = "4ad295196928f1ef0c6d3636a231aec45acc70c16a03810f26c3f72dfb4ff4cf"
+way = "the near tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/bank_gravel/v4/b6.png"
+sha256 = "3df0a21e01e9d3017237c40b1acdfa98b7e0da31fe6f847f7af74d9facb3d2be"
+made_from = "3df0a21e01e9d3017237c40b1acdfa98b7e0da31fe6f847f7af74d9facb3d2be"
+way = "the near tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/bank_gravel/v4/b7.png"
+sha256 = "c04155d754b3d5a02f0d6f4a77c2ca19c40f9a5db10c14f2644457ca9c05cca0"
+made_from = "c04155d754b3d5a02f0d6f4a77c2ca19c40f9a5db10c14f2644457ca9c05cca0"
+way = "the near tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/bank_gravel/v4/b8.png"
+sha256 = "a5426c224bdae74efe71dab2b84019b9cdb9327095df3c053e820d3b8f7258e7"
+made_from = "a5426c224bdae74efe71dab2b84019b9cdb9327095df3c053e820d3b8f7258e7"
+way = "the near tile's own level 8, the same in every version at this size"

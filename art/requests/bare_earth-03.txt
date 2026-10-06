@@ -1,0 +1,27 @@
+Purpose: The art lane's next round, phase 2 (T2.3a.3): the source of the middle tile, 16 metres, for bands 2 and 3 (A5.3) of the bare earth, drawn from GPT's own picture of the material at that distance, never the near tile shrunk (A5.3; the owner's word of 6 October 2026: "I don't think you should use the same textures for up close and zoom away"). Asked with the near tile as input, GPT drew its pebbles or marks at the close scale, as countable stones or as a diamond lattice, so here the input is a layout made by code at the distance asked, in the near tile's own shades: stains of paler, dustier and darker, damper soil with soft, rounded, wandering outlines, and crumbs and clods of 1 to 3 texture pixels scattered unevenly, 12 by 8 metres as 192 by 128 texture pixels enlarged eight times. GPT repaints it as the material, keeping the layout. The result will be re-gridded, quilted by code into a seamless 256 x 256 tile and its versions, its colours matched to the near tile's band 0 by code, checked for truth, repeats, accents and drift, and shown to the owner on the material's sheet.
+Orientation: landscape, 1536 x 1024
+Input picture: /tmp/kindling-art/p2/in/in-bare_earth-middle.png
+Transparent: no
+Prompt:
+Repaint the input picture as a finished pixel-art texture for a 3D game, keeping its layout exactly.
+
+The input is a rough layout of the same bare earth of a camp's working ground, seen straight down from far away: 12 by 8 metres as 192 by 128 texture pixels of about 6 centimetres each, enlarged eight times with hard edges. It shows stains of paler, dustier and darker, damper soil with soft, rounded, wandering outlines, and crumbs and clods of 1 to 3 texture pixels scattered unevenly.
+
+Paint it as the real material seen from that distance, keeping everything where it is:
+- every drift, stain and patch stays where it is, with the same rounded, wandering, irregular outline, as in the input; never turned into diamonds, rhombuses, chevrons, zigzags or a lattice, and no edges made of 45-degree diagonal staircases;
+- within the stains, soil painted with a little grain: neighbouring texture pixels mostly the same colour or one shade apart;
+- the crumbs as small clods of darker soil of every shape, scattered unevenly as in the input;
+- every shape readable when the picture is seen small, with no stray single blocks of a colour scattered at random;
+- the input's own colours: the same warm, muted browns and tans, no new hues, about 6 to 8 shades in all.
+
+Scale and grid: the picture shows 12 by 8 metres as 192 by 128 texture pixels; every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling, and the blocks fill the whole 1536 by 1024 picture. Every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; the ground fills the picture from edge to edge.
+
+Light: none of its own. Lit evenly and softly from straight above, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: the picture tiles in both directions, as the input does: what leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge.
+
+Stone Age truth: the bare soil of a hunter-gatherer camp of about 12,000 years ago: earth, crumbs and grit only.
+
+Avoid: grass, plants, stones, pebbles, sticks, bones, charcoal, ash, footprints, tracks, paths, ruts, puddles, people, animals or anything made; diamonds, rhombuses, chevrons, zigzags, crosses, X shapes, checks, a checkerboard, a crosshatch, scales, or any marks in rows, diagonals or a regular lattice; edges made of 45-degree staircases; plus signs, stars or crosses; a repeating stamped pattern; text, labels, numbers or watermarks; frames, borders, margins or grid lines; perspective, tilt or a horizon; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours; an overall tone darker or lighter than the input.

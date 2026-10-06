@@ -1,0 +1,83 @@
+about = "the red deer's summer coat: red-brown hair, a pale belly and rump patch, dark muzzle and hooves"
+route = "code"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = []
+original_sha256 = []
+c2pa = []
+requests = []
+made = "drawn by code to the deer_coat atlas of art/models/deer.blend (art/models/paint_deer.py): each texture pixel coloured by where it lies on the deer at rest, its back and neck darker, its belly and rump patch pale, its legs and face grey-brown, with short strands of hair running down each piece"
+regrid_loss = "not re-gridded: drawn by code"
+truth = "art lane, 2026-10-06, looked at enlarged: a red deer's summer coat as the species wears it (red-brown, pale rump patch and belly, no spots on the adult); the guide pictures' deer are its reference"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/deer_coat/b0.png"
+sha256 = "a8271c5050c83994c84b6ff80f2f85697b85ef647a7c0fe3b4361840afd3eef1"
+way = "drawn by code to the atlas's layout, its pieces' colours spread 4 texture pixels into the gaps round them, the rest of the canvas their mean colour"
+
+[[band]]
+level = 1
+file = "art/textures/deer_coat/b1.png"
+sha256 = "961e6f816240abc847de8e78cabde5b864fcc110252308e760f5cf0e1a842702"
+made_from = "a8271c5050c83994c84b6ff80f2f85697b85ef647a7c0fe3b4361840afd3eef1"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness +0.3%, hue +0.1 degrees, colourfulness 101%, contrast 100%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 2
+file = "art/textures/deer_coat/b2.png"
+sha256 = "303c295fd1dbe67f32602d3f34a1639d23865a91a175244cf97d5925187c6f27"
+made_from = "961e6f816240abc847de8e78cabde5b864fcc110252308e760f5cf0e1a842702"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness +0.2%, hue +0.2 degrees, colourfulness 103%, contrast 100%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 3
+file = "art/textures/deer_coat/b3.png"
+sha256 = "2b6c331e8fd6644ae511068cda50686829d8c84a117b672e3da7550bb46a1672"
+made_from = "303c295fd1dbe67f32602d3f34a1639d23865a91a175244cf97d5925187c6f27"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness -0.0%, hue +0.3 degrees, colourfulness 100%, contrast 100%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 4
+file = "art/textures/deer_coat/b4.png"
+sha256 = "1559bdec9f5d62c3fde17a47f6d44c4ccd06e3112758d07e63abdaabca9da64d"
+made_from = "2b6c331e8fd6644ae511068cda50686829d8c84a117b672e3da7550bb46a1672"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness -0.1%, hue -1.7 degrees, colourfulness 102%, contrast 100%"
+
+[[band]]
+level = 5
+file = "art/textures/deer_coat/b5.png"
+sha256 = "eca43c7c978fe685ceb26cb600e97801584b55664537a39b14930a3e1981263e"
+made_from = "1559bdec9f5d62c3fde17a47f6d44c4ccd06e3112758d07e63abdaabca9da64d"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness +2.8%, hue +5.3 degrees, colourfulness 92%, contrast 100%, then every texture pixel moved (0, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 6
+file = "art/textures/deer_coat/b6.png"
+sha256 = "fc9f0f45d16fe09d959b09c3681b5bda319214ab2030ea03c6b297f5e753a963"
+made_from = "eca43c7c978fe685ceb26cb600e97801584b55664537a39b14930a3e1981263e"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness +1.9%, hue +1.7 degrees, colourfulness 99%, contrast 100%"
+
+[[band]]
+level = 7
+file = "art/textures/deer_coat/b7.png"
+sha256 = "b2f07d39156c576ddf38f1fcb7a6ffdfe71f564bc1a0100624257493fb035b39"
+made_from = "fc9f0f45d16fe09d959b09c3681b5bda319214ab2030ea03c6b297f5e753a963"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness -1.8%, hue -0.5 degrees, colourfulness 94%, contrast 100%, then every texture pixel moved (0, 1, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 8
+file = "art/textures/deer_coat/b8.png"
+sha256 = "a946bc556ea79a9c5b0a0f498a2fe3ed8f81f78072f83393f90c8649b7fa592d"
+made_from = "b2f07d39156c576ddf38f1fcb7a6ffdfe71f564bc1a0100624257493fb035b39"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code; before its colours were matched, its pieces' colours spread 4 texture pixels into its gaps again, the rest flat"
+calibration = "lightness -0.2%, hue -0.2 degrees, colourfulness 102%, contrast 100%, then every texture pixel moved (0, 1, 1) in red, green and blue for rounding"

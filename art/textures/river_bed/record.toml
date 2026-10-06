@@ -2,6 +2,7 @@ about = "the river bed seen through clear water: rounded pebbles and sand with a
 route = "picture"
 tile_texels = 256
 texels_a_metre = 64
+first_band = 0
 sources = ["art/sources/waterside/waterside-01.webp"]
 original_sha256 = ["2125e182338faec3a51198d51022442f49984059c7ddc0e7d43636c60e365947"]
 c2pa = ["present"]
@@ -20,63 +21,63 @@ way = "re-gridded from its source, light taken out, made seamless by code"
 [[band]]
 level = 1
 file = "art/textures/river_bed/b1.png"
-sha256 = "27667932dab3615a32899209474f83a28ad18cb809e0a59eed504135df0f7bd7"
+sha256 = "d51e7c445eb308c031bb7a0b05215310d612452eb4a77c303540c87a8a01aaf2"
 made_from = "a9b4d058af24aa39d2aa0953ab32c5ee6d3d6e05372479d92c3dac5d1d4ce579"
-way = "code reduction of band 0 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -0.1%, hue +0.3 degrees, colourfulness 101%, contrast 103%"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -0.1%, hue +0.1 degrees, colourfulness 101%, contrast 103%"
 
 [[band]]
 level = 2
 file = "art/textures/river_bed/b2.png"
-sha256 = "0b5f61a741b0d55b0c109d9100f49e670f5e0b7a2b16aa938f8ad3aeec593ee8"
-made_from = "27667932dab3615a32899209474f83a28ad18cb809e0a59eed504135df0f7bd7"
-way = "code reduction of band 1 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +0.4%, hue -0.1 degrees, colourfulness 101%, contrast 99%"
+sha256 = "2262b88a493d4bcb803a232ed285d33aa9604c41e093d5807bf2ab3cb255a6da"
+made_from = "d51e7c445eb308c031bb7a0b05215310d612452eb4a77c303540c87a8a01aaf2"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.5%, hue -0.3 degrees, colourfulness 101%, contrast 98%, then every texture pixel moved (0, 0, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 3
 file = "art/textures/river_bed/b3.png"
-sha256 = "05c22dc94ce23986a217c562d211ed0981d9ac2fbc93d2233fde9b75c2f478fd"
-made_from = "0b5f61a741b0d55b0c109d9100f49e670f5e0b7a2b16aa938f8ad3aeec593ee8"
-way = "code reduction of band 2 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +1.7%, hue -0.3 degrees, colourfulness 103%, contrast 106%"
+sha256 = "78af0db8d69881cd4291acd89ef9f8cd65b4f1417b6369c2b1c354f3157feb1c"
+made_from = "2262b88a493d4bcb803a232ed285d33aa9604c41e093d5807bf2ab3cb255a6da"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +1.2%, hue +0.5 degrees, colourfulness 95%, contrast 116%, then every texture pixel moved (0, 0, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 4
 file = "art/textures/river_bed/b4.png"
-sha256 = "47517c1f97d75c5581f1e399c20e00066c9b44db1422d2095d6e4d4ab128dc19"
-made_from = "05c22dc94ce23986a217c562d211ed0981d9ac2fbc93d2233fde9b75c2f478fd"
-way = "code reduction of band 3 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +0.4%, hue -0.0 degrees, colourfulness 99%, contrast 106%"
+sha256 = "fe1f4983506891b7ab5d6f03e25db417f8d2bb059d656fbc55f8f3b4f8b29025"
+made_from = "78af0db8d69881cd4291acd89ef9f8cd65b4f1417b6369c2b1c354f3157feb1c"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.6%, hue +0.6 degrees, colourfulness 96%, contrast 126%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 5
 file = "art/textures/river_bed/b5.png"
-sha256 = "fde37ee12be290ce16fde5852485710f51437d9905ab5a9f4e7ec0d5845c8788"
-made_from = "47517c1f97d75c5581f1e399c20e00066c9b44db1422d2095d6e4d4ab128dc19"
-way = "code reduction of band 4 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +1.3%, hue +0.4 degrees, colourfulness 104%, contrast 98%"
+sha256 = "925e2a08352418216856d2110242b21c3efe8db4f7eb059a02abb08a1f09e7eb"
+made_from = "fe1f4983506891b7ab5d6f03e25db417f8d2bb059d656fbc55f8f3b4f8b29025"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +4.0%, hue -0.4 degrees, colourfulness 109%, contrast 130%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 6
 file = "art/textures/river_bed/b6.png"
-sha256 = "2a69a2aa4661b7395d2f0a06bf2aaa57027a34a80b14cb1fc230eb51744d4cce"
-made_from = "fde37ee12be290ce16fde5852485710f51437d9905ab5a9f4e7ec0d5845c8788"
-way = "code reduction of band 5 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +1.0%, hue -1.0 degrees, colourfulness 106%, contrast 90%"
+sha256 = "165aa6e15fab2ec8282d02caf5ee7e97e9c71daa3d4e60c117db18cd0c490007"
+made_from = "925e2a08352418216856d2110242b21c3efe8db4f7eb059a02abb08a1f09e7eb"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.7%, hue +0.4 degrees, colourfulness 103%, contrast 100%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 7
 file = "art/textures/river_bed/b7.png"
-sha256 = "ae05916db16a7c55a30d6d1f7a33f62527b28f85a2d62f58b4d890f1997145ad"
-made_from = "2a69a2aa4661b7395d2f0a06bf2aaa57027a34a80b14cb1fc230eb51744d4cce"
-way = "code reduction of band 6 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -4.4%, hue +0.5 degrees, colourfulness 86%, contrast 83%"
+sha256 = "2804f5dc172a9ff9ee7de2090e0488360921a0c8e6720575d2d9f6a922f7e313"
+made_from = "165aa6e15fab2ec8282d02caf5ee7e97e9c71daa3d4e60c117db18cd0c490007"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.1%, hue +0.4 degrees, colourfulness 103%, contrast 100%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
 
 [[band]]
 level = 8
 file = "art/textures/river_bed/b8.png"
-sha256 = "00b8d0dc2bbd131ef61c0fa62fabe1a6e6b983f884e0a7850e0c81e44e717c7b"
-made_from = "ae05916db16a7c55a30d6d1f7a33f62527b28f85a2d62f58b4d890f1997145ad"
-way = "code reduction of band 7 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +5.5%, hue +0.4 degrees, colourfulness 111%, contrast 100%"
+sha256 = "1b14a248a05e5a3c5237fda3878ca21bc4a1869412806b2c3ced7608418fc808"
+made_from = "2804f5dc172a9ff9ee7de2090e0488360921a0c8e6720575d2d9f6a922f7e313"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.1%, hue +0.4 degrees, colourfulness 103%, contrast 100%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"

@@ -1,0 +1,25 @@
+Purpose: The art lane's next round, phase 2 (T2.3a.3): band 3 of the meadow, the middle tile's second level, 128 x 128 texture pixels over its 16 metres. A band is drawn for its size, never averaged (A5.3), and within each tile of a big surface GPT redraws the next band from the level above (A5.4, the owner's pick in answer 36). The input is the middle tile's first level (meadow-04, re-gridded, quilted and colour-matched by code), one seamless 16-metre tile of 256 x 256 texture pixels enlarged 4 times with hard edges. The result will be re-gridded, fitted to 128 x 128 texture pixels, its colours matched to the level above by code, checked for layout, accents, seams and drift, and shown to the owner on the material's sheet.
+Orientation: square, 1024 x 1024
+Input picture: /tmp/kindling-art/p2/in/in-meadow-06.png
+Transparent: no
+Prompt:
+Redraw the input picture as pixel art for viewing from twice as far away.
+
+The input is a game texture (an albedo map) of the same wild meadow, seen straight down: one 16 by 16 metre tile, drawn as 256 by 256 texture pixels of about 6.2 centimetres each, shown enlarged with hard edges. When the game's camera pulls back twice as far, these texture pixels would shrink to one screen pixel each, and averaging them turns the ground into speckle. So the game needs a second version of the same tile, drawn on a grid twice as coarse.
+
+Draw exactly that second version:
+- the same 16 by 16 metres of the same ground, as 128 by 128 texture pixels of about 12 centimetres each; every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling, and the blocks fill the whole 1024 by 1024 picture;
+- every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering;
+- the same layout as the input: each patch, drift and larger mark stays where it is, simplified to the coarser grid;
+- redesigned for the coarser grid, not shrunk: bolder marks and fewer of them, each one clear shape of 2 to 6 blocks with its lighter and darker side; the smallest marks left out; every shape readable when the picture is seen small, with no stray single blocks of a colour scattered at random;
+- the input's own colours: the same warm, golden, muted, yellowish greens and the same warm browns of the earth, no new hues, about 6 to 8 shades in all.
+
+Camera: straight down from directly above, orthographic, with no perspective and no tilt; it fills the picture from edge to edge.
+
+Light: none of its own. Lit evenly and softly from straight above, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: the picture tiles in both directions, as the input does: what leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge.
+
+Stone Age truth: a wild meadow beside a hunter-gatherer camp of about 12,000 years ago: wild grasses and bare earth only; no lawn, no cultivated plants.
+
+Avoid: flowers, bushes, trees, stones, sticks, paths, tracks, people, animals, tools or water; diamonds, rhombuses, chevrons, zigzags, crosses, X shapes, checks, a checkerboard, a crosshatch, scales, or any marks in rows, diagonals or a regular lattice; edges made of 45-degree staircases; a repeating stamped pattern; text, labels, numbers or watermarks; frames, borders, margins or grid lines; perspective, tilt or a horizon; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours; an overall tone darker or lighter than the input.

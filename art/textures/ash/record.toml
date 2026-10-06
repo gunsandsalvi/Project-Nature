@@ -2,81 +2,83 @@ about = "ash and charcoal round a hearth: pale grey wood ash with lumps of charc
 route = "picture"
 tile_texels = 256
 texels_a_metre = 64
-sources = ["art/sources/earth_stone_ash/earth_stone_ash-01.webp"]
-original_sha256 = ["5acbb8d6e03346c41ef9ba7eb160537ef0213ebba458dafd17cc3b416b3789eb"]
+first_band = 0
+sources = ["art/sources/ash/ash-01.webp"]
+original_sha256 = ["9ebcf9f4c6619b103a1421db7ec5e38b6390233e8a91a2d01873fcfa6f672e1e"]
 c2pa = ["present"]
-requests = ["art/requests/earth_stone_ash-01.txt"]
-made = "earth_stone_ash-01's right swatch, re-gridded at its own 5.02-pixel blocks, its painted light taken out, quilted by code into a seamless 4-metre tile"
-regrid_loss = "9.6%"
-truth = "art lane, 2026-10-06, each source looked at enlarged: wood ash and charcoal only; no bones, flakes or embers; hearth-01's diamond lattice was refused and redrawn"
+requests = ["art/requests/ash-01.txt"]
+made = "ash-01: GPT's repaint, without earth_stone_ash-01's stepped diamonds the owner turned down, of a layout made by code in batch 1's own shades (stains with rounded, wandering outlines from warped noise); re-gridded at its own 8.00-pixel blocks, its painted light taken out, quilted by code into a seamless 4-metre tile, then its four colour numbers brought to batch 1's band 0 (lightness -2.8%, hue -17.1 degrees, colourfulness 87%, contrast 102%), so the redraw changes the pattern and not the material's colour"
+regrid_loss = "9.2%"
+truth = "art lane, 2026-10-06, each source looked at enlarged: wood ash and charcoal only, drifts with rounded edges, no diamond pattern; no bones, flakes or embers"
 approved = "waiting"
 
 [[band]]
 level = 0
 file = "art/textures/ash/b0.png"
-sha256 = "45e45c300e46bd28bf851632ae98d80fb1f4f1da51446566fb39ce9cff3d7382"
-way = "re-gridded from its source, light taken out, made seamless by code"
+sha256 = "701a9f55680a81e586f7e76cad69085b42f699689379e17ade59bcc87efdb6be"
+way = "ash-01, GPT's repaint of a layout made by code in batch 1's shades, re-gridded at its own 8.00-pixel blocks, its painted light taken out, quilted by code into a seamless 4-metre tile, its colours brought to batch 1's band 0 by code"
+calibration = "lightness -2.8%, hue -17.1 degrees, colourfulness 87%, contrast 102%"
 
 [[band]]
 level = 1
 file = "art/textures/ash/b1.png"
-sha256 = "18063b0682a2d2c53e882e3b4873fd01116aaf6c1ceb4b82394275e0d3a3afd9"
-made_from = "45e45c300e46bd28bf851632ae98d80fb1f4f1da51446566fb39ce9cff3d7382"
-way = "code reduction of band 0 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -1.7%, hue -1.6 degrees, colourfulness 102%, contrast 115%"
+sha256 = "b48cd56adf21bbdeaa2f2b3b8a0e8da2f70fe5ab6e34b6ef25aadfa1dc30632a"
+made_from = "701a9f55680a81e586f7e76cad69085b42f699689379e17ade59bcc87efdb6be"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, 128 of its strongest marks drawn again, each 2 texture pixels or more), colours matched to band 0's by code"
+calibration = "lightness -0.1%, hue -2.7 degrees, colourfulness 101%, contrast 128%"
 
 [[band]]
 level = 2
 file = "art/textures/ash/b2.png"
-sha256 = "50636ed2fd03a80257d40077a9c901ecdae00ff415b11ecd3599aee498604788"
-made_from = "18063b0682a2d2c53e882e3b4873fd01116aaf6c1ceb4b82394275e0d3a3afd9"
-way = "code reduction of band 1 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -2.1%, hue -2.8 degrees, colourfulness 101%, contrast 117%"
+sha256 = "04b05aadbf8efeeac1d076dd3f1af0a6ec73ec0edfc31b6ce569db5e8bf4d096"
+made_from = "b48cd56adf21bbdeaa2f2b3b8a0e8da2f70fe5ab6e34b6ef25aadfa1dc30632a"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, 16 of its strongest marks drawn again, each 2 texture pixels or more), colours matched to band 0's by code"
+calibration = "lightness -0.8%, hue +0.9 degrees, colourfulness 100%, contrast 120%, then every texture pixel moved (1, 0, 0) in red, green and blue for rounding"
 
 [[band]]
 level = 3
 file = "art/textures/ash/b3.png"
-sha256 = "871c3928a95a981fa10deb45c83d835e4007cac9ff3cd062dce3d0108aaca044"
-made_from = "50636ed2fd03a80257d40077a9c901ecdae00ff415b11ecd3599aee498604788"
-way = "code reduction of band 2 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -3.4%, hue -0.9 degrees, colourfulness 108%, contrast 131%"
+sha256 = "b0ef153456543bc41b4485421d7af204ac6868090196e00a99e4902150904a38"
+made_from = "04b05aadbf8efeeac1d076dd3f1af0a6ec73ec0edfc31b6ce569db5e8bf4d096"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -1.4%, hue -0.4 degrees, colourfulness 94%, contrast 123%"
 
 [[band]]
 level = 4
 file = "art/textures/ash/b4.png"
-sha256 = "d8b949f8a2566b07b543ad07cbcb0c99c436369bc850a213356569f306db562b"
-made_from = "871c3928a95a981fa10deb45c83d835e4007cac9ff3cd062dce3d0108aaca044"
-way = "code reduction of band 3 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -2.0%, hue -2.7 degrees, colourfulness 104%, contrast 114%"
+sha256 = "4316fd7496b6eb54f28a79b1cb3868df2127a80fb676779ce5b186549f3e2b44"
+made_from = "b0ef153456543bc41b4485421d7af204ac6868090196e00a99e4902150904a38"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.8%, hue -4.0 degrees, colourfulness 99%, contrast 108%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
 
 [[band]]
 level = 5
 file = "art/textures/ash/b5.png"
-sha256 = "91db3573ee595c1308e765f6ef2d5d634e96dc8829d3b116f720b92d2e5b4833"
-made_from = "d8b949f8a2566b07b543ad07cbcb0c99c436369bc850a213356569f306db562b"
-way = "code reduction of band 4 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -1.6%, hue +0.4 degrees, colourfulness 105%, contrast 110%"
+sha256 = "9d4d6a0cf6653389631e0552545a45a254196e66e81ff0632270870be37f3547"
+made_from = "4316fd7496b6eb54f28a79b1cb3868df2127a80fb676779ce5b186549f3e2b44"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -2.2%, hue -3.1 degrees, colourfulness 97%, contrast 130%, then every texture pixel moved (-1, 0, 0) in red, green and blue for rounding"
 
 [[band]]
 level = 6
 file = "art/textures/ash/b6.png"
-sha256 = "d2816511e0ca1da197a61eccfc6973e863d7b7b9e81d74ad637607c0b90aa14a"
-made_from = "91db3573ee595c1308e765f6ef2d5d634e96dc8829d3b116f720b92d2e5b4833"
-way = "code reduction of band 5 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -4.0%, hue -2.4 degrees, colourfulness 108%, contrast 275%"
+sha256 = "5769406ddded0c39d1b6b67955526d10c9f679ba16795b35433295b8fc7bd8a5"
+made_from = "9d4d6a0cf6653389631e0552545a45a254196e66e81ff0632270870be37f3547"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +3.4%, hue +0.2 degrees, colourfulness 100%, contrast 130%, then every texture pixel moved (1, 0, 0) in red, green and blue for rounding"
 
 [[band]]
 level = 7
 file = "art/textures/ash/b7.png"
-sha256 = "5c93491bc19dc748c1efc8b4ca5fc55b1e1f690f1cde59dfcf93ba61ff3a6fbd"
-made_from = "d2816511e0ca1da197a61eccfc6973e863d7b7b9e81d74ad637607c0b90aa14a"
-way = "code reduction of band 6 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness -2.6%, hue -0.6 degrees, colourfulness 102%, contrast 100%"
+sha256 = "714a6eaa64a7d95651aec090b292dd03be48774c3ca9471d23a3d33a2949bd11"
+made_from = "5769406ddded0c39d1b6b67955526d10c9f679ba16795b35433295b8fc7bd8a5"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +5.4%, hue -3.2 degrees, colourfulness 114%, contrast 112%"
 
 [[band]]
 level = 8
 file = "art/textures/ash/b8.png"
-sha256 = "66db98d130e96998c3fc1e221e722813d6a3dcacba2d8bf11b00155bf16770c6"
-made_from = "5c93491bc19dc748c1efc8b4ca5fc55b1e1f690f1cde59dfcf93ba61ff3a6fbd"
-way = "code reduction of band 7 (majority of its own shades, lone texture pixels cleaned), colours matched to it by code"
-calibration = "lightness +0.0%, hue +0.0 degrees, colourfulness 100%, contrast 100%"
+sha256 = "b39715507dc335a0f206706e7eb79bf8d2d39d112db2022d90cf944c12eb61cb"
+made_from = "714a6eaa64a7d95651aec090b292dd03be48774c3ca9471d23a3d33a2949bd11"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +10.9%, hue -0.7 degrees, colourfulness 75%, contrast 100%, then every texture pixel moved (0, 1, 0) in red, green and blue for rounding"

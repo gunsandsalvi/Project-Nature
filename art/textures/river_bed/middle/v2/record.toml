@@ -1,0 +1,76 @@
+about = "the river bed seen through clear water, seen from 25 to 100 metres"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/river_bed/river_bed-09.webp"]
+original_sha256 = ["33e63a1a9b9f1140920945f7c5e8744113757e76885c1af9ef9ad2a947ce36df"]
+c2pa = ["present"]
+requests = ["art/requests/river_bed-09.txt"]
+made = "version 2 of the middle tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: sand, gravel and algae only, drifts with sparse pebble marks of 2 or 3 texture pixels, no stone you could count; no water, fish, plants or anything made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/river_bed/middle/v2/b0.png"
+sha256 = "1b44cdd5fec3d6c3252909b9a03dfd916d08f9b67979813d81e97f5acdda08b3"
+made_from = "7b6f569a01241aca7dc7a139cd4ae802fb65afc4339e16325667bb314ea6f84f"
+way = "version 2 of the middle tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/river_bed/middle/v2/b1.png"
+sha256 = "78e996c54289d58a117135711d904dbdd209b81c7b89a1c055f3e8146310849c"
+made_from = "b04120d28c364967204ee01c8e40c9553a7b7994d4c7754b24a11905fbc1baa0"
+way = "version 2 of the middle tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/river_bed/middle/v2/b2.png"
+sha256 = "03ccaba088d6f7f64cf2145ea19936c7f5f2a949c835a6e9e702e31756c0b9c1"
+made_from = "c8a9a9fff5a6787d044e5e6e443c8ae99c07302ae65324765bf85e0c43a8341a"
+way = "version 2 of the middle tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/river_bed/middle/v2/b3.png"
+sha256 = "5583570299e3996f2eb82ce5979d1860a819053310c799d2e4332552d632c082"
+made_from = "2455c94bbab4e40a6375ebee39763999c520e333fdf138f58fe33a3313a82121"
+way = "version 2 of the middle tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 102), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/river_bed/middle/v2/b4.png"
+sha256 = "ddbfb450a8445cf02d19de40b3aea5981ab5ff99768c5dc0c5745fe00ba5e60e"
+made_from = "ddbfb450a8445cf02d19de40b3aea5981ab5ff99768c5dc0c5745fe00ba5e60e"
+way = "the middle tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/river_bed/middle/v2/b5.png"
+sha256 = "f032a896476b61cabc15359ed3c092b6705eb15e7de898e16ae0c87a52c1fedc"
+made_from = "f032a896476b61cabc15359ed3c092b6705eb15e7de898e16ae0c87a52c1fedc"
+way = "the middle tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/river_bed/middle/v2/b6.png"
+sha256 = "165aa6e15fab2ec8282d02caf5ee7e97e9c71daa3d4e60c117db18cd0c490007"
+made_from = "165aa6e15fab2ec8282d02caf5ee7e97e9c71daa3d4e60c117db18cd0c490007"
+way = "the middle tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/river_bed/middle/v2/b7.png"
+sha256 = "2804f5dc172a9ff9ee7de2090e0488360921a0c8e6720575d2d9f6a922f7e313"
+made_from = "2804f5dc172a9ff9ee7de2090e0488360921a0c8e6720575d2d9f6a922f7e313"
+way = "the middle tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/river_bed/middle/v2/b8.png"
+sha256 = "1b14a248a05e5a3c5237fda3878ca21bc4a1869412806b2c3ced7608418fc808"
+made_from = "1b14a248a05e5a3c5237fda3878ca21bc4a1869412806b2c3ced7608418fc808"
+way = "the middle tile's own level 8, the same in every version at this size"

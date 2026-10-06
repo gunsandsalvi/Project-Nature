@@ -1,0 +1,27 @@
+Purpose: The art lane's next round, phase 2 (T2.3a.3): the source of the far tile, 64 metres, for bands 4 to 6 (A5.3) of the rock A, limestone, drawn from GPT's own picture of the material at that distance, never the near tile shrunk (A5.3; the owner's word of 6 October 2026: "I don't think you should use the same textures for up close and zoom away"). Asked with the near tile as input, GPT drew its pebbles or marks at the close scale, as countable stones or as a diamond lattice, so here the input is a layout made by code at the distance asked, in the near tile's own shades: broad mottles of paler and darker weathered rock with soft, rounded, wandering outlines, and small pits of 1 or 2 texture pixels, 48 by 32 metres as 192 by 128 texture pixels enlarged eight times. GPT repaints it as the material, keeping the layout. The result will be re-gridded, quilted by code into a seamless 256 x 256 tile and its versions, its colours matched to the near tile's band 0 by code, checked for truth, repeats, accents and drift, and shown to the owner on the material's sheet.
+Orientation: landscape, 1536 x 1024
+Input picture: /tmp/kindling-art/p2/in/in-limestone-far.png
+Transparent: no
+Prompt:
+Repaint the input picture as a finished pixel-art texture for a 3D game, keeping its layout exactly.
+
+The input is a rough layout of the same pale limestone rock face, seen straight on from far away: 48 by 32 metres as 192 by 128 texture pixels of about 25 centimetres each, enlarged eight times with hard edges. It shows broad mottles of paler and darker weathered rock with soft, rounded, wandering outlines, and small pits of 1 or 2 texture pixels.
+
+Paint it as the real material seen from that distance, keeping everything where it is:
+- every drift, stain and patch stays where it is, with the same rounded, wandering, irregular outline, as in the input; never turned into diamonds, rhombuses, chevrons, zigzags or a lattice, and no edges made of 45-degree diagonal staircases;
+- within each mottle, the rock plain and quiet, neighbouring texture pixels mostly the same colour, with a few soft darker weathering streaks running straight down, 2 to 4 texture pixels wide;
+- the pits as tiny darker marks, scattered unevenly; never crosses, plus signs or stars;
+- every shape readable when the picture is seen small, with no stray single blocks of a colour scattered at random;
+- the input's own colours: the same warm pale creams, pinkish beiges and soft warm greys, no new hues, about 6 to 8 shades in all.
+
+Scale and grid: the picture shows 48 by 32 metres as 192 by 128 texture pixels; every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling, and the blocks fill the whole 1536 by 1024 picture. Every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering.
+
+Camera: straight on, square to the rock face, orthographic, with no perspective, no roundness and no tilt; the rock fills the picture from edge to edge.
+
+Light: none of its own. Lit evenly and softly from straight in front, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: the picture tiles in both directions, as the input does: what leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge.
+
+Stone Age truth: a natural limestone cliff of about 12,000 years ago, untouched: weathered rock only.
+
+Avoid: layers, beds, joints, cracks, ledges, blocks or anything like masonry (the game lays the layers); plants, moss, lichen, soot, caves, people, animals or anything made; diamonds, rhombuses, chevrons, zigzags, crosses, X shapes, checks, a checkerboard, a crosshatch, scales, or any marks in rows, diagonals or a regular lattice; edges made of 45-degree staircases; plus signs, stars or crosses; a repeating stamped pattern; text, labels, numbers or watermarks; frames, borders, margins or grid lines; perspective, tilt or a horizon; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours; an overall tone darker or lighter than the input.

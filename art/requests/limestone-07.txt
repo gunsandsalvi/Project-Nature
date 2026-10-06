@@ -1,0 +1,25 @@
+Purpose: The art lane's next round, phase 2 (T2.3a.3): band 5 of the rock A, limestone, the far tile's second level, 128 x 128 texture pixels over its 64 metres. A band is drawn for its size, never averaged (A5.3), and within each tile of a big surface GPT redraws the next band from the level above (A5.4, the owner's pick in answer 36). The input is the far tile's first level (limestone-05, re-gridded, quilted and colour-matched by code), one seamless 64-metre tile of 256 x 256 texture pixels enlarged 4 times with hard edges. The result will be re-gridded, fitted to 128 x 128 texture pixels, its colours matched to the level above by code, checked for layout, accents, seams and drift, and shown to the owner on the material's sheet.
+Orientation: square, 1024 x 1024
+Input picture: /tmp/kindling-art/p2/in/in-limestone-07.png
+Transparent: no
+Prompt:
+Redraw the input picture as pixel art for viewing from twice as far away.
+
+The input is a game texture (an albedo map) of the same pale limestone rock face, seen straight on: one 64 by 64 metre tile, drawn as 256 by 256 texture pixels of about 25 centimetres each, shown enlarged with hard edges. When the game's camera pulls back twice as far, these texture pixels would shrink to one screen pixel each, and averaging them turns the ground into speckle. So the game needs a second version of the same tile, drawn on a grid twice as coarse.
+
+Draw exactly that second version:
+- the same 64 by 64 metres of the same ground, as 128 by 128 texture pixels of about 50 centimetres each; every texture pixel is a perfectly square block of 8 by 8 identical picture pixels with hard edges, as if enlarged with nearest-neighbour scaling, and the blocks fill the whole 1024 by 1024 picture;
+- every block is one flat colour: no anti-aliasing, no blur, no gradients, no noise, no dithering;
+- the same layout as the input: each patch, drift and larger mark stays where it is, simplified to the coarser grid;
+- redesigned for the coarser grid, not shrunk: bolder marks and fewer of them, each one clear shape of 2 to 6 blocks with its lighter and darker side; the smallest marks left out; every shape readable when the picture is seen small, with no stray single blocks of a colour scattered at random;
+- the input's own colours: the same warm pale creams, pinkish beiges and soft warm greys, no new hues, about 6 to 8 shades in all.
+
+Camera: straight on, square to the rock face, orthographic, with no perspective, no roundness and no tilt; it fills the picture from edge to edge.
+
+Light: none of its own. Lit evenly and softly from straight in front, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun: no light from one side, no cast shadows, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other.
+
+Seamless: the picture tiles in both directions, as the input does: what leaves the right edge comes back at the left edge, and what leaves the bottom edge comes back at the top edge.
+
+Stone Age truth: a natural limestone cliff of about 12,000 years ago, untouched: weathered rock only.
+
+Avoid: layers, beds, joints, cracks, ledges, blocks or anything like masonry (the game lays the layers); plants, moss, lichen, soot, caves, people, animals or anything made; diamonds, rhombuses, chevrons, zigzags, crosses, X shapes, checks, a checkerboard, a crosshatch, scales, or any marks in rows, diagonals or a regular lattice; edges made of 45-degree staircases; a repeating stamped pattern; text, labels, numbers or watermarks; frames, borders, margins or grid lines; perspective, tilt or a horizon; blocks of mixed sizes or smaller than 8 by 8 picture pixels; blur; photo realism; saturated cartoon colours; an overall tone darker or lighter than the input.

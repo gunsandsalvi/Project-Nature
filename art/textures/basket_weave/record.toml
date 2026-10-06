@@ -1,0 +1,82 @@
+about = "a basket's weave: twined plant fibre, stakes upright and weft rows across them"
+route = "code"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = []
+original_sha256 = []
+c2pa = []
+requests = []
+made = "drawn by code (art/models/paint_weave.py): stakes every 4 texture pixels, so any wrap of whole steps of 4 is seamless, and weft rows of 4, two strands twisting round each stake, slanting one way a row and the other the next, a shadow under each row, each row its own shade"
+regrid_loss = "not re-gridded: drawn by code"
+truth = "art lane, 2026-10-06, looked at enlarged: twined basketry of plant fibre, as Mesolithic finds show (twined fish traps and baskets of willow and lime bast); no dyes, no coiled clay or later work"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/basket_weave/b0.png"
+sha256 = "06773a1f36491616e24cf3e2f25d3e5e247d4b6a7e45c6cf6030c8e237d38428"
+way = "drawn by code: stakes every 4 texture pixels, twined weft rows of 4 across them"
+
+[[band]]
+level = 1
+file = "art/textures/basket_weave/b1.png"
+sha256 = "c9a198b16ff5bab50713407222f1ef5b9d703df2ac7159e8bd1b2ec3dfdd3890"
+made_from = "06773a1f36491616e24cf3e2f25d3e5e247d4b6a7e45c6cf6030c8e237d38428"
+way = "drawn by code for its band: rows of 2, the strands one line over the shadow under it, its colours fitted to band 0 by code"
+
+[[band]]
+level = 2
+file = "art/textures/basket_weave/b2.png"
+sha256 = "7c8c55063cb11c2896206881ebbd4b9ef852ae0b9581227596d455c8dd73c3ef"
+made_from = "c9a198b16ff5bab50713407222f1ef5b9d703df2ac7159e8bd1b2ec3dfdd3890"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +1.0%, hue -0.1 degrees, colourfulness 102%, contrast 98%, then every texture pixel moved (0, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 3
+file = "art/textures/basket_weave/b3.png"
+sha256 = "4dfe304daaf0690e78cb1c2c729f1ce9d11e573d951ed08214f42627fa5ac413"
+made_from = "7c8c55063cb11c2896206881ebbd4b9ef852ae0b9581227596d455c8dd73c3ef"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -3.2%, hue +0.0 degrees, colourfulness 93%, contrast 101%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 4
+file = "art/textures/basket_weave/b4.png"
+sha256 = "c4ec5f87e06d99db0a6aae3c801ef994b45fb99e11379b7077598d9603c5baf4"
+made_from = "4dfe304daaf0690e78cb1c2c729f1ce9d11e573d951ed08214f42627fa5ac413"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +0.4%, hue +0.4 degrees, colourfulness 102%, contrast 103%"
+
+[[band]]
+level = 5
+file = "art/textures/basket_weave/b5.png"
+sha256 = "0fce6cbb2870539c7cd26715dbba4e81bda55d65f7178bf72649712b24b734e3"
+made_from = "c4ec5f87e06d99db0a6aae3c801ef994b45fb99e11379b7077598d9603c5baf4"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +2.3%, hue +0.3 degrees, colourfulness 104%, contrast 99%"
+
+[[band]]
+level = 6
+file = "art/textures/basket_weave/b6.png"
+sha256 = "bad33a46a6f236680cd9027289df1a3f0673269416a6691982cf2807cab5f4da"
+made_from = "0fce6cbb2870539c7cd26715dbba4e81bda55d65f7178bf72649712b24b734e3"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -7.1%, hue -2.0 degrees, colourfulness 91%, contrast 110%, then every texture pixel moved (0, 1, 0) in red, green and blue for rounding"
+
+[[band]]
+level = 7
+file = "art/textures/basket_weave/b7.png"
+sha256 = "d2a5c9e6466e9bd393efd9516797ec4e7e8144998be48345669a3ee916e0590a"
+made_from = "bad33a46a6f236680cd9027289df1a3f0673269416a6691982cf2807cab5f4da"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -10.1%, hue -0.8 degrees, colourfulness 88%, contrast 130%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 8
+file = "art/textures/basket_weave/b8.png"
+sha256 = "f614c32953a06eac8d37e598e2cd03469dc1b30ee59d0103f395878b8e2410ef"
+made_from = "d2a5c9e6466e9bd393efd9516797ec4e7e8144998be48345669a3ee916e0590a"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +9.2%, hue +0.3 degrees, colourfulness 113%, contrast 100%, then every texture pixel moved (-1, 0, 1) in red, green and blue for rounding"

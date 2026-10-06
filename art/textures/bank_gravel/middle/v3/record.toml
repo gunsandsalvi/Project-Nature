@@ -1,0 +1,76 @@
+about = "the dry gravel bank at the water's edge, seen from 25 to 100 metres"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/bank_gravel/bank_gravel-12.webp"]
+original_sha256 = ["f283e1d8ded1ecb5e8f513667fcd46cf66f278adbc03900b744a4ca3c575791f"]
+c2pa = ["present"]
+requests = ["art/requests/bank_gravel-12.txt"]
+made = "version 3 of the middle tile, made by code from the tile's own levels (A5.3): inside its edges its texture pixels laid out afresh by quilting from the tile itself, joined to the tile's own edges along the path of least difference, so every version joins every other without a seam"
+regrid_loss = "not re-gridded: made from the tile's own levels"
+truth = "art lane, 2026-10-06, each source looked at enlarged: gravel and sand only, drifts with sparse pebble marks of 2 or 3 texture pixels, no stone you could count, though its drifts lean one way; no shells, bones, plants or anything made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/bank_gravel/middle/v3/b0.png"
+sha256 = "978b0dddb849cf20d46ac58525e6e84a18fd94939d5e7c8cb71dceec2915da99"
+made_from = "ef100c5ab50a9691efafad68964ddb1030bcfc13c909cb69ac9cf548275e4e9d"
+way = "version 3 of the middle tile's level 0: the tile's own level 0, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 1
+file = "art/textures/bank_gravel/middle/v3/b1.png"
+sha256 = "8d00d8f46903bed6a9b676d800491821f8ed82e9e91049ad80dc7949a52082e8"
+made_from = "593b0e477b7d104177d4171ff00faedeaa86218de2e1724ad0af3add3c22f1a4"
+way = "version 3 of the middle tile's level 1: the tile's own level 1, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 2
+file = "art/textures/bank_gravel/middle/v3/b2.png"
+sha256 = "7e13220d16da16eb499294a3e7b97307331c2279624b2309f6af8af9d526727a"
+made_from = "6b2e5db75cb76f4e1cec8b2fde7c055457fd0752ad0c8c7c35ac884b80cd0cf3"
+way = "version 3 of the middle tile's level 2: the tile's own level 2, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 3
+file = "art/textures/bank_gravel/middle/v3/b3.png"
+sha256 = "290d3f6a49394a0ce07f1e80df8c64d5aaf2ab4cbc8fb24a597dd9877e8102cb"
+made_from = "6a42c845c08923ed616a3eae9bdb2d1abbf749d68fdfdd40222f84a6b7a33476"
+way = "version 3 of the middle tile's level 3: the tile's own level 3, its inside laid afresh by code from its own patches (seed 103), each kept away from its own place, its edges the tile's own"
+
+[[band]]
+level = 4
+file = "art/textures/bank_gravel/middle/v3/b4.png"
+sha256 = "0f044dfb8b62a9d6be39b47add33faf2c6b56e18ec23c240156271d4c69d1c77"
+made_from = "0f044dfb8b62a9d6be39b47add33faf2c6b56e18ec23c240156271d4c69d1c77"
+way = "the middle tile's own level 4, the same in every version at this size"
+
+[[band]]
+level = 5
+file = "art/textures/bank_gravel/middle/v3/b5.png"
+sha256 = "2c0294f1acd3b0bdfb08e240b2527f0ae0991c614fb7cde37f8ab5c2ab8c94ff"
+made_from = "2c0294f1acd3b0bdfb08e240b2527f0ae0991c614fb7cde37f8ab5c2ab8c94ff"
+way = "the middle tile's own level 5, the same in every version at this size"
+
+[[band]]
+level = 6
+file = "art/textures/bank_gravel/middle/v3/b6.png"
+sha256 = "c1d3b37647712f05b242655681f4e4f9bd3d352e8d60b57af345f2e5f602f9e2"
+made_from = "c1d3b37647712f05b242655681f4e4f9bd3d352e8d60b57af345f2e5f602f9e2"
+way = "the middle tile's own level 6, the same in every version at this size"
+
+[[band]]
+level = 7
+file = "art/textures/bank_gravel/middle/v3/b7.png"
+sha256 = "1b79083574882b4d1ee4f48c5a13206983bf1305c365ff519358104385dae8b7"
+made_from = "1b79083574882b4d1ee4f48c5a13206983bf1305c365ff519358104385dae8b7"
+way = "the middle tile's own level 7, the same in every version at this size"
+
+[[band]]
+level = 8
+file = "art/textures/bank_gravel/middle/v3/b8.png"
+sha256 = "a5426c224bdae74efe71dab2b84019b9cdb9327095df3c053e820d3b8f7258e7"
+made_from = "a5426c224bdae74efe71dab2b84019b9cdb9327095df3c053e820d3b8f7258e7"
+way = "the middle tile's own level 8, the same in every version at this size"

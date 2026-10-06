@@ -1,0 +1,84 @@
+about = "the dry gravel bank at the water's edge, seen from 100 to 800 metres"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/bank_gravel/bank_gravel-13.webp"]
+original_sha256 = ["82ec2cb77c293a133f1691f9d0cb0c89d8a89d156b7a3c698a92cf1e96169b54"]
+c2pa = ["present"]
+requests = ["art/requests/bank_gravel-13.txt"]
+made = "the far tile, 64 m, for bands 4 to 6 (A5.3): bank_gravel-13, GPT's own picture of the material at that distance, re-gridded at 10.85-pixel blocks, its painted light taken out, quilted by code into a seamless tile and its colours fitted to the near tile's band 0 by code (lightness -2.5%, hue -3.7 degrees, colourfulness 99%, contrast 140%)"
+regrid_loss = "6.6%"
+truth = "art lane, 2026-10-06, each source looked at enlarged: gravel and sand only, drifts with sparse pebble marks of 2 or 3 texture pixels, no stone you could count, though its drifts lean one way; no shells, bones, plants or anything made"
+approved = "waiting"
+
+[[band]]
+level = 0
+file = "art/textures/bank_gravel/far/b0.png"
+sha256 = "fdae854557b17c2789cf8a349dd5abafb86d6c820f7d1acc11ca1c90c195379b"
+way = "bank_gravel-13, GPT's picture of the material at this distance, re-gridded at its own 10.85-pixel blocks (142 x 91), its painted light taken out, quilted by code into a seamless tile (seed 7), its colours fitted to the near tile's band 0 by code"
+calibration = "lightness -2.5%, hue -3.7 degrees, colourfulness 99%, contrast 140%"
+
+[[band]]
+level = 1
+file = "art/textures/bank_gravel/far/b1.png"
+sha256 = "655cd97664c76a46fb6166cb32aad07819e02fafd6ea090008bea9292d6bba63"
+made_from = "fdae854557b17c2789cf8a349dd5abafb86d6c820f7d1acc11ca1c90c195379b"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, 128 of its strongest marks drawn again, each 2 texture pixels or more), colours matched to band 0's by code"
+calibration = "lightness -0.4%, hue -0.3 degrees, colourfulness 97%, contrast 130%"
+
+[[band]]
+level = 2
+file = "art/textures/bank_gravel/far/b2.png"
+sha256 = "9d468abd7bc32fd526dbd4079428a6ed561adb3afbc3bddeb2af9e15d0b094e0"
+made_from = "655cd97664c76a46fb6166cb32aad07819e02fafd6ea090008bea9292d6bba63"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, 16 of its strongest marks drawn again, each 2 texture pixels or more), colours matched to band 0's by code"
+calibration = "lightness -0.1%, hue -0.2 degrees, colourfulness 100%, contrast 130%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 3
+file = "art/textures/bank_gravel/far/b3.png"
+sha256 = "b0f7881e4eb3d3a2cd6352636566f24181f164b9d41d2a0cb066d0493665f88c"
+made_from = "9d468abd7bc32fd526dbd4079428a6ed561adb3afbc3bddeb2af9e15d0b094e0"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, 8 of its strongest marks drawn again, each 2 texture pixels or more), colours matched to band 0's by code"
+calibration = "lightness +0.0%, hue -0.5 degrees, colourfulness 99%, contrast 113%"
+
+[[band]]
+level = 4
+file = "art/textures/bank_gravel/far/b4.png"
+sha256 = "59a46d2735e8b43bde84fbc84d5cb9e2b4cd73fe2afec8496aa3aa3bb0cda6a4"
+made_from = "b0f7881e4eb3d3a2cd6352636566f24181f164b9d41d2a0cb066d0493665f88c"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -1.2%, hue -0.1 degrees, colourfulness 101%, contrast 130%"
+
+[[band]]
+level = 5
+file = "art/textures/bank_gravel/far/b5.png"
+sha256 = "cd7f58fc95e3cf530739e4541d89e2e6db6ab7746a635162a37fba807fcf7350"
+made_from = "59a46d2735e8b43bde84fbc84d5cb9e2b4cd73fe2afec8496aa3aa3bb0cda6a4"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -1.2%, hue -0.7 degrees, colourfulness 96%, contrast 130%"
+
+[[band]]
+level = 6
+file = "art/textures/bank_gravel/far/b6.png"
+sha256 = "30eb3823f2f3c7422d002bc8ffed957a276d463eefb56c9a4c35b47c1b014cf0"
+made_from = "cd7f58fc95e3cf530739e4541d89e2e6db6ab7746a635162a37fba807fcf7350"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness -2.0%, hue +0.1 degrees, colourfulness 98%, contrast 111%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
+
+[[band]]
+level = 7
+file = "art/textures/bank_gravel/far/b7.png"
+sha256 = "90f4e43fbe57a4a72536f6f4c07bb9b7a7c09de67fea16503828d62f56510395"
+made_from = "30eb3823f2f3c7422d002bc8ffed957a276d463eefb56c9a4c35b47c1b014cf0"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +1.5%, hue +0.1 degrees, colourfulness 98%, contrast 125%, then every texture pixel moved (1, 0, -1) in red, green and blue for rounding"
+
+[[band]]
+level = 8
+file = "art/textures/bank_gravel/far/b8.png"
+sha256 = "a5426c224bdae74efe71dab2b84019b9cdb9327095df3c053e820d3b8f7258e7"
+made_from = "90f4e43fbe57a4a72536f6f4c07bb9b7a7c09de67fea16503828d62f56510395"
+way = "code reduction of the level above (majority of its own shades, lone texture pixels cleaned, no marks kept), colours matched to band 0's by code"
+calibration = "lightness +6.5%, hue +1.1 degrees, colourfulness 97%, contrast 100%, then every texture pixel moved (0, 0, 1) in red, green and blue for rounding"
