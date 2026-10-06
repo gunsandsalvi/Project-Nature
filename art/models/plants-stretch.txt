@@ -1,19 +1,19 @@
 # Stretch report: plants.blend
 
-13 parts; the worst triangle is stretched 1.39:1 (the line is 1.5:1, A6.4);
+13 parts; the worst triangle is stretched 1.47:1 (the line is 1.5:1, A6.4);
 0 parts fail a check.
 Stretch is the worst ratio, in any direction, of a texture pixel's side on the surface to 1/64 m, or the
 reverse: 1 means square texture pixels of 1/64 m. Each part is measured at rest, with each shape key at 1
 and in each bend pose its armature keeps.
 
 part                         size (m)              tris  worst over 1.25  where, slots, joints
-birch_trunk_base             0.38 x 0.38 x 1.50     192   1.25      0.0%  at rest; bark; base, top; wraps 61 texture pixels
-birch_trunk_middle           0.28 x 0.27 x 2.50     224   1.18      0.0%  at rest; bark; base, branch_1, branch_2, branch_3, top; wraps 47 texture pixels
-birch_trunk_top              0.22 x 0.20 x 2.54     272   1.23      0.0%  at rest; bark, wood; base, branch_1, branch_2, branch_3, branch_4, top; wraps 36, 27 texture pixels
+birch_trunk_base             0.38 x 0.38 x 1.50     192   1.19      0.0%  at rest; bark; base, top; wraps 64 texture pixels
+birch_trunk_middle           0.28 x 0.27 x 2.50     224   1.20      0.0%  at rest; bark; base, branch_1, branch_2, branch_3, top; wraps 48 texture pixels
+birch_trunk_top              0.22 x 0.20 x 2.54     272   1.31      5.9%  at rest; bark, wood; base, branch_1, branch_2, branch_3, branch_4, top; wraps 32, 24 texture pixels
 birch_trunk_snag             0.29 x 0.22 x 1.48     176   1.11      0.0%  at rest; bark, wood; base, top; wraps 40 texture pixels
-branch_long_150              0.07 x 0.53 x 1.41      96   1.39     12.5%  at rest; bark; base, tip, twig_1, twig_2, twig_3, twig_4, twig_5; wraps 11, 8, 5, 4 texture pixels
+branch_long_150              0.07 x 0.53 x 1.41      96   1.42     25.0%  at rest; bark; base, tip, twig_1, twig_2, twig_3, twig_4, twig_5; wraps 12, 8, 6, 4 texture pixels
 branch_short_80              0.04 x 0.19 x 0.78      48   1.39     25.0%  at rest; bark; base, tip, twig_1, twig_2, twig_3; wraps 6, 4 texture pixels
-branch_dead_100              1.03 x 0.18 x 0.04     154   1.28     15.6%  at rest; bark, wood; base, end_a, end_b; wraps 7, 5, 4 texture pixels
+branch_dead_100              1.03 x 0.18 x 0.04     154   1.47     20.8%  at rest; bark, wood; base, end_a, end_b; wraps 6, 4, 4 texture pixels
 tuft_short                   0.30 x 0.30 x 0.25       6   1.00      0.0%  at rest; grass; base
 tuft_tall                    0.42 x 0.42 x 0.49       8   1.00      0.0%  at rest; grass; base
 tuft_seeding                 0.36 x 0.40 x 0.70      18   1.00      0.0%  at rest; grass; base

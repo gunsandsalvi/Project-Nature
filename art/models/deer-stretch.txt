@@ -18,6 +18,6 @@ leg_front.R                  0.15 x 0.21 x 1.01     144   1.39      3.5%  as age
 hoof_front.R                 0.07 x 0.09 x 0.11      54   1.38      3.7%  as build_thin; hoof; bones of deer; wraps 9, 11, 15 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
 leg_hind.R                   0.16 x 0.29 x 0.97     128   1.42      3.1%  in bend_test; hair; bones of deer; wraps 30, 26, 21, 16, 13, 11 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
 hoof_hind.R                  0.07 x 0.09 x 0.11      54   1.38      3.7%  as build_thin; hoof; bones of deer; wraps 9, 11, 15 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
-antlers_spike                0.22 x 0.06 x 0.22     108   1.32     14.8%  at rest; antler; bones of deer; wraps 4, 3, 4, 3 texture pixels
-antlers_young                0.52 x 0.34 x 0.51     452   1.32      3.1%  at rest; antler; bones of deer; wraps 6, 5, 4, 4, 3, 6, 5, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3 texture pixels
-antlers_mature               0.77 x 0.54 x 0.82     776   1.35      5.1%  at rest; antler; bones of deer; wraps 9, 7, 6, 5, 4, 9, 7, 6, 5, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3 texture pixels
+antlers_spike                0.22 x 0.06 x 0.22     108   1.36     14.8%  in bend_test; antler; bones of deer; wraps 4, 4, 4, 4 texture pixels
+antlers_young                0.52 x 0.34 x 0.51     452   1.39     17.3%  in bend_test; antler; bones of deer; wraps 6, 6, 4, 4, 4, 6, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 texture pixels
+antlers_mature               0.77 x 0.54 x 0.82     776   1.43     16.5%  in bend_test; antler; bones of deer; wraps 8, 8, 6, 4, 4, 8, 8, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 texture pixels
