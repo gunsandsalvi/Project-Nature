@@ -5,7 +5,7 @@ It follows `PROJECT.md` (what the game must be) and `ARCHITECTURE.md` (how it is
 It follows the guide of research 00, the way real teams work, and builds bottom up, as you asked: the foundations first, then the graphics engine, the world, living nature, people, minds, crafts, culture, and the game itself last.
 Every step ends with a build on your phone, and every milestone with a report you review (`RES-06`, `RES-22`).
 
-Only the next milestone is planned in detail: the foundations (M1).
+Only the next milestone is planned in detail: the graphics engine (M2), from its research, for your OK.
 The later ones are outlines (their goal, the items they deliver, what you will see), each detailed when it comes next, from what the earlier ones taught.
 The plan holds only work still to do: a step leaves it when it is done, and the code, which names the items it implements, is the record (`CLAUDE.md`, rule 3).
 
@@ -14,18 +14,9 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The ten milestones were approved by you on 4 October 2026, with their proposals, now decided in `PROJECT.md` (`SCP-16`, `MIL-08` to `MIL-17`); the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`).
 - The risks were tried first, as research 00 advises, and that work closed on 5 October 2026, as you asked: its answers are decisions in the architecture, and its evidence, numbers and lessons are in `LESSONS.md`.
   None of its code is carried into production, which writes its own.
-- Production begins with the foundations (M1), scoped for the whole game and for what may come after it, and planned in full below from research 18: eleven steps in five alphas, each ending with a build on your phone.
-- The first alpha, α1.1 (the workshop, then numbers and chance), is delivered as 20101 and 20102 and closed by the builder's review; your phone's lines from its self-check are still to come.
-- α1.2a, the clock and the calendar, is delivered as 20201; your phone's top speed on its Time page is still to come.
-- α1.2b, catalogues and tuning, is delivered as 20202, and α1.2 is closed by the builder's review; its note stays in the repository rather than being republished, as you asked on 5 October 2026.
-- α1.3a, entities and events, is delivered as 20301: the world's clockwork, with a crowd of markers walking, resting and sleeping, and the phone's self-check running a small world.
-- α1.3b, activities and islands, is delivered as 20302: markers meet and greet, and islands give exactly the one-thread world on any number of threads; for the crowd's light events one worker is faster, so it runs on one (A3.3).
-- α1.3c, the crowd on your phone, is delivered as 20303, and α1.3 is closed by the builder's review: 10,000 markers drawn from the world's newest snapshot at any speed, each exactly where the world has it, with the heat governor and the counters (A3.8, A3.9).
-- α1.4a, saves and the journal, is delivered as 20401: the crowd's world kept on the phone, saved every 30 seconds and as the app leaves the screen, your commands written before they act, and after any kill or crash it opens where it was and catches up exactly (A3.7).
-- α1.4b, worlds, export and updates, is delivered as 20402, and α1.4 is closed by the builder's review: several worlds kept and switched on a Worlds page, one exported to a .kindling file and imported again, α1.4a's worlds opened and carried on after a small update with their last save kept aside for an hour, the history thinned after 25 years, and a warning before the phone is full (A3.7).
-- α1.5a, scenes and runs, is delivered as 20501: scenes stated in files before they run, their runs many at once in the cloud, judged by their rules with the 40-run rerun, oddities flagged, test switches only in the cloud's builds, runs that resume exactly, the repeat check in every check, and the cloud's last report on a Reports page with the test world it ran (A17).
-- α1.5b, the benchmark, is delivered as 20502, and α1.5 is closed by the builder's review: one tap and about 17 minutes on a Bench page, seven scenarios whose worlds end as the cloud's runs of them, and a code the cloud reads back (A18.1).
-- M1 is built. Its independent review approved it with fixes, which are in, and your phone's benchmark met all 18 of its pass lines; its report, `dist/M1-REPORT.md`, waits for your review (`RES-06`, `RES-22`).
+- The foundations (M1) are built, eleven steps in five alphas delivered as 20101 to 20502, and you accepted them on 6 October 2026: your phone's benchmark met all 18 of its pass lines, and its self-check matched the cloud in all seven suites (`dist/M1-REPORT.md`).
+- The vertical slice was dropped on 6 October 2026, as you asked.
+- The graphics engine (M2) is next. Its research comes first, as detailed as the foundations' was, and then its plan and its sections of the architecture, for your OK; the art book's pictures were only a preliminary start, and the engine must go well beyond them.
 
 ## How to use this plan
 
@@ -110,7 +101,7 @@ These items hold for the whole build rather than being delivered by one step.
 Every step keeps them, the reviews check them, and the coverage check counts them as served:
 - **Principles:** `PRN-16`, `PRN-01`, `PRN-02`, `PRN-07`, `PRN-05`, `PRN-12`, `PRN-17`, `PRN-03`, `PRN-04`, `PRN-10`, `PRN-13`, `PRN-06`, `PRN-15`, `PRN-11`, `PRN-09`, `PRN-14`.
 - **Scope and non-goals:** `SCP-02`, `SCP-03`, `SCP-15`, `SCP-04`, `SCP-05`, `SCP-06`, `SCP-07`, `SCP-08`, `SCP-09`, `SCP-10`, `SCP-11`, `SCP-12`, `SCP-17`, `SCP-18`, `SCP-19`, `SCP-20`, `SCP-21`.
-- **Process:** `PRC-02`, `PRC-03`, `PRC-04`, `PRC-06`, `PRC-07`, `PRC-09`, `PRC-10`, `PRC-11`, `PRC-12`.
+- **Process:** `PRC-02`, `PRC-03`, `PRC-04`, `PRC-06`, `PRC-07`, `PRC-09`, `PRC-10`, `PRC-11`, `PRC-12`, and your review closing each milestone (`RES-22`).
 - **Testing:** `RES-01`, `RES-09`, `RES-13`, `RES-18`, `RES-19`.
 
 ## What the plan asks of you
@@ -126,61 +117,12 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| M1's review | Your review of M1's report | M1 | | Waiting for you |
-| The slice | The vertical slice | After M1 | | Proposed, for your OK |
+| M2's research | The graphics engine: the look, the pipeline that makes it, and its tests | M2 | | Next, once you approve its agents |
 | M2 to M10 | Outlines below | M2 to M10 | | Detailed when each comes next |
-
-## M1 Foundations
-
-**Goal:** the data structures and plumbing everything else stands on, scoped for the whole game and for what may come after it (A2, A3; research 18):
-- the app and its delivery, and the simulation library;
-- numbers, time and chance, with the same bits on the phone and in the cloud;
-- entities, events, activities, catalogues, commands and snapshots;
-- saves, scenes and the phone's benchmark.
-
-It was built in five alphas, delivered as 20101 to 20502, each ending with a build on your phone and closed by the builder's own review; the milestone ends with the independent review and its report for your review.
-The demonstration content (markers that walk, meet and greet in camps) lives in its own source, `data/demo/`, and never enters the game's own catalogue (`MAT-16`).
-
-**Serves:** `TIM-01`, `TIM-05`, `TIM-08`, `TIM-10`, `TIM-14`, `TIM-16`, `TIM-17`, `TIM-18`, `PLT-01`, `PLT-03`, `PLT-04`, `PLT-05`, `PLT-06`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`, `MAT-05`, `MAT-13`, `MAT-14`, `MAT-17`, `RES-05`, `RES-06`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-21`, `RES-22`, `PRC-10`, `WLD-13`.
-
-**You will see:**
-- A self-check on every start: the phone computing the same bits as the cloud.
-- The calendar running through the 60-day year at the speed you set, the real speed shown.
-- A crowd of 10,000 markers walking, meeting and greeting smoothly at any speed, while the simulation counts its events on its own threads.
-- Worlds saved, closed, killed and reopened exactly, several at once, one exported to a file and imported again.
-- A benchmark of one tap and about 20 minutes, ending in a short code.
-
-**Risks:**
-- The C++ build for Android: proven on your phone (`LESSONS.md`).
-- Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
-- The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-## The vertical slice (proposed: after the foundations)
-
-*Proposed, for your OK* (`MIL-18`, `PRC-08`): with pre-production closed, the slice is built on the foundations, before the graphics engine, and planned in detail at M1's end.
-
-One band at a cliff camp through a day, at the art book's look, on your phone, built in the real architecture: the first piece of the game, and the quality bar for the rest of production (research 00).
-
-**Its must-haves:**
-- **The foundations** of M1 underneath: the real stack, the core and the checks (A2, A3, A17).
-- **The land:** a stretch of a small generated island round a limestone cliff, a stream and a meadow, made by the area rules from the seed (A7.5, A7.6).
-- **The look:** the art book's person, close camp and camp zoom stops, from dawn through noon and dusk to night with the fire lit, by the methods the architecture chose (A4, A5, A6).
-- **Living things:** two kinds of tree, grass and one herd of deer placed by keyed chance (A9).
-- **The band:** about 25 people with bodies and needs, choosing a dozen everyday activities by utility, the reasons on each card (A10, A11).
-- **The screen:** time controls, tapping a person for their card, both orientations (A15).
-- **Sound:** the camp's ambience, the fire and the murmur (A16).
-- **Every kind of check** of A17, golden pictures included.
-
-**Not in the slice:** discovery, culture, the world beyond the island, the zoom out past the camp, your powers, the book of ages.
-
-**Done when:**
-- you judge the slice against the art book, and accept it as the bar for production;
-- its frame and graphics times and its heat are measured on your phone;
-- a second of each thing (a tree, an animal, an activity, a hut) is made after the first, and the time it took re-estimates the later milestones (research 00).
 
 ## M2 The graphics engine
 
-**Goal:** the engine that draws everything, grown from the slice's drawing to all the art book shows up close (A4, A5, A6; research 04, 05, 17):
+**Goal:** the engine that draws everything up close, at a look well beyond the art book's preliminary pictures (A4, A5, A6; research 04, 05, 17 and M2's own research):
 - the low-resolution picture, the camera locked to its pixels, outlines and lit edges;
 - light in clean steps with real shadows, through the hours and the seasons;
 - every material, grass and leaf cards, and water;
@@ -190,9 +132,9 @@ One band at a cliff camp through a day, at the art book's look, on your phone, b
 **Serves:** `PRE-01`, `PRE-02`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-30`, `PRE-31`, `PRE-33`, `PRE-42`, `PRE-43`, `PRE-46`, `PLT-02`, `PLT-04`, `VIS-14`.
 
 **You will see:**
-- The art book's scenes as the game draws them: a camp under a cliff, a river valley, a winter steppe, a lakeshore, through dawn, day, dusk and night and the four seasons, crisp and steady as you drag, pinch and turn, in portrait and landscape.
+- The game's own scenes as the engine draws them: a camp under a cliff, a river valley, a winter steppe, a lakeshore, through dawn, day, dusk and night and the four seasons, crisp and steady as you drag, pinch and turn, in portrait and landscape.
 - The model sheet: every shape in the kit.
-- This is the quality gate: you judge the scenes against the art book, and nothing is built on the engine until you are happy with it.
+- This is the quality gate: you judge the scenes on their own, as the bar for everything after, and nothing is built on the engine until you are happy with it; the art book's pictures are only where the look started.
 
 **Risks:**
 - The PowerVR chip's driver: everything the look needed so far ran on your phone (`LESSONS.md`); measured again at every step.
@@ -200,7 +142,7 @@ One band at a cliff camp through a day, at the art book's look, on your phone, b
 
 ## M3 The world
 
-**Goal:** whole worlds, made from a seed in the order of real causes and tuned until the map looks like the art book's zoom stops (A7, A8; research 06, 07):
+**Goal:** whole worlds, made from a seed in the order of real causes and tuned by eye until the map looks right at every zoom stop (A7, A8; research 06, 07):
 - from plates to biomes, with rivers, lakes, seas, soils and deposits;
 - detail made on demand, the same every time;
 - the ground drawn at every distance, up to the globe;
@@ -240,7 +182,7 @@ One band at a cliff camp through a day, at the art book's look, on your phone, b
 
 ## M5 People: bodies and lives
 
-**Goal:** people with bodies that live, act and die for real reasons, grown from the slice's band (A10, A11; research 09, 10):
+**Goal:** people with bodies that live, act and die for real reasons (A10, A11; research 09, 10):
 - needs, senses, everyday activities and the base actions on things;
 - health, wounds, illness and plain care;
 - pairing, birth, growing up, inheritance, ageing and death;

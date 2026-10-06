@@ -460,20 +460,18 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   - **Why:** There's nothing extra to set up or maintain; any need for more computing is raised with you first.
   - **Check:** every milestone report states where its tests ran and how much computing they used (`RES-06`).
 
-- `SCP-16` **Milestones** *(Decided)*: The game is built in two phases, in order: pre-production (`MIL-18`), a prototype for each risk and then a vertical slice; then production, bottom up, in ten milestones, the foundations first and the game itself last.
+- `SCP-16` **Milestones** *(Decided)*: The game is built in two phases, in order: pre-production (`MIL-18`), a prototype for each risk, closed on 5 October 2026; then production, bottom up, in ten milestones, the foundations first and the game itself last.
   Each milestone is a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
   This file keeps each milestone's contents and order, below; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
-  - **Proposed change:** "a prototype for each risk and then a vertical slice; then production, bottom up, in ten milestones, the foundations first and the game itself last" becomes "a prototype for each risk, closed on 5 October 2026; then production, bottom up, in ten milestones, the foundations first, the vertical slice built on them, and the game itself last".
-    You closed pre-production on 5 October 2026 before its slice, and chose the foundations as production's first step; the slice needs them, and still sets the bar for what follows.
 
-  - `MIL-18` **Pre-production** *(Decided)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); then the vertical slice: one band at a cliff camp through a day, at the art book's look, built in the real architecture on your phone (`PRE-01`, `VIS-14`).
-    *Now possible:* seeing on your phone that the game can be made as this file describes, and judging the slice, which sets the quality bar for production.
-    - **Proposed change:** "then the vertical slice: one band at a cliff camp through a day, at the art book's look, built in the real architecture on your phone (`PRE-01`, `VIS-14`)" becomes "closed on 5 October 2026, as you asked, with the lessons kept in `LESSONS.md`: the writer, left unbuilt, is proved when `MIL-16` builds the book of ages (`PRE-37`), and the vertical slice moves to production, after the foundations (`MIL-08`)"; and "and judging the slice, which sets the quality bar for production" is dropped.
-      Thirteen prototypes answered their questions, and you closed pre-production on 5 October 2026 and chose the foundations to come first.
+  - `MIL-18` **Pre-production** *(Decided)*: a throwaway prototype for each risk, riskiest first, each answering one question on your phone or in the cloud: the look, a full scene, the model kit, the pace of discovery, the same bits, a thousand minds, world generation, the zoom, ecology, culture, the director, the interface, the writer and sound (`TIM-19`, `RES-05`, `TIM-07`, `WLD-11`, `PRE-03`); closed on 5 October 2026, as you asked, with the lessons kept in `LESSONS.md`; its vertical slice was dropped on 6 October 2026, as you asked.
+    *Now possible:* seeing on your phone that the game can be made as this file describes.
+    - **Proposed change:** add "the writer, left unbuilt, is proved when `MIL-16` builds the book of ages (`PRE-37`)".
+      Thirteen prototypes answered their questions, and the writer's was left when you closed pre-production.
   - `MIL-08` **Foundations** *(Decided)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
-  - `MIL-09` **The graphics engine** *(Decided)*: crisp 3D pixel art at the art book's look (`PRE-01`, `PRE-02`): the stable pixel grid (`PRE-22`), outlines and lit edges (`PRE-21`), colour in steps with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit and its textures made by code (`PRE-46`, `PRE-42`, `PRE-43`), grown from the vertical slice.
-    *Now possible:* the art book's scenes drawn by the game, in portrait and landscape, that you judge against the art book before anything is built on them.
+  - `MIL-09` **The graphics engine** *(Decided)*: crisp 3D pixel art (`PRE-01`, `PRE-02`) that goes well beyond the art book's pictures, which were preliminary: the stable pixel grid (`PRE-22`), outlines and lit edges (`PRE-21`), colour in steps with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit and its textures made by code (`PRE-46`, `PRE-42`, `PRE-43`).
+    *Now possible:* the game's own scenes drawn by the engine, in portrait and landscape, which you judge as the bar for everything built on them.
   - `MIL-10` **The world** *(Decided)*: whole worlds generated from a seed in the order of real causes (`WLD-08`, `WLD-09`), the best three offered (`WLD-10`); the map layers, and detail made on demand (`WLD-12`, `WLD-13`); the sky, climate and weather, fresh water, seas and soils (`WLD-07`, `WLD-16`, `WLD-17`, `WLD-26`, `WLD-27`); quakes and eruptions (`WLD-15`); one zoom from a cliff face to the globe (`PRE-03`, `WLD-02`), and the cut-away view (`PRE-25`).
     *Now possible:* making a world, choosing it, and flying over it through its weather and seasons.
   - `MIL-11` **Things and living nature** *(Decided)*: materials and things, with their shapes, characteristics, wear, simple physics, timers and traces (`MAT-01`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-08`); fire (`MAT-18`); plants and animals everywhere, as catalogue entries placed by rules, with their seasons and their ecology (`WLD-31`, `WLD-32`, `WLD-18`); wildfire (`WLD-28`); a card for anything you tap (`PRE-35`).
@@ -2551,12 +2549,10 @@ How the project is run.
   Nothing becomes *Decided*, and no decided item changes, without your OK.
   - **Check:** the commit check confirms that every commit changing this file names the changed IDs and why, and your OK for anything made Decided.
 
-- `PRC-08` **Next: pre-production, then production** *(Decided)*: The research is done (`research/`), the art book fixes the look (`art/book/`), the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written from them.
-  Pre-production (`MIL-18`) comes next: it removes the old code, which git keeps, proves each risk with a prototype, and builds the vertical slice; production starts with the foundations (`MIL-08`) once you accept the slice.
+- `PRC-08` **Next: production** *(Decided)*: The research is done (`research/`), the art book's pictures (`art/book/`) set a first, preliminary direction for the look, which the graphics engine must go well beyond, the bake-off chose Godot with the simulation in C++ (`PRC-03`), and the architecture and the plan are written from them.
+  Pre-production (`MIL-18`) removed the old code, which git keeps, proved each risk with a prototype, and closed on 5 October 2026, its lessons kept in `LESSONS.md`; production began with the foundations (`MIL-08`), which you accepted on 6 October 2026, and the graphics engine (`MIL-09`) comes next, starting with its research.
   A few questions stay open, each carried by its item: the fix for crawling pixels, chosen with the look prototype (`PRE-22`); the voice (`SND-03`) and the drums (`SND-02`), chosen by ear at `MIL-16`; and signing for your hobbyist account (`PLT-06`).
-  - **Proposed change:** the name becomes "Next: production", and "Pre-production (`MIL-18`) comes next: it removes the old code, which git keeps, proves each risk with a prototype, and builds the vertical slice; production starts with the foundations (`MIL-08`) once you accept the slice." becomes "Pre-production (`MIL-18`) removed the old code, which git keeps, proved each risk with a prototype, and closed on 5 October 2026, its lessons kept in `LESSONS.md`; production starts with the foundations (`MIL-08`), made for the whole game, and the vertical slice is built on them."
-    In the open questions, "the fix for crawling pixels, chosen with the look prototype (`PRE-22`)" becomes "the ground of the cards and the book (`PRE-35`)", since the crawl fix was chosen.
-    You closed pre-production on 5 October 2026 and chose the foundations as production's first step.
+  - **Proposed change:** in the open questions, "the fix for crawling pixels, chosen with the look prototype (`PRE-22`)" becomes "the ground of the cards and the book (`PRE-35`)", since the crawl fix was chosen.
 
 ### 15.3 How work flows
 
@@ -2716,9 +2712,8 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- **Milestones** (`SCP-16`): pre-production closed, and the vertical slice built on the foundations.
-- **Pre-production** (`MIL-18`): closed on 5 October 2026, the writer proved with the book of ages, and the slice moved after the foundations.
-- **Next: production** (`PRC-08`): production starts with the foundations, and the slice stands on them.
+- **Pre-production** (`MIL-18`): the writer, left unbuilt, proved with the book of ages.
+- **Next: production** (`PRC-08`): the crawl fix chosen, so the ground of the cards and the book is the open question in its place.
 <!-- end generated -->
 
 ## 18. Glossary

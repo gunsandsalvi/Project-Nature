@@ -2,7 +2,7 @@
 
 M1 is built: eleven steps in five alphas, delivered as 20101 to 20502 on 5 and 6 October 2026.
 It is the plumbing the whole game stands on. There is no game to play yet: what you can see are its working parts, each on a page of the app.
-This report is for your review (`RES-06`, `RES-22`): accept it, or send it back with what is wrong.
+**You accepted M1 on 6 October 2026** (`RES-22`), and dropped the vertical slice; M2, the graphics engine, comes next, starting with its research.
 
 ## In short
 
@@ -131,10 +131,9 @@ What it asked, and what was done:
 
 ## What needs your judgement
 
-1. **Accept M1, or send it back** with what looks wrong (`RES-22`).
-2. **What comes next,** when you are ready: M2 waits, as you asked. The plan proposes the vertical slice before M2: one band at a cliff camp through a day, at the art book's look, built on these foundations, as the bar for the rest. Either needs the same first answer: the best way for Claude to make models, textures, shaders and meshes, which M2's research will find. Say which comes first, and when.
-3. **This report as a page on your phone** (`RES-06`): publishing it as a page stops my work until you allow it, so it stays in the repository for now. Say if you want it published.
-4. **Once, if not yet done:** register the package `dev.kindling.app` and the release certificate's fingerprint in your developer account, and make `main` the default branch on GitHub.
+1. **M1:** accepted by you on 6 October 2026; the vertical slice dropped; M2's research begins.
+2. **This report as a page on your phone** (`RES-06`): publishing it as a page stops my work until you allow it, so it stays in the repository for now. Say if you want it published.
+3. **Once, if not yet done:** register the package `dev.kindling.app` and the release certificate's fingerprint in your developer account, and make `main` the default branch on GitHub.
 
 ---
 

@@ -2,24 +2,25 @@
 
 How Kindling is built: its parts, how they talk, the rules they keep, and why each choice was made.
 It serves `PROJECT.md`, which says what the game must be, and is served by `IMPLEMENTATION.md`, which says in what order to build it.
-Every choice cites the research note behind it (`research/NN-*.md`), where the sources are, and the look follows the art book (`art/book/`).
+Every choice cites the research note behind it (`research/NN-*.md`), where the sources are; the look started from the art book's preliminary pictures (`art/book/`), which the graphics engine must go well beyond.
 The code is the index: code names the `PROJECT.md` items it implements, so this file says how and why, never where (`CLAUDE.md`, rule 3).
 
-## Status (5 October 2026)
+## Status (6 October 2026)
 
 - Rewritten for your OK from the research redone on 4 October (research 00 to 17) and the art book you accepted as the starting point for the look.
   The Rust architecture stays in git history at commit `ebaeae3`, and the first Godot version of this file at `f881525`.
 - **Technology approved by you** (`PRC-03`): Godot 4.7, its source unchanged, with the simulation in C++ as a Godot plug-in (GDExtension) (research 01).
 - **Pre-production is closed** (5 October 2026): its prototypes' answers are written here as decisions, marked with the prototype that gave them (Pn), and the evidence, numbers and lessons are in `LESSONS.md`.
   Their code is deleted; production writes its own.
-- The foundations' sections (A2, A3, A17, A18) are written in full for M1, from research 18 (5 October 2026).
+- The foundations' sections (A2, A3, A17, A18) are written in full for M1, from research 18 (5 October 2026); M1 is built and you accepted it on 6 October 2026.
+- The graphics engine's sections (A4, A5, A6) are rewritten in full from M2's research, for your OK, before M2 is built; until then they hold pre-production's answers.
 - Parts for later milestones are outlines, each designed in full when its milestone is next, from what the earlier ones taught.
 
 ## A1. Overview
 
 ### A1.1 What it must deliver
 
-- **The art book's look on your phone** (`PRE-01`, `PRE-02`, `VIS-14`): crisp 3D pixel art, smooth, in portrait and landscape, on a Pixel 11 Pro XL with a PowerVR graphics chip (research 01, 02, 04, 05).
+- **A look well beyond the art book's preliminary pictures, on your phone** (`PRE-01`, `PRE-02`, `VIS-14`): crisp 3D pixel art, smooth, in portrait and landscape, on a Pixel 11 Pro XL with a PowerVR graphics chip (research 01, 02, 04, 05).
 - **A big believable simulation** (`PRN-11`, `MND-14`): thousands of people with full minds in a world 2,000 by 1,000 km (`WLD-03`), time running faster or slower but never cutting detail.
 - **The same history every run, on the phone and in the cloud** (`RES-05`, `TIM-16`).
 - **Offline, private, saved always** (`PLT-03`, `PLT-07`).
@@ -62,7 +63,7 @@ The code is the index: code names the `PROJECT.md` items it implements, so this 
 | EnTT entities with never-reused ids, content as data with no floats | Data laid out for the cache; new plants, animals, things and blueprints without code (`PRN-14`); history that names the dead forever | 03, 18 |
 | Events on one queue run in islands, keyed chance, correctly rounded maths, Box2D's rules for floating point | The same bits everywhere, at any speed and on any number of threads; long processes cost nothing until they end | 03, 18 |
 | A quarter-size picture, a pixel-locked camera, outlines from rebuilt normals, light in clean steps | How the reference pictures are made, built for the Mobile renderer | 04 |
-| The art book is the look, kept by the art bible's rules | You accepted it; the rules keep generated content on it | 05 |
+| The art book's pictures were a preliminary start, kept to the art bible's rules until M2 sets the look | You accepted them as a starting point; the engine must go well beyond them | 05 |
 | The model kit built by code at load, drawn as MultiMesh copies; block figures with no skeletons | Countable content; colour and style per copy; cheap crowds | 17 |
 | A generator in the order of real causes, many candidates scored | Believable worlds from a seed, tuned for the look | 06 |
 | Our own levels of detail on Godot's RenderingServer, a moving origin, a map look that bends into the globe | No plug-in does our mix; Godot draws in single precision | 07 |
@@ -94,7 +95,7 @@ data/        catalogues, tuning files, scenes and benchmark worlds, as TOML (A3.
              demo/ for what only the foundations show
 android/     the release certificate; an Android plug-in only if the phone ever needs one (A3.9)
 tools/       setup, checks, builds, delivery, the file check, signing
-art/         the art book and its painter (A5.1), and the pixel fonts
+art/         the art book's preliminary pictures (A5.1)
 research/    the research notes this file cites
 dist/        the signed APK of the latest alpha and its note
 ```
@@ -479,19 +480,18 @@ Each extra pass a material takes part in, such as the outline data picture, the 
 - Golden pictures drawn by Movie Maker mode on the software Vulkan driver in the cloud, compared within a tolerance, approved by you when they change (research 16).
 - They guard our code only: the phone's chip may round differently, so the look is judged on the phone (`PRE-31`).
 
-## A5. The look (research 05, the art book)
+## A5. The look (research 05, the art book's first direction)
 
 ### A5.1 The art book
 
-- `art/book/` holds the look the game is built toward: a scene for each age, the zoom stops from one person to the globe at noon and dusk, the model kit's sheets and the interface plates, at true size, with the design canvas.
-  You accepted it on 4 October 2026 as the starting point, to be tweaked as the real game takes shape on the phone.
-- Its painter, a small three.js tool, made those pictures with the same art rules.
-  It stays a tool for trying a change before the game has it, never a second copy of the game's code: once the game draws the look, changes are made in the game and pictured by the game (`CLAUDE.md`, rule 4).
+- `art/book/` holds pre-production's pictures, at true size: a scene for each age, the zoom stops from one person to the globe at noon and dusk, the model kit's sheets and the interface plates.
+  You accepted them on 4 October 2026 as a starting point; on 6 October 2026 you set them down as preliminary: the graphics engine (`MIL-09`) must go well beyond them, and its own scenes, which you judge, become the bar (`PRE-31`).
+- The painter that made them was deleted on 6 October 2026, as you asked; git keeps it, and nothing is ported from it.
 
 ### A5.2 The art bible's rules
 
 The art bible is research 05's rules, as the art book applied them:
-1. **Tie-breaker:** the art book wins over realism, and readability wins over detail: a person, an animal or a fire reads at every zoom (`PRE-28`).
+1. **Tie-breaker:** the look wins over realism, and readability wins over detail: a person, an animal or a fire reads at every zoom (`PRE-28`).
 2. **Light:** a warm sun; shade filled by a cool purple-blue sky light; the default camera looks with the sun behind its left shoulder.
 3. **Shadow colour as a value:** the deepest shade is a set dark purple, never black; black only deep inside caves.
 4. **The smallest thing worth making** is about a fist-sized stone.
@@ -561,7 +561,7 @@ The start is found by scoring (`WLD-24`).
 ### A7.4 Determinism and tuning
 
 - Processor only, in fixed chunks, under A3.4's rules, so a seed makes the same world on the phone and in the cloud, checked by hashes.
-- Tuned for the look: maps and close-ups are judged against the art book's zoom stops, and the climate is checked on Earth's real relief, as Around The World did.
+- Tuned for the look: maps and close-ups are judged by eye at every zoom stop, against the look M2 sets, and the climate is checked on Earth's real relief, as Around The World did.
 
 ### A7.5 Detail on demand (`WLD-13`)
 
