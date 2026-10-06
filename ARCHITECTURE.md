@@ -630,6 +630,8 @@ It replaces the art bible's rules.
   - **far,** 64 m, for bands 4 to 6 (the camp zoom, about 100–800 m across): swathes of taller and shorter growth, bare and damp patches;
   - each tile is 256 texture pixels across at its first band, with designed levels below it, so all three fit one texture array; at a switch, the nearer tile's last level and the farther tile's first blend over the same short zoom as any two levels (study 2: "bands with larger tiles need a blend at the switch"), and each place's patch picture (A4.6) varies all three, so none repeats as wallpaper;
   - beyond about 800 m, the world's own colours take over (A4.6).
+- **Two to four versions of each tile,** as study 5 found ("repeats broken by mixing two to four maps by seed") and as you asked on 6 October 2026: each version joins every other without a seam (they share their edges), and each cell of the ground, 4 m for the near tile and 16 m and 64 m for the others, picks one by a hash of its place, so the same piece never sits on a regular grid.
+  - *Estimated:* about 50 MiB more for the big surfaces, within A18.1's 300 MB.
 - Grass, reeds, flowers and flames keep their true size in metres while their design follows the band; flowers, berries and eyes never fall below one texture pixel (`PRE-46`).
 - Memory is the cost, not time: about 50–150 MiB of lossless textures at 64 a metre for about 150 materials with their levels, and about 30 MiB more for the middle and far tiles of about 30 big surfaces (estimates), within A18.1's 300 MB.
 

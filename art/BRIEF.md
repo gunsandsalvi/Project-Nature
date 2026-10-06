@@ -49,7 +49,9 @@ This brief is its contract: what it makes, in what form, and by which rules, so 
   - **near,** 4 m at band 0 (64 a metre), for bands 0 and 1: blades, crumbs and pebbles;
   - **middle,** 16 m at band 2 (16 a metre), for bands 2 and 3, the close camp: clumps, tufts and stones in drifts;
   - **far,** 64 m at band 4 (4 a metre), for bands 4 to 6, the camp zoom: swathes of taller and shorter growth, bare and damp patches.
-  The big surfaces are the ground covers and rock: meadow, bare earth, trodden floor, bank gravel, river bed and the chosen rock.
+  The big surfaces are the ground covers and rock: meadow, bare earth, trodden floor, bank gravel, river bed and rock A (the owner's pick, 6 October 2026).
+- **Versions:** each tile of a big surface in two to four versions that share their edges, so any version joins any other without a seam, and the ground picks one for each cell by its place (A5.3; study 5's "repeats broken by mixing two to four maps by seed", which the owner asked for on 6 October 2026); four for the near tile, two or more for the middle and far ones.
+  They go in `art/textures/<name>/` (version 1, as now) and `art/textures/<name>/v2/` to `v4/`, each with its levels and record; the middle and far tiles' in `middle/v2/` and so on.
   Hide, bark, poles, brush, hearth stones and ash cover small things and keep one tile.
 - **Designed, never averaged:** within each tile, the band after its first is drawn for its size by the redraw route (GPT redraws the level above, then re-gridding and colour matching) for big surfaces, or by the code reduction for small ones; the levels below come from the code reduction, which draws bolder marks and fewer of them.
   Godot's averaged mipmaps are never used: averaging was the speckle of answer 31.
@@ -170,12 +172,12 @@ For the camp under the cliff by the river at the closest zoom (α2.3), in this o
 ### Its second round, after the builder's review (6 October 2026)
 
 With as many pictures as improve the result (rule 3):
-1. **Middle and far tiles** for the meadow, bare earth, trodden floor, bank gravel and river bed, each from GPT's own picture of the material at that distance, so no zoom repeats a 4 m tile; the rock's once the owner picks it.
+1. **Middle and far tiles** for the meadow, bare earth, trodden floor, bank gravel, river bed and rock A, each from GPT's own picture of the material at that distance, so no zoom repeats a 4 m tile; and each tile's **versions**, as "The sizes" says.
 2. **The near tile's band 1** redrawn by GPT for bare earth, trodden floor and bank gravel, the route answer 36 chose for big surfaces, and the improved reduction for any that still comes off the grid.
 3. **The code reduction draws bolder marks and fewer of them** (A5.3): the larger marks kept two texture pixels wide at the coarser level and the smaller ones dropped, so designed bands keep 90% of their first level's accents without speckle.
 4. **The checks above:** the loss of each redrawn band, the seams of redrawn bands, the repeat against the source's own, accents on the designed bands, `source.png` for limestone A, and the middle and far tiles' folders.
-5. **The sheets** with each band as a strip the phone's full width.
-6. **Waiting for the owner:** the rock surface, the meadow's band 0 and the stepped-diamond mottle.
+5. **The sheets** with each band as a strip the phone's full width, the versions mixed as the ground would mix them.
+6. **The owner's answers** (6 October 2026): rock A, so limestone B and C leave `art/textures/` and `art/sheets/` (their sources stay); the meadow's band 0 kept as it is; bare earth, trodden floor, stone and ash redrawn without GPT's stepped-diamond pattern.
 
 ## The batch report
 
