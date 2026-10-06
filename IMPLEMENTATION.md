@@ -386,6 +386,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 **Tests:**
 - Golden pictures of the area at the closest zoom at noon and dusk; shimmer on the three scripted paths at most 2 in 100 pixels; the texture pixel 1.5–3 screen pixels; no pass reads the screen or depth (a scan of the shaders).
+- The ground's and the cliff's texture pixels stretch at most 1.5:1 on every triangle (A6.4).
 - On a pinch from the closest zoom to the camp zoom, no tile repeats strongly in any frame (the repeat measure on the ground's pixels at most 0.2), and the switches between tiles pass the shimmer line.
 - Shade is never black; the hollow under the overhang is darker than open ground; a long shadow's edge is softer 10 m from its caster than 1 m from it.
 - Passes if all pass, and the frame on the phone stays within its line or names the part over it.
@@ -413,6 +414,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - Copies only from about 12 screen pixels, counted at each zoom stop against A4.6's estimates; the same patch gives the same tufts on two visits (`WLD-13`).
 - A fire inside the tent lights its doorway, and no light passes through its wall (a view of each fire's reach).
 - The two shelters in two materials are told apart at the close camp on the model sheet.
+- Every kit shape's texture pixels stretch at most 1.5:1 on every triangle, and a pole's wrap never shows (A6.4).
 - Passes if all pass, with the frame within its line or the part over it named.
 
 **On the phone:** the camp has its meadow, plants, two shelters and a fire; turn round the tent and look into the shelter.
@@ -438,6 +440,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 **Tests:**
 - Filmstrips of every movement, enlarged, show no gap or tear at a joint; the same seed gives the same person.
+- Every figure's and deer's texture pixels stretch at most 1.5:1 on every triangle, standing and in each key pose (A6.4).
 - The deer's feet stay planted while down (a slide under 1 cm).
 - The card on first light's frame, and the shimmer, size and banding checks; people's salience in the camp.
 - Passes if all pass; the look itself is your verdict.

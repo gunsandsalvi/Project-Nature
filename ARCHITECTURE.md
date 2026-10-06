@@ -765,7 +765,17 @@ It replaces the art bible's rules.
   Calibration scene C6 sets how many fit 1.0 ms of the main thread (an estimate of 15 to 40); beyond that, the batched way.
 - Reads of a texture in the vertex stage count as dependent reads on this chip, so palettes are half floats and far forms use one bone a vertex.
 
-### A6.4 Sheets
+### A6.4 How textures sit on shapes (`PRE-22`, `PRE-46`)
+
+- **One rule everywhere:** texture coordinates are in metres, so a texture pixel is 1/64 m on every surface at band 0, on people, tents and ground alike, and none is stretched beyond about 1.5:1 (`PRE-22`).
+- **The ground** is mapped from above in world metres, offset with the moving origin so its texture pixels never drift; above about 45° of slope, where a top-down map would stretch a pixel past 1.4 times its length, faces take a projection from the side.
+- **Cliffs and other rock:** each triangle takes one projection, from the direction it faces, with height as its vertical, so the texture lines up with the rock layers laid by code; never a blend of three projections, which smears pixel art. Where two faces meet, their texture pixels need not line up: the edge is where the light changes anyway.
+- **Kit shapes write their own coordinates as they are built,** so they unwrap exactly with no hand work: a pole, trunk or branch around and along, its circumference rounded to whole texture pixels so the wrap never shows; a hide panel or bark sheet by its flat cut shape; a stone by one projection a face.
+- **Figures:** each limb's rings unwrap like a sleeve, around and along its bone; garments are shells that reuse the body's layout; the face is a small design on the head's front, about 14 texture pixels tall. The coordinates belong to the mesh, so texture pixels ride on the body as the skeleton bends.
+- **Plants:** leaves and grass are cut-out cards carrying their design for each band; trunks and branches are sleeves of bark.
+- **A check in the cloud** measures each kit shape's stretch, triangle by triangle, and fails any outside the line.
+
+### A6.5 Sheets
 
 The model sheet of every kit shape in two materials, filmstrips of every movement (since motion can't be judged from a still), and the band sheets, every entry at true size and enlarged at each band, are rendered in the cloud whenever the kit changes, for your eye.
 
