@@ -1,0 +1,31 @@
+Purpose: Six of the owner's twelve pictures put much of their feeling in the sky: sunsets, the moon, storm clouds, a lightning bolt (sunset, 02, 03, 04, 07, 09). The game's camera at the near zooms looks down at the ground and shows no sky. Can a storm keep its drama from the game's camera, through what the ground shows: darkness under the clouds, rain streaks and splashes, grass bent in waves by the wind, a lightning flash lighting the land, a struck tree burning, people and horses fleeing? Only a picture can show whether the feeling survives without the sky.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/owner/contexts/09-storm-lightning.png
+Prompt:
+A portrait picture, taller than wide (2 by 3). Use the input picture only as the reference for the style, the colours and the event; draw a new view from the game's camera.
+
+The rendering style: a modern 3D game rendered at the phone screen's full, high resolution, whose surfaces wear textures painted as pixel art.
+- Geometry is smooth and sharp: the outlines of people, animals, shelters, stones, trunks and rock are clean, smooth edges at full resolution, not stair-stepped blocks.
+- Every surface carries a hand-painted pixel-art texture whose square texture pixels are clearly visible, each about 2 screen pixels across: rock, hides, bark, grass, pebbles, clothes and faces all show these small crisp squares, all of one size.
+- Light is smooth and continuous: soft gradients of light and shade across rounded forms, shadows with soft edges that grow softer with distance from what casts them, light bounced from the ground into the shade.
+- Soft effects at full resolution: soft glow round fires, translucent soft-edged smoke and mist, soft glints on water.
+- Plants are 3D: grass blades and leaves as small pixel-textured cards, tree crowns as clusters of pixel-textured leaf cards.
+- No outlines drawn round things, and no depth-of-field blur: the whole frame is in focus.
+
+Camera: seen from above at about 35 degrees, like the camera of a top-down strategy game, orthographic (no perspective), with no horizon and no sky: the ground fills the whole frame to its top edge. The frame shows about 40 metres across; a standing adult is about 50 pixels tall.
+
+Light: a summer thunderstorm in the late afternoon. Under the storm clouds the land is dark and cool: deep blue-violet, slate and dark green, wet surfaces sheened. At this moment a lightning flash lights the whole scene from above with a cold, pale violet-white light, throwing short, sharp shadows; the burning oak adds a warm orange light round itself that reflects in puddles and on the wet grass and rocks. Darkest shade a deep blue-purple, never black.
+
+Scene, on a grassy slope below a limestone outcrop:
+- An old oak, struck a moment ago, burns near the middle right: flames in its crown, sparks, steam and smoke torn sideways by the wind, its shattered limb on the ground.
+- Rain falls hard: short slanted streaks across the whole frame, all at the same slant with the wind, and small white splashes on rocks, in puddles and on the people's shoulders; puddles in the hollows reflecting the fire's orange.
+- The wind bends the tall grass in long waves, light where the blades turn their pale undersides, dark in the troughs; leaves and twigs fly.
+- A band of seven people runs uphill toward a rock shelter at the upper left, heads down, hoods up, one carrying a child, one dragging a bundle of hides, a dog running with them; their wet clothes darker than when dry.
+- A herd of about eight wild horses gallops away down the slope at the lower right, dun with dark manes, legs and dorsal stripes, manes short and upright.
+- Scattered boulders, hazel bushes thrashing in the wind, a small stream swollen and muddy at the bottom of the slope.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur (hooded tunics or capes, leggings, soft shoes), as archaeology shows; no fur bikinis and no loincloths.
+
+Style: a screenshot of a beautiful modern 3D game with pixel-art textures in a storm, rich and detailed: every person, animal, stone and plant reading on its own even in the rain. No text, no border, no interface.
+
+Avoid: a sky, clouds, a horizon or a visible lightning bolt in the sky (the camera looks down at the ground: the flash is shown only by its light on the land); horses with white patches or long flowing manes; pure black; people larger than about 50 pixels tall. Also avoid: the whole picture as blocky pixel art; a low-resolution look; blur or depth of field; a photorealistic look.

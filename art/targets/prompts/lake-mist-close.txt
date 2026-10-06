@@ -1,0 +1,23 @@
+Purpose: Study 1 weighs two live directions that differ only in the air: "the pixel is the rendering" (everything, mist and glow too, drawn in art pixels) and "pixel things in soft air" (the same, with mist, haze and glow drawn smooth at full resolution). I build both by code from a GPT picture; they differ most where the air carries the feeling, as in the owner's lake in morning mist (contexts/04-lake-morning.png), which has the biggest calm masses of all twelve. This asks for that moment from the game's camera at the close camp zoom, as the base for the comparison, and also shows whether mist and a sun-glare path on water survive without a horizon. Only a picture can serve as that base.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/owner/contexts/04-lake-morning.png
+Prompt:
+A portrait picture, taller than wide (2 by 3). Use the input picture only as the reference for the style, the colours, the light and the kinds of things in the place; draw a new view from the game's camera.
+
+True pixel art on a fixed grid of art pixels. Every art pixel is a perfectly square block of identical screen pixels, enlarged with nearest-neighbour scaling. No anti-aliasing, no blur, no gradients, no noise, no soft edges: every block is one flat colour. A limited palette of about 32 colours arranged in hue-shifted ramps: shades shift toward cool purple-blue, lights toward warm yellow; the darkest shade is a deep purple, never black. Each object has a one-art-pixel outline in a darker shade of its own colour (not black), and a one-art-pixel lighter edge where the light catches its rim.
+
+Camera: seen from above at about 35 degrees, like the camera of a top-down strategy game, orthographic (no perspective), with no horizon and no sky: the land and the water fill the whole frame to its top edge. The frame shows about 30 metres across; a standing adult is about 55 pixels tall. The shore runs from the top left to the bottom right; the lake fills the right half and the top right, the shore and its camp the left half.
+
+Light: early morning in late summer, soon after sunrise. A low sun from the upper right, its light warm and golden, breaks through banks of mist that lie on the water: pale, glowing, cream-gold where the sun is behind them, blue-grey in the shade; the mist thins over the shallows and lies in the hollows of the shore. A broad path of golden glare on the water leads toward the upper right. Long cool shadows fall toward the lower left. Dew glints on the grass.
+
+Scene:
+- The lake: calm water, its clear shallows showing a bed of pebbles and sand that darkens in steps to deep blue-green water; a thin bright line along the shore and round every stone and reed stem in the water; water lilies with white flowers in a sheltered bay; a fringe of reeds and sedges along the shore; rings spreading where fish rise; a heron standing in the shallows; four ducks on the water.
+- On the water: a man standing in a dugout canoe (a single hollowed log, no seats or planks) spearing fish with a three-pronged leister, his canoe leaving a wake through the mist.
+- The shore: a narrow beach of gravel and sand; a second dugout canoe pulled up on it with a wooden paddle; two people lifting a long fish trap of woven willow rods out of the shallows; a rack of lashed poles with split fish drying; a low lean-to of poles thatched with reeds; a hearth of stones with a small fire and a thin column of smoke; baskets; a woman gutting fish on a flat stone; a child carrying a basket of fish.
+- Behind the shore: a meadow of long grass with flowers, birch and alder trees, a hazel bush, mossy boulders; a path of trodden earth.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes), as archaeology shows; their few ornaments are beads of shell, bone and animal teeth in natural cream, brown and ochre-red colours; no fur bikinis and no loincloths.
+
+Style: a carefully hand-placed pixel-art game screenshot of a real 3D world, rich and detailed: clean, readable shapes, every person, animal, stone and plant reading on its own. No text, no border, no interface.
+
+Avoid: a horizon, sky, distant shore or the sun itself (the camera looks down); plank boats, seats or thwarts in the canoes; sawn logs or flat-topped stumps; people larger than about 55 pixels tall; pure black.

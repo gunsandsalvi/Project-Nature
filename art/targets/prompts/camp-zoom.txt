@@ -1,0 +1,27 @@
+Purpose: At the camp zoom (a few hundred metres across, PRE-03) people become tiny figures and herds small groups (PRE-28). What of the liked pictures' feeling survives at that distance, and what carries it there: the light, the big masses of colour, the river, the fire and its smoke, or the tiny figures? And do a camp, its people and a herd still read as small marks on a 6.8-inch phone? Only a picture shows how density turns into texture and masses at that scale.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/owner/liked-camp-from-above.png
+Prompt:
+A portrait picture, taller than wide (2 by 3).
+
+True pixel art on a fixed grid of art pixels. Every art pixel is a perfectly square block of identical screen pixels, enlarged with nearest-neighbour scaling. No anti-aliasing, no blur, no gradients, no noise, no soft edges: every block is one flat colour. A limited palette of about 32 colours arranged in hue-shifted ramps: shades shift toward cool purple-blue, lights toward warm yellow; the darkest shade is a deep purple, never black. Each object has a one-art-pixel outline in a darker shade of its own colour (not black), and a one-art-pixel lighter edge where the light catches its rim.
+
+Camera: high above a river valley, looking down at about 45 degrees like the camera of a strategy game, orthographic (no perspective: parallel lines stay parallel, far things are not smaller), with no horizon and no sky: the land fills the whole frame to its top edge. The frame shows about 250 metres of land across its width. At this distance the camp is a small cluster near the middle of the frame, about one eighth of the picture's width across. Each tent is about 25 pixels wide; each person is a tiny figure about 12 pixels tall, a little larger than true scale so that it still reads, with a dark outline and its clothing's colour; a red deer is about 15 pixels long; a tree's crown is 15 to 30 pixels across.
+
+Light: a late afternoon in late summer. A low, warm golden sun from the upper left; long purple-blue shadows toward the lower right from the cliff, the trees and the tents. The shadows of a few small fair-weather clouds lie on the land as soft-edged darker patches. Haze is not visible at this distance.
+
+Scene:
+- A pale limestone escarpment runs across the upper third of the frame, its horizontal layers and grey cliffs catching the sun, with pines on its top and scree and boulders at its foot; a shallow rock shelter with a dark mouth at its foot near the camp.
+- A clear river meanders from the top left to the bottom right: teal in the shallows, darker blue-green in the pools, a pale gravel bar on the inside of each bend, white water at one riffle, reeds along the banks, a thin bright line along both shores.
+- The camp on a terrace between the cliff and the river: two broad oval tents of bent poles and sewn hides, a hearth with a glowing orange fire and a thin column of grey smoke drifting right, a frame with a stretched hide, two drying racks, a patch of bare trodden earth round the hearth with scattered flint flakes and bones. About twelve people at different tasks round it, spaced apart, as tiny figures in light buff, brown, reddish and grey clothing.
+- Trodden paths: from the camp down to the river, and along the river to the lower right, where two tiny people carry a deer on a pole toward the camp.
+- A birch wood (white trunks, yellow-green crowns) to the left of the camp, a darker pine wood along the cliff's foot, hazel and willow scrub along the river, single old oaks in the meadow.
+- Meadows that are never one flat green: golden dry grass on the higher ground, greener grass near the river, patches of purple and yellow flowers, scattered boulders.
+- A marsh with reeds and still water in an old bend of the river at the lower left.
+- A herd of about twelve red deer grazing in a meadow at the right, as a clear group of small brown animals; six wild horses, dun with dark manes and legs, drinking at the river near the bottom; a few birds over the water.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur, as archaeology shows; no fur bikinis and no loincloths.
+
+Style: a carefully hand-placed pixel-art game screenshot of a real 3D world, rich and detailed: clean, readable shapes, every person, animal, stone and plant reading on its own. No text, no border, no interface.
+
+Avoid: a horizon, sky or distant mountains; conical tipi-style tents with crossed pole tips; fences, fields, roads, buildings of planks or anything of a later age; horses with white patches or flowing manes; people drawn larger than about 12 pixels tall; the whole valley in one flat green.

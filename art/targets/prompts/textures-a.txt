@@ -1,0 +1,25 @@
+Purpose: Can GPT, following the liked picture's style, make flat, evenly lit, seamless texture swatches of Stone Age materials that code could turn into the game's own materials? Words cannot answer this: only a real sheet shows whether GPT keeps the sun out of a texture, makes each square tile, and holds the liked style. I will measure every square's light slope, its seams when repeated and its shades, and compare them with the same materials in the liked picture (hide, cliff, grass, path, birch, pebbles).
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/owner/liked-camp-from-above.png
+Prompt:
+A sheet of twelve texture swatches for a 3D game, in the pixel-art style of the reference picture.
+
+Style: true pixel art on a fixed grid of art pixels. Every art pixel is a perfectly square block of about 4 x 4 identical picture pixels, enlarged with nearest-neighbour scaling. No anti-aliasing, no blur, no gradients, no noise, no soft edges: every block is one flat colour. A limited palette arranged in hue-shifted ramps: shades shift toward cool purple-blue, lights toward warm yellow; the darkest shade is a deep purple, never black. The colours of the reference picture: warm, golden and muted; greens muted and yellowish, never saturated. Each material's texture is quiet and low in contrast, made of small clusters of two to four neighbouring shades of its own colour, as the tents' hide, the limestone cliff and the grass are painted in the reference. These swatches have no outlines and no lit edges.
+
+Layout: twelve equal squares, each about 300 x 300 picture pixels, in a regular grid of 3 columns and 4 rows, separated by straight gaps about 24 picture pixels wide of one perfectly flat, uniform mid-grey (#808080). The squares do not touch or overlap and have no frames.
+
+Camera: each square is seen straight on, flat, with no perspective (orthographic): the ground materials from straight above, the cliff face and the two barks straight from the front. Each square is one flat surface filling it from edge to edge.
+
+What each square shows, left to right, top to bottom:
+Row 1: (1) a pale limestone cliff face, about 3 metres across, in horizontal layers of different thicknesses, with cracks and a few patches of lichen; (2) the surface of a grey granite boulder, about 2 metres across, with pale green and yellow lichen and a little moss; (3) dry river gravel and cobbles, about 2 metres across, rounded pebbles of mixed greys and browns, from fist-sized down to small.
+Row 2: (4) the outer side of a deer hide scraped and smoked by hand, about 1 metre across, pale tan with soft darker patches, no seams; (5) grey-brown wolf fur, about 1 metre across, the hairs lying in one direction; (6) hand-woven willow basketry, about 50 centimetres across, irregular rods passing over and under each other.
+Row 3: (7) silver birch bark, about 50 centimetres of trunk, white with dark horizontal lenticel marks and a few black fissures; (8) old oak bark, about 50 centimetres of trunk, grey-brown with deep vertical furrows; (9) reed thatch, about 2 metres across, bundles of reeds laid in overlapping courses and tied with plant cord.
+Row 4: (10) short meadow grass, about 2 metres across, a dense carpet of blades grouped in soft clumps, with a few tiny yellow and white flowers; (11) a trodden bare-earth path, about 2 metres across, packed brown earth with small stones and fine cracks; (12) fallen autumn leaves of oak and birch on the forest floor, about 2 metres across, gold, orange and brown.
+
+Light: these are colour textures (albedo maps) for a game whose own engine adds the sun later, so each square is lit evenly and softly from straight in front, like a bright overcast day: no sunlight from one side, no cast shadows across the square, no highlights on one side, no darker or lighter corners or edges, no vignette and no gradient from one edge to the other. Only the material's own small hollows are darker: the gaps between pebbles, the furrows of the bark, the spaces between reed bundles and between leaves.
+
+Seamless: every square tiles. What leaves its right edge comes back at its left edge, and what leaves its bottom edge comes back at its top, so that copies laid side by side show no seam. Nothing is cut off or finished at the edges: no border stones, no edge shading, no frame.
+
+Stone Age truth: the materials as a hunter-gatherer camp of about 12,000 years ago would have them: hide scraped and smoked by hand, never modern leather with stitching, tooling or a dyed finish; basketry woven by hand from irregular willow rods; reeds tied with twisted plant cord; no sawn or planed wood, no metal, no woven cloth.
+
+Avoid: text, labels, numbers or letters anywhere; frames, borders, bevels or drop shadows on the squares; perspective or a horizon; objects lying on the surfaces (no tools, people, animals or footprints); a repeating stamped pattern; photo realism; blur; saturated cartoon colours.

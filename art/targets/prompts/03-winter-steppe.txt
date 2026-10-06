@@ -1,0 +1,9 @@
+True pixel art on a fixed grid of art pixels. Every art pixel is a perfectly square block of identical screen pixels, enlarged with nearest-neighbour scaling. No anti-aliasing, no blur, no gradients, no noise, no soft edges: every block is one flat colour. A limited palette of about 32 colours arranged in hue-shifted ramps: shades shift toward cool purple-blue, lights toward warm yellow; the darkest shade is a deep purple, never black. Each object has a one-art-pixel outline in a darker shade of its own colour (not black), and a one-art-pixel lighter edge where the light catches its rim.
+
+Camera: seen from above at about 35 degrees, with a distant horizon and a pale winter sky at the top of the frame; about 200 metres of land in the foreground.
+Light: a low winter sun: long blue shadows on the snow, warm light on faces.
+Scene: a cold steppe in deep winter. A line of eight people in thick hooded fur parkas, leggings and boots walk through the snow, pulling a sled loaded with hides, a dog beside them, leaving footprints and the sled's track. In the distance a herd of reindeer paws through the snow for lichen. A frozen river shows dark open water at a bend; dwarf birch and willow scrub stand heavy with snow.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes, a few with bead decoration), as archaeology shows; no fur bikinis and no loincloths.
+
+Style: a carefully hand-placed pixel-art game screenshot of a real 3D world, rich and detailed: clean, readable shapes, every person, animal, stone and plant reading on its own. No text, no border, no interface.

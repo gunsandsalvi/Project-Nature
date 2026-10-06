@@ -8,7 +8,7 @@ Each note gives:
 - what Kindling takes;
 - its sources.
 
-Every quotation was checked against its page: notes 11 to 17 when written, notes 00 to 10 on 4 October 2026.
+Every quotation was checked against its page: notes 11 to 17 when written, notes 00 to 10 on 4 October 2026, and note 19 with its seven studies on 6 October 2026.
 Where a site refused the checking tool, the quote was checked against a search engine's copy of the page; quotes that could not be found were reworded or removed.
 
 ## The notes
@@ -34,15 +34,17 @@ Where a site refused the checking tool, the quote was checked against a search e
 | [16 Testing](16-testing.md) | doctest and property tests in C++, gdUnit4 for Godot, Movie Maker mode for repeatable pictures and reels, Perfetto and AGI on the phone. |
 | [17 Models, textures, animation](17-assets.md) | The model kit as code and data, MultiMesh copies with per-copy colour and style, key poses bent by rules, icons rendered from models. |
 | [18 The foundations](18-foundations.md) | The same bits by rule and proof, correctly rounded maths, never-reused ids, one event queue run in islands, catalogues with no floats, saves that sync only commands, a triple buffer to Godot, and a benchmark by our own measure. |
+| [19 The graphics engine](19-graphics.md) | A sharp 3D world at your phone's full resolution wearing pixel-art textures, about 2 screen pixels to a texture pixel at every zoom, each zoom band drawn anew; light, darkening and readability built on Godot's Mobile renderer, and the phone deciding what fits; seven studies and your 36 answers in `19/`. |
 
 ## Can Godot do it? The summary
 
 Everything `PROJECT.md` asks is within Godot's reach without changing its source.
+The look you chose in research 19 is the one exception to watch: it may need two small patches to Godot to keep 60 frames a second without savings you could see, which is yours to decide.
 What Godot does not do for us, we build on top of it.
 
 | Area | Verdict | Built by us | Risk |
 |---|---|---|---|
-| The 3D pixel look | Yes, on the Mobile renderer | outlines from rebuilt normals, our light function | medium |
+| The look you chose (research 19) | Yes, at full resolution, near the line: the phone decides what fits | our light function, darkening, texture levels per zoom band, perhaps two patches to Godot | high |
 | Steady 60 frames a second | Likely | MultiMesh grouped by area, frame pacing | high: the phone's chip and its drivers |
 | Firelight on many figures and huts | Limited: MultiMesh copies stop receiving light past the per-object light limit | a firelight term in our shaders, if needed | medium: new, from note 17 |
 | One zoom from a person to the globe | Not built in | our own level of detail, moving origin, map look, globe | high |

@@ -1,0 +1,32 @@
+Purpose: camp-zoom.txt came out about 35 metres across with people about 30 pixels tall: the far end of the close camp, not the camp zoom of a few hundred metres (PRE-03). GPT pulls toward close views (it drew the asked 10-kilometre valley at about a tenth of that), so this request deliberately asks for a far larger area, with the camp as a small detail, hoping the result lands near 300 metres across. It also tests the harder light for distance: the blue hour after sunset, when the land falls into shade and camps should read as glowing points at their hearths (PRE-28). Does the feeling hold when everything is small and dim, and do camps, people and herds still read as small marks on a 6.8-inch phone? Only a picture can show it.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/owner/liked-camp-from-above.png
+Prompt:
+A portrait picture, taller than wide (2 by 3). Use the input picture only as the reference for the style, the colours and the kinds of things in the land; draw a completely new, very distant view.
+
+True pixel art on a fixed grid of art pixels. Every art pixel is a perfectly square block of identical screen pixels, enlarged with nearest-neighbour scaling. No anti-aliasing, no blur, no gradients, no noise, no soft edges: every block is one flat colour. A limited palette of about 32 colours arranged in hue-shifted ramps: shades shift toward cool purple-blue, lights toward warm yellow; the darkest shade is a deep purple, never black. Small things have a one-art-pixel outline in a darker shade of their own colour (not black).
+
+Camera: very high above a wide river valley, looking down at about 50 degrees, like a strategy game's camera zoomed far out, orthographic (no perspective: far things are not smaller), with no horizon and no sky: the land fills the whole frame to its top edge. The frame shows a large area, about 3 kilometres of land across its width, so everything is tiny:
+- each camp is a small cluster about one tenth of the picture's width across;
+- each tent is a tiny dome about 10 pixels wide;
+- each person is a tiny upright mark about 6 to 8 pixels tall, a little larger than true scale so that it still reads;
+- each red deer or horse a dot about 5 to 6 pixels long;
+- each tree crown a soft round clump of about 6 to 12 pixels; forests are hundreds of crowns packed together;
+- the river is about 30 to 50 pixels wide.
+
+Light: the blue hour, just after sunset in late summer. The sun has set to the upper left; its last warm light still catches the very top of the limestone escarpment in pale rose and gold. All the land below lies in cool shade: blue-green meadows, deep blue-violet forests, the river a pale band reflecting the rose and lilac of the twilight sky. Every camp's hearth glows as a bright orange point with a small warm pool of light round it and a thin column of smoke catching the last light. Darks are deep blue-purple, never black.
+
+Scene:
+- A long pale limestone escarpment with horizontal layers runs across the upper quarter of the frame, pine forest along its top, scree and boulders at its foot, a few dark rock-shelter mouths along its base.
+- A river meanders down the frame in wide loops, with pale gravel bars on the inside of each bend, a riffle of white water, an oxbow lake and a reed marsh in an old bend.
+- Three camps far apart: one on a terrace below the escarpment near a rock shelter (four tiny dome tents round a glowing hearth, about ten tiny people), one on a river bend in the middle (three tents, a glowing hearth, about eight people), one small one at the lower right (two tents, a hearth just lit).
+- Trodden paths as thin pale lines join the camps to the river and to each other.
+- Birch and pine woods as dense clumps of hundreds of crowns; hazel and willow scrub along the river; single old oaks in the meadows; open meadows of dry golden grass on the higher ground and greener grass by the water.
+- A herd of about thirty red deer as a group of small dots in a meadow at the right; about fifteen dun wild horses as dots near the river; a few tiny birds over the marsh.
+- Two tiny people walking along a path toward the middle camp.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur, as archaeology shows.
+
+Style: a carefully hand-placed pixel-art game screenshot of a real 3D world seen from very far away: clean, readable shapes, each camp, herd and river bend reading on its own. No text, no border, no interface.
+
+Avoid: a horizon, sky, sun or distant mountains; a close view; people, tents or animals drawn larger than the sizes above; fields, fences, roads, villages or anything of a later age; conical tipi-style tents; pure black; the whole valley in one flat colour.

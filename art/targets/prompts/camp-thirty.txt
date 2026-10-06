@@ -1,0 +1,32 @@
+Purpose: The owner's pictures show five to twenty people; the game's own test is a camp of about thirty, "doing at least 6 different activities at most moments" (VIS-17), which must stay readable at every zoom (PRE-28). At the close camp zoom, people are 10 to 25 art pixels tall. Does a camp of thirty keep the feeling of life without turning to clutter, can each person be found and each task told apart, and what makes them readable (the trodden floor as a stage, clothing colours, spacing)? I will measure each figure's salience on it. Only a picture shows the balance between busy and readable.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/work2/1/gpt/close-camp.png
+Prompt:
+A portrait picture, taller than wide (2 by 3). Use the input picture as the reference for the style, the light, the colours and the place; draw a new, somewhat wider view of a bigger camp in the same place.
+
+The rendering style: a modern 3D game rendered at the phone screen's full, high resolution, whose surfaces wear textures painted as pixel art.
+- Geometry is smooth and sharp: the outlines of people, animals, shelters, stones, trunks and rock are clean, smooth edges at full resolution, not stair-stepped blocks.
+- Every surface carries a hand-painted pixel-art texture whose square texture pixels are clearly visible, each about 2 screen pixels across: rock, hides, bark, grass, pebbles, clothes and faces all show these small crisp squares, all of one size.
+- Light is smooth and continuous: soft gradients of light and shade across rounded forms, shadows with soft edges that grow softer with distance from what casts them, light bounced from the ground into the shade.
+- Soft effects at full resolution: soft glow round fires, translucent soft-edged smoke and mist, soft glints on water.
+- Plants are 3D: grass blades and leaves as small pixel-textured cards, tree crowns as clusters of pixel-textured leaf cards.
+- No outlines drawn round things, and no depth-of-field blur: the whole frame is in focus.
+
+Camera: seen from above at about 35 degrees, like the camera of a top-down strategy game, orthographic (no perspective), with no horizon and no sky: the ground fills the whole frame to its top edge. The frame shows about 40 metres across; a standing adult is about 40 pixels tall. Do not draw the people larger than this.
+
+Light: a late afternoon in late summer, a low warm golden sun from the upper left, long purple-blue shadows toward the lower right, warm light on the tops of things, cool shade under the cliff.
+
+Scene: the same terrace under the limestone cliff with its rock shelter, by the clear river on the left, now holding the whole band of about thirty people.
+- Seven low dome tents of sewn hides on bent poles, in a loose ring, each held down by stones; three hearths of stones with small fires and thin smoke.
+- Round the main hearth, a ring of trodden bare earth with the camp's debris as excavations show it: flint flakes and chips where people knap, bone splinters, ash, nut shells; further out, a heap of thrown-away bones, broken antler and ash.
+- Thirty people spread out at about ten different tasks, never in step: three knapping flint on the bare floor; two scraping hides on frames; two cutting up a deer carcass on a hide; a woman sewing a garment with a bone needle; an old man twisting cord; two women grinding seeds on flat stones; a group of four children chasing each other; two toddlers sitting by a mother holding a baby in her arms; three people resting in the shade of the cliff; two young men coming up from the river carrying a deer on a pole; two women carrying water skins; a man fishing with a spear in the river; a girl gathering firewood; an elder telling something to two listeners; a man repairing a tent's cover; a dog asleep.
+- Their clothes vary: buff, light grey, mid brown, reddish brown and dark brown hides, some with pale fur collars, a few with red ochre painted bands.
+- Racks of drying meat and fish; baskets; bundles of hides; a woodpile of broken branches.
+- The meadow round the camp: grass with clumps, flowers, stones; paths of trodden earth to the river and along the cliff.
+- The river at the left with its pebble bed, stepping stones, reeds and a gravel bar; birches and hazel at the edges.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes), as archaeology shows; their few ornaments are beads of shell, bone and animal teeth in natural cream, brown and ochre-red colours; no fur bikinis and no loincloths.
+
+Style: a screenshot of a beautiful modern 3D game with pixel-art textures, rich and detailed: every person, animal, stone and plant reading on its own. No text, no border, no interface.
+
+Avoid: conical tipi-style tents with crossed pole tips; sawn logs, planks or flat-topped stumps; pottery; anything of metal; glass beads, bead bands or fringed hems; everyone in the same clothes; people crowded shoulder to shoulder; a horizon or sky; people larger than about 40 pixels tall. Also avoid: the whole picture as blocky pixel art; a low-resolution look; blur or depth of field; a photorealistic look.

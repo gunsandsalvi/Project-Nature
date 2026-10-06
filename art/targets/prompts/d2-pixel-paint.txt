@@ -1,0 +1,21 @@
+Purpose: The owner asked to be shown options, and study 1 compares three directions on the same view. The first, "the pixel is just the rendering", I simulate by snapping close-camp.png onto true 3 x 3 and 4 x 4 grids by code. The second cannot be made by code: the world drawn at the phone's full resolution with smooth, sharp geometry and smooth light, the pixel look living only in textures painted as pixel art, with soft glow, soft shadows and translucent smoke (as modern pixel-textured 3D games do). This repaint of close-camp.png in that look lets the owner set the two side by side and see which carries the feeling better; a look can only be judged by seeing it.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/work2/1/gpt/close-camp.png
+Prompt:
+A portrait picture, taller than wide (2 by 3). Repaint the input picture in a different rendering style. Keep exactly the same view and content; change only how it is rendered.
+
+Keep exactly: the same camera, framing and scale (seen from above at about 35 degrees, orthographic, no horizon and no sky); the same late-afternoon light from a low warm sun at the upper left, with long purple-blue shadows toward the lower right; the cliff with its rock shelter along the top; the two dome tents of sewn hides on bent poles; the hearth with its fire and smoke; the heap of branches; the hide frame; the drying rack; the baskets; the paths; the river with its pebble bed, gravel bank, stepping stones and the heron; the birch wood, bushes, boulders and two red deer at the lower right; the same seven people at the same tasks in the same places and the same size.
+
+The rendering style: a modern 3D game rendered at the phone screen's full, high resolution, whose surfaces wear textures painted as pixel art.
+- Geometry is smooth and sharp: the outlines of tents, stones, people, trunks and the cliff are clean, smooth edges at full resolution, not stair-stepped blocks.
+- Every surface carries a hand-painted pixel-art texture whose square texture pixels are clearly visible, each about 3 screen pixels across: the limestone's layers and cracks, the hides' patches and stitches, the bark of the birches, the grass, the pebbles, the people's clothes and faces all show these small crisp squares, all of one size.
+- Light is smooth and continuous: soft gradients of light and shade across rounded forms, shadows with soft edges that grow softer with distance from what casts them, warm light bounced from the meadow into the shade.
+- Soft effects at full resolution: a soft warm glow round the fire; translucent, soft-edged smoke; soft glints and a gentle sheen on the water; a faint warm haze in the sunlit air.
+- Plants are 3D: grass blades and leaves as small pixel-textured cards, crowns of the birches as clusters of pixel-textured leaf cards.
+- No depth-of-field blur: the whole frame is in focus.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes), as archaeology shows; their few ornaments are beads of shell, bone and animal teeth in natural cream, brown and ochre-red colours; no fur bikinis and no loincloths.
+
+Style: a screenshot of a beautiful modern 3D game with pixel-art textures, rich and detailed, every person, animal, stone and plant reading on its own. No text, no border, no interface.
+
+Avoid: the whole picture as blocky pixel art; a low-resolution look; blur or depth of field; a photorealistic look; changing the content, the framing, the light or the size of things.

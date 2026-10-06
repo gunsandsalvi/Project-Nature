@@ -1,0 +1,35 @@
+Purpose: The owner's village picture (contexts/08-village-copper.png) carries several later things: chickens, a well with a winch, framed windows, sawn planks and boards, hooped barrels and buckets, a potter's wheel, horse-like domestic coats. Study 1 proposes a truth check for every target picture (PRE-42, SCP-20, WLD-33). This request is that check applied: the same kind of scene, an early farming village with its first copper, drawn from the game's camera at the close camp zoom with only what archaeology and Kindling's own catalogue allow. Does the village keep the feeling once the later things are gone, and does the corrected list of things work as a prompt? Only a picture shows both.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/owner/contexts/08-village-copper.png
+Prompt:
+A portrait picture, taller than wide (2 by 3). Use the input picture only as the reference for the style, the colours and the kind of place; draw a new view from a higher camera, with the corrections below.
+
+The rendering style: a modern 3D game rendered at the phone screen's full, high resolution, whose surfaces wear textures painted as pixel art.
+- Geometry is smooth and sharp: the outlines of people, animals, shelters, stones, trunks and rock are clean, smooth edges at full resolution, not stair-stepped blocks.
+- Every surface carries a hand-painted pixel-art texture whose square texture pixels are clearly visible, each about 2 screen pixels across: rock, hides, bark, grass, pebbles, clothes and faces all show these small crisp squares, all of one size.
+- Light is smooth and continuous: soft gradients of light and shade across rounded forms, shadows with soft edges that grow softer with distance from what casts them, light bounced from the ground into the shade.
+- Soft effects at full resolution: soft glow round fires, translucent soft-edged smoke and mist, soft glints on water.
+- Plants are 3D: grass blades and leaves as small pixel-textured cards, tree crowns as clusters of pixel-textured leaf cards.
+- No outlines drawn round things, and no depth-of-field blur: the whole frame is in focus.
+
+Camera: seen from above at about 35 degrees, like the camera of a top-down strategy game, orthographic (no perspective), with no horizon and no sky: the ground fills the whole frame. The frame shows about 40 metres across; a standing adult is about 50 pixels tall.
+
+Light: a late afternoon in early autumn, a low warm sun from the upper left, long purple-blue shadows toward the lower right, warm light on the thatch and the walls, cool shade under the eaves.
+
+Scene: an early farming village at the very end of the Stone Age, a few generations old, by a small river.
+- Two long houses of timber posts, about 6 metres wide and 15 to 20 metres long, with walls of woven wattle plastered with clay daub, pale brown and cracked, and steep, deep roofs of thatch reaching low; no windows at all; one low doorway in each gable end, closed by a hanging hide; smoke seeping out through the thatch at the roof's ridge, since the hearth is inside.
+- A garden plot fenced with woven hazel wattle: ripe barley and emmer wheat in small irregular patches, a patch of flax with blue flowers, peas on sticks.
+- A pen of woven wattle and posts with a few small, hairy brown and black sheep with horns, and goats; a small brown cow with long horns tethered by a rope; two dark pigs rooting by the fence; a dog. No other animals.
+- A well: a square shaft lined with a box of split logs, its rim a frame of split timbers at ground level; a woman lowers a bark bucket on a rope by hand. No winch, no roof over it.
+- Grain drying on a rack of lashed poles; a woman grinding grain on a saddle quern (a flat stone and a rubbing stone) by her door.
+- Pottery: a woman building a pot by hand from coils of clay on a hide mat; several hand-built round-bottomed pots with incised patterns drying on the ground; a low, dome-shaped clay kiln with a small fire at its mouth.
+- Copper: in a shallow pit lined with stones, a small charcoal fire with a clay crucible in it, glowing; two men kneel by it blowing through long reed blowpipes with clay tips; green copper ore crushed on a flat stone beside them; a heap of charcoal in a basket.
+- Firewood stacked as split logs and branches with rough, broken ends; a chopping place with a polished stone axe hafted in wood.
+- People of the village at work, in clothes of leather, fur and plain woven linen in natural undyed colours (cream, grey, brown, ochre), with a few beads of shell, bone, amber and the first small copper beads; children carrying water; an old man mending a basket.
+- A path of trodden earth between the houses, worn bare, with puddles and scattered potsherds; grass, nettles and weeds along the walls; a few old oaks and hazels; the small river at one corner with reeds and a log footbridge of two split trunks.
+
+Stone Age truth: no sawn planks or boards, no flat-cut stumps, no barrels, hoops or coopered buckets, no wheels of any kind (no potter's wheel, no carts), no glass, no windows, no iron or bronze tools, no chickens, no horses, no cats, no woolly white sheep, no stone walls with mortar, no metal pots or cauldrons.
+
+Style: a screenshot of a beautiful modern 3D game with pixel-art textures, rich and detailed: every person, animal, stone and plant reading on its own. No text, no border, no interface.
+
+Avoid: everything listed under Stone Age truth; a horizon or sky; people larger than about 50 pixels tall; a tidy fairy-tale village; pure black. Also avoid: the whole picture as blocky pixel art; a low-resolution look; blur or depth of field; a photorealistic look.

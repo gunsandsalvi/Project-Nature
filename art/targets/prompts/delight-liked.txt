@@ -1,0 +1,19 @@
+Purpose: Can GPT turn the liked picture's own sunlit materials into flat, evenly lit, seamless texture swatches that keep exactly their colours and painted texture? This is a second route to texture sources, deriving them from the target picture itself rather than from words, so the textures would match the look the owner chose. The text-only sheet (textures-a) came out close in value and contrast but less saturated, with some darkened corners and no seams that tile. Words cannot show whether GPT can remove the sun's light and shadows from a painted surface while keeping its look; I will compare each swatch with the same material in the input picture and with textures-a.
+Orientation: landscape
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/work2/5/gpt/input-liked-top.png
+Prompt:
+From the input picture, make a sheet of six flat texture swatches for a 3D game, one for each of six materials painted in it, keeping each material's own colours, pixel size and painted texture exactly as the input picture paints them, but with the sunlight and shadows taken out.
+
+The six materials, as they appear in the input picture, left to right, top to bottom: (1) the sewn deer hide of the two conical tents, taking the hide only, without the seams, poles or stones; (2) the pale limestone of the cliff along the top, its rock surface only, without plants; (3) the meadow grass of the ground; (4) the bare trodden earth of the path around the hearth; (5) the white bark of the birch trunks on the left; (6) the grey stones ringing the tents and the hearth, as a surface of the stone itself.
+
+Layout: on one perfectly flat, uniform mid-grey background (#808080), six equal squares, each about 400 x 400 picture pixels, in a regular grid of 3 columns and 2 rows, separated by straight gaps about 30 picture pixels wide. The squares do not touch and have no frames.
+
+Style: the input picture's own pixel-art painting: pixel blocks of about 4 x 4 picture pixels, the same small clusters of two to four neighbouring shades, the same warm, golden and muted colours, the same contrast. No outlines, no lit edges, no blur.
+
+Camera: each square seen straight on, flat, with no perspective (orthographic): the ground materials from straight above, the cliff and the bark straight from the front; each square one flat surface filling it edge to edge.
+
+Light: the low late-afternoon sun of the input picture is removed: each square is lit evenly and softly from straight in front, like a bright overcast day, as a colour texture (albedo map) for a game whose engine adds its own sun. No light from one side, no cast shadows, no highlights on one side, no darker or lighter corners, no vignette, no gradient across the square; only each material's own small hollows are darker. Keep the colours of the materials themselves: the hide's tans and browns, the limestone's pale cream and grey, the grass's muted yellow-greens, the earth's browns, the birch's white and black, the stones' greys.
+
+Seamless: every square tiles: what leaves its right edge comes back at its left edge, and what leaves its bottom edge comes back at its top, with no seam, border or frame.
+
+Avoid: text, labels or numbers; frames or borders; perspective; objects on the surfaces (no poles, stones on the hide, plants on the rock, people or tools); a repeating stamped pattern; masonry or cut blocks; photo realism; blur.

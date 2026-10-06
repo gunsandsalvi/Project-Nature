@@ -1,0 +1,26 @@
+Purpose: Per-hour targets by relighting (study 6, questions 1 and 3). The engine changes only the light between hours; its materials stay the same. This edit relights the noon paintover (paintover-closecamp.png) to dusk, changing only the light. I will compare it with paintover-closecamp-dusk.png (the engine's own dusk frame repainted) to see which way gives a consistent set of hour targets: relighting one approved paintover, or repainting each hour's engine frame. Only real pictures can show how much each way re-invents the ground. Because this is an edit with one change, the style wording is "keep the input's style exactly" instead of the style head.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/work2/6/gpt/paintover-closecamp.png
+Prompt:
+Edit the input picture. Change only one thing: the time of day, from summer noon to dusk on the same summer evening. Keep everything else exactly as it is, in the same pixel-art style: every person, object, plant, stone and colour of material stays the same; only the light falling on them changes.
+
+The new light, dusk:
+- the sun is very low, toward the lower left of the picture, behind the viewer's left shoulder; it is not in the frame;
+- long shadows of every person, tent, reed, tuft and rock stretch toward the upper right, five to ten times as long as at noon;
+- the face of the limestone cliff glows warm pink and orange in the last sunlight; the meadow is in soft, low, warm light with cool blue-teal shadows;
+- the river reflects the evening sky as a deep blue, with a thin bright line along its banks;
+- inside the rock shelter the fire lights the people and the back wall warmly in orange;
+- the whole picture is darker and warmer than at noon, with deep cool shade, never black.
+
+What to keep exactly as it is:
+- the camera, the framing and the scale: seen from above at about 40 degrees like a strategy game's camera, no horizon and no sky, about 45 metres of ground from left to right, each standing person about 45 pixels tall in a 1024 x 1536 portrait picture;
+- the limestone cliff with its blocks, cracks, moss and grass, and the two people standing above it;
+- the shelter's camp: the brush windbreak, the hearth and its fire and smoke, every person at work, the drying rack with red strips of meat, the stone slabs;
+- the two conical hide tents on wooden poles, the people beside them and the wooden frame by them;
+- the river, its pebbles, its reeds and sedges and the person standing in it;
+- the path, every person on it and on the meadow, and the hide beside it;
+- every grass tuft, herb, flower, pebble and stone, in the same places.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes, a few with bead decoration), as archaeology shows; no fur bikinis and no loincloths.
+
+Avoid: any change other than the light; moving, adding or removing anything; a sunset sky, the sun or a horizon in the frame; changing the season; black shadows; blur; text; landscape orientation.

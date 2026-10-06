@@ -1,0 +1,26 @@
+Purpose: How should the engine help people read in a busy scene without outlines? The owner found the people in study 1's autumn wood "with effort", not at a glance (answer 27), and listed it as a problem to solve, not to cut; but they also chose no outlines up close (answer 7) and the wild density as liked (answer 6). The engine can help with light alone, at little cost: a thin warm rim of light on each figure's sunlit edge, a soft fill that lifts faces and hands, and leaves that thin out where a crown or bush hides a person. This picture repaints the same frame with only those aids added, so the owner can say whether the people now read at a glance and whether the feeling survives. Whether a lighting aid looks natural or staged cannot be judged from words.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/work2/1/gpt/autumn-close.png
+Prompt:
+A portrait picture, taller than wide (2 by 3). Repaint the input picture exactly, changing only how the people and animals are lit. Keep the same composition, camera, framing and scale, every tree, crown, leaf colour, stone, log, mushroom, the stream, the trail, the people, their poses, clothes and places, the animals, the light of the low autumn sun, the painted texture and the rendering style.
+
+The rendering style, as in the input: a modern 3D game rendered at the phone screen's full, high resolution, whose surfaces wear textures painted as pixel art.
+- Geometry is smooth and sharp: the outlines of people, animals, stones, trunks and rock are clean, smooth edges at full resolution, not stair-stepped blocks.
+- Every surface carries a hand-painted pixel-art texture whose square texture pixels are clearly visible, each about 2 screen pixels across, all of one size.
+- Light is smooth and continuous, with soft shadows and light bounced from the ground into the shade.
+- Plants are 3D: leaves as small pixel-textured cards, crowns as clusters of leaf cards.
+- No outlines drawn round things, and no depth-of-field blur: the whole frame is in focus.
+
+Camera, as in the input: seen from above at about 40 degrees, like the camera of a top-down strategy game, with no horizon and no sky; about 35 metres across; a standing adult about 45 pixels tall.
+
+Scene, as in the input: a mixed European broadleaf wood in mid autumn, gold, copper and brown crowns of oak, beech, hazel and birch, a floor of fallen leaves, mossy boulders, rust ferns, a fallen trunk with mushrooms, a small clear stream with mossy stones, a game trail. Two hunters in brown hide clothing stalking along the trail, one with a bow drawn, one with a spear; a red deer stag in a sunlit gap; a wild sow and three half-grown plain brown young rooting under the oaks; a woman and a girl kneeling under the hazels, gathering nuts into a basket; a red squirrel on a branch.
+
+What changes, the aids under test, all of them gentle:
+- A thin rim of warm golden light, one or two screen pixels wide, along the edge of each person and each animal on the side facing the low sun (upper left), the way a film's backlight picks out an actor from the background. The rim follows each figure's own shape: shoulders, heads, arms, the bow and spear shafts.
+- A soft fill light that follows each person: their faces, hands and the paler parts of their hide clothing are one or two shades lighter than now, so faces read; the rest of the wood keeps its light.
+- Where a crown, branch or bush covers part of a person, its leaves thin out in a small soft patch over the person, so the person shows through the gaps; everywhere else the foliage stays as dense as now.
+- A soft dark contact shadow on the ground under each person and animal.
+
+Stone Age truth, as in the input: tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes), stone-tipped spear and arrows, a wooden bow; no fur bikinis, no loincloths, no metal.
+
+Avoid: outlines or dark contours round figures; glow, halos, bloom or a spotlight look; changing the colour of anyone's clothes; making the people bigger; thinning or calming the leaves anywhere except over a person; clearing the ground round people; desaturating, darkening or blurring the wood; changing the composition, light direction, density or anything else; adding or removing anything; text, borders or interface. Also avoid: the whole picture as blocky pixel art; a low-resolution look; a photorealistic look.

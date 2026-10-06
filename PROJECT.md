@@ -472,6 +472,8 @@ Each item's detailed acceptance criteria are written in the implementation plan,
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
   - `MIL-09` **The graphics engine** *(Decided)*: crisp 3D pixel art (`PRE-01`, `PRE-02`) that goes well beyond the art book's pictures, which were preliminary: the stable pixel grid (`PRE-22`), outlines and lit edges (`PRE-21`), colour in steps with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit and its textures made by code (`PRE-46`, `PRE-42`, `PRE-43`).
     *Now possible:* the game's own scenes drawn by the engine, in portrait and landscape, which you judge as the bar for everything built on them.
+    - **Proposed change:** the text becomes "a sharp 3D world at the screen's full resolution wearing pixel-art textures (`PRE-01`, `PRE-02`) that goes well beyond the art book's pictures, which were preliminary, toward the pictures you liked: steady texture pixels (`PRE-22`), edges by light and shade (`PRE-21`), colour by design with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit made by code (`PRE-46`, `PRE-42`, `PRE-43`), its textures made by code, by the world, or prepared by code from pictures you approved, each traced to its picture, prompt and your approval".
+      Why: you chose a sharp world with pixel-art textures and accepted surfaces from all three routes (research 19, answers 1 and 15).
   - `MIL-10` **The world** *(Decided)*: whole worlds generated from a seed in the order of real causes (`WLD-08`, `WLD-09`), the best three offered (`WLD-10`); the map layers, and detail made on demand (`WLD-12`, `WLD-13`); the sky, climate and weather, fresh water, seas and soils (`WLD-07`, `WLD-16`, `WLD-17`, `WLD-26`, `WLD-27`); quakes and eruptions (`WLD-15`); one zoom from a cliff face to the globe (`PRE-03`, `WLD-02`), and the cut-away view (`PRE-25`).
     *Now possible:* making a world, choosing it, and flying over it through its weather and seasons.
   - `MIL-11` **Things and living nature** *(Decided)*: materials and things, with their shapes, characteristics, wear, simple physics, timers and traces (`MAT-01`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-08`); fire (`MAT-18`); plants and animals everywhere, as catalogue entries placed by rules, with their seasons and their ecology (`WLD-31`, `WLD-32`, `WLD-18`); wildfire (`WLD-28`); a card for anything you tap (`PRE-35`).
@@ -2068,20 +2070,41 @@ The look, written to stand without any image.
 
 - `PRE-01` **Detailed pixel art** *(Decided)*: Everything on screen is crisp pixel art, drawn in art pixels (`PRE-22`): limited colours from one palette (`PRE-20`), hard edges, no blur, no smooth gradients.
   - **Done when:** each art pixel of the world is one solid palette colour.
+  - **Proposed change:** the title becomes *Pixel-art surfaces*, and the text "Everything on screen is a sharp, detailed 3D world drawn at the screen's full resolution, whose every surface wears a texture painted as pixel art (`PRE-22`), under smooth light (`PRE-30`); nothing blurs the texture pixels.
+    A saving made to fit the phone (`PLT-04`) stays only where you cannot tell it from the full picture in a blind test on your phone."
+    Done when: "at every zoom stop, texture pixels show as crisp squares of 1.5 to 3 screen pixels and nothing in the world is blurred, and every saving in the build has passed its blind test, recorded with its pictures."
+    Why: you chose this look and refused every visible saving (research 19, answers 1, 6, 7 and 25); one palette and no smooth gradients no longer hold.
 
 - `PRE-02` **Pixel-rendered 3D** *(Decided)*: A real 3D world drawn at low resolution, so it looks like hand-made pixel art with real depth, scale and structure; the camera turns freely and zooms continuously.
   - **Done when:** `PLT-04`'s benchmark worlds stay smooth at every zoom stop as the camera turns.
+  - **Proposed change:** the title becomes *Pixel-textured 3D*, and "A real 3D world drawn at low resolution" becomes "A real 3D world drawn at the screen's full resolution with pixel-art textures"; the rest stays.
+    Why: drawing the world small and enlarging it is the look you did not choose (research 19, answer 1).
 
 - `PRE-20` **Colour in steps** *(Decided)*: Every material has a ladder of about 4–7 shades from one master palette, made from its colour (`MAT-10`) or by hand for common ones, and the light (`PRE-30`) picks the step.
   Two steps meet in a clean edge, with no pattern mixing them, and surfaces carry no fine grain, only the lines and broad shapes of what they are made of, such as rock layers, seams and courses of thatch.
   - **Done when:** no surface is speckled, and the edges between steps hold still as the camera pans.
+  - **Proposed change:** the title becomes *Colour by design*, and the text "Every material is painted as pixel art in its own shades, made from its colour (`MAT-10`) or by hand for common ones, lights warm and shades cool, and the light (`PRE-30`) falls on it smoothly.
+    Its texture is quiet, of marks two or more texture pixels wide that show what it is made of, and carries no sunlight from one side.
+    Strong colour stays in small accents, except where the season itself is the colour, as in autumn, and each biome, hour and season has its colour plan."
+    Done when: "no surface turns to speckle at any zoom stop on your phone, and in a summer daylight scene strong colour stays in small accents."
+    Why: your answers 6, 7, 21, 31 and 36 (research 19); steps of 4–7 shades and no fine grain no longer hold.
 
 - `PRE-21` **Outlines and lit edges** *(Decided)*: A one-pixel dark outline wherever one thing stands in front of another, and a one-pixel bright edge where the sun or a fire catches a shape (`PRE-30`), such as a cliff's sunlit rim or a person's fire-facing side.
   - **Done when:** at every zoom stop, each figure, tree and rock in front of something is outlined.
+  - **Proposed change:** the title becomes *Edges and contact*, and the text "Up close nothing is outlined: things stand apart by their light, shade and colour.
+    A bright edge shows where the sun, the sky or a fire catches a shape (`PRE-30`), such as a cliff's sunlit rim or a person's fire-facing side, and corners, undersides and the ground where things stand darken.
+    Small, far figures are outlined (`PRE-28`)."
+    Done when: "at the person and close camp zooms no shape has a drawn outline, and every figure in sun or firelight shows its lit edge and its contact shade."
+    Why: your answers 4 and 7 (research 19).
 
 - `PRE-22` **Stable pixels** *(Decided)*: Pixels never crawl or shimmer while the camera is still or panning: it snaps to whole art pixels and turns ease to rest; an art pixel is about 2 by 2 screen pixels at the person, growing with the zoom to about 6 by 6 at the globe, so small things blend into the pixels as you zoom out, in portrait and landscape.
   Some crawling in a free turn or zoom can't be avoided without blur; the fix that best lessens it is chosen at the first visual review (`PRE-31`).
   - **Done when:** with the camera still or panning, frames change only where something moved, or by whole pixels.
+  - **Proposed change:** the title becomes *Steady texture pixels*, and the text "Texture pixels never crawl, flicker or shimmer, with the camera still, panning, turning or zooming: each stays a crisp square that moves with its surface.
+    A texture pixel shows as about 2 by 2 screen pixels at every zoom: about 64 a metre at the person zoom, and each zoom band farther out has its own textures, drawn as pixel art at half the density of the band before, never shrunk, and blended so nothing pops; so small things are drawn more simply as you zoom out, in portrait and landscape."
+    Done when: "with the camera still, frames change only where something moved; while it pans, turns or zooms smoothly, no more than 2 in 100 pixels flicker beyond what the movement explains; a texture pixel measures 1.5 to 3 screen pixels at every zoom stop; and you see no shimmer in the review's clips on your phone."
+    The glossary's *Art pixel* becomes *Texture pixel:* one pixel of a texture, shown as about 2 by 2 screen pixels at every zoom.
+    Why: your answers 1, 2, 21, 31, 35 and 36 (research 19); the crawl the old text allowed now has a measured check.
 
 - `PRE-23` **Rock faces** *(Decided)*: Cliffs show the rock layers where they stand (`WLD-09`), which go on underground (`PRE-25`): layers of different thicknesses, cracks and fissures, lichen and water stains where the face is wet (`WLD-16`), soot above lived-in caves (`MAT-18`), grass hanging over the top and scree at the foot.
   - **Done when:** cliffs of three kinds of rock show their own layers, and a cave lived in for 10 years shows soot.
@@ -2095,14 +2118,22 @@ The look, written to stand without any image.
 - `PRE-26` **Water** *(Decided)*: Rivers meander and change width, with gravel bars, reeds, lines that follow the current, ripples at fords, glints of sun and drifting mist, all from the river's course and flow (`WLD-17`) and the weather (`WLD-16`).
   Shallow water shows its bed, deeper water darkens away from the shore, and a thin bright line marks where water meets land or anything standing in it.
   - **Done when:** every river is at least one art pixel wide from valley zoom inward, and farther out those draining about 1,000 km² or more (tuned).
+  - **Proposed change:** in Done when, "at least one art pixel wide" becomes "at least 2 screen pixels wide".
+    Why: art pixels go with the look you did not choose (research 19, answer 1).
 
 - `PRE-27` **People and animals** *(Decided)*: Small 3D figures of tiny blocks, with a separate head, torso, arms and legs, posed about 10 times a second (`PRE-44`), so they look like crisp pixel art from any angle.
   - **How it works:** a figure is built from its body's parts (`BIO-13`) and looks (`BIO-08`, `BIO-22`), wearing and carrying what the person has (`PRE-42`), with their strongest feeling on its face (`MND-19`); animals use their body pattern (`PRE-46`).
     Of the body it shows only build (thin, average or stout), age (grey hair, a bent back), a limp or a sling, a pale dressing or splint, scars or pox marks as a few darker pixels, and blood at the Show level (`PRE-18`).
   - **Done when:** at person zoom, each body sign above shows, and build, age and clothing tell people apart.
+  - **Proposed change:** the first sentence becomes "Detailed 3D figures, with a separate head, torso, arms and legs that bend at the joints, posed about 10 times a second (`PRE-44`), wearing the world's pixel-art textures: up close their faces, hair, seams, trims and wear read, as in the pictures you liked, and each zoom band has its own drawing of a face."; How it works and Done when stay.
+    Why: your answers 3, 14, 19 and 20 (research 19).
 
 - `PRE-28` **Readable from far away** *(Decided)*: Zooming out, people and animals become tiny outlined figures in their strongest colours, a group or herd close together one marker, and a camp a point at its hearth that glows if it has a fire.
   - **Done when:** a camp of 30 people stays readable at every zoom stop, with no jump as its forms change.
+  - **Proposed change:** the text becomes "Zooming out, people and animals become small figures drawn to read: outlined in a darker shade of their own colour, faces and light clothes kept light, tools drawn larger; a group or herd close together becomes one marker, and a camp a point at its hearth that glows if it has a fire.
+    Up close, people are among the first things you see in any scene, helped only by light from the sun, the sky and fires, and by their movement: nothing in the world is changed to make them stand out."
+    Done when: "a camp of 30 people stays readable at every zoom stop, with no jump as its forms change, and in the review's busy scenes (an autumn wood, a crowded camp, a night camp) you find every person at a glance as they move."
+    Why: your answers 4, 27 and 33 (research 19).
 
 - `PRE-29` **From above** *(Decided)*: As the camera rises it tilts toward straight down, and the land shows what can be seen from above at every height, vivid and textured to the pixel: forests as clumps of crowns, grassland, deserts, rock and snow in their own colours (`WLD-12`), hills shaded, rivers as lines, the sea from deep blue to turquoise shallows with its currents, the clouds of the weather and their shadows (`WLD-16`), and at the top the globe (`WLD-02`); overlays sit on it (`PRE-07`).
   It is lit by the sun where the hour and season put it.
@@ -2113,6 +2144,8 @@ The look, written to stand without any image.
   When a day passes in less than about 10 seconds (tuned), the light holds steady from high up and only its tint follows the hour, so the screen never flickers between day and night.
   A fire is a warm, flickering light as bright as its heat (`MAT-18`), warming nearby faces, glowing, and sending up smoke and embers.
   - **Done when:** one place at dawn, noon, dusk and night, in summer and winter, shows each palette and its shadows.
+  - **Proposed change:** "and the master palette's versions for dawn, day, dusk and night in each season are that light on every material" becomes "and every material's colours at dawn, day, dusk and night in each season are that light on it, with true white-warm light at noon"; in Done when, "shows each palette and its shadows" becomes "shows its light and its shadows".
+    Why: the look you chose has no master palette, and you chose true midday (research 19, answers 1 and 9).
 
 - `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the globe down to one person chipping flint, through these stops, each with its speed in `TIM-01`:
   - **person:** about 8 m across, a person about 58 art pixels tall;
@@ -2122,6 +2155,8 @@ The look, written to stand without any image.
   - **How it works,** by distance from where the camera looks: within about 300 m, from camp zoom inward, full areas (`WLD-12`), made for the picture without changing anything (`WLD-13`); out to about 10 km, each area's coarse ground, made from the seed in a moment, shaped every few tens of metres, under its cover (its cell's, or a kept area's own) drawn as forest canopy, scrub, grass or bare ground; beyond, and from region zoom out, the world cells (`PRE-29`).
     People, herds, camps and buildings show at every distance (`PRE-28`), and a full area being made shows its coarse ground until its detail fades in, within about a second.
   - **Done when:** a pinch from globe to person over unvisited land never stalls, and full detail is in within about a second.
+  - **Proposed change:** the near stops become "**person:** about 8 m across in portrait, a standing adult about 200 screen pixels and about 100 texture pixels tall" and "**close camp:** about 20–50 m, a person about 35–90 screen pixels tall, every figure in full".
+    Why: your answers 5 and 35 (research 19); 58 art pixels at 8 m only added up for an art pixel of 4 by 4.
 
 - `PRE-31` **Visual review** *(Decided)*: At every milestone stage the look is reviewed on a contact sheet made on the phone, on one page, from fixed saved worlds: each zoom stop at noon and dusk in portrait, one landscape view, the model sheet (`PRE-46`), and three short clips of people at work.
   - **Check:** the contact sheet meets every Done when of 11.1 and 11.2, judged by the review and then by you (`PRC-10`).
@@ -2156,6 +2191,8 @@ The look, written to stand without any image.
   - **People:** one figure (`PRE-27`) with about 8 kinds of garment, in child and adult sizes, and hair, beads and paint in each people's style (`CUL-12`).
   - **Pictures and figures:** a painting or carving shows each animal, person or thing as its model seen from the side, drawn flat in its people's style (`CUL-09`, `CUL-12`), and a carved or clay figure is the model itself, small, in its material; only about 12 signs, also the patterns of `PRE-43`, are drawn by hand.
   - **Done when:** every launch thing, plant and animal is drawn from the kit, shown on a model sheet in two materials.
+  - **Proposed change:** two additions, "**Sizes:** anything small (ground cover, flowers, leaves, faces, held tools) has a design for each zoom band, drawn for that size and never only shrunk; flowers, berries and eyes stay at least one texture pixel" and "**Shelters:** several types, each a layout of parts true to what excavations show, so the routes to huts (`MAT-07`) look different"; and "only about 12 signs" becomes "only about 12 signs, the small designs of each band and the faces".
+    Why: your answers 13, 21 and 31 (research 19).
 
 ### 11.3 On the screen
 
@@ -2349,6 +2386,8 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
 
 - `PLT-02` **Portrait and landscape** *(Decided)*: Turning the phone switches between the two layouts of `PRE-34`.
   - **Done when:** turning the phone on every screen keeps the world, the camera and the art pixel's size (`PRE-22`), with no reload.
+  - **Proposed change:** in Done when, "the art pixel's size (`PRE-22`)" becomes "the texture pixel's size (`PRE-22`)".
+    Why: art pixels go with the look you did not choose (research 19, answer 1).
 
 - `PLT-03` **Works offline** *(Decided)*: Everything the game needs, the writer AI included (`PRE-37`), is on the phone; nothing in play makes a network call.
   - **Done when:** in flight mode, making a world, an hour's play and book-of-ages text all work.
@@ -2713,6 +2752,19 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 
 <!-- generated: proposals -->
 - **Pre-production** (`MIL-18`): the writer, left unbuilt, proved with the book of ages.
+- **The graphics engine** (`MIL-09`): reworded for the look you chose and the three routes to textures.
+- **Detailed pixel art** (`PRE-01`): becomes pixel-art surfaces on a sharp world at full resolution, every saving proved invisible.
+- **Pixel-rendered 3D** (`PRE-02`): drawn at full resolution, not low.
+- **Colour in steps** (`PRE-20`): becomes colour by design, with accents and a colour plan.
+- **Outlines and lit edges** (`PRE-21`): no outlines up close; lit edges and contact darkening.
+- **Stable pixels** (`PRE-22`): texture pixels about 2 screen pixels at every zoom, with a measured shimmer check.
+- **Water** (`PRE-26`): rivers at least 2 screen pixels wide.
+- **People and animals** (`PRE-27`): detailed figures, with a face for each zoom band.
+- **Readable from far away** (`PRE-28`): far figures drawn to read; people found by real light and movement.
+- **Light, time and season** (`PRE-30`): no master palette; true white-warm light at noon.
+- **Seamless zoom** (`PRE-03`): the near stops in screen pixels.
+- **The model kit** (`PRE-46`): small things designed per zoom band, and several shelter types.
+- **Portrait and landscape** (`PLT-02`): keeps the texture pixel's size.
 - **Next: production** (`PRC-08`): the crawl fix chosen, so the ground of the cards and the book is the open question in its place.
 <!-- end generated -->
 

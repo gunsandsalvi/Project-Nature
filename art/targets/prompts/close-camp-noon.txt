@@ -1,0 +1,25 @@
+Purpose: All the owner's pictures are lit by a low sun, fire or storm, and even GPT's one noon picture (the village, 08) is warmed gold, which real noon light is not. The game spends most of its daylight near midday, and PRE-30 takes the sun's and sky's colours from the sun's height through the air, which at noon gives near-white sunlight and blue sky light in the shade. Does a truthful noon keep the feeling at the close camp zoom, or must the light be designed per hour (warmed, with cloud shadows) to keep it? This repaints close-camp.png at a truthful midday so the two can be compared directly; only a picture shows the balance of colour.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/work2/1/gpt/close-camp.png
+Prompt:
+A portrait picture, taller than wide (2 by 3). Repaint the input picture as the same place at midday.
+
+Keep exactly: the same camera, framing and scale (seen from above at about 35 degrees, orthographic, no horizon and no sky, the ground filling the frame); the cliff with its layers and the rock shelter along the top; the two dome tents of sewn hides on bent poles with their rings of stones; the hearth; the heap of branches; the hide frame; the drying rack; the baskets; the paths; the river on the left with its pebble bed, gravel bank and stepping stones; the heron; the birch wood, bushes, boulders and the two red deer at the lower right; every plant, flower and stone. Every thing stays where it is and the same size; people stay about the same size as in the input.
+
+True pixel art on a fixed grid of art pixels. Every art pixel is a perfectly square block of identical screen pixels, enlarged with nearest-neighbour scaling. No anti-aliasing, no blur, no gradients, no noise, no soft edges: every block is one flat colour. A limited palette of about 32 colours arranged in hue-shifted ramps: shades shift toward cool purple-blue, lights toward warm yellow; the darkest shade is a deep purple, never black. Each object has a one-art-pixel outline in a darker shade of its own colour (not black), and a one-art-pixel lighter edge where the light catches its rim.
+
+Light: a clear midday in high summer, as it really is, not golden.
+- The sun stands high, a little to the upper left; sunlight is a clean, near-white light, very slightly warm.
+- Shadows are short and lie close under each thing: small pools under the people, the deer and the stones, short shadows on the lower right of the tents, the boulders and the birches. They are coloured by the blue sky light: cool blue and blue-violet, never black or grey.
+- Two large soft-edged shadows of small fair-weather clouds lie across the scene, one over part of the meadow and the camp's lower right, one over the river, darkening and cooling what they cover.
+- The meadow's greens are fresh but still muted and slightly yellowish, with darker blue-green shade inside the clumps of tall grass and under the bushes; deep, cool shade inside the birch wood.
+- The river's shallows are clear and bright, the pebbles of its bed sharp, with many small white glints of the high sun on its surface.
+- The fire is a small, pale flame in the bright daylight, its smoke thin and grey.
+
+Scene: the same seven people at the same tasks in the same places (knapping flint, scraping the hide, two children by the hearth, a woman carrying branches, a man spearing fish in the river, a young woman carrying a water skin); the heron in the shallows; the two red deer hinds grazing at the edge of the birch wood.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes), as archaeology shows; their few ornaments are beads of shell, bone and animal teeth in natural cream, brown and ochre-red colours; no fur bikinis and no loincloths.
+
+Style: a carefully hand-placed pixel-art game screenshot of a real 3D world at midday, rich and detailed: clean, readable shapes, every person, animal, stone and plant reading on its own. No text, no border, no interface.
+
+Avoid: a golden or orange cast; long shadows; a sky or horizon; grey or black shadows; saturated cartoon greens; changing the framing, the layout or the size of things; people larger than in the input picture.

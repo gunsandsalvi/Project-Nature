@@ -1,0 +1,29 @@
+Purpose: Every Kindling world begins the same way (SCP-01, BIO-02): a band with no clothing, no shaped tools and no made shelter, sleeping in a cave on beds of grass and keeping alive a fire they found. None of the owner's twelve pictures shows it, yet it is the first scene the owner sees in every world, and all the pictures' richness of made things (tents, racks, baskets, beads, tailored clothes) is absent there. Does the feeling hold with only rock, fire, grass beds, nature and people, from the game's camera at the close camp zoom? Bodies are drawn without any sexual detail, as PRE-18 requires at every level. Only a picture shows whether this scene can be as beautiful as the others.
+Orientation: portrait
+Input picture: none
+Prompt:
+A portrait picture, taller than wide (2 by 3).
+
+The rendering style: a modern 3D game rendered at the phone screen's full, high resolution, whose surfaces wear textures painted as pixel art.
+- Geometry is smooth and sharp: the outlines of people, animals, shelters, stones, trunks and rock are clean, smooth edges at full resolution, not stair-stepped blocks.
+- Every surface carries a hand-painted pixel-art texture whose square texture pixels are clearly visible, each about 2 screen pixels across: rock, hides, bark, grass, pebbles, clothes and faces all show these small crisp squares, all of one size.
+- Light is smooth and continuous: soft gradients of light and shade across rounded forms, shadows with soft edges that grow softer with distance from what casts them, light bounced from the ground into the shade.
+- Soft effects at full resolution: soft glow round fires, translucent soft-edged smoke and mist, soft glints on water.
+- Plants are 3D: grass blades and leaves as small pixel-textured cards, tree crowns as clusters of pixel-textured leaf cards.
+- No outlines drawn round things, and no depth-of-field blur: the whole frame is in focus.
+
+Camera: seen from above at about 35 degrees, like the camera of a top-down strategy game, orthographic (no perspective), with no horizon and no sky: the ground and the rock fill the whole frame. The frame shows about 20 metres across; a standing adult is about 80 pixels tall. The camera looks into the wide, shallow mouth of a limestone cave under a deep overhang; the overhang's underside and the cliff above fill the top third of the frame, the cave floor the middle, the slope of grass, bushes and boulders below the cave the bottom third.
+
+Light: dusk in early autumn, just after sunset. The land outside the cave lies in cool blue-violet twilight; the last pale rose light touches the top of the cliff. Inside the cave mouth, a small fire burns on the bare floor, ringed by nothing (these people do not yet build hearths): a warm orange-yellow pool of light about 5 metres across, falling off quickly into the blue, lighting the people's skin and hair warm on the sides facing it, and throwing their long shadows back against the cave wall. The overhang's underside glows faintly orange above the fire. Darkest shade a deep blue-purple, never black.
+
+Scene:
+- The cave floor: bare trodden earth and loose limestone scree, beds of dry grass and heaped autumn leaves along the back wall where people sleep, scattered bones and nut shells, a few broken stones used for bashing, sticks for digging leaning on the wall, a pile of dead branches gathered as fuel.
+- The fire: small, fed with dead branches, the only light; its smoke drifting out along the underside of the overhang.
+- About ten people of one family band, all grown, seen only as simple dark shapes: silhouettes against the firelight with long, untidy dark hair and a warm rim of firelight on hair and shoulders. Their bodies show no detail at all: they stay in shadow, or hidden behind each other, the fire, the grass beds, their own long hair and their drawn-up knees, as in a family game. Two sit close to the fire, one feeding it a branch and one cracking nuts with a stone on a flat rock; two sit huddled side by side, knees drawn up and arms round them for warmth; one stands at the cave mouth seen from behind, a dark shape looking out over the valley; the rest lie asleep in the grass bed along the back wall, fully covered by heaped grass and leaves so that only their hair shows.
+- Outside the cave: a slope of long autumn grass in gold and russet, hazel bushes with ripe nuts, two boulders, a rowan with red berries, and a deer path leading down; a fox trotting along the path at the lower right.
+
+Stone Age truth: these first people have no clothing, no shaped tools, no containers, no built hearth and no shelter of their own; they cannot make fire, only keep one they found; nothing in the picture is made by people except piles of gathered grass, leaves, branches and broken stones.
+
+Style: a screenshot of a beautiful modern 3D game with pixel-art textures, rich and detailed: every person, stone and plant reading on its own. No text, no border, no interface.
+
+Avoid: children; any visible detail of bodies (people stay silhouettes, in shadow, or covered by grass and leaves); any clothing, loincloths, fur wraps, belts or ornaments; any made tools, spears, baskets, pots or containers; a ring of stones round the fire; tents or huts; any sexual or anatomical detail; close-ups of bodies; a horizon or sky; pure black. Also avoid: the whole picture as blocky pixel art; a low-resolution look; blur or depth of field; a photorealistic look.

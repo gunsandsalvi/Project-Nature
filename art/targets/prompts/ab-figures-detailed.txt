@@ -1,0 +1,25 @@
+Purpose: A/B pair for a real choice of the owner's (study 6, question 4; PRE-27's "tiny blocks" is lifted for this research). This picture and paintover-person.png become the two options, "block figures, as the kit makes them now" against "detailed figures, as in the pictures you liked", each with a one-line cost. It tests whether GPT can change only the people and keep everything else, so that the choice is fair; I will measure the change inside and outside the figures. Because this is an edit with one change, the style wording is "keep the input's style exactly" instead of the style head.
+Orientation: portrait
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/work2/6/gpt/paintover-person.png
+Prompt:
+Edit the input picture. Change only one thing: the six people. Keep everything else exactly as it is, in the same pixel-art style.
+
+What to change: paint each of the six people, now carved wooden block figures, as a detailed small person in the same pixel-art style, as in a carefully hand-placed pixel-art game: a real head with hair tied back or braided, a face with eyes, nose and mouth shown by a few pixels, hands, and tailored, sewn clothing of hide and fur with visible seams, fur trim and a few beads. Each person keeps exactly the same position, size, pose, facing and activity as the block figure it replaces:
+- at the top left, a man sitting by the fire, holding a wooden stick, not a blade;
+- in the middle, a man standing with his back half turned, and in front of him a man kneeling on a hide mat, knapping a flint core with a stone hammer, flakes around him;
+- at the right, a woman standing behind the drying rack and a woman standing in front of it, facing left, one hand raised;
+- at the lower right, a man standing in the meadow with one hand raised to shade his eyes, looking to the right.
+Each standing person stays about 160 pixels tall in the 1024 x 1536 picture.
+
+What to keep exactly as it is:
+- the camera, the framing and the scale: seen from above at about 40 degrees, no horizon and no sky, about 8 metres of ground from left to right;
+- the light: the sun high and from the upper left, shadows to the lower right, warm golden light and cool shade, the fire lighting the people beside it;
+- the rock overhang across the top, its layers, moss and dark hollow, and the smoke rising from the fire;
+- the hearth: its ring of stones, logs, flames and the pale bundle beside it, and the log lying in front of it;
+- the pale dog, the flat stone slab, the drying rack of poles with its strips of red meat, and every shadow;
+- the trodden earth floor with its stones, ash and flakes; the meadow with its tufts, herbs, flowers and pebbles; the patch of bare earth at the left; the bulrushes and grasses at the bottom; the clear river at the bottom left with its pebbles and bright edge;
+- every colour, outline and texture of the input outside the six people.
+
+People of the Stone Age wear tailored, sewn clothing of hide and fur (tunics with sleeves, leggings, soft shoes, a few with bead decoration), as archaeology shows; no fur bikinis and no loincloths; no metal of any kind.
+
+Avoid: any change outside the six people; moving, adding or removing any person, animal or object; changing a person's size or pose; metal blades or tools; realistic or photographic people; black outlines; blur; text; landscape orientation.

@@ -1,0 +1,34 @@
+Purpose: The owner found that small plants lose their charm when GPT's large paintings are shrunk to game size (answer 21), and asked us to research how to keep it, for example with sources painted at their real game size and shapes made to read at each zoom band. Can GPT paint the same small plants directly at their true sizes in texture pixels, for three zoom bands (the closest zoom, about 8 m across the screen; about 16 m across; and the close camp, about 36 m across), each size redrawn for itself the way a pixel artist draws a small sprite, with fewer and bolder parts and the flowers and berries kept as bright single pixels? Words cannot show whether GPT can draw on such small grids, or whether the plants keep their charm at their real sizes. I will snap each drawing to its grid by code, check how regular the grid is, and set the results at true screen size beside the shrunk versions the owner rejected.
+Orientation: landscape
+Input picture: /tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research/owner/liked-camp-from-above.png
+Prompt:
+A sprite sheet of small wild plants for a 3D game, drawn as true pixel art at their real in-game sizes. Follow the pixel-art style and colours of the reference picture only (the way its grass, flowers and bushes are painted, its warm muted colours); do not copy its composition, ground, people or sunlight.
+
+The key idea: each plant is drawn three times, at three sizes, and each size is drawn directly at that size, pixel by pixel, the way a pixel artist draws a small game sprite or a small icon. Never paint a big plant and shrink it. The smaller the size, the fewer and bolder the parts: keep the plant's outline shape and the one or two features that make it recognisable (blades, a fern's fronds, white flower heads, dark berries, small triangular leaves), and drop everything else. Flowers, berries and fruits stay as bright, clean single art pixels or tiny clusters of their own pure colour, even at the smallest size, slightly larger than true scale if needed so they still show.
+
+Grid: every art pixel is a perfectly square block of exactly 6 x 6 identical picture pixels, enlarged with nearest-neighbour scaling, all on one fixed grid. No anti-aliasing, no blur, no gradients, no noise, no soft or half-transparent edges: every block is one flat colour, and each plant's edge against the background is hard. No outlines.
+
+Background: one perfectly flat, uniform dark slate colour (#2B2D3A) everywhere around the plants, with no texture, no ground, no shadows and no glow. No boxes, frames, lines, text, labels or numbers.
+
+Layout: six columns and three rows, evenly spaced, nothing touching. Each column is one kind of plant. Each row is one zoom band, with the plant's height in art pixels as given:
+- top row, the closest zoom (about 67 art pixels per metre): the largest and most detailed;
+- middle row, about 34 art pixels per metre: half the height, about half the parts;
+- bottom row, the close camp (about 15 art pixels per metre): tiny, only the silhouette, a light top edge, a darker base and the bright accent pixels.
+
+The six plants, left to right, in high summer, with their heights in art pixels for the top, middle and bottom rows:
+(1) a tuft of meadow grass, 30 cm tall, with three or four seed heads: 20, 10 and 5 art pixels tall. Top row: about 12 separate one-pixel-wide blades of different lengths, curving outward, lighter yellow-green tips and darker bases. Middle row: about 6 blades. Bottom row: 3 or 4 blades as a small fan.
+(2) a bracken fern, 60 cm tall, open fronds: 40, 20 and 9 art pixels tall. Top row: four or five arching fronds with paired leaflets. Middle row: three fronds with simple side strokes. Bottom row: a small arching shape with a lighter top.
+(3) a clump of ox-eye daisies in flower, 40 cm tall: 27, 14 and 6 art pixels tall. Top row: six to eight white flowers, each a ring of white pixels round a yellow centre, on thin stems over dark green leaves. Middle row: four flowers, each a small white cross or square with one yellow pixel. Bottom row: three single white pixels on a green tuft.
+(4) a bilberry bush, 40 cm tall, with ripe blue-black berries: 27, 14 and 6 art pixels tall. Top row: a rounded bush of small oval leaves with about a dozen dark blue berries. Middle row: a rounded bush with about six berry pixels. Bottom row: a small green mound with two or three dark blue pixels.
+(5) a cluster of birch leaves on two or three thin drooping twigs, 50 cm across, a piece of a tree's crown: 34, 17 and 8 art pixels across. Top row: small triangular leaves with toothed edges, lighter and darker greens, thin dark twigs. Middle row: leaves as small two-to-three-pixel clusters along the twigs. Bottom row: a loose cluster of green pixels with a lighter top.
+(6) a clump of wild strawberry plants with a few small white flowers and red berries, 15 cm tall: 10, 5 and 3 art pixels tall. Top row: three-part leaves, two white flowers and three red berries. Middle row: a small leafy clump with one white and two red pixels. Bottom row: a tiny green clump with one red pixel.
+
+Camera: every drawing seen from above at about 40 degrees, like the camera of a top-down strategy game, all from the same direction, orthographic, no perspective.
+
+Light: evenly lit, like a bright overcast day, because the game adds its own sun: no light from one side, no highlights on one side, no cast shadows. Only the hollows between leaves and stems and the base of each plant are a little darker, and the tops a little lighter.
+
+Colours: those of the reference: warm, golden and muted; greens muted and yellowish, never saturated; shade toward cool purple-grey, never black. Small clusters of two to four neighbouring shades in the top row, fewer shades in the smaller rows.
+
+Nature truth: the real species as they grow in northern Europe in high summer, with their real leaves, flowers and berries.
+
+Avoid: painting a large plant and shrinking it; blurred, smeared or muddy small sprites; colours averaged into brown-green mush; half-transparent fringes; a coloured halo round the plants; any background other than the flat dark slate; ground, soil, stones, pots or shadows; animals, insects, people or tools; text, labels or numbers; photo realism; saturated cartoon green.
