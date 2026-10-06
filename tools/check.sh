@@ -138,7 +138,11 @@ cpp_tests() {
     B="build/$b"
     # the tests run again only when something they are built from changed since they passed (tools/cppcache.py)
     STAMP="$(python3 tools/cppcache.py tests "$B")"
-    if [ "$STAMP" != unknown ] && [ "$(cat "$B/tests.passed" 2>/dev/null)" = "$STAMP" ]; then
+    if [ "$b" = sim-a64-gcc ]; then
+      # the phone's processor is emulated twice; every test runs once, under the phone's own compiler (sim-a64-ndk),
+      # and this build gives the same-bits proofs below, which are what it is for
+      TESTS="the same-bits proofs; its tests run under the phone's own compiler"
+    elif [ "$STAMP" != unknown ] && [ "$(cat "$B/tests.passed" 2>/dev/null)" = "$STAMP" ]; then
       TESTS="tests unchanged since they passed"
     else
       quiet ctest --test-dir "$B" --output-on-failure
@@ -217,7 +221,11 @@ godot_step() {
     # the game data (build.toml names each catalogue file by its hash) with the scenes' reports, and the tools' versions
     mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$d/"; compgen -G "$d/bin/*.so" || true; \
       compgen -G "$d/data/*.toml" || true; compgen -G "$d/data/reports/*" || true)
-    FP="$(fingerprint "${READS[@]}" tools/godot-scripts.gd "$KD_GODOT_VERSION" "$KD_GDUNIT")"
+    # the benchmark's run of every scenario, most of a minute, only in a delivery's check; a passed quick run is no
+    # passed delivery
+    SLOW=(-i "bench_test:test_every_scenario_runs_and_ends_as_the_cloud_s_in_a_code_the_cloud_reads")
+    [ "$DELIVER" = 0 ] || SLOW=()
+    FP="$(fingerprint "${READS[@]}" tools/godot-scripts.gd "$KD_GODOT_VERSION" "$KD_GDUNIT" "deliver=$DELIVER")"
     before="$(git status --porcelain --untracked-files=all -- "$d")"
     if passed "godot-${d//\//-}" "$FP"; then
       SUMMARY="unchanged since its import, scripts and gdUnit4 tests passed"
@@ -240,7 +248,8 @@ godot_step() {
         # for input after a script error.
         rc=0
         timeout 600 "$GODOT" --headless --path "$d" -s -d --remote-debug tcp://127.0.0.1:0 \
-          res://addons/gdUnit4/bin/GdUnitCmdTool.gd --ignoreHeadlessMode -a res://test -rd user://gdunit-reports -c \
+          res://addons/gdUnit4/bin/GdUnitCmdTool.gd --ignoreHeadlessMode -a res://test "${SLOW[@]}" \
+          -rd user://gdunit-reports -c \
           >"$TMP/tests" 2>&1 || rc=$?
         sed 's/\x1b\[[0-9;]*m//g' "$TMP/tests" >"$TMP/plain"
         if [ "$rc" -ne 0 ]; then

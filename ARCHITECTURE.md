@@ -111,7 +111,7 @@ dist/        the signed APK of the latest alpha and its note
 - **Five builds** (research 18):
   - the cloud's main build: x86-64 with clang 18, for the tests, the tool and the extension the Godot tests load;
   - a second compiler: x86-64 with GCC 13 and its undefined-behaviour and float-cast checks;
-  - arm64 with GCC 13, and arm64 with the phone's own compiler (NDK r30, clang 21), both static executables run under qemu, for the same-bits check (A3.4);
+  - arm64 with GCC 13, and arm64 with the phone's own compiler (NDK r30, clang 21), both static executables run under qemu, for the same-bits check (A3.4); every test runs emulated once, under the phone's own compiler, and both run the same-bits proofs;
   - the phone's: the extension for arm64 Android, API 24, the C++ runtime linked statically, newer Android functions linked weakly and guarded, 16 KB-aligned, stripped in the APK and kept whole for crash symbols.
   - Beside them, since α1.5a, the simulation's tests built once more with GCC's thread checker, since a race between threads can damage memory without failing a test: one did, once, before the checker named it (A17).
 - **Godot:** 4.7.2, pinned, exported from the command line (`--headless --export-release`).

@@ -42,13 +42,14 @@ For the AI agent building a step:
    - work on the session's own branch, brought up to date with main first.
 4. **Build the tasks in order.**
    Each ends with its code and tests passing, and a commit naming the task and the items it touches (see Conventions).
+   - While building, run only what the change touches: its part's build, tests and lints. The full check, which builds and tests everything seven ways, runs once, before delivery (6), as you asked on 6 October 2026, and never while code is still changing.
    - If a task can't be built as the architecture says, stop that task and add a **Conflict:** note at the end of the step's section, with the reason and the smallest change that works.
      Carry on with that change, and update the architecture in the same branch.
    - If a step will clearly take more than about 6 hours, split it at a task boundary into two lettered steps, each still ending with a build.
 5. **Deliver** (`PRC-11`, A2.3):
    - the signed APK in `dist/`, when the step has one;
    - the note: what is new, what to try, what is rough, the items touched and the links, published at the note's link.
-6. **Check:** `tools/check.sh --deliver` passes (`PRC-10`).
+6. **Check, once:** `tools/check.sh --deliver` passes (`PRC-10`). Only a delivery's check runs the benchmark through every scenario; a check without `--deliver` leaves that one test out.
 7. **Review** (`PRC-09`), as you set on 5 October 2026:
    - The builder reviews each lettered step itself: each new test made to fail once, the numbers checked against how they were measured, and the pictures looked at.
    - At the last step of each numbered alpha, the builder reviews the whole alpha the same way, against its sections and the items it claims.
