@@ -1,6 +1,8 @@
 #include "kd/world/world.hpp"
 
 #include <algorithm>
+#include <string>
+#include <utility>
 
 #include "kd/chance/chance.hpp"
 #include "kd/num/sort.hpp"
@@ -161,9 +163,75 @@ void Context::run(const event::Event& e) {
     in_event_ = false;
 }
 
+// --- Commands
+
+void Commands::handle(Context& c, const event::Event& /*e*/) {
+    KD_CHECK(taker_ != nullptr, "world::Commands: no system takes commands");
+    std::size_t done = 0;
+    while (done < pending_.size() && pending_[done].at == c.now()) {
+        taker_->command(c, pending_[done]);
+        ++done;
+    }
+    pending_.erase(pending_.begin(), pending_.begin() + static_cast<std::ptrdiff_t>(done));
+    if (!pending_.empty()) {
+        c.schedule(ecs::owners::commands, kActivitySlot, pending_.front().at);
+    }
+}
+
+void Commands::wake() {
+    // the layer's one event at the earliest pending command's second, made again only when that second changes
+    const time::Seconds first = pending_.front().at;
+    const std::uint64_t owner = ecs::owners::commands.value;
+    if (w_.owners_[owner].expected[kActivitySlot] == 0 || w_.owner_due_[owner][kActivitySlot] != first) {
+        w_.schedule(ecs::owners::commands, kActivitySlot, first);
+    }
+}
+
+void Commands::digest(num::Digest& d) const {
+    d.u64(made_);
+    d.u64(pending_.size());
+    for (const Command& c : pending_) {
+        d.u64(c.number);
+        d.i64(c.at);
+        d.u32(c.what);
+        d.u64(c.a);
+        d.u64(c.b);
+    }
+}
+
+void Commands::save(ByteWriter& w) const {
+    w.u64(made_);
+    w.u64(pending_.size());
+    for (const Command& c : pending_) {
+        w.u64(c.number);
+        w.i64(c.at);
+        w.u32(c.what);
+        w.u64(c.a);
+        w.u64(c.b);
+    }
+}
+
+bool Commands::load(ByteReader& r) {
+    std::uint64_t n = 0;
+    if (!r.u64(made_) || !r.u64(n)) {
+        return false;
+    }
+    pending_.clear();
+    for (std::uint64_t i = 0; i < n; ++i) {
+        Command c;
+        if (!r.u64(c.number) || !r.i64(c.at) || !r.u32(c.what) || !r.u64(c.a) || !r.u64(c.b)) {
+            return false;
+        }
+        pending_.push_back(c);
+    }
+    return r.finished();
+}
+
 // --- World
 
-World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed), catalogue_(catalogue) {}
+World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed), catalogue_(catalogue) {
+    set_layer(ecs::owners::commands, commands_);
+}
 
 Beings::Handle World::make_being(ecs::Family f) {
     KD_CHECK(!in_islands_, "world::World: beings are made only between windows");
@@ -544,6 +612,250 @@ time::Seconds World::advance(time::Seconds frontier, time::Seconds goal) {
         run_to(until);
     }
     return until;
+}
+
+Command World::command(time::Seconds at, std::uint32_t what, std::uint64_t a, std::uint64_t b) {
+    const Command c{commands_.made_ + 1, at, what, a, b};
+    replay(c);
+    return c;
+}
+
+void World::replay(const Command& c) {
+    KD_CHECK(!context_.in_event_ && !in_islands_, "world::World: a command comes from outside the world's events");
+    KD_CHECK(c.at >= frontier_, "world::World: a command acts at or after the frontier");
+    KD_CHECK(c.number == commands_.made_ + 1, "world::World: commands come in the order of their numbers");
+    ++commands_.made_;
+    const auto at = std::upper_bound(commands_.pending_.begin(), commands_.pending_.end(), c,
+                                     [](const Command& x, const Command& y) { return x.at < y.at; });
+    commands_.pending_.insert(at, c);
+    commands_.wake();
+}
+
+namespace {
+
+// The systems of a world, each once, in the order of their names.
+std::vector<System*> systems_of(const std::array<System*, 16>& by_family, const auto& by_owner) {
+    std::vector<System*> out;
+    for (System* s : by_family) {
+        if (s != nullptr && std::find(out.begin(), out.end(), s) == out.end()) {
+            out.push_back(s);
+        }
+    }
+    for (System* s : by_owner) {
+        if (s != nullptr && std::find(out.begin(), out.end(), s) == out.end()) {
+            out.push_back(s);
+        }
+    }
+    num::sort_strict(out.begin(), out.end(), [](const System* x, const System* y) { return x->name() < y->name(); });
+    return out;
+}
+
+const save::Chunk* chunk_of(std::span<const save::Chunk> chunks, std::uint32_t tag) {
+    for (const save::Chunk& c : chunks) {
+        if (c.tag == tag) {
+            return &c;
+        }
+    }
+    return nullptr;
+}
+
+}  // namespace
+
+std::vector<save::Chunk> World::save() const {
+    KD_CHECK(!context_.in_event_ && !in_islands_, "world::World: a snapshot is taken between events");
+    std::vector<save::Chunk> out;
+    {
+        // the clock: the seed, the frontier, the next id, the world's own owners and the history's count and digest
+        ByteWriter w;
+        w.u64(seed_);
+        w.i64(frontier_);
+        w.u64(ids_.next());
+        for (std::size_t o = 0; o < owners_.size(); ++o) {
+            ecs::write_component(owners_[o], w);
+            for (const time::Seconds due : owner_due_[o]) {
+                w.i64(due);
+            }
+        }
+        w.u64(history_count_);
+        w.u64(history_hash_);
+        w.u64(events_);
+        w.u64(batches_);
+        out.push_back({save::tag("WRLD"), 1, true, w.take()});
+    }
+    {
+        // the catalogue's names, kind by kind in number order, so the components keep entries by name (A3.6)
+        ByteWriter w;
+        w.u64(catalogue_.kinds().size());
+        for (const auto& k : catalogue_.kinds()) {
+            w.text(k->folder());
+            w.u64(k->size());
+            for (std::size_t i = 0; i < k->size(); ++i) {
+                w.text(k->name(i));
+            }
+        }
+        out.push_back({save::tag("NAME"), 1, true, w.take()});
+    }
+    {
+        ByteWriter w;
+        beings_.write(w);
+        out.push_back({save::tag("BEIN"), 1, true, w.take()});
+    }
+    {
+        ByteWriter w;
+        things_.write(w);
+        out.push_back({save::tag("THNG"), 1, true, w.take()});
+    }
+    {
+        ByteWriter w;
+        queue_.write(w, [this](const event::Event& e) { return live(e); });
+        out.push_back({save::tag("QUEU"), 1, true, w.take()});
+    }
+    {
+        ByteWriter w;
+        const std::vector<System*> systems = systems_of(by_family_, by_owner_);
+        w.u64(systems.size());
+        for (const System* sys : systems) {
+            w.text(sys->name());
+            ByteWriter own;
+            sys->save(own);
+            w.blob(own.bytes());
+        }
+        out.push_back({save::tag("SYST"), 1, true, w.take()});
+    }
+    return out;
+}
+
+bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
+    KD_CHECK(beings_.size() == 0 && things_.size() == 0 && frontier_ == 0 && events_ == 0,
+             "world::World: a snapshot is loaded into a world with nothing in it");
+    const std::array<std::uint32_t, 6> known{save::tag("WRLD"), save::tag("NAME"), save::tag("BEIN"),
+                                             save::tag("THNG"), save::tag("QUEU"), save::tag("SYST")};
+    for (const save::Chunk& c : chunks) {
+        const bool knows = std::find(known.begin(), known.end(), c.tag) != known.end();
+        if (!knows && c.critical) {
+            why = "it holds a part this version cannot read";
+            return false;
+        }
+        if (knows && c.version != 1) {
+            why = "a part of it is of a version this one cannot read";
+            return false;
+        }
+    }
+    for (const std::uint32_t t : known) {
+        if (chunk_of(chunks, t) == nullptr) {
+            why = "a part of it is missing";
+            return false;
+        }
+    }
+
+    // the snapshot's names: from its numbers for each kind's entries to this catalogue's
+    std::vector<std::pair<std::string, std::vector<std::string>>> names;
+    {
+        ByteReader r(chunk_of(chunks, save::tag("NAME"))->data);
+        std::uint64_t kinds = 0;
+        if (!r.u64(kinds)) {
+            why = "its names are damaged";
+            return false;
+        }
+        for (std::uint64_t k = 0; k < kinds; ++k) {
+            std::string folder;
+            std::uint64_t n = 0;
+            if (!r.text(folder) || !r.u64(n)) {
+                why = "its names are damaged";
+                return false;
+            }
+            std::vector<std::string> list;
+            for (std::uint64_t i = 0; i < n && !r.failed(); ++i) {
+                list.emplace_back();
+                r.text(list.back());
+            }
+            names.emplace_back(std::move(folder), std::move(list));
+        }
+        if (!r.finished()) {
+            why = "its names are damaged";
+            return false;
+        }
+    }
+    const ecs::EntryMap entries = [&](std::string_view folder, std::uint32_t saved) -> std::optional<std::uint32_t> {
+        for (const auto& [f, list] : names) {
+            if (f == folder) {
+                return saved < list.size() ? catalogue_.find(f, list[saved]) : std::nullopt;
+            }
+        }
+        return std::nullopt;
+    };
+
+    {
+        ByteReader r(chunk_of(chunks, save::tag("WRLD"))->data);
+        std::uint64_t next = 0;
+        bool ok = r.u64(seed_) && r.i64(frontier_) && r.u64(next);
+        for (std::size_t o = 0; ok && o < owners_.size(); ++o) {
+            ok = ecs::read_component(owners_[o], r, entries);
+            for (time::Seconds& due : owner_due_[o]) {
+                ok = ok && r.i64(due);
+            }
+        }
+        ok = ok && r.u64(history_count_) && r.u64(history_hash_) && r.u64(events_) && r.u64(batches_);
+        if (!ok || !r.finished() || frontier_ < 0 || next == 0) {
+            why = "its clock is damaged";
+            return false;
+        }
+        ids_ = ecs::IdMaker(next);
+    }
+    {
+        ByteReader r(chunk_of(chunks, save::tag("BEIN"))->data);
+        if (!beings_.read(r, entries) || !r.finished()) {
+            why = "its beings are damaged, or of kinds the catalogue no longer has";
+            return false;
+        }
+    }
+    {
+        ByteReader r(chunk_of(chunks, save::tag("THNG"))->data);
+        if (!things_.read(r, entries) || !r.finished()) {
+            why = "its things are damaged, or of kinds the catalogue no longer has";
+            return false;
+        }
+    }
+    {
+        ByteReader r(chunk_of(chunks, save::tag("QUEU"))->data);
+        std::optional<event::Queue> q = event::Queue::read(r);
+        if (!q || !r.finished()) {
+            why = "its events are damaged";
+            return false;
+        }
+        queue_ = std::move(*q);
+    }
+    {
+        ByteReader r(chunk_of(chunks, save::tag("SYST"))->data);
+        const std::vector<System*> systems = systems_of(by_family_, by_owner_);
+        std::uint64_t n = 0;
+        if (!r.u64(n) || n != systems.size()) {
+            why = "it was saved with other systems than this version's";
+            return false;
+        }
+        for (System* sys : systems) {
+            std::string name;
+            std::vector<std::byte> own;
+            if (!r.text(name) || name != sys->name() || !r.blob(own)) {
+                why = "it was saved with other systems than this version's";
+                return false;
+            }
+            ByteReader sr(own);
+            if (!sys->load(sr)) {
+                why = "the state of its " + name + " is damaged";
+                return false;
+            }
+        }
+        if (!r.finished()) {
+            why = "its systems are damaged";
+            return false;
+        }
+        context_.now_ = frontier_;
+        for (System* sys : systems) {
+            sys->opened(*this);
+        }
+    }
+    return true;
 }
 
 Digests World::digests() const {

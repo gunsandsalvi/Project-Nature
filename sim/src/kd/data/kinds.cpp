@@ -9,6 +9,7 @@
 #include "kd/demo/crowd.hpp"
 #include "kd/demo/marker.hpp"
 #include "kd/run/heat_tuning.hpp"
+#include "kd/run/save_tuning.hpp"
 #include "kd/time/speeds.hpp"
 
 namespace kd::data {
@@ -17,6 +18,7 @@ Catalogue::Catalogue() {
     add_kind<demo::Marker>("marker", "a kind of the demonstration's markers, which walk, meet and greet (MAT-16)");
     add_kind<demo::Crowd>("tuning/crowd", "the demonstration's crowd: its camps, markers and greetings (MAT-16)", true);
     add_kind<run::HeatTuning>("tuning/heat", "how time slows before the phone throttles (PLT-01)", true);
+    add_kind<run::SaveTuning>("tuning/saves", "how often a running world is saved (PLT-07)", true);
     add_kind<time::ZoomSpeeds>("tuning/time", "the speeds of time at the zoom stops (TIM-01)", true);
 }
 

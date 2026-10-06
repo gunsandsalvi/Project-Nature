@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <optional>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 #include <entt.hpp>
@@ -183,7 +184,74 @@ public:
     /// Scrambles every pool's order by a key, as the order fuzzer does before each batch (A3.2).
     void fuzz(std::uint64_t key) { (scramble<Components>(key), ...); }
 
+    /// Every entity into a snapshot, in id order, each with every component it has, in name order. Implements PLT-07,
+    /// see A3.7.
+    void write(ByteWriter& w) const {
+        w.u64(ids_.size());
+        ids_.each([&](Id id, Handle h) {
+            w.u64(id.value);
+            (write_one<Components>(h, w), ...);
+        });
+    }
+
+    /// Fills an empty registry from a snapshot, as write() wrote it; false if the bytes are not that, or name an entry
+    /// the catalogue no longer has. Implements PLT-07, see A3.7.
+    bool read(ByteReader& r, const EntryMap& entries) {
+        KD_CHECK(ids_.size() == 0, "ecs::Registry: a snapshot is read into an empty registry");
+        std::uint64_t n = 0;
+        if (!r.u64(n)) {
+            return false;
+        }
+        Id last{0};
+        for (std::uint64_t i = 0; i < n; ++i) {
+            Id id;
+            // ids come in order, each family's after the one before (A3.2)
+            if (!r.u64(id.value) || id.family() == Family::none || !(last < id)) {
+                return false;
+            }
+            last = id;
+            const Handle h = make(id);
+            if (!(read_one<Components>(h, r, entries) && ...)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 private:
+    template <typename C>
+    void write_one(Handle h, ByteWriter& w) const {
+        if (const C* c = raw_.template try_get<C>(h)) {
+            w.u8(1);
+            write_component(*c, w);
+        } else {
+            w.u8(0);
+        }
+    }
+
+    template <typename C>
+    bool read_one(Handle h, ByteReader& r, const EntryMap& entries) {
+        std::uint8_t has = 0;
+        if (!r.u8(has) || has > 1) {
+            return false;
+        }
+        if constexpr (std::is_same_v<C, Ident>) {
+            // make() gave the entity its id; the snapshot's must agree
+            C c{};
+            return has == 1 && read_component(c, r, entries) && c.id == id_of(h);
+        } else {
+            if (has == 0) {
+                return true;
+            }
+            C c{};
+            if (!read_component(c, r, entries)) {
+                return false;
+            }
+            raw_.template emplace<C>(h, c);
+            return true;
+        }
+    }
+
     template <typename C>
     void digest_one(Handle h, num::Digest& d) const {
         if (const C* c = raw_.template try_get<C>(h)) {

@@ -6,14 +6,18 @@
 #include <godot_cpp/variant/packed_byte_array.hpp>
 
 #include <algorithm>
+#include <filesystem>
 #include <optional>
+#include <system_error>
 #include <utility>
 #include <vector>
 
 #include "kd/core/check.hpp"
+#include "kd/demo/kept.hpp"
 #include "kd/num/convert.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/run/heat_tuning.hpp"
+#include "kd/run/save_tuning.hpp"
 #include "kd/time/calendar.hpp"
 
 namespace kd::view {
@@ -21,8 +25,11 @@ namespace kd::view {
 KdWorld::KdWorld() = default;
 
 KdWorld::~KdWorld() {
-    // the runner's thread stops before the world it runs goes
+    // the runner's thread stops before the world it runs goes, and the keeper writes what it was given
     runner_.reset();
+    if (keeper_) {
+        keeper_->flush();
+    }
 }
 
 void KdWorld::_bind_methods() {
@@ -32,6 +39,15 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("entry", "folder", "name"), &KdWorld::entry);
     ClassDB::bind_method(D_METHOD("start_clockwork", "work_per_hour"), &KdWorld::start_clockwork);
     ClassDB::bind_method(D_METHOD("start_crowd", "seed", "camps"), &KdWorld::start_crowd);
+    ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps"), &KdWorld::open_crowd);
+    ClassDB::bind_method(D_METHOD("save"), &KdWorld::save);
+    ClassDB::bind_method(D_METHOD("save_now"), &KdWorld::save_now);
+    ClassDB::bind_method(D_METHOD("call_home", "camp"), &KdWorld::call_home);
+    ClassDB::bind_method(D_METHOD("nearest_camp", "east", "north", "within"), &KdWorld::nearest_camp);
+    ClassDB::bind_method(D_METHOD("camp_at", "camp"), &KdWorld::camp_at);
+    ClassDB::bind_method(D_METHOD("catching_up"), &KdWorld::catching_up);
+    ClassDB::bind_method(D_METHOD("digest"), &KdWorld::digest);
+    ClassDB::bind_static_method("KdWorld", D_METHOD("moment_text", "second"), &KdWorld::moment_text);
     ClassDB::bind_method(D_METHOD("set_speed", "game_per_real"), &KdWorld::set_speed);
     ClassDB::bind_method(D_METHOD("speed"), &KdWorld::speed);
     ClassDB::bind_method(D_METHOD("pause"), &KdWorld::pause);
@@ -175,6 +191,136 @@ void KdWorld::start_crowd(int64_t seed, int64_t camps) {
     runner_ = std::make_unique<run::Runner>(*stepper_, 0, "kd-crowd");
 }
 
+godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed, int64_t camps) {
+    KD_CHECK(!runner_, "view::KdWorld: the world has already started");
+    KD_CHECK(catalogue_ != nullptr, "view::KdWorld: the crowd needs the catalogue loaded first");
+    KD_CHECK(seed >= 0 && camps >= 0, "view::KdWorld: a crowd's seed and camps are never negative");
+    godot::Dictionary out;
+    const std::string path = folder.utf8().get_data();
+    std::error_code made_folder;
+    std::filesystem::create_directories(path, made_folder);
+    if (made_folder) {
+        out["problem"] = godot::String("the world's folder cannot be made: ") + folder;
+        return out;
+    }
+    files_ = std::make_unique<save::DiskFiles>(path);
+    keeper_ = std::make_unique<save::Keeper>(*files_);
+    demo::Kept kept = demo::keep_crowd(*keeper_, *catalogue_, static_cast<std::uint64_t>(seed), camps);
+    godot::PackedStringArray damaged;
+    for (const std::string& d : kept.damaged) {
+        damaged.append(text_of(d));
+    }
+    out["damaged"] = damaged;
+    if (!kept.crowd || !kept.problem.empty()) {
+        out["problem"] = text_of(kept.problem);
+        return out;
+    }
+    crowd_ = std::move(kept.crowd);
+    stepper_ = std::make_unique<CrowdStepper>(*crowd_);
+    stepper_->keep(keeper_.get());
+    heat_ = HeatGovernor(heat_rules());
+    const time::Seconds frontier = crowd_->world().frontier();
+    pace_ = Pace(static_cast<double>(frontier));
+    stepper_->set_screen(static_cast<double>(frontier));
+    runner_ = std::make_unique<run::Runner>(*stepper_, frontier, "kd-crowd");
+    if (kept.was_at > frontier) {
+        catch_up_to_ = kept.was_at;
+        runner_->set_goal(kept.was_at);
+    }
+    if (const std::optional<std::uint32_t> i = catalogue_->find("tuning/saves", "base:saves")) {
+        save_every_ = static_cast<double>(catalogue_->kind<run::SaveTuning>()[*i].every);
+    }
+    out["made"] = kept.made;
+    out["snapshot"] = text_of(kept.snapshot);
+    out["replayed"] = static_cast<int64_t>(kept.replayed);
+    out["frontier"] = frontier;
+    out["was_at"] = kept.was_at;
+    return out;
+}
+
+void KdWorld::save() {
+    if (!runner_ || !keeper_) {
+        return;
+    }
+    since_save_ = 0.0;
+    runner_->call([this] { keeper_->snapshot(crowd_->world()); });
+}
+
+void KdWorld::save_now() {
+    if (!runner_ || !keeper_) {
+        return;
+    }
+    since_save_ = 0.0;
+    // the world stops after the batch it is in; the mark and the snapshot meet it between batches
+    runner_->set_goal(runner_->frontier());
+    runner_->call_and_wait([this] {
+        const time::Seconds frontier = crowd_->world().frontier();
+        keeper_->pause_mark(std::max(frontier, catch_up_to_));
+        keeper_->snapshot(crowd_->world());
+        keeper_->flush();
+    });
+}
+
+void KdWorld::call_home(int64_t camp) {
+    if (!runner_ || !stepper_ || camp < 0 || static_cast<std::size_t>(camp) >= stepper_->camp_ids().size()) {
+        return;
+    }
+    const ecs::Id id = stepper_->camp_ids()[static_cast<std::size_t>(camp)];
+    runner_->call([this, id] {
+        world::World& w = crowd_->world();
+        const world::Command c =
+            w.command(w.frontier(), static_cast<std::uint32_t>(demo::Commanded::call_home), id.value, 0);
+        if (keeper_) {
+            keeper_->command(c);
+        }
+    });
+}
+
+int64_t KdWorld::nearest_camp(int64_t east, int64_t north, int64_t within) const {
+    if (!stepper_) {
+        return -1;
+    }
+    const num::Torus& torus = world::World::kTorus;
+    const num::Point at = torus.wrap(east, north);
+    int64_t best = -1;
+    std::int64_t nearest = within * within;
+    const std::vector<num::Point>& camps = stepper_->camps();
+    for (std::size_t i = 0; i < camps.size(); ++i) {
+        const std::int64_t d = torus.squared_distance(at, camps[i]);
+        if (d <= nearest) {
+            nearest = d;
+            best = static_cast<int64_t>(i);
+        }
+    }
+    return best;
+}
+
+godot::String KdWorld::digest() const {
+    if (!crowd_ || (runner_ && runner_->frontier() != crowd_->world().frontier())) {
+        return {};
+    }
+    return num::to_hex(crowd_->world().digests().whole).c_str();
+}
+
+godot::PackedInt64Array KdWorld::camp_at(int64_t camp) const {
+    godot::PackedInt64Array out;
+    if (stepper_ && camp >= 0 && static_cast<std::size_t>(camp) < stepper_->camps().size()) {
+        const num::Point p = stepper_->camps()[static_cast<std::size_t>(camp)];
+        out.push_back(p.x);
+        out.push_back(p.y);
+    }
+    return out;
+}
+
+bool KdWorld::catching_up() const {
+    return catch_up_to_ >= 0;
+}
+
+godot::String KdWorld::moment_text(int64_t second) {
+    const time::Date d = time::date_of(second);
+    return (time::date_text(d) + ", " + time::time_of_day_text(d)).c_str();
+}
+
 HeatRules KdWorld::heat_rules() const {
     HeatRules rules;
     const std::optional<std::uint32_t> i = catalogue_->find("tuning/heat", "base:heat");
@@ -220,6 +366,24 @@ void KdWorld::frame() {
     const double real = framed_ ? std::chrono::duration<double>(now - last_frame_).count() : 0.0;
     last_frame_ = now;
     framed_ = true;
+    if (catch_up_to_ >= 0) {
+        // a reopened world catches up to where it was before the screen moves on from there
+        if (runner_->frontier() < catch_up_to_) {
+            return;
+        }
+        const double speed = pace_.speed();
+        const bool paused = pace_.paused();
+        pace_ = Pace(static_cast<double>(catch_up_to_));
+        pace_.set_speed(speed);
+        if (paused) {
+            pace_.pause();
+        }
+        catch_up_to_ = -1;
+    }
+    since_save_ += real;
+    if (keeper_ && since_save_ >= save_every_) {
+        save();
+    }
     if (stepper_) {
         // the crowd is asked for no more than the phone can do, less what the heat holds back
         const double can = stepper_->capacity();
@@ -284,6 +448,12 @@ godot::Dictionary KdWorld::counters() const {
     out["share"] = heat_.share();
     out["limit"] = pace_.limit();
     out["walkers"] = static_cast<int64_t>(stepper_->walker_count());
+    if (keeper_) {
+        out["saves"] = static_cast<int64_t>(keeper_->snapshots());
+        out["saved_at"] = keeper_->last_snapshot();
+        out["save_bytes"] = static_cast<int64_t>(keeper_->last_snapshot_bytes());
+        out["mismatches"] = static_cast<int64_t>(keeper_->mismatches());
+    }
     return out;
 }
 

@@ -36,13 +36,13 @@ const world::Activity& Snapshot::way_at(std::size_t i, double t) const {
 CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd) {
     const world::World& w = crowd_.world();
     const auto& raw = w.beings().raw();
-    std::vector<ecs::Id> camps;
     w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
         if (id.family() == ecs::Family::place) {
-            camps.push_back(id);
+            camp_ids_.push_back(id);
             camp_places_.push_back(raw.get<world::Place>(h).at);
         }
     });
+    const std::vector<ecs::Id>& camps = camp_ids_;
     w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
         if (id.family() != ecs::Family::marker) {
             return;
@@ -133,6 +133,9 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
     events_.fetch_add(crowd_.world().events_run() - before, std::memory_order_relaxed);
     batches_.fetch_add(1, std::memory_order_relaxed);
     last_batch_ms_.store(seconds * 1000.0, std::memory_order_relaxed);
+    if (keeper_ != nullptr) {
+        keeper_->history(history_);
+    }
     if (!history_.empty()) {
         std::lock_guard lock(greetings_mutex_);
         for (const world::Record& r : history_) {

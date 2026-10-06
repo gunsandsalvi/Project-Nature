@@ -53,7 +53,23 @@ Daylight::Daylight(world::World& w, time::Seconds dawn, time::Seconds dusk)
     : dawn_(dawn), dusk_(dusk), night_(night_at(w.frontier())) {
     KD_CHECK(dawn < dusk, "demo::Daylight: dawn comes before dusk");
     w.set_layer(ecs::owners::daylight, *this);
+}
+
+void Daylight::start(world::World& w) {
     w.schedule(ecs::owners::daylight, world::kActivitySlot, next_change(w.frontier()));
+}
+
+void Daylight::save(ByteWriter& w) const {
+    w.u8(night_ ? 1 : 0);
+}
+
+bool Daylight::load(ByteReader& r) {
+    std::uint8_t night = 0;
+    if (!r.u8(night) || night > 1) {
+        return false;
+    }
+    night_ = night == 1;
+    return r.finished();
 }
 
 bool Daylight::night_at(time::Seconds t) const {
@@ -105,6 +121,12 @@ Grid::Cells Grid::cells(num::Point from, num::Point to, std::int64_t margin) con
             clamp_cell(std::max(f.dx, t.dx) + margin), clamp_cell(std::max(f.dy, t.dy) + margin)};
 }
 
+void Grid::clear() {
+    for (std::vector<ecs::Id>& list : lists_) {
+        list.clear();
+    }
+}
+
 void Grid::put(ecs::Id id, const Cells& c) {
     for (std::int64_t y = c.y0; y <= c.y1; ++y) {
         for (std::int64_t x = c.x0; x <= c.x1; ++x) {
@@ -136,7 +158,7 @@ void Grid::collect(const Cells& c, std::vector<ecs::Id>& out) const {
 
 // --- Markers
 
-Markers::Markers(world::World& w, const Daylight& daylight, const Crowd& crowd, std::int64_t camps)
+Markers::Markers(world::World& w, const Daylight& daylight, const Crowd& crowd)
     : daylight_(daylight),
       kinds_(w.catalogue().kind<Marker>()),
       wander_(crowd.wander / 10),
@@ -148,6 +170,10 @@ Markers::Markers(world::World& w, const Daylight& daylight, const Crowd& crowd, 
         reach_ = std::max(reach_, kinds_[static_cast<std::uint32_t>(k)].reach / 10 + 1);
     }
     w.set_system(ecs::Family::marker, *this);
+    w.set_command_taker(*this);
+}
+
+void Markers::populate(world::World& w, const Crowd& crowd, std::int64_t camps) {
     const num::Torus& torus = w.torus();
     const std::int64_t half = crowd.area / 20;  // half the side, in centimetres
     const num::Point centre = centre_of(torus);
@@ -179,6 +205,63 @@ Markers::Markers(world::World& w, const Daylight& daylight, const Crowd& crowd, 
             grid_.put(id, cells_.back());
         }
     }
+}
+
+void Markers::opened(world::World& w) {
+    // the indexes made again from the markers' activities, as regrid() keeps them
+    ids_.clear();
+    cells_.clear();
+    grid_.clear();
+    w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
+        if (id.family() != ecs::Family::marker) {
+            return;
+        }
+        const world::Activity& a = w.beings().raw().get<world::Activity>(h);
+        ids_.push_back(id);
+        cells_.push_back(grid_.cells(a.from, a.to, 0));
+        grid_.put(id, cells_.back());
+    });
+}
+
+void Markers::command(world::Context& c, const world::Command& cmd) {
+    if (cmd.what != static_cast<std::uint32_t>(Commanded::call_home)) {
+        return;
+    }
+    // each of the camp's markers hears it a second later, as every effect on another lands (A3.3)
+    const world::World& w = c.world();
+    const ecs::Id camp{cmd.a};
+    for (const ecs::Id id : ids_) {
+        if (w.beings().raw().get<Home>(w.beings().handle(id)).camp == camp) {
+            c.schedule(id, kHomeSlot, c.now() + 1);
+        }
+    }
+}
+
+world::Activity Markers::walk_to(const world::World& w, const Marker& kind, num::Point from, num::Point to,
+                                 time::Seconds now) {
+    // millimetres over millimetres a second, rounded up to a whole second, and never less than one
+    const std::int64_t way = w.torus().distance(from, to) * 10;
+    const time::Seconds takes = std::max<time::Seconds>(1, (way + kind.speed - 1) / kind.speed);
+    return {doing(Doing::walk), now, now + takes, from, to};
+}
+
+void Markers::going_home(world::Context& c, world::Beings::Handle h, ecs::Id id) {
+    world::World& w = c.world();
+    auto& raw = w.beings().raw();
+    world::Activity& a = raw.get<world::Activity>(h);
+    const Home& home = raw.get<Home>(h);
+    // asleep, greeting another, or already resting at home, it lets the call pass
+    if (a.what == doing(Doing::sleep) || a.what == doing(Doing::greet) ||
+        (a.what == doing(Doing::rest) && a.to == home.at)) {
+        return;
+    }
+    const time::Seconds now = c.now();
+    // what it was doing ends here, keeping what it reached, and it sets off home from there (TIM-17)
+    a.cut(w.torus(), now);
+    c.cancel(id, world::kActivitySlot);
+    a = walk_to(w, kinds_[raw.get<MarkerKind>(h).kind], a.to, home.at, now);
+    c.schedule(id, world::kActivitySlot, a.end);
+    moved(c, id);
 }
 
 std::size_t Markers::index_of(ecs::Id id) const {
@@ -224,6 +307,10 @@ void Markers::handle(world::Context& c, const event::Event& e) {
         called(c, *found, id);
         return;
     }
+    if (e.slot == kHomeSlot) {
+        going_home(c, *found, id);
+        return;
+    }
     auto& raw = w.beings().raw();
     world::Activity& a = raw.get<world::Activity>(*found);
     const Marker& kind = kinds_[raw.get<MarkerKind>(*found).kind];
@@ -247,10 +334,7 @@ void Markers::handle(world::Context& c, const event::Event& e) {
             draws.fires(0, homeward_)
                 ? home.at
                 : w.torus().moved(home.at, {draws.between(1, -wander_, wander_), draws.between(2, -wander_, wander_)});
-        // millimetres over millimetres a second, rounded up to a whole second, and never less than one
-        const std::int64_t way = w.torus().distance(here, to) * 10;
-        const time::Seconds takes = std::max<time::Seconds>(1, (way + kind.speed - 1) / kind.speed);
-        a = {doing(Doing::walk), now, now + takes, here, to};
+        a = walk_to(w, kind, here, to, now);
     }
     c.schedule(id, world::kActivitySlot, a.end);
     moved(c, id);
@@ -365,7 +449,9 @@ void Markers::bounds(const world::World& w, time::Seconds a, time::Seconds b, st
         if (act.what == doing(Doing::walk)) {
             radius += torus.distance(centre, act.at(torus, std::min(act.end, b))) + 1;
         }
-        const time::Seconds sets_off = next_walk(act, kind, a);
+        // called home, it may set off at any second of the window
+        const time::Seconds sets_off =
+            raw.get<world::Schedule>(h).expected[kHomeSlot] != 0 ? a : next_walk(act, kind, a);
         if (sets_off < b) {
             radius += (kind.speed + 9) / 10 * (b - sets_off);
         }
@@ -387,6 +473,24 @@ CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std
     : crowd_(crowd_of(catalogue)),
       world_(seed, catalogue),
       daylight_(world_, crowd_.dawn, crowd_.dusk),
-      markers_(world_, daylight_, crowd_, camps.value_or(crowd_.camps)) {}
+      markers_(world_, daylight_, crowd_) {
+    daylight_.start(world_);
+    markers_.populate(world_, crowd_, camps.value_or(crowd_.camps));
+}
+
+CrowdWorld::CrowdWorld(const data::Catalogue& catalogue, Opening /*opening*/)
+    : crowd_(crowd_of(catalogue)),
+      world_(0, catalogue),
+      daylight_(world_, crowd_.dawn, crowd_.dusk),
+      markers_(world_, daylight_, crowd_) {}
+
+std::unique_ptr<CrowdWorld> CrowdWorld::open(const data::Catalogue& catalogue, std::span<const save::Chunk> chunks,
+                                             std::string& why) {
+    std::unique_ptr<CrowdWorld> crowd(new CrowdWorld(catalogue, Opening{}));
+    if (!crowd->world_.load(chunks, why)) {
+        return nullptr;
+    }
+    return crowd;
+}
 
 }  // namespace kd::demo

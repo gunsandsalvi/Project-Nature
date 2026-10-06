@@ -176,7 +176,7 @@ The same library runs scenes and whole worlds headless in the cloud, under the s
 - **A thing's kind is its catalogue entry,** and its parts are the components the entry lists, as RimWorld's Defs and Comps; each entry becomes a ready recipe at load.
   There is no class hierarchy of kinds, which Dwarf Fortress regretted.
 - **One descriptor per component:** its stable name, its version and its fields (name, type, unit, range, whether it names another entity or entry, what it affects, a plain description).
-  The same descriptor loads its values from the catalogues, saves and loads it, hashes it for the checksum and shows it in the details view (`PRN-14`).
+  The same descriptor loads its values from the catalogues, saves and loads it, hashes it for the checksum and shows it in the details view (`PRN-14`); since α1.4a the digest, the snapshot's writer and its reader all walk it.
   A new component is one header, one descriptor, its rules and one line in the component list.
 - **Order:** EnTT's own order is not canonical (it shifts with unrelated changes and across a save), so nothing that decides may follow it.
   - Decisions follow the event queue (A3.3) or lists sorted by id, and every sort breaks ties by id.
@@ -315,6 +315,17 @@ Following Box2D, Factorio and research 18:
 - **Export and import:** one `.kindling` file holding the world's files with a checksum for each, written and read through Android's file picker; an import is checked as it arrives and a damaged one refused with a message naming the damage (`PLT-08`).
 - **Space:** free space is checked at every save; the game warns before the phone is full and asks which worlds to delete, and never deletes anything itself (`PLT-10`).
 - **History** is appended as it happens, in yearly segments, never rewritten but by the fixed thinning rule at year boundaries (`PRN-15`, `PLT-10`).
+- *Built in α1.4a:*
+  - **Files** (`kd/save`): a folder's few primitives (write, append, cut, rename, sync a file, sync a folder) behind one interface, the disk's own and a fake that keeps what each sync made safe, so a test cuts the power between any two calls; writing a whole file, keeping a log and setting a file aside are written once on the primitives, so the fake tests the steps the disk takes.
+  - **The keeper** (`save::Keeper`), with its own I/O thread: `world.toml`, the newest two snapshots, `journal.log` and `history/<year>.log`.
+    A command is appended and synced before it acts; history is appended as each batch ends and synced before each snapshot, so none can be lost behind one; a snapshot's state is copied between two events on the simulation's thread, then compressed and written on the I/O thread.
+  - **Snapshots:** the clock, the catalogue's names kind by kind, both registries entity by entity through the component descriptors (A3.2), the live events and each system's own state, each a chunk; the file ends with a hash of every byte before it, so damage anywhere is refused, even where zstd would not notice.
+    An entry of the catalogue is written by its number and read back through the names, so a save keeps names, never numbers.
+  - **Commands** are part of the world's state: the world's own owner of commands holds those pending, wakes at the earliest, and hands each to the system that takes it; the demonstration's is calling a camp home.
+    The runner takes jobs between batches, so a command, a save or the save as the app leaves the screen meets the world at an event boundary, even while time is paused.
+  - **Opening** (`demo::keep_crowd`): the newest snapshot whose every hash holds, newer damaged ones moved aside; the journal's later commands act again at their own seconds; the world catches up to its last pause mark, command or record of history, and each record it makes again is compared with the one written.
+  - *Measured in the cloud:* the 10,000 markers' state copied in 3.4 ms (1.6 MB), compressed in 3.3 ms to 242 KB, and read back and opened in 5.3 ms.
+    The kill test kills the tool at 100 random moments over a world of 2,500 markers with three commands, and the world it ends with is the unbroken run's, with no record made differently.
 
 ### A3.8 Talking to Godot
 
@@ -704,6 +715,7 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
     measured in α1.3c, 0.8 ms in the cloud, 1.1 ms for nine frames in ten, placing each walker from its ways and filling sixteen areas' buffers;
   - loading a launch-size catalogue: 25–33 ms;
   - a save: a pause of tens of milliseconds to copy the state at an event, the rest on other threads;
+    measured in α1.4a, 3.4 ms for the 10,000 markers in the cloud, with 3.3 ms of compression on the I/O thread;
   - opening a world: within `PLT-04`'s 3 seconds.
 - **Storage** (`PLT-10`): a world of 7,000 people at Year 250 estimated at 3.5–4.1 GB, against 4 GB: its history fits at about 17–30 events a person a game day.
 

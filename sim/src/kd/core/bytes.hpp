@@ -6,6 +6,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <span>
+#include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 namespace kd {
@@ -15,18 +18,36 @@ class ByteWriter {
 public:
     void u8(std::uint8_t v) { out_.push_back(static_cast<std::byte>(v)); }
     void u32(std::uint32_t v) {
+        const std::size_t at = out_.size();
+        out_.resize(at + 4);
         for (unsigned i = 0; i < 4; ++i) {
-            u8(static_cast<std::uint8_t>(v >> (8U * i)));
+            out_[at + i] = static_cast<std::byte>(v >> (8U * i));
         }
     }
     void u64(std::uint64_t v) {
+        const std::size_t at = out_.size();
+        out_.resize(at + 8);
         for (unsigned i = 0; i < 8; ++i) {
-            u8(static_cast<std::uint8_t>(v >> (8U * i)));
+            out_[at + i] = static_cast<std::byte>(v >> (8U * i));
         }
     }
     void i64(std::int64_t v) { u64(static_cast<std::uint64_t>(v)); }
+    /// Bytes as they are, after their count.
+    void blob(std::span<const std::byte> b) {
+        u64(b.size());
+        out_.insert(out_.end(), b.begin(), b.end());
+    }
+    /// A text as its bytes, after their count.
+    void text(std::string_view t) {
+        u64(t.size());
+        for (const char c : t) {
+            u8(static_cast<std::uint8_t>(c));
+        }
+    }
 
     [[nodiscard]] const std::vector<std::byte>& bytes() const { return out_; }
+    /// The bytes written, leaving the writer empty.
+    [[nodiscard]] std::vector<std::byte> take() { return std::exchange(out_, {}); }
 
 private:
     std::vector<std::byte> out_;
@@ -72,6 +93,32 @@ public:
         const bool ok = u64(u);
         v = static_cast<std::int64_t>(u);
         return ok;
+    }
+
+    /// Bytes as blob() wrote them; a count beyond what is left fails.
+    bool blob(std::vector<std::byte>& b) {
+        std::uint64_t n = 0;
+        if (!u64(n) || n > in_.size() - at_) {
+            failed_ = true;
+            return false;
+        }
+        const auto from = in_.begin() + static_cast<std::ptrdiff_t>(at_);
+        b.assign(from, from + static_cast<std::ptrdiff_t>(n));
+        at_ += n;
+        return true;
+    }
+    /// A text as text() wrote it.
+    bool text(std::string& t) {
+        std::uint64_t n = 0;
+        if (!u64(n) || n > in_.size() - at_) {
+            failed_ = true;
+            return false;
+        }
+        t.clear();
+        for (std::uint64_t i = 0; i < n; ++i) {
+            t.push_back(static_cast<char>(in_[at_++]));
+        }
+        return true;
     }
 
     /// Whether every read so far succeeded and nothing is left unread.

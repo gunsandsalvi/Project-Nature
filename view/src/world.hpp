@@ -22,6 +22,8 @@
 #include "kd/demo/clockwork.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/run/runner.hpp"
+#include "kd/save/files.hpp"
+#include "kd/save/keeper.hpp"
 #include "pace.hpp"
 
 namespace kd::view {
@@ -50,8 +52,30 @@ public:
     /// Starts the stand-in world at Year 1, spring, day 1, doing this much work for each game hour (MAT-16).
     void start_clockwork(int64_t work_per_hour);
     /// Starts the demonstration's crowd from the loaded catalogue (MAT-16): from a seed, with camps camps, or the
-    /// tuning's number when 0.
+    /// tuning's number when 0; kept nowhere, for the tests.
     void start_crowd(int64_t seed, int64_t camps);
+    /// Opens the crowd's world kept in a folder, an absolute path, or makes it there from a seed and camps (A3.7):
+    /// whether it was made, the snapshot it opened, the commands acted again, the damaged files set aside, the game
+    /// second it had got to and catches up to, and a problem if it could not open. Implements TIM-05 and PLT-07.
+    godot::Dictionary open_crowd(const godot::String& folder, int64_t seed, int64_t camps);
+    /// Saves the world as it runs, between two batches, its snapshot written on another thread (A3.7).
+    void save();
+    /// Saves the world at once, as the app leaves the screen: it stops after the batch it is in, a pause mark is
+    /// synced to the journal, and the snapshot is written before this returns (TIM-05).
+    void save_now();
+    /// Your command to call one of the camps home, by its number in id order, acting at the world's frontier and
+    /// written to the journal before it acts (A3.8).
+    void call_home(int64_t camp);
+    /// The number of the camp nearest a place in world centimetres, within a distance, or -1.
+    int64_t nearest_camp(int64_t east, int64_t north, int64_t within) const;
+    /// Where a camp is, by its number: east and north in world centimetres; empty if there is no such camp.
+    godot::PackedInt64Array camp_at(int64_t camp) const;
+    /// Whether the world is still catching up to where it was when it closed.
+    bool catching_up() const;
+    /// For the tests, while the world rests between batches, as after save_now: its whole state's digest.
+    godot::String digest() const;
+    /// A game second as the calendar says it, "Year 1, spring, day 1, 07:00" (TIM-14).
+    static godot::String moment_text(int64_t second);
 
     /// The speed asked, in game seconds a real second, at least 1.
     void set_speed(double game_per_real);
@@ -110,9 +134,16 @@ private:
 
     std::unique_ptr<data::Catalogue> catalogue_;
     std::unique_ptr<demo::Clockwork> clockwork_;
+    // the folder a kept world is in, and its keeper, which outlast the world and its runner
+    std::unique_ptr<save::DiskFiles> files_;
+    std::unique_ptr<save::Keeper> keeper_;
     std::unique_ptr<demo::CrowdWorld> crowd_;
     std::unique_ptr<CrowdStepper> stepper_;
     std::unique_ptr<run::Runner> runner_;
+    // catching up to where a reopened world had got, and the save that comes every so often
+    time::Seconds catch_up_to_ = -1;
+    double save_every_ = 30.0;
+    double since_save_ = 0.0;
     Pace pace_;
     HeatGovernor heat_;
     std::chrono::steady_clock::time_point last_frame_;

@@ -60,6 +60,7 @@ func build() -> void:
 	_add("Storage", _short_mount(device.storage()), "info")
 	_add_same_bits(device)
 	_add_catalogue()
+	_add_saves()
 
 
 ## Every line as plain text, for the chat.
@@ -264,3 +265,30 @@ func _show() -> void:
 		text.add_theme_font_size_override("font_size", 14)
 		row.add_child(text)
 		_list.add_child(row)
+
+
+## The crowd's world as last saved (PLT-07): at what moment of its time, how long ago, and how
+## large its snapshot is.
+func _add_saves() -> void:
+	var folder := "user://worlds/crowd/snapshots"
+	var newest := ""
+	for file in DirAccess.get_files_at(folder):
+		if file.ends_with(".kds") and file > newest:
+			newest = file
+	if newest == "":
+		_add("Saves", "no world saved yet: open Crowd", "info")
+		return
+	var path := folder.path_join(newest)
+	var ago := maxi(0, int(Time.get_unix_time_from_system()) - FileAccess.get_modified_time(path))
+	var kib := FileAccess.get_file_as_bytes(path).size() / 1024
+	var at := KdWorld.moment_text(int(newest.get_basename()))
+	_add("Saves", "the crowd's world, %s ago, at %s, %d KiB" % [_ago(ago), at, kib], "ok")
+
+
+## A span of real time as you would say it: "12 s", "3 min", "2 h".
+static func _ago(seconds: int) -> String:
+	if seconds < 120:
+		return "%d s" % seconds
+	if seconds < 7200:
+		return "%d min" % (seconds / 60)
+	return "%d h" % (seconds / 3600)

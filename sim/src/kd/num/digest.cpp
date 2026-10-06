@@ -34,6 +34,10 @@ Digest::Digest() {
 }
 
 void Digest::put(const unsigned char* p, std::size_t n) {
+    // nothing to take, as from an empty span, whose pointer may be null
+    if (n == 0) {
+        return;
+    }
     if (used_ + n > sizeof buffer_) {
         flush();
     }

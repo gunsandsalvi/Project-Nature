@@ -186,4 +186,15 @@ if [ ! -s "$KD_ENTT/entt.hpp" ]; then
 fi
 fetch https://raw.githubusercontent.com/skypjack/entt/v4.0.0/single_include/entt/entt.hpp "$KD_ENTT/entt.hpp" \
   eedcb83fedffe640334ef69a0647625a186cf1daeb333b21b0a1445f01e89b6c
+
+# 14. zstd 1.5.7's library sources, which compress the saves' snapshots (A3.7), from its release checked against its
+#     SHA-256; its output is the same only within one version, so the state is hashed before compression
+if [ ! -s "$KD_ZSTD/lib/zstd.h" ]; then
+  echo "Setup: installing zstd 1.5.7"
+  mkdir -p "$KD_ZSTD"
+  fetch https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz "$KD_CACHE/zstd-1.5.7.tar.gz" \
+    eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3
+  quiet tar -xzf "$KD_CACHE/zstd-1.5.7.tar.gz" -C "$KD_ZSTD" --strip-components=1 zstd-1.5.7/lib
+  rm -f "$KD_CACHE/zstd-1.5.7.tar.gz"
+fi
 exit 0

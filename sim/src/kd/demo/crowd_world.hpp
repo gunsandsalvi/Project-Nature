@@ -5,8 +5,10 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <span>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -23,6 +25,12 @@ enum class Doing : std::uint8_t { rest = 0, walk = 1, sleep = 2, greet = 3 };
 /// What the crowd records in the world's history.
 enum class Happened : std::uint8_t { greeting = 1 };
 
+/// Your commands to the crowd (A3.8): call a camp home, its id the command's first number.
+enum class Commanded : std::uint8_t { call_home = 1 };
+
+/// The slot of a marker's schedule a call home wakes, after its activity's and a greeting's call.
+inline constexpr std::uint32_t kHomeSlot = 2;
+
 /// The square of the world the crowd keeps to, centred on the world: its south-west corner and its side, in
 /// centimetres.
 struct Square {
@@ -38,10 +46,14 @@ struct Square {
 class Daylight final : public world::System {
 public:
     Daylight(world::World& w, time::Seconds dawn, time::Seconds dusk);
+    /// A new world's first change of light; an opened world has its event in its queue already.
+    void start(world::World& w);
 
     [[nodiscard]] std::string_view name() const override { return "daylight"; }
     void handle(world::Context& c, const event::Event& e) override;
     void digest(num::Digest& d) const override;
+    void save(ByteWriter& w) const override;
+    bool load(ByteReader& r) override;
 
     [[nodiscard]] bool night() const { return night_; }
     /// Whether a moment falls between dusk and dawn.
@@ -72,6 +84,7 @@ public:
 
     /// The cells a way from one place to another crosses, widened by a margin.
     [[nodiscard]] Cells cells(num::Point from, num::Point to, std::int64_t margin) const;
+    void clear();
     void put(ecs::Id id, const Cells& c);
     void take(ecs::Id id, const Cells& c);
     /// Every id listed in the cells, each perhaps more than once.
@@ -90,11 +103,16 @@ private:
 /// Implements TIM-17 and MAT-16, see A3.3: the markers, each walking, resting, greeting and sleeping in turn.
 class Markers final : public world::System {
 public:
-    /// Places the camps and their markers by keyed chance, each marker resting at its camp for a while first.
-    Markers(world::World& w, const Daylight& daylight, const Crowd& crowd, std::int64_t camps);
+    /// The markers' rules for a world, which take its commands too.
+    Markers(world::World& w, const Daylight& daylight, const Crowd& crowd);
+    /// A new world's camps and markers, placed by keyed chance, each marker resting at its camp for a while first.
+    void populate(world::World& w, const Crowd& crowd, std::int64_t camps);
 
     [[nodiscard]] std::string_view name() const override { return "markers"; }
     void handle(world::Context& c, const event::Event& e) override;
+    /// Implements PLT-07, see A3.8: calling a camp home, the demonstration's one command.
+    void command(world::Context& c, const world::Command& cmd) override;
+    void opened(world::World& w) override;
 
     [[nodiscard]] std::int64_t reach() const override { return reach_; }
     void bounds(const world::World& w, time::Seconds a, time::Seconds b, std::span<const ecs::Id> owners,
@@ -106,6 +124,10 @@ public:
 private:
     void walk_ended(world::Context& c, world::Beings::Handle h, ecs::Id id);
     void called(world::Context& c, world::Beings::Handle h, ecs::Id id);
+    void going_home(world::Context& c, world::Beings::Handle h, ecs::Id id);
+    /// A walk from one place to another at the kind's pace, beginning now.
+    [[nodiscard]] static world::Activity walk_to(const world::World& w, const Marker& kind, num::Point from,
+                                                 num::Point to, time::Seconds now);
     /// The markers that can be greeted at a place and second: within reach, awake, not greeting, not already called.
     [[nodiscard]] std::vector<ecs::Id> greetable(world::Context& c, ecs::Id self, num::Point at, time::Seconds t,
                                                  std::int64_t reach) const;
@@ -136,8 +158,11 @@ private:
 /// A world of the crowd, from the catalogue's demonstration source: the world, its daylight and its markers.
 class CrowdWorld {
 public:
-    /// camps, if given, replaces the tuning's number, for smaller worlds in tests.
+    /// A new crowd's world; camps, if given, replaces the tuning's number, for smaller worlds in tests.
     CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std::optional<std::int64_t> camps = std::nullopt);
+    /// A crowd's world opened from a snapshot's chunks, or nothing, with why. Implements PLT-07, see A3.7.
+    [[nodiscard]] static std::unique_ptr<CrowdWorld> open(const data::Catalogue& catalogue,
+                                                          std::span<const save::Chunk> chunks, std::string& why);
 
     [[nodiscard]] world::World& world() { return world_; }
     [[nodiscard]] const world::World& world() const { return world_; }
@@ -145,6 +170,9 @@ public:
     [[nodiscard]] Square square() const { return square_of(world_.torus(), crowd_); }
 
 private:
+    struct Opening {};
+    CrowdWorld(const data::Catalogue& catalogue, Opening opening);
+
     const Crowd& crowd_;
     world::World world_;
     Daylight daylight_;

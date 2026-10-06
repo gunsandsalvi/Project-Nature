@@ -13,6 +13,12 @@
 //                                                 the demonstration's crowd from the data folder, run one event at a
 //                                                 time, with each game day's digests at midnight: the whole state's
 //                                                 and each part's (TIM-16, A3.3)
+//     kindling keep <world> [--camps N] [--seed N] [--until SECONDS] [--every SECONDS] [--call SECOND:CAMP]...
+//                  [--data FOLDER]
+//                                                 the crowd's world kept in a folder (A3.7): opened from its newest
+//                                                 snapshot and journal, or made new; run to a game second with a
+//                                                 snapshot every so many game seconds, calling camps home at their
+//                                                 seconds unless the journal has; for the kill test (PLT-07)
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -27,9 +33,12 @@
 #include "kd/data/catalogue.hpp"
 #include "kd/data/checks.hpp"
 #include "kd/demo/crowd_world.hpp"
+#include "kd/demo/kept.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/proof/proof.hpp"
 #include "kd/run/workers.hpp"
+#include "kd/save/files.hpp"
+#include "kd/save/keeper.hpp"
 #include "kd/world/world.hpp"
 
 namespace {
@@ -41,7 +50,9 @@ int usage() {
         "       kindling suites\n"
         "       kindling catalogue check|schema|fingerprint [data]\n"
         "       kindling catalogue show <name> [data]\n"
-        "       kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [--islands WINDOW --threads N] [data]\n");
+        "       kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [--islands WINDOW --threads N] [data]\n"
+        "       kindling keep <world> [--camps N] [--seed N] [--until SECONDS] [--every SECONDS] "
+        "[--call SECOND:CAMP]... [--data FOLDER]\n");
     return 2;
 }
 
@@ -214,6 +225,105 @@ int run_world(const std::vector<std::string_view>& args) {
     return 0;
 }
 
+int keep(const std::vector<std::string_view>& args) {
+    if (args.empty()) {
+        return usage();
+    }
+    const std::string folder(args[0]);
+    long long camps = 0;
+    unsigned long long seed = 1;
+    long long until = kd::time::kDay;
+    long long every = kd::time::kHour;
+    std::string data = "data";
+    std::vector<std::pair<kd::time::Seconds, std::size_t>> calls;
+    for (std::size_t i = 1; i < args.size(); i += 2) {
+        const bool more = i + 1 < args.size();
+        const std::string value = more ? std::string(args[i + 1]) : "";
+        if (args[i] == "--camps" && more) {
+            camps = std::atoll(value.c_str());
+        } else if (args[i] == "--seed" && more) {
+            seed = std::strtoull(value.c_str(), nullptr, 10);
+        } else if (args[i] == "--until" && more) {
+            until = std::atoll(value.c_str());
+        } else if (args[i] == "--every" && more) {
+            every = std::atoll(value.c_str());
+        } else if (args[i] == "--data" && more) {
+            data = value;
+        } else if (args[i] == "--call" && more && value.find(':') != std::string::npos) {
+            calls.emplace_back(std::atoll(value.c_str()),
+                               static_cast<std::size_t>(std::atoll(value.c_str() + value.find(':') + 1)));
+        } else {
+            return usage();
+        }
+    }
+    if (camps < 0 || until < 1 || every < 1) {
+        return usage();
+    }
+    std::sort(calls.begin(), calls.end());
+    const std::vector<kd::data::SourceFile> files = read_sources(data);
+    kd::data::Catalogue cat;
+    if (!cat.load(files).empty()) {
+        std::fprintf(stderr, "kindling: the catalogue under %s does not load\n", data.c_str());
+        return 1;
+    }
+    std::filesystem::create_directories(folder);
+    kd::save::DiskFiles disk(folder);
+    kd::save::Keeper keeper(disk);
+    kd::demo::Kept kept = kd::demo::keep_crowd(keeper, cat, seed, camps);
+    for (const std::string& d : kept.damaged) {
+        std::printf("damaged: %s\n", d.c_str());
+    }
+    if (!kept.crowd || !kept.problem.empty()) {
+        std::printf("failed: %s\n", kept.problem.c_str());
+        return 1;
+    }
+    kd::world::World& w = kept.crowd->world();
+    std::printf("%s at %lld, %llu commands acted again, catching up to %lld\n",
+                kept.made ? "made" : ("opened " + kept.snapshot).c_str(), static_cast<long long>(w.frontier()),
+                static_cast<unsigned long long>(kept.replayed), static_cast<long long>(kept.was_at));
+    std::fflush(stdout);
+
+    std::vector<kd::ecs::Id> camp_ids;
+    w.beings().each([&](kd::ecs::Id id, kd::world::Beings::Handle /*h*/) {
+        if (id.family() == kd::ecs::Family::place) {
+            camp_ids.push_back(id);
+        }
+    });
+    std::vector<kd::world::Record> records;
+    w.keep_history(&records);
+    // the calls the journal holds were given already, and a person never gives them twice
+    std::size_t made = kept.journaled;
+    while (w.frontier() < until) {
+        const bool calling = made < calls.size();
+        kd::time::Seconds stop = std::min<kd::time::Seconds>(until, (w.frontier() / every + 1) * every);
+        if (calling) {
+            stop = std::min(stop, std::max(w.frontier(), calls[made].first));
+        }
+        if (stop > w.frontier()) {
+            w.run_to(stop);
+        }
+        keeper.history(records);
+        records.clear();
+        if (calling && w.frontier() == calls[made].first) {
+            const kd::world::Command c =
+                w.command(w.frontier(), static_cast<std::uint32_t>(kd::demo::Commanded::call_home),
+                          camp_ids.at(calls[made].second).value, 0);
+            keeper.command(c);
+            ++made;
+        }
+        if (w.frontier() % every == 0) {
+            keeper.snapshot(w);
+        }
+    }
+    keeper.flush();
+    std::printf("at %lld whole %s history %llu commands %llu mismatches %llu snapshots %llu\n",
+                static_cast<long long>(w.frontier()), kd::num::to_hex(w.digests().whole).c_str(),
+                static_cast<unsigned long long>(w.history_count()), static_cast<unsigned long long>(w.commands_made()),
+                static_cast<unsigned long long>(keeper.mismatches()),
+                static_cast<unsigned long long>(keeper.snapshots()));
+    return keeper.mismatches() == 0 ? 0 : 1;
+}
+
 int proof(const std::vector<std::string_view>& args) {
     int threads = 1;
     std::vector<std::string_view> names;
@@ -263,6 +373,9 @@ int main(int argc, char** argv) {
     }
     if (command == "run") {
         return run_world(args);
+    }
+    if (command == "keep") {
+        return keep(args);
     }
     if (command == "suites") {
         for (const auto& s : kd::proof::suites()) {

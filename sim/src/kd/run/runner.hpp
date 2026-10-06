@@ -5,6 +5,9 @@
 
 #include <atomic>
 #include <condition_variable>
+#include <cstdint>
+#include <deque>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -42,6 +45,12 @@ public:
     /// Waits until the frontier reaches the moment, which the goal must have reached.
     void wait_for(time::Seconds moment);
 
+    /// A job for the runner's thread between two batches, such as a command or a save, run even while the world
+    /// sleeps at its goal, after every job given before it.
+    void call(std::function<void()> job);
+    /// The same, waiting until the job has run.
+    void call_and_wait(std::function<void()> job);
+
     /// The runner's own thread, for the self-check.
     [[nodiscard]] const Thread& thread() const { return *thread_; }
 
@@ -54,6 +63,9 @@ private:
     std::condition_variable wake_;
     std::condition_variable reached_;
     time::Seconds goal_;
+    std::deque<std::function<void()>> jobs_;
+    std::uint64_t jobs_given_ = 0;
+    std::uint64_t jobs_done_ = 0;
     bool stopping_ = false;
     // last, so the thread stops before what it uses is gone
     std::unique_ptr<Thread> thread_;

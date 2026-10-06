@@ -4,8 +4,9 @@
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
 #   3 C++         the five builds (A2.2), through ccache, and the phone compiler's twice more with libc++'s order of
 #                 ties randomized under two seeds; then, beside steps 4 and 5, the simulation's doctest tests on its
-#                 four builds, the same-bits check (every proof suite one digest on x86-64 with clang and GCC, on
-#                 arm64 with GCC and the phone's own compiler, and on the randomized builds, on one thread and four),
+#                 four builds, the kill test (tools/killtest.py), the same-bits check (every proof suite one digest
+#                 on x86-64 with clang and GCC, on arm64 with GCC and the phone's own compiler, and on the randomized
+#                 builds, on one thread and four),
 #                 the scans of the flags and the built code (tools/samebits.py), the banned list (tools/rules.py) and
 #                 the code linted (clang-tidy 18); tests, rules and lint only when what they depend on changed since
 #                 they passed (tools/cppcache.py)
@@ -154,6 +155,9 @@ cpp_tests() {
   if [ -d data ] && [ -x build/sim/kindling ]; then
     build/sim/kindling catalogue check data >"$TMP/catalogue" || { cat "$TMP/catalogue"; exit 1; }
     sed 's/^/   /' "$TMP/catalogue"
+    # the kill test: a kept world killed at 100 moments ends as an unbroken one (PLT-07, A3.7)
+    python3 tools/killtest.py build/sim/kindling data >"$TMP/kill" || { cat "$TMP/kill"; exit 1; }
+    sed 's/^/   /' "$TMP/kill"
   fi
   python3 tools/samebits.py same "$TMP"/proof-* | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1

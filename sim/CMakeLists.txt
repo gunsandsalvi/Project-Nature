@@ -8,6 +8,7 @@ set(KD_XXHASH "$ENV{KD_XXHASH}" CACHE PATH "xxHash's folder (tools/setup.sh)")
 set(KD_DOCTEST "$ENV{KD_DOCTEST}" CACHE PATH "doctest's folder (tools/setup.sh)")
 set(KD_TOMLPP "$ENV{KD_TOMLPP}" CACHE PATH "toml++'s folder (tools/setup.sh)")
 set(KD_ENTT "$ENV{KD_ENTT}" CACHE PATH "EnTT's folder (tools/setup.sh)")
+set(KD_ZSTD "$ENV{KD_ZSTD}" CACHE PATH "zstd's folder (tools/setup.sh)")
 
 include(cmake/kindling.cmake)
 find_package(Threads REQUIRED)
@@ -17,6 +18,15 @@ find_package(Threads REQUIRED)
 file(GLOB KD_CORE_MATH CONFIGURE_DEPENDS thirdparty/core-math/src/binary64/*/*.c)
 add_library(kd_core_math STATIC ${KD_CORE_MATH})
 kindling_c_rules(kd_core_math)
+
+# zstd 1.5.7's library, which compresses the saves' snapshots (A3.7), from tools/setup.sh: C, with our floating-point
+# flags and without our warnings; no assembly, so every build compresses with the same C.
+file(GLOB KD_ZSTD_SOURCES CONFIGURE_DEPENDS "${KD_ZSTD}/lib/common/*.c" "${KD_ZSTD}/lib/compress/*.c"
+    "${KD_ZSTD}/lib/decompress/*.c")
+add_library(kd_zstd STATIC ${KD_ZSTD_SOURCES})
+target_compile_definitions(kd_zstd PRIVATE ZSTD_DISABLE_ASM=1 ZSTD_LEGACY_SUPPORT=0)
+target_include_directories(kd_zstd SYSTEM PUBLIC "${KD_ZSTD}/lib")
+kindling_c_rules(kd_zstd)
 
 add_library(kd_sim STATIC
     src/kd/chance/chance.cpp
@@ -33,6 +43,7 @@ add_library(kd_sim STATIC
     src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp
     src/kd/demo/crowd_world.cpp
+    src/kd/demo/kept.cpp
     src/kd/num/angle.cpp
     src/kd/num/convert.cpp
     src/kd/num/digest.cpp
@@ -44,6 +55,10 @@ add_library(kd_sim STATIC
     src/kd/run/runner.cpp
     src/kd/run/thread.cpp
     src/kd/run/workers.cpp
+    src/kd/save/files.cpp
+    src/kd/save/keeper.cpp
+    src/kd/save/log.cpp
+    src/kd/save/snapshot.cpp
     src/kd/time/calendar.cpp
     src/kd/time/duration.cpp
     src/kd/world/parts.cpp
@@ -51,7 +66,7 @@ add_library(kd_sim STATIC
 target_include_directories(kd_sim PUBLIC src)
 target_include_directories(kd_sim SYSTEM PUBLIC "${KD_ENTT}")
 target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" "${KD_TOMLPP}" thirdparty/core-math)
-target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math)
+target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math kd_zstd)
 kindling_rules(kd_sim)
 
 if(KD_SIM_TESTS)
@@ -72,6 +87,7 @@ if(KD_SIM_TESTS)
         tests/numbers_test.cpp
         tests/run_test.cpp
         tests/runner_test.cpp
+        tests/save_test.cpp
         tests/world_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
     target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)

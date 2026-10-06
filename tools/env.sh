@@ -16,6 +16,7 @@ export KD_DOCTEST="$KD_CACHE/doctest-2.4.11"
 export KD_XXHASH="$KD_CACHE/xxhash-0.8.4"
 export KD_TOMLPP="$KD_CACHE/tomlplusplus-1e8829b"
 export KD_ENTT="$KD_CACHE/entt-4.0.0"
+export KD_ZSTD="$KD_CACHE/zstd-1.5.7"
 # ccache keeps compiled C++ between runs and across build folders, so godot-cpp and unchanged files compile once: paths
 # under the repository are hashed relative to each build folder, and the folder itself is left out (A2.4)
 export KD_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

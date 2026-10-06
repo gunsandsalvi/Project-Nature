@@ -15,6 +15,7 @@
 #include <string_view>
 #include <vector>
 
+#include "kd/core/bytes.hpp"
 #include "kd/data/catalogue.hpp"
 #include "kd/demo/parts.hpp"
 #include "kd/ecs/registry.hpp"
@@ -23,6 +24,7 @@
 #include "kd/num/torus.hpp"
 #include "kd/run/runner.hpp"
 #include "kd/run/workers.hpp"
+#include "kd/save/snapshot.hpp"
 #include "kd/world/parts.hpp"
 
 namespace kd::world {
@@ -35,6 +37,16 @@ using Things = ecs::Registry<ecs::Handle64, ecs::Ident, Place>;
 
 class World;
 class Context;
+
+/// One of your acts (A3.8): its number among the world's commands, the game second it acts at, what it is as the
+/// system that takes it numbers it, and whom it is about.
+struct Command {
+    std::uint64_t number = 0;
+    time::Seconds at = 0;
+    std::uint32_t what = 0;
+    std::uint64_t a = 0;
+    std::uint64_t b = 0;
+};
 
 /// Where an owner can be within a window: a circle it cannot leave (A3.3), in whole centimetres.
 struct Bound {
@@ -63,6 +75,39 @@ public:
                       std::vector<ecs::Id>& /*out*/) const {}
     /// After a window run in islands: the owners whose place changed in it, in id order, for the system's indexes.
     virtual void after_window(World& /*w*/, std::span<const ecs::Id> /*moved*/) {}
+
+    /// One of your commands, at its second, for the system that takes them (A3.8).
+    virtual void command(Context& /*c*/, const Command& /*cmd*/) {}
+
+    /// Its own state for a snapshot, beyond the components (A3.7); none by default.
+    virtual void save(ByteWriter& /*w*/) const {}
+    /// Its own state from a snapshot, as save() wrote it; false if the bytes are not that.
+    virtual bool load(ByteReader& r) { return r.finished(); }
+    /// After the world is opened from a snapshot: its indexes made again from the components.
+    virtual void opened(World& /*w*/) {}
+};
+
+/// Implements TIM-05 and PLT-07, see A3.3 and A3.8: the world's own owner of your commands, one event at the second of
+/// the earliest pending command, which hands each command due then, in number order, to the system that takes them.
+/// The pending commands are part of the world's state, in its digest and its snapshots.
+class Commands final : public System {
+public:
+    explicit Commands(World& w) : w_(w) {}
+
+    [[nodiscard]] std::string_view name() const override { return "commands"; }
+    void handle(Context& c, const event::Event& e) override;
+    void digest(num::Digest& d) const override;
+    void save(ByteWriter& w) const override;
+    bool load(ByteReader& r) override;
+
+private:
+    friend class World;
+    void wake();
+
+    World& w_;
+    System* taker_ = nullptr;
+    std::vector<Command> pending_;  // in the order of their seconds, then numbers
+    std::uint64_t made_ = 0;
 };
 
 /// A happening worth keeping in the world's history (PRN-15): the event it happened at, what it was as its system
@@ -207,6 +252,25 @@ public:
     /// Turns the order fuzzer on with a key, or off (A3.2): every pool scrambled before each batch.
     void set_fuzz(std::optional<std::uint64_t> key) { fuzz_ = key; }
 
+    /// The system that takes your commands.
+    void set_command_taker(System& s) { commands_.taker_ = &s; }
+    /// One of your commands, from outside any event, acting at a second at or after the frontier: numbered, and
+    /// pending until the world reaches it. Implements TIM-05, see A3.8.
+    Command command(time::Seconds at, std::uint32_t what, std::uint64_t a, std::uint64_t b);
+    /// A command from the journal again, after the world is reopened from a snapshot older than it (A3.7): it must be
+    /// the next by number, and acts at its own second, as it did.
+    void replay(const Command& c);
+    /// How many commands the world has had.
+    [[nodiscard]] std::uint64_t commands_made() const { return commands_.made_; }
+
+    /// The world's state as a snapshot's chunks (A3.7), at an event boundary: its clock, the catalogue's names, both
+    /// registries, the live events and each system's own state. Implements PLT-07 and TIM-05.
+    [[nodiscard]] std::vector<save::Chunk> save() const;
+    /// Fills a world, made from its catalogue with its systems set but nothing yet in it, from a snapshot's chunks;
+    /// false, with why, if they are not a world this catalogue and these systems can open. Implements PLT-07 and
+    /// TIM-05.
+    bool load(std::span<const save::Chunk> chunks, std::string& why);
+
     /// Each part's digest and the whole's, at the frontier. Implements RES-05.
     [[nodiscard]] Digests digests() const;
     [[nodiscard]] std::uint64_t events_run() const { return events_; }
@@ -236,6 +300,7 @@ public:
 
 private:
     friend class Context;
+    friend class Commands;
 
     [[nodiscard]] Schedule* schedule_of(ecs::Id owner);
     [[nodiscard]] const Schedule* schedule_of(ecs::Id owner) const;
@@ -277,6 +342,7 @@ private:
     std::uint64_t islands_run_ = 0;
     std::uint64_t largest_island_ = 0;
     IslandCounts counts_;
+    Commands commands_{*this};
 };
 
 }  // namespace kd::world

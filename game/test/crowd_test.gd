@@ -5,6 +5,31 @@ extends GdUnitTestSuite
 
 const CrowdPage := preload("res://pages/crowd.gd")
 const STRIDE := 16
+const TEST_WORLDS := "user://test-worlds"
+
+
+func after_test() -> void:
+	_remove(TEST_WORLDS)
+
+
+## The Crowd page with its world kept in a folder of its own under the tests' folder, the size of a
+## phone's screen.
+func _page(name: String) -> VBoxContainer:
+	var page: VBoxContainer = auto_free(CrowdPage.new())
+	page.folder = "%s/%s" % [TEST_WORLDS, name]
+	page.size = Vector2(540, 1100)
+	return page
+
+
+## Removes a folder and everything in it.
+static func _remove(path: String) -> void:
+	if not DirAccess.dir_exists_absolute(path):
+		return
+	for sub in DirAccess.get_directories_at(path):
+		_remove(path.path_join(sub))
+	for file in DirAccess.get_files_at(path):
+		DirAccess.remove_absolute(path.path_join(file))
+	DirAccess.remove_absolute(path)
 
 
 ## A crowd of four camps run to a morning moment, and a drawer for it.
@@ -101,7 +126,7 @@ func test_each_area_holds_the_walkers_in_its_part_of_the_square() -> void:
 
 # checks: PLT-01 TIM-01
 func test_the_page_draws_ten_thousand_walkers_within_a_frame() -> void:
-	var page: VBoxContainer = auto_free(CrowdPage.new())
+	var page := _page("draws")
 	add_child(page)
 	await await_idle_frame()
 	page.bar.choose_speed(2)
@@ -124,7 +149,7 @@ func test_the_page_draws_ten_thousand_walkers_within_a_frame() -> void:
 
 # checks: PLT-01
 func test_a_drag_moves_the_ground_with_the_finger_and_the_zoom_stays_in_bounds() -> void:
-	var page: VBoxContainer = auto_free(CrowdPage.new())
+	var page := _page("drag")
 	add_child(page)
 	await await_idle_frame()
 	var east: int = page.focus_east
@@ -144,3 +169,53 @@ func test_a_drag_moves_the_ground_with_the_finger_and_the_zoom_stays_in_bounds()
 	assert_float(page.metres_per_pixel() * page._view.size.y).is_equal_approx(
 		CrowdPage.FARTHEST, 0.01
 	)
+
+
+# checks: TIM-05 PLT-07
+func test_the_world_saved_as_the_page_closes_opens_again_where_it_was() -> void:
+	var page := _page("again")
+	add_child(page)
+	await await_idle_frame()
+	assert_bool(page.opened["made"]).is_true()
+	page.bar.choose_speed(2)
+	for i in 20:
+		await await_idle_frame()
+	# a camp called home: its command is written to the journal before it acts
+	page.tap(page._view.size / 2.0)
+	await await_idle_frame()
+	page.world.save_now()
+	var digest: String = page.world.digest()
+	var frontier: int = page.world.frontier()
+	assert_str(digest).is_not_empty()
+	assert_int(page.world.counters()["saves"]).is_greater(0)
+	remove_child(page)
+	page.free()
+	# opened again, before its first frame moves it on
+	var again := _page("again")
+	add_child(again)
+	assert_bool(again.opened["made"]).is_false()
+	assert_int(again.opened["frontier"]).is_equal(frontier)
+	assert_str(again.world.digest()).is_equal(digest)
+	assert_str(again.opened["snapshot"]).is_not_empty()
+
+
+# checks: PLT-07
+func test_a_tap_on_a_camp_calls_it_home() -> void:
+	var page := _page("tap")
+	add_child(page)
+	await await_idle_frame()
+	page.zoom_by(0.05)
+	# a tap far from any camp calls none
+	page.tap(Vector2.ZERO)
+	assert_str(page._called).is_empty()
+	# with a camp at the middle of the view, a tap there calls it home, and the journal keeps it
+	var camp: int = page.world.nearest_camp(page.focus_east, page.focus_north, 2000000)
+	assert_int(camp).is_greater_equal(0)
+	var at: PackedInt64Array = page.world.camp_at(camp)
+	page.focus_east = at[0]
+	page.focus_north = at[1]
+	page.tap(page._view.size / 2.0)
+	assert_str(page._called).starts_with("Camp %d called home" % (camp + 1))
+	page.world.save_now()
+	var journal := FileAccess.get_file_as_bytes("%s/journal.log" % page.folder)
+	assert_int(journal.size()).is_greater(0)

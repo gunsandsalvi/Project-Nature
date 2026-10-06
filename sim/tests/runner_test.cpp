@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <chrono>
 #include <thread>
+#include <vector>
 
 #include "doctest.h"
 #include "helpers.hpp"
@@ -82,4 +84,26 @@ TEST_CASE("the runner's thread starts in the default environment and with its ow
         CHECK(runner.thread().stack() >= (std::size_t{8} << 20));
     }
     kd::num::fenv_reset();
+}
+
+// checks: PLT-07 TIM-05
+TEST_CASE("a job runs between batches on the runner's thread even while the world sleeps at its goal") {
+    kd::demo::Clockwork cw(50);
+    kd::run::Runner runner(cw, 0);
+    // asleep at its start: the job still runs, and sees the frontier where it is
+    kt::Seconds seen = -1;
+    runner.call_and_wait([&] { seen = runner.frontier(); });
+    CHECK(seen == 0);
+    // while it runs toward a goal, each job meets it between two batches, never inside one
+    const kt::Seconds goal = 20 * kt::kDay;
+    runner.set_goal(goal);
+    std::vector<kt::Seconds> at;
+    for (int i = 0; i < 50; ++i) {
+        runner.call([&] { at.push_back(runner.frontier()); });
+    }
+    runner.wait_for(goal);
+    runner.call_and_wait([] {});
+    REQUIRE(at.size() == 50);
+    CHECK(std::is_sorted(at.begin(), at.end()));
+    CHECK(cw.state() == worked_alone(0, goal));
 }

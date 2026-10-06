@@ -10,6 +10,7 @@
 
 #include "kd/demo/crowd_world.hpp"
 #include "kd/run/runner.hpp"
+#include "kd/save/keeper.hpp"
 #include "triple.hpp"
 
 namespace kd::view {
@@ -67,8 +68,11 @@ public:
     std::vector<Greeting> drain_greetings();
     /// The screen's game time, set each frame: a way that ended before it is never drawn again, so it is let go.
     void set_screen(double t) { screen_.store(t, std::memory_order_relaxed); }
-    /// The camps' places, in id order; they never move.
+    /// The camps' places and ids, in id order; they never move.
     [[nodiscard]] const std::vector<num::Point>& camps() const { return camp_places_; }
+    [[nodiscard]] const std::vector<ecs::Id>& camp_ids() const { return camp_ids_; }
+    /// The keeper the world's history goes to after each batch, if the world is kept in a folder (A3.7).
+    void keep(save::Keeper* keeper) { keeper_ = keeper; }
     [[nodiscard]] std::size_t walker_count() const { return ids_.size(); }
 
     /// Pins the runner's thread to these cores from its next batch, or unpins it when empty (A3.9, for the
@@ -91,6 +95,8 @@ private:
     std::vector<ecs::Id> ids_;  // the walkers, in id order
     std::vector<Walker> walkers_;
     std::vector<num::Point> camp_places_;
+    std::vector<ecs::Id> camp_ids_;
+    save::Keeper* keeper_ = nullptr;
     // each walker's ways from the screen's time on, oldest first, and the world's new ones since the last batch
     std::vector<std::vector<world::Activity>> trails_;
     std::vector<world::Way> ways_;

@@ -32,7 +32,7 @@ struct MarkerKind {
 
     template <typename V, typename Self>
     static void visit(V& v, Self& c) {
-        v.u32({"kind", "its kind's number among the catalogue's markers"}, c.kind);
+        v.entry({"kind", "its kind, an entry of the catalogue's markers"}, c.kind, "marker");
     }
 };
 

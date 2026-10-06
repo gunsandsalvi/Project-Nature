@@ -35,12 +35,43 @@ void Runner::wait_for(time::Seconds moment) {
     reached_.wait(lock, [&] { return frontier() >= moment; });
 }
 
+void Runner::call(std::function<void()> job) {
+    {
+        std::lock_guard lock(mutex_);
+        jobs_.push_back(std::move(job));
+        ++jobs_given_;
+    }
+    wake_.notify_all();
+}
+
+void Runner::call_and_wait(std::function<void()> job) {
+    std::unique_lock lock(mutex_);
+    jobs_.push_back(std::move(job));
+    const std::uint64_t mine = ++jobs_given_;
+    wake_.notify_all();
+    reached_.wait(lock, [&] { return jobs_done_ >= mine; });
+}
+
 void Runner::loop() {
     std::unique_lock lock(mutex_);
     for (;;) {
-        wake_.wait(lock, [&] { return stopping_ || goal_ > frontier(); });
+        wake_.wait(lock, [&] { return stopping_ || !jobs_.empty() || goal_ > frontier(); });
+        // jobs first, between batches, so a command or a save meets the world at an event boundary
+        while (!jobs_.empty()) {
+            std::function<void()> job = std::move(jobs_.front());
+            jobs_.pop_front();
+            lock.unlock();
+            num::fenv_assert_default();
+            job();
+            lock.lock();
+            ++jobs_done_;
+            reached_.notify_all();
+        }
         if (stopping_) {
             return;
+        }
+        if (goal_ <= frontier()) {
+            continue;
         }
         const time::Seconds goal = goal_;
         const time::Seconds from = frontier();

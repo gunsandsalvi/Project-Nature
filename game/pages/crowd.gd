@@ -1,7 +1,9 @@
-## The crowd (PLT-01, TIM-01, WLD-13): the demonstration's 400 camps of 25 markers walking, meeting
-## and greeting on the simulation's own thread, drawn from its newest snapshot at the screen's game
-## time, with the Time page's speeds and the counters. Drag to move, pinch or scroll to zoom.
-## Implements PLT-01, TIM-01 and WLD-13.
+## The crowd (PLT-01, TIM-01, WLD-13, PLT-07): the demonstration's 400 camps of 25 markers walking,
+## meeting and greeting on the simulation's own thread, drawn from its newest snapshot at the
+## screen's game time, with the Time page's speeds and the counters. Drag to move, pinch or scroll
+## to zoom, tap a camp to call it home. Its world is kept on the phone: saved every 30 seconds and
+## whenever the app leaves the screen, it opens again where it was. Implements PLT-01, TIM-01,
+## WLD-13 and PLT-07.
 extends VBoxContainer
 
 ## The crowd's world, the same on every phone.
@@ -19,11 +21,18 @@ const MARKER_METRES := 1.0
 const FIRST_VIEW := 3000.0
 const CLOSEST := 40.0
 const FARTHEST := 30000.0
+## A touch that moves less than this many pixels is a tap, and reaches a camp this many away.
+const TAP_SLOP := 12.0
+const TAP_REACH := 40.0
 const TEXT := Color("#efe6d8")
 const QUIET := Color("#a89f95")
 const DAY_GROUND := Color("#4f5b3c")
 const NIGHT_GROUND := Color("#1e2433")
 
+## The folder the crowd's world is kept in; a test sets its own before the page opens.
+var folder := "user://worlds/crowd"
+## What opening the world found (KdWorld.open_crowd).
+var opened := {}
 var world: KdWorld
 var crowd: KdCrowd
 var device: KdDevice
@@ -46,6 +55,9 @@ var _camera: Camera3D
 var _ground: StandardMaterial3D
 var _touches := {}
 var _pinch := 0.0
+var _press := Vector2.ZERO
+var _dragged := false
+var _called := ""
 var _heat_every := 2.0
 var _heat_wait := 0.0
 var _greetings := 0
@@ -77,8 +89,13 @@ func _ready() -> void:
 		return
 	var heat := world.entry("tuning/heat", "base:heat")
 	_heat_every = float(heat.get("reading", 2))
-	world.start_crowd(SEED, 0)
-	world.begin_at(MORNING)
+	opened = world.open_crowd(ProjectSettings.globalize_path(folder), SEED, 0)
+	if opened.has("problem"):
+		_counters.text = "The crowd's world did not open: %s" % opened["problem"]
+		set_process(false)
+		return
+	if opened["made"]:
+		world.begin_at(MORNING)
 	var square := world.crowd_square()
 	focus_east = int(square["west"]) + int(square["side"]) / 2
 	focus_north = int(square["south"]) + int(square["side"]) / 2
@@ -91,6 +108,17 @@ func _ready() -> void:
 	crowd.set_camps(camps.get_rid())
 	bar.choose_speed(0)
 	_draw_crowd()
+
+
+func _notification(what: int) -> void:
+	# the world is saved as the app leaves the screen, well before Android may freeze it (A3.7)
+	if what == NOTIFICATION_APPLICATION_PAUSED and world != null:
+		world.save_now()
+
+
+func _exit_tree() -> void:
+	if world != null:
+		world.save_now()
 
 
 func _process(delta: float) -> void:
@@ -136,6 +164,10 @@ func _show() -> void:
 	_clock.text = "%s, %s" % [world.date_text(), world.time_text()]
 	var c := world.counters()
 	var lines := PackedStringArray()
+	if world.catching_up():
+		lines.append(
+			"Catching up to where the world was, %s" % KdWorld.moment_text(opened["was_at"])
+		)
 	lines.append(
 		(
 			"%s walkers on one core, %s events a second, a batch in %.1f ms"
@@ -154,6 +186,8 @@ func _show() -> void:
 	if _last_greeting >= 0:
 		last = ", the last at %s" % _clock_of(_last_greeting)
 	lines.append("Greetings: %s%s" % [_count(_greetings), last])
+	if _called != "":
+		lines.append(_called)
 	_counters.text = "\n".join(lines)
 	bar.show_speed()
 
@@ -240,7 +274,7 @@ func _add_legend(loaded: Dictionary) -> void:
 			words.append("[bgcolor=%s]   [/bgcolor] %s" % [colour, entry_name.get_slice(":", 1)])
 	words.append("flashing: greeting")
 	words.append("dim: asleep")
-	words.append("large: camp")
+	words.append("large: camp, tap to call it home")
 	legend = RichTextLabel.new()
 	legend.bbcode_enabled = true
 	legend.fit_content = true
@@ -267,11 +301,17 @@ func _on_view_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed:
 			_touches[event.index] = event.position
+			if _touches.size() == 1:
+				_press = event.position
+				_dragged = false
 		else:
 			_touches.erase(event.index)
+			if _touches.is_empty() and not _dragged:
+				tap(event.position)
 		_pinch = _spread()
 	elif event is InputEventScreenDrag:
 		_touches[event.index] = event.position
+		_dragged = _dragged or event.position.distance_to(_press) > TAP_SLOP
 		if _touches.size() >= 2:
 			var spread := _spread()
 			if _pinch > 0.0 and spread > 0.0:
@@ -282,11 +322,28 @@ func _on_view_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and event.device != InputEvent.DEVICE_ID_EMULATION:
 		if event.button_mask & MOUSE_BUTTON_MASK_LEFT:
 			pan_by(event.relative)
-	elif event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+	elif event is InputEventMouseButton and event.device != InputEvent.DEVICE_ID_EMULATION:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_press = event.position
+				_dragged = false
+			elif event.position.distance_to(_press) <= TAP_SLOP:
+				tap(event.position)
+		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			zoom_by(1.0 / 1.15)
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			zoom_by(1.15)
+
+
+## A tap at a point of the view: the camp nearest it, within a finger's width, is called home.
+func tap(at: Vector2) -> void:
+	var east := focus_east + roundi((at.x - _view.size.x / 2.0) * metres_per_pixel() * 100.0)
+	var north := focus_north - roundi((at.y - _view.size.y / 2.0) * metres_per_pixel() * 100.0)
+	var within := roundi(TAP_REACH * metres_per_pixel() * 100.0)
+	var camp := world.nearest_camp(east, north, within)
+	if camp >= 0:
+		world.call_home(camp)
+		_called = "Camp %d called home at %s" % [camp + 1, world.time_text()]
 
 
 ## Moves the view by a drag of some pixels: the ground follows the finger.
