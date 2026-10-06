@@ -113,9 +113,10 @@ dist/        the signed APK of the latest alpha and its note
   - a second compiler: x86-64 with GCC 13 and its undefined-behaviour and float-cast checks;
   - arm64 with GCC 13, and arm64 with the phone's own compiler (NDK r30, clang 21), both static executables run under qemu, for the same-bits check (A3.4);
   - the phone's: the extension for arm64 Android, API 24, the C++ runtime linked statically, newer Android functions linked weakly and guarded, 16 KB-aligned, stripped in the APK and kept whole for crash symbols.
+  - Beside them, since α1.5a, the simulation's tests built once more with GCC's thread checker, since a race between threads can damage memory without failing a test: one did, once, before the checker named it (A17).
 - **Godot:** 4.7.2, pinned, exported from the command line (`--headless --export-release`).
   - The export is unsigned; `zipalign` and `apksigner` finish it, so only `tools/signing-key.py` reads the secret.
-  - The build first copies `data/` into `game/data/` with `build.toml`, the list of its files and their digests (A3.6); the export's filter includes `data/*.toml`, since Godot skips text files otherwise.
+  - The build first copies `data/` into `game/data/` with `build.toml`, the list of its files and their digests (A3.6), and the scenes' last reports with a world each (A17); the export's filter includes `data/*.toml` and the reports, since Godot skips text files otherwise.
   - Android export needs ETC2 and ASTC texture imports on, and the preset leaves out `addons/` and `test/`, so the test framework never reaches the phone; it asks for no permissions.
   - `quit_on_go_back` is off and `retain_data_on_uninstall` on (A3.7).
 - **Targets:** Android arm64 for the phone, and Linux x86-64 for tests and pictures in the cloud.
@@ -699,6 +700,7 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
       It is read through the catalogue's loader, so a mistake is named at its file, line and column, and its measures and rules must be ones its kind of world offers: the crowd's are the greetings, the greetings a camp a day, the farthest any marker strays from its camp, and the most awake at midnight.
     - **Runs** (`kindling scene`): each run is a world in a process of its own, as many at once as the cloud has cores, kept in a folder of its own under `build/scenes/<scene>/` with a checkpoint and that day's sample at each game day's end; a scene stopped and run again takes the runs that ended from their results and resumes the rest from their checkpoints.
       A run's measures come from the history its folder keeps and from its days' samples, so a resumed run counts exactly as an unbroken one.
+      Its samples go through its keeper's I/O thread, like everything in a kept folder (A3.7): written straight to the folder, they raced the history's writes, which the C library caught once as a damaged heap and the thread checker then named.
     - **Judging** (`RES-13`): the rule counts the runs that meet it, a run that gave no measure failing it; a rule that fails on 20 runs or more runs as many again on fresh seeds and is judged on all, its count scaled and rounded against passing; fewer than 20 runs judged are provisional.
     - **Oddities** (`RES-12`): a measure outside its expected range; a never rule broken, named at its first day; a crash, by its signal; a run over its time limit, stopped; memory that creeps up by more than 32 MB over a run; and a last save that does not open again as the world was.
     - **Test switches** (`RES-10`): compiled only into the simulation's own build for its tests and tool (`KD_TEST_SWITCHES`), never into the game's, which the flags scan checks.

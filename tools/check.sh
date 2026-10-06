@@ -2,9 +2,10 @@
 # The checks before work joins main (PRC-10, A17), in order, stopping at the first failure:
 #   1 formats     GDScript (gdformat), C++ (clang-format 18) and Python (ruff)
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
-#   3 C++         the five builds (A2.2), through ccache, and the phone compiler's twice more with libc++'s order of
-#                 ties randomized under two seeds; then, beside steps 4 and 5, the simulation's doctest tests on its
-#                 four builds, the kill test (tools/killtest.py), the scenes and the repeat check
+#   3 C++         the five builds (A2.2), through ccache, the phone compiler's twice more with libc++'s order of
+#                 ties randomized under two seeds, and the simulation's tests with GCC's thread checker; then, beside
+#                 steps 4 and 5, the simulation's doctest tests on its four builds and under the thread checker, the
+#                 kill test (tools/killtest.py), the scenes and the repeat check
 #                 (tools/scenecheck.py), the same-bits check (every proof suite one digest on x86-64 with clang and
 #                 GCC, on arm64 with GCC and the phone's own compiler, and on the randomized builds, on one thread and
 #                 four), the scans of the flags and the built code (tools/samebits.py), the banned list
@@ -107,6 +108,9 @@ if [ -f sim/CMakeLists.txt ]; then
     -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static -DCMAKE_EXE_LINKER_FLAGS=-static
     -DCMAKE_CROSSCOMPILING_EMULATOR=qemu-aarch64-static)
   build_one sim-a64-ndk sim "${NDK[@]}"
+  # the tests once more under GCC's thread checker, since a race can damage memory without failing a test (A2.2)
+  build_one sim-tsan sim -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_FLAGS=-fsanitize=thread \
+    -DCMAKE_CXX_FLAGS=-fsanitize=thread -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread
   # libc++ shuffles before each sort that may leave ties in any order, so a result that depends on ties moves
   for seed in 1 2; do
     TARGET=kindling build_one "sim-a64-tie$seed" sim "${NDK[@]}" "-DCMAKE_CXX_FLAGS=-D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY \
@@ -114,13 +118,22 @@ if [ -f sim/CMakeLists.txt ]; then
   done
 fi
 [ ! -f view/CMakeLists.txt ] || build_one view view -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-echo "   the simulation's four builds, its two with ties randomized, and the extension built"
+echo "   the simulation's four builds, its two with ties randomized, its thread-checked one, and the extension built"
 
 # The simulation's doctest tests on its four builds, the same-bits check across them, the scans of what the
 # compilers did, and the code linted (clang-tidy 18).
 cpp_tests() {
   echo "== 3 C++ tests"
   [ -f sim/CMakeLists.txt ] || { echo "   no simulation yet"; return; }
+  # the thread checker over every test, on a core of its own beside the rest, and only when they changed since it
+  # passed; it stops at the first race
+  THREADS_STAMP="$(python3 tools/cppcache.py tests build/sim-tsan)"
+  THREADS_RESULT="tests unchanged since they passed"
+  if [ "$THREADS_STAMP" = unknown ] || [ "$(cat build/sim-tsan/tests.passed 2>/dev/null)" != "$THREADS_STAMP" ]; then
+    TSAN_OPTIONS="halt_on_error=1" build/sim-tsan/kd_sim_tests >"$TMP/threads" 2>&1 &
+    THREADS=$!
+    THREADS_RESULT="tests passed with no race"
+  fi
   for b in "${SIM_BUILDS[@]}"; do
     B="build/$b"
     # the tests run again only when something they are built from changed since they passed (tools/cppcache.py)
@@ -140,6 +153,11 @@ cpp_tests() {
     done
     echo "   $b: $TESTS"
   done
+  if [ -n "${THREADS:-}" ]; then
+    wait "$THREADS" || { grep -vE '^\s*$' "$TMP/threads" | tail -60; echo "Thread checker: FAIL"; exit 1; }
+    [ "$THREADS_STAMP" = unknown ] || echo "$THREADS_STAMP" >build/sim-tsan/tests.passed
+  fi
+  echo "   sim-tsan: $THREADS_RESULT"
   # the extension's own tests, of what needs no Godot (the speed loop)
   if [ -f build/view/CTestTestfile.cmake ]; then
     quiet ctest --test-dir build/view --output-on-failure

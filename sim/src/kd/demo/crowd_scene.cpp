@@ -171,7 +171,7 @@ scene::RunResult run_crowd(const scene::Scene& s, std::int64_t index, save::File
         w.keep_history(&records);
         // the days sampled before, up to the checkpoint it resumes from
         const std::int64_t from_day = w.frontier() / time::kDay;
-        samples = read_samples(folder.read(kDays).value_or(save::Bytes{}));
+        samples = read_samples(keeper.read(kDays).value_or(save::Bytes{}));
         std::erase_if(samples, [&](const Sample& x) { return x.day > from_day; });
         for (std::int64_t day = from_day + 1; day <= out.days; ++day) {
             w.run_to(std::min(day * time::kDay, s.until));
@@ -188,7 +188,7 @@ scene::RunResult run_crowd(const scene::Scene& s, std::int64_t index, save::File
             if (each_day) {
                 each_day(day);
             }
-            folder.write_whole(kDays, bytes_of(samples_text(samples)));
+            keeper.write(kDays, bytes_of(samples_text(samples)));
             keeper.snapshot(w);
         }
         keeper.flush();

@@ -295,6 +295,16 @@ void Keeper::about(const std::string& text) {
     io_.now([&](Files& f) { f.write_whole(kAbout, b); });
 }
 
+std::optional<Bytes> Keeper::read(const std::string& path) {
+    std::optional<Bytes> out;
+    io_.now([&](Files& f) { out = f.read(path); });
+    return out;
+}
+
+void Keeper::write(const std::string& path, Bytes bytes) {
+    io_.post([path, bytes = std::move(bytes)](Files& f) { f.write_whole(path, bytes); });
+}
+
 void Keeper::command(const world::Command& c) {
     const Bytes record = frame(kCommand, journal_next_++, command_body(c));
     io_.now([&](Files& f) {

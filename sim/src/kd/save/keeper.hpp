@@ -99,6 +99,11 @@ public:
     [[nodiscard]] std::int64_t played() const { return played_.load(std::memory_order_relaxed); }
     /// Writes world.toml whole.
     void about(const std::string& text);
+    /// A file of the caller's own beside the world's, such as a scene's samples of each day: read now, or written
+    /// whole after everything given before it, by the I/O thread, the only one that touches the folder while the
+    /// keeper keeps it (A3.7).
+    [[nodiscard]] std::optional<Bytes> read(const std::string& path);
+    void write(const std::string& path, Bytes bytes);
     /// Which records stay in the history for ever, asked of each as it is written: the world's own rule (PRN-15). With
     /// none, every record goes once its year is more than 25 years past.
     void keep_kinds(std::function<bool(const world::Record&)> keeps) { keeps_ = std::move(keeps); }
