@@ -46,13 +46,24 @@ It restarts with your word, with its next round below as its one order.
 - A record, integers and strings only: `about`, `route`, `tile_texels`, `texels_a_metre`, `first_band`, `sources`, `original_sha256`, `c2pa`, `requests`, `made`, `regrid_loss`, `truth`, `approved`, and for each level `level`, `file`, `sha256`, `made_from`, `way`, `regrid_loss` (redrawn levels), `calibration`.
 - The sheet: every band at true size and enlarged, flat and under three stand-in lights, beside its source; a big surface's bands also as full-width strips with its versions mixed as the ground mixes them.
 
-**Its next round** (batch 1's second):
-1. Middle and far tiles, with two to four versions of each tile, for the meadow, bare earth, trodden floor, bank gravel, river bed and rock A; the meadow first, then report.
-2. Band 1 redrawn by GPT for bare earth, trodden floor and bank gravel.
-3. The code reduction keeps bolder marks and fewer of them, never single-pixel speckle.
-4. Bare earth, trodden floor, stone and ash redrawn without GPT's stepped-diamond pattern; the meadow's band 0 stays.
-5. The checks as T2.3a.1 lists them.
-6. **The camp's kit parts in Blender,** GPT's first pass then the lane's fixes: poles, logs, branches and a birch trunk; hide panels and bark sheets; hearth and ring stones, boulders and cliff pieces; a basket, a drying rack's bars and a hand axe; grass tufts and leaf clusters; and, last, a first person and a red deer, each on its skeleton with build, age and sex as shape keys; every part at real size in metres, unwrapped at 64 texture pixels a metre and stretched at most 1.5:1, with its joints, its preview and its stretch report.
+**Its next round,** one order in two phases, Blender first, as you asked on 6 October 2026 ("First Blender, then the textures to match where necessary"):
+
+*Phase 1: the kit's parts in Blender (T2.3a.4).*
+1. **The tool:** `tools/art/gpt-blender.sh`, which hands Codex a written request to write a Blender script and run it headless in a scratch folder, held by the same pause file, with its tests.
+2. **The camp's parts,** GPT's first pass, then the lane's fixes, in `art/models/camp.blend`, `plants.blend` and `rocks.blend`:
+   - wood: poles (straight and slightly bent, 1.5–3 m), logs, branches and a birch trunk in segments;
+   - covers: hide panels (cut shapes, flat and draped), bark sheets (curved);
+   - stone: hearth stones and tent-ring stones (several of each), boulders, cliff pieces and scree;
+   - things: a basket, a drying rack's bars, a hand axe;
+   - plants: grass tufts and leaf clusters as cut-out cards;
+   - each at real size in metres, its origin at its main joint, its texture coordinates in metres (one texture pixel 1/64 m), stretched at most 1.5:1, a pole's circumference rounded to whole texture pixels, its joints as empties named `joint_…`, its material slots named by role.
+3. **A first person and a red deer,** in `art/models/people.blend` and `deer.blend`: each body of parts (head, torso, arms, hands, legs, feet; for the deer its hoofed pattern and antlers by age) skinned to its skeleton, with build, age and sex as shape keys; the person's three garments as parts on the same skeleton.
+4. **For each file:** a preview sheet (every part at real size beside a 1 m bar, with a checker of 64 pixels a metre showing any stretch) and a stretch report; committed when phase 1 is done, before phase 2 begins.
+
+*Phase 2: textures to match (T2.3a.3).*
+5. **Textures for the parts** where they need their own: hide, bark, peeled and unpeeled wood, stone, basket weave, skin, hair and garments, drawn to fit each part's layout and joints, as materials with their levels.
+6. **The ground's tiles:** middle and far tiles, each with two to four versions, for the meadow, bare earth, trodden floor, bank gravel, river bed and rock A; band 1 redrawn by GPT for bare earth, trodden floor and bank gravel; bare earth, trodden floor, stone and ash redrawn without GPT's stepped-diamond pattern; the meadow's band 0 stays.
+7. **The code reduction** draws bolder marks and fewer of them, never single-pixel speckle; **the checks** as T2.3a.1 lists them; **the sheets** with full-width strips.
 
 **The batch report:** each material and its sheet, each check's result, the pictures used, every truth flag, and questions for you.
 
@@ -360,7 +371,9 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
    In the cloud, from the start of M2: re-gridding (block size and phase window by window, the median colour, seams, the light check), the code reduction for a band, and colour matching to band 0 in four numbers that keeps the accents; the lab sheet (flat and lit, every band, at true size and enlarged, beside its source); and T2.3a.1's checks, with the colour measures of `kindling look` (T2.1b.1), so each measure is written once.
 3. `T2.3a.3` **The camp's materials, in the art lane (`PRE-20`, `PRE-23`).**
    Meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and rock A, your pick, under each world's layers laid by code; each by its route with its designed levels, and each big surface (the ground covers and rock A, your pick) with its near, middle and far tiles, each from its own picture of the material at that distance, in two to four versions mixed by place (A5.3); with as many GPT pictures as improve the result, each vetted for truth (A5.6) and recorded.
-4. `T2.3a.4` **On the phone, and delivery (`PLT-04`).**
+4. `T2.3a.4` **The kit's parts, in the art lane (`PRE-46`).**
+   The camp's parts in Blender, then a first person and a red deer, as the art lane's next round sets them out, each with its preview and stretch report.
+5. `T2.3a.5` **On the phone, and delivery (`PLT-04`).**
    A Lab page with every sheet; loading time and texture memory measured; deliver as 30301.
 
 **Tests:**

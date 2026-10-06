@@ -6,7 +6,7 @@
 #   The request holds Purpose:, Orientation:, Input picture: (an absolute path, or none) and Transparent: (yes or no)
 #   lines, then Prompt:, whose text runs to the end of the file.
 #   Writes <scratch folder>/<request>.png, with the prompt and Codex's own log beside it, all outside git, and adds one
-#   line to art/log/gpt-runs.md, which names no model.
+#   line to <scratch folder>/runs.md, which names no model, for the batch's report.
 # While /tmp/kindling-gpt-paused exists, requests are held, not run. Nothing here buys credits: a run that meets the
 # plan's limit fails, and the art lane waits.
 set -u
@@ -14,11 +14,11 @@ set -u
 req="$1"
 out="$2"
 root=$(cd "$(dirname "$0")/../.." && pwd)
-log="$root/art/log/gpt-runs.md"
 base=$(basename "$req" .txt)
 if [ -e /tmp/kindling-gpt-paused ]; then echo "held $base (paused)"; exit 0; fi
 [ -f "$req" ] || { echo "no request $req"; exit 2; }
 mkdir -p "$out"
+log="$out/runs.md"
 orient=$(sed -n 's/^Orientation:[[:space:]]*//p' "$req" | head -1 | tr 'A-Z' 'a-z')
 input=$(sed -n 's/^Input picture:[[:space:]]*//p' "$req" | head -1)
 awk 'found{print} /^Prompt:/{found=1}' "$req" >"$out/$base.prompt"
