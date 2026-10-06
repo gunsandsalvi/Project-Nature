@@ -171,7 +171,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 |---|---|---|---|---|
 | α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's readings in, every probe passed |
 | α2.1b | The look's checks | M2 | 6 | Delivered as 30102 on 6 October 2026; waiting for your blind test's code |
-| α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | **Next** |
+| α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | **Under way:** the runner and every scene built and drawn in the cloud; delivery next |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Planned |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
 | α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 joined on 6 October 2026: its tools and 18 materials; its next round below waits for the lane's restart; the rest after α2.2 |

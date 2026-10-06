@@ -2,7 +2,8 @@
 ## the software Vulkan driver, as `godot --path game --rendering-method mobile --rendering-driver
 ## vulkan --resolution <W>x<H> -s <this file> -- <out.json>`; tools/calibrun.py runs it and checks
 ## what it writes. The Calibrate page runs every variant of every scene as the phone does, a
-## thousand times faster, and this writes the scenes, what each variant drew and the run's code.
+## hundred times faster, and this writes the scenes, what each variant drew and the run's code, and
+## a picture of each scene's first variant as it drew it, <scene>.png beside the run's file.
 extends SceneTree
 
 const CalibratePage := preload("res://pages/calibrate.gd")
@@ -26,7 +27,8 @@ func _run(out: String) -> void:
 		printerr("the calibration scenes cannot be read: ", page.problems)
 		quit(1)
 		return
-	page.time_scale = 0.001
+	page.time_scale = 0.01
+	page.timed.connect(_picture.bind(page, out.get_base_dir()))
 	page.start()
 	while page.running():
 		await process_frame
@@ -38,3 +40,10 @@ func _run(out: String) -> void:
 	file.close()
 	print("Calibration run: done")
 	quit(0)
+
+
+## The screen as a scene's first variant drew it, as <scene>.png in the folder.
+func _picture(scene: int, variant: int, page: Control, folder: String) -> void:
+	if variant == 0:
+		var name: String = page.scenes[scene]["name"]
+		root.get_texture().get_image().save_png(folder.path_join(name + ".png"))

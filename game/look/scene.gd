@@ -16,7 +16,7 @@ static func build(look: KdLook, under: Node3D) -> String:
 	return ground(look, under)
 
 
-## Puts the sun, named "Sun", and the sky's light under a node.
+## Puts the sun, named "Sun", and the sky's light, named "Sky", under a node.
 static func light(under: Node3D) -> void:
 	var sun := DirectionalLight3D.new()
 	sun.name = "Sun"
@@ -32,19 +32,21 @@ static func light(under: Node3D) -> void:
 	environment.ambient_light_energy = 0.45
 	environment.tonemap_mode = Environment.TONE_MAPPER_AGX
 	var holder := WorldEnvironment.new()
+	holder.name = "Sky"
 	holder.environment = environment
 	under.add_child(holder)
 
 
-## Puts the stand-in ground into the node's world, drawn by the look's class; "" or the problem that
-## kept it from loading.
-static func ground(look: KdLook, under: Node3D) -> String:
+## Puts the stand-in ground into the node's world, drawn by the look's class with the ground's
+## shader or another, such as calibration scene C1's field; "" or the problem that kept it from
+## loading.
+static func ground(look: KdLook, under: Node3D, shader: Shader = GROUND_SHADER) -> String:
 	var paths := PackedStringArray()
 	for layer: String in LAYERS:
 		paths.append(TEXTURES + layer + ".kdtex")
 	var problem := look.load_layers(paths)
 	if problem.is_empty():
-		look.build(under.get_world_3d().scenario, GROUND_SHADER.get_rid())
+		look.build(under.get_world_3d().scenario, shader.get_rid())
 	return problem
 
 

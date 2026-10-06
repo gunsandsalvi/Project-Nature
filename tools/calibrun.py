@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """The calibration scenes drawn in the cloud (A18.1, A17, α2.2a). One Godot run on the software Vulkan driver opens the
 Calibrate page on a small screen and runs every variant of every scene in data/scenes/look as the phone does, a
-thousand times faster (tools/godot-calibrate.gd); this then holds what each variant drew to what its scene states:
+hundred times faster (tools/godot-calibrate.gd); this then holds what each variant drew to what its scene states:
 - nothing: no draw at all in the world;
 - field: the ground drawn;
 - rocks: exactly their triangles in the main pass, as many again in the sun's shadow pass when it has one, and none
   there when not;
 - copies: exactly their draws in the main pass and in the sun's shadow pass, and in the mirror's pass when it has
   three, the mirror adding no shadow pass of its own;
-and the run's code reads back through `kindling look calibrate`.
+and the run's code reads back through `kindling look calibrate`. A shader or script that fails fails the run. A
+picture of each scene's first variant is left in build/calibrate/.
 
     python3 tools/calibrun.py                draw every scene and check what each drew, into build/calibrate/
 """
@@ -54,7 +55,8 @@ def draw(out=OUT):
     log = done.stdout + done.stderr
     with open(os.path.join(out, "godot.log"), "w") as f:
         f.write(log)
-    if done.returncode != 0 or "Calibration run: done" not in log or "Forward Mobile" not in log:
+    broken = "SHADER ERROR" in log or "Shader compilation failed" in log or "SCRIPT ERROR" in log
+    if done.returncode != 0 or broken or "Calibration run: done" not in log or "Forward Mobile" not in log:
         tail = "\n".join(line for line in log.splitlines() if "ALSA" not in line)[-2000:]
         raise RunError(f"the calibration run failed ({done.returncode}):\n{tail}")
     with open(os.path.join(out, "run.json")) as f:

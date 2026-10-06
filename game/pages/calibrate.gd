@@ -7,6 +7,9 @@
 ## the drawing, never a world (WLD-13). Implements PLT-04.
 extends VBoxContainer
 
+## A variant's time at the 120 cap is read: what it drew is on the screen, for the cloud's pictures.
+signal timed(scene: int, variant: int)
+
 ## Real seconds of each variant: drawn before its readings, so its pipelines compile and the chip's
 ## clock settles; read at the 120 cap; settled at the 60 cap; read at the 60 cap.
 const WARM := 3.0
@@ -40,7 +43,7 @@ var _device := KdDevice.new()
 var _world: Node3D
 var _camera: Camera3D
 var _sun: DirectionalLight3D
-var _ground_problem := ""
+var _sky: Environment
 var _ground_built := false
 var _content: Node3D
 var _mirror: SubViewport
@@ -210,16 +213,21 @@ func _open(scene_index: int, variant_index: int) -> void:
 	var v: Dictionary = scene["variants"][variant_index]
 	_look.set_view(0, 0, 0.0, _closest)
 	LookScene.place_camera(_camera, _look)
-	var screen := Vector2(DisplayServer.window_get_size())
-	if screen.x <= 0.0 or screen.y <= 0.0:
-		# headless, the window has no size: the viewport's
-		screen = get_viewport().get_visible_rect().size
+	# the screen as the camera's rays take it, the shell's canvas size, and in the window's own pixels
+	var screen := get_viewport().get_visible_rect().size
+	var pixels := Vector2(DisplayServer.window_get_size())
+	if pixels.x <= 0.0 or pixels.y <= 0.0:
+		pixels = screen
 	var draws: String = scene["draws"]
 	_sun.visible = draws != "nothing"
 	_sun.shadow_enabled = v["shadows"]
 	if draws == "field" and not _ground_built:
 		_ground_built = true
-		_ground_problem = LookScene.ground(_look, _world)
+		var problem := LookScene.ground(_look, _world, CalibrationDrawing.FIELD_SHADER)
+		if not problem.is_empty():
+			_line("%s: the field cannot be drawn: %s" % [scene["name"], problem], FAIL)
+		CalibrationDrawing.light_stand_ins(_sun)
+	CalibrationDrawing.grade(_sky, draws == "field")
 	if _ground_built:
 		_look.set_part("ground", draws == "field")
 		_look.set_part("pattern", false)
@@ -228,7 +236,7 @@ func _open(scene_index: int, variant_index: int) -> void:
 	elif draws == "copies":
 		_content = CalibrationDrawing.copies(_world, _camera, screen, v["copies"])
 		if int(v["passes"]) == 3:
-			_mirror = CalibrationDrawing.mirror(self, _world.get_world_3d(), _camera, screen)
+			_mirror = CalibrationDrawing.mirror(self, _world.get_world_3d(), _camera, pixels)
 	var viewport := get_viewport()
 	viewport.msaa_3d = {0: Viewport.MSAA_DISABLED, 2: Viewport.MSAA_2X, 4: Viewport.MSAA_4X}[int(
 		v["msaa"]
@@ -284,6 +292,7 @@ func _end_fast() -> void:
 		"cpu_us": roundi(_cpu / _cpu_frames * 1000.0) if _cpu_frames > 0 else -1,
 	}
 	readings[_scene][_variant] = reading
+	timed.emit(_scene, _variant)
 
 
 func _end_steady() -> void:
@@ -363,6 +372,7 @@ func _build_world() -> void:
 	_world.add_child(_camera)
 	LookScene.light(_world)
 	_sun = _world.get_node("Sun")
+	_sky = (_world.get_node("Sky") as WorldEnvironment).environment
 	# one sun map of 2,048 texels, as the game's (A4.4), and a layer of its own that the mirror's
 	# camera does not see
 	_sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
