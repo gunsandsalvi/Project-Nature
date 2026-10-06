@@ -270,6 +270,9 @@ void KdLook::place(std::uint64_t id, const Copy& copy) {
         const godot::RID instance = server().instance_create2(meshes_[copy.form], scenario_);
         it = instances_.emplace(id, instance).first;
         server().instance_geometry_set_shader_parameter(instance, "kd_layer", copy.look[0]);
+        // the ground is a big caster: it shades through the height-field sun map, never Godot's (A4.4)
+        server().instance_geometry_set_cast_shadows_setting(instance,
+                                                            godot::RenderingServer::SHADOW_CASTING_SETTING_OFF);
     }
     godot::Transform3D t;
     t.origin = godot::Vector3(static_cast<float>(static_cast<double>(copy.east - origin_east_) / 100.0),
