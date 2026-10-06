@@ -145,6 +145,25 @@ class Canvas:
             x += pic.shape[1] + PAD
         self.y = top + tallest + PAD
 
+    def cells(self, pictures, labels, size=18, least=200):
+        """Pictures side by side, each in a cell as wide as it or `least` (a number, or one for each picture),
+        with its label wrapped above it; the row is as tall as its tallest label and its tallest picture together,
+        so a long label never runs over a picture."""
+        f = font(size)
+        least = least if isinstance(least, (list, tuple)) else [least] * len(pictures)
+        widths = [max(m, p.shape[1]) for m, p in zip(least, pictures, strict=True)]
+        wrapped = [wrap(s, f, w) for s, w in zip(labels, widths, strict=True)]
+        step = int(size * 1.25)
+        label_h = max(len(w) for w in wrapped) * step
+        x, top, tallest = PAD, self.y, 0
+        for pic, lines, w in zip(pictures, wrapped, widths, strict=True):
+            for i, line in enumerate(lines):
+                self.parts.append(("text", line, f, GREY, x, top + i * step))
+            self.parts.append(("image", pic, x, top + label_h))
+            tallest = max(tallest, pic.shape[0])
+            x += w + PAD
+        self.y = top + label_h + tallest + PAD
+
     def space(self, n=PAD * 2):
         self.y += n
 
