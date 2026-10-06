@@ -19,6 +19,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - α1.2a, the clock and the calendar, is delivered as 20201; your phone's top speed on its Time page is still to come.
 - α1.2b, catalogues and tuning, is delivered as 20202, and α1.2 is closed by the builder's review; its note stays in the repository rather than being republished, as you asked on 5 October 2026.
 - α1.3a, entities and events, is delivered as 20301: the world's clockwork, with a crowd of markers walking, resting and sleeping, and the phone's self-check running a small world.
+- α1.3b, activities and islands, is delivered as 20302: markers meet and greet, and islands give exactly the one-thread world on any number of threads; for the crowd's light events one worker is faster, so it runs on one (A3.3).
 
 ## How to use this plan
 
@@ -118,8 +119,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.3b | Activities and islands | M1 | 6 | Next |
-| α1.3c | The crowd on your phone | M1 | 6 | Planned |
+| α1.3c | The crowd on your phone | M1 | 6 | Next |
 | α1.4a | Saves and the journal | M1 | 6 | Planned |
 | α1.4b | Worlds, export and updates | M1 | 5 | Planned |
 | α1.5a | Scenes and runs | M1 | 6 | Planned |
@@ -151,33 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.3b Activities and islands
-
-**Goal:** activities that can be cut short and keep what they reached, markers that meet and greet, and islands that run the world on four cores with exactly the one-core result, at any speed and window, paused anywhere.
-
-**Serves:** `TIM-17`, `RES-05`, `WLD-13`, `PLT-01`.
-
-**Architecture:** A3.3, A3.4, A3.9.
-
-**Tasks:**
-
-1. `T1.3b.1` **Activities with an end (`TIM-17`).**
-   An activity's start, end and way; ending early by the kind's rule of what it keeps (a walker stands where they got to, what builds up gives its share, a single act does nothing); a call to someone else landing at least a second later.
-2. `T1.3b.2` **Meeting and greeting (`TIM-17`).**
-   At a walk's end a marker looks for others within reach at that second, from their ways; it calls one, whose activity is cut short, and the two greet for a while; the numbers in `data/demo/`.
-3. `T1.3b.3` **Islands (`RES-05`, `PLT-01`).**
-   Windows on a grid of game time; owners joined into islands by reach, pace and window (a union-find over a grid of the world); each island's events in key order on one of up to four workers; their new events, ids and history merged by key; one worker up to camp speed; a debug log of any touch across islands.
-4. `T1.3b.4` **The proof (`RES-05`, `WLD-13`, `TIM-17`).**
-   One world gives one digest run one event at a time, and in islands with windows of 60, 300 and 900 seconds on one to four threads, stopped at random seconds, at any speed's goals, with the fuzzer on, on every build.
-
-**Tests:**
-- Activities: a walk cut halfway leaves the walker halfway along its way; a call lands a second later.
-- The `TIM-17` scene: driven a second at a time and in big windows, every meeting and greeting happens at the same game second.
-- The proof above, made to fail once by a rule that reads across islands.
-- Passes if all pass.
-
-**On the phone:** the self-check adds the islands' digest on the phone's four cores, the same as the cloud's.
 
 ### α1.3c The crowd on your phone
 
