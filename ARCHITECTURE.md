@@ -2,7 +2,7 @@
 
 How Kindling is built: its parts, how they talk, the rules they keep, and why each choice was made.
 It serves `PROJECT.md`, which says what the game must be, and is served by `IMPLEMENTATION.md`, which says in what order to build it.
-Every choice cites the research note behind it (`research/NN-*.md`), where the sources are; the look started from the art book's preliminary pictures (`art/book/`), which the graphics engine must go well beyond.
+Every choice cites the research note behind it (`research/NN-*.md`), where the sources are; the look started from the art book's preliminary pictures (`art/book/`), which the graphics engine must go well beyond, toward the pictures you liked (`art/targets/`).
 The code is the index: code names the `PROJECT.md` items it implements, so this file says how and why, never where (`CLAUDE.md`, rule 3).
 
 ## Status (6 October 2026)
@@ -10,17 +10,18 @@ The code is the index: code names the `PROJECT.md` items it implements, so this 
 - Rewritten for your OK from the research redone on 4 October (research 00 to 17) and the art book you accepted as the starting point for the look.
   The Rust architecture stays in git history at commit `ebaeae3`, and the first Godot version of this file at `f881525`.
 - **Technology approved by you** (`PRC-03`): Godot 4.7, its source unchanged, with the simulation in C++ as a Godot plug-in (GDExtension) (research 01).
+  On 6 October 2026 you allowed our own build of Godot 4.7.2 for the few patches to its drawing that research 19 names (a depth pre-pass for leaves, shading once per 2 × 2 pixels, buffers kept off memory), only if M2's calibration on your phone shows they are needed (A2.2).
 - **Pre-production is closed** (5 October 2026): its prototypes' answers are written here as decisions, marked with the prototype that gave them (Pn), and the evidence, numbers and lessons are in `LESSONS.md`.
   Their code is deleted; production writes its own.
 - The foundations' sections (A2, A3, A17, A18) are written in full for M1, from research 18 (5 October 2026); M1 is built and you accepted it on 6 October 2026.
-- The graphics engine's sections (A4, A5, A6) are rewritten in full from M2's research, for your OK, before M2 is built; until then they hold pre-production's answers.
+- The graphics engine's sections (A4, A5, A6, and A8's near stops and camera) are rewritten in full from M2's research (research 19) for the look you chose on 6 October 2026, for your OK before M2 is built; pre-production's answers they replace stay in `LESSONS.md` and git.
 - Parts for later milestones are outlines, each designed in full when its milestone is next, from what the earlier ones taught.
 
 ## A1. Overview
 
 ### A1.1 What it must deliver
 
-- **A look well beyond the art book's preliminary pictures, on your phone** (`PRE-01`, `PRE-02`, `VIS-14`): crisp 3D pixel art, smooth, in portrait and landscape, on a Pixel 11 Pro XL with a PowerVR graphics chip (research 01, 02, 04, 05).
+- **A look well beyond the art book's preliminary pictures, toward the pictures you liked, on your phone** (`PRE-01`, `PRE-02`, `VIS-14`): a sharp 3D world at the screen's full resolution wearing pixel-art textures, steady and smooth, in portrait and landscape, on a Pixel 11 Pro XL with a PowerVR graphics chip (research 01, 02, 19).
 - **A big believable simulation** (`PRN-11`, `MND-14`): thousands of people with full minds in a world 2,000 by 1,000 km (`WLD-03`), time running faster or slower but never cutting detail.
 - **The same history every run, on the phone and in the cloud** (`RES-05`, `TIM-16`).
 - **Offline, private, saved always** (`PLT-03`, `PLT-07`).
@@ -57,14 +58,14 @@ The code is the index: code names the `PROJECT.md` items it implements, so this 
 
 | Decision | Why | Research |
 |---|---|---|
-| Godot 4.7, its source unchanged | Reached the look fastest in the bake-off; stable; much help online; everything asked is within reach | 01 |
+| Godot 4.7, its source unchanged; our own build of 4.7.2 only if M2's calibration needs its drawing patches | Reached the look fastest in the bake-off; stable; much help online; everything asked is within reach; the look you chose may need a leaf pre-pass and shading per 2 × 2 pixels, which stock Godot lacks | 01, 19 |
 | The Mobile renderer on Vulkan | Your phone's PowerVR driver: OpenGL ES runs through a translation layer, compute shaders that read images fail | 01, 02, 04 |
 | The simulation as a separate C++ library on its own threads | Thousands of minds need the processor's cores; C++ is Godot's official plug-in language on Android | 01, 03 |
 | EnTT entities with never-reused ids, content as data with no floats | Data laid out for the cache; new plants, animals, things and blueprints without code (`PRN-14`); history that names the dead forever | 03, 18 |
 | Events on one queue run in islands, keyed chance, correctly rounded maths, Box2D's rules for floating point | The same bits everywhere, at any speed and on any number of threads; long processes cost nothing until they end | 03, 18 |
-| A quarter-size picture, a pixel-locked camera, outlines from rebuilt normals, light in clean steps | How the reference pictures are made, built for the Mobile renderer | 04 |
-| The art book's pictures were a preliminary start, kept to the art bible's rules until M2 sets the look | You accepted them as a starting point; the engine must go well beyond them | 05 |
-| The model kit built by code at load, drawn as MultiMesh copies; block figures with no skeletons | Countable content; colour and style per copy; cheap crowds | 17 |
+| The full-resolution picture with 2× MSAA; texture pixels steadied by a smooth-pixel filter and a level drawn for each zoom band; one shared light function with our own soft shadows and darkening; no outlines up close | The look you chose; steadiness from how textures are read, not from the camera; Mobile has neither shadows that widen nor darkening in corners | 19 |
+| The feeling as guidance, a target card as an alarm, one approved picture per place relit for its hours; a saving kept only if it passes your blind test | Rules can't hold a feeling, and you judge the look; you turned down every visible saving | 19 |
+| The model kit built by code at load and drawn as MultiMesh copies; surfaces from code, the world, or approved pictures prepared by code; a skeleton per body pattern, posed in C++ at 10 a second and bent on the graphics chip | Countable content with the detail you chose; colour and style per copy; crowds without Godot's cost per figure | 17, 19 |
 | A generator in the order of real causes, many candidates scored | Believable worlds from a seed, tuned for the look | 06 |
 | Our own levels of detail on Godot's RenderingServer, a moving origin, a map look that bends into the globe | No plug-in does our mix; Godot draws in single precision | 07 |
 | Species as data, numbers by Damuth's law, individuals near people and counts far away | Nature that holds over centuries at any speed | 08 |
@@ -95,7 +96,8 @@ data/        catalogues, tuning files, scenes and benchmark worlds, as TOML (A3.
              demo/ for what only the foundations show
 android/     the release certificate; an Android plug-in only if the phone ever needs one (A3.9)
 tools/       setup, checks, builds, delivery, the file check, signing
-art/         the art book's preliminary pictures (A5.1)
+art/         the art book's preliminary pictures, the look's targets and your reviews (A5.1); from M2 the texture
+             requests, prepared levels and sources (A5.4)
 research/    the research notes this file cites
 dist/        the signed APK of the latest alpha and its note
 ```
@@ -118,7 +120,10 @@ dist/        the signed APK of the latest alpha and its note
 - **Godot:** 4.7.2, pinned, exported from the command line (`--headless --export-release`).
   - The export is unsigned; `zipalign` and `apksigner` finish it, so only `tools/signing-key.py` reads the secret.
   - The build first copies `data/` into `game/data/` with `build.toml`, the list of its files and their digests (A3.6), and the scenes' last reports with a world each (A17); the export's filter includes `data/*.toml` and the reports, since Godot skips text files otherwise.
-  - Android export needs ETC2 and ASTC texture imports on, and the preset leaves out `addons/` and `test/`, so the test framework never reaches the phone; it asks for no permissions.
+  - Android export needs ETC2 and ASTC texture imports on, for the icon and the interface's pictures; the world's textures are lossless data files with their own levels, read by `view/` (A5.4), so Godot's "Detect 3D" stays off.
+    The preset leaves out `addons/` and `test/`, so the test framework never reaches the phone; it asks for no permissions.
+  - **Our own build,** only if M2's calibration scenes call for it (your OK, 6 October 2026; A4.1): Godot 4.7.2's Android export templates built from its tagged source in the cloud with at most three small patches kept as files beside the build script (a depth pre-pass for leaves with an equal depth test; buffers that never reach memory; a shading rate for each material), pinned and tested like the stock ones.
+    If keeping it proves too costly, the stock templates return and the 3D is drawn at 0.75 scale where a scene needs it.
   - `quit_on_go_back` is off and `retain_data_on_uninstall` on (A3.7).
 - **Targets:** Android arm64 for the phone, and Linux x86-64 for tests and pictures in the cloud.
   There is no web build: Godot's is about 40 MB, beyond the private page's 15 MB (research 01).
@@ -128,7 +133,8 @@ dist/        the signed APK of the latest alpha and its note
 - **The APK:**
   - signed with the release key, derived from the passphrase secret by `tools/signing-key.py`, the only script that reads it;
   - package `dev.kindling.app`, so each alpha installs over the last;
-  - committed to `dist/` on the work branch and linked from the note.
+  - committed to `dist/` on the work branch and linked from the note;
+  - within the 50 MB a committed file may have: 27.6 MiB at M1's end, so pixel-art textures shipped losslessly fit while they stay small; if they stop fitting, you choose between compression you cannot tell from the original in a blind test and delivering builds as release files outside the repository, once that is proved from a cloud session (research 19, decision 4).
 - **The note** says what is new, what to try, what is rough, the items delivered and the links, and is published at your note link with pictures from the cloud.
 - **Version code:** (milestone + 1) × 10000 + alpha × 100 + step (a = 1), so α1.1a is 20101 and α1.2b is 20202.
   Each is above every earlier build's, so it installs over it.
@@ -379,6 +385,8 @@ Following Box2D, Factorio and research 18:
   - *Built in α1.3c:* the crowd's batches take about 12 ms of real time at most, in steps of at most a game hour, so at top speed the frontier moves on 60 times a second; the screen asks for at most 90% of what the phone can do, measured from the batches, times the heat's working share, so it glides behind the world instead of catching it.
     In the cloud, top speed holds about 2.3 game days a real second for 10,000 markers, some 600,000 events a second, every frame on time.
 - **Heat:** `view/` reads the phone's heat headroom every 2 s with a 10-s forecast (Android forecasts only while asked at least every 10 s), and listens for its thermal status; as the forecast nears the first throttling level, the simulation's working share is cut quickly and given back slowly, so time slows before the phone throttles (research 02, 18).
+  - *To build in M2* (research 19, study 4): Android's headroom of 1.0 is *severe* throttling, not the first level, so the guard reads the phone's own *light* and *moderate* thresholds (API 35) and its headroom listener (API 36), and acts when the 10-s forecast reaches the light threshold less a margin (0.05 to start); a missing reading is no reading, never a cool phone.
+  - Slowing time cools the phone at far zooms at top speed, where the simulation is the load; at close zooms the picture is the load, so the graphics budget must pass the 20-minute heat run itself (A18.1), with one planned, logged step under heat as its last resort (A5.5).
 - **Telemetry:** the device class also reads battery and power rails, the cores' clocks, our threads' CPU time and memory, and the interval of every frame; trace sections mark each frame and batch for the phone's own System Tracing.
   - *Built in α1.5b:* the extension times every frame itself, once a frame after every node's process, from the steady clock (`kd::view::FrameMeter`): a frame is on time within its period plus half a refresh, a stall counts every period it skipped, and a gap over 66.7 ms is more than 50 ms late.
     The battery's charge, current and charging come from Android's BatteryManager through Godot's AndroidRuntime, and its current gives the phone's whole power; the power rails, which need Android 15's power monitor service, are left for a later benchmark.
@@ -387,151 +395,356 @@ Following Box2D, Factorio and research 18:
     The heat headroom is asked twice in a row, now and in 10 s; Android may refuse calls faster than once a second, but on your phone both answered in every reading.
 - **Watch the known killers from the first benchmark:** pathfinding at scale, temperature fields and lines of sight (research 03).
 
-## A4. Drawing (research 04, 02)
+## A4. Drawing (research 19, 02, 04)
+
+Rewritten from research 19 for the look you chose on 6 October 2026: a sharp 3D world at the phone's full resolution wearing pixel-art textures (`PRE-01`, `PRE-02`).
+Pre-production's low-resolution picture, pixel lock, outline pass and light in steps are gone; what they taught is in `LESSONS.md`, and their code in git.
+Every cost marked *estimate* waits for M2's calibration scenes on your phone (A18.1), which replace it.
 
 ### A4.1 The picture
 
-1. **Low resolution.**
-   The 3D world renders into a SubViewport at a quarter of the screen's width and height, one art pixel to 4 × 4 screen pixels, on the Mobile renderer over Vulkan.
-   *Changed with your OK on 5 October 2026:* an art pixel is about 2 × 2 screen pixels at the person, growing with the zoom to about 6 × 6 at the globe (`PRE-22`), as P8's second round draws it (A8.1).
-   It is shown scaled up with nearest sampling; the interface draws at full resolution over it.
-2. **A camera locked to the pixel grid** (`PRE-22`).
-   - It is orthographic and pitched for the close stops, and snaps to whole art pixels in its own axes.
-   - The leftover fraction shifts the scaled image by part of a pixel, so pans are smooth and pixels never crawl.
-   - *Chosen after P1:* "ease": the view locks to whole art pixels as it pans, and a turn or zoom eases to rest on the nearest whole step, 5° or 1.25 times, when the fingers lift.
-     It keeps `PRE-22` as decided, and is the most thorough of the four fixes P1 tried; you left the choice to me on 4 October 2026.
-     After P3 you found the turns snapped: the steps were 15°, so a turn could swing 7.5° on its own after you let go. They are now 5°, at most 2.5°, eased more gently (α0.2c's fixes).
-3. **Outlines and lit edges** (`PRE-21`), the art book's own way (C), chosen after P1; you left the choice to me on 4 October 2026.
-   - A second low-resolution camera draws each pixel's facing and depth into a half-float picture, from the materials compiled for that pass (A4.2), since the Mobile renderer gives no normal buffer.
-   - The shared light function compares each pixel with its four neighbours there: a nearer pixel over a farther one darkens to the thing's own darker shade, and an outward fold lightens. So every shape, crowns and figures too, gets its outline and its lit edge.
-   - **That picture is drawn first in each frame:** its viewport sits inside the picture's, since Godot draws a viewport's own viewports before it and others in the order they came. Drawn after, the picture read the last frame's outlines, which jumped whenever the camera moved: the flicker you saw in P1. A picture taken while the camera slides into place now matches one taken still, where before 2,998 of its pixels differed. The mirror's picture is drawn first the same way.
-   - On your phone D held still where C flickered, but D draws no lit edges and outlines solid shapes only.
-   - **Every shape drawn has its copy in that picture,** made by the one function that adds shapes: P2's second build added figures, tents and trees without one, and C read each of them as all edge, darkening it whole.
-   - **Easy to switch, as you asked:** the outline way is one setting, and each way is its own pass behind it, so another can replace C later without touching the materials.
-     P1's code for the other three stays in git: A, normals rebuilt from Godot's depth texture by a quad over the picture; B, depth alone; D, each shape drawn again, enlarged, behind itself.
-   - *Measured in pre-production* (P1): on your phone every outline way kept 99–100% of frames on time at 60, C the dearest by half a millisecond.
-4. **Light in clean steps** (`PRE-20`, `PRE-30`).
-   - One shared light function, written once, used by every lit material.
-   - Each material's ramp of 4 to 7 shades; the light picks the step, and steps meet in clean edges with no pattern mixing them: the sharp look you chose.
-   - Hard sun shadows from a shadow map at mobile size, and cloud shadows.
-   - Shade filled by the sky's cool purple-blue light, never black; hollows darker; haze by distance, warmer toward the sun; mist on water and in hollows.
-   - The Mobile renderer draws forward, so each material hands its ramp, pattern, openness to the sky and firelight to the shared light function, which picks the step after the sun's shadow (P1).
-5. **Fire** (`MAT-18`): a warm, flickering light as bright as its heat.
-   - Flames are the art book's own flame pictures, a few frames 10 times a second, each change also setting the fire's flicker (P3).
-   - Fires reach figures and tents through a firelight term in our shaders, summing up to four fires (P2).
-   - **Camp zoom** puts the camera 1 km back, past the nearest ground in view, and stretches the sun's shadows, the haze and the outline depths to the view's 1.2 km of ground; beyond the sky's height map, the sky is open.
-     *After the review (α0.2c's fixes):* the forest stands in patches on a meadow, as the art book's camp zoom has it, the meadow at the height and in the cover of the camp's ground where it ends, so no square shows round the camp, except at dusk, when the cliff's long shadow stops where the painter's scene ends; the crowns are wider and drawn without outlines, which made each tree a dark twig; the ground's small plants, specks of a pixel or less there, are left out; and people are drawn four times their size, as tiny figures (`PRE-28`). The fires' height maps and smoke are off there.
-   Godot stops lighting MultiMesh copies once its per-object light limit is used up, so fires reach figures and huts through a firelight term in our shaders, fed by a short list of nearby fires, if needed (research 17).
-   - *Proved in pre-production* (P2): a camp lit by three fires at night holds 60 frames a second on your phone.
-   - **Shadows from every fire,** as you asked after P2 (*built in α0.2c*): people and things cast a shadow from each fire as well as the sun, and stand in each other's.
-     Two maps of the heights round the fires, 48 m across at 512 pixels, are drawn every frame as people move, inside the picture's viewport so they are ready before it: the tops of what stands there, seen from above, and its undersides, the faces turned down, seen from below.
-     For each fire, a point walks the line to 1.5 m above the fire's light, 2 m above the fire, in even steps of at least 0.2 m, at most 32: where the line runs through something, between its underside and its top, or passes from above a thing to below it between two steps, the point is in that fire's shadow.
-     So a fire under a roof or an overhang lights the ground round it, while a tent, a person or a windbreak stops its light; foliage, and anything more than 2.4 m above the fires, stays out.
-     The line ends above people's heads, so a whole figure casts its shadow from a fire, as you asked.
-6. **Water** (`PRE-26`), the clear water you chose:
-   - shallow water shows its bed, deeper water darkens away from the shore in steps, and a thin bright line marks where water meets land or anything standing in it;
-   - the sky's colour on the surface, with glints;
-   - the reflection of what stands above it by a second, low-resolution pass of the scene through a mirrored camera, every one of our shaders discarding what lies below the water in that pass, since Godot 4.7 has no clipped camera projection (research 01).
-   - *Answered in pre-production* (P1): the mirrored pass costs at most 0.3 ms on your phone, so reflections stay.
-   - The shore's line is drawn where the water is thinnest, from the depth texture (P1).
-7. **At speed** (`PRE-30`, `PRE-29`): once a day passes in under about 10 seconds, the light holds steady from high up and only its tint follows the hour; the map look is always lit so.
-8. **Smoke and mist.**
-   - Smoke is a lit volume along its path from the fire, under a roof or overhang and away on the wind, as you asked after P2 (P3).
-   - Mist is not drawn yet: the painter's flat puffs in P1's close camp are hidden, and the smoke's volume took their place by its fires. Mist on water and in hollows comes with the world's weather (`WLD-07`).
+1. **Full resolution, straight to the screen.**
+   - The 3D world draws on the Mobile renderer over Vulkan straight into the window, 1080 × 2404 in portrait, with 2× MSAA for smooth edges, which the chip's maker calls "virtually free"; the interface draws over it.
+   - No low-resolution picture, no pixel lock and no outline pass.
+   - Never FXAA, SMAA or TAA, which blur texture pixels, and never Godot's glow, auto exposure or depth of field: each also ends the merged pass.
+2. **The merged pass is kept:** nothing in the main picture reads the screen or its depth, so Godot draws the whole picture without it leaving the chip; the shore line comes from height (A4.5) and smoke is drawn in the pass.
+3. **Drawing order:** solid things first; cut-out plants after them, by a higher render priority, so the chip skips their hidden parts behind solid things; the few blended things last (smoke, mist, glints), as Imagination advises.
+4. **Smooth things in maps at their own sizes,** never searched for at every screen pixel: the sun's shadow map, our height-field sun map, the fire maps, the water's mirror at half size and the view's maps (A4.6).
+   A map costs the same whatever the screen, where a search at every pixel costs four times what it did at 2 × 2.
+5. **The levers,** used only where a scene measures over its line, in the order they show least (research 19, study 4):
+   1. every saving that does not show (A4.3, A4.4, A4.6), always on;
+   2. our own build of Godot 4.7.2 (A2.2), only if the calibration scenes call for it, as you allowed on 6 October 2026: a depth pre-pass for leaves with an equal depth test, which changes nothing on screen; buffers that never reach memory, which Godot lists as a TODO; and shading once per 2 × 2 pixels on ground and plants, which your phone's driver offers for each draw and which may show faintly up close;
+   3. the 3D drawn at 0.75 scale in the costliest scenes only, which looks softer;
+   4. half resolution, last (answer 25).
+   - Each lever that may show has an on-off switch on the phone and stays only if it passes your blind test (`PRE-01`, A5.5).
+   - The world's density is never cut (answer 6).
+   - *Estimated* (study 4): the liked camp drawn plainly needs about 13–45 ms of the graphics chip a frame; with every saving that does not show about 5–23 ms, about 10 at the closest zoom; adding the leaf pre-pass and the 2 × 2 shading, about 6–8; against a line of 8 ms.
+6. **Portrait and landscape** (`PLT-02`): the texture pixel's size is set from the screen's short side, so it is the same both ways; turning the phone rebuilds the 3D buffers once, and the rig keeps its focus, turn and metres per screen pixel.
 
-### A4.2 Materials
+### A4.2 Steady texture pixels (`PRE-22`)
 
-One shader per kind of surface, each including the shared light function and the water clip.
-Each extra pass a material takes part in, such as the outline data picture, the sky's height map, the mirror or the hull, is the same shader file compiled with a `#define`, so nothing is written twice (P1).
+- **One sampling function** reads every texture (`CLAUDE.md`, rule 4): the "smooth pixel" filter, crisp inside each texture pixel and blended over one screen pixel at its edge.
+  - It reads once with the chip's own blending, at a coordinate moved so that the blend happens only at a texture pixel's edge, with the coordinates' true slope (`textureGrad`), from textures stored with blending and mipmaps on.
+  - *Computed in research 19* (studies 2 and 6): it flickers on 0.4–1.1% of pixels as the camera moves, against 17–28% for nearest-pixel reading, and keeps 94–98% of its crispness.
+- **The texel ladder** (A5.3): each band's level of a texture is drawn as pixel art, each texture pixel covering exactly 2 × 2 of the level below, and loaded as the texture's own mipmaps (`Image.create_from_data`), never Godot's averaged ones.
+  - The level comes from the texture pixel's area on screen, kept between about 1.4 and 2.8 screen pixels, with a short blend to the next, each read the same crisp way.
+  - *Computed* (study 6): without a level made for the zoom every filter flickers on 10–43% of pixels; with one, the filter flickers on 0.1%.
+- **Moving patterns** (the river's flow lines, foam, ripples, flames, smoke cards) step in whole texture pixels about 10 times a second, as poses do (`PRE-44`), if your eye agrees at the first review.
+- **Thin things** (blades, twigs, poles, shafts) are at least one texture pixel wide, and below about one screen pixel they switch to a coarser drawn form.
+- **Glints** on water, wet stone and snow are whole texture pixels that live a few frames, placed by a hash of their place in the world, so they sparkle but never shimmer.
+- Texture pixels ride on their surfaces, so swaying grass and walking people carry them without swimming; the sun's shadow holds still in pans and turns, since Godot fits it to a sphere and snaps it to whole shadow texels.
+- At the camera's tilt of 35–40°, a ground texture pixel shows about 0.6 as tall as wide, as on any real 3D view, where the pictures painted it square; the level is chosen by its area, and your eye judges the flattened look against the targets at first light.
 
-| Material | What it does |
-|---|---|
-| ground | flat colours of its cover (meadow, dry grass, path, bank, bed, rock) by surface weights, meeting in clean edges |
-| rock | strata laid in the world, so layers run across a cliff (`PRE-23`); upward faces take moss or soil |
-| made things | the lines and broad shapes of what they are made of, such as seams, lashings and courses of thatch, at 16 texture pixels a metre and never fine grain (`PRE-20`, `PRE-42`) |
-| leaf | leaf-cluster cards in the species' ramp, lit as one round crown, swaying |
-| grass | tufts and flowers as cards in metres, at their true size, lit and shadowed as the ground at their foot (Godot's `LIGHT_VERTEX`) |
-| figure | block bodies coloured by looks, clothes and state, faces with eyes and a mouth (`PRE-27`) |
-| water | as A4.1 |
-| flame | frames of fire, unlit, sized by its heat |
-| map | world cells in flat cover colours, shaded hills, rivers as lines, the shore's bright line (A8.5) |
+### A4.3 Light (`PRE-30`)
 
-### A4.3 Rules for the phone (research 02)
+- **One shared light function,** written once (rule 4).
+  Each material hands it its texture pixel's colour, its facing, its openness to the sky, its crease darkening, its wetness and its snow, and it adds:
+  - **the sun,** its colour and strength keyed by its height through the air, as Vibrant Visuals keys them; at noon the true white-warm light you chose (answer 9);
+  - **the sky's fill,** coloured by the sky and scaled by openness: shade near neutral by day, a little blue at true midday, clearly blue at night, as measured on your chosen pictures;
+  - **light bounced from the ground,** tinted by the sunlit cover below;
+  - **backlight:** leaves and grass glowing with the sun behind them, rims on edges a low sun catches, glints on water, which keep the feeling when facing the sun (answer 16);
+  - **fire** from the light grid (A4.5), its colour and flicker by its heat, and its **glow** as light scattered in the air near each fire, with no glow pass;
+  - **the moon** as the same directional light at night, silver-blue, its strength by its phase (`WLD-07`);
+  - **haze and mist** by distance, warmer toward the sun, with banks over water and hollows drifting on the wind;
+  - **snow** as a cover on faces turned up, by slope and shelter, trodden where the world's traces say.
+- **Textures carry colour, grain and crease darkening, never sunlight from one side,** since our sun goes round and the camera turns.
+- **The moments' targets,** measured on your chosen pictures (study 2), are the target card's starting bands (A5.5):
+
+| Moment | Mean lightness | Share dark | Lights | Shade |
+|---|---|---|---|---|
+| Late afternoon | 0.55 | 32% | golden | neutral, slightly warm |
+| True midday | 0.61 | 22% | warm | slightly blue |
+| Dusk, relit | 0.42 | 66% | warm and red | neutral |
+| Night, your three | 0.32–0.36 | 85–87% | a few warm pools | blue |
+| Winter | 0.66 | 21% | pale gold | blue |
+| Rain | 0.47 | 46% | grey, the gold gone | neutral |
+
+  A small hearth's light over moonlit ground halves within about 2 m and falls to a tenth by about 3.25–4.25 m; sunlit snow is cream and shaded snow blue.
+- **Colour:**
+  - a tone curve with a soft shoulder (Godot's AgX or Filmic), so snow, fire and glints keep their texture;
+  - a gentle colour table for each moment and biome, applied in the final step inside the merged pass, blended as the sun moves and as Vibrant Visuals blends biomes: a finishing touch, never the look (answer 24);
+  - grades are small text settings, a set for each season, with a true midday.
+- **Debanding on,** in the materials and the final step: the phone's 10-bit picture steps 3–7 screen levels at a time in the darkest tones, which smooth night light would show as bands; 16-bit colour (Godot's HDR 2D) only if bands remain.
+- **At speed** (`PRE-30`, `PRE-29`): once a day passes in under about 10 seconds, the light holds steady from high up and only its tint follows the hour; the map look is always lit so.
+
+### A4.4 Shadows and darkening (`PRE-21`, `PRE-24`, `PRE-30`)
+
+- **Small casters** (people, animals, held and made things, stones, bushes and reeds) cast through Godot's sun map of 2,048 texels, its caster mask set to their layers only, softened by Mobile's soft filter so the edge is about one texture pixel at the closest zoom.
+- **Big casters** (the ground, cliffs, trees, tents and huts) cast through our own **height-field sun map:** for each texel of the ground in view, the steepest angle of anything between it and the sun, from the heights of tops and undersides.
+  - The shadow fades over a band that widens with the distance to what casts it, so long shadows go soft and shadows at the foot stay sharp (`PRE-30`), which Mobile cannot do itself.
+  - It is a small two-dimensional pass, never a compute program, remade only when the sun moves a step and read once a pixel; walls and crowns above the ground read a stored shadow height for their texel.
+- **Grass and small plants cast no sun shadow;** they darken at their foot.
+- **Cloud shadows** come from the weather's clouds moving over the ground, with no pass.
+- *Estimated* (study 4): a 2,048 map with grass and small plants kept out of it, and softness that needs no wide search, save about 2–8 ms against pre-production's 4,096 map with every leaf in it.
+- **Darkening in corners and under things,** which you kept (answer 7), with no screen-space pass, which Mobile lacks and which would cost about 2–5 ms at full resolution and end the merged pass:
+  - baked into each kit shape's corners, creases, insides and undersides when the code builds it (A6.1);
+  - painted into textures as crease and cavity darkening;
+  - an **openness map** seen from above round the focus (about 1024 texels square, about 6 cm a texel at the closest zoom), made from the ground's heights and the tops of what stands there, the same heights the fires use: still things when an area loads or changes, moving ones at their pose steps;
+  - a **contact map:** each thing's footprint darkens the ground under it, stones and baskets once, people and animals as soft ellipses at each pose step;
+  - for each area, when it is made: its openness to the sky and the darkness of its hollows, so light enters under overhangs and stays out of caves (`PRE-24`);
+  - plants darker toward their base, and the ground under dense cover darker by its density.
+  - A screen-space pass comes only if the phone shows gaps, then at half resolution with a hierarchical depth buffer, as Imagination advises.
+
+### A4.5 Fire, water and weather
+
+- **Fire** (`MAT-18`):
+  - flames are pixel art made by code at about 10 frames a second, the core, the flames and the embers each at its own rate, sized by the heat; embers are copies;
+  - **the light grid:** every fire the stage keeps (place, heat, flicker seed) is listed in a grid of about 4 m squares over the view, up to four fires a square, as a 64 × 64 texture and a fire table read by every family and rebuilt when a fire or the view changes; Godot's own lights reach at most 8 a mesh on Mobile, and a MultiMesh is one mesh;
+  - **fire shadows** from a small map for each near fire (about 128 texels square), made 10–20 times a second as people move, from the two height maps of tops and undersides that pre-production drew round its fires (P3), instead of a walk of up to 32 steps at every pixel, which costs about 2.5–5 ms a fire at full resolution (estimate);
+    none where the sun outshines the fire, and none from the camp zoom out; a hut's or tent's walls stand in the height maps, so a fire inside lights only its doorway (`PRE-24`);
+    calibration scene C5 times the map against the walk at half resolution, and your eye compares their looks;
+  - **smoke** as soft, lit cards cut close to their shape and drawn last; a wildfire's smoke as a volume marched at half resolution in its own picture, read as a texture by cards in the main pass.
+  - *Proved in pre-production* (P2, P3), at its low resolution: a camp lit by three fires at night held 60 frames a second, and every person and thing cast a shadow from each fire.
+- **Water** (`PRE-26`):
+  - the bed is drawn by the ground's own shader below the water's level, tinted toward teal and dark by depth, its coordinates gently wobbled: clear water with no screen read;
+  - the surface draws the sky's colour by angle, and the reflection of what stands above it from a mirrored pass at half resolution with a smaller set of things (no grass), every shader discarding what lies below the water in that pass, since Godot 4.7 has no clipped camera projection (research 01);
+  - ripples, flow lines along the current and foam at fords step in whole texture pixels; glints are single texture pixels; rain makes rings;
+  - the thin bright line where water meets land or anything standing in it is worked out from height, never from depth;
+  - mist lies on water at dawn, from the haze.
+  - *Measured in pre-production* (P1): the mirrored pass cost at most 0.3 ms at 4 × 4; at full resolution it is calibrated again.
+- **Rain's four layers** (answer 17), from the world's weather (`WLD-16`):
+  - streaks as thin copies one texture pixel wide in a volume round the camera, slanting with the wind, moved by the chip from a seed and the time;
+  - splashes and wet shine in the materials' own shaders, surfaces darkening and gaining highlights with wetness, puddles in hollows reflecting the sky;
+  - ripples as rings in the water;
+  - drifting mist from the haze with moving noise, or a few soft cards.
+- **Snow falling** as flakes of one or two texture pixels, as copies.
+- **Lightning:** the flash is a change of the light for two or three frames, cool and bright with sharp shadows; the bolt is a bright mesh.
+- **Sea foam:** a band along the shore from the distance to it, stepping in whole texture pixels.
+- **Particles are copies moved by the chip** in the vertex shader, never Godot's GPU particles, a compute program that samples textures, which A4.7 rules out.
+
+### A4.6 Families, materials and the view's maps (research 19, study 3)
+
+- **Round 1's layout holds.**
+  - C++ families in `view/` draw through Godot's RenderingServer: ground, cover, plants, things, figures, creatures, markers, water, sky and effects.
+  - A change feed fills a copy the view keeps (the stage), so still copies upload once and change only at events.
+  - One tree of ground (A8.1) and one camera rig (A8.4).
+  - Each family lists its forms by size on screen (full, simple, small, texture or marker), and for each form the passes it joins, so small cover draws in the main pass only.
+  - Uploads go by changed byte ranges within a budget a frame (about 256 KB, an estimate), so an area's copies arrive over several frames.
+- **Four shared parts,** each written once:
+  - **materials:** texture arrays by size class (ground covers, made things, small things, garments and faces), one layer a material with its designed levels, since an array needs one size, format and level count; the material table; each copy's look data; the one sampling function;
+  - **the poser** (A6.3);
+  - **lights:** the fire list, the light grid, the fires' height maps, the sun and moon, the cloud shadows;
+  - **the view's maps,** small pictures seen from above, built from the stage and read by every family: the patches' cover, the light grid, openness, contact, a push map of where people and animals stand, and the weather's wetness and snow.
+- **Materials are data:** about a dozen family shaders, each compiled for its passes with a `#define` as pre-production did, about 40–60 pipelines; a new material is a layer and a row, never a shader (`PRN-14`); wear, wetness, snow, soot and burn are values for each copy or map over the layer.
+- **Each copy's look data,** 20 numbers: its place (12), then its layer, tint row, wear and seed, then its season, growth stage, style pattern and a spare (`PRE-42`, `PRE-43`).
+- **The density rule:** a form is drawn as copies only while each covers about 12 screen pixels or more (a tuning value); smaller, the ground's band texture carries it, and copies thin out by hash over the same marks, so nothing pops.
+  - *Estimated:* about 450–900 copies at the closest zoom at the liked density, and at most about 5,000 small ones at any zoom.
+- **Who places what** (`WLD-13`, `PRN-10`):
+  - the area maker places what rules read (single trees, bushes, stones and the plants people gather), as copies with data;
+  - grass tufts, flower clumps, pebbles, fallen leaves and seedlings are set out by the chip from each patch's kinds, density, season and ripe yield (`WLD-31`) and a hash of the place, so every tuft is the patch's own and the same on every visit, and no rule ever reads a tuft;
+  - each area brings a patch picture (4 m patches, 64 × 64 texels, about 32 KB) that the ground shader and the cover shader both read, so ground and tufts agree;
+  - one MultiMesh for each cover form spans the view: each frame the processor writes a small table of the visible cells, and the shader places each copy from its number, sways it in the wind and drops empty slots, in about 10 draws with no uploads a copy;
+    if the chip's vertex stage proves slow, copies with data for each cell, built on worker threads, follow the same rule.
+- **Airy plants as you liked them** (answer 6), saved only in ways that do not show:
+  - each plant's shape is cut close to its leaves from its texture's see-through mask (Imagination: from 22% of the work wasted to 3% for a round sprite);
+  - solid middles, with cut-outs only at the finest tips;
+  - cut-outs drawn after solid things;
+  - no sun shadow from small plants;
+  - in stock Godot no depth pre-pass, which gains nothing for solid things on this chip.
+  - Smoothing cut-out edges by alpha to coverage moves them to Godot's blended pass, as its source shows (research 19's quote check), so calibration scene C2 times it rather than assuming it free.
+- **Buckets** are sized for each form: about 16–32 m for full forms near the camera, a whole area for far ones, still and moving copies apart.
+  If draws prove the bottleneck, each frame's visible copies of a form are gathered into one buffer, as Saber's engine does.
+
+### A4.7 Rules for the phone (research 02, 19)
 
 - **Your phone, by its self-check** (α0.1a, 4 October 2026):
   - Android 17 (API level 37, build 16238327);
   - the screen at 1080 × 2404 pixels, 390 dpi and 120 Hz, four fifths of the panel's 1344 × 2992 each way, as its Screen resolution setting allows;
   - the graphics chip a PowerVR C-Series CXTP-48-1536 MC1, driver 1.662.3024 (6908880 as Vulkan reports it), Vulkan 1.4.317.
-
-  At 4 × 4 screen pixels an art pixel (`PRE-22`), that screen shows 270 × 601 art pixels, where the art book's plates, drawn for the full panel, show 336 × 748.
-- Vulkan only, with no compute shaders that sample images; effects are full-screen fragment passes.
-- Shadow maps at mobile sizes; pipelines precompiled at load, which Godot backs with ubershaders, so there is no shader stutter.
+- Vulkan only, with no compute program that samples images: another engine stopped before its first frame on this phone and driver for one (Bevy issue 25788).
+  Godot's skinning is a compute program that reads buffers only, and is tried on the phone before anything relies on it (A6.3).
+- 2× MSAA; no FXAA, SMAA, TAA, glow, auto exposure or depth of field; nothing in the main pass reads the screen or depth; debanding on.
+- Pipelines precompiled at load, which Godot backs with ubershaders, and a warm-up scene that draws every material kind in every pass with the real texture arrays bound and the colour table on, so nothing compiles while drawing.
 - The screen runs at 60 Hz, set through the Android plug-in, since Godot's frame cap alone leaves it at 120.
-- The first phone builds exercise every rendering feature: shadows, MultiMesh, transparency and every shader trick, since a driver bug found late is the most expensive kind.
-- **The cloud's software Vulkan driver** crashes drawing P2's smoke from some angles near 15°, inside the driver's own threads (α0.2c's fixes); whether your phone's driver does is to be seen in the next build, and the cloud's pictures of P2 are taken at 16°.
+- **Probes before use:** M2's first phone build tries each feature the look needs, each noted before it runs, so a crash names it: MSAA at full resolution, `textureGrad`, texture arrays with our own levels, alpha to coverage, a shading rate for each draw, and bone reads in a MultiMesh shader.
+  The self-check lists the driver's shading rates (a public report of your phone offers a rate for each draw but none by texture), Android's GPU headroom and the power rails, where they are offered.
+- **The cloud's software Vulkan driver** crashed drawing P2's smoke from some angles near 15° (α0.2c's fixes), so the cloud's pictures avoid that angle.
 - **Godot's rules met in P1:**
-  - front faces wind clockwise, the opposite of three.js, so the painter's triangles are reversed on import;
+  - front faces wind clockwise, the opposite of three.js, so imported triangles are reversed;
   - a pass never declares the picture it draws into, since Vulkan refuses a texture that is both its target and its input;
   - varyings are written only in their stage's own function, and the light function has no vertex position, so depth reaches it in a varying;
-  - a shadow bias of 0.08 and a normal bias of 1.6 on the 4096 map keep dusk's low sun free of stripes.
+  - a shadow bias of 0.08 and a normal bias of 1.6 on a 4,096 map kept dusk's low sun free of stripes; the 2,048 map is tuned again.
 
-### A4.4 Tests
+### A4.8 Tests (research 16, 19)
 
-- Golden pictures drawn by Movie Maker mode on the software Vulkan driver in the cloud, compared within a tolerance, approved by you when they change (research 16).
+- **Golden pictures,** drawn by Movie Maker mode on the cloud's software Vulkan driver with one thread and time frozen: exact for a change of code alone on the pinned driver, and within a perceptual tolerance (NVIDIA's FLIP) for a change of look, whose before-and-after pairs you see; the set you approved changes only with your OK.
 - They guard our code only: the phone's chip may round differently, so the look is judged on the phone (`PRE-31`).
+  At first start the phone draws a few golden views and reports FLIP's share of pixels above 0.2 against the cloud's; a jump is a driver problem to chase.
+- **The look's checks** (A5.5), each with its line stated before its first run (`RES-09`):
+  - still frames are identical;
+  - **shimmer:** on scripted pans, turns and pinches, each frame's error against a many-sample picture of the same view is compared frame to frame after following the camera's known motion; at most 2 in 100 pixels may change by more than 0.03 (`PRE-22`), and never a tenth more than the last build without a note;
+  - **the texture pixel's size** at every zoom stop: 1.5 to 3 screen pixels (`PRE-01`, `PRE-22`);
+  - **banding at night:** the distinct screen levels across a moonlit slope;
+  - **ground accents at every band** (study 6's measure: the colour difference of the most striking 1% of ground texture pixels from their surroundings): at least about 20, where accepted grounds score 23–30 and the speckled one 11–12, and each band at least 90% of band 0's;
+  - **people against their surroundings** in busy scenes, from the engine's object picture: the median person at about the 80th percentile of the frame or above, none below about the 70th, starting lines refitted on your verdicts (`PRE-28`);
+  - **savings invisible:** under a tenth of the difference you saw at half resolution (5.3% of pixels above FLIP 0.2 at 30 cm), then your blind test (A5.5).
+- **Test hooks in the engine:** an object picture and a material picture, depth and motion for following the camera, a many-sample mode for small patches, scripted camera paths and frozen time.
+- The statistics both the cloud and the phone compute are written once, in C++ (rule 4).
 
-## A5. The look (research 05, the art book's first direction)
+## A5. The look (research 19)
 
-### A5.1 The art book
+Written from research 19 and your 36 answers of 6 October 2026.
+The feeling of the pictures you liked is the goal; the guidance holds starting numbers to calibrate against your verdicts, never rules for their own sake.
 
-- `art/book/` holds pre-production's pictures, at true size: a scene for each age, the zoom stops from one person to the globe at noon and dusk, the model kit's sheets and the interface plates.
-  You accepted them on 4 October 2026 as a starting point; on 6 October 2026 you set them down as preliminary: the graphics engine (`MIL-09`) must go well beyond them, and its own scenes, which you judge, become the bar (`PRE-31`).
-- The painter that made them was deleted on 6 October 2026, as you asked; git keeps it, and nothing is ported from it.
+### A5.1 The pictures
 
-### A5.2 The art bible's rules
+- **The art book** (`art/book/`): pre-production's pictures at true size, accepted on 4 October 2026 as a starting point and set down on 6 October 2026 as preliminary; the painter that made them was deleted, as you asked, and nothing is ported from it.
+- **The targets** (`art/targets/`): the two pictures you liked, ten more in their style, and the pictures chosen in your answers, each with its prompt and what not to copy.
+  They show the feeling and are never shipped or traced: the engine is judged against their light, colour, density and composition.
+- **Your answers** (`art/reviews/2026-10-06-graphics/`): the 36 questions on labelled pictures and what you said, the start of the taste log (A5.5).
 
-The art bible is research 05's rules, as the art book applied them:
-1. **Tie-breaker:** the look wins over realism, and readability wins over detail: a person, an animal or a fire reads at every zoom (`PRE-28`).
-2. **Light:** a warm sun; shade filled by a cool purple-blue sky light; the default camera looks with the sun behind its left shoulder.
-3. **Shadow colour as a value:** the deepest shade is a set dark purple, never black; black only deep inside caves.
-4. **The smallest thing worth making** is about a fist-sized stone.
-5. **Ramps:** each material has 4 to 7 shades with hue shift and the most saturation mid-ramp, from one master palette (`PRE-20`).
-6. **Nature soft, made things crisp:** ground, grass, leaves and water in flat patches meeting in clean edges; rock, wood, hide, reed and bone show the lines and broad shapes of how they are made, never fine grain (`PRE-20`).
-7. **Edges:** outlines a darker shade of the thing's own colour, never black; outward edges catch a lighter shade (`PRE-21`).
-8. **The Stone Age from archaeology:** hide tents and windbreaks, dome huts, hearth rings and working floors, as excavated camps show (`PRE-42`).
-9. **Variety that shows:** silhouette, size and colour vary within a kind; differences nobody can see don't count (`PRE-43`).
-10. **Mistakes to avoid:** a carpet of grass noise; grain and speckle; pure black outlines or shadows; saturated cartoon green everywhere; smooth gradients over large areas; textures at different pixel sizes side by side; things that differ only in ways nobody can see.
-11. **Review:** a contact sheet and a model sheet, made by code from fixed scenes at every change of the art (`PRE-31`, `PRE-46`).
+### A5.2 Guidance about the feeling
 
-### A5.3 One texel density
+It replaces the art bible's rules.
+1. **The feeling first.** When a guideline and your picture disagree, the picture wins, unless truth (`PRE-42`) or a principle says otherwise.
+2. **Light true to the hour.** True midday at noon, gold only when the sun is low (answers 9 and 23); shade takes the sky's colour, lights are warm, and hollows, corners and contacts darken.
+   The default view keeps the sun behind the camera's left shoulder.
+3. **Real darks.** In daylight about a quarter of the picture is dark (the liked camp 27%); nights about 85% dark, with firelight in a few small pools and warm colour on less than about a fifth of the picture (answer 10); winter soft, with very dark under about 5% (answer 11).
+4. **Strong colour as accents,** except where the season itself is the colour: in summer daylight on no more than about an eighth of the picture (the liked camp 11%), carried by flowers, fire, dyes, ochre and beads; in autumn the wood's colour is the field (answer 33).
+5. **Greens muted and warm,** never one green over most of the frame.
+6. **A colour plan for each biome, hour and season,** from the true colours of its species by season (`WLD-31`).
+7. **Quiet pixel texture:** marks of 2 to 3 texture pixels, low contrast within a material, never single-pixel speckle, each zoom band drawn as its own pixel art (answers 21, 31 and 36).
+8. **Density with a stage:** nature dense, airy and wild (answer 6), and people on the quiet ground the world has made: trodden paths, working floors, snow, cave floors.
+9. **People read first,** found by light from real sources and by their movement only (answer 33): nothing in the world changes to make them stand out, and what they wear follows from their materials and their people's style (`CUL-12`).
+10. **Edges by light:** no drawn outlines up close; a bright edge where sun, sky or fire grazes a shape; contact darkening; small far figures alone are outlined (answer 4).
+11. **Life in motion:** wind, water, smoke, rain in its four layers, people and animals; nothing moves that the world does not move.
+12. **Truth before beauty in content:** shapes, materials and dress from archaeology (`PRE-42`), each people's style generated (`CUL-12`), no real culture's motifs (`SCP-20`), every picture checked (A5.6).
+- The smallest thing worth making is about a fist-sized stone; anything smaller is texture.
 
-Every texture is drawn at 16 texture pixels a metre, about one to one art pixel at the close camp zoom, so nothing looks as if it came from another game.
-Grass, reeds, flowers and flames are sized in metres, so they keep their true size at every zoom.
+### A5.3 The texel ladder
 
-## A6. The model kit and animation (research 17)
+- A texture pixel shows as about 2 × 2 screen pixels at every zoom (answer 35): 64 texture pixels a metre at band 0, the closest zoom (about 8 m across), then 32, 16, 8, 4, 2 and 1 a metre, one band a halving.
+  - *Computed* (study 2): at 12 m across the view moves from 64 to 32 a metre, at 24 m to 16, at 50 m to 8, at 100 m to 4, and at the camp zoom (about 300 m) to 2.
+- One density for the world and the figures: a standing adult is about 100 texture pixels tall up close, and a face about 14.
+- Every level is drawn as pixel art for its band, with bolder marks and fewer of them, never the level above averaged: averaging lost about a fifth of the ground's accents and was the speckle of answer 31.
+- Grass, reeds, flowers and flames keep their true size in metres while their design follows the band; flowers, berries and eyes never fall below one texture pixel (`PRE-46`).
+- Memory is the cost, not time: about 50–150 MiB of lossless textures at 64 a metre for about 150 materials with their levels (estimates), within A18.1's 300 MB.
+
+### A5.4 Where textures come from (research 19, studies 5 and 7)
+
+- **Three routes, combined for each material** (`MIL-09`): code from rules, made on the phone; the world itself (rock layers laid by each world's geology, soot, stains, wetness, snow and traces: `PRE-23`, `PRN-10`); and pictures you approved, prepared by code.
+  A ground texture holds only its material's background; paths, flowers, stones and tufts are things the world places.
+  A cliff, for example, is a rock surface on the texel grid under each world's own layers laid by code: your answer 34b found such cliffs keep the liked cliff's feel, and the surface itself is still to find (answer 34).
+- **The path of a picture-made texture:**
+  1. **request,** committed text from a template: the area in metres, blocks of 8 to 12 picture pixels, the background material only, even overcast light, tileable, and an approved picture or the level above as input wherever one exists;
+  2. **run** by the builder through Codex, outside the build and never in it; kept: the request, the prompt as passed, a run record and the original with its signed C2PA record;
+  3. **vet** for Stone Age truth (A5.6), nothing countable in a ground, and the scale asked; recorded;
+  4. **re-grid** by a deterministic cloud tool: the block size and its phase found window by window, each block's median colour becoming a texture pixel; seams blended where needed; a light check (a slope of at most 0.02); lossless.
+     *Measured* (study 7): swatches asked for blocks re-grid with 2–8% loss;
+  5. **designed levels,** one for each band where the material is seen: for big surfaces GPT redraws each band from the level above, which then goes through steps 2 to 4 (your pick for the close camp's ground, answer 36); for the rest a code reduction or code from rules; each level records the digest of the level it came from, so a change above marks it stale;
+  6. **calibrate** in the look lab: the material lit at the target card's hours, with a few numbers fitted (lightness, hue, colourfulness, contrast) until each band matches band 0 and the card, keeping the accents, not only the spread;
+  7. **approve:** a lab sheet in the note shows the texture flat and lit, at every band, at true size and enlarged, beside its source; your words and the date go into its record;
+  8. **ship:** the levels are committed as lossless files and listed with their digests in `build.toml`, inside the look digest, so a texture change is a small update (`PLT-09`);
+  9. **on the phone:** `view/` reads each file, builds one image holding all its levels (`Image.create_from_data`), gathers each material kind into a texture array and uploads them before the warm-up; the self-check compares the digests.
+- **The record:** a `texture` catalogue kind (A3.6), one for each picture-made texture: what it is, band 0's size in metres and its texture pixels a metre, the original (its file, digest and C2PA record), how it was made, the re-grid's loss, the truth check, each band's file, digest and source, its calibration, and your approval.
+- **Storage:** lossless with our own levels, read by `view/`, as Godot advises for pixel art even in 3D; Godot's import only for the icon and the interface, with its "Detect 3D" off; ASTC 4 × 4 only if the phone shows a need and your eye sees no loss.
+- **Code-made and world-made textures** are made on the phone at first start or with their area, and cached by look digest.
+- **The originals** are kept beside their records as WebP in `art/sources/`, as `art/targets/` keeps its pictures, and in full with their C2PA records as release files once those are proved from a cloud session (A2.3).
+- **GPT's place:** before the build, never in it, so a failed or refused run, or a limit, only delays new sources.
+  Each step lists its pictures in its plan; the builder checks what remains of the plan's allowance before a batch, and at a limit waits and carries on with code-made textures, never buying credits (`PRC-01`).
+
+### A5.5 Targets and the loop (research 19, study 6)
+
+- **Targets:** one anchor picture you approve for each place, either a repaint of an engine frame that holds the right content or GPT's own scene made from approved pictures; its other hours and seasons come from relights.
+  - Six of the nine relit pictures you judged kept the feeling, and you chose a relit dusk over a repainted one (answer 23); a target is never repainted again to chase, since repainting drifts darker and busier round after round.
+  - From each target the builder takes each material's colour, spread and density through the engine's material masks, and the moment's numbers for the card; the light's direction comes from the engine's physics.
+- **The target card,** measured from the twelve liked pictures and refitted after every answer, warns and never decides.
+  - Its fixed goals: no flat ground (at most about 5% flat patches); detail as things (about 29–45 small things a thousand cells); golden lights; muted greens; strong colour only in specks; texture as strong as the masses; warm lights with shade near neutral.
+  - Its bands for each moment start from A4.3's table, shown green, amber or red beside each view.
+  - Tested on your answers, it caught 12 of the 18 pictures you turned down, and wrongly flagged 6 of the 17 you picked.
+- **The loop,** at every step that changes the look:
+  1. **draw:** one Godot run draws the fixed views at 1080 × 2404, with the colour, object and material pictures, lossless frames of the scripted paths, and many-sample pictures of small patches;
+  2. **check:** A4.8's checks and the card's alarms;
+  3. **look:** changed views beside their last approved versions, whole and in enlarged crops, on a lettered grid, so a fault is "C7";
+  4. **judge:** a fresh subagent sees the pictures, the targets and a yes-or-no checklist for each Done when and truth question, and says which of each pair is closer to the target, asked twice with the order swapped; it reports faults, never approval;
+  5. **show** you what changed, in pairs, with the alpha;
+  6. **ask** only when the look has an open question.
+- **Savings must be invisible** (`PRE-01`): first the machine line (A4.8), then your blind test on the phone, ten random pairs asking "which is sharper?", where eight or more right means it shows (guessing gets there about 5% of the time).
+  Half resolution applied to textures brings the shimmer back (9–16% of pixels), so a half-resolution saving may touch only smooth things: light, shadow and haze.
+- **The heat step:** if the 20-minute heat run shows the picture alone heats the phone, one planned, logged step under heat, such as distant fires casting no shadows, chosen among the savings that pass your blind test, as you chose on 6 October 2026; if none is enough, it comes back to you.
+- **The AI judge advises, never decides:** in a May 2026 test the best model named both the best and the worst picture of a set in 26.5% of tasks, against experts' 68.9%.
+  So it first sits an exam on your 36 answers, blind, each pair twice with the order swapped, and its agreement goes into the taste log before its advice counts.
+- **Your choices:** two to four labelled pictures with a one-line cost each, in batches of four, with builds you open anyway; free of known faults; never offering a visible trade-off.
+  A gallery for a setting with many values spreads wide first, then narrows, made by the engine or by code changing one setting only.
+  Every choice goes into the taste log under `art/reviews/`.
+- **Help only for your eye** (thinning leaves over a person, silhouettes behind leaves, a hold that marks every person) comes only if the phone shows people in shade are still hard to find, and then with your OK, as you decided (research 19, decision 5).
+
+### A5.6 Truth in pictures (`PRE-42`, `SCP-20`)
+
+- GPT drew later or borrowed things in ten of the twelve pictures you liked, and ignored explicit "avoid" lines, drawing metal tools after "no metal" and striped piglets in autumn.
+- So every target, guide and source picture is checked before anyone aims at it or prepares it:
+  1. ask truthfully, with the prompt's truth lines;
+  2. look at every made thing, animal and garment at twice size, against study 1's list of known slips;
+  3. date anything doubtful against a first-hand source, and write the verdict beside the picture;
+  4. keep the picture's feeling, not its mistakes: a target is approved for its light, colour, density and composition, and its flagged things are listed as not to copy (`art/targets/README.md`);
+  5. never take motifs from real cultures' art or dress (`SCP-20`).
+- Truth costs no feeling: the truthful village and the first cave kept it (answers 28 and 29).
+
+## A6. The model kit and animation (research 17, 19)
 
 ### A6.1 The kit (`PRE-46`)
 
-- Each form's shared shape is built at load by our C++ in `view/` as an `ArrayMesh`, from the kit's parameters in the catalogues.
-- Plants come from 8 parametric forms, animals from 6 body patterns, and people from one block figure (`PRE-27`).
-- A new thing is a catalogue entry, and its model follows from its parts.
-- *Proved in pre-production* (P3): eleven shapes, two plants and a deer built at load from parameters in about 23 ms.
+- **Code builds the kit and moves it.**
+  Each form's shared shape is built at load by our C++ in `view/` as an `ArrayMesh` from the kit's parameters in the catalogues, its corners, creases and undersides darkened as it is built (A4.4); a new thing is a catalogue entry, and its model follows from its parts.
+  - *Proved in pre-production* (P3): eleven shapes, two plants and a deer built at load from parameters in about 23 ms.
+- **Plants:** about 8 forms.
+  Trees and bushes grow their branches by code for each species, stage and a few variants; leaf clusters are cut-out cards designed for each band and cut close to their leaves; one approved sheet for each species sets its crown, its colours by season and its stages, in the style of the birch sheet you accepted (answer 22).
+- **People:** one figure on one skeleton (answers 3 and 19).
+  - The body is built as rings round each bone, widened by build, age and sex from catalogue numbers; rings near a joint follow both bones in part, so the joint bends smoothly.
+  - Garments are shells over it (about 8 kinds, in child and adult sizes); hair, beads and paint follow each people's style (`CUL-12`); proportions by age are read from the family sheet you accepted.
+  - About 1,500 triangles in full form, within a budget of 4,000 (A18.1).
+- **Animals:** six body patterns, one skeleton each, with bodies made by code the same way (answer 14).
+  A species is its proportions, colours and markings, with small generators for antlers (tines by age), horns, tusks and manes; coats come from approved sheets, their markings varied by seed.
+- **Shelters,** several types, each a layout of shared parts tied to what an excavation shows (answer 13):
+  - hides closing off a rock shelter or a cave mouth;
+  - small round tents or huts of skins held down by stone rings, as a cone or a dome;
+  - round post huts;
+  - mammoth-bone circles, only where mammoths live;
+  - brush huts over a shallow floor;
+  - for farmers, longhouses.
+
+  Windbreaks and lean-tos keep your comments on P3: poles, a bar and brush, and a roof in overlapping courses.
+  Each type records the excavation it rests on and what is reconstruction; present-day peoples' details, such as smoke flaps, stay out (`SCP-20`).
+- **Sizes:** anything small (ground cover, flowers, leaves, faces, held tools) has a design for each band it is seen at, drawn for that size and never only shrunk (`PRE-46`, answer 21).
+  - Code rules make repeated structure (blades, fronds, leaf clusters, cracks, pebbles), and tiny pixel designs written as data place the pixels charm needs (flower heads, berries, eyes, held tools), guided by GPT's design sheets: about 8 plant forms, 3 bands and 4 variants, about 100 designs, recoloured by species and season.
+  - Band 0 holds the full design; the next band half the parts, one texture pixel wide, with light tips and dark bases kept; the close camp the silhouette, a light top, a dark base and the accents.
+  - Cut-out levels have hardened edges, colour bled into their see-through pixels, and their coverage kept at every level, so leaves never fade away with distance.
+- **Faces:** at the closest zoom a head is about 14 texture pixels tall, and its 12 states (the 7 feelings, calm, asleep, hurt, dead, and worn out with cold) are small designs drawn for that size; one band out they keep eyes, brows and mouth as single texture pixels; at the close camp the feeling moves to the pose.
 
 ### A6.2 Copies
 
-- Models are layouts of shared shapes, drawn as MultiMesh copies grouped by area, since a MultiMesh is culled as one.
-- Each copy carries its material's colour, its wear and its maker's style in per-instance data, so huts of birch and of reed look different with no new art (`PRE-42`, `PRE-43`).
-  Each copy's data holds its material's row, its pattern, its wear and a seed (P3).
+- Models are layouts of shared shapes, drawn as MultiMesh copies in buckets sized for each form (A4.6).
+- Each copy's look data holds its material's layer, its tint, its wear, its maker's style and a seed, so huts of birch and of reed look different with no new art (`PRE-42`, `PRE-43`).
 
-### A6.3 Animation (`PRE-44`)
+### A6.3 Figures and movement (`PRE-27`, `PRE-44`)
 
-- Each movement is 2 to 6 key poses of the block figure, stepped about 10 times a second; our C++ poses the rigid parts, with no skeletons.
-- Rules bend the poses (stoop, limp, slump, hunch), each figure's seed offsets its timing, and feet meet the ground by a two-bone sum.
-- *Proved in pre-production* (P3): key poses with their in-betweens give a new pose 10 times a second.
+- **One path:** a skinned mesh for each body pattern, with garments, hair and beads as further skinned meshes on the same skeleton.
+  Held tools and carried things are copies that name their figure and bone, so the chip moves them with the hand; rigid weights give the old blocks as a special case.
+- **Posing in C++ at 10 a second:**
+  - key poses as joint angles, 2 to 6 for each movement, with the bending rules (stoop, limp, slump, hunch) and each figure's seed offsetting its timing;
+  - gaits as numbers for each leg (how long each foot stays down and when it lifts), so walk, trot and gallop come from numbers and a limp is a layer; feet planted by two-bone solving;
+  - still poses (feed, drink, rest, sleep, call, fight, play, fall) from approved pose sheets, as the deer's were (answer 20).
+- **Skinned on the chip:** each figure in full writes its bone palette (about 24 bones, three half-float texels each) into a data texture at its own pose step, and the chip bends every vertex from the palette its copy names.
+  A MultiMesh shader can read the mesh's bone indices and weights, as Godot's source shows; this is probed in M2's first build and proved end to end by calibration scene C6 before anything relies on it.
+- Whether a figure holds each pose for a tenth of a second or glides between the last two is one setting on the chip, for your eye.
+- **Tiny figures and crowds** read a baked library: every movement's poses at 10 a second, made once at load by the same poser, about 900 poses, 0.5 MB for people and about 3 MB for the animals (estimates); a copy holds only its movement, start time and seed.
+- **Forms by height on screen** (tuning values; each switch where both forms give about the same pixels, so nothing pops):
+
+| Form | Height on screen | What it is |
+|---|---|---|
+| full | about 100 px and up | about 1,500 triangles; textures about 100 texture pixels tall; faces as layers for each state |
+| simple | about 40–100 px | about 500 triangles; the textures' next designed level |
+| small, drawn to read (answer 4) | about 15–40 px | about 150 triangles; head and tool a little larger by bone scale; a designed level with the face and light clothes kept light; an outline in a darker shade of its own colour, drawn as a slightly larger shell behind it, growing from nothing at about 50 px |
+| tiny | below about 15 px | enlarged up to about 4 times, baked poses (`PRE-28`) |
+| marker | a group or herd close together | one mark (`PRE-28`) |
+
+- **The fallback** is Godot's own skeletons for figures near the camera: Godot bends a mesh again only when its skeleton changes, so poses held for a tenth of a second are cheap, but each figure costs a draw for each surface and pass.
+  Calibration scene C6 sets how many fit 1.0 ms of the main thread (an estimate of 15 to 40); beyond that, the batched way.
+- Reads of a texture in the vertex stage count as dependent reads on this chip, so palettes are half floats and far forms use one bone a vertex.
 
 ### A6.4 Sheets
 
-The model sheet of every kit shape in two materials, and the animation sheet, are rendered in the cloud whenever the kit changes, for your eye.
+The model sheet of every kit shape in two materials, filmstrips of every movement (since motion can't be judged from a still), and the band sheets, every entry at true size and enlarged at each band, are rendered in the cloud whenever the kit changes, for your eye.
 
 ## A7. The world (research 06)
 
@@ -579,11 +792,11 @@ The generator is first built and tuned on a small island, quick to make and judg
 ### A8.1 Levels of detail (`PRE-03`)
 
 Our own system in `view/`, driving Godot's RenderingServer directly: one tree of square chunks over the whole world, each splitting into four as the camera nears, so the ground is detailed within about 300 m from camp zoom inward, shaped every few tens of metres out to about 10 km, and the world cells' own from the region out.
-Each chunk morphs into the grid half as fine as the camera draws away (CDLOD, Strugar 2010), so no level pops and the pixel look never blurs, and a full area shows its coarse ground until its detail is in, within about a second.
+Each chunk morphs into the grid half as fine as the camera draws away (CDLOD, Strugar 2010), so no level pops, and a full area shows its coarse ground until its detail is in, within about a second.
 *Changed in P8's second round,* after your verdict on 5 October 2026: the rings, the map mesh and their dithered hand-overs, built first, gave way to the tree, since the hand-overs and the map's bend were what you saw jump.
 
-
 The tree's chunks are made on worker threads, nearest first, and freed by when the tree last reached them; only what the camera can see is drawn or split (P8's second round).
+The tree also carries each area's patch picture and the view's maps (A4.6), and the ground's texture changes its designed level with the zoom band (A4.2), so the ground, its cover, its darkening and its colour far away follow one rule.
 
 ### A8.2 A moving origin
 
@@ -591,18 +804,23 @@ Godot draws in single precision around an origin that moves with the camera, as 
 
 ### A8.3 Things by distance (`PRE-28`)
 
-- Grass and small stones only near.
-- Trees as models, then impostor cards, then the cover's colour.
-- People, herds and camps as models, then tiny figures outlined in a darker shade of their own colour, then markers: a banner for a camp, one mark for a herd.
+- **Copies only while they cover about 12 screen pixels;** smaller detail is the ground's band texture (A4.6), and rules read what the world keeps (single plants, stones, patches), never a tuft.
+- **Trees** as models, then low-poly crowns wearing textures designed for their band, dense enough to read as forest, then the cover's colour; impostor cards only where a need is measured, drawn as pixel art for their size.
+- **People and animals** by their height on screen (A6.3): in full, simple, then small figures drawn to read, outlined in a darker shade of their own colour with faces and light clothes kept light and tools drawn larger, then tiny; a group or herd close together as one marker, and a camp as a point at its hearth that glows if it has a fire.
 
 One rule for each thing, on the graphics chip, read by everything that draws it, so trees, plants, ground and camp always agree (P8's second round).
 
 ### A8.4 The camera (`PRE-03`, `PRE-29`)
 
-- Orthographic and pitched for the close stops, tilting toward straight down as it rises.
-- Perspective for the globe: the flat map bends onto a sphere for the last step, as Google Maps morphs to its globe, squeezing the polar lands and hiding the seam under the ice (`WLD-02`).
-- *Changed in P8's second round,* as you asked on 5 October 2026: the world is a sphere at every scale and never unrolls; near the focus the ground is stretched east to west back to its true size as the zoom closes in, so the close stops are as before.
-- Perspective at every stop, each chunk set on the sphere by its vertex shader, exact near the focus (P8's second round).
+- **One perspective rig at every stop, with no pixel lock** (research 19).
+- **Up close, a narrow view:** about 5° to 10° across in portrait (a tuning value), tilted about 35° to 40°, as in the pictures you liked; a wide lens at this tilt squashes texture pixels at the top of a portrait screen to a fraction of their height at the bottom (study 2).
+  Your eye judges the view against the liked pictures' flat look at first light.
+- **As it rises,** the view widens and tilts toward straight down (`PRE-29`).
+- **The ease** to rest on 5° and 1.25× steps when the fingers lift stays as you chose it, now for calm framing rather than steady pixels.
+- The near and far planes hug the scene, so depth stays precise and the sun's shadow map is spent on what is seen.
+- **The rig's state:** the focus in whole centimetres, the turn, the pitch, the field of view and the metres per screen pixel; it publishes the zoom band, the sun, the time and the moving origin to every shader.
+- **The globe:** the flat map bends onto a sphere for the last step, as Google Maps morphs to its globe, squeezing the polar lands and hiding the seam under the ice (`WLD-02`).
+- *Changed in P8's second round,* as you asked on 5 October 2026: the world is a sphere at every scale and never unrolls; near the focus the ground is stretched east to west back to its true size as the zoom closes in, so the close stops are as before; each chunk is set on the sphere by its vertex shader, exact near the focus.
 
 ### A8.5 The map look (`PRE-29`)
 
@@ -620,6 +838,7 @@ Weather, clouds and air are drawn from the climate on the graphics card, in the 
 
 Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and so is the time to make a full area.
 *Answered in pre-production* (P8): built twice and judged by you; its Measure on your phone is still to come.
+The close stops' budgets are A18.1's; the camp zoom's stress scene, a camp in thick forest with the camera turning (S9), has a line of 6 ms of the graphics chip.
 
 ## A9. Living things (research 08), outline
 
@@ -686,7 +905,7 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - **One column of panels:** full width with controls in the bottom third in portrait, beside the world in landscape (`PRE-34`).
 - **Every control at least 48 dp,** with 8 dp between.
 - **Our own gesture reader on raw touches,** so all gestures share one rule set and a scripted test can tell them apart; edge swipes stay out of the system's gesture insets (`PRE-33`).
-- **One Godot theme in the art bible's palette.**
+- **One Godot theme in the palette of the art book's interface plates.**
   The plain pixel font for everything read, at whole multiples of its design size, nearest filtering and no subpixel positioning; the pixel handwriting only for big titles, at twice the size, as the art book's interface plates show.
   The layout is built on a square base, so both orientations scale alike; safe areas and cutouts come from `DisplayServer`.
 - **Cards open to what matters now,** with deeper sections folding out (`PRE-35`); screen-reader labels come with Godot 4.5's support.
@@ -730,6 +949,7 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 - **The Godot side** with gdUnit4: layouts, cards and views opened from records, headless; gestures by simulated touch under Xvfb, since Godot's headless mode drops input events.
   Every script is compiled before the tests, so an error in one no test loads still stops the check.
 - **Pictures and reels** by Movie Maker mode at a fixed frame rate: golden pictures in the cloud; the contact sheet and the sound reel on the phone for your reviews (`PRE-31`, `SND-12`).
+  - From M2, the look's own checks (shimmer, the texture pixel's size, banding, ground accents, people against their surroundings, savings invisible) and the loop that runs them are A4.8's and A5.5's.
   - Movie Maker records at the project's base size, so a single picture at the phone's 1344 × 2992 pixels is read from the screen by our script (`tools/picture.sh`).
   - A rendering driver named on the command line brings Forward+ unless the Mobile renderer is named beside it.
 - **Phone measurements:** the in-app benchmark (A18.1), its frames by our own measure, its result in a short code; trace sections that the phone's own System Tracing records beside the chip's speed and heat, with no computer; Android GPU Inspector for a slow frame on the PowerVR chip, if ever needed (`PLT-04`).
@@ -743,16 +963,37 @@ Each level's cost is measured on your phone at every zoom stop (`PLT-04`), and s
 ### A18.1 Budgets
 
 As measured on your phone in pre-production (`LESSONS.md`), each re-measured at every milestone (`PLT-04`):
-- **Frame:** 16.7 ms at 60 frames a second, the graphics chip under about 8 ms in the busiest scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
-  - The close camp (P1): 99–100% of frames on time at 60, the chip about 10 ms a frame, partly idle, since it lowers its clock with time to spare.
-  - A busy camp at night with thirty figures and three fires (P2): 5.5 ms of the picture's pass at 120 frames a second; every frame on time at 60 at close and camp zoom, with trees of 12 triangles at camp zoom.
-  - The model sheet with fire shadows and smoke (P3): 4.3 ms at 120, every frame on time at 60.
-  - Measure sums every pass of the frame; the heat over ten minutes of a busy scene is still to measure.
+- **Frame:** 16.7 ms at 60 frames a second, the graphics chip within an 8 ms planning line in the busiest close scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
+  - Pre-production measured its low-resolution picture: the close camp (P1) 99–100% of frames on time at 60, the chip about 10 ms a frame, partly idle; a camp at night with thirty figures and three fires (P2) 5.5 ms of the picture's pass at 120; the model sheet with fire shadows and smoke (P3) 4.3 ms at 120.
+    The look you chose draws four times the pixels, so these numbers no longer hold; M2's calibration replaces them.
+- **The graphics engine,** from research 19 (study 4), every number an estimate until calibration scenes C1 to C6 and stress scenes S1 to S9 replace it, each pass line stated before its first run (`RES-09`):
+  - the graphics chip in the busiest close scene, in milliseconds at a 120-frame cap, every viewport summed, with a run with the world hidden for the fixed part:
+
+| Part | Allowance | Estimate with every saving that doesn't show | Lever if over |
+|---|---|---|---|
+| Fixed: the interface pass, the copy, the stores | 1.1 | 0.9–1.7 | a lighter interface; buffers that never reach memory (patch) |
+| Shading: the material, light, soft shadows, grade | 2.3 | 1.7–4.0 | fewer reads; 16-bit maths; shading per 2 × 2 pixels on ground and plants (patch) |
+| Sun shadow map, 2,048, small casters | 0.4 | 0.3–1.5 | a smaller map at far zooms |
+| Geometry, all passes | 1.6 | 1.2–7.7 | detail by size; fewer leaf triangles |
+| Leaves' hidden layers | 0.8 | 0.6–8.0 | the leaf pre-pass (patch) |
+| Fires: maps and shadows | 0.4 | 0.1–1.2 | the nearest four a pixel |
+| Water and mirror | 0.6 | 0.1–3.3 | the mirror's coverage |
+| Effects: smoke, mist, rain, snow, glow | 0.5 | 0.1–3.3 | rain streaks as copies; mist at half resolution |
+| Darkening maps | 0.1 | 0.03–0.1 | |
+| Reserve | 0.2 | | |
+| **Line** | **8.0** | | |
+
+  - **triangles:** at most 0.4 million triangle-passes a frame, every pass counted, until calibration scene C3 sets the line, with detail falling with size on screen, since this chip's efficiency drops below about 32 pixels a triangle;
+  - **the main thread:** 8 ms on average and 12 ms at the 99th percentile: Godot's culling and draw recording 3.0 (about 300 draws over all passes), figures 1.0, plants' and patches' buffers 0.5, scripts and interface 1.0, Godot's other work 0.5, other view work 0.5, reserve 1.5;
+  - **figures:** at the closest zoom at most 10 in view at up to 4,000 triangles; at the close camp at most 100 at 1,000–1,500; at the camp zoom up to 3,000 tiny ones at up to 60, with no sun shadow;
+  - **power and heat** at close zooms: the whole phone at most 4.0 W on average over a 20-minute run (about 20% of the battery an hour): the screen about 1.0–1.4, the graphics chip at most 2.0, the processor for the picture at most 0.6, the simulation at most 0.3; the heat forecast at least 0.05 below the phone's own light threshold, and the battery at or below 40 °C at the end;
+  - **memory:** textures at most 300 MB uncompressed; render targets at most about 150 MB (about 100 MB at full resolution with 2× MSAA, 42 MB of it the multisampled buffers Godot keeps in memory though it never writes them); the app at most 1 GiB.
+  - *Estimated:* at an 8 ms picture the whole phone draws about 3.1–5.6 W, 16–28% of the battery an hour, within `PLT-04`'s 25–30%; comfortable long play needs about 4 W or less, so the heat run, not the battery, sets the true line: if the phone stays cool at 9 or 10 ms the line can rise, and if it heats at 8 it comes down for good or takes its one planned step (A5.5).
 - **Simulation:** up to the four middle cores at held speed (`PLT-01`): a thousand simple minds at 6.0 game years a real minute (P6), so production's fuller minds have about 2½ times P6's cost before `TIM-07`'s hoped-for speed falls.
 - **World generation:** three worlds in 9.3 s and settling in 6.5 on your phone (P7), against `WLD-11`'s 3 minutes and 1.
 - **Sound:** 32 sounds at about 3% of the audio thread's time in the cloud, 9% at worst (P14); the phone's figure to come.
 - **Power:** about 3 W while playing; **memory:** within about 8 GiB.
-- **The APK:** 25 MB from Godot itself, 38 MB with every prototype; within the 50 MB limit for files committed to the repository.
+- **The APK:** 25 MB from Godot itself, 38 MB with every prototype, 27.6 MiB at M1's end; within the 50 MB limit for files committed to the repository (A2.3).
 - **The foundations,** from research 18 in the cloud, each measured again on your phone by M1's benchmark:
   - the event queue: 1–4% of one core at `TIM-07`'s speeds;
     measured in α1.3a, the crowd of 10,000 markers ran 60 game days, 14.4 million events, in 8.1 s on one cloud core: about 0.56 µs an event with its handler and a digest of the whole state each game day;
@@ -784,9 +1025,13 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
 
 | Risk | What we know | If it fails |
 |---|---|---|
-| The PowerVR driver mishandles a feature we use | P1 to P3 drew outlines, mirrors, fire shadows and smoke without fault | avoid that feature; the self-check reports the driver |
-| The look costs too much on the Mobile renderer | P1, P2: 60 frames a second with room | a cheaper outline method; fewer cards |
-| A busy scene heats the phone | Open: P2's run was cut to 90 seconds | smaller shadow maps; time slows earlier |
+| The PowerVR driver mishandles a feature we use | P1 to P3 drew outlines, mirrors, fire shadows and smoke without fault; the look you chose adds MSAA at full resolution, `textureGrad`, texture arrays, alpha to coverage, shading rates and bone reads, each probed in M2's first build (A4.7) | avoid that feature; the self-check reports the driver |
+| The look you chose costs too much on the Mobile renderer (`RSK-30`, proposed) | Research 19: the liked camp drawn plainly about 13–45 ms of the graphics chip, about 5–23 ms with every saving that does not show, against 8 (estimates) | A4.1's levers in order: our own build's two patches, the 3D at 0.75 where needed, half resolution last; the density never cut |
+| A busy scene heats the phone | Open: the 20-minute heat run (H1) in M2 | the line comes down, or one planned, logged step under heat that passes your blind test (A5.5); the heat guard acts at the light level (A3.9) |
+| Texture pixels shimmer, or a band's level pops | Simulated: the smooth-pixel filter flickers on 0.4–1.1% of pixels, 0.1% with a level made for the zoom | levels drawn calmer near the end of their range; the blend between bands retuned |
+| Designed levels and small designs are too much work | GPT redrew a band's level in 42 seconds; about 100 small designs estimated | code levels for code-made textures; ground, rock and plants first; one level checked at each zoom stop |
+| People stay hard to find in busy shade | Your answers 27 and 33: light only; light aids lifted people in sun and not in shade | movement and real light first; help drawn only for your eye if the phone shows the need, with your OK (A5.5) |
+| Our own build of Godot is hard to keep | Not tried | the stock templates, with the 3D at 0.75 where a scene needs it |
 | Discovery can't be tuned to its pace (`RSK-01`) | P4: tuning alone sets the pace | the discovery rules redesigned with you at M7 |
 | Phone and cloud results differ (`RSK-04`) | P5: the same bits on your phone | our own function for whatever differs |
 | A thousand minds miss a year a minute (`RSK-02`) | P6: 6.0 game years a real minute | profile and simplify scoring; the population target revisited with you (`MND-15`) |
