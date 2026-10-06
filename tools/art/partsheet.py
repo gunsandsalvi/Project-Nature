@@ -2,13 +2,14 @@
 """The preview sheet of a family of the kit's parts (IMPLEMENTATION.md, the art lane): every part at true size beside
 a 1 m bar, wearing the checker of 64 texture pixels a metre, for the owner's eye.
 
-    python3 tools/art/partsheet.py <views folder> <check.json> <out.webp>
+    python3 tools/art/partsheet.py <views folder> <check.json> <out.webp> [--textured]
 
 From the pictures preview.py drew and the figures partcheck.py measured: the file's name, its parts' count and worst
 stretch, how to read the checker, then each collection's parts in rows, each labelled with its name, size and
 worst stretch and drawn at 128 picture pixels a metre, so a texture pixel shows as 2 x 2 screen pixels at 100%, as
 on the phone up close; small parts again four times as large; then each figure whole, bare, with each shape key and
-in its bend poses; then, in red, any problem the check found. Lossless WebP, 1080 pixels wide.
+in its bend poses; then, in red, any problem the check found. Lossless WebP, 1080 pixels wide. With --textured,
+the same for pictures of the parts wearing their textures (preview.py --textures).
 A 1 m bar starts every row: lengths across the view are true, and heights show at cos 40 degrees, 0.77, since the
 view looks down from the game camera's height.
 
@@ -82,7 +83,7 @@ def flow(c, items, scale):
         c.cells(pics, labels, size=18, least=[0] + [CELL] * len(r))
 
 
-def make(views_dir, check_path):
+def make(views_dir, check_path, textured=False):
     with open(check_path) as f:
         check = json.load(f)
     with open(os.path.join(views_dir, "views.json")) as f:
@@ -91,21 +92,31 @@ def make(views_dir, check_path):
     worst = max((p["worst"] if not isinstance(p["worst"], str) else math.inf) for p in check["parts"])
     failed = [p for p in check["parts"] if p["problems"]]
     c = sheet.Canvas()
-    c.text(f"{check['file']}: {len(parts)} parts", 40, bold=True)
+    c.text(f"{check['file']}: {len(parts)} parts" + (", wearing their textures" if textured else ""), 40, bold=True)
     c.text(
         f"Worst stretch {worst_text(worst)} (the line is {LINE}:1). {len(failed)} parts fail a check. Every part is "
         "drawn at true size, 128 picture pixels a metre, so at 100% a texture pixel shows as 2 x 2 screen pixels, as "
         "on the phone up close; parts under 0.4 m again four times as large.",
         22,
     )
-    c.text(
-        "The checker is 64 texture pixels a metre, in blocks of 8 (12.5 cm), tinted by each slot's role; a block that "
-        "is not square shows stretch. A reddish line marks each metre of u, a greenish one each metre of v; on a "
-        "pole the reddish line is its wrap. The view looks down 40 degrees, from in front and to the left, so heights "
-        "show at 0.77 of the 1 m bar.",
-        20,
-        colour=sheet.GREY,
-    )
+    if textured:
+        c.text(
+            "Each part wears the textures a recipe might choose for its roles (art/models/<family>-textures.json), and "
+            "a figure its atlases', drawn to its layout; a role with no texture yet keeps a flat colour. The light is "
+            "Blender's plain studio light, not the game's. The view looks down 40 degrees, from in front and to the "
+            "left, so heights show at 0.77 of the 1 m bar.",
+            20,
+            colour=sheet.GREY,
+        )
+    else:
+        c.text(
+            "The checker is 64 texture pixels a metre, in blocks of 8 (12.5 cm), tinted by each slot's role; a block "
+            "that is not square shows stretch. A reddish line marks each metre of u, a greenish one each metre of v; "
+            "on a pole the reddish line is its wrap. The view looks down 40 degrees, from in front and to the left, "
+            "so heights show at 0.77 of the 1 m bar.",
+            20,
+            colour=sheet.GREY,
+        )
     c.space()
     loose = [v for v in views if v["kind"] in ("part", "enlarged")]
     groups = []
@@ -159,10 +170,12 @@ def make(views_dir, check_path):
 
 
 def main(argv):
+    textured = "--textured" in argv
+    argv = [a for a in argv if a != "--textured"]
     if len(argv) != 3:
         print(__doc__.split("\n\n")[1])
         return 2
-    a = make(argv[0], argv[1])
+    a = make(argv[0], argv[1], textured)
     texels.save_webp(a, argv[2])
     print(f"{argv[2]}: {a.shape[1]} x {a.shape[0]}")
     return 0

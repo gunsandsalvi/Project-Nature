@@ -1,5 +1,6 @@
-"""Band 0's tile (PRE-22, PRE-01, A5.4): quilted by code into a seamless square with no strong repeat, every
-texture pixel whole from a source pixel, never blended; and the seam and repeat numbers the checks use."""
+"""Band 0's tile (PRE-22, PRE-01, A5.3, A5.4): quilted by code into a seamless square with no strong repeat, every
+texture pixel whole from a source pixel, never blended; its versions, sharing its edges so any joins any other, laid
+out alike down its levels; and the seam, joint and repeat numbers the checks use."""
 
 import os
 import sys
@@ -69,6 +70,63 @@ class Quilting(unittest.TestCase):
             tile.quilt([self.src], size=100, step=32)
         with self.assertRaises(ValueError):
             tile.quilt([self.src[:30, :30]], size=64, step=32, overlap=8)
+
+
+def levels_of(t, count=3):
+    """A tile's first levels, each the 2 x 2 majority of the one above, enough for versions to follow."""
+    import reduce
+
+    out = [t]
+    for _ in range(count - 1):
+        out.append(reduce.reduce(out[-1]))
+    return out
+
+
+class Versions(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        t = tile.quilt([ground()], size=128, step=32, overlap=8, seed=2)
+        cls.levels = levels_of(t)
+        cls.versions = [cls.levels] + [tile.version(cls.levels, seed)[0] for seed in (5, 6, 7)]
+
+    # checks: PRE-22
+    def test_versions_share_the_tiles_edges(self):
+        for v in self.versions[1:]:
+            for n, (a, b) in enumerate(zip(v, self.levels, strict=True)):
+                f = max(1, 4 >> n)
+                for edge in (a[:f] - b[:f], a[-f:] - b[-f:], a[:, :f] - b[:, :f], a[:, -f:] - b[:, -f:]):
+                    self.assertFalse(edge.any(), f"level {n}: an edge differs")
+
+    # checks: PRE-22
+    def test_any_version_joins_any_other_without_a_seam(self):
+        own = tile.seams(self.levels[0])
+        for a in self.versions:
+            for b in self.versions:
+                self.assertLessEqual(tile.joints(a[0], b[0]), max(1.2, own + 0.05))
+
+    # checks: PRE-22
+    def test_each_version_differs_inside(self):
+        for v in self.versions[1:]:
+            self.assertGreater((v[0] != self.levels[0]).any(-1).mean(), 0.5)
+        self.assertGreater((self.versions[1][0] != self.versions[2][0]).any(-1).mean(), 0.5)
+
+    # checks: PRE-22 PRE-01
+    def test_a_versions_levels_follow_its_own_layout(self):
+        """Level 1 of a version is the tile's own level 1 laid out as its level 0 was: it matches the version's level
+        0 brought to its size far better than it matches the tile's."""
+        v = self.versions[1]
+        half = levels_of(v[0], 2)[1]
+        mine = (v[1] == half).all(-1).mean()
+        theirs = (self.levels[1] == half).all(-1).mean()
+        self.assertGreater(mine, theirs + 0.2)
+        colours = {tuple(c) for c in self.levels[1].reshape(-1, 3)}
+        self.assertTrue({tuple(c) for c in v[1].reshape(-1, 3)} <= colours, "a level's colours all its own")
+
+    # checks: PRE-22
+    def test_a_joint_between_tiles_that_do_not_match_is_caught(self):
+        a = self.levels[0]
+        self.assertAlmostEqual(tile.joints(a, a), tile.seams(a), places=6)
+        self.assertGreater(tile.joints(a, a[::-1]), 1.2)
 
 
 class Numbers(unittest.TestCase):

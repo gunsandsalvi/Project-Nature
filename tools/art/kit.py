@@ -24,7 +24,8 @@ The rules every part keeps, which these functions keep for it:
   named joint_<name> (Blender adds .001 to a name used before; the empty's "joint" property keeps the bare name), its
   z axis pointing the way a part plugged there points;
 - texture coordinates in metres in the UV map "UVMap" (one texture pixel 1/64 m at band 0), stretched at most 1.5:1
-  (kitmath.stretch); a wrapped sleeve's or lathe's circumference spans whole texture pixels, so its wrap never shows;
+  (kitmath.stretch); a wrapped sleeve spans the strip of its material's wrap atlas nearest its circumference
+  (kitmath.WRAPS), or whole texture pixels in a figure's atlas, and a lathe whole steps of 4, so no wrap shows;
 - material slots named by role (ROLES), never by a particular material, which recipes choose;
 - for a figure, parts skinned to one armature, with vertex groups named after its bones and shape keys named as the
   family's script sets them (build, age and sex).
@@ -229,16 +230,18 @@ class Part:
 
         points: the path in metres, two points or more; radii: one for each point, a number (a circle), a pair (an
         ellipse: across the side axis, across the back axis) or `sides` numbers (any shape); sides: vertices round.
-        wrap: round the tube the texture spans the circumference rounded to whole texture pixels (the mean of its
-        rings'), the same at every ring, so a tiled bark or wood wraps without a seam; with wrap False each ring
-        spans its own true circumference, centred on the column opposite the seam, for a figure's texture drawn to
-        its layout. Along the tube the texture runs at the surface's true length from ring to ring (the mean of its
-        columns), so a ledge where the tube narrows fast is laid at its own width.
-        breaks: ring indices where a wrapped tube's texture starts a new wrap, its span the whole texture pixels of
-        that stretch's mean circumference, so a long taper stays within the line in one unbroken mesh (the texture
-        steps there, as where a branch narrows); "auto" starts a new wrap wherever the rings of the one before would
-        differ more than 1.3 times in circumference, so no wrap squeezes its rings by more than about 1.14, before
-        the rounding to whole texture pixels, which counts most on a thin branch.
+        wrap: round the tube the texture spans the width of the wrap strip nearest its circumference (the mean of
+        its rings', kitmath.WRAPS), the same at every ring, laid in that strip of its material's wrap atlas, which
+        is seamless round that width, so bark or wood wraps without a seam; on a part drawn to an atlas it spans
+        the circumference rounded to whole texture pixels instead, in its own piece of the atlas. With wrap False
+        each ring spans its own true circumference, centred on the column opposite the seam. Along the tube the
+        texture runs at the surface's true length from ring to ring (the mean of its columns), so a ledge where the
+        tube narrows fast is laid at its own width.
+        breaks: ring indices where a wrapped tube's texture starts a new wrap, its span that stretch's own (its
+        strip, or its whole texture pixels in an atlas), so a long taper stays within the line in one unbroken mesh
+        (the texture steps there, as where a branch narrows); "auto" starts a new wrap wherever the rings of the one
+        before would differ more than 1.3 times in circumference, so no wrap squeezes its rings by more than about
+        1.14, before the step to the nearest strip, which counts most on a thin branch.
         seam: the angle of the wrap's seam, from the side axis toward the back (frames()); front: the way the first
         frame's back axis points away from.
         caps: how the first and the last rings end, each one of:
@@ -287,10 +290,16 @@ class Part:
                     start = i - 1
         bounds = [0, *sorted(set(breaks)), n - 1]
         stretches = list(zip(bounds, bounds[1:], strict=False))
-        texels = []
+        texels, strips = [], []
         if wrap:
             for a, b in stretches:
-                texels.append(kitmath.whole_texels(sum(perims[i][-1] for i in range(a, b + 1)) / (b - a + 1)))
+                mean = sum(perims[i][-1] for i in range(a, b + 1)) / (b - a + 1)
+                if self.atlas is None:  # the strip of the material's wrap atlas nearest its circumference
+                    texels.append(kitmath.wrap_width(mean))
+                    strips.append(kitmath.wrap_offset(texels[-1]) / TEXELS_A_METRE)
+                else:  # drawn to the atlas at its own width
+                    texels.append(kitmath.whole_texels(mean))
+                    strips.append(0.0)
             self.wraps += texels
         spans = [t / TEXELS_A_METRE for t in texels]
         row_stretch = [next(s for s, (a, b) in enumerate(stretches) if a <= i < b) for i in range(n - 1)]
@@ -311,7 +320,7 @@ class Part:
 
         def u_of(i, k, s):
             if wrap:
-                return spans[s] * perims[i][k] / perims[i][-1]
+                return strips[s] + spans[s] * perims[i][k] / perims[i][-1]
             return perims[i][k] - perims[i][-1] / 2
 
         for i in range(n - 1):
@@ -345,7 +354,12 @@ class Part:
                 "u": [uv_at[0] + u_of(end, k, 0 if first else len(stretches) - 1) for k in range(sides + 1)],
                 "v": uv_at[1] + along[end],
                 "radius": sum((v.co - _v(points[end])).length for v in ring) / sides,
+                "strip": None,
             }
+            if wrap and self.atlas is None and (cap_role or role) == role:
+                # facets of the wrapped role itself, such as an antler's point, are laid in the end's own strip
+                s = 0 if first else len(stretches) - 1
+                ends["strip"] = (uv_at[0] + strips[s], spans[s])
             if kind == "flat":
                 if self.atlas is not None:
                     r = max((v.co - ends["centre"]).length for v in ring)
@@ -377,12 +391,18 @@ class Part:
         order = self._ordered(e["ring"], e["first"])
         self._face([e["ring"][k] for k in order], [uvs[k] for k in order], role_name, smooth=False)
 
-    def _facet(self, verts, role_name):
-        """A flat facet whose texture is laid on its own plane at true size (stretch 1), as an axe's cut or a break."""
+    def _facet(self, verts, role_name, strip=None):
+        """A flat facet whose texture is laid on its own plane at true size (stretch 1), as an axe's cut or a break;
+        given a wrap strip (its left edge and width in metres), moved across to start at the strip's left edge, so a
+        facet of a wrapped role takes its texture from that strip."""
         a, b, c = (v.co for v in verts[:3])
         n = (b - a).cross(c - a)
         d = tuple(n.normalized()) if n.length > 1e-12 else (0.0, 0.0, 1.0)
-        return self._face(verts, [kitmath.project(tuple(v.co), d) for v in verts], role_name, smooth=False)
+        uvs = [kitmath.project(tuple(v.co), d) for v in verts]
+        if strip is not None:
+            low = min(u for u, _ in uvs)
+            uvs = [(strip[0] + u - low, v) for u, v in uvs]
+        return self._face(verts, uvs, role_name, smooth=False)
 
     def _chopped_end(self, e, role_name):
         """A short faceted point, as a stone axe leaves wood, never a sawn face: the end ring drawn in to a third of
@@ -393,9 +413,9 @@ class Part:
         for k in range(n):
             k2 = (k + 1) % n
             quad = [ring[k], ring[k2], tip[k2], tip[k]]
-            self._facet(quad if not e["first"] else quad[::-1], role_name)
+            self._facet(quad if not e["first"] else quad[::-1], role_name, e["strip"])
         order = self._ordered(tip, e["first"])
-        self._facet([tip[k] for k in order], role_name)
+        self._facet([tip[k] for k in order], role_name, e["strip"])
 
     def _broken_end(self, e, side_role, role_name, seed):
         """A jagged break, as dead wood snaps: the bark runs on to a ragged edge, each column its own length (up to
@@ -421,15 +441,16 @@ class Part:
         point = self._vert(c + out * (rnd.uniform(0.3, 0.6) * r), e["weights"])
         for k in range(n):
             tri = [jag[k], jag[(k + 1) % n], point]
-            self._facet(tri if not e["first"] else tri[::-1], role_name)
+            self._facet(tri if not e["first"] else tri[::-1], role_name, e["strip"])
 
     def lathe(self, profile, sides=12, role="weave", wrap=True, seam=0.0, uv_at=(0.0, 0.0), caps=(False, False)):
         """A surface turned round the z axis, such as a basket's walls and rim: profile is (radius, height) from the
-        first ring to the last, every radius above 0. Round the axis the texture wraps as a sleeve's does (wrap
-        True: whole texture pixels of the mean circumference at every ring); along the profile it runs at its true
-        length. The surface faces the way the profile turns from: up the outside of a wall it faces out, down the
-        inside in. caps closes the first ring with a flat disc facing down and the last with one facing up, each
-        with its plane's texture seen from outside."""
+        first ring to the last, every radius above 0. Round the axis the texture wraps (wrap True) over the mean
+        circumference rounded to whole steps of 4 texture pixels at every ring, for a woven texture whose stakes
+        repeat every 4, so it is seamless round any such width; along the profile it runs at its true length. The
+        surface faces the way the profile turns from: up the outside of a wall it faces out, down the inside in.
+        caps closes the first ring with a flat disc facing down and the last with one facing up, each with its
+        plane's texture seen from outside."""
         if any(r <= 0 for r, _ in profile):
             raise ValueError("every ring of a lathe needs a radius above 0; close an end with caps")
         if self.atlas is not None:
@@ -452,7 +473,7 @@ class Part:
         for i in range(1, len(profile)):
             (r0, z0), (r1, z1) = profile[i - 1], profile[i]
             along.append(along[-1] + math.hypot(r1 - r0, z1 - z0))
-        texels = kitmath.whole_texels(sum(p[-1] for p in perims) / len(perims)) if wrap else None
+        texels = kitmath.whole_texels(sum(p[-1] for p in perims) / len(perims), least=4, step=4) if wrap else None
         if texels:
             self.wraps.append(texels)
         verts = [[self._vert(co) for co in ring] for ring in rings]

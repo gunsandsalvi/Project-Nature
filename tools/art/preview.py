@@ -2,6 +2,7 @@
 wearing a checker of 64 texture pixels a metre that shows any stretch, for the preview sheet (partsheet.py).
 
     xvfb-run -a blender -b <file.blend> --python tools/art/preview.py -- <out folder> [--scale 128]
+                                                                          [--textures <textures.json>]
 
 Run inside Blender 4.0; its Workbench renderer needs a display here, which xvfb-run gives. Each part is drawn alone
 from the game camera's height (40 degrees down), from in front and 30 degrees round to its left (+x), orthographic
@@ -10,7 +11,8 @@ under 0.4 m are drawn again four times as large. A figure (an armature's skinned
 without its garments (parts whose kit_layer is "garment"), with each of its choices (kit_layer "choice", worn one at
 a time, as antlers by age), with each shape key at 1, and in each bend pose the file keeps. The checker
 (kitmath.checker) is tinted by each slot's role, so roles show apart; its red and green lines mark each metre of u
-and v.
+and v. With --textures, each part wears its textures instead (textured()): a figure's its atlas's, drawn to its
+layout, and any other slot the material the JSON chooses for its role, as a recipe would.
 Writes <out folder>/<view>.png with clear backgrounds, and views.json naming each view and its parts.
 
 Implements PRE-46 and PRE-22, see A6.4 and A6.5.
@@ -29,6 +31,7 @@ import kit  # noqa: E402
 import kitmath  # noqa: E402
 import partcheck  # noqa: E402
 
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TILT = 40.0  # degrees below level, the game camera's
 TURN = 30.0  # degrees round from the part's front (-y) toward its left side (+x)
 MARGIN = 6  # picture pixels round each view
@@ -74,6 +77,71 @@ def dress(objects):
         for slot in o.material_slots:
             r = slot.material.name if slot.material else "stone"
             slot.material = checker_material(r)
+
+
+def texture_material(path):
+    """A material showing a texture's band 0, each texture pixel square and sharp, the texture repeating."""
+    name = f"textured_{os.path.relpath(path, ROOT)}"
+    m = bpy.data.materials.get(name)
+    if m is not None:
+        return m
+    img = bpy.data.images.load(path)
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = img
+    tex.interpolation = "Closest"
+    tex.extension = "REPEAT"
+    bsdf = nt.nodes.get("Principled BSDF")
+    nt.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    nt.nodes.active = tex
+    return m
+
+
+def flat_material(role_name):
+    """A material of a role's own flat colour, for a role with no texture yet."""
+    name = f"flat_{role_name}"
+    m = bpy.data.materials.get(name)
+    if m is None:
+        m = bpy.data.materials.new(name)
+        m.diffuse_color = (*kit.ROLES.get(role_name, (0.7, 0.7, 0.7)), 1.0)
+    return m
+
+
+def textured(objects, chosen):
+    """Every slot of the objects given its texture: a part drawn to an atlas its atlas's own (art/textures/<atlas>),
+    any other slot the material `chosen` gives its role or its part ({"roles": {role: folder}, "parts": {name prefix:
+    {role: folder}}}), and a role with none its flat colour. Each part's texture coordinates, in metres, are scaled to
+    its texture's side for Workbench, which reads an image texture straight from the active UV map."""
+    for o in objects:
+        atlas = o.get("kit_atlas")
+        side = None
+        for slot in o.material_slots:
+            r = slot.material.name if slot.material else "stone"
+            folder = None
+            if atlas is not None and os.path.exists(os.path.join(ROOT, "art", "textures", str(atlas), "b0.png")):
+                folder = os.path.join("art", "textures", str(atlas))
+            else:
+                for prefix, roles in chosen.get("parts", {}).items():
+                    if o.name.startswith(prefix) and r in roles:
+                        folder = roles[r]
+                folder = folder or chosen.get("roles", {}).get(r)
+            path = os.path.join(ROOT, folder, "b0.png") if folder else None
+            if path and os.path.exists(path):
+                slot.material = texture_material(path)
+                side = side or slot.material.node_tree.nodes.active.image.size[0]
+            else:
+                slot.material = flat_material(r)
+        side = side or 256
+        me = o.data
+        layer = me.uv_layers.get("preview_uv") or me.uv_layers.new(name="preview_uv")
+        source = me.uv_layers[kit.UV_NAME].data
+        k = kitmath.TEXELS_A_METRE / side
+        for i, d in enumerate(layer.data):
+            d.uv = (source[i].uv.x * k, source[i].uv.y * k)
+        me.uv_layers.active = layer
+        layer.active_render = True
 
 
 def setup(scene):
@@ -154,7 +222,11 @@ def main(argv):
     scene = bpy.context.scene
     cam = setup(scene)
     parts = partcheck.parts()
-    dress(parts)
+    if "--textures" in args:
+        with open(args[args.index("--textures") + 1]) as f:
+            textured(parts, json.load(f))
+    else:
+        dress(parts)
     views = []
     loose = [p for p in parts if partcheck.armature_of(p) is None]
     for p in loose:

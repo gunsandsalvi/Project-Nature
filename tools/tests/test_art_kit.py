@@ -16,6 +16,8 @@ ROOT = os.path.dirname(TOOLS)
 ART = os.path.join(TOOLS, "art")
 BLENDER = shutil.which(os.environ.get("BLENDER", "blender"))
 XVFB = shutil.which("xvfb-run")
+sys.path.insert(0, ART)
+import kitmath  # noqa: E402
 
 SCRIPT = """
 import json, math, os, random, sys
@@ -39,11 +41,20 @@ c.joint("base", towards=(0, 0, -1))
 ob = c.done()
 facts["pole_cut_low"] = round(min(v.co.z for v in ob.data.vertices), 4)
 
-br = kit.Part("branch", group="wood", about="a branch tapering 3:1 in two wraps of one mesh")
+br = kit.Part("branch", group="wood", about="a branch tapering 3:1 in three wraps of one mesh")
 facts["branch_wraps"] = br.sleeve([(0, 0, 0), (0, 0, 0.4), (0, 0, 0.8), (0, 0, 1.2)], [0.035, 0.025, 0.018, 0.012],
-                                  sides=6, caps=(None, "broken"), breaks=(2,))
+                                  sides=6, caps=(None, "broken"), breaks=(1, 2))
 br.joint("base", towards=(0, 0, -1))
-br.done()
+ob = br.done()
+us = [d.uv.x for d in ob.data.uv_layers[0].data]
+facts["branch_u"] = [round(min(us) * 64, 3), round(max(us) * 64, 3)]
+facts["pole_u"] = [round(64 * d.uv.x, 3) for d in bpy.data.objects["pole"].data.uv_layers[0].data]
+facts["pole_u_bark"] = [
+    round(64 * ob2.data.uv_layers[0].data[li].uv.x, 3)
+    for ob2 in [bpy.data.objects["pole"]]
+    for f in ob2.data.polygons if ob2.material_slots[f.material_index].name == "bark"
+    for li in f.loop_indices
+]
 
 w = kit.Part("welded", group="covers", about="two panels welded into one")
 w.panel([(-0.3, 0.0), (0.3, 0.0), (0.3, 0.3), (-0.3, 0.3)], spacing=0.1)
@@ -233,10 +244,28 @@ class Parts(unittest.TestCase):
         )
         with open(check) as f:
             cls.parts = {p["name"]: p for p in json.load(f)["parts"]}
+        cls.layout_path = os.path.join(d, "layout.json")
+        cls.layout = blender_run("-b", cls.blend, "--python", os.path.join(ART, "layout.py"), "--", cls.layout_path)
 
     @classmethod
     def tearDownClass(cls):
         cls.tmp.cleanup()
+
+    # checks: PRE-27 PRE-46
+    def test_the_layout_names_every_triangle_drawn_to_an_atlas(self):
+        """layout.py writes each atlas's triangles with their places in it, so paint.py can draw to them."""
+        self.assertEqual(self.layout.returncode, 0, self.layout.stdout[-2000:])
+        with open(self.layout_path) as f:
+            data = json.load(f)
+        self.assertEqual(data["atlases"]["figure_skin"], [2.0, 2.0])
+        skin = list(data["atlases"]).index("figure_skin")
+        tris = [t for t in data["triangles"] if t[0] == skin]
+        self.assertEqual({data["parts"][t[1]] for t in tris}, {"leg", "foot", "upper", "lower", "ankle"})
+        self.assertNotIn("pole", {data["parts"][t[1]] for t in data["triangles"]}, "a part with no atlas has none")
+        for t in tris:
+            for u, v in zip(t[6:12:2], t[7:12:2], strict=True):
+                self.assertTrue(0 <= u <= 2.0 and 0 <= v <= 2.0, "a triangle outside its atlas")
+        self.assertEqual({data["roles"][t[2]] for t in tris}, {"skin"})
 
     # checks: PRE-46 PRE-22
     def test_parts_built_by_the_kit_keep_every_rule(self):
@@ -250,21 +279,44 @@ class Parts(unittest.TestCase):
         self.assertEqual(self.parts["leg"]["armature"], "figure")
         self.assertEqual(self.parts["pole"]["size"], [0.1, 0.1, 2.0])
 
-    # checks: PRE-46
-    def test_a_poles_wrap_is_whole_texture_pixels_of_its_true_circumference(self):
-        # an octagon of radius r has a perimeter of 16 r sin(pi / 8); the rings' mean, in texture pixels, rounded
+    # checks: PRE-46 PRE-22
+    def test_a_poles_wrap_is_the_strip_nearest_its_true_circumference(self):
+        """An octagon of radius r has a perimeter of 16 r sin(pi / 8); the rings' mean, 17.6 texture pixels, takes
+        the 16-pixel strip of the wrap atlas, and the bark's texture lies in that strip and nowhere else."""
         import math
 
         mean = sum(16 * r * math.sin(math.pi / 8) for r in (0.05, 0.045, 0.04)) / 3
-        self.assertEqual(self.facts["pole_wrap"], round(mean * 64))
-        self.assertEqual(self.parts["pole"]["wrap_texels"], str(round(mean * 64)))
+        self.assertEqual(self.facts["pole_wrap"], kitmath.wrap_width(mean))
+        self.assertEqual(self.facts["pole_wrap"], 16)
+        self.assertEqual(self.parts["pole"]["wrap_texels"], "16")
+        left = kitmath.wrap_offset(16)
+        self.assertAlmostEqual(min(self.facts["pole_u_bark"]), left, places=3)
+        self.assertAlmostEqual(max(self.facts["pole_u_bark"]), left + 16, places=3)
+
+    # checks: PRE-46
+    def test_the_wrap_strips_fit_one_tile_side_by_side(self):
+        edges = sorted((x, x + w) for w, x in kitmath.WRAPS)
+        self.assertEqual(edges[0][0], 0)
+        for (_, end), (start, _) in zip(edges, edges[1:], strict=False):
+            self.assertLessEqual(end, start, "two strips overlap")
+        self.assertLessEqual(edges[-1][1], 256)
+        for w, x in kitmath.WRAPS[:-1]:
+            self.assertEqual((x % 4, w % 4), (0, 0), f"the {w}-pixel strip is not whole at band 2")
+        self.assertEqual(kitmath.wrap_width(47 / 64), 48)
+        self.assertEqual(kitmath.wrap_width(5.1 / 64), 6)
+        self.assertEqual(kitmath.wrap_width(200 / 64), 64)
+        with self.assertRaises(ValueError):
+            kitmath.wrap_offset(20)
 
     # checks: PRE-46 PRE-22
     def test_a_long_taper_wraps_in_stretches_and_pieces_weld_into_one(self):
-        """A branch narrowing 3:1 would stretch 1.7:1 in one wrap; broken in two at its third ring, each stretch wraps
-        its own whole texture pixels (10, then 6) and the mesh stays one. Two panels meeting along 0.6 m at 0.1 m
-        spacing share the 7 or more points of that edge once welded, and no two points are left in one place."""
-        self.assertEqual(self.facts["branch_wraps"], [10, 6])
+        """A branch narrowing 3:1 would stretch 1.7:1 in one wrap; broken in three at its second and third rings,
+        each stretch takes the strip nearest its own circumference (12, 8, then 6) and the mesh stays one, its
+        texture within the strips. Two panels meeting along 0.6 m at 0.1 m spacing share the 7 or more points of
+        that edge once welded, and no two points are left in one place."""
+        self.assertEqual(self.facts["branch_wraps"], [12, 8, 6])
+        self.assertGreaterEqual(self.facts["branch_u"][0], kitmath.wrap_offset(12) - 1e-3)
+        self.assertLessEqual(self.facts["branch_u"][1], kitmath.wrap_offset(6) + 6 + 1e-3)
         self.assertEqual(self.parts["branch"]["problems"], [])
         self.assertLessEqual(self.parts["branch"]["worst"], 1.5)
         self.assertGreaterEqual(self.facts["weld_merged"], 7)
@@ -314,7 +366,8 @@ class Parts(unittest.TestCase):
         wraps = self.facts["auto_wraps"]
         self.assertGreaterEqual(len(wraps), 4, wraps)
         self.assertEqual(wraps, sorted(wraps, reverse=True))
-        self.assertLessEqual(self.parts["tapered"]["worst"], 1.3)  # 1.14 at most, and rounding to whole pixels
+        # 1.14 at most from the taper, and the step to the nearest strip on top
+        self.assertLessEqual(self.parts["tapered"]["worst"], 1.4)
 
     # checks: PRE-22 PRE-27
     def test_where_a_sleeve_turns_too_sharply_charts_take_over(self):

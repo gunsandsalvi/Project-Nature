@@ -9,7 +9,9 @@ For each family (camp, plants, rocks, people, deer), in art/models/ under the ro
    script, as for a file the owner changed by hand in Blender);
 2. partcheck.py measures every part and writes <family>-stretch.txt, the stretch report;
 3. preview.py draws every part at true size under xvfb-run, in a scratch folder (skipped with --no-sheet);
-4. partsheet.py puts the drawings on <family>-sheet.webp, the preview sheet.
+4. partsheet.py puts the drawings on <family>-sheet.webp, the preview sheet;
+5. where <family>-textures.json names the materials its roles wear, preview.py draws them again wearing their
+   textures, on <family>-textured.webp.
 Blender is `blender` unless BLENDER names another. Prints each step's last lines; exits 1 if any part fails.
 
 Implements PRE-46, see A6.1 and A6.5.
@@ -84,6 +86,16 @@ def make(family, root=ROOT, build=True, sheet=True):
             code = run([sys.executable, os.path.join(HERE, "partsheet.py"), views, check, out], show=1)
             if code != 0:
                 return 1
+            chosen = os.path.join(folder, f"{family}-textures.json")
+            if os.path.exists(chosen):  # the parts again, wearing their textures
+                views = os.path.join(scratch, "textured")
+                preview = [blender(), "-b", blend, "--python", os.path.join(HERE, "preview.py"), "--", views]
+                code = run(["xvfb-run", "-a", *preview, "--textures", chosen], show=1)
+                out = os.path.join(folder, f"{family}-textured.webp")
+                textured = [sys.executable, os.path.join(HERE, "partsheet.py"), views, check, out, "--textured"]
+                if code != 0 or run(textured, show=1):
+                    print("   the textured sheet failed")
+                    return 1
     for f in os.listdir(folder):  # Blender's copies of a file it saved over, never kept
         if f.endswith(".blend1"):
             os.remove(os.path.join(folder, f))

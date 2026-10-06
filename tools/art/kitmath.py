@@ -3,6 +3,8 @@ the checks measuring them both use. Plain Python with no numpy, since Blender's 
 
 - stretch: how far a triangle's texture pixels are from squares of 1/64 m, the line being 1.5;
 - whole_texels: a circumference rounded to whole texture pixels, so a pole's wrap never falls inside one;
+- WRAPS, wrap_width and wrap_offset: the strips of a material's wrap atlas, each seamless round its own width, that
+  a wrapped pole, branch or trunk takes its texture from, its circumference taking the nearest strip's width;
 - DIRECTIONS and axes: the projections a stone's faces take, each from the direction it faces (the nearest of 26),
   with height as its vertical; a face is at most about 28 degrees from its direction, so stretched at most 1.13;
 - Atlas: the layout of a texture drawn to a figure, its pieces placed so none overlaps another;
@@ -100,9 +102,32 @@ def mirrored(p0, p1, p2, t0, t1, t2, outward):
     return (dot(n, outward) >= 0) != (turn >= 0)
 
 
-def whole_texels(circumference, texels_a_metre=TEXELS_A_METRE, least=3):
-    """A circumference in metres rounded to whole texture pixels (at least `least`)."""
-    return max(least, int(round(circumference * texels_a_metre)))
+def whole_texels(circumference, texels_a_metre=TEXELS_A_METRE, least=3, step=1):
+    """A circumference in metres rounded to whole texture pixels (at least `least`), or to whole steps of them."""
+    return max(least, step * int(round(circumference * texels_a_metre / step)))
+
+
+# The wrap strips (A6.4): a wrapped pole, branch, trunk or antler that is not drawn to an atlas takes its texture from
+# its material's wrap atlas, a 256-pixel tile cut into strips side by side, one for each of these widths, each strip
+# seamless round its own width: (width, the strip's left edge), in texture pixels. Every edge falls on a multiple of
+# 4 (the 6-pixel strip last), so the strips stay whole in the levels for bands 1 and 2.
+WRAPS = ((64, 0), (48, 64), (40, 112), (32, 152), (24, 184), (16, 208), (12, 224), (8, 236), (4, 244), (6, 248))
+
+
+def wrap_width(circumference, texels_a_metre=TEXELS_A_METRE):
+    """The wrap strip for a circumference in metres: the width (in texture pixels) nearest it by ratio, so the
+    texture round it is stretched as little as the strips allow."""
+    true = max(1e-9, circumference * texels_a_metre)
+    return min((w for w, _ in WRAPS), key=lambda w: (abs(math.log(w / true)), w))
+
+
+def wrap_offset(width):
+    """The left edge of the strip `width` texture pixels wide in a wrap atlas, in texture pixels."""
+    for w, x in WRAPS:
+        if w == width:
+            return x
+    widths = ", ".join(str(w) for w, _ in WRAPS)
+    raise ValueError(f"no wrap strip is {width} texture pixels wide; the strips are {widths}")
 
 
 def ellipse_perimeter(rx, ry):
