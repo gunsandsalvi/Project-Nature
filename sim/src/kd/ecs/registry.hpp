@@ -152,6 +152,12 @@ public:
     }
 
     [[nodiscard]] std::optional<Handle> find(Id id) const { return ids_.find(id); }
+    /// The handle of an entity that must exist; a missing one stops the run.
+    [[nodiscard]] Handle handle(Id id) const {
+        const std::optional<Handle> h = ids_.find(id);
+        KD_CHECK(h.has_value(), "ecs::Registry: no entity with that id");
+        return h.value_or(Handle{});
+    }
     [[nodiscard]] Id id_of(Handle h) const { return raw_.template get<Ident>(h).id; }
     [[nodiscard]] std::size_t size() const { return ids_.size(); }
 

@@ -207,8 +207,15 @@ The same library runs scenes and whole worlds headless in the cloud, under the s
   3. Each island takes its events for the window from the queue and runs them in key order on one worker; events it makes inside the window stay in it, later ones go out to the queue.
   4. Islands run side by side on up to four workers, then merge their events and history by key.
   - Since no island can read what another writes within the window, the result equals the one-thread run for any window, thread count, speed or pause; a test proves it, and a debug build logs any touch across islands.
-  - New ids for things made inside an island are handed out in key order at the merge, so they never depend on other islands.
+  - New ids for things made inside an island are handed out in key order at the merge, so they never depend on other islands; until a rule needs it, beings are made and ended only between windows, and the world stops the run if a rule tries otherwise.
   - Up to about camp speed, one worker runs events in order, with the same results.
+  - *As built in α1.3b:* events run through a context, the whole world's or one island's, through which a rule reads the moment, schedules, cancels and records history; an island refuses any owner it does not hold, so a rule that touches another island stops the run.
+    Each system gives a circle each of its owners with events cannot leave within the window, and names its owners without events whose way could come within reach of one; owners within reach join one island (a union-find, the active owners' circles met in cells of 250 m).
+    The world's own owners run alone between windows, which are also cut at their events; an island's events and history merge by key.
+    A test runs one world one event at a time and in islands of 60, 300 and 900 seconds on one to four threads, stopped at seconds chosen by keyed chance, with the order fuzzer on, and every digest matches; a planted rule that decides by a marker in another island fails it.
+  - *Measured in α1.3b:* for the demonstration's crowd islands cost more than they save, since its events take about 1.3 µs each: 10,000 markers ran 3 game days (0.8 million events) in 1.05 s on one worker, and in 3.9 s in islands of one-minute windows on four threads (about 80 islands a window, the largest with 16% of the events), or 17.8 s with five-minute windows, where one island held 90% of the events.
+    With about 8 µs more work an event, islands of one-minute windows on four threads were only about 10% faster than one worker.
+    So the crowd runs on one worker, and islands wait for heavier events, such as minds (M6); before then, ways bounded as lines rather than circles, a cheaper join and workers that need no waking would cut their cost.
 - **So a long process costs nothing until it ends,** and the cost of a game day follows what happens in it, not the speed.
 - *Measured in pre-production* (P6): a thousand people at 6.0 game years a real minute on your phone's four cores, with decisions in 5-minute windows read from a snapshot; production replaces those windows with islands, which give the same history at any speed (research 18).
 
@@ -718,7 +725,7 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
 | The writer falls short (`RSK-08`) | Not built (P13) | pattern text stands alone (`PRE-37`) |
 | Sound breaks up (`RSK-28`) | P14: 9% of the audio thread at worst in the cloud; your phone to come | fewer voices |
 | Godot upgrades break things | each milestone | pinned versions, upgraded between milestones |
-| Islands give a different answer, or too little parallel work | Designed from the literature, not yet built (research 18) | one worker in key order, the same results; speculation inside big islands |
+| Islands give a different answer, or too little parallel work | α1.3b: exact on every build and thread count; too costly for the crowd's 1.3 µs events, so it runs on one worker | one worker in key order, the same results; cheaper bounds and joins before minds need them (M6) |
 | EnTT misbehaves on the phone | Built only in the cloud | flecs behind the same thin layer |
 | The screen stays at 120 Hz | Read from Godot's source: set the frame cap again at run time | Android's frame-rate call through JavaClassWrapper; a small plug-in |
 | History outgrows 4 GB (`PLT-10`) | Estimated at 3.5–4.1 GB for 7,000 people at Year 250 | a tighter encoding; what counts as an event, with you |

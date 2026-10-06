@@ -7,6 +7,7 @@
 // live ones it is rebuilt without them, which no outcome can see.
 #pragma once
 
+#include <algorithm>
 #include <compare>
 #include <cstddef>
 #include <cstdint>
@@ -46,14 +47,18 @@ public:
     /// An event in the queue has died, its owner no longer expecting it: past a quarter of the live ones, the queue
     /// is rebuilt with only the live (A3.3).
     template <typename Live>
-    void died(Live live) {
-        ++dead_;
+    void died(Live live, std::size_t n = 1) {
+        dead_ = std::min(dead_ + n, heap_.size());
         if (dead_ * 4 > heap_.size() - dead_) {
             rebuild(live);
         }
     }
     /// A dead event came up and was skipped.
-    void skipped() { --dead_; }
+    void skipped() {
+        if (dead_ > 0) {
+            --dead_;
+        }
+    }
     [[nodiscard]] std::size_t dead() const { return dead_; }
 
     /// Rebuilds the heap with only the live events.

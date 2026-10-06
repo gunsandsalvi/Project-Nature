@@ -14,6 +14,7 @@ std::vector<data::SourceFile> fixture_files() {
          "colour = \"#8fd18a\"\ngait = \"stride\"\n"},
         {"demo/tuning/crowd.toml",
          "camps = 400\nper_camp = 25\narea = \"20 km\"\nwander = \"1 km\"\ndawn = \"6 h\"\ndusk = \"20 h\"\n"
+         "homeward = \"40%\"\n"
          "greeting = { life = \"1 min\", game = \"1 min\" }\n"},
     };
 }

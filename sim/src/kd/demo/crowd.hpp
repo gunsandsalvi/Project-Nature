@@ -6,6 +6,7 @@
 
 #include "kd/data/schema.hpp"
 #include "kd/data/units.hpp"
+#include "kd/num/probability.hpp"
 #include "kd/time/duration.hpp"
 
 namespace kd::demo {
@@ -18,6 +19,7 @@ struct Crowd {
     std::int64_t wander = 0;  // millimetres
     std::int64_t dawn = 0;    // game seconds after midnight
     std::int64_t dusk = 0;    // game seconds after midnight
+    num::Probability homeward = num::Probability::never();
     time::Duration greeting{};
 
     template <typename V, typename Self>
@@ -35,6 +37,9 @@ struct Crowd {
             c.dawn, Measure::game_time, {0, 86'399});
         v.quantity({"dusk", "when the night begins, after midnight", Affects::rules}, c.dusk, Measure::game_time,
                    {0, 86'399});
+        v.chance(
+            {"homeward", "the chance a marker's next walk is back to its camp, where others gather", Affects::rules},
+            c.homeward);
         v.duration({"greeting", "how long two markers who meet stand and greet", Affects::rules}, c.greeting);
     }
 };

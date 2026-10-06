@@ -1,10 +1,12 @@
 # The foundations' crowd (MAT-16): 400 camps of 25 markers, 10,000 in all, as the Crowd page and the benchmark run it.
 # The camps lie in a square 20 km across, about a kilometre apart, and each marker walks to places up to a kilometre
-# from its camp, east or north, so markers from neighbouring camps cross paths. They sleep from dusk to dawn.
+# from its camp, east or north, so markers from neighbouring camps cross paths; some walks lead back to the camp, where
+# markers gather and greet. They sleep from dusk to dawn.
 camps = 400
 per_camp = 25
 area = "20 km"
 wander = "1 km"
 dawn = "6 h"
 dusk = "20 h"
+homeward = "40%"
 greeting = { life = "1 min", game = "1 min" }

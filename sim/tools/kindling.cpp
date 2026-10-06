@@ -9,7 +9,7 @@
 //     kindling catalogue schema [data]           every kind's fields, for whoever writes entries
 //     kindling catalogue fingerprint [data]      the world-making version, each source's rules, world and look
 //                                                 digests, and each entry's
-//     kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [data]
+//     kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [--islands WINDOW --threads N] [data]
 //                                                 the demonstration's crowd from the data folder, run one event at a
 //                                                 time, with each game day's digests at midnight: the whole state's
 //                                                 and each part's (TIM-16, A3.3)
@@ -30,16 +30,18 @@
 #include "kd/num/digest.hpp"
 #include "kd/proof/proof.hpp"
 #include "kd/run/workers.hpp"
+#include "kd/world/world.hpp"
 
 namespace {
 
 int usage() {
-    std::fprintf(stderr,
-                 "usage: kindling proof [--threads N] [suite...]\n"
-                 "       kindling suites\n"
-                 "       kindling catalogue check|schema|fingerprint [data]\n"
-                 "       kindling catalogue show <name> [data]\n"
-                 "       kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [data]\n");
+    std::fprintf(
+        stderr,
+        "usage: kindling proof [--threads N] [suite...]\n"
+        "       kindling suites\n"
+        "       kindling catalogue check|schema|fingerprint [data]\n"
+        "       kindling catalogue show <name> [data]\n"
+        "       kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [--islands WINDOW --threads N] [data]\n");
     return 2;
 }
 
@@ -144,6 +146,8 @@ int run_world(const std::vector<std::string_view>& args) {
     unsigned long long seed = 1;
     bool fuzz = false;
     unsigned long long fuzz_key = 0;
+    long long window = 0;
+    int threads = 1;
     std::string folder = "data";
     for (std::size_t i = 0; i < args.size(); ++i) {
         const bool more = i + 1 < args.size();
@@ -153,6 +157,10 @@ int run_world(const std::vector<std::string_view>& args) {
             camps = std::atoll(std::string(args[++i]).c_str());
         } else if (args[i] == "--seed" && more) {
             seed = std::strtoull(std::string(args[++i]).c_str(), nullptr, 10);
+        } else if (args[i] == "--islands" && more) {
+            window = std::atoll(std::string(args[++i]).c_str());
+        } else if (args[i] == "--threads" && more) {
+            threads = std::atoi(std::string(args[++i]).c_str());
         } else if (args[i] == "--fuzz" && more) {
             fuzz = true;
             fuzz_key = std::strtoull(std::string(args[++i]).c_str(), nullptr, 10);
@@ -160,7 +168,7 @@ int run_world(const std::vector<std::string_view>& args) {
             folder = std::string(args[i]);
         }
     }
-    if (days < 1 || camps == 0 || camps < -1) {
+    if (days < 1 || camps == 0 || camps < -1 || window < 0 || threads < 1 || threads > 16) {
         return usage();
     }
     const std::vector<kd::data::SourceFile> files = read_sources(folder);
@@ -177,6 +185,10 @@ int run_world(const std::vector<std::string_view>& args) {
     if (fuzz) {
         w.set_fuzz(fuzz_key);
     }
+    kd::run::Workers workers(threads);
+    if (window > 0) {
+        w.set_islands(&workers, window);
+    }
     std::printf("seed %llu, %zu beings\n", seed, w.beings().size());
     for (long long day = 1; day <= days; ++day) {
         const kd::time::Seconds goal = day * kd::time::kDay;
@@ -189,6 +201,15 @@ int run_world(const std::vector<std::string_view>& args) {
                     kd::num::to_hex(d.queue).c_str(), kd::num::to_hex(d.beings).c_str(),
                     kd::num::to_hex(d.things).c_str(), kd::num::to_hex(d.systems).c_str(),
                     static_cast<unsigned long long>(w.events_run()));
+    }
+    const kd::world::World::IslandCounts& n = w.island_counts();
+    if (n.windows > 0) {
+        std::printf(
+            "islands: %llu windows, %.1f islands and %.0f owners a window, %.1f%% of events in each window's "
+            "largest island\n",
+            static_cast<unsigned long long>(n.windows), static_cast<double>(n.islands) / static_cast<double>(n.windows),
+            static_cast<double>(n.owners) / static_cast<double>(n.windows),
+            100.0 * static_cast<double>(n.largest_events) / static_cast<double>(std::max<std::uint64_t>(1, n.events)));
     }
     return 0;
 }

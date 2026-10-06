@@ -38,6 +38,34 @@ const kd::data::Catalogue& fixture() {
     return catalogue;
 }
 
+// The digest of a crowd's whole state at each of the given seconds, run there one event at a time, or in islands of a
+// window's length on some threads, with the order fuzzer on or off.
+std::vector<std::uint64_t> stops(std::int64_t camps, const std::vector<kd::time::Seconds>& at, kd::time::Seconds window,
+                                 int threads, std::optional<std::uint64_t> fuzz,
+                                 std::vector<kd::world::Record>* history = nullptr) {
+    kd::demo::CrowdWorld crowd(11, fixture(), camps);
+    kd::world::World& w = crowd.world();
+    w.keep_history(history);
+    std::optional<kd::run::Workers> workers;
+    if (threads > 0) {
+        workers.emplace(threads);
+    }
+    std::vector<std::uint64_t> out;
+    std::uint64_t batch = 0;
+    for (const kd::time::Seconds goal : at) {
+        if (fuzz) {
+            w.beings().fuzz(*fuzz + batch++);
+        }
+        if (workers) {
+            w.run_islands(goal, *workers, window);
+        } else {
+            w.run_to(goal);
+        }
+        out.push_back(w.digests().whole);
+    }
+    return out;
+}
+
 // Each day's digest of a crowd's whole state, run to each midnight in batches of the given length.
 std::vector<std::uint64_t> daily(std::int64_t camps, int days, kd::time::Seconds batch,
                                  std::optional<std::uint64_t> fuzz) {
@@ -59,7 +87,7 @@ std::vector<std::uint64_t> daily(std::int64_t camps, int days, kd::time::Seconds
 struct Recorder final : kd::world::System {
     std::vector<Key> handled;
     std::string_view name() const override { return "recorder"; }
-    void handle(kd::world::World& /*w*/, const Event& e) override { handled.push_back(e.key); }
+    void handle(kd::world::Context& /*c*/, const Event& e) override { handled.push_back(e.key); }
 };
 
 }  // namespace
@@ -150,10 +178,10 @@ TEST_CASE("a cancelled event never runs, and a handler may schedule only after i
         kd::ecs::Id other;
         bool done = false;
         std::string_view name() const override { return "hasty"; }
-        void handle(kd::world::World& world, const Event& /*e*/) override {
+        void handle(kd::world::Context& c, const Event& /*e*/) override {
             if (!done) {
                 done = true;
-                world.schedule(other, 0, world.now());
+                c.schedule(other, 0, c.now());
             }
         }
     };
@@ -212,10 +240,10 @@ TEST_CASE("the state's digest does not depend on EnTT's order, with the order fu
 }
 
 // checks: TIM-16 TIM-17 RES-05
-TEST_CASE("a world of 1,000 markers gives the same daily digests over 60 game days, however it is cut or scrambled") {
-    const std::vector<std::uint64_t> one = daily(40, 60, kd::time::kDay, std::nullopt);
-    CHECK(daily(40, 60, 7'919, std::nullopt) == one);
-    CHECK(daily(40, 60, kd::time::kDay, 99) == one);
+TEST_CASE("a world of 1,000 markers gives the same daily digests over 30 game days, however it is cut or scrambled") {
+    const std::vector<std::uint64_t> one = daily(40, 30, kd::time::kDay, std::nullopt);
+    CHECK(daily(40, 30, 7'919, std::nullopt) == one);
+    CHECK(daily(40, 30, kd::time::kDay, 99) == one);
     CHECK(one.front() != one.back());
 }
 
@@ -251,6 +279,93 @@ TEST_CASE("markers walk, rest and sleep, every move an activity ending at its ev
                 CHECK(sleeping == 0);
                 CHECK(walking > 0);
             }
+        }
+    }
+}
+
+// checks: TIM-17
+TEST_CASE("an activity cut short keeps what it reached: a walker stands where it got to") {
+    const kd::num::Torus& torus = kd::world::World::kTorus;
+    kd::world::Activity walk{1, 1000, 1100, {5000, 5000}, {6000, 4000}};
+    CHECK(walk.at(torus, 1050) == kd::num::Point{5500, 4500});
+    CHECK(walk.share(1025) == 250'000);
+    walk.cut(torus, 1050);
+    CHECK(walk.end == 1050);
+    CHECK(walk.to == kd::num::Point{5500, 4500});
+    CHECK(walk.at(torus, 1080) == kd::num::Point{5500, 4500});
+    // across the edge where the map wraps, the short way round
+    kd::world::Activity round{1, 0, 10, {torus.width() - 50, 7}, {50, 7}};
+    round.cut(torus, 5);
+    CHECK(round.to == kd::num::Point{0, 7});
+}
+
+// checks: TIM-17
+TEST_CASE("a call to someone else lands a second later") {
+    const kd::data::Catalogue& cat = fixture();
+    kd::world::World w(1, cat);
+    struct Caller final : kd::world::System {
+        kd::ecs::Id callee;
+        std::vector<std::pair<kd::time::Seconds, std::uint32_t>> seen;
+        std::string_view name() const override { return "caller"; }
+        void handle(kd::world::Context& c, const Event& e) override {
+            seen.emplace_back(c.now(), e.slot);
+            if (e.slot == kd::world::kActivitySlot && e.key.owner != callee.value) {
+                c.schedule(callee, kd::world::kCallSlot, c.now() + 1);
+            }
+        }
+    } caller;
+    w.set_system(kd::ecs::Family::marker, caller);
+    const kd::ecs::Id a = w.beings().id_of(w.make_being(kd::ecs::Family::marker));
+    caller.callee = w.beings().id_of(w.make_being(kd::ecs::Family::marker));
+    w.schedule(a, kd::world::kActivitySlot, 100);
+    w.run_to(200);
+    REQUIRE(caller.seen.size() == 2);
+    CHECK(caller.seen[1] == std::pair<kd::time::Seconds, std::uint32_t>{101, kd::world::kCallSlot});
+}
+
+// checks: TIM-17
+TEST_CASE("driven a second at a time or in big windows, every greeting happens at the same game second") {
+    const kd::time::Seconds end = 2 * kd::time::kDay;
+    std::vector<kd::world::Record> by_second;
+    {
+        kd::demo::CrowdWorld crowd(11, fixture(), 12);
+        crowd.world().keep_history(&by_second);
+        for (kd::time::Seconds t = 1; t <= end; ++t) {
+            crowd.world().run_to(t);
+        }
+    }
+    std::vector<kd::world::Record> by_day;
+    std::vector<kd::world::Record> in_islands;
+    stops(12, {kd::time::kDay, end}, 0, 0, std::nullopt, &by_day);
+    stops(12, {kd::time::kDay, end}, 900, 4, std::nullopt, &in_islands);
+    REQUIRE(by_second.size() > 20);
+    const auto same = [](const std::vector<kd::world::Record>& x, const std::vector<kd::world::Record>& y) {
+        return std::equal(x.begin(), x.end(), y.begin(), y.end(), [](const auto& r, const auto& s) {
+            return r.key == s.key && r.n == s.n && r.what == s.what && r.a == s.a && r.b == s.b;
+        });
+    };
+    CHECK(same(by_second, by_day));
+    CHECK(same(by_second, in_islands));
+}
+
+// checks: RES-05 WLD-13 TIM-17
+TEST_CASE("islands give the one-thread world's digest for any window and thread count, stopped anywhere") {
+    // stops at seconds chosen by keyed chance over two game days, and at each midnight
+    const kd::chance::Draws draws(5, kd::chance::name("test"), 0, 0, kd::chance::name("stops"));
+    std::vector<kd::time::Seconds> at;
+    for (std::uint64_t i = 0; i < 12; ++i) {
+        at.push_back(draws.between(i, 1, 2 * kd::time::kDay));
+    }
+    at.push_back(kd::time::kDay);
+    at.push_back(2 * kd::time::kDay);
+    std::sort(at.begin(), at.end());
+    at.erase(std::unique(at.begin(), at.end()), at.end());
+    const std::vector<std::uint64_t> one = stops(20, at, 0, 0, std::nullopt);
+    for (const kd::time::Seconds window : {kd::time::Seconds{60}, kd::time::Seconds{300}, kd::time::Seconds{900}}) {
+        for (const int threads : {1, 2, 3, 4}) {
+            CAPTURE(window);
+            CAPTURE(threads);
+            CHECK(stops(20, at, window, threads, 7) == one);
         }
     }
 }

@@ -248,20 +248,39 @@ std::string units(run::Workers& workers) {
     return digest.hex();
 }
 
-/// The world suite: a crowd of 1,000 markers in 40 camps, from the fixed fixture catalogue, run one event at a time for
-/// 30 game days, each day's digest of the whole state taken at midnight. Implements RES-05 and TIM-17, see A3.3.
-std::string world(run::Workers& /*workers*/) {
+/// A crowd of 1,000 markers in 40 camps, from the fixed fixture catalogue, run for some game days, each day's digest
+/// of the whole state taken at midnight: one event at a time, or in islands on the workers.
+std::string crowd_days(run::Workers* workers, time::Seconds days) {
     data::Catalogue catalogue;
     const std::vector<data::SourceFile> files = fixture_files();
     KD_CHECK(catalogue.load(files).empty(), "proof: the fixture catalogue has problems");
     demo::CrowdWorld crowd(20'260'105, catalogue, 40);
     num::Digest digest;
-    for (time::Seconds day = 1; day <= 30; ++day) {
-        crowd.world().run_to(day * time::kDay);
+    for (time::Seconds day = 1; day <= days; ++day) {
+        if (workers != nullptr) {
+            crowd.world().run_islands(day * time::kDay, *workers, 300);
+        } else {
+            crowd.world().run_to(day * time::kDay);
+        }
         digest.u64(crowd.world().digests().whole);
     }
     digest.u64(crowd.world().events_run());
+    digest.u64(crowd.world().history_count());
     return digest.hex();
+}
+
+/// The world suite: the crowd run one event at a time for 30 game days. Implements RES-05 and TIM-17, see A3.3.
+std::string world(run::Workers& /*workers*/) {
+    return crowd_days(nullptr, 30);
+}
+
+/// The islands suite: the same crowd for 3 game days in islands of 5-minute windows on the workers, which must give
+/// the one-event-at-a-time run's digest, checked here, on any number of threads. Implements RES-05 and WLD-13, see
+/// A3.3.
+std::string islands(run::Workers& workers) {
+    const std::string in_islands = crowd_days(&workers, 3);
+    KD_CHECK(in_islands == crowd_days(nullptr, 3), "proof: the islands gave another world than one event at a time");
+    return in_islands;
 }
 
 constexpr std::array kSuites = {
@@ -270,7 +289,9 @@ constexpr std::array kSuites = {
     Suite{"chance", "a million keyed draws of every kind", &chance_draws},
     Suite{"torus", "ways, distances and directions between places on the world", &torus},
     Suite{"units", "quantities and chances written as text, read exactly", &units},
-    Suite{"world", "a crowd of 1,000 markers walking, resting and sleeping for 30 game days", &world},
+    Suite{"world", "a crowd of 1,000 markers walking, greeting and sleeping for 30 game days, one event at a time",
+          &world},
+    Suite{"islands", "the crowd for 3 game days in islands on the workers, the same as one event at a time", &islands},
 };
 
 }  // namespace

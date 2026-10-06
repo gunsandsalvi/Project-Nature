@@ -47,6 +47,13 @@ struct Activity {
     /// Where the doer is at a second: along the straight way, the short way round the torus, in whole centimetres
     /// rounded toward the start; before the start it is at the start, after the end at the end.
     [[nodiscard]] num::Point at(const num::Torus& torus, time::Seconds t) const;
+
+    /// Ends the activity early at a second, keeping what it reached (TIM-17): a walker stands where it got to.
+    void cut(const num::Torus& torus, time::Seconds t);
+
+    /// How much of the activity was done by a second, in parts per million, for what builds up and gives its share
+    /// when cut short; a single act gives nothing until it is done.
+    [[nodiscard]] std::int64_t share(time::Seconds t) const;
 };
 
 /// Implements TIM-17, see A3.3: an owner's events, the sequence number its next event takes, and for each of its
@@ -68,7 +75,8 @@ struct Schedule {
     }
 };
 
-/// The slot of an owner's activity's end.
+/// The slot of an owner's activity's end, and of a call from someone else.
 inline constexpr std::uint32_t kActivitySlot = 0;
+inline constexpr std::uint32_t kCallSlot = 1;
 
 }  // namespace kd::world
