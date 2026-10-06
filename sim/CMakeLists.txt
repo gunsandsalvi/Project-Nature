@@ -43,6 +43,8 @@ add_library(kd_sim STATIC
     src/kd/data/units.cpp
     src/kd/data/walkers.cpp
     src/kd/event/queue.cpp
+    src/kd/look/colour.cpp
+    src/kd/look/measures.cpp
     src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp
     src/kd/demo/crowd_scene.cpp
@@ -96,6 +98,7 @@ if(KD_SIM_TESTS)
         tests/checks_test.cpp
         tests/data_test.cpp
         tests/duration_test.cpp
+        tests/look_test.cpp
         tests/main.cpp
         tests/maths_test.cpp
         tests/num_test.cpp

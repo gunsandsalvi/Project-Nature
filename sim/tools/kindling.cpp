@@ -37,12 +37,24 @@
 //     kindling export <world> <file>             a world's folder as one .kindling file (PLT-08)
 //     kindling import <file> <world>             a .kindling file into a new world's folder, refused with words
 //                                                 naming any damage
+//     kindling look stats <width> <height>       a picture's colour measures (A4.8, A5.4), the picture read from
+//                                                 standard input as raw 8-bit RGBA, row by row: one line of "name
+//                                                 value" pairs, in hundredths of OKLab's scale but the hue in degrees:
+//                                                 lightness, colourfulness, hue, contrast, texel_contrast and, for
+//                                                 pictures at least 29 pixels each way, accents
+//     kindling look adjust <width> <height> <lightness> <hue> <colourfulness> <contrast>
+//                                                 the picture from standard input with its colours changed in OKLab
+//                                                 (A5.4), written to standard output as raw RGBA, alpha kept:
+//                                                 lightness added in hundredths, hue turned in degrees, colourfulness
+//                                                 and contrast in percent
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include <algorithm>
+#include <charconv>
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -64,6 +76,8 @@
 #include "kd/demo/crowd_scene.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/kept.hpp"
+#include "kd/look/colour.hpp"
+#include "kd/look/measures.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/proof/proof.hpp"
 #include "kd/run/workers.hpp"
@@ -90,7 +104,9 @@ int usage() {
         "       kindling bench [data]\n"
         "       kindling bench decode <code> [data]\n"
         "       kindling export <world> <file>\n"
-        "       kindling import <file> <world>\n");
+        "       kindling import <file> <world>\n"
+        "       kindling look stats <width> <height>\n"
+        "       kindling look adjust <width> <height> <lightness> <hue> <colourfulness> <contrast>\n");
     return 2;
 }
 
@@ -873,6 +889,77 @@ int proof(const std::vector<std::string_view>& args) {
     return 0;
 }
 
+// A picture's side in pixels, from 1 to 16384, or 0 when the text is not one.
+std::int64_t side(std::string_view text) {
+    std::int64_t n = 0;
+    const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), n);
+    return error == std::errc{} && end == text.data() + text.size() && n >= 1 && n <= 16'384 ? n : 0;
+}
+
+// A decimal number, all of the text read and finite, or nothing.
+std::optional<double> decimal(std::string_view text) {
+    const std::string s(text);
+    char* end = nullptr;
+    const double v = std::strtod(s.c_str(), &end);
+    if (s.empty() || end != s.c_str() + s.size() || !std::isfinite(v)) {
+        return std::nullopt;
+    }
+    return v;
+}
+
+int look(const std::vector<std::string_view>& args) {
+    const bool measure = args.size() == 3 && args[0] == "stats";
+    const bool change = args.size() == 7 && args[0] == "adjust";
+    if (!measure && !change) {
+        return usage();
+    }
+    kd::look::Picture picture;
+    picture.width = side(args[1]);
+    picture.height = side(args[2]);
+    if (picture.width == 0 || picture.height == 0 || picture.width * picture.height > 16'777'216) {
+        std::fprintf(stderr, "kindling: a picture is 1 to 16384 pixels each way and at most 16,777,216 in all\n");
+        return 2;
+    }
+    kd::look::Change to;
+    if (change) {
+        const auto lightness = decimal(args[3]);
+        const auto hue = decimal(args[4]);
+        const auto colourfulness = decimal(args[5]);
+        const auto contrast = decimal(args[6]);
+        if (!lightness || !hue || !colourfulness || !contrast || *colourfulness < 0.0 || *contrast < 0.0) {
+            std::fprintf(stderr, "kindling: a change is four numbers, colourfulness and contrast at least 0\n");
+            return 2;
+        }
+        to = {*lightness, *hue, *colourfulness, *contrast};
+    }
+    const auto want = static_cast<std::size_t>(picture.width * picture.height * 4);
+    picture.rgba.resize(want);
+    const std::size_t got = std::fread(picture.rgba.data(), 1, want, stdin);
+    if (got != want) {
+        std::fprintf(stderr, "kindling: standard input holds %zu bytes, not the %zu of a %lld x %lld picture in RGBA\n",
+                     got, want, static_cast<long long>(picture.width), static_cast<long long>(picture.height));
+        return 1;
+    }
+    if (std::fgetc(stdin) != EOF) {
+        std::fprintf(stderr,
+                     "kindling: standard input holds more than the %zu bytes of a %lld x %lld picture in RGBA\n", want,
+                     static_cast<long long>(picture.width), static_cast<long long>(picture.height));
+        return 1;
+    }
+    if (change) {
+        const kd::look::Picture out = kd::look::adjust(picture, to);
+        return std::fwrite(out.rgba.data(), 1, out.rgba.size(), stdout) == out.rgba.size() ? 0 : 1;
+    }
+    const kd::look::Stats s = kd::look::stats(picture);
+    std::printf("lightness %.4f colourfulness %.4f hue %.4f contrast %.4f texel_contrast %.4f", s.lightness,
+                s.colourfulness, s.hue, s.contrast, s.texel_contrast);
+    if (s.accents) {
+        std::printf(" accents %.4f", *s.accents);
+    }
+    std::printf("\n");
+    return 0;
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -905,6 +992,9 @@ int main(int argc, char** argv) {
     }
     if (command == "import") {
         return import_world(args);
+    }
+    if (command == "look") {
+        return look(args);
     }
     if (command == "suites") {
         for (const auto& s : kd::proof::suites()) {
