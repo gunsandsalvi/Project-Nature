@@ -25,6 +25,7 @@ import texels
 
 ACCENT_SHARE = 0.9  # each band's accents at least 90% of band 0's
 CONTRAST_LEAST, CONTRAST_MOST = 70.0, 130.0  # the contrast change allowed, in percent
+CONTRAST_TILE_MOST = 150.0  # a middle or far tile's, fitted to the near tile: your OK of 6 October 2026
 DRIFT_LIGHTNESS = 2.0  # hundredths of OKLab lightness a level may drift from band 0's: 0.02
 DRIFT_HUE = 5.0  # degrees of hue a level may drift from band 0's
 
@@ -108,13 +109,13 @@ def fit_to_near(level, near, rounds=3, step=10.0, reference=None):
     it. Lightness, hue and colourfulness are brought to `near`'s, and the contrast set as fit() sets it, then raised
     a step at a time while the accents fall under 90% of the reference's (the near tile's band 0, A5.3; `near` itself
     if None) and its texture pixel contrast stays within `near`'s own. Such a level is GPT's own picture of the
-    material, fitted to another, not stretched from the level above, so its contrast may pass fit()'s bound as far
-    as the material itself goes."""
+    material, fitted to another, not stretched from the level above, so its contrast may pass fit()'s bound, up to
+    CONTRAST_TILE_MOST."""
     near_accents = accents(near if reference is None else reference)
     target = look.stats(near)
     out, nums, a, ok = fit(level, near, near_accents, rounds)
     contrast = nums[3]
-    while not ok:
+    while not ok and contrast + step <= CONTRAST_TILE_MOST:
         contrast += step
         trial, trial_nums = calibrate(level, target, contrast, rounds)
         if look.stats(trial)["texel_contrast"] > target["texel_contrast"]:

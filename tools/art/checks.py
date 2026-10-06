@@ -18,7 +18,7 @@ The checks, each with its line:
 - stale: each level was made from the level it names as it is now: the level above, or for a version or a wrap
   atlas the tile's own level of the same size;
 - loss: the re-grid lost at most 10% of the source's colour detail, for the first level and for each redrawn level
-  (each band's own regrid_loss); a loss the owner kept by name is reported, not failed;
+  (each band's own regrid_loss), with no exception, as you set on 6 October 2026;
 - seams: the first level tiles, its step across the wrap at most 1.2 times the median step inside (tile.seams);
   a texture drawn to a figure's layout (its folder keeps layout.png) is not tiled, so its seams, light and repeat
   are not measured, and a regular texture drawn by code, such as a weave, repeats by its rule, which is reported;
@@ -70,7 +70,6 @@ ACCENT_SHARE = match.ACCENT_SHARE
 DRIFT_LIGHTNESS = match.DRIFT_LIGHTNESS  # hundredths: 0.02
 DRIFT_HUE = match.DRIFT_HUE  # degrees
 GREY = 2.0  # colourfulness in hundredths under which a hue means little
-KEPT = "kept by the owner"
 FIRST_BAND = {"near": 0, "middle": 2, "far": 4}
 SERVES = {"near": (0, 1), "middle": (2, 3), "far": (4, 5, 6)}  # the bands each tile of a big surface serves
 VERSIONS = ("v2", "v3", "v4")
@@ -115,8 +114,6 @@ def loss_check(text, what):
     m = re.match(r"^\s*([0-9.]+)\s*%", text)
     if not m:
         return ("not" in text, f"{what} {text!r}")
-    if KEPT in text:
-        return (None, f"{what} {m.group(1)}%, over the {LOSS_MOST:.0f}% line, {text[m.end() :].strip(' ,;')}")
     return (float(m.group(1)) <= LOSS_MOST, f"{what} {m.group(1)}%")
 
 

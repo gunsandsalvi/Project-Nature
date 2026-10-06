@@ -8,7 +8,7 @@ original_sha256 = ["2ec7561d188fedf348afacce5ecaff0837f0a46454ede403a99ebcd0ff6f
 c2pa = ["present", "present"]
 requests = ["art/requests/meadow-00.txt", "art/requests/meadow-01.txt"]
 made = "GPT's drawing of the liked camp's meadow at the game's scale (research 19, study 7; the band 0 shown in answer 36), which tiles on its own, re-gridded at 64 texture pixels a metre (blocks of 4.9 picture pixels) and its painted light taken out by code"
-regrid_loss = "21.3%, kept by the owner's word of 6 October 2026 (\"the meadow's band 0 stays\")"
+regrid_loss = "21.3%"
 truth = "art lane, 2026-10-06, each source looked at enlarged: wild grasses and bare earth only, in band 0 and in the redrawn band 1; nothing countable (no stones, flowers, sticks, tracks or paths), nothing made"
 approved = "waiting"
 

@@ -46,24 +46,20 @@ It restarts with your word, with its next round below as its one order.
 - A record, integers and strings only: `about`, `route`, `tile_texels`, `texels_a_metre`, `first_band`, `sources`, `original_sha256`, `c2pa`, `requests`, `made`, `regrid_loss`, `truth`, `approved`, and for each level `level`, `file`, `sha256`, `made_from`, `way`, `regrid_loss` (redrawn levels), `calibration`.
 - The sheet: every band at true size and enlarged, flat and under three stand-in lights, beside its source; a big surface's bands also as full-width strips with its versions mixed as the ground mixes them.
 
-**Its next round,** one order in two phases, Blender first, as you asked on 6 October 2026 ("First Blender, then the textures to match where necessary"):
+**Its next round,** one order, from your answers of 6 October 2026 to its second round and the builder's review:
 
-*Phase 1: the kit's parts in Blender (T2.3a.4).*
-1. **The tool:** `tools/art/gpt-blender.sh`, which hands Codex a written request to write a Blender script and run it headless in a scratch folder, held by the same pause file, with its tests.
-2. **The camp's parts,** GPT's first pass, then the lane's fixes, in `art/models/camp.blend`, `plants.blend` and `rocks.blend`:
-   - wood: poles (straight and slightly bent, 1.5–3 m), logs, branches and a birch trunk in segments;
-   - covers: hide panels (cut shapes, flat and draped), bark sheets (curved);
-   - stone: hearth stones and tent-ring stones (several of each), boulders, cliff pieces and scree;
-   - things: a basket, a drying rack's bars, a hand axe;
-   - plants: grass tufts and leaf clusters as cut-out cards;
-   - each at real size in metres, its origin at its main joint, its texture coordinates in metres (one texture pixel 1/64 m), stretched at most 1.5:1, a pole's circumference rounded to whole texture pixels, its joints as empties named `joint_…`, its material slots named by role.
-3. **A first person and a red deer,** in `art/models/people.blend` and `deer.blend`: each body of parts (head, torso, arms, hands, legs, feet; for the deer its hoofed pattern and antlers by age) skinned to its skeleton, with build, age and sex as shape keys; the person's three garments as parts on the same skeleton.
-4. **For each file:** a preview sheet (every part at real size beside a 1 m bar, with a checker of 64 pixels a metre showing any stretch) and a stretch report; committed when phase 1 is done, before phase 2 begins.
+*Fixes.*
+1. **The meadow's band 0,** redrawn from the picture you chose, its look kept, within the 10% re-grid line: no material keeps a loss past the line.
+2. **Bank gravel's middle tile,** redrawn: drifts that lean no one way, and no pebble under two texture pixels across.
+3. **The river bed's far tile,** its pebbles small round blobs, never plus shapes.
+4. **The hides,** their stain edges smooth and rounded, never stepped.
+5. **The far tiles** (bands 5 and 6): fewer marks, the colour patches kept, so no mark reads as a dash 1–2 m long.
+6. **The red deer:** its neck joins its chest with no opening, and its head reads as a deer's, never a detached beak.
 
-*Phase 2: textures to match (T2.3a.3).*
-5. **Textures for the parts** where they need their own: hide, bark, peeled and unpeeled wood, stone, basket weave, skin, hair and garments, drawn to fit each part's layout and joints, as materials with their levels.
-6. **The ground's tiles:** middle and far tiles, each with two to four versions, for the meadow, bare earth, trodden floor, bank gravel, river bed and rock A; band 1 redrawn by GPT for bare earth, trodden floor and bank gravel; bare earth, trodden floor, stone and ash redrawn without GPT's stepped-diamond pattern; the meadow's band 0 stays.
-7. **The code reduction** draws bolder marks and fewer of them, never single-pixel speckle; **the checks** as T2.3a.1 lists them; **the sheets** with full-width strips.
+*Still to make.*
+7. An antler texture; grass and leaf cards with their designs for each band; faces as layers for each state (A6.3); skinning that holds in deep poses, the bend test passing.
+
+*Kept as they are,* by your answers: the rounded stains of bare earth, trodden floor, stone and ash; the garments' and the deer coat's colours; four near versions and three middle and far.
 
 **The batch report:** each material and its sheet, each check's result, the pictures used, every truth flag, and questions for you.
 
@@ -174,7 +170,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | **Next** |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 joined on 6 October 2026: its tools and 18 materials; its next round below waits for the lane's restart; the rest after α2.2 |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 (its tools and 18 materials) and round 2 (the kit's first parts in Blender and 22 materials) joined on 6 October 2026; its next round above waits for the lane's restart; the rest after α2.2 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
 | α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
 | α2.3d | People, a deer and first light | M2 | 6 | Planned |
@@ -366,7 +362,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.3a.1` **The `texture` kind and its checks (`PRE-20`, `PRE-42`).**
-   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as the art lane's files set it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10% for band 0 and each redrawn band; band 0's seams at most 1.2, and a redrawn band's no larger than its own ordinary steps; band 0's painted light at most a slope of 0.02; no strong repeat (at most 0.2, or the source's own where a grain repeats); texture pixel contrast within a quarter of its approved source's; accents at every band a surface is seen at, from the tile that serves it, at least 90% of the near tile's band 0 (a one-tile material's bands 4 to 6 reported only, since there its texture pixel is larger than its marks); lightness within 0.02 and hue within 5° between bands and across tiles.
+   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as the art lane's files set it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10% for band 0 and each redrawn band; band 0's seams at most 1.2, and a redrawn band's no larger than its own ordinary steps; band 0's painted light at most a slope of 0.02; no strong repeat (at most 0.2, or the source's own where a grain repeats); texture pixel contrast within a quarter of its approved source's, and a middle or far tile's contrast raised at most to 150% when fitted to its near tile, never past the near tile's own (your OK of 6 October 2026); accents at every band a surface is seen at, from the tile that serves it, at least 90% of the near tile's band 0 (a one-tile material's bands 4 to 6 reported only, since there its texture pixel is larger than its marks); lightness within 0.02 and hue within 5° between bands and across tiles.
 2. `T2.3a.2` **The tools, in the art lane (`PRE-22`).**
    In the cloud, from the start of M2: re-gridding (block size and phase window by window, the median colour, seams, the light check), the code reduction for a band, and colour matching to band 0 in four numbers that keeps the accents; the lab sheet (flat and lit, every band, at true size and enlarged, beside its source); and T2.3a.1's checks, with the colour measures of `kindling look` (T2.1b.1), so each measure is written once.
 3. `T2.3a.3` **The camp's materials, in the art lane (`PRE-20`, `PRE-23`).**

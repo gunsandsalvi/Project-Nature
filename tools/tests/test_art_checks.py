@@ -189,11 +189,9 @@ class PlantedFaults(Fixture):
         self.assertEqual(self.failed("loss"), "level 1 11.5%")
 
     # checks: PRE-22 PRE-42
-    def test_a_loss_the_owner_kept_is_reported_not_failed(self):
+    def test_no_loss_past_the_line_is_kept_by_any_note(self):
         self.make(loss="21.3%, kept by the owner's word of 6 October 2026")
-        ok, what = self.results()["loss"]
-        self.assertIsNone(ok)
-        self.assertIn("kept by the owner", what)
+        self.assertEqual(self.failed("loss"), "first level 21.3%")
 
     # checks: PRE-20
     def test_contrast_far_from_the_sources(self):

@@ -595,6 +595,7 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
   - **the texture pixel's size** at every zoom stop: 1.5 to 3 screen pixels (`PRE-01`, `PRE-22`);
   - **banding at night:** the distinct screen levels across a moonlit slope, and its widest band of one colour along a row;
   - **ground accents at every band** (the colour difference of the most striking 1% of ground texture pixels from their surroundings): at least about 20, where accepted grounds score 23–30 and the speckled one 11–12, and each band at least 90% of band 0's;
+    measured on the finished frame's ground, where materials sit together: a quiet material alone scores far less, as the trodden floor's 4–5 does, as asked.
   - **people against their surroundings** in busy scenes, from the engine's object picture: the median person at about the 80th percentile of the frame or above, none below about the 70th, starting lines refitted on your verdicts (`PRE-28`);
     each point's colour blurred over 1.5 pixels against over 12, as an OKLab distance; a person's mean over their pixels, ranked among all the frame's points;
   - **savings invisible:** under a tenth of the difference you saw at half resolution (5.3% of pixels above FLIP 0.2 at 30 cm), then your blind test (A5.5).
@@ -803,7 +804,9 @@ It replaces the art bible's rules.
 - **The ground** is mapped from above in world metres, offset with the moving origin so its texture pixels never drift; above about 45° of slope, where a top-down map would stretch a pixel past 1.4 times its length, faces take a projection from the side.
 - **Cliffs and other rock:** each triangle takes one projection, from the direction it faces, with height as its vertical, so the texture lines up with the rock layers laid by code; never a blend of three projections, which smears pixel art. Where two faces meet, their texture pixels need not line up: the edge is where the light changes anyway.
 - **Each part is unwrapped in Blender at this density:** a pole, trunk or branch around and along, its circumference rounded to whole texture pixels so the wrap never shows; a hide panel or bark sheet by its flat cut shape; a stone by one projection a face.
+  - *Made in the art lane's round 2:* a wrapped part takes its texture from its material's **wrap atlas** (`art/textures/<name>/wraps/`), a 256-pixel tile cut into strips of 64, 48, 40, 32, 24, 16, 12, 8, 4 and 6 texture pixels, each seamless round its own width (`tools/art/kitmath.py`, `WRAPS`); a part's circumference takes the nearest strip, so the engine reads each wrapped part from its own strip.
 - **Figures:** each limb unwraps like a sleeve, around and along its bone; garments are shells that reuse the body's layout; the face is a small design on the head's front, about 14 texture pixels tall. The coordinates belong to the mesh, so texture pixels ride on the body as the skeleton bends.
+  - *Made in the art lane's round 2:* a figure's texture is drawn to its layout, kept beside it as `layout.png` on a square canvas whose bottom row is coordinate v = 0, and is never tiled.
 - **Plants:** leaves and grass are cut-out cards carrying their design for each band; trunks and branches are sleeves of bark.
 - **A check in the cloud** measures each part's stretch, triangle by triangle, and fails any outside the line.
 
