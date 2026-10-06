@@ -67,7 +67,7 @@ func _exit_tree() -> void:
 func _process(delta: float) -> void:
 	look.set_screen(Vector2(DisplayServer.window_get_size()))
 	look.frame(delta)
-	_place_camera()
+	LookScene.place_camera(_camera, look)
 	_count(delta)
 	_warmed += 1
 	if _cover != null and _warmed > WARM_FRAMES:
@@ -220,15 +220,6 @@ func _apply_drawing() -> void:
 	look.set_part("ground", parts["ground"])
 	look.set_part("pattern", parts["pattern"])
 	_sun.shadow_enabled = parts["shadows"]
-
-
-func _place_camera() -> void:
-	var pose := look.pose()
-	_camera.transform = pose["transform"]
-	_camera.keep_aspect = Camera3D.KEEP_WIDTH if pose["keep_width"] else Camera3D.KEEP_HEIGHT
-	_camera.fov = pose["fov"]
-	_camera.near = pose["near"]
-	_camera.far = pose["far"]
 
 
 func _count(delta: float) -> void:

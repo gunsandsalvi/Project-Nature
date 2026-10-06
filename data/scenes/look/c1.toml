@@ -1,0 +1,60 @@
+# C1, the material (A18.1, α2.2a): a field filling the screen with the full material: the sampling function, sun, sky
+# and bounce, a soft shadow read, the openness and contact maps, haze, the fire grid and the grade. MSAA off, 2× and
+# 4× at full resolution, and 2× with the 3D at 0.75 and 0.5; the bare frame of C4 is taken off. Stated before its
+# first run (RES-09).
+about = "What the full material costs a frame over the whole screen at full resolution"
+checks = ["PLT-04", "PRE-01"]
+draws = "field"
+path = "still"
+measure = "gpu"
+decides = "msaa2"
+minus = "c4/bare-msaa2"
+# A18.1's allowance for shading, in microseconds of the graphics chip a frame
+line = 2300
+expect_from = 1700
+expect_to = 4000
+
+[[variant]]
+name = "msaa2"
+msaa = 2
+interface = false
+
+[[variant]]
+name = "msaa0"
+msaa = 0
+interface = false
+
+[[variant]]
+name = "msaa4"
+msaa = 4
+interface = false
+
+[[variant]]
+name = "msaa2-scale75"
+msaa = 2
+scale = 75
+interface = false
+
+[[variant]]
+name = "msaa2-scale50"
+msaa = 2
+scale = 50
+interface = false
+
+# the sun's shadow pass and its read, off: what they add
+[[variant]]
+name = "msaa2-unshadowed"
+msaa = 2
+shadows = false
+interface = false
+
+[[decision]]
+at_most = 2500
+then = "keep full resolution everywhere"
+
+[[decision]]
+at_most = 4000
+then = "build the shading-rate patch for you to judge (α2.2c)"
+
+[[decision]]
+then = "simplify the material first: fewer reads and 16-bit maths, then measure again"

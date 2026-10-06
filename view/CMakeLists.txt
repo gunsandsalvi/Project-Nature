@@ -25,6 +25,7 @@ kindling_rules(kd_view_core)
 
 add_library(kindling SHARED
     src/register.cpp
+    src/calibration.cpp
     src/crowd.cpp
     src/device.cpp
     src/look.cpp

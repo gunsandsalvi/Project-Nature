@@ -1,0 +1,39 @@
+# C4, the fixed cost of a frame (A18.1, α2.2a): the world hidden, with the interface over it and without, MSAA off
+# and 2×. Its bare frame with MSAA 2× is what C1 and C3's draws take off their own. Stated before its first run
+# (RES-09).
+about = "What a frame costs with the world hidden: the interface pass, the copy and Godot's stores"
+checks = ["PLT-04", "PRE-01"]
+draws = "nothing"
+path = "still"
+measure = "gpu"
+# the frame as the game draws it: the interface over the world, with MSAA 2×
+decides = "msaa2"
+# A18.1's allowance for the fixed part, in microseconds of the graphics chip a frame
+line = 1100
+expect_from = 900
+expect_to = 1700
+
+[[variant]]
+name = "msaa2"
+msaa = 2
+
+[[variant]]
+name = "msaa0"
+msaa = 0
+
+[[variant]]
+name = "bare-msaa2"
+msaa = 2
+interface = false
+
+[[variant]]
+name = "bare-msaa0"
+msaa = 0
+interface = false
+
+[[decision]]
+at_most = 2000
+then = "keep the plan: the fixed cost leaves the rest of the line as A18.1 shares it"
+
+[[decision]]
+then = "look first at the interface pass and Godot's stores: a lighter interface, then buffers that never reach memory (α2.2c)"

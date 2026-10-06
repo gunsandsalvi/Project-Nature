@@ -73,13 +73,8 @@ func _process(delta: float) -> void:
 		return
 	look.set_screen(Vector2(size))
 	look.frame(delta)
-	var pose: Dictionary = look.pose()
 	for camera in _cameras:
-		camera.transform = pose["transform"]
-		camera.keep_aspect = Camera3D.KEEP_WIDTH if pose["keep_width"] else Camera3D.KEEP_HEIGHT
-		camera.fov = pose["fov"]
-		camera.near = pose["near"]
-		camera.far = pose["far"]
+		LookScene.place_camera(camera, look)
 
 
 ## A new test: a new seed, its pairs, no answers yet.

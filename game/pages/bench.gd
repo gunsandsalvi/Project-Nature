@@ -283,9 +283,7 @@ func _read(s: Dictionary, t: float) -> void:
 ## drawn, Godot's counts of draws, triangles and video memory, the chip's headroom where Android
 ## gives it, and the power drawn from the battery.
 func _read_graphics() -> void:
-	var gpu := 0.0
-	for viewport: Viewport in _viewports():
-		gpu += RenderingServer.viewport_get_measured_render_time_gpu(viewport.get_viewport_rid())
+	var gpu := Timing.gpu_ms(Timing.viewports(_page if _page != null else self))
 	if gpu > 0.0:
 		_samples["gpu_ms"].append(gpu)
 	var draws := RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME
@@ -300,18 +298,6 @@ func _read_graphics() -> void:
 	var power := Phone.power(_device)
 	if power.has("watts"):
 		_samples["power"].append(float(power["watts"]))
-
-
-## Every viewport the scenario's page draws, its window's and any of its own, each timed by the
-## graphics chip.
-func _viewports() -> Array[Viewport]:
-	var out: Array[Viewport] = [get_viewport()]
-	if _page != null:
-		for node: Node in _page.find_children("*", "SubViewport", true, false):
-			out.append(node as Viewport)
-	for viewport: Viewport in out:
-		RenderingServer.viewport_set_measure_render_time(viewport.get_viewport_rid(), true)
-	return out
 
 
 ## The world saved and written out as one .kindling file, as the Worlds page exports one: the time

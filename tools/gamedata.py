@@ -15,7 +15,9 @@ and writes build.toml:
   (A18.1, RES-05);
 - [textures]: each texture file the phone reads with its SHA-256 (A5.4): for now the stand-ins tools/standins.py
   makes (T2.1a.3), written into game/data/textures/;
-- [build]: the app's version code, from the export preset, which the benchmark's code carries.
+- [build]: the app's version code, from the export preset, which the benchmark's code carries;
+- [calibration]: each calibration scene the Calibrate page runs (A18.1, α2.2a), with its SHA-256: the files of
+  data/scenes/look, checked by the kindling tool and copied into game/data/scenes/look/.
 Then it runs every scene in data/scenes, saved under the app's version, and puts its report in game/data/reports/,
 with the world of its first odd run, or else its first, as a .kindling file the Reports page opens (RES-06, PLT-05):
 <scene>.json and <scene>-<run>.kindling. A report whose runs ended as before is left as it was, with its world, so
@@ -39,6 +41,8 @@ OUT = os.path.join(ROOT, "game", "data")
 BUILD = os.path.join(OUT, "build.toml")
 TEXTURES = os.path.join(OUT, "textures")
 SCENES = os.path.join(DATA, "scenes")
+# the calibration scenes, which the phone runs rather than the cloud
+CALIBRATION = os.path.join(SCENES, "look")
 REPORTS = os.path.join(OUT, "reports")
 # where the scenes' worlds are kept as they run
 RUNS = os.path.join(ROOT, "build", "scenes")
@@ -78,6 +82,14 @@ def data_files():
             if name.endswith(".toml"):
                 out.append(os.path.relpath(os.path.join(dirpath, name), DATA).replace(os.sep, "/"))
     return sorted(out)
+
+
+def calibration_files():
+    """The calibration scenes, by their paths from data/, in order."""
+    if not os.path.isdir(CALIBRATION):
+        return []
+    rel = os.path.relpath(CALIBRATION, DATA).replace(os.sep, "/")
+    return sorted(f"{rel}/{name}" for name in os.listdir(CALIBRATION) if name.endswith(".toml"))
 
 
 def copy_sources(files):
@@ -134,7 +146,7 @@ def textures():
     return sorted(made)
 
 
-def build_toml(proof, version, files, sources, bench, code, texture_files=()):
+def build_toml(proof, version, files, sources, bench, code, texture_files=(), calibration=()):
     # No comments: Godot's ConfigFile, which reads this on the phone, stops at a TOML comment. Lists hold "a b" texts
     # rather than tables, which ConfigFile also reads.
     lines = [
@@ -159,6 +171,9 @@ def build_toml(proof, version, files, sources, bench, code, texture_files=()):
         "",
         "[textures]",
         "files = " + toml_list(f"{name} {sha256(os.path.join(TEXTURES, name))}" for name in texture_files),
+        "",
+        "[calibration]",
+        "files = " + toml_list(f"{rel} {sha256(os.path.join(DATA, rel))}" for rel in calibration),
     ]
     return "\n".join(lines) + "\n"
 
@@ -220,17 +235,22 @@ def main(argv):
     if check.returncode != 0:
         print(check.stdout + check.stderr + "Game data: the catalogue has problems")
         return 1
+    check = subprocess.run([tool, "look", "calibrate", "check", DATA], capture_output=True, text=True)
+    if check.returncode != 0:
+        print(check.stdout + check.stderr + "Game data: the calibration scenes have problems")
+        return 1
     one, four = digests(tool, 1), digests(tool, 4)
     if one != four:
         print(f"Game data: the proof suites differ between one thread and four: {one} against {four}")
         return 1
     version, sources = sources_of(tool)
     files = data_files()
+    calibration = calibration_files()
     os.makedirs(OUT, exist_ok=True)
-    copy_sources(files)
+    copy_sources(files + calibration)
     made = textures()
     with open(BUILD, "w") as f:
-        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made))
+        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made, calibration))
     try:
         shown = reports(tool)
     except RuntimeError as e:
@@ -238,7 +258,8 @@ def main(argv):
         return 1
     print(
         f"Game data: {os.path.relpath(OUT, ROOT)}/ with {len(files)} catalogue files, {len(sources)} sources, "
-        f"{len(one)} proof suites, {len(shown)} scene reports and {len(made)} textures"
+        f"{len(one)} proof suites, {len(shown)} scene reports, {len(made)} textures and {len(calibration)} "
+        "calibration scenes"
     )
     return 0
 

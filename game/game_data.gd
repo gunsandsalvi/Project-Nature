@@ -32,6 +32,15 @@ static func paths(build_file: ConfigFile) -> PackedStringArray:
 	return out
 
 
+## The calibration scenes the build lists (A18.1), by their paths under res://data/, such as
+## "scenes/look/c4.toml".
+static func calibration_paths(build_file: ConfigFile) -> PackedStringArray:
+	var out := PackedStringArray()
+	for item: String in build_file.get_value("calibration", "files", []):
+		out.append(item.get_slice(" ", 0))
+	return out
+
+
 ## Loads the build's catalogue into a world: what loading found, as KdWorld.load_catalogue says.
 static func load_into(world: KdWorld) -> Dictionary:
 	return world.load_catalogue(paths(build()))

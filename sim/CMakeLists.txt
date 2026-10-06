@@ -51,6 +51,7 @@ add_library(kd_sim STATIC
     src/kd/data/walkers.cpp
     src/kd/event/queue.cpp
     src/kd/look/blind.cpp
+    src/kd/look/calibration.cpp
     src/kd/look/card.cpp
     src/kd/look/colour.cpp
     src/kd/look/frame.cpp
@@ -110,6 +111,7 @@ if(KD_SIM_TESTS)
         tests/data_test.cpp
         tests/duration_test.cpp
         tests/look_blind_test.cpp
+        tests/look_calibration_test.cpp
         tests/look_card_test.cpp
         tests/look_frame_test.cpp
         tests/look_test.cpp

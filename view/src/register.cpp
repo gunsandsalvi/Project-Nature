@@ -8,6 +8,7 @@
 
 #include <chrono>
 
+#include "calibration.hpp"
 #include "crowd.hpp"
 #include "device.hpp"
 #include "frames.hpp"
@@ -26,6 +27,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdCrowd>();
     godot::ClassDB::register_class<kd::view::KdLook>();
     godot::ClassDB::register_class<kd::view::KdWorlds>();
+    godot::ClassDB::register_class<kd::view::KdCalibration>();
 }
 
 void uninitialize(godot::ModuleInitializationLevel /*level*/) {}

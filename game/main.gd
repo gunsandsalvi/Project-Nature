@@ -13,6 +13,7 @@ const PAGES := {
 	"Bench": preload("res://pages/bench.gd"),
 	"Look": preload("res://pages/look.gd"),
 	"Compare": preload("res://pages/compare.gd"),
+	"Calibrate": preload("res://pages/calibrate.gd"),
 }
 const BACKGROUND := Palette.GROUND
 const TEXT := Palette.TEXT

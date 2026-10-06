@@ -81,6 +81,11 @@
 //                                                 FLIP between two pictures (A4.8): standard input holds the reference
 //                                                 and then the test, both raw RGBA: "mean M above A", the mean error
 //                                                 and the share of pixels above 0.2
+//     kindling look calibrate check [data]       the calibration scenes in the data folder's scenes/look (A18.1), one
+//                                                 line each, or each problem with their files; exit 1 on a problem
+//     kindling look calibrate <code> [data]      a calibration code from your phone in words: each scene's number
+//                                                 against its line and estimate, the decision it makes, and each
+//                                                 variant's readings (PLT-04)
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -113,6 +118,7 @@
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/kept.hpp"
 #include "kd/look/blind.hpp"
+#include "kd/look/calibration.hpp"
 #include "kd/look/card.hpp"
 #include "kd/look/colour.hpp"
 #include "kd/look/frame.hpp"
@@ -152,7 +158,8 @@ int usage() {
         "       kindling look salience <width> <height> <person>...\n"
         "       kindling look flicker <width> <height> <threshold> <m0> ... <m8>\n"
         "       kindling look flip <width> <height> <pixels a degree>\n"
-        "       kindling look blind <code>\n");
+        "       kindling look blind <code>\n"
+        "       kindling look calibrate check|<code> [data]\n");
     return 2;
 }
 
@@ -1028,9 +1035,46 @@ int blind(std::string_view code) {
     return 0;
 }
 
+// The calibration scenes (A18.1) stated, or a phone's calibration code read against them in words.
+int calibrate(std::string_view code, const std::string& data) {
+    const kd::look::CalibrationSet set = kd::look::read_calibrations(kd::data::read_files_in(data, "scenes/look"));
+    for (const std::string& p : set.problems) {
+        std::fprintf(stderr, "%s\n", p.c_str());
+    }
+    if (!set.problems.empty() || set.scenes.empty()) {
+        std::fprintf(stderr, "kindling: the calibration scenes in %s/scenes/look %s\n", data.c_str(),
+                     set.scenes.empty() ? "are missing" : "have problems");
+        return 1;
+    }
+    if (code == "check") {
+        for (const kd::look::CalibrationScene& s : set.scenes) {
+            std::printf("%s: %s; %zu variants\n", s.name.c_str(), s.about.c_str(), s.variants.size());
+        }
+        return 0;
+    }
+    const kd::look::CalibrationCodeRead read = kd::look::read_calibration_code(code, set.scenes);
+    if (!read.why.empty()) {
+        std::fprintf(stderr, "kindling: this calibration code cannot be read: %s\n", read.why.c_str());
+        return 1;
+    }
+    std::printf("build %lld\n", static_cast<long long>(read.build));
+    const std::vector<kd::look::CalibrationVerdict> verdicts =
+        kd::look::calibration_verdicts(set.scenes, read.readings);
+    for (std::size_t i = 0; i < set.scenes.size(); ++i) {
+        std::printf("%s\n", kd::look::verdict_words(set.scenes[i], verdicts[i]).c_str());
+        for (std::size_t v = 0; v < set.scenes[i].variants.size(); ++v) {
+            std::printf("  %s\n", kd::look::reading_words(set.scenes[i].variants[v], read.readings[i][v]).c_str());
+        }
+    }
+    return 0;
+}
+
 int look(const std::vector<std::string_view>& args) {
     if (args.size() == 2 && args[0] == "blind") {
         return blind(args[1]);
+    }
+    if ((args.size() == 2 || args.size() == 3) && args[0] == "calibrate") {
+        return calibrate(args[1], args.size() == 3 ? std::string(args[2]) : std::string("data"));
     }
     if (args.size() < 3) {
         return usage();

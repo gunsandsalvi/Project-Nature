@@ -1,0 +1,55 @@
+# C3's draws (A18.1, α2.2a): the main thread's time for 100, 300 and 1,000 MultiMesh draws of copies, in two passes
+# (the main pass and the sun's shadow) and in three (with a mirror's pass at half size). The number that decides is
+# 100 draws in three passes, about the 300 draws over all passes A18.1 plans for, less C4's bare frame. Stated before
+# its first run (RES-09).
+about = "What a MultiMesh draw of copies costs the main thread"
+checks = ["PLT-04"]
+draws = "copies"
+path = "still"
+measure = "cpu"
+decides = "copies100-passes3"
+minus = "c4/bare-msaa2"
+# A18.1's allowance for Godot's culling and draw recording, in microseconds of the main thread a frame
+line = 3000
+expect_from = 1500
+expect_to = 3000
+
+[[variant]]
+name = "copies100-passes2"
+copies = 100
+interface = false
+
+[[variant]]
+name = "copies300-passes2"
+copies = 300
+interface = false
+
+[[variant]]
+name = "copies1000-passes2"
+copies = 1000
+interface = false
+
+[[variant]]
+name = "copies100-passes3"
+copies = 100
+passes = 3
+interface = false
+
+[[variant]]
+name = "copies300-passes3"
+copies = 300
+passes = 3
+interface = false
+
+[[variant]]
+name = "copies1000-passes3"
+copies = 1000
+passes = 3
+interface = false
+
+[[decision]]
+at_most = 3000
+then = "keep about 300 draws over all passes"
+
+[[decision]]
+then = "gather each form's copies into one buffer of its own (A4.6), so draws fall with forms, not places"

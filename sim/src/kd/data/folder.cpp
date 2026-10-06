@@ -28,4 +28,20 @@ std::vector<SourceFile> read_folder(const std::string& folder) {
     return files;
 }
 
+std::vector<SourceFile> read_files_in(const std::string& folder, const std::string& within) {
+    std::vector<SourceFile> files;
+    std::error_code error;
+    const std::filesystem::path base = std::filesystem::path(folder) / within;
+    for (std::filesystem::directory_iterator it(base, error); !error && it != std::filesystem::directory_iterator();
+         it.increment(error)) {
+        if (it->is_regular_file(error) && it->path().extension() == ".toml") {
+            std::ifstream in(it->path(), std::ios::binary);
+            std::stringstream text;
+            text << in.rdbuf();
+            files.push_back({within + "/" + it->path().filename().generic_string(), text.str()});
+        }
+    }
+    return files;
+}
+
 }  // namespace kd::data

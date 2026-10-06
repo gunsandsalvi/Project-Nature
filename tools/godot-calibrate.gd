@@ -1,0 +1,40 @@
+## Implements PLT-04, see A18.1 and A17: the calibration scenes drawn in the cloud. Under Xvfb on
+## the software Vulkan driver, as `godot --path game --rendering-method mobile --rendering-driver
+## vulkan --resolution <W>x<H> -s <this file> -- <out.json>`; tools/calibrun.py runs it and checks
+## what it writes. The Calibrate page runs every variant of every scene as the phone does, a
+## thousand times faster, and this writes the scenes, what each variant drew and the run's code.
+extends SceneTree
+
+const CalibratePage := preload("res://pages/calibrate.gd")
+
+
+func _init() -> void:
+	var args := OS.get_cmdline_user_args()
+	if args.size() != 1:
+		printerr("usage: -- <out.json>")
+		quit(2)
+		return
+	_run(args[0])
+
+
+func _run(out: String) -> void:
+	await process_frame
+	var page: Control = CalibratePage.new()
+	root.add_child(page)
+	await process_frame
+	if not page.problems.is_empty():
+		printerr("the calibration scenes cannot be read: ", page.problems)
+		quit(1)
+		return
+	page.time_scale = 0.001
+	page.start()
+	while page.running():
+		await process_frame
+	var file := FileAccess.open(out, FileAccess.WRITE)
+	var written := {
+		"scenes": page.scenes, "counted": page.counted, "readings": page.readings, "code": page.code
+	}
+	file.store_string(JSON.stringify(written))
+	file.close()
+	print("Calibration run: done")
+	quit(0)

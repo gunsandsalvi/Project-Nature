@@ -56,6 +56,12 @@ struct Never {
     std::int64_t limit = 0;
 };
 
+/// Whether a text is an item's ID, such as WLD-13: two to four capitals, a dash and two digits.
+[[nodiscard]] bool item_id(const std::string& id);
+
+/// A scene's name: its file's, without its folders and .toml.
+[[nodiscard]] std::string name_of(const std::string& path);
+
 /// Implements RES-21 and RES-09, see A17: a scene as its file states it.
 struct Scene {
     /// Its file's name, without .toml.

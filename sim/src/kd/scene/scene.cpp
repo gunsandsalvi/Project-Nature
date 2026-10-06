@@ -12,7 +12,16 @@ namespace {
 using data::Measure;
 using data::Value;
 
-// An item's ID, such as WLD-13: two to four capitals, a dash and two digits.
+std::vector<std::string_view> names_of(std::span<const Named> named) {
+    std::vector<std::string_view> out;
+    for (const Named& n : named) {
+        out.push_back(n.name);
+    }
+    return out;
+}
+
+}  // namespace
+
 bool item_id(const std::string& id) {
     const std::size_t dash = id.find('-');
     return dash >= 2 && dash <= 4 && id.size() == dash + 3 &&
@@ -22,15 +31,6 @@ bool item_id(const std::string& id) {
                        [](char c) { return c >= '0' && c <= '9'; });
 }
 
-std::vector<std::string_view> names_of(std::span<const Named> named) {
-    std::vector<std::string_view> out;
-    for (const Named& n : named) {
-        out.push_back(n.name);
-    }
-    return out;
-}
-
-// The scene's name: its file's, without its folders and .toml.
 std::string name_of(const std::string& path) {
     const std::size_t slash = path.find_last_of('/');
     std::string name = slash == std::string::npos ? path : path.substr(slash + 1);
@@ -39,8 +39,6 @@ std::string name_of(const std::string& path) {
     }
     return name;
 }
-
-}  // namespace
 
 std::vector<world::Switch> Scene::switches_of(std::int64_t run) const {
     if (!one_each || switches.empty()) {

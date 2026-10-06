@@ -99,13 +99,8 @@ func _plain_light() -> Environment:
 
 ## A camera put where the rig's is, seeing the whole frame.
 func _pose(camera: Camera3D) -> void:
-	var pose: Dictionary = _look.pose()
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
-	camera.transform = pose["transform"]
-	camera.keep_aspect = Camera3D.KEEP_WIDTH if pose["keep_width"] else Camera3D.KEEP_HEIGHT
-	camera.fov = pose["fov"]
-	camera.near = pose["near"]
-	camera.far = pose["far"]
+	LookScene.place_camera(camera, _look)
 
 
 ## A camera put where the rig's is, seeing only a square patch of the frame: x and y its top left

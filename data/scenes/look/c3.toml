@@ -1,0 +1,69 @@
+# C3, triangles (A18.1, α2.2a): a field of solid rocks at 100, 200, 400 and 800 thousand triangles a pass, the same
+# rocks in the same places each time with more triangles each, MSAA 2×, the sun's shadow pass off and on. The number
+# that decides is the slope of the graphics chip's time over the triangles without the shadow pass: the main pass's
+# cost a triangle. Stated before its first run (RES-09).
+about = "What a triangle costs the graphics chip in the main pass"
+checks = ["PLT-04"]
+draws = "rocks"
+path = "still"
+measure = "gpu_per_triangle"
+# picoseconds a triangle: 4000 is 4 ns
+line = 4000
+expect_from = 2500
+expect_to = 10000
+
+[[variant]]
+name = "rocks100"
+triangles = 100
+shadows = false
+interface = false
+
+[[variant]]
+name = "rocks200"
+triangles = 200
+shadows = false
+interface = false
+
+[[variant]]
+name = "rocks400"
+triangles = 400
+shadows = false
+interface = false
+
+[[variant]]
+name = "rocks800"
+triangles = 800
+shadows = false
+interface = false
+
+# the same with the sun's shadow pass: what a triangle costs in it
+[[variant]]
+name = "rocks100-shadowed"
+triangles = 100
+interface = false
+
+[[variant]]
+name = "rocks200-shadowed"
+triangles = 200
+interface = false
+
+[[variant]]
+name = "rocks400-shadowed"
+triangles = 400
+interface = false
+
+[[variant]]
+name = "rocks800-shadowed"
+triangles = 800
+interface = false
+
+[[decision]]
+at_most = 4000
+then = "set the triangle line at 0.6 million triangle-passes a frame"
+
+[[decision]]
+at_most = 6000
+then = "keep the triangle line at 0.4 million triangle-passes a frame"
+
+[[decision]]
+then = "set the triangle line at 0.3 million, and keep leaves as cards or bring the leaf pre-pass (α2.2c)"

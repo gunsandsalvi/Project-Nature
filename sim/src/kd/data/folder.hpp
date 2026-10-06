@@ -13,4 +13,8 @@ namespace kd::data {
 /// no order, as the catalogue loads files in path order whatever order they come in.
 [[nodiscard]] std::vector<SourceFile> read_folder(const std::string& folder);
 
+/// Every .toml file directly in a folder within the data folder, such as "scenes/look", with its path from the data
+/// folder, such as "scenes/look/c1.toml"; in no order, and none if the folder is not there.
+[[nodiscard]] std::vector<SourceFile> read_files_in(const std::string& folder, const std::string& within);
+
 }  // namespace kd::data
