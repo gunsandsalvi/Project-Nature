@@ -11,10 +11,12 @@ const PAGES := {
 	"Catalogues": preload("res://pages/catalogues.gd"),
 	"Reports": preload("res://pages/reports.gd"),
 	"Bench": preload("res://pages/bench.gd"),
+	"Look": preload("res://pages/look.gd"),
 }
 const BACKGROUND := Palette.GROUND
 const TEXT := Palette.TEXT
 
+var _ground: ColorRect
 var _tabs: GridContainer
 var _content: MarginContainer
 var _page_name := ""
@@ -53,13 +55,15 @@ func open_page(page: String) -> void:
 	var node: Control = PAGES[page].new()
 	_content.add_child(node)
 	_page_name = page
+	# a page that draws the world shows it under the tabs, where the pages' own ground would hide it
+	_ground.visible = not node.get("draws_world")
 
 
 func _build() -> void:
-	var ground := ColorRect.new()
-	ground.color = BACKGROUND
-	ground.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(ground)
+	_ground = ColorRect.new()
+	_ground.color = BACKGROUND
+	_ground.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_ground)
 	var column := VBoxContainer.new()
 	column.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	column.add_theme_constant_override("separation", 8)

@@ -13,6 +13,8 @@ and writes build.toml:
   rules, world and look digests, as the simulation fingerprints them;
 - [bench]: each benchmark scenario's digest at its mark, its world run headless here, which the phone's must match
   (A18.1, RES-05);
+- [textures]: each texture file the phone reads with its SHA-256 (A5.4): for now the stand-ins tools/standins.py
+  makes (T2.1a.3), written into game/data/textures/;
 - [build]: the app's version code, from the export preset, which the benchmark's code carries.
 Then it runs every scene in data/scenes, saved under the app's version, and puts its report in game/data/reports/,
 with the world of its first odd run, or else its first, as a .kindling file the Reports page opens (RES-06, PLT-05):
@@ -28,10 +30,14 @@ import shutil
 import subprocess
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import standins  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 OUT = os.path.join(ROOT, "game", "data")
 BUILD = os.path.join(OUT, "build.toml")
+TEXTURES = os.path.join(OUT, "textures")
 SCENES = os.path.join(DATA, "scenes")
 REPORTS = os.path.join(OUT, "reports")
 # where the scenes' worlds are kept as they run
@@ -79,7 +85,7 @@ def copy_sources(files):
     for dirpath, _, names in os.walk(OUT, topdown=False):
         for name in names:
             rel = os.path.relpath(os.path.join(dirpath, name), OUT).replace(os.sep, "/")
-            if rel != "build.toml" and not rel.startswith("reports/") and rel not in files:
+            if rel != "build.toml" and not rel.startswith(("reports/", "textures/")) and rel not in files:
                 os.remove(os.path.join(dirpath, name))
         if dirpath != OUT and not os.listdir(dirpath):
             os.rmdir(dirpath)
@@ -113,7 +119,22 @@ def version_code():
     return 0
 
 
-def build_toml(proof, version, files, sources, bench, code):
+def textures():
+    """The texture files in game/data/textures/, each written only when its bytes change, and any other removed:
+    their names."""
+    os.makedirs(TEXTURES, exist_ok=True)
+    made = standins.files()
+    for name, data in made.items():
+        path = os.path.join(TEXTURES, name)
+        if not os.path.isfile(path) or open(path, "rb").read() != data:
+            with open(path, "wb") as f:
+                f.write(data)
+    for gone in set(os.listdir(TEXTURES)) - set(made):
+        os.remove(os.path.join(TEXTURES, gone))
+    return sorted(made)
+
+
+def build_toml(proof, version, files, sources, bench, code, texture_files=()):
     # No comments: Godot's ConfigFile, which reads this on the phone, stops at a TOML comment. Lists hold "a b" texts
     # rather than tables, which ConfigFile also reads.
     lines = [
@@ -134,6 +155,11 @@ def build_toml(proof, version, files, sources, bench, code):
         "[bench]",
     ]
     lines += [f'{name} = "{digest}"' for name, digest in bench.items()]
+    lines += [
+        "",
+        "[textures]",
+        "files = " + toml_list(f"{name} {sha256(os.path.join(TEXTURES, name))}" for name in texture_files),
+    ]
     return "\n".join(lines) + "\n"
 
 
@@ -202,8 +228,9 @@ def main(argv):
     files = data_files()
     os.makedirs(OUT, exist_ok=True)
     copy_sources(files)
+    made = textures()
     with open(BUILD, "w") as f:
-        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code()))
+        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made))
     try:
         shown = reports(tool)
     except RuntimeError as e:
@@ -211,7 +238,7 @@ def main(argv):
         return 1
     print(
         f"Game data: {os.path.relpath(OUT, ROOT)}/ with {len(files)} catalogue files, {len(sources)} sources, "
-        f"{len(one)} proof suites and {len(shown)} scene reports"
+        f"{len(one)} proof suites, {len(shown)} scene reports and {len(made)} textures"
     )
     return 0
 

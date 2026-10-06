@@ -20,6 +20,17 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=6
 
+[shader_globals]
+
+kd_texel_least={
+"type": "float",
+"value": 0.0
+}
+kd_origin_tile={
+"type": "vec2",
+"value": Vector2(0, 0)
+}
+
 [rendering]
 
 renderer/rendering_method="mobile"

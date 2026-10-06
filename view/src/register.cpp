@@ -11,6 +11,7 @@
 #include "crowd.hpp"
 #include "device.hpp"
 #include "frames.hpp"
+#include "look.hpp"
 #include "world.hpp"
 #include "worlds.hpp"
 
@@ -23,6 +24,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdDevice>();
     godot::ClassDB::register_class<kd::view::KdWorld>();
     godot::ClassDB::register_class<kd::view::KdCrowd>();
+    godot::ClassDB::register_class<kd::view::KdLook>();
     godot::ClassDB::register_class<kd::view::KdWorlds>();
 }
 

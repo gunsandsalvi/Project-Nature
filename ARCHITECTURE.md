@@ -424,7 +424,9 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
 ### A4.2 Steady texture pixels (`PRE-22`)
 
 - **One sampling function** reads every texture (`CLAUDE.md`, rule 4): the "smooth pixel" filter, crisp inside each texture pixel and blended over one screen pixel at its edge.
-  - It reads once with the chip's own blending, at a coordinate moved so that the blend happens only at a texture pixel's edge, with the coordinates' true slope (`textureGrad`), from textures stored with blending and mipmaps on.
+  - It reads with the chip's own blending, at a coordinate moved so that the blend happens only at a texture pixel's edge, from textures stored with blending and mipmaps on, at the level it picks from the coordinates' true slope (`textureLod`): once, or twice within the short blend between levels.
+    *Built in α2.1a:* the chip's own choice of level (`textureGrad`) blends two levels over a whole level's span and reads the second without moving its coordinate, so the function picks the level itself.
+    The rig names the band at the focus by the same rule, to know which levels to keep, and publishes the least size (`kd_texel_least`), so the rule's number is written once.
   - *Computed in research 19* (studies 2 and 6): it flickers on 0.4–1.1% of pixels as the camera moves, against 17–28% for nearest-pixel reading, and keeps 94–98% of its crispness.
 - **The texel ladder** (A5.3): each band's level of a texture is drawn as pixel art, each texture pixel covering exactly 2 × 2 of the level below, and loaded as the texture's own mipmaps (`Image.create_from_data`), never Godot's averaged ones.
   - The level comes from the texture pixel's area on screen, kept between about 1.4 and 2.8 screen pixels, with a short blend to the next, each read the same crisp way.
