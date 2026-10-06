@@ -22,11 +22,13 @@ The seven studies' own notes, with every measurement, option and source, are in 
 
 Their numbers are estimates made in the cloud unless they say measured; the phone settles them.
 Their quotes are checked against their pages ([the check](19/quote-check.md)).
+The check changed no recommendation; it found that a potter's wheel and white woolly sheep are not clearly later than a first-copper village, so a village target dates them case by case, and that smoothing the edges of cut-out leaves moves them to Godot's blended pass, so it costs time the leaves' calibration scene measures.
 The working files the notes name under `R/` (scripts, crops, GPT's originals) stayed in the research session and are not kept; the pictures you judged are in `art/reviews/2026-10-06-graphics/`, and the targets in `art/targets/`.
 
 ## What `PROJECT.md` asks of the graphics engine
 
-`MIL-09` names it: crisp 3D pixel art that goes well beyond the art book's preliminary pictures, with steady pixels, outlines and lit edges, colour in steps under the light of the hours and seasons, rock faces, water, and the model kit and its textures made by code.
+When the research began, `MIL-09` named it: crisp 3D pixel art that goes well beyond the art book's preliminary pictures, with steady pixels, outlines and lit edges, colour in steps under the light of the hours and seasons, rock faces, water, and the model kit and its textures made by code.
+Since your OK on this research, the items below carry the look you chose ([What you decided](#what-you-decided), 1).
 
 **Lifted for this research,** as you asked, and to be reworded only with your OK (`PRC-07`):
 - `PRE-01`'s one palette, each art pixel one solid colour, no smooth gradients;
@@ -241,7 +243,7 @@ So every target picture gets a written truth check before anyone aims at it ([st
 5. **Several shelter types,** each from an excavation; every small thing designed per band.
 6. **Half resolution only where needed;** a colour grade is a finishing touch, never the look.
 
-**The design, for the architecture once you agree:**
+**The design, for the architecture:**
 7. **The picture:** full resolution with 2× multisampling, the interface drawn over it, Godot's single on-chip pass kept; nothing in the main picture reads the screen or its depth.
 8. **Steady texture pixels:** one shared way to read every texture (the smooth-pixel filter), levels drawn for each band and loaded as each texture's own mipmaps; moving patterns (water, flames, foam) step in whole texture pixels about 10 times a second if your eye agrees.
 9. **The camera:** one perspective rig at every zoom, narrow up close and widening as it rises; no pixel lock; the ease that settles turns and zooms stays, now only for feel.
@@ -251,7 +253,7 @@ So every target picture gets a written truth check before anyone aims at it ([st
 13. **Figures:** a skeleton per body pattern, posed in C++ at 10 a second and bent on the chip; forms by height on screen (full, simple, small drawn to read, tiny, marker); held things ride on bones.
 14. **Content:** code builds the kit; surfaces from code, the world, or approved pictures prepared by code; small things designed per band; every picture checked for truth, with its record.
 15. **The pipeline:** picture-made textures re-gridded, given designed levels, calibrated, stored losslessly with their records; code-made and world-made textures made on the phone; GPT outside the build.
-16. **The phone:** an 8 ms planning line for the busiest close scene, split into parts with a lever each; the savings that don't show first; at most about 4 W over a 20-minute heat run; pass lines written before the first run (`RES-09`).
+16. **The phone:** an 8 ms planning line for the busiest close scene, split into parts with a lever each; the savings that don't show first, then our own build of Godot where they are not enough, then one planned step under heat (your decisions 2 and 3); at most about 4 W over a 20-minute heat run; pass lines written before the first run (`RES-09`).
 17. **The loop:** one approved picture per place, relit for its hours and seasons; the target card as a warning; checks for shimmer, ground accents and how much people stand out; savings proved invisible by a blind test on your phone; the AI judge advises only.
 
 **M2's order,** merged from the studies:
@@ -268,10 +270,13 @@ So every target picture gets a written truth check before anyone aims at it ([st
 5. **The camp at every hour and season,** against its relit targets.
 6. **The zoom bands and your three problems** (small plants, the ground's speckle, people in busy scenes), and landscape.
 
-## What you decide
+## What you decided
 
-**1. The wording in `PROJECT.md`.**
-Each change is written as a proposal beneath its item and listed under "Proposals awaiting confirmation"; your OK replaces the text (`PRC-07`).
+On 6 October 2026 you answered decisions 1, 2, 3 and 5; decisions 4, 6 and 7 wait until their time comes.
+
+**1. The wording in `PROJECT.md`: "OK, all 13".**
+The 13 changes below are written into their items.
+Four more follow from them and wait for your OK, listed under "Proposals awaiting confirmation": `PRE-31`'s review sheet adds clips of the camera moving and the busy scenes; `PRE-43`'s colours sit within each material's shades, as the ladders are gone; `RSK-11` gets new signs and a response, as the crawl fix it named is gone; and a new risk, `RSK-30`, says what happens if the look costs too much.
 - `PRE-01` becomes *Pixel-art surfaces*: the sharp 3D world at full resolution with pixel-art textures; a saving stays only if you can't tell it apart in a blind test.
 - `PRE-02` is drawn at full resolution, not low.
 - `PRE-03`'s near stops are measured in screen pixels: a person about 200 tall up close.
@@ -286,15 +291,17 @@ Each change is written as a proposal beneath its item and listed under "Proposal
 - `MIL-09` is reworded for the chosen look and the three routes to textures.
 - `PLT-02` keeps the texture pixel's size instead of the art pixel's.
 
-**2. Your own build of Godot.**
+**2. Your own build of Godot: "Yes, if needed".**
 The two changes that close most of the gap (hiding leaves first, and shading per 2 × 2 pixels on ground and plants), and a third that keeps buffers off memory, are changes to Godot's own code.
 Research 01 chose Godot unchanged.
-The recommendation is to allow our own build of Godot 4.7.2 for these patches only, built and tested in the cloud like everything else, if the calibration scenes show they are needed.
+You allowed our own build of Godot 4.7.2 for these patches only, built and tested in the cloud like everything else, if the calibration scenes show they are needed.
 
-**3. If the picture alone heats the phone.**
-Either the graphics line comes down for good, so the picture never changes under load (recommended), or you allow one planned, logged step under heat, such as distant fires casting no shadows.
+**3. If the picture alone heats the phone: "One planned step".**
+The choice was between bringing the graphics line down for good, so the picture never changes under load, and one planned, logged step under heat, such as distant fires casting no shadows.
+You chose the step.
+As `PRE-01` keeps a saving only where you can't tell it from the full picture, the step is chosen among savings that pass the blind test; if none is enough, it comes back to you.
 
-**4. How builds and textures reach your phone.**
+**4. How builds and textures reach your phone (when it arises).**
 Builds are committed to the repository, which caps a build at 50 MB.
 Picture-made textures at 64 a metre may not fit beside Godot within that.
 - Start as study 4 recommends: make code-made and world-made textures on the phone at first start, and ship picture-made ones losslessly while they fit.
@@ -302,10 +309,10 @@ Picture-made textures at 64 a metre may not fit beside Godot within that.
 
   Making release files has not been tried from this cloud session, so that option needs a test first.
 
-**5. Help in busy scenes that draws only for your eye.**
+**5. Help in busy scenes that draws only for your eye: "Only if needed".**
 Real light, plants parting around walkers, contact shadows and the clothes people really make all fit the rules.
 Leaves thinning over a person only in the picture, silhouettes behind leaves, or a hold that briefly marks every person do not change the world (`WLD-13`), but show something that isn't there for show's sake (`PRN-10`).
-The recommendation is to build the first set, measure on the phone how quickly you find people in shade, and ask you only if that falls short.
+So the first set is built, the phone measures how quickly you find people in shade, and you are asked only if that falls short.
 
 **6. Later, on your phone, by eye:**
 - the camera's view up close;
@@ -323,7 +330,7 @@ The recommendation is to build the first set, measure on the phone how quickly y
 ## What only the phone can settle
 
 - What the full material costs a pixel at full resolution, and what a triangle costs in each pass.
-- What cut-out leaves cost against solid ones, and whether hiding them first helps.
+- What cut-out leaves cost against solid ones, whether hiding them first helps, and what smoothing their edges costs in the blended pass.
 - Whether the chip shades per 2 × 2 pixels as its driver reports, and whether you can see it.
 - How many watts a millisecond costs, the phone's own throttling levels, and how long the busiest scene takes to reach them.
 - Whether texture shimmer shows at the level the cloud measures.

@@ -20,7 +20,7 @@ Things marked "not to copy" are later or borrowed things GPT drew.
 | `context-05-autumn-forest` | an autumn forest | striped piglets in autumn |
 | `context-06-valley-landscape` | a river valley from high up | tipi-like cones |
 | `context-07-coast-dusk` | a coast at dusk | sawn wood; boats with seats and ribs |
-| `context-08-village-copper` | a farming village with the first copper | sawn wood; chickens; a built well with a winch and a hooped bucket; a metal sickle, a potter's wheel and lattice windows (dates to check) |
+| `context-08-village-copper` | a farming village with the first copper | sawn wood; chickens; a built well with a winch and a hooped bucket; a metal sickle and lattice windows (dates to check); a potter's wheel and white woolly sheep are not clearly later, so each is dated case by case |
 | `context-09-storm-lightning` | a thunderstorm | spotted horses with long falling manes |
 | `context-10-cave-painting` | a painted cave | animals and hand stencils like Lascaux's: paintings come from each people's own style (`CUL-09`) |
 

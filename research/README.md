@@ -39,7 +39,7 @@ Where a site refused the checking tool, the quote was checked against a search e
 ## Can Godot do it? The summary
 
 Everything `PROJECT.md` asks is within Godot's reach without changing its source.
-The look you chose in research 19 is the one exception to watch: it may need two small patches to Godot to keep 60 frames a second without savings you could see, which is yours to decide.
+The look you chose in research 19 is the one exception to watch: it may need two small patches to Godot to keep 60 frames a second without savings you could see, and you allowed our own build of Godot for them if the phone shows they are needed.
 What Godot does not do for us, we build on top of it.
 
 | Area | Verdict | Built by us | Risk |

@@ -5,7 +5,7 @@
 
 M2 research, round 2, 6 October 2026. Research only.
 `R` is the round's folder (`/tmp/claude-0/-home-user-Project-Nature/d9fdddff-7118-505f-be5c-63935305a20b/scratchpad/m2-research`).
-My scripts and their outputs are in `R/work2/1/`: `measure12.py` (the twelve pictures), `pair.py` (light, colour, texture and masses), `blocksize.py` and `localgrid.py` (the size of a picture's visible pixels), `halfres.py` (half resolution), `farsmooth.py` (far views without grain), `salience.py` (how much each figure stands out), each with a `.txt` of its output. Round 1's note is `R/round1/notes/1-look.md`.
+My scripts and their outputs are in `R/work2/1/`: `measure12.py` (the twelve pictures), `pair.py` (light, colour, texture and masses), `blocksize.py` and `localgrid.py` (the size of a picture's visible pixels), `halfres.py` (half resolution), `farsmooth.py` (far views without grain), `salience.py` (how much each figure stands out), most with a `.txt` of its output; `blocksize.py`, `localgrid.py`, `halfres.py` and `farsmooth.py` only printed theirs (the quote check re-ran the first three, `R/work/checker/1/rerun-*.txt`; `farsmooth.py`'s numbers are in `look-notes.md`). Round 1's note is `R/round1/notes/1-look.md`.
 
 Words used here:
 - **Direction B:** the owner's choice (answer 1): a smooth, sharp 3D world drawn at the phone's full resolution, whose surfaces wear textures painted as pixel art. Direction A drew the world small and enlarged it; direction C was A with soft glow and haze.
@@ -52,7 +52,7 @@ Words used here:
 | What the owner did | Answers |
 |---|---|
 | **Chose** | B, a smooth world with pixel textures (1); 2 × 2, the finest (2); detailed people (3) and animals (14); small far figures drawn to read (4); the closest zoom as in the liked picture, about 8 m across (5); true midday (9); nights A, B and C, not D (10); winter B, softer (11); far views A and C (12); several shelter types (13); surfaces A, C and D (15); dusk by relighting an approved picture (23); light only to help people read, the world left as it is (33); each world's rock layers laid on by code (34b); texels of about 2 screen pixels, 64 a metre up close (35); the close camp's ground redrawn for its band, colours matched by code (36) |
-| **Kept, "As I liked"** | the plants' density, airiness and wildness (6); no outlines up close, smooth light, the fine grain, darkening in corners and under things (7); both the sun and the plants (8); all four rain layers (17) |
+| **Kept** | the plants' density, airiness and wildness (6, "As I liked"); no outlines up close, smooth light, the fine grain, darkening in corners and under things (7, "As I liked"); both the sun and the plants (8); all four rain layers (17) |
 | **Found free** | facing a low sun (16); lake mist with no horizon (18); a camp of thirty, "alive" (26); the first cave, "as beautiful as the rest" (28); the village without later things (29); the storm with no sky (30) |
 | **Problems to solve, not cut** | small plants lose their charm at game size (21); people found only "with effort" in a busy wood (27), and, by my measure, light alone (33) does not yet help those in shade; the ground turns to speckle at the close camp (31); the rock surface under the layers is not right yet (34) |
 | **Not enough on its own** | colour alone (24); half resolution "only if needed" (25); rock without its layers, "can't judge yet" (32) |
@@ -102,11 +102,11 @@ The two liked camps and the ten pictures of other moments (`R/owner/contexts/`),
 - **Dawn:** a person close up at work, long low light, smoke, a dog asleep: intimacy.
 - **Night:** 86% dark, half of it very dark; the fire's warm pools are small (warm colour 18% of the picture), the moon on the water.
 - **Winter:** the one light world (58%); people and the dog as dark marks on white, the easiest picture to read.
-- **Mist:** the biggest calm masses (0.43): mist and water as one soft field, a golden glare.
+- **Mist:** the biggest calm masses (0.43, after the cave's darkness, 0.51): mist and water as one soft field, a golden glare.
 - **Autumn:** the warmest (61% warm) and most broken-up picture (masses 0.16): the richest, and the hardest to read.
 - **The valley:** the land as a pattern of river, woods and meadows; camps read as a smoke column over a pale ring, herds as clusters of dots.
 - **The coast at dusk:** wet sand and pools holding the sky's colour; a shell midden.
-- **The village:** the most light (35%) and the most order: fences, plots, paths, many tasks at once.
+- **The village:** the most light after winter (35%) and the most order: fences, plots, paths, many tasks at once.
 - **The storm:** 67% dark and cool, one bright event (the burning tree) to draw the eye, and movement in every part: bent grass, rain, a galloping herd.
 - **The cave:** darkness as the composition (masses 0.51), the light coming only from the fire and lamps.
 
@@ -289,12 +289,14 @@ GPT drew later or borrowed things in ten of the owner's twelve pictures, and sli
 | Kind | Found in | Why it is wrong, with the first-hand source |
 |---|---|---|
 | **Sawn wood:** flat stump tops, flat log ends, plank bridges and benches, squared blocks | liked sunset, 02, 04, 07, 08; lake mist | early farmers split and adzed their timber: "The logs were split first in half with wooden wedges", using "Stone adzes with transversely hafted blades" (Tegel and others, on wells of 5469 to 5098 BC) |
-| **Built wells** with a winch, rope and hooped bucket | 08 | the oldest wells are "chest-like well linings" of notched split timbers (Tegel); hoops and barrels belong to much later coopers (to check) |
+| **Built wells** with a winch, rope and hooped bucket | 08 | the oldest wells are "chest-like well linings" of notched split timbers (Tegel); hoops and staves are coopers' work, known from a painting in the Egyptian tomb of Hesy, about 2600 BC (Wikipedia, secondary), where "real cooper's work is intended, — barrels with bevelled staves" (Quibell, the excavator, 1913); whether any are older is still to check |
 | **Chickens** | 08 | "the first unambiguous domestic chicken bones are found at Neolithic Ban Non Wat in central Thailand dated to ∼1650 to 1250 BCE", reaching "Mediterranean Europe by ∼800 BCE" (Peters and others, 2022) |
-| **Spotted (pinto) horses, long falling manes** | 09; storm, direction B | wild horses were "bay or bay-dun", and "The Tobiano spotting was first found in a single Eastern European sample (3500 to 3000 yr B.P.)" (Ludwig and others, 2009); in today's wild horse "The mane is short and erect with no forelock" (Britannica, secondary) |
+| **Spotted (pinto) horses, long falling manes** | 09; storm, direction B | wild horses were "bay or bay-dun", and "The Tobiano spotting was first found in a single Eastern European sample (3500 to 3000 yr B.P.)" (Ludwig and others, 2009); today's wild horse has "a dark zebra-like erect mane and no forelock" (the Smithsonian's National Zoo, which breeds them; Britannica, secondary: "The mane is short and erect with no forelock") |
 | **Striped piglets in autumn** | 05; my autumn picture and both repaints of it, though asked not to | "These stripes are lost when the piglet is 3 to 4 months old", and farrowing "peaks in April" (GWCT) |
 | **Boats with seats and ribs** | 02, 04, 07; lake mist | the oldest boat is a dugout: "It was made from a single Scots pine log", 8040 to 7510 BC (Wikipedia on the Pesse canoe, secondary) |
-| **Metal-age tools and goods:** a pot hung over the fire, a metal sickle, a potter's wheel, lattice windows | 02, 08 | later than the scenes; dates to check before any village target is used |
+| **Metal-age tools and goods:** a pot hung over the fire, a metal sickle, lattice windows | 02, 08 | later than the scenes; dates to check before any village target is used |
+| **A potter's wheel,** a jar shaped on it | 08 | not clearly later: in the southern Levant "the first potter's wheels" date to the "second half of the 5th mill. BC", the Late Chalcolithic (Copper Age), and shaped mainly "V-shaped bowls" (Roux and Harush, 2022); a jar on a wheel is still to date |
+| **White woolly sheep** | 08 | not clearly later: the start of wool production is "still largely unclear", in "later Neolithic and Chalcolithic societies", and first written of at the "end of the 4th to beginning of the 3rd millennium BCE" in Mesopotamia (Becker and others, 2016); on the cautious view woolly breeds were probably absent from Western Europe before the 3rd millennium BC (Anaya and others, 2024); the white fleece is still to check |
 | **A knapping mallet with a handle** | 01 | knappers strike with a hand-held stone or a billet "made ... out of the base of a mule deer antler" (Denoyer, Archaeology Southwest, a modern knapper) |
 | **Borrowed dress and gear:** red, white and blue bead yokes, a modern rucksack, a slatted sled, maize-like cobs | 03; village, direction B | glass-bead colours and later gear; to check case by case |
 | **Real cultures' signs:** tipi-like cones with smoke-flap poles; Lascaux-like animals and hand stencils | liked sunset, 02, 06; 10 | a Plains tipi's smoke holes "had adjustable, ear-like flaps on each side" (Center of the West); paintings in Kindling come from the kit's own models in each people's style (`CUL-09`, `PRE-46`), never copies (`SCP-20`) |
@@ -403,12 +405,12 @@ Sixteen of my 32 used; a seventeenth request (`autumn-levers.txt`) was held by t
 ## 11. Sources
 
 **The owner and the project**
-- `R/owner/ask/answers.md`, the owner's 32 answers of 6 October 2026: "As I liked" (answers 6 and 7); "Have multiple types that they can choose from, all of these are nice" (answer 13).
+- `R/owner/ask/answers.md`, the owner's 36 answers of 6 October 2026: "As I liked" (answers 6 and 7); "Have multiple types that they can choose from, all of these are nice" (answer 13).
 - `PROJECT.md`: `MIL-09`, `PRE-01` to `PRE-03`, `PRE-20` to `PRE-28`, `PRE-30`, `PRE-42`, `PRN-10`, `CUL-12`; `ARCHITECTURE.md` A4.1, A4.2, A5.2, A5.3, A8.3. Quotes in sections 2 and 3.3 are from these files as of commit `4320212`.
 - Git commit `7874f41` (4 October 2026, the art book's second edition): "The owner found some shapes hard to read through grainy textures".
 
 **Pixel textures on a sharp 3D world**
-- Joe Skrebels, "Minecraft: Vibrant Visuals", Xbox Wire, 25 March 2025, quoting art director Jasper Boerstra: https://news.xbox.com/en-us/2025/03/25/minecraft-vibrant-visuals/
+- Joe Skrebels, "Minecraft: Vibrant Visuals Transforms the Game Into What You've Always Imagined in Your Head", Xbox Wire, 25 March 2025, quoting art director Jasper Boerstra: https://news.xbox.com/en-us/2025/03/25/minecraft-vibrant-visuals/
   - "When you play, you'll notice that the shadows in the game are pixelated. All the reflections are pixelated, too."
   - "We wanted to keep it *Minecraft*-y, and Vibrant Visuals is a great way to bridge familiar elements with new features."
 - Thomas Frick (art director), "An introduction to making models for Hytale", Hytale, 22 December 2025: https://hytale.com/news/2025/12/an-introduction-to-making-models-for-hytale
@@ -462,7 +464,7 @@ Sixteen of my 32 used; a seventeenth request (`autumn-levers.txt`) was held by t
   - "A total of 151 oak timbers preserved in a waterlogged environment were dated between 5469 and 5098 BC"
   - "The logs were split first in half with wooden wedges that were hammered in using wooden mauls."
   - "Stone adzes with transversely hafted blades were used, and the felling cuts were placed just above breast height."
-  - "All of the chest-like well linings were constructed using notched timbers that were either cogged or interlocked at their corner joints."
+  - "All of the chest-like well linings were constructed using notched timbers that were either cogged or interlocked at their corner joints (Figure S17)."
 - Joris Peters and others, "The biocultural origins and dispersal of domestic chickens", PNAS, 2022: https://pmc.ncbi.nlm.nih.gov/articles/PMC9214543
   - "the first unambiguous domestic chicken bones are found at Neolithic Ban Non Wat in central Thailand dated to ∼1650 to 1250 BCE"
   - "in Ethiopia and Mediterranean Europe by ∼800 BCE"
@@ -471,17 +473,30 @@ Sixteen of my 32 used; a seventeenth request (`autumn-levers.txt`) was held by t
   - "The Tobiano spotting was first found in a single Eastern European sample (3500 to 3000 yr B.P.) and later also in Asia."
 - Encyclopaedia Britannica, "Przewalski's horse" (secondary): https://www.britannica.com/EBchecked/topic/481051
   - "The mane is short and erect with no forelock."
+- Smithsonian's National Zoo and Conservation Biology Institute, "Przewalski's horse" (first-hand: the zoo breeds them): https://nationalzoo.si.edu/animals/przewalskis-horse
+  - "They are dun-colored with a dark zebra-like erect mane and no forelock."
 - Game & Wildlife Conservation Trust, species of the month, June 2015 (wild boar): https://gwct.org.uk/wildlife/species-of-the-month/2015/june/
   - "These stripes are lost when the piglet is 3 to 4 months old, when the piglet then takes on a red colouration (reminiscent of a red squirrel's colouration) until it becomes an adult at approximately one year of age."
   - "Farrowing (giving birth) can occur at just about any time but peaks in April, with a typical litter size usually being between 4-6 piglets."
 - Wikipedia, "Pesse canoe" (secondary): https://en.wikipedia.org/wiki/Pesse_canoe
   - "It was made from a single Scots pine log."
   - "Carbon dating indicates that the boat was constructed during the early Mesolithic period between 8040 BC and 7510 BC."
-- Gene Ball, on the Plains tipi, Buffalo Bill Center of the West, Points West (first published 1979): https://centerofthewest.org/2020/03/13/points-west-tipi-function-elegance/
+- Gene Ball, "The Tipi Blends Function and Elegance", on the Plains tipi, Buffalo Bill Center of the West, Points West, Summer 2016 (written in 1979; online 13 March 2020): https://centerofthewest.org/2020/03/13/points-west-tipi-function-elegance/
   - "Smoke holes extended down the front and had adjustable, ear-like flaps on each side."
 - Niall J. O'Sullivan and others, "A whole mitochondria analysis of the Tyrolean Iceman's leather provides insights into the animal sources of Copper Age clothing", Scientific Reports, 2016: https://pmc.ncbi.nlm.nih.gov/articles/PMC4989873
   - "Results indicate that the majority of the samples originate from domestic ungulate species (cattle, sheep and goat)"
   - "Intriguingly, the hat and quiver samples were produced from wild species, brown bear and roe deer respectively."
 - Allen Denoyer, "Hands-on Archaeology: How to Make Flintknapping Tools", Archaeology Southwest, 27 October 2016: https://archaeologysouthwest.org/2016/10/27/hands-on-archaeology-how-to-make-flintknapping-tools/
   - "The tool just left of the pecking stone is called a billet, and I made it out of the base of a mule deer antler."
-- Not verified: the dates of hooped buckets and barrels, the potter's wheel, lattice windows and white woolly sheep in a first-copper village; each is marked "to check" in 6.4.
+- J. E. Quibell, "Excavations at Saqqara (1911–12): The Tomb of Hesy", Cairo, 1913, page 26 (the excavator's report on a tomb of King Neterkhet's Third Dynasty): https://archive.org/details/cu31924028671299
+  - "It will be noted that real cooper's work is intended, — barrels with bevelled staves."
+- Wikipedia, "Cooper (profession)" (secondary, for the date): https://en.wikipedia.org/wiki/Cooper_(profession)
+  - "An Egyptian wall-painting in the tomb of Hesy-Ra, dating to 2600 BC, shows a wooden tub made of staves, bound together with wooden hoops, and used to measure."
+- Valentine Roux and Ortal Harush, "Unveiling the sign value of early potter's wheels based on a 3-D morphometric analysis of Late Chalcolithic vessels from the southern Levant", Journal of Archaeological Science: Reports 45, 2022 (its abstract, on Bar-Ilan University's research portal): https://cris.biu.ac.il/en/publications/unveiling-the-sign-value-of-early-potters-wheels-based-on-a-3-d-m/
+  - "The sign value of the first potter's wheels used in the southern Levant (second half of the 5th mill. BC) is explored through the production modalities of V-shaped bowls, the main category of vessels shaped on the wheel at that time."
+- Cornelia Becker and others, "The Textile Revolution. Research into the Origin and Spread of Wool Production between the Near East and Central Europe", eTopoi, Journal for Ancient Studies, Special Volume 6, 2016 (its abstract): https://edition-topoi.org/article/1092-the-textile-revolution
+  - "The objective of the research group (A-4) Textile Revolution is to contribute to research on the still largely unclear introduction of wool production in later Neolithic and Chalcolithic societies from Western Asia to Central Europe."
+  - "For the later part of the presumably long-lasting development of wool production, written sources are available, the earliest of which date to the Late Uruk and Jemdet Nasr periods (end of the 4th to beginning of the 3rd millennium BCE) in Mesopotamia."
+- Gabriel Anaya and others, "Ancient DNA Reveals the Earliest Evidence of Sheep Flocks During the Late Fourth and Third Millennia BC in Southern Iberia", Animals 14, 3693, 2024: https://pmc.ncbi.nlm.nih.gov/articles/PMC11672771
+  - "with a more conservative view suggesting the probable absence of woolly sheep breeds in Western Europe before the 3rd millennium BCE"
+- Not verified: the dates of lattice windows, a pot hung over the fire, a metal sickle, a jar shaped on a wheel and white fleece in a first-copper village, and whether any coopered vessel is older than Hesy's; each is marked "to check" in 6.4, as are the borrowed dress and gear, case by case.
