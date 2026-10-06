@@ -177,7 +177,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 - the full-resolution picture, with steady texture pixels and a level of every texture drawn for each zoom band;
 - smooth light true to the hour and season, with our own soft shadows and darkening;
 - every material from code, the world or approved pictures; plants as dense and airy as you liked them; water, fire and weather;
-- the model kit made by code, with detailed people and animals that bend at the joints;
+- the model kit: shapes made in Blender as parts and put together like Lego, with detailed people and animals that bend at the joints;
 - the camera's gestures, in portrait and landscape;
 - your phone measured part by part, so what fits is known before content grows.
 
@@ -403,25 +403,27 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 **Tasks:**
 
-1. `T2.3c.1` **Cover and plants (`PRE-46`, `PRE-43`).**
-   Tufts, flower clumps and pebbles set out by the chip from the patch by the density rule; plants drawn the way C2 chose, cut close to their leaves; reeds, bushes and a birch grown by code and varied by seed; each plant's design for band 0 (A6.1).
-2. `T2.3c.2` **Shelters and things (`PRE-42`, `PRE-24`).**
-   The kit's shapes built at load with their creases; two shelter types in two materials each, a skin tent on a stone ring and hides closing off the rock shelter, each recording the excavation it rests on; a hearth ring, a drying rack, baskets and tools as kit layouts; light inside only from openings and fire.
-3. `T2.3c.3` **Fire, and delivery (`PRE-30`).**
+1. `T2.3c.1` **The kit in Blender (`PRE-46`).**
+   Blender in the cloud's setup; the first parts (poles, hide panels, bark sheets, stones, branches, leaf clusters, tufts, tools, rocks) with their texture layouts and joints; the build exporting them for Godot; the assembler putting parts together from recipes in the catalogues, varied by seed; the model sheet of every part and thing.
+2. `T2.3c.2` **Cover and plants (`PRE-46`, `PRE-43`).**
+   Tufts, flower clumps and pebbles set out by the chip from the patch by the density rule; plants drawn the way C2 chose, cut close to their leaves; reeds, bushes and a birch put together from Blender's parts by growth rules and varied by seed; each plant's design for band 0 (A6.1).
+3. `T2.3c.3` **Shelters and things (`PRE-42`, `PRE-24`).**
+   Put together from the kit's parts; two shelter types in two materials each, a skin tent on a stone ring and hides closing off the rock shelter, each recording the excavation it rests on; a hearth ring, a drying rack, baskets and tools as kit layouts; light inside only from openings and fire.
+4. `T2.3c.4` **Fire, and delivery (`PRE-30`).**
    Flames as pixel art made by code at about 10 frames a second, embers as copies, the light grid, fire shadows the way C5 chose, glow in the light function, and smoke as lit cards drawn last; deliver as 30303.
 
 **Tests:**
 - Copies only from about 12 screen pixels, counted at each zoom stop against A4.6's estimates; the same patch gives the same tufts on two visits (`WLD-13`).
 - A fire inside the tent lights its doorway, and no light passes through its wall (a view of each fire's reach).
 - The two shelters in two materials are told apart at the close camp on the model sheet.
-- Every kit shape's texture pixels stretch at most 1.5:1 on every triangle, and a pole's wrap never shows (A6.4).
+- Every part's texture pixels stretch at most 1.5:1 on every triangle, and a pole's wrap never shows (A6.4); every recipe's parts meet at their joints.
 - Passes if all pass, with the frame within its line or the part over it named.
 
 **On the phone:** the camp has its meadow, plants, two shelters and a fire; turn round the tent and look into the shelter.
 
 ### α2.3d People, a deer and first light
 
-**Goal:** detailed people and a deer made by code on their skeletons, moving 10 times a second; then first light: the camp at the closest zoom beside the picture you liked, for your eye.
+**Goal:** detailed people and a deer from Blender's parts on their skeletons, moving 10 times a second; then first light: the camp at the closest zoom beside the picture you liked, for your eye.
 
 **Serves:** `PRE-01`, `PRE-27`, `PRE-28`, `PRE-31`, `PRE-44`, `PRE-46`.
 
@@ -430,7 +432,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.3d.1` **The figure (`PRE-27`, `PRE-46`).**
-   One skeleton; the body as rings round each bone, by build, age and sex; three ages in three garments as shells; hair and beads; faces at band 0 in their 12 states as small designs; held tools on bones; proportions from the family sheet you accepted.
+   One skeleton; the body from Blender's parts, with build, age and sex as shape keys and part choices; three ages in three garments; hair and beads; faces at band 0 in their 12 states as small designs; held tools on bones; proportions from the family sheet you accepted.
 2. `T2.3d.2` **The poser (`PRE-44`).**
    Key poses as joint angles for standing, walking, sitting, crouching at work, knapping and carrying; the bending rules and seed offsets; palettes written at each pose step and bent on the chip, or Godot's skeletons for as many as C6 allows; poses held or gliding by a switch.
 3. `T2.3d.3` **A deer (`PRE-44`, `PRE-46`).**

@@ -63,7 +63,7 @@ The code is the index: code names the `PROJECT.md` items it implements, so this 
 | Events on one queue run in islands, keyed chance, correctly rounded maths, Box2D's rules for floating point | The same bits everywhere, at any speed and on any number of threads; long processes cost nothing until they end |
 | The full-resolution picture with 2× MSAA; texture pixels steadied by a smooth-pixel filter and a level drawn for each zoom band; one shared light function with our own soft shadows and darkening; no outlines up close | The look you chose; steadiness from how textures are read, not from the camera; Mobile has neither shadows that widen nor darkening in corners |
 | The feeling as guidance, a target card as an alarm, one approved picture per place relit for its hours; a saving kept only if it passes your blind test | Rules can't hold a feeling, and you judge the look; you turned down every visible saving |
-| The model kit built by code at load and drawn as MultiMesh copies; surfaces from code, the world, or approved pictures prepared by code; a skeleton per body pattern, posed in C++ at 10 a second and bent on the graphics chip | Countable content with the detail you chose; colour and style per copy; crowds without Godot's cost per figure |
+| The model kit's shapes made in Blender as parts, put together by code like Lego and drawn as MultiMesh copies; surfaces from code, the world, or approved pictures prepared by code; a skeleton per body pattern, posed in C++ at 10 a second and bent on the graphics chip | Countable content with the detail you chose; many options from few parts; colour and style per copy; crowds without Godot's cost per figure |
 | A generator in the order of real causes, many candidates scored | Believable worlds from a seed, tuned for the look |
 | Our own levels of detail on Godot's RenderingServer, a moving origin, a map look that bends into the globe | No plug-in does our mix; Godot draws in single precision |
 | Species as data, numbers by Damuth's law, individuals near people and counts far away | Nature that holds over centuries at any speed |
@@ -94,8 +94,8 @@ data/        catalogues, tuning files, scenes and benchmark worlds, as TOML (A3.
              demo/ for what only the foundations show
 android/     the release certificate; an Android plug-in only if the phone ever needs one (A3.9)
 tools/       setup, checks, builds, delivery, the file check, signing
-art/         the pictures you chose (targets), and the textures: their levels, records, sheets, sources and
-             requests (A5.4)
+art/         the pictures you chose (targets); the textures: their levels, records, sheets, sources and
+             requests (A5.4); and the kit's parts as Blender files (A6.1)
 dist/        the signed APK of the latest alpha and its note
 ```
 
@@ -122,6 +122,7 @@ dist/        the signed APK of the latest alpha and its note
   - **Our own build,** only if M2's calibration scenes call for it (your OK, 6 October 2026; A4.1): Godot 4.7.2's Android export templates built from its tagged source in the cloud with at most three small patches kept as files beside the build script (a depth pre-pass for leaves with an equal depth test; buffers that never reach memory; a shading rate for each material), pinned and tested like the stock ones.
     If keeping it proves too costly, the stock templates return and the 3D is drawn at 0.75 scale where a scene needs it.
   - `quit_on_go_back` is off and `retain_data_on_uninstall` on (A3.7).
+- **Blender:** each part's Blender file is its source; the build exports every part with its texture layout and joints for Godot (A6.1).
 - **Targets:** Android arm64 for the phone, and Linux x86-64 for tests and pictures in the cloud.
   There is no web build: Godot's is about 40 MB, beyond the private page's 15 MB.
 
@@ -150,7 +151,8 @@ dist/        the signed APK of the latest alpha and its note
 - the Android SDK, NDK and JDK;
 - CMake and Ninja, clang-format and clang-tidy, GCC 13 and its arm64 cross compiler, qemu, MPFR (the maths library's test oracle), and the formatters and linters of GDScript (gdtoolkit) and Python (ruff);
 - gdUnit4, doctest, godot-cpp 4.5, EnTT 4.0.0, toml++, xxHash and zstd;
-- Mesa's software Vulkan driver (lavapipe) and Xvfb, so Godot can draw pictures without a graphics chip.
+- Mesa's software Vulkan driver (lavapipe) and Xvfb, so Godot can draw pictures without a graphics chip;
+- Blender, to make and export the kit's parts.
 
 CORE-MATH's few C files are kept in `sim/thirdparty/` at a pinned commit, with a sample of its hard cases, since its host is the one source a session might not reach; `tools/core-math.py` copies them from a checkout of that commit.
 
@@ -480,7 +482,7 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
 - **Cloud shadows** come from the weather's clouds moving over the ground, with no pass.
 - *Estimated:* a 2,048 map with grass and small plants kept out of it, and softness that needs no wide search, save about 2–8 ms against pre-production's 4,096 map with every leaf in it.
 - **Darkening in corners and under things,** which you kept, with no screen-space pass, which Mobile lacks and which would cost about 2–5 ms at full resolution and end the merged pass:
-  - baked into each kit shape's corners, creases, insides and undersides when the code builds it (A6.1);
+  - baked into each part's corners, creases, insides and undersides in Blender, and where parts meet when they are put together (A6.1);
   - painted into textures as crease and cavity darkening;
   - an **openness map** seen from above round the focus (about 1024 texels square, about 6 cm a texel at the closest zoom), made from the ground's heights and the tops of what stands there, the same heights the fires use: still things when an area loads or changes, moving ones at their pose steps;
   - a **contact map:** each thing's footprint darkens the ground under it, stones and baskets once, people and animals as soft ellipses at each pose step;
@@ -705,17 +707,18 @@ It replaces the art bible's rules.
 
 ### A6.1 The kit (`PRE-46`)
 
-- **Code builds the kit and moves it.**
-  Each form's shared shape is built at load by our C++ in `view/` as an `ArrayMesh` from the kit's parameters in the catalogues, its corners, creases and undersides darkened as it is built (A4.4); a new thing is a catalogue entry, and its model follows from its parts.
-  - *Proved in pre-production* (P3): eleven shapes, two plants and a deer built at load from parameters in about 23 ms.
+- **Parts like Lego.** Every shape is a part made in Blender: poles, hide panels, bark sheets, stones, branches, leaf clusters, tufts, body parts, garment pieces, hair, tools, rocks and cliff pieces.
+  - Each part has its texture layout (A6.4) and named joints where it plugs into others, and you can open any part in Blender and change it.
+  - Code puts parts together from recipes in the catalogues, varying size, count, angle, material and wear by seed, so a few hundred parts give thousands of things; a new thing is a catalogue entry.
+  - Corners, creases and undersides are darkened in each part, and where parts meet when they are put together (A4.4).
 - **Plants:** about 8 forms.
-  Trees and bushes grow their branches by code for each species, stage and a few variants; leaf clusters are cut-out cards designed for each band and cut close to their leaves; one approved sheet for each species sets its crown, its colours by season and its stages, in the style of the birch sheet you accepted.
+  Trees and bushes are trunks, branches and leaf clusters from Blender, put together by growth rules for each species, stage and variant; leaf clusters are cut-out cards designed for each band and cut close to their leaves; one approved sheet for each species sets its crown, its colours by season and its stages, in the style of the birch sheet you accepted.
 - **People:** one figure on one skeleton.
-  - The body is built as rings round each bone, widened by build, age and sex from catalogue numbers; rings near a joint follow both bones in part, so the joint bends smoothly.
+  - The body is made of Blender parts on the skeleton (head, torso, arms, hands, legs, feet), with build, age and sex as shape keys and part choices; near a joint the mesh follows both bones in part, so it bends smoothly.
   - Garments are shells over it (about 8 kinds, in child and adult sizes); hair, beads and paint follow each people's style (`CUL-12`); proportions by age are read from the family sheet you accepted.
   - Garments vary in material and colour within what the finds show (pale and dark hide, light and dark fur, striped coats), never one brown, which also helps people stand out from busy ground.
   - About 1,500 triangles in full form, within a budget of 4,000 (A18.1).
-- **Animals:** six body patterns, one skeleton each, with bodies made by code the same way.
+- **Animals:** six body patterns, one skeleton each, with bodies from Blender parts the same way.
   A species is its proportions, colours and markings, with small generators for antlers (tines by age), horns, tusks and manes; coats come from approved sheets, their markings varied by seed.
 - **Shelters,** several types, each a layout of shared parts tied to what an excavation shows:
   - hides closing off a rock shelter or a cave mouth;
@@ -770,10 +773,10 @@ It replaces the art bible's rules.
 - **One rule everywhere:** texture coordinates are in metres, so a texture pixel is 1/64 m on every surface at band 0, on people, tents and ground alike, and none is stretched beyond about 1.5:1 (`PRE-22`).
 - **The ground** is mapped from above in world metres, offset with the moving origin so its texture pixels never drift; above about 45° of slope, where a top-down map would stretch a pixel past 1.4 times its length, faces take a projection from the side.
 - **Cliffs and other rock:** each triangle takes one projection, from the direction it faces, with height as its vertical, so the texture lines up with the rock layers laid by code; never a blend of three projections, which smears pixel art. Where two faces meet, their texture pixels need not line up: the edge is where the light changes anyway.
-- **Kit shapes write their own coordinates as they are built,** so they unwrap exactly with no hand work: a pole, trunk or branch around and along, its circumference rounded to whole texture pixels so the wrap never shows; a hide panel or bark sheet by its flat cut shape; a stone by one projection a face.
-- **Figures:** each limb's rings unwrap like a sleeve, around and along its bone; garments are shells that reuse the body's layout; the face is a small design on the head's front, about 14 texture pixels tall. The coordinates belong to the mesh, so texture pixels ride on the body as the skeleton bends.
+- **Each part is unwrapped in Blender at this density:** a pole, trunk or branch around and along, its circumference rounded to whole texture pixels so the wrap never shows; a hide panel or bark sheet by its flat cut shape; a stone by one projection a face.
+- **Figures:** each limb unwraps like a sleeve, around and along its bone; garments are shells that reuse the body's layout; the face is a small design on the head's front, about 14 texture pixels tall. The coordinates belong to the mesh, so texture pixels ride on the body as the skeleton bends.
 - **Plants:** leaves and grass are cut-out cards carrying their design for each band; trunks and branches are sleeves of bark.
-- **A check in the cloud** measures each kit shape's stretch, triangle by triangle, and fails any outside the line.
+- **A check in the cloud** measures each part's stretch, triangle by triangle, and fails any outside the line.
 
 ### A6.5 Sheets
 
