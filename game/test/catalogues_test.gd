@@ -37,7 +37,7 @@ func test_the_catalogues_are_the_same_as_the_build() -> void:
 	)
 	assert_int(lines.size()).is_equal(1)
 	assert_str(lines[0]["state"]).override_failure_message(str(lines[0])).is_equal("ok")
-	assert_str(lines[0]["value"]).contains("2 sources, 5 kinds, 6 entries")
+	assert_str(lines[0]["value"]).contains("2 sources, 7 kinds, 16 entries")
 
 
 # checks: MAT-13
