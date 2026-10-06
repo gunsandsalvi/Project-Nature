@@ -23,6 +23,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - α1.3c, the crowd on your phone, is delivered as 20303, and α1.3 is closed by the builder's review: 10,000 markers drawn from the world's newest snapshot at any speed, each exactly where the world has it, with the heat governor and the counters (A3.8, A3.9).
 - α1.4a, saves and the journal, is delivered as 20401: the crowd's world kept on the phone, saved every 30 seconds and as the app leaves the screen, your commands written before they act, and after any kill or crash it opens where it was and catches up exactly (A3.7).
 - α1.4b, worlds, export and updates, is delivered as 20402, and α1.4 is closed by the builder's review: several worlds kept and switched on a Worlds page, one exported to a .kindling file and imported again, α1.4a's worlds opened and carried on after a small update with their last save kept aside for an hour, the history thinned after 25 years, and a warning before the phone is full (A3.7).
+- α1.5a, scenes and runs, is delivered as 20501: scenes stated in files before they run, their runs many at once in the cloud, judged by their rules with the 40-run rerun, oddities flagged, test switches only in the cloud's builds, runs that resume exactly, the repeat check in every check, and the cloud's last report on a Reports page with the test world it ran (A17).
 
 ## How to use this plan
 
@@ -122,8 +123,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.5a | Scenes and runs | M1 | 6 | Next |
-| α1.5b | The benchmark and M1's end | M1 | 6 | Planned |
+| α1.5b | The benchmark and M1's end | M1 | 6 | Next |
 | The slice | The vertical slice | After M1 | | Proposed, for your OK |
 | M2 to M10 | Outlines below | M2 to M10 | | Detailed when each comes next |
 
@@ -151,33 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.5a Scenes and runs
-
-**Goal:** the test machinery every later milestone uses: scenes stated before they run, runs over 20 seeds, switches only in tests, oddities flagged, long runs that resume exactly, the repeat check before anything joins, and reports you can read.
-
-**Serves:** `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-21`, `RES-05`, `RES-06`, `PLT-05`, `PRC-10`.
-
-**Architecture:** A17, A3.1, A3.7.
-
-**Tasks:**
-
-1. `T1.5a.1` **Scenes and their pass rules (`RES-21`, `RES-09`, `RES-13`).**
-   Scenes as TOML in `data/scenes/`, each stating its items, seed, runs, time limit, budget and pass rule before its first run; `kindling scene` runs many worlds at once on the cloud's cores and counts the rule; a failed rule re-runs on 20 fresh seeds and is judged on all 40.
-2. `T1.5a.2` **Switches and oddities (`RES-10`, `RES-12`).**
-   Test switches compiled only into test builds and recorded in the world and the report; oddities flagged by expected ranges and "never" rules, and a crash, creeping memory or a save that won't reopen.
-3. `T1.5a.3` **Long runs and the repeat check (`PLT-05`, `RES-05`, `PRC-10`).**
-   Runs that keep checkpoints and resume after a restart as if never stopped; `tools/check.sh` runs one scene and one benchmark world twice, on one core and on four with a stop and resume between, and they must end identical; a test world marked as one, which opens on the phone.
-4. `T1.5a.4` **Reports (`RES-06`).**
-   A run's or a scene's report as a page with its charts and its ranges ("in 18 of 20 worlds"); the app's Reports page shows the last ones; deliver.
-
-**Tests:**
-- A scene with one of each oddity planted flags every one (`RES-12`).
-- A run stopped with its session and resumed in a new one ends identical to an unbroken run (`PLT-05`).
-- A scene whose rule fails once passes or fails by the 40-run rule (`RES-13`).
-- Passes if all pass.
-
-**On the phone:** open Reports to read the cloud's last scene report, and open the test world it ran, marked as a test world.
 
 ### α1.5b The benchmark and M1's end
 
