@@ -126,6 +126,13 @@ godot::Array KdWorlds::list() const {
         const std::optional<demo::About> about = about_text ? demo::read_about(*about_text) : std::nullopt;
         w["name"] = text_of(about ? about->name : std::string());
         w["seed"] = about ? static_cast<int64_t>(about->seed) : int64_t{0};
+        // a test's world, marked as one with the switches it ran with (RES-10, PLT-05)
+        w["test"] = about && about->test;
+        godot::PackedStringArray switches;
+        for (const std::string& s : about ? about->switches : std::vector<std::string>{}) {
+            switches.append(text_of(s));
+        }
+        w["switches"] = switches;
         // the newest snapshot: its moment, when it was saved, and the version that saved it
         std::vector<std::string> snapshots;
         for (const fs::directory_entry& s : entries<fs::directory_iterator>(item.path() / "snapshots")) {
@@ -192,8 +199,11 @@ godot::String KdWorlds::make(const godot::String& name, int64_t seed, int64_t ca
     if (error) {
         return {};
     }
-    const std::string text = demo::about_text(
-        {utf8(name), static_cast<std::uint64_t>(std::max<int64_t>(seed, 0)), std::max<int64_t>(camps, 0)});
+    demo::About about;
+    about.name = utf8(name);
+    about.seed = static_cast<std::uint64_t>(std::max<int64_t>(seed, 0));
+    about.camps = std::max<int64_t>(camps, 0);
+    const std::string text = demo::about_text(about);
     save::DiskFiles files((fs::path(root_) / id).string());
     if (!files.write_whole("world.toml", save::Bytes(reinterpret_cast<const std::byte*>(text.data()),
                                                      reinterpret_cast<const std::byte*>(text.data()) + text.size()))) {

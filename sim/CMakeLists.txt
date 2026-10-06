@@ -43,6 +43,7 @@ add_library(kd_sim STATIC
     src/kd/event/queue.cpp
     src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp
+    src/kd/demo/crowd_scene.cpp
     src/kd/demo/crowd_world.cpp
     src/kd/demo/kept.cpp
     src/kd/num/angle.cpp
@@ -62,6 +63,8 @@ add_library(kd_sim STATIC
     src/kd/save/log.cpp
     src/kd/save/snapshot.cpp
     src/kd/save/versions.cpp
+    src/kd/scene/report.cpp
+    src/kd/scene/scene.cpp
     src/kd/time/calendar.cpp
     src/kd/time/duration.cpp
     src/kd/world/parts.cpp
@@ -72,6 +75,10 @@ target_include_directories(kd_sim SYSTEM PUBLIC "${KD_ENTT}")
 target_include_directories(kd_sim SYSTEM PRIVATE "${KD_XXHASH}" "${KD_TOMLPP}" thirdparty/core-math)
 target_link_libraries(kd_sim PUBLIC Threads::Threads PRIVATE kd_core_math kd_zstd)
 kindling_rules(kd_sim)
+# test switches exist in the cloud's test builds only, never in the game's own (RES-10, PRN-12)
+if(KD_SIM_TESTS)
+    target_compile_definitions(kd_sim PUBLIC KD_TEST_SWITCHES)
+endif()
 
 if(KD_SIM_TESTS)
     add_executable(kindling tools/kindling.cpp)
@@ -92,6 +99,7 @@ if(KD_SIM_TESTS)
         tests/run_test.cpp
         tests/runner_test.cpp
         tests/save_test.cpp
+        tests/scene_test.cpp
         tests/world_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
     # the repository, where the tests find the data folder and the corpus of old worlds (PLT-09)

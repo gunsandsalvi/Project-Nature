@@ -316,7 +316,9 @@ void Markers::handle(world::Context& c, const event::Event& e) {
     const Marker& kind = kinds_[raw.get<MarkerKind>(*found).kind];
     const num::Point here = a.to;
     const time::Seconds now = c.now();
-    if (daylight_.night_at(now)) {
+    // a test switch can plant a fault in one marker, the first, for the checks to find (RES-10, RES-12)
+    const bool planted = !ids_.empty() && id == ids_.front();
+    if (daylight_.night_at(now) && !(planted && w.switched(world::Switch::plant_insomnia))) {
         // it sleeps till dawn, and lies in for part of a rest, so the crowd does not all wake at once
         const chance::Draws lie_in(w.seed(), chance::name("markers"), id.value, now, chance::name("lie in"));
         const time::Seconds wakes = daylight_.next_dawn(now) + lie_in.between(0, 0, longest_rest(kind) / 2);
@@ -330,10 +332,13 @@ void Markers::handle(world::Context& c, const event::Event& e) {
         // to its camp, where others gather, or to a place chosen by keyed chance up to the wander east or north of it
         const Home& home = raw.get<Home>(*found);
         const chance::Draws draws(w.seed(), chance::name("markers"), id.value, now, chance::name("destination"));
-        const num::Point to =
+        num::Point to =
             draws.fires(0, homeward_)
                 ? home.at
                 : w.torus().moved(home.at, {draws.between(1, -wander_, wander_), draws.between(2, -wander_, wander_)});
+        if (planted && w.switched(world::Switch::plant_wander)) {
+            to = w.torus().moved(home.at, {20 * wander_, 0});
+        }
         a = walk_to(w, kind, here, to, now);
     }
     c.schedule(id, world::kActivitySlot, a.end);
@@ -349,12 +354,15 @@ void Markers::walk_ended(world::Context& c, world::Beings::Handle h, ecs::Id id)
     const time::Seconds now = c.now();
     // it may greet one of those within reach, who stops what it is doing a second later, when the call lands
     const chance::Draws draws(w.seed(), chance::name("markers"), id.value, now, chance::name("greeting"));
-    if (draws.fires(0, kind.greets)) {
+    if (!w.switched(world::Switch::no_greetings) && draws.fires(0, kind.greets)) {
         const std::vector<ecs::Id> others = greetable(c, id, here, now, kind.reach / 10);
         if (!others.empty()) {
             const ecs::Id other = others[draws.below(1, others.size())];
             c.schedule(other, world::kCallSlot, now + 1);
             c.record(static_cast<std::uint32_t>(Happened::greeting), id.value, other.value);
+            if (w.switched(world::Switch::plant_chatter)) {
+                c.record(static_cast<std::uint32_t>(Happened::greeting), id.value, other.value);
+            }
             a = {doing(Doing::greet), now, now + 1 + greeting_, here, here};
             c.schedule(id, world::kActivitySlot, a.end);
             moved(c, id);

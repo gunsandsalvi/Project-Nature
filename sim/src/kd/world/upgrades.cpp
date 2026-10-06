@@ -1,11 +1,24 @@
 #include "kd/world/upgrades.hpp"
 
 #include <algorithm>
+#include <array>
 
 namespace kd::world {
 
+namespace {
+
+// WRLD 1 to 2 (α1.5a): the test switches a world runs with joined its clock; a world saved before had none.
+bool switches_joined(save::Bytes& data) {
+    data.insert(data.end(), 8, std::byte{0});
+    return true;
+}
+
+constexpr std::array<save::Upgrade, 1> kUpgrades{{{save::tag("WRLD"), 1, switches_joined}}};
+
+}  // namespace
+
 std::span<const save::Upgrade> upgrades() {
-    return {};
+    return kUpgrades;
 }
 
 std::span<const Migration> migrations() {

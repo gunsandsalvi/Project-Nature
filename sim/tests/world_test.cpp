@@ -28,15 +28,7 @@ std::vector<Key> drain(Queue& q) {
     return out;
 }
 
-const kd::data::Catalogue& fixture() {
-    static const kd::data::Catalogue catalogue = [] {
-        kd::data::Catalogue c;
-        const auto files = kd::proof::fixture_files();
-        REQUIRE(c.load(files).empty());
-        return c;
-    }();
-    return catalogue;
-}
+using kd::test::fixture;
 
 // The digest of a crowd's whole state at each of the given seconds, run there one event at a time, or in islands of a
 // window's length on some threads, with the order fuzzer on or off.

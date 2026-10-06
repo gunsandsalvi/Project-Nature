@@ -65,6 +65,26 @@ class Planted(unittest.TestCase):
         found = self.problems("flags")
         self.assertTrue(any("-ffp-model=precise" in p for p in found), found)
 
+    # checks: RES-10
+    def test_test_switches_in_the_game_s_own_build_are_caught(self):
+        os.makedirs(os.path.join(self.root, "view"))
+        for name in ("view/a.cpp", "sim/b.cpp"):
+            self.commands.append(
+                {
+                    "directory": self.build,
+                    "file": os.path.join(self.root, name),
+                    "arguments": ["clang++", "-DKD_TEST_SWITCHES", "-ffp-contract=off", "-funsigned-char", "-c", name],
+                }
+            )
+        self.write_commands()
+        found = self.problems("flags")
+        self.assertEqual(len(found), 2, found)
+        self.assertTrue(all("test switches" in p for p in found), found)
+        # the simulation's own build, for its tests and tool, has them
+        self.commands = [c for c in self.commands if "/view/" not in c["file"]]
+        self.write_commands()
+        self.assertEqual(self.problems("flags"), [])
+
     # checks: RES-05
     def test_fast_maths_is_caught_even_before_the_contract_flag(self):
         self.commands.append(

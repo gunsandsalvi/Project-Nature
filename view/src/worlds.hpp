@@ -19,7 +19,7 @@
 
 namespace kd::view {
 
-/// Implements TIM-08, PLT-08 and PLT-10, see A3.7: the worlds on the phone.
+/// Implements TIM-08, PLT-08, PLT-10, PLT-05 and RES-10, see A3.7: the worlds on the phone, a test's marked as one.
 class KdWorlds : public godot::RefCounted {
     GDCLASS(KdWorlds, godot::RefCounted)
 
@@ -27,9 +27,10 @@ public:
     /// The folder the worlds are in, an absolute path; made if it is missing.
     void set_root(const godot::String& root);
 
-    /// Every world, by name: its id, its name (empty when it has none, as α1.4a's), seed, the moment its newest
-    /// snapshot is at and its words, when it was saved in seconds since 1970, the version that saved it, and its size
-    /// in bytes in all and by part: snapshots, journal, history and the copy kept from before an update.
+    /// Every world, by name: its id, its name (empty when it has none, as α1.4a's), seed, whether it is a test's
+    /// world and the switches it ran with, the moment its newest snapshot is at and its words, when it was saved in
+    /// seconds since 1970, the version that saved it, and its size in bytes in all and by part: snapshots, journal,
+    /// history and the copy kept from before an update.
     godot::Array list() const;
     /// A new world's folder with its world.toml, its name, seed and camps (0 for the tuning's): its id. The world is
     /// made as it is first opened.

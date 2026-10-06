@@ -1,0 +1,32 @@
+# Every kind of oddity planted (A17, RES-12): six runs of a small crowd, each with one fault planted by a test switch
+# (RES-10), each of which the checks must flag: a marker that wanders off, one that never sleeps, greetings recorded
+# twice, a crash, memory that creeps up, and a save that will not open. The check runs it on every change.
+about = "One of each oddity planted, each to be flagged"
+checks = ["RES-12", "RES-10"]
+world = "crowd"
+camps = 2
+seed = 7
+runs = 6
+until = "8 d"
+limit = "1 min"
+budget = "0.1 h"
+switches = ["plant_wander", "plant_insomnia", "plant_chatter", "plant_crash", "plant_leak", "plant_bad_save"]
+one_each = true
+
+[pass]
+measure = "greetings_per_camp_day"
+at_least = 1
+in = 5
+
+[[expect]]
+measure = "greetings_per_camp_day"
+from = 5
+to = 25
+
+[[never]]
+rule = "farther_from_home"
+limit = 5000
+
+[[never]]
+rule = "awake_at_midnight"
+limit = 2

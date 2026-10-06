@@ -1,0 +1,17 @@
+# A rule that fails on its first runs (A17, RES-13): the greetings scene's crowd, held to a total of greetings that 15
+# of its first 20 worlds reach, one short of the rule; so it runs 20 more on fresh seeds and is judged on all 40, at
+# least 32 needed. The check runs it on every change and recounts the verdict from the report.
+about = "A rule that fails once, judged again on 40 runs"
+checks = ["RES-13"]
+world = "crowd"
+camps = 4
+seed = 1
+runs = 20
+until = "20 d"
+limit = "1 min"
+budget = "0.1 h"
+
+[pass]
+measure = "greetings"
+at_least = 1390
+in = 16

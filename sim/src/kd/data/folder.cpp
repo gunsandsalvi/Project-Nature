@@ -13,6 +13,11 @@ std::vector<SourceFile> read_folder(const std::string& folder) {
     for (std::filesystem::recursive_directory_iterator it(folder, error);
          !error && it != std::filesystem::recursive_directory_iterator(); it.increment(error)) {
         const std::filesystem::directory_entry& item = *it;
+        // the scenes are tests' settings, not entries (A17)
+        if (item.is_directory(error) && it.depth() == 0 && item.path().filename() == "scenes") {
+            it.disable_recursion_pending();
+            continue;
+        }
         if (item.is_regular_file(error) && item.path().extension() == ".toml") {
             std::ifstream in(item.path(), std::ios::binary);
             std::stringstream text;

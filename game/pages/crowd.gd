@@ -67,6 +67,7 @@ var _greetings := 0
 var _last_greeting := -1
 var _problems := PackedStringArray()
 var _name := ""
+var _test := ""
 
 
 func _ready() -> void:
@@ -101,6 +102,7 @@ func _ready() -> void:
 	for listed: Dictionary in worlds.list():
 		if listed["id"] == folder.get_file():
 			_name = Worlds.name_of(listed)
+			_test = Worlds.test_words(listed)
 	if opened.has("problem"):
 		_counters.text = "The crowd's world did not open: %s" % opened["problem"]
 		set_process(false)
@@ -177,6 +179,8 @@ func _show() -> void:
 	var lines := PackedStringArray()
 	if _name != "":
 		lines.append(_name)
+	if _test != "":
+		lines.append(_test)
 	if opened.get("update", "none") == "small":
 		lines.append("Saved by an earlier version, this world carries on under this one")
 	var warning := Worlds.space_warning(c.get("free_mb", -1), c.get("warn_below_mb", 0))
@@ -189,7 +193,11 @@ func _show() -> void:
 	lines.append(
 		(
 			"%s walkers on one core, %s events a second, a batch in %.1f ms"
-			% [_count(c["walkers"]), _count(roundi(c["events_per_second"])), c["batch_ms"]]
+			% [
+				Worlds.count_words(c["walkers"]),
+				Worlds.count_words(roundi(c["events_per_second"])),
+				c["batch_ms"]
+			]
 		)
 	)
 	var asked := "Asked: %s" % SpeedBar.speed_words(c["speed"], false)
@@ -203,21 +211,11 @@ func _show() -> void:
 	var last := ""
 	if _last_greeting >= 0:
 		last = ", the last at %s" % _clock_of(_last_greeting)
-	lines.append("Greetings: %s%s" % [_count(_greetings), last])
+	lines.append("Greetings: %s%s" % [Worlds.count_words(_greetings), last])
 	if _called != "":
 		lines.append(_called)
 	_counters.text = "\n".join(lines)
 	bar.show_speed()
-
-
-## A count with its thousands set apart: 10,000.
-static func _count(n: int) -> String:
-	var digits := str(absi(n))
-	var out := ""
-	while digits.length() > 3:
-		out = "," + digits.substr(digits.length() - 3) + out
-		digits = digits.substr(0, digits.length() - 3)
-	return ("-" if n < 0 else "") + digits + out
 
 
 ## A game second's hour of the day, "06:05".

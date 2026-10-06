@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 """Fills game/data/ for each build: the catalogue's sources and build.toml, what the phone's self-check compares
-itself with (A2.3, A3.6).
+itself with (A2.3, A3.6), and the scenes' last reports with a world each (A17).
 
     python3 tools/gamedata.py <kindling tool>
 
 It checks the catalogue with the cloud's own build of the simulation (the kindling tool) and refuses to go on if it
-finds a problem; copies every .toml file under data/ into game/data/, in the same folders, and removes any it no longer
-holds; runs every proof suite on one thread and on four, refusing to go on if they differ; and writes build.toml:
+finds a problem; copies every .toml file under data/ but its scenes into game/data/, in the same folders, and
+removes any it no longer holds; runs every proof suite on one thread and on four, refusing to go on if they differ;
+and writes build.toml:
 - [proof]: each suite's digest;
 - [catalogue]: the world-making version, each file the phone reads with its SHA-256, and each source's version and
   rules, world and look digests, as the simulation fingerprints them.
+Then it runs every scene in data/scenes, saved under the app's version, and puts its report in game/data/reports/,
+with the world of its first odd run, or else its first, as a .kindling file the Reports page opens (RES-06, PLT-05):
+<scene>.json and <scene>-<run>.kindling. A report whose runs ended as before is left as it was, with its world, so
+the Godot step sees nothing changed.
 game/data/ is made by the build and never committed (A2.1).
 """
 
 import hashlib
+import json
 import os
 import shutil
 import subprocess
@@ -23,6 +29,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 OUT = os.path.join(ROOT, "game", "data")
 BUILD = os.path.join(OUT, "build.toml")
+SCENES = os.path.join(DATA, "scenes")
+REPORTS = os.path.join(OUT, "reports")
+# where the scenes' worlds are kept as they run
+RUNS = os.path.join(ROOT, "build", "scenes")
 
 
 def digests(tool, threads):
@@ -49,9 +59,12 @@ def sources_of(tool):
 
 
 def data_files():
-    """Every .toml file under data/, by its path from there, in order."""
+    """Every .toml file under data/ but its scenes, which are the cloud's tests (A17), by its path from there, in
+    order."""
     out = []
-    for dirpath, _, names in os.walk(DATA):
+    for dirpath, dirs, names in os.walk(DATA):
+        if dirpath == DATA and "scenes" in dirs:
+            dirs.remove("scenes")
         for name in names:
             if name.endswith(".toml"):
                 out.append(os.path.relpath(os.path.join(dirpath, name), DATA).replace(os.sep, "/"))
@@ -59,11 +72,11 @@ def data_files():
 
 
 def copy_sources(files):
-    """game/data/ holds exactly data/'s files, and build.toml."""
+    """game/data/ holds exactly data/'s files, build.toml and the reports."""
     for dirpath, _, names in os.walk(OUT, topdown=False):
         for name in names:
             rel = os.path.relpath(os.path.join(dirpath, name), OUT).replace(os.sep, "/")
-            if rel != "build.toml" and rel not in files:
+            if rel != "build.toml" and not rel.startswith("reports/") and rel not in files:
                 os.remove(os.path.join(dirpath, name))
         if dirpath != OUT and not os.listdir(dirpath):
             os.rmdir(dirpath)
@@ -102,6 +115,54 @@ def build_toml(proof, version, files, sources):
     return "\n".join(lines) + "\n"
 
 
+def app_version():
+    """The app's version, as tools/build.sh writes it into the project: the scenes' worlds are saved under it, so the
+    phone opens them as its own."""
+    with open(os.path.join(ROOT, "game", "project.godot")) as f:
+        for line in f:
+            if line.startswith("config/version="):
+                return line.split("=", 1)[1].strip().strip('"')
+    return "kindling"
+
+
+def steady(report):
+    """A report but for the real seconds it took, which differ from one run to the next."""
+    return {k: v for k, v in report.items() if k != "seconds"}
+
+
+def reports(tool):
+    """Each scene run, its report and one of its worlds put in game/data/reports/: their names."""
+    os.makedirs(REPORTS, exist_ok=True)
+    version = app_version()
+    kept = set()
+    for scene in sorted(f for f in os.listdir(SCENES) if f.endswith(".toml")):
+        name = scene[:-5]
+        out = os.path.join(RUNS, name)
+        command = [tool, "scene", os.path.join(SCENES, scene), "--out", out, "--data", DATA, "--build", version]
+        run = subprocess.run([*command, "--fresh"], capture_output=True, text=True)
+        made = os.path.join(out, "report.json")
+        if not os.path.isfile(made):
+            raise RuntimeError(f"the scene {name} left no report\n{run.stdout}{run.stderr}")
+        with open(made) as f:
+            report = json.load(f)
+        odd = [r for r in report["each"] if r["oddities"]]
+        shown = (odd or report["each"])[0]["index"]
+        world = f"{name}-{shown + 1}.kindling"
+        target = os.path.join(REPORTS, f"{name}.json")
+        before = None
+        if os.path.isfile(target):
+            with open(target) as f:
+                before = json.load(f)
+        if before is None or steady(before) != steady(report) or not os.path.isfile(os.path.join(REPORTS, world)):
+            shutil.copyfile(made, target)
+            folder = os.path.join(out, f"run-{shown:03d}")
+            subprocess.run([tool, "export", folder, os.path.join(REPORTS, world)], check=True)
+        kept |= {f"{name}.json", world}
+    for gone in set(os.listdir(REPORTS)) - kept:
+        os.remove(os.path.join(REPORTS, gone))
+    return sorted(k for k in kept if k.endswith(".json"))
+
+
 def main(argv):
     if len(argv) != 1:
         print(__doc__)
@@ -121,9 +182,14 @@ def main(argv):
     copy_sources(files)
     with open(BUILD, "w") as f:
         f.write(build_toml(one, version, files, sources))
+    try:
+        shown = reports(tool)
+    except RuntimeError as e:
+        print(f"Game data: {e}")
+        return 1
     print(
-        f"Game data: {os.path.relpath(OUT, ROOT)}/ with {len(files)} catalogue files, {len(sources)} sources and "
-        f"{len(one)} proof suites"
+        f"Game data: {os.path.relpath(OUT, ROOT)}/ with {len(files)} catalogue files, {len(sources)} sources, "
+        f"{len(one)} proof suites and {len(shown)} scene reports"
     )
     return 0
 

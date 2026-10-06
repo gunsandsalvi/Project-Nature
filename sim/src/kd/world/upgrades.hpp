@@ -15,7 +15,7 @@ namespace kd::world {
 
 class World;
 
-/// The steps that bring each part of an older snapshot of a world up to date, oldest first: none yet.
+/// The steps that bring each part of an older snapshot of a world up to date, oldest first.
 [[nodiscard]] std::span<const save::Upgrade> upgrades();
 
 /// A change made once to every world saved before it, as such a world opens: its name, kept in the save, and what it

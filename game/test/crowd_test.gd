@@ -5,11 +5,12 @@ extends GdUnitTestSuite
 
 const CrowdPage := preload("res://pages/crowd.gd")
 const STRIDE := 16
+const Folders := preload("res://test/folders.gd")
 const TEST_WORLDS := "user://test-worlds"
 
 
 func after_test() -> void:
-	_remove(TEST_WORLDS)
+	Folders.remove(TEST_WORLDS)
 
 
 ## The Crowd page with its world kept in a folder of its own under the tests' folder, the size of a
@@ -20,17 +21,6 @@ func _page(name: String) -> VBoxContainer:
 	page.folder = "%s/%s" % [TEST_WORLDS, name]
 	page.size = Vector2(540, 1100)
 	return page
-
-
-## Removes a folder and everything in it.
-static func _remove(path: String) -> void:
-	if not DirAccess.dir_exists_absolute(path):
-		return
-	for sub in DirAccess.get_directories_at(path):
-		_remove(path.path_join(sub))
-	for file in DirAccess.get_files_at(path):
-		DirAccess.remove_absolute(path.path_join(file))
-	DirAccess.remove_absolute(path)
 
 
 ## A crowd of four camps run to a morning moment, and a drawer for it.

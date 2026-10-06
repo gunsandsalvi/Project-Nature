@@ -617,6 +617,21 @@ time::Seconds World::advance(time::Seconds frontier, time::Seconds goal) {
     return until;
 }
 
+std::optional<Switch> switch_named(std::string_view name) {
+    for (std::size_t i = 0; i < kSwitchNames.size(); ++i) {
+        if (kSwitchNames[i] == name) {
+            return static_cast<Switch>(i);
+        }
+    }
+    return std::nullopt;
+}
+
+void World::set_switches(std::vector<Switch> switches) {
+    KD_CHECK(kSwitches || switches.empty(), "world::World: the game's own build has no test switches");
+    KD_CHECK(frontier_ == 0 && events_ == 0, "world::World: switches are set before the world runs");
+    switches_ = std::move(switches);
+}
+
 bool World::keeps(const Record& r) const {
     const ecs::Id owner{r.key.owner};
     const System* s = owner.family() == ecs::Family::none ? by_owner_[owner.value]
@@ -662,7 +677,7 @@ std::vector<System*> systems_of(const std::array<System*, 16>& by_family, const 
 
 // Each part of a world's snapshot, and the version this one writes: a part an older version saved is brought up to
 // date by the steps of upgrades() before it is read (A3.7, PLT-09).
-constexpr std::array<std::pair<std::uint32_t, std::uint32_t>, 6> kParts{{{save::tag("WRLD"), 1},
+constexpr std::array<std::pair<std::uint32_t, std::uint32_t>, 6> kParts{{{save::tag("WRLD"), 2},
                                                                          {save::tag("NAME"), 1},
                                                                          {save::tag("BEIN"), 1},
                                                                          {save::tag("THNG"), 1},
@@ -697,6 +712,11 @@ std::vector<save::Chunk> World::save() const {
         w.u64(history_hash_);
         w.u64(events_);
         w.u64(batches_);
+        // version 2: the test switches it runs with, by name
+        w.u64(switches_.size());
+        for (const Switch s : switches_) {
+            w.text(kSwitchNames[static_cast<std::size_t>(s)]);
+        }
         out.push_back(part("WRLD", w.take()));
     }
     {
@@ -814,8 +834,18 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
             }
         }
         ok = ok && r.u64(history_count_) && r.u64(history_hash_) && r.u64(events_) && r.u64(batches_);
+        std::uint64_t switches = 0;
+        ok = ok && r.u64(switches);
+        for (std::uint64_t i = 0; ok && i < switches; ++i) {
+            std::string name;
+            const std::optional<Switch> s = r.text(name) ? switch_named(name) : std::nullopt;
+            ok = s.has_value();
+            if (ok) {
+                switches_.push_back(*s);
+            }
+        }
         if (!ok || !r.finished() || frontier_ < 0 || next == 0) {
-            why = "its clock is damaged";
+            why = "its clock is damaged, or names a test switch this version does not know";
             return false;
         }
         ids_ = ecs::IdMaker(next);
@@ -884,6 +914,13 @@ Digests World::digests() const {
         d.u64(ids_.next());
         for (const Schedule& s : owners_) {
             ecs::digest_component(s, d);
+        }
+        // a world run with test switches is told apart; one without digests as it always has
+        if (!switches_.empty()) {
+            d.u64(switches_.size());
+            for (const Switch s : switches_) {
+                d.text(kSwitchNames[static_cast<std::size_t>(s)]);
+            }
         }
         out.clock = d.value();
     }

@@ -1,8 +1,8 @@
 ## The worlds on the phone (TIM-08, PLT-08, PLT-10): each with its name, the moment it was saved
-## at, when, and its size by part; make a new one, open one on the Crowd page, rename it, export
-## it to a file or import one as a copy through Android's file picker, and delete one with a second
-## tap. The free space shows, with a warning before the phone is full. Implements TIM-08, PLT-08
-## and PLT-10.
+## at, when, and its size by part, a test's world marked as one with its switches; make a new one,
+## open one on the Crowd page, rename it, export it to a file or import one as a copy through
+## Android's file picker, and delete one with a second tap. The free space shows, with a warning
+## before the phone is full. Implements TIM-08, PLT-08, PLT-10, PLT-05 and RES-10.
 extends VBoxContainer
 
 const TEXT := Color("#efe6d8")
@@ -263,6 +263,9 @@ func _row(w: Dictionary, current: bool) -> Control:
 	box.add_theme_constant_override("separation", 4)
 	var title := "%s%s" % [Worlds.name_of(w), "  (opens on the Crowd page)" if current else ""]
 	box.add_child(_text(title, 20, TEXT))
+	var test := Worlds.test_words(w)
+	if test != "":
+		box.add_child(_text(test, 15, WARN))
 	var when := "not saved yet"
 	if int(w["moment"]) >= 0:
 		var ago := maxi(0, int(Time.get_unix_time_from_system()) - int(w["saved"]))

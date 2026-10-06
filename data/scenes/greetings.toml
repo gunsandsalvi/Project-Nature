@@ -1,0 +1,42 @@
+# The crowd greets and sleeps (A17, RES-21): the demonstration's markers meet and greet every day and sleep at night,
+# in 20 worlds of 4 camps over 20 game days. Stated before its first run (RES-09).
+about = "The crowd's markers greet each other every day and sleep at night"
+checks = ["WLD-13", "RES-21", "RES-13"]
+world = "crowd"
+camps = 4
+seed = 1
+runs = 20
+until = "20 d"
+limit = "1 min"
+budget = "0.1 h"
+
+# every camp greets at least 10 times a game day, in at least 16 of the 20 worlds (RES-13)
+[pass]
+measure = "greetings_per_camp_day"
+at_least = 10
+in = 16
+
+# the ranges a crowd keeps to: outside them a run is odd (RES-12)
+[[expect]]
+measure = "greetings_per_camp_day"
+from = 5
+to = 30
+
+[[expect]]
+measure = "farthest_from_home"
+from = 0
+to = 2000
+
+[[expect]]
+measure = "awake_at_midnight"
+from = 0
+to = 0
+
+# what a crowd never does
+[[never]]
+rule = "farther_from_home"
+limit = 5000
+
+[[never]]
+rule = "awake_at_midnight"
+limit = 2

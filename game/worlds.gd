@@ -1,5 +1,6 @@
-## The worlds kept on the phone (A3.7): where they are, which one the Crowd page opens, and the
-## words for their sizes and the free space. Implements TIM-08 and PLT-10.
+## The worlds kept on the phone (A3.7): where they are, which one the Crowd page opens, a test's
+## world marked as one, and the words for their sizes, counts and the free space. Implements TIM-08,
+## PLT-10, PLT-05 and RES-10.
 class_name Worlds
 extends RefCounted
 
@@ -26,6 +27,30 @@ static func current_id(worlds: KdWorlds) -> String:
 static func name_of(world: Dictionary) -> String:
 	var own: String = world.get("name", "")
 	return own if own != "" else String(world["id"]).capitalize()
+
+
+## A count with its thousands set apart: 10,000.
+static func count_words(n: int) -> String:
+	var digits := str(absi(n))
+	var out := ""
+	while digits.length() > 3:
+		out = "," + digits.substr(digits.length() - 3) + out
+		digits = digits.substr(0, digits.length() - 3)
+	return ("-" if n < 0 else "") + digits + out
+
+
+## A test's world marked as one, with the switches it ran with (RES-10), or nothing for a world of
+## play. The game's own build has no switches, so such a world carries on here without them.
+static func test_words(world: Dictionary) -> String:
+	if not world.get("test", false):
+		return ""
+	var switches: PackedStringArray = world.get("switches", PackedStringArray())
+	if switches.is_empty():
+		return "A test's world, run with no switches"
+	return (
+		"A test's world, run with %s; this build has no switches, so it carries on without them"
+		% ", ".join(switches)
+	)
 
 
 ## A size as you would say it: "512 bytes", "240 KB", "1.2 MB", "3.4 GB".

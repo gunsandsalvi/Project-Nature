@@ -10,7 +10,21 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "kd/core/check.hpp"
+#include "kd/data/catalogue.hpp"
+#include "kd/proof/fixture.hpp"
+
 namespace kd::test {
+
+// The proof suites' own catalogue (kd/proof/fixture.hpp), loaded once for every test that builds a world from it.
+inline const kd::data::Catalogue& fixture() {
+    static const kd::data::Catalogue catalogue = [] {
+        kd::data::Catalogue c;
+        KD_CHECK(c.load(kd::proof::fixture_files()).empty(), "tests: the proof suites' catalogue loads");
+        return c;
+    }();
+    return catalogue;
+}
 
 // Whether running f stops the program, as a failed check does (kd::fail aborts). It runs in a child process, with
 // its messages silenced, doctest's crash report off and no core file left behind.

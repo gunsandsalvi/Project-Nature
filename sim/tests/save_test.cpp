@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "doctest.h"
+#include "helpers.hpp"
 #include "kd/chance/chance.hpp"
 #include "kd/core/bytes.hpp"
 #include "kd/data/folder.hpp"
@@ -68,15 +69,7 @@ bool same(const std::vector<kd::save::Chunk>& a, const std::vector<kd::save::Chu
     return true;
 }
 
-const kd::data::Catalogue& fixture() {
-    static const kd::data::Catalogue catalogue = [] {
-        kd::data::Catalogue c;
-        const auto files = kd::proof::fixture_files();
-        REQUIRE(c.load(files).empty());
-        return c;
-    }();
-    return catalogue;
-}
+using kd::test::fixture;
 
 // A crowd's world through a snapshot file and back.
 std::unique_ptr<kd::demo::CrowdWorld> reopened(const kd::demo::CrowdWorld& crowd) {
@@ -945,9 +938,28 @@ TEST_CASE("a part of a snapshot saved by an older version is brought up to date 
     kd::save::Chunk other{kd::save::tag("ELSE"), 1, true, {}};
     CHECK_FALSE(kd::save::upgrade(other, 2, steps, why));
     CHECK(why.find("older") != std::string::npos);
-    // the world's own parts are all at their first version so far
-    CHECK(kd::world::upgrades().empty());
     CHECK(kd::world::migrations().empty());
+}
+
+// checks: PLT-09 RES-10
+TEST_CASE("a world's clock saved before test switches, at its first version, opens with none") {
+    kd::demo::CrowdWorld crowd(3, fixture(), 2);
+    crowd.world().run_to(kd::time::kDay);
+    std::vector<kd::save::Chunk> chunks = crowd.world().save();
+    // the clock as version 1 wrote it: the same, less the switches' count at its end
+    for (kd::save::Chunk& c : chunks) {
+        if (c.tag == kd::save::tag("WRLD")) {
+            CHECK(c.version == 2);
+            c.version = 1;
+            c.data.resize(c.data.size() - 8);
+        }
+    }
+    std::string why;
+    const std::unique_ptr<kd::demo::CrowdWorld> again = kd::demo::CrowdWorld::open(fixture(), chunks, why);
+    INFO(why);
+    REQUIRE(again != nullptr);
+    CHECK(again->world().switches().empty());
+    CHECK(again->world().digests().whole == crowd.world().digests().whole);
 }
 
 namespace {
@@ -1007,12 +1019,21 @@ TEST_CASE("a world's name of any text is kept in its world.toml and read back as
     for (const std::string name :
          {"Crowd", "", "Lory's \"best\" \\ world", "two\nlines\tand a bell \x07", "ünïcødé 世界"}) {
         CAPTURE(name);
-        const std::optional<kd::demo::About> read = kd::demo::read_about(kd::demo::about_text({name, 42, 7}));
+        kd::demo::About about;
+        about.name = name;
+        about.seed = 42;
+        about.camps = 7;
+        about.test = name.empty();
+        about.switches =
+            name.empty() ? std::vector<std::string>{"plant_wander", "no_greetings"} : std::vector<std::string>{};
+        const std::optional<kd::demo::About> read = kd::demo::read_about(kd::demo::about_text(about));
         REQUIRE(read.has_value());
         const kd::demo::About back = read.value_or(kd::demo::About{});
         CHECK(back.name == name);
         CHECK(back.seed == 42);
         CHECK(back.camps == 7);
+        CHECK(back.test == about.test);
+        CHECK(back.switches == about.switches);
     }
     // α1.4a's, with no name, reads; another kind of world's, or a damaged one, does not
     CHECK(kd::demo::read_about("kind = \"crowd\"\nseed = 1\ncamps = 0\n").has_value());

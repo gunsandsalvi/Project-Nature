@@ -4,12 +4,12 @@
 #   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
 #   3 C++         the five builds (A2.2), through ccache, and the phone compiler's twice more with libc++'s order of
 #                 ties randomized under two seeds; then, beside steps 4 and 5, the simulation's doctest tests on its
-#                 four builds, the kill test (tools/killtest.py), the same-bits check (every proof suite one digest
-#                 on x86-64 with clang and GCC, on arm64 with GCC and the phone's own compiler, and on the randomized
-#                 builds, on one thread and four),
-#                 the scans of the flags and the built code (tools/samebits.py), the banned list (tools/rules.py) and
-#                 the code linted (clang-tidy 18); tests, rules and lint only when what they depend on changed since
-#                 they passed (tools/cppcache.py)
+#                 four builds, the kill test (tools/killtest.py), the scenes and the repeat check
+#                 (tools/scenecheck.py), the same-bits check (every proof suite one digest on x86-64 with clang and
+#                 GCC, on arm64 with GCC and the phone's own compiler, and on the randomized builds, on one thread and
+#                 four), the scans of the flags and the built code (tools/samebits.py), the banned list
+#                 (tools/rules.py) and the code linted (clang-tidy 18); tests, rules and lint only when what they
+#                 depend on changed since they passed (tools/cppcache.py)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
 #   5 tools       the tool tests, and the self-tests of the file check and the signing key, after step 4
 #   6 file check  the three documents, and every commit since main that changes PROJECT.md (PRC-07)
@@ -158,6 +158,10 @@ cpp_tests() {
     # the kill test: a kept world killed at 100 moments ends as an unbroken one (PLT-07, A3.7)
     python3 tools/killtest.py build/sim/kindling data >"$TMP/kill" || { cat "$TMP/kill"; exit 1; }
     sed 's/^/   /' "$TMP/kill"
+    # the scenes: each passes, the planted one flags every oddity, a failed rule is judged on twice its runs, and the
+    # repeat check runs one scene and the benchmark world on one core and on four with a stop between (PRC-10)
+    python3 tools/scenecheck.py build/sim/kindling data >"$TMP/scenes" || { cat "$TMP/scenes"; exit 1; }
+    sed 's/^/   /' "$TMP/scenes"
   fi
   python3 tools/samebits.py same "$TMP"/proof-* | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
@@ -192,9 +196,9 @@ godot_step() {
   [ "${#PROJECTS[@]}" -gt 0 ] || echo "   no Godot projects yet"
   for d in "${PROJECTS[@]}"; do
     # what the import, the scripts and the tests read: the project's files, the extensions built for this machine,
-    # and the tools' versions
+    # the game data (build.toml names each catalogue file by its hash) with the scenes' reports, and the tools' versions
     mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$d/"; compgen -G "$d/bin/*.so" || true; \
-      compgen -G "$d/data/*.toml" || true)
+      compgen -G "$d/data/*.toml" || true; compgen -G "$d/data/reports/*" || true)
     FP="$(fingerprint "${READS[@]}" tools/godot-scripts.gd "$KD_GODOT_VERSION" "$KD_GDUNIT")"
     before="$(git status --porcelain --untracked-files=all -- "$d")"
     if passed "godot-${d//\//-}" "$FP"; then

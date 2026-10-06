@@ -8,6 +8,7 @@
 // their new events merge by key, so the result is the one-thread run's for any window, thread count or goal.
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <optional>
@@ -37,6 +38,33 @@ using Things = ecs::Registry<ecs::Handle64, ecs::Ident, Place>;
 
 class World;
 class Context;
+
+/// The test switches (RES-10, PRN-12): each turns one thing off, so a scene finds what a result depends on, or plants
+/// a fault for the checks to find (RES-12). They are compiled only into the cloud's test builds; the game on the
+/// phone has none, though it reads a test world's list to show it.
+enum class Switch : std::uint8_t {
+    no_greetings,    // the markers never greet
+    plant_wander,    // one marker walks far beyond its camp's land
+    plant_insomnia,  // one marker never sleeps
+    plant_chatter,   // every greeting is recorded twice
+    plant_crash,     // the run stops dead halfway
+    plant_leak,      // the run takes memory it never gives back
+    plant_bad_save,  // the run's last save is damaged
+};
+
+/// Each switch's name, as scenes and saves write it, in the order of the switches.
+inline constexpr std::array<std::string_view, 7> kSwitchNames{
+    "no_greetings", "plant_wander", "plant_insomnia", "plant_chatter", "plant_crash", "plant_leak", "plant_bad_save"};
+
+/// A switch by its name, if there is one.
+[[nodiscard]] std::optional<Switch> switch_named(std::string_view name);
+
+/// Whether this build has test switches: the cloud's test builds only.
+#ifdef KD_TEST_SWITCHES
+inline constexpr bool kSwitches = true;
+#else
+inline constexpr bool kSwitches = false;
+#endif
 
 /// One of your acts (A3.8): its number among the world's commands, the game second it acts at, what it is as the
 /// system that takes it numbers it, and whom it is about.
@@ -262,6 +290,19 @@ public:
     /// Turns the order fuzzer on with a key, or off (A3.2): every pool scrambled before each batch.
     void set_fuzz(std::optional<std::uint64_t> key) { fuzz_ = key; }
 
+    /// The test switches, set before the world runs, in a build that has them (RES-10).
+    void set_switches(std::vector<Switch> switches);
+    /// The switches the world runs with, which its save records and its digest holds.
+    [[nodiscard]] std::span<const Switch> switches() const { return switches_; }
+    /// Whether a switch is on; never in the game's own build, which has no switches.
+    [[nodiscard]] bool switched(Switch s) const {
+        if constexpr (kSwitches) {
+            return std::find(switches_.begin(), switches_.end(), s) != switches_.end();
+        } else {
+            return false;
+        }
+    }
+
     /// The system that takes your commands.
     void set_command_taker(System& s) { commands_.taker_ = &s; }
     /// One of your commands, from outside any event, acting at a second at or after the frontier: numbered, and
@@ -349,6 +390,7 @@ private:
     bool in_islands_ = false;
     std::uint64_t history_count_ = 0;
     std::uint64_t history_hash_ = 0;
+    std::vector<Switch> switches_;
     std::vector<Record>* history_list_ = nullptr;
     std::vector<Way>* ways_list_ = nullptr;
     std::uint64_t islands_run_ = 0;

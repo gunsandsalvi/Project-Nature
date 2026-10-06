@@ -3,7 +3,8 @@
 
     python3 tools/samebits.py flags <build folder>...    each of our compile commands ends its floating-point
                                                           flags with -ffp-contract=off, uses no banned one, and
-                                                          makes plain char unsigned
+                                                          makes plain char unsigned; and the game's own build
+                                                          (the extension's, with view/ code) has no test switches
     python3 tools/samebits.py scan <build folder>...     our object files hold no fused multiply-add and call no
                                                           platform maths function
     python3 tools/samebits.py same <file>...             every file of "<suite> <digest> ..." lines gives each
@@ -69,14 +70,19 @@ def arguments(entry):
 
 
 def check_flags(builds):
-    """Problems with the floating-point flags of our compile commands in these build folders."""
+    """Problems with the floating-point flags of our compile commands in these build folders, and test switches
+    compiled into the game's own build (RES-10)."""
     problems, seen = [], 0
     for build in builds:
-        for entry in compile_commands(build):
+        commands = compile_commands(build)
+        game = any(relative(os.path.join(e["directory"], e["file"])).startswith("view/") for e in commands)
+        for entry in commands:
             path = relative(os.path.join(entry["directory"], entry["file"]))
             if not path.startswith(OURS):
                 continue
             seen += 1
+            if game and "-DKD_TEST_SWITCHES" in arguments(entry):
+                problems.append(f"{build}: {path} is compiled with the test switches, which the game never has")
             fp = [a for a in arguments(entry) if FP_FLAG.match(a)]
             banned = [a for a in fp if BANNED_FLAG.match(a)]
             if banned:

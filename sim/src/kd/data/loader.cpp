@@ -70,6 +70,10 @@ void Loader::text(const Field& f, std::string& out) {
 }
 
 void Loader::choice(const Field& f, std::string& out, std::initializer_list<std::string_view> options) {
+    choice(f, out, std::span<const std::string_view>(options.begin(), options.size()));
+}
+
+void Loader::choice(const Field& f, std::string& out, std::span<const std::string_view> options) {
     if (const Value* v = take(f, Value::Kind::text)) {
         if (std::find(options.begin(), options.end(), v->text) == options.end()) {
             std::string list;
@@ -169,6 +173,24 @@ void Loader::names(const Field& f, std::vector<std::string>& out) {
             out.push_back(item.text);
         }
     }
+}
+
+const Value* Loader::table(const Field& f) {
+    return take(f, Value::Kind::table);
+}
+
+std::vector<const Value*> Loader::tables(const Field& f) {
+    std::vector<const Value*> out;
+    if (const Value* v = take(f, Value::Kind::array)) {
+        for (const Value& item : v->items) {
+            if (item.kind != Value::Kind::table) {
+                problem(item, f, "each is a table, written [[" + std::string(f.key) + "]]");
+                continue;
+            }
+            out.push_back(&item);
+        }
+    }
+    return out;
 }
 
 void Loader::finish() {

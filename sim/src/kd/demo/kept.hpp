@@ -41,11 +41,14 @@ struct Kept {
 };
 
 /// A crowd's world.toml (A3.7): its name, which the Worlds page shows and you may change, and the seed and number of
-/// camps (0 for the tuning's) that make it again if no snapshot is whole.
+/// camps (0 for the tuning's) that make it again if no snapshot is whole; and, for a test's world, that it is one and
+/// the switches it runs with, which a world made new takes (PLT-05, RES-10).
 struct About {
     std::string name;
     std::uint64_t seed = 1;
     std::int64_t camps = 0;
+    bool test = false;
+    std::vector<std::string> switches;
 };
 
 /// world.toml's text for a crowd's world, and what a world.toml says; nothing if it is not a crowd's.

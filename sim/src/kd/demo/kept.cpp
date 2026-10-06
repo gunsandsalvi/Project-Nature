@@ -7,27 +7,43 @@
 
 namespace kd::demo {
 
-std::string about_text(const About& a) {
-    // the name as a TOML basic string, its quotes, backslashes and control characters escaped
-    std::string name;
-    for (const char c : a.name) {
+namespace {
+
+// A text as a TOML basic string, its quotes, backslashes and control characters escaped.
+std::string quoted(const std::string& text) {
+    std::string out = "\"";
+    for (const char c : text) {
         const auto u = static_cast<unsigned char>(c);
         if (c == '"' || c == '\\') {
-            name += '\\';
-            name += c;
+            out += '\\';
+            out += c;
         } else if (u < 0x20 || u == 0x7f) {
             char escaped[8];
             std::snprintf(escaped, sizeof escaped, "\\u%04x", u);
-            name += escaped;
+            out += escaped;
         } else {
-            name += c;
+            out += c;
         }
     }
-    return "# A world of the demonstration's crowd (MAT-16): its name, and what makes it again if its snapshots are "
-           "lost.\n"
-           "name = \"" +
-           name + "\"\nkind = \"crowd\"\nseed = " + std::to_string(a.seed) + "\ncamps = " + std::to_string(a.camps) +
-           "\n";
+    return out + "\"";
+}
+
+}  // namespace
+
+std::string about_text(const About& a) {
+    std::string out =
+        "# A world of the demonstration's crowd (MAT-16): its name, and what makes it again if its snapshots are "
+        "lost.\nname = " +
+        quoted(a.name) + "\nkind = \"crowd\"\nseed = " + std::to_string(a.seed) +
+        "\ncamps = " + std::to_string(a.camps) + "\n";
+    if (a.test) {
+        out += "# A test's world (PLT-05), with the test switches it runs with (RES-10).\ntest = true\nswitches = [";
+        for (std::size_t i = 0; i < a.switches.size(); ++i) {
+            out += (i == 0 ? "" : ", ") + quoted(a.switches[i]);
+        }
+        out += "]\n";
+    }
+    return out;
 }
 
 std::optional<About> read_about(const std::string& text) {
@@ -36,16 +52,29 @@ std::optional<About> read_about(const std::string& text) {
     const data::Value* seed = p.root.find("seed");
     const data::Value* camps = p.root.find("camps");
     const data::Value* name = p.root.find("name");
+    const data::Value* test = p.root.find("test");
+    const data::Value* switches = p.root.find("switches");
     if (!p.problems.empty() || (kind != nullptr && (kind->kind != data::Value::Kind::text || kind->text != "crowd")) ||
         seed == nullptr || seed->kind != data::Value::Kind::whole || seed->whole < 0 || camps == nullptr ||
         camps->kind != data::Value::Kind::whole || camps->whole < 0 ||
-        (name != nullptr && name->kind != data::Value::Kind::text)) {
+        (name != nullptr && name->kind != data::Value::Kind::text) ||
+        (test != nullptr && test->kind != data::Value::Kind::truth) ||
+        (switches != nullptr && switches->kind != data::Value::Kind::array)) {
         return std::nullopt;
     }
     About a;
     a.name = name != nullptr ? name->text : "";
     a.seed = static_cast<std::uint64_t>(seed->whole);
     a.camps = camps->whole;
+    a.test = test != nullptr && test->truth;
+    if (switches != nullptr) {
+        for (const data::Value& v : switches->items) {
+            if (v.kind != data::Value::Kind::text) {
+                return std::nullopt;
+            }
+            a.switches.push_back(v.text);
+        }
+    }
     return a;
 }
 
@@ -81,8 +110,24 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
         out.crowd = std::make_unique<CrowdWorld>(seed, catalogue,
                                                  camps > 0 ? std::optional<std::int64_t>(camps) : std::nullopt);
         out.made = true;
+        // a test's world takes its switches before it runs, where the build has them (RES-10)
+        if (about && !about->switches.empty()) {
+            std::vector<world::Switch> switches;
+            for (const std::string& name : about->switches) {
+                const std::optional<world::Switch> s = world::switch_named(name);
+                if (!s || !world::kSwitches) {
+                    out.problem = "its test switch " + name + " is not in this build";
+                    return out;
+                }
+                switches.push_back(*s);
+            }
+            out.crowd->world().set_switches(std::move(switches));
+        }
         if (!about) {
-            keeper.about(about_text({"", seed, camps}));
+            About made;
+            made.seed = seed;
+            made.camps = camps;
+            keeper.about(about_text(made));
         }
         // made as this version makes worlds, it needs none of the migrations
         for (const world::Migration& m : migrations) {

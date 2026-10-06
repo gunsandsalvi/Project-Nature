@@ -7,22 +7,12 @@ extends GdUnitTestSuite
 
 const WorldsPage := preload("res://pages/worlds.gd")
 const CrowdPage := preload("res://pages/crowd.gd")
+const Folders := preload("res://test/folders.gd")
 const ROOT := "user://test-worlds"
 
 
 func after_test() -> void:
-	_remove(ROOT)
-
-
-## Removes a folder and everything in it.
-static func _remove(path: String) -> void:
-	if not DirAccess.dir_exists_absolute(path):
-		return
-	for sub in DirAccess.get_directories_at(path):
-		_remove(path.path_join(sub))
-	for file in DirAccess.get_files_at(path):
-		DirAccess.remove_absolute(path.path_join(file))
-	DirAccess.remove_absolute(path)
+	Folders.remove(ROOT)
 
 
 ## The Worlds page on the tests' own folder, making small worlds of four camps.

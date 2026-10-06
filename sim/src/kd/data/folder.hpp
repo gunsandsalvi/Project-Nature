@@ -9,8 +9,8 @@
 
 namespace kd::data {
 
-/// Every .toml file under a folder, with its path relative to it, such as "demo/marker/walker.toml"; in no order, as
-/// the catalogue loads files in path order whatever order they come in.
+/// Every .toml file under a folder but its scenes, with its path relative to it, such as "demo/marker/walker.toml"; in
+/// no order, as the catalogue loads files in path order whatever order they come in.
 [[nodiscard]] std::vector<SourceFile> read_folder(const std::string& folder);
 
 }  // namespace kd::data

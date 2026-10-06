@@ -14,3 +14,9 @@ file = "a14b.kindling"
 saved = "α1.4b"
 made = "kindling keep --camps 1 --seed 8 --until 5356800 --every 864000 --call 5270400:0 --build α1.4b"
 update = "small"
+
+[[world]]
+file = "a15a.kindling"
+saved = "α1.5a"
+made = "kindling keep --camps 1 --seed 9 --until 5356800 --every 864000 --call 5270400:0 --build α1.5a"
+update = "small"

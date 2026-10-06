@@ -9,11 +9,12 @@ const PAGES := {
 	"Crowd": preload("res://pages/crowd.gd"),
 	"Worlds": preload("res://pages/worlds.gd"),
 	"Catalogues": preload("res://pages/catalogues.gd"),
+	"Reports": preload("res://pages/reports.gd"),
 }
 const BACKGROUND := Color("#1f1a24")
 const TEXT := Color("#efe6d8")
 
-var _tabs: HBoxContainer
+var _tabs: GridContainer
 var _content: MarginContainer
 var _page_name := ""
 
@@ -67,13 +68,15 @@ func _build() -> void:
 	title.add_theme_color_override("font_color", TEXT)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(title)
-	_tabs = HBoxContainer.new()
-	_tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	# the pages in rows of three, each tab as wide as the screen allows
+	_tabs = GridContainer.new()
+	_tabs.columns = 3
 	column.add_child(_tabs)
 	for page: String in PAGES:
 		var button := Button.new()
 		button.text = page
 		button.custom_minimum_size = Vector2(96, 48)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(open_page.bind(page))
 		_tabs.add_child(button)
 	_content = MarginContainer.new()

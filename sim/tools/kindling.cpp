@@ -14,27 +14,45 @@
 //                                                 time, with each game day's digests at midnight: the whole state's
 //                                                 and each part's (TIM-16, A3.3)
 //     kindling keep <world> [--camps N] [--seed N] [--until SECONDS] [--every SECONDS] [--call SECOND:CAMP]...
-//                  [--data FOLDER] [--build NAME]
+//                  [--data FOLDER] [--build NAME] [--islands WINDOW --threads N]
 //                                                 the crowd's world kept in a folder (A3.7): opened from its newest
 //                                                 snapshot and journal, or made new; run to a game second with a
 //                                                 snapshot every so many game seconds, calling camps home at their
 //                                                 seconds unless the journal has; for the kill test (PLT-07) and the
 //                                                 corpus (PLT-09), the build naming the version that saves it
+//     kindling scene <scene.toml> [--out FOLDER] [--jobs N] [--data FOLDER] [--build NAME] [--fresh]
+//                                                 a scene's runs (A17, RES-21), each world in a process of its own and
+//                                                 kept in its own folder under the output folder (build/scenes/<name>
+//                                                 by default), so a crash or creeping memory is caught (RES-12) and a
+//                                                 scene stopped and run again resumes where it was (PLT-05); saved
+//                                                 under the build's name, the app's version for worlds the phone opens;
+//                                                 judged by its rule, rerun on 20 fresh seeds if it fails (RES-13), and
+//                                                 reported in report.json (RES-06); exit 0 when it passes with no
+//                                                 oddity
 //     kindling export <world> <file>             a world's folder as one .kindling file (PLT-08)
 //     kindling import <file> <world>             a .kindling file into a new world's folder, refused with words
 //                                                 naming any damage
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
+#include <map>
+#include <sstream>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <vector>
 
 #include "kd/data/catalogue.hpp"
 #include "kd/data/checks.hpp"
 #include "kd/data/folder.hpp"
+#include "kd/demo/crowd_scene.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/kept.hpp"
 #include "kd/num/digest.hpp"
@@ -43,6 +61,8 @@
 #include "kd/save/archive.hpp"
 #include "kd/save/files.hpp"
 #include "kd/save/keeper.hpp"
+#include "kd/scene/report.hpp"
+#include "kd/scene/scene.hpp"
 #include "kd/world/world.hpp"
 
 namespace {
@@ -56,7 +76,8 @@ int usage() {
         "       kindling catalogue show <name> [data]\n"
         "       kindling run [--days N] [--camps N] [--seed N] [--fuzz N] [--islands WINDOW --threads N] [data]\n"
         "       kindling keep <world> [--camps N] [--seed N] [--until SECONDS] [--every SECONDS] "
-        "[--call SECOND:CAMP]... [--data FOLDER] [--build NAME]\n"
+        "[--call SECOND:CAMP]... [--data FOLDER] [--build NAME] [--islands WINDOW --threads N]\n"
+        "       kindling scene <scene.toml> [--out FOLDER] [--jobs N] [--data FOLDER] [--build NAME] [--fresh]\n"
         "       kindling export <world> <file>\n"
         "       kindling import <file> <world>\n");
     return 2;
@@ -229,6 +250,8 @@ int keep(const std::vector<std::string_view>& args) {
     long long every = kd::time::kHour;
     std::string data = "data";
     std::string build = "kindling";
+    long long window = 0;
+    long long threads = 1;
     std::vector<std::pair<kd::time::Seconds, std::size_t>> calls;
     for (std::size_t i = 1; i < args.size(); i += 2) {
         const bool more = i + 1 < args.size();
@@ -245,6 +268,10 @@ int keep(const std::vector<std::string_view>& args) {
             data = value;
         } else if (args[i] == "--build" && more) {
             build = value;
+        } else if (args[i] == "--islands" && more) {
+            window = std::atoll(value.c_str());
+        } else if (args[i] == "--threads" && more) {
+            threads = std::atoll(value.c_str());
         } else if (args[i] == "--call" && more && value.find(':') != std::string::npos) {
             calls.emplace_back(std::atoll(value.c_str()),
                                static_cast<std::size_t>(std::atoll(value.c_str() + value.find(':') + 1)));
@@ -252,7 +279,7 @@ int keep(const std::vector<std::string_view>& args) {
             return usage();
         }
     }
-    if (camps < 0 || until < 1 || every < 1) {
+    if (camps < 0 || until < 1 || every < 1 || window < 0 || threads < 1 || threads > 16) {
         return usage();
     }
     std::sort(calls.begin(), calls.end());
@@ -274,6 +301,7 @@ int keep(const std::vector<std::string_view>& args) {
         return 1;
     }
     kd::world::World& w = kept.crowd->world();
+    kd::run::Workers workers(static_cast<int>(threads));
     std::printf("%s at %lld, %llu commands acted again, catching up to %lld\n",
                 kept.made ? "made" : ("opened " + kept.snapshot).c_str(), static_cast<long long>(w.frontier()),
                 static_cast<unsigned long long>(kept.replayed), static_cast<long long>(kept.was_at));
@@ -295,7 +323,9 @@ int keep(const std::vector<std::string_view>& args) {
         if (calling) {
             stop = std::min(stop, std::max(w.frontier(), calls[made].first));
         }
-        if (stop > w.frontier()) {
+        if (stop > w.frontier() && window > 0) {
+            w.run_islands(stop, workers, window);
+        } else if (stop > w.frontier()) {
             w.run_to(stop);
         }
         keeper.history(records);
@@ -318,6 +348,250 @@ int keep(const std::vector<std::string_view>& args) {
                 static_cast<unsigned long long>(keeper.mismatches()),
                 static_cast<unsigned long long>(keeper.snapshots()));
     return keeper.mismatches() == 0 ? 0 : 1;
+}
+
+// The resident memory of this process, in bytes.
+std::int64_t resident_bytes() {
+    std::ifstream statm("/proc/self/statm");
+    long long pages = 0;
+    long long resident = 0;
+    statm >> pages >> resident;
+    return resident * static_cast<std::int64_t>(sysconf(_SC_PAGESIZE));
+}
+
+// A run's result as its process leaves it in its folder, a line a fact.
+void write_result(const std::string& folder, const kd::scene::RunResult& r) {
+    std::string text = "seed " + std::to_string(r.seed) + "\ndays " + std::to_string(r.days) + "\ndigest " +
+                       std::to_string(r.digest) + "\n";
+    for (const kd::world::Switch s : r.switches) {
+        text += "switch " + std::string(kd::world::kSwitchNames[static_cast<std::size_t>(s)]) + "\n";
+    }
+    for (const auto& [name, value] : r.measures) {
+        text += "measure " + name + " " + std::to_string(value) + "\n";
+    }
+    for (const std::string& o : r.oddities) {
+        text += "oddity " + o + "\n";
+    }
+    {
+        std::ofstream out(folder + "/result.tmp", std::ios::binary);
+        out << text;
+    }
+    std::filesystem::rename(folder + "/result.tmp", folder + "/result.txt");
+}
+
+std::optional<kd::scene::RunResult> read_result(const std::string& folder, std::int64_t index) {
+    std::ifstream in(folder + "/result.txt", std::ios::binary);
+    if (!in) {
+        return std::nullopt;
+    }
+    kd::scene::RunResult r;
+    r.index = index;
+    std::string line;
+    while (std::getline(in, line)) {
+        const std::size_t space = line.find(' ');
+        const std::string key = line.substr(0, space);
+        const std::string rest = space == std::string::npos ? "" : line.substr(space + 1);
+        if (key == "seed") {
+            r.seed = std::atoll(rest.c_str());
+        } else if (key == "days") {
+            r.days = std::atoll(rest.c_str());
+        } else if (key == "digest") {
+            r.digest = std::strtoull(rest.c_str(), nullptr, 10);
+        } else if (key == "switch") {
+            if (const auto s = kd::world::switch_named(rest)) {
+                r.switches.push_back(*s);
+            }
+        } else if (key == "measure") {
+            const std::size_t at = rest.find(' ');
+            r.measures.emplace_back(rest.substr(0, at), std::atoll(rest.c_str() + at + 1));
+        } else if (key == "oddity") {
+            r.oddities.push_back(rest);
+        }
+    }
+    return r;
+}
+
+int scene_command(const std::vector<std::string_view>& args) {
+    if (args.empty()) {
+        return usage();
+    }
+    const std::string file(args[0]);
+    std::string out;
+    std::string data = "data";
+    std::string build = "kindling";
+    long long jobs = std::max(1U, std::thread::hardware_concurrency());
+    bool fresh = false;
+    for (std::size_t i = 1; i < args.size(); ++i) {
+        const bool more = i + 1 < args.size();
+        if (args[i] == "--out" && more) {
+            out = std::string(args[++i]);
+        } else if (args[i] == "--jobs" && more) {
+            jobs = std::atoll(std::string(args[++i]).c_str());
+        } else if (args[i] == "--data" && more) {
+            data = std::string(args[++i]);
+        } else if (args[i] == "--build" && more) {
+            build = std::string(args[++i]);
+        } else if (args[i] == "--fresh") {
+            fresh = true;
+        } else {
+            return usage();
+        }
+    }
+    std::ifstream in(file, std::ios::binary);
+    std::stringstream text;
+    text << in.rdbuf();
+    const std::array<kd::scene::WorldKind, 1> kinds{kd::demo::crowd_kind()};
+    const kd::scene::Read read = kd::scene::read_scene(text.str(), file, kinds);
+    for (const kd::data::Problem& p : read.problems) {
+        std::printf("%s\n", kd::data::problem_text(p).c_str());
+    }
+    if (!in || !read.problems.empty() || jobs < 1) {
+        return read.problems.empty() ? usage() : 1;
+    }
+    const kd::scene::Scene& s = read.scene;
+    if (out.empty()) {
+        out = "build/scenes/" + s.name;
+    }
+    std::error_code error;
+    if (fresh) {
+        std::filesystem::remove_all(out, error);
+    }
+    std::filesystem::create_directories(out);
+    kd::data::Catalogue cat;
+    if (!cat.load(kd::data::read_folder(data)).empty()) {
+        std::fprintf(stderr, "kindling: the catalogue under %s does not load\n", data.c_str());
+        return 1;
+    }
+    std::fflush(nullptr);
+
+    using Clock = std::chrono::steady_clock;
+    const Clock::time_point started = Clock::now();
+    const auto seconds_since = [](Clock::time_point t) {
+        return std::chrono::duration_cast<std::chrono::seconds>(Clock::now() - t).count();
+    };
+    std::vector<kd::scene::RunResult> results;
+    bool over_budget = false;
+    // the runs [from, to), as many at once as there are jobs, each world in a process of its own
+    const auto run_batch = [&](std::int64_t from, std::int64_t to) {
+        struct Child {
+            std::int64_t index = 0;
+            Clock::time_point started;
+            bool timed_out = false;
+        };
+        std::map<pid_t, Child> running;
+        std::int64_t next = from;
+        while (next < to || !running.empty()) {
+            while (next < to && static_cast<long long>(running.size()) < jobs) {
+                const std::int64_t index = next++;
+                char name[32];
+                std::snprintf(name, sizeof name, "/run-%03lld", static_cast<long long>(index));
+                const std::string folder = out + name;
+                if (const std::optional<kd::scene::RunResult> done = read_result(folder, index)) {
+                    results.push_back(*done);
+                    continue;
+                }
+                if (seconds_since(started) > s.budget) {
+                    over_budget = true;
+                    next = to;
+                    break;
+                }
+                std::filesystem::create_directories(folder);
+                std::fflush(nullptr);
+                const pid_t pid = fork();
+                if (pid == 0) {
+                    kd::save::DiskFiles disk(folder);
+                    std::vector<std::int64_t> resident;
+                    kd::scene::RunResult r = kd::demo::run_crowd(s, index, disk, cat, build, [&](std::int64_t /*day*/) {
+                        resident.push_back(resident_bytes());
+                    });
+                    // memory that creeps up over the run is a leak (RES-12)
+                    constexpr std::int64_t kCreep = std::int64_t{32} << 20U;
+                    if (resident.size() >= 2 && resident.back() - resident.front() > kCreep) {
+                        r.oddities.push_back("its memory crept up by " +
+                                             std::to_string((resident.back() - resident.front()) >> 20U) +
+                                             " MB over its run");
+                    }
+                    write_result(folder, r);
+                    std::fflush(nullptr);
+                    _exit(0);
+                }
+                running[pid] = {index, Clock::now(), false};
+            }
+            int status = 0;
+            const pid_t ended = waitpid(-1, &status, WNOHANG);
+            if (ended > 0) {
+                const Child child = running[ended];
+                running.erase(ended);
+                char name[32];
+                std::snprintf(name, sizeof name, "/run-%03lld", static_cast<long long>(child.index));
+                std::optional<kd::scene::RunResult> r = read_result(out + name, child.index);
+                if (!r || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+                    kd::scene::RunResult failed;
+                    failed.index = child.index;
+                    failed.seed = s.seed + child.index;
+                    failed.switches = s.switches_of(child.index);
+                    if (child.timed_out) {
+                        failed.oddities.push_back("it took longer than its limit of " + std::to_string(s.limit) +
+                                                  " s, and was stopped");
+                    } else if (WIFSIGNALED(status)) {
+                        failed.oddities.push_back("it crashed, stopped by signal " + std::to_string(WTERMSIG(status)));
+                    } else {
+                        failed.oddities.push_back("it ended with no result");
+                    }
+                    r = failed;
+                }
+                results.push_back(*r);
+                continue;
+            }
+            for (auto& [pid, child] : running) {
+                if (!child.timed_out && seconds_since(child.started) > s.limit) {
+                    child.timed_out = true;
+                    kill(pid, SIGKILL);
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    };
+    const auto measures = [&] {
+        std::stable_sort(results.begin(), results.end(),
+                         [](const auto& a, const auto& b) { return a.index < b.index; });
+        std::vector<std::optional<std::int64_t>> m;
+        for (const kd::scene::RunResult& r : results) {
+            m.push_back(r.measure(s.pass.measure));
+        }
+        return m;
+    };
+    run_batch(0, s.runs);
+    kd::scene::Verdict verdict = kd::scene::judge(s, measures());
+    if (kd::scene::rerun_due(s, verdict) && !over_budget) {
+        // failed on its runs, it runs as many on fresh seeds and is judged on all (RES-13)
+        run_batch(s.runs, 2 * s.runs);
+        verdict = kd::scene::judge(s, measures());
+    }
+    kd::scene::Outcome outcome;
+    outcome.verdict = verdict;
+    outcome.seconds = seconds_since(started);
+    outcome.over_budget = over_budget;
+    outcome.build = build;
+    const std::string report = kd::scene::report_json(s, kinds[0], results, outcome);
+    {
+        std::ofstream o(out + "/report.json", std::ios::binary);
+        o << report;
+    }
+    std::size_t oddities = 0;
+    for (const kd::scene::RunResult& r : results) {
+        oddities += r.oddities.size();
+        for (const std::string& o : r.oddities) {
+            std::printf("oddity: run %lld: %s\n", static_cast<long long>(r.index), o.c_str());
+        }
+    }
+    std::printf("%s: %s, %lld of %lld runs met %s (%lld needed)%s%s; %zu oddities; %lld s of a %lld s budget\n",
+                s.name.c_str(), verdict.passed ? "pass" : "fail", static_cast<long long>(verdict.passes),
+                static_cast<long long>(verdict.judged), kd::scene::rule_words(s).c_str(),
+                static_cast<long long>(verdict.needed), verdict.reran ? ", judged again on fresh seeds" : "",
+                verdict.provisional ? ", provisional" : "", oddities, static_cast<long long>(outcome.seconds),
+                static_cast<long long>(s.budget));
+    return verdict.passed && oddities == 0 ? 0 : 1;
 }
 
 int export_world(const std::vector<std::string_view>& args) {
@@ -428,6 +702,9 @@ int main(int argc, char** argv) {
     }
     if (command == "keep") {
         return keep(args);
+    }
+    if (command == "scene") {
+        return scene_command(args);
     }
     if (command == "export") {
         return export_world(args);
