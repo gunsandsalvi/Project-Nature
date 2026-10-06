@@ -600,7 +600,7 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
   - the camera's motion, from where four of a patch's pixels were in the frame before;
   - scripted camera paths in steps of 1/30 s, with time otherwise frozen;
   - a nearest-pixel read, for the shimmer check only.
-- The statistics both the cloud and the phone compute are written once, in C++ (rule 4), and give the same bits on both.
+- The statistics both the cloud and the phone compute are written once, in C++ (rule 4), and give the same bits on both: the self-check's look suite runs them on pictures made by chance, with the same digest on the cloud's builds and on arm64.
   FLIP is NVIDIA's own C++, vendored at a pinned commit, seen at about 80 pixels a degree (your phone at 30 cm); it works in floats with the platform's maths, so it stays out of the digests the two must share, and its mean on a known pair matches FLIP's own tool.
 
 ## A5. The look
@@ -706,6 +706,7 @@ It replaces the art bible's rules.
   5. **show** you what changed, in pairs, with the alpha;
   6. **ask** only when the look has an open question.
 - **Savings must be invisible** (`PRE-01`): first the machine line (A4.8), then your blind test on the phone, ten random pairs asking "which is sharper?", where eight or more right means it shows (guessing gets there about 5% of the time).
+  On the Compare page each pair is one view drawn two ways, one above the other, the better way placed by chance from the test's seed; you tap the sharper; the short code you send holds the seed and your answers, and the cloud reads it the same way. The first test compares MSAA 4× with 2× on the meadow.
   Half resolution applied to textures brings the shimmer back (9–16% of pixels), so a half-resolution saving may touch only smooth things: light, shadow and haze.
 - **The heat step:** if the 20-minute heat run shows the picture alone heats the phone, one planned, logged step under heat, such as distant fires casting no shadows, chosen among the savings that pass your blind test, as you chose on 6 October 2026; if none is enough, it comes back to you.
 - **The AI judge advises, never decides:** it reports faults, never approval.

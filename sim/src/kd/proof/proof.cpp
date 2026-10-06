@@ -3,11 +3,16 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 #include "kd/chance/chance.hpp"
 #include "kd/data/units.hpp"
 #include "kd/demo/crowd_world.hpp"
+#include "kd/look/blind.hpp"
+#include "kd/look/colour.hpp"
+#include "kd/look/frame.hpp"
+#include "kd/look/measures.hpp"
 #include "kd/num/angle.hpp"
 #include "kd/num/convert.hpp"
 #include "kd/num/digest.hpp"
@@ -248,6 +253,81 @@ std::string units(run::Workers& workers) {
     return digest.hex();
 }
 
+/// A meadow-like picture made by keyed chance: greens, with a yellow flower in about one pixel of 23.
+look::Picture made_picture(std::uint64_t seed, std::int64_t width, std::int64_t height) {
+    const chance::Draws draws(seed, chance::name("proof"), 0, 0, chance::name("picture"));
+    look::Picture p{width, height, {}};
+    for (std::int64_t i = 0; i < width * height; ++i) {
+        const std::uint64_t b = draws.bits(static_cast<std::uint64_t>(i));
+        const bool flower = b % 23 == 0;
+        p.rgba.push_back(static_cast<std::uint8_t>(flower ? 235 : 70 + (b >> 8U) % 60));
+        p.rgba.push_back(static_cast<std::uint8_t>(flower ? 205 : 100 + (b >> 16U) % 50));
+        p.rgba.push_back(static_cast<std::uint8_t>(flower ? 70 : 30 + (b >> 24U) % 40));
+        p.rgba.push_back(255);
+    }
+    return p;
+}
+
+/// The look suite: the look's measures (A4.8, A5.5) on pictures made by keyed chance, which the phone must give
+/// with the cloud's bits: the colour measures, the target card, people's salience from an object picture, the
+/// shimmer after following a projective motion, a dark gradient's levels and the blind test's pairs and code. FLIP,
+/// in floats with the platform's maths, is left out. Implements PRE-01, PRE-20, PRE-22 and PRE-28, see A4.8.
+std::string look_measures(run::Workers& /*workers*/) {
+    constexpr std::int64_t kSide = 192;
+    num::Digest digest;
+    const look::Picture a = made_picture(1, kSide, kSide);
+    const look::Picture b = made_picture(2, kSide, kSide);
+    const look::Stats s = look::stats(a);
+    for (const double v :
+         {s.lightness, s.colourfulness, s.hue, s.contrast, s.texel_contrast, s.accents.value_or(-1.0)}) {
+        digest.f64(v);
+    }
+    const look::Card c = look::card(a);
+    for (const double v : {c.lightness, c.dark, c.lights_hue, c.lights, c.shade, c.strong_colour, c.green,
+                           c.green_chroma, c.flat, c.things, c.largest_colour, c.texture, c.masses}) {
+        digest.f64(v);
+    }
+    // three people in the engine's number colours, 4 by 4 pixels each, and one more out of the frame
+    look::Picture objects{kSide, kSide, std::vector<std::uint8_t>(static_cast<std::size_t>(kSide * kSide * 4), 16)};
+    for (std::int64_t person = 1; person <= 3; ++person) {
+        for (std::int64_t y = 40 * person; y < 40 * person + 4; ++y) {
+            for (std::int64_t x = 50 * person; x < 50 * person + 4; ++x) {
+                objects.rgba[static_cast<std::size_t>((y * kSide + x) * 4)] =
+                    static_cast<std::uint8_t>(32 * person + 16);
+            }
+        }
+    }
+    const look::Salience salience = look::salience(a, look::numbers(objects), {1, 2, 3, 4});
+    for (const double v : salience.percentiles) {
+        digest.f64(v);
+    }
+    digest.f64(salience.median);
+    digest.f64(salience.least);
+    const std::vector<std::optional<double>> followed =
+        look::follow(look::error(a, b), kSide, kSide, {1.0, 0.02, 1.5, 0.0, 1.0, -0.5, 0.0, 0.0001, 1.0});
+    digest.f64(look::flicker(followed, look::error(b, a), 3.0));
+    // a dark gradient, as a moonlit slope's levels
+    look::Picture slope{256, 4, {}};
+    for (std::int64_t y = 0; y < 4; ++y) {
+        for (std::int64_t x = 0; x < 256; ++x) {
+            const auto v = static_cast<std::uint8_t>(10 + x / 16);
+            slope.rgba.insert(slope.rgba.end(), {v, v, static_cast<std::uint8_t>(v + 4), 255});
+        }
+    }
+    const look::Levels levels = look::levels(slope);
+    digest.i64(levels.distinct);
+    digest.i64(levels.widest);
+    for (const look::BlindPair& p : look::blind_pairs(54'321)) {
+        digest.u8(p.better_first ? 1 : 0);
+        digest.f64(p.heading);
+        digest.i64(p.east);
+        digest.i64(p.north);
+    }
+    digest.text(look::blind_code(
+        {look::Comparison::msaa, 54'321, {true, false, true, true, false, false, true, false, true, true}}));
+    return digest.hex();
+}
+
 /// A crowd of 1,000 markers in 40 camps, from the fixed fixture catalogue, run for some game days, each day's digest
 /// of the whole state taken at midnight: one event at a time, or in islands on the workers.
 std::string crowd_days(run::Workers* workers, time::Seconds days) {
@@ -292,6 +372,8 @@ constexpr std::array kSuites = {
     Suite{"world", "a crowd of 1,000 markers walking, greeting and sleeping for 30 game days, one event at a time",
           &world},
     Suite{"islands", "the crowd for 3 game days in islands on the workers, the same as one event at a time", &islands},
+    Suite{"look", "the look's measures on pictures made by chance, FLIP aside, and the blind test's pairs",
+          &look_measures},
 };
 
 }  // namespace

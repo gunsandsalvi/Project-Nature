@@ -5,9 +5,6 @@
 ## world (WLD-13). Implements PRE-01, PRE-02 and PRE-33.
 extends VBoxContainer
 
-const GROUND_SHADER := preload("res://look/ground.gdshader")
-const TEXTURES := "res://data/textures/"
-const LAYERS := ["standin-meadow", "standin-pattern"]
 ## Frames drawn behind a cover as the page opens, so every material's pipelines compile out of
 ## sight (A4.7): the warm-up, which grows as materials come.
 const WARM_FRAMES := 3
@@ -137,27 +134,8 @@ func _build_world() -> void:
 	_camera = Camera3D.new()
 	_camera.current = true
 	_world.add_child(_camera)
-	_sun = DirectionalLight3D.new()
-	_sun.rotation_degrees = Vector3(-50.0, 30.0, 0.0)
-	_sun.light_color = Color("#fff4e0")
-	_sun.shadow_enabled = true
-	_world.add_child(_sun)
-	var environment := Environment.new()
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = Color("#a9c4d8")
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("#a9b8c8")
-	environment.ambient_light_energy = 0.45
-	environment.tonemap_mode = Environment.TONE_MAPPER_AGX
-	var holder := WorldEnvironment.new()
-	holder.environment = environment
-	_world.add_child(holder)
-	var paths := PackedStringArray()
-	for layer: String in LAYERS:
-		paths.append(TEXTURES + layer + ".kdtex")
-	problem = look.load_layers(paths)
-	if problem.is_empty():
-		look.build(_world.get_world_3d().scenario, GROUND_SHADER.get_rid())
+	problem = LookScene.build(look, _world)
+	_sun = _world.get_node("Sun")
 
 
 func _add_cover() -> void:

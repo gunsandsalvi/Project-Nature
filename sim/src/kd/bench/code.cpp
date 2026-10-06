@@ -5,18 +5,14 @@
 
 #include "kd/bench/scenarios.hpp"
 #include "kd/num/convert.hpp"
+#include "kd/num/letters.hpp"
 #include "kd/num/maths.hpp"
 
 namespace kd::bench {
 
 namespace {
 
-// Crockford's base32: the digits, then the letters but I, L, O and U.
-constexpr std::string_view kAlphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-// Letters in a group, the groups joined by dashes.
-constexpr std::size_t kGroup = 5;
 constexpr unsigned kVersionBits = 8;
-constexpr unsigned kChecksumBits = 24;
 
 struct Measure {
     std::string_view name;
@@ -73,50 +69,6 @@ constexpr std::array<Measure, 3> kSaves{{
     {"export_ms", 15, Kind::count},
     {"open_ms", 15, Kind::count},
 }};
-
-// CRC-24 as OpenPGP defines it, over whole bits, most significant first. It catches every change within 24 bits in a
-// row, so every wrong letter.
-std::uint32_t crc24(const std::vector<bool>& bits) {
-    std::uint32_t crc = 0xB704CEU;
-    for (const bool b : bits) {
-        const bool top = ((crc >> 23U) & 1U) != 0;
-        crc = (crc << 1U) & 0xFFFFFFU;
-        if (top != b) {
-            crc ^= 0x864CFBU;
-        }
-    }
-    return crc;
-}
-
-void put(std::vector<bool>& bits, std::uint64_t value, unsigned width) {
-    for (unsigned i = width; i-- > 0;) {
-        bits.push_back(((value >> i) & 1U) != 0);
-    }
-}
-
-std::uint64_t take(const std::vector<bool>& bits, std::size_t& at, unsigned width) {
-    std::uint64_t v = 0;
-    for (unsigned i = 0; i < width; ++i) {
-        v = (v << 1U) | (bits[at] ? 1U : 0U);
-        ++at;
-    }
-    return v;
-}
-
-// A letter's value, read as Crockford says: either case, O as 0, I and L as 1; -1 for any other.
-int value_of(char c) {
-    if (c >= 'a' && c <= 'z') {
-        c = static_cast<char>(c - 'a' + 'A');
-    }
-    if (c == 'O') {
-        return 0;
-    }
-    if (c == 'I' || c == 'L') {
-        return 1;
-    }
-    const std::size_t at = kAlphabet.find(c);
-    return at == std::string_view::npos ? -1 : static_cast<int>(at);
-}
 
 // A measure as its field holds it, within the field's bits.
 std::uint64_t stored(const Field& f, double x) {
@@ -191,75 +143,44 @@ const std::vector<Field>& layout() {
 
 std::string encode(const Values& values) {
     std::vector<bool> bits;
-    put(bits, kLayoutVersion, kVersionBits);
+    num::put_bits(bits, kLayoutVersion, kVersionBits);
     for (const Field& f : layout()) {
         const auto it = values.find(f.name);
-        put(bits, it == values.end() ? 0 : stored(f, it->second), f.bits);
+        num::put_bits(bits, it == values.end() ? 0 : stored(f, it->second), f.bits);
     }
-    put(bits, crc24(bits), kChecksumBits);
-    while (bits.size() % 5 != 0) {
-        bits.push_back(false);
-    }
-    std::string out;
-    std::size_t at = 0;
-    for (std::size_t letter = 0; at < bits.size(); ++letter) {
-        if (letter > 0 && letter % kGroup == 0) {
-            out += '-';
-        }
-        out += kAlphabet[take(bits, at, 5)];
-    }
-    return out;
+    return num::write_letters(std::move(bits));
 }
 
 Read decode(std::string_view code) {
     Read out;
-    std::vector<bool> bits;
-    for (const char c : code) {
-        // spaces, line breaks, hyphens, and the other dashes and spaces chat apps swap in, whose UTF-8 bytes are
-        // all above 127, are skipped
-        if (c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == '-' || static_cast<unsigned char>(c) >= 0x80) {
-            continue;
-        }
-        const int v = value_of(c);
-        if (v < 0) {
-            out.why = std::string("it holds a letter no code has: ") + c;
-            return out;
-        }
-        put(bits, static_cast<std::uint64_t>(v), 5);
-    }
-    std::size_t needed = kVersionBits + kChecksumBits;
+    std::size_t needed = kVersionBits;
     for (const Field& f : layout()) {
         needed += f.bits;
     }
-    if (bits.size() < needed || bits.size() >= needed + 5) {
-        std::size_t at = 0;
-        const std::uint64_t version = bits.size() >= kVersionBits ? take(bits, at, kVersionBits) : 0;
-        out.why = version != kLayoutVersion && bits.size() >= kVersionBits
-                      ? "it is a code of layout " + std::to_string(version) + ", and this reads layout " +
-                            std::to_string(kLayoutVersion)
-                      : "it has " + std::to_string(bits.size() / 5) + " letters, where a code has " +
-                            std::to_string((needed + 4) / 5);
-        return out;
+    const num::Letters letters = num::read_letters(code, needed);
+    std::size_t at = 0;
+    if (letters.wrong_length && letters.body.size() >= kVersionBits) {
+        // a code of another layout has another length: name its layout
+        const std::uint64_t version = num::take_bits(letters.body, at, kVersionBits);
+        if (version != kLayoutVersion) {
+            out.why = "it is a code of layout " + std::to_string(version) + ", and this reads layout " +
+                      std::to_string(kLayoutVersion);
+            return out;
+        }
     }
-    const std::vector<bool> body(bits.begin(), bits.begin() + static_cast<std::ptrdiff_t>(needed - kChecksumBits));
-    std::size_t at = body.size();
-    const auto sum = static_cast<std::uint32_t>(take(bits, at, kChecksumBits));
-    // the padding after the checksum must be zeros, so a change to the last letter is caught too
-    const bool padded =
-        std::none_of(bits.begin() + static_cast<std::ptrdiff_t>(at), bits.end(), [](bool b) { return b; });
-    if (sum != crc24(body) || !padded) {
-        out.why = "its checksum does not hold: a letter is wrong";
+    if (!letters.why.empty()) {
+        out.why = letters.why;
         return out;
     }
     at = 0;
-    const std::uint64_t version = take(bits, at, kVersionBits);
+    const std::uint64_t version = num::take_bits(letters.body, at, kVersionBits);
     if (version != kLayoutVersion) {
         out.why = "it is a code of layout " + std::to_string(version) + ", and this reads layout " +
                   std::to_string(kLayoutVersion);
         return out;
     }
     for (const Field& f : layout()) {
-        if (const std::optional<double> m = measure(f, take(bits, at, f.bits))) {
+        if (const std::optional<double> m = measure(f, num::take_bits(letters.body, at, f.bits))) {
             out.values[f.name] = *m;
         }
     }

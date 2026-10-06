@@ -50,6 +50,7 @@ add_library(kd_sim STATIC
     src/kd/data/units.cpp
     src/kd/data/walkers.cpp
     src/kd/event/queue.cpp
+    src/kd/look/blind.cpp
     src/kd/look/card.cpp
     src/kd/look/colour.cpp
     src/kd/look/frame.cpp
@@ -63,6 +64,7 @@ add_library(kd_sim STATIC
     src/kd/num/convert.cpp
     src/kd/num/digest.cpp
     src/kd/num/fenv.cpp
+    src/kd/num/letters.cpp
     src/kd/num/maths.cpp
     src/kd/proof/fixture.cpp
     src/kd/proof/maths_cases.cpp
@@ -107,6 +109,7 @@ if(KD_SIM_TESTS)
         tests/checks_test.cpp
         tests/data_test.cpp
         tests/duration_test.cpp
+        tests/look_blind_test.cpp
         tests/look_card_test.cpp
         tests/look_frame_test.cpp
         tests/look_test.cpp

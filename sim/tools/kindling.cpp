@@ -75,6 +75,8 @@
 //                                                 ((m0 x + m1 y + m2) / w, (m3 x + m4 y + m5) / w) in the first, where
 //                                                 w = m6 x + m7 y + m8: "flicker F", the share of pixels whose error
 //                                                 changed by more than the threshold, in hundredths of lightness
+//     kindling look blind <code>                 a blind test's code from your phone (A5.5) in words: what it compared,
+//                                                 the pairs answered right, and whether the difference shows
 //     kindling look flip <width> <height> <pixels a degree>
 //                                                 FLIP between two pictures (A4.8): standard input holds the reference
 //                                                 and then the test, both raw RGBA: "mean M above A", the mean error
@@ -110,6 +112,7 @@
 #include "kd/demo/crowd_scene.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/kept.hpp"
+#include "kd/look/blind.hpp"
 #include "kd/look/card.hpp"
 #include "kd/look/colour.hpp"
 #include "kd/look/frame.hpp"
@@ -148,7 +151,8 @@ int usage() {
         "       kindling look levels|numbers <width> <height>\n"
         "       kindling look salience <width> <height> <person>...\n"
         "       kindling look flicker <width> <height> <threshold> <m0> ... <m8>\n"
-        "       kindling look flip <width> <height> <pixels a degree>\n");
+        "       kindling look flip <width> <height> <pixels a degree>\n"
+        "       kindling look blind <code>\n");
     return 2;
 }
 
@@ -1010,7 +1014,24 @@ std::optional<std::vector<kd::look::Picture>> pictures(std::int64_t width, std::
     return out;
 }
 
+// A blind test's code read back in words (A5.5).
+int blind(std::string_view code) {
+    const kd::look::BlindRead read = kd::look::read_blind_code(code);
+    if (!read.why.empty()) {
+        std::fprintf(stderr, "kindling: this blind test's code cannot be read: %s\n", read.why.c_str());
+        return 1;
+    }
+    const std::int64_t right = kd::look::blind_right(read.test);
+    std::printf("MSAA 4x against 2x on the meadow: %lld of %lld right: %s\n", static_cast<long long>(right),
+                static_cast<long long>(kd::look::kBlindPairs),
+                right >= kd::look::kBlindShows ? "the difference shows" : "the difference does not show");
+    return 0;
+}
+
 int look(const std::vector<std::string_view>& args) {
+    if (args.size() == 2 && args[0] == "blind") {
+        return blind(args[1]);
+    }
     if (args.size() < 3) {
         return usage();
     }
