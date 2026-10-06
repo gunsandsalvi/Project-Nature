@@ -108,8 +108,8 @@ public:
     /// none, every record goes once its year is more than 25 years past.
     void keep_kinds(std::function<bool(const world::Record&)> keeps) { keeps_ = std::move(keeps); }
 
-    /// A command, written and synced before it acts.
-    void command(const world::Command& c);
+    /// A command, written and synced before it acts: false if it could not be, when the world must not act on it.
+    bool command(const world::Command& c);
     /// A pause mark at the frontier, synced, as the app leaves the screen.
     void pause_mark(time::Seconds frontier);
     /// History records as they happen: written at once, synced with the next snapshot. While the world makes again
@@ -126,7 +126,11 @@ public:
     void flush();
 
     /// Records made again that differed from those written, which is a bug (PLT-07).
-    [[nodiscard]] std::uint64_t mismatches() const { return mismatches_; }
+    [[nodiscard]] std::uint64_t mismatches() const { return mismatches_.load(std::memory_order_relaxed); }
+    /// Whether a write to the folder failed, as when the phone's storage is full or broken. From then on nothing more
+    /// is written, so the folder keeps what was safe before it and opens there whole, and the world must stop: what it
+    /// does after cannot be kept (PLT-07).
+    [[nodiscard]] bool failed() const { return failed_.load(std::memory_order_acquire); }
     /// Records still expected to be made again.
     [[nodiscard]] std::uint64_t expecting() const { return stored_.size() - next_; }
     /// The snapshots written since the folder was opened, and the newest one's frontier and size.
@@ -143,6 +147,8 @@ private:
     };
 
     void append(const world::Record& r);
+    /// On the I/O thread, after a write that did not complete: nothing more is written.
+    void fail() { failed_.store(true, std::memory_order_release); }
     /// Cuts the history back to before a stored record: its file cut there, and the later files removed.
     void cut_history(std::size_t index);
     /// Thins a year's file on the I/O thread to the records that stay for ever, unless it is thinned already.
@@ -161,7 +167,8 @@ private:
     std::vector<world::Record> stored_;
     std::vector<Place> where_;
     std::size_t next_ = 0;
-    std::uint64_t mismatches_ = 0;
+    std::atomic<std::uint64_t> mismatches_{0};
+    std::atomic<bool> failed_{false};
     std::uint64_t journal_next_ = 1;
     // the sequence number of the next record of each history file read or written
     std::map<std::string, std::uint64_t> sequences_;

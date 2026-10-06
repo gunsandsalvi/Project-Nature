@@ -18,7 +18,7 @@ const UNITS := [
 	["minute", 60.0],
 	["second", 1.0],
 ]
-const QUIET := Color("#a89f95")
+const QUIET := Palette.QUIET
 
 var world: KdWorld
 ## The buttons' speeds, in game seconds a real second: the stops' from the tuning file, then top.

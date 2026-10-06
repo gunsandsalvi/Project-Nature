@@ -1,4 +1,4 @@
-## The phone benchmark (A18.1, PLT-04): one tap and about 17 minutes. It runs each scenario of the
+## The phone benchmark (A18.1, PLT-04): one tap and about 19 minutes. It runs each scenario of the
 ## simulation's list in turn, on its own page with a world of its own kept apart from yours: the
 ## calendar alone, 10,000 markers at real speed and at top speed with the camera touring, the same
 ## pinned to the middle cores, a sweep through the zoom stops' speeds, saves with an export and a
@@ -25,10 +25,10 @@ const SWEEP_STEP := 20.0
 ## A world that has not moved for this many real seconds while running on to its mark has stopped,
 ## and its digest is not taken.
 const STUCK := 30.0
-const TEXT := Color("#efe6d8")
-const QUIET := Color("#a89f95")
-const GOOD := Color("#9fd38a")
-const FAIL := Color("#ef7b6b")
+const TEXT := Palette.TEXT
+const QUIET := Palette.QUIET
+const GOOD := Palette.GOOD
+const FAIL := Palette.FAIL
 
 ## Real time runs this many times faster in the tests; 1 on the phone.
 var time_scale := 1.0
@@ -237,7 +237,7 @@ func _close_page() -> void:
 
 ## The phone read: its heat forecast, the working share the heat allows, its battery's current, the
 ## app's memory, the fastest core's clock, the slowest save's pause, and the speed shown in the
-## scenario's last third.
+## scenario's last minute, after 3 minutes at top speed (PLT-04).
 func _read(s: Dictionary, t: float) -> void:
 	var c: Dictionary = _page.world.counters()
 	var heat := -1.0
@@ -266,7 +266,7 @@ func _read(s: Dictionary, t: float) -> void:
 		clock = maxi(clock, khz)
 	if clock > 0:
 		_samples["clock"].append(clock / 1000.0)
-	if s["speed"] != "sweep" and t >= float(s["seconds"]) * 2.0 / 3.0:
+	if s["speed"] != "sweep" and t >= float(s["seconds"]) - 60.0:
 		_samples["speed"].append(float(c.get("speed_shown", 0.0)))
 
 
@@ -394,7 +394,10 @@ func _end() -> void:
 	shown_code.text = code.replace("-", " ")
 	shown_code.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	shown_code.add_theme_font_size_override("font_size", 20)
-	shown_code.add_theme_color_override("font_color", GOOD)
+	# green only when every scenario met every line
+	shown_code.add_theme_color_override(
+		"font_color", GOOD if _met == scenarios.size() else Palette.WARN
+	)
 	add_child(shown_code)
 	move_child(shown_code, 1)
 	shown.append(code)

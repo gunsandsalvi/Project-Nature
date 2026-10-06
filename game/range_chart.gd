@@ -5,11 +5,11 @@
 class_name RangeChart
 extends Control
 
-const DOT := Color("#efe6d8")
-const AXIS := Color("#a89f95")
+const DOT := Palette.TEXT
+const AXIS := Palette.QUIET
 const BAND := Color(0.91, 0.76, 0.35, 0.22)
-const BAND_EDGE := Color("#e8c25a")
-const BOUND := Color("#9fd38a")
+const BAND_EDGE := Palette.WARN
+const BOUND := Palette.GOOD
 ## A dot's radius and the step between stacked dots, in pixels; the room kept for the labels.
 const RADIUS := 3.5
 const STEP := 8.0

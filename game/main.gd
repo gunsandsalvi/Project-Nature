@@ -12,8 +12,8 @@ const PAGES := {
 	"Reports": preload("res://pages/reports.gd"),
 	"Bench": preload("res://pages/bench.gd"),
 }
-const BACKGROUND := Color("#1f1a24")
-const TEXT := Color("#efe6d8")
+const BACKGROUND := Palette.GROUND
+const TEXT := Palette.TEXT
 
 var _tabs: GridContainer
 var _content: MarginContainer
@@ -42,15 +42,17 @@ func page_name() -> String:
 	return _page_name
 
 
-## Opens one of the pages by its name.
+## Opens one of the pages by its name; the one open already stays as it is.
 func open_page(page: String) -> void:
+	for button: Button in _tabs.get_children():
+		button.set_pressed_no_signal(button.text == page)
+	if page == _page_name:
+		return
 	for child in _content.get_children():
 		child.queue_free()
 	var node: Control = PAGES[page].new()
 	_content.add_child(node)
 	_page_name = page
-	for button: Button in _tabs.get_children():
-		button.disabled = button.text == page
 
 
 func _build() -> void:
@@ -78,6 +80,8 @@ func _build() -> void:
 		button.text = page
 		button.custom_minimum_size = Vector2(96, 48)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		# the open page's tab shows pressed, not greyed out as if it could not be used
+		button.toggle_mode = true
 		button.pressed.connect(open_page.bind(page))
 		_tabs.add_child(button)
 	_content = MarginContainer.new()

@@ -1,4 +1,4 @@
-// The benchmark's scenarios (A18.1, PLT-04): what the phone runs, one after another, in about 17 minutes, each with
+// The benchmark's scenarios (A18.1, PLT-04): what the phone runs, one after another, in about 19 minutes, each with
 // the game second its world's digest is taken at and the pass lines it is held to, stated here before the first run
 // (RES-09). The phone runs them on its screen; the cloud runs their worlds headless and must reach the same digests
 // (RES-05). Written once, for both.
@@ -32,7 +32,7 @@ struct Scenario {
     bool pinned = false;
     /// Whether it saves every 30 real seconds, exports the world and reopens it (A3.7).
     bool saves = false;
-    /// The real seconds it lasts; its speed is read over the last third.
+    /// The real seconds it lasts; its speed is read over its last minute, after 3 minutes at top speed (PLT-04).
     std::int64_t seconds = 0;
     /// The game second its world's digest is taken at, as its world passes it.
     time::Seconds mark = 0;

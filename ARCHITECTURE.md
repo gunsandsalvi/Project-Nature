@@ -136,6 +136,7 @@ dist/        the signed APK of the latest alpha and its note
   - the floating-point environment a simulation thread finds;
   - the catalogues' digests against the build's;
   - a save written and reopened;
+    *built in α1.4a as the last save's time and the moment it holds, not a save made for the check: the kill tests in the cloud prove the saving itself;*
   - the graphics driver's version, read from the id of Godot's pipeline cache, the only place Godot gives it; the screen's refresh rate; the cores and their top clocks; the heat thresholds; and how the storage is mounted.
 
 ### A2.4 A fresh cloud session
@@ -342,6 +343,9 @@ Following Box2D, Factorio and research 18:
   - **Thinning:** each history record is framed as kept for ever or not, as its system's `keeps()` says when it is written (your commands are kept, greetings are not); each year's file is numbered from 1, and α1.4a's, numbered on from the year before, still read.
     Before the first record of a year is written, each year more than 25 years past is rewritten whole as a thinned year, a mark and its kept records, so a file for a year shows that the years 26 before it are thinned; a world made again from its seed passes thinned years by and leaves them as they are.
     Opening reads the history only from the snapshot's year on, so a long history costs nothing to open.
+  - **A failed write** (M1's review): once any write to a world's folder fails, as when the phone is full or its storage breaks, nothing more is written, your command then is refused, and the world stops and says so; the folder keeps what was safe before the failure and opens there whole, so nothing is written past a gap and no snapshot hides history that was never made safe.
+    An import makes each part safe as it ends, and the folder's new name with it.
+    A snapshot's whole-file hash is checked before any part is unpacked, so damage can never make it ask for memory.
   - **Space:** the free space is checked at each save, and below the saves' tuning's `warn_below`, 1 GB, the Crowd page and the self-check warn and point to the Worlds page, where each world's size shows; nothing is deleted but by you.
   - *Measured in the cloud:* a world of 10,000 markers ten game days in, 5.4 MB, exported in 23 ms and imported, every part checked, in 9 ms; its history grows by about 31 MB a game year, 68 bytes a record as written, and zlib makes a year about a third of that.
 
@@ -350,6 +354,7 @@ Following Box2D, Factorio and research 18:
 - **Three classes for GDScript,** from `view/`: the world (make, open, save, close, export, import; commands; the goal and the frontier; counters and events), the crowd (which draws the walkers into MultiMesh buffers), and the device (cores, heat, telemetry).
   A few calls a frame, never one per walker: a call into the extension costs about 0.1–0.2 µs (research 18).
 - **Commands in:** plain records, stamped with the game second they act at and written to the journal before they act; while you choose a power the game is paused, so a power acts on exactly the world shown.
+  - *Known gap, from M1's review:* the demonstration's call home acts at the world's frontier, up to a quarter of a real second of the speed ahead of what you see, hours of game time at top speed. It is a test command, not a power; before the first power (M9), a tap pauses the world and acts at the moment shown (`WLD-13`).
 - **Snapshots out:** after each batch, the simulation fills one slot of a triple buffer, so neither side ever waits and the screen always takes the newest: for each walker its id, kind and camp, and its ways from the screen's game time to the frontier.
   `view/` places each walker along the way it was on at the screen's game time and copies the result into MultiMesh buffers, one per area of the world, each with its own bounding box.
   - *Built in α1.3c:* the world is ahead of the screen by up to a quarter of a real second, so a walker may have begun a new way the screen has not reached; the world keeps each way a doer sets off on, as it runs, merged by key in islands (`world::Way`), and the snapshot holds each walker's ways back to the screen's time, so it is drawn exactly where the world has it at every whole second, and on a straight line between.
@@ -362,6 +367,7 @@ Following Box2D, Factorio and research 18:
 - **The simulation runs on its own worker threads,** up to four, made with an explicit 8 MiB stack (bionic's default is 1), named, and at a slightly lower priority than Godot's main thread (`PLT-01`).
   The fastest core and the small ones stay for Godot, sound and the system; Godot's own worker pool is kept small.
   Whether the workers are pinned to the middle cores is decided by the benchmark, which runs both ways, since Android advises against pinning (research 18).
+  - *Decided by your phone's benchmark (α1.5b):* pinned to the middle cores the world held 4.1 game days a second, unpinned 4.3, so the world runs unpinned; the comparison favours unpinned a little, since pinned runs after it on a warmer phone, but nothing in it argues for pinning.
 - **The speed loop:** the simulation works toward a goal at most about a quarter of a real second ahead of the screen, and sleeps once it gets there.
   - The world's runner (`kd::run::Runner`) is one simulation thread that works toward the goal in batches the world chooses, publishes its frontier after each, and rereads the goal between them, so a lower goal stops it within one batch; a cut between batches never changes the result.
   - Each frame the screen's game time moves by the speed asked times the frame's real time, read from the steady clock, since Godot's delta is smoothed, but never past the simulation's frontier; when it reaches the frontier, time slows (`PRN-11`).
@@ -377,6 +383,7 @@ Following Box2D, Factorio and research 18:
     The battery's charge, current and charging come from Android's BatteryManager through Godot's AndroidRuntime, and its current gives the phone's whole power; the power rails, which need Android 15's power monitor service, are left for a later benchmark.
     Our threads' processor time comes from `/proc` by their `kd-` names, memory from the process's status, and the cores' clocks from `cpufreq`.
     Trace sections mark each batch (`kd batch`), the world's own work each frame (`kd frame`), the crowd's drawing (`kd draw`) and each benchmark scenario.
+    The heat headroom is asked twice in a row, now and in 10 s; Android may refuse calls faster than once a second, but on your phone both answered in every reading.
 - **Watch the known killers from the first benchmark:** pathfinding at scale, temperature fields and lines of sight (research 03).
 
 ## A4. Drawing (research 04, 02)
@@ -749,24 +756,28 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
 - **The foundations,** from research 18 in the cloud, each measured again on your phone by M1's benchmark:
   - the event queue: 1–4% of one core at `TIM-07`'s speeds;
     measured in α1.3a, the crowd of 10,000 markers ran 60 game days, 14.4 million events, in 8.1 s on one cloud core: about 0.56 µs an event with its handler and a digest of the whole state each game day;
+    since markers meet and greet (α1.3b), about 1.4 µs in the cloud (5.2 million events in 20 game days, 7.4 s), and about 0.9 µs on your phone's fastest core, which held 4.3 game days a real second at top speed (α1.5b);
   - drawing 10,000 walkers: about 0.26 ms of the main thread a frame (filling and uploading their buffer);
     measured in α1.3c, 0.8 ms in the cloud, 1.1 ms for nine frames in ten, placing each walker from its ways and filling sixteen areas' buffers;
+    on your phone (α1.5b), 3.4 to 3.6 ms of the main thread a frame while the camera tours, with every frame on time: well over the hoped-for 0.26 ms, and the first cost to win back as figures replace squares (M2);
   - loading a launch-size catalogue: 25–33 ms;
   - a save: a pause of tens of milliseconds to copy the state at an event, the rest on other threads;
-    measured in α1.4a, 3.4 ms for the 10,000 markers in the cloud, with 3.3 ms of compression on the I/O thread;
-  - opening a world: within `PLT-04`'s 3 seconds.
+    measured in α1.4a, 3.4 ms for the 10,000 markers in the cloud, with 3.3 ms of compression on the I/O thread; 20 ms at most on your phone (α1.5b);
+  - opening a world: within `PLT-04`'s 3 seconds; 143 ms on your phone, its export 23 ms (α1.5b).
+- **Your phone in M1's benchmark** (α1.5b, 6 October 2026): 99.8 to 100% of frames on time and the slowest 49 ms while the camera moves, at every speed; the heat forecast at most 0.83 of the first throttling level, so time never had to slow; about 1 W at real speed and 5.6 W at top speed, the screen's own share about 1 W; 330 to 410 MB of memory; every scenario's world ending as the cloud's.
 - **Storage** (`PLT-10`): a world of 7,000 people at Year 250 estimated at 3.5–4.1 GB, against 4 GB: its history fits at about 17–30 events a person a game day.
   - Measured in α1.4b, a record of the history takes 68 bytes as written, too many for that estimate: a year will be compressed as it closes (zlib takes the crowd's to a third) and its records made smaller, when people's lives begin to fill it (M5).
 
 **M1's benchmark,** one tap and about 20 minutes, with the phone unplugged, in flight mode, after it has cooled:
 - the calendar alone at top speed; 10,000 markers at real speed and at top speed, with the camera touring, held speed read after 3 minutes; the same pinned to the middle cores; a sweep through the zoom stops' speeds; saves every 30 seconds with an export and a reopening; a still camera for the screen's own power;
 - for each, its end state's digest against the cloud's, the share of frames on time, the slowest frame, the speed held, heat, battery and power, and memory, in one code.
-- *Built in α1.5b:* the Bench page runs the seven scenarios of `kd::bench::scenarios()`, 15 minutes of them and about 17 in all, each on a page of its own with a world of its own under `user://bench`, apart from yours, and deleted after.
+- *Built in α1.5b:* the Bench page runs the seven scenarios of `kd::bench::scenarios()`, 17 minutes of them and about 19 in all, each on a page of its own with a world of its own under `user://bench`, apart from yours, and deleted after.
   - Each world takes its digest as it passes a set game second, and the saves scenario calls a camp home at an exact second: `kd::run::Marked` stops the world's batches there, which changes nothing but where they end.
     `kindling bench` runs the same worlds headless, and `tools/gamedata.py` writes their digests into the build, so the phone compares its own with the cloud's as it goes (`RES-05`).
-  - A scenario's frames count after its first 5 seconds, with the crowd's own drawing time on the main thread; its heat, battery, memory, the fastest core's clock and the speed are read every 2 seconds, the speed over its last third; and a world that has not reached its mark by the end runs on to it with the screen still.
+  - A scenario's frames count after its first 5 seconds, with the crowd's own drawing time on the main thread; its heat, battery, memory, the fastest core's clock and the speed are read every 2 seconds, the speed over its last minute, after 3 minutes at top speed; and a world that has not reached its mark by the end runs on to it with the screen still.
+    The sweep's world takes its digest at day 30, after its fastest speeds.
   - The pass lines, stated in the scenarios before the first run (`RES-09`): at least 97% of frames on time and the slowest at most 66 ms where the camera moves, a world reopened within 3 seconds, and every digest the cloud's.
-  - The code (`kd::bench`): layout version 1, 103 fields in 1054 bits with a CRC-24 (OpenPGP's), 218 letters of Crockford's base32 in groups of five; `kindling bench decode <code>` reads it and holds each measure to its line.
+  - The code (`kd::bench`): layout version 2 (version 1, the first build's, read its speeds earlier and marked the sweep at its start), 103 fields in 1054 bits with a CRC-24 (OpenPGP's), 218 letters of Crockford's base32 in groups of five; `kindling bench decode <code>` reads it and holds each measure to its line.
     Run a hundred times faster in the cloud, every scenario's world ends as the headless one's.
 
 ### A18.2 Risks

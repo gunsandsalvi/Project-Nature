@@ -28,8 +28,8 @@ const TOUR_RADIUS := 1500.0
 const TOUR_CIRCLE := 60.0
 const TOUR_ZOOM := 40.0
 const TOUR_TURN := 90.0
-const TEXT := Color("#efe6d8")
-const QUIET := Color("#a89f95")
+const TEXT := Palette.TEXT
+const QUIET := Palette.QUIET
 const DAY_GROUND := Color("#4f5b3c")
 const NIGHT_GROUND := Color("#1e2433")
 
@@ -197,6 +197,16 @@ func _show() -> void:
 	var warning := Worlds.space_warning(c.get("free_mb", -1), c.get("warn_below_mb", 0))
 	if warning != "":
 		lines.append(warning)
+	if c.get("save_failed", false):
+		(
+			lines
+			. append(
+				(
+					"The world stopped: the phone could not save it. Free some space, then open it again"
+					+ " from Worlds; it opens where it was last saved"
+				)
+			)
+		)
 	if world.catching_up():
 		lines.append(
 			"Catching up to where the world was, %s" % KdWorld.moment_text(opened["was_at"])

@@ -121,8 +121,9 @@ public:
     /// The crowd's counters (PLT-01): events a second over the last real second, events, batches and the last
     /// batch's milliseconds, greetings, what the phone can do in game seconds a real second, the heat's working share
     /// and the speed limit it sets, the speeds asked and shown, the walkers, and how far the world is ahead; for a
-    /// kept world, its saves, the pause the last one made the world take in milliseconds, the real seconds it has run
-    /// under this version, and the megabytes free where it is kept at the last save, and how few make the game warn.
+    /// kept world, its saves, the pause the last one made the world take in milliseconds, whether a save failed and the
+    /// world stopped, the real seconds it has run under this version, and the megabytes free where it is kept at the
+    /// last save, and how few make the game warn.
     godot::Dictionary counters() const;
     /// The greetings since the last call, three numbers each: the game second, and the two walkers' ids.
     godot::PackedInt64Array drain_greetings();

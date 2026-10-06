@@ -443,6 +443,10 @@ void KdWorld::frame() {
     if (!runner_) {
         return;
     }
+    if (keeper_ && keeper_->failed()) {
+        // the phone could not save the world: it stops where the folder keeps it whole, and stays stopped (PLT-07)
+        pace_.pause();
+    }
     // each frame's own real time, from the steady clock: Godot's delta is smoothed and can hide a stall (research 18)
     const auto now = std::chrono::steady_clock::now();
     const double real = framed_ ? std::chrono::duration<double>(now - last_frame_).count() : 0.0;
@@ -545,6 +549,7 @@ godot::Dictionary KdWorld::counters() const {
         out["saved_at"] = keeper_->last_snapshot();
         out["save_bytes"] = static_cast<int64_t>(keeper_->last_snapshot_bytes());
         out["mismatches"] = static_cast<int64_t>(keeper_->mismatches());
+        out["save_failed"] = keeper_->failed();
         out["played"] = keeper_->played();
         out["free_mb"] = free_mb_;
         out["warn_below_mb"] = warn_below_mb_;

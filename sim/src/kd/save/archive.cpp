@@ -222,6 +222,10 @@ bool ArchiveReader::close_part() {
     if (part_hash_.value() != expected_) {
         return fail("its part " + path_ + " is damaged");
     }
+    // each part made safe as it ends, so a world taken in is whole after a power cut
+    if (!folder_.sync(path_)) {
+        return fail("its part " + path_ + " cannot be kept");
+    }
     return true;
 }
 

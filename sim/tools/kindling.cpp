@@ -323,7 +323,8 @@ int keep(const std::vector<std::string_view>& args) {
     w.keep_history(&records);
     // the calls the journal holds were given already, and a person never gives them twice
     std::size_t made = kept.journaled;
-    while (w.frontier() < until) {
+    // a failed write stops the run where the folder last kept the world whole
+    while (w.frontier() < until && !keeper.failed()) {
         const bool calling = made < calls.size();
         kd::time::Seconds stop = std::min<kd::time::Seconds>(until, (w.frontier() / every + 1) * every);
         if (calling) {
@@ -353,6 +354,10 @@ int keep(const std::vector<std::string_view>& args) {
                 static_cast<unsigned long long>(w.history_count()), static_cast<unsigned long long>(w.commands_made()),
                 static_cast<unsigned long long>(keeper.mismatches()),
                 static_cast<unsigned long long>(keeper.snapshots()));
+    if (keeper.failed()) {
+        std::fprintf(stderr, "kindling: a write to the world's folder failed, so the run stopped; it opens whole\n");
+        return 1;
+    }
     return keeper.mismatches() == 0 ? 0 : 1;
 }
 
@@ -679,7 +684,7 @@ int bench_command(const std::vector<std::string_view>& args) {
     known("cores", "", " cores");
     known("big_mhz", "the fastest at ", " MHz");
     known("refresh_hz", "a ", " Hz screen");
-    known("android", "Android ", "");
+    known("android", "Android API level ", "");
     known("battery", "battery ", "% at the start");
     if (whole("plugged") > 0) {
         phone.emplace_back(whole("plugged") == 2 ? "plugged in, which the run asks not to be" : "on battery");
@@ -734,12 +739,14 @@ int bench_command(const std::vector<std::string_view>& args) {
             out += "  held " + speed_words(*speed) + "\n";
         }
         if (const auto heat = value(n + ".heat")) {
-            char text[128];
-            std::snprintf(text, sizeof text,
-                          "  heat forecast at most %.2f of the first throttling level; the work "
-                          "share at least %lld%%\n",
-                          *heat, whole(n + ".share"));
+            char text[96];
+            std::snprintf(text, sizeof text, "  heat forecast at most %.2f of the first throttling level", *heat);
             out += text;
+            // the calendar's stand-in has no heat guard, so no working share
+            if (value(n + ".share")) {
+                out += "; the work share at least " + std::to_string(whole(n + ".share")) + "%";
+            }
+            out += "\n";
         }
         if (const auto clock = value(n + ".clock")) {
             out += "  the fastest core at " + grouped(static_cast<long long>(*clock)) + " MHz on average\n";

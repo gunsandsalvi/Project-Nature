@@ -6,10 +6,10 @@ extends VBoxContainer
 
 const BUILD_DATA := "res://data/build.toml"
 const COLOURS := {
-	"ok": Color("#8fd18a"),
-	"warn": Color("#e8c25a"),
-	"fail": Color("#ef7b6b"),
-	"info": Color("#a89f95"),
+	"ok": Palette.GOOD,
+	"warn": Palette.WARN,
+	"fail": Palette.FAIL,
+	"info": Palette.QUIET,
 }
 const MARKS := {"ok": "✔", "warn": "!", "fail": "✘", "info": "·"}
 

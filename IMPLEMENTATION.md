@@ -25,7 +25,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - α1.4b, worlds, export and updates, is delivered as 20402, and α1.4 is closed by the builder's review: several worlds kept and switched on a Worlds page, one exported to a .kindling file and imported again, α1.4a's worlds opened and carried on after a small update with their last save kept aside for an hour, the history thinned after 25 years, and a warning before the phone is full (A3.7).
 - α1.5a, scenes and runs, is delivered as 20501: scenes stated in files before they run, their runs many at once in the cloud, judged by their rules with the 40-run rerun, oddities flagged, test switches only in the cloud's builds, runs that resume exactly, the repeat check in every check, and the cloud's last report on a Reports page with the test world it ran (A17).
 - α1.5b, the benchmark, is delivered as 20502, and α1.5 is closed by the builder's review: one tap and about 17 minutes on a Bench page, seven scenarios whose worlds end as the cloud's runs of them, and a code the cloud reads back (A18.1).
-- M1 is built; its independent review runs next, then its report, `dist/M1-REPORT.md`, waits for your review and your benchmark's code (`RES-06`, `RES-22`).
+- M1 is built. Its independent review approved it with fixes, which are in, and your phone's benchmark met all 18 of its pass lines; its report, `dist/M1-REPORT.md`, waits for your review (`RES-06`, `RES-22`).
 
 ## How to use this plan
 
@@ -125,7 +125,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| M1's review | Your review of M1's report, with your benchmark's code | M1 | | Waiting for you |
+| M1's review | Your review of M1's report | M1 | | Waiting for you |
 | The slice | The vertical slice | After M1 | | Proposed, for your OK |
 | M2 to M10 | Outlines below | M2 to M10 | | Detailed when each comes next |
 

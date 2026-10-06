@@ -4,7 +4,7 @@
 ## Implements TIM-01, TIM-10 and TIM-14.
 extends VBoxContainer
 
-const TEXT := Color("#efe6d8")
+const TEXT := Palette.TEXT
 
 var world: KdWorld
 var bar: SpeedBar

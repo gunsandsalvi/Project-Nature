@@ -77,33 +77,35 @@ std::optional<std::vector<Chunk>> read_snapshot(std::span<const std::byte> bytes
         why = "it is cut short in its header";
         return std::nullopt;
     }
-    std::vector<Chunk> out;
-    std::uint64_t at = 16;
-    for (std::uint32_t i = 0; i < count; ++i) {
-        ByteReader h(bytes.subspan(std::min<std::uint64_t>(at, bytes.size())));
-        Chunk c;
-        std::uint8_t critical = 0;
+    // first every chunk's head, and the whole file's hash at its end, before anything is unpacked: a damaged length
+    // can never make it reserve memory
+    struct Head {
+        Chunk chunk;
         std::uint64_t raw = 0;
         std::uint64_t hash = 0;
         std::uint64_t stored = 0;
-        if (!h.u32(c.tag) || !h.u32(c.version) || !h.u8(critical) || !h.u64(raw) || !h.u64(hash) || !h.u64(stored)) {
+        std::uint64_t at = 0;
+    };
+    std::vector<Head> heads;
+    std::uint64_t at = 16;
+    for (std::uint32_t i = 0; i < count; ++i) {
+        ByteReader h(bytes.subspan(std::min<std::uint64_t>(at, bytes.size())));
+        Head head;
+        std::uint8_t critical = 0;
+        if (!h.u32(head.chunk.tag) || !h.u32(head.chunk.version) || !h.u8(critical) || !h.u64(head.raw) ||
+            !h.u64(head.hash) || !h.u64(head.stored)) {
             why = "it is cut short in chunk " + std::to_string(i + 1);
             return std::nullopt;
         }
         at += 4 + 4 + 1 + 8 + 8 + 8;
-        if (critical > 1 || raw > kLargest || stored > bytes.size() - at) {
+        if (critical > 1 || head.raw > kLargest || head.stored > bytes.size() - at) {
             why = "chunk " + std::to_string(i + 1) + " is damaged or cut short";
             return std::nullopt;
         }
-        c.critical = critical == 1;
-        c.data.resize(raw);
-        const std::size_t n = ZSTD_decompress(c.data.data(), c.data.size(), bytes.data() + at, stored);
-        if (ZSTD_isError(n) != 0U || n != raw || hash_of(c.data) != hash) {
-            why = "chunk " + std::to_string(i + 1) + " is damaged";
-            return std::nullopt;
-        }
-        at += stored;
-        out.push_back(std::move(c));
+        head.chunk.critical = critical == 1;
+        head.at = at;
+        at += head.stored;
+        heads.push_back(std::move(head));
     }
     ByteReader t(bytes.subspan(std::min<std::uint64_t>(at, bytes.size())));
     std::uint64_t sum = 0;
@@ -115,6 +117,19 @@ std::optional<std::vector<Chunk>> read_snapshot(std::span<const std::byte> bytes
     if (sum != hash_of(bytes.first(at))) {
         why = "its bytes do not match its end";
         return std::nullopt;
+    }
+    // then each chunk unpacked, and held to its own hash
+    std::vector<Chunk> out;
+    for (std::size_t i = 0; i < heads.size(); ++i) {
+        Head& head = heads[i];
+        head.chunk.data.resize(head.raw);
+        const std::size_t n =
+            ZSTD_decompress(head.chunk.data.data(), head.chunk.data.size(), bytes.data() + head.at, head.stored);
+        if (ZSTD_isError(n) != 0U || n != head.raw || hash_of(head.chunk.data) != head.hash) {
+            why = "chunk " + std::to_string(i + 1) + " is damaged";
+            return std::nullopt;
+        }
+        out.push_back(std::move(head.chunk));
     }
     return out;
 }

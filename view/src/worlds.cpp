@@ -337,11 +337,11 @@ godot::Dictionary KdWorlds::import_finish() {
         out["why"] = text_of(why);
         return out;
     }
-    // whole and right: it becomes a world, under a new id
+    // whole and right: it becomes a world, under a new id, its name made safe with it
     const std::string id = new_id();
     const fs::path where = fs::path(root_) / id;
-    fs::rename(importing, where, error);
-    if (error) {
+    save::DiskFiles root(root_);
+    if (!root.rename(kImporting, id)) {
         fs::remove_all(importing, error);
         out["why"] = godot::String("it could not be kept on the phone");
         return out;

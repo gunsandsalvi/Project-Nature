@@ -4,15 +4,17 @@
 // It touches no Godot, so its tests run alone; its numbers come from the tuning file base/tuning/heat.toml.
 #pragma once
 
+#include <limits>
+
 namespace kd::view {
 
-/// The governor's numbers, from base/tuning/heat.toml.
+/// The governor's numbers, always from base/tuning/heat.toml; until it gives them, the share is never cut.
 struct HeatRules {
-    double near = 0.85;       // the forecast at which the share is cut
-    double cut = 0.5;         // what is kept of the share at each such reading
-    double floor = 0.25;      // the least share
-    int calm_readings = 30;   // readings below near before any share comes back
-    double give_back = 0.05;  // the share given back each calm reading after that
+    double near = std::numeric_limits<double>::infinity();  // the forecast at which the share is cut
+    double cut = 1.0;                                       // what is kept of the share at each such reading
+    double floor = 1.0;                                     // the least share
+    int calm_readings = 0;                                  // readings below near before any share comes back
+    double give_back = 0.0;                                 // the share given back each calm reading after that
 };
 
 /// Implements PLT-01, see A3.9: the simulation's working share, from 1 down to the floor.

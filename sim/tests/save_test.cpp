@@ -247,6 +247,14 @@ TEST_CASE("a snapshot reads back exactly and any damage refuses it whole") {
     CHECK(same(out.value_or(std::vector<kd::save::Chunk>{}), in));
     // the large chunk is compressed
     CHECK(file.size() < 20'000);
+    // a damaged length is caught by the whole file's hash before any chunk is unpacked, so it never asks for memory:
+    // the first chunk's length, 9 bytes into its head after the file's 16, set to 100 MB
+    Bytes long_length = file;
+    for (std::size_t b = 0; b < 8; ++b) {
+        long_length[16 + 9 + b] = static_cast<std::byte>((std::uint64_t{100'000'000} >> (8 * b)) & 0xFFU);
+    }
+    CHECK_FALSE(kd::save::read_snapshot(long_length, why).has_value());
+    CHECK(why == "its bytes do not match its end");
     std::uint64_t accepted = 0;
     for (std::size_t n = 0; n < file.size(); n += 1 + n / 50) {
         accepted += kd::save::read_snapshot(std::span(file).first(n), why).has_value() ? 1 : 0;
@@ -423,6 +431,51 @@ TEST_CASE("a damaged snapshot is set aside and the one before it opens and the w
 }
 
 // checks: PLT-07 TIM-05
+TEST_CASE("after one failed write nothing more is written, a command is refused, and the folder opens whole") {
+    kd::save::FakeFiles files;
+    {
+        kd::save::Keeper keeper(files);
+        kd::demo::Kept kept = kd::demo::keep_crowd(keeper, fixture(), 5, 6);
+        REQUIRE(kept.made);
+        kd::world::World& w = kept.crowd->world();
+        std::vector<kd::world::Record> records;
+        w.keep_history(&records);
+        w.run_to(30'000);
+        keeper.history(records);
+        records.clear();
+        keeper.snapshot(w);
+        keeper.flush();
+        const std::uint64_t safe = keeper.snapshots();
+        // the storage fails for one batch of history, as when the phone is full for a moment, then works again
+        files.stop_after(0);
+        w.run_to(40'000);
+        keeper.history(records);
+        records.clear();
+        keeper.flush();
+        files.restart();
+        CHECK(keeper.failed());
+        CHECK_FALSE(keeper.command(w.command(w.frontier(), static_cast<std::uint32_t>(kd::demo::Commanded::call_home),
+                                             camps_of(w)[1].value, 0)));
+        // nothing after the gap is written, a snapshot least of all, or the history before it would be lost behind it
+        w.run_to(50'000);
+        keeper.history(records);
+        keeper.snapshot(w);
+        keeper.flush();
+        CHECK(keeper.snapshots() == safe);
+    }
+    // the folder opens at the snapshot before the failure, and the world made again from there, without the refused
+    // command, ends as one never stopped, its history whole
+    kd::demo::Kept kept;
+    const auto [digest, mismatches] = reopen(files, 50'000, &kept);
+    kd::demo::CrowdWorld unbroken(5, fixture(), 6);
+    unbroken.world().run_to(50'000);
+    CHECK(digest == unbroken.world().digests().whole);
+    CHECK(mismatches == 0);
+    kd::save::Keeper keeper(files);
+    CHECK(keeper.open().history.size() == kept.crowd->world().history_count());
+}
+
+// checks: PLT-07 TIM-05
 TEST_CASE("after a power cut the folder opens and the world made again matches the history that was written") {
     Folder made = folder();
     // the power goes: the history after the newest snapshot was never synced, the command was
@@ -496,6 +549,8 @@ TEST_CASE("a world exported to one file and imported runs on as the one it came 
     const auto [taken, why] = imported(file, copy, 3);
     INFO(why);
     REQUIRE(taken);
+    // every part is safe as it is taken: a power cut straight after loses none of it
+    copy.power_cut();
     CHECK(copy.list("").size() == 2);  // world.toml and journal.log
     CHECK(copy.list("snapshots").size() == 1);
     CHECK(copy.read("journal.log") == made.files.read("journal.log"));

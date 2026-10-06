@@ -1,7 +1,7 @@
 # The crowd greets and sleeps (A17, RES-21): the demonstration's markers meet and greet every day and sleep at night,
 # in 20 worlds of 4 camps over 20 game days. Stated before its first run (RES-09).
 about = "The crowd's markers greet each other every day and sleep at night"
-checks = ["WLD-13", "RES-21", "RES-13"]
+checks = ["RES-21", "RES-13"]
 world = "crowd"
 camps = 4
 seed = 1

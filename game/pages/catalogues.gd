@@ -3,10 +3,10 @@
 ## MAT-13 and MAT-14: each source with its version and its rules, world and look digests.
 extends VBoxContainer
 
-const TEXT := Color("#efe6d8")
-const QUIET := Color("#a89f95")
-const HEAD := Color("#e8c25a")
-const FAIL := Color("#ef7b6b")
+const TEXT := Palette.TEXT
+const QUIET := Palette.QUIET
+const HEAD := Palette.HEAD
+const FAIL := Palette.FAIL
 
 ## What loading found, as KdWorld.load_catalogue gives it.
 var loaded: Dictionary = {}

@@ -232,6 +232,9 @@ TEST_CASE("the state's digest does not depend on EnTT's order, with the order fu
 }
 
 // checks: TIM-16 TIM-17 RES-05
+// 30 game days where the plan said 60 (RES-09): the same cuts and the same scramble, at half the time, since this test
+// runs in every build of every check, minutes of it under the phone's emulator and the thread checker; the repeat
+// check and the scenes run the crowd for longer.
 TEST_CASE("a world of 1,000 markers gives the same daily digests over 30 game days, however it is cut or scrambled") {
     const std::vector<std::uint64_t> one = daily(40, 30, kd::time::kDay, std::nullopt);
     CHECK(daily(40, 30, 7'919, std::nullopt) == one);

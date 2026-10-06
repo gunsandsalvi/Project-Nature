@@ -30,7 +30,7 @@ constexpr std::array<Measure, 9> kPhone{{
     {"cores", 5, Kind::as_is},       // the processor's cores
     {"big_mhz", 8, Kind::per25},     // the fastest core's top clock
     {"refresh_hz", 9, Kind::count},  // the screen's refresh rate
-    {"android", 7, Kind::count},     // the Android version, such as 16
+    {"android", 7, Kind::count},     // the Android API level, such as 36
     {"battery", 7, Kind::count},     // the battery's charge at the start, in percent
     {"plugged", 2, Kind::as_is},     // 1 on battery, 2 plugged in
     {"thermal", 2, Kind::as_is},     // 1 when the heat forecast works, 2 when it does not

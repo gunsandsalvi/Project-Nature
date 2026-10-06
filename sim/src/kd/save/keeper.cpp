@@ -305,12 +305,16 @@ void Keeper::write(const std::string& path, Bytes bytes) {
     io_.post([path, bytes = std::move(bytes)](Files& f) { f.write_whole(path, bytes); });
 }
 
-void Keeper::command(const world::Command& c) {
+bool Keeper::command(const world::Command& c) {
     const Bytes record = frame(kCommand, journal_next_++, command_body(c));
+    bool safe = false;
     io_.now([&](Files& f) {
-        f.append(kJournal, record);
-        f.sync(kJournal);
+        safe = !failed() && f.append(kJournal, record) && f.sync(kJournal);
+        if (!safe) {
+            fail();
+        }
     });
+    return safe;
 }
 
 void Keeper::pause_mark(time::Seconds frontier) {
@@ -318,8 +322,9 @@ void Keeper::pause_mark(time::Seconds frontier) {
     w.i64(frontier);
     const Bytes record = frame(kPause, journal_next_++, w.bytes());
     io_.now([&](Files& f) {
-        f.append(kJournal, record);
-        f.sync(kJournal);
+        if (!failed() && !(f.append(kJournal, record) && f.sync(kJournal))) {
+            fail();
+        }
     });
 }
 
@@ -357,7 +362,7 @@ void Keeper::history(std::span<const world::Record> records) {
                 continue;
             }
             // made differently than it was written: counted, and the history from it on replaced
-            ++mismatches_;
+            mismatches_.fetch_add(1, std::memory_order_relaxed);
             cut_history(next_);
         }
         append(r);
@@ -371,7 +376,13 @@ void Keeper::cut_history(std::size_t index) {
         later.push_back(it->first);
     }
     io_.now([&](Files& f) {
-        f.cut(at.path, at.offset);
+        if (failed()) {
+            return;
+        }
+        if (!f.cut(at.path, at.offset)) {
+            fail();
+            return;
+        }
         for (const std::string& p : later) {
             f.remove(p);
         }
@@ -387,7 +398,14 @@ void Keeper::append(const world::Record& r) {
     auto [it, made] = sequences_.try_emplace(path, 1);
     Bytes record = record_frame(r, it->second++, keeps_ && keeps_(r));
     io_.post([this, path, record = std::move(record)](Files& f) {
-        f.append(path, record);
+        // after a failed write nothing more: a record written past a gap would be cut away with all after it
+        if (failed()) {
+            return;
+        }
+        if (!f.append(path, record)) {
+            fail();
+            return;
+        }
         if (unsynced_.empty() || unsynced_.back() != path) {
             unsynced_.push_back(path);
         }
@@ -396,7 +414,10 @@ void Keeper::append(const world::Record& r) {
 
 void Keeper::thin(std::int64_t year) {
     sequences_.erase(year_file(year));
-    io_.post([path = year_file(year)](Files& f) {
+    io_.post([this, path = year_file(year)](Files& f) {
+        if (failed()) {
+            return;
+        }
         const std::optional<Bytes> bytes = f.read(path);
         if (!bytes) {
             return;
@@ -413,7 +434,9 @@ void Keeper::thin(std::int64_t year) {
                 out.insert(out.end(), record.begin(), record.end());
             }
         }
-        f.write_whole(path, out);
+        if (!f.write_whole(path, out)) {
+            fail();
+        }
     });
 }
 
@@ -429,14 +452,22 @@ void Keeper::snapshot(const world::World& w) {
     previous_ = previous_ && !drop;
     const time::Seconds frontier = w.frontier();
     io_.post([this, chunks = std::move(chunks), frontier, drop](Files& f) {
+        // never a snapshot after a failed write: the world opens at the one before, and makes again what was lost
+        if (failed()) {
+            return;
+        }
         // the history before the snapshot is safe first, so it can never be lost behind it
         for (const std::string& path : unsynced_) {
-            f.sync(path);
+            if (!f.sync(path)) {
+                fail();
+                return;
+            }
         }
         unsynced_.clear();
         const Bytes bytes = write_snapshot(chunks);
         const std::string name = snapshot_file(frontier);
         if (!f.write_whole(name, bytes)) {
+            fail();
             return;
         }
         // the newest two kept, the older removed only now the new one is safe

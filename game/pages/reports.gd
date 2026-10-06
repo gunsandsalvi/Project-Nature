@@ -4,11 +4,11 @@
 ## Implements RES-06, RES-13 and PLT-05.
 extends VBoxContainer
 
-const TEXT := Color("#efe6d8")
-const QUIET := Color("#a89f95")
-const HEAD := Color("#e8c25a")
-const GOOD := Color("#9fd38a")
-const FAIL := Color("#ef7b6b")
+const TEXT := Palette.TEXT
+const QUIET := Palette.QUIET
+const HEAD := Palette.HEAD
+const GOOD := Palette.GOOD
+const FAIL := Palette.FAIL
 
 ## Where the reports are read from and the worlds kept; a test sets its own before the page opens.
 var folder := Reports.FOLDER

@@ -47,6 +47,10 @@ bool Files::remove(const std::string& path) {
     return erase(path) && sync_folder(folder_of(path));
 }
 
+bool Files::rename(const std::string& from, const std::string& to) {
+    return move(from, to) && sync_folder(folder_of(to));
+}
+
 // --- the disk
 
 DiskFiles::DiskFiles(std::string root) : root_(std::move(root)) {}

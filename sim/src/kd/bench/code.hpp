@@ -24,8 +24,9 @@ struct Field {
     Kind kind = Kind::count;
 };
 
-/// The layout's version, the code's first eight bits.
-inline constexpr std::uint64_t kLayoutVersion = 1;
+/// The layout's version, the code's first eight bits: a new one whenever the fields or the scenarios change, since
+/// the cloud reads a code against its scenarios' digests. Version 1 is α1.5b's first build, 4de8ea2.
+inline constexpr std::uint64_t kLayoutVersion = 2;
 
 /// The fields of this version's layout, in order: the phone's, then each scenario's measures (A18.1).
 [[nodiscard]] const std::vector<Field>& layout();

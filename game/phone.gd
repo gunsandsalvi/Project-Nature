@@ -31,7 +31,7 @@ static func battery() -> Dictionary:
 	return out
 
 
-## The Android version, such as 16, or 0 off Android.
+## The Android API level, such as 36, as Godot gives it, or 0 off Android.
 static func android_version() -> int:
 	return OS.get_version().get_slice(".", 0).to_int() if OS.get_name() == "Android" else 0
 

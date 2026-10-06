@@ -13,7 +13,7 @@ namespace {
 constexpr time::Seconds kDay = time::kDay;
 constexpr time::Seconds kMorning = demo::kMorning;
 
-// 15 minutes of scenarios, about 17 with the worlds' making between them (A18.1). The pass lines are PLT-04's: at least
+// 17 minutes of scenarios, about 19 with the worlds' making between them (A18.1). The pass lines are PLT-04's: at least
 // 97% of frames on time and none more than 50 ms late, a gap of 66 ms at 60 frames a second, while the camera moves; a
 // world reopened in 3 seconds; and every digest the cloud's (RES-05), which every scenario is held to.
 constexpr std::array<Scenario, 7> kScenarios{{
@@ -21,12 +21,12 @@ constexpr std::array<Scenario, 7> kScenarios{{
      Camera::still, false, false, 60, 60 * kDay, 0, 0, 0, 0, 0},
     {"real", "10,000 markers at real speed, the camera touring", Ground::crowd, "person", Camera::tour, false, false,
      120, kMorning + 60, 0, 0, 970, 66, 0},
-    {"top", "10,000 markers at top speed, the camera touring", Ground::crowd, "top", Camera::tour, false, false, 180,
+    {"top", "10,000 markers at top speed, the camera touring", Ground::crowd, "top", Camera::tour, false, false, 240,
      10 * kDay, 0, 0, 970, 66, 0},
     {"pinned", "the same, the world's thread pinned to the middle cores", Ground::crowd, "top", Camera::tour, true,
-     false, 180, 10 * kDay, 0, 0, 970, 66, 0},
+     false, 240, 10 * kDay, 0, 0, 970, 66, 0},
     {"sweep", "10,000 markers through each zoom stop's speed and top, 20 seconds each, the camera touring",
-     Ground::crowd, "sweep", Camera::tour, false, false, 120, kMorning + 10, 0, 0, 970, 66, 0},
+     Ground::crowd, "sweep", Camera::tour, false, false, 120, 30 * kDay, 0, 0, 970, 66, 0},
     {"saves", "10,000 markers at the valley's speed, saved every 30 seconds, exported and reopened, a camp called home",
      Ground::crowd, "valley", Camera::still, false, true, 120, 20 * kDay, 2 * kDay + 12 * time::kHour, 3, 0, 0, 3000},
     {"still", "10,000 markers at real speed, the camera still, for the screen's own power", Ground::crowd, "person",

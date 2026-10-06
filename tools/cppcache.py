@@ -113,10 +113,16 @@ def lint(build, header_filter, files):
     return 0
 
 
+# What the tests read from the repository as they run, not as they are built (KD_REPO in sim/tests): the game's
+# catalogue, which the old saves' corpus opens with, and the corpus itself. A change to either alone runs them again.
+READ_AS_THEY_RUN = ("data", "sim/tests/corpus")
+
+
 def tests(build):
-    """The fingerprint of everything a project's tests are built from: the build's own rules, every object's source
-    and headers, the test commands, the files they name (such as arm64.sh and the sources it compiles), and the
-    compilers and emulator. "unknown" when ninja has no record of an object, so the tests run."""
+    """The fingerprint of everything a project's tests are built from or read as they run: the build's own rules,
+    every object's source and headers, the test commands, the files they name (such as arm64.sh and the sources it
+    compiles), the folders in READ_AS_THEY_RUN, and the compilers and emulator. "unknown" when ninja has no record of
+    an object, so the tests run."""
     with open(os.path.join(build, "compile_commands.json")) as f:
         entries = json.load(f)
     files = set()
@@ -134,6 +140,9 @@ def tests(build):
                 name = token.decode(errors="replace")
                 if os.path.isfile(name):
                     files.add(os.path.normpath(name))
+    for top in READ_AS_THEY_RUN:
+        for folder, _, names in os.walk(os.path.join(ROOT, top)):
+            files.update(os.path.join(folder, name) for name in names)
     versions = "".join(
         run([tool, "--version"]).stdout for tool in ("c++", "aarch64-linux-gnu-g++", "qemu-aarch64-static")
     )

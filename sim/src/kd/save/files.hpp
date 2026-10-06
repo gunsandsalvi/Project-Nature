@@ -46,6 +46,8 @@ public:
     bool set_aside(const std::string& path);
     /// Removes a file, safely.
     bool remove(const std::string& path);
+    /// Renames a file or a folder within its folder, safely: the folder synced, so the new name lasts.
+    bool rename(const std::string& from, const std::string& to);
 
 protected:
     // the primitives, as the system's calls; none is safe from a power cut until its file or folder is synced

@@ -5,9 +5,9 @@
 ## before the phone is full. Implements TIM-08, PLT-08, PLT-10, PLT-05 and RES-10.
 extends VBoxContainer
 
-const TEXT := Color("#efe6d8")
-const QUIET := Color("#a89f95")
-const WARN := Color("#e8c25a")
+const TEXT := Palette.TEXT
+const QUIET := Palette.QUIET
+const WARN := Palette.WARN
 ## How much of a file goes through in a frame while exporting or importing, so the screen stays
 ## smooth with a world of any size.
 const PER_FRAME := 4 * 1024 * 1024
