@@ -1,0 +1,23 @@
+# Stretch report: deer.blend
+
+14 parts; the worst triangle is stretched 1.44:1 (the line is 1.5:1, A6.4);
+0 parts fail a check.
+Stretch is the worst ratio, in any direction, of a texture pixel's side on the surface to 1/64 m, or the
+reverse: 1 means square texture pixels of 1/64 m. Each part is measured at rest, with each shape key at 1
+and in each bend pose its armature keeps.
+
+part                         size (m)              tris  worst over 1.25  where, slots, joints
+body_torso                   0.48 x 1.39 x 0.59     274   1.40      2.5%  as age_young; hair; bones of deer; wraps 75, 98, 80, 54, 13, 10 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+body_neck                    0.24 x 0.47 x 0.73     154   1.43      1.3%  in bend_test; hair; bones of deer; wraps 51, 41, 34, 25 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+body_head                    0.45 x 0.47 x 0.33     262   1.44      0.0%  in bend_test; hair, skin; bones of deer; wraps 28, 23, 18, 14, 11, 11, 7, 11, 11, 7 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+leg_front.L                  0.15 x 0.21 x 1.01     144   1.44      2.1%  in bend_test; hair; bones of deer; wraps 24, 20, 16, 13, 11 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+hoof_front.L                 0.07 x 0.09 x 0.11      54   1.38      3.7%  as build_thin; hoof; bones of deer; wraps 9, 11, 15 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+leg_hind.L                   0.16 x 0.29 x 0.97     128   1.39      2.3%  as age_young; hair; bones of deer; wraps 30, 26, 21, 16, 13, 11 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+hoof_hind.L                  0.07 x 0.09 x 0.11      54   1.38      3.7%  as build_thin; hoof; bones of deer; wraps 9, 11, 15 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+leg_front.R                  0.15 x 0.21 x 1.01     144   1.39      3.5%  as age_young; hair; bones of deer; wraps 24, 20, 16, 13, 11 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+hoof_front.R                 0.07 x 0.09 x 0.11      54   1.38      3.7%  as build_thin; hoof; bones of deer; wraps 9, 11, 15 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+leg_hind.R                   0.16 x 0.29 x 0.97     128   1.42      3.1%  in bend_test; hair; bones of deer; wraps 30, 26, 21, 16, 13, 11 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+hoof_hind.R                  0.07 x 0.09 x 0.11      54   1.38      3.7%  as build_thin; hoof; bones of deer; wraps 9, 11, 15 texture pixels; keys age_old, age_young, build_stout, build_thin, sex_female
+antlers_spike                0.22 x 0.06 x 0.22     108   1.32     14.8%  at rest; antler; bones of deer; wraps 4, 3, 4, 3 texture pixels
+antlers_young                0.52 x 0.34 x 0.51     452   1.32      3.1%  at rest; antler; bones of deer; wraps 6, 5, 4, 4, 3, 6, 5, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3 texture pixels
+antlers_mature               0.77 x 0.54 x 0.82     776   1.35      5.1%  at rest; antler; bones of deer; wraps 9, 7, 6, 5, 4, 9, 7, 6, 5, 4, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3 texture pixels

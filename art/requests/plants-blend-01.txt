@@ -1,0 +1,54 @@
+Purpose: The art lane's next round, phase 1 (T2.3a.4, A6.1): GPT's first pass at the plants' parts in Blender, a birch trunk in segments, branches, grass tufts and leaf clusters, which code puts together by growth rules into birches, bushes and meadow cover. The art lane then checks every part, looks at each on its preview sheet and fixes what is wrong.
+Script: plants.py
+Output: plants.blend
+Input files: tools/art/kit.py tools/art/kitmath.py tools/art/partcheck.py
+Input script: none
+Prompt:
+You are making the plants' parts for a game set in the Stone Age, about 12,000 years ago, in a cool temperate land of birch woods, meadows and rivers. The game draws a sharp 3D world whose every surface wears a pixel-art texture of 64 texture pixels a metre. Every shape is a part made in Blender; code later puts parts together by growth rules for each species, varying size, count and angle, so a few parts make whole trees, bushes and meadows. Each part must be right in itself: real size, its own texture layout, its joints and its material slots.
+
+Write plants.py, a Blender 4.0 script that builds every part below with the helper module kit.py in this folder, and saves plants.blend. First read kit.py and kitmath.py in full: their docstrings say what each function does and which rules it keeps for you. Start plants.py with:
+
+import math, os, random, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import kit
+
+then kit.start(), the parts, and kit.finish(sys.argv[-1]). Use only kit.Part and its builders (sleeve, lathe, panel, card, mesh, hull, project, rest, joint, done): they lay every texture coordinate in metres, keep a sleeve's wrap whole, name the slots by role and make the joints. Give each part its group (a Blender collection) and an "about" sentence saying what it is and its size. Use random.Random with a fixed seed wherever you vary a shape, so the file comes out the same each time.
+
+Rules every part keeps:
+- Real size in metres, z up, its front toward -y. Its origin at its main joint: the first joint you make, at (0, 0, 0). A joint is where another part plugs in; its "towards" points out of the part, the way a part plugged there grows on (a trunk's base points down, (0, 0, -1); its top up; a branch socket outward along the branch it holds).
+- Material slots by role only: bark (the outside of a trunk or branch), wood (wood where it is broken), grass, leaf.
+- Texture stretch at most 1.5:1 on every triangle (the check measures it). A sleeve's texture wraps at its mean circumference, so keep each sleeve's taper within about 1.5 from its widest ring to its narrowest, and split a longer taper into sleeves end to end, each starting where the last ends, open where they meet (caps None there).
+- A sleeve thinner than about 1.5 cm across is stretched round, since its wrap cannot be less than 3 texture pixels: end branches at about 1.5 cm across; finer twigs belong to the leaf clusters' drawn cards, never to sleeves.
+- Low polygon counts: 12 to 16 sides for a trunk, 6 to 8 for a branch, 4 to 6 for its thinnest end; rings about every 0.3 to 0.5 m and closer where a branch bends.
+
+The parts:
+
+Group "trunks" (a downy birch, Betula pubescens; birch trunks lean and wander a little, never ruler-straight):
+1. birch_trunk_base: the lowest 1.5 m of a mature birch: about 38 cm across at the ground with a root flare that narrows quickly to 30 cm by 0.3 m up, then 27 cm at 1.5 m; its foot open at z = 0 (the ground hides it, caps None at the start) and its top open (caps None), where the next segment begins. Joints: base (origin, towards -z), top (the middle of its top ring, towards +z).
+2. birch_trunk_middle: the next 2.5 m: 27 cm across at its foot to 20 cm at its top, wandering a few centimetres off straight; both ends open. Joints: base (origin, towards -z), top, and branch_1 to branch_3, sockets on its surface at different heights and directions round it (towards the way each branch grows: outward and upward at 40 to 60 degrees from upright).
+3. birch_trunk_top: the next 2.5 m: 20 cm across at its foot to 11 cm at its top, its top end broken (caps "broken"), as the leading shoot is drawn by leaf clusters; its foot open. Joints: base, top, branch_1 to branch_4 as the middle segment's.
+4. birch_trunk_snag: a dead birch's broken trunk, 1.4 m long, 22 cm across at its foot to 18 cm at its jagged broken top (caps "broken"), leaning a few degrees; its foot open. Joints: base (origin), top.
+Every trunk segment's ring at its foot matches the size of the ring at the top of the segment below it (27 cm, then 20 cm), so they join without a step.
+
+Group "branches" (birch branches, bark role, their broken ends wood):
+5. branch_long_150: a main branch 1.5 m long that grows from a trunk socket: 7 cm across at its base to 1.5 cm at its tip, in three sleeves end to end (each tapering within 1.5), curving gently upward then out, its tip end open where leaf clusters will sit. Along it, joints twig_1 to twig_5 where leaf clusters or sub-branches plug in, alternating sides, pointing outward and forward along the branch; and tip at its end. Its base open (caps None), as it starts inside the trunk.
+6. branch_short_80: a side branch 0.8 m long, 3.5 cm across at its base to 1.5 cm at its tip, in two sleeves, slightly crooked. Joints: base (origin), twig_1 to twig_3, tip.
+7. branch_dead_100: a dead branch fallen to the ground, 1.0 m long, 4 cm across to 2 cm, crooked, with one short side stub (a sleeve of its own, 15 cm, 2 cm across), both ends and the stub's end broken (caps "broken"). It lies along x on z = 0. Joints: base (origin, under its middle, towards -z), end_a, end_b.
+
+Group "tufts" (grass as cut-out cards: each card is a flat quad whose texture, drawn later, is a pixel-art design of grass blades with see-through gaps between them; the card's texture coordinates are its own size in metres, and each card of a tuft gets its own place in the tuft's design by uv_at, side by side with 2 cm between them so no two cards share a design):
+8. tuft_short: a low tuft of meadow grass 0.25 m tall and 0.3 m wide: three cards crossed at 60 degrees round a vertical axis through the origin, each leaning out 8 to 15 degrees from upright, their bottoms at z = 0.
+9. tuft_tall: a tuft of tall grass 0.5 m tall and 0.4 m wide: four cards crossed at 45 degrees, leaning out 10 to 20 degrees, two of them a little shorter (0.4 m).
+10. tuft_seeding: a tuft of seeding grass 0.7 m tall and 0.35 m wide: three cards crossed at 60 degrees, nearly upright (leaning 5 to 10 degrees), each split into 3 rows (card rows=3) so it can sway.
+Each tuft's joint: base (origin, at the middle of its foot, towards -z).
+
+Group "leaves" (birch leaves as cut-out cards, as the tufts: the card's texture, drawn later, holds leaves and the fine twigs that carry them; each card its own place in the design by uv_at):
+11. leaf_cluster_small: a small clump of leaves at a twig's end, about 0.25 m across: four cards of about 0.2 by 0.2 m round a short stem, turned at different angles (crossed, one nearly level, the others leaning 30 to 60 degrees), so it reads as a small rounded clump from any side. It grows along +z from its origin.
+12. leaf_cluster_large: a larger clump about 0.45 m across: five or six cards of 0.25 to 0.35 m, arranged the same way.
+13. leaf_spray_hanging: a birch's long hanging spray of fine twigs and leaves, 0.6 m long and 0.3 m wide: three cards hanging down from the origin, slightly fanned (10 to 20 degrees apart) and leaning outward, each split into 3 rows; it grows along -z from its origin.
+Each cluster's joint: stem (origin, where it plugs onto a twig, towards -z for the clumps and +z for the hanging spray, pointing back into the twig).
+
+When plants.py runs without an error and saves plants.blend, run the check:
+blender -b plants.blend --python partcheck.py -- --report plants-stretch.txt
+Every part must print "pass". If any fails, fix plants.py, run it again and check again until all pass.
+
+Stone Age truth: wild plants only: a downy birch's white bark trunk and its branches, wild meadow grasses, birch leaves; no cut or sawn wood, no cultivated plants.
