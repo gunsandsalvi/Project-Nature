@@ -137,12 +137,12 @@ CalibrationRead read_calibration(std::string_view text, const std::string& path)
     // the decisions rise and the last takes every number, so each number makes exactly one
     for (std::size_t i = 0; i < s.decisions.size(); ++i) {
         const bool last = i + 1 == s.decisions.size();
-        const std::optional<std::int64_t>& most = s.decisions[i].at_most;
-        const std::optional<std::int64_t> before = i > 0 ? s.decisions[i - 1].at_most : std::nullopt;
-        if (last == most.has_value()) {
+        const bool bounded = s.decisions[i].at_most.has_value();
+        if (last == bounded) {
             l.refuse(*decisions[i], last ? "decision: the last takes every number, so has no at_most"
                                          : "decision: every decision but the last has an at_most");
-        } else if (most && before && *most <= *before) {
+        } else if (bounded && i > 0 && s.decisions[i - 1].at_most.has_value() &&
+                   s.decisions[i].at_most.value_or(0) <= s.decisions[i - 1].at_most.value_or(0)) {
             l.refuse(*decisions[i], "decision: each at_most is above the one before");
         }
     }
