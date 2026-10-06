@@ -23,18 +23,25 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 
 ## The art lane
 
-A separate instance, your idea, prepares the content while the builder builds the engine: the picture-made textures (α2.3a's tools and materials, T2.3a.2 and T2.3a.3), the targets and guide pictures, and the kit's parts in Blender (A6.1), each first drawn by GPT and then fixed by the lane.
+A separate instance, your idea, prepares the content while the builder builds the engine: the picture-made textures (α2.3a's tools and materials, T2.3a.2 and T2.3a.3), the targets and guide pictures, and the kit's parts in Blender (A6.1).
 The builder reviews and merges each batch and wires its content into the engine at the step that uses it; you say yes or no to each material and part on its sheet.
-It restarts with your word, with its next round below as its one order.
+It restarted on your word of 6 October 2026, with its next round below as its one order.
+
+**Working with GPT,** as you set on 6 October 2026:
+- **GPT does more of the art:** it draws and models, and it revises its own work from the critiques, rather than the lane redoing it.
+- **Collaborate, never command:** each piece is a discussion, one Codex conversation carried on turn by turn, in which GPT critiques the lane's work as the lane critiques GPT's, each answering the other's points, until both agree.
+- **Both check against the artwork:** every piece is shown beside the targets and guide pictures it follows (`art/targets/`), drawn at a like size and view, and each of them names where it falls short.
+- **Nothing reaches you below the artwork's level:** a piece not there yet is not offered for your yes or no; the report says what is still short and what is being done about it.
+- Today's person, far from the people guides, is the first example.
 
 **Rules:**
 - It works only in `art/`, `tools/art/` and `tools/tests/test_art_*.py`, on its own branch, and never pushes or merges.
-- GPT only through `tools/art/gpt-run.sh`, outside every build; never print or move a secret; never buy credits; at a usage limit, wait; while `/tmp/kindling-gpt-paused` exists, runs are held.
+- GPT only through the lane's tools in `tools/art/`, outside every build; never print or move a secret; never buy credits; at a usage limit, wait; while `/tmp/kindling-gpt-paused` exists, runs are held.
 - As many pictures as improve the result, each counted in the batch's report.
 - No AI model's name in any committed file, and nothing secret in a prompt.
 - GPT's size, block size, scale and seams are never relied on: re-gridding finds them.
 - Colour measures only from `kindling look` (`stats`, `adjust`, `texel`), the engine's own C++.
-- Blender (4.0, in the cloud) for every part; GPT's first pass through Codex writing Blender scripts, run headless, then the lane's own fixes.
+- Blender (4.0, in the cloud) for every part, its scripts written and revised by GPT through Codex and run headless, in discussion with the lane.
 - Each tool has unit tests and passes `ruff`; commits are `T2.3a.2: …` for tools and `T2.3a.3: …` for materials.
 - Truth before use: every picture enlarged before it becomes a source; never metal before copper, sawn wood, later things (chickens, hooped buckets, winches, lattice windows, glass-bead colours, rucksacks, slatted sleds, maize, a pot hung over a fire, boats with seats), spotted or long-maned horses, striped piglets outside spring, tipi-like cones, Lascaux-like paintings, real cultures' motifs, fur bikinis, grass rain capes; and nothing countable in a ground texture.
 
@@ -47,6 +54,8 @@ It restarts with your word, with its next round below as its one order.
 - The sheet: every band at true size and enlarged, flat and under three stand-in lights, beside its source; a big surface's bands also as full-width strips with its versions mixed as the ground mixes them.
 
 **Its next round,** one order, from your answers of 6 October 2026 to its second round and the builder's review:
+
+*Review first,* the way of working above: every part and material of its first two rounds put beside the artwork it follows and discussed with GPT, the person first; what falls short is redone with GPT before anything new, and the fixes below are made the same way.
 
 *Fixes.*
 1. **The meadow's band 0,** redrawn from the picture you chose, its look kept, within the 10% re-grid line: no material keeps a loss past the line.
@@ -61,7 +70,7 @@ It restarts with your word, with its next round below as its one order.
 
 *Kept as they are,* by your answers: the rounded stains of bare earth, trodden floor, stone and ash; the garments' and the deer coat's colours; four near versions and three middle and far.
 
-**The batch report:** each material and its sheet, each check's result, the pictures used, every truth flag, and questions for you.
+**The batch report:** each material and part on its sheet beside the artwork it follows, each check's result, the pictures used, the discussions with GPT in short, every truth flag, and questions for you.
 
 ## How to use this plan
 
@@ -170,7 +179,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | **Next** |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 (its tools and 18 materials) and round 2 (the kit's first parts in Blender and 22 materials) joined on 6 October 2026; its next round above waits for the lane's restart; the rest after α2.2 |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 (its tools and 18 materials) and round 2 (the kit's first parts in Blender and 22 materials) joined on 6 October 2026; its next round above under way, by your rules for working with GPT; the rest after α2.2 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
 | α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
 | α2.3d | People, a deer and first light | M2 | 6 | Planned |
