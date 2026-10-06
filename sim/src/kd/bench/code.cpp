@@ -25,7 +25,7 @@ struct Measure {
 };
 
 // The phone's own fields.
-constexpr std::array<Measure, 9> kPhone{{
+constexpr std::array<Measure, 12> kPhone{{
     {"build", 16, Kind::as_is},      // the app's version code, such as 20502
     {"cores", 5, Kind::as_is},       // the processor's cores
     {"big_mhz", 8, Kind::per25},     // the fastest core's top clock
@@ -35,10 +35,15 @@ constexpr std::array<Measure, 9> kPhone{{
     {"plugged", 2, Kind::as_is},     // 1 on battery, 2 plugged in
     {"thermal", 2, Kind::as_is},     // 1 when the heat forecast works, 2 when it does not
     {"seconds", 12, Kind::count},    // the real seconds the whole run took
+    // from layout 3 (α2.1a): the heat at which the phone's light and moderate throttling begin, as Android's
+    // headroom (Android 15), and whether it gives the graphics chip's headroom (Android 16): 1 yes, 2 no
+    {"light", 8, Kind::hundredths},
+    {"moderate", 8, Kind::hundredths},
+    {"gpu_offered", 2, Kind::as_is},
 }};
 
 // Each scenario's (A18.1).
-constexpr std::array<Measure, 13> kEach{{
+constexpr std::array<Measure, 20> kEach{{
     {"on_time", 10, Kind::thousandths},  // the share of frames on time
     {"slowest", 11, Kind::count},        // the slowest frame, in milliseconds
     {"stalls", 13, Kind::count},         // frame periods skipped, in all
@@ -52,6 +57,14 @@ constexpr std::array<Measure, 13> kEach{{
     {"cpu", 8, Kind::count},             // the world's thread's share of one core, in percent
     {"draw_ms", 11, Kind::hundredths},   // the crowd's drawing, its mean milliseconds of the main thread a frame
     {"clock", 8, Kind::per25},           // the fastest core's mean clock in MHz, which falls as the phone throttles
+    // from layout 3 (α2.1a), for the graphics engine (A18.1)
+    {"gpu_ms", 12, Kind::hundredths},  // the graphics chip's mean milliseconds a frame for the whole window
+    {"gpu_headroom", 8, Kind::count},  // the graphics chip's least headroom, from 0 to 100, where Android gives it
+    {"power", 12, Kind::hundredths},   // the phone's mean power drawn from the battery, in watts
+    {"draws", 13, Kind::count},        // the most draw calls in a frame
+    {"triangles", 12, Kind::count},    // the most triangles in a frame, in thousands
+    {"video_mb", 12, Kind::count},     // the most video memory used, in megabytes
+    {"to_light", 9, Kind::count},      // minutes to the light throttling level at the rate the heat rose; 500 if never
 }};
 
 // What only a scenario that saves measures, in milliseconds: its slowest save's pause, its export, its reopening.

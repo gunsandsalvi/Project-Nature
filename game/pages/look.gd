@@ -29,6 +29,8 @@ var _camera: Camera3D
 var _sun: DirectionalLight3D
 var _readout: Label
 var _times: Label
+var _phone: Label
+var _device := KdDevice.new()
 var _clock := 0.0
 var _frames := 0
 var _frame_ms := 0.0
@@ -45,6 +47,7 @@ func _ready() -> void:
 	add_child(spacer)
 	_readout = _label(15, TEXT)
 	_times = _label(15, TEXT)
+	_phone = _label(14, QUIET)
 	_add_switches()
 	_apply_drawing()
 
@@ -235,12 +238,58 @@ func _count(delta: float) -> void:
 	)
 	var gpu := RenderingServer.viewport_get_measured_render_time_gpu(_viewport_rid)
 	_times.text = "frame %.1f ms · graphics %.2f ms" % [_frame_ms / _frames, gpu]
+	_phone.text = phone_words()
 	if not problem.is_empty():
 		_times.text = problem
 		_times.add_theme_color_override("font_color", FAIL)
 	_clock = 0.0
 	_frames = 0
 	_frame_ms = 0.0
+
+
+## The phone's readings in a line (PLT-04): Godot's draws, triangles and video memory this
+## frame, the graphics chip's headroom, the power drawn, and the heat forecast against the
+## phone's own light throttling level, each only where the phone gives it.
+func phone_words() -> String:
+	var words := PackedStringArray()
+	(
+		words
+		. append(
+			(
+				"%d draws · %dk triangles · %d MB video"
+				% [
+					RenderingServer.get_rendering_info(
+						RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME
+					),
+					(
+						RenderingServer.get_rendering_info(
+							RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME
+						)
+						/ 1000
+					),
+					(
+						RenderingServer.get_rendering_info(
+							RenderingServer.RENDERING_INFO_VIDEO_MEM_USED
+						)
+						/ 1048576
+					),
+				]
+			)
+		)
+	)
+	var headroom := _device.gpu_headroom()
+	if headroom.get("available", false):
+		words.append("chip headroom %d" % roundi(headroom["headroom"]))
+	var power := Phone.power(_device)
+	if power.has("watts"):
+		words.append("%.2f W" % power["watts"])
+	var thermal := _device.thermal()
+	if thermal.get("available", false):
+		var heat := "heat %.2f" % float(thermal["forecast_10s"])
+		if thermal.has("light"):
+			heat += " of %.2f" % float(thermal["light"])
+		words.append(heat)
+	return " · ".join(words)
 
 
 ## The window's pixels to one of the shell's canvas pixels (window/stretch/mode="canvas_items").

@@ -1,6 +1,8 @@
-# How time slows before the phone throttles (A3.9): the phone forecasts its heat 10 s ahead, where 100% is the first
-# level at which it slows itself. Near that, the simulation's working share is cut at once, and given back slowly.
+# How time slows before the phone throttles (A3.9): the phone forecasts its heat 10 s ahead, where 100% is severe
+# throttling. A little below its own light throttling threshold, which Android 15 and later give, the simulation's
+# working share is cut at once, and given back slowly; a phone that gives no thresholds uses near instead.
 near = "85%"
+margin = "5%"
 cut = "50%"
 floor = "25%"
 reading = "2 s"

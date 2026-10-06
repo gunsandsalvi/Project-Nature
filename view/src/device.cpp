@@ -29,7 +29,10 @@
 #include "trace.hpp"
 
 #if defined(__ANDROID__)
+#include <android/system_health.h>
 #include <android/thermal.h>
+
+#include <atomic>
 #endif
 
 namespace kd::view {
@@ -87,6 +90,92 @@ std::vector<Core> read_cores() {
     return out;
 }
 
+#if defined(__ANDROID__)
+// What the phone last pushed to its headroom listener (Android 16): the headroom now, its forecast and how far ahead,
+// and how many times it has called. Written on the system's binder threads, read on the main thread.
+struct Pushed {
+    std::atomic<float> headroom{-1.0F};
+    std::atomic<float> forecast{-1.0F};
+    std::atomic<int> seconds{0};
+    std::atomic<std::int64_t> calls{0};
+};
+
+Pushed& pushed() {
+    static Pushed p;
+    return p;
+}
+
+void on_headroom(void* /*data*/, float headroom, float forecast, int seconds,
+                 const AThermalHeadroomThreshold* /*thresholds*/, size_t /*count*/) {
+    Pushed& p = pushed();
+    p.headroom.store(headroom);
+    p.forecast.store(forecast);
+    p.seconds.store(seconds);
+    p.calls.fetch_add(1);
+}
+
+AThermalManager* thermal_manager() {
+    static AThermalManager* manager = [] {
+        AThermalManager* m = nullptr;
+        if (__builtin_available(android 30, *)) {
+            m = AThermal_acquireManager();
+        }
+        if (m != nullptr) {
+            if (__builtin_available(android 36, *)) {
+                AThermal_registerThermalHeadroomListener(m, on_headroom, nullptr);
+            }
+        }
+        return m;
+    }();
+    return manager;
+}
+
+// The headroom at which the phone's light, moderate and severe throttling begin (Android 15), read once: the array
+// Android returns is the manager's own before Android 16 and the caller's after, so it is never freed, a few bytes
+// kept for the app's life rather than a free that is wrong on one of them.
+struct Thresholds {
+    float light = -1.0F;
+    float moderate = -1.0F;
+    float severe = -1.0F;
+};
+
+const Thresholds& thresholds(AThermalManager* manager) {
+    static const Thresholds read = [manager] {
+        Thresholds t;
+        if (__builtin_available(android 35, *)) {
+            const AThermalHeadroomThreshold* list = nullptr;
+            size_t count = 0;
+            if (AThermal_getThermalHeadroomThresholds(manager, &list, &count) == 0 && list != nullptr) {
+                for (size_t i = 0; i < count; ++i) {
+                    if (list[i].thermalStatus == ATHERMAL_STATUS_LIGHT) {
+                        t.light = list[i].headroom;
+                    } else if (list[i].thermalStatus == ATHERMAL_STATUS_MODERATE) {
+                        t.moderate = list[i].headroom;
+                    } else if (list[i].thermalStatus == ATHERMAL_STATUS_SEVERE) {
+                        t.severe = list[i].headroom;
+                    }
+                }
+            }
+        }
+        return t;
+    }();
+    return read;
+}
+#endif
+
+// A number from a file of the phone's power supply, or nothing where the system hides it.
+std::optional<double> power_supply(const char* name) {
+    char path[96];
+    std::snprintf(path, sizeof path, "/sys/class/power_supply/battery/%s", name);
+    const std::string line = first_line(path);
+    if (line.empty()) {
+        return std::nullopt;
+    }
+    char* end = nullptr;
+    const double v = std::strtod(line.c_str(), &end);
+    return end != line.c_str() ? std::optional<double>(v) : std::nullopt;
+}
+
 }  // namespace
 
 void KdDevice::_bind_methods() {
@@ -96,6 +185,8 @@ void KdDevice::_bind_methods() {
     ClassDB::bind_method(D_METHOD("middle_cores"), &KdDevice::middle_cores);
     ClassDB::bind_method(D_METHOD("thread_check"), &KdDevice::thread_check);
     ClassDB::bind_method(D_METHOD("thermal"), &KdDevice::thermal);
+    ClassDB::bind_method(D_METHOD("gpu_headroom"), &KdDevice::gpu_headroom);
+    ClassDB::bind_method(D_METHOD("battery_supply"), &KdDevice::battery_supply);
     ClassDB::bind_method(D_METHOD("storage"), &KdDevice::storage);
     ClassDB::bind_method(D_METHOD("proof_suites"), &KdDevice::proof_suites);
     ClassDB::bind_method(D_METHOD("proof", "suite", "threads"), &KdDevice::proof);
@@ -164,16 +255,66 @@ godot::Dictionary KdDevice::thermal() const {
     godot::Dictionary d;
     d["available"] = false;
 #if defined(__ANDROID__)
+    AThermalManager* manager = thermal_manager();
+    if (manager == nullptr) {
+        return d;
+    }
     if (__builtin_available(android 31, *)) {
-        static AThermalManager* manager = AThermal_acquireManager();
-        if (manager != nullptr) {
+        d["available"] = true;
+        d["headroom"] = AThermal_getThermalHeadroom(manager, 0);
+        d["forecast_10s"] = AThermal_getThermalHeadroom(manager, 10);
+        d["status"] = static_cast<std::int64_t>(AThermal_getCurrentThermalStatus(manager));
+    }
+    // the headroom at which each level of throttling begins, where the phone gives them (A3.9)
+    const Thresholds& t = thresholds(manager);
+    if (t.light > 0.0F) {
+        d["light"] = t.light;
+    }
+    if (t.moderate > 0.0F) {
+        d["moderate"] = t.moderate;
+    }
+    if (t.severe > 0.0F) {
+        d["severe"] = t.severe;
+    }
+    const Pushed& p = pushed();
+    d["listener_calls"] = p.calls.load();
+    if (p.calls.load() > 0) {
+        d["listener_headroom"] = p.headroom.load();
+        d["listener_forecast"] = p.forecast.load();
+        d["listener_seconds"] = p.seconds.load();
+    }
+#endif
+    return d;
+}
+
+godot::Dictionary KdDevice::gpu_headroom() const {
+    godot::Dictionary d;
+    d["available"] = false;
+#if defined(__ANDROID__)
+    if (__builtin_available(android 36, *)) {
+        float headroom = -1.0F;
+        if (ASystemHealth_getGpuHeadroom(nullptr, &headroom) == 0) {
             d["available"] = true;
-            d["headroom"] = AThermal_getThermalHeadroom(manager, 0);
-            d["forecast_10s"] = AThermal_getThermalHeadroom(manager, 10);
-            d["status"] = static_cast<std::int64_t>(AThermal_getCurrentThermalStatus(manager));
+            d["headroom"] = headroom;
+        }
+        std::int64_t interval = 0;
+        if (ASystemHealth_getGpuHeadroomMinIntervalMillis(&interval) == 0) {
+            d["min_interval_ms"] = interval;
         }
     }
 #endif
+    return d;
+}
+
+godot::Dictionary KdDevice::battery_supply() const {
+    godot::Dictionary d;
+    // the kernel's own figures, in microvolts and microamperes, where the system lets an app read them
+    if (const std::optional<double> uv = power_supply("voltage_now"); uv && *uv > 0.0) {
+        d["voltage_v"] = *uv / 1.0e6;
+    }
+    if (const std::optional<double> ua = power_supply("current_now"); ua && *ua != 0.0) {
+        d["current_a"] = (*ua < 0.0 ? -*ua : *ua) / 1.0e6;
+    }
     return d;
 }
 

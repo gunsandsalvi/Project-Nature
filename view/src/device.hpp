@@ -24,8 +24,17 @@ public:
     /// What a new simulation thread finds and sets: the inherited control register, whether the default holds
     /// once set, and its stack size.
     godot::Dictionary thread_check() const;
-    /// The heat headroom now and forecast 10 s ahead, and the thermal status (Android 11 and later only).
+    /// The heat headroom now and forecast 10 s ahead, and the thermal status (Android 11 and later only); the
+    /// headroom at which light, moderate and severe throttling begin (light, moderate, severe; Android 15 and
+    /// later); and what the phone last pushed to the headroom listener (listener_calls, listener_headroom,
+    /// listener_forecast and listener_seconds; Android 16 and later). Implements PLT-04, see A3.9.
     godot::Dictionary thermal() const;
+    /// The graphics chip's headroom from 0 to 100, where 0 is no more to give (available, headroom and
+    /// min_interval_ms; Android 16 and later). Implements PLT-04, see A3.9.
+    godot::Dictionary gpu_headroom() const;
+    /// The battery's voltage (voltage_v) and current (current_a) from the kernel, where the system lets the app
+    /// read them. Implements PLT-04, see A3.9.
+    godot::Dictionary battery_supply() const;
     /// How the storage that holds the app's data is mounted, from /proc/self/mounts.
     godot::String storage() const;
     /// The proof suites' names, in order.

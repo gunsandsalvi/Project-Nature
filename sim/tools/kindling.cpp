@@ -712,6 +712,20 @@ int bench_command(const std::vector<std::string_view>& args) {
         phone.push_back("the run took " + std::to_string(whole("seconds") / 60) + " min " +
                         std::to_string(whole("seconds") % 60) + " s");
     }
+    if (const auto light = value("light")) {
+        char text[96];
+        std::snprintf(text, sizeof text, "light throttling from a headroom of %.2f", *light);
+        phone.emplace_back(text);
+    }
+    if (const auto moderate = value("moderate")) {
+        char text[96];
+        std::snprintf(text, sizeof text, "moderate from %.2f", *moderate);
+        phone.emplace_back(text);
+    }
+    if (whole("gpu_offered") > 0) {
+        phone.emplace_back(whole("gpu_offered") == 1 ? "the graphics chip's headroom offered"
+                                                     : "no graphics chip's headroom");
+    }
     std::string joined;
     for (const std::string& part : phone) {
         joined += (joined.empty() ? "" : ", ") + part;
@@ -766,6 +780,28 @@ int bench_command(const std::vector<std::string_view>& args) {
         }
         if (const auto clock = value(n + ".clock")) {
             out += "  the fastest core at " + grouped(static_cast<long long>(*clock)) + " MHz on average\n";
+        }
+        if (const auto gpu = value(n + ".gpu_ms")) {
+            char text[160];
+            std::snprintf(text, sizeof text,
+                          "  the graphics chip %.2f ms a frame, at most %lld draws and %lld thousand "
+                          "triangles, %lld MB of video memory",
+                          *gpu, whole(n + ".draws"), whole(n + ".triangles"), whole(n + ".video_mb"));
+            out += text;
+            if (value(n + ".gpu_headroom")) {
+                out += "; its headroom at least " + std::to_string(whole(n + ".gpu_headroom"));
+            }
+            out += "\n";
+        }
+        if (const auto power = value(n + ".power")) {
+            char text[96];
+            std::snprintf(text, sizeof text, "  %.2f W from the battery\n", *power);
+            out += text;
+        }
+        if (const auto to_light = value(n + ".to_light")) {
+            out += *to_light >= 500.0 ? std::string("  the heat not rising toward light throttling\n")
+                                      : "  light throttling in about " + std::to_string(whole(n + ".to_light")) +
+                                            " min at the rate the heat rose\n";
         }
         if (value(n + ".current")) {
             out += "  battery " + std::to_string(whole(n + ".current")) + " mA, about " +

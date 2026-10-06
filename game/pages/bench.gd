@@ -191,11 +191,18 @@ func _open(i: int) -> void:
 	_samples = {
 		"speed": [],
 		"heat": [],
+		"heat_at": [],
 		"share": [],
 		"current": [],
 		"memory": [],
 		"save_ms": [],
-		"clock": []
+		"clock": [],
+		"gpu_ms": [],
+		"gpu_headroom": [],
+		"power": [],
+		"draws": [],
+		"triangles": [],
+		"video_mb": [],
 	}
 	var s: Dictionary = scenarios[i]
 	_device.trace_begin("kd bench %s" % s["name"])
@@ -250,6 +257,7 @@ func _read(s: Dictionary, t: float) -> void:
 		heat = _page.forecast
 	if heat >= 0.0:
 		_samples["heat"].append(heat)
+		_samples["heat_at"].append(t)
 	if c.has("share"):
 		_samples["share"].append(float(c["share"]) * 100.0)
 	if int(c.get("saves", 0)) > 0:
@@ -268,6 +276,42 @@ func _read(s: Dictionary, t: float) -> void:
 		_samples["clock"].append(clock / 1000.0)
 	if s["speed"] != "sweep" and t >= float(s["seconds"]) - 60.0:
 		_samples["speed"].append(float(c.get("speed_shown", 0.0)))
+	_read_graphics()
+
+
+## The graphics engine's readings (A18.1, PLT-04): the graphics chip's time for every viewport
+## drawn, Godot's counts of draws, triangles and video memory, the chip's headroom where Android
+## gives it, and the power drawn from the battery.
+func _read_graphics() -> void:
+	var gpu := 0.0
+	for viewport: Viewport in _viewports():
+		gpu += RenderingServer.viewport_get_measured_render_time_gpu(viewport.get_viewport_rid())
+	if gpu > 0.0:
+		_samples["gpu_ms"].append(gpu)
+	var draws := RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME
+	var triangles := RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME
+	var video := RenderingServer.RENDERING_INFO_VIDEO_MEM_USED
+	_samples["draws"].append(float(RenderingServer.get_rendering_info(draws)))
+	_samples["triangles"].append(RenderingServer.get_rendering_info(triangles) / 1000.0)
+	_samples["video_mb"].append(RenderingServer.get_rendering_info(video) / 1048576.0)
+	var headroom := _device.gpu_headroom()
+	if headroom.get("available", false):
+		_samples["gpu_headroom"].append(float(headroom["headroom"]))
+	var power := Phone.power(_device)
+	if power.has("watts"):
+		_samples["power"].append(float(power["watts"]))
+
+
+## Every viewport the scenario's page draws, its window's and any of its own, each timed by the
+## graphics chip.
+func _viewports() -> Array[Viewport]:
+	var out: Array[Viewport] = [get_viewport()]
+	if _page != null:
+		for node: Node in _page.find_children("*", "SubViewport", true, false):
+			out.append(node as Viewport)
+	for viewport: Viewport in out:
+		RenderingServer.viewport_set_measure_render_time(viewport.get_viewport_rid(), true)
+	return out
 
 
 ## The world saved and written out as one .kindling file, as the Worlds page exports one: the time
@@ -319,14 +363,20 @@ func _measure(s: Dictionary) -> void:
 		results[n + ".on_time"] = float(frames["on_time"]) / float(frames["frames"])
 		results[n + ".slowest"] = float(frames["slowest_ms"])
 		results[n + ".stalls"] = float(frames["stalls"])
-	for key: String in ["speed", "current", "clock"]:
+	for key: String in ["speed", "current", "clock", "gpu_ms", "power"]:
 		if not _samples[key].is_empty():
 			results["%s.%s" % [n, key]] = _mean(_samples[key])
-	for key: String in ["heat", "memory", "save_ms"]:
+	for key: String in ["heat", "memory", "save_ms", "draws", "triangles", "video_mb"]:
 		if not _samples[key].is_empty():
 			results["%s.%s" % [n, key]] = _samples[key].max()
-	if not _samples["share"].is_empty():
-		results[n + ".share"] = _samples["share"].min()
+	for key: String in ["share", "gpu_headroom"]:
+		if not _samples[key].is_empty():
+			results["%s.%s" % [n, key]] = _samples[key].min()
+	var to_light := minutes_to_light(
+		_samples["heat_at"], _samples["heat"], results.get("light", -1.0)
+	)
+	if to_light >= 0.0:
+		results[n + ".to_light"] = to_light
 	if _crowd() != null and int(_crowd().draw_times()["draws"]) > 0:
 		results[n + ".draw_ms"] = float(_crowd().draw_times()["mean_ms"])
 	var cpu := _device.thread_times()
@@ -430,8 +480,39 @@ func _phone_lines() -> Dictionary:
 		out["battery"] = float(battery["percent"])
 	if battery.has("plugged"):
 		out["plugged"] = 2.0 if battery["plugged"] else 1.0
-	out["thermal"] = 1.0 if _device.thermal().get("available", false) else 2.0
+	var thermal := _device.thermal()
+	out["thermal"] = 1.0 if thermal.get("available", false) else 2.0
+	for level: String in ["light", "moderate"]:
+		if thermal.has(level):
+			out[level] = float(thermal[level])
+	out["gpu_offered"] = 1.0 if _device.gpu_headroom().get("available", false) else 2.0
 	return out
+
+
+## Minutes until the heat forecast reaches the light throttling level at the rate it rose over the
+## readings, by a straight line through them; 500 when it did not rise, and -1 without the level or
+## two readings (PLT-04).
+static func minutes_to_light(seconds: Array, heat: Array, light: float) -> float:
+	if light <= 0.0 or heat.size() < 2:
+		return -1.0
+	var n := float(heat.size())
+	var mean_t := 0.0
+	var mean_h := 0.0
+	for i in heat.size():
+		mean_t += float(seconds[i]) / n
+		mean_h += float(heat[i]) / n
+	var spread := 0.0
+	var together := 0.0
+	for i in heat.size():
+		spread += (float(seconds[i]) - mean_t) * (float(seconds[i]) - mean_t)
+		together += (float(seconds[i]) - mean_t) * (float(heat[i]) - mean_h)
+	if spread <= 0.0 or together <= 0.0:
+		return 500.0
+	var per_second := together / spread
+	var last := float(heat[heat.size() - 1])
+	if last >= light:
+		return 0.0
+	return minf(499.0, (light - last) / per_second / 60.0)
 
 
 ## A scenario's results in a line, each measure that has a pass line held to it as the cloud's

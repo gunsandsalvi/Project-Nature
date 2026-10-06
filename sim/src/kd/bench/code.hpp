@@ -25,8 +25,9 @@ struct Field {
 };
 
 /// The layout's version, the code's first eight bits: a new one whenever the fields or the scenarios change, since
-/// the cloud reads a code against its scenarios' digests. Version 1 is α1.5b's first build, 4de8ea2.
-inline constexpr std::uint64_t kLayoutVersion = 2;
+/// the cloud reads a code against its scenarios' digests. Version 1 is α1.5b's first build, 4de8ea2; version 3 adds
+/// the graphics engine's readings (α2.1a).
+inline constexpr std::uint64_t kLayoutVersion = 3;
 
 /// The fields of this version's layout, in order: the phone's, then each scenario's measures (A18.1).
 [[nodiscard]] const std::vector<Field>& layout();

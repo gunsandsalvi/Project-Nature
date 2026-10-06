@@ -15,8 +15,9 @@ namespace {
 
 // A full set of measures, as a phone might give them.
 kd::bench::Values measured() {
-    kd::bench::Values v{{"build", 20502}, {"cores", 9},   {"big_mhz", 3400}, {"refresh_hz", 120}, {"android", 16},
-                        {"battery", 87},  {"plugged", 1}, {"thermal", 1},    {"seconds", 961}};
+    kd::bench::Values v{{"build", 20502}, {"cores", 9},    {"big_mhz", 3400},  {"refresh_hz", 120},
+                        {"android", 16},  {"battery", 87}, {"plugged", 1},     {"thermal", 1},
+                        {"seconds", 961}, {"light", 0.71}, {"moderate", 0.84}, {"gpu_offered", 1}};
     for (const kd::bench::Scenario& s : kd::bench::scenarios()) {
         const std::string n(s.name);
         v[n + ".on_time"] = 0.987;
@@ -32,6 +33,13 @@ kd::bench::Values measured() {
         v[n + ".cpu"] = 71;
         v[n + ".draw_ms"] = 1.07;
         v[n + ".clock"] = 2850;
+        v[n + ".gpu_ms"] = 7.42;
+        v[n + ".gpu_headroom"] = 23;
+        v[n + ".power"] = 3.85;
+        v[n + ".draws"] = 287;
+        v[n + ".triangles"] = 412;
+        v[n + ".video_mb"] = 640;
+        v[n + ".to_light"] = 17;
     }
     v["saves.save_ms"] = 4;
     v["saves.export_ms"] = 23;
@@ -70,6 +78,17 @@ TEST_CASE("a code holds each measure to its field's step, and leaves out what wa
     CHECK(read.values.at("top.draw_ms") == doctest::Approx(1.07));
     CHECK(read.values.at("top.clock") == 2850);
     CHECK(read.values.at("saves.open_ms") == 412);
+    // the graphics engine's readings (layout 3)
+    CHECK(read.values.at("light") == doctest::Approx(0.71));
+    CHECK(read.values.at("moderate") == doctest::Approx(0.84));
+    CHECK(read.values.at("gpu_offered") == 1);
+    CHECK(read.values.at("top.gpu_ms") == doctest::Approx(7.42));
+    CHECK(read.values.at("top.gpu_headroom") == 23);
+    CHECK(read.values.at("top.power") == doctest::Approx(3.85));
+    CHECK(read.values.at("top.draws") == 287);
+    CHECK(read.values.at("top.triangles") == 412);
+    CHECK(read.values.at("top.video_mb") == 640);
+    CHECK(read.values.at("top.to_light") == 17);
     // a measure missing is left out; one beyond its field's range is held at its most
     kd::bench::Values some = in;
     some.erase("top.memory");

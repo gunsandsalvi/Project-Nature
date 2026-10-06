@@ -44,3 +44,16 @@ func test_the_app_has_a_bench_page() -> void:
 	await await_idle_frame()
 	main.open_page("Bench")
 	assert_str(main.page_name()).is_equal("Bench")
+
+
+# checks: PLT-04
+func test_the_minutes_to_light_throttling_follow_the_heat_s_rise() -> void:
+	var seconds := [0.0, 60.0, 120.0]
+	# the forecast rises 0.01 a minute and stands at 0.50: 0.70 is 20 minutes away
+	var rising := BenchPage.minutes_to_light(seconds, [0.48, 0.49, 0.50], 0.70)
+	assert_float(rising).is_equal_approx(20.0, 1e-6)
+	assert_float(BenchPage.minutes_to_light(seconds, [0.5, 0.5, 0.5], 0.70)).is_equal(500.0)
+	assert_float(BenchPage.minutes_to_light(seconds, [0.6, 0.7, 0.8], 0.70)).is_equal(0.0)
+	# no level to aim at, or a single reading, gives no answer
+	assert_float(BenchPage.minutes_to_light(seconds, [0.48, 0.49, 0.50], -1.0)).is_equal(-1.0)
+	assert_float(BenchPage.minutes_to_light([0.0], [0.5], 0.70)).is_equal(-1.0)

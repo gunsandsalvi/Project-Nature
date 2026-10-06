@@ -129,9 +129,12 @@ public:
     godot::PackedInt64Array drain_greetings();
     /// Pins the crowd's thread to these cores, or unpins it when empty, from its next batch (A3.9).
     void set_pinned(const godot::PackedInt32Array& cores);
-    /// One reading of the phone's heat forecast, as a share of its first throttling level: returns the working share
-    /// (A3.9).
+    /// One reading of the phone's heat forecast, as Android's headroom, where 1 is severe throttling: returns the
+    /// working share (A3.9).
     double heat_reading(double forecast);
+    /// The phone's own light throttling threshold, as a headroom (Android 15 and later): time slows a margin below
+    /// it rather than at the tuning file's near (A3.9).
+    void set_heat_light(double threshold);
     /// Whether a game moment falls in the night, by the crowd's daylight.
     bool night_at(double t) const;
     /// The square the crowd keeps to: its west and south edges and its side, in world centimetres.

@@ -73,6 +73,7 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("drain_greetings"), &KdWorld::drain_greetings);
     ClassDB::bind_method(D_METHOD("set_pinned", "cores"), &KdWorld::set_pinned);
     ClassDB::bind_method(D_METHOD("heat_reading", "forecast"), &KdWorld::heat_reading);
+    ClassDB::bind_method(D_METHOD("set_heat_light", "threshold"), &KdWorld::set_heat_light);
     ClassDB::bind_method(D_METHOD("night_at", "t"), &KdWorld::night_at);
     ClassDB::bind_method(D_METHOD("crowd_square"), &KdWorld::crowd_square);
     ClassDB::bind_method(D_METHOD("run_until", "moment"), &KdWorld::run_until);
@@ -411,6 +412,7 @@ HeatRules KdWorld::heat_rules() const {
     const run::HeatTuning& h = catalogue_->kind<run::HeatTuning>()[*i];
     const auto ratio = [](std::int64_t ppm) { return static_cast<double>(ppm) / 1.0e6; };
     rules.near = ratio(h.near);
+    rules.margin = ratio(h.margin);
     rules.cut = ratio(h.cut);
     rules.floor = ratio(h.floor);
     rules.calm_readings = static_cast<int>(h.calm / std::max<std::int64_t>(1, h.reading));
@@ -580,6 +582,10 @@ void KdWorld::set_pinned(const godot::PackedInt32Array& cores) {
         list.push_back(cores[i]);
     }
     stepper_->pin(std::move(list));
+}
+
+void KdWorld::set_heat_light(double threshold) {
+    heat_.set_light(threshold);
 }
 
 double KdWorld::heat_reading(double forecast) {

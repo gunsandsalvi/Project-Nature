@@ -31,6 +31,19 @@ static func battery() -> Dictionary:
 	return out
 
 
+## The phone's power drawn from the battery, in watts: the battery's current times its voltage,
+## the voltage from the kernel where the system lets the app read it, else the 3.85 V a phone's
+## battery gives through most of its charge. {"watts", "measured_voltage"}, or nothing where
+## Android cannot be asked. Implements PLT-04.
+static func power(device: KdDevice) -> Dictionary:
+	var current := battery().get("current_ma", -1.0) as float
+	if current < 0.0:
+		return {}
+	var supply := device.battery_supply()
+	var volts := float(supply.get("voltage_v", 3.85))
+	return {"watts": current / 1000.0 * volts, "measured_voltage": supply.has("voltage_v")}
+
+
 ## The Android API level, such as 36, as Godot gives it, or 0 off Android.
 static func android_version() -> int:
 	return OS.get_version().get_slice(".", 0).to_int() if OS.get_name() == "Android" else 0

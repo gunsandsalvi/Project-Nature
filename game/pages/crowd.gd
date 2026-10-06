@@ -172,6 +172,9 @@ func _read_heat(delta: float) -> void:
 		return
 	_heat_wait = _heat_every
 	var thermal := device.thermal()
+	# time slows a margin below the phone's own light throttling level, where it gives one (A3.9)
+	if thermal.has("light"):
+		world.set_heat_light(float(thermal["light"]))
 	if thermal.get("available", false) and not is_nan(float(thermal["forecast_10s"])):
 		forecast = float(thermal["forecast_10s"])
 		world.heat_reading(forecast)
