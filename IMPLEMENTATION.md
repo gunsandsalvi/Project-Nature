@@ -9,7 +9,7 @@ Only the next milestone is planned in detail: the foundations (M1).
 The later ones are outlines (their goal, the items they deliver, what you will see), each detailed when it comes next, from what the earlier ones taught.
 The plan holds only work still to do: a step leaves it when it is done, and the code, which names the items it implements, is the record (`CLAUDE.md`, rule 3).
 
-## Status (5 October 2026)
+## Status (6 October 2026)
 
 - The ten milestones were approved by you on 4 October 2026, with their proposals, now decided in `PROJECT.md` (`SCP-16`, `MIL-08` to `MIL-17`); the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`).
 - The risks were tried first, as research 00 advises, and that work closed on 5 October 2026, as you asked: its answers are decisions in the architecture, and its evidence, numbers and lessons are in `LESSONS.md`.
@@ -24,6 +24,8 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - α1.4a, saves and the journal, is delivered as 20401: the crowd's world kept on the phone, saved every 30 seconds and as the app leaves the screen, your commands written before they act, and after any kill or crash it opens where it was and catches up exactly (A3.7).
 - α1.4b, worlds, export and updates, is delivered as 20402, and α1.4 is closed by the builder's review: several worlds kept and switched on a Worlds page, one exported to a .kindling file and imported again, α1.4a's worlds opened and carried on after a small update with their last save kept aside for an hour, the history thinned after 25 years, and a warning before the phone is full (A3.7).
 - α1.5a, scenes and runs, is delivered as 20501: scenes stated in files before they run, their runs many at once in the cloud, judged by their rules with the 40-run rerun, oddities flagged, test switches only in the cloud's builds, runs that resume exactly, the repeat check in every check, and the cloud's last report on a Reports page with the test world it ran (A17).
+- α1.5b, the benchmark, is delivered as 20502, and α1.5 is closed by the builder's review: one tap and about 17 minutes on a Bench page, seven scenarios whose worlds end as the cloud's runs of them, and a code the cloud reads back (A18.1).
+- M1 is built; its independent review runs next, then its report, `dist/M1-REPORT.md`, waits for your review and your benchmark's code (`RES-06`, `RES-22`).
 
 ## How to use this plan
 
@@ -123,7 +125,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.5b | The benchmark and M1's end | M1 | 6 | Next |
+| M1's review | Your review of M1's report, with your benchmark's code | M1 | | Waiting for you |
 | The slice | The vertical slice | After M1 | | Proposed, for your OK |
 | M2 to M10 | Outlines below | M2 to M10 | | Detailed when each comes next |
 
@@ -135,7 +137,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 - entities, events, activities, catalogues, commands and snapshots;
 - saves, scenes and the phone's benchmark.
 
-It is built in five alphas, each ending with a build on your phone and closed by the builder's own review; the milestone ends with the independent review and its report for your review.
+It was built in five alphas, delivered as 20101 to 20502, each ending with a build on your phone and closed by the builder's own review; the milestone ends with the independent review and its report for your review.
 The demonstration content (markers that walk, meet and greet in camps) lives in its own source, `data/demo/`, and never enters the game's own catalogue (`MAT-16`).
 
 **Serves:** `TIM-01`, `TIM-05`, `TIM-08`, `TIM-10`, `TIM-14`, `TIM-16`, `TIM-17`, `TIM-18`, `PLT-01`, `PLT-03`, `PLT-04`, `PLT-05`, `PLT-06`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`, `MAT-05`, `MAT-13`, `MAT-14`, `MAT-17`, `RES-05`, `RES-06`, `RES-09`, `RES-10`, `RES-12`, `RES-13`, `RES-21`, `RES-22`, `PRC-10`, `WLD-13`.
@@ -151,32 +153,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.5b The benchmark and M1's end
-
-**Goal:** the phone benchmark, one tap and about 20 minutes ending in a short code, whose end states match the cloud's; and M1's report for your review.
-
-**Serves:** `PLT-04`, `PLT-01`, `RES-05`, `RES-06`, `RES-22`.
-
-**Architecture:** A18.1, A3.9, A17.
-
-**Tasks:**
-
-1. `T1.5b.1` **Telemetry (`PLT-04`).**
-   The device class reads battery and power rails, the cores' clocks, our threads' CPU time, memory and every frame's interval by our own measure (on time within a period plus half a refresh; a stall counted for every period it skipped), and marks frames and batches for the phone's System Tracing.
-2. `T1.5b.2` **The scenarios (`PLT-04`, `RES-05`).**
-   A18.1's scenarios: the calendar alone, 10,000 markers at real speed and at top speed with the camera touring, the same pinned to the middle cores, a sweep through the zoom stops' speeds, saves with an export and a reopening, and a still camera; each scenario's digest at its set date; the cloud runs the same ones headless with the same digests.
-3. `T1.5b.3` **The code (`PLT-04`).**
-   A version, a fixed layout and a checksum in Crockford base32, in groups the chat apps leave alone; the layout written once and read by both the app and the cloud's decoder; the pass lines stated before the first run (`RES-09`).
-4. `T1.5b.4` **M1's report (`RES-06`, `RES-22`).**
-   What was added and what you can try, the tests and where they ran, the phone's numbers, what went right and wrong; the next step's plan for your OK; deliver.
-
-**Tests:**
-- A code made in the cloud decodes after its letters' case is changed, its lines broken and its dashes swapped, and one wrong letter is caught.
-- The cloud's headless scenarios give the digests the phone must match.
-- Passes if all pass.
-
-**On the phone:** unplug the phone, turn on flight mode, open Bench and tap Run; leave it for about 20 minutes, then copy the code into the chat.
 
 ## The vertical slice (proposed: after the foundations)
 

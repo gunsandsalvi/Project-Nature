@@ -1,48 +1,52 @@
-# Kindling α1.5a: Scenes and runs
+# Kindling α1.5b: The benchmark
+
+This step ends the foundations (M1). Its report, for your review, is linked at the end.
 
 ## What is new
 
-- **Reports.** A new **Reports** page shows the cloud's last scene report: what the scene checks, its rule, and whether it passed ("Pass: 20 of 20 runs met the rule, 16 needed"); how it was set up and how long it took; and, for each thing it measures, its range over the runs, such as "inside its expected 5 to 30 in 20 of 20 worlds", with a chart: each run a dot, the expected range shaded, the rule's line dashed. **Show all 20 runs** lists every run.
-- **The test world it ran.** The report brings one of its worlds. **Open run 1's world** adds it to your worlds and opens it on the Crowd page exactly as it ended in the cloud. The Worlds and Crowd pages mark it as a test's world.
-- **Scenes in the cloud.** Each test is now a scene: a small file stating, before it first runs, what it checks, its seeds, how many worlds it runs, for how long, its time limits, and its pass rule in exact numbers. The cloud runs its worlds many at once, each in its own process. A rule that fails on its 20 worlds runs 20 more on new seeds and is judged on all 40.
-- **Oddities are flagged.** Anything outside a scene's expected ranges, or breaking a rule it must never break, is flagged, and so is a crash, a run that hangs, memory that keeps growing, or a save that will not open again. A test plants one of each, and the checks must find all six.
-- **Test switches stay in the cloud.** Switches that turn something off, or plant a fault, exist only in the cloud's test builds. A check makes sure the app never has them.
-- **The repeat check.** Every check now runs one scene and the 10,000-marker world twice: once on one core, and once on four with a stop and a restart in between. Both must end identical, to the byte.
-- **Two rows of pages.** The page buttons are now two rows of three, to make room for Reports.
+- **Bench.** A new **Bench** page runs the phone benchmark: one tap and about 17 minutes. It runs seven scenarios in turn, each with a world of its own, kept apart from yours and deleted after:
+  1. the calendar alone at top speed;
+  2. 10,000 markers at real speed, the camera touring: circling, zooming in and out, and turning;
+  3. the same at top speed;
+  4. the same with the world's thread pinned to the middle cores;
+  5. a sweep through every speed, 20 seconds each;
+  6. saves every 30 seconds, with an export to a file and the world closed and opened again;
+  7. a still camera, for the screen's own power.
+- **The same end as the cloud's.** Each scenario's world takes a fingerprint of its whole state at a set moment, and the page compares it with the fingerprint the cloud worked out for the same world. Each line says whether its world ended as the cloud's.
+- **Pass lines, set before the first run.** At least 97% of frames on time and none slower than 66 ms while the camera moves; a world opened again within 3 seconds; and every world ending as the cloud's. The page marks any line it missed.
+- **A code to paste.** At the end the page shows a code of 218 letters, with a **Copy the code** button. Pasted into the chat, the cloud reads it back, checks every letter, and turns it into your phone's numbers: frames on time, the slowest frame, the speed held, the heat and the fastest core's clock, the battery's current, memory, the world's share of a core, the crowd's drawing time, the saves' pauses, the export and the reopening.
+- **The pages in two rows of four,** to make room for Bench.
 
-![The Reports page](pictures/a15a-reports.png)
-![The Worlds page, with the cloud's test world marked](pictures/a15a-worlds.png)
+![The Bench page after a run in the cloud](pictures/a15b-bench.png)
+
+The picture is the cloud's run, a hundred times faster than yours. The cloud draws in software, so its frames are slow and none count as on time; your phone's are the ones that count.
 
 ## What to try
 
-1. Install the APK from the link below. It installs over α1.4b, and your worlds carry on.
-2. Open **Reports** and read the greetings scene's report. Scroll through its four charts, then tap **Show all 20 runs**.
-3. Tap **Open run 1's world**: the Crowd page opens the cloud's test world, 20 game days in, with "A test's world" under its name. Let it run.
-4. Open **Worlds**: the test world is listed, marked in yellow as a test's world.
-5. Open **Check**: every line should be green.
+1. Install the APK from the link below. It installs over α1.5a, and your worlds carry on.
+2. Make sure the battery has at least a third left, unplug the phone, turn on flight mode, and let it cool for a few minutes.
+3. Open **Bench** and tap **Run**. Leave the phone alone until the code shows, about 17 minutes. The screen stays on by itself.
+4. Each scenario adds a line as it ends. Every line should end "its world ended as the cloud's".
+5. Tap **Copy the code** and paste it into the chat. I'll read it and add your phone's numbers to M1's report.
 
 ## What is rough
 
-- The Reports page shows only the scenes the build ran. Reports of longer runs, made in the background, come later.
-- The charts show each measure's range over the runs, not how it changed over time.
-- The measures go by their names in the scene file, such as greetings_per_camp_day, with a plain line under each.
-- Running the crowd on four cores in islands is slower than on one, because its events are so light; the crowd stays on one core, and islands wait for people's minds (M6).
+- The power rails are not read yet: the battery's current stands for the phone's whole power.
+- The code is long, because it carries every measure; the Copy button saves typing it.
+- If you leave the app during the run, its numbers are spoiled: run it again.
+- The heat forecast needs a few readings before it can look ahead, so the first scenario's heat may be missing.
 
 ## IDs delivered
 
-- `RES-21`: scenes stated in files and run in the cloud, many at once.
-- `RES-09`: each scene states, before it first runs, what it checks, its world, seeds, runs, game time, time limit, budget and pass rule in exact numbers.
-- `RES-13`: a rule counts the runs that meet it; one that fails is judged again on 40 runs; fewer than 20 count only as provisional.
-- `RES-10`: test switches only in the cloud's test builds, recorded in the world and the report.
-- `RES-12`: oddities flagged: expected ranges, rules never to break, crashes, hangs, growing memory, and saves that will not open again.
-- `PLT-05`: runs keep checkpoints and resume exactly; a test's world opens on the phone as it ended, marked as one.
-- `RES-05`: the repeat check: one scene and one benchmark world, on one core and on four with a stop between, end identical.
-- `RES-06`: a scene's report as a page, with its ranges and charts.
-- `PRC-10`: the scenes and the repeat check run before any work joins.
+- `PLT-04`: the phone benchmark, with frames timed by the app itself, the speed held, heat, battery, memory, the world's share of a core, the crowd's drawing, saves, export and reopening, in one code read back in the cloud.
+- `RES-05`: each scenario's world ends exactly as the cloud's run of it, compared on the phone.
+- `PLT-01`: the world's thread, pinned and unpinned, measured on your phone.
+- `RES-09`: the pass lines stated in the scenarios before the first run.
+- `RES-06`, `RES-22`: M1's report, for your review.
 
 ## Links
 
 - APK: https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk
+- M1's report: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/M1-REPORT.md
 - This note: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/NOTE.md
-- The plan for M1: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/IMPLEMENTATION.md
-- How scenes and reports work: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/ARCHITECTURE.md
+- How the benchmark works: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/ARCHITECTURE.md
