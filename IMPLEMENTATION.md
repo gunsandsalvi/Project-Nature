@@ -21,6 +21,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - α1.3a, entities and events, is delivered as 20301: the world's clockwork, with a crowd of markers walking, resting and sleeping, and the phone's self-check running a small world.
 - α1.3b, activities and islands, is delivered as 20302: markers meet and greet, and islands give exactly the one-thread world on any number of threads; for the crowd's light events one worker is faster, so it runs on one (A3.3).
 - α1.3c, the crowd on your phone, is delivered as 20303, and α1.3 is closed by the builder's review: 10,000 markers drawn from the world's newest snapshot at any speed, each exactly where the world has it, with the heat governor and the counters (A3.8, A3.9).
+- α1.4a, saves and the journal, is delivered as 20401: the crowd's world kept on the phone, saved every 30 seconds and as the app leaves the screen, your commands written before they act, and after any kill or crash it opens where it was and catches up exactly (A3.7).
 
 ## How to use this plan
 
@@ -120,8 +121,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α1.4a | Saves and the journal | M1 | 6 | Next |
-| α1.4b | Worlds, export and updates | M1 | 5 | Planned |
+| α1.4b | Worlds, export and updates | M1 | 5 | Next |
 | α1.5a | Scenes and runs | M1 | 6 | Planned |
 | α1.5b | The benchmark and M1's end | M1 | 6 | Planned |
 | The slice | The vertical slice | After M1 | | Proposed, for your OK |
@@ -151,33 +151,6 @@ The demonstration content (markers that walk, meet and greet in camps) lives in 
 - The C++ build for Android: proven on your phone (`LESSONS.md`).
 - Islands, the way to run the world on four cores with exactly the one-core result, are designed from the literature but not yet built (research 18): if they fail, one core runs the world, with the same results, until they work.
 - The cost of a crowd per frame: about 0.26 ms in the cloud, measured on your phone by the benchmark.
-
-### α1.4a Saves and the journal
-
-**Goal:** a world that is always saved: a snapshot every 30 seconds and whenever the app leaves the screen, your commands written at once, and after any crash or kill the world reopens where it was and catches up exactly.
-
-**Serves:** `TIM-05`, `PLT-07`, `PLT-10`, `RES-05`.
-
-**Architecture:** A3.7, A3.2, A3.8.
-
-**Tasks:**
-
-1. `T1.4a.1` **Files that survive anything (`PLT-07`).**
-   The I/O thread and its interface (the real one, and a fake for tests that can drop unsynced writes as a power cut would); writing by new file, sync, rename and folder sync; logs framed by length, type, sequence and checksum, cut at the first bad record.
-2. `T1.4a.2` **Snapshots (`TIM-05`, `PLT-07`, `RES-05`).**
-   zstd 1.5.7, pinned; the snapshot's header, chunks and trailer; each component written through its descriptor in id order, the queue's live events, the clock, the sources and name lists; reading verifies every hash; the state's digest after reading equals the one before writing, and the world carries on exactly.
-3. `T1.4a.3` **The journal, history and catching up (`PLT-07`, `PLT-10`).**
-   Commands synced at once, with pause marks; history appended in yearly segments; the 30-second save (a copy at an event, compressed and written on other threads); the save when the app leaves the screen; recovery from the newest whole snapshot, a damaged one moved aside, commands re-applied at their moments while the world catches up under a short note, its re-made history compared with what was written.
-4. `T1.4a.4` **The kill test (`PLT-07`, `TIM-05`).**
-   A demonstration command (call a camp home), so the journal has something to keep; in the cloud the tool killed at 100 random moments and reopened each time; deliver.
-
-**Tests:**
-- Every world opens after each of the 100 kills, and ends identical to an unbroken run.
-- Damaged files (cut short, a flipped bit, zeros) refused and set aside; the previous snapshot used.
-- A save at any second, inside a window or not, reopened, gives the same history as never closing (`TIM-05`).
-- Passes if all pass.
-
-**On the phone:** on Crowd, tap a camp to call it home; swipe the app away, reopen it: the world is where it was, the camp still walking home; open the self-check for the last save's time.
 
 ### α1.4b Worlds, export and updates
 

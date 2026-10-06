@@ -1,45 +1,42 @@
-# Kindling α1.3c: The crowd on your phone
+# Kindling α1.4a: Saves and the journal
 
 ## What is new
 
-- **A Crowd page.** 400 camps of 25 markers, 10,000 in all, walk, rest, meet, greet and sleep on the simulation's own thread, and your phone draws them from the newest copy of the world it has, at any speed.
-- **Exactly where the world has them.** The world runs up to a quarter of a second ahead of the screen. So the screen also gets each marker's recent walks, and draws every marker exactly where the world has it at each game second, gliding in between. A test checks this for every marker at 1,780 moments, with the world running half an hour ahead.
-- **A livelier crowd.** Markers now rest for different lengths of time and wake at different moments after dawn, so the crowd no longer moves in waves.
-- **What you see.** Markers are coloured by their kind, as the catalogue sets: green for striders, yellow for walkers. A marker flashes while it greets, is dimmed while it sleeps, and the ground darkens at night. Camps are the larger squares, each in its own colour.
-- **Speed and heat.** The Time page's speeds, now shared by both pages. At top speed the screen asks for a little less than your phone can do, so it glides behind the world rather than catching it. In the cloud, top speed holds about 2.3 game days a second, some 600,000 events a second, with every frame on time.
-  Every 2 seconds the page reads your phone's heat forecast. If heat nears the point where the phone slows itself, time slows first. Full speed comes back slowly, after a calm minute.
-- **Pinning,** a switch that keeps the simulation on your phone's middle cores, for the benchmark to compare later.
+- **The crowd's world is kept on your phone.** It is saved every 30 seconds, and again whenever the app leaves the screen. Close the app, swipe it away or restart the phone: the Crowd page opens the same world, where it was.
+- **Your commands come first.** Tap a camp to call it home: its 25 markers stop what they are doing and walk back. The command is written to the phone's storage, and made safe, before it acts.
+- **Nothing is lost after a crash.** Only the last save and your commands are kept; everything after the save is worked out again, exactly. As the world catches up, each greeting it remakes is checked against the one written before, and a difference would be reported as a bug.
+- **Damage is refused.** A save that is cut short, has one changed bit, or ends in zeros is moved aside and never opened; the save before it is used.
+- **Tested hard in the cloud.** A world was killed at 100 random moments, as Android kills apps. Each time it opened again and carried on, and it ended exactly like a world never killed. A fake disk also cut the power between every two writes, and every file was always either the old one or the new one.
+- **Small and quick.** A save of the 10,000 markers is about 240 KB. In the cloud it takes 3 ms to copy and 3 ms to compress, off the screen's thread.
+- **The self-check** shows when the crowd's world was last saved, and at what moment of its time.
 
-![The Crowd page in the cloud](pictures/a13c-crowd.png)
+![The Crowd page](pictures/a14a-crowd.png)
+![The self-check, with the Saves line](pictures/a14a-check.png)
 
 ## What to try
 
-1. Install the APK from the link below. It installs over α1.3b.
-2. Open **Kindling**, then **Check**: the lines should all be green, with **Same bits: world** and **Same bits: islands** as in the cloud.
-   Their numbers changed with the livelier crowd.
-3. Open **Crowd**. It opens at 7 in the morning, at real speed.
-   - Pinch to zoom in on a camp: at real speed, markers walk at a walker's pace.
-   - Drag to move around. Pinch out to see the whole crowd.
-4. Try every speed, and **Top**. The line under the counters says the speed you asked for, and **Running at** the speed you really get.
-5. Send me what the counters say at **Top**, and whether the movement looks smooth.
+1. Install the APK from the link below. It installs over α1.3c.
+2. Open **Check**: every line should be green. **Same bits: world** and **Same bits: islands** have new numbers, since commands are now part of the world.
+3. Open **Crowd**, pinch in on a camp (a large square), and tap it. Its markers walk home, and the counters say "Camp N called home".
+4. Swipe the app away from your recent apps while they walk, and open it again. The world should be where you left it, the camp still walking home.
+5. Open **Check** again: the **Saves** line says how long ago it was saved.
 
 ## What is rough
 
-- The markers are plain squares on flat ground. The real look comes with the graphics engine (M2).
-- At **real speed** in the morning, most markers are resting, so few move at once. Faster speeds show more.
-- The heat line appears only when heat slows time, so you may never see it.
-- The drawing takes about 0.8 ms of each frame in the cloud; your phone's figure comes with the benchmark (α1.5b).
+- Your phone keeps one world, the crowd's. Several worlds, export and import come in the next step, α1.4b.
+- After a crash, the page shows "Catching up" for a moment while the world remakes what it lost. After a normal close there is nothing to catch up.
+- A saved world opens only with the same version of the rules; opening old saves in new versions also comes in α1.4b.
 
 ## IDs delivered
 
-- `WLD-13`: the world runs ahead of the screen, and the screen still shows exactly the world's state at its own time.
-- `PLT-01`: the simulation runs on its own thread, with the heat governor and the switch to pin it to the middle cores.
-- `TIM-01`: the zoom stops' speeds and top, with the speed you get shown beside the speed you asked for.
-- `TIM-10`: at real speed, a game minute takes a real minute.
+- `TIM-05`: the world closes and reopens exactly where it was.
+- `PLT-07`: saves every 30 seconds and on leaving the screen; commands safe before they act; a crash or kill loses nothing; damaged files refused.
+- `PLT-10`: history kept in a file for each game year, as it happens.
+- `RES-05`: a reopened world carries on exactly as one never closed, checked on every build.
 
 ## Links
 
 - APK: https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk
 - This note: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/NOTE.md
 - The plan for M1: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/IMPLEMENTATION.md
-- How the screen follows the world: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/ARCHITECTURE.md
+- How saves work: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/ARCHITECTURE.md
