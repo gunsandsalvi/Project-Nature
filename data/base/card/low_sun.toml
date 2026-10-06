@@ -1,0 +1,22 @@
+# The target card's bands at this moment (A5.5). Low sun: the liked camp at sunset.
+# Measured by tools/art/card.py from the pictures named below; run it again after any change to them.
+pictures = "liked-camp-at-sunset"
+
+lightness_low = "42.7%"
+lightness_high = "48.8%"
+dark_low = "44.2%"
+dark_high = "56.3%"
+lights_hue_low = 47
+lights_hue_high = 68
+lights_low = "4.3%"
+lights_high = "7.3%"
+shade_low = "-1.0%"
+shade_high = "2.1%"
+green_low = "1.3%"
+green_high = "9.4%"
+things_low = 24
+things_high = 31
+texture_low = "4.5%"
+texture_high = "6.6%"
+masses_low = "7.2%"
+masses_high = "9.3%"

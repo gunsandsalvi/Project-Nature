@@ -1,0 +1,17 @@
+# The target card's goals and slack (A5.5). Every moment keeps the three goals below; its own bands, measured from
+# the pictures you chose, are in card/. An alarm is amber within the slack past a band, or up to twice a goal, and
+# red beyond: the card warns and never decides.
+flat_most = "5%"
+strong_colour_most = "3.5%"
+# The most one colour may cover: your painted-over night reaches 6.1%, against 60% for the old art book's meadow.
+largest_colour_most = "7%"
+
+# How far past each band an alarm stays amber. tools/art/card.py also widens each moment's bands by this much past
+# its pictures' own range, since most moments have one picture so far.
+lightness_slack = "3%"
+dark_slack = "6%"
+lights_hue_slack = 10
+yellowness_slack = "1.5%"
+green_slack = "4%"
+things_slack = 3
+contrast_slack = "1%"

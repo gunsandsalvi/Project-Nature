@@ -1,0 +1,22 @@
+# The target card's bands at this moment (A5.5). The first cave.
+# Measured by tools/art/card.py from the pictures named below; run it again after any change to them.
+pictures = "first-cave"
+
+lightness_low = "31.9%"
+lightness_high = "38.0%"
+dark_low = "77.9%"
+dark_high = "90.0%"
+lights_hue_low = 22
+lights_hue_high = 43
+lights_low = "1.5%"
+lights_high = "4.6%"
+shade_low = "-0.7%"
+shade_high = "2.4%"
+green_low = "0.0%"
+green_high = "4.0%"
+things_low = 20
+things_high = 27
+texture_low = "3.2%"
+texture_high = "5.3%"
+masses_low = "6.3%"
+masses_high = "8.4%"

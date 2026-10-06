@@ -1,0 +1,22 @@
+# The target card's bands at this moment (A5.5). Night (A4.3): your three nights.
+# Measured by tools/art/card.py from the pictures named below; run it again after any change to them.
+pictures = "close-camp-night night paintover-night"
+
+lightness_low = "28.9%"
+lightness_high = "38.7%"
+dark_low = "80.4%"
+dark_high = "96.3%"
+lights_hue_low = 337
+lights_hue_high = 70
+lights_low = "-3.9%"
+lights_high = "5.3%"
+shade_low = "-6.5%"
+shade_high = "-1.6%"
+green_low = "0.0%"
+green_high = "5.2%"
+things_low = 12
+things_high = 28
+texture_low = "2.5%"
+texture_high = "5.9%"
+masses_low = "4.2%"
+masses_high = "8.8%"

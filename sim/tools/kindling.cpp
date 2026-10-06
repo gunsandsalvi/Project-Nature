@@ -52,9 +52,12 @@
 //                                                 (A5.4), written to standard output as raw RGBA, alpha kept:
 //                                                 lightness added in hundredths, hue turned in degrees, colourfulness
 //                                                 and contrast in percent
-//     kindling look card <width> <height>        a frame's target card (A5.5), from standard input as raw RGBA: one
+//     kindling look card <width> <height> [moment [data]]
+//                                                 a frame's target card (A5.5), from standard input as raw RGBA: one
 //                                                 line of "name value" pairs, in hundredths of OKLab's scale, shares in
-//                                                 percent and the lights' hue in degrees
+//                                                 percent and the lights' hue in degrees; with a moment, such as night,
+//                                                 a second line of each statistic's alarm against its bands in the data
+//                                                 folder (default: data), "alarms name green|amber|red ..."
 //     kindling look levels <width> <height>      the levels a region of a dark gradient shows (A4.8), from standard
 //                                                 input as raw RGBA: "distinct D widest W", its colours and its widest
 //                                                 band in pixels
@@ -94,6 +97,7 @@
 #include <string_view>
 #include <thread>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "kd/bench/code.hpp"
@@ -104,6 +108,7 @@
 #include "kd/demo/crowd_scene.hpp"
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/kept.hpp"
+#include "kd/look/card.hpp"
 #include "kd/look/colour.hpp"
 #include "kd/look/frame.hpp"
 #include "kd/look/measures.hpp"
@@ -137,7 +142,8 @@ int usage() {
         "       kindling look stats <width> <height>\n"
         "       kindling look texel <width> <height> [repeat]\n"
         "       kindling look adjust <width> <height> <lightness> <hue> <colourfulness> <contrast>\n"
-        "       kindling look card|levels <width> <height>\n"
+        "       kindling look card <width> <height> [moment [data]]\n"
+        "       kindling look levels <width> <height>\n"
         "       kindling look salience <width> <height> <person>...\n"
         "       kindling look flicker <width> <height> <threshold> <m0> <m1> <m2> <m3> <m4> <m5>\n"
         "       kindling look flip <width> <height> <pixels a degree>\n");
@@ -1019,12 +1025,13 @@ int look(const std::vector<std::string_view>& args) {
     const std::string_view command = args[0];
     const std::int64_t width = side(args[1]);
     const std::int64_t height = side(args[2]);
-    const bool plain = command == "stats" || command == "card" || command == "levels";
-    const bool known = plain || command == "texel" || command == "adjust" || command == "salience" ||
-                       command == "flicker" || command == "flip";
-    if (!known || (plain && args.size() != 3) || (command == "texel" && args.size() > 4) ||
-        (command == "adjust" && args.size() != 7) || (command == "salience" && args.size() < 4) ||
-        (command == "flicker" && args.size() != 10) || (command == "flip" && args.size() != 4)) {
+    const bool plain = command == "stats" || command == "levels";
+    const bool known = plain || command == "card" || command == "texel" || command == "adjust" ||
+                       command == "salience" || command == "flicker" || command == "flip";
+    if (!known || (plain && args.size() != 3) || (command == "card" && args.size() > 5) ||
+        (command == "texel" && args.size() > 4) || (command == "adjust" && args.size() != 7) ||
+        (command == "salience" && args.size() < 4) || (command == "flicker" && args.size() != 10) ||
+        (command == "flip" && args.size() != 4)) {
         return usage();
     }
     if (width == 0 || height == 0 || width * height > 16'777'216) {
@@ -1033,7 +1040,7 @@ int look(const std::vector<std::string_view>& args) {
     }
     // the numbers after the size: decimals, but the texture pixels a repeat and the people, whole
     std::vector<double> numbers;
-    for (std::size_t i = 3; i < args.size(); ++i) {
+    for (std::size_t i = 3; i < args.size() && command != "card"; ++i) {
         const auto v = decimal(args[i]);
         if (!v) {
             std::fprintf(stderr, "kindling: %.*s is not a number\n", static_cast<int>(args[i].size()), args[i].data());
@@ -1056,6 +1063,28 @@ int look(const std::vector<std::string_view>& args) {
     if (command == "card" && (width < 4 || height < 4)) {
         std::fprintf(stderr, "kindling: the card reads frames 4 pixels or more each way\n");
         return 2;
+    }
+    // the moment's bands and the card's goals, from the data folder's catalogue
+    std::optional<std::pair<kd::look::CardTuning, kd::look::Moment>> bands;
+    if (command == "card" && args.size() >= 4) {
+        const std::string folder = args.size() == 5 ? std::string(args[4]) : "data";
+        if (!std::filesystem::is_directory(folder)) {
+            std::fprintf(stderr, "kindling: no data folder at %s\n", folder.c_str());
+            return 1;
+        }
+        kd::data::Catalogue cat;
+        const std::vector<kd::data::Problem> problems = cat.load(kd::data::read_folder(folder));
+        for (const kd::data::Problem& p : problems) {
+            std::fprintf(stderr, "%s\n", kd::data::problem_text(p).c_str());
+        }
+        const std::string moment(args[3]);
+        const auto tuning = cat.find("tuning/card", "base:card");
+        const auto at = cat.find("card", moment.find(':') == std::string::npos ? "base:" + moment : moment);
+        if (!problems.empty() || !tuning || !at) {
+            std::fprintf(stderr, "kindling: no card for the moment %s in %s\n", moment.c_str(), folder.c_str());
+            return 1;
+        }
+        bands.emplace(cat.kind<kd::look::CardTuning>()[*tuning], cat.kind<kd::look::Moment>()[*at]);
     }
     std::vector<std::int32_t> people;
     if (command == "salience") {
@@ -1091,6 +1120,15 @@ int look(const std::vector<std::string_view>& args) {
             "green_chroma %.2f flat %.2f things %.2f largest_colour %.2f texture %.2f masses %.2f\n",
             c.lightness, c.dark, c.lights_hue, c.lights, c.shade, c.strong_colour, c.green, c.green_chroma, c.flat,
             c.things, c.largest_colour, c.texture, c.masses);
+        if (bands) {
+            std::printf("alarms");
+            for (const kd::look::Reading& r : kd::look::alarms(c, bands->first, bands->second)) {
+                const std::string_view alarm = kd::look::alarm_name(r.alarm);
+                std::printf(" %.*s %.*s", static_cast<int>(r.name.size()), r.name.data(),
+                            static_cast<int>(alarm.size()), alarm.data());
+            }
+            std::printf("\n");
+        }
         return 0;
     }
     if (command == "levels") {

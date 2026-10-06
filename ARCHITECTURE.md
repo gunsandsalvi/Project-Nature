@@ -676,13 +676,16 @@ It replaces the art bible's rules.
   - Six of the nine relit pictures you judged kept the feeling, and you chose a relit dusk over a repainted one; a target is never repainted again to chase, since repainting drifts darker and busier round after round.
   - From each target the builder takes each material's colour, spread and density through the engine's material masks, and the moment's numbers for the card; the light's direction comes from the engine's physics.
 - **The target card,** measured from the pictures you chose and refitted after every choice you make, warns and never decides.
-  - Its fixed goals: no flat ground (at most about 5% flat patches); detail as things; golden lights (35°–79°); muted greens (at most about 12% in low sun); strong colour only in specks (at most about 3.5%); texture as strong as the masses; warm lights (about +5 to +9 by day) with shade near neutral (about −2.4 to +2.1); each line measured on your chosen pictures.
+  - Its fixed goals: no flat ground (at most about 5% flat patches); detail as things; golden lights (35°–79°); muted greens (at most about 12% in low sun); strong colour only in specks (at most about 3.5%), and no one colour over about 7% of a frame; texture as strong as the masses; warm lights (about +5 to +9 by day) with shade near neutral (about −2.4 to +2.1); each line measured on your chosen pictures.
   - **How it reads a frame:** in cells of 4 × 4 pixels, each its pixels' mean colour in OKLab, about 4 × 4 screen pixels on your phone or 2 × 2 texture pixels at the closest zoom:
     - lightness, the cells' mean; dark, the share below 0.45; golden lights, the brightest 5%'s hue; warm lights and shade, the lightest and darkest fifths' mean yellowness (OKLab's b);
     - strong colour, the share with chroma above 0.15; greens, the share with hue 110°–170° and chroma above 0.04, and their median chroma;
     - flat patches, the share of squares of 6 × 6 cells all within 0.02 of their mean colour; the commonest colour, the largest share in one box of OKLab 0.02 wide;
     - small things, spots 2 to 5 cells across (lightness standing out by more than 0.03 between blurs over 1 and 2.5 cells), each the strongest within 2 cells, counted a thousand cells;
     - texture, the spread of lightness less its blur over one cell; masses, the spread of lightness blurred over four cells.
+  - **Its goals and bands are game tuning:** the goals, and how far past a band an alarm stays amber, in one file; each moment's bands in a file of its own naming its chosen pictures, from the lowest to the highest of them widened by that slack, and measured again whenever its pictures change.
+    Nine moments so far: late afternoon (nine pictures), low sun, true midday, dusk, night (your three), winter, rain, storm and cave.
+    Green inside, amber within the slack past a band or up to twice a goal, red beyond; every picture you chose passes, all green but the painted-over night's commonest colour, and a flat, speckled meadow made by code goes red on eight statistics.
   - On your two liked camps it reads as the first study did: lightness 57 and 46, dark 24% and 50%, the lights at 80° and 57°, flat under 0.1%, texture 6.3 and 5.6 against masses 9.3 and 8.3; its small things read 28 a thousand cells there and 18 on the flattest chosen picture.
   - Its bands for each moment start from A4.3's table, shown green, amber or red beside each view.
   - Tested on your answers, it caught 12 of the 18 pictures you turned down, and wrongly flagged 6 of the 17 you picked.

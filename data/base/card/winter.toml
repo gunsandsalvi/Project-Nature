@@ -1,0 +1,22 @@
+# The target card's bands at this moment (A5.5). Winter (A4.3).
+# Measured by tools/art/card.py from the pictures named below; run it again after any change to them.
+pictures = "winter"
+
+lightness_low = "63.2%"
+lightness_high = "69.3%"
+dark_low = "11.5%"
+dark_high = "23.6%"
+lights_hue_low = 75
+lights_hue_high = 96
+lights_low = "1.1%"
+lights_high = "4.2%"
+shade_low = "-3.6%"
+shade_high = "-0.5%"
+green_low = "0.0%"
+green_high = "4.1%"
+things_low = 22
+things_high = 29
+texture_low = "5.8%"
+texture_high = "7.9%"
+masses_low = "12.7%"
+masses_high = "14.8%"

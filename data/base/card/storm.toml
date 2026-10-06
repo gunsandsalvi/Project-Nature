@@ -1,0 +1,22 @@
+# The target card's bands at this moment (A5.5). A storm close by.
+# Measured by tools/art/card.py from the pictures named below; run it again after any change to them.
+pictures = "storm-close"
+
+lightness_low = "37.1%"
+lightness_high = "43.2%"
+dark_low = "58.2%"
+dark_high = "70.3%"
+lights_hue_low = 41
+lights_hue_high = 62
+lights_low = "2.1%"
+lights_high = "5.2%"
+shade_low = "-0.9%"
+shade_high = "2.2%"
+green_low = "0.0%"
+green_high = "4.7%"
+things_low = 27
+things_high = 34
+texture_low = "5.3%"
+texture_high = "7.4%"
+masses_low = "7.1%"
+masses_high = "9.2%"

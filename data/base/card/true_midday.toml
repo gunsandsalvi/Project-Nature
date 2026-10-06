@@ -1,0 +1,22 @@
+# The target card's bands at this moment (A5.5). True midday (A4.3): the close camp at noon.
+# Measured by tools/art/card.py from the pictures named below; run it again after any change to them.
+pictures = "close-camp-noon"
+
+lightness_low = "57.9%"
+lightness_high = "64.0%"
+dark_low = "11.1%"
+dark_high = "23.2%"
+lights_hue_low = 74
+lights_hue_high = 95
+lights_low = "5.2%"
+lights_high = "8.3%"
+shade_low = "-2.1%"
+shade_high = "1.0%"
+green_low = "31.1%"
+green_high = "39.2%"
+things_low = 25
+things_high = 32
+texture_low = "6.2%"
+texture_high = "8.3%"
+masses_low = "7.7%"
+masses_high = "9.8%"

@@ -1,0 +1,22 @@
+# The target card's bands at this moment (A5.5). Dusk, relit (A4.3).
+# Measured by tools/art/card.py from the pictures named below; run it again after any change to them.
+pictures = "relight-dusk"
+
+lightness_low = "38.8%"
+lightness_high = "44.9%"
+dark_low = "60.1%"
+dark_high = "72.2%"
+lights_hue_low = 42
+lights_hue_high = 63
+lights_low = "6.1%"
+lights_high = "9.1%"
+shade_low = "-2.0%"
+shade_high = "1.1%"
+green_low = "0.0%"
+green_high = "4.8%"
+things_low = 22
+things_high = 29
+texture_low = "3.4%"
+texture_high = "5.5%"
+masses_low = "5.2%"
+masses_high = "7.3%"

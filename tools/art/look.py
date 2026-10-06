@@ -7,9 +7,11 @@ standard input, row by row from the top left:
   contrast and texel_contrast in hundredths of OKLab's scale, hue in degrees, and accents, which
   is left out for pictures smaller than 29 pixels either way;
 - `kindling look adjust <w> <h> <lightness> <hue> <colourfulness> <contrast>` writes the picture back with lightness
-  added, hue turned in degrees, and colourfulness and contrast scaled in percent.
+  added, hue turned in degrees, and colourfulness and contrast scaled in percent;
+- `kindling look card <w> <h> [moment data]` prints the target card's statistics as `name value` pairs and, with a
+  moment, a second line of `alarms` with each statistic's green, amber or red.
 
-Implements PRE-20, see A5.4.
+Implements PRE-20, see A5.4, and PRE-01, see A5.5.
 """
 
 import os
@@ -18,6 +20,7 @@ import subprocess
 import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DATA = os.path.join(ROOT, "data")
 
 
 class LookError(RuntimeError):
@@ -48,6 +51,20 @@ def stats(t):
     if len(words) % 2:
         raise LookError(f"kindling look stats printed an odd line: {' '.join(words)}")
     return {words[i]: float(words[i + 1]) for i in range(0, len(words), 2)}
+
+
+def card(t, moment=None, data=DATA):
+    """A frame's target card by name and, against a moment's bands in the data folder, each statistic's alarm."""
+    lines = _run("card", [moment, data] if moment else [], t).decode().splitlines()
+    words = lines[0].split()
+    values = {words[i]: float(words[i + 1]) for i in range(0, len(words) - 1, 2)}
+    alarms = {}
+    if moment:
+        if len(lines) < 2 or not lines[1].startswith("alarms "):
+            raise LookError(f"kindling look card printed no alarms for {moment}")
+        words = lines[1].split()[1:]
+        alarms = {words[i]: words[i + 1] for i in range(0, len(words) - 1, 2)}
+    return values, alarms
 
 
 def adjust(t, lightness=0.0, hue=0.0, colourfulness=100.0, contrast=100.0):
