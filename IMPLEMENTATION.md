@@ -16,8 +16,9 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
   None of its code is carried into production, which writes its own.
 - The foundations (M1) are built, eleven steps in five alphas delivered as 20101 to 20502, and you accepted them on 6 October 2026: your phone's benchmark met all 18 of its pass lines, and its self-check matched the cloud in all seven suites (`dist/M1-REPORT.md`).
 - The vertical slice was dropped on 6 October 2026, as you asked.
-- The graphics engine (M2) is next. Its research is done (research 19, 6 October 2026): you chose its look in 36 answers and OK'd the 13 changes to `PROJECT.md` that follow from it.
-  Its plan below, fifteen steps in six alphas, one of them only if needed, and its sections of the architecture (A4, A5, A6 and A8's near stops) wait for your OK before it is built.
+- The graphics engine (M2) is being built. Its research is done (research 19, 6 October 2026): you chose its look in 36 answers and OK'd the 13 changes to `PROJECT.md` that follow from it.
+  You OK'd its plan below, fifteen steps in six alphas, one of them only if needed, and its sections of the architecture (A4, A5, A6 and A8's near stops) on 6 October 2026: "Yes, that works. Let's start".
+- **The art lane,** your idea of 6 October 2026: a separate instance prepares the textures, targets and guide pictures from the art brief (`art/BRIEF.md`) while the builder builds the engine; it does α2.3a's tools and materials (T2.3a.2, T2.3a.3) from the start of M2, the builder reviews each of its batches before it joins, and you approve each material on its sheet (A5.4).
 
 ## How to use this plan
 
@@ -122,21 +123,21 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α2.1a | The picture and the bench | M2 | 6 | Next, after your OK |
-| α2.1b | The look's checks | M2 | 6 | Planned, for your OK |
-| α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Planned, for your OK |
-| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Planned, for your OK |
+| α2.1a | The picture and the bench | M2 | 6 | In progress, after T2.1b.1's colour measures |
+| α2.1b | The look's checks | M2 | 6 | Planned; T2.1b.1's colour measures first, for the art lane |
+| α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Planned |
+| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Planned |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | Planned, for your OK |
-| α2.3b | Ground, cliff, water and light | M2 | 6 | Planned, for your OK |
-| α2.3c | Plants, shelters and fire | M2 | 6 | Planned, for your OK |
-| α2.3d | People, a deer and first light | M2 | 6 | Planned, for your OK |
-| α2.4a | Stress scenes | M2 | 5 | Planned, for your OK |
-| α2.4b | The heat run and the line | M2 | 3 | Planned, for your OK |
-| α2.5a | The hours | M2 | 5 | Planned, for your OK |
-| α2.5b | Seasons and weather | M2 | 6 | Planned, for your OK |
-| α2.6a | The zoom bands | M2 | 6 | Planned, for your OK |
-| α2.6b | People in busy scenes, landscape and M2's end | M2 | 6 | Planned, for your OK |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | T2.3a.2 and T2.3a.3 in the art lane from now; the rest after α2.2 |
+| α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
+| α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
+| α2.3d | People, a deer and first light | M2 | 6 | Planned |
+| α2.4a | Stress scenes | M2 | 5 | Planned |
+| α2.4b | The heat run and the line | M2 | 3 | Planned |
+| α2.5a | The hours | M2 | 5 | Planned |
+| α2.5b | Seasons and weather | M2 | 6 | Planned |
+| α2.6a | The zoom bands | M2 | 6 | Planned |
+| α2.6b | People in busy scenes, landscape and M2's end | M2 | 6 | Planned |
 | M3 to M10 | Outlines below | M3 to M10 | | Detailed when each comes next |
 
 ## M2 The graphics engine
@@ -215,6 +216,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.1b.1` **The measures in C++ (`PRE-22`, `PRE-28`).**
+   Its colour measures (OKLab, ground accents, texture pixel contrast) come first, before α2.1a's own work, since the art lane's checks use them.
    A Godot-free library shared by the `kindling` tool and the phone: OKLab; the target card's statistics; ground accents; people's salience from an object picture; shimmer after following the motion, against a many-sample picture; the texture pixel's size; the distinct levels of a dark gradient; and NVIDIA's FLIP from its C++ source, vendored with its licence.
 2. `T2.1b.2` **The target card (`PRE-01`).**
    Its fixed goals and its bands for each moment, measured from the twelve liked pictures and refitted on your 36 answers, as a tuning file; `kindling look card` shows each view's alarms green, amber or red, and reports the card's hits and false alarms on your answers (research 19 found 12 of 18 and 6 of 17).
@@ -320,11 +322,11 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 **Tasks:**
 
 1. `T2.3a.1` **The `texture` kind and its checks (`PRE-20`, `PRE-42`).**
-   The record as a catalogue kind (A5.4) and the request template; in `tools/check.sh`: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10%; seams at most 1.2; painted light at most a slope of 0.02; no strong repeat (at most 0.2); texture pixel contrast within a quarter of its approved source's; accents at every band at least 90% of band 0's; lightness within 0.02 and hue within 5° between bands.
-2. `T2.3a.2` **The tools (`PRE-22`).**
-   In the cloud: re-gridding (block size and phase window by window, the median colour, seams, the light check), the code reduction for a band, and colour matching to band 0 in four numbers that keeps the accents; the lab sheet (flat and lit at the card's hours, every band, at true size and enlarged, beside its source).
-3. `T2.3a.3` **The camp's materials (`PRE-20`, `PRE-23`).**
-   Meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, and two or three rock surfaces under each world's layers laid by code, since your answer 34 found neither tried so far; each by its route, with GPT's pictures within this step's budget of about 15, each vetted for truth (A5.6) and recorded.
+   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as `art/BRIEF.md` sets it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10%; seams at most 1.2; painted light at most a slope of 0.02; no strong repeat (at most 0.2); texture pixel contrast within a quarter of its approved source's; accents at every band at least 90% of band 0's; lightness within 0.02 and hue within 5° between bands.
+2. `T2.3a.2` **The tools, in the art lane (`PRE-22`).**
+   In the cloud, from the start of M2: re-gridding (block size and phase window by window, the median colour, seams, the light check), the code reduction for a band, and colour matching to band 0 in four numbers that keeps the accents; the lab sheet (flat and lit, every band, at true size and enlarged, beside its source); and T2.3a.1's checks, with the colour measures of `kindling look` (T2.1b.1), so each measure is written once.
+3. `T2.3a.3` **The camp's materials, in the art lane (`PRE-20`, `PRE-23`).**
+   Meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and two or three rock surfaces for each world's layers laid by code, since your answer 34 found neither tried so far; each by its route with its designed levels, within the art lane's first batch of at most 30 GPT pictures, each vetted for truth (A5.6) and recorded.
 4. `T2.3a.4` **On the phone, and delivery (`PLT-04`).**
    A Lab page with every sheet; loading time and texture memory measured; deliver as 30301.
 

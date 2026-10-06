@@ -639,9 +639,13 @@ It replaces the art bible's rules.
 - **The record:** a `texture` catalogue kind (A3.6), one for each picture-made texture: what it is, band 0's size in metres and its texture pixels a metre, the original (its file, digest and C2PA record), how it was made, the re-grid's loss, the truth check, each band's file, digest and source, its calibration, and your approval.
 - **Storage:** lossless with our own levels, read by `view/`, as Godot advises for pixel art even in 3D; Godot's import only for the icon and the interface, with its "Detect 3D" off; ASTC 4 × 4 only if the phone shows a need and your eye sees no loss.
 - **Code-made and world-made textures** are made on the phone at first start or with their area, and cached by look digest.
-- **The originals** are kept beside their records as WebP in `art/sources/`, as `art/targets/` keeps its pictures, and in full with their C2PA records as release files once those are proved from a cloud session (A2.3).
+- **The originals** are kept beside their records as WebP in `art/sources/`, as `art/targets/` keeps its pictures, with the full original's digest and whether it carried its C2PA record; the full originals go to release files once those are proved from a cloud session (A2.3).
 - **GPT's place:** before the build, never in it, so a failed or refused run, or a limit, only delays new sources.
-  Each step lists its pictures in its plan; the builder checks what remains of the plan's allowance before a batch, and at a limit waits and carries on with code-made textures, never buying credits (`PRC-01`).
+  Each batch has a budget of pictures; at a limit the work waits and carries on with code-made textures, never buying credits (`PRC-01`).
+- **The art lane,** your idea of 6 October 2026: a separate instance on the builder's machine prepares the picture-made textures, the targets and the guide pictures, with its brief (`art/BRIEF.md`) as its contract.
+  - It works only in `art/` and `tools/art/`, on its own branch, and runs GPT itself through `tools/art/gpt-run.sh`, checking its own requests against the brief and keeping a log of every run (`art/log/gpt-runs.md`).
+  - The builder reviews each batch (its records, its checks, its pictures enlarged, its log) before it joins, and you approve each material on its sheet.
+  - The colour measures its checks use come from `kindling look`, the same C++ the engine's checks use (A4.8), so each is written once.
 
 ### A5.5 Targets and the loop (research 19, study 6)
 
