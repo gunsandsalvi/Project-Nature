@@ -1,19 +1,26 @@
 // The world class (A3.8): the world as GDScript sees it. For now, until the world itself exists, its catalogue, read
-// from the build's copy of data/ (A3.6), the clockwork stand-in on its runner, and the speed loop between it and the
-// screen (A3.9); later make, open, save, commands, counters and events join it here.
+// from the build's copy of data/ (A3.6), the clockwork stand-in or the demonstration's crowd on its runner, and the
+// speed loop between it and the screen (A3.9); later make, open, save and commands join it here.
 #pragma once
 
 #include <chrono>
 #include <cstdint>
+#include <deque>
 #include <memory>
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/packed_float64_array.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_int64_array.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
 #include <godot_cpp/variant/string.hpp>
 
+#include "crowd_core.hpp"
+#include "heat.hpp"
 #include "kd/data/catalogue.hpp"
 #include "kd/demo/clockwork.hpp"
+#include "kd/demo/crowd_world.hpp"
 #include "kd/run/runner.hpp"
 #include "pace.hpp"
 
@@ -25,6 +32,10 @@ class KdWorld : public godot::RefCounted {
     GDCLASS(KdWorld, godot::RefCounted)
 
 public:
+    /// The share of what the phone can do now that the screen asks of the crowd at most, so the world stays ahead
+    /// and the screen glides instead of catching it (A3.9).
+    static constexpr double kUse = 0.9;
+
     KdWorld();
     ~KdWorld() override;
 
@@ -38,6 +49,9 @@ public:
 
     /// Starts the stand-in world at Year 1, spring, day 1, doing this much work for each game hour (MAT-16).
     void start_clockwork(int64_t work_per_hour);
+    /// Starts the demonstration's crowd from the loaded catalogue (MAT-16): from a seed, with camps camps, or the
+    /// tuning's number when 0.
+    void start_crowd(int64_t seed, int64_t camps);
 
     /// The speed asked, in game seconds a real second, at least 1.
     void set_speed(double game_per_real);
@@ -59,16 +73,53 @@ public:
     godot::String date_text() const;
     godot::String time_text() const;
 
+    /// The crowd's counters (PLT-01): events a second over the last real second, events, batches and the last
+    /// batch's milliseconds, greetings, what the phone can do in game seconds a real second, the heat's working share
+    /// and the speed limit it sets, the speeds asked and shown, the walkers, and how far the world is ahead.
+    godot::Dictionary counters() const;
+    /// The greetings since the last call, three numbers each: the game second, and the two walkers' ids.
+    godot::PackedInt64Array drain_greetings();
+    /// Pins the crowd's thread to these cores, or unpins it when empty, from its next batch (A3.9).
+    void set_pinned(const godot::PackedInt32Array& cores);
+    /// One reading of the phone's heat forecast, as a share of its first throttling level: returns the working share
+    /// (A3.9).
+    double heat_reading(double forecast);
+    /// Whether a game moment falls in the night, by the crowd's daylight.
+    bool night_at(double t) const;
+    /// The square the crowd keeps to: its west and south edges and its side, in world centimetres.
+    godot::Dictionary crowd_square() const;
+    /// Asks the world to reach a moment and waits until it has, for the tests.
+    void run_until(int64_t moment);
+    /// Before the first frame: runs the world to a moment and starts the screen's time there, as a page that opens
+    /// on the morning does.
+    void begin_at(int64_t moment);
+    /// For the tests, while the world rests at its goal, as after run_until: each walker's place at the frontier by
+    /// the world's own rule, in id order, as metres east and north of an origin in world centimetres.
+    godot::PackedFloat64Array places(int64_t origin_east, int64_t origin_north) const;
+
+    // for the crowd class
+    [[nodiscard]] CrowdStepper* stepper() const { return stepper_.get(); }
+    [[nodiscard]] const data::Catalogue* catalogue() const { return catalogue_.get(); }
+    [[nodiscard]] const demo::CrowdWorld* crowd() const { return crowd_.get(); }
+
 protected:
     static void _bind_methods();
 
 private:
+    [[nodiscard]] HeatRules heat_rules() const;
+
     std::unique_ptr<data::Catalogue> catalogue_;
     std::unique_ptr<demo::Clockwork> clockwork_;
+    std::unique_ptr<demo::CrowdWorld> crowd_;
+    std::unique_ptr<CrowdStepper> stepper_;
     std::unique_ptr<run::Runner> runner_;
     Pace pace_;
+    HeatGovernor heat_;
     std::chrono::steady_clock::time_point last_frame_;
     bool framed_ = false;
+    // the crowd's events counted at each frame over the last real second: (real seconds since the start, events)
+    std::deque<std::pair<double, std::uint64_t>> event_samples_;
+    double real_ = 0.0;
 };
 
 }  // namespace kd::view

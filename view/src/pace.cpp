@@ -12,6 +12,11 @@ void Pace::set_speed(double game_per_real) {
     speed_ = game_per_real;
 }
 
+void Pace::set_limit(double game_per_real) {
+    KD_CHECK(game_per_real >= 1.0, "view::Pace: the slowest limit is one game second a real second");
+    limit_ = game_per_real;
+}
+
 void Pace::pause() {
     if (!paused_) {
         paused_ = true;
@@ -26,7 +31,7 @@ void Pace::play() {
 std::int64_t Pace::frame(double real_seconds, std::int64_t frontier) {
     KD_CHECK(real_seconds >= 0.0, "view::Pace: a frame cannot take less than no time");
     const auto edge = static_cast<double>(frontier);
-    double rate = speed_;
+    double rate = this->rate();
     if (paused_) {
         // glide at whatever rate reaches the frontier kLead after the pause, however far ahead the world got
         since_pause_ += real_seconds;
@@ -46,7 +51,7 @@ std::int64_t Pace::frame(double real_seconds, std::int64_t frontier) {
     if (paused_) {
         return frontier;
     }
-    return num::to_int(screen_ + std::max(1.0, speed_ * kLead), num::Round::up);
+    return num::to_int(screen_ + std::max(1.0, this->rate() * kLead), num::Round::up);
 }
 
 double Pace::speed_shown() const {

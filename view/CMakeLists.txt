@@ -15,14 +15,15 @@ set(GODOTCPP_TARGET template_release CACHE STRING "" FORCE)
 set(GODOTCPP_SYSTEM_HEADERS ON CACHE BOOL "" FORCE)
 add_subdirectory("${KD_GODOT_CPP}" godot-cpp EXCLUDE_FROM_ALL)
 
-# What needs no Godot, so its tests run alone: the speed loop.
-add_library(kd_view_core STATIC src/pace.cpp)
+# What needs no Godot, so its tests run alone: the speed loop, the heat governor, and the crowd's stepper and buffers.
+add_library(kd_view_core STATIC src/pace.cpp src/heat.cpp src/crowd_core.cpp)
 target_include_directories(kd_view_core PUBLIC src)
 target_link_libraries(kd_view_core PUBLIC kd_sim)
 kindling_rules(kd_view_core)
 
 add_library(kindling SHARED
     src/register.cpp
+    src/crowd.cpp
     src/device.cpp
     src/world.cpp)
 kindling_rules(kindling)
@@ -51,7 +52,7 @@ add_custom_command(TARGET kindling POST_BUILD
 option(KD_VIEW_TESTS "Build the extension's own tests" ON)
 if(KD_VIEW_TESTS AND NOT ANDROID)
     set(KD_DOCTEST "$ENV{KD_DOCTEST}" CACHE PATH "doctest's folder (tools/setup.sh)")
-    add_executable(kd_view_tests tests/main.cpp tests/pace_test.cpp)
+    add_executable(kd_view_tests tests/main.cpp tests/pace_test.cpp tests/crowd_core_test.cpp)
     target_include_directories(kd_view_tests SYSTEM PRIVATE "${KD_DOCTEST}")
     target_compile_definitions(kd_view_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)
     target_link_libraries(kd_view_tests PRIVATE kd_view_core)

@@ -24,6 +24,9 @@ public:
     /// The speed asked, in game seconds a real second, at least 1.
     void set_speed(double game_per_real);
     [[nodiscard]] double speed() const { return speed_; }
+    /// The most the speed may be, whatever is asked, such as while the phone is hot (A3.9); at least 1.
+    void set_limit(double game_per_real);
+    [[nodiscard]] double limit() const { return limit_; }
 
     /// Pausing: the world is asked to go no further, and the screen glides to it within kLead real seconds.
     void pause();
@@ -46,8 +49,11 @@ private:
         double game;
     };
 
+    [[nodiscard]] double rate() const { return speed_ < limit_ ? speed_ : limit_; }
+
     double screen_;
     double speed_ = 1.0;
+    double limit_ = 1.0e300;
     bool paused_ = false;
     double since_pause_ = 0.0;
     std::deque<Drawn> drawn_;

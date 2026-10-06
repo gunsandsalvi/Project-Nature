@@ -124,3 +124,18 @@ TEST_CASE("at one game second a real second, a game minute takes a real minute")
     frames(pace, world, 60.0, k60, [] {});
     CHECK(pace.screen() - start == doctest::Approx(60.0).epsilon(1.0 / 60.0));
 }
+
+// checks: PLT-01 TIM-01
+TEST_CASE("a limit holds the speed down whatever is asked, as when the phone is hot") {
+    Pace pace;
+    StandIn world{1.0e9};
+    pace.set_speed(259'200.0);
+    pace.set_limit(21'600.0);
+    frames(pace, world, 3.0, 1.0 / 60.0, [] {});
+    CHECK(pace.speed_shown() == doctest::Approx(21'600.0).epsilon(0.02));
+    // and the world is asked to stay only a quarter second ahead at the limited speed
+    CHECK(static_cast<double>(world.goal) - pace.screen() <= 21'600.0 * Pace::kLead + 1.0);
+    pace.set_limit(1.0e300);
+    frames(pace, world, 2.0, 1.0 / 60.0, [] {});
+    CHECK(pace.speed_shown() == doctest::Approx(259'200.0).epsilon(0.02));
+}

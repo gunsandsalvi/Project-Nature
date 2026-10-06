@@ -318,11 +318,13 @@ Following Box2D, Factorio and research 18:
 
 ### A3.8 Talking to Godot
 
-- **Three classes for GDScript,** from `view/`: the world (make, open, save, close, export, import; commands; the goal and the frontier; counters and events), the crowd (a node that draws walkers), and the device (cores, heat, telemetry).
+- **Three classes for GDScript,** from `view/`: the world (make, open, save, close, export, import; commands; the goal and the frontier; counters and events), the crowd (which draws the walkers into MultiMesh buffers), and the device (cores, heat, telemetry).
   A few calls a frame, never one per walker: a call into the extension costs about 0.1–0.2 µs (research 18).
 - **Commands in:** plain records, stamped with the game second they act at and written to the journal before they act; while you choose a power the game is paused, so a power acts on exactly the world shown.
-- **Snapshots out:** after each batch, the simulation fills one slot of a triple buffer, so neither side ever waits and the screen always takes the newest: for each walker its id, kind, colour and flags, and its activity's way (start and end positions and seconds).
-  `view/` places each walker along its way at the screen's game time and copies the result into MultiMesh buffers, one per area of the world, each with its own bounding box.
+- **Snapshots out:** after each batch, the simulation fills one slot of a triple buffer, so neither side ever waits and the screen always takes the newest: for each walker its id, kind and camp, and its ways from the screen's game time to the frontier.
+  `view/` places each walker along the way it was on at the screen's game time and copies the result into MultiMesh buffers, one per area of the world, each with its own bounding box.
+  - *Built in α1.3c:* the world is ahead of the screen by up to a quarter of a real second, so a walker may have begun a new way the screen has not reached; the world keeps each way a doer sets off on, as it runs, merged by key in islands (`world::Way`), and the snapshot holds each walker's ways back to the screen's time, so it is drawn exactly where the world has it at every whole second, and on a straight line between.
+  - Between the whole seconds the screen interpolates the world's own place (`Activity::at`), so there is one rule for where a doer is.
 - **Events worth showing** travel in a lossless queue, drained once a frame.
 - No Godot object is touched from a simulation thread, and `view/` converts but never decides.
 
@@ -338,6 +340,8 @@ Following Box2D, Factorio and research 18:
   - The speed shown is measured from what was drawn over the last real second, so it is always the real speed (`TIM-01`).
   - Pausing asks the world to go no further than its frontier, and the screen glides to it at whatever rate arrives a quarter of a second after the pause, however far ahead the world had got after a drop in speed; then it stops.
   - At one game second a real second, a game minute takes a real minute (`TIM-10`).
+  - *Built in α1.3c:* the crowd's batches take about 12 ms of real time at most, in steps of at most a game hour, so at top speed the frontier moves on 60 times a second; the screen asks for at most 90% of what the phone can do, measured from the batches, times the heat's working share, so it glides behind the world instead of catching it.
+    In the cloud, top speed holds about 2.3 game days a real second for 10,000 markers, some 600,000 events a second, every frame on time.
 - **Heat:** `view/` reads the phone's heat headroom every 2 s with a 10-s forecast (Android forecasts only while asked at least every 10 s), and listens for its thermal status; as the forecast nears the first throttling level, the simulation's working share is cut quickly and given back slowly, so time slows before the phone throttles (research 02, 18).
 - **Telemetry:** the device class also reads battery and power rails, the cores' clocks, our threads' CPU time and memory, and the interval of every frame; trace sections mark each frame and batch for the phone's own System Tracing.
 - **Watch the known killers from the first benchmark:** pathfinding at scale, temperature fields and lines of sight (research 03).
@@ -697,6 +701,7 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
   - the event queue: 1–4% of one core at `TIM-07`'s speeds;
     measured in α1.3a, the crowd of 10,000 markers ran 60 game days, 14.4 million events, in 8.1 s on one cloud core: about 0.56 µs an event with its handler and a digest of the whole state each game day;
   - drawing 10,000 walkers: about 0.26 ms of the main thread a frame (filling and uploading their buffer);
+    measured in α1.3c, 0.8 ms in the cloud, 1.1 ms for nine frames in ten, placing each walker from its ways and filling sixteen areas' buffers;
   - loading a launch-size catalogue: 25–33 ms;
   - a save: a pause of tens of milliseconds to copy the state at an event, the rest on other threads;
   - opening a world: within `PLT-04`'s 3 seconds.

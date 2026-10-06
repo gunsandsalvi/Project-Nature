@@ -23,6 +23,16 @@ enum class Doing : std::uint8_t { rest = 0, walk = 1, sleep = 2, greet = 3 };
 /// What the crowd records in the world's history.
 enum class Happened : std::uint8_t { greeting = 1 };
 
+/// The square of the world the crowd keeps to, centred on the world: its south-west corner and its side, in
+/// centimetres.
+struct Square {
+    num::Point south_west;
+    std::int64_t side = 0;
+};
+
+/// Implements MAT-16: the camps' square, with room for the wander beyond it and a margin.
+[[nodiscard]] Square square_of(const num::Torus& torus, const Crowd& crowd);
+
 /// Implements TIM-17, see A3.3: the daylight layer, one event that reschedules itself at each dawn and each dusk.
 /// Its hours come from the crowd's tuning until the world's sky sets them (WLD-07).
 class Daylight final : public world::System {
@@ -99,12 +109,18 @@ private:
     /// The markers that can be greeted at a place and second: within reach, awake, not greeting, not already called.
     [[nodiscard]] std::vector<ecs::Id> greetable(world::Context& c, ecs::Id self, num::Point at, time::Seconds t,
                                                  std::int64_t reach) const;
-    /// A marker's activity changed: the grid follows at once, or after the window in islands.
+    /// A marker's activity changed: the world's ways take it, and the grid follows at once, or after the window in
+    /// islands.
     void moved(world::Context& c, ecs::Id id);
     void regrid(const world::World& w, ecs::Id id);
     [[nodiscard]] std::size_t index_of(ecs::Id id) const;
     /// The earliest second a marker can set off walking, from what it is doing at a window's start.
     [[nodiscard]] time::Seconds next_walk(const world::Activity& a, const Marker& kind, time::Seconds start) const;
+    /// A rest's length, by keyed chance from a second to twice its kind's rest, so its kind's on average and the
+    /// crowd never moves in step; and the longest it can be.
+    [[nodiscard]] static time::Seconds rest_for(const world::World& w, ecs::Id id, time::Seconds now,
+                                                const Marker& kind);
+    [[nodiscard]] static time::Seconds longest_rest(const Marker& kind);
 
     const Daylight& daylight_;
     const data::Kind<Marker>& kinds_;
@@ -126,6 +142,7 @@ public:
     [[nodiscard]] world::World& world() { return world_; }
     [[nodiscard]] const world::World& world() const { return world_; }
     [[nodiscard]] const Daylight& daylight() const { return daylight_; }
+    [[nodiscard]] Square square() const { return square_of(world_.torus(), crowd_); }
 
 private:
     const Crowd& crowd_;

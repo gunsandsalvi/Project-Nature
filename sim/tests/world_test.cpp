@@ -284,6 +284,36 @@ TEST_CASE("markers walk, rest and sleep, every move an activity ending at its ev
 }
 
 // checks: TIM-17
+TEST_CASE("markers wake through the morning and rest for different lengths so the crowd never moves in step") {
+    kd::demo::CrowdWorld crowd(5, fixture(), 10);
+    std::vector<kd::world::Way> ways;
+    crowd.world().keep_ways(&ways);
+    crowd.world().run_to(2 * kd::time::kDay);
+    std::vector<kd::time::Seconds> wakes;
+    std::vector<kd::time::Seconds> rests;
+    for (const kd::world::Way& w : ways) {
+        const kd::world::Activity& a = w.activity;
+        if (a.what == static_cast<std::uint8_t>(kd::demo::Doing::sleep) && a.start > kd::time::kDay / 2 &&
+            a.start < kd::time::kDay + kd::time::kDay / 2) {
+            wakes.push_back(a.end);
+            CHECK(crowd.daylight().night_at(a.end - 1) == (a.end == crowd.daylight().next_dawn(a.start)));
+        }
+        if (a.what == static_cast<std::uint8_t>(kd::demo::Doing::rest)) {
+            rests.push_back(a.end - a.start);
+        }
+    }
+    const auto distinct = [](std::vector<kd::time::Seconds> v) {
+        std::sort(v.begin(), v.end());
+        return static_cast<std::size_t>(std::unique(v.begin(), v.end()) - v.begin());
+    };
+    // the 250 markers waking at the second dawn, and their rests
+    REQUIRE(wakes.size() == 250);
+    CHECK(distinct(wakes) > 200);
+    REQUIRE(rests.size() > 500);
+    CHECK(distinct(rests) > rests.size() / 2);
+}
+
+// checks: TIM-17
 TEST_CASE("an activity cut short keeps what it reached: a walker stands where it got to") {
     const kd::num::Torus& torus = kd::world::World::kTorus;
     kd::world::Activity walk{1, 1000, 1100, {5000, 5000}, {6000, 4000}};
@@ -346,6 +376,81 @@ TEST_CASE("driven a second at a time or in big windows, every greeting happens a
     };
     CHECK(same(by_second, by_day));
     CHECK(same(by_second, in_islands));
+}
+
+// checks: WLD-13 TIM-17
+TEST_CASE("the ways kept for the screen are every walker's every move without a jump and the same in islands") {
+    const kd::time::Seconds end = 2 * kd::time::kDay;
+    std::vector<kd::world::Activity> first;
+    std::vector<kd::world::Activity> last;
+    const auto ways_of = [&](kd::time::Seconds window, int threads) {
+        kd::demo::CrowdWorld crowd(11, fixture(), 12);
+        kd::world::World& w = crowd.world();
+        first.clear();
+        w.beings().each([&](kd::ecs::Id id, kd::world::Beings::Handle h) {
+            if (id.family() == kd::ecs::Family::marker) {
+                first.push_back(w.beings().raw().get<kd::world::Activity>(h));
+            }
+        });
+        std::vector<kd::world::Way> ways;
+        w.keep_ways(&ways);
+        const std::uint64_t before = w.digests().whole;
+        if (threads > 0) {
+            kd::run::Workers workers(threads);
+            w.run_islands(end, workers, window);
+        } else {
+            w.run_to(end);
+        }
+        // keeping them changes nothing in the world
+        kd::demo::CrowdWorld unkept(11, fixture(), 12);
+        CHECK(unkept.world().digests().whole == before);
+        unkept.world().run_to(end);
+        CHECK(unkept.world().digests().whole == w.digests().whole);
+        last.clear();
+        w.beings().each([&](kd::ecs::Id id, kd::world::Beings::Handle h) {
+            if (id.family() == kd::ecs::Family::marker) {
+                last.push_back(w.beings().raw().get<kd::world::Activity>(h));
+            }
+        });
+        return ways;
+    };
+    const std::vector<kd::world::Way> one = ways_of(0, 0);
+    const std::vector<kd::world::Way> islands = ways_of(900, 4);
+    const auto same = [](const kd::world::Way& x, const kd::world::Way& y) {
+        const kd::world::Activity& a = x.activity;
+        const kd::world::Activity& b = y.activity;
+        return x.key == y.key && x.n == y.n && x.id == y.id && a.what == b.what && a.start == b.start &&
+               a.end == b.end && a.from == b.from && a.to == b.to;
+    };
+    REQUIRE(one.size() > 1000);
+    CHECK(std::equal(one.begin(), one.end(), islands.begin(), islands.end(), same));
+    // each way begins at its event, where the walker's way before it had brought it
+    const kd::num::Torus& torus = kd::world::World::kTorus;
+    std::vector<kd::world::Activity> now = first;
+    std::vector<kd::ecs::Id> ids;
+    kd::demo::CrowdWorld crowd(11, fixture(), 12);
+    crowd.world().beings().each([&](kd::ecs::Id id, kd::world::Beings::Handle /*h*/) {
+        if (id.family() == kd::ecs::Family::marker) {
+            ids.push_back(id);
+        }
+    });
+    std::size_t jumps = 0;
+    for (const kd::world::Way& way : one) {
+        const auto i = static_cast<std::size_t>(std::lower_bound(ids.begin(), ids.end(), way.id) - ids.begin());
+        REQUIRE(i < ids.size());
+        CHECK(way.activity.start == way.key.second);
+        jumps += now[i].at(torus, way.activity.start) == way.activity.from ? 0 : 1;
+        now[i] = way.activity;
+    }
+    CHECK(jumps == 0);
+    // and the last way each took is what it is doing at the end
+    std::size_t unlike = 0;
+    for (std::size_t i = 0; i < now.size(); ++i) {
+        const kd::world::Activity& a = now[i];
+        const kd::world::Activity& b = last[i];
+        unlike += a.what == b.what && a.start == b.start && a.end == b.end && a.from == b.from && a.to == b.to ? 0 : 1;
+    }
+    CHECK(unlike == 0);
 }
 
 // checks: RES-05 WLD-13 TIM-17

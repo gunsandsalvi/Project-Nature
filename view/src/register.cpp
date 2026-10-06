@@ -6,6 +6,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
+#include "crowd.hpp"
 #include "device.hpp"
 #include "world.hpp"
 
@@ -17,6 +18,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     }
     godot::ClassDB::register_class<kd::view::KdDevice>();
     godot::ClassDB::register_class<kd::view::KdWorld>();
+    godot::ClassDB::register_class<kd::view::KdCrowd>();
 }
 
 void uninitialize(godot::ModuleInitializationLevel /*level*/) {}

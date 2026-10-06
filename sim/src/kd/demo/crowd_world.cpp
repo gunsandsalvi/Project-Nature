@@ -31,11 +31,6 @@ void sort_unique(std::vector<ecs::Id>& ids) {
     ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
 }
 
-// Half the side of the square the crowd can be in: the camps' half-square, the wander and a margin.
-std::int64_t half_side(const Crowd& crowd) {
-    return crowd.area / 20 + crowd.wander / 10 + kMargin;
-}
-
 num::Point centre_of(const num::Torus& torus) {
     return {torus.width() / 2, torus.height() / 2};
 }
@@ -45,6 +40,12 @@ std::uint8_t doing(Doing d) {
 }
 
 }  // namespace
+
+Square square_of(const num::Torus& torus, const Crowd& crowd) {
+    // the camps' half-square and the wander, from millimetres, and a margin
+    const std::int64_t half = crowd.area / 20 + crowd.wander / 10 + kMargin;
+    return {torus.moved(centre_of(torus), {-half, -half}), 2 * half};
+}
 
 // --- Daylight
 
@@ -141,8 +142,7 @@ Markers::Markers(world::World& w, const Daylight& daylight, const Crowd& crowd, 
       wander_(crowd.wander / 10),
       homeward_(crowd.homeward),
       greeting_(std::max<time::Seconds>(1, crowd.greeting.game)),
-      grid_(w.torus(), w.torus().moved(centre_of(w.torus()), {-half_side(crowd), -half_side(crowd)}),
-            2 * half_side(crowd), kCell) {
+      grid_(w.torus(), square_of(w.torus(), crowd).south_west, square_of(w.torus(), crowd).side, kCell) {
     KD_CHECK(kinds_.size() > 0, "demo::Markers: the catalogue has no markers");
     for (std::size_t k = 0; k < kinds_.size(); ++k) {
         reach_ = std::max(reach_, kinds_[static_cast<std::uint32_t>(k)].reach / 10 + 1);
@@ -201,9 +201,8 @@ void Markers::regrid(const world::World& w, ecs::Id id) {
 }
 
 void Markers::moved(world::Context& c, ecs::Id id) {
-    if (c.island()) {
-        c.moved(id);
-    } else {
+    c.moved(id);
+    if (!c.island()) {
         regrid(c.world(), id);
     }
 }
@@ -231,12 +230,15 @@ void Markers::handle(world::Context& c, const event::Event& e) {
     const num::Point here = a.to;
     const time::Seconds now = c.now();
     if (daylight_.night_at(now)) {
-        a = {doing(Doing::sleep), now, daylight_.next_dawn(now), here, here};
+        // it sleeps till dawn, and lies in for part of a rest, so the crowd does not all wake at once
+        const chance::Draws lie_in(w.seed(), chance::name("markers"), id.value, now, chance::name("lie in"));
+        const time::Seconds wakes = daylight_.next_dawn(now) + lie_in.between(0, 0, longest_rest(kind) / 2);
+        a = {doing(Doing::sleep), now, wakes, here, here};
     } else if (a.what == doing(Doing::walk)) {
         walk_ended(c, *found, id);
         return;
     } else if (a.what == doing(Doing::greet)) {
-        a = {doing(Doing::rest), now, now + std::max<time::Seconds>(1, kind.rest.game), here, here};
+        a = {doing(Doing::rest), now, now + rest_for(w, id, now, kind), here, here};
     } else {
         // to its camp, where others gather, or to a place chosen by keyed chance up to the wander east or north of it
         const Home& home = raw.get<Home>(*found);
@@ -275,9 +277,18 @@ void Markers::walk_ended(world::Context& c, world::Beings::Handle h, ecs::Id id)
             return;
         }
     }
-    a = {doing(Doing::rest), now, now + std::max<time::Seconds>(1, kind.rest.game), here, here};
+    a = {doing(Doing::rest), now, now + rest_for(w, id, now, kind), here, here};
     c.schedule(id, world::kActivitySlot, a.end);
     moved(c, id);
+}
+
+time::Seconds Markers::longest_rest(const Marker& kind) {
+    return 2 * std::max<time::Seconds>(1, kind.rest.game);
+}
+
+time::Seconds Markers::rest_for(const world::World& w, ecs::Id id, time::Seconds now, const Marker& kind) {
+    const chance::Draws draws(w.seed(), chance::name("markers"), id.value, now, chance::name("rest"));
+    return draws.between(0, 1, longest_rest(kind));
 }
 
 void Markers::called(world::Context& c, world::Beings::Handle h, ecs::Id id) {
@@ -324,8 +335,9 @@ std::vector<ecs::Id> Markers::greetable(world::Context& c, ecs::Id self, num::Po
     return out;
 }
 
-time::Seconds Markers::next_walk(const world::Activity& a, const Marker& kind, time::Seconds start) const {
-    const time::Seconds rest = std::max<time::Seconds>(1, kind.rest.game);
+time::Seconds Markers::next_walk(const world::Activity& a, const Marker& /*kind*/, time::Seconds start) const {
+    // the shortest rest a marker can draw, and dawn the earliest it wakes
+    const time::Seconds rest = 1;
     time::Seconds next = a.end;
     if (a.what == doing(Doing::walk) || a.what == doing(Doing::greet)) {
         next = daylight_.night_at(a.end) ? daylight_.next_dawn(a.end) : a.end + rest;

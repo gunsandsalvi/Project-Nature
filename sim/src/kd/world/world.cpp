@@ -73,6 +73,20 @@ void Context::moved(ecs::Id id) {
     if (island_ != nullptr) {
         island_->moved.push_back(id);
     }
+    if (w_.ways_list_ == nullptr) {
+        return;
+    }
+    KD_CHECK(in_event_, "world::Context: a way begins at an event");
+    const Activity* a = w_.beings_.raw().try_get<Activity>(w_.beings_.handle(id));
+    if (a == nullptr) {
+        return;
+    }
+    const Way way{current_, ways_++, id, *a};
+    if (island_ != nullptr) {
+        island_->ways.push_back(way);
+    } else {
+        w_.ways_list_->push_back(way);
+    }
 }
 
 void Context::schedule(ecs::Id owner, std::uint32_t slot, time::Seconds at) {
@@ -141,6 +155,7 @@ void Context::run(const event::Event& e) {
     now_ = e.key.second;
     current_ = e.key;
     records_ = 0;
+    ways_ = 0;
     in_event_ = true;
     w_.system_of(owner).handle(*this, e);
     in_event_ = false;
@@ -352,9 +367,11 @@ void World::run_window(time::Seconds a, time::Seconds b, run::Workers& workers) 
     // their new events, counts and moved owners, merged in the islands' order; the queue's order is the keys'
     std::vector<ecs::Id> moved;
     std::vector<Record> history;
+    std::vector<Way> ways;
     std::size_t replaced = 0;
     for (Island& is : islands) {
         history.insert(history.end(), is.history.begin(), is.history.end());
+        ways.insert(ways.end(), is.ways.begin(), is.ways.end());
         for (const event::Event& e : is.outgoing) {
             if (live(e)) {
                 queue_.push(e);
@@ -369,6 +386,11 @@ void World::run_window(time::Seconds a, time::Seconds b, run::Workers& workers) 
                      [](const Record& x, const Record& y) { return x.key != y.key ? x.key < y.key : x.n < y.n; });
     for (const Record& r : history) {
         add_history(r);
+    }
+    if (ways_list_ != nullptr) {
+        num::sort_strict(ways.begin(), ways.end(),
+                         [](const Way& x, const Way& y) { return x.key != y.key ? x.key < y.key : x.n < y.n; });
+        ways_list_->insert(ways_list_->end(), ways.begin(), ways.end());
     }
     sort_unique(moved);
     std::vector<System*> systems;

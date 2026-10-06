@@ -19,6 +19,7 @@ func test_the_page_lists_every_source_kind_and_entry() -> void:
 		"demo, version 1",
 		"marker (2 entries)",
 		"tuning/crowd (1 entry)",
+		"tuning/heat (1 entry)",
 		"tuning/time (1 entry)",
 		"demo:walker, from demo/marker/walker.toml",
 		"speed = 1400 mm/s",
@@ -35,7 +36,7 @@ func test_the_catalogues_are_the_same_as_the_build() -> void:
 	)
 	assert_int(lines.size()).is_equal(1)
 	assert_str(lines[0]["state"]).override_failure_message(str(lines[0])).is_equal("ok")
-	assert_str(lines[0]["value"]).contains("2 sources, 3 kinds, 4 entries")
+	assert_str(lines[0]["value"]).contains("2 sources, 4 kinds, 5 entries")
 
 
 # checks: MAT-13

@@ -75,8 +75,18 @@ struct Record {
     std::uint64_t b = 0;
 };
 
+/// A way a doer set off on, for the screen (A3.8): the event it began at, the doer, and its activity then. The screen
+/// draws a walker along the way it was on at the screen's time, which may be before the world's frontier; in islands
+/// the ways are merged by key, so they read the same.
+struct Way {
+    event::Key key;
+    std::uint32_t n = 0;  // its number within its event
+    ecs::Id id;
+    Activity activity;
+};
+
 /// One island of a window (A3.3): its events, run in key order on one worker, those it makes at or after the
-/// window's end, its history, and the owners whose place changed.
+/// window's end, its history and ways, and the owners whose place changed.
 struct Island {
     std::uint32_t index = 0;
     time::Seconds end = 0;
@@ -84,6 +94,7 @@ struct Island {
     std::vector<event::Event> outgoing;
     std::vector<ecs::Id> moved;
     std::vector<Record> history;
+    std::vector<Way> ways;
     std::uint64_t events = 0;
     std::uint64_t replaced = 0;
 };
@@ -105,7 +116,8 @@ public:
     void touch(ecs::Id other) const;
     /// The owners of this island whose place changed in the window so far; empty in the whole world.
     [[nodiscard]] std::span<const ecs::Id> moved() const;
-    /// An owner's place changed: in an island, its system's indexes take it after the window.
+    /// An owner's place or activity changed, at the event being run: in an island its system's indexes take it after
+    /// the window, and where the world keeps ways for the screen, the owner's new activity joins them.
     void moved(ecs::Id id);
 
     /// Schedules the owner's slot to wake at a second: the owner's next sequence number, now the one that slot waits
@@ -128,6 +140,7 @@ private:
     time::Seconds now_ = 0;
     event::Key current_{};
     std::uint32_t records_ = 0;
+    std::uint32_t ways_ = 0;
     bool in_event_ = false;
 };
 
@@ -204,6 +217,9 @@ public:
     [[nodiscard]] std::uint64_t history_count() const { return history_count_; }
     /// Keeps every record in a list too, for tests and reports; nothing when null.
     void keep_history(std::vector<Record>* list) { history_list_ = list; }
+    /// Keeps every way a doer sets off on in a list, in key order, for the screen; nothing when null. Ways are no
+    /// part of the world's state, so keeping them never changes it.
+    void keep_ways(std::vector<Way>* list) { ways_list_ = list; }
     /// The islands of the last window run in islands, and the owners in the largest, for the counters.
     [[nodiscard]] std::uint64_t islands_run() const { return islands_run_; }
     [[nodiscard]] std::uint64_t largest_island() const { return largest_island_; }
@@ -257,6 +273,7 @@ private:
     std::uint64_t history_count_ = 0;
     std::uint64_t history_hash_ = 0;
     std::vector<Record>* history_list_ = nullptr;
+    std::vector<Way>* ways_list_ = nullptr;
     std::uint64_t islands_run_ = 0;
     std::uint64_t largest_island_ = 0;
     IslandCounts counts_;

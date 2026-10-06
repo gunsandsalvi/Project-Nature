@@ -1,0 +1,8 @@
+# How time slows before the phone throttles (A3.9): the phone forecasts its heat 10 s ahead, where 100% is the first
+# level at which it slows itself. Near that, the simulation's working share is cut at once, and given back slowly.
+near = "85%"
+cut = "50%"
+floor = "25%"
+reading = "2 s"
+calm = "1 min"
+give_back = "5%"
