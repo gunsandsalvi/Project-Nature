@@ -711,6 +711,7 @@ It replaces the art bible's rules.
   5. **show** you what changed, in pairs, with the alpha;
   6. **ask** only when the look has an open question.
 - **Savings must be invisible** (`PRE-01`): first the machine line (A4.8), then your blind test on the phone, ten random pairs asking "which is sharper?", where eight or more right means it shows (guessing gets there about 5% of the time).
+  - *Your first, in α2.1b* (6 October 2026): MSAA 4× against 2× on the stand-in meadow, 3 of 10 right, so the difference does not show and 2× stays.
   On the Compare page each pair is one view drawn two ways, one above the other, the better way placed by chance from the test's seed; you tap the sharper; the short code you send holds the seed and your answers, and the cloud reads it the same way. The first test compares MSAA 4× with 2× on the meadow.
   Half resolution applied to textures brings the shimmer back (9–16% of pixels), so a half-resolution saving may touch only smooth things: light, shadow and haze.
 - **The heat step:** if the 20-minute heat run shows the picture alone heats the phone, one planned, logged step under heat, such as distant fires casting no shadows, chosen among the savings that pass your blind test, as you chose on 6 October 2026; if none is enough, it comes back to you.
