@@ -7,10 +7,6 @@
 ## and PLT-10.
 extends VBoxContainer
 
-## The crowd's world, the same on every phone.
-const SEED := 1
-## The page opens on the morning, when the markers wake: 7 o'clock on the first day.
-const MORNING := 7 * 3600
 ## The crowd's square is drawn in areas, ACROSS by ACROSS, each its own MultiMesh with its own
 ## bounding box, so what is off the screen is never drawn (A3.8).
 const ACROSS := 4
@@ -25,6 +21,13 @@ const FARTHEST := 30000.0
 ## A touch that moves less than this many pixels is a tap, and reaches a camp this many away.
 const TAP_SLOP := 12.0
 const TAP_REACH := 40.0
+## The benchmark's camera tour (A18.1): the view's centre circles the crowd's middle this many
+## metres out, once in TOUR_CIRCLE real seconds; it zooms from closest to farthest and back in
+## TOUR_ZOOM, and turns a full circle in TOUR_TURN.
+const TOUR_RADIUS := 1500.0
+const TOUR_CIRCLE := 60.0
+const TOUR_ZOOM := 40.0
+const TOUR_TURN := 90.0
 const TEXT := Color("#efe6d8")
 const QUIET := Color("#a89f95")
 const DAY_GROUND := Color("#4f5b3c")
@@ -48,6 +51,9 @@ var legend: RichTextLabel
 ## The view's centre, in world centimetres: the origin everything is drawn from (A8.2).
 var focus_east := 0
 var focus_north := 0
+## The phone's last heat forecast, as a share of its first throttling level, or -1 before one; the
+## benchmark reads it here, so the phone is not asked more often than it allows.
+var forecast := -1.0
 
 var _clock: Label
 var _counters: Label
@@ -98,7 +104,10 @@ func _ready() -> void:
 	if folder == "":
 		folder = root.path_join(Worlds.current_id(worlds))
 	var version: String = ProjectSettings.get_setting("application/config/version", "")
-	opened = world.open_crowd(ProjectSettings.globalize_path(folder), SEED, 0, version)
+	# the crowd's world, the same on every phone, from the simulation's own seed
+	opened = world.open_crowd(
+		ProjectSettings.globalize_path(folder), KdWorld.crowd_seed(), 0, version
+	)
 	for listed: Dictionary in worlds.list():
 		if listed["id"] == folder.get_file():
 			_name = Worlds.name_of(listed)
@@ -108,7 +117,8 @@ func _ready() -> void:
 		set_process(false)
 		return
 	if opened["made"]:
-		world.begin_at(MORNING)
+		# the page opens on the morning, when the markers wake
+		world.begin_at(KdWorld.morning())
 	var square := world.crowd_square()
 	focus_east = int(square["west"]) + int(square["side"]) / 2
 	focus_north = int(square["south"]) + int(square["side"]) / 2
@@ -162,8 +172,9 @@ func _read_heat(delta: float) -> void:
 		return
 	_heat_wait = _heat_every
 	var thermal := device.thermal()
-	if thermal.get("available", false):
-		world.heat_reading(float(thermal["forecast_10s"]))
+	if thermal.get("available", false) and not is_nan(float(thermal["forecast_10s"])):
+		forecast = float(thermal["forecast_10s"])
+		world.heat_reading(forecast)
 
 
 func _set_pinned(on: bool) -> void:
@@ -360,6 +371,23 @@ func tap(at: Vector2) -> void:
 	if camp >= 0:
 		world.call_home(camp)
 		_called = "Camp %d called home at %s" % [camp + 1, world.time_text()]
+
+
+## The benchmark's camera at a real second into its tour: circling, zooming and turning, so every
+## area is drawn near and far, and none is left out for long. Implements PLT-04.
+func tour(t: float) -> void:
+	var square := world.crowd_square()
+	var around := TAU * t / TOUR_CIRCLE
+	focus_east = (
+		int(square["west"]) + int(square["side"]) / 2 + roundi(cos(around) * TOUR_RADIUS * 100.0)
+	)
+	focus_north = (
+		int(square["south"]) + int(square["side"]) / 2 + roundi(sin(around) * TOUR_RADIUS * 100.0)
+	)
+	# evenly from closest to farthest and back, as a pinch would
+	var zoom := 0.5 - 0.5 * cos(TAU * t / TOUR_ZOOM)
+	_camera.size = CLOSEST * pow(FARTHEST / CLOSEST, zoom)
+	_camera.rotation_degrees = Vector3(-90.0, 360.0 * fmod(t / TOUR_TURN, 1.0), 0.0)
 
 
 ## Moves the view by a drag of some pixels: the ground follows the finger.

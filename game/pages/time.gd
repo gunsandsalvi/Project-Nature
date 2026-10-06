@@ -4,8 +4,6 @@
 ## Implements TIM-01, TIM-10 and TIM-14.
 extends VBoxContainer
 
-## The stand-in world's work for each game hour (MAT-16).
-const WORK_PER_HOUR := 20000
 const TEXT := Color("#efe6d8")
 
 var world: KdWorld
@@ -25,7 +23,7 @@ func _ready() -> void:
 	bar = SpeedBar.new()
 	add_child(bar)
 	bar.setup(world, loaded.get("problems", PackedStringArray()))
-	world.start_clockwork(WORK_PER_HOUR)
+	world.start_clockwork()
 	bar.choose_speed(0)
 	_show()
 

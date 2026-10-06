@@ -29,6 +29,8 @@ target_include_directories(kd_zstd SYSTEM PUBLIC "${KD_ZSTD}/lib")
 kindling_c_rules(kd_zstd)
 
 add_library(kd_sim STATIC
+    src/kd/bench/code.cpp
+    src/kd/bench/scenarios.cpp
     src/kd/chance/chance.cpp
     src/kd/core/check.cpp
     src/kd/data/catalogue.cpp
@@ -54,6 +56,7 @@ add_library(kd_sim STATIC
     src/kd/proof/fixture.cpp
     src/kd/proof/maths_cases.cpp
     src/kd/proof/proof.cpp
+    src/kd/run/marked.cpp
     src/kd/run/runner.cpp
     src/kd/run/thread.cpp
     src/kd/run/workers.cpp
@@ -86,6 +89,7 @@ if(KD_SIM_TESTS)
     kindling_rules(kindling)
 
     add_executable(kd_sim_tests
+        tests/bench_test.cpp
         tests/calendar_test.cpp
         tests/catalogue_test.cpp
         tests/chance_test.cpp

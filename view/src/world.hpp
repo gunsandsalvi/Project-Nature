@@ -3,9 +3,11 @@
 // speed loop between it and the screen (A3.9); later make, open, save and commands join it here.
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <deque>
+#include <functional>
 #include <memory>
 
 #include <godot_cpp/classes/ref_counted.hpp>
@@ -21,6 +23,7 @@
 #include "kd/data/catalogue.hpp"
 #include "kd/demo/clockwork.hpp"
 #include "kd/demo/crowd_world.hpp"
+#include "kd/run/marked.hpp"
 #include "kd/run/runner.hpp"
 #include "kd/save/files.hpp"
 #include "kd/save/keeper.hpp"
@@ -49,8 +52,8 @@ public:
     /// in parts per million, texts, truth values and lists of names; empty when there is no such entry.
     godot::Dictionary entry(const godot::String& folder, const godot::String& name) const;
 
-    /// Starts the stand-in world at Year 1, spring, day 1, doing this much work for each game hour (MAT-16).
-    void start_clockwork(int64_t work_per_hour);
+    /// Starts the calendar's stand-in world at Year 1, spring, day 1, doing its work each game hour (MAT-16).
+    void start_clockwork();
     /// Starts the demonstration's crowd from the loaded catalogue (MAT-16): from a seed, with camps camps, or the
     /// tuning's number when 0; kept nowhere, for the tests.
     void start_crowd(int64_t seed, int64_t camps);
@@ -77,8 +80,23 @@ public:
     bool catching_up() const;
     /// For the tests, while the world rests between batches, as after save_now: its whole state's digest.
     godot::String digest() const;
+
+    // the benchmark's marks (A18.1)
+    /// Takes the world's digest as it passes this game second, its whole state's for the crowd and its work's for the
+    /// calendar's stand-in, as the cloud's headless run takes it (RES-05).
+    void mark(int64_t second);
+    /// The digests taken at the marks so far, in hexadecimal by game second.
+    godot::Dictionary marks() const;
+    /// Your command to call a camp home, by its number in id order, given as the world reaches exactly this game
+    /// second and written to the journal as call_home's is.
+    void call_home_at(int64_t camp, int64_t second);
+    /// Asks the world to reach a moment without waiting for it, for a page whose frames have stopped asking.
+    void reach(int64_t moment);
     /// A game second as the calendar says it, "Year 1, spring, day 1, 07:00" (TIM-14).
     static godot::String moment_text(int64_t second);
+    /// The crowd's world as the Crowd page first makes it: its seed, and the moment the page opens on.
+    static int64_t crowd_seed();
+    static int64_t morning();
 
     /// The speed asked, in game seconds a real second, at least 1.
     void set_speed(double game_per_real);
@@ -103,8 +121,8 @@ public:
     /// The crowd's counters (PLT-01): events a second over the last real second, events, batches and the last
     /// batch's milliseconds, greetings, what the phone can do in game seconds a real second, the heat's working share
     /// and the speed limit it sets, the speeds asked and shown, the walkers, and how far the world is ahead; for a
-    /// kept world, its saves, the real seconds it has run under this version, and the megabytes free where it is kept
-    /// at the last save, and how few make the game warn.
+    /// kept world, its saves, the pause the last one made the world take in milliseconds, the real seconds it has run
+    /// under this version, and the megabytes free where it is kept at the last save, and how few make the game warn.
     godot::Dictionary counters() const;
     /// The greetings since the last call, three numbers each: the game second, and the two walkers' ids.
     godot::PackedInt64Array drain_greetings();
@@ -138,6 +156,13 @@ private:
     [[nodiscard]] HeatRules heat_rules() const;
     /// The free space where the world is kept, in megabytes, as each save checks it (PLT-10).
     void check_space();
+    /// On the world's thread: its snapshot handed to the keeper, timed.
+    void snapshot();
+    /// On the world's thread: your command to call a camp home, at the frontier, written to the journal.
+    void called_home(ecs::Id camp);
+    /// The runner, for a world and how to read its digest, with the marks between them.
+    void start_runner(run::Steppable& world, std::function<std::uint64_t()> digest, time::Seconds start,
+                      const char* thread);
 
     std::unique_ptr<data::Catalogue> catalogue_;
     std::unique_ptr<demo::Clockwork> clockwork_;
@@ -147,7 +172,11 @@ private:
     std::unique_ptr<save::Keeper> keeper_;
     std::unique_ptr<demo::CrowdWorld> crowd_;
     std::unique_ptr<CrowdStepper> stepper_;
+    // the world as its runner steps it, with the benchmark's marks (A18.1)
+    std::unique_ptr<run::Marked> marked_;
     std::unique_ptr<run::Runner> runner_;
+    // the pause the last save made the world take, in milliseconds, written on the world's thread
+    std::atomic<double> save_ms_{0.0};
     // catching up to where a reopened world had got, and the save that comes every so often
     time::Seconds catch_up_to_ = -1;
     double save_every_ = 30.0;

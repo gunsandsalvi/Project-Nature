@@ -10,7 +10,10 @@ removes any it no longer holds; runs every proof suite on one thread and on four
 and writes build.toml:
 - [proof]: each suite's digest;
 - [catalogue]: the world-making version, each file the phone reads with its SHA-256, and each source's version and
-  rules, world and look digests, as the simulation fingerprints them.
+  rules, world and look digests, as the simulation fingerprints them;
+- [bench]: each benchmark scenario's digest at its mark, its world run headless here, which the phone's must match
+  (A18.1, RES-05);
+- [build]: the app's version code, from the export preset, which the benchmark's code carries.
 Then it runs every scene in data/scenes, saved under the app's version, and puts its report in game/data/reports/,
 with the world of its first odd run, or else its first, as a .kindling file the Reports page opens (RES-06, PLT-05):
 <scene>.json and <scene>-<run>.kindling. A report whose runs ended as before is left as it was, with its world, so
@@ -95,12 +98,28 @@ def toml_list(items):
     return "[" + ", ".join(f'"{i}"' for i in items) + "]"
 
 
-def build_toml(proof, version, files, sources):
+def bench_digests(tool):
+    """Each benchmark scenario's digest at its mark, run headless by the tool: {scenario: digest}."""
+    run = subprocess.run([tool, "bench", DATA], capture_output=True, text=True, check=True)
+    return {name: digest for name, _, digest in (line.split() for line in run.stdout.splitlines())}
+
+
+def version_code():
+    """The app's version code, as tools/build.sh writes it into the export preset."""
+    with open(os.path.join(ROOT, "game", "export_presets.cfg")) as f:
+        for line in f:
+            if line.startswith("version/code="):
+                return int(line.split("=", 1)[1])
+    return 0
+
+
+def build_toml(proof, version, files, sources, bench, code):
     # No comments: Godot's ConfigFile, which reads this on the phone, stops at a TOML comment. Lists hold "a b" texts
     # rather than tables, which ConfigFile also reads.
     lines = [
         "[build]",
         'about = "Made by tools/gamedata.py for each build: what the phone\'s self-check compares with (A2.3)."',
+        f"code = {code}",
         "",
         "[proof]",
     ]
@@ -111,7 +130,10 @@ def build_toml(proof, version, files, sources):
         f"world_making_version = {version}",
         "files = " + toml_list(f"{rel} {sha256(os.path.join(DATA, rel))}" for rel in files),
         "sources = " + toml_list(sources),
+        "",
+        "[bench]",
     ]
+    lines += [f'{name} = "{digest}"' for name, digest in bench.items()]
     return "\n".join(lines) + "\n"
 
 
@@ -181,7 +203,7 @@ def main(argv):
     os.makedirs(OUT, exist_ok=True)
     copy_sources(files)
     with open(BUILD, "w") as f:
-        f.write(build_toml(one, version, files, sources))
+        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code()))
     try:
         shown = reports(tool)
     except RuntimeError as e:

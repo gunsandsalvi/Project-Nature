@@ -22,6 +22,7 @@
 #include "kd/run/heat_tuning.hpp"
 #include "kd/run/save_tuning.hpp"
 #include "kd/time/calendar.hpp"
+#include "trace.hpp"
 
 namespace kd::view {
 
@@ -40,7 +41,7 @@ void KdWorld::_bind_methods() {
     using godot::D_METHOD;
     ClassDB::bind_method(D_METHOD("load_catalogue", "paths"), &KdWorld::load_catalogue);
     ClassDB::bind_method(D_METHOD("entry", "folder", "name"), &KdWorld::entry);
-    ClassDB::bind_method(D_METHOD("start_clockwork", "work_per_hour"), &KdWorld::start_clockwork);
+    ClassDB::bind_method(D_METHOD("start_clockwork"), &KdWorld::start_clockwork);
     ClassDB::bind_method(D_METHOD("start_crowd", "seed", "camps"), &KdWorld::start_crowd);
     ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps", "build"), &KdWorld::open_crowd);
     ClassDB::bind_method(D_METHOD("save"), &KdWorld::save);
@@ -50,7 +51,13 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("camp_at", "camp"), &KdWorld::camp_at);
     ClassDB::bind_method(D_METHOD("catching_up"), &KdWorld::catching_up);
     ClassDB::bind_method(D_METHOD("digest"), &KdWorld::digest);
+    ClassDB::bind_method(D_METHOD("mark", "second"), &KdWorld::mark);
+    ClassDB::bind_method(D_METHOD("marks"), &KdWorld::marks);
+    ClassDB::bind_method(D_METHOD("call_home_at", "camp", "second"), &KdWorld::call_home_at);
+    ClassDB::bind_method(D_METHOD("reach", "moment"), &KdWorld::reach);
     ClassDB::bind_static_method("KdWorld", D_METHOD("moment_text", "second"), &KdWorld::moment_text);
+    ClassDB::bind_static_method("KdWorld", D_METHOD("crowd_seed"), &KdWorld::crowd_seed);
+    ClassDB::bind_static_method("KdWorld", D_METHOD("morning"), &KdWorld::morning);
     ClassDB::bind_method(D_METHOD("set_speed", "game_per_real"), &KdWorld::set_speed);
     ClassDB::bind_method(D_METHOD("speed"), &KdWorld::speed);
     ClassDB::bind_method(D_METHOD("pause"), &KdWorld::pause);
@@ -176,11 +183,16 @@ godot::Dictionary KdWorld::entry(const godot::String& folder, const godot::Strin
     return out;
 }
 
-void KdWorld::start_clockwork(int64_t work_per_hour) {
+void KdWorld::start_clockwork() {
     KD_CHECK(!runner_, "view::KdWorld: the world has already started");
-    KD_CHECK(work_per_hour >= 1, "view::KdWorld: the clockwork needs some work for each hour");
-    clockwork_ = std::make_unique<demo::Clockwork>(static_cast<std::uint64_t>(work_per_hour));
-    runner_ = std::make_unique<run::Runner>(*clockwork_, 0);
+    clockwork_ = std::make_unique<demo::Clockwork>(demo::kCalendarWork);
+    start_runner(*clockwork_, [this] { return clockwork_->state(); }, 0, "kd-world");
+}
+
+void KdWorld::start_runner(run::Steppable& world, std::function<std::uint64_t()> digest, time::Seconds start,
+                           const char* thread) {
+    marked_ = std::make_unique<run::Marked>(world, std::move(digest));
+    runner_ = std::make_unique<run::Runner>(*marked_, start, thread);
 }
 
 void KdWorld::start_crowd(int64_t seed, int64_t camps) {
@@ -191,7 +203,7 @@ void KdWorld::start_crowd(int64_t seed, int64_t camps) {
                                                 camps > 0 ? std::optional<std::int64_t>(camps) : std::nullopt);
     stepper_ = std::make_unique<CrowdStepper>(*crowd_);
     heat_ = HeatGovernor(heat_rules());
-    runner_ = std::make_unique<run::Runner>(*stepper_, 0, "kd-crowd");
+    start_runner(*stepper_, [this] { return crowd_->world().digests().whole; }, 0, "kd-crowd");
 }
 
 godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed, int64_t camps,
@@ -234,7 +246,7 @@ godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed,
     const time::Seconds frontier = crowd_->world().frontier();
     pace_ = Pace(static_cast<double>(frontier));
     stepper_->set_screen(static_cast<double>(frontier));
-    runner_ = std::make_unique<run::Runner>(*stepper_, frontier, "kd-crowd");
+    start_runner(*stepper_, [this] { return crowd_->world().digests().whole; }, frontier, "kd-crowd");
     if (kept.was_at > frontier) {
         catch_up_to_ = kept.was_at;
         runner_->set_goal(kept.was_at);
@@ -265,7 +277,14 @@ void KdWorld::save() {
     }
     since_save_ = 0.0;
     check_space();
-    runner_->call([this] { keeper_->snapshot(crowd_->world()); });
+    runner_->call([this] { snapshot(); });
+}
+
+void KdWorld::snapshot() {
+    const auto started = std::chrono::steady_clock::now();
+    keeper_->snapshot(crowd_->world());
+    save_ms_.store(std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - started).count(),
+                   std::memory_order_relaxed);
 }
 
 void KdWorld::save_now() {
@@ -278,7 +297,7 @@ void KdWorld::save_now() {
     runner_->call_and_wait([this] {
         const time::Seconds frontier = crowd_->world().frontier();
         keeper_->pause_mark(std::max(frontier, catch_up_to_));
-        keeper_->snapshot(crowd_->world());
+        snapshot();
         keeper_->flush();
     });
 }
@@ -288,14 +307,46 @@ void KdWorld::call_home(int64_t camp) {
         return;
     }
     const ecs::Id id = stepper_->camp_ids()[static_cast<std::size_t>(camp)];
-    runner_->call([this, id] {
-        world::World& w = crowd_->world();
-        const world::Command c =
-            w.command(w.frontier(), static_cast<std::uint32_t>(demo::Commanded::call_home), id.value, 0);
-        if (keeper_) {
-            keeper_->command(c);
+    runner_->call([this, id] { called_home(id); });
+}
+
+void KdWorld::called_home(ecs::Id camp) {
+    world::World& w = crowd_->world();
+    const world::Command c =
+        w.command(w.frontier(), static_cast<std::uint32_t>(demo::Commanded::call_home), camp.value, 0);
+    if (keeper_) {
+        keeper_->command(c);
+    }
+}
+
+void KdWorld::call_home_at(int64_t camp, int64_t second) {
+    if (!marked_ || !stepper_ || camp < 0 || static_cast<std::size_t>(camp) >= stepper_->camp_ids().size()) {
+        return;
+    }
+    const ecs::Id id = stepper_->camp_ids()[static_cast<std::size_t>(camp)];
+    marked_->at(second, [this, id] { called_home(id); });
+}
+
+void KdWorld::mark(int64_t second) {
+    if (marked_) {
+        marked_->mark(second);
+    }
+}
+
+godot::Dictionary KdWorld::marks() const {
+    godot::Dictionary out;
+    if (marked_) {
+        for (const auto& [second, digest] : marked_->digests()) {
+            out[static_cast<int64_t>(second)] = num::to_hex(digest).c_str();
         }
-    });
+    }
+    return out;
+}
+
+void KdWorld::reach(int64_t moment) {
+    if (runner_) {
+        runner_->set_goal(moment);
+    }
 }
 
 int64_t KdWorld::nearest_camp(int64_t east, int64_t north, int64_t within) const {
@@ -343,6 +394,14 @@ godot::String KdWorld::moment_text(int64_t second) {
     return (time::date_text(d) + ", " + time::time_of_day_text(d)).c_str();
 }
 
+int64_t KdWorld::crowd_seed() {
+    return static_cast<int64_t>(demo::kCrowdSeed);
+}
+
+int64_t KdWorld::morning() {
+    return demo::kMorning;
+}
+
 HeatRules KdWorld::heat_rules() const {
     HeatRules rules;
     const std::optional<std::uint32_t> i = catalogue_->find("tuning/heat", "base:heat");
@@ -380,6 +439,7 @@ bool KdWorld::is_paused() const {
 }
 
 void KdWorld::frame() {
+    const TraceSection section("kd frame");
     if (!runner_) {
         return;
     }
@@ -481,6 +541,7 @@ godot::Dictionary KdWorld::counters() const {
     out["walkers"] = static_cast<int64_t>(stepper_->walker_count());
     if (keeper_) {
         out["saves"] = static_cast<int64_t>(keeper_->snapshots());
+        out["save_ms"] = save_ms_.load(std::memory_order_relaxed);
         out["saved_at"] = keeper_->last_snapshot();
         out["save_bytes"] = static_cast<int64_t>(keeper_->last_snapshot_bytes());
         out["mismatches"] = static_cast<int64_t>(keeper_->mismatches());

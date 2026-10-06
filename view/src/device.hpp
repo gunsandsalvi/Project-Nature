@@ -6,6 +6,7 @@
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_int64_array.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
 #include <godot_cpp/variant/string.hpp>
 
@@ -33,6 +34,30 @@ public:
     godot::String proof(const godot::String& suite, int threads) const;
     /// The compiler and C++ library the simulation was built with.
     godot::String built_with() const;
+
+    // telemetry, for the benchmark (A3.9, PLT-04)
+    /// The clock each core runs at now, in kHz, -1 where the system hides it.
+    godot::PackedInt64Array clocks() const;
+    /// Each of our own threads, named "kd-...", by its name, with the processor time it has used, in seconds.
+    godot::Dictionary thread_times() const;
+    /// The memory the app holds now and the most it has held, in megabytes: resident_mb and peak_mb.
+    godot::Dictionary memory() const;
+    /// A section of the phone's System Tracing, begun and ended on the same thread; nothing off Android.
+    void trace_begin(const godot::String& name) const;
+    void trace_end() const;
+    /// The frames by our own measure (A3.9), counted afresh from now, for a frame period and the screen's refresh.
+    void frames_reset(double period_ms, double refresh_hz) const;
+    /// The frames since: frames, on_time, stalls, late and slowest_ms.
+    godot::Dictionary frames() const;
+
+    // the benchmark (A18.1), as the simulation lists it, and its code
+    /// Each scenario, in order: name, about, ground, speed, camera, pinned, saves, seconds, mark, call_at, call_camp,
+    /// and its pass lines on_time (thousandths), slowest and open (milliseconds), 0 where it has none.
+    godot::Array bench_scenarios() const;
+    /// The code for these measures, by the code's field names (Implements PLT-04).
+    godot::String bench_code(const godot::Dictionary& values) const;
+    /// A code read back: values, and why it could not be read, empty when it could.
+    godot::Dictionary bench_read(const godot::String& code) const;
 
 protected:
     static void _bind_methods();

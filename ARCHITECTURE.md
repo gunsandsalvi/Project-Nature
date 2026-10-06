@@ -373,6 +373,10 @@ Following Box2D, Factorio and research 18:
     In the cloud, top speed holds about 2.3 game days a real second for 10,000 markers, some 600,000 events a second, every frame on time.
 - **Heat:** `view/` reads the phone's heat headroom every 2 s with a 10-s forecast (Android forecasts only while asked at least every 10 s), and listens for its thermal status; as the forecast nears the first throttling level, the simulation's working share is cut quickly and given back slowly, so time slows before the phone throttles (research 02, 18).
 - **Telemetry:** the device class also reads battery and power rails, the cores' clocks, our threads' CPU time and memory, and the interval of every frame; trace sections mark each frame and batch for the phone's own System Tracing.
+  - *Built in α1.5b:* the extension times every frame itself, once a frame after every node's process, from the steady clock (`kd::view::FrameMeter`): a frame is on time within its period plus half a refresh, a stall counts every period it skipped, and a gap over 66.7 ms is more than 50 ms late.
+    The battery's charge, current and charging come from Android's BatteryManager through Godot's AndroidRuntime, and its current gives the phone's whole power; the power rails, which need Android 15's power monitor service, are left for a later benchmark.
+    Our threads' processor time comes from `/proc` by their `kd-` names, memory from the process's status, and the cores' clocks from `cpufreq`.
+    Trace sections mark each batch (`kd batch`), the world's own work each frame (`kd frame`), the crowd's drawing (`kd draw`) and each benchmark scenario.
 - **Watch the known killers from the first benchmark:** pathfinding at scale, temperature fields and lines of sight (research 03).
 
 ## A4. Drawing (research 04, 02)
@@ -757,6 +761,13 @@ As measured on your phone in pre-production (`LESSONS.md`), each re-measured at 
 **M1's benchmark,** one tap and about 20 minutes, with the phone unplugged, in flight mode, after it has cooled:
 - the calendar alone at top speed; 10,000 markers at real speed and at top speed, with the camera touring, held speed read after 3 minutes; the same pinned to the middle cores; a sweep through the zoom stops' speeds; saves every 30 seconds with an export and a reopening; a still camera for the screen's own power;
 - for each, its end state's digest against the cloud's, the share of frames on time, the slowest frame, the speed held, heat, battery and power, and memory, in one code.
+- *Built in α1.5b:* the Bench page runs the seven scenarios of `kd::bench::scenarios()`, 15 minutes of them and about 17 in all, each on a page of its own with a world of its own under `user://bench`, apart from yours, and deleted after.
+  - Each world takes its digest as it passes a set game second, and the saves scenario calls a camp home at an exact second: `kd::run::Marked` stops the world's batches there, which changes nothing but where they end.
+    `kindling bench` runs the same worlds headless, and `tools/gamedata.py` writes their digests into the build, so the phone compares its own with the cloud's as it goes (`RES-05`).
+  - A scenario's frames count after its first 5 seconds, with the crowd's own drawing time on the main thread; its heat, battery, memory, the fastest core's clock and the speed are read every 2 seconds, the speed over its last third; and a world that has not reached its mark by the end runs on to it with the screen still.
+  - The pass lines, stated in the scenarios before the first run (`RES-09`): at least 97% of frames on time and the slowest at most 66 ms where the camera moves, a world reopened within 3 seconds, and every digest the cloud's.
+  - The code (`kd::bench`): layout version 1, 103 fields in 1054 bits with a CRC-24 (OpenPGP's), 218 letters of Crockford's base32 in groups of five; `kindling bench decode <code>` reads it and holds each measure to its line.
+    Run a hundred times faster in the cloud, every scenario's world ends as the headless one's.
 
 ### A18.2 Risks
 

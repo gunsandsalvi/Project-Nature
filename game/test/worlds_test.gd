@@ -7,12 +7,11 @@ extends GdUnitTestSuite
 
 const WorldsPage := preload("res://pages/worlds.gd")
 const CrowdPage := preload("res://pages/crowd.gd")
-const Folders := preload("res://test/folders.gd")
 const ROOT := "user://test-worlds"
 
 
 func after_test() -> void:
-	Folders.remove(ROOT)
+	Worlds.remove_tree(ROOT)
 
 
 ## The Worlds page on the tests' own folder, making small worlds of four camps.

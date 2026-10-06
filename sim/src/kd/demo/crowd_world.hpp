@@ -31,6 +31,11 @@ enum class Commanded : std::uint8_t { call_home = 1 };
 /// The slot of a marker's schedule a call home wakes, after its activity's and a greeting's call.
 inline constexpr std::uint32_t kHomeSlot = 2;
 
+/// The crowd's world as the Crowd page first makes it, the same on every phone: its seed, and the moment the page
+/// opens on, 7 o'clock on the first morning, as the markers wake.
+inline constexpr std::uint64_t kCrowdSeed = 1;
+inline constexpr time::Seconds kMorning = 7 * time::kHour;
+
 /// The square of the world the crowd keeps to, centred on the world: its south-west corner and its side, in
 /// centimetres.
 struct Square {
@@ -168,6 +173,8 @@ public:
     [[nodiscard]] const world::World& world() const { return world_; }
     [[nodiscard]] const Daylight& daylight() const { return daylight_; }
     [[nodiscard]] Square square() const { return square_of(world_.torus(), crowd_); }
+    /// The camps' ids, in id order: a camp's number, as your calls name it, is its place here.
+    [[nodiscard]] std::vector<ecs::Id> camp_ids() const;
 
 private:
     struct Opening {};

@@ -75,6 +75,18 @@ static func ago_words(seconds: int) -> String:
 	return "%d days" % (seconds / 86400)
 
 
+## Removes a folder and everything in it, such as the benchmark's worlds once it ends, or a test's;
+## nothing if it is not there.
+static func remove_tree(path: String) -> void:
+	if not DirAccess.dir_exists_absolute(path):
+		return
+	for sub in DirAccess.get_directories_at(path):
+		remove_tree(path.path_join(sub))
+	for file in DirAccess.get_files_at(path):
+		DirAccess.remove_absolute(path.path_join(file))
+	DirAccess.remove_absolute(path)
+
+
 ## The warning when the phone is nearly full, or nothing: the game asks which worlds to delete and
 ## never deletes one itself (PLT-10).
 static func space_warning(free_mb: int, warn_below_mb: int) -> String:

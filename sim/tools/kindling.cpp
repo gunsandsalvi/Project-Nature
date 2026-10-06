@@ -29,6 +29,11 @@
 //                                                 judged by its rule, rerun on 20 fresh seeds if it fails (RES-13), and
 //                                                 reported in report.json (RES-06); exit 0 when it passes with no
 //                                                 oddity
+//     kindling bench [data]                      the benchmark's scenarios (A18.1): each one's mark and the digest its
+//                                                 world must reach there, run headless here (RES-05), one line each:
+//                                                 "<scenario> <mark> <digest>"
+//     kindling bench decode <code> [data]        a phone's code in words: each measure against its pass line, each
+//                                                 digest against the cloud's (PLT-04)
 //     kindling export <world> <file>             a world's folder as one .kindling file (PLT-08)
 //     kindling import <file> <world>             a .kindling file into a new world's folder, refused with words
 //                                                 naming any damage
@@ -43,12 +48,16 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <thread>
+#include <tuple>
 #include <vector>
 
+#include "kd/bench/code.hpp"
+#include "kd/bench/scenarios.hpp"
 #include "kd/data/catalogue.hpp"
 #include "kd/data/checks.hpp"
 #include "kd/data/folder.hpp"
@@ -78,6 +87,8 @@ int usage() {
         "       kindling keep <world> [--camps N] [--seed N] [--until SECONDS] [--every SECONDS] "
         "[--call SECOND:CAMP]... [--data FOLDER] [--build NAME] [--islands WINDOW --threads N]\n"
         "       kindling scene <scene.toml> [--out FOLDER] [--jobs N] [--data FOLDER] [--build NAME] [--fresh]\n"
+        "       kindling bench [data]\n"
+        "       kindling bench decode <code> [data]\n"
         "       kindling export <world> <file>\n"
         "       kindling import <file> <world>\n");
     return 2;
@@ -307,12 +318,7 @@ int keep(const std::vector<std::string_view>& args) {
                 static_cast<unsigned long long>(kept.replayed), static_cast<long long>(kept.was_at));
     std::fflush(stdout);
 
-    std::vector<kd::ecs::Id> camp_ids;
-    w.beings().each([&](kd::ecs::Id id, kd::world::Beings::Handle /*h*/) {
-        if (id.family() == kd::ecs::Family::place) {
-            camp_ids.push_back(id);
-        }
-    });
+    const std::vector<kd::ecs::Id> camp_ids = kept.crowd->camp_ids();
     std::vector<kd::world::Record> records;
     w.keep_history(&records);
     // the calls the journal holds were given already, and a person never gives them twice
@@ -595,6 +601,181 @@ int scene_command(const std::vector<std::string_view>& args) {
     return verdict.passed && oddities == 0 ? 0 : 1;
 }
 
+// A count with its thousands set apart: 10,000.
+std::string grouped(long long n) {
+    std::string digits = std::to_string(n < 0 ? -n : n);
+    std::string out;
+    while (digits.size() > 3) {
+        out = "," + digits.substr(digits.size() - 3) + out;
+        digits.resize(digits.size() - 3);
+    }
+    return (n < 0 ? "-" : "") + digits + out;
+}
+
+// A speed in words: "2.3 game days a real second".
+std::string speed_words(double game_per_real) {
+    char text[64];
+    if (game_per_real >= 86'400.0) {
+        std::snprintf(text, sizeof text, "%.2f game days a real second", game_per_real / 86'400.0);
+    } else if (game_per_real >= 3'600.0) {
+        std::snprintf(text, sizeof text, "%.1f game hours a real second", game_per_real / 3'600.0);
+    } else {
+        std::snprintf(text, sizeof text, "%.1f game seconds a real second", game_per_real);
+    }
+    return text;
+}
+
+int bench_command(const std::vector<std::string_view>& args) {
+    const bool decoding = !args.empty() && args[0] == "decode";
+    if (decoding && args.size() < 2) {
+        return usage();
+    }
+    const std::size_t data_at = decoding ? 2 : 0;
+    const std::string data = args.size() > data_at ? std::string(args[data_at]) : "data";
+    kd::data::Catalogue cat;
+    if (!cat.load(kd::data::read_folder(data)).empty()) {
+        std::fprintf(stderr, "kindling: the catalogue under %s does not load\n", data.c_str());
+        return 1;
+    }
+    // each scenario's world run once, those that differ only in how the phone runs them, such as pinned, shared
+    std::map<std::string, std::uint64_t> cloud;
+    std::map<std::tuple<int, kd::time::Seconds, kd::time::Seconds, std::int64_t>, std::uint64_t> worlds;
+    for (const kd::bench::Scenario& s : kd::bench::scenarios()) {
+        const auto key = std::tuple(static_cast<int>(s.ground), s.mark, s.call_at, s.call_camp);
+        if (!worlds.contains(key)) {
+            worlds[key] = kd::bench::headless_digest(s, cat);
+        }
+        cloud[std::string(s.name)] = worlds[key];
+    }
+    if (!decoding) {
+        for (const kd::bench::Scenario& s : kd::bench::scenarios()) {
+            std::printf("%.*s %lld %s\n", static_cast<int>(s.name.size()), s.name.data(),
+                        static_cast<long long>(s.mark), kd::num::to_hex(cloud[std::string(s.name)]).c_str());
+        }
+        return 0;
+    }
+    const kd::bench::Read read = kd::bench::decode(args[1]);
+    if (!read.why.empty()) {
+        std::printf("The code cannot be read: %s\n", read.why.c_str());
+        return 1;
+    }
+    const auto value = [&](const std::string& name) -> std::optional<double> {
+        const auto it = read.values.find(name);
+        return it == read.values.end() ? std::nullopt : std::optional<double>(it->second);
+    };
+    const auto whole = [&](const std::string& name) { return static_cast<long long>(value(name).value_or(-1)); };
+    // the phone's own lines, each one only if the phone could tell it
+    std::vector<std::string> phone;
+    const auto known = [&](const std::string& name, const std::string& before, const std::string& after) {
+        if (value(name)) {
+            phone.push_back(before + grouped(whole(name)) + after);
+        }
+    };
+    if (value("build")) {
+        phone.push_back("build " + std::to_string(whole("build")));
+    }
+    known("cores", "", " cores");
+    known("big_mhz", "the fastest at ", " MHz");
+    known("refresh_hz", "a ", " Hz screen");
+    known("android", "Android ", "");
+    known("battery", "battery ", "% at the start");
+    if (whole("plugged") > 0) {
+        phone.emplace_back(whole("plugged") == 2 ? "plugged in, which the run asks not to be" : "on battery");
+    }
+    if (whole("thermal") > 0) {
+        phone.emplace_back(whole("thermal") == 1 ? "its heat forecast working" : "no heat forecast");
+    }
+    if (value("seconds")) {
+        phone.push_back("the run took " + std::to_string(whole("seconds") / 60) + " min " +
+                        std::to_string(whole("seconds") % 60) + " s");
+    }
+    std::string joined;
+    for (const std::string& part : phone) {
+        joined += (joined.empty() ? "" : ", ") + part;
+    }
+    std::printf("The phone: %s\n", joined.c_str());
+    int lines = 0;
+    int met = 0;
+    const auto line = [&](bool held) {
+        ++lines;
+        met += held ? 1 : 0;
+        return held ? "met" : "MISSED";
+    };
+    for (const kd::bench::Scenario& s : kd::bench::scenarios()) {
+        const std::string n(s.name);
+        std::printf("\n%s: %.*s\n", n.c_str(), static_cast<int>(s.about.size()), s.about.data());
+        std::string out;
+        if (const auto on_time = value(n + ".on_time")) {
+            char text[96];
+            std::snprintf(text, sizeof text, "  frames on time %.1f%%", *on_time * 100.0);
+            out += text;
+            if (s.on_time > 0) {
+                out += std::string(" (at least ") + std::to_string(s.on_time / 10) +
+                       "%: " + line(*on_time * 1000.0 >= static_cast<double>(s.on_time)) + ")";
+            }
+            out += "\n";
+        }
+        if (const auto slowest = value(n + ".slowest")) {
+            out += "  slowest frame " + std::to_string(static_cast<long long>(*slowest)) + " ms";
+            if (s.slowest > 0) {
+                out += std::string(" (at most ") + std::to_string(s.slowest) + ": " +
+                       line(*slowest <= static_cast<double>(s.slowest)) + ")";
+            }
+            out += ", " + std::to_string(whole(n + ".stalls")) + " frame periods skipped\n";
+        }
+        if (const auto draw = value(n + ".draw_ms")) {
+            char text[96];
+            std::snprintf(text, sizeof text, "  the crowd drawn in %.2f ms of the main thread a frame\n", *draw);
+            out += text;
+        }
+        if (const auto speed = value(n + ".speed")) {
+            out += "  held " + speed_words(*speed) + "\n";
+        }
+        if (const auto heat = value(n + ".heat")) {
+            char text[128];
+            std::snprintf(text, sizeof text,
+                          "  heat forecast at most %.2f of the first throttling level; the work "
+                          "share at least %lld%%\n",
+                          *heat, whole(n + ".share"));
+            out += text;
+        }
+        if (const auto clock = value(n + ".clock")) {
+            out += "  the fastest core at " + grouped(static_cast<long long>(*clock)) + " MHz on average\n";
+        }
+        if (value(n + ".current")) {
+            out += "  battery " + std::to_string(whole(n + ".current")) + " mA, about " +
+                   std::to_string(whole(n + ".current") * 385 / 100) + " mW at 3.85 V; memory " +
+                   std::to_string(whole(n + ".memory")) + " MB; the world's thread " +
+                   std::to_string(whole(n + ".cpu")) + "% of a core\n";
+        }
+        if (s.saves) {
+            out += "  slowest save's pause " + std::to_string(whole(n + ".save_ms")) + " ms, export " +
+                   std::to_string(whole(n + ".export_ms")) + " ms, reopened in " +
+                   std::to_string(whole(n + ".open_ms")) + " ms";
+            if (const auto open = value(n + ".open_ms")) {
+                out += std::string(" (at most ") + std::to_string(s.open) + ": " +
+                       line(*open <= static_cast<double>(s.open)) + ")";
+            }
+            out += "\n";
+        }
+        // the digest: the phone compared it with the cloud's as built; the cloud compares its top bits again here
+        const long long flag = whole(n + ".digest");
+        const auto bits = static_cast<std::uint64_t>(value(n + ".digest_bits").value_or(0));
+        const bool same_bits = bits == (cloud[n] >> 44U);
+        if (flag == 0) {
+            out += "  digest: not taken\n";
+            line(false);
+        } else {
+            out += std::string("  digest at game second ") + std::to_string(static_cast<long long>(s.mark)) +
+                   ": the phone found it " + (flag == 1 ? "the cloud's" : "different") + ", and its top bits are " +
+                   (same_bits ? "the cloud's" : "not the cloud's") + ": " + line(flag == 1 && same_bits) + "\n";
+        }
+        std::printf("%s", out.c_str());
+    }
+    std::printf("\n%d of %d pass lines met\n", met, lines);
+    return met == lines ? 0 : 1;
+}
+
 int export_world(const std::vector<std::string_view>& args) {
     if (args.size() != 2) {
         return usage();
@@ -706,6 +887,9 @@ int main(int argc, char** argv) {
     }
     if (command == "scene") {
         return scene_command(args);
+    }
+    if (command == "bench") {
+        return bench_command(args);
     }
     if (command == "export") {
         return export_world(args);

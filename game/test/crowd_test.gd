@@ -5,12 +5,11 @@ extends GdUnitTestSuite
 
 const CrowdPage := preload("res://pages/crowd.gd")
 const STRIDE := 16
-const Folders := preload("res://test/folders.gd")
 const TEST_WORLDS := "user://test-worlds"
 
 
 func after_test() -> void:
-	Folders.remove(TEST_WORLDS)
+	Worlds.remove_tree(TEST_WORLDS)
 
 
 ## The Crowd page with its world kept in a folder of its own under the tests' folder, the size of a

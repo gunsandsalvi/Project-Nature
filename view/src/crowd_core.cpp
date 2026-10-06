@@ -10,6 +10,7 @@
 #endif
 
 #include "kd/demo/parts.hpp"
+#include "trace.hpp"
 
 namespace kd::view {
 
@@ -33,15 +34,12 @@ const world::Activity& Snapshot::way_at(std::size_t i, double t) const {
     return ways[k];
 }
 
-CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd) {
+CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(crowd.camp_ids()) {
     const world::World& w = crowd_.world();
     const auto& raw = w.beings().raw();
-    w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
-        if (id.family() == ecs::Family::place) {
-            camp_ids_.push_back(id);
-            camp_places_.push_back(raw.get<world::Place>(h).at);
-        }
-    });
+    for (const ecs::Id id : camp_ids_) {
+        camp_places_.push_back(raw.get<world::Place>(w.beings().handle(id)).at);
+    }
     const std::vector<ecs::Id>& camps = camp_ids_;
     w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
         if (id.family() != ecs::Family::marker) {
@@ -93,6 +91,8 @@ time::Seconds CrowdStepper::advance(time::Seconds frontier, time::Seconds goal) 
 #endif
         }
     }
+    // each batch a section of the phone's trace, on the world's thread (PLT-04)
+    const TraceSection section("kd batch");
     const auto started = std::chrono::steady_clock::now();
     const auto spent = [&] {
         return std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count();

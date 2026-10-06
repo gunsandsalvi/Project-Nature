@@ -9,6 +9,9 @@
 
 namespace kd::demo {
 
+/// The calendar's stand-in does this much work each game hour, as the Time page and the benchmark run it.
+inline constexpr std::uint64_t kCalendarWork = 20'000;
+
 /// Implements PLT-01 and TIM-01, see A3.9: the work stands for a world's, so top speed shows what the phone can do.
 class Clockwork final : public run::Steppable {
 public:

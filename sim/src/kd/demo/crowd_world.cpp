@@ -492,6 +492,16 @@ CrowdWorld::CrowdWorld(const data::Catalogue& catalogue, Opening /*opening*/)
       daylight_(world_, crowd_.dawn, crowd_.dusk),
       markers_(world_, daylight_, crowd_) {}
 
+std::vector<ecs::Id> CrowdWorld::camp_ids() const {
+    std::vector<ecs::Id> out;
+    world_.beings().each([&](ecs::Id id, world::Beings::Handle /*h*/) {
+        if (id.family() == ecs::Family::place) {
+            out.push_back(id);
+        }
+    });
+    return out;
+}
+
 std::unique_ptr<CrowdWorld> CrowdWorld::open(const data::Catalogue& catalogue, std::span<const save::Chunk> chunks,
                                              std::string& why) {
     std::unique_ptr<CrowdWorld> crowd(new CrowdWorld(catalogue, Opening{}));

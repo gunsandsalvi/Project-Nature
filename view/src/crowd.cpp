@@ -13,6 +13,7 @@
 
 #include "kd/demo/crowd_world.hpp"
 #include "kd/demo/marker.hpp"
+#include "trace.hpp"
 
 namespace kd::view {
 
@@ -52,6 +53,8 @@ void KdCrowd::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_areas", "areas", "across"), &KdCrowd::set_areas);
     ClassDB::bind_method(D_METHOD("set_camps", "camps"), &KdCrowd::set_camps);
     ClassDB::bind_method(D_METHOD("draw", "t", "origin_east", "origin_north", "size"), &KdCrowd::draw);
+    ClassDB::bind_method(D_METHOD("draw_times"), &KdCrowd::draw_times);
+    ClassDB::bind_method(D_METHOD("draw_times_reset"), &KdCrowd::draw_times_reset);
     ClassDB::bind_method(D_METHOD("area_counts"), &KdCrowd::area_counts);
 }
 
@@ -109,6 +112,31 @@ void KdCrowd::write(godot::PackedFloat32Array& buffer, int64_t at, float x, floa
 }
 
 int64_t KdCrowd::draw(double t, int64_t origin_east, int64_t origin_north, double size) {
+    const TraceSection section("kd draw");
+    const auto started = std::chrono::steady_clock::now();
+    const int64_t drawn = draw_now(t, origin_east, origin_north, size);
+    const double ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - started).count();
+    ++draws_;
+    draw_ms_ += ms;
+    longest_draw_ms_ = std::max(longest_draw_ms_, ms);
+    return drawn;
+}
+
+godot::Dictionary KdCrowd::draw_times() const {
+    godot::Dictionary out;
+    out["draws"] = draws_;
+    out["mean_ms"] = draws_ > 0 ? draw_ms_ / static_cast<double>(draws_) : 0.0;
+    out["most_ms"] = longest_draw_ms_;
+    return out;
+}
+
+void KdCrowd::draw_times_reset() {
+    draws_ = 0;
+    draw_ms_ = 0.0;
+    longest_draw_ms_ = 0.0;
+}
+
+int64_t KdCrowd::draw_now(double t, int64_t origin_east, int64_t origin_north, double size) {
     if (world_.is_null() || world_->stepper() == nullptr || areas_.empty()) {
         return 0;
     }

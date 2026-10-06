@@ -39,6 +39,10 @@ public:
     int64_t draw(double t, int64_t origin_east, int64_t origin_north, double size);
     /// How many walkers the last drawing put in each area.
     godot::PackedInt32Array area_counts() const;
+    /// The drawing's own time on the main thread, for the benchmark (PLT-04): drawings since the last reset, and their
+    /// mean and longest in milliseconds.
+    godot::Dictionary draw_times() const;
+    void draw_times_reset();
 
 protected:
     static void _bind_methods();
@@ -54,6 +58,7 @@ private:
 
     void write(godot::PackedFloat32Array& buffer, int64_t at, float x, float y, float z, float scale,
                const std::array<float, 4>& colour) const;
+    int64_t draw_now(double t, int64_t origin_east, int64_t origin_north, double size);
 
     godot::Ref<KdWorld> world_;
     std::vector<godot::RID> areas_;
@@ -66,6 +71,9 @@ private:
     godot::PackedFloat32Array camp_buffer_;
     std::vector<std::array<float, 4>> kind_colours_;
     std::vector<Placed> placed_;
+    int64_t draws_ = 0;
+    double draw_ms_ = 0.0;
+    double longest_draw_ms_ = 0.0;
 };
 
 }  // namespace kd::view

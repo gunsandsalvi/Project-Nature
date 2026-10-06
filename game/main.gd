@@ -10,6 +10,7 @@ const PAGES := {
 	"Worlds": preload("res://pages/worlds.gd"),
 	"Catalogues": preload("res://pages/catalogues.gd"),
 	"Reports": preload("res://pages/reports.gd"),
+	"Bench": preload("res://pages/bench.gd"),
 }
 const BACKGROUND := Color("#1f1a24")
 const TEXT := Color("#efe6d8")
@@ -68,9 +69,9 @@ func _build() -> void:
 	title.add_theme_color_override("font_color", TEXT)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(title)
-	# the pages in rows of three, each tab as wide as the screen allows
+	# the pages in rows of four, each tab as wide as the screen allows
 	_tabs = GridContainer.new()
-	_tabs.columns = 3
+	_tabs.columns = 4
 	column.add_child(_tabs)
 	for page: String in PAGES:
 		var button := Button.new()
