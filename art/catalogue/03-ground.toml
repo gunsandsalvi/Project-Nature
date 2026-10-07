@@ -51,7 +51,9 @@ what = "wind-swept stones and gravel"
 [[piece]]
 id = "dunes"
 name = "Sand dunes"
-what = "rippled sand"
+what = "fine warm wind-blown sand in crisp ripples that fork and merge, every one different, with its slip face and its crust after a calm; the dunes' own shapes come from the land"
+sheet = "sheets/3.8-dunes.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "tropical_floor"
