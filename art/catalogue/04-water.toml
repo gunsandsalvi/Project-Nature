@@ -37,7 +37,9 @@ art_book = ["read-aids"]
 [[piece]]
 id = "spring"
 name = "Spring"
-what = "water rising from the ground, and warm springs near volcanoes"
+what = "water welling up into a small pool in bare earth and running off in a runnel, and a warm spring with a mineral rim and steam"
+sheet = "sheets/4.5-spring.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "lake"
