@@ -76,8 +76,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "longhouse"
 name = "Longhouse"
-what = "the farmers' long post house"
+what = "longhouse"
 art_book = ["village-truthful"]
+sheet = "sheets/16.10-longhouse.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "mammoth_bone_hut"
