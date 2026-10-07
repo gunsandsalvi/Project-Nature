@@ -65,7 +65,9 @@ what = "posts set in the ground under a roof"
 [[piece]]
 id = "pit_house"
 name = "Pit house"
-what = "a house over a dug floor"
+what = "pit house"
+sheet = "sheets/16.9-pit_house.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "longhouse"
