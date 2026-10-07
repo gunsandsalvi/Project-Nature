@@ -33,8 +33,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "hide_tent_dome"
 name = "Hide tent, dome"
-what = "skins over bent poles on a stone ring"
+what = "a low round tent of irregular whole hides sewn into one cover, the same hides as the cone tent's, over a frame of about 12 bent poles tied into crossed arches with two hoops; 3.6 m across and 1.8 m high, its hem held down by a ring of 22 stones, with a low door and its flap"
 art_book = ["close-camp", "camp-thirty", "d2-pixel-paint"]
+sheet = "sheets/16.5-hide_tent_dome.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "bark_hut"
