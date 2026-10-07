@@ -38,11 +38,13 @@ func test_the_catalogues_are_the_same_as_the_build() -> void:
 	)
 	assert_int(lines.size()).is_equal(1)
 	assert_str(lines[0]["state"]).override_failure_message(str(lines[0])).is_equal("ok")
-	# the art lane's textures, an entry each however many there are, besides the 16 of data/
+	# the art lane's textures and models, an entry each however many there are, besides the 17 of data/
 	var records := Array(GameData.paths(GameData.build())).filter(
 		func(path: String) -> bool: return path.ends_with("/record.toml")
 	)
-	assert_str(lines[0]["value"]).contains("3 sources, 8 kinds, %d entries" % (16 + records.size()))
+	assert_str(lines[0]["value"]).contains(
+		"3 sources, 10 kinds, %d entries" % (17 + records.size())
+	)
 
 
 # checks: PRE-20
