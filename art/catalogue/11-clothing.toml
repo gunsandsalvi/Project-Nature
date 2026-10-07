@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 11, Clothing and ornament.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Clothing and ornament"
 about = "About eight garments in child and adult sizes, in every material, and what people wear as ornament."
 items = ["BIO-11", "RCK-26", "MAT-22", "CUL-12", "PRE-43", "PRE-46"]

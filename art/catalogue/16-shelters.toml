@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 16, Shelters and camp structures.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Shelters and camp structures"
 about = "Every kind of shelter and structure people build, each true to what excavations show, and what a camp holds."
 items = ["MAT-23", "PRE-24", "PRE-42", "CUL-28", "CUL-26"]

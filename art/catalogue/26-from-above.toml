@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 26, The view from above.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "The view from above"
 about = "The land from valley height to the globe, and how people and herds show from there."
 items = ["PRE-29", "PRE-03", "PRE-28", "WLD-02", "PRE-07"]

@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 7, Trees.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Trees"
 about = "Twenty kinds of tree, needle and broad-leaved, each with its stages (seedling, young, grown, old, dead) and seasons (bud, leaf, flower, fruit, bare)."
 items = ["WLD-31", "PRE-46"]

@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 25, Small effects.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Small effects"
 about = "The small moving touches that make the world feel alive."
 items = ["PRE-30", "PRE-18", "WLD-16", "GOD-10"]

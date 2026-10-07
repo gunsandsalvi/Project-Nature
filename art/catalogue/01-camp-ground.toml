@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 1, The camp's ground.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "The camp's ground"
 about = "The ground the first camp stands on, by the river under the cliff: the first textures the engine needs."
 items = ["PRE-20", "PRE-22", "WLD-31", "MAT-08"]
@@ -8,7 +8,7 @@ signed_off = ""
 [[piece]]
 id = "meadow"
 name = "Meadow grass and earth"
-what = "the camp's grassland, its earth showing between the tufts"
+what = "the grassland's own surface: short grass blades, earth showing between them; the tufts, flowers and stones on it are pieces of their own"
 art_book = ["textures-a", "meadow-band2", "d2-pixel-paint", "delight-liked"]
 
 [[piece]]

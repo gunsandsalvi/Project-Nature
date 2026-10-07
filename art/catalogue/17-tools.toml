@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 17, Tools of stone, bone and wood.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Tools of stone, bone and wood"
 about = "The tools people make for every craft, each in its states of wear."
 items = ["MAT-23", "RCK-01", "RCK-10", "RCK-11", "RCK-12", "RCK-25"]

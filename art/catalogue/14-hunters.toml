@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 14, Hunters and small animals.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Hunters and small animals"
 about = "The meat-eaters and the small quick animals, each with its young, both sexes, its coats by season, and its body when dead."
 items = ["WLD-32", "WLD-33", "PRE-46"]

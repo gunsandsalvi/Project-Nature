@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 27, The interface.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "The interface"
 about = "Everything on screen that is not the world: controls, cards, the book of ages and the screens."
 items = ["PRE-32", "PRE-33", "PRE-34", "PRE-35", "PRE-40", "PRE-45", "PRE-05", "PRE-14", "GOD-10", "TIM-04"]

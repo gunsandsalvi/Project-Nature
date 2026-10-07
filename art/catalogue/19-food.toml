@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 19, Food and its states.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Food and its states"
 about = "Everything people eat, in its states: fresh, cooked, burnt, dried, smoked, rotten."
 items = ["BIO-10", "MAT-19", "RCK-03", "RCK-13", "RCK-14", "RCK-07"]

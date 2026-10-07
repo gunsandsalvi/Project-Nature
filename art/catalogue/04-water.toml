@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 4, Water.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Water"
 about = "Rivers, lakes and the sea, in calm, flood and ice."
 items = ["WLD-17", "WLD-26", "PRE-26"]

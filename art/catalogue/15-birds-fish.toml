@@ -1,5 +1,5 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 15, Birds, fish, shellfish and snakes.
-# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
 group = "Birds, fish, shellfish and snakes"
 about = "Birds with their nests and eggs, fish with their runs, the seal, shellfish and snakes."
 items = ["WLD-32", "PRE-46"]
