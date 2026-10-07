@@ -79,9 +79,11 @@ art_book = ["made-things-sheet"]
 [[piece]]
 id = "stone_axe"
 name = "Stone axe"
-what = "a ground stone head in its haft"
+what = "Stone axe"
 art_book = ["made-things-sheet"]
 note = "the art book's axe looks metal: a known slip"
+sheet = "sheets/17.11-stone_axe.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "adze"
