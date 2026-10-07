@@ -15,7 +15,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "basalt"
 name = "Basalt"
-what = "dark volcanic rock, columns and blocks"
+what = "dark volcanic rock in tall five- and six-sided columns with flat faces, cross-cracked, with rare small gas holes"
+sheet = "sheets/2.2-basalt.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "tuff"
