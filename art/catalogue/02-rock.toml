@@ -101,8 +101,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "rock_shelter"
 name = "Rock shelter and overhang"
-what = "a deep overhang people live under"
+what = "Rock shelter"
 art_book = ["first-cave", "ab-figures-detailed"]
+sheet = "sheets/2.14-rock_shelter.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "cave"
