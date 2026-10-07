@@ -9,7 +9,7 @@ Only the next milestone is planned in detail: the graphics engine (M2).
 The later ones are outlines (their goal, the items they deliver, what you will see), each detailed when it comes next, from what the earlier ones taught.
 The plan holds only work still to do: a step leaves it when it is done, and the code, which names the items it implements, is the record (`CLAUDE.md`, rule 3).
 
-## Status (6 October 2026)
+## Status (7 October 2026)
 
 - The ten milestones were approved by you on 4 October 2026, with their proposals, now decided in `PROJECT.md` (`SCP-16`, `MIL-08` to `MIL-17`); the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`).
 - The risks were tried first, and that work closed on 5 October 2026, as you asked: its answers are decisions in the architecture.
@@ -18,7 +18,9 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The vertical slice was dropped on 6 October 2026, as you asked.
 - The graphics engine (M2) is being built: you chose its look and OK'd the 13 changes to `PROJECT.md` that follow from it.
   You OK'd its plan below, fifteen steps in six alphas, one of them only if needed, and its sections of the architecture (A4, A5, A6 and A8's near stops) on 6 October 2026: "Yes, that works. Let's start".
-- **The art lane** starts again from scratch, by your word of 7 October 2026: everything it had made was deleted, and it works from the catalogue (below) once the whole of it is signed off.
+- **The art lane** starts again from scratch, by your word of 7 October 2026: everything it had made was deleted, and it works from the catalogue (below).
+  By your word the same day it begins before the catalogue is finished, with a pilot: four signed-off pieces (the meadow, the river, the club and the hide tent) taken from their sheets to your phone, to prove the path from a sheet to what the engine reads, so the sheets still to come carry what the engine needs.
+- **The way of working,** by your word of 7 October 2026: the main session coordinates agents and writes no code or designs; it briefs them, checks their work, merges it and brings it to you, and any agent may consult GPT through Codex, for art or for deep research.
 - **Still open from pre-production:** the ground for the card and the book, and whether reading text should be larger (P12); your ears on the camp's sound (P14); the heat of a busy scene over ten minutes (P2); the writer, proved when M9 builds the book (P13); discovery's pace with the whole catalogue, at M7's scenes (`RSK-01`).
 
 ## The art lane
@@ -83,7 +85,7 @@ Every piece of art the game needs, worked out before any of it is made, as you a
   - What the world lays over a ground is a piece of its own, drawn once: the wear of paths and camp floors, wetness, frost and snow, and the water over a river bed; a ground's sheet shows only its own states, as you set on 7 October 2026.
   - An object's sheet is laid out like the hide tent's, as you OK'd on 7 October 2026: its flat views at one scale beside the adult and the stick, the view from above, the camera's views, its true size at each zoom, its parts, its states and its surface.
   - Every view shows the same object, with the same parts, counts and colours, as you asked the same day: it is designed once, in words and numbers, and every view is drawn to that design.
-- **You sign off each piece** as its sheet is finished, as you asked on 7 October 2026; the art lane starts once the whole catalogue is signed off, as you said the same day, and takes it in batches.
+- **You sign off each piece** as its sheet is finished, as you asked on 7 October 2026, and the art lane takes the signed-off pieces in batches, starting with the pilot (Status, above).
 - It is kept in `art/catalogue/`: a file of each group's pieces, and each piece's sheet.
 
 ## How to use this plan
@@ -193,7 +195,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Delivered as 30202 on 7 October 2026; waiting for your phone's calibration code and your two blind tests, whose decisions are written in when they come, since on your word the next step goes ahead |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | **Waiting for the art:** the texture kind, its shipping and the Lab page built (T2.3a.1, T2.3a.5); the art lane's work deleted on 7 October 2026 at your word; the camp's materials come from the catalogue's first signed-off groups, then delivery as 30301 |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | **The pilot,** by your word of 7 October 2026: the meadow, the river, the club and the hide tent taken from their sheets to your phone, with the parts of α2.3b and α2.3c they need; the texture kind, its shipping and the Lab page built (T2.3a.1, T2.3a.5); then delivery as 30301 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
 | α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
 | α2.3d | People, a deer and first light | M2 | 6 | Planned |

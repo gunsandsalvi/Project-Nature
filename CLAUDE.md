@@ -2,7 +2,9 @@
 
 Read `PROJECT.md` before doing anything else. It is the source of truth for what Kindling is and must do. `ARCHITECTURE.md` says how it is built, and `IMPLEMENTATION.md` says in what order. Code and tests link back to `PROJECT.md` by ID (`PRC-04`, `PRC-12`).
 
-**Now (6 October 2026):** pre-production is closed and its code deleted; production writes all its code fresh: never copy or port prototype code from git history. M1, the foundations, is built and accepted. M2, the graphics engine, is under way: α2.2a is delivered, the art lane's second round (the kit's parts in Blender and the textures to match) is merged, and the art lane prepares the textures by the rules in `IMPLEMENTATION.md`.
+**Now (7 October 2026):** pre-production is closed and its code deleted; production writes all its code fresh: never copy or port prototype code from git history. M1, the foundations, is built and accepted. M2, the graphics engine, is under way: α2.2b is delivered; the catalogue has 93 of its 373 pieces signed off; and the art lane starts with a pilot, four signed-off pieces (the meadow, the river, the club and the hide tent) taken from their sheets to the phone, while the catalogue goes on.
+
+**How the work is done (7 October 2026):** the main session is the coordinator. It briefs the agents, checks what they make, merges and pushes, and passes messages between them and the owner; it writes no code and no designs. The agents build, make the art and research, each on its own branch, and any of them may consult GPT through Codex (`tools/art/`), for art or for deep research.
 
 **Only three documents:** what is not in `PROJECT.md`, `ARCHITECTURE.md` or `IMPLEMENTATION.md` is not kept; there are no research notes or lessons files to go back to. Run only what a change touches while building, and the full check once, before a delivery.
 
@@ -17,7 +19,7 @@ Read `PROJECT.md` before doing anything else. It is the source of truth for what
 7. **Keep `PROJECT.md` free of implementation details** (`PRC-04`). They belong in the architecture and the implementation plan.
 8. **Build modularly** (`PRN-14`).
 9. **Language models describe, never decide** (`PRN-06`).
-10. **Before work joins the main version**, `tools/check.sh` must pass (`PRC-10`) and its review must approve it (`PRC-09`): the builder reviews each lettered step and each numbered alpha itself, and one independent subagent verifies each milestone once, at its end. The pull request says so; nothing else is recorded.
+10. **Before work joins the main version**, `tools/check.sh` must pass (`PRC-10`) and its review must approve it (`PRC-09`): the builder reviews each lettered step and each numbered alpha itself, the coordinator checks it before merging, and one independent subagent verifies each milestone once, at its end. The pull request says so; nothing else is recorded.
 11. **Write plainly.** The owner reads everything on a phone, so give every command a short plain description of what it does.
 
 Changes to this guide need the owner's OK.
