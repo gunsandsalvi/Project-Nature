@@ -1,0 +1,19 @@
+Hello. I'm the art director of the art lane: we turn the owner's signed-off catalogue sheets into the textures and 3D parts that the game engine reads. You are the artist and a fellow designer: you draw, I direct, measure and critique, and nothing reaches the owner until we both believe it holds up. Push back on anything here you think is wrong. (We have just done a river bed and its water this way; the lessons are in this message.)
+
+This conversation is one piece: 17.15, the club (Kindling, a Stone Age world simulation for phones). The picture with this message is its signed-off sheet, the standard. I build the club as a 3D part in Blender (a shaft, its heavy root knob and the trimmed root stubs, with a joint where the hand holds it). What I need from you this turn is the WOOD TEXTURE it wears, drawn as pixel art at the size the game really shows it.
+
+THE SIZE THE GAME SHOWS (this matters more than anything on the sheet)
+A texture pixel (a texel) is 1/64 of a metre, 1.56 cm, and the game draws it about 2 x 2 screen pixels. Up close the whole club is 0.7 m: about 45 texels long and 2 to 3 texels thick at the shaft (3 cm) and about 6 texels across its knob (9 cm). The sheet draws it about 18 times larger than that. So the knots (0.6 and 0.9 cm), the growth rings and the cracks of the sheet are smaller than one texel in the game: they cannot be carried as drawing. What the game can carry on a stick this small is: a few tones of wood grain running along it, a knot as a dark spot of 1 or 2 texels now and then, the light and dark of the grip, and the shape itself.
+
+THE JOB: one wood texture, a tile of 128 x 128 texels (2 m across at 64 texels a metre), shared by every wooden thing (this club, the poles of a tent): the part's own colour is changed in the game by a tint, and its age by a wear number, so draw it as quiet, mid-toned, sapling wood, not as one club.
+- The grain runs DOWN the picture (vertical): the tile is wrapped round sticks with the picture's up-down along the stick. Streaks of grain 1 to 2 texels wide and 6 to 30 texels long, in 5 or 6 tones of the club's own palette (#36261B #433320 #503823 #594328 #684B2C #705330 #7D5F36 #8E6A3B #997541 #AB844A #BE9858 #D3AE6F), mostly the middle ones (#594328 to #997541), a few dark streaks and a few light ones. Never a gradient or a smear.
+- A knot as a dark oval of 2 to 3 texels, with the grain bending round it a little, only a handful in the whole tile; no larger marks, no rings, no cracks, no bark, no decoration, no crosses.
+- Quiet: contrast about as strong as the sheet's club seen at the phone's size (look at the club on the sheet's "true size on the phone at each zoom" row: it is a thin brown line with a darker grip and a lighter head). No light from one side painted in.
+- Seamless left to right and top to bottom, as best you can.
+Draw two different tiles of the same wood, named wood-A.png and wood-B.png.
+
+HOW
+Pixel art with every texel an exact flat block of 8 x 8 pixels in a 1024 x 1024 canvas (128 x 128 texels). Your image tool returns about 1254 x 1254 pixels with cells that are not all the same width and a picture that does not wrap: that is expected and my code's job, not yours. Never bin a drawing because of its size, its grid or its seams; bin only a drawing that is itself wrong. Keep each raw picture the tool returned, unchanged, in originals/ and say which is which. Draw with your image tool, never with code.
+
+ALSO, IN WORDS, A SHORT OPINION: looking at the sheet, what would you drop or change on a sheet for a small hand-held thing like this, so that the sheet shows what the game can actually carry (true size flat on, silhouette, the few tones)? Keep it to five lines.
+Reply in a few lines: how you drew the grain, which of the two is weaker and why, the five lines, and the files you saved.

@@ -1,0 +1,26 @@
+# The wood every wooden thing wears (the club of catalogue 17.15, the tent's poles of 16.4): what tools/art/make_tiles.py
+# reads to make art/textures/wood/ from the pictures kept in art/sources/wood/. A tile of 128 texture pixels, 2 m across,
+# with the grain running down the picture, since the tile is wrapped round sticks with its up and down along them; one
+# version, since a small thing needs no more. The part's own colour is a tint and its age a wear number in the engine.
+# Nothing here is random: the same recipe gives the same bytes.
+name = "wood"
+about = "quiet mid-toned sapling wood, its grain in streaks one or two texture pixels wide running down the picture, a few tiny knots"
+seed = 1717
+reference = "near"
+how = "drawn by the artist in conversation with the art lane at the size the game shows a stick (a texture pixel 1.6 cm), and put on the texture-pixel grid by code"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; wood grain only, no metal, no sawn faces, no carving, nothing countable"
+approved = "not offered yet: made for the pilot's club and tent, waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+texels = 128
+versions = 1
+ring = 4
+overlap = 16
+patch = 48
+flatten = 0
+serves = 3
+snap = 8
+sheet = "art/sources/wood/wood-A.webp"
+extra = ["art/sources/wood/wood-B.webp"]
+requests = ["art/requests/club/turn-01.txt"]
