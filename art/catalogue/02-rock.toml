@@ -86,7 +86,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "mudstone"
 name = "Silt rock"
-what = "soft fine rock of old silt"
+what = "soft fine rock of old silt and clay: grey-green, grey and dull red-brown, matt, in faint thick beds; it cracks into small blocky chunks rather than thin layers, crumbles and slumps, with rain gullies down the face"
+sheet = "sheets/2.12-mudstone.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "cliff"
