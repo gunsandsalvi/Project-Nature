@@ -150,7 +150,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "granary"
 name = "Store house"
-what = "a raised store for grain"
+what = "store house"
+sheet = "sheets/16.20-granary.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "footbridge"
