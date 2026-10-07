@@ -91,8 +91,10 @@ what = "mudflats and salt plants where rivers meet the sea"
 [[piece]]
 id = "snow"
 name = "Snow"
-what = "fresh, trodden, drifted and melting snow"
+what = "the snow itself, drawn once and laid over every ground in winter: a quiet ivory blanket of settled powder with a faint fine grain, warm where the light falls and cool in the shallow hollows, never blue; drifted, trodden smooth and grey, or melting into ragged wet holes"
 art_book = ["winter"]
+sheet = "sheets/3.14-snow.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "ice"
