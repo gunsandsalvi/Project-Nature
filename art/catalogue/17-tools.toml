@@ -7,8 +7,10 @@ items = ["MAT-23", "RCK-01", "RCK-10", "RCK-11", "RCK-12", "RCK-25"]
 [[piece]]
 id = "hammerstone"
 name = "Hammerstone and anvil"
-what = "for knapping and cracking"
+what = "Hammerstone and anvil"
 art_book = ["made-things-sheet", "ab-figures-detailed"]
+sheet = "sheets/17.1-hammerstone.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "core"
