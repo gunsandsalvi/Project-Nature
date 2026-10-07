@@ -2,14 +2,15 @@
 # shoulder, the sky's fill cool so the shade is cooler than the lit ground, a light haze warmer toward the sun. Set for
 # the pilot, by the owner's word of 7 October 2026, against the target card's late afternoon (data/base/card/
 # late_afternoon.toml) and the art book's close camp, holding the lightness of the camp's frame at band 0 (54.5 before,
-# 55.3 after) and bringing the lights' hue from 96 to 86; the final tuning is T2.3b.3's.
+# 55.5 after) and bringing the lights' hue from 96 to 87; the final tuning is T2.3b.3's. The fill is bluer than neutral
+# but not so blue that the hide's shaded flank goes grey.
 sun_height = 28
 sun_turn = 215
 sun_colour = "#ffcf90"
-sun_energy = "250%"
+sun_energy = "230%"
 sky_colour = "#b8c8d4"
-ambient_colour = "#8aa7d8"
-ambient_energy = "70%"
+ambient_colour = "#98aed2"
+ambient_energy = "80%"
 haze_colour = "#a8bccb"
 haze_sun_colour = "#f2cf9e"
 haze_density = "0.015%"
