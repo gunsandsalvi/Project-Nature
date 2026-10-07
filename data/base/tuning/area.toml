@@ -20,3 +20,15 @@ wobble_length = "60 m"
 run = "1 m"
 spacing = "0.25 m"
 seed = 7
+# The camp on the north bank, the pilot's tent and club (sheets 16.4 and 17.15): each named by its recipe's entry, stand-ins
+# (art/models/standin_*) until the art lane's own (art:hide_tent_cone, art:club) arrive. The tent stands 8 m north of the
+# river's north bank at the strip's middle, its door to the south, facing the river; the club lies 3.6 m from it, to the
+# south east, its head pointing east north east. Degrees run clockwise from north.
+tent = "art:standin_hide_tent"
+club = "art:standin_club"
+camp_back = "8 m"
+club_away = "3.6 m"
+club_bearing = 125
+tent_turn = 0
+club_turn = 70
+camp_seed = 3

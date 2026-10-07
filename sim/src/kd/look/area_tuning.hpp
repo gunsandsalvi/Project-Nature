@@ -1,9 +1,11 @@
 // The stand-in area (A4.6, A5.3, T2.3b.2): base/tuning/area.toml, the square of meadow with a river across it that the
 // pilot's pieces stand in until the world's own ground comes (M3). It names the three surfaces the area wears, each by
 // its near tile's entry (art:meadow), the middle and far tiles and the versions being named by it (art:meadow/middle,
-// art:meadow/v2), and gives the river's shape. The names are text, not links, so the catalogue still loads with no art
-// in it (the engine runs with none, PRE-20); when textures are loaded, a check holds each name to an entry. Only the
-// screen reads it, so it counts in the look, never in the world's rules; view/src/area.hpp makes the land from it.
+// art:meadow/v2), and gives the river's shape and the camp that stands on its bank: a tent and a club, each named by
+// its recipe's entry, and where they stand. The names are text, not links, so the catalogue still loads with no art in
+// it (the engine runs with none, PRE-20); when textures or recipes are loaded, a check holds each name to an entry.
+// Only the screen reads it, so it counts in the look, never in the world's rules; view/src/area.hpp makes the land from
+// it.
 #pragma once
 
 #include <cstdint>
@@ -31,6 +33,14 @@ struct AreaTuning {
     std::int64_t run = 0;
     std::int64_t spacing = 0;
     std::int64_t seed = 0;
+    std::string tent;
+    std::string club;
+    std::int64_t camp_back = 0;
+    std::int64_t club_away = 0;
+    std::int64_t club_bearing = 0;
+    std::int64_t tent_turn = 0;
+    std::int64_t club_turn = 0;
+    std::int64_t camp_seed = 0;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& a) {
@@ -67,12 +77,28 @@ struct AreaTuning {
         v.quantity({"spacing", "the strip's rows round the banks: as fine as the shore is drawn", Affects::look},
                    a.spacing, Measure::length, {50, 4'000});
         v.whole({"seed", "which way the river wanders", Affects::look}, a.seed, {0, 2'147'483'647});
+        v.text({"tent", "the camp's tent, a recipe's entry, such as art:hide_tent_cone", Affects::look}, a.tent);
+        v.text({"club", "the camp's club, a recipe's entry, such as art:club", Affects::look}, a.club);
+        v.quantity({"camp_back", "how far north of the river's north bank, at the strip's middle, the tent stands",
+                    Affects::look},
+                   a.camp_back, Measure::length, {1'000, 100'000});
+        v.quantity({"club_away", "how far from the tent the club lies", Affects::look}, a.club_away, Measure::length,
+                   {500, 50'000});
+        v.whole(
+            {"club_bearing", "which way from the tent the club lies, in degrees clockwise from north", Affects::look},
+            a.club_bearing, {0, 359});
+        v.whole({"tent_turn", "which way the tent faces, in degrees clockwise from north", Affects::look}, a.tent_turn,
+                {0, 359});
+        v.whole({"club_turn", "which way the club's head points, in degrees clockwise from north", Affects::look},
+                a.club_turn, {0, 359});
+        v.whole({"camp_seed", "the seed the camp's things are put together with", Affects::look}, a.camp_seed,
+                {0, 2'147'483'647});
     }
 };
 
 /// Implements MAT-17 for the area: the strip is wide enough to hold the river at its widest and its banks, the square
-/// is wider than the strip, so the meadow's carpet has a north and a south, and, where textures are loaded, each
-/// surface it names is the near tile of one of them.
+/// is wider than the strip, so the meadow's carpet has a north and a south, the camp stands inside the strip, and,
+/// where textures or recipes are loaded, each surface and each thing it names is an entry of them.
 void check_area(const data::Catalogue& cat, std::vector<data::Problem>& problems);
 
 }  // namespace kd::look
