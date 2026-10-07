@@ -34,6 +34,12 @@ It restarted on your word of 6 October 2026, with its next round below as its on
 - **Nothing reaches you below the artwork's level:** a piece not there yet is not offered for your yes or no; the report says what is still short and what is being done about it.
 - Today's person, far from the people guides, is the first example.
 
+**Sculpted detail,** as you set on 7 October 2026: more meshes, and the 3D assets really sculpted, with fine details.
+- Each thing is built from many parts: a person's ears, nose, lips, brows, fingers, toes, hair locks and beard, and garments with hems, seams, folds and laces; the deer's muzzle, ears, antler tines and hooves; poles, lashings, ragged hides and chipped stones.
+- Organic forms are sculpted in Blender (brow, cheekbones and jaw; the landmarks of shoulders, elbows and knees; cloth folds; an animal's masses), by whatever method works headless, chosen with GPT.
+- Geometry goes where it changes the outline or the light; finer detail is carried into the painted texture, guided by the sculpt's curvature and occlusion.
+- The full sculpt is kept as each part's master, and each form by height on screen is made from it (A6.3), with its triangles counted in the report.
+
 **Rules:**
 - It works only in `art/`, `tools/art/` and `tools/tests/test_art_*.py`, on its own branch, and never pushes or merges.
 - GPT only through the lane's tools in `tools/art/`, outside every build; never print or move a secret; never buy credits; at a usage limit, wait; while `/tmp/kindling-gpt-paused` exists, runs are held.

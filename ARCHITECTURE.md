@@ -748,13 +748,14 @@ It replaces the art bible's rules.
   - Each part has its texture layout (A6.4) and named joints where it plugs into others; GPT makes and revises them through Codex, writing Blender scripts, in discussion with the art lane, both checking each against its guide pictures before you see it (A5.4), and you can open any part in Blender and change it.
   - Code puts parts together from recipes in the catalogues, varying size, count, angle, material and wear by seed, so a few hundred parts give thousands of things; a new thing is a catalogue entry.
   - Corners, creases and undersides are darkened in each part, and where parts meet when they are put together (A4.4).
+  - By your direction of 7 October 2026, things are made of many parts and their organic forms sculpted in Blender with fine detail; the full sculpt is each part's master, and every form by height on screen is made from it (A6.3).
 - **Plants:** about 8 forms.
   Trees and bushes are trunks, branches and leaf clusters from Blender, put together by growth rules for each species, stage and variant; leaf clusters are cut-out cards designed for each band and cut close to their leaves; one approved sheet for each species sets its crown, its colours by season and its stages, in the style of the birch sheet you accepted.
 - **People:** one figure on one skeleton.
   - The body is made of Blender parts on the skeleton (head, torso, arms, hands, legs, feet), with build, age and sex as shape keys and part choices; near a joint the mesh follows both bones in part, so it bends smoothly.
   - Garments are shells over it (about 8 kinds, in child and adult sizes); hair, beads and paint follow each people's style (`CUL-12`); proportions by age are read from the family sheet you accepted.
   - Garments vary in material and colour within what the finds show (pale and dark hide, light and dark fur, striped coats), never one brown, which also helps people stand out from busy ground.
-  - About 1,500 triangles in full form, within a budget of 4,000 (A18.1).
+  - In full form, as many triangles as the sculpted detail needs within A18.1's budget of 4,000 (1,500 was the first estimate), until calibration scenes C3 and C6 set the line.
 - **Animals:** six body patterns, one skeleton each, with bodies from Blender parts the same way.
   A species is its proportions, colours and markings, with small generators for antlers (tines by age), horns, tusks and manes; coats come from approved sheets, their markings varied by seed.
 - **Shelters,** several types, each a layout of shared parts tied to what an excavation shows:
@@ -795,7 +796,7 @@ It replaces the art bible's rules.
 
 | Form | Height on screen | What it is |
 |---|---|---|
-| full | about 100 px and up | about 1,500 triangles; textures about 100 texture pixels tall; faces as layers for each state |
+| full | about 100 px and up | the sculpted detail, up to 4,000 triangles; textures about 100 texture pixels tall; faces as layers for each state |
 | simple | about 40–100 px | about 500 triangles; the textures' next designed level |
 | small, drawn to read | about 15–40 px | about 150 triangles; head and tool a little larger by bone scale; a designed level with the face and light clothes kept light; an outline in a darker shade of its own colour, drawn as a slightly larger shell behind it, growing from nothing at about 50 px |
 | tiny | below about 15 px | enlarged up to about 4 times, baked poses (`PRE-28`) |
