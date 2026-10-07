@@ -320,6 +320,21 @@ godot::Dictionary KdKit::draw(const godot::RID& scenario, const kit::Assembly& a
     thing.turn = turn;
     std::int64_t triangles = 0;
     std::string problem;
+    // the thing's triangles in its own metres, for the view's maps
+    for (const kit::Placed& placed : assembly.placed) {
+        for (const kit::Section& section : family.part(placed.part)->sections) {
+            for (std::size_t i = 0; i + 2 < section.indices.size(); i += 3) {
+                for (std::size_t k = 0; k < 3; ++k) {
+                    const std::size_t v = section.indices[i + k];
+                    const std::array<double, 3> p = kit::carried(
+                        placed, {section.positions[3 * v], section.positions[3 * v + 1], section.positions[3 * v + 2]});
+                    thing.shape.push_back(static_cast<float>(p[0]));
+                    thing.shape.push_back(static_cast<float>(p[1]));
+                    thing.shape.push_back(static_cast<float>(p[2]));
+                }
+            }
+        }
+    }
     for (const auto& [part_name, copies] : by_part) {
         const kit::Part* part = family.part(part_name);
         for (const kit::Section& section : part->sections) {
@@ -371,6 +386,32 @@ godot::Dictionary KdKit::draw(const godot::RID& scenario, const kit::Assembly& a
     out["highest"] = godot::Vector3(static_cast<float>(assembly.highest[0]), static_cast<float>(assembly.highest[1]),
                                     static_cast<float>(assembly.highest[2]));
     out["triangles"] = triangles;
+    return out;
+}
+
+godot::PackedVector3Array KdKit::thing_triangles(int64_t id) const {
+    godot::PackedVector3Array out;
+    const auto found = things_.find(id);
+    if (found == things_.end()) {
+        return out;
+    }
+    const Thing& thing = found->second;
+    // the turn of put(): about up, by minus the thing's turn, then its place
+    const double angle = -thing.turn / 180.0;
+    const double c = num::cospi(angle);
+    const double s = num::sinpi(angle);
+    const double east = static_cast<double>(thing.east) / 100.0;
+    const double up = static_cast<double>(thing.up) / 100.0;
+    const double south = -static_cast<double>(thing.north) / 100.0;
+    out.resize(static_cast<int64_t>(thing.shape.size() / 3));
+    for (std::size_t i = 0; i + 2 < thing.shape.size(); i += 3) {
+        const double x = static_cast<double>(thing.shape[i]);
+        const double y = static_cast<double>(thing.shape[i + 1]);
+        const double z = static_cast<double>(thing.shape[i + 2]);
+        out.set(static_cast<int64_t>(i / 3),
+                godot::Vector3(static_cast<float>(c * x + s * z + east), static_cast<float>(y + up),
+                               static_cast<float>(-s * x + c * z + south)));
+    }
     return out;
 }
 
@@ -490,6 +531,7 @@ void KdKit::_bind_methods() {
                          &KdKit::place);
     ClassDB::bind_method(D_METHOD("place_part", "scenario", "family", "part", "east", "north", "up", "turn", "wear"),
                          &KdKit::place_part);
+    ClassDB::bind_method(D_METHOD("thing_triangles", "id"), &KdKit::thing_triangles);
     ClassDB::bind_method(D_METHOD("move", "id", "east", "north", "up", "turn"), &KdKit::move);
     ClassDB::bind_method(D_METHOD("remove", "id"), &KdKit::remove);
     ClassDB::bind_method(D_METHOD("set_layers", "layers"), &KdKit::set_layers);

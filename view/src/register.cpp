@@ -16,6 +16,7 @@
 #include "frames.hpp"
 #include "kit_draw.hpp"
 #include "look.hpp"
+#include "maps_draw.hpp"
 #include "world.hpp"
 #include "worlds.hpp"
 
@@ -34,6 +35,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdFigures>();
     godot::ClassDB::register_class<kd::view::KdKit>();
     godot::ClassDB::register_class<kd::view::KdArea>();
+    godot::ClassDB::register_class<kd::view::KdMaps>();
 }
 
 void uninitialize(godot::ModuleInitializationLevel /*level*/) {}
