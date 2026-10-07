@@ -144,7 +144,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "flint_nodules"
 name = "Flint and chert in their rock"
-what = "flint nodules in chalk, chert bands in limestone"
+what = "flint and chert in their rock"
+sheet = "sheets/2.20-flint_nodules.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "obsidian_outcrop"
