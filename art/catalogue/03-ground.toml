@@ -13,7 +13,9 @@ art_book = ["textures-a", "read-aids"]
 [[piece]]
 id = "conifer_floor"
 name = "Conifer forest floor"
-what = "needles, cones and moss"
+what = "a mat of fallen needles over dark humus, with moss cushions and lichen; cones, twigs, roots and mushrooms are pieces of their own"
+sheet = "sheets/3.2-conifer_floor.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "tundra"
