@@ -173,4 +173,6 @@ what = "bright crusts at the tops of copper-bearing rock"
 [[piece]]
 id = "native_copper"
 name = "Native copper"
-what = "rare small lumps of bare copper in ore rock"
+what = "native copper"
+sheet = "sheets/2.25-native_copper.webp"
+signed_off = "7 October 2026"
