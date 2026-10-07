@@ -119,8 +119,10 @@ art_book = ["d2-pixel-paint", "read-aids", "first-cave"]
 [[piece]]
 id = "outcrop"
 name = "Outcrops"
-what = "rock breaking through the ground"
+what = "outcrops"
 art_book = ["storm-close"]
+sheet = "sheets/2.17-outcrop.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "scree"
