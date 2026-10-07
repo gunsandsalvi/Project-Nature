@@ -32,7 +32,9 @@ what = "black glassy lava, the best stone for flaking"
 [[piece]]
 id = "sandstone"
 name = "Sandstone"
-what = "warm layered rock in red, yellow or buff"
+what = "warm layered rock of cemented sand in buff, yellow and rust: continuous beds, cross-bedding, rounded ledges and honeycomb hollows"
+sheet = "sheets/2.5-sandstone.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "shale"
