@@ -220,6 +220,16 @@ class Sheet(unittest.TestCase):
             self.assertEqual(ys.max() - ys.min() + 1, round(2.8 * s), "the front view is not 2.8 m tall")
 
     # checks: PRE-46
+    def test_the_true_size_row_leaves_out_a_zoom_where_the_picture_is_taller_than_the_screen(self):
+        def shown(metres, px_per_m):
+            return Image.new("RGB", (40, round(metres * px_per_m))), ""
+
+        tree = sheet.true_size_row(20, shown)  # 2,560 pixels at the closest zoom, 640 and 160 at the others
+        self.assertEqual([label.split(":")[0] for _, label in tree], ["The close camp", "The camp"])
+        tent = sheet.true_size_row(3, shown)
+        self.assertEqual(len(tent), 3, "a thing that fits every zoom lost one")
+
+    # checks: PRE-46
     def test_wide_views_stand_in_one_row_with_the_adult_and_every_colour_chip_shows(self):
         with tempfile.TemporaryDirectory() as d:
             drawn((1000, 800), [(RED, (100, 200, 900, 800))]).save(os.path.join(d, "front.png"))
