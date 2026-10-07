@@ -151,8 +151,10 @@ what = "a raised store for grain"
 [[piece]]
 id = "footbridge"
 name = "Footbridge"
-what = "logs laid over a stream"
+what = "footbridge"
 art_book = ["village-truthful"]
+sheet = "sheets/16.21-footbridge.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "sacred_house"
