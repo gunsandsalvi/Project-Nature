@@ -113,8 +113,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "boulders"
 name = "Boulders"
-what = "big rounded and broken stones lying on the land"
+what = "boulders"
 art_book = ["d2-pixel-paint", "read-aids", "first-cave"]
+sheet = "sheets/2.16-boulders.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "outcrop"
