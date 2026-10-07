@@ -18,7 +18,7 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The vertical slice was dropped on 6 October 2026, as you asked.
 - The graphics engine (M2) is being built: you chose its look and OK'd the 13 changes to `PROJECT.md` that follow from it.
   You OK'd its plan below, fifteen steps in six alphas, one of them only if needed, and its sections of the architecture (A4, A5, A6 and A8's near stops) on 6 October 2026: "Yes, that works. Let's start".
-- **The art lane** starts again from scratch, by your word of 7 October 2026: everything it had made was deleted, and it works from the catalogue (below) once you sign off its first pieces.
+- **The art lane** starts again from scratch, by your word of 7 October 2026: everything it had made was deleted, and it works from the catalogue (below) once the whole of it is signed off.
 - **Still open from pre-production:** the ground for the card and the book, and whether reading text should be larger (P12); your ears on the camp's sound (P14); the heat of a busy scene over ten minutes (P2); the writer, proved when M9 builds the book (P13); discovery's pace with the whole catalogue, at M7's scenes (`RSK-01`).
 
 ## The art lane
@@ -81,7 +81,7 @@ Every piece of art the game needs, worked out before any of it is made, as you a
   - flat even light on the front, side, back and top views, and the game's late-afternoon light on the camera views.
   - Ground, water, sky, effects and the interface take only what applies to them; a piece's views come once, its states and actions as rows; a piece the art book already shows starts from that picture.
   - What the world lays over a ground is a piece of its own, drawn once: the wear of paths and camp floors, wetness, frost and snow, and the water over a river bed; a ground's sheet shows only its own states, as you set on 7 October 2026.
-- **You sign off each piece** as its sheet is finished, as you asked on 7 October 2026; only signed-off pieces go to the art lane, in batches.
+- **You sign off each piece** as its sheet is finished, as you asked on 7 October 2026; the art lane starts once the whole catalogue is signed off, as you said the same day, and takes it in batches.
 - It is kept in `art/catalogue/`: a file of each group's pieces, and each piece's sheet.
 
 ## How to use this plan
