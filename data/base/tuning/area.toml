@@ -1,7 +1,7 @@
 # The stand-in area (A4.6, A5.3, PRE-23, PRE-26): a square of meadow with a river across it, in the pilot, until the
-# world's own ground comes (M3). The three surfaces it wears are the stand-ins' (art/textures/standin_*), whose names
-# change to the art lane's own (art:meadow, art:river_bed, art:river_marks) when their files arrive.
-ground = "art:standin_meadow"
+# world's own ground comes (M3). The meadow is the art lane's own (art:meadow); the river's bed and marks are stand-ins
+# (art/textures/standin_*) until the art lane's own (art:river_bed, art:river_marks) arrive.
+ground = "art:meadow"
 bed = "art:standin_river_bed"
 marks = "art:standin_river_marks"
 # the square's half side, and half the width of the strip of heightfield the river runs in

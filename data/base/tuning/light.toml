@@ -3,11 +3,11 @@
 # the light against the target card's late afternoon (data/base/card/late_afternoon.toml).
 sun_height = 28
 sun_turn = 215
-sun_colour = "#ffd9a0"
-sun_energy = "125%"
+sun_colour = "#fff6e8"
+sun_energy = "170%"
 sky_colour = "#b8c8d4"
 ambient_colour = "#b5b8bd"
-ambient_energy = "45%"
+ambient_energy = "60%"
 haze_colour = "#a8bccb"
 haze_sun_colour = "#f2cf9e"
 haze_density = "0.015%"

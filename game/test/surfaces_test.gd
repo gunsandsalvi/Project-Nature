@@ -26,23 +26,22 @@ func test_a_material_s_files_come_near_versions_first_then_the_middle_tile_s_the
 	var world := KdWorld.new()
 	var loaded := GameData.load_into(world)
 	var names := Surfaces.texture_names(loaded)
-	assert_array(names).contains(["art:standin_meadow", "art:standin_meadow/middle"])
-	var meadow := Surfaces.ladder(world, names, "standin_meadow")
+	assert_array(names).contains(["art:meadow", "art:meadow/middle", "art:meadow/far/v4"])
+	var meadow := Surfaces.ladder(world, names, "meadow")
 	assert_bool(meadow.has("problem")).is_false()
 	var count: PackedInt32Array = meadow["count"]
 	var first: PackedInt32Array = meadow["first"]
 	var paths: PackedStringArray = meadow["paths"]
-	assert_int(count[0]).is_greater_equal(2)
-	assert_int(count[1]).is_greater_equal(1)
-	assert_int(count[2]).is_greater_equal(1)
+	# four versions of each tile, by the owner's choice of 7 October 2026 (A5.3)
+	assert_array(Array(count)).is_equal([4, 4, 4])
 	assert_int(paths.size()).is_equal(count[0] + count[1] + count[2])
 	# the tiles start at the bands A5.3 gives them
 	assert_array(Array(first)).is_equal([0, 2, 4])
 	# the near tile first, its versions in order, then the middle and the far
-	assert_str(paths[0]).ends_with("/standin_meadow.kdtex")
-	assert_str(paths[1]).ends_with("/standin_meadow/v2.kdtex")
-	assert_str(paths[count[0]]).ends_with("/standin_meadow/middle.kdtex")
-	assert_str(paths[count[0] + count[1]]).ends_with("/standin_meadow/far.kdtex")
+	assert_str(paths[0]).ends_with("/meadow.kdtex")
+	assert_str(paths[1]).ends_with("/meadow/v2.kdtex")
+	assert_str(paths[count[0]]).ends_with("/meadow/middle.kdtex")
+	assert_str(paths[count[0] + count[1]]).ends_with("/meadow/far.kdtex")
 	for path: String in paths:
 		assert_bool(FileAccess.file_exists(path)).is_true()
 	# a material of one tile has the near tile alone, which every band reads
