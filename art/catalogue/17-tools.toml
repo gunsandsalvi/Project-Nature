@@ -15,7 +15,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "core"
 name = "Core"
-what = "the stone flakes are struck from"
+what = "Core"
+sheet = "sheets/17.2-core.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "flake"
