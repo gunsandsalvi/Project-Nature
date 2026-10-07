@@ -69,6 +69,7 @@ def with_stick(picture, metres_across, metres):
 
 
 KEY = (255, 0, 255)  # the flat magenta GPT draws objects on
+ASIDE = 230  # screen pixels beside an object's views for the adult, the stick and their labels
 ADULT = 1.7  # metres: the standing adult beside anything big
 FIGURE = (150, 143, 130)
 TALLEST = 520  # screen pixels the tallest thing on an object sheet may stand
@@ -76,9 +77,19 @@ ZOOMS = [("Up close", 128), ("The close camp", 32), ("The camp", 8)]  # screen p
 
 
 def solid(picture):
-    """Where the picture is not the key colour."""
+    """Where the picture is not the key colour. Where the drawing was blended into the key, its edge still leans to
+    magenta; such edge pixels count as key too, peeled twice, so no pink fringe is left round the cut-out."""
     rgb = np.asarray(picture.convert("RGB")).astype(np.int32)
-    return np.abs(rgb - KEY).sum(axis=2) > 120
+    on = np.abs(rgb - KEY).sum(axis=2) > 120
+    pink = (rgb[:, :, 0] - rgb[:, :, 1] > 60) & (rgb[:, :, 2] - rgb[:, :, 1] > 60)
+    for _ in range(2):
+        inner = on.copy()
+        inner[1:, :] &= on[:-1, :]
+        inner[:-1, :] &= on[1:, :]
+        inner[:, 1:] &= on[:, :-1]
+        inner[:, :-1] &= on[:, 1:]
+        on &= ~(pink & ~inner)
+    return on
 
 
 def spans(mask, least):
@@ -284,18 +295,22 @@ def fit(picture, width):
 
 def object_scale(spec, cut):
     """Screen pixels a metre for an object sheet, a whole number: as many as let its tallest view stand within
-    TALLEST and its widest fit the page beside the adult and the stick."""
-    room = WIDTH - 2 * MARGIN - 160
-    items = list(spec["views"]["items"]) + list(spec.get("camera_objects", {}).get("items", []))
-    items += [spec["above"]] if "above" in spec else []
-    items += [i for g in spec.get("groups", []) if g.get("scale", 1) == 1 for i in g["items"]]
-    best = float("inf")
-    for item in items:
+    TALLEST, its widest fit the page beside the adult and the stick, and its views stand in one row with them."""
+    room = WIDTH - 2 * MARGIN - ASIDE
+
+    def size(item):
         c = cut(item["file"])
         if "tall" in item:
-            h, w = item["tall"], item["tall"] * c.width / c.height
-        else:
-            w, h = item["across"], item["across"] * c.height / c.width
+            return item["tall"] * c.width / c.height, item["tall"]
+        return item["across"], item["across"] * c.height / c.width
+
+    views = spec["views"]["items"]
+    items = list(views) + list(spec.get("camera_objects", {}).get("items", []))
+    items += [spec["above"]] if "above" in spec else []
+    items += [i for g in spec.get("groups", []) if g.get("scale", 1) == 1 for i in g["items"]]
+    best = (room - GAP * (len(views) - 1)) / sum(size(i)[0] for i in views)
+    for item in items:
+        w, h = size(item)
         best = min(best, TALLEST / h, room / w)
     return max(1, int(best))
 
@@ -323,7 +338,7 @@ def compose_object(spec, sheet, folder):
 
     s = object_scale(spec, cut)
     views = spec["views"]
-    sheet.text(f"Front, side and back, flat light, at one scale: {s} screen pixels a metre.", 26, bold=True)
+    sheet.text(f"Seen flat on, in flat light, at one scale: {s} screen pixels a metre.", 26, bold=True)
     row = [shown(i, s) for i in views["items"]]
     sheet.figures(standing(row, s, views.get("stick", 1), views.get("adult", False)))
     if "above" in spec:
@@ -368,19 +383,18 @@ def compose(spec, folder):
     sheet.text(spec["about"], 24, QUIET, after=14)
 
     chips = spec.get("palette", [])
-    if chips:
+    per_row = (WIDTH - 2 * MARGIN + 8) // 136
+    for start in range(0, len(chips), per_row):
 
-        def paint_chips(page, draw, y):
+        def paint_chips(page, draw, y, row=chips[start : start + per_row]):
             x = MARGIN
-            for name, hex_code in chips:
+            for name, hex_code in row:
                 colour = tuple(int(hex_code[i : i + 2], 16) for i in (1, 3, 5))
                 draw.rectangle([x, y, x + 128, y + 44], fill=colour, outline=EDGE)
                 draw.text((x, y + 48), hex_code, fill=INK, font=font(16, True))
                 if name:
                     draw.text((x, y + 68), name, fill=QUIET, font=font(15))
                 x += 128 + 8
-                if x + 128 > WIDTH - MARGIN:
-                    break
 
         sheet.add(100, paint_chips)
 

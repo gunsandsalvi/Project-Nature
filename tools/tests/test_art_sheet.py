@@ -115,6 +115,15 @@ class Sheet(unittest.TestCase):
         self.assertEqual(sheet.to_scale(cut, 0.5, 300, "across").size, (150, 450))
 
     # checks: PRE-46
+    def test_the_pink_fringe_where_a_drawing_was_blended_into_magenta_is_peeled(self):
+        blend = tuple((np.array(RED) + np.array(sheet.KEY)) // 2)
+        cut = sheet.cut_out(drawn((300, 300), [(blend, (98, 98, 202, 202)), (RED, (100, 100, 200, 200))]))
+        self.assertEqual(cut.size, (100, 100), "the blended edge was kept")
+        kept = np.asarray(cut).astype(int)
+        pink = (kept[:, :, 3] > 0) & (kept[:, :, 0] - kept[:, :, 1] > 60) & (kept[:, :, 2] - kept[:, :, 1] > 60)
+        self.assertFalse(pink.any(), "a pink fringe is left round the cut-out")
+
+    # checks: PRE-46
     def test_a_strip_of_poses_is_scaled_as_one_from_its_first_pose(self):
         strip = drawn((900, 500), [(RED, (50, 60, 150, 460)), (BLUE, (400, 260, 600, 460))])
         first, second = sheet.poses(strip, 1.7, 100)
@@ -160,6 +169,34 @@ class Sheet(unittest.TestCase):
             red = np.asarray(page.convert("RGB")).astype(int)
             ys = np.nonzero((np.abs(red - RED).sum(axis=2) == 0).any(axis=1))[0]
             self.assertEqual(ys.max() - ys.min() + 1, round(2.8 * s), "the front view is not 2.8 m tall")
+
+    # checks: PRE-46
+    def test_wide_views_stand_in_one_row_with_the_adult_and_every_colour_chip_shows(self):
+        with tempfile.TemporaryDirectory() as d:
+            drawn((1000, 800), [(RED, (100, 200, 900, 800))]).save(os.path.join(d, "front.png"))
+            drawn((1000, 800), [(BLUE, (100, 200, 900, 800))]).save(os.path.join(d, "side.png"))
+            chips = [["", f"#{40 + 20 * i:02X}5A1E"] for i in range(9)]
+            views = [{"file": "front.png", "tall": 3}, {"file": "side.png", "tall": 3}]
+            spec = {
+                "number": "16.4",
+                "name": "Hide tent",
+                "about": "A test piece: two views each 4 m wide.",
+                "palette": chips,
+                "views": {"items": views, "stick": 1, "adult": True},
+            }
+            with open(os.path.join(d, "spec.json"), "w") as f:
+                json.dump(spec, f)
+            out = os.path.join(d, "sheet.png")
+            self.assertEqual(sheet.main(["sheet.py", os.path.join(d, "spec.json"), d, out]), 0)
+            page = np.asarray(Image.open(out).convert("RGB")).astype(int)
+
+            def lowest(colour):
+                return np.nonzero((np.abs(page - colour).sum(axis=2) == 0).any(axis=1))[0].max()
+
+            for colour, name in ((RED, "front"), (BLUE, "side")):
+                self.assertLessEqual(abs(lowest(colour) - lowest(sheet.FIGURE)), 1, f"the {name} and the adult part")
+            last = tuple(int(chips[-1][1][i : i + 2], 16) for i in (1, 3, 5))
+            self.assertTrue((np.abs(page - last).sum(axis=2) == 0).any(), "the ninth colour chip is missing")
 
 
 if __name__ == "__main__":
