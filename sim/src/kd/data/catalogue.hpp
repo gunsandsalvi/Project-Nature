@@ -63,11 +63,16 @@ struct Entry {
     std::vector<Mark> marks;
 };
 
+/// Where a kind's entries live in a source: a file each in its folder, `<folder>/<name>.toml`; one entry, the file
+/// `<folder>.toml`; or a folder each holding its record, `<folder>/<name>/record.toml`, as the art lane's textures are
+/// laid out (A5.4), a name such as "meadow/middle/v2" taking a part a folder.
+enum class Layout : std::uint8_t { files, single, records };
+
 /// What every kind does, whatever its fields.
 class KindBase {
 public:
-    KindBase(std::string folder, std::string about, bool single)
-        : folder_(std::move(folder)), about_(std::move(about)), single_(single) {}
+    KindBase(std::string folder, std::string about, Layout layout)
+        : folder_(std::move(folder)), about_(std::move(about)), layout_(layout) {}
     virtual ~KindBase() = default;
     KindBase(const KindBase&) = delete;
     KindBase& operator=(const KindBase&) = delete;
@@ -76,7 +81,8 @@ public:
     [[nodiscard]] const std::string& folder() const { return folder_; }
     [[nodiscard]] const std::string& about() const { return about_; }
     /// One entry, the file <source>/<folder>.toml, rather than a folder of them.
-    [[nodiscard]] bool single() const { return single_; }
+    [[nodiscard]] bool single() const { return layout_ == Layout::single; }
+    [[nodiscard]] Layout layout() const { return layout_; }
 
     virtual void add(std::string name, const std::string& file, const Value& table, std::vector<Problem>& problems) = 0;
     virtual void sort() = 0;
@@ -103,7 +109,7 @@ public:
 private:
     std::string folder_;
     std::string about_;
-    bool single_;
+    Layout layout_;
 };
 
 /// A kind of entry, T being a struct with the one visit() that describes its fields (kd/data/schema.hpp).
@@ -211,8 +217,8 @@ public:
     Catalogue();
 
     template <typename T>
-    void add_kind(std::string folder, std::string about, bool single = false) {
-        kinds_.push_back(std::make_unique<Kind<T>>(std::move(folder), std::move(about), single));
+    void add_kind(std::string folder, std::string about, Layout layout = Layout::files) {
+        kinds_.push_back(std::make_unique<Kind<T>>(std::move(folder), std::move(about), layout));
         std::stable_sort(kinds_.begin(), kinds_.end(),
                          [](const auto& a, const auto& b) { return a->folder() < b->folder(); });
     }

@@ -17,4 +17,13 @@ namespace kd::data {
 /// folder, such as "scenes/look/c1.toml"; in no order, and none if the folder is not there.
 [[nodiscard]] std::vector<SourceFile> read_files_in(const std::string& folder, const std::string& within);
 
+/// The art lane's source in a folder that holds art/ (A5.4): art/source.toml and each texture's record under
+/// art/textures/, such as "art/textures/meadow/middle/record.toml", by their paths from that folder; nothing else
+/// under art/ is the catalogue's, and none if art/source.toml is not there.
+[[nodiscard]] std::vector<SourceFile> read_art(const std::string& top);
+
+/// The catalogue's files for a data folder: every .toml file under it but its scenes, and in the repository, where
+/// the art lane's source lies beside the data folder rather than in it as on the phone, that source's too.
+[[nodiscard]] std::vector<SourceFile> read_catalogue(const std::string& folder);
+
 }  // namespace kd::data

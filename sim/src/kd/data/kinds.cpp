@@ -9,6 +9,7 @@
 #include "kd/demo/crowd.hpp"
 #include "kd/demo/marker.hpp"
 #include "kd/look/card.hpp"
+#include "kd/look/texture.hpp"
 #include "kd/run/heat_tuning.hpp"
 #include "kd/run/save_tuning.hpp"
 #include "kd/time/speeds.hpp"
@@ -18,11 +19,15 @@ namespace kd::data {
 Catalogue::Catalogue() {
     add_kind<look::Moment>("card", "a moment's bands on the target card, from the pictures you chose (PRE-01)");
     add_kind<demo::Marker>("marker", "a kind of the demonstration's markers, which walk, meet and greet (MAT-16)");
-    add_kind<look::CardTuning>("tuning/card", "the target card's goals and slack (PRE-01)", true);
-    add_kind<demo::Crowd>("tuning/crowd", "the demonstration's crowd: its camps, markers and greetings (MAT-16)", true);
-    add_kind<run::HeatTuning>("tuning/heat", "how time slows before the phone throttles (PLT-01)", true);
-    add_kind<run::SaveTuning>("tuning/saves", "how often a running world is saved (PLT-07)", true);
-    add_kind<time::ZoomSpeeds>("tuning/time", "the speeds of time at the zoom stops (TIM-01)", true);
+    add_kind<look::Texture>("textures",
+                            "a texture's record: its levels, where it came from, its checks and your OK (PRE-20)",
+                            Layout::records);
+    add_kind<look::CardTuning>("tuning/card", "the target card's goals and slack (PRE-01)", Layout::single);
+    add_kind<demo::Crowd>("tuning/crowd", "the demonstration's crowd: its camps, markers and greetings (MAT-16)",
+                          Layout::single);
+    add_kind<run::HeatTuning>("tuning/heat", "how time slows before the phone throttles (PLT-01)", Layout::single);
+    add_kind<run::SaveTuning>("tuning/saves", "how often a running world is saved (PLT-07)", Layout::single);
+    add_kind<time::ZoomSpeeds>("tuning/time", "the speeds of time at the zoom stops (TIM-01)", Layout::single);
 }
 
 namespace {

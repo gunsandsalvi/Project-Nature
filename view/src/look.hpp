@@ -52,6 +52,12 @@ public:
 
     /// Builds the ground's texture array from .kdtex files, one layer each, all one size; "" or the problem.
     godot::String load_layers(const godot::PackedStringArray& paths);
+    /// A .kdtex file as one image whose mipmaps are its own levels (A5.4): {"image": the Image, "problem": ""}, or
+    /// the problem and no image.
+    [[nodiscard]] godot::Dictionary texture_image(const godot::String& path) const;
+    /// A .kdtex file's levels, each an image of its own, largest first, for the Lab page: {"levels": an Array of
+    /// Image, "problem": ""}, or the problem and none.
+    [[nodiscard]] godot::Dictionary texture_levels(const godot::String& path) const;
     /// Puts the stand-in ground on the stage and draws it into the scenario with the ground shader.
     void build(const godot::RID& scenario, const godot::RID& shader);
     /// Shows or hides a part of the drawing: "ground" or "pattern". Never touches a world.

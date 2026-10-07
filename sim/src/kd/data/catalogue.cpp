@@ -15,6 +15,21 @@ bool valid_name(std::string_view name) {
                        [](char c) { return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_'; });
 }
 
+// A record's name, its folders below its kind's joined by /: each a valid name.
+bool valid_path(std::string_view path) {
+    std::size_t from = 0;
+    while (true) {
+        const std::size_t slash = path.find('/', from);
+        if (!valid_name(path.substr(from, slash == std::string_view::npos ? std::string_view::npos : slash - from))) {
+            return false;
+        }
+        if (slash == std::string_view::npos) {
+            return true;
+        }
+        from = slash + 1;
+    }
+}
+
 std::string joined(std::string_view a, char between, std::string_view b) {
     std::string out(a);
     out += between;
@@ -200,6 +215,8 @@ std::vector<Problem> Catalogue::load(std::span<const SourceFile> files) {
     for (const auto& k : kinds_) {
         folders += (folders.empty() ? "" : ", ") + k->folder() + (k->single() ? ".toml" : "/");
     }
+    // a record's entry is the folder it is in, below its kind's: "textures/meadow/middle/record" is "meadow/middle"
+    constexpr std::string_view kRecord = "/record";
     for (std::size_t n = 0; n < sorted.size(); ++n) {
         const SourceFile* f = sorted[n];
         const std::string& path = f->path;
@@ -240,10 +257,18 @@ std::vector<Problem> Catalogue::load(std::span<const SourceFile> files) {
         if (kind == nullptr) {
             const std::size_t last = rest.rfind('/');
             for (const auto& k : kinds_) {
-                if (last != std::string::npos && !k->single() && k->folder() == rest.substr(0, last)) {
+                if (last != std::string::npos && k->layout() == Layout::files && k->folder() == rest.substr(0, last)) {
                     kind = k.get();
                     entry = rest.substr(last + 1);
                 }
+            }
+        }
+        for (const auto& k : kinds_) {
+            const std::string within = k->folder() + "/";
+            if (kind == nullptr && k->layout() == Layout::records && rest.starts_with(within) &&
+                rest.ends_with(kRecord) && rest.size() > within.size() + kRecord.size()) {
+                kind = k.get();
+                entry = rest.substr(within.size(), rest.size() - within.size() - kRecord.size());
             }
         }
         if (kind == nullptr) {
@@ -251,8 +276,11 @@ std::vector<Problem> Catalogue::load(std::span<const SourceFile> files) {
             continue;
         }
         std::string name = joined(source, ':', entry);
-        if (!valid_name(entry)) {
-            std::string what = "a name is in lower case letters, digits and _, starting with a letter: \"";
+        const bool records = kind->layout() == Layout::records;
+        if (records ? !valid_path(entry) : !valid_name(entry)) {
+            std::string what = records ? "a record's name is its folders, each in lower case letters, digits and _, "
+                                         "starting with a letter: \""
+                                       : "a name is in lower case letters, digits and _, starting with a letter: \"";
             what += name;
             what += "\" is not";
             problem(path, std::move(what));

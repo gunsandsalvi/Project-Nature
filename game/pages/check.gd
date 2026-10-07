@@ -1,10 +1,15 @@
 ## The self-check (A2.3): what the phone is and what it computes, each line green when it holds,
 ## amber when it is worth a look, red when it fails, and every line copied with one tap for the
 ## chat. Implements PLT-01 and RES-05: the phone computes the same bits as the cloud, on one thread
-## and four; and MAT-13: it reads the same catalogues.
+## and four; MAT-13: it reads the same catalogues; and PRE-20: the same textures, made and uploaded
+## within the time a world may take to open and A18.1's texture memory.
 extends VBoxContainer
 
 const BUILD_DATA := "res://data/build.toml"
+## A world opens within 3 seconds (PLT-04), its textures with it; textures hold at most 300 MB
+## (A18.1).
+const TEXTURES_MS_MOST := 3000.0
+const TEXTURES_MB_MOST := 300.0
 const COLOURS := {
 	"ok": Palette.GOOD,
 	"warn": Palette.WARN,
@@ -79,6 +84,7 @@ func build() -> void:
 	_add("Storage", _short_mount(device.storage()), "info")
 	_add_same_bits(device)
 	_add_catalogue()
+	_add_textures()
 	_add_saves()
 
 
@@ -349,6 +355,52 @@ func _add_catalogue() -> void:
 	if mine != theirs:
 		why.append("digests %s here, %s in the build" % [" | ".join(mine), " | ".join(theirs)])
 	_add("Catalogues", "; ".join(why), "fail")
+
+
+## The textures the phone reads against the build's (A5.4): the same files, byte for byte, each
+## made into an image whose mipmaps are its own levels and uploaded, in how long and in how much
+## memory.
+func _add_textures() -> void:
+	var listed: Array = GameData.build().get_value("textures", "files", [])
+	if listed.is_empty():
+		_add("Textures", "the build lists no textures", "fail")
+		return
+	var look := KdLook.new()
+	var differ := PackedStringArray()
+	var problems := PackedStringArray()
+	var bytes := 0
+	var uploaded: Array[ImageTexture] = []
+	var started := Time.get_ticks_usec()
+	for item: String in listed:
+		var words := item.split(" ")
+		var path := "res://data/textures/" + words[0]
+		if FileAccess.get_sha256(path) != words[1]:
+			differ.append(words[0])
+			continue
+		var read := look.texture_image(path)
+		if str(read["problem"]) != "":
+			problems.append(str(read["problem"]))
+			continue
+		var image: Image = read["image"]
+		bytes += image.get_data_size()
+		uploaded.append(ImageTexture.create_from_image(image))
+	var ms := (Time.get_ticks_usec() - started) / 1000.0
+	var mb := bytes / 1.0e6
+	var value := (
+		"%d textures, %.1f MB with their levels, made and uploaded in %.0f ms"
+		% [uploaded.size(), mb, ms]
+	)
+	if not differ.is_empty():
+		value += "; files unlike the build's: " + ", ".join(differ)
+	if not problems.is_empty():
+		value += "; problems: " + "; ".join(problems)
+	var good := (
+		differ.is_empty()
+		and problems.is_empty()
+		and ms <= TEXTURES_MS_MOST
+		and mb <= TEXTURES_MB_MOST
+	)
+	_add("Textures", value, "ok" if good else "fail")
 
 
 func _short_mount(line: String) -> String:

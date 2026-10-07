@@ -180,7 +180,7 @@ int catalogue(const std::vector<std::string_view>& args) {
         std::fprintf(stderr, "kindling: no data folder at %s\n", folder.c_str());
         return 1;
     }
-    const std::vector<kd::data::SourceFile> files = kd::data::read_folder(folder);
+    const std::vector<kd::data::SourceFile> files = kd::data::read_catalogue(folder);
     kd::data::Catalogue cat;
     std::vector<kd::data::Problem> problems = cat.load(files);
     // the checks on the whole catalogue (MAT-17) run once it loads, since their faults would echo the loader's
@@ -208,7 +208,10 @@ int catalogue(const std::vector<std::string_view>& args) {
     }
     if (command == "schema") {
         for (const auto& k : cat.kinds()) {
-            std::printf("%s%s: %s\n%s\n", k->folder().c_str(), k->single() ? ".toml" : "/<name>.toml",
+            std::printf("%s%s: %s\n%s\n", k->folder().c_str(),
+                        k->single()                                ? ".toml"
+                        : k->layout() == kd::data::Layout::records ? "/<name>/record.toml"
+                                                                   : "/<name>.toml",
                         k->about().c_str(), k->schema().c_str());
         }
         return 0;
@@ -234,8 +237,8 @@ int catalogue(const std::vector<std::string_view>& args) {
         for (const auto& k : cat.kinds()) {
             for (std::size_t i = 0; i < k->size(); ++i) {
                 if (k->name(i) == args[1]) {
-                    std::printf("%s, a %s from %s\n%s", k->name(i).c_str(), k->folder().c_str(), k->file(i).c_str(),
-                                k->display(i).c_str());
+                    std::printf("%s, of the kind in %s/, from %s\n%s", k->name(i).c_str(), k->folder().c_str(),
+                                k->file(i).c_str(), k->display(i).c_str());
                     return 0;
                 }
             }
@@ -277,7 +280,7 @@ int run_world(const std::vector<std::string_view>& args) {
     if (days < 1 || camps == 0 || camps < -1 || window < 0 || threads < 1 || threads > 16) {
         return usage();
     }
-    const std::vector<kd::data::SourceFile> files = kd::data::read_folder(folder);
+    const std::vector<kd::data::SourceFile> files = kd::data::read_catalogue(folder);
     kd::data::Catalogue cat;
     const std::vector<kd::data::Problem> problems = cat.load(files);
     for (const kd::data::Problem& p : problems) {
@@ -364,7 +367,7 @@ int keep(const std::vector<std::string_view>& args) {
         return usage();
     }
     std::sort(calls.begin(), calls.end());
-    const std::vector<kd::data::SourceFile> files = kd::data::read_folder(data);
+    const std::vector<kd::data::SourceFile> files = kd::data::read_catalogue(data);
     kd::data::Catalogue cat;
     if (!cat.load(files).empty()) {
         std::fprintf(stderr, "kindling: the catalogue under %s does not load\n", data.c_str());
@@ -539,7 +542,7 @@ int scene_command(const std::vector<std::string_view>& args) {
     }
     std::filesystem::create_directories(out);
     kd::data::Catalogue cat;
-    if (!cat.load(kd::data::read_folder(data)).empty()) {
+    if (!cat.load(kd::data::read_catalogue(data)).empty()) {
         std::fprintf(stderr, "kindling: the catalogue under %s does not load\n", data.c_str());
         return 1;
     }
@@ -710,7 +713,7 @@ int bench_command(const std::vector<std::string_view>& args) {
     const std::size_t data_at = decoding ? 2 : 0;
     const std::string data = args.size() > data_at ? std::string(args[data_at]) : "data";
     kd::data::Catalogue cat;
-    if (!cat.load(kd::data::read_folder(data)).empty()) {
+    if (!cat.load(kd::data::read_catalogue(data)).empty()) {
         std::fprintf(stderr, "kindling: the catalogue under %s does not load\n", data.c_str());
         return 1;
     }
@@ -1132,7 +1135,7 @@ int look(const std::vector<std::string_view>& args) {
             return 1;
         }
         kd::data::Catalogue cat;
-        const std::vector<kd::data::Problem> problems = cat.load(kd::data::read_folder(folder));
+        const std::vector<kd::data::Problem> problems = cat.load(kd::data::read_catalogue(folder));
         for (const kd::data::Problem& p : problems) {
             std::fprintf(stderr, "%s\n", kd::data::problem_text(p).c_str());
         }

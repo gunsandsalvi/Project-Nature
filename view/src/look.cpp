@@ -67,6 +67,67 @@ std::int64_t modulo(std::int64_t a, std::int64_t b) {
     return m < 0 ? m + b : m;
 }
 
+// A .kdtex file's levels, each an RGBA8 image, largest first, each half the one before and the last one texture pixel
+// across; or the problem, and none.
+struct ReadLevels {
+    std::vector<godot::Ref<godot::Image>> images;
+    godot::String problem;
+};
+
+ReadLevels read_levels(const godot::String& path) {
+    ReadLevels out;
+    const godot::PackedByteArray bytes = godot::FileAccess::get_file_as_bytes(path);
+    if (bytes.is_empty()) {
+        out.problem = godot::String("no texture at ") + path;
+        return out;
+    }
+    const Levels levels = split_levels(std::span<const std::uint8_t>(bytes.ptr(), bytes.size()));
+    if (!levels.problem.empty()) {
+        out.problem = path + godot::String(": ") + godot::String(levels.problem.c_str());
+        return out;
+    }
+    std::int64_t width = 0;
+    for (std::size_t i = 0; i < levels.pictures.size(); ++i) {
+        godot::PackedByteArray png;
+        png.resize(static_cast<int64_t>(levels.pictures[i].size()));
+        std::memcpy(png.ptrw(), levels.pictures[i].data(), levels.pictures[i].size());
+        godot::Ref<godot::Image> image;
+        image.instantiate();
+        if (image->load_png_from_buffer(png) != godot::OK) {
+            out.problem = path + godot::String(": level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
+                          godot::String(" is not a PNG");
+            out.images.clear();
+            return out;
+        }
+        image->convert(godot::Image::FORMAT_RGBA8);
+        if (i == 0) {
+            width = image->get_width();
+        }
+        if (image->get_width() != (width >> i) || image->get_height() != (width >> i)) {
+            out.problem = path + godot::String(": level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
+                          godot::String(" is not half the size of the one before");
+            out.images.clear();
+            return out;
+        }
+        out.images.push_back(image);
+    }
+    if (width == 0 || (width >> (levels.pictures.size() - 1)) != 1) {
+        out.problem = path + godot::String(": its levels do not run down to one texture pixel");
+        out.images.clear();
+    }
+    return out;
+}
+
+// One image of the levels, its mipmaps our own levels rather than Godot's averaged ones (A5.3).
+godot::Ref<godot::Image> with_levels(const std::vector<godot::Ref<godot::Image>>& images) {
+    godot::PackedByteArray all;
+    for (const godot::Ref<godot::Image>& image : images) {
+        all.append_array(image->get_data());
+    }
+    const auto width = static_cast<int32_t>(images[0]->get_width());
+    return godot::Image::create_from_data(width, width, true, godot::Image::FORMAT_RGBA8, all);
+}
+
 }  // namespace
 
 KdLook::~KdLook() {
@@ -173,51 +234,44 @@ godot::String KdLook::load_layers(const godot::PackedStringArray& paths) {
     godot::TypedArray<godot::Image> images;
     std::int64_t side = 0;
     for (const godot::String& path : paths) {
-        const godot::PackedByteArray bytes = godot::FileAccess::get_file_as_bytes(path);
-        if (bytes.is_empty()) {
-            return godot::String("no texture at ") + path;
+        const ReadLevels read = read_levels(path);
+        if (!read.problem.is_empty()) {
+            return read.problem;
         }
-        const Levels levels = split_levels(std::span<const std::uint8_t>(bytes.ptr(), bytes.size()));
-        if (!levels.problem.empty()) {
-            return path + godot::String(": ") + godot::String(levels.problem.c_str());
-        }
-        godot::PackedByteArray all;
-        std::int64_t width = 0;
-        for (std::size_t i = 0; i < levels.pictures.size(); ++i) {
-            godot::PackedByteArray png;
-            png.resize(static_cast<int64_t>(levels.pictures[i].size()));
-            std::memcpy(png.ptrw(), levels.pictures[i].data(), levels.pictures[i].size());
-            godot::Ref<godot::Image> image;
-            image.instantiate();
-            if (image->load_png_from_buffer(png) != godot::OK) {
-                return path + godot::String(": level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
-                       godot::String(" is not a PNG");
-            }
-            image->convert(godot::Image::FORMAT_RGBA8);
-            if (i == 0) {
-                width = image->get_width();
-            }
-            if (image->get_width() != (width >> i) || image->get_height() != (width >> i)) {
-                return path + godot::String(": level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
-                       godot::String(" is not half the size of the one before");
-            }
-            all.append_array(image->get_data());
-        }
-        if (width == 0 || (width >> (levels.pictures.size() - 1)) != 1) {
-            return path + godot::String(": its levels do not run down to one texture pixel");
-        }
+        const std::int64_t width = read.images[0]->get_width();
         if (side != 0 && width != side) {
             return path + godot::String(": a layer of another size");
         }
         side = width;
-        images.push_back(godot::Image::create_from_data(static_cast<int32_t>(width), static_cast<int32_t>(width), true,
-                                                        godot::Image::FORMAT_RGBA8, all));
+        images.push_back(with_levels(read.images));
     }
     if (layers_.is_valid()) {
         server().free_rid(layers_);
     }
     layers_ = server().texture_2d_layered_create(images, godot::RenderingServer::TEXTURE_LAYERED_2D_ARRAY);
     return "";
+}
+
+godot::Dictionary KdLook::texture_image(const godot::String& path) const {
+    const ReadLevels read = read_levels(path);
+    godot::Dictionary out;
+    out["problem"] = read.problem;
+    if (read.problem.is_empty()) {
+        out["image"] = with_levels(read.images);
+    }
+    return out;
+}
+
+godot::Dictionary KdLook::texture_levels(const godot::String& path) const {
+    const ReadLevels read = read_levels(path);
+    godot::Dictionary out;
+    out["problem"] = read.problem;
+    godot::Array levels;
+    for (const godot::Ref<godot::Image>& image : read.images) {
+        levels.append(image);
+    }
+    out["levels"] = levels;
+    return out;
 }
 
 void KdLook::build(const godot::RID& scenario, const godot::RID& shader) {
@@ -443,6 +497,8 @@ void KdLook::_bind_methods() {
     ClassDB::bind_method(D_METHOD("pose"), &KdLook::pose);
     ClassDB::bind_method(D_METHOD("state"), &KdLook::state);
     ClassDB::bind_method(D_METHOD("load_layers", "paths"), &KdLook::load_layers);
+    ClassDB::bind_method(D_METHOD("texture_image", "path"), &KdLook::texture_image);
+    ClassDB::bind_method(D_METHOD("texture_levels", "path"), &KdLook::texture_levels);
     ClassDB::bind_method(D_METHOD("build", "scenario", "shader"), &KdLook::build);
     ClassDB::bind_method(D_METHOD("set_part", "part", "on"), &KdLook::set_part);
     ClassDB::bind_method(D_METHOD("set_shader", "shader"), &KdLook::set_shader);

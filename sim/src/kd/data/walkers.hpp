@@ -62,6 +62,18 @@ public:
             d.text(n);
         }
     }
+    void texts(const Field& f, const std::vector<std::string>& v) { names(f, v); }
+    /// Each record by everything in it, in the record field's own digest.
+    template <typename R>
+    void records(const Field& f, const std::vector<R>& v) {
+        num::Digest& d = put(f);
+        d.u64(v.size());
+        for (const R& r : v) {
+            Fingerprinter inner;
+            R::visit(inner, r);
+            d.u64(inner.digests().all);
+        }
+    }
 
     [[nodiscard]] EntryDigests digests();
 
@@ -94,12 +106,23 @@ public:
         line(f, "a list of names of " + std::string(kind) + " entries");
     }
     void names(const Field& f, const std::vector<std::string>& /*v*/) { line(f, "a list of names, in quotes"); }
+    void texts(const Field& f, const std::vector<std::string>& /*v*/) { line(f, "a list of texts, in quotes"); }
+    template <typename R>
+    void records(const Field& f, const std::vector<R>& /*v*/) {
+        line(f, "a list of tables, each written [[" + std::string(f.key) + "]], with these fields");
+        SchemaWriter inner;
+        const R blank{};
+        R::visit(inner, blank);
+        nested(inner.text());
+    }
 
     [[nodiscard]] const std::string& text() const { return text_; }
 
 private:
     static std::string span(Range range, std::string_view unit);
     void line(const Field& f, const std::string& what);
+    /// A record's fields, under the line that names its table, two spaces further in.
+    void nested(const std::string& lines);
 
     std::string text_;
 };
@@ -121,6 +144,16 @@ public:
     void link(const Field& f, const Ref& v, std::string_view /*kind*/) { line(f, v.name); }
     void links(const Field& f, const std::vector<Ref>& v, std::string_view /*kind*/);
     void names(const Field& f, const std::vector<std::string>& v);
+    void texts(const Field& f, const std::vector<std::string>& v);
+    /// Each record as a table of its own, [[key]] and its lines.
+    template <typename R>
+    void records(const Field& f, const std::vector<R>& v) {
+        for (const R& r : v) {
+            Display inner;
+            R::visit(inner, r);
+            text_ += "[[" + std::string(f.key) + "]]\n" + inner.text();
+        }
+    }
 
     [[nodiscard]] const std::string& text() const { return text_; }
 
@@ -171,6 +204,17 @@ public:
         }
     }
     void names(const Field& f, const std::vector<std::string>& v) { add(f, FieldValue::Kind::list).list = v; }
+    void texts(const Field& f, const std::vector<std::string>& v) { add(f, FieldValue::Kind::list).list = v; }
+    /// Each record as one line of its fields, "key = value; ...".
+    template <typename R>
+    void records(const Field& f, const std::vector<R>& v) {
+        FieldValue& out = add(f, FieldValue::Kind::list);
+        for (const R& r : v) {
+            Display inner;
+            R::visit(inner, r);
+            out.list.push_back(one_line(inner.text()));
+        }
+    }
 
     [[nodiscard]] std::vector<FieldValue> values() && { return std::move(values_); }
 
@@ -180,6 +224,7 @@ private:
         return values_.back();
     }
     void number(const Field& f, std::int64_t v) { add(f, FieldValue::Kind::whole).whole = v; }
+    static std::string one_line(const std::string& lines);
 
     std::vector<FieldValue> values_;
 };
@@ -213,6 +258,11 @@ public:
     void link(const Field& f, const Ref& /*v*/, std::string_view /*kind*/) { other(f); }
     void links(const Field& f, const std::vector<Ref>& /*v*/, std::string_view /*kind*/) { other(f); }
     void names(const Field& f, const std::vector<std::string>& /*v*/) { other(f); }
+    void texts(const Field& f, const std::vector<std::string>& /*v*/) { other(f); }
+    template <typename R>
+    void records(const Field& f, const std::vector<R>& /*v*/) {
+        other(f);
+    }
 
     [[nodiscard]] Picked picked() const { return picked_; }
 
@@ -254,6 +304,14 @@ public:
     void chance(const Field& /*f*/, num::Probability& /*v*/) {}
     void duration(const Field& /*f*/, time::Duration& /*v*/) {}
     void names(const Field& /*f*/, std::vector<std::string>& /*v*/) {}
+    void texts(const Field& /*f*/, std::vector<std::string>& /*v*/) {}
+    /// The links in each record, as in the entry itself.
+    template <typename R>
+    void records(const Field& /*f*/, std::vector<R>& v) {
+        for (R& r : v) {
+            R::visit(*this, r);
+        }
+    }
     void link(const Field& f, Ref& v, std::string_view kind);
     /// Each link resolved, and one naming an entry already listed refused, however it was written.
     void links(const Field& f, std::vector<Ref>& v, std::string_view kind);

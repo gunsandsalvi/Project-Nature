@@ -54,6 +54,16 @@ void SchemaWriter::line(const Field& f, const std::string& what) {
              std::string(kAffects[static_cast<std::size_t>(f.affects)]) + ". " + std::string(f.about) + "\n";
 }
 
+void SchemaWriter::nested(const std::string& lines) {
+    std::size_t from = 0;
+    while (from < lines.size()) {
+        const std::size_t end = lines.find('\n', from);
+        const std::size_t to = end == std::string::npos ? lines.size() : end + 1;
+        text_ += "  " + lines.substr(from, to - from);
+        from = to;
+    }
+}
+
 void SchemaWriter::choice(const Field& f, const std::string& /*v*/, std::initializer_list<std::string_view> options) {
     std::string list;
     for (std::string_view o : options) {
@@ -98,6 +108,26 @@ void Display::names(const Field& f, const std::vector<std::string>& v) {
         list += (list.empty() ? "" : ", ") + n;
     }
     line(f, "[" + list + "]");
+}
+
+void Display::texts(const Field& f, const std::vector<std::string>& v) {
+    std::string list;
+    for (const std::string& t : v) {
+        list += (list.empty() ? "\"" : ", \"") + t + "\"";
+    }
+    line(f, "[" + list + "]");
+}
+
+std::string Valuer::one_line(const std::string& lines) {
+    std::string out;
+    std::size_t from = 0;
+    while (from < lines.size()) {
+        const std::size_t end = lines.find('\n', from);
+        const std::size_t to = end == std::string::npos ? lines.size() : end;
+        out += (out.empty() ? "" : "; ") + lines.substr(from, to - from);
+        from = to + 1;
+    }
+    return out;
 }
 
 void Resolver::links(const Field& f, std::vector<Ref>& v, std::string_view kind) {

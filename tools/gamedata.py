@@ -5,16 +5,18 @@ itself with (A2.3, A3.6), and the scenes' last reports with a world each (A17).
     python3 tools/gamedata.py <kindling tool>
 
 It checks the catalogue with the cloud's own build of the simulation (the kindling tool) and refuses to go on if it
-finds a problem; copies every .toml file under data/ but its scenes into game/data/, in the same folders, and
-removes any it no longer holds; runs every proof suite on one thread and on four, refusing to go on if they differ;
-and writes build.toml:
+finds a problem; copies every .toml file under data/ but its scenes into game/data/, in the same folders, and the art
+lane's source beside data/ (art/source.toml and each texture's record under art/textures/, A5.4) into
+game/data/art/, and removes any it no longer holds; runs every proof suite on one thread and on four, refusing to go
+on if they differ; and writes build.toml:
 - [proof]: each suite's digest;
 - [catalogue]: the world-making version, each file the phone reads with its SHA-256, and each source's version and
   rules, world and look digests, as the simulation fingerprints them;
 - [bench]: each benchmark scenario's digest at its mark, its world run headless here, which the phone's must match
   (A18.1, RES-05);
-- [textures]: each texture file the phone reads with its SHA-256 (A5.4): for now the stand-ins tools/standins.py
-  makes (T2.1a.3), written into game/data/textures/;
+- [textures]: each texture file the phone reads with its SHA-256 (A5.4), written into game/data/textures/: the
+  stand-ins tools/standins.py makes (T2.1a.3), and each of the art lane's textures, its record's levels packed
+  largest first into textures/art/<entry>.kdtex, so art:meadow/middle is textures/art/meadow/middle.kdtex;
 - [build]: the app's version code, from the export preset, which the benchmark's code carries;
 - [calibration]: each calibration scene the Calibrate page runs (A18.1, α2.2a), with its SHA-256: the files of
   data/scenes/look, checked by the kindling tool and copied into game/data/scenes/look/.
@@ -31,12 +33,14 @@ import os
 import shutil
 import subprocess
 import sys
+import tomllib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import standins  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
+ART = os.path.join(ROOT, "art")
 OUT = os.path.join(ROOT, "game", "data")
 BUILD = os.path.join(OUT, "build.toml")
 TEXTURES = os.path.join(OUT, "textures")
@@ -84,6 +88,43 @@ def data_files():
     return sorted(out)
 
 
+def art_files():
+    """The art lane's source as the catalogue reads it beside data/ (kd::data::read_art): art/source.toml and each
+    texture's record under art/textures/, by their paths from the repository's top, in order; none without
+    art/source.toml."""
+    if not os.path.isfile(os.path.join(ART, "source.toml")):
+        return []
+    out = ["art/source.toml"]
+    for dirpath, _, names in os.walk(os.path.join(ART, "textures")):
+        if "record.toml" in names:
+            out.append(os.path.relpath(os.path.join(dirpath, "record.toml"), ROOT).replace(os.sep, "/"))
+    return sorted(out)
+
+
+def origin(rel):
+    """Where a file game/data/ holds comes from: the art lane's under the repository's top, every other under
+    data/."""
+    return os.path.join(ROOT if rel.startswith("art/") else DATA, rel)
+
+
+def art_textures(records):
+    """Each texture record's levels packed into one .kdtex, largest first: {its path in game/data/textures/: its
+    bytes}, art:meadow/middle as art/meadow/middle.kdtex."""
+    out = {}
+    for rel in records:
+        if not rel.endswith("/record.toml"):
+            continue
+        with open(os.path.join(ROOT, rel), "rb") as f:
+            levels = sorted(tomllib.load(f)["band"], key=lambda band: band["level"])
+        pictures = []
+        for band in levels:
+            with open(os.path.join(ROOT, band["file"]), "rb") as f:
+                pictures.append(f.read())
+        entry = rel[len("art/textures/") : -len("/record.toml")]
+        out[f"art/{entry}.kdtex"] = standins.kdtex(pictures)
+    return out
+
+
 def calibration_files():
     """The calibration scenes, by their paths from data/, in order."""
     if not os.path.isdir(CALIBRATION):
@@ -93,7 +134,8 @@ def calibration_files():
 
 
 def copy_sources(files):
-    """game/data/ holds exactly data/'s files, build.toml and the reports."""
+    """game/data/ holds exactly data/'s files and the art lane's source, build.toml, the reports and the
+    textures."""
     for dirpath, _, names in os.walk(OUT, topdown=False):
         for name in names:
             rel = os.path.relpath(os.path.join(dirpath, name), OUT).replace(os.sep, "/")
@@ -104,7 +146,7 @@ def copy_sources(files):
     for rel in files:
         target = os.path.join(OUT, rel)
         os.makedirs(os.path.dirname(target), exist_ok=True)
-        shutil.copyfile(os.path.join(DATA, rel), target)
+        shutil.copyfile(origin(rel), target)
 
 
 def sha256(path):
@@ -131,18 +173,23 @@ def version_code():
     return 0
 
 
-def textures():
-    """The texture files in game/data/textures/, each written only when its bytes change, and any other removed:
-    their names."""
+def textures(records=()):
+    """The texture files in game/data/textures/, the stand-ins and the art lane's, each written only when its bytes
+    change, and any other removed: their paths there."""
     os.makedirs(TEXTURES, exist_ok=True)
-    made = standins.files()
+    made = standins.files() | art_textures(records)
     for name, data in made.items():
         path = os.path.join(TEXTURES, name)
         if not os.path.isfile(path) or open(path, "rb").read() != data:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "wb") as f:
                 f.write(data)
-    for gone in set(os.listdir(TEXTURES)) - set(made):
-        os.remove(os.path.join(TEXTURES, gone))
+    for dirpath, _, names in os.walk(TEXTURES, topdown=False):
+        for name in names:
+            if os.path.relpath(os.path.join(dirpath, name), TEXTURES).replace(os.sep, "/") not in made:
+                os.remove(os.path.join(dirpath, name))
+        if dirpath != TEXTURES and not os.listdir(dirpath):
+            os.rmdir(dirpath)
     return sorted(made)
 
 
@@ -161,7 +208,7 @@ def build_toml(proof, version, files, sources, bench, code, texture_files=(), ca
         "",
         "[catalogue]",
         f"world_making_version = {version}",
-        "files = " + toml_list(f"{rel} {sha256(os.path.join(DATA, rel))}" for rel in files),
+        "files = " + toml_list(f"{rel} {sha256(origin(rel))}" for rel in files),
         "sources = " + toml_list(sources),
         "",
         "[bench]",
@@ -244,11 +291,11 @@ def main(argv):
         print(f"Game data: the proof suites differ between one thread and four: {one} against {four}")
         return 1
     version, sources = sources_of(tool)
-    files = data_files()
+    files = data_files() + art_files()
     calibration = calibration_files()
     os.makedirs(OUT, exist_ok=True)
     copy_sources(files + calibration)
-    made = textures()
+    made = textures(art_files())
     with open(BUILD, "w") as f:
         f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made, calibration))
     try:

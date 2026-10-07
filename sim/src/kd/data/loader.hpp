@@ -44,6 +44,22 @@ public:
     void links(const Field& f, std::vector<Ref>& out, std::string_view kind);
     /// A list of plain names, such as the sources a source requires.
     void names(const Field& f, std::vector<std::string>& out);
+    /// A list of texts, each in quotes and any of them more than once, such as whether each of a texture's sources
+    /// carried its C2PA record.
+    void texts(const Field& f, std::vector<std::string>& out);
+    /// A list of tables written [[key]], each read by its own visit(), such as a texture's levels; a problem in one is
+    /// named where it is written.
+    template <typename R>
+    void records(const Field& f, std::vector<R>& out) {
+        out.clear();
+        for (const Value* t : tables(f)) {
+            R record{};
+            Loader inner(*t, file_, problems_);
+            R::visit(inner, record);
+            inner.finish();
+            out.push_back(std::move(record));
+        }
+    }
     /// A table of its own, such as a scene's pass rule, for a loader of its own; null when it is missing or wrong.
     const Value* table(const Field& f);
     /// A list of tables, such as a scene's expected ranges, each for a loader of its own; empty when missing.

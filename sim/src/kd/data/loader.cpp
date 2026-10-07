@@ -175,6 +175,19 @@ void Loader::names(const Field& f, std::vector<std::string>& out) {
     }
 }
 
+void Loader::texts(const Field& f, std::vector<std::string>& out) {
+    if (const Value* v = take(f, Value::Kind::array)) {
+        out.clear();
+        for (const Value& item : v->items) {
+            if (item.kind != Value::Kind::text) {
+                problem(item, f, "each is a text, in quotes");
+                continue;
+            }
+            out.push_back(item.text);
+        }
+    }
+}
+
 const Value* Loader::table(const Field& f) {
     return take(f, Value::Kind::table);
 }

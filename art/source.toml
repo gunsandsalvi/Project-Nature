@@ -1,0 +1,5 @@
+# The art lane's source (A3.6, A5.4): each texture's record, art/textures/<name>/record.toml and the records of its
+# tiles and versions below it, one catalogue entry each, which the build ships with the levels they list.
+id = "art"
+version = 1
+about = "The art lane's textures, each with its record"

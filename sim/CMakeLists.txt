@@ -115,6 +115,7 @@ if(KD_SIM_TESTS)
         tests/look_card_test.cpp
         tests/look_frame_test.cpp
         tests/look_test.cpp
+        tests/look_texture_test.cpp
         tests/main.cpp
         tests/maths_test.cpp
         tests/num_test.cpp
