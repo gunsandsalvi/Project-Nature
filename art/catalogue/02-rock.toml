@@ -40,8 +40,10 @@ what = "thin crumbly dark layers"
 [[piece]]
 id = "limestone"
 name = "Limestone"
-what = "the pale layered cliff of the camp, with caves"
+what = "the pale layered rock of the camp's cliff: beds that thicken and pinch out, irregular joints, rounded ledges, pits and runnels; caves, stains, soot and scree are pieces of their own"
 art_book = ["textures-a", "d2-pixel-paint", "close-camp", "camp-thirty"]
+sheet = "sheets/2.7-limestone.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "chalk"
