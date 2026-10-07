@@ -139,9 +139,11 @@ what = "where a priest holds rites"
 
 [[piece]]
 id = "firewood"
-name = "Firewood piles"
-what = "stacked branches and logs"
+name = "Firewood pile"
+what = "a loose heap of dead branches broken by hand, with a few pieces of a fallen trunk, 1.4 m long and 0.6 m high, grey-brown bark with sparse lichen, every broken end different; nothing sawn or split; burned down to a few pieces, or left for years to grey, rot and moss over"
 art_book = ["first-cave", "village-truthful"]
+sheet = "sheets/16.23-firewood.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "tent_ring"
