@@ -85,7 +85,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "rocky_shore"
 name = "Rocky shore"
-what = "wet rock with seaweed and shellfish beds"
+what = "rocky shore"
+sheet = "sheets/3.12-rocky_shore.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "salt_marsh"
