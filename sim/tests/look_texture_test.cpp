@@ -113,6 +113,19 @@ TEST_CASE("a texture's record is an entry named by its folder, each tile and ver
           "way = \"re-gridded\"; regrid_loss = \"\"; calibration = \"\"");
 }
 
+// checks: PRE-20 PRE-46
+TEST_CASE("a texture is tiled unless its record lays it once from a trunk's foot") {
+    data::Catalogue cat;
+    REQUIRE(
+        cat.load(with_art({{"art/textures/meadow/record.toml", kMeadow},
+                           {"art/textures/birch_bark_old/record.toml",
+                            replaced(kMeadow, "first_band = 0\n", "first_band = 0\nlaid = \"once from the foot\"\n")}}))
+            .empty());
+    const auto& textures = cat.kind<look::Texture>();
+    CHECK(textures[0].laid == "once from the foot");
+    CHECK(textures[1].laid.empty());
+}
+
 // checks: PRE-20 MAT-14
 TEST_CASE("a texture counts only in its source's look digest, and a level's change changes it") {
     data::Catalogue cat;
@@ -120,7 +133,7 @@ TEST_CASE("a texture counts only in its source's look digest, and a level's chan
     const data::EntryDigests before = cat.kind<look::Texture>().digests(0);
     CHECK(before.fields[0] == 0);  // rules
     CHECK(before.fields[1] == 0);  // world
-    CHECK(before.fields[2] == 14);
+    CHECK(before.fields[2] == 15);
     data::Catalogue changed;
     REQUIRE(
         changed.load(with_art({{"art/textures/meadow/record.toml", replaced(kMeadow, "\"1b\"", "\"1c\"")}})).empty());
@@ -142,6 +155,8 @@ TEST_CASE("a fault in a texture's record or one of its levels is refused where i
         names(problems_of({{path, replaced(kMeadow, "c2pa = [\"present\", \"present\"]", "c2pa = [\"present\", 2]")}}),
               "each is a text"));
     CHECK(names(problems_of({{path, replaced(kMeadow, "route = \"picture\"", "route = \"painting\"")}}), "route"));
+    CHECK(names(problems_of({{path, replaced(kMeadow, "first_band = 0\n", "first_band = 0\nlaid = \"twice\"\n")}}),
+                "laid"));
     // its levels missing altogether
     const std::string levels = kMeadow;
     CHECK(names(problems_of({{path, levels.substr(0, levels.find("[[band]]"))}}), "\"band\" is missing"));

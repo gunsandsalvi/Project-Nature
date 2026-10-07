@@ -64,6 +64,38 @@ func test_the_bands_each_tile_serves() -> void:
 	assert_array(page.bands_of("ash", "art:ash", false)).is_equal([0, 1, 2, 3, 4, 5, 6])
 
 
+# checks: PRE-22
+func test_offered_materials_come_first_then_those_held_back_with_why_then_those_decided() -> void:
+	var page: VBoxContainer = auto_free(LabPage.new())
+	add_child(page)
+	await await_idle_frame()
+	page.textures = {
+		"art:ash": {"record": {"about": "ash", "approved": "yes, 7 October 2026"}, "levels": []},
+		"art:bark":
+		{"record": {"about": "bark", "approved": "not offered yet: too flat"}, "levels": []},
+		"art:moss": {"record": {"about": "moss", "approved": "waiting"}, "levels": []},
+		"art:moss/far":
+		{"record": {"about": "moss", "approved": "not offered yet: too pale"}, "levels": []},
+	}
+	page.materials = {
+		"ash": ["art:ash"], "bark": ["art:bark"], "moss": ["art:moss", "art:moss/far"]
+	}
+	assert_str(page.state_of("ash")).is_equal("decided")
+	assert_str(page.state_of("bark")).is_equal("held")
+	assert_str(page.state_of("moss")).is_equal("offered")
+	page.list()
+	var lines := Array(page.shown)
+	var order := [
+		lines.find("moss: moss (far not offered yet)"),
+		lines.find("bark: bark"),
+		lines.find("ash: ash")
+	]
+	assert_int(order[0]).is_greater(0)
+	assert_bool(order[0] < order[1] and order[1] < order[2]).is_true()
+	page.open("bark")
+	assert_array(Array(page.shown)).contains(["Not offered yet: too flat"])
+
+
 # checks: PRE-20
 func test_the_app_has_a_lab_page() -> void:
 	var main: Control = auto_free(preload("res://main.gd").new())

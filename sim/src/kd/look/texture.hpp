@@ -50,6 +50,7 @@ struct Texture {
     std::int64_t tile_texels = 0;
     std::int64_t texels_a_metre = 0;
     std::int64_t first_band = 0;
+    std::string laid;
     std::vector<std::string> sources;
     std::vector<std::string> original_sha256;
     std::vector<std::string> c2pa;
@@ -73,6 +74,11 @@ struct Texture {
                 s.texels_a_metre, {1, 64});
         v.whole({"first_band", "the band its first level serves: 0 for a near tile, 2 middle, 4 far", Affects::look},
                 s.first_band, {0, 8});
+        v.choice({"laid",
+                  "how it lies on its part: tiled, unless written; or once up a trunk's lowest part from its foot, its "
+                  "design changing up it",
+                  Affects::look, false},
+                 s.laid, {"tiled", "once from the foot"});
         v.texts({"sources", "each picture it was made from, by its path in art/sources/", Affects::look}, s.sources);
         v.texts({"original_sha256", "each picture's original's SHA-256", Affects::look}, s.original_sha256);
         v.texts({"c2pa", "whether each picture's original carried its C2PA record", Affects::look}, s.c2pa);
@@ -82,7 +88,11 @@ struct Texture {
                 Affects::look},
                s.regrid_loss);
         v.text({"truth", "its truth check: who looked, when, and what they found (A5.6)", Affects::look}, s.truth);
-        v.text({"approved", "your words and the date, or \"waiting\"", Affects::look}, s.approved);
+        v.text({"approved",
+                "your words and the date; \"waiting\" while it is offered for your yes or no; or \"not offered yet: \" "
+                "and why, while it is below the artwork's level",
+                Affects::look},
+               s.approved);
         v.records({"band", "its levels, from its first band's, each its own table", Affects::look}, s.levels);
     }
 };

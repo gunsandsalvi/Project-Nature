@@ -1,14 +1,17 @@
 ## The Lab page (A5.4, α2.3a): every material the art lane has made, as the phone shows it, for your
-## yes or no. A list of the materials; tap one for its sheet: each of its tiles and versions, every
-## level at the bands it serves at true size, each texture pixel 2 × 2 screen pixels as at its own
-## zoom (A5.3), the first level's corner enlarged, and its record's words. The textures are the
-## build's own, each made into an image with its own levels and uploaded as the world does, and the
-## page says how long that took and the memory they hold. Implements PRE-20 and PRE-22.
+## yes or no. A list of the materials, those offered for your yes or no first, then those the art
+## lane holds back as still below the artwork's level, with why, then those you have decided; tap
+## one for its sheet: each of its tiles and versions, every level at the bands it serves at true
+## size, each texture pixel 2 × 2 screen pixels as at its own zoom (A5.3), the first level's corner
+## enlarged, and its record's words. The textures are the build's own, each made into an image with
+## its own levels and uploaded as the world does, and the page says how long that took and the
+## memory they hold. Implements PRE-20 and PRE-22.
 extends VBoxContainer
 
 const TEXT := Palette.TEXT
 const QUIET := Palette.QUIET
 const HEAD := Palette.HEAD
+const WARN := Palette.WARN
 const FAIL := Palette.FAIL
 ## Screen pixels a texture pixel covers at its own zoom (A5.3), and enlarged.
 const TRUE_SIZE := 2.0
@@ -17,6 +20,9 @@ const ENLARGED := 8.0
 const CORNER := 40
 ## A big surface's tiles serve these bands (A5.3); a material with one tile serves bands 0 to 6.
 const BANDS := {"near": [0, 1], "middle": [2, 3], "far": [4, 5, 6], "one": [0, 1, 2, 3, 4, 5, 6]}
+## A record's approval while it is offered for your yes or no, and while it is held back.
+const OFFERED := "waiting"
+const HELD := "not offered yet"
 
 ## What loading the catalogue found, as KdWorld.load_catalogue gives it.
 var loaded: Dictionary = {}
@@ -74,19 +80,57 @@ func list() -> void:
 	)
 	for problem: String in loaded["problems"]:
 		_line(problem, 14, FAIL)
-	_line(
-		"Tap a material to see it at true size and enlarged; tell me yes or no to each.", 16, TEXT
-	)
-	for material: String in materials:
-		var first: Dictionary = textures[materials[material][0]]["record"]
-		var button := Button.new()
-		button.text = "%s: %s" % [material, first.get("about", "")]
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		button.custom_minimum_size = Vector2(0, 48)
-		button.pressed.connect(open.bind(material))
-		_list.add_child(button)
-		shown.append(button.text)
+	var groups := {
+		"offered": "For your yes or no: tap one to see it at true size and enlarged.",
+		"held": "Not offered yet: the art lane is still bringing these up to the artwork.",
+		"decided": "Decided by you.",
+	}
+	for group: String in groups:
+		var members: Array = materials.keys().filter(
+			func(m: String) -> bool: return state_of(m) == group
+		)
+		if members.is_empty():
+			continue
+		_gap()
+		_line(groups[group], 17, HEAD)
+		for material: String in members:
+			_button(material)
+
+
+## Where a material stands: "offered" if any of its textures is offered for your yes or no; else
+## "held" if any is held back; else "decided".
+func state_of(material: String) -> String:
+	var held := false
+	for name: String in materials[material]:
+		var approved := str(textures[name]["record"].get("approved", ""))
+		if approved == OFFERED:
+			return "offered"
+		held = held or approved.begins_with(HELD)
+	return "held" if held else "decided"
+
+
+func _button(material: String) -> void:
+	var first: Dictionary = textures[materials[material][0]]["record"]
+	var button := Button.new()
+	button.text = "%s: %s" % [material, first.get("about", "")]
+	# a material offered with some of its tiles held back says which
+	var held: Array = []
+	for name: String in materials[material]:
+		if str(textures[name]["record"].get("approved", "")).begins_with(HELD):
+			held.append(_tile_of(material, name))
+	if not held.is_empty() and state_of(material) == "offered":
+		button.text += " (%s not offered yet)" % ", ".join(held)
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.custom_minimum_size = Vector2(0, 48)
+	button.pressed.connect(open.bind(material))
+	_list.add_child(button)
+	shown.append(button.text)
+
+
+func _tile_of(material: String, name: String) -> String:
+	var rest := name.trim_prefix("art:" + material).trim_prefix("/")
+	return rest if rest != "" else "near tile"
 
 
 ## Shows a material's sheet: each texture of it, its levels at true size and enlarged, its words.
@@ -127,16 +171,18 @@ func _texture(material: String, name: String, tiled: bool) -> void:
 	var record: Dictionary = textures[name]["record"]
 	var levels: Array = textures[name]["levels"]
 	var bands := bands_of(material, name, tiled)
-	var rest := name.trim_prefix("art:" + material).trim_prefix("/")
 	_gap()
 	_line(
 		(
 			"%s: bands %s, %d texture pixels a metre at the first"
-			% [rest if rest != "" else "near tile", _listed(bands), record.get("texels_a_metre", 0)]
+			% [_tile_of(material, name), _listed(bands), record.get("texels_a_metre", 0)]
 		),
 		17,
 		HEAD
 	)
+	var approved := str(record.get("approved", ""))
+	if approved.begins_with(HELD):
+		_line(approved.substr(0, 1).to_upper() + approved.substr(1), 15, WARN)
 	var unit := 1.0 / screen_pixels()
 	var row := HFlowContainer.new()
 	row.add_theme_constant_override("h_separation", 8)
