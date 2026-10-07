@@ -7,8 +7,10 @@ items = ["WLD-31", "WLD-17", "WLD-26", "WLD-28", "WLD-15", "PRE-25"]
 [[piece]]
 id = "broadleaf_floor"
 name = "Broadleaf forest floor"
-what = "leaf litter and moss, through the seasons"
+what = "fallen leaves over dark humus, with moss, through the seasons; twigs, nuts, mushrooms and plants are pieces of their own"
 art_book = ["textures-a", "read-aids"]
+sheet = "sheets/3.1-broadleaf_floor.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "conifer_floor"
