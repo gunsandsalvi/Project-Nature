@@ -32,9 +32,11 @@ art_book = ["textures-a", "d2-pixel-paint"]
 
 [[piece]]
 id = "river_bed"
-name = "River bed under clear water"
-what = "cobbles and sand seen through shallow water"
+name = "River bed"
+what = "the cobbles and sand of a shallow river's bed, alone; the water is a piece of its own, drawn over it"
 art_book = ["d2-pixel-paint", "close-camp"]
+sheet = "sheets/1.5-river_bed.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "hearth_ground"
