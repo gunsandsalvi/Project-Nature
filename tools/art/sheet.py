@@ -1,14 +1,14 @@
-"""A catalogue sheet (IMPLEMENTATION.md, the catalogue): GPT's panels for one piece laid out on one tall picture
-1080 pixels wide, as the owner reads it on the phone, with its name, its colours, its scale sticks and its labels.
+"""A catalogue sheet (IMPLEMENTATION.md, the catalogue): GPT's pictures of one piece laid out on one tall picture 1080
+pixels wide, as the owner reads it on the phone, with its name, its colours, its scale sticks and its labels.
 
-The views from above are re-gridded to their true texture pixels (the median colour of each block) and shown as the
-phone shows them, a texture pixel 2 x 2 screen pixels, so what is approved is what the game will draw; a close-up shows
-one of them enlarged until each texture pixel is a block, and a repeat panel shows how a tile's pattern reads over a
-wider ground. The scale stick is one design on every sheet: ivory and charcoal segments, ten to a stick, 10 cm, 1 m or
-10 m long.
+Each picture from above shows a known area, so its scale stick is drawn here by code at its true length: one design on
+every sheet, ivory and charcoal segments, ten to a stick, 10 cm, 1 m or 10 m long. The tiles are shown about as the
+phone shows them where each is used (4 m, 16 m and 64 m across, each about 512 screen pixels); a close-up shows part of
+a tile enlarged, and a repeat panel how a tile's pattern reads over wider ground. The camera views come as GPT drew
+them, their own sticks measured before they are used.
 
-Usage: python3 tools/art/sheet.py <spec.json> <panel folder> <out.webp>
-The spec names the piece and its panels; tools/tests/test_art_sheet.py shows one.
+Usage: python3 tools/art/sheet.py <spec.json> <picture folder> <out>
+The spec names the piece and its pictures; tools/tests/test_art_sheet.py shows one.
 
 Implements PRE-46, PRE-22, see A5.3.
 """
@@ -17,91 +17,48 @@ import json
 import os
 import sys
 
-import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 WIDTH = 1080
 MARGIN = 24
 GAP = 16
+HALF = (WIDTH - 2 * MARGIN - GAP) // 2
+THIRD = (WIDTH - 2 * MARGIN - 2 * GAP) // 3
 GROUND = (236, 232, 224)
 INK = (40, 38, 34)
 QUIET = (104, 98, 90)
 IVORY = (0xE8, 0xDE, 0xCA)
 CHARCOAL = (0x45, 0x46, 0x3B)
 EDGE = (0x6B, 0x68, 0x5E)
-TRUE_SIZE = 2  # screen pixels a texture pixel covers, as the phone shows it (A5.3)
-CLOSE_UP = 8
 
 
 def font(size, bold=False):
     return ImageFont.truetype("DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf", size)
 
 
-def grid(edges, near):
-    """The block grid along one axis, from the strength of the colour change between neighbouring pixels: the block's
-    size, from half to twice what `near` blocks across would give, and the offset of the first block edge, at which
-    the edges fall on the strongest changes. GPT draws its blocks a little larger or smaller than asked, starts with a
-    part block, and blurs its edges.
-
-    The score sums each edge's strength above the average, so a grid of blocks twice as big (missing half the edges)
-    and one of blocks half as big (adding edges inside blocks, weaker than the average) both score below the true one.
-    """
-    length = len(edges) + 1
-    base = edges.mean()
-    expected = length / near
-    best = (-np.inf, expected, 0.0)
-    # outward from the size asked for, so of equal scores the one nearest it wins
-    steps = np.arange(0.0, expected * 1.5, 0.01)
-    sizes = [s for d in steps for s in ((expected + d,) if d == 0 else (expected - d, expected + d))]
-    for size in (s for s in sizes if expected / 2 <= s <= expected * 2):
-        for offset in np.arange(0.0, size, 0.25):
-            at = np.round(np.arange(offset if offset >= 1 else offset + size, length - 1, size)).astype(int) - 1
-            score = (edges[at[at >= 0]] - base).sum()
-            if score > best[0]:
-                best = (score, size, offset)
-    return best[1], best[2]
+def length_label(metres):
+    return f"{metres:g} m" if metres >= 1 else f"{metres * 100:g} cm"
 
 
-def regrid(image, texels):
-    """The picture as `texels` x `texels` texture pixels: its own block grid found along each axis, each block's colour
-    the median of its middle half, so the blurred edges between GPT's blocks never mix into a texture pixel, then laid
-    on `texels` x `texels` by the nearest block, so the tile keeps its size in metres."""
-    rgb = np.asarray(image.convert("RGB"), dtype=np.int32)
-    h, w, _ = rgb.shape
-    starts = []
-    for edges, length in (
-        (np.abs(np.diff(rgb, axis=1)).sum(axis=2).mean(axis=0), w),
-        (np.abs(np.diff(rgb, axis=0)).sum(axis=2).mean(axis=1), h),
-    ):
-        size, offset = grid(edges, texels)
-        first = offset - size if offset >= 1 else offset
-        starts.append((np.arange(first, length, size), size))
-    (xs, px), (ys, py) = starts
-    out = np.zeros((len(ys), len(xs), 3), dtype=np.uint8)
-    for j, y0 in enumerate(ys):
-        y_lo, y_hi = max(0, int(round(y0 + py / 4))), min(h, int(round(y0 + 3 * py / 4)))
-        y_lo, y_hi = (y_lo, y_hi) if y_hi > y_lo else (max(0, int(y0)), min(h, int(y0) + 1))
-        for i, x0 in enumerate(xs):
-            x_lo, x_hi = max(0, int(round(x0 + px / 4))), min(w, int(round(x0 + 3 * px / 4)))
-            x_lo, x_hi = (x_lo, x_hi) if x_hi > x_lo else (max(0, int(x0)), min(w, int(x0) + 1))
-            out[j, i] = np.median(rgb[y_lo:y_hi, x_lo:x_hi].reshape(-1, 3), axis=0)
-    return Image.fromarray(out).resize((texels, texels), Image.NEAREST)
-
-
-def stick(draw, x, y, length, label, height=14):
+def stick(draw, x, y, length, label, height=12):
     """The scale stick lying left to right from (x, y), `length` screen pixels long, its label above it."""
     seg = length / 10
     for i in range(10):
         colour = IVORY if i % 2 == 0 else CHARCOAL
-        draw.rectangle([x + i * seg, y, x + (i + 1) * seg, y + height], fill=colour)
-    draw.rectangle([x, y, x + length, y + height], outline=EDGE, width=2)
-    for end in (x, x + length):
-        draw.line([end, y - 5, end, y + height + 5], fill=CHARCOAL, width=3)
-    tag = font(18, True)
+        draw.rectangle([round(x + i * seg), y, round(x + (i + 1) * seg) - 1, y + height - 1], fill=colour)
+    tag = font(16, True)
     box = draw.textbbox((0, 0), label, font=tag)
-    tx, ty = x, y - 8 - (box[3] - box[1])
-    draw.rectangle([tx - 4, ty - 3, tx + box[2] - box[0] + 4, ty + box[3] - box[1] + 5], fill=IVORY)
+    tx, ty = x, y - 7 - (box[3] - box[1])
+    draw.rectangle([tx - 4, ty - 3, tx + box[2] - box[0] + 4, ty + box[3] - box[1] + 4], fill=IVORY)
     draw.text((tx, ty - box[1]), label, fill=CHARCOAL, font=tag)
+
+
+def with_stick(picture, metres_across, metres):
+    """The picture, which shows `metres_across` metres from side to side, with a stick `metres` long at its bottom
+    left: true to the picture, whatever size it is shown at."""
+    shown = picture.convert("RGB")
+    stick(ImageDraw.Draw(shown), 14, shown.height - 26, shown.width * metres / metres_across, length_label(metres))
+    return shown
 
 
 def wrapped(draw, text, width, face):
@@ -142,14 +99,14 @@ class Sheet:
 
     def pictures(self, row, after=GAP):
         """A row of (picture, label) side by side, each at its own size; the row as tall as its tallest."""
-        label_h = 30
+        label_h = 28
         height = max(p.height for p, _ in row) + label_h
 
         def paint(page, draw, y):
             x = MARGIN
             for picture, label in row:
                 if label:
-                    draw.text((x, y), label, fill=QUIET, font=font(20, True))
+                    draw.text((x, y), label, fill=QUIET, font=font(19, True))
                 page.paste(picture, (x, y + label_h))
                 x += picture.width + GAP
 
@@ -170,17 +127,10 @@ def fit(picture, width):
     return picture.resize((width, round(picture.height * width / picture.width)), Image.LANCZOS)
 
 
-def tile_panel(tile, spec):
-    """A tile from above as the phone shows it, with a scale stick of the size that suits it."""
-    shown = tile.resize((tile.width * TRUE_SIZE, tile.height * TRUE_SIZE), Image.NEAREST)
-    draw = ImageDraw.Draw(shown)
-    metres = spec["stick"]
-    length = metres * spec["texels_a_metre"] * TRUE_SIZE
-    stick(draw, 16, shown.height - 30, length, f"{metres:g} m" if metres >= 1 else f"{metres * 100:g} cm")
-    return shown
-
-
 def compose(spec, folder):
+    def load(name):
+        return Image.open(os.path.join(folder, name)).convert("RGB")
+
     sheet = Sheet()
     sheet.text(f"{spec['number']}  {spec['name']}", 40, bold=True, after=6)
     sheet.text(spec["about"], 24, QUIET, after=14)
@@ -201,27 +151,21 @@ def compose(spec, folder):
 
         sheet.add(100, paint_chips)
 
-    tiles = []
-    for t in spec.get("tiles", []):
-        picture = Image.open(os.path.join(folder, t["file"]))
-        tiles.append((regrid(picture, t.get("texels", 256)), t))
+    tiles = [(load(t["file"]), t) for t in spec.get("tiles", [])]
     if tiles:
-        sheet.text(
-            "From above, as the phone shows it: each texture pixel 2 x 2 screen pixels, flat light.",
-            26,
-            bold=True,
-        )
-        panels = [(tile_panel(tile, t), t["label"]) for tile, t in tiles]
+        sheet.text("From above, flat light: each tile about as the phone shows it where it is used.", 26, bold=True)
+        panels = [(with_stick(fit(p, HALF), t["metres"], t["stick"]), t["label"]) for p, t in tiles]
         if "close_up" in spec:
             c = spec["close_up"]
-            tile, t = tiles[c.get("tile", 0)]
-            n = c.get("texels", 64)
-            x0, y0 = c.get("at", [0, 0])
-            crop = tile.crop((x0, y0, x0 + n, y0 + n)).resize((n * CLOSE_UP, n * CLOSE_UP), Image.NEAREST)
-            draw = ImageDraw.Draw(crop)
-            stick(draw, 16, crop.height - 30, 0.1 * t["texels_a_metre"] * CLOSE_UP, "10 cm")
-            metres = n / t["texels_a_metre"]
-            panels.append((crop, f"Close-up: {metres:g} m of the {t['label'].split(':')[0].lower()}, enlarged"))
+            picture, t = tiles[c.get("tile", 0)]
+            per_metre = picture.width / t["metres"]
+            x0, y0 = (round(v * per_metre) for v in c.get("at", [0, 0]))
+            side = round(c["metres"] * per_metre)
+            crop = picture.crop((x0, y0, x0 + side, y0 + side)).resize((HALF, HALF), Image.NEAREST)
+            name = t["label"].split(":")[0].lower()
+            panels.append(
+                (with_stick(crop, c["metres"], c.get("stick", 0.1)), f"Close-up: {c['metres']:g} m of the {name}")
+            )
         for k in range(0, len(panels), 2):
             sheet.pictures(panels[k : k + 2])
 
@@ -230,28 +174,32 @@ def compose(spec, folder):
         sheet.text("Repeated 3 x 3, to show how the pattern reads over wider ground.", 26, bold=True)
         row = []
         for k in repeats:
-            tile, t = tiles[k]
-            big = Image.new("RGB", (tile.width * 3, tile.height * 3))
+            picture, t = tiles[k]
+            small = fit(picture, HALF // 3 + 1)
+            big = Image.new("RGB", (small.width * 3, small.height * 3))
             for j in range(3):
                 for i in range(3):
-                    big.paste(tile, (i * tile.width, j * tile.height))
-            shown = big.resize((512, 512), Image.LANCZOS)
-            draw = ImageDraw.Draw(shown)
-            span = 3 * tile.width / t["texels_a_metre"]
-            stick(draw, 16, shown.height - 30, 10 * 512 / span, "10 m")
-            row.append((shown, f"{t['label'].split(':')[0]} tile, {span:g} m across"))
+                    big.paste(small, (i * small.width, j * small.height))
+            shown = big.crop((0, 0, HALF, HALF))
+            span = 3 * t["metres"] * HALF / big.width
+            row.append(
+                (with_stick(shown, span, t.get("repeat_stick", 10)), f"{t['label'].split(':')[0]}, {span:.0f} m across")
+            )
         sheet.pictures(row)
 
     camera = spec.get("camera", [])
     if camera:
-        sheet.text("The game's camera, 35 to 40 degrees down, from two sides, late afternoon.", 26, bold=True)
-        half = (WIDTH - 2 * MARGIN - GAP) // 2
-        sheet.pictures([(fit(Image.open(os.path.join(folder, f)), half), label) for f, label in camera])
+        sheet.text("The game's camera, about 37 degrees down, from two sides, late afternoon.", 26, bold=True)
+        sheet.pictures([(fit(load(f), HALF), label) for f, label in camera])
 
-    for title, files in spec.get("rows", []):
-        sheet.text(title, 26, bold=True)
-        for f, label in files:
-            sheet.pictures([(fit(Image.open(os.path.join(folder, f)), WIDTH - 2 * MARGIN), label)])
+    states = spec.get("states")
+    if states:
+        sheet.text(states["title"], 26, bold=True)
+        panels = [
+            (with_stick(fit(load(f), THIRD), states["metres"], states["stick"]), label) for f, label in states["tiles"]
+        ]
+        for k in range(0, len(panels), 3):
+            sheet.pictures(panels[k : k + 3])
 
     notes = spec.get("notes", [])
     if notes:
