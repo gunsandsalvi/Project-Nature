@@ -37,6 +37,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "scraper"
 name = "Scraper"
+what = "Scraper"
+sheet = "sheets/17.5-scraper.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "awl"
