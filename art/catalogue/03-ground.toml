@@ -88,7 +88,9 @@ what = "wet rock with seaweed and shellfish beds"
 [[piece]]
 id = "salt_marsh"
 name = "Salt marsh and estuary mud"
-what = "mudflats and salt plants where rivers meet the sea"
+what = "salt marsh"
+sheet = "sheets/3.13-salt_marsh.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "snow"
