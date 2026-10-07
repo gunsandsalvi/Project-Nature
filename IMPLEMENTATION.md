@@ -81,6 +81,8 @@ Every piece of art the game needs, worked out before any of it is made, as you a
   - flat even light on the front, side, back and top views, and the game's late-afternoon light on the camera views.
   - Ground, water, sky, effects and the interface take only what applies to them; a piece's views come once, its states and actions as rows; a piece the art book already shows starts from that picture.
   - What the world lays over a ground is a piece of its own, drawn once: the wear of paths and camp floors, wetness, frost and snow, and the water over a river bed; a ground's sheet shows only its own states, as you set on 7 October 2026.
+  - An object's sheet is laid out like the hide tent's, as you OK'd on 7 October 2026: its flat views at one scale beside the adult and the stick, the view from above, the camera's views, its true size at each zoom, its parts, its states and its surface.
+  - Every view shows the same object, with the same parts, counts and colours, as you asked the same day: it is designed once, in words and numbers, and every view is drawn to that design.
 - **You sign off each piece** as its sheet is finished, as you asked on 7 October 2026; the art lane starts once the whole catalogue is signed off, as you said the same day, and takes it in batches.
 - It is kept in `art/catalogue/`: a file of each group's pieces, and each piece's sheet.
 
