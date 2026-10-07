@@ -89,9 +89,11 @@ signed_off = "7 October 2026"
 
 [[piece]]
 id = "bed"
-name = "Beds"
-what = "grass or leaves, hides and furs to sleep on"
+name = "Bed"
+what = "a place to sleep: a loose heap of dry grass with a few dull leaves, 2 m by 1.2 m and about 15 cm deep, a tan hide on it and a rumpled reindeer fur thrown half over; pressed into a hollow when slept in, flattened and grey when left behind"
 art_book = ["first-cave"]
+sheet = "sheets/16.14-bed.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "storage_pit"
