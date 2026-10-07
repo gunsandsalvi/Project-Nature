@@ -434,6 +434,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
   The river's bed lies below the water's level and is tinted by depth (`tuning/water`); the surface mirrors the sky by angle and carries marks that step in whole texture pixels, glints and a shore line of one texture pixel, all from height (`game/look/water.gdshader`).
   The light is `tuning/light` set against the meadow sheet's camera view (sun #fff6e8 at 170%, the sky's fill at 60%): in the engine's frame at band 0 the ground reads lightness 53.4 where the sheet's view reads 55.9, and 45.9 with the first stand-in light; the final tuning is still `T2.3b.3`.
   `tools/tests/test_area.py` draws the area in the cloud and checks each band's tile, the cells' borders, that a cell border steps no more than other texture pixel edges, and that the marks step in whole texture pixels; the meadow's repeat measures 0.02, 0.06 and 0.11 at bands 0, 2 and 4.
+  The border pair is quiet, but the meadow's first files carried a seam 8 texels before the edge of seven levels (near level 0 of versions 2 to 4, middle first level of version 4), which the art lane is re-quilting and now checks for in every material.
   Still to do: the cliff, its layers and the art lane's boulders (`T2.3b.2`); the mirror at half resolution and delivery as 30302 (`T2.3b.4`); the golden pictures and the shimmer paths over the ladder.
 
 **Tests:**
