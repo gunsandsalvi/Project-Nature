@@ -43,7 +43,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "scrub"
 name = "Dry scrub ground"
-what = "stony ground with low aromatic plants"
+what = "scrub"
+sheet = "sheets/3.6-scrub.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "stony_desert"
