@@ -163,7 +163,9 @@ what = "clay showing in river banks and old lake beds"
 [[piece]]
 id = "ochre"
 name = "Red and yellow ochre"
-what = "iron-rich earth showing where rock weathers"
+what = "red and yellow ochre"
+sheet = "sheets/2.23-ochre.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "copper_ore"
