@@ -50,7 +50,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "chalk"
 name = "Chalk"
-what = "white soft rock with dark flint nodules in bands"
+what = "soft white rock with faint thick beds and bands of knobbly dark flint nodules"
+sheet = "sheets/2.8-chalk.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "quartzite"
