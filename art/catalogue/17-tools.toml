@@ -107,6 +107,9 @@ name = "Digging stick"
 [[piece]]
 id = "club"
 name = "Club"
+what = "A wooden club with a heavy knob, cut from a sapling and its root."
+sheet = "sheets/17.15-club.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "fire_kit"
