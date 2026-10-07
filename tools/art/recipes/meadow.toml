@@ -58,6 +58,9 @@ overlap = 24
 flatten = 32
 patch = 64
 serves = 3
+# the sheet's far tile is much calmer than the middle tile (contrast 2.6 against 10.6), so bands 3 to 4 would drop from
+# bright grass to a cloud: its first level's contrast is doubled, and its coarser levels calmed again below
+contrast = 200
 sheet = "art/sources/meadow/far-sheet.webp"
 originals = ["art/sources/meadow/far-original.webp"]
 

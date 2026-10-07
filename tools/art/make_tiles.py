@@ -44,7 +44,7 @@ def make_tile(spec, reference, seed):
     first, block, loss = picture(spec["sheet"])
     calibration = ""
     if reference is not None:
-        first, calibration = fit.calibrate(first, reference)
+        first, calibration = fit.calibrate(first, reference, float(spec.get("contrast", 100)))
     extras = [fit.calibrate(picture(p)[0], first)[0] for p in spec.get("extra", [])]
     flatten = spec.get("flatten")
     versions, shift, ops = tiles.make_versions(

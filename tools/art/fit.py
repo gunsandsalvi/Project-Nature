@@ -4,8 +4,8 @@ every measure read from `kindling look` (look.py), never computed here.
 - fit_reduction() makes the level below another: averaged, then sharpened by the amount that gives it the accents of
   the level above (plain averaging loses about a fifth of them, A5.3), then moved in lightness, hue and
   colourfulness to the reference's.
-- calibrate() moves a picture to a reference in those three numbers only, for a tile's first level, since each tile
-  keeps the contrast of its own distance.
+- calibrate() moves a picture to a reference in those three numbers, for a tile's first level, leaving its contrast
+  as drawn unless the recipe scales it, since each tile keeps the contrast of its own distance.
 
 Implements PRE-20 and PRE-22, see A5.3 and A5.4.
 """
@@ -19,9 +19,9 @@ def numbers(stats):
     return "lightness {:+.1f}; hue {:+.1f}; colourfulness {:.0f}%; contrast {:.0f}%".format(*stats)
 
 
-def moved(picture, reference):
-    """The picture moved to the reference's lightness, hue and colourfulness (look.stats of each), and the four
-    numbers of the change; contrast is left alone."""
+def moved(picture, reference, contrast=100.0):
+    """The picture moved to the reference's lightness, hue and colourfulness (look.stats of each), its contrast scaled
+    by `contrast` percent of its own; and the four numbers of the change."""
     mine, want = look.stats(look.tiled(picture)), look.stats(look.tiled(reference))
     lightness = want["lightness"] - mine["lightness"]
     hue = want["hue"] - mine["hue"]
@@ -30,13 +30,14 @@ def moved(picture, reference):
     elif hue < -180:
         hue += 360
     colourfulness = 100.0 * want["colourfulness"] / mine["colourfulness"] if mine["colourfulness"] else 100.0
-    out = look.adjust(picture, lightness, hue, colourfulness, 100.0)
-    return out, (lightness, hue, colourfulness, 100.0)
+    out = look.adjust(picture, lightness, hue, colourfulness, contrast)
+    return out, (lightness, hue, colourfulness, contrast)
 
 
-def calibrate(picture, reference):
-    """A tile's first level moved to the reference level's colour: (the picture, the record's words)."""
-    out, change = moved(picture, reference)
+def calibrate(picture, reference, contrast=100.0):
+    """A tile's first level moved to the reference level's colour, and its contrast scaled by `contrast` percent where
+    its distance asks for more or less than the drawing has: (the picture, the record's words)."""
+    out, change = moved(picture, reference, contrast)
     return out, numbers(change)
 
 

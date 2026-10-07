@@ -15,6 +15,7 @@ import math
 import os
 import subprocess
 import sys
+import tomllib
 
 import numpy as np
 
@@ -25,9 +26,8 @@ SIZE = (1080, 2404)
 TILT = 37.0
 LENS = 10.0
 BAND0_MPP = 1.0 / 128.0  # metres a screen pixel at the focus when a texture pixel of band 0 is 2 screen pixels
-SUNS = {"behind": 225.0, "ahead": 45.0}  # the sun's compass bearing; the camera looks north
-SUN_COLOUR = (1.0, 0.80, 0.58)
-SKY_COLOUR = (0.52, 0.64, 0.86)
+SUNS = ("behind", "ahead")  # the sun behind the camera's left shoulder, as the light's tuning sets it, or opposite
+LIGHT = os.path.join(textures.ROOT, "data", "base", "tuning", "light.toml")  # the engine's own late afternoon
 # the tiles of a big surface: its band range, from textures.TILES (first band) and A5.3 (near 0-1, middle 2-3, far 4-6)
 SERVES = {"near": 2, "middle": 2, "far": 3}
 
@@ -121,14 +121,36 @@ def render(config, scratch):
         raise RuntimeError("Blender failed:\n" + done.stdout.decode()[-2000:] + done.stderr.decode()[-2000:])
 
 
+def linear(hex_colour):
+    """A colour written #rrggbb in sRGB, as the linear red, green and blue Blender's lights take."""
+    h = hex_colour.lstrip("#")
+    out = []
+    for i in (0, 2, 4):
+        c = int(h[i : i + 2], 16) / 255.0
+        out.append(c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4)
+    return out
+
+
 def scene_config(out, sun, samples):
-    strength = {"behind": 5.0, "ahead": 5.0}[sun]
+    """The light as the engine's own tuning sets it (data/base/tuning/light.toml, written once there): the sun's height
+    and bearing, its colour and its energy (Godot's 1.0 is Blender's pi), the ambient light's colour and energy; the
+    sun `ahead` is the one on the other side. The haze and the bounce are not drawn, a flat ground having no distance
+    to speak of and nothing below it."""
+    with open(LIGHT, "rb") as f:
+        light = tomllib.load(f)
+    percent = {k: float(light[k].rstrip("%")) / 100.0 for k in ("sun_energy", "ambient_energy")}
+    turn = float(light["sun_turn"]) + (180.0 if sun == "ahead" else 0.0)
     return {
         "out": out,
         "size": list(SIZE),
         "samples": samples,
-        "sun": {"azimuth": SUNS[sun], "elevation": 30.0, "colour": list(SUN_COLOUR), "strength": strength},
-        "sky": {"colour": list(SKY_COLOUR), "strength": 0.4},
+        "sun": {
+            "azimuth": turn % 360.0,
+            "elevation": float(light["sun_height"]),
+            "colour": linear(light["sun_colour"]),
+            "strength": percent["sun_energy"] * math.pi,
+        },
+        "sky": {"colour": linear(light["ambient_colour"]), "strength": percent["ambient_energy"]},
     }
 
 
