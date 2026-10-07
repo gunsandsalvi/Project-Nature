@@ -4,9 +4,15 @@ camera's left shoulder or ahead of it. The ground is composed in numpy from the 
 picking one of its versions by a hash of its place (A5.3), and drawn by Blender (blender_scene.py).
 
     python3 tools/art/preview.py ground <name> <out folder> [--bands 0 1 ...] [--sun behind|ahead] [--samples N]
+    python3 tools/art/preview.py water <bed> <out folder> [--marks <marks>] [--depth m] [--bands ...]
+    python3 tools/art/preview.py part <recipe> <out folder> [--ground <name>] [--forms <part>...] [--bands ...]
+
+`water` draws a river of one depth: the bed tinted by the water over it and the marks' picture on top. `part` lays a
+recipe's root parts (art/models/<recipe>/record.toml) on a ground, each role wearing its texture. `--light` and
+`--water` try other numbers for the light and the water without touching the tuning.
 
 Needs Blender (BLENDER sets its path) and writes <out folder>/<name>-band<k>-<sun>.png for each band asked for.
-Implements PRE-20 and PRE-22, see A4.2, A5.3 and A8.4.
+Implements PRE-20, PRE-22, PRE-26 and PRE-46, see A4.2, A4.5, A5.3 and A8.4.
 """
 
 import argparse
@@ -224,7 +230,7 @@ def water_over(bed, marks, depth, tune, sky=(0.72, 0.78, 0.83)):
     return to_srgb(surface)
 
 
-def water_view(bed, marks, band, sun, out_folder, depth, samples=24, change=None, suffix=""):
+def water_view(bed, marks, band, sun, out_folder, depth, samples=24, change=None, suffix="", water=None):
     """One band's view of a river of one depth: the bed's ground tinted by the water over it and the marks' picture on
     top, lit as the ground is; returns the picture's path."""
     beds, flows = textures.read_set(bed), textures.read_set(marks)
@@ -236,7 +242,7 @@ def water_view(bed, marks, band, sun, out_folder, depth, samples=24, change=None
     over, covers_marks = compose(flows[mark_tile], mark_level, textures.TILES[mark_tile][1], box, salt=2)
     if covers != covers_marks:
         raise RuntimeError("the bed's and the marks' tiles do not cover the same ground")
-    picture = water_over(ground, over, depth, water_tuning())
+    picture = water_over(ground, over, depth, water_tuning(water))
     os.makedirs(out_folder, exist_ok=True)
     scratch = os.path.join(out_folder, "scratch")
     os.makedirs(scratch, exist_ok=True)
@@ -250,9 +256,70 @@ def water_view(bed, marks, band, sun, out_folder, depth, samples=24, change=None
     return out
 
 
+def metres_of(text):
+    """A length written in a recipe, such as "50 mm" or "1.2 m", in metres."""
+    value, unit = text.split()
+    return float(value) * {"mm": 0.001, "cm": 0.01, "m": 1.0}[unit]
+
+
+def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=None, suffix="", forms=None):
+    """A recipe's root parts lying on a ground as the game shows them at a band: the family's Blender file brought into
+    the scene, each role wearing its texture's level for the band (read nearest-pixel through the part's own texture
+    coordinates in metres), the part turned and lifted as the recipe's root place says; returns the picture's path.
+    Only root places are laid (a recipe with a ring, a span or a plug is put together by the engine)."""
+    with open(os.path.join(textures.ROOT, "art", "models", recipe, "record.toml"), "rb") as f:
+        record = tomllib.load(f)
+    blend = os.path.join(textures.ROOT, "art", "models", record["family"] + ".blend")
+    roles = {}
+    for material in record["material"]:
+        where = material["textures"][0].split(":", 1)[1]
+        texture, levels = textures.read_texture("art/textures/" + where)
+        table, _ = levels[min(band, len(levels) - 1)]
+        roles[material["role"]] = {
+            "picture": os.path.join(textures.ROOT, table["file"]),
+            "metres": texture["tile_texels"] / texture["texels_a_metre"],
+        }
+    items = []
+    for place in record["place"]:
+        if place["rule"] != "root":
+            raise ValueError(
+                f"the place {place['name']} is laid by the engine's {place['rule']} rule, not previewed here"
+            )
+        for part in forms or place["parts"]:
+            items.append(
+                {
+                    "file": blend,
+                    "only": [part],
+                    "turn": float(place.get("turn", 0.0)),
+                    "at": [0.0, 0.0, metres_of(place["height"]) if "height" in place else 0.0],
+                    "centre": True,
+                }
+            )
+    available = textures.read_set(ground_name)
+    tile, level = tile_for_band(available, band)
+    mpp = BAND0_MPP * (2**band)
+    box = footprint(mpp, margin=2 * (2**band) / 64.0)
+    picture, covers = compose(available[tile], level, textures.TILES[tile][1], box)
+    os.makedirs(out_folder, exist_ok=True)
+    scratch = os.path.join(out_folder, "scratch")
+    os.makedirs(scratch, exist_ok=True)
+    ground_png = os.path.join(scratch, f"{ground_name}-ground-band{band}.png")
+    tiles.write_png(ground_png, picture)
+    out = os.path.join(out_folder, f"{recipe}-band{band}-{sun}{suffix}.png")
+    config = scene_config(out, sun, samples, change)
+    config["camera"] = {"distance": distance(mpp), "tilt": TILT, "lens": LENS}
+    config["ground"] = {"picture": ground_png, "x0": covers[0], "x1": covers[1], "y0": covers[2], "y1": covers[3]}
+    config["roles"] = roles
+    config["parts"] = items
+    render(config, scratch)
+    return out
+
+
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("what", choices=["ground", "water"])
+    ap.add_argument("what", choices=["ground", "water", "part"])
+    ap.add_argument("--ground", default="meadow", help="the ground a part lies on (part)")
+    ap.add_argument("--forms", nargs="*", default=None, help="the parts to lay instead of the recipe's own (part)")
     ap.add_argument("name", help="the material; for water, the bed's, with --marks the marks'")
     ap.add_argument("out")
     ap.add_argument("--marks", default="river_marks")
@@ -268,12 +335,28 @@ def main(argv):
         help="try other numbers for the light (the tuning's own keys, such as sun_colour=#fff6e8 sun_energy=170%%); "
         "the pictures are named with a -light suffix",
     )
+    ap.add_argument(
+        "--water",
+        nargs="*",
+        default=[],
+        metavar="KEY=VALUE",
+        help="try other numbers for the water (the tuning's own keys, such as fade_red='0.5 m' deep_colour=#154447); "
+        "the pictures are named with a -water suffix",
+    )
     args = ap.parse_args(argv[1:])
     change = dict(item.split("=", 1) for item in args.light)
+    other = dict(item.split("=", 1) for item in args.water)
     for band in args.bands:
         suffix = "-light" if change else ""
         if args.what == "water":
-            print(water_view(args.name, args.marks, band, args.sun, args.out, args.depth, args.samples, change, suffix))
+            suffix += "-water" if other else ""
+            print(
+                water_view(
+                    args.name, args.marks, band, args.sun, args.out, args.depth, args.samples, change, suffix, other
+                )
+            )
+        elif args.what == "part":
+            print(part_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix, args.forms))
         else:
             print(ground_view(args.name, band, args.sun, args.out, args.samples, change, suffix))
     return 0

@@ -1,0 +1,22 @@
+Thank you. My verdict on turn 1, and one correction to what I asked.
+
+THE CORRECTION
+Please never bin a drawing because of its size, its grid or its seams. Your image tool returns 1254 x 1254 pixels with cells that are not all the same width, and a picture that does not wrap: that is expected, and it is my code's job, not yours. My tools find each picture's cells, make each cell one texture pixel, and quilt every version of the tile from your pictures round a shared ring, so no wrap is needed from you. Keep the raw original exactly as the tool returned it in originals/, and judge only the DRAWING: bin a picture only if the drawing itself is wrong. You do not need to resize, snap or repair anything.
+
+THE VERDICT
+- river-near-A.png and river-near-B.png: very good, and I am using them. The taller cobbles with lit tops and dark rims make the game's view match your camera view in the numbers I measure (lightness 62.3 against 61.9, texture 4.0 against 4.1, small marks 25 against 27 per thousand cells). Picture 1 shows the game's band 0 from them at the phone's true size (540 x 540 pixels is about 4.2 m).
+- river-middle-b3.png: used as it is.
+- river-near-A-b1.png and river-near-B-b1.png: these are the ones to draw again. They show a few big cobbles on pale sand with thin outlines, nothing like band 0's dense cobbles with dark gaps and small gravel. Held beside band 0 they would read as a different ground. Picture 2 shows what the game has for band 1 today (made by code from band 0): a fine speckle, which is what we are replacing.
+
+THE JOB: the band 1 level of the near tile, twice
+River-near-A-b1v2.png (from your near A) and river-near-B-b1v2.png (from your near B): the same bed seen from twice as far, as pixel art in cells of 8 x 8 pixels in a 1024 x 1024 canvas (128 x 128 cells; each cell is a texture pixel, 3 cm, 32 a metre). If the tool gives another size, that is fine.
+- The same ground: dense cobbles with the dark brown-grey gap colour between them (the colour of band 0's gaps, NOT pale sand), small gravel in the gaps, grey and dark cobbles among the tan ones, the same palette and the same average colour and brightness as band 0.
+- Bolder and fewer, not just smaller: at twice the distance a band 0 cobble of 28 texels is 14 texels wide. Draw the cobbles a little bigger than that, so they stay readable: big ones about 18 to 22 texels wide and 26 to 32 tall (still about 1.4 times taller than wide, as in band 0, because the camera foreshortens), medium ones 9 to 12, small gravel 3 to 4 texels and fewer of it, nothing below 3 texels.
+- Each cobble: a lit top at the upper left over a darker body, and a dark rim 1 texel wide (as on near A and B).
+- It should look like band 0 seen from farther away: the same character, the cobbles about 30 to 40 screen pixels wide where band 0's were about 55, with fewer marks per square of screen.
+- Flat light, no shadows cast, no water, no tint. Nothing but cobbles, gravel and the dark matrix.
+Make them different arrangements of the same bed.
+
+HOW
+Keep each raw picture the tool returned, unchanged, in originals/ and say which is which. Draw with your image tool, never with code. Bin a drawing only if the drawing is wrong, never for size, grid or seams.
+Reply in a few lines: how you made the marks bolder and fewer, which of the two is weaker and why, and the files you saved.

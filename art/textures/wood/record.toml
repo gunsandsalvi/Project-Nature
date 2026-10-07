@@ -1,0 +1,71 @@
+about = "quiet mid-toned sapling wood, its grain in streaks one or two texture pixels wide running down the picture, a few tiny knots; near tile, 2.0 m across, version 1"
+route = "picture"
+tile_texels = 128
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/wood/wood-A.webp", "art/sources/wood/wood-B.webp"]
+original_sha256 = ["f730b6ea24e372d3bbac6748bd511900e263eb61b388b1dc5a94902f4abb7f47", "7feca855b55d74ad01fe1365dcd6ddb2ad4a8bede07c703ba964a6eb9eb1f74c"]
+c2pa = ["present", "present"]
+requests = ["art/requests/club/turn-01.txt"]
+made = "drawn by the artist in conversation with the art lane at the size the game shows a stick (a texture pixel 1.6 cm), and put on the texture-pixel grid by code; version 1 of 1, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "4.4%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; wood grain only, no metal, no sawn faces, no carving, nothing countable"
+approved = "not offered yet: made for the pilot's club and tent, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/wood/b0.png"
+sha256 = "07317d8f7b543674b0ca598df1984cc7aad953a8ea2fd144869c6353243614be"
+way = "the drawing put on its own grid (cells of about 8 picture pixels, loss 4.4%); every version quilted from the drawings in patches of 48 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam"
+regrid_loss = "4.4%"
+
+[[band]]
+level = 1
+file = "art/textures/wood/b1.png"
+sha256 = "894fd25e3f1146317511807532852d2d13f24ed565dc9741d0731435caaed577"
+made_from = "07317d8f7b543674b0ca598df1984cc7aad953a8ea2fd144869c6353243614be"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.02; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/wood/b2.png"
+sha256 = "da743b0d274a76f91186487b28fd3f0a1920437fab290e5573cacce7fb88a703"
+made_from = "894fd25e3f1146317511807532852d2d13f24ed565dc9741d0731435caaed577"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.55; lightness +0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 3
+file = "art/textures/wood/b3.png"
+sha256 = "cc7bae061f9c2fc5bc7fd35ef0b37063102aaf3deca277cba37270062757959e"
+made_from = "da743b0d274a76f91186487b28fd3f0a1920437fab290e5573cacce7fb88a703"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/wood/b4.png"
+sha256 = "eaf742ac2728eb5a586ae52f97077d0113e69d97aaa14f9984e70d3bb977a4c7"
+made_from = "cc7bae061f9c2fc5bc7fd35ef0b37063102aaf3deca277cba37270062757959e"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/wood/b5.png"
+sha256 = "e6a381534c426606278d44177f76e5f13fdb4c705bb713b33a09a38a113c9c87"
+made_from = "eaf742ac2728eb5a586ae52f97077d0113e69d97aaa14f9984e70d3bb977a4c7"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/wood/b6.png"
+sha256 = "30ba26186059bb2ed90e0b76104146179e97437918cdf953793e0ac5990d422b"
+made_from = "e6a381534c426606278d44177f76e5f13fdb4c705bb713b33a09a38a113c9c87"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/wood/b7.png"
+sha256 = "8d24a4e345e42dd15f15cbfe56a248b57defc9c6147dcb02bf048f60104031e6"
+made_from = "30ba26186059bb2ed90e0b76104146179e97437918cdf953793e0ac5990d422b"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

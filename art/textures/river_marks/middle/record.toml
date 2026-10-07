@@ -1,0 +1,76 @@
+about = "the river's surface marks: flow lines along the current (the tile's x axis), ripple arcs and foam, light on see-through water; middle tile, 16 m across, version 1"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/river_marks/middle-sheet.webp"]
+original_sha256 = ["35b5bb6e7390f18e09e5dc5c50e044d7f0454e67a9fd0176d2507e82098cbb43"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's marks tiles, put on the texture-pixel grid by code, their levels made bolder and fewer by code; version 1 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; water marks only, nothing countable"
+approved = "not offered yet: the pilot's second piece, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/river_marks/middle/b2.png"
+sha256 = "2bc1af86c5117241da3c693b8d606c9c01f4444a3507f0f14f5e14d5ca07dc97"
+way = "the tile's picture (a block of 4, loss 0.0%), shifted 188 down and 232 across round its wrap so its ring is its most ordinary part, its border's broad tone flattened"
+regrid_loss = "0.0%"
+
+[[band]]
+level = 1
+file = "art/textures/river_marks/middle/b3.png"
+sha256 = "10ef7fcba2ff29326036bb84eba961a2c6e293274a8995416ae6f5e693bc7c94"
+made_from = "2bc1af86c5117241da3c693b8d606c9c01f4444a3507f0f14f5e14d5ca07dc97"
+way = "by code: each 2 x 2 block of the level above a mark where two of its four are, a single speck gone, and 50% of the marks kept, so the marks are bolder and fewer"
+
+[[band]]
+level = 2
+file = "art/textures/river_marks/middle/b4.png"
+sha256 = "15a014f5708d882227e2cb63d2af58f3c13b50b146385b62dee1438ab22f1d8d"
+made_from = "10ef7fcba2ff29326036bb84eba961a2c6e293274a8995416ae6f5e693bc7c94"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/river_marks/middle/b5.png"
+sha256 = "413dff83e49592548afd1ac2828e070e7adcfe18e9124b1970b3c8a1dd9b03c5"
+made_from = "15a014f5708d882227e2cb63d2af58f3c13b50b146385b62dee1438ab22f1d8d"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/river_marks/middle/b6.png"
+sha256 = "ed236ca0e07160b89a7f0b15a571eb4b6ebc2f57273cb9ec556f9879bbc95453"
+made_from = "413dff83e49592548afd1ac2828e070e7adcfe18e9124b1970b3c8a1dd9b03c5"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/river_marks/middle/b7.png"
+sha256 = "1eeeb2ba6806c4467e06fa06aa70f4ab04a5b03d1b25d75dc06c686d0a998cef"
+made_from = "ed236ca0e07160b89a7f0b15a571eb4b6ebc2f57273cb9ec556f9879bbc95453"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/river_marks/middle/b8.png"
+sha256 = "9dffacad48f58578296e4114f8105c1b87ed9d2828afa2291cab572a87a7f5d1"
+made_from = "1eeeb2ba6806c4467e06fa06aa70f4ab04a5b03d1b25d75dc06c686d0a998cef"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/river_marks/middle/b9.png"
+sha256 = "378a144d52045812595591f4f43ec86707f34f11cfd40b899192ff5ccc6a86fa"
+made_from = "9dffacad48f58578296e4114f8105c1b87ed9d2828afa2291cab572a87a7f5d1"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/river_marks/middle/b10.png"
+sha256 = "a4453452600016fe706236b62fe27a609c47f18b13b5deb9ba1be33287a3eb20"
+made_from = "378a144d52045812595591f4f43ec86707f34f11cfd40b899192ff5ccc6a86fa"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

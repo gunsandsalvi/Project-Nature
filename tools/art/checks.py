@@ -7,9 +7,11 @@ For each material under art/textures/ it checks, tile by tile:
 - the record's levels: every file is there, in the record's own folder, with the digest the record gives, each level
   named by the level above it (made_from), each half the size of the one above and running down to one texture pixel;
 - the numbers a record states: 256 texture pixels across at its first band, 64 a metre at band 0 and half that at each
-  band after, so a near tile is 4 m across, a middle tile 16 m and a far tile 64 m;
-- the versions: two to four of a tile, all sharing their ring at every designed level, each wrapping on itself and
-  joining every other without a seam (a join no larger than the tile's own large jumps);
+  band after, so a near tile is 4 m across, a middle tile 16 m and a far tile 64 m (a small thing's texture, the wood
+  for sticks, is one tile of 128 or 64 texture pixels at 64 a metre);
+- the versions: two to four of a tile (one is enough for a small thing's), all sharing their ring at every designed
+  level, each wrapping on itself and joining every other without a seam (a join no larger than the tile's own large
+  jumps);
 - no hard row or column inside any level (the builder's seam rule, tiles.inner_seams): a version whose quilted patches
   stop short of its shared border shows a straight line at every cell's edge;
 - the sources: every picture the record names is there;
@@ -38,6 +40,7 @@ SEAM = 1.2  # the most a join or wrap may jump over the tile's own large jumps (
 ACCENTS = 0.9  # each designed level keeps this share of the level above's accents (A4.8)
 COLOUR = 3.0  # the most a tile's lightness may differ from the reference's, in hundredths of OKLab's
 SERVES = {"near": 2, "middle": 2, "far": 3}  # bands whose designed levels each tile holds (A5.3)
+SMALL = (64, 128)  # tile sizes of a small thing's texture (the wood the club and the poles wear), in texture pixels
 
 
 class Report:
@@ -88,12 +91,15 @@ def tile_checks(report, name, tile):
             sizes == [record["tile_texels"] >> i for i in range(len(sizes))] and sizes[-1] == 1,
             f"{label}: levels halve from {record['tile_texels']} down to one texture pixel ({len(sizes)} levels)",
         )
+        small = record["tile_texels"] in SMALL  # a small thing's tile (wood for sticks), not a big surface's
         report.check(
-            record["tile_texels"] == 256
+            (record["tile_texels"] == 256 or (small and tile == "near"))
             and record["first_band"] == first_band
             and record["texels_a_metre"] == 64 >> first_band
-            and record["tile_texels"] / record["texels_a_metre"] == metres,
-            f"{label}: 256 texture pixels at {64 >> first_band} a metre from band {first_band}, {metres} m across",
+            and record["tile_texels"] / record["texels_a_metre"]
+            == (metres if not small else record["tile_texels"] / 64),
+            f"{label}: {record['tile_texels']} texture pixels at {64 >> first_band} a metre from band {first_band}, "
+            f"{record['tile_texels'] / record['texels_a_metre']:g} m across",
         )
         missing = [s for s in record["sources"] if not os.path.isfile(os.path.join(textures.ROOT, s))]
         report.check(not missing, f"{label}: its sources are kept" + (f" (missing {missing})" if missing else ""))
@@ -108,7 +114,8 @@ def tile_checks(report, name, tile):
         versions.append([p for _, p in levels])
         if first is None:
             first = levels
-    report.check(2 <= len(versions) <= 4, f"{name}/{tile}: {len(versions)} versions (two to four)")
+    least = 1 if first is not None and first[0][1].shape[0] in SMALL else 2  # a small thing needs only one
+    report.check(least <= len(versions) <= 4, f"{name}/{tile}: {len(versions)} versions ({least} to four)")
     for i in range(SERVES[tile]):
         ring = ring_of(versions, i)
         want = max(1, 4 >> i)

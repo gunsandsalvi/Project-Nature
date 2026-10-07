@@ -20,13 +20,14 @@ def numbers(stats):
     return "lightness {:+.1f}; hue {:+.1f}; colourfulness {:.0f}%; contrast {:.0f}%".format(*stats)
 
 
-def moved(picture, reference, contrast=100.0, match=False):
+def moved(picture, reference, contrast=100.0, match=False, more=100.0):
     """The picture moved to the reference's lightness, hue and colourfulness (look.stats of each), its contrast scaled
-    by `contrast` percent of its own, or, with `match`, to the reference's own contrast; and the four numbers of the
-    change."""
+    by `contrast` percent of its own, or, with `match`, to the reference's own contrast and then `more` percent of
+    that (a level whose bolder, fewer marks score lower on the screen than the level above asks for a little more);
+    and the four numbers of the change."""
     mine, want = look.stats(look.tiled(picture)), look.stats(look.tiled(reference))
     if match and mine["contrast"]:
-        contrast = 100.0 * want["contrast"] / mine["contrast"]
+        contrast = 100.0 * want["contrast"] / mine["contrast"] * more / 100.0
     lightness = want["lightness"] - mine["lightness"]
     hue = want["hue"] - mine["hue"]
     if hue > 180:
@@ -38,12 +39,13 @@ def moved(picture, reference, contrast=100.0, match=False):
     return out, (lightness, hue, colourfulness, contrast)
 
 
-def calibrate(picture, reference, contrast=100.0, match=False):
+def calibrate(picture, reference, contrast=100.0, match=False, more=100.0):
     """A picture moved to the reference level's colour, and its contrast scaled by `contrast` percent where its distance
     asks for more or less than the drawing has, or, with `match`, to the reference's own contrast, as a level drawn for
-    the next band is (bolder marks with softer tops come out calmer than the level above, and lose its accents):
+    the next band is (bolder marks with softer tops come out calmer than the level above, and lose its accents), and
+    then `more` percent of that:
     (the picture, the record's words)."""
-    out, change = moved(picture, reference, contrast, match)
+    out, change = moved(picture, reference, contrast, match, more)
     return out, numbers(change)
 
 

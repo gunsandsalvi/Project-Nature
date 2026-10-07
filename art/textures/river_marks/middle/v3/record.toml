@@ -1,0 +1,76 @@
+about = "the river's surface marks: flow lines along the current (the tile's x axis), ripple arcs and foam, light on see-through water; middle tile, 16 m across, version 3"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/river_marks/middle-sheet.webp"]
+original_sha256 = ["35b5bb6e7390f18e09e5dc5c50e044d7f0454e67a9fd0176d2507e82098cbb43"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's marks tiles, put on the texture-pixel grid by code, their levels made bolder and fewer by code; version 3 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; water marks only, nothing countable"
+approved = "not offered yet: the pilot's second piece, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/river_marks/middle/v3/b2.png"
+sha256 = "e3b163209fb196ee1f4da87d64db48345955a2aaa947f11f97e942a86ea6a1b9"
+way = "the tile's picture (a block of 4, loss 0.0%), its inside quilted from the tile's pictures in patches of 48 round the shared ring"
+regrid_loss = "0.0%"
+
+[[band]]
+level = 1
+file = "art/textures/river_marks/middle/v3/b3.png"
+sha256 = "5c5844dc9c2498a4c03640fff8557c5339b34eb3034b50fd61d834e6101e32f6"
+made_from = "e3b163209fb196ee1f4da87d64db48345955a2aaa947f11f97e942a86ea6a1b9"
+way = "by code: each 2 x 2 block of the level above a mark where two of its four are, a single speck gone, and 50% of the marks kept, so the marks are bolder and fewer"
+
+[[band]]
+level = 2
+file = "art/textures/river_marks/middle/v3/b4.png"
+sha256 = "d4269bd179b85ccb14141abd38a9af6e5dd7f64f630316fa59396dbe0e328c4a"
+made_from = "5c5844dc9c2498a4c03640fff8557c5339b34eb3034b50fd61d834e6101e32f6"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/river_marks/middle/v3/b5.png"
+sha256 = "102840958bf6d827b19ae2308f4522705741e7a862f52451df7de83c88bea5a5"
+made_from = "d4269bd179b85ccb14141abd38a9af6e5dd7f64f630316fa59396dbe0e328c4a"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/river_marks/middle/v3/b6.png"
+sha256 = "7174b2666f9375c250995dea45d049d70cb40f19eb78bb20be342f64bcdbcb78"
+made_from = "102840958bf6d827b19ae2308f4522705741e7a862f52451df7de83c88bea5a5"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/river_marks/middle/v3/b7.png"
+sha256 = "f562d7d86c2dd1ab048615fecd5dc24b4e67e85e2e14b44d25d0e2b3c6b94966"
+made_from = "7174b2666f9375c250995dea45d049d70cb40f19eb78bb20be342f64bcdbcb78"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/river_marks/middle/v3/b8.png"
+sha256 = "9dffacad48f58578296e4114f8105c1b87ed9d2828afa2291cab572a87a7f5d1"
+made_from = "f562d7d86c2dd1ab048615fecd5dc24b4e67e85e2e14b44d25d0e2b3c6b94966"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/river_marks/middle/v3/b9.png"
+sha256 = "378a144d52045812595591f4f43ec86707f34f11cfd40b899192ff5ccc6a86fa"
+made_from = "9dffacad48f58578296e4114f8105c1b87ed9d2828afa2291cab572a87a7f5d1"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/river_marks/middle/v3/b10.png"
+sha256 = "a4453452600016fe706236b62fe27a609c47f18b13b5deb9ba1be33287a3eb20"
+made_from = "378a144d52045812595591f4f43ec86707f34f11cfd40b899192ff5ccc6a86fa"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

@@ -1,0 +1,79 @@
+about = "the bed of a shallow river: cobbles, gravel and sand, shown alone (the water is a piece of its own, drawn over it); far tile, 64 m across, version 4"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/river_bed/far-sheet.webp", "art/sources/river_bed/near-sheet.webp"]
+original_sha256 = ["3c5c5c85314eb8c137dbd63d63c19c7dd3dd120d196fb5b4a7f07e130d7cfa4b", "29fa2760baef29e3fe979b5c8a00ddf67249bf35c7acafe75d0064bf5337d880"]
+c2pa = ["absent", "absent"]
+requests = []
+made = "drawn by the artist in conversation with the art lane, judged in the game's view against sheet 1.5's camera views, and put on the texture-pixel grid by code; version 4 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; cobbles, gravel and sand only, nothing countable at the game's size"
+approved = "not offered yet: the pilot's second piece, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/river_bed/far/v4/b4.png"
+sha256 = "82dbc8b88c3a9ca0fa0022475103dd7f173fb2f6af3c36765949efda19b1467c"
+way = "the tile's picture (a block of 2, loss 0.0%), moved to the reference's colour, its inside quilted from the tile's pictures in patches of 64 round the shared ring"
+regrid_loss = "0.0%"
+calibration = "lightness -1.9; hue -0.3; colourfulness 95%; contrast 45%"
+
+[[band]]
+level = 1
+file = "art/textures/river_bed/far/v4/b5.png"
+sha256 = "b75ec48caaa986afcd851015347e0ad5ab33448f6675b153b9490b1c57aa110e"
+made_from = "82dbc8b88c3a9ca0fa0022475103dd7f173fb2f6af3c36765949efda19b1467c"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.03; lightness +0.0; hue +0.0; colourfulness 100%; contrast 70%"
+
+[[band]]
+level = 2
+file = "art/textures/river_bed/far/v4/b6.png"
+sha256 = "37a4f4fcd86073108e7e4700e547d5128e1f47eb5d5dcba3348c65779ac4482d"
+made_from = "b75ec48caaa986afcd851015347e0ad5ab33448f6675b153b9490b1c57aa110e"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.03; lightness +0.0; hue -0.0; colourfulness 100%; contrast 55%"
+
+[[band]]
+level = 3
+file = "art/textures/river_bed/far/v4/b7.png"
+sha256 = "7ebaedf4bea8084a4ab84c8bd4292417779df57ac61d163af30b24d4f70d28cc"
+made_from = "37a4f4fcd86073108e7e4700e547d5128e1f47eb5d5dcba3348c65779ac4482d"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/river_bed/far/v4/b8.png"
+sha256 = "914bd2f56f021cac5c07b397d2c023d99c36841817efa1c01cf4034bb20ec56e"
+made_from = "7ebaedf4bea8084a4ab84c8bd4292417779df57ac61d163af30b24d4f70d28cc"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/river_bed/far/v4/b9.png"
+sha256 = "5ec09abdb1dd97db891d1b6795d257239501f3e7b585a121caea12fbcffc27eb"
+made_from = "914bd2f56f021cac5c07b397d2c023d99c36841817efa1c01cf4034bb20ec56e"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/river_bed/far/v4/b10.png"
+sha256 = "bb59b1d02fcac5c2c40d3465b45c9cc8000b2a16dfeabe27ee83115b52b2f35e"
+made_from = "5ec09abdb1dd97db891d1b6795d257239501f3e7b585a121caea12fbcffc27eb"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/river_bed/far/v4/b11.png"
+sha256 = "7192f8bfb4939ca0c2c23e9016e96d9f95f520840d0eb1b3c13ca4e548cc2ba7"
+made_from = "bb59b1d02fcac5c2c40d3465b45c9cc8000b2a16dfeabe27ee83115b52b2f35e"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/river_bed/far/v4/b12.png"
+sha256 = "6ed4aa1935e2dc431b0bc53bf63548df224ccbd74d575f853808dff6b659254f"
+made_from = "7192f8bfb4939ca0c2c23e9016e96d9f95f520840d0eb1b3c13ca4e548cc2ba7"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

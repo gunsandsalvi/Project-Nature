@@ -1,0 +1,32 @@
+Hello. I'm the art director of the art lane: we turn the owner's signed-off catalogue sheets into the textures and parts that the game engine reads. You are the artist and a fellow designer: you draw, I direct, measure and critique, and nothing reaches the owner until we both believe it holds up. Push back on anything here you think is wrong.
+
+This conversation is one piece: 4.1, the river (Kindling, a Stone Age world simulation for phones). It has two textures: the river bed (sheet 1.5, this turn) and the water's marks (flow lines, foam, ripples; a later turn). Both were drawn by you for the signed-off sheets, and the sheets are the standard. We have made one material before (a meadow) and learned what works, so this turn starts from that.
+
+HOW THE ENGINE SHOWS THE GROUND
+A texture pixel (a texel) is shown about 2 x 2 screen pixels at every zoom. The zoom has bands; each band halves the texels a metre: band 0 has 64 a metre, band 1 has 32, band 2 has 16, band 3 has 8, band 4 has 4, band 5 has 2, band 6 has 1. The camera looks 37 degrees down, so the ground is foreshortened: every texel is shown only about 0.6 as tall as wide on the screen. A big surface has three tiles, each 256 texels across at its first band: near (4 m across, 64 a metre, serves bands 0 and 1), middle (16 m, 16 a metre, serves bands 2 and 3) and far (64 m, 4 a metre, serves bands 4 to 6). Each band has its own level drawn as pixel art for that distance, with bolder marks and fewer of them: never the level above averaged. Several versions of each tile are made from your pictures by code (quilting), so more than one picture of the same material helps.
+
+THE PICTURES WITH THIS MESSAGE (the first five are at the phone's true size: one picture pixel is one screen pixel)
+1. sheet-camera-1to1.png: your own camera view of the bed from sheet 1.5, 540 x 540 pixels, about 4.4 m of ground.
+2. game-near-1to1.png: your near tile (the flat one on the sheet, enlarged 4 times in near-sheet-x4.png) laid on the ground the way the game draws it, same size of ground, with the light tuned so its colours match your camera view.
+3. near-sheet-x4.png: your near tile, every texel a flat 4 x 4 block.
+4. game-middle-band2-1to1.png: your middle tile in the game at band 2 (540 x 540 pixels is about 34 m of ground).
+5. middle-sheet-x4.png: your middle tile, every texel a flat 4 x 4 block.
+6. sheet-1.5-river_bed.png: the whole signed-off sheet.
+The exact 256 x 256 texel pictures are in the folder inputs/ (near-sheet-texels.png, middle-sheet-texels.png) for your own checks with code.
+
+WHAT IS WRONG WITH THE NEAR TILE IN THE GAME (picture 2 against picture 1)
+Your camera view is crisp: round, domed cobbles, each with a lit top at the upper left over a darker body and a thin dark rim, dense small gravel between them, each pebble clear. The flat tile, once the game lays it on the ground, comes out as flat ovals about half as tall as wide, with smeared tops, mushy gravel and none of the dark rims. Measured on 540 x 540 pixels: your camera view has contrast 8.8 and 27 small marks per thousand cells; the game's view of the flat tile has contrast 6.4 and 20. The colours match.
+
+THE JOB, THREE KINDS OF PICTURE (five pictures this turn)
+a) new near tiles: river-near-A.png and river-near-B.png: band 0, 256 x 256 texels, 4 m across (64 texels a metre, each texel 1.6 cm), seamless on all four sides, that read in the game's view like picture 1.
+ - Draw the cobbles about 1.5 times TALLER than wide in the flat tile, so that after the game's foreshortening they look about as round as in your camera view. Big cobbles about 24 to 32 texels wide and 36 to 48 tall, medium ones 12 to 20 wide, small gravel 3 to 7 texels, as dense as in your camera view, with dark gaps between.
+ - Each cobble: a light top (upper left, toward the top of the picture) over a darker body, a thin dark rim 1 texel wide. A few grey cobbles, a few dark ones, mostly the sand and tan family of the sheet.
+ - The same palette as the sheet (#706956 #8C826C #A1977D #B4A68A #C5B698 #848B88). Flat light, no shadows cast on the bed, no water, no tint, no ripples, no scale sticks. Nothing but cobbles, gravel and sand.
+ - No very large flat patches: the tile repeats every 4 m. Keep the average tone even over the tile.
+ - A and B are different arrangements of the same bed: same character, same average colour.
+b) river-near-A-b1.png and river-near-B-b1.png: the same bed one band farther out, from your new A and B: 128 x 128 texels (32 a metre, 3 cm each), seamless. Band 1 shows the same ground from twice as far, so cobbles are half the size in texels (big ones about 12 to 16 wide and 18 to 24 tall) and the small gravel under 3 texels is dropped or merged into the sand; marks bolder and fewer, no single-texel speckle, dark gaps kept. The marks should look BIGGER and CALMER than band 0's when you hold both at the true size, not busier.
+c) river-middle-b3.png: the level for band 3 of YOUR MIDDLE TILE (picture 5; keep its design, it is signed off): 128 x 128 texels (8 a metre, 12.5 cm each), seamless. It is the same sand ripples with their drifts of gravel, from twice as far: the drifts a little wider and calmer, the gravel in them as 2 to 3 texel stones in fewer groups, the large grey cobbles reduced to a few 3 to 4 texel blobs. It must read as the same ground as game-middle-band2-1to1.png seen from twice as far, not as a finer or busier ground. Marks of 2 texels or more; no single-texel speckle.
+
+HOW
+Save each as a PNG exactly 1024 x 1024 pixels with every texel one flat block: 4 x 4 pixels for the 256-texel tiles, 8 x 8 pixels for the 128-texel levels, nothing blurred. Each must wrap left to right and top to bottom. Keep each raw picture the tool returned, unchanged, in originals/ (copy the file as it is, never convert or resave it, so its provenance data stays) and say which original is which. Check with code that the grid is exact and that each tile wraps, and look at it at the game's size (one texel = 2 x 2 screen pixels, foreshortened to 0.6 high). Draw with your image tool, never with code. Bin any attempt that is clearly off rather than patching it.
+Reply in a few lines: what you changed from the sheet's tile, which picture you think is weakest and why, and the files you saved.

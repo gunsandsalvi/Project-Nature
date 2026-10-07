@@ -1,0 +1,76 @@
+about = "the river's surface marks: flow lines along the current (the tile's x axis), ripple arcs and foam, light on see-through water; near tile, 4 m across, version 3"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/river_marks/near-sheet.webp"]
+original_sha256 = ["42f338529664c39203b7ba379101c55c41ea2885a2c6cf5c982f129c31e24de9"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's marks tiles, put on the texture-pixel grid by code, their levels made bolder and fewer by code; version 3 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; water marks only, nothing countable"
+approved = "not offered yet: the pilot's second piece, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/river_marks/v3/b0.png"
+sha256 = "baa7061ea0d20536fc6f1316bfc86bfab414620fbc7f041a55840bb3fa689a1f"
+way = "the tile's picture (a block of 4, loss 0.0%), its inside quilted from the tile's pictures in patches of 48 round the shared ring"
+regrid_loss = "0.0%"
+
+[[band]]
+level = 1
+file = "art/textures/river_marks/v3/b1.png"
+sha256 = "f3ed07370f6cae1d19b4768d35c9543650da72bebc92aa8e7639df9168cd3b3f"
+made_from = "baa7061ea0d20536fc6f1316bfc86bfab414620fbc7f041a55840bb3fa689a1f"
+way = "by code: each 2 x 2 block of the level above a mark where two of its four are, a single speck gone, and 50% of the marks kept, so the marks are bolder and fewer"
+
+[[band]]
+level = 2
+file = "art/textures/river_marks/v3/b2.png"
+sha256 = "a441e42c562495b2401c15a3c404c418b935b388cdbc984ade4547590b6cbe49"
+made_from = "f3ed07370f6cae1d19b4768d35c9543650da72bebc92aa8e7639df9168cd3b3f"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/river_marks/v3/b3.png"
+sha256 = "c1f0a656e8f7c760578ed38872a4fea2054ac1e5e5fdc34ebaa7148bcef18ab8"
+made_from = "a441e42c562495b2401c15a3c404c418b935b388cdbc984ade4547590b6cbe49"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/river_marks/v3/b4.png"
+sha256 = "496649d369a18ef19e6fead0bab14b00827a3f06cba37d496a3af37c8548ee3a"
+made_from = "c1f0a656e8f7c760578ed38872a4fea2054ac1e5e5fdc34ebaa7148bcef18ab8"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/river_marks/v3/b5.png"
+sha256 = "e66d9682a776e2be221f0b6ab57558e2b47b6b9c476672397439172ac4d549c9"
+made_from = "496649d369a18ef19e6fead0bab14b00827a3f06cba37d496a3af37c8548ee3a"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/river_marks/v3/b6.png"
+sha256 = "9dffacad48f58578296e4114f8105c1b87ed9d2828afa2291cab572a87a7f5d1"
+made_from = "e66d9682a776e2be221f0b6ab57558e2b47b6b9c476672397439172ac4d549c9"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/river_marks/v3/b7.png"
+sha256 = "378a144d52045812595591f4f43ec86707f34f11cfd40b899192ff5ccc6a86fa"
+made_from = "9dffacad48f58578296e4114f8105c1b87ed9d2828afa2291cab572a87a7f5d1"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/river_marks/v3/b8.png"
+sha256 = "a4453452600016fe706236b62fe27a609c47f18b13b5deb9ba1be33287a3eb20"
+made_from = "378a144d52045812595591f4f43ec86707f34f11cfd40b899192ff5ccc6a86fa"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

@@ -1,0 +1,50 @@
+# The river's marks (catalogue 4.1): what tools/art/make_tiles.py reads to make art/textures/river_marks/ from the
+# pictures kept in art/sources/river_marks/: the light marks of the current (flow lines, ripple arcs, foam) on see-through
+# water, which the engine draws over the bed and moves by whole texture pixels ten times a second. Nothing here is
+# random: the same recipe gives the same bytes.
+name = "river_marks"
+about = "the river's surface marks: flow lines along the current (the tile's x axis), ripple arcs and foam, light on see-through water"
+seed = 4101
+reference = "near"
+# the pictures are drawn on this colour, which becomes see-through; the see-through pixels keep the bleed colour
+key = "#ff00ff"
+bleed = "#aac4b6"
+how = "the sheet's marks tiles, put on the texture-pixel grid by code, their levels made bolder and fewer by code"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; water marks only, nothing countable"
+approved = "not offered yet: the pilot's second piece, waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 8
+patch = 48
+serves = 2
+sheet = "art/sources/river_marks/near-sheet.webp"
+
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 8
+patch = 48
+serves = 2
+sheet = "art/sources/river_marks/middle-sheet.webp"
+
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 8
+patch = 48
+serves = 3
+coarse_of = "middle"
+keep = 60
+
+[[tile.level]]
+level = 1
+keep = 100
+
+[[tile.level]]
+level = 2
+keep = 100

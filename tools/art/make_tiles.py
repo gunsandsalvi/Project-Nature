@@ -32,13 +32,14 @@ import textures
 import tiles
 
 
-def picture(path, snap=None):
+def picture(path, snap=None, cells=None):
     """A picture kept in art/sources/ as texture pixels: its block found, each block made one pixel; and the loss. A
     drawing from the image tool, which sits on no exact grid and does not wrap, is named `snap` (its cells' size in
-    picture pixels): its cells are found and each made a pixel (tiles.snap), and it is larger than a tile."""
+    picture pixels): its cells are found and each made a pixel (tiles.snap), and it is larger than a tile, unless
+    `cells` fixes how many cells it has across."""
     pic = tiles.read_rgb(os.path.join(textures.ROOT, path))
     if snap:
-        texels, loss = tiles.snap(pic, snap)
+        texels, loss = tiles.snap(pic, snap, cells)
         return texels, snap, loss
     block = tiles.block_size(pic)
     texels, loss = tiles.regrid(pic, block)
@@ -116,17 +117,25 @@ def make_tile(spec, reference, seed, key=None, given=None):
         raise ValueError("a tile's drawn levels come first, one after another from level 1")
     sources, pictures, calibrations = [first, *extras], [], []
     for j in sorted(drawn):  # each picture drawn for a level, moved to the colour and contrast of its source above
-        cells = drawn[j].get("snap")
+        hint, count = drawn[j].get("snap"), drawn[j].get("cells")
         pairs = [
-            (picture(p, cells)[0], "") if key is not None else fit.calibrate(picture(p, cells)[0], up, match=True)
+            (picture(p, hint, count)[0], "")
+            if key is not None
+            else fit.calibrate(picture(p, hint, count)[0], up, match=True, more=float(drawn[j].get("contrast", 100)))
             for p, up in zip(drawn[j]["pictures"], sources, strict=True)
         ]
-        sources = common_size([p for p, _ in pairs]) if cells else [p for p, _ in pairs]
+        sources = common_size([p for p, _ in pairs]) if hint else [p for p, _ in pairs]
         pictures.append(sources)
         calibrations.append(pairs[0][1])
     if snap:
         versions = tiles.make_versions_open(
-            [first, *extras], spec["versions"], spec["ring"], spec["overlap"], spec["patch"], seed, 256
+            [first, *extras],
+            spec["versions"],
+            spec["ring"],
+            spec["overlap"],
+            spec["patch"],
+            seed,
+            spec.get("texels", 256),
         )
         shift = None
     else:
@@ -153,7 +162,7 @@ def make_tile(spec, reference, seed, key=None, given=None):
                     drawn[j].get("overlap", max(2, spec["overlap"] // scale)),
                     drawn[j].get("patch", max(8, spec["patch"] // scale)),
                     seed + j,
-                    256 // scale,
+                    spec.get("texels", 256) // scale,
                     scale,
                 )
             )
@@ -290,7 +299,9 @@ def main(argv):
             reference = chains[0][0]
         if key is not None:  # the marks' own colours stay, everything else becomes see-through
             chains = [[tiles.to_rgba(level, key, bleed) for level in chain] for chain in chains]
-        _, metres, first_band = textures.TILES[tile]
+        _, _, first_band = textures.TILES[tile]
+        texels = spec.get("texels", 256)
+        metres = texels / (64 >> first_band)  # 4, 16 or 64 m for a big surface's tiles, 2 m for a small thing's
         paths, digests, c2pa = provenance(spec, specs)
         if "colour_from" in recipe and recipe["colour_from"] not in paths:  # its colours were measured, so it is named
             entry = ingest.entry(recipe["colour_from"])
@@ -299,7 +310,7 @@ def main(argv):
             fields = {
                 "about": f"{recipe['about']}; {tile} tile, {metres} m across, version {v}",
                 "route": "picture",
-                "tile_texels": 256,
+                "tile_texels": texels,
                 "texels_a_metre": 64 >> first_band,
                 "first_band": first_band,
                 "sources": paths,
