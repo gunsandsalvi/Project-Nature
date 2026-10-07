@@ -103,6 +103,9 @@ art_book = ["village-truthful"]
 [[piece]]
 id = "digging_stick"
 name = "Digging stick"
+what = "A stout stick with a fire-hardened point, for digging roots and holes; some carry a bored stone as a weight."
+sheet = "sheets/17.14-digging_stick.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "club"
