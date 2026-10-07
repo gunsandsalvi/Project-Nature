@@ -119,7 +119,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "fire_kit"
 name = "Fire-making kit"
-what = "drill and hearth board, and the fire plough"
+what = "The hand drill and its hearth board, and the fire plough: two ways to make an ember from wood."
+sheet = "sheets/17.16-fire_kit.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "needle"
