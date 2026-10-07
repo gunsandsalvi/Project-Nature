@@ -177,7 +177,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's readings in, every probe passed |
 | α2.1b | The look's checks | M2 | 6 | Delivered as 30102 on 6 October 2026; your blind test, MSAA 4× against 2× on the meadow: 3 of 10 right, so the difference does not show |
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
-| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | **Under way:** T2.2b.1 to T2.2b.3, C2's leaves, C5's fires and C6's figures, built |
+| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Delivered as 30202 on 7 October 2026; waiting for your phone's calibration code and your two blind tests, whose decisions come before the next step |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
 | α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 (its tools and 18 materials) and round 2 (the kit's first parts in Blender and 22 materials) joined on 6 October 2026; its next round above under way, by your rules for working with GPT; the rest after α2.2 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
@@ -336,7 +336,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - The decisions, stated now: C2's cheapest way that you cannot tell from plain cards in a blind test becomes the default, and if it still costs over 1.5 ms for the leaves, the leaf pre-pass is built (α2.2c); C5's map for each fire becomes the way unless you see a difference from the walk; C6's time for each figure sets how many Godot skeletons may be in view within 1.0 ms of the main thread, the rest on palettes.
 - Passes if every scene runs to its code on the phone.
 
-**On the phone:** run Calibrate again (about 15 minutes) and send the code; then the blind tests of the leaf ways and of fire shadows by map against the walk.
+**On the phone:** run Calibrate again (about 19 minutes) and send the code; then the blind tests of the leaf ways and of fire shadows by map against the walk.
 
 ### α2.2c Our own build of Godot, if needed
 
