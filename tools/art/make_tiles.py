@@ -1,0 +1,155 @@
+"""Makes a big surface's textures from the pictures in art/sources/ and a recipe (A5.3, A5.4): for each of its near,
+middle and far tiles, two to four versions that share their ring, each with its designed levels and the levels down to
+one texture pixel the engine reads, written with their records under art/textures/<name>/.
+
+    python3 tools/art/make_tiles.py tools/art/recipes/<name>.toml
+
+A tile's recipe names the picture its first level comes from (`sheet`), further pictures of the same material that its
+versions are quilted from (`extra`), and for each designed level either the pictures drawn for it (one for each of
+those, in order) or none, in which case code makes it (with a `contrast` in percent to calm it). The raw originals of
+the pictures are named for the record (`originals`). Nothing is random, so the same recipe and sources give the same
+files. The colour measures it fits to come from `kindling look` (set KINDLING to its path if it is not at
+build/sim/kindling). Implements PRE-20, PRE-22 and PRE-46, see A5.3 and A5.4.
+"""
+
+import os
+import sys
+import tomllib
+
+import fit
+import ingest
+import textures
+import tiles
+
+
+def picture(path):
+    """A picture kept in art/sources/ as texture pixels: its block found, each block made one pixel; and the loss."""
+    pic = tiles.read_rgb(os.path.join(textures.ROOT, path))
+    block = tiles.block_size(pic)
+    texels, loss = tiles.regrid(pic, block)
+    return texels, block, loss
+
+
+def coded_level(levels, ring, level, contrast):
+    """The next level made by code from every version of the level above, with the numbers fitted on the first version
+    and the contrast scaled by `contrast` percent, and each version's ring put back as the first version's."""
+    _, amount, change, words = fit.fit_reduction(levels[level - 1][0], contrast=contrast)
+    made = [fit.reduced(v, amount, change) for v in levels[level - 1]]
+    keep = max(1, ring >> level)
+    return [made[0]] + [tiles.impose_ring(m, made[0], keep) for m in made[1:]], words
+
+
+def make_tile(spec, reference, seed):
+    """One tile: its versions' chains of levels, the words for each level, and the numbers its record states."""
+    first, block, loss = picture(spec["sheet"])
+    calibration = ""
+    if reference is not None:
+        first, calibration = fit.calibrate(first, reference)
+    extras = [fit.calibrate(picture(p)[0], first)[0] for p in spec.get("extra", [])]
+    flatten = spec.get("flatten")
+    versions, shift, ops = tiles.make_versions(
+        first, spec["versions"], spec["ring"], spec["overlap"], spec["patch"], seed, flatten, extras
+    )
+    levels, ways = [versions], [{"calibration": calibration} if calibration else {}]
+    sources = [first, *extras]
+    drawn = {t["level"]: t for t in spec.get("level", []) if "pictures" in t}
+    coded = {t["level"]: t for t in spec.get("level", []) if "pictures" not in t}
+    for j in range(1, spec["serves"]):
+        if j in drawn:
+            pairs = [fit.calibrate(picture(p)[0], up) for p, up in zip(drawn[j]["pictures"], sources, strict=True)]
+            sources = [p for p, _ in pairs]
+            levels.append(tiles.relevel(sources, shift, ops, spec["ring"], spec["overlap"], flatten, 2**j))
+            ways.append(
+                {
+                    "way": "drawn for this band, then moved to the level above's colour; the other versions cut as the "
+                    "first level's were, from the pictures drawn for each of its sources",
+                    "calibration": pairs[0][1],
+                }
+            )
+        else:
+            made, words = coded_level(levels, spec["ring"], j, float(coded.get(j, {}).get("contrast", 100)))
+            levels.append(made)
+            ways.append(
+                {
+                    "way": "by code: the level above averaged and sharpened until its accents match, then calibrated",
+                    "calibration": words,
+                }
+            )
+    chains = [tiles.complete_chain([level[v] for level in levels]) for v in range(len(versions))]
+    return chains, ways, shift, block, loss
+
+
+def provenance(spec):
+    """The record's lists of sources, originals' digests and C2PA words for every picture a tile came from."""
+    paths = [spec["sheet"], *spec.get("extra", []), *spec.get("originals", [])]
+    for t in spec.get("level", []):
+        if "pictures" in t:
+            paths += [*t["pictures"], *t.get("originals", [])]
+    entries = [ingest.entry(p) for p in paths]
+    return paths, [e["sha256"] for e in entries], [e["c2pa"] for e in entries]
+
+
+def words_of(index, serves, ways, version, shift, spec, block, loss):
+    """The record's table of words for one level of one version."""
+    if index == 0:
+        how = f"the tile's picture (a block of {block}, loss {loss * 100:.1f}%)"
+        if ways[0].get("calibration"):
+            how += ", moved to the reference's colour"
+        if version == 1:
+            how += (
+                f", shifted {shift[0]} down and {shift[1]} across round its wrap so its ring is its most ordinary part,"
+                " its border's broad tone flattened"
+            )
+        else:
+            how += f", its inside quilted from the tile's pictures in patches of {spec['patch']} round the shared ring"
+        out = {"way": how, "regrid_loss": f"{loss * 100:.1f}%"}
+        out.update(ways[0])
+        return out
+    if index < serves:
+        return ways[index]
+    return {"way": "the average of the level above, so the levels run down to one texture pixel; no band shows it"}
+
+
+def main(argv):
+    if len(argv) != 2:
+        print(__doc__)
+        return 2
+    with open(argv[1], "rb") as f:
+        recipe = tomllib.load(f)
+    name = recipe["name"]
+    specs = {t["tile"]: t for t in recipe["tile"]}
+    order = [recipe["reference"]] + [t for t in specs if t != recipe["reference"]]
+    reference = None
+    for index, tile in enumerate(order):
+        spec = specs[tile]
+        chains, ways, shift, block, loss = make_tile(spec, reference, recipe["seed"] + index)
+        if reference is None:
+            reference = chains[0][0]
+        _, metres, first_band = textures.TILES[tile]
+        paths, digests, c2pa = provenance(spec)
+        for v, chain in enumerate(chains, start=1):
+            fields = {
+                "about": f"{recipe['about']}; {tile} tile, {metres} m across, version {v}",
+                "route": "picture",
+                "tile_texels": 256,
+                "texels_a_metre": 64 >> first_band,
+                "first_band": first_band,
+                "sources": paths,
+                "original_sha256": digests,
+                "c2pa": c2pa,
+                "requests": spec.get("requests", []),
+                "made": f"{recipe['how']}; version {v} of {len(chains)}, its ring of {spec['ring']} texture pixels "
+                f"shared with the others so any two join without a seam; levels 0 to {spec['serves'] - 1} designed for "
+                "the bands it serves",
+                "regrid_loss": f"{loss * 100:.1f}%: the picture is already on its grid, each block one colour",
+                "truth": recipe["truth"],
+                "approved": recipe["approved"],
+            }
+            table = [words_of(i, spec["serves"], ways, v, shift, spec, block, loss) for i in range(len(chain))]
+            where = textures.write_texture(name, tile, v, fields, chain, table)
+            print(f"{textures.entry_name(name, tile, v)}: {len(chain)} levels in {where}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

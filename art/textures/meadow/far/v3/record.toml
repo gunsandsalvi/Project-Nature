@@ -1,0 +1,79 @@
+about = "meadow grass and earth: short grass blades with earth showing between them (tufts, flowers and stones are pieces of their own); far tile, 64 m across, version 3"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/meadow/far-sheet.webp", "art/sources/meadow/far-original.webp"]
+original_sha256 = ["f701f1e0a207605e5cbfa66729068b3a47f91171f0e85640527ca261ab2593ca", "14faef085ab64baf2326f4602794322abd520aaee158361a2668b139cfe17eb4"]
+c2pa = ["absent", "present"]
+requests = []
+made = "drawn by the artist in conversation with the art lane, each tile judged in the game's view against sheet 1.1's camera views, and put on the texture-pixel grid by code; version 3 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; grass and earth only, nothing countable, no tufts, flowers or stones"
+approved = "not offered yet: the pilot's first piece, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/meadow/far/v3/b4.png"
+sha256 = "e1f231798a794c9d48458ff78c38c50e0f4ebd1167d436e293c7010757233e1f"
+way = "the tile's picture (a block of 2, loss 0.0%), moved to the reference's colour, its inside quilted from the tile's pictures in patches of 64 round the shared ring"
+regrid_loss = "0.0%"
+calibration = "lightness +0.4; hue +4.8; colourfulness 116%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/meadow/far/v3/b5.png"
+sha256 = "7cc81e495833222f9c035f85fe4ad6df4734c3d625e50307e7f7ddb3f8e975ef"
+made_from = "e1f231798a794c9d48458ff78c38c50e0f4ebd1167d436e293c7010757233e1f"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.80; lightness -0.0; hue +0.0; colourfulness 100%; contrast 75%"
+
+[[band]]
+level = 2
+file = "art/textures/meadow/far/v3/b6.png"
+sha256 = "6e259ab42bcdd314a7216eb56e326aee089fd732d213b6776e805492600a9854"
+made_from = "7cc81e495833222f9c035f85fe4ad6df4734c3d625e50307e7f7ddb3f8e975ef"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 1.41; lightness -0.0; hue -0.0; colourfulness 100%; contrast 50%"
+
+[[band]]
+level = 3
+file = "art/textures/meadow/far/v3/b7.png"
+sha256 = "cebc14f9e7d288c2fdb7b3e0b4b4899b9a31949e0af994ba4da84d103db2758d"
+made_from = "6e259ab42bcdd314a7216eb56e326aee089fd732d213b6776e805492600a9854"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/meadow/far/v3/b8.png"
+sha256 = "ca9c9c8e725b0932a69b4ff0c130213421b2008a71fb54c6344ee43285c0a380"
+made_from = "cebc14f9e7d288c2fdb7b3e0b4b4899b9a31949e0af994ba4da84d103db2758d"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/meadow/far/v3/b9.png"
+sha256 = "b2904ff88f4ba61cc28bf3c7b9008113b6e8a9ba2ce03dfc5299e109d6324642"
+made_from = "ca9c9c8e725b0932a69b4ff0c130213421b2008a71fb54c6344ee43285c0a380"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/meadow/far/v3/b10.png"
+sha256 = "e457cc129caa8b231eb532348d96a77c42761c1c8c88e312dbcebcdba45815b8"
+made_from = "b2904ff88f4ba61cc28bf3c7b9008113b6e8a9ba2ce03dfc5299e109d6324642"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/meadow/far/v3/b11.png"
+sha256 = "4aecfa559a02b9467f7d3df650daf890e38e979242e72a0c8b76040fc42ecf14"
+made_from = "e457cc129caa8b231eb532348d96a77c42761c1c8c88e312dbcebcdba45815b8"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/meadow/far/v3/b12.png"
+sha256 = "8aaa36ae85a6ea1d21b8200afce0349aea6fb51e58d6aec28753d08afc36b1b7"
+made_from = "4aecfa559a02b9467f7d3df650daf890e38e979242e72a0c8b76040fc42ecf14"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

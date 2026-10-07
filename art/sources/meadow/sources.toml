@@ -1,0 +1,112 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["far-original.webp"]
+sha256 = "14faef085ab64baf2326f4602794322abd520aaee158361a2668b139cfe17eb4"
+c2pa = "present"
+note = "the picture the image tool returned for the sheet's far tile, unchanged"
+
+["far-sheet.webp"]
+sha256 = "f701f1e0a207605e5cbfa66729068b3a47f91171f0e85640527ca261ab2593ca"
+c2pa = "absent"
+note = "the far tile of sheet 1.1 (signed off 7 October 2026): 512 x 512, each texture pixel a 2 x 2 block, put on its grid by the artist's code in the catalogue's conversation"
+
+["middle-A-b3-original.webp"]
+sha256 = "816e326c13f5c9577858f59c5c5f53bed58f16ea55aed716cda9371f07f7bec1"
+c2pa = "present"
+note = "the picture the image tool returned for middle tile A's band 3 level, unchanged"
+
+["middle-A-b3.webp"]
+sha256 = "09e51ca1b11d9c377dba309cd6f60e196da1455810d0761e133ee8f4e2d42255"
+c2pa = "absent"
+note = "the level for band 3 of middle tile A as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+
+["middle-A-original.webp"]
+sha256 = "0be28477d078726a9d767bf9d08559a954ad2cce6b57a32bca582e98dec1e60d"
+c2pa = "present"
+note = "the picture the image tool returned for middle tile A, unchanged"
+
+["middle-A.webp"]
+sha256 = "4aa8be6a57628b5595c9f57993a9a03c9ebabc4722376954691db32a8d77dc53"
+c2pa = "absent"
+note = "middle tile A as the artist drew it in turn 3: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"
+
+["middle-B-b3-original.webp"]
+sha256 = "7b8cc8c721a86432f814ea7d33f59150885f4aa6882c094947e4aaf2d1359f53"
+c2pa = "present"
+note = "the picture the image tool returned for middle tile B's band 3 level, unchanged"
+
+["middle-B-b3.webp"]
+sha256 = "4421d07cc2104ffb5fbde269b1ef264f04cbb203271368588f962e3f6950b1b3"
+c2pa = "absent"
+note = "the level for band 3 of middle tile B as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+
+["middle-B-original.webp"]
+sha256 = "2c1f32432153a43806a7886d9572758889c465c9684148f7b7db895926c2bcb3"
+c2pa = "present"
+note = "the picture the image tool returned for middle tile B, unchanged"
+
+["middle-B.webp"]
+sha256 = "56c2ae680f84b4b086db10b44f5a48665a47bab194b1247e2b84a10b4e9dc4f3"
+c2pa = "absent"
+note = "middle tile B as the artist drew it in turn 3: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"
+
+["middle-C-b3-original.webp"]
+sha256 = "3c9f1aa4fed1b0bc601cd299d4ba080e42095cf227c3644b9fa9b56b74e9e1db"
+c2pa = "present"
+note = "the picture the image tool returned for middle tile C's band 3 level, unchanged"
+
+["middle-C-b3.webp"]
+sha256 = "ae5939bc4ca6b45439cfad0bd74b3cab7764f6aca45a3c0285f29bcff7c40a06"
+c2pa = "absent"
+note = "the level for band 3 of middle tile C as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+
+["middle-C-original.webp"]
+sha256 = "88635e3c33891e896296f0f8070cab964f7af62f92f4d91c41b55e6bab73e8f5"
+c2pa = "present"
+note = "the picture the image tool returned for middle tile C, unchanged"
+
+["middle-C.webp"]
+sha256 = "c72fc7325577ace1077d030696120a5cc3928e1f18379e576d769f4aafdb70e3"
+c2pa = "absent"
+note = "middle tile C as the artist drew it in turn 3: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"
+
+["near-A-b1-original.webp"]
+sha256 = "a97b190be0828e920634f4925a7f4c2ffc096ceda5722b3c33ecc11a12419385"
+c2pa = "present"
+note = "the picture the image tool returned for near tile A's band 1 level, unchanged"
+
+["near-A-b1.webp"]
+sha256 = "7be81b8a3703aaed68316d177c83b133909db3d44f9a79debd48d60523cf417f"
+c2pa = "absent"
+note = "the level for band 1 of near tile A as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+
+["near-A-original.webp"]
+sha256 = "269bc5847a3bffadce753672309a50a3e693966f124d59b587378d6b4f7877a8"
+c2pa = "present"
+note = "the picture the image tool returned for near tile A, unchanged"
+
+["near-A.webp"]
+sha256 = "2e46b8779578bb9b5a7a73042797cd15fca06b1ecfe0adcc632a61140f6ff6c3"
+c2pa = "absent"
+note = "near tile A as the artist drew it in turn 2: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"
+
+["near-C-b1-original.webp"]
+sha256 = "890de49e08c5f181e2ed20ad6d49752e4cdfe7d40ee4a89149f72cbdd02bdd77"
+c2pa = "present"
+note = "the picture the image tool returned for near tile C's band 1 level, unchanged"
+
+["near-C-b1.webp"]
+sha256 = "c0853284d5ea6a214be089a3f35d803ec73dacce8f587c87609df61ebabb20da"
+c2pa = "absent"
+note = "the level for band 1 of near tile C as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+
+["near-C-original.webp"]
+sha256 = "b9c1ddd6c594dc477dec56f0bbc01c625ff458a5b342eb8edbf94704a2c68371"
+c2pa = "present"
+note = "the picture the image tool returned for near tile C, unchanged"
+
+["near-C.webp"]
+sha256 = "0b8313795e7ab37e14846616b4e8da81dcd9ab6f920a703ad92bb28fced15703"
+c2pa = "absent"
+note = "near tile C as the artist drew it in turn 2: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"

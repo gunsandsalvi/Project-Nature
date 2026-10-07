@@ -1,0 +1,72 @@
+# The meadow's textures (catalogue 1.1): what tools/art/make_tiles.py reads to make art/textures/meadow/ from the
+# pictures kept in art/sources/meadow/. Nothing here is random: the same recipe gives the same bytes.
+name = "meadow"
+about = "meadow grass and earth: short grass blades with earth showing between them (tufts, flowers and stones are pieces of their own)"
+seed = 1101
+reference = "near"
+how = "drawn by the artist in conversation with the art lane, each tile judged in the game's view against sheet 1.1's camera views, and put on the texture-pixel grid by code"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; grass and earth only, nothing countable, no tufts, flowers or stones"
+approved = "not offered yet: the pilot's first piece, waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 8
+patch = 48
+serves = 2
+sheet = "art/sources/meadow/near-A.webp"
+extra = ["art/sources/meadow/near-C.webp"]
+originals = ["art/sources/meadow/near-A-original.webp", "art/sources/meadow/near-C-original.webp"]
+requests = ["art/requests/meadow/turn-02.txt", "art/requests/meadow/turn-04.txt"]
+
+[[tile.level]]
+level = 1
+pictures = ["art/sources/meadow/near-A-b1.webp", "art/sources/meadow/near-C-b1.webp"]
+originals = ["art/sources/meadow/near-A-b1-original.webp", "art/sources/meadow/near-C-b1-original.webp"]
+
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 8
+patch = 48
+serves = 2
+sheet = "art/sources/meadow/middle-A.webp"
+extra = ["art/sources/meadow/middle-B.webp", "art/sources/meadow/middle-C.webp"]
+originals = [
+  "art/sources/meadow/middle-A-original.webp",
+  "art/sources/meadow/middle-B-original.webp",
+  "art/sources/meadow/middle-C-original.webp",
+]
+requests = ["art/requests/meadow/turn-03.txt", "art/requests/meadow/turn-04.txt"]
+
+[[tile.level]]
+level = 1
+pictures = ["art/sources/meadow/middle-A-b3.webp", "art/sources/meadow/middle-B-b3.webp", "art/sources/meadow/middle-C-b3.webp"]
+originals = [
+  "art/sources/meadow/middle-A-b3-original.webp",
+  "art/sources/meadow/middle-B-b3-original.webp",
+  "art/sources/meadow/middle-C-b3-original.webp",
+]
+
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 24
+flatten = 32
+patch = 64
+serves = 3
+sheet = "art/sources/meadow/far-sheet.webp"
+originals = ["art/sources/meadow/far-original.webp"]
+
+# The far tile's swathes would show as a lattice at bands 5 and 6, where eight of its tiles lie across the screen, so its
+# coarser levels are calmed: their contrast scaled to this many percent of what keeps the level above's accents.
+[[tile.level]]
+level = 1
+contrast = 75
+
+[[tile.level]]
+level = 2
+contrast = 50
