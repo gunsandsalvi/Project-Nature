@@ -7,8 +7,10 @@ items = ["WLD-17", "WLD-26", "PRE-26"]
 [[piece]]
 id = "river"
 name = "River"
-what = "meanders, current lines, foam, glints, the bed showing in the shallows"
+what = "River"
 art_book = ["d2-pixel-paint", "close-camp", "camp-thirty"]
+sheet = "sheets/4.1-river.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "ford"
