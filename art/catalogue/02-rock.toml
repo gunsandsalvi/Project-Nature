@@ -93,8 +93,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "cliff"
 name = "Cliffs and their marks"
-what = "layered cliffs with cracks, fissures, lichen, water stains, soot over lived-in caves, grass hanging over the top and scree at the foot"
+what = "Cliff and its marks"
 art_book = ["d2-pixel-paint", "first-cave", "camp-thirty"]
+sheet = "sheets/2.13-cliff.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "rock_shelter"
