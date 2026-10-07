@@ -173,7 +173,8 @@ def compose(spec, folder):
 
     repeats = spec.get("repeat", [])
     if repeats:
-        sheet.text("Repeated 3 x 3, to show how the pattern reads over wider ground.", 26, bold=True)
+        about = "Repeated 3 x 3, to show how the pattern reads over wider ground."
+        sheet.text(spec.get("repeat_title", about), 26, bold=True)
         row = []
         for k in repeats:
             picture, t = tiles[k]
