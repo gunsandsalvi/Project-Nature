@@ -48,7 +48,9 @@ what = "stony ground with low aromatic plants"
 [[piece]]
 id = "stony_desert"
 name = "Stony desert"
-what = "wind-swept stones and gravel"
+what = "a desert pavement: a close mosaic of wind-polished, dark-varnished pebbles, 1 to 6 cm, packed into pale silt, with a thin skin of blown sand drifting between them in places"
+sheet = "sheets/3.7-stony_desert.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "dunes"
