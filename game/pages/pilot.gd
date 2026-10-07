@@ -1,38 +1,70 @@
-## The Pilot page (T2.3b.2 and T2.3b.4, and the pilot of 7 October 2026): the stand-in area, a
-## meadow with a river across it, drawn as the game will draw it at the game's camera in the late
-## afternoon: the ground's tiles near, middle and far, each in versions picked by place and
-## blending where one takes over from the next; the river's bed below the water's level, tinted by
-## depth, with the surface's marks stepping in whole texture pixels, its glints and its shore line.
-## Pick a place, then a zoom band, and each band reads its own tile. Implements PRE-23, PRE-26 and
-## PRE-22.
+## The Pilot page (T2.3b.2 and T2.3b.4, T2.3c.2, and the pilot of 7 October 2026): the stand-in
+## area, a meadow with a river across it and a camp on its bank, drawn as the game will draw it at
+## the game's camera in the late afternoon: the ground's tiles near, middle and far, each in
+## versions picked by place and blending where one takes over from the next; the river's bed below
+## the water's level, tinted by depth, with the surface's marks stepping in whole texture pixels,
+## its glints and its shore line; and the camp's tent and club, put together from the kit's parts
+## and set on the ground where the area's tuning says. Pick a place, then a zoom band, and each band
+## reads its own tile; or open a piece's sheet at the top, the signed-off picture it came from, with
+## what the engine draws of it below, at true size or enlarged to 8 screen pixels a texture pixel.
+## Implements PRE-23, PRE-26, PRE-22, PRE-46 and PRE-42.
 extends RigPage
 
 const LAND_SHADER := preload("res://look/land.gdshader")
 const RIVER_SHADER := preload("res://look/land-river.gdshader")
 const WATER_SHADER := preload("res://look/water.gdshader")
+const PART_SHADER := preload("res://look/part.gdshader")
 ## Metres a screen pixel at band 0, the closest zoom (A5.3): a texture pixel 2 screen pixels wide,
-## and twice that for each band after.
+## and twice that for each band after; and a texture pixel enlarged to 8 screen pixels.
 const BAND_ZERO := 1.0 / 128.0
+const ENLARGED := 1.0 / 512.0
 ## How far north of the river's middle line the meadow's view lies, in centimetres.
 const MEADOW_NORTH := 4000
+## The places the page shows, in the order of its buttons.
+const PLACES := ["Camp", "Meadow", "Shore", "River", "Tent", "Club"]
+## What the engine shows beside each piece's sheet: the button's words and the place it is at.
+const PIECES := {
+	"meadow": {"label": "Meadow", "place": "Meadow"},
+	"river": {"label": "River", "place": "River"},
+	"river_bed": {"label": "Bed", "place": "Shore"},
+	"club": {"label": "Club", "place": "Club"},
+	"hide_tent_cone": {"label": "Tent", "place": "Tent"},
+}
+## The share of the screen's height a sheet takes at the top while it shows.
+const SHEET_SHARE := 0.4
 
-## The stand-in area, its water, and the band and place the view is at.
+## The stand-in area, its water and its camp, and the band and place the view is at.
 var area := KdArea.new()
 var water := Water.new()
+var kit := KdKit.new()
 var band := 0
-var place := "Meadow"
+var place := "Camp"
+## The piece whose sheet shows at the top, or "", and whether the zoom is a texture pixel enlarged.
+var sheet := ""
+var enlarged := false
 ## Every line the page says, for the tests.
 var shown := PackedStringArray()
 
 var _ladders := {}
+## The camp's things: for "Tent" and "Club", their recipe and where each stands in centimetres.
+var _camp := {}
+var _camp_back := 0
 var _readout: Label
 var _origin := Vector2i.ZERO
+var _sheet_panel: ScrollContainer
+var _sheet_picture: TextureRect
+var _sheet_files := {}
 
 
 func _ready() -> void:
 	super._ready()
+	_sheet_files = GameData.sheets(GameData.build())
+	_add_sheet_panel()
 	if problem.is_empty():
 		problem = _build_area()
+	if problem.is_empty():
+		problem = _build_camp()
+	look.set_closest(ENLARGED)
 	# the Look page's test board is not here
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -51,17 +83,53 @@ func _process(delta: float) -> void:
 	if origin != _origin:
 		_origin = origin
 		area.set_origin(origin.x, origin.y)
+		kit.set_origin(origin.x, origin.y)
 
 
-## Takes the view to a place: "Meadow", "Shore" or "River".
+## Takes the view to a place, one of PLACES, and puts any sheet away.
 func look_at_place(name: String) -> void:
 	place = name
+	sheet = ""
+	_sheet_panel.visible = false
 	_show()
 
 
 ## Sets the zoom to a band's, 0 to 6: its texture pixel 2 screen pixels wide at the focus.
 func set_band(number: int) -> void:
 	band = clampi(number, 0, 6)
+	enlarged = false
+	_show()
+
+
+## Sets the zoom to a texture pixel enlarged to 8 screen pixels, or back to the band's.
+func set_enlarged(on: bool) -> void:
+	enlarged = on
+	_show()
+
+
+## Shows a piece's sheet at the top and the place it is at below, at the zoom now set: one of
+## PIECES' ids, whose sheet the build shipped.
+func show_sheet(piece: String) -> void:
+	if not PIECES.has(piece) or not _sheet_files.has(piece):
+		return
+	var texture := GameData.sheet_texture(str(_sheet_files[piece]))
+	if texture == null:
+		problem = "the sheet of %s cannot be read" % piece
+		_show()
+		return
+	_sheet_picture.texture = texture
+	_sheet_picture.custom_minimum_size = Vector2(texture.get_size()) / _stretch()
+	_sheet_panel.scroll_vertical = 0
+	_sheet_panel.visible = true
+	sheet = piece
+	place = str(PIECES[piece]["place"])
+	_show()
+
+
+## Puts the sheet away.
+func hide_sheet() -> void:
+	sheet = ""
+	_sheet_panel.visible = false
 	_show()
 
 
@@ -95,15 +163,31 @@ func tile_at(role: String, number: int) -> String:
 	return "middle" if number >= first[1] else "near"
 
 
-## Where a place is, in centimetres east and north of the area's centre.
+## Where a place is, in centimetres east and north of the area's centre: the camp's middle between
+## its tent and the river, the tent and the club where they stand.
 func place_at(name: String) -> Vector2i:
 	match name:
 		"River":
 			return Vector2i(0, 0)
 		"Shore":
-			return Vector2i(0, int(area.banks_at(0).x * 100.0))
-		_:
-			return Vector2i(0, MEADOW_NORTH)
+			return Vector2i(0, _north_bank())
+		"Camp":
+			if _camp.has("Tent"):
+				return Vector2i(int(_camp["Tent"]["east"]), _north_bank() + _camp_back / 2)
+		"Tent", "Club":
+			if _camp.has(name):
+				return Vector2i(int(_camp[name]["east"]), int(_camp[name]["north"]))
+	return Vector2i(0, MEADOW_NORTH)
+
+
+## The camp's thing at a place, "Tent" or "Club": {"model", "east", "north", "up"} in centimetres,
+## or empty.
+func camp_thing(name: String) -> Dictionary:
+	return _camp.get(name, {})
+
+
+func _north_bank() -> int:
+	return int(area.banks_at(0).x * 100.0)
 
 
 func _build_area() -> String:
@@ -128,12 +212,78 @@ func _build_area() -> String:
 	)
 
 
+## Puts the camp's tent and club on the meadow by the north bank, where tuning/area says: the tent
+## so far north of the bank, its door to the south, the club a distance from it on a bearing.
+func _build_camp() -> String:
+	var tuning := world.entry("tuning/area", "base:area")
+	if tuning.is_empty():
+		return "the catalogue has no tuning/area"
+	var made := KitScene.load_into(kit, world, PART_SHADER.get_rid())
+	var problems: PackedStringArray = made["problems"]
+	if not problems.is_empty():
+		return problems[0]
+	# the tuning's lengths are millimetres
+	_camp_back = roundi(float(tuning["camp_back"]) / 10.0)
+	var away := float(tuning["club_away"]) / 10.0
+	var bearing := deg_to_rad(float(tuning["club_bearing"]))
+	var seed_of := int(tuning["camp_seed"])
+	var tent_north := _north_bank() + _camp_back
+	var said := _stand(
+		"Tent", str(tuning["tent"]), 0, tent_north, float(tuning["tent_turn"]), seed_of
+	)
+	if not said.is_empty():
+		return said
+	return _stand(
+		"Club",
+		str(tuning["club"]),
+		roundi(away * sin(bearing)),
+		tent_north + roundi(away * cos(bearing)),
+		float(tuning["club_turn"]),
+		seed_of
+	)
+
+
+## Sets a recipe's thing on the ground at a place, in centimetres, and keeps where it stands.
+func _stand(
+	name: String, model: String, east: int, north: int, turn: float, seed_of: int
+) -> String:
+	var up := roundi(area.ground_height(east, north) * 100.0)
+	var made := kit.place(scenario(), model, seed_of, east, north, up, turn, {})
+	if str(made["problem"]) != "":
+		return str(made["problem"])
+	_camp[name] = {"model": model, "east": east, "north": north, "up": up}
+	return ""
+
+
+## The view: the place at the zoom, and, while a sheet covers the top of the screen, put in the
+## middle of what it leaves free.
 func _show() -> void:
 	var at := place_at(place)
-	view_at(at.x, at.y, 0.0, BAND_ZERO * pow(2.0, float(band)))
+	var metres_per_pixel := _metres_per_pixel()
+	if sheet != "":
+		at = _lowered(at, metres_per_pixel)
+	view_at(at.x, at.y, 0.0, metres_per_pixel)
 	if _readout == null:
 		return
-	var words := "%s at band %d: %d texture pixels a metre" % [place, band, 64 >> band]
+	var words := _words()
+	shown.append(words)
+	_readout.text = words
+	if not problem.is_empty():
+		_readout.text += "\n" + problem
+		_readout.add_theme_color_override("font_color", Palette.FAIL)
+
+
+func _metres_per_pixel() -> float:
+	return ENLARGED if enlarged else BAND_ZERO * pow(2.0, float(band))
+
+
+## What the readout says: the place and zoom, the tile the meadow reads, and a piece's sheet.
+func _words() -> String:
+	var words := "%s " % place
+	if enlarged:
+		words += "enlarged: a texture pixel 8 screen pixels wide"
+	else:
+		words += "at band %d: %d texture pixels a metre" % [band, 64 >> band]
 	if _ladders.has("ground"):
 		var ladder: Dictionary = _ladders["ground"]
 		var tile := tile_at("ground", band)
@@ -142,19 +292,95 @@ func _show() -> void:
 			"\nthe meadow reads its %s tile, %d version%s picked by place"
 			% [tile, versions, "" if versions == 1 else "s"]
 		)
-	shown.append(words)
-	_readout.text = words
-	if not problem.is_empty():
-		_readout.text += "\n" + problem
-		_readout.add_theme_color_override("font_color", Palette.FAIL)
+	if sheet != "":
+		words += "\nthe sheet of %s above; below, what the engine draws" % PIECES[sheet]["label"]
+		var approved := _approved(sheet)
+		if approved != "":
+			words += ": " + approved
+	return words
+
+
+## What a piece's record says of your yes or no.
+func _approved(piece: String) -> String:
+	var record := {}
+	match piece:
+		"meadow", "river_bed", "river":
+			var role := {"meadow": "ground", "river_bed": "bed", "river": "marks"}[piece] as String
+			record = world.entry("textures", str(area.surfaces().get(role, "")))
+		"club", "hide_tent_cone":
+			var thing := "Club" if piece == "club" else "Tent"
+			if _camp.has(thing):
+				record = kit.model_info(str(_camp[thing]["model"]))
+	return str(record.get("approved", ""))
+
+
+## Where to look so that a place appears in the middle of what the sheet and the controls leave
+## free of the screen, as centimetres east and north: the view put on the place itself, the ground
+## under that middle read off the camera, and the focus as far past the place the other way.
+func _lowered(at: Vector2i, metres_per_pixel: float) -> Vector2i:
+	view_at(at.x, at.y, 0.0, metres_per_pixel)
+	LookScene.place_camera(_camera, look)
+	var window := Vector2(DisplayServer.window_get_size())
+	var middle := Vector2(window.x * 0.5, window.y * _free_middle())
+	var from := _camera.project_ray_origin(middle)
+	var along := _camera.project_ray_normal(middle)
+	if absf(along.y) < 1e-6:
+		return at
+	var state := look.state()
+	var ground := area.ground_height(at.x, at.y)
+	var hit := from + along * ((ground - from.y) / along.y)
+	# the world is about the rig's origin: x east, z south, in metres
+	var east := float(state["origin_east"]) + hit.x * 100.0
+	var north := float(state["origin_north"]) - hit.z * 100.0
+	return Vector2i(at.x * 2 - roundi(east), at.y * 2 - roundi(north))
+
+
+## The height of the middle of what a sheet and the controls leave free, as a share of the
+## screen's.
+func _free_middle() -> float:
+	var height := get_viewport().get_visible_rect().size.y
+	var top := global_position.y + SHEET_SHARE * height
+	var bottom := _readout.global_position.y if _readout != null else height
+	return clampf((top + bottom) / 2.0 / height, 0.2, 0.8)
+
+
+func _add_sheet_panel() -> void:
+	_sheet_panel = ScrollContainer.new()
+	_sheet_panel.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_sheet_panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_sheet_panel.custom_minimum_size = Vector2(
+		0.0, SHEET_SHARE * get_viewport().get_visible_rect().size.y
+	)
+	var ground := StyleBoxFlat.new()
+	ground.bg_color = Palette.GROUND
+	_sheet_panel.add_theme_stylebox_override("panel", ground)
+	_sheet_panel.visible = false
+	add_child(_sheet_panel)
+	# a sheet is read at its own pixels, each one of the screen's
+	_sheet_picture = TextureRect.new()
+	_sheet_picture.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_sheet_picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_sheet_picture.stretch_mode = TextureRect.STRETCH_SCALE
+	_sheet_picture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_sheet_panel.add_child(_sheet_picture)
 
 
 func _add_controls() -> void:
-	var places := HBoxContainer.new()
+	var places := HFlowContainer.new()
 	add_child(places)
-	for name: String in ["Meadow", "Shore", "River"]:
+	for name: String in PLACES:
 		_button(places, name, look_at_place.bind(name))
 	var bands := HBoxContainer.new()
 	add_child(bands)
 	for number in 7:
 		_button(bands, "Band %d" % number, set_band.bind(number))
+	var sheets := HFlowContainer.new()
+	add_child(sheets)
+	for piece: String in PIECES:
+		if _sheet_files.has(piece):
+			_button(sheets, "Sheet: %s" % PIECES[piece]["label"], show_sheet.bind(piece))
+	_button(sheets, "No sheet", hide_sheet)
+	var zooms := HBoxContainer.new()
+	add_child(zooms)
+	_button(zooms, "True size", set_enlarged.bind(false))
+	_button(zooms, "Enlarged", set_enlarged.bind(true))
