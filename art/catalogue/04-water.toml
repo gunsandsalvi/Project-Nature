@@ -23,8 +23,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "rapids"
 name = "Rapids and waterfalls"
-what = "white water over rocks"
+what = "Rapids and waterfalls"
 art_book = ["read-aids"]
+sheet = "sheets/4.3-rapids.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "stream"
