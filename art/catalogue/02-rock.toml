@@ -176,7 +176,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "copper_ore"
 name = "Green and blue copper ore"
-what = "bright crusts at the tops of copper-bearing rock"
+what = "Green and blue copper ore"
+sheet = "sheets/2.24-copper_ore.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "native_copper"
