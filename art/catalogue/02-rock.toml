@@ -136,8 +136,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "cobbles"
 name = "Cobbles and pebbles"
-what = "loose stones lying on the ground, smallest a fist"
+what = "cobbles and pebbles"
 art_book = ["textures-a", "close-camp"]
+sheet = "sheets/2.19-cobbles.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "flint_nodules"
