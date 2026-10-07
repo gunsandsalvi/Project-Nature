@@ -15,61 +15,61 @@ approved = "not offered yet: a stand-in, below the artwork's level"
 [[band]]
 level = 0
 file = "art/textures/standin_meadow/b0.png"
-sha256 = "7744ef9dd44a354a3577ed7b75c05a0c471058984f900192103eb1a801a19f59"
+sha256 = "092120f4056f4ae4431d987de2d29fc23f2c93b1bdf9468e04013d267d191884"
 way = "cut from the signed-off sheet's own tile"
 
 [[band]]
 level = 1
 file = "art/textures/standin_meadow/b1.png"
-sha256 = "61883e4c9bff1753140f15a482697af1ab0d8107dc31352329673a61b01855f9"
-made_from = "7744ef9dd44a354a3577ed7b75c05a0c471058984f900192103eb1a801a19f59"
+sha256 = "887a9016a1a7d09aa394f49bbfb7d172956a09832e529230d56a1d8717d01c94"
+made_from = "092120f4056f4ae4431d987de2d29fc23f2c93b1bdf9468e04013d267d191884"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 2
 file = "art/textures/standin_meadow/b2.png"
-sha256 = "51bcf02e200357e86f8eab5fd9e292ebe07952314a88ad891d92ad5297493a23"
-made_from = "61883e4c9bff1753140f15a482697af1ab0d8107dc31352329673a61b01855f9"
+sha256 = "579cc1c714d194531e34a49d91afcad62fb97ba7cc8340247b3b6fd979cb7565"
+made_from = "887a9016a1a7d09aa394f49bbfb7d172956a09832e529230d56a1d8717d01c94"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 3
 file = "art/textures/standin_meadow/b3.png"
-sha256 = "59d86f73ee58aac820d6f48a3d955878bb689fde6320f23a944bf573dae21122"
-made_from = "51bcf02e200357e86f8eab5fd9e292ebe07952314a88ad891d92ad5297493a23"
+sha256 = "ea047f54ff30bae4f9802263bc3e5e8c83f06e6595f190a96615f8f267b35c56"
+made_from = "579cc1c714d194531e34a49d91afcad62fb97ba7cc8340247b3b6fd979cb7565"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 4
 file = "art/textures/standin_meadow/b4.png"
-sha256 = "3830a3d11aa590099f77de1ab780d516a94d6d2a5bae7320cd0ae9b0b2d1731c"
-made_from = "59d86f73ee58aac820d6f48a3d955878bb689fde6320f23a944bf573dae21122"
+sha256 = "ed2c0c338da63760e7ff22ff0bd4625e473a4925453eccb16f579d2f1ecf25b4"
+made_from = "ea047f54ff30bae4f9802263bc3e5e8c83f06e6595f190a96615f8f267b35c56"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 5
 file = "art/textures/standin_meadow/b5.png"
-sha256 = "7042d122164eba3d55dbdbfe56cae5500f75744b10ff97e028b09f4401725fb9"
-made_from = "3830a3d11aa590099f77de1ab780d516a94d6d2a5bae7320cd0ae9b0b2d1731c"
+sha256 = "565b59e560e1139c1c1e1fb3a61eb1430c282f73a42762306c57c998f307bda2"
+made_from = "ed2c0c338da63760e7ff22ff0bd4625e473a4925453eccb16f579d2f1ecf25b4"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 6
 file = "art/textures/standin_meadow/b6.png"
-sha256 = "25f995f5165f9d806818e60906db62cb435c03a94ad5ae27b32e1691db4c9534"
-made_from = "7042d122164eba3d55dbdbfe56cae5500f75744b10ff97e028b09f4401725fb9"
+sha256 = "0b3c02f14847ecf897d1c0b6383be83cdafdaaffbbb12d1e823627a60905836c"
+made_from = "565b59e560e1139c1c1e1fb3a61eb1430c282f73a42762306c57c998f307bda2"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 7
 file = "art/textures/standin_meadow/b7.png"
-sha256 = "3e643f2bfc914e636a1de5eda981775e4c544aeb813e8bcacd99a3457bacf9cc"
-made_from = "25f995f5165f9d806818e60906db62cb435c03a94ad5ae27b32e1691db4c9534"
+sha256 = "8fcfdad2ef0dfc70b9e00db82a0a1bb11bcd2355f799be901441d053ae3612ee"
+made_from = "0b3c02f14847ecf897d1c0b6383be83cdafdaaffbbb12d1e823627a60905836c"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 8
 file = "art/textures/standin_meadow/b8.png"
-sha256 = "360b0c8c19c127c8a3b1ffd7f2d96f73e2d1af75bb1709ffb45c05d33a04e5b3"
-made_from = "3e643f2bfc914e636a1de5eda981775e4c544aeb813e8bcacd99a3457bacf9cc"
+sha256 = "a12e7136b48a6c006a8d50c76d45b7f792e009df467c24c21093114f46a5f5b9"
+made_from = "8fcfdad2ef0dfc70b9e00db82a0a1bb11bcd2355f799be901441d053ae3612ee"
 way = "drawn by code from the level above, each pixel one of its block"
