@@ -120,7 +120,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "lava_field"
 name = "Lava and ash fall"
-what = "fresh black lava rock, and grey ash over the land"
+what = "lava field"
+sheet = "sheets/3.17-lava_field.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "flood_silt"
