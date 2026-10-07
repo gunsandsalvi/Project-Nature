@@ -127,6 +127,144 @@ class Versions(unittest.TestCase):
         dy, dx = tiles.neutral_shift(t, 4, step=8)
         self.assertEqual(sorted(tiles.roll(t, dy, dx).ravel().tolist()), sorted(t.ravel().tolist()))
 
+    # checks: PRE-20
+    def test_a_border_of_depth_nothing_is_not_flattened(self):
+        t = grass(64)
+        np.testing.assert_array_equal(tiles.flatten_border(t, 0), t)
+        versions, _ = tiles.make_versions(t, 2, 4, 8, 32, 5, flatten=0)
+        self.assertTrue(tiles.shares_ring(versions, 4))
+
+
+class Drawings(unittest.TestCase):
+    """Pictures from the image tool: pixel art in cells of about four pixels, no exact grid, no wrap."""
+
+    @staticmethod
+    def drawn(cells=48, seed=2):
+        """A blocky picture of `cells` x `cells` flat cells, each four pixels wide and every seventh five (as the tool
+        returns them), and the cells it was made from."""
+        rng = np.random.default_rng(seed)
+        small = rng.integers(0, 256, (cells, cells, 3)).astype(np.uint8)
+        widths = [5 if k % 7 == 3 else 4 for k in range(cells)]
+        rows = np.repeat(np.arange(cells), widths)
+        return small, small[rows[:, None], rows[None, :]]
+
+    # checks: PRE-20
+    def test_a_drawing_on_no_exact_grid_is_put_on_its_cells(self):
+        small, big = self.drawn()
+        texels, loss = tiles.snap(big, 4)
+        self.assertEqual(texels.shape, small.shape)
+        np.testing.assert_array_equal(texels, small)
+        self.assertLess(loss, 0.02)
+
+    # checks: PRE-20
+    def test_a_drawing_with_cells_cut_at_the_ends_loses_only_those(self):
+        small, big = self.drawn()
+        cut = big[2:, 3:]  # the first cells partly gone, as a crop leaves them
+        texels, _ = tiles.snap(cut, 4)
+        self.assertLessEqual(abs(texels.shape[0] - small.shape[0]), 1)
+        self.assertGreater((texels[:40, :40] == small[1:41, 1:41]).all(axis=2).mean(), 0.97)
+
+    # checks: PRE-22
+    def test_the_four_corners_of_a_frame_are_neighbours_in_the_picture(self):
+        n, o = 64, 8
+        ys, xs = np.mgrid[0:96, 0:96]
+        coordinates = np.stack([ys, xs, np.zeros_like(ys)], axis=2).astype(np.uint8)  # each pixel says where it is
+        frame = tiles.frame_of(coordinates, o, n)
+        # tile a's bottom right, tile b's bottom left: the same row, one column along
+        self.assertEqual(frame[n - 1, n - 1, 0], frame[n - 1, 0, 0])
+        self.assertEqual(int(frame[n - 1, n - 1, 1]) + 1, int(frame[n - 1, 0, 1]))
+        # a's bottom right and its lower neighbour's top right: the same column, one row down
+        self.assertEqual(frame[n - 1, n - 1, 1], frame[0, n - 1, 1])
+        self.assertEqual(int(frame[n - 1, n - 1, 0]) + 1, int(frame[0, n - 1, 0]))
+        # the strips run on over the wrap, bottom into top
+        self.assertEqual(int(frame[n - 1, 20, 0]) + 1, int(frame[0, 20, 0]))
+        self.assertEqual(int(frame[20, n - 1, 1]) + 1, int(frame[20, 0, 1]))
+
+    # checks: PRE-22 PRE-46
+    def test_versions_quilted_from_drawings_that_do_not_wrap_share_a_ring_and_have_no_seam(self):
+        pictures = [grass(120, 4), grass(120, 5)]
+        versions = tiles.make_versions_open(pictures, 3, 4, 8, 32, 9, 96)
+        self.assertEqual(len(versions), 3)
+        self.assertTrue(tiles.shares_ring(versions, 4))
+        self.assertFalse((versions[0] == versions[1]).all())
+        for v in versions:
+            self.assertEqual(tiles.inner_seams(v), [])
+        worst = max(tiles.join_ratio(a, b) for a in versions for b in versions)
+        self.assertLess(worst, 1.2)
+
+
+class Seams(unittest.TestCase):
+    # checks: PRE-22
+    def test_a_hard_row_inside_a_level_is_found_and_a_plain_tile_has_none(self):
+        t = grass(64)
+        self.assertEqual(tiles.inner_seams(t), [])
+        torn = t.copy()
+        torn[40:] = np.clip(torn[40:].astype(int) + 70, 0, 255)  # everything below row 39 lighter by a step
+        found = tiles.inner_seams(torn)
+        self.assertEqual([(s[0], s[1]) for s in found], [("row", 39)])
+        self.assertEqual(
+            tiles.inner_seams(torn[:16, :16]), [], "a level under 32 pixels has no 99th percentile to judge"
+        )
+
+    # checks: PRE-22
+    def test_patches_reach_into_the_border_on_every_side_and_overlap_everywhere(self):
+        for n, patch, overlap in ((256, 48, 8), (256, 64, 8), (128, 24, 4), (256, 112, 32), (64, 64, 8), (32, 48, 8)):
+            starts = tiles.patch_starts(n, patch, overlap)
+            self.assertEqual(starts[0], 0)
+            self.assertEqual(starts[-1], max(n - patch, 0), "the last patch ends at the far edge")
+            for a, b in zip(starts, starts[1:], strict=False):
+                self.assertGreaterEqual(a + patch - b, overlap, "neighbours overlap by at least the overlap")
+
+    # checks: PRE-22
+    def test_quilted_versions_have_no_hard_row_or_column_where_patches_meet_the_border(self):
+        t = grass(256, 11)
+        versions, _ = tiles.make_versions(t, 3, 4, 8, 48, 5)
+        for v in versions:
+            self.assertEqual(tiles.inner_seams(v), [])
+
+
+class Marks(unittest.TestCase):
+    KEY = np.array([255, 0, 255], np.uint8)
+
+    def streaks(self, n=64):
+        """Light streaks, one texture pixel high and 6 to 8 long, on the key colour."""
+        pic = np.empty((n, n, 3), np.uint8)
+        pic[:] = self.KEY
+        for k, y in enumerate(range(3, n, 8)):
+            x = (k * 13) % (n - 10)
+            pic[y, x : x + 6 + k % 3] = (232, 222, 202)
+        pic[10, 40] = (170, 196, 182)  # a single speck
+        return pic
+
+    # checks: PRE-20 PRE-46
+    def test_marks_become_opaque_and_the_rest_see_through_with_the_bleed_colour(self):
+        pic = self.streaks()
+        out = tiles.to_rgba(pic, self.KEY, (170, 196, 182))
+        self.assertEqual(out.shape, (64, 64, 4))
+        self.assertEqual(set(np.unique(out[..., 3]).tolist()), {0, 255})
+        np.testing.assert_array_equal(out[0, 0], [170, 196, 182, 0])
+        np.testing.assert_array_equal(out[3, 0:6, :3], pic[3, 0:6])
+        self.assertAlmostEqual(tiles.coverage(out), tiles.key_mask(pic, self.KEY).mean())
+
+    # checks: PRE-20 PRE-22
+    def test_the_level_below_marks_is_half_the_size_with_no_speck_and_fewer_marks(self):
+        pic = self.streaks()
+        all_kept = tiles.reduce_marks(pic, self.KEY, 100, 1)
+        self.assertEqual(all_kept.shape, (32, 32, 3))
+        self.assertFalse(tiles.key_mask(all_kept, self.KEY)[5, 20], "the single speck is gone")
+        fewer = tiles.reduce_marks(pic, self.KEY, 40, 1)
+        self.assertLess(tiles.key_mask(fewer, self.KEY).sum(), tiles.key_mask(all_kept, self.KEY).sum())
+        np.testing.assert_array_equal(fewer, tiles.reduce_marks(pic, self.KEY, 40, 1))  # nothing is random
+
+    # checks: PRE-22
+    def test_versions_of_marks_share_their_ring_on_the_key_colour(self):
+        pic = self.streaks(96)
+        versions, _ = tiles.make_versions(pic, 3, 4, 8, 32, 5, flatten=0)
+        self.assertTrue(tiles.shares_ring(versions, 4))
+        for v in versions:  # quilting copies marks, never mixes them with the key
+            colours = {tuple(c) for c in v.reshape(-1, 3).tolist()}
+            self.assertLessEqual(colours, {(255, 0, 255), (232, 222, 202), (170, 196, 182)})
+
 
 class Levels(unittest.TestCase):
     # checks: PRE-22

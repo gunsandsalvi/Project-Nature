@@ -108,6 +108,42 @@ class Sheet(unittest.TestCase):
                 self.assertIn(length, rows, f"{name} is not {length} pixels long")
 
     # checks: PRE-46
+    def test_a_strip_is_drawn_alone_across_the_page_with_a_stick_true_to_its_metres(self):
+        wide = sheet.WIDTH - 2 * sheet.MARGIN
+        near, middle = (90, 120, 60), (60, 90, 130)
+        with tempfile.TemporaryDirectory() as d:
+            Image.new("RGB", (3762, 1254), near).save(os.path.join(d, "near.png"))
+            Image.new("RGB", (3072, 1024), middle).save(os.path.join(d, "middle.png"))
+            spec = {
+                "number": "1.2",
+                "name": "Brook",
+                "about": "A test piece.",
+                "strips": [
+                    {"file": "near.png", "label": "Near, three times: 12 m", "metres": 12, "stick": 1},
+                    {"file": "middle.png", "label": "Middle, three times: 48 m", "metres": 48, "stick": 10},
+                ],
+            }
+            with open(os.path.join(d, "spec.json"), "w") as f:
+                json.dump(spec, f)
+            out = os.path.join(d, "sheet.png")
+            self.assertEqual(sheet.main(["sheet.py", os.path.join(d, "spec.json"), d, out]), 0)
+            page = np.asarray(Image.open(out).convert("RGB")).astype(int)
+            strips = ((near, "near", round(wide * 1 / 12)), (middle, "middle", round(wide * 10 / 48)))
+            for colour, name, length in strips:
+                rows = np.nonzero((np.abs(page - colour).sum(axis=2) == 0).any(axis=1))[0]
+                row = page[rows[len(rows) // 2]]
+                across = np.nonzero(np.abs(row - colour).sum(axis=1) == 0)[0]
+                self.assertEqual((across.min(), across.max() + 1), (sheet.MARGIN, sheet.MARGIN + wide), f"{name}")
+                height = round(wide * (1254 if name == "near" else 1024) / (3762 if name == "near" else 3072))
+                self.assertEqual(rows.max() - rows.min() + 1, height, f"the {name} strip's height")
+                lengths = [stick_lengths(Image.fromarray(page[y : y + 1].astype(np.uint8))) for y in rows]
+                self.assertIn(length, lengths, f"the {name} strip's stick is not {length} pixels long")
+            # the two strips stand one above the other, not side by side
+            top = np.nonzero((np.abs(page - near).sum(axis=2) == 0).any(axis=1))[0]
+            low = np.nonzero((np.abs(page - middle).sum(axis=2) == 0).any(axis=1))[0]
+            self.assertLess(top.max(), low.min(), "the strips share a row")
+
+    # checks: PRE-46
     def test_a_view_is_cut_from_magenta_and_scaled_to_its_true_size(self):
         cut = sheet.cut_out(drawn((600, 900), [(RED, (100, 150, 300, 750))]))
         self.assertEqual(cut.size, (200, 600), "the stray speck widened the cut, or the magenta stayed")

@@ -32,9 +32,16 @@ def read_rgb(path):
         return np.asarray(im.convert("RGB")).copy()
 
 
-def write_png(path, rgb):
-    """An 8-bit RGB array as a lossless PNG."""
-    Image.fromarray(np.ascontiguousarray(rgb, dtype=np.uint8)).save(path, format="PNG", optimize=True)
+def read_pixels(path):
+    """A picture file as it is stored: an 8-bit RGB array, or RGBA where the file has an alpha channel (the water's
+    marks)."""
+    with Image.open(path) as im:
+        return np.asarray(im.convert("RGBA" if "A" in im.getbands() else "RGB")).copy()
+
+
+def write_png(path, pixels):
+    """An 8-bit RGB or RGBA array as a lossless PNG."""
+    Image.fromarray(np.ascontiguousarray(pixels, dtype=np.uint8)).save(path, format="PNG", optimize=True)
 
 
 def sha256(path):
@@ -217,8 +224,32 @@ def _run(flags):
     return n
 
 
+def patch_starts(n, patch, overlap):
+    """Where the patches of a row (or column) of an `n`-pixel tile begin: the first at 0 and the last ending at the far
+    edge, the rest evenly between, as few as keep every two neighbours overlapping by at least `overlap`. Each patch
+    beside the tile's border therefore reaches into it by `overlap` and is cut from it along a line of its own: a last
+    patch that stopped short of the border, or an odd one added after the rest, would leave a hard line where it meets
+    the border."""
+    if n <= patch:
+        return [0]
+    count = -(-(n - patch) // (patch - overlap)) + 1
+    return sorted({round(i * (n - patch) / (count - 1)) for i in range(count)})
+
+
 def quilt(
-    sources, first, ring, overlap, patch, chance, natural, taken, tolerance=0.15, apart=24, tone=6.0, tone_radius=5
+    sources,
+    first,
+    ring,
+    overlap,
+    patch,
+    chance,
+    natural,
+    taken,
+    tolerance=0.15,
+    apart=24,
+    tone=6.0,
+    tone_radius=5,
+    open_sources=False,
 ):
     """A new tile of the sources' marks that keeps the ring of `first`: patches of `patch` texture pixels cut from the
     wrapping sources (the first of them the one `first` was made from), placed in rows over the whole tile, each chosen
@@ -229,7 +260,8 @@ def quilt(
     versions) holds each place's earlier choices, which are never taken again within `apart`. A candidate's error is
     its pixels' difference from what is there plus `tone` times the difference of both blurred over `tone_radius`, so
     the broad tone of one version carries over the ring into the next and no seam of tone shows where two versions
-    meet. Returns the tile."""
+    meet. With `open_sources` the pictures do not wrap (a drawing seldom does), so no patch is cut across a picture's
+    own edge, and `natural` may be None. Returns the tile."""
     srcs = [np.asarray(x, dtype=np.float64) for x in sources]
     h, w, _ = srcs[0].shape
     n = first.shape[0]
@@ -239,10 +271,7 @@ def quilt(
     known = ring_mask(n, overlap)
     canvas[known] = first[known]
     fixed = ring_mask(n, ring)
-    step = patch - overlap
-    starts = list(range(0, n - patch + 1, step))
-    if starts[-1] != n - patch:
-        starts.append(n - patch)
+    starts = patch_starts(n, patch, overlap)
     lows = [np.stack([_blur_wrap(src[:, :, c], tone_radius) for c in range(3)], axis=2) for src in srcs]
     ffts = [
         (
@@ -285,7 +314,10 @@ def quilt(
                     err -= 2 * tone * np.fft.irfft2(flow[c] * np.conj(broad[c][0]), s=(h, w))
                     err += tone * broad[c][1]
                 err = np.maximum(err, 0) / max(m.sum(), 1.0)
-                if si == 0:
+                if open_sources:  # a patch may not run over the picture's own edge
+                    err[h - patch + 1 :, :] = np.inf
+                    err[:, w - patch + 1 :] = np.inf
+                if si == 0 and natural is not None:
                     err = np.where(_near((h, w), (y0 - natural[0]) % h, (x0 - natural[1]) % w, apart), np.inf, err)
                 for tsi, ty, tx in taken.get((y0, x0), []):
                     if tsi == si:
@@ -334,6 +366,8 @@ def flatten_border(tile, depth, radius=12):
     from the pixels; then the mean of each row and column, less the tile's mean. The fine grain stays. A ring that every
     version shares would otherwise carry the tile's swathes of tone to every edge, the same at each, and a straight line
     of them, lighter or darker than the rest, would show along every join."""
+    if depth <= 0:  # a ground of big marks (cobbles) is not flattened: it would wash out whatever lies by the edge
+        return tile
     n = tile.shape[0]
     f = tile.astype(np.float64)
     mean = f.reshape(-1, 3).mean(axis=0)
@@ -352,7 +386,7 @@ def make_versions(tile, count, ring, overlap, patch, seed, flatten=None, others=
     `deeper` are the pictures drawn for the levels below, of the first source (see neutral_shift). Returns the
     versions and the shift."""
     dy, dx = neutral_shift(tile, overlap, deeper=deeper)
-    first = flatten_border(roll(tile, dy, dx), flatten or overlap)
+    first = flatten_border(roll(tile, dy, dx), overlap if flatten is None else flatten)
     chance = Chance(seed)
     taken = {}
     versions = [first]
@@ -370,7 +404,7 @@ def requilt(sources, shift, count, ring, overlap, patch, seed, flatten=None, sca
     between marks, which is why they are not the first level's laid over it: a level drawn on its own seldom lines up
     with the one above closely enough for that, and its marks would be sliced."""
     dy, dx = shift[0] // scale, shift[1] // scale
-    depth = flatten or overlap
+    depth = overlap if flatten is None else flatten
     first = flatten_border(roll(sources[0], dy, dx), depth)
     fixed = ring_mask(first.shape[0], ring)
     chance = Chance(seed)
@@ -393,6 +427,113 @@ def requilt(sources, shift, count, ring, overlap, patch, seed, flatten=None, sca
         made[fixed] = first[fixed]
         versions.append(made)
     return versions
+
+
+# ---- drawings that sit on no exact grid and do not wrap (a picture from the image tool) ------------------------------
+
+
+def _cell_edges(jumps, block):
+    """Where the cells of pixel art begin along one axis: the first pixel of each whole cell, from the profile of how
+    much the picture jumps between neighbouring pixels (jumps[i] is the jump from pixel i to i + 1). The period is
+    searched within a tenth of `block` either side and the phase over one period, for the grid whose cell edges
+    carry the most jump; the partial cells at either end are left out. Returns the cells' first pixels and the end of
+    the last whole cell."""
+    n = len(jumps) + 1
+    best = None
+    for period in np.arange(block * 0.9, block * 1.1, block * 0.0005):
+        for phase in np.arange(0.0, period, 0.25):
+            edges = np.round(phase + np.arange(0, int((n - phase) / period) + 1) * period).astype(int)
+            edges = edges[(edges >= 1) & (edges <= n - 1)]
+            score = jumps[edges - 1].mean()
+            if best is None or score > best[0]:
+                best = (score, period, phase)
+    _, period, phase = best
+    edges = np.round(phase + np.arange(0, int((n - phase) / period) + 1) * period).astype(int)
+    return edges[edges <= n]
+
+
+def snap(picture, block):
+    """A drawing put on its own grid of texture pixels: a picture from the image tool (about 1254 pixels across for 1024
+    asked) is pixel art in cells of about `block` pixels, some a pixel wider or narrower, and not an exact multiple of
+    anything. The cells' edges are found (_cell_edges), each cell becomes one texture pixel, the median colour of the
+    middle of its area, and the loss is the share of the picture's pixels (within the cells) that differ from their
+    cell's colour by more than a little (the sum of the channels' differences over 24). Returns (texels, loss); the
+    texels do not wrap."""
+    f = picture.astype(np.int32)
+    ey = _cell_edges(np.abs(np.diff(f, axis=0)).sum(axis=2).mean(axis=1), block)
+    ex = _cell_edges(np.abs(np.diff(f, axis=1)).sum(axis=2).mean(axis=0), block)
+    middle = max(1, int(round(block * 0.5)))
+
+    def centres(edges):
+        widths = np.diff(edges)
+        starts = edges[:-1] + (widths - middle) // 2
+        return np.clip(starts[:, None] + np.arange(middle)[None, :], 0, None)
+
+    ys, xs = centres(ey), centres(ex)
+    gathered = picture[ys[:, None, :, None], xs[None, :, None, :]]  # rows of cells, columns of cells, y, x, colour
+    texels = np.median(gathered.reshape(len(ys), len(xs), middle * middle, 3), axis=2).round().astype(np.uint8)
+    rows = np.repeat(np.arange(len(ys)), np.diff(ey))
+    cols = np.repeat(np.arange(len(xs)), np.diff(ex))
+    inside = f[ey[0] : ey[-1], ex[0] : ex[-1]]
+    far = np.abs(texels[rows[:, None], cols[None, :]].astype(np.int32) - inside).sum(axis=2) > 24
+    return texels, float(far.mean())
+
+
+def frame_of(source, overlap, n):
+    """The border of an `n` x `n` tile that wraps, cut from a picture that does not: from the middle `n` x `n` of the
+    picture, a band of 2 x `overlap` rows from where its edges are most ordinary (neutral_shift), whose upper half lies
+    along the bottom of the tile and its lower half along the top, so the two continue each other across the wrap, and
+    in the same way a band of columns for the left and right; the four corners are the four quarters of the square
+    where the two bands cross, so where four tiles meet they are neighbours in the picture. Along a strip's two ends,
+    where it meets a corner, there is a small mismatch in the outer pixels. Returns the tile with only its border
+    filled in."""
+    h, w = source.shape[:2]
+    cy, cx = (h - n) // 2, (w - n) // 2
+    crop = source[cy : cy + n, cx : cx + n]
+    dy, dx = neutral_shift(crop, overlap)
+    by = min(max((-dy) % n - overlap, 0), n - 2 * overlap)
+    bx = min(max((-dx) % n - overlap, 0), n - 2 * overlap)
+    o = overlap
+    rows = crop[by : by + 2 * o, :]
+    cols = crop[:, bx : bx + 2 * o]
+    corner = crop[by : by + 2 * o, bx : bx + 2 * o]  # where the two bands cross
+    frame = np.zeros_like(crop)
+    frame[o : n - o, :o] = cols[o : n - o, o:]
+    frame[o : n - o, n - o :] = cols[o : n - o, :o]
+    frame[:o, o : n - o] = rows[o:, o : n - o]
+    frame[n - o :, o : n - o] = rows[:o, o : n - o]
+    # the four corners are the four quarters of the crossing, so where four tiles meet they are neighbours in it
+    frame[:o, :o] = corner[o:, o:]
+    frame[:o, n - o :] = corner[o:, :o]
+    frame[n - o :, :o] = corner[:o, o:]
+    frame[n - o :, n - o :] = corner[:o, :o]
+    return frame
+
+
+def make_versions_open(sources, count, ring, overlap, patch, seed, n, scale=1):
+    """`count` versions of a tile `n` pixels across, quilted from drawings that do not wrap (all of one size, larger
+    than the tile, such as snap() gives): they share the ring of a frame cut from the first drawing (frame_of), so any
+    two join without a seam, and every one is made the same way, none being the drawing itself. `scale` is how many
+    times smaller the level is than the first one (the exclusion distance and the tone's blur shrink with it)."""
+    frame = frame_of(sources[0], overlap, n)
+    chance = Chance(seed)
+    taken = {}
+    return [
+        quilt(
+            sources,
+            frame,
+            ring,
+            overlap,
+            patch,
+            chance,
+            None,
+            taken,
+            apart=max(4, 24 // scale),
+            tone_radius=max(1, 5 // scale),
+            open_sources=True,
+        )
+        for _ in range(count)
+    ]
 
 
 # ---- levels -----------------------------------------------------------------------------------------------------
@@ -437,6 +578,90 @@ def impose_ring(level, ring_level, ring):
     return out
 
 
+# ---- marks: light marks on see-through ground (the water's current, foam and ripples, A4.5) -------------------
+#
+# A picture of marks is drawn on a background of one key colour. Everything above (versions, rings, quilting) works
+# on it as it is, the key colour a colour like any other; only at the end is it made see-through (to_rgba). The levels
+# below the first are made here, since averaging marks would mix them with the key.
+
+
+def key_colour(text):
+    """A colour written #rrggbb as three 8-bit numbers."""
+    h = text.lstrip("#")
+    return np.array([int(h[i : i + 2], 16) for i in (0, 2, 4)], np.uint8)
+
+
+def key_mask(picture, key):
+    """Where a picture of marks holds a mark: every pixel that is not the key colour."""
+    return (picture != np.asarray(key, np.uint8)).any(axis=2)
+
+
+def to_rgba(picture, key, bleed):
+    """A picture of marks on its key colour as texture pixels with alpha: each mark opaque, everything else wholly
+    see-through with the colour `bleed`, so no fringe of the key colour or of black shows where the engine blends a
+    mark with its neighbours."""
+    mask = key_mask(picture, key)
+    out = np.empty(picture.shape[:2] + (4,), np.uint8)
+    out[..., :3] = np.where(mask[..., None], picture, np.asarray(bleed, np.uint8))
+    out[..., 3] = np.where(mask, 255, 0)
+    return out
+
+
+def _marks_of(mask):
+    """The marks of a wrapping mask as lists of their pixels: eight-connected runs of marked pixels, found by flood fill
+    in reading order (so the same mask always gives the same list)."""
+    n = mask.shape[0]
+    seen = np.zeros_like(mask)
+    found = []
+    for y, x in np.argwhere(mask):
+        if seen[y, x]:
+            continue
+        stack, body = [(int(y), int(x))], []
+        seen[y, x] = True
+        while stack:
+            cy, cx = stack.pop()
+            body.append((cy, cx))
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    ny, nx = (cy + dy) % n, (cx + dx) % n
+                    if mask[ny, nx] and not seen[ny, nx]:
+                        seen[ny, nx] = True
+                        stack.append((ny, nx))
+        found.append(body)
+    return found
+
+
+def reduce_marks(picture, key, keep, seed):
+    """The level below a picture of marks, made by code: each 2 x 2 block is a mark where two or more of its four
+    texture pixels are (so a single speck is gone and a streak is its length over two, bolder for its thickness being
+    the new texture pixel's), then of the marks that remain only `keep` percent are kept, chosen by a hash of each
+    one's first pixel and the seed, so the level shows bolder marks and fewer of them (A5.3), never the level above
+    averaged. A kept mark takes the lightest colour of its block."""
+    n = picture.shape[0]
+    h = n // 2
+    mask = key_mask(picture, key)
+    blocks = picture.reshape(h, 2, h, 2, 3).transpose(0, 2, 1, 3, 4).reshape(h, h, 4, 3).astype(np.int32)
+    marked = mask.reshape(h, 2, h, 2).transpose(0, 2, 1, 3).reshape(h, h, 4)
+    lightest = np.where(marked, blocks.sum(axis=3), -1).argmax(axis=2)
+    colours = np.take_along_axis(blocks, lightest[:, :, None, None], axis=2)[:, :, 0, :]
+    pooled = marked.sum(axis=2) >= 2
+    kept = np.zeros_like(pooled)
+    for body in _marks_of(pooled):
+        y, x = body[0]
+        if Chance(seed * 1000003 + y * 4099 + x).below(100) < keep:
+            for by, bx in body:
+                kept[by, bx] = True
+    out = np.empty((h, h, 3), np.uint8)
+    out[:] = np.asarray(key, np.uint8)
+    out[kept] = colours[kept].astype(np.uint8)
+    return out
+
+
+def coverage(pixels):
+    """The share of a picture of marks (RGBA) that is marked, from its alpha."""
+    return float((pixels[..., 3] > 0).mean())
+
+
 # ---- seams ------------------------------------------------------------------------------------------------------
 
 
@@ -469,6 +694,26 @@ def join_ratio(a, b):
     cols = max(np.percentile(ac, 90), np.percentile(bc, 90))
     rows = max(np.percentile(ar, 90), np.percentile(br, 90))
     return max(_jump(a[:, -1], b[:, 0]) / cols, _jump(a[-1, :], b[0, :]) / rows)
+
+
+def inner_seams(tile):
+    """The hard rows and columns inside a level, as (axis name, the pair's first index, its step, the 99th percentile of
+    the steps, the next largest step): a row or column pair whose mean lightness step is above 1.6 times the 99th
+    percentile of all of them, above 1.3 times the next largest and above 8, where the level is big enough (32 texture
+    pixels) to have a 99th percentile of its own. A version whose quilted patches stop short of its shared border
+    shows one, a straight line at every cell's edge (the builder's rule, written once here)."""
+    if tile.shape[0] < 32:
+        return []
+    lightness = tile[..., :3].astype(np.float64).mean(axis=2)
+    found = []
+    for axis, label in ((0, "row"), (1, "col")):
+        step = np.abs(np.diff(lightness, axis=axis)).mean(axis=1 - axis)
+        order = np.argsort(step)[::-1]
+        top, second = step[order[0]], step[order[1]]
+        p99 = float(np.percentile(step, 99))
+        if top > 1.6 * p99 and top > 1.3 * second and top > 8:
+            found.append((label, int(order[0]), float(top), p99, float(second)))
+    return found
 
 
 def shares_ring(versions, ring):

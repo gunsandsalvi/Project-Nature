@@ -31,24 +31,32 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "stream"
 name = "Small stream"
-what = "a brook that dries in a drought"
+what = "a brook winding over gravel between meadows, drying to bare stones in a drought"
 art_book = ["read-aids"]
+sheet = "sheets/4.4-stream.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "spring"
 name = "Spring"
-what = "water rising from the ground, and warm springs near volcanoes"
+what = "water welling up into a small pool in bare earth and running off in a runnel, and a warm spring with a mineral rim and steam"
+sheet = "sheets/4.5-spring.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "lake"
 name = "Lake"
-what = "a still mirror with reeds, mist and lilies"
+what = "still lake water, clear over the shallows and dark green-blue in the deep, with breeze and wind ripples"
 art_book = ["lake-mist-close"]
+sheet = "sheets/4.6-lake.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "marsh_pool"
 name = "Marsh pools"
-what = "dark still water among reeds"
+what = "dark tea-brown peat water, almost opaque, with floating litter, a faint sheen and drifts of duckweed"
+sheet = "sheets/4.7-marsh_pool.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "sea"
