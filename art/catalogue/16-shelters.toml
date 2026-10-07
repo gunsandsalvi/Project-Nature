@@ -7,8 +7,10 @@ items = ["MAT-23", "PRE-24", "PRE-42", "CUL-28", "CUL-26"]
 [[piece]]
 id = "windbreak"
 name = "Windbreak"
-what = "poles, a bar and brush"
+what = "a screen against the wind beside a hearth: a bar on two forked posts, with cut leafy brush leaned against it any old way, 3 m wide and 1.5 m high, drying brown in weeks"
 art_book = ["made-things-sheet"]
+sheet = "sheets/16.1-windbreak.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "lean_to"
