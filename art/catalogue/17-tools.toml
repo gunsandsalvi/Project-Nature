@@ -51,6 +51,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "chopper"
 name = "Chopper and hand axe"
+what = "Chopper and hand axe"
+sheet = "sheets/17.7-chopper.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "knife"
