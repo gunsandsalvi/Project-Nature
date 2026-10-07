@@ -140,6 +140,9 @@ class Sheet(unittest.TestCase):
                     "adult": True,
                 },
                 "camera_objects": {"items": [{"file": "cam.png", "label": "Sun behind", "across": 3.4}], "stick": 1},
+                "groups": [
+                    {"title": "Parts", "items": [{"file": "cam.png", "across": 3.4}], "above": True, "scale": 0.5}
+                ],
             }
             cut = lambda name: sheet.cut_out(Image.open(os.path.join(d, name)))  # noqa: E731
             s = sheet.object_scale(spec, cut)
@@ -151,9 +154,9 @@ class Sheet(unittest.TestCase):
             page = Image.open(out)
             self.assertEqual(extent(page, sheet.FIGURE)[1], round(1.7 * s), "the adult is not 1.7 m tall")
             self.assertEqual(upright_lengths(page), round(1 * s), "the upright stick is not 1 m long")
-            self.assertIn(
-                round(1 * s), [stick_lengths(page.crop((0, y, page.width, y + 1))) for y in range(page.height)]
-            )
+            lying = [stick_lengths(page.crop((0, y, page.width, y + 1))) for y in range(page.height)]
+            self.assertIn(round(1 * s), lying, "no lying stick 1 m long")
+            self.assertIn(round(0.5 * s), lying, "the group seen from above has no lying stick at its own scale")
             red = np.asarray(page.convert("RGB")).astype(int)
             ys = np.nonzero((np.abs(red - RED).sum(axis=2) == 0).any(axis=1))[0]
             self.assertEqual(ys.max() - ys.min() + 1, round(2.8 * s), "the front view is not 2.8 m tall")

@@ -302,7 +302,8 @@ def object_scale(spec, cut):
 
 def compose_object(spec, sheet, folder):
     """The object's sections: its views at one scale with the adult and an upright stick, from above, the camera's view
-    and its true size on the phone at each zoom, its groups of parts or states, and its strips of key poses."""
+    and its true size on the phone at each zoom, its groups of parts or states (a group seen from above gets a lying
+    stick), and its strips of key poses."""
     cache = {}
 
     def cut(name):
@@ -347,7 +348,11 @@ def compose_object(spec, sheet, folder):
         title = group["title"] + ("" if k == s else f" ({k:g} screen pixels a metre)")
         sheet.text(title, 26, bold=True)
         row = [shown(i, k) for i in group["items"]]
-        sheet.figures(standing(row, k, group.get("stick", 1), group.get("adult", False)))
+        if group.get("above"):
+            metres = group.get("stick", 1)
+            sheet.figures(row + [(lying(round(metres * k), length_label(metres)), "")])
+        else:
+            sheet.figures(standing(row, k, group.get("stick", 1), group.get("adult", False)))
     for strip in spec.get("strips", []):
         sheet.text(strip["title"], 26, bold=True)
         figures = poses(Image.open(os.path.join(folder, strip["file"])), strip["tall"], s)
