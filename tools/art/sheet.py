@@ -290,7 +290,9 @@ class Sheet:
 
 
 def fit(picture, width):
-    return picture.resize((width, round(picture.height * width / picture.width)), Image.LANCZOS)
+    """The picture at `width`: shrunk smoothly, or enlarged pixel for pixel so pixel art stays sharp."""
+    size = (width, round(picture.height * width / picture.width))
+    return picture.resize(size, Image.NEAREST if width > picture.width else Image.LANCZOS)
 
 
 def object_scale(spec, cut):

@@ -114,6 +114,13 @@ class Sheet(unittest.TestCase):
         self.assertEqual(sheet.to_scale(cut, 1.5, 200).size, (100, 300))
         self.assertEqual(sheet.to_scale(cut, 0.5, 300, "across").size, (150, 450))
 
+    # checks: PRE-46 PRE-22
+    def test_a_small_tile_is_enlarged_pixel_for_pixel(self):
+        checker = np.zeros((4, 4, 3), np.uint8)
+        checker[::2, ::2] = checker[1::2, 1::2] = RED
+        shown = np.asarray(sheet.fit(Image.fromarray(checker), 16)).reshape(-1, 3)
+        self.assertEqual({tuple(c) for c in shown}, {(0, 0, 0), RED}, "the enlarged pixels were blurred")
+
     # checks: PRE-46
     def test_the_pink_fringe_where_a_drawing_was_blended_into_magenta_is_peeled(self):
         blend = tuple((np.array(RED) + np.array(sheet.KEY)) // 2)
