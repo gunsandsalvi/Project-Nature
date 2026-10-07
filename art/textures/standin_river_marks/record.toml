@@ -1,0 +1,75 @@
+about = "the river's surface marks: current lines, swirls, foam and glints on see-through water"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/catalogue/sheets/4.1-river.webp"]
+original_sha256 = ["d8add603e1f353545482593f42a166ec69d0d271e393fa6e5314be3506057a2d"]
+c2pa = ["not carried"]
+requests = []
+made = "the sheet's marks, every fourth picture pixel, its levels by code"
+regrid_loss = "none: a stand-in made without a re-grid"
+truth = "builder, 2026-10-07: a stand-in for the pilot, nothing countable in it, to be replaced by the art lane's"
+approved = "not offered yet: a stand-in, below the artwork's level"
+
+[[band]]
+level = 0
+file = "art/textures/standin_river_marks/b0.png"
+sha256 = "aa04de4f52aec1ebf2c542e6a3d3aec0a667b7cd3fa9faea6c31b692614ec5ea"
+way = "cut from the signed-off river sheet's marks, magenta made see-through"
+
+[[band]]
+level = 1
+file = "art/textures/standin_river_marks/b1.png"
+sha256 = "2af031d37d38740a02258846b3ad4cb98dc024a462c613d387f522788e315e01"
+made_from = "aa04de4f52aec1ebf2c542e6a3d3aec0a667b7cd3fa9faea6c31b692614ec5ea"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 2
+file = "art/textures/standin_river_marks/b2.png"
+sha256 = "371e43708feed16e746bcc8f4cc1cad061b74861387d3c001a4b04f91a31f71a"
+made_from = "2af031d37d38740a02258846b3ad4cb98dc024a462c613d387f522788e315e01"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 3
+file = "art/textures/standin_river_marks/b3.png"
+sha256 = "03c40e5243821ad9e9001ff1e0fac2d61d1edc319c1fbd8df8234c230af88574"
+made_from = "371e43708feed16e746bcc8f4cc1cad061b74861387d3c001a4b04f91a31f71a"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 4
+file = "art/textures/standin_river_marks/b4.png"
+sha256 = "3e2d04ec98575680c2bb50a36db0ff8ebedc7dce64cee3f32a7f4c6a61f81330"
+made_from = "03c40e5243821ad9e9001ff1e0fac2d61d1edc319c1fbd8df8234c230af88574"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 5
+file = "art/textures/standin_river_marks/b5.png"
+sha256 = "74a40577de5eda26382ddfd074ff713aade12df8e6f668202cf4d4926f817db2"
+made_from = "3e2d04ec98575680c2bb50a36db0ff8ebedc7dce64cee3f32a7f4c6a61f81330"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 6
+file = "art/textures/standin_river_marks/b6.png"
+sha256 = "24010521f512bca596973c96e1fa217dc677e8c771cbe3634fd9bd0fec8365ac"
+made_from = "74a40577de5eda26382ddfd074ff713aade12df8e6f668202cf4d4926f817db2"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 7
+file = "art/textures/standin_river_marks/b7.png"
+sha256 = "2f782f11f277a950c5e16d4aad8405cbfe8b88abc0115e93d85ab868c30e3f69"
+made_from = "24010521f512bca596973c96e1fa217dc677e8c771cbe3634fd9bd0fec8365ac"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 8
+file = "art/textures/standin_river_marks/b8.png"
+sha256 = "545e1afee8fdd4d9b1b27b7f550cebf606bb6e51100469adb80e00d64aa9266d"
+made_from = "2f782f11f277a950c5e16d4aad8405cbfe8b88abc0115e93d85ab868c30e3f69"
+way = "drawn by code from the level above, each pixel one of its block"
