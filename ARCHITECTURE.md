@@ -599,7 +599,7 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
     on the stand-in ground, the meadow read smooth-pixel shimmers on none of its pixels a frame and the test board's crisp lines on 2.0%, at the line; read nearest-pixel, 2.7% and 25%; the scripted pan, turn and pinch over the meadow, 0.0%, 0.4% and 0.0%;
   - **the texture pixel's size** at every zoom stop: 1.5 to 3 screen pixels (`PRE-01`, `PRE-22`);
   - **banding at night:** the distinct screen levels across a moonlit slope, and its widest band of one colour along a row;
-  - **ground accents at every band** (the colour difference of the most striking 1% of ground texture pixels from their surroundings): at least about 20, where accepted grounds score 23–30 and the speckled one 11–12, and each band at least 90% of band 0's;
+  - **ground accents at every band** (the colour difference of the most striking 1% of the ground's screen pixels from their surroundings, measured on what the screen shows rather than per texture pixel, by your choice of 7 October 2026, since per texture pixel the bolder marks of the far bands scored lower by themselves): at least about 20, where accepted grounds score 23–30 and the speckled one 11–12, and each band at least 90% of band 0's;
     measured on the finished frame's ground, where materials sit together: a quiet material alone scores far less, as the trodden floor's 4–5 does, as asked.
   - **people against their surroundings** in busy scenes, from the engine's object picture: the median person at about the 80th percentile of the frame or above, none below about the 70th, starting lines refitted on your verdicts (`PRE-28`);
     each point's colour blurred over 1.5 pixels against over 12, as an OKLab distance; a person's mean over their pixels, ranked among all the frame's points;
@@ -654,10 +654,10 @@ It replaces the art bible's rules.
   - **far,** 64 m, for bands 4 to 6 (the camp zoom, about 100–800 m across): swathes of taller and shorter growth, bare and damp patches;
   - each tile is 256 texture pixels across at its first band, with designed levels below it, so all three fit one texture array; at a switch, the nearer tile's last level and the farther tile's first blend over the same short zoom as any two levels, and each place's patch picture (A4.6) varies all three, so none repeats as wallpaper;
   - beyond about 800 m, the world's own colours take over (A4.6).
-- **Two to four versions of each tile:** each version joins every other without a seam (they share their edges), and each cell of the ground, 4 m for the near tile and 16 m and 64 m for the others, picks one by a hash of its place, so the same piece never sits on a regular grid.
-  - *Estimated:* about 50 MiB more for the big surfaces, within A18.1's 300 MB.
+- **Four versions of each tile,** by your choice of 7 October 2026: each version joins every other without a seam (they share their edges), and each cell of the ground, 4 m for the near tile and 16 m and 64 m for the others, picks one by a hash of its place, so the same piece never sits on a regular grid.
+  - *Measured on the meadow:* 4.2 MB for a big surface's near, middle and far tiles in four versions with their levels, so about 126 MB for about 30 big surfaces, within A18.1's 300 MB beside the other materials, with little room to spare.
 - Grass, reeds, flowers and flames keep their true size in metres while their design follows the band; flowers, berries and eyes never fall below one texture pixel (`PRE-46`).
-- Memory is the cost, not time: about 50–150 MiB of lossless textures at 64 a metre for about 150 materials with their levels, and about 30 MiB more for the middle and far tiles of about 30 big surfaces (estimates), within A18.1's 300 MB.
+- Memory is the cost, not time: about 50–150 MiB of lossless textures at 64 a metre for about 150 materials with their levels, and about 126 MB for the near, middle and far tiles of about 30 big surfaces in four versions (measured on the meadow; the rest estimates), within A18.1's 300 MB.
 
 ### A5.4 Where textures come from
 
@@ -682,7 +682,7 @@ It replaces the art bible's rules.
   The Lab page lists every material; each one's sheet shows its tiles near, middle and far with their versions, each level at the bands it serves at true size (a texture pixel 2 × 2 screen pixels, worked out from the screen, since the interface is drawn 540 wide and stretched), its first level's corner at 8 screen pixels a texture pixel, and its record's words; on the art lane's first textures, since deleted, 79 textures were made and uploaded in the cloud in 151 ms, 26.8 MB with their levels.
 - **The files the engine reads:** `art/textures/<name>/` holds a texture's levels as lossless pictures and its `record.toml`; a big surface's middle and far tiles sit in `middle/` and `far/`, and its versions in `v2/` to `v4/`, each with its own levels and record.
 - **Code-made and world-made textures** are made on the phone at first start or with their area, and cached by look digest.
-- **The originals** are kept beside their records as WebP in `art/sources/`, with the full original's digest and whether it carried its C2PA record; the full originals go to release files once those are proved from a cloud session (A2.3).
+- **The originals** are kept beside their records as WebP in `art/sources/`, with the full original's digest and whether it carried its C2PA record, and by your choice of 7 October 2026 they all stay in the repository (about 15 MB a material, as the meadow's) rather than going to release files.
 - **GPT's place:** before the build, never in it, so a failed or refused run, or a limit, only delays new sources.
 - **Three uses, kept apart:** references (kept, never measured), targets (never shipped) and texture sources (re-gridded, approved, shipped); only sources need the full record.
 - **Consistency:** every request uses one of your pictures or an accepted sheet as its style input, with the same wording; seasons come as matched sets sharing clump shapes; every GPT picture is checked by code (layout, drift) and for truth before you see it.
