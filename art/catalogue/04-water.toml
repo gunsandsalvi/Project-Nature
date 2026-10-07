@@ -53,7 +53,9 @@ what = "dark still water among reeds"
 [[piece]]
 id = "sea"
 name = "Sea"
-what = "deep blue to turquoise shallows, with currents"
+what = "open sea, turquoise over pale sand in the shallows and deep blue far out, from flat calm to gale"
+sheet = "sheets/4.8-sea.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "coast"
@@ -69,5 +71,7 @@ art_book = ["winter"]
 [[piece]]
 id = "flood"
 name = "Flood"
-what = "brown water over the banks, carrying branches"
+what = "brown, silt-thick water spilling over the land, with foam lines, a shallow edge over grass and a receding skin of scum"
 art_book = ["storm-close"]
+sheet = "sheets/4.11-flood.webp"
+signed_off = "7 October 2026"
