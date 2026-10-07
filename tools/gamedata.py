@@ -17,6 +17,9 @@ thread and on four, refusing to go on if they differ; and writes build.toml:
 - [textures]: each texture file the phone reads with its SHA-256 (A5.4), written into game/data/textures/: the
   stand-ins tools/standins.py makes (T2.1a.3), and each of the art lane's textures, its record's levels packed
   largest first into textures/art/<entry>.kdtex, so art:meadow/middle is textures/art/meadow/middle.kdtex;
+- [sheets]: the signed-off sheet of each of the pilot's pieces, which the Pilot page shows beside what the engine
+  draws (T2.3a.5), each with its SHA-256, written into game/data/sheets/ as <piece>.kdsheet (the sheet's WebP under a
+  name Godot's import leaves alone), by the art lane's own catalogue (art/catalogue/*.toml names each piece's sheet);
 - [models]: each family of the model kit's parts the phone reads with its SHA-256 (A6.1), written into
   game/data/models/ by tools/kit.py: each art/models/<family>.blend exported by Blender, and the stand-in family;
   the build refuses to go on if the kit's own check (kd_kit check) finds a fault: a triangle whose texture pixels
@@ -50,6 +53,9 @@ OUT = os.path.join(ROOT, "game", "data")
 BUILD = os.path.join(OUT, "build.toml")
 TEXTURES = os.path.join(OUT, "textures")
 MODELS = os.path.join(OUT, "models")
+SHEETS = os.path.join(OUT, "sheets")
+# the pilot's pieces (IMPLEMENTATION.md, α2.3a), by their ids in the art lane's catalogue, each shown beside its sheet
+PILOT_PIECES = ("meadow", "river", "river_bed", "club", "hide_tent_cone")
 # the kit's own tool, built beside the extension (view/tools/kit.cpp)
 KD_KIT = os.environ.get("KD_KIT", os.path.join(ROOT, "build", "view", "kd_kit"))
 SCENES = os.path.join(DATA, "scenes")
@@ -148,7 +154,11 @@ def copy_sources(files):
     for dirpath, _, names in os.walk(OUT, topdown=False):
         for name in names:
             rel = os.path.relpath(os.path.join(dirpath, name), OUT).replace(os.sep, "/")
-            if rel != "build.toml" and not rel.startswith(("reports/", "textures/", "models/")) and rel not in files:
+            if (
+                rel != "build.toml"
+                and not rel.startswith(("reports/", "textures/", "models/", "sheets/"))
+                and rel not in files
+            ):
                 os.remove(os.path.join(dirpath, name))
         if dirpath != OUT and not os.listdir(dirpath):
             os.rmdir(dirpath)
@@ -202,6 +212,47 @@ def textures(records=()):
     return sorted(made)
 
 
+def pilot_sheets():
+    """The picture of each pilot piece's sheet, from the art lane's catalogue, whose [[piece]] tables name it:
+    {the piece's id: its path from the repository's top}; a RuntimeError names any piece the catalogue lacks or whose
+    sheet is missing."""
+    sheets = {}
+    folder = os.path.join(ART, "catalogue")
+    for name in sorted(os.listdir(folder)) if os.path.isdir(folder) else []:
+        if name.endswith(".toml"):
+            with open(os.path.join(folder, name), "rb") as f:
+                for piece in tomllib.load(f).get("piece", []):
+                    if piece.get("id") in PILOT_PIECES and "sheet" in piece:
+                        sheets[piece["id"]] = os.path.join(folder, piece["sheet"])
+    for piece in PILOT_PIECES:
+        if piece not in sheets:
+            raise RuntimeError(f"the art lane's catalogue has no sheet for the pilot's piece {piece}")
+        if not os.path.isfile(sheets[piece]):
+            raise RuntimeError(
+                f"the sheet {os.path.relpath(sheets[piece], ROOT)} of the pilot's piece {piece} is missing"
+            )
+    return {piece: os.path.relpath(sheets[piece], ROOT) for piece in PILOT_PIECES}
+
+
+def sheets():
+    """The pilot's sheets in game/data/sheets/, <piece>.kdsheet, each written only when its bytes change, and any other
+    removed: their names there, in order."""
+    os.makedirs(SHEETS, exist_ok=True)
+    made = {}
+    for piece, rel in pilot_sheets().items():
+        with open(os.path.join(ROOT, rel), "rb") as f:
+            made[f"{piece}.kdsheet"] = f.read()
+    for name, data in made.items():
+        path = os.path.join(SHEETS, name)
+        if not os.path.isfile(path) or open(path, "rb").read() != data:
+            with open(path, "wb") as f:
+                f.write(data)
+    for name in os.listdir(SHEETS):
+        if name not in made:
+            os.remove(os.path.join(SHEETS, name))
+    return sorted(made)
+
+
 def models():
     """The kit's family files in game/data/models/, made by tools/kit.py from the art lane's Blender files and the
     stand-in family: their names there, in order; and a problem if the kit's own check finds one in them, else
@@ -216,7 +267,9 @@ def models():
     return names, None
 
 
-def build_toml(proof, version, files, sources, bench, code, texture_files=(), calibration=(), model_files=()):
+def build_toml(
+    proof, version, files, sources, bench, code, texture_files=(), calibration=(), model_files=(), sheet_files=()
+):
     # No comments: Godot's ConfigFile, which reads this on the phone, stops at a TOML comment. Lists hold "a b" texts
     # rather than tables, which ConfigFile also reads.
     lines = [
@@ -241,6 +294,9 @@ def build_toml(proof, version, files, sources, bench, code, texture_files=(), ca
         "",
         "[textures]",
         "files = " + toml_list(f"{name} {sha256(os.path.join(TEXTURES, name))}" for name in texture_files),
+        "",
+        "[sheets]",
+        "files = " + toml_list(f"{name} {sha256(os.path.join(SHEETS, name))}" for name in sheet_files),
         "",
         "[models]",
         "files = " + toml_list(f"{name} {sha256(os.path.join(MODELS, name))}" for name in model_files),
@@ -323,6 +379,7 @@ def main(argv):
     copy_sources(files + calibration)
     made = textures(art_files())
     try:
+        shown_sheets = sheets()
         kept, problem = models()
     except RuntimeError as e:
         print(f"Game data: {e}")
@@ -331,7 +388,11 @@ def main(argv):
         print(f"{problem}\nGame data: the kit's parts have problems")
         return 1
     with open(BUILD, "w") as f:
-        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made, calibration, kept))
+        f.write(
+            build_toml(
+                one, version, files, sources, bench_digests(tool), version_code(), made, calibration, kept, shown_sheets
+            )
+        )
     try:
         shown = reports(tool)
     except RuntimeError as e:
@@ -339,8 +400,8 @@ def main(argv):
         return 1
     print(
         f"Game data: {os.path.relpath(OUT, ROOT)}/ with {len(files)} catalogue files, {len(sources)} sources, "
-        f"{len(one)} proof suites, {len(shown)} scene reports, {len(made)} textures, {len(kept)} kit families and "
-        f"{len(calibration)} calibration scenes"
+        f"{len(one)} proof suites, {len(shown)} scene reports, {len(made)} textures, {len(shown_sheets)} sheets, "
+        f"{len(kept)} kit families and {len(calibration)} calibration scenes"
     )
     return 0
 

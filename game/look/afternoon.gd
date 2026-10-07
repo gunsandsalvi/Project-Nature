@@ -1,7 +1,8 @@
 ## The look's light for the moment it shows (A4.3, PRE-30): the sun, the sky's fill and the globals
 ## the shared light function reads, from base/tuning/light.toml, so no number of the light is in
 ## code. Stand-ins for the view's maps and the fire grid, which the pages that draw the pilot's
-## pieces need to hold still: open sky, no contact and no fires, until the view makes them (α2.3b).
+## pieces need to hold still: open sky, no contact and no fires, until the page makes the maps round
+## its things (game/look/view_maps.gd) and the view the fires' (α2.3b).
 ## Implements PRE-30.
 class_name Afternoon
 extends RefCounted
@@ -59,7 +60,9 @@ static func _publish(tuning: Dictionary, toward: Vector3) -> void:
 	var maps := Image.create(4, 4, false, Image.FORMAT_RGBA8)
 	maps.fill(Color(1.0, 1.0, 0.0, 0.0))
 	_global("kd_view_maps", ImageTexture.create_from_image(maps))
+	_global("kd_view_tops", bare_tops())
 	_global("kd_maps_place", Vector4(-32.0, -32.0, 64.0, 20.0))
+	_global("kd_rim", _share(tuning["rim"]))
 	var grid := Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	grid.fill(Color8(0, 0, 0, 0))
 	_global("kd_fire_grid", ImageTexture.create_from_image(grid))
@@ -77,6 +80,14 @@ static func _publish(tuning: Dictionary, toward: Vector3) -> void:
 	# the sky's colour, which water mirrors by angle
 	var sky := _linear(tuning["sky_colour"])
 	_global("kd_sky", Vector3(sky.r, sky.g, sky.b))
+
+
+## The heights of what stands on the ground when nothing does: a small picture of zeros, which the
+## light function reads as bare ground everywhere.
+static func bare_tops() -> ImageTexture:
+	var tops := Image.create(4, 4, false, Image.FORMAT_RF)
+	tops.fill(Color(0.0, 0.0, 0.0, 1.0))
+	return ImageTexture.create_from_image(tops)
 
 
 static func _global(name: String, value: Variant) -> void:

@@ -4,6 +4,7 @@
 #include <string_view>
 #include <utility>
 
+#include "kd/look/model.hpp"
 #include "kd/look/texture.hpp"
 
 namespace kd::look {
@@ -29,16 +30,31 @@ void check_area(const data::Catalogue& cat, std::vector<data::Problem>& problems
             problems.push_back(
                 areas.at(i, "reach", "must be more than the strip, so the meadow lies north and south of it"));
         }
-        // with no art loaded the engine runs without textures, so the surfaces are held to entries only when there are
-        // some
-        if (cat.kind<Texture>().size() == 0) {
-            continue;
+        // the camp stands in the strip: from the river's middle line out past its widest bank, up the bank's run, then
+        // back from the bank, and the club beyond the tent
+        const std::int64_t reach_of_camp =
+            a.width / 2 + a.width / 2 * a.width_wobble / 1'000'000 + a.run + a.camp_back + a.club_away;
+        if (reach_of_camp > a.strip) {
+            problems.push_back(areas.at(i, "camp_back", "puts the camp, with its club, beyond the strip"));
         }
-        const std::array<std::pair<std::string_view, const std::string*>, 3> surfaces{
-            {{"ground", &a.ground}, {"bed", &a.bed}, {"marks", &a.marks}}};
-        for (const auto& [key, name] : surfaces) {
-            if (!cat.find("textures", *name)) {
-                problems.push_back(areas.at(i, key, "names no texture \"" + *name + "\" in the catalogue"));
+        // with no art loaded the engine runs without textures or recipes, so the surfaces and the camp's things are
+        // held to entries only when there are some
+        if (cat.kind<Texture>().size() != 0) {
+            const std::array<std::pair<std::string_view, const std::string*>, 3> surfaces{
+                {{"ground", &a.ground}, {"bed", &a.bed}, {"marks", &a.marks}}};
+            for (const auto& [key, name] : surfaces) {
+                if (!cat.find("textures", *name)) {
+                    problems.push_back(areas.at(i, key, "names no texture \"" + *name + "\" in the catalogue"));
+                }
+            }
+        }
+        if (cat.kind<Model>().size() != 0) {
+            const std::array<std::pair<std::string_view, const std::string*>, 2> things{
+                {{"tent", &a.tent}, {"club", &a.club}}};
+            for (const auto& [key, name] : things) {
+                if (!cat.find("models", *name)) {
+                    problems.push_back(areas.at(i, key, "names no recipe \"" + *name + "\" in the catalogue"));
+                }
             }
         }
     }

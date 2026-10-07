@@ -152,7 +152,8 @@ func _add_cover() -> void:
 ## The window's pixels to one of the shell's canvas pixels (window/stretch/mode="canvas_items").
 func _stretch() -> float:
 	var window := get_viewport().get_visible_rect().size
-	return DisplayServer.window_get_size().x / window.x if window.x > 0.0 else 1.0
+	var pixels := float(DisplayServer.window_get_size().x)
+	return pixels / window.x if window.x > 0.0 and pixels > 0.0 else 1.0
 
 
 func _window_point(event: InputEvent) -> Vector2:

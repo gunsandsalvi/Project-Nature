@@ -16,6 +16,7 @@
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/string.hpp>
 
@@ -67,6 +68,9 @@ public:
     /// Puts one part of a family alone, as the model sheet shows it, wearing the textures wear names for its roles.
     godot::Dictionary place_part(const godot::RID& scenario, const godot::String& family, const godot::String& part,
                                  int64_t east, int64_t north, int64_t up, double turn, const godot::Dictionary& wear);
+    /// The triangles of a thing as it stands, for the view's maps (A4.4): every three points one triangle, in metres
+    /// about the world's centre, x east, y up, z south, none for a thing not placed.
+    [[nodiscard]] godot::PackedVector3Array thing_triangles(int64_t id) const;
     /// Moves a thing already placed.
     void move(int64_t id, int64_t east, int64_t north, int64_t up, double turn);
     /// Takes a thing off the screen.
@@ -93,6 +97,7 @@ private:
     };
     struct Thing {
         std::vector<Draw> draws;
+        std::vector<float> shape;  // its triangles in its own metres, nine numbers each
         std::int64_t east = 0;
         std::int64_t north = 0;
         std::int64_t up = 0;

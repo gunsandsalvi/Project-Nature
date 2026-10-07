@@ -142,6 +142,7 @@ static func light_stand_ins(sun: DirectionalLight3D, fires := true) -> void:
 		var at := Vector2i((i * 389) % 1000, (i * 677) % 1000)
 		maps.fill_rect(Rect2i(at, Vector2i(24, 16)), Color(0.6, 0.7, 0.5, 0.05))
 	_set_global("kd_view_maps", ImageTexture.create_from_image(maps))
+	_set_global("kd_view_tops", Afternoon.bare_tops())
 	_set_global("kd_maps_place", Vector4(-32.0, -32.0, 64.0, 20.0))
 	var grid := Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	grid.fill(Color8(1, 2, 3, 4) if fires else Color8(0, 0, 0, 0))
