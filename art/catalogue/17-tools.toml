@@ -48,7 +48,9 @@ name = "Chopper and hand axe"
 [[piece]]
 id = "knife"
 name = "Knife"
-what = "a blade in a handle"
+what = "Knife"
+sheet = "sheets/17.8-knife.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "spear_point"
