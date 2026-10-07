@@ -101,8 +101,10 @@ art_book = ["made-things-sheet", "close-camp"]
 [[piece]]
 id = "drying_rack"
 name = "Drying rack"
-what = "meat and fish hung to dry"
+what = "a light frame of unbarked poles lashed with thong, two A-frames and a bar, 3.2 m long and 1.85 m high, with thongs along the bar for hanging meat and fish to dry; the meat and fish are pieces of their own"
 art_book = ["made-things-sheet", "ab-figures-detailed", "lake-mist-close"]
+sheet = "sheets/16.16-drying_rack.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "smoke_rack"
