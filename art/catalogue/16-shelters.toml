@@ -23,7 +23,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "brush_hut"
 name = "Brush hut"
-what = "brush over a shallow floor"
+what = "brush hut"
+sheet = "sheets/16.3-brush_hut.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "hide_tent_cone"
