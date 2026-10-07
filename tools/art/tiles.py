@@ -32,9 +32,16 @@ def read_rgb(path):
         return np.asarray(im.convert("RGB")).copy()
 
 
-def write_png(path, rgb):
-    """An 8-bit RGB array as a lossless PNG."""
-    Image.fromarray(np.ascontiguousarray(rgb, dtype=np.uint8)).save(path, format="PNG", optimize=True)
+def read_pixels(path):
+    """A picture file as it is stored: an 8-bit RGB array, or RGBA where the file has an alpha channel (the water's
+    marks)."""
+    with Image.open(path) as im:
+        return np.asarray(im.convert("RGBA" if "A" in im.getbands() else "RGB")).copy()
+
+
+def write_png(path, pixels):
+    """An 8-bit RGB or RGBA array as a lossless PNG."""
+    Image.fromarray(np.ascontiguousarray(pixels, dtype=np.uint8)).save(path, format="PNG", optimize=True)
 
 
 def sha256(path):
@@ -334,6 +341,8 @@ def flatten_border(tile, depth, radius=12):
     from the pixels; then the mean of each row and column, less the tile's mean. The fine grain stays. A ring that every
     version shares would otherwise carry the tile's swathes of tone to every edge, the same at each, and a straight line
     of them, lighter or darker than the rest, would show along every join."""
+    if depth <= 0:  # a ground of big marks (cobbles) is not flattened: it would wash out whatever lies by the edge
+        return tile
     n = tile.shape[0]
     f = tile.astype(np.float64)
     mean = f.reshape(-1, 3).mean(axis=0)
@@ -352,7 +361,7 @@ def make_versions(tile, count, ring, overlap, patch, seed, flatten=None, others=
     `deeper` are the pictures drawn for the levels below, of the first source (see neutral_shift). Returns the
     versions and the shift."""
     dy, dx = neutral_shift(tile, overlap, deeper=deeper)
-    first = flatten_border(roll(tile, dy, dx), flatten or overlap)
+    first = flatten_border(roll(tile, dy, dx), overlap if flatten is None else flatten)
     chance = Chance(seed)
     taken = {}
     versions = [first]
@@ -370,7 +379,7 @@ def requilt(sources, shift, count, ring, overlap, patch, seed, flatten=None, sca
     between marks, which is why they are not the first level's laid over it: a level drawn on its own seldom lines up
     with the one above closely enough for that, and its marks would be sliced."""
     dy, dx = shift[0] // scale, shift[1] // scale
-    depth = flatten or overlap
+    depth = overlap if flatten is None else flatten
     first = flatten_border(roll(sources[0], dy, dx), depth)
     fixed = ring_mask(first.shape[0], ring)
     chance = Chance(seed)
@@ -435,6 +444,90 @@ def impose_ring(level, ring_level, ring):
     mask = ring_mask(level.shape[0], ring)
     out[mask] = ring_level[mask]
     return out
+
+
+# ---- marks: light marks on see-through ground (the water's current, foam and ripples, A4.5) -------------------
+#
+# A picture of marks is drawn on a background of one key colour. Everything above (versions, rings, quilting) works
+# on it as it is, the key colour a colour like any other; only at the end is it made see-through (to_rgba). The levels
+# below the first are made here, since averaging marks would mix them with the key.
+
+
+def key_colour(text):
+    """A colour written #rrggbb as three 8-bit numbers."""
+    h = text.lstrip("#")
+    return np.array([int(h[i : i + 2], 16) for i in (0, 2, 4)], np.uint8)
+
+
+def key_mask(picture, key):
+    """Where a picture of marks holds a mark: every pixel that is not the key colour."""
+    return (picture != np.asarray(key, np.uint8)).any(axis=2)
+
+
+def to_rgba(picture, key, bleed):
+    """A picture of marks on its key colour as texture pixels with alpha: each mark opaque, everything else wholly
+    see-through with the colour `bleed`, so no fringe of the key colour or of black shows where the engine blends a
+    mark with its neighbours."""
+    mask = key_mask(picture, key)
+    out = np.empty(picture.shape[:2] + (4,), np.uint8)
+    out[..., :3] = np.where(mask[..., None], picture, np.asarray(bleed, np.uint8))
+    out[..., 3] = np.where(mask, 255, 0)
+    return out
+
+
+def _marks_of(mask):
+    """The marks of a wrapping mask as lists of their pixels: eight-connected runs of marked pixels, found by flood fill
+    in reading order (so the same mask always gives the same list)."""
+    n = mask.shape[0]
+    seen = np.zeros_like(mask)
+    found = []
+    for y, x in np.argwhere(mask):
+        if seen[y, x]:
+            continue
+        stack, body = [(int(y), int(x))], []
+        seen[y, x] = True
+        while stack:
+            cy, cx = stack.pop()
+            body.append((cy, cx))
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    ny, nx = (cy + dy) % n, (cx + dx) % n
+                    if mask[ny, nx] and not seen[ny, nx]:
+                        seen[ny, nx] = True
+                        stack.append((ny, nx))
+        found.append(body)
+    return found
+
+
+def reduce_marks(picture, key, keep, seed):
+    """The level below a picture of marks, made by code: each 2 x 2 block is a mark where two or more of its four
+    texture pixels are (so a single speck is gone and a streak is its length over two, bolder for its thickness being
+    the new texture pixel's), then of the marks that remain only `keep` percent are kept, chosen by a hash of each
+    one's first pixel and the seed, so the level shows bolder marks and fewer of them (A5.3), never the level above
+    averaged. A kept mark takes the lightest colour of its block."""
+    n = picture.shape[0]
+    h = n // 2
+    mask = key_mask(picture, key)
+    blocks = picture.reshape(h, 2, h, 2, 3).transpose(0, 2, 1, 3, 4).reshape(h, h, 4, 3).astype(np.int32)
+    marked = mask.reshape(h, 2, h, 2).transpose(0, 2, 1, 3).reshape(h, h, 4)
+    lightest = np.where(marked, blocks.sum(axis=3), -1).argmax(axis=2)
+    colours = np.take_along_axis(blocks, lightest[:, :, None, None], axis=2)[:, :, 0, :]
+    pooled = marked.sum(axis=2) >= 2
+    kept = np.zeros_like(pooled)
+    for body in _marks_of(pooled):
+        y, x = body[0]
+        if Chance(seed * 1000003 + y * 4099 + x).below(100) < keep:
+            for by, bx in body:
+                kept[by, bx] = True
+    out = np.empty((h, h, 3), np.uint8)
+    out[:] = np.asarray(key, np.uint8)
+    out[kept] = colours[kept].astype(np.uint8)
+    return out
+
+
+def coverage(pixels):
+    """The share of a picture of marks (RGBA) that is marked, from its alpha."""
+    return float((pixels[..., 3] > 0).mean())
 
 
 # ---- seams ------------------------------------------------------------------------------------------------------

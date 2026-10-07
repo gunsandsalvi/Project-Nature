@@ -127,6 +127,56 @@ class Versions(unittest.TestCase):
         dy, dx = tiles.neutral_shift(t, 4, step=8)
         self.assertEqual(sorted(tiles.roll(t, dy, dx).ravel().tolist()), sorted(t.ravel().tolist()))
 
+    # checks: PRE-20
+    def test_a_border_of_depth_nothing_is_not_flattened(self):
+        t = grass(64)
+        np.testing.assert_array_equal(tiles.flatten_border(t, 0), t)
+        versions, _ = tiles.make_versions(t, 2, 4, 8, 32, 5, flatten=0)
+        self.assertTrue(tiles.shares_ring(versions, 4))
+
+
+class Marks(unittest.TestCase):
+    KEY = np.array([255, 0, 255], np.uint8)
+
+    def streaks(self, n=64):
+        """Light streaks, one texture pixel high and 6 to 8 long, on the key colour."""
+        pic = np.empty((n, n, 3), np.uint8)
+        pic[:] = self.KEY
+        for k, y in enumerate(range(3, n, 8)):
+            x = (k * 13) % (n - 10)
+            pic[y, x : x + 6 + k % 3] = (232, 222, 202)
+        pic[10, 40] = (170, 196, 182)  # a single speck
+        return pic
+
+    # checks: PRE-20 PRE-46
+    def test_marks_become_opaque_and_the_rest_see_through_with_the_bleed_colour(self):
+        pic = self.streaks()
+        out = tiles.to_rgba(pic, self.KEY, (170, 196, 182))
+        self.assertEqual(out.shape, (64, 64, 4))
+        self.assertEqual(set(np.unique(out[..., 3]).tolist()), {0, 255})
+        np.testing.assert_array_equal(out[0, 0], [170, 196, 182, 0])
+        np.testing.assert_array_equal(out[3, 0:6, :3], pic[3, 0:6])
+        self.assertAlmostEqual(tiles.coverage(out), tiles.key_mask(pic, self.KEY).mean())
+
+    # checks: PRE-20 PRE-22
+    def test_the_level_below_marks_is_half_the_size_with_no_speck_and_fewer_marks(self):
+        pic = self.streaks()
+        all_kept = tiles.reduce_marks(pic, self.KEY, 100, 1)
+        self.assertEqual(all_kept.shape, (32, 32, 3))
+        self.assertFalse(tiles.key_mask(all_kept, self.KEY)[5, 20], "the single speck is gone")
+        fewer = tiles.reduce_marks(pic, self.KEY, 40, 1)
+        self.assertLess(tiles.key_mask(fewer, self.KEY).sum(), tiles.key_mask(all_kept, self.KEY).sum())
+        np.testing.assert_array_equal(fewer, tiles.reduce_marks(pic, self.KEY, 40, 1))  # nothing is random
+
+    # checks: PRE-22
+    def test_versions_of_marks_share_their_ring_on_the_key_colour(self):
+        pic = self.streaks(96)
+        versions, _ = tiles.make_versions(pic, 3, 4, 8, 32, 5, flatten=0)
+        self.assertTrue(tiles.shares_ring(versions, 4))
+        for v in versions:  # quilting copies marks, never mixes them with the key
+            colours = {tuple(c) for c in v.reshape(-1, 3).tolist()}
+            self.assertLessEqual(colours, {(255, 0, 255), (232, 222, 202), (170, 196, 182)})
+
 
 class Levels(unittest.TestCase):
     # checks: PRE-22
