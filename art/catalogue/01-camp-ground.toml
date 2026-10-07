@@ -15,6 +15,8 @@ id = "wear"
 name = "Trodden ground: paths and camp floors"
 what = "the wear layer the world lays over any ground where people walk, from flattened grass to bare packed earth, as a path or a camp floor; it appears, grows and fades with use"
 art_book = ["d2-pixel-paint", "close-camp", "camp-thirty"]
+sheet = "sheets/1.2-wear.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "bare_earth"
