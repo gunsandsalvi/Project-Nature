@@ -1,8 +1,0 @@
-{
-  "about": "The materials the plants' textured preview gives each role, as a recipe would choose them; grass and leaf cards keep their flat colours until their designs are drawn.",
-  "roles": {
-    "bark": "art/textures/birch_bark/wraps",
-    "wood": "art/textures/pole_peeled"
-  },
-  "parts": {}
-}

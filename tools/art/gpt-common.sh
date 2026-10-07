@@ -1,6 +1,6 @@
-# What the art lane's GPT tools share (gpt-run.sh for pictures, gpt-blender.sh for Blender scripts), sourced by
-# both, never run: the pause file, a request's fields and prompt, and the line each run adds to runs.md (A5.4).
-# Implements PRE-46, see A5.4 and A6.1.
+# What the GPT tools share, sourced by them, never run: the pause file, a request's fields and prompt, and the line
+# each run adds to runs.md (A5.4).
+# Implements PRE-46, see A5.4.
 #
 # While the pause file exists, requests are held, not run: /tmp/kindling-gpt-paused, or the file KINDLING_GPT_PAUSE
 # names, so the tools' tests never hold the lane's real runs.

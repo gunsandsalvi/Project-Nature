@@ -18,14 +18,32 @@ func test_every_texture_the_build_lists_is_made_and_every_material_listed_once()
 	await await_idle_frame()
 	assert_array(page.loaded["problems"] as Array).is_empty()
 	assert_int(page.textures.size()).is_equal(_art_textures().size())
+	var listed := 0
 	for name: String in page.textures:
 		assert_int((page.textures[name]["levels"] as Array).size()).is_greater(0)
+	for material: String in page.materials:
+		listed += (page.materials[material] as Array).size()
+	assert_int(listed).is_equal(page.textures.size())
 	assert_str(page.shown[0]).contains(
 		"%d materials, %d textures" % [page.materials.size(), page.textures.size()]
 	)
-	assert_bool(page.materials.has("meadow")).is_true()
-	assert_float(page.load_ms).is_greater(0.0)
-	assert_int(page.load_bytes).is_greater(0)
+	assert_float(page.load_ms).is_greater_equal(0.0)
+
+
+## A made-up material, moss, with a near, a middle and a far tile, each three levels of one colour,
+## the near tile's first 256 texture pixels across.
+func _made_up_moss(page: VBoxContainer) -> void:
+	var tiles := {"art:moss": 0, "art:moss/middle": 2, "art:moss/far": 4}
+	for name: String in tiles:
+		var levels: Array[ImageTexture] = []
+		for level in 3:
+			var image := Image.create(256 >> level, 256 >> level, false, Image.FORMAT_RGBA8)
+			image.fill(Color(0.35, 0.45, 0.2))
+			levels.append(ImageTexture.create_from_image(image))
+		var first: int = tiles[name]
+		var record := {"about": "moss", "texels_a_metre": 64 >> first, "first_band": first}
+		page.textures[name] = {"record": record, "levels": levels}
+	page.materials["moss"] = tiles.keys()
 
 
 # checks: PRE-22
@@ -33,19 +51,15 @@ func test_a_material_shows_its_tiles_near_middle_far_and_its_levels_at_true_size
 	var page: VBoxContainer = auto_free(LabPage.new())
 	add_child(page)
 	await await_idle_frame()
-	page.open("meadow")
-	assert_str(page.showing).is_equal("meadow")
+	_made_up_moss(page)
+	page.open("moss")
+	assert_str(page.showing).is_equal("moss")
 	var headings := Array(page.shown).filter(
 		func(line: String) -> bool: return line.contains(": bands ")
 	)
 	assert_str(headings[0]).starts_with("near tile: bands 0 and 1")
-	var middle := headings.find(
-		headings.filter(func(h: String) -> bool: return h.begins_with("middle:"))[0]
-	)
-	var far := headings.find(
-		headings.filter(func(h: String) -> bool: return h.begins_with("far:"))[0]
-	)
-	assert_int(middle).is_less(far)
+	assert_str(headings[1]).starts_with("middle: bands 2 and 3")
+	assert_str(headings[2]).starts_with("far: bands 4 to 6")
 	# the near tile's first level: 256 texture pixels, each 2 screen pixels
 	var pictures := page.find_children("*", "TextureRect", true, false)
 	var first: TextureRect = pictures[0]

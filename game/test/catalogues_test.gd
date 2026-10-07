@@ -18,8 +18,6 @@ func test_the_page_lists_every_source_kind_and_entry() -> void:
 		"art, version 1",
 		"base, version 2",
 		"demo, version 1",
-		"art:meadow, from art/textures/meadow/record.toml",
-		"art:meadow/middle, from art/textures/meadow/middle/record.toml",
 		"marker (2 entries)",
 		"tuning/crowd (1 entry)",
 		"tuning/heat (1 entry)",
@@ -40,11 +38,10 @@ func test_the_catalogues_are_the_same_as_the_build() -> void:
 	)
 	assert_int(lines.size()).is_equal(1)
 	assert_str(lines[0]["state"]).override_failure_message(str(lines[0])).is_equal("ok")
-	# the art lane's textures, an entry each, besides the 16 of data/
+	# the art lane's textures, an entry each however many there are, besides the 16 of data/
 	var records := Array(GameData.paths(GameData.build())).filter(
 		func(path: String) -> bool: return path.ends_with("/record.toml")
 	)
-	assert_int(records.size()).is_greater(0)
 	assert_str(lines[0]["value"]).contains("3 sources, 8 kinds, %d entries" % (16 + records.size()))
 
 
