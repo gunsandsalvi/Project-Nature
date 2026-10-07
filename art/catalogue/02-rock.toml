@@ -29,7 +29,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "obsidian"
 name = "Obsidian"
-what = "black glassy lava, the best stone for flaking"
+what = "black volcanic glass with glassy shell-shaped scars, fine ribs and crisp grey rims, in blocky masses broken by curving cracks, with faint flow banding; the best stone for flaking"
+sheet = "sheets/2.4-obsidian.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "sandstone"
