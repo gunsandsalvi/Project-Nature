@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 3, The rest of the ground.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "The rest of the ground"
 about = "Every other ground the world has, from tundra to tropical forest, and the ground after fire, flood and lava."
 items = ["WLD-31", "WLD-17", "WLD-26", "WLD-28", "WLD-15", "PRE-25"]
-signed_off = ""
 
 [[piece]]
 id = "broadleaf_floor"

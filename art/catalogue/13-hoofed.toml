@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 13, Hoofed animals.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Hoofed animals"
 about = "The hoofed animals, wild and domestic, each with its young, both sexes, its coats by season, and its body when dead."
 items = ["WLD-32", "WLD-33", "PRE-46"]
-signed_off = ""
 
 [[piece]]
 id = "red_deer"

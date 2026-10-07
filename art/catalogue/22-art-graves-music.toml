@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 22, Art, marks, graves and music.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Art, marks, graves and music"
 about = "What people paint, carve, mark, bury and play, each in its people's style."
 items = ["CUL-03", "CUL-09", "CUL-10", "CUL-12", "CUL-19", "CUL-34", "PRE-15", "PRE-43"]
-signed_off = ""
 
 [[piece]]
 id = "paintings"

@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 6, Fire and smoke.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Fire and smoke"
 about = "Every fire from an ember to a furnace, its smoke and light, and fire loose in the land."
 items = ["MAT-18", "PRE-30", "WLD-28"]
-signed_off = ""
 
 [[piece]]
 id = "embers"

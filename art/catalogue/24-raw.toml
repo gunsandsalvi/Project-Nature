@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 24, Raw materials.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Raw materials"
 about = "The shared shapes every raw thing takes, by its form, and the look of each material class."
 items = ["MAT-01", "MAT-02", "MAT-10", "PRE-46"]
-signed_off = ""
 
 [[piece]]
 id = "shapes"

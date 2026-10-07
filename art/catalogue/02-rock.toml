@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 2, Rock and stone.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Rock and stone"
 about = "The world's twelve kinds of rock as cliff and stone, the shapes rock takes, and the deposits people find in it."
 items = ["WLD-09", "WLD-14", "PRE-23", "PRE-24"]
-signed_off = ""
 
 [[piece]]
 id = "granite"

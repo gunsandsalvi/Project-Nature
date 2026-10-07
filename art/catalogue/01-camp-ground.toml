@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 1, The camp's ground.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "The camp's ground"
 about = "The ground the first camp stands on, by the river under the cliff: the first textures the engine needs."
 items = ["PRE-20", "PRE-22", "WLD-31", "MAT-08"]
-signed_off = ""
 
 [[piece]]
 id = "meadow"
@@ -22,6 +21,8 @@ id = "bare_earth"
 name = "Bare earth, dry and cracked"
 what = "open dry ground with crumbs and small stones"
 art_book = ["textures-a", "delight-liked"]
+sheet = "sheets/1.3-bare_earth.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "bank_gravel"

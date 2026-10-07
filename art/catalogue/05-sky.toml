@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 5, Sky and weather.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Sky and weather"
 about = "The sky by hour and season, and every kind of weather, your powers' included."
 items = ["WLD-07", "WLD-16", "PRE-29", "PRE-30", "GOD-02"]
-signed_off = ""
 
 [[piece]]
 id = "sun"

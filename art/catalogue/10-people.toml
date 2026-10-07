@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 10, People.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "People"
 about = "One human figure, of every age, build and look, with their faces and the marks life leaves on them."
 items = ["BIO-03", "BIO-04", "BIO-08", "BIO-16", "BIO-22", "PRE-27", "PRE-28", "PRE-18"]
-signed_off = ""
 
 [[piece]]
 id = "body"

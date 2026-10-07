@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 12, Movements.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Movements"
 about = "Every movement people and animals make, each a loop of a few key poses."
 items = ["PRE-44", "MAT-06", "BIO-21", "MND-26", "CUL-10"]
-signed_off = ""
 
 [[piece]]
 id = "base_actions"

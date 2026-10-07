@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 23, Traces of life.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Traces of life"
 about = "What people and animals leave behind, and how it fades and is buried."
 items = ["MAT-08", "PRE-09", "PRE-25"]
-signed_off = ""
 
 [[piece]]
 id = "rubbish_heap"

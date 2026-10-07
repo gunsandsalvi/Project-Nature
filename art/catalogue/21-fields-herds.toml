@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 21, Fields and herds.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Fields and herds"
 about = "Sowing, growing and harvesting, and keeping animals."
 items = ["RCK-23", "WLD-33", "WLD-27", "CUL-28", "MOM-08"]
-signed_off = ""
 
 [[piece]]
 id = "cleared_ground"

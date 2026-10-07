@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 17, Tools of stone, bone and wood.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Tools of stone, bone and wood"
 about = "The tools people make for every craft, each in its states of wear."
 items = ["MAT-23", "RCK-01", "RCK-10", "RCK-11", "RCK-12", "RCK-25"]
-signed_off = ""
 
 [[piece]]
 id = "hammerstone"

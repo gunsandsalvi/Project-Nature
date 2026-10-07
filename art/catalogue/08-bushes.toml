@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 8, Bushes.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Bushes"
 about = "Eleven kinds of bush, with their seasons and growth, berries and nuts."
 items = ["WLD-31", "PRE-46"]
-signed_off = ""
 
 [[piece]]
 id = "hazel"

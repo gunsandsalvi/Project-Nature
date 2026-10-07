@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 9, Grasses, grains, flowers and small plants.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Grasses, grains, flowers and small plants"
 about = "Thirty-three small plants, each drawn for every zoom band and through its seasons."
 items = ["WLD-31", "PRE-46", "RCK-23"]
-signed_off = ""
 
 [[piece]]
 id = "meadow_grasses"

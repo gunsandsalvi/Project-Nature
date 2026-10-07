@@ -1,9 +1,8 @@
 # The catalogue (IMPLEMENTATION.md, The catalogue): group 18, Hunting, fishing and carrying.
-# Each piece gets its sheet, as the catalogue sets out, once you sign off the group.
+# Each piece gets its sheet, as the catalogue sets out; you sign each one off, and it is kept in sheets/.
 group = "Hunting, fishing and carrying"
 about = "Weapons and traps, fishing gear, containers, and how people carry and travel."
 items = ["MAT-23", "MAT-11"]
-signed_off = ""
 
 [[piece]]
 id = "spear"
