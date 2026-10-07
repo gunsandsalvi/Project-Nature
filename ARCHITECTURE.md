@@ -494,6 +494,13 @@ Every cost marked *estimate* waits for M2's calibration scenes on your phone (A1
   - for each area, when it is made: its openness to the sky and the darkness of its hollows, so light enters under overhangs and stays out of caves (`PRE-24`);
   - plants darker toward their base, and the ground under dense cover darker by its density.
   - A screen-space pass comes only if the phone shows gaps, then at half resolution with a hierarchical depth buffer, as Imagination advises.
+- *Built in the pilot (`T2.3b.3` in part, pulled forward by your word of 7 October 2026 after you looked at the camp beside the art book's close camp):*
+  `view/src/maps.hpp` makes the maps from the triangles of the things on the ground (`KdKit.thing_triangles`), each rasterised into a height with four samples a texel so a thin thing is not missed, texels of 6 cm: openness (the horizon of 16 directions to 2 m, at most 65% of the sky taken), contact (the ground darkened 14 cm from each foot, 38% at the foot, none under the thing), the sun's steepest angle and its distance (so a shadow softens with its distance, as above), and a second picture of the tops' heights.
+  The light function reads that second picture because a surface under a roof must know it is: only the ground's shaders ask (`KD_UNDER_ROOFS`), where an upward-facing point more than 15 cm below the top at its texel is dark, never black, and out of the sun; a part lies below the poles that stand over it and does not ask.
+  The ground's sun shadow comes from the maps alone, since every thing on it is in them and they soften with distance, while the parts keep Godot's sun map; beyond the square the maps lie in, there is nothing (open sky, no contact).
+  The maps lie in the world's metres and the page moves them with the rig's origin (`ViewMaps.follow`); the numbers are `tuning/light`'s.
+  The parts get a bright edge where the low sun grazes them (`rim`, a square law of the grazing angle, on the side facing the sun, where the sun reaches).
+  What is not built: the maps of the moving things and of a whole area's ground (the pilot's are the camp's), the heights of the ground under them, undersides, and fire's use of the same heights.
 
 ### A4.5 Fire, water and weather
 
