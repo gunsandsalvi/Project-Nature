@@ -99,7 +99,9 @@ what = "fresh black lava rock, and grey ash over the land"
 [[piece]]
 id = "flood_silt"
 name = "Flood silt"
-what = "fresh mud left by a flood"
+what = "the fresh layer of fine mud a flood leaves as the water goes down, with run-off channels and ripple fields"
+sheet = "sheets/3.18-flood_silt.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "soil_layers"
