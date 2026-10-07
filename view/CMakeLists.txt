@@ -30,7 +30,9 @@ add_library(kindling SHARED
     src/crowd.cpp
     src/device.cpp
     src/figures.cpp
+    src/kit_draw.cpp
     src/look.cpp
+    src/texture_images.cpp
     src/world.cpp
     src/worlds.cpp)
 kindling_rules(kindling)

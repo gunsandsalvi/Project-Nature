@@ -121,7 +121,7 @@ def art_textures(records):
     bytes}, art:meadow/middle as art/meadow/middle.kdtex."""
     out = {}
     for rel in records:
-        if not rel.endswith("/record.toml"):
+        if not rel.startswith("art/textures/") or not rel.endswith("/record.toml"):
             continue
         with open(os.path.join(ROOT, rel), "rb") as f:
             levels = sorted(tomllib.load(f)["band"], key=lambda band: band["level"])

@@ -233,8 +233,7 @@ func _load_textures() -> void:
 	names.sort_custom(func(a: String, b: String) -> bool: return _order(a) < _order(b))
 	var started := Time.get_ticks_usec()
 	for name: String in names:
-		var path := "res://data/textures/art/%s.kdtex" % name.trim_prefix("art:")
-		var read := _look.texture_levels(path)
+		var read := _look.texture_levels(GameData.texture_path(name))
 		var levels: Array[ImageTexture] = []
 		for image: Image in read["levels"]:
 			load_bytes += image.get_data_size()

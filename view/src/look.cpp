@@ -16,6 +16,7 @@
 
 #include "kd/look/blind.hpp"
 #include "kd/num/maths.hpp"
+#include "texture_images.hpp"
 #include "textures.hpp"
 
 namespace kd::view {
@@ -67,67 +68,6 @@ std::int64_t modulo(std::int64_t a, std::int64_t b) {
     return m < 0 ? m + b : m;
 }
 
-// A .kdtex file's levels, each an RGBA8 image, largest first, each half the one before and the last one texture pixel
-// across; or the problem, and none.
-struct ReadLevels {
-    std::vector<godot::Ref<godot::Image>> images;
-    godot::String problem;
-};
-
-ReadLevels read_levels(const godot::String& path) {
-    ReadLevels out;
-    const godot::PackedByteArray bytes = godot::FileAccess::get_file_as_bytes(path);
-    if (bytes.is_empty()) {
-        out.problem = godot::String("no texture at ") + path;
-        return out;
-    }
-    const Levels levels = split_levels(std::span<const std::uint8_t>(bytes.ptr(), bytes.size()));
-    if (!levels.problem.empty()) {
-        out.problem = path + godot::String(": ") + godot::String(levels.problem.c_str());
-        return out;
-    }
-    std::int64_t width = 0;
-    for (std::size_t i = 0; i < levels.pictures.size(); ++i) {
-        godot::PackedByteArray png;
-        png.resize(static_cast<int64_t>(levels.pictures[i].size()));
-        std::memcpy(png.ptrw(), levels.pictures[i].data(), levels.pictures[i].size());
-        godot::Ref<godot::Image> image;
-        image.instantiate();
-        if (image->load_png_from_buffer(png) != godot::OK) {
-            out.problem = path + godot::String(": level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
-                          godot::String(" is not a PNG");
-            out.images.clear();
-            return out;
-        }
-        image->convert(godot::Image::FORMAT_RGBA8);
-        if (i == 0) {
-            width = image->get_width();
-        }
-        if (image->get_width() != (width >> i) || image->get_height() != (width >> i)) {
-            out.problem = path + godot::String(": level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
-                          godot::String(" is not half the size of the one before");
-            out.images.clear();
-            return out;
-        }
-        out.images.push_back(image);
-    }
-    if (width == 0 || (width >> (levels.pictures.size() - 1)) != 1) {
-        out.problem = path + godot::String(": its levels do not run down to one texture pixel");
-        out.images.clear();
-    }
-    return out;
-}
-
-// One image of the levels, its mipmaps our own levels rather than Godot's averaged ones (A5.3).
-godot::Ref<godot::Image> with_levels(const std::vector<godot::Ref<godot::Image>>& images) {
-    godot::PackedByteArray all;
-    for (const godot::Ref<godot::Image>& image : images) {
-        all.append_array(image->get_data());
-    }
-    const auto width = static_cast<int32_t>(images[0]->get_width());
-    return godot::Image::create_from_data(width, width, true, godot::Image::FORMAT_RGBA8, all);
-}
-
 }  // namespace
 
 KdLook::~KdLook() {
@@ -164,6 +104,10 @@ void KdLook::set_screen(godot::Vector2 size) {
 
 void KdLook::set_lens(double degrees) {
     rig_.set_lens(degrees);
+}
+
+void KdLook::set_closest(double metres_per_pixel) {
+    rig_.set_closest(metres_per_pixel);
 }
 
 void KdLook::frame(double seconds) {
@@ -227,6 +171,8 @@ godot::Dictionary KdLook::state() const {
     out["band"] = rig_.band();
     out["texel_pixels"] = rig_.texel_pixels(rig_.band());
     out["resting"] = rig_.resting();
+    out["origin_east"] = rig_.origin_east();
+    out["origin_north"] = rig_.origin_north();
     return out;
 }
 
@@ -493,6 +439,7 @@ void KdLook::_bind_methods() {
     ClassDB::bind_method(D_METHOD("turn_by", "degrees", "at"), &KdLook::turn_by);
     ClassDB::bind_method(D_METHOD("set_screen", "size"), &KdLook::set_screen);
     ClassDB::bind_method(D_METHOD("set_lens", "degrees"), &KdLook::set_lens);
+    ClassDB::bind_method(D_METHOD("set_closest", "metres_per_pixel"), &KdLook::set_closest);
     ClassDB::bind_method(D_METHOD("frame", "seconds"), &KdLook::frame);
     ClassDB::bind_method(D_METHOD("pose"), &KdLook::pose);
     ClassDB::bind_method(D_METHOD("state"), &KdLook::state);
