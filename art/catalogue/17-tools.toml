@@ -39,7 +39,9 @@ name = "Scraper"
 [[piece]]
 id = "awl"
 name = "Awl"
-what = "stone and bone points for piercing"
+what = "Awl"
+sheet = "sheets/17.6-awl.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "chopper"
