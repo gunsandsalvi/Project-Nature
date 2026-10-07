@@ -55,6 +55,14 @@ add_custom_command(TARGET kindling POST_BUILD
     COMMAND "${KD_STRIP}" --strip-unneeded -o "${KD_GAME_LIB}" "$<TARGET_FILE:kindling>"
     VERBATIM)
 
+# The kit's own tool, which the build and the cloud's checks run over the parts and their recipes (A6.1, A6.4), and
+# which needs no Godot: the cloud's build only.
+if(NOT ANDROID)
+    add_executable(kd_kit tools/kit.cpp)
+    target_link_libraries(kd_kit PRIVATE kd_view_core)
+    kindling_rules(kd_kit)
+endif()
+
 # The extension's own tests, of what needs no Godot, on the cloud's build only.
 option(KD_VIEW_TESTS "Build the extension's own tests" ON)
 if(KD_VIEW_TESTS AND NOT ANDROID)
