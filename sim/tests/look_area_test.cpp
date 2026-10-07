@@ -38,6 +38,22 @@ constexpr const char* kTexture =
     "sha256 = \"0a\"\n"
     "way = \"re-gridded\"\n";
 
+// A recipe for the camp's tent and club to name: one part of one role, wearing a texture the catalogue has.
+constexpr const char* kThing =
+    "about = \"a thing\"\n"
+    "family = \"camp\"\n"
+    "truth = \"art lane, 2026-10-07: after the sheet\"\n"
+    "approved = \"waiting\"\n"
+    "\n"
+    "[[material]]\n"
+    "role = \"wood\"\n"
+    "textures = [\"art:meadow\"]\n"
+    "\n"
+    "[[place]]\n"
+    "name = \"cover\"\n"
+    "parts = [\"cover\"]\n"
+    "rule = \"root\"\n";
+
 // The area as base/tuning/area.toml writes it.
 constexpr const char* kArea =
     "ground = \"art:meadow\"\n"
@@ -53,7 +69,15 @@ constexpr const char* kArea =
     "wobble_length = \"60 m\"\n"
     "run = \"1 m\"\n"
     "spacing = \"0.25 m\"\n"
-    "seed = 7\n";
+    "seed = 7\n"
+    "tent = \"art:hide_tent_cone\"\n"
+    "club = \"art:club\"\n"
+    "camp_back = \"8 m\"\n"
+    "club_away = \"3.6 m\"\n"
+    "club_bearing = 125\n"
+    "tent_turn = 0\n"
+    "club_turn = 70\n"
+    "camp_seed = 3\n";
 
 // The water as base/tuning/water.toml writes it.
 constexpr const char* kWater =
@@ -79,6 +103,9 @@ std::vector<data::SourceFile> with_files(const std::string& area, const std::str
     files.push_back({"art/source.toml", kArt});
     for (const char* name : {"meadow", "river_bed", "river_marks"}) {
         files.push_back({std::string("art/textures/") + name + "/record.toml", kTexture});
+    }
+    for (const char* name : {"hide_tent_cone", "club"}) {
+        files.push_back({std::string("art/models/") + name + "/record.toml", kThing});
     }
     files.push_back({"base/tuning/area.toml", area});
     files.push_back({"base/tuning/water.toml", water});
@@ -143,6 +170,15 @@ TEST_CASE("the stand-in area is one tuning entry: three surfaces named by their 
     CHECK(a.run == 1'000);
     CHECK(a.spacing == 250);
     CHECK(a.seed == 7);
+    // the camp on the bank: two things named by their recipes' entries, and where they stand
+    CHECK(a.tent == "art:hide_tent_cone");
+    CHECK(a.club == "art:club");
+    CHECK(a.camp_back == 8'000);
+    CHECK(a.club_away == 3'600);
+    CHECK(a.club_bearing == 125);
+    CHECK(a.tent_turn == 0);
+    CHECK(a.club_turn == 70);
+    CHECK(a.camp_seed == 3);
     CHECK(data::run_checks(cat).empty());
 }
 
@@ -177,7 +213,7 @@ TEST_CASE("the area and the water count only in the look's digest, and a change 
     const data::EntryDigests water_before = cat.kind<look::WaterTuning>().digests(0);
     CHECK(area_before.fields[0] == 0);
     CHECK(area_before.fields[1] == 0);
-    CHECK(area_before.fields[2] == 14);
+    CHECK(area_before.fields[2] == 22);
     CHECK(water_before.fields[0] == 0);
     CHECK(water_before.fields[1] == 0);
     CHECK(water_before.fields[2] == 16);
@@ -214,6 +250,16 @@ TEST_CASE("the strip must hold the river and the square be wider than the strip;
                                           "strip = \"64 m\""),
                                  kWater),
                 "reach"));
+    // a camp too far from the river for the strip to hold it
+    CHECK(names(checked_problems(replaced(kArea, "camp_back = \"8 m\"", "camp_back = \"40 m\""), kWater), "camp_back"));
+    // a thing no recipe has, where there are recipes
+    CHECK(
+        names(checked_problems(replaced(kArea, "art:club", "art:no_club"), kWater), "names no recipe \"art:no_club\""));
+    CHECK(names(checked_problems(replaced(kArea, "art:hide_tent_cone", "art:no_tent"), kWater),
+                "names no recipe \"art:no_tent\""));
+    // a bearing is a whole number of degrees round the compass
+    CHECK(
+        names(load_problems(replaced(kArea, "club_bearing = 125", "club_bearing = 400"), kWater), "out of its range"));
     // a surface no texture entry has, where there are textures
     CHECK(names(checked_problems(replaced(kArea, "art:river_bed", "art:no_bed"), kWater),
                 "names no texture \"art:no_bed\""));

@@ -25,7 +25,14 @@ constexpr const char* kLight =
     "haze_colour = \"#a8bccb\"\n"
     "haze_sun_colour = \"#f2cf9e\"\n"
     "haze_density = \"0.25%\"\n"
-    "bounce_colour = \"#3a3318\"\n";
+    "bounce_colour = \"#3a3318\"\n"
+    "maps_texel = \"6 cm\"\n"
+    "open_reach = \"2 m\"\n"
+    "open_strength = \"80%\"\n"
+    "contact_width = \"18 cm\"\n"
+    "contact_strength = \"55%\"\n"
+    "shadow_reach = \"14 m\"\n"
+    "rim = \"45%\"\n";
 
 std::vector<data::SourceFile> with_light(const std::string& light) {
     std::vector<data::SourceFile> files = kd::test::good();
@@ -83,6 +90,14 @@ TEST_CASE("the light of the moment is one tuning entry, its quantities read into
     CHECK(l.ambient_energy == 450'000);
     CHECK(l.haze_density == 2'500);
     CHECK(l.bounce_colour == "#3a3318");
+    // the view's maps round things and the lit edge, in millimetres and parts of a million
+    CHECK(l.maps_texel == 60);
+    CHECK(l.open_reach == 2'000);
+    CHECK(l.open_strength == 800'000);
+    CHECK(l.contact_width == 180);
+    CHECK(l.contact_strength == 550'000);
+    CHECK(l.shadow_reach == 14'000);
+    CHECK(l.rim == 450'000);
     CHECK(data::run_checks(cat).empty());
 }
 
@@ -93,7 +108,7 @@ TEST_CASE("the light counts only in the look's digest, never in the world's rule
     const data::EntryDigests before = cat.kind<look::LightTuning>().digests(0);
     CHECK(before.fields[0] == 0);  // rules
     CHECK(before.fields[1] == 0);  // world
-    CHECK(before.fields[2] == 11);
+    CHECK(before.fields[2] == 18);
     data::Catalogue changed;
     REQUIRE(changed.load(with_light(replaced(kLight, "#ffd9a0", "#ffd9a1"))).empty());
     const data::EntryDigests after = changed.kind<look::LightTuning>().digests(0);

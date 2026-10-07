@@ -7,7 +7,9 @@ run of tools/shots.sh over a plan, and what the pictures must show.
 - the cell border steps no more than any other texture-pixel edge on the same line (the question of 7 October 2026:
   the screen's centre column is the one line of edges that stays upright on tilted ground, so its edges read whole in
   every row, which is why it is compared with edges of the same line and not with the picture's average);
-- the river's marks move an even number of screen pixels a tick, whole 2-pixel texture pixels.
+- the river's marks move an even number of screen pixels a tick, whole 2-pixel texture pixels;
+- the camp's tent on the meadow: the hollow under its hem and in its doorway is darker than open ground and never
+  black, and the cast shadow is darker than the lit ground (A4.8).
 
 These need Godot, Xvfb, the built extension and the game's data (tools/gamedata.py)."""
 
@@ -61,6 +63,9 @@ def plan():
     for tick in range(3):
         steps.append({"call": "hold_water", "args": [tick]})
         steps.append({"shot": f"tick-{tick}.png"})
+    steps.append({"call": "look_at_place", "args": ["Camp"]})
+    steps.append({"call": "set_band", "args": [0]})
+    steps.append({"shot": "camp.png"})
     steps.append({"call": "look_at_place", "args": ["Meadow"]})
     steps.append({"call": "set_picture", "args": [3]})
     for band in range(7):
@@ -78,6 +83,15 @@ def ladder_codes(folder, band):
     and the version from 0."""
     a = picture(folder, f"ladder-b{band}.png")[CENTRE_ROW].astype(int)
     return (a[:, 1] // 32) * 8 + (a[:, 0] // 32)
+
+
+# The rows of the camp's picture that show the world, above the page's buttons (1500 rows, the controls from about 1240)
+CAMP_ROWS = 1180
+
+
+def camp_lightness(folder):
+    """Each pixel of the camp's picture as the mean of its channels, over the rows that show the world."""
+    return picture(folder, "camp.png").mean(axis=2)[:CAMP_ROWS]
 
 
 def centre_step(folder, name):
@@ -158,6 +172,16 @@ class ThePilotsArea(unittest.TestCase):
         # a texture pixel is 2 screen pixels at band 0
         self.assertEqual(step % 2, 0, f"the marks moved {step} pixels")
         self.assertEqual(shift_between(second, third), step)
+
+    # checks: PRE-21 PRE-24 PRE-30
+    def test_the_hollows_under_the_tent_and_its_shadow_are_darker_than_open_ground_and_never_black(self):
+        lightness = camp_lightness(self.folder)
+        open_ground = float(np.median(lightness))
+        # the darkest half of one per cent of the picture: the doorway's cavity and the shadow's core
+        darkest = float(np.percentile(lightness, 0.5))
+        self.assertLess(darkest, 0.4 * open_ground)
+        # never black: even the darkest tenth of one per cent keeps colour (A4.8)
+        self.assertGreaterEqual(float(np.percentile(lightness, 0.1)), 10.0)
 
 
 if __name__ == "__main__":

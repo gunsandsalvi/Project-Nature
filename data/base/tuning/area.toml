@@ -1,9 +1,9 @@
 # The stand-in area (A4.6, A5.3, PRE-23, PRE-26): a square of meadow with a river across it, in the pilot, until the
-# world's own ground comes (M3). The meadow is the art lane's own (art:meadow); the river's bed and marks are stand-ins
-# (art/textures/standin_*) until the art lane's own (art:river_bed, art:river_marks) arrive.
+# world's own ground comes (M3). The meadow, the river's bed and its marks are the art lane's own (art:meadow,
+# art:river_bed, art:river_marks).
 ground = "art:meadow"
-bed = "art:standin_river_bed"
-marks = "art:standin_river_marks"
+bed = "art:river_bed"
+marks = "art:river_marks"
 # the square's half side, and half the width of the strip of heightfield the river runs in
 reach = "1024 m"
 strip = "48 m"
@@ -20,3 +20,15 @@ wobble_length = "60 m"
 run = "1 m"
 spacing = "0.25 m"
 seed = 7
+# The camp on the north bank, the pilot's tent and club (sheets 16.4 and 17.15): each named by its recipe's entry; the club
+# is the art lane's own (art:club), the tent a stand-in (art/models/standin_hide_tent) until art:hide_tent_cone arrives.
+# The tent stands 8 m north of the river's north bank at the strip's middle, its door to the south, facing the river; the
+# club lies 3.6 m from it, to the south east, turned 70 degrees from the way its recipe lays it. Degrees run clockwise.
+tent = "art:standin_hide_tent"
+club = "art:club"
+camp_back = "8 m"
+club_away = "3.6 m"
+club_bearing = 125
+tent_turn = 0
+club_turn = 70
+camp_seed = 3

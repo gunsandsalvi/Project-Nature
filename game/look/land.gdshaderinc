@@ -5,6 +5,8 @@
 // area and the strip the river runs in (CLAUDE.md rule 4). Implements PRE-22, PRE-23 and PRE-26.
 render_mode cull_back, specular_disabled;
 
+// the ground lies under what roofs it (light.gdshaderinc)
+#define KD_UNDER_ROOFS
 #include "res://look/picture.gdshaderinc"
 #include "res://look/ladder.gdshaderinc"
 #include "res://look/light.gdshaderinc"
@@ -91,5 +93,7 @@ void fragment() {
 }
 
 void light() {
-	DIFFUSE_LIGHT += kd_light_sun(NORMAL, LIGHT, LIGHT_COLOR, ATTENUATION, kd_big_shadow, 0.0);
+	// the ground's shadows are the view's maps': every thing on it is in them, and they soften with distance, which
+	// Godot's sun map, read here as well, would sharpen (A4.4)
+	DIFFUSE_LIGHT += kd_light_sun(NORMAL, LIGHT, LIGHT_COLOR, 1.0, kd_big_shadow, 0.0);
 }

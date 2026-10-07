@@ -154,25 +154,12 @@ func set_zoom(metres_per_pixel: float) -> void:
 
 
 func _load_kit() -> void:
-	var build := GameData.build()
-	for family: String in GameData.models(build):
-		var failed := kit.load_family(family, GameData.models(build)[family])
-		if not failed.is_empty():
-			problem = failed
-		else:
-			_families[family] = true
-	kit.use_world(world)
-	kit.set_shader(PART_SHADER.get_rid())
-	for name: String in kit.texture_names():
-		var record := world.entry("textures", name)
-		if record.is_empty():
-			problem = "the recipes name the texture %s, which the catalogue lacks" % name
-			continue
-		var failed := kit.set_texture(
-			name, GameData.texture_path(name), GameData.tile_metres(record)
-		)
-		if not failed.is_empty():
-			problem = failed
+	var made := KitScene.load_into(kit, world, PART_SHADER.get_rid())
+	for family: String in made["families"]:
+		_families[family] = true
+	var problems: PackedStringArray = made["problems"]
+	if not problems.is_empty():
+		problem = problems[problems.size() - 1]
 	models = kit.models()
 
 
