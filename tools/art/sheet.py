@@ -144,7 +144,8 @@ def compose(spec, folder):
                 colour = tuple(int(hex_code[i : i + 2], 16) for i in (1, 3, 5))
                 draw.rectangle([x, y, x + 128, y + 44], fill=colour, outline=EDGE)
                 draw.text((x, y + 48), hex_code, fill=INK, font=font(16, True))
-                draw.text((x, y + 68), name, fill=QUIET, font=font(15))
+                if name:
+                    draw.text((x, y + 68), name, fill=QUIET, font=font(15))
                 x += 128 + 8
                 if x + 128 > WIDTH - MARGIN:
                     break
