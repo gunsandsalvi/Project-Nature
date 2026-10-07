@@ -39,6 +39,7 @@ It restarted on your word of 6 October 2026, with its next round below as its on
 - Organic forms are sculpted in Blender (brow, cheekbones and jaw; the landmarks of shoulders, elbows and knees; cloth folds; an animal's masses), by whatever method works headless, chosen with GPT.
 - Geometry goes where it changes the outline or the light; finer detail is carried into the painted texture, guided by the sculpt's curvature and occlusion.
 - The full sculpt is kept as each part's master, and each form by height on screen is made from it (A6.3), with its triangles counted in the report.
+- Blender's whole toolset, not just the basics, as you added the same day: sculpting, remeshing and modifiers; geometry nodes for detail by rule; curves for hair and lashings; cloth simulation for folds; UV tools and baking to guide the painting; a real armature with corrective shapes for the bends. Each part's report names the tools used.
 
 **Rules:**
 - It works only in `art/`, `tools/art/` and `tools/tests/test_art_*.py`, on its own branch, and never pushes or merges.
@@ -183,7 +184,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's readings in, every probe passed |
 | α2.1b | The look's checks | M2 | 6 | Delivered as 30102 on 6 October 2026; your blind test, MSAA 4× against 2× on the meadow: 3 of 10 right, so the difference does not show |
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
-| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Delivered as 30202 on 7 October 2026; waiting for your phone's calibration code and your two blind tests, whose decisions come before the next step |
+| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Delivered as 30202 on 7 October 2026; waiting for your phone's calibration code and your two blind tests, whose decisions are written in when they come, since on your word the next step goes ahead |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
 | α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 (its tools and 18 materials) and round 2 (the kit's first parts in Blender and 22 materials) joined on 6 October 2026; its next round above under way, by your rules for working with GPT; the rest after α2.2 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
