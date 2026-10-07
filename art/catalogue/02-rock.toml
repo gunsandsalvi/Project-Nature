@@ -105,8 +105,10 @@ art_book = ["first-cave", "ab-figures-detailed"]
 [[piece]]
 id = "cave"
 name = "Caves, outside and in"
-what = "cave mouths and their dark insides, dripstone in limestone, lava tubes"
+what = "caves"
 art_book = ["first-cave", "storm-close"]
+sheet = "sheets/2.15-cave.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "boulders"
