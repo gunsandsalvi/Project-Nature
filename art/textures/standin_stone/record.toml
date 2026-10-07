@@ -1,0 +1,61 @@
+about = "grey river stone for the ring"
+route = "code"
+tile_texels = 64
+texels_a_metre = 64
+first_band = 0
+sources = []
+original_sha256 = []
+c2pa = []
+requests = []
+made = "noise in the tent sheet's stone palette"
+regrid_loss = "none: a stand-in made without a re-grid"
+truth = "builder, 2026-10-07: a stand-in for the pilot, nothing countable in it, to be replaced by the art lane's"
+approved = "not offered yet: a stand-in, below the artwork's level"
+
+[[band]]
+level = 0
+file = "art/textures/standin_stone/b0.png"
+sha256 = "9a655a88089308de1ff8a49a40c0ca588db82ad7cbb753cd16ba977a1440e11d"
+way = "made by code in the tent sheet's stone palette"
+
+[[band]]
+level = 1
+file = "art/textures/standin_stone/b1.png"
+sha256 = "3c0ed85b43f5c48155f3abd89e0da546bf37f96f31f30b8de7770da8c1391e74"
+made_from = "9a655a88089308de1ff8a49a40c0ca588db82ad7cbb753cd16ba977a1440e11d"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 2
+file = "art/textures/standin_stone/b2.png"
+sha256 = "a27083175c0d1e19d5281a0897f88db66c38b075350ccfad7119c80ab3879048"
+made_from = "3c0ed85b43f5c48155f3abd89e0da546bf37f96f31f30b8de7770da8c1391e74"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 3
+file = "art/textures/standin_stone/b3.png"
+sha256 = "561761fbb866b2499e2a2f7716c96d660f265af53fa8720ad3cc6979b6587f77"
+made_from = "a27083175c0d1e19d5281a0897f88db66c38b075350ccfad7119c80ab3879048"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 4
+file = "art/textures/standin_stone/b4.png"
+sha256 = "e8d643dc9152e7d6f02c83a9cd9768e63979b06ddfa6fe1fae03b4f3a058e16e"
+made_from = "561761fbb866b2499e2a2f7716c96d660f265af53fa8720ad3cc6979b6587f77"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 5
+file = "art/textures/standin_stone/b5.png"
+sha256 = "983a9f24676a42c021bbe4f9e6934732c2f0c01a5bdc0e5e1484509254350e02"
+made_from = "e8d643dc9152e7d6f02c83a9cd9768e63979b06ddfa6fe1fae03b4f3a058e16e"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 6
+file = "art/textures/standin_stone/b6.png"
+sha256 = "49589fd31164ab47b5a67813d3f34542a28f3b009ac973a0ffce9f704a8ce015"
+made_from = "983a9f24676a42c021bbe4f9e6934732c2f0c01a5bdc0e5e1484509254350e02"
+way = "drawn by code from the level above, each pixel one of its block"

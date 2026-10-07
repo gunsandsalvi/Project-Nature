@@ -42,12 +42,16 @@ public:
     void set_screen(godot::Vector2 size);
     /// The lens across the short side: 5 or 10 degrees.
     void set_lens(double degrees);
+    /// The closest the rig may zoom, in metres a screen pixel, 1/128 by default, band 0's: the pages that show a
+    /// texture pixel enlarged go closer (A5.4).
+    void set_closest(double metres_per_pixel);
     /// One frame: the gestures to the rig, its ease, a scripted path's step, the globals and the ground's place.
     void frame(double seconds);
     /// The camera: transform, fov (degrees), keep_width (the lens spans the width), near and far.
     godot::Dictionary pose() const;
     /// The rig's state: focus_east and focus_north (cm), heading (degrees), metres_per_pixel, metres_across (the
-    /// screen's short side), band, texel_pixels (the band's texture pixel at the focus, in screen pixels) and resting.
+    /// screen's short side), band, texel_pixels (the band's texture pixel at the focus, in screen pixels), resting, and
+    /// origin_east and origin_north (cm), the origin everything drawn is placed about (A8.2).
     godot::Dictionary state() const;
 
     /// Builds the ground's texture array from .kdtex files, one layer each, all one size; "" or the problem.

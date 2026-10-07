@@ -1,0 +1,19 @@
+# A recipe (A6.1, PRE-46): one thing put together from the kit's parts. This one is the pilot's club, made of the stand-in
+# family's one part until the art lane's own parts arrive (tools/blender/standins.py).
+about = "a wooden club with a heavy head, lying on the ground"
+family = "standin_camp"
+truth = "builder, 2026-10-07: a stand-in for the pilot, after sheet 17.15; wood only, no metal, nothing later"
+approved = "not offered yet: a stand-in, below the artwork's level"
+
+[[material]]
+role = "wood"
+textures = ["art:standin_wood"]
+
+# the club lies on its heavy head, turned a little from east: its axis, 44 mm up so its head's underside rests on the
+# ground
+[[place]]
+name = "club"
+parts = ["club"]
+rule = "root"
+turn = 30
+height = "44 mm"

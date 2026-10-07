@@ -55,7 +55,9 @@ add_library(kd_sim STATIC
     src/kd/look/card.cpp
     src/kd/look/colour.cpp
     src/kd/look/frame.cpp
+    src/kd/look/light_tuning.cpp
     src/kd/look/measures.cpp
+    src/kd/look/model.cpp
     src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp
     src/kd/demo/crowd_scene.cpp
@@ -114,6 +116,8 @@ if(KD_SIM_TESTS)
         tests/look_calibration_test.cpp
         tests/look_card_test.cpp
         tests/look_frame_test.cpp
+        tests/look_light_test.cpp
+        tests/look_model_test.cpp
         tests/look_test.cpp
         tests/look_texture_test.cpp
         tests/main.cpp

@@ -195,7 +195,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Delivered as 30202 on 7 October 2026; waiting for your phone's calibration code and your two blind tests, whose decisions are written in when they come, since on your word the next step goes ahead |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | **The pilot,** by your word of 7 October 2026: the meadow, the river, the club and the hide tent taken from their sheets to your phone, with the parts of α2.3b and α2.3c they need; the texture kind, its shipping and the Lab page built (T2.3a.1, T2.3a.5); then delivery as 30301 |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | **The pilot,** by your word of 7 October 2026: the meadow, the river, the club and the hide tent taken from their sheets to your phone, with the parts of α2.3b and α2.3c they need; the texture kind, its shipping and the Lab page built (T2.3a.1, T2.3a.5); the kit in the engine built (T2.3b.1, below); then delivery as 30301 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
 | α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
 | α2.3d | People, a deer and first light | M2 | 6 | Planned |
@@ -422,6 +422,13 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
    The shared light function (the sun by its height, the sky's fill by openness, bounce, backlight, haze); Godot's sun map at 2,048 for small casters and our height-field sun map for big ones; the openness and contact maps; creases baked by the kit; the tone curve, a first colour table and debanding.
 4. `T2.3b.4` **Water, and delivery (`PRE-26`).**
    The bed below the water's level, the surface's sky colour by angle, the mirror at half resolution with a smaller set, flow lines and foam stepping in whole texture pixels, glints of one texture pixel, the shore line from height; deliver as 30302.
+
+**Built early, in the pilot (7 October 2026):**
+- `T2.3b.1` is built, with stand-ins for the art lane's parts (a club and a tent made by a Blender script, `tools/blender/standins.py`, and their textures cut from the sheets' tiles):
+  Blender in the setup and the build, each family's parts exported as a kit file with joints, texture coordinates in metres and creases, the recipe kind, the assembler, the stretch and joint checks (`kd_kit`), the drawing of things as copies (`KdKit`), and the Kit page as the model sheet, with `tools/shots.sh` to draw any page's pictures in the cloud.
+  Still to do under it: the sheets in two materials and drawn again whenever the kit changes, once the art lane's own parts replace the stand-ins.
+- The first of `T2.3b.3`: the late afternoon's light as the `tuning/light` entry, placed by `Afternoon` for the pages that draw the pilot's pieces.
+  The Look, Compare and Calibrate pages keep their own light until `T2.3b.3` moves them onto it, so their golden pictures hold.
 
 **Tests:**
 - Golden pictures of the area at the closest zoom at noon and dusk; shimmer on the three scripted paths at most 2 in 100 pixels; the texture pixel 1.5–3 screen pixels; no pass reads the screen or depth (a scan of the shaders).

@@ -751,6 +751,11 @@ It replaces the art bible's rules.
   - Each part has its texture layout (A6.4) and named joints where it plugs into others; GPT makes them in discussion with the art lane, each against its catalogue sheet (A5.4), and you can open any part in Blender and change it.
   - What the engine reads: `art/models/<family>.blend`, one Blender file for each family (camp things, plants, rocks, people, each animal pattern), each part with its texture layout in metres, its joints as empties named `joint_…`, and its material slots named by role (wood, bark, hide, stone, leaf, grass, skin, hair).
   - Code puts parts together from recipes in the catalogues, varying size, count, angle, material and wear by seed, so a few hundred parts give thousands of things; a new thing is a catalogue entry.
+  - *Built in the pilot (T2.3b.1):*
+    - `tools/blender/export.py` writes each family's Blender file as one kit file (`.kdkit`): every top-level mesh not named with a leading `_` is a part, with its triangles by role, texture coordinates in metres, a baked `crease` attribute if it has one, its bounds and its joints; a joint's place and axes are its empty's, and its own z (Blender's up) is its main axis; the same file gives the same bytes.
+    - `kd_kit check`, which the build runs, fails any part whose texture pixels stretch past 1.5:1 on a triangle (the ratio of the longest way a unit of its texture is carried over the surface to the shortest, A6.4), and any recipe whose parts are not in its family, whose roles wear no texture, or whose plugs do not meet at their joints.
+    - A recipe is a `models` entry of the art source, `art/models/<name>/record.toml`: what each role wears, and placements by four rules, a root, a ring, a span (a part stretched from a place on a circle to a meeting point so its two joints meet exactly, its thickness varying) and a plug (a joint of one part onto a joint of another, lifted and turned about its main axis).
+    - `view/src/kit_assemble.cpp` puts a recipe together in double, every choice drawn from the seed by keyed chance (A3.5), and `KdKit` draws it as one MultiMesh of copies for each part and role, with the textures read through the one sampling function (A4.2).
   - Corners, creases and undersides are darkened in each part, and where parts meet when they are put together (A4.4).
   - By your direction of 7 October 2026, things are made of many parts and their organic forms sculpted in Blender with fine detail; the full sculpt is each part's master, and every form by height on screen is made from it (A6.3).
 - **Plants:** about 8 forms.
@@ -825,6 +830,8 @@ It replaces the art bible's rules.
 ### A6.5 Sheets
 
 The model sheet of every kit shape in two materials, filmstrips of every movement (since motion can't be judged from a still), and the band sheets, every entry at true size and enlarged at each band, are rendered in the cloud whenever the kit changes, for your eye.
+
+*Built in the pilot:* the Kit page is the model sheet on the phone, every thing and every part at true size and enlarged; `tools/shots.sh` draws pictures of any page in the cloud, by the Mobile renderer on the software Vulkan driver, from a plan of calls and shots.
 
 ## A7. The world
 

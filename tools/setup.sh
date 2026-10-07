@@ -33,7 +33,8 @@ fetch() {   # url, file, checksum (SHA-512 or SHA-256): downloads once, then che
 
 # 1. System packages: Xvfb and the software Vulkan driver, so Godot draws pictures without a graphics chip; qemu and
 #    the arm64 compiler for the same-bits check (A3.4); the C++ build with its compiler cache, format and lint tools,
-#    and clang-query for the banned list; MPFR, the maths functions' test oracle (A3.4); Java for export.
+#    and clang-query for the banned list; MPFR, the maths functions' test oracle (A3.4); Java for export; and Blender,
+#    which the build runs headless to export the kit's parts (A6.1, tools/kit.py).
 need=()
 command -v Xvfb >/dev/null || need+=(xvfb)
 [ -f /usr/share/vulkan/icd.d/lvp_icd.json ] || need+=(mesa-vulkan-drivers)
@@ -47,11 +48,16 @@ command -v clang-tidy-18 >/dev/null || need+=(clang-tidy-18)
 command -v clang-query-18 >/dev/null || need+=(clang-tools-18)
 [ -f /usr/include/mpfr.h ] || need+=(libmpfr-dev)
 [ -x "$JAVA_HOME/bin/java" ] || need+=(openjdk-21-jdk-headless)
+command -v blender >/dev/null || need+=(blender)
 if [ "${#need[@]}" -gt 0 ]; then
   echo "Setup: installing ${need[*]}"
   quiet as_root apt-get update -qq
   quiet as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "${need[@]}"
 fi
+# the kit's exporter (tools/kit/export.py) is written for the Blender of this Ubuntu release, which every part's file
+# is opened with; a different one is a decision, not a surprise
+[ "$(blender --version 2>/dev/null | head -1)" = "Blender 4.0.2" ] \
+  || fail "blender is not version 4.0.2, the one the kit's exporter is written for" 1
 python3 -c 'import cryptography' 2>/dev/null || fail "python3's cryptography module, which signing needs, is missing" 1
 
 # 2. Godot 4.7.2 (A2.2), checked against the release's published SHA-512

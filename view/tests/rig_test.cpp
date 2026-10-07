@@ -210,3 +210,27 @@ TEST_CASE("far from the world's centre the origin follows the focus, which stays
     CHECK(rig.focus_east() == 4'000'000'000);
     CHECK(rig.focus_north() < -3'000'000'000);
 }
+
+// checks: PRE-03 PRE-22
+TEST_CASE("the closest zoom can be set closer, for a texture pixel shown enlarged, and the zoom keeps within it") {
+    Rig rig;
+    rig.set_metres_per_pixel(1.0 / 512.0);
+    CHECK(rig.metres_per_pixel() == 1.0 / 128.0);  // band 0's stop is as close as it goes, until it is set closer
+    rig.set_closest(1.0 / 512.0);
+    rig.set_metres_per_pixel(1.0 / 512.0);
+    CHECK(rig.metres_per_pixel() == 1.0 / 512.0);
+    CHECK(rig.band() == 0);
+    // a texture pixel of band 0 is then 8 screen pixels wide
+    CHECK(rig.texel_pixels(0) == 8.0);
+    // set closer than where the zoom is, it stays; set farther than where it is, it is brought to the new closest
+    rig.set_closest(1.0 / 256.0);
+    CHECK(rig.metres_per_pixel() == 1.0 / 256.0);
+    rig.set_metres_per_pixel(1.0 / 512.0);
+    CHECK(rig.metres_per_pixel() == 1.0 / 256.0);
+    // the pose follows the zoom: the camera is nearer at the closer stop
+    rig.set_closest(1.0 / 512.0);
+    rig.set_metres_per_pixel(1.0 / 128.0);
+    const double far_y = rig.pose().y;
+    rig.set_metres_per_pixel(1.0 / 512.0);
+    CHECK(rig.pose().y < far_y);
+}
