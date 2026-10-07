@@ -50,7 +50,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "marsh_pool"
 name = "Marsh pools"
-what = "dark still water among reeds"
+what = "dark tea-brown peat water, almost opaque, with floating litter, a faint sheen and drifts of duckweed"
+sheet = "sheets/4.7-marsh_pool.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "sea"
