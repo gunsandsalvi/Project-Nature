@@ -65,7 +65,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "quartzite"
 name = "Quartzite"
-what = "hard pale rock, for hammerstones"
+what = "hard pale rock of sand fused solid, cream, pale grey and faint pink, with a fine sugary grain, sparse sharp joints that stop and a few broken ledges; its edges stay crisp; used for hammerstones"
+sheet = "sheets/2.9-quartzite.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "slate"
