@@ -8,10 +8,12 @@
 #include "kd/demo/checks.hpp"
 #include "kd/demo/crowd.hpp"
 #include "kd/demo/marker.hpp"
+#include "kd/look/area_tuning.hpp"
 #include "kd/look/card.hpp"
 #include "kd/look/light_tuning.hpp"
 #include "kd/look/model.hpp"
 #include "kd/look/texture.hpp"
+#include "kd/look/water_tuning.hpp"
 #include "kd/run/heat_tuning.hpp"
 #include "kd/run/save_tuning.hpp"
 #include "kd/time/speeds.hpp"
@@ -25,6 +27,10 @@ Catalogue::Catalogue() {
     add_kind<look::Texture>("textures",
                             "a texture's record: its levels, where it came from, its checks and your OK (PRE-20)",
                             Layout::records);
+    add_kind<look::AreaTuning>(
+        "tuning/area",
+        "the stand-in area: the surfaces its meadow, river bed and water wear, and the river's shape (PRE-23, PRE-26)",
+        Layout::single);
     add_kind<look::LightTuning>(
         "tuning/light",
         "the look's light: where the sun stands and the colours of its light, the sky and the haze (PRE-30)",
@@ -35,12 +41,17 @@ Catalogue::Catalogue() {
     add_kind<run::HeatTuning>("tuning/heat", "how time slows before the phone throttles (PLT-01)", Layout::single);
     add_kind<run::SaveTuning>("tuning/saves", "how often a running world is saved (PLT-07)", Layout::single);
     add_kind<time::ZoomSpeeds>("tuning/time", "the speeds of time at the zoom stops (TIM-01)", Layout::single);
+    add_kind<look::WaterTuning>("tuning/water",
+                                "the river's water: how it takes the bed's colour, its current and its marks (PRE-26)",
+                                Layout::single);
 }
 
 namespace {
 
 // In the order of their names.
-constexpr std::array<Check, 4> kChecks{{
+constexpr std::array<Check, 6> kChecks{{
+    {"area", "PRE-26", "the strip holds the river and its banks, and the meadow lies north and south of it",
+     look::check_area},
     {"company", "MAT-17", "every demonstration marker can greet or be greeted", demo::check_company},
     {"light", "PRE-30", "every colour of the look's light is written #rrggbb", look::check_light},
     {"models", "PRE-46",
@@ -48,6 +59,7 @@ constexpr std::array<Check, 4> kChecks{{
      look::check_models},
     {"orders", "MAT-05", "every entry in its place in the real order of things, as checks/orders.toml lists them",
      check_orders},
+    {"water", "PRE-26", "every colour of the river's water is written #rrggbb", look::check_water},
 }};
 
 }  // namespace

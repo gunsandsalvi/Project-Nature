@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "kd/data/catalogue.hpp"
@@ -54,8 +55,11 @@ struct LightTuning {
     }
 };
 
-/// Implements MAT-17 for the light: each colour is written #rrggbb, six hexadecimal digits in lower case, which is how
-/// Godot's own reading of a colour is certain of it.
+/// Whether a text is a colour written #rrggbb, six hexadecimal digits in lower case, which is how Godot's own reading
+/// of a colour is certain of it. Every tuning that holds a colour is checked by it (MAT-17).
+[[nodiscard]] bool is_colour_text(std::string_view text);
+
+/// Implements MAT-17 for the light: each colour is written #rrggbb.
 void check_light(const data::Catalogue& cat, std::vector<data::Problem>& problems);
 
 }  // namespace kd::look
