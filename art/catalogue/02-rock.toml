@@ -79,7 +79,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "conglomerate"
 name = "River gravel rock"
-what = "old river gravel set into rock"
+what = "old river gravel set into rock: level beds of rounded pebbles 3 to 12 cm, quartz-white, grey, red-brown and charcoal, packed so they touch, between buff sandy beds that swell, pinch out and lens; its pebbles weather out of the face"
+sheet = "sheets/2.11-conglomerate.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "mudstone"
