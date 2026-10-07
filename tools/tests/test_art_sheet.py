@@ -156,6 +156,12 @@ class Sheet(unittest.TestCase):
             cut = lambda name: sheet.cut_out(Image.open(os.path.join(d, name)))  # noqa: E731
             s = sheet.object_scale(spec, cut)
             self.assertEqual(s, int(sheet.TALLEST / 2.8))
+            low = {"views": json.loads(json.dumps(spec["views"]))}
+            for item in low["views"]["items"]:
+                item["tall"] = 0.5
+            self.assertEqual(
+                sheet.object_scale(low, cut), int(sheet.TALLEST / sheet.ADULT), "the adult outgrows TALLEST"
+            )
             with open(os.path.join(d, "spec.json"), "w") as f:
                 json.dump(spec, f)
             out = os.path.join(d, "sheet.png")

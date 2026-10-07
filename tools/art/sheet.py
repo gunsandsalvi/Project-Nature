@@ -294,8 +294,9 @@ def fit(picture, width):
 
 
 def object_scale(spec, cut):
-    """Screen pixels a metre for an object sheet, a whole number: as many as let its tallest view stand within
-    TALLEST, its widest fit the page beside the adult and the stick, and its views stand in one row with them."""
+    """Screen pixels a metre for an object sheet, a whole number: as many as let its tallest view, and the adult
+    when shown, stand within TALLEST, its widest fit the page beside the adult and the stick, and its views stand in
+    one row with them."""
     room = WIDTH - 2 * MARGIN - ASIDE
 
     def size(item):
@@ -309,6 +310,8 @@ def object_scale(spec, cut):
     items += [spec["above"]] if "above" in spec else []
     items += [i for g in spec.get("groups", []) if g.get("scale", 1) == 1 for i in g["items"]]
     best = (room - GAP * (len(views) - 1)) / sum(size(i)[0] for i in views)
+    if spec["views"].get("adult"):
+        best = min(best, TALLEST / ADULT)
     for item in items:
         w, h = size(item)
         best = min(best, TALLEST / h, room / w)
