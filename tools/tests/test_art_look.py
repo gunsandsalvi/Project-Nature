@@ -107,6 +107,19 @@ class TheRealProgram(unittest.TestCase):
         before = look.stats(t)["lightness"]
         self.assertAlmostEqual(look.stats(look.adjust(t, lightness=5.0))["lightness"] - before, 5.0, delta=0.5)
 
+    # checks: PRE-20 PRE-22
+    def test_a_drawn_level_is_brought_to_the_contrast_above_and_then_a_share_more(self):
+        import fit  # noqa: E402
+
+        rng = np.random.default_rng(4)
+        above = rng.integers(60, 200, (64, 64, 3)).astype(np.uint8)
+        calm = (128 + (above.astype(int) - 128) * 0.5).astype(np.uint8)  # the same marks at half the contrast
+        want = look.stats(look.tiled(above))["contrast"]
+        matched = look.stats(look.tiled(fit.calibrate(calm, above, match=True)[0]))["contrast"]
+        more = look.stats(look.tiled(fit.calibrate(calm, above, match=True, more=130.0)[0]))["contrast"]
+        self.assertAlmostEqual(matched, want, delta=0.12 * want)
+        self.assertGreater(more, 1.15 * matched)
+
 
 if __name__ == "__main__":
     unittest.main()

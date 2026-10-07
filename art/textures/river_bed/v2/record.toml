@@ -1,0 +1,78 @@
+about = "the bed of a shallow river: cobbles, gravel and sand, shown alone (the water is a piece of its own, drawn over it); near tile, 4 m across, version 2"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/river_bed/near-A.webp", "art/sources/river_bed/near-B.webp", "art/sources/river_bed/near-A-b1.webp", "art/sources/river_bed/near-B-b1.webp", "art/sources/river_bed/near-sheet.webp"]
+original_sha256 = ["cef10bb1a93e22c894a44063f43fb89ed5d484fb5c7357d0beec9a92284ab509", "4e0c3f374c2028d5ce63cbaa54481fbdbd6eba6667d257d07ab9ca4ba413f036", "636fa37c5ae21a7527deffa06cdf9f57c8b44cc8ccfa8fc0e6945836798f74db", "8a765bdfab52725767f284ce49f9ddc49ef38147e6ede3e67cc6da10cbfcbfb3", "29fa2760baef29e3fe979b5c8a00ddf67249bf35c7acafe75d0064bf5337d880"]
+c2pa = ["present", "present", "present", "present", "absent"]
+requests = ["art/requests/river/turn-01.txt", "art/requests/river/turn-02.txt"]
+made = "drawn by the artist in conversation with the art lane, judged in the game's view against sheet 1.5's camera views, and put on the texture-pixel grid by code; version 2 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "9.9%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; cobbles, gravel and sand only, nothing countable at the game's size"
+approved = "not offered yet: the pilot's second piece, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/river_bed/v2/b0.png"
+sha256 = "7cf480a173f7ddf0937468890cac791955e771311d3d0af2fd3f8b45bd97f0a3"
+way = "the drawing put on its own grid (cells of about 4 picture pixels, loss 9.9%), moved to the reference's colour; every version quilted from the drawings in patches of 112 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam"
+regrid_loss = "9.9%"
+calibration = "lightness -0.1; hue +1.4; colourfulness 85%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/river_bed/v2/b1.png"
+sha256 = "30664b07ea162f111e46db48d3ce0173ae54769ae86071c0e5fa037dfbf0d521"
+made_from = "7cf480a173f7ddf0937468890cac791955e771311d3d0af2fd3f8b45bd97f0a3"
+way = "drawn for this band, then moved to the level above's colour and contrast; every version quilted at this level's own size from the pictures drawn for each of its sources, round a shared ring"
+calibration = "lightness +0.6; hue +1.7; colourfulness 86%; contrast 98%"
+
+[[band]]
+level = 2
+file = "art/textures/river_bed/v2/b2.png"
+sha256 = "1cf1e49f8ba916084f46ed41fc9ac012d68a5e050d63287a9a7e38768ada46ab"
+made_from = "30664b07ea162f111e46db48d3ce0173ae54769ae86071c0e5fa037dfbf0d521"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/river_bed/v2/b3.png"
+sha256 = "863182b068a51e5a4170f856bd71b318ee3bfab980f8504c57e4871ecaceabe4"
+made_from = "1cf1e49f8ba916084f46ed41fc9ac012d68a5e050d63287a9a7e38768ada46ab"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/river_bed/v2/b4.png"
+sha256 = "d33fd0b4146946726d47a9d5a5b8758ac065312f5cfbf726b66d144bfee4cc32"
+made_from = "863182b068a51e5a4170f856bd71b318ee3bfab980f8504c57e4871ecaceabe4"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/river_bed/v2/b5.png"
+sha256 = "c9318a64f21720fa1053abd5c11c1cd0db662c532945038bd33b12e0c9dcefc3"
+made_from = "d33fd0b4146946726d47a9d5a5b8758ac065312f5cfbf726b66d144bfee4cc32"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/river_bed/v2/b6.png"
+sha256 = "55191df6ceb996ecb4dd58c8a55696ec0a87c3afc1d225f689e843f433ba0da4"
+made_from = "c9318a64f21720fa1053abd5c11c1cd0db662c532945038bd33b12e0c9dcefc3"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/river_bed/v2/b7.png"
+sha256 = "e2d9a75fcd0149b5ec14aea6229e187d7d00e4d346c37909599665bba6a8ff25"
+made_from = "55191df6ceb996ecb4dd58c8a55696ec0a87c3afc1d225f689e843f433ba0da4"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/river_bed/v2/b8.png"
+sha256 = "574b7b83098302df5df2533cc67b1be46342f4e7353d65752e76334b23470413"
+made_from = "e2d9a75fcd0149b5ec14aea6229e187d7d00e4d346c37909599665bba6a8ff25"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

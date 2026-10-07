@@ -452,16 +452,23 @@ def _cell_edges(jumps, block):
     return edges[edges <= n]
 
 
-def snap(picture, block):
+def snap(picture, block, cells=None):
     """A drawing put on its own grid of texture pixels: a picture from the image tool (about 1254 pixels across for 1024
     asked) is pixel art in cells of about `block` pixels, some a pixel wider or narrower, and not an exact multiple of
     anything. The cells' edges are found (_cell_edges), each cell becomes one texture pixel, the median colour of the
     middle of its area, and the loss is the share of the picture's pixels (within the cells) that differ from their
-    cell's colour by more than a little (the sum of the channels' differences over 24). Returns (texels, loss); the
-    texels do not wrap."""
+    cell's colour by more than a little (the sum of the channels' differences over 24). Where the edges are too soft
+    to find (a level drawn bigger and blurrier than asked), `cells` fixes the number of cells across the whole
+    picture instead, as many as the drawing was asked to have, evenly spaced. Returns (texels, loss); the texels do not
+    wrap."""
     f = picture.astype(np.int32)
-    ey = _cell_edges(np.abs(np.diff(f, axis=0)).sum(axis=2).mean(axis=1), block)
-    ex = _cell_edges(np.abs(np.diff(f, axis=1)).sum(axis=2).mean(axis=0), block)
+    if cells:
+        ey = np.round(np.arange(cells + 1) * picture.shape[0] / cells).astype(int)
+        ex = np.round(np.arange(cells + 1) * picture.shape[1] / cells).astype(int)
+        block = picture.shape[0] / cells
+    else:
+        ey = _cell_edges(np.abs(np.diff(f, axis=0)).sum(axis=2).mean(axis=1), block)
+        ex = _cell_edges(np.abs(np.diff(f, axis=1)).sum(axis=2).mean(axis=0), block)
     middle = max(1, int(round(block * 0.5)))
 
     def centres(edges):

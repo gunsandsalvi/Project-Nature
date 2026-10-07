@@ -1,0 +1,42 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["far-sheet.webp"]
+sha256 = "3c5c5c85314eb8c137dbd63d63c19c7dd3dd120d196fb5b4a7f07e130d7cfa4b"
+c2pa = "absent"
+note = "the far tile of sheet 1.5 (signed off 7 October 2026): 512 x 512, each texture pixel a 2 x 2 block, put on its grid by the artist's code in the catalogue's conversation"
+
+["middle-b3.webp"]
+sha256 = "7b8e270bd635ef9cb1edf945f50aeaee8add952acb9e8ba634b51253b742eaac"
+c2pa = "present"
+note = "the picture the image tool returned for the band 3 level of the sheet's middle tile in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wrap nowhere)"
+
+["middle-sheet.webp"]
+sha256 = "16d7471bb67119332a62d38c3938708eb8f786af072064caa18290883ad4c885"
+c2pa = "absent"
+note = "the middle tile of sheet 1.5 (signed off 7 October 2026): 512 x 512, each texture pixel a 2 x 2 block, put on its grid by the artist's code in the catalogue's conversation"
+
+["near-A-b1.webp"]
+sha256 = "636fa37c5ae21a7527deffa06cdf9f57c8b44cc8ccfa8fc0e6945836798f74db"
+c2pa = "present"
+note = "the picture the image tool returned for the band 1 level of near tile A in turn 2, unchanged (1254 x 1254 pixels, soft pixel art of about 128 cells across that wraps nowhere)"
+
+["near-A.webp"]
+sha256 = "cef10bb1a93e22c894a44063f43fb89ed5d484fb5c7357d0beec9a92284ab509"
+c2pa = "present"
+note = "the picture the image tool returned for near tile A, the bed as the game shows it in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 4 pixels that wrap nowhere)"
+
+["near-B-b1.webp"]
+sha256 = "8a765bdfab52725767f284ce49f9ddc49ef38147e6ede3e67cc6da10cbfcbfb3"
+c2pa = "present"
+note = "the picture the image tool returned for the band 1 level of near tile B in turn 2, unchanged (1254 x 1254 pixels, soft pixel art of about 128 cells across that wraps nowhere)"
+
+["near-B.webp"]
+sha256 = "4e0c3f374c2028d5ce63cbaa54481fbdbd6eba6667d257d07ab9ca4ba413f036"
+c2pa = "present"
+note = "the picture the image tool returned for near tile B, the bed as the game shows it in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 4 pixels that wrap nowhere)"
+
+["near-sheet.webp"]
+sha256 = "29fa2760baef29e3fe979b5c8a00ddf67249bf35c7acafe75d0064bf5337d880"
+c2pa = "absent"
+note = "the near tile of sheet 1.5 (signed off 7 October 2026): 512 x 512, each texture pixel a 2 x 2 block, put on its grid by the artist's code in the catalogue's conversation"
