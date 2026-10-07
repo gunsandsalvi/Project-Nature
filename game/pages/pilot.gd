@@ -320,8 +320,9 @@ func _approved(piece: String) -> String:
 func _lowered(at: Vector2i, metres_per_pixel: float) -> Vector2i:
 	view_at(at.x, at.y, 0.0, metres_per_pixel)
 	LookScene.place_camera(_camera, look)
-	var window := Vector2(DisplayServer.window_get_size())
-	var middle := Vector2(window.x * 0.5, window.y * _free_middle())
+	# the camera's screen is the interface's: the visible rectangle in canvas units
+	var visible := get_viewport().get_visible_rect().size
+	var middle := Vector2(visible.x * 0.5, visible.y * _free_middle())
 	var from := _camera.project_ray_origin(middle)
 	var along := _camera.project_ray_normal(middle)
 	if absf(along.y) < 1e-6:

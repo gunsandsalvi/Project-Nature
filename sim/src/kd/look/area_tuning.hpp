@@ -87,9 +87,11 @@ struct AreaTuning {
         v.whole(
             {"club_bearing", "which way from the tent the club lies, in degrees clockwise from north", Affects::look},
             a.club_bearing, {0, 359});
-        v.whole({"tent_turn", "which way the tent faces, in degrees clockwise from north", Affects::look}, a.tent_turn,
-                {0, 359});
-        v.whole({"club_turn", "which way the club's head points, in degrees clockwise from north", Affects::look},
+        v.whole({"tent_turn", "how far the tent is turned from the way its recipe stands it, in degrees clockwise",
+                 Affects::look},
+                a.tent_turn, {0, 359});
+        v.whole({"club_turn", "how far the club is turned from the way its recipe lays it, in degrees clockwise",
+                 Affects::look},
                 a.club_turn, {0, 359});
         v.whole({"camp_seed", "the seed the camp's things are put together with", Affects::look}, a.camp_seed,
                 {0, 2'147'483'647});
