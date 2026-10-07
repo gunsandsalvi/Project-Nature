@@ -164,7 +164,7 @@ def compose(spec, folder):
             crop = picture.crop((x0, y0, x0 + side, y0 + side)).resize((HALF, HALF), Image.NEAREST)
             name = t["label"].split(":")[0].lower()
             panels.append(
-                (with_stick(crop, c["metres"], c.get("stick", 0.1)), f"Close-up: {c['metres']:g} m of the {name}")
+                (with_stick(crop, c["metres"], c.get("stick", 0.1)), f"Close-up: {c['metres']:g} m of the {name} tile")
             )
         for k in range(0, len(panels), 2):
             sheet.pictures(panels[k : k + 2])
@@ -183,7 +183,10 @@ def compose(spec, folder):
             shown = big.crop((0, 0, HALF, HALF))
             span = 3 * t["metres"] * HALF / big.width
             row.append(
-                (with_stick(shown, span, t.get("repeat_stick", 10)), f"{t['label'].split(':')[0]}, {span:.0f} m across")
+                (
+                    with_stick(shown, span, t.get("repeat_stick", 10)),
+                    f"{t['label'].split(':')[0]} tile, {span:.0f} m across",
+                )
             )
         sheet.pictures(row)
 
