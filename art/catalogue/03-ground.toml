@@ -22,7 +22,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "tundra"
 name = "Tundra"
-what = "lichen, low shrubs and frost-heaved hummocks"
+what = "pale lichen crusts, moss cushions and dwarf shrubs over dark peat, lifted into hummocks by frost; taller shrubs, flowers, stones and pools are pieces of their own"
+sheet = "sheets/3.3-tundra.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "steppe"
