@@ -64,7 +64,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "tropical_floor"
 name = "Tropical forest floor"
-what = "dark damp litter under a dense canopy"
+what = "tropical forest floor"
+sheet = "sheets/3.9-tropical_floor.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "marsh"
