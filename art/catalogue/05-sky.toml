@@ -1,0 +1,83 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 5, Sky and weather.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Sky and weather"
+about = "The sky by hour and season, and every kind of weather, your powers' included."
+items = ["WLD-07", "WLD-16", "PRE-29", "PRE-30", "GOD-02"]
+signed_off = ""
+
+[[piece]]
+id = "sun"
+name = "Sun and daylight"
+what = "dawn, noon, the low gold sun, dusk"
+art_book = ["relight-dusk", "liked-camp-at-sunset", "backlight"]
+
+[[piece]]
+id = "moon"
+name = "Moon and its phases"
+what = "moonlit nights, full once a season"
+art_book = ["night", "close-camp-night", "paintover-night"]
+
+[[piece]]
+id = "stars"
+name = "Stars"
+what = "the night sky"
+art_book = ["night"]
+
+[[piece]]
+id = "eclipse"
+name = "Eclipse"
+what = "the sun darkened"
+
+[[piece]]
+id = "clouds"
+name = "Clouds"
+what = "fair, overcast and storm clouds from below; their tops and shadows from above"
+
+[[piece]]
+id = "rain"
+name = "Rain"
+what = "rain in its layers, puddles and wet surfaces"
+art_book = ["rain"]
+
+[[piece]]
+id = "snowfall"
+name = "Snowfall"
+what = "falling snow and drifts"
+art_book = ["winter"]
+
+[[piece]]
+id = "mist"
+name = "Fog and mist"
+what = "valley fog, lake mist and distance haze"
+art_book = ["lake-mist-close"]
+
+[[piece]]
+id = "thunderstorm"
+name = "Thunderstorm and lightning"
+what = "dark sky, lightning bolts, a strike"
+art_book = ["storm-close"]
+
+[[piece]]
+id = "frost"
+name = "Frost"
+what = "white frost on grass and ground"
+
+[[piece]]
+id = "wind"
+name = "Wind"
+what = "grass and leaves moving, snow blowing"
+
+[[piece]]
+id = "drought"
+name = "Drought"
+what = "browned grass, low water, cracked mud"
+
+[[piece]]
+id = "quake"
+name = "Earthquake"
+what = "shaking, rockfall and cracks"
+
+[[piece]]
+id = "eruption"
+name = "Volcano erupting"
+what = "the plume, ash falling, lava flowing"

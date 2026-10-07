@@ -1,0 +1,44 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 12, Movements.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Movements"
+about = "Every movement people and animals make, each a loop of a few key poses."
+items = ["PRE-44", "MAT-06", "BIO-21", "MND-26", "CUL-10"]
+signed_off = ""
+
+[[piece]]
+id = "base_actions"
+name = "The 21 base actions"
+what = "gather, dig, strike, press, cut, scrape, grind, twist, bind, weave, shape, drill, heat and blow, soak, dry, mix, stack, plant, throw, feed, apply"
+art_book = ["ab-figures-detailed", "close-camp"]
+
+[[piece]]
+id = "everyday"
+name = "Everyday activities"
+what = "walk, carry, eat, drink, sleep, talk, play, fight, flee, care, teach, watch, sing, dance"
+art_book = ["camp-thirty"]
+
+[[piece]]
+id = "body_moves"
+name = "Body movements"
+what = "wading, swimming, climbing, rage, despair, nursing, carrying a baby, lying hurt, lying dead"
+
+[[piece]]
+id = "gestures"
+name = "Eight gestures"
+what = "pointing, giving, embracing, pushing, a raised fist, waving away, holding hands, stroking"
+
+[[piece]]
+id = "dances"
+name = "Eight dance moves"
+what = "step, stamp, turn, sway, crouch, leap, clap, arms raised"
+
+[[piece]]
+id = "variants"
+name = "Ways a movement bends"
+what = "children quicker, elders stooped, a limp, a still arm, grief, fear, anger, cold, skill"
+
+[[piece]]
+id = "animal_moves"
+name = "Animal movements"
+what = "for each body pattern: stand, walk, run, feed, drink, rest, sleep, play, fight, call, fall, swim or fly"
+art_book = ["deer-poses"]

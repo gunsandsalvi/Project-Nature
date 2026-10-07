@@ -1,0 +1,59 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 27, The interface.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "The interface"
+about = "Everything on screen that is not the world: controls, cards, the book of ages and the screens."
+items = ["PRE-32", "PRE-33", "PRE-34", "PRE-35", "PRE-40", "PRE-45", "PRE-05", "PRE-14", "GOD-10", "TIM-04"]
+signed_off = ""
+
+[[piece]]
+id = "power_ring"
+name = "Power ring and its icons"
+what = "lightning, rain, storm, drought, cold snap, flood, quake, eruption, five dreams, three animal dreams, bless, curse, revelation"
+
+[[piece]]
+id = "time_controls"
+name = "Time controls"
+what = "pause, play, the dial, the lock, skip; the date and the speed"
+
+[[piece]]
+id = "live_moment"
+name = "Live moment"
+what = "the short notice that something matters"
+
+[[piece]]
+id = "bubbles"
+name = "Talk bubbles"
+what = "a picture for each of the 11 topics, or the thing, plant, animal or face talked of"
+
+[[piece]]
+id = "cards"
+name = "Cards"
+what = "person, thing, craft, place, band or people, art, grave, old camp, species"
+
+[[piece]]
+id = "book"
+name = "Book of ages"
+what = "its pages, each people's timeline, ages and entries, the tabs for those you follow and moments waiting"
+
+[[piece]]
+id = "family_tree"
+name = "Family tree"
+
+[[piece]]
+id = "mind"
+name = "Details of a mind"
+what = "needs, mood and thoughts, feelings, personality, memories, beliefs and more"
+
+[[piece]]
+id = "screens"
+name = "Screens"
+what = "choosing a world from three small globes, your worlds, settings, credits, the review page, help cards"
+
+[[piece]]
+id = "type"
+name = "Lettering"
+what = "the reading font and how the people's own words are shown"
+
+[[piece]]
+id = "app_icon"
+name = "App icon"

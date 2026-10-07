@@ -1,0 +1,100 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 18, Hunting, fishing and carrying.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Hunting, fishing and carrying"
+about = "Weapons and traps, fishing gear, containers, and how people carry and travel."
+items = ["MAT-23", "MAT-11"]
+signed_off = ""
+
+[[piece]]
+id = "spear"
+name = "Spear"
+what = "a point hafted on a shaft"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "spear_thrower"
+name = "Throwing spear and spear-thrower"
+
+[[piece]]
+id = "bow"
+name = "Bow and arrows"
+art_book = ["made-things-sheet", "read-aids"]
+
+[[piece]]
+id = "harpoon"
+name = "Harpoon and fish spear"
+what = "barbed antler points, the forked fish spear"
+art_book = ["close-camp"]
+
+[[piece]]
+id = "hook_line"
+name = "Hook and line"
+
+[[piece]]
+id = "net"
+name = "Nets"
+what = "fishing nets and net bags"
+
+[[piece]]
+id = "fish_trap"
+name = "Fish trap"
+what = "a woven basket trap"
+art_book = ["lake-mist-close"]
+
+[[piece]]
+id = "snare"
+name = "Snares and traps"
+what = "snares and deadfalls"
+
+[[piece]]
+id = "basket"
+name = "Baskets"
+what = "woven baskets"
+art_book = ["made-things-sheet", "read-aids"]
+
+[[piece]]
+id = "bark_container"
+name = "Bark containers"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "bag"
+name = "Bags and pouches"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "bowl"
+name = "Wooden bowl"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "waterskin"
+name = "Waterskin"
+art_book = ["close-camp"]
+
+[[piece]]
+id = "baby_carrier"
+name = "Baby carrier"
+
+[[piece]]
+id = "loads"
+name = "Loads"
+what = "bundles carried on the back"
+art_book = ["storm-close"]
+
+[[piece]]
+id = "canoe"
+name = "Dugout canoe and paddle"
+art_book = ["made-things-sheet", "lake-mist-close"]
+note = "boats with seats are a known slip"
+
+[[piece]]
+id = "punt_pole"
+name = "Punting pole"
+art_book = ["lake-mist-close"]
+
+[[piece]]
+id = "drag"
+name = "Drag of poles"
+what = "a load dragged on two poles"
+note = "slatted sleds are a known slip"

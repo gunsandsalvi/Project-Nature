@@ -1,0 +1,56 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 10, People.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "People"
+about = "One human figure, of every age, build and look, with their faces and the marks life leaves on them."
+items = ["BIO-03", "BIO-04", "BIO-08", "BIO-16", "BIO-22", "PRE-27", "PRE-28", "PRE-18"]
+signed_off = ""
+
+[[piece]]
+id = "body"
+name = "The body, baby to elder"
+what = "woman and man as baby, toddler, child, youth, adult and elder"
+art_book = ["people-variety", "ab-figures-detailed"]
+
+[[piece]]
+id = "builds"
+name = "Builds and heights"
+what = "thin, average and stout, short to tall"
+art_book = ["people-variety"]
+
+[[piece]]
+id = "looks"
+name = "Looks"
+what = "skin tones, hair colours and forms, eye colours and face shapes, widely mixed, like no real people"
+
+[[piece]]
+id = "hair"
+name = "Hair and beards"
+what = "each people's hair and beard styles"
+art_book = ["people-variety"]
+
+[[piece]]
+id = "faces"
+name = "Faces in twelve states"
+what = "fear, anger, grief, joy, love, shame, awe, calm, asleep, hurt, dead and worn out with cold, drawn for each zoom band"
+
+[[piece]]
+id = "age_signs"
+name = "Age"
+what = "grey hair and a bent back"
+art_book = ["people-variety"]
+
+[[piece]]
+id = "body_signs"
+name = "Body signs"
+what = "pregnancy, a limp, a sling, a pale dressing, a splint, scars, pox marks, a scarred eye, and blood at the Show level"
+
+[[piece]]
+id = "first_people"
+name = "The first people"
+what = "unclothed, with no culture yet, never drawn with sexual detail"
+art_book = ["first-cave"]
+
+[[piece]]
+id = "far_figures"
+name = "Small and tiny figures"
+what = "far figures outlined and drawn to read, and a group's marker"

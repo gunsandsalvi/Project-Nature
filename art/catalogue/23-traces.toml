@@ -1,0 +1,47 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 23, Traces of life.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Traces of life"
+about = "What people and animals leave behind, and how it fades and is buried."
+items = ["MAT-08", "PRE-09", "PRE-25"]
+signed_off = ""
+
+[[piece]]
+id = "rubbish_heap"
+name = "Rubbish heap"
+what = "bones, ash, shells and broken things"
+
+[[piece]]
+id = "old_camp"
+name = "Old camp"
+what = "an overgrown hearth, post holes, a fallen hut, lost tools"
+
+[[piece]]
+id = "stumps"
+name = "Stumps and felled trees"
+art_book = ["read-aids"]
+
+[[piece]]
+id = "pits"
+name = "Pits and holes"
+
+[[piece]]
+id = "footprints"
+name = "Footprints"
+what = "in snow and mud"
+art_book = ["winter"]
+
+[[piece]]
+id = "bones"
+name = "Bones"
+what = "scattered bones, skulls and antlers"
+art_book = ["first-cave"]
+
+[[piece]]
+id = "decay"
+name = "Decay"
+what = "a carcass rotting away"
+
+[[piece]]
+id = "buried"
+name = "Buried things"
+what = "hearths, tools, bones and graves at their depths, in the cut-away view"

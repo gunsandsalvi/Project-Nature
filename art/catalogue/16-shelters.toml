@@ -1,0 +1,140 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 16, Shelters and camp structures.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Shelters and camp structures"
+about = "Every kind of shelter and structure people build, each true to what excavations show, and what a camp holds."
+items = ["MAT-23", "PRE-24", "PRE-42", "CUL-28", "CUL-26"]
+signed_off = ""
+
+[[piece]]
+id = "windbreak"
+name = "Windbreak"
+what = "poles, a bar and brush"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "lean_to"
+name = "Lean-to"
+what = "a sloping roof of poles and reeds or bark"
+art_book = ["lake-mist-close"]
+
+[[piece]]
+id = "brush_hut"
+name = "Brush hut"
+what = "brush over a shallow floor"
+
+[[piece]]
+id = "hide_tent_cone"
+name = "Hide tent, cone"
+what = "skins on poles, held down by a ring of stones"
+art_book = ["made-things-sheet", "winter"]
+note = "smoke flaps and tipi-like cones are a known slip"
+
+[[piece]]
+id = "hide_tent_dome"
+name = "Hide tent, dome"
+what = "skins over bent poles on a stone ring"
+art_book = ["close-camp", "camp-thirty", "d2-pixel-paint"]
+
+[[piece]]
+id = "bark_hut"
+name = "Bark hut"
+what = "a dome of bark sheets"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "reed_hut"
+name = "Reed house"
+what = "a reed-roofed house"
+
+[[piece]]
+id = "round_post_hut"
+name = "Round post hut"
+what = "posts set in the ground under a roof"
+
+[[piece]]
+id = "pit_house"
+name = "Pit house"
+what = "a house over a dug floor"
+
+[[piece]]
+id = "longhouse"
+name = "Longhouse"
+what = "the farmers' long post house"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "mammoth_bone_hut"
+name = "Mammoth-bone hut"
+what = "only where mammoths live"
+
+[[piece]]
+id = "shelter_screen"
+name = "Hides across a rock shelter"
+what = "hides closing off a rock shelter or cave mouth"
+
+[[piece]]
+id = "hearth_ring"
+name = "Hearth ring"
+what = "a ring of stones round a fire"
+art_book = ["made-things-sheet", "close-camp"]
+
+[[piece]]
+id = "bed"
+name = "Beds"
+what = "grass or leaves, hides and furs to sleep on"
+art_book = ["first-cave"]
+
+[[piece]]
+id = "storage_pit"
+name = "Storage pit"
+what = "a lined, covered pit"
+
+[[piece]]
+id = "drying_frame"
+name = "Drying frame"
+what = "a hide laced on a frame to dry"
+art_book = ["made-things-sheet", "close-camp"]
+
+[[piece]]
+id = "drying_rack"
+name = "Drying rack"
+what = "meat and fish hung to dry"
+art_book = ["made-things-sheet", "ab-figures-detailed", "lake-mist-close"]
+
+[[piece]]
+id = "smoke_rack"
+name = "Smoke rack"
+what = "meat over a smoky fire"
+
+[[piece]]
+id = "fences"
+name = "Fences and pens"
+what = "woven fences and animal pens"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "granary"
+name = "Store house"
+what = "a raised store for grain"
+
+[[piece]]
+id = "footbridge"
+name = "Footbridge"
+what = "logs laid over a stream"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "sacred_house"
+name = "House at a sacred place"
+what = "where a priest holds rites"
+
+[[piece]]
+id = "firewood"
+name = "Firewood piles"
+what = "stacked branches and logs"
+art_book = ["first-cave", "village-truthful"]
+
+[[piece]]
+id = "tent_ring"
+name = "Stone ring left behind"
+what = "where a tent stood"

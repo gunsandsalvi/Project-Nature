@@ -1,0 +1,62 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 14, Hunters and small animals.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Hunters and small animals"
+about = "The meat-eaters and the small quick animals, each with its young, both sexes, its coats by season, and its body when dead."
+items = ["WLD-32", "WLD-33", "PRE-46"]
+signed_off = ""
+
+[[piece]]
+id = "wolf"
+name = "Wolf"
+what = "packs, pups, the bold camp wolf"
+art_book = ["animals-sheet"]
+
+[[piece]]
+id = "dog"
+name = "Dog"
+what = "the domestic kind of wolf"
+art_book = ["village-truthful", "storm-close", "ab-figures-detailed"]
+
+[[piece]]
+id = "brown_bear"
+name = "Brown bear"
+art_book = ["animals-sheet"]
+
+[[piece]]
+id = "fox"
+name = "Fox"
+art_book = ["first-cave"]
+
+[[piece]]
+id = "lynx"
+name = "Lynx"
+
+[[piece]]
+id = "lion"
+name = "Lion"
+what = "big cat of grassland and savanna"
+
+[[piece]]
+id = "leopard"
+name = "Leopard"
+what = "big cat of forests and heights"
+
+[[piece]]
+id = "hare"
+name = "Hare"
+art_book = ["animals-sheet"]
+
+[[piece]]
+id = "squirrel"
+name = "Red squirrel"
+art_book = ["read-aids"]
+
+[[piece]]
+id = "beaver"
+name = "Beaver"
+what = "with its lodges and dams"
+
+[[piece]]
+id = "monkey"
+name = "Monkey"
+what = "of the tropical forest"

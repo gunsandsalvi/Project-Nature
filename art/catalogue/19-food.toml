@@ -1,0 +1,79 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 19, Food and its states.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Food and its states"
+about = "Everything people eat, in its states: fresh, cooked, burnt, dried, smoked, rotten."
+items = ["BIO-10", "MAT-19", "RCK-03", "RCK-13", "RCK-14", "RCK-07"]
+signed_off = ""
+
+[[piece]]
+id = "carcass"
+name = "Carcasses"
+what = "whole, skinned, quartered and down to bones, for each body pattern"
+art_book = ["camp-thirty"]
+
+[[piece]]
+id = "meat"
+name = "Meat"
+what = "fresh, cooked, burnt, dried in strips, smoked, rotten"
+art_book = ["made-things-sheet", "ab-figures-detailed"]
+
+[[piece]]
+id = "fish_food"
+name = "Fish"
+what = "fresh, gutted, dried, smoked"
+art_book = ["lake-mist-close", "made-things-sheet"]
+
+[[piece]]
+id = "fat"
+name = "Fat and marrow"
+
+[[piece]]
+id = "eggs"
+name = "Eggs"
+
+[[piece]]
+id = "milk"
+name = "Milk"
+what = "in a container"
+
+[[piece]]
+id = "nuts"
+name = "Nuts"
+what = "hazelnuts and acorns, and acorn meal soaking"
+
+[[piece]]
+id = "berries_fruit"
+name = "Berries and fruit"
+what = "gathered and heaped"
+
+[[piece]]
+id = "roots"
+name = "Roots"
+what = "dug, raw and cooked"
+
+[[piece]]
+id = "mushrooms"
+name = "Mushrooms"
+what = "gathered"
+art_book = ["read-aids"]
+
+[[piece]]
+id = "grain_food"
+name = "Grain"
+what = "heads, grains, flour, porridge and flatbread"
+
+[[piece]]
+id = "drink"
+name = "Fermented drink"
+what = "in a closed container"
+
+[[piece]]
+id = "stores"
+name = "Stored food"
+what = "in pits, baskets and pots"
+
+[[piece]]
+id = "cooking"
+name = "Cooking"
+what = "meat on a spit, and stone boiling: hot stones in a hide or bark container"
+note = "a pot hung over a fire is a known slip"

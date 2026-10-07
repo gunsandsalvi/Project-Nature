@@ -1,0 +1,47 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 21, Fields and herds.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Fields and herds"
+about = "Sowing, growing and harvesting, and keeping animals."
+items = ["RCK-23", "WLD-33", "WLD-27", "CUL-28", "MOM-08"]
+signed_off = ""
+
+[[piece]]
+id = "cleared_ground"
+name = "Cleared ground"
+
+[[piece]]
+id = "plots"
+name = "Plots"
+what = "dug, sown, weeded and watered"
+
+[[piece]]
+id = "crops"
+name = "Crops"
+what = "einkorn, barley and flax, sprouting, growing, ripe and as stubble"
+art_book = ["village-truthful"]
+note = "maize is a known slip"
+
+[[piece]]
+id = "heap_sprouts"
+name = "Seeds sprouting on a rubbish heap"
+
+[[piece]]
+id = "sickle"
+name = "Sickle"
+what = "flint blades set in a wooden haft"
+
+[[piece]]
+id = "harvest"
+name = "Harvest"
+what = "sheaves, threshing and winnowing"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "pens"
+name = "Pens and tethers"
+what = "a woven pen, a tether and stake"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "dung"
+name = "Dung heap"

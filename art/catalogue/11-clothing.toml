@@ -1,0 +1,67 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 11, Clothing and ornament.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Clothing and ornament"
+about = "About eight garments in child and adult sizes, in every material, and what people wear as ornament."
+items = ["BIO-11", "RCK-26", "MAT-22", "CUL-12", "PRE-43", "PRE-46"]
+signed_off = ""
+
+[[piece]]
+id = "wrap"
+name = "Hide wrap"
+what = "the first garment: a softened hide worn wrapped"
+
+[[piece]]
+id = "cloak"
+name = "Cloak"
+what = "a sewn hide or fur cloak"
+art_book = ["people-variety"]
+note = "the art book's grass cape is a known slip"
+
+[[piece]]
+id = "tunic"
+name = "Tunic"
+what = "a sewn tunic"
+art_book = ["people-variety"]
+
+[[piece]]
+id = "leggings"
+name = "Leggings"
+art_book = ["people-variety"]
+
+[[piece]]
+id = "shoes"
+name = "Shoes"
+what = "soft hide shoes and winter boots"
+art_book = ["people-variety"]
+
+[[piece]]
+id = "hood"
+name = "Hood, winter coat and mittens"
+art_book = ["people-variety", "winter"]
+
+[[piece]]
+id = "woven"
+name = "Woven garment"
+what = "a garment of woven flax or bast"
+
+[[piece]]
+id = "belt_pouch"
+name = "Belt, pouch and baby sling"
+art_book = ["people-variety"]
+
+[[piece]]
+id = "hide_states"
+name = "Hides in their states"
+what = "fresh, scraped, stretched, dried, softened, tanned and smoked"
+art_book = ["made-things-sheet", "close-camp"]
+
+[[piece]]
+id = "garment_materials"
+name = "The garments in each material"
+what = "pale and dark hide, leather, light and dark fur, woven plant"
+
+[[piece]]
+id = "ornament"
+name = "Ornament"
+what = "beads of shell, bone, tooth, stone and copper, pendants, body paint, fringes and painted patterns, in each people's style"
+art_book = ["people-variety"]

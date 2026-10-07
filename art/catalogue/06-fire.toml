@@ -1,0 +1,80 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 6, Fire and smoke.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Fire and smoke"
+about = "Every fire from an ember to a furnace, its smoke and light, and fire loose in the land."
+items = ["MAT-18", "PRE-30", "WLD-28"]
+signed_off = ""
+
+[[piece]]
+id = "embers"
+name = "Embers"
+what = "glowing embers, and a fire banked under ash"
+
+[[piece]]
+id = "small_fire"
+name = "Small fire"
+what = "twigs and tinder burning"
+
+[[piece]]
+id = "campfire"
+name = "Campfire"
+what = "a fire in its hearth ring"
+art_book = ["close-camp", "made-things-sheet", "first-cave"]
+
+[[piece]]
+id = "pit_fire"
+name = "Pit fire and earth oven"
+what = "a fire in a covered pit"
+
+[[piece]]
+id = "kiln_fire"
+name = "Kiln fire"
+what = "fire in a pottery kiln"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "furnace"
+name = "Blown furnace"
+what = "a charcoal fire blown through pipes, at its hottest"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "smoke"
+name = "Smoke"
+what = "thin smoke, thick green-wood smoke, kiln smoke"
+art_book = ["close-camp", "ab-figures-detailed"]
+
+[[piece]]
+id = "sparks"
+name = "Sparks and rising embers"
+
+[[piece]]
+id = "torch"
+name = "Torch"
+what = "a burning torch carried at night"
+
+[[piece]]
+id = "ember_carrier"
+name = "Carried embers"
+what = "an ember kept in tinder fungus"
+
+[[piece]]
+id = "tinder_nest"
+name = "Tinder nest"
+what = "an ember blown into flame"
+
+[[piece]]
+id = "wildfire"
+name = "Wildfire"
+what = "a fire front through grass and forest, trees burning"
+art_book = ["storm-close"]
+
+[[piece]]
+id = "charred"
+name = "Charred trees and stumps"
+what = "what a fire leaves standing"
+
+[[piece]]
+id = "charcoal_ash"
+name = "Charcoal and ash heaps"
+art_book = ["village-truthful"]

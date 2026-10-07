@@ -1,0 +1,46 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 25, Small effects.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Small effects"
+about = "The small moving touches that make the world feel alive."
+items = ["PRE-30", "PRE-18", "WLD-16", "GOD-10"]
+signed_off = ""
+
+[[piece]]
+id = "chips"
+name = "Flying chips"
+what = "stone chips when knapping"
+
+[[piece]]
+id = "dust"
+name = "Dust"
+what = "from walking, digging and dropping things"
+
+[[piece]]
+id = "splash"
+name = "Splashes"
+what = "wading, throwing, fish jumping"
+
+[[piece]]
+id = "falling_leaves"
+name = "Falling leaves"
+art_book = ["birch-sheet", "read-aids"]
+
+[[piece]]
+id = "blood"
+name = "Blood"
+what = "only at the Show level"
+
+[[piece]]
+id = "breath"
+name = "Breath in the cold"
+
+[[piece]]
+id = "act_marks"
+name = "Marks of your acts"
+what = "faint marks while your ring is open"
+
+[[piece]]
+id = "glints"
+name = "Glints"
+what = "sun on water and wet stone"
+art_book = ["backlight", "lake-mist-close"]

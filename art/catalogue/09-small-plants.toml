@@ -1,0 +1,183 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 9, Grasses, grains, flowers and small plants.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Grasses, grains, flowers and small plants"
+about = "Thirty-three small plants, each drawn for every zoom band and through its seasons."
+items = ["WLD-31", "PRE-46", "RCK-23"]
+signed_off = ""
+
+[[piece]]
+id = "meadow_grasses"
+name = "Meadow grasses"
+what = "mixed grasses with seed heads"
+art_book = ["plants-native-size", "ab-figures-detailed"]
+
+[[piece]]
+id = "feather_grass"
+name = "Feather grass"
+what = "silky grass of dry grassland"
+
+[[piece]]
+id = "savanna_grass"
+name = "Savanna grass"
+what = "tall coarse grass, gold when dry"
+
+[[piece]]
+id = "einkorn"
+name = "Wild einkorn wheat"
+what = "wild grain, later sown"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "wild_barley"
+name = "Wild barley"
+what = "wild grain with long whiskers, later sown"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "wild_sorghum"
+name = "Wild sorghum"
+what = "tall grain grass of the savanna"
+
+[[piece]]
+id = "sedge"
+name = "Sedge"
+what = "marsh and tundra grass-like plant"
+
+[[piece]]
+id = "cotton_grass"
+name = "Cotton grass"
+what = "white tufts in bogs and tundra"
+
+[[piece]]
+id = "marram"
+name = "Marram grass"
+what = "dune grass"
+
+[[piece]]
+id = "bamboo"
+name = "Bamboo"
+what = "giant grass of the tropical forest"
+
+[[piece]]
+id = "oxeye_daisy"
+name = "Oxeye daisy"
+what = "white meadow flower"
+art_book = ["plants-native-size"]
+
+[[piece]]
+id = "wild_strawberry"
+name = "Wild strawberry"
+what = "small red berries"
+art_book = ["plants-native-size"]
+
+[[piece]]
+id = "yarrow"
+name = "Yarrow"
+what = "flat white flower heads, a wound herb"
+
+[[piece]]
+id = "nettle"
+name = "Nettle"
+what = "stinging; food and fibre"
+
+[[piece]]
+id = "wild_garlic"
+name = "Wild garlic"
+what = "broad leaves and white star flowers in spring woods"
+
+[[piece]]
+id = "nightshade"
+name = "Deadly nightshade"
+what = "glossy black poisonous berries"
+
+[[piece]]
+id = "flax"
+name = "Flax"
+what = "blue flowers; fibre and seed"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "bracken"
+name = "Bracken and ferns"
+what = "fronds, brown in autumn"
+art_book = ["plants-native-size", "read-aids"]
+
+[[piece]]
+id = "wild_thyme"
+name = "Wild thyme"
+what = "low purple aromatic mats of dry ground"
+
+[[piece]]
+id = "colocynth"
+name = "Bitter gourd"
+what = "creeping desert vine with bitter round fruit"
+
+[[piece]]
+id = "wild_banana"
+name = "Wild banana"
+what = "giant leaves of the tropical forest"
+
+[[piece]]
+id = "common_reed"
+name = "Common reed"
+what = "tall reeds for thatch"
+art_book = ["lake-mist-close", "camp-thirty"]
+
+[[piece]]
+id = "reedmace"
+name = "Reedmace"
+what = "brown velvet heads; edible roots"
+art_book = ["ab-figures-detailed"]
+
+[[piece]]
+id = "water_lily"
+name = "Water lily"
+what = "floating leaves and white flowers"
+art_book = ["lake-mist-close"]
+
+[[piece]]
+id = "wild_carrot"
+name = "Wild carrot"
+what = "white lace flowers over an edible root"
+
+[[piece]]
+id = "yam"
+name = "Wild yam"
+what = "climbing vine over a big tuber"
+
+[[piece]]
+id = "asphodel"
+name = "Asphodel"
+what = "tall flower of dry lands over edible roots"
+
+[[piece]]
+id = "tinder_fungus"
+name = "Tinder fungus"
+what = "hoof-shaped bracket on birch, for carrying fire"
+art_book = ["birch-sheet"]
+
+[[piece]]
+id = "cep"
+name = "Cep"
+what = "brown edible mushroom"
+
+[[piece]]
+id = "fly_agaric"
+name = "Fly agaric"
+what = "red poisonous mushroom with white spots"
+art_book = ["read-aids"]
+
+[[piece]]
+id = "sphagnum"
+name = "Bog moss"
+what = "the wet moss of peat bogs"
+
+[[piece]]
+id = "reindeer_lichen"
+name = "Reindeer lichen"
+what = "pale grey lichen of the tundra"
+
+[[piece]]
+id = "seaweed"
+name = "Seaweed"
+what = "wrack and kelp on rocky shores"

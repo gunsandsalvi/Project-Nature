@@ -1,0 +1,53 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 1, The camp's ground.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "The camp's ground"
+about = "The ground the first camp stands on, by the river under the cliff: the first textures the engine needs."
+items = ["PRE-20", "PRE-22", "WLD-31", "MAT-08"]
+signed_off = ""
+
+[[piece]]
+id = "meadow"
+name = "Meadow grass and earth"
+what = "the camp's grassland, its earth showing between the tufts"
+art_book = ["textures-a", "meadow-band2", "d2-pixel-paint", "delight-liked"]
+
+[[piece]]
+id = "trodden_floor"
+name = "Trodden camp floor"
+what = "earth packed by feet round the hearths and tents"
+art_book = ["d2-pixel-paint", "close-camp"]
+
+[[piece]]
+id = "bare_earth"
+name = "Bare earth, dry and cracked"
+what = "open dry ground with crumbs and small stones"
+art_book = ["textures-a", "delight-liked"]
+
+[[piece]]
+id = "bank_gravel"
+name = "River-bank gravel and cobbles"
+what = "the rounded stones along the water"
+art_book = ["textures-a", "d2-pixel-paint"]
+
+[[piece]]
+id = "river_bed"
+name = "River bed under clear water"
+what = "cobbles and sand seen through shallow water"
+art_book = ["d2-pixel-paint", "close-camp"]
+
+[[piece]]
+id = "hearth_ground"
+name = "Ash and burnt ground"
+what = "the grey ash and scorched earth round a hearth"
+art_book = ["close-camp"]
+
+[[piece]]
+id = "path"
+name = "Trodden path"
+what = "a path worn through grass by walking"
+art_book = ["d2-pixel-paint", "camp-thirty"]
+
+[[piece]]
+id = "mud"
+name = "Wet mud"
+what = "mud at the water's edge, taking footprints"

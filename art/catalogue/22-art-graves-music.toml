@@ -1,0 +1,67 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 22, Art, marks, graves and music.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Art, marks, graves and music"
+about = "What people paint, carve, mark, bury and play, each in its people's style."
+items = ["CUL-03", "CUL-09", "CUL-10", "CUL-12", "CUL-19", "CUL-34", "PRE-15", "PRE-43"]
+signed_off = ""
+
+[[piece]]
+id = "paintings"
+name = "Paintings"
+what = "on walls, rocks, hides and the flat sides of things, in red ochre, black charcoal and green ore"
+note = "Lascaux-like paintings are a known slip"
+
+[[piece]]
+id = "signs"
+name = "Signs and motifs"
+what = "about twelve hand-drawn signs, and animals, people and things drawn flat from their models"
+
+[[piece]]
+id = "patterns"
+name = "Patterns"
+what = "about twelve: notches, bands, dots, zigzags, fringes, painted rings and more"
+
+[[piece]]
+id = "styles"
+name = "Peoples' styles"
+what = "proportions, lean, pattern, two colours, how motifs are drawn, how much ornament"
+
+[[piece]]
+id = "carvings"
+name = "Carvings"
+what = "in bone, antler and wood, and carved figures"
+
+[[piece]]
+id = "tally"
+name = "Tally"
+what = "notches cut in bone or wood"
+
+[[piece]]
+id = "cairn"
+name = "Piled stones"
+what = "marking paths, graves and borders"
+
+[[piece]]
+id = "tree_mark"
+name = "Cut tree marks"
+
+[[piece]]
+id = "offering"
+name = "Gifts left at a place"
+
+[[piece]]
+id = "grave"
+name = "Graves"
+what = "a body laid out, under stones or buried, with things for the dead"
+
+[[piece]]
+id = "flute"
+name = "Bone flute"
+
+[[piece]]
+id = "drum"
+name = "Drum"
+
+[[piece]]
+id = "rattle"
+name = "Rattle"

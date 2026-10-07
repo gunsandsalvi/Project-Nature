@@ -1,0 +1,62 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 8, Bushes.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Bushes"
+about = "Eleven kinds of bush, with their seasons and growth, berries and nuts."
+items = ["WLD-31", "PRE-46"]
+signed_off = ""
+
+[[piece]]
+id = "hazel"
+name = "Hazel"
+what = "nuts and straight rods"
+
+[[piece]]
+id = "hawthorn"
+name = "Hawthorn"
+what = "thorns, white blossom, red berries"
+
+[[piece]]
+id = "elder"
+name = "Elder"
+what = "flat white flowers, black berries"
+
+[[piece]]
+id = "bramble"
+name = "Bramble"
+what = "blackberries on thorny canes"
+
+[[piece]]
+id = "wild_rose"
+name = "Wild rose"
+what = "pink flowers, red hips"
+
+[[piece]]
+id = "bilberry"
+name = "Bilberry"
+what = "low bush with blue berries"
+art_book = ["plants-native-size"]
+
+[[piece]]
+id = "heather"
+name = "Heather"
+what = "purple low bush of heaths and heights"
+
+[[piece]]
+id = "dwarf_birch"
+name = "Dwarf birch and willow"
+what = "the tundra's knee-high bushes"
+
+[[piece]]
+id = "sea_buckthorn"
+name = "Sea buckthorn"
+what = "silver leaves, orange berries, coasts and dry land"
+
+[[piece]]
+id = "rockrose"
+name = "Rockrose"
+what = "sticky aromatic bush of dry scrub"
+
+[[piece]]
+id = "saltbush"
+name = "Saltbush"
+what = "grey bush of desert and salt marsh"

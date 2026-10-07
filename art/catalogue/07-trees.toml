@@ -1,0 +1,109 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 7, Trees.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Trees"
+about = "Twenty kinds of tree, needle and broad-leaved, each with its stages (seedling, young, grown, old, dead) and seasons (bud, leaf, flower, fruit, bare)."
+items = ["WLD-31", "PRE-46"]
+signed_off = ""
+
+[[piece]]
+id = "scots_pine"
+name = "Scots pine"
+what = "needle tree of dry northern woods"
+
+[[piece]]
+id = "spruce"
+name = "Spruce"
+what = "dark needle tree of the northern forest"
+
+[[piece]]
+id = "larch"
+name = "Larch"
+what = "needle tree that turns gold and bare in autumn"
+
+[[piece]]
+id = "juniper"
+name = "Juniper"
+what = "low needle tree or bush of heaths and heights"
+
+[[piece]]
+id = "yew"
+name = "Yew"
+what = "dark poisonous needle tree, springy wood"
+
+[[piece]]
+id = "mountain_pine"
+name = "Mountain pine"
+what = "low twisted pine of the heights"
+
+[[piece]]
+id = "birch"
+name = "Birch"
+what = "white bark, tar and tinder; the camp's tree"
+art_book = ["birch-sheet", "d2-pixel-paint", "winter"]
+
+[[piece]]
+id = "oak"
+name = "Oak"
+what = "acorns, tanning bark, great old trees"
+art_book = ["storm-close", "read-aids"]
+
+[[piece]]
+id = "willow"
+name = "Willow"
+what = "by water; bark for pain, rods for weaving"
+
+[[piece]]
+id = "alder"
+name = "Alder"
+what = "wet ground and riverbanks"
+
+[[piece]]
+id = "ash"
+name = "Ash"
+what = "tall tree, straight strong wood"
+
+[[piece]]
+id = "lime"
+name = "Lime"
+what = "soft wood and bast fibre for cord"
+
+[[piece]]
+id = "maple"
+name = "Maple"
+what = "red and orange in autumn"
+art_book = ["read-aids"]
+
+[[piece]]
+id = "wild_apple"
+name = "Wild apple"
+what = "small sour apples"
+
+[[piece]]
+id = "wild_olive"
+name = "Wild olive"
+what = "silver-grey tree of dry scrub"
+
+[[piece]]
+id = "acacia"
+name = "Acacia"
+what = "flat-topped thorn tree of savanna and desert"
+
+[[piece]]
+id = "date_palm"
+name = "Date palm"
+what = "palm of desert oases"
+
+[[piece]]
+id = "fig"
+name = "Fig"
+what = "fruit tree of warm lands"
+
+[[piece]]
+id = "baobab"
+name = "Baobab"
+what = "huge-trunked savanna tree"
+
+[[piece]]
+id = "oil_palm"
+name = "Oil palm"
+what = "palm of the tropical forest"

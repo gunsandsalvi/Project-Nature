@@ -1,0 +1,82 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 15, Birds, fish, shellfish and snakes.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Birds, fish, shellfish and snakes"
+about = "Birds with their nests and eggs, fish with their runs, the seal, shellfish and snakes."
+items = ["WLD-32", "PRE-46"]
+signed_off = ""
+
+[[piece]]
+id = "crane"
+name = "Crane"
+art_book = ["animals-sheet"]
+
+[[piece]]
+id = "heron"
+name = "Heron"
+art_book = ["close-camp", "lake-mist-close"]
+
+[[piece]]
+id = "duck"
+name = "Duck"
+art_book = ["lake-mist-close"]
+
+[[piece]]
+id = "grouse"
+name = "Grouse"
+what = "game bird of heath and tundra"
+
+[[piece]]
+id = "eagle"
+name = "Eagle"
+what = "the bird of prey"
+
+[[piece]]
+id = "ostrich"
+name = "Ostrich"
+what = "of savanna and desert, with its huge eggs"
+
+[[piece]]
+id = "nests_eggs"
+name = "Nests and eggs"
+
+[[piece]]
+id = "salmon"
+name = "Salmon"
+what = "with its runs up the rivers"
+art_book = ["animals-sheet"]
+
+[[piece]]
+id = "pike"
+name = "Pike"
+what = "lake fish"
+
+[[piece]]
+id = "catfish"
+name = "Catfish"
+what = "fish of warm rivers"
+
+[[piece]]
+id = "sea_fish"
+name = "Sea fish"
+what = "cod-like fish of the sea"
+
+[[piece]]
+id = "seal"
+name = "Seal"
+what = "on rocks and ice"
+
+[[piece]]
+id = "shellfish"
+name = "Shellfish"
+what = "mussels on rocks, and their empty shells"
+
+[[piece]]
+id = "adder"
+name = "Adder"
+what = "the venomous snake"
+art_book = ["animals-sheet"]
+
+[[piece]]
+id = "python"
+name = "Python"
+what = "the great snake of the tropical forest"

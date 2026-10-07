@@ -1,0 +1,117 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 17, Tools of stone, bone and wood.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Tools of stone, bone and wood"
+about = "The tools people make for every craft, each in its states of wear."
+items = ["MAT-23", "RCK-01", "RCK-10", "RCK-11", "RCK-12", "RCK-25"]
+signed_off = ""
+
+[[piece]]
+id = "hammerstone"
+name = "Hammerstone and anvil"
+what = "for knapping and cracking"
+art_book = ["made-things-sheet", "ab-figures-detailed"]
+
+[[piece]]
+id = "core"
+name = "Core"
+what = "the stone flakes are struck from"
+
+[[piece]]
+id = "flake"
+name = "Sharp flake"
+what = "the first tool"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "blade"
+name = "Blade"
+what = "long fine flake"
+
+[[piece]]
+id = "scraper"
+name = "Scraper"
+
+[[piece]]
+id = "awl"
+name = "Awl"
+what = "stone and bone points for piercing"
+
+[[piece]]
+id = "chopper"
+name = "Chopper and hand axe"
+
+[[piece]]
+id = "knife"
+name = "Knife"
+what = "a blade in a handle"
+
+[[piece]]
+id = "spear_point"
+name = "Spear point"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "arrowhead"
+name = "Arrowhead and small blades"
+what = "points and the small blades set in a shaft"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "stone_axe"
+name = "Stone axe"
+what = "a ground stone head in its haft"
+art_book = ["made-things-sheet"]
+note = "the art book's axe looks metal: a known slip"
+
+[[piece]]
+id = "adze"
+name = "Adze"
+
+[[piece]]
+id = "quern"
+name = "Grinding stones"
+what = "a grinding stone with its hand stone, a mortar and pestle"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "digging_stick"
+name = "Digging stick"
+
+[[piece]]
+id = "club"
+name = "Club"
+
+[[piece]]
+id = "fire_kit"
+name = "Fire-making kit"
+what = "drill and hearth board, and the fire plough"
+
+[[piece]]
+id = "needle"
+name = "Bone needle"
+what = "eyed needle"
+
+[[piece]]
+id = "wedge_mallet"
+name = "Wedge and mallet"
+what = "for splitting wood"
+
+[[piece]]
+id = "haft"
+name = "Handles and bindings"
+what = "hafts, bindings and glued joints"
+
+[[piece]]
+id = "tar"
+name = "Birch tar"
+what = "the glue, lumps and on a stone"
+
+[[piece]]
+id = "cord"
+name = "Cord and thread"
+what = "twisted fibre cord and sinew thread"
+
+[[piece]]
+id = "lamp"
+name = "Fat lamp"
+what = "a hollowed stone burning fat"

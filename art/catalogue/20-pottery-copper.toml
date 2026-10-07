@@ -1,0 +1,58 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 20, Pottery, kilns and copper.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Pottery, kilns and copper"
+about = "Clay to fired pot, the kilns, and the first copper."
+items = ["RCK-04", "RCK-08", "RCK-15", "MAT-19", "MOM-12"]
+signed_off = ""
+
+[[piece]]
+id = "clay"
+name = "Clay"
+what = "dug lumps, worked and tempered clay"
+
+[[piece]]
+id = "pots"
+name = "Pots"
+what = "coil-built pots, shaped, dried and fired, in their shapes"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "painted_pots"
+name = "Painted pots"
+what = "painted with ochre and green ore in each people's patterns"
+
+[[piece]]
+id = "sherds"
+name = "Sherds"
+what = "broken pottery"
+
+[[piece]]
+id = "open_firing"
+name = "Open firing"
+what = "pots fired in a bonfire"
+
+[[piece]]
+id = "kiln"
+name = "Kiln"
+what = "a dome kiln"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "blown_kiln"
+name = "Blown kiln"
+what = "a charcoal kiln blown through pipes by people taking turns"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "clay_figure"
+name = "Clay figures"
+
+[[piece]]
+id = "ore"
+name = "Copper ore"
+what = "green and blue, crushed"
+
+[[piece]]
+id = "copper"
+name = "Copper"
+what = "native lumps, beads, awls, and bright specks on a pot"

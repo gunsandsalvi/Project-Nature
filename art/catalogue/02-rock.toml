@@ -1,0 +1,139 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 2, Rock and stone.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Rock and stone"
+about = "The world's twelve kinds of rock as cliff and stone, the shapes rock takes, and the deposits people find in it."
+items = ["WLD-09", "WLD-14", "PRE-23", "PRE-24"]
+signed_off = ""
+
+[[piece]]
+id = "granite"
+name = "Granite"
+what = "pale grey speckled rock, rounded boulders with lichen"
+art_book = ["textures-a", "delight-liked", "first-cave"]
+
+[[piece]]
+id = "basalt"
+name = "Basalt"
+what = "dark volcanic rock, columns and blocks"
+
+[[piece]]
+id = "tuff"
+name = "Lava and ash rock"
+what = "rough volcanic rock of lava and ash"
+
+[[piece]]
+id = "obsidian"
+name = "Obsidian"
+what = "black glassy lava, the best stone for flaking"
+
+[[piece]]
+id = "sandstone"
+name = "Sandstone"
+what = "warm layered rock in red, yellow or buff"
+
+[[piece]]
+id = "shale"
+name = "Shale"
+what = "thin crumbly dark layers"
+
+[[piece]]
+id = "limestone"
+name = "Limestone"
+what = "the pale layered cliff of the camp, with caves"
+art_book = ["textures-a", "d2-pixel-paint", "close-camp", "camp-thirty"]
+
+[[piece]]
+id = "chalk"
+name = "Chalk"
+what = "white soft rock with dark flint nodules in bands"
+
+[[piece]]
+id = "quartzite"
+name = "Quartzite"
+what = "hard pale rock, for hammerstones"
+
+[[piece]]
+id = "slate"
+name = "Slate"
+what = "dark grey rock splitting in thin sheets"
+
+[[piece]]
+id = "conglomerate"
+name = "River gravel rock"
+what = "old river gravel set into rock"
+
+[[piece]]
+id = "mudstone"
+name = "Silt rock"
+what = "soft fine rock of old silt"
+
+[[piece]]
+id = "cliff"
+name = "Cliffs and their marks"
+what = "layered cliffs with cracks, fissures, lichen, water stains, soot over lived-in caves, grass hanging over the top and scree at the foot"
+art_book = ["d2-pixel-paint", "first-cave", "camp-thirty"]
+
+[[piece]]
+id = "rock_shelter"
+name = "Rock shelter and overhang"
+what = "a deep overhang people live under"
+art_book = ["first-cave", "ab-figures-detailed"]
+
+[[piece]]
+id = "cave"
+name = "Caves, outside and in"
+what = "cave mouths and their dark insides, dripstone in limestone, lava tubes"
+art_book = ["first-cave", "storm-close"]
+
+[[piece]]
+id = "boulders"
+name = "Boulders"
+what = "big rounded and broken stones lying on the land"
+art_book = ["d2-pixel-paint", "read-aids", "first-cave"]
+
+[[piece]]
+id = "outcrop"
+name = "Outcrops"
+what = "rock breaking through the ground"
+art_book = ["storm-close"]
+
+[[piece]]
+id = "scree"
+name = "Scree"
+what = "loose broken stone below cliffs and on slopes"
+
+[[piece]]
+id = "cobbles"
+name = "Cobbles and pebbles"
+what = "loose stones lying on the ground, smallest a fist"
+art_book = ["textures-a", "close-camp"]
+
+[[piece]]
+id = "flint_nodules"
+name = "Flint and chert in their rock"
+what = "flint nodules in chalk, chert bands in limestone"
+
+[[piece]]
+id = "obsidian_outcrop"
+name = "Obsidian outcrop"
+what = "glassy lava showing near young volcanoes"
+
+[[piece]]
+id = "clay_bank"
+name = "Clay bank"
+what = "clay showing in river banks and old lake beds"
+
+[[piece]]
+id = "ochre"
+name = "Red and yellow ochre"
+what = "iron-rich earth showing where rock weathers"
+
+[[piece]]
+id = "copper_ore"
+name = "Green and blue copper ore"
+what = "bright crusts at the tops of copper-bearing rock"
+
+[[piece]]
+id = "native_copper"
+name = "Native copper"
+what = "rare small lumps of bare copper in ore rock"

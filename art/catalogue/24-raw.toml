@@ -1,0 +1,53 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 24, Raw materials.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Raw materials"
+about = "The shared shapes every raw thing takes, by its form, and the look of each material class."
+items = ["MAT-01", "MAT-02", "MAT-10", "PRE-46"]
+signed_off = ""
+
+[[piece]]
+id = "shapes"
+name = "Shared shapes"
+what = "one for each form: lump, flake, blade, point, rod, pole, sheet, strand, powder, paste, liquid, container, structure"
+
+[[piece]]
+id = "stone_raw"
+name = "Stone"
+what = "nodules, cobbles and slabs of each stone"
+
+[[piece]]
+id = "earth_raw"
+name = "Earth"
+what = "clay, sand, red and yellow ochre, ash"
+
+[[piece]]
+id = "wood_raw"
+name = "Wood"
+what = "twigs, sticks, branches, logs, poles, rods, bark sheets, dead wood, charcoal"
+art_book = ["first-cave"]
+
+[[piece]]
+id = "plant_raw"
+name = "Plant"
+what = "grass bundles, reeds, leaves, bast and nettle fibre, resin, dung"
+
+[[piece]]
+id = "bone_raw"
+name = "Bone"
+what = "bones, antler, horn, teeth, shells and feathers"
+art_book = ["made-things-sheet"]
+
+[[piece]]
+id = "hide_raw"
+name = "Hide"
+what = "fresh hides, furs and sinew"
+
+[[piece]]
+id = "metal_raw"
+name = "Metal"
+what = "green ore, native copper, copper"
+
+[[piece]]
+id = "water_raw"
+name = "Water"
+what = "in containers"

@@ -1,0 +1,104 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 3, The rest of the ground.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "The rest of the ground"
+about = "Every other ground the world has, from tundra to tropical forest, and the ground after fire, flood and lava."
+items = ["WLD-31", "WLD-17", "WLD-26", "WLD-28", "WLD-15", "PRE-25"]
+signed_off = ""
+
+[[piece]]
+id = "broadleaf_floor"
+name = "Broadleaf forest floor"
+what = "leaf litter and moss, through the seasons"
+art_book = ["textures-a", "read-aids"]
+
+[[piece]]
+id = "conifer_floor"
+name = "Conifer forest floor"
+what = "needles, cones and moss"
+
+[[piece]]
+id = "tundra"
+name = "Tundra"
+what = "lichen, low shrubs and frost-heaved hummocks"
+
+[[piece]]
+id = "steppe"
+name = "Dry grassland"
+what = "short sparse golden grass"
+
+[[piece]]
+id = "savanna"
+name = "Savanna ground"
+what = "tall dry grass on red earth"
+
+[[piece]]
+id = "scrub"
+name = "Dry scrub ground"
+what = "stony ground with low aromatic plants"
+
+[[piece]]
+id = "stony_desert"
+name = "Stony desert"
+what = "wind-swept stones and gravel"
+
+[[piece]]
+id = "dunes"
+name = "Sand dunes"
+what = "rippled sand"
+
+[[piece]]
+id = "tropical_floor"
+name = "Tropical forest floor"
+what = "dark damp litter under a dense canopy"
+
+[[piece]]
+id = "marsh"
+name = "Marsh and peat"
+what = "wet moss, peat and pools"
+
+[[piece]]
+id = "beach"
+name = "Beach sand and shingle"
+what = "sand and rounded stones at the sea"
+
+[[piece]]
+id = "rocky_shore"
+name = "Rocky shore"
+what = "wet rock with seaweed and shellfish beds"
+
+[[piece]]
+id = "salt_marsh"
+name = "Salt marsh and estuary mud"
+what = "mudflats and salt plants where rivers meet the sea"
+
+[[piece]]
+id = "snow"
+name = "Snow"
+what = "fresh, trodden, drifted and melting snow"
+art_book = ["winter"]
+
+[[piece]]
+id = "ice"
+name = "Ice"
+what = "the polar ice cap, glaciers, sea ice and frozen lakes"
+art_book = ["winter"]
+
+[[piece]]
+id = "burnt_ground"
+name = "Burnt ground"
+what = "black ash and scorched stubble after a wildfire, and its regrowth"
+
+[[piece]]
+id = "lava_field"
+name = "Lava and ash fall"
+what = "fresh black lava rock, and grey ash over the land"
+
+[[piece]]
+id = "flood_silt"
+name = "Flood silt"
+what = "fresh mud left by a flood"
+
+[[piece]]
+id = "soil_layers"
+name = "Soil and rock layers"
+what = "the cut-away view: topsoil, subsoil, clay, gravel, ground water and rock below"

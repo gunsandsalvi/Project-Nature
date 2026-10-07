@@ -1,0 +1,86 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 13, Hoofed animals.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Hoofed animals"
+about = "The hoofed animals, wild and domestic, each with its young, both sexes, its coats by season, and its body when dead."
+items = ["WLD-32", "WLD-33", "PRE-46"]
+signed_off = ""
+
+[[piece]]
+id = "red_deer"
+name = "Red deer"
+what = "stags with antlers by age, hinds and calves"
+art_book = ["animals-sheet", "deer-poses", "read-aids", "close-camp"]
+
+[[piece]]
+id = "reindeer"
+name = "Reindeer"
+what = "tundra and northern forest"
+
+[[piece]]
+id = "elk"
+name = "Elk"
+what = "the great deer of forest and marsh"
+
+[[piece]]
+id = "wild_horse"
+name = "Wild horse"
+what = "dun horses with dark manes, in herds"
+art_book = ["animals-sheet", "storm-close"]
+note = "spotted or long-maned horses are a known slip"
+
+[[piece]]
+id = "aurochs"
+name = "Aurochs"
+what = "wild cattle"
+art_book = ["animals-sheet"]
+
+[[piece]]
+id = "wild_boar"
+name = "Wild boar"
+what = "piglets striped only in spring"
+art_book = ["read-aids"]
+
+[[piece]]
+id = "wild_goat"
+name = "Wild goat"
+what = "ibex of the heights"
+
+[[piece]]
+id = "wild_sheep"
+name = "Wild sheep"
+what = "mouflon of hills and scrub"
+
+[[piece]]
+id = "gazelle"
+name = "Gazelle"
+what = "fast small antelope of dry grassland, desert and savanna"
+
+[[piece]]
+id = "mammoth"
+name = "Mammoth"
+what = "only if you want them in the worlds"
+note = "your open question before M3"
+
+[[piece]]
+id = "cattle"
+name = "Cattle"
+what = "the domestic kind of aurochs"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "goat"
+name = "Goat"
+what = "the domestic kind of wild goat"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "sheep"
+name = "Sheep"
+what = "the domestic kind of wild sheep"
+art_book = ["village-truthful"]
+
+[[piece]]
+id = "pig"
+name = "Pig"
+what = "the domestic kind of wild boar"
+art_book = ["village-truthful"]

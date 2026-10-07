@@ -1,0 +1,41 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 26, The view from above.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "The view from above"
+about = "The land from valley height to the globe, and how people and herds show from there."
+items = ["PRE-29", "PRE-03", "PRE-28", "WLD-02", "PRE-07"]
+signed_off = ""
+
+[[piece]]
+id = "valley"
+name = "Valley"
+what = "about 10 km across: forests as crowns, rivers, camps"
+art_book = ["camp-zoom-far", "camp-zoom"]
+
+[[piece]]
+id = "region"
+name = "Region"
+what = "about 100 km: ranges, shaded hills, rivers as lines"
+
+[[piece]]
+id = "world_map"
+name = "World map"
+what = "biomes in their colours, the sea from deep blue to turquoise, currents, clouds and their shadows"
+
+[[piece]]
+id = "globe"
+name = "Globe"
+what = "the whole world, the polar ice hiding the seam"
+
+[[piece]]
+id = "camp_points"
+name = "Camps from far away"
+what = "a point at the hearth that glows if it has a fire"
+
+[[piece]]
+id = "markers"
+name = "Herd and group markers"
+
+[[piece]]
+id = "overlay_looks"
+name = "Map overlays"
+what = "peoples and territories, crafts, beliefs, what a person knows of the land, nature and deposits, weather and seasons"

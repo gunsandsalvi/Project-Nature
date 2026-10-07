@@ -1,0 +1,68 @@
+# The catalogue (IMPLEMENTATION.md, The catalogue): group 4, Water.
+# Each piece gets its sheet, several views and its place in the world, once you sign off the group.
+group = "Water"
+about = "Rivers, lakes and the sea, in calm, flood and ice."
+items = ["WLD-17", "WLD-26", "PRE-26"]
+signed_off = ""
+
+[[piece]]
+id = "river"
+name = "River"
+what = "meanders, current lines, foam, glints, the bed showing in the shallows"
+art_book = ["d2-pixel-paint", "close-camp", "camp-thirty"]
+
+[[piece]]
+id = "ford"
+name = "Ford"
+what = "ripples over shallow stones and stepping stones"
+art_book = ["close-camp"]
+
+[[piece]]
+id = "rapids"
+name = "Rapids and waterfalls"
+what = "white water over rocks"
+art_book = ["read-aids"]
+
+[[piece]]
+id = "stream"
+name = "Small stream"
+what = "a brook that dries in a drought"
+art_book = ["read-aids"]
+
+[[piece]]
+id = "spring"
+name = "Spring"
+what = "water rising from the ground, and warm springs near volcanoes"
+
+[[piece]]
+id = "lake"
+name = "Lake"
+what = "a still mirror with reeds, mist and lilies"
+art_book = ["lake-mist-close"]
+
+[[piece]]
+id = "marsh_pool"
+name = "Marsh pools"
+what = "dark still water among reeds"
+
+[[piece]]
+id = "sea"
+name = "Sea"
+what = "deep blue to turquoise shallows, with currents"
+
+[[piece]]
+id = "coast"
+name = "Coast"
+what = "where sea meets land: a thin bright line and small waves"
+
+[[piece]]
+id = "water_ice"
+name = "Ice on water"
+what = "ice forming at the edges, frozen rivers and lakes"
+art_book = ["winter"]
+
+[[piece]]
+id = "flood"
+name = "Flood"
+what = "brown water over the banks, carrying branches"
+art_book = ["storm-close"]
