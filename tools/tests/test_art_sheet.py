@@ -220,6 +220,20 @@ class Sheet(unittest.TestCase):
             self.assertEqual(ys.max() - ys.min() + 1, round(2.8 * s), "the front view is not 2.8 m tall")
 
     # checks: PRE-46
+    def test_a_scale_stick_never_wraps_onto_a_row_of_its_own(self):
+        def rows(widths):
+            page = sheet.Sheet()
+            page.figures([(Image.new("RGBA", (w, 100), RED + (255,)), "") for w in widths])
+            return len(page.blocks)
+
+        room = sheet.WIDTH - 2 * sheet.MARGIN
+        self.assertEqual(rows([400, 400, 30]), 1, "a row that fits was wrapped")
+        # three pictures and a stick 100 wide, 16 over the page's width with the usual gaps: the stick keeps to the row
+        self.assertEqual(rows([300, 300, 300, 100]), 1, "the stick wrapped onto a row of its own")
+        self.assertEqual(rows([room, 300]), 2, "a picture as wide as the page and another must take two rows")
+        self.assertEqual(rows([500, 500, 500, 500]), 2, "four wide pictures: two rows, not three")
+
+    # checks: PRE-46
     def test_the_true_size_row_leaves_out_a_zoom_where_the_picture_is_taller_than_the_screen(self):
         def shown(metres, px_per_m):
             return Image.new("RGB", (40, round(metres * px_per_m))), ""

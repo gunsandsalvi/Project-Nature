@@ -261,31 +261,46 @@ class Sheet:
 
     def figures(self, items, after=GAP):
         """A row of (picture, label) standing on one ground line, each at its own size, so things drawn at one scale
-        stay comparable; it wraps to another line when wider than the page."""
+        stay comparable; it wraps to another line when wider than the page. A scale stick that would stand alone on a
+        row of its own is kept in the last row of figures: the figures are packed with a small gap, the last one may
+        reach into the right margin, which is the room a stick needs."""
         label_h, width = 28, WIDTH - 2 * MARGIN
         probe = ImageDraw.Draw(Image.new("RGB", (1, 1)))
-        lines, line, used = [], [], 0
+        slots = []
         for picture, label in items:
             slot = max(picture.width, round(probe.textlength(label, font=font(19, True))) + 8 if label else 0)
-            if line and used + GAP + slot > width:
+            slots.append((picture, label, slot))
+
+        def pack(room, gap):
+            lines, line, used = [], [], 0
+            for entry in slots:
+                if line and used + gap + entry[2] > room:
+                    lines.append(line)
+                    line, used = [], 0
+                line.append(entry)
+                used += (gap if used else 0) + entry[2]
+            if line:
                 lines.append(line)
-                line, used = [], 0
-            line.append((picture, label, slot))
-            used += (GAP if used else 0) + slot
-        if line:
-            lines.append(line)
+            return lines
+
+        gap, right = GAP, WIDTH - MARGIN
+        lines = pack(width, gap)
+        if len(lines) > 1 and len(lines[-1]) == 1:
+            tight = pack(WIDTH - MARGIN - 8, 6)
+            if len(tight) < len(lines):
+                lines, gap, right = tight, 6, WIDTH - 8
         for line in lines:
             height = max(p.height for p, _, _ in line)
 
-            def paint(page, draw, y, line=line, height=height):
+            def paint(page, draw, y, line=line, height=height, gap=gap, right=right):
                 ground = y + label_h + height
-                draw.line([MARGIN, ground, WIDTH - MARGIN, ground], fill=EDGE, width=2)
+                draw.line([MARGIN, ground, right, ground], fill=EDGE, width=2)
                 x = MARGIN
                 for picture, label, slot in line:
                     if label:
                         draw.text((x, y), label, fill=QUIET, font=font(19, True))
                     page.paste(picture, (x, ground - picture.height), picture if picture.mode == "RGBA" else None)
-                    x += slot + GAP
+                    x += slot + gap
 
             self.add(label_h + height + 2 + after, paint)
 
