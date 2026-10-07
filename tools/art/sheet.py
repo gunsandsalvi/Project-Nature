@@ -83,6 +83,7 @@ ASIDE = 230  # screen pixels beside an object's views for the adult, the stick a
 ADULT = 1.7  # metres: the standing adult beside anything big
 FIGURE = (150, 143, 130)
 TALLEST = 520  # screen pixels the tallest thing on an object sheet may stand
+ZOOM_TALLEST = 1700  # screen pixels: the phone's screen is no taller, so no true-size picture at a zoom stands higher
 ZOOMS = [("Up close", 128), ("The close camp", 32), ("The camp", 8)]  # screen pixels a metre at each zoom's centre
 
 
@@ -330,6 +331,13 @@ def object_scale(spec, cut):
     return max(1, int(best))
 
 
+def true_size_row(item, shown):
+    """The camera's first view at each zoom's pixels a metre, as the phone shows it, leaving out any zoom at which the
+    picture is wider than the page or taller than the phone's screen (a 28 m tree is 3,600 pixels at the nearest)."""
+    row = [(shown(item, k)[0], f"{label}: 1 m = {k} px") for label, k in ZOOMS]
+    return [(p, label) for p, label in row if p.width <= WIDTH - 2 * MARGIN - 40 and p.height <= ZOOM_TALLEST]
+
+
 def compose_object(spec, sheet, folder):
     """The object's sections: its views at one scale with the adult and an upright stick, from above, the camera's view
     and its true size on the phone at each zoom, its groups of parts or states (a group seen from above gets a lying
@@ -367,9 +375,7 @@ def compose_object(spec, sheet, folder):
         sheet.text("The game's camera, about 37 degrees down, late afternoon, at the same scale.", 26, bold=True)
         metres = fitting(camera.get("stick", 1), s, HALF)
         sheet.figures([shown(i, s) for i in camera["items"]] + [(lying(round(metres * s), length_label(metres)), "")])
-        first = camera["items"][0]
-        row = [(shown(first, k)[0], f"{label}: 1 m = {k} px") for label, k in ZOOMS]
-        row = [(p, label) for p, label in row if p.width <= WIDTH - 2 * MARGIN - 40]
+        row = true_size_row(camera["items"][0], shown)
         if row:
             about = "True size on the phone at each zoom (scaled here; each band gets pixel art of its own)."
             sheet.text(about, 26, bold=True)
