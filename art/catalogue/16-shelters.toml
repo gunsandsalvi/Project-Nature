@@ -45,8 +45,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "bark_hut"
 name = "Bark hut"
-what = "a dome of bark sheets"
+what = "bark hut"
 art_book = ["made-things-sheet"]
+sheet = "sheets/16.6-bark_hut.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "reed_hut"
