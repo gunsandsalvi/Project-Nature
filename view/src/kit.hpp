@@ -26,7 +26,8 @@ namespace kd::view::kit {
 inline constexpr std::uint32_t kVersion = 1;
 
 /// A part's joint: where another part plugs in, and which way it faces. rotation is by rows, so its columns are the
-/// joint's own axes in the part's metres; a joint's own y axis is its main one (Blender's z).
+/// joint's own axes in the part's metres, Blender's x, y and z carried into Godot's axes; its third, Blender's z, is
+/// its main one.
 struct Joint {
     std::string name;
     std::array<float, 9> rotation{1.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 1.0F};

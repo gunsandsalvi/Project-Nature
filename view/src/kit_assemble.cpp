@@ -90,6 +90,12 @@ Mat about_y(double degrees) {
     return {c, 0.0, s, 0.0, 1.0, 0.0, -s, 0.0, c};
 }
 
+Mat about_z(double degrees) {
+    const double c = cosine(degrees);
+    const double s = sine(degrees);
+    return {c, -s, 0.0, s, c, 0.0, 0.0, 0.0, 1.0};
+}
+
 Mat about_x(double degrees) {
     const double c = cosine(degrees);
     const double s = sine(degrees);
@@ -217,6 +223,21 @@ JointFrame frame_of(const Part& part, const std::string& joint) {
         f.axes = from_rotation(j->rotation);
     }
     return f;
+}
+
+// A joint of a placed part as the thing holds it: its axes there, and its place there lifted along its main axis by a
+// length in metres.
+struct Socket {
+    Vec at{};
+    Mat axes = identity();
+};
+
+Socket socket_of(const Placed& placed, const Part& part, const std::string& joint, double lift) {
+    const JointFrame frame = frame_of(part, joint);
+    Socket s;
+    s.axes = squared(times(linear_of(placed.matrix), frame.axes));
+    s.at = add(carry(placed.matrix, frame.at), scale({s.axes[2], s.axes[5], s.axes[8]}, lift));
+    return s;
 }
 
 }  // namespace
@@ -348,15 +369,13 @@ Assembly assemble(const kd::look::Model& model, const Family& family, std::uint6
                     return fail(
                         sentence({"the placement \"", target, "\" has no joint \"", target_joint, "\" to plug into"}));
                 }
-                const JointFrame there = frame_of(*to_part, target_joint);
-                const Vec world_at = carry(to.matrix, there.at);
-                const Mat world_axes = squared(times(linear_of(to.matrix), there.axes));
+                const Socket there = socket_of(to, *to_part, target_joint, metres(place.height));
                 const JointFrame own = frame_of(*part, place.joint);
-                // the part's metres into its joint's own, turned about the joint's main axis, then into the thing's
+                // the part's metres into its joint's own, turned about the joint's main axis (its third) clockwise seen
+                // from its tip, then into the thing's
                 const Mat linear =
-                    times(world_axes, times(about_y(static_cast<double>(place.turn)), transposed(squared(own.axes))));
-                const Vec lift = scale({world_axes[1], world_axes[4], world_axes[7]}, metres(place.height));
-                put(*part, carrying(linear, own.at, add(world_at, lift)));
+                    times(there.axes, times(about_z(-static_cast<double>(place.turn)), transposed(squared(own.axes))));
+                put(*part, carrying(linear, own.at, there.at));
             }
         }
     }
@@ -485,7 +504,7 @@ std::vector<std::string> check_model(const std::string& name, const kd::look::Mo
             const Part* a = family.part(own[k]->part);
             const Part* b = family.part(into[k]->part);
             const Vec here = carry(own[k]->matrix, from_point(a->joint(place.joint)->at));
-            const Vec there = carry(into[k]->matrix, from_point(b->joint(place.onto.substr(dot + 1))->at));
+            const Vec there = socket_of(*into[k], *b, place.onto.substr(dot + 1), metres(place.height)).at;
             if (length(sub(here, there)) > kMeet) {
                 say("the plug \"" + place.name + "\" and what it goes into do not meet at their joints");
                 break;

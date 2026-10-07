@@ -36,6 +36,13 @@ kit::Joint joint(const std::string& name, float x, float y, float z) {
     return j;
 }
 
+// A joint as Blender's unrotated empty is exported: its x east, its y north (Godot's -z) and its main axis, z, up.
+kit::Joint upright(const std::string& name, float x, float y, float z) {
+    kit::Joint j = joint(name, x, y, z);
+    j.rotation = {1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, -1.0F, 0.0F};
+    return j;
+}
+
 kit::Part part(const std::string& name, std::array<float, 3> lowest, std::array<float, 3> highest,
                std::vector<kit::Joint> joints = {}, const std::string& role = "wood") {
     kit::Part p;
@@ -370,6 +377,59 @@ TEST_CASE("a root is turned, leaned and lifted, and a ring turns each part to fa
     // the second copy's own forward (-z) points east, away from the middle
     const std::array<double, 3> forward = kit::carried(four.placed[1], {0.0F, 0.0F, -1.0F});
     CHECK(forward[0] == doctest::Approx(3.0).epsilon(1e-9));
+}
+
+// checks: PRE-46
+TEST_CASE("a plug is lifted and turned about its joint's main axis, wherever that axis points") {
+    kit::Family f;
+    kit::Part post = part("post", {0.0F, 0.0F, 0.0F}, {0.1F, 1.0F, 0.1F}, {upright("top", 0.0F, 1.0F, 0.0F)});
+    // a joint half way up the post whose main axis points east
+    kit::Joint side = joint("side", 0.0F, 0.5F, 0.0F);
+    side.rotation = {0.0F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F};
+    post.joints.push_back(side);
+    // a family's parts are in order of their names
+    f.parts.push_back(part("arm", {0.0F, 0.0F, 0.0F}, {1.0F, 0.1F, 0.1F}, {upright("seat", 0.0F, 0.0F, 0.0F)}));
+    f.parts.push_back(post);
+    look::Model m;
+    m.family = "camp";
+    m.materials.push_back({"wood", {{"art:birch", 0, 0, 0}}});
+    m.places.push_back(place("post", {"post"}, "root"));
+    look::ModelPlace up = place("up", {"arm"}, "plug");
+    up.joint = "seat";
+    up.onto = "post.top";
+    up.height = 200;
+    up.turn = 90;
+    m.places.push_back(up);
+    look::ModelPlace out = place("out", {"arm"}, "plug");
+    out.joint = "seat";
+    out.onto = "post.side";
+    out.height = 300;
+    m.places.push_back(out);
+    const kit::Assembly built = kit::assemble(m, f, 1);
+    REQUIRE(built.problem.empty());
+    REQUIRE(built.placed.size() == 3);
+    // on the top joint the seat is lifted 0.2 m up the main axis, and a quarter turn clockwise seen from above swings
+    // the arm, which lay to the east, round to the south
+    const std::array<double, 3> seat = kit::carried(built.placed[1], {0.0F, 0.0F, 0.0F});
+    CHECK(seat[0] == doctest::Approx(0.0).epsilon(1e-9));
+    CHECK(seat[1] == doctest::Approx(1.2).epsilon(1e-9));
+    CHECK(seat[2] == doctest::Approx(0.0).epsilon(1e-9));
+    const std::array<double, 3> far = kit::carried(built.placed[1], {1.0F, 0.0F, 0.0F});
+    CHECK(far[0] == doctest::Approx(0.0).epsilon(1e-9));
+    CHECK(far[1] == doctest::Approx(1.2).epsilon(1e-9));
+    CHECK(far[2] == doctest::Approx(1.0).epsilon(1e-9));
+    // on the side joint the lift is 0.3 m to the east, and the arm's own up, its main axis, lies along the joint's:
+    // its length, which lay along the joint's x, now stands up
+    const std::array<double, 3> hung = kit::carried(built.placed[2], {0.0F, 0.0F, 0.0F});
+    CHECK(hung[0] == doctest::Approx(0.3).epsilon(1e-9));
+    CHECK(hung[1] == doctest::Approx(0.5).epsilon(1e-9));
+    CHECK(hung[2] == doctest::Approx(0.0).epsilon(1e-9));
+    const std::array<double, 3> hung_far = kit::carried(built.placed[2], {1.0F, 0.0F, 0.0F});
+    CHECK(hung_far[0] == doctest::Approx(0.3).epsilon(1e-9));
+    CHECK(hung_far[1] == doctest::Approx(1.5).epsilon(1e-9));
+    CHECK(hung_far[2] == doctest::Approx(0.0).epsilon(1e-9));
+    // and the kit's check allows for the lift: the joints are where the recipe puts them
+    CHECK(kit::check_model("art:post", m, f).empty());
 }
 
 // checks: PRE-46 PRE-22

@@ -93,7 +93,7 @@ struct ModelPlace {
                    s.height, Measure::length, {-10'000, 100'000});
         v.whole({"turn",
                  "degrees clockwise from north: for a ring or a span the first copy's place, for a root the part's "
-                 "turn, for a plug its turn about the joint's axis",
+                 "turn, for a plug its turn about the joint's main axis, clockwise seen from the joint's tip",
                  Affects::look, false},
                 s.turn, {-360, 360});
         v.whole({"tilt", "for a root, degrees the part leans over about its own sideways axis", Affects::look, false},
