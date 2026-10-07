@@ -22,6 +22,35 @@ func test_a_texture_s_name_says_which_tile_and_which_version_of_which_material()
 
 
 # checks: PRE-20 PRE-22
+func test_a_sheet_lists_names_by_material_then_tile_then_version() -> void:
+	assert_str(Surfaces.material_of("art:meadow")).is_equal("meadow")
+	assert_str(Surfaces.material_of("art:meadow/far/v2")).is_equal("meadow")
+	var names: Array[String] = [
+		"art:meadow/far/v2",
+		"art:meadow/v10",
+		"art:meadow/middle",
+		"art:ash",
+		"art:meadow/v2",
+		"art:meadow",
+		"art:meadow/far",
+	]
+	(
+		assert_array(Surfaces.sorted(names))
+		. is_equal(
+			[
+				"art:ash",
+				"art:meadow",
+				"art:meadow/v2",
+				"art:meadow/v10",
+				"art:meadow/middle",
+				"art:meadow/far",
+				"art:meadow/far/v2",
+			]
+		)
+	)
+
+
+# checks: PRE-20 PRE-22
 func test_a_material_s_files_come_near_versions_first_then_the_middle_tile_s_then_the_far() -> void:
 	var world := KdWorld.new()
 	var loaded := GameData.load_into(world)

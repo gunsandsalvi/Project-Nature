@@ -58,14 +58,32 @@ func test_a_material_shows_its_tiles_near_middle_far_and_its_levels_at_true_size
 		func(line: String) -> bool: return line.contains(": bands ")
 	)
 	assert_str(headings[0]).starts_with("near tile: bands 0 and 1")
-	assert_str(headings[1]).starts_with("middle: bands 2 and 3")
-	assert_str(headings[2]).starts_with("far: bands 4 to 6")
+	assert_str(headings[1]).starts_with("middle tile: bands 2 and 3")
+	assert_str(headings[2]).starts_with("far tile: bands 4 to 6")
 	# the near tile's first level: 256 texture pixels, each 2 screen pixels
 	var pictures := page.find_children("*", "TextureRect", true, false)
 	var first: TextureRect = pictures[0]
 	assert_float(first.custom_minimum_size.x * page.screen_pixels()).is_equal_approx(512.0, 0.01)
 	page.list()
 	assert_str(page.showing).is_empty()
+
+
+# checks: PRE-20 PRE-22
+func test_the_sheet_lists_textures_in_the_order_surfaces_gives_under_its_materials() -> void:
+	var page: VBoxContainer = auto_free(LabPage.new())
+	add_child(page)
+	await await_idle_frame()
+	# the page makes what the catalogue holds, in Surfaces' order, each under Surfaces' material
+	var names := Surfaces.sorted(Surfaces.texture_names(page.loaded))
+	var seen: Array = []
+	for name: String in page.materials:
+		seen.append_array(page.materials[name])
+		for texture: String in page.materials[name]:
+			assert_str(Surfaces.material_of(texture)).is_equal(name)
+	assert_array(seen).is_equal(names)
+	# a version after the first is named as such
+	assert_str(page._tile_of("meadow", "art:meadow")).is_equal("near tile")
+	assert_str(page._tile_of("meadow", "art:meadow/middle/v3")).is_equal("middle tile, version 3")
 
 
 # checks: PRE-22
@@ -100,7 +118,7 @@ func test_offered_materials_come_first_then_those_held_back_with_why_then_those_
 	page.list()
 	var lines := Array(page.shown)
 	var order := [
-		lines.find("moss: moss (far not offered yet)"),
+		lines.find("moss: moss (far tile not offered yet)"),
 		lines.find("bark: bark"),
 		lines.find("ash: ash")
 	]

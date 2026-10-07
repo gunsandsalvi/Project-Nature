@@ -128,9 +128,11 @@ func _button(material: String) -> void:
 	shown.append(button.text)
 
 
+## How a texture is called on the sheet: its tile, and its version after the first.
 func _tile_of(material: String, name: String) -> String:
-	var rest := name.trim_prefix("art:" + material).trim_prefix("/")
-	return rest if rest != "" else "near tile"
+	var tile := Surfaces.tile_of(material, name)
+	var version := Surfaces.version_of(name)
+	return "%s tile" % tile if version == 1 else "%s tile, version %d" % [tile, version]
 
 
 ## Shows a material's sheet: each texture of it, its levels at true size and enlarged, its words.
@@ -160,8 +162,7 @@ func screen_pixels() -> float:
 ## The bands a texture's levels serve, from its name: a big surface's near, middle and far tiles and
 ## their versions, or a material with one tile.
 func bands_of(material: String, name: String, tiled: bool) -> Array:
-	var rest := name.trim_prefix("art:" + material).trim_prefix("/")
-	var tile := rest.get_slice("/", 0)
+	var tile := Surfaces.tile_of(material, name)
 	if tile in ["middle", "far"]:
 		return BANDS[tile]
 	return BANDS["near"] if tiled else BANDS["one"]
@@ -225,12 +226,7 @@ func _picture(texture: ImageTexture, units: float, region: Rect2) -> TextureRect
 
 ## Every texture the catalogue's records name, made and uploaded from its .kdtex, timed.
 func _load_textures() -> void:
-	var names: Array[String] = []
-	for kind: Dictionary in loaded.get("kinds", []):
-		if kind["folder"] == "textures":
-			for entry: Dictionary in kind["entries"]:
-				names.append(str(entry["name"]))
-	names.sort_custom(func(a: String, b: String) -> bool: return _order(a) < _order(b))
+	var names := Surfaces.sorted(Surfaces.texture_names(loaded))
 	var started := Time.get_ticks_usec()
 	for name: String in names:
 		var read := _look.texture_levels(GameData.texture_path(name))
@@ -241,22 +237,11 @@ func _load_textures() -> void:
 		if str(read["problem"]) != "":
 			(loaded["problems"] as PackedStringArray).append(str(read["problem"]))
 		textures[name] = {"record": _world.entry("textures", name), "levels": levels}
-		var material := name.trim_prefix("art:").get_slice("/", 0)
+		var material := Surfaces.material_of(name)
 		if not materials.has(material):
 			materials[material] = []
 		materials[material].append(name)
 	load_ms = (Time.get_ticks_usec() - started) / 1000.0
-
-
-## Where a texture comes in its material's sheet: the near tile, the middle and the far, each with
-## its versions after it, then any other, such as a wrap atlas.
-static func _order(name: String) -> String:
-	var parts := name.trim_prefix("art:").split("/")
-	var tile := parts[1] if parts.size() > 1 else "near"
-	var rank: String = (
-		{"near": "0", "v2": "0", "v3": "0", "v4": "0", "middle": "1", "far": "2"}.get(tile, "3")
-	)
-	return "%s %s %s" % [parts[0], rank, name]
 
 
 func _listed(bands: Array) -> String:
