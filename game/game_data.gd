@@ -51,6 +51,26 @@ static func models(build_file: ConfigFile) -> Dictionary:
 	return out
 
 
+## The reference sheets the build ships for the pilot's pieces (T2.3a.5), each by its piece's id
+## with its file: {"club": "res://data/sheets/club.kdsheet"}.
+static func sheets(build_file: ConfigFile) -> Dictionary:
+	var out := {}
+	for item: String in build_file.get_value("sheets", "files", []):
+		var file := item.get_slice(" ", 0)
+		out[file.get_basename()] = "res://data/sheets/" + file
+	return out
+
+
+## A sheet's picture as a texture: the file is a WebP kept under a name Godot's import leaves alone,
+## so it ships as it is; null if it cannot be read.
+static func sheet_texture(path: String) -> ImageTexture:
+	var bytes := FileAccess.get_file_as_bytes(path)
+	var image := Image.new()
+	if bytes.is_empty() or image.load_webp_from_buffer(bytes) != OK:
+		return null
+	return ImageTexture.create_from_image(image)
+
+
 ## The .kdtex file of a texture's catalogue entry (A5.4): "art:meadow/middle" is
 ## textures/art/meadow/middle.kdtex.
 static func texture_path(name: String) -> String:
