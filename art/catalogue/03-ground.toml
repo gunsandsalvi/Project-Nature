@@ -136,4 +136,6 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "soil_layers"
 name = "Soil and rock layers"
-what = "the cut-away view: topsoil, subsoil, clay, gravel, ground water and rock below"
+what = "Soil layers"
+sheet = "sheets/3.19-soil_layers.webp"
+signed_off = "7 October 2026"
