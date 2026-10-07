@@ -77,7 +77,9 @@ what = "only where mammoths live"
 [[piece]]
 id = "shelter_screen"
 name = "Hides across a rock shelter"
-what = "hides closing off a rock shelter or cave mouth"
+what = "a curtain of six sewn hides, each its own skin's shape, hung by rawhide ties from a pole between two forked posts across the front of a rock overhang, 5 m wide and 2.3 m high, its foot weighed with stones, with a door flap"
+sheet = "sheets/16.12-shelter_screen.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "hearth_ring"
