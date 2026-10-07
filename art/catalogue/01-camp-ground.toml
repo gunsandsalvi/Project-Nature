@@ -52,3 +52,5 @@ art_book = ["d2-pixel-paint", "camp-thirty"]
 id = "mud"
 name = "Wet mud"
 what = "mud at the water's edge, taking footprints"
+sheet = "sheets/1.8-mud.webp"
+signed_off = "7 October 2026"
