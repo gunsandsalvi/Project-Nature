@@ -31,8 +31,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "stream"
 name = "Small stream"
-what = "a brook that dries in a drought"
+what = "a brook winding over gravel between meadows, drying to bare stones in a drought"
 art_book = ["read-aids"]
+sheet = "sheets/4.4-stream.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "spring"
