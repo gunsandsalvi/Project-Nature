@@ -1,0 +1,68 @@
+about = "wood grain for the club and the poles"
+route = "code"
+tile_texels = 128
+texels_a_metre = 64
+first_band = 0
+sources = []
+original_sha256 = []
+c2pa = []
+requests = []
+made = "noise in the club sheet's palette, its grain along the part's length"
+regrid_loss = "none: a stand-in made without a re-grid"
+truth = "builder, 2026-10-07: a stand-in for the pilot, nothing countable in it, to be replaced by the art lane's"
+approved = "not offered yet: a stand-in, below the artwork's level"
+
+[[band]]
+level = 0
+file = "art/textures/standin_wood/b0.png"
+sha256 = "d879e43b57879662113e0a4545ec8b86e43e6838afe4d69c1b28da859393c229"
+way = "made by code in the club sheet's palette"
+
+[[band]]
+level = 1
+file = "art/textures/standin_wood/b1.png"
+sha256 = "ccb443d7d00288eb36a149370cd3eae1f19c0cfc69c6a117bce146930818c188"
+made_from = "d879e43b57879662113e0a4545ec8b86e43e6838afe4d69c1b28da859393c229"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 2
+file = "art/textures/standin_wood/b2.png"
+sha256 = "ecaac056d726d0fa3a78e0362dcabbfb04fafd44d4f007af2c6bf0beb061618f"
+made_from = "ccb443d7d00288eb36a149370cd3eae1f19c0cfc69c6a117bce146930818c188"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 3
+file = "art/textures/standin_wood/b3.png"
+sha256 = "74628d1eac7db41cc8a87bbdf8ab348e940a0db6f450a26480f72fc30f19ffc4"
+made_from = "ecaac056d726d0fa3a78e0362dcabbfb04fafd44d4f007af2c6bf0beb061618f"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 4
+file = "art/textures/standin_wood/b4.png"
+sha256 = "c5623d8c50c1aab1e8afb147a89883490faf8e6502d3b70930d0f54d6ab3ba7d"
+made_from = "74628d1eac7db41cc8a87bbdf8ab348e940a0db6f450a26480f72fc30f19ffc4"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 5
+file = "art/textures/standin_wood/b5.png"
+sha256 = "75238efb77820d654aa54f558048546197475893faf357e4a2a852ec84fc369a"
+made_from = "c5623d8c50c1aab1e8afb147a89883490faf8e6502d3b70930d0f54d6ab3ba7d"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 6
+file = "art/textures/standin_wood/b6.png"
+sha256 = "7034507a4e95e48fafa0ca6baed0d621790fd767e6421f0f5dc432c5db388f72"
+made_from = "75238efb77820d654aa54f558048546197475893faf357e4a2a852ec84fc369a"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 7
+file = "art/textures/standin_wood/b7.png"
+sha256 = "5132bea7a84a71923f5ffa113478b9f01f8167fcbbdb8ae62421affc8bd27fa1"
+made_from = "7034507a4e95e48fafa0ca6baed0d621790fd767e6421f0f5dc432c5db388f72"
+way = "drawn by code from the level above, each pixel one of its block"

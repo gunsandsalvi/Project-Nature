@@ -1,0 +1,68 @@
+about = "deer hide for the tent's cover and door flap"
+route = "code"
+tile_texels = 128
+texels_a_metre = 64
+first_band = 0
+sources = []
+original_sha256 = []
+c2pa = []
+requests = []
+made = "noise in the tent sheet's palette, blotches of four tones"
+regrid_loss = "none: a stand-in made without a re-grid"
+truth = "builder, 2026-10-07: a stand-in for the pilot, nothing countable in it, to be replaced by the art lane's"
+approved = "not offered yet: a stand-in, below the artwork's level"
+
+[[band]]
+level = 0
+file = "art/textures/standin_hide/b0.png"
+sha256 = "1026d93ecc1e115dcad107f50c5bf39eecaed70930efdc4ea660d3bf76ca4084"
+way = "made by code in the tent sheet's palette"
+
+[[band]]
+level = 1
+file = "art/textures/standin_hide/b1.png"
+sha256 = "2d4b53259c0335bed5d59f09a5488de20029b12b7733109ad663cc5604f60243"
+made_from = "1026d93ecc1e115dcad107f50c5bf39eecaed70930efdc4ea660d3bf76ca4084"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 2
+file = "art/textures/standin_hide/b2.png"
+sha256 = "6b377f3a03a300e33c2c008f68291c1e13aab0b12c46fe9f35b9abd6cd90620a"
+made_from = "2d4b53259c0335bed5d59f09a5488de20029b12b7733109ad663cc5604f60243"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 3
+file = "art/textures/standin_hide/b3.png"
+sha256 = "4981fb52d5200238ff92164a4d812d143b597459854ce53760915caac0883ef4"
+made_from = "6b377f3a03a300e33c2c008f68291c1e13aab0b12c46fe9f35b9abd6cd90620a"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 4
+file = "art/textures/standin_hide/b4.png"
+sha256 = "6e325c9f70fd6836524185eb4033a8c233679361bc57ce0b99d6cb39f26c3fa6"
+made_from = "4981fb52d5200238ff92164a4d812d143b597459854ce53760915caac0883ef4"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 5
+file = "art/textures/standin_hide/b5.png"
+sha256 = "4d9f346365c3a4f2b08bd9cf978b5fd751d6d251154eff0eacac5d147547d7fd"
+made_from = "6e325c9f70fd6836524185eb4033a8c233679361bc57ce0b99d6cb39f26c3fa6"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 6
+file = "art/textures/standin_hide/b6.png"
+sha256 = "7f4c78f5e705fe5533d4b2ce1940955422fc88784705f0ae0f8b045c7a7be71d"
+made_from = "4d9f346365c3a4f2b08bd9cf978b5fd751d6d251154eff0eacac5d147547d7fd"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 7
+file = "art/textures/standin_hide/b7.png"
+sha256 = "42cde443ee8985c72f68042f19d175d58d109b91d415594aa0dbfd70f4010112"
+made_from = "7f4c78f5e705fe5533d4b2ce1940955422fc88784705f0ae0f8b045c7a7be71d"
+way = "drawn by code from the level above, each pixel one of its block"

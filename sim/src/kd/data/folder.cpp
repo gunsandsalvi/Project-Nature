@@ -47,11 +47,15 @@ std::vector<SourceFile> read_art(const std::string& top) {
         return files;
     }
     files.push_back(read_file(art / "source.toml", "art/source.toml"));
-    for (std::filesystem::recursive_directory_iterator it(art / "textures", error);
-         !error && it != std::filesystem::recursive_directory_iterator(); it.increment(error)) {
-        if (it->is_regular_file(error) && it->path().filename() == "record.toml") {
-            files.push_back(read_file(it->path(), std::filesystem::relative(it->path(), top).generic_string()));
+    // the textures' records, and the models' recipes beside the Blender files their parts are in
+    for (const char* kind : {"textures", "models"}) {
+        for (std::filesystem::recursive_directory_iterator it(art / kind, error);
+             !error && it != std::filesystem::recursive_directory_iterator(); it.increment(error)) {
+            if (it->is_regular_file(error) && it->path().filename() == "record.toml") {
+                files.push_back(read_file(it->path(), std::filesystem::relative(it->path(), top).generic_string()));
+            }
         }
+        error.clear();  // a kind with no folder yet is not a fault
     }
     return files;
 }

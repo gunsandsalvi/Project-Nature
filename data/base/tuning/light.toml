@@ -1,0 +1,14 @@
+# The light of late afternoon (A4.3, PRE-30), the look's first moment: the sun low and golden behind the camera's left
+# shoulder, the shade a little warm and almost neutral, a light haze warmer toward the sun. Stand-ins until α2.3b tunes
+# the light against the target card's late afternoon (data/base/card/late_afternoon.toml).
+sun_height = 28
+sun_turn = 215
+sun_colour = "#ffd9a0"
+sun_energy = "125%"
+sky_colour = "#b8c8d4"
+ambient_colour = "#b5b8bd"
+ambient_energy = "45%"
+haze_colour = "#a8bccb"
+haze_sun_colour = "#f2cf9e"
+haze_density = "0.25%"
+bounce_colour = "#3a3318"

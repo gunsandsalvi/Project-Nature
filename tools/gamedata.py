@@ -6,9 +6,9 @@ itself with (A2.3, A3.6), and the scenes' last reports with a world each (A17).
 
 It checks the catalogue with the cloud's own build of the simulation (the kindling tool) and refuses to go on if it
 finds a problem; copies every .toml file under data/ but its scenes into game/data/, in the same folders, and the art
-lane's source beside data/ (art/source.toml and each texture's record under art/textures/, A5.4) into
-game/data/art/, and removes any it no longer holds; runs every proof suite on one thread and on four, refusing to go
-on if they differ; and writes build.toml:
+lane's source beside data/ (art/source.toml, each texture's record under art/textures/ and each model's recipe under
+art/models/, A5.4, A6.1) into game/data/art/, and removes any it no longer holds; runs every proof suite on one
+thread and on four, refusing to go on if they differ; and writes build.toml:
 - [proof]: each suite's digest;
 - [catalogue]: the world-making version, each file the phone reads with its SHA-256, and each source's version and
   rules, world and look digests, as the simulation fingerprints them;
@@ -17,6 +17,10 @@ on if they differ; and writes build.toml:
 - [textures]: each texture file the phone reads with its SHA-256 (A5.4), written into game/data/textures/: the
   stand-ins tools/standins.py makes (T2.1a.3), and each of the art lane's textures, its record's levels packed
   largest first into textures/art/<entry>.kdtex, so art:meadow/middle is textures/art/meadow/middle.kdtex;
+- [models]: each family of the model kit's parts the phone reads with its SHA-256 (A6.1), written into
+  game/data/models/ by tools/kit.py: each art/models/<family>.blend exported by Blender, and the stand-in family;
+  the build refuses to go on if the kit's own check (kd_kit check) finds a fault: a triangle whose texture pixels
+  stretch past 1.5:1, or a recipe that does not fit its parts (A6.4);
 - [build]: the app's version code, from the export preset, which the benchmark's code carries;
 - [calibration]: each calibration scene the Calibrate page runs (A18.1, α2.2a), with its SHA-256: the files of
   data/scenes/look, checked by the kindling tool and copied into game/data/scenes/look/.
@@ -36,6 +40,7 @@ import sys
 import tomllib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import kit  # noqa: E402
 import standins  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,6 +49,9 @@ ART = os.path.join(ROOT, "art")
 OUT = os.path.join(ROOT, "game", "data")
 BUILD = os.path.join(OUT, "build.toml")
 TEXTURES = os.path.join(OUT, "textures")
+MODELS = os.path.join(OUT, "models")
+# the kit's own tool, built beside the extension (view/tools/kit.cpp)
+KD_KIT = os.environ.get("KD_KIT", os.path.join(ROOT, "build", "view", "kd_kit"))
 SCENES = os.path.join(DATA, "scenes")
 # the calibration scenes, which the phone runs rather than the cloud
 CALIBRATION = os.path.join(SCENES, "look")
@@ -89,15 +97,16 @@ def data_files():
 
 
 def art_files():
-    """The art lane's source as the catalogue reads it beside data/ (kd::data::read_art): art/source.toml and each
-    texture's record under art/textures/, by their paths from the repository's top, in order; none without
-    art/source.toml."""
+    """The art lane's source as the catalogue reads it beside data/ (kd::data::read_art): art/source.toml, each
+    texture's record under art/textures/ and each model's recipe under art/models/, by their paths from the
+    repository's top, in order; none without art/source.toml."""
     if not os.path.isfile(os.path.join(ART, "source.toml")):
         return []
     out = ["art/source.toml"]
-    for dirpath, _, names in os.walk(os.path.join(ART, "textures")):
-        if "record.toml" in names:
-            out.append(os.path.relpath(os.path.join(dirpath, "record.toml"), ROOT).replace(os.sep, "/"))
+    for kind in ("textures", "models"):
+        for dirpath, _, names in os.walk(os.path.join(ART, kind)):
+            if "record.toml" in names:
+                out.append(os.path.relpath(os.path.join(dirpath, "record.toml"), ROOT).replace(os.sep, "/"))
     return sorted(out)
 
 
@@ -112,7 +121,7 @@ def art_textures(records):
     bytes}, art:meadow/middle as art/meadow/middle.kdtex."""
     out = {}
     for rel in records:
-        if not rel.endswith("/record.toml"):
+        if not rel.startswith("art/textures/") or not rel.endswith("/record.toml"):
             continue
         with open(os.path.join(ROOT, rel), "rb") as f:
             levels = sorted(tomllib.load(f)["band"], key=lambda band: band["level"])
@@ -134,12 +143,12 @@ def calibration_files():
 
 
 def copy_sources(files):
-    """game/data/ holds exactly data/'s files and the art lane's source, build.toml, the reports and the
-    textures."""
+    """game/data/ holds exactly data/'s files and the art lane's source, build.toml, the reports, the textures and
+    the models."""
     for dirpath, _, names in os.walk(OUT, topdown=False):
         for name in names:
             rel = os.path.relpath(os.path.join(dirpath, name), OUT).replace(os.sep, "/")
-            if rel != "build.toml" and not rel.startswith(("reports/", "textures/")) and rel not in files:
+            if rel != "build.toml" and not rel.startswith(("reports/", "textures/", "models/")) and rel not in files:
                 os.remove(os.path.join(dirpath, name))
         if dirpath != OUT and not os.listdir(dirpath):
             os.rmdir(dirpath)
@@ -193,7 +202,21 @@ def textures(records=()):
     return sorted(made)
 
 
-def build_toml(proof, version, files, sources, bench, code, texture_files=(), calibration=()):
+def models():
+    """The kit's family files in game/data/models/, made by tools/kit.py from the art lane's Blender files and the
+    stand-in family: their names there, in order; and a problem if the kit's own check finds one in them, else
+    None."""
+    kit.build(MODELS)
+    names = sorted(name for name in os.listdir(MODELS) if name.endswith(".kdkit"))
+    if not os.path.isfile(KD_KIT):
+        return names, f"the kit's tool {os.path.relpath(KD_KIT, ROOT)} is not built: build the extension first"
+    run = subprocess.run([KD_KIT, "check", DATA, MODELS], capture_output=True, text=True)
+    if run.returncode != 0:
+        return names, (run.stdout + run.stderr).strip()
+    return names, None
+
+
+def build_toml(proof, version, files, sources, bench, code, texture_files=(), calibration=(), model_files=()):
     # No comments: Godot's ConfigFile, which reads this on the phone, stops at a TOML comment. Lists hold "a b" texts
     # rather than tables, which ConfigFile also reads.
     lines = [
@@ -218,6 +241,9 @@ def build_toml(proof, version, files, sources, bench, code, texture_files=(), ca
         "",
         "[textures]",
         "files = " + toml_list(f"{name} {sha256(os.path.join(TEXTURES, name))}" for name in texture_files),
+        "",
+        "[models]",
+        "files = " + toml_list(f"{name} {sha256(os.path.join(MODELS, name))}" for name in model_files),
         "",
         "[calibration]",
         "files = " + toml_list(f"{rel} {sha256(os.path.join(DATA, rel))}" for rel in calibration),
@@ -296,8 +322,16 @@ def main(argv):
     os.makedirs(OUT, exist_ok=True)
     copy_sources(files + calibration)
     made = textures(art_files())
+    try:
+        kept, problem = models()
+    except RuntimeError as e:
+        print(f"Game data: {e}")
+        return 1
+    if problem:
+        print(f"{problem}\nGame data: the kit's parts have problems")
+        return 1
     with open(BUILD, "w") as f:
-        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made, calibration))
+        f.write(build_toml(one, version, files, sources, bench_digests(tool), version_code(), made, calibration, kept))
     try:
         shown = reports(tool)
     except RuntimeError as e:
@@ -305,8 +339,8 @@ def main(argv):
         return 1
     print(
         f"Game data: {os.path.relpath(OUT, ROOT)}/ with {len(files)} catalogue files, {len(sources)} sources, "
-        f"{len(one)} proof suites, {len(shown)} scene reports, {len(made)} textures and {len(calibration)} "
-        "calibration scenes"
+        f"{len(one)} proof suites, {len(shown)} scene reports, {len(made)} textures, {len(kept)} kit families and "
+        f"{len(calibration)} calibration scenes"
     )
     return 0
 

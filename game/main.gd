@@ -15,6 +15,7 @@ const PAGES := {
 	"Compare": preload("res://pages/compare.gd"),
 	"Calibrate": preload("res://pages/calibrate.gd"),
 	"Lab": preload("res://pages/lab.gd"),
+	"Kit": preload("res://pages/kit.gd"),
 }
 const BACKGROUND := Palette.GROUND
 const TEXT := Palette.TEXT

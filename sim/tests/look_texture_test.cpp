@@ -169,13 +169,19 @@ TEST_CASE("a fault in a texture's record or one of its levels is refused where i
 // checks: PRE-20 PRE-42
 TEST_CASE("the art lane's textures load whole from art/, beside the data folder, however many there are") {
     const std::vector<data::SourceFile> art = data::read_art(KD_REPO);
-    std::size_t records = 0;
-    std::error_code error;  // no art/textures/ yet is no textures
-    for (std::filesystem::recursive_directory_iterator it(KD_REPO "/art/textures", error);
-         !error && it != std::filesystem::recursive_directory_iterator(); it.increment(error)) {
-        records += it->path().filename() == "record.toml" ? 1 : 0;
-    }
-    CHECK(art.size() == records + 1);
+    // the records in a folder of art/: no folder yet is none
+    const auto records_in = [](const char* folder) {
+        std::size_t found = 0;
+        std::error_code error;
+        for (std::filesystem::recursive_directory_iterator it(folder, error);
+             !error && it != std::filesystem::recursive_directory_iterator(); it.increment(error)) {
+            found += it->path().filename() == "record.toml" ? 1 : 0;
+        }
+        return found;
+    };
+    const std::size_t records = records_in(KD_REPO "/art/textures");
+    // the source's own file, the textures' records and the models' recipes
+    CHECK(art.size() == records + records_in(KD_REPO "/art/models") + 1);
     data::Catalogue cat;
     std::string problems;
     for (const data::Problem& p : cat.load(data::read_catalogue(KD_REPO "/data"))) {

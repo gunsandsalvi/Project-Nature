@@ -49,6 +49,11 @@ void Rig::set_lens(double degrees) {
     tuning_.lens = std::clamp(degrees, 1.0, 60.0);
 }
 
+void Rig::set_closest(double metres_per_pixel) {
+    tuning_.closest = std::clamp(metres_per_pixel, 1.0 / 4096.0, tuning_.farthest);
+    mpp_ = std::clamp(mpp_, tuning_.closest, tuning_.farthest);
+}
+
 double Rig::distance() const {
     return mpp_ * short_side() / 2.0 / num::tanpi(tuning_.lens / 360.0);
 }

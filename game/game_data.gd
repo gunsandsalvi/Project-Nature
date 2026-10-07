@@ -41,6 +41,27 @@ static func calibration_paths(build_file: ConfigFile) -> PackedStringArray:
 	return out
 
 
+## The kit's families the build lists (A6.1), each by its name with its file: {"standin_camp":
+## "res://data/models/standin_camp.kdkit"}.
+static func models(build_file: ConfigFile) -> Dictionary:
+	var out := {}
+	for item: String in build_file.get_value("models", "files", []):
+		var file := item.get_slice(" ", 0)
+		out[file.get_basename()] = "res://data/models/" + file
+	return out
+
+
+## The .kdtex file of a texture's catalogue entry (A5.4): "art:meadow/middle" is
+## textures/art/meadow/middle.kdtex.
+static func texture_path(name: String) -> String:
+	return "res://data/textures/art/%s.kdtex" % name.trim_prefix("art:")
+
+
+## A texture tile's width in metres, from its record: its texture pixels over how many make a metre.
+static func tile_metres(record: Dictionary) -> float:
+	return float(record["tile_texels"]) / float(record["texels_a_metre"])
+
+
 ## Loads the build's catalogue into a world: what loading found, as KdWorld.load_catalogue says.
 static func load_into(world: KdWorld) -> Dictionary:
 	return world.load_catalogue(paths(build()))

@@ -13,6 +13,7 @@
 #include "device.hpp"
 #include "figures.hpp"
 #include "frames.hpp"
+#include "kit_draw.hpp"
 #include "look.hpp"
 #include "world.hpp"
 #include "worlds.hpp"
@@ -30,6 +31,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdWorlds>();
     godot::ClassDB::register_class<kd::view::KdCalibration>();
     godot::ClassDB::register_class<kd::view::KdFigures>();
+    godot::ClassDB::register_class<kd::view::KdKit>();
 }
 
 void uninitialize(godot::ModuleInitializationLevel /*level*/) {}

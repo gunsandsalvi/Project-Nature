@@ -52,6 +52,9 @@ public:
     void set_screen(double width, double height);
     /// The lens across the short side, 5 or 10 degrees by the Look page's switch; the zoom is kept.
     void set_lens(double degrees);
+    /// The closest the rig may zoom, in metres a screen pixel: the pages that show a texture pixel enlarged go closer
+    /// than band 0's. The zoom is kept, or brought to it if it was closer than this.
+    void set_closest(double metres_per_pixel);
 
     /// The fingers' centre moved by this many pixels, to this point of the window.
     void drag(double dx, double dy, double at_x, double at_y);

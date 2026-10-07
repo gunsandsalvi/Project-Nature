@@ -1,0 +1,75 @@
+about = "meadow grass and earth: the far tile"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/catalogue/sheets/1.1-meadow.webp"]
+original_sha256 = ["54e4bc9a03a620f4ba840f9a46bf921309eb66c06440416f5a3b4d48af4a0cb5"]
+c2pa = ["not carried"]
+requests = []
+made = "the sheet's tile, every second picture pixel, its levels by code"
+regrid_loss = "none: a stand-in made without a re-grid"
+truth = "builder, 2026-10-07: a stand-in for the pilot, nothing countable in it, to be replaced by the art lane's"
+approved = "not offered yet: a stand-in, below the artwork's level"
+
+[[band]]
+level = 0
+file = "art/textures/standin_meadow/far/b0.png"
+sha256 = "89931af7c56ed92f96bda0096533e8d3c2507f1c3d7004ffa4390c9234cd0efb"
+way = "cut from the signed-off sheet's own tile"
+
+[[band]]
+level = 1
+file = "art/textures/standin_meadow/far/b1.png"
+sha256 = "18f0b2c8b8b39de988efe51badf3aad289ea555c75c67ec32196bbe056974e0b"
+made_from = "89931af7c56ed92f96bda0096533e8d3c2507f1c3d7004ffa4390c9234cd0efb"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 2
+file = "art/textures/standin_meadow/far/b2.png"
+sha256 = "d7b5de60fc0e79bda7f7bcd576c99685802812b6e00c88eded2eaddf7f894197"
+made_from = "18f0b2c8b8b39de988efe51badf3aad289ea555c75c67ec32196bbe056974e0b"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 3
+file = "art/textures/standin_meadow/far/b3.png"
+sha256 = "bdfc697261411971956d01baa0c68e831fb44e40bbd2a0d4f788d517a0226236"
+made_from = "d7b5de60fc0e79bda7f7bcd576c99685802812b6e00c88eded2eaddf7f894197"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 4
+file = "art/textures/standin_meadow/far/b4.png"
+sha256 = "3e80eb5626e62227819bb494988ed829124982af5fd1ea946cf82474aedbae47"
+made_from = "bdfc697261411971956d01baa0c68e831fb44e40bbd2a0d4f788d517a0226236"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 5
+file = "art/textures/standin_meadow/far/b5.png"
+sha256 = "b6a9d793d38c7dd9f71c29998867759db03d85126254d95aceea613b9af47505"
+made_from = "3e80eb5626e62227819bb494988ed829124982af5fd1ea946cf82474aedbae47"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 6
+file = "art/textures/standin_meadow/far/b6.png"
+sha256 = "0929148407716efbec5b0861771e6d0273dc6fd47a5ddbac427b2b7a519abdb4"
+made_from = "b6a9d793d38c7dd9f71c29998867759db03d85126254d95aceea613b9af47505"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 7
+file = "art/textures/standin_meadow/far/b7.png"
+sha256 = "10bd99ce4a035e2644d549fa8d35ee1f844bd265b99b49e8403aee8d84aaa593"
+made_from = "0929148407716efbec5b0861771e6d0273dc6fd47a5ddbac427b2b7a519abdb4"
+way = "drawn by code from the level above, each pixel one of its block"
+
+[[band]]
+level = 8
+file = "art/textures/standin_meadow/far/b8.png"
+sha256 = "a860e1d1165a57091b462a1421ce704f95877d28048093b2f46c0978a122e1eb"
+made_from = "10bd99ce4a035e2644d549fa8d35ee1f844bd265b99b49e8403aee8d84aaa593"
+way = "drawn by code from the level above, each pixel one of its block"
