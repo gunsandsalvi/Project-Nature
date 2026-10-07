@@ -154,7 +154,8 @@ def compose(spec, folder):
 
     tiles = [(load(t["file"]), t) for t in spec.get("tiles", [])]
     if tiles:
-        sheet.text("From above, flat light: each tile about as the phone shows it where it is used.", 26, bold=True)
+        about = "From above, flat light: each tile about as the phone shows it where it is used."
+        sheet.text(spec.get("tiles_title", about), 26, bold=True)
         panels = [(with_stick(fit(p, HALF), t["metres"], t["stick"]), t["label"]) for p, t in tiles]
         if "close_up" in spec:
             c = spec["close_up"]
