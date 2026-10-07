@@ -32,12 +32,24 @@ import textures
 import tiles
 
 
-def picture(path):
-    """A picture kept in art/sources/ as texture pixels: its block found, each block made one pixel; and the loss."""
+def picture(path, snap=None):
+    """A picture kept in art/sources/ as texture pixels: its block found, each block made one pixel; and the loss. A
+    drawing from the image tool, which sits on no exact grid and does not wrap, is named `snap` (its cells' size in
+    picture pixels): its cells are found and each made a pixel (tiles.snap), and it is larger than a tile."""
     pic = tiles.read_rgb(os.path.join(textures.ROOT, path))
+    if snap:
+        texels, loss = tiles.snap(pic, snap)
+        return texels, snap, loss
     block = tiles.block_size(pic)
     texels, loss = tiles.regrid(pic, block)
     return texels, block, loss
+
+
+def common_size(pictures):
+    """The pictures all cut to the smallest one's size from the top left, since the pictures quilted from must match."""
+    h = min(p.shape[0] for p in pictures)
+    w = min(p.shape[1] for p in pictures)
+    return [p[:h, :w] for p in pictures]
 
 
 def coded_level(levels, ring, level, contrast):
@@ -86,13 +98,17 @@ def make_tile(spec, reference, seed, key=None, given=None):
     """One tile: its versions' chains of levels, the words for each level, and the numbers its record states. With a
     `key` colour the tile is one of marks on a see-through ground (the water's): its pictures are drawn on that colour,
     nothing about them is calibrated or flattened, and its levels below the first are made by tiles.reduce_marks."""
-    first, block, loss = given if given is not None else picture(spec["sheet"])
+    snap = spec.get("snap")  # the cells' size of the tile's pictures when they are drawings that sit on no grid
+    first, block, loss = given if given is not None else picture(spec["sheet"], snap)
     calibration = ""
     if reference is not None and key is None:
         first, calibration = fit.calibrate(first, reference, float(spec.get("contrast", 100)))
     extras = [
-        (picture(p)[0] if key is not None else fit.calibrate(picture(p)[0], first)[0]) for p in spec.get("extra", [])
+        (picture(p, snap)[0] if key is not None else fit.calibrate(picture(p, snap)[0], first)[0])
+        for p in spec.get("extra", [])
     ]
+    if snap:
+        first, *extras = common_size([first, *extras])
     flatten = 0 if key is not None else spec.get("flatten")
     drawn = {t["level"]: t for t in spec.get("level", []) if "pictures" in t}
     coded = {t["level"]: t for t in spec.get("level", []) if "pictures" not in t}
@@ -100,27 +116,56 @@ def make_tile(spec, reference, seed, key=None, given=None):
         raise ValueError("a tile's drawn levels come first, one after another from level 1")
     sources, pictures, calibrations = [first, *extras], [], []
     for j in sorted(drawn):  # each picture drawn for a level, moved to the colour and contrast of its source above
+        cells = drawn[j].get("snap")
         pairs = [
-            (picture(p)[0], "") if key is not None else fit.calibrate(picture(p)[0], up, match=True)
+            (picture(p, cells)[0], "") if key is not None else fit.calibrate(picture(p, cells)[0], up, match=True)
             for p, up in zip(drawn[j]["pictures"], sources, strict=True)
         ]
-        sources = [p for p, _ in pairs]
+        sources = common_size([p for p, _ in pairs]) if cells else [p for p, _ in pairs]
         pictures.append(sources)
         calibrations.append(pairs[0][1])
-    versions, shift = tiles.make_versions(
-        first,
-        spec["versions"],
-        spec["ring"],
-        spec["overlap"],
-        spec["patch"],
-        seed,
-        flatten,
-        extras,
-        [level[0] for level in pictures],
-    )
+    if snap:
+        versions = tiles.make_versions_open(
+            [first, *extras], spec["versions"], spec["ring"], spec["overlap"], spec["patch"], seed, 256
+        )
+        shift = None
+    else:
+        versions, shift = tiles.make_versions(
+            first,
+            spec["versions"],
+            spec["ring"],
+            spec["overlap"],
+            spec["patch"],
+            seed,
+            flatten,
+            extras,
+            [pictures[j - 1][0] for j in sorted(drawn) if not drawn[j].get("snap")],
+        )
     levels, ways = [versions], [{"calibration": calibration} if calibration else {}]
     for j in range(1, spec["serves"]):
-        if j in drawn:
+        if j in drawn and drawn[j].get("snap"):
+            scale = 2**j
+            levels.append(
+                tiles.make_versions_open(
+                    pictures[j - 1],
+                    spec["versions"],
+                    max(1, spec["ring"] // scale),
+                    drawn[j].get("overlap", max(2, spec["overlap"] // scale)),
+                    drawn[j].get("patch", max(8, spec["patch"] // scale)),
+                    seed + j,
+                    256 // scale,
+                    scale,
+                )
+            )
+            ways.append(
+                {
+                    "way": "drawn for this band, then moved to the level above's colour and contrast; every version "
+                    "quilted at this level's own size from the pictures drawn for each of its sources, round a "
+                    "shared ring",
+                    "calibration": calibrations[j - 1],
+                }
+            )
+        elif j in drawn:
             scale = 2**j
             levels.append(
                 tiles.requilt(
@@ -195,7 +240,15 @@ def words_of(index, serves, ways, version, shift, spec, block, loss):
         how = f"the tile's picture (a block of {block}, loss {loss * 100:.1f}%)"
         if ways[0].get("calibration"):
             how += ", moved to the reference's colour"
-        if version == 1:
+        if shift is None:
+            how = (
+                f"the drawing put on its own grid (cells of about {block} picture pixels, loss {loss * 100:.1f}%)"
+                + (", moved to the reference's colour" if ways[0].get("calibration") else "")
+                + f"; every version quilted from the drawings in patches of {spec['patch']} round a ring cut from "
+                "where the first drawing's edges are most ordinary, so none is the drawing itself and any two join "
+                "without a seam"
+            )
+        elif version == 1:
             how += (
                 f", shifted {shift[0]} down and {shift[1]} across round its wrap so its ring is its most ordinary part,"
                 " its border's broad tone flattened"
@@ -221,7 +274,9 @@ def main(argv):
     bleed = tiles.key_colour(recipe.get("bleed", "#aac4b6")) if key is not None else None
     specs = {t["tile"]: t for t in recipe["tile"]}
     order = [recipe["reference"]] + [t for t in specs if t != recipe["reference"]]
-    reference = None
+    # the colour every tile is moved to: the first tile's as drawn, or a picture's (the signed-off sheet's tile) when
+    # the drawings came out in other colours than the sheet's
+    reference = picture(recipe["colour_from"])[0] if "colour_from" in recipe else None
     nearer = {}  # each tile's versions' first levels, on their key colour, for a tile made from a nearer one
     for index, tile in enumerate(order):
         spec = specs[tile]
@@ -237,6 +292,9 @@ def main(argv):
             chains = [[tiles.to_rgba(level, key, bleed) for level in chain] for chain in chains]
         _, metres, first_band = textures.TILES[tile]
         paths, digests, c2pa = provenance(spec, specs)
+        if "colour_from" in recipe and recipe["colour_from"] not in paths:  # its colours were measured, so it is named
+            entry = ingest.entry(recipe["colour_from"])
+            paths, digests, c2pa = [*paths, recipe["colour_from"]], [*digests, entry["sha256"]], [*c2pa, entry["c2pa"]]
         for v, chain in enumerate(chains, start=1):
             fields = {
                 "about": f"{recipe['about']}; {tile} tile, {metres} m across, version {v}",
@@ -251,7 +309,12 @@ def main(argv):
                 "made": f"{recipe['how']}; version {v} of {len(chains)}, its ring of {spec['ring']} texture pixels "
                 f"shared with the others so any two join without a seam; levels 0 to {spec['serves'] - 1} designed for "
                 "the bands it serves",
-                "regrid_loss": f"{loss * 100:.1f}%: the picture is already on its grid, each block one colour",
+                "regrid_loss": (
+                    f"{loss * 100:.1f}%: the drawing sits on no exact grid, its cells found and each made one pixel "
+                    "(the share of its pixels that differ from their cell's colour)"
+                    if spec.get("snap")
+                    else f"{loss * 100:.1f}%: the picture is already on its grid, each block one colour"
+                ),
                 "truth": recipe["truth"],
                 "approved": recipe["approved"],
             }
