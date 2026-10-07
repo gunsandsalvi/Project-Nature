@@ -224,7 +224,7 @@ def water_over(bed, marks, depth, tune, sky=(0.72, 0.78, 0.83)):
     return to_srgb(surface)
 
 
-def water_view(bed, marks, band, sun, out_folder, depth, samples=24, change=None, suffix=""):
+def water_view(bed, marks, band, sun, out_folder, depth, samples=24, change=None, suffix="", water=None):
     """One band's view of a river of one depth: the bed's ground tinted by the water over it and the marks' picture on
     top, lit as the ground is; returns the picture's path."""
     beds, flows = textures.read_set(bed), textures.read_set(marks)
@@ -236,7 +236,7 @@ def water_view(bed, marks, band, sun, out_folder, depth, samples=24, change=None
     over, covers_marks = compose(flows[mark_tile], mark_level, textures.TILES[mark_tile][1], box, salt=2)
     if covers != covers_marks:
         raise RuntimeError("the bed's and the marks' tiles do not cover the same ground")
-    picture = water_over(ground, over, depth, water_tuning())
+    picture = water_over(ground, over, depth, water_tuning(water))
     os.makedirs(out_folder, exist_ok=True)
     scratch = os.path.join(out_folder, "scratch")
     os.makedirs(scratch, exist_ok=True)
@@ -268,12 +268,26 @@ def main(argv):
         help="try other numbers for the light (the tuning's own keys, such as sun_colour=#fff6e8 sun_energy=170%%); "
         "the pictures are named with a -light suffix",
     )
+    ap.add_argument(
+        "--water",
+        nargs="*",
+        default=[],
+        metavar="KEY=VALUE",
+        help="try other numbers for the water (the tuning's own keys, such as fade_red='0.5 m' deep_colour=#154447); "
+        "the pictures are named with a -water suffix",
+    )
     args = ap.parse_args(argv[1:])
     change = dict(item.split("=", 1) for item in args.light)
+    other = dict(item.split("=", 1) for item in args.water)
     for band in args.bands:
         suffix = "-light" if change else ""
         if args.what == "water":
-            print(water_view(args.name, args.marks, band, args.sun, args.out, args.depth, args.samples, change, suffix))
+            suffix += "-water" if other else ""
+            print(
+                water_view(
+                    args.name, args.marks, band, args.sun, args.out, args.depth, args.samples, change, suffix, other
+                )
+            )
         else:
             print(ground_view(args.name, band, args.sun, args.out, args.samples, change, suffix))
     return 0

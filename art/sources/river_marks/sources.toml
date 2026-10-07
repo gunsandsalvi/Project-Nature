@@ -1,0 +1,12 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["middle-sheet.webp"]
+sha256 = "35b5bb6e7390f18e09e5dc5c50e044d7f0454e67a9fd0176d2507e82098cbb43"
+c2pa = "absent"
+note = "the middle marks tile of sheet 4.1 (signed off 7 October 2026): 1024 x 1024, each texture pixel a 4 x 4 block, light marks on the key colour #ff00ff, put on its grid by the artist's code in the catalogue's conversation"
+
+["near-sheet.webp"]
+sha256 = "42f338529664c39203b7ba379101c55c41ea2885a2c6cf5c982f129c31e24de9"
+c2pa = "absent"
+note = "the near marks tile of sheet 4.1 (signed off 7 October 2026): 1024 x 1024, each texture pixel a 4 x 4 block, light marks on the key colour #ff00ff, put on its grid by the artist's code in the catalogue's conversation"

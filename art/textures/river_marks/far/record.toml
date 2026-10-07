@@ -1,0 +1,76 @@
+about = "the river's surface marks: flow lines along the current (the tile's x axis), ripple arcs and foam, light on see-through water; far tile, 64 m across, version 1"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/river_marks/middle-sheet.webp"]
+original_sha256 = ["35b5bb6e7390f18e09e5dc5c50e044d7f0454e67a9fd0176d2507e82098cbb43"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's marks tiles, put on the texture-pixel grid by code, their levels made bolder and fewer by code; version 1 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; water marks only, nothing countable"
+approved = "not offered yet: the pilot's second piece, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/river_marks/far/b4.png"
+sha256 = "49bba1e913393fc57a79981f3c33c73ce67ff67db39606cecb5024dedc000061"
+way = "by code: a mosaic of 4 x 4 of the middle tile's versions (they join without a seam), made the level below twice, each time a mark where two of a 2 x 2 block are and 60% of the marks kept, so the marks are bolder and fewer"
+regrid_loss = "none: made by code from marks already on the grid"
+
+[[band]]
+level = 1
+file = "art/textures/river_marks/far/b5.png"
+sha256 = "a35b5005e83f3526f4c5dda7a208b21b2e66d93b541ebb04eeb0c4bd9161e980"
+made_from = "49bba1e913393fc57a79981f3c33c73ce67ff67db39606cecb5024dedc000061"
+way = "by code: each 2 x 2 block of the level above a mark where two of its four are, a single speck gone, and 100% of the marks kept, so the marks are bolder and fewer"
+
+[[band]]
+level = 2
+file = "art/textures/river_marks/far/b6.png"
+sha256 = "62c2353c7d9cc189e8df2198a29cd506fdd36ab145ced07827b34ae7dc73c204"
+made_from = "a35b5005e83f3526f4c5dda7a208b21b2e66d93b541ebb04eeb0c4bd9161e980"
+way = "by code: each 2 x 2 block of the level above a mark where two of its four are, a single speck gone, and 100% of the marks kept, so the marks are bolder and fewer"
+
+[[band]]
+level = 3
+file = "art/textures/river_marks/far/b7.png"
+sha256 = "ec00eaa23ffb2eeecce4e3f421d426482d5d9cec974f008f1f96817629d60641"
+made_from = "62c2353c7d9cc189e8df2198a29cd506fdd36ab145ced07827b34ae7dc73c204"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/river_marks/far/b8.png"
+sha256 = "fc70c19fb3431678613bb466bacbafd963bdefdf844516f1fb98e4d1ae3e167d"
+made_from = "ec00eaa23ffb2eeecce4e3f421d426482d5d9cec974f008f1f96817629d60641"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/river_marks/far/b9.png"
+sha256 = "5207543b1e79ca8c90c8ddb2d89496817737124f0fbc089dd805510ddcee51cd"
+made_from = "fc70c19fb3431678613bb466bacbafd963bdefdf844516f1fb98e4d1ae3e167d"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/river_marks/far/b10.png"
+sha256 = "9dffacad48f58578296e4114f8105c1b87ed9d2828afa2291cab572a87a7f5d1"
+made_from = "5207543b1e79ca8c90c8ddb2d89496817737124f0fbc089dd805510ddcee51cd"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/river_marks/far/b11.png"
+sha256 = "378a144d52045812595591f4f43ec86707f34f11cfd40b899192ff5ccc6a86fa"
+made_from = "9dffacad48f58578296e4114f8105c1b87ed9d2828afa2291cab572a87a7f5d1"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/river_marks/far/b12.png"
+sha256 = "a4453452600016fe706236b62fe27a609c47f18b13b5deb9ba1be33287a3eb20"
+made_from = "378a144d52045812595591f4f43ec86707f34f11cfd40b899192ff5ccc6a86fa"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

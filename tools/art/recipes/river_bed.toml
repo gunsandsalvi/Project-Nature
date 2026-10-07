@@ -1,0 +1,83 @@
+# The river bed's textures (catalogue 1.5): what tools/art/make_tiles.py reads to make art/textures/river_bed/ from the
+# pictures kept in art/sources/river_bed/. Nothing here is random: the same recipe gives the same bytes.
+name = "river_bed"
+about = "the bed of a shallow river: cobbles, gravel and sand, shown alone (the water is a piece of its own, drawn over it)"
+seed = 1501
+reference = "near"
+# every tile is moved to the colour of the sheet's own near tile: the drawings came out warmer than the signed-off sheet
+colour_from = "art/sources/river_bed/near-sheet.webp"
+how = "drawn by the artist in conversation with the art lane, judged in the game's view against sheet 1.5's camera views, and put on the texture-pixel grid by code"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; cobbles, gravel and sand only, nothing countable at the game's size"
+approved = "not offered yet: the pilot's second piece, waiting for the builder's check and your look at the previews"
+
+# The near tile: two drawings from the image tool, cells of about 4 picture pixels (snap), each larger than a tile and
+# wrapping nowhere, so every version is quilted from both round a ring cut from the first; big cobbles are cut along their
+# dark rims by an overlap wider than a rim's gap, and nothing is flattened at the border, which would wash out the stones
+# lying across it.
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 32
+patch = 112
+flatten = 0
+serves = 2
+snap = 4
+sheet = "art/sources/river_bed/near-A.webp"
+extra = ["art/sources/river_bed/near-B.webp"]
+requests = ["art/requests/river/turn-01.txt", "art/requests/river/turn-02.txt"]
+
+# band 1: the same bed drawn again for twice the distance, bolder and fewer, a soft picture whose cells are too faint to
+# find, so it is put on exactly 128 cells
+[[tile.level]]
+level = 1
+snap = 8
+cells = 128
+overlap = 16
+patch = 56
+pictures = ["art/sources/river_bed/near-A-b1.webp", "art/sources/river_bed/near-B-b1.webp"]
+
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+flatten = 0
+serves = 2
+# the sheet's middle tile is calmer on the screen than its near tile (accents 9.7 against 12.2 at the frame), so a
+# little more contrast keeps band 2 within the owner's 90% of band 0
+contrast = 125
+sheet = "art/sources/river_bed/middle-sheet.webp"
+requests = ["art/requests/river/turn-01.txt"]
+
+# band 3: a drawing of the tile at half the size, a picture of about 150 cells that wraps nowhere
+[[tile.level]]
+level = 1
+snap = 8
+overlap = 16
+patch = 48
+# bolder and fewer marks score lower on the screen than the level above (accents 8 against 12); a little more contrast
+contrast = 120
+pictures = ["art/sources/river_bed/middle-b3.webp"]
+
+# The far tile's commas of sand and patches of grey would show as wallpaper at bands 4 to 6, where the tile repeats two to
+# eight times across the screen, so it is calmed: its contrast scaled, and its coarser levels calmed again.
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 24
+flatten = 0
+patch = 64
+serves = 3
+contrast = 45
+sheet = "art/sources/river_bed/far-sheet.webp"
+
+[[tile.level]]
+level = 1
+contrast = 70
+
+[[tile.level]]
+level = 2
+contrast = 55
