@@ -804,6 +804,8 @@ It replaces the art bible's rules.
 - **The fallback** is Godot's own skeletons for figures near the camera: Godot bends a mesh again only when its skeleton changes, so poses held for a tenth of a second are cheap, but each figure costs a draw for each surface and pass.
   Calibration scene C6 sets how many fit 1.0 ms of the main thread (an estimate of 15 to 40); beyond that, the batched way.
 - Reads of a texture in the vertex stage count as dependent reads on this chip, so palettes are half floats and far forms use one bone a vertex.
+- *Built in α2.2b,* for C6: the poser's stand-in, a figure of about 1,500 triangles on 24 bones walking by joint angles, posed 10 times a second, each figure's steps offset by its seed; its skinning matrices go to Godot's skeletons, or into a palette row of half floats, three texels a bone, the same numbers both ways.
+  A MultiMesh's shader reads the mesh's bone indices and weights as Godot's own skinning does, and in the cloud it bends every vertex within 2 mm of where Godot's skeleton bends it.
 
 ### A6.4 How textures sit on shapes (`PRE-22`, `PRE-46`)
 
@@ -1104,6 +1106,9 @@ As measured on your phone in pre-production, each re-measured at every milestone
   - The code, layout 2, holds which scenes ran in 16 bits after the build; `kindling look calibrate` still reads α2.2a's layout 1, against that build's own files.
   - C2's stand-in plants, set out by a hash of their place along a bank, a path and a meadow, put about 850 copies in view on your phone's screen; Godot counts a draw for each instance seen, however many surfaces it has.
   - C5's fires burn at night, each with two people standing, one sitting, two logs and nine hearth stones, which stand in the height maps; a viewport drawn only now and then, as the fires' maps are, counts its last drawing's time for its share of the frames, since Godot keeps a viewport's time until it draws again.
+  - C6's figures stand in a grid over the field by day; on Godot's skeletons each is a draw in each pass, on palettes all of them are one, and the main thread's reading adds the figures' posing, which Godot's clocks leave out.
+    Its reads are points set out over the screen by their indices, each reading its texels before it is placed, so no compiler leaves a read out.
+  - In the cloud, `tools/calibrun.py` also draws one figure as points, a vertex each, bent by Godot's skeleton and by the palette at two moments half a second apart, each vertex at a pixel of its own with its place as its colour, and holds the two within 1 cm at every vertex (2 mm in α2.2b, the view keeping a place to about 4 mm).
   - The cloud's run fails on any error Godot reports but the missing sound device.
 
 **M1's benchmark,** one tap and about 20 minutes, with the phone unplugged, in flight mode, after it has cooled:

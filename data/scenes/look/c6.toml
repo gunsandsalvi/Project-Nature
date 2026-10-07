@@ -1,0 +1,75 @@
+# C6, figures (A18.1, α2.2b): 30, 100 and 300 stand-in figures of about 1,500 triangles on a skeleton of 24 bones,
+# walking in place on the field of C1 at the closest zoom by day, each posed 10 times a second in C++, its steps
+# offset by its seed, drawn two ways with all else equal: by Godot's own skeletons, a skeleton and an instance each,
+# bent by Godot's compute program when its pose changes; and by our bone palettes, every figure's bones a row of a
+# half-float texture written at its pose step and read by one MultiMesh whose shader bends each vertex by its copy's
+# row, which this proves end to end. The number that decides is the main thread's time for each figure on Godot's
+# skeletons, posing included: the slope of its time over the figures. It sets how many figures near the camera may be
+# on Godot's skeletons within A18.1's 1.0 ms for figures, the rest on palettes, whose own times come back beside it.
+# Stated before its first run (RES-09).
+about = "What a figure on Godot's own skeleton costs the main thread, beside our bone palettes"
+step = "α2.2b"
+checks = ["PLT-04", "PRE-27"]
+draws = "figures"
+path = "still"
+measure = "cpu_per_figure"
+# nanoseconds of the main thread a figure: at 100,000 the closest zoom's 10 figures (A18.1) fit the 1.0 ms
+line = 100000
+# A6.3's estimate: 15 to 40 figures within the 1.0 ms
+expect_from = 25000
+expect_to = 67000
+
+[[variant]]
+name = "godot30"
+figures = 30
+way = "godot"
+interface = false
+
+[[variant]]
+name = "godot100"
+figures = 100
+way = "godot"
+interface = false
+
+[[variant]]
+name = "godot300"
+figures = 300
+way = "godot"
+interface = false
+
+[[variant]]
+name = "palette30"
+figures = 30
+way = "palette"
+interface = false
+
+[[variant]]
+name = "palette100"
+figures = 100
+way = "palette"
+interface = false
+
+[[variant]]
+name = "palette300"
+figures = 300
+way = "palette"
+interface = false
+
+[[decision]]
+at_most = 10000
+then = "every figure at the close camp, up to 100, may be on Godot's skeletons; palettes from the camp zoom out"
+
+[[decision]]
+at_most = 25000
+then = "the nearest 40 figures on Godot's skeletons, the rest on palettes"
+
+[[decision]]
+at_most = 50000
+then = "the nearest 20 figures on Godot's skeletons, the rest on palettes"
+
+[[decision]]
+at_most = 100000
+then = "the nearest 10 figures on Godot's skeletons, the closest zoom's most (A18.1), the rest on palettes"
+
+[[decision]]
+then = "every figure on palettes: Godot's skeletons would take more than the 1.0 ms for the closest zoom's 10"

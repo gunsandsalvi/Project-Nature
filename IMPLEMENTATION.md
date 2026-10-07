@@ -177,7 +177,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's readings in, every probe passed |
 | α2.1b | The look's checks | M2 | 6 | Delivered as 30102 on 6 October 2026; your blind test, MSAA 4× against 2× on the meadow: 3 of 10 right, so the difference does not show |
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
-| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | **Under way:** T2.2b.1 and T2.2b.2, C2's leaves and C5's fires, built |
+| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | **Under way:** T2.2b.1 to T2.2b.3, C2's leaves, C5's fires and C6's figures, built |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
 | α2.3a | The texture path and the camp's materials | M2 | 6 | The art lane's batch 1 (its tools and 18 materials) and round 2 (the kit's first parts in Blender and 22 materials) joined on 6 October 2026; its next round above under way, by your rules for working with GPT; the rest after α2.2 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |

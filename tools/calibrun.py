@@ -12,8 +12,13 @@ hundred times faster (tools/godot-calibrate.gd); this then holds what each varia
   the ways that cut no leaf (close-cut cards and solid cores) drawing the picture plain cards draw;
 - fires: every way drawing the same ground under its fires' things, each way that draws fire shadows darkening some
   of the picture, and the fires' maps darkening nothing the walk at every pixel leaves lit;
-and the run's code reads back through `kindling look calibrate`. A shader or script that fails fails the run. A
-picture of each scene's first variant, and of each way of the plants, is left in build/calibrate/.
+- figures: a draw for each figure on Godot's skeletons and one for all on palettes, in the main pass and in the sun's
+  shadow pass, every figure's triangles in both, over the same ground each time;
+- reads: one draw of exactly its points, and no shadow pass;
+and the bone palettes bend every vertex of a figure within 1 cm of where Godot's own skeleton bends it, at two moments
+of its walk; and the run's code reads back through `kindling look calibrate`. A shader or script that fails fails the
+run. A picture of each scene's first variant, and of each way of the plants and the fires, is left in
+build/calibrate/.
 
     python3 tools/calibrun.py                draw every scene and check what each drew, into build/calibrate/
 """
@@ -44,6 +49,13 @@ SAME_SHARE_MOST = 0.001
 SHADOWED = 0.6
 SHADOWS_LEAST = 0.003
 MAP_ONLY_MOST = 0.001
+# The bone palettes against Godot's skeletons (α2.2b's test): every vertex within PALETTE_MOST metres, and the figure
+# walking between the two moments, some vertex moving at least MOVED_LEAST, so the check is not of a figure at rest
+# (α2.2b: within 2 mm, the view keeping a place to about 4 mm; the walk moves a vertex 55 cm). A pixel no vertex was
+# drawn on keeps the view's black, which reads as -1 m in each coordinate, below any vertex of a standing figure.
+PALETTE_MOST = 0.01
+MOVED_LEAST = 0.05
+BLANK_BELOW = -0.5
 
 
 class RunError(RuntimeError):
@@ -110,6 +122,9 @@ def expected(scene, variant):
             "mirror_draws": copies if mirrored else 0,
             "mirror_shadow_draws": 0,
         }
+    if draws == "reads":
+        # points count one a primitive
+        return {"draws": 1, "triangles": int(variant["vertices"]) * 1000, "shadow_draws": 0, "shadow_triangles": 0}
     return {}
 
 
@@ -199,6 +214,66 @@ def fires_wrong(scene, drew, out):
     return wrong
 
 
+def figures_wrong(scene, drew):
+    """A figures scene's ways against what each must draw: a list of what is wrong, in words."""
+    wrong = []
+    grounds = set()
+    for variant, counts in zip(scene["variants"], drew, strict=True):
+        if not counts:
+            continue
+        name = f"{scene['name']}/{variant['name']}"
+        # a figure on Godot's skeleton is an instance of its own; the palettes' are one MultiMesh
+        draws = int(variant["figures"]) if variant["way"] == "godot" else 1
+        if int(counts["content_draws"]) != draws:
+            wrong.append(f"{name}: its figures make {counts['content_draws']} draws, where its way makes {draws}")
+        shadowed = bool(variant["shadows"])
+        for count, want in (
+            ("shadow_draws", draws if shadowed else 0),
+            ("shadow_triangles", int(counts["content_triangles"]) if shadowed else 0),
+        ):
+            if int(counts[count]) != want:
+                wrong.append(f"{name}: {count} {counts[count]}, where its figures alone make {want}")
+        # what the main pass draws besides the figures is the ground, the same in every variant
+        grounds.add(
+            (
+                int(counts["draws"]) - int(counts["content_draws"]),
+                int(counts["triangles"]) - int(counts["content_triangles"]),
+            )
+        )
+    if len(grounds) > 1:
+        wrong.append(f"{scene['name']}: the ground under the figures draws differently from variant to variant")
+    return wrong
+
+
+def bent_wrong(bent):
+    """The bone palettes against Godot's skeletons, from the run's figure bent both ways at two moments: a list of
+    what is wrong, in words, and the most a vertex lies apart, in metres."""
+    if not bent or len(bent.get("moments", [])) != 2:
+        return ["the bone palettes were not checked against Godot's skeletons"], None
+    wrong = []
+    apart = 0.0
+    places = []
+    for i, moment in enumerate(bent["moments"]):
+        both = {}
+        for way in ("godot", "palette"):
+            p = np.asarray(moment[way], dtype=np.float64).reshape(-1, 3)
+            blank = int((p[:, 1] < BLANK_BELOW).sum())
+            if p.shape[0] != int(bent["vertices"]) or blank:
+                wrong.append(f"moment {i}: {blank} of the figure's {bent['vertices']} vertices not drawn {way}'s way")
+            both[way] = p
+        if both["godot"].shape == both["palette"].shape:
+            apart = max(apart, float(np.linalg.norm(both["godot"] - both["palette"], axis=1).max()))
+        places.append(both)
+    if apart > PALETTE_MOST:
+        wrong.append(f"the palettes bend a vertex {apart * 100:.1f} cm from Godot's skeleton, where 1 cm at most may")
+    for way in ("godot", "palette"):
+        if places[0][way].shape == places[1][way].shape:
+            moved = float(np.linalg.norm(places[0][way] - places[1][way], axis=1).max())
+            if moved < MOVED_LEAST:
+                wrong.append(f"the figure bent {way}'s way moves {moved * 100:.1f} cm in half a second of its walk")
+    return wrong, apart
+
+
 def check(run, out=OUT):
     """Each variant's drawing against its scene's statement: a list of what is wrong, in words."""
     wrong = []
@@ -217,6 +292,9 @@ def check(run, out=OUT):
             wrong += plants_wrong(scene, drew, out)
         if scene["draws"] == "fires":
             wrong += fires_wrong(scene, drew, out)
+        if scene["draws"] == "figures":
+            wrong += figures_wrong(scene, drew)
+    wrong += bent_wrong(run.get("figures_bent"))[0]
     read = subprocess.run([kindling(), "look", "calibrate", run["code"]], capture_output=True, text=True)
     if read.returncode != 0:
         wrong.append(f"the run's code does not read: {read.stderr.strip()}")
@@ -235,6 +313,9 @@ def main(argv):
     wrong = check(run)
     for line in wrong:
         print(f"Calibration: {line}")
+    apart = bent_wrong(run.get("figures_bent"))[1]
+    if apart is not None:
+        print(f"Calibration: the bone palettes bend every vertex within {apart * 1000:.1f} mm of Godot's skeleton")
     variants = sum(len(s["variants"]) for s in run["scenes"])
     print(f"Calibration: {'FAIL' if wrong else 'OK'} ({len(run['scenes'])} scenes, {variants} variants drawn)")
     return 1 if wrong else 0

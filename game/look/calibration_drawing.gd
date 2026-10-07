@@ -59,13 +59,13 @@ static func rocks(under: Node3D, camera: Camera3D, screen: Vector2, thousands: i
 		rings -= 1
 	var mesh := rock_mesh(thousands / rings, rings)
 	mesh.surface_set_material(0, _solid(Color("#8a8277")))
-	var cells := _cells(camera, screen, 20, 25)
+	var grid := cells(camera, screen, 20, 25)
 	var multimesh := MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.mesh = mesh
 	multimesh.instance_count = ROCKS
 	for i in ROCKS:
-		var cell: Dictionary = cells[i]
+		var cell: Dictionary = grid[i]
 		# as wide and as deep as its cell, so the rocks cover the ground, and half as high as wide
 		var wide: float = cell["size"] * 0.6
 		var deep: float = cell["deep"] * 0.6
@@ -85,11 +85,11 @@ static func copies(under: Node3D, camera: Camera3D, screen: Vector2, draws: int)
 	mesh.surface_set_material(0, _solid(Color("#9a8f80")))
 	var aspect := screen.x / screen.y if screen.x > 0.0 and screen.y > 0.0 else 1.0
 	var across := maxi(1, ceili(sqrt(draws * aspect)))
-	var cells := _cells(camera, screen, across, ceili(float(draws) / across))
+	var grid := cells(camera, screen, across, ceili(float(draws) / across))
 	var holder := Node3D.new()
 	under.add_child(holder)
 	for i in draws:
-		var cell: Dictionary = cells[i]
+		var cell: Dictionary = grid[i]
 		var multimesh := MultiMesh.new()
 		multimesh.transform_format = MultiMesh.TRANSFORM_3D
 		multimesh.mesh = mesh
@@ -178,7 +178,7 @@ static func grade(environment: Environment, on: bool) -> void:
 
 ## A grid of the screen, `across` by `down` cells, each cell's centre where the camera sees it on
 ## the ground: {"at", "size", "deep"}, the cell's width and depth on the ground there.
-static func _cells(camera: Camera3D, screen: Vector2, across: int, down: int) -> Array[Dictionary]:
+static func cells(camera: Camera3D, screen: Vector2, across: int, down: int) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for j in down:
 		for i in across:

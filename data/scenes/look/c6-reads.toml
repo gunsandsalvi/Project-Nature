@@ -1,0 +1,93 @@
+# C6's reads in the vertex stage (A6.3, A18.1, α2.2b): 100,000 and a million points, one a vertex, set out over the
+# screen, each reading 1, 3 or 12 texture pixels of a table of half floats laid out as a bone palette is, against the
+# same points reading none. A palette's vertex reads three texture pixels a bone, 12 for four bones, and on this chip
+# reads in the vertex stage count as dependent reads. The number that decides is a million points reading 12 each,
+# less the same reading none. Stated before its first run (RES-09).
+about = "What reading texture pixels in the vertex stage costs the graphics chip, as bone palettes do"
+step = "α2.2b"
+checks = ["PLT-04", "PRE-27"]
+draws = "reads"
+path = "still"
+measure = "gpu"
+decides = "reads12-1m"
+minus = "c6-reads/reads0-1m"
+# microseconds of the graphics chip for 12 million reads: at 1,000 the close camp's 100 figures (A18.1), reading four
+# bones a vertex in both passes, take about 0.16 ms, a tenth of the geometry's allowance
+line = 1000
+expect_from = 200
+expect_to = 3000
+
+[[variant]]
+name = "reads0-100k"
+vertices = 100
+reads = 0
+# points cast no shadow, so no shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "reads1-100k"
+vertices = 100
+reads = 1
+# points cast no shadow, so no shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "reads3-100k"
+vertices = 100
+reads = 3
+# points cast no shadow, so no shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "reads12-100k"
+vertices = 100
+reads = 12
+# points cast no shadow, so no shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "reads0-1m"
+vertices = 1000
+reads = 0
+# points cast no shadow, so no shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "reads1-1m"
+vertices = 1000
+reads = 1
+# points cast no shadow, so no shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "reads3-1m"
+vertices = 1000
+reads = 3
+# points cast no shadow, so no shadow pass
+shadows = false
+interface = false
+
+[[variant]]
+name = "reads12-1m"
+vertices = 1000
+reads = 12
+# points cast no shadow, so no shadow pass
+shadows = false
+interface = false
+
+[[decision]]
+at_most = 1000
+then = "four bones a vertex for figures in full and simple forms, one for small and tiny ones, as A6.3 plans"
+
+[[decision]]
+at_most = 3000
+then = "two bones a vertex for figures in full form and one for every smaller form, the mesh holding the joints' bends"
+
+[[decision]]
+then = "one bone a vertex for every form, and Godot's skeletons for the nearest figures as far as C6 allows"

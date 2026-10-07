@@ -465,7 +465,7 @@ TEST_CASE("the calibration scenes in data/scenes/look read whole, with the lines
     for (const look::CalibrationScene& s : set.scenes) {
         named.push_back(s.name);
     }
-    CHECK(named == std::vector<std::string>{"c1", "c2", "c3", "c3-draws", "c4", "c5"});
+    CHECK(named == std::vector<std::string>{"c1", "c2", "c3", "c3-draws", "c4", "c5", "c6", "c6-reads"});
     const auto scene = [&](const std::string& name) -> const look::CalibrationScene& {
         const auto it = std::find_if(set.scenes.begin(), set.scenes.end(),
                                      [&](const look::CalibrationScene& s) { return s.name == name; });
@@ -541,6 +541,34 @@ TEST_CASE("the calibration scenes in data/scenes/look read whole, with the lines
     CHECK(c5.expect_to == 1700);
     CHECK(at_most(c5) == std::vector<std::int64_t>{400, -1});
     CHECK(c5.decisions[0].then.find("unless your blind test sees a difference") != std::string::npos);
+    // C6's 30, 100 and 300 figures on Godot's skeletons and on palettes; the main thread's time a figure on Godot's
+    // skeletons, expected 25 to 67 µs (15 to 40 figures within A18.1's 1.0 ms), setting how many may be on them
+    const look::CalibrationScene& c6 = scene("c6");
+    std::vector<std::string> figures;
+    figures.reserve(c6.variants.size());
+    for (const look::CalibrationVariant& v : c6.variants) {
+        figures.push_back(v.way + std::to_string(v.figures));
+    }
+    CHECK(figures ==
+          std::vector<std::string>{"godot30", "godot100", "godot300", "palette30", "palette100", "palette300"});
+    CHECK(c6.measure == "cpu_per_figure");
+    CHECK(c6.line == 100000);
+    CHECK(c6.expect_from == 25000);
+    CHECK(c6.expect_to == 67000);
+    CHECK(at_most(c6) == std::vector<std::int64_t>{10000, 25000, 50000, 100000, -1});
+    CHECK(c6.decisions[4].then.find("every figure on palettes") != std::string::npos);
+    // and its reads in the vertex stage: 100,000 and a million vertices reading none, 1, 3 and 12 texture pixels,
+    // the million reading 12 less the million reading none deciding
+    const look::CalibrationScene& reads = scene("c6-reads");
+    std::vector<std::int64_t> read;
+    read.reserve(reads.variants.size());
+    for (const look::CalibrationVariant& v : reads.variants) {
+        read.push_back(v.vertices * 100 + v.reads);
+    }
+    CHECK(read == std::vector<std::int64_t>{10'000, 10'001, 10'003, 10'012, 100'000, 100'001, 100'003, 100'012});
+    CHECK(reads.decides == "reads12-1m");
+    CHECK(reads.minus == "c6-reads/reads0-1m");
+    CHECK(at_most(reads) == std::vector<std::int64_t>{1000, 3000, -1});
 }
 
 // checks: PLT-04, RES-09
@@ -551,6 +579,7 @@ TEST_CASE("a scene's variants are drawn in its own ways and give its own counts"
     CHECK(leaves.variants[4].way == "coverage");
     CHECK(scene_of(kGood, "data/scenes/look/c4.toml").step.empty());
     CHECK(look::calibration_ways("fires") == std::vector<std::string_view>{"none", "walk", "walk-half", "map"});
+    CHECK(look::calibration_ways("figures") == std::vector<std::string_view>{"godot", "palette"});
     CHECK(look::calibration_ways("rocks").empty());
     // a way that is not the scene's, and a way where none is drawn
     CHECK(names(problems_of(replaced(kLeaves, "way = \"close\"", "way = \"map\"")),

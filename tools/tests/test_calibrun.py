@@ -35,6 +35,14 @@ class WhatEachVariantMustDraw(unittest.TestCase):
         self.assertEqual(three, {"draws": 300, "shadow_draws": 300, "mirror_draws": 300, "mirror_shadow_draws": 0})
         self.assertEqual(calibrun.expected(copies, variant(copies=300))["mirror_draws"], 0)
 
+    # checks: PLT-04 PRE-27
+    def test_reads_give_one_draw_of_their_points_and_no_shadow_pass(self):
+        reads = {"draws": "reads"}
+        self.assertEqual(
+            calibrun.expected(reads, variant(vertices=100, reads=12, shadows=False)),
+            {"draws": 1, "triangles": 100_000, "shadow_draws": 0, "shadow_triangles": 0},
+        )
+
     # checks: PLT-04
     def test_a_count_off_its_statement_is_named(self):
         run = {
@@ -138,6 +146,75 @@ class WhatTheFiresWaysMustDraw(unittest.TestCase):
             )
 
 
+class WhatTheFiguresWaysMustDraw(unittest.TestCase):
+    def figures(self):
+        variants = [
+            {"name": f"{w}{n}", "figures": n, "way": w, **variant()} for w in ("godot", "palette") for n in (30, 100)
+        ]
+        return {"name": "c6", "draws": "figures", "variants": variants}
+
+    def counts(self, figures, draws, ground=(4, 8), shadow_draws=None):
+        triangles = figures * 1472
+        return {
+            "draws": ground[0] + draws,
+            "triangles": ground[1] + triangles,
+            "shadow_draws": draws if shadow_draws is None else shadow_draws,
+            "shadow_triangles": triangles,
+            "content_draws": draws,
+            "content_triangles": triangles,
+        }
+
+    # checks: PLT-04 PRE-27
+    def test_a_figure_on_a_skeleton_is_a_draw_and_the_palettes_one_for_all(self):
+        scene = self.figures()
+        drew = [self.counts(30, 30), self.counts(100, 100), self.counts(30, 1), self.counts(100, 1)]
+        self.assertEqual(calibrun.figures_wrong(scene, drew), [])
+        # a figure missing from the shadow pass, and the ground drawn differently
+        drew[1] = self.counts(100, 100, shadow_draws=99)
+        drew[2] = self.counts(30, 1, ground=(5, 10))
+        wrong = calibrun.figures_wrong(scene, drew)
+        self.assertIn("c6/godot100: shadow_draws 99, where its figures alone make 100", wrong)
+        self.assertIn("c6: the ground under the figures draws differently from variant to variant", wrong)
+        # palettes drawing a figure a draw
+        drew = [self.counts(30, 30), self.counts(100, 100), self.counts(30, 30), self.counts(100, 1)]
+        self.assertIn(
+            "c6/palette30: its figures make 30 draws, where its way makes 1", calibrun.figures_wrong(scene, drew)
+        )
+
+
+class ThePalettesAgainstGodotsSkeletons(unittest.TestCase):
+    def bent(self, shift=0.0, walk=0.3, blank=0):
+        """A figure of 6 vertices bent both ways at two moments, the palette's moved by `shift` metres in x, the
+        walk moving the first vertex by `walk`, and the palette's first `blank` vertices not drawn."""
+        rest = np.array(
+            [[0.0, 0.1, 0.0], [0.1, 0.9, 0.0], [0.0, 1.7, 0.0], [0.2, 1.2, 0.1], [-0.2, 1.2, 0.1], [0, 0.5, 0]]
+        )
+        moments = []
+        for moved in (0.0, walk):
+            godot = rest.copy()
+            godot[0, 2] += moved
+            palette = godot + [shift, 0.0, 0.0]
+            palette[:blank] = -1.0
+            moments.append({"godot": godot.ravel().tolist(), "palette": palette.ravel().tolist()})
+        return {"vertices": 6, "moments": moments}
+
+    # checks: PRE-27
+    def test_palettes_within_a_centimetre_of_godots_skeleton_pass(self):
+        wrong, apart = calibrun.bent_wrong(self.bent(shift=0.004))
+        self.assertEqual(wrong, [])
+        self.assertAlmostEqual(apart, 0.004)
+
+    # checks: PRE-27
+    def test_a_vertex_bent_too_far_a_vertex_not_drawn_and_a_figure_standing_still_are_named(self):
+        wrong, _ = calibrun.bent_wrong(self.bent(shift=0.02))
+        self.assertEqual(wrong, ["the palettes bend a vertex 2.0 cm from Godot's skeleton, where 1 cm at most may"])
+        wrong, _ = calibrun.bent_wrong(self.bent(blank=2))
+        self.assertIn("moment 0: 2 of the figure's 6 vertices not drawn palette's way", wrong)
+        wrong, _ = calibrun.bent_wrong(self.bent(walk=0.01))
+        self.assertIn("the figure bent godot's way moves 1.0 cm in half a second of its walk", wrong)
+        self.assertEqual(calibrun.bent_wrong(None)[0], ["the bone palettes were not checked against Godot's skeletons"])
+
+
 READY = (
     os.path.exists(os.environ.get("GODOT", "")) and shutil.which("xvfb-run") is not None
     and os.path.exists(os.path.join(calibrun.ROOT, "game", "bin", "libkindling.linux.x86_64.so"))
@@ -151,7 +228,9 @@ class TheScenesDrawnInTheCloud(unittest.TestCase):
     def test_every_variant_draws_what_its_scene_states_and_the_code_reads(self):
         run = calibrun.draw()
         self.assertEqual(calibrun.check(run), [])
-        self.assertEqual([s["name"] for s in run["scenes"]], ["c1", "c2", "c3", "c3-draws", "c4", "c5"])
+        self.assertEqual(
+            [s["name"] for s in run["scenes"]], ["c1", "c2", "c3", "c3-draws", "c4", "c5", "c6", "c6-reads"]
+        )
 
 
 if __name__ == "__main__":

@@ -16,9 +16,9 @@ set(GODOTCPP_SYSTEM_HEADERS ON CACHE BOOL "" FORCE)
 add_subdirectory("${KD_GODOT_CPP}" godot-cpp EXCLUDE_FROM_ALL)
 
 # What needs no Godot, so its tests run alone: the speed loop, the heat governor, the crowd's stepper and buffers, the
-# frame meter, and the look's camera rig, gesture reader, scripted paths, stage and texture files.
+# frame meter, the look's camera rig, gesture reader, scripted paths, stage and texture files, and the poser.
 add_library(kd_view_core STATIC src/pace.cpp src/heat.cpp src/crowd_core.cpp src/frames.cpp src/gestures.cpp src/rig.cpp
-    src/path.cpp src/stage.cpp src/textures.cpp)
+    src/path.cpp src/stage.cpp src/textures.cpp src/poser.cpp)
 target_include_directories(kd_view_core PUBLIC src)
 target_link_libraries(kd_view_core PUBLIC kd_sim)
 kindling_rules(kd_view_core)
@@ -28,6 +28,7 @@ add_library(kindling SHARED
     src/calibration.cpp
     src/crowd.cpp
     src/device.cpp
+    src/figures.cpp
     src/look.cpp
     src/world.cpp
     src/worlds.cpp)
@@ -58,7 +59,7 @@ option(KD_VIEW_TESTS "Build the extension's own tests" ON)
 if(KD_VIEW_TESTS AND NOT ANDROID)
     set(KD_DOCTEST "$ENV{KD_DOCTEST}" CACHE PATH "doctest's folder (tools/setup.sh)")
     add_executable(kd_view_tests tests/main.cpp tests/pace_test.cpp tests/crowd_core_test.cpp tests/frames_test.cpp
-        tests/heat_test.cpp tests/rig_test.cpp tests/stage_test.cpp)
+        tests/heat_test.cpp tests/rig_test.cpp tests/stage_test.cpp tests/poser_test.cpp)
     target_include_directories(kd_view_tests SYSTEM PRIVATE "${KD_DOCTEST}")
     target_compile_definitions(kd_view_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)
     target_link_libraries(kd_view_tests PRIVATE kd_view_core)

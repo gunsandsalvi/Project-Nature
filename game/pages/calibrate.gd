@@ -52,6 +52,10 @@ var _sun: DirectionalLight3D
 var _sky: Environment
 var _ground_built := false
 var _content: Node3D
+## C6's figures, posed each frame, and the time the last frame's posing took in microseconds: the
+## main thread's, which Godot's clocks leave out.
+var _figures: KdFigures
+var _posing_us := 0.0
 var _mirror: SubViewport
 var _follow: Camera3D
 var _viewports: Array[Viewport] = []
@@ -211,8 +215,11 @@ func _process(delta: float) -> void:
 		_look.play(scene["path"])
 	# real time by the steady clock, since Godot's delta is smoothed (A3.9)
 	var now := Time.get_ticks_usec()
-	_elapsed += (now - _clock) / 1.0e6
+	var seconds := (now - _clock) / 1.0e6
+	_elapsed += seconds
 	_clock = now
+	if _figures != null:
+		_posing_us = _figures.frame(seconds)
 	var t := _elapsed / time_scale
 	if _phase == 0 and t >= WARM:
 		_phase = 1
@@ -266,8 +273,8 @@ func _open(scene_index: int, variant_index: int) -> void:
 	_sun.visible = draws not in ["nothing", "fires"]
 	_sun.shadow_enabled = v["shadows"]
 	CalibrationFires.night(_sky, draws == "fires")
-	# the field, the plants and the fires stand on the ground with the full material
-	var lit := draws in ["field", "leaves", "fires"]
+	# the field, the plants, the fires and the figures stand on the ground with the full material
+	var lit := draws in ["field", "leaves", "fires", "figures"]
 	if lit and not _ground_built:
 		_ground_built = true
 		var problem := LookScene.ground(_look, _world, CalibrationDrawing.FIELD_SHADER)
@@ -292,6 +299,11 @@ func _open(scene_index: int, variant_index: int) -> void:
 		_follow = _content.get_meta("follow") if _content.has_meta("follow") else null
 	elif draws == "leaves":
 		_content = CalibrationPlants.plants(_world, _camera, screen, v["way"])
+	elif draws == "figures":
+		_content = CalibrationFigures.figures(_world, _camera, screen, v["figures"], v["way"])
+		_figures = _content.get_meta("figures")
+	elif draws == "reads":
+		_content = CalibrationFigures.reads(_world, pixels, v["vertices"], v["reads"])
 	elif draws == "rocks":
 		_content = CalibrationDrawing.rocks(_world, _camera, screen, v["triangles"])
 	elif draws == "copies":
@@ -323,7 +335,8 @@ func _read_fast() -> void:
 		_gpu_frames += 1
 	var cpu := Timing.cpu_ms(_viewports)
 	if cpu > 0.0:
-		_cpu += cpu
+		# the figures' posing is the main thread's too
+		_cpu += cpu + _posing_us / 1000.0
 		_cpu_frames += 1
 	var main := get_viewport().get_viewport_rid()
 	var drew := {
@@ -463,6 +476,10 @@ func _clear_content() -> void:
 	_content = null
 	_mirror = null
 	_follow = null
+	if _figures != null:
+		_figures.clear()
+	_figures = null
+	_posing_us = 0.0
 
 
 ## A count of the last frame's draws, or its triangles, in a pass of a viewport.

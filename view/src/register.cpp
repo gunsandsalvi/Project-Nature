@@ -11,6 +11,7 @@
 #include "calibration.hpp"
 #include "crowd.hpp"
 #include "device.hpp"
+#include "figures.hpp"
 #include "frames.hpp"
 #include "look.hpp"
 #include "world.hpp"
@@ -28,6 +29,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdLook>();
     godot::ClassDB::register_class<kd::view::KdWorlds>();
     godot::ClassDB::register_class<kd::view::KdCalibration>();
+    godot::ClassDB::register_class<kd::view::KdFigures>();
 }
 
 void uninitialize(godot::ModuleInitializationLevel /*level*/) {}
