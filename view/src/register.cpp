@@ -8,6 +8,7 @@
 
 #include <chrono>
 
+#include "area_draw.hpp"
 #include "calibration.hpp"
 #include "crowd.hpp"
 #include "device.hpp"
@@ -32,6 +33,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdCalibration>();
     godot::ClassDB::register_class<kd::view::KdFigures>();
     godot::ClassDB::register_class<kd::view::KdKit>();
+    godot::ClassDB::register_class<kd::view::KdArea>();
 }
 
 void uninitialize(godot::ModuleInitializationLevel /*level*/) {}
