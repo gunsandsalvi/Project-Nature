@@ -9,6 +9,8 @@ id = "meadow"
 name = "Meadow grass and earth"
 what = "the grassland's own surface: short grass blades, earth showing between them; the tufts, flowers and stones on it are pieces of their own"
 art_book = ["textures-a", "meadow-band2", "d2-pixel-paint", "delight-liked"]
+sheet = "sheets/1.1-meadow.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "wear"
@@ -45,8 +47,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "hearth_ground"
 name = "Ash and burnt ground"
-what = "the grey ash and scorched earth round a hearth"
+what = "the grey ash and scorched earth round a hearth, with charcoal; the hearth stones, wood, embers and fire are pieces of their own"
 art_book = ["close-camp"]
+sheet = "sheets/1.6-hearth_ground.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "mud"
