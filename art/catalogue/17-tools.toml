@@ -22,8 +22,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "flake"
 name = "Sharp flake"
-what = "the first tool"
+what = "Sharp flake"
 art_book = ["made-things-sheet"]
+sheet = "sheets/17.3-flake.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "blade"
