@@ -47,6 +47,14 @@ void fragment() {
 	}
 }
 
+// How bright the edge is where the low sun grazes a shape, against the sun's own light (tuning/light's rim, A5.2).
+global uniform float kd_rim;
+
 void light() {
 	DIFFUSE_LIGHT += kd_light_sun(NORMAL, LIGHT, LIGHT_COLOR, ATTENUATION, kd_big_shadow, 0.0);
+	// the lit edge: where the surface turns edge on to the eye, on the side that faces the sun, and only where the
+	// sun reaches
+	float edge = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);
+	float toward = smoothstep(-0.2, 0.6, dot(NORMAL, LIGHT));
+	DIFFUSE_LIGHT += LIGHT_COLOR * kd_rim * edge * toward * ATTENUATION * kd_big_shadow / PI;
 }

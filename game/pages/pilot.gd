@@ -37,6 +37,8 @@ const SHEET_SHARE := 0.4
 var area := KdArea.new()
 var water := Water.new()
 var kit := KdKit.new()
+## The maps round the camp's things (A4.4): contact, openness and the sun's angle for the light.
+var maps := ViewMaps.new()
 var band := 0
 var place := "Camp"
 ## The piece whose sheet shows at the top, or "", and whether the zoom is a texture pixel enlarged.
@@ -84,6 +86,7 @@ func _process(delta: float) -> void:
 		_origin = origin
 		area.set_origin(origin.x, origin.y)
 		kit.set_origin(origin.x, origin.y)
+		maps.follow(origin.x, origin.y)
 
 
 ## Takes the view to a place, one of PLACES, and puts any sheet away.
@@ -180,8 +183,8 @@ func place_at(name: String) -> Vector2i:
 	return Vector2i(0, MEADOW_NORTH)
 
 
-## The camp's thing at a place, "Tent" or "Club": {"model", "east", "north", "up"} in centimetres,
-## or empty.
+## The camp's thing at a place, "Tent" or "Club": {"id", "model", "east", "north", "up"} in
+## centimetres, or empty.
 func camp_thing(name: String) -> Dictionary:
 	return _camp.get(name, {})
 
@@ -233,7 +236,7 @@ func _build_camp() -> String:
 	)
 	if not said.is_empty():
 		return said
-	return _stand(
+	said = _stand(
 		"Club",
 		str(tuning["club"]),
 		roundi(away * sin(bearing)),
@@ -241,6 +244,13 @@ func _build_camp() -> String:
 		float(tuning["club_turn"]),
 		seed_of
 	)
+	if not said.is_empty():
+		return said
+	# the ground's openness, contact and shadows round the camp's things
+	said = maps.build(kit, [_camp["Tent"]["id"], _camp["Club"]["id"]], world)
+	var state := look.state()
+	maps.follow(int(state["origin_east"]), int(state["origin_north"]))
+	return said
 
 
 ## Sets a recipe's thing on the ground at a place, in centimetres, and keeps where it stands.
@@ -251,7 +261,7 @@ func _stand(
 	var made := kit.place(scenario(), model, seed_of, east, north, up, turn, {})
 	if str(made["problem"]) != "":
 		return str(made["problem"])
-	_camp[name] = {"model": model, "east": east, "north": north, "up": up}
+	_camp[name] = {"id": int(made["id"]), "model": model, "east": east, "north": north, "up": up}
 	return ""
 
 

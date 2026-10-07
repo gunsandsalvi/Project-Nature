@@ -112,6 +112,68 @@ func test_the_camp_s_tent_and_club_stand_on_the_meadow_where_the_tuning_says() -
 	assert_vector(page.place_at("Club")).is_equal(Vector2i(club["east"], club["north"]))
 
 
+# checks: PRE-21 PRE-24 PRE-30
+func test_the_maps_round_the_camp_s_things_are_made_from_them_with_the_light_s_numbers() -> void:
+	var page := _page()
+	await await_idle_frame()
+	assert_str(page.problem).is_empty()
+	var tent: Dictionary = page.camp_thing("Tent")
+	var tuning: Dictionary = page.world.entry("tuning/light", "base:light")
+	var maps: ViewMaps = page.maps
+	assert_object(maps.view).is_not_null()
+	assert_object(maps.tops).is_not_null()
+	# the numbers are the light's: a texel of 6 cm, the farthest caster's distance
+	assert_float(maps.width / float(maps.view.get_width())).is_equal_approx(
+		float(tuning["maps_texel"]) / 1000.0, 1e-6
+	)
+	assert_float(maps.reach).is_equal_approx(float(tuning["shadow_reach"]) / 1000.0, 1e-6)
+	# the square covers the tent, and something stands on a good many of its texels: the tent's
+	# footprint is a circle about 4 m across, 12 m2, of 3,500 texels of 6 cm and more
+	var east := float(tent["east"]) / 100.0
+	var north := float(tent["north"]) / 100.0
+	assert_bool(east > maps.west and east < maps.west + maps.width).is_true()
+	assert_bool(north > maps.south and north < maps.south + maps.width).is_true()
+	assert_int(maps.footprint).is_greater(2500)
+	# the heights: the tent's apex stands about 2.6 m over the ground, and the tops are the same size
+	var tops := maps.tops.get_image()
+	assert_int(tops.get_width()).is_equal(maps.view.get_width())
+	var apex := 0.0
+	for row in tops.get_height():
+		for column in tops.get_width():
+			apex = maxf(apex, tops.get_pixel(column, row).r)
+	assert_float(apex).is_between(2.0, 3.2)
+	# the corner of the square is untouched, and somewhere on the ground there is contact darkening
+	var view := maps.view.get_image()
+	var corner := view.get_pixel(1, 1)
+	assert_float(corner.r).is_equal_approx(1.0, 0.01)
+	assert_float(corner.g).is_equal_approx(1.0, 0.01)
+	assert_float(corner.b).is_equal_approx(0.0, 0.01)
+	var darkest := 1.0
+	for row in view.get_height():
+		for column in view.get_width():
+			darkest = minf(darkest, view.get_pixel(column, row).g)
+	assert_float(darkest).is_less(0.7)
+
+
+# checks: PRE-21 PRE-24
+func test_the_maps_params_are_the_light_s_tuning_in_metres_and_shares() -> void:
+	var tuning := {
+		"maps_texel": 60,
+		"open_reach": 2000,
+		"open_strength": 800000,
+		"contact_width": 180,
+		"contact_strength": 550000,
+		"shadow_reach": 14000,
+	}
+	var params := ViewMaps.params_of(tuning)
+	assert_float(params["texel"]).is_equal_approx(0.06, 1e-9)
+	assert_float(params["open_reach"]).is_equal_approx(2.0, 1e-9)
+	assert_float(params["open_strength"]).is_equal_approx(0.8, 1e-9)
+	assert_float(params["contact_width"]).is_equal_approx(0.18, 1e-9)
+	assert_float(params["contact_strength"]).is_equal_approx(0.55, 1e-9)
+	assert_float(params["shadow_reach"]).is_equal_approx(14.0, 1e-9)
+
+
 # checks: PRE-42 PLT-04
 func test_the_build_ships_each_pilot_piece_s_sheet_and_it_reads_as_a_picture() -> void:
 	var files: Dictionary = GameData.sheets(GameData.build())

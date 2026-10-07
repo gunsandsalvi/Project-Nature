@@ -55,7 +55,9 @@ func test_the_light_is_put_under_a_node_from_the_tuning_and_its_globals_are_publ
 	# headless renderer keeps no values to read back)
 	for name: String in [
 		"kd_view_maps",
+		"kd_view_tops",
 		"kd_maps_place",
+		"kd_rim",
 		"kd_fire_grid",
 		"kd_fire_table",
 		"kd_grid_place",

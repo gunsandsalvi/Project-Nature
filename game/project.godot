@@ -46,6 +46,14 @@ kd_maps_place={
 "type": "vec4",
 "value": Vector4(0, 0, 64, 20)
 }
+kd_view_tops={
+"type": "sampler2D",
+"value": ""
+}
+kd_rim={
+"type": "float",
+"value": 0.0
+}
 kd_fire_grid={
 "type": "sampler2D",
 "value": ""
