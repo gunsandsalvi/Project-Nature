@@ -1,6 +1,7 @@
 """The catalogue sheet (PRE-46, PRE-22, A5.3): each picture from above with a scale stick drawn by code at its true
 length, a close-up, a 3 x 3 repeat, the camera views side by side, the states in rows, and every panel labelled on a
-page 1080 pixels wide."""
+page 1080 pixels wide; and an object's views cut from magenta and stood at one true scale beside the adult and the
+stick, its poses scaled as one."""
 
 import json
 import os
@@ -28,6 +29,39 @@ def stick_lengths(picture):
             run = run + 1 if v else 0
             best = max(best, run)
     return best
+
+
+RED = (200, 40, 40)
+BLUE = (40, 60, 200)
+
+
+def drawn(size, boxes, speck=True):
+    """A picture like GPT's: flat magenta with coloured boxes, each (colour, (x0, y0, x1, y1)), and a stray speck."""
+    pixels = np.zeros((size[1], size[0], 3), np.uint8)
+    pixels[:] = sheet.KEY
+    for colour, (x0, y0, x1, y1) in boxes:
+        pixels[y0:y1, x0:x1] = colour
+    if speck:
+        pixels[5, 5] = (10, 10, 10)
+    return Image.fromarray(pixels)
+
+
+def extent(picture, colour):
+    """The width and height of the box holding every pixel of exactly this colour."""
+    pixels = np.asarray(picture.convert("RGB")).astype(int)
+    ys, xs = np.nonzero(np.abs(pixels - colour).sum(axis=2) == 0)
+    return xs.max() - xs.min() + 1, ys.max() - ys.min() + 1
+
+
+def height(cut):
+    """How many rows of a cut-out are more than half opaque."""
+    rows = np.nonzero((np.asarray(cut)[:, :, 3] > 127).any(axis=1))[0]
+    return rows.max() - rows.min() + 1
+
+
+def upright_lengths(picture):
+    """The longest run of the stick's two colours down any column of the picture, in pixels."""
+    return stick_lengths(picture.transpose(Image.Transpose.TRANSPOSE))
 
 
 class Sheet(unittest.TestCase):
@@ -72,6 +106,57 @@ class Sheet(unittest.TestCase):
                 column = page.crop(box)
                 rows = [stick_lengths(column.crop((0, y, column.width, y + 1))) for y in range(column.height)]
                 self.assertIn(length, rows, f"{name} is not {length} pixels long")
+
+    # checks: PRE-46
+    def test_a_view_is_cut_from_magenta_and_scaled_to_its_true_size(self):
+        cut = sheet.cut_out(drawn((600, 900), [(RED, (100, 150, 300, 750))]))
+        self.assertEqual(cut.size, (200, 600), "the stray speck widened the cut, or the magenta stayed")
+        self.assertEqual(sheet.to_scale(cut, 1.5, 200).size, (100, 300))
+        self.assertEqual(sheet.to_scale(cut, 0.5, 300, "across").size, (150, 450))
+
+    # checks: PRE-46
+    def test_a_strip_of_poses_is_scaled_as_one_from_its_first_pose(self):
+        strip = drawn((900, 500), [(RED, (50, 60, 150, 460)), (BLUE, (400, 260, 600, 460))])
+        first, second = sheet.poses(strip, 1.7, 100)
+        self.assertEqual(height(first), 170, "the first pose is not 1.7 m tall")
+        self.assertEqual(height(second), 85, "the second pose was not scaled with the first")
+
+    # checks: PRE-46
+    def test_an_object_sheet_stands_its_views_the_adult_and_the_stick_at_one_scale(self):
+        with tempfile.TemporaryDirectory() as d:
+            drawn((800, 1000), [(RED, (200, 100, 600, 900))]).save(os.path.join(d, "front.png"))
+            drawn((800, 1000), [(RED, (300, 100, 500, 900))]).save(os.path.join(d, "side.png"))
+            drawn((1000, 800), [(BLUE, (100, 200, 900, 600))]).save(os.path.join(d, "cam.png"))
+            spec = {
+                "number": "16.4",
+                "name": "Hide tent",
+                "about": "A test piece.",
+                "views": {
+                    "items": [
+                        {"file": "front.png", "label": "Front", "tall": 2.8},
+                        {"file": "side.png", "label": "Side", "tall": 2.8},
+                    ],
+                    "stick": 1,
+                    "adult": True,
+                },
+                "camera_objects": {"items": [{"file": "cam.png", "label": "Sun behind", "across": 3.4}], "stick": 1},
+            }
+            cut = lambda name: sheet.cut_out(Image.open(os.path.join(d, name)))  # noqa: E731
+            s = sheet.object_scale(spec, cut)
+            self.assertEqual(s, int(sheet.TALLEST / 2.8))
+            with open(os.path.join(d, "spec.json"), "w") as f:
+                json.dump(spec, f)
+            out = os.path.join(d, "sheet.png")
+            self.assertEqual(sheet.main(["sheet.py", os.path.join(d, "spec.json"), d, out]), 0)
+            page = Image.open(out)
+            self.assertEqual(extent(page, sheet.FIGURE)[1], round(1.7 * s), "the adult is not 1.7 m tall")
+            self.assertEqual(upright_lengths(page), round(1 * s), "the upright stick is not 1 m long")
+            self.assertIn(
+                round(1 * s), [stick_lengths(page.crop((0, y, page.width, y + 1))) for y in range(page.height)]
+            )
+            red = np.asarray(page.convert("RGB")).astype(int)
+            ys = np.nonzero((np.abs(red - RED).sum(axis=2) == 0).any(axis=1))[0]
+            self.assertEqual(ys.max() - ys.min() + 1, round(2.8 * s), "the front view is not 2.8 m tall")
 
 
 if __name__ == "__main__":

@@ -1,14 +1,20 @@
 """A catalogue sheet (IMPLEMENTATION.md, the catalogue): GPT's pictures of one piece laid out on one tall picture 1080
 pixels wide, as the owner reads it on the phone, with its name, its colours, its scale sticks and its labels.
 
-Each picture from above shows a known area, so its scale stick is drawn here by code at its true length: one design on
-every sheet, ivory and charcoal segments, ten to a stick, 10 cm, 1 m or 10 m long. The tiles are shown about as the
-phone shows them where each is used (4 m, 16 m and 64 m across, each about 512 screen pixels); a close-up shows part of
-a tile enlarged, and a repeat panel how a tile's pattern reads over wider ground. The camera views come as GPT drew
-them, their own sticks measured before they are used.
+Every scale stick is drawn here by code at its true length, one design on every sheet: ivory and charcoal segments, ten
+to a stick, 10 cm, 1 m or 10 m long.
+- Surfaces: each picture from above shows a known area, so its stick is true to it. The tiles are shown about as the
+  phone shows them where each is used (4 m, 16 m and 64 m across, each about 512 screen pixels); a close-up shows part
+  of a tile enlarged, and a repeat panel how a tile's pattern reads over wider ground. The camera views come as GPT
+  drew them, their own sticks measured before they are used.
+- Objects: GPT draws each view on flat magenta, as the art book's own sheets do. Here each is cut out and scaled from
+  the size in metres the spec gives it (its height, or its width across the view), so every view on a sheet stands at
+  one scale beside an upright stick and, for anything big, a standing adult 1.7 m tall drawn by code. A strip of key
+  poses is scaled as one, from its first pose. The camera's view is also shown at its true size on the phone at each
+  zoom the game sees it from.
 
 Usage: python3 tools/art/sheet.py <spec.json> <picture folder> <out>
-The spec names the piece and its pictures; tools/tests/test_art_sheet.py shows one.
+The spec names the piece and its pictures; tools/tests/test_art_sheet.py shows both kinds.
 
 Implements PRE-46, PRE-22, see A5.3.
 """
@@ -17,6 +23,7 @@ import json
 import os
 import sys
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 WIDTH = 1080
@@ -59,6 +66,124 @@ def with_stick(picture, metres_across, metres):
     shown = picture.convert("RGB")
     stick(ImageDraw.Draw(shown), 14, shown.height - 26, shown.width * metres / metres_across, length_label(metres))
     return shown
+
+
+KEY = (255, 0, 255)  # the flat magenta GPT draws objects on
+ADULT = 1.7  # metres: the standing adult beside anything big
+FIGURE = (150, 143, 130)
+TALLEST = 520  # screen pixels the tallest thing on an object sheet may stand
+ZOOMS = [("Up close", 128), ("The close camp", 32), ("The camp", 8)]  # screen pixels a metre at each zoom's centre
+
+
+def solid(picture):
+    """Where the picture is not the key colour."""
+    rgb = np.asarray(picture.convert("RGB")).astype(np.int32)
+    return np.abs(rgb - KEY).sum(axis=2) > 120
+
+
+def spans(mask, least):
+    """The runs of indices where `mask` holds and that are longer than `least`, each (start, end), end exclusive."""
+    out, start = [], None
+    for i, on in enumerate(list(mask) + [False]):
+        if on and start is None:
+            start = i
+        elif not on and start is not None:
+            if i - start > least:
+                out.append((start, i))
+            start = None
+    return out
+
+
+def clear(picture):
+    """The picture as RGBA with the key colour made clear."""
+    rgb = np.asarray(picture.convert("RGB"))
+    return np.dstack([rgb, (solid(picture) * 255).astype(np.uint8)])
+
+
+def cut_out(picture):
+    """The object GPT drew on flat magenta, cropped to itself with the magenta made clear. Rows and columns with fewer
+    than three solid pixels are left out of its box, so a stray speck doesn't widen it."""
+    on = solid(picture)
+    cols = np.nonzero(on.sum(axis=0) >= 3)[0]
+    rows = np.nonzero(on.sum(axis=1) >= 3)[0]
+    if not len(cols) or not len(rows):
+        raise ValueError("the picture holds nothing but the key colour")
+    return Image.fromarray(clear(picture), "RGBA").crop((cols[0], rows[0], cols[-1] + 1, rows[-1] + 1))
+
+
+def to_scale(cut, metres, px_per_m, measure="tall"):
+    """The cut-out scaled so its height, or with "across" its width, is `metres` at `px_per_m`."""
+    k = metres * px_per_m / (cut.height if measure == "tall" else cut.width)
+    size = (max(1, round(cut.width * k)), max(1, round(cut.height * k)))
+    return cut.resize(size, Image.LANCZOS if k < 1 else Image.NEAREST)
+
+
+def poses(picture, metres, px_per_m):
+    """A strip of key poses on flat magenta, split at the empty columns between them and scaled as one, so its first
+    pose is `metres` tall; each keeps its height above the strip's ground line."""
+    on = solid(picture)
+    rows = np.nonzero(on.sum(axis=1) >= 3)[0]
+    top, bottom = rows[0], rows[-1] + 1
+    found = spans(on[top:bottom].sum(axis=0) >= 3, on.shape[1] // 100)
+    a, b = found[0]
+    first = np.nonzero(on[top:bottom, a:b].sum(axis=1) >= 1)[0]
+    k = metres * px_per_m / (first[-1] - first[0] + 1)
+    rgba = clear(picture)
+    out = []
+    for a, b in found:
+        piece = Image.fromarray(rgba[top:bottom, a:b], "RGBA")
+        out.append(piece.resize((max(1, round(piece.width * k)), max(1, round(piece.height * k))), Image.LANCZOS))
+    return out
+
+
+def adult(height):
+    """A standing adult `height` screen pixels tall, a plain figure drawn by code: the size beside big pieces."""
+    h = height
+    w = max(6, round(h * 0.3))
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    cx = w / 2
+    head = h * 0.13
+    d.ellipse([cx - head * 0.42, 0, cx + head * 0.42, head], fill=FIGURE)
+    neck = head * 1.05
+    d.rounded_rectangle([cx - w * 0.36, neck, cx + w * 0.36, h * 0.54], radius=max(1, w * 0.12), fill=FIGURE)
+    for side in (-1, 1):
+        x0, x1 = sorted((cx + side * w * 0.4, cx + side * w * 0.5))
+        d.rectangle([x0, neck + h * 0.03, x1, h * 0.5], fill=FIGURE)
+        x0, x1 = sorted((cx + side * w * 0.04, cx + side * w * 0.3))
+        d.rectangle([x0, h * 0.5, x1, h - 1], fill=FIGURE)
+    return im
+
+
+def label_box(label):
+    tag = font(16, True)
+    box = ImageDraw.Draw(Image.new("RGB", (1, 1))).textbbox((0, 0), label, font=tag)
+    return tag, box
+
+
+def upright(length, label, width=12):
+    """An upright scale stick `length` screen pixels tall with its label above, as a picture standing on its foot."""
+    tag, box = label_box(label)
+    tw, th = box[2] - box[0], box[3] - box[1]
+    w, h = max(width, tw + 8), length + th + 14
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    x = (w - width) // 2
+    for i in range(10):
+        colour = IVORY if i % 2 == 0 else CHARCOAL
+        d.rectangle([x, h - round((i + 1) * length / 10), x + width - 1, h - round(i * length / 10) - 1], fill=colour)
+    d.rectangle([0, 0, w - 1, th + 6], fill=IVORY)
+    d.text(((w - tw) // 2, 3 - box[1]), label, fill=CHARCOAL, font=tag)
+    return im
+
+
+def lying(length, label, height=12):
+    """A scale stick lying `length` screen pixels long with its label above, as a picture resting on the ground."""
+    tag, box = label_box(label)
+    th = box[3] - box[1]
+    im = Image.new("RGBA", (length + 8, height + th + 14), (0, 0, 0, 0))
+    stick(ImageDraw.Draw(im), 4, th + 14, length, label, height)
+    return im
 
 
 def wrapped(draw, text, width, face):
@@ -112,6 +237,36 @@ class Sheet:
 
         self.add(height + after, paint)
 
+    def figures(self, items, after=GAP):
+        """A row of (picture, label) standing on one ground line, each at its own size, so things drawn at one scale
+        stay comparable; it wraps to another line when wider than the page."""
+        label_h, width = 28, WIDTH - 2 * MARGIN
+        probe = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+        lines, line, used = [], [], 0
+        for picture, label in items:
+            slot = max(picture.width, round(probe.textlength(label, font=font(19, True))) + 8 if label else 0)
+            if line and used + GAP + slot > width:
+                lines.append(line)
+                line, used = [], 0
+            line.append((picture, label, slot))
+            used += (GAP if used else 0) + slot
+        if line:
+            lines.append(line)
+        for line in lines:
+            height = max(p.height for p, _, _ in line)
+
+            def paint(page, draw, y, line=line, height=height):
+                ground = y + label_h + height
+                draw.line([MARGIN, ground, WIDTH - MARGIN, ground], fill=EDGE, width=2)
+                x = MARGIN
+                for picture, label, slot in line:
+                    if label:
+                        draw.text((x, y), label, fill=QUIET, font=font(19, True))
+                    page.paste(picture, (x, ground - picture.height), picture if picture.mode == "RGBA" else None)
+                    x += slot + GAP
+
+            self.add(label_h + height + 2 + after, paint)
+
     def render(self):
         height = MARGIN + sum(h for h, _ in self.blocks) + MARGIN
         page = Image.new("RGB", (WIDTH, height), GROUND)
@@ -125,6 +280,78 @@ class Sheet:
 
 def fit(picture, width):
     return picture.resize((width, round(picture.height * width / picture.width)), Image.LANCZOS)
+
+
+def object_scale(spec, cut):
+    """Screen pixels a metre for an object sheet, a whole number: as many as let its tallest view stand within
+    TALLEST and its widest fit the page beside the adult and the stick."""
+    room = WIDTH - 2 * MARGIN - 160
+    items = list(spec["views"]["items"]) + list(spec.get("camera_objects", {}).get("items", []))
+    items += [spec["above"]] if "above" in spec else []
+    items += [i for g in spec.get("groups", []) if g.get("scale", 1) == 1 for i in g["items"]]
+    best = float("inf")
+    for item in items:
+        c = cut(item["file"])
+        if "tall" in item:
+            h, w = item["tall"], item["tall"] * c.width / c.height
+        else:
+            w, h = item["across"], item["across"] * c.height / c.width
+        best = min(best, TALLEST / h, room / w)
+    return max(1, int(best))
+
+
+def compose_object(spec, sheet, folder):
+    """The object's sections: its views at one scale with the adult and an upright stick, from above, the camera's view
+    and its true size on the phone at each zoom, its groups of parts or states, and its strips of key poses."""
+    cache = {}
+
+    def cut(name):
+        if name not in cache:
+            cache[name] = cut_out(Image.open(os.path.join(folder, name)))
+        return cache[name]
+
+    def shown(item, px_per_m):
+        measure = "tall" if "tall" in item else "across"
+        return to_scale(cut(item["file"]), item[measure], px_per_m, measure), item.get("label", "")
+
+    def standing(row, px_per_m, metres, with_adult):
+        if with_adult:
+            row.append((adult(round(ADULT * px_per_m)), "Adult, 1.7 m"))
+        row.append((upright(round(metres * px_per_m), length_label(metres)), ""))
+        return row
+
+    s = object_scale(spec, cut)
+    views = spec["views"]
+    sheet.text(f"Front, side and back, flat light, at one scale: {s} screen pixels a metre.", 26, bold=True)
+    row = [shown(i, s) for i in views["items"]]
+    sheet.figures(standing(row, s, views.get("stick", 1), views.get("adult", False)))
+    if "above" in spec:
+        above = spec["above"]
+        sheet.text("From above, at the same scale.", 26, bold=True)
+        metres = above.get("stick", 1)
+        sheet.figures([shown(above, s), (lying(round(metres * s), length_label(metres)), "")])
+    camera = spec.get("camera_objects")
+    if camera:
+        sheet.text("The game's camera, about 37 degrees down, late afternoon, at the same scale.", 26, bold=True)
+        metres = camera.get("stick", 1)
+        sheet.figures([shown(i, s) for i in camera["items"]] + [(lying(round(metres * s), length_label(metres)), "")])
+        first = camera["items"][0]
+        row = [(shown(first, k)[0], f"{label}: 1 m = {k} px") for label, k in ZOOMS]
+        row = [(p, label) for p, label in row if p.width <= WIDTH - 2 * MARGIN - 40]
+        if row:
+            about = "True size on the phone at each zoom (scaled here; each band gets pixel art of its own)."
+            sheet.text(about, 26, bold=True)
+            sheet.figures(row)
+    for group in spec.get("groups", []):
+        k = group.get("scale", 1) * s
+        title = group["title"] + ("" if k == s else f" ({k:g} screen pixels a metre)")
+        sheet.text(title, 26, bold=True)
+        row = [shown(i, k) for i in group["items"]]
+        sheet.figures(standing(row, k, group.get("stick", 1), group.get("adult", False)))
+    for strip in spec.get("strips", []):
+        sheet.text(strip["title"], 26, bold=True)
+        figures = poses(Image.open(os.path.join(folder, strip["file"])), strip["tall"], s)
+        sheet.figures(standing([(f, "") for f in figures], s, strip.get("stick", 1), False))
 
 
 def compose(spec, folder):
@@ -151,6 +378,9 @@ def compose(spec, folder):
                     break
 
         sheet.add(100, paint_chips)
+
+    if "views" in spec:
+        compose_object(spec, sheet, folder)
 
     tiles = [(load(t["file"]), t) for t in spec.get("tiles", [])]
     if tiles:
