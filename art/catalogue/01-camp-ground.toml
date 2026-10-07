@@ -11,10 +11,10 @@ what = "the grassland's own surface: short grass blades, earth showing between t
 art_book = ["textures-a", "meadow-band2", "d2-pixel-paint", "delight-liked"]
 
 [[piece]]
-id = "trodden_floor"
-name = "Trodden camp floor"
-what = "earth packed by feet round the hearths and tents"
-art_book = ["d2-pixel-paint", "close-camp"]
+id = "wear"
+name = "Trodden ground: paths and camp floors"
+what = "the wear layer the world lays over any ground where people walk, from flattened grass to bare packed earth, as a path or a camp floor; it appears, grows and fades with use"
+art_book = ["d2-pixel-paint", "close-camp", "camp-thirty"]
 
 [[piece]]
 id = "bare_earth"
@@ -43,14 +43,8 @@ what = "the grey ash and scorched earth round a hearth"
 art_book = ["close-camp"]
 
 [[piece]]
-id = "path"
-name = "Trodden path"
-what = "a path worn through grass by walking"
-art_book = ["d2-pixel-paint", "camp-thirty"]
-
-[[piece]]
 id = "mud"
 name = "Wet mud"
 what = "mud at the water's edge, taking footprints"
-sheet = "sheets/1.8-mud.webp"
+sheet = "sheets/1.7-mud.webp"
 signed_off = "7 October 2026"

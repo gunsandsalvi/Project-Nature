@@ -80,6 +80,7 @@ Every piece of art the game needs, worked out before any of it is made, as you a
   - each surface enlarged so its texture pixels show;
   - flat even light on the front, side, back and top views, and the game's late-afternoon light on the camera views.
   - Ground, water, sky, effects and the interface take only what applies to them; a piece's views come once, its states and actions as rows; a piece the art book already shows starts from that picture.
+  - What the world lays over a ground is a piece of its own, drawn once: the wear of paths and camp floors, wetness, frost and snow, and the water over a river bed; a ground's sheet shows only its own states, as you set on 7 October 2026.
 - **You sign off each piece** as its sheet is finished, as you asked on 7 October 2026; only signed-off pieces go to the art lane, in batches.
 - It is kept in `art/catalogue/`: a file of each group's pieces, and each piece's sheet.
 
