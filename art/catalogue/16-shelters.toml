@@ -24,9 +24,11 @@ what = "brush over a shallow floor"
 [[piece]]
 id = "hide_tent_cone"
 name = "Hide tent, cone"
-what = "skins on poles, held down by a ring of stones"
+what = "a small round tent of 11 deer or reindeer hides in two tiers, sewn into one cover on a cone of about ten poles tied at the top, its plain hem held down by a ring of 24 stones; 4.2 m across and 3.1 m to the pole tips, with a low door and its flap; no smoke flaps or painted designs"
 art_book = ["made-things-sheet", "winter"]
 note = "smoke flaps and tipi-like cones are a known slip"
+sheet = "sheets/16.4-hide_tent_cone.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "hide_tent_dome"

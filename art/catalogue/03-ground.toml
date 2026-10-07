@@ -28,8 +28,10 @@ signed_off = "7 October 2026"
 
 [[piece]]
 id = "steppe"
-name = "Dry grassland"
-what = "short sparse golden grass"
+name = "Steppe"
+what = "low clumps of wiry grass, straw-gold and grey-green, on pale dusty loess; feather-grass tussocks, flowers, shrubs and stones are pieces of their own"
+sheet = "sheets/3.4-steppe.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "savanna"
