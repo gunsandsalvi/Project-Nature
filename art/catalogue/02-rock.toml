@@ -158,7 +158,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "clay_bank"
 name = "Clay bank"
-what = "clay showing in river banks and old lake beds"
+what = "clay bank"
+sheet = "sheets/2.22-clay_bank.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "ochre"
