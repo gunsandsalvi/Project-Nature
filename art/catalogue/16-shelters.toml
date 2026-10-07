@@ -123,7 +123,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "smoke_rack"
 name = "Smoke rack"
-what = "meat over a smoky fire"
+what = "smoke rack"
+sheet = "sheets/16.18-smoke_rack.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "fences"
