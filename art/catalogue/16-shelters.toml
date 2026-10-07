@@ -100,7 +100,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "storage_pit"
 name = "Storage pit"
-what = "a lined, covered pit"
+what = "storage pit"
+sheet = "sheets/16.15-storage_pit.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "drying_frame"
