@@ -50,6 +50,7 @@ add_library(kd_sim STATIC
     src/kd/data/units.cpp
     src/kd/data/walkers.cpp
     src/kd/event/queue.cpp
+    src/kd/look/area_tuning.cpp
     src/kd/look/blind.cpp
     src/kd/look/calibration.cpp
     src/kd/look/card.cpp
@@ -58,6 +59,7 @@ add_library(kd_sim STATIC
     src/kd/look/light_tuning.cpp
     src/kd/look/measures.cpp
     src/kd/look/model.cpp
+    src/kd/look/water_tuning.cpp
     src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp
     src/kd/demo/crowd_scene.cpp
@@ -112,6 +114,7 @@ if(KD_SIM_TESTS)
         tests/checks_test.cpp
         tests/data_test.cpp
         tests/duration_test.cpp
+        tests/look_area_test.cpp
         tests/look_blind_test.cpp
         tests/look_calibration_test.cpp
         tests/look_card_test.cpp

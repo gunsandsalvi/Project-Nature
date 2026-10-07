@@ -10,6 +10,7 @@
 #include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/transform3d.hpp>
 #include <godot_cpp/variant/typed_array.hpp>
+#include <godot_cpp/variant/vector4.hpp>
 
 #include <cstring>
 #include <span>
@@ -66,6 +67,24 @@ godot::RID square(double side) {
 std::int64_t modulo(std::int64_t a, std::int64_t b) {
     const std::int64_t m = a % b;
     return m < 0 ? m + b : m;
+}
+
+// The ladder's tiles' widths in centimetres (A5.3): the near tile 4 m, the middle 16 m and the far 64 m.
+constexpr std::int64_t kNearTile = 400;
+constexpr std::int64_t kMiddleTile = 1600;
+constexpr std::int64_t kFarTile = 6400;
+
+// Where the origin lies in a tile's cells, east and then south, as the ladder's globals want it: the whole cells in
+// xy and the part of a cell in zw (ladder.gdshaderinc), exact however far the origin has moved (A8.2).
+godot::Vector4 origin_in_cells(std::int64_t east, std::int64_t north, std::int64_t tile) {
+    const std::int64_t south = -north;
+    const std::int64_t part_east = modulo(east, tile);
+    const std::int64_t part_south = modulo(south, tile);
+    const std::int64_t whole_east = (east - part_east) / tile;
+    const std::int64_t whole_south = (south - part_south) / tile;
+    return {static_cast<float>(whole_east), static_cast<float>(whole_south),
+            static_cast<float>(part_east) / static_cast<float>(tile),
+            static_cast<float>(part_south) / static_cast<float>(tile)};
 }
 
 }  // namespace
@@ -143,6 +162,9 @@ void KdLook::publish() const {
     rs.global_shader_parameter_set(
         "kd_origin_tile", godot::Vector2(static_cast<float>(modulo(origin_east_, tile)) / static_cast<float>(tile),
                                          static_cast<float>(modulo(-origin_north_, tile)) / static_cast<float>(tile)));
+    rs.global_shader_parameter_set("kd_origin_near", origin_in_cells(origin_east_, origin_north_, kNearTile));
+    rs.global_shader_parameter_set("kd_origin_middle", origin_in_cells(origin_east_, origin_north_, kMiddleTile));
+    rs.global_shader_parameter_set("kd_origin_far", origin_in_cells(origin_east_, origin_north_, kFarTile));
 }
 
 godot::Dictionary KdLook::pose() const {
@@ -177,24 +199,14 @@ godot::Dictionary KdLook::state() const {
 }
 
 godot::String KdLook::load_layers(const godot::PackedStringArray& paths) {
-    godot::TypedArray<godot::Image> images;
-    std::int64_t side = 0;
-    for (const godot::String& path : paths) {
-        const ReadLevels read = read_levels(path);
-        if (!read.problem.is_empty()) {
-            return read.problem;
-        }
-        const std::int64_t width = read.images[0]->get_width();
-        if (side != 0 && width != side) {
-            return path + godot::String(": a layer of another size");
-        }
-        side = width;
-        images.push_back(with_levels(read.images));
+    const Layered made = make_layered(paths);
+    if (!made.problem.is_empty()) {
+        return made.problem;
     }
     if (layers_.is_valid()) {
         server().free_rid(layers_);
     }
-    layers_ = server().texture_2d_layered_create(images, godot::RenderingServer::TEXTURE_LAYERED_2D_ARRAY);
+    layers_ = made.texture;
     return "";
 }
 

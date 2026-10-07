@@ -53,7 +53,8 @@ static func _linear(hex: Variant) -> Color:
 
 
 ## The light's globals: the view's maps with the sky open and nothing between a point and the sun,
-## a light grid with no fires, the sun's direction, the light bounced from the ground and the haze.
+## a light grid with no fires, the sun's direction, the light bounced from the ground, the haze and
+## the sky's colour.
 static func _publish(tuning: Dictionary, toward: Vector3) -> void:
 	var maps := Image.create(4, 4, false, Image.FORMAT_RGBA8)
 	maps.fill(Color(1.0, 1.0, 0.0, 0.0))
@@ -73,6 +74,9 @@ static func _publish(tuning: Dictionary, toward: Vector3) -> void:
 	_global("kd_haze", Vector4(haze.r, haze.g, haze.b, _share(tuning["haze_density"])))
 	var haze_sun := _linear(tuning["haze_sun_colour"])
 	_global("kd_haze_sun", Vector3(haze_sun.r, haze_sun.g, haze_sun.b))
+	# the sky's colour, which water mirrors by angle
+	var sky := _linear(tuning["sky_colour"])
+	_global("kd_sky", Vector3(sky.r, sky.g, sky.b))
 
 
 static func _global(name: String, value: Variant) -> void:

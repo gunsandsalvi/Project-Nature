@@ -1,0 +1,22 @@
+# The stand-in area (A4.6, A5.3, PRE-23, PRE-26): a square of meadow with a river across it, in the pilot, until the
+# world's own ground comes (M3). The three surfaces it wears are the stand-ins' (art/textures/standin_*), whose names
+# change to the art lane's own (art:meadow, art:river_bed, art:river_marks) when their files arrive.
+ground = "art:standin_meadow"
+bed = "art:standin_river_bed"
+marks = "art:standin_river_marks"
+# the square's half side, and half the width of the strip of heightfield the river runs in
+reach = "1024 m"
+strip = "48 m"
+# the meadow stands this far above the river's level; the river is 12 m across and 0.9 m deep at its deepest, each
+# bank straying 30% of half the width and the depth 60%, over a wandering about 60 m long
+bank = "0.4 m"
+width = "12 m"
+width_wobble = "30%"
+depth = "0.9 m"
+depth_wobble = "60%"
+wobble_length = "60 m"
+# the bank runs 1 m from the water's edge up to the meadow; the strip's rows round it are 0.25 m apart, a texture
+# pixel at band 0 being 1/64 m
+run = "1 m"
+spacing = "0.25 m"
+seed = 7

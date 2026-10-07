@@ -429,6 +429,10 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
   Still to do under it: the sheets in two materials and drawn again whenever the kit changes, once the art lane's own parts replace the stand-ins.
 - The first of `T2.3b.3`: the late afternoon's light as the `tuning/light` entry, placed by `Afternoon` for the pages that draw the pilot's pieces.
   The Look, Compare and Calibrate pages keep their own light until `T2.3b.3` moves them onto it, so their golden pictures hold.
+- The first of `T2.3b.2` and `T2.3b.4`, in progress (a work-in-progress commit): a stand-in area, a square of meadow 2 km across with a river across it (`tuning/area`, `view/src/area.hpp`), drawn by the Pilot page.
+  The ground reads a big surface's tiles through the ladder (`game/look/ladder.gdshaderinc`): near, middle and far, each in versions picked by a hash of the cell, blending where one tile takes over from the next.
+  The river's bed lies below the water's level and is tinted by depth (`tuning/water`); the surface mirrors the sky by angle and carries marks that step in whole texture pixels, glints and a shore line of one texture pixel, all from height (`game/look/water.gdshader`).
+  Still to do: the cliff, its layers and the art lane's boulders (`T2.3b.2`); the mirror at half resolution and delivery as 30302 (`T2.3b.4`); the golden pictures, the repeat measure and the shimmer paths over the ladder.
 
 **Tests:**
 - Golden pictures of the area at the closest zoom at noon and dusk; shimmer on the three scripted paths at most 2 in 100 pixels; the texture pixel 1.5–3 screen pixels; no pass reads the screen or depth (a scan of the shaders).

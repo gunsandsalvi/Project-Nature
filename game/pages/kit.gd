@@ -227,27 +227,9 @@ func _pick_buttons(names: PackedStringArray, show_one: Callable) -> void:
 		_button(_picks, name.trim_prefix("art:"), show_one.bind(name))
 
 
-func _button(parent: Control, label: String, pressed: Callable) -> void:
-	var button := Button.new()
-	button.text = label
-	button.custom_minimum_size = Vector2(0, 48)
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.pressed.connect(pressed)
-	parent.add_child(button)
-
-
 func _say(words: String) -> void:
 	shown.append(words)
 	_readout.text = words
 	if not problem.is_empty():
 		_readout.text += "\n" + problem
 		_readout.add_theme_color_override("font_color", Palette.FAIL)
-
-
-func _label(font_size: int, colour: Color) -> Label:
-	var label := Label.new()
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", colour)
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	add_child(label)
-	return label

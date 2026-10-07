@@ -38,12 +38,18 @@ func test_the_catalogues_are_the_same_as_the_build() -> void:
 	)
 	assert_int(lines.size()).is_equal(1)
 	assert_str(lines[0]["state"]).override_failure_message(str(lines[0])).is_equal("ok")
-	# the art lane's textures and models, an entry each however many there are, besides the 17 of data/
+	# the page says what loading the build's files gives: every source, kind and entry; and the art
+	# lane's textures and models, an entry each however many there are, are among the entries
+	var loaded := GameData.load_into(KdWorld.new())
 	var records := Array(GameData.paths(GameData.build())).filter(
 		func(path: String) -> bool: return path.ends_with("/record.toml")
 	)
+	assert_int(GameData.entry_count(loaded)).is_greater_equal(records.size())
 	assert_str(lines[0]["value"]).contains(
-		"3 sources, 10 kinds, %d entries" % (17 + records.size())
+		(
+			"%d sources, %d kinds, %d entries"
+			% [loaded["sources"].size(), loaded["kinds"].size(), GameData.entry_count(loaded)]
+		)
 	)
 
 

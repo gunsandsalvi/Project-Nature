@@ -1,0 +1,29 @@
+# The river's water (A4.5, PRE-26): how it takes the bed's colour as light is lost in it, how wet the bank is, what the
+# surface mirrors, the current and the marks on it. Stand-ins until the pilot's pictures are tuned against the river's
+# sheet (art/catalogue/sheets/4.1-river.webp): its palette, #355d5c to #aac4b6 and the deep #173e43, and its depths,
+# 10 cm warm and clear, 40 cm teal, 1 m dark teal, 3 m the bed hardly seen.
+# red goes first and blue last; a third of each colour's light is left at these depths, fitted to the sheet's four
+# depths (10 cm, 40 cm, 1 m, 3 m) over the stand-in bed
+fade_red = "0.43 m"
+fade_green = "0.9 m"
+fade_blue = "1.65 m"
+# the water's own deep colour has taken two thirds of the view by this depth
+murk = "0.28 m"
+deep_colour = "#173e43"
+# the bed is wet up to 12 cm above the level, keeping 80% of its colour; the shore is ragged by the depth a texture
+# pixel spans
+wet_margin = "0.12 m"
+wet_darkening = "80%"
+ragged = "100%"
+# the surface mirrors this share of the sky square on, and more as the view grazes it
+sky_share = "3%"
+# the current runs east at this speed, and the marks and glints step this many times a second
+flow = "0.5 m/s"
+step_rate = 10
+# a glint is one texture pixel lit for three steps; at most this share of them are lit at once
+glint_colour = "#f4ead0"
+glint_share = "1.2%"
+glint_life = 3
+# the line where water meets land is one texture pixel wide
+shore_colour = "#aac4b6"
+shore_width = 1

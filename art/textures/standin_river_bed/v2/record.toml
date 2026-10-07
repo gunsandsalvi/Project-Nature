@@ -7,7 +7,7 @@ sources = ["art/catalogue/sheets/1.5-river_bed.webp"]
 original_sha256 = ["d8a9f8aee8d9855d33dd402993b889bef4b7f16c72a2c31b0330d82d3f5f2ecd"]
 c2pa = ["not carried"]
 requests = []
-made = "the sheet's tile, every second picture pixel, its levels by code; its inside swapped for a shifted copy, its edge kept"
+made = "the sheet's tile, every second picture pixel, its levels by code; its inside swapped for a shifted, turned-over copy, its edge kept"
 regrid_loss = "none: a stand-in made without a re-grid"
 truth = "builder, 2026-10-07: a stand-in for the pilot, nothing countable in it, to be replaced by the art lane's"
 approved = "not offered yet: a stand-in, below the artwork's level"
@@ -15,61 +15,61 @@ approved = "not offered yet: a stand-in, below the artwork's level"
 [[band]]
 level = 0
 file = "art/textures/standin_river_bed/v2/b0.png"
-sha256 = "1a38b09bd2f02040e20f09198d679eda67d924369ec093b6e3875d6d1b764661"
+sha256 = "706eab16f4f147cfe26b3502f48ed4afd5c151b06af6bbfde0b9dfb9a63441ff"
 way = "cut from the signed-off sheet's own tile"
 
 [[band]]
 level = 1
 file = "art/textures/standin_river_bed/v2/b1.png"
-sha256 = "f0a678ce22b761c137171973b0d89d34525ad720cb668c7962c25f3d4960281c"
-made_from = "1a38b09bd2f02040e20f09198d679eda67d924369ec093b6e3875d6d1b764661"
+sha256 = "eab55ce3a33f857752d3220ab38e10e5e836a0606d0071adc8961e5fcd66af5f"
+made_from = "706eab16f4f147cfe26b3502f48ed4afd5c151b06af6bbfde0b9dfb9a63441ff"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 2
 file = "art/textures/standin_river_bed/v2/b2.png"
-sha256 = "a795b223498a3e49362a08bbc7db068c43e8f71e3dd0057a051457f336d26214"
-made_from = "f0a678ce22b761c137171973b0d89d34525ad720cb668c7962c25f3d4960281c"
+sha256 = "165765e6889ebfc6c7e8f81066c041955424cce04c0cc0676f928016f2985977"
+made_from = "eab55ce3a33f857752d3220ab38e10e5e836a0606d0071adc8961e5fcd66af5f"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 3
 file = "art/textures/standin_river_bed/v2/b3.png"
-sha256 = "0bf44c8bef0fcf756a28094725b7d76991f8d83aca9f45ebb26909646e7a7b08"
-made_from = "a795b223498a3e49362a08bbc7db068c43e8f71e3dd0057a051457f336d26214"
+sha256 = "c0da1854146beac6d17ce24a8ef41f5250ceddf7a0dda9e8e7c1270e26bf7d44"
+made_from = "165765e6889ebfc6c7e8f81066c041955424cce04c0cc0676f928016f2985977"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 4
 file = "art/textures/standin_river_bed/v2/b4.png"
-sha256 = "3e4559b218124b1321f1e467218d4ce5c70b4a24d8e9dee91b10eb0776515132"
-made_from = "0bf44c8bef0fcf756a28094725b7d76991f8d83aca9f45ebb26909646e7a7b08"
+sha256 = "f951d1b25399a012aff0b5275ed42386fd07a74d38cebafdda378e0e3bc3b686"
+made_from = "c0da1854146beac6d17ce24a8ef41f5250ceddf7a0dda9e8e7c1270e26bf7d44"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 5
 file = "art/textures/standin_river_bed/v2/b5.png"
-sha256 = "b753e78bc98c66d3360ec7e5e1b14d75865c88fe160264ffb3f99353469df344"
-made_from = "3e4559b218124b1321f1e467218d4ce5c70b4a24d8e9dee91b10eb0776515132"
+sha256 = "bc4652cdcd8e9873f928d6297cf65fbc5d883e27ca45e9cdd63f72c650eda4f0"
+made_from = "f951d1b25399a012aff0b5275ed42386fd07a74d38cebafdda378e0e3bc3b686"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 6
 file = "art/textures/standin_river_bed/v2/b6.png"
-sha256 = "7add998ceb75234215ba7e35556876281977adc51b4bae81cb1ed939a8e3f044"
-made_from = "b753e78bc98c66d3360ec7e5e1b14d75865c88fe160264ffb3f99353469df344"
+sha256 = "2145a5643e3cdf9cd31f7a84fb3de2708e4ba78c75ecf06a778d6ab20e9a19f9"
+made_from = "bc4652cdcd8e9873f928d6297cf65fbc5d883e27ca45e9cdd63f72c650eda4f0"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 7
 file = "art/textures/standin_river_bed/v2/b7.png"
-sha256 = "8b7eae4ad238b0538a761462148469e9ee3aa30031676ecb4c0250b5ed78e38d"
-made_from = "7add998ceb75234215ba7e35556876281977adc51b4bae81cb1ed939a8e3f044"
+sha256 = "121a1a01e282cf372f8a1d056b233a30245ec86f30f1aafaca49b16942ba27e6"
+made_from = "2145a5643e3cdf9cd31f7a84fb3de2708e4ba78c75ecf06a778d6ab20e9a19f9"
 way = "drawn by code from the level above, each pixel one of its block"
 
 [[band]]
 level = 8
 file = "art/textures/standin_river_bed/v2/b8.png"
-sha256 = "2d5709de492bf972086f994336e7f10515d4ba8cc03af94cb4f80fd6efcd0d97"
-made_from = "8b7eae4ad238b0538a761462148469e9ee3aa30031676ecb4c0250b5ed78e38d"
+sha256 = "2182202dfb16787fd36b6dd1d2854cc8ab246c4bf0da428f0139f754a7e0a7fc"
+made_from = "121a1a01e282cf372f8a1d056b233a30245ec86f30f1aafaca49b16942ba27e6"
 way = "drawn by code from the level above, each pixel one of its block"
