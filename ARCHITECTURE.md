@@ -664,7 +664,7 @@ It replaces the art bible's rules.
 - **Three routes, combined for each material** (`MIL-09`): code from rules, made on the phone; the world itself (rock layers laid by each world's geology, soot, stains, wetness, snow and traces: `PRE-23`, `PRN-10`); and pictures you approved, prepared by code.
   A ground texture holds only its material's background; paths, flowers, stones and tufts are things the world places.
   A cliff is rock A, the surface you picked, on the texel grid under each world's own layers laid by code.
-- **The path of a picture-made texture:**
+- **The path of a picture-made texture,** as first planned; since 7 October 2026 the art lane chooses its own methods (its brief, `IMPLEMENTATION.md`), and what stays fixed is what the engine reads: the levels, the record and your approval (steps 5, 7 to 9):
   1. **request,** committed text from a template: the area in metres, blocks of 8 to 12 picture pixels, the background material only, even overcast light, tileable, and an approved picture or the level above as input wherever one exists;
   2. **run** by the builder through Codex, outside the build and never in it; kept: the request, the prompt as passed, a run record and the original with its signed C2PA record;
   3. **vet** for Stone Age truth (A5.6), nothing countable in a ground, and the scale asked; recorded;
@@ -679,7 +679,8 @@ It replaces the art bible's rules.
 - **Storage:** lossless with our own levels, read by `view/`, as Godot advises for pixel art even in 3D; Godot's import only for the icon and the interface, with its "Detect 3D" off; ASTC 4 × 4 only if the phone shows a need and your eye sees no loss.
 - *Built in α2.3a:* the records are the catalogue's third source, `art`, beside `data/` in the repository and inside the phone's copy, each `record.toml` an entry named by its folder (`art:meadow`, `art:meadow/middle/v2`), its levels a list of tables; every field counts in the look digest alone.
   The build packs each record's levels, largest first, into one `.kdtex` (`textures/art/meadow/middle.kdtex`), which `view/` makes into one image whose mipmaps are its own levels; the self-check holds every texture to the build's digest and times making and uploading them all against a world's 3 seconds and A18.1's 300 MB.
-  The Lab page lists every material; each one's sheet shows its tiles near, middle and far with their versions, each level at the bands it serves at true size (a texture pixel 2 × 2 screen pixels, worked out from the screen, since the interface is drawn 540 wide and stretched), its first level's corner at 8 screen pixels a texture pixel, and its record's words; in the cloud, 22 materials' 79 textures made and uploaded in 151 ms, 26.8 MB with their levels.
+  The Lab page lists every material; each one's sheet shows its tiles near, middle and far with their versions, each level at the bands it serves at true size (a texture pixel 2 × 2 screen pixels, worked out from the screen, since the interface is drawn 540 wide and stretched), its first level's corner at 8 screen pixels a texture pixel, and its record's words; on the art lane's first textures, since deleted, 79 textures were made and uploaded in the cloud in 151 ms, 26.8 MB with their levels.
+- **The files the engine reads:** `art/textures/<name>/` holds a texture's levels as lossless pictures and its `record.toml`; a big surface's middle and far tiles sit in `middle/` and `far/`, and its versions in `v2/` to `v4/`, each with its own levels and record.
 - **Code-made and world-made textures** are made on the phone at first start or with their area, and cached by look digest.
 - **The originals** are kept beside their records as WebP in `art/sources/`, with the full original's digest and whether it carried its C2PA record; the full originals go to release files once those are proved from a cloud session (A2.3).
 - **GPT's place:** before the build, never in it, so a failed or refused run, or a limit, only delays new sources.
@@ -688,11 +689,10 @@ It replaces the art bible's rules.
 - GPT's size, block size, scale and seams are never relied on: it returned 1254 × 1254 for 1024 × 1024 and blocks of 12 for 8.
 - Code-made textures' fingerprints are compared with the cloud's in the self-check.
   Each batch has a budget of pictures; at a limit the work waits and carries on with code-made textures, never buying credits (`PRC-01`).
-- **The art lane,** your idea: a separate instance on the builder's machine prepares the content, the picture-made textures, the targets and guide pictures, and the kit's parts in Blender (A6.1), by the rules in `IMPLEMENTATION.md`.
-  - It works only in `art/` and `tools/art/`, on its own branch, and runs GPT itself through the tools there, keeping a log of every run (`art/log/gpt-runs.md`).
-  - It works with GPT as a partner, by your rules of 6 October 2026: GPT does more of the drawing and modelling and revises its own work; each piece is discussed and critiqued back and forth, never just ordered; both check it against the artwork it follows; and nothing reaches you below that level.
-  - The builder reviews each batch (its records, its checks, its pictures enlarged, its log) before it joins, and you approve each material on its sheet.
-  - The colour measures its checks use come from `kindling look`, the same C++ the engine's checks use (A4.8), so each is written once.
+- **The art lane,** your idea: a separate instance makes the textures and the kit's parts (A6.1) from the catalogue you sign off, by its brief in `IMPLEMENTATION.md`, which you OK'd on 7 October 2026: GPT is the artist and the two work as a design team, any tool and any method, and nothing below its sheet's level reaches you.
+  - It works only in `art/` and `tools/art/`, on its own branch, and runs GPT itself through the tools there.
+  - The builder reviews each batch beside its sheets before it joins, and you say yes or no to each piece.
+  - Any colour measure it uses comes from `kindling look`, the same C++ the engine's checks use (A4.8), so each is written once.
 
 ### A5.5 Targets and the loop
 
@@ -737,7 +737,7 @@ It replaces the art bible's rules.
 - GPT draws later or borrowed things and ignores "avoid" lines, such as metal tools after "no metal".
 - So every target, guide and source picture is checked before anyone aims at it or prepares it:
   1. ask truthfully, with the prompt's truth lines;
-  2. look at every made thing, animal and garment at twice size, against the known slips (`IMPLEMENTATION.md`, the art lane);
+  2. look at every made thing, animal and garment at twice size, against the known slips: metal before copper, sawn wood, later things (chickens, hooped buckets, winches, lattice windows, glass-bead colours, rucksacks, slatted sleds, maize, a pot hung over a fire, boats with seats), spotted or long-maned horses, striped piglets outside spring, tipi-like cones, Lascaux-like paintings, real cultures' motifs, fur bikinis, grass rain capes, and anything countable in a ground texture;
   3. date anything doubtful against a first-hand source, and write the verdict beside the picture;
   4. keep the picture's feeling, not its mistakes: a target is approved for its light, colour, density and composition, never for its flagged things;
   5. never take motifs from real cultures' art or dress (`SCP-20`).
@@ -748,7 +748,8 @@ It replaces the art bible's rules.
 ### A6.1 The kit (`PRE-46`)
 
 - **Parts like Lego.** Every shape is a part made in Blender: poles, hide panels, bark sheets, stones, branches, leaf clusters, tufts, body parts, garment pieces, hair, tools, rocks and cliff pieces.
-  - Each part has its texture layout (A6.4) and named joints where it plugs into others; GPT makes and revises them through Codex, writing Blender scripts, in discussion with the art lane, both checking each against its guide pictures before you see it (A5.4), and you can open any part in Blender and change it.
+  - Each part has its texture layout (A6.4) and named joints where it plugs into others; GPT makes them in discussion with the art lane, each against its catalogue sheet (A5.4), and you can open any part in Blender and change it.
+  - What the engine reads: `art/models/<family>.blend`, one Blender file for each family (camp things, plants, rocks, people, each animal pattern), each part with its texture layout in metres, its joints as empties named `joint_…`, and its material slots named by role (wood, bark, hide, stone, leaf, grass, skin, hair).
   - Code puts parts together from recipes in the catalogues, varying size, count, angle, material and wear by seed, so a few hundred parts give thousands of things; a new thing is a catalogue entry.
   - Corners, creases and undersides are darkened in each part, and where parts meet when they are put together (A4.4).
   - By your direction of 7 October 2026, things are made of many parts and their organic forms sculpted in Blender with fine detail; the full sculpt is each part's master, and every form by height on screen is made from it (A6.3).
@@ -817,9 +818,7 @@ It replaces the art bible's rules.
 - **The ground** is mapped from above in world metres, offset with the moving origin so its texture pixels never drift; above about 45° of slope, where a top-down map would stretch a pixel past 1.4 times its length, faces take a projection from the side.
 - **Cliffs and other rock:** each triangle takes one projection, from the direction it faces, with height as its vertical, so the texture lines up with the rock layers laid by code; never a blend of three projections, which smears pixel art. Where two faces meet, their texture pixels need not line up: the edge is where the light changes anyway.
 - **Each part is unwrapped in Blender at this density:** a pole, trunk or branch around and along, its circumference rounded to whole texture pixels so the wrap never shows; a hide panel or bark sheet by its flat cut shape; a stone by one projection a face.
-  - *Made in the art lane's round 2:* a wrapped part takes its texture from its material's **wrap atlas** (`art/textures/<name>/wraps/`), a 256-pixel tile cut into strips of 64, 48, 40, 32, 24, 16, 12, 8, 4 and 6 texture pixels, each seamless round its own width (`tools/art/kitmath.py`, `WRAPS`); a part's circumference takes the nearest strip, so the engine reads each wrapped part from its own strip.
 - **Figures:** each limb unwraps like a sleeve, around and along its bone; garments are shells that reuse the body's layout; the face is a small design on the head's front, about 14 texture pixels tall. The coordinates belong to the mesh, so texture pixels ride on the body as the skeleton bends.
-  - *Made in the art lane's round 2:* a figure's texture is drawn to its layout, kept beside it as `layout.png` on a square canvas whose bottom row is coordinate v = 0, and is never tiled.
 - **Plants:** leaves and grass are cut-out cards carrying their design for each band; trunks and branches are sleeves of bark.
 - **A check in the cloud** measures each part's stretch, triangle by triangle, and fails any outside the line.
 

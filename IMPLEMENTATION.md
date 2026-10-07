@@ -18,66 +18,62 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 - The vertical slice was dropped on 6 October 2026, as you asked.
 - The graphics engine (M2) is being built: you chose its look and OK'd the 13 changes to `PROJECT.md` that follow from it.
   You OK'd its plan below, fifteen steps in six alphas, one of them only if needed, and its sections of the architecture (A4, A5, A6 and A8's near stops) on 6 October 2026: "Yes, that works. Let's start".
-- **The art lane** works beside the builder (below).
+- **The art lane** starts again from scratch, by your word of 7 October 2026: everything it had made was deleted, and it works from the catalogue (below) once you sign off its first group.
 - **Still open from pre-production:** the ground for the card and the book, and whether reading text should be larger (P12); your ears on the camp's sound (P14); the heat of a busy scene over ten minutes (P2); the writer, proved when M9 builds the book (P13); discovery's pace with the whole catalogue, at M7's scenes (`RSK-01`).
 
 ## The art lane
 
-A separate instance, your idea, prepares the content while the builder builds the engine: the picture-made textures (α2.3a's tools and materials, T2.3a.2 and T2.3a.3), the targets and guide pictures, and the kit's parts in Blender (A6.1).
-The builder reviews and merges each batch and wires its content into the engine at the step that uses it; you say yes or no to each material and part on its sheet.
-It restarted on your word of 6 October 2026, with its next round below as its one order.
+A separate instance, your idea, makes the game's art while the builder builds the engine: the textures and the kit's parts (A5.4, A6.1).
+On 7 October 2026 you judged that none of its work reached the art book, and everything it had made was deleted at your word.
+It starts again from the catalogue (below), with this brief, which you OK'd that day and which it is given as written; each piece's further details are in the catalogue:
 
-**Working with GPT,** as you set on 6 October 2026:
-- **GPT does more of the art:** it draws and models, and it revises its own work from the critiques, rather than the lane redoing it.
-- **Collaborate, never command:** each piece is a discussion, one Codex conversation carried on turn by turn, in which GPT critiques the lane's work as the lane critiques GPT's, each answering the other's points, until both agree.
-- **Both check against the artwork:** every piece is shown beside the targets and guide pictures it follows (`art/targets/`), drawn at a like size and view, and each of them names where it falls short.
-- **Nothing reaches you below the artwork's level:** a piece not there yet is not offered for your yes or no; the report says what is still short and what is being done about it.
-- Today's person, far from the people guides, is the first example.
+> You are the art lane for Kindling, a Stone Age world simulation for phones. The game's look is a sharp 3D world at the phone's full resolution, wearing pixel-art textures, with the feeling of the art book the owner chose (`art/targets/`). Your job is to make the game's art: its textures, and its 3D parts (people, animals, plants, rocks, shelters, tools), modelled, sculpted, painted and rigged in Blender.
+>
+> **What to make.** Each batch comes from the catalogue, which the owner signs off group by group. Every piece in it has a sheet with several views and a picture of it in its place in the world. That sheet and the art book are the standard.
+>
+> **The bar.** A piece is done when it stands next to its sheet as the same thing at the same quality: design, proportions, colour and richness of detail. Judge it as the game shows it: the camera 35–40° down, a texture pixel about 2×2 screen pixels, in the game's light. Anything less is not done and never reaches the owner. The owner rejected everything made so far because it fell short of the art book. Send nothing you wouldn't put beside the art book yourself.
+>
+> **GPT is the artist; you two are a design team.** GPT, through Codex, does the drawing, painting, modelling, sculpting and rigging. You are its partner and art director: you set out each design problem, critique the work, run and measure what GPT makes, and put each result beside its sheet. Hold one conversation per piece, turn by turn. Each of you critiques the other's work and answers the other's points, until you both believe the piece holds up.
+>
+> Work as designers, not rule-followers:
+> - Start from the thing itself: what it's made of, how it was made, used and worn, where it lives, and how big it is on screen.
+> - Then its design: the silhouette, the big light and dark shapes, the colour, and which details matter at that size.
+> - Then the making. Build things from many parts, and sculpt organic forms with real detail wherever it shows.
+>
+> **Improve, and bin what won't get there.** Refine your work over rounds. But when an attempt is flawed at its root (wrong form, weak design, or a method that can't reach the sheet), throw it away and start again with a fresh design or a different method. Don't patch a weak base round after round. If the gap to the sheet isn't clearly closing after a few rounds, start over.
+>
+> **Every tool, from the start.** Anything free that runs in the cloud is yours:
+> - all of Blender: sculpting, multiresolution and remeshing, every modifier, geometry nodes, curves and hair, cloth and physics, UV tools, baking of occlusion, curvature and normals, texture painting, armatures, shape keys and drivers;
+> - GPT's image making and editing, with pictures as input;
+> - Python's image and mesh libraries, and anything else you can install.
+>
+> The method is yours.
+>
+> **The confines.** There are only a few, and they're fixed:
+> - **What the engine reads.**
+>   - Textures: 64 texture pixels a metre up close, halving at each zoom band, with each band drawn as its own pixel art. Big surfaces get near, middle and far tiles. Each level is a lossless file with its record.
+>   - Parts: named joints, texture layouts in metres, and a few forms by size on screen (ARCHITECTURE A5.3–A5.4, A6).
+>   - If your method needs a different format, ask the builder.
+> - **Truth.** Stone Age only: no metal, no sawn wood, nothing from later, and no real cultures' motifs. Check everything GPT draws (A5.6).
+> - **Working.**
+>   - Work in `art/` and `tools/art/`, on your own branch. Never push or merge; the builder reviews and merges.
+>   - Reach GPT only through `tools/art/`, outside the game's build.
+>   - Never print or move a secret. Never buy credits; at a usage limit, wait.
+>   - No AI model names in committed files.
+>
+> **Each batch's report:**
+> - every piece beside its sheet, as the game shows it and enlarged;
+> - a few lines of your verdict and GPT's;
+> - what you binned and why;
+> - any questions for the owner.
 
-**Sculpted detail,** as you set on 7 October 2026: more meshes, and the 3D assets really sculpted, with fine details.
-- Each thing is built from many parts: a person's ears, nose, lips, brows, fingers, toes, hair locks and beard, and garments with hems, seams, folds and laces; the deer's muzzle, ears, antler tines and hooves; poles, lashings, ragged hides and chipped stones.
-- Organic forms are sculpted in Blender (brow, cheekbones and jaw; the landmarks of shoulders, elbows and knees; cloth folds; an animal's masses), by whatever method works headless, chosen with GPT.
-- Geometry goes where it changes the outline or the light; finer detail is carried into the painted texture, guided by the sculpt's curvature and occlusion.
-- The full sculpt is kept as each part's master, and each form by height on screen is made from it (A6.3), with its triangles counted in the report.
-- Blender's whole toolset, not just the basics, as you added the same day: sculpting, remeshing and modifiers; geometry nodes for detail by rule; curves for hair and lashings; cloth simulation for folds; UV tools and baking to guide the painting; a real armature with corrective shapes for the bends. Each part's report names the tools used.
+## The catalogue
 
-**Rules:**
-- It works only in `art/`, `tools/art/` and `tools/tests/test_art_*.py`, on its own branch, and never pushes or merges.
-- GPT only through the lane's tools in `tools/art/`, outside every build; never print or move a secret; never buy credits; at a usage limit, wait; while `/tmp/kindling-gpt-paused` exists, runs are held.
-- As many pictures as improve the result, each counted in the batch's report.
-- No AI model's name in any committed file, and nothing secret in a prompt.
-- GPT's size, block size, scale and seams are never relied on: re-gridding finds them.
-- Colour measures only from `kindling look` (`stats`, `adjust`, `texel`), the engine's own C++.
-- Blender (4.0, in the cloud) for every part, its scripts written and revised by GPT through Codex and run headless, in discussion with the lane.
-- Each tool has unit tests and passes `ruff`; commits are `T2.3a.2: …` for tools and `T2.3a.3: …` for materials.
-- Truth before use: every picture enlarged before it becomes a source; never metal before copper, sawn wood, later things (chickens, hooped buckets, winches, lattice windows, glass-bead colours, rucksacks, slatted sleds, maize, a pot hung over a fire, boats with seats), spotted or long-maned horses, striped piglets outside spring, tipi-like cones, Lascaux-like paintings, real cultures' motifs, fur bikinis, grass rain capes; and nothing countable in a ground texture.
-
-**Files:**
-- `art/textures/<name>/`: levels `b0.png` to `b8.png` (lossless), `record.toml`, and `source.png` (the source on band 0's grid); a big surface's middle and far tiles in `middle/` and `far/`, and versions in `v2/` to `v4/`, each with its levels and record.
-- `art/models/<family>.blend`: the kit's parts, one Blender file for each family (camp things, plants, rocks, people, each animal pattern), each part with its texture layout in metres, its named joints (empties called `joint_…`) and its material slots named by role (wood, bark, hide, stone, leaf, grass, skin, hair); beside each file a preview sheet and a stretch report.
-- `art/sources/<name>/<name>-<nn>.webp`: each original used; `art/requests/<name>-<nn>.txt`: its request; `art/sheets/<name>.webp`: the sheet, 1080 pixels wide.
-- A request: purpose, size, input picture, and the prompt (the area in metres, blocks of 8 to 12 picture pixels or larger for a coarse band, the material only, straight on and orthographic, even light, seamless, a truth line).
-- A record, integers and strings only: `about`, `route`, `tile_texels`, `texels_a_metre`, `first_band`, `sources`, `original_sha256`, `c2pa`, `requests`, `made`, `regrid_loss`, `truth`, `approved`, and for each level `level`, `file`, `sha256`, `made_from`, `way`, `regrid_loss` (redrawn levels), `calibration`.
-- The sheet: every band at true size and enlarged, flat and under three stand-in lights, beside its source; a big surface's bands also as full-width strips with its versions mixed as the ground mixes them.
-
-**Its next round,** one order, from your answers of 6 October 2026 to its second round and the builder's review:
-
-*Review first,* the way of working above: every part and material of its first two rounds put beside the artwork it follows and discussed with GPT, the person first; what falls short is redone with GPT before anything new, and the fixes below are made the same way.
-
-*Fixes.*
-1. **The meadow's band 0,** redrawn from the picture you chose, its look kept, within the 10% re-grid line: no material keeps a loss past the line.
-2. **Bank gravel's middle tile,** redrawn: drifts that lean no one way, and no pebble under two texture pixels across.
-3. **The river bed's far tile,** its pebbles small round blobs, never plus shapes.
-4. **The hides,** their stain edges smooth and rounded, never stepped.
-5. **The far tiles** (bands 5 and 6): fewer marks, the colour patches kept, so no mark reads as a dash 1–2 m long.
-6. **The red deer:** its neck joins its chest with no opening, and its head reads as a deer's, never a detached beak.
-
-*Still to make.*
-7. An antler texture; grass and leaf cards with their designs for each band; faces as layers for each state (A6.3); skinning that holds in deep poses, the bend test passing.
-
-*Kept as they are,* by your answers: the rounded stains of bare earth, trodden floor, stone and ash; the garments' and the deer coat's colours; four near versions and three middle and far.
-
-**The batch report:** each material and part on its sheet beside the artwork it follows, each check's result, the pictures used, the discussions with GPT in short, every truth flag, and questions for you.
+Every piece of art the game needs, worked out before any of it is made, as you asked on 7 October 2026, so batches can go to the art lane over time:
+- **First the list:** every element the game needs, from `PROJECT.md`, in words, group by group.
+- **Then each group's sheets,** made by the builder with GPT: for each piece several views and a picture of it in its place in the world, with the details it needs; a piece the art book already shows starts from that picture.
+- **You sign off each group;** only signed-off pieces go to the art lane, in batches.
+- It is kept in `art/catalogue/`: a file of each group's pieces, and each piece's sheet.
 
 ## How to use this plan
 
@@ -186,7 +182,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Delivered as 30202 on 7 October 2026; waiting for your phone's calibration code and your two blind tests, whose decisions are written in when they come, since on your word the next step goes ahead |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | **Under way:** the texture kind, its shipping and checks (T2.3a.1) and the Lab page (T2.3a.5) built; the art lane's round 3 under way by your rules, its textures to be reviewed and joined before delivery as 30301 |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | **Waiting for the art:** the texture kind, its shipping and the Lab page built (T2.3a.1, T2.3a.5); the art lane's work deleted on 7 October 2026 at your word; the camp's materials come from the catalogue's first signed-off groups, then delivery as 30301 |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
 | α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
 | α2.3d | People, a deer and first light | M2 | 6 | Planned |
@@ -369,7 +365,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 ### α2.3a The texture path and the camp's materials
 
-**Goal:** textures from request to phone with their records, and the camp's first materials on lab sheets for your OK.
+**Goal:** textures from the art lane to the phone with their records, and the camp's first materials on lab sheets for your OK.
 
 **Serves:** `PRE-20`, `PRE-22`, `PRE-23`, `PRE-42`, `PLT-04`.
 
@@ -377,20 +373,19 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 
 **Tasks:**
 
-1. `T2.3a.1` **The `texture` kind and its checks (`PRE-20`, `PRE-42`).**
-   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, as the art lane's files set it out; the art lane's checks (T2.3a.2) run in `tools/check.sh`: every texture traced to its record, original, request, truth check and approval; no stale level; re-grid loss at most 10% for band 0 and each redrawn band; band 0's seams at most 1.2, and a redrawn band's no larger than its own ordinary steps; band 0's painted light at most a slope of 0.02; no strong repeat (at most 0.2, or the source's own where a grain repeats); texture pixel contrast within a quarter of its approved source's, and a middle or far tile's contrast raised at most to 150% when fitted to its near tile, never past the near tile's own (your OK of 6 October 2026); accents at every band a surface is seen at, from the tile that serves it, at least 90% of the near tile's band 0 (a one-tile material's bands 4 to 6 reported only, since there its texture pixel is larger than its marks); lightness within 0.02 and hue within 5° between bands and across tiles.
-2. `T2.3a.2` **The tools, in the art lane (`PRE-22`).**
-   In the cloud, from the start of M2: re-gridding (block size and phase window by window, the median colour, seams, the light check), the code reduction for a band, and colour matching to band 0 in four numbers that keeps the accents; the lab sheet (flat and lit, every band, at true size and enlarged, beside its source); and T2.3a.1's checks, with the colour measures of `kindling look` (T2.1b.1), so each measure is written once.
+1. `T2.3a.1` **The `texture` kind (`PRE-20`, `PRE-42`).**
+   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, every field checked as it loads.
+2. `T2.3a.2` **The art lane's tools (`PRE-22`).**
+   Whatever it chooses to reach its sheets (its brief, above).
 3. `T2.3a.3` **The camp's materials, in the art lane (`PRE-20`, `PRE-23`).**
-   Meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and rock A, your pick, under each world's layers laid by code; each by its route with its designed levels, and each big surface (the ground covers and rock A, your pick) with its near, middle and far tiles, each from its own picture of the material at that distance, in two to four versions mixed by place (A5.3); with as many GPT pictures as improve the result, each vetted for truth (A5.6) and recorded.
+   From the catalogue's signed-off sheets: meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and rock A, your pick, under each world's layers laid by code; each with its designed levels, and each big surface with its near, middle and far tiles in two to four versions mixed by place (A5.3).
 4. `T2.3a.4` **The kit's parts, in the art lane (`PRE-46`).**
-   The camp's parts in Blender, then a first person and a red deer, as the art lane's next round sets them out, each with its preview and stretch report.
+   From the catalogue's signed-off sheets: the camp's parts, then a first person and a red deer.
 5. `T2.3a.5` **On the phone, and delivery (`PLT-04`).**
    A Lab page with every sheet; loading time and texture memory measured; deliver as 30301.
 
 **Tests:**
-- Each check catches its planted fault: a missing record, a stale level, painted light, a seam, a repeat, and an averaged level whose accents fall to 77% of band 0's.
-- Re-gridding the material swatches you accepted (`textures-a`, `delight-liked`) loses at most 10% each and 2–8% at the median.
+- A record with a field missing, out of range or unknown is refused where it is written.
 - The set loads within the 3 seconds a world may take to open, and its memory is within A18.1's 300 MB.
 - Passes if all pass and you approve or send back each sheet.
 
