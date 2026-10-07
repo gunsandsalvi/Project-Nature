@@ -42,8 +42,10 @@ what = "water rising from the ground, and warm springs near volcanoes"
 [[piece]]
 id = "lake"
 name = "Lake"
-what = "a still mirror with reeds, mist and lilies"
+what = "still lake water, clear over the shallows and dark green-blue in the deep, with breeze and wind ripples"
 art_book = ["lake-mist-close"]
+sheet = "sheets/4.6-lake.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "marsh_pool"
