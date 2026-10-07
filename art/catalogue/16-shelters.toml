@@ -60,7 +60,9 @@ what = "a reed-roofed house"
 [[piece]]
 id = "round_post_hut"
 name = "Round post hut"
-what = "posts set in the ground under a roof"
+what = "round post hut"
+sheet = "sheets/16.8-round_post_hut.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "pit_house"
