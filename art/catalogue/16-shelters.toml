@@ -140,8 +140,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "fences"
 name = "Fences and pens"
-what = "woven fences and animal pens"
+what = "fences and pens"
 art_book = ["village-truthful"]
+sheet = "sheets/16.19-fences.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "granary"
