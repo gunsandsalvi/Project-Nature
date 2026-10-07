@@ -58,8 +58,10 @@ what = "dark damp litter under a dense canopy"
 
 [[piece]]
 id = "marsh"
-name = "Marsh and peat"
-what = "wet moss, peat and pools"
+name = "Marsh moss and peat"
+what = "sphagnum cushions in green, ochre and rust, dark peat between them and flattened sedge litter; open water, reeds and sedges standing up are pieces of their own"
+sheet = "sheets/3.10-marsh.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "beach"
