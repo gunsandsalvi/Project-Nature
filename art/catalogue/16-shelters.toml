@@ -101,8 +101,10 @@ what = "a lined, covered pit"
 [[piece]]
 id = "drying_frame"
 name = "Drying frame"
-what = "a hide laced on a frame to dry"
+what = "a red deer hide laced with thong into a frame of four unbarked poles, 2 m wide and 1.8 m high, propped from behind to dry in the wind; pinkish-cream and wet just laced, buff when scraped, pale parchment with curled edges when dry"
 art_book = ["made-things-sheet", "close-camp"]
+sheet = "sheets/16.17-drying_frame.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "drying_rack"
