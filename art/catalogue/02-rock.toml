@@ -149,7 +149,9 @@ what = "flint nodules in chalk, chert bands in limestone"
 [[piece]]
 id = "obsidian_outcrop"
 name = "Obsidian outcrop"
-what = "glassy lava showing near young volcanoes"
+what = "obsidian outcrop"
+sheet = "sheets/2.21-obsidian_outcrop.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "clay_bank"
