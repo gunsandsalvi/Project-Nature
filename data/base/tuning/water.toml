@@ -1,15 +1,15 @@
 # The river's water (A4.5, PRE-26): how it takes the bed's colour as light is lost in it, how wet the bank is, what the
-# surface mirrors, the current and the marks on it. Stand-ins until the pilot's pictures are tuned against the river's
-# sheet (art/catalogue/sheets/4.1-river.webp): its palette, #355d5c to #aac4b6 and the deep #173e43, and its depths,
-# 10 cm warm and clear, 40 cm teal, 1 m dark teal, 3 m the bed hardly seen.
-# red goes first and blue last; a third of each colour's light is left at these depths, fitted to the sheet's four
-# depths (10 cm, 40 cm, 1 m, 3 m) over the stand-in bed
-fade_red = "0.43 m"
-fade_green = "0.9 m"
-fade_blue = "1.65 m"
+# surface mirrors, the current and the marks on it. Fitted by the art lane to the river's sheet
+# (art/catalogue/sheets/4.1-river.webp), over its own bed (art:river_bed), at the sheet's depths, 10 cm warm and clear,
+# 40 cm teal, 1 m dark teal, 3 m the bed hardly seen: at 50 cm the water reads lightness 57.9, colourfulness 5.0 and hue
+# 185 against the sheet's 57.5, 5.7 and 184. The model is too grey at 10 cm and too light at 3 m (T2.3b.3).
+# red goes first and blue last; a third of each colour's light is left at these depths
+fade_red = "0.3 m"
+fade_green = "0.8 m"
+fade_blue = "1.1 m"
 # the water's own deep colour has taken two thirds of the view by this depth
-murk = "0.28 m"
-deep_colour = "#173e43"
+murk = "0.25 m"
+deep_colour = "#0d4a55"
 # the bed is wet up to 12 cm above the level, keeping 80% of its colour; the shore is ragged by the depth a texture
 # pixel spans
 wet_margin = "0.12 m"
