@@ -1,0 +1,64 @@
+about = "quiet grey river stone, speckles of one or two texture pixels in lighter and darker grey and a few fine short veins; near tile, 1.0 m across, version 1"
+route = "picture"
+tile_texels = 64
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/stone/stone-A.webp", "art/sources/stone/stone-B.webp"]
+original_sha256 = ["f7d9dd2f77bc1bfde95c1e261a0015d288b4704ae96de8aa8dbb05ce329705d9", "8c5d7085d18efbcf0b6eccc5517e806c76b77f60960ccd7601c7b7f03348c15c"]
+c2pa = ["present", "present"]
+requests = ["art/requests/tent/turn-01.txt"]
+made = "drawn by the artist in conversation with the art lane at the size the game shows a stone (a texture pixel 1.6 cm), and put on the texture-pixel grid by code; version 1 of 1, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "11.2%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; grey stone surface only, no lichen colours, no painted marks"
+approved = "not offered yet: made for the pilot's tent, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/stone/b0.png"
+sha256 = "0c18850e61058171cdcac0b0dcf341eadac7f440c8d5794a2efd2d1359449554"
+way = "the drawing put on its own grid (cells of about 16 picture pixels, loss 11.2%); every version quilted from the drawings in patches of 28 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam"
+regrid_loss = "11.2%"
+
+[[band]]
+level = 1
+file = "art/textures/stone/b1.png"
+sha256 = "e9c2fb6ee6854ea736d8caf9bb8c62ad4d7e5d7e4e8da8124ec20e7a80afce0c"
+made_from = "0c18850e61058171cdcac0b0dcf341eadac7f440c8d5794a2efd2d1359449554"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 1.64; lightness +0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/stone/b2.png"
+sha256 = "29078adbf7016e4651a9191943c5cafb8d2cba95e735c5c1e14c0cd62d8be047"
+made_from = "e9c2fb6ee6854ea736d8caf9bb8c62ad4d7e5d7e4e8da8124ec20e7a80afce0c"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 2.37; lightness +0.0; hue +0.2; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 3
+file = "art/textures/stone/b3.png"
+sha256 = "ee74d4e7cd7f48cb6ce73976dd574a08c3aa52d5c49e2fc7ffd4ac4d91d11c7b"
+made_from = "29078adbf7016e4651a9191943c5cafb8d2cba95e735c5c1e14c0cd62d8be047"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/stone/b4.png"
+sha256 = "3b1a501d23b5d5188769a2a69e7e5ed0da4b62a71a4d05d49b20f069d46d736c"
+made_from = "ee74d4e7cd7f48cb6ce73976dd574a08c3aa52d5c49e2fc7ffd4ac4d91d11c7b"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/stone/b5.png"
+sha256 = "642d50b8f2f6f54c05b95b6cb93f32dcd9ba08dc07335b8beedd0949e71b30d8"
+made_from = "3b1a501d23b5d5188769a2a69e7e5ed0da4b62a71a4d05d49b20f069d46d736c"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/stone/b6.png"
+sha256 = "5d26f1d4b0afcc941b499de6faf6c7af67f8d35f1dcc9b433f2c8e95318f9474"
+made_from = "642d50b8f2f6f54c05b95b6cb93f32dcd9ba08dc07335b8beedd0949e71b30d8"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

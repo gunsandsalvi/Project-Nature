@@ -15,7 +15,9 @@ build/sim/kindling).
 A recipe with a `key` colour (and a `bleed` colour) makes the water's marks instead: pictures of light marks on that
 colour, nothing calibrated or flattened, whose coded levels (a `keep` percent each) come from tiles.reduce_marks and
 which are written as RGBA, everything but the marks see-through. A `flatten` of 0 leaves a tile's border as it is (for
-a ground of big marks such as cobbles, which flattening would wash out).
+a ground of big marks such as cobbles, which flattening would wash out). A tile with a `strip` (a hide's) has the
+first `strip_width` columns of that drawing, a pattern of `strip_period` rows read from a drawing of `strip_cells` cells
+across, repeated down every version's first columns: the seam strip the hide's parts wear along their edges.
 
 Implements PRE-20, PRE-22 and PRE-46, see A5.3 and A5.4.
 """
@@ -150,6 +152,10 @@ def make_tile(spec, reference, seed, key=None, given=None):
             extras,
             [pictures[j - 1][0] for j in sorted(drawn) if not drawn[j].get("snap")],
         )
+    if "strip" in spec:  # a hide's seam strip, drawn on its own, laid down the first columns of every version
+        drawn_strip = picture(spec["strip"], 16, spec["strip_cells"])[0]
+        strip = tiles.seam_strip(drawn_strip, spec.get("strip_width", 4), spec["strip_period"])
+        versions = [tiles.lay_strip(v, strip) for v in versions]
     levels, ways = [versions], [{"calibration": calibration} if calibration else {}]
     for j in range(1, spec["serves"]):
         if j in drawn and drawn[j].get("snap"):
@@ -227,6 +233,7 @@ def provenance(spec, specs):
     if "coarse_of" in spec:
         return provenance(specs[spec["coarse_of"]], specs)
     paths = [spec["sheet"], *spec.get("extra", []), *spec.get("originals", [])]
+    paths += [spec["strip"]] if "strip" in spec else []
     for t in spec.get("level", []):
         if "pictures" in t:
             paths += [*t["pictures"], *t.get("originals", [])]
@@ -264,6 +271,11 @@ def words_of(index, serves, ways, version, shift, spec, block, loss):
             )
         else:
             how += f", its inside quilted from the tile's pictures in patches of {spec['patch']} round the shared ring"
+        if "strip" in spec:
+            how += (
+                f"; its first {spec.get('strip_width', 4)} columns are the seam strip, the artist's own drawing "
+                f"(its pattern of {spec['strip_period']} rows, the colour most repeats have), repeated down the tile"
+            )
         out = {"way": how, "regrid_loss": f"{loss * 100:.1f}%"}
         out.update(ways[0])
         return out

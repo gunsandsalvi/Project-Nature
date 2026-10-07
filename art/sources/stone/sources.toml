@@ -1,0 +1,12 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["stone-A.webp"]
+sha256 = "f7d9dd2f77bc1bfde95c1e261a0015d288b4704ae96de8aa8dbb05ce329705d9"
+c2pa = "present"
+note = "the picture the image tool returned for stone tile A in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 17.5 pixels that wraps nowhere; grey speckles and short veins)"
+
+["stone-B.webp"]
+sha256 = "8c5d7085d18efbcf0b6eccc5517e806c76b77f60960ccd7601c7b7f03348c15c"
+c2pa = "present"
+note = "the picture the image tool returned for stone tile B in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 17.5 pixels that wraps nowhere; grey speckles and short veins)"

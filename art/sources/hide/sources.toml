@@ -1,0 +1,17 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["hide-A.webp"]
+sha256 = "085186ebb07f47efce5e85d1f1b136d2c80520982da9e5d2734944382f1554a7"
+c2pa = "present"
+note = "the picture the image tool returned for hide tile A in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wraps nowhere; dapples and strokes of hair running down the picture)"
+
+["hide-B.webp"]
+sha256 = "caec78f638e0bded9bddc2e07f040bcf9eeacc13ca6f54035cc4b8d8e0cf3bad"
+c2pa = "present"
+note = "the picture the image tool returned for hide tile B in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wraps nowhere; dapples and strokes of hair running down the picture)"
+
+["hide-strip.webp"]
+sha256 = "49210d084bb89a5c7d241deeef0af5a96160f63f71d5e8f77872d992c5228a08"
+c2pa = "present"
+note = "the picture the image tool returned for the hide's seam strip in turn 1, unchanged (1254 x 1254 pixels; only its first 4 columns matter, each drawn about 19.6 pixels wide, a running stitch repeating every 4 rows)"

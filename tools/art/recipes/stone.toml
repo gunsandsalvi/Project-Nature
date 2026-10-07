@@ -1,0 +1,26 @@
+# The stone the tent's ring is laid of (catalogue 16.4, the hide tent; the camp's other stones may wear it): what
+# tools/art/make_tiles.py reads to make art/textures/stone/ from the pictures kept in art/sources/stone/. A tile of 64
+# texture pixels, 1 m across, one version: the skin of a river stone seen flat, quiet grey with speckles and a few fine
+# veins; the stone's shape, its lit top and dark underside are the part's. Nothing here is random: the same recipe gives
+# the same bytes.
+name = "stone"
+about = "quiet grey river stone, speckles of one or two texture pixels in lighter and darker grey and a few fine short veins"
+seed = 2311
+reference = "near"
+how = "drawn by the artist in conversation with the art lane at the size the game shows a stone (a texture pixel 1.6 cm), and put on the texture-pixel grid by code"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; grey stone surface only, no lichen colours, no painted marks"
+approved = "not offered yet: made for the pilot's tent, waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+texels = 64
+versions = 1
+ring = 4
+overlap = 8
+patch = 28
+flatten = 0
+serves = 3
+snap = 16
+sheet = "art/sources/stone/stone-A.webp"
+extra = ["art/sources/stone/stone-B.webp"]
+requests = ["art/requests/tent/turn-01.txt"]

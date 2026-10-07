@@ -1,0 +1,122 @@
+# A recipe (A6.1, PRE-46): one thing put together from the kit's parts. This one is the small round hide tent of sheet 16.4,
+# the art lane's own parts of the camp family (art/models/camp.blend, made by tools/art/parts_camp.py and parts_tent.py): a
+# cover sewn of eleven hides (seven in a lower ring, four in an upper, their seams uneven and offset), the door slit in the
+# first lower hide with its flap half open, ten poles that cross at 2.7 m and are lashed there, and a ring of 24 stones
+# 4.2 m across. 3.8 m across at the ground, the cover 2.6 m high, the poles' tips at 3.1 m, the door 1.2 m high. The
+# assembler's reference: every part's place, joint and role is stated here and nowhere else.
+about = "a small round tent of hides on a cone of ten poles, its hem held down by a ring of 24 stones"
+family = "camp"
+truth = "art lane, 7 October 2026: looked at the parts and the tent from every side at twice size against A5.6's list; hides sewn with running stitches, no smoke flaps, no painted designs, no metal, no sawn wood, no cords or pegs on the stones, no tipi poles through a smoke hole"
+approved = "not offered yet: the pilot's fourth piece, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "hide"
+textures = ["art:hide"]
+
+[[material]]
+role = "wood"
+textures = ["art:wood"]
+
+[[material]]
+role = "stone"
+textures = ["art:stone"]
+
+# the cover's eleven hides, each modelled where it belongs in the tent's own metres, so each is laid at the origin
+[[place]]
+name = "hide_lower_1"
+parts = ["hide_lower_1"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_2"
+parts = ["hide_lower_2"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_3"
+parts = ["hide_lower_3"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_4"
+parts = ["hide_lower_4"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_5"
+parts = ["hide_lower_5"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_6"
+parts = ["hide_lower_6"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_7"
+parts = ["hide_lower_7"]
+rule = "root"
+
+[[place]]
+name = "hide_upper_1"
+parts = ["hide_upper_1"]
+rule = "root"
+
+[[place]]
+name = "hide_upper_2"
+parts = ["hide_upper_2"]
+rule = "root"
+
+[[place]]
+name = "hide_upper_3"
+parts = ["hide_upper_3"]
+rule = "root"
+
+[[place]]
+name = "hide_upper_4"
+parts = ["hide_upper_4"]
+rule = "root"
+
+# ten poles from a ring of 1.75 m, inside the cover's hem, to the point 2.7 m up where they cross, each a little thicker
+# or thinner and a little off its place
+[[place]]
+name = "poles"
+parts = ["tent_pole"]
+rule = "span"
+count = 10
+joint = "foot"
+to_joint = "bind"
+radius = "1.75 m"
+height = "2.7 m"
+turn = 18
+face = 0
+jitter_radius = "2%"
+jitter_turn = 3
+jitter_size = "12%"
+
+# the lashing where they cross, plugged into the first upper hide's crossing joint, which lies on the axis at 2.7 m
+[[place]]
+name = "lashing"
+parts = ["tent_binding"]
+rule = "plug"
+joint = "centre"
+onto = "hide_upper_1.crossing"
+
+# the door flap, hung from the top of the door slit, its hinge where the first lower hide's door_top is
+[[place]]
+name = "flap"
+parts = ["tent_door_flap"]
+rule = "plug"
+joint = "hinge"
+onto = "hide_lower_1.door_top"
+
+# 24 stones on a ring of 2.1 m, in three sizes by the seed, each a little off its place
+[[place]]
+name = "stones"
+parts = ["ring_stone_small", "ring_stone_medium", "ring_stone_large"]
+rule = "ring"
+count = 24
+radius = "2.1 m"
+jitter_radius = "5%"
+jitter_turn = 3
+face = 0
