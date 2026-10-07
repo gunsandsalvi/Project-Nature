@@ -25,11 +25,11 @@ The plan holds only work still to do: a step leaves it when it is done, and the 
 
 A separate instance, your idea, makes the game's art while the builder builds the engine: the textures and the kit's parts (A5.4, A6.1).
 On 7 October 2026 you judged that none of its work reached the art book, and everything it had made was deleted at your word.
-It starts again from the catalogue (below), with this brief, which you OK'd that day and which it is given as written; each piece's further details are in the catalogue:
+It starts again from the catalogue (below), with this brief, which you OK'd that day (its sheets showing no place in the world, by your word the same day) and which it is given as written; each piece's further details are in the catalogue:
 
 > You are the art lane for Kindling, a Stone Age world simulation for phones. The game's look is a sharp 3D world at the phone's full resolution, wearing pixel-art textures, with the feeling of the art book the owner chose (`art/targets/`). Your job is to make the game's art: its textures, and its 3D parts (people, animals, plants, rocks, shelters, tools), modelled, sculpted, painted and rigged in Blender.
 >
-> **What to make.** Each batch comes from the catalogue, which the owner signs off group by group. Every piece in it has a sheet with several views and a picture of it in its place in the world. That sheet and the art book are the standard.
+> **What to make.** Each batch comes from the catalogue, which the owner signs off group by group. Every piece in it has a sheet: its views, its states and movements, its parts, and how it looks at each distance the game shows it. That sheet and the art book are the standard.
 >
 > **The bar.** A piece is done when it stands next to its sheet as the same thing at the same quality: design, proportions, colour and richness of detail. Judge it as the game shows it: the camera 35–40° down, a texture pixel about 2×2 screen pixels, in the game's light. Anything less is not done and never reaches the owner. The owner rejected everything made so far because it fell short of the art book. Send nothing you wouldn't put beside the art book yourself.
 >
@@ -71,7 +71,15 @@ It starts again from the catalogue (below), with this brief, which you OK'd that
 
 Every piece of art the game needs, worked out before any of it is made, as you asked on 7 October 2026, so batches can go to the art lane over time:
 - **First the list:** every element the game needs, from `PROJECT.md`, in words, group by group.
-- **Then each group's sheets,** made by the builder with GPT: for each piece several views and a picture of it in its place in the world, with the details it needs; a piece the art book already shows starts from that picture.
+- **Then each group's sheets,** made by the builder with GPT, as you set on 7 October 2026, each piece with what it needs of:
+  - views from the front, the side, the back where it is not the same all round, and above, and the game's camera from two sides; shelters and caves also inside or cut through;
+  - a striped scale stick of one design beside it, sized to the piece (10 cm, 1 m or 10 m), and a standing adult beside anything big;
+  - the piece at each distance the game shows it;
+  - each state it goes through (seasons, growth, ages and sexes, wear, fresh to dried, materials, each people's style) as a row, and each action as a strip of its 2 to 6 key poses;
+  - its separate parts, then the whole;
+  - each surface enlarged so its texture pixels show;
+  - flat even light on the front, side, back and top views, and the game's late-afternoon light on the camera views.
+  - Ground, water, sky, effects and the interface take only what applies to them; a piece's views come once, its states and actions as rows; a piece the art book already shows starts from that picture.
 - **You sign off each group;** only signed-off pieces go to the art lane, in batches.
 - It is kept in `art/catalogue/`: a file of each group's pieces, and each piece's sheet.
 
