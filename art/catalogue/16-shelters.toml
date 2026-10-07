@@ -15,8 +15,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "lean_to"
 name = "Lean-to"
-what = "a sloping roof of poles and reeds or bark"
+what = "a sloping roof on a ridge bar laid in two forked posts, open at the front, 3 m wide and 1.7 m high: eight rafters to the ground, staggered courses of birch-bark sheets held by three poles, or reed bundles instead"
 art_book = ["lake-mist-close"]
+sheet = "sheets/16.2-lean_to.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "brush_hut"
