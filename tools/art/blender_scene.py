@@ -86,16 +86,66 @@ def light(cfg):
     bpy.context.scene.world = world
 
 
+def role_material(role, picture):
+    """The material a role wears in the preview: its picture read nearest-pixel, laid by the part's texture coordinates
+    in metres (the picture's `metres` across), multiplied by the part's baked crease as the engine does (1 open, 0
+    dark), lit like the ground."""
+    mat = bpy.data.materials.new(role)
+    mat.use_nodes = True
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    nodes.clear()
+    coords = nodes.new("ShaderNodeTexCoord")
+    mapping = nodes.new("ShaderNodeMapping")
+    mapping.inputs["Scale"].default_value = (1.0 / picture["metres"], 1.0 / picture["metres"], 1.0)
+    tex = nodes.new("ShaderNodeTexImage")
+    tex.image = bpy.data.images.load(picture["picture"])
+    tex.image.colorspace_settings.name = "sRGB"
+    tex.interpolation = "Closest"
+    tex.extension = "REPEAT"
+    crease = nodes.new("ShaderNodeAttribute")
+    crease.attribute_name = "crease"
+    mix = nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    mix.blend_type = "MULTIPLY"
+    mix.inputs["Factor"].default_value = 1.0
+    bsdf = nodes.new("ShaderNodeBsdfDiffuse")
+    out = nodes.new("ShaderNodeOutputMaterial")
+    links.new(coords.outputs["UV"], mapping.inputs["Vector"])
+    links.new(mapping.outputs["Vector"], tex.inputs["Vector"])
+    links.new(tex.outputs["Color"], mix.inputs["A"])
+    links.new(crease.outputs["Color"], mix.inputs["B"])
+    links.new(mix.outputs["Result"], bsdf.inputs["Color"])
+    links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+    return mat
+
+
 def parts(cfg):
-    """Parts brought in from .blend files: every object of each, moved to where the config puts it."""
+    """Parts brought in from .blend files: every object of each, turned about z by `turn` degrees and put where the
+    config says (`at`, in metres east, north and up of the focus), each material slot named by its role wearing the
+    role's picture (config `roles`: {role: {picture, metres}}), the first UV map being in metres."""
+    roles = {r: role_material(r, p) for r, p in cfg.get("roles", {}).items()}
     for item in cfg.get("parts", []):
         with bpy.data.libraries.load(item["file"], link=False) as (src, dst):
             dst.objects = [n for n in src.objects if not item.get("only") or n in item["only"]]
         for o in dst.objects:
-            if o is not None:
-                bpy.context.scene.collection.objects.link(o)
-                if o.parent is None:
-                    o.location = Vector(o.location) + Vector(item.get("at", (0, 0, 0)))
+            if o is None:
+                continue
+            bpy.context.scene.collection.objects.link(o)
+            if o.type == "MESH":
+                for slot in o.material_slots:
+                    name = slot.material.name.split(".")[0] if slot.material else ""
+                    if name in roles:
+                        slot.material = roles[name]
+            if o.parent is None:
+                turn = math.radians(item.get("turn", 0.0))
+                o.rotation_euler = (o.rotation_euler[0], o.rotation_euler[1], o.rotation_euler[2] + turn)
+                # where it stands, not where the file lays it in its row
+                o.location = Vector(item.get("at", (0, 0, 0)))
+                if item.get("centre") and o.type == "MESH":  # its middle, seen from above, over that place
+                    bpy.context.view_layer.update()
+                    corners = [o.matrix_world @ Vector(c) for c in o.bound_box]
+                    middle = sum(corners, Vector()) / 8.0
+                    o.location = Vector(o.location) - Vector((middle.x - o.location.x, middle.y - o.location.y, 0.0))
 
 
 def main():

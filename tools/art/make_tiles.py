@@ -129,7 +129,13 @@ def make_tile(spec, reference, seed, key=None, given=None):
         calibrations.append(pairs[0][1])
     if snap:
         versions = tiles.make_versions_open(
-            [first, *extras], spec["versions"], spec["ring"], spec["overlap"], spec["patch"], seed, 256
+            [first, *extras],
+            spec["versions"],
+            spec["ring"],
+            spec["overlap"],
+            spec["patch"],
+            seed,
+            spec.get("texels", 256),
         )
         shift = None
     else:
@@ -156,7 +162,7 @@ def make_tile(spec, reference, seed, key=None, given=None):
                     drawn[j].get("overlap", max(2, spec["overlap"] // scale)),
                     drawn[j].get("patch", max(8, spec["patch"] // scale)),
                     seed + j,
-                    256 // scale,
+                    spec.get("texels", 256) // scale,
                     scale,
                 )
             )
@@ -293,7 +299,9 @@ def main(argv):
             reference = chains[0][0]
         if key is not None:  # the marks' own colours stay, everything else becomes see-through
             chains = [[tiles.to_rgba(level, key, bleed) for level in chain] for chain in chains]
-        _, metres, first_band = textures.TILES[tile]
+        _, _, first_band = textures.TILES[tile]
+        texels = spec.get("texels", 256)
+        metres = texels / (64 >> first_band)  # 4, 16 or 64 m for a big surface's tiles, 2 m for a small thing's
         paths, digests, c2pa = provenance(spec, specs)
         if "colour_from" in recipe and recipe["colour_from"] not in paths:  # its colours were measured, so it is named
             entry = ingest.entry(recipe["colour_from"])
@@ -302,7 +310,7 @@ def main(argv):
             fields = {
                 "about": f"{recipe['about']}; {tile} tile, {metres} m across, version {v}",
                 "route": "picture",
-                "tile_texels": 256,
+                "tile_texels": texels,
                 "texels_a_metre": 64 >> first_band,
                 "first_band": first_band,
                 "sources": paths,
