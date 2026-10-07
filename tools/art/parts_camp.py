@@ -36,19 +36,20 @@ from standins import Builder, joint, lathe  # noqa: E402
 # (distance from the butt, radius) in metres: a small pommel, a shaft of 3 cm across that thickens slowly, then the
 # root knob 9 cm across at its widest, rounded at its end (the sheet's flat view)
 CLUB = [
-    (0.000, 0.0080), (0.003, 0.0140), (0.009, 0.0180), (0.020, 0.0190), (0.030, 0.0160), (0.038, 0.0135),
-    (0.060, 0.0138), (0.120, 0.0145), (0.200, 0.0152), (0.280, 0.0156), (0.360, 0.0162), (0.420, 0.0175),
-    (0.470, 0.0195), (0.510, 0.0235), (0.540, 0.0290), (0.570, 0.0350), (0.600, 0.0405), (0.630, 0.0440),
-    (0.650, 0.0450), (0.670, 0.0440), (0.685, 0.0390), (0.696, 0.0290), (0.702, 0.0150), (0.704, 0.0030),
+    (0.000, 0.0090), (0.003, 0.0150), (0.010, 0.0200), (0.020, 0.0215), (0.030, 0.0185), (0.040, 0.0128),
+    (0.065, 0.0132), (0.120, 0.0142), (0.200, 0.0150), (0.280, 0.0155), (0.360, 0.0160), (0.440, 0.0165),
+    (0.500, 0.0185), (0.530, 0.0245), (0.555, 0.0320), (0.580, 0.0385), (0.605, 0.0430), (0.630, 0.0448),
+    (0.655, 0.0452), (0.675, 0.0440), (0.690, 0.0390), (0.698, 0.0290), (0.703, 0.0150), (0.705, 0.0030),
 ]  # fmt: skip
 
 # the trimmed root stubs of the knob (the design's four): where along the club, the direction out of it, the radius of
-# the cut face, how far it stands out of the knob's surface; every one inside the knob's 9 cm
+# the cut face, how far it stands out of the knob's surface; they sit on the knob's shoulders so they show in its
+# outline, and none reaches past the knob's 9 cm across
 STUBS = [
-    (0.62, (0.15, -0.70, 0.70), 0.0100, 0.012),  # front, upper: the largest cut face, 2 cm
-    (0.66, (0.00, -0.70, -0.70), 0.0060, 0.008),  # front, lower, 1.2 cm
-    (0.64, (0.00, 0.10, 1.00), 0.0080, 0.010),  # on top, 1.6 cm
-    (0.67, (0.00, 0.90, 0.30), 0.0040, 0.006),  # on the reverse, 0.8 cm
+    (0.575, (0.20, -0.70, 0.70), 0.0100, 0.0080),  # front, upper: the largest cut face, 2 cm
+    (0.600, (0.00, -0.75, -0.65), 0.0060, 0.0060),  # front, lower, 1.2 cm
+    (0.585, (0.00, 0.10, 1.00), 0.0080, 0.0075),  # on top, 1.6 cm
+    (0.660, (0.00, 0.90, 0.30), 0.0040, 0.0060),  # on the reverse, 0.8 cm
 ]
 
 # the club's own forms by its length on screen: the segments round it, every how-many-th ring of CLUB is kept, and how
@@ -66,10 +67,10 @@ def radius_at(x):
 
 def crease_of(point, normal):
     """Baked darkening (1 open, 0 dark): the underside darker than the top, and the grip, the first 18 cm from the butt,
-    a fifth darker than the rest, as the sheet's hand-worn handle is, fading out over the next 7 cm. At the game's
+    a third darker than the rest, as the sheet's hand-worn handle is, fading out over the next 7 cm. At the game's
     size this is how the grip's darker, smoother look is carried: by the part, since a texture pixel is wider than
     the stick's own grain."""
-    grip = 0.78 + 0.22 * min(1.0, max(0.0, (point.x - 0.18) / 0.07)) if point.x < 0.25 else 1.0
+    grip = 0.66 + 0.34 * min(1.0, max(0.0, (point.x - 0.18) / 0.07)) if point.x < 0.25 else 1.0
     return (0.60 + 0.40 * (0.5 + 0.5 * normal.z)) * grip
 
 
@@ -86,7 +87,7 @@ def knob_asymmetry(ring_vertices):
         x = v.co.x
         grow = min(1.0, max(0.0, (x - 0.46) / 0.14))  # nothing on the shaft, all of it at the knob
         phi = math.atan2(v.co.z, v.co.y)
-        scale = 1.0 + grow * (0.07 * math.cos(phi - 0.9) + 0.05 * math.cos(2.0 * phi + 0.4))
+        scale = 1.0 + grow * (0.09 * math.cos(phi - 0.9) + 0.06 * math.cos(2.0 * phi + 0.4))
         v.co.y *= scale
         v.co.z = v.co.z * scale + grow * 0.004  # the knob's middle a little above the shaft's
 
@@ -121,7 +122,7 @@ def club_part(name, segments, every, stubs):
     b = Builder(name)
     lathe(b, "x", profile, segments, "wood", crease_of, bumps=0.035, seed=3, caps=(True, True))
     knob_asymmetry(list(b.bm.verts))
-    project_faces(b, lambda x: x < 0.04 or x > 0.50)  # the pommel, the knob and its end
+    project_faces(b, lambda x: x < 0.07 or x > 0.50)  # the pommel, the knob and its end
     for x, direction, r, out in STUBS[:stubs]:
         before = set(b.bm.verts)
         top = radius_at(x) + out
