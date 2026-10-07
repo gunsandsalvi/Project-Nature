@@ -25,6 +25,19 @@ static func texture_names(loaded: Dictionary) -> Array[String]:
 	return names
 
 
+## The material a texture belongs to: "meadow" for "art:meadow/middle/v2".
+static func material_of(name: String) -> String:
+	return name.trim_prefix("art:").get_slice("/", 0)
+
+
+## Texture names in the order a material's sheet lists them: by material, then its near tile, its
+## middle and its far, each tile's versions in order.
+static func sorted(names: Array[String]) -> Array[String]:
+	var listed := names.duplicate()
+	listed.sort_custom(func(a: String, b: String) -> bool: return _rank(a) < _rank(b))
+	return listed
+
+
 ## Which tile of a material a texture is: "near", "middle" or "far", or "" for one of another
 ## material. A name after the material that is not a tile, such as a version, is the near tile's.
 static func tile_of(material: String, name: String) -> String:
@@ -67,3 +80,10 @@ static func ladder(world: KdWorld, names: Array[String], material: String) -> Di
 		for name: String in list:
 			paths.append(GameData.texture_path(name))
 	return {"paths": paths, "count": count, "first": first}
+
+
+## What sorts a name into its place in a material's sheet: the material, the tile's place, the
+## version's.
+static func _rank(name: String) -> String:
+	var material := material_of(name)
+	return "%s %d %03d %s" % [material, TILES.find(tile_of(material, name)), version_of(name), name]
