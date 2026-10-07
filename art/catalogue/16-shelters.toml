@@ -159,7 +159,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "sacred_house"
 name = "House at a sacred place"
-what = "where a priest holds rites"
+what = "house at a sacred place"
+sheet = "sheets/16.22-sacred_house.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "firewood"
