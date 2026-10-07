@@ -73,8 +73,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "arrowhead"
 name = "Arrowhead and small blades"
-what = "points and the small blades set in a shaft"
+what = "Arrowhead and small blades"
 art_book = ["made-things-sheet"]
+sheet = "sheets/17.10-arrowhead.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "stone_axe"
