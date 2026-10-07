@@ -7,8 +7,10 @@ items = ["WLD-09", "WLD-14", "PRE-23", "PRE-24"]
 [[piece]]
 id = "granite"
 name = "Granite"
-what = "pale grey speckled rock, rounded boulders with lichen"
+what = "pale grey speckled rock: massive, few long joints, rounded swells and curved sheets; lichen, moss and loose boulders are pieces of their own"
 art_book = ["textures-a", "delight-liked", "first-cave"]
+sheet = "sheets/2.1-granite.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "basalt"
