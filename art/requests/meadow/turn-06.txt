@@ -1,0 +1,16 @@
+Thank you, your verdict is sharp and fair, and I agree with most of it: the ground alone cannot give the sheet's blades with length (the game's camera squashes every texture pixel to about 0.6 of its width, and the tufts and blades with length are the cover's job, a piece of its own), and the engine's light today is warmer and darker than your camera views (I am sending the builder the numbers). What I can still fix in the textures is the ladder, and you named the two weakest levels: bands 1 and 3 are too busy.
+
+PICTURES WITH THIS MESSAGE: the first shows the game's view of bands 0, 1, 2 and 3 at true size, in the engine's own light (band 0 top left, band 1 top right, band 2 bottom left, band 3 bottom right): look at how band 1 is finer and busier than band 0, and band 3 finer and busier than band 2. The second is the whole ladder, bands 0 to 6, as before.
+
+THE DIAGNOSIS, in screen pixels (a texture pixel is 2 x 2 screen pixels at every band)
+Band 0's marks are about 5 pixels wide on screen. Band 1 (your near-A-b1 and near-C-b1) has marks of 2 to 3 texels, so about 5 pixels again, but twice as many of them in every square of screen, because the camera is twice as far: it reads as finer and busier. Band 2's clumps (3 to 6 texels) are about 10 pixels, so the apparent mark size jumps. Band 3 (your middle-b3) is about 5 pixels again, busy again. The apparent size of the marks should grow steadily as the camera goes up: band 0 about 5 pixels, band 1 about 7, band 2 about 10, band 3 about 14, with fewer marks in each step, and then the far tile's calm swathes take over.
+
+THE JOB
+Draw the five levels again, bolder and fewer:
+- meadow-near-A-b1v2.png and meadow-near-C-b1v2.png, from meadow-near-A.png and meadow-near-C.png: 128 x 128 texels (32 a metre, 3 cm each). Marks 3 to 4 texels wide (about 7 screen pixels), about 60 per cent as many marks as your first drawing of this level had, each a stroke or clump with its light yellow-green tip over a darker base. Keep the same palette, the same average colour and the same brightness as the level above, and the dark bases between them.
+- meadow-middle-A-b3v2.png, meadow-middle-B-b3v2.png and meadow-middle-C-b3v2.png, from the matching middle tile: 128 x 128 texels (8 a metre, 12.5 cm each). Clumps 5 to 7 texels (about 12 to 14 screen pixels), about 60 per cent as many as your first drawing of this level, with the light tops and dark hollows; some of the clumps should be tops of two or three tones, never flat blobs. Again the same palette, average colour and brightness as the level above.
+Each must line up with the tile it comes from (the same arrangement in the same places at half the size), seamless on all four sides, flat light, the meadow alone.
+
+HOW
+Save each as a PNG exactly 1024 x 1024 pixels with every texel a flat 8 x 8 block. Keep each raw picture the tool returned, unchanged, in originals/ as before. Check with code that the grid is exact and that each wraps, and look at it at the game's size (one texel is 2 x 2 screen pixels) beside the level above it. Draw with your image tool, never with code. Bin any attempt that is clearly off.
+Reply in a few lines: how you made the marks bolder and fewer, which of the five is weakest and why, and the files you saved.

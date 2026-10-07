@@ -1,0 +1,16 @@
+Turn 2 worked. Your new near tiles A and C are in (B is out: its edge showed a seam, 1.31 against 1.05 and 1.07), and in the game's view the near tile now reads like your camera view. Now the same problem one band out.
+
+THE PROBLEM
+bands-0-to-6-contact.png shows the meadow in the game's view at the seven zoom bands (band 0 is about 8 m across the phone's screen, each band twice as far): your new near tile serves bands 0 and 1 (the first two pictures), the sheet's middle tile serves bands 2 and 3, the sheet's far tile bands 4 to 6. The jump from band 1 to band 2 is wrong. Bands 0 and 1 are bold, bright and yellow-tipped; band 2 is dull olive with weak marks, and band 3 is nearly flat. A player zooming out would see the grass lose its life at the switch. engine-band2-1to1.png is band 2 at the phone's true size (one picture pixel is one screen pixel, 540 x 540 is about 17 m of ground at 16 texels a metre). near-new-x4.png is your new near tile enlarged 4 times; middle-band2-x4.png is the sheet's middle tile enlarged 4 times. art-book-d2-pixel-paint.png is the owner's art book: look at how its meadow reads at this distance, between the huts and the river.
+
+THE JOB
+Draw a new middle tile, band 2: 256 x 256 texels, 16 m across (16 texels a metre, each texel 6 cm), seamless on all four sides, that reads as the same meadow as your new near tile seen four times farther away.
+- Clumps of grass of 3 to 6 texels (20 to 35 cm), each with a lighter yellow-green top over a darker green base, and dark hollows between them. Marks of 2 texels or more, very few single texels. Only a few small earth specks (2 to 3 texels).
+- The same palette family and the same average colour as the new near tile (look at near-new-x4.png), with a contrast and brightness between the near tile's and the sheet's old middle tile: the yellow tips smaller and a little less saturated than the near tile's, but still there. It must still read as bright grass in the game's view, not as dull olive. No hard-edged camouflage blots of two flat greens.
+- No large patches: the tile repeats every 16 m, so any big dark or light patch would show as a regular pattern. Keep the tone even over the tile, all the structure in the clumps.
+- Flat light, no sunlight from one side. The meadow alone: no tufts, flowers or stones.
+Make three different tiles A, B and C that are all this same grass: a different arrangement of clumps, the same character and the same average colour. I will use them as versions of the tile.
+
+HOW
+Save each as a PNG exactly 1024 x 1024 pixels with every texel a flat 4 x 4 block: meadow-middle-A.png, meadow-middle-B.png, meadow-middle-C.png. Keep each raw picture the tool returned, unchanged, in originals/ as before. Check with code that the grid is exact and that each tile wraps, and look at it at the game's size (one texel is 2 x 2 screen pixels). Draw with your image tool, never with code. Bin any attempt that is clearly off.
+Reply in a few lines: what you changed from the sheet's middle tile, which of your three you think is weakest and why, and the files you saved.

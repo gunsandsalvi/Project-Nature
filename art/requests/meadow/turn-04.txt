@@ -1,0 +1,15 @@
+Turn 3 worked. Your middle tiles A, B and C are in, and in the game's view bands 0, 2 and 4 to 6 now read as one meadow (bands-0-to-6-contact2.png; band 0 and band 2 at the phone's true size are engine-band0-new-1to1.png and engine-band2-new-1to1.png).
+
+THE WEAK LEVELS ARE THE TWO BETWEEN
+Bands 1 and 3 are the levels I made by code (a half-size average with its contrast put back). They are the weakest pictures in the ladder: finer than their neighbours, a fine speckle where band 0 has bold strokes and band 2 has clumps. See engine-band1-1to1.png and engine-band3-1to1.png, at the phone's true size; compare them with band 0 and band 2.
+
+THE JOB
+Draw the next level of each tile, five pictures. Each is the same ground in the same place as the tile it comes from, seen from twice as far:
+- meadow-near-A-b1.png from your meadow-near-A.png, and meadow-near-C-b1.png from meadow-near-C.png: 128 x 128 texels (32 texels a metre, each texel 3 cm).
+- meadow-middle-A-b3.png, meadow-middle-B-b3.png and meadow-middle-C-b3.png from the matching middle tile: 128 x 128 texels (8 texels a metre, each texel 12.5 cm).
+Each must line up with the tile above it: the same arrangement of strokes or clumps in the same places at half the size, since the game blends two neighbouring levels while the zoom passes between them and I will lay the same cuts over these levels as over the tiles above. Bolder and fewer marks, 2 to 3 texels wide, never single-texel speckle; keep the light yellow-green tips over the darker bases and the few earth specks as single or double texels; the same palette, the same average colour and the same feeling of brightness as the level above, so that the grass does not lose its life at the switch. This is not the level above averaged, and not a camouflage of two or three flat greens either (turn 1's middle and far levels were): keep the texture inside the marks, as your tiles have it.
+Seamless on all four sides. Flat light. The meadow alone.
+
+HOW
+Save each as a PNG exactly 1024 x 1024 pixels with every texel a flat square block (8 x 8 pixels), so every texel is exactly 8 x 8. Keep each raw picture the tool returned, unchanged, in originals/. Check with code that the grid is exact and that each wraps, and look at it at the game's size (one texel is 2 x 2 screen pixels). Draw with your image tool, never with code. Bin any attempt that is clearly off.
+Reply in a few lines: how you made the marks bolder, which of the five is weakest and why, and the files you saved.

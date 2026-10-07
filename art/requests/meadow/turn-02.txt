@@ -1,0 +1,22 @@
+Thanks, turn 1 is useful. My verdict on the four levels, in short:
+- meadow-near-b1.png is good: bolder strokes, the same patch structure. I will keep it as a reference for the band 1 look.
+- meadow-middle-b3.png, meadow-far-b5.png and meadow-far-b6.png drift to hard-edged camouflage blots of two or three flat greens. The sheet's far tile is soft with a fine grain, and the game shows it in broad calm swathes, so I will make the coarse levels by code from the sheet's tiles and I will not ask for these three again.
+
+NOW THE REAL PROBLEM: HOW THE GAME SHOWS THE NEAR TILE
+I built the game's view in Blender the way the engine draws the ground: the camera 37 degrees down through a narrow lens, the late-afternoon sun behind the camera's left shoulder, your near tile mapped flat on the ground at 64 texels a metre, each texel shown 2 x 2 screen pixels, read nearest-pixel. Two pictures at the true size of the phone (one picture pixel is one screen pixel; 540 x 540 pixels is about 4.2 m of ground):
+- engine-render-1to1.png: the game's view of your near tile.
+- sheet-camera-1to1.png: your own camera view from the sheet, the same size of ground.
+They should look alike and they do not. The game's view is finer, darker and flatter. Its grass marks are 1 to 2 texels wide, a pattern like grain, where yours are bold strokes 3 to 5 pixels wide that read as clumps of blades, light yellow-green tips over darker bases. Yours has about a quarter more contrast, is about 3 points lighter, and has about a third more small marks (measured: the game's view has lightness 52, texture contrast 6.3 and 25 small marks per thousand cells; your camera view has 56, 7.9 and 33).
+Your camera view is what the owner signed off, so the near tile has to deliver it. The third picture, near-band0-x4.png, is the current near tile enlarged 4 times.
+
+THE JOB
+Draw a new near tile, band 0: 256 x 256 texels, 4 m across, seamless on all four sides, that reads in the game's view like sheet-camera-1to1.png.
+- Marks 2 to 3 texels wide and 3 to 6 long, each a stroke with a light yellow-green tip over a darker base; very few single-texel specks.
+- The brightness and contrast of your camera view: its light tips, its dark but not black gaps, a few small earth specks of 2 to 4 texels as in the old tile.
+- No large patches. The tile repeats every 4 m, so a big dark or light patch would show as a regular pattern across the ground. Keep the tone even over the whole tile, all the structure in the strokes, at most a very gentle swell.
+- The same palette family as the old tile and the sheet (#405A32, #617338, #839343, #A3A34C, #B4AE5B, earth #B39161). Flat light, no sunlight from one side. The meadow alone: no tufts, flowers or stones.
+Make three different tiles A, B and C that are all this same grass: a different arrangement of strokes, the same character and the same average colour. I will use them as versions of the tile.
+
+HOW
+Save each as a PNG exactly 1024 x 1024 pixels with every texel a flat 4 x 4 block: meadow-near-A.png, meadow-near-B.png, meadow-near-C.png. Keep each raw picture the tool returned, unchanged, in originals/ as before. Check with code that the grid is exact and that each tile wraps, and look at it at the game's size (one texel is 2 x 2 screen pixels). Draw with your image tool, never with code. Bin any attempt that is clearly off.
+Reply in a few lines: what you changed from the old tile, which of your three you think is weakest and why, and the files you saved.
