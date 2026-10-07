@@ -22,7 +22,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "tuff"
 name = "Lava and ash rock"
-what = "rough volcanic rock of lava and ash"
+what = "rough, matt volcanic rock of welded ash, grainy buff-grey, full of pale pumice and dark lava fragments and small pits, in thick rough beds that weather into rounded masses"
+sheet = "sheets/2.3-tuff.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "obsidian"
