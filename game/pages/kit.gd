@@ -130,6 +130,7 @@ func show_part(name: String) -> void:
 	var roles: Array[String] = []
 	for role: String in info.get("roles", {}):
 		roles.append("%s %d" % [role, info["roles"][role]])
+	var joints: PackedStringArray = info.get("joints", PackedStringArray())
 	_say(
 		(
 			"%s\n%d triangles (%s); joints: %s; texture pixels stretch at most %.2f to 1"
@@ -137,7 +138,7 @@ func show_part(name: String) -> void:
 				name,
 				info.get("triangles", 0),
 				", ".join(roles),
-				", ".join(info.get("joints", PackedStringArray())),
+				", ".join(joints) if not joints.is_empty() else "none",
 				info.get("stretch", 1.0),
 			]
 		)
