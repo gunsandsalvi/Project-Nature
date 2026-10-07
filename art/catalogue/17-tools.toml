@@ -62,7 +62,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "spear_point"
 name = "Spear point"
+what = "Spear point"
 art_book = ["made-things-sheet"]
+sheet = "sheets/17.9-spear_point.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "arrowhead"
