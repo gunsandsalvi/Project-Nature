@@ -89,11 +89,12 @@ def write_texture(name, tile, version, fields, pictures, ways):
 
 
 def read_texture(where):
-    """A record read back, with each level's picture: (the record's fields, [(level's table, its picture)])."""
+    """A record read back, with each level's picture (RGB, or RGBA for the water's marks): (the record's fields,
+    [(level's table, its picture)])."""
     with open(os.path.join(ROOT, where, "record.toml"), "rb") as f:
         record = tomllib.load(f)
     levels = sorted(record["band"], key=lambda b: b["level"])
-    return record, [(b, tiles.read_rgb(os.path.join(ROOT, b["file"]))) for b in levels]
+    return record, [(b, tiles.read_pixels(os.path.join(ROOT, b["file"]))) for b in levels]
 
 
 def read_set(name):

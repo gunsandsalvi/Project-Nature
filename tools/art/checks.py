@@ -10,10 +10,15 @@ For each material under art/textures/ it checks, tile by tile:
   band after, so a near tile is 4 m across, a middle tile 16 m and a far tile 64 m;
 - the versions: two to four of a tile, all sharing their ring at every designed level, each wrapping on itself and
   joining every other without a seam (a join no larger than the tile's own large jumps);
+- no hard row or column inside any level (the builder's seam rule, tiles.inner_seams): a version whose quilted patches
+  stop short of its shared border shows a straight line at every cell's edge;
 - the sources: every picture the record names is there;
 - the colour: each tile's first level within 3 of the material's reference in lightness, and each designed level keeping
   at least 90% of the accents of the level above it (less as far as its record says it was calmed), the measures from
-  `kindling look`.
+  `kindling look`, taken on each level as the screen shows it (a texture pixel 2 x 2 screen pixels), not per texture
+  pixel (A4.8, the owner's choice of 7 October 2026); the engine's own frames are measured by the builder;
+- for the water's marks (RGBA) instead: alpha wholly 0 or 255, one colour under the see-through, the coverage of the
+  first level sensible and each designed level's within 40% to 150% of the level above's.
 It prints each failure (every check with --all) and ends with the counts; exit code 1 if there is a failure. The
 catalogue's own loader checks the records' fields (`kindling catalogue check data`).
 Implements PRE-20, PRE-22 and PRE-42, see A5.3 and A5.4.
@@ -22,6 +27,8 @@ Implements PRE-20, PRE-22 and PRE-42, see A5.3 and A5.4.
 import os
 import re
 import sys
+
+import numpy as np
 
 import look
 import textures
@@ -90,6 +97,14 @@ def tile_checks(report, name, tile):
         )
         missing = [s for s in record["sources"] if not os.path.isfile(os.path.join(textures.ROOT, s))]
         report.check(not missing, f"{label}: its sources are kept" + (f" (missing {missing})" if missing else ""))
+        seams = [(i, s) for i, (_, p) in enumerate(levels) for s in tiles.inner_seams(p)]
+        report.check(
+            not seams,
+            f"{label}: no hard row or column inside any level"
+            + "".join(
+                f" (level {i}: {s[0]} pair {s[1]}|{s[1] + 1}, step {s[2]:.1f} against p99 {s[3]:.1f})" for i, s in seams
+            ),
+        )
         versions.append([p for _, p in levels])
         if first is None:
             first = levels
@@ -116,12 +131,52 @@ def calmed(table):
     return min(1.0, int(found.group(1)) / 100.0) if found else 1.0
 
 
+def screen_view(picture):
+    """A level as the screen shows it, in the measures' reach: a texture pixel is 2 x 2 screen pixels at every band, so
+    the level's top left 128 texture pixels enlarged twice (the measures take pictures of at most 256 pixels). The
+    accents are measured on this, not per texture pixel, as the owner chose on 7 October 2026 (A4.8): marks that are
+    bolder and fewer score lower per texture pixel by themselves. The light and the camera's slant are not here; the
+    engine's frames, which the builder measures, have them."""
+    return np.repeat(np.repeat(picture[:128, :128, :3], 2, axis=0), 2, axis=1)
+
+
+def marks_checks(report, name, firsts):
+    """The checks on a material of marks (RGBA): every pixel wholly opaque or wholly see-through, every see-through
+    pixel the one bleed colour, the first level's coverage a sensible share of the water, and each designed level
+    keeping at least 40% of the coverage of the level above and at most 150% (bolder and fewer, never none or more)."""
+    for tile, levels in firsts.items():
+        shares = []
+        for i, (_, p) in enumerate(levels[: SERVES[tile]]):
+            alpha = p[..., 3]
+            report.check(set(np.unique(alpha).tolist()) <= {0, 255}, f"{name}/{tile} level {i}: alpha is 0 or 255 only")
+            clear = p[alpha == 0][:, :3]
+            report.check(
+                len(np.unique(clear, axis=0)) <= 1, f"{name}/{tile} level {i}: see-through pixels share one colour"
+            )
+            shares.append(tiles.coverage(p))
+        report.check(
+            0.03 <= shares[0] <= 0.15,
+            f"{name}/{tile}: first level covers {shares[0]:.1%} of the water (3% to 15%)",
+        )
+        for i in range(1, len(shares)):
+            report.check(
+                0.4 * shares[i - 1] <= shares[i] <= 1.5 * shares[i - 1],
+                f"{name}/{tile} level {i}: covers {shares[i]:.1%} against {shares[i - 1]:.1%} above (40% to 150%)",
+            )
+
+
 def colour_checks(report, name, firsts):
     """The colour checks over a material's tiles' first versions: each tile's first level against the reference tile's,
-    each designed level's accents against the level above (less as far as its record says it was calmed)."""
+    each designed level's accents, on the screen's scale, against the level above (less as far as its record says it
+    was calmed)."""
+    if firsts["near"][0][1].shape[2] == 4:
+        return marks_checks(report, name, firsts)
     stats = {}
     for tile, levels in firsts.items():
-        stats[tile] = [look.stats(look.tiled(p)) for _, p in levels[: SERVES[tile]]]
+        stats[tile] = [
+            {**look.stats(look.tiled(p)), "accents": look.stats(look.tiled(screen_view(p))).get("accents")}
+            for _, p in levels[: SERVES[tile]]
+        ]
     ref = stats["near"][0]
     for tile, rows in stats.items():
         off = abs(rows[0]["lightness"] - ref["lightness"])

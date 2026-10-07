@@ -15,7 +15,7 @@ approved = "not offered yet: the pilot's first piece, waiting for the builder's 
 [[band]]
 level = 0
 file = "art/textures/meadow/middle/v4/b2.png"
-sha256 = "42b443638b736f0fa1531ecf4b887f6dca581ae9781f8ca41678a70eff9ce1e2"
+sha256 = "03e2e18cddf76af64582393d84344c324802272c5669d69bca304c4e3b3c384e"
 way = "the tile's picture (a block of 4, loss 0.0%), moved to the reference's colour, its inside quilted from the tile's pictures in patches of 48 round the shared ring"
 regrid_loss = "0.0%"
 calibration = "lightness -0.4; hue -1.5; colourfulness 90%; contrast 100%"
@@ -24,7 +24,7 @@ calibration = "lightness -0.4; hue -1.5; colourfulness 90%; contrast 100%"
 level = 1
 file = "art/textures/meadow/middle/v4/b3.png"
 sha256 = "485128a12afc3d451d55f249a8fb32564f397bae2c0c479051161842916a07a6"
-made_from = "42b443638b736f0fa1531ecf4b887f6dca581ae9781f8ca41678a70eff9ce1e2"
+made_from = "03e2e18cddf76af64582393d84344c324802272c5669d69bca304c4e3b3c384e"
 way = "drawn for this band, then moved to the level above's colour and contrast; the other versions quilted again at this level's own size from the pictures drawn for each of its sources"
 calibration = "lightness -0.6; hue +0.1; colourfulness 94%; contrast 135%"
 

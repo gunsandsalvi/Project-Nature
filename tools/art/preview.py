@@ -81,17 +81,18 @@ def pick(cx, cy, salt, count):
     return h.below(count)
 
 
-def compose(versions, level, cell_metres, box):
-    """The ground over `box` as one picture of the level's texture pixels, each cell of `cell_metres` taking a version
-    of the tile by its place. Returns the picture and the metres it covers (west, east, south, north)."""
+def compose(versions, level, cell_metres, box, salt=1):
+    """The ground over `box` as one picture of the level's texture pixels (RGB, or RGBA for the water's marks), each
+    cell of `cell_metres` taking a version of the tile by its place. Returns the picture and the metres it covers (west,
+    east, south, north)."""
     size = versions[0][level].shape[0]
     texel = cell_metres / size
     c0, c1 = int(math.floor(box[0] / texel)), int(math.ceil(box[1] / texel))
     r0, r1 = int(math.floor(-box[3] / texel)), int(math.ceil(-box[2] / texel))  # rows run south
-    out = np.zeros((r1 - r0, c1 - c0, 3), np.uint8)
+    out = np.zeros((r1 - r0, c1 - c0, versions[0][level].shape[2]), np.uint8)
     for cy in range(r0 // size, (r1 - 1) // size + 1):
         for cx in range(c0 // size, (c1 - 1) // size + 1):
-            tile = versions[pick(cx, cy, 1, len(versions))][level]
+            tile = versions[pick(cx, cy, salt, len(versions))][level]
             ya, yb = max(r0, cy * size), min(r1, (cy + 1) * size)
             xa, xb = max(c0, cx * size), min(c1, (cx + 1) * size)
             out[ya - r0 : yb - r0, xa - c0 : xb - c0] = tile[
@@ -131,13 +132,15 @@ def linear(hex_colour):
     return out
 
 
-def scene_config(out, sun, samples):
+def scene_config(out, sun, samples, change=None):
     """The light as the engine's own tuning sets it (data/base/tuning/light.toml, written once there): the sun's height
     and bearing, its colour and its energy (Godot's 1.0 is Blender's pi), the ambient light's colour and energy; the
     sun `ahead` is the one on the other side. The haze and the bounce are not drawn, a flat ground having no distance
-    to speak of and nothing below it."""
+    to speak of and nothing below it. `change` (a dict of the tuning's own keys and values) tries other numbers for a
+    preview, as the builder may try them, without touching the tuning."""
     with open(LIGHT, "rb") as f:
         light = tomllib.load(f)
+    light.update(change or {})
     percent = {k: float(light[k].rstrip("%")) / 100.0 for k in ("sun_energy", "ambient_energy")}
     turn = float(light["sun_turn"]) + (180.0 if sun == "ahead" else 0.0)
     return {
@@ -154,7 +157,7 @@ def scene_config(out, sun, samples):
     }
 
 
-def ground_view(name, band, sun, out_folder, samples=24):
+def ground_view(name, band, sun, out_folder, samples=24, change=None, suffix=""):
     """One band's view of a material's ground; returns the picture's path."""
     available = textures.read_set(name)
     tile, level = tile_for_band(available, band)
@@ -167,8 +170,80 @@ def ground_view(name, band, sun, out_folder, samples=24):
     os.makedirs(scratch, exist_ok=True)
     ground_png = os.path.join(scratch, f"{name}-ground-band{band}.png")
     tiles.write_png(ground_png, picture)
-    out = os.path.join(out_folder, f"{name}-band{band}-{sun}.png")
-    config = scene_config(out, sun, samples)
+    out = os.path.join(out_folder, f"{name}-band{band}-{sun}{suffix}.png")
+    config = scene_config(out, sun, samples, change)
+    config["camera"] = {"distance": distance(mpp), "tilt": TILT, "lens": LENS}
+    config["ground"] = {"picture": ground_png, "x0": covers[0], "x1": covers[1], "y0": covers[2], "y1": covers[3]}
+    render(config, scratch)
+    return out
+
+
+WATER = os.path.join(textures.ROOT, "data", "base", "tuning", "water.toml")
+
+
+def to_linear(srgb):
+    """8-bit sRGB pixels as linear light, floats from 0 to 1."""
+    c = np.asarray(srgb, np.float64) / 255.0
+    return np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+
+
+def to_srgb(lin):
+    """Linear light as 8-bit sRGB pixels."""
+    c = np.clip(lin, 0.0, 1.0)
+    return np.rint(255.0 * np.where(c <= 0.0031308, c * 12.92, 1.055 * c ** (1 / 2.4) - 0.055)).astype(np.uint8)
+
+
+def water_tuning(change=None):
+    """The water's numbers as the engine's tuning gives them (data/base/tuning/water.toml): how fast each colour fades
+    in a metre of water and how fast the water's own deep colour takes over, the deep colour in linear light, and the
+    share of the sky the surface mirrors. `change` tries other values (the tuning's own keys and text)."""
+    with open(WATER, "rb") as f:
+        tune = tomllib.load(f)
+    tune.update(change or {})
+
+    def metres(text):
+        return float(text.split()[0])
+
+    return {
+        "absorb": np.array([1.0 / metres(tune[k]) for k in ("fade_red", "fade_green", "fade_blue")]),
+        "murk": 1.0 / metres(tune["murk"]),
+        "deep": np.array(linear(tune["deep_colour"])),
+        "sky": float(tune["sky_share"].rstrip("%")) / 100.0,
+    }
+
+
+def water_over(bed, marks, depth, tune, sky=(0.72, 0.78, 0.83)):
+    """The bed seen through `depth` metres of water with the marks over it, as the engine draws them (A4.5, the
+    ground's shader tints the bed by the depth, red first, and the water's deep colour takes over; the surface carries
+    the marks and mirrors a little sky), in 8-bit sRGB: `bed` RGB pixels, `marks` RGBA pixels."""
+    lin = to_linear(bed)
+    through = lin * np.exp(-depth * tune["absorb"]) + tune["deep"] * (1.0 - math.exp(-depth * tune["murk"]))
+    alpha = marks[..., 3:4].astype(np.float64) / 255.0
+    surface = through * (1.0 - alpha) + to_linear(marks[..., :3]) * alpha
+    surface = surface * (1.0 - tune["sky"]) + to_linear(np.array(sky) * 255.0) * tune["sky"]
+    return to_srgb(surface)
+
+
+def water_view(bed, marks, band, sun, out_folder, depth, samples=24, change=None, suffix=""):
+    """One band's view of a river of one depth: the bed's ground tinted by the water over it and the marks' picture on
+    top, lit as the ground is; returns the picture's path."""
+    beds, flows = textures.read_set(bed), textures.read_set(marks)
+    tile, level = tile_for_band(beds, band)
+    mark_tile, mark_level = tile_for_band(flows, band)
+    mpp = BAND0_MPP * (2**band)
+    box = footprint(mpp, margin=2 * (2**band) / 64.0)
+    ground, covers = compose(beds[tile], level, textures.TILES[tile][1], box)
+    over, covers_marks = compose(flows[mark_tile], mark_level, textures.TILES[mark_tile][1], box, salt=2)
+    if covers != covers_marks:
+        raise RuntimeError("the bed's and the marks' tiles do not cover the same ground")
+    picture = water_over(ground, over, depth, water_tuning())
+    os.makedirs(out_folder, exist_ok=True)
+    scratch = os.path.join(out_folder, "scratch")
+    os.makedirs(scratch, exist_ok=True)
+    ground_png = os.path.join(scratch, f"water-ground-band{band}.png")
+    tiles.write_png(ground_png, picture)
+    out = os.path.join(out_folder, f"water-{bed}-band{band}-{sun}-{int(depth * 100)}cm{suffix}.png")
+    config = scene_config(out, sun, samples, change)
     config["camera"] = {"distance": distance(mpp), "tilt": TILT, "lens": LENS}
     config["ground"] = {"picture": ground_png, "x0": covers[0], "x1": covers[1], "y0": covers[2], "y1": covers[3]}
     render(config, scratch)
@@ -177,15 +252,30 @@ def ground_view(name, band, sun, out_folder, samples=24):
 
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("what", choices=["ground"])
-    ap.add_argument("name")
+    ap.add_argument("what", choices=["ground", "water"])
+    ap.add_argument("name", help="the material; for water, the bed's, with --marks the marks'")
     ap.add_argument("out")
+    ap.add_argument("--marks", default="river_marks")
+    ap.add_argument("--depth", type=float, default=0.5, help="the water's depth in metres (water)")
     ap.add_argument("--bands", type=int, nargs="*", default=[0])
     ap.add_argument("--sun", choices=sorted(SUNS), default="behind")
     ap.add_argument("--samples", type=int, default=24)
+    ap.add_argument(
+        "--light",
+        nargs="*",
+        default=[],
+        metavar="KEY=VALUE",
+        help="try other numbers for the light (the tuning's own keys, such as sun_colour=#fff6e8 sun_energy=170%%); "
+        "the pictures are named with a -light suffix",
+    )
     args = ap.parse_args(argv[1:])
+    change = dict(item.split("=", 1) for item in args.light)
     for band in args.bands:
-        print(ground_view(args.name, band, args.sun, args.out, args.samples))
+        suffix = "-light" if change else ""
+        if args.what == "water":
+            print(water_view(args.name, args.marks, band, args.sun, args.out, args.depth, args.samples, change, suffix))
+        else:
+            print(ground_view(args.name, band, args.sun, args.out, args.samples, change, suffix))
     return 0
 
 
