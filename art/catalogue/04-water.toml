@@ -15,8 +15,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "ford"
 name = "Ford"
-what = "ripples over shallow stones and stepping stones"
+what = "Ford"
 art_book = ["close-camp"]
+sheet = "sheets/4.2-ford.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "rapids"
