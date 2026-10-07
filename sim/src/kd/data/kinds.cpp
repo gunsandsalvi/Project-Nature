@@ -9,6 +9,7 @@
 #include "kd/demo/crowd.hpp"
 #include "kd/demo/marker.hpp"
 #include "kd/look/card.hpp"
+#include "kd/look/model.hpp"
 #include "kd/look/texture.hpp"
 #include "kd/run/heat_tuning.hpp"
 #include "kd/run/save_tuning.hpp"
@@ -19,6 +20,7 @@ namespace kd::data {
 Catalogue::Catalogue() {
     add_kind<look::Moment>("card", "a moment's bands on the target card, from the pictures you chose (PRE-01)");
     add_kind<demo::Marker>("marker", "a kind of the demonstration's markers, which walk, meet and greet (MAT-16)");
+    add_kind<look::Model>("models", "a thing put together from the kit's parts: its recipe (PRE-46)", Layout::records);
     add_kind<look::Texture>("textures",
                             "a texture's record: its levels, where it came from, its checks and your OK (PRE-20)",
                             Layout::records);
@@ -33,8 +35,11 @@ Catalogue::Catalogue() {
 namespace {
 
 // In the order of their names.
-constexpr std::array<Check, 2> kChecks{{
+constexpr std::array<Check, 3> kChecks{{
     {"company", "MAT-17", "every demonstration marker can greet or be greeted", demo::check_company},
+    {"models", "PRE-46",
+     "every model's placements are named once, and a ring, span or plug names what it needs and a role wears something",
+     look::check_models},
     {"orders", "MAT-05", "every entry in its place in the real order of things, as checks/orders.toml lists them",
      check_orders},
 }};
