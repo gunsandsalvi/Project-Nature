@@ -47,6 +47,14 @@ def length_label(metres):
     return f"{metres:g} m" if metres >= 1 else f"{metres * 100:g} cm"
 
 
+def fitting(metres, px_per_m, room):
+    """The stick's length in metres: the one asked for or, for a small thing shown large, a tenth of it, and so on down
+    to 1 cm, until it fits within `room` screen pixels."""
+    while metres * px_per_m > room and metres > 0.011:
+        metres = round(metres / 10, 4)
+    return metres
+
+
 def stick(draw, x, y, length, label, height=12):
     """The scale stick lying left to right from (x, y), `length` screen pixels long, its label above it."""
     seg = length / 10
@@ -338,6 +346,7 @@ def compose_object(spec, sheet, folder):
     def standing(row, px_per_m, metres, with_adult):
         if with_adult:
             row.append((adult(round(ADULT * px_per_m)), "Adult, 1.7 m"))
+        metres = fitting(metres, px_per_m, TALLEST)
         row.append((upright(round(metres * px_per_m), length_label(metres)), ""))
         return row
 
@@ -349,12 +358,12 @@ def compose_object(spec, sheet, folder):
     if "above" in spec:
         above = spec["above"]
         sheet.text("From above, at the same scale.", 26, bold=True)
-        metres = above.get("stick", 1)
+        metres = fitting(above.get("stick", 1), s, HALF)
         sheet.figures([shown(above, s), (lying(round(metres * s), length_label(metres)), "")])
     camera = spec.get("camera_objects")
     if camera:
         sheet.text("The game's camera, about 37 degrees down, late afternoon, at the same scale.", 26, bold=True)
-        metres = camera.get("stick", 1)
+        metres = fitting(camera.get("stick", 1), s, HALF)
         sheet.figures([shown(i, s) for i in camera["items"]] + [(lying(round(metres * s), length_label(metres)), "")])
         first = camera["items"][0]
         row = [(shown(first, k)[0], f"{label}: 1 m = {k} px") for label, k in ZOOMS]
@@ -369,7 +378,7 @@ def compose_object(spec, sheet, folder):
         sheet.text(title, 26, bold=True)
         row = [shown(i, k) for i in group["items"]]
         if group.get("above"):
-            metres = group.get("stick", 1)
+            metres = fitting(group.get("stick", 1), k, HALF)
             sheet.figures(row + [(lying(round(metres * k), length_label(metres)), "")])
         else:
             sheet.figures(standing(row, k, group.get("stick", 1), group.get("adult", False)))
