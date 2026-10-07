@@ -36,7 +36,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "savanna"
 name = "Savanna ground"
-what = "tall dry grass on red earth"
+what = "hard red-brown earth with a litter of dry golden grass stems, 5 to 20 cm, lying every way and crossing, in loose drifts and bare patches, with short stubble; green in the rains, grazed bare at the end of the dry season"
+sheet = "sheets/3.5-savanna.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "scrub"
