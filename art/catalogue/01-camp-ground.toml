@@ -27,8 +27,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "bank_gravel"
 name = "River-bank gravel and cobbles"
-what = "the rounded stones along the water"
+what = "the rounded stones along the water, from a pea to a fist, packed with sand; bigger stones are pieces of their own"
 art_book = ["textures-a", "d2-pixel-paint"]
+sheet = "sheets/1.4-bank_gravel.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "river_bed"
