@@ -86,6 +86,9 @@ note = "the art book's axe looks metal: a known slip"
 [[piece]]
 id = "adze"
 name = "Adze"
+what = "Adze"
+sheet = "sheets/17.12-adze.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "quern"
