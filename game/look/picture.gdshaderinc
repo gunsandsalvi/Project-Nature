@@ -3,7 +3,8 @@
 // as drawn. Every material shows them the same way (CLAUDE.md rule 4). Implements PRE-31.
 
 // What the surfaces show: 0 the colour picture, the game's; 1 their material's number; 2 their
-// object's, 0 for none.
+// object's, 0 for none; 3 the tile and version of a big surface's ladder that each point reads, as
+// the number 8 for each tile after the near one and the version, from 0.
 global uniform int kd_picture;
 
 // A number from 0 to 511 as a colour the screen's 8 bits keep: 8 levels a channel, red the lowest,

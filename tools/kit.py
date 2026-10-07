@@ -43,7 +43,9 @@ def read(path):
 
 def blender(arguments):
     """Runs Blender headless with these arguments after its standard ones; its last line of output, or the fault."""
-    command = ["blender", "--background", "--factory-startup", "--python-exit-code", "1", *arguments]
+    # one thread, so the mesh work Blender splits between threads comes out in the same order every time: the same file
+    # gives the same bytes (a full run of the tool tests once found two builds of the stand-in family differing)
+    command = ["blender", "--background", "--factory-startup", "--threads", "1", "--python-exit-code", "1", *arguments]
     run = subprocess.run(command, capture_output=True, text=True, cwd=ROOT)
     if run.returncode != 0:
         tail = "\n".join((run.stdout + run.stderr).strip().splitlines()[-12:])

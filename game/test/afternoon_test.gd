@@ -62,7 +62,8 @@ func test_the_light_is_put_under_a_node_from_the_tuning_and_its_globals_are_publ
 		"kd_sun_toward",
 		"kd_bounce",
 		"kd_haze",
-		"kd_haze_sun"
+		"kd_haze_sun",
+		"kd_sky"
 	]:
 		assert_bool(ProjectSettings.has_setting("shader_globals/" + name)).is_true()
 

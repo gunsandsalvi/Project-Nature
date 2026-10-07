@@ -98,6 +98,27 @@ func view_at(east: int, north: int, heading: float, metres_per_pixel: float) -> 
 	look.set_view(east, north, heading, metres_per_pixel)
 
 
+## A button along a row of the page's controls, as wide as its share of the row and tall enough to
+## touch.
+func _button(parent: Control, label: String, pressed: Callable) -> void:
+	var button := Button.new()
+	button.text = label
+	button.custom_minimum_size = Vector2(0, 48)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.pressed.connect(pressed)
+	parent.add_child(button)
+
+
+## A line of the page's words, added to the page.
+func _label(font_size: int, colour: Color) -> Label:
+	var label := Label.new()
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", colour)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(label)
+	return label
+
+
 func _apply_drawing() -> void:
 	var viewport := get_viewport()
 	if viewport == null:

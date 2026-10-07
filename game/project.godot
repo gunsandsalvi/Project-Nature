@@ -90,6 +90,50 @@ kd_fire_screen={
 "type": "sampler2D",
 "value": ""
 }
+kd_origin_near={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_origin_middle={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_origin_far={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_water={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_water_absorb={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_water_deep={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_water_wet={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_water_surface={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_water_glint={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_water_shore={
+"type": "vec4",
+"value": Vector4(0, 0, 0, 0)
+}
+kd_sky={
+"type": "vec3",
+"value": Vector3(0, 0, 0)
+}
 
 [rendering]
 

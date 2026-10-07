@@ -5,7 +5,8 @@
 // Each level is read with the "smooth pixel" filter: crisp inside a texture pixel, blended over one
 // screen pixel at its edge, from a texture stored with blending and mipmaps on. The cloud's shimmer
 // check can read every level nearest-pixel instead, to show the shimmer the smooth pixel prevents
-// (A4.8). Implements PRE-22.
+// (A4.8). The rule that picks the level and the blend into the next are functions of their own, so a
+// big surface's ladder of tiles (ladder.gdshaderinc) picks and blends by the same rule. Implements PRE-22.
 
 // The rig's, published each frame (view/src/rig.hpp): a texture pixel's least width on screen.
 global uniform float kd_texel_least;
@@ -29,22 +30,35 @@ vec4 kd_read_level(sampler2DArray tex, vec2 uv, float layer, float level, vec2 s
 	return textureLod(tex, vec3(q / size, layer), level);
 }
 
+// The level the rule picks for a surface point, continuous: p0 is the point in level 0's texture pixels,
+// and width0 comes back the screen pixel's width in them. The level whose texture pixel is just at least
+// kd_texel_least screen pixels wide is the integer at or above the result.
+float kd_level_of(vec2 p0, out vec2 width0) {
+	vec2 dx = dFdx(p0);
+	vec2 dy = dFdy(p0);
+	width0 = abs(dx) + abs(dy);
+	float area = max(abs(dx.x * dy.y - dx.y * dy.x), 1e-12);
+	return log2(kd_texel_least) + 0.5 * log2(area);
+}
+
+// How much of the next level shows at a continuous level x, whose integer at or above is level: 0 until
+// just before the next takes over, then up to 1; 0 at the last level.
+float kd_next_share(float level, float x, float last) {
+	return level < last ? 1.0 - smoothstep(0.0, KD_LEVEL_BLEND, level - x) : 0.0;
+}
+
 // A texture's colour at a surface point. uv: the point in the texture's own tiles (level 0 spans one);
 // layer: the material's layer of the array.
 vec4 kd_sample(sampler2DArray tex, vec2 uv, float layer) {
 	vec2 size0 = vec2(textureSize(tex, 0).xy);
-	vec2 p0 = uv * size0;
-	vec2 dx = dFdx(p0);
-	vec2 dy = dFdy(p0);
-	vec2 width0 = abs(dx) + abs(dy);
-	float area = max(abs(dx.x * dy.y - dx.y * dy.x), 1e-12);
+	vec2 width0;
+	float x = kd_level_of(uv * size0, width0);
 	float last = log2(size0.x);
 	// the level whose texture pixel is just at least kd_texel_least screen pixels wide
-	float x = log2(kd_texel_least) + 0.5 * log2(area);
 	float level = clamp(ceil(x), 0.0, last);
 	vec4 colour = kd_read_level(tex, uv, layer, level, size0, width0);
 	// just before the next level takes over, blend into it, read the same crisp way
-	float w = level < last ? 1.0 - smoothstep(0.0, KD_LEVEL_BLEND, level - x) : 0.0;
+	float w = kd_next_share(level, x, last);
 	if (w > 0.0) {
 		colour = mix(colour, kd_read_level(tex, uv, layer, level + 1.0, size0, width0), w);
 	}

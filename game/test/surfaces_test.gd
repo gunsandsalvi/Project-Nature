@@ -1,0 +1,54 @@
+## A big surface's tiles as the catalogue names them (A5.3, A5.4), headless in the cloud: a
+## texture's name says which tile and version of which material it is, and a material's files come
+## in the order the ladder reads them: the near tile's versions first, then the middle tile's and
+## the far's.
+extends GdUnitTestSuite
+
+
+# checks: PRE-20 PRE-22
+func test_a_texture_s_name_says_which_tile_and_which_version_of_which_material() -> void:
+	assert_str(Surfaces.tile_of("meadow", "art:meadow")).is_equal("near")
+	assert_str(Surfaces.tile_of("meadow", "art:meadow/v3")).is_equal("near")
+	assert_str(Surfaces.tile_of("meadow", "art:meadow/middle")).is_equal("middle")
+	assert_str(Surfaces.tile_of("meadow", "art:meadow/middle/v2")).is_equal("middle")
+	assert_str(Surfaces.tile_of("meadow", "art:meadow/far/v4")).is_equal("far")
+	# another material's, even one whose name begins with this one's
+	assert_str(Surfaces.tile_of("meadow", "art:meadow_wet")).is_empty()
+	assert_str(Surfaces.tile_of("meadow", "art:ash")).is_empty()
+	assert_int(Surfaces.version_of("art:meadow")).is_equal(1)
+	assert_int(Surfaces.version_of("art:meadow/v3")).is_equal(3)
+	assert_int(Surfaces.version_of("art:meadow/far/v2")).is_equal(2)
+	assert_int(Surfaces.version_of("art:meadow/middle")).is_equal(1)
+
+
+# checks: PRE-20 PRE-22
+func test_a_material_s_files_come_near_versions_first_then_the_middle_tile_s_then_the_far() -> void:
+	var world := KdWorld.new()
+	var loaded := GameData.load_into(world)
+	var names := Surfaces.texture_names(loaded)
+	assert_array(names).contains(["art:standin_meadow", "art:standin_meadow/middle"])
+	var meadow := Surfaces.ladder(world, names, "standin_meadow")
+	assert_bool(meadow.has("problem")).is_false()
+	var count: PackedInt32Array = meadow["count"]
+	var first: PackedInt32Array = meadow["first"]
+	var paths: PackedStringArray = meadow["paths"]
+	assert_int(count[0]).is_greater_equal(2)
+	assert_int(count[1]).is_greater_equal(1)
+	assert_int(count[2]).is_greater_equal(1)
+	assert_int(paths.size()).is_equal(count[0] + count[1] + count[2])
+	# the tiles start at the bands A5.3 gives them
+	assert_array(Array(first)).is_equal([0, 2, 4])
+	# the near tile first, its versions in order, then the middle and the far
+	assert_str(paths[0]).ends_with("/standin_meadow.kdtex")
+	assert_str(paths[1]).ends_with("/standin_meadow/v2.kdtex")
+	assert_str(paths[count[0]]).ends_with("/standin_meadow/middle.kdtex")
+	assert_str(paths[count[0] + count[1]]).ends_with("/standin_meadow/far.kdtex")
+	for path: String in paths:
+		assert_bool(FileAccess.file_exists(path)).is_true()
+	# a material of one tile has the near tile alone, which every band reads
+	var wood := Surfaces.ladder(world, names, "standin_wood")
+	assert_array(Array(wood["count"])).is_equal([1, 0, 0])
+	assert_int((wood["first"] as PackedInt32Array)[1]).is_equal(Surfaces.NONE)
+	# a material the catalogue has none of is a problem in words
+	var none := Surfaces.ladder(world, names, "no_such_material")
+	assert_str(none["problem"]).contains("no texture art:no_such_material")
