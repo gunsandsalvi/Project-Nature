@@ -12,7 +12,8 @@
 #                 (tools/rules.py) and the code linted (clang-tidy 18); tests, rules and lint only when what they
 #                 depend on changed since they passed (tools/cppcache.py)
 #   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
-#   5 tools       the tool tests, and the self-tests of the file check and the signing key, after step 4
+#   5 tools       the tool tests, the self-tests of the file check and the signing key, and the art lane's checks
+#                 over every material (tools/art/checks.py) while the textures or the checks changed, after step 4
 #   6 file check  the three documents, and every commit since main that changes PROJECT.md (PRC-07)
 #   7 coverage    every item mapped and every test naming what it checks (PRC-12)
 #   8 delivery    with --deliver: the note, the build signed with a key made for it and checked, and the committed APK
@@ -293,6 +294,17 @@ tools_step() {
   quiet python3 tools/signing-key.py selftest
   SELF="$(python3 tools/filecheck.py selftest)" || { echo "$SELF"; exit 1; }
   echo "   ${SELF##*$'\n'}"
+  # every material against its record and the plan's lines (T2.3a.1), with the look's own measures (kindling look)
+  local art fp
+  mapfile -t art < <(printf '%s\n' "${ALL[@]}" | grep -E '^(art/textures/|tools/art/|sim/src/kd/look/)' || true)
+  fp="$(fingerprint "${art[@]}")"
+  if passed art "$fp"; then
+    echo "   art: unchanged since its checks passed"
+  else
+    python3 tools/art/checks.py >"$TMP/art" 2>&1 || { grep -viE '^\S+ +\S+ +(pass|note) ' "$TMP/art"; exit 1; }
+    pass art "$fp"
+    echo "   art: $(tail -1 "$TMP/art")"
+  fi
 }
 
 # The C++ tests run beside the Godot and tool steps, which need only what 3 built; the tool step follows Godot's, since
