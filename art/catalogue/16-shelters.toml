@@ -55,7 +55,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "reed_hut"
 name = "Reed house"
-what = "a reed-roofed house"
+what = "reed house"
+sheet = "sheets/16.7-reed_hut.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "round_post_hut"
