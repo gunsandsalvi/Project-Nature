@@ -12,14 +12,14 @@ c2pa = "absent"
 note = "the far tile of sheet 1.1 (signed off 7 October 2026): 512 x 512, each texture pixel a 2 x 2 block, put on its grid by the artist's code in the catalogue's conversation"
 
 ["middle-A-b3-original.webp"]
-sha256 = "816e326c13f5c9577858f59c5c5f53bed58f16ea55aed716cda9371f07f7bec1"
+sha256 = "1578fc0ac992ae270f9326d2f2dc93558b1efa52cdbdb37d02eee0680238a896"
 c2pa = "present"
-note = "the picture the image tool returned for middle tile A's band 3 level, unchanged"
+note = "the picture the image tool returned for middle tile A's band 3 level in turn 6, unchanged"
 
 ["middle-A-b3.webp"]
-sha256 = "09e51ca1b11d9c377dba309cd6f60e196da1455810d0761e133ee8f4e2d42255"
+sha256 = "b078ea138be0b035163a2f72f5097eeb3779a2b5569061517b34ef3d8b39c0e6"
 c2pa = "absent"
-note = "the level for band 3 of middle tile A as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+note = "the level for band 3 of middle tile A as the artist drew it a second time in turn 6, bolder and fewer marks: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
 
 ["middle-A-original.webp"]
 sha256 = "0be28477d078726a9d767bf9d08559a954ad2cce6b57a32bca582e98dec1e60d"
@@ -32,14 +32,14 @@ c2pa = "absent"
 note = "middle tile A as the artist drew it in turn 3: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"
 
 ["middle-B-b3-original.webp"]
-sha256 = "7b8cc8c721a86432f814ea7d33f59150885f4aa6882c094947e4aaf2d1359f53"
+sha256 = "d4c3e6fde378b258a0afade96b1b19c316e6a897061eec9ec1366bf4dd15a9e0"
 c2pa = "present"
-note = "the picture the image tool returned for middle tile B's band 3 level, unchanged"
+note = "the picture the image tool returned for middle tile B's band 3 level in turn 6, unchanged"
 
 ["middle-B-b3.webp"]
-sha256 = "4421d07cc2104ffb5fbde269b1ef264f04cbb203271368588f962e3f6950b1b3"
+sha256 = "e17ce2531d4357268ae7147ab8b372520c880797b6118f47439b8880a67bb615"
 c2pa = "absent"
-note = "the level for band 3 of middle tile B as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+note = "the level for band 3 of middle tile B as the artist drew it a second time in turn 6, bolder and fewer marks: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
 
 ["middle-B-original.webp"]
 sha256 = "2c1f32432153a43806a7886d9572758889c465c9684148f7b7db895926c2bcb3"
@@ -52,14 +52,14 @@ c2pa = "absent"
 note = "middle tile B as the artist drew it in turn 3: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"
 
 ["middle-C-b3-original.webp"]
-sha256 = "3c9f1aa4fed1b0bc601cd299d4ba080e42095cf227c3644b9fa9b56b74e9e1db"
+sha256 = "0898513308c66ad867a5880489558a9c557eee1db1839b41cab58b803ae626ad"
 c2pa = "present"
-note = "the picture the image tool returned for middle tile C's band 3 level, unchanged"
+note = "the picture the image tool returned for middle tile C's band 3 level in turn 6, unchanged"
 
 ["middle-C-b3.webp"]
-sha256 = "ae5939bc4ca6b45439cfad0bd74b3cab7764f6aca45a3c0285f29bcff7c40a06"
+sha256 = "6bb3b04a2e07cf3cf6ad2acd0fcd638aae59a7cd4b5afe29eaea4f000aec6781"
 c2pa = "absent"
-note = "the level for band 3 of middle tile C as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+note = "the level for band 3 of middle tile C as the artist drew it a second time in turn 6, bolder and fewer marks: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
 
 ["middle-C-original.webp"]
 sha256 = "88635e3c33891e896296f0f8070cab964f7af62f92f4d91c41b55e6bab73e8f5"
@@ -72,14 +72,14 @@ c2pa = "absent"
 note = "middle tile C as the artist drew it in turn 3: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"
 
 ["near-A-b1-original.webp"]
-sha256 = "a97b190be0828e920634f4925a7f4c2ffc096ceda5722b3c33ecc11a12419385"
+sha256 = "b3a395b84bbd39b96e98a32e139181fc8010bdf9f5a35c68f668dd3cd60638ca"
 c2pa = "present"
-note = "the picture the image tool returned for near tile A's band 1 level, unchanged"
+note = "the picture the image tool returned for near tile A's band 1 level in turn 6, unchanged"
 
 ["near-A-b1.webp"]
-sha256 = "7be81b8a3703aaed68316d177c83b133909db3d44f9a79debd48d60523cf417f"
+sha256 = "d2d3a8305ca5b20f1f38d2502677fd27f8307e89239cc15eea8703cead3d22b4"
 c2pa = "absent"
-note = "the level for band 1 of near tile A as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+note = "the level for band 1 of near tile A as the artist drew it a second time in turn 6, bolder and fewer marks: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
 
 ["near-A-original.webp"]
 sha256 = "269bc5847a3bffadce753672309a50a3e693966f124d59b587378d6b4f7877a8"
@@ -92,14 +92,14 @@ c2pa = "absent"
 note = "near tile A as the artist drew it in turn 2: 1024 x 1024, each texture pixel a 4 x 4 block, put on its grid by the artist's code"
 
 ["near-C-b1-original.webp"]
-sha256 = "890de49e08c5f181e2ed20ad6d49752e4cdfe7d40ee4a89149f72cbdd02bdd77"
+sha256 = "45c44780fa30e9fc330f2fb0b365cb6b5b6f22d6cd47ac205d03a3374668cecf"
 c2pa = "present"
-note = "the picture the image tool returned for near tile C's band 1 level, unchanged"
+note = "the picture the image tool returned for near tile C's band 1 level in turn 6, unchanged"
 
 ["near-C-b1.webp"]
-sha256 = "c0853284d5ea6a214be089a3f35d803ec73dacce8f587c87609df61ebabb20da"
+sha256 = "d958c35b52b6c4676406bf52348aa9566b30f951db514c06f111debe036de1b9"
 c2pa = "absent"
-note = "the level for band 1 of near tile C as the artist drew it in turn 4: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
+note = "the level for band 1 of near tile C as the artist drew it a second time in turn 6, bolder and fewer marks: 1024 x 1024, each texture pixel an 8 x 8 block, put on its grid by the artist's code"
 
 ["near-C-original.webp"]
 sha256 = "b9c1ddd6c594dc477dec56f0bbc01c625ff458a5b342eb8edbf94704a2c68371"

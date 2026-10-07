@@ -9,7 +9,9 @@ change is a look change the owner approves (PLT-09). Colour measures are never c
   Every version keeps the same ring of `ring` texture pixels round its border, chosen where the tile is most
   ordinary (neutral_shift) and flattened in tone (flatten_border), so the ring never marks a grid on the ground; the
   rest of each version is quilted from the tile and its fellows (quilt), its patches matched to what is already placed
-  and cut along the line where they differ least. replay() lays the same quilt over the levels drawn for each source.
+  and cut along the line where they differ least. requilt() makes the versions of a level drawn for the next band the
+  same way, at that level's own size, since a level drawn on its own never lines up closely enough with the one above
+  for the first level's cuts to be laid over it (they would slice its marks).
 - Levels (A5.3): each level is half the one above. reduce() makes a level by code, which fit.py then fits so its
   accents match the level above's, since plain averaging loses a fifth of them (A5.3).
 - Checks: wrap_ratio() and join_ratio() measure a seam against the tile's own largest jumps between neighbouring
@@ -122,13 +124,10 @@ def _blur_wrap(a, radius):
     return out
 
 
-def neutral_shift(tile, ring, step=4, tone_radius=12, accent_share=0.07):
-    """Where to cut a wrapping tile so its ring is its most typical part: the shift (dy, dx) of the tile whose ring
-    is nearest the whole tile's in its low tones, its share of rare colours and its jump from pixel to pixel, and whose
-    join (the neighbouring columns and rows that the cut puts either side of the wrap) is one of the tile's smooth
-    ones. A
-    ring that is calmer, brighter or darker than the rest, or holds a mark, would show as a grid of lines across the
-    ground once every version shares it, and a join that jumps would show as a seam at every cell."""
+def _ring_scorer(tile, ring, tone_radius, accent_share):
+    """A function of a shift (dy, dx) of the tile that says how far its ring, cut there, lies from the whole tile in
+    low tones, share of rare colours and jump from pixel to pixel, and how rough the join is that the cut puts either
+    side of the wrap (smaller is better)."""
     n = tile.shape[0]
     f = tile.astype(np.float64)
     tone = _blur_wrap(f.mean(axis=2), tone_radius)
@@ -140,16 +139,37 @@ def neutral_shift(tile, ring, step=4, tone_radius=12, accent_share=0.07):
     col_join = across.mean(axis=0) / across.mean()  # the jump between each column and the next, over the mean
     row_join = down.mean(axis=1) / down.mean()
     ys, xs = np.nonzero(ring_mask(n, ring))
+
+    def score(dy, dx):
+        sy, sx = (ys - dy) % n, (xs - dx) % n
+        return (
+            abs(tone[sy, sx].mean() - tone.mean()) / (tone.std() + 1e-9)
+            + abs(rare[sy, sx].mean() - rare.mean()) / (rare.mean() + 1e-9)
+            + abs(jump[sy, sx].mean() - jump.mean()) / (jump.mean() + 1e-9)
+            + 1.5 * (col_join[(-dx - 1) % n] + row_join[(-dy - 1) % n])
+        )
+
+    return score
+
+
+def neutral_shift(tile, ring, step=4, tone_radius=12, accent_share=0.07, deeper=()):
+    """Where to cut a wrapping tile so its ring is its most typical part: the shift (dy, dx) of the tile whose ring
+    is nearest the whole tile's in its low tones, its share of rare colours and its jump from pixel to pixel, and whose
+    join (the neighbouring columns and rows that the cut puts either side of the wrap) is one of the tile's smooth
+    ones. A ring that is calmer, brighter or darker than the rest, or holds a mark, would show as a grid of lines
+    across the ground once every version shares it, and a join that jumps would show as a seam at every cell. The
+    same cut is made at every level drawn for the tile, so `deeper` (those levels' pictures of the first source, each
+    a whole number of times smaller) count as much as the tile itself: a join smooth at the first level and rough at
+    the next would show at the next band."""
+    n = tile.shape[0]
+    scorers = [(1, _ring_scorer(tile, ring, tone_radius, accent_share))]
+    for level in deeper:
+        f = n // level.shape[0]
+        scorers.append((f, _ring_scorer(level, max(1, ring // f), max(1, tone_radius // f), accent_share)))
     best = None
     for dy in range(0, n, step):
         for dx in range(0, n, step):
-            sy, sx = (ys - dy) % n, (xs - dx) % n
-            score = (
-                abs(tone[sy, sx].mean() - tone.mean()) / (tone.std() + 1e-9)
-                + abs(rare[sy, sx].mean() - rare.mean()) / (rare.mean() + 1e-9)
-                + abs(jump[sy, sx].mean() - jump.mean()) / (jump.mean() + 1e-9)
-                + 1.5 * (col_join[(-dx - 1) % n] + row_join[(-dy - 1) % n])
-            )
+            score = sum(scorer(dy // f, dx // f) for f, scorer in scorers)
             if best is None or score < best[0]:
                 best = (score, dy, dx)
     return best[1], best[2]
@@ -209,9 +229,7 @@ def quilt(
     versions) holds each place's earlier choices, which are never taken again within `apart`. A candidate's error is
     its pixels' difference from what is there plus `tone` times the difference of both blurred over `tone_radius`, so
     the broad tone of one version carries over the ring into the next and no seam of tone shows where two versions
-    meet. Returns the tile and the operations that made it, each (source, offset, place, which pixels came from the
-    patch),
-    which replay() lays over pictures at another size."""
+    meet. Returns the tile."""
     srcs = [np.asarray(x, dtype=np.float64) for x in sources]
     h, w, _ = srcs[0].shape
     n = first.shape[0]
@@ -221,7 +239,6 @@ def quilt(
     known = ring_mask(n, overlap)
     canvas[known] = first[known]
     fixed = ring_mask(n, ring)
-    ops = []
     step = patch - overlap
     starts = list(range(0, n - patch + 1, step))
     if starts[-1] != n - patch:
@@ -306,10 +323,9 @@ def quilt(
             use &= ~win_fixed
             canvas[y0 : y0 + patch, x0 : x0 + patch] = np.where(use[:, :, None], new, win)
             known[y0 : y0 + patch, x0 : x0 + patch] = True
-            ops.append((int(si), int(cy), int(cx), y0, x0, use))
     out = np.clip(np.rint(canvas), 0, 255).astype(np.uint8)
     out[fixed] = first[fixed]
-    return out, ops
+    return out
 
 
 def flatten_border(tile, depth, radius=12):
@@ -329,51 +345,54 @@ def flatten_border(tile, depth, radius=12):
     return np.clip(np.rint(f), 0, 255).astype(np.uint8)
 
 
-def make_versions(tile, count, ring, overlap, patch, seed, flatten=None, others=()):
+def make_versions(tile, count, ring, overlap, patch, seed, flatten=None, others=(), deeper=()):
     """`count` versions of a wrapping tile that share their ring: the first is the tile itself, shifted so its ring is
     its most ordinary part and its border's broad tone flattened over `flatten` pixels (the overlap if none), and each
     after it is quilted from the tile (and from any `others`, further tiles of the same material) round that ring.
-    Returns the versions, the shift, and for each version the operations that quilted it (none for the first)."""
-    dy, dx = neutral_shift(tile, overlap)
+    `deeper` are the pictures drawn for the levels below, of the first source (see neutral_shift). Returns the
+    versions and the shift."""
+    dy, dx = neutral_shift(tile, overlap, deeper=deeper)
     first = flatten_border(roll(tile, dy, dx), flatten or overlap)
     chance = Chance(seed)
     taken = {}
     versions = [first]
-    operations = [None]
     for _ in range(count - 1):
-        made, ops = quilt([tile, *others], first, ring, overlap, patch, chance, (dy, dx), taken)
+        versions.append(quilt([tile, *others], first, ring, overlap, patch, chance, (dy, dx), taken))
+    return versions, (dy, dx)
+
+
+def requilt(sources, shift, count, ring, overlap, patch, seed, flatten=None, scale=2):
+    """`count` versions of a level drawn for each source, quilted at that level's own size, with its own `ring`,
+    `overlap` and `patch` in its texture pixels: the first is the first source shifted as the first level was (`shift`
+    is the first level's, `scale` times larger) and flattened at its border; each after it is quilted from the sources
+    round that ring, then flattened at its border again with the ring kept, so the broad tone near the edges is the
+    same on every version and no dark or light line shows along the joins. The cuts follow this level's own gaps
+    between marks, which is why they are not the first level's laid over it: a level drawn on its own seldom lines up
+    with the one above closely enough for that, and its marks would be sliced."""
+    dy, dx = shift[0] // scale, shift[1] // scale
+    depth = flatten or overlap
+    first = flatten_border(roll(sources[0], dy, dx), depth)
+    fixed = ring_mask(first.shape[0], ring)
+    chance = Chance(seed)
+    taken = {}
+    versions = [first]
+    for _ in range(count - 1):
+        made = quilt(
+            sources,
+            first,
+            ring,
+            overlap,
+            patch,
+            chance,
+            (dy, dx),
+            taken,
+            apart=max(4, 24 // scale),
+            tone_radius=max(1, 5 // scale),
+        )
+        made = flatten_border(made, depth)
+        made[fixed] = first[fixed]
         versions.append(made)
-        operations.append(ops)
-    return versions, (dy, dx), operations
-
-
-def replay(sources, first, ops, ring, overlap, scale):
-    """The same quilt laid over pictures `scale` times smaller than the ones it was made from: the same patches from the
-    same places, cut along the same lines, so a level drawn for each source is joined as the first level was. `first` is
-    the first version at this level, whose border's ring (`ring` texture pixels) is kept."""
-    n = first.shape[0]
-    known = ring_mask(n, max(1, overlap // scale))
-    canvas = np.zeros((n, n, 3))
-    canvas[known] = first[known]
-    for si, cy, cx, y0, x0, use in ops:
-        p = use.shape[0] // scale
-        src = np.asarray(sources[si], dtype=np.float64)
-        h = src.shape[0]
-        new = src[np.ix_((cy // scale + np.arange(p)) % h, (cx // scale + np.arange(p)) % h)]
-        y, x = y0 // scale, x0 // scale
-        canvas[y : y + p, x : x + p] = np.where(use[::scale, ::scale][:, :, None], new, canvas[y : y + p, x : x + p])
-    out = np.clip(np.rint(canvas), 0, 255).astype(np.uint8)
-    mask = ring_mask(n, max(1, ring // scale))
-    out[mask] = first[mask]
-    return out
-
-
-def relevel(sources, shift, operations, ring, overlap, flatten, scale):
-    """Every version at a level `scale` times smaller, from a picture drawn for each source at that level: the first is
-    the first source shifted as the first level was and flattened at its border, the rest replay the quilts."""
-    dy, dx = shift
-    first = flatten_border(roll(sources[0], dy // scale, dx // scale), max(1, (flatten or overlap) // scale))
-    return [first] + [replay(sources, first, ops, ring, overlap, scale) for ops in operations[1:]]
+    return versions
 
 
 # ---- levels -----------------------------------------------------------------------------------------------------

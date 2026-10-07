@@ -4,8 +4,9 @@ every measure read from `kindling look` (look.py), never computed here.
 - fit_reduction() makes the level below another: averaged, then sharpened by the amount that gives it the accents of
   the level above (plain averaging loses about a fifth of them, A5.3), then moved in lightness, hue and
   colourfulness to the reference's.
-- calibrate() moves a picture to a reference in those three numbers, for a tile's first level, leaving its contrast
-  as drawn unless the recipe scales it, since each tile keeps the contrast of its own distance.
+- calibrate() moves a picture to a reference in those three numbers: a tile's first level leaves its contrast as drawn
+  unless the recipe scales it, since each tile keeps the contrast of its own distance; a level drawn for the next band
+  is also brought to the contrast of the level above (A5.4 step 6), as bolder marks with softer tops come out calmer.
 
 Implements PRE-20 and PRE-22, see A5.3 and A5.4.
 """
@@ -19,10 +20,13 @@ def numbers(stats):
     return "lightness {:+.1f}; hue {:+.1f}; colourfulness {:.0f}%; contrast {:.0f}%".format(*stats)
 
 
-def moved(picture, reference, contrast=100.0):
+def moved(picture, reference, contrast=100.0, match=False):
     """The picture moved to the reference's lightness, hue and colourfulness (look.stats of each), its contrast scaled
-    by `contrast` percent of its own; and the four numbers of the change."""
+    by `contrast` percent of its own, or, with `match`, to the reference's own contrast; and the four numbers of the
+    change."""
     mine, want = look.stats(look.tiled(picture)), look.stats(look.tiled(reference))
+    if match and mine["contrast"]:
+        contrast = 100.0 * want["contrast"] / mine["contrast"]
     lightness = want["lightness"] - mine["lightness"]
     hue = want["hue"] - mine["hue"]
     if hue > 180:
@@ -34,10 +38,12 @@ def moved(picture, reference, contrast=100.0):
     return out, (lightness, hue, colourfulness, contrast)
 
 
-def calibrate(picture, reference, contrast=100.0):
-    """A tile's first level moved to the reference level's colour, and its contrast scaled by `contrast` percent where
-    its distance asks for more or less than the drawing has: (the picture, the record's words)."""
-    out, change = moved(picture, reference, contrast)
+def calibrate(picture, reference, contrast=100.0, match=False):
+    """A picture moved to the reference level's colour, and its contrast scaled by `contrast` percent where its distance
+    asks for more or less than the drawing has, or, with `match`, to the reference's own contrast, as a level drawn for
+    the next band is (bolder marks with softer tops come out calmer than the level above, and lose its accents):
+    (the picture, the record's words)."""
+    out, change = moved(picture, reference, contrast, match)
     return out, numbers(change)
 
 

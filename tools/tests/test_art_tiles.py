@@ -54,10 +54,8 @@ class Versions(unittest.TestCase):
     # checks: PRE-20 PRE-22
     def test_versions_share_their_ring_and_differ_inside_it(self):
         t = grass(64)
-        versions, shift, ops = tiles.make_versions(t, 3, ring=2, overlap=4, patch=16, seed=5)
+        versions, shift = tiles.make_versions(t, 3, ring=2, overlap=4, patch=16, seed=5)
         self.assertEqual(len(versions), 3)
-        self.assertIsNone(ops[0])  # the first version is the tile itself, quilted from nothing
-        self.assertGreater(len(ops[1]), 10)
         self.assertTrue(tiles.shares_ring(versions, 2))
         self.assertFalse(tiles.shares_ring(versions, 20), "each version has its own inside")
         self.assertGreater((versions[0] != versions[1]).mean(), 0.3)
@@ -67,32 +65,44 @@ class Versions(unittest.TestCase):
     # checks: PRE-20
     def test_the_same_recipe_gives_the_same_versions(self):
         t = grass(64)
-        a, _, _ = tiles.make_versions(t, 2, 2, 4, 16, seed=9)
-        b, _, _ = tiles.make_versions(t, 2, 2, 4, 16, seed=9)
-        c, _, _ = tiles.make_versions(t, 2, 2, 4, 16, seed=10)
+        a, _ = tiles.make_versions(t, 2, 2, 4, 16, seed=9)
+        b, _ = tiles.make_versions(t, 2, 2, 4, 16, seed=9)
+        c, _ = tiles.make_versions(t, 2, 2, 4, 16, seed=10)
         np.testing.assert_array_equal(a[1], b[1])
         self.assertFalse((a[1] == c[1]).all())
 
     # checks: PRE-22
     def test_any_two_versions_join_without_a_seam(self):
         t = grass(64)
-        versions, _, _ = tiles.make_versions(t, 3, 2, 4, 16, seed=1)
+        versions, _ = tiles.make_versions(t, 3, 2, 4, 16, seed=1)
         for a in versions:
             self.assertLessEqual(tiles.wrap_ratio(a), 1.2)
             for b in versions:
                 self.assertLessEqual(tiles.join_ratio(a, b), 1.2)
 
     # checks: PRE-20 PRE-22
-    def test_a_quilt_replays_over_levels_drawn_for_each_source(self):
+    def test_a_level_drawn_for_each_source_is_quilted_at_its_own_size(self):
         t, other = grass(64, 3), grass(64, 4)
-        versions, shift, ops = tiles.make_versions(t, 3, 4, 8, 16, seed=2, others=[other])
-        again = tiles.replay([t, other], versions[0], ops[1], 4, 8, 1)
-        np.testing.assert_array_equal(again, versions[1])  # at its own size it makes the same tile
         half = [np.rint(tiles.halve(x)).astype(np.uint8) for x in (t, other)]
-        levels = tiles.relevel(half, shift, ops, 4, 8, None, 2)
+        _, shift = tiles.make_versions(t, 2, 4, 8, 16, seed=2, others=[other])
+        levels = tiles.requilt(half, shift, 3, 2, 4, 8, seed=3, scale=2)
         self.assertEqual([v.shape[0] for v in levels], [32, 32, 32])
         self.assertTrue(tiles.shares_ring(levels, 2), "the ring is shared at the next level too")
-        self.assertFalse(tiles.shares_ring(levels, 8))
+        self.assertFalse(tiles.shares_ring(levels, 8), "and each version has its own inside")
+        again = tiles.requilt(half, shift, 3, 2, 4, 8, seed=3, scale=2)
+        np.testing.assert_array_equal(again[2], levels[2])  # the same recipe gives the same bytes
+        rolled = tiles.roll(half[0], shift[0] // 2, shift[1] // 2)
+        np.testing.assert_array_equal(levels[0][16, 16], rolled[16, 16])  # the first is the first source, shifted
+
+    # checks: PRE-20
+    def test_the_shift_counts_the_levels_drawn_below_as_it_counts_the_tile(self):
+        t = grass(64, 3)
+        plain = tiles.neutral_shift(t, 4, step=8)
+        self.assertEqual(plain, tiles.neutral_shift(t, 4, step=8, deeper=()))
+        half = np.rint(tiles.halve(grass(64, 7))).astype(np.uint8)  # a level of another picture, so another best cut
+        both = tiles.neutral_shift(t, 4, step=8, deeper=[half])
+        self.assertEqual(both[0] % 8, 0)
+        self.assertEqual(both[1] % 8, 0)
 
     # checks: PRE-22
     def test_a_hard_seam_is_seen(self):

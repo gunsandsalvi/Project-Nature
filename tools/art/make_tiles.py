@@ -6,8 +6,9 @@ one texture pixel the engine reads, written with their records under art/texture
 
 A tile's recipe names the picture its first level comes from (`sheet`), further pictures of the same material that its
 versions are quilted from (`extra`), and for each designed level either the pictures drawn for it (one for each of
-those, in order) or none, in which case code makes it (with a `contrast` in percent to calm it). The raw originals of
-the pictures are named for the record (`originals`). Nothing is random, so the same recipe and sources give the same
+those, in order, whose versions are quilted again at that level's own size, with its own `overlap` and `patch`) or
+none, in which case code makes it (with a `contrast` in percent to calm it). The raw originals of the pictures are
+named for the record (`originals`). Nothing is random, so the same recipe and sources give the same
 files. The colour measures it fits to come from `kindling look` (set KINDLING to its path if it is not at
 build/sim/kindling). Implements PRE-20, PRE-22 and PRE-46, see A5.3 and A5.4.
 """
@@ -47,23 +48,51 @@ def make_tile(spec, reference, seed):
         first, calibration = fit.calibrate(first, reference, float(spec.get("contrast", 100)))
     extras = [fit.calibrate(picture(p)[0], first)[0] for p in spec.get("extra", [])]
     flatten = spec.get("flatten")
-    versions, shift, ops = tiles.make_versions(
-        first, spec["versions"], spec["ring"], spec["overlap"], spec["patch"], seed, flatten, extras
-    )
-    levels, ways = [versions], [{"calibration": calibration} if calibration else {}]
-    sources = [first, *extras]
     drawn = {t["level"]: t for t in spec.get("level", []) if "pictures" in t}
     coded = {t["level"]: t for t in spec.get("level", []) if "pictures" not in t}
+    if sorted(drawn) != list(range(1, len(drawn) + 1)):
+        raise ValueError("a tile's drawn levels come first, one after another from level 1")
+    sources, pictures, calibrations = [first, *extras], [], []
+    for j in sorted(drawn):  # each picture drawn for a level, moved to the colour and contrast of its source above
+        pairs = [
+            fit.calibrate(picture(p)[0], up, match=True) for p, up in zip(drawn[j]["pictures"], sources, strict=True)
+        ]
+        sources = [p for p, _ in pairs]
+        pictures.append(sources)
+        calibrations.append(pairs[0][1])
+    versions, shift = tiles.make_versions(
+        first,
+        spec["versions"],
+        spec["ring"],
+        spec["overlap"],
+        spec["patch"],
+        seed,
+        flatten,
+        extras,
+        [level[0] for level in pictures],
+    )
+    levels, ways = [versions], [{"calibration": calibration} if calibration else {}]
     for j in range(1, spec["serves"]):
         if j in drawn:
-            pairs = [fit.calibrate(picture(p)[0], up) for p, up in zip(drawn[j]["pictures"], sources, strict=True)]
-            sources = [p for p, _ in pairs]
-            levels.append(tiles.relevel(sources, shift, ops, spec["ring"], spec["overlap"], flatten, 2**j))
+            scale = 2**j
+            levels.append(
+                tiles.requilt(
+                    pictures[j - 1],
+                    shift,
+                    spec["versions"],
+                    max(1, spec["ring"] // scale),
+                    drawn[j].get("overlap", max(2, spec["overlap"] // scale)),
+                    drawn[j].get("patch", max(8, spec["patch"] // scale)),
+                    seed + j,
+                    flatten // scale if flatten else None,
+                    scale,
+                )
+            )
             ways.append(
                 {
-                    "way": "drawn for this band, then moved to the level above's colour; the other versions cut as the "
-                    "first level's were, from the pictures drawn for each of its sources",
-                    "calibration": pairs[0][1],
+                    "way": "drawn for this band, then moved to the level above's colour and contrast; the other "
+                    "versions quilted again at this level's own size from the pictures drawn for each of its sources",
+                    "calibration": calibrations[j - 1],
                 }
             )
         else:

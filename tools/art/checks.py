@@ -110,9 +110,10 @@ def tile_checks(report, name, tile):
 
 
 def calmed(table):
-    """How far a level's record says its contrast was scaled, from its calibration's words, as a share of 1."""
+    """How far a level's record says its contrast was calmed, from its calibration's words, as a share of 1 (a level
+    brought up to the contrast above, or past it, is not calmed)."""
     found = re.search(r"contrast (\d+)%", table.get("calibration", ""))
-    return int(found.group(1)) / 100.0 if found else 1.0
+    return min(1.0, int(found.group(1)) / 100.0) if found else 1.0
 
 
 def colour_checks(report, name, firsts):

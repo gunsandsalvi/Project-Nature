@@ -18,10 +18,12 @@ serves = 2
 sheet = "art/sources/meadow/near-A.webp"
 extra = ["art/sources/meadow/near-C.webp"]
 originals = ["art/sources/meadow/near-A-original.webp", "art/sources/meadow/near-C-original.webp"]
-requests = ["art/requests/meadow/turn-02.txt", "art/requests/meadow/turn-04.txt"]
+requests = ["art/requests/meadow/turn-02.txt", "art/requests/meadow/turn-04.txt", "art/requests/meadow/turn-06.txt"]
 
 [[tile.level]]
 level = 1
+overlap = 8
+patch = 32
 pictures = ["art/sources/meadow/near-A-b1.webp", "art/sources/meadow/near-C-b1.webp"]
 originals = ["art/sources/meadow/near-A-b1-original.webp", "art/sources/meadow/near-C-b1-original.webp"]
 
@@ -39,10 +41,12 @@ originals = [
   "art/sources/meadow/middle-B-original.webp",
   "art/sources/meadow/middle-C-original.webp",
 ]
-requests = ["art/requests/meadow/turn-03.txt", "art/requests/meadow/turn-04.txt"]
+requests = ["art/requests/meadow/turn-03.txt", "art/requests/meadow/turn-04.txt", "art/requests/meadow/turn-06.txt"]
 
 [[tile.level]]
 level = 1
+overlap = 8
+patch = 32
 pictures = ["art/sources/meadow/middle-A-b3.webp", "art/sources/meadow/middle-B-b3.webp", "art/sources/meadow/middle-C-b3.webp"]
 originals = [
   "art/sources/meadow/middle-A-b3-original.webp",
