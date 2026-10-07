@@ -39,7 +39,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "shale"
 name = "Shale"
-what = "thin crumbly dark layers"
+what = "dark grey-brown rock splitting into thin crumbly layers, broken back into small flaky steps, with faint rust in places"
+sheet = "sheets/2.6-shale.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "limestone"
@@ -109,7 +111,9 @@ art_book = ["storm-close"]
 [[piece]]
 id = "scree"
 name = "Scree"
-what = "loose broken stone below cliffs and on slopes"
+what = "loose broken limestone below cliffs and on slopes, angular, from a thumb to a fist; bigger stones and boulders are pieces of their own"
+sheet = "sheets/2.18-scree.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "cobbles"
