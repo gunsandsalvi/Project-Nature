@@ -5,8 +5,10 @@ Every scale stick is drawn here by code at its true length, one design on every 
 to a stick, 10 cm, 1 m or 10 m long.
 - Surfaces: each picture from above shows a known area, so its stick is true to it. The tiles are shown about as the
   phone shows them where each is used (4 m, 16 m and 64 m across, each about 512 screen pixels); a close-up shows part
-  of a tile enlarged, and a repeat panel how a tile's pattern reads over wider ground. The camera views come as GPT
-  drew them, their own sticks measured before they are used.
+  of a tile enlarged, and a repeat panel how a tile's pattern reads over wider ground. A piece that runs along a
+  course (a brook, a shore) can give `strips`, each {file, label, metres, stick}: a picture of the tile laid several
+  times along the course, drawn alone in a row as wide as the page, its stick true to its `metres`. The camera views
+  come as GPT drew them, their own sticks measured before they are used.
 - Objects: GPT draws each view on flat magenta, as the art book's own sheets do. Here each is cut out and scaled from
   the size in metres the spec gives it (its height, or its width across the view), so every view on a sheet stands at
   one scale beside an upright stick and, for anything big, a standing adult 1.7 m tall drawn by code. A strip of key
@@ -382,7 +384,7 @@ def compose_object(spec, sheet, folder):
             sheet.figures(row + [(lying(round(metres * k), length_label(metres)), "")])
         else:
             sheet.figures(standing(row, k, group.get("stick", 1), group.get("adult", False)))
-    for strip in spec.get("strips", []):
+    for strip in [s for s in spec.get("strips", []) if "tall" in s]:
         sheet.text(strip["title"], 26, bold=True)
         figures = poses(Image.open(os.path.join(folder, strip["file"])), strip["tall"], s)
         sheet.figures(standing([(f, "") for f in figures], s, strip.get("stick", 1), False))
@@ -433,6 +435,16 @@ def compose(spec, folder):
             )
         for k in range(0, len(panels), 2):
             sheet.pictures(panels[k : k + 2])
+
+    # a surface's strips: a tile laid several times along its course, each alone in a row as wide as the page; an
+    # object's strips of key poses (with "tall") are drawn by compose_object
+    strips = [s for s in spec.get("strips", []) if "metres" in s]
+    if strips:
+        about = "Laid three times along its course, to show how it repeats."
+        sheet.text(spec.get("strips_title", about), 26, bold=True)
+        for strip in strips:
+            picture = fit(load(strip["file"]), WIDTH - 2 * MARGIN)
+            sheet.pictures([(with_stick(picture, strip["metres"], strip["stick"]), strip["label"])])
 
     repeats = spec.get("repeat", [])
     if repeats:
