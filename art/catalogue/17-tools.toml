@@ -97,8 +97,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "quern"
 name = "Grinding stones"
-what = "a grinding stone with its hand stone, a mortar and pestle"
+what = "A saddle quern with its hand stone for grinding grain and seeds, and a stone mortar and pestle."
 art_book = ["village-truthful"]
+sheet = "sheets/17.13-quern.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "digging_stick"
