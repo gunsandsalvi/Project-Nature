@@ -62,7 +62,9 @@ what = "wet moss, peat and pools"
 [[piece]]
 id = "beach"
 name = "Beach sand and shingle"
-what = "sand and rounded stones at the sea"
+what = "fine pale sand with scattered small pebbles, banks of rounded shingle, and the firm lower beach the tide leaves; seaweed, driftwood, big stones and the water are pieces of their own"
+sheet = "sheets/3.11-beach.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "rocky_shore"
