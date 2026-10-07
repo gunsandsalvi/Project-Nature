@@ -5,6 +5,8 @@
 // area and the strip the river runs in (CLAUDE.md rule 4). Implements PRE-22, PRE-23 and PRE-26.
 render_mode cull_back, specular_disabled;
 
+// the ground lies under what roofs it (light.gdshaderinc)
+#define KD_UNDER_ROOFS
 #include "res://look/picture.gdshaderinc"
 #include "res://look/ladder.gdshaderinc"
 #include "res://look/light.gdshaderinc"

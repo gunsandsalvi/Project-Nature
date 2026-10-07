@@ -147,6 +147,19 @@ func set_picture(mode: int) -> void:
 	)
 
 
+## Tries a light without changing the tuning, for the cloud's runs that fit the light to the target
+## card: the sun's colour (#rrggbb) and strength, and the sky's fill's, as shares of Godot's light.
+func try_light(
+	sun_colour: String, sun_energy: float, fill_colour: String, fill_energy: float
+) -> void:
+	var sun := _scene.get_node("Sun") as DirectionalLight3D
+	sun.light_color = Color(sun_colour)
+	sun.light_energy = sun_energy
+	var sky := (_scene.get_node("Sky") as WorldEnvironment).environment
+	sky.ambient_light_color = Color(fill_colour)
+	sky.ambient_light_energy = fill_energy
+
+
 ## Holds the water's tick at a number, so the marks and glints are the same twice, or lets it run
 ## again.
 func hold_water(number: int) -> void:

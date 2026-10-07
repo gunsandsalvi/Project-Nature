@@ -37,7 +37,9 @@ global uniform vec3 kd_haze_sun;
 // A small hearth's light halves this far away, in metres, and falls to a tenth at three times it (A4.3).
 const float KD_FIRE_HALF = 1.25;
 
-// How far below the top at its texel an upward-facing surface lies to be under a roof, in metres: more than a
+// Only a shader that draws ground defines KD_UNDER_ROOFS: a part of a thing lies below the poles or the crown that
+// stand over it, and is not under a roof. How far below the top at its texel an upward-facing surface lies to be
+// under a roof, in metres: more than a
 // curved stone's own height across a texel, less than any cover over the ground.
 const float KD_UNDER_ROOF = 0.15;
 // The least a thing's top may be to count as one, in metres, and the openness left under a roof, so a cavity is dark
@@ -56,13 +58,17 @@ void kd_light_surface(vec3 albedo, vec3 world, vec3 normal, vec3 eye, float crea
 		out vec3 colour, out float openness, out vec3 glow, out vec4 haze, out float big_shadow) {
 	vec2 at = vec2(world.x, -world.z);
 	vec2 on_maps = (at - kd_maps_place.xy) / kd_maps_place.z;
-	vec4 maps = texture(kd_view_maps, on_maps);
+	// beyond the square the maps lie in there is nothing: open sky, no contact, the sun clear
+	bool on = all(greaterThanEqual(on_maps, vec2(0.0))) && all(lessThan(on_maps, vec2(1.0)));
+	vec4 maps = on ? textureLod(kd_view_maps, on_maps, 0.0) : vec4(1.0, 1.0, 0.0, 0.0);
 	// under a roof: facing up, below the top that stands at this texel, which only a thing's top does not
 	float covered = 0.0;
-	if (all(greaterThanEqual(on_maps, vec2(0.0))) && all(lessThan(on_maps, vec2(1.0)))) {
+#ifdef KD_UNDER_ROOFS
+	if (on) {
 		float top = texelFetch(kd_view_tops, ivec2(on_maps * vec2(textureSize(kd_view_tops, 0))), 0).r;
 		covered = (top > KD_LEAST_TOP && normal.y > 0.5 && world.y < top - KD_UNDER_ROOF) ? 1.0 : 0.0;
 	}
+#endif
 	colour = albedo * crease * maps.g;
 	openness = mix(maps.r, KD_CAVITY, covered);
 	// the big casters' shadow: lit where the sun stands above the steepest angle toward it, faded over a band

@@ -1,24 +1,27 @@
 # The light of late afternoon (A4.3, PRE-30), the look's first moment: the sun low and golden behind the camera's left
-# shoulder, the shade a little warm and almost neutral, a light haze warmer toward the sun. Stand-ins until α2.3b tunes
-# the light against the target card's late afternoon (data/base/card/late_afternoon.toml).
+# shoulder, the sky's fill cool so the shade is cooler than the lit ground, a light haze warmer toward the sun. Set for
+# the pilot, by the owner's word of 7 October 2026, against the target card's late afternoon (data/base/card/
+# late_afternoon.toml) and the art book's close camp, holding the lightness of the camp's frame at band 0 (54.5 before,
+# 55.3 after) and bringing the lights' hue from 96 to 86; the final tuning is T2.3b.3's.
 sun_height = 28
 sun_turn = 215
-sun_colour = "#fff6e8"
-sun_energy = "170%"
+sun_colour = "#ffcf90"
+sun_energy = "250%"
 sky_colour = "#b8c8d4"
-ambient_colour = "#b5b8bd"
-ambient_energy = "60%"
+ambient_colour = "#8aa7d8"
+ambient_energy = "70%"
 haze_colour = "#a8bccb"
 haze_sun_colour = "#f2cf9e"
 haze_density = "0.015%"
 bounce_colour = "#3a3318"
-# The view's maps round things (A4.4): a texel of 6 cm; the ground sees past what stands within 2 m, at most 80% of its
-# sky taken; its darkening runs 18 cm from a thing's foot, 55% at the foot; a shadow's softness counts over the 14 m a
-# caster can stand off; and the lit edge a low sun gives a shape, 45% of the sun's own light at the grazing edge.
+# The view's maps round things (A4.4): a texel of 6 cm; the ground sees past what stands within 2 m, at most 65% of its
+# sky taken; its darkening runs 14 cm from a thing's foot, 38% at the foot; a shadow's softness counts over the 14 m a
+# caster can stand off; and the lit edge a low sun gives a shape, 90% of the sun's own light at the grazing edge. The
+# contact and the openness were eased from 55% and 80% when the first frame showed them piling into dark collars.
 maps_texel = "6 cm"
 open_reach = "2 m"
-open_strength = "80%"
-contact_width = "18 cm"
-contact_strength = "55%"
+open_strength = "65%"
+contact_width = "14 cm"
+contact_strength = "38%"
 shadow_reach = "14 m"
-rim = "45%"
+rim = "90%"
