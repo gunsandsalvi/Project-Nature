@@ -105,8 +105,10 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "ice"
 name = "Ice"
-what = "the polar ice cap, glaciers, sea ice and frozen lakes"
+what = "land ice"
 art_book = ["winter"]
+sheet = "sheets/3.15-ice.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "burnt_ground"
