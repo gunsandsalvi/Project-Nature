@@ -37,18 +37,55 @@ def font(size, bold=False):
     return ImageFont.truetype("DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf", size)
 
 
+def grid(edges, near):
+    """The block grid along one axis, from the strength of the colour change between neighbouring pixels: the block's
+    size, from half to twice what `near` blocks across would give, and the offset of the first block edge, at which
+    the edges fall on the strongest changes. GPT draws its blocks a little larger or smaller than asked, starts with a
+    part block, and blurs its edges.
+
+    The score sums each edge's strength above the average, so a grid of blocks twice as big (missing half the edges)
+    and one of blocks half as big (adding edges inside blocks, weaker than the average) both score below the true one.
+    """
+    length = len(edges) + 1
+    base = edges.mean()
+    expected = length / near
+    best = (-np.inf, expected, 0.0)
+    # outward from the size asked for, so of equal scores the one nearest it wins
+    steps = np.arange(0.0, expected * 1.5, 0.01)
+    sizes = [s for d in steps for s in ((expected + d,) if d == 0 else (expected - d, expected + d))]
+    for size in (s for s in sizes if expected / 2 <= s <= expected * 2):
+        for offset in np.arange(0.0, size, 0.25):
+            at = np.round(np.arange(offset if offset >= 1 else offset + size, length - 1, size)).astype(int) - 1
+            score = (edges[at[at >= 0]] - base).sum()
+            if score > best[0]:
+                best = (score, size, offset)
+    return best[1], best[2]
+
+
 def regrid(image, texels):
-    """The picture as `texels` x `texels` texture pixels, each the median colour of its block."""
-    rgb = np.asarray(image.convert("RGB"), dtype=np.uint8)
+    """The picture as `texels` x `texels` texture pixels: its own block grid found along each axis, each block's colour
+    the median of its middle half, so the blurred edges between GPT's blocks never mix into a texture pixel, then laid
+    on `texels` x `texels` by the nearest block, so the tile keeps its size in metres."""
+    rgb = np.asarray(image.convert("RGB"), dtype=np.int32)
     h, w, _ = rgb.shape
-    out = np.zeros((texels, texels, 3), dtype=np.uint8)
-    ys = np.linspace(0, h, texels + 1).astype(int)
-    xs = np.linspace(0, w, texels + 1).astype(int)
-    for j in range(texels):
-        for i in range(texels):
-            block = rgb[ys[j] : ys[j + 1], xs[i] : xs[i + 1]].reshape(-1, 3)
-            out[j, i] = np.median(block, axis=0)
-    return Image.fromarray(out)
+    starts = []
+    for edges, length in (
+        (np.abs(np.diff(rgb, axis=1)).sum(axis=2).mean(axis=0), w),
+        (np.abs(np.diff(rgb, axis=0)).sum(axis=2).mean(axis=1), h),
+    ):
+        size, offset = grid(edges, texels)
+        first = offset - size if offset >= 1 else offset
+        starts.append((np.arange(first, length, size), size))
+    (xs, px), (ys, py) = starts
+    out = np.zeros((len(ys), len(xs), 3), dtype=np.uint8)
+    for j, y0 in enumerate(ys):
+        y_lo, y_hi = max(0, int(round(y0 + py / 4))), min(h, int(round(y0 + 3 * py / 4)))
+        y_lo, y_hi = (y_lo, y_hi) if y_hi > y_lo else (max(0, int(y0)), min(h, int(y0) + 1))
+        for i, x0 in enumerate(xs):
+            x_lo, x_hi = max(0, int(round(x0 + px / 4))), min(w, int(round(x0 + 3 * px / 4)))
+            x_lo, x_hi = (x_lo, x_hi) if x_hi > x_lo else (max(0, int(x0)), min(w, int(x0) + 1))
+            out[j, i] = np.median(rgb[y_lo:y_hi, x_lo:x_hi].reshape(-1, 3), axis=0)
+    return Image.fromarray(out).resize((texels, texels), Image.NEAREST)
 
 
 def stick(draw, x, y, length, label, height=14):

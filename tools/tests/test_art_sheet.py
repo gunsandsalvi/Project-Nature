@@ -35,6 +35,16 @@ class Sheet(unittest.TestCase):
         pixels[2, 2] = [255, 0, 255]
         self.assertTrue((np.asarray(sheet.regrid(Image.fromarray(pixels), 8)) == colours).all())
 
+    # checks: PRE-22
+    def test_gpt_blocks_of_another_size_offset_and_blurred_are_found_and_sampled_at_their_middles(self):
+        picture, colours = blocks(40, 6, seed=3)
+        shifted = Image.new("RGB", (243, 243))
+        shifted.paste(picture, (3, 3))  # a part block at the top left, as GPT's tiles have
+        blurred = shifted.resize((257, 257), Image.LANCZOS)  # blocks of about 6.3 pixels, their edges blurred
+        own = np.asarray(sheet.regrid(blurred, 41)).astype(int)[1:, 1:]  # the part block, then the 40 drawn
+        close = (np.abs(own - colours.astype(int)).max(axis=2) <= 12).mean()
+        self.assertGreater(close, 0.95, f"only {close:.0%} of the texture pixels kept their colour")
+
     # checks: PRE-46 PRE-22
     def test_a_sheet_shows_its_tiles_at_true_size_its_close_up_and_its_rows(self):
         with tempfile.TemporaryDirectory() as d:
