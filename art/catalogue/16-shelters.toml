@@ -76,8 +76,10 @@ what = "hides closing off a rock shelter or cave mouth"
 [[piece]]
 id = "hearth_ring"
 name = "Hearth ring"
-what = "a ring of stones round a fire"
+what = "a ring of 12 to 14 stones round a fire, 1.2 m across: flattened river cobbles and a few angular lumps, each different, set with small uneven gaps, sooted and cracked by use; the fire, the ash and the firewood are pieces of their own"
 art_book = ["made-things-sheet", "close-camp"]
+sheet = "sheets/16.13-hearth_ring.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "bed"
