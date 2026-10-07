@@ -105,7 +105,9 @@ art_book = ["winter"]
 [[piece]]
 id = "burnt_ground"
 name = "Burnt ground"
-what = "black ash and scorched stubble after a wildfire, and its regrowth"
+what = "grassland a day after a wildfire: charred ground with small clusters of black stubble where tufts stood, short drifts of pale ash, reddish scorched patches, charred twigs and a few tufts the fire skipped; green shoots in the burnt tufts a month later, and a sward again a year later"
+sheet = "sheets/3.16-burnt_ground.webp"
+signed_off = "7 October 2026"
 
 [[piece]]
 id = "lava_field"
