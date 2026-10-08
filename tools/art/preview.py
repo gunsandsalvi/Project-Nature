@@ -463,9 +463,12 @@ def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=Non
                 {
                     "file": blend,
                     "only": [part],
-                    "turn": float(place.get("turn", 0.0)),
+                    "turn": float(place.get("turn", 0.0)) + turn,
                     "at": [0.0, 0.0, metres_of(place["height"]) if "height" in place else 0.0],
-                    "centre": True,
+                    # a thing of one part has its middle over the focus; a thing of several root parts (each modelled
+                    # where it belongs in the thing's own metres) keeps every part where it is, its origin over
+                    # the focus
+                    "centre": len(record["place"]) == 1,
                 }
             )
     available = textures.read_set(ground_name)

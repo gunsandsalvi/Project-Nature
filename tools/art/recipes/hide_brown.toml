@@ -1,0 +1,30 @@
+# The warm brown hides C and D of the screen (catalogue 16.12, the hide screen): the tent's hide (hide.toml) in the colours of a
+# piece of the standard's own hide, which the sheet draws in six colours where the one hide texture, darkened by
+# each part's crease, gives only lighter and darker ones of the same. The same drawings, the same tile of 128
+# texture pixels, 2 m across, one version, with the seam strip in its first 4 columns; `colour_from` moves it
+# to the warm brown of the piece.
+name = "hide_brown"
+about = "the warm brown deer or reindeer hide of the screen, soft stepped dapples in two tones with short hair running down the picture, a seam strip of running stitches in its first 4 columns"
+seed = 1612
+reference = "near"
+colour_from = "art/sources/hide_brown/colour.webp"
+how = "drawn by the artist in conversation with the art lane at the size the game shows a hide (a texture pixel 1.6 cm), and put on the texture-pixel grid by code"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; hide with hair and dapples, a running stitch, no smoke flaps, no painted designs, no metal"
+approved = "not offered yet: made for the hide screen, waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+texels = 128
+versions = 1
+ring = 4
+overlap = 16
+patch = 48
+flatten = 0
+serves = 3
+snap = 8
+sheet = "art/sources/hide/hide-E.webp"
+extra = ["art/sources/hide/hide-F.webp"]
+strip = "art/sources/hide/hide-strip-2.webp"
+strip_cells = 64
+strip_period = 8
+requests = ["art/requests/tent/turn-01.txt", "art/requests/tent/turn-02.txt", "art/requests/tent/turn-03.txt", "art/requests/tent/turn-05.txt"]

@@ -1,0 +1,72 @@
+about = "the warm brown deer or reindeer hide of the screen, soft stepped dapples in two tones with short hair running down the picture, a seam strip of running stitches in its first 4 columns; near tile, 2.0 m across, version 1"
+route = "picture"
+tile_texels = 128
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/hide/hide-E.webp", "art/sources/hide/hide-F.webp", "art/sources/hide/hide-strip-2.webp", "art/sources/hide_brown/colour.webp"]
+original_sha256 = ["8be73298af2b84cf5eb1035ac50237c39d046b27268b25454c24b703f334becf", "fb77df208c28e10c7c07680fec75c262e4cb17f332d565215442cd7f03d8cf84", "fd29feabf181354225be403bfb6217eb11d2b384444d9891e6d2420f251b0ff0", "6a11ab59f47bb8558960f6aff5ff79dd66789e3ccedf48650e522a8b68bb99f6"]
+c2pa = ["present", "present", "present", "absent"]
+requests = ["art/requests/tent/turn-01.txt", "art/requests/tent/turn-02.txt", "art/requests/tent/turn-03.txt", "art/requests/tent/turn-05.txt"]
+made = "drawn by the artist in conversation with the art lane at the size the game shows a hide (a texture pixel 1.6 cm), and put on the texture-pixel grid by code; version 1 of 1, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "14.3%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; hide with hair and dapples, a running stitch, no smoke flaps, no painted designs, no metal"
+approved = "not offered yet: made for the hide screen, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/hide_brown/b0.png"
+sha256 = "c116630be23d262abc878eb339c4495cf92dfdbc54041cf090f6ffe596fdee7c"
+way = "the drawing put on its own grid (cells of about 8 picture pixels, loss 14.3%), moved to the reference's colour; every version quilted from the drawings in patches of 48 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam; its first 4 columns are the seam strip, the artist's own drawing (its pattern of 8 rows, the colour most repeats have), repeated down the tile"
+regrid_loss = "14.3%"
+calibration = "lightness -13.7; hue -10.5; colourfulness 119%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/hide_brown/b1.png"
+sha256 = "2ae58480f6160c7c6740cd739d247e124b4911f293d8817112cc9339c41f1f88"
+made_from = "c116630be23d262abc878eb339c4495cf92dfdbc54041cf090f6ffe596fdee7c"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.12; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/hide_brown/b2.png"
+sha256 = "8e6a55ff7746bdd0a7879a528a0ccac16a20f0b252d537f1f5e9dcbadf80c9ef"
+made_from = "2ae58480f6160c7c6740cd739d247e124b4911f293d8817112cc9339c41f1f88"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.01; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 3
+file = "art/textures/hide_brown/b3.png"
+sha256 = "ab2d95c69a324d7e0316856cb6b3551b2aa79a9b514a224d4c9bd7aafc1a6a23"
+made_from = "8e6a55ff7746bdd0a7879a528a0ccac16a20f0b252d537f1f5e9dcbadf80c9ef"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/hide_brown/b4.png"
+sha256 = "0e9d3b49699d82cdf7bf3930e494e058b5112b585637af8190dacd0ab05b747e"
+made_from = "ab2d95c69a324d7e0316856cb6b3551b2aa79a9b514a224d4c9bd7aafc1a6a23"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/hide_brown/b5.png"
+sha256 = "a5e272d76275fb754f6493746dff80f8f9cf09215f2ddbba87a97528d5d6b455"
+made_from = "0e9d3b49699d82cdf7bf3930e494e058b5112b585637af8190dacd0ab05b747e"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/hide_brown/b6.png"
+sha256 = "c663f2bcd534c7eeead8590cc18d48904e52672a81ccd0ea4cb856eb09b5da6b"
+made_from = "a5e272d76275fb754f6493746dff80f8f9cf09215f2ddbba87a97528d5d6b455"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/hide_brown/b7.png"
+sha256 = "284f40badace21a4dc6ccf9e6984543ecbb5c7cabb784f46c8d02c455b7bd597"
+made_from = "c663f2bcd534c7eeead8590cc18d48904e52672a81ccd0ea4cb856eb09b5da6b"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

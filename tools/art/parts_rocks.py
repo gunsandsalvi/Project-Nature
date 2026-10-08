@@ -523,6 +523,8 @@ def chips():
 # ---- the cliff's limestone lip ---------------------------------------------------------------------------------
 
 LIP = 4.0  # its length, wrapping: every swell has a whole number of waves along it, so two lips lie end to end
+TAIL = 0.15  # how far the bed goes on past each joint, the swells going on as they do (the next lip's start is the same
+# there to a millimetre), so two lips that meet at a bend overlap and leave no wedge of dark between their ends
 BACK = 0.55  # how far behind the face above its back lies: in the cliff, where the shale has weathered back to
 
 
@@ -554,13 +556,13 @@ def thick(x, variant=0):
 
 
 def lip(name, segments, front_rows, variant=0):
-    """The limestone bed: along x from 0 to 4 m, its back (y = +0.55, in the cliff behind the shale's weathered face)
-    and its front out to y = -nose, the top flush with the face above at z = 0 and the underside, undercut and rising
-    toward the back, dark
-    with the shade it casts. Faces: the top, the front in `front_rows` rows with a swell to each, the underside, and the
-    two ends, which are flat."""
+    """The limestone bed: along x from 0 to 4 m (and 15 cm past each end, drawn in a little, where it lies inside the
+    next lip's end), its back (y = +0.55, in the cliff behind the shale's weathered face) and its front out to
+    y = -nose, the top flush with the face above at z = 0 and the underside, undercut and rising toward the back, dark
+    with the shade it casts. Faces: the top, the front in `front_rows` rows with a swell to each, the underside, and
+    the two ends, which are flat."""
     builder = Builder(name)
-    xs = [LIP * k / segments for k in range(segments + 1)]
+    xs = [-TAIL, *[LIP * k / segments for k in range(segments + 1)], LIP + TAIL]
 
     def front(x, r):
         """A point of the front at a fraction r down it (0 at the top edge, 1 at the underside's edge)."""
@@ -575,6 +577,15 @@ def lip(name, segments, front_rows, variant=0):
         }
         for x in xs
     ]
+
+    for column in (cols[0], cols[-1]):  # the tails drawn in a little, so where two lips lie straight they lie inside
+        # the next one's end and never share a surface with it (nothing flickers), and where they meet at a bend they
+        # cover what would be a wedge of gap
+        ring = [column["back_top"], *column["front"], column["back_under"]]
+        centre = sum((v.co for v in ring), Vector()) / len(ring)
+        for v in ring:
+            v.co.y = centre.y + (v.co.y - centre.y) * 0.985
+            v.co.z = centre.z + (v.co.z - centre.z) * 0.985
 
     def face(points, outward):
         """A face turned to face `outward` (a rough direction)."""

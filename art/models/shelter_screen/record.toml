@@ -1,0 +1,112 @@
+# A recipe (A6.1, PRE-46): the hide screen of sheet 16.12 put together from the kit's parts of the camp family
+# (art/models/camp.blend, made by tools/art/parts_screen.py): a curtain of six unequal sewn hides hung from a ridge
+# pole between two forked posts, 5 m wide and 2.3 m high, its foot weighed with eleven stones, with a door flap over a
+# slit in the lower right hide. Every part is modelled where it belongs in the screen's own metres (x along it with
+# its middle on the origin, z up, the outside toward -y, the south), so each is laid at the origin (a root); the scene
+# turns the whole thing to close the mouth of the rock shelter, laid against the cliff's bay with its outside toward
+# the open ground.
+about = "a curtain of six sewn hides on a ridge pole between two forked posts, closing a rock shelter, 5 m wide (full form)"
+family = "camp"
+truth = "art lane, 8 October 2026: looked at the parts and the screen from every side at twice size against A5.6's list; hides sewn with small close running stitches, rawhide ties, posts and pole of plain bark, no painted designs, no metal, no sawn wood, no rock shelter or ground in it"
+approved = "not offered yet: a piece of T2.3c.2, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "hide"
+textures = ["art:hide"]
+
+[[material]]
+role = "hide_gold"
+textures = ["art:hide_gold"]
+
+[[material]]
+role = "hide_buff"
+textures = ["art:hide_buff"]
+
+[[material]]
+role = "hide_brown"
+textures = ["art:hide_brown"]
+
+[[material]]
+role = "hide_rust"
+textures = ["art:hide_rust"]
+
+[[material]]
+role = "wood"
+textures = ["art:wood"]
+
+[[material]]
+role = "stone"
+textures = ["art:stone"]
+
+[[material]]
+role = "limestone"
+textures = ["art:limestone"]
+
+[[material]]
+role = "granite"
+textures = ["art:granite"]
+
+[[place]]
+name = "hide_a"
+parts = ["screen_hide_a"]
+rule = "root"
+
+[[place]]
+name = "hide_b"
+parts = ["screen_hide_b"]
+rule = "root"
+
+[[place]]
+name = "hide_c"
+parts = ["screen_hide_c"]
+rule = "root"
+
+[[place]]
+name = "hide_d"
+parts = ["screen_hide_d"]
+rule = "root"
+
+[[place]]
+name = "hide_e"
+parts = ["screen_hide_e"]
+rule = "root"
+
+[[place]]
+name = "hide_f"
+parts = ["screen_hide_f"]
+rule = "root"
+
+[[place]]
+name = "seams"
+parts = ["screen_seams"]
+rule = "root"
+
+[[place]]
+name = "flap"
+parts = ["screen_flap"]
+rule = "root"
+
+[[place]]
+name = "post_left"
+parts = ["screen_post_left"]
+rule = "root"
+
+[[place]]
+name = "post_right"
+parts = ["screen_post_right"]
+rule = "root"
+
+[[place]]
+name = "pole"
+parts = ["screen_pole"]
+rule = "root"
+
+[[place]]
+name = "ties"
+parts = ["screen_ties"]
+rule = "root"
+
+[[place]]
+name = "stones"
+parts = ["screen_stones"]
+rule = "root"

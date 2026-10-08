@@ -64,9 +64,11 @@ FLAT = {"oval": 0.62, "cobble": 0.80, "squat": 0.80, "kidney": 0.74}  # how much
 WIDER = {"oval": 1.14, "cobble": 1.08, "squat": 1.08, "kidney": 1.10}  # and how much wider, so it is broad and low
 
 
-def angular_points(spec, seed, base_points, top_points):
+def angular_points(spec, seed, base_points, top_points, rtop=(0.52, 0.30), ztop=(0.76, 0.24), belt=False):
     """The corners of an angular stone: its base round the footprint (z = 0) a little irregular, its top points drawn in
-    and lower, a wedge narrowing toward one end and a trapezoid blunt."""
+    and lower (at `rtop` = (least, spread) of the footprint's radius and `ztop` of the height), a wedge narrowing toward
+    one end and a trapezoid blunt; with `belt`, a ring of points at the shoulder, a little in from the base, which
+    makes a rounded boulder of broad facets and not a pyramid."""
     _, w, d, h, kind, _, _ = spec
     a, b = w / 2.0, d / 2.0
     points = []
@@ -79,11 +81,13 @@ def angular_points(spec, seed, base_points, top_points):
         if kind == "trapezoid":
             x, y = max(-a, min(a, x * 1.15)), max(-b, min(b, y * 1.15))
         points.append((x, y, 0.0))
+        if belt:
+            points.append((x * 0.94, y * 0.94, h * 0.42 * (0.85 + 0.30 * abs(noise(seed, k, 6)))))
     for k in range(top_points):
         t = 2.0 * math.pi * (k + 0.5 + 0.3 * noise(seed, k, 3)) / max(1, top_points)
-        r = 0.52 + 0.30 * abs(noise(seed, k, 4))
+        r = rtop[0] + rtop[1] * abs(noise(seed, k, 4))
         x, y = a * math.cos(t) * r, b * math.sin(t) * r
-        z = h * (0.76 + 0.24 * abs(noise(seed, k, 5)))
+        z = h * (ztop[0] + ztop[1] * abs(noise(seed, k, 5)))
         if kind == "wedge":
             z = h * (0.45 + 0.55 * (x + a) / (2.0 * a))
             y *= 0.40 + 0.60 * (x + a) / (2.0 * a)
@@ -91,26 +95,29 @@ def angular_points(spec, seed, base_points, top_points):
     return points
 
 
-def hearth_stone(spec, form):
-    """One stone of the ring in one form (0 full, 1 simple, 2 marker)."""
+def shape_stone(name, spec, form, seed, flat=None, wider=None, domes=None, facets=None):
+    """One stone of `spec` (the hearth's list gives its shape) in one form (0 full, 1 simple, 2 marker), in a builder
+    not yet built: a round stone is a dome of the `domes` numbers made `flat` of its height and `wider` than its width
+    (the hearth's own, by default), an angular one a hull of points (`facets` = (base points, top points, rtop, ztop,
+    belt) of its full form, the hearth's own by default)."""
+    flat, wider = flat or FLAT, wider or WIDER
+    domes = DOMES if domes is None else domes
     number, w, d, h, kind, role, tone = spec
-    name = f"hearth_stone_{number:02d}{FORMS[form]}"
     builder = Builder(name)
-    seed = 70 + number
 
     def crease(p, n):
         return tone * (0.60 + 0.40 * min(1.0, max(0.0, p.z / (0.8 * h)))) * (0.88 + 0.12 * max(0.0, n.z))
 
-    if kind in DOMES:
+    if kind in domes:
         rings, segments = DOME_FORMS[form]
         dome = rocks.Dome(
-            WIDER[kind] * w / 2.0,
-            WIDER[kind] * d / 2.0,
-            FLAT[kind] * h,
+            wider[kind] * w / 2.0,
+            wider[kind] * d / 2.0,
+            flat[kind] * h,
             seed,
             shift=(0.12 * (w / 2.0) * (number % 3 - 1), 0.0),
             steep_phi=0.4 * number,
-            **DOMES[kind],
+            **domes[kind],
         )
         rocks.dome_faces(builder, dome, rings, segments)
         rocks.drop_loose(builder.bm)
@@ -120,9 +127,39 @@ def hearth_stone(spec, form):
         rocks.lay_faces(builder, lambda f: role, crease, True)
     else:
         base_points, top_points = HULL_FORMS[form]
-        rocks.hull(builder, angular_points(spec, seed, base_points, top_points), bevel=0.0 if form else 0.004)
+        extra = {}
+        if facets and form == 0:
+            (base_points, top_points), extra = facets[:2], {"rtop": facets[2], "ztop": facets[3], "belt": facets[4]}
+        rocks.hull(builder, angular_points(spec, seed, base_points, top_points, **extra), bevel=0.0 if form else 0.004)
         rocks.lay_faces(builder, lambda f: role, crease, False)
-    return builder.build((0.0, 0.0, 0.0))
+    return builder
+
+
+def merge(dst, src, offset):
+    """The faces of builder `src` added to builder `dst`, moved by `offset`, with their texture coordinates, creases,
+    roles and smooth flags, and a corner shared by faces of `src` one vertex in `dst` (so it shades smooth)."""
+    shared = {}
+    for f in src.bm.faces:
+        points = []
+        for loop in f.loops:
+            key = tuple(round(c, 7) for c in loop.vert.co)
+            if key not in shared:
+                shared[key] = dst.bm.verts.new(loop.vert.co + offset)
+            points.append(shared[key])
+        face = dst.face(
+            points,
+            [tuple(loop[src.uv].uv) for loop in f.loops],
+            src.roles[f.material_index],
+            [loop[src.crease][0] for loop in f.loops],
+            f.smooth,
+        )
+        face.smooth = f.smooth
+
+
+def hearth_stone(spec, form):
+    """One stone of the ring in one form (0 full, 1 simple, 2 marker)."""
+    number = spec[0]
+    return shape_stone(f"hearth_stone_{number:02d}{FORMS[form]}", spec, form, 70 + number).build((0.0, 0.0, 0.0))
 
 
 def hearth_stones():
