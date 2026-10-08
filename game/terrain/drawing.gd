@@ -28,6 +28,8 @@ var moving_mask_time := -1.0
 var _surface_nodes: Dictionary = {}
 var _lit_sprites: Dictionary = {}
 var _masks: Dictionary = {}
+var _mask_versions := {}
+var _mask_upload_reserved := false
 var _revision := ""
 var _mask_clock := -1
 var _bed: SubViewport
@@ -122,6 +124,7 @@ func _draw() -> void:
 func rebuild() -> void:
 	if state.is_empty() or entries.is_empty() or _bed == null:
 		return
+	_mask_upload_reserved = false
 	var started := Time.get_ticks_usec()
 	var revision := "%s/%s/%s/%d/%s" % [scene_name, hour, weather, direction, fire_enabled]
 	var changed := revision != _revision
@@ -143,10 +146,14 @@ func rebuild() -> void:
 		_object(entries[1], POSITIONS.shelter, -2, density)
 	_object(entries[2], POSITIONS.boulder, -3, density)
 	_submit()
-	for copy: Sprite2D in _reflection_sprites.values():
-		copy.visible = false
-	for copy: Sprite2D in _silhouettes.values():
-		copy.visible = false
+	for group: Dictionary in [_reflection_sprites, _silhouettes]:
+		for copy: Sprite2D in group.values():
+			copy.hide()
+			copy.texture = null
+			copy.material = null
+	for id: int in _lit_sprites.keys():
+		if not _sprites.has(id):
+			_lit_sprites.erase(id)
 	# PRE-21 PLT-04: sampling follows scene time; the upload limit follows real time.
 	var mask_second := (
 		moving_mask_time if moving_mask_time >= 0.0 else Time.get_ticks_usec() / 1000000.0
@@ -173,7 +180,12 @@ func rebuild() -> void:
 	if candidate_view:
 		_variants.update(state, absolute_origin, stream_service)
 	_background_plane()
-	var pieces := _receivers(update_masks)
+	var pieces := []
+	if candidate_view and float(state.density) < 2.0:
+		for id: int in _surface_nodes:
+			_hide_receiver(id)
+	else:
+		pieces = _receivers(update_masks)
 	if fire_enabled:
 		var fire_point: Vector3 = light_record.fire
 		var floor_record: Dictionary = terrain.walk(fire_point.x, fire_point.y)
@@ -251,6 +263,7 @@ func _reset_scene() -> void:
 				node.queue_free()
 			group.clear()
 		_masks.clear()
+		_mask_versions.clear()
 	light_record = terrain.set_light(hour, weather, direction, fire_enabled)
 
 
@@ -345,8 +358,7 @@ func _receivers(update_masks: bool) -> Array:
 		for p: Vector2 in points:
 			rect = rect.expand(p)
 		if not Rect2(Vector2.ZERO, state.size).intersects(rect):
-			if _surface_nodes.has(record.id):
-				_surface_nodes[record.id].hide()
+			_hide_receiver(record.id)
 			continue
 		if not _surface_nodes.has(record.id):
 			var node := Polygon2D.new()
@@ -392,9 +404,16 @@ func _receivers(update_masks: bool) -> Array:
 		var material: ShaderMaterial = polygon.get_meta("light_material")
 		_lighting(material)
 		material.set_shader_parameter("world_tiled", candidate_view and record.material == 4)
-		material.set_shader_parameter(
-			"tile_metres", ground_bundle.get("tile_metres", _ground_span())
-		)
+		var span: float = float(ground_bundle.get("tile_metres", _ground_span()))
+		material.set_shader_parameter("tile_metres", span)
+		material.set_shader_parameter("art_phase", _art_phase(span))
+		if candidate_view and record.kind != 4:
+			_variants.apply(
+				material,
+				atlas,
+				float(state.density),
+				record.material == 4 and scene_name != "water"
+			)
 		for i in 4:
 			material.set_shader_parameter("corner%d" % i, record.corners[i])
 		material.set_shader_parameter("surface_normal", record.normal)
@@ -423,7 +442,11 @@ func _receivers(update_masks: bool) -> Array:
 		material.set_shader_parameter(
 			"receiver_colour", Color.from_hsv(fposmod(record.id * 0.117, 1.0), 0.35, 0.65)
 		)
-		if update_masks or not _masks.has(record.id):
+		var mask_version := _revision + ("" if candidate_view else "/" + str(_mask_clock))
+		if update_masks or _mask_versions.get(record.id, "") != mask_version:
+			if not _reserve_mask_upload():
+				_hide_receiver(record.id)
+				continue
 			var data: Dictionary = terrain.mask(record.id)
 			var image := Image.create_from_data(
 				data.width, data.height, false, Image.FORMAT_RGBA8, data.rgba
@@ -432,6 +455,7 @@ func _receivers(update_masks: bool) -> Array:
 				_masks[record.id].update(image)
 			else:
 				_masks[record.id] = ImageTexture.create_from_image(image)
+			_mask_versions[record.id] = mask_version
 		material.set_shader_parameter("visibility_mask", _masks[record.id])
 		if record.kind == 4:
 			_water(material, record)
@@ -473,6 +497,7 @@ func _background(id: int, node: Polygon2D) -> void:
 		_bed.add_child(copy)
 		_copies[id] = copy
 	var copy: Polygon2D = _copies[id]
+	copy.show()
 	copy.polygon = node.polygon
 	copy.uv = node.uv
 	copy.texture = node.texture
@@ -503,6 +528,9 @@ func _lighting(material: ShaderMaterial) -> void:
 	material.set_shader_parameter("fire_on", fire_enabled)
 	material.set_shader_parameter("debug_albedo", debug_mode == "albedo")
 	material.set_shader_parameter("debug_normals", debug_mode == "normals")
+	material.set_shader_parameter(
+		"debug_visibility", ["sun", "sky", "contact"].find(debug_mode) + 1
+	)
 	material.set_shader_parameter("debug_receivers", debug_mode == "receivers")
 
 
@@ -853,6 +881,7 @@ func _reserve_mask_change(geometry_changed: bool) -> bool:
 		stream_service.retire_allocation(_mask_gpu_ticket)
 		_mask_gpu_ticket = gpu.token
 	stream_service.retire_allocation(upload.token)
+	_mask_upload_reserved = true
 	return true
 
 
@@ -887,3 +916,34 @@ func _art_phase(span: float) -> Vector2:
 		)
 		/ 100.0
 	)
+
+
+func _reserve_mask_upload() -> bool:
+	if stream_service == null or _mask_upload_reserved:
+		return true
+	var allocation: Dictionary = stream_service.reserve_allocation(
+		{"category": "masks", "staging": 64 * 65 * 65 * 4}
+	)
+	if not allocation.ok:
+		problem = allocation.problem
+		return false
+	stream_service.retire_allocation(allocation.token)
+	_mask_upload_reserved = true
+	return true
+
+
+func _hide_receiver(id: int) -> void:
+	if _surface_nodes.has(id):
+		var node: Polygon2D = _surface_nodes[id]
+		node.hide()
+		node.texture = null
+		var material: ShaderMaterial = node.get_meta("light_material")
+		for key: String in ["normal_atlas", "material_atlas", "variant_field"]:
+			material.set_shader_parameter(key, null)
+		for prefix: String in ["variant_b_", "variant_c_"]:
+			for channel: String in ["colour", "normal", "material"]:
+				material.set_shader_parameter(prefix + channel, null)
+	if _copies.has(id):
+		_copies[id].hide()
+		_copies[id].texture = null
+		_copies[id].material = null

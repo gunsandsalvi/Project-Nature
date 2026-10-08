@@ -92,7 +92,7 @@ func update(frame: Dictionary) -> void:
 	for asset: String in _assets():
 		_request(asset, 4, {})
 		var parent := _available(asset, 4)
-		if not parent.is_empty() and density >= 2.0 and density != 4:
+		if not parent.is_empty() and (density >= 2.0 or asset in ground_assets) and density != 4:
 			_request(asset, density, parent.key)
 		if float(frame.target_density) >= 2.0 and not parent.is_empty():
 			_request(asset, float(frame.target_density), parent.key)
@@ -102,6 +102,10 @@ func update(frame: Dictionary) -> void:
 func _slot(asset: String, density: float) -> String:
 	var source := 64 if density >= 32 else 16 if density >= 8 else 4
 	var level := 0 if density >= source else 1
+	if density < 2.0 and asset in ground_assets:
+		var family: Dictionary = _families.get(asset + "/far", {})
+		var maximum := roundi(log(float(family.get("page_width", 256))) / log(2.0))
+		level = clampi(roundi(log(4.0 / maxf(density, pow(2.0, -12))) / log(2.0)), 1, maximum)
 	return "%s/%d/%d" % [asset, source, level]
 
 
@@ -168,7 +172,7 @@ func _request(asset: String, density: float, parent: Dictionary) -> void:
 			"key": key,
 			"family": family,
 			"level": level,
-			"density": source >> level
+			"density": float(source) / float(1 << level)
 		}
 	else:
 		problem = answer.problem
@@ -234,7 +238,7 @@ func metrics() -> Dictionary:
 
 func ground_sample(density: float, asset := "meadow") -> Dictionary:
 	# The wide field is ground; individual object families stop at their declared range.
-	return _sample_asset(asset, maxf(2.0, density))
+	return _sample_asset(asset, density)
 
 
 func _assets() -> PackedStringArray:
@@ -253,7 +257,7 @@ func _reconcile(frame: Dictionary) -> void:
 	for asset: String in _assets():
 		wanted[_slot(asset, 4)] = true
 		for density: float in [float(frame.density), float(frame.target_density)]:
-			if density >= 2:
+			if density >= 2 or asset in ground_assets:
 				wanted[_slot(asset, density)] = true
 	if wanted != _wanted:
 		_generation += 1
@@ -269,7 +273,13 @@ func _reconcile(frame: Dictionary) -> void:
 		if wanted.has(slot):
 			continue
 		var asset := slot.get_slice("/", 0)
-		var next: Dictionary = _requests.get(_slot(asset, maxf(2, float(frame.density))), {})
+		var next: Dictionary = _requests.get(
+			_slot(
+				asset,
+				float(frame.density) if asset in ground_assets else maxf(2, float(frame.density))
+			),
+			{}
+		)
 		var replacement: bool = not next.is_empty() and not _service.bundle(next.token).is_empty()
 		if row.state != "visible" or replacement or float(frame.density) < 2:
 			_service.release(record.token)

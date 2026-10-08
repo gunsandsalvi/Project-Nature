@@ -335,12 +335,13 @@ bool StreamState::disposed(StreamToken token, const std::string& kind) {
 // T2.9a.2/PLT-04: bounded ticket metadata is charged too; reset cannot free another owner's resources.
 StreamToken StreamState::reserve_allocation(StreamAllocation allocation) {
     constexpr std::uint64_t metadata = 256;
-    const bool masks = allocation.category == "masks", targets = allocation.category == "targets";
-    if ((!masks && !targets) || (masks && allocation.target != 0) ||
+    const bool sampled = allocation.category == "masks" || allocation.category == "ground";
+    const bool targets = allocation.category == "targets";
+    if ((!sampled && !targets) || (sampled && allocation.target != 0) ||
         (targets && (allocation.prepared != 0 || allocation.staging != 0 || allocation.resident != 0)) ||
         (allocation.prepared == 0 && allocation.staging == 0 && allocation.resident == 0 && allocation.target == 0) ||
         allocations_.size() >= 256) {
-        problem_ = "allocation requires bounded masks/targets ownership and appropriate nonzero byte fields";
+        problem_ = "allocation requires bounded masks/ground/targets ownership and appropriate nonzero byte fields";
         return 0;
     }
     StreamJob check;

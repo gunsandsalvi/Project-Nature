@@ -51,7 +51,9 @@ func _build() -> void:
 	)
 	tools.add_child(weather)
 	var debug := OptionButton.new()
-	for key: String in ["colour", "albedo", "receivers", "normals", "layers"]:
+	for key: String in [
+		"colour", "albedo", "receivers", "normals", "sun", "sky", "contact", "layers"
+	]:
 		debug.add_item(key)
 	debug.item_selected.connect(
 		func(index: int) -> void: drawing.debug_mode = debug.get_item_text(index)

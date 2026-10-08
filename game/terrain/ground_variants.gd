@@ -89,9 +89,18 @@ func apply(material: ShaderMaterial, atlas: RefCounted, density: float, enabled:
 		and not third.is_empty()
 	)
 	if enabled:
-		enabled = base.density == second.density and base.density == third.density
+		enabled = (
+			base.density == second.density
+			and base.density == third.density
+			and cell_metres >= float(base.tile_metres)
+			and is_zero_approx(fmod(cell_metres, float(base.tile_metres)))
+		)
 	material.set_shader_parameter("ground_variants", enabled)
 	if not enabled:
+		material.set_shader_parameter("variant_field", null)
+		for prefix: String in ["variant_b_", "variant_c_"]:
+			for channel: String in ["colour", "normal", "material"]:
+				material.set_shader_parameter(prefix + channel, null)
 		return
 	material.set_shader_parameter("variant_field", texture)
 	material.set_shader_parameter("variant_grid", grid)
@@ -108,6 +117,7 @@ func apply(material: ShaderMaterial, atlas: RefCounted, density: float, enabled:
 
 func release() -> void:
 	texture = null
+	_signature = ""
 	if is_instance_valid(_service):
 		_service.retire_allocation(_ticket)
 	_ticket = 0

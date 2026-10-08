@@ -243,3 +243,43 @@ TEST_CASE("allocation tickets reject overflow malformed fields and unbounded own
     for (const auto token : tokens) s.release_allocation(token);
     CHECK(s.reserve_allocation({"masks", 1, 0, 0, 0}) != 0);
 }
+
+// checks: PRE-03 PRE-42 PLT-04 (T2.9a.2): canonical variant fields share the authored ground cap.
+TEST_CASE("ground field tickets retain overlap and cannot bypass authored ground category limits") {
+    StreamState s;
+    StreamLimits limits;
+    limits.prepared = 100;
+    limits.staging = 20;
+    limits.resident = 100;
+    limits.resident_by_category = {{"ground", 60}, {"masks", 40}};
+    opened(s, limits);
+    const auto field = s.reserve_allocation({"ground", 30, 4, 40, 0});
+    REQUIRE(field != 0);
+    if (field == 0) return;
+    CHECK(s.ledger().prepared == 30);
+    CHECK(s.ledger().staging == 4);
+    CHECK(s.ledger().resident_by_category.at("ground") == 40);
+    CHECK(s.request(request_of("authored", "", "ground")) == 0);
+    CHECK(s.reserve_allocation({"ground", 0, 0, 21, 0}) == 0);
+    CHECK(s.reserve_allocation({"ground", 71, 0, 0, 0}) == 0);
+    CHECK(s.reserve_allocation({"ground", 0, 17, 0, 0}) == 0);
+    CHECK(s.reserve_allocation({"ground", 0, 0, 0, 1}) == 0);
+    CHECK(s.reserve_allocation({"ground", ~std::uint64_t{0}, 0, 0, 0}) == 0);
+    const auto replacement = s.reserve_allocation({"ground", 20, 4, 20, 0});
+    REQUIRE(replacement != 0);
+    if (replacement == 0) return;
+    CHECK(s.ledger().resident == 60);
+    s.reset();
+    s.begin(identity(2), limits);
+    CHECK(s.ledger().resident_by_category.at("ground") == 60);
+    CHECK(s.ledger().prepared == 50);
+    CHECK(s.release_allocation(field));
+    CHECK(s.ledger().resident_by_category.at("ground") == 20);
+    CHECK(s.ledger().prepared == 20);
+    CHECK(s.release_allocation(replacement));
+    CHECK(s.ledger().prepared == 0);
+    CHECK(s.ledger().staging == 0);
+    CHECK(s.ledger().resident == 0);
+    CHECK(s.ledger().input == 0);
+    CHECK(s.ledger().peak_resident == 60);
+}

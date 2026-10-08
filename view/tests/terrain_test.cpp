@@ -196,9 +196,9 @@ TEST_CASE("candidate fixture proxy dimensions match source pivots while diagnost
     CHECK(rock.bounds.low.north == -4);
     CHECK(rock.bounds.high.north == doctest::Approx(-1.8));
     CHECK(rock.bounds.high.up == 2);
-    CHECK(tent.bounds.low.north == 4);
-    CHECK(tent.bounds.high.north == doctest::Approx(8.2));
-    CHECK(tent.bounds.high.up == doctest::Approx(3.1));
+    CHECK(tent.bounds.low.north == doctest::Approx(4.2));
+    CHECK(tent.bounds.high.north == doctest::Approx(8.0));
+    CHECK(tent.bounds.high.up == doctest::Approx(2.6));
     const auto shelter = t::fixture("candidate-shelter");
     CHECK(std::none_of(shelter.surfaces.begin(), shelter.surfaces.end(), [](const auto& surface) {
         return surface.kind == t::Kind::roof || surface.kind == t::Kind::wall;
@@ -293,4 +293,24 @@ TEST_CASE("contact halo scales with grounded footprint and never makes a broad s
     raised.bounds.low.up = 6;
     raised.bounds.high.up = 20;
     CHECK(at(raised, {0, 0, 0}) == 255);
+}
+
+// checks: PRE-21 PRE-23 PRE-30 (T2.9a.2): opaque cover dimensions exclude the taller sparse pole tips.
+TEST_CASE("candidate tent opaque cover ends below pole tips and keeps the authored ring datum") {
+    const auto scene = t::fixture("candidate-flat");
+    const auto found =
+        std::find_if(scene.casters.begin(), scene.casters.end(), [](const auto& c) { return c.id == 4; });
+    REQUIRE(found != scene.casters.end());
+    if (found == scene.casters.end()) return;
+    const auto& cone = *found;
+    CHECK(cone.bounds.low.east == doctest::Approx(1.1));
+    CHECK(cone.bounds.high.east == doctest::Approx(4.9));
+    CHECK(cone.bounds.low.north == doctest::Approx(4.2));
+    CHECK(cone.bounds.high.north == doctest::Approx(8.0));
+    CHECK(cone.bounds.high.up == doctest::Approx(2.6));
+    CHECK_FALSE(t::blocked({3, 6.1, 3.2}, {3, 6.1, 2.8}, {cone}));
+    CHECK_FALSE(t::blocked({5, 6.1, 3.2}, {5, 6.1, 0}, {cone}));
+    CHECK(t::blocked({3, 6.1, 3.2}, {3, 6.1, 2.5}, {cone}));
+    const auto water = t::fixture("candidate-water");
+    CHECK(water.casters[3].bounds.low.up == doctest::Approx(t::walk(water, 3, 4).point.up));
 }

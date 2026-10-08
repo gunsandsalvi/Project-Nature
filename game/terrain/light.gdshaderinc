@@ -7,6 +7,7 @@ uniform vec3 sky_light = vec3(0.3, 0.35, 0.43);
 uniform vec3 fire_position = vec3(3.0, 2.0, 0.6);
 uniform bool fire_on = true;
 uniform bool debug_albedo = false;
+uniform int debug_visibility = 0;
 uniform bool debug_normals = false;
 uniform bool debug_receivers = false;
 uniform vec3 receiver_colour = vec3(0.5);
@@ -21,6 +22,7 @@ vec3 fixture_encode(vec3 colour) {
     return mix(1.055*pow(max(colour,vec3(0.0)),vec3(1.0/2.4))-0.055,12.92*colour,lessThanEqual(colour,vec3(0.0031308)));
 }
 vec3 fixture_light_linear(vec3 albedo, vec3 world_normal, vec3 point, vec4 visibility, float emission, int material_index) {
+    if (debug_visibility > 0) { return fixture_decode(vec3(visibility[clamp(debug_visibility-1,0,2)])); }
     if (debug_albedo) { return fixture_decode(albedo); }
     if (debug_normals) { return fixture_decode(world_normal * 0.5 + 0.5); }
     if (debug_receivers) { return fixture_decode(receiver_colour); }

@@ -201,7 +201,7 @@ Scene fixture(const std::string& input) {
         s.casters = {{1, {{-5.125, -7.125, 0}, {-4.875, -6.875, 20}}, false, Shape::cylinder, .19, .19},
                      {2, {{-8.5, -10.5, 6}, {-1.5, -3.5, 20}}, true},
                      {3, {{-4.5, -4, 0}, {-1.5, -1.8, 2}}, false, Shape::upper_ellipsoid},
-                     {4, {{.9, 4, 0}, {5.1, 8.2, 3.1}}, false, Shape::cone}};
+                     {4, {{1.1, 4.2, 0}, {4.9, 8.0, 2.6}}, false, Shape::cone}};
         s.casters[0].group = 1;
         // The six source-normal spray annotations define bounded separate volumes and leave sky gaps.
         // Each spray depth2m is a provisional proxy choice; source width7m and lower6/top20 remain fixed.
@@ -304,8 +304,11 @@ Scene fixture(const std::string& input) {
     if (name == "slope" || name == "water") {
         for (auto& c : s.casters) {
             const auto centre = blend(c.bounds.low, c.bounds.high, 0.5);
-            // Candidate stone/cone sprites anchor at their authored front-edge foot, not the shifted proxy centre.
-            const double north = candidate && (c.id == 3 || c.id == 4) ? c.bounds.low.north : centre.north;
+            // Candidate sprites anchor at their source front-foot datum; the tent ring starts north4,
+            // independently of the narrower cover beginning north4.2.
+            const double north = candidate && c.id == 4   ? 4.0
+                                 : candidate && c.id == 3 ? c.bounds.low.north
+                                                          : centre.north;
             const auto base = walk(s, centre.east, north);
             if (base.found) {
                 c.bounds.low.up += base.point.up;
