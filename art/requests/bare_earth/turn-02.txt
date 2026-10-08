@@ -1,0 +1,25 @@
+Thank you. I used your four drawings (near A and B, middle A and B), made the game's frames from them in the engine's own light, and held them against your sheet. The drawings are good; the game's view of them is not yet your camera view. Here is what I measured and what I need drawn again.
+
+THE PICTURES WITH THIS MESSAGE (all at the phone's true size, one picture pixel one screen pixel)
+1. camera-1.3-bare_earth.png: your own camera view from the sheet, about 4.2 m across. The standard.
+2. earth-game-near-1to1.png: the game's view of your near tiles A and B quilted together, about 4.2 m across.
+3. earth-sheet-middle-at-game-size.png: your sheet's middle tile at 2 x 2 pixels a texel (what band 2 shows flat).
+4. earth-game-middle-band2-1to1.png: the game's view of your middle tiles A and B at band 2 (about 34 m across).
+
+WHAT IS WRONG WITH THE NEAR TILE IN THE GAME (picture 2 against picture 1)
+- The plates are about twice too big. Your camera view has plates about 60 to 110 pixels across (0.5 to 0.9 m, so 35 to 60 texels wide in the flat tile); in the game the plates are 120 to 220 pixels across, so they read as a few huge slabs, not a web of plates. Draw smaller plates: about 35 to 60 texels wide and, because the camera squashes every texel to 0.6 as tall as wide, 50 to 90 tall; irregular, with many Y and T junctions; some very small plates of 10 to 20 texels between the big ones.
+- The cracks are too thin and too pale: your camera view has dark brown cracks (#755438) 2 to 3 pixels wide in every direction; in the game the horizontal cracks, squashed to 0.6, come out 1 pixel thin and pale. Draw every crack 2 texels wide in the flat tile (dark #755438 with #91633E at its lip), and the cracks that run left to right (they get squashed) 3 texels thick.
+- Every part of the picture must have cracks, in all directions, at about the same density: no band of 25 texels across or down the picture may be free of cracks or calmer than the rest. (Your drawings have a few quiet bands; my code shares a 4-texel border between all versions of the tile, and a quiet band shows in the game as a blank cross at every 4 m.)
+- Keep what is right: the crumbs and small crosses of 2 to 3 texels on the plates, the paler and darker crusts of the plates (fewer big dark hollows), the palette (#B68A58 #C69B67 #D2AD79 #A7794C #91633E #755438), no stones, flat light.
+
+WHAT IS WRONG WITH THE MIDDLE TILE (picture 4 against picture 3)
+Middle A and B read as fish scales or lizard skin: the plates are all alike, three times taller than wide and in tidy rows. Your sheet's middle tile (picture 3) is the standard: plates of many sizes, roundish, a web of thin dark cracks, and broad quiet patches of paler and darker crust under them. Redraw both:
+- plates 10 to 20 texels wide and 14 to 28 tall (only about 1.4 times taller than wide, not 3), five to seven sides, of different sizes, no rows;
+- cracks 1 texel dark brown, 2 texels where they run left to right;
+- under the web, soft broad patches of paler and darker crust, 40 to 100 texels across, as in picture 3, at most 10% lighter or darker than the rest, spread evenly: no large patch that would repeat every 16 m, and again no calm band;
+- the same average colour as the near tile.
+
+DRAW AGAIN: earth-near-A2.png, earth-near-B2.png, earth-middle-A2.png, earth-middle-B2.png
+Every texel an exact flat 4 x 4 block in a 1024 x 1024 canvas, 256 x 256 texels, as before. Your image tool returns about 1254 x 1254 pixels with uneven cells and a picture that does not wrap: that is my code's job. Never bin a drawing for its size, its grid or its seams. Keep each raw picture unchanged in originals/ and say which is which. Draw with your image tool, never with code.
+
+Reply in a few lines: what you changed, which of the four is weakest and why, and the files you saved.

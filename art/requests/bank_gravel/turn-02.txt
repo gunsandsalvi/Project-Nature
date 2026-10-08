@@ -1,0 +1,19 @@
+Thank you. I used your four drawings (near A and B, middle A and B), made the game's frames from them in the engine's own light, and held them against your sheet. The near tiles are close; the middle tiles are not yet your sheet's. Here is what I measured and what I need drawn again.
+
+THE PICTURES WITH THIS MESSAGE (all at the phone's true size, one picture pixel one screen pixel)
+1. camera-1.4-bank_gravel.png: your own camera view from the sheet, about 4.2 m across. The standard.
+2. gravel-game-near-1to1.png: the game's view of your near tiles A and B quilted together, about 4.2 m across.
+3. gravel-sheet-middle-at-game-size.png: your sheet's middle tile at 2 x 2 pixels a texel (what band 2 shows flat).
+4. gravel-game-middle-band2-1to1.png: the game's view of your middle tiles A and B at band 2 (about 34 m across).
+
+THE NEAR TILE (picture 2 against picture 1)
+- Your camera view has pebbles that read as round, solid stones: a bright lit top over a darker body and a dark rim, from 3 to 4 texels up to fist-sized ones, with a lot of MEDIUM stones (8 to 14 texels), not mostly tiny ones; the sand drifts are big smooth pale patches (12 to 30 texels across) with ragged but rounded edges. In the game the stones come out smaller and duller, and the drifts are jagged stars and crosses. Draw again: more medium stones with clear lit tops and dark rims; drifts as rounded blobs (no stars, no crosses, no arms), 12 to 30 texels across; a few grey cobbles of 16 to 22 texels; the dark brown-grey gaps between stones kept. Because the camera squashes every texel to 0.6 as tall as wide, draw every stone and drift about 1.6 TIMES TALLER than wide (your first pair came out only a little taller).
+- Every part of the picture should have stones and drifts at about the same density: no band of 25 texels across or down the picture may be calmer or busier than the rest, since my code shares a 4-texel border between all versions of the tile and a calm band shows in the game as a line at every 4 m.
+
+THE MIDDLE TILE (picture 4 against picture 3)
+Middle A and B came out as a lattice of square blocks of mixed sizes with X-shaped pale drifts in diagonal rows: not your sheet's tile. Your sheet's middle tile (picture 3) is the standard: a dense fine grain of rounded 2 to 3 texel stones in tan and brown, a few darker 3 to 4 texel stones, and soft pale drifts as rounded blobs scattered irregularly, drifts of 10 to 25 texels. Redraw both: stones rounded, never square blocks; drifts rounded blobs about 1.6 times taller than wide, irregular in size and place, no rows, no X shapes; no large light or dark patch that would repeat every 16 m; the same average colour as the near tile.
+
+DRAW AGAIN: gravel-near-A2.png, gravel-near-B2.png, gravel-middle-A2.png, gravel-middle-B2.png
+Every texel an exact flat 4 x 4 block in a 1024 x 1024 canvas, 256 x 256 texels, as before; the palette of the sheet (#766B59 #968773 #B2A18A #CBB99B #DCCCAC #878B82), flat light, no shadows cast. Your image tool returns about 1254 x 1254 pixels with uneven cells and a picture that does not wrap: that is my code's job. Never bin a drawing for its size, its grid or its seams. Keep each raw picture unchanged in originals/ and say which is which. Draw with your image tool, never with code.
+
+Reply in a few lines: what you changed, which of the four is weakest and why, and the files you saved.

@@ -131,7 +131,7 @@ def _blur_wrap(a, radius):
     return out
 
 
-def _ring_scorer(tile, ring, tone_radius, accent_share):
+def _ring_scorer(tile, ring, tone_radius, accent_share, join_weight=1.5):
     """A function of a shift (dy, dx) of the tile that says how far its ring, cut there, lies from the whole tile in
     low tones, share of rare colours and jump from pixel to pixel, and how rough the join is that the cut puts either
     side of the wrap (smaller is better)."""
@@ -153,13 +153,13 @@ def _ring_scorer(tile, ring, tone_radius, accent_share):
             abs(tone[sy, sx].mean() - tone.mean()) / (tone.std() + 1e-9)
             + abs(rare[sy, sx].mean() - rare.mean()) / (rare.mean() + 1e-9)
             + abs(jump[sy, sx].mean() - jump.mean()) / (jump.mean() + 1e-9)
-            + 1.5 * (col_join[(-dx - 1) % n] + row_join[(-dy - 1) % n])
+            + join_weight * (col_join[(-dx - 1) % n] + row_join[(-dy - 1) % n])
         )
 
     return score
 
 
-def neutral_shift(tile, ring, step=4, tone_radius=12, accent_share=0.07, deeper=()):
+def neutral_shift(tile, ring, step=4, tone_radius=12, accent_share=0.07, deeper=(), join_weight=1.5):
     """Where to cut a wrapping tile so its ring is its most typical part: the shift (dy, dx) of the tile whose ring
     is nearest the whole tile's in its low tones, its share of rare colours and its jump from pixel to pixel, and whose
     join (the neighbouring columns and rows that the cut puts either side of the wrap) is one of the tile's smooth
@@ -169,10 +169,10 @@ def neutral_shift(tile, ring, step=4, tone_radius=12, accent_share=0.07, deeper=
     a whole number of times smaller) count as much as the tile itself: a join smooth at the first level and rough at
     the next would show at the next band."""
     n = tile.shape[0]
-    scorers = [(1, _ring_scorer(tile, ring, tone_radius, accent_share))]
+    scorers = [(1, _ring_scorer(tile, ring, tone_radius, accent_share, join_weight))]
     for level in deeper:
         f = n // level.shape[0]
-        scorers.append((f, _ring_scorer(level, max(1, ring // f), max(1, tone_radius // f), accent_share)))
+        scorers.append((f, _ring_scorer(level, max(1, ring // f), max(1, tone_radius // f), accent_share, join_weight)))
     best = None
     for dy in range(0, n, step):
         for dx in range(0, n, step):
@@ -486,7 +486,7 @@ def snap(picture, block, cells=None):
     return texels, float(far.mean())
 
 
-def frame_of(source, overlap, n):
+def frame_of(source, overlap, n, join_weight=1.5):
     """The border of an `n` x `n` tile that wraps, cut from a picture that does not: from the middle `n` x `n` of the
     picture, a band of 2 x `overlap` rows from where its edges are most ordinary (neutral_shift), whose upper half lies
     along the bottom of the tile and its lower half along the top, so the two continue each other across the wrap, and
@@ -497,7 +497,7 @@ def frame_of(source, overlap, n):
     h, w = source.shape[:2]
     cy, cx = (h - n) // 2, (w - n) // 2
     crop = source[cy : cy + n, cx : cx + n]
-    dy, dx = neutral_shift(crop, overlap)
+    dy, dx = neutral_shift(crop, overlap, join_weight=join_weight)
     by = min(max((-dy) % n - overlap, 0), n - 2 * overlap)
     bx = min(max((-dx) % n - overlap, 0), n - 2 * overlap)
     o = overlap
@@ -517,15 +517,18 @@ def frame_of(source, overlap, n):
     return frame
 
 
-def make_versions_open(sources, count, ring, overlap, patch, seed, n, scale=1):
+def make_versions_open(sources, count, ring, overlap, patch, seed, n, scale=1, flatten=0, join_weight=1.5):
     """`count` versions of a tile `n` pixels across, quilted from drawings that do not wrap (all of one size, larger
     than the tile, such as snap() gives): they share the ring of a frame cut from the first drawing (frame_of), so any
     two join without a seam, and every one is made the same way, none being the drawing itself. `scale` is how many
-    times smaller the level is than the first one (the exclusion distance and the tone's blur shrink with it)."""
-    frame = frame_of(sources[0], overlap, n)
+    times smaller the level is than the first one (the exclusion distance and the tone's blur shrink with it). With a
+    `flatten` depth the broad tone near the border is taken out of every version (flatten_border), and the ring of the
+    first is put back on the rest, so the ring they share is at the tile's mean tone and no light or dark line shows
+    along their joins where the drawing had a swathe of tone across its ring."""
+    frame = frame_of(sources[0], overlap, n, join_weight)
     chance = Chance(seed)
     taken = {}
-    return [
+    versions = [
         quilt(
             sources,
             frame,
@@ -541,6 +544,12 @@ def make_versions_open(sources, count, ring, overlap, patch, seed, n, scale=1):
         )
         for _ in range(count)
     ]
+    if flatten > 0:
+        versions = [flatten_border(v, flatten) for v in versions]
+        fixed = ring_mask(n, ring)
+        for v in versions[1:]:
+            v[fixed] = versions[0][fixed]
+    return versions
 
 
 def boost(level, percent, pivot):

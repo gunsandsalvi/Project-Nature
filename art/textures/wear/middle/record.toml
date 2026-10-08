@@ -1,0 +1,78 @@
+about = "packed earth worn by feet: a calm mottled surface of crumbs and small stones, the fully worn layer the world lays over the ground; middle tile, 16.0 m across, version 1"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/wear/near-sheet.webp"]
+original_sha256 = ["ff77a8d27a97983a2a9714d2a3e2a8845ea856fdc21a5b31bb3837a22c1ea0ac"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's own worn-surface tile (exact on the texture-pixel grid), its versions quilted from it and its coarser tiles made by code from its own coarser levels; version 1 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; packed earth and a few small stones only, no grass, no cracks, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/wear/middle/b2.png"
+sha256 = "ac8dda98068a4d211fc0b122ead6e203acebab79fc56d9866eb84ad404c7ef8e"
+way = "by code: a mosaic of 4 x 4 of the near tile's versions at their level 2 (a pixel there as wide as this tile's, so the ladder of bands goes on without a break), each cell one version by chance, then every version quilted from it in patches of 64 round a shared ring"
+regrid_loss = "none: made by code from levels already on the grid"
+calibration = "lightness +0.0; hue +0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 145% of itself, the same for every version"
+
+[[band]]
+level = 1
+file = "art/textures/wear/middle/b3.png"
+sha256 = "9c323a56d8b4baa472662a5c22671070f0b1253fc5c3f2dd911193a0cb70bc8a"
+made_from = "ac8dda98068a4d211fc0b122ead6e203acebab79fc56d9866eb84ad404c7ef8e"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.30; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 145% of itself, the same for every version"
+
+[[band]]
+level = 2
+file = "art/textures/wear/middle/b4.png"
+sha256 = "1138bd5578dffab4f177482a16a442526ef44dc2214061e2bcfe4e351470f99c"
+made_from = "9c323a56d8b4baa472662a5c22671070f0b1253fc5c3f2dd911193a0cb70bc8a"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/wear/middle/b5.png"
+sha256 = "293b36ec9f1722154a358c2008fa8f6e534e0b07a8d1fa216595a165dee268d5"
+made_from = "1138bd5578dffab4f177482a16a442526ef44dc2214061e2bcfe4e351470f99c"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/wear/middle/b6.png"
+sha256 = "262d8e6b2f3205c258151f289aed14efedccd11b1a2bc1018be1dad9bfc864f6"
+made_from = "293b36ec9f1722154a358c2008fa8f6e534e0b07a8d1fa216595a165dee268d5"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/wear/middle/b7.png"
+sha256 = "88c626a0b91e2dd40f534a0771f878f4f83ce5e9395894a7f7f2ca87842eddae"
+made_from = "262d8e6b2f3205c258151f289aed14efedccd11b1a2bc1018be1dad9bfc864f6"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/wear/middle/b8.png"
+sha256 = "42376b379925150fd738bfea34d4e80a79a2343fc5c14dc06e607e0f4a3e88aa"
+made_from = "88c626a0b91e2dd40f534a0771f878f4f83ce5e9395894a7f7f2ca87842eddae"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/wear/middle/b9.png"
+sha256 = "b2b1473e450902f7aa7f20b173127c37c44d6427bdcffa81885e1f0d8f7f91e4"
+made_from = "42376b379925150fd738bfea34d4e80a79a2343fc5c14dc06e607e0f4a3e88aa"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/wear/middle/b10.png"
+sha256 = "9802ae1238962a2d1cbddf5fdaf011ca2383eb02d9d9a5414a27aa0791cd8dc2"
+made_from = "b2b1473e450902f7aa7f20b173127c37c44d6427bdcffa81885e1f0d8f7f91e4"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

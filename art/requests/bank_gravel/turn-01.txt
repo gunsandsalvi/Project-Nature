@@ -1,0 +1,24 @@
+Hello. I'm the art director of the art lane: we turn the owner's signed-off catalogue sheets into the textures and parts that the game engine reads. You are the artist and a fellow designer: you draw, I direct, measure and critique, and nothing reaches the owner until we both believe it holds up. Push back on anything here you think is wrong. We have made a meadow, a river bed, a club and a tent this way, and this message carries what we learned.
+
+This conversation is one piece: 1.4, river-bank gravel and cobbles (Kindling, a Stone Age world simulation for phones). Its signed-off sheet is the standard: the picture with this message is the whole sheet; the others are its camera view at the phone's true size and your own near and middle tiles from it. What I need are the game's own textures for it: the near tile and the middle tile, drawn as pixel art at the size the game really shows them. (The far tile and the levels for the other bands I make by code from these; do not draw them.)
+
+HOW THE ENGINE SHOWS THE GROUND
+A texture pixel (a texel) is shown about 2 x 2 screen pixels at every zoom. The zoom has bands; each band halves the texels a metre: band 0 has 64 a metre, band 1 has 32, band 2 has 16, band 3 has 8, band 4 has 4, band 5 has 2, band 6 has 1. The camera looks 37 degrees down, so the ground is foreshortened: every texel is shown only about 0.6 as tall as wide on the screen. A big surface has three tiles, each 256 texels across at its first band: near (4 m across, 64 texels a metre, each 1.6 cm, serves bands 0 and 1), middle (16 m, 16 a metre, each 6.25 cm, serves bands 2 and 3) and far (64 m, 4 a metre, serves bands 4 to 6). Several versions of each tile are made from your pictures by code (quilting), so two different pictures of the same material help.
+
+THE PICTURES WITH THIS MESSAGE
+1. camera-1.4-bank_gravel.png: your own camera view from the sheet at the phone's true size (one picture pixel is one screen pixel), about 4.2 m of ground across. This is what the game must deliver up close.
+2. gravel-near.png: your near tile from the sheet. 3. gravel-middle.png: your middle tile from the sheet (16 m). 4. sheet-1.4-bank_gravel.png: the whole sheet.
+
+THE JOB: FOUR PICTURES
+a) gravel-near-A.png and gravel-near-B.png: the near tile, 256 x 256 texels, 4 m across, that reads in the game's view like picture 1.
+ - Rounded stones from a pea to a fist (2 to 3 texels up to 14 to 20 across), packed tightly with dark brown-grey sand showing between them, drifts of pale sand in patches, a few grey cobbles of 16 to 22 texels; each stone with a lit top over a darker body and a dark rim of 1 texel. Because the game foreshortens every texel to 0.6 as tall as wide, draw the stones about 1.5 TIMES TALLER than wide in the flat tile, so that on the screen they look as round as in picture 1.
+ - The palette of the sheet: #766B59 #968773 #B2A18A #CBB99B #DCCCAC #878B82. Flat light, no shadows cast, no scale sticks, no water, no tint. Nothing but stones, gravel and sand (bigger stones are pieces of their own).
+ - No very large patches: the tile repeats every 4 m and the middle and far tiles carry the broad variation. Keep the average tone even over the tile.
+ - A and B: different arrangements of the same ground, the same character and average colour.
+b) gravel-middle-A.png and gravel-middle-B.png: the middle tile, 256 x 256 texels, 16 m across (each texel 6.25 cm), from your middle tile (picture 3), which is signed off: keep its design, the packed gravel as a fine grain with drifts of pale sand, and the few darker stones. Stones now 2 to 4 texels, the drifts a little wider and calmer; marks of 2 texels or more, no single-texel speckle, no large light or dark patches that would repeat every 16 m. Draw the marks about 1.5 times taller than wide here too. A and B are different arrangements, the same average colour as the near tile.
+
+HOW
+Save each as a PNG 1024 x 1024 pixels with every texel one flat 4 x 4 block. Your image tool returns about 1254 x 1254 pixels with cells that are not all the same width and a picture that does not wrap: that is expected and my code's job, not yours. NEVER bin a drawing because of its size, its grid or its seams; bin only a drawing that is itself wrong (a wrong palette, a gradient, something painted on that I said not to). Keep each raw picture the tool returned, unchanged, in originals/ and say which is which. Draw with your image tool, never with code.
+
+ALSO, IN WORDS, A SHORT OPINION: looking at the sheet, what would you drop or change on a sheet for a ground like this, so that it shows what the game can actually carry? Keep it to four lines.
+Reply in a few lines: what you changed from the sheet's tiles, which of the four is weakest and why, the four lines, and the files you saved.

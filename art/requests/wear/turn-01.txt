@@ -1,0 +1,20 @@
+Hello. I'm the art director of the art lane: we turn the owner's signed-off catalogue sheets into the textures and parts that the game engine reads. You are the artist and a fellow designer: I direct, measure and critique, and nothing reaches the owner until we both believe it holds up. Push back on anything here you think is wrong.
+
+This conversation is one piece: 1.2, worn ground (Kindling, a Stone Age world simulation for phones): the packed earth the world lays over any ground where people walk. Its textures are made from the signed-off sheet's own worn-surface tile (no new drawing was needed), with the coarser tiles made by code from it. Please do not draw anything in this turn: do not use your image tool, only look at the pictures and answer in words.
+
+HOW THE ENGINE SHOWS THE GROUND
+A texture pixel (a texel) is shown about 2 x 2 screen pixels at the closest zoom (band 0), and each band after halves the texels a metre (band 2 has a quarter, band 4 a sixteenth). The camera looks 37 degrees down, so every texel is shown only about 0.6 as tall as wide. The material is meant to be quiet: a calm mottled surface of crumbs, with a few small stones, and none of the marks of the cracked earth or the gravel.
+
+THE PICTURES WITH THIS MESSAGE
+1. sheet-1.2-wear.png: the signed-off sheet. The standard.
+2. wear-beside-meadow-band0-behind.png: the closest zoom as the game draws it (about 8.4 m across, so each quarter is about 4.2 m), the worn ground and the meadow in a chessboard of four quarters, so each is seen beside the other and across every join.
+3. wear-band2-behind.png: the middle zoom (about 34 m across), the worn ground alone.
+4. wear-band4-behind.png: the far zoom (about 135 m across), the worn ground alone.
+
+WHAT I NEED, IN A FEW LINES
+- Does picture 2's worn ground read as the sheet's (picture 1): the mottle, the crumbs, the small stones, the colour? What is different?
+- Beside the meadow, does it look like the same world (palette, pixel size, contrast, edge)? Is there any line, grid, cross or repeat in the worn ground that a player would see?
+- Do pictures 3 and 4 read as the same worn ground seen from further, calm and the same colour, or does it change character, or show a pattern that repeats?
+- What, if anything, would you change, the most important first, at most three things.
+
+Reply in a few lines. Do not draw; do not save any file.

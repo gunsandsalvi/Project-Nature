@@ -1,0 +1,79 @@
+about = "packed earth worn by feet: a calm mottled surface of crumbs and small stones, the fully worn layer the world lays over the ground; far tile, 64.0 m across, version 4"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/wear/near-sheet.webp"]
+original_sha256 = ["ff77a8d27a97983a2a9714d2a3e2a8845ea856fdc21a5b31bb3837a22c1ea0ac"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's own worn-surface tile (exact on the texture-pixel grid), its versions quilted from it and its coarser tiles made by code from its own coarser levels; version 4 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; packed earth and a few small stones only, no grass, no cracks, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/wear/far/v4/b4.png"
+sha256 = "dfeca61b0450721575fba4ade639db938e90a5f318a064ff924d3ddaad8f5724"
+way = "by code: a mosaic of 4 x 4 of the middle tile's versions at their level 2 (a pixel there as wide as this tile's, so the ladder of bands goes on without a break), each cell one version by chance, then every version quilted from it in patches of 64 round a shared ring"
+regrid_loss = "none: made by code from levels already on the grid"
+calibration = "lightness +0.0; hue +0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 130% of itself, the same for every version"
+
+[[band]]
+level = 1
+file = "art/textures/wear/far/v4/b5.png"
+sha256 = "3cdde1b767e2a70b615aa4d7b1ac7ddbe59590145be0f0b168758d980696f0c2"
+made_from = "dfeca61b0450721575fba4ade639db938e90a5f318a064ff924d3ddaad8f5724"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.28; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 130% of itself, the same for every version"
+
+[[band]]
+level = 2
+file = "art/textures/wear/far/v4/b6.png"
+sha256 = "7cff03e190bf533702ec3a7fb2f3efed69fcab6869f6423eaf0f5d81d367cbe0"
+made_from = "3cdde1b767e2a70b615aa4d7b1ac7ddbe59590145be0f0b168758d980696f0c2"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 1.12; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 130% of itself, the same for every version"
+
+[[band]]
+level = 3
+file = "art/textures/wear/far/v4/b7.png"
+sha256 = "a8b7ffb2bf6dd36789e5758c2abca7f2d31b2bda7b3d3c55c9e14d05830e0f3a"
+made_from = "7cff03e190bf533702ec3a7fb2f3efed69fcab6869f6423eaf0f5d81d367cbe0"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/wear/far/v4/b8.png"
+sha256 = "a450e9f09590c03fa5d0a803ea872eb331e8ad6388e4566b2f51c9702698a5dc"
+made_from = "a8b7ffb2bf6dd36789e5758c2abca7f2d31b2bda7b3d3c55c9e14d05830e0f3a"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/wear/far/v4/b9.png"
+sha256 = "7795485b44bd6199afd793020d356d0c9e1dd3dc2f42f2f325b612a9925e9c6c"
+made_from = "a450e9f09590c03fa5d0a803ea872eb331e8ad6388e4566b2f51c9702698a5dc"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/wear/far/v4/b10.png"
+sha256 = "4f38c9f02c0468787bc7c9649f4d412b4366e01dfef5f17db95c7d7662f6a901"
+made_from = "7795485b44bd6199afd793020d356d0c9e1dd3dc2f42f2f325b612a9925e9c6c"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/wear/far/v4/b11.png"
+sha256 = "b2b1473e450902f7aa7f20b173127c37c44d6427bdcffa81885e1f0d8f7f91e4"
+made_from = "4f38c9f02c0468787bc7c9649f4d412b4366e01dfef5f17db95c7d7662f6a901"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/wear/far/v4/b12.png"
+sha256 = "9802ae1238962a2d1cbddf5fdaf011ca2383eb02d9d9a5414a27aa0791cd8dc2"
+made_from = "b2b1473e450902f7aa7f20b173127c37c44d6427bdcffa81885e1f0d8f7f91e4"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

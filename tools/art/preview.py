@@ -4,14 +4,17 @@ camera's left shoulder or ahead of it. The ground is composed in numpy from the 
 picking one of its versions by a hash of its place (A5.3), and drawn by Blender (blender_scene.py).
 
     python3 tools/art/preview.py ground <name> <out folder> [--bands 0 1 ...] [--sun behind|ahead] [--samples N]
+                                       [--beside <other material>]
+    python3 tools/art/preview.py wall <material> <out folder> [--ground <name>] [--bands ...] [--sun behind|ahead]
     python3 tools/art/preview.py water <bed> <out folder> [--marks <marks>] [--depth m] [--bands ...]
     python3 tools/art/preview.py part <recipe> <out folder> [--ground <name>] [--forms <part>...] [--turn <degrees>]
                                       [--bands ...]
 
-`water` draws a river of one depth: the bed tinted by the water over it and the marks' picture on top. `part` lays a
-recipe's parts (art/models/<recipe>/record.toml) on a ground, each role wearing its texture; a recipe with a ring, a
-span or a plug is put together in Blender by the assembler's rules, with the preview's own strays. `--light` and
-`--water` try other numbers for the light and the water without touching the tuning.
+`wall` lays a material on a vertical wall (a cliff's face) with a ground below it. `water` draws a river of one depth:
+the bed tinted by the water over it and the marks' picture on top. `part` lays a recipe's parts
+(art/models/<recipe>/record.toml) on a ground, each role wearing its texture; a recipe with a ring, a span or a plug is
+put together in Blender by the assembler's rules, with the preview's own strays. `--light` and `--water` try other
+numbers for the light and the water without touching the tuning.
 
 Needs Blender (BLENDER sets its path) and writes <out folder>/<name>-band<k>-<sun>.png for each band asked for.
 Implements PRE-20, PRE-22, PRE-26 and PRE-46, see A4.2, A4.5, A5.3 and A8.4.
@@ -165,14 +168,26 @@ def scene_config(out, sun, samples, change=None):
     }
 
 
-def ground_view(name, band, sun, out_folder, samples=24, change=None, suffix=""):
-    """One band's view of a material's ground; returns the picture's path."""
+def ground_view(name, band, sun, out_folder, samples=24, change=None, suffix="", beside=None):
+    """One band's view of a material's ground; returns the picture's path. With `beside` (another material's name) the
+    frame is a chessboard of the two, each in two of its four quarters, so the joins between them and what each looks
+    like beside the other show."""
     available = textures.read_set(name)
     tile, level = tile_for_band(available, band)
     mpp = BAND0_MPP * (2**band)
     box = footprint(mpp, margin=2 * (2**band) / 64.0)
     versions = [levels for levels in available[tile]]
     picture, covers = compose(versions, level, textures.TILES[tile][1], box)
+    if beside:
+        other_set = textures.read_set(beside)
+        other_tile, other_level = tile_for_band(other_set, band)
+        other, _ = compose(other_set[other_tile], other_level, textures.TILES[other_tile][1], box)
+        h, w = picture.shape[:2]
+        swap = np.zeros((h, w), bool)
+        swap[: h // 2, w // 2 :] = True
+        swap[h // 2 :, : w // 2] = True
+        picture = np.where(swap[..., None], other, picture)
+        name = f"{name}-beside-{beside}"
     os.makedirs(out_folder, exist_ok=True)
     scratch = os.path.join(out_folder, "scratch")
     os.makedirs(scratch, exist_ok=True)
@@ -182,6 +197,42 @@ def ground_view(name, band, sun, out_folder, samples=24, change=None, suffix="")
     config = scene_config(out, sun, samples, change)
     config["camera"] = {"distance": distance(mpp), "tilt": TILT, "lens": LENS}
     config["ground"] = {"picture": ground_png, "x0": covers[0], "x1": covers[1], "y0": covers[2], "y1": covers[3]}
+    render(config, scratch)
+    return out
+
+
+def wall_view(name, ground_name, band, sun, out_folder, samples=24, change=None, suffix=""):
+    """One band's view of a material laid on a wall, a cliff's face: a vertical wall standing on the frame's middle
+    line, facing the camera, its tiles laid as the ground's are (each cell taking a version by its place) over metres
+    east and up, with the ground below it (`ground_name`'s material, the meadow by default), under the engine's light.
+    Returns the picture's path."""
+    available = textures.read_set(name)
+    tile, level = tile_for_band(available, band)
+    mpp = BAND0_MPP * (2**band)
+    box = footprint(mpp, margin=2 * (2**band) / 64.0)
+    height = 1.25 * (SIZE[1] / 2.0) * mpp / math.cos(math.radians(TILT))
+    face, covers = compose(available[tile], level, textures.TILES[tile][1], (box[0], box[1], 0.0, height))
+    ground_set = textures.read_set(ground_name)
+    ground_tile, ground_level = tile_for_band(ground_set, band)
+    floor, floor_covers = compose(ground_set[ground_tile], ground_level, textures.TILES[ground_tile][1], box)
+    os.makedirs(out_folder, exist_ok=True)
+    scratch = os.path.join(out_folder, "scratch")
+    os.makedirs(scratch, exist_ok=True)
+    wall_png = os.path.join(scratch, f"{name}-wall-band{band}.png")
+    ground_png = os.path.join(scratch, f"{ground_name}-ground-band{band}.png")
+    tiles.write_png(wall_png, face)
+    tiles.write_png(ground_png, floor)
+    out = os.path.join(out_folder, f"{name}-wall-band{band}-{sun}{suffix}.png")
+    config = scene_config(out, sun, samples, change)
+    config["camera"] = {"distance": distance(mpp), "tilt": TILT, "lens": LENS}
+    config["ground"] = {
+        "picture": ground_png,
+        "x0": floor_covers[0],
+        "x1": floor_covers[1],
+        "y0": floor_covers[2],
+        "y1": floor_covers[3],
+    }
+    config["wall"] = {"picture": wall_png, "x0": covers[0], "x1": covers[1], "z0": 0.0, "z1": covers[3]}
     render(config, scratch)
     return out
 
@@ -333,8 +384,9 @@ def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=Non
 
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("what", choices=["ground", "water", "part"])
+    ap.add_argument("what", choices=["ground", "water", "part", "wall"])
     ap.add_argument("--ground", default="meadow", help="the ground a part lies on (part)")
+    ap.add_argument("--beside", default=None, help="another material to lay beside this one in a chessboard (ground)")
     ap.add_argument("--forms", nargs="*", default=None, help="the parts to lay instead of the recipe's own (part)")
     ap.add_argument("name", help="the material; for water, the bed's, with --marks the marks'")
     ap.add_argument("out")
@@ -390,8 +442,10 @@ def main(argv):
                     args.turn,
                 )
             )
+        elif args.what == "wall":
+            print(wall_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix))
         else:
-            print(ground_view(args.name, band, args.sun, args.out, args.samples, change, suffix))
+            print(ground_view(args.name, band, args.sun, args.out, args.samples, change, suffix, args.beside))
     return 0
 
 

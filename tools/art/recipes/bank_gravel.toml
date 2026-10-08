@@ -1,0 +1,79 @@
+# The bank gravel's textures (catalogue 1.4): what tools/art/make_tiles.py reads to make art/textures/bank_gravel/ from
+# the pictures kept in art/sources/bank_gravel/. The rounded stones along the water, from a pea to a fist, packed with
+# sand. Nothing here is random: the same recipe gives the same bytes.
+name = "bank_gravel"
+about = "river-bank gravel: rounded stones from a pea to a fist packed with sand, drifts of pale sand between (bigger stones are pieces of their own)"
+seed = 1402
+reference = "near"
+# every tile is moved to the colour of the sheet's own near tile, so the mean is the signed-off sheet's
+colour_from = "art/sources/bank_gravel/near-sheet.webp"
+how = "drawn by the artist in conversation with the art lane, judged in the game's view against sheet 1.4's camera views, and put on the texture-pixel grid by code"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; rounded stones, gravel and sand only, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+# The near tile: two drawings from the image tool, cells of about 4 picture pixels (snap), each larger than a tile and
+# wrapping nowhere; big pebbles are cut along their dark rims by an overlap wider than a rim's gap. The ring is cut
+# anywhere that is typical of the ground (join_weight 0), and its broad tone flattened, so no tile edge shows as a line.
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 32
+patch = 112
+flatten = 16
+join_weight = 0
+serves = 2
+snap = 4
+# A4.8 asks for accents of about 20 on the screen; the sheet's camera view scores 20.1 and the game's frame of the
+# drawings 15.9, so the contrast is raised a quarter
+boost = 125
+sheet = "art/sources/bank_gravel/near-A.webp"
+extra = ["art/sources/bank_gravel/near-B.webp"]
+requests = ["art/requests/bank_gravel/turn-01.txt"]
+
+[[tile.level]]
+level = 1
+boost = 125
+
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+flatten = 16
+join_weight = 0
+serves = 2
+snap = 4
+boost = 160
+sheet = "art/sources/bank_gravel/middle-A.webp"
+extra = ["art/sources/bank_gravel/middle-B.webp"]
+requests = ["art/requests/bank_gravel/turn-01.txt"]
+
+[[tile.level]]
+level = 1
+boost = 160
+
+# The far tile goes on from the middle tile's ladder (a mosaic of its versions at their level 2), so band 4 follows
+# band 3 and nothing in it repeats as a swathe; its contrast is raised to keep the accents of the bands above.
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 24
+patch = 64
+flatten = 32
+serves = 3
+coarse_of = "middle"
+coarse_level = 2
+boost = 185
+
+[[tile.level]]
+level = 1
+contrast = 106
+boost = 185
+
+[[tile.level]]
+level = 2
+contrast = 104
+boost = 185

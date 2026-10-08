@@ -164,6 +164,36 @@ class Drawings(unittest.TestCase):
         self.assertLessEqual(abs(texels.shape[0] - small.shape[0]), 1)
         self.assertGreater((texels[:40, :40] == small[1:41, 1:41]).all(axis=2).mean(), 0.97)
 
+    # checks: PRE-20
+    def test_a_drawing_with_a_cell_count_is_cut_in_that_many_even_cells(self):
+        small, big = self.drawn(cells=48)
+        texels, loss = tiles.snap(big, 4, cells=48)
+        self.assertEqual(texels.shape, small.shape)
+        # the cells the tool made are a pixel wider or narrower now and then, so a few of them are a little off
+        self.assertGreater((texels == small).all(axis=2).mean(), 0.9)
+        self.assertLess(loss, 0.1)
+        half, _ = tiles.snap(big, 4, cells=24)
+        self.assertEqual(half.shape[:2], (24, 24))
+
+    # checks: PRE-22 PRE-46
+    def test_a_join_weight_makes_the_cut_keep_clear_of_a_hard_crack_and_nothing_less_does(self):
+        t = grass(64, 3).copy()
+        t[:, 30] = 255  # a crack down every row, two columns wide, black beside white
+        t[:, 31] = 0
+        across = np.abs(t.astype(float) - np.roll(t.astype(float), -1, axis=1)).sum(axis=2)
+        columns = across.mean(axis=0) / across.mean()  # how hard each column jumps to the next
+        cracked = (-33 - 1) % 64  # the shift that puts the cut across the crack
+        self.assertGreater(columns[cracked], 10.0)
+        heavy = tiles._ring_scorer(t, 4, 12, 0.07, 3.0)
+        none = tiles._ring_scorer(t, 4, 12, 0.07, 0.0)
+        self.assertGreater(heavy(0, 33) - heavy(0, 10), none(0, 33) - none(0, 10) + 30.0)
+        dy, dx = tiles.neutral_shift(t, 4, step=1, join_weight=3.0)
+        self.assertLess(columns[(-dx - 1) % 64], 1.0, "the cut does not run across the crack")
+        # open versions made with no weight are still shared at the ring and have no seam
+        versions = tiles.make_versions_open([grass(120, 4)], 3, 4, 8, 32, 9, 96, join_weight=0.0)
+        self.assertTrue(tiles.shares_ring(versions, 4))
+        self.assertEqual(tiles.inner_seams(versions[1]), [])
+
     # checks: PRE-22
     def test_the_four_corners_of_a_frame_are_neighbours_in_the_picture(self):
         n, o = 64, 8
@@ -191,6 +221,38 @@ class Drawings(unittest.TestCase):
             self.assertEqual(tiles.inner_seams(v), [])
         worst = max(tiles.join_ratio(a, b) for a in versions for b in versions)
         self.assertLess(worst, 1.2)
+
+    # checks: PRE-20 PRE-22
+    def test_a_drawing_that_wraps_is_one_tile_with_a_shift_not_a_quilt_from_a_bigger_picture(self):
+        import make_tiles
+
+        spec = {"snap": 4, "wraps": True, "versions": 3, "ring": 4, "overlap": 8, "patch": 32, "serves": 1}
+        chains, _, shift, block, _ = make_tiles.make_tile(spec, None, 5, given=(grass(64, 6), 4, 0.0))
+        self.assertIsNotNone(shift, "a wrapping drawing is shifted round its wrap, as any wrapping tile is")
+        self.assertEqual(block, 4)
+        self.assertEqual(chains[0][0].shape, (64, 64, 3))
+        self.assertTrue(tiles.shares_ring([c[0] for c in chains], 4))
+        for c in chains:
+            self.assertLessEqual(tiles.wrap_ratio(c[0]), 1.2)
+        _, _, open_shift, _, _ = make_tiles.make_tile(
+            {**spec, "wraps": False, "texels": 48}, None, 5, given=(grass(96, 6), 4, 0.0)
+        )
+        self.assertIsNone(open_shift, "a drawing that does not wrap is quilted from, with no shift")
+
+    # checks: PRE-22 PRE-46
+    def test_a_flattened_ring_of_open_versions_is_at_the_tiles_mean_and_still_shared(self):
+        swell = np.sin(np.arange(120) / 9.0)[None, :, None] * 40.0  # a swathe of tone across the drawing's columns
+        pictures = [np.clip(grass(120, 4).astype(float) + swell, 0, 255).astype(np.uint8)]
+        plain = tiles.make_versions_open(pictures, 3, 4, 8, 32, 9, 96)
+        flat = tiles.make_versions_open(pictures, 3, 4, 8, 32, 9, 96, flatten=16)
+        self.assertTrue(tiles.shares_ring(flat, 4))
+
+        def ring_tone(v):
+            columns = v.astype(float).mean(axis=(0, 2))
+            return abs(columns[:4].mean() - columns.mean())
+
+        self.assertLess(ring_tone(flat[1]), ring_tone(plain[1]) + 1e-9)
+        self.assertLess(ring_tone(flat[1]), 1.5)
 
 
 class Seams(unittest.TestCase):

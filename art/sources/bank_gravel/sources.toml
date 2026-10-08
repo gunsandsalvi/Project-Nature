@@ -1,0 +1,37 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["far-sheet.webp"]
+sha256 = "3378722c408c89ee5db0543862ae3782f9123b52cb06d79b364c553a3950c6b8"
+c2pa = "absent"
+note = "the far tile of sheet 1.4 (signed off 7 October 2026), 1024 x 1024 pixels as the image tool returned it in the catalogue's conversation, on no exact grid; kept for its colour"
+
+["middle-A.webp"]
+sha256 = "6fac9941d2e87819b68e03fbd343f59bdb040fca28a84d636ada78baa133a8a1"
+c2pa = "present"
+note = "the picture the image tool returned for middle tile A of the bank gravel in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 5 pixels that wraps nowhere)"
+
+["middle-B.webp"]
+sha256 = "be1a83d059c9bd91aabfe211f32d95a920fe290715729f705e18004910d9d95f"
+c2pa = "present"
+note = "the picture the image tool returned for middle tile B of the bank gravel in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 5 pixels that wraps nowhere)"
+
+["middle-sheet.webp"]
+sha256 = "d6b3fa201805bd9efd03450212016b5d92e6b7165a673d49e94fd725dfaebd1d"
+c2pa = "absent"
+note = "the middle tile of sheet 1.4 (signed off 7 October 2026), 1024 x 1024 pixels as the image tool returned it in the catalogue's conversation, on no exact grid; kept for its colour"
+
+["near-A.webp"]
+sha256 = "e1256e46042e7e49842e8f53361b18a515faaa54ad16b585b7ce98b11813bbb9"
+c2pa = "present"
+note = "the picture the image tool returned for near tile A of the bank gravel in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 5 pixels that wraps nowhere)"
+
+["near-B.webp"]
+sha256 = "80636a942ad1b0a5147b4d16570415d30d7ac94e03f1b21bd3238991e21d8092"
+c2pa = "present"
+note = "the picture the image tool returned for near tile B of the bank gravel in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 5 pixels that wraps nowhere)"
+
+["near-sheet.webp"]
+sha256 = "e4405d5086ed3f7500a96c7679425629fa12d5b83d674a170648e9671ff0fb81"
+c2pa = "absent"
+note = "the near tile of sheet 1.4 (signed off 7 October 2026), 1024 x 1024 pixels as the image tool returned it in the catalogue's conversation, on no exact grid; kept for its colour"
