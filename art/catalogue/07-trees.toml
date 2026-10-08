@@ -13,16 +13,22 @@ what = "needle tree of dry northern woods"
 id = "spruce"
 name = "Spruce"
 what = "dark needle tree of the northern forest"
+sheet = "sheets/7.2-spruce.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "larch"
 name = "Larch"
 what = "needle tree that turns gold and bare in autumn"
+sheet = "sheets/7.3-larch.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "juniper"
 name = "Juniper"
 what = "low needle tree or bush of heaths and heights"
+sheet = "sheets/7.4-juniper.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "yew"
@@ -33,6 +39,8 @@ what = "dark poisonous needle tree, springy wood"
 id = "mountain_pine"
 name = "Mountain pine"
 what = "low twisted pine of the heights"
+sheet = "sheets/7.6-mountain_pine.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "birch"
