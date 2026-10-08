@@ -4,8 +4,9 @@ Run inside Blender, headless, as
 
     blender --background --factory-startup --python tools/art/parts_camp.py -- <out.blend> [<out.kdkit>]
 
-It makes the parts in memory, keeps them as a Blender file, and exports them as any family is (tools/blender/export.py),
-so the exporter's own checks (a part's name, its role slots, its joints) are made at once. Texture coordinates are in
+It makes the parts in memory (the club here, the hide tent's in tools/art/parts_tent.py), keeps them as a Blender
+file, and exports them as any family is (tools/blender/export.py), so the exporter's own checks (a part's name, its
+role slots, its joints) are made at once. Texture coordinates are in
 metres with a texture pixel 1/64 m at band 0, each wrap round a stick a whole number of texture pixels (A6.4); every
 part carries a baked crease. The lathe, the builder of faces and the joints are the stand-in family's own helpers
 (tools/blender/standins.py), written once. Implements PRE-46 and PRE-22.
@@ -28,7 +29,9 @@ import bpy
 from mathutils import Euler, Vector
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "blender"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import export  # noqa: E402
+import parts_tent  # noqa: E402
 from standins import Builder, joint, lathe  # noqa: E402
 
 # ---- the club ---------------------------------------------------------------------------------------------------
@@ -141,12 +144,18 @@ def club_part(name, segments, every, stubs):
 
 
 def make_family():
-    """Every part of the camp family, laid in a row in the file, which the exporter does not care about."""
+    """Every part of the camp family, laid in a row in the file, which the exporter does not care about: the club's
+    forms a metre apart, then the tent's parts (each modelled where it belongs in the tent) five metres apart."""
     parts = [club_part(name, *spec) for name, spec in CLUB_FORMS.items()]
     x = 0.0
     for obj in parts:
         obj.location = (x, 0.0, 0.0)
         x += 1.0
+    x = 6.0
+    for obj in parts_tent.make_parts():
+        obj.location = (x, 0.0, 0.0)
+        x += 6.0
+        parts.append(obj)
     return parts
 
 

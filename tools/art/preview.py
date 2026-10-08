@@ -5,10 +5,12 @@ picking one of its versions by a hash of its place (A5.3), and drawn by Blender 
 
     python3 tools/art/preview.py ground <name> <out folder> [--bands 0 1 ...] [--sun behind|ahead] [--samples N]
     python3 tools/art/preview.py water <bed> <out folder> [--marks <marks>] [--depth m] [--bands ...]
-    python3 tools/art/preview.py part <recipe> <out folder> [--ground <name>] [--forms <part>...] [--bands ...]
+    python3 tools/art/preview.py part <recipe> <out folder> [--ground <name>] [--forms <part>...] [--turn <degrees>]
+                                      [--bands ...]
 
 `water` draws a river of one depth: the bed tinted by the water over it and the marks' picture on top. `part` lays a
-recipe's root parts (art/models/<recipe>/record.toml) on a ground, each role wearing its texture. `--light` and
+recipe's parts (art/models/<recipe>/record.toml) on a ground, each role wearing its texture; a recipe with a ring, a
+span or a plug is put together in Blender by the assembler's rules, with the preview's own strays. `--light` and
 `--water` try other numbers for the light and the water without touching the tuning.
 
 Needs Blender (BLENDER sets its path) and writes <out folder>/<name>-band<k>-<sun>.png for each band asked for.
@@ -262,11 +264,24 @@ def metres_of(text):
     return float(value) * {"mm": 0.001, "cm": 0.01, "m": 1.0}[unit]
 
 
-def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=None, suffix="", forms=None):
-    """A recipe's root parts lying on a ground as the game shows them at a band: the family's Blender file brought into
-    the scene, each role wearing its texture's level for the band (read nearest-pixel through the part's own texture
-    coordinates in metres), the part turned and lifted as the recipe's root place says; returns the picture's path.
-    Only root places are laid (a recipe with a ring, a span or a plug is put together by the engine)."""
+def place_in_metres(place):
+    """A recipe's placement for Blender: its lengths in metres ("1.75 m", "60 mm"), its shares as fractions ("12%"),
+    its angles as they are."""
+    out = dict(place)
+    for key, value in place.items():
+        if key in ("radius", "height", "base"):
+            out[key] = metres_of(value)
+        elif key in ("jitter_radius", "jitter_size"):
+            out[key] = float(value.rstrip("%")) / 100.0
+    return out
+
+
+def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=None, suffix="", forms=None, turn=0.0):
+    """A recipe's parts lying on a ground as the game shows them at a band: the family's Blender file brought into the
+    scene, each role wearing its texture's level for the band (read nearest-pixel through the part's own texture
+    coordinates in metres); returns the picture's path. A recipe of root places only has each part turned and lifted
+    as its place says, its middle over the focus; a recipe with a ring, a span or a plug is put together in Blender by
+    the engine assembler's own rules (blender_scene.assemble), the parts where the recipe puts them."""
     with open(os.path.join(textures.ROOT, "art", "models", recipe, "record.toml"), "rb") as f:
         record = tomllib.load(f)
     blend = os.path.join(textures.ROOT, "art", "models", record["family"] + ".blend")
@@ -280,11 +295,10 @@ def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=Non
             "metres": texture["tile_texels"] / texture["texels_a_metre"],
         }
     items = []
-    for place in record["place"]:
-        if place["rule"] != "root":
-            raise ValueError(
-                f"the place {place['name']} is laid by the engine's {place['rule']} rule, not previewed here"
-            )
+    put_together = any(place["rule"] != "root" for place in record["place"])
+    if put_together:  # the whole family comes in at the origin and the places are worked out in Blender
+        items.append({"file": blend, "at": [0.0, 0.0, 0.0]})
+    for place in [] if put_together else record["place"]:
         for part in forms or place["parts"]:
             items.append(
                 {
@@ -311,6 +325,8 @@ def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=Non
     config["ground"] = {"picture": ground_png, "x0": covers[0], "x1": covers[1], "y0": covers[2], "y1": covers[3]}
     config["roles"] = roles
     config["parts"] = items
+    if put_together:
+        config["assemble"] = {"places": [place_in_metres(place) for place in record["place"]], "turn": turn}
     render(config, scratch)
     return out
 
@@ -325,6 +341,9 @@ def main(argv):
     ap.add_argument("--marks", default="river_marks")
     ap.add_argument("--depth", type=float, default=0.5, help="the water's depth in metres (water)")
     ap.add_argument("--bands", type=int, nargs="*", default=[0])
+    ap.add_argument(
+        "--turn", type=float, default=0.0, help="degrees to turn a put-together thing about its middle (part)"
+    )
     ap.add_argument("--sun", choices=sorted(SUNS), default="behind")
     ap.add_argument("--samples", type=int, default=24)
     ap.add_argument(
@@ -356,7 +375,21 @@ def main(argv):
                 )
             )
         elif args.what == "part":
-            print(part_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix, args.forms))
+            suffix += f"-turn{args.turn:g}" if args.turn else ""
+            print(
+                part_view(
+                    args.name,
+                    args.ground,
+                    band,
+                    args.sun,
+                    args.out,
+                    args.samples,
+                    change,
+                    suffix,
+                    args.forms,
+                    args.turn,
+                )
+            )
         else:
             print(ground_view(args.name, band, args.sun, args.out, args.samples, change, suffix))
     return 0

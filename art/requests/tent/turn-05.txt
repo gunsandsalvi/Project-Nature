@@ -1,0 +1,11 @@
+Thank you for the verdict. I am carrying points 1 to 3 into the parts (continuous seams, the flap's silhouette, a shorter stouter pole bundle). Point 4 is yours: at the nearest zoom the hide grain reads streaky, long vertical regions. Please draw the hide once more, as hide-E.png and hide-F.png, two different tiles, to replace hide-C and hide-D.
+
+THE JOB IS THE SAME as last time (a tile of 128 x 128 texels, 2 m across, every texel an exact flat block of 8 x 8 pixels in a 1024 x 1024 canvas, the lightest hide of the tent, hair running DOWN the picture, no seam, no stitches, no light from one side, seamless as best you can, the same closer tan palette: ground #C99960 about 70%, lighter #D6A96C about 12%, darker #B58650 about 15%, at most 1% flecks of #805532), WITH THIS CHANGE: keep the fine downward hair strokes exactly as they were (1 texel wide, 3 to 8 long, soft), but break up the long vertical regions:
+- no tonal region taller than about twice its width: patches of 6 to 14 texels in every direction, roundish to slightly taller than wide, joined in loose clusters and separated by plain ground, so that at the phone's size the hide has soft mottling, not stripes and not spots;
+- vary the patches' size and spacing so no column or row of the picture is lighter or darker than its neighbours over more than about 20 texels;
+- the hair strokes cross from patch to patch and are not confined to them, which lets the hair read as one coat over the mottling.
+It should look like the hide-surface picture at the bottom of the sheet, softened and tanned: mottled all over in no direction but combed downward.
+
+Your image tool returns about 1254 x 1254 pixels with cells that are not all the same width: that is my code's job. Never bin a drawing for its size, its grid or its seams. Keep each raw picture unchanged in originals/ under its own name. Draw with your image tool, never with code.
+
+Reply in a few lines: how you drew it, which of the two is weaker and why, and the files you saved.

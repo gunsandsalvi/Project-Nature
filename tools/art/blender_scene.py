@@ -11,10 +11,12 @@ bring in with where each stands. Implements PRE-20, PRE-22 and PRE-46, see A4.2 
 
 import json
 import math
+import random
+import re
 import sys
 
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 
 def argument():
@@ -148,6 +150,101 @@ def parts(cfg):
                     o.location = Vector(o.location) - Vector((middle.x - o.location.x, middle.y - o.location.y, 0.0))
 
 
+def joint_frame(part, name):
+    """A joint of a part in the part's own metres (parts() leaves the part at the origin, unturned): its matrix, or the
+    part's own origin and axes for no joint."""
+    if not name:
+        return Matrix.Identity(4)
+    for child in part.children:
+        if child.type == "EMPTY" and re.sub(r"\.\d{3}$", "", child.name) == "joint_" + name:
+            return child.matrix_world.copy()
+    raise ValueError(f"the part {part.name} has no joint {name}")
+
+
+def squared(matrix):
+    """The three axes of a frame made square again: its first and second kept, the third across them."""
+    m = matrix.to_3x3()
+    x = m.col[0].normalized()
+    z = x.cross(m.col[1]).normalized()
+    return Matrix((x, z.cross(x), z)).transposed()
+
+
+def carrying(linear, origin, place):
+    """The matrix that takes a part's metres to the thing's: the part's point `origin` goes to `place`, the part turned
+    (and stretched) by `linear` about it."""
+    return Matrix.Translation(place) @ linear.to_4x4() @ Matrix.Translation(-origin)
+
+
+def assemble(cfg):
+    """A recipe's places put together as the engine's assembler does (view/src/kit_assemble.cpp, A6.1) in Blender's
+    axes (x east, y north, z up). The strays and the choices between a place's parts come from this preview's own dice,
+    since the engine's cannot be asked, so the picture is a thing the recipe makes, not the seed's own. The parts,
+    brought in by parts() at the origin, are hidden and every placed copy shares their meshes and so their role
+    materials."""
+    dice = random.Random(cfg["assemble"].get("seed", 1))
+
+    def either():
+        return dice.uniform(-1.0, 1.0)
+
+    bpy.context.view_layer.update()
+    originals = {o.name: o for o in bpy.data.objects if o.type == "MESH" and o.parent is None and o.name != "ground"}
+    about = Matrix.Rotation(math.radians(cfg["assemble"].get("turn", 0.0)), 4, "Z")  # the whole thing turned
+    placed = {}
+    for place in cfg["assemble"]["places"]:
+        rule, name = place["rule"], place["name"]
+        turn = math.radians(place.get("turn", 0.0))
+        face = place.get("face", 0.0)
+        if rule == "plug":
+            onto, _, target_joint = place["onto"].partition(".")
+            count = len(placed[onto])
+        else:
+            count = place.get("count", 1) if rule != "root" else 1
+        copies = []
+        for k in range(count):
+            part = originals[dice.choice(place["parts"])]
+            own = joint_frame(part, place.get("joint", ""))
+            at = own.translation
+            lift = place.get("height", 0.0)
+            if rule == "root":
+                linear = Matrix.Rotation(-turn, 3, "Z") @ Matrix.Rotation(math.radians(place.get("tilt", 0.0)), 3, "X")
+                matrix = carrying(linear, at, Vector((0.0, 0.0, lift)))
+            elif rule == "plug":
+                frame = placed[onto][k]["matrix"] @ joint_frame(placed[onto][k]["part"], target_joint)
+                axes = squared(frame)
+                linear = axes @ Matrix.Rotation(-turn, 3, "Z") @ squared(own).transposed()
+                matrix = carrying(linear, at, frame.translation + axes.col[2] * lift)
+            else:
+                azimuth = math.radians(
+                    place.get("turn", 0.0) + 360.0 * k / count + place.get("jitter_turn", 0.0) * either()
+                )
+                r = place["radius"] * (1.0 + place.get("jitter_radius", 0.0) * either())
+                on_circle = Vector((r * math.sin(azimuth), r * math.cos(azimuth), place.get("base", 0.0)))
+                if rule == "ring":
+                    linear = Matrix.Rotation(-(azimuth + math.radians(face)), 3, "Z")
+                else:
+                    along = joint_frame(part, place["to_joint"]).translation - at
+                    span = Vector((0.0, 0.0, lift)) - on_circle
+                    thick = 1.0 + place.get("jitter_size", 0.0) * either()
+                    axis, heading = along.normalized(), span.normalized()
+                    stretch = span.length / along.length
+                    shape = Matrix(
+                        [
+                            [(thick if i == j else 0.0) + (stretch - thick) * axis[i] * axis[j] for j in range(3)]
+                            for i in range(3)
+                        ]
+                    )
+                    roll = Matrix.Rotation(math.radians(face + place.get("jitter_turn", 0.0) * either()), 3, heading)
+                    linear = roll @ axis.rotation_difference(heading).to_matrix() @ shape
+                matrix = carrying(linear, at, on_circle)
+            copy = bpy.data.objects.new(f"{name}.{k}", part.data)
+            copy.matrix_world = about @ matrix
+            bpy.context.scene.collection.objects.link(copy)
+            copies.append({"matrix": matrix, "part": part})
+        placed[name] = copies
+    for o in originals.values():
+        o.hide_render = True
+
+
 def main():
     cfg = argument()
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -167,6 +264,8 @@ def main():
     if "ground" in cfg:
         ground(cfg)
     parts(cfg)
+    if "assemble" in cfg:
+        assemble(cfg)
     camera(cfg)
     light(cfg)
     scene.render.filepath = cfg["out"]

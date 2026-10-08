@@ -1,0 +1,22 @@
+Thank you: your hide, strip and stone drawings are in. I put your two hide drawings through my quilting (so no tile is either drawing, and the tile wraps), laid your strip down the first 4 columns of the hide tile, made the tent's eleven hides, ten poles, lashing, flap and 24 stones in Blender, and drew the tent as the game does. The engine's light has also just changed (a warm low sun, a cool sky fill), so what you see is the real thing at the real size.
+
+PICTURE 1 (tent-in-game-v2.png): the tent on the meadow at the phone's scale (a texel about 2 x 2 pixels, 128 pixels a metre), the sun behind the camera's left shoulder on the left, the sun ahead (the tent seen against the light) on the right. Your hide tile is on every hide; each hide wears it darker or lighter by the part (the tones you asked for), and the flap is the light hide on the darker door hide.
+PICTURE 2 (from-above-even-light.png): the cover from above in even light, so the eleven hides and their tones read without any sun.
+
+WHAT I NEED THIS TURN
+
+1. YOUR VERDICT. Looking at picture 1 against the sheet's "game's camera" row and its "true size" row: what reads wrong, ranked, at most seven short points. Do not judge the colour of the light (that is the engine's); judge the hides, the seams, the door, the flap, the poles' tips, the stones, and whether the hide reads as a hide or as a spotted print. Say what you would change in the drawn textures and what you would change in the shapes.
+
+2. THE SEAMS ARE TOO HEAVY. At this size the strip makes a thick dark ladder along every seam; the sheet's seam is a thin dark line with small pale stitches across it. Draw hide-strip-2.png the same way as hide-strip.png (a canvas of 64 x 64 texels, each texel an exact flat block of 16 x 16 pixels, only the first 4 texel columns matter, the rest plain hide ground #C99960), but lighter and sparser:
+- the pattern repeats every 8 texels downward (not 4);
+- column 0 is a single dark texel line (#563A25) in every row, the seam's own edge; column 1 is the mid hide #AA7848; columns 2 and 3 plain hide (#C99960);
+- one stitch per repeat: a pale thong (#E0B578) ONE texel tall and THREE wide over columns 0 to 2 (the neighbouring hide's strip mirrors it, so with it the stitch is 6 texels, about 9 cm); end the stitch at column 2 with no dark dot at column 3 unless you think the dot helps; you may drop it.
+It is your drawing: if a different stitch reads better at 2 x 2 pixels a texel (a shorter one, a two-texel gap, a knot), draw that and say why. Keep it to 4 columns and the 8-row repeat.
+
+3. THE STONES IN SHADE GO BLUE. In picture 1 (right) the stones on the shaded side of the tent look blue-grey, as if painted blue, because the engine's sky fill is cool and the stone is a cool grey. Draw stone-C.png and stone-D.png, the same job as stone-A and stone-B (64 x 64 texels, 16 x 16 pixel texels in a 1024 canvas, speckles and a few veins, quiet), in a WARM neutral grey that stays grey when the fill tints it: ground #8E8A7E (about 60%), light speckles #A8A497 (about 20%), dark speckles #6A675D (about 15%), and fewer, shorter veins than before (a few of 3 to 6 texels). Nothing blue or green in them.
+
+4. THE HIDE. Do not redraw it. Only say, in a sentence or two, what you would change in it if it reads as a spotted print at this size (bigger or fewer dapples, less contrast, more hair), so that I can decide whether to ask you for another pair.
+
+Your image tool returns about 1254 x 1254 pixels with cells that are not all the same width: that is my code's job. Never bin a drawing for its size, its grid or its seams. Keep each raw picture unchanged in originals/ under its own name and say which is which. Draw with your image tool, never with code.
+
+Reply in a few lines: the verdict (point 1), why you drew the strip the way you did, what you would change in the hide, and the files you saved.

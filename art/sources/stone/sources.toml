@@ -1,0 +1,22 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["stone-A.webp"]
+sha256 = "f7d9dd2f77bc1bfde95c1e261a0015d288b4704ae96de8aa8dbb05ce329705d9"
+c2pa = "present"
+note = "the picture the image tool returned for stone tile A in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 17.5 pixels that wraps nowhere; grey speckles and short veins)"
+
+["stone-B.webp"]
+sha256 = "8c5d7085d18efbcf0b6eccc5517e806c76b77f60960ccd7601c7b7f03348c15c"
+c2pa = "present"
+note = "the picture the image tool returned for stone tile B in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 17.5 pixels that wraps nowhere; grey speckles and short veins)"
+
+["stone-C.webp"]
+sha256 = "78a1294d47e5f9b280af4a1990b9431db8004718782621c47c1fbaf7e71c8237"
+c2pa = "present"
+note = "the picture the image tool returned for the warm-grey stone tile C in turn 2, unchanged (1254 x 1254 pixels, pixel art in cells of about 9 pixels that wraps nowhere; sparse speckles and a few short veins)"
+
+["stone-D.webp"]
+sha256 = "d871653ec8f6985c439327296a2690c31e3514cb60684e674319b06996975340"
+c2pa = "present"
+note = "the picture the image tool returned for the warm-grey stone tile D in turn 2, unchanged (1254 x 1254 pixels, pixel art in cells of about 9 pixels that wraps nowhere; sparse speckles and a few short veins)"
