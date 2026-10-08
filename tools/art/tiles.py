@@ -562,17 +562,18 @@ def boost(level, percent, pivot):
     return np.clip(np.rint(out), 0, 255).astype(np.uint8)
 
 
-def calm_field(n, seed, calm, edge, ramp, busy=None, waves=14, nearest=1, farthest=8):
+def calm_field(n, seed, calm, edge, ramp, busy=None, waves=16, nearest=3, farthest=10):
     """How much of a level's contrast each place of an `n` x `n` tile keeps (a number a little over or under 1), for a
     far ground whose marks would otherwise be an even grain over everything: a sum of `waves` swells of whole numbers
     of cycles across the tile (so that it wraps), their directions all over the compass, their lengths between
-    `nearest` and `farthest` cycles across and the longer ones the stronger, so that blotches of many sizes lie
-    together and none repeats, and not stripes; running from `calm` (the calm places, less contrast) up to `busy` (the
-    busy ones, more; 2 - `calm` if not said, which makes the average 1), so a tile's accents are grouped, with quiet
-    ground between the groups. Next to the tile's border it is 1, exactly so within `edge` of it (a share of the
-    tile's width: the ring the versions share, which a field of its own for each version must leave alone) and coming
-    to its own over `ramp` more, so no version's border is unlike another's and no line of busy ground lies along a
-    join. Each seed makes another field."""
+    `nearest` and `farthest` cycles across (none longer than a third of the tile, since a long swell would set a
+    rhythm that comes round with the tile, and the shorter ones nearly as strong as the longer), so that blotches of
+    many sizes lie together and none repeats, and not stripes; running from `calm` (the calm places, less contrast) up
+    to `busy` (the busy ones, more; 2 - `calm` if not said, which makes the average 1), so a tile's accents are
+    grouped, with quiet ground between the groups. Next to the tile's border it is 1, exactly so within `edge` of it
+    (a share of the tile's width: the ring the versions share, which a field of its own for each version must leave
+    alone) and coming to its own over `ramp` more, so no version's border is unlike another's and no line of busy
+    ground lies along a join. Each seed makes another field."""
     busy = 2.0 - calm if busy is None else busy
     chance = Chance(seed)
     u = (np.arange(n) + 0.5) / n
@@ -586,7 +587,7 @@ def calm_field(n, seed, calm, edge, ramp, busy=None, waves=14, nearest=1, farthe
             if nearest <= (fx * fx + fy * fy) ** 0.5 <= farthest:
                 break
         phase = 2.0 * np.pi * chance.below(1000) / 1000.0
-        amp = (fx * fx + fy * fy) ** -0.4  # the longer swells the stronger
+        amp = (fx * fx + fy * fy) ** -0.2  # the longer swells a little the stronger
         total += amp * np.sin(2.0 * np.pi * (fx * grid_u + fy * grid_v) + phase)
         power += amp * amp
     swell = np.tanh(0.9 * total / power**0.5)  # between -1 and 1, the change from calm to busy gentle
