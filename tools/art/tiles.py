@@ -562,6 +562,49 @@ def boost(level, percent, pivot):
     return np.clip(np.rint(out), 0, 255).astype(np.uint8)
 
 
+def calm_field(n, seed, calm, edge, ramp, busy=None, waves=14, nearest=1, farthest=8):
+    """How much of a level's contrast each place of an `n` x `n` tile keeps (a number a little over or under 1), for a
+    far ground whose marks would otherwise be an even grain over everything: a sum of `waves` swells of whole numbers
+    of cycles across the tile (so that it wraps), their directions all over the compass, their lengths between
+    `nearest` and `farthest` cycles across and the longer ones the stronger, so that blotches of many sizes lie
+    together and none repeats, and not stripes; running from `calm` (the calm places, less contrast) up to `busy` (the
+    busy ones, more; 2 - `calm` if not said, which makes the average 1), so a tile's accents are grouped, with quiet
+    ground between the groups. Next to the tile's border it is 1, exactly so within `edge` of it (a share of the
+    tile's width: the ring the versions share, which a field of its own for each version must leave alone) and coming
+    to its own over `ramp` more, so no version's border is unlike another's and no line of busy ground lies along a
+    join. Each seed makes another field."""
+    busy = 2.0 - calm if busy is None else busy
+    chance = Chance(seed)
+    u = (np.arange(n) + 0.5) / n
+    grid_u, grid_v = np.meshgrid(u, u)
+    total = np.zeros((n, n))
+    power = 0.0
+    for _ in range(waves):
+        while True:  # a whole-number wave vector of the wanted length, any way round
+            fx = int(chance.below(2 * farthest + 1)) - farthest
+            fy = int(chance.below(2 * farthest + 1)) - farthest
+            if nearest <= (fx * fx + fy * fy) ** 0.5 <= farthest:
+                break
+        phase = 2.0 * np.pi * chance.below(1000) / 1000.0
+        amp = (fx * fx + fy * fy) ** -0.4  # the longer swells the stronger
+        total += amp * np.sin(2.0 * np.pi * (fx * grid_u + fy * grid_v) + phase)
+        power += amp * amp
+    swell = np.tanh(0.9 * total / power**0.5)  # between -1 and 1, the change from calm to busy gentle
+    field = 1.0 + np.where(swell < 0.0, (1.0 - calm) * swell, (busy - 1.0) * swell)
+    distance = np.minimum(np.minimum(grid_u, 1.0 - grid_u), np.minimum(grid_v, 1.0 - grid_v))
+    lift = np.clip((distance - edge) / ramp, 0.0, 1.0)
+    lift = lift * lift * (3.0 - 2.0 * lift)  # smooth
+    return 1.0 + lift * (field - 1.0)
+
+
+def calmed(level, field, pivot):
+    """A level with its colours' distance from a fixed colour (the first version's mean) multiplied place by place by a
+    field (calm_field), so the contrast is grouped, with calm ground between."""
+    f = level.astype(np.float64)
+    p = np.asarray(pivot, np.float64)
+    return np.clip(np.rint(p + (f - p) * field[:, :, None]), 0, 255).astype(np.uint8)
+
+
 def seam_strip(texels, width, period):
     """The seam strip of a hide from a drawing of it: the first `width` columns of the drawing, a pattern that repeats
     every `period` rows (a running stitch), each place of the pattern the colour most of its repeats have, so a stray

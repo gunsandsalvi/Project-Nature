@@ -1,0 +1,15 @@
+Thank you for the earlier looks at the meadow. The engine's frames of the farthest bands (5 and 6, where the meadow is a fine grain over everything) showed a fault: the grain is nearly continuous and competes with the growth masses of the patch; the farthest meadow wants quieter intervals between grouped accents. I changed it by code, not by a new drawing. Please do not draw anything in this turn: do not use your image tool, only look at the pictures and answer in words.
+
+WHAT CHANGED
+The far tile's contrast is no longer even: each of its four versions has its own broad blotches of busy and calm ground (the busy ones at 170% of the grain's contrast, the calm ones at 30%, the average 100%, a blotch about 10 to 30 m across), the tile's border left alone so the versions still join without a seam. The accents of the frame (the colour difference of its most striking 1% of pixels) are no fewer: 23 at bands 4, 5 and 6, about what they were.
+
+THE PICTURES WITH THIS MESSAGE (the game's camera 37 degrees down, late afternoon)
+1. meadow-band5-behind.png: the meadow at band 5 (about 270 m across the screen), as the ground alone.
+2. crop-band5.png: the same, a stretch of it at its true size, one picture pixel to one screen pixel.
+
+WHAT I NEED, IN A FEW LINES
+- Does the far meadow now read as grouped accents with quiet ground between them, not as one even grain? Or are the blotches too regular, too strong, or like camouflage or a pattern that repeats?
+- Is it right for the far grass of a meadow seen from high up, or too patchy? What would you change: the contrast of the calm places, the size of the blotches, anything else?
+- Reply with at most three changes, the most important first. If it is good enough, say so plainly.
+
+Reply in a few lines. Do not draw; do not save any file.

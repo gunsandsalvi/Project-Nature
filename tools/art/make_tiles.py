@@ -20,10 +20,14 @@ how much the choice of its shared ring counts a smooth join: for a ground whose 
 set it to 0, or the ring is cut where no crack crosses and every tile edge shows as a calm line. A tile with a `strip`
 (a hide's) has the first `strip_width` columns of that drawing, a pattern of `strip_period` rows read from a drawing
 of `strip_cells` cells across, repeated down every version's first columns: the seam strip the hide's parts wear along
-their edges. A tile with a `snap` (the cells' size in picture pixels) is a drawing on no exact grid, whose cells are
-found (or, with `cells`, counted: that many across the whole picture); if the drawing is larger than a tile and does
-not wrap, its versions are quilted from it; if it is a wrapping picture of one tile (`wraps`), it is put on its cells
-and made versions of as any wrapping tile is (the signed-off sheets of the cliff's rock).
+their edges. A `calm` (percent) groups a tile's contrast: each version's contrast is multiplied by broad swells of its
+own, from that percent in the calm places to a `busy` percent in the busy (the rest of 200 if not said, so 1 on
+average), 1 at the border, so a far ground has quiet ground between its groups of marks and not an even grain
+(tiles.calm_field). A tile with a `snap` (the
+cells' size in picture pixels) is a drawing on no exact grid, whose cells are found (or, with `cells`, counted: that
+many across the whole picture); if the drawing is larger than a tile and does not wrap, its versions are quilted from
+it; if it is a wrapping picture of one tile (`wraps`), it is put on its cells and made versions of as any wrapping
+tile is (the signed-off sheets of the cliff's rock).
 
 Implements PRE-20, PRE-22 and PRE-46, see A5.3 and A5.4.
 """
@@ -256,6 +260,22 @@ def make_tile(spec, reference, seed, key=None, given=None):
                     f"then its colours' distance from the first version's mean made {percent}% of itself, "
                     "the same for every version"
                 )
+    if key is None and spec.get("calm"):  # each version's contrast grouped by a field of its own, calm between (A4.8)
+        calm = float(spec["calm"]) / 100.0
+        busy = float(spec["busy"]) / 100.0 if "busy" in spec else None
+        for j in range(len(levels)):
+            pivot = levels[j][0].reshape(-1, 3).mean(axis=0)
+            size = levels[j][0].shape[0]
+            edge, ramp = spec["ring"] / levels[0][0].shape[0], spec.get("calm_ramp", 24) / levels[0][0].shape[0]
+            levels[j] = [
+                tiles.calmed(v, tiles.calm_field(size, seed + 101 * (k + 1), calm, edge, ramp, busy), pivot)
+                for k, v in enumerate(levels[j])
+            ]
+            ways[j]["calibration"] = (ways[j].get("calibration", "") + "; " if ways[j].get("calibration") else "") + (
+                f"then its contrast grouped by blotches of its own for each version, from {spec['calm']:g}% in the "
+                f"calm places to {spec.get('busy', 200 - spec['calm']):g}% in the busy ones, the border left alone so "
+                "the ring stays shared"
+            )
     if key is not None:
         chains = [marks_chain([level[v] for level in levels], key, seed) for v in range(len(versions))]
     else:

@@ -75,15 +75,20 @@ serves = 3
 coarse_of = "middle"
 coarse_level = 2
 # the boosted middle ladder runs a little bolder than the near tile at these bands, so each level is brought back
-boost = 88
+boost = 100
+# and the grain, which at bands 5 and 6 covered everything evenly and competed with the growth masses of the patch, is
+# grouped: each version's contrast is multiplied by blotches of its own, of many sizes and gently changing, from 12% in
+# the calm places to 135% in the busy ones, so the accents are about as many but quiet ground lies between their groups
+calm = 12
+busy = 135
 
 # the coarser levels keep the accents of the level above (100 percent of what does)
 [[tile.level]]
 level = 1
 contrast = 100
-boost = 88
+boost = 100
 
 [[tile.level]]
 level = 2
 contrast = 100
-boost = 88
+boost = 100

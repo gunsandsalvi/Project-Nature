@@ -423,6 +423,53 @@ class Ladder(unittest.TestCase):
         self.assertEqual(tiles.inner_seams(boosted[1]), [])
 
 
+class Calm(unittest.TestCase):
+    """A far ground's contrast grouped by broad swells, calm ground between the groups."""
+
+    # checks: PRE-20 A4.8
+    def test_a_calm_field_is_one_on_average_between_calm_and_twice_less_calm_and_one_at_the_border(self):
+        field = tiles.calm_field(128, 5, 0.55, edge=4 / 256, ramp=24 / 256)
+        self.assertAlmostEqual(field[64, 64], field[64, 64])  # a field of numbers
+        self.assertGreaterEqual(field.min(), 0.55 - 1e-9)
+        self.assertLessEqual(field.max(), 1.45 + 1e-9)
+        self.assertLess(field.min(), 0.8, "there is calm ground")
+        self.assertGreater(field.max(), 1.2, "and busy ground")
+        self.assertAlmostEqual(float(field.mean()), 1.0, delta=0.15)
+        self.assertEqual(set(np.unique(field[:2])), {1.0}, "the ring is left alone")
+        self.assertEqual(set(np.unique(field[:, -2:])), {1.0})
+        np.testing.assert_array_equal(field, tiles.calm_field(128, 5, 0.55, edge=4 / 256, ramp=24 / 256))
+        self.assertFalse((field == tiles.calm_field(128, 6, 0.55, edge=4 / 256, ramp=24 / 256)).all())
+
+    # checks: PRE-20 PRE-22 A4.8
+    def test_each_version_calmed_by_a_field_of_its_own_keeps_the_ring_they_share_and_the_marks_between_them_differ(
+        self,
+    ):
+        versions, _ = tiles.make_versions(grass(128, 31), 3, 4, 8, 32, 9)
+        pivot = versions[0].reshape(-1, 3).mean(axis=0)
+        made = [
+            tiles.calmed(v, tiles.calm_field(128, 7 * (k + 1), 0.5, 4 / 128, 24 / 128), pivot)
+            for k, v in enumerate(versions)
+        ]
+        self.assertTrue(tiles.shares_ring(made, 4))
+        self.assertEqual(tiles.inner_seams(made[1]), [])
+        self.assertLess(tiles.wrap_ratio(made[2]), 1.2)
+        # the contrast of its patches is spread wider than before: it is grouped
+        spread = [
+            float(
+                np.abs(m.astype(float) - pivot).mean(axis=2)[32:96, 32:96].reshape(8, 8, 8, 8).mean(axis=(1, 3)).std()
+            )
+            for m in made
+        ]
+        plain = float(
+            np.abs(versions[1].astype(float) - pivot)
+            .mean(axis=2)[32:96, 32:96]
+            .reshape(8, 8, 8, 8)
+            .mean(axis=(1, 3))
+            .std()
+        )
+        self.assertGreater(min(spread), plain, "the contrast of its patches is less alike than it was")
+
+
 class Records(unittest.TestCase):
     FIELDS = {
         "about": 'a "quoted" thing',
