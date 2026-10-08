@@ -8,6 +8,8 @@ items = ["WLD-31", "PRE-46"]
 id = "hazel"
 name = "Hazel"
 what = "nuts and straight rods"
+sheet = "sheets/8.1-hazel.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "hawthorn"

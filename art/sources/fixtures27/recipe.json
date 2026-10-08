@@ -285,7 +285,7 @@
       "class": "sprite",
       "sheet": "art/catalogue/sheets/16.4-hide_tent_cone.webp",
       "design_approved": "7 October 2026",
-      "status": "neutral image-drawn hide tent; cleaned production candidate",
+      "status": "covered cone revision; traced materials and shape normals; independent family drawings",
       "measure": "across",
       "metres": 4.2,
       "height_m": 3.1,
@@ -342,6 +342,26 @@
         [
           "#E8DECA",
           8
+        ],
+        [
+          "#E0B578",
+          8
+        ],
+        [
+          "#C99960",
+          8
+        ],
+        [
+          "#AA7848",
+          8
+        ],
+        [
+          "#805532",
+          8
+        ],
+        [
+          "#563A25",
+          8
         ]
       ],
       "required_split": [
@@ -356,9 +376,9 @@
       "normal_shape": "cone",
       "authored_families": true,
       "sources": {
-        "near": "art/sources/fixtures27/neutral/tent-near-original.png",
-        "middle": "art/sources/fixtures27/neutral/tent-middle-original.png",
-        "far": "art/sources/fixtures27/neutral/tent-far-original.png"
+        "near": "art/sources/fixtures27/revision/tent-near-r2-v2-original.png",
+        "middle": "art/sources/fixtures27/revision/tent-middle-r2-original.png",
+        "far": "art/sources/fixtures27/revision/tent-far-r2-original.png"
       },
       "parts": {
         "hides": 11,
@@ -367,7 +387,10 @@
         "poles": 10,
         "hem_stones": 24,
         "door_flaps": 1
-      }
+      },
+      "quiet_colour_flecks": true,
+      "door_landmark_fit": true,
+      "cleanup_request": "art/requests/fixtures27/revision/dimension-fit.txt"
     },
     {
       "id": "meadow-v2",

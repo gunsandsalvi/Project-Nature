@@ -1,0 +1,9 @@
+PRE-20 PRE-22 PRE-27 PRE-44 PRE-46: calibration of existing image-drawn pixels.
+
+The originals remain unchanged and checked by provenance hashes. Size cleanup only resamples their pixels; it draws no colour, outline or replacement object.
+
+The covered tent's near aperture and attached flap share one landmark transform. Within reference-page x230..287/y410..492, the old top y424 fits to y432 while the floor stays y493. The physical aperture is 61 vertical pixels (1.2 m at 64 px/m and cos37) and 45 horizontal pixels (0.7 m). The same declared datums drive drawn-pixel resampling, traced material regions and flap normal geometry. All other colours and families retain their drawings.
+
+Proposal cells declare native heights and, for measured profiles, independent widths. Red-deer east/west profile fits 134 horizontal pixels (2.1 m), 97 projected tip-height pixels (1.9 m), and 61 shoulder-height pixels (1.2 m). Flat profile fits 134x122 pixels and the same independent shoulder/tip ratio. The overhead study fits 134 nose-to-rump pixels, 58 rack-span pixels and 35 body-width pixels. Measured source fractions are recorded per selected cell in designs.json; piecewise nearest-neighbour resizing fits those datums without adding colour.
+
+The proposal sheet shows a horizontal nose-to-rump gauge and separate projected upright shoulder/tip gauges. Its near/middle/far section is rebuilt at 128 screen pixels per metre so authored 64/16/4-family drawings appear at exactly 2x. These are pending owner design studies, not approved runtime frames.

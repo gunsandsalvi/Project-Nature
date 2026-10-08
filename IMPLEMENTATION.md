@@ -80,7 +80,7 @@ The catalogue counts all launch art, while the first six fixtures prove producti
 Its signed-off sheets remain the design standard after the 2D switch.
 New sheets and runtime work follow A5.3–A5.4 and A6, with batches expanding only after the fixture gates:
 - **First the list:** every element the game needs, from `PROJECT.md`, in words, group by group.
-- **Then each group's sheets,** made by the builder with GPT, as you set on 7 October 2026, each piece with what it needs of:
+- **Then each group's sheets,** drawn with the image tool, as you set on 7 October 2026, each piece with what it needs of:
   - views from the front, the side, the back where it is not the same all round, and above, and the fixed 37° game view; shelters and caves also inside or cut through;
   - a striped scale stick of one design beside it, sized to the piece (10 cm, 1 m or 10 m), and a standing adult beside anything big;
   - the piece at each distance the game shows it;
@@ -92,6 +92,7 @@ New sheets and runtime work follow A5.3–A5.4 and A6, with batches expanding on
   - What the world lays over a ground is a piece of its own, drawn once: the wear of paths and camp floors, wetness, frost and snow, and the water over a river bed; a ground's sheet shows only its own states, as you set on 7 October 2026.
   - An object's sheet is laid out like the hide tent's, as you OK'd on 7 October 2026: its flat views at one scale beside the adult and the stick, the view from above, the camera's views, its true size at each zoom, its parts, its states and its surface.
   - Every view shows the same object, with the same parts, counts and colours, as you asked the same day: it is designed once, in words and numbers, and every view is drawn to that design.
+  - New sheets use plain Notes: "Views are scaled to the stated dimensions beside matching scale marks" and "Design sheet only; runtime art and animation are reviewed separately", plus any piece-specific limits. Notes name no drawing tool or model and promise no obsolete production method. The sheet composer reads these notes from the spec; use this wording in new specs. Do not rerender signed-off sheets just to change their notes without your OK.
 - **You sign off each piece** as its sheet is finished.
   Production takes the six fixtures first, then expands in batches after engine and phone review.
   Existing sheet approvals are kept; runtime pages, normals and engine previews receive their own review.

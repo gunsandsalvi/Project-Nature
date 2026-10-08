@@ -119,7 +119,14 @@
       }
     ],
     "stick": 1,
-    "phone_sizes": false
+    "phone_sizes": false,
+    "upright_sticks": [
+      {
+        "metres": 1.7,
+        "projected_metres": 1.3576803670803979,
+        "label": "Adult height"
+      }
+    ]
   },
   "groups": [
     {
@@ -142,7 +149,9 @@
         }
       ],
       "scale": 0.419672131147541,
-      "stick": 1
+      "stick": 1,
+      "horizontal_stick": true,
+      "native_internal_ppm": 64
     },
     {
       "title": "Adults and build studies; sizes are proposals",
@@ -204,7 +213,8 @@
           "tall": 1.3576803670803979
         }
       ],
-      "stick": 1
+      "stick": 1,
+      "horizontal_stick": true
     },
     {
       "title": "Initial work pose studies; attachments need their own approval",
@@ -225,7 +235,8 @@
           "tall": 0.85
         }
       ],
-      "stick": 1
+      "stick": 1,
+      "horizontal_stick": true
     },
     {
       "title": "Body signs",
@@ -253,7 +264,9 @@
     "Drawings and sizes are proposals. Owner approval must precede production sprites and animation.",
     "Four actor facings; the camera remains fixed. Six walk drawings need contacts, passing poses and timing reviewed before runtime frames.",
     "No belt, pouch, ornament or borrowed cultural pattern. Garments and work props remain separate future attachments.",
-    "The image tool rejected the unclothed adult edit. This sheet does not satisfy the first-people body design."
+    "Later hide clothing proposal only. The first people body design and full age kit remain separate.",
+    "Views are scaled to the stated dimensions beside matching scale marks.",
+    "Design sheet only; runtime art and animation are reviewed separately."
   ],
   "camera_title": "Fixed north camera, 37 degrees above the horizon, neutral light. Actor directions change."
 }

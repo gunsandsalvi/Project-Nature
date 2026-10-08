@@ -10,6 +10,7 @@ All paths are repository-relative. No engine, simulation, physical catalogue or 
 """
 
 import argparse
+from collections import deque
 import json
 from pathlib import Path
 import sys
@@ -20,6 +21,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 import ingest
 import sheet
+import shelter
 import textures
 import tiles
 
@@ -412,7 +414,8 @@ def resize_drawn(rgba, size, recipe):
         ids[bark] = 4
         colour, ids = quantise(rgba, recipe, ids)
     reduced = np.asarray(Image.fromarray(colour).resize(size, Image.Resampling.BOX)).copy()
-    reduced[:, :, 3] = np.where(reduced[:, :, 3] > 0, 255, 0)
+    threshold = 128 if recipe.get("id") == "tent" else 0
+    reduced[:, :, 3] = np.where(reduced[:, :, 3] > threshold, 255, 0)
     candidates = sorted({m for _, m in recipe["palette"]})
     votes = np.stack(
         [
@@ -524,6 +527,13 @@ def source_bundle(recipe, source, family="near", save_cleaned=True):
         page[place[1] : place[1] + size[1], place[0] : place[0] + size[0]] = rgba
         rgba = page
         block = grid
+    if recipe["id"] == "tent" and family == "near" and recipe.get("door_landmark_fit"):
+        # Resample the existing drawn aperture and flap between measured physical datums.
+        # Outside pixels, floor contact and width are unchanged; no colour is drawn here.
+        (x0, y0, x1, y1), door_landmarks = shelter.door_cleanup_geometry(pivot)
+        door_crop = Image.fromarray(rgba[y0:y1, x0:x1])
+        fitted = fit_drawn_landmarks(door_crop, door_crop.width, door_crop.height, door_landmarks)
+        rgba[y0:y1, x0:x1] = np.asarray(fitted)
     rgba, removed = remove_specks(rgba)
     colour, ids = quantise(rgba, recipe)
     if recipe.get("quiet_colour_flecks"):
@@ -532,14 +542,7 @@ def source_bundle(recipe, source, family="near", save_cleaned=True):
     if recipe.get("birch_repair"):
         colour, ids, _ = birch_repair(recipe, colour, ids, pivot, ppm, family)
     if recipe["id"] == "tent":
-        ys, xs = np.nonzero(colour[:, :, 3])
-        top = ys.min() + (ys.max() - ys.min()) * 0.25
-        # Hide panels and wood share brown chips. Pole height is an explicit semantic annotation.
-        rows = np.arange(colour.shape[0])[:, None]
-        ids[(ids == 5) & (rows >= top)] = 7
-        columns = np.arange(colour.shape[1])[None, :]
-        poles = (rows < top) & (np.abs(columns - pivot[0]) < 0.10 * recipe["metres"] * ppm)
-        ids[poles & (colour[:, :, 3] != 0)] = 5
+        ids, tent_regions = shelter.tent_regions(colour, ids, ppm, pivot, recipe.get("door_landmark_fit", False))
         colour, ids = quantise(colour, recipe, ids)
     shift = [0, 0]
     bundle = {
@@ -547,6 +550,8 @@ def source_bundle(recipe, source, family="near", save_cleaned=True):
         "material": material_page(ids, colour[:, :, 3]),
         "normal": birch_normals(colour, ids, pivot, ppm)
         if recipe.get("birch_repair")
+        else shelter.tent_normals(colour, ids, tent_regions, ppm, pivot)
+        if recipe["id"] == "tent"
         else normals(colour[:, :, 3], recipe["class"] == "ground", recipe.get("normal_shape", "billboard")),
     }
     suffix = "-cleaned" if not recipe.get("ground_variant", 0) else f"-v{recipe['ground_variant'] + 1}-cleaned"
@@ -604,6 +609,7 @@ def write_chain(recipe, family, chain, sources):
             "original_sha256": [tiles.sha256(ROOT / s) for s in sources],
             "c2pa": ["present" if ingest.has_c2pa(ROOT / s) else "absent" for s in sources],
             "requests": [REQUEST]
+            + ([recipe["cleanup_request"]] if recipe.get("cleanup_request") else [])
             + [p["request"] for p in read_json("art/sources/fixtures27/provenance.json") if p["file"] in sources],
             "made": "image drawing; tools/art/fixtures.py cleanup; " + recipe["status"],
             "regrid_loss": "block loss, exact-grid detection and source scale recorded in exports.json",
@@ -840,6 +846,82 @@ def split_parts(recipe, bundle, pivot, ppm):
     return pieces
 
 
+def fit_drawn_landmarks(im, width, height, internal_landmarks):
+    """Resize existing drawn bands between measured datums, preserving their colour and transparency."""
+    landmarks = [[0, 0], *internal_landmarks, [1, 1]]
+    source_rows = [round(a * im.height) for a, _ in landmarks]
+    target_rows = [round(b * height) for _, b in landmarks]
+    if any(b <= a for a, b in zip(source_rows[:-1], source_rows[1:], strict=True)) or any(
+        b <= a for a, b in zip(target_rows[:-1], target_rows[1:], strict=True)
+    ):
+        raise ValueError("proposal landmarks must increase in source and physical space")
+    # Resize existing drawn bands between measured landmarks; no new colour or outline is drawn.
+    fitted = Image.new("RGBA", (width, height))
+    for i in range(len(landmarks) - 1):
+        band = im.crop((0, source_rows[i], im.width, source_rows[i + 1]))
+        band = band.resize((width, target_rows[i + 1] - target_rows[i]), Image.Resampling.NEAREST)
+        fitted.paste(band, (0, target_rows[i]))
+    return fitted
+
+
+def keep_drawn_components(rgba, count):
+    """Keep an explicitly declared one-piece or paired study, preserving all attached thin pixels."""
+    visible = rgba[:, :, 3] > 0
+    labels = np.zeros(visible.shape, np.int32)
+    sizes = []
+    height, width = visible.shape
+    for y, x in zip(*np.nonzero(visible), strict=True):
+        if labels[y, x]:
+            continue
+        label = len(sizes) + 1
+        queue = deque([(y, x)])
+        labels[y, x] = label
+        size = 0
+        while queue:
+            row, col = queue.popleft()
+            size += 1
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    a, b = row + dy, col + dx
+                    if 0 <= a < height and 0 <= b < width and visible[a, b] and not labels[a, b]:
+                        labels[a, b] = label
+                        queue.append((a, b))
+        sizes.append(size)
+    keep = np.argsort(sizes)[-count:] + 1
+    out = rgba.copy()
+    out[~np.isin(labels, keep)] = 0
+    return out
+
+
+def fit_design_cell(cut, cell):
+    """Fit a drawn proposal to declared internal-pixel dimensions; never infer a length from height alone."""
+    if "logical_height" not in cell:
+        return cut
+    rgba = sheet.clear(cut)
+    if cell.get("keep_components"):
+        rgba = keep_drawn_components(rgba, cell["keep_components"])
+    im = Image.fromarray(rgba).crop(Image.fromarray(rgba).getbbox())
+    height = cell["logical_height"]
+    width = cell.get("logical_width", max(1, round(im.width * height / im.height)))
+    if cell.get("horizontal_landmarks"):
+        im = fit_drawn_landmarks(
+            im.transpose(Image.Transpose.TRANSPOSE), im.height, width, cell["horizontal_landmarks"]
+        ).transpose(Image.Transpose.TRANSPOSE)
+    im = fit_drawn_landmarks(im, width, height, cell.get("vertical_landmarks", []))
+    if cell.get("quiet_colour_flecks"):
+        cleaned, _ = merge_colour_flecks(np.asarray(im))
+        im = Image.fromarray(cleaned)
+    if cell.get("exact_pixel_size"):
+        # Tiny nearest reductions can miss a thin extreme row. Fit the occupied drawing,
+        # not its now-empty allocation, before the sheet crops it for integer presentation.
+        im = im.crop(im.getbbox()).resize((width, height), Image.Resampling.NEAREST)
+        if im.getbbox() != (0, 0, width, height):
+            raise ValueError("proposal occupied bounds differ from the declared native pixel size")
+    out = Image.new("RGB", (width + 4, height + 4), tuple(sheet.KEY))
+    out.paste(im, (2, 2), im)
+    return out
+
+
 def build_designs():
     """Compose pending designs from image-drawn boards using the catalogue's shared sheet builder.
 
@@ -858,13 +940,7 @@ def build_designs():
             for cell in source["cells"]:
                 box = [round(v * raw.width) if i % 2 == 0 else round(v * raw.height) for i, v in enumerate(cell["box"])]
                 cut = Image.fromarray(board).crop(box)
-                if "logical_height" in cell:
-                    rgba = sheet.clear(cut)
-                    im = Image.fromarray(rgba).crop(Image.fromarray(rgba).getbbox())
-                    size = (max(1, round(im.width * cell["logical_height"] / im.height)), cell["logical_height"])
-                    im = im.resize(size, Image.Resampling.NEAREST)
-                    cut = Image.new("RGB", (im.width + 4, im.height + 4), tuple(sheet.KEY))
-                    cut.paste(im, (2, 2), im)
+                cut = fit_design_cell(cut, cell)
                 cut.save(folder / cell["file"])
         spec = json.loads((folder / "spec.json").read_text())
         spec["pixel_art"] = True
@@ -874,7 +950,9 @@ def build_designs():
         spec["camera_objects"]["phone_sizes"] = False
         scale = sheet.object_scale(spec, lambda name, folder=folder: sheet.cut_out(Image.open(folder / name), least=1))
         for group in spec.get("groups", []):
-            if group.get("scale") == "phone":
+            if group.get("native_internal_ppm"):
+                group["scale"] = 2 * group["native_internal_ppm"] / scale
+            elif group.get("scale") == "phone":
                 group["scale"] = 128 / scale
         (folder / "spec.json").write_text(json.dumps(spec, indent=2) + "\n")
         sheet.compose(spec, str(folder)).save(ROOT / design["sheet"], lossless=True, method=6)

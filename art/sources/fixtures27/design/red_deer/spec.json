@@ -76,9 +76,9 @@
   },
   "above": {
     "file": "above-cleaned.png",
-    "label": "From above",
-    "across": 2.1,
-    "stick": 1
+    "label": "From above: nose to rump 2.1 m; rack 0.9 m",
+    "across": 0.90625,
+    "stick": 2.1
   },
   "camera_objects": {
     "items": [
@@ -103,8 +103,20 @@
         "tall": 1.5174074690898562
       }
     ],
-    "stick": 1,
-    "phone_sizes": false
+    "stick": 2.1,
+    "phone_sizes": false,
+    "upright_sticks": [
+      {
+        "metres": 1.2,
+        "projected_metres": 0.9583626120567513,
+        "label": "Shoulder"
+      },
+      {
+        "metres": 1.9,
+        "projected_metres": 1.5174074690898562,
+        "label": "Antler tips"
+      }
+    ]
   },
   "groups": [
     {
@@ -126,8 +138,10 @@
           "tall": 0.09375
         }
       ],
-      "scale": 0.8366013071895425,
-      "stick": 1
+      "scale": 0.6994535519125683,
+      "stick": 1,
+      "horizontal_stick": true,
+      "native_internal_ppm": 64
     },
     {
       "title": "Eight facings for comparison; camera stays fixed",
@@ -173,7 +187,8 @@
           "tall": 1.5174074690898562
         }
       ],
-      "stick": 1
+      "stick": 1,
+      "horizontal_stick": true
     },
     {
       "title": "Sex, age, coat and antler studies; dimensions are proposals",
@@ -194,7 +209,8 @@
           "tall": 0.9184308365543867
         }
       ],
-      "stick": 1
+      "stick": 1,
+      "horizontal_stick": true
     },
     {
       "title": "The same adult by season",
@@ -207,15 +223,16 @@
         {
           "file": "shed-cleaned.png",
           "label": "Shed antlers",
-          "tall": 1.0781579385638453
+          "tall": 1.2778168160756687
         },
         {
           "file": "velvet-cleaned.png",
           "label": "Growing velvet antlers",
-          "tall": 1.3177485915780331
+          "tall": 1.5174074690898562
         }
       ],
-      "stick": 1
+      "stick": 1,
+      "horizontal_stick": true
     },
     {
       "title": "Six walk key drawings: design studies, not an approved loop",
@@ -251,7 +268,8 @@
           "tall": 1.5174074690898562
         }
       ],
-      "stick": 1
+      "stick": 1,
+      "horizontal_stick": true
     },
     {
       "title": "Grazing and rest",
@@ -277,7 +295,8 @@
           "tall": 0.43924953052601107
         }
       ],
-      "stick": 1
+      "stick": 1,
+      "horizontal_stick": true
     },
     {
       "title": "Parts enlarged",
@@ -294,7 +313,8 @@
         }
       ],
       "scale": 1.5,
-      "stick": 0.1
+      "stick": 0.1,
+      "horizontal_stick": true
     }
   ],
   "notes": [
@@ -302,7 +322,9 @@
     "Four facings are the initial scope. Eight are shown for the owner to compare before wider adoption.",
     "Adults have no spots or equipment. Only the calf is spotted.",
     "Faces, antler identity, walk contacts and timing need owner and animation review before runtime production.",
-    "Each original is unchanged beside its cleaned version. The original board camera row is superseded by the separate facing board."
+    "Profile preparation fits nose-rump length, shoulder and antler tips separately. Other states remain dimension and identity studies, not approved motion.",
+    "Views are scaled to the stated dimensions beside matching scale marks.",
+    "Design sheet only; runtime art and animation are reviewed separately."
   ],
   "camera_title": "Fixed north camera, 37 degrees above the horizon, neutral light. Actor directions change."
 }

@@ -286,5 +286,93 @@
     "request": "art/requests/fixtures27/revision/tent-far-r2.txt",
     "cleaned": "art/sources/fixtures27/revision/tent-far-r2-cleaned.png",
     "role": "covered-tent revision candidate"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/birch-summer-near-r2-original.png",
+    "sha256": "da3010e3b0907953f291208a6b0c8697574d1e7dacd249a3a0a2b9331927dd9e",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/birch-summer-near-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/birch-summer-near-r2-cleaned.png",
+    "role": "selected fixture revision source"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/birch-summer-far-r2-original.png",
+    "sha256": "47fd3bb6db98f238f1bb818ebfe92baad77b6b184d8d1cae7c6720e1a65e14d4",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/birch-summer-far-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/birch-summer-far-r2-cleaned.png",
+    "role": "selected fixture revision source"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/birch-summer-middle-r2-original.png",
+    "sha256": "8787249fd5d6c8797ec9b366a4881e254a62fec50d157afde55416accc2e5592",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/birch-summer-middle-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/birch-summer-middle-r2-cleaned.png",
+    "role": "selected fixture revision source"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/birch-winter-far-r2-original.png",
+    "sha256": "f17f7f38200aa336a3ae4893138a0e881fd27e781b23298e802aa1b94cc4f68d",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/birch-winter-far-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/birch-winter-far-r2-cleaned.png",
+    "role": "selected fixture revision source"
+  },
+  {
+    "file": "art/sources/fixtures27/design/body/views-r2-original.png",
+    "sha256": "0ee6f1bf5fa34f0d77ff0271a7de5e7094b1c776382b0cc3a76ed9e4ab754756",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/body-views-r2.txt",
+    "cleaned": "art/sources/fixtures27/design/body/views-r2-cleaned.png",
+    "role": "pending owner proposal; no runtime production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/body/facings-r2-original.png",
+    "sha256": "3b397574ee364e47cea389cd98cff33913ae956cd69296a63d722b2e92a77f38",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/body-facings-r2.txt",
+    "cleaned": "art/sources/fixtures27/design/body/facings-r2-cleaned.png",
+    "role": "pending owner proposal; no runtime production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/body/zoom-r2-original.png",
+    "sha256": "acf5ec3bc681568ba08566ef6e7686bd828dd026448dc075aa57436b683d0023",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/body-zoom-r2.txt",
+    "cleaned": "art/sources/fixtures27/design/body/zoom-r2-cleaned.png",
+    "role": "pending owner proposal; no runtime production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/red_deer/views-r3-original.png",
+    "sha256": "2780edfa3d9f03a122c2fbbf2be400cc90953c9c046cdee1926de644e0c11c76",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/red_deer-views-r3.txt",
+    "cleaned": "art/sources/fixtures27/design/red_deer/views-r3-cleaned.png",
+    "role": "pending owner proposal; no runtime production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/red_deer/facings-r3-original.png",
+    "sha256": "8cabaad1820a8f6a00ae36222eca545d31b82325f0cf300d9748e97591ac22a7",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/red_deer-facings-r3.txt",
+    "cleaned": "art/sources/fixtures27/design/red_deer/facings-r3-cleaned.png",
+    "role": "pending owner proposal; no runtime production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/red_deer/zoom-r2-original.png",
+    "sha256": "a1b259d90363829eb00c0023f0516a45477a67ba2d74f6ff0969af78531f050e",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/red_deer-zoom-r2.txt",
+    "cleaned": "art/sources/fixtures27/design/red_deer/zoom-r2-cleaned.png",
+    "role": "pending owner proposal; no runtime production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/red_deer/above-r2-original.png",
+    "sha256": "d09ce61b8ff0307faac3c691bdc36a45d4996c6d1556a048b88a9b8f9b1f826c",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/red_deer-above-r2.txt",
+    "cleaned": "art/sources/fixtures27/design/red_deer/above-r2-cleaned.png",
+    "role": "pending owner proposal; no runtime production"
   }
 ]
