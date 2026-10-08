@@ -195,7 +195,7 @@ Every step keeps them, the reviews check them, and the coverage check counts the
 | α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
 | α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Delivered as 30202 on 7 October 2026; waiting for your phone's calibration code and your two blind tests, whose decisions are written in when they come, since on your word the next step goes ahead |
 | α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | **The pilot,** by your word of 7 October 2026: the meadow, the river, the club and the hide tent taken from their sheets to your phone, with the parts of α2.3b and α2.3c they need; the texture kind, its shipping and the Lab page built (T2.3a.1, T2.3a.5); the kit in the engine built (T2.3b.1, below); then delivery as 30301 |
+| α2.3a | The texture path and the camp's materials | M2 | 6 | **The pilot,** by your word of 7 October 2026: the meadow, the river, the club and the hide tent taken from their sheets to your phone, with the parts of α2.3b and α2.3c they need; the texture kind, its shipping and the Lab page built (T2.3a.1, T2.3a.5); the kit in the engine built (T2.3b.1, below); delivered as 30301 on 8 October 2026, waiting for your yes or no on each of the four pieces |
 | α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
 | α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
 | α2.3d | People, a deer and first light | M2 | 6 | Planned |
@@ -443,6 +443,9 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
   and the light's colour, set on the camp's frame against the target card's late afternoon: sun #ffcf90 at 230% and the sky's fill #98aed2 at 80%, which holds the frame's lightness (54.5 before, 55.5 after), brings the lights' hue from 96 to 87 (the card's band reaches 98; the art book's close camp reads 78), and makes the shade, the stones' far sides and the cast shadow cooler than the lit ground.
   The shade's yellowness stays red on the meadow (+6.2 against the card's 4.0 top): the darkest fifth of the frame is the meadow's own dark olive.
   A critique of each frame beside the art book led to easing the contact (55% to 38%) and the openness (80% to 65%), and to keeping the under-roof darkness to the ground.
+  With the art lane's hide tent in, its note said the lit hides' tones read too alike; in the engine no pixel of the tent reaches red 250, but the hide's dark end was lifted (lightness 54 to 80 at the 5th to 95th percentile, the sheet's 40 to 79).
+  Lights tried on the Camp view at the same lightness: sun 230% with fill 80% (the hides spread 25 points, the card's green share 40), 250% with 60% (31, 32), 260% with 55% (35, 30) and 270% with 45% (37, 27); a critique of the tent beside the sheet and the art book preferred the stronger sun with the shade not too dark, found 270% with 45% going charcoal along the shaded flank, and chose 260% with 55%, now `tuning/light`.
+  What it leaves: the shade's yellowness stays red on the card (the meadow's dark olive); the doorway shows meadow inside it, and the critique's remedy, less sky openness inside the shelter, is not built.
 
 **Tests:**
 - Golden pictures of the area at the closest zoom at noon and dusk; shimmer on the three scripted paths at most 2 in 100 pixels; the texture pixel 1.5–3 screen pixels; no pass reads the screen or depth (a scan of the shaders).
