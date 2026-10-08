@@ -7,7 +7,7 @@ config_version=5
 config/name="Kindling"
 config/version="α2.3a"
 run/main_scene="res://main.tscn"
-config/features=PackedStringArray("4.7", "Mobile")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 config/quit_on_go_back=false
 run/max_fps=60
@@ -16,7 +16,7 @@ run/max_fps=60
 
 window/size/viewport_width=540
 window/size/viewport_height=1200
-window/stretch/mode="canvas_items"
+window/stretch/mode="disabled"
 window/stretch/aspect="expand"
 window/handheld/orientation=6
 
@@ -165,7 +165,7 @@ kd_sky={
 
 [rendering]
 
-renderer/rendering_method="mobile"
+renderer/rendering_method="gl_compatibility"
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality.mobile=2
 rendering_device/driver.android="vulkan"
 textures/vram_compression/import_etc2_astc=true

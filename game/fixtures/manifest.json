@@ -1,0 +1,216 @@
+[
+  {
+    "id": 1,
+    "name": "tree",
+    "status": "developer placeholder; painted sun",
+    "frame_size": [
+      229,
+      512
+    ],
+    "pivot": [
+      114.5,
+      511
+    ],
+    "frames": 1,
+    "facings": 1,
+    "sheet": "tree.kdsheet",
+    "normal": "",
+    "material": "",
+    "height_unit": "mm",
+    "height_mm": 0,
+    "actions": {
+      "walk": {
+        "64": "tree-64.png",
+        "32": "tree-32.png",
+        "16": "tree-16.png",
+        "8": "tree-8.png",
+        "4": "tree-4.png",
+        "2": "tree-2.png"
+      }
+    },
+    "normal_levels": {},
+    "material_levels": {},
+    "source": "art/catalogue/sheets/7.7-birch.webp; birch picture crop"
+  },
+  {
+    "id": 2,
+    "name": "shelter",
+    "status": "developer placeholder; painted sun",
+    "frame_size": [
+      256,
+      130
+    ],
+    "pivot": [
+      128.0,
+      129
+    ],
+    "frames": 1,
+    "facings": 1,
+    "sheet": "shelter.kdsheet",
+    "normal": "",
+    "material": "",
+    "height_unit": "mm",
+    "height_mm": 0,
+    "actions": {
+      "walk": {
+        "64": "shelter-64.png",
+        "32": "shelter-32.png",
+        "16": "shelter-16.png",
+        "8": "shelter-8.png",
+        "4": "shelter-4.png",
+        "2": "shelter-2.png"
+      }
+    },
+    "normal_levels": {},
+    "material_levels": {},
+    "source": "art/catalogue/sheets/16.5-hide_tent_dome.webp; dome picture crop, nearest 2x"
+  },
+  {
+    "id": 3,
+    "name": "boulder",
+    "status": "developer placeholder; painted sun",
+    "frame_size": [
+      107,
+      88
+    ],
+    "pivot": [
+      53.5,
+      87
+    ],
+    "frames": 1,
+    "facings": 1,
+    "sheet": "boulder.kdsheet",
+    "normal": "",
+    "material": "",
+    "height_unit": "mm",
+    "height_mm": 0,
+    "actions": {
+      "walk": {
+        "64": "boulder-64.png",
+        "32": "boulder-32.png",
+        "16": "boulder-16.png",
+        "8": "boulder-8.png",
+        "4": "boulder-4.png",
+        "2": "boulder-2.png"
+      }
+    },
+    "normal_levels": {},
+    "material_levels": {},
+    "source": "art/catalogue/sheets/2.16-boulders.webp; right boulder picture crop, matte removed"
+  },
+  {
+    "id": 4,
+    "name": "ground",
+    "status": "developer placeholder; painted sun",
+    "frame_size": [
+      256,
+      256
+    ],
+    "pivot": [
+      128.0,
+      255
+    ],
+    "frames": 1,
+    "facings": 1,
+    "sheet": "ground.kdsheet",
+    "normal": "",
+    "material": "",
+    "height_unit": "mm",
+    "height_mm": 0,
+    "actions": {
+      "walk": {
+        "64": "ground-64.png",
+        "32": "ground-32.png",
+        "16": "ground-16.png",
+        "8": "ground-8.png",
+        "4": "ground-4.png",
+        "2": "ground-2.png"
+      }
+    },
+    "normal_levels": {},
+    "material_levels": {},
+    "source": "art/catalogue/sheets/1.1-meadow.webp; crop [24,360,532,810], excludes scale bar"
+  },
+  {
+    "id": 5,
+    "name": "person",
+    "status": "developer diagram; no approved art",
+    "frame_size": [
+      64,
+      112
+    ],
+    "pivot": [
+      32.0,
+      111
+    ],
+    "frames": 6,
+    "facings": 8,
+    "sheet": "",
+    "normal": "",
+    "material": "",
+    "height_unit": "mm",
+    "height_mm": 0,
+    "actions": {
+      "walk": {
+        "64": "person-64.png",
+        "32": "person-32.png",
+        "16": "person-16.png",
+        "8": "person-8.png",
+        "4": "person-4.png",
+        "2": "person-2.png"
+      },
+      "work": {
+        "64": "person-work-64.png",
+        "32": "person-work-32.png",
+        "16": "person-work-16.png",
+        "8": "person-work-8.png",
+        "4": "person-work-4.png",
+        "2": "person-work-2.png"
+      }
+    },
+    "normal_levels": {},
+    "material_levels": {},
+    "source": "Developer pixel diagram; six walk/work frames and eight numbered rows"
+  },
+  {
+    "id": 6,
+    "name": "animal",
+    "status": "developer diagram; no approved art",
+    "frame_size": [
+      128,
+      96
+    ],
+    "pivot": [
+      64.0,
+      95
+    ],
+    "frames": 6,
+    "facings": 8,
+    "sheet": "",
+    "normal": "",
+    "material": "",
+    "height_unit": "mm",
+    "height_mm": 0,
+    "actions": {
+      "walk": {
+        "64": "animal-64.png",
+        "32": "animal-32.png",
+        "16": "animal-16.png",
+        "8": "animal-8.png",
+        "4": "animal-4.png",
+        "2": "animal-2.png"
+      },
+      "work": {
+        "64": "animal-work-64.png",
+        "32": "animal-work-32.png",
+        "16": "animal-work-16.png",
+        "8": "animal-work-8.png",
+        "4": "animal-work-4.png",
+        "2": "animal-work-2.png"
+      }
+    },
+    "normal_levels": {},
+    "material_levels": {},
+    "source": "Developer pixel diagram; six walk/work frames and eight numbered rows"
+  }
+]
