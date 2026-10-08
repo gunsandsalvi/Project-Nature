@@ -97,10 +97,15 @@ Word counts before and after are in OWNER-SUMMARY-2.txt; they include deleted ha
 
 ## Further cuts that would change decisions
 
-These were not applied and are not part of the testing patch. Recommendation: decide them when their expansion is commissioned, after the camp slice is playable.
+The owner requested concrete proposals on 8 October 2026. Sixteen are now under their source items in PROJECT.md and listed in its proposals index; none is decided.
+Each recommendation is yes, for its stated production benefit, with the loss to the game beside it.
+Each proposal includes the precise matching clauses elsewhere that approval would also change; it can be accepted without accepting another proposal.
+Overlapping consequences apply only to the named clause: approving one catalogue cut does not waive the other catalogue quotas.
 
-- Replace fixed future catalogue counts with the content needed for the chosen expansion (`WLD-31`, `WLD-32`, `MAT-10`, `MAT-23`). Current counts remain binding meanwhile.
-- Reconsider detailed disease/wound arithmetic and customs/leadership rules against visible outcomes (`BIO-05`, `BIO-13`, `CUL-06`, `CUL-22`, `CUL-26`). Keep causes, care and individual histories; do not silently remove the old rules.
-- Reassess global ecological/climate sampling and complete art/motion/sound inventories when their real consumers exist (`WLD-08`, `WLD-16`, `WLD-18`, `PRE-22`, `PRE-44`, `PRE-46`, `SND-06`). Any changed threshold or promised count needs a separate decision.
+- Content: useful plants, animals, items and blueprints instead of fixed totals (`WLD-31`, `WLD-32`, `MAT-10`, `MAT-23`). Named craft results and functional checks stay.
+- Bodies: three broad illnesses and a smaller wound model (`BIO-05`, `BIO-13`). Causes, care, disability, death and saved histories stay.
+- Society: three customs, leaders/councils without chiefs, and belief without priests (`CUL-06`, `CUL-22`, `CUL-26`). Each names its matching role and pace changes.
+- World: direct viable starts, weather without global Earth certification, and causal ecology tests without universal century-long stability (`WLD-08`, `WLD-16`, `WLD-18`). Determinism and physical causes stay.
+- Presentation: flexible source resolutions, reusable motion families, a kit built as needed and fewer sound families (`PRE-22`, `PRE-44`, `PRE-46`, `SND-06`). Existing assets, visible state, crispness and owner reviews stay.
 
-This is why PROJECT remains long: making production optional did not retire the underlying full-game promises.
+OWNER-SUMMARY-3.txt gives the phone version. Until approval, all existing decided wording and acceptance remain binding; these proposals neither block the current camp task nor authorise the builder to weaken it.

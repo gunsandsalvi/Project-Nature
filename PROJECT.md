@@ -842,6 +842,17 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Repeatable:** a seed makes the same world and areas only under the same rules for making them and the same values that place and size land, plants and stones; changing these is a big update (`PLT-09`), while tuning yields, timings or chances is not.
   - **Settling:** once you pick a world, its plant cover, water and herds run for 10 years by the play rules, with no people; animals near the start region begin as wary as hunted ones (`WLD-32`); then history begins (`TIM-14`).
   - **Done when:** in 20 worlds, 95% of rivers draining 50 km² or more reach sea or lake; median slope 0.5–5°, under 1% over 30°; no coast straight for over about 20 km; lakes 1–3% of land; you review them (`MIL-14`).
+  - **Proposed change:** Generate a viable present without a decade of settling.
+    **New wording:** Remove the mandatory ten-year run before people arrive and this item's global slope, straight-coast and lake-share quotas.
+    Initialise plant cover, water and herds directly in a plausible seasonal state using the play model's bounds; retain hunted-level wariness near the start.
+    Keep deterministic causal generation, seed/update compatibility, drainage to a sea or lake and owner review.
+    Replace the removed acceptance with representative start scenes: valid drainage and nonnegative resources, traversable access to the start's promised food/water, and no invalid state when simulation begins.
+    Save/reopen and worker-count equality remain required.
+    **Matching changes if approved:** Keep `WLD-09` geology/drainage checks, `WLD-11` generation-time target and `WLD-18` ecology checks unless separately changed.
+    In `WLD-18`, its reference to a settled total means the initial viable total if this proposal alone is approved; its existing hundred-year gate still applies.
+    **Recommendation:** Yes.
+    A plausible playable start matters more than simulating unobserved preparation.
+    **Cost to the game:** Less assurance of a mature ecological equilibrium and of globally Earth-shaped terrain statistics; starts may show natural adjustment.
 
 - `WLD-09` **What generation makes** *(Decided)*: Generate in causal order:
   1. **Plates:** about 6–12, oceanic/continental, setting land share (`WLD-06`); Earth-like ranges, volcano lines, rifts and faults at edges.
@@ -909,6 +920,17 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     - **Good and bad years:** chance brings runs of wet, dry, warm and cold years as often as `WLD-30` sets, giving droughts and harsh winters (`WLD-22`).
   - **Done when:** in 20 worlds, each band of latitude has about Earth's climates in Earth's shares, and each place's weather over 20 years averages within 10% of its climate's rain and 1 °C of its warmth, which is within about 2 °C of Earth's at the same latitude, height and distance from the sea.
     Compare climate shares in 10° latitude bands, at most 10 percentage points apart in sufficiently sampled bands, matching altitude and maritime/current exposure with declared weighting and scaled distances; use an Earth-tilt case and 15°/30° cases. A dry day has less than 1 mm rain; the saved longest-dry-spell envelope is the 95th percentile of annual maxima, with its exceedance share and storm-day shares checked by `RES-13`. Freeze reference data and event thresholds before tuning.
+  - **Proposed change:** Weather that serves places, without global Earth certification.
+    **New wording:** Replace only the global climate-share and Earth-temperature comparison gates: remove the ten-degree-band shares, ten-percentage-point comparison, Earth-temperature tolerance, external reference matching/weighting and prescribed tilt-case suite.
+    Keep climate drivers, seasons, local weather, storms, snow, frost, drought, recorded climate values and their physical consequences.
+    Check declared representative coast/inland/highland and wet/dry/warm/cold fixtures with stable seeds; their twenty-year weather must still match their own climate within the existing 10% rainfall and 1 °C bounds.
+    Keep dry-spell/storm-share checks and frozen thresholds before tuning.
+    **Matching changes if approved:** No other gameplay promise is waived.
+    `WLD-06` tilt and `WLD-30` scaling remain; these changes remove certification against Earth distributions, not latitude or seasonal causality.
+    **Recommendation:** Yes.
+    Believable weather and its effects are worth testing; certifying a miniature Earth is a separate research project.
+    **Cost to the game:** Cannot claim globally Earth-matching climate shares or temperatures.
+    Fixture selection can miss unusual geography.
 
 ### 6.5 Water and soil
 
@@ -949,6 +971,15 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Biomes:** climate/soil/wetness determine ice, tundra, northern conifer forest, broadleaf forest, grassland, dry scrub, desert, savanna, tropical forest, marsh, mountain heights, shores and seas.
     Each land biome except ice has at least 6 catalogue plants and 4 animals; seas/shores at least 4 animals; species may serve several biomes.
   - **Done when:** area species/shares match cells; stripped hazel fruits next autumn; burned oak becomes young wood within about 10 years; kept growth is within 10% of cell rates; each present biome in 20 worlds has plant eaters, hunters, birds and fish.
+  - **Proposed change:** Plants chosen for play, not a quota.
+    **New wording:** Replace the promise of about 60 species and at least 6 plants per non-ice land biome with a catalogue chosen for distinct food, fuel, fibre, shelter, medicine and habitat roles needed by the approved release.
+    Several species may share a role; a new species must add a visible distinction or useful route.
+    Keep seasonal yields, depletion/regrowth, real habitats, area/cell agreement and all other plant mechanics and checks.
+    **Matching changes if approved:** Remove only the plant count (40 and its two-thirds formula) from the fallback quota in `RSK-25`; keep its food/fibre coverage and catalogue checks.
+    Other biome animal requirements are unchanged.
+    **Recommendation:** Yes.
+    Finish useful plants before adding variety to fill a list.
+    **Cost to the game:** Fewer species, thinner bestiary and less regional botanical variety.
 
 - `WLD-32` **Animals** *(Decided)*: About 30 wild Earth species or close kin, without insects: mammals, birds, fish, shellfish and a few reptiles; 5 domestic kinds count separately (`WLD-33`).
   Include a woolly mammoth in cold open grassland under ordinary food/density rules; add no ice-age/extinction system.
@@ -963,6 +994,16 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Fear:** hunting/chasing increases fleeing distance; years without hunters reduce wariness.
   - **Danger:** hungry, cornered or young-guarding wolves, bears and big cats may attack; numbers, noise and fire deter them.
   - **Done when:** autumn-hunted herds flee at twice unhunted distance within 5 years; count conversion preserves totals; migrants arrive in season.
+  - **Proposed change:** Animals chosen for play, not a quota.
+    **New wording:** Replace about 30 wild species and the compulsory mammoth with species that serve distinct prey, predator, scavenger and water-life roles in the approved release.
+    Keep meaningful habitat, diet, migration, fear, conversion and yield rules for included species.
+    Domestic kinds and species explicitly required by other gameplay promises remain required.
+    **Matching changes if approved:** Remove the wild-animal count (20 and its two-thirds formula) from `RSK-25`, and the four-animal-per-biome minimum from `WLD-31`.
+    Keep functional food-web coverage, including its plant-eater, hunter, bird and fish check where applicable, and the fallback grazer/hunter requirements.
+    **Recommendation:** Yes.
+    Species should earn their production and testing cost through play.
+    **Cost to the game:** Less wildlife variety; a mammoth is no longer guaranteed.
+    Other explicit animal promises can still set a practical minimum.
 
 - `WLD-33` **Taming and domestic kinds** *(Decided)*: Animals fed and kept near people grow tame, young born to tame animals kept by people are tame from birth, and a line kept for several generations becomes a domestic kind, such as wolf to dog.
   - **How it works:**
@@ -981,6 +1022,17 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     - **Limits:** each cell holds at most a set number of each kind for its cover, a sixth of what such land holds on Earth (`WLD-30`); below it, well-fed animals breed well, and hungry ones less and die first in a hard winter; a hunter kills no more than it and its young can eat, and each year animals spread into empty, suitable cells next to occupied ones.
     - **Illness** in animals is part of their death rate by condition; nothing spreads through counted herds, and the few sick animals of kinds that carry an illness appear only near people (`BIO-05`, `BIO-19`).
   - **Done when:** in 20 worlds run 100 years without people, each species stays within half to twice its settled total, none vanishes from its biomes, and big hunters are about 1 to 50–200 prey.
+  - **Proposed change:** Test food-web causes, not a century of universal stability.
+    **New wording:** Replace the twenty-world, hundred-year acceptance that every species stays within half to twice its initial total, never disappears and has a fixed predator/prey ratio.
+    Keep resource-driven feeding, breeding, hunger, migration, whole-animal kills, scavenging, capacity limits and existing scale rules.
+    Test seeded grazing, predator/prey, drought/recovery and migration scenes: no negative counts or invented animals, kills consume prey, food shortage worsens condition/births, and surviving stock can recover when food returns.
+    Include a representative mixed-food-web run with duration, seeds and bounds declared before tuning; extend it for detected instability or changed ecological rules, not to meet a universal century quota.
+    Local extinction is allowed and recorded, without scripted rescue.
+    **Matching changes if approved:** Keep the no-people checks required by `RES-07`, now against these criteria, and the population/yield scale of `WLD-30`.
+    This changes neither the optional full-world stage nor the starting resources promised elsewhere.
+    **Recommendation:** Yes.
+    Correct causes and believable consequences matter more than forcing every species to stay near its starting count.
+    **Cost to the game:** Less long-horizon assurance; a bad winter or food-web imbalance can leave a region permanently poorer.
 
 ### 6.7 Fire, quakes and other events
 
@@ -1024,6 +1076,14 @@ Discovery, practice and teaching are in Minds (`MND-06`, `MND-11`, `MND-13`).
     - **Also listed:** foods that taste mild despite their poison (`MND-21`), and how much of the body a garment covers (`BIO-11`).
     - **A thing** is one item in an area (`WLD-12`), with its own size, state (no new item, `MAT-19`), wear, quality (`MAT-20`), maker, date and style (`PRE-43`); a heap of small things is one thing.
   - **Done when:** the Complete check passes (`MAT-17`).
+  - **Proposed change:** Items follow useful craft routes.
+    **New wording:** Delete the launch totals of about 190 items, 90 raw and 100 made.
+    Include the items needed by approved craft routes and other named game results.
+    Retain every required property, material fit, provenance, wear/state, drawing and catalogue check; do not merge materially different things merely to reduce a count.
+    **Matching changes if approved:** Remove only the 125-item fallback count and its two-thirds formula from `RSK-25`; its reachable results, useful chains and checks remain.
+    **Recommendation:** Yes.
+    A count is a production bill, not evidence of interesting crafting.
+    **Cost to the game:** Fewer optional materials and manufactured variants; every still-promised result must remain reachable.
 
 - `MAT-02` **Shape and size matter** *(Decided)*: A thing's form (lump, flake, blade, point, rod, pole, sheet, strand, powder, paste, liquid, container or structure) and its size, in real units, count as much as its material.
   - **How it works:** form shifts some characteristics (`MAT-03`); size sets weight and amounts, and blueprints ask for sizes, such as a hut pole 2–4 m long (`MAT-04`).
@@ -1205,6 +1265,17 @@ Discovery, practice and teaching are in Minds (`MND-06`, `MND-11`, `MND-13`).
     - **Results other items name** are all in the launch list, among them milk: pressing a tame nursing female of a kind the catalogue marks as giving milk, such as a goat (herding, difficulty 2), gives milk, food 3 and water 4, souring within a day (`WLD-33`); the blown firing (pottery: a charcoal kiln tended by blowers taking turns at its pipes, hinted by blown embers flaring, `MOM-12`); and a notched tally (art: notches cut in bone or wood, `CUL-03`).
     - **Steps of the arc** (`TIM-19`) count: for flakes, a sharp flake or blade; fire, an ember by drilling or ploughing; clothing, any worn hide or fur; huts, any roofed shelter people build, not a windbreak; pottery, a fired pot; copper, smelted copper, not hammered native copper.
   - **Done when:** the catalogue holds the launch blueprints and every result another item names, and its checks pass (`MAT-17`).
+  - **Proposed change:** Blueprints follow the arc, not sector totals.
+    **New wording:** Delete about 140 blueprints and the per-sector counts.
+    Keep the starting knowledge, generic input rules, alternative useful routes, named results and every still-promised step from flakes to copper.
+    A recipe is included because it supports those outcomes or a useful alternative, not to fill a sector quota.
+    Each included blueprint still passes catalogue checks and its trials.
+    **Matching changes if approved:** Remove only the 95-blueprint fallback count and its two-thirds formula from `RSK-25`.
+    Keep its complete route to each arc step and its independent catalogue checks.
+    **Recommendation:** Yes.
+    Preserve discovery depth while cutting recipes that only fill lists.
+    **Cost to the game:** Less optional craft variety.
+    This does not cancel copper or any named result, so the full arc still has substantial scope.
 
 ### 7.5 Values and catalogues
 
@@ -1404,6 +1475,18 @@ Shares in Done when lines are judged as `RES-13` sets out.
   - **Healing:** shrink about 7/day, bruises 15; breaks about 10 days; rest, food, warmth and resistance accelerate, hunger/cold slow (`BIO-08`).
   - **Lasting:** wounds ≥30 scar; breaks crooked about 1/2, splinted 1/10, causing lifelong limp/weak arm.
   - **Done when:** untreated cut 40 kills, pressed does not; broken leg hobbles about 10 days; washing halves infections.
+  - **Proposed change:** Simpler wound rules, with causes and care intact.
+    **New wording:** Keep six body parts with health 100–0, individual wounds with causes, blood, pain, fractures, infection, scars, disability and death.
+    Replace this item's fixed hit percentages, damage examples and formulae, blood/pain thresholds, infection percentages, healing durations and crooked-break odds with one small declared parameter table.
+    Wound size still subtracts from the affected part until healed; lethal head/torso damage remains lethal.
+    Severe untreated bleeding can kill; pressure/dressings reduce it; fractures impair the affected limb; rest/food/warmth help healing; washing lowers infection; splints reduce lasting damage.
+    Replace the three exact acceptance examples with scenes proving those directions, lethal/nonlethal boundaries and deterministic saved outcomes, with numerical rules declared before tuning.
+    **Matching changes if approved:** Keep `BIO-14` death causes, `BIO-12` medicine effects and `BIO-23` care/splint checks, including their ratios, as constraints on that table.
+    Keep animal blood trails (`BIO-19`) and part health on person cards (`PRE-35`).
+    No other proposal is needed.
+    **Recommendation:** Yes.
+    Preserve visible injuries and useful treatment without committing to a miniature physiology textbook.
+    **Cost to the game:** Lose the exact cut-40, ten-day fracture and per-minute blood predictions; damage balancing becomes a small game model.
 
 - `BIO-05` **Illness** *(Decided)*: About 15 illnesses, each with its routes, a time before it shows, a course, a danger and, for some, immunity; some need crowds, as in real history.
   - **How it works:**
@@ -1434,6 +1517,19 @@ Shares in Done when lines are judged as `RES-13` sets out.
     - **Bloody flux** (crowd; water fouled by a village's waste; 1–3 days): about a week; kills 1/10.
     - **Wasting cough** (crowd; long close living, and sick cattle's milk; a season or more): one to three years; kills about half.
   - **Done when:** in scenes, each illness spreads only by its routes and kills about its stated share, and a crowd illness dies out in a band but returns to a village of 200 with herds every 10–20 years.
+  - **Proposed change:** Three broad illnesses instead of fifteen.
+    **New wording:** Replace the fifteen-disease roster, disease-specific rates, exact contact distances/times, crowd epidemic cycle and mortality formula with three catalogue illnesses: respiratory fever from close contact, gut sickness from unsafe food/water including animal products, and wound infection including bites and birth wounds.
+    Each has declared exposure routes, incubation, duration, impairment and untreated risk.
+    Age, poor condition and cold worsen outcomes; care, resistance and appropriate medicine improve them.
+    Keep observable symptoms, cause records, recovery/death, and route/risk tests set before tuning.
+    No separately simulated pox, rabies, worms or recurring crowd epidemics are promised.
+    **Matching changes if approved:** Remove the 10-illness fallback count and its two-thirds formula in `RSK-25`.
+    In `BIO-19`, replace the mad-wolf/rabies check with animal exposure to one of these routes, including an infected bite; remove only pox-specific marks from `PRE-27`.
+    `MAT-17` still validates each illness entry.
+    Existing poison rules, birth mortality and the daily-care survival check in `BIO-12`, `BIO-15` and `BIO-23` remain; wound fever means the wound-infection illness.
+    **Recommendation:** Yes.
+    Illness should create understandable care and survival stories before epidemiological variety.
+    **Cost to the game:** Lose distinct disease histories, immunity-driven village epidemics and the special fatal-rabies story; broader symptoms represent more causes.
 
 - `BIO-23` **Care and healing** *(Decided)*: The hurt and the sick do better with care, though only the body heals; some treatments are blueprints to discover.
   - **How it works:**
@@ -1917,6 +2013,17 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     6. **Priests:** in a large village (`CUL-28`), the shaman becomes a priest, fed by the gifts rites and healing earn as help (`MND-26`), holding rites on the calendar (`CUL-29`) in a house set aside at the sacred place; the successor is whoever joined most of their rites, most often their child.
     - **For you only** (`CUL-07`): a people's religion is named after its greatest spirit, and a spirit most of its adults hold, with a rite, a myth and a sacred place, is named a god.
   - **Done when:** of the 20 pace-test worlds run to Year 30 (`RES-07`), at least 10 have a people with a sacred place, a shaman and a myth, and no step ever comes before its conditions hold.
+  - **Proposed change:** Shared belief without a priesthood ladder.
+    **New wording:** Keep shared spirits, communal rites, sacred places, myths and shamans arising from remembered events and social support.
+    A place becomes sacred through an associated event or repeated rites, without a fixed three-rite gate.
+    A band that shares a spirit and has held a rite can recognise a respected, spiritually inclined adult with relevant remembered experiences as shaman; remove the two-spirit gate and automatic closest-kin credibility.
+    Remove priests, dedicated priest houses, compulsory gifts and priest succession.
+    Replace the guaranteed ten-of-twenty Year-30 shaman/place/myth bundle with scenes proving causal formation, actual shared participation and records; the full bundle is possible, not promised (`RES-19`).
+    **Matching changes if approved:** Remove priest roles from `CUL-07` and `CUL-28`; `CUL-34` keeps its shaman/leader/initiator fallback.
+    Keep the separate shared-spirit, rite and myth pace targets in `CUL-33` and `RES-07`, the belief rules and player-facing religion/god names.
+    **Recommendation:** Yes.
+    Keep belief as a consequence of life rather than a compulsory institution tree.
+    **Cost to the game:** Lose priestly dynasties, dedicated temples and guaranteed early complete religions; some worlds may never form the whole bundle.
 
 ### 10.5 Society
 
@@ -1956,6 +2063,17 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     - **Norms:** following a custom scores a little higher (`MND-09`), and each person who sees it broken loses about 10 opinion of the breaker (`MND-24`).
     - **Punishments,** by whoever the custom names, by the breach: scorn for a broken custom; left out of sharing for theft or a broken taboo; gifts to the wronged or a beating for a wound; driven out (`CUL-22`) for a killing in the band or a third breach in a year; and a chief may punish a killing with death (`CUL-08`).
   - **Done when:** a band that buries at least two thirds of its dead for 5 years names burial its custom, and each adult seeing a body left unburied loses about 10 opinion of those who left it.
+  - **Proposed change:** Three shared customs instead of twelve.
+    **New wording:** Replace the twelve-question system with three emergent customs: treatment of the dead, sharing a big kill, and reception of strangers.
+    Keep their existing answers, observed-case rule, naming, inheritance between bands, social disapproval and consequences.
+    Other decisions remain personal or use fixed defaults rather than a cultural-answer system: no close-family or cousin marriage, couples join the band holding more kin, no required marriage gifts, either partner may end a union, any adult may do any work, leaders are chosen by trust/respect, and existing personal respect sources remain.
+    Captive treatment remains the captor group's choice under existing motives, not a learned custom.
+    **Matching changes if approved:** Apply those defaults to the custom-dependent clauses in `CUL-27`, `CUL-30`, `CUL-22` and `CUL-31`.
+    Punishment is chosen by the wronged kin or current group decision-maker from the existing consequence rules, not a fourth custom.
+    Keep burial acceptance and the first-custom pace target in `CUL-33`; do not remove violence or captivity.
+    **Recommendation:** Yes.
+    Three legible cultural differences are enough to test whether cultures are interesting.
+    **Cost to the game:** Lose variable marriage, gendered work, succession and justice traditions; groups become culturally less distinct.
 
 - `CUL-22` **Leaders, councils and chiefs** *(Decided)*: Bands follow leaders, bigger groups decide in councils, and settled groups come to have chiefs.
   - **How it works:**
@@ -1967,6 +2085,18 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
     - **Councils:** in a village without a chief, and at a gathering for a shared rite, hunt or feud, heads of families decide together: each backs the plan they score best, and the plan whose backers the others respect most, in sum, wins.
     - **Chiefs:** in a large village (`CUL-28`), a leader of 10 years becomes chief for life, alone setting group plans, ruling on feuds (`CUL-31`) and punishing.
   - **Done when:** in 20 runs, hunters told of a hunt meet at its time and place and kill a red deer in at least 12.
+  - **Proposed change:** Leaders and councils without permanent chiefs.
+    **New wording:** Delete the automatic promotion after ten years and the lifetime chief tier.
+    Keep trusted leaders, challenges, councils, shared plans and each person's choice to join.
+    Villages continue using their council for collective decisions, feuds and punishment; leaders coordinate agreed plans.
+    Keep the hunt coordination acceptance test.
+    **Matching changes if approved:** Remove chief roles/history entries from `CUL-07`, their availability from `CUL-28`, and only chief-specific execution permission from `CUL-06`.
+    In `CUL-31`, councils retain the dispute-settlement role.
+    Remove the first-chief pace target from `CUL-33` and its whole-world check from `RES-07`; all other pace targets stay.
+    References to chiefs in those clauses are retired together if approved.
+    **Recommendation:** Yes.
+    A permanent political tier adds little to the first valley game.
+    **Cost to the game:** Lose hereditary or lifetime chiefdom stories and that part of the long civilisation arc; leadership conflict remains.
 
 - `CUL-32` **Specialists** *(Decided)*: People known for a craft work for others, and where food allows, some do it full time.
   - **How it works:** whoever spent most working days of the last year on one sector's work for others, paid with gifts (`MND-33`), is its specialist: those who want such work ask them first, and they teach for gifts (`MND-13`).
@@ -2087,6 +2217,16 @@ The look, written to stand without any image.
   Small things become simpler as you zoom out, keeping their important shapes and accents.
   A pinch moves smoothly, then settles on a crisp zoom step without a jump in the place you were looking at.
   - **Done when:** with time frozen and the camera still, frames are identical; while it pans or pinches, no more than 2 in 100 pixels flicker beyond what the movement explains; pixels are crisp at every resting zoom; and you see no shimmer in the review's clips on your phone.
+  - **Proposed change:** Keep crisp pixels; stop prescribing all source resolutions.
+    **New wording:** Remove the requirement that near, middle and far art must each be authored at 64, 16 and 4 world pixels per metre.
+    Keep current assets and renderer; permit reviewed reductions and shared sources at any of those bands.
+    Preserve crisp resting zooms, frozen-frame identity, the existing movement-flicker bound, stable pinch focus and phone review with no visible shimmer.
+    A new source family is required only when shared art cannot pass those checks.
+    **Matching changes if approved:** This does not waive the small-detail redraw requirements of `PRE-46` or faces in `PRE-27`; their separate obligations stay unless the art-kit proposal is also approved.
+    No renderer restart or asset deletion is authorised.
+    **Recommendation:** Yes.
+    Specify the visible result and reuse the working rendering investment.
+    **Cost to the game:** Less bespoke detail at some distances; satisfying the unchanged visual checks may still require targeted redraws.
 
 - `PRE-23` **Rock faces** *(Decided)*: Cliffs show the rock layers where they stand (`WLD-09`), which go on underground (`PRE-25`): layers of different thicknesses, cracks and fissures, lichen and water stains where the face is wet (`WLD-16`), soot above lived-in caves (`MAT-18`), grass hanging over the top and scree at the foot.
   - **Done when:** cliffs of three kinds of rock show their own layers, and a cave lived in for 10 years shows soot.
@@ -2164,6 +2304,17 @@ The look, written to stand without any image.
   - **Animals:** one set per body pattern (`PRE-46`), timed by the species' size and speed: stand, walk, run, feed, drink, rest, sleep, play, fight, call, fall, and swim or fly.
   - **At speed,** each figure keeps showing its activity at a steady pace (`TIM-01`).
   - **Done when:** every movement reads at person zoom; at close camp zoom, standing and ground work, carrying, walking, resting, fighting and dancing are told apart.
+  - **Proposed change:** A few readable motion families, not a movement inventory.
+    **New wording:** Replace the forty-five-movement, eight-gesture and eight-dance-move inventories and mandatory per-body animation list with reusable motion families: locomotion, standing/ground work, carrying, rest/hurt/death, conflict and social/dance activity.
+    Tools, targets, pose, timing and the activity label distinguish related actions; important states must not be misleading.
+    Reuse animal families with species-appropriate timing.
+    Keep the first six-frame walk, readable clothing, current-state correspondence, unsynchronised ordinary crowds, synchronised shared beats and a steady readable pace at speed.
+    Review the actions actually delivered; add bespoke motion when a reused family is ambiguous.
+    **Matching changes if approved:** In `CUL-10`, replace the fixed four-to-eight-of-eight dance composition with reusable dance sequences in its existing ring/line and beat rules.
+    `PRE-27` and `SND-07` activity correspondence remain; sound follows actual action, not an unrelated stock loop.
+    **Recommendation:** Yes.
+    Spend animation work on what the owner can identify and enjoy.
+    **Cost to the game:** Fewer distinctive dances, gestures and species movements; exact activity sometimes needs its tool/target or label.
 
 - `PRE-46` **The art kit** *(Decided)*: Everything in the world is drawn from one fixed kit, keeping content countable.
   - **Owner OK:** 8 October 2026.
@@ -2181,6 +2332,18 @@ The look, written to stand without any image.
   - **Sizes:** anything small (ground cover, flowers, leaves, faces, held tools) has a design for each zoom band, drawn for that size and never only shrunk; flowers, berries and eyes stay at least one texture pixel.
   - **Done when:** every launch thing, plant and animal is drawn from the kit, shown on an art sheet in two materials.
     Before bulk art, you approve six pieces in the running engine: a person, animal, tree, boulder, ground and shelter, with the pending approvals and missing seasonal shapes resolved.
+  - **Proposed change:** Build the art kit as needed, and reuse small details.
+    **New wording:** Delete the approximate inventory counts for plant forms, animal patterns, garments and signs.
+    Keep reusable designs faithful to real materials, species, bodies, clothing and crafted parts, and make only the approved scene's needs.
+    Replace mandatory separate designs for every small detail at every zoom band with reviewed reductions and selective redraws where readability fails; distant eyes, berries and flowers need not each retain a texture pixel.
+    Keep important silhouettes, person-zoom faces, held-action identity, provenance, signed source assets and the six-piece engine review before bulk art.
+    In the kit acceptance, show each included design in its applicable materials; do not require two materials for an inherently single-material design.
+    **Matching changes if approved:** Remove only the each-band face-drawing clause from `PRE-27` and change `RSK-11`'s every-band small-detail response to reviewed reductions with repairs.
+    All `PRE-22` image-quality checks remain.
+    Existing approved art stays available; nothing is discarded.
+    **Recommendation:** Yes.
+    Let visible problems justify new assets instead of filling a kit inventory.
+    **Cost to the game:** Less close-up variety and fewer tiny details at distance; shared shapes may be more noticeable.
 
 ### 11.3 On the screen
 
@@ -2351,6 +2514,16 @@ Everything you hear comes from something happening in the world (`PRN-10`), in l
   - **A sound blueprint** is a base sound and how characteristics (`MAT-03`) and size (`MAT-02`) change it; base actions with no work sound borrow one (throwing, feeding and gathering as dropping, planting as digging, soaking as water, heating as fire, the rest as the rustle), and each result's sound (`MAT-21`) is its action's.
   - **The phone's speaker:** a last step lifts the deep sounds it plays badly, and is off with headphones.
   - **Done when:** everything that makes a sound has its sound blueprint, and 20 flint strikes in a row all differ.
+  - **Proposed change:** Useful sound families, not a complete material matrix.
+    **New wording:** Replace the roughly forty-four generated bases, obligatory work-by-material/surface matrix and two-calls-per-species target with a small reusable set chosen for delivered actions, important animals and environments.
+    Acoustically similar actions may share a base; retain harder/brighter, larger/deeper and wetness variation where audible, timing tied to actual events, the twenty-varied-flint-strikes check, speaker treatment and headphone bypass.
+    Every audible event still has an appropriate mapping; record missing material distinctions as limitations, not fictitious events.
+    Keep the existing recording ceiling and credit-only licence restriction.
+    **Matching changes if approved:** Keep `SND-02` instruments, `SND-03` voices, `SND-11` ambience and the phone/headphone review in `SND-12`; these other promises still require suitable sounds.
+    No blanket silence for implemented events is allowed.
+    **Recommendation:** Yes.
+    A convincing mix needs fewer carefully chosen sounds, not exhaustive combinations.
+    **Cost to the game:** Less audible distinction between materials, footstep surfaces and species; repeated sound families may be recognisable.
 
 - `SND-07` **Sound follows time** *(Decided)*: At natural speed (`TIM-10`) each sound plays as its activity happens; faster, sound follows the picture.
   While figures are drawn in full (`PRE-03`), each one near the camera sounds in step with its animation (`PRE-44`), and talk is murmured at a natural pace; once figures are tiny, sounds of one kind blend by how many and how loud (`SND-01`), so a camp becomes its hum.
@@ -2757,7 +2930,22 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at present.
+- **Generate a viable present without a decade of settling** (`WLD-08`): recommend yes.
+- **Weather that serves places, without global Earth certification** (`WLD-16`): recommend yes.
+- **Plants chosen for play, not a quota** (`WLD-31`): recommend yes.
+- **Animals chosen for play, not a quota** (`WLD-32`): recommend yes.
+- **Test food-web causes, not a century of universal stability** (`WLD-18`): recommend yes.
+- **Items follow useful craft routes** (`MAT-10`): recommend yes.
+- **Blueprints follow the arc, not sector totals** (`MAT-23`): recommend yes.
+- **Simpler wound rules, with causes and care intact** (`BIO-13`): recommend yes.
+- **Three broad illnesses instead of fifteen** (`BIO-05`): recommend yes.
+- **Shared belief without a priesthood ladder** (`CUL-26`): recommend yes.
+- **Three shared customs instead of twelve** (`CUL-06`): recommend yes.
+- **Leaders and councils without permanent chiefs** (`CUL-22`): recommend yes.
+- **Keep crisp pixels; stop prescribing all source resolutions** (`PRE-22`): recommend yes.
+- **A few readable motion families, not a movement inventory** (`PRE-44`): recommend yes.
+- **Build the art kit as needed, and reuse small details** (`PRE-46`): recommend yes.
+- **Useful sound families, not a complete material matrix** (`SND-06`): recommend yes.
 <!-- end generated -->
 
 ## 18. Glossary
