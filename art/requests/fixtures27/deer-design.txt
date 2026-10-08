@@ -1,0 +1,29 @@
+Design sheet request. PRE-27, PRE-44, PRE-46. Catalogue piece 13.1 red_deer.
+Status: proposal sheet drawn; owner approval pending. No production frames.
+Exact prompts: deer-views.txt, deer-facings.txt, deer-zoom.txt.
+The corrected facing board replaces the original board's camera row.
+The following sizes are a proposed fixture, not approved species data.
+
+Use tools/art/sheet.py and the existing catalogue page style.
+References: art/targets/animals-sheet.webp and art/targets/deer-poses.webp.
+Draw one adult red-deer stag consistently. Proposed size: 2.1 m nose
+to rump, 1.2 m shoulder height, about 1.9 m to antler tips, 0.55 m
+body width. Tawny red-brown summer coat, pale rump, dark hooves and
+nose, branching antlers, no spots on the adult. No saddle or equipment.
+Use quiet brown ramps and enlarged fur clusters, not photographic grain.
+
+Show front, side, rear and above in neutral even light beside the
+standing 1.7 m adult and a 1 m striped stick. Show the fixed 37 degree
+camera in four facings, then eight as a comparison; actor direction
+changes, camera direction does not. Camera pictures have the sheet's
+late-afternoon light. Show true phone size at 64, 16 and 4 internal
+pixels a metre at 2x presentation, with a designed face at each size.
+Show the same stag's six-pose walk and grazing key poses.
+Show a hind, a spotted young calf, a yearling with small antlers,
+a grey-brown winter coat, shed antlers and velvet growing antlers.
+Show rest and a dead pose. Show antlers, hoof, muzzle and coat enlarged.
+Keep body proportions and antler identity consistent across views.
+Save every original unchanged beside its cleaned version and spec.
+
+The owner must approve this design sheet before production sprites
+or the four/eight-facing runtime comparison are made.

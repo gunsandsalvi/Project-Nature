@@ -1,0 +1,89 @@
+about = "T2.7a.3 birch-summer_trunk colour: neutral image-drawn colour; cleaned production candidate; authored near family"
+route = "picture"
+tile_texels = 1024
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/fixtures27/neutral/birch-summer-near-original.png", "art/sources/fixtures27/neutral/birch-summer-middle-original.png", "art/sources/fixtures27/neutral/birch-summer-far-original.png"]
+original_sha256 = ["339eadcf8832d551b6c4f3aeeb11d3de0109192cb40d63464dcdf99ef4945e2c", "1d938da938fb525abf29db08cd4b371b2e045993ce0413a7eabe9a71efca5608", "7d211e6c9f5bf1797eb042ad7cf0eb3c467c1eaf01d6ba5c8fc2e97887369450"]
+c2pa = ["present", "present", "present"]
+requests = ["art/requests/fixtures27/production.txt"]
+made = "image drawing; tools/art/fixtures.py cleanup; neutral image-drawn colour; cleaned production candidate"
+regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
+truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
+approved = "pending owner runtime review and engine lighting calibration"
+
+[[band]]
+level = 0
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b0.png"
+sha256 = "44fcaa864726b300d9dfb1e181c7a5e4deb24cde7f7d67e99506cd28bf186d67"
+way = "image-drawn family; block cleanup and palette snap"
+
+[[band]]
+level = 1
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b1.png"
+sha256 = "9a273cce538b257fc18c563733b7992571ad85374e9d1ace4bf49df1ff699529"
+made_from = "44fcaa864726b300d9dfb1e181c7a5e4deb24cde7f7d67e99506cd28bf186d67"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 2
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b2.png"
+sha256 = "262bafe4bd9361093161ca8268a9e7391aa73165f4fc200b04be09ba39626306"
+made_from = "9a273cce538b257fc18c563733b7992571ad85374e9d1ace4bf49df1ff699529"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 3
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b3.png"
+sha256 = "7ff5ff825eca332df4b8c0dc7cf5517121ae9add93ee76bec3f0cfe06736b7c0"
+made_from = "262bafe4bd9361093161ca8268a9e7391aa73165f4fc200b04be09ba39626306"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 4
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b4.png"
+sha256 = "e4a8a1e7017e4a650237c93e706264df19021a7336d738962933e67d049b89c2"
+made_from = "7ff5ff825eca332df4b8c0dc7cf5517121ae9add93ee76bec3f0cfe06736b7c0"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 5
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b5.png"
+sha256 = "e13a08d804eb8173aeec98c7a9a4f96e62a12972d06940743df0661952cfdf98"
+made_from = "e4a8a1e7017e4a650237c93e706264df19021a7336d738962933e67d049b89c2"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 6
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b6.png"
+sha256 = "b5ee228a8199305f89ed6261d9eeceb9204c6192771e7ae5cbe78f4394380e57"
+made_from = "e13a08d804eb8173aeec98c7a9a4f96e62a12972d06940743df0661952cfdf98"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 7
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b7.png"
+sha256 = "d9f33b74b8845fc29c39bbb743a0fa7358dbdaccc91a593a81a5339b73372c76"
+made_from = "b5ee228a8199305f89ed6261d9eeceb9204c6192771e7ae5cbe78f4394380e57"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 8
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b8.png"
+sha256 = "bb78d56656586d295dc94fb55f0b9351424f0efc7e44dcf05b0a7bb24f2425b2"
+made_from = "d9f33b74b8845fc29c39bbb743a0fa7358dbdaccc91a593a81a5339b73372c76"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 9
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b9.png"
+sha256 = "391590d092f57b13968ea0174fda8726918550f84594de498c72482f1f2e9623"
+made_from = "bb78d56656586d295dc94fb55f0b9351424f0efc7e44dcf05b0a7bb24f2425b2"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 10
+file = "art/textures/fixtures27/birch_summer_trunk/near/colour/b10.png"
+sha256 = "f2bb5bbaca678ecad746b1fa5ecfa2c8a81dd18817be19f0187c036d25326317"
+made_from = "391590d092f57b13968ea0174fda8726918550f84594de498c72482f1f2e9623"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"

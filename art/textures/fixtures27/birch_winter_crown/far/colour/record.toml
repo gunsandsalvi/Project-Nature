@@ -1,0 +1,61 @@
+about = "T2.7a.3 birch-winter_crown colour: neutral bare winter colour; same branch pattern redraw; authored far family"
+route = "picture"
+tile_texels = 64
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/fixtures27/neutral/birch-winter-near-original.png", "art/sources/fixtures27/neutral/birch-winter-middle-original.png", "art/sources/fixtures27/neutral/birch-winter-far-original.png"]
+original_sha256 = ["1521c09518daf4c605040e9984fe55dc2169a5c1f50255368041ac8b10880276", "6638816a5be4a9dde3cf8557769b218b10b8e5da3c3de5d4cce084bb0873fe5e", "bc2fab3c6f11048a7cc608b41c1c868a9074485ae4f7f2cbe26e71cdeca4e43d"]
+c2pa = ["present", "present", "present"]
+requests = ["art/requests/fixtures27/production.txt"]
+made = "image drawing; tools/art/fixtures.py cleanup; neutral bare winter colour; same branch pattern redraw"
+regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
+truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
+approved = "pending owner runtime review and engine lighting calibration"
+
+[[band]]
+level = 0
+file = "art/textures/fixtures27/birch_winter_crown/far/colour/b4.png"
+sha256 = "da55b1e62d0a003ff736d3c796df20babaa15d108e6241ebaa23bfac65006c01"
+way = "image-drawn family; block cleanup and palette snap"
+
+[[band]]
+level = 1
+file = "art/textures/fixtures27/birch_winter_crown/far/colour/b5.png"
+sha256 = "ecf959f274ca4a6597a25fe293450ead89afb46cab3cc7abd571d06bc6a35b52"
+made_from = "da55b1e62d0a003ff736d3c796df20babaa15d108e6241ebaa23bfac65006c01"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 2
+file = "art/textures/fixtures27/birch_winter_crown/far/colour/b6.png"
+sha256 = "36c7649ed5eaccaaf7bb7702f8c06cc385b6f696349bdba60dab7c3dae4e91bf"
+made_from = "ecf959f274ca4a6597a25fe293450ead89afb46cab3cc7abd571d06bc6a35b52"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 3
+file = "art/textures/fixtures27/birch_winter_crown/far/colour/b7.png"
+sha256 = "8a734ab011d2df226b4ab427252cdd8efd8140f426362a39c2caac8597e621cf"
+made_from = "36c7649ed5eaccaaf7bb7702f8c06cc385b6f696349bdba60dab7c3dae4e91bf"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 4
+file = "art/textures/fixtures27/birch_winter_crown/far/colour/b8.png"
+sha256 = "efc2e50b634151a9d96b69f5b65866c2807d7e5578504e48bcfed8d8b88b041a"
+made_from = "8a734ab011d2df226b4ab427252cdd8efd8140f426362a39c2caac8597e621cf"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 5
+file = "art/textures/fixtures27/birch_winter_crown/far/colour/b9.png"
+sha256 = "16ea289751f5e4fdd329d36703010402286c523aa26d87c8a441a0afaf65fb96"
+made_from = "efc2e50b634151a9d96b69f5b65866c2807d7e5578504e48bcfed8d8b88b041a"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 6
+file = "art/textures/fixtures27/birch_winter_crown/far/colour/b10.png"
+sha256 = "7ad09c5b8cf2f891c289c312ff82665f64c10eb5d7fbdeae5d1d25994b47914d"
+made_from = "16ea289751f5e4fdd329d36703010402286c523aa26d87c8a441a0afaf65fb96"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"

@@ -1,0 +1,1400 @@
+{
+  "normal_basis": "world east, south, up; signed unit XYZ encoded as round((n+1)*127.5)",
+  "material_encoding": "R exact ID, G=B=0, A colour coverage",
+  "approval": "no runtime or engine approval",
+  "entries": [
+    {
+      "id": "birch-summer",
+      "sheet": "art/catalogue/sheets/7.7-birch.webp",
+      "status": "neutral image-drawn colour; cleaned production candidate",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_summer/near/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_summer/near/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_summer/near/normal/record.toml"
+          },
+          "pivot": [
+            512.0,
+            1023.0
+          ],
+          "page_size": [
+            1024,
+            1024
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.6218225753984851,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.5932985797217265,
+            "crop": [
+              105,
+              9,
+              824,
+              1732
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              512.0,
+              1023.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 16777212,
+          "preview": "art/previews/fixtures27/birch-summer-near.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_trunk/near/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_trunk/near/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_trunk/near/normal/record.toml"
+              },
+              "pivot": [
+                512.0,
+                1023.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 16777212
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_crown/near/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_crown/near/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_crown/near/normal/record.toml"
+              },
+              "pivot": [
+                512.0,
+                1023.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 16777212
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_summer/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_summer/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_summer/middle/normal/record.toml"
+          },
+          "pivot": [
+            128.0,
+            255.75
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.5643849375602231,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.14034231917360446,
+            "crop": [
+              90,
+              30,
+              779,
+              1851
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              128.0,
+              255.75
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/birch-summer-middle.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_trunk/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_trunk/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_trunk/middle/normal/record.toml"
+              },
+              "pivot": [
+                128.0,
+                255.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 1048572
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_crown/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_crown/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_crown/middle/normal/record.toml"
+              },
+              "pivot": [
+                128.0,
+                255.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 1048572
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_summer/far/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_summer/far/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_summer/far/normal/record.toml"
+          },
+          "pivot": [
+            32.0,
+            63.9375
+          ],
+          "page_size": [
+            64,
+            64
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.7778123697922763,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.03466676115235129,
+            "crop": [
+              91,
+              16,
+              782,
+              1859
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              32.0,
+              63.9375
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 65532,
+          "preview": "art/previews/fixtures27/birch-summer-far.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_trunk/far/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_trunk/far/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_trunk/far/normal/record.toml"
+              },
+              "pivot": [
+                32.0,
+                63.9375
+              ],
+              "gpu_rgba8_bytes_with_chains": 65532
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_crown/far/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_crown/far/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_crown/far/normal/record.toml"
+              },
+              "pivot": [
+                32.0,
+                63.9375
+              ],
+              "gpu_rgba8_bytes_with_chains": 65532
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        }
+      ]
+    },
+    {
+      "id": "birch-winter",
+      "sheet": "art/catalogue/sheets/7.7-birch.webp",
+      "status": "neutral bare winter colour; same branch pattern redraw",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_winter/near/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_winter/near/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_winter/near/normal/record.toml"
+          },
+          "pivot": [
+            512.0,
+            1023.0
+          ],
+          "page_size": [
+            1024,
+            1024
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.8928825622775801,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.6023885992106864,
+            "crop": [
+              100,
+              21,
+              826,
+              1718
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              512.0,
+              1023.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 16777212,
+          "preview": "art/previews/fixtures27/birch-winter-near.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_trunk/near/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_trunk/near/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_trunk/near/normal/record.toml"
+              },
+              "pivot": [
+                512.0,
+                1023.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 16777212
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_crown/near/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_crown/near/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_crown/near/normal/record.toml"
+              },
+              "pivot": [
+                512.0,
+                1023.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 16777212
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_winter/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_winter/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_winter/middle/normal/record.toml"
+          },
+          "pivot": [
+            128.0,
+            255.75
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.8964941001863695,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.15050845890172773,
+            "crop": [
+              98,
+              18,
+              827,
+              1716
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              128.0,
+              255.75
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/birch-winter-middle.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_trunk/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_trunk/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_trunk/middle/normal/record.toml"
+              },
+              "pivot": [
+                128.0,
+                255.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 1048572
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_crown/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_crown/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_crown/middle/normal/record.toml"
+              },
+              "pivot": [
+                128.0,
+                255.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 1048572
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_winter/far/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_winter/far/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_winter/far/normal/record.toml"
+          },
+          "pivot": [
+            32.0,
+            63.9375
+          ],
+          "page_size": [
+            64,
+            64
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.924395265408424,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.03731941635735013,
+            "crop": [
+              129,
+              26,
+              781,
+              1738
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              32.0,
+              63.9375
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 65532,
+          "preview": "art/previews/fixtures27/birch-winter-far.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_trunk/far/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_trunk/far/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_trunk/far/normal/record.toml"
+              },
+              "pivot": [
+                32.0,
+                63.9375
+              ],
+              "gpu_rgba8_bytes_with_chains": 65532
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_crown/far/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_crown/far/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_crown/far/normal/record.toml"
+              },
+              "pivot": [
+                32.0,
+                63.9375
+              ],
+              "gpu_rgba8_bytes_with_chains": 65532
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        }
+      ]
+    },
+    {
+      "id": "tent",
+      "sheet": "art/catalogue/sheets/16.4-hide_tent_cone.webp",
+      "status": "neutral image-drawn hide tent; cleaned production candidate",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/tent/near/colour/record.toml",
+            "material": "art/textures/fixtures27/tent/near/material/record.toml",
+            "normal": "art/textures/fixtures27/tent/near/normal/record.toml"
+          },
+          "pivot": [
+            256.0,
+            508.0
+          ],
+          "page_size": [
+            512,
+            512
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.9378054351411368,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.21642512077294687,
+            "crop": [
+              60,
+              44,
+              1302,
+              1116
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              256.0,
+              508.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 4194300,
+          "preview": "art/previews/fixtures27/tent-near.webp",
+          "parts": {
+            "front": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_front/near/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_front/near/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_front/near/normal/record.toml"
+              },
+              "pivot": [
+                256.0,
+                508.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 4194300
+            },
+            "roof": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_roof/near/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_roof/near/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_roof/near/normal/record.toml"
+              },
+              "pivot": [
+                256.0,
+                508.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 4194300
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/tent/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/tent/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/tent/middle/normal/record.toml"
+          },
+          "pivot": [
+            64.0,
+            127.0
+          ],
+          "page_size": [
+            128,
+            128
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.5278438369812085,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.054501216545012166,
+            "crop": [
+              58,
+              41,
+              1291,
+              1127
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              64.0,
+              127.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 262140,
+          "preview": "art/previews/fixtures27/tent-middle.webp",
+          "parts": {
+            "front": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_front/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_front/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_front/middle/normal/record.toml"
+              },
+              "pivot": [
+                64.0,
+                127.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 262140
+            },
+            "roof": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_roof/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_roof/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_roof/middle/normal/record.toml"
+              },
+              "pivot": [
+                64.0,
+                127.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 262140
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/tent/far/colour/record.toml",
+            "material": "art/textures/fixtures27/tent/far/material/record.toml",
+            "normal": "art/textures/fixtures27/tent/far/normal/record.toml"
+          },
+          "pivot": [
+            16.0,
+            31.75
+          ],
+          "page_size": [
+            32,
+            32
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.6180515363706982,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.013270142180094787,
+            "crop": [
+              58,
+              43,
+              1324,
+              1109
+            ],
+            "removed_singletons": 0,
+            "pivot": [
+              16.0,
+              31.75
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 16380,
+          "preview": "art/previews/fixtures27/tent-far.webp",
+          "parts": {
+            "front": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_front/far/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_front/far/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_front/far/normal/record.toml"
+              },
+              "pivot": [
+                16.0,
+                31.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 16380
+            },
+            "roof": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_roof/far/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_roof/far/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_roof/far/normal/record.toml"
+              },
+              "pivot": [
+                16.0,
+                31.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 16380
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        }
+      ]
+    },
+    {
+      "id": "meadow",
+      "sheet": "art/catalogue/sheets/1.1-meadow.webp",
+      "status": "muted neutral grass candidate; independently drawn families with three compatible quilted variants",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow/near/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow/near/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow/near/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.20689392031623208,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 5629,
+            "cleaned": "art/sources/fixtures27/revision/meadow-near-r2-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-near.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-near-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-near-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow/middle/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.02112220161829832,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 377,
+            "cleaned": "art/sources/fixtures27/revision/meadow-middle-r2-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-middle.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-middle-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-middle-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow/far/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow/far/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow/far/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.014576004314105549,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 563,
+            "cleaned": "art/sources/fixtures27/revision/meadow-far-r2-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-far.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-far-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-far-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meadow-v2",
+      "sheet": "art/catalogue/sheets/1.1-meadow.webp",
+      "status": "muted neutral grass candidate; independently drawn families with three compatible quilted variants",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow_v2/near/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow_v2/near/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow_v2/near/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.20689392031623208,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 5611,
+            "cleaned": "art/sources/fixtures27/revision/meadow-near-r2-v2-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-v2-near.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-near-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-near-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow_v2/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow_v2/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow_v2/middle/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.02112220161829832,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 369,
+            "cleaned": "art/sources/fixtures27/revision/meadow-middle-r2-v2-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-v2-middle.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-middle-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-middle-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow_v2/far/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow_v2/far/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow_v2/far/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.014576004314105549,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 562,
+            "cleaned": "art/sources/fixtures27/revision/meadow-far-r2-v2-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-v2-far.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-far-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-far-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meadow-v3",
+      "sheet": "art/catalogue/sheets/1.1-meadow.webp",
+      "status": "muted neutral grass candidate; independently drawn families with three compatible quilted variants",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow_v3/near/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow_v3/near/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow_v3/near/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.20689392031623208,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 5633,
+            "cleaned": "art/sources/fixtures27/revision/meadow-near-r2-v3-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-v3-near.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-near-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-near-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow_v3/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow_v3/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow_v3/middle/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.02112220161829832,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 374,
+            "cleaned": "art/sources/fixtures27/revision/meadow-middle-r2-v3-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-v3-middle.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-middle-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-middle-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/meadow_v3/far/colour/record.toml",
+            "material": "art/textures/fixtures27/meadow_v3/far/material/record.toml",
+            "normal": "art/textures/fixtures27/meadow_v3/far/normal/record.toml"
+          },
+          "pivot": [
+            0.0,
+            0.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 3.91875,
+            "block_loss": 0.014576004314105549,
+            "palette_and_scale_loss": null,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.20414673046251994,
+            "crop": [
+              0,
+              0,
+              1254,
+              1254
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 559,
+            "cleaned": "art/sources/fixtures27/revision/meadow-far-r2-v3-cleaned.png",
+            "pivot": [
+              0.0,
+              0.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/meadow-v3-far.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "projected_review": [
+            "art/previews/fixtures27/meadow-far-single-projected-2x.png",
+            "art/previews/fixtures27/meadow-far-mixed-projected-2x.png"
+          ],
+          "mixed_preview_layout": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              2,
+              0,
+              1
+            ],
+            [
+              1,
+              2,
+              2
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boulder",
+      "sheet": "art/catalogue/sheets/2.16-boulders.webp",
+      "status": "neutral rounded granite revision; quiet mineral clusters and descending fissure",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/boulder/near/colour/record.toml",
+            "material": "art/textures/fixtures27/boulder/near/material/record.toml",
+            "normal": "art/textures/fixtures27/boulder/near/normal/record.toml"
+          },
+          "pivot": [
+            128.0,
+            252.0
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.20337267088011246,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.14634146341463414,
+            "crop": [
+              66,
+              102,
+              1378,
+              1039
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/boulder-near-r2-cleaned.png",
+            "pivot": [
+              128.0,
+              252.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/boulder-near.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/boulder-near-light-study.webp"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/boulder/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/boulder/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/boulder/middle/normal/record.toml"
+          },
+          "pivot": [
+            32.0,
+            63.0
+          ],
+          "page_size": [
+            64,
+            64
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.29102914132696683,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.03490909090909091,
+            "crop": [
+              67,
+              66,
+              1442,
+              1027
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/boulder-middle-r2-cleaned.png",
+            "pivot": [
+              32.0,
+              63.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 65532,
+          "preview": "art/previews/fixtures27/boulder-middle.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/boulder-middle-light-study.webp"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/boulder/far/colour/record.toml",
+            "material": "art/textures/fixtures27/boulder/far/material/record.toml",
+            "normal": "art/textures/fixtures27/boulder/far/normal/record.toml"
+          },
+          "pivot": [
+            8.0,
+            15.75
+          ],
+          "page_size": [
+            16,
+            16
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.37963100578686226,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.009195402298850575,
+            "crop": [
+              72,
+              97,
+              1377,
+              963
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/boulder-far-r2-cleaned.png",
+            "pivot": [
+              8.0,
+              15.75
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 4092,
+          "preview": "art/previews/fixtures27/boulder-far.webp",
+          "parts": {},
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/boulder-far-light-study.webp"
+        }
+      ]
+    }
+  ]
+}

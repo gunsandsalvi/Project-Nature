@@ -1,0 +1,33 @@
+Design sheet request. PRE-27, PRE-44, PRE-46. Catalogue piece 10.1 body.
+Status: clothed adult proposal sheet drawn; owner approval pending.
+The unclothed adult edit returned moderation_blocked at output and no image.
+The sheet does not cover the unclothed first people, children or the full age kit.
+Exact prompts: body-clothing-trial.txt, body-first-blocked.txt, body-views.txt, body-zoom.txt.
+This describes a proposed fixture, not an approved human design.
+
+Use tools/art/sheet.py with its ivory page, charcoal labels, palette
+chips and striped scale sticks. Art must be drawn with the image tool.
+References: art/targets/people-variety.webp and
+art/targets/ab-figures-detailed.webp. Keep their detailed pixel feeling.
+
+Draw one consistent adult, 1.7 m tall, average build, with warm medium
+skin and dark untied hair. Show front, side, back and above in even
+neutral light. Show four actor facings through the fixed 37 degree
+camera; it faces north and never rotates. Camera views use the sheet's
+late-afternoon light. Keep no sexual detail. First people have no
+invented clothing or equipment. Show a separate plain sewn hide tunic
+as a later clothing proposal, with no borrowed cultural motifs.
+
+Show the adult at near, middle and far phone size, using projected
+scales 64, 16 and 4 internal pixels a metre at 2x presentation.
+An upright 1.7 m body is about 87, 22 and 5 internal pixels high.
+Show a six-pose walk strip with planted contacts and passing poses.
+Show carrying, cutting and tending-fire key poses as separate studies.
+Tools and garments are separate parts. No metal, sawn wood or modern
+equipment. Show a child, an elder, thin and stout studies, facial
+states, a limp, a sling and a pale dressing. Give surfaces enlarged.
+Keep anatomy, hair, handedness and part counts consistent in every view.
+Save each original unchanged beside the cleaned picture and spec.
+
+The owner must approve the design sheet before production sprites,
+walk frames, clothing overlays or attachment coordinates are made.

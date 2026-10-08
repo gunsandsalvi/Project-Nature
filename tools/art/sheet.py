@@ -122,25 +122,25 @@ def clear(picture):
     return np.dstack([rgb, (solid(picture) * 255).astype(np.uint8)])
 
 
-def cut_out(picture):
+def cut_out(picture, least=3):
     """The object GPT drew on flat magenta, cropped to itself with the magenta made clear. Rows and columns with fewer
-    than three solid pixels are left out of its box, so a stray speck doesn't widen it."""
+    than `least` solid pixels are left out of its box. Use one for already cleaned tiny pixel drawings."""
     on = solid(picture)
-    cols = np.nonzero(on.sum(axis=0) >= 3)[0]
-    rows = np.nonzero(on.sum(axis=1) >= 3)[0]
+    cols = np.nonzero(on.sum(axis=0) >= least)[0]
+    rows = np.nonzero(on.sum(axis=1) >= least)[0]
     if not len(cols) or not len(rows):
         raise ValueError("the picture holds nothing but the key colour")
     return Image.fromarray(clear(picture), "RGBA").crop((cols[0], rows[0], cols[-1] + 1, rows[-1] + 1))
 
 
-def to_scale(cut, metres, px_per_m, measure="tall"):
+def to_scale(cut, metres, px_per_m, measure="tall", pixel_art=False):
     """The cut-out scaled so its height, or with "across" its width, is `metres` at `px_per_m`."""
     k = metres * px_per_m / (cut.height if measure == "tall" else cut.width)
     size = (max(1, round(cut.width * k)), max(1, round(cut.height * k)))
-    return cut.resize(size, Image.LANCZOS if k < 1 else Image.NEAREST)
+    return cut.resize(size, Image.LANCZOS if k < 1 and not pixel_art else Image.NEAREST)
 
 
-def poses(picture, metres, px_per_m):
+def poses(picture, metres, px_per_m, pixel_art=False):
     """A strip of key poses on flat magenta, split at the empty columns between them and scaled as one, so its first
     pose is `metres` tall; each keeps its height above the strip's ground line."""
     on = solid(picture)
@@ -154,7 +154,12 @@ def poses(picture, metres, px_per_m):
     out = []
     for a, b in found:
         piece = Image.fromarray(rgba[top:bottom, a:b], "RGBA")
-        out.append(piece.resize((max(1, round(piece.width * k)), max(1, round(piece.height * k))), Image.LANCZOS))
+        out.append(
+            piece.resize(
+                (max(1, round(piece.width * k)), max(1, round(piece.height * k))),
+                Image.NEAREST if pixel_art else Image.LANCZOS,
+            )
+        )
     return out
 
 
@@ -361,12 +366,14 @@ def compose_object(spec, sheet, folder):
 
     def cut(name):
         if name not in cache:
-            cache[name] = cut_out(Image.open(os.path.join(folder, name)))
+            cache[name] = cut_out(Image.open(os.path.join(folder, name)), least=1 if spec.get("pixel_art") else 3)
         return cache[name]
 
     def shown(item, px_per_m):
         measure = "tall" if "tall" in item else "across"
-        return to_scale(cut(item["file"]), item[measure], px_per_m, measure), item.get("label", "")
+        return to_scale(
+            cut(item["file"]), item[measure], px_per_m, measure, pixel_art=spec.get("pixel_art", False)
+        ), item.get("label", "")
 
     def standing(row, px_per_m, metres, with_adult):
         if with_adult:
@@ -387,10 +394,14 @@ def compose_object(spec, sheet, folder):
         sheet.figures([shown(above, s), (lying(round(metres * s), length_label(metres)), "")])
     camera = spec.get("camera_objects")
     if camera:
-        sheet.text("The game's camera, about 37 degrees down, late afternoon, at the same scale.", 26, bold=True)
+        sheet.text(
+            spec.get("camera_title", "The game's camera, about 37 degrees down, late afternoon, at the same scale."),
+            26,
+            bold=True,
+        )
         metres = fitting(camera.get("stick", 1), s, HALF)
         sheet.figures([shown(i, s) for i in camera["items"]] + [(lying(round(metres * s), length_label(metres)), "")])
-        row = true_size_row(camera["items"][0], shown)
+        row = true_size_row(camera["items"][0], shown) if camera.get("phone_sizes", True) else []
         if row:
             about = "True size on the phone at each zoom (scaled here; each band gets pixel art of its own)."
             sheet.text(about, 26, bold=True)
@@ -407,7 +418,9 @@ def compose_object(spec, sheet, folder):
             sheet.figures(standing(row, k, group.get("stick", 1), group.get("adult", False)))
     for strip in [s for s in spec.get("strips", []) if "tall" in s]:
         sheet.text(strip["title"], 26, bold=True)
-        figures = poses(Image.open(os.path.join(folder, strip["file"])), strip["tall"], s)
+        figures = poses(
+            Image.open(os.path.join(folder, strip["file"])), strip["tall"], s, pixel_art=spec.get("pixel_art", False)
+        )
         sheet.figures(standing([(f, "") for f in figures], s, strip.get("stick", 1), False))
 
 

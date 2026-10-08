@@ -1,0 +1,75 @@
+about = "T2.7a.3 meadow-v3 material: muted neutral grass candidate; independently drawn families with three compatible quilted variants; authored middle family"
+route = "code"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/fixtures27/revision/meadow-near-r2-original.png", "art/sources/fixtures27/revision/meadow-middle-r2-original.png", "art/sources/fixtures27/revision/meadow-far-r2-original.png"]
+original_sha256 = ["4944a9dac20ce5698ffa1c35b1403dd19e7a64455237a5393adba44352c94dd6", "10e03c40a6c26fc23a26b76a9e6f2317c7338c27cbe85f2e4a88cdb33f66209d", "1e9caa84386a4a1d17c3c2e58a43e17ab7fad9ddaabf335c9f323a89abc97a7b"]
+c2pa = ["present", "present", "present"]
+requests = ["art/requests/fixtures27/production.txt", "art/requests/fixtures27/revision/meadow-near-r2.txt", "art/requests/fixtures27/revision/meadow-middle-r2.txt", "art/requests/fixtures27/revision/meadow-far-r2.txt"]
+made = "image drawing; tools/art/fixtures.py cleanup; muted neutral grass candidate; independently drawn families with three compatible quilted variants"
+regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
+truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
+approved = "pending owner runtime review and engine lighting calibration"
+
+[[band]]
+level = 0
+file = "art/textures/fixtures27/meadow_v3/middle/material/b2.png"
+sha256 = "4474d1ea611665a23609ec23361c7eda66870e1f994d51f1a2af0eed44d85fa0"
+way = "image-drawn family; block cleanup and palette snap"
+
+[[band]]
+level = 1
+file = "art/textures/fixtures27/meadow_v3/middle/material/b3.png"
+sha256 = "6de1331826a3aaaef4cde4a32dd188d994cc6f8edcf21b6427454618642d61bf"
+made_from = "4474d1ea611665a23609ec23361c7eda66870e1f994d51f1a2af0eed44d85fa0"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 2
+file = "art/textures/fixtures27/meadow_v3/middle/material/b4.png"
+sha256 = "d88b20e300dfa1a2424761d52ce28c956142f9cc59afe0df3a10b9bb21ca7364"
+made_from = "6de1331826a3aaaef4cde4a32dd188d994cc6f8edcf21b6427454618642d61bf"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 3
+file = "art/textures/fixtures27/meadow_v3/middle/material/b5.png"
+sha256 = "538838982f76d36cfdc12b847fd07c78809067f7d1ea5a84742dd68beb9492c7"
+made_from = "d88b20e300dfa1a2424761d52ce28c956142f9cc59afe0df3a10b9bb21ca7364"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 4
+file = "art/textures/fixtures27/meadow_v3/middle/material/b6.png"
+sha256 = "bb1eefe7e0f172d77ad8a8a2e21eeced6470d923846dcc481d2ffb412c3d0486"
+made_from = "538838982f76d36cfdc12b847fd07c78809067f7d1ea5a84742dd68beb9492c7"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 5
+file = "art/textures/fixtures27/meadow_v3/middle/material/b7.png"
+sha256 = "dd242631b6bb7e83409b196c7e61b4e636599e0f5c9465c5dcea5a2ffc0b50f2"
+made_from = "bb1eefe7e0f172d77ad8a8a2e21eeced6470d923846dcc481d2ffb412c3d0486"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 6
+file = "art/textures/fixtures27/meadow_v3/middle/material/b8.png"
+sha256 = "a6eeb141fbaf30a5aabd420494d6066147adfb43cde405bf3256d310c088c512"
+made_from = "dd242631b6bb7e83409b196c7e61b4e636599e0f5c9465c5dcea5a2ffc0b50f2"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 7
+file = "art/textures/fixtures27/meadow_v3/middle/material/b9.png"
+sha256 = "5590713d6dd226c6456b88c128d03f5c7e601aa2d64b42bdb47adc6177484324"
+made_from = "a6eeb141fbaf30a5aabd420494d6066147adfb43cde405bf3256d310c088c512"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 8
+file = "art/textures/fixtures27/meadow_v3/middle/material/b10.png"
+sha256 = "4e5498888fd2138e664e806b0303f673ede8e9f1a4e500eacdcecf725b192d6f"
+made_from = "5590713d6dd226c6456b88c128d03f5c7e601aa2d64b42bdb47adc6177484324"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"

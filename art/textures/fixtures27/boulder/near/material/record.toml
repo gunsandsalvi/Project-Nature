@@ -1,0 +1,75 @@
+about = "T2.7a.3 boulder material: neutral rounded granite revision; quiet mineral clusters and descending fissure; authored near family"
+route = "code"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/fixtures27/revision/boulder-near-r2-original.png", "art/sources/fixtures27/revision/boulder-middle-r2-original.png", "art/sources/fixtures27/revision/boulder-far-r2-original.png"]
+original_sha256 = ["c99f3a5e04f5ed125ca1076c58da8e9a98a0cc73d4d0b52d3cb9c16580dda9d5", "a962bd69cee1030a54fbb6b19dda3f735f515add49d1e99f762c1d31ea7191b3", "fce45f3ae1284681a0506eb5a042430b84f664c23fdbc4b14d6aee5a084358f1"]
+c2pa = ["present", "present", "present"]
+requests = ["art/requests/fixtures27/production.txt", "art/requests/fixtures27/revision/boulder-near-r2.txt", "art/requests/fixtures27/revision/boulder-middle-r2.txt", "art/requests/fixtures27/revision/boulder-far-r2.txt"]
+made = "image drawing; tools/art/fixtures.py cleanup; neutral rounded granite revision; quiet mineral clusters and descending fissure"
+regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
+truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
+approved = "pending owner runtime review and engine lighting calibration"
+
+[[band]]
+level = 0
+file = "art/textures/fixtures27/boulder/near/material/b0.png"
+sha256 = "60d5d3523a0b63640ff069a5433d10646492db49198feac3488bf2d81ec7adea"
+way = "image-drawn family; block cleanup and palette snap"
+
+[[band]]
+level = 1
+file = "art/textures/fixtures27/boulder/near/material/b1.png"
+sha256 = "955192e15e2c593d2a2ea3d0f623933fd5cc83a99969020538347a43b8c81bbc"
+made_from = "60d5d3523a0b63640ff069a5433d10646492db49198feac3488bf2d81ec7adea"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 2
+file = "art/textures/fixtures27/boulder/near/material/b2.png"
+sha256 = "ed122f4abc7985498d70f0d2c2286c0c2a0c6e5657288d0058605805f7dfd720"
+made_from = "955192e15e2c593d2a2ea3d0f623933fd5cc83a99969020538347a43b8c81bbc"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 3
+file = "art/textures/fixtures27/boulder/near/material/b3.png"
+sha256 = "012b58917390811678d0e87a4bdd1cfd0e0e34cb7d81e6e8b9507575349f584b"
+made_from = "ed122f4abc7985498d70f0d2c2286c0c2a0c6e5657288d0058605805f7dfd720"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 4
+file = "art/textures/fixtures27/boulder/near/material/b4.png"
+sha256 = "5be4f387ffec564bef1d781a336eadd51f6e265ba566214d543f977831ffc159"
+made_from = "012b58917390811678d0e87a4bdd1cfd0e0e34cb7d81e6e8b9507575349f584b"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 5
+file = "art/textures/fixtures27/boulder/near/material/b5.png"
+sha256 = "d41f901ff85d684f72d302c35d74cf960367fd05b14d87a8ca97788069784e69"
+made_from = "5be4f387ffec564bef1d781a336eadd51f6e265ba566214d543f977831ffc159"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 6
+file = "art/textures/fixtures27/boulder/near/material/b6.png"
+sha256 = "130aa409abee6f60c3bcb1f278ab236ddbaf3534cf7dad5d38e146ce8e74eda2"
+made_from = "d41f901ff85d684f72d302c35d74cf960367fd05b14d87a8ca97788069784e69"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 7
+file = "art/textures/fixtures27/boulder/near/material/b7.png"
+sha256 = "abd0828f448480ecd67fb7f2de2c34f1c4c0ad53c76a918f7ac1fcced032728f"
+made_from = "130aa409abee6f60c3bcb1f278ab236ddbaf3534cf7dad5d38e146ce8e74eda2"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 8
+file = "art/textures/fixtures27/boulder/near/material/b8.png"
+sha256 = "7e45c64173076514fe3dc44f14d7d8831f64faf1f56c54583f11c6cec3e74ab3"
+made_from = "abd0828f448480ecd67fb7f2de2c34f1c4c0ad53c76a918f7ac1fcced032728f"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"

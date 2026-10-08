@@ -1,0 +1,61 @@
+about = "T2.7a.3 boulder colour: neutral rounded granite revision; quiet mineral clusters and descending fissure; authored middle family"
+route = "picture"
+tile_texels = 64
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/fixtures27/revision/boulder-near-r2-original.png", "art/sources/fixtures27/revision/boulder-middle-r2-original.png", "art/sources/fixtures27/revision/boulder-far-r2-original.png"]
+original_sha256 = ["c99f3a5e04f5ed125ca1076c58da8e9a98a0cc73d4d0b52d3cb9c16580dda9d5", "a962bd69cee1030a54fbb6b19dda3f735f515add49d1e99f762c1d31ea7191b3", "fce45f3ae1284681a0506eb5a042430b84f664c23fdbc4b14d6aee5a084358f1"]
+c2pa = ["present", "present", "present"]
+requests = ["art/requests/fixtures27/production.txt", "art/requests/fixtures27/revision/boulder-near-r2.txt", "art/requests/fixtures27/revision/boulder-middle-r2.txt", "art/requests/fixtures27/revision/boulder-far-r2.txt"]
+made = "image drawing; tools/art/fixtures.py cleanup; neutral rounded granite revision; quiet mineral clusters and descending fissure"
+regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
+truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
+approved = "pending owner runtime review and engine lighting calibration"
+
+[[band]]
+level = 0
+file = "art/textures/fixtures27/boulder/middle/colour/b2.png"
+sha256 = "1a5a4e2b98b6b8d30a8ead94234ab6ec3d8353bd70b0a5aa527dea257e76d8c7"
+way = "image-drawn family; block cleanup and palette snap"
+
+[[band]]
+level = 1
+file = "art/textures/fixtures27/boulder/middle/colour/b3.png"
+sha256 = "f19c1b76c2e4bdc1c89704808e559837b6ac0ef32fb43fdd1e0573ca5cf10628"
+made_from = "1a5a4e2b98b6b8d30a8ead94234ab6ec3d8353bd70b0a5aa527dea257e76d8c7"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 2
+file = "art/textures/fixtures27/boulder/middle/colour/b4.png"
+sha256 = "8b9b425464634eb52c274667f0580f0f0b90dc53fe535b310d6a1a29c7ed7d50"
+made_from = "f19c1b76c2e4bdc1c89704808e559837b6ac0ef32fb43fdd1e0573ca5cf10628"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 3
+file = "art/textures/fixtures27/boulder/middle/colour/b5.png"
+sha256 = "9d7dfbba72359e15c75e4a16702541bcc2aec93212da8fbe20cfac4e6a7e9a57"
+made_from = "8b9b425464634eb52c274667f0580f0f0b90dc53fe535b310d6a1a29c7ed7d50"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 4
+file = "art/textures/fixtures27/boulder/middle/colour/b6.png"
+sha256 = "8d82d467fd87ef66ae4a08eadb004755d8e47ed2c515e55aefab8c5fd3c1b02d"
+made_from = "9d7dfbba72359e15c75e4a16702541bcc2aec93212da8fbe20cfac4e6a7e9a57"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 5
+file = "art/textures/fixtures27/boulder/middle/colour/b7.png"
+sha256 = "27b08397cdebb919a3e403c63b03ade1f0d02435c3f746f7358efaedb8532533"
+made_from = "8d82d467fd87ef66ae4a08eadb004755d8e47ed2c515e55aefab8c5fd3c1b02d"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 6
+file = "art/textures/fixtures27/boulder/middle/colour/b8.png"
+sha256 = "1153162dacc487cecedb119249aede4301de04f5010ce494424c139565096c27"
+made_from = "27b08397cdebb919a3e403c63b03ade1f0d02435c3f746f7358efaedb8532533"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"

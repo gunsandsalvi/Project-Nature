@@ -150,6 +150,18 @@ class Sheet(unittest.TestCase):
         self.assertEqual(sheet.to_scale(cut, 1.5, 200).size, (100, 300))
         self.assertEqual(sheet.to_scale(cut, 0.5, 300, "across").size, (150, 450))
 
+    # checks: PRE-22 PRE-46
+    def test_a_cleaned_tiny_figure_keeps_its_single_pixel_head_and_foot(self):
+        pixels = np.full((7, 5, 3), sheet.KEY, np.uint8)
+        pixels[1, 2] = pixels[5, 3] = RED
+        pixels[2:5, 1:4] = RED
+        drawing = Image.fromarray(pixels)
+        self.assertEqual(sheet.cut_out(drawing).height, 3)
+        kept = sheet.cut_out(drawing, least=1)
+        self.assertEqual(kept.size, (3, 5))
+        self.assertEqual(np.asarray(kept)[0, 1, 3], 255)
+        self.assertEqual(np.asarray(kept)[-1, 2, 3], 255)
+
     # checks: PRE-46 PRE-22
     def test_a_small_tile_is_enlarged_pixel_for_pixel(self):
         checker = np.zeros((4, 4, 3), np.uint8)

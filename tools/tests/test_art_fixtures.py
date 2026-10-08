@@ -1,0 +1,211 @@
+"""The 2D fixture preparation rejects corrupt maps and keeps categorical reductions (PRE-20, PRE-22, PRE-46).
+
+These are synthetic numeric probes, not code-drawn substitute art. Art approval remains a separate review.
+"""
+
+import os
+import sys
+import unittest
+
+import numpy as np
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "art"))
+import fixtures  # noqa: E402
+
+
+def probe():
+    alpha = np.full((4, 4), 255, np.uint8)
+    colour = np.full((4, 4, 4), (80, 96, 48, 255), np.uint8)
+    ids = np.full((4, 4), 3, np.uint8)
+    return {"colour": colour, "material": fixtures.material_page(ids, alpha), "normal": fixtures.normals(alpha, True)}
+
+
+class FixtureMaps(unittest.TestCase):
+    # checks: PRE-20 PRE-22
+    def test_ground_colour_fleck_cleanup_keeps_an_intentional_cluster(self):
+        colour = np.full((16, 16, 4), (80, 96, 48, 255), np.uint8)
+        colour[2:5, 2:5, :3] = [100, 110, 65]
+        colour[9, 9, :3] = [100, 110, 65]
+        clean, count = fixtures.merge_colour_flecks(colour)
+        self.assertEqual(count, 1)
+        np.testing.assert_array_equal(clean[2:5, 2:5], colour[2:5, 2:5])
+        self.assertFalse(fixtures.colour_flecks(clean).any())
+
+    # checks: PRE-02 PRE-22
+    def test_ground_repeat_projects_the_full_span_once_without_rounded_tile_pitch(self):
+        plane = np.zeros((768, 768, 4), np.uint8)
+        projected = fixtures.project_ground(plane)
+        self.assertEqual(projected.shape[:2], (463, 768))
+        self.assertNotEqual(projected.shape[0], round(256 * fixtures.SIN37) * 3)
+        shown = fixtures.metre_gauge(8)
+        self.assertEqual(shown.width, 8)
+
+    # checks: PRE-20
+    def test_dome_normals_turn_top_front_and_flanks_under_opposite_lights(self):
+        alpha = np.full((32, 32), 255, np.uint8)
+        n = fixtures.normals(alpha, shape="dome")[:, :, :3].astype(float) / 127.5 - 1
+        np.testing.assert_allclose(np.linalg.norm(n, axis=2), 1, atol=0.015)
+        self.assertGreater(n[0, 16, 2], 0.95)
+        self.assertGreater(n[-1, 16, 1], 0.90)
+        self.assertLess(n[16, 0, 0], -0.45)
+        self.assertGreater(n[16, -1, 0], 0.45)
+
+    # checks: PRE-20 PRE-22
+    def test_sprite_colour_cleanup_preserves_alpha_at_edges(self):
+        rgba = np.zeros((16, 16, 4), np.uint8)
+        rgba[4:12, 4:12] = [100, 110, 65, 255]
+        rgba[4, 4] = [90, 96, 60, 255]
+        cleaned, _ = fixtures.merge_colour_flecks(rgba)
+        np.testing.assert_array_equal(cleaned[:, :, 3], rgba[:, :, 3])
+
+    # checks: PRE-20 PRE-46
+    def test_corrupt_alpha_ids_palette_and_normal_each_fail(self):
+        def failures(b):
+            return fixtures.check_bundle(b, {(80, 96, 48)}, {3})
+
+        self.assertEqual(failures(probe()), [])
+        bad = probe()
+        bad["colour"][1, 1, 3] = 128
+        self.assertIn("solid colour alpha is not binary", failures(bad))
+        bad = probe()
+        bad["material"][1, 1, 3] = 0
+        self.assertIn("colour, material and normal alpha differ", failures(bad))
+        bad = probe()
+        bad["material"][1, 1, 0] = 5
+        self.assertIn("material page has an undeclared or blended ID", failures(bad))
+        bad = probe()
+        bad["colour"][1, 1, :3] = [40, 30, 20]
+        self.assertIn("colour is outside declared palette", failures(bad))
+        bad = probe()
+        bad["normal"][1, 1, :3] = [128, 128, 128]
+        self.assertIn("normal is not a unit vector", failures(bad))
+
+    # checks: PRE-20 PRE-22
+    def test_reduction_never_averages_material_ids(self):
+        b = probe()
+        b["material"][::2, :, 0] = 8
+        small = fixtures.halve_bundle(b)
+        self.assertTrue(set(np.unique(small["material"][:, :, 0])) <= {3, 8})
+        self.assertNotIn(5, small["material"][:, :, 0])
+        self.assertNotIn(6, small["material"][:, :, 0])
+
+    # checks: PRE-20 PRE-22
+    def test_palette_cleanup_cannot_change_a_material_with_the_same_colour(self):
+        b = probe()
+        recipe = {"palette": [["#506030", 8], ["#506030", 3]]}
+        colour, ids = fixtures.quantise(b["colour"], recipe, b["material"][:, :, 0])
+        np.testing.assert_array_equal(ids, b["material"][:, :, 0])
+        np.testing.assert_array_equal(colour, b["colour"])
+
+    # checks: PRE-20 PRE-22
+    def test_reduced_normals_are_renormalised_not_averaged_rgb(self):
+        b = probe()
+        b["normal"][::2, :, :3] = [204, 128, 230]
+        b["normal"][1::2, :, :3] = [51, 128, 230]
+        small = fixtures.halve_bundle(b)
+        vec = small["normal"][:, :, :3].astype(float) / 127.5 - 1
+        np.testing.assert_allclose(np.linalg.norm(vec, axis=2), 1, atol=0.015)
+        self.assertGreater(int(small["normal"][0, 0, 2]), 250)
+
+    # checks: PRE-20 PRE-22
+    def test_transparent_black_does_not_darken_a_thin_feature(self):
+        b = probe()
+        b["colour"][:] = 0
+        b["material"][:] = 0
+        b["colour"][0, 0] = [80, 96, 48, 255]
+        b["material"][0, 0] = [3, 0, 0, 255]
+        b["normal"][:, :, 3] = b["colour"][:, :, 3]
+        small = fixtures.halve_bundle(b)
+        np.testing.assert_array_equal(small["colour"][0, 0], [80, 96, 48, 255])
+        np.testing.assert_array_equal(small["material"][0, 0], [3, 0, 0, 255])
+        self.assertEqual(np.count_nonzero(small["colour"][:, :, 3]), 1)
+
+    # checks: PRE-20
+    def test_single_specks_are_removed_but_connected_tips_survive(self):
+        b = probe()["colour"]
+        b[:] = 0
+        b[0, 0] = [80, 96, 48, 255]
+        b[2, 2] = b[3, 3] = [80, 96, 48, 255]
+        clean, removed = fixtures.remove_specks(b)
+        self.assertEqual(removed, 1)
+        self.assertEqual(clean[0, 0, 3], 0)
+        self.assertEqual(clean[2, 2, 3], 255)
+        self.assertEqual(clean[3, 3, 3], 255)
+
+    # checks: PRE-20
+    def test_ground_faces_world_up_not_the_camera(self):
+        vectors = fixtures.normals(np.full((4, 4), 255, np.uint8), True)
+        np.testing.assert_array_equal(vectors[0, 0], [128, 128, 255, 255])
+        actor = fixtures.normals(np.full((4, 4), 255, np.uint8), False)
+        self.assertGreater(int(actor[0, 0, 1]), 225)
+        self.assertLess(int(actor[0, 0, 2]), 210)
+
+    # checks: PRE-22 PRE-46
+    def test_scale_ignores_padding_and_rejects_wrong_metres(self):
+        recipe = {"class": "sprite", "measure": "vertical", "metres": 1.7}
+        padded = np.zeros((128, 128, 4), np.uint8)
+        padded[20:107, 50:70] = [80, 96, 48, 255]
+        self.assertEqual(fixtures.check_scale(padded, recipe, 64), [])
+        self.assertTrue(fixtures.check_scale(padded, {**recipe, "metres": 1.0}, 64))
+        self.assertTrue(fixtures.check_scale(np.zeros_like(padded), recipe, 64))
+
+    # checks: PRE-46
+    def test_designs_cannot_claim_runtime_or_engine_approval(self):
+        recipe = fixtures.read_json(fixtures.RECIPE)
+        exports = fixtures.read_json(fixtures.MANIFEST)
+        self.assertEqual(exports["approval"], "no runtime or engine approval")
+        self.assertEqual({p["id"] for p in recipe["pending_designs"]}, {"body", "red_deer"})
+        for p in recipe["pending_designs"]:
+            self.assertIn("owner", p["status"])
+            self.assertFalse((fixtures.ROOT / "art/textures/fixtures27" / p["id"]).exists())
+        for entry in exports["entries"]:
+            for f in entry["families"]:
+                self.assertTrue(f["review"].startswith("pending"))
+
+    # checks: PRE-20 PRE-22
+    def test_area_cleanup_keeps_a_connected_thin_branch_and_real_materials(self):
+        raw = np.zeros((32, 32, 4), np.uint8)
+        raw[2:30, 15:17] = [80, 96, 48, 255]
+        raw[7:9, 3:16] = [160, 150, 130, 255]
+        recipe = {"palette": [["#506030", 3], ["#A09682", 4]]}
+        small = fixtures.resize_drawn(raw, (8, 8), recipe)
+        self.assertFalse(fixtures.isolated(small[:, :, 3] > 0).any())
+        self.assertGreater(np.count_nonzero(small[1:3, :4, 3]), 2)
+        self.assertEqual(set(np.unique(small[:, :, 3])), {0, 255})
+        self.assertTrue({tuple(p) for p in small[small[:, :, 3] > 0, :3]} <= {(80, 96, 48), (160, 150, 130)})
+
+    # checks: PRE-20
+    def test_shape_normals_change_direction_but_stay_mild_and_unit_length(self):
+        alpha = np.full((16, 16), 255, np.uint8)
+        n = fixtures.normals(alpha, shape="rounded")[:, :, :3].astype(float) / 127.5 - 1
+        np.testing.assert_allclose(np.linalg.norm(n, axis=2), 1, atol=0.015)
+        self.assertLess(n[8, 0, 0], 0)
+        self.assertGreater(n[8, -1, 0], 0)
+        self.assertGreater(n[0, 8, 2], n[-1, 8, 2])
+        self.assertLess(np.abs(n[:, :, 0]).max(), 0.25)
+
+    # checks: PRE-22 PRE-46
+    def test_cutouts_reconstruct_colour_and_maps_without_double_coverage(self):
+        b = probe()
+        for name in ("birch-summer", "tent"):
+            b["material"][:, :, 0] = 6 if name == "tent" else 4
+            pieces = fixtures.split_parts({"id": name}, b, [2, 4], 0.25)
+            self.assertEqual(len(pieces), 2)
+            coverage = sum(p["colour"][:, :, 3].astype(int) for p in pieces.values())
+            np.testing.assert_array_equal(coverage, b["colour"][:, :, 3])
+            for kind in fixtures.KINDS:
+                combined = sum(p[kind].astype(int) for p in pieces.values())
+                np.testing.assert_array_equal(combined, b[kind])
+
+    # checks: PRE-22 PRE-46
+    def test_top_to_front_contact_includes_ground_depth_and_vertical_height(self):
+        r = {"class": "sprite", "measure": "across", "metres": 3, "height_m": 2, "anchor_ground_offset_m": [0, 1.1]}
+        c = np.zeros((16, 16, 4), np.uint8)
+        c[3:12, 2:14] = [80, 96, 48, 255]
+        self.assertEqual(fixtures.check_scale(c, r, 4), [])
+        c[:3, 2:14] = [80, 96, 48, 255]
+        self.assertTrue(fixtures.check_scale(c, r, 4))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,259 @@
+{
+  "number": "10.1",
+  "name": "Person: adult fixture proposal",
+  "about": "Owner review pending. Plain later hide clothing is proposed. This is not the unclothed first people or the full age kit.",
+  "palette": [
+    [
+      "Skin light",
+      "#D8AA7C"
+    ],
+    [
+      "Skin",
+      "#B88259"
+    ],
+    [
+      "Skin shade",
+      "#8B5B41"
+    ],
+    [
+      "Skin deep",
+      "#654333"
+    ],
+    [
+      "Hair",
+      "#49362C"
+    ],
+    [
+      "Hair dark",
+      "#302822"
+    ],
+    [
+      "Eye",
+      "#242722"
+    ],
+    [
+      "Hide light",
+      "#D0B082"
+    ],
+    [
+      "Hide",
+      "#B59668"
+    ],
+    [
+      "Hide shade",
+      "#90774F"
+    ],
+    [
+      "Hide deep",
+      "#6B573F"
+    ],
+    [
+      "Grey hair",
+      "#A6A69A"
+    ],
+    [
+      "Pale dressing",
+      "#E6D9BC"
+    ],
+    [
+      "Stone",
+      "#8D938A"
+    ],
+    [
+      "Fire",
+      "#E4AA52"
+    ],
+    [
+      "Ember",
+      "#A96E32"
+    ]
+  ],
+  "pixel_art": true,
+  "views": {
+    "items": [
+      {
+        "file": "front-cleaned.png",
+        "label": "Front, 1.7 m",
+        "tall": 1.7
+      },
+      {
+        "file": "side-cleaned.png",
+        "label": "Side",
+        "tall": 1.7
+      },
+      {
+        "file": "back-cleaned.png",
+        "label": "Back",
+        "tall": 1.7
+      }
+    ],
+    "stick": 1
+  },
+  "above": {
+    "file": "above-cleaned.png",
+    "label": "From above",
+    "across": 0.55,
+    "stick": 1
+  },
+  "camera_objects": {
+    "items": [
+      {
+        "file": "cam-south-cleaned.png",
+        "label": "South",
+        "tall": 1.3576803670803979
+      },
+      {
+        "file": "cam-east-cleaned.png",
+        "label": "East",
+        "tall": 1.3576803670803979
+      },
+      {
+        "file": "cam-north-cleaned.png",
+        "label": "North",
+        "tall": 1.3576803670803979
+      },
+      {
+        "file": "cam-west-cleaned.png",
+        "label": "West",
+        "tall": 1.3576803670803979
+      }
+    ],
+    "stick": 1,
+    "phone_sizes": false
+  },
+  "groups": [
+    {
+      "title": "Independently drawn zoom proposals: actual 2x phone size",
+      "items": [
+        {
+          "file": "near-cleaned.png",
+          "label": "Near: 87 internal pixels",
+          "tall": 1.359375
+        },
+        {
+          "file": "middle-cleaned.png",
+          "label": "Middle: 22 internal pixels",
+          "tall": 0.34375
+        },
+        {
+          "file": "far-cleaned.png",
+          "label": "Far: 5 internal pixels",
+          "tall": 0.078125
+        }
+      ],
+      "scale": 0.419672131147541,
+      "stick": 1
+    },
+    {
+      "title": "Adults and build studies; sizes are proposals",
+      "items": [
+        {
+          "file": "woman-cleaned.png",
+          "label": "Woman",
+          "tall": 1.65
+        },
+        {
+          "file": "thin-cleaned.png",
+          "label": "Thin",
+          "tall": 1.7
+        },
+        {
+          "file": "stout-cleaned.png",
+          "label": "Stout",
+          "tall": 1.7
+        },
+        {
+          "file": "elder-cleaned.png",
+          "label": "Elder",
+          "tall": 1.6
+        }
+      ],
+      "stick": 1
+    },
+    {
+      "title": "Six walk key drawings: design studies, not an approved loop",
+      "items": [
+        {
+          "file": "walk-1-cleaned.png",
+          "label": "1",
+          "tall": 1.3576803670803979
+        },
+        {
+          "file": "walk-2-cleaned.png",
+          "label": "2",
+          "tall": 1.3576803670803979
+        },
+        {
+          "file": "walk-3-cleaned.png",
+          "label": "3",
+          "tall": 1.3576803670803979
+        },
+        {
+          "file": "walk-4-cleaned.png",
+          "label": "4",
+          "tall": 1.3576803670803979
+        },
+        {
+          "file": "walk-5-cleaned.png",
+          "label": "5",
+          "tall": 1.3576803670803979
+        },
+        {
+          "file": "walk-6-cleaned.png",
+          "label": "6",
+          "tall": 1.3576803670803979
+        }
+      ],
+      "stick": 1
+    },
+    {
+      "title": "Initial work pose studies; attachments need their own approval",
+      "items": [
+        {
+          "file": "carry-pose-cleaned.png",
+          "label": "Carrying pose",
+          "tall": 1.3576803670803979
+        },
+        {
+          "file": "knap-cleaned.png",
+          "label": "Knapping",
+          "tall": 0.85
+        },
+        {
+          "file": "fire-cleaned.png",
+          "label": "Tending fire",
+          "tall": 0.85
+        }
+      ],
+      "stick": 1
+    },
+    {
+      "title": "Body signs",
+      "items": [
+        {
+          "file": "limp-cleaned.png",
+          "label": "Limp",
+          "tall": 1.276219545055574
+        },
+        {
+          "file": "arm-sling-cleaned.png",
+          "label": "Arm sling",
+          "tall": 1.3576803670803979
+        },
+        {
+          "file": "dressing-cleaned.png",
+          "label": "Pale dressing",
+          "tall": 1.3576803670803979
+        }
+      ],
+      "stick": 1
+    }
+  ],
+  "notes": [
+    "Drawings and sizes are proposals. Owner approval must precede production sprites and animation.",
+    "Four actor facings; the camera remains fixed. Six walk drawings need contacts, passing poses and timing reviewed before runtime frames.",
+    "No belt, pouch, ornament or borrowed cultural pattern. Garments and work props remain separate future attachments.",
+    "The image tool rejected the unclothed adult edit. This sheet does not satisfy the first-people body design."
+  ],
+  "camera_title": "Fixed north camera, 37 degrees above the horizon, neutral light. Actor directions change."
+}

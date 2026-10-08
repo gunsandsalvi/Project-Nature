@@ -1,0 +1,75 @@
+about = "T2.7a.3 meadow normal: muted neutral grass candidate; independently drawn families with three compatible quilted variants; authored middle family"
+route = "code"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/fixtures27/revision/meadow-near-r2-original.png", "art/sources/fixtures27/revision/meadow-middle-r2-original.png", "art/sources/fixtures27/revision/meadow-far-r2-original.png"]
+original_sha256 = ["4944a9dac20ce5698ffa1c35b1403dd19e7a64455237a5393adba44352c94dd6", "10e03c40a6c26fc23a26b76a9e6f2317c7338c27cbe85f2e4a88cdb33f66209d", "1e9caa84386a4a1d17c3c2e58a43e17ab7fad9ddaabf335c9f323a89abc97a7b"]
+c2pa = ["present", "present", "present"]
+requests = ["art/requests/fixtures27/production.txt", "art/requests/fixtures27/revision/meadow-near-r2.txt", "art/requests/fixtures27/revision/meadow-middle-r2.txt", "art/requests/fixtures27/revision/meadow-far-r2.txt"]
+made = "image drawing; tools/art/fixtures.py cleanup; muted neutral grass candidate; independently drawn families with three compatible quilted variants"
+regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
+truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
+approved = "pending owner runtime review and engine lighting calibration"
+
+[[band]]
+level = 0
+file = "art/textures/fixtures27/meadow/middle/normal/b2.png"
+sha256 = "5bc6fbd179fac81995d4740cc5932971dfec8594e49c0ea4a05ed8c623b4eb21"
+way = "image-drawn family; block cleanup and palette snap"
+
+[[band]]
+level = 1
+file = "art/textures/fixtures27/meadow/middle/normal/b3.png"
+sha256 = "6ab9188261c356db72b8ec6f187652b009871851f618d268bf7eabc949c0f3c1"
+made_from = "5bc6fbd179fac81995d4740cc5932971dfec8594e49c0ea4a05ed8c623b4eb21"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 2
+file = "art/textures/fixtures27/meadow/middle/normal/b4.png"
+sha256 = "82b7fb29bb0220f67b7f3b8fcde187bc95ae04e53043f2f9e229af6b300e02e9"
+made_from = "6ab9188261c356db72b8ec6f187652b009871851f618d268bf7eabc949c0f3c1"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 3
+file = "art/textures/fixtures27/meadow/middle/normal/b5.png"
+sha256 = "da99fa4250f5eed7e63a87aafec6c2435acf4f966a6d8731cbf1c438430792fc"
+made_from = "82b7fb29bb0220f67b7f3b8fcde187bc95ae04e53043f2f9e229af6b300e02e9"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 4
+file = "art/textures/fixtures27/meadow/middle/normal/b6.png"
+sha256 = "d7dcb8aa7da11570b43c9b7aba4587f689671cc05063b396e4ddef6971123f5a"
+made_from = "da99fa4250f5eed7e63a87aafec6c2435acf4f966a6d8731cbf1c438430792fc"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 5
+file = "art/textures/fixtures27/meadow/middle/normal/b7.png"
+sha256 = "0788ac95bb1471545607a7d1e58ea46a0b3ed992bd3fd5f48785b75ad4d7a3c9"
+made_from = "d7dcb8aa7da11570b43c9b7aba4587f689671cc05063b396e4ddef6971123f5a"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 6
+file = "art/textures/fixtures27/meadow/middle/normal/b8.png"
+sha256 = "d5501a3bf50903914fec615dbc9f47de61553296b5d0326d89e7e04b9ebcf806"
+made_from = "0788ac95bb1471545607a7d1e58ea46a0b3ed992bd3fd5f48785b75ad4d7a3c9"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 7
+file = "art/textures/fixtures27/meadow/middle/normal/b9.png"
+sha256 = "6754ac984fd36d4d5e4acfaf58caa76fef9bd38fc49a3df0e349ba3e72ef8876"
+made_from = "d5501a3bf50903914fec615dbc9f47de61553296b5d0326d89e7e04b9ebcf806"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 8
+file = "art/textures/fixtures27/meadow/middle/normal/b10.png"
+sha256 = "85048b5e320f93b31e975dfbae7c32a454c19af37c7b68b477edc9a6fd3fd665"
+made_from = "6754ac984fd36d4d5e4acfaf58caa76fef9bd38fc49a3df0e349ba3e72ef8876"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"

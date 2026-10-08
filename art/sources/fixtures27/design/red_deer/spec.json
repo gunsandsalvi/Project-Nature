@@ -1,0 +1,308 @@
+{
+  "number": "13.1",
+  "name": "Red deer: fixture proposal",
+  "about": "Owner approval pending. Proposed stag: 2.1 m nose to rump, 1.2 m shoulder, 1.9 m antler tips, 0.55 m body width. No species records or runtime frames are changed.",
+  "palette": [
+    [
+      "Coat light",
+      "#B48254"
+    ],
+    [
+      "Coat",
+      "#956039"
+    ],
+    [
+      "Coat shade",
+      "#744629"
+    ],
+    [
+      "Coat deep",
+      "#513522"
+    ],
+    [
+      "Hoof and nose",
+      "#352E25"
+    ],
+    [
+      "Undercoat",
+      "#C2AD83"
+    ],
+    [
+      "Rump",
+      "#E0CEAA"
+    ],
+    [
+      "Antler",
+      "#A58D65"
+    ],
+    [
+      "Antler light",
+      "#D4C5A2"
+    ],
+    [
+      "Winter light",
+      "#B1ADA0"
+    ],
+    [
+      "Winter",
+      "#8F8D82"
+    ],
+    [
+      "Winter shade",
+      "#68685F"
+    ]
+  ],
+  "pixel_art": true,
+  "views": {
+    "items": [
+      {
+        "file": "front-cleaned.png",
+        "label": "Front",
+        "tall": 1.9
+      },
+      {
+        "file": "side-cleaned.png",
+        "label": "Side",
+        "tall": 1.9
+      },
+      {
+        "file": "back-cleaned.png",
+        "label": "Rear",
+        "tall": 1.9
+      }
+    ],
+    "stick": 1,
+    "adult": true
+  },
+  "above": {
+    "file": "above-cleaned.png",
+    "label": "From above",
+    "across": 2.1,
+    "stick": 1
+  },
+  "camera_objects": {
+    "items": [
+      {
+        "file": "cam-south-cleaned.png",
+        "label": "South",
+        "tall": 1.5174074690898562
+      },
+      {
+        "file": "cam-east-cleaned.png",
+        "label": "East",
+        "tall": 1.5174074690898562
+      },
+      {
+        "file": "cam-north-cleaned.png",
+        "label": "North",
+        "tall": 1.5174074690898562
+      },
+      {
+        "file": "cam-west-cleaned.png",
+        "label": "West",
+        "tall": 1.5174074690898562
+      }
+    ],
+    "stick": 1,
+    "phone_sizes": false
+  },
+  "groups": [
+    {
+      "title": "Independently drawn zoom proposals: actual 2x phone size",
+      "items": [
+        {
+          "file": "near-cleaned.png",
+          "label": "Near: 97 internal pixels",
+          "tall": 1.515625
+        },
+        {
+          "file": "middle-cleaned.png",
+          "label": "Middle: 24 internal pixels",
+          "tall": 0.375
+        },
+        {
+          "file": "far-cleaned.png",
+          "label": "Far: 6 internal pixels",
+          "tall": 0.09375
+        }
+      ],
+      "scale": 0.8366013071895425,
+      "stick": 1
+    },
+    {
+      "title": "Eight facings for comparison; camera stays fixed",
+      "items": [
+        {
+          "file": "cam-south-cleaned.png",
+          "label": "South",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "cam-south-east-cleaned.png",
+          "label": "South-East",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "cam-east-cleaned.png",
+          "label": "East",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "cam-north-east-cleaned.png",
+          "label": "North-East",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "cam-north-cleaned.png",
+          "label": "North",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "cam-north-west-cleaned.png",
+          "label": "North-West",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "cam-west-cleaned.png",
+          "label": "West",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "cam-south-west-cleaned.png",
+          "label": "South-West",
+          "tall": 1.5174074690898562
+        }
+      ],
+      "stick": 1
+    },
+    {
+      "title": "Sex, age, coat and antler studies; dimensions are proposals",
+      "items": [
+        {
+          "file": "hind-back-cleaned.png",
+          "label": "Hind, rear",
+          "tall": 1.15
+        },
+        {
+          "file": "calf-cleaned.png",
+          "label": "Spotted calf",
+          "tall": 0.65
+        },
+        {
+          "file": "yearling-cleaned.png",
+          "label": "Yearling",
+          "tall": 0.9184308365543867
+        }
+      ],
+      "stick": 1
+    },
+    {
+      "title": "The same adult by season",
+      "items": [
+        {
+          "file": "winter-cleaned.png",
+          "label": "Winter coat",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "shed-cleaned.png",
+          "label": "Shed antlers",
+          "tall": 1.0781579385638453
+        },
+        {
+          "file": "velvet-cleaned.png",
+          "label": "Growing velvet antlers",
+          "tall": 1.3177485915780331
+        }
+      ],
+      "stick": 1
+    },
+    {
+      "title": "Six walk key drawings: design studies, not an approved loop",
+      "items": [
+        {
+          "file": "walk-1-cleaned.png",
+          "label": "1",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "walk-2-cleaned.png",
+          "label": "2",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "walk-3-cleaned.png",
+          "label": "3",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "walk-4-cleaned.png",
+          "label": "4",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "walk-5-cleaned.png",
+          "label": "5",
+          "tall": 1.5174074690898562
+        },
+        {
+          "file": "walk-6-cleaned.png",
+          "label": "6",
+          "tall": 1.5174074690898562
+        }
+      ],
+      "stick": 1
+    },
+    {
+      "title": "Grazing and rest",
+      "items": [
+        {
+          "file": "graze-down-cleaned.png",
+          "label": "Grazing",
+          "tall": 0.9583626120567513
+        },
+        {
+          "file": "graze-up-cleaned.png",
+          "label": "Grazing, second pose",
+          "tall": 0.9583626120567513
+        },
+        {
+          "file": "rest-cleaned.png",
+          "label": "Rest",
+          "tall": 0.5590448570331049
+        },
+        {
+          "file": "dead-cleaned.png",
+          "label": "Dead pose, no injury detail",
+          "tall": 0.43924953052601107
+        }
+      ],
+      "stick": 1
+    },
+    {
+      "title": "Parts enlarged",
+      "items": [
+        {
+          "file": "antlers-cleaned.png",
+          "label": "Antler pair",
+          "across": 0.9
+        },
+        {
+          "file": "muzzle-cleaned.png",
+          "label": "Muzzle",
+          "across": 0.3
+        }
+      ],
+      "scale": 1.5,
+      "stick": 0.1
+    }
+  ],
+  "notes": [
+    "This is an adult fixture proposal, not the full hoofed kit or approved species data.",
+    "Four facings are the initial scope. Eight are shown for the owner to compare before wider adoption.",
+    "Adults have no spots or equipment. Only the calf is spotted.",
+    "Faces, antler identity, walk contacts and timing need owner and animation review before runtime production.",
+    "Each original is unchanged beside its cleaned version. The original board camera row is superseded by the separate facing board."
+  ],
+  "camera_title": "Fixed north camera, 37 degrees above the horizon, neutral light. Actor directions change."
+}

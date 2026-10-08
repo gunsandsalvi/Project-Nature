@@ -1,0 +1,50 @@
+Implements PRE-20, PRE-22, PRE-27, PRE-42, PRE-44 and PRE-46. Task T2.7a.3.
+
+8 October 2026: the retry meadow test worked. The built-in image tool
+then drew all three neutral families for meadow, summer and bare winter
+birch, granite boulder and hide tent. No usage limit occurred in this retry.
+These are cleaned production candidates. Runtime approval and engine
+lighting calibration remain pending. Exact drawing prompts are in neutral/.
+Every returned picture is kept unchanged beside its cleaned version.
+The earlier failed meadow request is preserved in meadow-first-prompt.txt.
+
+The fixed camera faces north, 37 degrees above the horizon. Authored
+families use 64, 16 and 4 internal pixels a metre. Intermediate levels
+are explicit palette and material aware reductions. Root positions are
+registered in metres across families and seasons. Colour has no painted
+sun or cast shadow. Material maps contain exact categorical IDs. Mild
+normal proxies use world east, south and up; they are independent of
+colour brightness and require the engine's custom world-space shader.
+
+Birch: sheet 7.7, 20 m tall and 7 m crown, white peeling bark.
+Summer and bare winter have registered trunk/crown cutouts.
+Boulder: sheet 2.16, large granite, 3 by 2.2 m, 2 m high.
+Tent: sheet 16.4, 4.2 m ring, 3.1 m pole tips, 11 hides, 10 poles,
+24 hem stones, one flap. Covered roof/front cutouts are exported.
+The floor must bind to actual ground. Uncovered frame drawings are
+studies only: their ring projection and counts still need correction.
+No complete interior/cutaway or caster geometry is approved here.
+
+Person and red deer have proposal sheets only. They have no production
+sprite records, animation frames or attachment coordinates. Approval
+must come from the owner through the coordinator. The person drawing
+is a later hide-clothing proposal; the unclothed adult edit was rejected
+by the drawing tool. See person-design.txt and deer-design.txt.
+
+Meadow review revision, 8 October 2026: owner-reference calmness takes
+priority. New independently drawn near, middle and far originals and
+exact prompts are in revision/. The candidate muted ramp is recorded
+in recipe.json. The signed-off sheet is unchanged. Three compatible
+variants per family copy/quilt drawn patches without rotations. A
+shared border and colour-fleck cleanup preserve the drawn grass marks.
+Ground projection previews sample sin(37 degrees) once on the internal
+grid, then enlarge exactly 2x. Full single and mixed 3x3 PNGs retain
+that scale without page-fitting. Flat normals still face world up.
+
+Boulder review revision: rounded granite shape and descending fissure
+retained at 192/48/12px occupied widths. New independent family edits
+are in revision/. Mineral colour is balanced across both flanks, with
+quiet clusters. The normal proxy follows a smooth dome independent of
+colour: upward top, south-facing lower front, east/west flanks. Offline
+directional-light and neutral-edge studies are technical diagnostics
+only. They do not approve engine light, shadows, slopes or contacts.
