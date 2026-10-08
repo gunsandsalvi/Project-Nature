@@ -5,7 +5,7 @@ run inside Blender. Implements PRE-46 and PRE-22.
 The tent's own metres: x east, y north, z up, its middle on the ground, the door to the south (Blender's axes; the
 exporter carries them into Godot's). The cover is 3.8 m across at the ground and 2.6 m high where it is gathered (its
 cone, which comes to a point at 2.76 m, lies outside every pole); ten poles cross at 2.7 m
-and their tips reach 3.1 m; the door is a low slit 1.2 m high and 0.7 m wide at the ground; the ring of stones is 4.2 m
+and their tips reach 3.06 m; the door is a low slit 1.2 m high and 0.5 m wide at the ground; the ring of stones is 4.2 m
 across.
 
 The parts, as the sheet's "parts" row shows them:
@@ -238,11 +238,19 @@ def hide_patch(builder, hide, curves, columns, rows, offset, bands):
         x, y = hide.flat(a, s)
         return (HIDE_FRAME + (x - hide.low[0]), (y - hide.low[1]) + offset)
 
+    def seam_shade(c):
+        """1 in the field, falling to 0.78 at a seam's edge across the 6 cm band: the stitched edge folds in, and the
+        shadow is the part's own, so every seam is one continuous line and not only the texture's stitches."""
+        ci, cj = c
+        near = (ci == 0 and left) or (ci == nu and right) or (cj == 0 and top) or (cj == nv and bottom)
+        return 0.78 if near else 1.0
+
     for j in range(nv):
         for i in range(nu):
             corners = [(i, j), (i, j + 1), (i + 1, j + 1), (i + 1, j)]
             uvs = [uv_of(c, i, j) for c in corners]
-            builder.face([verts[c][0] for c in corners], uvs, "hide", [hide.crease(points[c][0]) for c in corners])
+            shades = [hide.crease(points[c][0]) * seam_shade(c) for c in corners]
+            builder.face([verts[c][0] for c in corners], uvs, "hide", shades)
             builder.face(list(reversed([verts[c][1] for c in corners])), list(reversed(uvs)), "hide", [0.35] * 4)
 
 
@@ -385,13 +393,13 @@ def door_flap():
     lows = [1e9, 1e9]
     for j in range(rows + 1):
         t = j / rows
-        s = s0 + (s1 - s0) * t
         a0 = DOOR - math.radians(16.0 + 18.0 * t)
         for i in range(columns + 1):
             a = a0 + (a1 - a0) * i / columns
             x = i / columns
-            fold = 0.05 * max(0.0, math.sin(math.pi * (0.55 * x + 0.85 * t - 0.15))) * t  # one broad diagonal fold
-            lift = 0.015 + 0.08 * t**1.6 + 0.20 * x**1.4 * t**1.2 + 0.12 * x**3 * t**3 + fold  # a lifted lower corner
+            s = s0 + (s1 - 0.16 * (1.0 - x) - s0) * t  # the outer corner is cut short and the free corner hangs lowest
+            fold = 0.07 * max(0.0, math.sin(math.pi * (0.55 * x + 0.85 * t - 0.15))) * t  # one broad diagonal fold
+            lift = 0.015 + 0.08 * t**1.6 + 0.12 * x**1.4 * t**1.2 + 0.20 * x**3 * t**3 + fold  # a lifted lower corner
             p = cone_point(a, s) + lift * outward(a)
             alpha = (a - frame) * BASE / SLANT
             flat = (s * math.sin(alpha), s * math.cos(alpha))
@@ -410,8 +418,8 @@ def door_flap():
     return obj
 
 
-# the poles: 3.7 m, thicker at the foot, their tips 3.1 m up when leaned in the tent
-POLE_LENGTH = 3.70
+# the poles: 3.65 m, thicker at the foot and stout at the tip, the tips 3.06 m up when leaned in the tent
+POLE_LENGTH = 3.65
 POLE_BIND = 3.22
 
 
@@ -420,7 +428,7 @@ def pole():
     where it crosses the others, and its tip."""
     b = Builder("tent_pole")
     rings = 14
-    profile = [(POLE_LENGTH * k / (rings - 1), 0.0330 - 0.0120 * (k / (rings - 1))) for k in range(rings)]
+    profile = [(POLE_LENGTH * k / (rings - 1), 0.0340 - 0.0070 * (k / (rings - 1))) for k in range(rings)]
     lathe(b, "z", profile, 8, "wood", lambda p, n: 0.70 + 0.30 * min(1.0, p.z / 0.8), bumps=0.04, seed=11)
     obj = b.build((0.0, 0.0, 0.0))
     joint(obj, "foot", (0.0, 0.0, 0.0))

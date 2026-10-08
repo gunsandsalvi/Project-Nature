@@ -2,7 +2,7 @@
 # the art lane's own parts of the camp family (art/models/camp.blend, made by tools/art/parts_camp.py and parts_tent.py): a
 # cover sewn of eleven hides (seven in a lower ring, four in an upper, their seams uneven and offset), the door slit in the
 # first lower hide with its flap half open, ten poles that cross at 2.7 m and are lashed there, and a ring of 24 stones
-# 4.2 m across. 3.8 m across at the ground, the cover 2.6 m high where it is gathered, the poles' tips at 3.1 m, the door 1.2 m high. The
+# 4.2 m across. 3.8 m across at the ground, the cover 2.6 m high where it is gathered, the poles' tips at 3.06 m, the door 1.2 m high. The
 # assembler's reference: every part's place, joint and role is stated here and nowhere else.
 about = "a small round tent of hides on a cone of ten poles, its hem held down by a ring of 24 stones"
 family = "camp"

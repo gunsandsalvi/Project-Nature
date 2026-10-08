@@ -3,69 +3,69 @@ route = "picture"
 tile_texels = 128
 texels_a_metre = 64
 first_band = 0
-sources = ["art/sources/hide/hide-C.webp", "art/sources/hide/hide-D.webp", "art/sources/hide/hide-strip-2.webp"]
-original_sha256 = ["e2e8616993fe76276d5a1882539e8b64908a8d2100cef287db1682248d625503", "166e67b5f5ba42a5e0579fb2afd3e14f8b95b75cb1763fc1acb73bc3de526177", "fd29feabf181354225be403bfb6217eb11d2b384444d9891e6d2420f251b0ff0"]
+sources = ["art/sources/hide/hide-E.webp", "art/sources/hide/hide-F.webp", "art/sources/hide/hide-strip-2.webp"]
+original_sha256 = ["8be73298af2b84cf5eb1035ac50237c39d046b27268b25454c24b703f334becf", "fb77df208c28e10c7c07680fec75c262e4cb17f332d565215442cd7f03d8cf84", "fd29feabf181354225be403bfb6217eb11d2b384444d9891e6d2420f251b0ff0"]
 c2pa = ["present", "present", "present"]
-requests = ["art/requests/tent/turn-01.txt", "art/requests/tent/turn-02.txt", "art/requests/tent/turn-03.txt"]
+requests = ["art/requests/tent/turn-01.txt", "art/requests/tent/turn-02.txt", "art/requests/tent/turn-03.txt", "art/requests/tent/turn-05.txt"]
 made = "drawn by the artist in conversation with the art lane at the size the game shows a hide (a texture pixel 1.6 cm), and put on the texture-pixel grid by code; version 1 of 1, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
-regrid_loss = "5.1%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+regrid_loss = "14.3%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
 truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; hide with hair and dapples, a running stitch, no smoke flaps, no painted designs, no metal"
 approved = "not offered yet: made for the pilot's tent, waiting for the builder's check and your look at the previews"
 
 [[band]]
 level = 0
 file = "art/textures/hide/b0.png"
-sha256 = "ed4328ea36c2610aee57a9b6146699932f455d6c841a8de9dcd227a96500b8b8"
-way = "the drawing put on its own grid (cells of about 8 picture pixels, loss 5.1%); every version quilted from the drawings in patches of 48 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam; its first 4 columns are the seam strip, the artist's own drawing (its pattern of 8 rows, the colour most repeats have), repeated down the tile"
-regrid_loss = "5.1%"
+sha256 = "044bb27e8ff721177be939b3f9a5c145b86d90c13668aa6bf81ac5d923b55020"
+way = "the drawing put on its own grid (cells of about 8 picture pixels, loss 14.3%); every version quilted from the drawings in patches of 48 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam; its first 4 columns are the seam strip, the artist's own drawing (its pattern of 8 rows, the colour most repeats have), repeated down the tile"
+regrid_loss = "14.3%"
 
 [[band]]
 level = 1
 file = "art/textures/hide/b1.png"
-sha256 = "84b93d5914df63e683e6cef7bc8a3ef6630598dd7457929e98a78f6748d15851"
-made_from = "ed4328ea36c2610aee57a9b6146699932f455d6c841a8de9dcd227a96500b8b8"
-way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
-calibration = "unsharp 0.14; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%"
-
-[[band]]
-level = 2
-file = "art/textures/hide/b2.png"
-sha256 = "cf15455ac403c04158b39c1518da32f15d9c5adf3bafd675b2edb3b12c774f9a"
-made_from = "84b93d5914df63e683e6cef7bc8a3ef6630598dd7457929e98a78f6748d15851"
+sha256 = "802c26471affd1e99e074bbf2af7819c0b48198bc95f301063b044b9ce8b40a9"
+made_from = "044bb27e8ff721177be939b3f9a5c145b86d90c13668aa6bf81ac5d923b55020"
 way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
 calibration = "unsharp 0.03; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%"
 
 [[band]]
+level = 2
+file = "art/textures/hide/b2.png"
+sha256 = "4b575820447cd0dfb48106ae7618086f2075a1dbc0e82b8dbbb829488849c77c"
+made_from = "802c26471affd1e99e074bbf2af7819c0b48198bc95f301063b044b9ce8b40a9"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.01; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
 level = 3
 file = "art/textures/hide/b3.png"
-sha256 = "5fd2f528f38716e5a7b7b7f142dab84ee0f3965e7ec17dd6aad06a432f6e1984"
-made_from = "cf15455ac403c04158b39c1518da32f15d9c5adf3bafd675b2edb3b12c774f9a"
+sha256 = "939507adce1980f075eebf1a46adb052e4d69d520e3ee65588e83fe31e8b3422"
+made_from = "4b575820447cd0dfb48106ae7618086f2075a1dbc0e82b8dbbb829488849c77c"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 4
 file = "art/textures/hide/b4.png"
-sha256 = "0fd1f050fb4970c70551ff106cf57aef3243d9d7ea854c6d3e9677cdf1f20f82"
-made_from = "5fd2f528f38716e5a7b7b7f142dab84ee0f3965e7ec17dd6aad06a432f6e1984"
+sha256 = "a07636a7451f76b03dce6172012cee38a87ba8e834a9dec307c9debc2f9adaa0"
+made_from = "939507adce1980f075eebf1a46adb052e4d69d520e3ee65588e83fe31e8b3422"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 5
 file = "art/textures/hide/b5.png"
-sha256 = "27b048aeb6d085a6e15dc299f90a479758401337296bcf09c3852f4d02f4c1c0"
-made_from = "0fd1f050fb4970c70551ff106cf57aef3243d9d7ea854c6d3e9677cdf1f20f82"
+sha256 = "ec851e31455c2ff4f236d36730c27421167264753cf565c18726267c6b6f39b4"
+made_from = "a07636a7451f76b03dce6172012cee38a87ba8e834a9dec307c9debc2f9adaa0"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 6
 file = "art/textures/hide/b6.png"
-sha256 = "1fdc5dcf2087c1124d439d1309f1d96fc3d4633f2e5f82cb5ec033aea520078c"
-made_from = "27b048aeb6d085a6e15dc299f90a479758401337296bcf09c3852f4d02f4c1c0"
+sha256 = "54abd49e5c36415608495954b39708f5affc2f63349b252720ea2f472961aaa7"
+made_from = "ec851e31455c2ff4f236d36730c27421167264753cf565c18726267c6b6f39b4"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 7
 file = "art/textures/hide/b7.png"
-sha256 = "6b4ba439685c26fd3afd1f5bcca50652057c4fd6f5464857e4ccc93e1e0bc131"
-made_from = "1fdc5dcf2087c1124d439d1309f1d96fc3d4633f2e5f82cb5ec033aea520078c"
+sha256 = "228c51e7017867c7be0f098ae03fbca7835402ab99df45dc102c45d24b0c8745"
+made_from = "54abd49e5c36415608495954b39708f5affc2f63349b252720ea2f472961aaa7"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
