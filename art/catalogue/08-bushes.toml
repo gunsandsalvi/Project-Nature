@@ -13,6 +13,8 @@ what = "nuts and straight rods"
 id = "hawthorn"
 name = "Hawthorn"
 what = "thorns, white blossom, red berries"
+sheet = "sheets/8.2-hawthorn.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "elder"
