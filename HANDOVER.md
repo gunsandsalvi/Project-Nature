@@ -1,5 +1,32 @@
 # Handover, 8 October 2026
 
+## Update, 8 October 2026, about 18:40 UTC: all work stopped
+
+The owner stopped all work at 18:29 UTC. The lead stopped its three helpers at 18:35 and wrote a handover, now in `drafts/handovers/lead.md`; read it before starting again. Nothing is running.
+
+- **Done, reviewed and merged since 15:00:**
+  - M3 is adopted into `ARCHITECTURE.md` and `IMPLEMENTATION.md` (`f80caa6`), with 11 `PROJECT.md` changes the owner approved (`aa1a3ae`). `drafts/m3` is gone.
+  - `PRC-10` is now a short routine check of about 2 minutes warm (it took 23); the slow suites run only with `tools/check.sh --audit` (`eca18a3`).
+  - Delivery 30801 is merged (`66b0664`): 48.87 MiB, SHA-256 `13fd6424…422d`.
+  - The old 3D runtime and its pages are removed (`0b2ac49`).
+  - Game-ready art: the meadow, boulder, birch and tent fixtures (`0b2ac49`), and ground 1.3 bare earth, 1.4 bank gravel and 1.5 river bed, six state packs (`c31d58f`).
+  - The hazel 8.1 sheet is signed off; 129 of 373 catalogue pieces are now signed.
+- **Merged as unfinished work, not reviewed** (merge `750abc1`):
+  - α2.9a from `lead-code-b`: the camera with 19 zoom stops and a smooth settle, bounded streaming, ground demand, the new sky and contact shading, and the reworked Examples and UI. 57 of 57 native tests passed, but the whole step has never had its code review, and no screen has passed the art team's review.
+  - Ground 1.6 hearth and 1.7 mud from `lead-design`: sources, partial exports and exporter changes. The last 1,260 export files were written after the lead's list and may be incomplete.
+- **Known open problems:**
+  - A texture-lifetime bug in `drawing.gd` (old textures stay attached when the ground hides).
+  - The streaming timing run must be redone; its first timings are not valid.
+  - The Explore drawer can overflow in landscape.
+- **The owner's feedback still to act on:**
+  - The zoom snapping is too visible.
+  - The UI is too small and busy; the example tabs must be clear and fully composed.
+  - The art designer and critic must check every screen, test and UI pages included.
+  - No APK or try-list goes to the owner until the art in the game looks decent.
+  - The camp picture: the meadow repeats in diagonal stripes, the birch, boulder and tent shadows look wrong, and "Camp" appears twice.
+- **Open question for the owner:** may unsigned catalogue pieces go straight to game-ready art without a design sheet first? Asked at 15:57, no answer yet.
+- **Next, once the owner says to resume:** follow the "Resumption order" in `drafts/handovers/lead.md`: fix the texture bug, rerun the timing, take fresh pictures of every screen for the art team, finish and review ground 1.6 and 1.7, then review the whole α2.9a step and run the short check before any delivery.
+
 ## Update, 8 October 2026, about 15:00 UTC
 
 Between 13:50 and 14:50 UTC three leads (design, coding, research) carried the work on. Then the owner replaced them with **one lead** who runs every team, and asked for this update.
