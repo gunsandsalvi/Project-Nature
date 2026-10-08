@@ -12,7 +12,7 @@ People and initial quantities survive save/reopen, camp switching and export/imp
 2. Try Pause and Speed. Use **Menu → Save camp now**, close the app, then reopen the same camp.
 3. Open **Menu → Saved camps · export / import**. Make and switch camps; export one, import its copy, and compare its people. **Camp supplies** shows the initial quantities.
 
-[Download the APK](https://github.com/gunsandsalvi/Project-Nature/raw/main/dist/kindling.apk) · [Checksum](https://github.com/gunsandsalvi/Project-Nature/blob/main/dist/kindling.apk.sha256)
+[Download the APK](https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk) · [Checksum](https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/kindling.apk.sha256)
 
 ## What is rough
 
