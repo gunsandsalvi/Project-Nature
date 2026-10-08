@@ -168,3 +168,20 @@ func test_culled_receiver_detaches_textures_and_reentry_refreshes_changed_light_
 	assert_int(stream.ledger.status().staging_bytes).is_greater(0)
 	drawing._receivers(false)
 	assert_int(drawing.terrain.costs().static_builds).is_equal(builds + 1)
+
+
+func test_retiring_bundle_detaches_draws_and_hidden_shader_handles() -> void:
+	var drawing: Node2D = auto_free(Drawing.new())
+	var node := Polygon2D.new()
+	var material := ShaderMaterial.new()
+	material.shader = SurfaceShader
+	var atlas := UnitAtlas.new()
+	material.set_shader_parameter("normal_atlas", atlas.page)
+	node.texture = atlas.page
+	node.set_meta("light_material", material)
+	drawing.add_child(node)
+	drawing._draws.append({"texture": atlas.page})
+	drawing.detach_textures(1)
+	assert_object(node.texture).is_null()
+	assert_object(material.get_shader_parameter("normal_atlas")).is_null()
+	assert_int(drawing._draws.size()).is_equal(0)

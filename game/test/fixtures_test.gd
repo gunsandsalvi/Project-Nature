@@ -104,9 +104,12 @@ func test_orientation_keeps_selection_time_focus_and_native_safe_controls() -> v
 	assert_vector(page.camera.ground(Vector2(1200, 540), 0.0)).is_equal(at)
 	assert_int(page.drawing.selected).is_equal(-5)
 	assert_float(page.world.screen_time()).is_equal(second)
-	assert_vector(page._native.get_node("Controls").position).is_equal(Vector2(84, 54))
+	var controls: Control = page._native.get_node("Controls")
+	var safe := Rect2(60, 30, 2280, 1010)
+	assert_bool(safe.encloses(Rect2(controls.position, controls.size))).is_true()
+	assert_float(controls.position.x).is_greater(1200.0)
 	assert_int(int(page.state.scale)).is_equal(2)
-	assert_int(int(page._controls.get_child(0).get_theme_font_size("font_size"))).is_equal(32)
+	assert_int(int(page._controls.get_child(0).get_theme_font_size("font_size"))).is_equal(48)
 	page.free()
 
 

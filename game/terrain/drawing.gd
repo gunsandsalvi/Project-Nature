@@ -947,3 +947,29 @@ func _hide_receiver(id: int) -> void:
 		_copies[id].hide()
 		_copies[id].texture = null
 		_copies[id].material = null
+
+
+func detach_textures(_token: int) -> void:
+	# Drop draw and shader handles before the atlas retires a published bundle.
+	_draws.clear()
+	var materials: Array = _lit_sprites.values()
+	for node: Node in find_children("*", "CanvasItem", true, false):
+		if node is Sprite2D or node is Polygon2D:
+			node.texture = null
+		if node.get("material") is ShaderMaterial:
+			materials.append(node.material)
+		if node.has_meta("light_material"):
+			materials.append(node.get_meta("light_material"))
+	for material: ShaderMaterial in materials:
+		for parameter: String in [
+			"normal_atlas",
+			"material_atlas",
+			"variant_field",
+			"variant_b_colour",
+			"variant_b_normal",
+			"variant_b_material",
+			"variant_c_colour",
+			"variant_c_normal",
+			"variant_c_material"
+		]:
+			material.set_shader_parameter(parameter, null)

@@ -1,4 +1,4 @@
-## Implements PRE-03 PRE-42 PLT-04 WLD-13: focused real-clock renderer routes, separate disposable worlds.
+## Stream benchmark: controller ledger, decode and upload costs.
 ## Run pinned Godot under Xvfb with --path game --rendering-method gl_compatibility
 ## --resolution 1080x2400 --script tools/stream-bench.gd -- /tmp/<unique-prefix> run|reopen.
 ## Reopen deletes only this run's disposable view preferences, preserving its authoritative world.

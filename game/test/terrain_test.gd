@@ -152,7 +152,18 @@ func test_slope_feet_and_foreground_crown_keep_their_surface_order() -> void:
 	var order: Array = page.drawing.ordering
 	assert_int(order.find(-11)).is_greater(order.find(-5))
 	assert_int(order.size()).is_equal(
-		page.drawing.surface_records.size() + page.drawing.draw_list().size() + 1
+		(
+			(
+				page
+				. drawing
+				. _surface_nodes
+				. values()
+				. filter(func(node: Polygon2D) -> bool: return node.visible)
+				. size()
+			)
+			+ page.drawing.draw_list().size()
+			+ 1
+		)
 	)
 	page.dusk = true
 	page.drawing.direction = 1

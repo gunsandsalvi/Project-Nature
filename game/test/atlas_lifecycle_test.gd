@@ -1,4 +1,4 @@
-## Checks PRE-03 PRE-22 PLT-04 WLD-13 (T2.9a.2): retry, fallback and eviction use the actual controller ledger.
+## Checks PRE-03 PRE-22 PLT-04 WLD-13 (T2.9a.2).
 extends GdUnitTestSuite
 
 const Atlas := preload("res://fixtures/streamed_atlas.gd")
@@ -151,6 +151,7 @@ func test_zoom_out_evicts_obsolete_fine_bundle_and_keeps_visible_parent_fallback
 	assert_bool(atlas._requests.has("boulder/16/0")).is_false()
 	assert_bool(atlas._requests.has("boulder/4/0")).is_true()
 	assert_bool(stream.bundle(fine.token).is_empty()).is_true()
+	assert_bool(stream._retired_bundles.has(fine.token)).is_true()
 	var fallback: Dictionary = atlas.sample({"name": "boulder"}, 16)
 	assert_float(fallback.get("density", 0)).is_equal(4.0)
 	assert_object(fallback.get("image")).is_equal(stream.bundle(far.token).images.colour)
@@ -160,3 +161,4 @@ func test_zoom_out_evicts_obsolete_fine_bundle_and_keeps_visible_parent_fallback
 		await get_tree().process_frame
 	stream._process(0)
 	assert_int(stream.ledger.status().resident_bytes).is_equal(48)
+	assert_bool(stream._retired_bundles.has(fine.token)).is_false()

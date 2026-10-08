@@ -1,4 +1,4 @@
-## Checks PRE-03 PRE-28 PRE-33 PLT-04 PLT-07 TIM-17 (T2.9a): picking and guarded render-target overlap.
+## Checks PRE-03 PRE-28 PRE-33 PLT-04 PLT-07 TIM-17 (T2.9a).
 extends GdUnitTestSuite
 
 const Drawing := preload("res://terrain/drawing.gd")
