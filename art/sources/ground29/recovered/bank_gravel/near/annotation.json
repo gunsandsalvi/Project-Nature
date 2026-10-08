@@ -1,0 +1,13 @@
+{
+  "source": {
+    "id": "bank_gravel",
+    "family": "near",
+    "original": "bank_gravel-near-original.webp",
+    "original_sha256": "9bfb289aa47869e6b1de08b157189d95c34b6a431e22c78a97a3fbb9cd5a7b38",
+    "reference": "art/sources/bank_gravel/near-sheet.webp",
+    "source_cells": 256
+  },
+  "grid_loss": 0.23699188232421875,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}

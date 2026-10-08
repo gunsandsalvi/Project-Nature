@@ -1,0 +1,19 @@
+{
+  "source": {
+    "id": "river_bed_algae",
+    "family": "near",
+    "original": "river-algae-r1-original.png",
+    "original_sha256": "650ff7df5d6960aa8306fe77aea02b564688702199e8398e3eb0f967be1fc53b",
+    "crop": "river_bed_algae-near-crop.png",
+    "crop_box": [
+      0,
+      0,
+      724,
+      724
+    ],
+    "source_cells": 256
+  },
+  "grid_loss": 0.13777433533774916,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}

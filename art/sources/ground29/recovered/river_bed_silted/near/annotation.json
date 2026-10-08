@@ -1,0 +1,19 @@
+{
+  "source": {
+    "id": "river_bed_silted",
+    "family": "near",
+    "original": "river-silted-r2-original.png",
+    "original_sha256": "eba31d2d0d02ea5c81f46877929528f4dbc573af9d5d4ba77d1f3d1c9d12e42e",
+    "crop": "river_bed_silted-near-crop.png",
+    "crop_box": [
+      0,
+      0,
+      724,
+      724
+    ],
+    "source_cells": 256
+  },
+  "grid_loss": 0.030480220383993162,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}

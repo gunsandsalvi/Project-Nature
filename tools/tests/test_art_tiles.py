@@ -29,6 +29,18 @@ def grass(n=64, seed=3):
 
 
 class Grid(unittest.TestCase):
+    # checks: PRE-20 PRE-22 PRE-46
+    def test_quilting_carries_material_regions_without_changing_colour_choices(self):
+        rng = np.random.default_rng(17)
+        rgb = rng.integers(0, 200, (20, 20, 3), dtype=np.uint8)
+        ids = np.where(rgb[..., 0] > 100, 6, 2).astype(np.uint8)
+        tagged = np.dstack([rgb, ids])
+        plain = tiles.make_versions_open([rgb], 2, 1, 2, 6, 77, 12)
+        coupled = tiles.make_versions_open([tagged], 2, 1, 2, 6, 77, 12)
+        for colour, labelled in zip(plain, coupled, strict=True):
+            np.testing.assert_array_equal(colour, labelled[..., :3])
+            np.testing.assert_array_equal(labelled[..., 3], np.where(colour[..., 0] > 100, 6, 2))
+
     # checks: PRE-20
     def test_a_picture_in_blocks_is_found_and_put_on_its_grid(self):
         t = grass(32)

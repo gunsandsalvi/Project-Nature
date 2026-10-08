@@ -1,0 +1,13 @@
+{
+  "source": {
+    "id": "bank_gravel",
+    "family": "far",
+    "original": "bank_gravel-far-original.webp",
+    "original_sha256": "dace85291b7091f615e7b7ac8ac06fd7ebebf6d5a86038f742b730626deabd2f",
+    "reference": "art/sources/bank_gravel/far-sheet.webp",
+    "source_cells": 256
+  },
+  "grid_loss": 0.214202880859375,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review"
+}

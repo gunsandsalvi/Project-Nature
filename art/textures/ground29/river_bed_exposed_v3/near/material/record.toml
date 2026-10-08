@@ -1,0 +1,75 @@
+about = "river_bed_exposed_v3 near material: signed design runtime candidate"
+route = "code"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/ground29/river-exposed-r1-original.png", "art/sources/ground29/river_bed_exposed-near-crop.png", "art/sources/ground29/river_bed_exposed-middle-crop.png", "art/sources/ground29/river_bed_exposed-far-crop.png"]
+original_sha256 = ["e794abb5a15665d92ea784b6664f4fcfcc0b833d52d3e06440f8a4f2e31bd319", "f17e39ba84b308b5c01a8e82a991ab7a48e8812e5f738475d149f2fafe562836", "de12b65abaea5217ae6b6efa421593189921d8f5b1cb1ba5a590772f461d1d40", "1ae55885f6a907ac5da95cc44a1183a4c1cf86fefd5a3bc9ed9758cee66d021c"]
+c2pa = ["present", "absent", "absent", "absent"]
+requests = ["art/requests/ground29/production.txt", "art/requests/ground29/river-exposed-r1.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b0.png"
+sha256 = "10f630c1d7ec2d11cea76109a70b7357eeac4d3f61867d04786598f47591b80f"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b1.png"
+sha256 = "4edcf6c11a7e817e2110c09652a3dee74e2fc6edbca1724cc278b030c4bd193e"
+made_from = "10f630c1d7ec2d11cea76109a70b7357eeac4d3f61867d04786598f47591b80f"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b2.png"
+sha256 = "bc165fe7447a3d30b4b1a9935b5c4522fcb5d0dd439c58c724798b7c8fff672b"
+made_from = "4edcf6c11a7e817e2110c09652a3dee74e2fc6edbca1724cc278b030c4bd193e"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b3.png"
+sha256 = "5921d4edac1947362cef629c53c4a958026b7dd14c7dfb152e72d1b7defb202d"
+made_from = "bc165fe7447a3d30b4b1a9935b5c4522fcb5d0dd439c58c724798b7c8fff672b"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b4.png"
+sha256 = "6922fb5aa9a58b6b2a32f78644002979eb2e0469a1ae77ef54433f96bfa79b5e"
+made_from = "5921d4edac1947362cef629c53c4a958026b7dd14c7dfb152e72d1b7defb202d"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b5.png"
+sha256 = "1ee329a5c6f80c8a3f41bb04d09a51ae83cdbf27f64e6cdbbbfba7556bd4fb55"
+made_from = "6922fb5aa9a58b6b2a32f78644002979eb2e0469a1ae77ef54433f96bfa79b5e"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b6.png"
+sha256 = "37f929d06df0d9b483b4141b302eae88556210c33825f4ff22ca46ae5f974417"
+made_from = "1ee329a5c6f80c8a3f41bb04d09a51ae83cdbf27f64e6cdbbbfba7556bd4fb55"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b7.png"
+sha256 = "8c96700985e0c8c50dd62e30b124ab745af9aed61df9a0b6fed0bc6ca1f254de"
+made_from = "37f929d06df0d9b483b4141b302eae88556210c33825f4ff22ca46ae5f974417"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground29/river_bed_exposed_v3/near/material/b8.png"
+sha256 = "db908a8a0694e04c5803b94b66538cd1ad176d970b28e65b442e5ad01c735ba8"
+made_from = "8c96700985e0c8c50dd62e30b124ab745af9aed61df9a0b6fed0bc6ca1f254de"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
