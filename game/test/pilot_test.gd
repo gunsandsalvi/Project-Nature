@@ -7,6 +7,29 @@ extends GdUnitTestSuite
 
 const PilotPage := preload("res://pages/pilot.gd")
 
+var _window_size := Vector2i.ZERO
+var _canvas_size := Vector2i.ZERO
+
+
+func before() -> void:
+	var window := get_tree().root
+	_window_size = window.size
+	_canvas_size = window.content_scale_size
+	# Headless Godot starts with a 64 x 64 viewport. The sheet and touch controls need the
+	# project's phone-sized page to test their layout (PRE-42, PRE-22).
+	var phone := Vector2i(
+		int(ProjectSettings.get_setting("display/window/size/viewport_width")),
+		int(ProjectSettings.get_setting("display/window/size/viewport_height"))
+	)
+	window.size = phone
+	window.content_scale_size = phone
+
+
+func after() -> void:
+	var window := get_tree().root
+	window.size = _window_size
+	window.content_scale_size = _canvas_size
+
 
 func _page() -> Control:
 	var page: Control = auto_free(PilotPage.new())

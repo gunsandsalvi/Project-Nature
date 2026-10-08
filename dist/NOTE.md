@@ -1,6 +1,6 @@
 # Kindling α2.8a: Light, shadows and terrain
 
-**Candidate release, not yet delivered:** the signed 30801 attempt exceeded the 50 MiB limit. A lossless size fix is saved but still needs a rebuilt APK, final review and the full delivery check. The APK link below still serves the older 30301 build. The instructions below are for the forthcoming 30801.
+**Signed build:** 30801, 48.87 MiB. Lossless native-library compression and reuse of the identical ground sheet keep it within the repository limit.
 
 Build 30801 brings the first two 2D engine steps together: the fixed camera and Fixtures page, followed by the Terrain page's light, shadows, slopes, shelter and water.
 The pictures are labelled developer fixtures; they are ready for engine review, not final art approval.

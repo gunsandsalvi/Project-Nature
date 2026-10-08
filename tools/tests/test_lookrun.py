@@ -57,7 +57,10 @@ READY = (
 )  # fmt: skip
 
 
-@unittest.skipUnless(READY, "needs Godot, Xvfb, the built extension and the kindling tool")
+@unittest.skipUnless(
+    READY and os.environ.get("KD_CHECK_QUICK") != "1",
+    "visual audit: needs Godot, Xvfb, built tools and a run without KD_CHECK_QUICK=1",
+)
 class TheShimmerCheck(unittest.TestCase):
     # checks: PRE-22 PRE-31
     def test_it_flags_the_board_read_nearest_pixel_and_passes_the_meadow_read_smooth_pixel(self):

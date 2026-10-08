@@ -129,7 +129,10 @@ def shift_between(earlier, later):
     return best
 
 
-@unittest.skipUnless(READY, "needs Godot, Xvfb, the built extension and the game's data")
+@unittest.skipUnless(
+    READY and os.environ.get("KD_CHECK_QUICK") != "1",
+    "visual audit: needs Godot, Xvfb, built game data and a run without KD_CHECK_QUICK=1",
+)
 class ThePilotsArea(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
