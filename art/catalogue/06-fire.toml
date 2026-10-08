@@ -38,22 +38,31 @@ id = "kiln_fire"
 name = "Kiln fire"
 what = "fire in a pottery kiln"
 art_book = ["village-truthful"]
+sheet = "sheets/6.5-kiln_fire.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "furnace"
 name = "Blown furnace"
 what = "a charcoal fire blown through pipes, at its hottest"
 art_book = ["village-truthful"]
+sheet = "sheets/6.6-furnace.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "smoke"
 name = "Smoke"
 what = "thin smoke, thick green-wood smoke, kiln smoke"
 art_book = ["close-camp", "ab-figures-detailed"]
+sheet = "sheets/6.7-smoke.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "sparks"
 name = "Sparks and rising embers"
+what = "sparks and embers rising from a fire"
+sheet = "sheets/6.8-sparks.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "torch"
