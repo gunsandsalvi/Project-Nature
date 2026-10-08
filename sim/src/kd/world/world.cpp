@@ -233,6 +233,8 @@ bool Commands::load(ByteReader& r) {
 // --- World
 
 World::World(std::uint64_t seed, const data::Catalogue& catalogue) : seed_(seed), catalogue_(catalogue) {
+    beings_.raw().storage<Camp>();
+    beings_.raw().storage<Person>();
     set_layer(ecs::owners::commands, commands_);
 }
 
@@ -606,6 +608,10 @@ time::Seconds World::advance(time::Seconds frontier, time::Seconds goal) {
         const chance::Draws draws(*fuzz_, chance::name("order fuzzer"), 0, 0, chance::name("batch"));
         const std::uint64_t key = draws.bits(batches_);
         beings_.fuzz(key);
+        beings_.raw().sort<Camp>(
+            [&](Beings::Handle a, Beings::Handle b) { return beings_.id_of(a) < beings_.id_of(b); });
+        beings_.raw().sort<Person>(
+            [&](Beings::Handle a, Beings::Handle b) { return beings_.id_of(a) < beings_.id_of(b); });
         things_.fuzz(key);
     }
     ++batches_;
@@ -759,6 +765,27 @@ std::vector<save::Chunk> World::save() const {
         }
         out.push_back(part("SYST", w.take()));
     }
+    // Optional extension components preserve the foundation registry bytes and old proof digests.
+    ByteWriter camp;
+    std::uint64_t count = 0;
+    beings_.each([&](ecs::Id, Beings::Handle h) {
+        if (beings_.raw().any_of<Camp, Person>(h)) ++count;
+    });
+    if (count != 0) {
+        camp.u64(count);
+        beings_.each([&](ecs::Id id, Beings::Handle h) {
+            const auto* place = beings_.raw().try_get<Camp>(h);
+            const auto* person = beings_.raw().try_get<Person>(h);
+            if (place == nullptr && person == nullptr) return;
+            camp.u64(id.value);
+            camp.u8(place != nullptr ? 1 : 2);
+            if (place != nullptr)
+                ecs::write_component(*place, camp);
+            else
+                ecs::write_component(*person, camp);
+        });
+        out.push_back({save::tag("CAMP"), 1, true, camp.take()});
+    }
     return out;
 }
 
@@ -767,7 +794,8 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
              "world::World: a snapshot is loaded into a world with nothing in it");
     // each part brought up to the version this one writes; a part it does not know is skipped, unless it must be known
     for (const save::Chunk& c : chunks) {
-        if (c.critical && std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
+        if (c.critical && c.tag != save::tag("CAMP") &&
+            std::none_of(kParts.begin(), kParts.end(), [&](const auto& p) { return p.first == c.tag; })) {
             why = "it holds a part this version cannot read";
             return false;
         }
@@ -865,6 +893,98 @@ bool World::load(std::span<const save::Chunk> chunks, std::string& why) {
         }
     }
     {
+        if (const save::Chunk* camp = save::find_chunk(chunks, save::tag("CAMP"))) {
+            ByteReader records(camp->data);
+            std::uint64_t count = 0;
+            ecs::Id last{};
+            if (camp->version != 1 || !records.u64(count) || count > beings_.size()) {
+                why = "invalid Camp alpha records";
+                return false;
+            }
+            for (std::uint64_t i = 0; i < count; ++i) {
+                ecs::Id id{};
+                std::uint8_t kind = 0;
+                if (!records.u64(id.value) || !(last < id) || !records.u8(kind)) {
+                    why = "invalid Camp alpha identity order";
+                    return false;
+                }
+                last = id;
+                const auto h = beings_.find(id);
+                if (!h || !beings_.raw().all_of<Place, Schedule>(*h)) {
+                    why = "Camp alpha record has no entity";
+                    return false;
+                }
+                if (kind == 1 && id.family() == ecs::Family::place) {
+                    Camp value;
+                    if (!ecs::read_component(value, records, entries) || value.half_width_cm < 1 ||
+                        value.half_width_cm > 100000 || value.half_height_cm < 1 || value.half_height_cm > 100000 ||
+                        value.water_ml < 0 || value.food_mg < 0 || value.stone_mg < 0 || value.wood_mg < 0) {
+                        why = "invalid Camp alpha supplies or bounds";
+                        return false;
+                    }
+                    const auto centre = beings_.raw().get<Place>(*h).at;
+                    for (const auto site :
+                         {value.water_at, value.food_at, value.stone_at, value.wood_at, value.shelter_at}) {
+                        const auto offset = torus_.offset(centre, site);
+                        if (site.x < 0 || site.x >= torus_.width() || site.y < 0 || site.y >= torus_.height() ||
+                            offset.dx < -value.half_width_cm || offset.dx > value.half_width_cm ||
+                            offset.dy < -value.half_height_cm || offset.dy > value.half_height_cm) {
+                            why = "Camp alpha supply outside its patch";
+                            return false;
+                        }
+                    }
+                    beings_.raw().emplace<Camp>(*h, value);
+                } else if (kind == 2 && id.family() == ecs::Family::person) {
+                    Person value;
+                    if (!ecs::read_component(value, records, entries) || value.name_index >= kPersonNames.size() ||
+                        value.age_years < 18 || value.age_years > 45 || value.appearance > 24 ||
+                        !beings_.raw().all_of<Activity, demo::Home>(*h)) {
+                        why = "invalid Camp alpha person";
+                        return false;
+                    }
+                    const auto& idle = beings_.raw().get<Activity>(*h);
+                    const auto& schedule = beings_.raw().get<Schedule>(*h);
+                    if (idle.what != 0 || idle.from != idle.to || idle.from != beings_.raw().get<Place>(*h).at ||
+                        std::any_of(schedule.expected.begin(), schedule.expected.end(),
+                                    [](auto sequence) { return sequence != 0; })) {
+                        why = "Camp alpha person is not an idle record";
+                        return false;
+                    }
+                    beings_.raw().emplace<Person>(*h, value);
+                } else {
+                    why = "invalid Camp alpha record kind";
+                    return false;
+                }
+            }
+            if (!records.finished()) {
+                why = "trailing Camp alpha records";
+                return false;
+            }
+        }
+        bool valid_people = true;
+        beings_.each([&](ecs::Id id, Beings::Handle h) {
+            if (id.family() != ecs::Family::person) return;
+            const auto* person = beings_.raw().try_get<Person>(h);
+            const auto* home = beings_.raw().try_get<demo::Home>(h);
+            const auto camp = home != nullptr ? beings_.find(home->camp) : std::nullopt;
+            if (person == nullptr || !camp || !beings_.raw().all_of<Camp, Place>(*camp)) {
+                valid_people = false;
+                return;
+            }
+            if (home->at != beings_.raw().get<Place>(*camp).at) {
+                valid_people = false;
+                return;
+            }
+            const auto offset = torus_.offset(beings_.raw().get<Place>(*camp).at, beings_.raw().get<Place>(h).at);
+            const auto& bounds = beings_.raw().get<Camp>(*camp);
+            if (offset.dx < -bounds.half_width_cm || offset.dx > bounds.half_width_cm ||
+                offset.dy < -bounds.half_height_cm || offset.dy > bounds.half_height_cm)
+                valid_people = false;
+        });
+        if (!valid_people) {
+            why = "Camp alpha person missing or outside its patch";
+            return false;
+        }
         ByteReader r(chunk_of(save::tag("QUEU")).data);
         std::optional<event::Queue> q = event::Queue::read(r);
         if (!q || !r.finished()) {
@@ -940,6 +1060,16 @@ Digests World::digests() const {
     {
         num::Digest d;
         beings_.digest(d);
+        beings_.each([&](ecs::Id id, Beings::Handle h) {
+            if (const auto* c = beings_.raw().try_get<Camp>(h)) {
+                d.u64(id.value);
+                ecs::digest_component(*c, d);
+            }
+            if (const auto* p = beings_.raw().try_get<Person>(h)) {
+                d.u64(id.value);
+                ecs::digest_component(*p, d);
+            }
+        });
         out.beings = d.value();
     }
     {

@@ -79,6 +79,9 @@ public:
     godot::Dictionary open_crowd(const godot::String& folder, int64_t seed, int64_t camps, const godot::String& build);
     /// Saves the world as it runs, between two batches, its snapshot written on another thread, and checks the free
     /// space where it is kept (A3.7, PLT-10).
+    godot::Dictionary open_camp(const godot::String& folder, int64_t seed, const godot::String& build);
+    godot::Array people() const;
+    godot::Dictionary camp_alpha() const;
     void save();
     /// Saves the world at once, as the app leaves the screen: it stops after the batch it is in, a pause mark is
     /// synced to the journal, and the snapshot is written before this returns (TIM-05).
@@ -172,6 +175,8 @@ protected:
     static void _bind_methods();
 
 private:
+    godot::Dictionary open_saved(const godot::String& folder, int64_t seed, int64_t camps, const godot::String& build,
+                                 bool camp_alpha);
     DisplaySnapshot display_;
     [[nodiscard]] HeatRules heat_rules() const;
     /// The free space where the world is kept, in megabytes, as each save checks it (PLT-10).

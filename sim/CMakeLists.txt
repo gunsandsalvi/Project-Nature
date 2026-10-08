@@ -134,7 +134,8 @@ if(KD_SIM_TESTS)
         tests/runner_test.cpp
         tests/save_test.cpp
         tests/scene_test.cpp
-        tests/world_test.cpp)
+        tests/world_test.cpp
+        tests/camp_test.cpp)
     target_include_directories(kd_sim_tests SYSTEM PRIVATE "${KD_DOCTEST}" "${KD_XXHASH}")
     # the repository, where the tests find the data folder and the corpus of old worlds (PLT-09)
     target_compile_definitions(kd_sim_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS

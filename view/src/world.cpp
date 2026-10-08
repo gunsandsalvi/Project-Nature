@@ -51,6 +51,9 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_method(D_METHOD("start_clockwork"), &KdWorld::start_clockwork);
     ClassDB::bind_method(D_METHOD("start_crowd", "seed", "camps"), &KdWorld::start_crowd);
     ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps", "build"), &KdWorld::open_crowd);
+    ClassDB::bind_method(D_METHOD("open_camp", "folder", "seed", "build"), &KdWorld::open_camp);
+    ClassDB::bind_method(D_METHOD("people"), &KdWorld::people);
+    ClassDB::bind_method(D_METHOD("camp_alpha"), &KdWorld::camp_alpha);
     ClassDB::bind_method(D_METHOD("save"), &KdWorld::save);
     ClassDB::bind_method(D_METHOD("save_now"), &KdWorld::save_now);
     ClassDB::bind_method(D_METHOD("call_home", "camp"), &KdWorld::call_home);
@@ -332,6 +335,15 @@ void KdWorld::start_crowd(int64_t seed, int64_t camps) {
 
 godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed, int64_t camps,
                                       const godot::String& build) {
+    return open_saved(folder, seed, camps, build, false);
+}
+
+godot::Dictionary KdWorld::open_camp(const godot::String& folder, int64_t seed, const godot::String& build) {
+    return open_saved(folder, seed, 1, build, true);
+}
+
+godot::Dictionary KdWorld::open_saved(const godot::String& folder, int64_t seed, int64_t camps,
+                                      const godot::String& build, bool camp_alpha) {
     KD_CHECK(!runner_, "view::KdWorld: the world has already started");
     KD_CHECK(catalogue_ != nullptr, "view::KdWorld: the crowd needs the catalogue loaded first");
     KD_CHECK(seed >= 0 && camps >= 0, "view::KdWorld: a crowd's seed and camps are never negative");
@@ -346,7 +358,8 @@ godot::Dictionary KdWorld::open_crowd(const godot::String& folder, int64_t seed,
     folder_ = path;
     files_ = std::make_unique<save::DiskFiles>(path);
     keeper_ = std::make_unique<save::Keeper>(*files_, build.utf8().get_data());
-    demo::Kept kept = demo::keep_crowd(*keeper_, *catalogue_, static_cast<std::uint64_t>(seed), camps);
+    demo::Kept kept = demo::keep_crowd(*keeper_, *catalogue_, static_cast<std::uint64_t>(seed), camps,
+                                       world::migrations(), camp_alpha);
     godot::PackedStringArray damaged;
     for (const std::string& d : kept.damaged) {
         damaged.append(text_of(d));
@@ -774,6 +787,59 @@ godot::PackedFloat64Array KdWorld::places(int64_t origin_east, int64_t origin_no
         out.push_back(static_cast<double>(o.dx) / 100.0);
         out.push_back(static_cast<double>(o.dy) / 100.0);
     });
+    return out;
+}
+
+}  // namespace kd::view
+
+namespace kd::view {
+
+godot::Array KdWorld::people() const {
+    godot::Array out;
+    const auto& snapshot = display_.snapshot();
+
+    for (std::size_t i = 0; i < snapshot.walkers.size(); ++i) {
+        const auto& walker = snapshot.walkers[i];
+        if (!walker.person) continue;
+        const auto& p = *walker.person;
+        godot::Dictionary row;
+        row["id"] = static_cast<int64_t>(walker.id);
+        row["name"] = godot::String::utf8(world::kPersonNames[p.name_index].data());
+        row["age_at_start"] = static_cast<int64_t>(p.age_years);
+        row["appearance"] = static_cast<int64_t>(p.appearance);
+        row["camp"] = static_cast<int64_t>(walker.camp);
+        const auto at =
+            snapshot.way_at(i, screen_time()).at(world::World::kTorus, static_cast<time::Seconds>(screen_time()));
+        row["east_cm"] = at.x;
+        row["north_cm"] = at.y;
+        row["activity"] = "Idle";
+        out.push_back(row);
+    }
+    return out;
+}
+
+godot::Dictionary KdWorld::camp_alpha() const {
+    godot::Dictionary out;
+    const auto& supplies = display_.snapshot().supplies;
+    if (supplies.empty()) return out;
+    const auto& camp = supplies.front();
+    out["half_width_cm"] = camp.half_width_cm;
+    out["half_height_cm"] = camp.half_height_cm;
+    out["water_ml"] = camp.water_ml;
+    out["food_mg"] = camp.food_mg;
+    out["stone_mg"] = camp.stone_mg;
+    out["wood_mg"] = camp.wood_mg;
+    for (const auto& [name, point] :
+         std::array<std::pair<const char*, num::Point>, 5>{{{"water_at", camp.water_at},
+                                                            {"food_at", camp.food_at},
+                                                            {"stone_at", camp.stone_at},
+                                                            {"wood_at", camp.wood_at},
+                                                            {"shelter_at", camp.shelter_at}}}) {
+        godot::PackedInt64Array at;
+        at.push_back(point.x);
+        at.push_back(point.y);
+        out[name] = at;
+    }
     return out;
 }
 

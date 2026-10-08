@@ -35,6 +35,7 @@ public:
     /// A new world's folder with its world.toml, its name, seed and camps (0 for the tuning's): its id. The world is
     /// made as it is first opened.
     godot::String make(const godot::String& name, int64_t seed, int64_t camps);
+    godot::String make_camp(const godot::String& name, int64_t seed);
     /// Gives a world a new name; false if it has no world.toml that can be read.
     bool rename(const godot::String& id, const godot::String& name);
     /// Deletes a world's folder and everything in it, as you asked twice.
@@ -61,6 +62,7 @@ protected:
     static void _bind_methods();
 
 private:
+    godot::String make_saved(const godot::String& name, int64_t seed, int64_t camps, bool camp_alpha);
     [[nodiscard]] std::string folder(const godot::String& id) const;
     [[nodiscard]] std::string new_id() const;
 

@@ -477,13 +477,40 @@ void Markers::near(const world::World& /*w*/, time::Seconds /*a*/, time::Seconds
     out.erase(std::unique(out.begin() + static_cast<std::ptrdiff_t>(from), out.end()), out.end());
 }
 
-CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std::optional<std::int64_t> camps)
+CrowdWorld::CrowdWorld(std::uint64_t seed, const data::Catalogue& catalogue, std::optional<std::int64_t> camps,
+                       bool camp_alpha)
     : crowd_(crowd_of(catalogue)),
       world_(seed, catalogue),
       daylight_(world_, crowd_.dawn, crowd_.dusk),
       markers_(world_, daylight_, crowd_) {
     daylight_.start(world_);
-    markers_.populate(world_, crowd_, camps.value_or(crowd_.camps));
+    if (!camp_alpha) {
+        markers_.populate(world_, crowd_, camps.value_or(crowd_.camps));
+        return;
+    }
+    // RES-21: a labelled bounded patch, 25 idle adults and measured initial supplies.
+    auto& raw = world_.beings().raw();
+    const auto camp = world_.make_being(ecs::Family::place);
+    const num::Point centre{world_.torus().width() / 2, world_.torus().height() / 2};
+    raw.emplace<world::Place>(camp, centre);
+    auto& facts = raw.emplace<world::Camp>(camp);
+    facts.water_at = world_.torus().moved(centre, {1100, 1200});
+    facts.food_at = world_.torus().moved(centre, {1100, -800});
+    facts.stone_at = world_.torus().moved(centre, {-1100, -1000});
+    facts.wood_at = world_.torus().moved(centre, {-1100, 0});
+    facts.shelter_at = world_.torus().moved(centre, {-1100, 1600});
+    const ecs::Id home = world_.beings().id_of(camp);
+    for (std::uint32_t i = 0; i < world::kPersonNames.size(); ++i) {
+        const auto h = world_.make_being(ecs::Family::person);
+        const ecs::Id id = world_.beings().id_of(h);
+        const chance::Draws draws(seed, chance::name("Camp alpha"), id.value, 0, chance::name("identity"));
+        const num::Point at = world_.torus().moved(
+            centre, {static_cast<std::int64_t>(i % 5) * 500 - 1000, static_cast<std::int64_t>(i / 5) * 500 - 1000});
+        raw.emplace<world::Place>(h, at);
+        raw.emplace<Home>(h, home, centre);
+        raw.emplace<world::Person>(h, i, 18 + static_cast<std::uint32_t>(draws.bits(0) % 28), i);
+        raw.emplace<world::Activity>(h, 0, 0, 0, at, at);
+    }
 }
 
 CrowdWorld::CrowdWorld(const data::Catalogue& catalogue, Opening /*opening*/)
