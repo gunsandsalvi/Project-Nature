@@ -1,0 +1,61 @@
+# The small form of the hide tent (A6.1, A6.3, PRE-46), for the zooms where it is 30 to 60 pixels across (bands 3 and
+# 4): the cover as one cone of 146 triangles (hide_cover_cone: two tiers toned as the eleven hides are, a dark door
+# patch), the pole tips, the lashing, and stone markers of 15 triangles. About 1,200 triangles in place of 9,000, and
+# 36 copies drawn in place of 47.
+about = "a small round tent of hides on a cone of ten poles, its hem held down by a ring of 24 stones (the small form)"
+family = "camp"
+truth = "art lane, 8 October 2026: the same tent as hide_tent_cone, drawn at the sizes it is seen; hides sewn with running stitches, no smoke flaps, no painted designs, no metal, no sawn wood, no cords or pegs on the stones"
+approved = "not offered yet: a form of the pilot's fourth piece, waiting for the builder's check"
+
+[[material]]
+role = "hide"
+textures = ["art:hide"]
+
+[[material]]
+role = "wood"
+textures = ["art:wood"]
+
+[[material]]
+role = "stone"
+textures = ["art:stone"]
+
+# the cover as one cone, tiered and toned as the eleven hides are, its door a dark patch
+[[place]]
+name = "cover"
+parts = ["hide_cover_cone"]
+rule = "root"
+
+# ten poles as in the full tent, of which only the tips above the cover's neck are kept
+[[place]]
+name = "poles"
+parts = ["tent_pole_simple"]
+rule = "span"
+count = 10
+joint = "foot"
+to_joint = "bind"
+radius = "1.75 m"
+height = "2.7 m"
+turn = 18
+face = 0
+jitter_radius = "2%"
+jitter_turn = 3
+jitter_size = "12%"
+
+# the lashing, plugged into the cone's crossing joint on the axis at 2.7 m
+[[place]]
+name = "lashing"
+parts = ["tent_binding"]
+rule = "plug"
+joint = "centre"
+onto = "cover.crossing"
+
+# 24 stones on a ring of 2.0 m, each a marker of 15 triangles, the same sizes by the same seed as in the other forms
+[[place]]
+name = "stones"
+parts = ["ring_stone_small_marker", "ring_stone_medium_marker", "ring_stone_large_marker"]
+rule = "ring"
+count = 24
+radius = "2.0 m"
+jitter_radius = "5%"
+jitter_turn = 3
+face = 0
