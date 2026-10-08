@@ -3,7 +3,7 @@ tools/kit.py inside Blender, headless, as
 
     blender --background --factory-startup <family>.blend --python tools/blender/export.py -- <out.kdkit>
 
-and by tools/blender/standins.py for the stand-in family. The file's layout is described where the engine reads it,
+The file's layout is described where the engine reads it,
 view/src/kit.hpp. Implements PRE-46.
 
 What a family's Blender file holds (the contract between the art lane's parts and the engine):
