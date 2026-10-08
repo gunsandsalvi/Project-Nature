@@ -18,6 +18,7 @@ const PAGES := {
 	"Kit": preload("res://pages/kit.gd"),
 	"Pilot": preload("res://pages/pilot.gd"),
 	"Fixtures": preload("res://pages/fixtures.gd"),
+	"Terrain": preload("res://pages/terrain.gd"),
 }
 const BACKGROUND := Palette.GROUND
 const TEXT := Palette.TEXT

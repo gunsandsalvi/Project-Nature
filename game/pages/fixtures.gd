@@ -3,6 +3,7 @@
 extends Control
 
 const Drawing := preload("res://fixtures/drawing.gd")
+var drawing_script: Script = Drawing
 var draws_world := true
 var world := KdWorld.new()
 var camera := KdCanvas.new()
@@ -64,7 +65,7 @@ func _build() -> void:
 		Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
 	)
 	add_child(_viewport)
-	drawing = Drawing.new()
+	drawing = drawing_script.new()
 	drawing.camera = camera
 	_viewport.add_child(drawing)
 	_picture = TextureRect.new()

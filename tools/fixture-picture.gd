@@ -7,6 +7,10 @@ const Fixtures := preload("res://pages/fixtures.gd")
 
 
 func _init() -> void:
+	await capture()
+
+
+func capture() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.size() < 2:
 		printerr("usage: -- <prefix> <noon|dusk> [second] [facing] [walk|work] [piece]")

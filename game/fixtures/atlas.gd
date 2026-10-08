@@ -68,7 +68,7 @@ func _metadata(entry: Dictionary, index: int) -> bool:
 		return _fail("Fixture names, IDs or height units do not match the local fixture contract.")
 	if not _dimensions(entry):
 		return false
-	return _actions(entry)
+	return _actions(entry) and _pieces(entry)
 
 
 func _types(entry: Dictionary) -> bool:
@@ -83,6 +83,20 @@ func _types(entry: Dictionary) -> bool:
 			return _fail("%s must be a record of atlas paths." % key)
 		if entry.has(key) and not _paths(entry[key]):
 			return false
+	return _channels(entry)
+
+
+func _channels(entry: Dictionary) -> bool:
+	if (
+		not entry.get("normal_levels", {}).is_empty()
+		and entry.get("normal_basis", "") != "world-east-north-up"
+	):
+		return _fail("Normal atlases must declare the world-east-north-up basis.")
+	if (
+		not entry.get("material_levels", {}).is_empty()
+		and entry.get("material_format", "") != "index-r"
+	):
+		return _fail("Material atlases must declare index-r: red holds the material's byte ID.")
 	return true
 
 
@@ -108,6 +122,27 @@ func _paths(levels: Dictionary) -> bool:
 	for key: Variant in levels:
 		if not key is String or not levels[key] is String:
 			return _fail("Atlas levels need text density keys and resource paths.")
+	return true
+
+
+func _pieces(entry: Dictionary) -> bool:
+	if not entry.has("pieces"):
+		return true
+	if not entry.pieces is Dictionary:
+		return _fail("Sprite pieces must be named frame rectangles.")
+	for rect: Variant in entry.pieces.values():
+		if not rect is Array or rect.size() != 4:
+			return _fail("A sprite piece needs x, y, width and height.")
+		for value: Variant in rect:
+			if not _number(value) or value < 0:
+				return _fail("Piece bounds must be positive pixel lengths.")
+		if (
+			rect[2] <= 0
+			or rect[3] <= 0
+			or rect[0] + rect[2] > entry.frame_size[0]
+			or rect[1] + rect[3] > entry.frame_size[1]
+		):
+			return _fail("A sprite piece lies outside its frame.")
 	return true
 
 

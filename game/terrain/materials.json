@@ -1,0 +1,20 @@
+{
+  "implements": ["PRE-20", "PRE-21", "PRE-30"],
+  "status": "Developer light tuning; art and flat style review pending",
+  "normal_basis": "world-east-north-up",
+  "mask_format": "index-r",
+  "fields": ["sun response", "roughness", "emission", "wetness"],
+  "names": ["unassigned", "foliage", "hide", "stone", "soil", "skin", "fur", "wood", "water", "fire"],
+  "values": [
+    [1.0, 1.0, 0.0, 0.0],
+    [0.96, 0.94, 0.0, 0.0],
+    [0.92, 0.96, 0.0, 0.0],
+    [1.0, 0.95, 0.0, 0.0],
+    [1.0, 1.0, 0.0, 0.0],
+    [0.96, 0.94, 0.0, 0.0],
+    [0.95, 1.0, 0.0, 0.0],
+    [0.97, 0.98, 0.0, 0.0],
+    [1.0, 0.15, 0.0, 1.0],
+    [0.0, 1.0, 2.4, 0.0]
+  ]
+}
