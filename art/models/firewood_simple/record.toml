@@ -1,0 +1,680 @@
+# A recipe (A6.1, PRE-46): the firewood pile of sheet 16.23 put together from the kit's parts of the camp family
+# (art/models/camp.blend, made by tools/art/parts_things.py): 24 dead branches in four loose layers of 8, 7, 5 and 4,
+# of the lengths and diameters the design lists, and 28 more (the same parts) to make the heap as dense as the sheet's
+# picture of it, mostly lying along x (east and west) and heaped to a crest 0.6 m high to the left of the middle, and
+# at its right end three trunk pieces, 0.8 m long, two below one. Each stick sits on a ring place of its own (its
+# middle where the design has it), a little off it by the seed; the sticks are cut to the sheet's lengths, not
+# stretched. The simple form (A6.3) is the same thing in parts of fewer triangles, for the zoom where it is 40 to 100
+# pixels across.
+about = "a loose heap of dead branches broken by hand with three pieces of a fallen trunk, 1.4 m long and 0.6 m high (simple form)"
+family = "camp"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; grey-brown dead branches with broken ends and a few pieces of a fallen trunk, in a heap, nothing sawn, split, painted or made of metal"
+approved = "not offered yet: a piece of T2.3c.2, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "bark"
+textures = ["art:bark"]
+
+[[material]]
+role = "granite"
+textures = ["art:granite"]
+
+[[place]]
+name = "stick_01"
+parts = ["firewood_branch_120_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.244 m"
+base = "0.020 m"
+turn = 143
+face = -143
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_02"
+parts = ["firewood_branch_110_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.209 m"
+base = "0.030 m"
+turn = 59
+face = -79
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_03"
+parts = ["firewood_branch_100_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.242 m"
+base = "0.040 m"
+turn = -175
+face = 170
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_04"
+parts = ["firewood_branch_090_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.273 m"
+base = "0.055 m"
+turn = 12
+face = 12
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_05"
+parts = ["firewood_branch_080_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.269 m"
+base = "0.020 m"
+turn = 173
+face = -158
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_06"
+parts = ["firewood_branch_070_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.198 m"
+base = "0.030 m"
+turn = 35
+face = -45
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_07"
+parts = ["firewood_branch_060_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.221 m"
+base = "0.040 m"
+turn = -33
+face = 13
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_08"
+parts = ["firewood_branch_100_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.236 m"
+base = "0.055 m"
+turn = 168
+face = -172
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_09"
+parts = ["firewood_branch_120_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.148 m"
+base = "0.131 m"
+turn = -159
+face = 139
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_10"
+parts = ["firewood_branch_110_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.139 m"
+base = "0.153 m"
+turn = -31
+face = 29
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_11"
+parts = ["firewood_branch_100_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.130 m"
+base = "0.144 m"
+turn = 7
+face = -14
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_12"
+parts = ["firewood_branch_090_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.221 m"
+base = "0.157 m"
+turn = -140
+face = 133
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_13"
+parts = ["firewood_branch_080_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.196 m"
+base = "0.103 m"
+turn = -169
+face = 169
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_14"
+parts = ["firewood_branch_070_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.162 m"
+base = "0.197 m"
+turn = -80
+face = 78
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_15"
+parts = ["firewood_branch_100_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.077 m"
+base = "0.162 m"
+turn = 50
+face = -37
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_16"
+parts = ["firewood_branch_110_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.254 m"
+base = "0.303 m"
+turn = -66
+face = 53
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_17"
+parts = ["firewood_branch_100_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.303 m"
+base = "0.279 m"
+turn = -65
+face = 31
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_18"
+parts = ["firewood_branch_090_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.126 m"
+base = "0.256 m"
+turn = 62
+face = -43
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_19"
+parts = ["firewood_branch_080_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.165 m"
+base = "0.402 m"
+turn = -97
+face = 113
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_20"
+parts = ["firewood_branch_070_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.169 m"
+base = "0.295 m"
+turn = -49
+face = 12
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_21"
+parts = ["firewood_branch_100_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.138 m"
+base = "0.555 m"
+turn = -88
+face = 94
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_22"
+parts = ["firewood_branch_090_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.161 m"
+base = "0.568 m"
+turn = -93
+face = 106
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_23"
+parts = ["firewood_branch_080_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.370 m"
+base = "0.441 m"
+turn = -77
+face = 113
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_24"
+parts = ["firewood_branch_060_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.266 m"
+base = "0.518 m"
+turn = -72
+face = 59
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_25"
+parts = ["firewood_branch_100_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.164 m"
+base = "0.020 m"
+turn = 147
+face = -141
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_26"
+parts = ["firewood_branch_080_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.317 m"
+base = "0.030 m"
+turn = -37
+face = 39
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_27"
+parts = ["firewood_branch_090_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.285 m"
+base = "0.040 m"
+turn = 87
+face = -93
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_28"
+parts = ["firewood_branch_070_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.286 m"
+base = "0.055 m"
+turn = 77
+face = -94
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_29"
+parts = ["firewood_branch_060_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.329 m"
+base = "0.020 m"
+turn = 121
+face = -111
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_30"
+parts = ["firewood_branch_090_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.225 m"
+base = "0.030 m"
+turn = 86
+face = -67
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_31"
+parts = ["firewood_branch_090_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.269 m"
+base = "0.150 m"
+turn = -65
+face = 57
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_32"
+parts = ["firewood_branch_080_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.363 m"
+base = "0.144 m"
+turn = -71
+face = 83
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_33"
+parts = ["firewood_branch_070_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.407 m"
+base = "0.158 m"
+turn = -102
+face = 123
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_34"
+parts = ["firewood_branch_060_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.271 m"
+base = "0.166 m"
+turn = -124
+face = 138
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_35"
+parts = ["firewood_branch_070_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.135 m"
+base = "0.129 m"
+turn = -170
+face = 175
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_36"
+parts = ["firewood_branch_080_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.197 m"
+base = "0.105 m"
+turn = 30
+face = -35
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_37"
+parts = ["firewood_branch_090_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.337 m"
+base = "0.271 m"
+turn = -110
+face = 126
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_38"
+parts = ["firewood_branch_080_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.344 m"
+base = "0.310 m"
+turn = -102
+face = 116
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_39"
+parts = ["firewood_branch_070_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.243 m"
+base = "0.363 m"
+turn = -76
+face = 118
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_40"
+parts = ["firewood_branch_080_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.364 m"
+base = "0.453 m"
+turn = -82
+face = 84
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_41"
+parts = ["firewood_branch_070_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.348 m"
+base = "0.482 m"
+turn = -97
+face = 108
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_42"
+parts = ["firewood_branch_060_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.200 m"
+base = "0.520 m"
+turn = -67
+face = 30
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_43"
+parts = ["firewood_branch_070_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.236 m"
+base = "0.157 m"
+turn = -59
+face = 52
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_44"
+parts = ["firewood_branch_080_04_simple"]
+rule = "ring"
+count = 1
+radius = "0.162 m"
+base = "0.163 m"
+turn = -65
+face = 77
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_45"
+parts = ["firewood_branch_060_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.226 m"
+base = "0.265 m"
+turn = -108
+face = 83
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_46"
+parts = ["firewood_branch_080_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.144 m"
+base = "0.355 m"
+turn = -24
+face = 22
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_47"
+parts = ["firewood_branch_080_11_simple"]
+rule = "ring"
+count = 1
+radius = "0.189 m"
+base = "0.188 m"
+turn = -139
+face = 104
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_48"
+parts = ["firewood_branch_080_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.351 m"
+base = "0.202 m"
+turn = -65
+face = 60
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_49"
+parts = ["firewood_branch_080_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.125 m"
+base = "0.151 m"
+turn = -87
+face = 98
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_50"
+parts = ["firewood_branch_080_08_simple"]
+rule = "ring"
+count = 1
+radius = "0.381 m"
+base = "0.263 m"
+turn = -83
+face = 91
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_51"
+parts = ["firewood_branch_070_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.306 m"
+base = "0.232 m"
+turn = -92
+face = 97
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_52"
+parts = ["firewood_branch_090_06_simple"]
+rule = "ring"
+count = 1
+radius = "0.219 m"
+base = "0.375 m"
+turn = -83
+face = 87
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_53"
+parts = ["firewood_trunk_18_simple"]
+rule = "ring"
+count = 1
+radius = "0.361 m"
+base = "0.090 m"
+turn = 124
+face = -121
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_54"
+parts = ["firewood_trunk_20_simple"]
+rule = "ring"
+count = 1
+radius = "0.361 m"
+base = "0.100 m"
+turn = 56
+face = -57
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_55"
+parts = ["firewood_trunk_15_simple"]
+rule = "ring"
+count = 1
+radius = "0.300 m"
+base = "0.240 m"
+turn = 90
+face = -86
+jitter_radius = "3%"
+jitter_turn = 2

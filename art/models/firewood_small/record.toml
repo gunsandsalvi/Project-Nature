@@ -1,0 +1,61 @@
+# A recipe (A6.1, PRE-46): the firewood pile of sheet 16.23 put together from the kit's parts of the camp family
+# (art/models/camp.blend, made by tools/art/parts_things.py): 24 dead branches in four loose layers of 8, 7, 5 and 4,
+# of the lengths and diameters the design lists, and 28 more (the same parts) to make the heap as dense as the sheet's
+# picture of it, mostly lying along x (east and west) and heaped to a crest 0.6 m high to the left of the middle, and
+# at its right end three trunk pieces, 0.8 m long, two below one. Each stick sits on a ring place of its own (its
+# middle where the design has it), a little off it by the seed; the sticks are cut to the sheet's lengths, not
+# stretched. The small form (A6.3) is the same thing in the smallest parts, for the close camp and the camp (bands 3
+# and 4).
+about = "a loose heap of dead branches broken by hand with three pieces of a fallen trunk, 1.4 m long and 0.6 m high (small form)"
+family = "camp"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; grey-brown dead branches with broken ends and a few pieces of a fallen trunk, in a heap, nothing sawn, split, painted or made of metal"
+approved = "not offered yet: a piece of T2.3c.2, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "bark"
+textures = ["art:bark"]
+
+[[material]]
+role = "granite"
+textures = ["art:granite"]
+
+[[place]]
+name = "mound"
+parts = ["firewood_mound_marker"]
+rule = "root"
+
+[[place]]
+name = "stick_01"
+parts = ["firewood_trunk_18_marker"]
+rule = "ring"
+count = 1
+radius = "0.361 m"
+base = "0.090 m"
+turn = 124
+face = -122
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_02"
+parts = ["firewood_trunk_20_marker"]
+rule = "ring"
+count = 1
+radius = "0.361 m"
+base = "0.100 m"
+turn = 56
+face = -58
+jitter_radius = "3%"
+jitter_turn = 2
+
+[[place]]
+name = "stick_03"
+parts = ["firewood_trunk_15_marker"]
+rule = "ring"
+count = 1
+radius = "0.300 m"
+base = "0.240 m"
+turn = 90
+face = -90
+jitter_radius = "3%"
+jitter_turn = 2

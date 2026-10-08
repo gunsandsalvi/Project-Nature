@@ -1,0 +1,23 @@
+# The dead bark of the firewood (catalogue 16.23): what tools/art/make_tiles.py reads to make art/textures/bark/ from the
+# picture kept in art/sources/bark/. The grey-brown bark of fallen hazel, birch and oak, with fine sparse cracks and
+# small flecks, its marks running along a branch; the branches' own form, their broken ends and stubs are the parts'. A
+# tile of 64 texture pixels, 1 m across, one version. Nothing here is random: the same recipe gives the same bytes.
+name = "bark"
+about = "grey-brown dead bark with fine sparse cracks and small flecks, its marks running along the branch"
+seed = 1623
+reference = "near"
+how = "the sheet's bark patch put on the texture-pixel grid by code, made coarser to the game's 64 a metre, greyed, turned so its marks run along a branch and laid mirrored two by two, which wraps"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; grey-brown bark marks only, no scales, no cones, no pale yellow, nothing countable"
+approved = "not offered yet: made for the firewood, waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+texels = 64
+versions = 1
+ring = 4
+overlap = 8
+patch = 28
+flatten = 0
+serves = 3
+sheet = "art/sources/bark/near-sheet.webp"
+originals = ["art/sources/bark/bark-near-original.webp"]

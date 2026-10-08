@@ -1,0 +1,18 @@
+Hello. I'm the art director of the art lane: we turn the owner's signed-off catalogue sheets into the textures and parts that the game engine reads. You drew the design standard for the sheet below; I build it in Blender from your written design, and I am asking you for your eye, as a designer, on how the part looks in the game. Push back on anything here you think is wrong. This turn is only for your judgement in words: please do not use your image tool and do not save any file.
+
+This conversation is one piece: 16.13, the hearth ring (Kindling, a Stone Age world simulation for phones): twelve stones, 1.2 m across, 0.8 m clear opening, 20 cm high at most, river cobbles and a few angular lumps, grey, buff and slate, sooted and cracked by use; the fire, the ash and the soot are pieces of their own.
+
+HOW THE ENGINE SHOWS IT: the camera looks 37 degrees down, late afternoon, a texture pixel is about 2 x 2 screen pixels at the closest zoom (128 screen pixels a metre), so it is about 0.6 as tall as it is wide on the ground. The pieces are parts of a kit; each of the twelve stones is a part of its own, in your design's order and sizes, laid on a ring of 0.5 m radius, a little off its place and turned a little off the tangent; the textures on them are the stone, limestone and granite of other sheets, darkened to each stone's tone.
+
+THE PICTURES WITH THIS MESSAGE
+1. sheet-16.13-hearth.png: your sheet.
+2. hearth-cam-a.png: your own camera view of the ring from the sheet, the standard.
+3. hearth-game-a.png: the ring as the game draws it at the closest zoom (enlarged three times), on the cracked bare earth.
+4. hearth-game-b.png: the same ring turned 140 degrees.
+
+WHAT I NEED, IN A FEW LINES
+- Does the ring read as your sheet's hearth ring (picture 2): twelve stones of the sizes and kinds of the design, low and flat, a ring with small gaps, grey, buff and slate? What is different, in proportions and tones?
+- Are the stones too tall or egg-like, too smooth, too alike, or too pale? Which of the twelve is weakest?
+- At most four changes, the most important first. If it is good enough to offer the owner beside your sheet, say so plainly.
+
+Reply in a few lines. Do not draw; do not save any file.

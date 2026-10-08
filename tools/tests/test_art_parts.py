@@ -34,6 +34,20 @@ def make(out_folder, script=SCRIPT, family="camp"):
         return said[-1], f.read()
 
 
+def kit_info(kdkit):
+    """Each part's triangles and bounds (Godot's axes: x east, y up, z south) as the kit's own tool lists them."""
+    run = subprocess.run([KD_KIT, "info", kdkit], capture_output=True, text=True, cwd=ROOT)
+    found = {}
+    for m in re.finditer(
+        r"^part (\w+) (\d+) triangles bounds ([-\d.]+) ([-\d.]+) ([-\d.]+) to ([-\d.]+) ([-\d.]+) ([-\d.]+)",
+        run.stdout,
+        re.M,
+    ):
+        numbers = [float(n) for n in m.groups()[2:]]
+        found[m.group(1)] = (int(m.group(2)), numbers)
+    return found
+
+
 @unittest.skipUnless(BLENDER, "Blender is not installed (tools/setup.sh)")
 class CampFamily(unittest.TestCase):
     @classmethod
@@ -91,6 +105,36 @@ class CampFamily(unittest.TestCase):
         self.assertEqual([line for line in said.splitlines() if re.search(r"art:(club|hide_tent_cone\w*)", line)], [])
         self.assertRegex(said, r"\d+ recipes", "the checker did not say it looked at the recipes")
 
+    # checks: PRE-46 PRE-22
+    @unittest.skipUnless(os.path.exists(KD_KIT), "kd_kit is not built (set KD_KIT to its path)")
+    def test_the_hearth_stones_are_low_and_the_firewood_is_as_big_as_its_sheet_says(self):
+        found = kit_info(os.path.join(self.tmp.name, "camp.kdkit"))
+        for number in range(1, 13):  # sheet 16.13: twelve stones, none above 20 cm
+            for form in ("", "_simple", "_marker"):
+                name = f"hearth_stone_{number:02d}{form}"
+                self.assertIn(name, found)
+                self.assertLessEqual(found[name][1][4], 0.2 + 1e-3, name)  # y1 is the top, in Godot's axes
+        for name in ("firewood_branch_120_04", "firewood_branch_100_11", "firewood_trunk_15", "firewood_trunk_20"):
+            self.assertIn(name, found)
+        for name, length in (("firewood_trunk_18", 0.8), ("firewood_branch_120_04", 1.2)):  # sheet 16.23's lengths
+            x0, _, _, x1, _, _ = found[name][1]
+            self.assertAlmostEqual(x1 - x0, length, delta=0.06, msg=name)
+        self.assertGreater(found["firewood_branch_120_04"][0], found["firewood_branch_120_04_simple"][0])
+        self.assertIn("firewood_mound_marker", found)  # the heap's smallest form is one lump, not marker sticks
+        self.assertGreater(found["hearth_stone_03"][0], found["hearth_stone_03_simple"][0])
+        self.assertGreater(found["hearth_stone_03_simple"][0], found["hearth_stone_03_marker"][0])
+
+    # checks: PRE-46
+    @unittest.skipUnless(os.path.exists(KD_KIT), "kd_kit is not built (set KD_KIT to its path)")
+    def test_the_hearth_and_the_firewood_recipes_fit_the_family(self):
+        with tempfile.TemporaryDirectory() as kit:
+            shutil.copy(os.path.join(self.tmp.name, "camp.kdkit"), kit)
+            run = subprocess.run(
+                [KD_KIT, "check", os.path.join(ROOT, "data"), kit], capture_output=True, text=True, cwd=ROOT
+            )
+        said = run.stdout + run.stderr
+        self.assertEqual([line for line in said.splitlines() if re.search(r"art:(hearth_ring|firewood)\w*", line)], [])
+
 
 @unittest.skipUnless(BLENDER, "Blender is not installed (tools/setup.sh)")
 class RocksFamily(unittest.TestCase):
@@ -104,19 +148,7 @@ class RocksFamily(unittest.TestCase):
         cls.tmp.cleanup()
 
     def info(self):
-        """Each part's triangles and bounds (Godot's axes: x east, y up, z south) as the kit's own tool lists them."""
-        run = subprocess.run(
-            [KD_KIT, "info", os.path.join(self.tmp.name, "rocks.kdkit")], capture_output=True, text=True, cwd=ROOT
-        )
-        found = {}
-        for m in re.finditer(
-            r"^part (\w+) (\d+) triangles bounds ([-\d.]+) ([-\d.]+) ([-\d.]+) to ([-\d.]+) ([-\d.]+) ([-\d.]+)",
-            run.stdout,
-            re.M,
-        ):
-            numbers = [float(n) for n in m.groups()[2:]]
-            found[m.group(1)] = (int(m.group(2)), numbers)
-        return found
+        return kit_info(os.path.join(self.tmp.name, "rocks.kdkit"))
 
     # checks: PRE-46
     def test_the_boulders_the_stones_the_flakes_and_the_lip_export_in_three_forms_with_their_joints(self):

@@ -49,7 +49,7 @@ def strings(items):
 def record_text(fields, levels):
     """A record.toml: the fields in the order the schema lists them, then each level's table."""
     lines = []
-    for key in ("about", "route", "tile_texels", "texels_a_metre", "first_band", "laid"):
+    for key in ("about", "route", "tile_texels", "texels_a_metre", "first_band", "laid", "acts"):
         if key in fields:
             v = fields[key]
             lines.append(f"{key} = {v}" if isinstance(v, int) else f"{key} = {quote(v)}")

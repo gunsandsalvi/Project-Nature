@@ -12,24 +12,28 @@ named for the record (`originals`). Nothing is random, so the same recipe and so
 files. The colour measures it fits to come from `kindling look` (set KINDLING to its path if it is not at
 build/sim/kindling).
 
-A recipe with a `key` colour (and a `bleed` colour) makes the water's marks instead: pictures of light marks on that
-colour, nothing calibrated or flattened, whose coded levels (a `keep` percent each) come from tiles.reduce_marks and
-which are written as RGBA, everything but the marks see-through. A `flatten` of 0 leaves a tile's border as it is (for
-a ground of big marks such as cobbles, which flattening would wash out). A drawn tile's `join_weight` (default 1.5) is
-how much the choice of its shared ring counts a smooth join: for a ground whose marks cross every band (a web of cracks)
-set it to 0, or the ring is cut where no crack crosses and every tile edge shows as a calm line. A tile with a `strip`
-(a hide's) has the first `strip_width` columns of that drawing, a pattern of `strip_period` rows read from a drawing
-of `strip_cells` cells across, repeated down every version's first columns: the seam strip the hide's parts wear along
-their edges. A `direct` tile has as many pictures (the `sheet` and its `extra`) as versions and each version is
-its picture as it is, every one drawn with its border clear (a tile of separate marks), so there is nothing to quilt.
-A `calm` (percent) groups a tile's contrast: each version's contrast is multiplied by broad swells of its
-own, from that percent in the calm places to a `busy` percent in the busy (the rest of 200 if not said, so 1 on
-average), 1 at the border, so a far ground has quiet ground between its groups of marks and not an even grain
-(tiles.calm_field). A tile with a `snap` (the
-cells' size in picture pixels) is a drawing on no exact grid, whose cells are found (or, with `cells`, counted: that
-many across the whole picture); if the drawing is larger than a tile and does not wrap, its versions are quilted from
-it; if it is a wrapping picture of one tile (`wraps`), it is put on its cells and made versions of as any wrapping
-tile is (the signed-off sheets of the cliff's rock).
+A recipe with a `key` colour (and a `bleed` colour) makes marks instead (the water's, the cliff's): pictures of marks
+on that colour, nothing calibrated or flattened, whose coded levels (a `keep` percent each) come from
+tiles.reduce_marks and which are written as RGBA, everything but the marks see-through; a pixel that is the key's
+fringe (the key blended with a mark, or darkened) is the key. Its `acts` ("replace" for opaque colours, "darken" for
+greys that multiply the surface's colour, white leaving it as it is and mid grey halving it) is written into every
+record, for the engine to read. A `direct` tile has as many pictures (the `sheet` and its `extra`) as versions and each
+version is its picture as it is, every one drawn with its border clear (a tile of separate marks), so there is nothing
+to quilt.
+
+A `flatten` of 0 leaves a tile's border as it is (for a ground of big marks such as cobbles, which flattening would
+wash out). A drawn tile's `join_weight` (default 1.5) is how much the choice of its shared ring counts a smooth join:
+for a ground whose marks cross every band (a web of cracks) set it to 0, or the ring is cut where no crack crosses and
+every tile edge shows as a calm line. A tile with a `strip` (a hide's) has the first `strip_width` columns of that
+drawing, a pattern of `strip_period` rows read from a drawing of `strip_cells` cells across, repeated down every
+version's first columns: the seam strip the hide's parts wear along their edges. A tile with a `snap` (the cells' size
+in picture pixels) is a drawing on no exact grid, whose cells are found (or, with `cells`, counted: that many across
+the whole picture); if the drawing is larger than a tile and does not wrap, its versions are quilted from it; if it is
+a wrapping picture of one tile (`wraps`), it is put on its cells and made versions of as any wrapping tile is (the
+signed-off sheets of the cliff's rock). A `calm` (percent) groups a tile's contrast: each version's contrast is
+multiplied by broad swells of its own, from that percent in the calm places to a `busy` percent in the busy (the rest
+of 200 if not said, so 1 on average), 1 at the border, so a far ground has quiet ground between its groups of marks and
+not an even grain (tiles.calm_field).
 
 Implements PRE-20, PRE-22 and PRE-46, see A5.3 and A5.4.
 """
@@ -428,6 +432,8 @@ def main(argv):
                 "truth": recipe["truth"],
                 "approved": recipe["approved"],
             }
+            if "acts" in recipe:  # how a mark's pixels act on the surface under them: "replace" or "darken"
+                fields["acts"] = recipe["acts"]
             table = [
                 words_of(i, spec["serves"], ways, v, shift, spec, block, loss, key is not None)
                 for i in range(len(chain))

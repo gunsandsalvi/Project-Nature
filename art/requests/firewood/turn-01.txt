@@ -1,0 +1,18 @@
+Hello. I'm the art director of the art lane: we turn the owner's signed-off catalogue sheets into the textures and parts that the game engine reads. You drew the design standard for the sheet below; I build it in Blender from your written design, and I am asking you for your eye, as a designer, on how the part looks in the game. Push back on anything here you think is wrong. This turn is only for your judgement in words: please do not use your image tool and do not save any file.
+
+This conversation is one piece: 16.23, the firewood pile: a loose heap of dead branches broken by hand with three pieces of a fallen trunk, 1.4 m long and 0.6 m high, nothing sawn or split.
+
+HOW THE ENGINE SHOWS IT: the camera looks 37 degrees down, late afternoon, a texture pixel is about 2 x 2 screen pixels at the closest zoom (128 screen pixels a metre), so it is about 0.6 as tall as it is wide on the ground. The pieces are parts of a kit; the heap is 24 branches of the lengths and diameters your design lists, in four loose layers, and the three trunk pieces at the right end, two below one; each branch is a part of its own with a slight elbow, broken splintered ends and a stub or two, laid at a place the recipe gives, mostly along the heap's length; the bark texture is made from your bark patch.
+
+THE PICTURES WITH THIS MESSAGE
+1. sheet-16.23-firewood.png: your sheet.
+2. firewood-cam-a.png: your own camera view of the heap from the sheet, the standard.
+3. firewood-game-a.png: the heap as the game draws it at the closest zoom (enlarged twice), on the cracked bare earth.
+4. firewood-game-b.png: the same heap turned 150 degrees.
+
+WHAT I NEED, IN A FEW LINES
+- Does the heap read as your sheet's firewood pile (picture 2): a dense heap of dead branches and trunk pieces, a crest 0.6 m high off to the left of the middle? What is different: mine looks thinner and lower than yours, with fewer sticks, is that so?
+- The bark: does it read as dead grey-brown bark with cracks? The broken ends: do they read as snapped?
+- At most four changes, the most important first (more sticks, a denser heap, thicker pieces?). If it is good enough to offer the owner beside your sheet, say so plainly.
+
+Reply in a few lines. Do not draw; do not save any file.
