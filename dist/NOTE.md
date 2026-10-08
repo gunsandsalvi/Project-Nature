@@ -1,50 +1,51 @@
-# Kindling α2.3a: The pilot, four pieces of the camp on your phone
+# Kindling α2.8a: Light, shadows and terrain
 
-The first look at the graphics engine's own drawing: the meadow, the river, the club and the hide tent, each taken from its signed-off sheet to your phone, drawn the way the game will draw them, and shown beside the sheet they came from. Say yes or no to each piece.
+**Candidate release, not yet delivered:** the signed 30801 attempt exceeded the 50 MiB limit. A lossless size fix is saved but still needs a rebuilt APK, final review and the full delivery check. The APK link below still serves the older 30301 build. The instructions below are for the forthcoming 30801.
+
+Build 30801 brings the first two 2D engine steps together: the fixed camera and Fixtures page, followed by the Terrain page's light, shadows, slopes, shelter and water.
+The pictures are labelled developer fixtures; they are ready for engine review, not final art approval.
 
 ## What is new
 
-- **The Pilot page:** a stand-in area, a square of meadow with a river across it and a camp on the north bank. Pick a place (**Camp, Meadow, Shore, River, Tent, Club**) and a zoom band (**Band 0 to 6**); each band shows a texture pixel 2 screen pixels wide, as the game will. **Enlarged** shows one at 8.
-- **A sheet above, the engine below:** the **Sheet** buttons put a piece's signed-off picture in the top 40% of the screen, and what the engine draws of it underneath, at true size or enlarged.
-- **The meadow,** the art lane's own: a near tile, a middle one and a far one, each in four versions picked by place so no piece sits on a grid, blending as you zoom.
-- **The river,** the art lane's own bed and marks: clear water that takes the bed's colour as light is lost in it, marks and glints that step ten times a second in whole texture pixels, and a bright line one texture pixel wide where water meets land.
-- **The club and the hide tent,** the art lane's own parts: eleven sewn hides, ten poles lashed where they cross, a door flap and a ring of 24 stones; and the club, a stick with a knob.
-- **The light,** late afternoon: a warm low sun and a cool sky's fill, so lit planes are golden and shade is cool; contact shade at the stones' feet and under the tent's hem, a lit edge on the parts, and a shadow that softens with distance.
-- **The Lab** (every material as the phone shows it, with loading time and texture memory) and **the Kit page** (every part and recipe) are on the phone too.
-- **In the cloud,** the Pilot page is drawn at every band and checked: each band reads the tile that serves it, a cell's border is as quiet as any texture pixel edge, the marks step in whole pixels, and the hollow under the tent is darker than open ground and never black.
-
-![The Pilot page at the camp, band 0](pictures/a23a-camp.png)
-
-![The hide tent's sheet above, the engine's tent below](pictures/a23a-tent-sheet.png)
+- **Fixtures:** a fixed 37-degree camera, crisp world pixels, pan and pinch, selection, walk/work previews and the animal's four/eight-facing comparison. Controls stay at the screen's native resolution when you turn the phone.
+- **Terrain:** flat ground, a slope, cliffs, a shelter, water and a separate cave interior. Sun, sky and fire contribute separately, so sun shade does not dim the fire's emission.
+- **Height and cover:** shadows start at the receiving surface's height. Roof and floor remain separate; selected cover fades and occupied shelters open for inspection.
+- **Water:** a visible bed, depth colour, projected reflections and wading use the same surface heights.
+- **Inspection:** sun direction, noon/dusk, declared weather profiles, receiver/normal/layer views and an optional design sheet.
 
 ## What to try
 
-1. Install the APK over 30202. Your worlds carry on.
-2. Open **Pilot**. It starts at the **Camp**, band 0: look at the tent, the stones and the club on the meadow, and the river below.
-3. Tap **Band 1** to **Band 6**: the meadow's tiles change as you zoom out. Tap **Enlarged**, then a band, to see single texture pixels.
-4. Tap **Sheet: Meadow**, **Sheet: River**, **Sheet: Club** and **Sheet: Tent** in turn, and compare each sheet with what the engine draws below it. Use **Shore** and **River** for the water, **Tent** and **Club** for the camp's pieces.
-5. Say yes or no to each of the four pieces: the meadow, the river, the club, the hide tent. If no, say what is wrong and where.
+1. Install **30801** over your last build. Let the first-start self-check finish; send its code if it fails.
+2. Open **Terrain**, starting with **flat**. Compare **Noon / dusk**, **Sun direction** and **Fire**. Judge the flat shadow style first: contact, direction, long shadows and fire in shade.
+3. Then choose **slope**, **cliff**, **shelter** and **water**. Check feet against the ground, shadows across tile edges, and figures in front of and behind cover.
+4. Try **Select person** and **Reveal** beneath the tree and roof. Use **Cave entrance / exit** to enter the separate interior and return to the same exterior focus.
+5. Pan, pinch and turn the phone. Open **Fixtures** to try **Walk / work**, **Turn**, **4 / 8 facings** and the six piece inspections.
+
+Say whether the flat style passes, then whether the terrain result passes. Name the scene, hour and control setting for anything wrong.
 
 ## What is rough
 
-- The meadow is one even carpet over the whole area: no patches of taller grass, no worn ground round the tent, no bare earth. The art lane's earth and the patch picture come next.
-- The shore is a plain strip of stones between grass and water, and the water is one colour model for every depth.
-- The area is a stand-in made by code: a flat square with a straight-banked river, no cliff, no plants, no people.
-- Each piece's record still says "not offered yet" (the Lab lists them as held back): that is the art lane's own word, kept until you have looked at them here.
-- The light is the pilot's own, set for the camp: the Look, Compare and Calibrate pages keep the older light.
+- Tree, shelter, boulder and ground previews still include sheet crops; people and animals are diagrams. The old dome-shaped shelter crop is temporary: the intended tent is the 16.4 cone with a 4.2 m ring and 3.1 m tips, which will arrive with its reviewed art. Final neutral art, aligned material/normal pages, repaired zoom art and seasonal shapes have separate reviews.
+- Terrain, hours and weather are declared test fixtures. They are not generated geography, a physical sky or a living camp. The winter setting changes the light; it does not prove winter tree shapes.
+- Several inspection selectors still say “colour”; their labels need clarification.
+- Water still reads as a green test rectangle and the ground is visibly noisy. The separate reflection and bed targets work, but their final art treatment needs review.
+- The cave is a separate restricted interior. Geological slices and stacked overhangs remain later work.
+- Phone frame time, power and temperature have not been measured for this 2D build. Cloud captures do not establish a phone performance pass. The two-phone comparison remains a later step.
+- Older 3D pages remain during migration; their results are historical evidence, not a pass for this 2D engine.
 
 ## IDs delivered
 
-- `PRE-20`: the meadow's and the hides' colours by design, read through the ladder's levels.
-- `PRE-22`: texture pixels that stay crisp squares as you zoom through the seven bands.
-- `PRE-23`: the ground, from a tile in four versions of each size.
-- `PRE-26`: the river's bed, its depth tint, marks, glints and shore line.
-- `PRE-21` and `PRE-30`: contact shade, the lit edge and the warm late afternoon.
-- `PRE-46`: the club and the hide tent, put together from the kit's parts.
-- `PLT-04`: the Pilot, Lab and Kit pages on the phone.
+Restricted engine work for `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-30`, `PRE-31`, `PRE-33`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `PLT-04`, `WLD-13`, `TIM-17` and `RES-05`.
+These fixtures establish the drawing route; final art, complete world behaviour and phone acceptance are not claimed.
 
 ## Links
 
-- APK: https://github.com/gunsandsalvi/Project-Nature/raw/ccr-13ab6fef-fspju6/dist/kindling.apk
-- This note: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/dist/NOTE.md
-- The plan for M2: https://github.com/gunsandsalvi/Project-Nature/blob/ccr-13ab6fef-fspju6/IMPLEMENTATION.md
+- [Eight-second review clip](pictures/a28a-review.mp4): sun, shelter, water and cave entry/exit.
+
+- [Flat lighting comparison](pictures/a28a-flat-lighting.png) and [cliff lighting comparison](pictures/a28a-cliff-lighting.png): unlit fixture versus lit fixture, not approved art baselines.
+- [Shelter](pictures/a28a-shelter.png), [water](pictures/a28a-water.png), [receiver debug](pictures/a28a-receivers.png) and [cave](pictures/a28a-cave.png).
+
+- [Download the APK](https://github.com/gunsandsalvi/Project-Nature/raw/main/dist/kindling.apk)
+- [APK checksum](https://github.com/gunsandsalvi/Project-Nature/blob/main/dist/kindling.apk.sha256)
+- [This note](https://github.com/gunsandsalvi/Project-Nature/blob/main/dist/NOTE.md)
+- [The remaining plan](https://github.com/gunsandsalvi/Project-Nature/blob/main/IMPLEMENTATION.md)

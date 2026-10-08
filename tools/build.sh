@@ -52,7 +52,13 @@ timeout 900 "$GODOT" --headless --path "$PROJECT" --export-release Android "$TMP
   || { tail -40 "$TMP/log"; echo "Build: Godot's export failed"; exit 1; }
 [ -s "$TMP/unsigned.apk" ] || { tail -40 "$TMP/log"; echo "Build: Godot made no APK"; exit 1; }
 
-"$KD_BUILD_TOOLS/zipalign" -f -P 16 4 "$TMP/unsigned.apk" "$TMP/aligned.apk"
+# PLT-06/PRC-11: Android extracts compressed libraries before loading them. Fail before changing the archive if
+# extraction is disabled; compress only our extension without dropping or changing any resource bytes.
+MANIFEST="$("$KD_BUILD_TOOLS/aapt2" dump xmltree --file AndroidManifest.xml "$TMP/unsigned.apk" 2>/dev/null)"
+grep -Eq 'android:extractNativeLibs\([^)]*\)=true' <<<"$MANIFEST" \
+  || { echo "Build: native library extraction must be enabled for lossless APK compression"; exit 1; }
+python3 tools/apk-compress.py "$TMP/unsigned.apk" "$TMP/compressed.apk"
+"$KD_BUILD_TOOLS/zipalign" -f -P 16 4 "$TMP/compressed.apk" "$TMP/aligned.apk"
 SIGN=("$KD_BUILD_TOOLS/apksigner" sign --v1-signing-enabled false --v2-signing-enabled true
   --v3-signing-enabled true --out "$TMP/kindling.apk")
 if [ "$MODE" = release ]; then

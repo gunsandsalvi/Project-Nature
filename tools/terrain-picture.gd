@@ -29,6 +29,8 @@ func capture() -> void:
 	if debug in ["rain", "winter"]:
 		page.drawing.weather = debug
 	page.set_process(false)
+	# PRE-31: freeze the elapsed-time throttle separately from accelerated scene time.
+	page.drawing.moving_mask_time = 0.0
 	page.drawing._scene_revision = ""
 	page.drawing._revision = ""
 	page._process(0.0)
@@ -55,6 +57,7 @@ func capture() -> void:
 	var still_only := args.size() > 5 and args[5] == "still"
 	for frame in 0 if still_only else 90:
 		page._preview_second = frame / 60.0
+		page.drawing.moving_mask_time = frame / 60.0
 		page._process(0.0)
 		await _settle()
 		if frame >= 10:
@@ -66,10 +69,16 @@ func capture() -> void:
 			samples.world_gpu_ms.append(Timing.gpu_ms([page._viewport]))
 			samples.ui_gpu_ms.append(Timing.gpu_ms([root]))
 	page._preview_second = 0.0
+	page.drawing.moving_mask_time = 0.0
 	page._process(0.0)
 	await _settle()
-	if not _save(root.get_texture().get_image(), args[0] + "-page.png"):
-		return
+	var colour_images := {"page": root.get_texture().get_image()}
+	if args[2] == "water":
+		colour_images.bed = page.drawing._bed.get_texture().get_image()
+		colour_images.reflection = page.drawing._reflections.get_texture().get_image()
+	for kind: String in colour_images:
+		if not _save(colour_images[kind], args[0] + "-" + kind + ".png"):
+			return
 	var colour_draw_calls := RenderingServer.get_rendering_info(
 		RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME
 	)
@@ -106,7 +115,16 @@ func capture() -> void:
 		"engine": Engine.get_version_info().string,
 		"renderer": "Compatibility / Mesa llvmpipe",
 		"window": [root.size.x, root.size.y],
+		"viewport": [page._viewport.size.x, page._viewport.size.y],
+		"density": page.state.density,
+		"pixel_scale": page.state.scale,
+		"animation_second": page.drawing.second,
 		"scene": args[2],
+		"sun_direction": page.drawing.direction,
+		"debug_mode": page.drawing.debug_mode,
+		"reveal": page.drawing.reveal,
+		"selected": page.drawing.selected,
+		"comparison": "unlit albedo" if debug == "albedo" else "lit fixture",
 		"hour": page.drawing.hour,
 		"weather": page.drawing.weather,
 		"declared_light": page.drawing.light_record,
@@ -115,7 +133,10 @@ func capture() -> void:
 		"cold_method": "Fresh scene masks; art and shader variants already loaded",
 		"timings": statistics,
 		"timing_method":
-		"Steady-clock scripts with 10 Hz moving masks; viewport CPU/GPU incl. UI and active targets.",
+		(
+			"Steady-clock scripts; frozen 60 fps elapsed clock, 10 Hz masks; "
+			+ "viewport CPU/GPU includes UI and active targets."
+		),
 		"viewports": viewports.size(),
 		"active_viewports": 4 if args[2] == "water" else 2,
 		"colour_draw_calls": colour_draw_calls,
@@ -160,20 +181,27 @@ func capture() -> void:
 
 func _terrain_clip(page: Control, prefix: String) -> bool:
 	var frames := []
-	for frame in 72:
+	for frame in 96:
 		if frame < 24:
 			page.drawing.direction = frame / 6
 		elif frame < 48:
 			page.set_scene("shelter")
+			page.drawing.fire_enabled = true
 			page.drawing.selected = -5
 			page.dusk = true
 			page.drawing.reveal = frame >= 36
-		else:
+		elif frame < 72:
 			page.set_scene("water")
 			page.dusk = false
+		elif frame == 72:
+			page.set_scene("shelter")
+			page.drawing.fire_enabled = true
+			page.toggle_cave()
+		elif frame == 84:
+			page.toggle_cave()
+		page._preview_second = frame / 12.0
+		page.drawing.moving_mask_time = frame / 12.0
 		page._process(0.0)
-		page.drawing.second = 43200 + frame / 12.0
-		page.drawing.rebuild()
 		await _settle()
 		if not page.drawing.problem.is_empty():
 			printerr(page.drawing.problem)
@@ -185,6 +213,8 @@ func _terrain_clip(page: Control, prefix: String) -> bool:
 			{
 				"path": path,
 				"scene": page.drawing.scene_name,
+				"hour": page.drawing.hour,
+				"animation_second": page.drawing.second,
 				"sun_direction": page.drawing.direction,
 				"revealed": page.drawing.reveal,
 				"costs": page.drawing.terrain.costs()
