@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "doctest.h"
+#include "kd/num/maths.hpp"
 #include "patches.hpp"
 
 namespace patches = kd::view::patches;
@@ -100,7 +101,7 @@ TEST_CASE("the ground is worn bare at the camp, and the wear leaves with distanc
         for (int column = 0; column < p.size; ++column) {
             const double e = p.west + (column + 0.5) * p.patch;
             const double n = p.south + (row + 0.5) * p.patch;
-            const double away = std::hypot(e - east, n - north);
+            const double away = kd::num::hypot(e - east, n - north);
             const int wear = p.data[4 * (static_cast<std::size_t>(row) * static_cast<std::size_t>(p.size) +
                                          static_cast<std::size_t>(column)) +
                                     1];
@@ -133,7 +134,7 @@ TEST_CASE("bare earth shows only where growth is thin, and most of the area is c
             const double e = p.west + (column + 0.5) * p.patch;
             const double n = p.south + (row + 0.5) * p.patch;
             // outside the camp's clearing, what is worn comes from thin growth alone
-            if (std::hypot(e - east, n - north) < params.clearing + params.clearing_fade + 12.0) {
+            if (kd::num::hypot(e - east, n - north) < params.clearing + params.clearing_fade + 12.0) {
                 continue;
             }
             ++far_total;
