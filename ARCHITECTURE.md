@@ -1,1692 +1,523 @@
 # Kindling: architecture
 
-How Kindling is built: its parts, how they talk, the rules they keep, and why each choice was made.
-It serves `PROJECT.md`, which says what the game must be, and is served by `IMPLEMENTATION.md`, which says in what order to build it.
-The look aims at the pictures you chose (`art/targets/`).
-What is not in `PROJECT.md`, this file or `IMPLEMENTATION.md` is not kept.
-The code is the index: code names the `PROJECT.md` items it implements, so this file says how and why, never where (`CLAUDE.md`, rule 3).
+The contracts, current implementation limits and facts needed to build the next running game.
+PROJECT.md owns requirements; IMPLEMENTATION.md owns sequence and acceptance. Aim for at most 6,000 words here.
+Existing A section numbers remain stable because code cites them. Deferred sections preserve obligations, not permission to start work.
 
 ## Status (8 October 2026)
 
-- **Technology approved by you** (`PRC-03`): pinned Godot 4.7.2, stock templates, with the C++ simulation as a Godot plug-in (GDExtension).
-  The 2D fixtures start on Compatibility and compare Mobile on two phones (A4.7).
-  The earlier conditional 3D drawing patches leave M2's route.
-- **Pre-production is closed** (5 October 2026): its prototypes' answers are written here as decisions, marked with the prototype that gave them (Pn); their code is deleted, and production writes its own.
-- The foundations' sections (A2, A3, A17, A18) are written in full for M1; M1 is built and you accepted it on 6 October 2026.
-- The graphics sections (A4, A5, A6 and A8) now carry the fully 2D design you approved on 8 October 2026, including the torus-preserving globe picture.
-  M2 must still build and prove it; accepted M1 results are not 2D renderer results.
-- The M3 world design (A7, A8.8–A8.9, A17.1 and A18.3–A18.4) is approved for implementation after M2 (owner OK, 8 October 2026). It has no implementation or phone acceptance yet.
-- Parts for M4 and later remain outlines, each designed in full when its milestone is next, from what the earlier ones taught.
+M1 is accepted. The owner approved the revised route on 8 October: M2 living camp; M3 discovery slice; M4 seasons and lives; M5 neighbours; M6 small finished valley; M7 wider world; M8 remaining life, crafts and society; M9 presentation, powers and sound; M10 optional copper/full arc.
+Earlier prototypes are evidence only; their deleted code is not a production source.
+The 2D renderer is partly built. Delivery 30801 shipped; later α2.9a work is merged WIP, without whole-step acceptance.
+No real needs, minds or discoveries are implemented yet. Fixtures and simulation markers remain diagnostics.
 
 ## A1. Overview
 
 ### A1.1 What it must deliver
 
-- **The look you chose, on your phone** (`PRE-01`, `PRE-02`, `VIS-14`): a fixed-camera 2D pixel-art world with rich light, crisp pixels and native controls, in portrait and landscape on your Pixel 11 Pro XL, also measured on a weaker phone.
-- **A big believable simulation** (`PRN-11`, `MND-14`): thousands of people with full minds in a world 2,000 by 1,000 km (`WLD-03`), time running faster or slower but never cutting detail.
-- **The same history every run, on the phone and in the cloud** (`RES-05`, `TIM-16`).
-- **Offline, private, saved always** (`PLT-03`, `PLT-07`).
-- **Built and tested by AI agents** in cloud sessions, with you judging the look and the feel (`PRC-01`, `RES-22`).
+An offline, saved, deterministic simulation of independent people, read through a fixed-camera 2D view.
+M2 starts with about 25 adults in a labelled, bounded seeded valley; full-world and population requirements remain open.
 
 ### A1.2 The big picture
 
-```
-            your touches                      what you see and hear
-                 |                                     ^
-                 v                                     |
-  +-------------------------------------------------------------------+
-  |  game/ (Godot): scenes, shaders, interface, sound                 |
-  |  view/ (C++ plug-in): the bridge, projection, sprites, surfaces   |
-  |        and bounded drawing caches on Godot's canvas               |
-  |      sends COMMANDS  ------------------->                         |
-  |      reads SNAPSHOTS <-------------------                         |
-  +---------------------------------|---------------------------------+
-                                    |  the boundary (A3.8)
-  +---------------------------------v---------------------------------+
-  |  sim/ (C++ library): world, living things, people, minds,         |
-  |  culture, history, saves. Never reads Godot. Same bits            |
-  |  everywhere (A3.4).                                               |
-  +---------------------------------|---------------------------------+
-                                    |
-                     data/ catalogues and tuning files (text)
-```
-
-- The simulation owns the truth.
-- Godot only draws a snapshot of it each frame, and passes your gestures and powers in as commands.
-- Nothing on screen can change history (`WLD-13`, `TIM-03`).
+`sim/` owns authoritative state and never reads Godot, camera, zoom or requested speed.
+`view/` sends commands and converts owned snapshots into drawing records.
+`game/` presents those records, gestures, UI and sound. `data/` supplies validated catalogues and tuning.
+Rendering, cache contents and view-only chance cannot alter history (`WLD-13`).
 
 ### A1.3 Decisions
 
-| Decision | Why |
-|---|---|
-| Godot 4.7.2, stock templates | Pinned engine and existing extension; 2D fixtures replace the conditional 3D patch route |
-| Compatibility first, with an identical Mobile comparison | Choose from measured look, drivers and sustained costs on both phones, not the old 3D assumptions |
-| The simulation as a separate C++ library on its own threads | Thousands of minds need the processor's cores; C++ is Godot's official plug-in language on Android |
-| EnTT entities with never-reused ids, content as data with no floats | Data laid out for the cache; new plants, animals, things and blueprints without code (`PRN-14`); history that names the dead forever |
-| Events on one queue run in islands, keyed chance, correctly rounded maths, Box2D's rules for floating point | The same bits everywhere, at any speed and on any number of threads; long processes cost nothing until they end |
-| A 540 × 1200 world image at 2×, native UI, neutral colour and custom receiver-aware light | Crisp pixels at the fixed camera, readable controls and changing light without runtime meshes |
-| The feeling as guidance, a target card as an alarm, one approved picture per place relit for its hours; a saving kept only if it passes your blind test | Rules can't hold a feeling, and you judge the look; you turned down every visible saving |
-| Three source art families, reviewed reductions, four facings and a small first animation set | Countable production; six fixtures prove the pipeline before expensive content grows |
-| A generator in the order of real causes, many candidates scored | Believable worlds from a seed, tuned for the look |
-| One orthographic projection, nearby origin, ordered surface pieces and shared map/globe overview | Huge zoom range and physical heights without changing exact torus coordinates or saves |
-| Species as data, numbers by Damuth's law, individuals near people and counts far away | Nature that holds over centuries at any speed |
-| Needs, energy, wounds and illness by real numbers; births by biology | Lives that land near foragers' real numbers |
-| Choosing by utility with kept reasons, a small planner on top, knowledge per person | Explainable (`PRN-13`), reactive, cheap enough for thousands |
-| Blueprints match characteristics, never names; every reality rule backed by an experiment | Discovery by the world's own rules (`PRN-07`) |
-| Culture from causes; a naming language spelled with the font's letters | Nothing social scripted (`CUL-07`) |
-| A story sifter that only sets speed and moments; pattern sentences; the phone's model only rewords, checked | The director never touches events (`TIM-03`); language models describe, never decide (`PRN-06`) |
-| One column of panels, our own gesture reader, an integer-scaled pixel font | The world first, one thumb, crisp text in both orientations |
-| Layered ambience, sounds made by code, Godot audio with world-space direction and distance, a voice manager | A lively camp from what is really there (`PRN-10`) |
-| doctest and property tests, gdUnit4, pictures by Movie Maker mode, Perfetto on the phone | Every check runs in the cloud; the look is judged on the phone |
+Keep Godot 4.7.2, stock templates, the C++20 simulation/GDExtension, Compatibility renderer, fixed north-facing 37° camera and existing save approach through M3.
+Change a local implementation only for a measured blocker. A later Mobile comparison uses identical scenes; it is not another renderer restart.
 
 ## A2. Code layout, builds and delivery
 
 ### A2.1 Repository layout
 
-```
-game/        the Godot project: scenes, the interface in GDScript, the theme and fonts, and its gdUnit4 tests;
-             game/bin/ (the built extension) and game/data/ (a copy of data/) are made by the build, never committed
-view/        C++ for the picture, as one Godot extension (libkindling): the bridge to the simulation (A3.8), the
-             phone's telemetry (A3.9), one snapshot consumer, projection and ordered sprites/surfaces (A4, A6, A8)
-sim/         the simulation in C++20, with no Godot: numbers, chance, time, entities, events, catalogues and saves,
-             later the world, living things, people, minds, culture and history; its doctest tests; the `kindling`
-             command-line tool for scenes, runs, benchmark worlds and catalogue checks; sim/thirdparty/ for
-             vendored code
-data/        catalogues, tuning files, scenes and benchmark worlds, as TOML (A3.6), in sources: base/ for the game,
-             demo/ for what only the foundations show
-android/     the release certificate; an Android plug-in only if the phone ever needs one (A3.9)
-tools/       setup, checks, builds, delivery, the file check, signing
-art/         the pictures you chose (targets); the textures: their levels, records, sheets, sources and
-             requests (A5.4); sprite sources, frames, masks and optional offline rigs (A6.1); and the fixed views' golden pictures (A4.8)
-dist/        the signed APK of the latest alpha and its note
-```
+`sim/` is engine-independent rules, tool and tests; `view/` is the native bridge; `game/` is the app and app tests.
+`data/` holds TOML sources, scenes and benchmarks; `art/` holds targets, sources, approvals and derived assets; `tools/` builds/checks; `dist/` holds the delivered APK/note.
+Generated `game/bin/` and `game/data/` are not committed.
 
 ### A2.2 Builds
 
-- **C++:** CMake and Ninja, C++20, through ccache.
-  - `sim/` is a static library with its tests and the `kindling` tool, and never includes Godot.
-  - `view/` is one shared library, `libkindling`, linking `sim/` and godot-cpp 4.5 built from a trimmed profile (`view/build_profile.json`), which Godot 4.7 loads (P5).
-    A class that a used method takes must be named in the profile, or the method silently vanishes.
-    The 4.5 pin stays until a needed 2D API is absent; any upgrade is deliberate and tested (A4.7).
-- **Flags for all our C++** (A3.4): `-std=c++20 -O2 -Wall -Wextra -Werror -fno-exceptions -funsigned-char -fno-fast-math -fno-math-errno -ffp-contract=off`, with `-ffp-contract=off` the last floating-point flag on the line; symbols hidden; `-ffunction-sections -fdata-sections` linked with `--gc-sections`.
-  Nothing throws: errors are values.
-- **Build coverage:** the routine check builds the host simulation and extension; the separate `tools/check.sh --audit` runs the wider compiler and sanitizer matrix. The release build supplies the phone extension. This split was approved on 8 October 2026. The covered builds are:
-  - the cloud's main build: x86-64 with clang 18, for the tests, the tool and the extension the Godot tests load;
-  - a second compiler: x86-64 with GCC 13 and its undefined-behaviour and float-cast checks;
-  - arm64 with GCC 13, and arm64 with the phone's own compiler (NDK r30, clang 21), both static executables run under qemu, for the same-bits check (A3.4); every test runs emulated once, under the phone's own compiler, and both run the same-bits proofs;
-  - the phone's: the extension for arm64 Android, API 24, the C++ runtime linked statically, newer Android functions linked weakly and guarded, 16 KB-aligned, stripped in the APK and kept whole for crash symbols.
-  - Beside them, since α1.5a, the simulation's tests built once more with GCC's thread checker, since a race between threads can damage memory without failing a test: one did, once, before the checker named it (A17).
-- **Godot:** 4.7.2, pinned, exported from the command line (`--headless --export-release`).
-  - The export is unsigned; `zipalign` and `apksigner` finish it, so only `tools/signing-key.py` reads the secret.
-  - The build first copies `data/` into `game/data/` with `build.toml`, the list of its files and their digests (A3.6), and the scenes' last reports with a world each (A17); the export's filter includes `data/*.toml` and the reports, since Godot skips text files otherwise.
-  - Android export needs ETC2 and ASTC texture imports on, for the icon and the interface's pictures; the world's textures are lossless data files with their own levels, read by `view/` (A5.4), so Godot's "Detect 3D" stays off.
-    The preset leaves out `addons/` and `test/`, so the test framework never reaches the phone; it asks for no permissions.
-  - Stock export templates serve the 2D baseline; no leaf pre-pass, shading-rate patch or fractional-resolution fallback remains in M2.
-    Configure Compatibility first and a measured Mobile variant (A4.7), with the world SubViewport separate from native UI (A4.1).
-  - `quit_on_go_back` is off and `retain_data_on_uninstall` on (A3.7).
-- **Art:** validated sprite/atlas metadata, aligned masks and normals, and reviewed complete reductions (A5.3, A5.4).
-  Blender rigs are optional offline tools, never a required runtime kit export.
-- **Targets:** Android arm64 for the phone, and Linux x86-64 for tests and pictures in the cloud.
-  There is no web build: Godot's is about 40 MB, beyond the private page's 15 MB.
+CMake/Ninja/ccache build the host and Android arm64 extension. godot-cpp stays pinned at 4.5 until an actually needed API requires an upgrade; argument structures must be in its reduced binding profile or methods disappear.
+Errors are values, never exceptions. Preserve `-funsigned-char`, `-fno-fast-math`, `-fno-math-errno` and final `-ffp-contract=off` on our C++.
+Android uses API 24, statically linked C++ runtime, guarded newer APIs and 16 KiB alignment.
+
+Export unsigned, then compress, align and sign through the existing tools; only `tools/signing-key.py` reads the signing secret.
+Text catalogues/reports need explicit export inclusion; tests/addons stay excluded; no permissions are requested.
+Lossless native-library deflation requires `extractNativeLibs=true`. The shared meadow sheet is packaged once; deleting required catalogue records is not a size fix.
 
 ### A2.3 Delivery of each alpha (`PRC-11`, `PLT-06`)
 
-- **The APK:**
-  - signed with the release key, derived from the passphrase secret by `tools/signing-key.py`, the only script that reads it;
-  - package `dev.kindling.app`, so each alpha installs over the last;
-  - committed to `dist/` on the work branch and linked from the note;
-  - within the 50 MB a committed file may have: 27.6 MiB at M1's end, so pixel-art textures shipped losslessly fit while they stay small; if they stop fitting, you choose between compression you cannot tell from the original in a blind test and delivering builds as release files outside the repository, once that is proved from a cloud session.
-- **The note** says what is new, what to try, what is rough, the items delivered and the links, and is published at your note link with pictures from the cloud.
-- **Version code:** (milestone + 1) × 10000 + alpha × 100 + step (a = 1), so α1.1a is 20101 and α1.2b is 20202.
-  Each is above every earlier build's, so it installs over it.
-- **Self-check:** the first start of each version runs a few seconds of checks and shows them, with a short code to send if anything fails:
-  - the same bits: seeded runs of the numbers, chance and a small world, each digest against the one the cloud wrote into the build;
-  - the floating-point environment a simulation thread finds;
-  - the catalogues' digests against the build's;
-  - a save written and reopened;
-    *built in α1.4a as the last save's time and the moment it holds, not a save made for the check: the kill tests in the cloud prove the saving itself;*
-  - the graphics driver's version, read from the id of Godot's pipeline cache, the only place Godot gives it; the screen's refresh rate; the cores and their top clocks; the heat thresholds; and how the storage is mounted.
+Package `dev.kindling.app`, same release key, increasing version code:
+`(milestone + 1) × 10000 + alpha × 100 + step`, with a = 1.
+Never reuse a distributed code. The committed APK must fit the repository's 50 MiB file limit; a different distribution route or visible compression needs the owner's decision.
+30801 is 51,248,270 bytes (48.87 MiB); its note/checksum in `dist/` identify the actual delivery.
+The note and installable build follow IMPLEMENTATION.md. First-start checks cover deterministic digests, numerical environment, catalogue fingerprints, saved moment and device diagnostics.
 
 ### A2.4 A fresh cloud session
 
-`tools/setup.sh` installs whatever is missing, pinned and checked by checksum, and says nothing when all is present:
-- Godot and its export templates;
-- the Android SDK, NDK and JDK;
-- CMake and Ninja, clang-format and clang-tidy, GCC 13 and its arm64 cross compiler, qemu, MPFR (the maths library's test oracle), and the formatters and linters of GDScript (gdtoolkit) and Python (ruff);
-- gdUnit4, doctest, godot-cpp 4.5, EnTT 4.0.0, toml++, xxHash and zstd;
-- Mesa's software Vulkan driver (lavapipe) and Xvfb, so Godot can draw pictures without a graphics chip;
-- Optional sprite editors and offline rig tools when the art pipeline needs them; no required Blender kit export.
-
-CORE-MATH's few C files are kept in `sim/thirdparty/` at a pinned commit, with a sample of its hard cases, since its host is the one source a session might not reach; `tools/core-math.py` copies them from a checkout of that commit.
+Run `tools/setup.sh` if dependencies are missing; source `tools/env.sh` in every independent build/check command.
+It supplies pinned tools, engine/templates and shared caches. Preserve cache reuse; avoid duplicate heavyweight builds and concurrent captures/exports.
 
 ## A3. The simulation core
 
 ### A3.1 Its boundary
 
-The simulation is a library with a small surface:
-- make a world from a seed and its sources of data, or open a saved one;
-- set a goal in game time, and say how far it has got (its frontier);
-- take commands (your powers; test switches in test builds only, `RES-10`);
-- hand out snapshots and the events worth showing;
-- save, export and import.
-
-It never calls Godot, never reads the camera, the zoom or the speed, and keeps no state about what is on screen (`WLD-13`).
-It reads files only as bytes handed to it, and writes saves only under the folder it is given.
-The same library runs scenes and whole worlds headless in the cloud, under the same rules as play (`RES-18`, `PLT-05`).
+The library makes/opens worlds, advances to a game-time goal, accepts commands, publishes snapshots/events and saves/exports/imports.
+It receives file bytes and a save folder; it never calls Godot. The headless tool uses the same rules as play.
 
 ### A3.2 Entities and components
 
-- **EnTT 4.0.0** holds people, animals, plants near people, things, places, groups and records, behind a thin layer (`sim/ecs`), so no rule creates or destroys entities itself and a later change of library stays local.
-  - Two registries keep memory tight: beings (people, animals, places, groups) with 32-bit handles, and things with 64-bit handles, room for more than a million at once.
-  - Plants and far animals stay as counts on world cells, outside EnTT (`WLD-32`).
-- **Every entity has an id that is never reused:** 64 bits from one world counter, its top four bits naming its family.
-  Components, events, history, memories and saves hold only these ids; EnTT's own handles live within one step and are never stored.
-  - Each registry maps id to handle in one list per family, each kept in id order by appending, so a lookup is a binary search and a walk in id order needs no sort; an ended entity leaves a gap, swept out once a family's gaps pass a quarter of its live entries.
-  - The world's own owners of events, its layers and your commands, have ids below every entity's (family none).
-  The dead leave their entity but keep their record in the history (`PRN-15`).
-- **A thing's kind is its catalogue entry,** and its parts are the components the entry lists, as RimWorld's Defs and Comps; each entry becomes a ready recipe at load.
-  There is no class hierarchy of kinds, which Dwarf Fortress regretted.
-- **One descriptor per component:** its stable name, its version and its fields (name, type, unit, range, whether it names another entity or entry, what it affects, a plain description).
-  The same descriptor loads its values from the catalogues, saves and loads it, hashes it for the checksum and shows it in the details view (`PRN-14`); since α1.4a the digest, the snapshot's writer and its reader all walk it.
-  A new component is one header, one descriptor, its rules and one line in the component list.
-- **Order:** EnTT's own order is not canonical (it shifts with unrelated changes and across a save), so nothing that decides may follow it.
-  - Decisions follow the event queue (A3.3) or lists sorted by id, and every sort breaks ties by id.
-  - Raw order is allowed only where the result cannot depend on it: per-entity updates, whole-number totals, minimum and maximum with ties broken by id.
-  - Every pool is made at start, in name order, so a new world and a reopened one have the same pools in the same order.
-  - EnTT's signals keep indexes up to date and never carry game rules.
-  - An order fuzzer in the checks scrambles every pool before each batch, and the results must not move.
+EnTT registries sit behind the existing entity layer. Never-reused 64-bit IDs contain a family in the top four bits; registry handles are transient and never saved.
+References, history and commands use persistent IDs. Ended entities leave historical records.
+Component descriptors own stable names, versions, fields, units, ranges, links and effects; loader, save reader/writer, digest and inspection share them.
+Catalogue entries assemble components, without a class hierarchy for kinds.
+
+Decision order is event key or persistent ID, with explicit ties; EnTT pool order is not canonical.
+Pools are created in name order. Signals maintain indexes, never game rules. The order fuzzer must leave digests unchanged.
 
 ### A3.3 Time and events
 
-- **The clock counts whole game seconds** in 64 bits, and the 60-day year, its seasons and dates come from it (`TIM-18`, `TIM-14`).
-- **Work happens at events on one queue,** each with a unique key: (game second, owner's id, owner's sequence number).
-  - The key decides the order, never the structure: equal times are settled by owner, then by sequence, the same everywhere (`TIM-17`).
-  - The world's layers and your acts own reserved ids, so they come first within their second.
-  - A handler may only schedule keys after its own, so an effect on someone else lands at least one game second later: a call travels, a reaction takes time.
-  - Each activity ends at an event, and the doer decides again only then, or when interrupted (`TIM-17`); timers are events (`MAT-19`); each layer of the world is one event that reschedules itself, weather hourly, water daily, plant cover every five days, each running its cells as a batch (`WLD-12`).
-- **The queue** is a binary heap of the keys (120–230 ns an event, 1–4% of a core at the speed targets); a two-tier one of minute buckets and a heap replaces it only if a profile shows the queue above about 5%, and the checksum test proves the switch changes nothing.
-- **Cancelling is lazy:** the owner keeps the sequence it expects for each slot (its activity's end, each timer); interrupting clears it; a popped event whose sequence no longer matches is skipped.
-  The heap is rebuilt without its dead entries when they pass a quarter of the live ones, which no outcome can see.
-  A save holds only the live events, sorted.
-- **Activities** have a start, an end and a way (where the doer is at any moment, from its start, end and pace), so they can be seen, met or attacked on the way (`TIM-17`).
-  An interruption ends one early by the kind's own rule of what it keeps: a walker stands where they got to, what builds up gives its share, work stays in the thing, a single act does nothing.
-- **The world runs every event before its goal,** and its frontier is then the goal: every event before the frontier is done, none at or after it, so a digest taken at a frontier, such as each midnight, is the same however the run was cut into batches.
-  The world's rules live in systems, each handling the events of one family of entity or of one of the world's own owners.
-- **Events happen one at a time in key order, and that one-thread run is the reference.** Every faster way must give the same bits:
-  1. Game time is cut into windows on a fixed grid, also cut at the world's layer events and wherever the simulation stops; since cuts cannot change results, cutting is free.
-  2. At each window's start, owners that could touch each other or the same thing within the window join one island: those within twice the longest reach plus twice the fastest pace times the window, or sharing a store, a household, a thing or a shared activity.
-  3. Each island takes its events for the window from the queue and runs them in key order on one worker; events it makes inside the window stay in it, later ones go out to the queue.
-  4. Islands run side by side on up to four workers, then merge their events and history by key.
-  - Since no island can read what another writes within the window, the result equals the one-thread run for any window, thread count, speed or pause; a test proves it, and a debug build logs any touch across islands.
-  - New ids for things made inside an island are handed out in key order at the merge, so they never depend on other islands; until a rule needs it, beings are made and ended only between windows, and the world stops the run if a rule tries otherwise.
-  - Up to about camp speed, one worker runs events in order, with the same results.
-  - *As built in α1.3b:* events run through a context, the whole world's or one island's, through which a rule reads the moment, schedules, cancels and records history; an island refuses any owner it does not hold, so a rule that touches another island stops the run.
-    Each system gives a circle each of its owners with events cannot leave within the window, and names its owners without events whose way could come within reach of one; owners within reach join one island (a union-find, the active owners' circles met in cells of 250 m).
-    The world's own owners run alone between windows, which are also cut at their events; an island's events and history merge by key.
-    A test runs one world one event at a time and in islands of 60, 300 and 900 seconds on one to four threads, stopped at seconds chosen by keyed chance, with the order fuzzer on, and every digest matches; a planted rule that decides by a marker in another island fails it.
-  - *Measured in α1.3b:* for the demonstration's crowd islands cost more than they save, since its events take about 1.3 µs each: 10,000 markers ran 3 game days (0.8 million events) in 1.05 s on one worker, and in 3.9 s in islands of one-minute windows on four threads (about 80 islands a window, the largest with 16% of the events), or 17.8 s with five-minute windows, where one island held 90% of the events.
-    With about 8 µs more work an event, islands of one-minute windows on four threads were only about 10% faster than one worker.
-    So the crowd runs on one worker, and islands wait for heavier events, such as minds (M6); before then, ways bounded as lines rather than circles, a cheaper join and workers that need no waking would cut their cost.
-- **So a long process costs nothing until it ends,** and the cost of a game day follows what happens in it, not the speed.
-- *Measured in pre-production* (P6): a thousand people at 6.0 game years a real minute on your phone's four cores, with decisions in 5-minute windows read from a snapshot; production replaces those windows with islands, which give the same history at any speed.
+The clock is 64-bit whole game seconds. Events order by `(second, owner ID, owner sequence)`.
+Handlers schedule only later keys; cross-owner effects take at least one second. Cancellation checks live owner sequence slots; saves contain live events only.
+The frontier excludes its own second: all earlier events are complete, none at or after it.
+Activities retain start/end, progress and authoritative position; interruptions apply their kind's partial-work rule exactly once.
+The generic Activity machinery does not yet implement interrupted meals or bodily effects.
+
+One-worker key order is the reference. Parallel islands may neither read nor write another island's owners; owned events/history merge by key.
+World layers run between windows; entity creation follows canonical allocation order.
+Existing proofs cover varied windows, stops, pool orders and one/four workers.
+Crowd uses one worker: islands cost more for its cheap events. Profile actual minds before enabling parallelism; long windows currently make island joining particularly expensive.
 
 ### A3.4 The same bits everywhere (`RES-05`, `TIM-16`)
 
-Following Box2D and Factorio:
-- **Arithmetic:** IEEE double precision for working values, with no fast-math and no contraction into fused multiply-adds (A2.2).
-  The basic operations, the square root and the exact helpers (`floor`, `fmod`, `ldexp` and the like) are the same everywhere.
-- **Maths functions:** CORE-MATH's correctly rounded double functions, vendored at a pinned commit and wrapped once in `sim/num`, which refuses any input outside a function's domain and any answer that is not a finite number.
-  - Since angles are turns, sine, cosine, tangent and their inverses are those in half turns (`sinpi`, `asinpi` and the like), exact at the quarter turns; then exponents, logarithms, power, hyperbolic tangent, error function, cube root and hypotenuse.
-  - A correctly rounded answer is unique, so every machine agrees: MPFR checks every function in the cloud on its edges, CORE-MATH's hard cases and 200,000 inputs across its domain, and no platform maths function is used.
-  - Measured in the cloud (x86-64 without fused multiply-add): 10–30 ns a call, 82 for power and 127 for the direction of a vector; the phone's own times are in its self-check.
-- **Numbers** (`sim/num`):
-  - positions as 32-bit whole centimetres on the torus, 200,000,000 by 100,000,000, differences wrapped in 64-bit arithmetic, squared distances exact and square roots taken on whole numbers; exactly half way round, the way taken does not cross the edge where the map wraps, so a way back is always the exact reverse;
-  - angles as turns in 2^32 steps, which wrap by themselves and add exactly, read by the trigonometric functions as half turns;
-  - heights in millimetres;
-  - time in 64-bit game seconds;
-  - amounts as 64-bit whole base units (milligrams, millimetres, seconds, parts per million), rates applied in closed form at events;
-  - probabilities as 64-bit thresholds read exactly from the catalogue's text or a ratio, a draw firing below its threshold, and certainty its own case;
-  - one conversion from floating to whole numbers, rounding down, up, toward zero or to the nearest (halves away from zero), which refuses what is not finite or does not fit;
-  - floats never in saved state, and never NaN.
-- **Banned in `sim/`, each with its replacement,** checked on the code's syntax tree (clang-query) by `tools/rules.py`, which names the replacement in each message:
-  - `long double` (double), also in `view/`;
-  - `float` (double for working values, whole numbers in state);
-  - platform maths and `fmin` and `fmax` (`kd::num`'s maths, `std::min` and `std::max`), also in `view/`;
-  - casts from floating to whole numbers, but in `kd::num::to_int`;
-  - parsing or printing floats (unit strings read into whole numbers, A3.6);
-  - `<random>` (`kd::chance`);
-  - `std::reduce`, the scans and the execution policies (pieces of a fixed size added in their order);
-  - `std::hash` and the unordered containers (`std::map`, sorted vectors, `kd::chance::name` for a stable hash);
-  - sorts and heaps that leave ties to the library (`kd::num::sort_strict`, which refuses ties, or `std::stable_sort`);
-  - thread counts, clocks, the locale, character classes and addresses;
-  - two calls with effects in one expression (a statement each);
-  - raw memory hashed, compared or copied (fields one by one, `std::bit_cast` for a value's bits).
+Working arithmetic is double with pinned correctly rounded functions behind `kd::num`; persisted state uses whole units, never floats/NaNs.
+Positions are centimetres on the exact 200,000,000 × 100,000,000 torus; differences wrap in 64-bit arithmetic. Half-circumference ties produce reversible paths.
+Heights are millimetres, angles 2^32 turn steps, amounts whole base units, probabilities exact thresholds. Checked conversions specify rounding and reject nonfinite/overflow values.
+Each simulation thread resets/asserts its numerical environment.
 
-  Plain `char` is unsigned on every build (`-funsigned-char`, as on arm64, and as Linux has made it since 6.2), so its arithmetic cannot differ between chips; the same-bits check holds every compile command to it.
-- **The floating-point environment:** each simulation thread sets the default one first, and checkpoints assert it (x86-64's MXCSR, arm64's FPCR), since a new thread inherits whatever its creator had.
-- **Order:** every loop that decides anything runs in a defined order (A3.2); parallel work is cut into chunks whose size and borders depend only on the data, gathered, then applied in key or id order.
-- **Checksums:** XXH3 over a canonical stream, each system in a fixed order, entities by id, fields little-endian; a digest per system and for the whole state at every checkpoint, so a difference narrows to a system and a day.
-- **Proof** (A17): every routine check compares the accepted proof suites on the host with one and four threads. The separate audit runs seeded worlds on the five builds of A2.2, on one to four threads, with islands of several window lengths, stopped, saved, reopened and resumed, and every digest must match; libc++'s randomized tie order and the order fuzzer must not move them.
-  The phone runs the same check in its self-check (A2.3).
-- *Proved in pre-production on your phone* (P5): a seeded world ended each day with the same checksum on x86-64, on arm64 under qemu and on your phone, on one thread and four.
+Keep existing bans/checks for platform maths, unordered decision order, mutable random streams, raw-memory serialization/hashing, ambiguous ties and effectful expression order.
+Canonical digests walk systems, entities and fields in fixed order, little-endian.
+Accepted M1 proof digests remain unchanged across compilers, architectures, worker counts and reopenings; new physical systems get new proof suites.
 
 ### A3.5 Chance
 
-- Every draw is keyed by (world seed, system, being, moment, purpose, index) through a chain of the SplitMix64 finaliser, a counter-based generator in Squirrel Eiserloh's way, chosen in pre-production (P5).
-  Each part of the key is spread over 64 bits as SplitMix64 spreads its counter, (part + 1) × its golden constant, joined to the chain and mixed; the first five parts are mixed once for a being's draws at a moment (`chance::Draws`), and each draw adds its index.
-- Systems and purposes are named, and keyed by a stable 64-bit hash of their names, XXH3 through the canonical digest, so adding a new kind of draw never shifts the others (`TIM-16`).
-- Draws are whole numbers: below a threshold for a chance, a 128-bit multiply for a whole number in a range (as even as 64 bits allow, off by at most the range over 2^64), the top 53 bits for a fraction in [0, 1).
-- Any thread can draw any number in any order and get the same one; the generator's statistics are tested over structured keys (indexes, beings, moments and seeds counting up: frequencies, every bit, and neighbours' correlation and differing bits), and a few draws are pinned for ever, since changing them would change every world.
+Key every draw by world seed, system, entity, moment, purpose and index through the existing SplitMix64-based API.
+Stable name hashes distinguish systems/purposes. New draw purposes cannot shift another sequence. Pinned draws are world-format commitments.
 
 ### A3.6 Catalogues and tuning (`MAT-13`, `MAT-14`, `MAT-17`)
 
-- **Content lives in TOML 1.0 files in sources:** `data/base/` for the game, one entry a file, its kind from its folder and its name from its file name; tuning files hold every tunable number; `checks/` holds what only the checks read, such as each item's expected fits (`MAT-17`) and the orders of plausible values (`MAT-05`).
-- **No floats:** whole numbers are TOML integers, and quantities and ratios are strings with units ("3.5 kg", "1 h 30 min", "15%", "1 in 100") read exactly into whole base units, so the phone's parse cannot differ from the cloud's.
-  "m" is only a metre, never a minute.
-  - toml++ lives behind one file (`kd/data/toml.cpp`), which turns a file into a small tree whose every value keeps its line and column; a float, a date or a time is refused where it is written, with what to write instead.
-  - The measures and their base units (`kd/data/units.hpp`): mass in milligrams, length in millimetres, area in square millimetres, volume in millilitres, speed in millimetres a second, temperature in thousandths of a degree, ratios in parts per million, and time in seconds, read two ways: in life a month is 365.25 / 12 days and a year 365.25 days, in the game a season is 15 days and a year 60 (`TIM-18`).
-  - Each unit is an exact fraction of its base unit, and a number has at most 18 digits and a point, never an exponent; a value finer than its base unit is refused, never rounded, and so is a ratio such as "1 in 3" that is no whole number of parts per million; a chance is read as an exact fraction into its threshold.
-  - The proof suite `units` reads 200,000 written quantities and chances on every build and on the phone, and their digests must match.
-- **Durations record both lengths,** `{ life = "3 month", game = "15 d" }`: the simulation reads the game length, and the `TIM-18` check holds it to the rule, "about" read as within 10% (`kd::time::check_rule`): up to 15.4 days in life the two are equal; from 27.4 days (a month, 365.25 / 12 days, less a tenth) the game length is within a tenth of 60 / 365.25 of the life length; between, anything from a tenth under that to the life length; a refusal names both lengths and the range allowed.
-- **Schema once:** each kind has one `visit()` naming its fields with their types, units, ranges, links and what they affect (`rules`, `world` or `look`).
-  The loader, the schema writer and the fingerprinter all walk it, so nothing describes a kind twice.
-  The loader refuses unknown keys and floats, and names every error by file, line and column.
-  - The walkers (`kd/data`): the loader, the link resolver (a link names an entry, and once all are loaded holds its canonical name and number), the fingerprinter, the schema writer (`kindling catalogue schema`) and the display (`kindling catalogue show`).
-  - Field types: whole numbers, truth values, texts, a choice among named options, quantities in a measure, chances, durations with both lengths, and one link or a list of links to a kind.
-  - A kind's files are `<source>/<folder>/<name>.toml`; a tuning file is a kind of one entry, `<source>/tuning/<name>.toml`, such as the speeds of the zoom stops.
-  - Every kind is one line in `kd/data/kinds.cpp`, and the catalogue loads files handed to it as text, in path order whatever order they come in.
-- **toml++,** pinned, behind one file and with no exceptions, reads the text.
-- **No templates:** every entry is complete and reads alone, since a parent's values would be the child's inputs (`MAT-13`); a tool copies an entry as a starting point instead.
-- **Names:** lower case, namespaced by source (`base:flint_nodule`, `base:` implied); numbered at load by sorted name, those numbers used only for arrays; chance and tie-breaks keyed by a stable hash of the name; saves holding each kind's names; renames listed in a file (`PRN-14`).
-- **Fingerprints:** a digest per entry from its canonical values, and per source three: rules (all that affects outcomes), world (only what makes the land, with the sets of plant, animal and material kinds) and look; plus a world-making version raised by hand when code that makes worlds changes, guarded by a test of golden worlds.
-  Each world keeps its sources, their versions and digests (`TIM-08`); a world digest that changed means a big update (`PLT-09`).
-- **Checks:** the loader checks syntax, types, units, ranges, required fields, links, duplicates (a key written twice, a link or name listed twice, a file handed over twice) and `TIM-18` at every start, on the phone too; the heavy `MAT-17` checks run in the cloud on every change, written in `sim/` so the phone could run them on combinations the cloud never saw.
-  - Each check on the whole catalogue (`kd/data/checks.hpp`) is registered beside its kind's line in `kd/data/kinds.cpp`, with its name, the items it serves and what it holds the catalogue to; `kindling catalogue check` runs them all once the catalogue loads, and each fault is named at its file, line and column, since every entry keeps where each of its fields was written.
-  - `MAT-05`'s orders are `[[order]]` tables in a source's `checks/orders.toml`, each naming a kind, a field that can be ordered (a whole number, a quantity, a chance or a duration's game length), two entries or more from the least to the most, and why; an entry out of its place is refused at its place in the list.
-- **Onto the phone:** the build (`tools/gamedata.py`) checks the catalogue and copies the sources into `game/data/` with `build.toml`, which lists each file with its SHA-256 and each source's version and digests; `view/` reads each listed file through Godot's `FileAccess` and hands the bytes to `sim/`, and the self-check compares the phone's files and digests with the build's.
-  The screen reads an entry's values in base units through the world class (`KdWorld.entry`), as the Time page reads the zoom stops' speeds.
-- **Sources for later:** the loader takes an ordered list of sources, each with its id, version and requirements, so later layers such as bronze, or content from elsewhere, come as more sources; for now a source may only add entries.
+TOML entries are complete, without inheritance; source/name is stable identity, sorted load numbers are only array indexes.
+Quantities are exact unit strings, not floats. Base units include mg, mm, mm², ml, mm/s, milli-degrees, seconds and parts per million; `m` means metre.
+Durations retain real-life and game lengths under `TIM-18`; the existing validator interprets “about” as ±10%, not an implementation-specific guess.
+Schemas drive loading, links, fingerprinting and display. Unknown fields, bad ranges/units, duplicates and unresolved links fail with source location.
+
+Rules, world-making and look fingerprints are separate. Placement/size/species changes are world-making changes; cosmetic pages are look changes.
+Saves keep catalogue names and versions. New sources currently add entries only.
+Build manifests hash each exported file; the phone verifies them. Keep one authoritative catalogue, not competing editor metadata.
 
 ### A3.7 Saves (`TIM-05`, `TIM-08`, `PLT-07`, `PLT-08`, `PLT-09`, `PLT-10`)
 
-- **Each world is a folder** under `user://worlds/<id>/`: `world.toml` (name, seed, sources and digests, dates, size, flags such as a test world's switches), the snapshots, the command journal, the history in yearly segments, later the book of ages and the kept areas.
-- **The rule:** your commands are the only input that cannot be re-made, so they are written and synced at once; everything after the last snapshot is re-made exactly by re-simulating (`TIM-16`).
-- **One I/O thread** owns every file and every sync, through a small interface tests can fake, and never stalls the simulation or the screen.
-- **Snapshots:** a header, then chunks, each with a tag, a version, its lengths and a hash, compressed by zstd at level 1, hashed before compression; unknown optional chunks are skipped, unknown critical ones refused.
-  Rows are written field by field, little-endian, through the component descriptors (A3.2).
-- **Logs** (commands, history): records framed by length, type, sequence number and checksum; reading stops at the first bad record and cuts the file there.
-- **Writing:** a new file, synced, renamed over the old, then the folder synced; old files are deleted only when the new state is safe.
-- **When:** a snapshot every 30 real seconds while running, and when the app leaves the screen, when you switch worlds, export or quit; the simulation pauses only to copy its state at an event boundary, and compression and writing happen on other threads (`PLT-07`).
-- **When the app leaves the screen** (Godot's `NOTIFICATION_APPLICATION_PAUSED`, on its main thread between frames): the simulation stops at the next event, a pause mark is synced to the journal, and the snapshot follows, well within the 10 seconds before Android freezes the app (`TIM-05`).
-  Back never quits outright: it closes panels, and at the top the app saves and goes to the background.
-- **After a crash:** the newest snapshot whose hashes hold is opened, a damaged one moved aside and never loaded; the journal's commands are re-applied at their moments while the world catches up under a short note; the re-made history must match what was written, or the mismatch is reported as a bug (`PLT-07`).
-- **Old saves:** every chunk and record carries its version, with an upgrade for each step; whole-world migrations are named and recorded in the save, applied once; saves keep names, never catalogue numbers.
-  A corpus of small exported worlds from each alpha is opened by every build, carried on after small updates and its history read after big ones (`PLT-09`).
-  A new version keeps the previous version's last snapshot, and the files it needs, until the world has run an hour.
-- **Export and import:** one `.kindling` file holding the world's files with a checksum for each, written and read through Android's file picker; an import is checked as it arrives and a damaged one refused with a message naming the damage (`PLT-08`).
-- **Space:** free space is checked at every save; the game warns before the phone is full and asks which worlds to delete, and never deletes anything itself (`PLT-10`).
-- **History** is appended as it happens, in yearly segments, never rewritten but by the fixed thinning rule at year boundaries (`PRN-15`, `PLT-10`).
-- *Built in α1.4a:*
-  - **Files** (`kd/save`): a folder's few primitives (write, append, cut, rename, sync a file, sync a folder) behind one interface, the disk's own and a fake that keeps what each sync made safe, so a test cuts the power between any two calls; writing a whole file, keeping a log and setting a file aside are written once on the primitives, so the fake tests the steps the disk takes.
-  - **The keeper** (`save::Keeper`), with its own I/O thread: `world.toml`, the newest two snapshots, `journal.log` and `history/<year>.log`.
-    A command is appended and synced before it acts; history is appended as each batch ends and synced before each snapshot, so none can be lost behind one; a snapshot's state is copied between two events on the simulation's thread, then compressed and written on the I/O thread.
-  - **Snapshots:** the clock, the catalogue's names kind by kind, both registries entity by entity through the component descriptors (A3.2), the live events and each system's own state, each a chunk; the file ends with a hash of every byte before it, so damage anywhere is refused, even where zstd would not notice.
-    An entry of the catalogue is written by its number and read back through the names, so a save keeps names, never numbers.
-  - **Commands** are part of the world's state: the world's own owner of commands holds those pending, wakes at the earliest, and hands each to the system that takes it; the demonstration's is calling a camp home.
-    The runner takes jobs between batches, so a command, a save or the save as the app leaves the screen meets the world at an event boundary, even while time is paused.
-  - **Opening** (`demo::keep_crowd`): the newest snapshot whose every hash holds, newer damaged ones moved aside; the journal's later commands act again at their own seconds; the world catches up to its last pause mark, command or record of history, and each record it makes again is compared with the one written.
-  - *Measured in the cloud:* the 10,000 markers' state copied in 3.4 ms (1.6 MB), compressed in 3.3 ms to 242 KB, and read back and opened in 5.3 ms.
-    The kill test kills the tool at 100 random moments over a world of 2,500 markers with three commands, and the world it ends with is the unbroken run's, with no record made differently.
-- *Built in α1.4b:*
-  - **Worlds** (`KdWorlds` in `view/`): each world a folder under `user://worlds/`, its id the folder's name, and `world.toml` holding its name, seed and camps as TOML, written whole; a file `current` names the world the Crowd page opens, `crowd` until you choose one, where α1.4a kept its world.
-    The Worlds page lists each world with its name, moment, when and by which version it was saved, and its size by part, and makes, opens, renames, exports, imports and deletes them, deleting only on a second tap.
-  - **The .kindling file** (`save::ArchiveWriter` and `save::ArchiveReader`): a header, then `world.toml`, the newest snapshot, the journal and each year of the history, each part with its path, length and hash, and an end holding a hash of every byte before it.
-    It is written and read a megabyte at a time, a few each frame, through Android's file picker, whose `content://` files Godot's `FileAccess` opens; an import is checked part by part as it arrives and refused at the first damage, with words naming it; a path that is no part of a world is refused before anything is written, and a refused import leaves nothing behind.
-  - **Versions** (`save::Versions`, a chunk of each snapshot that the world skips): the app's version that saved it; the rules for making worlds as one digest, of the world-making version and each source's world digest; each source's version and rules digest; the migrations the world has had; each version it has run under and from which second; and the real seconds it has run under the last.
-    A world opened by another version meets an update: a changed making digest is a big one, and the world is not run and nothing is written, its history still read; anything else is small, and the world carries on from its snapshot under the new rules, its history after the snapshot made again rather than compared, and the previous version's last snapshot and `world.toml` kept in `previous/` until the world has run an hour under the new one.
-    α1.4a's snapshots, saved before versions were kept, are a small update.
-  - **Upgrades:** each part of a world's snapshot carries its version, and an older one is brought up a step at a time (`world::upgrades()`); a component reads its older shapes through its own `upgrade()`; a migration (`world::migrations()`) is made once to each world saved before it, as it opens, its name kept in the save, and a new world counts them all as had.
-    None is needed yet, and a test proves each path; a history record's shape is numbered by its frame's type.
-  - **The corpus** (`sim/tests/corpus/`): a small world saved by each alpha's own tool and data, exported as a .kindling file and listed in `corpus.toml` with the update this build is for it; every build opens each, catches it up and carries it on a day with no record made differently, or after a big update reads its history.
-    α1.4a's was made by building α1.4a's tool from its commit.
-  - **Thinning:** each history record is framed as kept for ever or not, as its system's `keeps()` says when it is written (your commands are kept, greetings are not); each year's file is numbered from 1, and α1.4a's, numbered on from the year before, still read.
-    Before the first record of a year is written, each year more than 25 years past is rewritten whole as a thinned year, a mark and its kept records, so a file for a year shows that the years 26 before it are thinned; a world made again from its seed passes thinned years by and leaves them as they are.
-    Opening reads the history only from the snapshot's year on, so a long history costs nothing to open.
-  - **A failed write** (M1's review): once any write to a world's folder fails, as when the phone is full or its storage breaks, nothing more is written, your command then is refused, and the world stops and says so; the folder keeps what was safe before the failure and opens there whole, so nothing is written past a gap and no snapshot hides history that was never made safe.
-    An import makes each part safe as it ends, and the folder's new name with it.
-    A snapshot's whole-file hash is checked before any part is unpacked, so damage can never make it ask for memory.
-  - **Space:** the free space is checked at each save, and below the saves' tuning's `warn_below`, 1 GB, the Crowd page and the self-check warn and point to the Worlds page, where each world's size shows; nothing is deleted but by you.
-  - *Measured in the cloud:* a world of 10,000 markers ten game days in, 5.4 MB, exported in 23 ms and imported, every part checked, in 9 ms; its history grows by about 31 MB a game year, 68 bytes a record as written, and zlib makes a year about a third of that.
+A world folder holds metadata, two recent snapshots, command journal and yearly history.
+Commands append and sync before acting. One I/O thread owns writes; authoritative state copies between events, then compresses off-thread.
+Snapshots use versioned chunks, canonical fields, zstd and whole-file checksums validated before unpacking. Logs stop at damaged framing/checksums.
+Writes use temporary file, sync, rename and directory sync. Any write failure stops further writes and the world; no snapshot may hide an unsaved gap.
+
+Save every 30 real seconds and on backgrounding, switching, export and quit. Backgrounding writes a pause mark then a snapshot within Android's 10-second allowance.
+Recovery uses the newest valid snapshot, sets damaged ones aside and deterministically replays journal/history to the recorded moment.
+Small updates migrate once and retain previous-version files for an hour of play; big updates keep old history readable without running incompatible rules.
+Old exported worlds remain in the regression corpus. History thinning never removes records marked permanent.
+Warn below the configured free-space line (currently 1 GB); delete nothing without the user.
+
+Archives contain all authoritative files, validate paths/checksums and remove refused partial imports.
+**Limit:** archive output yields in chunks, but `ArchiveWriter::next` first reads/hashes a whole constituent file synchronously. A tiny demo's export timing does not prove smooth large exports.
+Full-world snapshots will also need measured immutable-state copying/compression overlap; current code does not stream arbitrary huge terrain state for free.
 
 ### A3.8 Talking to Godot
 
-- **Three classes for GDScript,** from `view/`: the world (make, open, save, close, export, import; commands; the goal and the frontier; counters and events), the crowd view (replaced by ordered 2D drawing in M2), and the device (cores, heat, telemetry).
-  A few calls a frame, never one per walker: a call into the extension costs about 0.1–0.2 µs.
-- **Commands in:** plain records, stamped with the game second they act at and written to the journal before they act; while you choose a power the game is paused, so a power acts on exactly the world shown.
-  - *Known gap, from M1's review:* the demonstration's call home acts at the world's frontier, up to a quarter of a real second of the speed ahead of what you see, hours of game time at top speed. It is a test command, not a power; before the first power (M9), a tap pauses the world and acts at the moment shown (`WLD-13`).
-- **Snapshots out:** after each batch, the simulation fills one slot of a triple buffer, so neither side ever waits and the screen always takes the newest: for each walker its id, kind and camp, and its ways from the screen's game time to the frontier.
-  The accepted sampler places each walker along its own way at displayed game time.
-  M2 replaces MultiMesh submission with A4.6's one-consumer controller and owned 2D drawing records; snapshot timing, commands and simulation publication stay unchanged.
-  - *Built in α1.3c:* the world is ahead of the screen by up to a quarter of a real second, so a walker may have begun a new way the screen has not reached; the world keeps each way a doer sets off on, as it runs, merged by key in islands (`world::Way`), and the snapshot holds each walker's ways back to the screen's time, so it is drawn exactly where the world has it at every whole second, and on a straight line between.
-  - Between the whole seconds the screen interpolates the world's own place (`Activity::at`), so there is one rule for where a doer is.
-- **Events worth showing** travel in a lossless queue, drained once a frame.
-- No Godot object is touched from a simulation thread, and `view/` converts but never decides.
+Commands are durable plain records. Snapshots use a single-consumer triple buffer; one controller copies the latest publication and all views/jobs use its owned data.
+Never retain a recycled slot. No simulation worker touches Godot objects.
+Sample the saved activity way at displayed time, including interruptions and torus seams, rather than interpolating arbitrary recent positions.
+Lossless events/commands are separate from disposable picture updates.
+
+**M2 blocker before the first power:** the current command frontier can be a quarter real-second of requested speed ahead of the display—hours in game time.
+Record displayed ID/time, pause/cap/drain safely and journal the defined execution second. A place dream must not silently target a later world.
 
 ### A3.9 Threads, speed and budgets
 
-- **The simulation runs on its own worker threads,** up to four, made with an explicit 8 MiB stack (bionic's default is 1), named, and at a slightly lower priority than Godot's main thread (`PLT-01`).
-  The fastest core and the small ones stay for Godot, sound and the system; Godot's own worker pool is kept small.
-  Whether the workers are pinned to the middle cores is decided by the benchmark, which runs both ways, since Android advises against pinning.
-  - *Decided by your phone's benchmark (α1.5b):* pinned to the middle cores the world held 4.1 game days a second, unpinned 4.3, so the world runs unpinned; the comparison favours unpinned a little, since pinned runs after it on a warmer phone, but nothing in it argues for pinning.
-- **The speed loop:** the simulation works toward a goal at most about a quarter of a real second ahead of the screen, and sleeps once it gets there.
-  - The world's runner (`kd::run::Runner`) is one simulation thread that works toward the goal in batches the world chooses, publishes its frontier after each, and rereads the goal between them, so a lower goal stops it within one batch; a cut between batches never changes the result.
-  - Each frame the screen's game time moves by the speed asked times the frame's real time, read from the steady clock, since Godot's delta is smoothed, but never past the simulation's frontier; when it reaches the frontier, time slows (`PRN-11`).
-  - The goal is the screen's time plus the speed times a quarter of a second, and at least one game second, rounded up to a whole second (`kd::view::Pace`, which touches no Godot, so its tests run alone).
-  - The speed shown is measured from what was drawn over the last real second, so it is always the real speed (`TIM-01`).
-  - Pausing asks the world to go no further than its frontier, and the screen glides to it at whatever rate arrives a quarter of a second after the pause, however far ahead the world had got after a drop in speed; then it stops.
-  - At one game second a real second, a game minute takes a real minute (`TIM-10`).
-  - *Built in α1.3c:* the crowd's batches take about 12 ms of real time at most, in steps of at most a game hour, so at top speed the frontier moves on 60 times a second; the screen asks for at most 90% of what the phone can do, measured from the batches, times the heat's working share, so it glides behind the world instead of catching it.
-    In the cloud, top speed holds about 2.3 game days a real second for 10,000 markers, some 600,000 events a second, every frame on time.
-- **Heat:** `view/` reads the phone's heat headroom every 2 s with a 10-s forecast (Android forecasts only while asked at least every 10 s), and listens for its thermal status; as the forecast nears the first throttling level, the simulation's working share is cut quickly and given back slowly, so time slows before the phone throttles.
-  - *To build in M2:* Android's headroom of 1.0 is *severe* throttling, not the first level, so the guard reads the phone's own *light* and *moderate* thresholds (API 35) and its headroom listener (API 36), and acts when the 10-s forecast reaches the light threshold less a margin (0.05 to start); a missing reading is no reading, never a cool phone.
-  - Slowing time cools the phone at far zooms at top speed, where the simulation is the load; at close zooms the picture is the load, so the graphics budget must pass the 20-minute heat run itself (A18.1), with one planned, logged step under heat as its last resort (A5.5).
-  - *Built in α2.1a:* the thresholds are read once and kept, since the array Android returns is the manager's own before Android 16 and the caller's after; the guard acts at the light threshold less `margin` (5%, in `base/tuning/heat.toml`), and on a phone without thresholds at `near`.
-- **Telemetry:** the device class also reads battery and power rails, the cores' clocks, our threads' CPU time and memory, and the interval of every frame; trace sections mark each frame and batch for the phone's own System Tracing.
-  - *Built in α1.5b:* the extension times every frame itself, once a frame after every node's process, from the steady clock (`kd::view::FrameMeter`): a frame is on time within its period plus half a refresh, a stall counts every period it skipped, and a gap over 66.7 ms is more than 50 ms late.
-    The battery's charge, current and charging come from Android's BatteryManager through Godot's AndroidRuntime, and its current gives the phone's whole power; the power rails, which need Android 15's power monitor service, are left for a later benchmark.
-    Our threads' processor time comes from `/proc` by their `kd-` names, memory from the process's status, and the cores' clocks from `cpufreq`.
-    Trace sections mark each batch (`kd batch`), the world's own work each frame (`kd frame`), the crowd's drawing (`kd draw`) and each benchmark scenario.
-  - *Built in α2.1a:* the graphics chip's time for every viewport drawn, Godot's draws, triangles and video memory, the chip's headroom (Android 16), and power as the battery's current times the kernel's voltage where the app may read it, else 3.85 V; the benchmark code's layout 3 carries them.
-    Godot's release build times only a whole viewport, not each pass, so each part's cost comes from switching it off in turn, as the calibration scenes do (A18.1).
-    The power rails stay unread: Android gives them only to Java callbacks, which the app does not have yet.
-    The heat headroom is asked twice in a row, now and in 10 s; Android may refuse calls faster than once a second, but on your phone both answered in every reading.
-- **Watch the known killers from the first benchmark:** pathfinding at scale, temperature fields and lines of sight.
+The runner rereads goals between batches. Screen time advances by steady-clock time but never beyond the frontier; overload slows time without dropping detail.
+The pace controller normally targets up to a quarter real-second ahead. Pausing currently lets the display catch the frontier; power selection needs A3.8's correction.
+Workers have explicit 8 MiB stacks. M1's phone benchmark favoured unpinned workers (4.3 versus 4.1 game days/second); keep them unpinned.
+
+The heat guard uses the light threshold minus 0.05 where available, with a 10-second forecast; missing readings never mean cool.
+Telemetry records frame distribution, CPU/GPU timings, memory, clocks, thermal status and battery estimates. Whole-viewport GPU timings require disabled-pass comparisons; they are not per-pass timers.
+Power-rail callbacks remain unimplemented. Cloud software-renderer times are not phone performance.
 
 ## A4. Drawing
 
-The 2D design approved on 8 October 2026 replaces M2's runtime 3D route (`PRE-01`, `PRE-02`).
-M1 remains accepted.
-Its exact numbers, chance keys, calendar, catalogues, IDs, events, activities, workers, saves and proofs stay unchanged.
-M1 built foundations and saved demonstrations, not generated terrain, ecology or a physical sky.
-M2 uses labelled look fixtures until those later systems exist.
-No new renderer or phone pass is claimed here.
-
-The owner moved unused runtime 3D removal forward on 8 October 2026, immediately after delivery 30801.
-The obsolete Look, Compare, Calibrate, Lab, Kit and Pilot art routes and their private engine/export/check paths leave the app.
-Crowd and Bench retain the accepted M1 foundation diagnostics, including their marker drawing, save and heat harness; they are labelled as foundation diagnostics rather than gameplay.
-The shared texture decoder and all live 2D paths remain. Original art, signed-off sheets, source rigs and historical simulation/catalogue fixtures are preserved as provenance; obsolete derived model/calibration exports are excluded from packaging.
+Accepted foundation diagnostics and shared texture decoding remain; obsolete private 3D art routes are removed.
+The stopped 2D work includes projection, terrain/light fixtures, streaming and UI, but has open faults listed in A18.2.
 
 ### A4.1 The picture (`PRE-01`, `PLT-02`)
 
-- **One world image:** a dedicated SubViewport, 540 × 1200 visible pixels at the reference portrait size, presented at exactly 2× with nearest filtering to 1080 × 2400.
-  Landscape uses 1200 × 540 world pixels.
-  The native root holds the world presentation rectangle and a native UI CanvasLayer above it.
-  Text, touch targets, menus and accessibility scaling use native resolution.
-  Root canvas_items stretch alone does not create the low-resolution world image.
-- Ground, ordered objects, water, effects and world overlays share the world grid.
-  Shadow targets feed their materials.
-  Map and globe replace active world content; they do not run another simulation reader.
-- At other window sizes, keep integer presentation scale and reveal or crop world pixels.
-  Include safe insets and UI bars; never stretch fractionally to fill a new aspect ratio.
-  The reference size is not a measured usable phone window.
-- Keep camera position continuous, then rasterise at a resting art step.
-  Small overscan permits a final offset in whole physical pixels for finer pans.
-  Picking records and undoes that offset.
-  Slow motion can still move in visible pixel steps; test it.
-- Only a live pinch may resample the world rectangle around the fingers.
-  On release, draw the nearest resting step at its intended density, with aligned anchors.
-  No mip interpolation at rest and no routine resampling on pans.
-  A8.4 owns the common projection.
+At reference portrait size draw a 540 × 1200 world viewport, nearest-scaled 2× to 1080 × 2400; reverse dimensions in landscape. UI remains native-resolution.
+Other sizes reveal/crop whole world pixels and honour safe insets, never fractionally stretch at rest.
+Only live pinch resamples; settle to a resting density with aligned anchors. Continuous camera movement ends in whole-pixel raster offsets, also undone by picking.
 
 ### A4.2 Pixels and animation (`PRE-22`, `PRE-44`)
 
-- Art families and reviewed intermediate levels are A5.3's.
-  Sample at the intended grid with nearest filtering at rest.
-  Sprites already painted in the projection are not squashed again.
-- Project shared ground edges from world coordinates before rounding.
-  Never accumulate a rounded tile pitch; slopes and objects use one raster grid.
-- Stable pivots hold feet and attachments through animation and family changes.
-  Walk frames follow sampled travel distance; work follows activity time and phase.
-  A view-only idle cycle may use a stable ID seed.
-- Flow, wind, smoke and glints may use visual approximations with stable phases and look keys.
-  Their values never feed back into simulation rules.
+One projected grid serves terrain, objects and effects. Project shared edges before rounding; never accumulate rounded tile pitches or squash already-projected sprites again.
+Foot/attachment pivots survive frames and families. Walk animation follows sampled distance; work follows Activity phase; cosmetic idle uses separate stable look keys.
 
 ### A4.3 Light (`PRE-20`, `PRE-21`, `PRE-30`)
 
-- **One shared light function,** with neutral albedo, material masks and mild normals.
-  A calibration shape proves the normals' basis before bulk art.
-  Ground normals come from the same height field as the ground.
-  Object normals convert their documented basis to the same world sun direction.
-- The baseline is a CanvasItem shader and a custom sun-visibility mask:
-
-    colour = albedo × (sky × sky_visibility
-                      + sun × normal_response × sun_visibility)
-             + local_fire_light + emission
-
-  Material tuning supplies skin, hide, wood, stone, foliage and water responses.
-  Keep contact darkening modest and do not count it twice at overlaps.
-  A black shadow overlay on the finished picture would also darken fire and emission, so it is not the sun path.
-- Sun, sky, moon, bounced light, lit edges, haze and small fire pools retain the targets' feeling.
-  True midday is white-warm; gold belongs to low sun, shade to the sky.
-  Tone and colour finishing are restrained, with a soft shoulder so bright snow and fire retain detail.
-  Check night banding; debanding or HDR 2D is measured on both renderers before use.
-- M2's hour and weather records are fixtures, not a physical sky.
-  Later, the sun follows simulation latitude, season and hour.
-  Once a day passes in under about 10 real seconds, hold relief light high and steady, with slow tint changes (`PRE-30`).
-  Maps use the same speed rule, never permanent northwest light at ordinary speeds.
-- Stock 2D lights are comparison tools and may serve small local effects.
-  DirectionalLight2D's height affects normals, not terrain height in metres; its directional light ignores item cull masks.
-  Stock extrusion and normals alone do not solve receiver heights.
-  Check the pinned engine's actual canvas APIs and renderer behaviour in the fixture.
-
-The target card starts from the previously chosen moments, then is refitted by owner verdicts (A5.5):
-
-| Moment | Mean lightness | Share dark | Lights | Shade |
-|---|---|---|---|---|
-| Late afternoon | 0.55 | 32% | golden | neutral, slightly warm |
-| True midday | 0.61 | 22% | warm | slightly blue |
-| Dusk | 0.42 | 66% | warm and red | neutral |
-| Night | 0.32–0.36 | 85–87% | warm pools | blue |
-| Winter | 0.66 | 21% | pale gold | blue |
-| Rain | 0.47 | 46% | grey | neutral |
-
-A small hearth's light halves within about 2 m and falls to a tenth at about 3.25–4.25 m.
-Sunlit snow is cream, shaded snow blue.
+Aligned neutral albedo, categorical material and mild normal pages feed:
+`albedo × (sky × sky_visibility + sun × normal_response × sun_visibility) + fire + emission`.
+Contact affects indirect light only; overlapping shadows do not multiply into black. Normal basis must be explicit across east/south/up art and simulation coordinates.
+Compatibility currently needs explicit sRGB decode/encode around lighting; `source_color` alone did not fix it.
+Hour/weather fixtures are labelled until real sky exists. Fast-time steady relief light is presentation only.
 
 ### A4.4 Shadows, overlap and reveal (`PRE-21`, `PRE-24`, `PRE-28`, `PRE-30`)
 
-- **Approve flat shadows first:** person, tree, boulder and shelter, contact, direction, softness, long dusk shadow and fire.
-  Build the terrain-aware prototype at the same time; its approval follows the flat style review.
-- Logical caster proxies carry shape and height: crowns, trunks, bodies, boulders, roofs and walls.
-  Trace toward the sun from each receiver's actual height.
-  Slopes, cliff faces and shelter floors are receivers.
-  Roof and floor need separate masks or explicit layers; a single top-height field cannot describe both.
-- Start with CPU preparation on bounded tiles and a low-resolution mask aligned to the world grid.
-  Cache static work by terrain, caster and sun revisions; add small moving-body shadows on visible receivers.
-  Measure update frequency.
-  Compatibility never relies on compute shaders.
-- Keep useful contact, openness and horizon algorithms from the pilot.
-  Replace their triangle/top-height input and flat-receiver contract.
-  They are not a finished terrain shadow system.
-  Include off-screen casters and a sun-angle-dependent halo: a 6 m tree casts about 22.4 m at 15° sun elevation.
-  The pilot's 14 m reach is not a universal bound.
-  Any capped low-sun approximation is a declared look limit, never the physical sunlight rule.
-- Merge overlaps without multiplying them into black.
-  Test softening over distance, long shadows across tile boundaries, wet ground, roof openings and a body partly in shade.
-- A8.1's piece order handles height and overlap.
-  Fade the crown or roof hiding the selected person, and reveal occupied shelter roofs.
-  Keep physical obstruction, weather protection and shadow unless an explanatory interior layer deliberately replaces the shadow presentation.
-  Other obscured band members get quiet silhouettes in the appropriate bands.
-  Keep ordinary near figures free of heavy outlines (`PRE-21`).
-  Drawing overlap determines reveal; personal knowledge does not hide simulated animals (`PRN-04`).
+Receiver-aware masks use actual surface heights and separate roofs/floors. Include off-screen casters and angle-dependent reach; 14 m is not a universal shadow halo.
+Current proxies use cylinder/cone/dome intersections, five sun rays and 24 sky rays; birch's six sparse sprays and 2 m spray depth remain provisional interpretation.
+Contact scale is 0.025–0.12 m. Reveal selected people by fading covering crowns/roofs and quiet obscured-band silhouettes, without changing obstruction or shelter rules.
 
 ### A4.5 Water, fire and weather (`PRE-26`, `PRE-30`)
 
-- Bed and water use one projection and height source.
-  Depth is water height minus bed height: bed stones in shallows, darker depth, thin shore edges and directional flow marks.
-  Wading feet and submerged parts meet that same surface.
-  Refraction reads a prepared bed/background layer, never the already-composed foreground people.
-- Start with depth, shore, contact and restrained glints, then measure a simple projected reflection layer.
-  Reflections of sky and things above water remain required.
-  A scrolling noise shader alone does not provide bed shape, waterfalls or reflections.
-  The pilot's procedural river/bed functions remain fixture geometry; its second shader shape is replaced, so there is one source of truth.
-- Fire light is separate from sun visibility.
-  Flames, smoke and embers have depth bands and follow shelter openings.
-  A near fire lights its doorway without leaking through walls.
-- Rain and snow decorate the picture; later physical weather changes water, wetness and snow amounts.
-  Wind, smoke and water movement may approximate looks, with stable seeds and phases across views.
-  Seasonal shapes and cover follow actual state when supplied.
-  GPU particle time never changes a rule or wets a cell.
+Water, bed, feet, clipping and picking use the same surface/footprint. Refraction reads the prepared bed, not foreground people. Reflection, depth and shore readability remain incomplete.
+Fire's visible base touches sampled ground; its emitter may be elevated. Walls block firelight.
+GPU rain/smoke never wet cells or decide outcomes.
 
 ### A4.6 The bridge, jobs and caches (`WLD-13`, `TIM-17`, `PLT-09`)
 
-- Reuse the accepted C++ Godot connection, its saved-run lifecycle, activity sampler and pace controller.
-  Do not build a second simulation in GDScript.
-  One view controller consumes the single-consumer triple buffer once per display frame.
-  Local view, map, globe and overlays read its owned copy.
-  No asynchronous job retains a recycled buffer slot.
-- The current crowd snapshot has walkers and walk histories only.
-  Terrain, animals, weather, water and roofs need explicit additions when their source systems exist.
-  Current Place and Activity positions are two-dimensional.
-  The stage's stand-in east, north and up fields are centimetres; later physical heights are millimetres (A3.4).
-  Convert units explicitly and add a surface/layer reference; never reinterpret an old field.
-- Keep the stage's persistent-ID drawing copies and coalesced change ownership.
-  New drawing records carry world epoch, displayed second, ID, position, surface reference, appearance key and activity phase.
-  Terrain and water also carry revisions.
-  Skipped snapshots require revision manifests with resynchronisation or a lossless invalidation feed.
-  Disposable picture updates stay separate from lossless commands and greetings.
-- Sample the correct activity at displayed time, including interrupted walks and torus seams.
-  Generic interpolation between two recent positions would be wrong.
-  Taps record the displayed time and ID; M2 does not solve the known command-frontier gap (A3.8).
-- The simulation thread and workers own exact physical state, commands and safe snapshot publication.
-  The existing save I/O thread owns journals, snapshots, recovery and archives.
-  C++ view code samples, projects, culls, sorts and selects animation.
-  Preparation jobs build CPU pixels, geometry and shadow inputs from owned immutable copies.
-  Godot's main/render path applies canvas and resource changes, handles native controls and records timings.
-  No live-world or arbitrary scene-tree access from view jobs.
-- Begin with a small visible canvas set or a drawing list, not one independently processing Node per being.
-  Batch atlas/material groups only where order allows.
-  MultiMesh may help non-interleaving decorations or far marks; it does not cull individual instances or interleave separate trees with people.
-- Art pages, ground, maps and sun masks have separate bounded caches.
-  Jobs carry world epoch and revision; cancel stale work on world, zoom and terrain changes.
-  Bound pending work and staging bytes.
-  Keep a coarse parent visible until children are CPU-ready, GPU-uploaded and ready to show.
-  Background loads are polled for readiness, never fetched early in a gesture callback.
-  A ViewportTexture is live; a frozen transition needs a controlled copy, never an assumed frozen reference or GPU readback.
-- A18.1 gives initial byte budgets.
-  Count colour, normals, masks, gutters and complete mip chains, separately from targets and upload staging.
-  Derive tile demand from the projected portrait footprint plus height, shadow halo and overscan.
-  Four near tiles are not assumed to cover that footprint.
-  Preload the six fixture pages; uploads use measured frame headroom, never an unmeasured fixed quota.
-- Render caches live outside essential world archives, keyed by world ID, data fingerprints, renderer version and terrain revision.
-  Deleting them must leave a world able to open unchanged.
-  Sprite metadata is look data in A3.6's validation system; editor JSON is only a build input.
-  A new physical surface, water or movement rule needs world/rules versions and migrations.
-  Approximate view floats and GPU arithmetic never write rules state, and deterministic build flags stay in force.
+Jobs own immutable inputs and carry full world/data/look/renderer/format/epoch/revision/dependency identity.
+Skipped publications require revision resynchronisation; workers never consult live state.
+Current Place/Activity coordinates are 2D; fixture up-fields are centimetres, future physical heights millimetres. Add explicit units and surface references.
+
+Keep coarse parents until replacements are fully prepared/uploaded; publish colour/material/normal channels atomically.
+Allocation tickets include old/new overlap and remain charged until worker acknowledgement and actual detachment/disposal.
+Bound queued work, staging and every cache; count reductions, gutters and all channels. Deleting render caches must leave saves/digests unchanged.
+The current adapter has one decoder, one channel upload/frame, retry/backoff and two-frame delayed disposal; quotas still need frame-headroom evidence.
 
 ### A4.7 Godot and phones (`PLT-04`)
 
-- Pin Godot 4.7.2.
-  Start on Compatibility, then export a Mobile comparison with identical fixtures and art.
-  Record the actual renderer and driver; a fallback is not a Mobile result.
-- Keep godot-cpp 4.5 until a needed API is missing; an older compatible minor is not by itself a reason to upgrade.
-  Add needed canvas and texture classes and argument types to the reduced binding profile.
-  Sources, registrations, bindings and pages change together.
-- Probe canvas materials, aligned colour/normal/mask pages, targets and effects in both renderers.
-  Keep feature alternatives small and explicit.
-  For GPU particles, lowering amount_ratio does not lower configured processing cost; measure actual pools and amount.
-- Reuse frame, heat, device and calibration reporting.
-  A missing GPU timer or thermal reading is unavailable evidence, never zero time or a cool phone.
-  Retain the existing heat governor, with pause and pace rules unchanged.
-  Prefer cheaper visual passes and 30 fps before altering approved detail.
-  The 30 fps mode keeps the same world grid.
-  A further grid or visible seasonal/reveal change needs your decision.
+Record actual renderer/driver; fallback is not a Mobile result. Measure the owner's phone first; a second device is evidence only once named and available.
+Use cheaper passes and the same-grid 30 fps mode before proposing visible changes. Missing timers/counters are reported as unavailable.
 
 ### A4.8 Tests (`PRE-31`, `RES-05`)
 
-- Golden pictures use frozen fixture time and a pinned cloud renderer; record which renderer produced them.
-  Code-only changes are exact there; look changes show before/after pairs and FLIP differences.
-  Old 3D goldens remain labelled history, not the new acceptance set.
-  Phone GPU rounding may differ; the owner judges the phone picture.
-- Script pans, slow walks, interrupted walks, pinches and orientation changes.
-  At rest, pixels keep integer scale and frozen frames match.
-  Measure explained motion before counting shimmer (`PRE-22`); test slow quantised motion by eye too.
-- Fixtures include seams, slopes, front/rear high shelves, cliff joins, an occupied shelter, a tree over a selected person, water depth and wading, fire in sun shade, low sun from several directions and seasonal changes.
-  Piece ordering crosses chunk boundaries, and picking undoes every presentation transform.
-  The animal has a four/eight-facing comparison.
-- Colour, material and object-ID pictures support the look checks and target card (A5.5).
-  An ID buffer maps small encoded values through a CPU table, never a 64-bit ID in a GPU float.
-  Cloud and phone statistics are written once in C++; FLIP remains outside exact simulation digests.
-- Preserve ground accent and repeat checks where they describe the new art: initial accent line about 20, each resting band at least 90% of the near one; repeat correlation at most 0.2.
-  Calibrate visual statistics against owner verdicts; the card warns and never approves.
-  Readability starts with median person salience at about the 80th percentile, none below the 70th, then a timed find in busy scenes.
-- At identical simulation seconds, identical commands give identical digests across views, camera positions, renderer variants and worker counts.
-  Save/reopen, recovery and cache deletion preserve world state.
-  Compare game seconds, not equal wall-clock runs with different zoom speeds.
+Frozen cloud captures prove rendering regressions, not phone feel. Check changed scenes through normal navigation and direct entry, both orientations, slow motion and pinch release.
+Picking must undo every transform and return persistent IDs; GPU IDs map through a CPU table, never 64-bit IDs packed into floats.
+Compare outcomes at equal game seconds across views, workers, save/reopen and cache eviction.
 
 ## A5. The look
 
-The feeling of the pictures you liked is the goal; the guidance holds starting numbers to calibrate against your verdicts, never rules for their own sake.
-
 ### A5.1 The pictures
 
-- **The targets** (`art/targets/`): only the pictures you chose: the liked camp from above and at sunset, the look itself (`d2-pixel-paint`), the close camp and its hours (noon, night, the painted-over night), winter, the far views, backlight, rain, mist, a relit dusk, a camp of thirty, the first cave, the truthful village, the storm, finding people by light, and the guides for people, animals, poses, trees, made things, materials, small plants and the close camp's meadow.
-  They show the feeling and are never shipped or traced: the engine is judged against their light, colour, density and composition, never their flagged things (sawn wood, metal tools, tipi-like cones, borrowed dress).
+`art/targets/` supplies owner-chosen light, colour, density and composition. Targets are neither shipped nor traced; flagged anachronisms are not approved content.
 
 ### A5.2 Guidance about the feeling
 
-It replaces the art bible's rules.
-1. **The feeling first.** When a guideline and your picture disagree, the picture wins, unless truth (`PRE-42`) or a principle says otherwise.
-2. **Light true to the hour.** True midday at noon, gold only when the sun is low; shade takes the sky's colour, lights are warm, and hollows, corners and contacts darken.
-   The fixture starts with sun behind the camera's left shoulder; changing sun direction is tested.
-3. **Real darks.** In daylight about a quarter of the picture is dark (the liked camp 27%); nights about 85% dark, with firelight in a few small pools and warm colour on less than about a fifth of the picture; winter soft, with very dark under about 5%.
-4. **Strong colour as accents,** except where the season itself is the colour: in summer daylight on no more than about an eighth of the picture (the liked camp 11%), carried by flowers, fire, dyes, ochre and beads; in autumn the wood's colour is the field.
-   Strong colour means chroma above 0.12; GPT's daylight pictures drift to 13–18%, so your pictures stay the reference.
-5. **Greens muted and warm,** never one green over most of the frame.
-6. **A colour plan for each biome, hour and season,** from the true colours of its species by season (`WLD-31`).
-7. **Quiet pixel texture:** marks of 2 to 3 texture pixels, low contrast within a material, never single-pixel speckle, each source family drawn as pixel art and its reductions reviewed.
-8. **Density with a stage:** nature dense, airy and wild, and people on the quiet ground the world has made: trodden paths, working floors, snow, cave floors.
-9. **People read first,** found by real light and movement, with the approved overlap reveal (A4.4): nothing in the world changes to make them stand out, and what they wear follows from their materials and their people's style (`CUL-12`).
-10. **Edges by light:** no ordinary near outlines; quiet obscured-band silhouettes are the reveal exception; a bright edge where sun, sky or fire grazes a shape; contact darkening; small far figures alone are outlined.
-11. **Life in motion:** wind, water, smoke, rain in its four layers, people and animals; nothing moves that the world does not move.
-12. **Truth before beauty in content:** shapes, materials and dress from archaeology (`PRE-42`), each people's style generated (`CUL-12`), no real culture's motifs (`SCP-20`), every picture checked (A5.6).
-- The smallest thing worth making is about a fist-sized stone; anything smaller is texture.
+Quiet pixel texture, muted varied greens, small strong-colour accents, truthful hour/season light, dark nights with small warm pools and people readable through real motion/light/reveal.
+Ordinary near figures have no heavy outlines. Archaeological truth and `SCP-20` constrain objects, clothing and motifs.
 
 ### A5.3 Three art families (`PRE-22`)
 
-- Source density is in the internal world image: 64, 16 and 4 pixels a metre.
-  At 2× presentation these appear at 128, 32 and 8 physical pixels a metre.
-  They are art families, not navigation names (A8.3).
-- Near art keeps faces, garments, equipment, wear and lit edges.
-  Middle art keeps important shape with fewer marks; far art keeps crowns, shelters, rocks and groups readable.
-  Review and repair intermediate reductions at 32, 8 and 2 pixels a metre and farther out: lost faces, thin tools, noisy patterns and broken edges.
-  A reduction is a starting point, not final art.
-- Neutral colour, material IDs/masks and mild normals are separate aligned pages.
-  Match alpha, pivots and frame trim, with gutters around atlas entries.
-  Keep numeric masks distinct from colour; never blend categorical IDs into invented materials.
-  Renormalise and review reduced normals.
-  CanvasTexture supplies colour, normal and specular inputs, not physical height or depth.
-- Keep lossless source packing.
-  GPU bytes include every resident page, normal, mask, gutter and reduction; a small PNG is not a small resident texture.
-  Full mip chains add about a third to base storage.
-  The checked texture loader expects complete halving chains, so 64 → 16 → 4 cannot be consecutive mip levels.
-  Pack authored families separately with their reviewed complete intermediate chains; no automatically blurred family ladder.
-- Ground uses quiet base variants, drawn material edges, broad wear/dampness stamps and ecology-selected details (A8.1).
-  Shader blends are fixture experiments, retained only after owner review and measured cost on both phones.
+Author at 64/16/4 internal pixels/metre; review 32/8/2 and farther reductions. At 2× these are twice the physical densities.
+Colour/material/normal pages share alpha, trim, pivots and gutters. Never interpolate categorical material IDs; renormalise normals.
+Pack complete halving chains separately for each authored family: 64→16→4 is not a valid consecutive mip chain. Lossless file size does not measure GPU residency.
 
 ### A5.4 Art production (`PRE-20`, `PRE-42`, `PRE-46`)
 
-1. **Design:** start from a signed-off catalogue sheet and the chosen targets, at the fixed projection and each required size.
-   Preserve original sheets, requests, prompts, source images, provenance and approval records.
-2. **Make:** neutral pixel-art colour, matching material masks and mild normals, then frames, pivots, holds, facings and attachment points.
-   Editor exports are build inputs, converted through the validated catalogue system.
-   Optional offline rigs may help; runtime art remains 2D.
-3. **Check:** Stone Age truth (A5.6), alpha/pivot alignment, scale, edge joins, frame stability, seasonal shapes and each family's reviewed reductions.
-   Existing art with a painted sunny side is a labelled stopgap, not final neutral art.
-   World-made geology, soot, wetness, snow and traces later come from their actual records.
-4. **Review:** each piece beside its signed-off sheet, true size and enlarged, at noon and dusk, on slopes, by water and under shelter.
-   Sheet approval does not approve a cleaned runtime texture, its normals or the engine result.
-   Keep pending approvals separate; resolve them and missing seasonal silhouettes before bulk art.
-5. **Ship:** checked lossless pages and metadata, digests in the look fingerprint, through existing asset packing and loading.
-   Physical catalogue rules never move to a competing editor JSON catalogue.
-   Texture changes remain look updates; real surface rules use normal versioning (A4.6).
-6. **Gate production:** first approve a person, animal, tree, boulder, ground and shelter in the running engine.
-   Prove height, overlap and shadows, then streaming, map/globe and two-phone performance before scaling the art catalogue.
+Build the next scene's needed pieces. Preserve signed sheets, exact source images/prompts, provenance and approval records.
+Sheet, runtime-page and engine approval are distinct; readable early stand-ins are allowed by the approved `PRE-31` change.
+Physical catalogue rules stay in the validated data pipeline. Do not infer heights/materials from colour.
 
-The art lane works from the catalogue in batches, on its own branch, under the brief in `IMPLEMENTATION.md`.
-GPT runs through the art tools outside the build; failed runs or usage limits only delay new sources.
-The builder reviews each batch beside its sheets, and the owner says yes or no.
-Shared colour measures stay in the one C++ look library, not a second Python copy.
-Targets are never shipped or traced; sources carry provenance and their approval.
-Original art and approvals survive the migration; only obsolete derived runtime exports are later removed.
+**Retained asset state:** 129 of 373 catalogue designs are signed. Meadow, boulder, both birch seasons and covered tent passed static production review; engine approval is separate. Hazel 8.1 is signed after its tall-sheet correction.
+Person/deer proposal sheets passed critic review but await owner sign-off; they are not production walk loops. First-people and full-age art, tent interior/back/frame/floor remain missing.
+The tent is the signed 16.4 cone, not the old 16.5 dome: ring 4.2 m, opaque cover 3.8 m across × 2.6 m high, crossing 2.7 m, tips 3.1 m; exclude ring/tips from opaque shadow volume.
+Birch dimensions remain 20 m high, 7 m spread, shaft 0.25 m, collar 0.38 m; preserve one trunk across seasons.
+
+Ground 1.3 earth, 1.4 bank gravel and 1.5 river-bed states are accepted exports: six packs, three variants/families, 1,458 aligned pages, 4/16/64 m family spans. Runtime batch visual review is pending.
+Ground 1.6 hearth fresh/old and 1.7 mud wet/drying are partial WIP. Inspect their source-index/pack-contract before use; no complete export/review is claimed.
+Their optional binary water coverage is separate; soil stays material 2, charcoal/wood 5. Puddle sizes drifted across families; wet ≤1.25 m/drying ≤1 m fixes and joins exceeding 2 m still need whole-chain review.
+No blanket unsigned-to-production approval exists; use the approved early stand-in scope without marking designs signed.
 
 ### A5.5 Targets and the loop
 
-- **Targets:** one anchor picture you approve for each place, either a repaint of an engine frame that holds the right content or GPT's own scene made from approved pictures; its other hours and seasons come from relights.
-  - Six of the nine relit pictures you judged kept the feeling, and you chose a relit dusk over a repainted one; a target is never repainted again to chase, since repainting drifts darker and busier round after round.
-  - From each target the builder takes each material's colour, spread and density through the engine's material masks, and the moment's numbers for the card; the light's direction comes from declared M2 fixture records, then the physical sky when it exists.
-- **The target card,** measured from the pictures you chose and refitted after every choice you make, warns and never decides.
-  - Its fixed goals: no flat ground (at most about 5% flat patches); detail as things; golden lights (35°–79°); muted greens (at most about 12% in low sun); strong colour only in specks (at most about 3.5%), and no one colour over about 7% of a frame; texture as strong as the masses; warm lights (about +5 to +9 by day) with shade near neutral (about −2.4 to +2.1); each line measured on your chosen pictures.
-  - **How it reads a frame:** in cells of 4 × 4 pixels, each its pixels' mean colour in OKLab, about 4 × 4 screen pixels on your phone or 2 × 2 texture pixels at the closest zoom:
-    - lightness, the cells' mean; dark, the share below 0.45; golden lights, the brightest 5%'s hue; warm lights and shade, the lightest and darkest fifths' mean yellowness (OKLab's b);
-    - strong colour, the share with chroma above 0.15; greens, the share with hue 110°–170° and chroma above 0.04, and their median chroma;
-    - flat patches, the share of squares of 6 × 6 cells all within 0.02 of their mean colour; the commonest colour, the largest share in one box of OKLab 0.02 wide;
-    - small things, spots 2 to 5 cells across (lightness standing out by more than 0.03 between blurs over 1 and 2.5 cells), each the strongest within 2 cells, counted a thousand cells;
-    - texture, the spread of lightness less its blur over one cell; masses, the spread of lightness blurred over four cells.
-  - **Its goals and bands are game tuning:** the goals, and how far past a band an alarm stays amber, in one file; each moment's bands in a file of its own naming its chosen pictures, from the lowest to the highest of them widened by that slack, and measured again whenever its pictures change.
-    Nine moments so far: late afternoon (nine pictures), low sun, true midday, dusk, night (your three), winter, rain, storm and cave.
-    Green inside, amber within the slack past a band or up to twice a goal, red beyond; every picture you chose passes, all green but the painted-over night's commonest colour, and a flat, speckled meadow made by code goes red on eight statistics.
-  - On your two liked camps it reads as the first study did: lightness 57 and 46, dark 24% and 50%, the lights at 80° and 57°, flat under 0.1%, texture 6.3 and 5.6 against masses 9.3 and 8.3; its small things read 28 a thousand cells there and 18 on the flattest chosen picture.
-  - Its bands for each moment start from A4.3's table, shown green, amber or red beside each view.
-  - Tested on your answers, it caught 12 of the 18 pictures you turned down, and wrongly flagged 6 of the 17 you picked.
-- **The loop,** at every step that changes the look:
-  1. **draw:** one Godot run draws the fixed views at the reference 1080 × 2400 presentation, with the colour, object and material pictures, lossless frames of the scripted paths, and many-sample pictures of small patches;
-  2. **check:** A4.8's checks and the card's alarms;
-  3. **look:** changed views beside their last approved versions, whole and in enlarged crops, on a lettered grid, so a fault is "C7";
-  4. **judge:** a fresh subagent sees the pictures, the targets and a yes-or-no checklist for each Done when and truth question, and says which of each pair is closer to the target, asked twice with the order swapped; it reports faults, never approval;
-  5. **show** you what changed, in pairs, with the alpha;
-  6. **ask** only when the look has an open question.
-- **Savings must be invisible** (`PRE-01`): first the machine line (A4.8), then your blind test on the phone, ten random pairs asking "which is sharper?", where eight or more right means it shows (guessing gets there about 5% of the time).
-  On the Compare page each pair is one view drawn two ways, in random order; the result code holds the seed and answers.
-  The new tests keep the approved world grid and vary measured light, shadow or drawing methods.
-  Earlier MSAA and mesh-fire comparisons remain 3D proof history, not 2D approvals.
-- **The heat step:** if the 20-minute heat run shows the picture alone heats the phone, one planned, logged step under heat, such as distant fires casting no shadows, chosen among the savings that pass your blind test, as you chose on 6 October 2026; if none is enough, it comes back to you.
-- **The AI judge advises, never decides:** it reports faults, never approval.
-- **Your choices:** two to four labelled pictures with a one-line cost each, in batches of four, with builds you open anyway; free of known faults; never offering a visible trade-off.
-  A gallery for a setting with many values spreads wide first, then narrows, made by the engine or by code changing one setting only.
-  Every choice you make is written into the section it decides.
-- **Reveal approved on 8 October 2026:** fade covering crowns/roofs and show quiet obscured-band silhouettes (A4.4).
-  Further visual aids need their own decision; the fixture tests the approved behaviour now.
+Compare changed engine views with approved targets; visual statistics warn, never approve.
+Keep existing data-driven target-card definitions rather than copying their thresholds into prose.
+A visible saving requires the owner's blind phone comparison: ten random pairs, eight correct means visible. A heat-driven visual step must be planned, logged and already accepted as invisible.
 
 ### A5.6 Truth in pictures (`PRE-42`, `SCP-20`)
 
-- GPT draws later or borrowed things and ignores "avoid" lines, such as metal tools after "no metal".
-- So every target, guide and source picture is checked before anyone aims at it or prepares it:
-  1. ask truthfully, with the prompt's truth lines;
-  2. look at every made thing, animal and garment at twice size, against the known slips: metal before copper, sawn wood, later things (chickens, hooped buckets, winches, lattice windows, glass-bead colours, rucksacks, slatted sleds, maize, a pot hung over a fire, boats with seats), spotted or long-maned horses, striped piglets outside spring, tipi-like cones, Lascaux-like paintings, real cultures' motifs, fur bikinis, grass rain capes, and anything countable in a ground texture;
-  3. date anything doubtful against a first-hand source, and write the verdict beside the picture;
-  4. keep the picture's feeling, not its mistakes: a target is approved for its light, colour, density and composition, never for its flagged things;
-  5. never take motifs from real cultures' art or dress (`SCP-20`).
-- Truth costs no feeling: the truthful village and the first cave kept it.
+Inspect made things, species and dress against their evidence. Check doubtful content before runtime production; no borrowed cultural motifs, metal before copper or invented equipment.
+Keep rejected studies as provenance, never silently promote them to approved sources.
 
 ## A6. The art kit and animation
 
 ### A6.1 The kit (`PRE-46`)
 
-- Replace runtime Blender parts with a countable catalogue of sprite bodies, garments, overlays, attachments, actions, plants, rocks, shelters and things.
-  Signed-off sheets remain the design standard.
-  The six fixtures prove the engine pipeline; they are not all launch art.
-- Keep about eight plant forms, six animal body patterns and eight garment kinds, in child and adult sizes.
-  Species supply proportions, seasonal shapes, stages and material colours; approved family sheets supply age proportions.
-  Bare winter branches are separate shapes where the species needs them.
-- Shelters keep their archaeological basis: hides closing rock shelters, skin tents on stone rings, post huts, mammoth-bone circles only where mammoths live, brush huts and later longhouses.
-  Each records its excavation and what is reconstruction.
-  No present-day smoke flaps or borrowed cultural detail (`SCP-20`).
-- Bodies show build, age, injuries, dress and feelings as `PRE-27` requires.
-  Faces retain their small designs for feelings, calm, sleep, hurt, death and cold.
-  Small plants, tools, faces, flowers and berries retain readable marks at each art step.
+Compose bodies, garments, tools and condition overlays from records; optional offline rigs are tools, not runtime requirements. Full catalogue breadth remains deferred under PROJECT.md.
 
 ### A6.2 Appearance (`PRE-42`, `PRE-43`)
 
-- Materials, equipment and wear follow actual records, never invented kit.
-  A few aligned body, clothing and tool overlays replace hundreds of precombined sheets.
-  Attachments share pivots, facings and trim metadata.
-- Stable per-being look keys choose approved build, wear and pattern variations.
-  Cosmetic chance uses a separate purpose in A3.5's key; it never consumes a physical system's sequence.
-  Made things show their inputs, amounts and people's styles within their design limits.
-  Motifs and icons derive from the same approved designs.
+Stable look keys choose approved variation; actual inputs, equipment, age and condition determine appearance. Attachments share pivots/facings/trim.
 
 ### A6.3 Movement (`PRE-27`, `PRE-44`)
 
-- Start with four world facings, a six-frame walk, idle, carrying, cutting and tending fire, and a small clothing set.
-  Test eight facings on one animal first: readability, turns, file size, production time and phone cost.
-  Do not expand every creature before that comparison is reviewed.
-- C++ view code selects frames from A4.6's activity sampler.
-  Walking follows distance, work follows phase, and idle may use a stable seed offset.
-  At fast time keep the activity readable at a steady visual pace.
-  Frame holds and pivots are data; feet do not slide through a frame change.
-- Later milestones add the full movement list, body-condition variants, feelings, social gestures and dances.
-  A six-frame walk does not fix the frame count of every action.
-  Shared dance beats remain shared, while ordinary crowd timing varies.
-- Runtime bones, skinning and palettes are replaced by sprite frames and aligned attachments.
-  Optional offline 3D rigs may generate frames or normal references, followed by pixel repair.
-  They are not runtime requirements.
+Initial production baseline: four facings, six-frame walk, idle/carry/cut/tend-fire poses and a small clothing set. Compare eight facings on one animal before expanding it. Full motion requirements remain open.
 
 ### A6.4 Surfaces and picking (`PRE-24`, `PRE-33`)
 
-- M2's fixture provides a floor height field, cliff segments and a simple shelter.
-  Slope patches use A8.4's projection; cliff tops and faces are separate pieces.
-  Feet and contact sit on the sampled walk surface.
-  Physical paths remain authoritative; adding real movement heights and layers belongs to later simulation milestones.
-- Deep caves have separate surfaces and entrance transitions.
-  Arbitrary stacked overhangs wait; keep the data extensible without building a general 3D visibility engine now.
-  A shallow cutaway does not fulfil the geological slice (`PRE-25`), which stays in M3 and later archaeology work.
-- Picking undoes UI layout, integer presentation scale, live pinch and residual camera offset.
-  Intersect the drawn surfaces in visible order, then object bounds and alpha masks, returning persistent IDs.
-  Flat inverse projection alone cannot pick slopes or floors beneath roofs.
+Pick visible surface order, object bounds and alpha after undoing presentation transforms. Flat inverse projection cannot pick slopes or floors below roofs.
+Deep caves have separate surfaces/views; arbitrary stacked overhangs remain outside the scoped terrain.
 
 ### A6.5 Sheets and review (`PRE-31`)
 
-Sheets show the same design at true size and enlarged in each family and intermediate step, in two materials where applicable.
-Filmstrips show movement and stable feet; normals and material masks can be inspected beside colour.
-Phone previews show noon, dusk, slopes, water, shelter and both orientations.
-Reference approval, runtime texture approval and engine approval remain distinct records (A5.4).
+Review true-size and enlarged pages, frames, masks/normals and the changed running scene. Stand-in readability permits early delivery; it does not confer final art approval.
 
 ## A7. The world
 
-### A7.1 What this milestone supplies (`MIL-10`, `PRN-02`, `WLD-08`)
+The following contracts are deferred to M7 unless needed earlier by a scoped camp behaviour. PROJECT.md owns all full-world numerical acceptance; the small valley closes none of it.
 
-The world is a small, wrapped map with believable present-day geography.
-Generation approximates the effects of deep time; it does not simulate planet formation.
-Plates explain ranges and rock, rock and runoff explain valleys, and climate and ground explain soils, deposits and vegetation.
-Each intermediate field has a named consumer or a test; unused scientific detail is left out.
+### A7.1 What this milestone supplies (`MIL-14`, `PRN-02`, `WLD-08`)
 
-M3 supplies generated land, natural shelters, drainage, climate, sky, weather, water, soils, deposits, biome and initial-cover records, and natural quake and eruption events.
-M2's renderer draws these records in place of its labelled fixture geography.
-Living growth, grazing, predation, wildfire and harvested resources are M4; people and their survival are M5; player intervention is M9.
-The functions these later milestones need are designed here and exercised with explicit test inputs, never disguised as complete play behaviour.
-
-**Approved phased acceptance (owner OK, 8 October 2026):** full `WLD-08` settling needs M4's ecology, `WLD-24` needs its food estimates confirmed and M5's survival, `WLD-11` names bands made in M5, and `PRE-25`'s old camp needs M4's traces.
-The owner accepted phased closure: M3 proves the physical world; M4 completes living settling, renewal and traces; M5 completes bands and winter survival.
-Every outstanding check stays mapped and open until its assigned milestone proves it; the pass rules are not weakened.
+M7 owns physical geography/weather and available ecological inputs. M8 owns full ecology/living settling, remaining individual/herd animals and biological start/survival acceptance. Each full check awaits its real consumers.
+Reuse the existing simulator, not a second world engine. No planet formation or live tectonic solver.
 
 ### A7.2 Coordinates, cells and the polar barrier (`WLD-01`, `WLD-02`, `WLD-03`, `WLD-12`)
 
-- Keep the exact 200,000,000 by 100,000,000 centimetre torus.
-  World cells are exactly 1,000 m, 2,000 by 1,000; weather cells exactly 10,000 m, 200 by 100.
-  Cell IDs are row-major indices of canonical wrapped coordinates, independent of allocation or thread order.
-- **Approved area resolution:** 250 m, four by four to a world cell, with 251 by 251 shared metre-grid vertices when the picture needs them.
-  This is within 2.35% of `WLD-12`'s about 256 m and preserves sixteen areas per cell and the accepted torus size.
-  The owner approved it on 8 October 2026; never silently change the torus to fit a power of two.
-- Latitude is −90° at north coordinate 0, 0° at 500 km, and approaches +90° at 1,000 km.
-  Longitude wraps east-west.
-  The permanent ice strip occupies the last 100 km on each side of the north-south seam, totalling 200 km.
-- **Coordinate wrapping is not permission to cross.**
-  Static terrain and rock sampling can use periodic coordinates and shared seam samples.
-  A common transport-edge policy forbids crossing the middle of the ice cap for water, storms, moisture, wind transport, animals and later walkers.
-  Diagonal edges and long steps test the segment, not just the endpoints.
-  Path costs and reachability use this policy; torus shortest distance alone is no route around the barrier.
-- Ocean outlets seed drainage; the rectangular map edge is never an artificial outlet.
-  Each side of the ice seam has its own no-flux transport boundary.
-  Nothing is teleported to the opposite pole.
-  Stationary polar cells may have cold, snow and sky state without transporting anything across the seam.
-- Globe compression is only A8.5's picture.
-  All cells have the same model area at every latitude, and physical routes never use great-circle distance.
+Retain exact torus coordinates; cells are 1 km, weather cells 10 km and areas exactly 250 m (251 shared metre-grid vertices).
+Coordinate wrapping does not permit transport across the middle of the polar ice. One edge policy must cover diagonal/swept water, weather and animal/person movement. Globe distortion is display only.
 
 ### A7.3 Ownership and stored fields (`WLD-12`, `PRN-14`)
 
-Large regular fields use compact arrays outside the entity registries.
-Each record has units, bounds and a canonical field-wise encoding.
-Do not allocate an entity, heap object, map or vector for every world cell.
-Sparse features use flat tables and offset/count spans.
-The table below describes planned records, not existing M1 types.
-
-| Record | What it owns | Changes in play |
-|---|---|---|
-| World-making header | Seed, making version/digest, dimensions, tilt, land target, calendar hemisphere, candidate identity and start-region certificate | No |
-| Base ground | Height in mm, plate/province, rock stack and thicknesses, slope class, fixed glacier/ice mask, coast and basin references | Heights and river courses fixed; explicit allowed damage is separate |
-| Geological feature tables | Fault lines, volcano sites/types, cave anchors and dimensions, lithology contacts, resource bodies and provenance | Hazard state and exposure may change; no new obsidian from eruptions |
-| Drainage | Receiver/rank, contributing area, basin ID, fixed river line, cross-sections, lake storage curves, springs, floodplain elevations and shore class | Geometry fixed; water state changes |
-| Climate | Four seasonal means, extremes, precipitation, snow, winds, storm days and longest dry spell; terrain/sea adjustments | Never changes |
-| Cell state | Soil stores/fertility, groundwater, snow/ice, water status, cover and disturbance state; later fire, paths and herds | At the fixed paces below |
-| Weather state | Temperature, humidity, wind, cloud, rain/snow, active storm references and wet/dry-year anomaly state | Hourly |
-| Area delta | Changed things/marks, local depletion, dated layers, last authoritative update, event cursor | Only actual changes; never a camera cache |
-| View products | Coarse ground, metre relief, render pieces, overview pyramids and masks | Disposable; not simulation state |
-
-Climate may be stored as compact per-cell seasonal values or shared profiles plus exact modifiers if profiling proves identical answers.
-An index optimization cannot replace a place's actual climate with its biome's average.
-Stored cover includes species identities and shares when the relevant approved entries exist; habitat potential is not an animal population.
-Any initialization subset is named in the world header and never presented as the completed launch ecology.
-
-Every physical record can be inspected on the developer land page or its world overlay (`PRN-04`).
-Rock and deposit inspections explain what is there and its formation context, not what an unknowing person knows how to use.
-The full player cards remain M4/M9.
+Use compact canonical arrays for regular fields and flat sparse feature tables, not an entity/allocation per cell.
+Separate immutable ground, changing physical stores, authoritative area deltas and disposable picture products. Biome potential is not actual species population.
 
 ### A7.4 A reproducible generation job (`TIM-16`, `WLD-08`, `RES-05`)
 
-Generation is a C++ job over immutable input catalogues, with no Godot dependency.
-Its stages have fixed work counts from the versioned configuration; wall time measures them but never decides how many candidates or iterations to run.
-Each completed stage publishes a field digest, timings, memory peak and diagnostics.
-Generation checkpoints are build artifacts, not a replacement for play saves.
-They contain seed, configuration digest, candidate index, stage and canonical fields; resuming must match an uninterrupted job.
-
-Use existing `kd::num` operations and checked conversions.
-Working doubles are permitted under A3.4; stored state remains whole base units.
-Use the existing `kd::chance::Draws`, with namespaced system/purpose, stable cell/feature identity, a defined generation moment, and explicit draw index.
-Do not introduce a new random-number library or a mutable global stream.
-Hash-based feature keys are distinct from never-reused entity IDs; when a real entity is created, allocate its entity ID canonically.
-
-Workers write disjoint fixed chunks; results gather in chunk/cell/feature order.
-Sorting and heaps have total keys, such as (filled height, cell ID).
-A sum of runoff or sediment contributions has defined order and checked width.
-The one-worker answer is the reference.
-Generation kernels can use `Workers::for_each`; they do not need interacting-entity islands.
+Versioned inputs determine work counts; wall time never chooses iterations/candidates. Publish stage digests and resume identically. Fixed chunks gather by stable cell/feature order using existing numeric/chance APIs.
 
 ### A7.5 Plates and rock (`WLD-06`, `WLD-09`, `WLD-30`)
 
-1. Draw tilt within 15–30°, target land fraction within 25–50%, and 6–12 plate seeds from separate keyed purposes.
-2. Partition a periodic coarse domain into plates, with bounded boundary perturbations; give each continental/oceanic character, age/province and a velocity vector.
-3. At each shared boundary, relative normal and tangential motion classify collision, subduction, rift or transform.
-   Continental collision builds broad ranges; subduction builds a trench and an offset volcanic range on the overriding side; extension builds rifts; transform records a fault with modest relief.
-4. Build crustal height, continental shelves and broad old-land relief from these features.
-   Choose one sea datum as part of generation to meet the seed's land target; then freeze it.
-   Erosion may move shore outlines, so final acceptance checks the final share.
-   Range widths are tens of kilometres, peaks normally about 3,000–4,500 m, and most land under 1,000 m, as `WLD-30` requires.
-5. Assign about twelve named rock kinds from geological province, with surface rock and at most two underlying layers.
-   Keep an ancient basin/sea provenance mask: present-day sea coverage cannot explain an inland chalk outcrop by itself.
-   Sedimentary layers fold/tilt in ranges; metamorphic rock follows the appropriate province; volcanic rock follows recorded volcanic type and age.
-
-This is a bounded causal construction, not plate motion integrated over millions of years.
-Noise supplies small irregularities within features; noise alone does not choose ore, faults or rivers.
-A three-layer stack is a schematic section, not an exact geologic reconstruction.
-Regional contact functions interpolate shared boundaries so a cliff and its neighbouring slice show the same layers.
-The catalogue lists erosion resistance and porosity separately; visual colour never supplies a physical property.
+PROJECT.md defines causal generation and geological obligations. Keep provenance for rocks/resources; visual colour is not a physical property.
 
 ### A7.6 Rough climate, erosion, basins and fixed waterways (`WLD-08`, `WLD-09`, `WLD-17`)
 
-A first climate estimates runoff from latitude, height, sea distance and broad winds.
-It precedes erosion; the final climate follows the finished relief.
-Use a fixed small number of terrain/drainage passes, benchmarked before increasing them.
-No stage runs until the picture merely looks finished.
-
-**Drainage construction:**
-
-- Preserve the original height field.
-  Priority-Flood computes spill elevations from sea cells over allowed neighbours and builds a depression hierarchy.
-  Its filled routing surface is separate from physical bed height.
-  Otherwise filling every depression would erase the lakes the game promises.
-- Receivers have a strictly decreasing routing key: spill level first, then a deterministic drainage rank through flats.
-  This proves acyclicity even when physical elevations tie.
-  The rank is routing metadata, never a visible artificial slope.
-- Accumulate contributing area/runoff in topological order.
-  Endorheic basins terminate in a registered lake or seasonal basin with a storage/outlet record, never an unexplained dead river.
-  Keep physical bed, water level and spill height distinct.
-- Cut valleys using a bounded stream-power approximation, sensitive to drainage area, slope and rock resistance.
-  An implicit downstream-to-upstream solve with exponent one is the first candidate; more expensive exponents need evidence that they improve the visible land.
-  Stable ties and quantization are explicit.
-  A final routing pass follows the last bed change.
-- Add floodplain, fan, delta and gravel/silt masks from valley gradient, upstream supply and receiving water.
-  Track source-rock provenance and downstream travel distance to place transported stones truthfully.
-  A versioned lithology/distance rule gives their rounding class; matched stones become no less rounded along longer transport paths. This affects appearance/material form, without a live abrasion simulation.
-  This is a generation approximation; no ongoing sediment-transport solver enters play (`SCP-21`).
-- Freeze a world-scale river graph and shared reach centerlines, junctions, widths, depths and monotone bed profiles.
-  Deterministic bends fit their valley corridor; they cannot cross a divide or make a river climb.
-  A reach owns its geometry across all cell/area/render boundaries.
-  Stream confluences and lake mouths use shared anchors, not separately random endpoints.
-
-Lake records hold a monotone level-to-storage curve and fixed outlets.
-A lake can span cells; it is one body with one surface level, not many independent puddles.
-Generation fixes glaciers and glacial landform masks in cold high country; there is no ice-age or moving-glacier simulation.
-
-Caves follow soluble limestone, lava tubes, or soft layers beneath hard caps.
-After final erosion, each cell records anchor, entrance, floor/roof bounds, usable floor area and type before any area is made.
-Rock-stage cave envelopes are provisional; final entrances must intersect the finished relief, and dryness is certified against the final climate/water regime and rechecked after settling.
-Area detail expands that certificate rather than rolling again for the existence or size of a cave.
-Reject a start with unusable shelters; never carve a cave to rescue a candidate after scoring.
+Separate physical bed, routing/spill metadata and water levels; filling drainage depressions must not erase lakes.
+Shared reach geometry owns river joins across boundaries. Cave certificates refer to finished terrain/water, never caves inserted to rescue a scored start.
 
 ### A7.7 Final climate, seas, soils and life potential (`WLD-16`, `WLD-26`, `WLD-27`, `WLD-09`)
 
-**Climate:** compute seasonal temperature from latitude, tilt, height (starting lapse about 6 °C/km), continentality and fixed ocean warmth.
-A low-resolution basin-aware ocean pass sets warm/cold boundary currents and upwelling before the final coastal-temperature pass.
-Use prevailing wind belts and a bounded moisture sweep for rain shadows.
-A periodic longitude solve uses a fixed iteration count or fixed residual criterion with a hard deterministic bound, not a sweep whose seam becomes the source of all moisture.
-No moisture crosses the polar barrier.
-The Smith–Barstad linear orographic model is a reference and possible later refinement; the first implementation need not include its spectral machinery.
-
-Store each season's normal warmth, extremes, rain/snow, wind, storm days and longest dry spell.
-An extreme is a climate envelope from which weather and later powers draw; it is not a guarantee that each season attains it.
-Four seasons are game time; monthly Earth data are grouped by annual phase for validation.
-The approved climate comparison (8 October 2026) fixes the comparison method: 10-degree latitude bands, at most 10 percentage points of climate-class share difference per sufficiently sampled band, about 2°C matched-bin warmth, an Earth-tilt case and separate 15°/30° cases.
-Freeze matched latitude/altitude/maritime/current-exposure references and scaled distances before tuning. The separate every-place 20-year weather bounds remain ±10% rain and ±1°C against its own climate.
-The approved short-year convention fixes daily precipitation units and Earth-equivalent annual indices for biome classification; saved seasonal totals cover 15 game days.
-Do not compare the equal-area torus's raw latitude histogram with the unequal-area cells of an Earth raster.
-
-**Seas:** use one fixed sea level and no tides.
-Store depth, coastal class, current direction/thermal influence and upwelling; sea warmth updates every five days, while freshwater and sea ice update daily under `WLD-12`.
-Fish, sea mammals and shellfish population dynamics remain M4.
-Their initial habitat/capacity records follow shallow water and upwelling, not decorative random shoals.
-
-**Soils:** use parent material, sediment provenance, slope, climate and potential vegetation class.
-Compute a preliminary vegetation potential from climate first, use it to inform soil, then perform one fixed final biome/cover pass.
-This resolves the soil/plants dependency without an unbounded equilibrium loop or changing `WLD-09`'s final stage order.
-Store soil kind, effective thickness, fertility 0–5, infiltration/retention and diggability.
-Silt, loess, ash and old grassland favour fertility; sand, steep slopes, peat and leached hot/wet soils limit it.
-No element or chemical balance is simulated.
-Later crop, ash, dung and waste inputs use the same soil mutation interface.
-
-**Deposits:** formation predicates are catalogue data over geological and drainage facts.
-Flint requires chalk and chert eligible limestone, or gravels traced below their respective sources; both count as the flaking-stone family; obsidian requires a young silicic volcanic source; copper ore requires a weathered copper-bearing province near granite in volcanic ranges, with native copper only there.
-Clay follows old bends, lake sediment and weathered rock; ochre follows iron-rich weathering.
-Hammer/grinding stone patches follow exposed quartzite, basalt or sandstone and source-derived gravel, with the same stable patch identity as other useful stone.
-A deposit keeps source/provenance, abundance, depth and exposure; an exposed bank or cave wall samples the same body seen in a slice.
-Taking material later removes it from a stable patch/deposit record, never rerolls a fresh supply.
-
-**Biomes and initial cover:** classify ice, tundra, conifer forest, broadleaf forest, grassland, scrub, desert, savanna, tropical forest, marsh and high mountains, with shores/seas separate.
-Climate envelopes select eligible catalogue species, then soil/wetness and cover competition select shares.
-Initial disturbance ages set coherent regrowth patches, not independent noise per plant.
-Generation places coarse animal counts and seasonal-range descriptors only for approved catalogue entries; M4 supplies their live rules.
-The 6-plant/4-animal biome coverage and full food-web checks remain M4 acceptance.
-The approved species scope (8 October 2026) includes one woolly mammoth species in cold open grassland within the roughly 30 wild-species budget. M4 supplies its reviewed catalogue entry, food demand and density; art follows its normal review.
+Retain PROJECT's approved climate comparison, short-year units, species and soil/deposit rules. Initial habitat estimates cannot pass ecology acceptance. Freeze external reference definitions before tuning.
 
 ### A7.8 Candidates and the start region (`WLD-10`, `WLD-24`)
 
-- A root seed derives an ordered candidate stream by the accepted keyed chance API.
-  Start with 20 coarse candidates at a proposed 4 km spacing (500 by 250 cells), retaining plates, province fields and coarse drainage/climate/deposit/biome measures.
-  These are approximations of each candidate's world, not separate unrelated seeds.
-- Rank by versioned integer scores for land/climate variety, barriers, resource unevenness and start quality.
-  Start with equal category weights; normalize each category before weighting and publish every component on the review page.
-  Weights and normalization ranges must be frozen before closing seed tests.
-- Refine the best six first to the 1 km world grid, in rank order.
-  Refinement preserves plate identities and broad provinces but recomputes drainage and climate at full resolution; coarse scores are not final certificates.
-  If fewer than three qualify, refine the remaining first twenty in their coarse rank order, one at a time until three qualify.
-  If still short, make the next twenty coarse candidates, rank that batch, and refine in that order until three qualify or all forty have been tested.
-  This continuation policy is fixed in the making version, not selected by the phone's speed; no further candidates are refined once the stated stopping condition is met.
-- Every offered candidate passes the **full-resolution** hard gates.
-  Score a start from fixed climate, soil, caves, water and biome food estimates, with several food kinds and a seasonal margin.
-  Find 3–4 shelter catchments for 15–30 people each, without double-counting the food in overlapping 10 km ranges.
-  Each has a dry, large-enough cave/overhang, year-round water within 2 km and flaking stone within 10 km.
-  Approved start food gate: each season supplies at least 120% of starting-kit demand; shelters provide at least 2 m² usable dry floor per person as a tunable estimate.
-  The exact starting-kit estimator and body-demand envelope must be confirmed by M4/M5 under the phased acceptance in A7.1 before those biological checks pass.
-- Coldest-season mean must be 2–10 °C with a few frost nights; `BIO-11` survival remains a real scene test in M5.
-  A mean alone cannot prove a naked band survives a particular winter.
-- Connected landmass membership uses the polar transport boundary and fixed sea/lake masks.
-  The starting landmass must contain flaking stone, clay, wild grain, wolves, at least one eligible domestic ancestor and copper ore.
-  An actual species occurrence, not just a colour labelled habitat, must eventually certify the species clauses.
-- Rank fully qualified worlds again, tie by candidate index, and show the best three fully qualified of those evaluated.
-  Never edit, add a resource or move a shelter after scoring.
-  At the cap, offer the one or two that qualify, or say none qualifies; do not loop forever.
-- Keep root seed, selected candidate seed/index and making digest distinct in UI/save metadata.
-  “Let the game pick” chooses the top-ranked offered world; explicit world seed generates one world, passes the same final tests, and either gives its start or explains that it has none.
-  Root-seed replay reproduces the same ordered choices under the same making version.
-
-Only the selected candidate becomes the saved play world.
-Retain coarse metadata, previews and at most one full candidate working set at a time; store retained candidates as checked compressed temporary artifacts.
-Do not keep six complete mutable worlds and copies in memory.
-Cancellation leaves the current saved world untouched and resumes or discards only the generation job.
+Versioned ranking never edits a candidate. Keep root seed, candidate seed/index and making digest distinct.
+Retain at most one full working candidate plus checked temporary artifacts. Cancellation leaves the saved world untouched. Explicit seeds face the same hard gates.
 
 ### A7.9 Settling and the beginning of history (`WLD-08`, `TIM-14`, `WLD-11`)
 
-The completed game runs the selected world's water, cover and herds for exactly ten 60-day years using play rules, without people.
-This is 600 days, not a short special convergence loop.
-The scored start region stays fixed; after settling it must still qualify.
-Initial herd wariness around it is the hunted level; species-specific behaviour is M4's responsibility.
-Bands are made only after settling, in M5.
-
-Use an explicit prehistory origin in the new generated-world wrapper, with deterministic event keys across 600 days; reset neither hazard cooldowns nor water stores at history start.
-The date mapping must present Year 1, spring, day 1 in the chosen start hemisphere while keeping the internal event order and chance moments intact.
-The existing calendar supports negative dates, but `World` begins at frontier zero today: merely scheduling negative events into it is invalid.
-Implement a versioned world-origin facility or an explicit elapsed-prehistory offset in the new wrapper, with tests of saves and event scheduling; do not patch demo golden results.
-The final choice is an implementation detail recorded with α3.9b, not an assertion that M1 already does it.
-
-Before M4, show “water settling; ecology pending” in the developer build.
-Do not show fake herds or call a water-only run full `WLD-08` completion.
-The production New World path and its report disclose the outstanding phase under A7.1's phased acceptance.
+Full settling is exactly 600 days under play rules, then bands/history. Water-only settling is labelled incomplete.
+Current World starts at frontier zero; negative calendar dates do not mean negative events are supported. Introduce a versioned prehistory origin/offset without resetting hazard state or changing demo proofs.
 
 ### A7.10 Sky and weather (`WLD-07`, `WLD-16`, `WLD-22`, `WLD-30`)
 
-**Sky:** compute solar direction from longitude, latitude, annual phase and tilt, using A3.4's turn-angle functions.
-Use a circular seasonal orbit with the chosen hemisphere in spring at history start.
-Local solar hour depends on longitude; the UI retains one calendar date.
-Polar day/night has explicit limiting branches, avoiding tangent singularities.
-Full moon repeats every 15 days.
-A seed-derived star layout and a simple inclined lunar orbit with node precession supply moon position and eclipses.
-Eclipses are geometric alignments, never independent chance flashes.
-Enumerate alignments over 70 years, then certify local visibility-count bounds over the complete torus, including horizon and footprint boundaries; a 100-place sample is only an early diagnostic.
-Use canonical 1 km cell locations for the exhaustive report and conservative bounds/refinement inside cells to catch subcell visibility regions; an uncertified region is a failure of the proof, not assumed coverage.
-The approved eclipse target (8 October 2026) requires 3–8 visible solar or lunar eclipses at every place in 70 game years, clouds or not; total solar eclipses are not promised everywhere.
-Count appreciable partial or total alignments above the geometric horizon, reporting obscuration separately. Freeze the visibility threshold with the orbit parameters before validation. An exactly repeating 15-day/60-day orbit without node precession would produce an implausible repeating pattern.
-Compatibility check: the phase period does not fix the alignment rate; the proposed orbit leaves inclination, node precession and apparent sizes adjustable, so this answer forces no structural model change. No parameter set has yet been fitted or certified to meet 3–8 everywhere. IMPLEMENTATION.md gate G5 must prove it before acceptance; a failed fit is reported without changing the target.
-
-**Weather:** one layer event each game hour, with weather-cell state and explicit moving storm records.
-Storm birth is keyed by cell, hour and purpose, conditional on climate; it is not a preauthored event date list.
-Intensity, footprint and lifetime come from climate tables; thunder needs warm moist air.
-Temperature combines seasonal/daily cycles, weather anomaly, coast damping and terrain correction.
-Fog, local wind shelter and frost hollows are deterministic place queries over that weather, not per-frame simulation.
-
-Winds keep real speeds; a 50 km storm can travel across several 10 km cells in one hour.
-Integrate swept footprints or use a fixed bounded transport substep within the hourly update; destination-only movement would skip rainfall and jump the polar barrier.
-The substep rule is a versioned constant, never chosen from frame rate.
-Distribute rainfall by integrated coverage and normalize the catalogue's storm frequency/intensity to the climate's long-run amount.
-Do not force every year to the same total, clip the last storm to make a statistical test pass, or let stochastic errors accumulate without a budget test.
-Wet/dry/warm/cold-year anomalies use bounded persistent stochastic state.
-A separate natural-rate suite checks storms/storm days, lightning, droughts, floods and harsh winters by climate against frozen Earth reference definitions and per-game-year targets.
-It measures dry-spell duration as well as total rainfall; equal yearly rain cannot excuse daily drizzle or missing droughts.
-The approved climate convention defines a dry day as below 1 mm rain and the saved longest-dry-spell envelope as the 95th percentile of annual maxima; test the exceedance share under RES-13.
-Every event has an originating weather/water record and explicit exposure denominator; forced diagnostics never enter natural-rate counts.
-Wildfire occurrence and lightning-to-fire conversion are added by M4 under the phased acceptance in A7.1.
-
-Daily weather rates keep real-day behaviour; rare event totals are calibrated per 60-day game year (`TIM-18`, `WLD-30`).
-No blanket multiplication by six is applied to wind, travel speed or every rainfall value.
-Snowfall accumulates as water-equivalent snow; daily temperature-driven melt supplies hydrology.
-Natural lightning records location, time and cause; M4 consumes it for fire, M5 for bodies, and M9 routes allowed interventions through the same event path.
-Nothing in an event delivered to a mind labels it as the player's act.
+The owner removed universal eclipse-count certification on 8 October; coherent sky and a reviewed plausible distribution remain.
+Hourly storms must integrate swept footprints, respecting the polar boundary. Real wind/travel speeds do not receive seasonal compression; natural-rate tests exclude forced events.
 
 ### A7.11 Water and soil in play (`WLD-17`, `WLD-26`, `WLD-27`)
 
-Normal water, groundwater, snow, freshwater ice and sea ice update daily; active floods update hourly.
-Sea warmth/ecological state and soil fertility update every five days; the sea record does not move ice off its daily schedule.
-The cadence is identical for watched and unwatched places and fixed across a version.
-Within a layer event, fixed chunks read old state and write new state; cross-cell contributions reduce in canonical order.
-
-- Rain and melt split into infiltration and runoff by soil/cover and ground saturation.
-  Groundwater storage has a slow recession; springs discharge where geology and elevation permit.
-  Store rounding residuals where repeated integer fluxes otherwise lose water.
-- Rivers route discharge over fixed reaches using a travel-time queue or equivalent bounded reservoir delays.
-  Arrival times follow reach length and water speed in seconds, not six-times seasonal drying.
-  A storm in the declared upstream test valley peaks downstream 21.6–26.4 hours later (the existing 10% interpretation of “about a day”).
-  The normal daily step must retain timed in-transit water so flood-hour promotion neither duplicates nor loses it.
-- Lakes integrate inflow, outflow and evaporation against their storage curves.
-  Flood stage intersects precomputed connected floodplain elevations; no shallow-water PDE or moving riverbed is required.
-  A flood lays a dated silt event; slow sediment transport is absent.
-- Dry-spell recession and plant stress use the compressed seasonal response of `TIM-18`.
-  Separate that coefficient from the real-speed reach travel and event clock.
-- Snow melts into actual stores; freshwater/sea ice thickness determines later walkability, while glaciers stay fixed.
-  A drawn sheet of ice cannot certify it bears a person.
-- Water-quality records mark warm small still pools and about 1 km downstream of camps, crossings and carcasses, expiring a few days after removal.
-  Transport follows the river graph, not a Euclidean radius.
-  M3 tests the propagation/expiry API; gut sickness needs M5's body/illness consumer.
-- Fertility changes from removal, rest, ash, dung, rotted waste and silt are one rule with explicit inputs.
-  A cultivated field keeps its own fertility in the authoritative area delta; the cell supplies baseline soil and uncultivated fertility. Changing one field must not fertilize every field in its cell.
-  M3 tests those transitions with ledger events; farming yields remain the later farming check.
-
-These are game water stores, not a full energy or chemical conservation simulation (`SCP-21`).
-Tests still require no negative stores and no unexplained duplication in the modeled inflow/outflow ledger.
-Weather, stores and hazards all save their residuals, future arrivals and next update seconds.
+Keep fixed cadences, explicit stores/residuals/in-transit water and deterministic reductions. Daily→flood-hour promotion cannot duplicate or lose water.
+The upstream test's “about a day” is 21.6–26.4 hours. Local cultivated fertility belongs to the field, not every field in its world cell.
 
 ### A7.12 Quakes and eruptions (`WLD-15`, `WLD-22`)
 
-Fault and volcano type set annual chance, strength envelope and quiet interval.
-Implement a conditional hazard per fixed game-time opportunity, converted from the annual probability, with keyed draws and a saved quiet-until time.
-Do not draw a chance every render frame or every area load.
-Natural opportunities continue without people or a camera.
-
-Quakes emit an intensity footprint tied to the recorded fault, plus rockfall/cave-roof damage intents where susceptible geometry exists.
-Eruptions have a saved warning state lasting days: small tremors, warm springs and later sound cues.
-Lava follows downhill eligible surface corridors and emits burn/burial changes; ash uses wind, falls onto cells, fouls water for a season and later enriches soil.
-Heights stay unchanged and no new obsidian is created, exactly as `WLD-15` states.
-Do not add a runtime crater, tectonic uplift, new river course or fluid lava solver.
-M4 handles things/plants/fire affected by those intents; M5 handles bodily harm.
-
-Keep a dated, keyed disturbance ledger indexed by affected cell/area for later catch-up.
-An old area still needs a quake/flood/ash record even if the public history has thinned it; authoritative catch-up input is not deleted by book-of-ages thinning.
-Compaction requires a proved equivalent accumulated state/checkpoint, never a dropped event.
+Hazards use saved warning/cooldown state and fixed game-time opportunities, never camera loads.
+Dated disturbances needed for area catch-up survive public-history thinning; compact only to proven equivalent state.
 
 ### A7.13 Detail on demand and kept areas (`WLD-12`, `WLD-13`, `PRE-03`)
 
-There are three different products:
-
-1. **Canonical area facts:** caves, material/deposit patches and stable object-placement keys, from the world-making seed, the cell and its shared neighbours.
-   A rule may request these where a person acts; no metre height mesh is needed.
-2. **Pure picture detail:** metre-scale heights, crack/scree arrangement and projected pieces, evaluated from the same geological and water constraints with look-specific variation.
-   It never writes to the world, allocates entity IDs or advances timers.
-3. **Authoritative area deltas:** changed things and marks, depleted resources, dated layers and local plants, with last processed day and event cursor.
-   These are saved, independent of any render tile.
-
-Stable placement uses world-coordinate microcells and a fixed candidate count per microcell.
-Spacing checks read a fixed neighbour halo and resolve competing candidates by priority then coordinate, so traversal and cache order cannot decide which tree or stone survives.
-Changing density/size/placement values is a world-making change, not a cosmetic update.
-A picture's flowers and stones refer to real patch kinds/amounts; only uncountable texture variation is purely decorative.
-
-Terrain is a constrained hierarchy: a world field, shared coarse area samples tens of metres apart, then metre relief that vanishes at protected anchors and obeys rock/cliff/river/cave envelopes.
-Sample absolute coordinates, not tile-local seeds.
-Adjacent tiles request identical border and derivative samples, with sufficient halo for filtering and normals.
-Do not generate local rivers or local erosion independently: they would disagree at edges.
-The coarse parent and fine child share low-frequency shape; fine detail cannot move a coastline or block the authoritative channel.
-
-For a kept area, use one deterministic daily catch-up function over its last committed state, its cell disturbance log and the season's usual weather, with draws keyed to the day.
-This is the stated `WLD-12` model for inactive areas, not replay of the entire past world.
-Only people within about 1 km activate normal rule updates.
-A camera request catches up a **copy** for display and saves nothing; the authoritative area remains at its last committed day until simulation needs it.
-Repeated display, eviction and future activation must produce the same result as no display.
-An active versus inactive area follows the project's intended near-person distinction; tests must not silently demand actual-hour weather equal seasonal usual weather.
-
-Keep cell cover/depletion bookkeeping exactly once when an action happens.
-Later catch-up changes the delta, not the original global removal again.
-An area becomes unchanged only when every persisted effect is gone, including a buried item or a disturbance dependency.
-Rules operate on a typed ground/surface query, never on GPU relief.
-Actual multi-segment walking and bodily cliff risk remain M5; the new surface API must not change M1 demonstration activities.
+Separate canonical rule facts, pure picture detail and saved changes. Absolute-coordinate samples and shared halos prevent seams/load-order dependence.
+View catch-up runs on a copy and saves nothing. Later activation must equal no viewing. Count global depletion once; inactive-area usual-weather rules need not equal active hourly-weather rules.
 
 ### A7.14 Events, saves and revisions (`PLT-07`, `PLT-08`, `PLT-09`, `RES-05`)
 
-Add layer systems through `World::set_layer`, with canonical `digest`, `save`, `load` and `opened` implementations.
-The existing reserved owners are daylight and commands; they are not already a weather scheduler.
-Preserve their IDs and append new owner IDs, including a documented ordering for weather, flood water, normal water, sea/soil and hazards.
-A command currently precedes appended layers within a second; later powers must explicitly define whether they use pre-update conditions and schedule effects after the current key.
-Never insert an earlier same-second event.
-
-World's owner schedules and their serialization currently depend on `owners::count`.
-Extend the encoding with a version and migration that reads old owner counts and initializes new inactive layers safely.
-Old demo worlds attach no new systems and keep their original digests byte for byte.
-Add new generated-world proof suites rather than replacing accepted golden answers.
-
-Keep immutable generated ground in a critical checked snapshot chunk initially, with mutable system state in explicitly versioned system payloads inside the existing SYST chunk.
-M1 does not yet provide separately versioned outer chunks for each system; add bounded payload schemas and migrations deliberately.
-This works with the current archive format without an invented external asset dependency.
-Serialize unchanged ground bytes once into a shared immutable blob per world; reuse them while encoding/compressing snapshots off-thread where the existing APIs permit.
-Measure snapshot copy and duplicated compressed/uncompressed buffers; if incremental immutable chunk storage is needed, extend the keeper/archive atomically with crash tests before claiming the budget.
-Do not assume the current whole-snapshot writer already streams huge terrain files without extra memory.
-
-History records currently carry a small type and two integer payloads.
-Rich disturbances need versioned system payload storage referenced by stable event ID, or a deliberate record-format extension with migration.
-A pointer or renderer event queue is not history.
-World export contains every authoritative base/delta/log piece; losing a cache is harmless.
-
-Published drawing snapshots carry world epoch, frontier/display interval, an immutable base handle and revision manifests for mutable tiles.
-One controller owns the triple-buffer copy; workers keep immutable handles, not recycled slot references.
-A skipped revision requests a current complete tile from an immutable publication; it must not read the live simulation.
-Water and sky sampling respect displayed game time rather than drawing the simulation frontier's storm hours early.
-Keep bracketing state or the deterministic storm trajectory for the bounded display lag.
+Append layer-owner IDs, preserving old owners/order. Existing owner-count encoding needs migration; old demos attach no new systems.
+Current SYST holds system payloads; rich disturbances exceed history's small type/two-integer payload. Add bounded versioned payloads deliberately.
+Publish immutable bases and revision manifests sampled at displayed time; caches are never authoritative archive dependencies.
 
 ## A8. From a person to the globe
 
 ### A8.1 Ground, height and order (`PRE-03`, `PRE-23`, `PRE-24`)
 
-- M2 uses labelled river/bed and look-field fixtures.
-  M3 supplies height, geology, soil, drainage, vegetation and resource abundance.
-  Tile colour never invents a biome, river or harvestable plant.
-- Four ground layers: quiet material variants, drawn transition edges, broad wear/dampness/leaf-litter stamps, and small ecology-selected details.
-  Decorative grass need not be an entity; a harvestable plant must correspond to one.
-  Zoom may aggregate decoration, but inspection preserves real resources and objects.
-- Neighbour-aware transitions need a halo and wrapped neighbours in both axes.
-  Material, edge and detail choices use stable world-coordinate look keys, never cache size or load order.
-- Render pieces are disposable, separate from the planned 256 m simulation areas.
-  Start with shared base tiles and 8–16 m near pieces, measured against the portrait footprint and shadow halo.
-  A unique 16 m square at 64 px/m already costs 4 MiB for colour alone; shared materials and bounded caches are essential.
-  TileMapLayer is useful only where regular ground helps; its signed 16-bit saved cells are not a world coordinate store.
-  Keep world coordinates in C++ and rebase a finite visible layer.
-- Floor height fields, cliff faces and shelter floor/back/roof/opening records describe the approved terrain.
-  These measured surfaces do not require Godot 3D cameras, meshes or physics.
-  Normals, feet, water and contact share those records and A8.4's projection.
-- Flat actors can sort by projected ground depth.
-  Large occluders split into trunk/crown, cliff cap/face and shelter back/floor/roof/front pieces.
-  Local projected overlap and surfaces create before/after relationships, with persistent-ID ties for unrelated equal-depth pieces.
-  Order crosses render-chunk boundaries.
-  Neither ordinary Y-sort nor drawing all elevated objects last handles a foreground tree over a rear shelf.
-- Point depth, cos(37°) × south + sin(37°) × height, helps points, not whole irregular sprites.
-  Start with split shapes that admit an acyclic order.
-  If a fixture cannot be ordered, change its split.
-  A per-pixel depth compositor is larger fallback work, raised before broadening terrain complexity.
+Render pieces are disposable, separate from 250 m simulation areas. Split trunks/crowns, cliff caps/faces and shelter layers; order overlaps across chunks with persistent-ID ties. Ordinary Y-sort cannot solve raised shelves/roofs.
+Quiet base variants, edges, broad stamps and ecology detail draw actual records. Resource inspection cannot rely on decorative guesses.
 
 ### A8.2 A nearby origin
 
-Subtract an exact nearby camera origin before converting world coordinates to drawing floats.
-Horizontal differences use A3.4's torus shortest offsets; simulation north is negated into drawing south.
-The simulation and saves never depend on the drawing origin or renderer arithmetic.
+Subtract an exact nearby origin before drawing floats; negate simulation north into drawing south. Current camera rebases exactly every 4096 m and preserves both absolute and raster origin. Saves/rules never depend on rendering arithmetic.
 
 ### A8.3 Zoom steps and forms (`PRE-03`, `PRE-28`)
 
-At the reference portrait width, metres across are 1080 divided by physical pixels per metre.
-These are calculated starting snap steps, tuned in data after phone review:
-
-| Physical pixels/metre | Width | Navigation |
-|---|---|---|
-| 128 | 8.44 m | person, near source at 2× |
-| 64 | 16.88 m | intermediate near |
-| 32 | 33.75 m | close camp, middle source at 2× |
-| 16 | 67.5 m | intermediate local |
-| 8 | 135 m | wider local, far source at 2× |
-| 4 | 270 m | camp, reviewed 2 px/m art at 2× |
-| 2 / 1 / 0.5 | 540 m / 1.08 km / 2.16 km | landscape and map transitions |
-| 0.125 | 8.64 km | valley |
-| 0.015625 / 0.0078125 | 69.12 / 138.24 km | region |
-| 0.00048828125 | 2211.84 km | whole 2000 km world with margin |
-
-Keep intermediate powers of two without giving each a new mode name.
-Source families are not navigation stops; 32 physical px/m is close camp, not camp.
-Cull the projected north-south footprint, not a square equal to the screen width.
-Near views show individuals, wider ones designed tiny figures, groups and camps; valley and region show real terrain, drainage, vegetation and settlement aggregates.
-These aggregates await the generator and living-world systems, not M1's crowd packet.
-Selection, focus and time survive each change of form.
-Coarse parents remain until detail is ready, with no black holes or synchronous terrain work in a pinch (A4.6).
+Current WIP has 19 internal density stops, 2^-12 through 64, with 160 ms anchored logarithmic settling. Owner found snapping too obvious; no phone acceptance.
+Wide records preserve actual IDs, sorted membership, sampled time/epoch/revision and truthful truncation; limits are 512 rows/8192 members. This does not prove wide art/navigation.
 
 ### A8.4 One projection (`PRE-02`, `PRE-33`)
 
-The camera faces north at exactly 37° above the horizon and never turns.
-East goes right; south comes toward it.
-Let X be local east, Y local south and Z height in metres, after A8.2's origin conversion.
-With a = sin(37°), b = cos(37°) and s internal pixels a metre:
-
-    screen_x = centre_x + s × X
-    screen_y = centre_y + s × (a × Y − b × Z)
-
-Subtract the projected focus too.
-One tested C++ helper owns projection, bounds, shadow endpoints and inverse picking; asset tools follow the same specification.
-At 64 px/m, one north-south ground metre projects to about 38.516 pixels, one vertical metre to 51.113.
-A 64 × 64 ground square is not a 64 × 64 projected diamond; never repeat a rounded 39-pixel pitch.
-Replace the perspective rig's lens, turn and 1.25× zoom maths; keep useful input state and the nearby-origin idea.
-UI hit testing comes before world gestures; pan, pinch and one-thumb controls share one controller.
-A4.1 owns presentation and A6.4 surface-aware picking.
+Camera faces north at 37°, never rotates. For local east X, south Y, height Z and internal density s:
+`x = centre_x + sX`; `y = centre_y + s(sin(37°)Y − cos(37°)Z)`, subtracting projected focus.
+One native helper owns projection/inverse/bounds; art tools follow it. UI hits precede world gestures.
 
 ### A8.5 World map and globe (`PRE-29`, `WLD-01`, `WLD-02`, `WLD-03`)
 
-- **Confirmed by you on 8 October 2026:** retain the 2000 × 1000 km torus, its coordinates, distances and saves.
-  Local camera turning is removed; the overhead map and 2D globe disc are pictures drawn from one shared overview.
-  Polar land compresses only in the globe picture.
-  There is no sphere physics, great-circle routing or save migration.
-- The generated 200 km permanent polar ice barrier and its crossing rules remain world-system work.
-  Wrapping is built; that barrier is not yet generated.
-  Overview geography in M2 is a labelled fixture until M3 supplies real cells.
-- Normalise east/north coordinates as u = east / width and v = north / height.
-  Longitude is 2π × (u − 0.5); latitude is π × (v − 0.5).
-  A disc shader maps these angles around a chosen display meridian onto a unit sphere and shows only the front hemisphere.
-  No runtime 3D globe scene is needed.
-- Use the 2:1 overview as an equirectangular texture: repeat longitude, clamp latitude.
-  Top and bottom rows are different sides of the torus seam; never blend them around a pole.
-  Ice hides the poles; filtering must not draw warm land across the ice edge.
-  At latitude 60° the displayed east-west width halves; true metres do not.
-  Any scale uses model distances and explains the display distortion.
-- Markers use the same forward mapping; taps invert the visible disc to longitude/latitude, then wrapped coordinates.
-  Ignore the hidden hemisphere and keep the selected place through transitions.
-  The globe may centre another longitude without turning local art.
-- Map relief, vegetation, rivers, sea depth, clouds and shadows come from the shared overview and later world state.
-  At ordinary speeds light follows hour and season; at very fast rates A4.3's stable relief rule applies.
-  Rivers keep `PRE-26`'s minimum visible widths.
-- A 2000 × 1000 RGBA8 overview is about 7.63 MiB, a padded 2048 × 1024 one 8 MiB, or 10.67 MiB with a full mip chain.
-  Hold about 8–11 MiB for colour inside the map cache (A18.1); count relief and weather channels too.
-  Measure the disc's incremental GPU time, with an initial goal under 1 ms, not a claimed result.
-  Test seam/pole appearance, markers, inverse taps and zoom transitions.
+Deferred M7 geography/M9 presentation: one 2:1 overview feeds map and 2D globe disc. Repeat longitude, clamp latitude; never blend opposite polar rows. Inverse taps return true torus coordinates; no sphere routing or save migration.
 
 ### A8.6 Time by zoom (`TIM-01`, `TIM-04`, `TIM-15`)
 
-Keep the existing data-driven person, close-camp, camp, valley and region speeds and pace controller.
-Zoom may change requested time speed, never simulation detail or unseen minds.
-World and globe speed use sustainable simulation capacity.
-Leave the full future priority order possible: pause, skip, manual dial/lock, story director, then zoom.
-The director and intervention controls remain later work.
-Determinism is checked at equal simulation seconds, not equal real durations (A4.8).
+Keep existing pace data and request precedence: pause, skip, manual/lock, director, zoom as consumers arrive. Zoom changes requested speed only. The first power is M2; the director remains later.
 
 ### A8.7 Budget
 
-Measure each zoom and cold/warm transition on both phones (`PLT-04`).
-A18.1 keeps the frame, heat, memory and opening lines.
-The camp in dense woodland with water, fire/smoke and weather retains the conservative 6 ms mean GPU line; a six-object fixture alone does not prove it.
+A18.1 owns graphics lines. Measure real busy camps, not only six-object fixtures; broad comparisons wait for their consumer and available device.
 
 ### A8.8 Replacing the M2 fixtures (`PRE-03`, `PRE-29`, `PRE-30`)
 
-M2's α2.9a supplies caches/streaming and α2.10a supplies overview/disc mapping.
-M3 adds a generated-world provider behind those inputs; retain fixture providers for regression tests.
-No new GDExtension, second world loop or second snapshot consumer is required.
-Confirm the actual merged M2 interfaces at implementation start, before relying on their published contracts.
-
-Within about 300 m of focus at camp zoom inward, request full picture detail.
-Out to about 10 km, draw coarse area ground and real cover.
-Farther away and from region out, draw world cells and shared overview levels.
-The request scheduler derives coverage from the projected portrait footprint plus height, overscan and shadow reach, not a fixed count of near squares.
-Parent geometry remains visible until its children are ready and uploaded; detail fades in within about a second, with no generated work in a gesture callback.
-
-Overview channels include elevation/relief, surface material/biome/cover, sea depth, fixed river geometry, snow/ice and weather.
-Reduce categorical fields by a declared dominant/coverage rule; never interpolate material IDs.
-Rivers remain vector/coverage features with the minimum two screen pixels `PRE-26` asks for, even when physically narrower.
-This is an explicit visual width, not extra water or a wider ford.
-Coasts and lake surfaces come from the same water and ground query as close views.
-The globe repeats longitude, clamps latitude and hides the seam under the generated permanent cap.
-Map, disc, markers and inverse taps share one mapping; local art always faces north at 37°.
-
-Light receives the physical sun/moon/cloud state.
-At rapid game time retain M2's presentation-only stable relief light; frost, rain, melt and physical daylight remain real state.
-A static overview can cache albedo/relief; it cannot bake yesterday's cloud or water animation into immutable ground.
+M2 connects real camp records to existing providers. M7 adds generated land behind that interface; preserve fixtures for regressions and one snapshot consumer.
+Full detail within 300 m/coarse ground to about 10 km/overview beyond remains deferred. Parents stay visible; no generation in gestures.
 
 ### A8.9 Cliffs, caves and the geological slice (`PRE-23`, `PRE-24`, `PRE-25`)
 
-A single generated surface provider supplies floor height, cliff cap/face, shelter floor/back/roof/opening and deep-cave entrance/interior records.
-Their normals, water intersections, foot contacts, picking and shadow receivers agree.
-M2's ordered surface pieces remain the rendering method; split occluders across tile edges rather than sorting each tile alone.
-Shallow roof reveal retains physical obstruction.
-A deep cave uses its separate view; arbitrary stacked overhangs remain out of scope.
+Deferred M7: one surface provider feeds drawing, feet, water, picking and shadows. Sections sample actual rock/soil/water/cave/dated records with declared scales/width; a synthetic buried object cannot prove a 200-year historical camp.
 
-The geological cut-away is a separate 2D section panel, chosen by two points/a dragged line on the land view.
-It samples the same rock contacts, soil thickness, cave voids, water-table head and dated deposits used elsewhere, then draws them against distance and depth.
-Show true horizontal distance, a depth scale and any declared vertical exaggeration.
-Use local unwrapped coordinates for a section crossing the east-west seam; a polar-seam crossing stops at the barrier.
-Sample feature intersections analytically or at their certified bounds so a small cave is not missed merely by a coarse section step.
+## A9. Living things
 
-Groundwater is drawn as saturated material/head, not an invented open underground lake.
-Actual cave pools use their own water surface.
-The line's finite inspection width is displayed, and objects included within it keep their real depth and projected distance; no grave is moved onto the line to improve a picture.
-M3 can prove rock/soil/water/cave sections and a labelled synthetic buried-record fixture.
-The 200-year camp acceptance uses M4's actual traces when available; a synthetic tool is never described as a generated historic find.
+M2 needs real scoped supplies and bounded renewal, consumed exactly once. Later species/biome/ecology obligations remain in PROJECT: M7 supplies physical habitat inputs; M8 completes living ecology and settling. Camera-near is never person-near.
 
-## A9. Living things, outline
+## A10. People: bodies and lives
 
-- Each species is a catalogue entry: climate and soil ranges, seasons, size, diet, group size, yields, life cycle, art-kit form and colours (`WLD-31`, `WLD-32`).
-- Plants by ecology: which types can grow from BIOME1's numbers, which win by dominance, how dense by competition and self-thinning; single plants placed from that density by keyed chance, so a place always grows the same plants (`WLD-13`).
-- Animal numbers by Damuth's law: each species' natural density from its body mass, a sixth of it per cell (`WLD-30`); predator and prey rules on the cells' totals, driven by the weather (`WLD-18`).
-- Herds' days by need zones and hours, their years by following the green-up, their movement by Reynolds' steering rules plus those goals.
-- Near people, individuals; far away, counts, with condition and wariness carried both ways (`WLD-32`).
-- *Proved in pre-production* (P9): these rules on the cells' totals held every species within 0.66 and 1.10 of its total for a century in 20 worlds.
+M2 adds stable people, hunger/thirst/fatigue, senses and eating/drinking/resting through Activity events. M4 adds scoped care, generations and consequences; M8 finishes the remaining body catalogue.
+Use PROJECT's demographic and birth-spacing targets; old architecture estimates are not alternate tuning targets.
 
-## A10. People: bodies and lives, outline
+## A11. Minds
 
-- Needs as levels that run down at their own rates, and things and places advertise what they offer, as in The Sims (`BIO-09`).
-- Energy by real numbers, by body size and activity; food values from the catalogue (`BIO-10`).
-- Wounds by body part and layer, with bleeding, pain, disabled limbs and infection per wound (`BIO-13`); illness as a race between severity and immunity, care slowing severity (`BIO-05`, `BIO-23`).
-- Births by biology: fertility from age and nourishment, gaps from breastfeeding (`BIO-15`); inheritance blended with variation, rare traits passed by chance (`BIO-06`).
-- Whole worlds must land near foragers' real numbers: about half of children reaching 15, adult deaths peaking near 70, three-year birth gaps, illness the main cause of death (`RES-14`, `BIO-04`).
+M2 chooses among known reachable actions from data-defined needs/affordances and retains actual reasons for inspection. Per-person knowledge has source/date; choices cannot read unknown world truth.
+Decide at action ends/interruptions, not frames. Save memory, pending actions and dream influence. Add planning/social depth only with the M3–M5 consumer; M8 closes remaining obligations.
 
-## A11. Minds, outline
+## A12. Crafts and discovery
 
-- **Choosing by utility:** every known action is scored by data-driven response curves against needs, personality, mood, plans and beliefs, and drawn by keyed chance among the best; the top reasons are kept for the card (`MND-09`, `PRN-13`).
-- **A small planner on top** for jobs of several steps, each step re-checked by utility, so people still react to a wolf.
-- **Decisions only when an activity ends or is interrupted,** never per tick (A3.3), spread over threads in fixed chunks.
-- **Feelings by appraisal; mood as summed thoughts** with thresholds moved by traits; memories at three depths that can change personality, with a date (`MND-19`, `MND-29`, `MND-30`, `MND-18`).
-- **Knowledge per person with its source:** seen, told by whom, worked out; beliefs can be wrong, misremembered or spread by talk, and choices read only this, never the world's truth (`PRN-01`, `MND-02`, `MND-23`).
-- **Opinions move in talk;** social acts and norms are data rules over relationships and personality (`MND-33`, `CUL-24`).
-- **Paths in levels:** connected regions, then cached cluster paths, then A* or flow fields inside clusters, recomputed only where the land changes.
-- **The estimate:** a thousand people at a game year a real minute is about 48,000 decisions a second, some 80 µs each on four cores, before bodies, talk and paths (`TIM-07`, `MND-15`).
-  *Measured in pre-production* (P6): about 32,000 decisions a game day for a thousand people, 6.0 game years a real minute on your phone's four cores; fuller minds may cost about 2½ times as much before the speed falls below 2½.
+M3 implements one generic characteristic/blueprint chain, flaking then fire, with material conservation, actual discovery/observation and learning. Blueprint names cannot replace predicates.
+Keep `RCK` evidence and `MAT-17` valid/invalid fits; no scripted discovery dates. Later chains/catalogue and full pace acceptance remain M8/M10.
 
-## A12. Crafts and discovery, outline
+## A13. Culture
 
-- An item's 18 characteristics come from its material and form, and made things inherit from their inputs (`MAT-03`).
-- Blueprints match characteristics and classes, never names (`MAT-04`, `PRN-07`), fenced by the expected-fits check (`MAT-17`).
-- Every reality rule has a real experiment behind it, cited in its catalogue check (`RCK-01` and the rest of section 7.6).
-- Quality from skill and inputs (`MAT-20`); skill grows by the power law, a few years to competence and five to ten to mastery (`MND-06`); teaching beats watching (`MND-13`).
-- Discovery belongs to people: accidents, personal hunches and copying found things (`MND-11`); crafts die with their last holder and return only by rediscovery, neighbours or copying (`CUL-02`, `CUL-16`).
-- *Proved in pre-production* (P4): tuning alone, with the world's own rules, brings flakes and fire into their windows; each blueprint's discovery factor lives in its catalogue entry and is re-tuned with the whole catalogue (`RSK-01` stays open until M7).
+M5 proves knowledge/relationships between two camps; M8 finishes culture. Names use supported font letters. No scripted historical outcomes; retain actual causes and individual holders.
 
-## A13. Culture, outline
+## A14. Story, the book of ages and the writer
 
-- A naming language per people from the seed, in O'Leary's way, spelled only with letters the pixel font has (`CUL-17`, `CUL-18`).
-- Customs as fixed questions with a few answers, each answer from a band's own cases (`CUL-06`).
-- Beliefs and rites from coincidences: the act before a good outcome becomes a rite, harm after an act a taboo (`CUL-05`, `CUL-20`, `CUL-34`); small bands keep vivid, rare rites, large villages regular ones (`CUL-26`).
-- Societies with real numbers: bands of about 28 adults, a few families linked by kin and marriage; leaders kept in check; gifts as insurance; villages only where stores allow (`CUL-30`, `RES-07`).
-- Violence in its real order: personal killings and revenge first, raids growing with stores (`CUL-31`).
-- Stories and gossip drift as transmission chains do; styles drift by copying with small changes (`CUL-11`, `CUL-12`).
-- *Proved in pre-production* (P10): customs, spirits, rites and splits came from events alone, each inside its window in most of 20 worlds.
-
-## A14. Story, the book of ages and the writer, outline
-
-- **The director** keeps Left 4 Dead's rhythm without its power: peaks, then a guaranteed rest; it reads the world and sets only speed and live moments (`TIM-02`, `TIM-03`).
-  A test runs a world with it on and off and compares the results.
-- **Recognisers** are story-sifting patterns over the event log; half-matched ones are the director's signs, so time slows before an outcome without looking ahead (`PRE-39`).
-- **Pattern sentences:** a small grammar, at least 5 phrasings for each kind of event, picked by the event's seed and filled from its records (`PRE-37`).
-- **The writer:** Gemini Nano through ML Kit's Prompt API, with a fixed seed, sentence by sentence, behind the Android plug-in; it writes only while the app is in front, queues and backs off, and stops for the day at its battery quota.
-  Every rewording passes a strict check without any model, and dark events never reach it (`PRE-41`, `PRE-17`); pattern text always works alone.
-  Its second option is ML Kit's Rewriting API ("Rephrase"), and its fallback a small Gemma through LiteRT-LM.
-- *Proved in pre-production* (P11): the director slowed time 9.5 times an hour within its budget and caught every named discovery, and every world ended identical with it on and off; signs are scored by how often they come true.
-- *Not proved:* P13 was left unbuilt when pre-production closed; the writer is proved when M9 builds the book, and pattern text stands alone until then (`PRE-37`).
+M3 starts event-backed history; M6 finishes the small book with pattern text. Director changes speed/moments only, never outcomes. Optional later writer only rewords verified records (`PRE-37`); no provider/API is selected here.
 
 ## A15. The interface
 
-- **The world fills the screen;** panels show only what the moment needs, then fade (`PRE-32`).
-- **One column of panels:** full width with controls in the bottom third in portrait, beside the world in landscape (`PRE-34`).
-- **Every control at least 48 dp,** with 8 dp between.
-- **Our own gesture reader on raw touches,** so all gestures share one rule set and a scripted test can tell them apart; edge swipes stay out of the system's gesture insets (`PRE-33`).
-- **One Godot theme,** its palette chosen with you when the interface is built.
-  The plain pixel font for everything read, at whole multiples of its design size, nearest filtering and no subpixel positioning; the pixel handwriting only for big titles, at twice the size.
-  The layout is built on a square base, so both orientations scale alike; safe areas and cutouts come from `DisplayServer`.
-- **Cards open to what matters now,** with deeper sections folding out (`PRE-35`); screen-reader labels come with Godot 4.5's support.
-- *Built in pre-production* (P12): art pixels at a whole multiple of the screen's pixels, the pixel fonts, one gesture reader and every control within reach; your verdict on reach, legibility and the panels' ground is still to come.
+World first, truthful person cards, pause/speed, save/world controls and one indirect dream in M2. Diagnostics remain behind a developer menu.
+Use one gesture reader/theme, safe insets, ≥48 dp targets with 8 dp gaps and both orientations.
+Current bitmap font has 135 glyphs (ASCII 95 included), base 16/line 20/baseline 15, integer physical sizing and retained licence/provenance. Arbitrary Unicode lacks coverage; the Japanese probe aliases a question mark. Production fallback remains unresolved.
+Deferred layout batching avoids the previous quadratic catalogue freeze.
 
-## A16. Sound, outline
+## A16. Sound
 
-- Ambience as layers from the place's land, water, weather, hour and season, plus one-shots only from real things near the camera (`SND-11`, `PRN-10`).
-- The 44 base sounds made by our C++ at load and varied each play; live synthesis only for what follows the world continuously, such as fire by its heat (`SND-06`).
-- Godot audio uses world-space direction and distance relative to the fixed view, with low-pass for distance and cave reverb; muffling by land comes from the simulation's line test (`SND-08`).
-  The 2D picture does not flatten sound distances or require a runtime 3D camera.
-- A voice manager keeps `SND-01`'s 32 voices, blending the quietest into its kind's hum when a share is full (`SND-07`).
-- The murmur in the people's language, shifted for age, build and feeling (`SND-03`); the speaker's missing bass restored by harmonics, off with headphones.
-- *Built in pre-production* (P14): in the cloud, 32 sounds at most with the mix at 2.7% of the audio thread's time; a 3D sound world needs a camera to sound; your ears and Measure are still to come.
+M3 introduces sounds from actual action/fire; M9 completes sound obligations. World-space distance survives a 2D picture. Keep the 32-voice bound; full mix, language murmur and phone cost are unproved.
 
 ## A17. Testing and checks
 
+Keep existing routine/delivery/audit policy pending any separately approved process change; IMPLEMENTATION.md owns delivery instructions.
+Routine tests cover native/view/app/tools, accepted deterministic proofs, catalogues and document/coverage checks. Audit adds compiler/architecture/thread/sanitizer/kill/repeat/render stress and runs at stage close or affected foundation changes.
+ID annotations locate evidence; they do not certify full acceptance. Old-save/corruption/determinism regressions remain mandatory.
+
 ### A17.0 Traps met so far
 
-- **Godot:** Movie Maker records at the project's window size, set by an `override.cfg`; a rendering driver named on the command line brings Forward+ unless the Mobile renderer is named beside it; Godot 4.7 can abort as it exits after importing new files in the cloud, and a second import exits cleanly; the headless audio driver mixes, but a picture or a 3D sound needs a camera; `call_deferred` from a worker and `WorkerThreadPool` tasks are each waited for exactly once; a control's own `_draw` lies behind its children; a wrapping label measures itself at zero width until laid out, so panels are sized by containers.
-- **godot-cpp:** a method that takes a native structure appears only if the build profile names the structure; `OS` is needed by its own printing; a local class cannot hold a member template.
-- **The phone:** the screen runs at 120 Hz unless capped again at run time, since Godot sets the cap before the swapchain exists; the chip lowers its clock with time to spare, so its milliseconds are partly idle; Android forecasts heat only while asked within the last 10 s.
-- **The cloud:** the software Vulkan driver can crash on some shaders at some angles; waits are loops with a time limit; heavy jobs run one at a time.
-- **C++:** no fast-math, no contraction, our own transcendental functions; clang-tidy's analyzer misreads doctest's own strings as leaked in some tests.
+- Direct Examples startup currently hits parent-busy `add_child` and blank rendering; main-scene navigation works. Test both routes.
+- Fresh import showed missing bitmap-font resource and generated script UIDs; a second import succeeding is not clean-import reproducibility.
+- Movie Maker uses project/override window dimensions. Assert actual viewport size; naming a driver alone can select Forward+ unless renderer is also named.
+- Headless input drops touch events; use the display-backed harness. A control draws behind its children; wrapping labels need container layout before measurement.
+- Reapply the runtime frame cap after swapchain creation; the phone otherwise stayed at 120 Hz. Thermal forecasts require regular polling.
+- Keep all save/sample I/O on the keeper thread: competing direct writes previously caused a real race.
+- Retain regression coverage for off-screen shadows, underwater clipping/picking, separate trunk/crown order, grounded flames, real-time mask throttles and final bed order. Semantic captures clear to ID zero.
+- Art reductions must preserve singleton coverage at 1×1; preparing cached winter inputs must not overwrite repaired outputs. Trace exposed bark locally; a global low-chroma classifier greys leaves.
 
-- **C++ tests** with doctest, and property tests with RapidCheck for rules that must always hold, such as no result heavier than its inputs (`MAT-09`).
-- **Scenes and whole worlds** run by the C++ library alone, through the `kindling` tool, many at once in the cloud: each scene is a TOML file in `data/scenes/` stating, before its first run, the items it checks, its seed, its runs, its time limit, its budget and its pass rule, counted over about 20 runs where chance matters (`RES-21`, `RES-09`, `RES-13`).
-  A run keeps checkpoints and resumes from the last as if it had never stopped (`PLT-05`); a run with a test switch says so in its report and its world (`RES-10`).
-  - *Built in α1.5a:*
-    - **Scenes** (`kd/scene`, `data/scenes/`): a scene's file states the items it checks, its kind of world and size, its first seed, its runs, its game time, its time limit and budget, its test switches (every run all of them, or one each in turn), its pass rule, the ranges it expects and the rules it must never break.
-      It is read through the catalogue's loader, so a mistake is named at its file, line and column, and its measures and rules must be ones its kind of world offers: the crowd's are the greetings, the greetings a camp a day, the farthest any marker strays from its camp, and the most awake at midnight.
-    - **Runs** (`kindling scene`): each run is a world in a process of its own, as many at once as the cloud has cores, kept in a folder of its own under `build/scenes/<scene>/` with a checkpoint and that day's sample at each game day's end; a scene stopped and run again takes the runs that ended from their results and resumes the rest from their checkpoints.
-      A run's measures come from the history its folder keeps and from its days' samples, so a resumed run counts exactly as an unbroken one.
-      Its samples go through its keeper's I/O thread, like everything in a kept folder (A3.7): written straight to the folder, they raced the history's writes, which the C library caught once as a damaged heap and the thread checker then named.
-    - **Judging** (`RES-13`): the rule counts the runs that meet it, a run that gave no measure failing it; a rule that fails on 20 runs or more runs as many again on fresh seeds and is judged on all, its count scaled and rounded against passing; fewer than 20 runs judged are provisional.
-    - **Oddities** (`RES-12`): a measure outside its expected range; a never rule broken, named at its first day; a crash, by its signal; a run over its time limit, stopped; memory that creeps up by more than 32 MB over a run; and a last save that does not open again as the world was.
-    - **Test switches** (`RES-10`): compiled only into the simulation's own build for its tests and tool (`KD_TEST_SWITCHES`), never into the game's, which the flags scan checks.
-      A world's switches are part of its clock's chunk (version 2; older saves are upgraded to none) and of its digest whenever it has any, and its `world.toml` marks it as a test's world with them, which the Worlds and Crowd pages show; the game reads a test world's switches but never turns one on, so such a world carries on there without them.
-      One switch turns greetings off; six each plant a fault for the checks to find.
-    - **Reports** (`RES-06`): `report.json` beside the runs holds the scene as stated, its rule in words, the verdict, the real time against the budget, the version its worlds were saved under, each measure's range over the runs (lowest, middle, highest, and in how many runs its expected range held), and each run with its seed, switches, measures, oddities and digest.
-      Each build runs the scenes in `data/scenes/` under the app's own version and puts each report in the game's data, with the world of its first odd run, or else its first, as a `.kindling` file; the Reports page shows each with a chart of every measure, drawn to scale, and opens that world, imported once, as a test's world exactly as it ended in the cloud.
-    - **The audit checks** (`tools/scenecheck.py`, in `tools/check.sh --audit`): every scene passes with no oddity; the planted scene (`sim/tests/scenes/planted.toml`) flags each of its six faults and nothing else; a rule that fails once is judged on 40 runs; and the repeat check runs the greetings scene on one core and on four, stopped once some runs are done and another is days in, then resumed, and keeps the benchmark world of 10,000 markers two game days on one core and in islands of one-minute windows on four, stopped after its first day and resumed; their reports, histories, journals, samples and end states must match byte for byte.
-    - *Measured in the cloud:* the greetings scene, 20 worlds of 4 camps over 20 game days, in 0.6 s on all cores and 1.6 s on one; the benchmark world's two game days in 0.8 s on one core and 2.7 s in islands on four, as α1.3b found for the crowd's light events; the scene check in about 7 s.
-      Islands of hour-long windows join nearly every marker into one island and cost far more, since each marker's circle then covers hundreds of 250 m cells and every pair in a cell is tried: forming islands needs the cheaper joins A3.3 names before minds use long windows (M6).
-- **The same results everywhere** (A3.4): seeded worlds on the five builds, on one to four threads, with islands of several window lengths, stopped, saved, reopened and resumed; libc++ with its tie order randomized, and the order fuzzer scrambling EnTT's pools; every digest must match (`RES-05`).
-  The check also reads the compile commands for the last floating-point flag and unsigned `char`, scans our built code for fused instructions and for the platform's maths functions, holds the maths library to MPFR's correctly rounded answers, and checks the banned list on the code's syntax tree, each rule proved by a planted use.
-  The phone's compiler builds the proof suites twice more with libc++'s order of ties randomized under two seeds, and their digests must match too.
-- **Saves:** the headless tool killed at random a hundred times mid-run, each reopening carrying on exactly (`PLT-07`); damaged files (cut, a flipped bit, zeros) refused; the corpus of old worlds opened by every build (`PLT-09`).
-- **Catalogues:** a test catalogue with one planted fault for each check, each refused at its file, line and column (`MAT-17`).
-- **The Godot side** with gdUnit4: layouts, cards and views opened from records, headless; gestures by simulated touch under Xvfb, since Godot's headless mode drops input events.
-  Every script is compiled before the tests, so an error in one no test loads still stops the check.
-- **Pictures and reels** by Movie Maker mode at a fixed frame rate: golden pictures in the cloud; the contact sheet and the sound reel on the phone for your reviews (`PRE-31`, `SND-12`).
-  - From M2, the look's own checks (shimmer, the texture pixel's size, banding, ground accents, people against their surroundings, savings invisible) and the loop that runs them are A4.8's and A5.5's.
-  - Movie Maker records at the project's base size, so a single picture at the phone's 1344 × 2992 pixels is read from the screen by our script (`tools/picture.sh`).
-  - A rendering driver named on the command line brings Forward+ unless the Mobile renderer is named beside it.
-- **Phone measurements:** the in-app benchmark (A18.1), its frames by our own measure, its result in a short code; trace sections that the phone's own System Tracing records beside the chip's speed and heat, with no computer; Android GPU Inspector for a slow frame on the PowerVR chip, if ever needed (`PLT-04`).
-- **Routine checks before joining:** `tools/check.sh` runs formats, GDScript/Python/shell lints, the host simulation and extension builds and tests, all accepted M1 proof suites on one and four threads, catalogue validation, Godot import and script compilation and tests, tool tests, and file, commit and coverage checks (`PRC-10`, `PRC-12`). `--deliver` also checks the note and the committed APK's checksum, release signature, version and packaging. It does not export and sign a second copy of an already built release.
-  - **Separate audit:** `tools/check.sh --audit` adds GCC's undefined-behaviour checks, both emulated arm64 compilers, the thread checker, randomized tie order, the 100-moment kill test, scene and repeat stress runs, native flags and object scans, C++ lint and banned-code analysis, the full Godot scenario benchmark, and software-rendered area, calibration and shimmer capture suites. With `--deliver` it also tests a separate export with a throwaway signing key. Run the audit before a milestone closes and when a change to simulation arithmetic, threading, persistence or compiler settings needs its evidence; it is not a gate on unrelated coding or every APK. Known failures still require resolution.
-  - This shorter delivery path was approved on 8 October 2026. The old run took 23 minutes 17 seconds on that date, including 1,385 seconds in its native test/lint side. The new path keeps accepted M1 digests unchanged; moving evidence to the audit is not a claim that it ran in a routine check.
-  - Builds use ccache; unchanged native tests and Godot import/tests reuse content fingerprints. Native tests run beside Godot/tool tests, and each side reports elapsed time. Phone frame and heat acceptance remains on the actual phones (A18.1).
+### A17.1 Generated-world proofs (`MIL-14`, `RES-05`, `RES-21`)
 
-### A17.1 Generated-world proofs (`MIL-10`, `RES-05`, `RES-21`)
+Deferred M7: add stage digests, structural/natural-rate scenes and camera/cache/catch-up equivalence. Preserve M1 proofs and old saves; test barriers, river continuity, conserved stores and canonical placement with actual failure cases.
 
-- Pin new canonical stage digests for small generated worlds and a bounded full-world sample on all existing compiler/architecture builds, with one and four workers, reordered tasks and resumed stages.
-  M1 proof digests remain unchanged.
-- Add generated-world scenes to the existing scene kind/measures registry, with declared runs, seed sets, time limits, session-hour budgets and pass rules before tuning.
-  Full seed sweeps run in the background; small structural scenes remain quick checks.
-- Plant faults that reverse a river edge, erase a real basin, cross the polar seam, change a border sample, consume chance by load order, miss a revision, lose an in-flight flood or accept an ore without provenance.
-  Each intended check must first catch its fault.
-- Compare equal game seconds with camera absent, still, touring, entering caves and slicing, with cache eviction and different speed requests.
-  Saved physical state, journals and digests match.
-- Resume a kept area daily and after a season, with view-only copies made on arbitrary days; end state and cell-accounting deltas match.
-  A view-only request must not change a save byte or ID counter.
-- Test saves during storm motion, flood promotion, warning/eruption, catch-up and generation cancellation.
-  Export/import, old-world corpus and kill/recovery preserve state and logs.
-- Geometry statistics and Earth-reference diagnostics support the owner's review; they do not decide whether the landscape looks right.
-  The full acceptance matrix is in IMPLEMENTATION.md under M3.
+Retained gate details from the previously adopted world plan apply at M7's physical-world consumer and M8's complete ecology/settling consumer, not M2/M3. PROJECT's numerical checks also remain; these details fix denominators and stricter checks absent there. No test sample is silently reduced. Initial session-hour caps require checkpoints and an overrun report, not a claimed pass.
+
+| Gate | Additional retained check | Initial budget |
+|---|---|---|
+| G1 terrain | 100 final land/tilt seeds: ten equal bins each represented; 20 fresh worlds all pass geometry. Rivers enumerate every ≥50 km² channel independently of registration, split only at headwaters/confluences/terminals; missing geometry fails. Coast straightness: >22 km staying within 500 m of endpoint chord fails. Primary slope uses 1 km central differences on land excluding permanent cap; report cap and 25 m/1 m slopes separately. Lake fraction denominator is dry land plus freshwater lakes, excluding permanent ice. | 2 session-hours |
+| G2 geology | 20 rock/100 deposit worlds, no invalid occurrence. Independently check causal envelopes, hosts/exposure/provenance; matched stones never become less rounded with longer routed transport. | 4 hours |
+| G3 candidates | 100 roots, all first 20 candidates fully qualified offline: ≥25% of 2,000 qualify; report each root, not only finalists. Paired replay preserves offered order; biological confirmation awaits real yields/lives. The former 2–5 frost-night interpretation remains proposed, not a new decided requirement. | 8 hours |
+| G4 climate | Every place in 20 worlds ×20 years; report near-zero rain cells with the approved allowance of one stored precipitation unit over the whole run. Matched warmth target ±2°C/outer ±2.2°C; independent rain-shadow/coast checks. | 2 hours |
+| G4b natural rates | Reuse 20 worlds ×100 years; ≥1,000 eligible cases per kind/climate for storms, lightning, drought, floods and harsh winters, plus wildfire when supported. Freeze references, thresholds, de-duplication, exposure and short-year conversion; no pooling away a failing climate or counting injected events. Check the dry-spell envelope's 5% exceedance with RES-13; source flash-to-ground-strike conversion separately. | 2 extra hours |
+| G5 sky/hazards | Sky direction error ≤0.1°, daylight ≤2 minutes in nonsingular cases; explicit polar cases. 20 worlds ×100 years: zero barrier crossings, valid hazard locations/origins/cooldowns, ≥1,000 opportunities per kind with RES-13 shares (rare shares half-to-double). Universal eclipse certification is removed by owner approval. | 4 hours |
+| G6 areas/water/sections | 10,000 shared edges exact; 20 kept-area daily/season catch-ups exact; at least 16/20 natural valleys meet declared flood/spring behaviour, subject to RES-13 reruns. Section sample values exact; zero camera-caused save changes. | 2 hours |
+| G7 phone | ≥3 minutes held load, unplugged; freeze 20 ordinary roots plus 5 fallback roots. Include settling for each. Area/detail/open target/outer limits: 0.1/0.11 s, 1/1.1 s, 3/3.3 s. Every minute of 20-minute route meets frame line; ≥10 world-alone game years/minute on two middle cores; every digest matches cloud. Repeat as ecology/bands arrive. | Generation suite separately about 100–110 minutes plus setup; resumable |
+
+G7's 50-ms-late rule means maximum frame duration 66.7 ms at 60 fps or 83.3 ms at 30; retain the separately stated graphics line in A18.1 until reconciled by measured acceptance. Train on named seeds, close on fresh ones, retain failed samples under RES-13.
 
 ## A18. Budgets and risks
 
 ### A18.1 Budgets
 
-As measured on your phone in pre-production, each re-measured at every milestone (`PLT-04`):
-- **Frame:** 16.7 ms at 60 frames a second, the graphics chip within an 8 ms planning line in the busiest close scene, so heat leaves room; at least 97% of frames on time while moving the camera (`PLT-04`).
-  - Pre-production measured its low-resolution picture: the close camp (P1) 99–100% of frames on time at 60, the chip about 10 ms a frame, partly idle; a camp at night with thirty figures and three fires (P2) 5.5 ms of the picture's pass at 120; the model sheet with fire shadows and smoke (P3) 4.3 ms at 120.
-    These are prototype results, not proof of the new 2D art, surfaces or shadows; M2 measures those afresh.
-- **The 2D graphics engine:** planning limits, not phone results.
-  State every scene's pass lines before its first run (`RES-09`).
+These existing graphics lines remain obligations to measure when their consumer exists, not results or a matrix for every delivery:
 
-| Measure | Initial line |
+| Measure | Line |
 |---|---|
-| 60 fps | 16.67 ms frame interval; GPU mean at most 8 ms, p95 at most 9.5 ms |
-| Main thread | mean at most 8 ms, p99 at most 12 ms |
-| Frame delivery | at least 97% on time, slowest frame at most 66.7 ms; report the full distribution |
-| Busy woodland camp | conservative GPU mean at most 6 ms, with an explicitly 2D fixture |
-| Draws | initial diagnostic ceiling 300; distinguish canvas batches, native UI and off-screen passes |
-| 30 fps mode | 33.33 ms interval, same world grid and readable native controls |
-| Sustained heat route | 20 minutes; whole-phone mean at most 4 W; battery at most 40 °C at the end; thermal status none; each minute meets frame delivery |
-| Heat headroom | 10-second forecast below the light threshold minus 0.05 where readings exist |
-| M2 fixture application memory | at most 1 GiB; M3 uses A18.3 |
-| Opening | textures prepared within 10 s after install; warm world open within 3 s |
-| Streaming | bounded jobs and bytes; decode and uploads inside the frame budget; no gesture-time generation |
+| 60 fps | 16.67 ms; GPU mean ≤8 ms, p95 ≤9.5 ms |
+| Main thread | mean ≤8 ms, p99 ≤12 ms |
+| Frames | ≥97% on time, slowest ≤66.7 ms |
+| Busy woodland camp | GPU mean ≤6 ms |
+| Draw count | initial diagnostic ceiling 300 |
+| 30 fps | 33.33 ms, unchanged world grid |
+| Sustained route | 20 min; mean ≤4 W; final battery ≤40 °C; thermal status none; every minute meets frame line |
+| Opening | texture preparation ≤10 s after install; warm world ≤3 s |
+| Fixture process memory | ≤1 GiB; generated world ≤2 GiB; full-game PROJECT limit unchanged |
 
-  - Initial sampled-texture proposal: 128 MiB, split as 48 MiB maps, 48 MiB sprite/material pages, 16 MiB generated ground and 16 MiB masks.
-    The globe colour overview's 8–11 MiB is inside maps; extra relief/weather channels are counted there too.
-    These partitions are starting budgets to measure, not new owner limits.
-  - Count render targets separately: one 540 × 1200 RGBA8 target is about 2.47 MiB, two about 4.94 MiB before extra formats.
-    Initially reserve up to 32 MiB for targets and 4 MiB for bounded CPU upload staging; measure actual formats and peak overlap.
-    Shared base art and A8.1's small pieces keep near ground bounded.
-  - Prepare used shader/material variants before drawing; later compilation stalls are faults to fix.
-    Record CPU, GPU, resident bytes, upload/decode costs, frame distribution and measurement method.
-    No average alone proves frame pacing or thermal stability.
-  - Compare Compatibility and Mobile at 60 and 30 fps on the owner's Pixel 11 Pro XL and one named weaker phone.
-    Record model, RAM, display mode, OS, renderer, driver and thermal readings.
-    Missing counters are unavailable evidence.
-    Prefer cheaper visual passes and 30 fps before changing approved detail; simulation density is never reduced.
-  - Preserve the seven-person day scene and three-fire night comparison, the thirty-person camp in dense woodland with water/fire/smoke/weather, a separate crowd stress case, map streaming and repeated pinches.
-    Use approved initial actions, then expand the activity review with the catalogue.
-    State counts and visible area; six objects alone are not a busy camp.
-- **Simulation:** up to the four middle cores at held speed (`PLT-01`): a thousand simple minds at 6.0 game years a real minute (P6), so production's fuller minds have about 2½ times P6's cost before `TIM-07`'s hoped-for speed falls.
-- **World generation:** historical P7 measured three worlds in 9.3 s and settling in 6.5 on your phone. Production M3 must meet A18.3; these prototype measurements do not prove it.
-- **Sound:** 32 sounds at about 3% of the audio thread's time in the cloud, 9% at worst (P14); the phone's figure to come.
-- **Power:** about 3 W while playing; **memory:** within about 8 GiB.
-- **The APK:** 25 MB from Godot itself, 38 MB with every prototype, 27.6 MiB at M1's end; within the 50 MB limit for files committed to the repository (A2.3).
-- **The foundations,** from the cloud, each measured again on your phone by M1's benchmark:
-  - the event queue: 1–4% of one core at `TIM-07`'s speeds;
-    measured in α1.3a, the crowd of 10,000 markers ran 60 game days, 14.4 million events, in 8.1 s on one cloud core: about 0.56 µs an event with its handler and a digest of the whole state each game day;
-    since markers meet and greet (α1.3b), about 1.4 µs in the cloud (5.2 million events in 20 game days, 7.4 s), and about 0.9 µs on your phone's fastest core, which held 4.3 game days a real second at top speed (α1.5b);
-  - drawing 10,000 walkers: about 0.26 ms of the main thread a frame (filling and uploading their buffer);
-    measured in α1.3c, 0.8 ms in the cloud, 1.1 ms for nine frames in ten, placing each walker from its ways and filling sixteen areas' buffers;
-    on your phone (α1.5b), 3.4 to 3.6 ms of the main thread a frame while the camera tours, with every frame on time: well over the hoped-for 0.26 ms, and the first cost to win back as figures replace squares (M2);
-  - loading a launch-size catalogue: 25–33 ms;
-  - a save: a pause of tens of milliseconds to copy the state at an event, the rest on other threads;
-    measured in α1.4a, 3.4 ms for the 10,000 markers in the cloud, with 3.3 ms of compression on the I/O thread; 20 ms at most on your phone (α1.5b);
-  - opening a world: within `PLT-04`'s 3 seconds; 143 ms on your phone, its export 23 ms (α1.5b).
-- **Your phone in M1's benchmark** (α1.5b, 6 October 2026): 99.8 to 100% of frames on time and the slowest 49 ms while the camera moves, at every speed; the heat forecast at most 0.83 of the first throttling level, so time never had to slow; about 1 W at real speed and 5.6 W at top speed, the screen's own share about 1 W; 330 to 410 MB of memory; every scenario's world ending as the cloud's.
-- **Storage** (`PLT-10`): a world of 7,000 people at Year 250 estimated at 3.5–4.1 GB, against 4 GB: its history fits at about 17–30 events a person a game day.
-  - Measured in α1.4b, a record of the history takes 68 bytes as written, too many for that estimate: a year will be compressed as it closes (zlib takes the crowd's to a third) and its records made smaller, when people's lives begin to fill it (M5).
+Deferred full graphics evidence retains seven-person day, three-fire night, a 30-person woodland camp with water/smoke/weather, crowd stress, map streaming and repeated pinches. Compare identical Compatibility/Mobile scenes at 60/30 fps when that renderer work is scheduled and the required phones are available.
 
-- **Calibration and proof history:** reuse the existing data-driven runner, declared lines, switches, timing windows and checked result codes.
-  Add explicitly named 2D variants and counters; retain decoding of historical 3D results against their original definitions.
-  Never reinterpret old triangle, skeleton or MSAA variants as sprite results.
-  Cloud runs prove fixtures draw and counts match; the phone supplies performance evidence.
-  Periodic targets count their last draw cost only for the frames they update.
-  Each disabled-pass comparison includes every active viewport, including native UI.
+Current stream caps: queued 32, preparing 1, input 8 MiB, prepared 64 MiB, staging 4 MiB, resident 128 MiB, targets 32 MiB. Resident partitions: maps 48/sprites 48/ground 16/masks 16 MiB; partitions are planning allocations.
+Ground demand is at most 256 rows over authored 4/16/64 m cells. Count backend residency separately from ticket accounting.
 
-**M1's benchmark,** one tap and about 20 minutes, with the phone unplugged, in flight mode, after it has cooled:
-- the calendar alone at top speed; 10,000 markers at real speed and at top speed, with the camera touring, held speed read after 3 minutes; the same pinned to the middle cores; a sweep through the zoom stops' speeds; saves every 30 seconds with an export and a reopening; a still camera for the screen's own power;
-- for each, its end state's digest against the cloud's, the share of frames on time, the slowest frame, the speed held, heat, battery and power, and memory, in one code.
-- *Built in α1.5b:* the Bench page runs the seven scenarios of `kd::bench::scenarios()`, 17 minutes of them and about 19 in all, each on a page of its own with a world of its own under `user://bench`, apart from yours, and deleted after.
-  - Each world takes its digest as it passes a set game second, and the saves scenario calls a camp home at an exact second: `kd::run::Marked` stops the world's batches there, which changes nothing but where they end.
-    `kindling bench` runs the same worlds headless, and `tools/gamedata.py` writes their digests into the build, so the phone compares its own with the cloud's as it goes (`RES-05`).
-  - A scenario's frames count after its first 5 seconds, with the crowd's own drawing time on the main thread; its heat, battery, memory, the fastest core's clock and the speed are read every 2 seconds, the speed over its last minute, after 3 minutes at top speed; and a world that has not reached its mark by the end runs on to it with the screen still.
-    The sweep's world takes its digest at day 30, after its fastest speeds.
-  - The pass lines, stated in the scenarios before the first run (`RES-09`): at least 97% of frames on time and the slowest at most 66 ms where the camera moves, a world reopened within 3 seconds, and every digest the cloud's.
-  - The code (`kd::bench`): layout version 2 (version 1, the first build's, read its speeds earlier and marked the sweep at its start), 103 fields in 1054 bits with a CRC-24 (OpenPGP's), 218 letters of Crockford's base32 in groups of five; `kindling bench decode <code>` reads it and holds each measure to its line.
-    Run a hundred times faster in the cloud, every scenario's world ends as the headless one's.
+Retained deferred visual lines: ground accents about 20 and ≥90% of near at each resting band; repeat correlation ≤0.2; median person salience about percentile 80, none below 70. These calibrate against owner verdicts, not substitute for them.
+Small-hearth light halves around 2 m and reaches a tenth around 3.25–4.25 m. Globe incremental GPU goal <1 ms is unmeasured.
+
+M1 phone evidence only: 10,000 markers, 99.8–100% on-time frames, worst 49 ms, 330–410 MB, about 1 W real speed/5.6 W top speed; snapshot copy ≤20 ms, open 143 ms. These are not proofs of minds or the 2D camp.
+History's current 68-byte records threaten the full 4 GB target; measure actual lives/history before compacting, preserving permanent events.
 
 ### A18.2 Risks
 
-| Risk | What we know | If it fails |
-|---|---|---|
-| Height ordering or picking fails | Ordinary Y-sort cannot solve roofs, cliffs and foreground trees over rear shelves | change piece splits and test across chunks; raise the scope of a depth compositor before expanding terrain |
-| Receiver-aware shadows cost too much or miss layers | Pilot light maps use highest surfaces and flat receivers | prove slope, cliff and shelter-floor receivers early; change masks before bulk art |
-| Pixels step or a family change jumps | One raster grid and discrete resting steps are planned, not yet phone-proved | tune pivots, steps and residual whole-pixel pans; review slow movement and pinch release |
-| The 2D look costs too much (`RSK-30`) | No sustained result for the new renderer | measure passes on both phones, cheaper visual work then 30 fps; keep the approved grid and density |
-| A busy scene heats the phone | M1's heat results do not prove M2 graphics | the 20-minute route sets the line; existing heat guard and one approved logged visual step (A3.9, A5.5) |
-| Art, masks and seasonal shapes exceed production capacity | Signed-off sheets exist, runtime approval is separate | six fixtures first, repair reductions and missing seasonal forms before bulk work |
-| Cache jobs outlive a world or revision | The bridge has one consumer and may skip snapshots | owned immutable inputs, epochs/revisions, resynchronisation and bounded queues |
-| The driver mishandles a 2D feature | Old 3D probes are not proof of both renderer paths | explicit fixtures on Compatibility and Mobile; record fallback and missing evidence |
-| People stay hard to find | Moving light and overlap reveal are approved | test busy woods, camp and night; further aids come to the owner |
-| Globe seam or distortion misleads | The torus-to-disc mapping is display only | repeat longitude, clamp latitude, hide poles in ice; inverse-tap and model-distance tests |
-| Discovery can't be tuned to its pace (`RSK-01`) | P4: tuning alone sets the pace | the discovery rules redesigned with you at M7 |
-| Phone and cloud results differ (`RSK-04`) | P5: the same bits on your phone | our own function for whatever differs |
-| A thousand minds miss a year a minute (`RSK-02`) | P6: 6.0 game years a real minute | profile and simplify scoring; the population target revisited with you (`MND-15`) |
-| Making a world takes too long (`WLD-11`) | Production M3 has no measured result yet | measure stages and improve fixed work under A18.3; never hide settling in choice time |
-| Nature's totals drift (`WLD-18`) | P9: within 0.66 and 1.10 for a century | damping in the predator and prey rules |
-| Culture fails to emerge (`RSK-19`) | P10: from causes in most worlds | templates (`CUL-05`), with you |
-| The director misses moments or overspends | P11: within budget, every named discovery caught | its recognisers and budget retuned |
-| The writer falls short (`RSK-08`) | Not built (P13) | pattern text stands alone (`PRE-37`) |
-| Sound breaks up (`RSK-28`) | P14: 9% of the audio thread at worst in the cloud; your phone to come | fewer voices |
-| Godot upgrades break things | each milestone | pinned versions, upgraded between milestones |
-| Islands give a different answer, or too little parallel work | α1.3b: exact on every build and thread count; too costly for the crowd's 1.3 µs events, so it runs on one worker | one worker in key order, the same results; cheaper bounds and joins before minds need them (M6) |
-| EnTT misbehaves on the phone | Built only in the cloud | flecs behind the same thin layer |
-| The screen stays at 120 Hz | Read from Godot's source: set the frame cap again at run time | Android's frame-rate call through JavaClassWrapper; a small plug-in |
-| History outgrows 4 GB (`PLT-10`) | Estimated at 3.5–4.1 GB for 7,000 people at Year 250 | a tighter encoding; what counts as an event, with you |
-| Opening many small catalogue files is slow on the phone | Not measured | one file a kind, read by the same loader |
+**Repair before relying on stopped WIP:** `_background_plane`'s hidden/empty return and `_receivers`' null-texture branch retain old colour/normal/material references. Detach before retiring allocation tickets; hiding a node does not release its textures.
+The first streaming benchmark sampled preceding frames and its readiness timings are invalid. Rerun after aligning below-2-density ground-slot readiness and frame completion; receiver skipping below that density has no final timing proof.
 
-### A18.3 M3 budgets (`WLD-11`, `WLD-12`, `PLT-04`)
+Whole α2.9a review remains open, including committed changes after accepted α2.8a; native 57/57 alone does not accept the step.
+The current routine baseline fails formatting/lint, 15 test annotations and two app cases (fixture orientation and terrain selection). IMPLEMENTATION.md begins with repair; no passing check is claimed here.
 
-The timing and memory lines below were approved on 8 October 2026; stage allocations and storage estimates remain proposals, not measured production results.
-P7's 9.3-second generation and 6.5-second settling are historical prototype evidence only; its code is not reused.
+Wide data exist, but tiny figures/group/camp art, transitions, ecology details and named wide navigation are unfinished. `wide_study.gd` is only a study.
+Explore can overflow landscape; the source viewer overlays the scene. Recent screen fixes need fresh captures. Owner reported tiny/busy UI, grass stripes, questionable birch/boulder/tent shadows and duplicated Camp title; no all-screen approval exists.
+A correct light equation does not approve the camp composition. Latest software-renderer captures and native tests do not prove phone heat, speed or touch comfort.
 
-| Work | Initial planning allocation |
-|---|---|
-| Twenty coarse candidates | 45 s total held-phone wall time |
-| First six full candidates, all stages and qualification | 90 s total |
-| Extra candidates/refinements, final ranking, previews | 35 s total |
-| UI/publication/checkpoint overhead | 10 s total |
-| New world to offered globes | 180 s target, 198 s outer limit |
-| Selected world settling and later bands | 60 s target, 66 s outer limit; not yet fully testable before M5 |
-| World layers | At most 0.2 one-middle-core seconds per game day, measured separately from generation |
-| Area preparation | About 0.1 s each; visible full detail within about 1 s; making rule areas at most 10% of simulation time |
+### A18.3 Wider-world budgets (`WLD-11`, `WLD-12`, `PLT-04`)
 
-The fallback search to 40 candidates is part of the same end-to-end timing report.
-A failure names the costly stage; no runtime time cutoff silently changes the offered worlds.
-Reduce temporary allocation, use better algorithms and retune fixed work for a later making version before proposing a lower-quality requirement.
-Settling while the owner reads choices cannot be used to hide the one-minute measurement.
+Deferred M7 obligations: PROJECT's 180/198-second generation and 60/66-second settling lines include fallback search/entry saving; world layers ≤0.2 one-middle-core seconds/game day; rule-area preparation ≤10% of simulation, about 0.1 s/area, visible detail within about 1 s.
+The prior 45/90/35/10-second stage split and 128-byte/cell design were estimates, not measured allocations or requirements.
+Keep the 2 GiB peak-process line; measure structs, temporary candidates, GPU residency and snapshot overlap together. Two million cells' daily work is a larger risk than their storage.
 
-**Memory ledger, initial envelope:** 2,000,000 cells at a proposed 128 bytes of combined base/dynamic/seasonal storage is 244.14 MiB; 20,000 weather cells at 128 bytes is 2.44 MiB.
-Feature tables get 96 MiB and a hard counted diagnostic; generation scratch 192 MiB; a 24-area metre-height cache about 5.77 MiB for heights alone, with a 32 MiB complete CPU-area budget.
-M2's sampled textures 128 MiB, targets 32 MiB and staging 4 MiB remain separately counted.
-Allow 512 MiB for process/engine/other retained state and 256 MiB for snapshot/compression overlap as a starting audit reserve.
-Together these planned allocations are about 1.46 GiB before later kept areas, people and history.
-The approved M3 peak-process working line is 2 GiB, within the game's about 8 GiB envelope; it supersedes the M2 fixture-only 1 GiB line while retaining the separate graphics budgets.
-This is arithmetic, not evidence these records fit or the phone stays cool.
-All real struct sizes, heap overhead, temporary duplicates and GPU residency must be measured.
+### A18.4 Wider-world risks
 
-The world's normal daily work is the larger risk than storing two million cells.
-Twenty-four updates of 20,000 weather cells are 480,000 weather-cell steps a game day, before the two-million-cell daily water pass.
-Four-season climate arrays avoid expensive climate solving during play.
-Use compact stores, active flood lists and precomputed immutable coefficients; don't drop unwatched cells or change the fixed cadence under load.
-Sparse exact updates may skip a provably unchanged value, not an unobserved place.
-
-### A18.4 M3 risks
-
-| Risk | Proof or response |
-|---|---|
-| Candidate qualification becomes too rare | Report every rejection; tune generation globally on training seeds; never repair a scored candidate |
-| Polar topology leaks into weather, river flow or future paths | One tested forbidden-edge policy, including swept/diagonal motion; preserve exact coordinate maths |
-| Numeric maps pass but land looks artificial | Fixed-scale contact sheets of branching valleys, coasts, lake outlets and rock sections, reviewed by the owner |
-| Final climate changes coarse-candidate suitability | Full-resolution recertification before offering, stored rejection reason |
-| Weather averages or eclipse rate cannot meet wording | Apply A7.7/A7.10; freeze remaining reference/orbit parameters before testing and report failures without retargeting |
-| Catch-up logs or saves grow without bound | Count bytes/year, retain needed disturbances, prove compact checkpoints; raise a real limit before changing history rules |
-| Full-world saves stall rendering | Reuse immutable bytes, measure copying and compression overlap; extend keeper only with recovery proofs |
-| Generated cliffs defeat M2 ordering/shadows | Generated stress fixtures early; improve piece splits before broadening terrain forms |
-| Cross-milestone acceptance is mistaken for completion | A7.1 and the plan's deferred-check ledger remain explicit in every report |
+Freeze hard gates before tuning; report rare qualification instead of repairing candidates. Revalidate full-resolution starts after settling.
+Save/catch-up growth needs byte/year measurements and equivalent compaction. Terrain expansion needs early cross-chunk ordering/shadow fixtures.
+Outstanding biology, ecology and historical-trace checks remain open until actual consumers prove them; a partial stage never certifies the full item.

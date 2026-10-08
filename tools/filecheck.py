@@ -14,7 +14,7 @@ item's code, and no document keeps a list of where things are done.
 The file check reads PROJECT.md's item markers, statuses, IDs (unique, never retired ones) and generated lists;
 every ID and architecture section the three documents cite; the plan's milestones (`## M1 ...`, four fields each,
 in order) and steps (`### α1.2b ...`, six fields each, under their own milestone, serving only its items, with
-task IDs of their own); and every commit since main that changes PROJECT.md. Findings awaiting the owner sit in
+task IDs of their own); and every commit since main that changes PROJECT.md. Documented exceptions sit in
 tools/filecheck-known.txt. Python's standard library only.
 """
 
@@ -865,7 +865,7 @@ def commits_changing(path):
 
 
 def known_findings():
-    """Findings awaiting the owner: `<finding> | <date> | awaiting owner OK` a line, `#` a comment."""
+    """Documented exceptions: `<finding> | <date> | reason` a line, `#` a comment."""
     path = os.path.join(ROOT, KNOWN)
     if not os.path.exists(path):
         return set()
@@ -877,7 +877,7 @@ def report(prefix, problems, ok_line):
     known = known_findings()
     left = [p for p in problems if p not in known]
     for p in sorted(known & set(problems)):
-        print(f"{prefix}: known, awaiting the owner: {p}")
+        print(f"{prefix}: documented exception: {p}")
     for p in left:
         print(f"{prefix}: {p}")
     print(ok_line if not left else f"{prefix}: FAIL ({len(left)} problems)")

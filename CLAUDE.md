@@ -1,25 +1,33 @@
-# Kindling: guide for AI agents
+# Kindling: working guide
 
-Read `PROJECT.md` before doing anything else. It is the source of truth for what Kindling is and must do. `ARCHITECTURE.md` says how it is built, and `IMPLEMENTATION.md` says in what order. Code and tests link back to `PROJECT.md` by ID (`PRC-04`, `PRC-12`).
+Read this guide, PROJECT.md's working brief/principles and the current milestone; then the IDs and architecture sections the work touches.
+PROJECT.md is the decision source. Its full catalogue is reference material, not a daily reading assignment.
 
-**Now (8 October 2026):** pre-production is closed and its code deleted; production writes all its code fresh: never copy or port prototype code from git history. M1, the foundations, is built and accepted. M2, the graphics engine, is now fully 2D: on 8 October 2026 the owner replaced the 3D pilot with 2D pixel art and a fixed 37° camera, keeping the rich light (`PRE-01`, `PRE-02`); M2 starts again at α2.7a, the projection and six art fixtures. The catalogue has 127 of its 373 pieces signed off; its sheets are the art standard.
+**Now — owner approved 8 October 2026:** M1 stays accepted. M2 builds a saved living camp and a place dream on the existing C++ simulation and 2D renderer. M3 proves discovery and learning. Start with the baseline repairs in A17.0 and α2.13a; no new foundation or renderer.
 
-**How the work is done (8 October 2026):** the main session is the coordinator. It briefs GPT through Codex for every task (building, art, reviews and research), one conversation per task, each builder on its own branch; it checks what comes back, merges and pushes, and passes messages between GPT and the owner; it writes no code and no designs. Claude subagents are not used.
+**Roles:** one builder owns each playable increment. At most one supporting task runs alongside it. The coordinator owns integration and may resolve implementation choices within approved scope. One independent reviewer checks each milestone. Follow the session's git permissions.
 
-**Only three documents:** what is not in `PROJECT.md`, `ARCHITECTURE.md` or `IMPLEMENTATION.md` is not kept; there are no research notes or lessons files to go back to. Run only what a change touches while building, and the full check once, before a delivery.
+**Documents and size budgets:**
 
-## Rules
+| Document | Purpose | Budget |
+|---|---|---|
+| This guide | Daily entry point and rules | 400 words |
+| PROJECT.md | Decisions, features and acceptance | Working overview ≤1,000 words; full reference shrinks only without losing decisions |
+| ARCHITECTURE.md | Built contracts, near-term design, deferred obligations | Aim ≤6,000 words |
+| IMPLEMENTATION.md | Next milestone's tasks; later goals and ID map | Aim ≤3,500 words |
+| CRITIQUE.md | Current evidence and undecided process recommendations | Aim ≤1,800 words |
 
-1. **Follow the principles** in the Principles section of `PROJECT.md` (`PRN-16`). If a task seems to require breaking one, stop and raise it with the owner instead of working around it.
-2. **Link all work to IDs** such as `WLD-03`: in commit messages, tests, and code that implements an item.
-3. **The code is the index.** Code names the items it implements (`/// Implements PRE-20`) and each test the items it checks (`// checks: PRE-20`), so `python3 tools/filecheck.py where PRE-20` shows where anything is done. No document keeps a list of where things are built.
-4. **Write each thing once.** Never a second copy of the same logic, such as Rust copies of shader maths.
-5. **Nothing becomes Decided, and no decided item changes, without the owner's OK** (`PRC-07`). Suggest additions and changes as set out under "Changing this file" in `PROJECT.md`, list them under "Proposals awaiting confirmation", and raise them in the next report.
-6. **Name the changed IDs in every commit that changes `PROJECT.md`**, with the reason, for example `Changed: GOD-04 (blessing cap raised; owner OK)`.
-7. **Keep `PROJECT.md` free of implementation details** (`PRC-04`). They belong in the architecture and the implementation plan.
-8. **Build modularly** (`PRN-14`).
-9. **Language models describe, never decide** (`PRN-06`).
-10. **Before work joins the main version**, `tools/check.sh` must pass (`PRC-10`) and its review must approve it (`PRC-09`): the builder reviews each lettered step and each numbered alpha itself, the coordinator checks it before merging, and one independent subagent verifies each milestone once, at its end. The pull request says so; nothing else is recorded.
-11. **Write plainly.** The owner reads everything on a phone, so give every command a short plain description of what it does.
+Keep short evidence records only when they explain a durable decision. Remove superseded handovers after moving facts; do not maintain duplicate status stories.
+
+**Rules:**
+
+- Follow the principles; simulation decisions stay independent of pictures and generated prose.
+- Preserve saves, determinism and meaningful regressions. Run touched checks during work, the routine check before joining/delivery, and the audit when PRC-10 requires it.
+- Review each step and completed alpha as PRC-09 requires; independent review closes the milestone. Every new test must be made to fail once on its relevant fault under the current rule.
+- Keep requirement IDs in implementing code/tests and commit messages. PROJECT changes need their changed IDs, reasons and owner approval in the commit (`PRC-07`).
+- Partial work retains its ID; notes state proved behaviour and remaining acceptance (`PRC-12`). ID comments are not completion evidence.
+- Ship a playable build and short note. Only stage reviews wait for the owner. Readable stand-ins are accepted for early gameplay builds.
+- Only the owner changes decided meaning. The 22 first-review proposals are approved; CRITIQUE.md's later testing simplifications are not. Do not apply the separate testing patch without approval.
+- Write plainly. The owner reads everything on a phone, so give every command a short plain description of what it does.
 
 Changes to this guide need the owner's OK.

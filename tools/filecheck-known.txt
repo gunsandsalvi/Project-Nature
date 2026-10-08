@@ -1,4 +1,5 @@
-# Findings of tools/filecheck.py that wait for the owner's OK (PRC-07): one a line, as
-#   <the finding exactly as the check prints it, after its prefix> | <date> | awaiting owner OK
-# A listed finding is reported as known instead of failing the check; it leaves this file once the owner decides.
-# None at present.
+# Exact findings waived or awaiting a decision: <finding> | <date> | reason.
+# This historical exception does not waive checks on any other commit or current document.
+# The owner authorized an honest repair on 8 October 2026: the pushed review commit
+# omitted its Changed trailer. Its proposals were approved separately on that date.
+commit a9da2bfa73aa changes PROJECT.md with no `Changed:` line (PRC-07) | 2026-10-08 | owner-authorized historical exception; pushed history retained
