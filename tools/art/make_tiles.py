@@ -97,6 +97,21 @@ def coarse_marks(versions, key, keep, seed, cells=4):
     return mosaic
 
 
+def coarse_ground(chains, level, seed, cells=4):
+    """A ground tile for a farther distance, made from a nearer tile's versions: a `cells` x `cells` mosaic of their
+    pictures at `level` (each pixel there is as wide as one of the far tile's: level 2 of the middle tile's 1/16 m
+    pixels are 1/4 m), each cell one version picked by chance, so the ladder of bands goes on from the nearer tile's
+    own coarser levels without a break (the versions share their ring at every level, so every join is seamless).
+    Four cells a side is the far tile (64 m) from the middle's (16 m)."""
+    n = chains[0][level].shape[0]
+    chance = tiles.Chance(seed)
+    mosaic = np.empty((cells * n, cells * n, 3), np.uint8)
+    for cy in range(cells):
+        for cx in range(cells):
+            mosaic[cy * n : (cy + 1) * n, cx * n : (cx + 1) * n] = chains[chance.below(len(chains))][level]
+    return mosaic
+
+
 def make_tile(spec, reference, seed, key=None, given=None):
     """One tile: its versions' chains of levels, the words for each level, and the numbers its record states. With a
     `key` colour the tile is one of marks on a see-through ground (the water's): its pictures are drawn on that colour,
@@ -220,6 +235,17 @@ def make_tile(spec, reference, seed, key=None, given=None):
                     "calibration": words,
                 }
             )
+    if key is None:  # a level's contrast boosted after it is made, the same for every version, so no seam comes of it
+        boosts = {0: spec.get("boost"), **{t["level"]: t.get("boost") for t in spec.get("level", [])}}
+        for j, percent in boosts.items():
+            if percent and j < len(levels):
+                pivot = levels[j][0].reshape(-1, 3).mean(axis=0)
+                levels[j] = [tiles.boost(v, float(percent), pivot) for v in levels[j]]
+                said = ways[j].get("calibration", "")
+                ways[j]["calibration"] = (said + "; " if said else "") + (
+                    f"then its colours' distance from the first version's mean made {percent}% of itself, "
+                    "the same for every version"
+                )
     if key is not None:
         chains = [marks_chain([level[v] for level in levels], key, seed) for v in range(len(versions))]
     else:
@@ -241,8 +267,18 @@ def provenance(spec, specs):
     return paths, [e["sha256"] for e in entries], [e["c2pa"] for e in entries]
 
 
-def words_of(index, serves, ways, version, shift, spec, block, loss):
+def words_of(index, serves, ways, version, shift, spec, block, loss, marks=False):
     """The record's table of words for one level of one version."""
+    if index == 0 and "coarse_of" in spec and not marks:
+        out = {
+            "way": f"by code: a mosaic of 4 x 4 of the {spec['coarse_of']} tile's versions at their level "
+            f"{spec.get('coarse_level', 2)} (a pixel there as wide as this tile's, so the ladder of bands goes on "
+            "without a break), each cell one version by chance, then every version quilted from it in patches of "
+            f"{spec['patch']} round a shared ring",
+            "regrid_loss": "none: made by code from levels already on the grid",
+        }
+        out.update(ways[0])
+        return out
     if index == 0 and "coarse_of" in spec:
         out = {
             "way": f"by code: a mosaic of 4 x 4 of the {spec['coarse_of']} tile's versions (they join without a seam), "
@@ -299,14 +335,19 @@ def main(argv):
     # the drawings came out in other colours than the sheet's
     reference = picture(recipe["colour_from"])[0] if "colour_from" in recipe else None
     nearer = {}  # each tile's versions' first levels, on their key colour, for a tile made from a nearer one
+    ladders = {}  # each tile's versions' chains of levels, for a ground tile made from a nearer one's coarser level
     for index, tile in enumerate(order):
         spec = specs[tile]
         given = None
-        if "coarse_of" in spec:
+        if "coarse_of" in spec and key is None:
+            first = coarse_ground(ladders[spec["coarse_of"]], int(spec.get("coarse_level", 2)), recipe["seed"] + index)
+            given = (first, 1, 0.0)
+        elif "coarse_of" in spec:
             first = coarse_marks(nearer[spec["coarse_of"]], key, int(spec.get("keep", 50)), recipe["seed"] + index)
             given = (first, 1, 0.0)
         chains, ways, shift, block, loss = make_tile(spec, reference, recipe["seed"] + index, key, given)
         nearer[tile] = [chain[0] for chain in chains]
+        ladders[tile] = chains
         if reference is None:
             reference = chains[0][0]
         if key is not None:  # the marks' own colours stay, everything else becomes see-through
@@ -341,7 +382,10 @@ def main(argv):
                 "truth": recipe["truth"],
                 "approved": recipe["approved"],
             }
-            table = [words_of(i, spec["serves"], ways, v, shift, spec, block, loss) for i in range(len(chain))]
+            table = [
+                words_of(i, spec["serves"], ways, v, shift, spec, block, loss, key is not None)
+                for i in range(len(chain))
+            ]
             where = textures.write_texture(name, tile, v, fields, chain, table)
             print(f"{textures.entry_name(name, tile, v)}: {len(chain)} levels in {where}")
     return 0

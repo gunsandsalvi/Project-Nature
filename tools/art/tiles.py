@@ -543,6 +543,16 @@ def make_versions_open(sources, count, ring, overlap, patch, seed, n, scale=1):
     ]
 
 
+def boost(level, percent, pivot):
+    """A level with its colours' distance from a fixed colour scaled by `percent`, the same map for every version of a
+    level (pass the first version's mean as the pivot), so the ring the versions share stays shared and a boost of
+    contrast makes no seam of its own; a boost made before the quilting leaves its border flattened against marks that
+    are bolder, and shows the versions' joins as faint lines."""
+    f = level.astype(np.float64)
+    out = np.asarray(pivot, np.float64) + (f - np.asarray(pivot, np.float64)) * (percent / 100.0)
+    return np.clip(np.rint(out), 0, 255).astype(np.uint8)
+
+
 def seam_strip(texels, width, period):
     """The seam strip of a hide from a drawing of it: the first `width` columns of the drawing, a pattern that repeats
     every `period` rows (a running stitch), each place of the pattern the colour most of its repeats have, so a stray
