@@ -45,6 +45,8 @@ godot::Dictionary KdCanvas::frame(int64_t width, int64_t height) {
     godot::Dictionary result;
     result["size"] = godot::Vector2(static_cast<float>(projection_.width()), static_cast<float>(projection_.height()));
     result["scale"] = projection_.pixel_scale();
+    result["height_basis"] = Projection::kB;
+    result["ground_basis"] = Projection::kA;
     result["density"] = projection_.resting_density();
     result["live_scale"] = projection_.presentation();
     result["residual"] = godot::Vector2(static_cast<float>(residual.x), static_cast<float>(residual.y));

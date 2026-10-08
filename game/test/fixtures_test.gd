@@ -25,7 +25,18 @@ func test_atlases_reject_bad_pivots_units_grids_and_paths() -> void:
 	var atlas := Atlas.new()
 	assert_bool(atlas.read()).is_true()
 	assert_int(atlas.entries.size()).is_equal(6)
-	for mutation: String in ["pivot", "unit", "grid", "path", "types", "path_type", "mask_type"]:
+	for mutation: String in [
+		"pivot",
+		"unit",
+		"grid",
+		"path",
+		"types",
+		"path_type",
+		"mask_type",
+		"normal_basis",
+		"material_format",
+		"pieces"
+	]:
 		var entries: Array = JSON.parse_string(
 			FileAccess.get_file_as_string("res://fixtures/manifest.json")
 		)
@@ -42,6 +53,14 @@ func test_atlases_reject_bad_pivots_units_grids_and_paths() -> void:
 				entries[0].frames = "six"
 			"path_type":
 				entries[0].actions.walk["64"] = ["tree-64.png"]
+			"normal_basis":
+				entries[0].normal_levels = entries[0].actions.walk.duplicate()
+				entries[0].normal_basis = "screen"
+			"material_format":
+				entries[0].material_levels = entries[0].actions.walk.duplicate()
+				entries[0].material_format = "rgb-colour"
+			"pieces":
+				entries[0].pieces = {"crown": [0, 0, 9999, 9999]}
 			"mask_type":
 				entries[0].material_levels = {"64": ["tree-mask-64.png"]}
 		var path := "user://fixture-invalid.json"

@@ -207,7 +207,7 @@ If a build exceeds six hours, split it at a task boundary into lettered deliveri
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
 | α2.7a | Projection and six fixtures | M2 | 6 | Engine built; art review and delivery pending |
-| α2.8a | Flat shadow style and terrain prototype | M2 | 6 | Planned |
+| α2.8a | Flat shadow style and terrain prototype | M2 | 6 | Engine built; flat/terrain review and delivery pending |
 | α2.9a | Zoom and streaming | M2 | 6 | Planned |
 | α2.10a | World map and globe | M2 | 6 | Planned |
 | α2.11a | Two-phone renderer comparison | M2 | 6 | Planned |
@@ -320,6 +320,12 @@ Say which pieces pass and which need repair.
    Flat and terrain before/after views, long shadows at tile edges and a debug receiver/layer view.
    Show noon/dusk, deep-cave entrance/view handling and shallow cutaway scope; preserve the later geological slice.
    Record CPU/GPU costs with missing counters labelled unavailable; deliver as 30801.
+
+Engine built (8 October 2026): `T2.8a.1` to `T2.8a.3` and the engine review route of `T2.8a.4` are implemented on labelled developer fixtures. One shader light function combines separate sun visibility, sky openness, local fire and emission. World-basis normal calibration, material-byte masks and the material response table are explicit. Five angular rays soften long dusk shadows; logical caster overlap is a union and contact takes the strongest contribution once. CPU masks start at actual receiver heights, cache terrain/light revisions, update moving bodies at 10 Hz and have fixed sample, body and byte caps. The declared noon/dusk/night and weather profiles are fixture records, not a generated physical sky.
+
+The restricted surfaces share their heights with feet, picking, masks, water depth and wading. Slope, joined cliff faces, front/rear shelves and a split shelter exercise one local overlap graph across chunk borders, with stable ID ties and a visible split remedy for a cycle. Roof and floor receivers stay separate. Selected cover fades, occupied roofs admit a shallow cutaway, and other obscured people have quiet band silhouettes; physical proxies and saved-world digests stay unchanged. A doorway or native control opens a separate cave interior and restores exterior focus and selection on exit. The later geological slice is untouched.
+
+Water refracts a prepared receiver-only bed, clips emerged bodies at the common water height and uses a separate projected reflection target. Fire visibility checks shelter walls and the doorway independently of direct sun. Existing atlas pivots and authored density levels accept optional aligned world normals, indexed material masks and named tree pieces. Approved-sheet crops, diagram people/animals and plain terrain/shelter pieces remain developer art; actual neutral runtime art and seasonal shapes still need their own review. Flat style approval must precede terrain approval. Delivery 30801 and phone review remain with the coordinator; no APK is built for this task.
 
 **Tests:**
 - A foreground tree can cover a rear high shelf, and cliff faces and shelter fronts order correctly across chunk borders.

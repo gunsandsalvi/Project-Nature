@@ -19,9 +19,9 @@ VIEWS = ("portrait-noon", "portrait-dusk", "landscape-noon", "landscape-dusk")
 PASSES = ("page", "colour", "object", "material")
 
 
-def read(captures):
+def read(captures, views=VIEWS):
     result = {"status": "Developer fixture regressions; no art approval", "views": {}}
-    for view in VIEWS:
+    for view in views:
         metadata = json.loads((captures / f"{view}-capture.json").read_text())
         images = {}
         for kind in PASSES:
@@ -42,29 +42,29 @@ def read(captures):
 
 
 def check(captures, golden):
-    actual = read(captures)
+    actual = read(captures, golden["views"])
     if actual != golden:
         raise ValueError("Frozen 2D fixture pixels or renderer changed. Inspect before recording new goldens.")
     return actual
 
 
-def main(args):
+def main(args, views=VIEWS, default_golden=GOLDENS):
     if len(args) not in (2, 3) or args[0] not in ("check", "record"):
         print(__doc__.strip(), file=sys.stderr)
         return 2
     captures = Path(args[1])
-    golden = Path(args[2]) if len(args) == 3 else GOLDENS
+    golden = Path(args[2]) if len(args) == 3 else default_golden
     try:
         if args[0] == "record":
             if len(args) != 3:
                 raise ValueError("record requires an explicit golden file")
-            golden.write_text(json.dumps(read(captures), indent=2) + "\n")
+            golden.write_text(json.dumps(read(captures, views), indent=2) + "\n")
         else:
             check(captures, json.loads(golden.read_text()))
     except (OSError, ValueError, KeyError) as error:
         print(str(error), file=sys.stderr)
         return 1
-    print("2D fixtures: four views and sixteen passes, exact pixels and mapped semantic codes")
+    print(f"2D fixtures: {len(views)} views, {len(views) * len(PASSES)} passes, exact pixels and mapped codes")
     return 0
 
 

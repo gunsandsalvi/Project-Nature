@@ -92,6 +92,10 @@ func rebuild() -> void:
 		func(a: Dictionary, b: Dictionary) -> bool:
 			return a.foot.y < b.foot.y if a.foot.y != b.foot.y else a.id < b.id
 	)
+	_submit()
+
+
+func _submit() -> void:
 	var kept := {}
 	for index in _draws.size():
 		var item: Dictionary = _draws[index]
@@ -126,7 +130,10 @@ func rebuild() -> void:
 		if metadata.has("id"):
 			metadata.id = str(metadata.id)
 		id_table[str(item.code)] = {
-			"id": str(item.id), "source": item.entry.name, "surface": 0, "record": metadata
+			"id": str(item.id),
+			"source": item.entry.name,
+			"surface": item.record.get("surface", 0),
+			"record": metadata
 		}
 	for id: int in _sprites.keys():
 		if not kept.has(id):

@@ -22,6 +22,7 @@ public:
     void zoom(double ratio, godot::Vector2 anchor, bool snap);
     void touch(int64_t action, int64_t finger, godot::Vector2 pixel, double seconds);
     godot::Array records() const;
+    [[nodiscard]] const Projection& projection() const { return projection_; }
 
 protected:
     static void _bind_methods();

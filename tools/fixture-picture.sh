@@ -24,7 +24,7 @@ trap 'rm -rf "$TMP"' EXIT
 export LIBGL_ALWAYS_SOFTWARE=1
 xvfb-run -a -s '-screen 0 2400x2400x24 -nolisten tcp' "$GODOT" --audio-driver Dummy --path "$ROOT/game" \
   --rendering-method gl_compatibility --rendering-driver opengl3 --resolution "$SIZE" \
-  -s "$ROOT/tools/fixture-picture.gd" -- "$OUT" "$HOUR" "$@" >"$TMP/log" 2>&1 \
+  -s "${KD_CAPTURE_SCRIPT:-$ROOT/tools/fixture-picture.gd}" -- "$OUT" "$HOUR" "$@" >"$TMP/log" 2>&1 \
   || { tail -30 "$TMP/log" >&2; exit 1; }
 if rg -n 'SCRIPT ERROR|^ERROR:' "$TMP/log"; then exit 1; fi
 rg -q 'Compatibility.*llvmpipe' "$TMP/log" || { cat "$TMP/log" >&2; exit 1; }
