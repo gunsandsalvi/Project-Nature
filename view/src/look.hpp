@@ -10,6 +10,7 @@
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
 #include <godot_cpp/variant/packed_int32_array.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
@@ -62,6 +63,8 @@ public:
     /// A .kdtex file's levels, each an image of its own, largest first, for the Lab page: {"levels": an Array of
     /// Image, "problem": ""}, or the problem and none.
     [[nodiscard]] godot::Dictionary texture_levels(const godot::String& path) const;
+    /// Implements PLT-04: worker-owned encoded bytes become fresh private CPU Images using the same decoder.
+    [[nodiscard]] godot::Dictionary texture_levels_bytes(const godot::PackedByteArray& bytes) const;
     /// Puts the stand-in ground on the stage and draws it into the scenario with the ground shader.
     void build(const godot::RID& scenario, const godot::RID& shader);
     /// Shows or hides a part of the drawing: "ground" or "pattern". Never touches a world.

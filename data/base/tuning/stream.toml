@@ -1,0 +1,13 @@
+# T2.9a.2, PLT-04: measurement proposals from A18.1, not measured phone pass limits.
+# Encoded input, CPU image ownership and upload staging are independent of sampled residency.
+queued_jobs = 32
+preparing_jobs = 1
+input_bytes = 8388608
+prepared_bytes = 67108864
+staging_bytes = 4194304
+resident_bytes = 134217728
+target_bytes = 33554432
+maps_bytes = 50331648
+sprites_bytes = 50331648
+ground_bytes = 16777216
+masks_bytes = 16777216

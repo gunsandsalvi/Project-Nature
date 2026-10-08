@@ -7,6 +7,7 @@ signal entrance_requested
 const SURFACE_SHADER := preload("res://terrain/surface.gdshader")
 const SPRITE_SHADER := preload("res://terrain/sprite.gdshader")
 const WATER_SHADER := preload("res://terrain/water.gdshader")
+var candidate_view := false
 var terrain := KdTerrain.new()
 var scene_name := "flat"
 var hour := "noon"
@@ -98,8 +99,8 @@ func rebuild() -> void:
 		_reset_scene()
 		_revision = revision
 	_draws.clear()
-	var density: int = int(state.density)
-	var actors: Array = terrain.actors(second)
+	var density: float = float(state.density)
+	var actors: Array = [] if candidate_view else terrain.actors(second)
 	for actor: Dictionary in actors:
 		_actor(actor, density)
 	# Atlas splits are developer metadata; the physical proxies remain independent of visual fading.
@@ -218,7 +219,7 @@ func _reset_scene() -> void:
 	light_record = terrain.set_light(hour, weather, direction, fire_enabled)
 
 
-func _actor(actor: Dictionary, density: int, source: Dictionary = {}) -> void:
+func _actor(actor: Dictionary, density: float, source: Dictionary = {}) -> void:
 	var p: Vector3 = actor.point
 	var record := source.duplicate()
 	record.merge(
@@ -230,7 +231,7 @@ func _actor(actor: Dictionary, density: int, source: Dictionary = {}) -> void:
 	_append(entries[actor.art], Vector2(p.x, p.y), actor.id, density, record)
 
 
-func _object(entry: Dictionary, at: Vector2, id: int, density: int) -> void:
+func _object(entry: Dictionary, at: Vector2, id: int, density: float) -> void:
 	var sampled: Dictionary = terrain.walk(at.x, at.y)
 	if not sampled.found:
 		return
@@ -257,18 +258,20 @@ func _split_tree() -> void:
 	var tree: Dictionary = _draws.pop_back()
 	var crown := tree.duplicate()
 	var trunk := tree.duplicate()
-	var split: float = floor(tree.rect.size.y * 0.70)
+	var ratio: float = tree.get("source_scale", 1.0)
+	var source_split: float = floor(tree.source.size.y * 0.70)
+	var split := source_split * ratio
 	crown.id = -11
 	crown.code = 1001
 	crown.rect = Rect2(tree.rect.position, Vector2(tree.rect.size.x, split))
-	crown.source = Rect2(tree.source.position, crown.rect.size)
+	crown.source = Rect2(tree.source.position, crown.rect.size / ratio)
 	trunk.id = -12
 	trunk.code = 1002
 	trunk.rect = Rect2(tree.rect.position + Vector2(0, split), tree.rect.size - Vector2(0, split))
-	trunk.source = Rect2(tree.source.position + Vector2(0, split), trunk.rect.size)
+	trunk.source = Rect2(tree.source.position + Vector2(0, source_split), trunk.rect.size / ratio)
 	var supplied: Dictionary = tree.entry.get("pieces", {})
 	for name: String in ["crown", "trunk"]:
-		if supplied.has(name):
+		if supplied.has(name) and not candidate_view:
 			var raw: Array = supplied[name]
 			var offset := (Vector2(raw[0], raw[1]) * float(state.density) / 64.0).round()
 			var size := (Vector2(raw[2], raw[3]) * float(state.density) / 64.0).round()
@@ -298,6 +301,8 @@ func _piece(id: int, surface: int, rect: Rect2, depth: float, receiver: bool) ->
 func _receivers(update_masks: bool) -> Array:
 	var pieces := []
 	for record: Dictionary in surface_records:
+		if candidate_view and record.id >= 900:
+			continue
 		var points := PackedVector2Array()
 		var centre := Vector3.ZERO
 		for p: Vector3 in record.corners:
@@ -308,7 +313,7 @@ func _receivers(update_masks: bool) -> Array:
 			rect = rect.expand(p)
 		if not _surface_nodes.has(record.id):
 			var node := Polygon2D.new()
-			node.texture = atlas.texture(entries[3], int(state.density), "walk")
+			node.texture = atlas.texture(entries[3], float(state.density), "walk")
 			node.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 			node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 			node.material = ShaderMaterial.new()
@@ -322,10 +327,14 @@ func _receivers(update_masks: bool) -> Array:
 		var polygon: Polygon2D = _surface_nodes[record.id]
 		polygon.polygon = points
 		var texture: Texture2D = (
-			atlas.texture(entries[3], int(state.density), "walk")
+			atlas.texture(entries[3], float(state.density), "walk")
 			if record.material == 4
 			else _plain
 		)
+		if texture == null:
+			polygon.visible = false
+			continue
+		polygon.visible = true
 		polygon.texture = texture
 		polygon.uv = PackedVector2Array(
 			[
@@ -343,7 +352,7 @@ func _receivers(update_masks: bool) -> Array:
 		material.set_shader_parameter("material_kind", record.material)
 		for kind: String in ["normal", "material"]:
 			var provided: Texture2D = (
-				atlas.texture(entries[3], int(state.density), "walk", kind)
+				atlas.texture(entries[3], float(state.density), "walk", kind)
 				if record.material == 4
 				else null
 			)
@@ -357,7 +366,7 @@ func _receivers(update_masks: bool) -> Array:
 					(record.corners[1] - record.corners[0]).length(),
 					(record.corners[3] - record.corners[0]).length()
 				)
-				/ 4.0
+				/ _ground_span()
 			)
 		)
 		material.set_shader_parameter(
@@ -447,6 +456,8 @@ func _lighting(material: ShaderMaterial) -> void:
 
 func _reveal_and_light() -> void:
 	for record: Dictionary in surface_records:
+		if not _surface_nodes.has(record.id):
+			continue
 		var node: Polygon2D = _surface_nodes[record.id]
 		node.modulate = Color.WHITE
 		if reveal and record.kind == 2 and cutaway:
@@ -470,13 +481,15 @@ func _reveal_and_light() -> void:
 		_lighting(lit)
 		lit.set_shader_parameter("material_kind", 7 if item.id == -12 else int(item.entry.id))
 		lit.set_shader_parameter("foot", p)
-		lit.set_shader_parameter("pivot", item.foot - item.rect.position)
-		lit.set_shader_parameter("density", state.density)
+		lit.set_shader_parameter(
+			"pivot", (item.foot - item.rect.position) / float(item.get("source_scale", 1.0))
+		)
+		lit.set_shader_parameter("density", item.get("source_density", state.density))
 		lit.set_shader_parameter("height_basis", state.height_basis)
 		lit.set_shader_parameter("water_height", _water_height if scene_name == "water" else -100.0)
 		lit.set_shader_parameter("water_bounds", _water_bounds)
 		for kind: String in ["normal", "material"]:
-			var texture: Texture2D = atlas.texture(item.entry, int(state.density), "walk", kind)
+			var texture: Texture2D = atlas.texture(item.entry, float(state.density), "walk", kind)
 			lit.set_shader_parameter("has_" + kind, texture != null)
 			if texture != null:
 				lit.set_shader_parameter(kind + "_atlas", texture)
@@ -517,7 +530,9 @@ func _reveal_and_light() -> void:
 			]:
 				semantic.set_shader_parameter(key, lit.get_shader_parameter(key))
 			semantic.set_shader_parameter("clip_water", scene_name == "water")
-			var mask: Texture2D = atlas.texture(item.entry, int(state.density), "walk", "material")
+			var mask: Texture2D = atlas.texture(
+				item.entry, float(state.density), "walk", "material"
+			)
 			semantic.set_shader_parameter(
 				"use_material_index", pass_name == "material" and mask != null
 			)
@@ -554,7 +569,7 @@ func _reflection(item: Dictionary, node: Sprite2D) -> void:
 	var reflected: Vector2 = camera.project(p.x, p.y, 2.0 * _water_height - p.z)
 	var pivot: Vector2 = item.foot - item.rect.position
 	copy.position = reflected + Vector2(-pivot.x, pivot.y)
-	copy.scale = Vector2(1, -1)
+	copy.scale = Vector2(1, -1) * float(item.get("source_scale", 1.0))
 	copy.modulate = Color(0.65, 0.72, 0.75, 0.55)
 	copy.material = node.material
 
@@ -568,7 +583,12 @@ func _silhouette(item: Dictionary, node: Sprite2D, lit: ShaderMaterial) -> void:
 		_silhouettes[item.id] = copy
 	var copy: Sprite2D = _silhouettes[item.id]
 	var hidden := false
-	if item.entry.name == "person" and item.id != selected and reveal and int(state.density) <= 16:
+	if (
+		item.entry.name == "person"
+		and item.id != selected
+		and reveal
+		and float(state.density) <= 16
+	):
 		for other: Dictionary in _draws:
 			if other.id == -11 and ordering.find(other.id) > ordering.find(item.id):
 				hidden = hidden or other.rect.intersects(item.rect)
@@ -694,3 +714,10 @@ func pick(pixel: Vector2) -> Dictionary:
 				}
 	selected = 0
 	return {}
+
+
+func _ground_span() -> float:
+	if atlas.has_method("sample"):
+		var sample: Dictionary = atlas.sample(entries[3], float(state.density))
+		return float(sample.get("tile_metres", 4.0))
+	return 4.0

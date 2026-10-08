@@ -40,11 +40,13 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import tomllib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kit  # noqa: E402
 import standins  # noqa: E402
+import sprite_families  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
@@ -75,9 +77,9 @@ def digests(tool, threads):
     return out
 
 
-def sources_of(tool):
+def sources_of(tool, folder=None):
     """Each source's line, "<id> <version> <rules> <world> <look>", and the world-making version."""
-    run = subprocess.run([tool, "catalogue", "fingerprint", DATA], capture_output=True, text=True, check=True)
+    run = subprocess.run([tool, "catalogue", "fingerprint", folder or DATA], capture_output=True, text=True, check=True)
     version, sources = None, []
     for line in run.stdout.splitlines():
         words = line.split()
@@ -284,7 +286,7 @@ def build_toml(
         "",
         "[catalogue]",
         f"world_making_version = {version}",
-        "files = " + toml_list(f"{rel} {sha256(origin(rel))}" for rel in files),
+        "files = " + toml_list(f"{rel} {sha256(os.path.join(OUT, rel))}" for rel in files),
         "sources = " + toml_list(sources),
         "",
         "[bench]",
@@ -294,6 +296,7 @@ def build_toml(
         "",
         "[textures]",
         "files = " + toml_list(f"{name} {sha256(os.path.join(TEXTURES, name))}" for name in texture_files),
+        "sizes = " + toml_list(f"{name} {os.path.getsize(os.path.join(TEXTURES, name))}" for name in texture_files),
         "",
         "[sheets]",
         "files = " + toml_list(f"{name} {sha256(os.path.join(SHEETS, name))}" for name in sheet_files),
@@ -372,11 +375,32 @@ def main(argv):
     if one != four:
         print(f"Game data: the proof suites differ between one thread and four: {one} against {four}")
         return 1
-    version, sources = sources_of(tool)
     files = data_files() + art_files()
     calibration = calibration_files()
     os.makedirs(OUT, exist_ok=True)
     copy_sources(files + calibration)
+    try:
+        derived = sprite_families.derive(ROOT)
+        for rel, text in derived.items():
+            target = os.path.join(OUT, rel)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            with open(target, "w") as output:
+                output.write(text)
+        files += sorted(derived)
+        # Validate and fingerprint the exact packed catalogue, including generated sprite records.
+        # build.toml, reports and packed texture bytes are not catalogue source files.
+        with tempfile.TemporaryDirectory(prefix="kindling-catalogue-") as staging:
+            for rel in files:
+                target = os.path.join(staging, rel)
+                os.makedirs(os.path.dirname(target), exist_ok=True)
+                shutil.copyfile(os.path.join(OUT, rel), target)
+            checked = subprocess.run([tool, "catalogue", "check", staging], capture_output=True, text=True)
+            if checked.returncode:
+                raise RuntimeError(checked.stdout + checked.stderr)
+            version, sources = sources_of(tool, staging)
+    except (RuntimeError, ValueError, OSError, KeyError) as error:
+        print(f"Game data: sprite catalogue: {error}")
+        return 1
     made = textures(art_files())
     try:
         shown_sheets = sheets()

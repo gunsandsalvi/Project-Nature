@@ -1,5 +1,6 @@
 // T2.7a.1–2: Godot submits pixels; this shared helper owns the local camera and samples the owned snapshot.
 #pragma once
+#include <chrono>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
@@ -14,7 +15,7 @@ class KdCanvas : public godot::RefCounted {
     GDCLASS(KdCanvas, godot::RefCounted)
 public:
     void set_world(const godot::Ref<KdWorld>& world, int64_t east, int64_t north);
-    godot::Dictionary frame(int64_t width, int64_t height);
+    godot::Dictionary frame(int64_t width, int64_t height, double seconds = -1.0);
     godot::Vector2 project(double east, double north, double height) const;
     godot::Vector2 ground(godot::Vector2 pixel, double height) const;
     godot::Vector2 from_screen(godot::Vector2 pixel) const;
@@ -32,5 +33,11 @@ private:
     num::Point origin_;
     Projection projection_;
     Gestures gestures_{false};
+    double settle_seconds_ = 0.160;
+    double maximum_height_ = 32.0;
+    double overscan_ = 32.0;
+    double shadow_reach_ = 128.0;
+    std::chrono::steady_clock::time_point last_frame_;
+    bool framed_ = false;
 };
 }  // namespace kd::view

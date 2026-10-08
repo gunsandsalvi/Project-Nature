@@ -101,3 +101,22 @@ static func entry_count(loaded: Dictionary) -> int:
 	for kind: Dictionary in loaded.get("kinds", []):
 		n += (kind["entries"] as Array).size()
 	return n
+
+
+## Implements PLT-04 PRE-43: immutable encoded sizes/hashes, avoiding file reads on camera frames.
+static func texture_descriptors(build_file: ConfigFile) -> Dictionary:
+	var sizes := {}
+	for item: String in build_file.get_value("textures", "sizes", []):
+		var words := item.split(" ")
+		if words.size() == 2 and words[1].is_valid_int():
+			sizes[words[0]] = int(words[1])
+	var out := {}
+	for item: String in build_file.get_value("textures", "files", []):
+		var words := item.split(" ")
+		if words.size() == 2 and sizes.has(words[0]):
+			out["res://data/textures/" + words[0]] = {
+				"path": "res://data/textures/" + words[0],
+				"sha256": words[1],
+				"max_bytes": sizes[words[0]]
+			}
+	return out

@@ -5,11 +5,26 @@
 #include <vector>
 
 #include "crowd_core.hpp"
+#include "stream.hpp"
 
 namespace kd::view {
 struct Pixel {
     double x = 0.0;
     double y = 0.0;
+};
+
+struct SourceStep {
+    int density = 0;
+    int level = -1;
+    const char* form = "overview-fixture";
+};
+
+/// Unwrapped local metres about the exact wrapped drawing origin (PRE-33, A8.2).
+struct Footprint {
+    double west = 0.0;
+    double south = 0.0;
+    double east = 0.0;
+    double north = 0.0;
 };
 
 /// Implements PRE-02, PRE-03, PRE-33: one projection for endpoints, bounds, camera and inverse picks.
@@ -21,12 +36,20 @@ public:
     void focus(double east, double north);
     void pan(double x, double y);
     void zoom(double ratio, Pixel anchor, bool snap);
+    void release(Pixel anchor, double seconds);
+    void advance(double seconds);
+    void cancel_settle();
+    bool configure(int minimum, int maximum, int tiny, int group);
+    [[nodiscard]] bool settling() const { return settle_left_ > 0.0; }
+    [[nodiscard]] double target_density() const { return settling() ? settle_target_ : raster_density_; }
     [[nodiscard]] Pixel project(double east, double north, double height = 0.0) const;
     [[nodiscard]] Pixel ground(Pixel pixel, double height = 0.0) const;
     [[nodiscard]] Pixel raster(double east, double north, double height = 0.0) const;
     [[nodiscard]] Pixel residual() const;
     [[nodiscard]] Pixel presentation_offset() const;
     [[nodiscard]] Pixel from_screen(Pixel pixel) const;
+    [[nodiscard]] SourceStep source() const;
+    [[nodiscard]] Footprint footprint(double height, double overscan, double shadow_east, double shadow_north) const;
     [[nodiscard]] Pixel centre() const { return {east_, north_}; }
     [[nodiscard]] double density() const { return density_; }
     [[nodiscard]] double resting_density() const;
@@ -36,6 +59,15 @@ public:
     [[nodiscard]] int height() const;
 
 private:
+    int minimum_ = -12;
+    int maximum_ = 6;
+    int tiny_ = -2;
+    int group_ = -6;
+    double settle_left_ = 0.0;
+    double settle_total_ = 0.0;
+    double settle_start_ = 32.0;
+    double settle_target_ = 32.0;
+    Pixel settle_anchor_;
     int width_ = 1080;
     int height_ = 2400;
     int scale_ = 2;
@@ -64,7 +96,10 @@ class DisplaySnapshot {
 public:
     DisplaySnapshot();
     void acquire(CrowdStepper& stepper);
+    [[nodiscard]] std::uint64_t epoch() const { return epoch_; }
+    [[nodiscard]] std::uint64_t revision() const { return revision_; }
     [[nodiscard]] const Snapshot& snapshot() const { return snapshot_; }
+    [[nodiscard]] RevisionManifest manifest(double second) const;
     [[nodiscard]] std::vector<DrawRecord> sample(const num::Torus& torus, num::Point origin, double second) const;
 
 private:

@@ -1,4 +1,5 @@
 #include "world.hpp"
+#include <limits>
 
 #include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -17,11 +18,15 @@
 
 #include "kd/core/check.hpp"
 #include "kd/demo/kept.hpp"
+#include "kd/look/navigation.hpp"
+#include "kd/look/sprite.hpp"
+#include "kd/look/stream_tuning.hpp"
 #include "kd/num/convert.hpp"
 #include "kd/num/digest.hpp"
 #include "kd/run/heat_tuning.hpp"
 #include "kd/run/save_tuning.hpp"
 #include "kd/time/calendar.hpp"
+#include "kd/time/speeds.hpp"
 #include "trace.hpp"
 
 namespace kd::view {
@@ -41,6 +46,8 @@ void KdWorld::_bind_methods() {
     using godot::D_METHOD;
     ClassDB::bind_method(D_METHOD("load_catalogue", "paths"), &KdWorld::load_catalogue);
     ClassDB::bind_method(D_METHOD("entry", "folder", "name"), &KdWorld::entry);
+    ClassDB::bind_method(D_METHOD("sprite_families"), &KdWorld::sprite_families);
+    ClassDB::bind_method(D_METHOD("stream_limits"), &KdWorld::stream_limits);
     ClassDB::bind_method(D_METHOD("start_clockwork"), &KdWorld::start_clockwork);
     ClassDB::bind_method(D_METHOD("start_crowd", "seed", "camps"), &KdWorld::start_crowd);
     ClassDB::bind_method(D_METHOD("open_crowd", "folder", "seed", "camps", "build"), &KdWorld::open_crowd);
@@ -58,6 +65,13 @@ void KdWorld::_bind_methods() {
     ClassDB::bind_static_method("KdWorld", D_METHOD("moment_text", "second"), &KdWorld::moment_text);
     ClassDB::bind_static_method("KdWorld", D_METHOD("crowd_seed"), &KdWorld::crowd_seed);
     ClassDB::bind_static_method("KdWorld", D_METHOD("morning"), &KdWorld::morning);
+    ClassDB::bind_method(D_METHOD("navigation_tuning"), &KdWorld::navigation_tuning);
+    ClassDB::bind_method(D_METHOD("enable_time_requests", "enabled"), &KdWorld::enable_time_requests);
+    ClassDB::bind_method(D_METHOD("set_zoom_density", "density"), &KdWorld::set_zoom_density);
+    ClassDB::bind_method(D_METHOD("set_manual_rate", "rate"), &KdWorld::set_manual_rate);
+    ClassDB::bind_method(D_METHOD("clear_manual_rate"), &KdWorld::clear_manual_rate);
+    ClassDB::bind_method(D_METHOD("set_speed_lock", "locked"), &KdWorld::set_speed_lock);
+    ClassDB::bind_method(D_METHOD("time_requests"), &KdWorld::time_requests);
     ClassDB::bind_method(D_METHOD("set_speed", "game_per_real"), &KdWorld::set_speed);
     ClassDB::bind_method(D_METHOD("speed"), &KdWorld::speed);
     ClassDB::bind_method(D_METHOD("pause"), &KdWorld::pause);
@@ -87,7 +101,113 @@ godot::String text_of(const std::string& s) {
     return godot::String::utf8(s.c_str());
 }
 
+// Read the schema itself: the binding never maintains a second list of family or cell fields.
+struct SpriteFields {
+    godot::Dictionary values;
+    void whole(const data::Field& f, std::int64_t value, data::Range) { values[text_of(std::string(f.key))] = value; }
+    void quantity(const data::Field& f, std::int64_t value, data::Measure, data::Range range) {
+        whole(f, value, range);
+    }
+    void text(const data::Field& f, const std::string& value) { values[text_of(std::string(f.key))] = text_of(value); }
+    void link(const data::Field& f, const data::Ref& value, std::string_view) { text(f, value.name); }
+    template <typename T>
+    void records(const data::Field& f, const std::vector<T>& value) {
+        godot::Array rows;
+        for (const auto& record : value) {
+            SpriteFields fields;
+            T::visit(fields, record);
+            rows.push_back(fields.values);
+        }
+        values[text_of(std::string(f.key))] = rows;
+    }
+};
+
 }  // namespace
+
+godot::Array KdWorld::sprite_families() const {
+    godot::Array rows;
+    if (!catalogue_) {
+        return rows;
+    }
+    const auto& families = catalogue_->kind<look::SpriteFamily>();
+    for (std::uint32_t i = 0; i < families.size(); ++i) {
+        SpriteFields fields;
+        look::SpriteFamily::visit(fields, families[i]);
+        fields.values["id"] = text_of(families.name(i));
+        rows.push_back(fields.values);
+    }
+    return rows;
+}
+
+godot::Dictionary KdWorld::stream_limits() const {
+    if (!catalogue_) return {};
+    const auto& tuning = catalogue_->kind<look::StreamTuning>();
+    const auto index = catalogue_->find("tuning/stream", "base:stream");
+    if (!index) return {};
+    const auto& s = tuning[*index];
+    SpriteFields fields;
+    look::StreamTuning::visit(fields, s);
+    godot::Dictionary categories;
+    categories["maps"] = s.maps_bytes;
+    categories["sprites"] = s.sprites_bytes;
+    categories["ground"] = s.ground_bytes;
+    categories["masks"] = s.masks_bytes;
+    fields.values["resident_by_category"] = categories;
+    return fields.values;
+}
+
+godot::Dictionary KdWorld::navigation_tuning() const {
+    if (!catalogue_) return {};
+    const auto index = catalogue_->find("tuning/navigation", "base:navigation");
+    if (!index) return {};
+    SpriteFields fields;
+    look::NavigationTuning::visit(fields, catalogue_->kind<look::NavigationTuning>()[*index]);
+    return fields.values;
+}
+// T2.9a.3: opt-in request resolution leaves the accepted legacy Pace API intact (TIM-01/TIM-15).
+void KdWorld::enable_time_requests(bool enabled) {
+    time_requests_enabled_ = false;
+    if (!enabled || !catalogue_) return;
+    const auto navigation = catalogue_->find("tuning/navigation", "base:navigation");
+    const auto time = catalogue_->find("tuning/time", "base:time");
+    if (!navigation || !time) return;
+    const auto& n = catalogue_->kind<look::NavigationTuning>()[*navigation];
+    const auto& t = catalogue_->kind<time::ZoomSpeeds>()[*time];
+    time_requests_enabled_ = time_requests_.configure({{std::ldexp(1.0, n.person_power), t.person / 60.0},
+                                                       {std::ldexp(1.0, n.close_camp_power), t.close_camp / 60.0},
+                                                       {std::ldexp(1.0, n.camp_power), t.camp / 60.0},
+                                                       {std::ldexp(1.0, n.valley_power), t.valley / 60.0},
+                                                       {std::ldexp(1.0, n.region_power), t.region / 60.0}},
+                                                      std::ldexp(1.0, n.minimum_power));
+}
+void KdWorld::set_zoom_density(double density) {
+    time_requests_.zoom(density);
+}
+void KdWorld::set_manual_rate(double rate) {
+    // A game goal must still fit its signed whole-second frontier even before capacity is measured.
+    if (std::isfinite(rate) && rate >= 1.0 &&
+        rate <= (static_cast<double>(std::numeric_limits<std::int64_t>::max()) - pace_.screen()) / 4.0)
+        time_requests_.manual(rate);
+}
+void KdWorld::clear_manual_rate() {
+    time_requests_.clear_manual();
+}
+void KdWorld::set_speed_lock(bool locked) {
+    time_requests_.lock(locked);
+}
+godot::Dictionary KdWorld::time_requests() const {
+    godot::Dictionary result;
+    const auto request = time_requests_.resolve();
+    result["enabled"] = time_requests_enabled_;
+    result["requested_rate"] = request.rate;
+    result["source"] = request.source;
+    result["zoom_rate"] = time_requests_.zoom_rate();
+    result["density"] = time_requests_.density();
+    result["locked"] = time_requests_.locked();
+    result["paused"] = pace_.paused();
+    result["capacity"] = pace_.limit() < 1e299 ? pace_.limit() : 0.0;
+    return result;
+}
 
 godot::Dictionary KdWorld::load_catalogue(const godot::PackedStringArray& paths) {
     KD_CHECK(!runner_, "view::KdWorld: the catalogue is loaded before the world starts");
@@ -433,10 +553,12 @@ double KdWorld::speed() const {
 
 void KdWorld::pause() {
     pace_.pause();
+    time_requests_.pause(true);
 }
 
 void KdWorld::play() {
     pace_.play();
+    time_requests_.pause(false);
 }
 
 bool KdWorld::is_paused() const {
@@ -490,6 +612,12 @@ void KdWorld::frame() {
         if (can > 0.0) {
             pace_.set_limit(std::max(1.0, can * heat_.share() * kUse));
         }
+    }
+    if (time_requests_enabled_) {
+        if (pace_.limit() < 1e299) time_requests_.capacity(pace_.limit());
+        time_requests_.pause(pace_.paused());
+        const auto request = time_requests_.resolve();
+        if (request.rate >= 1.0) pace_.set_speed(request.rate);
     }
     runner_->set_goal(pace_.frame(real, runner_->frontier()));
     if (stepper_) {

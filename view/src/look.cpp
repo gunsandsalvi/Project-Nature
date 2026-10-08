@@ -220,8 +220,8 @@ godot::Dictionary KdLook::texture_image(const godot::String& path) const {
     return out;
 }
 
-godot::Dictionary KdLook::texture_levels(const godot::String& path) const {
-    const ReadLevels read = read_levels(path);
+namespace {
+godot::Dictionary images_of(const ReadLevels& read) {
     godot::Dictionary out;
     out["problem"] = read.problem;
     godot::Array levels;
@@ -230,6 +230,15 @@ godot::Dictionary KdLook::texture_levels(const godot::String& path) const {
     }
     out["levels"] = levels;
     return out;
+}
+
+}  // namespace
+
+godot::Dictionary KdLook::texture_levels(const godot::String& path) const {
+    return images_of(read_levels(path));
+}
+godot::Dictionary KdLook::texture_levels_bytes(const godot::PackedByteArray& bytes) const {
+    return images_of(read_levels_bytes(bytes));
 }
 
 void KdLook::build(const godot::RID& scenario, const godot::RID& shader) {
@@ -458,6 +467,7 @@ void KdLook::_bind_methods() {
     ClassDB::bind_method(D_METHOD("load_layers", "paths"), &KdLook::load_layers);
     ClassDB::bind_method(D_METHOD("texture_image", "path"), &KdLook::texture_image);
     ClassDB::bind_method(D_METHOD("texture_levels", "path"), &KdLook::texture_levels);
+    ClassDB::bind_method(D_METHOD("texture_levels_bytes", "bytes"), &KdLook::texture_levels_bytes);
     ClassDB::bind_method(D_METHOD("build", "scenario", "shader"), &KdLook::build);
     ClassDB::bind_method(D_METHOD("set_part", "part", "on"), &KdLook::set_part);
     ClassDB::bind_method(D_METHOD("set_shader", "shader"), &KdLook::set_shader);

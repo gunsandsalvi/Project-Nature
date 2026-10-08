@@ -59,6 +59,9 @@ add_library(kd_sim STATIC
     src/kd/look/light_tuning.cpp
     src/kd/look/measures.cpp
     src/kd/look/model.cpp
+    src/kd/look/sprite.cpp
+    src/kd/look/navigation.cpp
+    src/kd/look/stream_tuning.cpp
     src/kd/look/water_tuning.cpp
     src/kd/demo/checks.cpp
     src/kd/demo/clockwork.cpp

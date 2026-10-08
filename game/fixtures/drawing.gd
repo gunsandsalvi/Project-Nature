@@ -40,7 +40,7 @@ func _ready() -> void:
 func _draw() -> void:
 	if state.is_empty() or entries.is_empty():
 		return
-	var density: int = int(state.density)
+	var density: float = float(state.density)
 	var ground_texture: Texture2D = atlas.texture(entries[3], density, "walk")
 	if channel in ["normal", "material"]:
 		var supplied: Texture2D = atlas.texture(entries[3], density, "walk", channel)
@@ -80,7 +80,7 @@ func rebuild() -> void:
 		return
 	_draws.clear()
 	id_table = {"1": {"id": "-4", "source": "ground", "surface": 0}}
-	var density: int = int(state.density)
+	var density: float = float(state.density)
 	for entry: Dictionary in entries:
 		if entry.name != "ground":
 			_append(entry, POSITIONS[entry.name], -int(entry.id), density)
@@ -113,6 +113,7 @@ func _submit() -> void:
 		node.texture = item.texture
 		node.region_rect = item.source
 		node.position = item.rect.position
+		node.scale = Vector2.ONE * float(item.get("source_scale", 1.0))
 		node.z_index = index + 1
 		node.modulate = Color("ba99ad") if dusk and channel == "colour" else Color.WHITE
 		node.material = null
@@ -143,13 +144,18 @@ func _submit() -> void:
 
 
 func _append(
-	entry: Dictionary, place: Vector2, id: int, density: int, record: Dictionary = {}
+	entry: Dictionary, place: Vector2, id: int, density: float, record: Dictionary = {}
 ) -> void:
+	if atlas.has_method("sample"):
+		_append_streamed(entry, place, id, density, record)
+		return
 	var animation := "work" if action and record.is_empty() else "walk"
 	var colour_texture: Texture2D = atlas.texture(entry, density, animation)
 	var texture: Texture2D = atlas.texture(entry, density, animation, channel)
 	if texture == null:
 		texture = colour_texture
+	if texture == null:
+		return
 	var frame_size := Vector2(
 		texture.get_width() / int(entry.frames), texture.get_height() / int(entry.facings)
 	)
@@ -188,12 +194,51 @@ func _append(
 	)
 
 
+func _append_streamed(
+	entry: Dictionary, place: Vector2, id: int, density: float, record: Dictionary
+) -> void:
+	var sample: Dictionary = atlas.sample(entry, density)
+	if sample.is_empty():
+		return
+	var texture: Texture2D = sample.textures.get(channel, sample.textures.colour)
+	var ratio: float = density / sample.density
+	var foot: Vector2 = record.get("pixel", camera.project(place.x, place.y, 0.0))
+	var source := Rect2(Vector2.ZERO, texture.get_size())
+	var rect := Rect2(foot - sample.pivot * ratio, source.size * ratio)
+	if not Rect2(Vector2.ZERO, state.size).intersects(rect):
+		return
+	if not _codes.has(id):
+		_codes[id] = _codes.size() + 2
+	_draws.append(
+		{
+			"entry": entry,
+			"id": id,
+			"code": _codes[id],
+			"texture": texture,
+			"colour_texture": sample.textures.colour,
+			"image": sample.image,
+			"foot": foot,
+			"rect": rect,
+			"source": source,
+			"source_scale": ratio,
+			"source_density": sample.density,
+			"record": record
+		}
+	)
+
+
 func pick(pixel: Vector2) -> Dictionary:
 	for index in range(_draws.size() - 1, -1, -1):
 		var item: Dictionary = _draws[index]
 		if not item.rect.has_point(pixel):
 			continue
-		var at: Vector2 = (pixel - item.rect.position + item.source.position).floor()
+		var at: Vector2 = (
+			(
+				(pixel - item.rect.position) / float(item.get("source_scale", 1.0))
+				+ item.source.position
+			)
+			. floor()
+		)
 		var image: Image = item.image
 		if image.get_pixel(int(at.x), int(at.y)).a > 0.1:
 			selected = item.id

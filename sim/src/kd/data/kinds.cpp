@@ -12,6 +12,9 @@
 #include "kd/look/card.hpp"
 #include "kd/look/light_tuning.hpp"
 #include "kd/look/model.hpp"
+#include "kd/look/navigation.hpp"
+#include "kd/look/sprite.hpp"
+#include "kd/look/stream_tuning.hpp"
 #include "kd/look/texture.hpp"
 #include "kd/look/water_tuning.hpp"
 #include "kd/run/heat_tuning.hpp"
@@ -27,6 +30,12 @@ Catalogue::Catalogue() {
     add_kind<look::Texture>("textures",
                             "a texture's record: its levels, where it came from, its checks and your OK (PRE-20)",
                             Layout::records);
+    add_kind<look::SpriteFamily>("sprites", "an authored family with aligned channels and exact pivots (PRE-22)",
+                                 Layout::records);
+    add_kind<look::NavigationTuning>("tuning/navigation", "look navigation anchors and release motion (PRE-03)",
+                                     Layout::single);
+    add_kind<look::StreamTuning>("tuning/stream", "bounded look preparation and graphics allocation budgets (PLT-04)",
+                                 Layout::single);
     add_kind<look::AreaTuning>(
         "tuning/area",
         "the stand-in area: the surfaces its meadow, river bed and water wear, and the river's shape (PRE-23, PRE-26)",
@@ -49,7 +58,7 @@ Catalogue::Catalogue() {
 namespace {
 
 // In the order of their names.
-constexpr std::array<Check, 6> kChecks{{
+constexpr std::array<Check, 9> kChecks{{
     {"area", "PRE-26", "the strip holds the river and its banks, and the meadow lies north and south of it",
      look::check_area},
     {"company", "MAT-17", "every demonstration marker can greet or be greeted", demo::check_company},
@@ -57,8 +66,12 @@ constexpr std::array<Check, 6> kChecks{{
     {"models", "PRE-46",
      "every model's placements are named once, and a ring, span or plug names what it needs and a role wears something",
      look::check_models},
+    {"navigation", "PRE-03", "ordered time and form anchors fit navigation limits", look::check_navigation},
     {"orders", "MAT-05", "every entry in its place in the real order of things, as checks/orders.toml lists them",
      check_orders},
+    {"sprites", "PRE-22", "authored family channels, rectangles, pivots and parts align", look::check_sprites},
+    {"stream", "PLT-04", "resident partition caps fit the aggregate and preparation fits the queue",
+     look::check_stream_tuning},
     {"water", "PRE-26", "every colour of the river's water is written #rrggbb", look::check_water},
 }};
 

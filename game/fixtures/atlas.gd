@@ -207,11 +207,11 @@ func _load_level(entry: Dictionary, density: int, resource: String) -> bool:
 	return true
 
 
-func texture(entry: Dictionary, density: int, action: String, channel := "colour") -> Texture2D:
+func texture(entry: Dictionary, density: float, action: String, channel := "colour") -> Texture2D:
 	var levels: Dictionary = entry.actions.get(action, entry.actions.walk)
 	if channel != "colour":
 		levels = entry.get(channel + "_levels", {})
-	return textures[levels[str(density)]] if levels.has(str(density)) else null
+	return textures[levels[str(int(density))]] if levels.has(str(int(density))) else null
 
 
 func _fail(message: String) -> bool:
