@@ -1,0 +1,11 @@
+Thank you: the new strip and the warm stones are in, and I am carrying your points about the seams, the flap, the sag, the hem, the tones' outlines, the stones' shapes and the pole bundle into the parts myself. You are right about the hide: it reads as a spotted print. Please draw it again, as hide-C.png and hide-D.png, two different tiles, replacing hide-A and hide-B.
+
+THE JOB IS THE SAME (a tile of 128 x 128 texels, 2 m across, every texel an exact flat block of 8 x 8 pixels in a 1024 x 1024 canvas, the lightest hide of the tent, hair running DOWN the picture, no seam, no stitches, no light from one side, seamless as best you can) WITH THIS CHANGE OF CHARACTER, in your own words last turn: "reduce contrast and use fewer, irregularly connected dapples with more downward hair strokes inside them":
+- A hide's colour is mostly the ground (#C99960, about 70%), with soft irregular tonal regions, not marks on a ground: patches of 10 to 30 texels that run in the direction of the hair (taller than wide), each made of a few stepped cells joined together, some merging with the next, some alone, none alike. No lozenges, no diamonds, no regular lattice: if a viewer can count the spots or see a repeat, it is wrong.
+- Only two other tones in the patches, close to the ground: lighter #D6A96C (the lighter patches, about 12%) and darker #B58650 (the darker patches, about 15%); a few flecks of #805532 (at most 1%), never #563A25 and never #E0B578 except as a fleck.
+- Hair strokes are the main texture inside and between the patches: 1 texel wide and 3 to 8 long, running down, in the ground's own two neighbouring tones (#B58650 and #D6A96C), so the hide looks combed and soft; a few more of them than before.
+- Quiet: at the phone's size (a texel about 2 x 2 pixels) the hide should read as one warm tan hide with soft mottling and a hair grain, with no part of it standing out.
+
+Your image tool returns about 1254 x 1254 pixels with cells that are not all the same width: that is my code's job. Never bin a drawing for its size, its grid or its seams. Keep each raw picture unchanged in originals/ under its own name. Draw with your image tool, never with code.
+
+Reply in a few lines: how you drew it, which of the two is weaker and why, and the files you saved.

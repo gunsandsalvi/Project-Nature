@@ -3,14 +3,16 @@
 # the pilot, by the owner's word of 7 October 2026, against the target card's late afternoon (data/base/card/
 # late_afternoon.toml) and the art book's close camp, holding the lightness of the camp's frame at band 0 (54.5 before,
 # 55.5 after) and bringing the lights' hue from 96 to 87; the final tuning is T2.3b.3's. The fill is bluer than neutral
-# but not so blue that the hide's shaded flank goes grey.
+# but not so blue that the hide's shaded flank goes grey. With the art lane's hide tent in, the sun was raised from 230%
+# to 260% and the fill lowered from 80% to 55% at the same lightness (55.9 and 55.8), so the hides' light and dark tones
+# read apart (their lightness spreads 35 points, not 25) and the card's green share falls from 40 to 30.
 sun_height = 28
 sun_turn = 215
 sun_colour = "#ffcf90"
-sun_energy = "230%"
+sun_energy = "260%"
 sky_colour = "#b8c8d4"
 ambient_colour = "#98aed2"
-ambient_energy = "80%"
+ambient_energy = "55%"
 haze_colour = "#a8bccb"
 haze_sun_colour = "#f2cf9e"
 haze_density = "0.015%"

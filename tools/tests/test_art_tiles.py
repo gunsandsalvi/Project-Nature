@@ -223,6 +223,44 @@ class Seams(unittest.TestCase):
             self.assertEqual(tiles.inner_seams(v), [])
 
 
+class Strips(unittest.TestCase):
+    """A hide's seam strip: a few columns of a pattern that repeats down the tile, laid over its first columns."""
+
+    def drawn(self):
+        pattern = np.zeros((4, 4, 3), np.uint8)
+        pattern[0, :3] = (230, 190, 120)  # the stitch, three texture pixels wide
+        pattern[0, 3] = (80, 55, 35)  # its dark end
+        pattern[1:, 0] = (60, 40, 30)  # the seam's own edge
+        drawing = np.tile(pattern, (16, 1, 1))
+        drawing[5, 1] = (0, 0, 0)  # one stray cell in one repeat
+        return pattern, np.concatenate([drawing, np.full((64, 60, 3), 150, np.uint8)], axis=1)
+
+    # checks: PRE-46
+    def test_the_strip_is_the_colour_most_repeats_have_and_a_stray_cell_is_not_carried(self):
+        pattern, drawing = self.drawn()
+        np.testing.assert_array_equal(tiles.seam_strip(drawing, 4, 4), pattern)
+
+    # checks: PRE-46
+    def test_a_strip_is_laid_down_the_first_columns_and_wraps_with_the_tile(self):
+        pattern, _ = self.drawn()
+        tile = grass(64)
+        laid = tiles.lay_strip(tile, pattern)
+        np.testing.assert_array_equal(laid[:, 4:], tile[:, 4:])
+        for start in (0, 4, 60):
+            np.testing.assert_array_equal(laid[start : start + 4, :4], pattern)
+        with self.assertRaises(ValueError):
+            tiles.lay_strip(grass(66)[:66, :66], pattern)
+
+    # checks: PRE-22
+    def test_a_field_wraps_down_alone_when_its_left_edge_is_a_strip(self):
+        t = grass(64)
+        torn = t.copy()
+        torn[:, 0] = 255  # the left edge differs from the right: a seam across, none down
+        self.assertGreater(tiles.wrap_ratio(torn), 1.2)
+        self.assertLess(tiles.wrap_ratio(torn, across=False), 1.2)
+        self.assertLess(tiles.join_ratio(torn, torn, across=False), 1.2)
+
+
 class Marks(unittest.TestCase):
     KEY = np.array([255, 0, 255], np.uint8)
 

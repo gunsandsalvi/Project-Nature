@@ -83,6 +83,7 @@ ASIDE = 230  # screen pixels beside an object's views for the adult, the stick a
 ADULT = 1.7  # metres: the standing adult beside anything big
 FIGURE = (150, 143, 130)
 TALLEST = 520  # screen pixels the tallest thing on an object sheet may stand
+ZOOM_TALLEST = 1700  # screen pixels: the phone's screen is no taller, so no true-size picture at a zoom stands higher
 ZOOMS = [("Up close", 128), ("The close camp", 32), ("The camp", 8)]  # screen pixels a metre at each zoom's centre
 
 
@@ -260,31 +261,46 @@ class Sheet:
 
     def figures(self, items, after=GAP):
         """A row of (picture, label) standing on one ground line, each at its own size, so things drawn at one scale
-        stay comparable; it wraps to another line when wider than the page."""
+        stay comparable; it wraps to another line when wider than the page. A scale stick that would stand alone on a
+        row of its own is kept in the last row of figures: the figures are packed with a small gap, the last one may
+        reach into the right margin, which is the room a stick needs."""
         label_h, width = 28, WIDTH - 2 * MARGIN
         probe = ImageDraw.Draw(Image.new("RGB", (1, 1)))
-        lines, line, used = [], [], 0
+        slots = []
         for picture, label in items:
             slot = max(picture.width, round(probe.textlength(label, font=font(19, True))) + 8 if label else 0)
-            if line and used + GAP + slot > width:
+            slots.append((picture, label, slot))
+
+        def pack(room, gap):
+            lines, line, used = [], [], 0
+            for entry in slots:
+                if line and used + gap + entry[2] > room:
+                    lines.append(line)
+                    line, used = [], 0
+                line.append(entry)
+                used += (gap if used else 0) + entry[2]
+            if line:
                 lines.append(line)
-                line, used = [], 0
-            line.append((picture, label, slot))
-            used += (GAP if used else 0) + slot
-        if line:
-            lines.append(line)
+            return lines
+
+        gap, right = GAP, WIDTH - MARGIN
+        lines = pack(width, gap)
+        if len(lines) > 1 and len(lines[-1]) == 1:
+            tight = pack(WIDTH - MARGIN - 8, 6)
+            if len(tight) < len(lines):
+                lines, gap, right = tight, 6, WIDTH - 8
         for line in lines:
             height = max(p.height for p, _, _ in line)
 
-            def paint(page, draw, y, line=line, height=height):
+            def paint(page, draw, y, line=line, height=height, gap=gap, right=right):
                 ground = y + label_h + height
-                draw.line([MARGIN, ground, WIDTH - MARGIN, ground], fill=EDGE, width=2)
+                draw.line([MARGIN, ground, right, ground], fill=EDGE, width=2)
                 x = MARGIN
                 for picture, label, slot in line:
                     if label:
                         draw.text((x, y), label, fill=QUIET, font=font(19, True))
                     page.paste(picture, (x, ground - picture.height), picture if picture.mode == "RGBA" else None)
-                    x += slot + GAP
+                    x += slot + gap
 
             self.add(label_h + height + 2 + after, paint)
 
@@ -330,6 +346,13 @@ def object_scale(spec, cut):
     return max(1, int(best))
 
 
+def true_size_row(item, shown):
+    """The camera's first view at each zoom's pixels a metre, as the phone shows it, leaving out any zoom at which the
+    picture is wider than the page or taller than the phone's screen (a 28 m tree is 3,600 pixels at the nearest)."""
+    row = [(shown(item, k)[0], f"{label}: 1 m = {k} px") for label, k in ZOOMS]
+    return [(p, label) for p, label in row if p.width <= WIDTH - 2 * MARGIN - 40 and p.height <= ZOOM_TALLEST]
+
+
 def compose_object(spec, sheet, folder):
     """The object's sections: its views at one scale with the adult and an upright stick, from above, the camera's view
     and its true size on the phone at each zoom, its groups of parts or states (a group seen from above gets a lying
@@ -367,9 +390,7 @@ def compose_object(spec, sheet, folder):
         sheet.text("The game's camera, about 37 degrees down, late afternoon, at the same scale.", 26, bold=True)
         metres = fitting(camera.get("stick", 1), s, HALF)
         sheet.figures([shown(i, s) for i in camera["items"]] + [(lying(round(metres * s), length_label(metres)), "")])
-        first = camera["items"][0]
-        row = [(shown(first, k)[0], f"{label}: 1 m = {k} px") for label, k in ZOOMS]
-        row = [(p, label) for p, label in row if p.width <= WIDTH - 2 * MARGIN - 40]
+        row = true_size_row(camera["items"][0], shown)
         if row:
             about = "True size on the phone at each zoom (scaled here; each band gets pixel art of its own)."
             sheet.text(about, 26, bold=True)

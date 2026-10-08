@@ -53,6 +53,14 @@ class CampFamily(unittest.TestCase):
             self.assertTrue(name in self.data, f"{name!r} is not in the exported kit")
 
     # checks: PRE-46
+    def test_the_tent_exports_as_eleven_hides_ten_poles_worth_of_pole_a_lashing_a_flap_and_three_stones(self):
+        names = [f"hide_lower_{i}" for i in range(1, 8)] + [f"hide_upper_{i}" for i in range(1, 5)]
+        names += ["tent_pole", "tent_binding", "tent_door_flap", "ring_stone_small", "ring_stone_medium"]
+        names += ["ring_stone_large", "door_top", "crossing", "foot", "bind", "tip", "centre", "hinge"]
+        for name in names:
+            self.assertTrue(name.encode() in self.data, f"{name!r} is not in the exported kit")
+
+    # checks: PRE-46
     def test_the_same_script_gives_the_same_bytes(self):
         with tempfile.TemporaryDirectory() as again:
             self.assertTrue(make(again)[1] == self.data, "the exported bytes changed between two runs")
@@ -66,6 +74,18 @@ class CampFamily(unittest.TestCase):
                 [KD_KIT, "check", os.path.join(ROOT, "data"), kit], capture_output=True, text=True, cwd=ROOT
             )
         self.assertNotIn("past 1.5 to 1", run.stdout + run.stderr, run.stdout + run.stderr)
+
+    # checks: PRE-46
+    @unittest.skipUnless(os.path.exists(KD_KIT), "kd_kit is not built (set KD_KIT to its path)")
+    def test_the_clubs_and_the_tents_recipes_fit_the_family(self):
+        with tempfile.TemporaryDirectory() as kit:
+            shutil.copy(os.path.join(self.tmp.name, "camp.kdkit"), kit)
+            run = subprocess.run(
+                [KD_KIT, "check", os.path.join(ROOT, "data"), kit], capture_output=True, text=True, cwd=ROOT
+            )
+        said = run.stdout + run.stderr  # the stand-in family's recipes may find no stand-in file here; ours must fit
+        self.assertEqual([line for line in said.splitlines() if re.search(r"art:(club|hide_tent_cone)\b", line)], [])
+        self.assertRegex(said, r"\d+ recipes", "the checker did not say it looked at the recipes")
 
 
 if __name__ == "__main__":

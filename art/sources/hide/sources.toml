@@ -1,0 +1,42 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["hide-A.webp"]
+sha256 = "085186ebb07f47efce5e85d1f1b136d2c80520982da9e5d2734944382f1554a7"
+c2pa = "present"
+note = "the picture the image tool returned for hide tile A in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wraps nowhere; dapples and strokes of hair running down the picture)"
+
+["hide-B.webp"]
+sha256 = "caec78f638e0bded9bddc2e07f040bcf9eeacc13ca6f54035cc4b8d8e0cf3bad"
+c2pa = "present"
+note = "the picture the image tool returned for hide tile B in turn 1, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wraps nowhere; dapples and strokes of hair running down the picture)"
+
+["hide-C.webp"]
+sha256 = "e2e8616993fe76276d5a1882539e8b64908a8d2100cef287db1682248d625503"
+c2pa = "present"
+note = "the picture the image tool returned for hide tile C in turn 3, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wraps nowhere; soft irregular tonal patches and hair strokes running down)"
+
+["hide-D.webp"]
+sha256 = "166e67b5f5ba42a5e0579fb2afd3e14f8b95b75cb1763fc1acb73bc3de526177"
+c2pa = "present"
+note = "the picture the image tool returned for hide tile D in turn 3, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wraps nowhere; soft irregular tonal patches and hair strokes running down)"
+
+["hide-E.webp"]
+sha256 = "8be73298af2b84cf5eb1035ac50237c39d046b27268b25454c24b703f334becf"
+c2pa = "present"
+note = "the picture the image tool returned for hide tile E in turn 5, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wraps nowhere; compact irregular mottling and hair strokes running down)"
+
+["hide-F.webp"]
+sha256 = "fb77df208c28e10c7c07680fec75c262e4cb17f332d565215442cd7f03d8cf84"
+c2pa = "present"
+note = "the picture the image tool returned for hide tile F in turn 5, unchanged (1254 x 1254 pixels, pixel art in cells of about 8 pixels that wraps nowhere; compact irregular mottling and hair strokes running down)"
+
+["hide-strip-2.webp"]
+sha256 = "fd29feabf181354225be403bfb6217eb11d2b384444d9891e6d2420f251b0ff0"
+c2pa = "present"
+note = "the picture the image tool returned for the lighter, sparser seam strip in turn 2, unchanged (1254 x 1254 pixels; only its first 4 columns matter, each drawn about 19.6 pixels wide, one stitch every 8 rows)"
+
+["hide-strip.webp"]
+sha256 = "49210d084bb89a5c7d241deeef0af5a96160f63f71d5e8f77872d992c5228a08"
+c2pa = "present"
+note = "the picture the image tool returned for the hide's seam strip in turn 1, unchanged (1254 x 1254 pixels; only its first 4 columns matter, each drawn about 19.6 pixels wide, a running stitch repeating every 4 rows)"
