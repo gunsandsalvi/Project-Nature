@@ -20,7 +20,9 @@ how much the choice of its shared ring counts a smooth join: for a ground whose 
 set it to 0, or the ring is cut where no crack crosses and every tile edge shows as a calm line. A tile with a `strip`
 (a hide's) has the first `strip_width` columns of that drawing, a pattern of `strip_period` rows read from a drawing
 of `strip_cells` cells across, repeated down every version's first columns: the seam strip the hide's parts wear along
-their edges. A `calm` (percent) groups a tile's contrast: each version's contrast is multiplied by broad swells of its
+their edges. A `direct` tile has as many pictures (the `sheet` and its `extra`) as versions and each version is
+its picture as it is, every one drawn with its border clear (a tile of separate marks), so there is nothing to quilt.
+A `calm` (percent) groups a tile's contrast: each version's contrast is multiplied by broad swells of its
 own, from that percent in the calm places to a `busy` percent in the busy (the rest of 200 if not said, so 1 on
 average), 1 at the border, so a far ground has quiet ground between its groups of marks and not an even grain
 (tiles.calm_field). A tile with a `snap` (the
@@ -139,6 +141,8 @@ def make_tile(spec, reference, seed, key=None, given=None):
     ]
     if snap and not wraps:
         first, *extras = common_size([first, *extras])
+    if key is not None:  # a drawing's edges leave a fringe of the key blended or darkened: it is the key
+        first, extras = tiles.snap_to_key(first, key), [tiles.snap_to_key(x, key) for x in extras]
     flatten = 0 if key is not None else spec.get("flatten")
     drawn = {t["level"]: t for t in spec.get("level", []) if "pictures" in t}
     coded = {t["level"]: t for t in spec.get("level", []) if "pictures" not in t}
@@ -148,7 +152,7 @@ def make_tile(spec, reference, seed, key=None, given=None):
     for j in sorted(drawn):  # each picture drawn for a level, moved to the colour and contrast of its source above
         hint, count = drawn[j].get("snap"), drawn[j].get("cells")
         pairs = [
-            (picture(p, hint, count)[0], "")
+            (tiles.snap_to_key(picture(p, hint, count)[0], key), "")
             if key is not None
             else fit.calibrate(picture(p, hint, count)[0], up, match=True, more=float(drawn[j].get("contrast", 100)))
             for p, up in zip(drawn[j]["pictures"], sources, strict=True)
@@ -156,7 +160,14 @@ def make_tile(spec, reference, seed, key=None, given=None):
         sources = common_size([p for p, _ in pairs]) if hint else [p for p, _ in pairs]
         pictures.append(sources)
         calibrations.append(pairs[0][1])
-    if snap and not wraps:
+    if spec.get("direct"):  # every version a picture of its own, with its border clear: nothing to quilt
+        versions = [first, *extras]
+        if len(versions) != spec["versions"]:
+            raise ValueError(
+                f"a direct tile has as many pictures as versions ({spec['versions']}), not {len(versions)}"
+            )
+        shift = None
+    elif snap and not wraps:
         versions = tiles.make_versions_open(
             [first, *extras],
             spec["versions"],
@@ -322,7 +333,12 @@ def words_of(index, serves, ways, version, shift, spec, block, loss, marks=False
         how = f"the tile's picture (a block of {block}, loss {loss * 100:.1f}%)"
         if ways[0].get("calibration"):
             how += ", moved to the reference's colour"
-        if shift is None:
+        if spec.get("direct"):
+            how = (
+                f"the tile's own picture {'ABCDEFGH'[version - 1]} (a block of {block}, loss {loss * 100:.1f}%), "
+                "drawn with its border clear, so this version is that picture as it is and any two join without a seam"
+            )
+        elif shift is None:
             how = (
                 f"the drawing put on its own grid (cells of about {block} picture pixels, loss {loss * 100:.1f}%)"
                 + (", moved to the reference's colour" if ways[0].get("calibration") else "")

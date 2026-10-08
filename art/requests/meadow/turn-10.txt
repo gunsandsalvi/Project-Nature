@@ -1,0 +1,11 @@
+Thank you. The owner's side saw, in my crop of the far meadow, a faint regular rhythm of smudges: rows about 150 pixels apart and similar blotch groups about 380 apart across, near the spacing of the far tile (256 by 154 pixels at this band). I measured it: the plan's repeat measure (the autocorrelation of lightness at the tile's own width) is under 0.01, but the grain's busy and calm blotches do come round with the tile, because each version's blotches are mostly the long swells. I changed them: shorter swells, none longer than a third of the tile, of more even strength, so no one long swell sets a rhythm; the busy and calm ground and the gentle change between are as before. Please do not draw anything in this turn: do not use your image tool, only look at the pictures and answer in words.
+
+THE PICTURES WITH THIS MESSAGE (the game's camera 37 degrees down, late afternoon)
+1. meadow-band5-behind.png: the meadow at band 5, as the ground alone.
+2. crop-band5.png: a stretch of it at its true size, one picture pixel to one screen pixel.
+
+WHAT I NEED, IN A FEW LINES
+- Is there still a rhythm, rows or columns of similar blotches, a grid or a repeat? Do the quiet intervals still read between the groups of grain, or have they got lost?
+- At most two changes. If it is good enough to go to the owner, say so plainly.
+
+Reply in a few lines. Do not draw; do not save any file.

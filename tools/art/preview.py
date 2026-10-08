@@ -6,6 +6,7 @@ picking one of its versions by a hash of its place (A5.3), and drawn by Blender 
     python3 tools/art/preview.py ground <name> <out folder> [--bands 0 1 ...] [--sun behind|ahead] [--samples N]
                                        [--beside <other material>]
     python3 tools/art/preview.py wall <material> <out folder> [--ground <name>] [--bands ...] [--sun behind|ahead]
+                                      [--over <marks material>]
     python3 tools/art/preview.py cliff <foot recipe> <out folder> [--ground <name>] [--bands ...] [--sun behind|ahead]
     python3 tools/art/preview.py water <bed> <out folder> [--marks <marks>] [--depth m] [--bands ...]
     python3 tools/art/preview.py part <recipe> <out folder> [--ground <name>] [--forms <part>...] [--turn <degrees>]
@@ -203,17 +204,31 @@ def ground_view(name, band, sun, out_folder, samples=24, change=None, suffix="",
     return out
 
 
-def wall_view(name, ground_name, band, sun, out_folder, samples=24, change=None, suffix=""):
+def over(picture, marks):
+    """The marks (RGBA, each pixel wholly see-through or not) laid over a picture of the same size."""
+    a = marks[..., 3:4] > 127
+    return np.where(a, marks[..., :3], picture)
+
+
+def wall_view(name, ground_name, band, sun, out_folder, samples=24, change=None, suffix="", marks=None):
     """One band's view of a material laid on a wall, a cliff's face: a vertical wall standing on the frame's middle
     line, facing the camera, its tiles laid as the ground's are (each cell taking a version by its place) over metres
     east and up, with the ground below it (`ground_name`'s material, the meadow by default), under the engine's light.
-    Returns the picture's path."""
+    With `marks` (a marks material such as the cliff's streaks) its tiles are laid over the face the same way, wherever
+    it has a mark, as the engine would show them where a face's mask says there is one. Returns the picture's path."""
     available = textures.read_set(name)
     tile, level = tile_for_band(available, band)
     mpp = BAND0_MPP * (2**band)
     box = footprint(mpp, margin=2 * (2**band) / 64.0)
     height = 1.25 * (SIZE[1] / 2.0) * mpp / math.cos(math.radians(TILT))
     face, covers = compose(available[tile], level, textures.TILES[tile][1], (box[0], box[1], 0.0, height))
+    if marks:
+        marks_set = textures.read_set(marks)
+        marks_tile, marks_level = tile_for_band(marks_set, band)
+        layer, _ = compose(
+            marks_set[marks_tile], marks_level, textures.TILES[marks_tile][1], (box[0], box[1], 0.0, height), salt=2
+        )
+        face = over(face, layer)
     ground_set = textures.read_set(ground_name)
     ground_tile, ground_level = tile_for_band(ground_set, band)
     floor, floor_covers = compose(ground_set[ground_tile], ground_level, textures.TILES[ground_tile][1], box)
@@ -224,7 +239,7 @@ def wall_view(name, ground_name, band, sun, out_folder, samples=24, change=None,
     ground_png = os.path.join(scratch, f"{ground_name}-ground-band{band}.png")
     tiles.write_png(wall_png, face)
     tiles.write_png(ground_png, floor)
-    out = os.path.join(out_folder, f"{name}-wall-band{band}-{sun}{suffix}.png")
+    out = os.path.join(out_folder, f"{name}-wall-band{band}-{sun}{suffix}{'-over-' + marks if marks else ''}.png")
     config = scene_config(out, sun, samples, change)
     config["camera"] = {"distance": distance(mpp), "tilt": TILT, "lens": LENS}
     config["ground"] = {
@@ -473,6 +488,7 @@ def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("what", choices=["ground", "water", "part", "wall", "cliff"])
     ap.add_argument("--ground", default="meadow", help="the ground a part lies on (part)")
+    ap.add_argument("--over", default=None, help="a marks material to lay over the wall's face (wall)")
     ap.add_argument("--beside", default=None, help="another material to lay beside this one in a chessboard (ground)")
     ap.add_argument("--forms", nargs="*", default=None, help="the parts to lay instead of the recipe's own (part)")
     ap.add_argument("name", help="the material; for water, the bed's, with --marks the marks'")
@@ -532,7 +548,7 @@ def main(argv):
         elif args.what == "cliff":
             print(cliff_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix))
         elif args.what == "wall":
-            print(wall_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix))
+            print(wall_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix, args.over))
         else:
             print(ground_view(args.name, band, args.sun, args.out, args.samples, change, suffix, args.beside))
     return 0
