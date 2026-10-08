@@ -10,6 +10,7 @@
 
 #include "area_draw.hpp"
 #include "calibration.hpp"
+#include "canvas.hpp"
 #include "crowd.hpp"
 #include "device.hpp"
 #include "figures.hpp"
@@ -28,6 +29,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     }
     godot::ClassDB::register_class<kd::view::KdDevice>();
     godot::ClassDB::register_class<kd::view::KdWorld>();
+    godot::ClassDB::register_class<kd::view::KdCanvas>();
     godot::ClassDB::register_class<kd::view::KdCrowd>();
     godot::ClassDB::register_class<kd::view::KdLook>();
     godot::ClassDB::register_class<kd::view::KdWorlds>();

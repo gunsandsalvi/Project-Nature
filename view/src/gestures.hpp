@@ -33,6 +33,8 @@ public:
     /// Degrees two fingers must turn together before the view turns, so a pinch never turns it.
     static constexpr double kTwistStart = 10.0;
 
+    explicit Gestures(bool can_turn = true) : can_turn_(can_turn) {}
+
     void press(int finger, double x, double y, double seconds);
     void move(int finger, double x, double y, double seconds);
     void lift(int finger, double x, double y, double seconds);
@@ -55,6 +57,7 @@ private:
     std::map<int, Finger> fingers_;  // where each finger is now
     std::map<int, Finger> before_;   // where each was when last compared
     Motion motion_;
+    bool can_turn_ = true;
     bool thumb_ = false;
     // the last tap, for the one-thumb zoom: where and when it lifted
     bool tap_ready_ = false;
