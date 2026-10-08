@@ -1,8 +1,9 @@
 ## The look's light for the moment it shows (A4.3, PRE-30): the sun, the sky's fill and the globals
 ## the shared light function reads, from base/tuning/light.toml, so no number of the light is in
-## code. Stand-ins for the view's maps and the fire grid, which the pages that draw the pilot's
-## pieces need to hold still: open sky, no contact and no fires, until the page makes the maps round
-## its things (game/look/view_maps.gd) and the view the fires' (α2.3b).
+## code. Stand-ins for the view's maps, the area's patch picture and the fire grid, which the pages
+## that draw the pilot's pieces need to hold still: open sky, no contact, half growth and no wear,
+## and no fires, until the page makes the maps round its things and the patch picture
+## (game/look/view_maps.gd) and the view the fires' (α2.3b).
 ## Implements PRE-30.
 class_name Afternoon
 extends RefCounted
@@ -63,6 +64,12 @@ static func _publish(tuning: Dictionary, toward: Vector3) -> void:
 	_global("kd_view_tops", bare_tops())
 	_global("kd_maps_place", Vector4(-32.0, -32.0, 64.0, 20.0))
 	_global("kd_rim", _share(tuning["rim"]))
+	# a patch picture of half growth and no wear: the ground as its tile is
+	var patches := Image.create(4, 4, false, Image.FORMAT_RGBA8)
+	patches.fill(Color(0.5, 0.0, 0.0, 1.0))
+	_global("kd_patches", ImageTexture.create_from_image(patches))
+	_global("kd_patches_place", Vector4(-32.0, -32.0, 64.0, 0.0))
+	_global("kd_patch_look", Vector4(0.0, 0.0, 0.0, 0.0))
 	var grid := Image.create(64, 64, false, Image.FORMAT_RGBA8)
 	grid.fill(Color8(0, 0, 0, 0))
 	_global("kd_fire_grid", ImageTexture.create_from_image(grid))

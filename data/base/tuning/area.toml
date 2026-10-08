@@ -32,3 +32,15 @@ club_bearing = 125
 tent_turn = 0
 club_turn = 70
 camp_seed = 3
+# The patch picture (A4.6): the ground's masses of taller and shorter growth, golden where short and dry and deeper green
+# where tall, 48 m across at the biggest, swinging the colour 45% at the extremes; where growth is under 20% the ground
+# shows bare earth between its blades; round the tent it is worn for 2.4 m and fades over 3.2 more. The earth is a
+# stand-in colour, a darker brown than the meadow sheet's earth swatch because the light lifts it, until the art lane's
+# bare earth is the ground's own.
+patch_seed = 11
+growth_scale = "48 m"
+growth_swing = "45%"
+bare_below = "20%"
+clearing = "2.4 m"
+clearing_fade = "3.2 m"
+earth_colour = "#937854"

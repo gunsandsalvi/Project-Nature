@@ -259,6 +259,12 @@ func _build_camp() -> String:
 	)
 	if not said.is_empty():
 		return said
+	# the ground's patches: its masses of growth and the clearing worn round the tent (A4.6)
+	said = maps.build_patches(
+		world, float(_camp["Tent"]["east"]) / 100.0, float(_camp["Tent"]["north"]) / 100.0
+	)
+	if not said.is_empty():
+		return said
 	# the ground's openness, contact and shadows round the camp's things
 	said = maps.build(kit, [_camp["Tent"]["id"], _camp["Club"]["id"]], world)
 	var state := look.state()

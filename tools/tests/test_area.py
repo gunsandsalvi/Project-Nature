@@ -9,7 +9,9 @@ run of tools/shots.sh over a plan, and what the pictures must show.
   every row, which is why it is compared with edges of the same line and not with the picture's average);
 - the river's marks move an even number of screen pixels a tick, whole 2-pixel texture pixels;
 - the camp's tent on the meadow: the hollow under its hem and in its doorway is darker than open ground and never
-  black, and the cast shadow is darker than the lit ground (A4.8).
+  black, and the cast shadow is darker than the lit ground (A4.8);
+- the camp's ground from the patch picture (A4.6): worn to bare earth, brown with red over green, in the clearing beside
+  the tent, and grass, which is mostly green and gold, in the meadow beyond it.
 
 These need Godot, Xvfb, the built extension and the game's data (tools/gamedata.py)."""
 
@@ -92,6 +94,19 @@ CAMP_ROWS = 1180
 def camp_lightness(folder):
     """Each pixel of the camp's picture as the mean of its channels, over the rows that show the world."""
     return picture(folder, "camp.png").mean(axis=2)[:CAMP_ROWS]
+
+
+# Boxes of the camp's picture, as (left, right, top, bottom) pixels: the clearing beside the tent's stones, and the
+# meadow north of the tent and south of it. The share of a box's pixels that read as earth (red over green by a seventh
+# or more): worn ground reads it all through, the meadow's gold blades in their sunlight a little.
+WORN_BOX = (60, 240, 460, 680)
+MEADOW_BOXES = [(60, 1020, 0, 90), (60, 1020, 800, 1000)]
+
+
+def earth_share(folder, box):
+    left, right, top, bottom = box
+    p = picture(folder, "camp.png")[top:bottom, left:right]
+    return float((p[..., 0] > p[..., 1] * 1.14).mean())
 
 
 def centre_step(folder, name):
@@ -182,6 +197,15 @@ class ThePilotsArea(unittest.TestCase):
         self.assertLess(darkest, 0.4 * open_ground)
         # never black: even the darkest tenth of one per cent keeps colour (A4.8)
         self.assertGreaterEqual(float(np.percentile(lightness, 0.1)), 10.0)
+
+    # checks: PRE-20 WLD-31
+    def test_the_ground_beside_the_tent_is_worn_to_earth_and_the_meadow_beyond_is_grass(self):
+        worn = earth_share(self.folder, WORN_BOX)
+        beyond = [earth_share(self.folder, box) for box in MEADOW_BOXES]
+        self.assertGreater(worn, 0.45, f"the clearing's earth share {worn:.2f}")
+        for share in beyond:
+            self.assertLess(share, 0.3, f"the meadow's earth share {beyond}")
+        self.assertGreater(worn, 2.0 * max(beyond))
 
 
 if __name__ == "__main__":

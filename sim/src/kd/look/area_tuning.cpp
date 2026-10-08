@@ -4,6 +4,7 @@
 #include <string_view>
 #include <utility>
 
+#include "kd/look/light_tuning.hpp"
 #include "kd/look/model.hpp"
 #include "kd/look/texture.hpp"
 
@@ -36,6 +37,9 @@ void check_area(const data::Catalogue& cat, std::vector<data::Problem>& problems
             a.width / 2 + a.width / 2 * a.width_wobble / 1'000'000 + a.run + a.camp_back + a.club_away;
         if (reach_of_camp > a.strip) {
             problems.push_back(areas.at(i, "camp_back", "puts the camp, with its club, beyond the strip"));
+        }
+        if (!is_colour_text(a.earth_colour)) {
+            problems.push_back(areas.at(i, "earth_colour", "must be a colour written #rrggbb in lower case"));
         }
         // with no art loaded the engine runs without textures or recipes, so the surfaces and the camp's things are
         // held to entries only when there are some

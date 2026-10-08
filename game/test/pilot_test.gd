@@ -174,6 +174,72 @@ func test_the_maps_params_are_the_light_s_tuning_in_metres_and_shares() -> void:
 	assert_float(params["shadow_reach"]).is_equal_approx(14.0, 1e-9)
 
 
+# checks: PRE-20 WLD-31
+func test_the_patch_picture_is_centred_on_the_tent_and_worn_there() -> void:
+	var page := _page()
+	await await_idle_frame()
+	assert_str(page.problem).is_empty()
+	var tent: Dictionary = page.camp_thing("Tent")
+	var tuning: Dictionary = page.world.entry("tuning/area", "base:area")
+	var maps: ViewMaps = page.maps
+	assert_object(maps.patches).is_not_null()
+	# 64 patches of 4 m, a square 256 m across with the tent in the middle of its patch 32
+	assert_int(maps.patches.get_width()).is_equal(64)
+	assert_int(maps.patches.get_height()).is_equal(64)
+	assert_float(maps.patches_width).is_equal_approx(256.0, 1e-6)
+	var east := float(tent["east"]) / 100.0
+	var north := float(tent["north"]) / 100.0
+	assert_float(east - maps.patches_west).is_equal_approx(32.5 * 4.0, 1e-6)
+	assert_float(north - maps.patches_south).is_equal_approx(32.5 * 4.0, 1e-6)
+	# the ground is worn where the tent stands and not at the picture's corner; its growth varies
+	var picture := maps.patches.get_image()
+	var middle := picture.get_pixel(32, 32)
+	assert_float(middle.g).is_greater(0.7)
+	assert_float(picture.get_pixel(2, 2).g).is_less(0.8)
+	var low := 1.0
+	var high := 0.0
+	for row in picture.get_height():
+		for column in picture.get_width():
+			low = minf(low, picture.get_pixel(column, row).r)
+			high = maxf(high, picture.get_pixel(column, row).r)
+	assert_float(high - low).is_greater(0.5)
+	# the earth's colour is the tuning's, in linear light, and the swing its share
+	var look := maps.patches_look
+	var earth := Color(str(tuning["earth_colour"])).srgb_to_linear()
+	assert_float(look.x).is_equal_approx(earth.r, 1e-4)
+	assert_float(look.z).is_equal_approx(earth.b, 1e-4)
+	assert_float(look.w).is_equal_approx(float(tuning["growth_swing"]) / 1.0e6, 1e-6)
+
+
+# checks: PRE-20 WLD-31
+func test_the_patch_picture_follows_the_rig_s_origin_in_metres() -> void:
+	var page := _page()
+	await await_idle_frame()
+	var maps: ViewMaps = page.maps
+	maps.follow(10000, 20000)
+	var place := maps.patches_place
+	assert_float(place.x).is_equal_approx(maps.patches_west - 100.0, 1e-3)
+	assert_float(place.y).is_equal_approx(maps.patches_south - 200.0, 1e-3)
+	assert_float(place.z).is_equal_approx(maps.patches_width, 1e-3)
+
+
+# checks: PRE-20 WLD-31
+func test_the_patch_picture_s_numbers_are_the_area_s_tuning_in_metres_and_shares() -> void:
+	var tuning := {
+		"patch_seed": 11,
+		"growth_scale": 48000,
+		"bare_below": 200000,
+		"clearing": 2200,
+		"clearing_fade": 2600,
+	}
+	var params := ViewMaps.patches_of(tuning)
+	assert_float(params["seed"]).is_equal_approx(11.0, 1e-9)
+	assert_float(params["growth_scale"]).is_equal_approx(48.0, 1e-9)
+	assert_float(params["bare_below"]).is_equal_approx(0.2, 1e-9)
+	assert_float(params["clearing"]).is_equal_approx(2.2, 1e-9)
+	assert_float(params["clearing_fade"]).is_equal_approx(2.6, 1e-9)
+
+
 # checks: PRE-42 PLT-04
 func test_the_build_ships_each_pilot_piece_s_sheet_and_it_reads_as_a_picture() -> void:
 	var files: Dictionary = GameData.sheets(GameData.build())

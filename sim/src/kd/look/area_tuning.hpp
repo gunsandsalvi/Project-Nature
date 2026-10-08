@@ -2,10 +2,11 @@
 // pilot's pieces stand in until the world's own ground comes (M3). It names the three surfaces the area wears, each by
 // its near tile's entry (art:meadow), the middle and far tiles and the versions being named by it (art:meadow/middle,
 // art:meadow/v2), and gives the river's shape and the camp that stands on its bank: a tent and a club, each named by
-// its recipe's entry, and where they stand. The names are text, not links, so the catalogue still loads with no art in
-// it (the engine runs with none, PRE-20); when textures or recipes are loaded, a check holds each name to an entry.
-// Only the screen reads it, so it counts in the look, never in the world's rules; view/src/area.hpp makes the land from
-// it.
+// its recipe's entry, and where they stand, and the patch picture's numbers (A4.6): the masses of taller and
+// shorter growth and the worn clearing round the camp. The names are text, not links, so the catalogue still loads with
+// no art in it (the engine runs with none, PRE-20); when textures or recipes are loaded, a check holds each name to an
+// entry. Only the screen reads it, so it counts in the look, never in the world's rules; view/src/area.hpp makes the
+// land from it.
 #pragma once
 
 #include <cstdint>
@@ -41,6 +42,13 @@ struct AreaTuning {
     std::int64_t tent_turn = 0;
     std::int64_t club_turn = 0;
     std::int64_t camp_seed = 0;
+    std::int64_t patch_seed = 0;
+    std::int64_t growth_scale = 0;   // millimetres
+    std::int64_t growth_swing = 0;   // parts per million
+    std::int64_t bare_below = 0;     // parts per million
+    std::int64_t clearing = 0;       // millimetres
+    std::int64_t clearing_fade = 0;  // millimetres
+    std::string earth_colour;
 
     template <typename V, typename Self>
     static void visit(V& v, Self& a) {
@@ -95,6 +103,28 @@ struct AreaTuning {
                 a.club_turn, {0, 359});
         v.whole({"camp_seed", "the seed the camp's things are put together with", Affects::look}, a.camp_seed,
                 {0, 2'147'483'647});
+        v.whole({"patch_seed", "which way the patch picture's masses of growth lie", Affects::look}, a.patch_seed,
+                {0, 2'147'483'647});
+        v.quantity({"growth_scale", "how wide the patch picture's biggest masses of taller or shorter growth are",
+                    Affects::look},
+                   a.growth_scale, Measure::length, {8'000, 500'000});
+        v.quantity({"growth_swing",
+                    "how far the ground's colour swings, golden where growth is short and dry and deeper "
+                    "green where it is tall, at the extremes",
+                    Affects::look},
+                   a.growth_swing, Measure::ratio, {0, 1'000'000});
+        v.quantity({"bare_below", "the growth under which the ground shows bare earth between its blades, as a share",
+                    Affects::look},
+                   a.bare_below, Measure::ratio, {0, 1'000'000});
+        v.quantity(
+            {"clearing", "the radius round the camp's tent where the ground is worn to bare earth", Affects::look},
+            a.clearing, Measure::length, {1'000, 100'000});
+        v.quantity({"clearing_fade", "how far past the clearing the wear takes to leave", Affects::look},
+                   a.clearing_fade, Measure::length, {500, 100'000});
+        v.text(
+            {"earth_colour", "the bare earth's colour, as #rrggbb, until the art lane's bare earth is the ground's own",
+             Affects::look},
+            a.earth_colour);
     }
 };
 

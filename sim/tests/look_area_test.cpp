@@ -77,7 +77,14 @@ constexpr const char* kArea =
     "club_bearing = 125\n"
     "tent_turn = 0\n"
     "club_turn = 70\n"
-    "camp_seed = 3\n";
+    "camp_seed = 3\n"
+    "patch_seed = 11\n"
+    "growth_scale = \"48 m\"\n"
+    "growth_swing = \"60%\"\n"
+    "bare_below = \"20%\"\n"
+    "clearing = \"5 m\"\n"
+    "clearing_fade = \"5 m\"\n"
+    "earth_colour = \"#b39161\"\n";
 
 // The water as base/tuning/water.toml writes it.
 constexpr const char* kWater =
@@ -179,6 +186,14 @@ TEST_CASE("the stand-in area is one tuning entry: three surfaces named by their 
     CHECK(a.tent_turn == 0);
     CHECK(a.club_turn == 70);
     CHECK(a.camp_seed == 3);
+    // the patch picture's numbers
+    CHECK(a.patch_seed == 11);
+    CHECK(a.growth_scale == 48'000);
+    CHECK(a.growth_swing == 600'000);
+    CHECK(a.bare_below == 200'000);
+    CHECK(a.clearing == 5'000);
+    CHECK(a.clearing_fade == 5'000);
+    CHECK(a.earth_colour == "#b39161");
     CHECK(data::run_checks(cat).empty());
 }
 
@@ -213,7 +228,7 @@ TEST_CASE("the area and the water count only in the look's digest, and a change 
     const data::EntryDigests water_before = cat.kind<look::WaterTuning>().digests(0);
     CHECK(area_before.fields[0] == 0);
     CHECK(area_before.fields[1] == 0);
-    CHECK(area_before.fields[2] == 22);
+    CHECK(area_before.fields[2] == 29);
     CHECK(water_before.fields[0] == 0);
     CHECK(water_before.fields[1] == 0);
     CHECK(water_before.fields[2] == 16);
@@ -250,6 +265,8 @@ TEST_CASE("the strip must hold the river and the square be wider than the strip;
                                           "strip = \"64 m\""),
                                  kWater),
                 "reach"));
+    // the earth's colour is #rrggbb
+    CHECK(names(checked_problems(replaced(kArea, "\"#b39161\"", "\"#B39161\""), kWater), "earth_colour"));
     // a camp too far from the river for the strip to hold it
     CHECK(names(checked_problems(replaced(kArea, "camp_back = \"8 m\"", "camp_back = \"40 m\""), kWater), "camp_back"));
     // a thing no recipe has, where there are recipes
