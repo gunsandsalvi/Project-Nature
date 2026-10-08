@@ -206,7 +206,7 @@ If a build exceeds six hours, split it at a task boundary into lettered deliveri
 
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α2.7a | Projection and six fixtures | M2 | 6 | Planned; first 2D alpha |
+| α2.7a | Projection and six fixtures | M2 | 6 | Engine built; art review and delivery pending |
 | α2.8a | Flat shadow style and terrain prototype | M2 | 6 | Planned |
 | α2.9a | Zoom and streaming | M2 | 6 | Planned |
 | α2.10a | World map and globe | M2 | 6 | Planned |
@@ -274,6 +274,12 @@ The first five alphas prove the risky engine path; only then does art expand and
    Noon/dusk stills in portrait/landscape, walking/action clips, sheets beside runtime art and inspectable masks/normals.
    Establish new 2D golden views and colour/object/material capture hooks; keep old proof history labelled 3D.
    Deliver as 30701, with review outcomes tracked in art records.
+
+Engine built (8 October 2026): `T2.7a.1`, `T2.7a.2` and the engine previews of `T2.7a.4` are implemented. One copied snapshot serves both the retained 3D crowd and the new 2D records; accepted activity sampling, saves, pace and M1 outcomes are preserved. The shared 37-degree projection converts exact centimetre torus offsets and explicit millimetre heights, and supplies drawing and inverse picking. The native fixture page has safe-area controls, continuous focus, integer nearest presentation, fixed source density during live pinch and a discrete release step. Each pinch is bounded to the adjacent density steps, keeping its temporary viewport area bounded; further steps remain available after release.
+
+The six previews are labelled developer fixtures: approved-sheet crops for tree, shelter, boulder and ground, with diagram person and animal walk/work frames. Source sheets, pivots, four/eight-facing comparison, alpha inspection and colour/object/material capture passes are wired. Actual normal and material art can be inspected when supplied; those channels are currently absent. Dusk is a diagnostic tint. This is engine evidence, with `T2.7a.3` art approval, seasonal shapes and delivery 30701 still pending the art worker and coordinator. Rich lighting remains in α2.8a.
+
+Four inspected noon/dusk portrait/landscape captures establish separate Compatibility 2D goldens, and a 72-frame clip covers walk/work, facing counts, slow pan and pinch release. All sixteen frozen image passes reproduce exactly. The release extension, 67 C++ view tests, ten fixture/retained-crowd game tests and the Python golden-checker test pass. All twelve new tests were observed failing against a fault, then passing after restoration or correction. Eight accepted simulation proof suites match with one and four threads; same-bits flags, object scanning, changed-file lint and file/ID coverage pass. Phone review and the full delivery check remain with the coordinator; no APK was built.
 
 **Tests:**
 - Projection, seam offsets and inverse picking agree at known coordinates; neighbouring edges do not accumulate rounded pitch error.
