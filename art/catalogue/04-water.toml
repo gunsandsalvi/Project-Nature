@@ -68,7 +68,9 @@ signed_off = "7 October 2026"
 [[piece]]
 id = "coast"
 name = "Coast"
-what = "where sea meets land: a thin bright line and small waves"
+what = "where sea meets sand: small waves, a thin bright foam line, the wash and the damp band, in calm, surf and rocky states"
+sheet = "sheets/4.9-coast.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "water_ice"
