@@ -1,0 +1,32 @@
+# The hide the cone tent's cover is sewn from (catalogue 16.4, the hide tent): what tools/art/make_tiles.py reads to make
+# art/textures/hide/ from the pictures kept in art/sources/hide/. A tile of 128 texture pixels, 2 m across, one version:
+# the lightest hide of the tent, dappled in two tones with short hair running down the picture (down the cone's slope),
+# whose first 4 columns are the seam strip every hide wears along its edges (the sewn seam, a running stitch crossing
+# its edge); the sheet's darker hides are this one darkened by their parts' baked crease. Nothing here is random: the
+# same recipe gives the same bytes. The pictures kept beside the ones used are the artist's earlier tries, none of them
+# bad drawings, put aside after seeing them on the tent: hide-A and hide-B read as a spotted print, hide-C and hide-D as
+# streaks, and hide-strip as a ladder (art/requests/tent/ has the conversation's messages).
+name = "hide"
+about = "the lightest deer or reindeer hide of the tent, soft stepped dapples in two tones with short hair running down the picture, a seam strip of running stitches in its first 4 columns"
+seed = 1604
+reference = "near"
+how = "drawn by the artist in conversation with the art lane at the size the game shows a hide (a texture pixel 1.6 cm), and put on the texture-pixel grid by code"
+truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; hide with hair and dapples, a running stitch, no smoke flaps, no painted designs, no metal"
+approved = "not offered yet: made for the pilot's tent, waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+texels = 128
+versions = 1
+ring = 4
+overlap = 16
+patch = 48
+flatten = 0
+serves = 3
+snap = 8
+sheet = "art/sources/hide/hide-E.webp"
+extra = ["art/sources/hide/hide-F.webp"]
+strip = "art/sources/hide/hide-strip-2.webp"
+strip_cells = 64
+strip_period = 8
+requests = ["art/requests/tent/turn-01.txt", "art/requests/tent/turn-02.txt", "art/requests/tent/turn-03.txt", "art/requests/tent/turn-05.txt"]

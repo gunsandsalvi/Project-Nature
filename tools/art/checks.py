@@ -14,6 +14,8 @@ For each material under art/textures/ it checks, tile by tile:
   jumps);
 - no hard row or column inside any level (the builder's seam rule, tiles.inner_seams): a version whose quilted patches
   stop short of its shared border shows a straight line at every cell's edge;
+  (a hide's first columns hold its seam strip, which the recipe names; they are left out of the seam checks, and only
+  the wrap from bottom to top counts there);
 - the sources: every picture the record names is there;
 - the colour: each tile's first level within 3 of the material's reference in lightness, and each designed level keeping
   at least 90% of the accents of the level above it (less as far as its record says it was calmed), the measures from
@@ -29,6 +31,7 @@ Implements PRE-20, PRE-22 and PRE-42, see A5.3 and A5.4.
 import os
 import re
 import sys
+import tomllib
 
 import numpy as np
 
@@ -66,11 +69,23 @@ def ring_of(versions, level):
     return n // 2
 
 
+def strip_columns(name, tile):
+    """How many first columns of a tile's first level hold a hide's seam strip, from the material's recipe (0 for a
+    tile without one): the strip is a pattern of its own, not part of the field, so the seam checks leave it out."""
+    path = os.path.join(textures.ROOT, "tools", "art", "recipes", name + ".toml")
+    if not os.path.isfile(path):
+        return 0
+    with open(path, "rb") as f:
+        specs = {t["tile"]: t for t in tomllib.load(f)["tile"]}
+    return int(specs.get(tile, {}).get("strip_width", 4)) if "strip" in specs.get(tile, {}) else 0
+
+
 def tile_checks(report, name, tile):
     """The checks on one tile's versions; returns its first version's levels, for the colour checks."""
     folder, metres, first_band = textures.TILES[tile]
     first = None
     versions = []
+    strip = strip_columns(name, tile)
     for v in range(1, 5):
         where = textures.folder(name, tile, v)
         if not os.path.isfile(os.path.join(textures.ROOT, where, "record.toml")):
@@ -103,7 +118,7 @@ def tile_checks(report, name, tile):
         )
         missing = [s for s in record["sources"] if not os.path.isfile(os.path.join(textures.ROOT, s))]
         report.check(not missing, f"{label}: its sources are kept" + (f" (missing {missing})" if missing else ""))
-        seams = [(i, s) for i, (_, p) in enumerate(levels) for s in tiles.inner_seams(p)]
+        seams = [(i, s) for i, (_, p) in enumerate(levels) for s in tiles.inner_seams(p[:, strip >> i :])]
         report.check(
             not seams,
             f"{label}: no hard row or column inside any level"
@@ -122,8 +137,9 @@ def tile_checks(report, name, tile):
         report.check(
             ring >= want, f"{name}/{tile} level {i}: the versions share {ring} border texture pixels (at least {want})"
         )
-        worst = max(tiles.wrap_ratio(v[i]) for v in versions)
-        joins = max(tiles.join_ratio(a[i], b[i]) for a in versions for b in versions)
+        field = strip >> i  # a hide's seam strip is left out, and only the wrap from bottom to top counts
+        worst = max(tiles.wrap_ratio(v[i][:, field:], not strip) for v in versions)
+        joins = max(tiles.join_ratio(a[i][:, field:], b[i][:, field:], not strip) for a in versions for b in versions)
         report.check(
             worst <= SEAM and joins <= SEAM,
             f"{name}/{tile} level {i}: wrap {worst:.2f}, worst join {joins:.2f} (at most {SEAM})",

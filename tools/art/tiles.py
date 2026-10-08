@@ -543,6 +543,29 @@ def make_versions_open(sources, count, ring, overlap, patch, seed, n, scale=1):
     ]
 
 
+def seam_strip(texels, width, period):
+    """The seam strip of a hide from a drawing of it: the first `width` columns of the drawing, a pattern that repeats
+    every `period` rows (a running stitch), each place of the pattern the colour most of its repeats have, so a stray
+    cell in one repeat is not carried. Returns `period` rows of `width` pixels."""
+    repeats = texels.shape[0] // period
+    out = np.zeros((period, width, texels.shape[2]), np.uint8)
+    for r in range(period):
+        for c in range(width):
+            colours, counts = np.unique(texels[r : repeats * period : period, c], axis=0, return_counts=True)
+            out[r, c] = colours[counts.argmax()]
+    return out
+
+
+def lay_strip(tile, strip):
+    """The tile with a seam strip down its first columns, the strip's rows repeated to the tile's height, which must be
+    a whole number of repeats so the strip wraps with the tile."""
+    if tile.shape[0] % strip.shape[0]:
+        raise ValueError(f"a strip of {strip.shape[0]} rows does not wrap a tile {tile.shape[0]} rows high")
+    out = tile.copy()
+    out[:, : strip.shape[1]] = np.tile(strip, (tile.shape[0] // strip.shape[0], 1, 1))
+    return out
+
+
 # ---- levels -----------------------------------------------------------------------------------------------------
 
 
@@ -683,24 +706,24 @@ def _pair_jumps(tile):
     return np.abs(np.diff(t, axis=1)).sum(axis=2).mean(axis=0), np.abs(np.diff(t, axis=0)).sum(axis=2).mean(axis=1)
 
 
-def wrap_ratio(tile):
+def wrap_ratio(tile, across=True):
     """How the tile joins itself, the worse of its two directions: the jump across its wrap over the 90th percentile of
-    the jumps between its neighbouring columns (or rows), so 1 or less is no seam."""
+    the jumps between its neighbouring columns (or rows), so 1 or less is no seam. With `across` False only the wrap
+    from the bottom to the top counts (a hide's field, whose left edge is next to its seam strip, wraps only so)."""
     cols, rows = _pair_jumps(tile)
-    return max(
-        _jump(tile[:, -1], tile[:, 0]) / np.percentile(cols, 90),
-        _jump(tile[-1, :], tile[0, :]) / np.percentile(rows, 90),
-    )
+    down = _jump(tile[-1, :], tile[0, :]) / np.percentile(rows, 90)
+    return max(down, _jump(tile[:, -1], tile[:, 0]) / np.percentile(cols, 90)) if across else down
 
 
-def join_ratio(a, b):
+def join_ratio(a, b, across=True):
     """How tile `a` joins tile `b` laid to its right and below it, as wrap_ratio does, against the larger of the two
-    tiles' 90th percentiles."""
+    tiles' 90th percentiles; with `across` False only below it."""
     ac, ar = _pair_jumps(a)
     bc, br = _pair_jumps(b)
     cols = max(np.percentile(ac, 90), np.percentile(bc, 90))
     rows = max(np.percentile(ar, 90), np.percentile(br, 90))
-    return max(_jump(a[:, -1], b[:, 0]) / cols, _jump(a[-1, :], b[0, :]) / rows)
+    down = _jump(a[-1, :], b[0, :]) / rows
+    return max(_jump(a[:, -1], b[:, 0]) / cols, down) if across else down
 
 
 def inner_seams(tile):
