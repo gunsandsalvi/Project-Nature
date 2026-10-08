@@ -34,6 +34,10 @@ ring = 4
 overlap = 8
 patch = 48
 serves = 2
+# A4.8 asks for accents of about 20 on the screen at every band: on the finished frame the middle tile's bands scored
+# 16 against the near tile's 23 to 26, so each of its levels is made bolder after it is made (a boost, the same for all
+# four versions, so it makes no seam)
+boost = 120
 sheet = "art/sources/meadow/middle-A.webp"
 extra = ["art/sources/meadow/middle-B.webp", "art/sources/meadow/middle-C.webp"]
 originals = [
@@ -47,6 +51,7 @@ requests = ["art/requests/meadow/turn-03.txt", "art/requests/meadow/turn-04.txt"
 level = 1
 overlap = 8
 patch = 32
+boost = 140
 pictures = ["art/sources/meadow/middle-A-b3.webp", "art/sources/meadow/middle-B-b3.webp", "art/sources/meadow/middle-C-b3.webp"]
 originals = [
   "art/sources/meadow/middle-A-b3-original.webp",
@@ -62,18 +67,23 @@ overlap = 24
 flatten = 32
 patch = 64
 serves = 3
-# the sheet's far tile is much calmer than the middle tile (contrast 2.6 against 10.6), so bands 3 to 4 would drop from
-# bright grass to a cloud: its first level's contrast is doubled, and its coarser levels calmed again below
-contrast = 200
-sheet = "art/sources/meadow/far-sheet.webp"
-originals = ["art/sources/meadow/far-original.webp"]
+# The far tile goes on from the middle tile's ladder, not from the sheet's far tile (kept in art/sources/meadow, far-sheet
+# and its original: its swathes dropped band 4 from bright grass to a cloud and showed as a lattice at bands 5 and 6,
+# where eight of its tiles lie across the screen). It is a 4 x 4 mosaic of the middle tile's versions at their level 2,
+# whose pixels are as wide as its own, so band 4 is the next step down from band 3 with no jump, and nothing in it is
+# bigger than the middle tile's own clumps, so no swathe repeats.
+coarse_of = "middle"
+coarse_level = 2
+# the boosted middle ladder runs a little bolder than the near tile at these bands, so each level is brought back
+boost = 88
 
-# The far tile's swathes would show as a lattice at bands 5 and 6, where eight of its tiles lie across the screen, so its
-# coarser levels are calmed: their contrast scaled to this many percent of what keeps the level above's accents.
+# the coarser levels keep the accents of the level above (100 percent of what does)
 [[tile.level]]
 level = 1
-contrast = 75
+contrast = 100
+boost = 88
 
 [[tile.level]]
 level = 2
-contrast = 50
+contrast = 100
+boost = 88

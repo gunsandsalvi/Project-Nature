@@ -20,6 +20,13 @@ The parts, as the sheet's "parts" row shows them:
 - `tent_binding`: the lashing where the poles cross.
 - `tent_door_flap`: the hanging flap, half open.
 - `ring_stone_small`, `ring_stone_medium`, `ring_stone_large`: the stones, 25 to 45 cm across.
+
+Forms by size on screen (A6.3), each made from the same numbers as the full part and sharing its joints and texture
+layout, which the recipes hide_tent_cone_simple (band 2) and hide_tent_cone_small (bands 3 and 4) lay:
+- `tent_pole_simple`: the pole's top only, from just under the cover's neck (56 triangles in place of 220: the cover
+  hides the rest);
+- `ring_stone_<size>_simple` (40 triangles in place of 177) and `ring_stone_<size>_marker` (15);
+- `hide_cover_cone`: the whole cover as one cone of 146 triangles in place of the eleven hides' 2,372, toned by hide.
 """
 
 import math
@@ -437,13 +444,15 @@ POLE_LENGTH = 3.65
 POLE_BIND = 3.22
 
 
-def pole():
+def pole(name="tent_pole", from_z=0.0, rings=14, segments=8):
     """A pole standing along z, its foot at the origin, a little knotted, thinner toward its tip: joints at its foot,
-    where it crosses the others, and its tip."""
-    b = Builder("tent_pole")
-    rings = 14
-    profile = [(POLE_LENGTH * k / (rings - 1), 0.0340 - 0.0070 * (k / (rings - 1))) for k in range(rings)]
-    lathe(b, "z", profile, 8, "wood", lambda p, n: 0.70 + 0.30 * min(1.0, p.z / 0.8), bumps=0.04, seed=11)
+    where it crosses the others, and its tip. `from_z` is where its wood begins: the full pole's is the foot, the
+    simple form's (`tent_pole_simple`) is just under the cover's neck, since the cover hides the length below it and
+    only the tips show; the joints are the full pole's in both, so the recipe's span is the same."""
+    b = Builder(name)
+    along = [from_z + (POLE_LENGTH - from_z) * k / (rings - 1) for k in range(rings)]
+    profile = [(z, 0.0340 - 0.0070 * z / POLE_LENGTH) for z in along]
+    lathe(b, "z", profile, segments, "wood", lambda p, n: 0.70 + 0.30 * min(1.0, p.z / 0.8), bumps=0.04, seed=11)
     obj = b.build((0.0, 0.0, 0.0))
     joint(obj, "foot", (0.0, 0.0, 0.0))
     joint(obj, "bind", (0.0, 0.0, POLE_BIND))
@@ -461,18 +470,20 @@ def binding():
     return obj
 
 
-def river_stone(name, seed, half_x, half_y, high):
-    """A river stone half buried, rounder than the stand-ins': a lump of 320 smooth-shaded faces, its bottom on z = 0,
-    its form leaning a little off round by a few slow swells, not by noise in every corner; each face has its own flat
-    texture projection along its own normal, which carries a texture pixel over without stretch, and its crease
-    darkens it toward the ground."""
+def river_stone(name, seed, half_x, half_y, high, subdivisions=3):
+    """A river stone half buried, rounder than the stand-ins': a lump of smooth-shaded faces (320 before its buried
+    underside is left out at 3 subdivisions, 80 at 2, 20 at 1), its bottom on z = 0, its form leaning a little off round
+    by a few slow swells, not by noise in every corner; each face has its own flat texture projection along its own
+    normal, which carries a texture pixel over without stretch, and its crease darkens it toward the ground. The
+    faces lying flat on the ground are left out: nothing sees them."""
     b = Builder(name)
-    bmesh.ops.create_icosphere(b.bm, subdivisions=3, radius=1.0)
+    bmesh.ops.create_icosphere(b.bm, subdivisions=subdivisions, radius=1.0)
     for v in b.bm.verts:
         x, y, z = v.co
         lump = 1.0 + 0.10 * math.sin(2.3 * x + seed) * math.cos(1.7 * y + 2.0 * seed) + 0.05 * math.sin(3.1 * z + seed)
         lump += 0.05 * math.sin(5.3 * y + 3.0 * seed) * math.cos(4.1 * x)
         v.co = Vector((x * half_x * lump, y * half_y * lump, max(0.0, z) * high * lump))
+    bmesh.ops.delete(b.bm, geom=[f for f in b.bm.faces if all(v.co.z <= 1e-9 for v in f.verts)], context="FACES")
     b.bm.normal_update()
     for f in b.bm.faces:
         f.smooth = True
@@ -490,15 +501,89 @@ def river_stone(name, seed, half_x, half_y, high):
     return b.build((0.0, 0.0, 0.0))
 
 
+# the three sizes of river stone, half buried, 25 to 45 cm across: name, seed, half the length, half the width, height
+STONE_SIZES = [
+    ("ring_stone_small", 21, 0.125, 0.095, 0.075),
+    ("ring_stone_medium", 22, 0.175, 0.135, 0.100),
+    ("ring_stone_large", 23, 0.225, 0.170, 0.130),
+]
+
+
 def stones():
-    """Three river stones, half buried, 25 to 45 cm across: a small, a medium and a large one."""
+    """The stones in their forms by size on screen (A6.3): full (the size's own name), `_simple` (80 faces, for about
+    20 to 60 screen pixels across) and `_marker` (20, a few pixels), the same lump from the same seed in each."""
     return [
-        river_stone("ring_stone_small", 21, 0.125, 0.095, 0.075),
-        river_stone("ring_stone_medium", 22, 0.175, 0.135, 0.100),
-        river_stone("ring_stone_large", 23, 0.225, 0.170, 0.130),
+        river_stone(name + suffix, seed, hx, hy, hz, subdivisions)
+        for suffix, subdivisions in (("", 3), ("_simple", 2), ("_marker", 1))
+        for name, seed, hx, hy, hz in STONE_SIZES
     ]
+
+
+def hide_index(degrees, bounds):
+    """Which hide between the seams `bounds` (degrees from the door, the last one the first again round) covers a
+    direction `degrees` from the door."""
+    for i, (lo, hi) in enumerate(zip(bounds, bounds[1:], strict=False)):
+        if (degrees - lo) % 360.0 < hi - lo:
+            return i
+    return 0
+
+
+def tone_at(a, s):
+    """The tone of the hide that covers a point of the cone, as the full cover's parts carry it."""
+    degrees = math.degrees(a - DOOR)
+    if s < tier_s(a):
+        return UPPER_TONES[hide_index(degrees, UPPER)]
+    return LOWER_TONES[hide_index(degrees, LOWER)]
+
+
+def cover_cone():
+    """The cover as one cone for the smallest zooms (bands 3 and 4, a tent 30 to 60 pixels across): 36 sides, two tiers
+    cut where the hides' tier seam runs, one skin, each face with the tone of the hide it lies on and its own flat
+    projection of the hide texture's field (a developable cone, so no stretch), the door slit a dark patch over it.
+    Its joint `crossing` is where the poles cross, as the full cover's upper hide has it."""
+    b = Builder("hide_cover_cone")
+    sides = 36
+    rings = [NECK, 0.46 * SLANT, SLANT - 0.03]
+
+    def plain(a, s):
+        return Vector((BASE * s / SLANT * math.cos(a), BASE * s / SLANT * math.sin(a), HIGH * (1.0 - s / SLANT)))
+
+    def face(points, a, tone, offset):
+        n = (points[1] - points[0]).cross(points[2] - points[1])
+        if n.dot(outward(a)) < 0.0:
+            points = points[::-1]
+        down = Vector((BASE * math.cos(a), BASE * math.sin(a), -HIGH)).normalized()
+        across = Vector((-math.sin(a), math.cos(a), 0.0))
+        us = [p.dot(across) for p in points]
+        vs = [p.dot(down) for p in points]
+        uvs = [(HIDE_FRAME + 0.1 + u - min(us), v - min(vs) + offset) for u, v in zip(us, vs, strict=True)]
+        creases = [tone * (0.72 + 0.28 * min(1.0, max(0.0, p.z) / 0.9)) for p in points]
+        b.face(points, uvs, "hide", creases)
+
+    for k in range(len(rings) - 1):
+        for j in range(sides):
+            a0, a1 = DOOR + 2.0 * math.pi * j / sides, DOOR + 2.0 * math.pi * (j + 1) / sides
+            a = (a0 + a1) / 2.0
+            corners = [plain(a0, rings[k]), plain(a1, rings[k]), plain(a1, rings[k + 1]), plain(a0, rings[k + 1])]
+            face(corners, a, tone_at(a, (rings[k] + rings[k + 1]) / 2.0), 0.37 * (k * sides + j))
+    # the door: a dark patch lying a centimetre off the cone, from the slit's width at the hem to its width at the top
+    s_top = SLANT * (1.0 - SLIT / HIGH)
+    lift = 0.01 * outward(DOOR)
+    ah, at = math.radians(SLIT_AT_HEM), math.radians(SLIT_AT_TOP)
+    slit = [
+        plain(DOOR - ah, rings[2]) + lift,
+        plain(DOOR + ah, rings[2]) + lift,
+        plain(DOOR + at, s_top) + lift,
+        plain(DOOR - at, s_top) + lift,
+    ]
+    n = (slit[1] - slit[0]).cross(slit[2] - slit[1])
+    face(slit if n.dot(outward(DOOR)) >= 0.0 else slit[::-1], DOOR, 0.03, 0.0)
+    obj = b.build((0.0, 0.0, 0.0))
+    joint(obj, "crossing", (0.0, 0.0, CROSS))
+    return obj
 
 
 def make_parts():
     """Every part of the tent, in a list."""
-    return [*hide_parts(), door_flap(), pole(), binding(), *stones()]
+    simple_pole = pole("tent_pole_simple", from_z=2.95, rings=5, segments=6)
+    return [*hide_parts(), door_flap(), pole(), simple_pole, binding(), cover_cone(), *stones()]

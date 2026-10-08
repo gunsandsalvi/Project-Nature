@@ -57,6 +57,8 @@ class CampFamily(unittest.TestCase):
         names = [f"hide_lower_{i}" for i in range(1, 8)] + [f"hide_upper_{i}" for i in range(1, 5)]
         names += ["tent_pole", "tent_binding", "tent_door_flap", "ring_stone_small", "ring_stone_medium"]
         names += ["ring_stone_large", "door_top", "crossing", "foot", "bind", "tip", "centre", "hinge"]
+        names += ["tent_pole_simple", "hide_cover_cone"]
+        names += [f"ring_stone_{size}_{form}" for size in ("small", "medium", "large") for form in ("simple", "marker")]
         for name in names:
             self.assertTrue(name.encode() in self.data, f"{name!r} is not in the exported kit")
 
@@ -84,7 +86,7 @@ class CampFamily(unittest.TestCase):
                 [KD_KIT, "check", os.path.join(ROOT, "data"), kit], capture_output=True, text=True, cwd=ROOT
             )
         said = run.stdout + run.stderr  # the stand-in family's recipes may find no stand-in file here; ours must fit
-        self.assertEqual([line for line in said.splitlines() if re.search(r"art:(club|hide_tent_cone)\b", line)], [])
+        self.assertEqual([line for line in said.splitlines() if re.search(r"art:(club|hide_tent_cone\w*)", line)], [])
         self.assertRegex(said, r"\d+ recipes", "the checker did not say it looked at the recipes")
 
 

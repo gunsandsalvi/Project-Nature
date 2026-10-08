@@ -329,6 +329,38 @@ class Levels(unittest.TestCase):
         np.testing.assert_array_equal(out[8:24, 8:24], a[8:24, 8:24])
 
 
+class Ladder(unittest.TestCase):
+    """A far ground made from a nearer tile's coarser level, and a level's contrast boosted after it is made."""
+
+    def versions_with_levels(self):
+        versions, _ = tiles.make_versions(grass(128, 21), 3, 4, 8, 32, 7)
+        return [tiles.complete_chain([v]) for v in versions]
+
+    # checks: PRE-20, PRE-22
+    def test_a_mosaic_of_a_nearer_levels_versions_is_a_whole_tile_that_wraps_without_a_seam(self):
+        import make_tiles
+
+        chains = self.versions_with_levels()
+        mosaic = make_tiles.coarse_ground(chains, 1, seed=5)
+        self.assertEqual(mosaic.shape, (4 * 64, 4 * 64, 3))
+        picked = {c[1].tobytes() for c in chains}
+        for cy in range(4):
+            for cx in range(4):
+                self.assertIn(mosaic[cy * 64 : (cy + 1) * 64, cx * 64 : (cx + 1) * 64].tobytes(), picked)
+        self.assertLess(tiles.wrap_ratio(mosaic), 1.2)
+        np.testing.assert_array_equal(mosaic, make_tiles.coarse_ground(chains, 1, seed=5))
+
+    # checks: PRE-20
+    def test_a_boost_scales_every_version_alike_so_their_shared_ring_stays_shared_and_nothing_new_is_a_seam(self):
+        versions, _ = tiles.make_versions(grass(128, 22), 3, 4, 8, 32, 8)
+        pivot = versions[0].reshape(-1, 3).mean(axis=0)
+        boosted = [tiles.boost(v, 110.0, pivot) for v in versions]
+        self.assertTrue(tiles.shares_ring(boosted, 4))
+        self.assertGreater(boosted[0].astype(float).std(), versions[0].astype(float).std())
+        np.testing.assert_array_equal(tiles.boost(versions[0], 100.0, pivot), versions[0])
+        self.assertEqual(tiles.inner_seams(boosted[1]), [])
+
+
 class Records(unittest.TestCase):
     FIELDS = {
         "about": 'a "quoted" thing',
