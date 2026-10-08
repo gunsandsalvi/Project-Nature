@@ -50,8 +50,8 @@ func test_the_summary_counts_failures() -> void:
 
 
 # checks: PLT-06
-func test_the_app_opens_on_its_self_check() -> void:
+func test_the_app_opens_on_its_saved_camp() -> void:
 	var main: Control = auto_free(preload("res://main.gd").new())
 	add_child(main)
 	await await_idle_frame()
-	assert_str(main.page_name()).is_equal("Check")
+	assert_str(main.page_name()).is_equal("Camp")

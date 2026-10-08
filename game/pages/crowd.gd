@@ -106,7 +106,11 @@ func _ready() -> void:
 	_heat_every = float(heat.get("reading", 2))
 	var worlds := Worlds.at(root)
 	if folder == "":
-		folder = root.path_join(Worlds.current_id(worlds))
+		var id := Worlds.current_id(worlds)
+		for saved: Dictionary in worlds.list():
+			if saved.id == id and saved.get("kind") == "camp_alpha":
+				id = "marker-fixture"
+		folder = root.path_join(id)
 	var version: String = ProjectSettings.get_setting("application/config/version", "")
 	# the crowd's world, the same on every phone, from the simulation's own seed
 	opened = world.open_crowd(

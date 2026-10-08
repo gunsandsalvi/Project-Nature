@@ -47,6 +47,7 @@ void KdCanvas::_bind_methods() {
     ClassDB::bind_method(D_METHOD("ground", "pixel", "height"), &KdCanvas::ground);
     ClassDB::bind_method(D_METHOD("from_screen", "pixel"), &KdCanvas::from_screen);
     ClassDB::bind_method(D_METHOD("focus", "east", "north"), &KdCanvas::focus);
+    ClassDB::bind_method(D_METHOD("set_pixel_scale", "scale"), &KdCanvas::set_pixel_scale);
     ClassDB::bind_method(D_METHOD("zoom", "ratio", "anchor", "snap"), &KdCanvas::zoom);
     ClassDB::bind_method(D_METHOD("touch", "action", "finger", "pixel", "seconds"), &KdCanvas::touch);
     ClassDB::bind_method(D_METHOD("records"), &KdCanvas::records);
@@ -78,6 +79,9 @@ void KdCanvas::set_world(const godot::Ref<KdWorld>& world, int64_t east, int64_t
         }
     }
 }
+void KdCanvas::set_pixel_scale(int64_t scale) {
+    pixel_scale_ = scale == 1 || scale == 2 ? static_cast<int>(scale) : 0;
+}
 void KdCanvas::focus(double east, double north) {
     projection_.focus(east, north);
 }
@@ -103,7 +107,7 @@ godot::Dictionary KdCanvas::frame(int64_t width, int64_t height, double seconds)
                                           : 0.0;
     last_frame_ = now;
     framed_ = true;
-    projection_.size(static_cast<int>(width), static_cast<int>(height));
+    projection_.size(static_cast<int>(width), static_cast<int>(height), pixel_scale_);
     const Motion motion = gestures_.take();
     if (motion.touching) projection_.cancel_settle();
     projection_.pan(motion.pan_x, motion.pan_y);

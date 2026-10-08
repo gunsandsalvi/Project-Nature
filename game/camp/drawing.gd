@@ -10,7 +10,6 @@ var supplies := {}
 var origin := Vector2i.ZERO
 var selected := 0
 var drawn: Dictionary = {}
-var font: Font = preload("res://ui/fonts/kindling-ui-16.fnt")
 
 
 func rebuild() -> void:
@@ -75,7 +74,6 @@ func _sites() -> void:
 		Color("557f89")
 	)
 	draw_line(p - Vector2(density, 0), p + Vector2(density, 0), Color("a4c3c4"), 2)
-	_caption(p, "Water")
 	p = _site("food_at")
 	for i in 3:
 		var plant := p + Vector2((i - 1) * density * 0.7, 0)
@@ -84,13 +82,11 @@ func _sites() -> void:
 			Color("405b38")
 		)
 		draw_rect(Rect2(plant - Vector2(2, density * 0.8), Vector2(3, 3)), Color("ce9b6b"))
-	_caption(p, "Food plants")
 	p = _site("stone_at")
 	draw_rect(
 		Rect2(p - Vector2(density * 0.7, density * 0.5), Vector2(density * 1.4, density * 0.5)),
 		Color("aaa79a")
 	)
-	_caption(p, "Stone")
 	p = _site("wood_at")
 	draw_line(
 		p - Vector2(density, density * 0.4),
@@ -98,7 +94,6 @@ func _sites() -> void:
 		Color("574536"),
 		maxf(2, density * 0.25)
 	)
-	_caption(p, "Fallen wood")
 	p = _site("shelter_at")
 	var cave := PackedVector2Array(
 		[
@@ -111,20 +106,6 @@ func _sites() -> void:
 	draw_colored_polygon(cave, Color("898a7b"))
 	draw_rect(
 		Rect2(p - Vector2(density * 0.6, density), Vector2(density * 1.2, density)), Color("2e3430")
-	)
-	_caption(p, "Natural shelter")
-
-
-func _caption(at: Vector2, words: String) -> void:
-	var width := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
-	draw_string(
-		font,
-		at + Vector2(-width / 2, 20),
-		words,
-		HORIZONTAL_ALIGNMENT_LEFT,
-		-1,
-		16,
-		Color("eee8ce")
 	)
 
 
@@ -139,7 +120,6 @@ func _person(person: Dictionary) -> void:
 	draw_rect(Rect2(foot - Vector2(h * 0.35, 1), Vector2(h * 0.7, 2)), Color("4b5c46"))
 	if id == selected:
 		draw_arc(foot, h * 0.5, 0, TAU, 32, Color("fff0b4"), 2)
-		_caption(foot, str(person.name))
 	var unit := maxf(1, floorf(h / 12))
 	var top := (foot - Vector2(unit * 2, unit * 12)).round()
 	draw_rect(Rect2(top + Vector2(-unit, -unit), Vector2(unit * 6, unit * 13)), Color("34332c"))

@@ -17,6 +17,7 @@ const PIECE := 1024 * 1024
 var root := Worlds.ROOT
 ## How many camps a new world has: 0 for the tuning's; a test makes small ones.
 var new_camps := 0
+var new_camp_alpha := false
 ## The worlds as the page lists them (KdWorlds.list), and the status line's words.
 var listed: Array = []
 var status := ""
@@ -43,7 +44,9 @@ func _ready() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	add_child(row)
-	row.add_child(_button("New world", func() -> void: make_world()))
+	row.add_child(
+		_button("New camp" if new_camp_alpha else "New world", func() -> void: make_world())
+	)
 	row.add_child(_button("Import a world", pick_import))
 	_status = _label(16, TEXT)
 	var scroll := ScrollContainer.new()
@@ -72,14 +75,18 @@ func refresh() -> void:
 	for w: Dictionary in listed:
 		_list.add_child(_row(w, w["id"] == current))
 	if listed.is_empty():
-		_list.add_child(_text("No worlds yet: make one, or open Crowd.", 16, QUIET))
+		_list.add_child(_text("No saved worlds yet: make one to begin.", 16, QUIET))
 
 
 ## Makes a new world, named after how many there are: its id.
 func make_world() -> String:
 	if _waiting():
 		return ""
-	var id := worlds.make("World %d" % (listed.size() + 1), randi(), new_camps)
+	var id := (
+		worlds.make_camp("Camp %d" % (listed.size() + 1), randi())
+		if new_camp_alpha
+		else worlds.make("World %d" % (listed.size() + 1), randi(), new_camps)
+	)
 	status = "Made %s: open it to begin" % id if id != "" else "The new world could not be made"
 	refresh()
 	return id
@@ -94,7 +101,10 @@ func open_world(id: String) -> void:
 	while shell != null and not shell.has_method("open_page"):
 		shell = shell.get_parent()
 	if shell != null:
-		shell.open_page("Crowd")
+		var camp := listed.any(
+			func(w: Dictionary) -> bool: return w.id == id and w.get("kind") == "camp_alpha"
+		)
+		shell.open_page.call_deferred("Camp" if camp else "Crowd")
 	else:
 		refresh()
 
@@ -261,7 +271,7 @@ func _end_job() -> void:
 func _row(w: Dictionary, current: bool) -> Control:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 4)
-	var title := "%s%s" % [Worlds.name_of(w), "  (opens on the Crowd page)" if current else ""]
+	var title := "%s%s" % [Worlds.name_of(w), "  (selected)" if current else ""]
 	box.add_child(_text(title, 20, TEXT))
 	var test := Worlds.test_words(w)
 	if test != "":

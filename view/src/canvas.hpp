@@ -20,6 +20,7 @@ public:
     godot::Vector2 ground(godot::Vector2 pixel, double height) const;
     godot::Vector2 from_screen(godot::Vector2 pixel) const;
     void focus(double east, double north);
+    void set_pixel_scale(int64_t scale);
     void set_detail_seed(int64_t seed);
     bool restore_origin(int64_t east, int64_t north, int64_t raster_east, int64_t raster_north);
     [[nodiscard]] Projection projection_at_origin(num::Point source_origin) const;
@@ -41,7 +42,8 @@ private:
     std::uint64_t detail_seed_ = 1;
     Projection projection_;
     Gestures gestures_{false};
-    double settle_seconds_ = 0.160;
+    double settle_seconds_ = 0.320;
+    int pixel_scale_ = 0;
     double maximum_height_ = 32.0;
     double overscan_ = 32.0;
     double shadow_reach_ = 128.0;

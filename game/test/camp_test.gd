@@ -176,3 +176,19 @@ func test_patch_corners_use_the_saved_centre_after_rebase() -> void:
 		)
 	assert_array(Array(page.drawing.patch_points())).is_equal(Array(expected))
 	page.free()
+
+
+func test_phone_dock_keeps_play_and_speed_on_screen_after_text_reflows() -> void:
+	var page := _page()
+	for window: Vector2 in [Vector2(1080, 2400), Vector2(2400, 1080)]:
+		page.layout(window, Rect2(Vector2(0, 154), window - Vector2(0, 154)))
+		page._process(0)
+		for i in 3:
+			await await_idle_frame()
+			page._process(0)
+		assert_float(page._dock.get_rect().end.y).is_less_equal(window.y + 1)
+		assert_float(page._pause.get_global_rect().end.y).is_less_equal(window.y + 1)
+		assert_float(page._speed.get_global_rect().end.x).is_less_equal(window.x + 1)
+		assert_float(page._pause.size.y).is_greater_equal(115)
+		assert_object(page._native.theme).is_same(page.theme)
+	page.free()
