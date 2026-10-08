@@ -14,11 +14,20 @@ global uniform vec4 kd_water_absorb;
 // The colour deep water scatters back, in linear light.
 global uniform vec4 kd_water_deep;
 // How far above the level the bed is still wet, in metres (x); how much darker wet bed is, as a share of its own colour
-// (y); and how ragged the shore is, as a share of the depth a texture pixel spans (z).
+// (y); how ragged the shore is, as a share of the depth a texture pixel spans (z); and how much higher above that
+// the bank's gravel gives way to grass (w).
 global uniform vec4 kd_water_wet;
 // The share of the sky's light the surface mirrors when seen square on (x); the glints' life in ticks (y) and the
 // most share of texture pixels one lights (z); the shore line's width in texture pixels (w).
 global uniform vec4 kd_water_surface;
+// How the current's marks come and go: the share of their strength kept where the water is calmest (x), how wide the
+// calm and rough stretches are, in metres (y), the depth the marks fade in over, in metres (z), and the share of the
+// waterline's texture pixels the bright shore line lights (w).
+global uniform vec4 kd_water_marks;
+// How the shore and the depth's colour are shaped: how high the waterline's wander is in metres of depth (x), how wide its
+// bends are in metres (y), the curve the water's own colour comes in with depth by (z), and how deep under the water
+// the bank's gravel goes before the bed's stones take over, in metres (w).
+global uniform vec4 kd_water_edge;
 // The glints' and the shore line's colours, in linear light.
 global uniform vec4 kd_water_glint;
 global uniform vec4 kd_water_shore;
@@ -51,12 +60,16 @@ float kd_water_depth(vec2 world, float depth, vec2 slope, float band, out float 
 	float middle = dot(slope, (vec2(0.5) - fract(at)) * texel);
 	run = (abs(slope.x) + abs(slope.y)) * texel;
 	float ragged = (kd_hash(kd_texel_cell(world, band), 5.0) - 0.5) * 2.0 * run * kd_water_wet.z;
-	return depth + middle + ragged;
+	// the waterline bends round the bank: the depth is moved by a smooth noise, taken at the texture pixel's own place,
+	// so the ground's shader and the surface's, which call this, agree where the shore is
+	vec2 where = (kd_texel_cell(world, band) + 0.5) * texel;
+	float wander = (kd_value_noise(where / max(kd_water_edge.y, 0.1), 41.0) - 0.5) * 2.0 * kd_water_edge.x;
+	return depth + middle + ragged + wander;
 }
 
 // The bed seen through a depth of water: the light it sends is lost as the water takes the red first, and the water's
 // own deep colour takes over. Colours in linear light.
 vec3 kd_water_over(vec3 bed, float depth) {
 	vec3 through = bed * exp(-depth * kd_water_absorb.rgb);
-	return through + kd_water_deep.rgb * (1.0 - exp(-depth * kd_water_absorb.a));
+	return through + kd_water_deep.rgb * (1.0 - exp(-pow(max(depth, 0.0) * kd_water_absorb.a, kd_water_edge.z)));
 }

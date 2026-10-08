@@ -4,6 +4,10 @@
 ground = "art:meadow"
 bed = "art:river_bed"
 marks = "art:river_marks"
+# the ground's other three: open dry ground where growth is thin, the trodden ground round the camp, and the bank's gravel
+earth = "art:bare_earth"
+worn = "art:wear"
+gravel = "art:bank_gravel"
 # the square's half side, and half the width of the strip of heightfield the river runs in
 reach = "1024 m"
 strip = "48 m"
@@ -15,16 +19,25 @@ width_wobble = "30%"
 depth = "0.9 m"
 depth_wobble = "60%"
 wobble_length = "60 m"
-# the bank runs 1 m from the water's edge up to the meadow; the strip's rows round it are 0.25 m apart, a texture
+# the bank runs 2.4 m from the water's edge up to the meadow, a gravel margin that grass takes over; the strip's rows round it are 0.25 m apart, a texture
 # pixel at band 0 being 1/64 m
-run = "1 m"
+run = "2.4 m"
 spacing = "0.25 m"
 seed = 7
-# The camp on the north bank, the pilot's tent and club (sheets 16.4 and 17.15): each named by its recipe's entry; the club
-# is the art lane's own (art:club), the tent a stand-in (art/models/standin_hide_tent) until art:hide_tent_cone arrives.
+# The camp on the north bank, the pilot's tent and club (sheets 16.4 and 17.15): each named by its recipe's entry, both the
+# art lane's own (art:hide_tent_cone and art:club).
 # The tent stands 8 m north of the river's north bank at the strip's middle, its door to the south, facing the river; the
 # club lies 3.6 m from it, to the south east, turned 70 degrees from the way its recipe lays it. Degrees run clockwise.
-tent = "art:standin_hide_tent"
+tent = "art:hide_tent_cone"
+# The tent's forms by its width on the screen (A6.3): the full form while it is 150 pixels or more across, the simple
+# one from there down to 80, the small one under that; going back to a fuller form takes 5% more, so a form never
+# flickers at a switch. The tent is about 4.4 m across with its stones, so at the pilot's bands 0 to 4 it is about 563,
+# 282, 141, 70 and 35 pixels across: the full form to band 1, the simple at band 2, the small from band 3.
+tent_simple = "art:hide_tent_cone_simple"
+tent_small = "art:hide_tent_cone_small"
+form_simple = 150
+form_small = 80
+form_margin = "5%"
 club = "art:club"
 camp_back = "8 m"
 club_away = "3.6 m"
@@ -32,3 +45,12 @@ club_bearing = 125
 tent_turn = 0
 club_turn = 70
 camp_seed = 3
+# The patch picture (A4.6): the ground's masses of taller and shorter growth, golden where short and dry and deeper green
+# where tall, 48 m across at the biggest, swinging the colour 45% at the extremes; where growth is under 20% the ground
+# shows open dry ground between its blades; round the tent it is trodden for 2.4 m and fades over 3.2 more.
+patch_seed = 11
+growth_scale = "48 m"
+growth_swing = "45%"
+bare_below = "20%"
+clearing = "2.4 m"
+clearing_fade = "3.2 m"

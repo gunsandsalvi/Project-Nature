@@ -59,6 +59,9 @@ constexpr const char* kArea =
     "ground = \"art:meadow\"\n"
     "bed = \"art:river_bed\"\n"
     "marks = \"art:river_marks\"\n"
+    "earth = \"art:bare_earth\"\n"
+    "worn = \"art:wear\"\n"
+    "gravel = \"art:bank_gravel\"\n"
     "reach = \"1024 m\"\n"
     "strip = \"48 m\"\n"
     "bank = \"0.4 m\"\n"
@@ -71,13 +74,24 @@ constexpr const char* kArea =
     "spacing = \"0.25 m\"\n"
     "seed = 7\n"
     "tent = \"art:hide_tent_cone\"\n"
+    "tent_simple = \"art:hide_tent_cone_simple\"\n"
+    "tent_small = \"art:hide_tent_cone_small\"\n"
     "club = \"art:club\"\n"
     "camp_back = \"8 m\"\n"
     "club_away = \"3.6 m\"\n"
     "club_bearing = 125\n"
     "tent_turn = 0\n"
     "club_turn = 70\n"
-    "camp_seed = 3\n";
+    "camp_seed = 3\n"
+    "patch_seed = 11\n"
+    "growth_scale = \"48 m\"\n"
+    "growth_swing = \"60%\"\n"
+    "bare_below = \"20%\"\n"
+    "clearing = \"5 m\"\n"
+    "clearing_fade = \"5 m\"\n"
+    "form_simple = 150\n"
+    "form_small = 70\n"
+    "form_margin = \"5%\"\n";
 
 // The water as base/tuning/water.toml writes it.
 constexpr const char* kWater =
@@ -89,6 +103,15 @@ constexpr const char* kWater =
     "wet_margin = \"0.12 m\"\n"
     "wet_darkening = \"80%\"\n"
     "ragged = \"100%\"\n"
+    "beach = \"0.28 m\"\n"
+    "calm_marks = \"30%\"\n"
+    "calm_scale = \"7 m\"\n"
+    "marks_depth = \"0.2 m\"\n"
+    "shore_wander = \"6 cm\"\n"
+    "shore_scale = \"1.4 m\"\n"
+    "murk_curve = \"150%\"\n"
+    "gravel_depth = \"0.3 m\"\n"
+    "shore_line_share = \"60%\"\n"
     "sky_share = \"3%\"\n"
     "flow = \"0.5 m/s\"\n"
     "step_rate = 10\n"
@@ -101,10 +124,10 @@ constexpr const char* kWater =
 std::vector<data::SourceFile> with_files(const std::string& area, const std::string& water) {
     std::vector<data::SourceFile> files = kd::test::good();
     files.push_back({"art/source.toml", kArt});
-    for (const char* name : {"meadow", "river_bed", "river_marks"}) {
+    for (const char* name : {"meadow", "river_bed", "river_marks", "bare_earth", "wear", "bank_gravel"}) {
         files.push_back({std::string("art/textures/") + name + "/record.toml", kTexture});
     }
-    for (const char* name : {"hide_tent_cone", "club"}) {
+    for (const char* name : {"hide_tent_cone", "hide_tent_cone_simple", "hide_tent_cone_small", "club"}) {
         files.push_back({std::string("art/models/") + name + "/record.toml", kThing});
     }
     files.push_back({"base/tuning/area.toml", area});
@@ -172,6 +195,12 @@ TEST_CASE("the stand-in area is one tuning entry: three surfaces named by their 
     CHECK(a.seed == 7);
     // the camp on the bank: two things named by their recipes' entries, and where they stand
     CHECK(a.tent == "art:hide_tent_cone");
+    // the tent's simple and small forms, and the widths on the screen where they take over
+    CHECK(a.tent_simple == "art:hide_tent_cone_simple");
+    CHECK(a.tent_small == "art:hide_tent_cone_small");
+    CHECK(a.form_simple == 150);
+    CHECK(a.form_small == 70);
+    CHECK(a.form_margin == 50'000);
     CHECK(a.club == "art:club");
     CHECK(a.camp_back == 8'000);
     CHECK(a.club_away == 3'600);
@@ -179,6 +208,17 @@ TEST_CASE("the stand-in area is one tuning entry: three surfaces named by their 
     CHECK(a.tent_turn == 0);
     CHECK(a.club_turn == 70);
     CHECK(a.camp_seed == 3);
+    // the patch picture's numbers
+    CHECK(a.patch_seed == 11);
+    CHECK(a.growth_scale == 48'000);
+    CHECK(a.growth_swing == 600'000);
+    CHECK(a.bare_below == 200'000);
+    CHECK(a.clearing == 5'000);
+    CHECK(a.clearing_fade == 5'000);
+    // the three more surfaces the ground wears: open dry ground, trodden ground and the bank's gravel
+    CHECK(a.earth == "art:bare_earth");
+    CHECK(a.worn == "art:wear");
+    CHECK(a.gravel == "art:bank_gravel");
     CHECK(data::run_checks(cat).empty());
 }
 
@@ -197,6 +237,15 @@ TEST_CASE("the river's water is one tuning entry, its lengths in millimetres and
     CHECK(w.wet_margin == 120);
     CHECK(w.wet_darkening == 800'000);
     CHECK(w.ragged == 1'000'000);
+    CHECK(w.beach == 280);
+    CHECK(w.calm_marks == 300'000);
+    CHECK(w.calm_scale == 7'000);
+    CHECK(w.marks_depth == 200);
+    CHECK(w.shore_wander == 60);
+    CHECK(w.shore_scale == 1'400);
+    CHECK(w.murk_curve == 1'500'000);
+    CHECK(w.gravel_depth == 300);
+    CHECK(w.shore_line_share == 600'000);
     CHECK(w.sky_share == 30'000);
     CHECK(w.flow == 500);
     CHECK(w.step_rate == 10);
@@ -213,10 +262,10 @@ TEST_CASE("the area and the water count only in the look's digest, and a change 
     const data::EntryDigests water_before = cat.kind<look::WaterTuning>().digests(0);
     CHECK(area_before.fields[0] == 0);
     CHECK(area_before.fields[1] == 0);
-    CHECK(area_before.fields[2] == 22);
+    CHECK(area_before.fields[2] == 36);
     CHECK(water_before.fields[0] == 0);
     CHECK(water_before.fields[1] == 0);
-    CHECK(water_before.fields[2] == 16);
+    CHECK(water_before.fields[2] == 25);
     data::Catalogue changed;
     REQUIRE(
         changed.load(with_files(replaced(kArea, "seed = 7", "seed = 8"), replaced(kWater, "0.9 m", "0.8 m"))).empty());
@@ -250,6 +299,13 @@ TEST_CASE("the strip must hold the river and the square be wider than the strip;
                                           "strip = \"64 m\""),
                                  kWater),
                 "reach"));
+    // the earth, the worn ground and the gravel are textures the catalogue has
+    CHECK(names(checked_problems(replaced(kArea, "art:bare_earth", "art:no_earth"), kWater),
+                "names no texture \"art:no_earth\""));
+    CHECK(names(checked_problems(replaced(kArea, "art:wear", "art:no_wear"), kWater),
+                "names no texture \"art:no_wear\""));
+    CHECK(names(checked_problems(replaced(kArea, "art:bank_gravel", "art:no_gravel"), kWater),
+                "names no texture \"art:no_gravel\""));
     // a camp too far from the river for the strip to hold it
     CHECK(names(checked_problems(replaced(kArea, "camp_back = \"8 m\"", "camp_back = \"40 m\""), kWater), "camp_back"));
     // a thing no recipe has, where there are recipes
@@ -257,6 +313,12 @@ TEST_CASE("the strip must hold the river and the square be wider than the strip;
         names(checked_problems(replaced(kArea, "art:club", "art:no_club"), kWater), "names no recipe \"art:no_club\""));
     CHECK(names(checked_problems(replaced(kArea, "art:hide_tent_cone", "art:no_tent"), kWater),
                 "names no recipe \"art:no_tent\""));
+    // the tent's other forms are recipes the catalogue has, and the small form takes over at fewer pixels
+    CHECK(names(checked_problems(replaced(kArea, "art:hide_tent_cone_simple", "art:no_simple"), kWater),
+                "names no recipe \"art:no_simple\""));
+    CHECK(names(checked_problems(replaced(kArea, "art:hide_tent_cone_small", "art:no_small"), kWater),
+                "names no recipe \"art:no_small\""));
+    CHECK(names(checked_problems(replaced(kArea, "form_small = 70", "form_small = 150"), kWater), "form_small"));
     // a bearing is a whole number of degrees round the compass
     CHECK(
         names(load_problems(replaced(kArea, "club_bearing = 125", "club_bearing = 400"), kWater), "out of its range"));

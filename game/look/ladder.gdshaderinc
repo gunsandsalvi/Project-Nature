@@ -38,6 +38,18 @@ float kd_hash(vec2 cell, float salt) {
 	return float(v.x >> 8u) * (1.0 / 16777216.0);
 }
 
+// Smooth noise from 0 to 1 over a lattice of whole cells, the same on every machine (kd_hash).
+float kd_value_noise(vec2 at, float salt) {
+	vec2 cell = floor(at);
+	vec2 t = fract(at);
+	t = t * t * (3.0 - 2.0 * t);
+	float a = kd_hash(cell, salt);
+	float b = kd_hash(cell + vec2(1.0, 0.0), salt);
+	float c = kd_hash(cell + vec2(0.0, 1.0), salt);
+	float d = kd_hash(cell + vec2(1.0, 1.0), salt);
+	return mix(mix(a, b, t.x), mix(c, d, t.x), t.y);
+}
+
 // The texture pixel of a band's level that a point is in, counted from the world's centre: whole numbers east and
 // south, the same wherever the rig's origin stands. The near cells are 4 m, a whole number of texture pixels of any
 // level a ladder serves.

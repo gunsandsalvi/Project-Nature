@@ -23,6 +23,8 @@ func test_the_water_s_globals_are_the_tuning_s_and_every_one_is_declared_in_the_
 		"kd_water_absorb",
 		"kd_water_deep",
 		"kd_water_wet",
+		"kd_water_marks",
+		"kd_water_edge",
 		"kd_water_surface",
 		"kd_water_glint",
 		"kd_water_shore",

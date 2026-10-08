@@ -37,11 +37,19 @@ void check_area(const data::Catalogue& cat, std::vector<data::Problem>& problems
         if (reach_of_camp > a.strip) {
             problems.push_back(areas.at(i, "camp_back", "puts the camp, with its club, beyond the strip"));
         }
+        if (a.form_small >= a.form_simple) {
+            problems.push_back(
+                areas.at(i, "form_small", "must be fewer pixels than form_simple, the larger form switching first"));
+        }
         // with no art loaded the engine runs without textures or recipes, so the surfaces and the camp's things are
         // held to entries only when there are some
         if (cat.kind<Texture>().size() != 0) {
-            const std::array<std::pair<std::string_view, const std::string*>, 3> surfaces{
-                {{"ground", &a.ground}, {"bed", &a.bed}, {"marks", &a.marks}}};
+            const std::array<std::pair<std::string_view, const std::string*>, 6> surfaces{{{"ground", &a.ground},
+                                                                                           {"bed", &a.bed},
+                                                                                           {"marks", &a.marks},
+                                                                                           {"earth", &a.earth},
+                                                                                           {"worn", &a.worn},
+                                                                                           {"gravel", &a.gravel}}};
             for (const auto& [key, name] : surfaces) {
                 if (!cat.find("textures", *name)) {
                     problems.push_back(areas.at(i, key, "names no texture \"" + *name + "\" in the catalogue"));
@@ -49,8 +57,8 @@ void check_area(const data::Catalogue& cat, std::vector<data::Problem>& problems
             }
         }
         if (cat.kind<Model>().size() != 0) {
-            const std::array<std::pair<std::string_view, const std::string*>, 2> things{
-                {{"tent", &a.tent}, {"club", &a.club}}};
+            const std::array<std::pair<std::string_view, const std::string*>, 4> things{
+                {{"tent", &a.tent}, {"tent_simple", &a.tent_simple}, {"tent_small", &a.tent_small}, {"club", &a.club}}};
             for (const auto& [key, name] : things) {
                 if (!cat.find("models", *name)) {
                     problems.push_back(areas.at(i, key, "names no recipe \"" + *name + "\" in the catalogue"));

@@ -10,6 +10,7 @@
 
 #include "kd/num/maths.hpp"
 #include "maps.hpp"
+#include "patches.hpp"
 
 namespace kd::view {
 
@@ -83,8 +84,34 @@ godot::Dictionary KdMaps::make(const godot::PackedVector3Array& triangles, godot
     return out;
 }
 
+godot::Dictionary KdMaps::make_patches(double camp_east, double camp_north, const godot::Dictionary& params) const {
+    godot::Dictionary out;
+    out["problem"] = "";
+    patches::Params numbers;
+    numbers.patch = given(params, "patch", numbers.patch);
+    numbers.size = static_cast<int>(given(params, "size", static_cast<double>(numbers.size)));
+    numbers.growth_scale = given(params, "growth_scale", numbers.growth_scale);
+    numbers.bare_below = given(params, "bare_below", numbers.bare_below);
+    numbers.clearing = given(params, "clearing", numbers.clearing);
+    numbers.clearing_fade = given(params, "clearing_fade", numbers.clearing_fade);
+    numbers.seed = static_cast<std::uint64_t>(given(params, "seed", static_cast<double>(numbers.seed)));
+    if (numbers.size < 1 || numbers.size > 1024 || numbers.patch <= 0.0) {
+        out["problem"] = godot::String("the patch picture's size or patch is out of range");
+        return out;
+    }
+    const patches::Patches made = patches::make(camp_east, camp_north, numbers);
+    out["west"] = made.west;
+    out["south"] = made.south;
+    out["width"] = made.size * made.patch;
+    out["picture"] = godot::Image::create_from_data(made.size, made.size, false, godot::Image::FORMAT_RGBA8,
+                                                    bytes_of(made.data.data(), made.data.size()));
+    return out;
+}
+
 void KdMaps::_bind_methods() {
     godot::ClassDB::bind_method(godot::D_METHOD("make", "triangles", "sun_toward", "params"), &KdMaps::make);
+    godot::ClassDB::bind_method(godot::D_METHOD("make_patches", "camp_east", "camp_north", "params"),
+                                &KdMaps::make_patches);
 }
 
 }  // namespace kd::view
