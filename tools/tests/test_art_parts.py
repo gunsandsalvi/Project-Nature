@@ -3,6 +3,7 @@ A6.1, A6.3, A6.4): each part in a Blender file the exporter accepts, the same by
 inside the kit's 1.5 to 1 line. These need Blender (tools/setup.sh); the stretch check also needs the kit's own checker,
 kd_kit (set KD_KIT to its path)."""
 
+import math
 import os
 import re
 import shutil
@@ -253,7 +254,33 @@ class RocksFamily(unittest.TestCase):
             self.assertAlmostEqual(z1 - z0, deep, delta=0.15, msg=name)
             self.assertAlmostEqual(y0, 0.0, delta=0.01, msg=name + " stands on the ground")
         x0, _, _, x1, _, _ = found["cliff_lip"][1]
-        self.assertAlmostEqual(x1 - x0, 4.0, delta=0.01)
+        self.assertAlmostEqual(x1 - x0, 4.3, delta=0.01)  # 4 m between its joints and 15 cm of tail beyond each
+
+    # checks: PRE-46
+    def test_the_cliff_foot_has_no_rings_and_its_boulders_are_sunk_and_turned_every_way(self):
+        import tomllib
+
+        for name in ("cliff_foot", "cliff_foot_simple", "cliff_foot_small"):
+            with open(os.path.join(ROOT, "art", "models", name, "record.toml"), "rb") as f:
+                places = tomllib.load(f)["place"]
+            self.assertTrue(
+                all(p["rule"] == "ring" and p.get("count", 1) == 1 for p in places), name
+            )  # no arcs of stones
+            boulders = [p for p in places if p["parts"][0].startswith("boulder_")]
+            self.assertEqual(len(boulders), 4)
+            self.assertTrue(all(p["base"].startswith("-") for p in boulders), name)  # each sunk in the ground
+            self.assertGreater(len({p["face"] for p in boulders}), 3, name)  # and turned its own way
+            # how far out from the cliff (the east-west line through the origin) each stone lies, from its radius and
+            # its bearing
+            out = sorted(
+                -float(p["radius"].split()[0]) * math.cos(math.radians(p["turn"]))
+                for p in places
+                if not p["parts"][0].startswith("boulder_")
+            )
+            self.assertLess(
+                out[len(out) // 2], 1.4, name
+            )  # half the stones lie within 1.4 m of the lip: it thins outward
+            self.assertGreater(out[int(len(out) * 0.95)], 2.5, name)  # and the last of them lie much farther out
 
 
 if __name__ == "__main__":

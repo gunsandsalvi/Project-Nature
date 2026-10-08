@@ -1,10 +1,10 @@
 # A recipe (A6.1, PRE-46): what lies at the foot of the camp's cliff, scattered by the seed: four boulders of the
-# rocks family (the large granite to the south-east, a limestone block to the south-west, two small domes between),
-# each turned to show its front to the south,, all out in front of the cliff, which runs east and west through the
-# recipe's origin, and the stones that came down with them in rings that wander in radius and angle (broken limestone,
-# small, medium and large, and the thin dark flakes of the shale weathering out beneath). The fine scree between is
-# the ground's texture (art:scree). The small form (A6.3) is the same thing in marker parts of a few triangles, for
-# the close camp and the camp (bands 3 and 4).
+# rocks family (the large granite and the limestone block close under the lip, two small domes between, each half sunk
+# and turned its own way), and the stones that came down with them, each at a place of its own, none on a ring:
+# gathered in four clusters along the cliff, which runs east and west through the recipe's origin, thickest right
+# under the lip and thinning out to about 7 m (broken limestone, small, medium and large, and the thin dark flakes of
+# the shale weathering out beneath). The fine scree between is the ground's texture (art:scree). The small form (A6.3)
+# is the same thing in marker parts of a few triangles, for the close camp and the camp (bands 3 and 4).
 about = "the foot of the cliff: four boulders, scree stones and shale flakes strewn over about 14 m of ground (small form)"
 family = "rocks"
 truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; boulders and broken limestone and a few dark shale flakes lying loose on the ground, no vegetation, no soil, no painted marks, no tool marks"
@@ -27,69 +27,2937 @@ name = "great"
 parts = ["boulder_large_marker"]
 rule = "ring"
 count = 1
-radius = "3.2 m"
-turn = 128
-face = -128
+base = "-0.55 m"
+face = 49
+radius = "4.03 m"
+turn = 120
 
 [[place]]
 name = "block"
 parts = ["boulder_block_marker"]
 rule = "ring"
 count = 1
-radius = "2.9 m"
-turn = 232
-face = 128
+base = "-0.40 m"
+face = 102
+radius = "3.54 m"
+turn = 241
 
 [[place]]
 name = "dome_near"
 parts = ["boulder_small_marker"]
 rule = "ring"
 count = 1
-radius = "2.3 m"
-turn = 170
-face = -170
+base = "-0.22 m"
+face = -49
+radius = "1.35 m"
+turn = 222
 
 [[place]]
 name = "dome_far"
 parts = ["boulder_small_marker"]
 rule = "ring"
 count = 1
-radius = "4.4 m"
-turn = 205
+base = "-0.28 m"
+face = 169
+radius = "6.04 m"
+turn = 102
+
+[[place]]
+name = "foot_001"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -115
+jitter_size = "25%"
+radius = "3.24 m"
+turn = 118
+
+[[place]]
+name = "foot_002"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -16
+jitter_size = "25%"
+radius = "5.80 m"
+turn = 94
+
+[[place]]
+name = "foot_003"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 73
+jitter_size = "25%"
+radius = "2.17 m"
+turn = 256
+
+[[place]]
+name = "foot_004"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 131
+jitter_size = "25%"
+radius = "4.35 m"
+turn = 97
+
+[[place]]
+name = "foot_005"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -28
+jitter_size = "25%"
+radius = "4.70 m"
+turn = 104
+
+[[place]]
+name = "foot_006"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -172
+jitter_size = "25%"
+radius = "1.47 m"
+turn = 240
+
+[[place]]
+name = "foot_007"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 118
+jitter_size = "25%"
+radius = "5.60 m"
+turn = 265
+
+[[place]]
+name = "foot_008"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -1
+jitter_size = "25%"
+radius = "1.99 m"
+turn = 209
+
+[[place]]
+name = "foot_009"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 89
+jitter_size = "25%"
+radius = "3.78 m"
+turn = 264
+
+[[place]]
+name = "foot_010"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -87
+jitter_size = "25%"
+radius = "5.35 m"
+turn = 105
+
+[[place]]
+name = "foot_011"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 110
+jitter_size = "25%"
+radius = "6.30 m"
+turn = 261
+
+[[place]]
+name = "foot_012"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 86
+jitter_size = "25%"
+radius = "4.75 m"
+turn = 101
+
+[[place]]
+name = "foot_013"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -80
+jitter_size = "25%"
+radius = "5.46 m"
+turn = 266
+
+[[place]]
+name = "foot_014"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 11
+jitter_size = "25%"
+radius = "1.61 m"
+turn = 230
+
+[[place]]
+name = "foot_015"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 2
+jitter_size = "25%"
+radius = "5.93 m"
+turn = 260
+
+[[place]]
+name = "foot_016"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 135
+jitter_size = "25%"
+radius = "4.61 m"
+turn = 264
+
+[[place]]
+name = "foot_017"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -132
+jitter_size = "25%"
+radius = "6.38 m"
+turn = 94
+
+[[place]]
+name = "foot_018"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 146
+jitter_size = "25%"
+radius = "6.80 m"
+turn = 93
+
+[[place]]
+name = "foot_019"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -101
+jitter_size = "25%"
+radius = "6.14 m"
+turn = 103
+
+[[place]]
+name = "foot_020"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 63
+jitter_size = "25%"
+radius = "4.76 m"
+turn = 266
+
+[[place]]
+name = "foot_021"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 42
+jitter_size = "25%"
+radius = "4.70 m"
+turn = 259
+
+[[place]]
+name = "foot_022"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 44
+jitter_size = "25%"
+radius = "4.08 m"
+turn = 97
+
+[[place]]
+name = "foot_023"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -111
+jitter_size = "25%"
+radius = "3.71 m"
+turn = 100
+
+[[place]]
+name = "foot_024"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 30
+jitter_size = "25%"
+radius = "4.80 m"
+turn = 254
+
+[[place]]
+name = "foot_025"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -3
+jitter_size = "25%"
+radius = "2.71 m"
+turn = 98
+
+[[place]]
+name = "foot_026"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 56
+jitter_size = "25%"
+radius = "5.00 m"
+turn = 100
+
+[[place]]
+name = "foot_027"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 152
+jitter_size = "25%"
+radius = "3.32 m"
+turn = 96
+
+[[place]]
+name = "foot_028"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -22
+jitter_size = "25%"
+radius = "2.00 m"
+turn = 244
+
+[[place]]
+name = "foot_029"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 143
+jitter_size = "25%"
+radius = "4.68 m"
+turn = 94
+
+[[place]]
+name = "foot_030"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 161
+jitter_size = "25%"
+radius = "3.88 m"
+turn = 239
+
+[[place]]
+name = "foot_031"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 142
+jitter_size = "25%"
+radius = "4.96 m"
+turn = 111
+
+[[place]]
+name = "foot_032"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -56
+jitter_size = "25%"
+radius = "4.22 m"
+turn = 261
+
+[[place]]
+name = "foot_033"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -21
+jitter_size = "25%"
+radius = "2.11 m"
+turn = 239
+
+[[place]]
+name = "foot_034"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 141
+jitter_size = "25%"
+radius = "7.53 m"
+turn = 265
+
+[[place]]
+name = "foot_035"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 100
+jitter_size = "25%"
+radius = "2.80 m"
+turn = 227
+
+[[place]]
+name = "foot_036"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 117
+jitter_size = "25%"
+radius = "1.13 m"
+turn = 216
+
+[[place]]
+name = "foot_037"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 146
+jitter_size = "25%"
+radius = "6.23 m"
+turn = 98
+
+[[place]]
+name = "foot_038"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 48
+jitter_size = "25%"
+radius = "6.21 m"
+turn = 266
+
+[[place]]
+name = "foot_039"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 40
+jitter_size = "25%"
+radius = "5.85 m"
+turn = 95
+
+[[place]]
+name = "foot_040"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -143
+jitter_size = "25%"
+radius = "4.10 m"
+turn = 96
+
+[[place]]
+name = "foot_041"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 81
+jitter_size = "25%"
+radius = "5.09 m"
+turn = 102
+
+[[place]]
+name = "foot_042"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 20
+jitter_size = "25%"
+radius = "4.98 m"
+turn = 117
+
+[[place]]
+name = "foot_043"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 8
+jitter_size = "25%"
+radius = "4.27 m"
+turn = 108
+
+[[place]]
+name = "foot_044"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 96
+jitter_size = "25%"
+radius = "5.60 m"
+turn = 108
+
+[[place]]
+name = "foot_045"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 1
+jitter_size = "25%"
+radius = "1.74 m"
+turn = 126
+
+[[place]]
+name = "foot_046"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -161
+jitter_size = "25%"
+radius = "2.03 m"
+turn = 248
+
+[[place]]
+name = "foot_047"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 97
+jitter_size = "25%"
+radius = "2.68 m"
+turn = 112
+
+[[place]]
+name = "foot_048"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 1
+jitter_size = "25%"
+radius = "3.91 m"
+turn = 227
+
+[[place]]
+name = "foot_049"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 111
+jitter_size = "25%"
+radius = "3.60 m"
+turn = 115
+
+[[place]]
+name = "foot_050"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -30
+jitter_size = "25%"
+radius = "3.05 m"
+turn = 228
+
+[[place]]
+name = "foot_051"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 152
+jitter_size = "25%"
+radius = "3.45 m"
+turn = 125
+
+[[place]]
+name = "foot_052"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -50
+jitter_size = "25%"
+radius = "1.05 m"
+turn = 239
+
+[[place]]
+name = "foot_053"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 97
+jitter_size = "25%"
+radius = "4.54 m"
+turn = 100
+
+[[place]]
+name = "foot_054"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -47
+jitter_size = "25%"
+radius = "6.50 m"
+turn = 97
+
+[[place]]
+name = "foot_055"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 147
+jitter_size = "25%"
+radius = "3.65 m"
+turn = 98
+
+[[place]]
+name = "foot_056"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 82
+jitter_size = "25%"
+radius = "5.05 m"
+turn = 261
+
+[[place]]
+name = "foot_057"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 150
+jitter_size = "25%"
+radius = "3.75 m"
+turn = 257
+
+[[place]]
+name = "foot_058"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 29
+jitter_size = "25%"
+radius = "1.14 m"
+turn = 212
+
+[[place]]
+name = "foot_059"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 119
+jitter_size = "25%"
+radius = "1.52 m"
+turn = 130
+
+[[place]]
+name = "foot_060"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 2
+jitter_size = "25%"
+radius = "2.58 m"
+turn = 239
+
+[[place]]
+name = "foot_061"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 85
+jitter_size = "25%"
+radius = "5.16 m"
+turn = 113
+
+[[place]]
+name = "foot_062"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -147
+jitter_size = "25%"
+radius = "1.17 m"
+turn = 222
+
+[[place]]
+name = "foot_063"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -76
+jitter_size = "25%"
+radius = "4.07 m"
+turn = 98
+
+[[place]]
+name = "foot_064"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -3
+jitter_size = "25%"
+radius = "3.04 m"
+turn = 111
+
+[[place]]
+name = "foot_065"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 79
+jitter_size = "25%"
+radius = "3.11 m"
+turn = 98
+
+[[place]]
+name = "foot_066"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -44
+jitter_size = "25%"
+radius = "4.21 m"
+turn = 256
+
+[[place]]
+name = "foot_067"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 70
+jitter_size = "25%"
+radius = "1.96 m"
+turn = 224
+
+[[place]]
+name = "foot_068"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -98
+jitter_size = "25%"
+radius = "3.79 m"
+turn = 100
+
+[[place]]
+name = "foot_069"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -176
+jitter_size = "25%"
+radius = "2.36 m"
+turn = 256
+
+[[place]]
+name = "foot_070"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -18
+jitter_size = "25%"
+radius = "1.65 m"
+turn = 134
+
+[[place]]
+name = "foot_071"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 10
+jitter_size = "25%"
+radius = "1.90 m"
+turn = 102
+
+[[place]]
+name = "foot_072"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 65
+jitter_size = "25%"
+radius = "3.08 m"
+turn = 219
+
+[[place]]
+name = "foot_073"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 120
+jitter_size = "25%"
+radius = "5.62 m"
+turn = 105
+
+[[place]]
+name = "foot_074"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 158
+jitter_size = "25%"
+radius = "3.21 m"
+turn = 97
+
+[[place]]
+name = "foot_075"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 57
+jitter_size = "25%"
+radius = "6.47 m"
+turn = 96
+
+[[place]]
+name = "foot_076"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 138
+jitter_size = "25%"
+radius = "1.48 m"
+turn = 233
+
+[[place]]
+name = "foot_077"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -96
+jitter_size = "25%"
+radius = "2.02 m"
+turn = 106
+
+[[place]]
+name = "foot_078"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 24
+jitter_size = "25%"
+radius = "6.10 m"
+turn = 263
+
+[[place]]
+name = "foot_079"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 173
+jitter_size = "25%"
+radius = "0.75 m"
+turn = 219
+
+[[place]]
+name = "foot_080"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -129
+jitter_size = "25%"
+radius = "3.61 m"
+turn = 250
+
+[[place]]
+name = "foot_081"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -85
+jitter_size = "25%"
+radius = "3.30 m"
+turn = 108
+
+[[place]]
+name = "foot_082"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 16
+jitter_size = "25%"
+radius = "2.47 m"
+turn = 257
+
+[[place]]
+name = "foot_083"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -160
+jitter_size = "25%"
+radius = "3.04 m"
+turn = 115
+
+[[place]]
+name = "foot_084"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 14
+jitter_size = "25%"
+radius = "0.72 m"
+turn = 161
+
+[[place]]
+name = "foot_085"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 134
+jitter_size = "25%"
+radius = "3.11 m"
+turn = 102
+
+[[place]]
+name = "foot_086"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -101
+jitter_size = "25%"
+radius = "4.91 m"
+turn = 100
+
+[[place]]
+name = "foot_087"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -108
+jitter_size = "25%"
+radius = "3.60 m"
+turn = 112
+
+[[place]]
+name = "foot_088"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -155
+jitter_size = "25%"
+radius = "6.41 m"
+turn = 93
+
+[[place]]
+name = "foot_089"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 162
+jitter_size = "25%"
+radius = "4.71 m"
+turn = 256
+
+[[place]]
+name = "foot_090"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 34
+jitter_size = "25%"
+radius = "3.22 m"
+turn = 263
+
+[[place]]
+name = "foot_091"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 128
+jitter_size = "25%"
+radius = "0.72 m"
+turn = 229
+
+[[place]]
+name = "foot_092"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 154
+jitter_size = "25%"
+radius = "3.30 m"
+turn = 102
+
+[[place]]
+name = "foot_093"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -53
+jitter_size = "25%"
+radius = "6.81 m"
+turn = 253
+
+[[place]]
+name = "foot_094"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 56
+jitter_size = "25%"
+radius = "5.83 m"
+turn = 259
+
+[[place]]
+name = "foot_095"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 21
+jitter_size = "25%"
+radius = "1.66 m"
+turn = 171
+
+[[place]]
+name = "foot_096"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -55
+jitter_size = "25%"
+radius = "5.84 m"
+turn = 238
+
+[[place]]
+name = "foot_097"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -60
+jitter_size = "25%"
+radius = "4.07 m"
+turn = 105
+
+[[place]]
+name = "foot_098"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 60
+jitter_size = "25%"
+radius = "5.78 m"
+turn = 255
+
+[[place]]
+name = "foot_099"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 104
+jitter_size = "25%"
+radius = "3.27 m"
+turn = 227
+
+[[place]]
+name = "foot_100"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 176
+jitter_size = "25%"
+radius = "1.56 m"
+turn = 111
+
+[[place]]
+name = "foot_101"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -129
+jitter_size = "25%"
+radius = "1.62 m"
+turn = 109
+
+[[place]]
+name = "foot_102"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 145
+jitter_size = "25%"
+radius = "1.37 m"
+turn = 208
+
+[[place]]
+name = "foot_103"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -66
+jitter_size = "25%"
+radius = "2.80 m"
+turn = 206
+
+[[place]]
+name = "foot_104"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -13
+jitter_size = "25%"
+radius = "6.75 m"
+turn = 266
+
+[[place]]
+name = "foot_105"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -22
+jitter_size = "25%"
+radius = "2.40 m"
+turn = 99
+
+[[place]]
+name = "foot_106"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 52
+jitter_size = "25%"
+radius = "5.24 m"
+turn = 95
+
+[[place]]
+name = "foot_107"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -148
+jitter_size = "25%"
+radius = "7.08 m"
+turn = 100
+
+[[place]]
+name = "foot_108"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 81
+jitter_size = "25%"
+radius = "3.17 m"
+turn = 259
+
+[[place]]
+name = "foot_109"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 160
+jitter_size = "25%"
+radius = "5.01 m"
+turn = 102
+
+[[place]]
+name = "foot_110"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -97
+jitter_size = "25%"
+radius = "1.77 m"
+turn = 116
+
+[[place]]
+name = "foot_111"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -146
+jitter_size = "25%"
+radius = "4.29 m"
+turn = 263
+
+[[place]]
+name = "foot_112"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -177
+jitter_size = "25%"
+radius = "2.46 m"
+turn = 116
+
+[[place]]
+name = "foot_113"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 3
+jitter_size = "25%"
+radius = "1.38 m"
+turn = 133
+
+[[place]]
+name = "foot_114"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
 face = 155
+jitter_size = "25%"
+radius = "3.89 m"
+turn = 126
 
 [[place]]
-name = "scree_foot"
+name = "foot_115"
 parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
 rule = "ring"
-count = 110
-radius = "1.3 m"
-jitter_radius = "50%"
-jitter_turn = 180
+count = 1
+face = 154
+jitter_size = "25%"
+radius = "4.71 m"
+turn = 96
 
 [[place]]
-name = "scree_mid"
+name = "foot_116"
 parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
 rule = "ring"
-count = 110
-radius = "3.0 m"
-jitter_radius = "50%"
-jitter_turn = 180
+count = 1
+face = -14
+jitter_size = "25%"
+radius = "6.81 m"
+turn = 100
 
 [[place]]
-name = "scree_far"
+name = "foot_117"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 136
+jitter_size = "25%"
+radius = "7.29 m"
+turn = 113
+
+[[place]]
+name = "foot_118"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 166
+jitter_size = "25%"
+radius = "5.47 m"
+turn = 102
+
+[[place]]
+name = "foot_119"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -168
+jitter_size = "25%"
+radius = "7.56 m"
+turn = 240
+
+[[place]]
+name = "foot_120"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -78
+jitter_size = "25%"
+radius = "6.18 m"
+turn = 265
+
+[[place]]
+name = "foot_121"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 98
+jitter_size = "25%"
+radius = "2.52 m"
+turn = 262
+
+[[place]]
+name = "foot_122"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -4
+jitter_size = "25%"
+radius = "2.87 m"
+turn = 244
+
+[[place]]
+name = "foot_123"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -67
+jitter_size = "25%"
+radius = "5.75 m"
+turn = 263
+
+[[place]]
+name = "foot_124"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -69
+jitter_size = "25%"
+radius = "5.60 m"
+turn = 259
+
+[[place]]
+name = "foot_125"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 161
+jitter_size = "25%"
+radius = "5.53 m"
+turn = 262
+
+[[place]]
+name = "foot_126"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -67
+jitter_size = "25%"
+radius = "5.43 m"
+turn = 264
+
+[[place]]
+name = "foot_127"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 34
+jitter_size = "25%"
+radius = "6.44 m"
+turn = 94
+
+[[place]]
+name = "foot_128"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -124
+jitter_size = "25%"
+radius = "2.69 m"
+turn = 259
+
+[[place]]
+name = "foot_129"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -73
+jitter_size = "25%"
+radius = "3.61 m"
+turn = 124
+
+[[place]]
+name = "foot_130"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 21
+jitter_size = "25%"
+radius = "2.66 m"
+turn = 219
+
+[[place]]
+name = "foot_131"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -24
+jitter_size = "25%"
+radius = "5.87 m"
+turn = 104
+
+[[place]]
+name = "foot_132"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 86
+jitter_size = "25%"
+radius = "6.04 m"
+turn = 98
+
+[[place]]
+name = "foot_133"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -23
+jitter_size = "25%"
+radius = "2.14 m"
+turn = 108
+
+[[place]]
+name = "foot_134"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -167
+jitter_size = "25%"
+radius = "7.29 m"
+turn = 262
+
+[[place]]
+name = "foot_135"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 30
+jitter_size = "25%"
+radius = "1.72 m"
+turn = 253
+
+[[place]]
+name = "foot_136"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 179
+jitter_size = "25%"
+radius = "1.13 m"
+turn = 240
+
+[[place]]
+name = "foot_137"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 44
+jitter_size = "25%"
+radius = "3.08 m"
+turn = 260
+
+[[place]]
+name = "foot_138"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -58
+jitter_size = "25%"
+radius = "4.57 m"
+turn = 97
+
+[[place]]
+name = "foot_139"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -71
+jitter_size = "25%"
+radius = "1.65 m"
+turn = 147
+
+[[place]]
+name = "foot_140"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 11
+jitter_size = "25%"
+radius = "4.77 m"
+turn = 94
+
+[[place]]
+name = "foot_141"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 179
+jitter_size = "25%"
+radius = "5.73 m"
+turn = 110
+
+[[place]]
+name = "foot_142"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 57
+jitter_size = "25%"
+radius = "2.20 m"
+turn = 121
+
+[[place]]
+name = "foot_143"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 70
+jitter_size = "25%"
+radius = "5.71 m"
+turn = 259
+
+[[place]]
+name = "foot_144"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 145
+jitter_size = "25%"
+radius = "5.41 m"
+turn = 265
+
+[[place]]
+name = "foot_145"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 73
+jitter_size = "25%"
+radius = "7.56 m"
+turn = 97
+
+[[place]]
+name = "foot_146"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 160
+jitter_size = "25%"
+radius = "3.91 m"
+turn = 106
+
+[[place]]
+name = "foot_147"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 164
+jitter_size = "25%"
+radius = "1.27 m"
+turn = 217
+
+[[place]]
+name = "foot_148"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 24
+jitter_size = "25%"
+radius = "1.24 m"
+turn = 251
+
+[[place]]
+name = "foot_149"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 52
+jitter_size = "25%"
+radius = "4.03 m"
+turn = 262
+
+[[place]]
+name = "foot_150"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 42
+jitter_size = "25%"
+radius = "1.31 m"
+turn = 166
+
+[[place]]
+name = "mid_001"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 60
+jitter_size = "25%"
+radius = "4.53 m"
+turn = 257
+
+[[place]]
+name = "mid_002"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -121
+jitter_size = "25%"
+radius = "5.22 m"
+turn = 111
+
+[[place]]
+name = "mid_003"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 59
+jitter_size = "25%"
+radius = "5.05 m"
+turn = 112
+
+[[place]]
+name = "mid_004"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 153
+jitter_size = "25%"
+radius = "6.19 m"
+turn = 99
+
+[[place]]
+name = "mid_005"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 130
+jitter_size = "25%"
+radius = "1.47 m"
+turn = 189
+
+[[place]]
+name = "mid_006"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 144
+jitter_size = "25%"
+radius = "7.16 m"
+turn = 254
+
+[[place]]
+name = "mid_007"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -130
+jitter_size = "25%"
+radius = "7.28 m"
+turn = 106
+
+[[place]]
+name = "mid_008"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -59
+jitter_size = "25%"
+radius = "5.91 m"
+turn = 261
+
+[[place]]
+name = "mid_009"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 164
+jitter_size = "25%"
+radius = "6.02 m"
+turn = 124
+
+[[place]]
+name = "mid_010"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -138
+jitter_size = "25%"
+radius = "6.93 m"
+turn = 244
+
+[[place]]
+name = "mid_011"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 101
+jitter_size = "25%"
+radius = "6.70 m"
+turn = 110
+
+[[place]]
+name = "mid_012"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 83
+jitter_size = "25%"
+radius = "5.12 m"
+turn = 104
+
+[[place]]
+name = "mid_013"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 101
+jitter_size = "25%"
+radius = "5.19 m"
+turn = 124
+
+[[place]]
+name = "mid_014"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 139
+jitter_size = "25%"
+radius = "2.12 m"
+turn = 173
+
+[[place]]
+name = "mid_015"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -113
+jitter_size = "25%"
+radius = "6.33 m"
+turn = 222
+
+[[place]]
+name = "mid_016"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 107
+jitter_size = "25%"
+radius = "3.12 m"
+turn = 183
+
+[[place]]
+name = "mid_017"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -128
+jitter_size = "25%"
+radius = "5.50 m"
+turn = 263
+
+[[place]]
+name = "mid_018"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 115
+jitter_size = "25%"
+radius = "1.15 m"
+turn = 235
+
+[[place]]
+name = "mid_019"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 74
+jitter_size = "25%"
+radius = "4.25 m"
+turn = 208
+
+[[place]]
+name = "mid_020"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 70
+jitter_size = "25%"
+radius = "6.91 m"
+turn = 107
+
+[[place]]
+name = "mid_021"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 130
+jitter_size = "25%"
+radius = "6.60 m"
+turn = 108
+
+[[place]]
+name = "mid_022"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 84
+jitter_size = "25%"
+radius = "4.53 m"
+turn = 247
+
+[[place]]
+name = "mid_023"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -54
+jitter_size = "25%"
+radius = "4.33 m"
+turn = 103
+
+[[place]]
+name = "mid_024"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -45
+jitter_size = "25%"
+radius = "4.24 m"
+turn = 116
+
+[[place]]
+name = "mid_025"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -96
+jitter_size = "25%"
+radius = "1.14 m"
+turn = 209
+
+[[place]]
+name = "mid_026"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 29
+jitter_size = "25%"
+radius = "7.71 m"
+turn = 235
+
+[[place]]
+name = "mid_027"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 151
+jitter_size = "25%"
+radius = "1.81 m"
+turn = 231
+
+[[place]]
+name = "mid_028"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 12
+jitter_size = "25%"
+radius = "2.33 m"
+turn = 105
+
+[[place]]
+name = "mid_029"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 90
+jitter_size = "25%"
+radius = "8.82 m"
+turn = 135
+
+[[place]]
+name = "mid_030"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -135
+jitter_size = "25%"
+radius = "3.88 m"
+turn = 181
+
+[[place]]
+name = "mid_031"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 90
+jitter_size = "25%"
+radius = "6.31 m"
+turn = 106
+
+[[place]]
+name = "mid_032"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -151
+jitter_size = "25%"
+radius = "5.74 m"
+turn = 211
+
+[[place]]
+name = "mid_033"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 50
+jitter_size = "25%"
+radius = "5.69 m"
+turn = 227
+
+[[place]]
+name = "mid_034"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 96
+jitter_size = "25%"
+radius = "5.50 m"
+turn = 98
+
+[[place]]
+name = "mid_035"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -76
+jitter_size = "25%"
+radius = "7.39 m"
+turn = 264
+
+[[place]]
+name = "mid_036"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 3
+jitter_size = "25%"
+radius = "1.15 m"
+turn = 222
+
+[[place]]
+name = "mid_037"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 10
+jitter_size = "25%"
+radius = "4.83 m"
+turn = 203
+
+[[place]]
+name = "mid_038"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 131
+jitter_size = "25%"
+radius = "5.14 m"
+turn = 139
+
+[[place]]
+name = "mid_039"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -77
+jitter_size = "25%"
+radius = "5.82 m"
+turn = 100
+
+[[place]]
+name = "mid_040"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 147
+jitter_size = "25%"
+radius = "3.40 m"
+turn = 143
+
+[[place]]
+name = "mid_041"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 18
+jitter_size = "25%"
+radius = "2.04 m"
+turn = 225
+
+[[place]]
+name = "mid_042"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -44
+jitter_size = "25%"
+radius = "3.09 m"
+turn = 104
+
+[[place]]
+name = "mid_043"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -139
+jitter_size = "25%"
+radius = "1.44 m"
+turn = 178
+
+[[place]]
+name = "mid_044"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 73
+jitter_size = "25%"
+radius = "6.51 m"
+turn = 109
+
+[[place]]
+name = "mid_045"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 171
+jitter_size = "25%"
+radius = "5.99 m"
+turn = 115
+
+[[place]]
+name = "mid_046"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 176
+jitter_size = "25%"
+radius = "7.16 m"
+turn = 153
+
+[[place]]
+name = "mid_047"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 92
+jitter_size = "25%"
+radius = "4.93 m"
+turn = 259
+
+[[place]]
+name = "mid_048"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 99
+jitter_size = "25%"
+radius = "2.92 m"
+turn = 106
+
+[[place]]
+name = "mid_049"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -122
+jitter_size = "25%"
+radius = "2.27 m"
+turn = 224
+
+[[place]]
+name = "mid_050"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -144
+jitter_size = "25%"
+radius = "4.22 m"
+turn = 257
+
+[[place]]
+name = "mid_051"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -12
+jitter_size = "25%"
+radius = "3.75 m"
+turn = 234
+
+[[place]]
+name = "mid_052"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 6
+jitter_size = "25%"
+radius = "2.74 m"
+turn = 215
+
+[[place]]
+name = "mid_053"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 27
+jitter_size = "25%"
+radius = "3.79 m"
+turn = 191
+
+[[place]]
+name = "mid_054"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -157
+jitter_size = "25%"
+radius = "5.53 m"
+turn = 99
+
+[[place]]
+name = "mid_055"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 178
+jitter_size = "25%"
+radius = "6.14 m"
+turn = 243
+
+[[place]]
+name = "mid_056"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 172
+jitter_size = "25%"
+radius = "3.56 m"
+turn = 200
+
+[[place]]
+name = "mid_057"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 80
+jitter_size = "25%"
+radius = "7.09 m"
+turn = 238
+
+[[place]]
+name = "mid_058"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -25
+jitter_size = "25%"
+radius = "2.66 m"
+turn = 226
+
+[[place]]
+name = "mid_059"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 102
+jitter_size = "25%"
+radius = "5.57 m"
+turn = 132
+
+[[place]]
+name = "mid_060"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 110
+jitter_size = "25%"
+radius = "4.17 m"
+turn = 120
+
+[[place]]
+name = "mid_061"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -119
+jitter_size = "25%"
+radius = "7.76 m"
+turn = 255
+
+[[place]]
+name = "mid_062"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 93
+jitter_size = "25%"
+radius = "4.31 m"
+turn = 122
+
+[[place]]
+name = "mid_063"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 64
+jitter_size = "25%"
+radius = "2.50 m"
+turn = 115
+
+[[place]]
+name = "mid_064"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -160
+jitter_size = "25%"
+radius = "7.42 m"
+turn = 238
+
+[[place]]
+name = "mid_065"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 176
+jitter_size = "25%"
+radius = "3.64 m"
+turn = 216
+
+[[place]]
+name = "mid_066"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 109
+jitter_size = "25%"
+radius = "3.24 m"
+turn = 225
+
+[[place]]
+name = "mid_067"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 180
+jitter_size = "25%"
+radius = "2.89 m"
+turn = 103
+
+[[place]]
+name = "mid_068"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -82
+jitter_size = "25%"
+radius = "7.95 m"
+turn = 133
+
+[[place]]
+name = "mid_069"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = -86
+jitter_size = "25%"
+radius = "5.97 m"
+turn = 122
+
+[[place]]
+name = "mid_070"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 1
+face = 38
+jitter_size = "25%"
+radius = "6.23 m"
+turn = 148
+
+[[place]]
+name = "far_001"
 parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
 rule = "ring"
-count = 40
-radius = "4.6 m"
-jitter_radius = "50%"
-jitter_turn = 180
+count = 1
+face = -44
+jitter_size = "25%"
+radius = "4.37 m"
+turn = 212
 
 [[place]]
-name = "flakes"
+name = "far_002"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 127
+jitter_size = "25%"
+radius = "8.49 m"
+turn = 214
+
+[[place]]
+name = "far_003"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -10
+jitter_size = "25%"
+radius = "5.05 m"
+turn = 219
+
+[[place]]
+name = "far_004"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -148
+jitter_size = "25%"
+radius = "1.59 m"
+turn = 141
+
+[[place]]
+name = "far_005"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 138
+jitter_size = "25%"
+radius = "5.65 m"
+turn = 112
+
+[[place]]
+name = "far_006"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -94
+jitter_size = "25%"
+radius = "4.79 m"
+turn = 123
+
+[[place]]
+name = "far_007"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 99
+jitter_size = "25%"
+radius = "3.61 m"
+turn = 124
+
+[[place]]
+name = "far_008"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 96
+jitter_size = "25%"
+radius = "4.09 m"
+turn = 235
+
+[[place]]
+name = "far_009"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 177
+jitter_size = "25%"
+radius = "3.05 m"
+turn = 243
+
+[[place]]
+name = "far_010"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -86
+jitter_size = "25%"
+radius = "5.75 m"
+turn = 230
+
+[[place]]
+name = "far_011"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -77
+jitter_size = "25%"
+radius = "5.90 m"
+turn = 124
+
+[[place]]
+name = "far_012"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -62
+jitter_size = "25%"
+radius = "3.61 m"
+turn = 179
+
+[[place]]
+name = "far_013"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -97
+jitter_size = "25%"
+radius = "3.59 m"
+turn = 130
+
+[[place]]
+name = "far_014"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 98
+jitter_size = "25%"
+radius = "5.74 m"
+turn = 105
+
+[[place]]
+name = "far_015"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 48
+jitter_size = "25%"
+radius = "2.62 m"
+turn = 198
+
+[[place]]
+name = "far_016"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -45
+jitter_size = "25%"
+radius = "3.16 m"
+turn = 244
+
+[[place]]
+name = "far_017"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 7
+jitter_size = "25%"
+radius = "6.51 m"
+turn = 236
+
+[[place]]
+name = "far_018"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -60
+jitter_size = "25%"
+radius = "2.95 m"
+turn = 142
+
+[[place]]
+name = "far_019"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 168
+jitter_size = "25%"
+radius = "8.56 m"
+turn = 145
+
+[[place]]
+name = "far_020"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -118
+jitter_size = "25%"
+radius = "4.65 m"
+turn = 246
+
+[[place]]
+name = "far_021"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 90
+jitter_size = "25%"
+radius = "2.69 m"
+turn = 150
+
+[[place]]
+name = "far_022"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 127
+jitter_size = "25%"
+radius = "3.99 m"
+turn = 108
+
+[[place]]
+name = "far_023"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -54
+jitter_size = "25%"
+radius = "1.82 m"
+turn = 223
+
+[[place]]
+name = "far_024"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 18
+jitter_size = "25%"
+radius = "5.15 m"
+turn = 112
+
+[[place]]
+name = "far_025"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 5
+jitter_size = "25%"
+radius = "5.61 m"
+turn = 152
+
+[[place]]
+name = "far_026"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = 133
+jitter_size = "25%"
+radius = "4.72 m"
+turn = 245
+
+[[place]]
+name = "far_027"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -11
+jitter_size = "25%"
+radius = "5.51 m"
+turn = 109
+
+[[place]]
+name = "far_028"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -78
+jitter_size = "25%"
+radius = "8.36 m"
+turn = 236
+
+[[place]]
+name = "far_029"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -95
+jitter_size = "25%"
+radius = "5.64 m"
+turn = 116
+
+[[place]]
+name = "far_030"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 1
+face = -166
+jitter_size = "25%"
+radius = "5.20 m"
+turn = 107
+
+[[place]]
+name = "flake_001"
 parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
 rule = "ring"
-count = 40
-radius = "1.5 m"
-jitter_radius = "50%"
-jitter_turn = 180
+count = 1
+face = -177
+jitter_size = "25%"
+radius = "1.15 m"
+turn = 193
+
+[[place]]
+name = "flake_002"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -38
+jitter_size = "25%"
+radius = "4.00 m"
+turn = 258
+
+[[place]]
+name = "flake_003"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 21
+jitter_size = "25%"
+radius = "5.99 m"
+turn = 100
+
+[[place]]
+name = "flake_004"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -11
+jitter_size = "25%"
+radius = "0.67 m"
+turn = 210
+
+[[place]]
+name = "flake_005"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -180
+jitter_size = "25%"
+radius = "2.64 m"
+turn = 227
+
+[[place]]
+name = "flake_006"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 50
+jitter_size = "25%"
+radius = "3.99 m"
+turn = 108
+
+[[place]]
+name = "flake_007"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -75
+jitter_size = "25%"
+radius = "3.05 m"
+turn = 253
+
+[[place]]
+name = "flake_008"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -29
+jitter_size = "25%"
+radius = "1.30 m"
+turn = 155
+
+[[place]]
+name = "flake_009"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -58
+jitter_size = "25%"
+radius = "4.34 m"
+turn = 99
+
+[[place]]
+name = "flake_010"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 82
+jitter_size = "25%"
+radius = "5.01 m"
+turn = 112
+
+[[place]]
+name = "flake_011"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 176
+jitter_size = "25%"
+radius = "1.61 m"
+turn = 235
+
+[[place]]
+name = "flake_012"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -70
+jitter_size = "25%"
+radius = "6.48 m"
+turn = 265
+
+[[place]]
+name = "flake_013"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -156
+jitter_size = "25%"
+radius = "1.52 m"
+turn = 112
+
+[[place]]
+name = "flake_014"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 128
+jitter_size = "25%"
+radius = "2.39 m"
+turn = 260
+
+[[place]]
+name = "flake_015"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 150
+jitter_size = "25%"
+radius = "7.12 m"
+turn = 248
+
+[[place]]
+name = "flake_016"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 115
+jitter_size = "25%"
+radius = "5.34 m"
+turn = 93
+
+[[place]]
+name = "flake_017"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 70
+jitter_size = "25%"
+radius = "6.45 m"
+turn = 124
+
+[[place]]
+name = "flake_018"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -18
+jitter_size = "25%"
+radius = "0.46 m"
+turn = 209
+
+[[place]]
+name = "flake_019"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 157
+jitter_size = "25%"
+radius = "2.67 m"
+turn = 250
+
+[[place]]
+name = "flake_020"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -31
+jitter_size = "25%"
+radius = "5.81 m"
+turn = 246
+
+[[place]]
+name = "flake_021"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 144
+jitter_size = "25%"
+radius = "4.42 m"
+turn = 117
+
+[[place]]
+name = "flake_022"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -135
+jitter_size = "25%"
+radius = "7.07 m"
+turn = 266
+
+[[place]]
+name = "flake_023"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 163
+jitter_size = "25%"
+radius = "1.87 m"
+turn = 121
+
+[[place]]
+name = "flake_024"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -154
+jitter_size = "25%"
+radius = "1.88 m"
+turn = 209
+
+[[place]]
+name = "flake_025"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 111
+jitter_size = "25%"
+radius = "5.52 m"
+turn = 96
+
+[[place]]
+name = "flake_026"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -152
+jitter_size = "25%"
+radius = "2.79 m"
+turn = 152
+
+[[place]]
+name = "flake_027"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 2
+jitter_size = "25%"
+radius = "5.84 m"
+turn = 265
+
+[[place]]
+name = "flake_028"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 156
+jitter_size = "25%"
+radius = "0.91 m"
+turn = 119
+
+[[place]]
+name = "flake_029"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -20
+jitter_size = "25%"
+radius = "2.41 m"
+turn = 243
+
+[[place]]
+name = "flake_030"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -59
+jitter_size = "25%"
+radius = "2.23 m"
+turn = 253
+
+[[place]]
+name = "flake_031"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 115
+jitter_size = "25%"
+radius = "4.53 m"
+turn = 266
+
+[[place]]
+name = "flake_032"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 60
+jitter_size = "25%"
+radius = "2.78 m"
+turn = 110
+
+[[place]]
+name = "flake_033"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -117
+jitter_size = "25%"
+radius = "6.14 m"
+turn = 99
+
+[[place]]
+name = "flake_034"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 151
+jitter_size = "25%"
+radius = "1.04 m"
+turn = 199
+
+[[place]]
+name = "flake_035"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -177
+jitter_size = "25%"
+radius = "5.22 m"
+turn = 260
+
+[[place]]
+name = "flake_036"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -174
+jitter_size = "25%"
+radius = "3.17 m"
+turn = 96
+
+[[place]]
+name = "flake_037"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -130
+jitter_size = "25%"
+radius = "5.72 m"
+turn = 259
+
+[[place]]
+name = "flake_038"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 123
+jitter_size = "25%"
+radius = "6.06 m"
+turn = 96
+
+[[place]]
+name = "flake_039"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = -133
+jitter_size = "25%"
+radius = "4.54 m"
+turn = 119
+
+[[place]]
+name = "flake_040"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 1
+face = 100
+jitter_size = "25%"
+radius = "7.12 m"
+turn = 267
