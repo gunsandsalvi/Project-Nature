@@ -73,8 +73,10 @@ what = "where sea meets land: a thin bright line and small waves"
 [[piece]]
 id = "water_ice"
 name = "Ice on water"
-what = "ice forming at the edges, frozen rivers and lakes"
+what = "clear dark ice with long white cracks, clusters of bubbles and patches of frost, forming at the edges and breaking up in spring"
 art_book = ["winter"]
+sheet = "sheets/4.10-water_ice.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "flood"
