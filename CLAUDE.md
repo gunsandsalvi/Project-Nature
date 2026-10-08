@@ -5,7 +5,7 @@ PROJECT.md is the decision source. Its full catalogue is reference material, not
 
 **Now — owner approved 8 October 2026:** M1 stays accepted. M2 builds a saved living camp and a place dream on the existing C++ simulation and 2D renderer. M3 proves discovery and learning. Start with the baseline repairs in A17.0 and α2.13a; no new foundation or renderer.
 
-**Roles:** one builder owns each playable increment. At most one supporting task runs alongside it. The coordinator owns integration and may resolve implementation choices within approved scope. One independent reviewer checks each milestone. Follow the session's git permissions.
+**Roles:** one builder owns each playable increment. At most one agent runs at any time, and every agent uses the same model (owner, 8 October 2026), so reviews and supporting tasks run only while the builder is stopped. The coordinator owns integration and may resolve implementation choices within approved scope. One independent reviewer checks each milestone. Follow the session's git permissions.
 
 **Documents and size budgets:**
 
