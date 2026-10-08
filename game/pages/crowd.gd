@@ -55,6 +55,9 @@ var focus_north := 0
 ## benchmark reads it here, so the phone is not asked more often than it allows.
 var forecast := -1.0
 
+var _compact: Label
+var _pause_button: Button
+var _drawer: ScrollContainer
 var _clock: Label
 var _counters: Label
 var _pin: CheckButton
@@ -79,7 +82,7 @@ var _test := ""
 func _ready() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_theme_constant_override("separation", 8)
-	_clock = _label(22, TEXT)
+	_clock = _label(16, TEXT)
 	_counters = _label(15, QUIET)
 	world = KdWorld.new()
 	device = KdDevice.new()
@@ -94,6 +97,7 @@ func _ready() -> void:
 	_pin.text = "Pin the world to the middle cores"
 	_pin.toggled.connect(_set_pinned)
 	add_child(_pin)
+	_compose()
 	if not _problems.is_empty() or world.entry("tuning/crowd", "demo:crowd").is_empty():
 		_counters.text = "The crowd did not load: %s" % "; ".join(_problems)
 		set_process(false)
@@ -240,6 +244,14 @@ func _show() -> void:
 		lines.append(_called)
 	_counters.text = "\n".join(lines)
 	bar.show_speed()
+	if _compact != null:
+		_compact.text = (
+			"%s walkers · %s greetings"
+			% [Worlds.count_words(c.walkers), Worlds.count_words(_greetings)]
+		)
+		if warning != "" or c.get("save_failed", false):
+			_compact.text += "\n" + (warning if warning != "" else "Saving failed · open Details")
+		_pause_button.text = "Play" if world.is_paused() else "Pause"
 
 
 ## A game second's hour of the day, "06:05".
@@ -420,3 +432,47 @@ func _spread() -> float:
 		return 0.0
 	var points: Array = _touches.values()
 	return (points[0] as Vector2).distance_to(points[1])
+
+
+func _compose() -> void:
+	var heading := _label(22, TEXT)
+	heading.text = "People test · Simulation markers"
+	move_child(heading, 0)
+	move_child(_clock, 1)
+	move_child(_view_box, 2)
+	_compact = _label(16, TEXT)
+	move_child(_compact, 3)
+	var dock := HBoxContainer.new()
+	add_child(dock)
+	move_child(dock, 4)
+	_drawer = ScrollContainer.new()
+	_drawer.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_drawer.custom_minimum_size.y = 160
+	_drawer.hide()
+	add_child(_drawer)
+	var details := VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_drawer.add_child(details)
+	for control: Control in [bar, _counters, legend, _pin]:
+		control.reparent(details)
+	bar._pause.hide()
+	for label: String in ["Pause", "Speed", "Details"]:
+		var button := Button.new()
+		button.text = label
+		button.custom_minimum_size.y = 48
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		dock.add_child(button)
+		if label == "Pause":
+			_pause_button = button
+			button.pressed.connect(bar.toggle_pause)
+		else:
+			button.pressed.connect(_open_drawer.bind(label))
+
+
+func _open_drawer(which: String) -> void:
+	var speed := which == "Speed"
+	var same := _drawer.visible and bar.visible == speed
+	_drawer.visible = not same
+	bar.visible = speed
+	for control: Control in [_counters, legend, _pin]:
+		control.visible = not speed

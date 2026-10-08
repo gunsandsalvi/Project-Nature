@@ -1,8 +1,44 @@
 #include "canvas.hpp"
 #include <godot_cpp/core/class_db.hpp>
 #include "kd/look/navigation.hpp"
+#include "wide.hpp"
 
 namespace kd::view {
+namespace {
+godot::Dictionary tile_dictionary(const GroundTile& tile) {
+    godot::Dictionary row;
+    row["key"] = godot::String::utf8(tile.key.c_str());
+    row["power"] = tile.power;
+    row["x"] = tile.x;
+    row["y"] = tile.y;
+    row["west_cm"] = tile.west_south.x;
+    row["south_cm"] = tile.west_south.y;
+    row["east_cm"] = tile.east_north.x;
+    row["north_cm"] = tile.east_north.y;
+    row["local_west"] = tile.local.west;
+    row["local_south"] = tile.local.south;
+    row["local_east"] = tile.local.east;
+    row["local_north"] = tile.local.north;
+    row["variant"] = tile.variant;
+    row["accent"] = tile.accent;
+    row["stamp_key"] = godot::String::utf8(tile.stamp_key.c_str());
+    godot::Array neighbours, borders, details;
+    for (const auto& key : tile.neighbours) neighbours.push_back(godot::String::utf8(key.c_str()));
+    for (const auto key : tile.border_keys) borders.push_back(godot::String::utf8(std::to_string(key).c_str()));
+    for (std::size_t i = 0; i < tile.details.size(); ++i) {
+        const auto point = tile.details[i];
+        godot::Dictionary detail;
+        detail["key"] = godot::String::utf8(tile.detail_keys[i].c_str());
+        detail["east_cm"] = point.x;
+        detail["north_cm"] = point.y;
+        details.push_back(detail);
+    }
+    row["neighbours"] = neighbours;
+    row["border_keys"] = borders;
+    row["details"] = details;
+    return row;
+}
+}  // namespace
 void KdCanvas::_bind_methods() {
     using namespace godot;
     ClassDB::bind_method(D_METHOD("set_world", "world", "east", "north"), &KdCanvas::set_world);
@@ -14,10 +50,18 @@ void KdCanvas::_bind_methods() {
     ClassDB::bind_method(D_METHOD("zoom", "ratio", "anchor", "snap"), &KdCanvas::zoom);
     ClassDB::bind_method(D_METHOD("touch", "action", "finger", "pixel", "seconds"), &KdCanvas::touch);
     ClassDB::bind_method(D_METHOD("records"), &KdCanvas::records);
+    ClassDB::bind_method(D_METHOD("set_detail_seed", "seed"), &KdCanvas::set_detail_seed);
+    ClassDB::bind_method(D_METHOD("restore_origin", "east_cm", "north_cm", "raster_east_cm", "raster_north_cm"),
+                         &KdCanvas::restore_origin);
+    ClassDB::bind_method(D_METHOD("tile_at", "east_cm", "north_cm", "power", "look_seed"), &KdCanvas::tile_at);
+    ClassDB::bind_method(D_METHOD("world_local", "east_cm", "north_cm"), &KdCanvas::world_local);
+    ClassDB::bind_method(D_METHOD("project_world", "east_cm", "north_cm", "height"), &KdCanvas::project_world);
 }
 void KdCanvas::set_world(const godot::Ref<KdWorld>& world, int64_t east, int64_t north) {
     world_ = world;
     origin_ = world::World::kTorus.wrap(east, north);
+    initial_origin_ = origin_;
+    projection_.restore_raster_origin({0, 0});
     projection_.cancel_settle();
     framed_ = false;
     if (world_.is_valid() && world_->catalogue()) {
@@ -67,6 +111,8 @@ godot::Dictionary KdCanvas::frame(int64_t width, int64_t height, double seconds)
     if (motion.scale != 1.0) projection_.zoom(motion.scale, {motion.at_x, motion.at_y}, false);
     if (motion.lifted) projection_.release({motion.at_x, motion.at_y}, settle_seconds_);
     if (!motion.touching) projection_.advance(elapsed);
+    const auto shift = projection_.rebase();
+    origin_ = world::World::kTorus.moved(origin_, shift);
     const Pixel residual = projection_.residual();
     godot::Dictionary result;
     result["size"] = godot::Vector2(static_cast<float>(projection_.width()), static_cast<float>(projection_.height()));
@@ -79,9 +125,18 @@ godot::Dictionary KdCanvas::frame(int64_t width, int64_t height, double seconds)
     result["settling"] = projection_.settling();
     result["target_density"] = projection_.target_density();
     const auto source = projection_.source();
+    result["world_width_cm"] = world::World::kTorus.width();
+    result["world_height_cm"] = world::World::kTorus.height();
     result["source_density"] = source.density;
     result["source_level"] = source.level;
     result["form"] = source.form;
+    godot::Dictionary rebase;
+    rebase["east_cm"] = shift.dx;
+    rebase["north_cm"] = shift.dy;
+    result["rebase"] = rebase;
+    const auto raster_origin = projection_.raster_origin();
+    result["raster_origin_east_cm"] = raster_origin.dx;
+    result["raster_origin_north_cm"] = raster_origin.dy;
     const auto footprint = projection_.footprint(maximum_height_, overscan_, 0.0, 0.0);
     godot::Dictionary bounds;
     // Local centimetres stay unwrapped; the exact origin is separately wrapped for seam-crossing queries.
@@ -92,6 +147,14 @@ godot::Dictionary KdCanvas::frame(int64_t width, int64_t height, double seconds)
     bounds["origin_east_cm"] = origin_.x;
     bounds["origin_north_cm"] = origin_.y;
     result["footprint"] = bounds;
+    const Footprint demand{footprint.west - shadow_reach_, footprint.south - shadow_reach_,
+                           footprint.east + shadow_reach_, footprint.north + shadow_reach_};
+    godot::Array tiles;
+    const auto visible_ground = projection_.footprint(0, 0, 0, 0);
+    const int ground_power = source.density == 64 ? 2 : source.density == 16 ? 4 : 6;
+    for (const auto& tile : ground_tiles(world::World::kTorus, origin_, visible_ground, ground_power, detail_seed_))
+        tiles.push_back(tile_dictionary(tile));
+    result["ground_tiles"] = tiles;
     if (world_.is_valid()) {
         result["epoch"] = static_cast<int64_t>(world_->display().epoch());
         result["revision"] = static_cast<int64_t>(world_->display().revision());
@@ -109,11 +172,78 @@ godot::Dictionary KdCanvas::frame(int64_t width, int64_t height, double seconds)
             manifest[godot::String::utf8(plural.c_str())] = records;
         }
         result["manifest"] = manifest;
+        const auto sampled = world_->display().sample(world::World::kTorus, origin_, world_->screen_time());
+        const auto wide =
+            wide_records(sampled, world_->display().camps(), world::World::kTorus, origin_, source.form, &demand);
+        godot::Dictionary overview;
+        overview["form"] = source.form;
+        overview["epoch"] = static_cast<int64_t>(owned.epoch);
+        overview["revision"] = static_cast<int64_t>(owned.revision);
+        overview["second"] = owned.second;
+        overview["record_count"] = static_cast<int64_t>(wide.record_count);
+        overview["member_count"] = static_cast<int64_t>(wide.member_count);
+        overview["population_count"] = static_cast<int64_t>(wide.population_count);
+        overview["truncated"] = wide.truncated;
+        godot::Array rows;
+        for (const auto& record : wide.records) {
+            godot::Dictionary row;
+            row["key"] = godot::String::utf8(record.key.c_str());
+            row["id"] = static_cast<int64_t>(record.id);
+            row["camp_id"] = static_cast<int64_t>(record.camp_id);
+            row["camp_index"] = record.camp_index;
+            row["place"] = godot::Vector2(static_cast<float>(record.east), static_cast<float>(record.north));
+            const auto pixel = projection_.raster(record.east, record.north);
+            row["pixel"] = godot::Vector2(static_cast<float>(pixel.x), static_cast<float>(pixel.y));
+            row["appearance"] = record.appearance;
+            row["activity"] = record.activity;
+            row["facing"] = record.facing;
+            row["phase"] = record.phase;
+            row["count"] = static_cast<int64_t>(record.count);
+            godot::PackedInt64Array members;
+            for (const auto id : record.members) members.push_back(static_cast<int64_t>(id));
+            row["members"] = members;
+            rows.push_back(row);
+        }
+        overview["records"] = rows;
+        result["wide"] = overview;
     }
     result["residual"] = godot::Vector2(static_cast<float>(residual.x), static_cast<float>(residual.y));
     const Pixel offset = projection_.presentation_offset();
     result["offset"] = godot::Vector2(static_cast<float>(offset.x), static_cast<float>(offset.y));
     return result;
+}
+bool KdCanvas::restore_origin(int64_t east, int64_t north, int64_t raster_east, int64_t raster_north) {
+    const auto torus = world::World::kTorus;
+    if (east < 0 || east >= torus.width() || north < 0 || north >= torus.height()) return false;
+    const num::Point requested{static_cast<std::int32_t>(east), static_cast<std::int32_t>(north)};
+    if (torus.moved(initial_origin_, {raster_east, raster_north}) != requested ||
+        !projection_.restore_raster_origin({raster_east, raster_north}))
+        return false;
+    origin_ = requested;
+    projection_.cancel_settle();
+    gestures_ = Gestures{false};
+    return true;
+}
+Projection KdCanvas::projection_at_origin(num::Point source_origin) const {
+    const auto offset = world::World::kTorus.offset(source_origin, origin_);
+    return projection_.at_origin({offset.dx / 100., offset.dy / 100.});
+}
+void KdCanvas::set_detail_seed(int64_t seed) {
+    detail_seed_ = static_cast<std::uint64_t>(seed);
+}
+godot::Dictionary KdCanvas::tile_at(int64_t east, int64_t north, int64_t power, int64_t seed) const {
+    if (power < 0 || power > 22) return {};
+    return tile_dictionary(
+        canonical_tile(world::World::kTorus, east, north, static_cast<int>(power), static_cast<std::uint64_t>(seed)));
+}
+godot::Vector2 KdCanvas::world_local(int64_t east, int64_t north) const {
+    const auto offset = world::World::kTorus.offset(origin_, world::World::kTorus.wrap(east, north));
+    return {static_cast<float>(offset.dx / 100.), static_cast<float>(offset.dy / 100.)};
+}
+godot::Vector2 KdCanvas::project_world(int64_t east, int64_t north, double height) const {
+    const auto offset = world::World::kTorus.offset(origin_, world::World::kTorus.wrap(east, north));
+    const auto pixel = projection_.raster(offset.dx / 100., offset.dy / 100., height);
+    return {static_cast<float>(pixel.x), static_cast<float>(pixel.y)};
 }
 godot::Vector2 KdCanvas::from_screen(godot::Vector2 pixel) const {
     const Pixel result = projection_.from_screen({static_cast<double>(pixel.x), static_cast<double>(pixel.y)});
@@ -138,6 +268,7 @@ godot::Array KdCanvas::records() const {
         row["revision"] = static_cast<int64_t>(record.revision);
         row["second"] = record.second;
         row["id"] = static_cast<int64_t>(record.id);
+        row["camp_index"] = static_cast<int64_t>(record.camp);
         row["appearance"] = record.appearance;
         row["surface"] = record.surface;
         row["phase"] = record.phase;

@@ -13,6 +13,37 @@ void Projection::size(int width, int height) {
     // Reference windows use exactly 2x. Smaller windows use 1x; larger ones reveal more of the same world.
     scale_ = std::min(width_, height_) >= 1080 ? 2 : 1;
 }
+num::Offset Projection::raster_origin() const {
+    return {std::llround(raster_origin_east_ * 100), std::llround(raster_origin_north_ * 100)};
+}
+bool Projection::restore_raster_origin(num::Offset origin) {
+    if (origin.dx < -100000000000000LL || origin.dx > 100000000000000LL || origin.dy < -100000000000000LL ||
+        origin.dy > 100000000000000LL || origin.dx % 409600 != 0 || origin.dy % 409600 != 0)
+        return false;
+    raster_origin_east_ = origin.dx / 100.;
+    raster_origin_north_ = origin.dy / 100.;
+    return true;
+}
+Projection Projection::at_origin(Pixel delta) const {
+    Projection translated = *this;
+    translated.east_ += delta.x;
+    translated.north_ += delta.y;
+    translated.raster_origin_east_ -= delta.x;
+    translated.raster_origin_north_ -= delta.y;
+    return translated;
+}
+num::Offset Projection::rebase() {
+    const auto axis = [](double metres) -> std::int64_t {
+        if (!std::isfinite(metres) || std::abs(metres) < 16384.0 || std::abs(metres) > 1e12) return 0;
+        return static_cast<std::int64_t>(std::floor(metres / 4096.0)) * 409600;
+    };
+    const num::Offset shift{axis(east_), axis(north_)};
+    raster_origin_east_ += shift.dx / 100.0;
+    raster_origin_north_ += shift.dy / 100.0;
+    east_ -= shift.dx / 100.0;
+    north_ -= shift.dy / 100.0;
+    return shift;
+}
 void Projection::focus(double east, double north) {
     cancel_settle();
     east_ = east;
@@ -137,15 +168,17 @@ int Projection::height() const {
 }
 Pixel Projection::residual() const {
     const double s = resting_density();
-    const double x = -s * east_;
-    const double y = s * kA * north_;
+    const double x = -s * (east_ + raster_origin_east_);
+    const double y = s * kA * (north_ + raster_origin_north_);
     return {std::round((x - std::round(x)) * scale_), std::round((y - std::round(y)) * scale_)};
 }
 Pixel Projection::raster(double east, double north, double height) const {
     const double s = resting_density();
     // Camera and world are rounded separately: a fractional pan moves the complete image, never its pieces.
-    return {std::round(s * east) - std::round(s * east_) + std::floor(static_cast<double>(width()) / 2.0),
-            std::round(s * (-kA * north - kB * height)) - std::round(-s * kA * north_) +
+    return {std::round(s * (east + raster_origin_east_)) - std::round(s * (east_ + raster_origin_east_)) +
+                std::floor(static_cast<double>(width()) / 2.0),
+            std::round(s * (-kA * (north + raster_origin_north_) - kB * height)) -
+                std::round(-s * kA * (north_ + raster_origin_north_)) +
                 std::floor(static_cast<double>(this->height()) / 2.0)};
 }
 Pixel Projection::presentation_offset() const {
@@ -172,6 +205,9 @@ void DisplaySnapshot::acquire(CrowdStepper& stepper) {
     if (stepper.snapshots().take()) {
         snapshot_ = stepper.snapshots().front();
         ++revision_;
+        camps_.clear();
+        for (std::size_t i = 0; i < stepper.camps().size(); ++i)
+            camps_.push_back({stepper.camp_ids()[i].value, stepper.camps()[i]});
     }
 }
 RevisionManifest DisplaySnapshot::manifest(double second) const {
@@ -202,7 +238,7 @@ std::vector<DrawRecord> DisplaySnapshot::sample(const num::Torus& torus, num::Po
         const auto facing = static_cast<std::uint8_t>((static_cast<int>(std::round(angle * 4.0)) + 8) % 8);
         const double elapsed = second - static_cast<double>(way.start);
         records.push_back({epoch_, revision_, second, walker.id, walker.kind, 0, east / 100.0, north / 100.0,
-                           elapsed - std::floor(elapsed), way.what, facing});
+                           elapsed - std::floor(elapsed), way.what, facing, walker.camp});
     }
     return records;
 }

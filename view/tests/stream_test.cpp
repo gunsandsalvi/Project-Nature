@@ -1,4 +1,5 @@
 #include "stream.hpp"
+#include <algorithm>
 #include "doctest.h"
 
 using namespace kd::view;
@@ -172,4 +173,73 @@ TEST_CASE("published job metadata remains charged until final resource disposal"
     CHECK(s.disposed(token, "gpu"));
     CHECK(s.ledger().input == 0);
     CHECK(s.job(token) == nullptr);
+}
+
+// checks: PLT-04 WLD-13 (T2.9a.2): callers cannot acknowledge CPU/input disposal before worker ownership ends.
+TEST_CASE("preparing worker ownership forbids premature disposal acknowledgements") {
+    StreamState s;
+    opened(s);
+    const auto token = s.request(request_of("running"));
+    s.take_jobs(1);
+    CHECK(s.cancel(token));
+    CHECK_FALSE(s.disposed(token, "input"));
+    CHECK_FALSE(s.disposed(token, "prepared"));
+    CHECK(s.ledger().input == 10);
+    CHECK(s.ledger().prepared == 30);
+    CHECK_FALSE(s.ready(token, 30));
+    CHECK(s.disposed(token, "input"));
+    CHECK(s.disposed(token, "prepared"));
+    CHECK(s.job(token) == nullptr);
+}
+
+// checks: PLT-04 WLD-13 (T2.9a.2): external targets/masks share caps and remain owned across epochs.
+TEST_CASE("allocation tickets retain mask and target overlap across reset and world switches") {
+    StreamState s;
+    StreamLimits limits;
+    limits.prepared = 100;
+    limits.staging = 20;
+    limits.resident = 100;
+    limits.targets = 32;
+    limits.resident_by_category = {{"masks", 60}, {"sprites", 40}};
+    opened(s, limits);
+    const auto mask = s.reserve_allocation({"masks", 30, 4, 40, 0});
+    const auto target = s.reserve_allocation({"targets", 0, 0, 0, 20});
+    CHECK(mask != 0);
+    CHECK(target != 0);
+    CHECK(mask != target);
+    CHECK(s.ledger().prepared == 30);
+    CHECK(s.ledger().staging == 4);
+    CHECK(s.ledger().resident == 40);
+    CHECK(s.ledger().targets == 20);
+    CHECK(s.reserve_allocation({"masks", 0, 0, 21, 0}) == 0);
+    CHECK(s.reserve_allocation({"targets", 0, 0, 0, 13}) == 0);
+    s.reset();
+    s.begin(identity(2), limits);
+    CHECK(s.ledger().resident == 40);
+    CHECK(s.ledger().targets == 20);
+    CHECK(s.release_allocation(mask));
+    CHECK_FALSE(s.release_allocation(mask));
+    CHECK(s.ledger().prepared == 0);
+    CHECK(s.ledger().staging == 0);
+    CHECK(s.ledger().resident == 0);
+    CHECK(s.release_allocation(target));
+    CHECK(s.ledger().targets == 0);
+    CHECK(s.ledger().peak_resident == 40);
+    CHECK(s.ledger().peak_targets == 20);
+}
+// checks: PLT-04 (T2.9a.2): all byte caps, malformed categories and index counts are bounded before allocation.
+TEST_CASE("allocation tickets reject overflow malformed fields and unbounded ownership counts") {
+    StreamState s;
+    opened(s);
+    CHECK(s.reserve_allocation({"masks", ~std::uint64_t{0}, 0, 0, 0}) == 0);
+    CHECK(s.reserve_allocation({"targets", 1, 0, 0, 1}) == 0);
+    CHECK(s.reserve_allocation({"masks", 0, 0, 0, 1}) == 0);
+    CHECK(s.reserve_allocation({"unknown", 1, 0, 0, 0}) == 0);
+    CHECK(s.reserve_allocation({"masks", 0, 0, 0, 0}) == 0);
+    std::vector<StreamToken> tokens;
+    for (int i = 0; i < 256; ++i) tokens.push_back(s.reserve_allocation({"masks", 1, 0, 0, 0}));
+    CHECK(std::all_of(tokens.begin(), tokens.end(), [](auto token) { return token != 0; }));
+    CHECK(s.reserve_allocation({"masks", 1, 0, 0, 0}) == 0);
+    for (const auto token : tokens) s.release_allocation(token);
+    CHECK(s.reserve_allocation({"masks", 1, 0, 0, 0}) != 0);
 }

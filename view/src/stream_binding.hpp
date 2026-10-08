@@ -25,6 +25,8 @@ public:
     godot::Dictionary reset();
     godot::Dictionary disposed(int64_t token, const godot::String& kind);
     godot::Dictionary release_cpu(int64_t token);
+    godot::Dictionary reserve_allocation(const godot::Dictionary& spec);
+    godot::Dictionary release_allocation(int64_t token);
     godot::Dictionary reserve_target(int64_t bytes);
     godot::Dictionary release_target(int64_t bytes);
     godot::Dictionary status() const;

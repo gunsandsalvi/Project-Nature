@@ -291,6 +291,10 @@ bool StreamState::disposed(StreamToken token, const std::string& kind) {
     const auto found = jobs_.find(token);
     if (found == jobs_.end()) return false;
     auto& job = found->second;
+    if (job.worker_owned && (kind == "input" || kind == "prepared")) {
+        problem_ = "preparation worker still owns the input and CPU reservation";
+        return false;
+    }
     if (kind == "input") {
         ledger_.input -= job.input_bytes - job.request.metadata_bytes;
         job.input_bytes = job.request.metadata_bytes;
@@ -328,17 +332,69 @@ bool StreamState::disposed(StreamToken token, const std::string& kind) {
     }
     return true;
 }
+// T2.9a.2/PLT-04: bounded ticket metadata is charged too; reset cannot free another owner's resources.
+StreamToken StreamState::reserve_allocation(StreamAllocation allocation) {
+    constexpr std::uint64_t metadata = 256;
+    const bool masks = allocation.category == "masks", targets = allocation.category == "targets";
+    if ((!masks && !targets) || (masks && allocation.target != 0) ||
+        (targets && (allocation.prepared != 0 || allocation.staging != 0 || allocation.resident != 0)) ||
+        (allocation.prepared == 0 && allocation.staging == 0 && allocation.resident == 0 && allocation.target == 0) ||
+        allocations_.size() >= 256) {
+        problem_ = "allocation requires bounded masks/targets ownership and appropriate nonzero byte fields";
+        return 0;
+    }
+    StreamJob check;
+    check.request.category = allocation.category;
+    if (!fits(ledger_.input, metadata, limits_.input) ||
+        !fits(ledger_.prepared, allocation.prepared, limits_.prepared) ||
+        !fits(ledger_.staging, allocation.staging, limits_.staging) ||
+        !fits(ledger_.targets, allocation.target, limits_.targets) ||
+        (allocation.resident != 0 && !resident_fits(check, allocation.resident))) {
+        problem_ = "allocation lacks input/CPU/staging/resident/category/target headroom";
+        return 0;
+    }
+    ledger_.input += metadata;
+    ledger_.prepared += allocation.prepared;
+    ledger_.staging += allocation.staging;
+    ledger_.resident += allocation.resident;
+    ledger_.resident_by_category[allocation.category] += allocation.resident;
+    ledger_.targets += allocation.target;
+    const auto token = ++next_;
+    allocations_.emplace(token, std::move(allocation));
+    peaks();
+    problem_.clear();
+    return token;
+}
+bool StreamState::release_allocation(StreamToken token) {
+    const auto found = allocations_.find(token);
+    if (found == allocations_.end()) {
+        problem_ = "allocation ticket is not owned";
+        return false;
+    }
+    const auto& allocation = found->second;
+    ledger_.input -= 256;
+    ledger_.prepared -= allocation.prepared;
+    ledger_.staging -= allocation.staging;
+    ledger_.resident -= allocation.resident;
+    ledger_.resident_by_category[allocation.category] -= allocation.resident;
+    ledger_.targets -= allocation.target;
+    allocations_.erase(found);
+    problem_.clear();
+    return true;
+}
 bool StreamState::reserve_target(std::uint64_t bytes) {
     if (!fits(ledger_.targets, bytes, limits_.targets)) {
         problem_ = "target byte cap reached";
         return false;
     }
     ledger_.targets += bytes;
+    manual_target_bytes_ += bytes;
     peaks();
     return true;
 }
 bool StreamState::release_target(std::uint64_t bytes) {
-    if (bytes > ledger_.targets) return false;
+    if (bytes > manual_target_bytes_) return false;
+    manual_target_bytes_ -= bytes;
     ledger_.targets -= bytes;
     return true;
 }

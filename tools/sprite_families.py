@@ -72,14 +72,18 @@ def emit(record, cell):
     return "\n".join(lines) + "\n"
 
 
-def derive(root, manifest=None):
+def derive(root, manifest=None, namespace="fixtures27"):
     """Return path -> TOML text, without writing source art or derived output."""
     root = Path(root)
     if manifest is None:
-        path = root / "art/sources/fixtures27/exports.json"
-        if not path.is_file():
-            return {}
-        manifest = json.loads(path.read_text())
+        made = {}
+        for group in ("fixtures27", "ground29"):
+            path = root / f"art/sources/{group}/exports.json"
+            if path.is_file():
+                made.update(derive(root, json.loads(path.read_text()), group))
+        return made
+    if namespace not in ("fixtures27", "ground29"):
+        raise ValueError("unsupported sprite namespace")
     if manifest.get("normal_basis") != SOURCE_BASIS:
         raise ValueError("unsupported source normal basis")
     if manifest.get("material_encoding") != "R exact ID, G=B=0, A colour coverage":
@@ -134,7 +138,7 @@ def derive(root, manifest=None):
                     **references,
                     "normal_basis": "world-east-south-up",
                     "material_map": "fixture27-v1",
-                    "sheet": entry["sheet"],
+                    "sheet": entry["sheet"] if "sheet" in entry else "catalogue:" + name(entry["catalogue"]),
                     "approved": manifest["approval"],
                 }
                 cell = {
@@ -152,7 +156,7 @@ def derive(root, manifest=None):
                     "trim_y": 0,
                     "gutter": 0,
                 }
-                path = f"art/sprites/fixtures27/{asset}/{family_name}/{part}/record.toml"
+                path = f"art/sprites/{namespace}/{asset}/{family_name}/{part}/record.toml"
                 if path in made:
                     raise ValueError(f"duplicate sprite family: {path}")
                 made[path] = emit(record, cell)

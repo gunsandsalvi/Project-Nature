@@ -167,6 +167,8 @@ void KdStream::_bind_methods() {
     ClassDB::bind_method(D_METHOD("reset"), &KdStream::reset);
     ClassDB::bind_method(D_METHOD("disposed", "token", "kind"), &KdStream::disposed);
     ClassDB::bind_method(D_METHOD("release_cpu", "token"), &KdStream::release_cpu);
+    ClassDB::bind_method(D_METHOD("reserve_allocation", "spec"), &KdStream::reserve_allocation);
+    ClassDB::bind_method(D_METHOD("release_allocation", "token"), &KdStream::release_allocation);
     ClassDB::bind_method(D_METHOD("reserve_target", "bytes"), &KdStream::reserve_target);
     ClassDB::bind_method(D_METHOD("release_target", "bytes"), &KdStream::release_target);
     ClassDB::bind_method(D_METHOD("status"), &KdStream::status);
@@ -252,6 +254,17 @@ godot::Dictionary KdStream::request(const godot::Dictionary& spec) {
     metadata.erase("input");
     const auto retained = input_bytes_required(metadata);
     request.metadata_bytes = retained < 0 ? request.input_bytes : static_cast<std::uint64_t>(retained);
+    const godot::Dictionary input = spec.get("input", godot::Dictionary());
+    const godot::Dictionary family = input.get("family", godot::Dictionary());
+    if (family.has("page_width") || family.has("page_height")) {
+        const auto width = whole(family, "page_width"), height = whole(family, "page_height");
+        const auto level = whole(input, "level");
+        if (width == 0 || height == 0 || width > 4096 || height > 4096 || level > 12 || (width >> level) == 0 ||
+            (height >> level) == 0)
+            return error("immutable requested page dimensions or reduction are invalid");
+        request.prepared_width = width >> level;
+        request.prepared_height = height >> level;
+    }
     request.prepared_bytes = whole(reserve, "prepared");
     request.resident_bytes = whole(reserve, "resident");
     const godot::Array deps = spec.get("dependencies", godot::Array());
@@ -294,6 +307,7 @@ godot::Dictionary KdStream::ready(int64_t token, const godot::Dictionary& result
     const godot::Dictionary images = result.get("images", godot::Dictionary());
     std::uint64_t actual = 0;
     bool aligned = images.size() == static_cast<int64_t>(job->request.channels.size());
+    std::uint64_t width = job->request.prepared_width, height = job->request.prepared_height;
     for (const auto& channel : images.keys()) {
         const godot::Ref<godot::Image> image = images[channel];
         if (image.is_null()) {
@@ -301,6 +315,12 @@ godot::Dictionary KdStream::ready(int64_t token, const godot::Dictionary& result
             continue;
         }
         actual += static_cast<std::uint64_t>(std::max<int64_t>(0, image->get_data_size()));
+        if (width == 0 && height == 0) {
+            width = static_cast<std::uint64_t>(image->get_width());
+            height = static_cast<std::uint64_t>(image->get_height());
+        }
+        aligned = aligned && width == static_cast<std::uint64_t>(image->get_width()) &&
+                  height == static_cast<std::uint64_t>(image->get_height());
         aligned = aligned && !image->is_empty() && !image->has_mipmaps() &&
                   image->get_format() == godot::Image::FORMAT_RGBA8 &&
                   std::find(job->request.channels.begin(), job->request.channels.end(), text(channel)) !=
@@ -368,6 +388,9 @@ godot::Dictionary KdStream::reset() {
 }
 godot::Dictionary KdStream::disposed(int64_t token, const godot::String& kind) {
     const auto native = static_cast<StreamToken>(token);
+    const auto* job = state_.job(native);
+    if (job != nullptr && job->worker_owned && (kind == "input" || kind == "prepared"))
+        return error("preparation worker still owns the input and CPU reservation");
     if (kind == "input") {
         const auto found = specs_.find(native);
         if (found != specs_.end()) found->second.erase("input");
@@ -386,6 +409,22 @@ godot::Dictionary KdStream::release_cpu(int64_t token) {
     return reply(static_cast<bool>(prepared.get("ok", false)) && static_cast<bool>(input.get("ok", false)),
                  static_cast<StreamToken>(token));
 }
+godot::Dictionary KdStream::reserve_allocation(const godot::Dictionary& spec) {
+    for (const auto* key : {"prepared", "staging", "resident", "target"}) {
+        const auto value = spec.get(key, int64_t{0});
+        if (value.get_type() != godot::Variant::INT || static_cast<int64_t>(value) < 0)
+            return error("allocation fields must be nonnegative whole bytes");
+    }
+    const auto category = spec.get("category", "");
+    if (category.get_type() != godot::Variant::STRING) return error("allocation category must be a string");
+    const auto token = state_.reserve_allocation({text(category), whole(spec, "prepared"), whole(spec, "staging"),
+                                                  whole(spec, "resident"), whole(spec, "target")});
+    return reply(token != 0, token);
+}
+godot::Dictionary KdStream::release_allocation(int64_t token) {
+    return reply(token > 0 && state_.release_allocation(static_cast<StreamToken>(token)),
+                 static_cast<StreamToken>(token));
+}
 godot::Dictionary KdStream::reserve_target(int64_t bytes) {
     return reply(bytes >= 0 && state_.reserve_target(static_cast<std::uint64_t>(bytes)));
 }
@@ -401,6 +440,7 @@ godot::Dictionary KdStream::status() const {
     result["resident_bytes"] = static_cast<int64_t>(ledger.resident);
     result["reserved_resident_bytes"] = static_cast<int64_t>(ledger.reserved_resident);
     result["target_bytes"] = static_cast<int64_t>(ledger.targets);
+    result["allocation_count"] = static_cast<int64_t>(state_.allocations().size());
     result["peak_input_bytes"] = static_cast<int64_t>(ledger.peak_input);
     result["peak_prepared_bytes"] = static_cast<int64_t>(ledger.peak_prepared);
     result["peak_staging_bytes"] = static_cast<int64_t>(ledger.peak_staging);

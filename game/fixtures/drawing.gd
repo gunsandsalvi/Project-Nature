@@ -12,6 +12,7 @@ const POSITIONS := {
 	"animal": Vector2(4, -5)
 }
 var camera: KdCanvas
+var absolute_origin: Dictionary = {}
 var atlas := Atlas.new()
 var entries: Array = []
 var state: Dictionary = {}
@@ -58,7 +59,7 @@ func _draw() -> void:
 		for east in range(-5, 6):
 			var points := PackedVector2Array()
 			for corner: Vector2 in [Vector2(0, 0), Vector2(4, 0), Vector2(4, 4), Vector2(0, 4)]:
-				points.append(camera.project(east * 4.0 + corner.x, north * 4.0 + corner.y, 0.0))
+				points.append(_project(east * 4.0 + corner.x, north * 4.0 + corner.y, 0.0))
 			if pass_name == "colour" and channel != "alpha":
 				draw_polygon(
 					points,
@@ -167,7 +168,7 @@ func _append(
 	)
 	var foot: Vector2
 	if record.is_empty():
-		foot = camera.project(place.x, place.y, float(entry.height_mm) / 1000.0)
+		foot = _project(place.x, place.y, float(entry.height_mm) / 1000.0)
 	else:
 		foot = record.pixel
 		frame = int(float(record.phase) * float(entry.frames)) if int(record.activity) == 1 else 0
@@ -185,7 +186,7 @@ func _append(
 			"code": _codes[id],
 			"texture": texture,
 			"colour_texture": colour_texture,
-			"image": atlas.images[entry.actions.get(animation, entry.actions.walk)[str(density)]],
+			"image": atlas.images[entry.actions.get(animation, entry.actions.walk)[str(int(density))]],
 			"foot": foot,
 			"rect": rect,
 			"source": Rect2(Vector2(frame * frame_size.x, face * frame_size.y), frame_size),
@@ -202,7 +203,7 @@ func _append_streamed(
 		return
 	var texture: Texture2D = sample.textures.get(channel, sample.textures.colour)
 	var ratio: float = density / sample.density
-	var foot: Vector2 = record.get("pixel", camera.project(place.x, place.y, 0.0))
+	var foot: Vector2 = record.get("pixel", _project(place.x, place.y, 0.0))
 	var source := Rect2(Vector2.ZERO, texture.get_size())
 	var rect := Rect2(foot - sample.pivot * ratio, source.size * ratio)
 	if not Rect2(Vector2.ZERO, state.size).intersects(rect):
@@ -253,3 +254,13 @@ func draw_list() -> Array[Dictionary]:
 
 static func identity(code: int) -> Color:
 	return Color8(code & 255, (code >> 8) & 255, (code >> 16) & 255)
+
+
+func _project(east: float, north: float, height: float) -> Vector2:
+	if absolute_origin.is_empty():
+		return camera.project(east, north, height)
+	return camera.project_world(
+		int(absolute_origin.east) + roundi(east * 100.0),
+		int(absolute_origin.north) + roundi(north * 100.0),
+		height
+	)

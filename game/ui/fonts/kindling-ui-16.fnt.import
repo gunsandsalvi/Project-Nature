@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://cm3d5ofc8d1gk"
+path="res://.godot/imported/kindling-ui-16.fnt-55b286a47217295d31c6e1a9fbd8e7dc.fontdata"
+
+[deps]
+
+source_file="res://ui/fonts/kindling-ui-16.fnt"
+dest_files=["res://.godot/imported/kindling-ui-16.fnt-55b286a47217295d31c6e1a9fbd8e7dc.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

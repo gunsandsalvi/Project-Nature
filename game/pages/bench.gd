@@ -70,16 +70,17 @@ func _ready() -> void:
 	# worlds left by a run that was stopped part way
 	Worlds.remove_tree(ROOT)
 	scenarios = _device.bench_scenarios()
+	_label(22, TEXT).text = "Performance test"
 	_status = _label(16, TEXT)
 	_status.text = (
 		(
-			"Unplug the phone, turn on flight mode and let it cool, then tap Run. It takes about"
-			+ " %d minutes; leave the phone alone until the code shows."
+			"About %d minutes.\n\n1. Unplug the phone.\n2. Turn on flight mode.\n"
+			+ "3. Let it cool.\n\nLeave the phone alone while the test runs."
 		)
 		% (roundi(_planned() / 60.0) + 2)
 	)
 	_run = Button.new()
-	_run.text = "Run"
+	_run.text = "Run test"
 	_run.custom_minimum_size = Vector2(0, 56)
 	_run.pressed.connect(start)
 	add_child(_run)

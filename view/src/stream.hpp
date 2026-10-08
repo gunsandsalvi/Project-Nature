@@ -38,6 +38,11 @@ struct StreamLimits {
     std::uint64_t targets = 32 * 1024 * 1024;
     std::map<std::string, std::uint64_t> resident_by_category;
 };
+// T2.9a.2: main-owned allocations use the same caps without borrowing a mutable scene for worker preparation.
+struct StreamAllocation {
+    std::string category;
+    std::uint64_t prepared = 0, staging = 0, resident = 0, target = 0;
+};
 struct StreamLedger {
     std::uint64_t input = 0;
     std::uint64_t prepared = 0;
@@ -66,6 +71,8 @@ struct StreamRequest {
     std::uint64_t revision = 0;
     std::uint64_t input_bytes = 0;
     std::uint64_t metadata_bytes = 0;
+    std::uint64_t prepared_width = 0;
+    std::uint64_t prepared_height = 0;
     std::uint64_t prepared_bytes = 0;
     std::uint64_t resident_bytes = 0;
     std::vector<std::string> channels{"colour", "normal", "material"};
@@ -111,6 +118,9 @@ public:
     bool evict(const std::string& key);
     void reset();
     bool disposed(StreamToken token, const std::string& kind);
+    StreamToken reserve_allocation(StreamAllocation allocation);
+    bool release_allocation(StreamToken token);
+    [[nodiscard]] const std::map<StreamToken, StreamAllocation>& allocations() const { return allocations_; }
     bool reserve_target(std::uint64_t bytes);
     bool release_target(std::uint64_t bytes);
     [[nodiscard]] const StreamJob* job(StreamToken token) const;
@@ -134,7 +144,9 @@ private:
     RevisionManifest manifest_;
     StreamLedger ledger_;
     std::map<StreamToken, StreamJob> jobs_;
+    std::map<StreamToken, StreamAllocation> allocations_;
     StreamToken next_ = 0;
+    std::uint64_t manual_target_bytes_ = 0;
     std::string problem_;
     std::uint64_t cancelled_ = 0;
     std::uint64_t stale_ = 0;

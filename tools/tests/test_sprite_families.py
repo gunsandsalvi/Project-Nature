@@ -113,3 +113,20 @@ class SpriteFamilies(unittest.TestCase):
         self.manifest["entries"][0]["id"] = "birch-summer"
         made = self.derive()
         self.assertIn("art/sprites/fixtures27/birch_summer/far/whole/record.toml", made)
+
+    # checks: PRE-42 PRE-43 PRE-46
+    def test_ground_manifest_keeps_catalogue_provenance_and_separate_namespace(self):
+        self.manifest["entries"][0].pop("sheet")
+        self.manifest["entries"][0].update(
+            id="river_bed_silted", catalogue="river_bed", state="silted", **{"class": "ground"}
+        )
+        path = self.root / "art/sources/ground29/exports.json"
+        path.parent.mkdir(parents=True)
+        path.write_text(json.dumps(self.manifest))
+        module = importlib.util.module_from_spec(SPEC)
+        SPEC.loader.exec_module(module)
+        made = module.derive(self.root)
+        self.assertEqual(len(made), 1)
+        record = tomllib.loads(made["art/sprites/ground29/river_bed_silted/far/whole/record.toml"])
+        self.assertEqual(record["sheet"], "catalogue:river_bed")
+        self.assertEqual(record["approved"], "pending owner runtime review")

@@ -40,7 +40,7 @@ func before_test() -> void:
 	)
 
 
-func _ready_bundle() -> int:
+func _ready_bundle(complete := true) -> int:
 	var key := identity.duplicate()
 	key.erase("epoch")
 	key.merge(
@@ -69,6 +69,8 @@ func _ready_bundle() -> int:
 	assert_bool(answer.ok).is_true()
 	var jobs: Array = stream.ledger.take_jobs(1)
 	assert_int(jobs.size()).is_equal(1)
+	if not complete:
+		return answer.token
 	var images := {}
 	for channel: String in ["colour", "normal", "material"]:
 		var image := Image.create(2, 2, false, Image.FORMAT_RGBA8)
@@ -129,4 +131,26 @@ func test_world_swap_during_partial_upload_never_publishes_old_images() -> void:
 		await get_tree().process_frame
 	stream._process(0.016)
 	assert_int(stream.ledger.status().resident_bytes).is_equal(0)
+	assert_int(stream.ledger.status().prepared_bytes).is_equal(0)
+
+
+func _slow_cancelled_result() -> Dictionary:
+	OS.delay_msec(250)
+	return {"problem": "cancelled test worker", "cpu_bytes": 0, "images": {}}
+
+
+func test_release_keeps_preparation_charged_until_cancelled_worker_finishes() -> void:
+	var token := _ready_bundle(false)
+	stream._job = {"token": token}
+	stream._worker = Thread.new()
+	stream._worker.start(_slow_cancelled_result)
+	stream.release(token)
+	for frame in 3:
+		await get_tree().process_frame
+	stream._dispose_retired()
+	assert_bool(stream.ledger.status().jobs[0].worker_owned).is_true()
+	assert_int(stream.ledger.status().prepared_bytes).is_equal(48)
+	await get_tree().create_timer(0.3).timeout
+	stream._finish_worker()
+	stream._dispose_retired()
 	assert_int(stream.ledger.status().prepared_bytes).is_equal(0)

@@ -39,11 +39,11 @@ void fragment() {
     vec3 visible = band < 0.5 ? mix(vec3(sun_bands.x,sky_bands.x,fire_bands.x),vec3(sun_bands.y,sky_bands.y,fire_bands.y),band*2.0) : mix(vec3(sun_bands.y,sky_bands.y,fire_bands.y),vec3(sun_bands.z,sky_bands.z,fire_bands.z),(band-0.5)*2.0);
     int material_index = has_material ? int(round(texture(material_atlas,UV).r*255.0)) : material_kind;
     float emit = emission;
-    vec3 colour = fixture_light(albedo.rgb * emission_colour, n, world_point, vec4(visible.x,visible.y,1.0,visible.z), emit, material_index);
-    if (silhouette) { colour = vec3(0.64,0.69,0.66); }
+    vec3 colour = fixture_light_linear(albedo.rgb * emission_colour, n, world_point, vec4(visible.x,visible.y,1.0,visible.z), emit, material_index);
+    if (silhouette) { colour = fixture_decode(vec3(0.64,0.69,0.66)); }
     // PRE-26: one authored pixel marks the actual water intersection, without refracting the body.
     if (wet && water_contact && world_point.z-water_height < 1.0/(density*height_basis) && !debug_albedo && !debug_normals && !debug_receivers) {
         colour = mix(colour, sky_light + vec3(0.16,0.22,0.22), 0.65);
     }
-    COLOR = vec4(colour, albedo.a * fade * (silhouette ? 0.24 : 1.0)) * vertex_colour;
+    COLOR = vec4(fixture_encode(colour * fixture_decode(vertex_colour.rgb)), albedo.a * fade * (silhouette ? 0.24 : 1.0) * vertex_colour.a);
 }

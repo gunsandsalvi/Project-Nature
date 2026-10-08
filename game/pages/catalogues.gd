@@ -14,6 +14,10 @@ var loaded: Dictionary = {}
 var shown := PackedStringArray()
 
 var _list: VBoxContainer
+var _kind: OptionButton
+var _entry: OptionButton
+var _detail: Label
+var _fields: Label
 
 
 func _ready() -> void:
@@ -29,6 +33,7 @@ func _ready() -> void:
 	scroll.add_child(_list)
 	loaded = GameData.load_into(KdWorld.new())
 	_show()
+	_browser()
 
 
 func _show() -> void:
@@ -73,18 +78,91 @@ func _show() -> void:
 			_line(str(entry["values"]).strip_edges(), 13, QUIET)
 
 
-func _line(text: String, font_size: int, colour: Color) -> void:
+func _line(text: String, _font_size: int, _colour: Color) -> void:
+	# Keep the complete inspectable data independent of which entry is selected.
+	shown.append(text)
+
+
+func _gap() -> void:
+	pass
+
+
+func _label(text: String, font_size := 16) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", colour)
 	_list.add_child(label)
-	shown.append(text)
+	return label
 
 
-func _gap() -> void:
-	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0, 10)
-	_list.add_child(gap)
+func _browser() -> void:
+	_label("Catalogues", 22)
+	_label(shown[0])
+	var sources := Button.new()
+	sources.text = "Source details"
+	sources.custom_minimum_size.y = 48
+	_list.add_child(sources)
+	var provenance := _label("")
+	provenance.visible = false
+	var lines := PackedStringArray()
+	for source: Dictionary in loaded.sources:
+		lines.append(
+			(
+				"%s · version %d\n%s\nRules %s · world %s · look %s"
+				% [
+					source.id,
+					source.version,
+					source.about,
+					str(source.rules).left(8),
+					str(source.world).left(8),
+					str(source.look).left(8)
+				]
+			)
+		)
+	provenance.text = "\n\n".join(lines)
+	sources.pressed.connect(func() -> void: provenance.visible = not provenance.visible)
+	_label("Choose a catalogue")
+	_kind = OptionButton.new()
+	_kind.fit_to_longest_item = false
+	_kind.clip_text = true
+	_kind.custom_minimum_size.y = 48
+	_list.add_child(_kind)
+	for kind: Dictionary in loaded.kinds:
+		_kind.add_item("%s (%d)" % [kind.folder, kind.entries.size()])
+	_kind.item_selected.connect(_select_kind)
+	_entry = OptionButton.new()
+	_entry.fit_to_longest_item = false
+	_entry.clip_text = true
+	_entry.custom_minimum_size.y = 48
+	_list.add_child(_entry)
+	_entry.item_selected.connect(_select_entry)
+	_detail = _label("")
+	var fields_button := Button.new()
+	fields_button.text = "Fields"
+	fields_button.custom_minimum_size.y = 48
+	_list.add_child(fields_button)
+	_fields = _label("")
+	_fields.hide()
+	fields_button.pressed.connect(func() -> void: _fields.visible = not _fields.visible)
+	if not loaded.kinds.is_empty():
+		_select_kind(0)
+
+
+func _select_kind(index: int) -> void:
+	_entry.clear()
+	for entry: Dictionary in loaded.kinds[index].entries:
+		_entry.add_item(entry.name)
+	if _entry.item_count > 0:
+		_select_entry(0)
+	else:
+		_detail.text = "This catalogue is empty."
+
+
+func _select_entry(index: int) -> void:
+	var kind: Dictionary = loaded.kinds[_kind.selected]
+	var entry: Dictionary = kind.entries[index]
+	_detail.text = "%s\n\n%s" % [kind.about, entry.file]
+	_fields.text = str(entry.values).strip_edges()
+	_fields.hide()

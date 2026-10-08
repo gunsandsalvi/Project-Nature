@@ -9,6 +9,7 @@ const TEXT := Palette.TEXT
 var world: KdWorld
 var bar: SpeedBar
 
+var _column: VBoxContainer
 var _date: Label
 var _clock: Label
 
@@ -16,12 +17,19 @@ var _clock: Label
 func _ready() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_theme_constant_override("separation", 14)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	add_child(scroll)
+	_column = VBoxContainer.new()
+	_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_column)
 	_date = _label(28)
 	_clock = _label(56)
 	world = KdWorld.new()
 	var loaded := GameData.load_into(world)
 	bar = SpeedBar.new()
-	add_child(bar)
+	_column.add_child(bar)
 	bar.setup(world, loaded.get("problems", PackedStringArray()))
 	world.start_clockwork()
 	bar.choose_speed(0)
@@ -44,7 +52,7 @@ func _label(font_size: int) -> Label:
 	label.add_theme_color_override("font_color", TEXT)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	add_child(label)
+	_column.add_child(label)
 	return label
 
 

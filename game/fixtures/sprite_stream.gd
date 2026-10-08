@@ -16,6 +16,7 @@ var _upload: Dictionary = {}
 var _resident: Dictionary = {}
 var _retired_gpu: Dictionary = {}
 var _upload_cooldown := 0
+var _retired_allocations: Dictionary = {}
 
 
 static func service(tree: SceneTree) -> Node:
@@ -49,7 +50,20 @@ func release(token: int) -> void:
 	_retired_gpu[token] = Engine.get_process_frames() + 2
 
 
+func reserve_allocation(spec: Dictionary) -> Dictionary:
+	return ledger.reserve_allocation(spec)
+
+
+func retire_allocation(token: int) -> void:
+	if token != 0:
+		_retired_allocations[token] = Engine.get_process_frames() + 2
+
+
 func _process(_delta: float) -> void:
+	for token: int in _retired_allocations.keys():
+		if Engine.get_process_frames() >= _retired_allocations[token]:
+			ledger.release_allocation(token)
+			_retired_allocations.erase(token)
 	_finish_worker()
 	_dispose_retired()
 	if _upload.is_empty():
@@ -101,6 +115,10 @@ func _upload_one() -> void:
 	var bytes := image.get_width() * image.get_height() * 4
 	var answer: Dictionary = ledger.stage(token, channel, bytes)
 	if not answer.ok:
+		# Headroom may be held by a retiring mask/target. Keep this complete CPU parent.
+		for row: Dictionary in ledger.status().jobs:
+			if int(row.token) == token and row.state == "ready":
+				return
 		problem = answer.problem
 		_abandon_upload()
 		return
@@ -124,6 +142,7 @@ func _upload_one() -> void:
 				"textures": _upload.textures, "images": _upload.images, "key": _upload.key
 			}
 			_upload.clear()
+			problem = ""
 			published.emit(token)
 		else:
 			problem = answer.problem
@@ -139,7 +158,12 @@ func _abandon_upload() -> void:
 
 
 func _dispose_retired() -> void:
+	var owned := {}
+	for job: Dictionary in ledger.status().jobs:
+		owned[job.token] = job.worker_owned
 	for token: int in _retired_gpu.keys():
+		if owned.get(token, false):
+			continue
 		if Engine.get_process_frames() >= int(_retired_gpu[token]):
 			ledger.disposed(token, "prepared")
 			ledger.disposed(token, "gpu")

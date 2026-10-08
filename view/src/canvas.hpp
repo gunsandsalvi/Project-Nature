@@ -20,6 +20,12 @@ public:
     godot::Vector2 ground(godot::Vector2 pixel, double height) const;
     godot::Vector2 from_screen(godot::Vector2 pixel) const;
     void focus(double east, double north);
+    void set_detail_seed(int64_t seed);
+    bool restore_origin(int64_t east, int64_t north, int64_t raster_east, int64_t raster_north);
+    [[nodiscard]] Projection projection_at_origin(num::Point source_origin) const;
+    godot::Dictionary tile_at(int64_t east, int64_t north, int64_t power, int64_t seed) const;
+    godot::Vector2 world_local(int64_t east, int64_t north) const;
+    godot::Vector2 project_world(int64_t east, int64_t north, double height) const;
     void zoom(double ratio, godot::Vector2 anchor, bool snap);
     void touch(int64_t action, int64_t finger, godot::Vector2 pixel, double seconds);
     godot::Array records() const;
@@ -31,6 +37,8 @@ protected:
 private:
     godot::Ref<KdWorld> world_;
     num::Point origin_;
+    num::Point initial_origin_;
+    std::uint64_t detail_seed_ = 1;
     Projection projection_;
     Gestures gestures_{false};
     double settle_seconds_ = 0.160;

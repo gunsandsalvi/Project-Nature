@@ -1,0 +1,24 @@
+{
+  "sources": {
+    "PixelifySans.ttf": "9ba86cd010a4de309d263ceff8e8044092c9db7efda869620cb9ff1c4389e8a5",
+    "DejaVuSans.ttf": "ae7b7855e115a5966d8b1b3f80f254ccc117ec86f9965e202ee2940453837280",
+    "OFL.txt": "b66ba46f511a851ab09998b5a5a9fdbb102545a3864cb993095e1745996873a7",
+    "DejaVu-LICENSE.txt": "7a083b136e64d064794c3419751e5c7dd10d2f64c108fe5ba161eae5e5958a93",
+    "glyphs.json": "7eaacdf0e20091b99dcc17b65237fe83f5814f3ccd35e003409b07a2ee891501"
+  },
+  "origin": [
+    "https://github.com/google/fonts/tree/main/ofl/pixelifysans",
+    "https://dejavu-fonts.github.io/License.html"
+  ],
+  "rasterizer": "Pillow 12.3.0",
+  "glyph_list": "sources/glyphs.json characters; no source-code scan",
+  "expected_output": {
+    "kindling-ui-16.fnt": "e7eb548096c4cc564468604b01b49459888469bc78db618551cf9af45fc2aef5",
+    "kindling-ui-16.png": "0a72fc6c4b8d00330ab49167f10e071173780c42328f20da6b10fce8ae88eafe"
+  },
+  "native_size": 16,
+  "line_height": 20,
+  "baseline": 15,
+  "integer_scale_only": true,
+  "candidate": true
+}
