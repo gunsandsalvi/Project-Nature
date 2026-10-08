@@ -9,75 +9,82 @@ Only the next milestone is planned in detail: the graphics engine (M2).
 The later ones are outlines (their goal, the items they deliver, what you will see), each detailed when it comes next, from what the earlier ones taught.
 The plan holds only work still to do: a step leaves it when it is done, and the code, which names the items it implements, is the record (`CLAUDE.md`, rule 3).
 
-## Status (7 October 2026)
+## Status (8 October 2026)
 
 - The ten milestones were approved by you on 4 October 2026, with their proposals, now decided in `PROJECT.md` (`SCP-16`, `MIL-08` to `MIL-17`); the early steps are tried rather than played (`PRN-09`, `SCP-03`, `PRC-11`).
 - The risks were tried first, and that work closed on 5 October 2026, as you asked: its answers are decisions in the architecture.
   None of its code is carried into production, which writes its own.
 - The foundations (M1) are built, eleven steps in five alphas delivered as 20101 to 20502, and you accepted them on 6 October 2026: your phone's benchmark met all 18 of its pass lines, and its self-check matched the cloud in all seven suites.
 - The vertical slice was dropped on 6 October 2026, as you asked.
-- The graphics engine (M2) is being built: you chose its look and OK'd the 13 changes to `PROJECT.md` that follow from it.
-  You OK'd its plan below, fifteen steps in six alphas, one of them only if needed, and its sections of the architecture (A4, A5, A6 and A8's near stops) on 6 October 2026: "Yes, that works. Let's start".
-- **The art lane** starts again from scratch, by your word of 7 October 2026: everything it had made was deleted, and it works from the catalogue (below).
-  By your word the same day it begins before the catalogue is finished, with a pilot: four signed-off pieces (the meadow, the river, the club and the hide tent) taken from their sheets to your phone, to prove the path from a sheet to what the engine reads, so the sheets still to come carry what the engine needs.
+- **The graphics engine (M2)** now follows the fully 2D design you approved on 8 October 2026: fixed camera, crisp pixels and rich moving light.
+  You also confirmed keeping the wrap-around world and saves, with map and globe pictures drawn from one overview.
+  The 3D pilot was built: 30101 to 30202 measured its drawing, 30301 delivered the four-piece art pilot, and α2.3b work added its kit, ground, river and light.
+  That route was replaced by your decision on 8 October 2026; its results remain labelled 3D history, not proof of the new renderer.
+- **The art lane** keeps signed-off sheets as the design standard.
+  Production now starts with six engine fixtures: person, animal, tree, boulder, ground and shelter.
+  Pending runtime approvals and missing seasonal shapes are resolved before bulk art.
 - **The way of working,** by your word of 7 October 2026: the main session coordinates agents and writes no code or designs; it briefs them, checks their work, merges it and brings it to you, and any agent may consult GPT through Codex, for art or for deep research.
 - **Still open from pre-production:** the ground for the card and the book, and whether reading text should be larger (P12); your ears on the camp's sound (P14); the heat of a busy scene over ten minutes (P2); the writer, proved when M9 builds the book (P13); discovery's pace with the whole catalogue, at M7's scenes (`RSK-01`).
 
 ## The art lane
 
-A separate instance, your idea, makes the game's art while the builder builds the engine: the textures and the kit's parts (A5.4, A6.1).
-On 7 October 2026 you judged that none of its work reached the art book, and everything it had made was deleted at your word.
-It starts again from the catalogue (below), with this brief, which you OK'd that day (its sheets showing no place in the world, by your word the same day) and which it is given as written; each piece's further details are in the catalogue:
+A separate instance makes art while the builder builds the engine (A5.4, A6).
+The signed-off catalogue sheets stay the design standard.
+The production brief below carries the 2D decision of 8 October 2026; the old Blender-parts brief is replaced.
+A reference sheet's approval is not approval of a runtime texture, its normal map or its engine result.
 
-> You are the art lane for Kindling, a Stone Age world simulation for phones. The game's look is a sharp 3D world at the phone's full resolution, wearing pixel-art textures, with the feeling of the art book the owner chose (`art/targets/`). Your job is to make the game's art: its textures, and its 3D parts (people, animals, plants, rocks, shelters, tools), modelled, sculpted, painted and rigged in Blender.
+> You are the art lane for Kindling, a Stone Age world simulation for phones.
+> Make fully 2D pixel art for a north-facing camera exactly 37° above the horizon, with the feeling of the owner's art book.
+> Signed-off sheets set design, proportions, colour and detail.
 >
-> **What to make.** Each batch comes from the catalogue, which the owner signs off group by group. Every piece in it has a sheet: its views, its states and movements, its parts, and how it looks at each distance the game shows it. That sheet and the art book are the standard.
+> **First six fixtures.** Make a person, animal, tree, boulder, ground and shelter.
+> Show each in the running engine at noon and dusk, on slopes, by water and under shelter, in portrait and landscape.
+> Resolve pending approvals and missing seasonal shapes, including bare winter branches where needed.
+> Prove height, shadows, streaming and two-phone performance before bulk production.
 >
-> **The bar.** A piece is done when it stands next to its sheet as the same thing at the same quality: design, proportions, colour and richness of detail. Judge it as the game shows it: the camera 35–40° down, a texture pixel about 2×2 screen pixels, in the game's light. Anything less is not done and never reaches the owner. The owner rejected everything made so far because it fell short of the art book. Send nothing you wouldn't put beside the art book yourself.
+> **The bar.** Each piece stands beside its sheet as the same thing at the same quality, true size and enlarged.
+> Nothing below that level reaches the owner.
+> Every frame and family keeps the important silhouette and accents at its actual screen size.
 >
-> **GPT is the artist; you two are a design team.** GPT, through Codex, does the drawing, painting, modelling, sculpting and rigging. You are its partner and art director: you set out each design problem, critique the work, run and measure what GPT makes, and put each result beside its sheet. Hold one conversation per piece, turn by turn. Each of you critiques the other's work and answers the other's points, until you both believe the piece holds up.
+> **GPT is the artist; you two are a design team.** Work turn by turn on each piece, critiquing and measuring it against the sheet.
+> Start from what it is made of, how it lives or is used, then shape, light/dark masses, colour and important detail.
+> Improve the work; discard a weak design or method when the gap is not closing.
 >
-> Work as designers, not rule-followers:
-> - Start from the thing itself: what it's made of, how it was made, used and worn, where it lives, and how big it is on screen.
-> - Then its design: the silhouette, the big light and dark shapes, the colour, and which details matter at that size.
-> - Then the making. Build things from many parts, and sculpt organic forms with real detail wherever it shows.
+> **Any free cloud tool.** Drawing, image generation/editing, pixel editors and image tools are available.
+> Offline 3D rigs may produce sprite frames and normal references, followed by pixel repair.
+> The game never requires their meshes, bones or Blender parts at runtime.
 >
-> **Improve, and bin what won't get there.** Refine your work over rounds. But when an attempt is flawed at its root (wrong form, weak design, or a method that can't reach the sheet), throw it away and start again with a fresh design or a different method. Don't patch a weak base round after round. If the gap to the sheet isn't clearly closing after a few rounds, start over.
+> **What the engine reads (A5.3, A5.4, A6).**
+> - Three authored families at 64, 16 and 4 internal pixels a metre, with reviewed and repaired intermediate reductions and complete halving chains.
+> - Neutral colour, material masks and mild normals, aligned in alpha, pivot and trim, with atlas gutters.
+> - Four facings, a six-frame walk, a few work actions and a small clothing set first.
+>   Test eight facings on one animal before expanding that scope.
+> - Frame holds, attachment points, facings and atlas metadata through the existing validated catalogue system.
+> - Quiet ground variants, drawn material edges, broad stamps and ecology-selected details.
+> - Painted sunny art may be a labelled stopgap; final art carries no fixed bright sun side.
 >
-> **Every tool, from the start.** Anything free that runs in the cloud is yours:
-> - all of Blender: sculpting, multiresolution and remeshing, every modifier, geometry nodes, curves and hair, cloth and physics, UV tools, baking of occlusion, curvature and normals, texture painting, armatures, shape keys and drivers;
-> - GPT's image making and editing, with pictures as input;
-> - Python's image and mesh libraries, and anything else you can install.
+> Keep originals, prompts, provenance, signed-off sheets and approvals.
+> Approval records distinguish design, runtime pages and engine result.
+> Check Stone Age truth before every review (A5.6); no later tools, sawn wood or borrowed cultural motifs.
+> If a format needs to change, resolve it with the builder before shipping.
 >
-> The method is yours.
+> **Working.** Work in the art and art-tool areas on your own branch; the builder reviews and merges.
+> Reach GPT through the art tools outside the build.
+> Never print or move secrets, buy credits or put model names in committed files; at a usage limit, wait.
 >
-> **The confines.** There are only a few, and they're fixed:
-> - **What the engine reads.**
->   - Textures: 64 texture pixels a metre up close, halving at each zoom band, with each band drawn as its own pixel art. Big surfaces get near, middle and far tiles. Each level is a lossless file with its record.
->   - Parts: named joints, texture layouts in metres, and a few forms by size on screen (ARCHITECTURE A5.3–A5.4, A6).
->   - If your method needs a different format, ask the builder.
-> - **Truth.** Stone Age only: no metal, no sawn wood, nothing from later, and no real cultures' motifs. Check everything GPT draws (A5.6).
-> - **Working.**
->   - Work in `art/` and `tools/art/`, on your own branch. Never push or merge; the builder reviews and merges.
->   - Reach GPT only through `tools/art/`, outside the game's build.
->   - Never print or move a secret. Never buy credits; at a usage limit, wait.
->   - No AI model names in committed files.
->
-> **Each batch's report:**
-> - every piece beside its sheet, as the game shows it and enlarged;
-> - a few lines of your verdict and GPT's;
-> - what you binned and why;
-> - any questions for the owner.
+> **Each batch's report:** pieces beside their sheets, true size and enlarged, with engine stills and action clips; your verdict and GPT's; discarded attempts and why; questions for the owner.
 
 ## The catalogue
 
-Every piece of art the game needs, worked out before any of it is made, as you asked on 7 October 2026, so batches can go to the art lane over time:
+The catalogue counts all launch art, while the first six fixtures prove production.
+Its signed-off sheets remain the design standard after the 2D switch.
+New sheets and runtime work follow A5.3–A5.4 and A6, with batches expanding only after the fixture gates:
 - **First the list:** every element the game needs, from `PROJECT.md`, in words, group by group.
 - **Then each group's sheets,** made by the builder with GPT, as you set on 7 October 2026, each piece with what it needs of:
-  - views from the front, the side, the back where it is not the same all round, and above, and the game's camera from two sides; shelters and caves also inside or cut through;
+  - views from the front, the side, the back where it is not the same all round, and above, and the fixed 37° game view; shelters and caves also inside or cut through;
   - a striped scale stick of one design beside it, sized to the piece (10 cm, 1 m or 10 m), and a standing adult beside anything big;
   - the piece at each distance the game shows it;
-  - each state it goes through (seasons, growth, ages and sexes, wear, fresh to dried, materials, each people's style) as a row, and each action as a strip of its 2 to 6 key poses;
+  - each state it goes through (seasons, growth, ages and sexes, wear, fresh to dried, materials, each people's style) as a row, and each action as a strip of its key poses and frames, starting with the six-frame walk;
   - its separate parts, then the whole;
   - each surface enlarged so its texture pixels show;
   - flat even light on the front, side, back and top views, and the game's late-afternoon light on the camera views.
@@ -85,7 +92,10 @@ Every piece of art the game needs, worked out before any of it is made, as you a
   - What the world lays over a ground is a piece of its own, drawn once: the wear of paths and camp floors, wetness, frost and snow, and the water over a river bed; a ground's sheet shows only its own states, as you set on 7 October 2026.
   - An object's sheet is laid out like the hide tent's, as you OK'd on 7 October 2026: its flat views at one scale beside the adult and the stick, the view from above, the camera's views, its true size at each zoom, its parts, its states and its surface.
   - Every view shows the same object, with the same parts, counts and colours, as you asked the same day: it is designed once, in words and numbers, and every view is drawn to that design.
-- **You sign off each piece** as its sheet is finished, as you asked on 7 October 2026, and the art lane takes the signed-off pieces in batches, starting with the pilot (Status, above).
+- **You sign off each piece** as its sheet is finished.
+  Production takes the six fixtures first, then expands in batches after engine and phone review.
+  Existing sheet approvals are kept; runtime pages, normals and engine previews receive their own review.
+  Missing seasonal silhouettes and pending approvals come before bulk work.
 - It is kept in `art/catalogue/`: a file of each group's pieces, and each piece's sheet.
 
 ## How to use this plan
@@ -182,489 +192,316 @@ Every step keeps them, the reviews check them, and the coverage check counts the
   - make `main` the default branch on GitHub (Settings, General, Default branch).
 - **Choices by eye and ear:** the ground of the cards and the book, and whether reading text should be larger (`PRE-35`), when the first cards are built (M4); the murmur's voice (`SND-03`) and the drums (`SND-02`) at M9.
 - **In M2:**
-  - the blind tests and the choices by eye its steps ask for: the camera's tilt and lens up close, poses held or gliding, moving patterns stepping in whole texture pixels, each lever that may show, each material's sheet, the rock surface, the close camp's ground and the small plants at each band;
-  - how builds and textures reach your phone, if textures outgrow the 50 MB a committed file may have;
-  - before M3, whether worlds have mammoths, since a mammoth-bone shelter belongs only where they live.
+  - six runtime fixtures beside their signed-off sheets, neutral light response, flat shadow style and then terrain shadows/reveal;
+  - the animal's four/eight-facing comparison, intermediate art steps, seasonal shapes and animation holds;
+  - a concrete weaker phone before comparative measurement, then both phones' look and sustained 60/30 fps results;
+  - how builds and art reach your phone if they exceed the committed-file limit;
+  - before M3, whether worlds have mammoths, since mammoth-bone shelters belong only where they live.
 
 ## Status
 
+The first five 2D alphas follow the adopted build order.
+Numbering continues after the old 3D route, so begun task IDs and delivered version codes are never reused.
+If a build exceeds six hours, split it at a task boundary into lettered deliveries, as the conventions require.
+
 | Step | Title | Milestone | Hours | Status |
 |---|---|---|---|---|
-| α2.1a | The picture and the bench | M2 | 6 | Delivered as 30101 on 6 October 2026; your phone's readings in, every probe passed |
-| α2.1b | The look's checks | M2 | 6 | Delivered as 30102 on 6 October 2026; your blind test, MSAA 4× against 2× on the meadow: 3 of 10 right, so the difference does not show |
-| α2.2a | Calibration: the fixed cost, the material and triangles | M2 | 4 | Delivered as 30201 on 6 October 2026; waiting for your phone's calibration code |
-| α2.2b | Calibration: leaves, fires and figures | M2 | 5 | Delivered as 30202 on 7 October 2026; waiting for your phone's calibration code and your two blind tests, whose decisions are written in when they come, since on your word the next step goes ahead |
-| α2.2c | Our own build of Godot, if needed | M2 | 6 | Only if C1 or C2 call for it |
-| α2.3a | The texture path and the camp's materials | M2 | 6 | **The pilot,** by your word of 7 October 2026: the meadow, the river, the club and the hide tent taken from their sheets to your phone, with the parts of α2.3b and α2.3c they need; the texture kind, its shipping and the Lab page built (T2.3a.1, T2.3a.5); the kit in the engine built (T2.3b.1, below); delivered as 30301 on 8 October 2026, waiting for your yes or no on each of the four pieces |
-| α2.3b | Ground, cliff, water and light | M2 | 6 | Planned |
-| α2.3c | Plants, shelters and fire | M2 | 6 | Planned |
-| α2.3d | People, a deer and first light | M2 | 6 | Planned |
-| α2.4a | Stress scenes | M2 | 5 | Planned |
-| α2.4b | The heat run and the line | M2 | 3 | Planned |
-| α2.5a | The hours | M2 | 5 | Planned |
-| α2.5b | Seasons and weather | M2 | 6 | Planned |
-| α2.6a | The zoom bands | M2 | 6 | Planned |
-| α2.6b | People in busy scenes, landscape and M2's end | M2 | 6 | Planned |
+| α2.7a | Projection and six fixtures | M2 | 6 | Planned; first 2D alpha |
+| α2.8a | Flat shadow style and terrain prototype | M2 | 6 | Planned |
+| α2.9a | Zoom and streaming | M2 | 6 | Planned |
+| α2.10a | World map and globe | M2 | 6 | Planned |
+| α2.11a | Two-phone renderer comparison | M2 | 6 | Planned |
+| α2.12a | Art scale-up, cleanup and M2's end | M2 | 6 | After the five fixture and phone gates |
 | M3 to M10 | Outlines below | M3 to M10 | | Detailed when each comes next |
 
 ## M2 The graphics engine
 
-**Goal:** the engine that draws the world up close in the look you chose on 6 October 2026, a sharp 3D world at the phone's full resolution wearing pixel-art textures, toward the pictures you chose (A4, A5, A6, A8):
-- the full-resolution picture, with steady texture pixels and a level of every texture drawn for each zoom band;
-- smooth light true to the hour and season, with our own soft shadows and darkening;
-- every material from code, the world or approved pictures; plants as dense and airy as you liked them; water, fire and weather;
-- the model kit: shapes made in Blender as parts and put together like Lego, with detailed people and animals that bend at the joints;
-- the camera's gestures, in portrait and landscape;
-- your phone measured part by part, so what fits is known before content grows.
+**Goal:** build the fully 2D graphics engine approved on 8 October 2026 (A4, A5, A6, A8):
+- one fixed 37° projection, crisp world pixels and native phone controls;
+- neutral art, mild normals, moving light and shadows that know receiver heights;
+- slopes, cliffs, simple shelters, water and overlap reveal;
+- three authored art families with reviewed reductions and bounded streaming;
+- an overhead map and 2D globe disc from one overview, keeping torus rules and saves;
+- measured Compatibility/Mobile rendering at 60 and 30 fps on two phones.
 
-It is built in six alphas: measuring, calibration, first light, the phone's risks, the hours and seasons, then the zoom bands and your three problems.
-Its content stands in for later milestones': a camp under a cliff by a river, made by code where M3 will make whole worlds, with people and animals that M4 and M5 bring to life.
-Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4).
+M1 stays as built and accepted.
+Its saved demonstrations provide clock, walkers and commands; they are not a generated living world.
+M2's terrain, sky, weather and overview are labelled fixtures until M3 and later systems supply real state.
+The geological slice (`PRE-25`), deep-cave world records and the full living-world activity catalogue retain their later milestones.
+The first five alphas prove the risky engine path; only then does art expand and unused 3D work leave the build.
 
-**Serves:** `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-30`, `PRE-31`, `PRE-33`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `PLT-04`, `VIS-14`, `RES-06`, `RES-22`.
+**Serves:** `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-29`, `PRE-30`, `PRE-31`, `PRE-33`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `PLT-04`, `PLT-09`, `VIS-14`, `WLD-01`, `WLD-02`, `WLD-03`, `WLD-13`, `TIM-01`, `TIM-04`, `TIM-15`, `TIM-16`, `TIM-17`, `RES-05`, `RES-06`, `RES-22`.
 
 **You will see:**
-- First, your phone measured part by part: what the look costs, a switch for each lever, and blind tests wherever a saving might show.
-- Then first light: the camp under the cliff by the river at the closest zoom, as the engine draws it, beside the picture you liked.
-- The camp at dawn, true midday, dusk and night, in winter, rain, storm and lake mist, each beside its relit target, steady as you drag, pinch and turn.
-- The camp of thirty at its tasks, detailed people and a deer, and every person found at a glance in the busy scenes.
-- The zoom from the person out to the camp, each band's textures drawn for it, the small plants keeping their charm and the ground no longer speckled.
-- This is the quality gate: you judge the scenes on their own, as the bar for everything built on them (`MIL-09`).
+- Six pieces in the engine, beside their signed-off sheets, at noon and dusk in both orientations.
+- Flat shadows, then slopes, cliffs, shelter floors, occupied-roof cutaways and quiet silhouettes behind cover.
+- Visible water bed, wading, fire in sun shade, weather and seasonal shapes.
+- A smooth pinch from person to camp, valley, region, world map and globe, with crisp resting pixels and the same selection and time.
+- Busy scenes measured on both phones, with real frame, heat, memory and streaming evidence.
 
 **Risks:**
-- The look costs too much at full resolution (`RSK-30`): about 13–45 ms of the graphics chip drawn plainly, against a line of 8 (estimates); retired first by calibration (α2.2), then by A4.1's levers, our own build of Godot only if needed.
-- The phone heats in long play: retired by the 20-minute heat run (α2.4b).
-- The PowerVR driver mishandles a feature the look needs: each probed in the first build (α2.1a).
-- Texture pixels shimmer or a band's level pops; designed levels are much content work; people stay hard to find in busy shade; the rock surface under each world's layers is still to find.
+- Piece order, picking and receiver-aware shadows fail on height: test them before bulk art.
+- Pixels step during slow motion or jump when families change: review pans, walking and pinch release.
+- Streaming or stale jobs break a view/world switch: bound work, retain parents and reject old epochs/revisions.
+- The look heats the phone or misses frame lines (`RSK-30`): use the existing governor, measured visual savings and 30 fps at the same grid.
+- Sheet approvals are mistaken for runtime approvals: keep the fixture gate and records separate.
 
-### α2.1a The picture and the bench
+### α2.7a Projection and six fixtures
 
-**Goal:** the engine's spine on your phone: the world drawn at full resolution with 2× MSAA on a page of its own, the camera rig and its gestures, textures read through the one sampling function with levels of our own, and the bench reading each part's cost with power and heat, after every feature the look needs has been probed safely.
+**Goal:** the first 2D picture and controls on the accepted saved-run connection, with the six art fixtures ready for engine review.
 
-**Serves:** `PRE-01`, `PRE-02`, `PRE-22`, `PRE-33`, `PLT-02`, `PLT-04`, `VIS-14`.
+**Serves:** `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-22`, `PRE-27`, `PRE-31`, `PRE-33`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `WLD-13`, `TIM-17`, `RES-05`.
 
-**Architecture:** A4.1, A4.2, A4.6, A4.7, A8.4, A3.9, A18.1.
-
-**Tasks:**
-
-1. `T2.1a.1` **The picture and the Look page (`PRE-01`, `PRE-02`).**
-   A Look page draws a 3D scene on the Mobile renderer straight into the window at full resolution with 2× MSAA, the interface over it, and nothing that reads the screen or its depth.
-   Drawing switches for each part (MSAA off, 2× and 4×; the 3D at 1.0, 0.75 and 0.5 scale; each pass on or off) touch only the drawing, never the world (`WLD-13`).
-   The stage, the change feed and the first family drawing through the RenderingServer (A4.6), and the warm-up scene.
-2. `T2.1a.2` **The camera rig and its gestures (`PRE-33`, `PLT-02`).**
-   One perspective rig (A8.4): narrow up close, 5° or 10° across by a switch, tilted 35–40°, with the ease to 5° and 1.25× steps; drag, pinch and turn read by our own gesture reader on raw touches (A15).
-   The rig's state and the globals it publishes (the zoom band, the sun, the time, the moving origin); scripted camera paths (a pan, a full turn in eased steps, a pinch through a band); turning the phone keeps the focus, the turn and the metres per screen pixel.
-3. `T2.1a.3` **Textures with our own levels (`PRE-22`).**
-   `view/` reads lossless texture files holding every level, builds each image with `Image.create_from_data` and gathers texture arrays by size class; the one sampling function as a shader include (the smooth-pixel filter with `textureGrad`, the level from the texture pixel's area, the short blend).
-   Stand-in textures made by code at 64 texture pixels a metre, with designed levels down to 1 a metre: a meadow and a test pattern.
-4. `T2.1a.4` **The bench's new readings and the heat guard (`PLT-04`).**
-   Each viewport's graphics time and Godot's timestamps for each pass; Godot's counters (triangles, draws, video memory); Android's GPU headroom where offered; power every 2 s from the battery, and the rails where offered; the phone's heat thresholds (API 35), its headroom listener (API 36) and the minutes to its light threshold; the bench code's next layout with these fields.
-   The heat guard acts at the light threshold less 0.05, and a missing reading is no reading (A3.9).
-5. `T2.1a.5` **Probes, the self-check and delivery (`VIS-14`).**
-   Each probe is noted before it runs, so a crash names it on the next start: MSAA at full resolution, `textureGrad`, texture arrays with our own levels, alpha to coverage, a shading rate for each draw, a MultiMesh shader reading bone weights, and one GPU particles node, expected to fail.
-   The self-check lists the shading rates, the GPU headroom and the power rails; deliver as 30101.
-
-**Tests:**
-- gdUnit4, headless: the Look page builds; every switch changes only the drawing (a world's digest is unchanged with each switch flipped); the rig keeps its metres per screen pixel through a simulated turn of the phone.
-- doctest: the level picked for a texture pixel's area keeps it between 1.4 and 2.8 screen pixels at every zoom; the bench code's new fields read back as written; the heat guard's response to planted readings (a missing one, the light level, the moderate level).
-- A golden picture of the meadow at the closest zoom, drawn in the cloud, its texture pixel measured at 1.5–3 screen pixels.
-- Passes if all pass, the app installs over the last one, and every probe reports on the phone.
-
-**On the phone:** open Look: a pixel-art meadow at the closest zoom; drag, pinch and turn it, flip the switches and watch the frame time; the self-check adds the probes, the shading rates, the GPU headroom and the heat thresholds; if a line is red, copy the code into the chat.
-
-### α2.1b The look's checks
-
-**Goal:** the checks that guard the feeling, written once in C++ for the cloud and the phone; the loop that runs them; and a blind test on your phone.
-
-**Serves:** `PRE-01`, `PRE-22`, `PRE-28`, `PRE-31`, `PLT-04`.
-
-**Architecture:** A4.8, A5.5, A17.
+**Architecture:** A3.8, A4.1, A4.2, A4.6, A4.7, A4.8, A5.3, A5.4, A6, A8.2, A8.4, A15.
 
 **Tasks:**
 
-1. `T2.1b.1` **The measures in C++ (`PRE-22`, `PRE-28`).**
-   Its colour measures (OKLab, ground accents, texture pixel contrast) come first, before α2.1a's own work, since the art lane's checks use them.
-   A Godot-free library shared by the `kindling` tool and the phone: OKLab; the target card's statistics; ground accents; people's salience from an object picture; shimmer after following the motion, against a many-sample picture; the texture pixel's size; the distinct levels of a dark gradient; and NVIDIA's FLIP from its C++ source, vendored with its licence.
-2. `T2.1b.2` **The target card (`PRE-01`).**
-   Its fixed goals and its bands for each moment, measured from the pictures you chose (`art/targets/`), as a tuning file; `kindling look card` shows each view's alarms green, amber or red.
-3. `T2.1b.3` **The loop's drawing run (`PRE-31`).**
-   One Godot run in the cloud draws the fixed views at 1080 × 2404 with the colour, object and material pictures, lossless frames of the scripted paths, and many-sample pictures of small patches, on the software Vulkan driver with one thread and time frozen.
-   Changed views go beside their last approved versions on a lettered grid; golden pictures are exact for changes of code alone, and within FLIP's tolerance otherwise.
-4. `T2.1b.4` **The blind test, and delivery (`PRE-01`).**
-   A Compare page: ten random pairs, stills or clips, asking "which is sharper?", the answers in a short code; eight or more right means it shows; deliver as 30102.
+1. `T2.7a.1` **The connection and projection (`PRE-02`, `WLD-13`, `TIM-17`).**
+   One view controller takes one snapshot and owns its drawing copy.
+   Keep activity history sampling, torus offsets, saved worlds and pace; add epoch/revision-ready drawing records.
+   Replace perspective maths with the shared east/south/height projection and explicit centimetre/millimetre conversions.
+2. `T2.7a.2` **The picture and controls (`PRE-01`, `PRE-03`, `PRE-22`, `PRE-33`, `PLT-02`).**
+   Dedicated world SubViewport, integer nearest presentation, native UI and safe insets.
+   Pan, live pinch, discrete resting steps and transform-aware picking; no twist route.
+   Preserve focus, time and selection through orientation changes.
+   Configure Compatibility and the canvas bindings without rebuilding the accepted extension from scratch.
+3. `T2.7a.3` **Six fixtures (`PRE-20`, `PRE-27`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`).**
+   Person, animal, tree, boulder, ground and shelter from signed-off sheets.
+   Neutral colour, masks and mild normals; fixed-projection frames with stable pivots and few attachments.
+   Four facings, a six-frame walk and initial work actions; compare eight facings on the animal.
+   Check pending approvals and missing seasonal shapes; mark painted-sun stopgaps plainly.
+4. `T2.7a.4` **Engine previews and delivery (`PRE-31`, `RES-05`).**
+   Noon/dusk stills in portrait/landscape, walking/action clips, sheets beside runtime art and inspectable masks/normals.
+   Establish new 2D golden views and colour/object/material capture hooks; keep old proof history labelled 3D.
+   Deliver as 30701, with review outcomes tracked in art records.
 
 **Tests:**
-- doctest: each measure against pictures worked by hand (a known accent, a known shift, a known FLIP pair from FLIP's own tests); the card's goals pass on the pictures you chose and fail on a flat, speckled picture made by code.
-- The shimmer check flags a recorded pan of a texture read nearest-pixel (17–28% of pixels) and passes the smooth-pixel read (0.4–1.1%).
-- The phone and the cloud give the same measures on the same pictures (a digest in the self-check).
-- Passes if all pass.
+- Projection, seam offsets and inverse picking agree at known coordinates; neighbouring edges do not accumulate rounded pitch error.
+- Walk sampling follows the correct interrupted activity through the seam; frame pivots hold feet and equipment.
+- Resting pixels have integer presentation scale; frozen frames match; slow pans and pinch release show no permanent blur or anchor jump.
+- Native controls keep readable size; orientation keeps focus, selection, time and pixel size without reopening the world.
+- Same commands at the same simulation seconds give accepted M1 digests; opening old worlds changes no outcomes.
+- The six engine previews match their sheets; the owner reviews noon/dusk, clips and seasonal shapes before bulk production.
 
-**On the phone:** open Compare and take the sample blind test, MSAA 2× against 4× on the meadow, and send the code.
+**On the phone:** open the fixture page, pan and pinch, tap the person and turn the phone.
+Compare each piece with its sheet at noon and dusk; watch the walk and work clips and the animal's four/eight-facing turns.
+Say which pieces pass and which need repair.
 
-### α2.2a Calibration: the fixed cost, the material and triangles
+### α2.8a Flat shadow style and terrain prototype
 
-**Goal:** the first three numbers only your phone can give, each with its decision stated before the run: the fixed cost of a frame, what the full material costs a pixel at full resolution, and what a triangle costs.
+**Goal:** approve the flat shadow style while proving height-aware shadows, overlap, water and reveal on the restricted terrain fixtures.
 
-**Serves:** `PRE-01`, `PLT-04`.
+**Serves:** `PRE-20`, `PRE-21`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-28`, `PRE-30`, `PRE-31`, `PRE-33`, `PLT-04`, `WLD-13`.
 
-**Architecture:** A4.1, A4.3, A4.4, A18.1.
+**Architecture:** A4.3, A4.4, A4.5, A4.6, A4.8, A5.5, A6.4, A8.1, A18.1.
 
 **Tasks:**
 
-1. `T2.2a.1` **The calibration runner (`PLT-04`).**
-   Calibration scenes as data in `data/scenes/look/`, each with its parts, switches, camera path, pass line and the decision its number makes, stated before its first run (`RES-09`).
-   Each runs once at a 120-frame cap for the graphics chip's time and once at 60 for frames, power and heat, from a Calibrate page with one tap and one code.
-2. `T2.2a.2` **C4 and C1 (`PRE-01`).**
-   C4, the fixed cost: the world hidden, the interface on and off, MSAA off and 2×; expected 0.9–1.7 ms.
-   C1, the material: a field filling the screen with the full material (the sampling function, sun, sky and bounce, a soft shadow read, the openness and contact maps, haze, the fire grid, the grade), MSAA off, 2× and 4×, the 3D at 1.0, 0.75 and 0.5; expected 1.7–4.0 ms at 1.0 with 2×.
-3. `T2.2a.3` **C3, and delivery (`PLT-04`).**
-   C3, triangles: a field of solid rocks at 100, 200, 400 and 800 thousand triangles a pass, MSAA 2×, the shadow pass on and off; expected 2.5–10 ns a triangle in the main pass; and the main thread's time for 100, 300 and 1,000 MultiMesh draws in two and three passes; deliver as 30201.
+1. `T2.8a.1` **Flat light and shadows (`PRE-20`, `PRE-21`, `PRE-30`).**
+   Shared sun/sky/local-light function, normals calibration and custom sun visibility.
+   Bounded CPU mask preparation, static revision caches and moving-body shadows.
+   Show contact, several sun directions, soft long dusk shadows and fire; obtain the flat style review before terrain approval.
+2. `T2.8a.2` **Terrain, ordering and reveal (`PRE-23`, `PRE-24`, `PRE-28`, `PRE-33`).**
+   Floor height field, slope, cliff joins, front/rear shelves and one simple shelter.
+   Split occluders and order across chunk edges, with surface-aware picking and stable ties.
+   Separate roof/floor receivers; fade selected-person cover and occupied roofs, with quiet band silhouettes.
+   Keep roofs physically present; stop bulk art if ordering or shadows fail.
+3. `T2.8a.3` **Water and shelter light (`PRE-26`, `PRE-30`, `WLD-13`).**
+   One bed/water height source, depth tint, shore, flow, contact and wading; prepared background refraction and a measured projected reflection layer.
+   Fire lights openings without sun shadow darkening its emission or light leaking through shelter walls.
+   Add declared hour/weather records; never call them a generated physical sky.
+4. `T2.8a.4` **Review and delivery (`PRE-31`, `PLT-04`).**
+   Flat and terrain before/after views, long shadows at tile edges and a debug receiver/layer view.
+   Show noon/dusk, deep-cave entrance/view handling and shallow cutaway scope; preserve the later geological slice.
+   Record CPU/GPU costs with missing counters labelled unavailable; deliver as 30801.
 
 **Tests:**
-- Each scene's file names its items, its pass line and its decision; the runner refuses a scene without them.
-- The cloud runs each scene headless on the software driver to prove it draws, and its counters match the triangles and draws it states.
-- The decisions, stated now: C4 over 2.0 ms looks first at the interface pass and Godot's stores; C1 at most 2.5 ms keeps full resolution everywhere, 2.5–4.0 ms builds the shading-rate patch for you to judge (α2.2c), and over 4.0 ms simplifies the material first; C3 at most 4 ns sets the triangle line at 0.6 million triangle-passes, 4–6 ns keeps 0.4 million, and over 6 ns sets 0.3 million and keeps leaves as cards or brings the pre-pass.
-- Passes if every scene runs to its code on the phone.
+- A foreground tree can cover a rear high shelf, and cliff faces and shelter fronts order correctly across chunk borders.
+- Rays start at actual receiver height; roof and floor are distinct; off-screen casters and low-sun reach are included.
+- Overlapping shadows stay coloured, contact is not counted twice, and a partly shaded person reads; fire remains bright inside sun shade.
+- Selected cover fades while physical shelter state and digests stay unchanged; other obscured band members remain visible as quiet silhouettes.
+- Water depth uses the common heights; wading feet meet the surface; foreground people are not refracted with the bed.
+- Flat style and then terrain result pass owner review; failures name the split/mask remedy before adding content.
 
-**On the phone:** with the phone cool, unplugged and in flight mode, open Calibrate and tap Run (about 15 minutes); send the code.
+**On the phone:** move the sun over the flat fixture, compare contact and long dusk shadows, then open the slope, cliff and shelter views.
+Select someone beneath a tree or roof, look into the occupied shelter and watch wading and fire in shade.
+Approve the flat style first, then judge the terrain result.
 
-### α2.2b Calibration: leaves, fires and figures
+### α2.9a Zoom and streaming
 
-**Goal:** the three costs that decide how the camp is drawn, each with its decision stated before the run: leaves at the density you liked, fires with their shadows, and many detailed figures.
+**Goal:** authored art steps, coarse parents and bounded caches across the zoom range, with safe world switching and accepted time controls.
 
-**Serves:** `PRE-27`, `PRE-30`, `PRE-46`, `PLT-04`.
+**Serves:** `PRE-01`, `PRE-03`, `PRE-22`, `PRE-28`, `PRE-42`, `PRE-43`, `PRE-46`, `PLT-02`, `PLT-04`, `PLT-09`, `WLD-13`, `TIM-01`, `TIM-04`, `TIM-15`, `RES-05`.
 
-**Architecture:** A4.4, A4.5, A4.6, A6.3, A18.1.
+**Architecture:** A3.6, A3.7, A3.9, A4.1, A4.6, A4.8, A5.3, A6.2, A8.1, A8.3, A8.6, A18.1.
 
 **Tasks:**
 
-1. `T2.2b.1` **C2, leaves (`PRE-46`).**
-   The liked camp's layout of plants, as stand-ins at its density, drawn four ways with all else equal: plain cut-out cards, cards cut close to their leaves, solid cores with cut-out fringes, and close-cut cards with alpha to coverage; expected 0.6–6.0 ms for the leaves.
-2. `T2.2b.2` **C5, fires (`PRE-30`).**
-   1, 3 and 5 fires at the closest zoom, their shadows by the walk at full and at half resolution and by a small map for each fire, all through the light grid; expected 2.5–24, 0.8–6.5 and 0.2–1.7 ms.
-3. `T2.2b.3` **C6, figures (`PRE-27`).**
-   30, 100 and 300 stand-in figures on a skeleton, posed 10 times a second, by Godot's own skeletons and by our bone palettes read in a MultiMesh shader, which this proves end to end; the main thread's time for each figure; and reads in the vertex stage, 100,000 to 1 million vertices reading 1, 3 and 12 texture pixels, against the same without reads.
-4. `T2.2b.4` **Delivery, and the decisions written down (`PLT-04`).**
-   Deliver as 30202; when the codes come back, each decision goes into A18.1 and the sections it changes, before the next step.
+1. `T2.9a.1` **Art steps and wide forms (`PRE-22`, `PRE-28`, `PRE-42`, `PRE-43`, `PRE-46`).**
+   Separate 64/16/4 source families with repaired intermediate chains, aligned masks and atlas gutters.
+   Quiet tile variants, drawn transitions, broad stamps and ecology-selected detail; stable world-coordinate keys and wrapped neighbours.
+   Designed tiny figures, group marks and camps; retain real-object inspection data.
+2. `T2.9a.2` **Bounded preparation and caches (`PRE-03`, `PLT-04`, `WLD-13`).**
+   Owned immutable job inputs with epochs/revisions, bounded queues, staged CPU-ready/GPU-uploaded/visible states and cancellation.
+   Revision resynchronisation survives skipped snapshots.
+   Retain coarse parents through cold loads and rapid pinches; count textures, targets and staging separately.
+   Use measured upload headroom; preload fixture pages.
+3. `T2.9a.3` **Zoom, time and worlds (`PRE-01`, `PLT-02`, `PLT-09`, `TIM-01`, `TIM-04`, `TIM-15`).**
+   Keep selected IDs, focus and display time across art changes, orientation and reopen.
+   Existing zoom speeds and manual priority remain; leave pause/skip/director priority connections possible.
+   Cache keys include world/data/renderer/revision; caches stay outside essential archives.
+   Taps retain displayed time and ID, without claiming to fix the later power-timing gap.
+4. `T2.9a.4` **Cold-load route and delivery (`PLT-04`, `RES-05`).**
+   Exercise eviction, cancelled and stale jobs, rapid world swaps, pinch releases and cache deletion.
+   Show resident/peak bytes and decode/upload frame costs, with new named 2D benchmark variants.
+   Deliver as 30901.
 
 **Tests:**
-- As α2.2a's; and in the cloud, the palette path's pose matches Godot's skeleton's for the same pose within 1 cm at every vertex.
-- The decisions, stated now: C2's cheapest way that you cannot tell from plain cards in a blind test becomes the default, and if it still costs over 1.5 ms for the leaves, the leaf pre-pass is built (α2.2c); C5's map for each fire becomes the way unless you see a difference from the walk; C6's time for each figure sets how many Godot skeletons may be in view within 1.0 ms of the main thread, the rest on palettes.
-- Passes if every scene runs to its code on the phone.
+- Named stops retain person about 8 m, close camp 20–50 m, camp a few hundred metres, valley about 10 km and region about 100 km; culling covers the projected portrait footprint and shadow halo.
+- Intermediate steps keep repaired faces/tools/edges and crisp resting pixels; no permanent mip blend or synchronous load in gestures.
+- Wrapped joins and detail placement are unchanged by cache size or load order; ground repeat/accent checks and busy-camp readability hold.
+- Parents remain visible until detail arrives; stale world/revision jobs cannot publish, even with skipped snapshots or eviction.
+- Queues and byte ledgers stay within A18.1's measured starting caps; preparation/opening meet 10 s after install and 3 s warm open.
+- At equal simulation seconds, different zooms, views and worker counts retain identical digests; deleting caches and save/recovery change no world state.
 
-**On the phone:** run Calibrate again (about 19 minutes) and send the code; then the blind tests of the leaf ways and of fire shadows by map against the walk.
+**On the phone:** pinch through person, close camp, camp and map scales, then switch saved worlds and turn the phone during a load.
+Try a cold view and the cache-clear check; look for holes, stalls, lost selection, blur or a jump on release.
+Check that zoom requests time speed and a manual speed choice still wins.
 
-### α2.2c Our own build of Godot, if needed
+### α2.10a World map and globe
 
-**Goal:** only if C1 or C2 call for it, as you allowed on 6 October 2026: Godot 4.7.2's export templates built in the cloud with the two patches that close most of the gap and the one that keeps buffers off memory, measured and judged.
+**Goal:** the owner-confirmed map and 2D globe display from one overview, preserving torus rules and saves.
 
-**Serves:** `PRE-01`, `PLT-04`.
+**Serves:** `PRE-03`, `PRE-26`, `PRE-28`, `PRE-29`, `PRE-30`, `PRE-33`, `PLT-04`, `WLD-01`, `WLD-02`, `WLD-03`, `WLD-13`, `RES-05`.
 
-**Architecture:** A2.2, A4.1.
+**Architecture:** A4.1, A4.6, A8.3, A8.4, A8.5, A8.6, A18.1.
 
 **Tasks:**
 
-1. `T2.2c.1` **The build (`PLT-04`).**
-   Godot 4.7.2's Android templates built from its tag and cached in the cloud by `tools/setup.sh`, the patches kept as files beside the build script: a depth pre-pass for leaves with an equal depth test; the multisampled and depth buffers made transient; and a shading rate for each material through the driver's rate for each draw.
-   The stock templates stay beside them, one setting apart.
-2. `T2.2c.2` **Measured and judged, and delivery (`PRE-01`).**
-   C1 and C2 again with the patches, and your blind test of shading once per 2 × 2 pixels on ground and plants; deliver as 30203.
+1. `T2.10a.1` **Shared overview (`PRE-26`, `PRE-29`, `PRE-30`, `WLD-03`).**
+   An explicitly labelled 2000 × 1000-cell overview fixture, shared by overhead map and disc, with relief, cover, drainage and declared weather channels.
+   Count colour's 8–11 MiB inside the map cache, plus extra channels.
+   Preserve minimum river visibility and ordinary changing light; use stable relief only at very fast rates.
+2. `T2.10a.2` **Globe display (`WLD-01`, `WLD-02`, `WLD-13`).**
+   Forward torus-coordinate mapping in a 2D disc shader, longitude repeat, latitude clamp and ice pole treatment.
+   Polar compression changes only the picture; distances, cell areas, paths and saves remain exact.
+   No sphere scene or physical rewrite, and no claim that M2 built the permanent generated ice barrier.
+3. `T2.10a.3` **Markers, taps and transitions (`PRE-03`, `PRE-28`, `PRE-33`).**
+   Shared marker mapping and inverse visible-disc picking, hidden hemisphere rejected.
+   Keep focus, selected IDs and time through local/map/globe transitions; centre another longitude without rotating local art.
+   If shown, a scale uses model distances and explains globe distortion.
+4. `T2.10a.4` **Display checks and delivery (`PLT-04`, `RES-05`).**
+   Seam/pole screenshots, inverse-tap checks and the full pinch journey on the saved run.
+   Measure incremental globe cost against the proposed under-1-ms goal and total cache/frame lines.
+   Deliver as 31001; M3 later replaces fixture geography with generated cells.
 
 **Tests:**
-- Godot's own tests pass on the patched build in the cloud; the golden pictures are unchanged by the pre-pass and the transient buffers.
-- Passes if the patched build installs, every probe and calibration scene runs, and each patch's saving is measured; shading per 2 × 2 pixels stays only if it passes your blind test.
+- East-west seam samples and markers agree; latitude clamps without blending top and bottom rows; warm land never filters through the ice edge.
+- Known points round-trip through markers and visible-disc taps; back-hemisphere taps are ignored.
+- At 60° latitude display width halves while true model distances and cell sizes remain unchanged.
+- Focus, selection and time survive every transition; local camera remains at 37° without rotation.
+- Shared overview is counted once; memory and incremental GPU cost are reported; unchanged saves reopen with identical simulation digests.
+- Fixture results prove display mapping only; the generator and ice-crossing tests remain in M3.
 
-**On the phone:** run Calibrate and the blind test; if you can tell the 2 × 2 shading apart, it stays off.
+**On the phone:** pinch from a person to the world map and globe, tap a marked place and return to it.
+Centre another longitude, check poles and the seam, and compare ordinary-time sun with the fast-time relief view.
+The page labels this geography as a fixture.
 
-### α2.3a The texture path and the camp's materials
+### α2.11a Two-phone renderer comparison
 
-**Goal:** textures from the art lane to the phone with their records, and the camp's first materials on lab sheets for your OK.
+**Goal:** measure identical fixtures on Compatibility and Mobile at 60 and 30 fps, then keep the simplest path that passes both look and performance review.
 
-**Serves:** `PRE-20`, `PRE-22`, `PRE-23`, `PRE-42`, `PLT-04`.
+**Serves:** `PRE-01`, `PRE-22`, `PRE-26`, `PRE-28`, `PRE-30`, `PRE-31`, `PLT-02`, `PLT-04`, `VIS-14`, `RES-05`, `RES-06`.
 
-**Architecture:** A5.3, A5.4, A5.6, A3.6.
+**Architecture:** A3.9, A4.7, A4.8, A5.5, A8.7, A18.1.
 
 **Tasks:**
 
-1. `T2.3a.1` **The `texture` kind (`PRE-20`, `PRE-42`).**
-   The record as a catalogue kind (A5.4), read from `art/textures/` by the loader, every field checked as it loads.
-2. `T2.3a.2` **The art lane's tools (`PRE-22`).**
-   Whatever it chooses to reach its sheets (its brief, above).
-3. `T2.3a.3` **The camp's materials, in the art lane (`PRE-20`, `PRE-23`).**
-   From the catalogue's signed-off sheets: meadow grass and earth, a trodden floor, bank gravel and the river bed, hide, birch bark and poles, brush and bark sheets, hearth stones, ash, and rock A, your pick, under each world's layers laid by code; each with its designed levels, and each big surface with its near, middle and far tiles in two to four versions mixed by place (A5.3).
-4. `T2.3a.4` **The kit's parts, in the art lane (`PRE-46`).**
-   From the catalogue's signed-off sheets: the camp's parts, then a first person and a red deer.
-5. `T2.3a.5` **On the phone, and delivery (`PLT-04`).**
-   A Lab page with every sheet; loading time and texture memory measured; deliver as 30301.
+1. `T2.11a.1` **Named devices and fixtures (`PLT-04`, `PRE-28`, `PRE-30`).**
+   Record the owner's Pixel 11 Pro XL and the chosen weaker phone: RAM, OS, usable display, renderer and driver.
+   Identical seven-person day/three-fire night scenes, thirty-person woodland camp with water/fire/smoke/weather, separate crowd stress, wide-map streaming and repeated pinches.
+   State counts, visible areas and initial approved actions; six objects alone are not a camp benchmark.
+2. `T2.11a.2` **Frame and streaming measures (`PLT-04`, `PRE-22`, `PRE-26`).**
+   Compatibility and Mobile at 60 and 30 fps, with cold loads, saves, reopen and sustained activity.
+   Existing calibration/result reporting with explicitly 2D variant names, frame distribution, GPU/main-thread times, batches/passes, resident/peak bytes and upload costs.
+   Include every active viewport; label unavailable APIs and silent renderer fallback.
+3. `T2.11a.3` **The twenty-minute route (`PRE-01`, `PLT-04`, `VIS-14`).**
+   On each phone and renderer/mode, run the busiest passing scene after cooling, unplugged and in flight mode.
+   Read power, battery temperature, thermal status and 10-second forecast; use the existing governor.
+   Keep the approved grid in 30 fps; any logged heat step must pass the owner's blind test.
+4. `T2.11a.4` **Decision, review and delivery (`PRE-31`, `PLT-02`, `RES-05`, `RES-06`).**
+   Compare the same noon/dusk, night, season, weather, orientation and action views.
+   Record which renderer passes and why; fix failures before scaling art.
+   Repeat accepted simulation proofs at equal game seconds with both views and worker counts; deliver as 31101 with both phones' evidence.
 
 **Tests:**
-- A record with a field missing, out of range or unknown is refused where it is written.
-- The set loads within the 3 seconds a world may take to open, and its memory is within A18.1's 300 MB.
-- Passes if all pass and you approve or send back each sheet.
+- At 60 fps: GPU mean at most 8 ms, p95 at most 9.5 ms; main thread mean at most 8 ms, p99 at most 12 ms; busy woodland camp GPU mean at most 6 ms.
+- At least 97% on-time frames and no frame over 66.7 ms; at 30 fps use its 33.33 ms interval and the same grid.
+  Report distributions and each minute's frame delivery, not only averages.
+- Whole-phone mean at most 4 W, battery at most 40 °C at end, thermal status none and forecast below the light threshold minus 0.05 where available.
+- Application memory at most 1 GiB; bounded caches/targets/staging, preparation within 10 s after install, warm opening within 3 s and no new shader compilation stalls during active drawing.
+- Carry 300 draws as an initial diagnostic ceiling, distinguishing canvas/UI/off-screen batches; it never substitutes for frame-time evidence.
+- Both look reviews and measurement routes pass; unavailable evidence is reported explicitly, never filled with zero.
+- Digests, old-save opening, recovery and cache deletion still pass; graphics timings do not stand in for simulation correctness.
 
-**On the phone:** open Lab and look at each material at true size and enlarged; say yes or no to each.
+**On the phone:** install each named renderer build, compare the same fixtures, then run the cool, unplugged twenty-minute route at 60 and 30 fps.
+Send each result code with its phone and renderer; the report shows any unavailable readings and the resulting choice.
 
-### α2.3b Ground, cliff, water and light
+### α2.12a Art scale-up, cleanup and M2's end
 
-**Goal:** the camp's land in the look you chose: the ground from its patch, the cliff with its own layers, clear water, and smooth light with soft shadows and darkening built by us.
+**Goal:** after the five engine gates, expand the M2 art set, port remaining pages and checks, remove unused runtime 3D work and close M2 with the owner's review.
 
-**Serves:** `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-30`.
+**Serves:** `PRE-20`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-30`, `PRE-31`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `PLT-04`, `PLT-09`, `VIS-14`, `RES-06`, `RES-22`.
 
-**Architecture:** A4.3, A4.4, A4.5, A4.6, A6.1, A6.4, A8.1.
+**Architecture:** A2.2, A4, A5, A6, A8, A17, A18.
 
 **Tasks:**
 
-1. `T2.3b.1` **The kit in the engine (`PRE-46`).**
-   Blender in the cloud's setup and the build, exporting the art lane's parts for Godot with their joints; the assembler putting parts together from recipes in the catalogues, varied by seed; the model sheet of every part and thing.
-2. `T2.3b.2` **The ground and the cliff (`PRE-23`, `PRE-24`).**
-   A stand-in area made by code, a camp under a cliff by a river about 256 m across, its ground on the tree of ground near the focus with its patch picture and designed levels, each big surface's near, middle and far tiles blending at their switches as any two levels do, and each cell picking one of a tile's versions by its place (A5.3); a cliff whose layers come from a stand-in geology (limestone over shale, weathered back into a rock shelter), with cracks, stains, soot above the shelter, and the art lane's boulders, cliff pieces and scree at its foot.
-3. `T2.3b.3` **Light, shadows and darkening (`PRE-21`, `PRE-30`).**
-   The shared light function (the sun by its height, the sky's fill by openness, bounce, backlight, haze); Godot's sun map at 2,048 for small casters and our height-field sun map for big ones; the openness and contact maps; creases baked by the kit; the tone curve, a first colour table and debanding.
-4. `T2.3b.4` **Water, and delivery (`PRE-26`).**
-   The bed below the water's level, the surface's sky colour by angle, the mirror at half resolution with a smaller set, flow lines and foam stepping in whole texture pixels, glints of one texture pixel, the shore line from height; deliver as 30302.
-
-**Built early, in the pilot (7 October 2026):**
-- `T2.3b.1` is built, first with stand-ins for the art lane's parts (a club and a tent made by a Blender script and textures cut from the sheets' tiles), which the art lane's own club and hide tent have since replaced, the stand-in family, recipe and textures deleted and `tools/blender/standins.py` cut down to the helpers the art lane's part scripts build with:
-  Blender in the setup and the build, each family's parts exported as a kit file with joints, texture coordinates in metres and creases, the recipe kind, the assembler, the stretch and joint checks (`kd_kit`), the drawing of things as copies (`KdKit`), and the Kit page as the model sheet, with `tools/shots.sh` to draw any page's pictures in the cloud.
-  Still to do under it: the sheets in two materials and drawn again whenever the kit changes.
-- The first of `T2.3b.3`: the late afternoon's light as the `tuning/light` entry, placed by `Afternoon` for the pages that draw the pilot's pieces.
-  The Look, Compare and Calibrate pages keep their own light until `T2.3b.3` moves them onto it, so their golden pictures hold.
-- The first of `T2.3b.2` and `T2.3b.4`: a stand-in area, a square of meadow 2 km across with a river across it (`tuning/area`, `view/src/area.hpp`), drawn by the Pilot page; its ground is the art lane's meadow, four versions of each tile, and its river's bed and marks stay stand-ins until the art lane's arrive.
-  The ground reads a big surface's tiles through the ladder (`game/look/ladder.gdshaderinc`): near, middle and far, each in versions picked by a hash of the cell, blending where one tile takes over from the next.
-  The river's bed lies below the water's level and is tinted by depth (`tuning/water`); the surface mirrors the sky by angle and carries marks that step in whole texture pixels, glints and a shore line of one texture pixel, all from height (`game/look/water.gdshader`).
-  The light is `tuning/light` set against the meadow sheet's camera view (sun #fff6e8 at 170%, the sky's fill at 60%): in the engine's frame at band 0 the ground reads lightness 53.4 where the sheet's view reads 55.9, and 45.9 with the first stand-in light; the final tuning is still `T2.3b.3`.
-  `tools/tests/test_area.py` draws the area in the cloud and checks each band's tile, the cells' borders, that a cell border steps no more than other texture pixel edges, and that the marks step in whole texture pixels; the meadow's repeat measures 0.02, 0.06 and 0.11 at bands 0, 2 and 4.
-  The border pair is quiet, but the meadow's first files carried a seam 8 texels before the edge of seven levels (near level 0 of versions 2 to 4, middle first level of version 4), which the art lane is re-quilting and now checks for in every material.
-  The art lane's river bed and marks replace the stand-ins, with the water's colours as the art lane fitted them (fades 0.30, 0.8 and 1.1 m, murk 0.25 m, deep colour #0d4a55): at 50 cm the water reads lightness 57.9, colourfulness 5.0 and hue 185 against the sheet's 57.5, 5.7 and 184; the model is too grey at 10 cm and too light at 3 m, which `T2.3b.3` mends.
-  Still to do: the cliff, its layers and the art lane's boulders (`T2.3b.2`); the mirror at half resolution and delivery as 30302 (`T2.3b.4`); the golden pictures and the shimmer paths over the ladder.
-- The camp (`T2.3c.2` in part): the Pilot page puts a tent and a club on the meadow by the river's north bank, where `tuning/area` says (the club and the hide tent the art lane's own, 20 parts of its camp family: eleven sewn hides, poles lashed where they cross, a door flap and a ring of 24 stones), and shows each of the pilot's pieces beside its sheet: the signed-off sheet shipped to the phone as `sheets/<piece>.kdsheet`, a WebP under a name Godot's import leaves alone, listed in `build.toml`, in the top 40% of the screen, with the place below it, at true size or a texture pixel enlarged to 8 screen pixels.
-- By your word of 7 October 2026, after you looked at the Camp view beside the art book's close camp, two parts of `T2.3b.3` were pulled into the pilot:
-  the maps round things (A4.4: contact shade at the feet of the stones and the tent's hem, a dark cavity under its cover that is never black, the ground's shadow softening with distance, openness beside tall things) with a lit edge on the parts (A5.2, `PRE-21`), built by `view/src/maps.hpp` and read by the shared light function;
-  and the light's colour, set on the camp's frame against the target card's late afternoon: sun #ffcf90 at 230% and the sky's fill #98aed2 at 80%, which holds the frame's lightness (54.5 before, 55.5 after), brings the lights' hue from 96 to 87 (the card's band reaches 98; the art book's close camp reads 78), and makes the shade, the stones' far sides and the cast shadow cooler than the lit ground.
-  The shade's yellowness stays red on the meadow (+6.2 against the card's 4.0 top): the darkest fifth of the frame is the meadow's own dark olive.
-  A critique of each frame beside the art book led to easing the contact (55% to 38%) and the openness (80% to 65%), and to keeping the under-roof darkness to the ground.
-  With the art lane's hide tent in, its note said the lit hides' tones read too alike; in the engine no pixel of the tent reaches red 250, but the hide's dark end was lifted (lightness 54 to 80 at the 5th to 95th percentile, the sheet's 40 to 79).
-  Lights tried on the Camp view at the same lightness: sun 230% with fill 80% (the hides spread 25 points, the card's green share 40), 250% with 60% (31, 32), 260% with 55% (35, 30) and 270% with 45% (37, 27); a critique of the tent beside the sheet and the art book preferred the stronger sun with the shade not too dark, found 270% with 45% going charcoal along the shaded flank, and chose 260% with 55%, now `tuning/light`.
-  What it leaves: the shade's yellowness stays red on the card (the meadow's dark olive); the doorway shows meadow inside it, and the critique's remedy, less sky openness inside the shelter, is not built.
-- The patch picture (`T2.3b.2`, A4.6, A5.3): the ground no longer spreads one even carpet.
-  `view/src/patches.hpp` makes the stand-in area's picture, 64 by 64 patches of 4 m with the tent in the middle of one, from `tuning/area`: masses of taller and shorter growth 48, 18 and 8 m wide, the ground round the tent worn for 2.4 m beyond its middle and fading over 3.2 m more, and bare patches where growth is under 20%.
-  The land shader (`game/look/land.gdshaderinc`) reads it: growth swings the meadow's colour golden to deeper (45% at the extremes), and wear takes the grass away in clumps, leaving the art lane's trodden ground (`wear`) round the tent and its open dry ground (`bare_earth`) where growth is thin (first versions of both, from the stand-in colour and grain this replaced); far off, from the fourth band, the clumps fade to the share of ground the wear gives, so a far texture pixel never speckles. The river bank's gravel is the art lane's `bank_gravel` in the same way.
-  A critique of each frame beside the art book, over six turns, led from a 5 m clearing that turned the frame into one tan field, to a smaller one that read as a brown stain under yellow blades (wear took the meadow's darkest texels first, which kept every blade), to clumps of grass taken away whole, to the tent standing in the middle of a patch (it stood at the corner of four, so wear lay flat over a square and fell away in lobes), a margin that dissolves in groups of two by two texture pixels, and a clearing wide enough that the ground just outside the stones is worn.
-  The last critique found it good enough to leave for the art lane's earth and transition tiles, and named what is left: the earth's colour and drawing and the sparse-grass transition (the art lane's), the tent's doorway, the colour of bands 3 to 6 (the light's haze), and the belts where the zoom's levels blend (the ladder's, as before).
-  On the card the Camp view's lightness holds (56.7), the dark fifth sits at the foot of its band (17.0 against 17.1), the green share falls from 34.9 to 26.4 (the band's top is 20.6), and the masses read 5.1 against a band of 6.2 to 10.9 whatever the growth swing (0%, 45% and 80% read 5.2, 5.1 and 5.1): the frame at band 0 is 8 m across, so masses 48 m wide show only at the wider bands.
-- The tent's forms by size, the haze, the doorway and the shore (`T2.3b.2`, `T2.3b.3`, `T2.3b.4`, on a23b), each frame criticised beside the art book and the sheets:
-  The Pilot page draws the tent in the art lane's full, simple or small recipe by its width on the screen (150 and 80 pixels, 5% to go back): full at bands 0 and 1, simple at band 2, small from band 3; the critique found the three forms the same tent at their sizes, the simple form's stones beads and the small form a generic cone with its doorway and shaded flank kept, which are the art lane's to keep a seam and an apex in; a pan or a pinch through the switches is not yet watched for a pop, and the club has the one recipe.
-  The haze, 0.015% a metre, took the meadow's accents from 17 to 7 at band 6 (and the earth and the river with them, the critique's blue-grey); at 0.005% the meadow reads 19.1, 18.6, 16.6, 15.9, 16.3, 15.6 and 12.1 at bands 0 to 6 on the engine's frames (the art lane's own frames read 20 to 22 and 23.3: the engine's are lit), and the critique found it a clear improvement and the distance still reading. The openness left under a roof is 18% (25% before), as low as the check that shade is never black allows, and the doorway reads as a cavity.
-  Pans of a third of a pixel a frame over the meadow at bands 2 to 6, each frame followed to the next through the pan (found row by row), leave a flicker of 0.59, 0.61, 0.69, 0.81 and 0.95 hundredths of lightness, 4.5%, 4.5%, 3.8%, 5.2% and 5.5% of the pixels over 3 hundredths: the same at every band within the method's own error (a resampling of crisp texture pixels), band 6 a fifth worse, not the many-sample measure the look loop uses, which the ladder ground does not yet have.
-  The shore is a margin now (2.4 m wide, gravel giving way to grass in clumps, the waterline bent 20 cm, the wet zone darkest at the water), the shallows clear (the water's own colour comes in with a curve) and the marks calmer where the water is calm, so the bed shows through the river; the critique found the bank a gravel margin and the deeper water's bed readable, the waterline still too straight before the bend and the shallows still a pale wash in places, and left the gravel (the river bed's, provisional), the colour of the wet zone and the water's blues to the art lane's bank gravel and the water's fit.
-  With the art lane's `wear`, `bare_earth` and `bank_gravel` in (first versions), a critique found the trodden ground believable packed earth but uniformly orange, the open dry ground not clearly distinct from it, the bank gravel the clearest fault (dense outlined pebbles like paving, the art lane's to redraw with grouped pebbles and quieter sand), and, the engine's: the waterline's pale hairline and smooth course, the wet zone pale and not wet, the bank's gravel changing abruptly to the bed's stones at the water, and the clearing's edge a mask of fragments. The waterline is now bent 30 cm, its bright line lights 60% of its pixels, the wet bank is darkest (55%) and wicks higher in places, and the gravel goes on under the water for 30 cm of depth mixed in clumps with the bed's stones.
+1. `T2.12a.1` **Expand reviewed art (`PRE-20`, `PRE-23`, `PRE-24`, `PRE-27`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`).**
+   Only after fixture, height, shadow, streaming and phone review, take signed-off catalogue batches into the pipeline.
+   Fill M2's camp materials, plants, shelters, figures, initial actions and seasonal shapes, including two-material sheets and dawn/noon/dusk/night views in summer and winter.
+   Rain, storm and mist remain declared look fixtures; the full later activity list stays with its simulation milestone.
+2. `T2.12a.2` **Port and remove (`PLT-09`, `PRE-26`, `PRE-30`).**
+   Follow the migration rules below: callers, tests, data and registrations first, then unused runtime 3D sources and derived exports.
+   Keep original art, approvals and benchmark history, and never relabel old 3D evidence as a 2D pass.
+   Native world/save/import/export/time controls remain on the existing extension.
+3. `T2.12a.3` **Final busy scenes and contact sheet (`PRE-28`, `PRE-31`, `PLT-02`, `PLT-04`).**
+   Fixed saved scenes at each zoom stop at noon and dusk, landscape, art sheets, work clips, pans/pinches and busy woods/camp/night views.
+   Timed find of every person, including reveal; rerun only measurements changed by expanded art before the final required checks.
+4. `T2.12a.4` **M2's end (`VIS-14`, `RES-06`, `RES-22`).**
+   Deliver as 31201, with the milestone report and independent milestone review.
+   State which requirements are proved by fixtures and which await real world systems.
+   Plan M3 in detail and write its architecture in full for the owner's stage review; never close M2 from a design or painted sheet alone.
 
 **Tests:**
-- Golden pictures of the area at the closest zoom at noon and dusk; shimmer on the three scripted paths at most 2 in 100 pixels; the texture pixel 1.5–3 screen pixels; no pass reads the screen or depth (a scan of the shaders).
-- The ground's and the cliff's texture pixels stretch at most 1.5:1 on every triangle (A6.4).
-- On a pinch from the closest zoom to the camp zoom, no tile repeats strongly in any frame (the repeat measure on the ground's pixels at most 0.2), and the switches between tiles pass the shimmer line.
-- Shade is never black; the hollow under the overhang is darker than open ground; a long shadow's edge is softer 10 m from its caster than 1 m from it.
-- Passes if all pass, and the frame on the phone stays within its line or names the part over it.
-
-**On the phone:** open Look at the camp: the ground, the cliff and the river at the closest zoom in late afternoon light; drag along the river and turn round the cliff.
-
-### α2.3c Plants, shelters and fire
-
-**Goal:** the camp's still life: the meadow's cover set out by the graphics chip, plants as dense and airy as you liked them, two shelter types, and the hearth with its fire.
-
-**Serves:** `PRE-20`, `PRE-24`, `PRE-30`, `PRE-42`, `PRE-43`, `PRE-46`.
-
-**Architecture:** A4.5, A4.6, A6.1, A6.2.
-
-**Tasks:**
-
-1. `T2.3c.1` **Cover and plants (`PRE-46`, `PRE-43`).**
-   Tufts, flower clumps and pebbles set out by the chip from the patch by the density rule; plants drawn the way C2 chose, cut close to their leaves; reeds, bushes and a birch put together from Blender's parts by growth rules and varied by seed; each plant's design for band 0 (A6.1).
-2. `T2.3c.2` **Shelters and things (`PRE-42`, `PRE-24`).**
-   Put together from the kit's parts; two shelter types in two materials each, a skin tent on a stone ring and hides closing off the rock shelter, each recording the excavation it rests on; a hearth ring, a drying rack, baskets and tools as kit layouts; light inside only from openings and fire.
-3. `T2.3c.3` **Fire, and delivery (`PRE-30`).**
-   Flames as pixel art made by code at about 10 frames a second, embers as copies, the light grid, fire shadows the way C5 chose, glow in the light function, and smoke as lit cards drawn last; deliver as 30303.
-
-**Tests:**
-- Copies only from about 12 screen pixels, counted at each zoom stop against A4.6's estimates; the same patch gives the same tufts on two visits (`WLD-13`).
-- A fire inside the tent lights its doorway, and no light passes through its wall (a view of each fire's reach).
-- The two shelters in two materials are told apart at the close camp on the model sheet.
-- Every part's texture pixels stretch at most 1.5:1 on every triangle, and a pole's wrap never shows (A6.4); every recipe's parts meet at their joints.
-- Passes if all pass, with the frame within its line or the part over it named.
-
-**On the phone:** the camp has its meadow, plants, two shelters and a fire; turn round the tent and look into the shelter.
-
-### α2.3d People, a deer and first light
-
-**Goal:** detailed people and a deer from Blender's parts on their skeletons, moving 10 times a second; then first light: the camp at the closest zoom beside the picture you liked, for your eye.
-
-**Serves:** `PRE-01`, `PRE-27`, `PRE-28`, `PRE-31`, `PRE-44`, `PRE-46`.
-
-**Architecture:** A6.1, A6.3, A5.5, A8.4.
-
-**Tasks:**
-
-1. `T2.3d.1` **The figure (`PRE-27`, `PRE-46`).**
-   One skeleton; the body from Blender's parts, with build, age and sex as shape keys and part choices; three ages in three garments; hair and beads; faces at band 0 in their 12 states as small designs; held tools on bones; proportions from the family sheet you accepted.
-2. `T2.3d.2` **The poser (`PRE-44`).**
-   Key poses as joint angles for standing, walking, sitting, crouching at work, knapping and carrying; the bending rules and seed offsets; palettes written at each pose step and bent on the chip, or Godot's skeletons for as many as C6 allows; poses held or gliding by a switch.
-3. `T2.3d.3` **A deer (`PRE-44`, `PRE-46`).**
-   The hoofed body pattern on its skeleton with a red deer's proportions, coat and antlers by age; walk, trot and gallop from numbers for each leg; still poses from the approved sheet.
-4. `T2.3d.4` **First light (`PRE-01`, `PRE-31`).**
-   The camp at the closest zoom in late afternoon, with seven people at their tasks and a deer at the river: the loop's first full run (the card, the checks, the judge's faults), the engine's frame beside the liked picture, the camera's tilt at 35°, 40° and 50° and its lens at 5° and 10° for your eye, and poses held or gliding; deliver as 30304.
-
-**Tests:**
-- Filmstrips of every movement, enlarged, show no gap or tear at a joint; the same seed gives the same person.
-- Every figure's and deer's texture pixels stretch at most 1.5:1 on every triangle, standing and in each key pose (A6.4).
-- The deer's feet stay planted while down (a slide under 1 cm).
-- The card on first light's frame, and the shimmer, size and banding checks; people's salience in the camp.
-- Passes if all pass; the look itself is your verdict.
-
-**On the phone:** first light: open Look at the camp and compare it with the picture you liked (a button shows it); try the tilts, the lenses, poses held or gliding, and poses at 10, 15 and 30 a second side by side, and say what you prefer.
-
-### α2.4a Stress scenes
-
-**Goal:** the camp at its busiest on your phone, with every pass line stated before the run: the liked camp by day, the camp of thirty at ten tasks, and night by the fire; each lever that may show switchable, for your blind test.
-
-**Serves:** `PRE-28`, `PRE-44`, `PLT-02`, `PLT-04`, `VIS-14`.
-
-**Architecture:** A4.1, A6.3, A18.1.
-
-**Tasks:**
-
-1. `T2.4a.1` **The camp of thirty (`PRE-44`, `PRE-28`).**
-   Thirty people at ten tasks (knapping, scraping a hide, carrying wood, tending the fire, cooking, sewing, drying meat, sitting and talking, children playing, walking), each task with its key poses, offset by seed so no two move in step.
-2. `T2.4a.2` **S1, S3 and S2 (`PLT-04`).**
-   S1, the liked camp by day at the closest zoom, seven people and one fire; S3, the camp of thirty at the close camp by day; S2, S1 at night with three fires; each on its scripted path, at a 120 cap and at 60.
-3. `T2.4a.3` **The longest frames, the levers and delivery (`PLT-02`, `VIS-14`).**
-   The longest frame while the phone turns, while a lever switches, and while an area's copies arrive at budgets of 128, 256 and 512 KB a frame; each lever that may show with its switch; deliver as 30401.
-
-**Tests:**
-- The pass lines, stated now: at least 97% of frames on time and none over 66.7 ms; the graphics chip at most 8.0 ms on average and 9.5 at the 95th percentile in each scene; the main thread at most 8 ms on average and 12 at the 99th percentile; triangles within C3's line and at most 300 draws; the app within 1 GiB; after an install, textures made within 10 s, a warm open within 3 s, and no pipeline compiled while drawing.
-- A scene over a line names its parts over their allowances, which is not itself a failure; then A4.1's levers in order.
-- The cloud runs each scene headless first, and its counts match.
-
-**On the phone:** run the three scenes from Bench (about 15 minutes) and send the code; then the blind test of each lever that may show.
-
-### α2.4b The heat run and the line
-
-**Goal:** the true line, set by heat: twenty minutes of the costliest scene that passed, and the decisions that follow.
-
-**Serves:** `PRE-01`, `PLT-04`.
-
-**Architecture:** A3.9, A5.5, A18.1.
-
-**Tasks:**
-
-1. `T2.4b.1` **H1 (`PLT-04`).**
-   Twenty minutes of the costliest S scene that passed, at 60 frames, unplugged, in flight mode and after the phone has cooled, with heat, power and frames read every 2 s.
-2. `T2.4b.2` **The line and the step, and delivery (`PRE-01`, `PLT-04`).**
-   If the phone stays cool, the line may rise; if the picture alone heats it, the line comes down for good or the one planned, logged step under heat is chosen among the savings that pass your blind test (A5.5); the decision goes into A18.1; deliver as 30402.
-
-**Tests:**
-- The pass lines, stated now: the 10-second forecast never reaches the phone's light threshold less 0.05; the thermal status stays at none; the battery ends at or below 40 °C; the whole phone averages at most 4.0 W; every minute has at least 97% of frames on time.
-- The heat step, if chosen, is logged each time it acts and has passed your blind test.
-
-**On the phone:** with the phone cool, unplugged and in flight mode, start Heat on Bench and leave it 20 minutes; send the code.
-
-### α2.5a The hours
-
-**Goal:** the camp at dawn, true midday, dusk and night, each beside a target relit from the picture you approve for the camp.
-
-**Serves:** `PRE-20`, `PRE-30`, `PRE-31`.
-
-**Architecture:** A4.3, A5.5, A5.6.
-
-**Tasks:**
-
-1. `T2.5a.1` **The camp's targets (`PRE-31`).**
-   The camp's anchor picture, approved by you: first light's frame repainted, or a target you chose, its truth checked; relit by GPT to dawn, true midday, dusk, night and winter, each vetted; their numbers into the card's bands.
-2. `T2.5a.2` **The hours (`PRE-30`).**
-   The sun's colour by its height, the sky's fill, the moon by its phase, firelight pools at night halving within about 2 m, haze at dawn; a colour table for each moment, blended as the sun moves; the light held steady at speed.
-3. `T2.5a.3` **The checks, and delivery (`PRE-20`).**
-   An Hours switch on the Look page; the card and the banding check on each moment; deliver as 30501.
-
-**Tests:**
-- The card's bands for each moment (A4.3's table) on the engine's frames; across a moonlit slope with debanding, no step wider than the dither hides.
-- A day passing in under 10 seconds keeps the light steady (its change from frame to frame below a stated amount).
-- The grade's cost: colour correction on and off, one colour table against two blended.
-- Passes if all pass; each moment's look is your verdict against its target.
-
-**On the phone:** step the camp through dawn, noon, dusk and night beside each target, at your usual brightness and a fixed colour mode, and say which feel right, whether the darks band, and whether people read by firelight.
-
-### α2.5b Seasons and weather
-
-**Goal:** the camp in winter, spring and autumn, in rain's four layers, a storm and lake mist, with a stress scene for each.
-
-**Serves:** `PRE-20`, `PRE-26`, `PRE-30`, `PLT-04`.
-
-**Architecture:** A4.3, A4.5, A18.1.
-
-**Tasks:**
-
-1. `T2.5b.1` **Seasons (`PRE-20`, `PRE-30`).**
-   Snow on faces turned up by slope and shelter, trodden on paths, cream in sun and blue in shade, melted round the hearth, over clear water; autumn's colour as the field; spring's; each plant's season state.
-2. `T2.5b.2` **Weather (`PRE-26`, `PRE-30`).**
-   Rain's four layers, a storm with lightning's flash and bolt, lake mist in banks, and falling snow, from a weather setting that stands in for M3's weather.
-3. `T2.5b.3` **Stress scenes, and delivery (`PLT-04`).**
-   S4, a village of huts at night with sixteen fires and about ninety people in view; S5, the storm with a burning oak; S6, winter; S7, the lake in mist with reeds and canoes; S8, the autumn wood with people and falling leaves; with α2.4a's pass lines; deliver as 30502.
-
-**Tests:**
-- α2.4a's pass lines for S4 to S8, and the card's bands for winter and rain.
-- Passes if all pass; each season's and weather's look is your verdict.
-
-**On the phone:** step through the seasons and weather on Look; run the new scenes from Bench and send the code.
-
-### α2.6a The zoom bands
-
-**Goal:** the zoom from the person out to the camp, each band's textures and small things drawn for it, so the ground never speckles and small plants keep their charm.
-
-**Serves:** `PRE-03`, `PRE-22`, `PRE-28`, `PRE-46`, `PLT-04`.
-
-**Architecture:** A4.2, A5.3, A5.4, A6.1, A6.3, A8.3.
-
-**Tasks:**
-
-1. `T2.6a.1` **Every material's levels (`PRE-22`).**
-   Every material's designed levels for the bands it is seen at, the big surfaces redrawn by GPT from the level above and matched by code, the rest by code; each checked for accents and drift; the blend between bands.
-2. `T2.6a.2` **Small things by band (`PRE-46`).**
-   Each plant form's designs for bands 1 and 2, with flowers and berries kept at least one texture pixel; plants below 12 screen pixels into the ground's band texture; the meadow strip three ways (shrunk, filtered, designed), for your eye.
-3. `T2.6a.3` **Figures by size (`PRE-28`).**
-   The simple, small, tiny and marker forms (A6.3), the small form drawn to read with its outline shell growing from nothing at about 50 pixels; the baked pose library for crowds; trees' far crowns.
-4. `T2.6a.4` **The camp zoom, and delivery (`PRE-03`, `PLT-04`).**
-   The pinch from 8 m to about 300 m across, the bands' changes measured at fixed points; S9, the camp in thick forest at the camp zoom with the camera turning, at most 6 ms of the graphics chip; deliver as 30601.
-
-**Tests:**
-- Ground accents at every band at least about 20 and at least 90% of band 0's; the texture pixel 1.5–3 screen pixels at every zoom stop; shimmer through a slow pinch at most 2 in 100 pixels; a camp of 30 readable at every zoom stop, with no jump as its forms change (`PRE-28`).
-- Passes if all pass; the meadow strip and the close camp's ground are your verdict.
-
-**On the phone:** pinch from the person out to the camp and back over the meadow, the cliff and the camp, and say whether any band change pops or swims; compare the meadow strip's three ways, and the far ground with and without grain at true size; the close camp's ground at three accent levels, whose yes or no sets the accent line.
-
-### α2.6b People in busy scenes, landscape and M2's end
-
-**Goal:** every person found at a glance in the busy scenes by real light and movement, the engine in landscape, the contact sheet, and M2's report for your review.
-
-**Serves:** `PRE-28`, `PRE-31`, `PLT-02`, `PLT-04`, `RES-06`, `RES-22`, `VIS-14`.
-
-**Architecture:** A4.8, A5.5, A15, A18.
-
-**Tasks:**
-
-1. `T2.6b.1` **The busy scenes (`PRE-28`).**
-   An autumn wood, a crowded camp and a night camp, with people moving at their tasks in sun and shade; the salience check on each; a timed find on the phone, tapping every person, aiming at about a second each; your yes or no on ten close-camp crops sets the readability line; help drawn only for your eye comes only if the find falls short, and then with your OK (A5.5).
-2. `T2.6b.2` **Landscape (`PLT-02`).**
-   The engine in landscape with the interface beside it; turning the phone keeps the world, the camera and the texture pixel's size.
-3. `T2.6b.3` **The contact sheet (`PRE-31`).**
-   Made on the phone from fixed saved scenes: each near zoom stop at noon and dusk in portrait, one landscape view, the model sheet, three short clips of people at work, and the busy scenes and camera clips the look's checks are judged on.
-4. `T2.6b.4` **M2's end (`RES-06`, `RES-22`, `VIS-14`).**
-   Deliver as 30602; the independent review of the whole milestone, judging as a pixel artist and a game art director against the targets you chose; M2's report with the phone's numbers, the contact sheet and what went right and wrong; M3 planned in detail and its architecture written in full, for your OK.
-
-**Tests:**
-- In the busy scenes the median person at about the 80th percentile of salience or above and none below about the 70th (starting lines, refitted on your verdicts), and your timed find of every person.
-- Turning the phone keeps the world, the camera and the texture pixel's size, with no reload (`PLT-02`).
-- Every earlier check and scene still passes; the contact sheet meets every Done when of 11.1 and 11.2 that M2 builds, judged by the review and then by you (`PRE-31`).
-
-**On the phone:** find every person in each busy scene; turn the phone; look through the contact sheet; then M2's report, for your review.
+- Expanded art reaches its signed-off sheets, including materials, wear, style, seasonal silhouettes, animation and each art step.
+- Busy scenes retain readability, lit edges/contact, water bed/reflections and the approved reveal without changing physical state.
+- Ported scripts, data, build entries and registrations contain no live runtime-3D dependency; old save corpus and accepted M1 proofs still pass.
+- Both-phone frame/heat/memory lines still hold where art changes affect them; all required earlier scenes and checks pass at delivery.
+- Contact sheet meets every applicable M2 Done when, judged independently and then by the owner; later world and archaeology promises stay mapped.
+
+**On the phone:** explore the expanded camp through hours, seasons and weather, find every person, and view the art sheets and clips in both orientations.
+Read the report with both phones' numbers and M3's plan, then accept M2 or send it back.
+
+#### Migration rules
+
+This is planned M2 work, not code deletion in the document update.
+Port each caller and test before removing its old drawing path.
+
+| Keep | Replace | Delete once replacements pass |
+|---|---|---|
+| M1 simulation, exact arithmetic/chance, IDs/events/activities, workers, catalogues, scenes, saves and proofs | Add sprite look schemas and later physical surface fields through existing versioned mechanisms | Only obsolete 3D look fields and unused serializers; no foundational subsystem |
+| World lifecycle, snapshot transfer, activity sampler, pace and native management controls | One consumer with owned sprite/surface records and epoch/revision handling | No accepted M1 service merely because graphics changed |
+| Stage ownership, pan/pinch input, nearby origins, timings, heat/device/calibration services | Fixed projection, canvas controller, visible 2D draw lists and named 2D counters | Twist routes, turn tours, perspective scenarios, 3D transform submission and unused drawing handles |
+| River/bed fixture functions, stable look fields, useful contact/openness/horizon algorithms and tests | Projected surface patches, drawn ground edges, explicit layered receivers and logical casters | Mesh uploads, triangle-image wrappers, flat-only sun path and duplicate shader terrain shape |
+| Checked texture reading, image validation and upload helpers | Separate authored families, complete repaired reductions, aligned masks/normals and sprite packing | Old 3D ground-ladder assumptions and unused packing paths |
+| Catalogue concepts, original art, source rigs, records and approvals | Sprite body/clothing/action catalogue, frames and attachments | Runtime Blender assembly, bones, poser/skinning, mesh kit draw and required kit exports |
+| Review layouts, fixture ideas, UI pages, data inspection, save/export/import, time controls and reports | 2D fixture pages/shaders, native UI outside the world viewport, Compatibility/Mobile variants and coherent bindings/build entries | Unused 3D camera/light pages, spatial shaders, prepasses, leaf coverage, bone palettes, mesh helpers and unused companion assets |
+| Setup, exact builds, Android packaging/signing, scene/samebits/kill checks, capture and art/provenance tools | Asset build, fixtures, atlas/pivot/mask/season checks and sprite calibration data | Old mandatory Blender-part production lane and unused mesh/kit entries, only after migration |
+
+Do not delete source sheets, raw art, useful optional offline rigs or historical performance records.
+A page, its scripts, data, shader, extension registrations and build entries change coherently.
+The build and data checks find remaining references before cleanup.
 
 ## M3 The world
 
@@ -722,7 +559,7 @@ Each step lists the pictures it asks GPT for; GPT stays outside the build (A5.4)
 - The first bands at their camps: gathering, drinking, carrying, resting and sleeping by a found fire.
 - People falling ill and getting better, hurt by a fall or a wolf, pairing, giving birth, growing old and dying.
 - Each with a name, and on their card what they are doing and why.
-- Little figures of blocks, each activity with its own movement.
+- Pixel-art figures, each activity with its own movement, extending M2's approved frames.
 
 **Risks:**
 - Thousands of people at speed on the phone (`MND-15`, `TIM-07`): a thousand simple minds kept 6 game years a real minute.

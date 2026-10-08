@@ -424,7 +424,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 
 - `PRN-14` **Modular by design** *(Decided)*
   - **What:** Every system grows by adding self-contained pieces (items, blueprints, plants, animals, illnesses, behaviours, views, tests), and never rewrites what already works without a stated reason.
-  - **Example:** Adding a new animal later needs one catalogue entry, with its model, sounds and tests.
+  - **Example:** Adding a new animal later needs one catalogue entry, with its art, sounds and tests.
     Hunting, taming and herding already work for it, because their rules never named a species.
   - **Check:** every milestone report lists what was added and confirms that nothing earlier had to be rewritten, or explains why it had to be.
 
@@ -468,7 +468,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
     *Now possible:* seeing on your phone that the game can be made as this file describes.
   - `MIL-08` **Foundations** *(Decided)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
-  - `MIL-09` **The graphics engine** *(Decided)*: a sharp 3D world at the screen's full resolution wearing pixel-art textures (`PRE-01`, `PRE-02`) that goes well beyond the art book's pictures, which were preliminary, toward the pictures you liked: steady texture pixels (`PRE-22`), edges by light and shade (`PRE-21`), colour by design with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and the model kit, its shapes made in Blender as parts and put together like Lego (`PRE-46`, `PRE-42`, `PRE-43`), its textures made by code, by the world, or prepared by code from pictures you approved, each traced to its picture, prompt and your approval.
+  - `MIL-09` **The graphics engine** *(Decided)*: a fully 2D pixel-art world with a fixed camera (`PRE-01`, `PRE-02`), toward the pictures you liked: steady texture pixels (`PRE-22`), edges by light and shade (`PRE-21`), colour by design with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and a countable art kit (`PRE-46`, `PRE-42`, `PRE-43`), with people, animals, plants and things drawn for their size on screen, each traced to its source and your approval.
     *Now possible:* the game's own scenes drawn by the engine, in portrait and landscape, which you judge as the bar for everything built on them.
   - `MIL-10` **The world** *(Decided)*: whole worlds generated from a seed in the order of real causes (`WLD-08`, `WLD-09`), the best three offered (`WLD-10`); the map layers, and detail made on demand (`WLD-12`, `WLD-13`); the sky, climate and weather, fresh water, seas and soils (`WLD-07`, `WLD-16`, `WLD-17`, `WLD-26`, `WLD-27`); quakes and eruptions (`WLD-15`); one zoom from a cliff face to the globe (`PRE-03`, `WLD-02`), and the cut-away view (`PRE-25`).
     *Now possible:* making a world, choosing it, and flying over it through its weather and seasons.
@@ -1036,7 +1036,7 @@ Discovery, practice and teaching are in Minds (`MND-06`, `MND-11`, `MND-13`).
 - `MAT-10` **Items** *(Decided)*: An item is a kind of thing in the catalogue, such as flint, sharp flake or sewn cloak: about 190 at launch.
   - **How it works:**
     - **About 90 raw,** each with its 18 values, class, size and a look drawn from its form's shared shape (`PRE-46`); species that yield alike share them.
-    - **About 100 made,** each with its form, main material, changes (`MAT-03`), what it breaks into, and its model and icon (`MAT-21`).
+    - **About 100 made,** each with its form, main material, changes (`MAT-03`), what it breaks into, and its drawing and icon (`MAT-21`).
     - **Also listed:** foods that taste mild despite their poison (`MND-21`), and how much of the body a garment covers (`BIO-11`).
     - **A thing** is one item in an area (`WLD-12`), with its own size, state (never a new item, `MAT-19`), wear, quality (`MAT-20`), maker, date and style (`PRE-43`); a heap of small things is one thing.
   - **Done when:** the Complete check passes (`MAT-17`).
@@ -1198,7 +1198,7 @@ Discovery, practice and teaching are in Minds (`MND-06`, `MND-11`, `MND-13`).
   - **Example:** a flake (strike) makes a scraper (press); a fresh hide scraped (scrape) and dried on a frame (dry) is bedding; greased (apply) and rubbed soft (press), a wrap; cut (cut), pierced with an awl (drill) and sewn with sinew thread (bind), a cloak, warmth 3, or 5 with the fur on (`RCK-26`).
   - **Done when:** the chain runs end to end in a scene (`RES-23`), and a band that knows every step but the scraper stalls there or finds another route.
 
-- `MAT-21` **Named discoveries** *(Decided)*: Every named result has a name, an icon and its action's sound (`SND-06`); a new thing also has a model (`PRE-46`), and a change shows on what it changes (`PRE-42`).
+- `MAT-21` **Named discoveries** *(Decided)*: Every named result has a name, an icon and its action's sound (`SND-06`); a new thing also has a drawing (`PRE-46`), and a change shows on what it changes (`PRE-42`).
   A people's first noticed success (`MND-10`) at making one is a named discovery, written in the book of ages.
   - **How it works:** each result has an English name and each people's own word, coined at its first success (`CUL-18`).
     The entry gives who, when, where, by which route (`MND-11`), from what, and the word (`PRE-05`); a timer's unmeant result counts too, for whoever notices it first (`MND-11`, `MOM-12`).
@@ -2015,7 +2015,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 ### 10.6 Expression
 
-- `CUL-09` **Visual art** *(Decided)*: Paintings and carvings composed from motifs drawn from the model kit (`PRE-46`) in each people's style, most often showing real events.
+- `CUL-09` **Visual art** *(Decided)*: Paintings and carvings composed from motifs drawn from the art kit (`PRE-46`) in each people's style, most often showing real events.
   - **How it works:**
     - **What is shown:** one of the maker's strongest memories, often a hunt, a death or a flood, or a myth (`CUL-11`): 1–8 motifs for its real animals, people and things, in a row, a ring or a scatter as the style says (`CUL-12`), numbers shown roughly (three deer for a herd).
     - **Skill:** low art skill gives fewer motifs, rough lines and one colour; high skill more motifs, clean lines and up to three colours (`MND-06`), from the pigments at hand, ground green ore among them (`RCK-15`, `MAT-19`).
@@ -2064,32 +2064,41 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
 
 The look, written to stand without any image.
 
-- `PRE-01` **Pixel-art surfaces** *(Decided)*: Everything on screen is a sharp, detailed 3D world drawn at the screen's full resolution, whose every surface wears a texture painted as pixel art (`PRE-22`), under smooth light (`PRE-30`); nothing blurs the texture pixels.
+- `PRE-01` **Pixel art** *(Decided)*: The world is fully 2D pixel art, sharp and detailed, under rich changing light (`PRE-30`).
+  At the reference portrait size of 1080 × 2400 screen pixels, each world pixel is a crisp 2 × 2 square (`PRE-22`); text and controls stay sharp at the screen's full resolution.
+  Only a live pinch may briefly resample the world picture.
   A saving made to fit the phone (`PLT-04`) stays only where you cannot tell it from the full picture in a blind test on your phone.
-  - **Done when:** at every zoom stop, texture pixels show as crisp squares of 1.5 to 3 screen pixels and nothing in the world is blurred, and every saving in the build has passed its blind test, recorded with its pictures.
+  - **Done when:** at every zoom stop, world pixels show as crisp 2 × 2 squares at the reference size and nothing in the resting world picture is blurred, and every saving in the build has passed its blind test, recorded with its pictures.
 
-- `PRE-02` **Pixel-textured 3D** *(Decided)*: A real 3D world drawn at the screen's full resolution with pixel-art textures, so it looks like hand-made pixel art with real depth, scale and structure; the camera turns freely and zooms continuously.
-  - **Done when:** `PLT-04`'s benchmark worlds stay smooth at every zoom stop as the camera turns.
+- `PRE-02` **Fixed camera** *(Decided)*: A fully 2D world that shows believable depth, scale and structure.
+  The local camera faces north at exactly 37° above the horizon, and never rotates or tilts as you zoom.
+  - **Done when:** `PLT-04`'s benchmark worlds stay smooth at every zoom stop while you pan and pinch, and local views keep the same angle.
 
 - `PRE-20` **Colour by design** *(Decided)*: Every material is painted as pixel art in its own shades, made from its colour (`MAT-10`) or by hand for common ones, lights warm and shades cool, and the light (`PRE-30`) falls on it smoothly.
   Its texture is quiet, of marks two or more texture pixels wide that show what it is made of, and carries no sunlight from one side.
   Strong colour stays in small accents, except where the season itself is the colour, as in autumn, and each biome, hour and season has its colour plan.
   - **Done when:** no surface turns to speckle at any zoom stop on your phone, and in a summer daylight scene strong colour stays in small accents.
 
-- `PRE-21` **Edges and contact** *(Decided)*: Up close nothing is outlined: things stand apart by their light, shade and colour.
+- `PRE-21` **Edges and contact** *(Decided)*: Up close, visible things stand apart by light, shade and colour, with no drawn outline; obscured band members use the reveal of `PRE-28`.
   A bright edge shows where the sun, the sky or a fire catches a shape (`PRE-30`), such as a cliff's sunlit rim or a person's fire-facing side, and corners, undersides and the ground where things stand darken.
-  Small, far figures are outlined (`PRE-28`).
-  - **Done when:** at the person and close camp zooms no shape has a drawn outline, and every figure in sun or firelight shows its lit edge and its contact shade.
+  Small, far figures and obscured band members use the quiet treatments of `PRE-28`.
+  - **Done when:** at the person and close camp zooms no unobscured shape has a drawn outline, and every figure in sun or firelight shows its lit edge and its contact shade.
 
-- `PRE-22` **Steady texture pixels** *(Decided)*: Texture pixels never crawl, flicker or shimmer, with the camera still, panning, turning or zooming: each stays a crisp square that moves with its surface.
-  A texture pixel shows as about 2 by 2 screen pixels at every zoom: about 64 a metre at the person zoom, and each zoom band farther out has its own textures, drawn as pixel art at half the density of the band before, never shrunk, and blended so nothing pops; so small things are drawn more simply as you zoom out, in portrait and landscape.
-  - **Done when:** with the camera still, frames change only where something moved; while it pans, turns or zooms smoothly, no more than 2 in 100 pixels flicker beyond what the movement explains; a texture pixel measures 1.5 to 3 screen pixels at every zoom stop; and you see no shimmer in the review's clips on your phone.
+- `PRE-22` **Steady world pixels** *(Decided)*: Pixels never crawl, flicker or shimmer with the camera still or panning.
+  Every resting zoom has crisp squares, about 2 by 2 screen pixels, in portrait and landscape.
+  Near, middle and far art is drawn at 64, 16 and 4 world pixels a metre, with reviewed and repaired reductions for the steps between and beyond.
+  Small things become simpler as you zoom out, keeping their important shapes and accents.
+  A pinch moves smoothly, then settles on a crisp zoom step without a jump in the place you were looking at.
+  - **Done when:** with time frozen and the camera still, frames are identical; while it pans or pinches, no more than 2 in 100 pixels flicker beyond what the movement explains; pixels are crisp at every resting zoom; and you see no shimmer in the review's clips on your phone.
 
 - `PRE-23` **Rock faces** *(Decided)*: Cliffs show the rock layers where they stand (`WLD-09`), which go on underground (`PRE-25`): layers of different thicknesses, cracks and fissures, lichen and water stains where the face is wet (`WLD-16`), soot above lived-in caves (`MAT-18`), grass hanging over the top and scree at the foot.
   - **Done when:** cliffs of three kinds of rock show their own layers, and a cave lived in for 10 years shows soot.
 
-- `PRE-24` **Real shapes** *(Decided)*: Overhangs, caves, rock shelters and buildings have real depth, as part of the ground's shape (`WLD-12`) or from their models (`PRE-46`), lit inside only by openings and fires (`PRE-30`).
-  - **Done when:** circling a cave and a hut at close camp zoom, you see into both, dark but for openings and fire.
+- `PRE-24` **Height and shelters** *(Decided)*: Continuous slopes, cliffs, simple rock shelters and buildings show their depth and their place in the ground (`WLD-12`).
+  Interiors are lit only by openings and fires (`PRE-30`).
+  Shallow cutaways show occupied shelters; deep caves have a separate view reached through their entrance.
+  Several overhangs stacked above one another come later.
+  - **Done when:** feet meet slopes and shelter floors, a shallow cutaway shows a shelter and a hut inside, dark but for openings and fire, and a deep cave opens in its own view.
 
 - `PRE-25` **Cut-away view** *(Decided)*: The ground can be sliced open along a line you choose, showing rock layers (`WLD-09`), soil (`WLD-27`), water in the ground (`WLD-17`), and hearths, tools, bones and graves where they were buried (`MAT-08`).
   - **Done when:** a slice through a camp left 200 years before shows its hearth, bones and tools at their depths.
@@ -2098,16 +2107,19 @@ The look, written to stand without any image.
   Shallow water shows its bed, deeper water darkens away from the shore, and a thin bright line marks where water meets land or anything standing in it.
   - **Done when:** every river is at least 2 screen pixels wide from valley zoom inward, and farther out those draining about 1,000 km² or more (tuned).
 
-- `PRE-27` **People and animals** *(Decided)*: Detailed 3D figures, with a separate head, torso, arms and legs that bend at the joints, posed about 10 times a second (`PRE-44`), wearing the world's pixel-art textures: up close their faces, hair, seams, trims and wear read, as in the pictures you liked, and each zoom band has its own drawing of a face.
-  - **How it works:** a figure is built from its body's parts (`BIO-13`) and looks (`BIO-08`, `BIO-22`), wearing and carrying what the person has (`PRE-42`), with their strongest feeling on its face (`MND-19`); animals use their body pattern (`PRE-46`).
+- `PRE-27` **People and animals** *(Decided)*: Detailed pixel-art figures, animated for their activities (`PRE-44`): up close their faces, hair, seams, trims and wear read, as in the pictures you liked, and each zoom band has its own drawing of a face.
+  The first set has four drawn facings; one animal tests eight before any wider adoption.
+  - **How it works:** a figure shows its body's condition (`BIO-13`) and looks (`BIO-08`, `BIO-22`), wearing and carrying what the person has (`PRE-42`), with their strongest feeling on its face (`MND-19`); animals use their body pattern (`PRE-46`).
     Of the body it shows only build (thin, average or stout), age (grey hair, a bent back), a limp or a sling, a pale dressing or splint, scars or pox marks as a few darker pixels, and blood at the Show level (`PRE-18`).
   - **Done when:** at person zoom, each body sign above shows, and build, age and clothing tell people apart.
 
 - `PRE-28` **Readable from far away** *(Decided)*: Zooming out, people and animals become small figures drawn to read: outlined in a darker shade of their own colour, faces and light clothes kept light, tools drawn larger; a group or herd close together becomes one marker, and a camp a point at its hearth that glows if it has a fire.
-  Up close, people are among the first things you see in any scene, helped only by light from the sun, the sky and fires, and by their movement: nothing in the world is changed to make them stand out.
-  - **Done when:** a camp of 30 people stays readable at every zoom stop, with no jump as its forms change, and in the review's busy scenes (an autumn wood, a crowded camp, a night camp) you find every person at a glance as they move.
+  Up close, people are among the first things you see in any scene, helped by light from the sun, the sky and fires, and by their movement: nothing in the world is changed to make them stand out.
+  Crowns and roofs covering the selected person fade, as do roofs of occupied shelters; other obscured band members show as quiet silhouettes.
+  This reveals the picture without changing the shelter or anyone's knowledge.
+  - **Done when:** a camp of 30 people stays readable at every zoom stop, with no jump as its forms change, and in the review's busy scenes (an autumn wood, a crowded camp, a night camp) you find every person at a glance as they move, including those under crowns or roofs.
 
-- `PRE-29` **From above** *(Decided)*: As the camera rises it tilts toward straight down, and the land shows what can be seen from above at every height, vivid and textured to the pixel: forests as clumps of crowns, grassland, deserts, rock and snow in their own colours (`WLD-12`), hills shaded, rivers as lines, the sea from deep blue to turquoise shallows with its currents, the clouds of the weather and their shadows (`WLD-16`), and at the top the globe (`WLD-02`); overlays sit on it (`PRE-07`).
+- `PRE-29` **From above** *(Decided)*: Wider local views give way to an overhead map and then a globe picture, vivid and textured to the pixel: forests as clumps of crowns, grassland, deserts, rock and snow in their own colours (`WLD-12`), hills shaded, rivers as lines, the sea from deep blue to turquoise shallows with its currents, the clouds of the weather and their shadows (`WLD-16`), and at the top the globe (`WLD-02`); overlays sit on it (`PRE-07`).
   It is lit by the sun where the hour and season put it.
   - **Done when:** rising from valley to globe, the view changes without a jump, and coasts and rivers stay visible.
 
@@ -2117,7 +2129,7 @@ The look, written to stand without any image.
   A fire is a warm, flickering light as bright as its heat (`MAT-18`), warming nearby faces, glowing, and sending up smoke and embers.
   - **Done when:** one place at dawn, noon, dusk and night, in summer and winter, shows its light and its shadows.
 
-- `PRE-03` **Seamless zoom** *(Decided)*: One continuous zoom from the globe down to one person chipping flint, through these stops, each with its speed in `TIM-01`:
+- `PRE-03` **Seamless zoom** *(Decided)*: One smooth pinch journey from the globe down to one person chipping flint, settling on crisp zoom steps, through these stops, each with its speed in `TIM-01`:
   - **person:** about 8 m across in portrait, a standing adult about 200 screen pixels and about 100 texture pixels tall;
   - **close camp:** about 20–50 m, a person about 35–90 screen pixels tall, every figure in full;
   - **camp:** a few hundred metres, people as tiny figures (`PRE-28`);
@@ -2126,42 +2138,45 @@ The look, written to stand without any image.
     People, herds, camps and buildings show at every distance (`PRE-28`), and a full area being made shows its coarse ground until its detail fades in, within about a second.
   - **Done when:** a pinch from globe to person over unvisited land never stalls, and full detail is in within about a second.
 
-- `PRE-31` **Visual review** *(Decided)*: At every milestone stage the look is reviewed on a contact sheet made on the phone, on one page, from fixed saved worlds: each zoom stop at noon and dusk in portrait, one landscape view, the model sheet (`PRE-46`), three short clips of people at work, clips of the camera panning, turning and zooming (`PRE-22`), and the busy scenes of `PRE-28`.
+- `PRE-31` **Visual review** *(Decided)*: At every milestone stage the look is reviewed on a contact sheet made on the phone, on one page, from fixed saved worlds: each zoom stop at noon and dusk in portrait, one landscape view, the art sheet (`PRE-46`), three short clips of people at work, clips of the camera panning and pinching (`PRE-22`), and the busy scenes of `PRE-28`.
   - **Check:** the contact sheet meets every Done when of 11.1 and 11.2, judged by the review and then by you (`PRC-10`).
 
 ### 11.2 Things and movement
 
-- `PRE-42` **Built from their materials** *(Decided)*: Each thing is drawn from its model, whose parts take the colours and shapes of the materials used: a hut of birch poles and hides looks pale and brown, one of reeds straw-yellow, and more poles make a bigger hut.
-  - **How it works:** parts are sized by the amount used (`PRE-46`), and icons come from the same model.
+- `PRE-42` **Built from their materials** *(Decided)*: Each thing's drawing shows the colours and shapes of the materials used: a hut of birch poles and hides looks pale and brown, one of reeds straw-yellow, and more poles make a bigger hut.
+  - **How it works:** the drawing shows the amount used (`PRE-46`), and its icon shows the same thing.
     States, wear and quality show on it: meat darkens as it dries, edges chip, bindings fray (`MAT-19`, `MAT-20`); a change to ground or a body shows there, such as a sown plot or a dressing.
-  - **Done when:** every new thing a named result makes has its model, and two routes in different materials look clearly different, huts at close camp zoom.
+  - **Done when:** every new thing a named result makes has its drawing, and two routes in different materials look clearly different, huts at close camp zoom.
 
-- `PRE-43` **Variety** *(Decided)*: No two things look quite alike: each varies a little in proportions, lean, wear and colour by its own seed, within its model's limits, and looks the same each time.
-  Its maker people's style (`CUL-12`) sets its proportions, lean and colours within each material's shades (`PRE-20`), and puts their pattern, one of about 12 (notches, bands, dots, zigzags, fringes, painted rings), on the parts its model marks as decorated, as much as the style says.
+- `PRE-43` **Variety** *(Decided)*: No two things look quite alike: each varies a little in proportions, lean, wear and colour by its own seed, within its design's limits, and looks the same each time.
+  Its maker people's style (`CUL-12`) sets its proportions, lean and colours within each material's shades (`PRE-20`), and puts their pattern, one of about 12 (notches, bands, dots, zigzags, fringes, painted rings), on the parts its design marks as decorated, as much as the style says.
   Trees, bushes, rocks and ground cover vary the same way, without style (`WLD-31`).
   - **Done when:** at person zoom, things of two peoples, or of one people 100 years apart, are clearly told apart.
 
-- `PRE-44` **Animations** *(Decided)*: Every activity has its own movement, posed about 10 times a second, so you can tell who is knapping or dancing.
-  - **The list:** the base actions (`MAT-06`), heat with a variant for blowing on a fire, the everyday activities (`BIO-21`), and wading, swimming, climbing, rage, despair, nursing or carrying a baby, lying hurt and lying dead: about 45 movements, each a loop of 2–6 key poses, as long as the activity (`TIM-17`).
+- `PRE-44` **Animations** *(Decided)*: Every activity has its own animated drawing, so you can tell who is knapping or dancing.
+  The first set has a six-frame walk, a few work actions and a small clothing set; later milestones fill out the list below.
+  - **The list:** the base actions (`MAT-06`), heat with a variant for blowing on a fire, the everyday activities (`BIO-21`), and wading, swimming, climbing, rage, despair, nursing or carrying a baby, lying hurt and lying dead: about 45 movements, each a loop drawn from 2–6 key poses, as long as the activity (`TIM-17`).
   - **Social acts** (`MND-33`) are talking plus one of about 8 gestures: pointing, giving, embracing, pushing, a raised fist, waving away, holding hands, stroking.
   - **Dances** are 8 moves (step, stamp, turn, sway, crouch, leap, clap, arms raised), strung as `CUL-10` says; rites (`CUL-34`) use movements on the list, done together.
-  - **Variants** are a few rules that bend any movement, never new animations: children quicker, elders stooped and slower; a limp or a still arm from a wound (`BIO-13`); grief slumps, fear quickens, anger stiffens (`MND-19`); cold hunches; skill steadies the strokes (`MND-06`).
+  - **Variants** keep the same activity readable: children quicker, elders stooped and slower; a limp or a still arm from a wound (`BIO-13`); grief slumps, fear quickens, anger stiffens (`MND-19`); cold hunches; skill steadies the strokes (`MND-06`).
     Each figure's timing is offset by its seed, so a crowd never moves in step, except dancers and singers keeping a shared beat (`MND-26`).
   - **Animals:** one set per body pattern (`PRE-46`), timed by the species' size and speed: stand, walk, run, feed, drink, rest, sleep, play, fight, call, fall, and swim or fly.
   - **At speed,** each figure keeps showing its activity at a steady pace (`TIM-01`).
   - **Done when:** every movement reads at person zoom; at close camp zoom, standing and ground work, carrying, walking, resting, fighting and dancing are told apart.
 
-- `PRE-46` **The model kit** *(Decided)*: Everything in the world is drawn from one fixed kit, so the content stays countable.
-  - **Parts like Lego:** every shape is a part made in Blender, which you can open and change; recipes put parts together, varied in size, count, angle, material and wear, so a few hundred parts make thousands of things.
-  - **Shared shapes,** one per form (`MAT-02`), stretched to a thing's size and coloured by its material: raw items need no model of their own, and ground cover is drawn by the patch (`WLD-31`).
-  - **Made things:** a model is a layout of parts, each from the shared shape of the input that made it (`MAT-04`); only a part no shape fits, such as a pot's body or a blade's outline, is drawn for the model, and states need none (`MAT-19`).
+- `PRE-46` **The art kit** *(Decided)*: Everything in the world is drawn from one fixed kit, so the content stays countable.
+  - **Shared designs:** editable pixel-art bodies, garments, attachments, plants, shelters and things, varied in size, material, wear and style, so a few hundred designs make thousands of things.
+  - **Shared shapes,** one per form (`MAT-02`), drawn to a thing's size and material: raw items need no design of their own, and ground cover is drawn by the patch (`WLD-31`).
+  - **Made things:** a drawing shows the parts and materials of the inputs that made it (`MAT-04`); only a part no shared design fits, such as a pot's body or a blade's outline, needs a new design, and states need none (`MAT-19`).
   - **Shelters:** several types, each a layout of parts true to what excavations show, so the routes to huts (`MAT-07`) look different.
   - **Plants:** about 8 forms (needle tree, broad-leaved tree, bush, grass or grain, herb or flower, reed, root plant, fungus); a species sets its height, crown and colours by season and stage (`WLD-31`).
   - **Animals:** about 6 body patterns (hoofed, padded, small and quick, bird, fish, legless reptile); a species is its proportions and colours, with antlers, horns or tusks (`WLD-32`).
   - **People:** one figure (`PRE-27`) with about 8 kinds of garment, in child and adult sizes, and hair, beads and paint in each people's style (`CUL-12`).
-  - **Pictures and figures:** a painting or carving shows each animal, person or thing as its model seen from the side, drawn flat in its people's style (`CUL-09`, `CUL-12`), and a carved or clay figure is the model itself, small, in its material; only about 12 signs, the small designs of each band and the faces, also the patterns of `PRE-43`, are drawn by hand.
+  - **Pictures and figures:** a painting or carving shows each animal, person or thing as a side-view motif in its people's style (`CUL-09`, `CUL-12`); a carved or clay figure uses the same design, small, in its material.
+    About 12 signs, faces and each band's small designs, also the patterns of `PRE-43`, complete the kit.
   - **Sizes:** anything small (ground cover, flowers, leaves, faces, held tools) has a design for each zoom band, drawn for that size and never only shrunk; flowers, berries and eyes stay at least one texture pixel.
-  - **Done when:** every launch thing, plant and animal is drawn from the kit, shown on a model sheet in two materials.
+  - **Done when:** every launch thing, plant and animal is drawn from the kit, shown on an art sheet in two materials.
+    Before bulk art, you approve six pieces in the running engine: a person, animal, tree, boulder, ground and shelter, with the pending approvals and missing seasonal shapes resolved.
 
 ### 11.3 On the screen
 
@@ -2371,18 +2386,20 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
     - **Stage budgets:** at the close of `MIL-12` to `MIL-17`, the 1,000-person world, with what the game has so far, runs at least 2.5, 2, 1.7, 1.5, 1.5 and 1 game years a real minute.
       A stage that misses names its biggest cost and wins it back by the next stage close, or brings it to you.
     - **Shares:** the world's own layers at most about 0.2 s per game day, so the world alone reaches 10 game years a minute on two cores; animals near people within each person's budget (`MND-15`); making areas at most a tenth of the simulation's time.
-    - **Smooth:** with the world running, at least 97% of frames on time while zooming, panning and turning, at every zoom, and none more than 50 ms late (`PRN-11`).
+    - **Smooth:** target 60 frames a second, with a 30-frame mode that keeps the same world pixel size.
+      With the world running, at least 97% of frames on time while pinching and panning, at every zoom, and none more than 50 ms late (`PRN-11`).
     - **Memory:** within about 8 GiB (`PLT-01`), with kept areas at most about 1 GiB in a full pace-test world at Year 250 (`WLD-12`).
     - **Storage:** within the target of `PLT-10`.
     - **Sound:** the 32-sound mix within its limit (`SND-01`).
     - **Battery and heat:** an hour's play uses about 25–30% of the battery, and the phone never gets uncomfortably hot.
     - **Opening and land:** your world opens in about 3 seconds, a new world in `WLD-11`'s times, and a new area within about a tenth of a second.
   - **How it works:**
-    - **Benchmark worlds:** a camp of about 30 and a village of about 300 at close camp zoom, a camp in thick forest at camp zoom with the camera turning, and worlds of about 100, 500, 1,000, 2,000, 3,000 and 7,000 people with about 10 km² each, on generated land; from `MIL-11` also the world with nobody in it.
+    - **Benchmark worlds:** a camp of about 30 and a village of about 300 at close camp zoom, a camp in thick forest at camp zoom with the camera panning, and worlds of about 100, 500, 1,000, 2,000, 3,000 and 7,000 people with about 10 km² each, on generated land; from `MIL-11` also the world with nobody in it.
       Each runs to a set game date, its end state in the result code (`RES-05`).
     - **Old worlds:** from `MIL-15`, the pace-test worlds at Year 75, and from `MIL-17` the full test's at Year 250, each against a new world with as many people (`TIM-07`), their kept areas read against the memory line.
     - **Held speed:** speeds are read after at least 3 minutes at full load, unplugged (`PLT-01`), battery and heat from the phone's counters.
     - **When:** in the cloud at every alpha (`PLT-05`), and on the phone at every stage: one tap, about 20 minutes, and a short result code to send back.
+      M2 also compares the look and sustained performance on one weaker phone.
   - **Done when:** at every stage, the phone benchmark's result shows each target above, met or missed.
 
 ### 13.3 Saved worlds
@@ -2638,7 +2655,7 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 
 - `RSK-11` **Pixel look hard to keep clean** *(Decided)*: Likelihood medium, impact medium.
   - **Signs:** visual reviews failing on shimmering texture pixels, speckled ground or people hard to find (`PRE-31`).
-  - **Response:** textures drawn for each zoom band, never shrunk (`PRE-22`), small things designed for each band (`PRE-46`), and people found by real light (`PRE-28`).
+  - **Response:** art drawn for its source families, with reviewed reductions (`PRE-22`), small things designed for each band (`PRE-46`), and people found by real light and the approved reveal (`PRE-28`).
 
 - `RSK-28` **Sound falls flat** *(Decided)*: Likelihood medium, impact medium.
   - **Signs:** a camp sounding thin or fake in your reviews (`SND-12`).
@@ -2674,10 +2691,10 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Signs:** the battery over about 40 °C in long sessions, or its health falling.
   - **Response:** time slows rather than the phone overheating (`PRN-11`, `PLT-04`); worlds move by export (`PLT-08`).
 
-- `RSK-30` **The look costs too much** *(Decided)*: Drawn plainly, the look you chose needs more of the phone's graphics chip than it has; likelihood high, impact high.
+- `RSK-30` **The look costs too much** *(Decided)*: The look you chose may need more of the phone's graphics chip than it has; likelihood high, impact high.
   - **Signs:** the busiest close scene over its time line on your phone, or the phone too warm in a long session (`PLT-04`).
   - **Response:** first the savings you cannot tell from the full picture (`PRE-01`); then, as you agreed, changes to the game engine's own code where those are not enough (`PRC-03`); then one planned step under heat that also passes the blind test; the world's density is never cut.
-  - **Why:** the liked camp, drawn plainly, would need two to five times the graphics chip's share of a frame, and that the savings that do not show bring it close to that share but not surely under it.
+  - **Why:** the 2D look still needs proof of height, shadows, streaming and sustained performance before art grows.
 
 ### 16.4 The project
 
@@ -2761,7 +2778,7 @@ AI agents' suggestions are marked *Proposed* and listed here until you confirm, 
 - **Mental map:** what a person knows of places: food, water, stone, shelter and danger, by season (`MND-28`).
 - **Milestone:** see Stage.
 - **Mood:** how a person feels overall, from needs and recent thoughts (`MND-29`).
-- **Motif:** the side view of a kit model, or one of about 12 signs (`PRE-46`).
+- **Motif:** the side-view drawing of a kit design, or one of about 12 signs (`PRE-46`).
 - **Murmur:** speech in the game, a babble of the language's sounds, never real words (`SND-03`).
 - **Named result:** what a blueprint gives: a new thing, a new state of a thing, or a change to ground or a body (`MAT-04`).
 - **Need:** hunger, thirst, warmth and rest for the body (`BIO-09`), and safety, belonging, status, curiosity and love for the mind (`MND-07`).
