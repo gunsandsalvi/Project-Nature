@@ -87,6 +87,8 @@ id = "maple"
 name = "Maple"
 what = "red and orange in autumn"
 art_book = ["read-aids"]
+sheet = "sheets/7.13-maple.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "wild_apple"
@@ -102,6 +104,8 @@ what = "silver-grey tree of dry scrub"
 id = "acacia"
 name = "Acacia"
 what = "flat-topped thorn tree of savanna and desert"
+sheet = "sheets/7.16-acacia.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "date_palm"
@@ -117,8 +121,12 @@ what = "fruit tree of warm lands"
 id = "baobab"
 name = "Baobab"
 what = "huge-trunked savanna tree"
+sheet = "sheets/7.19-baobab.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "oil_palm"
 name = "Oil palm"
 what = "palm of the tropical forest"
+sheet = "sheets/7.20-oil_palm.webp"
+signed_off = "8 October 2026"
