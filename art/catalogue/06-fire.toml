@@ -90,13 +90,20 @@ id = "wildfire"
 name = "Wildfire"
 what = "a fire front through grass and forest, trees burning"
 art_book = ["storm-close"]
+sheet = "sheets/6.12-wildfire.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "charred"
 name = "Charred trees and stumps"
 what = "what a fire leaves standing"
+sheet = "sheets/6.13-charred.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "charcoal_ash"
 name = "Charcoal and ash heaps"
+what = "heaps of charcoal and ash left by fires"
 art_book = ["village-truthful"]
+sheet = "sheets/6.14-charcoal_ash.webp"
+signed_off = "8 October 2026"
