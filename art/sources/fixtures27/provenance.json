@@ -246,5 +246,45 @@
     "request": "art/requests/fixtures27/revision/boulder-far-r2.txt",
     "cleaned": "art/sources/fixtures27/revision/boulder-far-r2-cleaned.png",
     "role": "boulder round 2 independent family edit"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/tent-near-r2-original.png",
+    "sha256": "b39189b47731d8d502b86bff2491baa53e07f92241197002f59a373e0a87de21",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/tent-near-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/tent-near-r2-cleaned.png",
+    "role": "rejected intermediate study; not production"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/tent-near-r2-v2-original.png",
+    "sha256": "212e33b7ae3b671381e2ba202926d4f3204a9511d16e44b1fc276158a1eb72d6",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/tent-near-r2-v2.txt",
+    "cleaned": "art/sources/fixtures27/revision/tent-near-r2-v2-cleaned.png",
+    "role": "covered-tent revision candidate"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/tent-near-r2-rejected-smooth-original.png",
+    "sha256": "a51d05ec63ac1e65f8034651071d7254263a943e6785d4be81078b17541c18bb",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/tent-near-r2-rejected-smooth.txt",
+    "cleaned": "art/sources/fixtures27/revision/tent-near-r2-rejected-smooth-cleaned.png",
+    "role": "rejected intermediate study; not production"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/tent-middle-r2-original.png",
+    "sha256": "2a92f963d8eb392c06199f86c7d8499ad4e1bb680b0029634ed64da9e0ed388a",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/tent-middle-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/tent-middle-r2-cleaned.png",
+    "role": "covered-tent revision candidate"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/tent-far-r2-original.png",
+    "sha256": "8995c81862943a73da0e9f7162441b2bdefd67bb22bee16fa6f2bdd2e7963185",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/tent-far-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/tent-far-r2-cleaned.png",
+    "role": "covered-tent revision candidate"
   }
 ]
