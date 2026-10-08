@@ -1,0 +1,122 @@
+# The simple form of the hide tent (A6.1, A6.3, PRE-46), for the zoom where it is about 120 pixels across (band 2): the
+# full tent's recipe (art/models/hide_tent_cone/record.toml) with the parts of the camp family that are cheaper and
+# the same to the eye at that size: the same eleven hides and the flap, poles of which only the length above the
+# cover's neck is kept (tent_pole_simple, 56 triangles in place of 220), and stones of 40 triangles in place of 177
+# (the same sizes by the same seed, so a stone is the same one in every form). About 4,100 triangles in place of
+# 9,000 (the full tent's 2,372 of hides, 2,200 of poles and 4,248 of stones, a flap and a lashing).
+about = "a small round tent of hides on a cone of ten poles, its hem held down by a ring of 24 stones (the simple form)"
+family = "camp"
+truth = "art lane, 8 October 2026: the same tent as hide_tent_cone, drawn at the sizes it is seen; hides sewn with running stitches, no smoke flaps, no painted designs, no metal, no sawn wood, no cords or pegs on the stones"
+approved = "not offered yet: a form of the pilot's fourth piece, waiting for the builder's check"
+
+[[material]]
+role = "hide"
+textures = ["art:hide"]
+
+[[material]]
+role = "wood"
+textures = ["art:wood"]
+
+[[material]]
+role = "stone"
+textures = ["art:stone"]
+
+# the cover's eleven hides, each modelled where it belongs in the tent's own metres, so each is laid at the origin
+[[place]]
+name = "hide_lower_1"
+parts = ["hide_lower_1"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_2"
+parts = ["hide_lower_2"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_3"
+parts = ["hide_lower_3"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_4"
+parts = ["hide_lower_4"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_5"
+parts = ["hide_lower_5"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_6"
+parts = ["hide_lower_6"]
+rule = "root"
+
+[[place]]
+name = "hide_lower_7"
+parts = ["hide_lower_7"]
+rule = "root"
+
+[[place]]
+name = "hide_upper_1"
+parts = ["hide_upper_1"]
+rule = "root"
+
+[[place]]
+name = "hide_upper_2"
+parts = ["hide_upper_2"]
+rule = "root"
+
+[[place]]
+name = "hide_upper_3"
+parts = ["hide_upper_3"]
+rule = "root"
+
+[[place]]
+name = "hide_upper_4"
+parts = ["hide_upper_4"]
+rule = "root"
+
+# ten poles from a ring of 1.75 m, inside the cover's hem, to the point 2.7 m up where they cross, each a little thicker
+# or thinner and a little off its place
+[[place]]
+name = "poles"
+parts = ["tent_pole_simple"]
+rule = "span"
+count = 10
+joint = "foot"
+to_joint = "bind"
+radius = "1.75 m"
+height = "2.7 m"
+turn = 18
+face = 0
+jitter_radius = "2%"
+jitter_turn = 3
+jitter_size = "12%"
+
+# the lashing where they cross, plugged into the first upper hide's crossing joint, which lies on the axis at 2.7 m
+[[place]]
+name = "lashing"
+parts = ["tent_binding"]
+rule = "plug"
+joint = "centre"
+onto = "hide_upper_1.crossing"
+
+# the door flap, hung from the top of the door slit, its hinge where the first lower hide's door_top is
+[[place]]
+name = "flap"
+parts = ["tent_door_flap"]
+rule = "plug"
+joint = "hinge"
+onto = "hide_lower_1.door_top"
+
+# 24 stones on a ring of 2.0 m (their outer edges make the sheet's 4.2 m across), half under the hem, in three sizes by the seed, each a little off its place
+[[place]]
+name = "stones"
+parts = ["ring_stone_small_simple", "ring_stone_medium_simple", "ring_stone_large_simple"]
+rule = "ring"
+count = 24
+radius = "2.0 m"
+jitter_radius = "5%"
+jitter_turn = 3
+face = 0
