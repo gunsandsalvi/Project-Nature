@@ -1,0 +1,23 @@
+# A recipe (A6.1, PRE-46): one boulder of sheet 2.16 put together from the kit's parts, the art lane's own parts of
+# the rocks family (art/models/rocks.blend, made by tools/art/parts_rocks.py). The seed picks which of the sheet's
+# three stones it is: the small granite dome (1.0 x 0.8 m), the limestone block (2.0 x 1.5 m) or the large granite
+# (3.0 x 2.2 m, a crack down its front). Each stands on the ground, a root; how deep it is sunk is the world's (the
+# part's `height` lifts it, or a negative one buries it). The simple form (A6.3) is the same thing in parts of about a
+# fifth of the triangles, for the zoom where it is 20 to 100 pixels across (band 2).
+about = "one boulder of granite or limestone, 1 to 3 m, picked by the seed (simple form)"
+family = "rocks"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; rounded granite with a fine speckle and one crack, a block of pale limestone with faint beds, no vegetation, no soil, no painted marks, no tool marks"
+approved = "not offered yet: a piece of the cliff's foot, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "stone"
+textures = ["art:granite"]
+
+[[material]]
+role = "limestone"
+textures = ["art:limestone"]
+
+[[place]]
+name = "boulder"
+parts = ["boulder_small_simple", "boulder_block_simple", "boulder_large_simple"]
+rule = "root"

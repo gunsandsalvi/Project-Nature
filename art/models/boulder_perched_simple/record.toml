@@ -1,0 +1,23 @@
+# A recipe (A6.1, PRE-46): the perched boulder of sheet 2.16: the small low stone on the ground and the upper stone
+# plugged onto its crown (its joint `seat` onto the base's `top`). The simple form (A6.3) is the same thing in parts
+# of about a fifth of the triangles, for the zoom where it is 20 to 100 pixels across (band 2).
+about = "a granite stone 1.4 m wide perched on a smaller one, 1.8 m in all (simple form)"
+family = "rocks"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; two rounded granite stones, one resting on the other, no vegetation, no soil, no painted marks, no tool marks"
+approved = "not offered yet: a piece of the cliff's foot, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "stone"
+textures = ["art:granite"]
+
+[[place]]
+name = "base"
+parts = ["boulder_perch_base_simple"]
+rule = "root"
+
+[[place]]
+name = "cap"
+parts = ["boulder_perch_cap_simple"]
+rule = "plug"
+joint = "seat"
+onto = "base.top"

@@ -1,0 +1,17 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["far-sheet.webp"]
+sha256 = "ade5c698c2318b44b7d44d2a91ef51a22ebde75617878bfc51db527ac80b1550"
+c2pa = "absent"
+note = "the far tile of sheet 2.18 (scree, signed off 7 October 2026), 256 x 256, each texture pixel one pixel, the catalogue's own tile: loose broken limestone seen from above in flat light"
+
+["middle-sheet.webp"]
+sha256 = "c97fa42b976f068badffad9ef72556e5ff9898eed302da732deab45a3b525dd8"
+c2pa = "absent"
+note = "the middle tile of sheet 2.18 (scree, signed off 7 October 2026), 256 x 256, each texture pixel one pixel, the catalogue's own tile: loose broken limestone seen from above in flat light"
+
+["near-sheet.webp"]
+sha256 = "874c697454a57de9ae6daa8000f2303d5b3905dce8b39d5fce6c636dfe9b7e05"
+c2pa = "absent"
+note = "the near tile of sheet 2.18 (scree, signed off 7 October 2026), 256 x 256, each texture pixel one pixel, the catalogue's own tile: loose broken limestone seen from above in flat light"

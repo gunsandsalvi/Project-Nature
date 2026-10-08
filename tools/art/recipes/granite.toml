@@ -1,0 +1,26 @@
+# The boulders' granite (catalogue 2.16, boulders): what tools/art/make_tiles.py reads to make art/textures/granite/ from
+# the sheet's rind kept in art/sources/granite/. The skin of a big rounded stone seen flat: warm light grey with a fine
+# dark salt-and-pepper speckle and a few pale grains; the stone's roundness, its lit top and dark underside are the
+# part's. A tile of 64 texture pixels, 1 m across, one version, as the tent's stone is. Nothing here is random: the same
+# recipe gives the same bytes.
+name = "granite"
+about = "warm light grey granite rind, fine dark mineral speckle of one or two texture pixels and a few pale grains"
+seed = 2161
+reference = "near"
+how = "the sheet's rind picture (1024 x 1024, 0.5 m across by the sheet) put on a grid of 64 x 64 texture pixels by code, each cell the median colour of its middle, the tile's seam where it wraps hidden in the speckle"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; light grey granite speckle only, no lichen, no cracks, no painted marks"
+approved = "not offered yet: made for the boulders, waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+texels = 64
+versions = 1
+ring = 4
+overlap = 8
+patch = 28
+flatten = 0
+serves = 3
+snap = 16
+cells = 64
+wraps = true
+sheet = "art/sources/granite/near-sheet.webp"

@@ -1,0 +1,95 @@
+# A recipe (A6.1, PRE-46): what lies at the foot of the camp's cliff, scattered by the seed: four boulders of the
+# rocks family (the large granite to the south-east, a limestone block to the south-west, two small domes between),
+# each turned to show its front to the south,, all out in front of the cliff, which runs east and west through the
+# recipe's origin, and the stones that came down with them in rings that wander in radius and angle (broken limestone,
+# small, medium and large, and the thin dark flakes of the shale weathering out beneath). The fine scree between is
+# the ground's texture (art:scree). The small form (A6.3) is the same thing in marker parts of a few triangles, for
+# the close camp and the camp (bands 3 and 4).
+about = "the foot of the cliff: four boulders, scree stones and shale flakes strewn over about 14 m of ground (small form)"
+family = "rocks"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; boulders and broken limestone and a few dark shale flakes lying loose on the ground, no vegetation, no soil, no painted marks, no tool marks"
+approved = "not offered yet: a piece of the cliff's foot, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "stone"
+textures = ["art:granite"]
+
+[[material]]
+role = "limestone"
+textures = ["art:limestone"]
+
+[[material]]
+role = "shale"
+textures = ["art:shale"]
+
+[[place]]
+name = "great"
+parts = ["boulder_large_marker"]
+rule = "ring"
+count = 1
+radius = "3.2 m"
+turn = 128
+face = -128
+
+[[place]]
+name = "block"
+parts = ["boulder_block_marker"]
+rule = "ring"
+count = 1
+radius = "2.9 m"
+turn = 232
+face = 128
+
+[[place]]
+name = "dome_near"
+parts = ["boulder_small_marker"]
+rule = "ring"
+count = 1
+radius = "2.3 m"
+turn = 170
+face = -170
+
+[[place]]
+name = "dome_far"
+parts = ["boulder_small_marker"]
+rule = "ring"
+count = 1
+radius = "4.4 m"
+turn = 205
+face = 155
+
+[[place]]
+name = "scree_foot"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 110
+radius = "1.3 m"
+jitter_radius = "50%"
+jitter_turn = 180
+
+[[place]]
+name = "scree_mid"
+parts = ["scree_stone_small_marker", "scree_stone_medium_marker"]
+rule = "ring"
+count = 110
+radius = "3.0 m"
+jitter_radius = "50%"
+jitter_turn = 180
+
+[[place]]
+name = "scree_far"
+parts = ["scree_stone_medium_marker", "scree_stone_large_marker"]
+rule = "ring"
+count = 40
+radius = "4.6 m"
+jitter_radius = "50%"
+jitter_turn = 180
+
+[[place]]
+name = "flakes"
+parts = ["shale_flake_small_marker", "shale_flake_medium_marker"]
+rule = "ring"
+count = 40
+radius = "1.5 m"
+jitter_radius = "50%"
+jitter_turn = 180

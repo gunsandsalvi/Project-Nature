@@ -1,0 +1,18 @@
+# A recipe (A6.1, PRE-46): the limestone lip of the cliff (sheet 2.13, the plan's limestone over shale, the shale
+# weathered back into a rock shelter): a bed 4 m long that wraps at its two ends, its front uneven and its underside
+# undercut and dark. The world lays copies end to end along the contact, one's joint `end` on the next's `start`; the
+# face above is flush with its top. The simple form (A6.3) is the same thing in parts of about a fifth of the
+# triangles, for the zoom where it is 20 to 100 pixels across (band 2).
+about = "the limestone bed that stands out of the cliff over the weathered-back shale, 4 m long (simple form)"
+family = "rocks"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; pale limestone with beds, an uneven front and a dark undercut underside, no vegetation, no soil, no painted marks, no tool marks"
+approved = "not offered yet: a piece of the cliff's foot, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "limestone"
+textures = ["art:limestone"]
+
+[[place]]
+name = "lip"
+parts = ["cliff_lip_simple"]
+rule = "root"

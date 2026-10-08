@@ -1,0 +1,7 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["near-sheet.webp"]
+sha256 = "4fc1ff4c623d8eca89733d22415932341caa540d0e44482a8466a396ba5e4be9"
+c2pa = "absent"
+note = "the boulder's rind of sheet 2.16 (signed off 7 October 2026), 1024 x 1024 pixels as the image tool returned it in the catalogue's conversation: a granite surface seen from above in flat light, 0.5 m across by the sheet, fine dark mineral speckle on warm light grey"

@@ -1,0 +1,20 @@
+Thank you. The rest of the cliff's foot is built as 3D parts now, and I need your verdict on how the pieces look in the game. Please do not draw anything in this turn: do not use your image tool, only look at the pictures and answer in words.
+
+WHAT IS BUILT (all as parts of one family in Blender, each in three sizes on screen: full, simple and marker, the same stone from the same numbers in each)
+- The three boulders of sheet 2.16 and its two parts: the small granite (1.0 x 0.8 m, 0.7 m high), the limestone block (2.0 x 1.5 x 1.4 m) and the large granite (3.0 x 2.2 x 2.0 m, a crack down its front); the boulder split by frost (1.5 m long cut in two matching halves 10 cm apart) and the perched one (a 1.4 m stone on a 0.7 m one). The granite wears your rind, the block the cliff's limestone.
+- The stones of the scree that are too big to be part of its ground texture (12, 25 and 45 cm of broken limestone), thin shale flakes (20 and 40 cm), and the limestone lip of the cliff: a bed 4 m long that stands out over the shale, which has weathered back under it. A recipe scatters them at the foot of the cliff, four boulders in front of it and rings of scree stones and flakes round them; the fine scree between is the texture of sheet 2.18's tiles.
+
+THE PICTURES WITH THIS MESSAGE (the game's camera 37 degrees down, late afternoon, as the game draws them)
+1. boulders-cam-a.png: your camera view of the three stones (sheet 2.16). 2. part-split.png and 3. part-perched.png: your two parts.
+4. crop-large.png, 5. crop-block.png: the large granite and the limestone block as the game draws them (enlarged twice).
+6. crop-split.png, 7. crop-perched.png: the split and the perched boulders.
+8. scree-cam-a.png: your camera view of the scree (sheet 2.18).
+9. foot-band0.png: the cliff's foot as the recipe lays it at the closest zoom: the limestone face above, the lip standing out over the shale under it, the boulders, scree stones and flakes on the scree ground.
+
+WHAT I NEED, IN A FEW LINES
+- Do the large granite and the block read as your sheet's stones: proportions, the dome's shape, the crack, the beds of the limestone? What is different? (The surfaces are the granite rind and the cliff's limestone texture.)
+- Does picture 6 read as your split boulder, and picture 7 as your perched one? Anything wrong with the mating faces or the way the upper stone sits?
+- Does picture 9 read as the foot of a limestone cliff with scree and fallen blocks, as in your scree sheet's camera view (picture 8)? Is the lip right as the bed that stands out over the dark shale, or what would you change in its shape and its shadow? Are the stones too few, too many, too regular or too round? Do the shale flakes read?
+- The list of changes you would make, the most important first, at most five.
+
+Reply in a few lines. Do not draw; do not save any file.

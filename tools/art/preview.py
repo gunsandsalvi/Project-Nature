@@ -6,15 +6,17 @@ picking one of its versions by a hash of its place (A5.3), and drawn by Blender 
     python3 tools/art/preview.py ground <name> <out folder> [--bands 0 1 ...] [--sun behind|ahead] [--samples N]
                                        [--beside <other material>]
     python3 tools/art/preview.py wall <material> <out folder> [--ground <name>] [--bands ...] [--sun behind|ahead]
+    python3 tools/art/preview.py cliff <foot recipe> <out folder> [--ground <name>] [--bands ...] [--sun behind|ahead]
     python3 tools/art/preview.py water <bed> <out folder> [--marks <marks>] [--depth m] [--bands ...]
     python3 tools/art/preview.py part <recipe> <out folder> [--ground <name>] [--forms <part>...] [--turn <degrees>]
                                       [--bands ...]
 
-`wall` lays a material on a vertical wall (a cliff's face) with a ground below it. `water` draws a river of one depth:
-the bed tinted by the water over it and the marks' picture on top. `part` lays a recipe's parts
-(art/models/<recipe>/record.toml) on a ground, each role wearing its texture; a recipe with a ring, a span or a plug is
-put together in Blender by the assembler's rules, with the preview's own strays. `--light` and `--water` try other
-numbers for the light and the water without touching the tuning.
+`wall` lays a material on a vertical wall (a cliff's face) with a ground below it; `cliff` puts the camp's cliff
+together, limestone over shale with its lip between them and a foot recipe's boulders and scree at its foot. `water`
+draws a river of one depth: the bed tinted by the water over it and the marks' picture on top. `part` lays a recipe's
+parts (art/models/<recipe>/record.toml) on a ground, each role wearing its texture; a recipe with a ring, a span or a
+plug is put together in Blender by the assembler's rules, with the preview's own strays. `--light` and `--water` try
+other numbers for the light and the water without touching the tuning.
 
 Needs Blender (BLENDER sets its path) and writes <out folder>/<name>-band<k>-<sun>.png for each band asked for.
 Implements PRE-20, PRE-22, PRE-26 and PRE-46, see A4.2, A4.5, A5.3 and A8.4.
@@ -237,6 +239,86 @@ def wall_view(name, ground_name, band, sun, out_folder, samples=24, change=None,
     return out
 
 
+CLIFF_FORMS = {
+    0: "",
+    1: "",
+    2: "_simple",
+}  # which form of the cliff's parts each band draws (A6.3), the small one after
+CLIFF_CONTACT = 1.6  # metres up the cliff where the limestone's lip stands over the shale
+CLIFF_SETBACK = 0.5  # how far the shale has weathered back under it, in metres
+
+
+def cliff_view(foot, ground_name, band, sun, out_folder, samples=24, change=None, suffix=""):
+    """The camp's cliff as the plan lays it (limestone over shale, the shale weathered back under the limestone's lip,
+    boulders and scree and flakes at its foot): the shale wall standing `CLIFF_SETBACK` behind the line and the
+    limestone above it on the line, each its own rock's tiles under the engine's hash (every cell one of four
+    versions, each layer moved over by a constant of its own so the beds of the two never line up), the limestone's
+    lip laid end to end along the contact, and the recipe `foot` (put together as the assembler does) over
+    `ground_name`, in the form each part has at the band. Returns the picture's path."""
+    form = CLIFF_FORMS.get(band, "_small")
+    parts_suffix = "_marker" if form == "_small" else form
+    with open(os.path.join(textures.ROOT, "art", "models", foot + form, "record.toml"), "rb") as f:
+        record = tomllib.load(f)
+    blend = os.path.join(textures.ROOT, "art", "models", record["family"] + ".blend")
+    roles = {}
+    for material in record["material"]:
+        where = material["textures"][0].split(":", 1)[1]
+        texture, levels = textures.read_texture("art/textures/" + where)
+        table, _ = levels[min(band, len(levels) - 1)]
+        roles[material["role"]] = {
+            "picture": os.path.join(textures.ROOT, table["file"]),
+            "metres": texture["tile_texels"] / texture["texels_a_metre"],
+        }
+    mpp = BAND0_MPP * (2**band)
+    box = footprint(mpp, margin=2 * (2**band) / 64.0)
+    top = 1.25 * (SIZE[1] / 2.0) * mpp / math.cos(math.radians(TILT))
+    os.makedirs(out_folder, exist_ok=True)
+    scratch = os.path.join(out_folder, "scratch")
+    os.makedirs(scratch, exist_ok=True)
+
+    def laid(name, z0, z1, y, shift):
+        """A rock's wall from z0 to z1 as a picture, its tiles moved over by `shift` (metres east, metres up)."""
+        available = textures.read_set(name)
+        tile, level = tile_for_band(available, band)
+        moved = (box[0] + shift[0], box[1] + shift[0], z0 + shift[1], z1 + shift[1])
+        face, covers = compose(available[tile], level, textures.TILES[tile][1], moved)
+        path = os.path.join(scratch, f"{name}-cliff-band{band}.png")
+        tiles.write_png(path, face)
+        return {
+            "picture": path,
+            "x0": covers[0] - shift[0],
+            "x1": covers[1] - shift[0],
+            "z0": covers[2] - shift[1],
+            "z1": covers[3] - shift[1],
+            "y": y,
+        }
+
+    walls = [
+        laid("shale", 0.0, CLIFF_CONTACT - 0.3, CLIFF_SETBACK, (1.7, 0.9)),
+        laid("limestone", CLIFF_CONTACT, top, 0.0, (0.0, 0.0)),
+    ]
+    available = textures.read_set(ground_name)
+    tile, level = tile_for_band(available, band)
+    picture, covers = compose(available[tile], level, textures.TILES[tile][1], box)
+    ground_png = os.path.join(scratch, f"{ground_name}-ground-band{band}.png")
+    tiles.write_png(ground_png, picture)
+    out = os.path.join(out_folder, f"cliff-band{band}-{sun}{suffix}.png")
+    config = scene_config(out, sun, samples, change)
+    config["camera"] = {"distance": distance(mpp), "tilt": TILT, "lens": LENS}
+    config["ground"] = {"picture": ground_png, "x0": covers[0], "x1": covers[1], "y0": covers[2], "y1": covers[3]}
+    config["walls"] = walls
+    config["roles"] = roles
+    lips = int(math.ceil((box[1] - box[0]) / 4.0)) + 1
+    first = -4.0 * (lips // 2)
+    config["parts"] = [{"file": blend, "at": [0.0, 0.0, 0.0]}] + [
+        {"file": blend, "only": ["cliff_lip" + parts_suffix], "at": [first + 4.0 * k, 0.0, CLIFF_CONTACT], "keep": True}
+        for k in range(lips)
+    ]
+    config["assemble"] = {"places": [place_in_metres(place) for place in record["place"]], "turn": 0.0}
+    render(config, scratch)
+    return out
+
+
 WATER = os.path.join(textures.ROOT, "data", "base", "tuning", "water.toml")
 
 
@@ -384,7 +466,7 @@ def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=Non
 
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("what", choices=["ground", "water", "part", "wall"])
+    ap.add_argument("what", choices=["ground", "water", "part", "wall", "cliff"])
     ap.add_argument("--ground", default="meadow", help="the ground a part lies on (part)")
     ap.add_argument("--beside", default=None, help="another material to lay beside this one in a chessboard (ground)")
     ap.add_argument("--forms", nargs="*", default=None, help="the parts to lay instead of the recipe's own (part)")
@@ -442,6 +524,8 @@ def main(argv):
                     args.turn,
                 )
             )
+        elif args.what == "cliff":
+            print(cliff_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix))
         elif args.what == "wall":
             print(wall_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix))
         else:

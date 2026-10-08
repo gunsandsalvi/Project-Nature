@@ -1,0 +1,78 @@
+about = "loose broken limestone, angular chips of 3 to 11 cm in warm grey-cream with darker gaps, finer and finer from near to far; near tile, 4.0 m across, version 3"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/scree/near-sheet.webp"]
+original_sha256 = ["874c697454a57de9ae6daa8000f2303d5b3905dce8b39d5fce6c636dfe9b7e05"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's own tiles (each already on the texture-pixel grid, one picture pixel a texture pixel), their versions quilted from them round a shared ring; version 3 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; broken limestone chips only, no soil, moss or grass"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/scree/v3/b0.png"
+sha256 = "92a84d73cbc9acfa45b0fa33f9b31ef44e974ff36e81af7fcd0e451d55ed2f4f"
+way = "the tile's picture (a block of 1, loss 0.0%), moved to the reference's colour, its inside quilted from the tile's pictures in patches of 64 round the shared ring"
+regrid_loss = "0.0%"
+calibration = "lightness +0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/scree/v3/b1.png"
+sha256 = "93d21289a02c2e0404854764a8c0b457aeb9a5caf544e575d678fae620a33fd2"
+made_from = "92a84d73cbc9acfa45b0fa33f9b31ef44e974ff36e81af7fcd0e451d55ed2f4f"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.44; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/scree/v3/b2.png"
+sha256 = "c14a4a9bcf839ccef66a8727369a19f358af5acdf3e4a619977abf470beae0b3"
+made_from = "93d21289a02c2e0404854764a8c0b457aeb9a5caf544e575d678fae620a33fd2"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/scree/v3/b3.png"
+sha256 = "3b82780882c8e11611392807e5ef7a39c282c66dbb9b1b26ca7cabf4802aaa54"
+made_from = "c14a4a9bcf839ccef66a8727369a19f358af5acdf3e4a619977abf470beae0b3"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/scree/v3/b4.png"
+sha256 = "27140ae96c8b2fefc8f43e5eac7b4869b8b784deda591192633afd01ca494148"
+made_from = "3b82780882c8e11611392807e5ef7a39c282c66dbb9b1b26ca7cabf4802aaa54"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/scree/v3/b5.png"
+sha256 = "e43cb61e9bf8ce521e4a64b17e655ee1e7d27eb5a3284b45a39430c24f3a4ce8"
+made_from = "27140ae96c8b2fefc8f43e5eac7b4869b8b784deda591192633afd01ca494148"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/scree/v3/b6.png"
+sha256 = "39b49fbc11f0cd29f6c0a089386814554de1be8fccd2973b2dbae2b355dc008a"
+made_from = "e43cb61e9bf8ce521e4a64b17e655ee1e7d27eb5a3284b45a39430c24f3a4ce8"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/scree/v3/b7.png"
+sha256 = "3709116f31edc4bba41f9367440e0188f05c7ec0d78275847b99d5878bf181be"
+made_from = "39b49fbc11f0cd29f6c0a089386814554de1be8fccd2973b2dbae2b355dc008a"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/scree/v3/b8.png"
+sha256 = "f1681faa5455d39364dd821d673a41a57f34d53e09a9ceb8cb7db437a1f795c8"
+made_from = "3709116f31edc4bba41f9367440e0188f05c7ec0d78275847b99d5878bf181be"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
