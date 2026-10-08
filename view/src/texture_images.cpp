@@ -1,9 +1,7 @@
 #include "texture_images.hpp"
 
 #include <godot_cpp/classes/file_access.hpp>
-#include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
-#include <godot_cpp/variant/typed_array.hpp>
 
 #include <cstdint>
 #include <cstring>
@@ -65,29 +63,6 @@ godot::Ref<godot::Image> with_levels(const std::vector<godot::Ref<godot::Image>>
     }
     const auto width = static_cast<int32_t>(images[0]->get_width());
     return godot::Image::create_from_data(width, width, true, godot::Image::FORMAT_RGBA8, all);
-}
-
-Layered make_layered(const godot::PackedStringArray& paths) {
-    Layered out;
-    godot::TypedArray<godot::Image> images;
-    std::int64_t side = 0;
-    for (const godot::String& path : paths) {
-        const ReadLevels read = read_levels(path);
-        if (!read.problem.is_empty()) {
-            out.problem = read.problem;
-            return out;
-        }
-        const std::int64_t width = read.images[0]->get_width();
-        if (side != 0 && width != side) {
-            out.problem = path + godot::String(": a layer of another size");
-            return out;
-        }
-        side = width;
-        images.push_back(with_levels(read.images));
-    }
-    out.texture = godot::RenderingServer::get_singleton()->texture_2d_layered_create(
-        images, godot::RenderingServer::TEXTURE_LAYERED_2D_ARRAY);
-    return out;
 }
 
 }  // namespace kd::view

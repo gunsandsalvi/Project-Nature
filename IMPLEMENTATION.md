@@ -230,7 +230,9 @@ M1 stays as built and accepted.
 Its saved demonstrations provide clock, walkers and commands; they are not a generated living world.
 M2's terrain, sky, weather and overview are labelled fixtures until M3 and later systems supply real state.
 The geological slice (`PRE-25`), deep-cave world records and the full living-world activity catalogue retain their later milestones.
-The first five alphas prove the risky engine path; only then does art expand and unused 3D work leave the build.
+The first five alphas prove the risky engine path before broad art expansion.
+By the owner's decision of 8 October 2026, removal of unused runtime 3D work moves forward from α2.12a to immediate preparation after delivery 30801.
+This does not bring forward any renderer, phone or final M2 approval.
 
 **Serves:** `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-29`, `PRE-30`, `PRE-31`, `PRE-33`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `PLT-04`, `PLT-09`, `VIS-14`, `WLD-01`, `WLD-02`, `WLD-03`, `WLD-13`, `TIM-01`, `TIM-04`, `TIM-15`, `TIM-16`, `TIM-17`, `RES-05`, `RES-06`, `RES-22`.
 
@@ -473,7 +475,7 @@ Send each result code with its phone and renderer; the report shows any unavaila
 
 ### α2.12a Art scale-up, cleanup and M2's end
 
-**Goal:** after the five engine gates, expand the M2 art set, port remaining pages and checks, remove unused runtime 3D work and close M2 with the owner's review.
+**Goal:** after the five engine gates, expand the M2 art set, finish porting remaining pages and checks, and close M2 with the owner's review. Unused runtime 3D removal is the earlier post-30801 preparation authorized on 8 October 2026.
 
 **Serves:** `PRE-20`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-30`, `PRE-31`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `PLT-04`, `PLT-09`, `VIS-14`, `RES-06`, `RES-22`.
 
@@ -485,8 +487,9 @@ Send each result code with its phone and renderer; the report shows any unavaila
    Only after fixture, height, shadow, streaming and phone review, take signed-off catalogue batches into the pipeline.
    Fill M2's camp materials, plants, shelters, figures, initial actions and seasonal shapes, including two-material sheets and dawn/noon/dusk/night views in summer and winter.
    Rain, storm and mist remain declared look fixtures; the full later activity list stays with its simulation milestone.
-2. `T2.12a.2` **Port and remove (`PLT-09`, `PRE-26`, `PRE-30`).**
-   Follow the migration rules below: callers, tests, data and registrations first, then unused runtime 3D sources and derived exports.
+2. `T2.12a.2` **Finish the port (`PLT-09`, `PRE-26`, `PRE-30`).**
+   The unused runtime 3D removal began immediately after 30801 by the owner's decision of 8 October 2026, under the migration rules below.
+   Finish replacement integration and remaining 2D callers/checks after the engine gates; do not defer already unused 3D app/build paths to this delivery.
    Keep original art, approvals and benchmark history, and never relabel old 3D evidence as a 2D pass.
    Native world/save/import/export/time controls remain on the existing extension.
 3. `T2.12a.3` **Final busy scenes and contact sheet (`PRE-28`, `PRE-31`, `PLT-02`, `PLT-04`).**
@@ -507,10 +510,16 @@ Send each result code with its phone and renderer; the report shows any unavaila
 **On the phone:** explore the expanded camp through hours, seasons and weather, find every person, and view the art sheets and clips in both orientations.
 Read the report with both phones' numbers and M3's plan, then accept M2 or send it back.
 
+Early removal candidate (8 October 2026, after merged 30801): the six obsolete art routes, five private native classes and their mesh/kit/calibration pipelines are removed. The remaining Crowd/Bench routes are explicitly labelled foundation diagnostics; fixed-camera 2D fixtures/terrain, shared texture decoding, source art and simulation code are preserved. Two packaging regressions were observed failing first, then passing: stale model/calibration files leave rebuilt data, and build manifests retain proofs/bench data without obsolete sections. Native build/tests, 152 Python tests, 32 compiled GDScripts, 47 routine gdUnit tests and file/ID checks pass; eight accepted M1 suites agree on one/four threads. External code review and the full routine check remain before merge. No new APK or phone approval is claimed.
+
 #### Migration rules
 
-This is planned M2 work, not code deletion in the document update.
-Port each caller and test before removing its old drawing path.
+Unused 3D app/build paths are removed during the early post-30801 preparation; later ports remain in their engine steps.
+Port each live caller and test before removing its old drawing path.
+Look, Compare, Calibrate, Lab, Kit and Pilot are obsolete art diagnostics; their private mesh paths, registrations, exports and checks leave the app.
+Crowd and Bench retain accepted M1 save/heat/proof diagnostics with explicit foundation labels; they are not 2D gameplay or new renderer evidence.
+Shared texture decoding, catalogue records and original offline rigs remain available. Historical rig generators/previews and their exporter remain source provenance, outside active app packaging and checks.
+The shared simulation code and its historical look-data contract tests remain unchanged; old calibration source fixtures can remain with that corpus, but never ship as active app scenes.
 
 | Keep | Replace | Delete once replacements pass |
 |---|---|---|

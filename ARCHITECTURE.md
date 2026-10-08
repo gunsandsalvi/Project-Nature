@@ -411,6 +411,11 @@ M1 built foundations and saved demonstrations, not generated terrain, ecology or
 M2 uses labelled look fixtures until those later systems exist.
 No new renderer or phone pass is claimed here.
 
+The owner moved unused runtime 3D removal forward on 8 October 2026, immediately after delivery 30801.
+The obsolete Look, Compare, Calibrate, Lab, Kit and Pilot art routes and their private engine/export/check paths leave the app.
+Crowd and Bench retain the accepted M1 foundation diagnostics, including their marker drawing, save and heat harness; they are labelled as foundation diagnostics rather than gameplay.
+The shared texture decoder and all live 2D paths remain. Original art, signed-off sheets, source rigs and historical simulation/catalogue fixtures are preserved as provenance; obsolete derived model/calibration exports are excluded from packaging.
+
 ### A4.1 The picture (`PRE-01`, `PLT-02`)
 
 - **One world image:** a dedicated SubViewport, 540 × 1200 visible pixels at the reference portrait size, presented at exactly 2× with nearest filtering to 1080 × 2400.
