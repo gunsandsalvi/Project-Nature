@@ -3,62 +3,62 @@ route = "picture"
 tile_texels = 64
 texels_a_metre = 64
 first_band = 0
-sources = ["art/sources/stone/stone-A.webp", "art/sources/stone/stone-B.webp"]
-original_sha256 = ["f7d9dd2f77bc1bfde95c1e261a0015d288b4704ae96de8aa8dbb05ce329705d9", "8c5d7085d18efbcf0b6eccc5517e806c76b77f60960ccd7601c7b7f03348c15c"]
+sources = ["art/sources/stone/stone-C.webp", "art/sources/stone/stone-D.webp"]
+original_sha256 = ["78a1294d47e5f9b280af4a1990b9431db8004718782621c47c1fbaf7e71c8237", "d871653ec8f6985c439327296a2690c31e3514cb60684e674319b06996975340"]
 c2pa = ["present", "present"]
-requests = ["art/requests/tent/turn-01.txt"]
+requests = ["art/requests/tent/turn-01.txt", "art/requests/tent/turn-02.txt"]
 made = "drawn by the artist in conversation with the art lane at the size the game shows a stone (a texture pixel 1.6 cm), and put on the texture-pixel grid by code; version 1 of 1, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
-regrid_loss = "11.2%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+regrid_loss = "2.4%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
 truth = "art lane, 7 October 2026: looked at every level at twice size against A5.6's list; grey stone surface only, no lichen colours, no painted marks"
 approved = "not offered yet: made for the pilot's tent, waiting for the builder's check and your look at the previews"
 
 [[band]]
 level = 0
 file = "art/textures/stone/b0.png"
-sha256 = "0c18850e61058171cdcac0b0dcf341eadac7f440c8d5794a2efd2d1359449554"
-way = "the drawing put on its own grid (cells of about 16 picture pixels, loss 11.2%); every version quilted from the drawings in patches of 28 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam"
-regrid_loss = "11.2%"
+sha256 = "3ff00b066da1d7d86a3eee0824da51f340ad14c35fcc306b310335e61d60b71a"
+way = "the drawing put on its own grid (cells of about 8 picture pixels, loss 2.4%); every version quilted from the drawings in patches of 28 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam"
+regrid_loss = "2.4%"
 
 [[band]]
 level = 1
 file = "art/textures/stone/b1.png"
-sha256 = "e9c2fb6ee6854ea736d8caf9bb8c62ad4d7e5d7e4e8da8124ec20e7a80afce0c"
-made_from = "0c18850e61058171cdcac0b0dcf341eadac7f440c8d5794a2efd2d1359449554"
+sha256 = "c864c4e3cf6fe3aab8feffea72663bc305d37ba9e02981e571df38155a295379"
+made_from = "3ff00b066da1d7d86a3eee0824da51f340ad14c35fcc306b310335e61d60b71a"
 way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
-calibration = "unsharp 1.64; lightness +0.0; hue +0.0; colourfulness 100%; contrast 100%"
+calibration = "unsharp 1.03; lightness +0.0; hue -0.0; colourfulness 100%; contrast 100%"
 
 [[band]]
 level = 2
 file = "art/textures/stone/b2.png"
-sha256 = "29078adbf7016e4651a9191943c5cafb8d2cba95e735c5c1e14c0cd62d8be047"
-made_from = "e9c2fb6ee6854ea736d8caf9bb8c62ad4d7e5d7e4e8da8124ec20e7a80afce0c"
+sha256 = "7b77f7bff874d937ff860a9bac813e58af5af07d374f8d354a64b378e4c079f2"
+made_from = "c864c4e3cf6fe3aab8feffea72663bc305d37ba9e02981e571df38155a295379"
 way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
-calibration = "unsharp 2.37; lightness +0.0; hue +0.2; colourfulness 100%; contrast 100%"
+calibration = "unsharp 2.23; lightness +0.0; hue +0.1; colourfulness 100%; contrast 100%"
 
 [[band]]
 level = 3
 file = "art/textures/stone/b3.png"
-sha256 = "ee74d4e7cd7f48cb6ce73976dd574a08c3aa52d5c49e2fc7ffd4ac4d91d11c7b"
-made_from = "29078adbf7016e4651a9191943c5cafb8d2cba95e735c5c1e14c0cd62d8be047"
+sha256 = "a8823ea627975e3ec8919118ae404dee3e43f3f6fc764c323d5b8b4cb0c69b78"
+made_from = "7b77f7bff874d937ff860a9bac813e58af5af07d374f8d354a64b378e4c079f2"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 4
 file = "art/textures/stone/b4.png"
-sha256 = "3b1a501d23b5d5188769a2a69e7e5ed0da4b62a71a4d05d49b20f069d46d736c"
-made_from = "ee74d4e7cd7f48cb6ce73976dd574a08c3aa52d5c49e2fc7ffd4ac4d91d11c7b"
+sha256 = "d9085acf6fb52cd092ed949c21fb497a28870204ee066e859ec864fe3af397c0"
+made_from = "a8823ea627975e3ec8919118ae404dee3e43f3f6fc764c323d5b8b4cb0c69b78"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 5
 file = "art/textures/stone/b5.png"
-sha256 = "642d50b8f2f6f54c05b95b6cb93f32dcd9ba08dc07335b8beedd0949e71b30d8"
-made_from = "3b1a501d23b5d5188769a2a69e7e5ed0da4b62a71a4d05d49b20f069d46d736c"
+sha256 = "1e2f7b903811021027d3d61b49a0aeeb92225abc029302d3f0ea01b81dd15478"
+made_from = "d9085acf6fb52cd092ed949c21fb497a28870204ee066e859ec864fe3af397c0"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 6
 file = "art/textures/stone/b6.png"
-sha256 = "5d26f1d4b0afcc941b499de6faf6c7af67f8d35f1dcc9b433f2c8e95318f9474"
-made_from = "642d50b8f2f6f54c05b95b6cb93f32dcd9ba08dc07335b8beedd0949e71b30d8"
+sha256 = "63b0fae410e53f4be69a68e54f66c5dbb145308d9da7351430ac91cd2a2bc81a"
+made_from = "1e2f7b903811021027d3d61b49a0aeeb92225abc029302d3f0ea01b81dd15478"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

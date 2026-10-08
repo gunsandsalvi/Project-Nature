@@ -5,7 +5,8 @@ picking one of its versions by a hash of its place (A5.3), and drawn by Blender 
 
     python3 tools/art/preview.py ground <name> <out folder> [--bands 0 1 ...] [--sun behind|ahead] [--samples N]
     python3 tools/art/preview.py water <bed> <out folder> [--marks <marks>] [--depth m] [--bands ...]
-    python3 tools/art/preview.py part <recipe> <out folder> [--ground <name>] [--forms <part>...] [--bands ...]
+    python3 tools/art/preview.py part <recipe> <out folder> [--ground <name>] [--forms <part>...] [--turn <degrees>]
+                                      [--bands ...]
 
 `water` draws a river of one depth: the bed tinted by the water over it and the marks' picture on top. `part` lays a
 recipe's parts (art/models/<recipe>/record.toml) on a ground, each role wearing its texture; a recipe with a ring, a
@@ -275,7 +276,7 @@ def place_in_metres(place):
     return out
 
 
-def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=None, suffix="", forms=None):
+def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=None, suffix="", forms=None, turn=0.0):
     """A recipe's parts lying on a ground as the game shows them at a band: the family's Blender file brought into the
     scene, each role wearing its texture's level for the band (read nearest-pixel through the part's own texture
     coordinates in metres); returns the picture's path. A recipe of root places only has each part turned and lifted
@@ -325,7 +326,7 @@ def part_view(recipe, ground_name, band, sun, out_folder, samples=24, change=Non
     config["roles"] = roles
     config["parts"] = items
     if put_together:
-        config["assemble"] = {"places": [place_in_metres(place) for place in record["place"]]}
+        config["assemble"] = {"places": [place_in_metres(place) for place in record["place"]], "turn": turn}
     render(config, scratch)
     return out
 
@@ -340,6 +341,9 @@ def main(argv):
     ap.add_argument("--marks", default="river_marks")
     ap.add_argument("--depth", type=float, default=0.5, help="the water's depth in metres (water)")
     ap.add_argument("--bands", type=int, nargs="*", default=[0])
+    ap.add_argument(
+        "--turn", type=float, default=0.0, help="degrees to turn a put-together thing about its middle (part)"
+    )
     ap.add_argument("--sun", choices=sorted(SUNS), default="behind")
     ap.add_argument("--samples", type=int, default=24)
     ap.add_argument(
@@ -371,7 +375,21 @@ def main(argv):
                 )
             )
         elif args.what == "part":
-            print(part_view(args.name, args.ground, band, args.sun, args.out, args.samples, change, suffix, args.forms))
+            suffix += f"-turn{args.turn:g}" if args.turn else ""
+            print(
+                part_view(
+                    args.name,
+                    args.ground,
+                    band,
+                    args.sun,
+                    args.out,
+                    args.samples,
+                    change,
+                    suffix,
+                    args.forms,
+                    args.turn,
+                )
+            )
         else:
             print(ground_view(args.name, band, args.sun, args.out, args.samples, change, suffix))
     return 0

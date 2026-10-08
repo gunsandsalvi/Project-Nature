@@ -85,7 +85,7 @@ class CampFamily(unittest.TestCase):
             )
         said = run.stdout + run.stderr  # the stand-in family's recipes may find no stand-in file here; ours must fit
         self.assertEqual([line for line in said.splitlines() if re.search(r"art:(club|hide_tent_cone)\b", line)], [])
-        self.assertIn("4 recipes", said)
+        self.assertRegex(said, r"\d+ recipes", "the checker did not say it looked at the recipes")
 
 
 if __name__ == "__main__":

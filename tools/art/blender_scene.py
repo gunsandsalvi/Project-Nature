@@ -187,7 +187,8 @@ def assemble(cfg):
         return dice.uniform(-1.0, 1.0)
 
     bpy.context.view_layer.update()
-    originals = {o.name: o for o in bpy.data.objects if o.type == "MESH" and o.parent is None}
+    originals = {o.name: o for o in bpy.data.objects if o.type == "MESH" and o.parent is None and o.name != "ground"}
+    about = Matrix.Rotation(math.radians(cfg["assemble"].get("turn", 0.0)), 4, "Z")  # the whole thing turned
     placed = {}
     for place in cfg["assemble"]["places"]:
         rule, name = place["rule"], place["name"]
@@ -236,7 +237,7 @@ def assemble(cfg):
                     linear = roll @ axis.rotation_difference(heading).to_matrix() @ shape
                 matrix = carrying(linear, at, on_circle)
             copy = bpy.data.objects.new(f"{name}.{k}", part.data)
-            copy.matrix_world = matrix
+            copy.matrix_world = about @ matrix
             bpy.context.scene.collection.objects.link(copy)
             copies.append({"matrix": matrix, "part": part})
         placed[name] = copies

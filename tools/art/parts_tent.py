@@ -19,13 +19,14 @@ The parts, as the sheet's "parts" row shows them:
 - `tent_pole`: a pole standing along z with joints at its foot, where it crosses the others, and its tip.
 - `tent_binding`: the lashing where the poles cross.
 - `tent_door_flap`: the hanging flap, half open.
-- `ring_stone_small`, `ring_stone_medium`, `ring_stone_large`: the stones, 20 to 40 cm across.
+- `ring_stone_small`, `ring_stone_medium`, `ring_stone_large`: the stones, 25 to 45 cm across.
 """
 
 import math
 
+import bmesh
 from mathutils import Matrix, Vector
-from standins import Builder, joint, lathe, stone
+from standins import Builder, joint, lathe
 
 BASE = 1.9  # the cover's radius at the ground
 HIGH = 2.76  # where the cover's cone would come to a point; the cover is gathered 0.2 m of slant short of it, 2.6 m up
@@ -43,13 +44,13 @@ THICK = 0.012  # the hide's thickness
 LOWER = [-25, 25, 80, 125, 175, 230, 275, 335]
 UPPER = [10, 105, 190, 295, 370]
 SLIT = 1.2  # height of the door slit
-SLIT_AT_HEM, SLIT_AT_TOP = 10.0, 2.0  # half its width in degrees round, at the hem and at its top
+SLIT_AT_HEM, SLIT_AT_TOP = 8.0, 1.5  # half its width in degrees round, at the hem and at its top
 HIDE_FRAME = 0.0625  # the hide texture's seam strip lies in its first 4 columns, so the field starts after them
 # The hides' tones: the hide texture is the lightest hide (#C99960), and each hide keeps this share of its light, so the
-# sheet's middle hides (#AA7848, 0.84) and dark ones (#805532, 0.64) are the same texture darkened by the part's baked
-# crease. The door's hide is a middle one, and no two neighbours are alike.
-LOWER_TONES = [0.84, 0.64, 1.00, 0.76, 0.90, 0.64, 0.84]
-UPPER_TONES = [1.00, 0.78, 0.90, 0.68]
+# sheet's middle hides (#AA7848, about 0.8) and dark ones (#805532, about 0.6) are the same texture darkened by the
+# part's baked crease. No two neighbours are alike, and the door's hide is a darker one so the pale flap shows on it.
+LOWER_TONES = [0.70, 0.96, 0.52, 0.84, 0.58, 1.00, 0.56]
+UPPER_TONES = [0.56, 0.88, 0.66, 1.00]
 
 
 def rel(degrees):
@@ -64,24 +65,34 @@ def tier_s(a):
 
 
 def hem_s(a):
-    """The slant distance of the hem: nearly the full slant, slightly wavy and never under the ground."""
-    return SLANT - 0.02 * (1.0 + math.sin(5.0 * a + 1.0))
+    """The slant distance of the hem: nearly the full slant, uneven (it lifts a few centimetres between the stones and
+    lies down under them) and never under the ground."""
+    return SLANT - 0.035 * (1.0 + math.sin(5.0 * a + 1.0)) - 0.015 * (1.0 + math.sin(11.0 * a + 2.0))
 
 
 def wobble(seed, v):
     """How far a seam strays round the cone at a fraction v of its length (zero at both ends), in radians."""
-    return 0.022 * math.sin(math.pi * v) * math.sin(2.0 * math.pi * (1.3 + 0.37 * (seed % 5)) * v + 0.9 * seed)
-
-
-def cone_point(a, s):
-    """The point of the cone at an azimuth and a slant distance from the apex."""
-    r = BASE * s / SLANT
-    return Vector((r * math.cos(a), r * math.sin(a), HIGH * (1.0 - s / SLANT)))
+    return 0.03 * math.sin(math.pi * v) * math.sin(2.0 * math.pi * (1.3 + 0.37 * (seed % 5)) * v + 0.9 * seed)
 
 
 def outward(a):
     """The cone's outward normal at an azimuth."""
     return Vector((HIGH * math.cos(a), HIGH * math.sin(a), BASE)).normalized()
+
+
+def tented(a, s):
+    """How far the cover stands out of its cone at a point, in metres: it rides over each of the ten poles and sags
+    between them, by up to 3 cm, more toward the hem and none at the neck. The poles stand at the compass bearings
+    18 degrees and every 36 after (the recipe's), which in the cone's own angle is 72 degrees and every 36 before."""
+    reach = min(1.0, max(0.0, (s - NECK - 0.25) / 0.9))
+    return 0.03 * reach * math.cos(10.0 * (a - math.radians(72.0)))
+
+
+def cone_point(a, s):
+    """The point of the cover at an azimuth and a slant distance from the apex: the cone, tented over the poles."""
+    r = BASE * s / SLANT
+    cone = Vector((r * math.cos(a), r * math.sin(a), HIGH * (1.0 - s / SLANT)))
+    return cone + tented(a, s) * outward(a)
 
 
 class Hide:
@@ -362,11 +373,11 @@ def hide_parts():
 
 
 def door_flap():
-    """The hanging flap: a hide wider than the slit, hung from just above its top and pulled out from the cone as the
-    sheet shows it, half open; its hinge joint lies where the cover's door_top does. Its texture coordinates are the
-    flat cut."""
+    """The hanging flap: a hide hung from just above the slit's top and pulled aside to its left, as the sheet shows it,
+    its free edge lifted out from the cone so the dark opening shows beside it; its hinge joint lies where the cover's
+    door_top does. Its texture coordinates are the flat cut."""
     b = Builder("tent_door_flap")
-    a0, a1 = DOOR - math.radians(12.0), DOOR + math.radians(12.0)
+    a1 = DOOR - math.radians(5.0)  # its free edge, beside the opening; its outer edge fans out toward the hem
     s0, s1 = SLANT * (1.0 - SLIT / HIGH) - 0.13, SLANT - 0.02
     columns, rows = 4, 8
     grid = {}
@@ -375,9 +386,12 @@ def door_flap():
     for j in range(rows + 1):
         t = j / rows
         s = s0 + (s1 - s0) * t
+        a0 = DOOR - math.radians(16.0 + 18.0 * t)
         for i in range(columns + 1):
             a = a0 + (a1 - a0) * i / columns
-            lift = 0.015 + 0.30 * t**1.6 + 0.04 * math.sin(math.pi * i / columns) * t
+            x = i / columns
+            fold = 0.05 * max(0.0, math.sin(math.pi * (0.55 * x + 0.85 * t - 0.15))) * t  # one broad diagonal fold
+            lift = 0.015 + 0.08 * t**1.6 + 0.20 * x**1.4 * t**1.2 + 0.12 * x**3 * t**3 + fold  # a lifted lower corner
             p = cone_point(a, s) + lift * outward(a)
             alpha = (a - frame) * BASE / SLANT
             flat = (s * math.sin(alpha), s * math.cos(alpha))
@@ -388,7 +402,7 @@ def door_flap():
         for i in range(columns):
             corners = [(i, j), (i, j + 1), (i + 1, j + 1), (i + 1, j)]
             uvs = [(HIDE_FRAME + grid[c][2][0] - lows[0], grid[c][2][1] - lows[1] + 0.9) for c in corners]
-            crease = [0.55 + 0.45 * (1.0 - grid[c][3] / 0.35) for c in corners]
+            crease = [0.80 + 0.20 * min(1.0, grid[c][3] / 0.35) for c in corners]  # the light hide, lighter as it lifts
             b.face([verts[c][0] for c in corners], uvs, "hide", crease)
             b.face(list(reversed([verts[c][1] for c in corners])), list(reversed(uvs)), "hide", [0.3] * 4)
     obj = b.build((0.0, 0.0, 0.0))
@@ -425,12 +439,41 @@ def binding():
     return obj
 
 
+def river_stone(name, seed, half_x, half_y, high):
+    """A river stone half buried, rounder than the stand-ins': a lump of 320 smooth-shaded faces, its bottom on z = 0,
+    its form leaning a little off round by a few slow swells, not by noise in every corner; each face has its own flat
+    texture projection along its own normal, which carries a texture pixel over without stretch, and its crease
+    darkens it toward the ground."""
+    b = Builder(name)
+    bmesh.ops.create_icosphere(b.bm, subdivisions=3, radius=1.0)
+    for v in b.bm.verts:
+        x, y, z = v.co
+        lump = 1.0 + 0.10 * math.sin(2.3 * x + seed) * math.cos(1.7 * y + 2.0 * seed) + 0.05 * math.sin(3.1 * z + seed)
+        lump += 0.05 * math.sin(5.3 * y + 3.0 * seed) * math.cos(4.1 * x)
+        v.co = Vector((x * half_x * lump, y * half_y * lump, max(0.0, z) * high * lump))
+    b.bm.normal_update()
+    for f in b.bm.faces:
+        f.smooth = True
+        f.material_index = b.slot("stone")
+        n = f.normal.copy()
+        n.normalize()
+        ref = Vector((0.0, 0.0, 1.0)) if abs(n.z) < 0.95 else Vector((1.0, 0.0, 0.0))
+        t = ref.cross(n).normalized()
+        w = n.cross(t)
+        for loop in f.loops:
+            p = loop.vert.co
+            loop[b.uv].uv = (p.dot(t), p.dot(w))
+            c = 0.55 + 0.45 * min(1.0, max(0.0, p.z / (high * 0.8)))
+            loop[b.crease] = (c, c, c, 1.0)
+    return b.build((0.0, 0.0, 0.0))
+
+
 def stones():
-    """Three river stones, half buried, 20 to 40 cm across: a small, a medium and a large one."""
+    """Three river stones, half buried, 25 to 45 cm across: a small, a medium and a large one."""
     return [
-        stone("ring_stone_small", 21, 0.110, 0.085, 0.065),
-        stone("ring_stone_medium", 22, 0.155, 0.120, 0.090),
-        stone("ring_stone_large", 23, 0.200, 0.150, 0.115),
+        river_stone("ring_stone_small", 21, 0.125, 0.095, 0.075),
+        river_stone("ring_stone_medium", 22, 0.175, 0.135, 0.100),
+        river_stone("ring_stone_large", 23, 0.225, 0.170, 0.130),
     ]
 
 
