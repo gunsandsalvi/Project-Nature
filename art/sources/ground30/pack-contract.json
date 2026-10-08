@@ -1,0 +1,175 @@
+{
+  "batch": "ground-next",
+  "families": {
+    "near": {
+      "ppm": 64,
+      "span_m": 4,
+      "first_band": 0
+    },
+    "middle": {
+      "ppm": 16,
+      "span_m": 16,
+      "first_band": 2
+    },
+    "far": {
+      "ppm": 4,
+      "span_m": 64,
+      "first_band": 4
+    }
+  },
+  "variant_count": 3,
+  "states": [
+    {
+      "id": "hearth_ground",
+      "catalogue": "hearth_ground",
+      "state": "fresh",
+      "palette": [
+        [
+          "#AAA79B",
+          2
+        ],
+        [
+          "#BAB6A9",
+          2
+        ],
+        [
+          "#98978C",
+          2
+        ],
+        [
+          "#795B48",
+          2
+        ],
+        [
+          "#4A3B30",
+          2
+        ],
+        [
+          "#393A35",
+          5
+        ]
+      ],
+      "request": "hearth-fresh-r1.txt",
+      "auxiliary": [],
+      "normal_binding": "actual terrain normal field",
+      "runtime_approved": false,
+      "annotation": "charcoal",
+      "annotation_chip": 5
+    },
+    {
+      "id": "hearth_ground_old",
+      "catalogue": "hearth_ground",
+      "state": "old",
+      "palette": [
+        [
+          "#AAA79B",
+          2
+        ],
+        [
+          "#BAB6A9",
+          2
+        ],
+        [
+          "#98978C",
+          2
+        ],
+        [
+          "#795B48",
+          2
+        ],
+        [
+          "#4A3B30",
+          2
+        ],
+        [
+          "#393A35",
+          5
+        ]
+      ],
+      "request": "hearth-old-r1.txt",
+      "auxiliary": [],
+      "normal_binding": "actual terrain normal field",
+      "runtime_approved": false,
+      "annotation": "charcoal",
+      "annotation_chip": 5
+    },
+    {
+      "id": "mud",
+      "catalogue": "mud",
+      "state": "wet",
+      "palette": [
+        [
+          "#594638",
+          2
+        ],
+        [
+          "#705440",
+          2
+        ],
+        [
+          "#89694D",
+          2
+        ],
+        [
+          "#A0805D",
+          2
+        ],
+        [
+          "#B3956B",
+          2
+        ],
+        [
+          "#77796A",
+          2
+        ]
+      ],
+      "request": "mud-wet-r1.txt",
+      "auxiliary": [
+        "water_coverage"
+      ],
+      "normal_binding": "actual terrain normal field",
+      "runtime_approved": false,
+      "annotation": "puddles",
+      "annotation_chip": 5
+    },
+    {
+      "id": "mud_drying",
+      "catalogue": "mud",
+      "state": "drying",
+      "palette": [
+        [
+          "#594638",
+          2
+        ],
+        [
+          "#705440",
+          2
+        ],
+        [
+          "#89694D",
+          2
+        ],
+        [
+          "#A0805D",
+          2
+        ],
+        [
+          "#B3956B",
+          2
+        ],
+        [
+          "#77796A",
+          2
+        ]
+      ],
+      "request": "mud-drying-r1.txt",
+      "auxiliary": [
+        "water_coverage"
+      ],
+      "normal_binding": "actual terrain normal field",
+      "runtime_approved": false,
+      "annotation": "puddles",
+      "annotation_chip": 5
+    }
+  ]
+}

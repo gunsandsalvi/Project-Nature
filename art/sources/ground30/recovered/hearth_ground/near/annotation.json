@@ -1,0 +1,30 @@
+{
+  "source": {
+    "board": "hearth-fresh-r1",
+    "family": "near",
+    "original": "hearth-fresh-r1-original.png",
+    "original_sha256": "185c3b945dea69f7af0bd13b63b3aee160e927c8ef41092990088798fa84ca1b",
+    "crop": "hearth-fresh-r1-near-crop.png",
+    "crop_box": [
+      3,
+      3,
+      721,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 4,
+    "review": "source candidate; unreviewed export",
+    "id": "hearth_ground",
+    "request": "hearth-fresh-r1.txt"
+  },
+  "grid_loss": 0.059013741358307274,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review",
+  "quilt_attempts": 3,
+  "quilt_selected": [
+    0,
+    1,
+    2
+  ],
+  "annotation": "charcoal"
+}
