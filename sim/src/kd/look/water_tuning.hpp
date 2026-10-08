@@ -25,6 +25,13 @@ struct WaterTuning {
     std::int64_t wet_margin = 0;
     std::int64_t wet_darkening = 0;
     std::int64_t ragged = 0;
+    std::int64_t beach = 0;
+    std::int64_t calm_marks = 0;
+    std::int64_t calm_scale = 0;
+    std::int64_t marks_depth = 0;
+    std::int64_t shore_wander = 0;
+    std::int64_t shore_scale = 0;
+    std::int64_t murk_curve = 0;
     std::int64_t sky_share = 0;
     std::int64_t flow = 0;
     std::int64_t step_rate = 0;
@@ -53,6 +60,29 @@ struct WaterTuning {
                    Measure::ratio, {0, 1'000'000});
         v.quantity({"ragged", "how ragged the shore is, as a share of the depth a texture pixel spans", Affects::look},
                    w.ragged, Measure::ratio, {0, 2'000'000});
+        v.quantity({"beach", "how high above the wet margin gravel and grass share the bank, up to the bank's top",
+                    Affects::look},
+                   w.beach, Measure::length, {0, 2'000});
+        v.quantity({"calm_marks", "the share of its marks the water keeps where it is calmest", Affects::look},
+                   w.calm_marks, Measure::ratio, {0, 1'000'000});
+        v.quantity({"calm_scale", "how wide the calm and the rough stretches of water are", Affects::look},
+                   w.calm_scale, Measure::length, {500, 100'000});
+        v.quantity(
+            {"marks_depth", "the depth over which the marks fade in from nothing at the water's edge", Affects::look},
+            w.marks_depth, Measure::length, {0, 2'000});
+        v.quantity(
+            {"shore_wander",
+             "how many millimetres of depth the shore is moved by, so the waterline bends round the bank instead "
+             "of running straight",
+             Affects::look},
+            w.shore_wander, Measure::length, {0, 500});
+        v.quantity({"shore_scale", "how wide the bends of the waterline are", Affects::look}, w.shore_scale,
+                   Measure::length, {200, 20'000});
+        v.quantity({"murk_curve",
+                    "how sharply the water's own colour comes in with depth: 100% is an even rate, more is clearer at "
+                    "first and then quicker",
+                    Affects::look},
+                   w.murk_curve, Measure::ratio, {500'000, 4'000'000});
         v.quantity({"sky_share", "the share of the sky's light the surface mirrors when seen square on", Affects::look},
                    w.sky_share, Measure::ratio, {0, 1'000'000});
         v.quantity({"flow", "how fast the current runs, toward the east", Affects::look}, w.flow, Measure::speed,

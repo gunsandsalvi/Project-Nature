@@ -51,6 +51,14 @@ var _ladders := {}
 ## The camp's things: for "Tent" and "Club", their recipe and where each stands in centimetres.
 var _camp := {}
 var _camp_back := 0
+## The tent's forms by size (A6.3): the recipe drawn for each form, "full", "simple" and "small",
+## the form drawn now, the tent's width in screen pixels under which the simple and the small forms
+## take over, and how much past a switch the size must go to go back to a fuller form.
+var _forms := {}
+var _form := "full"
+var _form_simple := 0.0
+var _form_small := 0.0
+var _form_margin := 0.0
 var _readout: Label
 var _origin := Vector2i.ZERO
 var _sheet_panel: ScrollContainer
@@ -87,6 +95,8 @@ func _process(delta: float) -> void:
 		area.set_origin(origin.x, origin.y)
 		kit.set_origin(origin.x, origin.y)
 		maps.follow(origin.x, origin.y)
+	# a pinch changes the tent's size on the screen as a button does
+	_fit_form(float(state["metres_per_pixel"]))
 
 
 ## Takes the view to a place, one of PLACES, and puts any sheet away.
@@ -249,6 +259,15 @@ func _build_camp() -> String:
 	)
 	if not said.is_empty():
 		return said
+	_forms = {
+		"full": str(tuning["tent"]),
+		"simple": str(tuning["tent_simple"]),
+		"small": str(tuning["tent_small"]),
+	}
+	_form = "full"
+	_form_simple = float(tuning["form_simple"])
+	_form_small = float(tuning["form_small"])
+	_form_margin = float(tuning["form_margin"]) / 1.0e6
 	said = _stand(
 		"Club",
 		str(tuning["club"]),
@@ -280,8 +299,71 @@ func _stand(
 	var made := kit.place(scenario(), model, seed_of, east, north, up, turn, {})
 	if str(made["problem"]) != "":
 		return str(made["problem"])
-	_camp[name] = {"id": int(made["id"]), "model": model, "east": east, "north": north, "up": up}
+	# the thing's widest side, in metres, from the bounds of what the assembler put together
+	var low: Vector3 = made["lowest"]
+	var high: Vector3 = made["highest"]
+	_camp[name] = {
+		"id": int(made["id"]),
+		"model": model,
+		"east": east,
+		"north": north,
+		"up": up,
+		"turn": turn,
+		"seed": seed_of,
+		"width": maxf(high.x - low.x, high.z - low.z),
+	}
 	return ""
+
+
+## The form the tent's width on the screen calls for, from the one drawn now (A6.3): a smaller
+## form from the switch down, and a fuller one only the margin past it, so a form never flickers
+## at a switch.
+func form_for(pixels: float, now: String) -> String:
+	var back := 1.0 + _form_margin
+	var form := now
+	if form == "full" and pixels < _form_simple:
+		form = "simple"
+	elif form == "simple" and pixels >= _form_simple * back:
+		form = "full"
+	if form == "simple" and pixels < _form_small:
+		form = "small"
+	elif form == "small" and pixels >= _form_small * back:
+		form = "simple"
+		if pixels >= _form_simple * back:
+			form = "full"
+	return form
+
+
+## The form of the tent drawn now: "full", "simple" or "small".
+func tent_form() -> String:
+	return _form
+
+
+## Draws the tent in the form its size on the screen calls for, at a zoom in metres a screen pixel.
+func _fit_form(metres_per_pixel: float) -> void:
+	if not _camp.has("Tent") or _forms.is_empty() or metres_per_pixel <= 0.0:
+		return
+	var pixels := float(_camp["Tent"]["width"]) / metres_per_pixel
+	var form := form_for(pixels, _form)
+	if form == _form:
+		return
+	var tent: Dictionary = _camp["Tent"]
+	kit.remove(int(tent["id"]))
+	var made := kit.place(
+		scenario(),
+		str(_forms[form]),
+		int(tent["seed"]),
+		int(tent["east"]),
+		int(tent["north"]),
+		int(tent["up"]),
+		float(tent["turn"]),
+		{}
+	)
+	if str(made["problem"]) != "":
+		push_error(str(made["problem"]))
+		return
+	tent["id"] = int(made["id"])
+	_form = form
 
 
 ## The view: the place at the zoom, and, while a sheet covers the top of the screen, put in the
@@ -292,6 +374,7 @@ func _show() -> void:
 	if sheet != "":
 		at = _lowered(at, metres_per_pixel)
 	view_at(at.x, at.y, 0.0, metres_per_pixel)
+	_fit_form(metres_per_pixel)
 	if _readout == null:
 		return
 	var words := _words()

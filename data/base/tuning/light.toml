@@ -6,6 +6,8 @@
 # but not so blue that the hide's shaded flank goes grey. With the art lane's hide tent in, the sun was raised from 230%
 # to 260% and the fill lowered from 80% to 55% at the same lightness (55.9 and 55.8), so the hides' light and dark tones
 # read apart (their lightness spreads 35 points, not 25) and the card's green share falls from 40 to 30.
+# The haze was thinned from 0.015% to 0.005% a metre: at the far bands it took the meadow's accents from 17 to 7 (band 6)
+# and the earth's colour and the river with them; the thinner haze keeps 12 to 16 there, and the distance still reads.
 sun_height = 28
 sun_turn = 215
 sun_colour = "#ffcf90"
@@ -15,7 +17,7 @@ ambient_colour = "#98aed2"
 ambient_energy = "55%"
 haze_colour = "#a8bccb"
 haze_sun_colour = "#f2cf9e"
-haze_density = "0.015%"
+haze_density = "0.005%"
 bounce_colour = "#3a3318"
 # The view's maps round things (A4.4): a texel of 6 cm; the ground sees past what stands within 2 m, at most 65% of its
 # sky taken; its darkening runs 14 cm from a thing's foot, 38% at the foot; a shadow's softness counts over the 14 m a

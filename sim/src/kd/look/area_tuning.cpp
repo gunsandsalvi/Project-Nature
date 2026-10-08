@@ -38,6 +38,10 @@ void check_area(const data::Catalogue& cat, std::vector<data::Problem>& problems
         if (reach_of_camp > a.strip) {
             problems.push_back(areas.at(i, "camp_back", "puts the camp, with its club, beyond the strip"));
         }
+        if (a.form_small >= a.form_simple) {
+            problems.push_back(
+                areas.at(i, "form_small", "must be fewer pixels than form_simple, the larger form switching first"));
+        }
         if (!is_colour_text(a.earth_colour)) {
             problems.push_back(areas.at(i, "earth_colour", "must be a colour written #rrggbb in lower case"));
         }
@@ -53,8 +57,8 @@ void check_area(const data::Catalogue& cat, std::vector<data::Problem>& problems
             }
         }
         if (cat.kind<Model>().size() != 0) {
-            const std::array<std::pair<std::string_view, const std::string*>, 2> things{
-                {{"tent", &a.tent}, {"club", &a.club}}};
+            const std::array<std::pair<std::string_view, const std::string*>, 4> things{
+                {{"tent", &a.tent}, {"tent_simple", &a.tent_simple}, {"tent_small", &a.tent_small}, {"club", &a.club}}};
             for (const auto& [key, name] : things) {
                 if (!cat.find("models", *name)) {
                     problems.push_back(areas.at(i, key, "names no recipe \"" + *name + "\" in the catalogue"));

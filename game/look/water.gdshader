@@ -41,6 +41,11 @@ void kd_surface_at(float band, vec2 world, float over_bed, vec2 width0, vec2 slo
 		// by whole texture pixels of each level
 		vec2 shifted = world - kd_water.yz * kd_water.w;
 		cover = kd_ladder_band(kd_layers, kd_count, kd_first, 3.0, shifted, width0, band);
+		// the water is calmer in places and rougher in others, the stretches travelling with the current, and its marks
+		// fade in over the shallows
+		vec2 at = (kd_texel_cell(shifted, band) + 0.5) * (exp2(band) / KD_BAND0_TEXELS);
+		float rough = smoothstep(0.2, 0.8, kd_value_noise(at / kd_water_marks.y, 31.0));
+		cover.a *= mix(kd_water_marks.x, 1.0, rough) * smoothstep(0.0, max(kd_water_marks.z, 1.0e-4), depth);
 		// where the water meets the land, a line of whole texture pixels
 		if (depth <= run * kd_water_surface.w) {
 			cover = vec4(kd_water_shore.rgb, 1.0);

@@ -57,18 +57,6 @@ vec2 kd_patch_at(vec2 world) {
 	return mix(vec2(0.5, 0.0), textureLod(kd_patches, on_patches, 0.0).rg, within);
 }
 
-// Smooth noise from 0 to 1 over a lattice of whole cells, the same on every machine (kd_hash).
-float kd_value_noise(vec2 at, float salt) {
-	vec2 cell = floor(at);
-	vec2 t = fract(at);
-	t = t * t * (3.0 - 2.0 * t);
-	float a = kd_hash(cell, salt);
-	float b = kd_hash(cell + vec2(1.0, 0.0), salt);
-	float c = kd_hash(cell + vec2(0.0, 1.0), salt);
-	float d = kd_hash(cell + vec2(1.0, 1.0), salt);
-	return mix(mix(a, b, t.x), mix(c, d, t.x), t.y);
-}
-
 // The width in metres of the clumps that wear takes the grass from together, so the grass thins to islands (about the
 // size of a tuft's cluster) instead of losing blade after blade.
 const float KD_CLUMP = 0.7;
@@ -109,6 +97,29 @@ vec3 kd_patch_ground(vec3 texel, vec2 world, float band) {
 	return mix(grown, earth, bare);
 }
 
+#ifdef KD_RIVER
+// The bank above the water's wet margin: the river bed's gravel, dry, giving way to the grass up the bank, in clumps and
+// by single groups of texture pixels at their edge as the worn ground does, the grass reaching down the bank in islands
+// and the gravel up it in bars, so the shore is a margin and never a ruled line. above: how high the point is over
+// the wet margin, in metres; the bank is mixed up to kd_water_wet.w, and past that it is grass.
+vec3 kd_bank(vec3 grass, vec3 gravel, float above, vec2 world, float band) {
+	vec2 cell = kd_texel_cell(world, band);
+	vec2 at = (cell + 0.5) * (exp2(band) / KD_BAND0_TEXELS);
+	float detail = clamp(1.0 - (band - 3.0) / 2.0, 0.0, 1.0);
+	// how far up the bank, 0 at the wet margin and 1 at its top, wandering with the stretches of gravel bar and steep
+	// grass, and not at all at the top, so the bank meets the meadow without a seam
+	float up = clamp(above / max(kd_water_wet.w, 1.0e-4), 0.0, 1.0);
+	float bars = kd_value_noise(at / 9.0, 21.0);
+	up = clamp(up + (0.5 - bars) * 0.5 * (1.0 - up), 0.0, 1.0);
+	float clump = 0.6 * kd_value_noise(at / 0.8, 22.0) + 0.4 * kd_value_noise(at / 0.3, 23.0);
+	clump = clamp(0.5 + (clump - 0.5) * 1.8 + (kd_hash(cell, 24.0) - 0.5) * 0.2, 0.0, 1.0);
+	clump = mix(0.5, clump, detail);
+	float share = clamp((1.25 * up - clump) / mix(1.0, 0.22, detail) + 0.5, 0.0, 1.0);
+	float grassy = mix(share, step(kd_hash(floor(cell * 0.5), 25.0), share), detail);
+	return mix(gravel, grass, grassy);
+}
+#endif
+
 // The land's colour at one band's level, for the point: the ground's, or where the river's bed shows, the bed's.
 vec3 kd_land_at(float band, vec2 world, vec2 width0, vec2 slope) {
 	vec3 colour = kd_patch_ground(
@@ -116,9 +127,17 @@ vec3 kd_land_at(float band, vec2 world, vec2 width0, vec2 slope) {
 #ifdef KD_RIVER
 	float run;
 	float depth = kd_water_depth(world, kd_water.x - kd_world.y, slope, band, run);
-	if (depth > -kd_water_wet.x) {
+	if (depth > -(kd_water_wet.x + kd_water_wet.w)) {
 		vec3 bed = kd_ladder_band(kd_bed_layers, kd_bed_count, kd_bed_first, 2.0, world, width0, band).rgb;
-		colour = depth > 0.0 ? kd_water_over(bed, depth) : bed * kd_water_wet.y;
+		if (depth > 0.0) {
+			// the bed under the water is as dark as wet stones at the waterline and clears over the first 8 cm
+			colour = kd_water_over(bed * mix(kd_water_wet.y, 1.0, smoothstep(0.0, 0.08, depth)), depth);
+		} else if (depth > -kd_water_wet.x) {
+			// darkest at the waterline, dry again at the top of the wet margin
+			colour = bed * mix(kd_water_wet.y, 1.0, smoothstep(0.0, kd_water_wet.x, -depth));
+		} else {
+			colour = kd_bank(colour, bed, -depth - kd_water_wet.x, world, band);
+		}
 	}
 #endif
 	return colour;

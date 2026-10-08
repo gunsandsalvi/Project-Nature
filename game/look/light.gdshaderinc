@@ -45,7 +45,7 @@ const float KD_UNDER_ROOF = 0.15;
 // The least a thing's top may be to count as one, in metres, and the openness left under a roof, so a cavity is dark
 // and never black (A4.8).
 const float KD_LEAST_TOP = 0.03;
-const float KD_CAVITY = 0.25;
+const float KD_CAVITY = 0.18;
 
 // The surface's own light, in its fragment(). albedo: its texture pixel's colour in linear light; world: its
 // point; normal: its facing, in the world; eye: the camera's place; crease: darkening painted or baked into

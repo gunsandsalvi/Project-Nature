@@ -142,6 +142,14 @@ kd_water_surface={
 "type": "vec4",
 "value": Vector4(0, 0, 0, 0)
 }
+kd_water_edge={
+"type": "vec4",
+"value": Vector4(0, 1, 1, 0)
+}
+kd_water_marks={
+"type": "vec4",
+"value": Vector4(1, 7, 0, 0)
+}
 kd_water_glint={
 "type": "vec4",
 "value": Vector4(0, 0, 0, 0)

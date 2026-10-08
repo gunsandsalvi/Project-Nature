@@ -71,6 +71,8 @@ constexpr const char* kArea =
     "spacing = \"0.25 m\"\n"
     "seed = 7\n"
     "tent = \"art:hide_tent_cone\"\n"
+    "tent_simple = \"art:hide_tent_cone_simple\"\n"
+    "tent_small = \"art:hide_tent_cone_small\"\n"
     "club = \"art:club\"\n"
     "camp_back = \"8 m\"\n"
     "club_away = \"3.6 m\"\n"
@@ -84,7 +86,10 @@ constexpr const char* kArea =
     "bare_below = \"20%\"\n"
     "clearing = \"5 m\"\n"
     "clearing_fade = \"5 m\"\n"
-    "earth_colour = \"#b39161\"\n";
+    "earth_colour = \"#b39161\"\n"
+    "form_simple = 150\n"
+    "form_small = 70\n"
+    "form_margin = \"5%\"\n";
 
 // The water as base/tuning/water.toml writes it.
 constexpr const char* kWater =
@@ -96,6 +101,13 @@ constexpr const char* kWater =
     "wet_margin = \"0.12 m\"\n"
     "wet_darkening = \"80%\"\n"
     "ragged = \"100%\"\n"
+    "beach = \"0.28 m\"\n"
+    "calm_marks = \"30%\"\n"
+    "calm_scale = \"7 m\"\n"
+    "marks_depth = \"0.2 m\"\n"
+    "shore_wander = \"6 cm\"\n"
+    "shore_scale = \"1.4 m\"\n"
+    "murk_curve = \"150%\"\n"
     "sky_share = \"3%\"\n"
     "flow = \"0.5 m/s\"\n"
     "step_rate = 10\n"
@@ -111,7 +123,7 @@ std::vector<data::SourceFile> with_files(const std::string& area, const std::str
     for (const char* name : {"meadow", "river_bed", "river_marks"}) {
         files.push_back({std::string("art/textures/") + name + "/record.toml", kTexture});
     }
-    for (const char* name : {"hide_tent_cone", "club"}) {
+    for (const char* name : {"hide_tent_cone", "hide_tent_cone_simple", "hide_tent_cone_small", "club"}) {
         files.push_back({std::string("art/models/") + name + "/record.toml", kThing});
     }
     files.push_back({"base/tuning/area.toml", area});
@@ -179,6 +191,12 @@ TEST_CASE("the stand-in area is one tuning entry: three surfaces named by their 
     CHECK(a.seed == 7);
     // the camp on the bank: two things named by their recipes' entries, and where they stand
     CHECK(a.tent == "art:hide_tent_cone");
+    // the tent's simple and small forms, and the widths on the screen where they take over
+    CHECK(a.tent_simple == "art:hide_tent_cone_simple");
+    CHECK(a.tent_small == "art:hide_tent_cone_small");
+    CHECK(a.form_simple == 150);
+    CHECK(a.form_small == 70);
+    CHECK(a.form_margin == 50'000);
     CHECK(a.club == "art:club");
     CHECK(a.camp_back == 8'000);
     CHECK(a.club_away == 3'600);
@@ -212,6 +230,13 @@ TEST_CASE("the river's water is one tuning entry, its lengths in millimetres and
     CHECK(w.wet_margin == 120);
     CHECK(w.wet_darkening == 800'000);
     CHECK(w.ragged == 1'000'000);
+    CHECK(w.beach == 280);
+    CHECK(w.calm_marks == 300'000);
+    CHECK(w.calm_scale == 7'000);
+    CHECK(w.marks_depth == 200);
+    CHECK(w.shore_wander == 60);
+    CHECK(w.shore_scale == 1'400);
+    CHECK(w.murk_curve == 1'500'000);
     CHECK(w.sky_share == 30'000);
     CHECK(w.flow == 500);
     CHECK(w.step_rate == 10);
@@ -228,10 +253,10 @@ TEST_CASE("the area and the water count only in the look's digest, and a change 
     const data::EntryDigests water_before = cat.kind<look::WaterTuning>().digests(0);
     CHECK(area_before.fields[0] == 0);
     CHECK(area_before.fields[1] == 0);
-    CHECK(area_before.fields[2] == 29);
+    CHECK(area_before.fields[2] == 34);
     CHECK(water_before.fields[0] == 0);
     CHECK(water_before.fields[1] == 0);
-    CHECK(water_before.fields[2] == 16);
+    CHECK(water_before.fields[2] == 23);
     data::Catalogue changed;
     REQUIRE(
         changed.load(with_files(replaced(kArea, "seed = 7", "seed = 8"), replaced(kWater, "0.9 m", "0.8 m"))).empty());
@@ -274,6 +299,12 @@ TEST_CASE("the strip must hold the river and the square be wider than the strip;
         names(checked_problems(replaced(kArea, "art:club", "art:no_club"), kWater), "names no recipe \"art:no_club\""));
     CHECK(names(checked_problems(replaced(kArea, "art:hide_tent_cone", "art:no_tent"), kWater),
                 "names no recipe \"art:no_tent\""));
+    // the tent's other forms are recipes the catalogue has, and the small form takes over at fewer pixels
+    CHECK(names(checked_problems(replaced(kArea, "art:hide_tent_cone_simple", "art:no_simple"), kWater),
+                "names no recipe \"art:no_simple\""));
+    CHECK(names(checked_problems(replaced(kArea, "art:hide_tent_cone_small", "art:no_small"), kWater),
+                "names no recipe \"art:no_small\""));
+    CHECK(names(checked_problems(replaced(kArea, "form_small = 70", "form_small = 150"), kWater), "form_small"));
     // a bearing is a whole number of degrees round the compass
     CHECK(
         names(load_problems(replaced(kArea, "club_bearing = 125", "club_bearing = 400"), kWater), "out of its range"));

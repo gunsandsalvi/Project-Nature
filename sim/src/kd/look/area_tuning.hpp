@@ -35,6 +35,8 @@ struct AreaTuning {
     std::int64_t spacing = 0;
     std::int64_t seed = 0;
     std::string tent;
+    std::string tent_simple;
+    std::string tent_small;
     std::string club;
     std::int64_t camp_back = 0;
     std::int64_t club_away = 0;
@@ -49,6 +51,9 @@ struct AreaTuning {
     std::int64_t clearing = 0;       // millimetres
     std::int64_t clearing_fade = 0;  // millimetres
     std::string earth_colour;
+    std::int64_t form_simple = 0;  // screen pixels
+    std::int64_t form_small = 0;   // screen pixels
+    std::int64_t form_margin = 0;  // parts per million
 
     template <typename V, typename Self>
     static void visit(V& v, Self& a) {
@@ -86,6 +91,12 @@ struct AreaTuning {
                    a.spacing, Measure::length, {50, 4'000});
         v.whole({"seed", "which way the river wanders", Affects::look}, a.seed, {0, 2'147'483'647});
         v.text({"tent", "the camp's tent, a recipe's entry, such as art:hide_tent_cone", Affects::look}, a.tent);
+        v.text({"tent_simple", "the tent's simple form, a recipe's entry, such as art:hide_tent_cone_simple",
+                Affects::look},
+               a.tent_simple);
+        v.text(
+            {"tent_small", "the tent's small form, a recipe's entry, such as art:hide_tent_cone_small", Affects::look},
+            a.tent_small);
         v.text({"club", "the camp's club, a recipe's entry, such as art:club", Affects::look}, a.club);
         v.quantity({"camp_back", "how far north of the river's north bank, at the strip's middle, the tent stands",
                     Affects::look},
@@ -125,6 +136,17 @@ struct AreaTuning {
             {"earth_colour", "the bare earth's colour, as #rrggbb, until the art lane's bare earth is the ground's own",
              Affects::look},
             a.earth_colour);
+        v.whole({"form_simple", "the tent's width on the screen, in pixels, under which its simple form is drawn",
+                 Affects::look},
+                a.form_simple, {2, 4'000});
+        v.whole({"form_small", "the tent's width on the screen, in pixels, under which its small form is drawn",
+                 Affects::look},
+                a.form_small, {1, 4'000});
+        v.quantity({"form_margin",
+                    "how far past a switch, as a share of its pixels, the tent's size must go before its form changes "
+                    "back, so a form never flickers at a switch",
+                    Affects::look},
+                   a.form_margin, Measure::ratio, {0, 500'000});
     }
 };
 

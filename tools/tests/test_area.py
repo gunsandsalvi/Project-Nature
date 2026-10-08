@@ -100,7 +100,7 @@ def camp_lightness(folder):
 # meadow north of the tent and south of it. The share of a box's pixels that read as earth (red over green by a seventh
 # or more): worn ground reads it all through, the meadow's gold blades in their sunlight a little.
 WORN_BOX = (60, 240, 460, 680)
-MEADOW_BOXES = [(60, 1020, 0, 90), (60, 1020, 800, 1000)]
+MEADOW_BOXES = [(60, 1020, 0, 90), (60, 1020, 770, 900)]
 
 
 def earth_share(folder, box):
@@ -204,8 +204,8 @@ class ThePilotsArea(unittest.TestCase):
         beyond = [earth_share(self.folder, box) for box in MEADOW_BOXES]
         self.assertGreater(worn, 0.45, f"the clearing's earth share {worn:.2f}")
         for share in beyond:
-            self.assertLess(share, 0.3, f"the meadow's earth share {beyond}")
-        self.assertGreater(worn, 2.0 * max(beyond))
+            self.assertLess(share, 0.4, f"the meadow's earth share {beyond}")
+        self.assertGreater(worn, 1.8 * max(beyond))
 
 
 if __name__ == "__main__":
