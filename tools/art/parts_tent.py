@@ -24,9 +24,12 @@ The parts, as the sheet's "parts" row shows them:
 Forms by size on screen (A6.3), each made from the same numbers as the full part and sharing its joints and texture
 layout, which the recipes hide_tent_cone_simple (band 2) and hide_tent_cone_small (bands 3 and 4) lay:
 - `tent_pole_simple`: the pole's top only, from just under the cover's neck (56 triangles in place of 220: the cover
-  hides the rest);
-- `ring_stone_<size>_simple` (40 triangles in place of 177) and `ring_stone_<size>_marker` (15);
-- `hide_cover_cone`: the whole cover as one cone of 146 triangles in place of the eleven hides' 2,372, toned by hide.
+  hides the rest); `tent_pole_tip`, the same tip but 1.7 times as thick and of 15 triangles, for the small form, where
+  the tips crossing over the cover's neck are the tent's one cue of poles;
+- `ring_stone_<size>_simple` (40 triangles in place of 177) and `ring_stone_<size>_marker` (15), flat-shaded so a few
+  faces read as the facets of a stone and not as a bead;
+- `hide_cover_cone`: the whole cover as one cone in place of the eleven hides' 2,372, toned by hide, with two seams
+  (a thin dark line each side of the door slit) and the door's dark patch.
 """
 
 import math
@@ -444,14 +447,14 @@ POLE_LENGTH = 3.65
 POLE_BIND = 3.22
 
 
-def pole(name="tent_pole", from_z=0.0, rings=14, segments=8):
+def pole(name="tent_pole", from_z=0.0, rings=14, segments=8, thick=1.0):
     """A pole standing along z, its foot at the origin, a little knotted, thinner toward its tip: joints at its foot,
     where it crosses the others, and its tip. `from_z` is where its wood begins: the full pole's is the foot, the
     simple form's (`tent_pole_simple`) is just under the cover's neck, since the cover hides the length below it and
     only the tips show; the joints are the full pole's in both, so the recipe's span is the same."""
     b = Builder(name)
     along = [from_z + (POLE_LENGTH - from_z) * k / (rings - 1) for k in range(rings)]
-    profile = [(z, 0.0340 - 0.0070 * z / POLE_LENGTH) for z in along]
+    profile = [(z, thick * (0.0340 - 0.0070 * z / POLE_LENGTH)) for z in along]
     lathe(b, "z", profile, segments, "wood", lambda p, n: 0.70 + 0.30 * min(1.0, p.z / 0.8), bumps=0.04, seed=11)
     obj = b.build((0.0, 0.0, 0.0))
     joint(obj, "foot", (0.0, 0.0, 0.0))
@@ -470,9 +473,11 @@ def binding():
     return obj
 
 
-def river_stone(name, seed, half_x, half_y, high, subdivisions=3):
+def river_stone(name, seed, half_x, half_y, high, subdivisions=3, smooth=True):
     """A river stone half buried, rounder than the stand-ins': a lump of smooth-shaded faces (320 before its buried
-    underside is left out at 3 subdivisions, 80 at 2, 20 at 1), its bottom on z = 0, its form leaning a little off round
+    underside is left out at 3 subdivisions, 80 at 2, 20 at 1; the smaller forms are flat-shaded, `smooth` off, so
+    that their few faces read as the facets of a stone and not as a bead), its bottom on z = 0, its form leaning a
+    little off round
     by a few slow swells, not by noise in every corner; each face has its own flat texture projection along its own
     normal, which carries a texture pixel over without stretch, and its crease darkens it toward the ground. The
     faces lying flat on the ground are left out: nothing sees them."""
@@ -486,7 +491,7 @@ def river_stone(name, seed, half_x, half_y, high, subdivisions=3):
     bmesh.ops.delete(b.bm, geom=[f for f in b.bm.faces if all(v.co.z <= 1e-9 for v in f.verts)], context="FACES")
     b.bm.normal_update()
     for f in b.bm.faces:
-        f.smooth = True
+        f.smooth = smooth
         f.material_index = b.slot("stone")
         n = f.normal.copy()
         n.normalize()
@@ -513,7 +518,7 @@ def stones():
     """The stones in their forms by size on screen (A6.3): full (the size's own name), `_simple` (80 faces, for about
     20 to 60 screen pixels across) and `_marker` (20, a few pixels), the same lump from the same seed in each."""
     return [
-        river_stone(name + suffix, seed, hx, hy, hz, subdivisions)
+        river_stone(name + suffix, seed, hx, hy, hz, subdivisions, subdivisions >= 3)
         for suffix, subdivisions in (("", 3), ("_simple", 2), ("_marker", 1))
         for name, seed, hx, hy, hz in STONE_SIZES
     ]
@@ -578,6 +583,20 @@ def cover_cone():
     ]
     n = (slit[1] - slit[0]).cross(slit[2] - slit[1])
     face(slit if n.dot(outward(DOOR)) >= 0.0 else slit[::-1], DOOR, 0.03, 0.0)
+    # two seams, the ones that flank the door slit, each a thin dark line from the hem to the neck lying a centimetre
+    # off the cone: its own mark of the hides, which at the smallest zooms is the only thing that says it is sewn
+    for seam in (25.0, 335.0):
+        a = rel(seam)
+        lift = 0.012 * outward(a)
+        for k in range(len(rings) - 1):
+            half = [0.035 / (BASE * s / SLANT) for s in rings[k : k + 2]]
+            corners = [
+                plain(a - half[0], rings[k]) + lift,
+                plain(a + half[0], rings[k]) + lift,
+                plain(a + half[1], rings[k + 1]) + lift,
+                plain(a - half[1], rings[k + 1]) + lift,
+            ]
+            face(corners, a, 0.40, 0.37 * (len(rings) * sides + int(seam)))
     obj = b.build((0.0, 0.0, 0.0))
     joint(obj, "crossing", (0.0, 0.0, CROSS))
     return obj
@@ -586,4 +605,5 @@ def cover_cone():
 def make_parts():
     """Every part of the tent, in a list."""
     simple_pole = pole("tent_pole_simple", from_z=2.95, rings=5, segments=6)
-    return [*hide_parts(), door_flap(), pole(), simple_pole, binding(), cover_cone(), *stones()]
+    tips = pole("tent_pole_tip", from_z=2.95, rings=3, segments=5, thick=1.7)
+    return [*hide_parts(), door_flap(), pole(), simple_pole, tips, binding(), cover_cone(), *stones()]

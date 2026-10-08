@@ -110,13 +110,13 @@ rule = "plug"
 joint = "hinge"
 onto = "hide_lower_1.door_top"
 
-# 24 stones on a ring of 2.0 m (their outer edges make the sheet's 4.2 m across), half under the hem, in three sizes by the seed, each a little off its place
+# 24 stones on a ring of 1.93 m (their outer edges make the sheet's 4.2 m across), half under the hem, in three sizes by the seed, each a little off its place
 [[place]]
 name = "stones"
 parts = ["ring_stone_small", "ring_stone_medium", "ring_stone_large"]
 rule = "ring"
 count = 24
-radius = "2.0 m"
-jitter_radius = "5%"
-jitter_turn = 3
+radius = "1.93 m"
+jitter_radius = "6%"
+jitter_turn = 6
 face = 0

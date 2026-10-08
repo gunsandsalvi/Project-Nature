@@ -67,7 +67,8 @@ def lay_faces(builder, role_of, crease_of, smooth, project=None):
         w = n.cross(t)
         for loop in f.loops:
             p = loop.vert.co
-            loop[builder.uv].uv = project(p, n) if project else (p.dot(t), p.dot(w))
+            uv = project(p, n) if project else None
+            loop[builder.uv].uv = uv if uv is not None else (p.dot(t), p.dot(w))
             c = crease_of(p, n)
             loop[builder.crease] = (c, c, c, 1.0)
 
@@ -108,12 +109,28 @@ class Dome:
     """A rounded boulder as a surface of two numbers: `t` (0 at its crown, 1 where it meets the ground) and `phi` (the
     angle round it, 0 to the east, counter-clockwise from above). The footprint is a rounded square of half-width `a`
     (east) and `b` (north) with a few slow swells in its outline; the crown is `high` metres up, off the middle by
-    `shift`, and the flank steepens to upright at the ground, as a stone sunk in the ground does. The same numbers give
-    the same stone in every form."""
+    `shift`, and the flank steepens to upright at the ground, as a stone sunk in the ground does. It is not the same on
+    every side: `skew` (a share of the height, east to west) raises one shoulder over the other, and `steep` (a share of
+    the flank's profile) makes the side toward the angle `steep_phi` fuller and steeper than the one opposite, so the
+    stone is lopsided as a weathered one is, not a hemisphere. The same numbers give the same stone in every form."""
 
-    def __init__(self, a, b, high, seed, shift=(0.0, 0.0), squareness=2.4, crown=3.2, flank=0.56):
+    def __init__(
+        self,
+        a,
+        b,
+        high,
+        seed,
+        shift=(0.0, 0.0),
+        squareness=2.4,
+        crown=3.2,
+        flank=0.56,
+        skew=0.0,
+        steep=0.0,
+        steep_phi=0.0,
+    ):
         self.a, self.b, self.high, self.seed, self.shift = a, b, high, seed, shift
         self.e, self.p, self.q = squareness, crown, flank
+        self.skew, self.steep, self.steep_phi = skew, steep, steep_phi
 
     def at(self, t, phi):
         c, s = math.cos(phi), math.sin(phi)
@@ -125,7 +142,8 @@ class Dome:
         x = self.a * c * g * swell * t + self.shift[0] * (1.0 - t * t)
         y = self.b * s * g * swell * t + self.shift[1] * (1.0 - t * t)
         lump = 1.0 + 0.045 * math.sin(3.1 * x / self.a + sd) * math.cos(2.3 * y / self.b + 1.3 * sd)
-        z = self.high * max(0.0, 1.0 - t**self.p) ** self.q * lump
+        flank = self.q * (1.0 - self.steep * math.cos(phi - self.steep_phi))
+        z = self.high * max(0.0, 1.0 - t**self.p) ** flank * lump * (1.0 + self.skew * x / self.a)
         return Vector((x, y, z))
 
     def normal_at(self, t, phi):
@@ -216,8 +234,8 @@ def crack_ribbon(builder, dome, path, width, lift, steps):
 
 def boulder(name, spec, rings, segments, crack_steps):
     """One form of a granite boulder: the dome, its crack when it has one and the form is big enough to show it."""
-    a, b, high, seed, shift, crack = spec
-    dome = Dome(a, b, high, seed, shift)
+    a, b, high, seed, shift, crack, lopsided = spec
+    dome = Dome(a, b, high, seed, shift, **lopsided)
     builder = Builder(name)
     dome_faces(builder, dome, rings, segments)
     ribbon, centres = (
@@ -230,7 +248,12 @@ def boulder(name, spec, rings, segments, crack_steps):
     for f in builder.bm.faces:
         if f.tag:
             for loop in f.loops:  # dark in the middle of the crack, the lit lips of it at its edges paler
-                c = 0.04 if loop.vert in centres else 0.40
+                v = loop.vert.co
+                c = (
+                    0.03
+                    if loop.vert in centres
+                    else 0.07 + 0.10 * abs(noise(round(v.x * 40), round(v.y * 40), round(v.z * 40)))
+                )
                 loop[builder.crease] = (c, c, c, 1.0)
     return builder.build((0.0, 0.0, 0.0))
 
@@ -238,14 +261,23 @@ def boulder(name, spec, rings, segments, crack_steps):
 # the three granite boulders of sheet 2.16 (the sheet's own metres): half-width east, half-width north, height, seed,
 # where the crown lies off the middle, and the crack as (t, phi) points from the crown down the front
 BOULDERS = {
-    "boulder_small": (0.50, 0.40, 0.70, 31, (0.07, 0.0), None),
+    "boulder_small": (
+        0.50,
+        0.42,
+        0.60,
+        31,
+        (0.16, 0.0),
+        None,
+        {"skew": 0.20, "steep": 0.30, "steep_phi": math.pi, "crown": 4.4, "flank": 0.64, "squareness": 2.0},
+    ),
     "boulder_large": (
         1.50,
         1.10,
-        2.00,
+        1.83,
         32,
-        (-0.20, -0.05),
+        (-0.42, -0.08),
         [(0.10, -1.05), (0.42, -1.18), (0.72, -0.95), (0.88, -0.80)],
+        {"skew": -0.12, "steep": 0.26, "steep_phi": 0.0, "crown": 3.6, "flank": 0.6},
     ),
 }
 # a form's rings and segments round a dome, by the dome's own size (the crack's steps, none where it would not show):
@@ -276,7 +308,10 @@ BLOCK_TOP = [
 ]  # fmt: skip
 BLOCK_CLIP = [(-0.99, -0.50, 1.02)]  # the clipped upper left corner: a point lower down the left, which the hull cuts
 # four more points a little out of its faces, so no face is a flat plane and its outline is not straight
-BLOCK_EXTRA = [(-0.60, -0.76, 0.55), (0.98, -0.25, 0.45), (0.30, 0.80, 0.80), (-0.35, -0.68, 1.34)]
+BLOCK_EXTRA = [(-0.60, -0.76, 0.55), (0.98, -0.25, 0.45)]
+# where on the limestone's near tile (metres east, metres up) the block is cut from: the 2 x 1.4 m stretch of it whose
+# beds run most nearly level (found by the share of its gradient that is vertical), so each face shows straight beds
+BLOCK_FROM = (3.625, 3.21)
 
 
 def roughened(points, seed, amount):
@@ -292,8 +327,8 @@ def roughened(points, seed, amount):
 
 
 BLOCK_FORMS = [
-    (roughened(BLOCK_BASE + BLOCK_TOP + BLOCK_CLIP + BLOCK_EXTRA, 71, 0.05), 0.055),
-    (roughened(BLOCK_BASE + BLOCK_TOP, 71, 0.05), 0.0),
+    (roughened(BLOCK_BASE + BLOCK_TOP + BLOCK_CLIP + BLOCK_EXTRA, 71, 0.025), 0.04),
+    (roughened(BLOCK_BASE + BLOCK_TOP, 71, 0.025), 0.0),
     (BLOCK_BASE[:4] + BLOCK_TOP[:4], 0.0),
 ]
 
@@ -303,10 +338,23 @@ def block_crease(p, n):
     return (0.62 + 0.38 * min(1.0, max(0.0, p.z / 1.1))) * (0.84 + 0.16 * n.z)
 
 
+def square_to_side(p, n):
+    """A face on the plane of the side it most nearly faces (south or north: along x, up z; east or west: along y, up z;
+    up: along x and y), so the beds, which run level, run straight across every face of one side, a chamfer or a face
+    a little out of true included, and a texture pixel is carried over by at most 1 / cos 44 degrees. A face turned
+    further than that from every side (a corner's chamfer) takes the projection of its own plane (None)."""
+    if max(abs(n.x), abs(n.y), abs(n.z)) < 0.72:  # a corner's chamfer, turned too far from every side: its own plane
+        return None
+    u, v = BLOCK_FROM
+    if abs(n.z) >= max(abs(n.x), abs(n.y)):
+        return (p.x + u, p.y + v)
+    return (p.x + u, p.z + v) if abs(n.y) >= abs(n.x) else (p.y + u, p.z + v)
+
+
 def block(name, points, bevel):
     builder = Builder(name)
     hull(builder, points, bevel)
-    lay_faces(builder, lambda f: "limestone", block_crease, False)
+    lay_faces(builder, lambda f: "limestone", block_crease, False, square_to_side)
     return builder.build((0.0, 0.0, 0.0))
 
 
@@ -334,7 +382,7 @@ def split_half(name, side, rings, segments, rows):
     """One half of the cleaved granite: its dome cut along the plane x = 0, then moved off it by half the gap, and the
     pale jagged face where it was broken, which carries the lightest crease so it reads paler than the weathered
     skin. `side` is +1 for the half to the east, -1 for the other."""
-    dome = Dome(0.75, 0.55, 1.0, 33, (0.0, 0.0), crown=2.4, flank=0.60)
+    dome = Dome(0.75, 0.55, 0.95, 33, (0.0, 0.0), crown=2.4, flank=0.60, steep=0.2, steep_phi=-math.pi / 2.0)
     builder = Builder(name)
     lo = -math.pi / 2.0 if side > 0 else math.pi / 2.0  # the east half's angles run from -90 to +90 degrees
     grid = dome_faces(builder, dome, rings, segments, (lo, lo + math.pi))
@@ -394,7 +442,7 @@ def perched():
     out = []
     forms = [(7, 20, 7, 20), (4, 10, 4, 10), (2, 8, 2, 8)]
     for suffix, (br, bs, cr, cs) in zip(FORMS, forms, strict=True):
-        base_dome = Dome(0.35, 0.30, 0.50, 34, (0.03, 0.0))
+        base_dome = Dome(0.35, 0.30, 0.50, 34, (0.06, 0.0), skew=0.14, steep=0.2, steep_phi=math.pi)
         b = Builder("boulder_perch_base" + suffix)
         dome_faces(b, base_dome, br, bs)
         drop_loose(b.bm)
@@ -402,7 +450,9 @@ def perched():
         obj = b.build((0.0, 0.0, 0.0))
         joint(obj, "top", tuple(base_dome.at(0.0, 0.0) - Vector((0.0, 0.0, 0.02))), (0.0, math.radians(-8.0), 0.0))
         out.append(obj)
-        cap_dome = Dome(0.70, 0.50, 1.30, 35, (-0.06, 0.0), crown=2.2, flank=0.66)
+        cap_dome = Dome(
+            0.70, 0.50, 1.25, 35, (-0.16, 0.0), crown=2.4, flank=0.66, skew=-0.12, steep=0.22, steep_phi=0.0
+        )
         c = Builder("boulder_perch_cap" + suffix)
         grid = dome_faces(c, cap_dome, cr, cs)
         underside = [grid[cr][j] for j in range(cs)]
@@ -440,12 +490,13 @@ def chip_points(seed, lx, ly, lz, base_points, top_points):
 
 
 def chip(name, seed, size, base_points, top_points, role):
+    dark = 0.62 if role == "shale" else 1.0  # a flake is a dark plate: its crease darker than a limestone chip's
     builder = Builder(name)
     hull(builder, chip_points(seed, *size, base_points, top_points))
     high = size[2]
 
     def shade(p, n):
-        return (0.58 + 0.42 * min(1.0, max(0.0, p.z / (0.9 * high)))) * (0.82 + 0.18 * n.z)
+        return dark * (0.58 + 0.42 * min(1.0, max(0.0, p.z / (0.9 * high)))) * (0.82 + 0.18 * n.z)
 
     lay_faces(builder, lambda f: role, shade, False)
     return builder.build((0.0, 0.0, 0.0))
@@ -456,8 +507,8 @@ CHIPS = {
     "scree_stone_small": (51, (0.14, 0.10, 0.05), "limestone", [(5, 4), (4, 2), (3, 1)]),
     "scree_stone_medium": (52, (0.28, 0.20, 0.09), "limestone", [(6, 5), (5, 3), (3, 1)]),
     "scree_stone_large": (53, (0.50, 0.36, 0.15), "limestone", [(7, 5), (5, 3), (4, 1)]),
-    "shale_flake_small": (54, (0.28, 0.18, 0.035), "shale", [(6, 4), (5, 2), (3, 1)]),
-    "shale_flake_medium": (55, (0.55, 0.36, 0.055), "shale", [(7, 5), (5, 3), (4, 1)]),
+    "shale_flake_small": (54, (0.34, 0.22, 0.03), "shale", [(6, 4), (5, 2), (3, 1)]),
+    "shale_flake_medium": (55, (0.70, 0.46, 0.045), "shale", [(7, 5), (5, 3), (4, 1)]),
 }
 
 
@@ -481,17 +532,28 @@ def wave(x, seed, orders):
     return sum(amp * math.sin(2.0 * math.pi * k * x / LIP + seed * k) for k, amp in orders)
 
 
-def nose(x):
-    """How far the lip's front stands out of the face above it, in metres."""
-    return 0.24 + wave(x, 1.3, [(1, 0.08), (2, 0.07), (3, 0.045), (5, 0.02)])
+LIP_PHASES = (1.3, 3.1, 5.2)  # where each of the three lips' own swells begin
 
 
-def thick(x):
-    """How thick the bed is at its front, in metres."""
-    return 0.46 + wave(x, 0.7, [(1, 0.06), (2, 0.05), (3, 0.04)])
+def window(x):
+    """0 at both ends of the lip and 1 in its middle, so what is multiplied by it leaves the two ends as they are."""
+    return math.sin(math.pi * x / LIP) ** 2
 
 
-def lip(name, segments, front_rows):
+def nose(x, variant=0):
+    """How far the lip's front stands out of the face above it, in metres: a swell common to the three lips and, away
+    from the ends, one of each lip's own, so any two lips lie end to end without a step and no two are alike."""
+    own = wave(x, LIP_PHASES[variant], [(1, 0.09), (2, 0.08), (3, 0.05), (5, 0.02)])
+    return 0.24 + wave(x, 1.3, [(1, 0.05)]) + window(x) * own
+
+
+def thick(x, variant=0):
+    """How thick the bed is at its front, in metres, made as the nose is."""
+    own = wave(x, LIP_PHASES[variant] + 0.7, [(1, 0.04), (2, 0.05), (3, 0.04)])
+    return 0.46 + wave(x, 0.7, [(1, 0.04)]) + window(x) * own
+
+
+def lip(name, segments, front_rows, variant=0):
     """The limestone bed: along x from 0 to 4 m, its back (y = +0.55, in the cliff behind the shale's weathered face)
     and its front out to y = -nose, the top flush with the face above at z = 0 and the underside, undercut and rising
     toward the back, dark
@@ -502,14 +564,14 @@ def lip(name, segments, front_rows):
 
     def front(x, r):
         """A point of the front at a fraction r down it (0 at the top edge, 1 at the underside's edge)."""
-        bulge = 0.03 * math.sin(math.pi * r) * (0.6 + 0.4 * noise(61, round(x * 4), round(r * 7)))
-        return Vector((x, -nose(x) - bulge, -thick(x) * r - 0.015 * (1 - r)))
+        bulge = 0.03 * window(x) * math.sin(math.pi * r) * (0.6 + 0.4 * noise(61 + variant, round(x * 4), round(r * 7)))
+        return Vector((x, -nose(x, variant) - bulge, -thick(x, variant) * r - 0.015 * (1 - r)))
 
     cols = [
         {
             "back_top": builder.bm.verts.new((x, BACK, 0.0)),
             "front": [builder.bm.verts.new(front(x, r / front_rows)) for r in range(front_rows + 1)],
-            "back_under": builder.bm.verts.new((x, BACK, -thick(x) + 0.16)),
+            "back_under": builder.bm.verts.new((x, BACK, -thick(x, variant) + 0.16)),
         }
         for x in xs
     ]
@@ -544,7 +606,29 @@ def lip(name, segments, front_rows):
         return (p.x, p.z) if abs(n.z) < 0.7 else (p.x, -p.y)
 
     lay_faces(builder, lambda f: "limestone", shade, lambda f: abs(f.normal.x) < 0.5 and f.normal.z < 0.5, along)
+    stride = front_rows + 3  # the vertices of a column: its top at the back, its front rows, its underside at the back
+    where = {c * stride + 1 + j: (x, j / front_rows) for c, x in enumerate(xs) for j in range(front_rows + 1)}
+
+    def surface_normal(x, r):
+        """The normal of the front's smooth surface at a place, from the surface itself, which goes on past the ends of
+        the part as the next lip's front does: so a vertex at an end is shaded as the join's two sides are, not as the
+        edge of one."""
+        h = 1e-3
+        n = (front(x, min(1.0, r + h)) - front(x, max(0.0, r - h))).cross(front(x + h, r) - front(x - h, r))
+        n.normalize()
+        return n if n.y < 0.0 else -n
+
     obj = builder.build((0.0, 0.0, 0.0))
+    mesh = obj.data
+    if hasattr(mesh, "use_auto_smooth"):  # Blender 4.0 and earlier need it for custom normals; 4.1 and later do not
+        mesh.use_auto_smooth = True
+    normals = []
+    for poly in mesh.polygons:
+        for corner in poly.loop_indices:
+            vertex = mesh.loops[corner].vertex_index
+            smooth_front = poly.use_smooth and vertex in where and abs(poly.normal.y) > 0.5
+            normals.append(surface_normal(*where[vertex]) if smooth_front else poly.normal.copy())
+    mesh.normals_split_custom_set(normals)
     joint(obj, "start", (0.0, 0.0, 0.0))
     joint(obj, "end", (LIP, 0.0, 0.0))
     return obj
@@ -554,7 +638,12 @@ LIP_FORMS = [(40, 3), (16, 2), (8, 1)]
 
 
 def lips():
-    return [lip("cliff_lip" + suffix, *form) for suffix, form in zip(FORMS, LIP_FORMS, strict=True)]
+    """The three lips (`cliff_lip`, `cliff_lip_b`, `cliff_lip_c`), each in its three forms."""
+    return [
+        lip("cliff_lip" + kind + suffix, *form, variant)
+        for variant, kind in enumerate(("", "_b", "_c"))
+        for suffix, form in zip(FORMS, LIP_FORMS, strict=True)
+    ]
 
 
 # ---- the family ------------------------------------------------------------------------------------------------
