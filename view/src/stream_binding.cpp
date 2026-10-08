@@ -137,15 +137,21 @@ std::string key_of(const godot::Dictionary& key) {
         const auto field = text(name);
         if (field.size() > 64) return {};
         if (field == "epoch" || field == "generation" || field == "revision") continue;
-        const auto value = key[name];
+        const auto& value = key[name];
         if (value.get_type() != godot::Variant::STRING && value.get_type() != godot::Variant::INT) return {};
         if (value.get_type() == godot::Variant::STRING && godot::String(value).length() > 512) return {};
         fields.emplace_back(field, std::to_string(static_cast<int>(value.get_type())) + ":" + text(value));
     }
     std::sort(fields.begin(), fields.end());
     std::string result;
-    for (const auto& [name, value] : fields)
-        result += std::to_string(name.size()) + ":" + name + std::to_string(value.size()) + ":" + value;
+    for (const auto& [name, value] : fields) {
+        result += std::to_string(name.size());
+        result += ":";
+        result += name;
+        result += std::to_string(value.size());
+        result += ":";
+        result += value;
+    }
     return result;
 }
 }  // namespace
@@ -200,7 +206,7 @@ godot::Dictionary KdStream::begin(const godot::Dictionary& id, const godot::Dict
         return error("stream limits must be positive whole counts and bytes");
     const godot::Dictionary categories = values.get("resident_by_category", godot::Dictionary());
     for (const auto& name : categories.keys()) {
-        const auto value = categories[name];
+        const auto& value = categories[name];
         if (value.get_type() != godot::Variant::INT || static_cast<int64_t>(value) <= 0)
             return error("resident category caps must be positive whole bytes");
         limits.resident_by_category[text(name)] = static_cast<std::uint64_t>(static_cast<int64_t>(value));
@@ -217,7 +223,7 @@ godot::Dictionary KdStream::manifest(const godot::Dictionary& full) {
              {"surfaces", "surface"}, {"casters", "caster"}, {"appearances", "appearance"}}) {
         const godot::Dictionary records = full.get(plural, godot::Dictionary());
         for (const auto& name : records.keys()) {
-            const auto value = records[name];
+            const auto& value = records[name];
             if (value.get_type() != godot::Variant::INT || static_cast<int64_t>(value) < 0)
                 return error("manifest revisions must be nonnegative whole numbers");
             manifest.records[singular][text(name)] = static_cast<std::uint64_t>(static_cast<int64_t>(value));

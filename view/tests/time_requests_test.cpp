@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string_view>
 #include "doctest.h"
+#include "kd/num/maths.hpp"
 using namespace kd::view;
 namespace {
 void configured(TimeRequests& time) {
@@ -20,7 +21,7 @@ TEST_CASE("zoom time requests match catalogue anchors and interpolate smoothly t
     }
     double before = 1;
     for (int i = 0; i <= 180; ++i) {
-        time.zoom(std::exp2(6.0 - static_cast<double>(i) / 10.0));
+        time.zoom(kd::num::exp2(6.0 - static_cast<double>(i) / 10.0));
         CHECK(time.resolve().rate >= before);
         CHECK(time.resolve().rate <= 1e6);
         before = time.resolve().rate;

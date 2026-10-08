@@ -461,9 +461,10 @@ double sky_visibility(Point p, const std::vector<Caster>& casters, std::int64_t 
     static const auto directions = [] {
         std::array<Point, 24> result{};
         for (std::size_t i = 0; i < result.size(); ++i) {
-            const double radius = std::sqrt(i / static_cast<double>(result.size()));
-            const double angle = i * 2.39996322972865332;
-            result[i] = {radius * std::cos(angle), radius * std::sin(angle), std::sqrt(1 - radius * radius)};
+            const double radius = num::sqrt(static_cast<double>(i) / static_cast<double>(result.size()));
+            const double half_turns = static_cast<double>(i) * (2.39996322972865332 / 3.14159265358979323846);
+            result[i] = {radius * num::cospi(half_turns), radius * num::sinpi(half_turns),
+                         num::sqrt(1 - radius * radius)};
         }
         return result;
     }();
@@ -473,7 +474,7 @@ double sky_visibility(Point p, const std::vector<Caster>& casters, std::int64_t 
         const Point end{p.east + direction.east * 160, p.north + direction.north * 160, p.up + direction.up * 160};
         if (!blocked(p, end, casters, ignore) && !blocked(p, end, bodies, ignore)) ++visible;
     }
-    return visible / static_cast<double>(directions.size());
+    return static_cast<double>(visible) / static_cast<double>(directions.size());
 }
 double sunlight(Point p, const Light& l, const std::vector<Caster>& casters, std::int64_t ignore) {
     return std::popcount(sun_bits(p, l, casters, ignore)) / 5.0;

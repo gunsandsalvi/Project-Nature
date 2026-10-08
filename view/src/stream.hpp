@@ -31,11 +31,11 @@ struct RevisionManifest {
 struct StreamLimits {
     std::uint64_t queued_jobs = 32;
     std::uint64_t preparing_jobs = 1;
-    std::uint64_t input = 8 * 1024 * 1024;
-    std::uint64_t prepared = 64 * 1024 * 1024;
-    std::uint64_t staging = 4 * 1024 * 1024;
-    std::uint64_t resident = 128 * 1024 * 1024;
-    std::uint64_t targets = 32 * 1024 * 1024;
+    std::uint64_t input = 8ULL * 1024 * 1024;
+    std::uint64_t prepared = 64ULL * 1024 * 1024;
+    std::uint64_t staging = 4ULL * 1024 * 1024;
+    std::uint64_t resident = 128ULL * 1024 * 1024;
+    std::uint64_t targets = 32ULL * 1024 * 1024;
     std::map<std::string, std::uint64_t> resident_by_category;
 };
 // T2.9a.2: main-owned allocations use the same caps without borrowing a mutable scene for worker preparation.

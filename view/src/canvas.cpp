@@ -71,10 +71,10 @@ void KdCanvas::set_world(const godot::Ref<KdWorld>& world, int64_t east, int64_t
             const auto& n = catalogue.kind<look::NavigationTuning>()[*index];
             projection_.configure(static_cast<int>(n.minimum_power), static_cast<int>(n.maximum_power),
                                   static_cast<int>(n.tiny_power), static_cast<int>(n.group_power));
-            settle_seconds_ = n.settle_ms / 1000.0;
-            maximum_height_ = n.maximum_height / 1000.0;
+            settle_seconds_ = static_cast<double>(n.settle_ms) / 1000.0;
+            maximum_height_ = static_cast<double>(n.maximum_height) / 1000.0;
             overscan_ = static_cast<double>(n.overscan_pixels);
-            shadow_reach_ = n.shadow_reach / 1000.0;
+            shadow_reach_ = static_cast<double>(n.shadow_reach) / 1000.0;
         }
     }
 }
@@ -226,7 +226,7 @@ bool KdCanvas::restore_origin(int64_t east, int64_t north, int64_t raster_east, 
 }
 Projection KdCanvas::projection_at_origin(num::Point source_origin) const {
     const auto offset = world::World::kTorus.offset(source_origin, origin_);
-    return projection_.at_origin({offset.dx / 100., offset.dy / 100.});
+    return projection_.at_origin({static_cast<double>(offset.dx) / 100., static_cast<double>(offset.dy) / 100.});
 }
 void KdCanvas::set_detail_seed(int64_t seed) {
     detail_seed_ = static_cast<std::uint64_t>(seed);
@@ -238,11 +238,13 @@ godot::Dictionary KdCanvas::tile_at(int64_t east, int64_t north, int64_t power, 
 }
 godot::Vector2 KdCanvas::world_local(int64_t east, int64_t north) const {
     const auto offset = world::World::kTorus.offset(origin_, world::World::kTorus.wrap(east, north));
-    return {static_cast<float>(offset.dx / 100.), static_cast<float>(offset.dy / 100.)};
+    return {static_cast<float>(static_cast<double>(offset.dx) / 100.),
+            static_cast<float>(static_cast<double>(offset.dy) / 100.)};
 }
 godot::Vector2 KdCanvas::project_world(int64_t east, int64_t north, double height) const {
     const auto offset = world::World::kTorus.offset(origin_, world::World::kTorus.wrap(east, north));
-    const auto pixel = projection_.raster(offset.dx / 100., offset.dy / 100., height);
+    const auto pixel =
+        projection_.raster(static_cast<double>(offset.dx) / 100., static_cast<double>(offset.dy) / 100., height);
     return {static_cast<float>(pixel.x), static_cast<float>(pixel.y)};
 }
 godot::Vector2 KdCanvas::from_screen(godot::Vector2 pixel) const {

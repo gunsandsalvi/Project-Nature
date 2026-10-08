@@ -20,8 +20,8 @@ bool Projection::restore_raster_origin(num::Offset origin) {
     if (origin.dx < -100000000000000LL || origin.dx > 100000000000000LL || origin.dy < -100000000000000LL ||
         origin.dy > 100000000000000LL || origin.dx % 409600 != 0 || origin.dy % 409600 != 0)
         return false;
-    raster_origin_east_ = origin.dx / 100.;
-    raster_origin_north_ = origin.dy / 100.;
+    raster_origin_east_ = static_cast<double>(origin.dx) / 100.;
+    raster_origin_north_ = static_cast<double>(origin.dy) / 100.;
     return true;
 }
 Projection Projection::at_origin(Pixel delta) const {
@@ -38,10 +38,10 @@ num::Offset Projection::rebase() {
         return static_cast<std::int64_t>(std::floor(metres / 4096.0)) * 409600;
     };
     const num::Offset shift{axis(east_), axis(north_)};
-    raster_origin_east_ += shift.dx / 100.0;
-    raster_origin_north_ += shift.dy / 100.0;
-    east_ -= shift.dx / 100.0;
-    north_ -= shift.dy / 100.0;
+    raster_origin_east_ += static_cast<double>(shift.dx) / 100.0;
+    raster_origin_north_ += static_cast<double>(shift.dy) / 100.0;
+    east_ -= static_cast<double>(shift.dx) / 100.0;
+    north_ -= static_cast<double>(shift.dy) / 100.0;
     return shift;
 }
 void Projection::focus(double east, double north) {
@@ -105,7 +105,7 @@ void Projection::advance(double seconds) {
     if (settle_left_ <= settle_total_ * 1e-12) settle_left_ = 0.0;
     const double t = 1.0 - settle_left_ / settle_total_;
     const double smooth = t * t * (3.0 - 2.0 * t);
-    density_ = std::exp(std::log(settle_start_) * (1.0 - smooth) + std::log(settle_target_) * smooth);
+    density_ = num::exp(num::log(settle_start_) * (1.0 - smooth) + num::log(settle_target_) * smooth);
     if (!settling()) {
         density_ = settle_target_;
         raster_density_ = density_;

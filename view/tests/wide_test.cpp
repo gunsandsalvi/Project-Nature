@@ -88,10 +88,11 @@ TEST_CASE("camera rebasing preserves every raster stop and wrapped absolute pick
         if (shift.dx == 0 || shift.dy == 0) continue;
         CHECK(shift.dx % 409600 == 0);
         CHECK(shift.dy % 409600 == 0);
-        const auto after = p.raster(20002.5 - shift.dx / 100., -30001.25 - shift.dy / 100., 2);
+        const auto after = p.raster(20002.5 - static_cast<double>(shift.dx) / 100.,
+                                    -30001.25 - static_cast<double>(shift.dy) / 100., 2);
         CHECK(after.x == before.x);
         CHECK(after.y == before.y);
-        const auto source = p.at_origin({shift.dx / 100., shift.dy / 100.});
+        const auto source = p.at_origin({static_cast<double>(shift.dx) / 100., static_cast<double>(shift.dy) / 100.});
         const auto source_pixel = source.raster(20002.5, -30001.25, 2);
         CHECK(source_pixel.x == before.x);
         CHECK(source_pixel.y == before.y);
@@ -180,7 +181,8 @@ TEST_CASE("coarse ground demand retains the canonical fine detail ids and positi
     CHECK(fine.stamp_key == adjacent.stamp_key);
     for (int x = 0; x < 16; ++x)
         for (int y = 0; y < 16; ++y) {
-            const auto cell = canonical_tile(torus, x * 1600, y * 1600, 4, 42);
+            const auto cell =
+                canonical_tile(torus, static_cast<std::int64_t>(x) * 1600, static_cast<std::int64_t>(y) * 1600, 4, 42);
             CHECK(cell.stamp_key == coarse.stamp_key);
             CHECK(cell.accent == coarse.accent);
         }

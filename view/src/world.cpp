@@ -176,12 +176,13 @@ void KdWorld::enable_time_requests(bool enabled) {
     if (!navigation || !time) return;
     const auto& n = catalogue_->kind<look::NavigationTuning>()[*navigation];
     const auto& t = catalogue_->kind<time::ZoomSpeeds>()[*time];
-    time_requests_enabled_ = time_requests_.configure({{std::ldexp(1.0, n.person_power), t.person / 60.0},
-                                                       {std::ldexp(1.0, n.close_camp_power), t.close_camp / 60.0},
-                                                       {std::ldexp(1.0, n.camp_power), t.camp / 60.0},
-                                                       {std::ldexp(1.0, n.valley_power), t.valley / 60.0},
-                                                       {std::ldexp(1.0, n.region_power), t.region / 60.0}},
-                                                      std::ldexp(1.0, n.minimum_power));
+    time_requests_enabled_ = time_requests_.configure(
+        {{std::ldexp(1.0, static_cast<int>(n.person_power)), static_cast<double>(t.person) / 60.0},
+         {std::ldexp(1.0, static_cast<int>(n.close_camp_power)), static_cast<double>(t.close_camp) / 60.0},
+         {std::ldexp(1.0, static_cast<int>(n.camp_power)), static_cast<double>(t.camp) / 60.0},
+         {std::ldexp(1.0, static_cast<int>(n.valley_power)), static_cast<double>(t.valley) / 60.0},
+         {std::ldexp(1.0, static_cast<int>(n.region_power)), static_cast<double>(t.region) / 60.0}},
+        std::ldexp(1.0, static_cast<int>(n.minimum_power)));
 }
 void KdWorld::set_zoom_density(double density) {
     time_requests_.zoom(density);
