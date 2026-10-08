@@ -59,9 +59,9 @@ def rel(degrees):
 
 
 def tier_s(a):
-    """The slant distance of the boundary between the upper and lower hides at an azimuth: about 40% of the slant from
+    """The slant distance of the boundary between the upper and lower hides at an azimuth: about 46% of the slant from
     the apex, scalloped by the hide outlines."""
-    return 0.40 * SLANT + 0.07 * math.sin(3.0 * a + 0.7) + 0.035 * math.sin(7.0 * a + 2.0)
+    return 0.46 * SLANT + 0.07 * math.sin(3.0 * a + 0.7) + 0.035 * math.sin(7.0 * a + 2.0)
 
 
 def hem_s(a):
@@ -382,27 +382,40 @@ def hide_parts():
 
 def door_flap():
     """The hanging flap: a hide hung from just above the slit's top and pulled aside to its left, as the sheet shows it,
-    its free edge lifted out from the cone so the dark opening shows beside it; its hinge joint lies where the cover's
-    door_top does. Its texture coordinates are the flat cut."""
+    its free edge lifted out from the cone so the dark opening shows beside it, and its lower quarter turned back up
+    over itself, so the pale lining shows in a fold; its hinge joint lies where the cover's door_top does. Its texture
+    coordinates are the flat cut of the hide as if it hung straight."""
     b = Builder("tent_door_flap")
     a1 = DOOR - math.radians(5.0)  # its free edge, beside the opening; its outer edge fans out toward the hem
     s0, s1 = SLANT * (1.0 - SLIT / HIGH) - 0.13, SLANT - 0.02
     columns, rows = 4, 8
+    turn_at = 0.75  # where the hide is turned back on itself
+
+    def where(x, t):
+        """The azimuth, slant distance and lift of the hanging hide at a fraction across (from its outer edge to its
+        free one) and a fraction down."""
+        a = DOOR - math.radians(16.0 + 18.0 * t) + (a1 - (DOOR - math.radians(16.0 + 18.0 * t))) * x
+        s = s0 + (s1 - 0.12 * (1.0 - x) - s0) * t  # the outer corner is cut short and the free corner hangs lowest
+        fold = 0.07 * max(0.0, math.sin(math.pi * (0.55 * x + 0.85 * t - 0.15))) * t  # one broad diagonal fold
+        lift = 0.015 + 0.08 * t**1.6 + 0.12 * x**1.4 * t**1.2 + 0.20 * x**3 * t**3 + fold  # a lifted lower corner
+        return a, s, lift
+
     grid = {}
     frame = DOOR
     lows = [1e9, 1e9]
     for j in range(rows + 1):
         t = j / rows
-        a0 = DOOR - math.radians(16.0 + 18.0 * t)
         for i in range(columns + 1):
-            a = a0 + (a1 - a0) * i / columns
             x = i / columns
-            s = s0 + (s1 - 0.16 * (1.0 - x) - s0) * t  # the outer corner is cut short and the free corner hangs lowest
-            fold = 0.07 * max(0.0, math.sin(math.pi * (0.55 * x + 0.85 * t - 0.15))) * t  # one broad diagonal fold
-            lift = 0.015 + 0.08 * t**1.6 + 0.12 * x**1.4 * t**1.2 + 0.20 * x**3 * t**3 + fold  # a lifted lower corner
+            a, s_flat, lift = where(x, t)
+            s = s_flat
+            if t > turn_at:  # the turned-back part lies over the hide above it, a little off it, as wide as it was
+                _, s, lift = where(x, 2.0 * turn_at - t)
+                lift += 0.03
             p = cone_point(a, s) + lift * outward(a)
-            alpha = (a - frame) * BASE / SLANT
-            flat = (s * math.sin(alpha), s * math.cos(alpha))
+            a_flat = a
+            alpha = (a_flat - frame) * BASE / SLANT
+            flat = (s_flat * math.sin(alpha), s_flat * math.cos(alpha))
             lows = [min(lows[0], flat[0]), min(lows[1], flat[1])]
             grid[(i, j)] = (p, a, flat, lift)
     verts = {k: (b.bm.verts.new(v[0]), b.bm.verts.new(v[0] - THICK * outward(v[1]))) for k, v in grid.items()}
@@ -412,7 +425,8 @@ def door_flap():
             uvs = [(HIDE_FRAME + grid[c][2][0] - lows[0], grid[c][2][1] - lows[1] + 0.9) for c in corners]
             crease = [0.80 + 0.20 * min(1.0, grid[c][3] / 0.35) for c in corners]  # the light hide, lighter as it lifts
             b.face([verts[c][0] for c in corners], uvs, "hide", crease)
-            b.face(list(reversed([verts[c][1] for c in corners])), list(reversed(uvs)), "hide", [0.3] * 4)
+            # the lining, which the turned-back part shows: pale suede
+            b.face(list(reversed([verts[c][1] for c in corners])), list(reversed(uvs)), "hide", [0.85] * 4)
     obj = b.build((0.0, 0.0, 0.0))
     frame_joint(obj, "hinge", DOOR, SLANT * (1.0 - SLIT / HIGH))
     return obj
