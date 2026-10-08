@@ -1,11 +1,11 @@
-about = "meadow grass and earth: short grass blades with earth showing between them (tufts, flowers and stones are pieces of their own); far tile, 64 m across, version 2"
+about = "meadow grass and earth: short grass blades with earth showing between them (tufts, flowers and stones are pieces of their own); far tile, 64.0 m across, version 2"
 route = "picture"
 tile_texels = 256
 texels_a_metre = 4
 first_band = 4
-sources = ["art/sources/meadow/far-sheet.webp", "art/sources/meadow/far-original.webp"]
-original_sha256 = ["f701f1e0a207605e5cbfa66729068b3a47f91171f0e85640527ca261ab2593ca", "14faef085ab64baf2326f4602794322abd520aaee158361a2668b139cfe17eb4"]
-c2pa = ["absent", "present"]
+sources = ["art/sources/meadow/middle-A.webp", "art/sources/meadow/middle-B.webp", "art/sources/meadow/middle-C.webp", "art/sources/meadow/middle-A-original.webp", "art/sources/meadow/middle-B-original.webp", "art/sources/meadow/middle-C-original.webp", "art/sources/meadow/middle-A-b3.webp", "art/sources/meadow/middle-B-b3.webp", "art/sources/meadow/middle-C-b3.webp", "art/sources/meadow/middle-A-b3-original.webp", "art/sources/meadow/middle-B-b3-original.webp", "art/sources/meadow/middle-C-b3-original.webp"]
+original_sha256 = ["4aa8be6a57628b5595c9f57993a9a03c9ebabc4722376954691db32a8d77dc53", "56c2ae680f84b4b086db10b44f5a48665a47bab194b1247e2b84a10b4e9dc4f3", "c72fc7325577ace1077d030696120a5cc3928e1f18379e576d769f4aafdb70e3", "0be28477d078726a9d767bf9d08559a954ad2cce6b57a32bca582e98dec1e60d", "2c1f32432153a43806a7886d9572758889c465c9684148f7b7db895926c2bcb3", "88635e3c33891e896296f0f8070cab964f7af62f92f4d91c41b55e6bab73e8f5", "b078ea138be0b035163a2f72f5097eeb3779a2b5569061517b34ef3d8b39c0e6", "e17ce2531d4357268ae7147ab8b372520c880797b6118f47439b8880a67bb615", "6bb3b04a2e07cf3cf6ad2acd0fcd638aae59a7cd4b5afe29eaea4f000aec6781", "1578fc0ac992ae270f9326d2f2dc93558b1efa52cdbdb37d02eee0680238a896", "d4c3e6fde378b258a0afade96b1b19c316e6a897061eec9ec1366bf4dd15a9e0", "0898513308c66ad867a5880489558a9c557eee1db1839b41cab58b803ae626ad"]
+c2pa = ["absent", "absent", "absent", "present", "present", "present", "absent", "absent", "absent", "present", "present", "present"]
 requests = []
 made = "drawn by the artist in conversation with the art lane, each tile judged in the game's view against sheet 1.1's camera views, and put on the texture-pixel grid by code; version 2 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
 regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
@@ -15,65 +15,65 @@ approved = "not offered yet: the pilot's first piece, waiting for the builder's 
 [[band]]
 level = 0
 file = "art/textures/meadow/far/v2/b4.png"
-sha256 = "cde938414347b4ba2a2a9a38ce11a84b32d6476398f46002aae09634bdc01631"
-way = "the tile's picture (a block of 2, loss 0.0%), moved to the reference's colour, its inside quilted from the tile's pictures in patches of 64 round the shared ring"
-regrid_loss = "0.0%"
-calibration = "lightness +0.4; hue +4.8; colourfulness 116%; contrast 200%"
+sha256 = "7a4d47d757fae679d2e0a1e95ea5d34fe38cd88f2a369355a979f5d949bb7398"
+way = "by code: a mosaic of 4 x 4 of the middle tile's versions at their level 2 (a pixel there as wide as this tile's, so the ladder of bands goes on without a break), each cell one version by chance, then every version quilted from it in patches of 64 round a shared ring"
+regrid_loss = "none: made by code from levels already on the grid"
+calibration = "lightness +0.1; hue +0.1; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 88% of itself, the same for every version"
 
 [[band]]
 level = 1
 file = "art/textures/meadow/far/v2/b5.png"
-sha256 = "bd7b41b9c0a432170934c30f46433c1dc94029040095caf203f297e4a53f84dd"
-made_from = "cde938414347b4ba2a2a9a38ce11a84b32d6476398f46002aae09634bdc01631"
+sha256 = "96202ebd3926653e47a228d248adce2a45a383e7c36d744bbacdaab163be1c99"
+made_from = "7a4d47d757fae679d2e0a1e95ea5d34fe38cd88f2a369355a979f5d949bb7398"
 way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
-calibration = "unsharp 0.80; lightness -0.0; hue +0.0; colourfulness 100%; contrast 75%"
+calibration = "unsharp 0.37; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 88% of itself, the same for every version"
 
 [[band]]
 level = 2
 file = "art/textures/meadow/far/v2/b6.png"
-sha256 = "9b619ffefa6b6c540a2d581a9ba33a441c3fdc899dbb698b4136674821e2945e"
-made_from = "bd7b41b9c0a432170934c30f46433c1dc94029040095caf203f297e4a53f84dd"
+sha256 = "5f7a3a6fe3e1807fc8601442d7a14ff38f835b739095852f6903c46fdf0de1a0"
+made_from = "96202ebd3926653e47a228d248adce2a45a383e7c36d744bbacdaab163be1c99"
 way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
-calibration = "unsharp 1.38; lightness -0.0; hue -0.0; colourfulness 100%; contrast 50%"
+calibration = "unsharp 1.37; lightness +0.0; hue +0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 88% of itself, the same for every version"
 
 [[band]]
 level = 3
 file = "art/textures/meadow/far/v2/b7.png"
-sha256 = "89ad531740981c45fa055941d0a5632b1a5ca576962e4e8f4e9bc1edc8b6d448"
-made_from = "9b619ffefa6b6c540a2d581a9ba33a441c3fdc899dbb698b4136674821e2945e"
+sha256 = "6b46aafcdd14398b7a3aabf5b250a9e5a76457a7dc76893e3536dcdabe576505"
+made_from = "5f7a3a6fe3e1807fc8601442d7a14ff38f835b739095852f6903c46fdf0de1a0"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 4
 file = "art/textures/meadow/far/v2/b8.png"
-sha256 = "ea7b7a257fc36bf93ca2d5bd60b69197b9c98eeb47aba208abb8a1be0f1dcb9c"
-made_from = "89ad531740981c45fa055941d0a5632b1a5ca576962e4e8f4e9bc1edc8b6d448"
+sha256 = "5eacad96c146557772d741ff4c022fdbbe5728cb0a71d8fcceab16bf9333b12f"
+made_from = "6b46aafcdd14398b7a3aabf5b250a9e5a76457a7dc76893e3536dcdabe576505"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 5
 file = "art/textures/meadow/far/v2/b9.png"
-sha256 = "64adf9fe909b0d7c55f9afc10126af007d7c421dcd37f936ba44da64f282eda3"
-made_from = "ea7b7a257fc36bf93ca2d5bd60b69197b9c98eeb47aba208abb8a1be0f1dcb9c"
+sha256 = "9acc246ebd7bdf2f27922ca58b99bb1b425105886b15b500350f38344d80d6c9"
+made_from = "5eacad96c146557772d741ff4c022fdbbe5728cb0a71d8fcceab16bf9333b12f"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 6
 file = "art/textures/meadow/far/v2/b10.png"
-sha256 = "5f90baf6c43da95048f2ba892867fec7bcfc8b32b8a9294323b04b405e1caca5"
-made_from = "64adf9fe909b0d7c55f9afc10126af007d7c421dcd37f936ba44da64f282eda3"
+sha256 = "0540bba6c90c9bc8fdba24d3ffa64237c8f06d769aeea3b90ec1d816b10e54a6"
+made_from = "9acc246ebd7bdf2f27922ca58b99bb1b425105886b15b500350f38344d80d6c9"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 7
 file = "art/textures/meadow/far/v2/b11.png"
-sha256 = "138ac50fefd0312d7f49fcd1936ed5e962805144eef100064511e49413128988"
-made_from = "5f90baf6c43da95048f2ba892867fec7bcfc8b32b8a9294323b04b405e1caca5"
+sha256 = "77f8856a46bae83524bfc24186dc3e913ab4bb5da7a8d4b80f833dbc7b9d1469"
+made_from = "0540bba6c90c9bc8fdba24d3ffa64237c8f06d769aeea3b90ec1d816b10e54a6"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
 
 [[band]]
 level = 8
 file = "art/textures/meadow/far/v2/b12.png"
-sha256 = "a727d780c8ee99f29f080153b716f36649cfdf7bb7379be1f3c7d789227ad45e"
-made_from = "138ac50fefd0312d7f49fcd1936ed5e962805144eef100064511e49413128988"
+sha256 = "e0b1a7e3b63c1148395265a573739132784b79c94e397ae3cab4e7b9cd9faf99"
+made_from = "77f8856a46bae83524bfc24186dc3e913ab4bb5da7a8d4b80f833dbc7b9d1469"
 way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
