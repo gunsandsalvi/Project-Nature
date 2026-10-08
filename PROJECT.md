@@ -417,6 +417,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 ### 2.5 How it's built
 
 - `PRN-09` **Build in steps you can try** *(Decided)*
+  - **Proposed change:** Put a playable camp with an indirect power in the next milestone, then a discovery vertical slice; do not wait until the ninth milestone to play. Reason: technical demonstrations have not tested the central experience.
   - **What:** The game is built as a series of alphas, each ending with something you can install, open and try on your phone (`SCP-03`): a test screen or a scene to look at in the first milestones, then a world to explore and watch, and the game to play from `MIL-16`.
     Each alpha builds only what it needs, on foundations that later ones extend without starting over.
   - **Example:** Copper waits for the last milestone (`MIL-17`), but things and blueprints are designed from the start so it can be added without rework.
@@ -451,6 +452,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
 ### 3.3 How it gets built
 
 - `SCP-03` **Alphas you can try** *(Decided)*: The game is built as a series of alphas, each a few hours of AI work, each ending with something you can install, open and try on your phone (`PRN-09`, `PRC-11`).
+  - **Proposed change:** Size each delivery around one visible change and estimate from completed work; split overruns without promising that every new system fits a few hours. Reason: fixed short estimates disguise integration uncertainty.
   Every alpha comes with its automated tests (`RES-01`).
   - **Check:** the check of `PRC-11` passes.
 
@@ -461,6 +463,7 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   - **Check:** every milestone report states where its tests ran and how much computing they used (`RES-06`).
 
 - `SCP-16` **Milestones** *(Decided)*: The game is built in two phases, in order: pre-production (`MIL-18`), a prototype for each risk, closed on 5 October 2026; then production, bottom up, in ten milestones, the foundations first and the game itself last.
+  - **Proposed change:** Build the living camp and discovery slice first on the accepted foundations. Finish a small valley game before choosing wider-world, culture and copper expansions; the full original scope remains open until explicitly delivered or retired. Reason: a smaller finish tests the game before the largest commitments.
   Each milestone is a stage of several alphas (`SCP-03`) ending with a report you review (`RES-06`).
   This file keeps each milestone's contents and order, below; the implementation plan maps every item to a milestone, and plans the next milestone's alphas and tasks.
 
@@ -469,23 +472,32 @@ Each item's detailed acceptance criteria are written in the implementation plan,
   - `MIL-08` **Foundations** *(Decided)*: the app and its delivery to your phone; the simulation library in C++; numbers, time, the 60-day year, dates and chance, with the same bits on the phone and in the cloud (`RES-05`, `TIM-16`, `TIM-18`); entities, activities with an end (`TIM-17`), and catalogues with their checks (`MAT-13`, `MAT-17`); saves, several worlds and export (`PLT-07`, `TIM-08`, `PLT-08`); test scenes, the repeat check and the phone benchmark (`RES-21`, `PLT-04`).
     *Now possible:* the foundations working on your phone: a calendar at any speed, a crowd of markers moving smoothly, and worlds saved and reopened exactly.
   - `MIL-09` **The graphics engine** *(Decided)*: a fully 2D pixel-art world with a fixed camera (`PRE-01`, `PRE-02`), toward the pictures you liked: steady texture pixels (`PRE-22`), edges by light and shade (`PRE-21`), colour by design with real shadows and the light of the hours and seasons (`PRE-20`, `PRE-30`), rock faces (`PRE-23`), water (`PRE-26`), and a countable art kit (`PRE-46`, `PRE-42`, `PRE-43`), with people, animals, plants and things drawn for their size on screen, each traced to its source and your approval.
+    - **Proposed change:** Replace the graphics-only stage with M2, a saved living camp, real daily needs and a place dream, using existing rendering and stand-in art. Reason: the next phone build should begin proving play.
     *Now possible:* the game's own scenes drawn by the engine, in portrait and landscape, which you judge as the bar for everything built on them.
   - `MIL-10` **The world** *(Decided)*: whole worlds generated from a seed in the order of real causes (`WLD-08`, `WLD-09`), the best three offered (`WLD-10`); the map layers, and detail made on demand (`WLD-12`, `WLD-13`); the sky, climate and weather, fresh water, seas and soils (`WLD-07`, `WLD-16`, `WLD-17`, `WLD-26`, `WLD-27`); quakes and eruptions (`WLD-15`); one zoom from a cliff face to the globe (`PRE-03`, `WLD-02`), and the cut-away view (`PRE-25`).
+    - **Proposed change:** Replace the empty-world stage with M3, stone/fire discovery, learning, idea dreams and a readable vertical slice. Move full world generation to the conditional M7 expansion. Reason: discovery is the principal unproved game loop.
     *Now possible:* making a world, choosing it, and flying over it through its weather and seasons.
     *Acceptance:* M3 proves the physical world; M4 completes living settling, resource renewal and real buried traces; M5 completes starting bands and naked-band winter survival. Every original check stays mapped and open until its milestone proves it; water-only settling or synthetic traces do not pass the later checks.
   - `MIL-11` **Things and living nature** *(Decided)*: materials and things, with their shapes, characteristics, wear, simple physics, timers and traces (`MAT-01`, `MAT-10`, `MAT-11`, `MAT-19`, `MAT-08`); fire (`MAT-18`); plants and animals everywhere, as catalogue entries placed by rules, with their seasons and their ecology (`WLD-31`, `WLD-32`, `WLD-18`); wildfire (`WLD-28`); a card for anything you tap (`PRE-35`).
+    - **Proposed change:** Make M4 a changing camp: seasonal food, a wound/care chain and a family through time, delivered separately. Full nature and body catalogues stay open for later additions. Reason: systems should return through visible consequences.
     *Now possible:* a living world with nobody in it: herds migrating, wolves hunting, plants through the seasons, and a lightning fire running through dry grass.
   - `MIL-12` **People: bodies and lives** *(Decided)*: the start's bands (`SCP-01`, `BIO-03`), with their bodies, needs and senses (`BIO-09`, `BIO-18`); everyday activities and base actions (`BIO-21`, `MAT-06`); choosing by needs, with the reasons on each person's card (`MND-07`, `MND-09`, `PRE-35`), and the mental map (`MND-28`); health, wounds, illness and plain care (`BIO-13`, `BIO-05`, `BIO-23`); pairing, births, growing up, inheritance, ageing and death (`BIO-04`, `BIO-15`, `BIO-06`, `BIO-16`); names from the language (`CUL-17`, `CUL-18`); the animals near people, with bodies and simple minds (`BIO-19`, `MND-16`).
+    - **Proposed change:** Make M5 two interacting camps with readable knowledge transfer and relationships. Full body/population promises retain their own later acceptance. Reason: prove social value on a small scale before scaling population.
     *Now possible:* watching bands live through their days and seasons, their births and their deaths.
   - `MIL-13` **Minds** *(Decided)*: personality, mood, feelings and breakdowns (`MND-20`, `MND-29`, `MND-19`, `MND-30`); noticing, memories and dreams (`MND-03`, `MND-18`, `MND-12`); knowledge with its source, and who knows what (`MND-04`, `MND-23`); beliefs about causes (`MND-05`); plans and ambitions (`MND-22`, `MND-32`); relationships, social acts and talk (`MND-24`, `MND-33`, `CUL-24`); the details of a mind (`PRE-14`).
+    - **Proposed change:** Make M6 a finished small valley game, with first-launch flow, history, useful powers and reliable continuation. Full minds/culture/world scope is excluded from this first release only, not declared complete. Reason: establish a finish the owner can enjoy.
     *Now possible:* reading anyone's mind, and watching friendships, quarrels and talk.
   - `MIL-14` **Crafts and discovery** *(Decided)*: blueprints, their routes and their chains (`MAT-04`, `MAT-07`, `MAT-22`); experience and skill, surprises and the four routes to discovery (`MND-06`, `MND-10`, `MND-11`); learning and teaching, and knowledge lost (`MND-13`, `CUL-01`, `CUL-02`); the reality rules (`RCK`); sharp flakes, fire-making, cooking, cord, hafting, clothing and huts; the sharp-stone test (`RES-02`).
+    - **Proposed change:** Use M7 as a conditional wider-world scope map, later split into short playable stages with people already present. Preserve its full geography acceptance until explicitly amended. Reason: avoid rebuilding a long empty-world programme.
     *Now possible:* watching someone find that struck flint gives a sharp edge, and the skill spread or be lost.
   - `MIL-15` **Culture and society** *(Decided)*: beliefs from events and about the unseen, ancestors, taboos, rites and religion (`CUL-05`, `MND-31`, `CUL-19`, `CUL-20`, `CUL-34`, `CUL-26`); kin and marriage, customs, leaders and specialists (`CUL-27`, `CUL-06`, `CUL-22`, `CUL-32`); sharing, trade, feuds and raids (`CUL-21`, `CUL-31`); bands splitting into peoples with territories (`CUL-30`, `CUL-23`); art, music, myths, style and festivals (`CUL-09`, `CUL-10`, `CUL-11`, `CUL-12`, `CUL-29`); tame dogs (`WLD-33`).
+    - **Proposed change:** Use M8 as a conditional map of remaining lives, animals, crafts and society, choosing one causal chain per future stage. Reason: the full catalogue is not one bounded milestone.
     *Now possible:* peoples spreading, splitting, fighting and marrying, with rites, myths, songs and paintings of their own.
   - `MIL-16` **The game** *(Decided)*: your powers as nature (`GOD-02`, `GOD-03`, `GOD-04`, `GOD-12`, `GOD-13`, `GOD-10`); time following your zoom, the story director, live moments and skip (`TIM-01`, `TIM-02`, `PRE-08`, `TIM-11`); the book of ages from pattern sentences, worded by the phone's writer (`PRE-05`, `PRE-37`, `PRE-41`); every screen, card and overlay (`PRE-40`, `PRE-35`, `PRE-07`); sound and the murmur (`SND-01`, `SND-11`, `SND-03`).
+    - **Proposed change:** Use M9 for remaining powers, presentation and sound improvements to an existing game, not its first playable surface. Reason: controls and history must arrive with the behaviour they explain.
     *Now possible:* playing as nature: sending lightning or a dream and following what comes of it in the book of ages, with the sounds of the camp.
   - `MIL-17` **The whole arc** *(Decided)*: pottery, herding, farming, villages and copper (`RCK-04`, `WLD-33`, `CUL-28`, `RCK-08`); the full launch catalogue (`MAT-23`); every pace target met (`TIM-19`, `CUL-33`).
+    - **Proposed change:** Keep settlements-to-copper as an optional expansion after the small first finish; if commissioned, split it into playable chains and retain full arc acceptance. Reason: the entire centuries-long catalogue need not block the first useful game.
     *Now possible:* the whole arc, from caves to first copper, in about a century, at a watchable speed.
 
 ### 3.4 Non-goals
@@ -918,6 +930,7 @@ Numbers here are starting values, tuned in tests (`PRN-17`).
   - **Done when:** over 100 seeds, tilt and share of land always fall within their ranges and spread across them.
 
 - `WLD-07` **The sky** *(Decided)*: Sun, moon and stars move as they would for the world's tilt and the 60-day year (`TIM-18`): daylight by latitude and date, a moon that waxes and wanes once a season, bright enough at full to walk and hunt by, and an eclipse a few times in a lifetime at any place; people can learn these cycles (`CUL-29`).
+  - **Proposed change:** Keep a physically coherent sky, but remove the requirement to certify 3–8 eclipses at every place in 70 years; use a reviewed plausible distribution when wider-world sky is actually built. Reason: the universal quota creates substantial specialised work with no demonstrated value to the first game. No existing target changes before approval.
   - **Done when:** in a test world, each season has one full moon, daylight follows Earth's for each latitude and date, and every place sees 3–8 visible solar or lunar eclipses in 70 game years, clouds or not. Count appreciable partial or total alignments above the geometric horizon and report obscuration separately; total solar eclipses are not promised everywhere.
 
 - `WLD-16` **Climate and weather** *(Decided)*: Each place has a climate that never changes (`SCP-21`), and each weather cell its weather every hour: temperature, humidity, wind, cloud, rain and snow.
@@ -2144,6 +2157,7 @@ The look, written to stand without any image.
   - **Done when:** a pinch from globe to person over unvisited land never stalls, and full detail is in within about a second.
 
 - `PRE-31` **Visual review** *(Decided)*: At every milestone stage the look is reviewed on a contact sheet made on the phone, on one page, from fixed saved worlds: each zoom stop at noon and dusk in portrait, one landscape view, the art sheet (`PRE-46`), three short clips of people at work, clips of the camera panning and pinching (`PRE-22`), and the busy scenes of `PRE-28`.
+  - **Proposed change:** Review stand-in camp builds for readable identity, action, selection and touch use; reserve final art-quality acceptance for the relevant finished scene. Replace the current blanket no-delivery-until-art-approval gate for these early gameplay builds only. Reason: play feedback must not wait for asset completion.
   - **Check:** the contact sheet meets every Done when of 11.1 and 11.2, judged by the review and then by you (`PRC-10`).
 
 ### 11.2 Things and movement
@@ -2170,6 +2184,7 @@ The look, written to stand without any image.
   - **Done when:** every movement reads at person zoom; at close camp zoom, standing and ground work, carrying, walking, resting, fighting and dancing are told apart.
 
 - `PRE-46` **The art kit** *(Decided)*: Everything in the world is drawn from one fixed kit, so the content stays countable.
+  - **Proposed change:** Produce only art needed by the next playable scene; allow labelled stand-ins and review essential sprites together in motion before bulk production. Preserve signed sheets and provenance. Reason: 373 catalogue pieces are not a dependency of one convincing camp.
   - **Shared designs:** editable pixel-art bodies, garments, attachments, plants, shelters and things, varied in size, material, wear and style, so a few hundred designs make thousands of things.
   - **Shared shapes,** one per form (`MAT-02`), drawn to a thing's size and material: raw items need no design of their own, and ground cover is drawn by the patch (`WLD-31`).
   - **Made things:** a drawing shows the parts and materials of the inputs that made it (`MAT-04`); only a part no shared design fits, such as a pot's body or a blade's outline, needs a new design, and states need none (`MAT-19`).
@@ -2192,6 +2207,7 @@ The look, written to stand without any image.
   - **Done when:** every view works both ways, with its portrait controls in the bottom third of the screen.
 
 - `PRE-33` **Gestures** *(Decided)*:
+  - **Proposed change:** Remove twist-to-rotate from the decided gesture list while retaining pan, zoom and inspection, consistent with the fixed north-facing camera in PRE-02. Reason: the current requirements contradict each other.
   - drag to move, and twist with two fingers to turn;
   - pinch to zoom, or double-tap and drag with one thumb, which also sets the speed of time (`TIM-01`);
   - tap to select what is under the finger and open its card (`PRE-35`);
@@ -2279,6 +2295,7 @@ The look, written to stand without any image.
 ### 11.5 Text written for you
 
 - `PRE-37` **Patterns first, the writer polishes** *(Decided)*: Every text is first built from pattern sentences: cards from `MIL-11`, the details view of a mind from `MIL-13`, and the book of ages from `MIL-16`, when the phone's built-in writer AI begins to reword them into flowing prose (`PRE-41`).
+  - **Proposed change:** Use pattern text for the small finished game; treat the device writer as an optional later experiment that must beat patterns in a direct comparison. Reason: it adds platform and factual risk before the game loop is proven.
   Texts are in English, each name in its people's language with its meaning at first use (`CUL-18`).
   - **Patterns:** a closed catalogue (`MAT-13`) of about 100 kinds of event (the entries of `PRE-39`, the memories of a life story, the story shapes and topics of `CUL-11` and `CUL-24`, and a mind's summary), each with at least 5 phrasings, picked by the event's seed and using all the records hold: names, places, seasons, causes and who was there.
     Labels, card lines (`PRE-45`) and dark events (`PRE-17`) always stay as patterns.
@@ -2386,6 +2403,7 @@ Kindling is built for one phone (`SCP-02`), kept smooth, cool and responsive (`V
 ### 13.2 Performance
 
 - `PLT-04` **Measured limits** *(To test)*
+  - **Proposed change:** Keep numerical safety/performance requirements, but apply each scale gate when its real consumers exist under the revised stages; measure the owner phone first and schedule a second device only when it is named and available. Reason: a repeated broad renderer matrix must not block every camp increment, and missing hardware must not be called a pass.
   - **What:** Reported at every stage (`RES-06`) against these targets:
     - **Speed:** the targets of `TIM-07`.
     - **Stage budgets:** at the close of `MIL-12` to `MIL-17`, the 1,000-person world, with what the game has so far, runs at least 2.5, 2, 1.7, 1.5, 1.5 and 1 game years a real minute.
@@ -2511,6 +2529,7 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   - **Check:** the sharp-stone test (`RES-02`) passes at every stage from `MIL-14` (`PRC-10`).
 
 - `RES-07` **The pace tests** *(Decided)*: Whole worlds from the play generator (`WLD-10`) check each pace target (`TIM-19`) and culture target (`CUL-33`) in their records.
+  - **Proposed change:** Rebind stage-triggered pace checks to the actual arrival of each complete behaviour under the revised order; preserve promised populations, run lengths, seeds and pass rules unless separately approved. Reason: early partial mechanics must neither inherit irrelevant century tests nor waive later full acceptance.
   - **Sizes,** each judging the targets whose windows close within its years: after any change to minds, blueprints or catalogues, 20 worlds to Year 30, and at each other stage close, the same on new seeds (`RES-16`); at the close of `MIL-15`, 20 worlds to Year 75; and the full test, 10 worlds to Year 250, before `MIL-17` closes and at most once a week of building during it.
   - **Stages:** each target counts from the stage that builds it: flakes, fire, clothing, huts and `RES-25` `MIL-14`; shared spirits, rites, myths, dogs, band splits, festivals, feuds, new peoples, raids and Keeps going `MIL-15`; pottery, herding, villages, farming, copper and chiefs `MIL-17` (`SCP-16`, `TIM-19`, `CUL-33`).
   - **Computing:** in the session that builds, in the background while it works, never in another session (`SCP-15`): the size after a change takes about 1 session-hour and the Year-75 run about 3, and the full test about 10–25, spread over the last alphas of `MIL-17`, whose stage closes once it has run; each stage report sets the real cost against these (`RES-06`).
@@ -2567,11 +2586,13 @@ How the project is run.
 ### 15.2 Documents
 
 - `PRC-04` **Three documents** *(Decided)*: This file says what to build; the architecture says how and why; and the implementation plan says in what order, mapping every item to a milestone and planning the next milestone's alphas and tasks.
+  - **Proposed change:** Keep the three main documents authoritative, but allow short durable decision/evidence records linked from them and this requested critique. Keep only the next milestone detailed. Reason: deleting lessons and expanding three enormous documents impairs continuity.
   Nothing else is kept as a reference: what is not in these three files is not important enough to keep.
   Code and tests name the items they implement and check, so the code is the index of where each is done (`PRC-12`), and no document keeps that list.
   - **Check:** each stage review checks that the three documents exist and this file holds no implementation details.
 
 - `PRC-06` **A guide for AI agents** *(Decided)*: A short file in the repository (`CLAUDE.md`) that every AI agent reads first.
+  - **Proposed change:** Revise the agent guide so one builder owns the integrated playable result, with at most one bounded supporting task; the coordinator may resolve implementation choices within approved scope instead of being only a relay. Reason: more leads and handoffs do not remove the integration bottleneck.
   It tells them to read this file, follow the principles, link all work to IDs, and never mark anything Decided without you; changes to it need your OK.
   - **Done when:** the guide sits at the top of the repository and says each of these.
 
@@ -2608,6 +2629,7 @@ How the project is run.
   - **Check:** every alpha's note links its build and names the IDs it delivers, and no check that passed before was failing on its build.
 
 - `PRC-12` **Nothing gets lost** *(Decided)*: An automatic coverage check, reading only IDs, runs before any work joins and at each stage close (`PRC-10`), and confirms that:
+  - **Proposed change:** Treat ID coverage as traceability, not proof of full implementation. Permit staged subsets under a stable ID, replacing the separate-ID-for-every-stage-part rule in How this file works; delivery notes name proved behaviour and remaining checks, and full acceptance stays open. Reason: vertical integration revisits systems without requiring a new requirement tree at each increment.
   - every feature and rule that isn't *Proposed* is built already or mapped to a stage in the implementation plan, and the current stage's items have tasks;
   - every task names the IDs it delivers, and every ID named in code and tests exists and isn't retired;
   - every feature and rule built so far has a test (`RES-01`), every blueprint a trial (`RES-24`), every chain a scene (`RES-23`), and every promise a test or a "possible, not promised" mark (`RES-19`);
@@ -2741,7 +2763,28 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
 AI agents' suggestions are marked *Proposed* and listed here until you confirm, change or drop them (`PRC-07`).
 
 <!-- generated: proposals -->
-- None at present.
+- Proposed: `PRN-09`: Build in steps you can try — proposed revision; see the item.
+- Proposed: `SCP-03`: Alphas you can try — proposed revision; see the item.
+- Proposed: `SCP-16`: Milestones — proposed revision; see the item.
+- Proposed: `MIL-09`: The graphics engine — proposed revision; see the item.
+- Proposed: `MIL-10`: The world — proposed revision; see the item.
+- Proposed: `MIL-11`: Things and living nature — proposed revision; see the item.
+- Proposed: `MIL-12`: People: bodies and lives — proposed revision; see the item.
+- Proposed: `MIL-13`: Minds — proposed revision; see the item.
+- Proposed: `MIL-14`: Crafts and discovery — proposed revision; see the item.
+- Proposed: `MIL-15`: Culture and society — proposed revision; see the item.
+- Proposed: `MIL-16`: The game — proposed revision; see the item.
+- Proposed: `MIL-17`: The whole arc — proposed revision; see the item.
+- Proposed: `WLD-07`: The sky — proposed revision; see the item.
+- Proposed: `PRE-31`: Visual review — proposed revision; see the item.
+- Proposed: `PRE-46`: The art kit — proposed revision; see the item.
+- Proposed: `PRE-33`: Gestures — proposed revision; see the item.
+- Proposed: `PRE-37`: Patterns first, the writer polishes — proposed revision; see the item.
+- Proposed: `PLT-04`: Measured limits — proposed revision; see the item.
+- Proposed: `RES-07`: The pace tests — proposed revision; see the item.
+- Proposed: `PRC-04`: Three documents — proposed revision; see the item.
+- Proposed: `PRC-06`: A guide for AI agents — proposed revision; see the item.
+- Proposed: `PRC-12`: Nothing gets lost — proposed revision; see the item.
 <!-- end generated -->
 
 ## 18. Glossary
