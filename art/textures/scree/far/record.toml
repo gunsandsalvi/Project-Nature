@@ -1,0 +1,79 @@
+about = "loose broken limestone, angular chips of 3 to 11 cm in warm grey-cream with darker gaps, finer and finer from near to far; far tile, 64.0 m across, version 1"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/scree/far-sheet.webp", "art/sources/scree/near-sheet.webp"]
+original_sha256 = ["ade5c698c2318b44b7d44d2a91ef51a22ebde75617878bfc51db527ac80b1550", "874c697454a57de9ae6daa8000f2303d5b3905dce8b39d5fce6c636dfe9b7e05"]
+c2pa = ["absent", "absent"]
+requests = []
+made = "the sheet's own tiles (each already on the texture-pixel grid, one picture pixel a texture pixel), their versions quilted from them round a shared ring; version 1 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; broken limestone chips only, no soil, moss or grass"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/scree/far/b4.png"
+sha256 = "46081179af14b54c244d79e0729118b05eedad6e8afa3a50b84a4e69dda7ffe9"
+way = "the tile's picture (a block of 1, loss 0.0%), moved to the reference's colour, shifted 212 down and 220 across round its wrap so its ring is its most ordinary part, its border's broad tone flattened"
+regrid_loss = "0.0%"
+calibration = "lightness -1.0; hue +1.8; colourfulness 97%; contrast 100%; then its colours' distance from the first version's mean made 150% of itself, the same for every version"
+
+[[band]]
+level = 1
+file = "art/textures/scree/far/b5.png"
+sha256 = "bdb980aea73714a0f76362ebe72833f4102786e283b9ce95edc636571ab0aed2"
+made_from = "46081179af14b54c244d79e0729118b05eedad6e8afa3a50b84a4e69dda7ffe9"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.94; lightness +0.0; hue -0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 150% of itself, the same for every version"
+
+[[band]]
+level = 2
+file = "art/textures/scree/far/b6.png"
+sha256 = "62d1b1462dc40c2785458227458ee1a2e2944f1f2d3f8f8713a63e4636bc7af0"
+made_from = "bdb980aea73714a0f76362ebe72833f4102786e283b9ce95edc636571ab0aed2"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 1.64; lightness +0.0; hue -0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 150% of itself, the same for every version"
+
+[[band]]
+level = 3
+file = "art/textures/scree/far/b7.png"
+sha256 = "a71b9ea338c7f76801ceee9c5231053b110be9dd444d71dc731fa88255ae2693"
+made_from = "62d1b1462dc40c2785458227458ee1a2e2944f1f2d3f8f8713a63e4636bc7af0"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/scree/far/b8.png"
+sha256 = "16cd00b00d67e6eaa1e3d81b130034c4ddc9fa7cd37b7900ad5197f9362cc139"
+made_from = "a71b9ea338c7f76801ceee9c5231053b110be9dd444d71dc731fa88255ae2693"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/scree/far/b9.png"
+sha256 = "aef0c410d1edde17582afa8495b9ff817f713b8bbe1fce27b598b4b590d25fd2"
+made_from = "16cd00b00d67e6eaa1e3d81b130034c4ddc9fa7cd37b7900ad5197f9362cc139"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/scree/far/b10.png"
+sha256 = "1696590394f61219780e00e9210634e1634d571db11ebc2090214ab87d65f45b"
+made_from = "aef0c410d1edde17582afa8495b9ff817f713b8bbe1fce27b598b4b590d25fd2"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/scree/far/b11.png"
+sha256 = "02a4cf6c36a5cece2930a919815cfa800e44d38e659f46bae91a660bcef32233"
+made_from = "1696590394f61219780e00e9210634e1634d571db11ebc2090214ab87d65f45b"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/scree/far/b12.png"
+sha256 = "91aa4ca534c205031afe963d1edccb00775afeebc3c51c246ff2f4fe1d015089"
+made_from = "02a4cf6c36a5cece2930a919815cfa800e44d38e659f46bae91a660bcef32233"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

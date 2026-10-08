@@ -57,11 +57,13 @@ def ground(cfg):
 
 
 def wall(cfg):
-    """A wall standing on the ground's middle line, facing the camera (south): a vertical quad over the metres the
-    picture covers, `x0` to `x1` east and `z0` to `z1` up, its pixels read nearest."""
-    w = cfg["wall"]
-    x0, x1, z0, z1 = w["x0"], w["x1"], w["z0"], w["z1"]
-    textured_quad("wall", [(x0, 0, z0), (x1, 0, z0), (x1, 0, z1), (x0, 0, z1)], w["picture"])
+    """Walls standing across the ground's middle line, facing the camera (south): each a vertical quad over the metres
+    its picture covers, `x0` to `x1` east and `z0` to `z1` up, its pixels read nearest, at `y` metres north of the line
+    (0 if not said). The config's `wall` is one wall, its `walls` any number (a cliff's layers, each set back as the
+    weathering has left it)."""
+    for k, w in enumerate([cfg["wall"]] if "wall" in cfg else cfg.get("walls", [])):
+        x0, x1, z0, z1, y = w["x0"], w["x1"], w["z0"], w["z1"], w.get("y", 0.0)
+        textured_quad(f"wall{k}", [(x0, y, z0), (x1, y, z0), (x1, y, z1), (x0, y, z1)], w["picture"])
 
 
 def camera(cfg):
@@ -147,6 +149,8 @@ def parts(cfg):
             if o is None:
                 continue
             bpy.context.scene.collection.objects.link(o)
+            if not item.get("keep"):  # what assemble() takes its parts from, and hides; a `keep` item is seen as put
+                o["kd_part"] = True
             if o.type == "MESH":
                 for slot in o.material_slots:
                     name = slot.material.name.split(".")[0] if slot.material else ""
@@ -161,7 +165,8 @@ def parts(cfg):
                     bpy.context.view_layer.update()
                     corners = [o.matrix_world @ Vector(c) for c in o.bound_box]
                     middle = sum(corners, Vector()) / 8.0
-                    o.location = Vector(o.location) - Vector((middle.x - o.location.x, middle.y - o.location.y, 0.0))
+                    across = 0.0 if item["centre"] == "x" else middle.y - o.location.y  # "x": only along the way east
+                    o.location = Vector(o.location) - Vector((middle.x - o.location.x, across, 0.0))
 
 
 def joint_frame(part, name):
@@ -201,7 +206,7 @@ def assemble(cfg):
         return dice.uniform(-1.0, 1.0)
 
     bpy.context.view_layer.update()
-    originals = {o.name: o for o in bpy.data.objects if o.type == "MESH" and o.parent is None and o.name != "ground"}
+    originals = {o.name: o for o in bpy.data.objects if o.type == "MESH" and o.parent is None and o.get("kd_part")}
     about = Matrix.Rotation(math.radians(cfg["assemble"].get("turn", 0.0)), 4, "Z")  # the whole thing turned
     placed = {}
     for place in cfg["assemble"]["places"]:
@@ -277,7 +282,7 @@ def main():
     scene.display_settings.display_device = "sRGB"
     if "ground" in cfg:
         ground(cfg)
-    if "wall" in cfg:
+    if "wall" in cfg or "walls" in cfg:
         wall(cfg)
     parts(cfg)
     if "assemble" in cfg:

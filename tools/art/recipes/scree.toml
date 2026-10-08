@@ -1,0 +1,52 @@
+# The scree's textures (catalogue 2.18, scree): what tools/art/make_tiles.py reads to make art/textures/scree/ from the
+# sheet's tiles kept in art/sources/scree/. Loose broken limestone below the cliff and on steep slopes, from a thumb to a
+# fist, seen from above in flat light: angular chips in warm grey-cream, darker in their gaps. The stones too big to be
+# part of it, and the boulders, are pieces of their own (art/models/rocks.blend). Nothing here is random: the same recipe
+# gives the same bytes.
+name = "scree"
+about = "loose broken limestone, angular chips of 3 to 11 cm in warm grey-cream with darker gaps, finer and finer from near to far"
+seed = 2181
+reference = "near"
+# every tile is moved to the colour of the sheet's own near tile; the sheet's middle and far tiles are a little lighter
+colour_from = "art/sources/scree/near-sheet.webp"
+how = "the sheet's own tiles (each already on the texture-pixel grid, one picture pixel a texture pixel), their versions quilted from them round a shared ring"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; broken limestone chips only, no soil, moss or grass"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+serves = 2
+sheet = "art/sources/scree/near-sheet.webp"
+
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+serves = 2
+sheet = "art/sources/scree/middle-sheet.webp"
+
+# The far tile's marks are 2 to 3 pixels of fine mineral stipple, which averages out at the farthest bands (the screen's
+# accents fell to 16.8 from band 0's 24.1), so its contrast is raised to keep 90% of band 0's (A4.8).
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 24
+patch = 64
+serves = 3
+sheet = "art/sources/scree/far-sheet.webp"
+boost = 150
+
+[[tile.level]]
+level = 1
+boost = 150
+
+[[tile.level]]
+level = 2
+boost = 150

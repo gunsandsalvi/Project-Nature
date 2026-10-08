@@ -1,0 +1,25 @@
+# A recipe (A6.1, PRE-46): the boulder split by frost of sheet 2.16, its two halves of the rocks family laid where
+# they belong (each modelled in place, 5 cm off the break), so each is a root at the origin; the pair is turned 40
+# degrees so the camera, from the south, looks across the break and sees its faces open to the sky. The simple form
+# (A6.3) is the same thing in parts of about a fifth of the triangles, for the zoom where it is 20 to 100 pixels
+# across (band 2).
+about = "one granite stone 1.5 m long split by frost into two matching halves with a 10 cm gap (simple form)"
+family = "rocks"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; granite split in two with pale jagged faces that match, no vegetation, no soil, no painted marks, no tool marks"
+approved = "not offered yet: a piece of the cliff's foot, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "stone"
+textures = ["art:granite"]
+
+[[place]]
+name = "half_a"
+parts = ["boulder_split_a_simple"]
+rule = "root"
+turn = 40
+
+[[place]]
+name = "half_b"
+parts = ["boulder_split_b_simple"]
+rule = "root"
+turn = 40

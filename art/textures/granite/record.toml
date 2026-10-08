@@ -1,0 +1,64 @@
+about = "warm light grey granite rind, fine dark mineral speckle of one or two texture pixels and a few pale grains; near tile, 1.0 m across, version 1"
+route = "picture"
+tile_texels = 64
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/granite/near-sheet.webp"]
+original_sha256 = ["4fc1ff4c623d8eca89733d22415932341caa540d0e44482a8466a396ba5e4be9"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's rind picture (1024 x 1024, 0.5 m across by the sheet) put on a grid of 64 x 64 texture pixels by code, each cell the median colour of its middle, the tile's seam where it wraps hidden in the speckle; version 1 of 1, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "24.0%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; light grey granite speckle only, no lichen, no cracks, no painted marks"
+approved = "not offered yet: made for the boulders, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/granite/b0.png"
+sha256 = "71edb93a0b8e0f6631c990f1637f2e410353da6bcacaea5ae6204c7d381d6c6d"
+way = "the tile's picture (a block of 16, loss 24.0%), shifted 56 down and 12 across round its wrap so its ring is its most ordinary part, its border's broad tone flattened"
+regrid_loss = "24.0%"
+
+[[band]]
+level = 1
+file = "art/textures/granite/b1.png"
+sha256 = "94125d181bcb84b6607961a5eebe1c9124a5a0739097aac856977ca8ccdd37e6"
+made_from = "71edb93a0b8e0f6631c990f1637f2e410353da6bcacaea5ae6204c7d381d6c6d"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 1.42; lightness +0.0; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/granite/b2.png"
+sha256 = "24cabf7026d2b93d276536412db2a35d3103acb096fb46192a21f574fec57897"
+made_from = "94125d181bcb84b6607961a5eebe1c9124a5a0739097aac856977ca8ccdd37e6"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 2.91; lightness +0.1; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 3
+file = "art/textures/granite/b3.png"
+sha256 = "481deaf830adb14ed434789b705996d6b90606f3e39216f86311186d815d0301"
+made_from = "24cabf7026d2b93d276536412db2a35d3103acb096fb46192a21f574fec57897"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/granite/b4.png"
+sha256 = "aa8a37b99186d408c9932e3f6b4e2434ca750efc91efc4ed5f73e984d82c300f"
+made_from = "481deaf830adb14ed434789b705996d6b90606f3e39216f86311186d815d0301"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/granite/b5.png"
+sha256 = "c54cf9e4aa59d6b1e3ff1416743727ea37805c8611d64ea9679c4cd787084494"
+made_from = "aa8a37b99186d408c9932e3f6b4e2434ca750efc91efc4ed5f73e984d82c300f"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/granite/b6.png"
+sha256 = "90b561ca8d25fb07c6b0a09ce9a063636f28bb017da26ff16acc727c918f627a"
+made_from = "c54cf9e4aa59d6b1e3ff1416743727ea37805c8611d64ea9679c4cd787084494"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

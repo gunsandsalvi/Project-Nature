@@ -1,0 +1,78 @@
+about = "loose broken limestone, angular chips of 3 to 11 cm in warm grey-cream with darker gaps, finer and finer from near to far; middle tile, 16.0 m across, version 1"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/scree/middle-sheet.webp", "art/sources/scree/near-sheet.webp"]
+original_sha256 = ["c97fa42b976f068badffad9ef72556e5ff9898eed302da732deab45a3b525dd8", "874c697454a57de9ae6daa8000f2303d5b3905dce8b39d5fce6c636dfe9b7e05"]
+c2pa = ["absent", "absent"]
+requests = []
+made = "the sheet's own tiles (each already on the texture-pixel grid, one picture pixel a texture pixel), their versions quilted from them round a shared ring; version 1 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; broken limestone chips only, no soil, moss or grass"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/scree/middle/b2.png"
+sha256 = "7de08127a1734ce922beeb2c440df2a82e775b9927f8ebe37a2b122ecc729bbf"
+way = "the tile's picture (a block of 1, loss 0.0%), moved to the reference's colour, shifted 172 down and 212 across round its wrap so its ring is its most ordinary part, its border's broad tone flattened"
+regrid_loss = "0.0%"
+calibration = "lightness +1.0; hue +7.9; colourfulness 105%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/scree/middle/b3.png"
+sha256 = "d971001ccbc461f2fc64f8a6b73adc936764bfc27cca58e2aa927633283053bd"
+made_from = "7de08127a1734ce922beeb2c440df2a82e775b9927f8ebe37a2b122ecc729bbf"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.87; lightness +0.0; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/scree/middle/b4.png"
+sha256 = "20ddc9cc0adfefb4377ea28ccf9fc89b18d366eb2abf5ca39db7d38445194800"
+made_from = "d971001ccbc461f2fc64f8a6b73adc936764bfc27cca58e2aa927633283053bd"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/scree/middle/b5.png"
+sha256 = "7c6072e5276a7b8a0b0b88202bab318ad0bef9f58b02517cd6f578988ba08e08"
+made_from = "20ddc9cc0adfefb4377ea28ccf9fc89b18d366eb2abf5ca39db7d38445194800"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/scree/middle/b6.png"
+sha256 = "13ef70f29a0705e8e35b87ee97a6e98b6c5099dc7017a93714cb7ff71a09d248"
+made_from = "7c6072e5276a7b8a0b0b88202bab318ad0bef9f58b02517cd6f578988ba08e08"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/scree/middle/b7.png"
+sha256 = "896999d8cd95066839470e688b8a23f1341277a0000041377c26e3b6c8cce0a4"
+made_from = "13ef70f29a0705e8e35b87ee97a6e98b6c5099dc7017a93714cb7ff71a09d248"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/scree/middle/b8.png"
+sha256 = "b6483f710ee5cbd37510eb92158179272c282d939c84670a38dc19b4aba22fd5"
+made_from = "896999d8cd95066839470e688b8a23f1341277a0000041377c26e3b6c8cce0a4"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/scree/middle/b9.png"
+sha256 = "75cbec7e801fcfe6355e0c21a6384d41d6173347279936afdcc5a9c37579a0e0"
+made_from = "b6483f710ee5cbd37510eb92158179272c282d939c84670a38dc19b4aba22fd5"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/scree/middle/b10.png"
+sha256 = "f1681faa5455d39364dd821d673a41a57f34d53e09a9ceb8cb7db437a1f795c8"
+made_from = "75cbec7e801fcfe6355e0c21a6384d41d6173347279936afdcc5a9c37579a0e0"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
