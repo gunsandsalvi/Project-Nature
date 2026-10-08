@@ -47,12 +47,16 @@ id = "birch"
 name = "Birch"
 what = "white bark, tar and tinder; the camp's tree"
 art_book = ["birch-sheet", "d2-pixel-paint", "winter"]
+sheet = "sheets/7.7-birch.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "oak"
 name = "Oak"
 what = "acorns, tanning bark, great old trees"
 art_book = ["storm-close", "read-aids"]
+sheet = "sheets/7.8-oak.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "willow"
@@ -68,11 +72,15 @@ what = "wet ground and riverbanks"
 id = "ash"
 name = "Ash"
 what = "tall tree, straight strong wood"
+sheet = "sheets/7.11-ash.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "lime"
 name = "Lime"
 what = "soft wood and bast fibre for cord"
+sheet = "sheets/7.12-lime.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "maple"
