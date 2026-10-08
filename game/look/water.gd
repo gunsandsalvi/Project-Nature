@@ -58,7 +58,7 @@ func apply(world: KdWorld, level: float) -> String:
 			_share(tuning["calm_marks"]),
 			float(tuning["calm_scale"]) / 1000.0,
 			float(tuning["marks_depth"]) / 1000.0,
-			0.0
+			_share(tuning["shore_line_share"])
 		)
 	)
 	_global(
@@ -67,7 +67,7 @@ func apply(world: KdWorld, level: float) -> String:
 			float(tuning["shore_wander"]) / 1000.0,
 			float(tuning["shore_scale"]) / 1000.0,
 			_share(tuning["murk_curve"]),
-			0.0
+			float(tuning["gravel_depth"]) / 1000.0
 		)
 	)
 	_global("kd_water_glint", _colour(tuning["glint_colour"], 0.0))

@@ -110,6 +110,8 @@ constexpr const char* kWater =
     "shore_wander = \"6 cm\"\n"
     "shore_scale = \"1.4 m\"\n"
     "murk_curve = \"150%\"\n"
+    "gravel_depth = \"0.3 m\"\n"
+    "shore_line_share = \"60%\"\n"
     "sky_share = \"3%\"\n"
     "flow = \"0.5 m/s\"\n"
     "step_rate = 10\n"
@@ -242,6 +244,8 @@ TEST_CASE("the river's water is one tuning entry, its lengths in millimetres and
     CHECK(w.shore_wander == 60);
     CHECK(w.shore_scale == 1'400);
     CHECK(w.murk_curve == 1'500'000);
+    CHECK(w.gravel_depth == 300);
+    CHECK(w.shore_line_share == 600'000);
     CHECK(w.sky_share == 30'000);
     CHECK(w.flow == 500);
     CHECK(w.step_rate == 10);
@@ -261,7 +265,7 @@ TEST_CASE("the area and the water count only in the look's digest, and a change 
     CHECK(area_before.fields[2] == 36);
     CHECK(water_before.fields[0] == 0);
     CHECK(water_before.fields[1] == 0);
-    CHECK(water_before.fields[2] == 23);
+    CHECK(water_before.fields[2] == 25);
     data::Catalogue changed;
     REQUIRE(
         changed.load(with_files(replaced(kArea, "seed = 7", "seed = 8"), replaced(kWater, "0.9 m", "0.8 m"))).empty());

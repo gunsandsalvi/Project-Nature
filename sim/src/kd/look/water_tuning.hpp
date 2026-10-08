@@ -32,6 +32,8 @@ struct WaterTuning {
     std::int64_t shore_wander = 0;
     std::int64_t shore_scale = 0;
     std::int64_t murk_curve = 0;
+    std::int64_t gravel_depth = 0;
+    std::int64_t shore_line_share = 0;
     std::int64_t sky_share = 0;
     std::int64_t flow = 0;
     std::int64_t step_rate = 0;
@@ -83,6 +85,14 @@ struct WaterTuning {
                     "first and then quicker",
                     Affects::look},
                    w.murk_curve, Measure::ratio, {500'000, 4'000'000});
+        v.quantity({"gravel_depth",
+                    "how deep under the water the bank's gravel goes before the river bed's stones take over, mixed in "
+                    "clumps",
+                    Affects::look},
+                   w.gravel_depth, Measure::length, {0, 2'000});
+        v.quantity({"shore_line_share", "the share of the waterline's texture pixels the bright shore line lights",
+                    Affects::look},
+                   w.shore_line_share, Measure::ratio, {0, 1'000'000});
         v.quantity({"sky_share", "the share of the sky's light the surface mirrors when seen square on", Affects::look},
                    w.sky_share, Measure::ratio, {0, 1'000'000});
         v.quantity({"flow", "how fast the current runs, toward the east", Affects::look}, w.flow, Measure::speed,

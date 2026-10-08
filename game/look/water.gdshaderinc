@@ -21,10 +21,12 @@ global uniform vec4 kd_water_wet;
 // most share of texture pixels one lights (z); the shore line's width in texture pixels (w).
 global uniform vec4 kd_water_surface;
 // How the current's marks come and go: the share of their strength kept where the water is calmest (x), how wide the
-// calm and rough stretches are, in metres (y), and the depth the marks fade in over, in metres (z).
+// calm and rough stretches are, in metres (y), the depth the marks fade in over, in metres (z), and the share of the
+// waterline's texture pixels the bright shore line lights (w).
 global uniform vec4 kd_water_marks;
 // How the shore and the depth's colour are shaped: how high the waterline's wander is in metres of depth (x), how wide its
-// bends are in metres (y), and the curve the water's own colour comes in with depth by (z).
+// bends are in metres (y), the curve the water's own colour comes in with depth by (z), and how deep under the water
+// the bank's gravel goes before the bed's stones take over, in metres (w).
 global uniform vec4 kd_water_edge;
 // The glints' and the shore line's colours, in linear light.
 global uniform vec4 kd_water_glint;

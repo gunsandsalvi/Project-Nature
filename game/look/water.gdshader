@@ -47,7 +47,8 @@ void kd_surface_at(float band, vec2 world, float over_bed, vec2 width0, vec2 slo
 		float rough = smoothstep(0.2, 0.8, kd_value_noise(at / kd_water_marks.y, 31.0));
 		cover.a *= mix(kd_water_marks.x, 1.0, rough) * smoothstep(0.0, max(kd_water_marks.z, 1.0e-4), depth);
 		// where the water meets the land, a line of whole texture pixels
-		if (depth <= run * kd_water_surface.w) {
+		// but not all along: it lights a share of the pixels, so the edge is broken, never one ruled line
+		if (depth <= run * kd_water_surface.w && kd_hash(kd_texel_cell(world, band), 53.0) < kd_water_marks.w) {
 			cover = vec4(kd_water_shore.rgb, 1.0);
 		}
 		// a glint is one texture pixel lit for a few ticks, picked by a hash of its place and of when it is
