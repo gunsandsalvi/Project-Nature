@@ -2,6 +2,7 @@
 extends Control
 
 const Drawing := preload("res://camp/drawing.gd")
+const Labels := preload("res://camp/labels.gd")
 const Sizing := preload("res://ui/sizing.gd")
 var draws_world := true
 var navigation_height := 0.0
@@ -32,6 +33,9 @@ var _message := ""
 var _check_code := ""
 var _message_until := 0
 var _show_supplies := false
+var _labels: Node2D
+var _hit_radius := 24.0
+var _dock_bounds := Rect2()
 
 
 func _ready() -> void:
@@ -51,10 +55,14 @@ func _ready() -> void:
 		str(ProjectSettings.get_setting("application/config/version"))
 	)
 	if opened.has("problem"):
+		draws_world = false
 		var failure := Label.new()
-		failure.text = "Camp could not open: " + str(opened.problem)
+		failure.text = (
+			"Camp could not open. Menu → Saved camps to choose another.\n" + str(opened.problem)
+		)
 		failure.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		add_child(failure)
+		failure.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		set_process(false)
 		return
 	if opened.made:
@@ -78,6 +86,7 @@ func _build() -> void:
 	layer.layer = 20
 	add_child(layer)
 	_native = Control.new()
+	_native.theme = theme
 	_native.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_native)
 	_area = Control.new()
@@ -101,6 +110,9 @@ func _build() -> void:
 	_picture.mouse_filter = Control.MOUSE_FILTER_STOP
 	_picture.gui_input.connect(_world_input)
 	_area.add_child(_picture)
+	_labels = Labels.new()
+	_labels.drawing = drawing
+	_area.add_child(_labels)
 	_dock = PanelContainer.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color("172b24")
@@ -198,7 +210,9 @@ func select_person(id: int) -> void:
 
 
 func tap(at: Vector2) -> void:
-	var id: int = drawing.pick(camera.from_screen(at), 12.0 / float(state.scale))
+	var id: int = drawing.pick(
+		camera.from_screen(at), _hit_radius / float(state.scale) / float(state.live_scale)
+	)
 	if id != 0:
 		select_person(id)
 
@@ -217,11 +231,15 @@ func choose_speed(index: int) -> void:
 
 
 func show_supplies() -> void:
+	if not is_instance_valid(drawing):
+		return
 	_show_supplies = not _show_supplies
 	_refresh_records()
 
 
 func save_camp() -> void:
+	if not is_instance_valid(drawing):
+		return
 	world.save_now()
 	if world.counters().get("save_failed", false):
 		world.pause()
@@ -241,6 +259,8 @@ func show_check(code: String) -> void:
 func _process(delta: float) -> void:
 	if not is_instance_valid(drawing):
 		return
+	_dock.size = _dock_bounds.size
+	_dock.position = _dock_bounds.position
 	world.frame()
 	state = camera.frame(int(_area.size.x), int(_area.size.y), delta)
 	_viewport.size = Vector2i(state.size)
@@ -249,6 +269,8 @@ func _process(delta: float) -> void:
 	drawing.state = state
 	_refresh_records()
 	drawing.rebuild()
+	_labels.state = state
+	_labels.queue_redraw()
 
 
 func _resize() -> void:
@@ -271,12 +293,19 @@ func _resize() -> void:
 func layout(window: Vector2, safe: Rect2) -> void:
 	_native.size = window
 	var density := clampf(minf(window.x, window.y) / 450, 1, 3)
+	camera.set_pixel_scale(2 if minf(window.x, window.y) >= 1080 else 1)
+	_hit_radius = 24 * density
+	_labels.density = density
+	var popup := _speed.get_popup()
+	popup.add_theme_font_size_override("font_size", Sizing.font_size(16, density))
+	popup.add_theme_constant_override("v_separation", roundi(32 * density))
 	var gap := 12 * density
 	var landscape := window.x > window.y
 	var width := minf(360 * density, safe.size.x * 0.38) if landscape else safe.size.x
-	var height := safe.size.y if landscape else 230 * density
+	var height := safe.size.y if landscape else 260 * density
 	_dock.position = safe.position + Vector2(safe.size.x - width, safe.size.y - height)
 	_dock.size = Vector2(width, height)
+	_dock_bounds = Rect2(_dock.position, Vector2(width, height))
 	_area.position = safe.position
 	_area.size = (
 		Vector2(safe.size.x - width, safe.size.y)

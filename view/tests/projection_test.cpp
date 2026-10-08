@@ -339,3 +339,18 @@ TEST_CASE("display manifests remain owned and include unchanged identities after
     DisplaySnapshot next_world;
     CHECK(next_world.epoch() != display.epoch());
 }
+
+TEST_CASE("a phone world pane retains the window's integral pixel scale after a dock takes space") {
+    Projection p;
+    p.size(1536, 864, 2);
+    CHECK(p.pixel_scale() == 2);
+    CHECK(p.width() == 770);
+    CHECK(p.height() == 434);
+    const Pixel point = p.project(3, 4, 0);
+    CHECK(p.ground(point).x == doctest::Approx(3));
+    CHECK(p.ground(point).y == doctest::Approx(4));
+    p.size(1080, 1694, 2);
+    CHECK(p.pixel_scale() == 2);
+    p.size(720, 1200, 1);
+    CHECK(p.pixel_scale() == 1);
+}

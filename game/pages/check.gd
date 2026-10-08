@@ -475,7 +475,7 @@ func _add_saves() -> void:
 		if w["id"] == id:
 			listed = w
 	if listed.is_empty() or int(listed["moment"]) < 0:
-		_add("Saves", "no world saved yet: open Crowd", "info")
+		_add("Saves", "no camp saved yet: open Camp", "info")
 	else:
 		var ago := maxi(0, int(Time.get_unix_time_from_system()) - int(listed["saved"]))
 		_add(

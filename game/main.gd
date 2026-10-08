@@ -1,9 +1,10 @@
 ## Implements A3.8 PLT-02 PLT-06 PRE-31: readable navigation and composed example pages.
-## Every alpha still opens on its self-check; diagnostics live behind the menu.
+## Camp is the front door; diagnostics live behind one developer menu.
 extends Control
 
 const Sizing := preload("res://ui/sizing.gd")
 const PAGES := {
+	"Camp": preload("res://pages/camp.gd"),
 	"Check": preload("res://pages/check.gd"),
 	"Examples": preload("res://pages/examples.gd"),
 	"Time": preload("res://pages/time.gd"),
@@ -17,6 +18,9 @@ const PAGES := {
 }
 const BACKGROUND := Palette.GROUND
 const TEXT := Palette.TEXT
+var camp_root := Worlds.ROOT
+var camp_frozen := false
+var first_check_code := ""
 var _ground: ColorRect
 var _content: Control
 var _page_name := ""
@@ -29,6 +33,7 @@ var _menu_button: Button
 var _page: Control
 var _ui: Control
 var _layout_pending := false
+var _developer: VBoxContainer
 
 
 func _ready() -> void:
@@ -40,11 +45,12 @@ func _ready() -> void:
 	get_tree().node_added.connect(_node_added)
 	_build()
 	get_viewport().size_changed.connect(_layout)
-	open_page("Check")
+	open_page("Camp")
 	for arg in OS.get_cmdline_user_args():
 		if PAGES.has(arg):
 			open_page(arg)
 	_set_frame_cap()
+	_first_check.call_deferred()
 
 
 func _notification(what: int) -> void:
@@ -69,10 +75,18 @@ func open_page(page: String) -> void:
 	if is_instance_valid(_page):
 		_page.free()
 	_page = PAGES[page].new()
+	if page in ["Camp", "Worlds", "Crowd"]:
+		_page.root = camp_root
+	if page == "Camp":
+		_page.frozen = camp_frozen
+	if page == "Worlds":
+		_page.new_camp_alpha = true
 	_page_name = page
 	if page == "Examples":
 		_page.shell_header_height = _header.size.y
 	_content.add_child(_page)
+	if page == "Camp" and not first_check_code.is_empty():
+		_page.show_check(first_check_code)
 	_ground.visible = not _page.get("draws_world")
 	for button: Button in _navigation.get_children():
 		button.set_pressed_no_signal(button.text == page)
@@ -90,6 +104,7 @@ func _build() -> void:
 	layer.layer = 40
 	add_child(layer)
 	_ui = Control.new()
+	_ui.theme = theme
 	_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.add_child(_ui)
 	_header = _panel()
@@ -102,7 +117,7 @@ func _build() -> void:
 	row.add_child(title)
 	_navigation = HBoxContainer.new()
 	row.add_child(_navigation)
-	for name: String in ["Examples", "Worlds", "Menu"]:
+	for name: String in ["Menu"]:
 		var button := Button.new()
 		button.text = name
 		button.toggle_mode = true
@@ -113,7 +128,7 @@ func _build() -> void:
 		else:
 			button.pressed.connect(open_page.bind(name))
 	_scrim = ColorRect.new()
-	_scrim.color = Color("17241e")
+	_scrim.color = Color("17241e66")
 	_scrim.hide()
 	_ui.add_child(_scrim)
 	_scrim.gui_input.connect(
@@ -130,20 +145,42 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_menu_scroll.add_child(column)
-	var groups := {
-		"World tools": {"Time": "Time", "Catalogues": "Catalogues", "Reports": "Reports"},
-		"Checks": {"Check": "Check", "Crowd": "People test", "Bench": "Rendering test"},
-		"Diagnostics": {"Fixtures": "Art inspector", "Terrain": "Terrain inspector"}
+	for route: String in ["Camp", "Worlds"]:
+		var button := Button.new()
+		button.text = "Return to camp" if route == "Camp" else "Saved camps · export / import"
+		button.pressed.connect(open_page.bind(route))
+		column.add_child(button)
+	var save := Button.new()
+	save.text = "Save camp now"
+	save.pressed.connect(_save_camp)
+	column.add_child(save)
+	var supplies := Button.new()
+	supplies.text = "Camp supplies"
+	supplies.pressed.connect(_camp_supplies)
+	column.add_child(supplies)
+	var developer := Button.new()
+	developer.text = "Developer tools"
+	column.add_child(developer)
+	_developer = VBoxContainer.new()
+	_developer.visible = false
+	column.add_child(_developer)
+	developer.pressed.connect(func() -> void: _developer.visible = not _developer.visible)
+	var routes := {
+		"Check": "Device check",
+		"Examples": "Examples",
+		"Crowd": "Marker regression fixture",
+		"Time": "Time test",
+		"Catalogues": "Catalogues",
+		"Reports": "Reports",
+		"Bench": "Rendering test",
+		"Fixtures": "Art inspector",
+		"Terrain": "Terrain inspector"
 	}
-	for heading: String in groups:
-		var label := Label.new()
-		label.text = heading
-		column.add_child(label)
-		for route: String in groups[heading]:
-			var button := Button.new()
-			button.text = groups[heading][route]
-			button.pressed.connect(open_page.bind(route))
-			column.add_child(button)
+	for route: String in routes:
+		var button := Button.new()
+		button.text = routes[route]
+		button.pressed.connect(open_page.bind(route))
+		_developer.add_child(button)
 	_layout()
 
 
@@ -197,7 +234,9 @@ func _layout() -> void:
 	_scrim.position = safe.position + Vector2(0, header_height)
 	_scrim.size = Vector2(safe.size.x, safe.size.y - header_height)
 	var menu_width := (
-		safe.size.x if safe.size.y > safe.size.x else minf(safe.size.x, 320.0 * scale_ui)
+		safe.size.x
+		if safe.size.y > safe.size.x
+		else minf(safe.size.x, (360.0 if _page_name == "Camp" else 320.0) * scale_ui)
 	)
 	_menu.position = safe.position + Vector2(safe.size.x - menu_width, header_height)
 	_menu.size = Vector2(menu_width, safe.size.y - header_height)
@@ -229,8 +268,8 @@ func _go_back() -> void:
 		_menu.hide()
 		_scrim.hide()
 		_menu_button.set_pressed_no_signal(false)
-	elif _page_name != "Check":
-		open_page("Check")
+	elif _page_name != "Camp":
+		open_page("Camp")
 	elif OS.get_name() == "Android" and Engine.has_singleton("AndroidRuntime"):
 		Engine.get_singleton("AndroidRuntime").getActivity().moveTaskToBack(true)
 
@@ -249,3 +288,59 @@ func _node_added(node: Node) -> void:
 func _deferred_layout() -> void:
 	_layout_pending = false
 	_layout()
+
+
+func _save_camp() -> void:
+	if _page_name != "Camp":
+		open_page("Camp")
+	_page.save_camp()
+	_menu.hide()
+	_scrim.hide()
+	_menu_button.set_pressed_no_signal(false)
+
+
+## A brief first-launch smoke/thread check; the full report remains in Developer tools.
+func _first_check() -> void:
+	var file := ConfigFile.new()
+	var path := "user://first-check.cfg"
+	var version := str(ProjectSettings.get_setting("application/config/version"))
+	file.load(path)
+	if file.get_value("check", "version", "") == version:
+		return
+	var build := GameData.build()
+	var device := KdDevice.new()
+	var expected := str(build.get_value("proof", "smoke", ""))
+	var threads := device.thread_check()
+	var ok: bool = (
+		not expected.is_empty()
+		and device.proof("smoke", 1) == expected
+		and device.proof("smoke", 4) == expected
+		and threads.default_in_work
+		and int(threads.stack_mib) >= 8
+	)
+	var catalogue := PAGES.Check.new()
+	catalogue._add_catalogue()
+	catalogue._add_graphics()
+	catalogue._add_screen()
+	catalogue._add_cores(device)
+	catalogue._add("Simulation threads", str(threads), "ok" if ok else "fail")
+	catalogue._add("Smoke same bits", expected, "ok" if ok else "fail")
+	if _page_name == "Camp" and not _page.opened.has("problem"):
+		catalogue._add("Saved moment", str(_page.world.frontier()), "info")
+	ok = ok and not catalogue.lines.any(func(line: Dictionary) -> bool: return line.state == "fail")
+	file.set_value("check", "report", catalogue.details())
+	catalogue.free()
+	first_check_code = "" if ok else "START-01"
+	file.set_value("check", "version", version if ok else "")
+	file.save(path)
+	if _page_name == "Camp":
+		_page.show_check(first_check_code)
+
+
+func _camp_supplies() -> void:
+	if _page_name != "Camp":
+		open_page("Camp")
+	_page.show_supplies()
+	_menu.hide()
+	_scrim.hide()
+	_menu_button.set_pressed_no_signal(false)

@@ -32,7 +32,7 @@ class Projection {
 public:
     static constexpr double kA = 0.6018150231520483;
     static constexpr double kB = 0.7986355100472928;
-    void size(int width, int height);
+    void size(int width, int height, int pixel_scale = 0);
     void focus(double east, double north);
     num::Offset rebase();
     [[nodiscard]] num::Offset raster_origin() const;

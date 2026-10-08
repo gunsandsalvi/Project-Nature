@@ -7,11 +7,11 @@
 #include "kd/num/maths.hpp"
 
 namespace kd::view {
-void Projection::size(int width, int height) {
+void Projection::size(int width, int height, int pixel_scale) {
     width_ = std::max(1, width);
     height_ = std::max(1, height);
     // Reference windows use exactly 2x. Smaller windows use 1x; larger ones reveal more of the same world.
-    scale_ = std::min(width_, height_) >= 1080 ? 2 : 1;
+    scale_ = pixel_scale == 1 || pixel_scale == 2 ? pixel_scale : std::min(width_, height_) >= 1080 ? 2 : 1;
 }
 num::Offset Projection::raster_origin() const {
     return {std::llround(raster_origin_east_ * 100), std::llround(raster_origin_north_ * 100)};

@@ -11,5 +11,5 @@ group_power = -6
 maximum_height = "32 m"
 overscan_pixels = 32
 shadow_reach = "128 m"
-# First motion proposal; designer and critic must judge actual captures before owner delivery.
-settle_ms = 160
+# Local release smoothing; resting powers and anchored picks remain unchanged.
+settle_ms = 320

@@ -16,7 +16,8 @@ thread and on four, refusing to go on if they differ; and writes build.toml:
   (A18.1, RES-05);
 - [textures]: each texture file the phone reads with its SHA-256 (A5.4), written into game/data/textures/: the
   stand-ins tools/standins.py makes (T2.1a.3), and each of the art lane's textures, its record's levels packed
-  largest first into textures/art/<entry>.kdtex, so art:meadow/middle is textures/art/meadow/middle.kdtex;
+  largest first with lossless PNG encoding into textures/art/<entry>.kdtex;
+  art:meadow/middle becomes textures/art/meadow/middle.kdtex;
 - [sheets]: signed-off reference sheets retained for 2D fixture inspection (T2.3a.5), each with its SHA-256,
   written into game/data/sheets/ as <piece>.kdsheet (the WebP under a name Godot's import leaves alone),
   by the art lane's catalogue (art/catalogue/*.toml names each piece's sheet);
@@ -41,6 +42,7 @@ import tomllib
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import standins  # noqa: E402
+import pngpack  # noqa: E402
 import sprite_families  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -126,7 +128,7 @@ def art_textures(records):
         pictures = []
         for band in levels:
             with open(os.path.join(ROOT, band["file"]), "rb") as f:
-                pictures.append(f.read())
+                pictures.append(pngpack.lossless(f.read()))
         entry = rel[len("art/textures/") : -len("/record.toml")]
         out[f"art/{entry}.kdtex"] = standins.kdtex(pictures)
     return out

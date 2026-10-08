@@ -46,14 +46,15 @@ Android uses API 24, statically linked C++ runtime, guarded newer APIs and 16 Ki
 
 Export unsigned, then compress, align and sign through the existing tools; only `tools/signing-key.py` reads the signing secret.
 Text catalogues/reports need explicit export inclusion; tests/addons stay excluded; no permissions are requested.
-Lossless native-library deflation requires `extractNativeLibs=true`. The shared meadow sheet is packaged once; deleting required catalogue records is not a size fix.
+Lossless native-library deflation requires `extractNativeLibs=true`. Runtime PNG levels may use exact palettes or omit opaque alpha only after verifying every decoded RGBA byte; profiled sources retain their encoding. The shared meadow sheet is packaged once; deleting required catalogue records is not a size fix.
 
 ### A2.3 Delivery of each alpha (`PRC-11`, `PLT-06`)
 
 Package `dev.kindling.app`, same release key, increasing version code:
 `(milestone + 1) × 10000 + alpha × 100 + step`, with a = 1.
 Never reuse a distributed code. The committed APK must fit the repository's 50 MiB file limit; a different distribution route or visible compression needs the owner's decision.
-30801 is 51,248,270 bytes (48.87 MiB); its note/checksum in `dist/` identify the actual delivery.
+The measured size, note and checksum in `dist/` identify the actual delivery.
+α2.13a opens the selected Camp alpha directly. A brief once-per-build smoke check compares one/four threads, numerical environment and catalogue fingerprints, and stores device/saved-moment diagnostics; the full report remains behind Menu → Developer tools.
 The note has What is new, What to try and What is rough plus the APK link; proved behaviour and remaining checks fit those sections. The installable build follows IMPLEMENTATION.md. First-start checks cover deterministic digests, numerical environment, catalogue fingerprints, saved moment and device diagnostics.
 
 ### A2.4 A fresh cloud session
@@ -141,7 +142,7 @@ Full-world snapshots will also need measured immutable-state copying/compression
 ### A3.8 Talking to Godot
 
 Commands are durable plain records. Snapshots use a single-consumer triple buffer; one controller copies the latest publication and all views/jobs use its owned data.
-Never retain a recycled slot. No simulation worker touches Godot objects. Camp identities and supplies are copied into the same owned display snapshot; cards and sprites read that copy.
+Never retain a recycled slot. No simulation worker touches Godot objects. Camp identities and supplies are copied into the same owned display snapshot; cards and sprites read that copy. Camp labels/cards use native integer bitmap text; the dock keeps 48 dp controls in either orientation. World panes retain the full window’s 1×/2× raster scale; a 320 ms camera settle keeps existing powers and anchored picking.
 Sample the saved activity way at displayed time, including interruptions and torus seams, rather than interpolating arbitrary recent positions.
 Lossless events/commands are separate from disposable picture updates.
 

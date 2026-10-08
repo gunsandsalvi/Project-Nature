@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Implements PLT-06 PRC-11: lossless extension compression before APK alignment and signing."""
+"""Implements PLT-06 PRC-11: lossless native compression and deflate repacking before APK alignment and signing."""
 
 import copy
 import sys
@@ -10,7 +10,7 @@ EXTENSION = "lib/arm64-v8a/libkindling.android.arm64.so"
 
 
 def compress(source, destination):
-    """Change only the extension's compression method; preserve all entry contents and metadata."""
+    """Compress the extension and tighten existing deflate entries; preserve contents and metadata."""
     if Path(source).resolve() == Path(destination).resolve():
         raise ValueError("APK compression needs a separate output file")
     with zipfile.ZipFile(source) as before:
@@ -25,7 +25,7 @@ def compress(source, destination):
                 after.writestr(
                     info,
                     before.read(item),
-                    compresslevel=9 if item.filename == EXTENSION else None,
+                    compresslevel=9 if info.compress_type == zipfile.ZIP_DEFLATED else None,
                 )
 
 
