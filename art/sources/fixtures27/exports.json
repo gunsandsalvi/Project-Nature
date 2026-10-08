@@ -4,428 +4,6 @@
   "approval": "no runtime or engine approval",
   "entries": [
     {
-      "id": "birch-summer",
-      "sheet": "art/catalogue/sheets/7.7-birch.webp",
-      "status": "neutral image-drawn colour; cleaned production candidate",
-      "families": [
-        {
-          "family": "near",
-          "records": {
-            "colour": "art/textures/fixtures27/birch_summer/near/colour/record.toml",
-            "material": "art/textures/fixtures27/birch_summer/near/material/record.toml",
-            "normal": "art/textures/fixtures27/birch_summer/near/normal/record.toml"
-          },
-          "pivot": [
-            512.0,
-            1023.0
-          ],
-          "page_size": [
-            1024,
-            1024
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.6218225753984851,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.5932985797217265,
-            "crop": [
-              105,
-              9,
-              824,
-              1732
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              512.0,
-              1023.0
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 16777212,
-          "preview": "art/previews/fixtures27/birch-summer-near.webp",
-          "parts": {
-            "trunk": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_summer_trunk/near/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_summer_trunk/near/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_summer_trunk/near/normal/record.toml"
-              },
-              "pivot": [
-                512.0,
-                1023.0
-              ],
-              "gpu_rgba8_bytes_with_chains": 16777212
-            },
-            "crown": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_summer_crown/near/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_summer_crown/near/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_summer_crown/near/normal/record.toml"
-              },
-              "pivot": [
-                512.0,
-                1023.0
-              ],
-              "gpu_rgba8_bytes_with_chains": 16777212
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        },
-        {
-          "family": "middle",
-          "records": {
-            "colour": "art/textures/fixtures27/birch_summer/middle/colour/record.toml",
-            "material": "art/textures/fixtures27/birch_summer/middle/material/record.toml",
-            "normal": "art/textures/fixtures27/birch_summer/middle/normal/record.toml"
-          },
-          "pivot": [
-            128.0,
-            255.75
-          ],
-          "page_size": [
-            256,
-            256
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.5643849375602231,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.14034231917360446,
-            "crop": [
-              90,
-              30,
-              779,
-              1851
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              128.0,
-              255.75
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 1048572,
-          "preview": "art/previews/fixtures27/birch-summer-middle.webp",
-          "parts": {
-            "trunk": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_summer_trunk/middle/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_summer_trunk/middle/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_summer_trunk/middle/normal/record.toml"
-              },
-              "pivot": [
-                128.0,
-                255.75
-              ],
-              "gpu_rgba8_bytes_with_chains": 1048572
-            },
-            "crown": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_summer_crown/middle/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_summer_crown/middle/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_summer_crown/middle/normal/record.toml"
-              },
-              "pivot": [
-                128.0,
-                255.75
-              ],
-              "gpu_rgba8_bytes_with_chains": 1048572
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        },
-        {
-          "family": "far",
-          "records": {
-            "colour": "art/textures/fixtures27/birch_summer/far/colour/record.toml",
-            "material": "art/textures/fixtures27/birch_summer/far/material/record.toml",
-            "normal": "art/textures/fixtures27/birch_summer/far/normal/record.toml"
-          },
-          "pivot": [
-            32.0,
-            63.9375
-          ],
-          "page_size": [
-            64,
-            64
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.7778123697922763,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.03466676115235129,
-            "crop": [
-              91,
-              16,
-              782,
-              1859
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              32.0,
-              63.9375
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 65532,
-          "preview": "art/previews/fixtures27/birch-summer-far.webp",
-          "parts": {
-            "trunk": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_summer_trunk/far/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_summer_trunk/far/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_summer_trunk/far/normal/record.toml"
-              },
-              "pivot": [
-                32.0,
-                63.9375
-              ],
-              "gpu_rgba8_bytes_with_chains": 65532
-            },
-            "crown": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_summer_crown/far/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_summer_crown/far/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_summer_crown/far/normal/record.toml"
-              },
-              "pivot": [
-                32.0,
-                63.9375
-              ],
-              "gpu_rgba8_bytes_with_chains": 65532
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        }
-      ]
-    },
-    {
-      "id": "birch-winter",
-      "sheet": "art/catalogue/sheets/7.7-birch.webp",
-      "status": "neutral bare winter colour; same branch pattern redraw",
-      "families": [
-        {
-          "family": "near",
-          "records": {
-            "colour": "art/textures/fixtures27/birch_winter/near/colour/record.toml",
-            "material": "art/textures/fixtures27/birch_winter/near/material/record.toml",
-            "normal": "art/textures/fixtures27/birch_winter/near/normal/record.toml"
-          },
-          "pivot": [
-            512.0,
-            1023.0
-          ],
-          "page_size": [
-            1024,
-            1024
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.8928825622775801,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.6023885992106864,
-            "crop": [
-              100,
-              21,
-              826,
-              1718
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              512.0,
-              1023.0
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 16777212,
-          "preview": "art/previews/fixtures27/birch-winter-near.webp",
-          "parts": {
-            "trunk": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_winter_trunk/near/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_winter_trunk/near/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_winter_trunk/near/normal/record.toml"
-              },
-              "pivot": [
-                512.0,
-                1023.0
-              ],
-              "gpu_rgba8_bytes_with_chains": 16777212
-            },
-            "crown": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_winter_crown/near/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_winter_crown/near/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_winter_crown/near/normal/record.toml"
-              },
-              "pivot": [
-                512.0,
-                1023.0
-              ],
-              "gpu_rgba8_bytes_with_chains": 16777212
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        },
-        {
-          "family": "middle",
-          "records": {
-            "colour": "art/textures/fixtures27/birch_winter/middle/colour/record.toml",
-            "material": "art/textures/fixtures27/birch_winter/middle/material/record.toml",
-            "normal": "art/textures/fixtures27/birch_winter/middle/normal/record.toml"
-          },
-          "pivot": [
-            128.0,
-            255.75
-          ],
-          "page_size": [
-            256,
-            256
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.8964941001863695,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.15050845890172773,
-            "crop": [
-              98,
-              18,
-              827,
-              1716
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              128.0,
-              255.75
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 1048572,
-          "preview": "art/previews/fixtures27/birch-winter-middle.webp",
-          "parts": {
-            "trunk": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_winter_trunk/middle/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_winter_trunk/middle/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_winter_trunk/middle/normal/record.toml"
-              },
-              "pivot": [
-                128.0,
-                255.75
-              ],
-              "gpu_rgba8_bytes_with_chains": 1048572
-            },
-            "crown": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_winter_crown/middle/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_winter_crown/middle/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_winter_crown/middle/normal/record.toml"
-              },
-              "pivot": [
-                128.0,
-                255.75
-              ],
-              "gpu_rgba8_bytes_with_chains": 1048572
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        },
-        {
-          "family": "far",
-          "records": {
-            "colour": "art/textures/fixtures27/birch_winter/far/colour/record.toml",
-            "material": "art/textures/fixtures27/birch_winter/far/material/record.toml",
-            "normal": "art/textures/fixtures27/birch_winter/far/normal/record.toml"
-          },
-          "pivot": [
-            32.0,
-            63.9375
-          ],
-          "page_size": [
-            64,
-            64
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.924395265408424,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.03731941635735013,
-            "crop": [
-              129,
-              26,
-              781,
-              1738
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              32.0,
-              63.9375
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 65532,
-          "preview": "art/previews/fixtures27/birch-winter-far.webp",
-          "parts": {
-            "trunk": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_winter_trunk/far/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_winter_trunk/far/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_winter_trunk/far/normal/record.toml"
-              },
-              "pivot": [
-                32.0,
-                63.9375
-              ],
-              "gpu_rgba8_bytes_with_chains": 65532
-            },
-            "crown": {
-              "records": {
-                "colour": "art/textures/fixtures27/birch_winter_crown/far/colour/record.toml",
-                "material": "art/textures/fixtures27/birch_winter_crown/far/material/record.toml",
-                "normal": "art/textures/fixtures27/birch_winter_crown/far/normal/record.toml"
-              },
-              "pivot": [
-                32.0,
-                63.9375
-              ],
-              "gpu_rgba8_bytes_with_chains": 65532
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        }
-      ]
-    },
-    {
       "id": "tent",
       "sheet": "art/catalogue/sheets/16.4-hide_tent_cone.webp",
       "status": "neutral image-drawn hide tent; cleaned production candidate",
@@ -1393,6 +971,446 @@
           "parts": {},
           "review": "pending owner runtime approval; engine lighting and normal calibration required",
           "directional_study": "art/previews/fixtures27/boulder-far-light-study.webp"
+        }
+      ]
+    },
+    {
+      "id": "birch-summer",
+      "sheet": "art/catalogue/sheets/7.7-birch.webp",
+      "status": "neutral image-drawn colour; cleaned production candidate",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_summer/near/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_summer/near/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_summer/near/normal/record.toml"
+          },
+          "pivot": [
+            512.0,
+            1023.0
+          ],
+          "page_size": [
+            1024,
+            1024
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.48344751023545984,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.5908979496303669,
+            "crop": [
+              102,
+              6,
+              826,
+              1736
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/birch-summer-near-r2-cleaned.png",
+            "pivot": [
+              512.0,
+              1023.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 16777212,
+          "preview": "art/previews/fixtures27/birch-summer-near.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_trunk/near/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_trunk/near/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_trunk/near/normal/record.toml"
+              },
+              "pivot": [
+                512.0,
+                1023.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 16777212
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_crown/near/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_crown/near/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_crown/near/normal/record.toml"
+              },
+              "pivot": [
+                512.0,
+                1023.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 16777212
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/birch-summer-near-light-study.webp"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_summer/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_summer/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_summer/middle/normal/record.toml"
+          },
+          "pivot": [
+            128.0,
+            255.75
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.48010849290298424,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.14011149299075312,
+            "crop": [
+              87,
+              29,
+              781,
+              1853
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/birch-summer-middle-r2-cleaned.png",
+            "pivot": [
+              128.0,
+              255.75
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/birch-summer-middle.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_trunk/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_trunk/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_trunk/middle/normal/record.toml"
+              },
+              "pivot": [
+                128.0,
+                255.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 1048572
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_crown/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_crown/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_crown/middle/normal/record.toml"
+              },
+              "pivot": [
+                128.0,
+                255.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 1048572
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/birch-summer-middle-light-study.webp"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_summer/far/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_summer/far/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_summer/far/normal/record.toml"
+          },
+          "pivot": [
+            32.0,
+            63.9375
+          ],
+          "page_size": [
+            64,
+            64
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.5819380922638836,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.03466676115235129,
+            "crop": [
+              90,
+              15,
+              782,
+              1858
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/birch-summer-far-r2-cleaned.png",
+            "pivot": [
+              32.0,
+              63.9375
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 65532,
+          "preview": "art/previews/fixtures27/birch-summer-far.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_trunk/far/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_trunk/far/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_trunk/far/normal/record.toml"
+              },
+              "pivot": [
+                32.0,
+                63.9375
+              ],
+              "gpu_rgba8_bytes_with_chains": 65532
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_summer_crown/far/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_summer_crown/far/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_summer_crown/far/normal/record.toml"
+              },
+              "pivot": [
+                32.0,
+                63.9375
+              ],
+              "gpu_rgba8_bytes_with_chains": 65532
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/birch-summer-far-light-study.webp"
+        }
+      ]
+    },
+    {
+      "id": "birch-winter",
+      "sheet": "art/catalogue/sheets/7.7-birch.webp",
+      "status": "neutral bare winter colour; same branch pattern redraw",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_winter/near/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_winter/near/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_winter/near/normal/record.toml"
+          },
+          "pivot": [
+            512.0,
+            1023.0
+          ],
+          "page_size": [
+            1024,
+            1024
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.8928825622775801,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.6023885992106864,
+            "crop": [
+              100,
+              21,
+              826,
+              1718
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/neutral/birch-winter-near-cleaned.png",
+            "pivot": [
+              512.0,
+              1023.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 16777212,
+          "preview": "art/previews/fixtures27/birch-winter-near.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_trunk/near/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_trunk/near/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_trunk/near/normal/record.toml"
+              },
+              "pivot": [
+                512.0,
+                1023.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 16777212
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_crown/near/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_crown/near/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_crown/near/normal/record.toml"
+              },
+              "pivot": [
+                512.0,
+                1023.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 16777212
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/birch-winter-near-light-study.webp"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_winter/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_winter/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_winter/middle/normal/record.toml"
+          },
+          "pivot": [
+            128.0,
+            255.75
+          ],
+          "page_size": [
+            256,
+            256
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.8964941001863695,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.15050845890172773,
+            "crop": [
+              98,
+              18,
+              827,
+              1716
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/neutral/birch-winter-middle-cleaned.png",
+            "pivot": [
+              128.0,
+              255.75
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 1048572,
+          "preview": "art/previews/fixtures27/birch-winter-middle.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_trunk/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_trunk/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_trunk/middle/normal/record.toml"
+              },
+              "pivot": [
+                128.0,
+                255.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 1048572
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_crown/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_crown/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_crown/middle/normal/record.toml"
+              },
+              "pivot": [
+                128.0,
+                255.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 1048572
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/birch-winter-middle-light-study.webp"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/birch_winter/far/colour/record.toml",
+            "material": "art/textures/fixtures27/birch_winter/far/material/record.toml",
+            "normal": "art/textures/fixtures27/birch_winter/far/normal/record.toml"
+          },
+          "pivot": [
+            32.0,
+            63.9375
+          ],
+          "page_size": [
+            64,
+            64
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.9699376677343953,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.03742872923478818,
+            "crop": [
+              147,
+              34,
+              741,
+              1741
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/birch-winter-far-r2-cleaned.png",
+            "pivot": [
+              32.0,
+              63.9375
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 65532,
+          "preview": "art/previews/fixtures27/birch-winter-far.webp",
+          "parts": {
+            "trunk": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_trunk/far/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_trunk/far/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_trunk/far/normal/record.toml"
+              },
+              "pivot": [
+                32.0,
+                63.9375
+              ],
+              "gpu_rgba8_bytes_with_chains": 65532
+            },
+            "crown": {
+              "records": {
+                "colour": "art/textures/fixtures27/birch_winter_crown/far/colour/record.toml",
+                "material": "art/textures/fixtures27/birch_winter_crown/far/material/record.toml",
+                "normal": "art/textures/fixtures27/birch_winter_crown/far/normal/record.toml"
+              },
+              "pivot": [
+                32.0,
+                63.9375
+              ],
+              "gpu_rgba8_bytes_with_chains": 65532
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required",
+          "directional_study": "art/previews/fixtures27/birch-winter-far-light-study.webp"
         }
       ]
     }

@@ -6,8 +6,10 @@ These are synthetic numeric probes, not code-drawn substitute art. Art approval 
 import os
 import sys
 import unittest
+from unittest import mock
 
 import numpy as np
+from PIL import Image
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "art"))
 import fixtures  # noqa: E402
@@ -21,6 +23,110 @@ def probe():
 
 
 class FixtureMaps(unittest.TestCase):
+    # checks: PRE-20 PRE-22
+    def test_birch_last_mip_remains_covered(self):
+        b = probe()
+        recipe = {"class": "sprite", "birch_repair": True, "palette": [["#506030", 3]]}
+        last = fixtures.complete_chain(recipe, b)[-1]
+        self.assertEqual(last["colour"].shape, (1, 1, 4))
+        self.assertEqual(last["colour"][0, 0, 3], 255)
+        self.assertEqual(last["material"][0, 0, 3], 255)
+        self.assertEqual(last["normal"][0, 0, 3], 255)
+
+    # checks: PRE-20 PRE-46
+    def test_cached_wood_preparation_does_not_save_a_winter_output(self):
+        recipe = next(r.copy() for r in fixtures.read_json(fixtures.RECIPE)["fixtures"] if r["id"] == "birch-winter")
+        recipe["birch_repair"] = False
+        with mock.patch.object(Image.Image, "save") as save:
+            fixtures.source_bundle(recipe, recipe["sources"]["far"], "far", save_cleaned=False)
+        save.assert_not_called()
+
+    # checks: PRE-20 PRE-46
+    def test_raw_neutral_bark_is_not_lost_into_a_similar_dark_leaf_chip(self):
+        rgba = np.zeros((4, 4, 4), np.uint8)
+        rgba[:2] = [76, 83, 55, 255]
+        rgba[2:] = [86, 102, 56, 255]
+        recipe = {"birch_repair": True, "palette": [["#34482F", 3], ["#566638", 3], ["#383D35", 4]]}
+        colour = fixtures.resize_drawn(rgba, [4, 4], recipe)
+        _, ids = fixtures.quantise(colour, recipe)
+        self.assertEqual(ids[1, 1], 4)
+        self.assertTrue(np.all(ids[2:] == 3))
+
+    # checks: PRE-22 PRE-46
+    def test_birch_registered_axis_has_no_rectangular_upper_splice(self):
+        left, widths, _ = fixtures.birch_stem_profile([512, 1023], 64, 1024)
+        right = left + widths - 1
+        self.assertLessEqual(np.max(np.abs(np.diff(left[150:570]))), 1)
+        self.assertLessEqual(np.max(np.abs(np.diff(right[150:570]))), 1)
+
+    # checks: PRE-20 PRE-22
+    def test_quiet_reduction_keeps_semantic_material_with_overlapping_ramps(self):
+        b = probe()
+        b["colour"][:] = [80, 96, 48, 255]
+        b["material"][:, :, 0] = 8
+        b = {kind: np.tile(page, (2, 2, 1)) for kind, page in b.items()}
+        recipe = {"class": "sprite", "quiet_colour_flecks": True, "palette": [["#506030", 3], ["#506030", 8]]}
+        for level in fixtures.complete_chain(recipe, b):
+            self.assertEqual(set(np.unique(level["material"][:, :, 0])), {8})
+
+    # checks: PRE-20 PRE-22 PRE-46
+    def test_birch_bare_shaft_keeps_real_width_and_one_seasonal_bark(self):
+        for family, band, ppm in (("near", 0, 64), ("middle", 2, 16), ("far", 4, 4)):
+            colours = [
+                np.asarray(
+                    Image.open(fixtures.ROOT / f"art/textures/fixtures27/birch_{season}/{family}/colour/b{band}.png")
+                )
+                for season in ("summer", "winter")
+            ]
+            material = np.asarray(
+                Image.open(fixtures.ROOT / f"art/textures/fixtures27/birch_summer/{family}/material/b{band}.png")
+            )
+            n = colours[0].shape[0]
+            row = round(n - 2 * fixtures.COS37 * ppm)
+            expected = max(1, round(0.25 * ppm))
+            for colour in colours:
+                self.assertEqual(np.count_nonzero(colour[row, :, 3]), expected)
+                bottom = np.nonzero(colour[:, :, 3])[0].max()
+                self.assertEqual(np.count_nonzero(colour[bottom, :, 3]), max(2, round(0.38 * ppm)))
+            start = round(n - 6 * fixtures.COS37 * ppm)
+            lo, hi = round(n / 2 - 0.4 * ppm), round(n / 2 + 0.4 * ppm)
+            np.testing.assert_array_equal(colours[0][start:, lo:hi], colours[1][start:, lo:hi])
+            self.assertFalse(np.any(material[start:, lo:hi, 0] == 3))
+            # An exposed upper interval must match the lower shaft, not retain the old wide stem.
+            upper = {"near": 500, "middle": 128, "far": 31}[family]
+            shaft_left = round(n / 2 - expected / 2)
+            for colour in colours:
+                self.assertTrue(np.all(colour[upper, shaft_left : shaft_left + expected, 3] == 255))
+                if ppm >= 16:
+                    occupied = colour[upper, :, 3] > 0
+                    left = right = n // 2 - 1
+                    while left and occupied[left - 1]:
+                        left -= 1
+                    while right + 1 < n and occupied[right + 1]:
+                        right += 1
+                    self.assertEqual(right - left + 1, expected)
+
+    # checks: PRE-20
+    def test_birch_volume_field_has_no_proxy_seam_or_remote_branch_tilt(self):
+        colour = np.zeros((256, 256, 4), np.uint8)
+        ids = np.zeros((256, 256), np.uint8)
+        colour[20:190, 60:195] = [118, 131, 68, 255]
+        ids[20:190, 60:195] = 3
+        colour[40:250, 126:130] = [200, 196, 178, 255]
+        ids[40:250, 126:130] = 4
+        normal = fixtures.birch_normals(colour, ids, [128, 255.75], 16)
+        before = normal[100, 126:130].copy()
+        colour[100, 85:120] = [200, 196, 178, 255]
+        ids[100, 85:120] = 4
+        after = fixtures.birch_normals(colour, ids, [128, 255.75], 16)
+        np.testing.assert_array_equal(before, after[100, 126:130])
+        vectors = normal[:, :, :3].astype(float) / 127.5 - 1
+        leaf_pair = (ids[:-1] == 3) & (ids[1:] == 3)
+        dot = np.sum(vectors[:-1] * vectors[1:], axis=2)
+        lengths = np.linalg.norm(vectors[:-1], axis=2) * np.linalg.norm(vectors[1:], axis=2)
+        angles = np.degrees(np.arccos(np.clip(dot[leaf_pair] / lengths[leaf_pair], -1, 1)))
+        self.assertLess(angles.max(), 5)
+
     # checks: PRE-20 PRE-22
     def test_ground_colour_fleck_cleanup_keeps_an_intentional_cluster(self):
         colour = np.full((16, 16, 4), (80, 96, 48, 255), np.uint8)

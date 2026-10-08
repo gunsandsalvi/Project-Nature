@@ -235,6 +235,26 @@ def material_page(ids, alpha):
     return np.dstack([ids, zero, zero, alpha])
 
 
+def birch_stem_profile(pivot, ppm, count):
+    """Continuous registered axis follows inspected exposed stem, shared by fitting and normals."""
+    rows = np.arange(count)
+    rise = (pivot[1] - rows) / (COS37 * ppm)
+    # Near-source winter axis: x504 at y190/240, x509 at300, x510 at410, x512 at500.
+    offset = (
+        np.interp(rise, [0, 10, 12, 14, 15, 16, 20], [0, 0, -0.031, -0.047, -0.078, -0.125, -0.125])
+        if ppm >= 32
+        else np.zeros(count)
+    )
+    shaft = max(1, round(0.25 * ppm))
+    # Taper the upper fork rather than introduce a broad rectangular ledge.
+    widths = np.rint(np.interp(rise, [0, 14, 17, 20], [shaft, shaft, max(1, 0.16 * ppm), max(1, 0.10 * ppm)])).astype(
+        int
+    )
+    left = np.rint(pivot[0] + offset * ppm - widths / 2).astype(int)
+    centres = left + (widths - 1) / 2
+    return left, widths, centres
+
+
 def birch_repair(recipe, colour, ids, pivot, ppm, family):
     """Registered wood samples and reviewed semantic regions repair the original tree (PRE-20, PRE-46)."""
     source = recipe["shared_wood_sources"][family]
@@ -242,42 +262,60 @@ def birch_repair(recipe, colour, ids, pivot, ppm, family):
     woody_recipe = next(r for r in read_json(RECIPE)["fixtures"] if r["id"] == "birch-winter").copy()
     woody_recipe["birch_repair"] = False
     if key not in WOODY_INPUTS:
-        canonical, _ = source_bundle(woody_recipe, source, family)
+        canonical, _ = source_bundle(woody_recipe, source, family, save_cleaned=False)
         WOODY_INPUTS[key] = canonical["colour"]
     wood = WOODY_INPUTS[key]
     repaired = colour.copy()
-    shaft = max(1, round(0.25 * ppm))
     collar = max(2, round(0.38 * ppm))
-    start = max(0, round(pivot[1] - 7 * COS37 * ppm))
+    start = max(0, round(pivot[1] - 17 * COS37 * ppm))
+    stem_left, stem_widths, stem_centres = birch_stem_profile(pivot, ppm, len(colour))
     window = max(collar * 2, round(0.75 * ppm))
     x0, x1 = round(pivot[0]) - window, round(pivot[0]) + window
-    # Existing bark row samples are narrowed; no new colour or procedural bark is painted.
+    # Existing row samples are fitted through the exposed stem. Side intervals retain
+    # their outer branch contacts while meeting the narrowed core: no nine-metre splice.
     for y in range(start, int(np.ceil(pivot[1]))):
         line = wood[y, x0:x1]
-        visible = np.nonzero(line[:, 3])[0]
+        centre = round(stem_centres[y]) - x0
+        old_radius = max(1, round({"near": 0.27, "middle": 0.27, "far": 0.50}[family] * ppm))
+        core = line[centre - old_radius : centre + old_radius + 1]
+        visible = np.nonzero(core[:, 3])[0]
         if not len(visible):
             continue
-        sample = line[visible.min():visible.max() + 1]
+        sample = core[visible.min() : visible.max() + 1]
         rise = pivot[1] - y
-        extent = shaft if rise > max(1, 0.45 * COS37 * ppm) else collar
+        extent = stem_widths[y] if rise > max(1, 0.45 * COS37 * ppm) else collar
         row = np.asarray(Image.fromarray(sample[None, :]).resize((extent, 1), Image.Resampling.NEAREST))[0]
-        repaired[y, x0:x1] = 0
-        place = round(pivot[0] - extent / 2)
-        repaired[y, place:place + extent] = row
-        ids[y, x0:x1] = 0
-        ids[y, place:place + extent] = 4
+        place = stem_left[y] if extent != collar else round(pivot[0] - extent / 2)
+        leaves_here = ids[y, x0:x1] == 3
+        if rise > 9 * COS37 * ppm:
+            old = repaired[y, x0:x1].copy()
+            old_ids = ids[y, x0:x1].copy()
+            # Material labels were established on neutral raw bark before quantisation.
+            core_lo, core_hi = centre - old_radius, centre + old_radius + 1
+            samples = np.interp(
+                np.arange(x1 - x0),
+                [0, place - x0, place - x0 + extent - 1, x1 - x0 - 1],
+                [0, core_lo, core_hi - 1, x1 - x0 - 1],
+            )
+            samples = np.rint(samples).astype(int)
+            existing_bark = old_ids == 4
+            mapped_bark = (old_ids[samples] == 4) & ~leaves_here
+            repaired[y, x0:x1][existing_bark] = 0
+            ids[y, x0:x1][existing_bark] = 0
+            # Keep authored foliage pixels fixed; only woody samples are rescaled.
+            repaired[y, x0:x1][mapped_bark] = old[samples][mapped_bark]
+            ids[y, x0:x1][mapped_bark] = 4
+        else:
+            repaired[y, x0:x1] = 0
+            ids[y, x0:x1] = 0
+        exposed = ids[y, place : place + extent] != 3
+        repaired[y, place : place + extent][exposed] = row[exposed]
+        ids[y, place : place + extent][exposed] = 4
     visible = repaired[:, :, 3] > 0
     # Lower wood is semantic bark including dark scars. Exposed upper wood is annotated by structure.
     rows, columns = np.indices(visible.shape)
-    lower = (rows >= start) & (np.abs(columns - pivot[0]) <= window)
+    lower = (rows >= pivot[1] - 9 * COS37 * ppm) & (np.abs(columns - pivot[0]) <= window)
     ids[lower & visible] = 4
-    shaft_region = (np.abs(columns - pivot[0]) <= max(1, 0.18 * ppm)) & (rows > pivot[1] - 17 * COS37 * ppm)
-    ids[shaft_region & visible & (wood[:, :, 3] > 0)] = 4
-    # Reviewed exposed branch regions use canonical bark coverage around existing pale branch pixels.
-    pale = (ids == 4) & visible
-    expanded = np.asarray(Image.fromarray((pale * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))) > 0
-    branch_scars = expanded & (wood[:, :, 3] > 0) & visible
-    ids[branch_scars] = 4
     if recipe["id"] == "birch-summer":
         # Suppress extreme leaf ramps retained by the edit; moderate intrinsic green clusters remain.
         low = tuple(bytes.fromhex("566638"))
@@ -295,31 +333,53 @@ def birch_normals(colour, ids, pivot, ppm):
     rows, columns = np.indices(alpha.shape)
     vectors = np.zeros((*alpha.shape, 3), float)
     vectors[:, :, 1] = 1
-    # Each row's bark span supplies a mild cylinder turn; broad branches remain restrained.
+    # A registered local shaft cylinder cannot be tilted by remote branches on its row.
+    stem_left, widths, centres = birch_stem_profile(pivot, ppm, len(colour))
+    shaft_centre = centres[:, None]
+    shaft_radius = np.maximum(0.5, (widths[:, None] - 1) / 2)
+    stem = (ids == 4) & (np.abs(columns - shaft_centre) <= shaft_radius)
+    radial = np.clip((columns - shaft_centre) / np.maximum(1, shaft_radius), -1, 1)
+    vectors[stem, 0] = (0.45 * radial)[stem]
+    vectors[stem, 1] = np.sqrt(1 - (0.45 * radial[stem]) ** 2)
+    vectors[stem, 2] = 0.08
+    # Disconnected branch row runs get their own restrained cylinder, not one full-row fit.
     for y in range(alpha.shape[0]):
-        xs = np.nonzero(ids[y] == 4)[0]
-        if len(xs):
-            centre = (xs.min() + xs.max()) / 2
-            radial = np.clip((xs - centre) / max(1, (xs.max() - xs.min()) / 2), -1, 1)
-            vectors[y, xs, 0] = 0.45 * radial
-            vectors[y, xs, 1] = np.sqrt(1 - (0.45 * radial) ** 2)
-            vectors[y, xs, 2] = 0.08
+        xs = np.nonzero((ids[y] == 4) & ~stem[y])[0]
+        for run in np.split(xs, np.nonzero(np.diff(xs) > 1)[0] + 1):
+            if not len(run):
+                continue
+            centre = (run.min() + run.max()) / 2
+            local = (run - centre) / max(1, (run.max() - run.min()) / 2)
+            vectors[y, run, 0] = 0.18 * local
+            vectors[y, run, 1] = np.sqrt(1 - (0.18 * local) ** 2)
+            vectors[y, run, 2] = 0.08
     # Volumes are reviewed normalized locations of the source's six visible drooping spray groups.
     top = pivot[1] - 20 * COS37 * ppm
     height = 20 * COS37 * ppm
-    sprays = ((0, .13, 1.5, .16), (-2.05, .30, 1.45, .16), (2.0, .37, 1.5, .16),
-              (-2.05, .48, 1.45, .15), (2.15, .57, 1.5, .17), (-2.0, .65, 1.5, .17))
+    sprays = (
+        (0, 0.13, 1.5, 0.16),
+        (-2.05, 0.30, 1.45, 0.16),
+        (2.0, 0.37, 1.5, 0.16),
+        (-2.05, 0.48, 1.45, 0.15),
+        (2.15, 0.57, 1.5, 0.17),
+        (-2.0, 0.65, 1.5, 0.17),
+    )
     distances = []
     for x, y, rx, ry in sprays:
-        distances.append(((columns - pivot[0] - x * ppm) / (rx * ppm)) ** 2 + ((rows - top - y * height) / (ry * height)) ** 2)
-    nearest = np.argmin(distances, axis=0)
+        distances.append(
+            ((columns - pivot[0] - x * ppm) / (rx * ppm)) ** 2 + ((rows - top - y * height) / (ry * height)) ** 2
+        )
+    # Smooth inverse-distance weights eliminate nearest-proxy seams inside one leaf spray.
+    weights = np.exp(-np.minimum(np.asarray(distances), 50) * 1.5)
+    weights /= np.maximum(weights.sum(0), 1e-20)
+    canopy = np.zeros_like(vectors)
     for i, (x, y, rx, ry) in enumerate(sprays):
-        mask = (ids == 3) & (nearest == i)
         local_x = np.clip((columns - pivot[0] - x * ppm) / (rx * ppm), -1, 1)
         local_y = np.clip((rows - top - y * height) / (ry * height), -1, 1)
-        vectors[mask, 0] = (0.35 * local_x)[mask]
-        vectors[mask, 1] = (0.65 + 0.20 * local_y)[mask]
-        vectors[mask, 2] = (0.65 - 0.20 * local_y)[mask]
+        canopy[:, :, 0] += weights[i] * 0.35 * local_x
+        canopy[:, :, 1] += weights[i] * (0.65 + 0.20 * local_y)
+        canopy[:, :, 2] += weights[i] * (0.65 - 0.20 * local_y)
+    vectors[ids == 3] = canopy[ids == 3]
     vectors /= np.maximum(np.linalg.norm(vectors, axis=2, keepdims=True), 1e-10)
     result = np.dstack([np.rint((vectors + 1) * 127.5).astype(np.uint8), alpha])
     result[alpha == 0] = 0
@@ -333,6 +393,24 @@ def resize_drawn(rgba, size, recipe):
     Final coverage is binary. No transparent black or filtered material ID becomes visible colour.
     """
     colour, ids = quantise(rgba, recipe)
+    if recipe.get("birch_repair"):
+        # Reviewed raw bark ramp is neutral beige/grey, including charcoal scars.
+        # Its low chroma distinguishes it before dark scars can snap into a leaf chip.
+        raw = rgba[:, :, :3].astype(np.int16)
+        rows, columns = np.indices(rgba.shape[:2])
+        contacts = np.nonzero(rgba[-max(1, len(rgba) // 100) :, :, 3])[1]
+        base = (contacts.min() + contacts.max()) / 2
+        # This source annotation covers the exposed shaft only. Muted leaf colours
+        # elsewhere are never sufficient evidence for bark, even beside a winter twig.
+        shaft_region = (rows >= len(rgba) * 0.20) & (np.abs(columns - base) <= max(1.0, len(rgba) * 0.025))
+        bark = (
+            shaft_region
+            & (rgba[:, :, 3] > 0)
+            & (raw[:, :, 1] - raw[:, :, 0] < 8)
+            & (np.abs(raw[:, :, 0] - raw[:, :, 2]) < 45)
+        )
+        ids[bark] = 4
+        colour, ids = quantise(rgba, recipe, ids)
     reduced = np.asarray(Image.fromarray(colour).resize(size, Image.Resampling.BOX)).copy()
     reduced[:, :, 3] = np.where(reduced[:, :, 3] > 0, 255, 0)
     candidates = sorted({m for _, m in recipe["palette"]})
@@ -388,7 +466,7 @@ def halve_bundle(bundle):
     return dict(zip(KINDS, (reduced_colour, material_page(ids, alpha), reduced_normal), strict=True))
 
 
-def source_bundle(recipe, source, family="near"):
+def source_bundle(recipe, source, family="near", save_cleaned=True):
     """Snap generated colour to its measured grid, palette and physical span; never invent silhouettes.
 
     Approximate source blocks are explicitly distinguished from exact ones. Normals use a mild silhouette
@@ -450,7 +528,9 @@ def source_bundle(recipe, source, family="near"):
     colour, ids = quantise(rgba, recipe)
     if recipe.get("quiet_colour_flecks"):
         colour, _ = merge_colour_flecks(colour)
-        colour, ids = quantise(colour, recipe)
+        colour, ids = quantise(colour, recipe, ids)
+    if recipe.get("birch_repair"):
+        colour, ids, _ = birch_repair(recipe, colour, ids, pivot, ppm, family)
     if recipe["id"] == "tent":
         ys, xs = np.nonzero(colour[:, :, 3])
         top = ys.min() + (ys.max() - ys.min()) * 0.25
@@ -465,11 +545,14 @@ def source_bundle(recipe, source, family="near"):
     bundle = {
         "colour": colour,
         "material": material_page(ids, colour[:, :, 3]),
-        "normal": normals(colour[:, :, 3], recipe["class"] == "ground", recipe.get("normal_shape", "billboard")),
+        "normal": birch_normals(colour, ids, pivot, ppm)
+        if recipe.get("birch_repair")
+        else normals(colour[:, :, 3], recipe["class"] == "ground", recipe.get("normal_shape", "billboard")),
     }
     suffix = "-cleaned" if not recipe.get("ground_variant", 0) else f"-v{recipe['ground_variant'] + 1}-cleaned"
     cleaned_path = source.replace("-original", suffix)
-    Image.fromarray(colour).save(ROOT / cleaned_path)
+    if save_cleaned:
+        Image.fromarray(colour).save(ROOT / cleaned_path)
     return bundle, {
         "exact_source_block": grid,
         "cleanup_block": block,
@@ -537,11 +620,16 @@ def complete_chain(recipe, bundle):
     chain = [bundle]
     while chain[-1]["colour"].shape[0] > 1:
         smaller = halve_bundle(chain[-1])
+        if recipe.get("birch_repair") and smaller["colour"].shape[0] > 1:
+            smaller["colour"], _ = remove_specks(smaller["colour"])
+            absent = smaller["colour"][:, :, 3] == 0
+            smaller["material"][absent] = 0
+            smaller["normal"][absent] = 0
         colour, ids = quantise(smaller["colour"], recipe, smaller["material"][:, :, 0])
         smaller["colour"] = colour
         if (recipe["class"] == "ground" or recipe.get("quiet_colour_flecks")) and colour.shape[0] > 2:
             colour, _ = merge_colour_flecks(colour)
-            colour, ids = quantise(colour, recipe)
+            colour, ids = quantise(colour, recipe, ids)
             smaller["colour"] = colour
         smaller["material"] = material_page(ids, colour[:, :, 3])
         chain.append(smaller)
@@ -820,8 +908,11 @@ def build(only=None):
                 "material": material_page(ids, colour[:, :, 3]),
                 "normal": np.dstack([bundle["normal"][:, :, :3], colour[:, :, 3]]),
             }
+            bundle["normal"][colour[:, :, 3] == 0] = 0
             chain = complete_chain(recipe, bundle)
             sources = list(recipe["sources"].values()) if "sources" in recipe else [recipe["source"]]
+            if recipe.get("birch_repair"):
+                sources = list(dict.fromkeys(sources + list(recipe["shared_wood_sources"].values())))
             records = write_chain(recipe, family, chain, sources)
             parts = {}
             for name in split_parts(recipe, bundle, detail["pivot"], {"near": 64, "middle": 16, "far": 4}[family]):
