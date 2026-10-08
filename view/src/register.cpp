@@ -8,16 +8,11 @@
 
 #include <chrono>
 
-#include "area_draw.hpp"
-#include "calibration.hpp"
 #include "canvas.hpp"
 #include "crowd.hpp"
 #include "device.hpp"
-#include "figures.hpp"
 #include "frames.hpp"
-#include "kit_draw.hpp"
 #include "look.hpp"
-#include "maps_draw.hpp"
 #include "stream_binding.hpp"
 #include "terrain_draw.hpp"
 #include "world.hpp"
@@ -37,11 +32,6 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdCrowd>();
     godot::ClassDB::register_class<kd::view::KdLook>();
     godot::ClassDB::register_class<kd::view::KdWorlds>();
-    godot::ClassDB::register_class<kd::view::KdCalibration>();
-    godot::ClassDB::register_class<kd::view::KdFigures>();
-    godot::ClassDB::register_class<kd::view::KdKit>();
-    godot::ClassDB::register_class<kd::view::KdArea>();
-    godot::ClassDB::register_class<kd::view::KdMaps>();
 }
 
 void uninitialize(godot::ModuleInitializationLevel /*level*/) {}

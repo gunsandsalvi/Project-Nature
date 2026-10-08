@@ -208,7 +208,7 @@ def lying(length, label, height=12):
     """A scale stick lying `length` screen pixels long with its label above, as a picture resting on the ground."""
     tag, box = label_box(label)
     th = box[3] - box[1]
-    im = Image.new("RGBA", (length + 8, height + th + 14), (0, 0, 0, 0))
+    im = Image.new("RGBA", (max(length + 8, box[2] - box[0] + 8), height + th + 14), (0, 0, 0, 0))
     stick(ImageDraw.Draw(im), 4, th + 14, length, label, height)
     return im
 
@@ -400,7 +400,10 @@ def compose_object(spec, sheet, folder):
             bold=True,
         )
         metres = fitting(camera.get("stick", 1), s, HALF)
-        sheet.figures([shown(i, s) for i in camera["items"]] + [(lying(round(metres * s), length_label(metres)), "")])
+        marks = [(lying(round(metres * s), length_label(metres)), "")]
+        for mark in camera.get("upright_sticks", []):
+            marks.append((upright(round(mark["projected_metres"] * s), length_label(mark["metres"])), mark["label"]))
+        sheet.figures([shown(i, s) for i in camera["items"]] + marks)
         row = true_size_row(camera["items"][0], shown) if camera.get("phone_sizes", True) else []
         if row:
             about = "True size on the phone at each zoom (scaled here; each band gets pixel art of its own)."
@@ -411,7 +414,7 @@ def compose_object(spec, sheet, folder):
         title = group["title"] + ("" if k == s else f" ({k:g} screen pixels a metre)")
         sheet.text(title, 26, bold=True)
         row = [shown(i, k) for i in group["items"]]
-        if group.get("above"):
+        if group.get("above") or group.get("horizontal_stick"):
             metres = fitting(group.get("stick", 1), k, HALF)
             sheet.figures(row + [(lying(round(metres * k), length_label(metres)), "")])
         else:

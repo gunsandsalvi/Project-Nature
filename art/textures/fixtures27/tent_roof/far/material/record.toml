@@ -1,13 +1,13 @@
-about = "T2.7a.3 tent_roof material: neutral image-drawn hide tent; cleaned production candidate; authored far family"
+about = "T2.7a.3 tent_roof material: covered cone revision; traced materials and shape normals; independent family drawings; authored far family"
 route = "code"
 tile_texels = 32
 texels_a_metre = 4
 first_band = 4
-sources = ["art/sources/fixtures27/neutral/tent-near-original.png", "art/sources/fixtures27/neutral/tent-middle-original.png", "art/sources/fixtures27/neutral/tent-far-original.png"]
-original_sha256 = ["03e3f91d4188b17c28c22a5185b09f34aff887b3a1b3a9cf1290273b272131e2", "5d1a3f3f38431779814037de20f59c242e57925880c2d5f605055460ba05a581", "8c5e903b41f60e4e408558754b4db85d6e986cddb0fc58f22986384d81fb2088"]
+sources = ["art/sources/fixtures27/revision/tent-near-r2-v2-original.png", "art/sources/fixtures27/revision/tent-middle-r2-original.png", "art/sources/fixtures27/revision/tent-far-r2-original.png"]
+original_sha256 = ["212e33b7ae3b671381e2ba202926d4f3204a9511d16e44b1fc276158a1eb72d6", "2a92f963d8eb392c06199f86c7d8499ad4e1bb680b0029634ed64da9e0ed388a", "8995c81862943a73da0e9f7162441b2bdefd67bb22bee16fa6f2bdd2e7963185"]
 c2pa = ["present", "present", "present"]
-requests = ["art/requests/fixtures27/production.txt"]
-made = "image drawing; tools/art/fixtures.py cleanup; neutral image-drawn hide tent; cleaned production candidate"
+requests = ["art/requests/fixtures27/production.txt", "art/requests/fixtures27/revision/dimension-fit.txt", "art/requests/fixtures27/revision/tent-near-r2-v2.txt", "art/requests/fixtures27/revision/tent-middle-r2.txt", "art/requests/fixtures27/revision/tent-far-r2.txt"]
+made = "image drawing; tools/art/fixtures.py cleanup; covered cone revision; traced materials and shape normals; independent family drawings"
 regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
 truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
 approved = "pending owner runtime review and engine lighting calibration"
@@ -15,28 +15,28 @@ approved = "pending owner runtime review and engine lighting calibration"
 [[band]]
 level = 0
 file = "art/textures/fixtures27/tent_roof/far/material/b4.png"
-sha256 = "e1e7222bc4d8dd9a2a1f3c83b0e8995ed375be4f2fd2b6b8a207b1a17dba1918"
+sha256 = "aa6db387df3781a9238fb8a3fb08df829cc48ac1f0c9ae818c0fcad3ffd5e6f1"
 way = "image-drawn family; block cleanup and palette snap"
 
 [[band]]
 level = 1
 file = "art/textures/fixtures27/tent_roof/far/material/b5.png"
-sha256 = "85fe6126efcaf795bcb3769e2d46a32f39bc64bfee18f429725f38ccef463ece"
-made_from = "e1e7222bc4d8dd9a2a1f3c83b0e8995ed375be4f2fd2b6b8a207b1a17dba1918"
+sha256 = "d54a273b7ecc848a94656b679d61087e0cc592b95f24b43cad20e2ac0442465a"
+made_from = "aa6db387df3781a9238fb8a3fb08df829cc48ac1f0c9ae818c0fcad3ffd5e6f1"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 2
 file = "art/textures/fixtures27/tent_roof/far/material/b6.png"
-sha256 = "a3f8ac5f519544027efe7e29569c9db494a26b81b5859904680061752e97f687"
-made_from = "85fe6126efcaf795bcb3769e2d46a32f39bc64bfee18f429725f38ccef463ece"
+sha256 = "c11b3f69d3954c22ec4daecb10afb16fb1c05aaa8545dbb0f5b33af55c7c9636"
+made_from = "d54a273b7ecc848a94656b679d61087e0cc592b95f24b43cad20e2ac0442465a"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]
 level = 3
 file = "art/textures/fixtures27/tent_roof/far/material/b7.png"
 sha256 = "8c807bfd0d1479b347ed0799a67d3fa84ef9f13593b2854a7a500e4b82c770ae"
-made_from = "a3f8ac5f519544027efe7e29569c9db494a26b81b5859904680061752e97f687"
+made_from = "c11b3f69d3954c22ec4daecb10afb16fb1c05aaa8545dbb0f5b33af55c7c9636"
 way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
 
 [[band]]

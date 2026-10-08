@@ -2593,13 +2593,8 @@ How the project is run.
   - **Check:** nothing joins the main version with a failing check or without its review's approval.
 
 - `PRC-10` **The checks** *(Decided)*
-  - **Before any work joins the main version,** within about 20 minutes on one cloud machine, anything longer running in the background of the same session:
-    - the quick tests (`RES-01`), the blueprint trials (`RES-24`) and the scenes of up to 10 years, the signature moments' included (`RES-23`, `RES-17`);
-    - the catalogue checks, reality rules included (`MAT-17`, `RCK`);
-    - the repeat check: one scene and one benchmark world each run twice, once on one core and once on four with a stop and resume between, and must end identical (`RES-05`);
-    - the file check: every ID defined once, every reference resolving, every status valid, and no retired ID used or cited;
-    - the commit check (`PRC-07`) and the coverage check (`PRC-12`).
-  - **If they outgrow 20 minutes,** scenes of items the change doesn't touch move to the background first; the trials, the scenes of the items it touches, and the catalogue, repeat, file, commit and coverage checks always run before joining.
+  - **Before any work joins the main version,** run the routine check: formats and language lints, host builds and quick tests (`RES-01`), the accepted simulation proof suites on one and four threads (`RES-05`), catalogue validation (`MAT-17`, `RCK`), Godot import, script and interface tests, tool tests, the file and commit checks (`PRC-07`) and the coverage check (`PRC-12`). A delivery also checks its note and its already signed APK's checksum, signature, version and packaging, without requiring a second export.
+  - **Separate audit:** the additional compiler and emulated processor builds, sanitizer and randomized-order runs, exhaustive recovery tests, scene and repeat stress, native static analysis and full scenario benchmark run before a milestone closes and when a change to simulation arithmetic, threading, persistence or compiler settings needs them. They do not delay unrelated coding or every delivery. Blueprint trials (`RES-24`) and the scenes for changed physical rules (`RES-23`, `RES-17`) still run with those changes. Known failures are still resolved before work joins.
   - **When a background run ends:** its results are read before anything else.
     A check that passed before and now fails is fixed, or the change behind it undone, before other work joins.
     A pace target not yet met goes to tuning (`RES-16`) and blocks only the stage close.

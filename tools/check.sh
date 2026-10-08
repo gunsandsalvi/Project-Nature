@@ -1,33 +1,24 @@
 #!/usr/bin/env bash
-# The checks before work joins main (PRC-10, A17), in order, stopping at the first failure:
-#   1 formats     GDScript (gdformat), C++ (clang-format 18) and Python (ruff)
-#   2 lints       GDScript (gdlint), Python (ruff) and shell (bash -n); C++'s with its build, in 3
-#   3 C++         the five builds (A2.2), through ccache, the phone compiler's twice more with libc++'s order of
-#                 ties randomized under two seeds, and the simulation's tests with GCC's thread checker; then, beside
-#                 steps 4 and 5, the simulation's doctest tests on its four builds and under the thread checker, the
-#                 kill test (tools/killtest.py), the scenes and the repeat check
-#                 (tools/scenecheck.py), the same-bits check (every proof suite one digest on x86-64 with clang and
-#                 GCC, on arm64 with GCC and the phone's own compiler, and on the randomized builds, on one thread and
-#                 four), the scans of the flags and the built code (tools/samebits.py), the banned list
-#                 (tools/rules.py) and the code linted (clang-tidy 18); tests, rules and lint only when what they
-#                 depend on changed since they passed (tools/cppcache.py)
-#   4 Godot       each Godot project imported, every script compiled, and its gdUnit4 tests run headless
-#   5 tools       the tool tests, and the self-tests of the file check and the signing key, after step 4
-#   6 file check  the three documents, and every commit since main that changes PROJECT.md (PRC-07)
-#   7 coverage    every item mapped and every test naming what it checks (PRC-12)
-#   8 delivery    with --deliver: the note, the build signed with a key made for it and checked, and the committed APK
-# Usage: tools/check.sh [--deliver]
-# It ends with "Checks: PASS <commit>"; nothing is committed for it, and what it builds stays in ignored folders.
+# Routine merge/delivery checks (PRC-10, A17); --audit adds the expensive foundation audit.
+# Usage: tools/check.sh [--deliver] [--audit]
+# Routine: formats/lints, host builds/tests, M1 proofs on one/four threads, catalogue,
+# Godot import/scripts/tests, tools, file/coverage, and the existing signed APK for delivery.
+# Audit: other compilers/emulation/sanitizers, shuffled ties, kill/scenes/repeat, native
+# code scans/lint, the long Godot benchmark and (with --deliver) a second throwaway-key export.
+# Ends with "Checks: PASS <commit>"; generated files stay in ignored folders.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 . tools/env.sh
 DELIVER=0
-case "${1:-}" in
-  "") ;;
-  --deliver) DELIVER=1 ;;
-  *) echo "usage: tools/check.sh [--deliver]" >&2; exit 2 ;;
-esac
+AUDIT=0
+for option in "$@"; do
+  case "$option" in
+    --deliver) DELIVER=1 ;;
+    --audit) AUDIT=1 ;;
+    *) echo "usage: tools/check.sh [--deliver] [--audit]" >&2; exit 2 ;;
+  esac
+done
 [ -x "$GODOT" ] && command -v gdformat >/dev/null && command -v ruff >/dev/null && command -v ccache >/dev/null \
   && [ -d "$KD_GDUNIT" ] || tools/setup.sh
 COMMIT="$(git rev-parse --short=12 HEAD)"
@@ -90,8 +81,12 @@ step "3 C++"
 # programs run under qemu, which the same-bits check compares; and the extension with clang, which the Godot tests
 # load. Each through ccache.
 SANITIZE="-fsanitize=undefined -fsanitize=float-cast-overflow -fno-sanitize-recover=all"
-SIM_BUILDS=(sim sim-gcc sim-a64-gcc sim-a64-ndk)
-TIE_BUILDS=(sim-a64-tie1 sim-a64-tie2)
+SIM_BUILDS=(sim)
+TIE_BUILDS=()
+if [ "$AUDIT" = 1 ]; then
+  SIM_BUILDS+=(sim-gcc sim-a64-gcc sim-a64-ndk)
+  TIE_BUILDS=(sim-a64-tie1 sim-a64-tie2)
+fi
 build_one() {  # name, source folder, configure options...; TARGET, if set, builds only that target
   local name="$1" src="$2"
   shift 2
@@ -101,6 +96,7 @@ build_one() {  # name, source folder, configure options...; TARGET, if set, buil
 }
 if [ -f sim/CMakeLists.txt ]; then
   build_one sim sim -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+  if [ "$AUDIT" = 1 ]; then
   build_one sim-gcc sim -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ "-DCMAKE_C_FLAGS=$SANITIZE" \
     "-DCMAKE_CXX_FLAGS=$SANITIZE" "-DCMAKE_EXE_LINKER_FLAGS=$SANITIZE"
   build_one sim-a64-gcc sim "-DCMAKE_TOOLCHAIN_FILE=$ROOT/sim/cmake/a64-gcc.cmake"
@@ -116,9 +112,10 @@ if [ -f sim/CMakeLists.txt ]; then
     TARGET=kindling build_one "sim-a64-tie$seed" sim "${NDK[@]}" "-DCMAKE_CXX_FLAGS=-D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY \
 -D_LIBCPP_DEBUG_RANDOMIZE_UNSPECIFIED_STABILITY_SEED=$seed"
   done
+  fi
 fi
 [ ! -f view/CMakeLists.txt ] || build_one view view -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-echo "   the simulation's four builds, its two with ties randomized, its thread-checked one, and the extension built"
+echo "   host simulation and extension built; audit=$AUDIT"
 
 # The simulation's doctest tests on its four builds, the same-bits check across them, the scans of what the
 # compilers did, and the code linted (clang-tidy 18).
@@ -127,12 +124,14 @@ cpp_tests() {
   [ -f sim/CMakeLists.txt ] || { echo "   no simulation yet"; return; }
   # the thread checker over every test, on a core of its own beside the rest, and only when they changed since it
   # passed; it stops at the first race
+  if [ "$AUDIT" = 1 ]; then
   THREADS_STAMP="$(python3 tools/cppcache.py tests build/sim-tsan)"
   THREADS_RESULT="tests unchanged since they passed"
   if [ "$THREADS_STAMP" = unknown ] || [ "$(cat build/sim-tsan/tests.passed 2>/dev/null)" != "$THREADS_STAMP" ]; then
     TSAN_OPTIONS="halt_on_error=1" build/sim-tsan/kd_sim_tests >"$TMP/threads" 2>&1 &
     THREADS=$!
     THREADS_RESULT="tests passed with no race"
+  fi
   fi
   for b in "${SIM_BUILDS[@]}"; do
     B="build/$b"
@@ -161,7 +160,7 @@ cpp_tests() {
     wait "$THREADS" || { grep -vE '^\s*$' "$TMP/threads" | tail -60; echo "Thread checker: FAIL"; exit 1; }
     [ "$THREADS_STAMP" = unknown ] || echo "$THREADS_STAMP" >build/sim-tsan/tests.passed
   fi
-  echo "   sim-tsan: $THREADS_RESULT"
+  [ "$AUDIT" = 0 ] || echo "   sim-tsan: $THREADS_RESULT"
   # the extension's own tests, of what needs no Godot (the speed loop)
   if [ -f build/view/CTestTestfile.cmake ]; then
     quiet ctest --test-dir build/view --output-on-failure
@@ -177,6 +176,7 @@ cpp_tests() {
   if [ -d data ] && [ -x build/sim/kindling ]; then
     build/sim/kindling catalogue check data >"$TMP/catalogue" || { cat "$TMP/catalogue"; exit 1; }
     sed 's/^/   /' "$TMP/catalogue"
+    if [ "$AUDIT" = 1 ]; then
     # the kill test: a kept world killed at 100 moments ends as an unbroken one (PLT-07, A3.7)
     python3 tools/killtest.py build/sim/kindling data >"$TMP/kill" || { cat "$TMP/kill"; exit 1; }
     sed 's/^/   /' "$TMP/kill"
@@ -184,9 +184,11 @@ cpp_tests() {
     # repeat check runs one scene and the benchmark world on one core and on four with a stop between (PRC-10)
     python3 tools/scenecheck.py build/sim/kindling data >"$TMP/scenes" || { cat "$TMP/scenes"; exit 1; }
     sed 's/^/   /' "$TMP/scenes"
+    fi
   fi
   python3 tools/samebits.py same "$TMP"/proof-* | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
+  if [ "$AUDIT" = 1 ]; then
   python3 tools/samebits.py flags "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
   [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
   python3 tools/samebits.py scan "${SIM_BUILDS[@]/#/build/}" build/view | sed 's/^/   /'
@@ -207,6 +209,7 @@ cpp_tests() {
       echo "   $d ${RULES#Rules: }"
     fi
   done
+  fi
 }
 
 godot_step() {
@@ -221,11 +224,10 @@ godot_step() {
     # the game data (build.toml names each catalogue file by its hash) with the scenes' reports, and the tools' versions
     mapfile -t READS < <(printf '%s\n' "${ALL[@]}" | grep "^$d/"; compgen -G "$d/bin/*.so" || true; \
       compgen -G "$d/data/*.toml" || true; compgen -G "$d/data/reports/*" || true)
-    # the benchmark's run of every scenario, most of a minute, only in a delivery's check; a passed quick run is no
-    # passed delivery
+    # The full scenario benchmark belongs to the explicit audit, not each delivery.
     SLOW=(-i "bench_test:test_every_scenario_runs_and_ends_as_the_cloud_s_in_a_code_the_cloud_reads")
-    [ "$DELIVER" = 0 ] || SLOW=()
-    FP="$(fingerprint "${READS[@]}" tools/godot-scripts.gd "$KD_GODOT_VERSION" "$KD_GDUNIT" "deliver=$DELIVER")"
+    [ "$AUDIT" = 0 ] || SLOW=()
+    FP="$(fingerprint "${READS[@]}" tools/godot-scripts.gd "$KD_GODOT_VERSION" "$KD_GDUNIT" "deliver=$DELIVER" "audit=$AUDIT")"
     before="$(git status --porcelain --untracked-files=all -- "$d")"
     if passed "godot-${d//\//-}" "$FP"; then
       SUMMARY="unchanged since its import, scripts and gdUnit4 tests passed"
@@ -288,7 +290,8 @@ godot_step() {
 
 tools_step() {
   echo "== 5 tools"
-  python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
+  # Explicitly costly suites use the audit flag; obsolete 3D art suites have been removed.
+  KD_CHECK_QUICK=$((1 - AUDIT)) python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
   echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed"
   quiet python3 tools/signing-key.py selftest
   SELF="$(python3 tools/filecheck.py selftest)" || { echo "$SELF"; exit 1; }
@@ -333,7 +336,8 @@ if [ "$DELIVER" = 1 ]; then
   # The step the note delivers, from its title, such as "# Kindling α0.1a: The workshop".
   STEP="$(sed -n '1s/^# .*α\([0-9]\{1,2\}\.[0-9]\{1,2\}[a-e]\).*/\1/p' dist/NOTE.md)"
   [ -n "$STEP" ] || { echo "Delivery: dist/NOTE.md's title names no step, such as 'α0.1a'"; exit 1; }
-  tools/build.sh "$STEP" check
+  # The release build already exported and signed this APK. Avoid exporting it a second time.
+  [ "$AUDIT" = 0 ] || tools/build.sh "$STEP" check
   (cd dist && sha256sum --quiet -c kindling.apk.sha256)
   tools/verify-apk.sh dist/kindling.apk release "$STEP"
 fi
@@ -341,4 +345,4 @@ fi
 SECS=$(($(date +%s) - T0))
 if [ "$SECS" -lt 120 ]; then TOOK="$SECS seconds"; else TOOK="$(((SECS + 59) / 60)) minutes"; fi
 echo "   took $(($(date +%s) - STEP_T)) s"
-echo "Checks: PASS $COMMIT ($TOOK)"
+echo "Checks: PASS $COMMIT ($TOOK; audit=$AUDIT)"

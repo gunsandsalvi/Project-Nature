@@ -81,7 +81,7 @@ The catalogue counts all launch art, while the first six fixtures prove producti
 Its signed-off sheets remain the design standard after the 2D switch.
 New sheets and runtime work follow A5.3–A5.4 and A6, with batches expanding only after the fixture gates:
 - **First the list:** every element the game needs, from `PROJECT.md`, in words, group by group.
-- **Then each group's sheets,** made by the builder with GPT, as you set on 7 October 2026, each piece with what it needs of:
+- **Then each group's sheets,** drawn with the image tool, as you set on 7 October 2026, each piece with what it needs of:
   - views from the front, the side, the back where it is not the same all round, and above, and the fixed 37° game view; shelters and caves also inside or cut through;
   - a striped scale stick of one design beside it, sized to the piece (10 cm, 1 m or 10 m), and a standing adult beside anything big;
   - the piece at each distance the game shows it;
@@ -93,6 +93,7 @@ New sheets and runtime work follow A5.3–A5.4 and A6, with batches expanding on
   - What the world lays over a ground is a piece of its own, drawn once: the wear of paths and camp floors, wetness, frost and snow, and the water over a river bed; a ground's sheet shows only its own states, as you set on 7 October 2026.
   - An object's sheet is laid out like the hide tent's, as you OK'd on 7 October 2026: its flat views at one scale beside the adult and the stick, the view from above, the camera's views, its true size at each zoom, its parts, its states and its surface.
   - Every view shows the same object, with the same parts, counts and colours, as you asked the same day: it is designed once, in words and numbers, and every view is drawn to that design.
+  - New sheets use plain Notes: "Views are scaled to the stated dimensions beside matching scale marks" and "Design sheet only; runtime art and animation are reviewed separately", plus any piece-specific limits. Notes name no drawing tool or model and promise no obsolete production method. The sheet composer reads these notes from the spec; use this wording in new specs. Do not rerender signed-off sheets just to change their notes without your OK.
 - **You sign off each piece** as its sheet is finished.
   Production takes the six fixtures first, then expands in batches after engine and phone review.
   Existing sheet approvals are kept; runtime pages, normals and engine previews receive their own review.
@@ -113,14 +114,14 @@ For the AI agent building a step:
    - work on the session's own branch, brought up to date with main first.
 4. **Build the tasks in order.**
    Each ends with its code and tests passing, and a commit naming the task and the items it touches (see Conventions).
-   - While building, run only what the change touches: its part's build, tests and lints. The full check, which builds and tests everything seven ways, runs once, before delivery (6), as you asked on 6 October 2026, and never while code is still changing.
+   - While building, run only what the change touches: its part's build, tests and lints. The routine check runs once before delivery (6). The expensive compiler, sanitizer and stress matrix is a separate audit, as approved on 8 October 2026; it does not hold up unrelated coding. Run the relevant audit checks when foundation changes need them, and the full audit before a milestone closes.
    - If a task can't be built as the architecture says, stop that task and add a **Conflict:** note at the end of the step's section, with the reason and the smallest change that works.
      Carry on with that change, and update the architecture in the same branch.
    - If a step will clearly take more than about 6 hours, split it at a task boundary into two lettered steps, each still ending with a build.
 5. **Deliver** (`PRC-11`, A2.3):
    - the signed APK in `dist/`, when the step has one;
    - the note: what is new, what to try, what is rough, the items touched and the links, published at the note's link.
-6. **Check, once:** `tools/check.sh --deliver` passes (`PRC-10`). Only a delivery's check runs the benchmark through every scenario; a check without `--deliver` leaves that one test out.
+6. **Check, once:** `tools/check.sh --deliver` passes (`PRC-10`). It checks the already signed APK without rebuilding it. `tools/check.sh --audit` separately runs the wider compiler and sanitizer matrix, recovery and scene stress, native analysis, full scenario benchmark and software-rendered visual suites (A17); `--audit --deliver` also checks a throwaway-key export. Every routine check retains host tests and the accepted M1 one/four-thread proof suites.
 7. **Review** (`PRC-09`), as you set on 5 October 2026:
    - The builder reviews each lettered step itself: each new test made to fail once, the numbers checked against how they were measured, and the pictures looked at.
    - At the last step of each numbered alpha, the builder reviews the whole alpha the same way, against its sections and the items it claims.
@@ -230,7 +231,9 @@ M1 stays as built and accepted.
 Its saved demonstrations provide clock, walkers and commands; they are not a generated living world.
 M2's terrain, sky, weather and overview are labelled fixtures until M3 and later systems supply real state.
 The geological slice (`PRE-25`), deep-cave world records and the full living-world activity catalogue retain their later milestones.
-The first five alphas prove the risky engine path; only then does art expand and unused 3D work leave the build.
+The first five alphas prove the risky engine path before broad art expansion.
+By the owner's decision of 8 October 2026, removal of unused runtime 3D work moves forward from α2.12a to immediate preparation after delivery 30801.
+This does not bring forward any renderer, phone or final M2 approval.
 
 **Serves:** `PRE-01`, `PRE-02`, `PRE-03`, `PRE-20`, `PRE-21`, `PRE-22`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-29`, `PRE-30`, `PRE-31`, `PRE-33`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `PLT-04`, `PLT-09`, `VIS-14`, `WLD-01`, `WLD-02`, `WLD-03`, `WLD-13`, `TIM-01`, `TIM-04`, `TIM-15`, `TIM-16`, `TIM-17`, `RES-05`, `RES-06`, `RES-22`.
 
@@ -473,7 +476,7 @@ Send each result code with its phone and renderer; the report shows any unavaila
 
 ### α2.12a Art scale-up, cleanup and M2's end
 
-**Goal:** after the five engine gates, expand the M2 art set, port remaining pages and checks, remove unused runtime 3D work and close M2 with the owner's review.
+**Goal:** after the five engine gates, expand the M2 art set, finish porting remaining pages and checks, and close M2 with the owner's review. Unused runtime 3D removal is the earlier post-30801 preparation authorized on 8 October 2026.
 
 **Serves:** `PRE-20`, `PRE-23`, `PRE-24`, `PRE-26`, `PRE-27`, `PRE-28`, `PRE-30`, `PRE-31`, `PRE-42`, `PRE-43`, `PRE-44`, `PRE-46`, `PLT-02`, `PLT-04`, `PLT-09`, `VIS-14`, `RES-06`, `RES-22`.
 
@@ -485,8 +488,9 @@ Send each result code with its phone and renderer; the report shows any unavaila
    Only after fixture, height, shadow, streaming and phone review, take signed-off catalogue batches into the pipeline.
    Fill M2's camp materials, plants, shelters, figures, initial actions and seasonal shapes, including two-material sheets and dawn/noon/dusk/night views in summer and winter.
    Rain, storm and mist remain declared look fixtures; the full later activity list stays with its simulation milestone.
-2. `T2.12a.2` **Port and remove (`PLT-09`, `PRE-26`, `PRE-30`).**
-   Follow the migration rules below: callers, tests, data and registrations first, then unused runtime 3D sources and derived exports.
+2. `T2.12a.2` **Finish the port (`PLT-09`, `PRE-26`, `PRE-30`).**
+   The unused runtime 3D removal began immediately after 30801 by the owner's decision of 8 October 2026, under the migration rules below.
+   Finish replacement integration and remaining 2D callers/checks after the engine gates; do not defer already unused 3D app/build paths to this delivery.
    Keep original art, approvals and benchmark history, and never relabel old 3D evidence as a 2D pass.
    Native world/save/import/export/time controls remain on the existing extension.
 3. `T2.12a.3` **Final busy scenes and contact sheet (`PRE-28`, `PRE-31`, `PLT-02`, `PLT-04`).**
@@ -507,10 +511,16 @@ Send each result code with its phone and renderer; the report shows any unavaila
 **On the phone:** explore the expanded camp through hours, seasons and weather, find every person, and view the art sheets and clips in both orientations.
 Read the report with both phones' numbers and M3's plan, then accept M2 or send it back.
 
+Early removal candidate (8 October 2026, after merged 30801): the six obsolete art routes, five private native classes and their mesh/kit/calibration pipelines are removed. The remaining Crowd/Bench routes are explicitly labelled foundation diagnostics; fixed-camera 2D fixtures/terrain, shared texture decoding, source art and simulation code are preserved. Two packaging regressions were observed failing first, then passing: stale model/calibration files leave rebuilt data, and build manifests retain proofs/bench data without obsolete sections. Native build/tests, 152 Python tests, 32 compiled GDScripts, 47 routine gdUnit tests and file/ID checks pass; eight accepted M1 suites agree on one/four threads. External code review and the full routine check remain before merge. No new APK or phone approval is claimed.
+
 #### Migration rules
 
-This is planned M2 work, not code deletion in the document update.
-Port each caller and test before removing its old drawing path.
+Unused 3D app/build paths are removed during the early post-30801 preparation; later ports remain in their engine steps.
+Port each live caller and test before removing its old drawing path.
+Look, Compare, Calibrate, Lab, Kit and Pilot are obsolete art diagnostics; their private mesh paths, registrations, exports and checks leave the app.
+Crowd and Bench retain accepted M1 save/heat/proof diagnostics with explicit foundation labels; they are not 2D gameplay or new renderer evidence.
+Shared texture decoding, catalogue records and original offline rigs remain available. Historical rig generators/previews and their exporter remain source provenance, outside active app packaging and checks.
+The shared simulation code and its historical look-data contract tests remain unchanged; old calibration source fixtures can remain with that corpus, but never ship as active app scenes.
 
 | Keep | Replace | Delete once replacements pass |
 |---|---|---|

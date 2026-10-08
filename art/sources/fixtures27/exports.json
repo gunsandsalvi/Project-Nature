@@ -4,217 +4,6 @@
   "approval": "no runtime or engine approval",
   "entries": [
     {
-      "id": "tent",
-      "sheet": "art/catalogue/sheets/16.4-hide_tent_cone.webp",
-      "status": "neutral image-drawn hide tent; cleaned production candidate",
-      "families": [
-        {
-          "family": "near",
-          "records": {
-            "colour": "art/textures/fixtures27/tent/near/colour/record.toml",
-            "material": "art/textures/fixtures27/tent/near/material/record.toml",
-            "normal": "art/textures/fixtures27/tent/near/normal/record.toml"
-          },
-          "pivot": [
-            256.0,
-            508.0
-          ],
-          "page_size": [
-            512,
-            512
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.9378054351411368,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.21642512077294687,
-            "crop": [
-              60,
-              44,
-              1302,
-              1116
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              256.0,
-              508.0
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 4194300,
-          "preview": "art/previews/fixtures27/tent-near.webp",
-          "parts": {
-            "front": {
-              "records": {
-                "colour": "art/textures/fixtures27/tent_front/near/colour/record.toml",
-                "material": "art/textures/fixtures27/tent_front/near/material/record.toml",
-                "normal": "art/textures/fixtures27/tent_front/near/normal/record.toml"
-              },
-              "pivot": [
-                256.0,
-                508.0
-              ],
-              "gpu_rgba8_bytes_with_chains": 4194300
-            },
-            "roof": {
-              "records": {
-                "colour": "art/textures/fixtures27/tent_roof/near/colour/record.toml",
-                "material": "art/textures/fixtures27/tent_roof/near/material/record.toml",
-                "normal": "art/textures/fixtures27/tent_roof/near/normal/record.toml"
-              },
-              "pivot": [
-                256.0,
-                508.0
-              ],
-              "gpu_rgba8_bytes_with_chains": 4194300
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        },
-        {
-          "family": "middle",
-          "records": {
-            "colour": "art/textures/fixtures27/tent/middle/colour/record.toml",
-            "material": "art/textures/fixtures27/tent/middle/material/record.toml",
-            "normal": "art/textures/fixtures27/tent/middle/normal/record.toml"
-          },
-          "pivot": [
-            64.0,
-            127.0
-          ],
-          "page_size": [
-            128,
-            128
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.5278438369812085,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.054501216545012166,
-            "crop": [
-              58,
-              41,
-              1291,
-              1127
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              64.0,
-              127.0
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 262140,
-          "preview": "art/previews/fixtures27/tent-middle.webp",
-          "parts": {
-            "front": {
-              "records": {
-                "colour": "art/textures/fixtures27/tent_front/middle/colour/record.toml",
-                "material": "art/textures/fixtures27/tent_front/middle/material/record.toml",
-                "normal": "art/textures/fixtures27/tent_front/middle/normal/record.toml"
-              },
-              "pivot": [
-                64.0,
-                127.0
-              ],
-              "gpu_rgba8_bytes_with_chains": 262140
-            },
-            "roof": {
-              "records": {
-                "colour": "art/textures/fixtures27/tent_roof/middle/colour/record.toml",
-                "material": "art/textures/fixtures27/tent_roof/middle/material/record.toml",
-                "normal": "art/textures/fixtures27/tent_roof/middle/normal/record.toml"
-              },
-              "pivot": [
-                64.0,
-                127.0
-              ],
-              "gpu_rgba8_bytes_with_chains": 262140
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        },
-        {
-          "family": "far",
-          "records": {
-            "colour": "art/textures/fixtures27/tent/far/colour/record.toml",
-            "material": "art/textures/fixtures27/tent/far/material/record.toml",
-            "normal": "art/textures/fixtures27/tent/far/normal/record.toml"
-          },
-          "pivot": [
-            16.0,
-            31.75
-          ],
-          "page_size": [
-            32,
-            32
-          ],
-          "source_cleanup": {
-            "exact_source_block": 1,
-            "cleanup_block": 1,
-            "block_loss": null,
-            "palette_and_scale_loss": 0.6180515363706982,
-            "repeat_cut_shift": [
-              0,
-              0
-            ],
-            "source_grid_review": "nonuniform source; snapped to target grid",
-            "scale": 0.013270142180094787,
-            "crop": [
-              58,
-              43,
-              1324,
-              1109
-            ],
-            "removed_singletons": 0,
-            "pivot": [
-              16.0,
-              31.75
-            ]
-          },
-          "gpu_rgba8_bytes_with_chains": 16380,
-          "preview": "art/previews/fixtures27/tent-far.webp",
-          "parts": {
-            "front": {
-              "records": {
-                "colour": "art/textures/fixtures27/tent_front/far/colour/record.toml",
-                "material": "art/textures/fixtures27/tent_front/far/material/record.toml",
-                "normal": "art/textures/fixtures27/tent_front/far/normal/record.toml"
-              },
-              "pivot": [
-                16.0,
-                31.75
-              ],
-              "gpu_rgba8_bytes_with_chains": 16380
-            },
-            "roof": {
-              "records": {
-                "colour": "art/textures/fixtures27/tent_roof/far/colour/record.toml",
-                "material": "art/textures/fixtures27/tent_roof/far/material/record.toml",
-                "normal": "art/textures/fixtures27/tent_roof/far/normal/record.toml"
-              },
-              "pivot": [
-                16.0,
-                31.75
-              ],
-              "gpu_rgba8_bytes_with_chains": 16380
-            }
-          },
-          "review": "pending owner runtime approval; engine lighting and normal calibration required"
-        }
-      ]
-    },
-    {
       "id": "meadow",
       "sheet": "art/catalogue/sheets/1.1-meadow.webp",
       "status": "muted neutral grass candidate; independently drawn families with three compatible quilted variants",
@@ -1411,6 +1200,223 @@
           },
           "review": "pending owner runtime approval; engine lighting and normal calibration required",
           "directional_study": "art/previews/fixtures27/birch-winter-far-light-study.webp"
+        }
+      ]
+    },
+    {
+      "id": "tent",
+      "sheet": "art/catalogue/sheets/16.4-hide_tent_cone.webp",
+      "status": "covered cone revision; traced materials and shape normals; independent family drawings",
+      "families": [
+        {
+          "family": "near",
+          "records": {
+            "colour": "art/textures/fixtures27/tent/near/colour/record.toml",
+            "material": "art/textures/fixtures27/tent/near/material/record.toml",
+            "normal": "art/textures/fixtures27/tent/near/normal/record.toml"
+          },
+          "pivot": [
+            256.0,
+            508.0
+          ],
+          "page_size": [
+            512,
+            512
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.7111448606892414,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.36373477672530447,
+            "crop": [
+              257,
+              533,
+              996,
+              1177
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/tent-near-r2-v2-cleaned.png",
+            "pivot": [
+              256.0,
+              508.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 4194300,
+          "preview": "art/previews/fixtures27/tent-near.webp",
+          "parts": {
+            "front": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_front/near/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_front/near/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_front/near/normal/record.toml"
+              },
+              "pivot": [
+                256.0,
+                508.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 4194300
+            },
+            "roof": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_roof/near/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_roof/near/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_roof/near/normal/record.toml"
+              },
+              "pivot": [
+                256.0,
+                508.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 4194300
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        },
+        {
+          "family": "middle",
+          "records": {
+            "colour": "art/textures/fixtures27/tent/middle/colour/record.toml",
+            "material": "art/textures/fixtures27/tent/middle/material/record.toml",
+            "normal": "art/textures/fixtures27/tent/middle/normal/record.toml"
+          },
+          "pivot": [
+            64.0,
+            127.0
+          ],
+          "page_size": [
+            128,
+            128
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.7562298410796727,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.05818181818181818,
+            "crop": [
+              86,
+              139,
+              1241,
+              1115
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/tent-middle-r2-cleaned.png",
+            "pivot": [
+              64.0,
+              127.0
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 262140,
+          "preview": "art/previews/fixtures27/tent-middle.webp",
+          "parts": {
+            "front": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_front/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_front/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_front/middle/normal/record.toml"
+              },
+              "pivot": [
+                64.0,
+                127.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 262140
+            },
+            "roof": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_roof/middle/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_roof/middle/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_roof/middle/normal/record.toml"
+              },
+              "pivot": [
+                64.0,
+                127.0
+              ],
+              "gpu_rgba8_bytes_with_chains": 262140
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
+        },
+        {
+          "family": "far",
+          "records": {
+            "colour": "art/textures/fixtures27/tent/far/colour/record.toml",
+            "material": "art/textures/fixtures27/tent/far/material/record.toml",
+            "normal": "art/textures/fixtures27/tent/far/normal/record.toml"
+          },
+          "pivot": [
+            16.0,
+            31.75
+          ],
+          "page_size": [
+            32,
+            32
+          ],
+          "source_cleanup": {
+            "exact_source_block": 1,
+            "cleanup_block": 1,
+            "block_loss": null,
+            "palette_and_scale_loss": 0.8794317696697632,
+            "repeat_cut_shift": [
+              0,
+              0
+            ],
+            "source_grid_review": "nonuniform source; snapped to target grid",
+            "scale": 0.01806451612903226,
+            "crop": [
+              203,
+              249,
+              1133,
+              1001
+            ],
+            "removed_singletons": 0,
+            "merged_colour_flecks": 0,
+            "cleaned": "art/sources/fixtures27/revision/tent-far-r2-cleaned.png",
+            "pivot": [
+              16.0,
+              31.75
+            ]
+          },
+          "gpu_rgba8_bytes_with_chains": 16380,
+          "preview": "art/previews/fixtures27/tent-far.webp",
+          "parts": {
+            "front": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_front/far/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_front/far/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_front/far/normal/record.toml"
+              },
+              "pivot": [
+                16.0,
+                31.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 16380
+            },
+            "roof": {
+              "records": {
+                "colour": "art/textures/fixtures27/tent_roof/far/colour/record.toml",
+                "material": "art/textures/fixtures27/tent_roof/far/material/record.toml",
+                "normal": "art/textures/fixtures27/tent_roof/far/normal/record.toml"
+              },
+              "pivot": [
+                16.0,
+                31.75
+              ],
+              "gpu_rgba8_bytes_with_chains": 16380
+            }
+          },
+          "review": "pending owner runtime approval; engine lighting and normal calibration required"
         }
       ]
     }

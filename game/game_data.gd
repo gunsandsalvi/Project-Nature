@@ -32,25 +32,6 @@ static func paths(build_file: ConfigFile) -> PackedStringArray:
 	return out
 
 
-## The calibration scenes the build lists (A18.1), by their paths under res://data/, such as
-## "scenes/look/c4.toml".
-static func calibration_paths(build_file: ConfigFile) -> PackedStringArray:
-	var out := PackedStringArray()
-	for item: String in build_file.get_value("calibration", "files", []):
-		out.append(item.get_slice(" ", 0))
-	return out
-
-
-## The kit's families the build lists (A6.1), each by its name with its file: {"standin_camp":
-## "res://data/models/standin_camp.kdkit"}.
-static func models(build_file: ConfigFile) -> Dictionary:
-	var out := {}
-	for item: String in build_file.get_value("models", "files", []):
-		var file := item.get_slice(" ", 0)
-		out[file.get_basename()] = "res://data/models/" + file
-	return out
-
-
 ## The reference sheets the build ships for the pilot's pieces (T2.3a.5), each by its piece's id
 ## with its file: {"club": "res://data/sheets/club.kdsheet"}.
 static func sheets(build_file: ConfigFile) -> Dictionary:

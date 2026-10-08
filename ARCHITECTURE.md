@@ -110,7 +110,7 @@ dist/        the signed APK of the latest alpha and its note
     The 4.5 pin stays until a needed 2D API is absent; any upgrade is deliberate and tested (A4.7).
 - **Flags for all our C++** (A3.4): `-std=c++20 -O2 -Wall -Wextra -Werror -fno-exceptions -funsigned-char -fno-fast-math -fno-math-errno -ffp-contract=off`, with `-ffp-contract=off` the last floating-point flag on the line; symbols hidden; `-ffunction-sections -fdata-sections` linked with `--gc-sections`.
   Nothing throws: errors are values.
-- **Five builds**:
+- **Build coverage:** the routine check builds the host simulation and extension; the separate `tools/check.sh --audit` runs the wider compiler and sanitizer matrix. The release build supplies the phone extension. This split was approved on 8 October 2026. The covered builds are:
   - the cloud's main build: x86-64 with clang 18, for the tests, the tool and the extension the Godot tests load;
   - a second compiler: x86-64 with GCC 13 and its undefined-behaviour and float-cast checks;
   - arm64 with GCC 13, and arm64 with the phone's own compiler (NDK r30, clang 21), both static executables run under qemu, for the same-bits check (A3.4); every test runs emulated once, under the phone's own compiler, and both run the same-bits proofs;
@@ -266,7 +266,7 @@ Following Box2D and Factorio:
 - **The floating-point environment:** each simulation thread sets the default one first, and checkpoints assert it (x86-64's MXCSR, arm64's FPCR), since a new thread inherits whatever its creator had.
 - **Order:** every loop that decides anything runs in a defined order (A3.2); parallel work is cut into chunks whose size and borders depend only on the data, gathered, then applied in key or id order.
 - **Checksums:** XXH3 over a canonical stream, each system in a fixed order, entities by id, fields little-endian; a digest per system and for the whole state at every checkpoint, so a difference narrows to a system and a day.
-- **Proof** (A17): seeded worlds run on the five builds of A2.2, on one to four threads, with islands of several window lengths, stopped, saved, reopened and resumed, and every digest must match; libc++'s randomized tie order and the order fuzzer must not move them.
+- **Proof** (A17): every routine check compares the accepted proof suites on the host with one and four threads. The separate audit runs seeded worlds on the five builds of A2.2, on one to four threads, with islands of several window lengths, stopped, saved, reopened and resumed, and every digest must match; libc++'s randomized tie order and the order fuzzer must not move them.
   The phone runs the same check in its self-check (A2.3).
 - *Proved in pre-production on your phone* (P5): a seeded world ended each day with the same checksum on x86-64, on arm64 under qemu and on your phone, on one thread and four.
 
@@ -410,6 +410,11 @@ Its exact numbers, chance keys, calendar, catalogues, IDs, events, activities, w
 M1 built foundations and saved demonstrations, not generated terrain, ecology or a physical sky.
 M2 uses labelled look fixtures until those later systems exist.
 No new renderer or phone pass is claimed here.
+
+The owner moved unused runtime 3D removal forward on 8 October 2026, immediately after delivery 30801.
+The obsolete Look, Compare, Calibrate, Lab, Kit and Pilot art routes and their private engine/export/check paths leave the app.
+Crowd and Bench retain the accepted M1 foundation diagnostics, including their marker drawing, save and heat harness; they are labelled as foundation diagnostics rather than gameplay.
+The shared texture decoder and all live 2D paths remain. Original art, signed-off sheets, source rigs and historical simulation/catalogue fixtures are preserved as provenance; obsolete derived model/calibration exports are excluded from packaging.
 
 ### A4.1 The picture (`PRE-01`, `PLT-02`)
 
@@ -1489,7 +1494,7 @@ The 200-year camp acceptance uses M4's actual traces when available; a synthetic
       One switch turns greetings off; six each plant a fault for the checks to find.
     - **Reports** (`RES-06`): `report.json` beside the runs holds the scene as stated, its rule in words, the verdict, the real time against the budget, the version its worlds were saved under, each measure's range over the runs (lowest, middle, highest, and in how many runs its expected range held), and each run with its seed, switches, measures, oddities and digest.
       Each build runs the scenes in `data/scenes/` under the app's own version and puts each report in the game's data, with the world of its first odd run, or else its first, as a `.kindling` file; the Reports page shows each with a chart of every measure, drawn to scale, and opens that world, imported once, as a test's world exactly as it ended in the cloud.
-    - **The checks** (`tools/scenecheck.py`, in `tools/check.sh`): every scene passes with no oddity; the planted scene (`sim/tests/scenes/planted.toml`) flags each of its six faults and nothing else; a rule that fails once is judged on 40 runs; and the repeat check runs the greetings scene on one core and on four, stopped once some runs are done and another is days in, then resumed, and keeps the benchmark world of 10,000 markers two game days on one core and in islands of one-minute windows on four, stopped after its first day and resumed; their reports, histories, journals, samples and end states must match byte for byte.
+    - **The audit checks** (`tools/scenecheck.py`, in `tools/check.sh --audit`): every scene passes with no oddity; the planted scene (`sim/tests/scenes/planted.toml`) flags each of its six faults and nothing else; a rule that fails once is judged on 40 runs; and the repeat check runs the greetings scene on one core and on four, stopped once some runs are done and another is days in, then resumed, and keeps the benchmark world of 10,000 markers two game days on one core and in islands of one-minute windows on four, stopped after its first day and resumed; their reports, histories, journals, samples and end states must match byte for byte.
     - *Measured in the cloud:* the greetings scene, 20 worlds of 4 camps over 20 game days, in 0.6 s on all cores and 1.6 s on one; the benchmark world's two game days in 0.8 s on one core and 2.7 s in islands on four, as α1.3b found for the crowd's light events; the scene check in about 7 s.
       Islands of hour-long windows join nearly every marker into one island and cost far more, since each marker's circle then covers hundreds of 250 m cells and every pair in a cell is tried: forming islands needs the cheaper joins A3.3 names before minds use long windows (M6).
 - **The same results everywhere** (A3.4): seeded worlds on the five builds, on one to four threads, with islands of several window lengths, stopped, saved, reopened and resumed; libc++ with its tie order randomized, and the order fuzzer scrambling EnTT's pools; every digest must match (`RES-05`).
@@ -1504,10 +1509,10 @@ The 200-year camp acceptance uses M4's actual traces when available; a synthetic
   - Movie Maker records at the project's base size, so a single picture at the phone's 1344 × 2992 pixels is read from the screen by our script (`tools/picture.sh`).
   - A rendering driver named on the command line brings Forward+ unless the Mobile renderer is named beside it.
 - **Phone measurements:** the in-app benchmark (A18.1), its frames by our own measure, its result in a short code; trace sections that the phone's own System Tracing records beside the chip's speed and heat, with no computer; Android GPU Inspector for a slow frame on the PowerVR chip, if ever needed (`PLT-04`).
-- **One command before anything joins:** `tools/check.sh`, rebuilt for C++ and Godot, runs the formats, lints, builds, tests, the same-results check, the scenes and the repeat check, and the file, commit and coverage checks (`PRC-10`, `PRC-12`).
-  - It costs about what changed, since every delivery waits on it: C++ compiles through ccache, so godot-cpp and unchanged files compile once across runs and build folders; each C++ file is linted, on every core, only when its code, the headers it reads, its compile command or the rules changed since it passed, and each project's tests, the Godot project's import and tests and the picture test run only when something they read changed (`tools/cppcache.py`); the C++ tests run beside the Godot and tool tests; and each step prints its time.
-    Measured on 5 October 2026: about 20 seconds with nothing changed, about 45 with one line of one library changed, and about 5 minutes the first time, which fills the caches.
-  Production's foundations bring every kind of check to the game's own code (M1).
+- **Routine checks before joining:** `tools/check.sh` runs formats, GDScript/Python/shell lints, the host simulation and extension builds and tests, all accepted M1 proof suites on one and four threads, catalogue validation, Godot import and script compilation and tests, tool tests, and file, commit and coverage checks (`PRC-10`, `PRC-12`). `--deliver` also checks the note and the committed APK's checksum, release signature, version and packaging. It does not export and sign a second copy of an already built release.
+  - **Separate audit:** `tools/check.sh --audit` adds GCC's undefined-behaviour checks, both emulated arm64 compilers, the thread checker, randomized tie order, the 100-moment kill test, scene and repeat stress runs, native flags and object scans, C++ lint and banned-code analysis, the full Godot scenario benchmark, and software-rendered area, calibration and shimmer capture suites. With `--deliver` it also tests a separate export with a throwaway signing key. Run the audit before a milestone closes and when a change to simulation arithmetic, threading, persistence or compiler settings needs its evidence; it is not a gate on unrelated coding or every APK. Known failures still require resolution.
+  - This shorter delivery path was approved on 8 October 2026. The old run took 23 minutes 17 seconds on that date, including 1,385 seconds in its native test/lint side. The new path keeps accepted M1 digests unchanged; moving evidence to the audit is not a claim that it ran in a routine check.
+  - Builds use ccache; unchanged native tests and Godot import/tests reuse content fingerprints. Native tests run beside Godot/tool tests, and each side reports elapsed time. Phone frame and heat acceptance remains on the actual phones (A18.1).
 
 ### A17.1 Generated-world proofs (`MIL-10`, `RES-05`, `RES-21`)
 
