@@ -1,0 +1,16 @@
+# A recipe (A6.1, PRE-46): the kindling of sheet 16.23, twelve loose dry twigs 0.5 m long and 8 to 15 mm thick, one
+# part of the camp family (art/models/camp.blend, made by tools/art/parts_things.py).
+about = "twelve dry twigs 0.5 m long, loose in a small heap (full form)"
+family = "camp"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; dry twigs loose in a small heap, nothing sawn, split, painted or made of metal"
+approved = "not offered yet: a piece of T2.3c.2, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "bark"
+textures = ["art:bark"]
+
+[[place]]
+name = "kindling"
+parts = ["firewood_kindling"]
+rule = "root"
+turn = 20

@@ -1,0 +1,153 @@
+# A recipe (A6.1, PRE-46): the hearth ring of sheet 16.13 put together from the kit's parts, the art lane's own parts
+# of the camp family (art/models/camp.blend, made by tools/art/parts_things.py): twelve stones, each its own part
+# (long flattened ovals, small cobbles, angular lumps, a kidney, a wedge) laid on a ring of 0.5 m radius clockwise
+# from north in the order of the design, a few centimetres apart, each a little off its place and turned a little off
+# the tangent; the outside 1.2 m across, the opening 0.8 m. The fire, the ash and the soot are pieces of their own.
+about = "a ring of twelve stones round a fire, 1.2 m across and 0.2 m high at most (full form)"
+family = "camp"
+truth = "art lane, 8 October 2026: looked at the parts and the thing from every side at twice size against A5.6's list; river cobbles and a few angular lumps, grey, buff and slate, in a ring, nothing sawn, split, painted or made of metal"
+approved = "not offered yet: a piece of T2.3c.2, waiting for the builder's check and your look at the previews"
+
+[[material]]
+role = "stone"
+textures = ["art:stone"]
+
+[[material]]
+role = "limestone"
+textures = ["art:limestone"]
+
+[[material]]
+role = "granite"
+textures = ["art:granite"]
+
+[[place]]
+name = "stone_01"
+parts = ["hearth_stone_01"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = 0
+face = -2
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_02"
+parts = ["hearth_stone_02"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = 31
+face = 11
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_03"
+parts = ["hearth_stone_03"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = 60
+face = -10
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_04"
+parts = ["hearth_stone_04"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = 91
+face = 0
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_05"
+parts = ["hearth_stone_05"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = 117
+face = 7
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_06"
+parts = ["hearth_stone_06"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = 146
+face = -7
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_07"
+parts = ["hearth_stone_07"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = 179
+face = 8
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_08"
+parts = ["hearth_stone_08"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = -153
+face = -1
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_09"
+parts = ["hearth_stone_09"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = -121
+face = 5
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_10"
+parts = ["hearth_stone_10"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = -89
+face = -1
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_11"
+parts = ["hearth_stone_11"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = -58
+face = -2
+jitter_radius = "4%"
+jitter_turn = 1
+
+[[place]]
+name = "stone_12"
+parts = ["hearth_stone_12"]
+rule = "ring"
+count = 1
+radius = "0.5 m"
+turn = -30
+face = -8
+jitter_radius = "4%"
+jitter_turn = 1

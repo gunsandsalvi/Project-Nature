@@ -1,0 +1,64 @@
+about = "grey-brown dead bark with fine sparse cracks and small flecks, its marks running along the branch; near tile, 1.0 m across, version 1"
+route = "picture"
+tile_texels = 64
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/bark/near-sheet.webp", "art/sources/bark/bark-near-original.webp"]
+original_sha256 = ["ab8eb8617788aa876a755cb7485c7ced3b140a966c3619d03b3a9b168408eddc", "3e5958a21757284b65ea9b2ca6f54b3400b5016ef929d8a0096ebdb2037f94a3"]
+c2pa = ["absent", "absent"]
+requests = []
+made = "the sheet's bark patch put on the texture-pixel grid by code, made coarser to the game's 64 a metre, turned so its marks run along a branch and laid mirrored two by two, which wraps; version 1 of 1, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; grey-brown bark marks only, no scales, no cones, no pale yellow, nothing countable"
+approved = "not offered yet: made for the firewood, waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/bark/b0.png"
+sha256 = "3326e7c734bad382c9e97c173f777311adcdd80dcfd10314c72e67a9801cc123"
+way = "the tile's picture (a block of 1, loss 0.0%), shifted 0 down and 32 across round its wrap so its ring is its most ordinary part, its border's broad tone flattened"
+regrid_loss = "0.0%"
+
+[[band]]
+level = 1
+file = "art/textures/bark/b1.png"
+sha256 = "1d0daf6b84fe879c09806e47d62f3e8150ec6ba684054d4b154fe810e6fca9a7"
+made_from = "3326e7c734bad382c9e97c173f777311adcdd80dcfd10314c72e67a9801cc123"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 1.03; lightness -0.0; hue -0.3; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/bark/b2.png"
+sha256 = "fda2ec0b1d1aae7f632982d5024cd19bf7c60d16c0ed52c4d30845a52a2aee69"
+made_from = "1d0daf6b84fe879c09806e47d62f3e8150ec6ba684054d4b154fe810e6fca9a7"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 1.45; lightness -0.0; hue +0.3; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 3
+file = "art/textures/bark/b3.png"
+sha256 = "4bdcef1b820807cf7c098fedb86a4e915fbdaa3ca30d85e8dd5011fbaad4dbaf"
+made_from = "fda2ec0b1d1aae7f632982d5024cd19bf7c60d16c0ed52c4d30845a52a2aee69"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/bark/b4.png"
+sha256 = "9c326b419e5a45c36b2ae307d26c2fd0c19be85b21d5c662f2e613ff17e7ead3"
+made_from = "4bdcef1b820807cf7c098fedb86a4e915fbdaa3ca30d85e8dd5011fbaad4dbaf"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/bark/b5.png"
+sha256 = "7f76475ea8ebca82ca57269e4be80e199f3717d9f1dfaae8fad04688a4dfede9"
+made_from = "9c326b419e5a45c36b2ae307d26c2fd0c19be85b21d5c662f2e613ff17e7ead3"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/bark/b6.png"
+sha256 = "aa76017f750454a4ce3c55fbcdda173ed81fc1820129a5654afb0127bfd66362"
+made_from = "7f76475ea8ebca82ca57269e4be80e199f3717d9f1dfaae8fad04688a4dfede9"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

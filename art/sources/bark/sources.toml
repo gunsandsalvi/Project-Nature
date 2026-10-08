@@ -1,0 +1,12 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["bark-near-original.webp"]
+sha256 = "3e5958a21757284b65ea9b2ca6f54b3400b5016ef929d8a0096ebdb2037f94a3"
+c2pa = "absent"
+note = "the bark patch of sheet 16.23 (the firewood pile, signed off 7 October 2026): 1024 x 1024 pixels as the image tool returned it in the catalogue's conversation, grey-brown dead bark with sparse fine cracks, 0.5 m across by the sheet, drawn about four times finer than the game's texture pixel"
+
+["near-sheet.webp"]
+sha256 = "ab8eb8617788aa876a755cb7485c7ced3b140a966c3619d03b3a9b168408eddc"
+c2pa = "absent"
+note = "the bark patch of the original beside it put on the game's texture-pixel grid by code (cells found, then made coarser twice, a little sharpened), made greyer and a little cooler (the sheet's bark is a grey-brown, #706453), turned a quarter so its marks run along a branch, and laid mirrored two by two: 64 x 64 texture pixels, a metre, which wraps"
