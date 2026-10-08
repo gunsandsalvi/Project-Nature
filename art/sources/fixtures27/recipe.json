@@ -1,0 +1,480 @@
+{
+  "items": [
+    "PRE-20",
+    "PRE-22",
+    "PRE-27",
+    "PRE-42",
+    "PRE-44",
+    "PRE-46"
+  ],
+  "task": "T2.7a.3",
+  "camera": "north-facing fixed orthographic, 37 degrees above horizon",
+  "material_ids": {
+    "1": "grass",
+    "2": "earth",
+    "3": "foliage",
+    "4": "bark",
+    "5": "wood",
+    "6": "stone",
+    "7": "hide",
+    "8": "sinew"
+  },
+  "mask_review": "Ground and birch IDs use their distinct palette ramps. Tent masks use reviewed pole, stone and hide regions. All maps still need engine review.",
+  "import_contract": {
+    "colour": "RGBA8 sRGB, lossless, nearest, binary alpha",
+    "material": "RGBA8 numeric, nearest, no colour conversion, no alpha-border fix, no premultiplication",
+    "normal": "RGBA8 numeric world XYZ; custom shader must transform to its own light basis; do not import as a stock CanvasTexture normal",
+    "mipmaps": "explicit complete per-family chains; no mip blend at rest; do not auto-generate",
+    "atlas": "standalone square pages for catalogue loader; no rotation; later aligned packing needs 2 px separation and 1 px extrusion",
+    "gpu_bytes": "RGBA8 bytes include all maps and complete chains. Standalone fixture pages; engine packing and residency review pending."
+  },
+  "fixtures": [
+    {
+      "id": "meadow",
+      "class": "ground",
+      "sheet": "art/catalogue/sheets/1.1-meadow.webp",
+      "design_approved": "7 October 2026",
+      "status": "muted neutral grass candidate; independently drawn families with three compatible quilted variants",
+      "sources": {
+        "near": "art/sources/fixtures27/revision/meadow-near-r2-original.png",
+        "middle": "art/sources/fixtures27/revision/meadow-middle-r2-original.png",
+        "far": "art/sources/fixtures27/revision/meadow-far-r2-original.png"
+      },
+      "palette": [
+        [
+          "#4C603B",
+          1
+        ],
+        [
+          "#5A6B42",
+          1
+        ],
+        [
+          "#67774A",
+          1
+        ],
+        [
+          "#748451",
+          1
+        ],
+        [
+          "#81915A",
+          1
+        ],
+        [
+          "#887852",
+          2
+        ]
+      ],
+      "ground_span_m": {
+        "near": 4,
+        "middle": 16,
+        "far": 64
+      },
+      "normal": "upward, supplied flat fixture only; actual slopes must use the engine height field",
+      "runtime_use": false,
+      "lighting_policy": "Neutral colour; apply the moving light once. Ground normals must follow actual terrain.",
+      "authored_families": true,
+      "palette_review": "Candidate muted swatches authorized for review against owner reference; approved sheet unchanged.",
+      "source_cells": 320,
+      "ground_variant": 0,
+      "variant_method": "Three edge-compatible quilts from each family drawing; 112px source patches; shared 4px border; no rotation.",
+      "accent_chip": "#81915A",
+      "accent_fallback": "#748451"
+    },
+    {
+      "id": "birch-summer",
+      "class": "sprite",
+      "sheet": "art/catalogue/sheets/7.7-birch.webp",
+      "design_approved": "8 October 2026",
+      "status": "neutral image-drawn colour; cleaned production candidate",
+      "measure": "vertical",
+      "metres": 20,
+      "crown_width_m": 7,
+      "canvas": 1024,
+      "anchor_ground_offset_m": [
+        0,
+        0
+      ],
+      "palette": [
+        [
+          "#BBC176",
+          3
+        ],
+        [
+          "#969F58",
+          3
+        ],
+        [
+          "#768344",
+          3
+        ],
+        [
+          "#566638",
+          3
+        ],
+        [
+          "#34482F",
+          3
+        ],
+        [
+          "#E5DFC8",
+          4
+        ],
+        [
+          "#C8C4B2",
+          4
+        ],
+        [
+          "#A3A494",
+          4
+        ],
+        [
+          "#747668",
+          4
+        ],
+        [
+          "#383D35",
+          4
+        ]
+      ],
+      "required_split": [
+        "trunk",
+        "crown"
+      ],
+      "split_review": "Trunk and crown cutouts share the whole sprite pivot; overlap review remains pending.",
+      "runtime_use": false,
+      "lighting_policy": "Neutral colour; moving light applies once. Maps need engine review.",
+      "authored_families": true,
+      "sources": {
+        "near": "art/sources/fixtures27/neutral/birch-summer-near-original.png",
+        "middle": "art/sources/fixtures27/neutral/birch-summer-middle-original.png",
+        "far": "art/sources/fixtures27/neutral/birch-summer-far-original.png"
+      },
+      "gutter": 1,
+      "normal": "Mild alpha-edge bevel in the declared world basis; independent of colour. Engine calibration pending."
+    },
+    {
+      "id": "birch-winter",
+      "class": "sprite",
+      "sheet": "art/catalogue/sheets/7.7-birch.webp",
+      "design_approved": "8 October 2026",
+      "status": "neutral bare winter colour; same branch pattern redraw",
+      "measure": "vertical",
+      "metres": 20,
+      "canvas": 1024,
+      "anchor_ground_offset_m": [
+        0,
+        0
+      ],
+      "palette": [
+        [
+          "#E5DFC8",
+          4
+        ],
+        [
+          "#C8C4B2",
+          4
+        ],
+        [
+          "#A3A494",
+          4
+        ],
+        [
+          "#747668",
+          4
+        ],
+        [
+          "#383D35",
+          4
+        ]
+      ],
+      "required_split": [
+        "trunk",
+        "bare-branches"
+      ],
+      "split_review": "Trunk and crown cutouts share the whole sprite pivot; overlap review remains pending.",
+      "runtime_use": false,
+      "lighting_policy": "Neutral bare tree; no leaf silhouette or painted sun.",
+      "authored_families": true,
+      "sources": {
+        "near": "art/sources/fixtures27/neutral/birch-winter-near-original.png",
+        "middle": "art/sources/fixtures27/neutral/birch-winter-middle-original.png",
+        "far": "art/sources/fixtures27/neutral/birch-winter-far-original.png"
+      },
+      "gutter": 1,
+      "crown_width_m": 7,
+      "normal": "Mild alpha-edge bevel in the declared world basis; independent of colour. Engine calibration pending."
+    },
+    {
+      "id": "boulder",
+      "class": "sprite",
+      "sheet": "art/catalogue/sheets/2.16-boulders.webp",
+      "design_approved": "7 October 2026",
+      "status": "neutral rounded granite revision; quiet mineral clusters and descending fissure",
+      "measure": "across",
+      "metres": 3,
+      "height_m": 2,
+      "depth_m": 2.2,
+      "canvas": 256,
+      "anchor_ground_offset_m": [
+        0,
+        1.1
+      ],
+      "palette": [
+        [
+          "#C5C1B8",
+          6
+        ],
+        [
+          "#B1AFA9",
+          6
+        ],
+        [
+          "#9C9C97",
+          6
+        ],
+        [
+          "#888C88",
+          6
+        ],
+        [
+          "#747B77",
+          6
+        ],
+        [
+          "#59635F",
+          6
+        ]
+      ],
+      "required_split": [
+        "whole"
+      ],
+      "split_review": "no receiver-aware caster proxy approved",
+      "runtime_use": false,
+      "lighting_policy": "Neutral colour; moving light applies once. Maps need engine review.",
+      "authored_families": true,
+      "sources": {
+        "near": "art/sources/fixtures27/revision/boulder-near-r2-original.png",
+        "middle": "art/sources/fixtures27/revision/boulder-middle-r2-original.png",
+        "far": "art/sources/fixtures27/revision/boulder-far-r2-original.png"
+      },
+      "normal_shape": "dome",
+      "quiet_colour_flecks": true,
+      "directional_study": true,
+      "normal": "Controlled smooth dome geometry proxy; upward top, south-facing front, east/west flanks; no colour-derived mineral relief."
+    },
+    {
+      "id": "tent",
+      "class": "sprite",
+      "sheet": "art/catalogue/sheets/16.4-hide_tent_cone.webp",
+      "design_approved": "7 October 2026",
+      "status": "neutral image-drawn hide tent; cleaned production candidate",
+      "measure": "across",
+      "metres": 4.2,
+      "height_m": 3.1,
+      "canvas": 512,
+      "anchor_ground_offset_m": [
+        0,
+        2.1
+      ],
+      "palette": [
+        [
+          "#E0B578",
+          7
+        ],
+        [
+          "#C99960",
+          7
+        ],
+        [
+          "#AA7848",
+          7
+        ],
+        [
+          "#805532",
+          7
+        ],
+        [
+          "#563A25",
+          7
+        ],
+        [
+          "#AC804C",
+          5
+        ],
+        [
+          "#79532F",
+          5
+        ],
+        [
+          "#49331F",
+          5
+        ],
+        [
+          "#AAA99E",
+          6
+        ],
+        [
+          "#85877F",
+          6
+        ],
+        [
+          "#62675F",
+          6
+        ],
+        [
+          "#E8DECA",
+          8
+        ]
+      ],
+      "required_split": [
+        "back",
+        "floor",
+        "roof",
+        "front"
+      ],
+      "split_review": "Opaque roof and foreground hem cutouts; floor binds to actual world ground. Hidden-frame studies are outside production.",
+      "runtime_use": false,
+      "lighting_policy": "Neutral colour; empty doorway alpha; moving light applies once.",
+      "normal_shape": "cone",
+      "authored_families": true,
+      "sources": {
+        "near": "art/sources/fixtures27/neutral/tent-near-original.png",
+        "middle": "art/sources/fixtures27/neutral/tent-middle-original.png",
+        "far": "art/sources/fixtures27/neutral/tent-far-original.png"
+      },
+      "parts": {
+        "hides": 11,
+        "upper_hides": 4,
+        "lower_hides": 7,
+        "poles": 10,
+        "hem_stones": 24,
+        "door_flaps": 1
+      }
+    },
+    {
+      "id": "meadow-v2",
+      "class": "ground",
+      "sheet": "art/catalogue/sheets/1.1-meadow.webp",
+      "design_approved": "7 October 2026",
+      "status": "muted neutral grass candidate; independently drawn families with three compatible quilted variants",
+      "sources": {
+        "near": "art/sources/fixtures27/revision/meadow-near-r2-original.png",
+        "middle": "art/sources/fixtures27/revision/meadow-middle-r2-original.png",
+        "far": "art/sources/fixtures27/revision/meadow-far-r2-original.png"
+      },
+      "palette": [
+        [
+          "#4C603B",
+          1
+        ],
+        [
+          "#5A6B42",
+          1
+        ],
+        [
+          "#67774A",
+          1
+        ],
+        [
+          "#748451",
+          1
+        ],
+        [
+          "#81915A",
+          1
+        ],
+        [
+          "#887852",
+          2
+        ]
+      ],
+      "ground_span_m": {
+        "near": 4,
+        "middle": 16,
+        "far": 64
+      },
+      "normal": "upward, supplied flat fixture only; actual slopes must use the engine height field",
+      "runtime_use": false,
+      "lighting_policy": "Neutral colour; apply the moving light once. Ground normals must follow actual terrain.",
+      "authored_families": true,
+      "palette_review": "Candidate muted swatches authorized for review against owner reference; approved sheet unchanged.",
+      "source_cells": 320,
+      "ground_variant": 1,
+      "variant_method": "Three edge-compatible quilts from each family drawing; 112px source patches; shared 4px border; no rotation.",
+      "accent_chip": "#81915A",
+      "accent_fallback": "#748451"
+    },
+    {
+      "id": "meadow-v3",
+      "class": "ground",
+      "sheet": "art/catalogue/sheets/1.1-meadow.webp",
+      "design_approved": "7 October 2026",
+      "status": "muted neutral grass candidate; independently drawn families with three compatible quilted variants",
+      "sources": {
+        "near": "art/sources/fixtures27/revision/meadow-near-r2-original.png",
+        "middle": "art/sources/fixtures27/revision/meadow-middle-r2-original.png",
+        "far": "art/sources/fixtures27/revision/meadow-far-r2-original.png"
+      },
+      "palette": [
+        [
+          "#4C603B",
+          1
+        ],
+        [
+          "#5A6B42",
+          1
+        ],
+        [
+          "#67774A",
+          1
+        ],
+        [
+          "#748451",
+          1
+        ],
+        [
+          "#81915A",
+          1
+        ],
+        [
+          "#887852",
+          2
+        ]
+      ],
+      "ground_span_m": {
+        "near": 4,
+        "middle": 16,
+        "far": 64
+      },
+      "normal": "upward, supplied flat fixture only; actual slopes must use the engine height field",
+      "runtime_use": false,
+      "lighting_policy": "Neutral colour; apply the moving light once. Ground normals must follow actual terrain.",
+      "authored_families": true,
+      "palette_review": "Candidate muted swatches authorized for review against owner reference; approved sheet unchanged.",
+      "source_cells": 320,
+      "ground_variant": 2,
+      "variant_method": "Three edge-compatible quilts from each family drawing; 112px source patches; shared 4px border; no rotation.",
+      "accent_chip": "#81915A",
+      "accent_fallback": "#748451"
+    }
+  ],
+  "pending_designs": [
+    {
+      "id": "body",
+      "catalogue_piece": "10.1",
+      "sheet": "art/catalogue/sheets/10.1-body.webp",
+      "status": "proposal sheet ready; owner design approval required before production; later hide clothing only; unclothed adult edit blocked",
+      "request": "art/requests/fixtures27/person-design.txt"
+    },
+    {
+      "id": "red_deer",
+      "catalogue_piece": "13.1",
+      "sheet": "art/catalogue/sheets/13.1-red_deer.webp",
+      "status": "proposal sheet ready; owner design approval required before production",
+      "request": "art/requests/fixtures27/deer-design.txt"
+    }
+  ],
+  "design_requests": "Adult person and red-deer fixture proposals; owner approval precedes production."
+}

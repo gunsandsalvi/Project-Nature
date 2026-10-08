@@ -1,0 +1,54 @@
+about = "T2.7a.3 tent material: neutral image-drawn hide tent; cleaned production candidate; authored far family"
+route = "code"
+tile_texels = 32
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/fixtures27/neutral/tent-near-original.png", "art/sources/fixtures27/neutral/tent-middle-original.png", "art/sources/fixtures27/neutral/tent-far-original.png"]
+original_sha256 = ["03e3f91d4188b17c28c22a5185b09f34aff887b3a1b3a9cf1290273b272131e2", "5d1a3f3f38431779814037de20f59c242e57925880c2d5f605055460ba05a581", "8c5e903b41f60e4e408558754b4db85d6e986cddb0fc58f22986384d81fb2088"]
+c2pa = ["present", "present", "present"]
+requests = ["art/requests/fixtures27/production.txt"]
+made = "image drawing; tools/art/fixtures.py cleanup; neutral image-drawn hide tent; cleaned production candidate"
+regrid_loss = "block loss, exact-grid detection and source scale recorded in exports.json"
+truth = "8 October 2026: existing sheet design; this export requires the art and engine reviews"
+approved = "pending owner runtime review and engine lighting calibration"
+
+[[band]]
+level = 0
+file = "art/textures/fixtures27/tent/far/material/b4.png"
+sha256 = "a2e867ee1f18ecccd253aa47d5834a49a0136965275646c603c9e0f0cae0d6b8"
+way = "image-drawn family; block cleanup and palette snap"
+
+[[band]]
+level = 1
+file = "art/textures/fixtures27/tent/far/material/b5.png"
+sha256 = "33f726a9e38fa3ffd9609615f1f3455be1450ddaa5b16ea15de1af67cb6b938c"
+made_from = "a2e867ee1f18ecccd253aa47d5834a49a0136965275646c603c9e0f0cae0d6b8"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 2
+file = "art/textures/fixtures27/tent/far/material/b6.png"
+sha256 = "fa59a7765568c4bfa3afbc6f9d34ea05e4b596a9471faf88629cfa19edd7fa21"
+made_from = "33f726a9e38fa3ffd9609615f1f3455be1450ddaa5b16ea15de1af67cb6b938c"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 3
+file = "art/textures/fixtures27/tent/far/material/b7.png"
+sha256 = "a59da0b60cd8db217dccb95c379354669c397e8006dc9ce92602441ed4696daf"
+made_from = "fa59a7765568c4bfa3afbc6f9d34ea05e4b596a9471faf88629cfa19edd7fa21"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 4
+file = "art/textures/fixtures27/tent/far/material/b8.png"
+sha256 = "b54defbe8ae34966209a41c9553ceeef622390bfad8f989317de0ad2cbabc129"
+made_from = "a59da0b60cd8db217dccb95c379354669c397e8006dc9ce92602441ed4696daf"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"
+
+[[band]]
+level = 5
+file = "art/textures/fixtures27/tent/far/material/b9.png"
+sha256 = "f8ca4d4ceeaf252c1396b0946378cc41e80b1eeccbbab57e505f886dc199f656"
+made_from = "b54defbe8ae34966209a41c9553ceeef622390bfad8f989317de0ad2cbabc129"
+way = "aligned 2x2 reduction study; categorical IDs voted; normals renormalised"

@@ -1,0 +1,250 @@
+[
+  {
+    "file": "art/sources/fixtures27/design/body/clothing-trial-original.png",
+    "sha256": "45185aa0b2666067b20dc46594ef087390fcef2981bf54a6428fbe6b37ca3b9a",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/body-clothing-trial.txt",
+    "cleaned": "art/sources/fixtures27/design/body/clothing-trial-cleaned.png",
+    "role": "rejected clothing trial"
+  },
+  {
+    "file": "art/sources/fixtures27/design/body/views-original.png",
+    "sha256": "d773c0cbbfcaa9f7c275e190019c02326110266b9dedbcc71b2bba93e8f29cca",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/body-views.txt",
+    "cleaned": "art/sources/fixtures27/design/body/views-cleaned.png",
+    "role": "owner proposal source; no production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/body/zoom-original.png",
+    "sha256": "1bac76717c7fdafbba61512640ab689b517fe44999424a50288eb347b95d8981",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/body-zoom.txt",
+    "cleaned": "art/sources/fixtures27/design/body/zoom-cleaned.png",
+    "role": "owner proposal source; no production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/red_deer/facings-original.png",
+    "sha256": "1374b413ff7820876e2b852a3db96ed8d886a0043ed093266c19c9e43aa54d95",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/deer-facings.txt",
+    "cleaned": "art/sources/fixtures27/design/red_deer/facings-cleaned.png",
+    "role": "owner proposal source; no production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/red_deer/views-original.png",
+    "sha256": "4fde1801c059ceada42f31a31ecd6081dd072a5a2683b6000b3eaef253d78163",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/deer-views.txt",
+    "cleaned": "art/sources/fixtures27/design/red_deer/views-cleaned.png",
+    "role": "owner proposal source; no production"
+  },
+  {
+    "file": "art/sources/fixtures27/design/red_deer/zoom-original.png",
+    "sha256": "1a5976c3ae308a139b13906092e323608030304435f1379de8d73a150b14f936",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/deer-zoom.txt",
+    "cleaned": "art/sources/fixtures27/design/red_deer/zoom-cleaned.png",
+    "role": "owner proposal source; no production"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/birch-summer-far-original.png",
+    "sha256": "7d211e6c9f5bf1797eb042ad7cf0eb3c467c1eaf01d6ba5c8fc2e97887369450",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/birch-summer-far.txt",
+    "cleaned": "art/sources/fixtures27/neutral/birch-summer-far-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/birch-summer-middle-original.png",
+    "sha256": "1d938da938fb525abf29db08cd4b371b2e045993ce0413a7eabe9a71efca5608",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/birch-summer-middle.txt",
+    "cleaned": "art/sources/fixtures27/neutral/birch-summer-middle-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/birch-summer-near-original.png",
+    "sha256": "339eadcf8832d551b6c4f3aeeb11d3de0109192cb40d63464dcdf99ef4945e2c",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/birch-summer-near.txt",
+    "cleaned": "art/sources/fixtures27/neutral/birch-summer-near-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/birch-summer-rejected-original.png",
+    "sha256": "a87485a93c339ee50e9ff29ccb5f2feb53091a3e03534cdab308bf929dbfec49",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/birch-summer-rejected.txt",
+    "cleaned": "art/sources/fixtures27/neutral/birch-summer-rejected-cleaned.png",
+    "role": "rejected trial"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/birch-winter-far-original.png",
+    "sha256": "bc2fab3c6f11048a7cc608b41c1c868a9074485ae4f7f2cbe26e71cdeca4e43d",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/birch-winter-far.txt",
+    "cleaned": "art/sources/fixtures27/neutral/birch-winter-far-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/birch-winter-middle-original.png",
+    "sha256": "6638816a5be4a9dde3cf8557769b218b10b8e5da3c3de5d4cce084bb0873fe5e",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/birch-winter-middle.txt",
+    "cleaned": "art/sources/fixtures27/neutral/birch-winter-middle-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/birch-winter-near-original.png",
+    "sha256": "1521c09518daf4c605040e9984fe55dc2169a5c1f50255368041ac8b10880276",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/birch-winter-near.txt",
+    "cleaned": "art/sources/fixtures27/neutral/birch-winter-near-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/boulder-far-original.png",
+    "sha256": "9ce594ce9a239c16613349616b25128fb224cc10a2471a3a3645fe3c31ea5ffa",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/boulder-far.txt",
+    "cleaned": "art/sources/fixtures27/neutral/boulder-far-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/boulder-middle-original.png",
+    "sha256": "fcc2b0d2a2cfcd0fc532c03f739448dfbe59952bb7380916a62b98c49b26211b",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/boulder-middle.txt",
+    "cleaned": "art/sources/fixtures27/neutral/boulder-middle-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/boulder-near-original.png",
+    "sha256": "04f2835aff57947018b7ca7fd395f28e3c7868bb110b6319132af023411776d5",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/boulder-near.txt",
+    "cleaned": "art/sources/fixtures27/neutral/boulder-near-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/meadow-far-original.png",
+    "sha256": "136e03bdeeb43d9e24b615e476b7350ed2b004080ee28016f054edaccff389bd",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/meadow-far.txt",
+    "cleaned": "art/sources/fixtures27/neutral/meadow-far-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/meadow-middle-original.png",
+    "sha256": "21a4e79f8018ba8bcd6f58148780c1ae38b4f411db1da6b2ad5e5c02fb7394c4",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/meadow-middle.txt",
+    "cleaned": "art/sources/fixtures27/neutral/meadow-middle-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/meadow-near-original.png",
+    "sha256": "8f0429d872f5458fc2b9a1777703fce5ee4a9292b492b2fa0e04d01d4aaaffb4",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/meadow-near.txt",
+    "cleaned": "art/sources/fixtures27/neutral/meadow-near-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/tent-far-original.png",
+    "sha256": "8c5e903b41f60e4e408558754b4db85d6e986cddb0fc58f22986384d81fb2088",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/tent-far.txt",
+    "cleaned": "art/sources/fixtures27/neutral/tent-far-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/tent-frame-entry-study-original.png",
+    "sha256": "9ef6fa59a13e0b8f7689584a97bd2fad0c8e920028a15a2739eded32e3086c51",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/tent-frame-entry-study.txt",
+    "cleaned": "art/sources/fixtures27/neutral/tent-frame-entry-study-cleaned.png",
+    "role": "uncovered frame study; excluded from production"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/tent-frame-projection-study-original.png",
+    "sha256": "1fc2090bb015ae7a47716c80b167950c2277d632681e0de5d3f6737f820f1201",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/tent-frame-projection-study.txt",
+    "cleaned": "art/sources/fixtures27/neutral/tent-frame-projection-study-cleaned.png",
+    "role": "uncovered frame study; excluded from production"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/tent-frame-rejected-original.png",
+    "sha256": "fa2df9c8aae6c9691d450227413037f56274d3a127d5ffca070916e3df6dcd8e",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/tent-frame-rejected.txt",
+    "cleaned": "art/sources/fixtures27/neutral/tent-frame-rejected-cleaned.png",
+    "role": "rejected trial"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/tent-middle-original.png",
+    "sha256": "5d1a3f3f38431779814037de20f59c242e57925880c2d5f605055460ba05a581",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/tent-middle.txt",
+    "cleaned": "art/sources/fixtures27/neutral/tent-middle-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/neutral/tent-near-original.png",
+    "sha256": "03e3f91d4188b17c28c22a5185b09f34aff887b3a1b3a9cf1290273b272131e2",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/neutral/tent-near.txt",
+    "cleaned": "art/sources/fixtures27/neutral/tent-near-cleaned.png",
+    "role": "production candidate source"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/meadow-near-r2-original.png",
+    "sha256": "4944a9dac20ce5698ffa1c35b1403dd19e7a64455237a5393adba44352c94dd6",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/meadow-near-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/meadow-near-r2-cleaned.png",
+    "role": "meadow round 2 independent family; three compatible image quilts"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/meadow-middle-r2-original.png",
+    "sha256": "10e03c40a6c26fc23a26b76a9e6f2317c7338c27cbe85f2e4a88cdb33f66209d",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/meadow-middle-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/meadow-middle-r2-cleaned.png",
+    "role": "meadow round 2 independent family; three compatible image quilts"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/meadow-far-r2-original.png",
+    "sha256": "1e9caa84386a4a1d17c3c2e58a43e17ab7fad9ddaabf335c9f323a89abc97a7b",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/meadow-far-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/meadow-far-r2-cleaned.png",
+    "role": "meadow round 2 independent family; three compatible image quilts"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/boulder-near-r2-original.png",
+    "sha256": "c99f3a5e04f5ed125ca1076c58da8e9a98a0cc73d4d0b52d3cb9c16580dda9d5",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/boulder-near-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/boulder-near-r2-cleaned.png",
+    "role": "boulder round 2 independent family edit"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/boulder-middle-r2-original.png",
+    "sha256": "a962bd69cee1030a54fbb6b19dda3f735f515add49d1e99f762c1d31ea7191b3",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/boulder-middle-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/boulder-middle-r2-cleaned.png",
+    "role": "boulder round 2 independent family edit"
+  },
+  {
+    "file": "art/sources/fixtures27/revision/boulder-far-r2-original.png",
+    "sha256": "fce45f3ae1284681a0506eb5a042430b84f664c23fdbc4b14d6aee5a084358f1",
+    "source": "built-in image drawing; unchanged original",
+    "request": "art/requests/fixtures27/revision/boulder-far-r2.txt",
+    "cleaned": "art/sources/fixtures27/revision/boulder-far-r2-cleaned.png",
+    "role": "boulder round 2 independent family edit"
+  }
+]
