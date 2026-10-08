@@ -1,6 +1,34 @@
 # Handover, 8 October 2026
 
-The owner stopped all agents on 8 October 2026 at about 13:00 UTC and asked for everything to be merged here with this note. Read `CLAUDE.md` and `PROJECT.md` first, as always. This note says where the work stopped and what to do next.
+## Update, 8 October 2026, about 15:00 UTC
+
+Between 13:50 and 14:50 UTC three leads (design, coding, research) carried the work on. Then the owner replaced them with **one lead** who runs every team, and asked for this update.
+
+- **Their work is merged here as work in progress** (merge `441a2cd`), and each lead's own handover is in `drafts/handovers/`:
+  - `code.md`: α2.8a's terrain work; read it first.
+  - `design.md` and `design-artist.md`: the six art fixtures.
+- **α2.8a:**
+  - The code review of the whole inherited step found 7 issues, all fixed with new tests.
+  - A second review of the fixes was clean, and 19 game and 72 view tests passed.
+  - The latest packaging changes are not reviewed yet.
+- **Delivery 30801 is not done.** The signed APK came out at 53.3 MB, over the 50 MB limit for a committed file. A lossless fix is saved but not yet built or reviewed:
+  - compress the native library;
+  - drop a duplicate ground sheet.
+
+  It should bring the APK to about 49 MB. If it does not fit, the owner chooses between invisible compression and release files outside the repository (A2.3). `dist/kindling.apk` is still 30301.
+- **Art:**
+  - The meadow and boulder still pass, unchanged.
+  - The birch's fourth round was cut off before review. It still has a squared upper-stem join and grey bark in the upper-left leaves.
+  - The tent has new source drawings but still exports the old tent.
+  - The person and red deer sheets still need their round-1 fixes.
+  - The code review of the art tools found 2 bugs, and the fixes are unreviewed.
+- **Art must go much faster:** 373 catalogue entries, of which 245 have no sheet yet, and in a whole day only two fixtures passed. The lead must find a process many times faster without lowering the bar.
+- **M3, "The world", is researched and planned in full, as drafts**, in `drafts/m3/`: the research, the architecture, the plan (12 alphas, 24 deliveries, 72 tasks), the questions and the critic's review.
+  - The owner answered questions 1 to 10 on 8 October 2026 (`drafts/m3/OWNER-ANSWERS.md`). All are as recommended except the eclipses: 3 to 8 visible at every place in 70 game years.
+  - Worlds have one woolly mammoth species, so the bone hut is unblocked.
+  - The drafts move into `ARCHITECTURE.md` and `IMPLEMENTATION.md` only when the owner approves the plan; then `drafts/` is deleted.
+
+Read the rest of this note for the state before 13:50.
 
 ## Where things stand
 

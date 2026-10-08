@@ -1,0 +1,30 @@
+# Artist handover — 8 October 2026, 14:44 UTC
+
+Stopped at owner's requested wind-down. Final project files are coherent WIP, not art-approved or code-reviewed after final changes. Git remained read-only; no commits/push/sign-offs/doc decisions changed. No further image calls pending or usage limit encountered.
+
+## Birch current state
+Three critic rounds used, all FIX. Latest completed reviews: reviews/review-09-birch-r2.md and review-10-birch-r3.md. Round3 accepted continuous canopy and separate local bark normals, but required removing upper squared splice and grey fringe in leaf inner edge. Current candidate is prepared for final round4, **not reviewed**; do not declare PASS.
+
+Final actual tool: tools/art/fixtures.py. Shared recipe: art/sources/fixtures27/recipe.json. Exports: art/sources/fixtures27/exports.json. Tests: tools/tests/test_art_fixtures.py. Code snapshot artist/fixtures-r4.py matches actual final tool; obsolete preparation script was removed so it cannot regenerate the failed global colour classifier.
+
+Final repairs: continuous near stem profile follows measured canonical winter axis (x504 at y190–240, x509 at300, x510 at410, x512 at500), with a natural upper taper; same profile drives local cylinder normals. Only semantic bark colour/alpha/ID moves, protected foliage stays in place. A provisional global low-chroma bark classifier was tried and immediately rejected because it greys muted leaves; final raw-colour annotation is restricted to the exposed shaft region below20% height and within0.025 of source height around the root centre. It distinguishes neutral dark bark before nearest-palette snap, without the former expanded-winter/dark-leaf-mask rule. Removed that rule and upper branch-scars expansion, which caused the grey leaf fringe. Quiet summer canopy redraws and far winter sparse structure are retained. Common lower bark/collars and accepted normal responses remain.
+
+External code-review findings in code-reviews/review-01.md were fixed: skip singleton cleanup at1x1 so all six b10 colour pages retain alpha255; cached winter source_bundle uses save_cleaned=False so summer-only regeneration cannot overwrite winter-cleaned production pictures. New focused tests cover both findings, raw shaft bark versus similar leaf colour, and continuous profile edges. A full final rebuild of BOTH seasons completed; no mid-build state remains. Final near colour was inspected: broad canopy greying gone, upper stem transition fits the earlier axis, no cut-and-pasted rectangular ledge seen. Final localized geometry/mask work still needs critic round4 and a new built-in code review.
+
+Last completed checks: final rebuild reported1008 aligned pages/0failures;24 fixture unit tests passed;ruff format/check clean. All393 protected meadow/boulder files match protected-hashes.json. All six last-mip colour alpha values255. Final all-art test suite result will be recorded in final-art-tests.txt and STATUS.md.
+
+Updated birch pixels: birch_summer*/birch_winter* colour/material/normal pages and splits in art/textures/fixtures27, three-family birch summer/winter previews plus light-study.webp, revision summer-r2 cleaneds/far-winter-r2 cleaned and near/middle winter neutral cleaneds. Original image bytes/prompts/provenance unchanged. Older artist/birch-r2/r3 handoffs/numbers/season strips describe earlier candidates; do not use them as final proof. Regenerate final review strips from current texture pages before review.
+
+## Tent
+Only historical round1 reviewed (FIX). Production recipe/maps/previews remain round1. New near candidate art/sources/fixtures27/revision/tent-near-r2-v2-original.png is selected. New independently drawn middle/far are tent-middle-r2-original.png and tent-far-r2-original.png. First near edit and smooth third near edit are rejected, preserved as studies. Five new exact prompt files in art/requests/fixtures27/revision and five provenance entries in art/sources/fixtures27/provenance.json are saved. Tent cleaneds generated during isolated preparation are tentative, not stable production art.
+
+Scratch artist/tent-probe.py tests half-coverage shelter alpha; this restores far's4px doorway. Near clear opening about63px, close to61px target; middle clear10px is partly occluded by flap/stone hem, so measure physical door boundaries separately before resizing it. Earlier tent-next.md suggestions to stretch/lower door need this updated occlusion check. Half-alpha changes are **not in production tool**. Prototype artist/tent_semantics.py contains traced masks and material-specific numeric normal functions; it is **not production-integrated or reviewed**. Its seam paths and pole-tail/stone contours need actual pixel inspection, especially middle/far. See tent-next.md for geometry/mask/normal goals. Do not treat coordinate annotations as a passed material map.
+
+Remaining tent work: verify cover2.6/crossing2.7/tips3.1m and door1.2m against physical landmarks, incorporate half-coverage alpha, finish precise wood/sinew/hide/stone annotations, give cone/flap/poles/stones separate mild normals, clean quiet wear clusters without changing panel identity, validate all splits/reductions and review as round2. Covered fixture only: hidden back/frame/interior/floor art remain missing and must stay declared. No further source calls needed before testing current candidates.
+
+## Other lanes
+Person/deer proposal repairs not started on this resumed assignment. Still unsigned; no production people/deer, no repeated refused unclothed prompt. Historical outline/stance/quiet garment/deer dimensions/antler identity fixes remain. Missing first people and full ages remain explicit. Lead owns hazel sheet layout later; no hazel edit here. No owner peek/sign-off claim.
+
+Stop state: after writing final check result and notifying lead, no further writes or running image calls. All modified repository files are WIP for coordinator's wind-down manifest; no file over50MB was added.
+
+Final all-art suite:113tests in24.440s,OK (14skipped), saved final-art-tests.txt. Final formatting check:2files already formatted. No running jobs remain.
