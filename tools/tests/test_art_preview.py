@@ -29,6 +29,7 @@ class Views(unittest.TestCase):
         self.pictures = {}
         self.configs = []
         self.sets = {"a": plain(10), "b": plain(200)}
+        self.acts = "replace"
 
         def write(path, picture):
             self.pictures[os.path.basename(path)] = picture
@@ -38,6 +39,8 @@ class Views(unittest.TestCase):
 
         for patched in (
             mock.patch.object(preview.textures, "read_set", lambda name: self.sets[name]),
+            mock.patch.object(preview.textures, "read_texture", lambda where: ({"acts": self.acts}, [])),
+            mock.patch.object(preview.textures, "folder", lambda name, tile, version: name),
             mock.patch.object(preview.tiles, "write_png", write),
             mock.patch.object(preview, "render", draw),
         ):
@@ -86,6 +89,7 @@ class Views(unittest.TestCase):
         marks[0][0][8:24, 4:8] = (50, 60, 70, 255)  # a streak, 4 texels wide and 16 high, in the 32-texel level 0
         marks[0][1][4:12, 2:4] = (50, 60, 70, 255)
         self.sets["m"] = {"near": marks}
+        self.acts = "replace"
         preview.wall_view("a", "b", 0, "behind", self.dir, marks="m")
         wall = self.pictures["a-wall-band0.png"]
         plain = np.full_like(wall, 10)
@@ -94,6 +98,17 @@ class Views(unittest.TestCase):
         self.assertLess(marked.mean(), 0.2, "and the rock shows everywhere else")
         np.testing.assert_array_equal(np.unique(wall[marked].reshape(-1, 3), axis=0), [[50, 60, 70]])
         self.assertTrue(self.configs[0]["out"].endswith("a-wall-band0-behind-over-m.png"))
+
+    # checks: PRE-20 PRE-22
+    def test_marks_that_darken_multiply_the_rock_by_their_grey_and_white_leaves_it_as_it_is(self):
+        marks = [[np.zeros((size, size, 4), np.uint8) for size in (32, 16, 8, 4, 2, 1)]]
+        marks[0][0][8:24, 4:8] = (128, 128, 128, 255)  # a mid grey: halves the rock
+        marks[0][0][8:24, 12:16] = (255, 255, 255, 255)  # white: leaves it
+        self.sets["m"] = {"near": marks}
+        self.acts = "darken"
+        preview.wall_view("a", "b", 0, "behind", self.dir, marks="m")
+        wall = self.pictures["a-wall-band0.png"]
+        self.assertEqual(set(np.unique(wall).tolist()), {5, 10}, "the rock is 10: halved to 5 by the grey")
 
 
 if __name__ == "__main__":

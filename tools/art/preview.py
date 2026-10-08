@@ -204,9 +204,14 @@ def ground_view(name, band, sun, out_folder, samples=24, change=None, suffix="",
     return out
 
 
-def over(picture, marks):
-    """The marks (RGBA, each pixel wholly see-through or not) laid over a picture of the same size."""
+def over(picture, marks, acts="replace"):
+    """The marks (RGBA, each pixel wholly see-through or not) laid over a picture of the same size: where a mark is,
+    its own colour (`acts` "replace"), or the picture's colour multiplied by the mark's grey over 255 (`acts` "darken":
+    white leaves it as it is, a mid grey halves it)."""
     a = marks[..., 3:4] > 127
+    if acts == "darken":
+        shade = marks[..., :3].astype(np.float64) / 255.0
+        return np.where(a, np.rint(picture * shade).astype(np.uint8), picture)
     return np.where(a, marks[..., :3], picture)
 
 
@@ -228,7 +233,8 @@ def wall_view(name, ground_name, band, sun, out_folder, samples=24, change=None,
         layer, _ = compose(
             marks_set[marks_tile], marks_level, textures.TILES[marks_tile][1], (box[0], box[1], 0.0, height), salt=2
         )
-        face = over(face, layer)
+        acts = textures.read_texture(textures.folder(marks, marks_tile, 1))[0].get("acts", "replace")
+        face = over(face, layer, acts)
     ground_set = textures.read_set(ground_name)
     ground_tile, ground_level = tile_for_band(ground_set, band)
     floor, floor_covers = compose(ground_set[ground_tile], ground_level, textures.TILES[ground_tile][1], box)
