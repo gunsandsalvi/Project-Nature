@@ -42,13 +42,15 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
     }
     const std::vector<ecs::Id>& camps = camp_ids_;
     w.beings().each([&](ecs::Id id, world::Beings::Handle h) {
-        if (id.family() != ecs::Family::marker) {
+        if (id.family() != ecs::Family::marker && id.family() != ecs::Family::person) {
             return;
         }
         const ecs::Id camp = raw.get<demo::Home>(h).camp;
         const auto c = static_cast<std::uint32_t>(std::lower_bound(camps.begin(), camps.end(), camp) - camps.begin());
         ids_.push_back(id);
-        walkers_.push_back({id.value, raw.get<demo::MarkerKind>(h).kind, c});
+        const auto* person = raw.try_get<world::Person>(h);
+        walkers_.push_back({id.value, person != nullptr ? 0 : raw.get<demo::MarkerKind>(h).kind, c,
+                            person != nullptr ? std::optional<world::Person>(*person) : std::nullopt});
         trails_.push_back({raw.get<world::Activity>(h)});
     });
     crowd_.world().keep_history(&history_);
@@ -61,6 +63,11 @@ CrowdStepper::CrowdStepper(demo::CrowdWorld& crowd) : crowd_(crowd), camp_ids_(c
 void CrowdStepper::fill(Snapshot& s) const {
     s.frontier = crowd_.world().frontier();
     s.walkers = walkers_;
+    s.supplies.clear();
+    for (const ecs::Id id : camp_ids_) {
+        const auto* camp = crowd_.world().beings().raw().try_get<world::Camp>(crowd_.world().beings().handle(id));
+        if (camp != nullptr) s.supplies.push_back(*camp);
+    }
     s.ways.clear();
     s.first.clear();
     for (const std::vector<world::Activity>& trail : trails_) {

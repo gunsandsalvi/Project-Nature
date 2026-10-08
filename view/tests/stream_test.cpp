@@ -237,6 +237,7 @@ TEST_CASE("allocation tickets reject overflow malformed fields and unbounded own
     CHECK(s.reserve_allocation({"unknown", 1, 0, 0, 0}) == 0);
     CHECK(s.reserve_allocation({"masks", 0, 0, 0, 0}) == 0);
     std::vector<StreamToken> tokens;
+    tokens.reserve(256);
     for (int i = 0; i < 256; ++i) tokens.push_back(s.reserve_allocation({"masks", 1, 0, 0, 0}));
     CHECK(std::all_of(tokens.begin(), tokens.end(), [](auto token) { return token != 0; }));
     CHECK(s.reserve_allocation({"masks", 1, 0, 0, 0}) == 0);

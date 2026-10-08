@@ -90,6 +90,7 @@ void KdWorlds::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_root", "root"), &KdWorlds::set_root);
     ClassDB::bind_method(D_METHOD("list"), &KdWorlds::list);
     ClassDB::bind_method(D_METHOD("make", "name", "seed", "camps"), &KdWorlds::make);
+    ClassDB::bind_method(D_METHOD("make_camp", "name", "seed"), &KdWorlds::make_camp);
     ClassDB::bind_method(D_METHOD("rename", "id", "name"), &KdWorlds::rename);
     ClassDB::bind_method(D_METHOD("remove", "id"), &KdWorlds::remove);
     ClassDB::bind_method(D_METHOD("current"), &KdWorlds::current);
@@ -125,6 +126,7 @@ godot::Array KdWorlds::list() const {
         const std::optional<std::string> about_text = read_text(item.path() / "world.toml");
         const std::optional<demo::About> about = about_text ? demo::read_about(*about_text) : std::nullopt;
         w["name"] = text_of(about ? about->name : std::string());
+        w["kind"] = about && about->camp_alpha ? "camp_alpha" : "crowd";
         w["seed"] = about ? static_cast<int64_t>(about->seed) : int64_t{0};
         // a test's world, marked as one with the switches it ran with (RES-10, PLT-05)
         w["test"] = about && about->test;
@@ -193,6 +195,14 @@ std::string KdWorlds::new_id() const {
 }
 
 godot::String KdWorlds::make(const godot::String& name, int64_t seed, int64_t camps) {
+    return make_saved(name, seed, camps, false);
+}
+
+godot::String KdWorlds::make_camp(const godot::String& name, int64_t seed) {
+    return make_saved(name, seed, 1, true);
+}
+
+godot::String KdWorlds::make_saved(const godot::String& name, int64_t seed, int64_t camps, bool camp_alpha) {
     const std::string id = new_id();
     std::error_code error;
     fs::create_directories(fs::path(root_) / id, error);
@@ -203,6 +213,7 @@ godot::String KdWorlds::make(const godot::String& name, int64_t seed, int64_t ca
     about.name = utf8(name);
     about.seed = static_cast<std::uint64_t>(std::max<int64_t>(seed, 0));
     about.camps = std::max<int64_t>(camps, 0);
+    about.camp_alpha = camp_alpha;
     const std::string text = demo::about_text(about);
     save::DiskFiles files((fs::path(root_) / id).string());
     if (!files.write_whole("world.toml", save::Bytes(reinterpret_cast<const std::byte*>(text.data()),

@@ -20,6 +20,7 @@ struct Walker {
     std::uint64_t id = 0;
     std::uint32_t kind = 0;
     std::uint32_t camp = 0;
+    std::optional<world::Person> person = std::nullopt;
 };
 
 /// Where a walker is along a way at a moment with its fraction of a second, in centimetres east and north of a point:
@@ -35,6 +36,7 @@ struct Snapshot {
     std::vector<Walker> walkers;
     std::vector<world::Activity> ways;
     std::vector<std::uint32_t> first;
+    std::vector<world::Camp> supplies{};
 
     /// The way walker i was on at a moment: the latest that began by then.
     [[nodiscard]] const world::Activity& way_at(std::size_t i, double t) const;

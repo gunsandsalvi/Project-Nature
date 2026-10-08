@@ -27,14 +27,15 @@ std::int64_t pitch(int power) {
 std::vector<std::int64_t> indices(double low, double high, std::int64_t size, std::int64_t cell) {
     std::vector<std::int64_t> result;
     const auto count = (size + cell - 1) / cell;
-    if (high - low >= size) {
+    if (high - low >= static_cast<double>(size)) {
         if (count > 256) return result;
         for (std::int64_t i = 0; i < count; ++i) result.push_back(i);
     } else {
         const auto a = static_cast<std::int64_t>(std::floor(low));
         const auto b = static_cast<std::int64_t>(std::floor(high));
         const auto first = num::floor_mod(a, size) / cell, last = num::floor_mod(b, size) / cell;
-        const auto crossed = std::floor(low / size) != std::floor(high / size);
+        const auto crossed =
+            std::floor(low / static_cast<double>(size)) != std::floor(high / static_cast<double>(size));
         const auto needed = crossed ? count - first + last + 1 : last - first + 1;
         if (needed > 256) return result;
         if (crossed) {
@@ -88,13 +89,13 @@ WideFrame wide_records(const std::vector<DrawRecord>& input, const std::vector<C
         double west = row.east, south = row.north, east = west, north = south;
         if (!identity.key.starts_with("walker/")) {
             const auto offset = torus.offset(origin, identity.anchor);
-            west = offset.dx / 100.;
-            south = offset.dy / 100.;
+            west = static_cast<double>(offset.dx) / 100.;
+            south = static_cast<double>(offset.dy) / 100.;
             east = west;
             north = south;
             if (!identity.fixed) {
-                east += std::min<std::int64_t>(25600, torus.width() - identity.anchor.x) / 100.;
-                north += std::min<std::int64_t>(25600, torus.height() - identity.anchor.y) / 100.;
+                east += static_cast<double>(std::min<std::int64_t>(25600, torus.width() - identity.anchor.x)) / 100.;
+                north += static_cast<double>(std::min<std::int64_t>(25600, torus.height() - identity.anchor.y)) / 100.;
             }
         }
         return west <= bounds->east && east >= bounds->west && south <= bounds->north && north >= bounds->south;
@@ -148,10 +149,10 @@ WideFrame wide_records(const std::vector<DrawRecord>& input, const std::vector<C
             const auto position =
                 torus.wrap(origin.x + std::llround(row.east * 100), origin.y + std::llround(row.north * 100));
             const auto delta = torus.offset(accumulator.anchor, position);
-            const double fraction_east = row.east * 100 - std::llround(row.east * 100);
-            const double fraction_north = row.north * 100 - std::llround(row.north * 100);
-            accumulator.dx += std::llround((delta.dx + fraction_east) * 65536);
-            accumulator.dy += std::llround((delta.dy + fraction_north) * 65536);
+            const double fraction_east = row.east * 100 - static_cast<double>(std::llround(row.east * 100));
+            const double fraction_north = row.north * 100 - static_cast<double>(std::llround(row.north * 100));
+            accumulator.dx += std::llround((static_cast<double>(delta.dx) + fraction_east) * 65536);
+            accumulator.dy += std::llround((static_cast<double>(delta.dy) + fraction_north) * 65536);
             members.insert({identity.key, row.id});
             if (members.size() > kMembers) {
                 members.erase(std::prev(members.end()));
@@ -165,11 +166,11 @@ WideFrame wide_records(const std::vector<DrawRecord>& input, const std::vector<C
         auto& row = accumulator.record;
         if (!key.starts_with("walker/")) {
             const auto offset = torus.offset(origin, accumulator.anchor);
-            row.east = offset.dx / 100.;
-            row.north = offset.dy / 100.;
+            row.east = static_cast<double>(offset.dx) / 100.;
+            row.north = static_cast<double>(offset.dy) / 100.;
             if (!accumulator.fixed) {
-                row.east += static_cast<double>(accumulator.dx) / (6553600.0 * row.count);
-                row.north += static_cast<double>(accumulator.dy) / (6553600.0 * row.count);
+                row.east += static_cast<double>(accumulator.dx) / (6553600.0 * static_cast<double>(row.count));
+                row.north += static_cast<double>(accumulator.dy) / (6553600.0 * static_cast<double>(row.count));
             }
         }
         out.records.push_back(std::move(row));
@@ -238,10 +239,10 @@ std::vector<GroundTile> ground_tiles(const num::Torus& torus, num::Point origin,
         const auto middle = torus.wrap((std::int64_t{tile.west_south.x} + tile.east_north.x) / 2,
                                        (std::int64_t{tile.west_south.y} + tile.east_north.y) / 2);
         const auto offset = torus.offset(centre, middle);
-        const double west =
-            std::llround(centre_east * 100) / 100. + offset.dx / 100. - (middle.x - tile.west_south.x) / 100.;
-        const double south =
-            std::llround(centre_north * 100) / 100. + offset.dy / 100. - (middle.y - tile.west_south.y) / 100.;
+        const double west = static_cast<double>(std::llround(centre_east * 100)) / 100. +
+                            static_cast<double>(offset.dx) / 100. - (middle.x - tile.west_south.x) / 100.;
+        const double south = static_cast<double>(std::llround(centre_north * 100)) / 100. +
+                             static_cast<double>(offset.dy) / 100. - (middle.y - tile.west_south.y) / 100.;
         tile.local = {west, south, west + (tile.east_north.x - tile.west_south.x) / 100.,
                       south + (tile.east_north.y - tile.west_south.y) / 100.};
     };
@@ -280,10 +281,10 @@ std::vector<GroundTile> ground_tiles(const num::Torus& torus, num::Point origin,
             for (auto x = x0; x <= x1; ++x)
                 for (auto y = y0; y <= y1; ++y) {
                     auto copy = tile;
-                    copy.local.west += x * world_width;
-                    copy.local.east += x * world_width;
-                    copy.local.south += y * world_height;
-                    copy.local.north += y * world_height;
+                    copy.local.west += static_cast<double>(x) * world_width;
+                    copy.local.east += static_cast<double>(x) * world_width;
+                    copy.local.south += static_cast<double>(y) * world_height;
+                    copy.local.north += static_cast<double>(y) * world_height;
                     result.push_back(std::move(copy));
                 }
         }

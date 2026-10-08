@@ -48,6 +48,7 @@ struct About {
     std::uint64_t seed = 1;
     std::int64_t camps = 0;
     bool test = false;
+    bool camp_alpha = false;
     std::vector<std::string> switches;
 };
 
@@ -59,6 +60,7 @@ struct About {
 /// migrations it has not had, or a new one from this seed and number of camps (0 for the tuning's), unless the
 /// folder's world.toml says otherwise.
 [[nodiscard]] Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed,
-                              std::int64_t camps, std::span<const world::Migration> migrations = world::migrations());
+                              std::int64_t camps, std::span<const world::Migration> migrations = world::migrations(),
+                              bool camp_alpha = false);
 
 }  // namespace kd::demo

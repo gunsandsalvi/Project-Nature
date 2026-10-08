@@ -9,7 +9,7 @@ Existing A section numbers remain stable because code cites them. Deferred secti
 M1 is accepted. The owner approved the revised route on 8 October: M2 living camp; M3 discovery slice; M4 seasons and lives; M5 neighbours; M6 small finished valley; M7 wider world; M8 remaining life, crafts and society; M9 presentation, powers and sound; M10 optional copper/full arc.
 Earlier prototypes are evidence only; their deleted code is not a production source.
 The 2D renderer is partly built. Delivery 30801 shipped; later α2.9a work is merged WIP, without whole-step acceptance.
-No real needs, minds or discoveries are implemented yet. Fixtures and simulation markers remain diagnostics.
+Camp alpha adds 25 saved idle adults and scoped supplies in a bounded seeded patch. Needs, minds and discoveries are not implemented yet; simulation markers remain diagnostics.
 
 ## A1. Overview
 
@@ -75,6 +75,9 @@ References, history and commands use persistent IDs. Ended entities leave histor
 Component descriptors own stable names, versions, fields, units, ranges, links and effects; loader, save reader/writer, digest and inspection share them.
 Catalogue entries assemble components, without a class hierarchy for kinds.
 
+Camp alpha uses Person (name index, age at scene start, stand-in appearance), Place, Home, Activity and Schedule on person-family IDs. Camp retains rectangular traversable bounds, supply amounts in ml/mg and actual source/shelter positions. All 25 adults are idle; no renderer decides actions.
+The existing registry's positional foundation fields stay unchanged. Descriptor-written Camp/Person extensions share its EnTT storage and canonical ID iteration, in the existing snapshot's optional CAMP version-1 chunk. Worlds with person IDs require complete valid records; the reader refuses broken links, bounds, quantities and unsupported activities. Worlds without camp records keep their original snapshot bytes and digests.
+
 Decision order is event key or persistent ID, with explicit ties; EnTT pool order is not canonical.
 Pools are created in name order. Signals maintain indexes, never game rules. The order fuzzer must leave digests unchanged.
 
@@ -138,7 +141,7 @@ Full-world snapshots will also need measured immutable-state copying/compression
 ### A3.8 Talking to Godot
 
 Commands are durable plain records. Snapshots use a single-consumer triple buffer; one controller copies the latest publication and all views/jobs use its owned data.
-Never retain a recycled slot. No simulation worker touches Godot objects.
+Never retain a recycled slot. No simulation worker touches Godot objects. Camp identities and supplies are copied into the same owned display snapshot; cards and sprites read that copy.
 Sample the saved activity way at displayed time, including interruptions and torus seams, rather than interpolating arbitrary recent positions.
 Lossless events/commands are separate from disposable picture updates.
 

@@ -34,8 +34,8 @@ std::string about_text(const About& a) {
     std::string out =
         "# A world of the demonstration's crowd (MAT-16): its name, and what makes it again if its snapshots are "
         "lost.\nname = " +
-        quoted(a.name) + "\nkind = \"crowd\"\nseed = " + std::to_string(a.seed) +
-        "\ncamps = " + std::to_string(a.camps) + "\n";
+        quoted(a.name) + "\nkind = " + quoted(a.camp_alpha ? "camp_alpha" : "crowd") +
+        "\nseed = " + std::to_string(a.seed) + "\ncamps = " + std::to_string(a.camps) + "\n";
     if (a.test) {
         out += "# A test's world (PLT-05), with the test switches it runs with (RES-10).\ntest = true\nswitches = [";
         for (std::size_t i = 0; i < a.switches.size(); ++i) {
@@ -54,7 +54,9 @@ std::optional<About> read_about(const std::string& text) {
     const data::Value* name = p.root.find("name");
     const data::Value* test = p.root.find("test");
     const data::Value* switches = p.root.find("switches");
-    if (!p.problems.empty() || (kind != nullptr && (kind->kind != data::Value::Kind::text || kind->text != "crowd")) ||
+    if (!p.problems.empty() ||
+        (kind != nullptr &&
+         (kind->kind != data::Value::Kind::text || (kind->text != "crowd" && kind->text != "camp_alpha"))) ||
         seed == nullptr || seed->kind != data::Value::Kind::whole || seed->whole < 0 || camps == nullptr ||
         camps->kind != data::Value::Kind::whole || camps->whole < 0 ||
         (name != nullptr && name->kind != data::Value::Kind::text) ||
@@ -63,6 +65,7 @@ std::optional<About> read_about(const std::string& text) {
         return std::nullopt;
     }
     About a;
+    a.camp_alpha = kind != nullptr && kind->text == "camp_alpha";
     a.name = name != nullptr ? name->text : "";
     a.seed = static_cast<std::uint64_t>(seed->whole);
     a.camps = camps->whole;
@@ -79,7 +82,7 @@ std::optional<About> read_about(const std::string& text) {
 }
 
 Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uint64_t seed, std::int64_t camps,
-                std::span<const world::Migration> migrations) {
+                std::span<const world::Migration> migrations, bool camp_alpha) {
     Kept out;
     save::Found found = keeper.open();
     out.damaged = found.damaged;
@@ -106,9 +109,10 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
         if (about) {
             seed = about->seed;
             camps = about->camps;
+            camp_alpha = about->camp_alpha;
         }
-        out.crowd = std::make_unique<CrowdWorld>(seed, catalogue,
-                                                 camps > 0 ? std::optional<std::int64_t>(camps) : std::nullopt);
+        out.crowd = std::make_unique<CrowdWorld>(
+            seed, catalogue, camps > 0 ? std::optional<std::int64_t>(camps) : std::nullopt, camp_alpha);
         out.made = true;
         // a test's world takes its switches before it runs, where the build has them (RES-10)
         if (about && !about->switches.empty()) {
@@ -127,6 +131,7 @@ Kept keep_crowd(save::Keeper& keeper, const data::Catalogue& catalogue, std::uin
             About made;
             made.seed = seed;
             made.camps = camps;
+            made.camp_alpha = camp_alpha;
             keeper.about(about_text(made));
         }
         // made as this version makes worlds, it needs none of the migrations

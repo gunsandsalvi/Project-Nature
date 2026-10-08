@@ -26,6 +26,7 @@
 #include "kd/run/runner.hpp"
 #include "kd/run/workers.hpp"
 #include "kd/save/snapshot.hpp"
+#include "kd/world/camp.hpp"
 #include "kd/world/parts.hpp"
 
 namespace kd::world {

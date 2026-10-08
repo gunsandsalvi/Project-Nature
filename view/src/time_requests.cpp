@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <utility>
+#include "kd/num/maths.hpp"
 namespace kd::view {
 namespace {
 bool rate_ok(double rate) {
@@ -9,8 +10,8 @@ bool rate_ok(double rate) {
 }
 double between(double density, TimeAnchor near, TimeAnchor far) {
     const double fraction =
-        std::clamp(std::log2(near.density / density) / std::log2(near.density / far.density), 0.0, 1.0);
-    return std::exp(std::log(near.rate) * (1.0 - fraction) + std::log(far.rate) * fraction);
+        std::clamp(num::log2(near.density / density) / num::log2(near.density / far.density), 0.0, 1.0);
+    return num::exp(num::log(near.rate) * (1.0 - fraction) + num::log(far.rate) * fraction);
 }
 }  // namespace
 bool TimeRequests::configure(std::vector<TimeAnchor> anchors, double top_density) {
