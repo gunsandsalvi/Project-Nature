@@ -1,6 +1,6 @@
 """tools/kit.py and the Blender scripts export the model kit's parts as the engine reads them (PRE-46, A6.1, A6.4): a
-part's triangles by role, its texture coordinates in metres, its joints and its crease, in Godot's axes; the stand-in
-family the build makes; and the kit's own check, kd_kit, which holds each part's texture pixels to 1.5:1.
+part's triangles by role, its texture coordinates in metres, its joints and its crease, in Godot's axes; the art
+lane's families the build makes; and the kit's own check, kd_kit, which holds each part's texture pixels to 1.5:1.
 
 These need Blender (tools/setup.sh) and, for what the engine reads, the extension's build folder (kd_kit)."""
 
@@ -121,40 +121,52 @@ class Export(unittest.TestCase):
             self.assertIn(expected, run.stdout + run.stderr, why)
 
     # checks: PRE-46
-    def test_the_stand_in_family_comes_out_the_same_every_time_and_rewrites_nothing_that_did_not_change(self):
+    def test_the_art_families_come_out_the_same_every_time_and_rewrite_nothing_that_did_not_change(self):
         first = os.path.join(self.dir, "first")
         second = os.path.join(self.dir, "second")
-        said = kit.build(first, models=os.path.join(self.dir, "none"))
-        self.assertEqual(list(said), ["standin_camp"])
-        kit.build(second, models=os.path.join(self.dir, "none"))
-        with (
-            open(os.path.join(first, "standin_camp.kdkit"), "rb") as a,
-            open(os.path.join(second, "standin_camp.kdkit"), "rb") as b,
-        ):
-            self.assertEqual(a.read(), b.read())
-        # a second build into the same folder leaves the file as it was, and takes away a stray one
-        path = os.path.join(first, "standin_camp.kdkit")
+        names = list(kit.families())
+        self.assertIn("camp", names)
+        said = kit.build(first)
+        self.assertEqual(list(said), names)
+        kit.build(second)
+        for name in names:
+            with (
+                open(os.path.join(first, name + ".kdkit"), "rb") as a,
+                open(os.path.join(second, name + ".kdkit"), "rb") as b,
+            ):
+                self.assertEqual(a.read(), b.read(), name)
+        # a second build into the same folder leaves the files as they were, and takes away a stray one
+        path = os.path.join(first, "camp.kdkit")
         before = os.stat(path).st_mtime_ns
         with open(os.path.join(first, "gone.kdkit"), "wb") as f:
             f.write(b"x")
-        kit.build(first, models=os.path.join(self.dir, "none"))
+        kit.build(first)
         self.assertEqual(os.stat(path).st_mtime_ns, before)
-        self.assertEqual(sorted(os.listdir(first)), ["standin_camp.kdkit"])
+        self.assertEqual(sorted(os.listdir(first)), [name + ".kdkit" for name in names])
 
     # checks: PRE-46 PRE-22
     @unittest.skipUnless(os.path.isfile(KD_KIT), "the extension's build folder has no kd_kit")
-    def test_the_stand_in_parts_have_their_joints_and_roles_and_pass_the_stretch_check(self):
+    def test_the_camp_family_s_parts_have_their_joints_and_roles_and_pass_the_stretch_check(self):
         out = os.path.join(self.dir, "kit")
-        kit.build(out, models=os.path.join(self.dir, "none"))
-        said = info(os.path.join(out, "standin_camp.kdkit"))
-        for expected in ("part club", "part pole", "part cover", "part door_flap", "part stone_a", "part binding"):
+        kit.build(out)
+        said = info(os.path.join(out, "camp.kdkit"))
+        for expected in (
+            "part club",
+            "part tent_pole",
+            "part hide_lower_1",
+            "part tent_door_flap",
+            "part ring_stone_small",
+            "part tent_binding",
+        ):
             self.assertIn(expected, said)
         for expected in (
+            "joint grip",
+            "joint head",
             "joint foot",
             "joint bind",
             "joint tip",
-            "joint apex",
             "joint door_top",
+            "joint crossing",
             "joint hinge",
             "joint centre",
             "role stone",

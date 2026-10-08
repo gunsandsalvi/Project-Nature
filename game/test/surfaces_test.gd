@@ -74,7 +74,7 @@ func test_a_material_s_files_come_near_versions_first_then_the_middle_tile_s_the
 	for path: String in paths:
 		assert_bool(FileAccess.file_exists(path)).is_true()
 	# a material of one tile has the near tile alone, which every band reads
-	var wood := Surfaces.ladder(world, names, "standin_wood")
+	var wood := Surfaces.ladder(world, names, "wood")
 	assert_array(Array(wood["count"])).is_equal([1, 0, 0])
 	assert_int((wood["first"] as PackedInt32Array)[1]).is_equal(Surfaces.NONE)
 	# a material the catalogue has none of is a problem in words

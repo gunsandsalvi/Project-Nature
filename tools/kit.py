@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Exports the model kit's parts for the game (A6.1): each family's Blender file into the .kdkit file the engine reads,
-and the stand-in family the Blender script makes until the art lane's own parts arrive.
+"""Exports the model kit's parts for the game (A6.1): each family's Blender file into the .kdkit file the engine reads.
 
     python3 tools/kit.py build <out folder>
 
 Every art/models/<family>.blend is opened in Blender, headless, and its parts, joints, texture layouts and roles
-written to <out folder>/<family>.kdkit by tools/blender/export.py; the stand-in family, standin_camp, is made and
-exported by tools/blender/standins.py. Files whose bytes did not change are left as they were, and any other .kdkit in
-the folder is removed. Blender comes from tools/setup.sh. The kit's own checks of what this writes are kd_kit's
-(view/tools/kit.cpp), which tools/gamedata.py runs. Implements PRE-46.
+written to <out folder>/<family>.kdkit by tools/blender/export.py. Files whose bytes did not change are left as they
+were, and any other .kdkit in the folder is removed. Blender comes from tools/setup.sh. The kit's own checks of what
+this writes are kd_kit's (view/tools/kit.cpp), which tools/gamedata.py runs. Implements PRE-46.
 """
 
 import os
@@ -18,8 +16,6 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ART_MODELS = os.path.join(ROOT, "art", "models")
 EXPORT = os.path.join(ROOT, "tools", "blender", "export.py")
-STANDINS = os.path.join(ROOT, "tools", "blender", "standins.py")
-STANDIN_FAMILY = "standin_camp"
 
 
 def families(models=ART_MODELS):
@@ -54,7 +50,7 @@ def blender(arguments):
     return said[-1] if said else ""
 
 
-def build(out, models=ART_MODELS, standins=True):
+def build(out, models=ART_MODELS):
     """Every family's .kdkit in a folder, each only rewritten when its bytes change, and none left that is no
     family's: {family: what Blender said}."""
     os.makedirs(out, exist_ok=True)
@@ -67,10 +63,6 @@ def build(out, models=ART_MODELS, standins=True):
             target = os.path.join(scratch, name + ".kdkit")
             said[name] = blender([blend, "--python", EXPORT, "--", target])
             made[name] = target
-        if standins and os.path.isfile(STANDINS):
-            target = os.path.join(scratch, STANDIN_FAMILY + ".kdkit")
-            said[STANDIN_FAMILY] = blender(["--python", STANDINS, "--", target])
-            made[STANDIN_FAMILY] = target
         for name, target in made.items():
             data = read(target)
             path = os.path.join(out, name + ".kdkit")
