@@ -32,6 +32,7 @@ var _layout_pending := false
 
 
 func _ready() -> void:
+	theme = load("res://ui/theme.tres")
 	var font := load("res://ui/fonts/kindling-ui-16.fnt") as FontFile
 	font.fixed_size_scale_mode = TextServer.FIXED_SIZE_SCALE_INTEGER_ONLY
 	font.allow_system_fallback = false

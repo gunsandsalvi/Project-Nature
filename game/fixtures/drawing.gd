@@ -139,6 +139,8 @@ func _submit() -> void:
 		}
 	for id: int in _sprites.keys():
 		if not kept.has(id):
+			_sprites[id].texture = null
+			_sprites[id].material = null
 			_sprites[id].queue_free()
 			_sprites.erase(id)
 	queue_redraw()
@@ -186,7 +188,8 @@ func _append(
 			"code": _codes[id],
 			"texture": texture,
 			"colour_texture": colour_texture,
-			"image": atlas.images[entry.actions.get(animation, entry.actions.walk)[str(int(density))]],
+			"image":
+			atlas.images[entry.actions.get(animation, entry.actions.walk)[str(int(density))]],
 			"foot": foot,
 			"rect": rect,
 			"source": Rect2(Vector2(frame * frame_size.x, face * frame_size.y), frame_size),

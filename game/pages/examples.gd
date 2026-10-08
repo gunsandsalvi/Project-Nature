@@ -63,6 +63,7 @@ func _build() -> void:
 	}
 	_stream = atlas._service
 	_reserve_targets(Vector2i(2, 2))
+	_stream.detaching.connect(drawing.detach_textures)
 	drawing.stream_service = _stream
 	drawing.atlas = atlas
 	_viewport.add_child(drawing)

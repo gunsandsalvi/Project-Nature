@@ -20,10 +20,6 @@ window/stretch/mode="disabled"
 window/stretch/aspect="expand"
 window/handheld/orientation=6
 
-[gui]
-
-theme/custom="res://ui/theme.tres"
-
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

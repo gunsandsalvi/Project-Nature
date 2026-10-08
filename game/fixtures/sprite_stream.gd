@@ -3,6 +3,7 @@
 extends Node
 
 signal published(token: int)
+signal detaching(token: int)
 
 const Prepare := preload("res://fixtures/sprite_prepare.gd")
 const CHANNELS := ["colour", "normal", "material"]
@@ -15,16 +16,20 @@ var _job: Dictionary = {}
 var _upload: Dictionary = {}
 var _resident: Dictionary = {}
 var _retired_gpu: Dictionary = {}
+var _retired_bundles: Dictionary = {}
 var _upload_cooldown := 0
 var _retired_allocations: Dictionary = {}
 
 
 static func service(tree: SceneTree) -> Node:
-	var found := tree.root.get_node_or_null("SpriteStream")
+	var found: Node = tree.get_meta("sprite_stream") if tree.has_meta("sprite_stream") else null
+	if found == null:
+		found = tree.root.get_node_or_null("SpriteStream")
 	if found == null:
 		found = load("res://fixtures/sprite_stream.gd").new()
 		found.name = "SpriteStream"
-		tree.root.add_child(found)
+		tree.set_meta("sprite_stream", found)
+		tree.root.add_child.call_deferred(found)
 	return found
 
 
@@ -45,7 +50,10 @@ func bundle(token: int) -> Dictionary:
 
 func release(token: int) -> void:
 	# Caller has removed its sprite/polygon references before this acknowledgement.
+	detaching.emit(token)
 	ledger.cancel(token)
+	if _resident.has(token):
+		_retired_bundles[token] = _resident[token]
 	_resident.erase(token)
 	_retired_gpu[token] = Engine.get_process_frames() + 2
 
@@ -165,6 +173,7 @@ func _dispose_retired() -> void:
 		if owned.get(token, false):
 			continue
 		if Engine.get_process_frames() >= int(_retired_gpu[token]):
+			_retired_bundles.erase(token)
 			ledger.disposed(token, "prepared")
 			ledger.disposed(token, "gpu")
 			_retired_gpu.erase(token)

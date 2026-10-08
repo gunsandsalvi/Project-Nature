@@ -441,8 +441,8 @@ Optional ID annotations locate evidence; they do not certify full acceptance. Ol
 
 ### A17.0 Traps met so far
 
-- Direct Examples startup currently hits parent-busy `add_child` and blank rendering; main-scene navigation works. Test both routes.
-- Fresh import showed missing bitmap-font resource and generated script UIDs; a second import succeeding is not clean-import reproducibility.
+- Direct Examples startup once hit parent-busy `add_child`; the shared stream attaches deferred and both entry routes have regressions. Test both routes.
+- Load the bitmap theme at runtime, after import; loading it as the project theme blocked a fresh font import. Commit generated script UIDs; a second import succeeding is not clean-import reproducibility.
 - Movie Maker uses project/override window dimensions. Assert actual viewport size; naming a driver alone can select Forward+ unless renderer is also named.
 - Headless input drops touch events; use the display-backed harness. A control draws behind its children; wrapping labels need container layout before measurement.
 - Reapply the runtime frame cap after swapchain creation; the phone otherwise stayed at 120 Hz. Thermal forecasts require regular polling.
