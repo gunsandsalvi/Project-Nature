@@ -290,7 +290,8 @@ godot_step() {
 
 tools_step() {
   echo "== 5 tools"
-  python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
+  # The software-rendered 3D area, calibration and shimmer captures are explicit audit work.
+  KD_CHECK_QUICK=$((1 - AUDIT)) python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
   echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed"
   quiet python3 tools/signing-key.py selftest
   SELF="$(python3 tools/filecheck.py selftest)" || { echo "$SELF"; exit 1; }

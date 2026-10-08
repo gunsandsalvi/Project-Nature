@@ -119,7 +119,7 @@ For the AI agent building a step:
 5. **Deliver** (`PRC-11`, A2.3):
    - the signed APK in `dist/`, when the step has one;
    - the note: what is new, what to try, what is rough, the items touched and the links, published at the note's link.
-6. **Check, once:** `tools/check.sh --deliver` passes (`PRC-10`). It checks the already signed APK without rebuilding it. `tools/check.sh --audit` separately runs the wider compiler and sanitizer matrix, recovery and scene stress, native analysis and full scenario benchmark (A17); `--audit --deliver` also checks a throwaway-key export. Every routine check retains host tests and the accepted M1 one/four-thread proof suites.
+6. **Check, once:** `tools/check.sh --deliver` passes (`PRC-10`). It checks the already signed APK without rebuilding it. `tools/check.sh --audit` separately runs the wider compiler and sanitizer matrix, recovery and scene stress, native analysis, full scenario benchmark and software-rendered visual suites (A17); `--audit --deliver` also checks a throwaway-key export. Every routine check retains host tests and the accepted M1 one/four-thread proof suites.
 7. **Review** (`PRC-09`), as you set on 5 October 2026:
    - The builder reviews each lettered step itself: each new test made to fail once, the numbers checked against how they were measured, and the pictures looked at.
    - At the last step of each numbered alpha, the builder reviews the whole alpha the same way, against its sections and the items it claims.

@@ -222,7 +222,10 @@ READY = (
 )  # fmt: skip
 
 
-@unittest.skipUnless(READY, "needs Godot, Xvfb, the built extension and the kindling tool")
+@unittest.skipUnless(
+    READY and os.environ.get("KD_CHECK_QUICK") != "1",
+    "visual audit: needs Godot, Xvfb, built tools and a run without KD_CHECK_QUICK=1",
+)
 class TheScenesDrawnInTheCloud(unittest.TestCase):
     # checks: PLT-04 RES-09
     def test_every_variant_draws_what_its_scene_states_and_the_code_reads(self):
