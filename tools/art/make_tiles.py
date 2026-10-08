@@ -15,9 +15,15 @@ build/sim/kindling).
 A recipe with a `key` colour (and a `bleed` colour) makes the water's marks instead: pictures of light marks on that
 colour, nothing calibrated or flattened, whose coded levels (a `keep` percent each) come from tiles.reduce_marks and
 which are written as RGBA, everything but the marks see-through. A `flatten` of 0 leaves a tile's border as it is (for
-a ground of big marks such as cobbles, which flattening would wash out). A tile with a `strip` (a hide's) has the
-first `strip_width` columns of that drawing, a pattern of `strip_period` rows read from a drawing of `strip_cells` cells
-across, repeated down every version's first columns: the seam strip the hide's parts wear along their edges.
+a ground of big marks such as cobbles, which flattening would wash out). A drawn tile's `join_weight` (default 1.5) is
+how much the choice of its shared ring counts a smooth join: for a ground whose marks cross every band (a web of cracks)
+set it to 0, or the ring is cut where no crack crosses and every tile edge shows as a calm line. A tile with a `strip`
+(a hide's) has the first `strip_width` columns of that drawing, a pattern of `strip_period` rows read from a drawing
+of `strip_cells` cells across, repeated down every version's first columns: the seam strip the hide's parts wear along
+their edges. A tile with a `snap` (the cells' size in picture pixels) is a drawing on no exact grid, whose cells are
+found (or, with `cells`, counted: that many across the whole picture); if the drawing is larger than a tile and does
+not wrap, its versions are quilted from it; if it is a wrapping picture of one tile (`wraps`), it is put on its cells
+and made versions of as any wrapping tile is (the signed-off sheets of the cliff's rock).
 
 Implements PRE-20, PRE-22 and PRE-46, see A5.3 and A5.4.
 """
@@ -117,15 +123,17 @@ def make_tile(spec, reference, seed, key=None, given=None):
     `key` colour the tile is one of marks on a see-through ground (the water's): its pictures are drawn on that colour,
     nothing about them is calibrated or flattened, and its levels below the first are made by tiles.reduce_marks."""
     snap = spec.get("snap")  # the cells' size of the tile's pictures when they are drawings that sit on no grid
-    first, block, loss = given if given is not None else picture(spec["sheet"], snap)
+    cells = spec.get("cells")  # with `wraps`: the picture's cells across, a drawing that wraps and is made one tile
+    wraps = bool(spec.get("wraps"))
+    first, block, loss = given if given is not None else picture(spec["sheet"], snap, cells)
     calibration = ""
     if reference is not None and key is None:
         first, calibration = fit.calibrate(first, reference, float(spec.get("contrast", 100)))
     extras = [
-        (picture(p, snap)[0] if key is not None else fit.calibrate(picture(p, snap)[0], first)[0])
+        (picture(p, snap, cells)[0] if key is not None else fit.calibrate(picture(p, snap, cells)[0], first)[0])
         for p in spec.get("extra", [])
     ]
-    if snap:
+    if snap and not wraps:
         first, *extras = common_size([first, *extras])
     flatten = 0 if key is not None else spec.get("flatten")
     drawn = {t["level"]: t for t in spec.get("level", []) if "pictures" in t}
@@ -144,7 +152,7 @@ def make_tile(spec, reference, seed, key=None, given=None):
         sources = common_size([p for p, _ in pairs]) if hint else [p for p, _ in pairs]
         pictures.append(sources)
         calibrations.append(pairs[0][1])
-    if snap:
+    if snap and not wraps:
         versions = tiles.make_versions_open(
             [first, *extras],
             spec["versions"],
@@ -153,6 +161,8 @@ def make_tile(spec, reference, seed, key=None, given=None):
             spec["patch"],
             seed,
             spec.get("texels", 256),
+            flatten=spec.get("flatten") or 0,
+            join_weight=float(spec.get("join_weight", 1.5)),
         )
         shift = None
     else:

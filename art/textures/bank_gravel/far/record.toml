@@ -1,0 +1,79 @@
+about = "river-bank gravel: rounded stones from a pea to a fist packed with sand, drifts of pale sand between (bigger stones are pieces of their own); far tile, 64.0 m across, version 1"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/bank_gravel/middle-A.webp", "art/sources/bank_gravel/middle-B.webp", "art/sources/bank_gravel/near-sheet.webp"]
+original_sha256 = ["6fac9941d2e87819b68e03fbd343f59bdb040fca28a84d636ada78baa133a8a1", "be1a83d059c9bd91aabfe211f32d95a920fe290715729f705e18004910d9d95f", "e4405d5086ed3f7500a96c7679425629fa12d5b83d674a170648e9671ff0fb81"]
+c2pa = ["present", "present", "absent"]
+requests = []
+made = "drawn by the artist in conversation with the art lane, judged in the game's view against sheet 1.4's camera views, and put on the texture-pixel grid by code; version 1 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; rounded stones, gravel and sand only, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/bank_gravel/far/b4.png"
+sha256 = "0c63a8ce4accf7d69f3f46f5f3ef683575d2113baa8155866a56fc5722ec8088"
+way = "by code: a mosaic of 4 x 4 of the middle tile's versions at their level 2 (a pixel there as wide as this tile's, so the ladder of bands goes on without a break), each cell one version by chance, then every version quilted from it in patches of 64 round a shared ring"
+regrid_loss = "none: made by code from levels already on the grid"
+calibration = "lightness +0.2; hue -0.1; colourfulness 101%; contrast 100%; then its colours' distance from the first version's mean made 185% of itself, the same for every version"
+
+[[band]]
+level = 1
+file = "art/textures/bank_gravel/far/b5.png"
+sha256 = "fe14ee37e84f161b5a7ddc8450157c3e4b9219a84419dc911f839f57792b8ce6"
+made_from = "0c63a8ce4accf7d69f3f46f5f3ef683575d2113baa8155866a56fc5722ec8088"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.59; lightness -0.0; hue -0.0; colourfulness 100%; contrast 106%; then its colours' distance from the first version's mean made 185% of itself, the same for every version"
+
+[[band]]
+level = 2
+file = "art/textures/bank_gravel/far/b6.png"
+sha256 = "e755d15d44b7df3adf1d99541f20cffc4157b77d2cb3018ef9eb95d4f2074059"
+made_from = "fe14ee37e84f161b5a7ddc8450157c3e4b9219a84419dc911f839f57792b8ce6"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.45; lightness -0.0; hue +0.0; colourfulness 100%; contrast 104%; then its colours' distance from the first version's mean made 185% of itself, the same for every version"
+
+[[band]]
+level = 3
+file = "art/textures/bank_gravel/far/b7.png"
+sha256 = "3a6e026b4209fd1a92940092d4d0f98c61665fd035db6347dc6742b073e051e2"
+made_from = "e755d15d44b7df3adf1d99541f20cffc4157b77d2cb3018ef9eb95d4f2074059"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/bank_gravel/far/b8.png"
+sha256 = "516ab38735b185fe89f4eb681edbe00629882a25bf7a7e5a7b7f4f8e620b0d9b"
+made_from = "3a6e026b4209fd1a92940092d4d0f98c61665fd035db6347dc6742b073e051e2"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/bank_gravel/far/b9.png"
+sha256 = "2c544f123b45c237ce0896061eccf36b1f95701555c4f3e29bf7e0849c2471bd"
+made_from = "516ab38735b185fe89f4eb681edbe00629882a25bf7a7e5a7b7f4f8e620b0d9b"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/bank_gravel/far/b10.png"
+sha256 = "cd48160c41192e5dc89e5d8e988631eb68e5146befd714049d50dbea9636c8f2"
+made_from = "2c544f123b45c237ce0896061eccf36b1f95701555c4f3e29bf7e0849c2471bd"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/bank_gravel/far/b11.png"
+sha256 = "d4e2215c8aaddb32f1d2fbdf6810d25dc38c416e44c06134c80d0f4e86d6d6e1"
+made_from = "cd48160c41192e5dc89e5d8e988631eb68e5146befd714049d50dbea9636c8f2"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/bank_gravel/far/b12.png"
+sha256 = "b6b843e168ed8e726a1cd92c04cfdcb11138759c6a4660a5c85331f289aadd10"
+made_from = "d4e2215c8aaddb32f1d2fbdf6810d25dc38c416e44c06134c80d0f4e86d6d6e1"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

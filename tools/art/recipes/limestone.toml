@@ -1,0 +1,55 @@
+# The limestone's textures (catalogue 2.7): what tools/art/make_tiles.py reads to make art/textures/limestone/ from the
+# sheet's tiles kept in art/sources/limestone/. The pale layered rock of the camp's cliff, its face seen straight on in
+# flat light: beds that thicken and pinch out, joints, ledges and solution pits. Nothing here is random: the same recipe
+# gives the same bytes.
+name = "limestone"
+about = "the pale layered limestone of the camp's cliff, its face seen straight on: beds that thicken and pinch out, joints, ledges and pits (caves, stains, soot and scree are pieces of their own)"
+seed = 2701
+reference = "near"
+# every tile is moved to the colour of the sheet's own near tile; the sheet's three tiles differ by under two in lightness
+colour_from = "art/sources/limestone/near-sheet.webp"
+how = "the sheet's own tiles (each a wrapping picture of 256 cells across, put on the texture-pixel grid by code), their versions quilted from them round a shared ring"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; pale layered rock only, no caves, stains, soot, lichen or scree"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+# The near tile: the sheet's tile, a wrapping picture of 256 cells across (cells of about 5 picture pixels, so exactly 256
+# are asked of it), quilted into four versions that share a ring. Its bands are horizontal, so a quilt cut along a bed
+# is hard to see; its tone near the border is flattened so no join shows as a line.
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 24
+patch = 96
+flatten = 16
+serves = 2
+snap = 5
+cells = 256
+wraps = true
+sheet = "art/sources/limestone/near-sheet.webp"
+
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+flatten = 16
+serves = 2
+snap = 5
+cells = 256
+wraps = true
+sheet = "art/sources/limestone/middle-sheet.webp"
+
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 24
+patch = 64
+flatten = 16
+serves = 3
+snap = 5
+cells = 256
+wraps = true
+sheet = "art/sources/limestone/far-sheet.webp"

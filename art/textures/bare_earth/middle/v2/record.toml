@@ -1,0 +1,78 @@
+about = "open dry ground: plates of crust with a web of thin cracks, crumbs and grit on them (stones are pieces of their own); middle tile, 16.0 m across, version 2"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 16
+first_band = 2
+sources = ["art/sources/bare_earth/middle-A.webp", "art/sources/bare_earth/middle-B.webp", "art/sources/bare_earth/near-sheet.webp"]
+original_sha256 = ["c158bcfe00b5d5eb7f8195068412ae91dcdac5615e419044abbaa65b322c8d57", "b9075d4062053eb53ed496b73b13f42771c2716476a1827d3c4327b45fcc304e", "bd1b1952de7acb9b82ad93397a26b41b1564ff6e54c7bbd7b71a0dc661453550"]
+c2pa = ["present", "present", "present"]
+requests = ["art/requests/bare_earth/turn-01.txt"]
+made = "drawn by the artist in conversation with the art lane, judged in the game's view against sheet 1.3's camera views, and put on the texture-pixel grid by code; version 2 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "11.1%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; cracked crust, crumbs and grit only, no stones, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/bare_earth/middle/v2/b2.png"
+sha256 = "5a3d6e71f4a50e3d312bb13f851ddf02bbb51382167528c2d9776f409011a991"
+way = "the drawing put on its own grid (cells of about 4 picture pixels, loss 11.1%), moved to the reference's colour; every version quilted from the drawings in patches of 64 round a ring cut from where the first drawing's edges are most ordinary, so none is the drawing itself and any two join without a seam"
+regrid_loss = "11.1%"
+calibration = "lightness -3.8; hue -1.4; colourfulness 96%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/bare_earth/middle/v2/b3.png"
+sha256 = "12fd6039d1bb67003b0b67a3156bb983c1d8f5eda2ac0d7f672798625972cd2e"
+made_from = "5a3d6e71f4a50e3d312bb13f851ddf02bbb51382167528c2d9776f409011a991"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.38; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/bare_earth/middle/v2/b4.png"
+sha256 = "b256420a100f9039b524400da2a9ce9cb78f211fde1edd15c484c45109eb87ec"
+made_from = "12fd6039d1bb67003b0b67a3156bb983c1d8f5eda2ac0d7f672798625972cd2e"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/bare_earth/middle/v2/b5.png"
+sha256 = "cc3d989100f6ab513a787539a41e8f67ee7bf01d9c302419d1489d312094493a"
+made_from = "b256420a100f9039b524400da2a9ce9cb78f211fde1edd15c484c45109eb87ec"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/bare_earth/middle/v2/b6.png"
+sha256 = "74d5873551f29dad97bc84096ce7d6001a7fdc89298cc1d1c3ff3b9439f355a5"
+made_from = "cc3d989100f6ab513a787539a41e8f67ee7bf01d9c302419d1489d312094493a"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/bare_earth/middle/v2/b7.png"
+sha256 = "e736d7c5fa1703e6d95e5118d7bf2509692531974e6c5f5252c78b9b696212bc"
+made_from = "74d5873551f29dad97bc84096ce7d6001a7fdc89298cc1d1c3ff3b9439f355a5"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/bare_earth/middle/v2/b8.png"
+sha256 = "5d10c1a3ce24c69a452ace74d72caeea7ddd6fdaa8db19d07f71b36e30a93258"
+made_from = "e736d7c5fa1703e6d95e5118d7bf2509692531974e6c5f5252c78b9b696212bc"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/bare_earth/middle/v2/b9.png"
+sha256 = "191fd024208397e3ed4658c5b5b0106cccefac1f4fbf949040a69500c6cc01b5"
+made_from = "5d10c1a3ce24c69a452ace74d72caeea7ddd6fdaa8db19d07f71b36e30a93258"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/bare_earth/middle/v2/b10.png"
+sha256 = "f9439a36d5c607e54134535e735bc28e0792cc6e7b827638033df7fbe2c957be"
+made_from = "191fd024208397e3ed4658c5b5b0106cccefac1f4fbf949040a69500c6cc01b5"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

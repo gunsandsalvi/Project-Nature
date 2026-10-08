@@ -1,0 +1,58 @@
+# The trodden ground's textures (catalogue 1.2): what tools/art/make_tiles.py reads to make art/textures/wear/ from the
+# picture kept in art/sources/wear/. The worn surface the world lays over any ground where people walk: the fully worn
+# packed earth, calm and mottled, with a few small stones. Nothing here is random: the same recipe gives the same bytes.
+name = "wear"
+about = "packed earth worn by feet: a calm mottled surface of crumbs and small stones, the fully worn layer the world lays over the ground"
+seed = 1201
+reference = "near"
+how = "the sheet's own worn-surface tile (exact on the texture-pixel grid), its versions quilted from it and its coarser tiles made by code from its own coarser levels"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; packed earth and a few small stones only, no grass, no cracks, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+# The near tile: the sheet's tile, which wraps and is already on the grid, quilted into four versions that share a ring.
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+serves = 2
+sheet = "art/sources/wear/near-sheet.webp"
+
+# The middle and far tiles go on from the near tile's ladder: a 4 x 4 mosaic of the nearer tile's versions at their
+# level 2, whose pixels are as wide as these tiles' own. A quiet ground stays quiet (A4.8 expects the trodden floor's
+# accents to be low: 4 to 5), but each band must keep 90% of band 0's, and a mottle this calm averages out as the
+# bands go on (4.4, 3.2, 2.5 measured on the frames), so its contrast is raised a little to hold them.
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+serves = 2
+coarse_of = "near"
+coarse_level = 2
+boost = 145
+
+[[tile.level]]
+level = 1
+boost = 145
+
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 24
+patch = 64
+serves = 3
+coarse_of = "middle"
+coarse_level = 2
+boost = 130
+
+[[tile.level]]
+level = 1
+boost = 130
+
+[[tile.level]]
+level = 2
+boost = 130
