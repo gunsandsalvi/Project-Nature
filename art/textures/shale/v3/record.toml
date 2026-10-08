@@ -1,0 +1,78 @@
+about = "dark grey-brown shale splitting into thin crumbly layers, broken back into small flaky steps, with faint rust in places; near tile, 4.0 m across, version 3"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/shale/near-sheet.webp"]
+original_sha256 = ["328d9a6dbacf280a404c171e3f6ed446b974b8aee6d1ed4a41afda81ee757ae4"]
+c2pa = ["absent"]
+requests = []
+made = "the sheet's own tiles (each already on the texture-pixel grid, a block of 2 x 2 picture pixels a texture pixel), their versions quilted from them round a shared ring; version 3 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 1 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; dark layered rock and faint rust only, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/shale/v3/b0.png"
+sha256 = "f7bdf11035d15103e76434bb0ff0be50836913dd4140b3b7e5a030ba0163c991"
+way = "the tile's picture (a block of 2, loss 0.0%), moved to the reference's colour, its inside quilted from the tile's pictures in patches of 64 round the shared ring"
+regrid_loss = "0.0%"
+calibration = "lightness +0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/shale/v3/b1.png"
+sha256 = "f0c663762bdfa5e60b21563590e036d992e81831a288fd9d626e5c2d403305fc"
+made_from = "f7bdf11035d15103e76434bb0ff0be50836913dd4140b3b7e5a030ba0163c991"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.68; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/shale/v3/b2.png"
+sha256 = "480d7bf1bf5b86070b1204396da4d25c9cb339cd1f9d4b0469c31ac47dcad4f9"
+made_from = "f0c663762bdfa5e60b21563590e036d992e81831a288fd9d626e5c2d403305fc"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 3
+file = "art/textures/shale/v3/b3.png"
+sha256 = "32cd276ecc372628a9af687f00088d6d42a7caa51bf8d988ac790dc1f386e104"
+made_from = "480d7bf1bf5b86070b1204396da4d25c9cb339cd1f9d4b0469c31ac47dcad4f9"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/shale/v3/b4.png"
+sha256 = "1a9a88aab5d9d1d0c2befc2c1662eeab5652f6d10ac43568016aeb4029ead2ba"
+made_from = "32cd276ecc372628a9af687f00088d6d42a7caa51bf8d988ac790dc1f386e104"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/shale/v3/b5.png"
+sha256 = "61cefe76c7ab70b71ad13df1553d70bb3f87ba677577e8293b315a06304fbe6d"
+made_from = "1a9a88aab5d9d1d0c2befc2c1662eeab5652f6d10ac43568016aeb4029ead2ba"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/shale/v3/b6.png"
+sha256 = "b3a4662d68d78ae4d013062fe4b4a7b811beb00bfd8bb0a3f520399dacd19039"
+made_from = "61cefe76c7ab70b71ad13df1553d70bb3f87ba677577e8293b315a06304fbe6d"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/shale/v3/b7.png"
+sha256 = "eaccabd1b7615976acf515c7ddb540897067f7b06f61cf5c4d6c6632aff70fa0"
+made_from = "b3a4662d68d78ae4d013062fe4b4a7b811beb00bfd8bb0a3f520399dacd19039"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/shale/v3/b8.png"
+sha256 = "2765f0e249f5c8ea99b8683879b0003b281bbf8888d9bfd8ebe83e5a20f4ea1c"
+made_from = "eaccabd1b7615976acf515c7ddb540897067f7b06f61cf5c4d6c6632aff70fa0"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

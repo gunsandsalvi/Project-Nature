@@ -1,0 +1,74 @@
+# The bare earth's textures (catalogue 1.3): what tools/art/make_tiles.py reads to make art/textures/bare_earth/ from the
+# pictures kept in art/sources/bare_earth/. Open dry ground: cracked crust, crumbs and grit. Nothing here is random: the
+# same recipe gives the same bytes.
+name = "bare_earth"
+about = "open dry ground: plates of crust with a web of thin cracks, crumbs and grit on them (stones are pieces of their own)"
+seed = 1301
+reference = "near"
+# every tile is moved to the colour of the sheet's own near tile, so the mean is the signed-off sheet's
+colour_from = "art/sources/bare_earth/near-sheet.webp"
+how = "drawn by the artist in conversation with the art lane, judged in the game's view against sheet 1.3's camera views, and put on the texture-pixel grid by code"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; cracked crust, crumbs and grit only, no stones, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+# The near tile: two drawings from the image tool, cells of about 4 picture pixels (snap), each larger than a tile and
+# wrapping nowhere, so every version is quilted from both round a ring cut from the first. The cracks cross every band
+# of the ground, so the ring is cut where they cross (join_weight 0: a smooth join is not asked for) and its broad tone
+# is flattened, so no tile edge shows as a calm line.
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 24
+patch = 96
+flatten = 16
+join_weight = 0
+serves = 2
+snap = 4
+# A4.8 asks for accents of about 20 on the screen; the sheet's camera view scores 14.8 and the game's frame of the
+# drawings 12.3, so the contrast is raised a fifth
+boost = 120
+sheet = "art/sources/bare_earth/near-A.webp"
+extra = ["art/sources/bare_earth/near-B.webp"]
+requests = ["art/requests/bare_earth/turn-01.txt"]
+
+[[tile.level]]
+level = 1
+boost = 120
+
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+flatten = 16
+join_weight = 0
+serves = 2
+snap = 4
+sheet = "art/sources/bare_earth/middle-A.webp"
+extra = ["art/sources/bare_earth/middle-B.webp"]
+requests = ["art/requests/bare_earth/turn-01.txt"]
+
+# The far tile goes on from the middle tile's ladder (a mosaic of its versions at their level 2), so band 4 follows
+# band 3 and nothing in it repeats as a swathe; its broad paler and darker patches are the world's patch picture's. A
+# web of fine cracks averages out at these bands, so its contrast is raised to keep the accents of the bands above.
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 24
+patch = 64
+flatten = 16
+serves = 3
+coarse_of = "middle"
+coarse_level = 2
+boost = 200
+
+[[tile.level]]
+level = 1
+boost = 200
+
+[[tile.level]]
+level = 2
+boost = 200

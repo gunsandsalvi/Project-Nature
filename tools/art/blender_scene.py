@@ -23,23 +23,22 @@ def argument():
     return json.load(open(sys.argv[sys.argv.index("--") + 1]))
 
 
-def ground(cfg):
-    """The ground: a flat quad over the metres the picture covers, its pixels read nearest."""
-    g = cfg["ground"]
-    x0, x1, y0, y1 = g["x0"], g["x1"], g["y0"], g["y1"]
-    mesh = bpy.data.meshes.new("ground")
-    mesh.from_pydata([(x0, y0, 0), (x1, y0, 0), (x1, y1, 0), (x0, y1, 0)], [], [(0, 1, 2, 3)])
+def textured_quad(name, corners, picture):
+    """A flat quad with a picture read nearest-pixel over it, its four corners (counter-clockwise seen from the front:
+    bottom left, bottom right, top right, top left) taking the picture's corners; lit like the rest."""
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(corners, [], [(0, 1, 2, 3)])
     uv = mesh.uv_layers.new(name="uv")
     for loop, (u, v) in zip(mesh.loops, [(0, 0), (1, 0), (1, 1), (0, 1)], strict=True):
         uv.data[loop.index].uv = (u, v)
-    obj = bpy.data.objects.new("ground", mesh)
+    obj = bpy.data.objects.new(name, mesh)
     bpy.context.scene.collection.objects.link(obj)
-    mat = bpy.data.materials.new("ground")
+    mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
     nodes.clear()
     tex = nodes.new("ShaderNodeTexImage")
-    tex.image = bpy.data.images.load(g["picture"])
+    tex.image = bpy.data.images.load(picture)
     tex.image.colorspace_settings.name = "sRGB"
     tex.interpolation = "Closest"
     tex.extension = "EXTEND"
@@ -48,6 +47,21 @@ def ground(cfg):
     links.new(tex.outputs["Color"], bsdf.inputs["Color"])
     links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     mesh.materials.append(mat)
+
+
+def ground(cfg):
+    """The ground: a flat quad over the metres the picture covers, its pixels read nearest."""
+    g = cfg["ground"]
+    x0, x1, y0, y1 = g["x0"], g["x1"], g["y0"], g["y1"]
+    textured_quad("ground", [(x0, y0, 0), (x1, y0, 0), (x1, y1, 0), (x0, y1, 0)], g["picture"])
+
+
+def wall(cfg):
+    """A wall standing on the ground's middle line, facing the camera (south): a vertical quad over the metres the
+    picture covers, `x0` to `x1` east and `z0` to `z1` up, its pixels read nearest."""
+    w = cfg["wall"]
+    x0, x1, z0, z1 = w["x0"], w["x1"], w["z0"], w["z1"]
+    textured_quad("wall", [(x0, 0, z0), (x1, 0, z0), (x1, 0, z1), (x0, 0, z1)], w["picture"])
 
 
 def camera(cfg):
@@ -263,6 +277,8 @@ def main():
     scene.display_settings.display_device = "sRGB"
     if "ground" in cfg:
         ground(cfg)
+    if "wall" in cfg:
+        wall(cfg)
     parts(cfg)
     if "assemble" in cfg:
         assemble(cfg)

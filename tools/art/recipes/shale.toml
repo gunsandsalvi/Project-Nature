@@ -1,0 +1,40 @@
+# The shale's textures (catalogue 2.6): what tools/art/make_tiles.py reads to make art/textures/shale/ from the sheet's
+# tiles kept in art/sources/shale/. Dark grey-brown rock splitting into thin crumbly layers, its face seen straight on in
+# flat light, with faint rust in places. It lies under the limestone in the camp's cliff. Nothing here is random: the
+# same recipe gives the same bytes.
+name = "shale"
+about = "dark grey-brown shale splitting into thin crumbly layers, broken back into small flaky steps, with faint rust in places"
+seed = 2601
+reference = "near"
+# every tile is moved to the colour of the sheet's own near tile; the sheet's three tiles differ by under one in lightness
+colour_from = "art/sources/shale/near-sheet.webp"
+how = "the sheet's own tiles (each already on the texture-pixel grid, a block of 2 x 2 picture pixels a texture pixel), their versions quilted from them round a shared ring"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; dark layered rock and faint rust only, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[tile]]
+tile = "near"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+serves = 2
+sheet = "art/sources/shale/near-sheet.webp"
+
+[[tile]]
+tile = "middle"
+versions = 4
+ring = 4
+overlap = 16
+patch = 64
+serves = 2
+sheet = "art/sources/shale/middle-sheet.webp"
+
+[[tile]]
+tile = "far"
+versions = 4
+ring = 4
+overlap = 24
+patch = 64
+serves = 3
+sheet = "art/sources/shale/far-sheet.webp"

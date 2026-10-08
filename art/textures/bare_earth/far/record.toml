@@ -1,0 +1,79 @@
+about = "open dry ground: plates of crust with a web of thin cracks, crumbs and grit on them (stones are pieces of their own); far tile, 64.0 m across, version 1"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/bare_earth/middle-A.webp", "art/sources/bare_earth/middle-B.webp", "art/sources/bare_earth/near-sheet.webp"]
+original_sha256 = ["c158bcfe00b5d5eb7f8195068412ae91dcdac5615e419044abbaa65b322c8d57", "b9075d4062053eb53ed496b73b13f42771c2716476a1827d3c4327b45fcc304e", "bd1b1952de7acb9b82ad93397a26b41b1564ff6e54c7bbd7b71a0dc661453550"]
+c2pa = ["present", "present", "present"]
+requests = []
+made = "drawn by the artist in conversation with the art lane, judged in the game's view against sheet 1.3's camera views, and put on the texture-pixel grid by code; version 1 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; cracked crust, crumbs and grit only, no stones, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/bare_earth/far/b4.png"
+sha256 = "e41c2aedd0bb22349d4c3a00bfc490831dbae9d8d868bd459262643dcbd79520"
+way = "by code: a mosaic of 4 x 4 of the middle tile's versions at their level 2 (a pixel there as wide as this tile's, so the ladder of bands goes on without a break), each cell one version by chance, then every version quilted from it in patches of 64 round a shared ring"
+regrid_loss = "none: made by code from levels already on the grid"
+calibration = "lightness -0.1; hue -0.2; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 200% of itself, the same for every version"
+
+[[band]]
+level = 1
+file = "art/textures/bare_earth/far/b5.png"
+sha256 = "40228af8ab1ab5d962bb9f73e2e2cecc089230c28df374dd1adcda94aa481368"
+made_from = "e41c2aedd0bb22349d4c3a00bfc490831dbae9d8d868bd459262643dcbd79520"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.90; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 200% of itself, the same for every version"
+
+[[band]]
+level = 2
+file = "art/textures/bare_earth/far/b6.png"
+sha256 = "c79ba59de6598d115b5315706017f91039e902b845a61374848cd46a1fd92b89"
+made_from = "40228af8ab1ab5d962bb9f73e2e2cecc089230c28df374dd1adcda94aa481368"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 1.09; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%; then its colours' distance from the first version's mean made 200% of itself, the same for every version"
+
+[[band]]
+level = 3
+file = "art/textures/bare_earth/far/b7.png"
+sha256 = "7f8099aabf82e87841b14c6a755d2b7c77df56a84fb624231f3355381e15003d"
+made_from = "c79ba59de6598d115b5315706017f91039e902b845a61374848cd46a1fd92b89"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/bare_earth/far/b8.png"
+sha256 = "2e393489a83dbc04f46becbc20b75927745783120e40075fbffdba4f1631f501"
+made_from = "7f8099aabf82e87841b14c6a755d2b7c77df56a84fb624231f3355381e15003d"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/bare_earth/far/b9.png"
+sha256 = "59bb0535f18f96364167a7b80bc00b51686aa283a874e18c9d524c4bf2a948ff"
+made_from = "2e393489a83dbc04f46becbc20b75927745783120e40075fbffdba4f1631f501"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/bare_earth/far/b10.png"
+sha256 = "c258683c796a412e5f99d1e6f488a8822a0db384887ab52253da99663d3bf96f"
+made_from = "59bb0535f18f96364167a7b80bc00b51686aa283a874e18c9d524c4bf2a948ff"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/bare_earth/far/b11.png"
+sha256 = "397248ce745636927bebe133db987d2b465213552bf24c3f8b7e1fce611c82c0"
+made_from = "c258683c796a412e5f99d1e6f488a8822a0db384887ab52253da99663d3bf96f"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/bare_earth/far/b12.png"
+sha256 = "899bdf5acd761af1b76eecb0fdb30d62d01856b3105612b86c90bf57b958f782"
+made_from = "397248ce745636927bebe133db987d2b465213552bf24c3f8b7e1fce611c82c0"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

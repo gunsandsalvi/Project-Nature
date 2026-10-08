@@ -1,0 +1,79 @@
+about = "the pale layered limestone of the camp's cliff, its face seen straight on: beds that thicken and pinch out, joints, ledges and pits (caves, stains, soot and scree are pieces of their own); far tile, 64.0 m across, version 2"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/limestone/far-sheet.webp", "art/sources/limestone/near-sheet.webp"]
+original_sha256 = ["b3de4d5a3c7a2b130fbc5e0748d739d323eaed2be21bfc2f273d327b7b4474e5", "7acd17ac4b864a3e9dc8a6aa2eb7a3a246ade3fa0bdbebc3c6142ba47e0c94cd"]
+c2pa = ["present", "absent"]
+requests = []
+made = "the sheet's own tiles (each a wrapping picture of 256 cells across, put on the texture-pixel grid by code), their versions quilted from them round a shared ring; version 2 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "16.3%: the drawing sits on no exact grid, its cells found and each made one pixel (the share of its pixels that differ from their cell's colour)"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; pale layered rock only, no caves, stains, soot, lichen or scree"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/limestone/far/v2/b4.png"
+sha256 = "d0e9a34d957db0babbd74596e41667678438c1f49b48edcc2dca66a320d5d5b7"
+way = "the tile's picture (a block of 5, loss 16.3%), moved to the reference's colour, its inside quilted from the tile's pictures in patches of 64 round the shared ring"
+regrid_loss = "16.3%"
+calibration = "lightness -0.3; hue -0.9; colourfulness 90%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/limestone/far/v2/b5.png"
+sha256 = "814f8e15a1195f869f1246de9ee22d7546f642fe3efb7e6cc199d3188e78d893"
+made_from = "d0e9a34d957db0babbd74596e41667678438c1f49b48edcc2dca66a320d5d5b7"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.14; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/limestone/far/v2/b6.png"
+sha256 = "fb8e1b128c6cce1a4344db804e14bcba6ebe170dfd360611a28efc79d8a7a989"
+made_from = "814f8e15a1195f869f1246de9ee22d7546f642fe3efb7e6cc199d3188e78d893"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.46; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 3
+file = "art/textures/limestone/far/v2/b7.png"
+sha256 = "4e5b05b2a89383c810528a3187297b709a7d07346f59b0151f42ba21761be05b"
+made_from = "fb8e1b128c6cce1a4344db804e14bcba6ebe170dfd360611a28efc79d8a7a989"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/limestone/far/v2/b8.png"
+sha256 = "6a65a17f36821afca3abdea3753e4d23d875718ea12345479011ade6df3d61a2"
+made_from = "4e5b05b2a89383c810528a3187297b709a7d07346f59b0151f42ba21761be05b"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/limestone/far/v2/b9.png"
+sha256 = "8928deb5d654c356deb213517bd089609d43963fe34c4e65c64ab8df7d527c5f"
+made_from = "6a65a17f36821afca3abdea3753e4d23d875718ea12345479011ade6df3d61a2"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/limestone/far/v2/b10.png"
+sha256 = "1a639627494911aa90397120a6036a6f985c6bb7a6c27387f247493139e11aac"
+made_from = "8928deb5d654c356deb213517bd089609d43963fe34c4e65c64ab8df7d527c5f"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/limestone/far/v2/b11.png"
+sha256 = "d3048fe955fdaa4eaceeb89263428c91ccb002d0a02648cfa8f8d50888f57683"
+made_from = "1a639627494911aa90397120a6036a6f985c6bb7a6c27387f247493139e11aac"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/limestone/far/v2/b12.png"
+sha256 = "35f17b418a7b5f19f1412ac85c62a0d95617b7de7bf452fa1058130192c06995"
+made_from = "d3048fe955fdaa4eaceeb89263428c91ccb002d0a02648cfa8f8d50888f57683"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"

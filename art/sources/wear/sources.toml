@@ -1,0 +1,7 @@
+# The sources beside this file (A5.4): each picture's original's SHA-256, whether it carried its C2PA
+# record, and what it is. Written by tools/art/ingest.py.
+
+["near-sheet.webp"]
+sha256 = "ff77a8d27a97983a2a9714d2a3e2a8845ea856fdc21a5b31bb3837a22c1ea0ac"
+c2pa = "absent"
+note = "the worn surface tile of sheet 1.2 (signed off 7 October 2026): 1024 x 1024, each texture pixel a 4 x 4 block, 256 x 256 texture pixels, the sheet's own near tile"
