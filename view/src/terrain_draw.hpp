@@ -12,6 +12,7 @@ class KdTerrain : public godot::RefCounted {
     GDCLASS(KdTerrain, godot::RefCounted)
 public:
     void scene(const godot::String& name);
+    void set_origin(int64_t east, int64_t north);
     godot::Dictionary set_light(const godot::String& hour, const godot::String& weather, int64_t direction, bool fire);
     godot::Array surfaces() const;
     godot::Array proxies() const;
@@ -30,6 +31,8 @@ protected:
     static void _bind_methods();
 
 private:
+    num::Point source_origin_;
+    bool source_origin_set_ = false;
     terrain::Scene scene_ = terrain::fixture("flat");
     terrain::Light light_;
     terrain::Masks masks_;

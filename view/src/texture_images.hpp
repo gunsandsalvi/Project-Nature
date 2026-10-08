@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <godot_cpp/classes/image.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
 #include <godot_cpp/variant/string.hpp>
 
 namespace kd::view {
@@ -19,6 +20,9 @@ struct ReadLevels {
 
 /// Implements PRE-22, see A5.4: the levels of the file at a path, checked.
 [[nodiscard]] ReadLevels read_levels(const godot::String& path);
+
+/// Implements PRE-22/PLT-04: owned bytes decode to private CPU Images without GPU or scene calls.
+[[nodiscard]] ReadLevels read_levels_bytes(const godot::PackedByteArray& bytes);
 
 /// One image of the levels, its mipmaps our own levels (A5.3).
 [[nodiscard]] godot::Ref<godot::Image> with_levels(const std::vector<godot::Ref<godot::Image>>& images);

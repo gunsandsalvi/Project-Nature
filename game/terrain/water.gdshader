@@ -19,15 +19,15 @@ void fragment() {
     float depth = max(0.0,world_point.z-bed);
     vec2 flow = vec2(sin(world_point.y*3.0+fixture_second*1.3),cos(world_point.x*2.0+fixture_second*0.8));
     vec2 uv = SCREEN_UV;
-    vec3 bottom = texture(bed_background,uv+flow/viewport_size*0.7).rgb;
+    vec3 bottom = fixture_decode(texture(bed_background,uv+flow/viewport_size*0.7).rgb);
     vec4 reflection = texture(reflection_layer,uv);
     vec3 tint = mix(vec3(0.30,0.47,0.43),vec3(0.08,0.19,0.24),clamp(depth/2.0,0.0,1.0));
-    vec3 water_colour = fixture_light(tint,vec3(0.0,0.0,1.0),world_point,texture(visibility_mask,UV),0.0,8);
+    vec3 water_colour = fixture_light_linear(tint,vec3(0.0,0.0,1.0),world_point,texture(visibility_mask,UV),0.0,8);
     vec3 colour = mix(bottom,water_colour,clamp(depth*0.45,0.12,0.65));
-    colour = mix(colour,reflection.rgb,reflection.a*0.18);
+    colour = mix(colour,fixture_decode(reflection.rgb),reflection.a*0.18);
     colour += sky_light*0.09;
     float shore = 1.0-smoothstep(0.0,0.025,min(min(UV.x,1.0-UV.x),min(UV.y,1.0-UV.y)));
     float current = smoothstep(0.97,1.0,sin(world_point.y*6.0+world_point.x*1.1+fixture_second*0.9));
     colour += vec3(0.13,0.15,0.13)*(shore+current*0.22);
-    COLOR = vec4(colour,1.0);
+    COLOR = vec4(fixture_encode(colour),1.0);
 }

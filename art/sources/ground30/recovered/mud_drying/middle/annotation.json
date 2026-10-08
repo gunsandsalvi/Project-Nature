@@ -1,0 +1,32 @@
+{
+  "source": {
+    "board": "mud-drying-r1",
+    "family": "middle",
+    "original": "mud-drying-r1-original.png",
+    "original_sha256": "ef110143e93714e7b66eb995921a54f2a96ae77062709672ff56bd76cb0594eb",
+    "crop": "mud-drying-r1-middle-crop.png",
+    "crop_box": [
+      727,
+      3,
+      1445,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 16,
+    "review": "source candidate; unreviewed export",
+    "id": "mud_drying",
+    "request": "mud-drying-r1.txt",
+    "component_limit_m": 2,
+    "component_limit_cells": 32
+  },
+  "grid_loss": 0.09275028902631109,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review",
+  "quilt_attempts": 3,
+  "quilt_selected": [
+    0,
+    1,
+    2
+  ],
+  "annotation": "puddles"
+}

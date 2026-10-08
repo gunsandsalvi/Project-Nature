@@ -1,0 +1,16 @@
+{
+  "base_size": 16,
+  "line_height": 20,
+  "baseline": 15,
+  "characters": " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°±²³µ·×÷Δαβ–—“”•…←↑→↓↔↕−∞≠≤≥█☐☑⚠✓✔✗✘日本語️",
+  "fallback_symbols": "Δ←↑→↓↔↕█☐☑⚠✓✔✗✘日本語",
+  "question_aliases": "日本語",
+  "source_sha256": "9ba86cd010a4de309d263ceff8e8044092c9db7efda869620cb9ff1c4389e8a5",
+  "missing_fallback": "replace unsupported display character with U+003F question mark; retain full underlying text",
+  "licenses": [
+    "OFL.txt",
+    "DejaVu-LICENSE.txt"
+  ],
+  "filter": "nearest",
+  "scale": "integer only"
+}

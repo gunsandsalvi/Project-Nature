@@ -1,0 +1,75 @@
+about = "mud_drying_v3 near colour: signed design runtime candidate"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 64
+first_band = 0
+sources = ["art/sources/ground30/mud-drying-r1-original.png", "art/sources/ground30/mud-far-r3-original.png", "art/sources/ground30/mud-drying-r1-near-crop.png", "art/sources/ground30/mud-drying-r1-middle-crop.png", "art/sources/ground30/mud_drying-far-r3-crop.png"]
+original_sha256 = ["ef110143e93714e7b66eb995921a54f2a96ae77062709672ff56bd76cb0594eb", "1d6ecea9d4773eacf1e841c8b3ba6dbd68ca6b3e4241ee661c9d5d260edad808", "a82e3896124edbb6e23829486d687d8893711141a8a1ec9fa2125c2c6589162e", "13221ba8b8c4b94a624f6c8539e0462e4c1f9baf47e5abb544101c447dd5e202", "dfc0ad1bbb54de7ce68e3c82ce6607cf53314614e2003912c14cb38f7fecc952"]
+c2pa = ["present", "present", "absent", "absent", "absent"]
+requests = ["art/requests/ground30/production.txt", "art/requests/ground30/mud-drying-r1.txt", "art/requests/ground30/mud-far-r3.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground30/mud_drying_v3/near/colour/b0.png"
+sha256 = "0213de035e72d4a27db397b6cfb6949134f30ef86a74618d84cc63e135fd76e5"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground30/mud_drying_v3/near/colour/b1.png"
+sha256 = "76ce4aca7d03b71b2b6f5bba6cc79b57e76cf53576c0a95b817db94a13781f18"
+made_from = "0213de035e72d4a27db397b6cfb6949134f30ef86a74618d84cc63e135fd76e5"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground30/mud_drying_v3/near/colour/b2.png"
+sha256 = "93a0efc2b716afff2ef9eb51739a390b8673ddee05fd0e5e17f7fa6627e13582"
+made_from = "76ce4aca7d03b71b2b6f5bba6cc79b57e76cf53576c0a95b817db94a13781f18"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground30/mud_drying_v3/near/colour/b3.png"
+sha256 = "e4e90f40b10b863b214c61ce02d49eded8aacae70e1065a7fb27f67a116c44c1"
+made_from = "93a0efc2b716afff2ef9eb51739a390b8673ddee05fd0e5e17f7fa6627e13582"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground30/mud_drying_v3/near/colour/b4.png"
+sha256 = "b46a0c1b0a4366f42c401515e9fadfca191ed654c83ae2bf21258e35ed2064fa"
+made_from = "e4e90f40b10b863b214c61ce02d49eded8aacae70e1065a7fb27f67a116c44c1"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground30/mud_drying_v3/near/colour/b5.png"
+sha256 = "8c6fc915689704ed6c6413682a8a262f65800009ec9bfd96dab52171e7ed7653"
+made_from = "b46a0c1b0a4366f42c401515e9fadfca191ed654c83ae2bf21258e35ed2064fa"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground30/mud_drying_v3/near/colour/b6.png"
+sha256 = "48e45c5403c9fa894277696b62d1f6cc2a426a67b134bd0f253ecde12476764d"
+made_from = "8c6fc915689704ed6c6413682a8a262f65800009ec9bfd96dab52171e7ed7653"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground30/mud_drying_v3/near/colour/b7.png"
+sha256 = "0bd9fdd91a2f806889cc3ce57c5615ecc4060b226ddc1eef298dc5c66a17ac75"
+made_from = "48e45c5403c9fa894277696b62d1f6cc2a426a67b134bd0f253ecde12476764d"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground30/mud_drying_v3/near/colour/b8.png"
+sha256 = "3395f4655466658b176b1f333596b3d6a63c48f9fe711c0ece28b22441eefaa5"
+made_from = "0bd9fdd91a2f806889cc3ce57c5615ecc4060b226ddc1eef298dc5c66a17ac75"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

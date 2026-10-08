@@ -18,6 +18,7 @@ const SIDE := 12.0
 
 ## Each run's value, the range expected ([from, to], or empty) and the rule's bounds on this
 ## measure (null where it sets none).
+var ui_density := 1.0
 var values: Array[int] = []
 var expected: Array = []
 var at_least: Variant = null
@@ -81,9 +82,9 @@ func _draw() -> void:
 	var lo := lo_hi.x
 	var hi := lo_hi.y
 	var w := size.x
-	var base := size.y - LABELS
-	var font := ThemeDB.fallback_font
-	var font_size := 13
+	var base := size.y - LABELS * ui_density
+	var font := get_theme_font("font")
+	var font_size := 16 * ceili(ui_density)
 	if expected.size() == 2:
 		var x0 := x_of(int(expected[0]), lo, hi, w)
 		var x1 := x_of(int(expected[1]), lo, hi, w)
@@ -96,7 +97,11 @@ func _draw() -> void:
 			draw_dashed_line(Vector2(x, 0.0), Vector2(x, base), BOUND, 2.0, 4.0)
 	draw_line(Vector2(SIDE, base), Vector2(w - SIDE, base), AXIS, 1.0)
 	for dot: Vector2 in dots(values, lo, hi, w):
-		draw_circle(Vector2(dot.x, base - RADIUS - 2.0 - dot.y * STEP), RADIUS, DOT)
+		draw_circle(
+			Vector2(dot.x, base - (RADIUS + 2.0 + dot.y * STEP) * ui_density),
+			RADIUS * ui_density,
+			DOT
+		)
 	# the numbers that mean something, under the axis: the rule's bound, the expected range's ends,
 	# and the lowest and highest runs; each where it falls, and left out where it would overlap one
 	# already placed
@@ -108,7 +113,9 @@ func _draw() -> void:
 		var x := clampf(x_of(label[0], lo, hi, w) - wide / 2.0, 0.0, maxf(0.0, w - wide))
 		var free := true
 		for span: Vector2 in placed:
-			free = free and (x + wide + 6.0 <= span.x or x >= span.y + 6.0)
+			free = (
+				free and (x + wide + 8.0 * ui_density <= span.x or x >= span.y + 8.0 * ui_density)
+			)
 		if free:
 			placed.append(Vector2(x, x + wide))
 			draw_string(
@@ -129,3 +136,8 @@ func labels() -> Array[Array]:
 		out.append([values.min(), Worlds.count_words(values.min()), DOT])
 		out.append([values.max(), Worlds.count_words(values.max()), DOT])
 	return out
+
+
+func set_ui_density(value: float) -> void:
+	ui_density = value
+	queue_redraw()

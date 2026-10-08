@@ -1,0 +1,75 @@
+about = "mud_drying far colour: signed design runtime candidate"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/ground30/mud-drying-r1-original.png", "art/sources/ground30/mud-far-r3-original.png", "art/sources/ground30/mud-drying-r1-near-crop.png", "art/sources/ground30/mud-drying-r1-middle-crop.png", "art/sources/ground30/mud_drying-far-r3-crop.png"]
+original_sha256 = ["ef110143e93714e7b66eb995921a54f2a96ae77062709672ff56bd76cb0594eb", "1d6ecea9d4773eacf1e841c8b3ba6dbd68ca6b3e4241ee661c9d5d260edad808", "a82e3896124edbb6e23829486d687d8893711141a8a1ec9fa2125c2c6589162e", "13221ba8b8c4b94a624f6c8539e0462e4c1f9baf47e5abb544101c447dd5e202", "dfc0ad1bbb54de7ce68e3c82ce6607cf53314614e2003912c14cb38f7fecc952"]
+c2pa = ["present", "present", "absent", "absent", "absent"]
+requests = ["art/requests/ground30/production.txt", "art/requests/ground30/mud-drying-r1.txt", "art/requests/ground30/mud-far-r3.txt"]
+made = "retained image drawings, coupled source-pixel quilt and numeric traced materials"
+regrid_loss = "raw-to-grid measurements and region annotations kept beside recovered sources"
+truth = "signed design source; world overlays and water separate"
+approved = "pending independent exported-art, engine and owner runtime review"
+
+[[band]]
+level = 0
+file = "art/textures/ground30/mud_drying/far/colour/b4.png"
+sha256 = "c24bceddebcbe5ce78b41f944d0ccd77d2e4e904d614d69bccef7c3b6bf1685f"
+way = "coupled source-pixel and material-region quilt"
+
+[[band]]
+level = 1
+file = "art/textures/ground30/mud_drying/far/colour/b5.png"
+sha256 = "1774121bf6f71401cd30c4010e3817742fd3cb6614c2ca81c2626f7d41b14cca"
+made_from = "c24bceddebcbe5ce78b41f944d0ccd77d2e4e904d614d69bccef7c3b6bf1685f"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 2
+file = "art/textures/ground30/mud_drying/far/colour/b6.png"
+sha256 = "4b866777e0206bc2794a542f3a8d73f346ed13c8eb4166355aa12e30a53ce179"
+made_from = "1774121bf6f71401cd30c4010e3817742fd3cb6614c2ca81c2626f7d41b14cca"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 3
+file = "art/textures/ground30/mud_drying/far/colour/b7.png"
+sha256 = "0b8c233d60d4aef297fc5fb9afe364dfed9a477d11a0c4b989b18d04c9a97415"
+made_from = "4b866777e0206bc2794a542f3a8d73f346ed13c8eb4166355aa12e30a53ce179"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 4
+file = "art/textures/ground30/mud_drying/far/colour/b8.png"
+sha256 = "3f32e5a7e84db4f2a8bc71dcc5a9be08c3cbe2a08c28f5dc01c004d4125871a0"
+made_from = "0b8c233d60d4aef297fc5fb9afe364dfed9a477d11a0c4b989b18d04c9a97415"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 5
+file = "art/textures/ground30/mud_drying/far/colour/b9.png"
+sha256 = "f63f587f8c32d1c9f7b124516313a00fafaf9bf744d1dab0ed50dac33d6af76b"
+made_from = "3f32e5a7e84db4f2a8bc71dcc5a9be08c3cbe2a08c28f5dc01c004d4125871a0"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 6
+file = "art/textures/ground30/mud_drying/far/colour/b10.png"
+sha256 = "8e332d8ed98961fc344ad3fef5e02ff09cb1fc23771bc36c8e4b587dab4d2f67"
+made_from = "f63f587f8c32d1c9f7b124516313a00fafaf9bf744d1dab0ed50dac33d6af76b"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 7
+file = "art/textures/ground30/mud_drying/far/colour/b11.png"
+sha256 = "0bd9fdd91a2f806889cc3ce57c5615ecc4060b226ddc1eef298dc5c66a17ac75"
+made_from = "8e332d8ed98961fc344ad3fef5e02ff09cb1fc23771bc36c8e4b587dab4d2f67"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"
+
+[[band]]
+level = 8
+file = "art/textures/ground30/mud_drying/far/colour/b12.png"
+sha256 = "3395f4655466658b176b1f333596b3d6a63c48f9fe711c0ece28b22441eefaa5"
+made_from = "0bd9fdd91a2f806889cc3ce57c5615ecc4060b226ddc1eef298dc5c66a17ac75"
+way = "aligned categorical reduction; coupled cleanup and shared periodic border"

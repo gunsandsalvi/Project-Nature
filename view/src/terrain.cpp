@@ -42,8 +42,47 @@ void face(Scene& s, std::int64_t id, double west, double north, double width, do
     f.normal = {0, -1, 0};
     s.surfaces.push_back(f);
 }
+// T2.9a.2/PRE-21: finite closed proxy volumes; minimise a quadratic over the clipped ray segment.
+bool quadratic_hit(double a, double b, double c, double low, double high) {
+    if (low > high) return false;
+    const auto value = [&](double t) { return (a * t + b) * t + c; };
+    double minimum = std::min(value(low), value(high));
+    if (a > 1e-20) {
+        const double vertex = std::clamp(-b / (2.0 * a), low, high);
+        minimum = std::min(minimum, value(vertex));
+    }
+    return minimum <= 1e-12;
+}
+bool clipped_height(Point from, Point direction, const Bounds& bounds, double& low, double& high) {
+    if (std::abs(direction.up) < 1e-12) return from.up >= bounds.low.up && from.up <= bounds.high.up;
+    const double a = (bounds.low.up - from.up) / direction.up, b = (bounds.high.up - from.up) / direction.up;
+    low = std::max(low, std::min(a, b));
+    high = std::min(high, std::max(a, b));
+    return low <= high;
+}
 bool hit(Point from, Point to, const Caster& c) {
     const Point direction = minus(to, from);
+    if (c.shape != Caster::Shape::legacy) {
+        const Point centre = blend(c.bounds.low, c.bounds.high, 0.5);
+        const double rx = (c.bounds.high.east - c.bounds.low.east) / 2.0;
+        const double ry = (c.bounds.high.north - c.bounds.low.north) / 2.0;
+        const double height = c.bounds.high.up - c.bounds.low.up;
+        if (rx <= 0.0 || ry <= 0.0 || height <= 0.0) return false;
+        double low = .001, high = .999;
+        if (!clipped_height(from, direction, c.bounds, low, high)) return false;
+        const double x = (from.east - centre.east) / rx, y = (from.north - centre.north) / ry;
+        const double dx = direction.east / rx, dy = direction.north / ry;
+        double a = dx * dx + dy * dy, b = 2.0 * (x * dx + y * dy), q = x * x + y * y;
+        if (c.shape == Caster::Shape::cylinder) return quadratic_hit(a, b, q - 1.0, low, high);
+        const double z = c.shape == Caster::Shape::cone ? (c.bounds.high.up - from.up) / height
+                                                        : (from.up - c.bounds.low.up) / height;
+        const double dz = c.shape == Caster::Shape::cone ? -direction.up / height : direction.up / height;
+        const double sign = c.shape == Caster::Shape::cone ? -1.0 : 1.0;
+        a += sign * dz * dz;
+        b += sign * 2.0 * z * dz;
+        q += sign * z * z;
+        return quadratic_hit(a, b, q - (c.shape == Caster::Shape::cone ? 0.0 : 1.0), low, high);
+    }
     if (c.round) {
         const Point centre = blend(c.bounds.low, c.bounds.high, 0.5);
         const Point half = minus(c.bounds.high, centre);
@@ -74,15 +113,41 @@ bool hit(Point from, Point to, const Caster& c) {
 std::uint8_t byte(double value) {
     return static_cast<std::uint8_t>(std::lround(std::clamp(value, 0.0, 1.0) * 255));
 }
+// T2.9a.2: exact ellipse boundary distance, bounded bisection only within the contact halo.
+double ellipse_distance(double x, double y, double rx, double ry) {
+    x = std::abs(x);
+    y = std::abs(y);
+    if (rx <= 0 || ry <= 0) return std::numeric_limits<double>::infinity();
+    if (rx == ry) return std::max(0.0, num::hypot(x, y) - rx);
+    if ((x / rx) * (x / rx) + (y / ry) * (y / ry) <= 1.0) return 0.0;
+    const double ax = rx * rx, ay = ry * ry;
+    double low = 0.0, high = rx * x + ry * y;
+    for (int i = 0; i < 24; ++i) {
+        const double mid = (low + high) / 2.0;
+        const double ex = rx * x / (mid + ax), ey = ry * y / (mid + ay);
+        if (ex * ex + ey * ey > 1.0)
+            low = mid;
+        else
+            high = mid;
+    }
+    const double lambda = (low + high) / 2.0;
+    return num::hypot(x - ax * x / (lambda + ax), y - ay * y / (lambda + ay));
+}
 double contact(Point p, const std::vector<Caster>& casters, std::int64_t ignore = 0) {
     double strongest = 0;
     for (const auto& c : casters) {
         if (c.id == ignore || c.bounds.low.up > p.up + 0.05 || c.bounds.high.up < p.up) continue;
-        const double dx = std::max({c.bounds.low.east - p.east, 0.0, p.east - c.bounds.high.east});
-        const double dy = std::max({c.bounds.low.north - p.north, 0.0, p.north - c.bounds.high.north});
-        if (dx >= 0.4 || dy >= 0.4) continue;
-        const double distance = num::hypot(dx, dy);
-        strongest = std::max(strongest, std::max(0.0, 1.0 - distance / 0.4));
+        const Point centre = blend(c.bounds.low, c.bounds.high, .5);
+        const double rx = c.contact_east > 0.0 ? c.contact_east : (c.bounds.high.east - c.bounds.low.east) / 2.0;
+        const double ry = c.contact_north > 0.0 ? c.contact_north : (c.bounds.high.north - c.bounds.low.north) / 2.0;
+        const double dx = std::max(0.0, std::abs(p.east - centre.east) - rx);
+        const double dy = std::max(0.0, std::abs(p.north - centre.north) - ry);
+        const double band = std::clamp(std::min(rx, ry) * .25, .025, .12);
+        if (dx >= band || dy >= band) continue;
+        const double distance = c.shape != Caster::Shape::legacy
+                                    ? ellipse_distance(p.east - centre.east, p.north - centre.north, rx, ry)
+                                    : num::hypot(dx, dy);
+        strongest = std::max(strongest, std::max(0.0, 1.0 - distance / band));
     }
     return 1.0 - 0.18 * strongest;
 }
@@ -97,9 +162,12 @@ Point normal(const Surface& s) {
     const Point a = minus(s.corners[1], s.corners[0]), b = minus(s.corners[3], s.corners[0]);
     return unit({a.north * b.up - a.up * b.north, a.up * b.east - a.east * b.up, a.east * b.north - a.north * b.east});
 }
-Scene fixture(const std::string& name) {
+Scene fixture(const std::string& input) {
+    const bool candidate = input.starts_with("candidate-");
+    std::string name = candidate ? input.substr(10) : input;
+    if (candidate && name == "shelter") name = "flat";
     Scene s;
-    s.name = name;
+    s.name = input;
     std::int64_t id = 100;
     for (int n = -40; n < 40; n += 8)
         for (int e = -24; e < 24; e += 16) {
@@ -115,12 +183,51 @@ Scene fixture(const std::string& name) {
             }
             s.surfaces.push_back(floor(id++, e, n, 16, 8, h, slope));
         }
+    if (candidate && name == "flat") {
+        s.surfaces.clear();
+        id = 100;
+        for (int north = -128; north < 128; north += 32)
+            for (int east = -128; east < 128; east += 32) s.surfaces.push_back(floor(id++, east, north, 32, 32, 0));
+    }
     s.casters = {{1, {{-5.2, -7.2, 0}, {-4.8, -6.8, 5}}, false},
                  {2, {{-6.8, -8.7, 3}, {-3.2, -5.3, 9}}, true},
                  {3, {{-4, -5, 0}, {-2, -3, 1.6}}, true},
                  {4, {{1, 3, 0}, {5, 5, 2.2}}, false}};
+    s.casters[0].group = s.casters[1].group = 1;
+    if (candidate) {
+        using Shape = Caster::Shape;
+        // Signed height/span and measured .25m shaft; .38m root collar is a separate contact footprint.
+        // Individual crown spray depth is provisional; the reviewed source span/height remain intact.
+        s.casters = {{1, {{-5.125, -7.125, 0}, {-4.875, -6.875, 20}}, false, Shape::cylinder, .19, .19},
+                     {2, {{-8.5, -10.5, 6}, {-1.5, -3.5, 20}}, true},
+                     {3, {{-4.5, -4, 0}, {-1.5, -1.8, 2}}, false, Shape::upper_ellipsoid},
+                     {4, {{1.1, 4.2, 0}, {4.9, 8.0, 2.6}}, false, Shape::cone}};
+        s.casters[0].group = 1;
+        // The six source-normal spray annotations define bounded separate volumes and leave sky gaps.
+        // Each spray depth2m is a provisional proxy choice; source width7m and lower6/top20 remain fixed.
+        constexpr std::array<std::array<double, 4>, 6> sprays{{{0, .13, 1.5, .16},
+                                                               {-2.05, .30, 1.45, .16},
+                                                               {2, .37, 1.5, .16},
+                                                               {-2.05, .48, 1.45, .15},
+                                                               {2.15, .57, 1.5, .17},
+                                                               {-2, .65, 1.5, .17}}};
+        for (std::size_t i = 0; i < sprays.size(); ++i) {
+            const auto& spray = sprays[i];
+            const double east = -5 + spray[0], up = 20 * (1 - spray[1]), radius = 20 * spray[3];
+            Caster caster;
+            caster.id = i == 0 ? 2 : 2000 + static_cast<std::int64_t>(i);
+            caster.bounds = {{std::max(-8.5, east - spray[2]), -8, std::max(6.0, up - radius)},
+                             {std::min(-1.5, east + spray[2]), -6, std::min(20.0, up + radius)}};
+            caster.round = true;
+            caster.group = 1;
+            if (i == 0)
+                s.casters[1] = caster;
+            else
+                s.casters.push_back(caster);
+        }
+    }
     s.actors = {{-5, 4, {0, 0, 0}, 0}, {-6, 5, {4, -5, 0}, 0}, {-7, 4, {-5, -6.5, 0}, 0}};
-    if (name == "flat") {
+    if (name == "flat" && !candidate) {
         const std::array<Point, 3> axes{Point{1, 0, 0}, Point{0, 1, 0}, Point{0, 0, 1}};
         for (std::size_t axis = 0; axis < axes.size(); ++axis) {
             auto panel = floor(900 + static_cast<std::int64_t>(axis), 3.0 + 2.0 * static_cast<double>(axis), -14, 1.5,
@@ -197,7 +304,12 @@ Scene fixture(const std::string& name) {
     if (name == "slope" || name == "water") {
         for (auto& c : s.casters) {
             const auto centre = blend(c.bounds.low, c.bounds.high, 0.5);
-            const auto base = walk(s, centre.east, centre.north);
+            // Candidate sprites anchor at their source front-foot datum; the tent ring starts north4,
+            // independently of the narrower cover beginning north4.2.
+            const double north = candidate && c.id == 4   ? 4.0
+                                 : candidate && c.id == 3 ? c.bounds.low.north
+                                                          : centre.north;
+            const auto base = walk(s, centre.east, north);
             if (base.found) {
                 c.bounds.low.up += base.point.up;
                 c.bounds.high.up += base.point.up;
@@ -342,6 +454,27 @@ std::uint8_t sun_bits(Point p, const Light& l, const std::vector<Caster>& caster
     return visible;
 }
 }  // namespace
+double sky_visibility(Point p, const std::vector<Caster>& casters, std::int64_t ignore,
+                      const std::vector<Caster>& bodies) {
+    // Equal projected-solid-angle quadrature: sky irradiance is cosine weighted over the upper hemisphere.
+    // Keep a zenith sample and23 disk samples; geometry supplies each opaque union without roof-like shortcuts.
+    static const auto directions = [] {
+        std::array<Point, 24> result{};
+        for (std::size_t i = 0; i < result.size(); ++i) {
+            const double radius = std::sqrt(i / static_cast<double>(result.size()));
+            const double angle = i * 2.39996322972865332;
+            result[i] = {radius * std::cos(angle), radius * std::sin(angle), std::sqrt(1 - radius * radius)};
+        }
+        return result;
+    }();
+    p.up += .04;
+    std::size_t visible = 0;
+    for (const auto direction : directions) {
+        const Point end{p.east + direction.east * 160, p.north + direction.north * 160, p.up + direction.up * 160};
+        if (!blocked(p, end, casters, ignore) && !blocked(p, end, bodies, ignore)) ++visible;
+    }
+    return visible / static_cast<double>(directions.size());
+}
 double sunlight(Point p, const Light& l, const std::vector<Caster>& casters, std::int64_t ignore) {
     return std::popcount(sun_bits(p, l, casters, ignore)) / 5.0;
 }
@@ -362,11 +495,7 @@ Mask Masks::prepare(const Scene& scene, const Surface& s, const Light& sun, cons
                 const std::size_t at = (static_cast<std::size_t>(y) * m.width + x) * 4;
                 m.sun_bits[at / 4] = sun_bits(p, sun, scene.casters, s.id);
                 m.rgba[at] = byte(std::popcount(m.sun_bits[at / 4]) / 5.0);
-                Point above = p;
-                above.up += 0.04;
-                Point end = p;
-                end.up += 100;
-                m.rgba[at + 1] = blocked(above, end, scene.casters, s.id) ? 100 : 255;
+                m.rgba[at + 1] = byte(sky_visibility(p, scene.casters, s.id));
                 m.rgba[at + 2] = byte(contact(p, scene.casters, s.id));
                 const Point fire_receiver{p.east + s.normal.east * 0.12, p.north + s.normal.north * 0.12,
                                           p.up + s.normal.up * 0.12};
@@ -385,10 +514,15 @@ Mask Masks::prepare(const Scene& scene, const Surface& s, const Light& sun, cons
                 const auto p =
                     on(s, x / static_cast<double>(result.width - 1), y / static_cast<double>(result.height - 1));
                 const std::size_t at = (static_cast<std::size_t>(y) * result.width + x) * 4;
-                bool candidate = false;
+                bool candidate = false, sky_candidate = false;
                 for (const auto& body : bodies) {
                     const auto& bounds = body.bounds;
                     if (p.up >= bounds.high.up) continue;
+                    // Lowest hemisphere sample has horizontal/vertical ratio sqrt23<5.
+                    const double sky_span = (bounds.high.up - p.up) * 5;
+                    sky_candidate = sky_candidate ||
+                                    (p.east >= bounds.low.east - sky_span && p.east <= bounds.high.east + sky_span &&
+                                     p.north >= bounds.low.north - sky_span && p.north <= bounds.high.north + sky_span);
                     const double span = (bounds.high.up - p.up) / sun.sun.up;
                     const double shift_e = -sun.sun.east * span, shift_n = -sun.sun.north * span;
                     const double soft = 0.03 * span + 0.4;
@@ -402,6 +536,7 @@ Mask Masks::prepare(const Scene& scene, const Surface& s, const Light& sun, cons
                         static_cast<std::uint8_t>(result.sun_bits[at / 4] & sun_bits(p, sun, bodies, s.id));
                     result.rgba[at] = byte(std::popcount(visible) / 5.0);
                 }
+                if (sky_candidate) result.rgba[at + 1] = byte(sky_visibility(p, scene.casters, s.id, bodies));
                 result.rgba[at + 2] = std::min(result.rgba[at + 2], byte(contact(p, bodies)));
             }
     return result;

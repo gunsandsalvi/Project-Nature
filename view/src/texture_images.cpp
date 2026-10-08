@@ -11,16 +11,11 @@
 
 namespace kd::view {
 
-ReadLevels read_levels(const godot::String& path) {
+ReadLevels read_levels_bytes(const godot::PackedByteArray& bytes) {
     ReadLevels out;
-    const godot::PackedByteArray bytes = godot::FileAccess::get_file_as_bytes(path);
-    if (bytes.is_empty()) {
-        out.problem = godot::String("no texture at ") + path;
-        return out;
-    }
     const Levels levels = split_levels(std::span<const std::uint8_t>(bytes.ptr(), bytes.size()));
     if (!levels.problem.empty()) {
-        out.problem = path + godot::String(": ") + godot::String(levels.problem.c_str());
+        out.problem = godot::String(levels.problem.c_str());
         return out;
     }
     std::int64_t width = 0;
@@ -31,7 +26,7 @@ ReadLevels read_levels(const godot::String& path) {
         godot::Ref<godot::Image> image;
         image.instantiate();
         if (image->load_png_from_buffer(png) != godot::OK) {
-            out.problem = path + godot::String(": level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
+            out.problem = godot::String("level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
                           godot::String(" is not a PNG");
             out.images.clear();
             return out;
@@ -41,7 +36,7 @@ ReadLevels read_levels(const godot::String& path) {
             width = image->get_width();
         }
         if (image->get_width() != (width >> i) || image->get_height() != (width >> i)) {
-            out.problem = path + godot::String(": level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
+            out.problem = godot::String("level ") + godot::String::num_int64(static_cast<int64_t>(i)) +
                           godot::String(" is not half the size of the one before");
             out.images.clear();
             return out;
@@ -49,10 +44,22 @@ ReadLevels read_levels(const godot::String& path) {
         out.images.push_back(image);
     }
     if (width == 0 || (width >> (levels.pictures.size() - 1)) != 1) {
-        out.problem = path + godot::String(": its levels do not run down to one texture pixel");
+        out.problem = godot::String("its levels do not run down to one texture pixel");
         out.images.clear();
     }
     return out;
+}
+
+ReadLevels read_levels(const godot::String& path) {
+    const godot::PackedByteArray bytes = godot::FileAccess::get_file_as_bytes(path);
+    if (bytes.is_empty()) {
+        return {{}, godot::String("no texture at ") + path};
+    }
+    ReadLevels result = read_levels_bytes(bytes);
+    if (!result.problem.is_empty()) {
+        result.problem = path + godot::String(": ") + result.problem;
+    }
+    return result;
 }
 
 // One image of the levels, its mipmaps our own levels rather than Godot's averaged ones (A5.3).

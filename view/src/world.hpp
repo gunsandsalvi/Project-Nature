@@ -11,6 +11,7 @@
 #include <memory>
 
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/packed_float64_array.hpp>
 #include <godot_cpp/variant/packed_int32_array.hpp>
@@ -29,6 +30,7 @@
 #include "kd/save/keeper.hpp"
 #include "pace.hpp"
 #include "projection.hpp"
+#include "time_requests.hpp"
 
 namespace kd::view {
 
@@ -52,6 +54,17 @@ public:
     /// An entry's values by its kind's folder and its name, following renames: whole numbers in base units, chances
     /// in parts per million, texts, truth values and lists of names; empty when there is no such entry.
     godot::Dictionary entry(const godot::String& folder, const godot::String& name) const;
+    /// Implements PRE-22/PRE-46: owned validated family metadata with nested cells and attachment records.
+    godot::Array sprite_families() const;
+    /// Implements PLT-04: validated catalogue caps, with the named resident partitions.
+    godot::Dictionary stream_limits() const;
+    godot::Dictionary navigation_tuning() const;
+    void enable_time_requests(bool enabled);
+    void set_zoom_density(double density);
+    void set_manual_rate(double rate);
+    void clear_manual_rate();
+    void set_speed_lock(bool locked);
+    godot::Dictionary time_requests() const;
 
     /// Starts the calendar's stand-in world at Year 1, spring, day 1, doing its work each game hour (MAT-16).
     void start_clockwork();
@@ -194,6 +207,8 @@ private:
     int64_t warn_below_mb_ = 1024;
     double played_ = 0.0;
     Pace pace_;
+    TimeRequests time_requests_;
+    bool time_requests_enabled_ = false;
     HeatGovernor heat_;
     std::chrono::steady_clock::time_point last_frame_;
     bool framed_ = false;

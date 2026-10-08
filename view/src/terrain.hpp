@@ -26,6 +26,11 @@ struct Caster {
     std::int64_t id = 0;
     Bounds bounds;
     bool round = false;
+    enum class Shape : std::uint8_t { legacy, cylinder, cone, upper_ellipsoid };
+    Shape shape = Shape::legacy;
+    // Optional grounded contact footprint; e.g. a root collar wider than the actual trunk cylinder.
+    double contact_east = 0.0, contact_north = 0.0;
+    std::int64_t group = 0;  // one logical body may have several shadow volumes
 };
 struct Actor {
     std::int64_t id = 0;
@@ -76,6 +81,8 @@ struct Mask {
 [[nodiscard]] Pick pick(const Scene& scene, const Projection& projection, Pixel raster, bool cutaway);
 /// Implements PRE-24, PRE-28, PRE-33: local overlap graph, shared cross-chunk order and persistent-ID ties.
 [[nodiscard]] std::vector<std::int64_t> order(const std::vector<Piece>& pieces);
+[[nodiscard]] double sky_visibility(Point point, const std::vector<Caster>& casters, std::int64_t ignore = 0,
+                                    const std::vector<Caster>& bodies = {});
 [[nodiscard]] bool overlaps(const Piece& a, const Piece& b);
 /// Implements PRE-21, PRE-30: rays begin at actual receivers; union of logical proxies, no black overlay.
 [[nodiscard]] bool blocked(Point from, Point to, const std::vector<Caster>& casters, std::int64_t ignore = 0);

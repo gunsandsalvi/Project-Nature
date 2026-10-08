@@ -24,28 +24,55 @@ var lines: Array[Dictionary] = []
 var _list: VBoxContainer
 var _summary: Label
 var _probes: Probes
+var _report: ScrollContainer
+var _report_button: Button
+var _run_button: Button
 
 
 func _ready() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_theme_constant_override("separation", 10)
+	var title := Label.new()
+	title.text = "Device check"
+	title.add_theme_font_size_override("font_size", 22)
+	add_child(title)
 	_summary = Label.new()
-	_summary.add_theme_font_size_override("font_size", 18)
-	_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_summary.add_theme_font_size_override("font_size", 20)
+	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(_summary)
-	var copy := Button.new()
-	copy.text = "Copy the details"
-	copy.custom_minimum_size = Vector2(0, 48)
-	copy.pressed.connect(func() -> void: DisplayServer.clipboard_set(details()))
-	add_child(copy)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	add_child(scroll)
+	var explanation := Label.new()
+	explanation.text = (
+		"Kindling checks this device and its saved data. "
+		+ "Open the report for individual results."
+	)
+	explanation.add_theme_font_size_override("font_size", 16)
+	explanation.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(explanation)
+	_run_button = Button.new()
+	_run_button.text = "Run checks"
+	_run_button.custom_minimum_size.y = 48
+	_run_button.pressed.connect(_run_again)
+	add_child(_run_button)
+	_report_button = Button.new()
+	_report_button.text = "View report"
+	_report_button.custom_minimum_size.y = 48
+	_report_button.pressed.connect(_toggle_report)
+	add_child(_report_button)
+	_report = ScrollContainer.new()
+	_report.visible = false
+	_report.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_report.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	add_child(_report)
 	_list = VBoxContainer.new()
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_list.add_theme_constant_override("separation", 6)
-	scroll.add_child(_list)
+	_report.add_child(_list)
+	var copy := Button.new()
+	copy.name = "CopyReport"
+	copy.text = "Copy report"
+	copy.custom_minimum_size.y = 48
+	copy.pressed.connect(func() -> void: DisplayServer.clipboard_set(details()))
+	_list.add_child(copy)
 	# the probes run once a build, a little drawing each, and the lines show them as they end
 	_probes = Probes.new()
 	add_child(_probes)
@@ -54,10 +81,12 @@ func _ready() -> void:
 	_show()
 	# a picture of the page in the cloud waits for the probes (tools/godot-picture.gd)
 	add_to_group("busy")
+	_run_button.disabled = true
 	_probes.start()
 
 
 func _on_probes_done() -> void:
+	_run_button.disabled = false
 	remove_from_group("busy")
 	lines = lines.filter(
 		func(line: Dictionary) -> bool: return not line["name"].begins_with("Probe: ")
@@ -416,7 +445,8 @@ func _show() -> void:
 	_summary.text = said.substr(0, 1).to_upper() + said.substr(1)
 	_summary.add_theme_color_override("font_color", COLOURS["fail" if failed else "ok"])
 	for row in _list.get_children():
-		row.queue_free()
+		if row.name != "CopyReport":
+			row.queue_free()
 	for line in lines:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
@@ -429,7 +459,7 @@ func _show() -> void:
 		text.text = "%s: %s" % [line["name"], line["value"]]
 		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		text.add_theme_font_size_override("font_size", 14)
+		text.add_theme_font_size_override("font_size", 16)
 		row.add_child(text)
 		_list.add_child(row)
 
@@ -472,3 +502,16 @@ func _add_saves() -> void:
 		warning if warning != "" else Worlds.size_words(free),
 		"warn" if warning != "" else "info"
 	)
+
+
+func _toggle_report() -> void:
+	_report.visible = not _report.visible
+	_report_button.text = "Hide report" if _report.visible else "View report"
+
+
+func _run_again() -> void:
+	_run_button.disabled = true
+	build()
+	_show()
+	add_to_group("busy")
+	_probes.start()

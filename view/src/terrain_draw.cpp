@@ -23,6 +23,7 @@ godot::Dictionary picked(terrain::Pick p) {
 void KdTerrain::_bind_methods() {
     using namespace godot;
     ClassDB::bind_method(D_METHOD("scene", "name"), &KdTerrain::scene);
+    ClassDB::bind_method(D_METHOD("set_origin", "east_cm", "north_cm"), &KdTerrain::set_origin);
     ClassDB::bind_method(D_METHOD("set_light", "hour", "weather", "direction", "fire"), &KdTerrain::set_light);
     ClassDB::bind_method(D_METHOD("surfaces"), &KdTerrain::surfaces);
     ClassDB::bind_method(D_METHOD("proxies"), &KdTerrain::proxies);
@@ -36,6 +37,10 @@ void KdTerrain::_bind_methods() {
     ClassDB::bind_method(D_METHOD("order", "pieces"), &KdTerrain::order);
     ClassDB::bind_method(D_METHOD("bodies", "records"), &KdTerrain::bodies);
     ClassDB::bind_method(D_METHOD("costs"), &KdTerrain::costs);
+}
+void KdTerrain::set_origin(int64_t east, int64_t north) {
+    source_origin_ = world::World::kTorus.wrap(east, north);
+    source_origin_set_ = true;
 }
 void KdTerrain::scene(const godot::String& name) {
     const auto next = scene_.revision + 1;
@@ -86,6 +91,7 @@ godot::Array KdTerrain::proxies() const {
         d["low"] = vector(caster.bounds.low);
         d["high"] = vector(caster.bounds.high);
         d["round"] = caster.round;
+        d["group"] = caster.group;
         result.push_back(d);
     }
     return result;
@@ -119,8 +125,9 @@ godot::Dictionary KdTerrain::walk(double east, double north) const {
 }
 godot::Dictionary KdTerrain::pick(const godot::Ref<KdCanvas>& canvas, godot::Vector2 raster, bool cutaway) const {
     if (canvas.is_null()) return {};
-    return picked(terrain::pick(scene_, canvas->projection(),
-                                {static_cast<double>(raster.x), static_cast<double>(raster.y)}, cutaway));
+    return picked(
+        terrain::pick(scene_, source_origin_set_ ? canvas->projection_at_origin(source_origin_) : canvas->projection(),
+                      {static_cast<double>(raster.x), static_cast<double>(raster.y)}, cutaway));
 }
 godot::Dictionary KdTerrain::hit_surface(int64_t surface, const godot::Ref<KdCanvas>& canvas,
                                          godot::Vector2 raster) const {
@@ -129,8 +136,9 @@ godot::Dictionary KdTerrain::hit_surface(int64_t surface, const godot::Ref<KdCan
         if (s.id == surface) {
             terrain::Scene single;
             single.surfaces.push_back(s);
-            return picked(terrain::pick(single, canvas->projection(),
-                                        {static_cast<double>(raster.x), static_cast<double>(raster.y)}, false));
+            return picked(terrain::pick(
+                single, source_origin_set_ ? canvas->projection_at_origin(source_origin_) : canvas->projection(),
+                {static_cast<double>(raster.x), static_cast<double>(raster.y)}, false));
         }
     return {};
 }
@@ -154,19 +162,18 @@ godot::Dictionary KdTerrain::mask(int64_t surface) {
 godot::Dictionary KdTerrain::visibility(godot::Vector3 p, int64_t ignore) const {
     auto casters = scene_.casters;
     casters.insert(casters.end(), bodies_.begin(), bodies_.end());
-    casters.erase(std::remove_if(casters.begin(), casters.end(),
-                                 [ignore](const auto& c) {
-                                     return ((ignore == -11 || ignore == -12) && (c.id == 1 || c.id == 2)) ||
-                                            (ignore == -3 && c.id == 3) || (ignore == -2 && c.id == 4);
-                                 }),
-                  casters.end());
+    casters.erase(
+        std::remove_if(casters.begin(), casters.end(),
+                       [ignore](const auto& c) {
+                           return ((ignore == -11 || ignore == -12) && (c.id == 1 || c.id == 2 || c.group == 1)) ||
+                                  (ignore == -3 && c.id == 3) || (ignore == -2 && c.id == 4);
+                       }),
+        casters.end());
     godot::Dictionary d;
     d["sun"] = terrain::sunlight(point(p), light_, casters, ignore);
     auto from = point(p);
     from.up += 0.04;
-    auto end = from;
-    end.up += 100;
-    d["sky"] = terrain::blocked(from, end, casters, ignore) ? 0.39 : 1.0;
+    d["sky"] = terrain::sky_visibility(point(p), casters, ignore);
     d["fire"] = terrain::blocked(from, light_.fire, casters, ignore) ? 0.0 : 1.0;
     return d;
 }

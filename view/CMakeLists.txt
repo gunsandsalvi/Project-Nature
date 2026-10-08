@@ -16,8 +16,8 @@ set(GODOTCPP_SYSTEM_HEADERS ON CACHE BOOL "" FORCE)
 add_subdirectory("${KD_GODOT_CPP}" godot-cpp EXCLUDE_FROM_ALL)
 
 # Shared foundation, fixed-camera projection/terrain, gestures and texture-file decoding need no Godot.
-add_library(kd_view_core STATIC src/pace.cpp src/heat.cpp src/crowd_core.cpp src/frames.cpp src/gestures.cpp
-    src/projection.cpp src/terrain.cpp src/textures.cpp)
+add_library(kd_view_core STATIC src/pace.cpp src/time_requests.cpp src/stream.cpp src/heat.cpp src/crowd_core.cpp src/frames.cpp src/gestures.cpp
+    src/projection.cpp src/wide.cpp src/terrain.cpp src/textures.cpp)
 target_include_directories(kd_view_core PUBLIC src)
 target_link_libraries(kd_view_core PUBLIC kd_sim)
 kindling_rules(kd_view_core)
@@ -25,6 +25,7 @@ kindling_rules(kd_view_core)
 add_library(kindling SHARED
     src/register.cpp
     src/canvas.cpp
+    src/stream_binding.cpp
     src/terrain_draw.cpp
     src/crowd.cpp
     src/device.cpp
@@ -58,8 +59,8 @@ add_custom_command(TARGET kindling POST_BUILD
 option(KD_VIEW_TESTS "Build the extension's own tests" ON)
 if(KD_VIEW_TESTS AND NOT ANDROID)
     set(KD_DOCTEST "$ENV{KD_DOCTEST}" CACHE PATH "doctest's folder (tools/setup.sh)")
-    add_executable(kd_view_tests tests/main.cpp tests/pace_test.cpp tests/crowd_core_test.cpp
-        tests/projection_test.cpp tests/terrain_test.cpp tests/frames_test.cpp tests/heat_test.cpp tests/texture_test.cpp)
+    add_executable(kd_view_tests tests/main.cpp tests/pace_test.cpp tests/time_requests_test.cpp tests/stream_test.cpp tests/crowd_core_test.cpp
+        tests/projection_test.cpp tests/wide_test.cpp tests/terrain_test.cpp tests/frames_test.cpp tests/heat_test.cpp tests/texture_test.cpp)
     target_include_directories(kd_view_tests SYSTEM PRIVATE "${KD_DOCTEST}")
     target_compile_definitions(kd_view_tests PRIVATE DOCTEST_CONFIG_NO_EXCEPTIONS_BUT_WITH_ALL_ASSERTS)
     target_link_libraries(kd_view_tests PRIVATE kd_view_core)

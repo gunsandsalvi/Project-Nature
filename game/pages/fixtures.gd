@@ -5,6 +5,7 @@ extends Control
 const Drawing := preload("res://fixtures/drawing.gd")
 var drawing_script: Script = Drawing
 var draws_world := true
+var navigation_height := 0.0
 var world := KdWorld.new()
 var camera := KdCanvas.new()
 var frozen := false
@@ -14,6 +15,8 @@ var pass_name := "colour"
 var dusk := false
 var drawing: Node2D
 var state: Dictionary = {}
+var _inspector_scroll: ScrollContainer
+var _inspector_dock: VBoxContainer
 var _preview_second := 0.0
 var _selected_label: Label
 var _view_mode: OptionButton
@@ -46,6 +49,8 @@ func _ready() -> void:
 	camera.set_world(world, origin[0], origin[1])
 	camera.focus(1.0, 0.0)
 	_build()
+	if _native.has_node("Controls"):
+		_organise_inspector()
 	_resize()
 	get_viewport().size_changed.connect(_resize)
 	_inspect_piece(0)
@@ -172,8 +177,8 @@ func _build() -> void:
 func _button(parent: Control, text: String, callback: Callable) -> void:
 	var button := Button.new()
 	button.text = text
-	button.add_theme_font_size_override("font_size", 22)
-	button.custom_minimum_size = Vector2(88, 64)
+	button.add_theme_font_size_override("font_size", 16)
+	button.custom_minimum_size = Vector2(48, 48)
 	button.pressed.connect(callback)
 	parent.add_child(button)
 
@@ -185,6 +190,8 @@ func _resize() -> void:
 ## Implements PLT-02: converts the display safe area to window coordinates.
 func safe_area() -> Rect2:
 	var window := Rect2(Vector2.ZERO, Vector2(get_viewport().get_visible_rect().size))
+	window.position.y += navigation_height
+	window.size.y = maxf(1, window.size.y - navigation_height)
 	if OS.get_name() != "Android":
 		return window
 	var safe := DisplayServer.get_display_safe_area()
@@ -196,17 +203,26 @@ func safe_area() -> Rect2:
 
 func layout(window_size: Vector2, safe: Rect2) -> void:
 	_native.size = window_size
+	var density := clampf(minf(window_size.x, window_size.y) / 450.0, 1.0, 3.0)
 	var panel: PanelContainer = _native.get_node("Controls")
-	panel.position = safe.position + Vector2(24, 24)
-	var controls_width := (
-		minf(640, safe.size.x - 48) if window_size.x > window_size.y else safe.size.x - 48
+	var landscape := window_size.x > window_size.y
+	var width := minf(safe.size.x * 0.40, 360.0 * density) if landscape else safe.size.x
+	panel.position = (
+		safe.position
+		+ Vector2(safe.size.x - width, 0 if landscape else safe.size.y - 180.0 * density)
 	)
-	panel.size.x = maxf(240, controls_width)
-	_controls.custom_minimum_size.x = maxf(208, controls_width - 32)
-	_sheet.position = safe.position + Vector2(safe.size.x - 284, 340)
-	_sheet.size = Vector2(260, maxf(100, minf(740, safe.size.y - 440)))
-	_status.position = safe.position + Vector2(24, safe.size.y - 140)
-	_status.size.x = maxf(240, safe.size.x - 48)
+	panel.size = Vector2(width, safe.size.y if landscape else 180.0 * density)
+	if _inspector_scroll != null:
+		_inspector_scroll.custom_minimum_size.y = 180 * density if _inspector_scroll.visible else 0
+		if _inspector_scroll.visible and not landscape:
+			panel.position.y -= 180 * density
+			panel.size.y += 180 * density
+		preload("res://ui/sizing.gd").page(_inspector_dock, density)
+	_controls.custom_minimum_size.x = 0
+	_sheet.position = safe.position + Vector2(16, 16) * density
+	_sheet.size = Vector2(
+		maxf(100, safe.size.x - (width if landscape else 32 * density)), safe.size.y * 0.55
+	)
 
 
 func _process(delta: float) -> void:
@@ -337,3 +353,68 @@ func _notification(what: int) -> void:
 func _exit_tree() -> void:
 	if not frozen:
 		world.save_now()
+
+
+func _organise_inspector() -> void:
+	var panel: PanelContainer = _native.get_node("Controls")
+	panel.remove_child(_controls)
+	_inspector_dock = VBoxContainer.new()
+	panel.add_child(_inspector_dock)
+	var title: Label = _controls.get_child(0)
+	title.reparent(_inspector_dock)
+	title.text = "Terrain inspector" if save_folder.contains("terrain") else "Art inspector"
+	title.add_theme_font_size_override("font_size", 22)
+	var quick := HBoxContainer.new()
+	_inspector_dock.add_child(quick)
+	_inspect.reparent(quick)
+	_inspect.custom_minimum_size = Vector2(80, 48)
+	_inspect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var family := OptionButton.new()
+	for label: String in ["64 px/m", "16 px/m", "4 px/m"]:
+		family.add_item(label)
+	family.item_selected.connect(
+		func(index: int) -> void:
+			if not state.is_empty():
+				camera.zoom(
+					[64.0, 16.0, 4.0][index] / (float(state.density) * float(state.live_scale)),
+					_native.size / 2,
+					true
+				)
+	)
+	family.custom_minimum_size = Vector2(80, 48)
+	family.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	quick.add_child(family)
+	_view_mode.reparent(quick)
+	_view_mode.custom_minimum_size = Vector2(80, 48)
+	_view_mode.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for option: OptionButton in [_inspect, family, _view_mode]:
+		option.fit_to_longest_item = false
+		option.clip_text = true
+	var more := Button.new()
+	more.text = "More controls"
+	more.custom_minimum_size.y = 48
+	_inspector_dock.add_child(more)
+	_inspector_scroll = ScrollContainer.new()
+	_inspector_scroll.set_meta("ui_minimum", Vector2(0, 180))
+	_inspector_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_inspector_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_inspector_dock.add_child(_inspector_scroll)
+	_inspector_scroll.add_child(_controls)
+	_controls.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_inspector_scroll.hide()
+	more.pressed.connect(
+		func() -> void:
+			_inspector_scroll.visible = not _inspector_scroll.visible
+			_resize()
+	)
+	_status.reparent(_controls)
+	_status.add_theme_font_size_override("font_size", 16)
+	for node: Node in _controls.find_children("*", "Control", true, false):
+		if node is Label or node is BaseButton:
+			node.add_theme_font_size_override("font_size", 16)
+		if node is Button and node.text == "Back":
+			node.hide()
+	_sheet.hide()
+	_button(
+		_controls, "Show / hide source sheet", func() -> void: _sheet.visible = not _sheet.visible
+	)

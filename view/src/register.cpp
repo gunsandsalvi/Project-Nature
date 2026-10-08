@@ -13,6 +13,7 @@
 #include "device.hpp"
 #include "frames.hpp"
 #include "look.hpp"
+#include "stream_binding.hpp"
 #include "terrain_draw.hpp"
 #include "world.hpp"
 #include "worlds.hpp"
@@ -26,6 +27,7 @@ void initialize(godot::ModuleInitializationLevel level) {
     godot::ClassDB::register_class<kd::view::KdDevice>();
     godot::ClassDB::register_class<kd::view::KdWorld>();
     godot::ClassDB::register_class<kd::view::KdCanvas>();
+    godot::ClassDB::register_class<kd::view::KdStream>();
     godot::ClassDB::register_class<kd::view::KdTerrain>();
     godot::ClassDB::register_class<kd::view::KdCrowd>();
     godot::ClassDB::register_class<kd::view::KdLook>();

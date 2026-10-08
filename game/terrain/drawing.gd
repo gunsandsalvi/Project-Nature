@@ -7,6 +7,8 @@ signal entrance_requested
 const SURFACE_SHADER := preload("res://terrain/surface.gdshader")
 const SPRITE_SHADER := preload("res://terrain/sprite.gdshader")
 const WATER_SHADER := preload("res://terrain/water.gdshader")
+var candidate_view := false
+var stream_service: Node
 var terrain := KdTerrain.new()
 var scene_name := "flat"
 var hour := "noon"
@@ -26,6 +28,8 @@ var moving_mask_time := -1.0
 var _surface_nodes: Dictionary = {}
 var _lit_sprites: Dictionary = {}
 var _masks: Dictionary = {}
+var _mask_versions := {}
+var _mask_upload_reserved := false
 var _revision := ""
 var _mask_clock := -1
 var _bed: SubViewport
@@ -39,12 +43,31 @@ var _water_height := -100.0
 var _water_bounds := Vector4.ZERO
 var _scene_revision := ""
 var _proxies: Array = []
+var _meadow: Polygon2D
+var _open_mask: Texture2D
 var _plain: Texture2D
 var _material_table := PackedVector4Array()
+var _mask_cpu_ticket := 0
+var _mask_gpu_ticket := 0
+var _variants := preload("res://terrain/ground_variants.gd").new()
 
 
 func _ready() -> void:
 	super._ready()
+	if not absolute_origin.is_empty():
+		terrain.set_origin(int(absolute_origin.east), int(absolute_origin.north))
+	if stream_service != null:
+		var allocation: Dictionary = stream_service.reserve_allocation(
+			{
+				"category": "masks",
+				"prepared": int(terrain.costs().mask_cache_cap_bytes) + 65536,
+				"resident": 8
+			}
+		)
+		if not allocation.ok:
+			problem = allocation.problem
+			return
+		_mask_cpu_ticket = allocation.token
 	var neutral := Image.create(1, 1, false, Image.FORMAT_RGBA8)
 	neutral.fill(Color("b6aa98"))
 	_plain = ImageTexture.create_from_image(neutral)
@@ -54,8 +77,18 @@ func _ready() -> void:
 	for values: Array in tuning.values:
 		_material_table.append(Vector4(values[0], values[1], values[2], values[3]))
 	light_record = terrain.set_light(hour, weather, direction, fire_enabled)
+	var open := Image.create(1, 1, false, Image.FORMAT_RGBA8)
+	open.fill(Color.WHITE)
+	_open_mask = ImageTexture.create_from_image(open)
+	_meadow = Polygon2D.new()
+	_meadow.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	_meadow.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_meadow.material = ShaderMaterial.new()
+	_meadow.material.shader = SURFACE_SHADER
+	add_child(_meadow)
 	for key: String in ["bed", "reflections"]:
 		var target := SubViewport.new()
+		target.size = Vector2i(2, 2)
 		target.disable_3d = true
 		target.transparent_bg = true
 		target.canvas_item_default_texture_filter = (
@@ -91,15 +124,18 @@ func _draw() -> void:
 func rebuild() -> void:
 	if state.is_empty() or entries.is_empty() or _bed == null:
 		return
+	_mask_upload_reserved = false
 	var started := Time.get_ticks_usec()
 	var revision := "%s/%s/%s/%d/%s" % [scene_name, hour, weather, direction, fire_enabled]
 	var changed := revision != _revision
 	if changed:
+		if not _reserve_mask_change(scene_name != _scene_revision):
+			return
 		_reset_scene()
 		_revision = revision
 	_draws.clear()
-	var density: int = int(state.density)
-	var actors: Array = terrain.actors(second)
+	var density: float = float(state.density)
+	var actors: Array = [] if candidate_view else terrain.actors(second)
 	for actor: Dictionary in actors:
 		_actor(actor, density)
 	# Atlas splits are developer metadata; the physical proxies remain independent of visual fading.
@@ -110,16 +146,20 @@ func rebuild() -> void:
 		_object(entries[1], POSITIONS.shelter, -2, density)
 	_object(entries[2], POSITIONS.boulder, -3, density)
 	_submit()
-	for copy: Sprite2D in _reflection_sprites.values():
-		copy.visible = false
-	for copy: Sprite2D in _silhouettes.values():
-		copy.visible = false
+	for group: Dictionary in [_reflection_sprites, _silhouettes]:
+		for copy: Sprite2D in group.values():
+			copy.hide()
+			copy.texture = null
+			copy.material = null
+	for id: int in _lit_sprites.keys():
+		if not _sprites.has(id):
+			_lit_sprites.erase(id)
 	# PRE-21 PLT-04: sampling follows scene time; the upload limit follows real time.
 	var mask_second := (
 		moving_mask_time if moving_mask_time >= 0.0 else Time.get_ticks_usec() / 1000000.0
 	)
 	var clock := int(floor(mask_second * 10.0))
-	var update_masks := changed or clock != _mask_clock
+	var update_masks := changed or (not actors.is_empty() and clock != _mask_clock)
 	if update_masks:
 		var bodies := []
 		# PRE-21: sprites may be culled while their shadows still reach visible receivers.
@@ -137,7 +177,15 @@ func rebuild() -> void:
 			target.set_meta("drawn_a_second", 0.0)
 	_bed.size = Vector2i(state.size)
 	_reflections.size = Vector2i(state.size)
-	var pieces := _receivers(update_masks)
+	if candidate_view:
+		_variants.update(state, absolute_origin, stream_service)
+	_background_plane()
+	var pieces := []
+	if candidate_view and float(state.density) < 2.0:
+		for id: int in _surface_nodes:
+			_hide_receiver(id)
+	else:
+		pieces = _receivers(update_masks)
 	if fire_enabled:
 		var fire_point: Vector3 = light_record.fire
 		var floor_record: Dictionary = terrain.walk(fire_point.x, fire_point.y)
@@ -186,17 +234,17 @@ func _sprite_piece(item: Dictionary) -> Dictionary:
 	var depth := -float(state.height_basis) * p.y + float(state.ground_basis) * p.z
 	# PRE-24: the trunk orders by its footprint; only the raised crown uses proxy height.
 	if item.id == -11:
-		for proxy: Dictionary in _proxies:
-			if proxy.id == 2:
-				var centre: Vector3 = (proxy.low + proxy.high) / 2.0
-				depth = -float(state.height_basis) * centre.y + float(state.ground_basis) * centre.z
+		var bounds := _crown_bounds()
+		if not bounds.is_empty():
+			var centre: Vector3 = (bounds.low + bounds.high) / 2.0
+			depth = -float(state.height_basis) * centre.y + float(state.ground_basis) * centre.z
 	return _piece(item.id, item.record.get("surface", 0), item.rect, depth, false)
 
 
 func _reset_scene() -> void:
 	if scene_name != _scene_revision:
 		_scene_revision = scene_name
-		terrain.scene(scene_name)
+		terrain.scene(("candidate-" if candidate_view else "") + scene_name)
 		surface_records = terrain.surfaces()
 		_proxies = terrain.proxies()
 		_water_height = -100.0
@@ -215,22 +263,21 @@ func _reset_scene() -> void:
 				node.queue_free()
 			group.clear()
 		_masks.clear()
+		_mask_versions.clear()
 	light_record = terrain.set_light(hour, weather, direction, fire_enabled)
 
 
-func _actor(actor: Dictionary, density: int, source: Dictionary = {}) -> void:
+func _actor(actor: Dictionary, density: float, source: Dictionary = {}) -> void:
 	var p: Vector3 = actor.point
 	var record := source.duplicate()
-	record.merge(
-		{"point": p, "surface": actor.surface, "pixel": camera.project(p.x, p.y, p.z)}, true
-	)
+	record.merge({"point": p, "surface": actor.surface, "pixel": _project(p.x, p.y, p.z)}, true)
 	record.phase = source.get("phase", fposmod(second, 1.0))
 	record.activity = source.get("activity", 1)
 	record.facing = source.get("facing", facing)
 	_append(entries[actor.art], Vector2(p.x, p.y), actor.id, density, record)
 
 
-func _object(entry: Dictionary, at: Vector2, id: int, density: int) -> void:
+func _object(entry: Dictionary, at: Vector2, id: int, density: float) -> void:
 	var sampled: Dictionary = terrain.walk(at.x, at.y)
 	if not sampled.found:
 		return
@@ -243,7 +290,7 @@ func _object(entry: Dictionary, at: Vector2, id: int, density: int) -> void:
 		{
 			"point": p,
 			"surface": sampled.surface,
-			"pixel": camera.project(p.x, p.y, p.z),
+			"pixel": _project(p.x, p.y, p.z),
 			"phase": 0.0,
 			"activity": 0,
 			"facing": 0
@@ -257,18 +304,20 @@ func _split_tree() -> void:
 	var tree: Dictionary = _draws.pop_back()
 	var crown := tree.duplicate()
 	var trunk := tree.duplicate()
-	var split: float = floor(tree.rect.size.y * 0.70)
+	var ratio: float = tree.get("source_scale", 1.0)
+	var source_split: float = floor(tree.source.size.y * 0.70)
+	var split := source_split * ratio
 	crown.id = -11
 	crown.code = 1001
 	crown.rect = Rect2(tree.rect.position, Vector2(tree.rect.size.x, split))
-	crown.source = Rect2(tree.source.position, crown.rect.size)
+	crown.source = Rect2(tree.source.position, crown.rect.size / ratio)
 	trunk.id = -12
 	trunk.code = 1002
 	trunk.rect = Rect2(tree.rect.position + Vector2(0, split), tree.rect.size - Vector2(0, split))
-	trunk.source = Rect2(tree.source.position + Vector2(0, split), trunk.rect.size)
+	trunk.source = Rect2(tree.source.position + Vector2(0, source_split), trunk.rect.size / ratio)
 	var supplied: Dictionary = tree.entry.get("pieces", {})
 	for name: String in ["crown", "trunk"]:
-		if supplied.has(name):
+		if supplied.has(name) and not candidate_view:
 			var raw: Array = supplied[name]
 			var offset := (Vector2(raw[0], raw[1]) * float(state.density) / 64.0).round()
 			var size := (Vector2(raw[2], raw[3]) * float(state.density) / 64.0).round()
@@ -298,17 +347,22 @@ func _piece(id: int, surface: int, rect: Rect2, depth: float, receiver: bool) ->
 func _receivers(update_masks: bool) -> Array:
 	var pieces := []
 	for record: Dictionary in surface_records:
+		if candidate_view and record.id >= 900:
+			continue
 		var points := PackedVector2Array()
 		var centre := Vector3.ZERO
 		for p: Vector3 in record.corners:
-			points.append(camera.project(p.x, p.y, p.z))
+			points.append(_project(p.x, p.y, p.z))
 			centre += p / 4.0
 		var rect := Rect2(points[0], Vector2.ZERO)
 		for p: Vector2 in points:
 			rect = rect.expand(p)
+		if not Rect2(Vector2.ZERO, state.size).intersects(rect):
+			_hide_receiver(record.id)
+			continue
 		if not _surface_nodes.has(record.id):
 			var node := Polygon2D.new()
-			node.texture = atlas.texture(entries[3], int(state.density), "walk")
+			node.texture = atlas.texture(entries[3], float(state.density), "walk")
 			node.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 			node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 			node.material = ShaderMaterial.new()
@@ -321,11 +375,23 @@ func _receivers(update_masks: bool) -> Array:
 			_surface_nodes[record.id] = node
 		var polygon: Polygon2D = _surface_nodes[record.id]
 		polygon.polygon = points
+		var ground_bundle := {}
+		if candidate_view and record.material == 4:
+			var asset := "meadow"
+			if scene_name == "water":
+				asset = "bank_gravel" if record.id == 31 else "river_bed"
+			ground_bundle = atlas.ground_sample(float(state.density), asset)
 		var texture: Texture2D = (
-			atlas.texture(entries[3], int(state.density), "walk")
+			atlas.texture(entries[3], float(state.density), "walk")
 			if record.material == 4
 			else _plain
 		)
+		if not ground_bundle.is_empty():
+			texture = ground_bundle.textures.colour
+		if texture == null:
+			polygon.visible = false
+			continue
+		polygon.visible = true
 		polygon.texture = texture
 		polygon.uv = PackedVector2Array(
 			[
@@ -337,16 +403,29 @@ func _receivers(update_masks: bool) -> Array:
 		)
 		var material: ShaderMaterial = polygon.get_meta("light_material")
 		_lighting(material)
+		material.set_shader_parameter("world_tiled", candidate_view and record.material == 4)
+		var span: float = float(ground_bundle.get("tile_metres", _ground_span()))
+		material.set_shader_parameter("tile_metres", span)
+		material.set_shader_parameter("art_phase", _art_phase(span))
+		if candidate_view and record.kind != 4:
+			_variants.apply(
+				material,
+				atlas,
+				float(state.density),
+				record.material == 4 and scene_name != "water"
+			)
 		for i in 4:
 			material.set_shader_parameter("corner%d" % i, record.corners[i])
 		material.set_shader_parameter("surface_normal", record.normal)
 		material.set_shader_parameter("material_kind", record.material)
 		for kind: String in ["normal", "material"]:
 			var provided: Texture2D = (
-				atlas.texture(entries[3], int(state.density), "walk", kind)
+				atlas.texture(entries[3], float(state.density), "walk", kind)
 				if record.material == 4
 				else null
 			)
+			if not ground_bundle.is_empty():
+				provided = ground_bundle.textures[kind]
 			material.set_shader_parameter("has_" + kind, provided != null)
 			if provided != null:
 				material.set_shader_parameter(kind + "_atlas", provided)
@@ -357,13 +436,17 @@ func _receivers(update_masks: bool) -> Array:
 					(record.corners[1] - record.corners[0]).length(),
 					(record.corners[3] - record.corners[0]).length()
 				)
-				/ 4.0
+				/ _ground_span()
 			)
 		)
 		material.set_shader_parameter(
 			"receiver_colour", Color.from_hsv(fposmod(record.id * 0.117, 1.0), 0.35, 0.65)
 		)
-		if update_masks or not _masks.has(record.id):
+		var mask_version := _revision + ("" if candidate_view else "/" + str(_mask_clock))
+		if update_masks or _mask_versions.get(record.id, "") != mask_version:
+			if not _reserve_mask_upload():
+				_hide_receiver(record.id)
+				continue
 			var data: Dictionary = terrain.mask(record.id)
 			var image := Image.create_from_data(
 				data.width, data.height, false, Image.FORMAT_RGBA8, data.rgba
@@ -372,6 +455,7 @@ func _receivers(update_masks: bool) -> Array:
 				_masks[record.id].update(image)
 			else:
 				_masks[record.id] = ImageTexture.create_from_image(image)
+			_mask_versions[record.id] = mask_version
 		material.set_shader_parameter("visibility_mask", _masks[record.id])
 		if record.kind == 4:
 			_water(material, record)
@@ -413,6 +497,7 @@ func _background(id: int, node: Polygon2D) -> void:
 		_bed.add_child(copy)
 		_copies[id] = copy
 	var copy: Polygon2D = _copies[id]
+	copy.show()
 	copy.polygon = node.polygon
 	copy.uv = node.uv
 	copy.texture = node.texture
@@ -434,6 +519,7 @@ func _water(material: ShaderMaterial, record: Dictionary) -> void:
 
 
 func _lighting(material: ShaderMaterial) -> void:
+	material.set_shader_parameter("sdr_canvas", not get_viewport().use_hdr_2d)
 	material.set_shader_parameter("material_table", _material_table)
 	material.set_shader_parameter("sun_direction", light_record.sun)
 	material.set_shader_parameter("sunlight", light_record.sunlight)
@@ -442,11 +528,16 @@ func _lighting(material: ShaderMaterial) -> void:
 	material.set_shader_parameter("fire_on", fire_enabled)
 	material.set_shader_parameter("debug_albedo", debug_mode == "albedo")
 	material.set_shader_parameter("debug_normals", debug_mode == "normals")
+	material.set_shader_parameter(
+		"debug_visibility", ["sun", "sky", "contact"].find(debug_mode) + 1
+	)
 	material.set_shader_parameter("debug_receivers", debug_mode == "receivers")
 
 
 func _reveal_and_light() -> void:
 	for record: Dictionary in surface_records:
+		if not _surface_nodes.has(record.id):
+			continue
 		var node: Polygon2D = _surface_nodes[record.id]
 		node.modulate = Color.WHITE
 		if reveal and record.kind == 2 and cutaway:
@@ -470,13 +561,15 @@ func _reveal_and_light() -> void:
 		_lighting(lit)
 		lit.set_shader_parameter("material_kind", 7 if item.id == -12 else int(item.entry.id))
 		lit.set_shader_parameter("foot", p)
-		lit.set_shader_parameter("pivot", item.foot - item.rect.position)
-		lit.set_shader_parameter("density", state.density)
+		lit.set_shader_parameter(
+			"pivot", (item.foot - item.rect.position) / float(item.get("source_scale", 1.0))
+		)
+		lit.set_shader_parameter("density", item.get("source_density", state.density))
 		lit.set_shader_parameter("height_basis", state.height_basis)
 		lit.set_shader_parameter("water_height", _water_height if scene_name == "water" else -100.0)
 		lit.set_shader_parameter("water_bounds", _water_bounds)
 		for kind: String in ["normal", "material"]:
-			var texture: Texture2D = atlas.texture(item.entry, int(state.density), "walk", kind)
+			var texture: Texture2D = atlas.texture(item.entry, float(state.density), "walk", kind)
 			lit.set_shader_parameter("has_" + kind, texture != null)
 			if texture != null:
 				lit.set_shader_parameter(kind + "_atlas", texture)
@@ -491,6 +584,11 @@ func _reveal_and_light() -> void:
 				if proxy.id == proxy_id:
 					band_low = proxy.low.z - p.z + 0.12
 					band_high = proxy.high.z - p.z - 0.08
+		if item.id == -11:
+			var bounds := _crown_bounds()
+			if not bounds.is_empty():
+				band_low = bounds.low.z - p.z + 0.12
+				band_high = bounds.high.z - p.z - 0.08
 		lit.set_shader_parameter("band_min_height", band_low)
 		lit.set_shader_parameter("band_max_height", band_high)
 		for band in 3:
@@ -517,7 +615,9 @@ func _reveal_and_light() -> void:
 			]:
 				semantic.set_shader_parameter(key, lit.get_shader_parameter(key))
 			semantic.set_shader_parameter("clip_water", scene_name == "water")
-			var mask: Texture2D = atlas.texture(item.entry, int(state.density), "walk", "material")
+			var mask: Texture2D = atlas.texture(
+				item.entry, float(state.density), "walk", "material"
+			)
 			semantic.set_shader_parameter(
 				"use_material_index", pass_name == "material" and mask != null
 			)
@@ -551,10 +651,10 @@ func _reflection(item: Dictionary, node: Sprite2D) -> void:
 	copy.texture = node.texture
 	copy.region_rect = node.region_rect
 	var p: Vector3 = item.record.get("point", Vector3(0, 0, 0))
-	var reflected: Vector2 = camera.project(p.x, p.y, 2.0 * _water_height - p.z)
+	var reflected: Vector2 = _project(p.x, p.y, 2.0 * _water_height - p.z)
 	var pivot: Vector2 = item.foot - item.rect.position
 	copy.position = reflected + Vector2(-pivot.x, pivot.y)
-	copy.scale = Vector2(1, -1)
+	copy.scale = Vector2(1, -1) * float(item.get("source_scale", 1.0))
 	copy.modulate = Color(0.65, 0.72, 0.75, 0.55)
 	copy.material = node.material
 
@@ -568,7 +668,12 @@ func _silhouette(item: Dictionary, node: Sprite2D, lit: ShaderMaterial) -> void:
 		_silhouettes[item.id] = copy
 	var copy: Sprite2D = _silhouettes[item.id]
 	var hidden := false
-	if item.entry.name == "person" and item.id != selected and reveal and int(state.density) <= 16:
+	if (
+		item.entry.name == "person"
+		and item.id != selected
+		and reveal
+		and float(state.density) <= 16
+	):
 		for other: Dictionary in _draws:
 			if other.id == -11 and ordering.find(other.id) > ordering.find(item.id):
 				hidden = hidden or other.rect.intersects(item.rect)
@@ -606,7 +711,7 @@ func _debug_layers() -> void:
 		var line: Line2D = _layer_lines[record.id]
 		var points := PackedVector2Array()
 		for p: Vector3 in record.corners:
-			points.append(camera.project(p.x, p.y, p.z))
+			points.append(_project(p.x, p.y, p.z))
 		points.append(points[0])
 		line.points = points
 		line.visible = pass_name == "colour"
@@ -619,15 +724,15 @@ func _flame_points() -> PackedVector2Array:
 	# PRE-23 PRE-30: the emitter remains above ground, while the visible flame touches its receiver.
 	var p: Vector3 = light_record.fire
 	var ground: Vector3 = terrain.walk(p.x, p.y).point
-	var foot: Vector2 = camera.project(ground.x, ground.y, ground.z)
-	var top: Vector2 = camera.project(ground.x, ground.y, ground.z + 0.9)
+	var foot: Vector2 = _project(ground.x, ground.y, ground.z)
+	var top: Vector2 = _project(ground.x, ground.y, ground.z + 0.9)
 	return PackedVector2Array([foot + Vector2(-5, 0), top, foot + Vector2(5, 0)])
 
 
 func _fire_preview(depth: int) -> void:
 	_fire.visible = fire_enabled
 	var p: Vector3 = light_record.fire
-	var foot: Vector2 = camera.project(p.x, p.y, p.z)
+	var foot: Vector2 = _project(p.x, p.y, p.z)
 	_fire.polygon = _flame_points()
 	_fire.z_index = depth
 	var material: ShaderMaterial = _fire.get_meta("light_material")
@@ -655,10 +760,10 @@ func _fire_preview(depth: int) -> void:
 func pick(pixel: Vector2) -> Dictionary:
 	# PRE-28: the declared doorway enters a separate interior, never the geological slice.
 	if scene_name in ["shelter", "cave"]:
-		var doorway: Vector2 = camera.project(3, 1, 0.6)
+		var doorway: Vector2 = _project(3, 1, 0.6)
 		if pixel.distance_to(doorway) < 14.0:
 			entrance_requested.emit()
-			return {"found": true, "entrance": true}
+			return {"found": true, "entrance": true, "second": state.get("second", second)}
 	for index in range(ordering.size() - 1, -1, -1):
 		var id: int = ordering[index]
 		if _surface_nodes.has(id):
@@ -668,6 +773,7 @@ func pick(pixel: Vector2) -> Dictionary:
 				var hit: Dictionary = terrain.hit_surface(id, camera, pixel)
 				if hit.get("found", false):
 					selected = 0
+					hit.second = state.get("second", second)
 					return hit
 		for actor: Dictionary in _draws:
 			if actor.id != id or not actor.rect.has_point(pixel) or faded.has(id):
@@ -683,14 +789,161 @@ func pick(pixel: Vector2) -> Dictionary:
 			if (
 				scene_name == "water"
 				and within_water
-				and pixel.y > camera.project(p.x, p.y, _water_height).y
+				and pixel.y > _project(p.x, p.y, _water_height).y
 			):
 				continue
-			var at: Vector2 = (pixel - actor.rect.position + actor.source.position).floor()
+			var at: Vector2 = (
+				(
+					(pixel - actor.rect.position) / float(actor.get("source_scale", 1.0))
+					+ actor.source.position
+				)
+				. floor()
+			)
+			if not Rect2(Vector2.ZERO, actor.image.get_size()).has_point(at):
+				continue
 			if actor.image.get_pixel(int(at.x), int(at.y)).a > 0.1:
 				selected = id
 				return {
-					"id": id, "surface": actor.record.get("surface", 0), "point": p, "found": true
+					"id": id,
+					"surface": actor.record.get("surface", 0),
+					"point": p,
+					"found": true,
+					"second": state.get("second", second)
 				}
 	selected = 0
 	return {}
+
+
+func _ground_span() -> float:
+	if atlas.has_method("sample"):
+		var sample: Dictionary = atlas.sample(entries[3], float(state.density))
+		return float(sample.get("tile_metres", 4.0))
+	return 4.0
+
+
+func _background_plane() -> void:
+	_meadow.visible = candidate_view and pass_name == "colour"
+	if not _meadow.visible:
+		return
+	var sample: Dictionary = atlas.ground_sample(float(state.density))
+	if sample.is_empty():
+		_meadow.visible = false
+		return
+	_meadow.texture = sample.textures.colour
+	var size: Vector2 = state.size
+	var corners := PackedVector2Array([Vector2.ZERO, Vector2(size.x, 0), size, Vector2(0, size.y)])
+	_meadow.polygon = corners
+	var texels: Vector2 = _meadow.texture.get_size()
+	_meadow.uv = PackedVector2Array(
+		[Vector2.ZERO, Vector2(texels.x, 0), texels, Vector2(0, texels.y)]
+	)
+	var material: ShaderMaterial = _meadow.material
+	_lighting(material)
+	var presentation: float = float(state.scale) * float(state.live_scale)
+	for i in 4:
+		var ground: Vector2 = camera.ground(corners[i] * presentation + state.offset, 0)
+		if not absolute_origin.is_empty():
+			ground += Vector2(
+				float(int(state.footprint.origin_east_cm) - int(absolute_origin.east)) / 100.0,
+				float(int(state.footprint.origin_north_cm) - int(absolute_origin.north)) / 100.0
+			)
+		material.set_shader_parameter("corner%d" % i, Vector3(ground.x, ground.y, 0))
+	material.set_shader_parameter("world_tiled", true)
+	material.set_shader_parameter("tile_metres", sample.tile_metres)
+	material.set_shader_parameter("art_phase", _art_phase(sample.tile_metres))
+	_variants.apply(material, atlas, float(state.density), true)
+	material.set_shader_parameter("visibility_mask", _open_mask)
+	material.set_shader_parameter("material_kind", 4)
+	for channel: String in ["normal", "material"]:
+		material.set_shader_parameter("has_" + channel, true)
+		material.set_shader_parameter(channel + "_atlas", sample.textures[channel])
+
+
+func _reserve_mask_change(geometry_changed: bool) -> bool:
+	if stream_service == null:
+		return true
+	# The restricted fixture cache has at most64 aligned65×65 pages; reserve before any allocation.
+	var bytes := 64 * 65 * 65 * 4
+	var upload: Dictionary = stream_service.reserve_allocation(
+		{"category": "masks", "staging": bytes}
+	)
+	if not upload.ok:
+		problem = upload.problem
+		return false
+	if geometry_changed:
+		var gpu: Dictionary = stream_service.reserve_allocation(
+			{"category": "masks", "resident": bytes}
+		)
+		if not gpu.ok:
+			stream_service.ledger.release_allocation(upload.token)
+			problem = gpu.problem
+			return false
+		stream_service.retire_allocation(_mask_gpu_ticket)
+		_mask_gpu_ticket = gpu.token
+	stream_service.retire_allocation(upload.token)
+	_mask_upload_reserved = true
+	return true
+
+
+func _exit_tree() -> void:
+	_variants.release()
+	if stream_service != null:
+		stream_service.retire_allocation(_mask_cpu_ticket)
+		stream_service.retire_allocation(_mask_gpu_ticket)
+
+
+func _crown_bounds() -> Dictionary:
+	var bounds := {}
+	for proxy: Dictionary in _proxies:
+		if proxy.id != 2 and not (proxy.get("group", 0) == 1 and proxy.id != 1):
+			continue
+		if bounds.is_empty():
+			bounds = {"low": proxy.low, "high": proxy.high}
+		else:
+			bounds.low = bounds.low.min(proxy.low)
+			bounds.high = bounds.high.max(proxy.high)
+	return bounds
+
+
+func _art_phase(span: float) -> Vector2:
+	if absolute_origin.is_empty():
+		return Vector2.ZERO
+	var centimetres := roundi(span * 100)
+	return (
+		Vector2(
+			posmod(int(absolute_origin.east), centimetres),
+			posmod(int(absolute_origin.north), centimetres)
+		)
+		/ 100.0
+	)
+
+
+func _reserve_mask_upload() -> bool:
+	if stream_service == null or _mask_upload_reserved:
+		return true
+	var allocation: Dictionary = stream_service.reserve_allocation(
+		{"category": "masks", "staging": 64 * 65 * 65 * 4}
+	)
+	if not allocation.ok:
+		problem = allocation.problem
+		return false
+	stream_service.retire_allocation(allocation.token)
+	_mask_upload_reserved = true
+	return true
+
+
+func _hide_receiver(id: int) -> void:
+	if _surface_nodes.has(id):
+		var node: Polygon2D = _surface_nodes[id]
+		node.hide()
+		node.texture = null
+		var material: ShaderMaterial = node.get_meta("light_material")
+		for key: String in ["normal_atlas", "material_atlas", "variant_field"]:
+			material.set_shader_parameter(key, null)
+		for prefix: String in ["variant_b_", "variant_c_"]:
+			for channel: String in ["colour", "normal", "material"]:
+				material.set_shader_parameter(prefix + channel, null)
+	if _copies.has(id):
+		_copies[id].hide()
+		_copies[id].texture = null
+		_copies[id].material = null

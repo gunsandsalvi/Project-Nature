@@ -1,0 +1,34 @@
+{
+  "source": {
+    "board": "mud-wet-r1",
+    "family": "near",
+    "original": "mud-wet-r1-original.png",
+    "original_sha256": "d97b0b884a3e8cf4555f02f9af7b7e9db4fc8ff3bfa35f059b0e57ef392fc20b",
+    "crop": "mud-wet-r1-near-crop.png",
+    "crop_box": [
+      3,
+      3,
+      721,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 4,
+    "review": "source candidate; unreviewed export",
+    "id": "mud",
+    "request": "mud-wet-r1.txt",
+    "component_limit_m": 2,
+    "component_limit_cells": 128,
+    "quilt_patch": 64,
+    "quilt_attempts": 6
+  },
+  "grid_loss": 0.027795020212444038,
+  "method": "bounded visible stone regions with traced dark rim; broad sediment and sand earth2; visible algae3",
+  "review": "candidate trace, pending independent review",
+  "quilt_attempts": 6,
+  "quilt_selected": [
+    0,
+    2,
+    4
+  ],
+  "annotation": "puddles"
+}

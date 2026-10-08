@@ -1,5 +1,7 @@
 #include "projection.hpp"
 #include <cmath>
+#include <string_view>
+#include <tuple>
 #include "doctest.h"
 #include "gestures.hpp"
 #include "kd/proof/fixture.hpp"
@@ -189,4 +191,151 @@ TEST_CASE("local stationary records have a safe facing") {
     CHECK(record[0].activity == 0);
     CHECK(record[0].east == 0.0);
     CHECK(record[0].north == 0.0);
+}
+
+// checks: PRE-03 PRE-22 PRE-28 (T2.9a.1): every intermediate raster stop reaches the whole world.
+TEST_CASE("navigation reaches every power of two through the whole world without losing its anchor") {
+    Projection p;
+    p.size(1081, 2401);
+    const Pixel anchor{133.25, 1701.5};
+    const Pixel before = p.ground(anchor);
+    p.zoom(2.0, anchor, true);
+    for (int power = 6; power >= -12; --power) {
+        const double density = std::ldexp(1.0, power);
+        p.zoom(density / p.density(), anchor, true);
+        CHECK(p.resting_density() == density);
+        CHECK(p.presentation() == 1.0);
+        CHECK(p.ground(anchor).x == doctest::Approx(before.x));
+        CHECK(p.ground(anchor).y == doctest::Approx(before.y));
+        CHECK(p.width() == 543);
+        CHECK(p.height() == 1203);
+    }
+    p.zoom(0.0001, anchor, true);
+    CHECK(p.resting_density() == std::ldexp(1.0, -12));
+    p.zoom(1e12, anchor, true);
+    CHECK(p.resting_density() == 64.0);
+}
+
+// checks: PRE-22 PRE-28 (T2.9a.1): source selection never treats independent families as consecutive mip levels.
+TEST_CASE("camera densities select independent families and integral authored reductions") {
+    Projection p;
+    const Pixel anchor{540, 1200};
+    for (const auto& [density, family, level] : std::vector<std::tuple<double, int, int>>{
+             {64, 64, 0}, {32, 64, 1}, {16, 16, 0}, {8, 16, 1}, {4, 4, 0}, {2, 4, 1}}) {
+        p.zoom(density / p.density(), anchor, true);
+        CHECK(p.source().density == family);
+        CHECK(p.source().level == level);
+        CHECK(std::string_view(p.source().form) == "individual");
+    }
+    p.zoom(0.5, anchor, true);
+    CHECK(p.source().density == 0);
+    CHECK(p.source().level == -1);
+    CHECK(std::string_view(p.source().form) == "tiny");
+    p.zoom(1.0 / 64.0, anchor, true);
+    CHECK(std::string_view(p.source().form) == "group");
+    p.zoom(1.0 / 64.0, anchor, true);
+    CHECK(std::string_view(p.source().form) == "overview-fixture");
+}
+
+// checks: PRE-03 PRE-33 (T2.9a.2): projected culling includes off-screen tall bodies and shadow casters.
+TEST_CASE("projected footprint covers the visible ground height overscan and directional shadow reach") {
+    Projection p;
+    p.size(1080, 2400);
+    p.focus(31, -17);
+    const auto plain = p.footprint(0, 0, 0, 0);
+    const auto cover = p.footprint(30, 32, 40, -20);
+    for (const Pixel corner : {Pixel{0, 0}, Pixel{1080, 2400}, Pixel{0, 2400}, Pixel{1080, 0}}) {
+        const auto ground = p.ground(corner);
+        const auto high = p.ground(corner, 30);
+        CHECK(plain.west <= ground.x);
+        CHECK(plain.east >= ground.x);
+        CHECK(plain.south <= ground.y);
+        CHECK(plain.north >= ground.y);
+        CHECK(cover.west <= high.x - 40);
+        CHECK(cover.east >= high.x);
+        CHECK(cover.south <= high.y);
+        CHECK(cover.north >= ground.y + 20);
+    }
+    CHECK(cover.west < plain.west);
+    CHECK(cover.south < plain.south);
+    CHECK(cover.east > plain.east);
+    CHECK(cover.north > plain.north);
+}
+
+// checks: PRE-03 PRE-33 (T2.9a.1): gesture release moves continuously while the resting image stays integral.
+TEST_CASE("zoom release settles continuously about its anchor and new input cancels it") {
+    Projection p;
+    const Pixel anchor{177.25, 1001.5};
+    p.zoom(1.27, anchor, false);
+    const Pixel before = p.ground(anchor);
+    const double live = p.density();
+    p.release(anchor, 0.160);
+    CHECK(p.settling());
+    CHECK(p.density() == live);
+    CHECK(p.target_density() == 32.0);
+    double previous = live;
+    for (int frame = 0; frame < 10; ++frame) {
+        p.advance(0.016);
+        CHECK(p.density() <= previous);
+        CHECK(previous / p.density() < 1.04);
+        CHECK(p.ground(anchor).x == doctest::Approx(before.x));
+        CHECK(p.ground(anchor).y == doctest::Approx(before.y));
+        previous = p.density();
+    }
+    CHECK_FALSE(p.settling());
+    CHECK(p.density() == 32.0);
+    CHECK(p.presentation() == 1.0);
+    p.zoom(1.7, anchor, false);
+    p.release(anchor, 0.160);
+    p.advance(0.032);
+    CHECK(p.resting_density() == 32.0);
+    p.pan(12, 9);
+    CHECK_FALSE(p.settling());
+    const double stopped = p.density();
+    p.advance(1.0);
+    CHECK(p.density() == stopped);
+    p.release(anchor, 0.160);
+    p.zoom(1.01, anchor, false);
+    CHECK_FALSE(p.settling());
+    p.release(anchor, 0.160);
+    p.advance(1.0);
+    CHECK(p.resting_density() == 64.0);
+    CHECK(p.presentation() == 1.0);
+}
+
+// checks: WLD-13 PRE-03 TIM-17 (T2.9a.2): skipped packets still expose a complete owned revision manifest.
+TEST_CASE("display manifests remain owned and include unchanged identities after skipped packets") {
+    kd::data::Catalogue catalogue;
+    REQUIRE(catalogue.load(kd::proof::fixture_files()).empty());
+    kd::demo::CrowdWorld crowd(7, catalogue, 1);
+    kd::view::CrowdStepper stepper(crowd);
+    kd::view::Snapshot packet;
+    packet.walkers = {{77, 2, 0}, {88, 2, 0}};
+    packet.ways = {{0, 0, 20, {12, 34}, {12, 34}}, {0, 0, 20, {22, 44}, {22, 44}}};
+    packet.first = {0, 1, 2};
+    DisplaySnapshot display;
+    stepper.snapshots().back() = packet;
+    stepper.snapshots().publish();
+    display.acquire(stepper);
+    const auto owned = display.manifest(2.5);
+    CHECK(owned.epoch == display.epoch());
+    CHECK(owned.revision == 1);
+    CHECK(owned.second == 2.5);
+    CHECK(owned.records.contains("caster"));
+    CHECK(owned.records.contains("appearance"));
+    CHECK(owned.records.contains("surface"));
+    if (!owned.records.contains("caster")) return;
+    CHECK(owned.records.at("caster").size() == 2);
+    packet.walkers.pop_back();
+    stepper.snapshots().back() = packet;
+    stepper.snapshots().publish();
+    display.acquire(stepper);
+    const auto latest = display.manifest(4.0);
+    CHECK(latest.revision == 2);
+    CHECK(latest.records.at("caster").size() == 1);
+    CHECK(latest.records.at("appearance").size() == 1);
+    CHECK(owned.records.at("caster").size() == 2);
+    CHECK(owned.revision == 1);
+    DisplaySnapshot next_world;
+    CHECK(next_world.epoch() != display.epoch());
 }

@@ -1,0 +1,238 @@
+[
+  {
+    "board": "hearth-fresh-r1",
+    "family": "near",
+    "original": "hearth-fresh-r1-original.png",
+    "original_sha256": "185c3b945dea69f7af0bd13b63b3aee160e927c8ef41092990088798fa84ca1b",
+    "crop": "hearth-fresh-r1-near-crop.png",
+    "crop_box": [
+      3,
+      3,
+      721,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 4,
+    "review": "source candidate; unreviewed export",
+    "id": "hearth_ground",
+    "request": "hearth-fresh-r1.txt"
+  },
+  {
+    "board": "hearth-fresh-r1",
+    "family": "middle",
+    "original": "hearth-fresh-r1-original.png",
+    "original_sha256": "185c3b945dea69f7af0bd13b63b3aee160e927c8ef41092990088798fa84ca1b",
+    "crop": "hearth-fresh-r1-middle-crop.png",
+    "crop_box": [
+      727,
+      3,
+      1445,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 16,
+    "review": "source candidate; unreviewed export",
+    "id": "hearth_ground",
+    "request": "hearth-fresh-r1.txt"
+  },
+  {
+    "board": "hearth-fresh-r1",
+    "family": "far",
+    "original": "hearth-fresh-r1-original.png",
+    "original_sha256": "185c3b945dea69f7af0bd13b63b3aee160e927c8ef41092990088798fa84ca1b",
+    "crop": "hearth-fresh-r1-far-crop.png",
+    "crop_box": [
+      1451,
+      3,
+      2169,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 64,
+    "review": "source candidate; unreviewed export",
+    "id": "hearth_ground",
+    "request": "hearth-fresh-r1.txt"
+  },
+  {
+    "board": "hearth-old-r1",
+    "family": "near",
+    "original": "hearth-old-r1-original.png",
+    "original_sha256": "a416c2bf167128f91405bc395e78eb011a1bea6ebed1c12dc2645ae06faead78",
+    "crop": "hearth-old-r1-near-crop.png",
+    "crop_box": [
+      3,
+      3,
+      721,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 4,
+    "review": "source candidate; unreviewed export",
+    "id": "hearth_ground_old",
+    "request": "hearth-old-r1.txt"
+  },
+  {
+    "board": "hearth-old-r1",
+    "family": "middle",
+    "original": "hearth-old-r1-original.png",
+    "original_sha256": "a416c2bf167128f91405bc395e78eb011a1bea6ebed1c12dc2645ae06faead78",
+    "crop": "hearth-old-r1-middle-crop.png",
+    "crop_box": [
+      727,
+      3,
+      1445,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 16,
+    "review": "source candidate; unreviewed export",
+    "id": "hearth_ground_old",
+    "request": "hearth-old-r1.txt"
+  },
+  {
+    "board": "hearth-old-r1",
+    "family": "far",
+    "original": "hearth-old-r1-original.png",
+    "original_sha256": "a416c2bf167128f91405bc395e78eb011a1bea6ebed1c12dc2645ae06faead78",
+    "crop": "hearth-old-r1-far-crop.png",
+    "crop_box": [
+      1451,
+      3,
+      2169,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 64,
+    "review": "source candidate; unreviewed export",
+    "id": "hearth_ground_old",
+    "request": "hearth-old-r1.txt"
+  },
+  {
+    "board": "mud-wet-r1",
+    "family": "near",
+    "original": "mud-wet-r1-original.png",
+    "original_sha256": "d97b0b884a3e8cf4555f02f9af7b7e9db4fc8ff3bfa35f059b0e57ef392fc20b",
+    "crop": "mud-wet-r1-near-crop.png",
+    "crop_box": [
+      3,
+      3,
+      721,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 4,
+    "review": "source candidate; unreviewed export",
+    "id": "mud",
+    "request": "mud-wet-r1.txt",
+    "component_limit_m": 2,
+    "component_limit_cells": 128,
+    "quilt_patch": 64,
+    "quilt_attempts": 6
+  },
+  {
+    "board": "mud-wet-r2",
+    "family": "middle",
+    "original": "mud-wet-r2-original.png",
+    "original_sha256": "278a9d34a3eec46d9be5b10c2d88754045ce405df43fcab822c114195c37a322",
+    "crop": "mud-wet-r2-middle-crop.png",
+    "crop_box": [
+      727,
+      3,
+      1445,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 16,
+    "review": "source candidate; unreviewed export",
+    "id": "mud",
+    "request": "mud-wet-r2.txt",
+    "component_limit_m": 2,
+    "component_limit_cells": 32
+  },
+  {
+    "board": "mud-far-r3",
+    "family": "far",
+    "original": "mud-far-r3-original.png",
+    "original_sha256": "1d6ecea9d4773eacf1e841c8b3ba6dbd68ca6b3e4241ee661c9d5d260edad808",
+    "crop": "mud-far-r3-crop.png",
+    "crop_box": [
+      3,
+      3,
+      884,
+      884
+    ],
+    "source_cells": 128,
+    "span_m": 64,
+    "review": "source candidate; unreviewed export",
+    "id": "mud",
+    "request": "mud-far-r3.txt",
+    "source_span_m": 32,
+    "physical_calibration": "full colour/basin/coverage regrid together; independent far source32m quilted into64m tiles",
+    "component_limit_m": 2,
+    "component_limit_cells": 8
+  },
+  {
+    "board": "mud-drying-r1",
+    "family": "near",
+    "original": "mud-drying-r1-original.png",
+    "original_sha256": "ef110143e93714e7b66eb995921a54f2a96ae77062709672ff56bd76cb0594eb",
+    "crop": "mud-drying-r1-near-crop.png",
+    "crop_box": [
+      3,
+      3,
+      721,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 4,
+    "review": "source candidate; unreviewed export",
+    "id": "mud_drying",
+    "request": "mud-drying-r1.txt",
+    "component_limit_m": 2,
+    "component_limit_cells": 128,
+    "quilt_patch": 64,
+    "quilt_attempts": 3
+  },
+  {
+    "board": "mud-drying-r1",
+    "family": "middle",
+    "original": "mud-drying-r1-original.png",
+    "original_sha256": "ef110143e93714e7b66eb995921a54f2a96ae77062709672ff56bd76cb0594eb",
+    "crop": "mud-drying-r1-middle-crop.png",
+    "crop_box": [
+      727,
+      3,
+      1445,
+      721
+    ],
+    "source_cells": 256,
+    "span_m": 16,
+    "review": "source candidate; unreviewed export",
+    "id": "mud_drying",
+    "request": "mud-drying-r1.txt",
+    "component_limit_m": 2,
+    "component_limit_cells": 32
+  },
+  {
+    "board": "mud-far-r3",
+    "family": "far",
+    "original": "mud-far-r3-original.png",
+    "original_sha256": "1d6ecea9d4773eacf1e841c8b3ba6dbd68ca6b3e4241ee661c9d5d260edad808",
+    "crop": "mud_drying-far-r3-crop.png",
+    "crop_box": [
+      890,
+      3,
+      1771,
+      884
+    ],
+    "source_cells": 128,
+    "span_m": 64,
+    "review": "source candidate; unreviewed export",
+    "id": "mud_drying",
+    "request": "mud-far-r3.txt",
+    "source_span_m": 32,
+    "physical_calibration": "full colour/basin/coverage regrid together; independent far source32m quilted into64m tiles",
+    "component_limit_m": 1.5,
+    "component_limit_cells": 6
+  }
+]

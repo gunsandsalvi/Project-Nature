@@ -18,8 +18,8 @@ godot::Dictionary KdLook::texture_image(const godot::String& path) const {
     return out;
 }
 
-godot::Dictionary KdLook::texture_levels(const godot::String& path) const {
-    const ReadLevels read = read_levels(path);
+namespace {
+godot::Dictionary images_of(const ReadLevels& read) {
     godot::Dictionary out;
     out["problem"] = read.problem;
     godot::Array levels;
@@ -30,11 +30,21 @@ godot::Dictionary KdLook::texture_levels(const godot::String& path) const {
     return out;
 }
 
+}  // namespace
+
+godot::Dictionary KdLook::texture_levels(const godot::String& path) const {
+    return images_of(read_levels(path));
+}
+godot::Dictionary KdLook::texture_levels_bytes(const godot::PackedByteArray& bytes) const {
+    return images_of(read_levels_bytes(bytes));
+}
+
 void KdLook::_bind_methods() {
     using godot::ClassDB;
     using godot::D_METHOD;
     ClassDB::bind_method(D_METHOD("texture_image", "path"), &KdLook::texture_image);
     ClassDB::bind_method(D_METHOD("texture_levels", "path"), &KdLook::texture_levels);
+    ClassDB::bind_method(D_METHOD("texture_levels_bytes", "bytes"), &KdLook::texture_levels_bytes);
 }
 
 }  // namespace kd::view
