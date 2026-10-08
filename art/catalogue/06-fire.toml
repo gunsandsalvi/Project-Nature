@@ -8,22 +8,30 @@ items = ["MAT-18", "PRE-30", "WLD-28"]
 id = "embers"
 name = "Embers"
 what = "glowing embers, and a fire banked under ash"
+sheet = "sheets/6.1-embers.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "small_fire"
 name = "Small fire"
 what = "twigs and tinder burning"
+sheet = "sheets/6.2-small_fire.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "campfire"
 name = "Campfire"
 what = "a fire in its hearth ring"
 art_book = ["close-camp", "made-things-sheet", "first-cave"]
+sheet = "sheets/6.3-campfire.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "pit_fire"
 name = "Pit fire and earth oven"
 what = "a fire in a covered pit"
+sheet = "sheets/6.4-pit_fire.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "kiln_fire"
