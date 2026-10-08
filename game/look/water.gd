@@ -40,7 +40,7 @@ func apply(world: KdWorld, level: float) -> String:
 			float(tuning["wet_margin"]) / 1000.0,
 			_share(tuning["wet_darkening"]),
 			_share(tuning["ragged"]),
-			0.0
+			float(tuning["beach"]) / 1000.0
 		)
 	)
 	_global(
@@ -50,6 +50,24 @@ func apply(world: KdWorld, level: float) -> String:
 			float(tuning["glint_life"]),
 			_share(tuning["glint_share"]),
 			float(tuning["shore_width"])
+		)
+	)
+	_global(
+		"kd_water_marks",
+		Vector4(
+			_share(tuning["calm_marks"]),
+			float(tuning["calm_scale"]) / 1000.0,
+			float(tuning["marks_depth"]) / 1000.0,
+			_share(tuning["shore_line_share"])
+		)
+	)
+	_global(
+		"kd_water_edge",
+		Vector4(
+			float(tuning["shore_wander"]) / 1000.0,
+			float(tuning["shore_scale"]) / 1000.0,
+			_share(tuning["murk_curve"]),
+			float(tuning["gravel_depth"]) / 1000.0
 		)
 	)
 	_global("kd_water_glint", _colour(tuning["glint_colour"], 0.0))

@@ -66,6 +66,9 @@ godot::String KdArea::use_world(const godot::Ref<KdWorld>& world) {
     ground_ = tuning.ground;
     bed_ = tuning.bed;
     marks_ = tuning.marks;
+    earth_ = tuning.earth;
+    worn_ = tuning.worn;
+    gravel_ = tuning.gravel;
     return "";
 }
 
@@ -74,6 +77,9 @@ godot::Dictionary KdArea::surfaces() const {
     out["ground"] = text(ground_);
     out["bed"] = text(bed_);
     out["marks"] = text(marks_);
+    out["earth"] = text(earth_);
+    out["worn"] = text(worn_);
+    out["gravel"] = text(gravel_);
     return out;
 }
 
@@ -129,20 +135,17 @@ godot::RID KdArea::mesh_of(const area::Mesh& mesh, bool beds) {
     return rid;
 }
 
-// A material over a shader, wearing the surface of the role for its ground and, if the role is given, another for the
-// bed under the water.
-godot::RID KdArea::material_of(const godot::RID& shader, const char* ground_role, const char* bed_role) {
+// A material over a shader, wearing the surfaces it is given as pairs of a role and the prefix of its uniforms: the
+// ground's are kd_layers, kd_count and kd_first, the others' kd_<name>_layers, kd_<name>_count and kd_<name>_first.
+godot::RID KdArea::material_of(const godot::RID& shader, const std::vector<std::pair<const char*, const char*>>& worn) {
     const godot::RID material = server().material_create();
     server().material_set_shader(material, shader);
-    const Surface& ground = surface_[ground_role];
-    server().material_set_param(material, "kd_layers", ground.texture);
-    server().material_set_param(material, "kd_count", ground.count);
-    server().material_set_param(material, "kd_first", ground.first);
-    if (bed_role != nullptr) {
-        const Surface& bed = surface_[bed_role];
-        server().material_set_param(material, "kd_bed_layers", bed.texture);
-        server().material_set_param(material, "kd_bed_count", bed.count);
-        server().material_set_param(material, "kd_bed_first", bed.first);
+    for (const auto& [role, prefix] : worn) {
+        const Surface& surface = surface_[role];
+        const godot::String stem(prefix);
+        server().material_set_param(material, godot::StringName(stem + godot::String("layers")), surface.texture);
+        server().material_set_param(material, godot::StringName(stem + godot::String("count")), surface.count);
+        server().material_set_param(material, godot::StringName(stem + godot::String("first")), surface.first);
     }
     return material;
 }
@@ -152,7 +155,7 @@ godot::String KdArea::build(const godot::RID& scenario, const godot::RID& land, 
     if (!river_) {
         return "the area has no world: call use_world first";
     }
-    for (const char* role : {"ground", "bed", "marks"}) {
+    for (const char* role : {"ground", "bed", "marks", "earth", "worn", "gravel"}) {
         const auto found = surface_.find(role);
         if (found == surface_.end() || !found->second.texture.is_valid()) {
             return godot::String("the area has no surface for ") + role + godot::String(": call set_surface first");
@@ -160,22 +163,27 @@ godot::String KdArea::build(const godot::RID& scenario, const godot::RID& land, 
     }
     clear_drawing_only();
     scenario_ = scenario;
-    // the carpet and the strip wear the ground, the strip also the bed, the water the marks
+    // the carpet wears the ground and its two other grounds, the strip also the bed and the bank's gravel, the water
+    // the marks
     struct Part {
         area::Mesh mesh;
         bool beds;
         godot::RID shader;
-        const char* ground;
-        const char* bed;
+        std::vector<std::pair<const char*, const char*>> worn;
     };
+    const std::vector<std::pair<const char*, const char*>> ground{
+        {"ground", "kd_"}, {"earth", "kd_earth_"}, {"worn", "kd_worn_"}};
+    std::vector<std::pair<const char*, const char*>> strip = ground;
+    strip.push_back({"bed", "kd_bed_"});
+    strip.push_back({"gravel", "kd_gravel_"});
     const std::vector<Part> parts{
-        {river_->carpet(), false, land, "ground", nullptr},
-        {river_->strip(), false, river, "ground", "bed"},
-        {river_->surface(), true, water, "marks", nullptr},
+        {river_->carpet(), false, land, ground},
+        {river_->strip(), false, river, strip},
+        {river_->surface(), true, water, {{"marks", "kd_"}}},
     };
     for (const Part& part : parts) {
         const godot::RID mesh = mesh_of(part.mesh, part.beds);
-        const godot::RID material = material_of(part.shader, part.ground, part.bed);
+        const godot::RID material = material_of(part.shader, part.worn);
         server().mesh_surface_set_material(mesh, 0, material);
         const godot::RID instance = server().instance_create2(mesh, scenario);
         // the ground is a big caster that shades through the height-field sun map, never Godot's (A4.4), and the

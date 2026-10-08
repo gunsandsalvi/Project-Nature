@@ -1,7 +1,8 @@
 // The view's maps as pictures for the light function (A4.4, A4.3, PRE-21, PRE-24, PRE-30): view/src/maps.hpp's maps
 // made from the triangles of what stands on the ground, as one RGBA picture (openness, contact, sun angle and distance)
-// and one picture of the tops' heights, with where the square lies. This class converts and never decides for the world
-// (WLD-13); game/look/view_maps.gd puts the pictures where the shaders read them.
+// and one picture of the tops' heights, with where the square lies; and view/src/patches.hpp's patch picture of the
+// ground (A4.6, PRE-20). This class converts and never decides for the world (WLD-13); game/look/view_maps.gd puts the
+// pictures where the shaders read them.
 #pragma once
 
 #include <godot_cpp/classes/ref_counted.hpp>
@@ -11,7 +12,8 @@
 
 namespace kd::view {
 
-/// Implements PRE-21, PRE-24 and PRE-30, see A4.4: the maps round the things, made.
+/// Implements PRE-20, PRE-21, PRE-24 and PRE-30, see A4.4 and A4.6: the maps round the things, and the patch picture,
+/// made.
 class KdMaps : public godot::RefCounted {
     GDCLASS(KdMaps, godot::RefCounted)
 
@@ -23,6 +25,13 @@ public:
     /// side), shadow_reach, footprint (texels under things) and problem ("" when all is well).
     [[nodiscard]] godot::Dictionary make(const godot::PackedVector3Array& triangles, godot::Vector3 sun_toward,
                                          const godot::Dictionary& params) const;
+
+    /// The patch picture round a camp at (east, north) in metres (view/src/patches.hpp), with params: patch,
+    /// size, growth_scale, bare_below, clearing, clearing_fade and seed. Gives picture (the Image of four
+    /// channels: growth, wear, damp and 255), west and south (its edges, metres east and north), width (its side)
+    /// and problem ("" when all is well).
+    [[nodiscard]] godot::Dictionary make_patches(double camp_east, double camp_north,
+                                                 const godot::Dictionary& params) const;
 
 protected:
     static void _bind_methods();

@@ -7,14 +7,34 @@
 fade_red = "0.3 m"
 fade_green = "0.8 m"
 fade_blue = "1.1 m"
+# the water's own deep colour comes in as 1 - exp(-(depth / murk) ** curve): clear in the shallows (17% at 10 cm, the
+# even rate's 33%) and the same as before by 40 cm, where it has taken four fifths
+murk_curve = "150%"
 # the water's own deep colour has taken two thirds of the view by this depth
-murk = "0.25 m"
+murk = "0.30 m"
 deep_colour = "#0d4a55"
 # the bed is wet up to 12 cm above the level, keeping 80% of its colour; the shore is ragged by the depth a texture
 # pixel spans
 wet_margin = "0.12 m"
-wet_darkening = "80%"
+wet_darkening = "55%"
 ragged = "100%"
+# above the wet margin the bank is gravel giving way to grass, in clumps, over this much more height (the bank's top is
+# 0.40 m over the level); the bank's gravel is the river bed's own until the art lane's bank gravel arrives
+beach = "0.28 m"
+# the waterline bends: the depth is moved by a noise 9 cm high and 1.2 m wide, so the shore wanders about 30 cm either
+# way round the bank instead of running straight; the bank is darkest, 55% of its colour, at the waterline, wet higher in
+# some places than others, and dry again at the top of the wet margin; the bank's gravel goes on under the water for 30 cm
+# of depth, mixed in clumps with the bed's stones, and the bright line at the waterline lights 60% of its texture pixels
+gravel_depth = "0.30 m"
+shore_line_share = "60%"
+shore_wander = "9 cm"
+shore_scale = "1.2 m"
+# the current's marks come and go: the water is rough and calm in stretches about 7 m wide that travel with it, the marks
+# keeping 30% of their strength where it is calmest, and they fade in over the first 20 cm of depth, so the shallows
+# show their stones and the marks are not one pattern spread evenly over the river
+calm_marks = "30%"
+calm_scale = "7 m"
+marks_depth = "0.2 m"
 # the surface mirrors this share of the sky square on, and more as the view grazes it
 sky_share = "3%"
 # the current runs east at this speed, and the marks and glints step this many times a second

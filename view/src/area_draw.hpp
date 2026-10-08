@@ -9,6 +9,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <godot_cpp/classes/ref.hpp>
@@ -36,8 +37,8 @@ public:
     /// Reads the area's shape from the world's catalogue, loaded first (A3.6): "" or the problem. The surfaces it
     /// names are in surfaces().
     godot::String use_world(const godot::Ref<KdWorld>& world);
-    /// The surfaces the tuning names, by their role: ground, bed and marks, each the entry of its near tile, such as
-    /// art:meadow.
+    /// The surfaces the tuning names, by their role: ground, bed, marks, earth, worn and gravel, each the entry of its
+    /// near tile, such as art:meadow.
     [[nodiscard]] godot::Dictionary surfaces() const;
     /// Makes the surface of a role from its tiles' .kdtex files: paths, the near tile's versions first, then the
     /// middle tile's and the far's; count, how many versions each tile has; first, the band each tile starts at, a
@@ -76,7 +77,7 @@ private:
     };
 
     godot::RID mesh_of(const area::Mesh& mesh, bool beds);
-    godot::RID material_of(const godot::RID& shader, const char* ground_role, const char* bed_role);
+    godot::RID material_of(const godot::RID& shader, const std::vector<std::pair<const char*, const char*>>& worn);
     void place_all();
     void clear_drawing_only();
 
@@ -84,6 +85,9 @@ private:
     std::string ground_;
     std::string bed_;
     std::string marks_;
+    std::string earth_;
+    std::string worn_;
+    std::string gravel_;
     std::map<std::string, Surface> surface_;
     godot::RID scenario_;
     std::vector<godot::RID> meshes_;
