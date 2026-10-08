@@ -11,7 +11,7 @@ Kindling is an offline world you watch and influence indirectly. People choose f
 
 The current commitment is a small valley game. Keep the accepted foundations; build a living camp and one place dream, then prove stone/fire discovery and learning. Add seasons, a neighbour and a small finish. Readable stand-ins are accepted for these early builds. The wider world, full catalogues, cultures and copper are optional production expansions whose existing requirements remain open until delivered or explicitly retired.
 
-The owner approved the revised order and 22 accompanying decisions on 8 October 2026. The separate testing-policy patch is still a recommendation; current testing rules apply.
+The owner approved the revised order and 22 accompanying decisions on 8 October 2026. The owner also approved the testing-policy changes on 8 October 2026; they are now the working rules.
 Use IMPLEMENTATION.md for the next task and ARCHITECTURE.md for contracts and known faults. This file is the full decision reference. Only the owner can change decided meaning; the next sections explain its IDs and acceptance rules.
 
 ## Contents
@@ -107,8 +107,8 @@ Each item's detailed acceptance criteria are written in the plan, and you approv
 - To change a decided item, a **Proposed change:** line goes beneath it, with the new text and the reason.
   Your OK replaces the text.
 - Items are edited in place, and keep their IDs.
-- Every commit that changes this file ends with a line naming the changed IDs and why, for example `Changed: GOD-04 (blessing cap raised; owner OK)`.
-  The commit check enforces it (`PRC-07`), and the coverage check flags work linked to a changed item (`PRC-12`).
+- Changes to decided meaning need your OK, recorded with the decision and date (`PRC-07`).
+  Ordinary descriptive commit messages are enough; IDs are optional when useful.
 - Parts delivered across stages may keep one stable ID (`PRC-12`).
   Delivery notes state proved behaviour and remaining checks; full acceptance stays open until all pass.
 - In the source, each sentence starts on its own line, so changes show clearly.
@@ -122,8 +122,9 @@ Each item's detailed acceptance criteria are written in the plan, and you approv
    A new ID becomes permanent only when it reaches the main version; until then, a branch whose number is taken renumbers its own new items.
 3. A cut item is removed, and its ID is retired: never reused, and cited nowhere.
    Retired IDs: `BIO-07`, `CUL-04`, `CUL-13`, `CUL-14`, `CUL-15`, `CUL-25`, `MAT-15`, `MIL-01`, `MIL-02`, `MIL-03`, `MIL-04`, `MIL-05`, `MIL-06`, `MIL-07`, `MND-17`, `MND-25`, `MOM-05`, `MOM-10`, `PRC-05`, `PRE-04`, `PRE-11`, `PRE-12`, `PRE-36`, `PRE-38`, `PRN-08`, `RCK-05`, `RCK-09`, `RCK-17`, `RCK-18`, `RCK-19`, `RCK-20`, `RES-04`, `RES-08`, `RES-11`, `RES-15`, `RES-20`, `RSK-10`, `RSK-12`, `RSK-13`, `RSK-16`, `RSK-17`, `RSK-20`, `RSK-22`, `SCP-13`, `SCP-14`, `SND-04`, `SND-05`, `SND-09`, `SND-10`, `TIM-06`, `TIM-12`, `TIM-13`, `VIS-13`, `WLD-05`, `WLD-19`, `WLD-20`, `WLD-21`, `WLD-23`, `WLD-25`, `WLD-29`, `WLD-34`.
-4. The implementation plan maps every feature and rule to a stage, and every task names the IDs it delivers, as the coverage check enforces (`PRC-12`).
-5. Code and tests name the IDs they implement, so any feature can be followed from this file to the plan to the code, and back.
+4. The implementation plan maps every feature and rule to a stage, and every task names the IDs it delivers, as the ID traceability check enforces (`PRC-12`).
+5. Code modules and test suites may name useful IDs for `python3 tools/filecheck.py where <ID>`.
+   Missing annotations are allowed; references are not completion evidence.
 6. A new area gets a new three-letter code in the table below, and its own section or subsection.
 
 ### Area codes
@@ -2452,9 +2453,9 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
 
 ### 14.1 How testing works
 
-- `RES-01` **Tests lead** *(Decided)*: Every alpha brings automated tests for what it adds, quick ones run before work joins and long ones in the background of the session that builds (`PRC-10`).
-  A feature counts as built only when its tests pass, and every test names the IDs it checks.
-  - **Check:** the coverage check finds a test for every feature and rule built so far (`PRC-12`).
+- `RES-01` **Tests lead** *(Decided)*: Every alpha brings automated tests for what it adds. Quick tests run before joining; long tests run in the background of the session that builds (`PRC-10`). A feature counts as built only when its relevant behaviour tests pass; descriptive names and optional module/suite IDs are enough.
+  - **Owner OK:** 8 October 2026.
+  - **Check:** stage review compares built behaviour with actual tests; the ID check validates references (`PRC-12`).
 
 - `RES-21` **Scenes, then whole worlds** *(Decided)*: Most checks use unscripted sandbox scenes cut from generated land, about 10 km across for one band and wider as needed.
   Include decoys/unplanned things; check no unknown-blueprint or unseen-fact use (`PRN-01`).
@@ -2465,7 +2466,8 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   A result that needs a switch (`RES-10`) or a scripted event doesn't count as passing in play (`PRN-12`).
   - **Check:** scenes and play run on one game, and every run records any switch it used.
 
-- `RES-09` **Pass rules come first** *(Decided)*: Before first run, every test specifies IDs, scene/worlds, runs, session-hour budget and exact numeric pass rule.
+- `RES-09` **Pass rules come first** *(Decided)*: Unit and regression tests state their expected outcome in assertions. Scenario, statistical and performance tests declare their setting/worlds, seeds/runs, run budget and quantitative pass rule before tuning.
+  - **Owner OK:** 8 October 2026.
   Never loosen a rule in the change that makes it pass.
   Owner-approved rules require your OK to loosen; others require reasons checked by independent milestone review (`PRC-09`); pace windows require you (`TIM-19`).
   - **Check:** review sees every pass-rule change and reason.
@@ -2500,8 +2502,9 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   - **Done when:** all blueprints have trials; wrong chances/results fail them.
 
 - `RES-23` **Every chain and behaviour has a scene** *(Decided)*: Each chain of the arc (`MAT-22`) and each everyday behaviour, such as a band fleeing a predator, has a scene giving people their own reasons.
+  - **Owner OK:** 8 October 2026.
   A chain's scene passes if the chain completes in at least half of 20 runs within a stated time.
-  - **Done when:** the coverage check finds a trial for every blueprint and a scene for every chain and behaviour (`PRC-12`).
+  - **Done when:** each built blueprint has a trial, and every built chain/behaviour has a scene; stage review examines their outcomes (`PRC-12`).
 
 - `RES-02` **The sharp-stone test** *(Decided)*: A band with the starting kit (`BIO-02`), which has never made a sharp flake, lives by a river with stone anvils, nuts to crack, carcasses to butcher, hides and wood to work, and flint among decoy stones such as granite.
   - **How it works:** it runs 20 times, each until a year after the first flake, or 3 years if none comes; a control scene, the same with no stone that flakes, runs 4 years.
@@ -2534,7 +2537,8 @@ How each alpha proves what it adds, within the AI's cloud sessions (`SCP-15`).
   - **Check:** reports give every moment's latest result and whole-world appearances (`RES-06`).
 
 - `RES-19` **Every promise has a test** *(Decided)*: Everything this file says will arise in play, such as a religion or a lost craft, gets a scene or whole-world check by the stage that builds it, or is marked "possible, not promised" with your OK (`PRC-07`).
-  - **Check:** the coverage check lists each such promise with its test or its mark (`PRC-12`).
+  - **Owner OK:** 8 October 2026.
+  - **Check:** stage review lists each delivered promise with its test result or owner-approved possible-not-promised mark (`PRC-12`).
 
 - `RES-14` **Believable outcomes** *(Decided)*: Whole worlds are checked against the ranges of `BIO-04` (births, deaths, life spans, growth) and `CUL-30` (band sizes); a world far outside them is a bug to look into, not a finding (`PRN-02`).
   - **Check:** stage reports show these from the pace-test worlds against their ranges (`RES-06`).
@@ -2568,7 +2572,8 @@ How the project is run.
 - `PRC-01` **Passion project, built by AI** *(Decided)*: You direct; AI agents write, test and review the code, with no running costs beyond the AI sessions.
 
 - `PRC-02` **Your role** *(Decided)*: You play the alphas when you like, review each stage (`RES-22`), set direction and approve changes to this file.
-  - **Check:** every change to this file names your OK in its commit (`PRC-07`).
+  - **Owner OK:** 8 October 2026.
+  - **Check:** changes to decided meaning record your OK with the decision and date (`PRC-07`).
 
 - `PRC-03` **Technology** *(Decided)*: Chosen by the AI from what the pre-tests measured (`PRC-08`), set out in the architecture for your approval.
   - **Check:** the architecture's technology proposal records your approval before building starts.
@@ -2578,21 +2583,19 @@ How the project is run.
 - `PRC-04` **Three main documents** *(Decided)*: PROJECT.md decides what; ARCHITECTURE.md records how and why; IMPLEMENTATION.md sets order, maps every item and details only the next milestone's alphas and tasks.
   - **Owner OK:** 8 October 2026.
   Short durable decision and evidence records, linked from these authoritative files, and the requested critique may also be kept.
-  Code and tests name their IDs and are the index of where each is done (`PRC-12`); no document duplicates that index.
+  Optional module/suite ID references help find relevant work (`PRC-12`); they do not claim complete delivery.
   - **Check:** each stage review checks that the three documents exist and this file holds no implementation details.
-
 
 - `PRC-06` **A guide for AI agents** *(Decided)*: Every agent first reads the short repository guide, CLAUDE.md.
   - **Owner OK:** 8 October 2026.
   One builder owns the integrated playable result, with at most one bounded supporting task.
   The coordinator may settle implementation choices within approved scope.
-  The guide requires agents to read this file, follow its principles, link work to IDs and never mark anything Decided without you; changing it needs your OK.
+  The guide requires agents to read this file, follow its principles, name relevant IDs in the plan or delivery description and never mark anything Decided without you; changing it needs your OK.
   - **Done when:** the top-level guide states these rules.
 
-
-- `PRC-07` **Changes to this file** *(Decided)*: AI agents can suggest additions or changes, marked *Proposed*, as How this file works sets out.
-  Nothing becomes *Decided*, and no decided item changes, without your OK.
-  - **Check:** the commit check confirms that every commit changing this file names the changed IDs and why, and your OK for anything made Decided.
+- `PRC-07` **Changes to this file** *(Decided)*: Changes to decided meaning and new decided items need your OK, recorded with the decision and date. Agents suggest unapproved changes as proposals. Ordinary descriptive commit messages are enough; no fixed `Changed:` format is required.
+  - **Owner OK:** 8 October 2026.
+  - **Check:** review verifies owner approval for decision changes; the document check verifies IDs, references and structure.
 
 - `PRC-08` **Production** *(Decided)*: Godot with a C++ simulation was chosen (`PRC-03`).
   Pre-production closed on 5 October 2026; foundations (`MIL-08`) were accepted on 6 October.
@@ -2601,14 +2604,16 @@ How the project is run.
 
 ### 15.3 How work flows
 
-- `PRC-09` **Branches, checks and review** *(Decided)*: Agents use separate branches; main requires all automatic checks and review approval (`PRC-10`).
-  - **Builder:** review each lettered step and numbered alpha against claimed items, rerun checks and make each new test fail once; final step reviews the whole alpha likewise.
-  - **Milestone:** once at end, a fresh independent agent reviews the full milestone, tests/results and claimed What/Done when/Check, without builder reasoning, and checks that no test was weakened to pass (`RES-09`).
-  - **Disagreement:** after one fixing round, a second fresh reviewer decides; decision-meaning changes go to you.
-  - **Check:** no failing or unapproved work joins main.
+- `PRC-09` **Branches, checks and review** *(Decided)*: Agents work on separate branches. Work joins after the routine check passes (`PRC-10`), the builder reviews the integrated delivery once, and the coordinator checks it before merging. One independent reviewer checks each milestone before it closes; changes to determinism, threading, save formats or corruption recovery also receive independent review before joining.
+  - **Owner OK:** 8 October 2026.
+  - **How it works:** compare observed behaviour and tests with the claimed requirements. Reproduce a known bug before fixing it where practicable; use deliberate bad inputs/faults for serious regressions and uncertain test sensitivity, without requiring every new test to fail first. Keep existing determinism, save and recovery regressions.
+    The independent milestone reviewer receives the requirements, diff and evidence without the builder's reasoning and checks that pass rules were not weakened to pass (`RES-09`).
+    If builder and reviewer still disagree after one round of fixes, a second fresh reviewer decides; anything that changes what this file means goes to you.
+  - **Check:** failures block joining; unresolved decision changes go to the owner.
 
 - `PRC-10` **The checks** *(Decided)*
-  - **Before any work joins the main version,** run the routine check: formats and language lints, host builds and quick tests (`RES-01`), the accepted simulation proof suites on one and four threads (`RES-05`), catalogue validation (`MAT-17`, `RCK`), Godot import, script and interface tests, tool tests, the file and commit checks (`PRC-07`) and the coverage check (`PRC-12`). A delivery also checks its note and its already signed APK's checksum, signature, version and packaging, without requiring a second export.
+  - **Owner OK:** 8 October 2026.
+  - **Before any work joins the main version,** run the routine check: formats and language lints, host builds and quick tests (`RES-01`), the accepted simulation proof suites on one and four threads (`RES-05`), catalogue validation (`MAT-17`, `RCK`), Godot import, script and interface tests, tool tests, document structure and ID traceability checks (`PRC-12`). A delivery also checks its note and its already signed APK's checksum, signature, version and packaging, without requiring a second export.
   - **Separate audit:** the additional compiler and emulated processor builds, sanitizer and randomized-order runs, exhaustive recovery tests, scene and repeat stress, native static analysis and full scenario benchmark run before a milestone closes and when a change to simulation arithmetic, threading, persistence or compiler settings needs them. They do not delay unrelated coding or every delivery. Blueprint trials (`RES-24`) and the scenes for changed physical rules (`RES-23`, `RES-17`) still run with those changes. Known failures are still resolved before work joins.
   - **When a background run ends:** its results are read before anything else.
     A check that passed before and now fails is fixed, or the change behind it undone, before other work joins.
@@ -2616,22 +2621,15 @@ How the project is run.
   - **Before a stage closes:** the pace tests (`RES-07`), the phone measurements (`PLT-04`), the phone and cloud match, the moment scenes that are due, the writer's trap records (`PRE-17`), the visual and sound reviews (`PRE-31`, `SND-12`), the report (`RES-06`) and your review (`RES-22`).
   - **Check:** the checks run by themselves, and any failure blocks the join or the close.
 
-- `PRC-11` **Each alpha reaches your phone** *(Decided)*: Every alpha (`SCP-03`) ends with a build to install and try on the phone (`PLT-06`) and a short note: what is new, what to try and what is still rough.
-  Only the stage reviews wait for you (`RES-22`).
-  - **How it works:** the note is a page with the download link, and the build opens your worlds unless the note says it is a big update (`PLT-09`).
-    The first time an alpha opens, it runs a self-check of a few seconds and, if anything fails, shows a short code to send back.
-  - **Check:** every alpha's note links its build and names the IDs it delivers, and no check that passed before was failing on its build.
-
-- `PRC-12` **Nothing gets lost** *(Decided)*: Before work joins and at stage close (`PRC-10`), the automatic ID check verifies traceability; review verifies behavioural acceptance.
+- `PRC-11` **Each alpha reaches your phone** *(Decided)*: Every alpha ends with an installable build and a short note: What is new, What to try and What is rough, with the APK link. Those sections state proved behaviour, material remaining checks and any save incompatibility. Only stage reviews wait for you (`RES-22`).
   - **Owner OK:** 8 October 2026.
-  - Every non-Proposed feature/rule is built or mapped to a stage; current-stage items have tasks.
-  - Tasks name their IDs; all code/test IDs exist and are live.
-  - Built features/rules require tests (`RES-01`), blueprints trials (`RES-24`), chains scenes (`RES-23`), and promises tests or owner-approved "possible, not promised" marks (`RES-19`).
-    The automatic check verifies recorded links; reviewers verify test meaning and results.
-  - Changed requirements flag linked work for rechecking.
-  - Staged subsets may share a stable ID; delivery notes state proved behaviour and remaining checks.
-    Full acceptance remains open until every obligation passes; ID coverage alone never proves completion.
-  - **Done when:** the ID check rejects an unmapped feature and a test with a retired ID; catalogue acceptance rejects a blueprint lacking its trial.
+  - **How it works:** the note opens on the phone; the build opens existing worlds unless it declares a big update (`PLT-09`). First launch runs the brief self-check and shows a code if it fails. For the next three deliveries, record actual time spent building, checking, reviewing and packaging; do not promise a fixed duration.
+  - **Check:** release checksum, signature, version and packaging pass with the routine gate; the note helps you try the delivered behaviour.
+
+- `PRC-12` **Nothing gets lost** *(Decided)*: The automatic ID check verifies traceability: live feature/rule assignments, task links and valid references in code, tests and data. Annotations are optional and may describe a module or suite. They establish neither behavioural test coverage nor complete implementation.
+  - **Owner OK:** 8 October 2026.
+  Parts delivered across stages may keep one stable ID. The note states proved behaviour and remaining acceptance; full acceptance stays open until its checks pass. Review flags work linked to a changed requirement for re-checking.
+  - **Check:** undefined or retired referenced IDs, malformed documents and unmapped planned items fail. At stage close, review examines actual outcomes for built features/rules, blueprint trials (`RES-24`), behaviour scenes (`RES-23`) and promises (`RES-19`).
 
 ## 16. Risks
 
@@ -2728,8 +2726,9 @@ Stage reports review these risks; AI agents may update the ratings there (`RES-0
   - **Response:** short alphas in stages with fixed goals (`PRN-09`, `SCP-16`); the arc ends at copper (`VIS-03`); cuts stay cut (`SCP-21`).
 
 - `RSK-09` **AI-built code drifts** *(Decided)*: Likelihood/impact: medium/high.
+  - **Owner OK:** 8 October 2026.
   - **Signs:** coverage gaps; behaviour contradicting this file; tests quietly weakened.
-  - **Response:** the guide, coverage check, firm pass rules, review and modules (`PRC-06`, `PRC-12`, `RES-09`, `PRC-09`, `PRN-14`).
+  - **Response:** the guide, requirement mapping, behaviour tests, firm pass rules, review and modules (`PRC-06`, `PRC-12`, `RES-09`, `PRC-09`, `PRN-14`).
 
 - `RSK-14` **Tests too big for the cloud** *(Decided)*: Likelihood/impact: medium/medium.
   - **Signs:** long runs unfinished or lost; a pace test over its stated budget (`RES-07`).

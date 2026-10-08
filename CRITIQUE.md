@@ -1,7 +1,7 @@
 # Kindling: evidence and process decisions
 
 The owner adopted the camp-first plan and all 22 first-review proposals on 8 October 2026.
-The remaining question is how much checking and paperwork helps that game get built.
+The owner also approved the testing-policy changes below on 8 October 2026. Further game-scope cuts remain undecided.
 This is a decision note, not another specification. Earlier review detail is preserved in commit `a9da2bf`.
 
 ## What the review established
@@ -26,13 +26,12 @@ The adopted plan reverses that order without another restart.
 
 **Yes: about labels, repeated proof rituals and reporting. No: about deterministic state, saves and recovery.**
 An ID beside a test is useful navigation. It is not evidence that the test establishes the requirement.
-The current checker counts labels and their proximity; it cannot establish that every blueprint, behaviour or acceptance clause is covered.
+The former checker counted labels and their proximity; it could not establish that every blueprint, behaviour or acceptance clause was covered.
 A handwritten “owner OK” in a commit is similarly not an approval mechanism.
 
-The changes below are **recommendations awaiting approval**. They are prepared together in the unapplied `TESTS-PATCH.diff` supplied with the phone summary.
-The live rules still apply until that patch is accepted.
+The changes below are **approved and applied: owner OK 8 October 2026**. PROJECT.md records the approval with each changed decision.
 
-| Rule | Recommendation | Reason |
+| Rule | Approved policy | Reason |
 |---|---|---|
 | IDs in every commit | **Drop the mandate.** Describe the change; cite IDs when useful. | Commit subjects should explain behaviour, not satisfy a second indexing system. |
 | IDs in code and every test | **Loosen.** Keep existing IDs and useful module/suite links; stop requiring one beside every test. | Fifteen annotation failures do not reveal fifteen broken behaviours. Meaningful test names and assertions matter more. |
@@ -44,26 +43,25 @@ The live rules still apply until that patch is accepted.
 | Review each step, then the whole alpha again | **Loosen.** One builder self-review per integrated delivery; independent review at milestone close and for high-risk foundation changes. | Re-reading the same small diff under two names is not two independent protections. |
 | Delivery notes | **Loosen.** Three short sections and the APK link; add material limitations and test results where relevant. | Mandatory “IDs delivered” and separate links sections add formatting, not player understanding. Keep partial acceptance honest. |
 
-No proposed change removes deterministic proof suites, corruption/recovery tests, old-save checks, behavioural assertions, formatting/lint checks, phone evidence or audit triggers.
+No adopted change removes deterministic proof suites, corruption/recovery tests, old-save checks, behavioural assertions, formatting/lint checks, phone evidence or audit triggers.
 The existing implementation failures remain the first camp task; this round does not repair them or weaken their assertions.
-If the patch removes the 15 annotation failures, that means their metadata requirement was deliberately removed—not that gameplay coverage increased.
+The 15 annotation failures disappear because their metadata requirement was deliberately removed; gameplay coverage has not increased.
 
-### What the patch changes
+### Applied policy changes
 
-The patch updates PROJECT, ARCHITECTURE, IMPLEMENTATION and the agent guide together with the checker and its tests.
-It removes commit-message inspection and its dependency on git history; checks document structure directly; validates IDs that are present; retains the plan's requirement map and search command.
+PROJECT, ARCHITECTURE, IMPLEMENTATION and the agent guide now match the changed checker and its tests.
+The checker removes commit-message inspection and its dependency on git history; checks document structure directly; validates IDs that are present; retains the plan's requirement map and search command.
 It stops inferring “tested” from matching labels and stops requiring annotations within four lines of each test.
 Old notes remain valid; new notes need only What is new, What to try, What is rough and an APK link.
 The routine script stops running the checker fixture selftest twice; it remains covered by the tool unit tests.
 
-The patch is one reviewable policy change. It does not add itself to the working tree, rewrite pushed history or repair unrelated source failures.
+This policy change is applied. Pushed history and unrelated source failures are unchanged.
 
 ### The pushed commit exception
 
 Commit `a9da2bf` omitted its required trailer. The owner explicitly authorized an honest repair without rewriting it.
 `tools/filecheck-known.txt` records that exact historical finding and reason; the output now calls it a documented exception rather than falsely saying it awaits approval.
-Other commit findings still fail under the current policy.
-This small repair is applied independently of the proposed patch, so the document check can pass either way.
+That exception repaired the old policy honestly. The adopted checker no longer inspects commit messages; it checks current document structure directly.
 
 ### What does a delivery cost?
 

@@ -54,7 +54,7 @@ Package `dev.kindling.app`, same release key, increasing version code:
 `(milestone + 1) × 10000 + alpha × 100 + step`, with a = 1.
 Never reuse a distributed code. The committed APK must fit the repository's 50 MiB file limit; a different distribution route or visible compression needs the owner's decision.
 30801 is 51,248,270 bytes (48.87 MiB); its note/checksum in `dist/` identify the actual delivery.
-The note and installable build follow IMPLEMENTATION.md. First-start checks cover deterministic digests, numerical environment, catalogue fingerprints, saved moment and device diagnostics.
+The note has What is new, What to try and What is rough plus the APK link; proved behaviour and remaining checks fit those sections. The installable build follows IMPLEMENTATION.md. First-start checks cover deterministic digests, numerical environment, catalogue fingerprints, saved moment and device diagnostics.
 
 ### A2.4 A fresh cloud session
 
@@ -435,9 +435,9 @@ M3 introduces sounds from actual action/fire; M9 completes sound obligations. Wo
 
 ## A17. Testing and checks
 
-Keep existing routine/delivery/audit policy pending any separately approved process change; IMPLEMENTATION.md owns delivery instructions.
-Routine tests cover native/view/app/tools, accepted deterministic proofs, catalogues and document/coverage checks. Audit adds compiler/architecture/thread/sanitizer/kill/repeat/render stress and runs at stage close or affected foundation changes.
-ID annotations locate evidence; they do not certify full acceptance. Old-save/corruption/determinism regressions remain mandatory.
+Testing policy: owner OK 8 October 2026. Keep the routine/delivery/audit split; IMPLEMENTATION.md owns delivery instructions.
+Routine tests cover native/view/app/tools, accepted deterministic proofs, catalogues and document structure and ID traceability checks. Audit adds compiler/architecture/thread/sanitizer/kill/repeat/render stress and runs at stage close or affected foundation changes.
+Optional ID annotations locate evidence; they do not certify full acceptance. Old-save/corruption/determinism regressions remain mandatory.
 
 ### A17.0 Traps met so far
 
@@ -504,7 +504,7 @@ History's current 68-byte records threaten the full 4 GB target; measure actual 
 The first streaming benchmark sampled preceding frames and its readiness timings are invalid. Rerun after aligning below-2-density ground-slot readiness and frame completion; receiver skipping below that density has no final timing proof.
 
 Whole α2.9a review remains open, including committed changes after accepted α2.8a; native 57/57 alone does not accept the step.
-The current routine baseline fails formatting/lint, 15 test annotations and two app cases (fixture orientation and terrain selection). IMPLEMENTATION.md begins with repair; no passing check is claimed here.
+The reviewed routine baseline fails formatting/lint, two app cases (fixture orientation and terrain selection). IMPLEMENTATION.md begins with repair; no passing check is claimed here.
 
 Wide data exist, but tiny figures/group/camp art, transitions, ecology details and named wide navigation are unfinished. `wide_study.gd` is only a study.
 Explore can overflow landscape; the source viewer overlays the scene. Recent screen fixes need fresh captures. Owner reported tiny/busy UI, grass stripes, questionable birch/boulder/tent shadows and duplicated Camp title; no all-screen approval exists.

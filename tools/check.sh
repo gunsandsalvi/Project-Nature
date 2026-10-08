@@ -2,7 +2,7 @@
 # Routine merge/delivery checks (PRC-10, A17); --audit adds the expensive foundation audit.
 # Usage: tools/check.sh [--deliver] [--audit]
 # Routine: formats/lints, host builds/tests, M1 proofs on one/four threads, catalogue,
-# Godot import/scripts/tests, tools, file/coverage, and the existing signed APK for delivery.
+# Godot import/scripts/tests, tools, documents/IDs, and the existing signed APK for delivery.
 # Audit: other compilers/emulation/sanitizers, shuffled ties, kill/scenes/repeat, native
 # code scans/lint, the long Godot benchmark and (with --deliver) a second throwaway-key export.
 # Ends with "Checks: PASS <commit>"; generated files stay in ignored folders.
@@ -294,8 +294,7 @@ tools_step() {
   KD_CHECK_QUICK=$((1 - AUDIT)) python3 -m unittest discover -s tools/tests >"$TMP/unit" 2>&1 || { cat "$TMP/unit"; exit 1; }
   echo "   $(sed -n 's/^Ran \([0-9]*\) tests.*/\1/p' "$TMP/unit") tool tests passed"
   quiet python3 tools/signing-key.py selftest
-  SELF="$(python3 tools/filecheck.py selftest)" || { echo "$SELF"; exit 1; }
-  echo "   ${SELF##*$'\n'}"
+  # test_filecheck.py already runs the clean and malformed fixtures.
 }
 
 # The C++ tests run beside the Godot and tool steps, which need only what 3 built; the tool step follows Godot's, since
@@ -327,7 +326,7 @@ STEP_T=$(date +%s)
 step "6 file check"
 python3 tools/filecheck.py file
 
-step "7 coverage"
+step "7 ID traceability"
 python3 tools/filecheck.py ids --merge
 
 if [ "$DELIVER" = 1 ]; then

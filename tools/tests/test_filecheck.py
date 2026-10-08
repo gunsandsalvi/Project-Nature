@@ -1,5 +1,4 @@
-"""tools/filecheck.py: the file, commit and coverage checks, the note check and the item search (PRC-07, PRC-10,
-PRC-11, PRC-12)."""
+"""Document structure, ID traceability, delivery notes and item search (PRC-10, PRC-11, PRC-12)."""
 
 import contextlib
 import importlib.util
@@ -8,6 +7,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("filecheck", os.path.join(HERE, "..", "filecheck.py"))
@@ -22,7 +22,8 @@ class Selftest(unittest.TestCase):
         with contextlib.redirect_stdout(out):
             code = filecheck.selftest()
         self.assertEqual(code, 0, out.getvalue())
-        self.assertGreaterEqual(len(filecheck.PLANTED), 25)
+        cases = {case[0] for case in filecheck.PLANTED}
+        self.assertTrue({"twice", "section", "code names retired", "not mapped"} <= cases)
         self.assertEqual(len({p[2] for p in filecheck.PLANTED}), len(filecheck.PLANTED), "one message a fault")
 
 
@@ -85,80 +86,80 @@ class Scan(unittest.TestCase):
 
 
 class Note(unittest.TestCase):
-    # checks: PRC-11
-    def test_headings_and_apk_link(self):
+    def test_short_note_and_old_full_note_both_pass(self):
         note = (
-            "# α00\n\n## What is new\n\n## What to try\n\n## What is rough\n\n## IDs delivered\n\n## Links\n\n"
+            "# α00\n\n## What is new\nA camp.\n\n## What to try\nOpen it.\n\n"
+            "## What is rough\nLighting.\n\n"
             "- APK: https://github.com/o/r/raw/branch/dist/kindling.apk\n"
         )
         self.assertEqual(filecheck.check_note(note), [])
-        self.assertEqual(filecheck.check_note(note.replace("## Links", "## Where")), ["no heading 'Links'"])
+        self.assertEqual(filecheck.check_note(note + "\n## IDs delivered\n\n## Links\n"), [])
+        self.assertEqual(filecheck.check_note(note.replace("## What to try", "## Other")), ["no heading 'What to try'"])
         self.assertEqual(
             filecheck.check_note(note.replace("kindling.apk", "other.apk")), ["no link to dist/kindling.apk"]
         )
 
 
-class Commit(unittest.TestCase):
-    OLD = (
-        "# K\n\n## 1. One\n\n- `ONE-01` **First** *(Decided)*: Its words.\n\n"
-        "- `ONE-02` **Second** *(Proposed)*: More.\n"
-    )
+class Documents(unittest.TestCase):
+    def test_file_command_works_without_a_git_repository_or_commit_message(self):
+        clean = os.path.join(filecheck.FIXTURES, "clean")
+        with tempfile.TemporaryDirectory() as root:
+            for name in filecheck.DOCUMENTS:
+                shutil.copyfile(os.path.join(clean, name), os.path.join(root, name))
+            with mock.patch.object(filecheck, "ROOT", root), contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(filecheck.main(["file"]), 0, out.getvalue())
+            self.assertIn("File check: OK", out.getvalue())
+            plan = os.path.join(root, "IMPLEMENTATION.md")
+            with open(plan, "w") as f:
+                f.write(filecheck.read(os.path.join(clean, "IMPLEMENTATION.md")).replace("**Tests:**", "**Other:**"))
+            with mock.patch.object(filecheck, "ROOT", root), contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(filecheck.main(["file"]), 1)
+            self.assertIn("not the six in order", out.getvalue())
 
-    def check(self, message, new):
-        return filecheck.check_commit("0" * 40, message, self.OLD, new)
 
-    # checks: PRC-07
-    def test_made_decided_needs_the_owner(self):
-        decided = self.OLD.replace("*(Proposed)*", "*(Decided)*")
-        problems = self.check("x\n\nChanged: ONE-02 (agreed)\n", decided)
-        self.assertEqual(len(problems), 1, problems)
-        self.assertIn("ONE-02 as Decided with no `owner OK`", problems[0])
-        self.assertEqual(self.check("x\n\nChanged: ONE-02 (agreed; owner OK, 3 October 2026)\n", decided), [])
-        # A reason may run onto the next line, inside its brackets.
-        self.assertEqual(self.check("x\n\nChanged: ONE-02 (agreed; owner OK, 3\nOctober 2026)\n", decided), [])
-        # Removing a decided item needs the OK too.
-        gone = self.OLD.replace("- `ONE-01` **First** *(Decided)*: Its words.\n\n", "")
-        self.assertIn("no `owner OK`", " ".join(self.check("x\n\nChanged: ONE-01 (cut)\n", gone)))
+class Traceability(unittest.TestCase):
+    def test_unannotated_tests_still_count_without_claiming_requirement_coverage(self):
+        files = filecheck.fixture(os.path.join(filecheck.FIXTURES, "clean"))
+        for path, marker in (
+            ("sim/tests/one_test.cpp", "// checks:"),
+            ("game/test/one_test.gd", "# checks:"),
+            ("tools/tests/test_one.py", "# checks:"),
+        ):
+            files[path] = "\n".join(line for line in files[path].split("\n") if not line.strip().startswith(marker))
+        problems, summary = filecheck.coverage(files)
+        self.assertEqual(problems, [])
+        self.assertIn("1 C++, 1 gdUnit4 and 1 Python tests", summary)
 
-    # checks: PRC-07
-    def test_reasons_and_what_needs_no_owner(self):
-        # A proposal reworded needs a reason but no OK; a decided item rewrapped changes no words.
-        reworded = self.OLD.replace("More.", "More words.")
-        self.assertEqual(self.check("x\n\nChanged: ONE-02 (clearer)\n", reworded), [])
-        rewrapped = self.OLD.replace("Its words.", "Its\n  words.")
-        self.assertEqual(self.check("x\n\nChanged: ONE-01 (rewrapped)\n", rewrapped), [])
-        bare = self.check("x\n\nChanged: ONE-02\n", reworded)
-        self.assertEqual(len(bare), 1, bare)
-        self.assertIn("gives no reason in brackets", bare[0])
-        self.assertIn("gives no reason", " ".join(self.check("x\n\nChanged: ONE-02 (ONE-01)\n", reworded)))
+    def test_optional_annotation_can_describe_a_suite_and_is_still_validated(self):
+        clean = filecheck.fixture(os.path.join(filecheck.FIXTURES, "clean"))
+        path = "sim/tests/one_test.cpp"
+        moved = dict(clean)
+        moved[path] = moved[path].replace("// checks: ONE-01", "// checks: ONE-01\n" + "\n" * 6)
+        self.assertEqual(filecheck.coverage(moved)[0], [])
+        for bad_id, message in (("ONE-08", "is not defined"), ("ONE-09", "retired")):
+            with self.subTest(bad_id=bad_id):
+                files = dict(moved)
+                files[path] = files[path].replace("// checks: ONE-01", "// checks: " + bad_id)
+                problems, _ = filecheck.coverage(files)
+                self.assertEqual(len(problems), 1, problems)
+                self.assertIn(message, problems[0])
+
+    def test_partial_implementation_label_does_not_require_a_matching_test_label(self):
+        files = filecheck.fixture(os.path.join(filecheck.FIXTURES, "clean"))
+        files["sim/src/one.cpp"] += "\n/// Implements ONE-03 (first increment only)\n"
+        self.assertEqual(filecheck.coverage(files)[0], [])
+        files["game/one.gd"] = files["game/one.gd"].replace("## Implements ONE-02", "## A plainly named module")
+        self.assertEqual(filecheck.coverage(files)[0], [])
 
 
 class Proposals(unittest.TestCase):
-    OLD = Commit.OLD
-
-    # checks: PRC-07
-    def test_a_proposal_needs_a_reason_not_the_owner(self):
-        proposed = self.OLD.replace("Its words.\n", "Its words.\n  - **Proposed change:** New words.\n    Why: x.\n")
-        self.assertEqual(
-            filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (proposed: new words)\n", self.OLD, proposed), []
-        )
-        # Words changed beside the proposal still need the owner.
-        both = proposed.replace("Its words.", "Its other words.")
-        problems = filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (proposed)\n", self.OLD, both)
-        self.assertTrue(any("no `owner OK`" in p for p in problems), problems)
-        # The owner's OK replaces the text: the proposal goes, the new words stay, with the OK named.
-        decided = self.OLD.replace("Its words.", "New words.")
-        self.assertEqual(
-            filecheck.check_commit("0" * 40, "x\n\nChanged: ONE-01 (new words; owner OK)\n", proposed, decided), []
-        )
-
-    # checks: PRC-07 PRC-10
     def test_a_decided_item_with_a_proposal_is_listed(self):
-        proposed = self.OLD.replace("Its words.\n", "Its words.\n  - **Proposed change:** New words.\n    Why: x.\n")
+        project = "- `ONE-01` **First** *(Decided)*: Its words.\n- `ONE-02` **Second** *(Proposed)*: More.\n"
+        proposed = project.replace("Its words.\n", "Its words.\n  - **Proposed change:** New words.\n    Why: x.\n")
         items, _ = filecheck.items_of(proposed)
         self.assertEqual(filecheck.generated_lists(proposed, items)["proposals"], ["ONE-01", "ONE-02"])
-        items, _ = filecheck.items_of(self.OLD)
-        self.assertEqual(filecheck.generated_lists(self.OLD, items)["proposals"], ["ONE-02"])
+        items, _ = filecheck.items_of(project)
+        self.assertEqual(filecheck.generated_lists(project, items)["proposals"], ["ONE-02"])
 
 
 class Lists(unittest.TestCase):

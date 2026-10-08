@@ -1,27 +1,23 @@
 #!/usr/bin/env python3
 """Text checks over the repository (A17).
 
-    python3 tools/filecheck.py file                the file check (PRC-10) and the commit check (PRC-07)
-    python3 tools/filecheck.py ids --merge         the coverage check (PRC-12)
+    python3 tools/filecheck.py file                the document structure check (PRC-10)
+    python3 tools/filecheck.py ids --merge         the ID traceability check (PRC-12)
     python3 tools/filecheck.py where <ID>          where the code does an item: every line naming it (PRC-12)
-    python3 tools/filecheck.py note                dist/NOTE.md's five headings and its APK link (PRC-11)
+    python3 tools/filecheck.py note                dist/NOTE.md's three headings and APK link (PRC-11)
     python3 tools/filecheck.py selftest            each planted fault fails with its own message; the clean
                                                    fixture passes (PRC-12)
 
-The code is the index: code names the items it implements and tests the items they check, so `where` finds any
-item's code, and no document keeps a list of where things are done.
+Optional IDs in code and tests help `where` find relevant work. They do not prove that an item is complete.
 
 The file check reads PROJECT.md's item markers, statuses, IDs (unique, never retired ones) and generated lists;
 every ID and architecture section the three documents cite; the plan's milestones (`## M1 ...`, four fields each,
 in order) and steps (`### α1.2b ...`, six fields each, under their own milestone, serving only its items, with
-task IDs of their own); and every commit since main that changes PROJECT.md. Documented exceptions sit in
-tools/filecheck-known.txt. Python's standard library only.
+task IDs of their own). Documented exceptions sit in tools/filecheck-known.txt. Python's standard library only.
 """
 
-import difflib
 import os
 import re
-import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,7 +48,7 @@ FIELD = re.compile(r"^\*\*([A-Z][^*:]*?):\*\*")
 TASK = re.compile(r"^\d+\. `([^`]+)`")
 TASK_ID = re.compile(r"T\d{1,2}\.\d{1,2}[a-e]?\.\d+")
 GENERATED = re.compile(r"<!-- generated: ([a-z ]+) -->\n(.*?)<!-- end generated -->", re.S)
-NOTE_HEADINGS = ["What is new", "What to try", "What is rough", "IDs delivered", "Links"]
+NOTE_HEADINGS = ["What is new", "What to try", "What is rough"]
 RULES_HEADING = "## Rules every alpha keeps"
 
 
@@ -312,42 +308,7 @@ def check_plan(plan):
     return problems
 
 
-# The commit check (PRC-07).
-
-
-def changed_ids(old, new):
-    """The IDs whose item lines differ between two versions of PROJECT.md."""
-    old_items, _ = items_of(old)
-    new_items, _ = items_of(new)
-
-    def owner(items, line):
-        return next((i.id for i in items.values() if i.start <= line <= i.end), None)
-
-    ids = set()
-    a, b = old.split("\n"), new.split("\n")
-    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes():
-        if tag != "equal":
-            ids.update(owner(old_items, i) for i in range(i1, i2))
-            ids.update(owner(new_items, j) for j in range(j1, j2))
-    ids.discard(None)
-    return ids
-
-
-CHANGED = re.compile(rf"^Changed:\s*(?P<ids>{ID}(?:,\s*{ID})*)\s*\((?P<why>.*)\)$", re.S)
-
-
-def changed_entries(message):
-    """A commit message's `Changed:` entries, each with the lines its brackets run onto, joined by spaces."""
-    entries, current = [], None
-    for line in message.split("\n"):
-        if line.strip().startswith("Changed:"):
-            current = [line.strip()]
-            entries.append(current)
-        elif current is not None and " ".join(current).count("(") > " ".join(current).count(")"):
-            current.append(line.strip())
-        else:
-            current = None
-    return [" ".join(e) for e in entries]
+# Proposed changes remain separate from accepted decisions (PRC-07).
 
 
 PROPOSED_CHANGE = "**Proposed change:**"
@@ -370,64 +331,8 @@ def proposal_lines(lines, item):
     return out
 
 
-def item_words(project, item):
-    """An item's text with its spacing evened and its proposed changes left out, so a blank line, a rewrapped
-    sentence or a proposal changes none of its words."""
-    lines = project.split("\n")
-    skip = proposal_lines(lines, item)
-    return " ".join(" ".join(lines[i] for i in range(item.start, item.end + 1) if i not in skip).split())
-
-
-def needs_owner(old, new):
-    """The IDs whose words a change makes or changes while Decided, or takes from Decided (PRC-07)."""
-    old_items, _ = items_of(old)
-    new_items, _ = items_of(new)
-    out = set()
-    for id_ in set(old_items) | set(new_items):
-        a, b = old_items.get(id_), new_items.get(id_)
-        if "Decided" not in (a and a.status, b and b.status):
-            continue
-        if a is None or b is None or item_words(old, a) != item_words(new, b):
-            out.add(id_)
-    return out
-
-
-def check_commit(sha, message, old, new):
-    """A commit changing PROJECT.md names every ID whose lines it changed on its `Changed:` lines, each with its
-    reason in brackets, and the owner's OK for every item it makes Decided or changes while Decided (PRC-07); a
-    **Proposed change:** beneath a decided item needs only its reason.
-    Implements PRC-07, see A17."""
-    entries = changed_entries(message)
-    if not entries:
-        return [f"commit {sha[:12]} changes PROJECT.md with no `Changed:` line (PRC-07)"]
-    problems, named, approved, unreasoned = [], set(), set(), set()
-    for e in entries:
-        ids = set(ID_RE.findall(e))
-        named |= ids
-        m = CHANGED.match(e)
-        if not m or not ID_RE.sub("", m.group("why")).strip(" ,;:"):
-            unreasoned |= ids
-            problems.append(f"commit {sha[:12]}: `{e[:60]}` gives no reason in brackets after its IDs (PRC-07)")
-        elif "owner OK" in m.group("why"):
-            approved |= set(ID_RE.findall(m.group("ids")))
-    missing = sorted(changed_ids(old, new) - named)
-    if missing:
-        problems.append(
-            f"commit {sha[:12]} changes {', '.join(missing)} in PROJECT.md without naming them on `Changed:`"
-        )
-    # An ID left unnamed, or named without a reason, has failed already.
-    unapproved = sorted((needs_owner(old, new) & named) - approved - unreasoned)
-    if unapproved:
-        problems.append(
-            f"commit {sha[:12]} makes or changes {', '.join(unapproved)} as Decided with no `owner OK` "
-            "in its reason (PRC-07)"
-        )
-    return problems
-
-
-def file_check(project, arch, plan, commits):
-    """The whole file check: (problems, item count, citation count). `commits` holds (sha, message, PROJECT.md
-    before, PROJECT.md after) for each commit to check."""
+def file_check(project, arch, plan):
+    """Document structure check: (problems, item count, citation count). Approval is recorded in the decisions."""
     items, problems, count = check_project(project)
     gone = retired(project)
     sections = set(ARCH_HEADING.findall(arch))
@@ -436,12 +341,10 @@ def file_check(project, arch, plan, commits):
         problems += p
         count += c
     problems += check_plan(plan)
-    for sha, message, old, new in commits:
-        problems += check_commit(sha, message, old, new)
     return problems, len(items), count
 
 
-# The coverage check (PRC-12, A17).
+# The ID traceability check (PRC-12, A17).
 
 # Where the code that names items lives, and how each language names them (the plan's Conventions): C++, shaders and
 # the Android plug-in with `///` and `// checks:`; GDScript with `##` and `# checks:`; Python and shell with
@@ -453,16 +356,11 @@ HASH = (".py", ".sh")
 SCANNED = ("game", "view", "sim", "data", "android", "tools")
 SKIPPED = {"build", ".godot", "addons", "thirdparty", "godot-cpp", ".gradle", "__pycache__"}
 CHECKS_SETTING = re.compile(r"^\s*checks\s*=\s*\[([^\]]*)\]")
-# How each kind of test begins, the line among the four above it that must name what it checks, and its name in
-# messages: a doctest TEST_CASE, a gdUnit4 test (in a GdUnitTestSuite), a Python unittest.
+# Test starts are counted for the report; annotations are optional.
 TESTS = {
-    "cpp": (
-        re.compile(r"^\s*(?:TEST_CASE|TEST_CASE_FIXTURE|TEST_CASE_TEMPLATE|SCENARIO)\s*\("),
-        "// checks:",
-        "a doctest TEST_CASE",
-    ),
-    "gd": (re.compile(r"^func test_"), "# checks:", "a gdUnit4 test"),
-    "py": (re.compile(r"^\s*def test_"), "# checks:", "a Python test"),
+    "cpp": re.compile(r"^\s*(?:TEST_CASE|TEST_CASE_FIXTURE|TEST_CASE_TEMPLATE|SCENARIO)\s*\("),
+    "gd": re.compile(r"^func test_"),
+    "py": re.compile(r"^\s*def test_"),
 }
 
 
@@ -513,21 +411,10 @@ def test_kind(path, text):
     return None
 
 
-def unnamed_tests(path, text):
-    """(count of tests, problems) for a file: each test needs a checks line naming an ID among the four lines above
-    it."""
+def count_tests(path, text):
+    """Count recognized test starts for the report, without requiring ID comments."""
     kind = test_kind(path, text)
-    if kind is None:
-        return 0, []
-    start, marker, what = TESTS[kind]
-    lines, count, problems = text.split("\n"), 0, []
-    for i, line in enumerate(lines):
-        if start.match(line):
-            count += 1
-            above = [x.strip() for x in lines[max(0, i - 4) : i]]
-            if not any(x.startswith(marker) and ID_RE.search(x) for x in above):
-                problems.append(f"{path}:{i + 1}: {what} with no `{marker}` line in the four lines above")
-    return count, problems
+    return sum(bool(TESTS[kind].match(line)) for line in text.split("\n")) if kind else 0
 
 
 def section_of(plan, heading):
@@ -564,12 +451,12 @@ def serves(plan):
 
 
 def coverage(files):
-    """The coverage check over a repository given as {path: text}: (problems, a summary).
+    """The ID traceability check over {path: text}: (problems, a summary).
     Implements PRC-12, see A17."""
     project, plan = files["PROJECT.md"], files["IMPLEMENTATION.md"]
     items, _ = items_of(project)
     gone, kinds = retired(project), kinds_of(project, items)
-    problems, tested, implemented, named, tests = [], set(), set(), 0, {"cpp": 0, "gd": 0, "py": 0}
+    problems, implemented, named, tests = [], set(), 0, {"cpp": 0, "gd": 0, "py": 0}
     for path in sorted(p for p in files if p not in DOCUMENTS):
         text = files[path]
         # Every ID named in code, tests, catalogues and scenes is a live item.
@@ -582,13 +469,11 @@ def coverage(files):
                     problems.append(f"{path}:{n}: names the retired `{x}`")
                 elif x not in items:
                     problems.append(f"{path}:{n}: `{x}` is not defined in PROJECT.md")
-                else:
-                    (tested if kind == "checks" else implemented).add(x)
-        # Every test names what it checks on a checks line among the four lines above it.
-        count, unnamed = unnamed_tests(path, text)
+                elif kind == "implements":
+                    implemented.add(x)
+        count = count_tests(path, text)
         if count:
             tests[test_kind(path, text)] += count
-        problems += unnamed
     # Every task names an item.
     tasks = tasks_of(plan)
     for t, n, text in tasks:
@@ -605,19 +490,16 @@ def coverage(files):
                 f"`{it.id}` ({kinds[it.id].lower()}) is not mapped: no milestone's or step's Serves line "
                 f"names it, nor {RULES_HEADING}, nor an Implements line"
             )
-    # Every ID code implements, the kept rules aside, is named by a test, a scene or a catalogue entry.
-    for x in sorted(implemented - kept - tested):
-        problems.append(f"`{x}` is implemented in code, but no test, scene or catalogue entry names it")
     summary = (
         f"{named} IDs named in code and tests; {tests['cpp']} C++, {tests['gd']} gdUnit4 and {tests['py']} Python "
         f"tests; {len(tasks)} tasks, "
-        f"{len(live)} features and rules mapped, {len(implemented)} IDs implemented in code"
+        f"{len(live)} features and rules mapped, {len(implemented)} IDs named by Implements lines"
     )
     return problems, summary
 
 
 def repo_files(root=ROOT):
-    """{path: text} for PROJECT.md, IMPLEMENTATION.md and every source the coverage check reads."""
+    """{path: text} for the project, plan and every source the ID check reads."""
     files = {p: read(os.path.join(root, p)) for p in ("PROJECT.md", "IMPLEMENTATION.md")}
     for top in SCANNED:
         for dirpath, dirnames, filenames in os.walk(os.path.join(root, top)):
@@ -634,7 +516,7 @@ def repo_files(root=ROOT):
 
 
 def check_note(text):
-    """Problems with an alpha's note: its five headings, and a link to the APK."""
+    """Problems with an alpha's note: three useful headings and an APK link."""
     headings = {m.strip() for m in re.findall(r"^#{1,6}\s+(.+)$", text, re.M)}
     problems = [f"no heading '{h}'" for h in NOTE_HEADINGS if h not in headings]
     if not re.search(r"https?://\S+/dist/kindling\.apk\b", text):
@@ -659,7 +541,7 @@ def edit(text, old, new):
     return text.replace(old, new, 1)
 
 
-# (name, the fault: {path: (old, new)}, or a "commit" message, the message it must give alone).
+# (name, the fault: {path: (old, new)}, the message it must give alone).
 EXTRA = "- `CTX-01` **Background** *(Decided)*: Context only."
 PLANTED = [
     ("not an ID", {"PROJECT.md": (EXTRA, EXTRA + "\n- `CTX1` **Extra** *(Decided)*: x.")}, "is not an ID"),
@@ -708,26 +590,6 @@ PLANTED = [
     ),
     ("proposals", {"PROJECT.md": ("**Second** *(Decided)*", "**Second** *(Proposed)*")}, "'proposals' is not current"),
     (
-        "no Changed line",
-        {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n"},
-        "with no `Changed:` line",
-    ),
-    (
-        "Changed misses one",
-        {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-01 (x)\n"},
-        "changes ONE-02 in PROJECT.md without naming",
-    ),
-    (
-        "Changed without reason",
-        {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-02\n"},
-        "gives no reason in brackets",
-    ),
-    (
-        "Decided without OK",
-        {"PROJECT.md": ("Its words.", "Its new words."), "commit": "Edit\n\nChanged: ONE-02 (new words)\n"},
-        "with no `owner OK`",
-    ),
-    (
         "proposal unlisted",
         {"PROJECT.md": ("Its words.", "Its words.\n  - **Proposed change:** New words.\n    Why: x.")},
         "it should list ONE-02",
@@ -753,40 +615,20 @@ PLANTED = [
         "names the retired `ONE-09`",
     ),
     ("empty checks", {"data/one.toml": ('checks = ["ONE-01"]', "checks = []")}, "a checks line names no ID"),
-    (
-        "C++ test without checks",
-        {"sim/tests/one_test.cpp": ("// checks: ONE-01\n", "")},
-        "a doctest TEST_CASE with no `// checks:` line",
-    ),
-    (
-        "gdUnit4 test without checks",
-        {"game/test/one_test.gd": ("# checks: ONE-02\n", "")},
-        "a gdUnit4 test with no `# checks:` line",
-    ),
-    (
-        "Python test without checks",
-        {"tools/tests/test_one.py": ("# checks: ONE-01 ONE-02\n", "")},
-        "a Python test with no `# checks:` line",
-    ),
     ("task without item", {"IMPLEMENTATION.md": ("(`ONE-02`, A1.1)", "(A1.1)")}, "task T1.1a.2 names no item"),
     (
         "not mapped",
         {"IMPLEMENTATION.md": ("**Serves:** `ONE-03`.", "**Serves:** none.")},
         "`ONE-03` (feature) is not mapped",
     ),
-    (
-        "implemented untested",
-        {"sim/src/one.cpp": ("/// Implements ONE-01", "/// Implements ONE-01 ONE-03")},
-        "`ONE-03` is implemented in code, but no test",
-    ),
 ]
 
 
-# (name, a change that must pass: {path: (old, new) or a list of them, "commit": its message}).
+# (name, a change that must pass: {path: (old, new) or a list of them}).
 PROPOSAL = "Its words.\n  - **Proposed change:** New words.\n    Why: x."
 ACCEPTED = [
     (
-        "a proposal needs a reason, not the owner's OK",
+        "a proposal remains listed separately from the accepted words",
         {
             "PROJECT.md": [
                 ("Its words.", PROPOSAL),
@@ -795,7 +637,6 @@ ACCEPTED = [
                     "<!-- generated: proposals -->\n- **Second** (`ONE-02`): new words.",
                 ),
             ],
-            "commit": "Propose\n\nChanged: ONE-02 (a proposed change: new words)\n",
         },
     ),
 ]
@@ -803,14 +644,10 @@ ACCEPTED = [
 
 def run_case(clean, faults):
     files = dict(clean)
-    commits = []
     for path, change in faults.items():
-        if path != "commit":
-            for old, new in change if isinstance(change, list) else [change]:
-                files[path] = edit(files[path], old, new)
-    if "commit" in faults:
-        commits = [("0" * 40, faults["commit"], clean["PROJECT.md"], files["PROJECT.md"])]
-    problems, _, _ = file_check(files["PROJECT.md"], files["ARCHITECTURE.md"], files["IMPLEMENTATION.md"], commits)
+        for old, new in change if isinstance(change, list) else [change]:
+            files[path] = edit(files[path], old, new)
+    problems, _, _ = file_check(files["PROJECT.md"], files["ARCHITECTURE.md"], files["IMPLEMENTATION.md"])
     return problems + coverage(files)[0]
 
 
@@ -833,8 +670,8 @@ def selftest():
         failures += bool(problems)
         print(("ok   " if not problems else "FAIL ") + f"{name}: " + ("; ".join(problems) or "passes"))
     print(
-        f"Selftest: OK ({len(PLANTED)} planted faults each fail alone; the clean fixture and {len(ACCEPTED)} "
-        "accepted change pass)"
+        f"Selftest: OK ({len(PLANTED)} planted faults each fail alone; the clean fixture and "
+        f"all {len(ACCEPTED)} accepted cases pass)"
         if not failures
         else f"Selftest: FAIL ({failures})"
     )
@@ -847,21 +684,6 @@ def selftest():
 def read(path):
     with open(path, encoding="utf-8") as f:
         return f.read()
-
-
-def git(*args):
-    return subprocess.run(["git", "-C", ROOT, *args], check=True, capture_output=True, text=True).stdout
-
-
-def show(rev, path):
-    r = subprocess.run(["git", "-C", ROOT, "show", f"{rev}:{path}"], capture_output=True, text=True)
-    return r.stdout if r.returncode == 0 else ""
-
-
-def commits_changing(path):
-    """(sha, message, before, after) for each commit since main, merges aside, that changes a file."""
-    shas = git("log", "--no-merges", "--format=%H", "origin/main..HEAD", "--", path).split()
-    return [(s, git("log", "-1", "--format=%B", s), show(f"{s}^", path), show(s, path)) for s in shas]
 
 
 def known_findings():
@@ -913,22 +735,16 @@ def where(item, files=None):
 
 def main(argv):
     if argv == ["file"]:
-        try:
-            git("rev-parse", "--verify", "-q", "origin/main")
-        except subprocess.CalledProcessError:
-            print("File check: fetch main first: git fetch origin +refs/heads/main:refs/remotes/origin/main")
-            return 1
-        commits = commits_changing("PROJECT.md")
         docs = [read(os.path.join(ROOT, d)) for d in DOCUMENTS]
-        problems, n, m = file_check(*docs, commits)
+        problems, n, m = file_check(*docs)
         return report(
             "File check",
             problems,
-            f"File check: OK ({n} items, {m} citations, {len(commits)} commits changing PROJECT.md)",
+            f"File check: OK ({n} items, {m} citations)",
         )
     if argv == ["ids", "--merge"]:
         problems, summary = coverage(repo_files())
-        return report("Coverage", problems, f"Coverage: OK ({summary})")
+        return report("IDs", problems, f"IDs: OK ({summary})")
     if argv == ["note"]:
         path = os.path.join(ROOT, "dist", "NOTE.md")
         problems = check_note(read(path)) if os.path.exists(path) else ["dist/NOTE.md is missing"]

@@ -44,14 +44,14 @@ Unfinished clauses of early items have these acceptance destinations, even where
 
 For each delivery:
 
-1. Run touched tests while building. Preserve determinism, recovery and old-save regressions; prove new behaviour with outcomes and a relevant planted fault (`PRC-09`).
-2. Run the routine/delivery check once before delivery. Keep its existing audit triggers; do not waive current failures (`PRC-10`).
+1. Run touched tests while building. Preserve determinism, recovery and old-save regressions; prove new behaviour with observable outcomes; reproduce bugs and use faults where risk or uncertain sensitivity warrants them (`PRC-09`).
+2. Self-review the integrated delivery once; obtain independent review before joining for determinism, threading, save-format or recovery changes. Run the routine/delivery check once before delivery. Keep its existing audit triggers; do not waive current failures (`PRC-10`).
 3. Exercise normal navigation, changed views in both orientations and the stated phone route. Keep save compatibility or explain an approved big update. Compare authoritative outcomes across camera use, reopen and worker counts.
-4. Ship the APK and short note: what changed, three things to try, rough edges, results and partial IDs. Only stage reviews wait for the owner.
+4. Ship the APK and short note: what changed, three things to try, rough edges, results and remaining acceptance. Only stage reviews wait for the owner.
 5. At stage close, obtain independent review, due audit/phone measurements and the owner's play review. Ask at most three questions on a five-to-ten-minute route; long measurements run separately.
 
 The baseline repair list is in A17.0. Existing check failures remain open; this document cleanup does not repair them.
-CRITIQUE.md recommends further process changes, but its separate patch is not adopted.
+The owner approved these testing-policy changes on 8 October 2026; CRITIQUE.md records the rationale.
 
 ## M2 A living camp
 
@@ -77,7 +77,7 @@ Extend the existing registry, catalogue and snapshot path; do not create a secon
 
 **Tasks:**
 
-1. `T2.13a.1` Restore the baseline (`PRC-10`, `PRC-12`, `PRE-31`): fix formatting/lints, missing test links, the two failing app cases, reproducible import/UID issues and direct Examples startup. Inspect and repair the texture detach/lifetime paths recorded in A17.0 before relying on their memory limits. Re-run the routine check; preserve assertions unless evidence shows they assert obsolete behaviour and the changed requirement is approved.
+1. `T2.13a.1` Restore the baseline (`PRC-10`, `PRC-12`, `PRE-31`): fix formatting/lints, the two failing app cases, reproducible import/UID issues and direct Examples startup. Inspect and repair the texture detach/lifetime paths recorded in A17.0 before relying on their memory limits. Re-run the routine check; preserve assertions unless evidence shows they assert obsolete behaviour and the changed requirement is approved.
 2. `T2.13a.2` Add a small Person record and camp scene (`BIO-03`, `MAT-01`, `MAT-02`, `RES-21`): stable identities, positions, initial resource quantities and a local traversable patch. Label the bounded scene as Camp alpha. Draw those records with existing projection and simple readable sprites; do not implement needs prematurely in rendering code (`WLD-13`).
 3. `T2.13a.3` Make it the front door (`PRE-32`, `PRE-35`, `PRE-40`, `TIM-04`, `PLT-07`, `PLT-08`, `PLT-09`): select a person, show truthful identity/position, pause/speed, save, reopen, switch and export the actual camp. Keep the old marker world as a regression fixture. Idle or walking people are explicitly not yet a survival simulation.
 
