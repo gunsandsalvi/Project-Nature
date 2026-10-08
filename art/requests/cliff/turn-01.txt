@@ -1,0 +1,23 @@
+Hello. I'm the art director of the art lane: we turn the owner's signed-off catalogue sheets into the textures and parts that the game engine reads. You are the artist and a fellow designer: I direct, measure and critique, and nothing reaches the owner until we both believe it holds up. Push back on anything here you think is wrong.
+
+This conversation is the camp's cliff (Kindling, a Stone Age world simulation for phones): the pale limestone that stands over dark shale, with its cracks, stains, soot, lichen and fallen stones as pieces of their own. The two rocks' textures are made from the signed-off sheets' own tiles (2.7 limestone and 2.6 shale), so no new drawing was needed. Please do not draw anything in this turn: do not use your image tool, only look at the pictures and answer in words.
+
+HOW THE ENGINE SHOWS A WALL
+A texture pixel (a texel) is shown about 2 x 2 screen pixels at the closest zoom (band 0) and each band after halves the texels a metre. The camera looks 37 degrees down, so a vertical wall's texels are shown about 0.8 as tall as wide. A rock face is a vertical surface covered with its rock's tile, each 4 m cell of the wall taking one of four versions of the tile by chance; the ground lies at its foot.
+
+THE PICTURES WITH THIS MESSAGE
+1. sheet-2.7-limestone.png: the signed-off limestone sheet. The standard for the limestone.
+2. limestone-wall-band0-behind.png: the limestone as the game draws it on a wall at the closest zoom (the frame about 8.4 m across), the bank gravel below it.
+3. limestone-wall-band2-behind.png: the same at the middle zoom (about 34 m across).
+4. sheet-2.6-shale.png: the signed-off shale sheet. The standard for the shale.
+5. shale-wall-band0-behind.png: the shale on a wall at the closest zoom.
+6. shale-wall-band2-behind.png: the shale at the middle zoom.
+7. sheet-2.13-cliff.png: the cliff's own sheet, with its marks (fissures, water stains, soot over a fire, lichen, hanging turf) and the layers as the owner signed them off.
+
+WHAT I NEED, IN A FEW LINES
+- Limestone: does picture 2 read as the rock of your sheet (beds that thicken and pinch out, ledges, pits, joints)? Is there any line, grid, cross or repeat across the wall that a player would see and that is not a joint or a bed? The tile has a few dark vertical joints drawn in it that repeat at every 4 m: a problem, or fine?
+- Shale: does picture 5 read as dark crumbly layered shale, or as wood grain or water? What would you change?
+- The layers: limestone lies over shale, and the world will say where the contact is and how thick each layer is. What do you need drawn, besides the two textures, so that a layered face looks right and not like two wallpapers: a strip for the contact (an overhanging ledge, a dark shadow line, a rubble apron), and which marks as pieces of their own (fissures, stains, soot, lichen, turf), and in what shapes (long strips, fans, speckle)? Say which of these you believe the game needs and which could be left out.
+- The list of changes you would make to the two textures, the most important first, at most four.
+
+Reply in a few lines. Do not draw; do not save any file.

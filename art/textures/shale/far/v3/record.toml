@@ -1,0 +1,79 @@
+about = "dark grey-brown shale splitting into thin crumbly layers, broken back into small flaky steps, with faint rust in places; far tile, 64.0 m across, version 3"
+route = "picture"
+tile_texels = 256
+texels_a_metre = 4
+first_band = 4
+sources = ["art/sources/shale/far-sheet.webp", "art/sources/shale/near-sheet.webp"]
+original_sha256 = ["dfdc56374fc86120dc956e8afa1ede8174b6505d9274fa88c267ab299570240d", "328d9a6dbacf280a404c171e3f6ed446b974b8aee6d1ed4a41afda81ee757ae4"]
+c2pa = ["absent", "absent"]
+requests = []
+made = "the sheet's own tiles (each already on the texture-pixel grid, a block of 2 x 2 picture pixels a texture pixel), their versions quilted from them round a shared ring; version 3 of 4, its ring of 4 texture pixels shared with the others so any two join without a seam; levels 0 to 2 designed for the bands it serves"
+regrid_loss = "0.0%: the picture is already on its grid, each block one colour"
+truth = "art lane, 8 October 2026: looked at every level at twice size against A5.6's list; dark layered rock and faint rust only, nothing countable"
+approved = "not offered yet: waiting for the builder's check and your look at the previews"
+
+[[band]]
+level = 0
+file = "art/textures/shale/far/v3/b4.png"
+sha256 = "2db4ca6be10341dbc173155a75ae57052f23fbe9b588943902df64db8879afbf"
+way = "the tile's picture (a block of 2, loss 0.0%), moved to the reference's colour, its inside quilted from the tile's pictures in patches of 64 round the shared ring"
+regrid_loss = "0.0%"
+calibration = "lightness +0.5; hue -7.7; colourfulness 120%; contrast 100%"
+
+[[band]]
+level = 1
+file = "art/textures/shale/far/v3/b5.png"
+sha256 = "abb082a51fcf6bd390b1b384460a30dbfe0e711c5599175bf8992027beb82a6b"
+made_from = "2db4ca6be10341dbc173155a75ae57052f23fbe9b588943902df64db8879afbf"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.02; lightness -0.0; hue -0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 2
+file = "art/textures/shale/far/v3/b6.png"
+sha256 = "73e9994fe890fd7d936c05b74535eacf6bede1d803fb0e16d0dcde81bbc80aee"
+made_from = "abb082a51fcf6bd390b1b384460a30dbfe0e711c5599175bf8992027beb82a6b"
+way = "by code: the level above averaged and sharpened until its accents match, then calibrated"
+calibration = "unsharp 0.03; lightness -0.0; hue +0.0; colourfulness 100%; contrast 100%"
+
+[[band]]
+level = 3
+file = "art/textures/shale/far/v3/b7.png"
+sha256 = "e5fcf1a4eccd7c07c9fba6f9bf7e556c2f4558af5686b1e6febab7d343b11435"
+made_from = "73e9994fe890fd7d936c05b74535eacf6bede1d803fb0e16d0dcde81bbc80aee"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 4
+file = "art/textures/shale/far/v3/b8.png"
+sha256 = "23673f12185522b4a28ca6bb68912668087b67ed0411608db7d16adb84c15ace"
+made_from = "e5fcf1a4eccd7c07c9fba6f9bf7e556c2f4558af5686b1e6febab7d343b11435"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 5
+file = "art/textures/shale/far/v3/b9.png"
+sha256 = "f35ec985f7e456d90fec69d627c4dabacca34e1c3bbe07de6a73d26b0b7f697a"
+made_from = "23673f12185522b4a28ca6bb68912668087b67ed0411608db7d16adb84c15ace"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 6
+file = "art/textures/shale/far/v3/b10.png"
+sha256 = "fbe7553a662da55eac4619d849e273aa86e81dea1fb80643e65da59027b641e6"
+made_from = "f35ec985f7e456d90fec69d627c4dabacca34e1c3bbe07de6a73d26b0b7f697a"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 7
+file = "art/textures/shale/far/v3/b11.png"
+sha256 = "8257f795a2cc7b2e7e7fb18c91b0a12aba8883fa586c7f66fab4c1501cfe2564"
+made_from = "fbe7553a662da55eac4619d849e273aa86e81dea1fb80643e65da59027b641e6"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
+
+[[band]]
+level = 8
+file = "art/textures/shale/far/v3/b12.png"
+sha256 = "0fbff124420127f3aa64cc786c1f66d61e7b4809adc20449ee92269347be07e2"
+made_from = "8257f795a2cc7b2e7e7fb18c91b0a12aba8883fa586c7f66fab4c1501cfe2564"
+way = "the average of the level above, so the levels run down to one texture pixel; no band shows it"
