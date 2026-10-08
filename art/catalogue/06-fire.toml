@@ -68,16 +68,22 @@ signed_off = "8 October 2026"
 id = "torch"
 name = "Torch"
 what = "a burning torch carried at night"
+sheet = "sheets/6.9-torch.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "ember_carrier"
 name = "Carried embers"
 what = "an ember kept in tinder fungus"
+sheet = "sheets/6.10-ember_carrier.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "tinder_nest"
 name = "Tinder nest"
 what = "an ember blown into flame"
+sheet = "sheets/6.11-tinder_nest.webp"
+signed_off = "8 October 2026"
 
 [[piece]]
 id = "wildfire"
